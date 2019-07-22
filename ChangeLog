@@ -1,3 +1,9 @@
+22-JUL-2019: 11.0.2
+
+- Replaces alt+click with shift+click in ChromeOS
+- Uses draw.io Viewer app for lightbox mode
+- Uses mxGraph 3.7.5 beta 4
+
 20-JUL-2019: 11.0.1
 
 - Fixes math typesetting in legacy embed script

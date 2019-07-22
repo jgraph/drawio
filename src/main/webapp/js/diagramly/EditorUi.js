@@ -3700,8 +3700,21 @@
 					}
 				}
 			}
+			
+			var btn3 = null;
+			var fn3 = null;
+			
+			if (e != null && e.helpLink != null)
+			{
+				btn3 = mxResources.get('help');
+				
+				fn3 = mxUtils.bind(this, function()
+				{
+					return this.editor.graph.openLink(e.helpLink);
+				});
+			}
 	
-			this.showError(title, msg, btn, fn, retry, null, null, null, null,
+			this.showError(title, msg, btn, fn, retry, null, null, btn3, fn3,
 				null, null, null, (invokeFnOnClose) ? fn : null);
 		}
 		else if (fn != null)
@@ -4024,6 +4037,13 @@
 		allowTab = (allowTab != null) ? allowTab : (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
 		var count = this.getServiceCount(allowBrowser);
 		
+		if (isLocalStorage)
+		{
+			count++;
+		}
+		
+		var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
+		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
 			try
@@ -4078,10 +4098,8 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-			null, count > 1, (count > 4 && (!allowBrowser || count < 6)) ? 3 : 4, data, mimeType, base64Encoded);
-		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
-		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
-		this.showDialog(dlg.container, 420, height, true, true);
+			null, count > 1, rowLimit, data, mimeType, base64Encoded);
+		this.showDialog(dlg.container, 400, (count > rowLimit) ? 390 : 270, true, true);
 		dlg.init();
 	};
 	
@@ -4278,6 +4296,13 @@
 		allowTab = (allowTab != null) ? allowTab : !mxClient.IS_IOS || !navigator.standalone;
 		var count = this.getServiceCount(false);
 		
+		if (isLocalStorage)
+		{
+			count++;
+		}
+		
+		var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
+		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
 			if (mode == '_blank' || newTitle != null && newTitle.length > 0)
@@ -4348,7 +4373,7 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
-			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
+			null, count > 1, rowLimit, data, mimeType, base64Encoded);
 		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
 		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
 		this.showDialog(dlg.container, 380, height, true, true);
@@ -13296,9 +13321,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
 				}
 				
-			}, function()
+			}, function(errMsg)
 			{
-				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (errMsg? ': ' + errMsg : ''));
 			});
 		}
 		else

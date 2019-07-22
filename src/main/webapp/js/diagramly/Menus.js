@@ -1969,6 +1969,8 @@
 				}, parent, null, false);
 			}
 			
+			menu.addSeparator(parent);
+			
 			if (editorUi.gitHub != null)
 			{
 				menu.addItem(mxResources.get('github') + '...', null, function()
@@ -2553,6 +2555,8 @@
 				}, parent, null, false);
 			}
 
+			menu.addSeparator(parent);
+			
 			if (editorUi.gitHub != null)
 			{
 				menu.addItem(mxResources.get('github') + '...', null, function()
@@ -2682,6 +2686,8 @@
 					}, parent, null, false);
 				}
 				
+				menu.addSeparator(parent);
+				
 				if (editorUi.gitHub != null)
 				{
 					menu.addItem(mxResources.get('github') + '...', null, function()
@@ -2781,6 +2787,8 @@
 						// do nothing
 					}, parent, null, false);
 				}
+				
+				menu.addSeparator(parent);
 				
 				if (editorUi.gitHub != null)
 				{

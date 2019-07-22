@@ -627,7 +627,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    var isToggleEvent = this.isToggleEvent;
 	    this.isToggleEvent = function(evt)
 	    {
-	    		return isToggleEvent.apply(this, arguments) || mxEvent.isShiftDown(evt);
+	    		return isToggleEvent.apply(this, arguments) || (!mxClient.IS_CHROMEOS && mxEvent.isShiftDown(evt));
 	    };
 	    
 	    // Workaround for Firefox where first mouse down is received
@@ -637,6 +637,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 	    rubberband.isForceRubberbandEvent = function(me)
 	    {
 		    	return isForceRubberBandEvent.apply(this, arguments) ||
+		    		(mxClient.IS_CHROMEOS && mxEvent.isShiftDown(me.getEvent())) ||
 		    		(mxUtils.hasScrollbars(this.graph.container) && mxClient.IS_FF &&
 		    		mxClient.IS_WIN && me.getState() == null && mxEvent.isTouchEvent(me.getEvent()));
 	    };
@@ -1912,11 +1913,11 @@ Graph.prototype.isZoomWheelEvent = function(evt)
 };
 
 /**
- * Adds Alt+click to select cells behind cells.
+ * Adds Alt+click to select cells behind cells (Shift+Click on Chrome OS).
  */
 Graph.prototype.isTransparentClickEvent = function(evt)
 {
-	return mxEvent.isAltDown(evt);
+	return mxEvent.isAltDown(evt) || (mxClient.IS_CHROMEOS && mxEvent.isShiftDown(evt));
 };
 
 /**

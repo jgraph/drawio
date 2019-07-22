@@ -13,13 +13,20 @@ DriveClient = function(editorUi)
 	
 	// New mime type for XML files
 	this.xmlMimeType = 'application/vnd.jgraph.mxfile';
+	this.mimeType = 'application/vnd.jgraph.mxfile.realtime';
 	
 	// Reading files now possible with no initial click in drive
-	if (this.ui.isDriveDomain())
+	if (this.ui.editor.chromeless && !this.ui.editor.editable)
+	{
+		this.appId = '850530949725';
+		this.clientId = '850530949725.apps.googleusercontent.com';
+		this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
+			'https://www.googleapis.com/auth/userinfo.profile'];
+	}
+	else if (this.ui.isDriveDomain())
 	{
 		this.appId = '671128082532';
 		this.clientId = '671128082532.apps.googleusercontent.com';
-		this.mimeType = 'application/vnd.jgraph.mxfile.realtime';
 	}
 	else
 	{

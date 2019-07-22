@@ -408,8 +408,6 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
 	
-	console.log('folderId', folderId);
-	
 	this.getRefIndex(folderId.split('/'), true, mxUtils.bind(this, function(tokens, refPos)
 	{
 		var repoPos = Math.max(refPos - 1, 0);
@@ -605,7 +603,7 @@ GitLabClient.prototype.saveFile = function(file, success, error, overwrite, mess
 	// not have Access-Control-Expose-Headers for X-Gitlab-Last-Commit-Id
 	if (overwrite)
 	{
-		this.getFile(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path, mxUtils.bind(this, function(tempFile)
+		this.getFile(org + '/' + repo + '/' + ref + '/' + path, mxUtils.bind(this, function(tempFile)
 		{
 			file.meta.last_commit_id = tempFile.meta.last_commit_id;
 			fn2();

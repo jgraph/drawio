@@ -135,6 +135,7 @@
 <template url="network/fortinet.xml" libs="general" clibs="fortinet"/>
 <template url="network/internet.xml" libs="general;network"/>
 <template url="network/lan.xml" libs="general;network"/>
+<template url="network/network.xml" libs="general" clibs="Uhttps%3A%2F%2Fjgraph.github.io%2Fdrawio-libs%2Flibs%2F%2Fflat-color-icons.xml"/>
 <template url="network/telecomm.xml" libs="general;network"/>
 <template url="network/veeam.xml" libs="general;veeam"/>
 <template url="network/wireless_home_network.xml" libs="general;network;clipart"/>
