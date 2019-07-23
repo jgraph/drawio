@@ -392,7 +392,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		var recentSelect = document.createElement('select');
 		recentSelect.style.marginTop = '8px';
-		recentSelect.style.width = '140px';
+		recentSelect.style.maxWidth = '170px';
 
 		var titleOption = document.createElement('option');
 		titleOption.setAttribute('value', '');
@@ -4395,7 +4395,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	
 	var btns = document.createElement('div');
 	btns.style.marginTop = (mxClient.IS_QUIRKS) ? '22px' : '14px';
-	btns.style.textAlign = 'right';
+	btns.style.textAlign = 'center';
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -4628,7 +4628,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
-	linkInput.style.width = '440px';
+	linkInput.style.width = '100%';
+	linkInput.style.boxSizing = 'border-box';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
 	linkInput.style.backgroundPosition = '100% 50%';
@@ -4668,7 +4669,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	pageRadio.setAttribute('name', 'current-linkdialog');
 
 	var pageSelect = document.createElement('select');
-	pageSelect.style.width = '420px';
+	pageSelect.style.width = '100%';
 	
 	if (showPages && editorUi.pages != null)
 	{
@@ -4684,7 +4685,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 			urlRadio.defaultChecked = true;
 		}
 		
-		linkInput.style.width = '420px';
 		inner.appendChild(urlRadio);
 		inner.appendChild(linkInput);
 		inner.appendChild(cross);
@@ -4839,7 +4839,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	
 	var btns = document.createElement('div');
 	btns.style.marginTop = '20px';
-	btns.style.textAlign = 'right';
+	btns.style.textAlign = 'center';
 	
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{

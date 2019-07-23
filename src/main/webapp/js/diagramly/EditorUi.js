@@ -6807,6 +6807,13 @@
 			{
 				if (this.isRemoteVisioFormat(filename) && VSD_CONVERT_URL != null) 
 				{
+					if (filename.substring(filename.length - 3, filename.length) === 'vss')
+					{
+						EditorUi.logEvent({category: 'EMF',
+							action: 'vss upload',
+							label: filename});
+					}
+					
 					var formData = new FormData();
 					formData.append('file1', file, filename);
 
@@ -11630,7 +11637,7 @@
 	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
-		this.showDialog(dlg.container, 480, 130, true, true);
+		this.showDialog(dlg.container, 560, 130, true, true);
 		dlg.init();
 	};
 

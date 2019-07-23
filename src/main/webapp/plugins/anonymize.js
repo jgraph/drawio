@@ -26,7 +26,6 @@ Draw.loadPlugin(function(editorUi)
 			}
 		}
 	};
-
 	
 	function anonymizeHtml(html)
 	{
@@ -69,6 +68,13 @@ Draw.loadPlugin(function(editorUi)
 			for (var i = 0; i < queue.length; i++)
 			{
 				model.setValue(queue[i].cell, queue[i].label);
+			}
+						
+			// Change page title
+			if (editorUi.currentPage != null)
+			{
+				model.execute(new RenamePage(editorUi, editorUi.currentPage,
+					editorUi.anonymizeString(editorUi.currentPage.getName())));
 			}
 		}
 		finally

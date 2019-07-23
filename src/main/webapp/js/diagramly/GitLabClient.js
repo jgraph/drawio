@@ -1073,7 +1073,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 							temp.appendChild(createLink(repository.name_with_namespace, mxUtils.bind(this, function()
 							{
 								org = repository.owner.username;
-								repo = repository.name;
+								repo = repository.path;
 								ref = repository.default_branch || 'master';
 								path = '';
 		

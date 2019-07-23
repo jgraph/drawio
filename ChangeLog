@@ -1,3 +1,9 @@
+23-JUL-2019: 11.0.3
+
+- Fixes handling of repository paths in GitLab
+- Ignores hidden cells for selectAll
+- Uses mxGraph 3.7.5 beta 5
+
 22-JUL-2019: 11.0.2
 
 - Replaces alt+click with shift+click in ChromeOS
