@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
@@ -74,8 +75,6 @@ public class ConverterServlet  extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		log.log(Level.CONFIG, "EMF-CONVERT: Request from " + request.getHeader("referer"));
-		
 		readApiKey();
 		
 		String inputformat = null, outputformat = null, fileName = null;
@@ -208,6 +207,18 @@ public class ConverterServlet  extends HttpServlet
 				OutputStream out = response.getOutputStream();
 
 				bytesRead = in.read(data);
+				
+				try
+				{
+					URI uri = new URI(request.getHeader("referer"));
+				    String domain = uri.getHost();
+					log.log(Level.CONFIG, "EMF-CONVERT, domain: " + domain + " ,Filename: " + 
+							fileName != null ? fileName : "" + ", size: " + bytesRead);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
 				
 				while(bytesRead != -1) 
 				{

@@ -6805,15 +6805,29 @@
 			
 			if (this.doImportVisio)
 			{
-				if (this.isRemoteVisioFormat(filename) && VSD_CONVERT_URL != null) 
+				var remote = this.isRemoteVisioFormat(filename);
+				
+				try
 				{
-					if (filename.substring(filename.length - 3, filename.length) === 'vss')
+					var ext = 'UNKNOWN-VISIO';
+					var dot = filename.lastIndexOf('.');
+					
+					if (dot >= 0 && dot < filename.length)
 					{
-						EditorUi.logEvent({category: 'EMF',
-							action: 'vss upload',
-							label: filename});
+						ext = filename.substring(dot + 1).toUpperCase();
 					}
 					
+					EditorUi.logEvent({category: ext + '-IMPORT',
+						action: 'size_' + file.size,
+						label: (remote) ? 'remote' : 'local'});
+				}
+				catch (e)
+				{
+					onerror(e);
+				}
+				
+				if (remote && VSD_CONVERT_URL != null) 
+				{
 					var formData = new FormData();
 					formData.append('file1', file, filename);
 
@@ -12827,7 +12841,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	{
 		var busyImg = document.createElement('img');
 		busyImg.className = 'geCommentBusyImg';
-		busyImg.src= '/images/spin.gif';
+		busyImg.src= IMAGE_PATH + '/spin.gif';
 		commentDiv.appendChild(busyImg);
 		commentDiv.busyImg = busyImg;
 	};
@@ -13195,7 +13209,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	}
 
 	var resolvedLink = link.cloneNode();
-	resolvedLink.innerHTML = '<img src="/images/check.png" style="width: 16px; padding: 2px;">';
+	resolvedLink.innerHTML = '<img src="' + IMAGE_PATH + '/check.png" style="width: 16px; padding: 2px;">';
 	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
 	var resolvedChecked = false;
 	
@@ -13220,7 +13234,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	if (editorUi.commentsRefreshNeeded())
 	{
 		var refreshLink = link.cloneNode();
-		refreshLink.innerHTML = '<img src="/images/update16.png" style="width: 16px; padding: 2px;">';
+		refreshLink.innerHTML = '<img src="' + IMAGE_PATH + '/update16.png" style="width: 16px; padding: 2px;">';
 		refreshLink.setAttribute('title', mxResources.get('refresh'));
 	
 		if (uiTheme == 'dark')
@@ -13242,7 +13256,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	if (editorUi.commentsSaveNeeded())
 	{
 		var saveLink = link.cloneNode();
-		saveLink.innerHTML = '<img src="/images/save.png" style="width: 20px; padding: 2px;">';
+		saveLink.innerHTML = '<img src="' + IMAGE_PATH + '/save.png" style="width: 20px; padding: 2px;">';
 		saveLink.setAttribute('title', mxResources.get('save'));
 	
 		if (uiTheme == 'dark')
@@ -13278,7 +13292,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			commentEditBtns.parentNode.removeChild(commentEditBtns);
 		}
 		
-		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="/images/spin.gif" valign="middle"> ' +
+		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="' + IMAGE_PATH + '/spin.gif" valign="middle"> ' +
 			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
 		
 		canReplyToReplies = editorUi.canReplyToReplies();
