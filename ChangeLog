@@ -1,3 +1,7 @@
+23-JUL-2019: 11.0.4
+
+- Adds timeout handler for Google Drive thumb generation
+
 23-JUL-2019: 11.0.3
 
 - Fixes handling of repository paths in GitLab

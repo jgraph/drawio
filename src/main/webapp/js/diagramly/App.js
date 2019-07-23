@@ -1943,12 +1943,30 @@ App.prototype.createCrcTable = function()
 /**
  * Returns a thumbnail of the current file.
  */
-App.prototype.getThumbnail = function(width, success)
+App.prototype.getThumbnail = function(width, fn)
 {
 	var result = false;
 	
 	try
 	{
+		var acceptResponse = true;
+		
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			acceptResponse = false;
+			fn(null);
+		}), this.timeout);
+		
+		var success = mxUtils.bind(this, function(canvas)
+		{
+			window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				fn(canvas);
+			}
+		});
+		
 		if (this.thumbImageCache == null)
 		{
 			this.thumbImageCache = new Object();
@@ -2111,6 +2129,8 @@ App.prototype.getThumbnail = function(width, success)
 	}
 	catch (e)
 	{
+		result = false;
+		
 		// Removes temporary graph from DOM
   	    if (graph != null && graph != this.editor.graph && graph.container.parentNode != null)
 		{
