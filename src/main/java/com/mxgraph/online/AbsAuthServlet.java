@@ -157,7 +157,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 					}
 				}
 				
-				if (e.getMessage().contains("401"))
+				if (e.getMessage() != null && e.getMessage().contains("401"))
 				{
 					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				}

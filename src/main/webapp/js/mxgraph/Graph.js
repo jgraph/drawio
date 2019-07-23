@@ -6599,6 +6599,16 @@ if (typeof mxVertexHandler != 'undefined')
 				
 				imgExport = (imgExport != null) ? imgExport : this.createSvgImageExport();
 				var imgExportDrawCellState = imgExport.drawCellState;
+
+				// Ignores custom links
+				var imgExportGetLinkForCellState = imgExport.getLinkForCellState;
+				
+				imgExport.getLinkForCellState = function(state, canvas)
+				{
+					var result = imgExportGetLinkForCellState.apply(this, arguments);
+					
+					return (result != null && !state.view.graph.isCustomLink(result)) ? result : null;
+				};
 				
 				// Implements ignoreSelection flag
 				imgExport.drawCellState = function(state, canvas)

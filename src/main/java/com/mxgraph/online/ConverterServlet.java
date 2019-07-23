@@ -9,6 +9,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +29,9 @@ public class ConverterServlet  extends HttpServlet
 {
 	private static final long serialVersionUID = -5084595244442555865L;
 
+	private static final Logger log = Logger
+			.getLogger(HttpServlet.class.getName());
+	
 	private static final int MAX_DIM = 5000;
 	private static final double EMF_10thMM2PXL = 26.458;
 	private static final String API_KEY_FILE_PATH = "/WEB-INF/cloud_convert_api_key";
@@ -69,6 +74,8 @@ public class ConverterServlet  extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
+		log.log(Level.CONFIG, "EMF-CONVERT: Request from " + request.getHeader("referer"));
+		
 		readApiKey();
 		
 		String inputformat = null, outputformat = null, fileName = null;
