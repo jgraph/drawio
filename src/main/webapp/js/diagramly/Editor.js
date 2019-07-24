@@ -539,7 +539,8 @@
 				{
 					var vals = value.split(String.fromCharCode(0));
 					
-					if (vals.length > 1 && vals[0] == 'mxGraphModel')
+					if (vals.length > 1 && (vals[0] == 'mxGraphModel' ||
+						vals[0] == 'mxfile'))
 					{
 						result = vals[1];
 					}
