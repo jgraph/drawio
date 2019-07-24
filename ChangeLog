@@ -1,3 +1,11 @@
+24-JUL-2019: 11.0.5
+
+- Adds timeout for Office Add-in server fallback
+- Fixes incorrect zTXt header for PNG+XML files
+- Fixes rounding of ellipse positions in SVG
+- Fixes rounding for fixed connection points
+- Uses mxGraph 3.7.5 beta 6
+
 23-JUL-2019: 11.0.4
 
 - Adds timeout handler for Google Drive thumb generation

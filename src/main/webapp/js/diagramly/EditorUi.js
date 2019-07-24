@@ -3832,7 +3832,7 @@
    	    
    	    if (xml != null)
    	    {
-   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel', atob(Graph.compress(xml)));
+   	    	data = this.writeGraphModelToPng(data, 'tEXt', 'mxfile', xml);
    	    }
    	    
    	    return data;
@@ -3841,10 +3841,10 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.saveCanvas = function(canvas, xml, format)
+	EditorUi.prototype.saveCanvas = function(canvas, xml, format, ignorePageName)
 	{
 		var ext = ((format == 'jpeg') ? 'jpg' : format);
-		var filename = this.getBaseFilename() + '.' + ext;
+		var filename = this.getBaseFilename(ignorePageName) + '.' + ext;
    	    var data = this.createImageDataUri(canvas, xml, format);
    	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
@@ -5897,8 +5897,8 @@
 		   			}
 		   			
 		   	   	    var data = canvas.toDataURL('image/png');
-	   	   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
-	   	   	   			atob(Graph.compress(diagramData)));
+		   	   	    data = this.writeGraphModelToPng(data,
+		   	   	    	'tEXt', 'mxfile', diagramData);
 	   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
 	
 					// Removes temporary graph from DOM
@@ -6015,7 +6015,8 @@
 			   		try
 			   		{
 			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
-			   				null, null, ignoreSelection, currentPage) : null, format);
+			   				null, null, ignoreSelection, currentPage) : null,
+			   				format, !currentPage);
 			   		}
 			   		catch (e)
 			   		{
@@ -6817,13 +6818,13 @@
 						ext = filename.substring(dot + 1).toUpperCase();
 					}
 					
-					EditorUi.logEvent({category: ext + '-IMPORT',
+					EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',
 						action: 'size_' + file.size,
 						label: (remote) ? 'remote' : 'local'});
 				}
 				catch (e)
 				{
-					onerror(e);
+					// ignore
 				}
 				
 				if (remote && VSD_CONVERT_URL != null) 
@@ -6988,6 +6989,16 @@
 			// Checks for signature method
 			if (typeof window.LucidImporter !== 'undefined')
 			{
+				try
+				{
+					EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
+						action: 'size_' + data.length});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				
 				try
 				{
 					success(LucidImporter.importState(JSON.parse(data)));
@@ -7995,6 +8006,16 @@
 		};
 		
 		xhr.send(formData);
+		
+		try
+		{
+			EditorUi.logEvent({category: 'GLIFFY-IMPORT-FILE',
+				action: 'size_' + file.size});
+		}
+		catch (e)
+		{
+			// ignore
+		}
 	};
 	
 	/**
