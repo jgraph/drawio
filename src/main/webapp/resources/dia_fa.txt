@@ -618,6 +618,7 @@ saveAndExit=‫ذخیره و خروج‬
 saveAs=‫ذخیره به عنوان‬
 saveAsXmlFile=‫با عنوان فایل XML ذخیره شود؟‬
 saved=‫ذخیره شد‬
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=‫ذخیره نمودار در‬
 saveLibrary403=‫مجوز برای ویرایش کتابخانه کافی نیست‬
 saveLibrary500=‫خطا به هنگام ذخیره کتابخانه‬

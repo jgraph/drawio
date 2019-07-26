@@ -618,6 +618,7 @@ saveAndExit=Salvesta ja välju
 saveAs=Salvesta kui
 saveAsXmlFile=Salvesta XML failina?
 saved=Salvestatud
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Salvesta diagrammid...
 saveLibrary403=Puuduvad õigused selle raamatukogu muutmiseks
 saveLibrary500=Viga raamatukogu salvestamisel

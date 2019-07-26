@@ -618,6 +618,7 @@ saveAndExit=Αποθήκευση & Έξοδος
 saveAs=Αποθήκευση ως
 saveAsXmlFile=Αποθήκευση ως αρχείο XML;
 saved=Αποθηκεύτηκε
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Αποθήκευση διαγραμμάτων σε
 saveLibrary403=Ανεπαρκή δικαιώματα για να επεξεργαστείτε αυτή την βιβλιοθήκη
 saveLibrary500=Παρουσιάστηκε σφάλμα κατά την διαδικασία αποθήκευσης της βιβλιοθήκης

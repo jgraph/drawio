@@ -618,6 +618,7 @@ saveAndExit=Salvare şi ieşire
 saveAs=Salvare cu titlu nou
 saveAsXmlFile=Salvare ca fișier XML?
 saved=Salvat
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo= Salvează diagramele în
 saveLibrary403=Permisiuni insuficiente pentru a edita această librărie
 saveLibrary500=A existat o eroare la salvarea acestei librării

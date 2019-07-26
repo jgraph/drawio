@@ -618,6 +618,7 @@ saveAndExit=Запазване и изход
 saveAs=Запазване като
 saveAsXmlFile=Запазване като XML файл?
 saved=Запазено
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Запазване на диаграми в
 saveLibrary403=Недостатъчни разрешения за редактиране на тази библиотека
 saveLibrary500=Възникна грешка при запазване на библиотеката

@@ -618,6 +618,7 @@ saveAndExit=Lagre & avslutt
 saveAs=Lagre som
 saveAsXmlFile=Lagre som XML fil?
 saved=Lagret
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Lagre diagrammer til
 saveLibrary403=Utilstrekkelig tillatelse til å redigere dette biblioteket
 saveLibrary500=Det oppsto en feil i lagringen av biblioteket

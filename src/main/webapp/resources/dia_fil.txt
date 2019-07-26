@@ -618,6 +618,7 @@ saveAndExit=I-save at umalis
 saveAs=I-save bilang
 saveAsXmlFile=I-save bilang XML file?
 saved=Nai-save na
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=I-save ang mga dayagram sa
 saveLibrary403=Di sapat ang pahintulot para i-edit ang library na ito
 saveLibrary500=May pagkakamali habang sini-save ang library

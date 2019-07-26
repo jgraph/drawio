@@ -618,6 +618,7 @@ saveAndExit=Desa i surt
 saveAs=Desa com
 saveAsXmlFile=Desar com a fitxer XML?
 saved=Desat
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Desa els diagramas a
 saveLibrary403=Permisos insuficients per editar aquesta biblioteca
 saveLibrary500=Hi ha hagut un error desant la biblioteca

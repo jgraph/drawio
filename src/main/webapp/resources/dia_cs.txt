@@ -618,6 +618,7 @@ saveAndExit=Uložit & ukončit
 saveAs=Uložit jako
 saveAsXmlFile=Ulažit jako soubor XML?
 saved=Uloženo
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Uložit diagramy do
 saveLibrary403=K úpravě této knihovny nemáte dostatečné oprávnění.
 saveLibrary500=Při ukládání knihovny došlo k chybě.

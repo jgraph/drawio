@@ -618,6 +618,7 @@ saveAndExit=Speichern & Beenden
 saveAs=Speichern unter
 saveAsXmlFile=Als XML-Datei speichern?
 saved=Gespeichert
+saveDiagramFirst=Bitte speichern Sie zuerst das Diagramm
 saveDiagramsTo=Diagramme speichern in
 saveLibrary403=Keine Berechtigung zum Bearbeiten der Bibliothek
 saveLibrary500=Fehler beim Speichern der Bibliothek

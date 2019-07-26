@@ -618,6 +618,7 @@ saveAndExit=บันทึก และ ออก
 saveAs=บันทึกเป็น
 saveAsXmlFile=บันทึกเป็นไฟล์ XML หรือไม่
 saved=บันทึกเรียบร้อยแล้ว
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=บันทึกแผนภาพไปยัง
 saveLibrary403=สิทธิ์ไม่เพียงพอในการแก้ไขไลบรารีนี้
 saveLibrary500=เกิดข้อผิดพลาดขณะบันทึกไลบรารี่

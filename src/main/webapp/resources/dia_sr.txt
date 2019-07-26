@@ -618,6 +618,7 @@ saveAndExit=Save & Exit
 saveAs=Snimi kao
 saveAsXmlFile=Save as XML file?
 saved=Snimljeno
+saveDiagramFirst=Prvo sačuvajte dijagram
 saveDiagramsTo=Sačuvaj dijagrame na
 saveLibrary403=Insufficient permissions to edit this library
 saveLibrary500=There was an error while saving the library

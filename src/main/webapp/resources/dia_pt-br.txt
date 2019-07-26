@@ -618,6 +618,7 @@ saveAndExit=Salvar e sair
 saveAs=Salvar como
 saveAsXmlFile=Salvar como arquivo XML?
 saved=Salvo
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Salvar diagramas em
 saveLibrary403=Permissões insuficientes para editar esta biblioteca
 saveLibrary500=Ocorreu um erro enquanto a biblioteca estava sendo salva

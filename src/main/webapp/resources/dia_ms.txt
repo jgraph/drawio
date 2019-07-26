@@ -618,6 +618,7 @@ saveAndExit=Simpan & Keluar
 saveAs=Simpan sebagai
 saveAsXmlFile=Simpan sebagai fail XML?
 saved=Disimpan
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Simpan gambarajah ke
 saveLibrary403=Keizinan tidak mencukupi untuk menyunting pustaka ini
 saveLibrary500=Terdapat ralat semasa menyimpan pustaka ini

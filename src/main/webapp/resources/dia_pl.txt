@@ -618,6 +618,7 @@ saveAndExit=Zapisz i wyjdź
 saveAs=Zapisz jako
 saveAsXmlFile=Zapisać jako plik XML?
 saved=Zapisany
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Zapisz diagramy w
 saveLibrary403=Niewystarczające uprawnienia do edycji tej biblioteki
 saveLibrary500=Wystąpił błąd podczas zapisywania biblioteki

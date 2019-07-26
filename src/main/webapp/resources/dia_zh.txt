@@ -618,6 +618,7 @@ saveAndExit=储存并退出
 saveAs=另存为
 saveAsXmlFile=另存为XML文件？
 saved=已保存
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=把图表存至
 saveLibrary403=没有足够的权限编辑此图库
 saveLibrary500=保存图库时出错

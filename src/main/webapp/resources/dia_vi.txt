@@ -618,6 +618,7 @@ saveAndExit=Lưu & Thoát
 saveAs=Lưu dưới dạng
 saveAsXmlFile=Lưu dưới dạng tập tin XML?
 saved=Đã lưu
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Lưu biểu đồ vào
 saveLibrary403=Không có quyền chỉnh sửa thư viện này
 saveLibrary500=Có lỗi khi lưu thư viện

@@ -618,6 +618,7 @@ saveAndExit=Salva ed esci
 saveAs=Salva come
 saveAsXmlFile=Salva come file XML
 saved=Salvato
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Salva diagrammi in
 saveLibrary403=Autorizzazione insufficiente per modificare questa libreria
 saveLibrary500=È subentrato un errore durante il salvataggio della libreria

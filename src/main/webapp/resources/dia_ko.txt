@@ -618,6 +618,7 @@ saveAndExit=저장 후 나가기
 saveAs=다른 이름으로 저장
 saveAsXmlFile=XML 파일로 저장하시겠습니까?
 saved=저장됨
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=다이어그램 저장
 saveLibrary403=본 라이브러리의 편집 권한 부족
 saveLibrary500=라이브러리 저장 중 오류가 발생하였습니다.
