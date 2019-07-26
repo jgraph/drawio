@@ -618,6 +618,7 @@ saveAndExit=Kaydet ve Çık
 saveAs=Farklı kaydet
 saveAsXmlFile=XML dosyası olarak kaydet
 saved=Kaydedildi
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Diyagramları şuna kaydet:
 saveLibrary403=Bu kitaplığı değiştirmek için başarısız izinler
 saveLibrary500=Kitaplığı kaydederken hata oluştu

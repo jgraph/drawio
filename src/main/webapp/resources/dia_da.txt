@@ -618,6 +618,7 @@ saveAndExit=Gem & Afslut
 saveAs=Gem som
 saveAsXmlFile=Gem som XML fil?
 saved=Gemt
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Gem diagrammer i
 saveLibrary403=Utilstrækkelige tilladelse til at ændre på dette bibliotek
 saveLibrary500=Der forekom en fejl under gemning af dette bibliotek

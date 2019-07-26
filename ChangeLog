@@ -1,3 +1,11 @@
+26-JUL-2019: 11.0.7
+
+- Fixes for MS Office Add-in
+
+26-JUL-2019: 11.0.6
+
+- Improves error handling for exportToCanvas
+
 24-JUL-2019: 11.0.5
 
 - Adds timeout for Office Add-in server fallback

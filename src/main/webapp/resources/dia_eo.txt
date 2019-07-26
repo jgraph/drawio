@@ -618,6 +618,7 @@ saveAndExit=Save & Exit
 saveAs=Save as
 saveAsXmlFile=Save as XML file?
 saved=Konservita
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Save diagrams to
 saveLibrary403=Insufficient permissions to edit this library
 saveLibrary500=There was an error while saving the library

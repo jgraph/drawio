@@ -618,6 +618,7 @@ saveAndExit=Spasi & Izađi
 saveAs=Spasi kao
 saveAsXmlFile=Spasi kao XML fajl?
 saved=Spašeno
+saveDiagramFirst=Prvo sačuvajte dijagram
 saveDiagramsTo=Spasi dijagrame u
 saveLibrary403=Nedovoljne ovlasti za uređivanje ove biblioteke
 saveLibrary500=Pojavila se greška prilikom spašavanja biblioteke

@@ -618,6 +618,7 @@ saveAndExit=Opslaan & afsluiten
 saveAs=Opslaan als
 saveAsXmlFile=Opslaan als XML-bestand?
 saved=Opgeslagen
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Diagrammen opslaan naar
 saveLibrary403=Onvoldoende rechten om deze bibliotheek te bewerken
 saveLibrary500=Er is een fout opgetreden bij het opslaan van de bibliotheek

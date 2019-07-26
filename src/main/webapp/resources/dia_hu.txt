@@ -618,6 +618,7 @@ saveAndExit=Ment és kilép
 saveAs=Mentés másként
 saveAsXmlFile=Mentve
 saved=Mentett
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Diagramok mentése ide:
 saveLibrary403=Elégtelen engedély a könyvtár szerkesztéséhez
 saveLibrary500=Hiba történt a könyvtár mentésekor

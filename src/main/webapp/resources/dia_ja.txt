@@ -618,6 +618,7 @@ saveAndExit=保存して閉じる
 saveAs=名前を付けて保存
 saveAsXmlFile=XMLファイルとして保存しますか？
 saved=保存済み
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=ファイルの保存先
 saveLibrary403=このライブラリを編集する権限がありません。
 saveLibrary500=ライブラリ保存中にエラーが発生しました。

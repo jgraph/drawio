@@ -618,6 +618,7 @@ saveAndExit=‫حفظ و مغادرة‬
 saveAs=‫حفظ كـ‬
 saveAsXmlFile=Save as XML file?
 saved=‫تم الحفظ‬
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=‫حفظ المخططات إلى ‬
 saveLibrary403=Insufficient permissions to edit this library
 saveLibrary500=There was an error while saving the library

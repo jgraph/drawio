@@ -6170,137 +6170,147 @@
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
 		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
 	{
-		limitHeight = (limitHeight != null) ? limitHeight : true;
-		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
-		graph = (graph != null) ? graph : this.editor.graph;
-		border = (border != null) ? border : 0;
-		
-		var bg = (transparentBackground) ? null : graph.background;
-		
-		if (bg == mxConstants.NONE)
+		try
 		{
-			bg = null;
-		}
-		
-		if (bg == null)
-		{
-			bg = background;
-		}
-		
-		// Handles special case where background is null but transparent is false
-		if (bg == null && transparentBackground == false)
-		{
-			bg = '#ffffff';
-		}
-		
-		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
-			mxUtils.bind(this, function(svgRoot)
-		{
-			var img = new Image();
+			limitHeight = (limitHeight != null) ? limitHeight : true;
+			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+			graph = (graph != null) ? graph : this.editor.graph;
+			border = (border != null) ? border : 0;
 			
-			img.onload = mxUtils.bind(this, function()
+			var bg = (transparentBackground) ? null : graph.background;
+			
+			if (bg == mxConstants.NONE)
 			{
-		   		try
-		   		{
-		   			var canvas = document.createElement('canvas');
-					var w = parseInt(svgRoot.getAttribute('width'));
-					var h = parseInt(svgRoot.getAttribute('height'));
-					scale = (scale != null) ? scale : 1;
-					
-					if (width != null)
-					{
-						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
-					}
-					
-					w = Math.ceil(scale * w) + 2 * border;
-					h = Math.ceil(scale * h) + 2 * border;
-					
-					canvas.setAttribute('width', w);
-			   		canvas.setAttribute('height', h);
-			   		var ctx = canvas.getContext('2d');
-			   		
-			   		if (bg != null)
+				bg = null;
+			}
+			
+			if (bg == null)
+			{
+				bg = background;
+			}
+			
+			// Handles special case where background is null but transparent is false
+			if (bg == null && transparentBackground == false)
+			{
+				bg = '#ffffff';
+			}
+			
+			this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+				mxUtils.bind(this, function(svgRoot)
+			{
+				var img = new Image();
+				
+				img.onload = mxUtils.bind(this, function()
+				{
+			   		try
 			   		{
-			   			ctx.beginPath();
-						ctx.rect(0, 0, w, h);
-						ctx.fillStyle = bg;
-						ctx.fill();
-			   		}
-
-			   		ctx.scale(scale, scale);
-			   		
-			   		// Workaround for broken data URI images in Safari on first export
-			   		if (mxClient.IS_SF)
-			   		{			   		
-						window.setTimeout(function()
+			   			var canvas = document.createElement('canvas');
+						var w = parseInt(svgRoot.getAttribute('width'));
+						var h = parseInt(svgRoot.getAttribute('height'));
+						scale = (scale != null) ? scale : 1;
+						
+						if (width != null)
 						{
-							ctx.drawImage(img, border / scale, border / scale);
-							callback(canvas);
-						}, 0);
+							scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+						}
+						
+						w = Math.ceil(scale * w) + 2 * border;
+						h = Math.ceil(scale * h) + 2 * border;
+						
+						canvas.setAttribute('width', w);
+				   		canvas.setAttribute('height', h);
+				   		var ctx = canvas.getContext('2d');
+				   		
+				   		if (bg != null)
+				   		{
+				   			ctx.beginPath();
+							ctx.rect(0, 0, w, h);
+							ctx.fillStyle = bg;
+							ctx.fill();
+				   		}
+	
+				   		ctx.scale(scale, scale);
+				   		
+				   		// Workaround for broken data URI images in Safari on first export
+				   		if (mxClient.IS_SF)
+				   		{			   		
+							window.setTimeout(function()
+							{
+								ctx.drawImage(img, border / scale, border / scale);
+								callback(canvas);
+							}, 0);
+				   		}
+				   		else
+				   		{
+				   			ctx.drawImage(img, border / scale, border / scale);
+				   			callback(canvas);
+				   		}
 			   		}
-			   		else
+			   		catch (e)
 			   		{
-			   			ctx.drawImage(img, border / scale, border / scale);
-			   			callback(canvas);
+			   			if (error != null)
+						{
+							error(e);
+						}
 			   		}
-		   		}
-		   		catch (e)
-		   		{
-		   			if (error != null)
+				});
+				
+				img.onerror = function(e)
+				{
+					//console.log('img', e, img.src);
+					
+					if (error != null)
 					{
 						error(e);
 					}
-		   		}
-			});
-			
-			img.onerror = function(e)
-			{
-				//console.log('img', e, img.src);
-				
-				if (error != null)
+				};
+	
+				try
 				{
-					error(e);
-				}
-			};
-
-			try
-			{
-				if (addShadow)
-				{
-					this.editor.graph.addSvgShadow(svgRoot);
-				}
-				
-				var done = mxUtils.bind(this, function()
-				{
-					if (this.editor.resolvedFontCss != null)
+					if (addShadow)
 					{
-						var st = document.createElement('style');
-						st.setAttribute('type', 'text/css');
-						st.innerHTML = this.editor.resolvedFontCss;
-						
-						// Must be in defs section for FF to work
-						var defs = svgRoot.getElementsByTagName('defs');
-						defs[0].appendChild(st);
+						this.editor.graph.addSvgShadow(svgRoot);
 					}
 					
-					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					var done = mxUtils.bind(this, function()
 					{
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-					}));
-				});
-				
-				this.loadFonts(done);
-			}
-			catch (e)
-			{
-				//console.log('src', e, img.src);
-				
-				if (error != null)
-				{
-					error(e);
+						if (this.editor.resolvedFontCss != null)
+						{
+							var st = document.createElement('style');
+							st.setAttribute('type', 'text/css');
+							st.innerHTML = this.editor.resolvedFontCss;
+							
+							// Must be in defs section for FF to work
+							var defs = svgRoot.getElementsByTagName('defs');
+							defs[0].appendChild(st);
+						}
+						
+						this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+						{
+							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+						}));
+					});
+					
+					this.loadFonts(done);
 				}
+				catch (e)
+				{
+					//console.log('src', e, img.src);
+					
+					if (error != null)
+					{
+						error(e);
+					}
+				}
+			}), imageCache, converter);
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
 			}
-		}), imageCache, converter);
+		}
 	};
 
 	/**
@@ -6819,7 +6829,7 @@
 					}
 					
 					EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',
-						action: 'size_' + file.size,
+						action: 'filename_' + filename,
 						label: (remote) ? 'remote' : 'local'});
 				}
 				catch (e)
@@ -13363,9 +13373,9 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
 				}
 				
-			}, function(errMsg)
+			}, function(err)
 			{
-				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (errMsg? ': ' + errMsg : ''));
+				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (err && err.message? ': ' + err.message : ''));
 			});
 		}
 		else

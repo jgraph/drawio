@@ -618,6 +618,7 @@ saveAndExit=‫שמור וצא‬
 saveAs=‫שמור בשם‬
 saveAsXmlFile=‫שמור כקובץ XML?‬
 saved=‫נשמר‬
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=‫שמור תרשימים ב-‬
 saveLibrary403=‫אין הרשאות לערוך ספריה זו‬
 saveLibrary500=‫שגיאה בשמירת הספריה‬

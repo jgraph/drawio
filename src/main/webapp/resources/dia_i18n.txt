@@ -618,6 +618,7 @@ saveAndExit=saveAndExit
 saveAs=saveAs
 saveAsXmlFile=saveAsXmlFile
 saved=saved
+saveDiagramFirst=saveDiagramFirst
 saveDiagramsTo=saveDiagramsTo
 saveLibrary403=saveLibrary403
 saveLibrary500=saveLibrary500

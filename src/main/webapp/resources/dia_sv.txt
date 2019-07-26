@@ -618,6 +618,7 @@ saveAndExit=Spara & Avsluta
 saveAs=Spara som
 saveAsXmlFile=Spara som XML-fil?
 saved=Sparad
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Spara diagram till
 saveLibrary403=Otillräckliga korregeringsrättigheter för detta bibliotek
 saveLibrary500=Ett fel uppstod under sparande av biblioteket 

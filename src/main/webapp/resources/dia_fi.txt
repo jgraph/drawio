@@ -618,6 +618,7 @@ saveAndExit=Tallenna & poistu
 saveAs=Tallenna nimellä
 saveAsXmlFile=Tallenna XML-tiedostona?
 saved=Tallennettu
+saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Tallenna kaaviot
 saveLibrary403=Puutteellinen lupa kokoelman editoimiseen
 saveLibrary500=Kokoelman tallennuksen aikana tapahtui virhe
