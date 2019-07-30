@@ -940,3 +940,4 @@ officePopupInfo=Palun lõpeta protsess hüpikaknas.
 pickODFile=Vali OneDrive fail
 pickGDriveFile=Vali Google Drive fail
 pickDeviceFile=Vali fail seadmelt
+vsdNoConfig="vsdurl" is not configured

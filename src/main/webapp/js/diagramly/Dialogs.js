@@ -3609,6 +3609,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 /**
  * Constructs a dialog for creating new files from a template URL.
+ * Also used for dialog choosing where to save or export resources
  */
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
 	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints)

@@ -940,3 +940,4 @@ officePopupInfo=officePopupInfo
 pickODFile=pickODFile
 pickGDriveFile=pickGDriveFile
 pickDeviceFile=pickDeviceFile
+vsdNoConfig=vsdNoConfig

@@ -15,7 +15,7 @@ var com;
              * @class
              */
             var mxVsdxCodec = (function () {
-                function mxVsdxCodec() {
+                function mxVsdxCodec(editorUi) {
                     this.RESPONSE_END = "</mxfile>";
                     this.RESPONSE_DIAGRAM_START = "";
                     this.RESPONSE_DIAGRAM_END = "</diagram>";
@@ -44,6 +44,7 @@ var com;
                      */
                     this.debugPaths = false;
                     this.vsdxModel = null;
+                    this.editorUi = editorUi;
                 }
                 mxVsdxCodec.vsdxPlaceholder_$LI$ = function ()
                 {
@@ -333,6 +334,7 @@ var com;
 	                        					var xhr = new XMLHttpRequest();
 	                        					xhr.open('POST', EMF_CONVERT_URL);
 	                        					xhr.responseType = 'blob';
+	                        					_this.editorUi.addRemoteServiceSecurityCheck(xhr);
 	                        					
 	                        					xhr.onreadystatechange = mxUtils.bind(this, function()
 	                        					{
@@ -1275,12 +1277,13 @@ var com;
         (function (io) {
             var mxVssxCodec = (function (_super) {
                 __extends(mxVssxCodec, _super);
-                function mxVssxCodec() {
+                function mxVssxCodec(editorUi) {
                     var _this = _super.call(this) || this;
                     _this.RESPONSE_END = "";
                     _this.RESPONSE_DIAGRAM_START = "";
                     _this.RESPONSE_DIAGRAM_END = "";
                     _this.RESPONSE_HEADER = "";
+                    _this.editorUi = editorUi;
                     return _this;
                 }
                 mxVssxCodec.prototype.decodeVssx = function (file, callback, charset, onerror) {
@@ -12072,10 +12075,10 @@ EditorUi.prototype.doImportVisio = function(file, done, onerror, filename)
 	
 	if (filename != null && /(\.vs(x|sx?))($|\?)/i.test(filename))
 	{
-		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done, null, onerror);
+		new com.mxgraph.io.mxVssxCodec(this).decodeVssx(file, done, null, onerror);
 	}
 	else
 	{
-		new com.mxgraph.io.mxVsdxCodec().decodeVsdx(file, done, null, onerror);
+		new com.mxgraph.io.mxVsdxCodec(this).decodeVsdx(file, done, null, onerror);
 	}
 };

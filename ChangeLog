@@ -1,3 +1,8 @@
+30-JUL-2019: 11.0.8
+
+- Fixes for dialogs when no services available
+- Fixes comment window refresh error
+
 26-JUL-2019: 11.0.7
 
 - Fixes for MS Office Add-in
