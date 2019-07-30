@@ -940,3 +940,4 @@ officePopupInfo=Please complete the process in the pop-up window.
 pickODFile=Pick OneDrive File
 pickGDriveFile=Pick Google Drive File
 pickDeviceFile=Pick Device File
+vsdNoConfig="vsdurl" is not configured

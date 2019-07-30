@@ -4099,7 +4099,8 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
-		this.showDialog(dlg.container, 400, (count > rowLimit) ? 390 : 270, true, true);
+		var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 270) : 160;
+		this.showDialog(dlg.container, 400, height, true, true);
 		dlg.init();
 	};
 	
@@ -4374,10 +4375,19 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
-		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
-		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
+		
+		var height = (this.isServices(count)) ? ((count > 4) ? 390 : 270) : 160;
 		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
+	};
+
+	/**
+	 * Returns whether or not any services should be shown in dialogs
+	 */
+	EditorUi.prototype.isServices = function(count)
+	{
+		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
+		return count != noServices;
 	};
 
 	/**
@@ -6837,38 +6847,46 @@
 					// ignore
 				}
 				
-				if (remote && VSD_CONVERT_URL != null) 
+				if (remote) 
 				{
-					var formData = new FormData();
-					formData.append('file1', file, filename);
-
-					var xhr = new XMLHttpRequest();
-					xhr.open('POST', VSD_CONVERT_URL);
-					xhr.responseType = 'blob';
-					
-					xhr.onreadystatechange = mxUtils.bind(this, function()
+					if (VSD_CONVERT_URL != null)
 					{
-						if (xhr.readyState == 4)
-						{	
-							if (xhr.status >= 200 && xhr.status <= 299)
-							{
-								try
+						var formData = new FormData();
+						formData.append('file1', file, filename);
+	
+						var xhr = new XMLHttpRequest();
+						xhr.open('POST', VSD_CONVERT_URL);
+						xhr.responseType = 'blob';
+						this.addRemoteServiceSecurityCheck(xhr);
+						
+						xhr.onreadystatechange = mxUtils.bind(this, function()
+						{
+							if (xhr.readyState == 4)
+							{	
+								if (xhr.status >= 200 && xhr.status <= 299)
 								{
-									this.doImportVisio(xhr.response, done, onerror, filename);
+									try
+									{
+										this.doImportVisio(xhr.response, done, onerror, filename);
+									}
+									catch (e)
+									{
+										onerror(e);
+									}
 								}
-								catch (e)
+								else
 								{
-									onerror(e);
+									onerror({});
 								}
 							}
-							else
-							{
-								onerror({});
-							}
-						}
-					});
-					
-					xhr.send(formData);
+						});
+						
+						xhr.send(formData);
+					}
+					else
+					{
+						onerror({message: this.getServiceName() == 'conf'? mxResources.get('vsdNoConfig') : mxResources.get('serviceUnavailableOrBlocked')});
+					}
 				}
 				else
 				{
@@ -12708,6 +12726,18 @@
 				((file.constructor == DriveFile && file.isEditable()) ||
 				file.constructor == DropboxFile);
 	};
+	
+	//===========Adding methods to find the service running draw.io and allowing calling draw.io remote services
+	EditorUi.prototype.getServiceName = function()
+	{
+		return 'draw.io';
+	};
+	
+	EditorUi.prototype.addRemoteServiceSecurityCheck = function(xhr)
+	{
+		//Using a standard header with specific sequence
+		xhr.setRequestHeader('Content-Language', 'da, mi, en, de-DE');
+	};
 })();
 
 /**
@@ -13312,6 +13342,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 
 	var refresh = mxUtils.bind(this, function()
 	{
+		this.hasError = false;
+		
 		if (curEdited != null)
 		{
 			curEdited.div = curEdited.div.cloneNode(true);
@@ -13373,10 +13405,11 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
 				}
 				
-			}, function(err)
+			}, mxUtils.bind(this, function(err)
 			{
 				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (err && err.message? ': ' + err.message : ''));
-			});
+				this.hasError = true;
+			}));
 		}
 		else
 		{

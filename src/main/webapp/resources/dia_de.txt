@@ -940,3 +940,4 @@ officePopupInfo=Bitte fahren Sie im Popup Fenster fort.
 pickODFile=OneDrive Datei auswählen
 pickGDriveFile=Google Drive Datei auswählen
 pickDeviceFile=Gerätedatei auswählen
+vsdNoConfig="vsdurl" is not configured

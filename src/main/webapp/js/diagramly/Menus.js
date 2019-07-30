@@ -2930,8 +2930,15 @@
 			}
 			else
 			{
-				this.commentsWindow.window.setVisible(!this.commentsWindow.window.isVisible());
+				var isVisible = !this.commentsWindow.window.isVisible();
+				this.commentsWindow.window.setVisible(isVisible);
+				
 				this.commentsWindow.refreshCommentsTime();
+
+				if (isVisible && this.commentsWindow.hasError) 
+				{
+					this.commentsWindow.refreshComments();
+				}				
 			}
 		}));
 		action.setToggleAction(true);
