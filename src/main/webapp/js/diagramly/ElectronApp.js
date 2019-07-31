@@ -410,6 +410,34 @@ mxStencilRegistry.allowEval = false;
 		{
 			this.loadArgs(argsObj)
 		})
+
+		var editorUi = this;
+		
+		ipcRenderer.on('export-vsdx', (event, argsObj) =>
+		{
+			var file = new LocalFile(editorUi, argsObj.xml, '');
+			
+			editorUi.fileLoaded(file);
+
+			try
+			{
+				editorUi.saveData = function(filename, format, data, mimeType, base64Encoded)
+				{
+					ipcRenderer.send('export-vsdx-finished', data);
+				};
+				
+				var expSuccess = new VsdxExport(editorUi).exportCurrentDiagrams();
+
+				if (!expSuccess)
+				{
+					ipcRenderer.send('export-vsdx-finished', null);
+				}
+			}
+			catch (e)
+			{
+				ipcRenderer.send('export-vsdx-finished', null);
+			}
+		})	
 	}
 	
 	App.prototype.loadArgs = function(argsObj)
