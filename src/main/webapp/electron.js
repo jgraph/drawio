@@ -185,7 +185,7 @@ app.on('ready', e =>
         argv.unshift(null)
     }
 
-	var validFormatRegExp = /^(pdf|svg|png|jpeg|jpg)$/;
+	var validFormatRegExp = /^(pdf|svg|png|jpeg|jpg|vsdx)$/;
 	
 	function argsRange(val) 
 	{
@@ -365,9 +365,11 @@ app.on('ready', e =>
 						
 						try
 						{
-							expArgs.xml = fs.readFileSync(curFile, (path.extname(curFile) === '.png') ? null : 'utf-8');
+							var ext = path.extname(curFile);
 							
-							if (path.extname(curFile) === '.png')
+							expArgs.xml = fs.readFileSync(curFile, ext === '.png'? null : 'utf-8');
+							
+							if (ext === '.png')
 							{
 								expArgs.xml = new Buffer(expArgs.xml).toString('base64');
 							}
@@ -407,7 +409,7 @@ app.on('ready', e =>
 											
 											try
 											{
-												fs.writeFileSync(outFileName, data, { flag: 'wx' });
+												fs.writeFileSync(outFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
 												console.log(curFile + ' -> ' + outFileName);
 											}
 											catch(e)
@@ -924,9 +926,63 @@ function writePngWithText(origBuff, key, text, compressed, base64encoded)
 	}
 }
 
+//TODO Create a lightweight html file similar to export3.html for exporting to vsdx
+function exportVsdx(event, args, directFinalize)
+{
+	let win = createWindow({
+		show : false
+	});
+    
+    win.webContents.on('did-finish-load', function()
+    {
+        win.webContents.send('export-vsdx', args);
+        
+        ipcMain.once('export-vsdx-finished', (evt, data) =>
+		{
+			var hasError = false;
+			
+			if (data == null)
+			{
+				hasError = true;
+			}
+			
+			//Set finalize here since it is call in the reply below
+			function finalize()
+			{
+				win.destroy();
+			};
+			
+			if (directFinalize === true)
+			{
+				event.finalize = finalize;
+			}
+			else
+			{
+				//Destroy the window after response being received by caller
+				ipcMain.once('export-finalize', finalize);
+			}
+			
+			if (hasError)
+			{
+				event.reply('export-error');
+			}
+			else
+			{
+				event.reply('export-success', data);
+			}
+		});
+    });
+};
+
 //TODO Use canvas to export images if math is not used to speedup export (no capturePage). Requires change to export3.html also
 function exportDiagram(event, args, directFinalize)
 {
+	if (args.format == 'vsdx')
+	{
+		exportVsdx(event, args, directFinalize);
+		return;
+	}
+	
 	var browser = null;
 	
 	try
