@@ -16,6 +16,7 @@ const {autoUpdater} = require("electron-updater")
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
+const { systemPreferences } = require('electron')
 autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
@@ -104,7 +105,7 @@ function createWindow (opt = {})
 					
 					if (isModified)
 					{
-						var choice = dialog.showMessageBox(
+						var choice = dialog.showMessageBoxSync(
 							win,
 							{
 								type: 'question',
@@ -694,9 +695,9 @@ autoUpdater.on('update-available', (a, b) =>
 		title: 'Confirm Update',
 		message: 'Update available.\n\nWould you like to download and install new version?',
 		detail: 'Application will automatically restart to apply update after download',
-	}, response =>
+	}).then( result =>
 	{
-		if (response === 0)
+		if (result.response === 0)
 		{
 			autoUpdater.downloadUpdate()
 			
@@ -789,16 +790,16 @@ autoUpdater.on('update-available', (a, b) =>
 					defaultId: 0,
 					message: 'A new version of ' + app.getName() + ' has been downloaded',
 					detail: 'It will be installed the next time you restart the application',
-				}, response =>
+				}).then(result =>
 				{
-					if (response === 0)
+					if (result.response === 0)
 					{
 						setTimeout(() => autoUpdater.quitAndInstall(), 1)
 					}
 				})
 		    });
 		}
-		else if (response === 2)
+		else if (result.response === 2)
 		{
 			//save in settings don't check for updates
 			log.info('@dont check for updates!@')

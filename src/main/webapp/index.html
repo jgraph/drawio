@@ -82,8 +82,7 @@
 			{
 				var proto = window.location.protocol;
 				
-				// Electron protocol is file:
-				if (proto != 'file:')
+				if (!mxIsElectron)
 				{
 					var host = window.location.host;
 		
@@ -102,6 +101,11 @@
 					{
 						window.location.href = href;
 					}
+				}
+				else if (!mxIsElectron5)
+				{
+					// It's electron, but v3 or lower
+					window.location.href = 'https://github.com/jgraph/drawio-desktop/releases';
 				}
 			})();
 		}

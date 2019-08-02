@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/jgraph/drawio",
   "dependencies": {
-    "commander": "^2.15.1",
-    "electron-log": "^2.2.14",
-    "electron-updater": "^4.0.6",
+    "commander": "^2.20.0",
+    "electron-log": "^3.0.7",
+    "electron-updater": "^4.1.2",
     "electron-progressbar": "^1.2.0",
     "electron-store": "^3.2.0",
     "compression": "^1.7.4",
     "crc": "^3.8.0"
   },
   "devDependencies": {
-    "electron": "^2.0.2"
+    "electron": "^6.0.0"
   }
 }

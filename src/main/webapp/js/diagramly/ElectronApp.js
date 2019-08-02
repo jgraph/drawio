@@ -216,7 +216,7 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 
-		        var paths = dialog.showOpenDialog({properties: ['openFile']});
+		        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
@@ -597,7 +597,7 @@ mxStencilRegistry.allowEval = false;
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 
-        var paths = dialog.showOpenDialog({properties: ['openFile']});
+        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
 	           
         if (paths !== undefined && paths[0] != null)
         {
@@ -985,7 +985,7 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 	
-				var path = dialog.showSaveDialog({defaultPath: this.title});
+				var path = dialog.showSaveDialogSync({defaultPath: this.title});
 	
 		        if (path != null)
 		        {
@@ -1021,7 +1021,7 @@ mxStencilRegistry.allowEval = false;
 			filename += '.drawio';
 		}
 		
-		var path = dialog.showSaveDialog({defaultPath: filename});
+		var path = dialog.showSaveDialogSync({defaultPath: filename});
         
         if (path != null)
         {
@@ -1397,7 +1397,7 @@ mxStencilRegistry.allowEval = false;
 			};
 			
 			dlgConfig['filters'] = filters;
-			var path = dialog.showSaveDialog(dlgConfig);
+			var path = dialog.showSaveDialogSync(dlgConfig);
 	
 	        if (path != null)
 	        {
