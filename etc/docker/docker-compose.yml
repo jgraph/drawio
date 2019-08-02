@@ -1,0 +1,24 @@
+#This compose file adds Draw.io https://draw.io to your stack
+version: '3.5'
+services:
+  drawio:
+    image: drawio
+    container_name: drawio
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+      - 8443:8443
+    environment:
+      PUBLIC_DNS: domain
+      ORGANISATION_UNIT: UNIT
+      ORGANISATION: ORG
+      CITY: city
+      STATE: state
+      COUNTRY_CODE: cc
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://domain:8080 || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+

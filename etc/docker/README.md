@@ -4,6 +4,7 @@ After successful checkout, from the project directory run,
 
 ```bash
 cp etc/docker/Dockerfile .
+cp etc/docker/docker-entrypoint.sh .
 docker build -t draw .
 docker run -d -p 8888:8080 draw
 ```
