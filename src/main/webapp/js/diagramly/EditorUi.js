@@ -3688,7 +3688,7 @@
 				{
 					msg = mxUtils.htmlEntities(e.response.error);
 				}
-				else if (window.App !== 'undefined')
+				else if (typeof window.App !== 'undefined')
 				{
 					if (e.code == App.ERROR_TIMEOUT)
 					{

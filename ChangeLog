@@ -1,3 +1,19 @@
+02-AUG-2019: 11.1.1
+
+- Forces in-place electron users to upgrade page
+
+02-AUG-2019: 11.1.0
+
+- Fixes for Electron 6
+- Uses dark theme on desktop by default in dark mode
+- Changes Conf Cloud to leave draft attachments empty
+
+01-AUG-2019: 11.0.9
+
+- Fixes window.app undefined check
+- Adds desktop command line vsdx export
+- Fixes Confluence Cloud custom content direct edit macro replacment
+
 30-JUL-2019: 11.0.8
 
 - Fixes for dialogs when no services available
