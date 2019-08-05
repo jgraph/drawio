@@ -11329,16 +11329,18 @@
 							
 							if (cell.vertex)
 							{
+								var hasParent = (parentIndex != null);
+
 								if (left != null && cell.getAttribute(left) != null)
 								{
-									cell.geometry.x = x0 + parseFloat(cell.getAttribute(left));
+									cell.geometry.x = (hasParent ? 0 : x0) + parseFloat(cell.getAttribute(left));
 								}
-	
+
 								if (top != null && cell.getAttribute(top) != null)
 								{
-									cell.geometry.y = y0 + parseFloat(cell.getAttribute(top));
+									cell.geometry.y = (hasParent ? 0 : y0) + parseFloat(cell.getAttribute(top));
 								}
-								
+
 								if (width.charAt(0) == '@' && cell.getAttribute(width.substring(1)) != null)
 								{
 									cell.geometry.width = parseFloat(cell.getAttribute(width.substring(1)));
