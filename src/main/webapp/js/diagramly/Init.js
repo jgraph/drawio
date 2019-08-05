@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
+ */
+
 // urlParams is null when used for embedding
 window.urlParams = window.urlParams || {};
 
@@ -16,6 +21,7 @@ window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml4';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://www.draw.io/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2png/convertEMF";
+window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || "https://gitlab.com";
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -255,6 +261,21 @@ function setCurrentXml(data, filename)
 		}
 		
 		EXPORT_URL = ex;
+	}
+
+	// Customizes gitlab URL
+	var glUrl = urlParams['gitlab'];
+
+	if (glUrl != null)
+	{
+		glUrl = decodeURIComponent(glUrl);
+		
+		if (glUrl.substring(0, 7) != 'http://' &&  glUrl.substring(0, 8) != 'https://')
+		{
+			glUrl = 'http://' + glUrl;
+		}
+		
+		DRAWIO_GITLAB_URL = glUrl;
 	}
 
 	// URL for logging

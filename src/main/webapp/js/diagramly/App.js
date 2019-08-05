@@ -1,7 +1,8 @@
 /**
- * Copyright (c) 2006-2018, JGraph Ltd
- * Copyright (c) 2006-2018, Gaudenz Alder
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
  */
+
 /**
  * Constructs a new point for the optional x and y coordinates. If no
  * coordinates are given, then the default values for <x> and <y> are used.
@@ -2302,7 +2303,7 @@ App.prototype.appIconClicked = function(evt)
 			}
 			else
 			{
-				this.openLink('https://gitlab.com/');
+				this.openLink(DRAWIO_GITLAB_URL);
 			}
 		}
 		else if (mode == App.MODE_DEVICE)
