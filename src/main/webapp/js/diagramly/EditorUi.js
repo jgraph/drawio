@@ -3832,7 +3832,7 @@
    	    
    	    if (xml != null)
    	    {
-   	    	data = this.writeGraphModelToPng(data, 'tEXt', 'mxfile', xml);
+   	    	data = this.writeGraphModelToPng(data, 'tEXt', 'mxfile', encodeURIComponent(xml));
    	    }
    	    
    	    return data;
@@ -5908,7 +5908,7 @@
 		   			
 		   	   	    var data = canvas.toDataURL('image/png');
 		   	   	    data = this.writeGraphModelToPng(data,
-		   	   	    	'tEXt', 'mxfile', diagramData);
+		   	   	    	'tEXt', 'mxfile', encodeURIComponent(diagramData));
 	   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
 	
 					// Removes temporary graph from DOM
@@ -10510,8 +10510,8 @@
 								
 						   	    if (data.format == 'xmlpng')
 						   	    {
-						   	    	uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
-						   	    		atob(Graph.compress(xml)));	
+						   	    	uri = this.writeGraphModelToPng(uri, 'tEXt', 'mxfile',
+						   	    		encodeURIComponent(xml));
 						   	    }
 						   	    	
 								// Removes temporary graph from DOM
