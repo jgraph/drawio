@@ -13,7 +13,7 @@ mxUtils.extend(GitLabClient, GitHubClient);
 /**
  * Gitlab Client ID, see https://gitlab.com/oauth/applications/135239
  */
-GitLabClient.prototype.clientId = '5cdc018a32acddf6eba37592d9374945241e644b8368af847422d74c8709bc44';
+GitLabClient.prototype.clientId = DRAWIO_GITLAB_ID;
 
 /**
  * OAuth scope.

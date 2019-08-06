@@ -22,6 +22,7 @@ window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://www.draw.io/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || "https://convert.draw.io/VsdConverter/api/converter";
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || "https://convert.draw.io/emf2png/convertEMF";
 window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || "https://gitlab.com";
+window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '5cdc018a32acddf6eba37592d9374945241e644b8368af847422d74c8709bc44';
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
@@ -276,6 +277,13 @@ function setCurrentXml(data, filename)
 		}
 		
 		DRAWIO_GITLAB_URL = glUrl;
+	}
+	
+	var glId = urlParams['gitlab-id'];
+
+	if (glId != null)
+	{
+		DRAWIO_GITLAB_ID = glId;
 	}
 
 	// URL for logging
