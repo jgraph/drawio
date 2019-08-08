@@ -1,7 +1,8 @@
 /**
- * Copyright (c) 2006-2018, JGraph Ltd
- * Copyright (c) 2006-2018, Gaudenz Alder
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
  */
+
 var StorageDialog = function(editorUi, fn, rowLimit)
 {
 	rowLimit = (rowLimit != null) ? rowLimit : 2;
@@ -822,7 +823,7 @@ var SplashDialog = function(editorUi)
 			addLogout(function()
 			{
 				editorUi.gitLab.logout();
-				editorUi.openLink('https://gitlab.com/users/sign_out');
+				editorUi.openLink(DRAWIO_GITLAB_URL + '/users/sign_out');
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -5040,7 +5041,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					var ref = tokens[2];
 					var path = tokens.slice(3, tokens.length).join('/');
 
-					linkInput.value = 'https://gitlab.com/' + org + '/' +
+					linkInput.value = DRAWIO_GITLAB_URL + '/' + org + '/' +
 						repo + '/blob/' + ref + '/' + path;
 					linkInput.focus();
 				}

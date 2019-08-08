@@ -170,10 +170,8 @@
 			
 			var selection = editorUi.addCheckbox(div, mxResources.get('selectionOnly'),
 				false, graph.isSelectionEmpty());
-			var compressed = editorUi.addCheckbox(div, mxResources.get('compressed'),
-				!noPages, noPages);
-			var pages = editorUi.addCheckbox(div, mxResources.get('allPages'),
-				true, noPages);
+			var compressed = editorUi.addCheckbox(div, mxResources.get('compressed'), true);
+			var pages = editorUi.addCheckbox(div, mxResources.get('allPages'), !noPages, noPages);
 			pages.style.marginBottom = '16px';
 			
 			mxEvent.addListener(selection, 'change', function()
@@ -190,11 +188,11 @@
 			
 			var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 			{
-				editorUi.downloadFile('xml', noPages || !compressed.checked, null,
+				editorUi.downloadFile('xml', !compressed.checked, null,
 					!selection.checked, noPages || !pages.checked);
 			}), null, mxResources.get('export'));
 			
-			editorUi.showDialog(dlg.container, 300, 176, true, true);
+			editorUi.showDialog(dlg.container, 300, 180, true, true);
 		}));
 		
 		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
@@ -268,7 +266,7 @@
 					}
 				};
 				
-				var dlgH = 146;
+				var dlgH = 172;
 				
 				if (editorUi.pdfPageExport && !noPages)
 				{
@@ -276,11 +274,12 @@
 					var currentPage = editorUi.addRadiobox(div, 'pages', mxResources.get('currentPage', null, 'Current Page'), false);
 					var selection = editorUi.addRadiobox(div, 'pages', mxResources.get('selectionOnly'), false, graph.isSelectionEmpty());
 					var crop = editorUi.addCheckbox(div, mxResources.get('crop'), false, true);
+					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false, false);
 					
 					mxEvent.addListener(allPages, 'change', cropEnableFn);
 					mxEvent.addListener(currentPage, 'change', cropEnableFn);
 					mxEvent.addListener(selection, 'change', cropEnableFn);
-					dlgH = 205;
+					dlgH = 231;
 				}
 				else
 				{
@@ -289,6 +288,7 @@
 					var crop = editorUi.addCheckbox(div, mxResources.get('crop'),
 							!graph.pageVisible || !editorUi.pdfPageExport,
 							!editorUi.pdfPageExport);
+					var grid = editorUi.addCheckbox(div, mxResources.get('grid'), false, false);
 					
 					// Crop is only enabled if selection only is selected
 					if (!editorUi.pdfPageExport)
@@ -299,7 +299,7 @@
 				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('pdf', null, null, !selection.checked, noPages? true : !allPages.checked, !crop.checked);
+					editorUi.downloadFile('pdf', null, null, !selection.checked, noPages? true : !allPages.checked, !crop.checked, null, null, null, grid.checked);
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
 			}
@@ -555,14 +555,14 @@
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, border, cropImage, currentPage)
+						addShadow, editable, embedImages, border, cropImage, currentPage, dummy, grid)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
 						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-						   		addShadow, editable, border, !cropImage, currentPage);
+						   		addShadow, editable, border, !cropImage, currentPage, null, grid);
 						}
 					}), true, true, 'png');
 			}
@@ -582,14 +582,14 @@
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://support.draw.io/display/DO/Exporting+Files',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, border, cropImage, currentPage)
+						addShadow, editable, embedImages, border, cropImage, currentPage, dummy, grid)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
 							editorUi.exportImage(val / 100, false, ignoreSelection,
-							   	addShadow, false, border, !cropImage, false, 'jpeg');
+							   	addShadow, false, border, !cropImage, false, 'jpeg', grid);
 						}
 					}), true, false, 'jpeg');
 			}

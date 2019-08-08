@@ -48,8 +48,24 @@
 			{
 				extras = JSON.parse(data.extras);
 			} 
-			catch(e){}
+			catch(e)
+			{
+				try 
+				{
+					extras = JSON.parse(decodeURIComponent(data.extras));
+				}
+				catch(e){}
+			}
 
+			var gridColor = null;
+			
+			if (extras != null && extras.grid != null)
+			{
+				graph.gridSize = extras.grid.size;
+				graph.view.gridSteps = extras.grid.steps;
+				gridColor = extras.grid.color;
+			}
+			
 			//PNG+XML format
 			if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
 			{
@@ -239,6 +255,41 @@
 				}
 			};
 
+			function renderGrid()
+			{
+				if (gridColor == null) return;
+					
+				var view = graph.view;
+				var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(gridColor))));
+				gridImage = 'url(' + 'data:image/svg+xml;base64,' + gridImage + ')';
+                var phase = graph.gridSize * view.gridSteps * view.scale;
+                
+				var x0 = 0;
+				var y0 = 0;
+				
+				if (view.backgroundPageShape != null)
+				{
+					var bds = view.getBackgroundPageBounds();
+					
+					x0 = 1 + bds.x;
+					y0 = 1 + bds.y;
+				}
+				
+				// Computes the offset to maintain origin for grid
+				var position = -Math.round(phase - mxUtils.mod(view.translate.x * view.scale - x0, phase)) + 'px ' +
+					-Math.round(phase - mxUtils.mod(view.translate.y * view.scale - y0, phase)) + 'px';
+				
+				var pages = document.querySelectorAll('[id^=mxPage]');
+				
+				var cssTxt = 'margin: 0;padding: 0;background-image: ' + gridImage + ';background-position: ' + position;
+				document.body.style.cssText = cssTxt;
+
+				for (var i = 0; i < pages.length; i++)
+				{
+					pages[i].style.cssText = cssTxt;
+				}
+			};
+			
 			function renderPage()
 			{
 				// Enables math typesetting
@@ -287,7 +338,7 @@
 				{
 					document.body.style.backgroundColor = bg;
 				}
-
+				
 				//handle layers
 				if (extras != null && extras.layers != null)
 				{
@@ -586,6 +637,7 @@
 				renderPage();
 			}
 			
+			renderGrid();
 			// Includes images in SVG and HTML labels
 			waitForImages('image', 'xlink:href');
 			waitForImages('img', 'src');

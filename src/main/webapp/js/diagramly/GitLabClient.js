@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
  */
 GitLabClient = function(editorUi)
 {
@@ -13,7 +13,7 @@ mxUtils.extend(GitLabClient, GitHubClient);
 /**
  * Gitlab Client ID, see https://gitlab.com/oauth/applications/135239
  */
-GitLabClient.prototype.clientId = '5cdc018a32acddf6eba37592d9374945241e644b8368af847422d74c8709bc44';
+GitLabClient.prototype.clientId = DRAWIO_GITLAB_ID;
 
 /**
  * OAuth scope.
@@ -23,7 +23,7 @@ GitLabClient.prototype.scope = 'api%20read_repository%20write_repository';
 /**
  * Base URL for API calls.
  */
-GitLabClient.prototype.baseUrl = 'https://gitlab.com/api/v4';
+GitLabClient.prototype.baseUrl = DRAWIO_GITLAB_URL + '/api/v4';
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
@@ -40,7 +40,7 @@ GitLabClient.prototype.authenticate = function(success, error)
 			{
 				var state = '123';
 				var redirectUri = encodeURIComponent(window.location.origin + '/gitlab.html');
-				var win = window.open('https://gitlab.com/oauth/authorize?client_id=' +
+				var win = window.open(DRAWIO_GITLAB_URL + '/oauth/authorize?client_id=' +
 					this.clientId + '&scope=' + this.scope + '&redirect_uri=' + redirectUri +
 					'&response_type=token&state=' + state, 'gitlabauth');
 				
@@ -353,7 +353,7 @@ GitLabClient.prototype.getFile = function(path, success, error, asLibrary, check
  */
 GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibrary, refPos)
 {
-	var gitLabUrl = 'https://gitlab.com/';
+	var gitLabUrl = DRAWIO_GITLAB_URL + '/';
 	var htmlUrl = gitLabUrl + org + '/' + repo + '/blob/' + ref + '/' + data.file_path;
 	var downloadUrl = gitLabUrl + org + '/' + repo + '/raw/' + ref + '/' + data.file_path + '?inline=false';
 	var fileName = data.file_name;
@@ -430,7 +430,7 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 				// Does not insert file here as there is another writeFile implicit via fileCreated
 				if (!asLibrary)
 				{
-					var gitLabUrl = 'https://gitlab.com/';
+					var gitLabUrl = DRAWIO_GITLAB_URL + '/';
 					var htmlUrl = gitLabUrl + org + '/' + repo + '/blob/' + ref + '/' + path;
 					var downloadUrl = gitLabUrl + org + '/' + repo + '/raw/' + ref + '/' + path + '?inline=false';
 					
@@ -1094,19 +1094,20 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 								temp.style.backgroundColor = (gray) ? '#eeeeee' : '';
 								gray = !gray;
 								
-								var project = projects[j];
-								
-								temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+								(mxUtils.bind(this, function(project)
 								{
-									org = group.full_path;
-									repo = project.path;
-									ref = project.default_branch || 'master';
-									path = '';
-			
-									selectFile();
-								})));
-
-								div.appendChild(temp);
+									temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+									{
+										org = group.full_path;
+										repo = project.path;
+										ref = project.default_branch || 'master';
+										path = '';
+				
+										selectFile();
+									})));
+	
+									div.appendChild(temp);
+								}))(projects[j]);
 							}
 						})));
 					}
