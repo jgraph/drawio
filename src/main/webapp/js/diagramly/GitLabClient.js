@@ -1094,19 +1094,20 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 								temp.style.backgroundColor = (gray) ? '#eeeeee' : '';
 								gray = !gray;
 								
-								var project = projects[j];
-								
-								temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+								(mxUtils.bind(this, function(project)
 								{
-									org = group.full_path;
-									repo = project.path;
-									ref = project.default_branch || 'master';
-									path = '';
-			
-									selectFile();
-								})));
-
-								div.appendChild(temp);
+									temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+									{
+										org = group.full_path;
+										repo = project.path;
+										ref = project.default_branch || 'master';
+										path = '';
+				
+										selectFile();
+									})));
+	
+									div.appendChild(temp);
+								}))(projects[j]);
 							}
 						})));
 					}

@@ -1615,7 +1615,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border)
+	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border, grid)
 	{
 		try
 		{
@@ -1716,7 +1716,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1740,7 +1740,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
 		
@@ -1798,6 +1798,13 @@
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
 			'&filename=' + encodeURIComponent(filename) : '') +
+			(grid? '&extras=' + encodeURIComponent(JSON.stringify({
+				grid: {
+					size: this.editor.graph.gridSize,
+					steps: this.editor.graph.view.gridSteps,
+					color: this.editor.graph.view.gridColor
+				}
+			})) : '') +
 			(scale != null? '&scale=' + scale : '') +
 			(border != null? '&border=' + border : ''));
 	};
@@ -5357,6 +5364,14 @@
 			height += 26;
 		}
 		
+		var grid = null;
+		
+		if (format == 'png' || format == 'jpeg')
+		{
+			grid = this.addCheckbox(div, mxResources.get('grid'), false, this.isOffline() || !this.canvasSupported, false, true); 
+			height += 26;
+		}
+		
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
 		var hasPages = this.pages != null && this.pages.length > 1;
 		var allPages = this.addCheckbox(div, (hasPages) ? mxResources.get('allPages') : '', hasPages, !hasPages, null, format != 'jpeg');
@@ -5423,7 +5438,7 @@
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
-				linkSelect.value);
+				linkSelect.value, (grid != null? grid.checked : null));
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -6001,7 +6016,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format, grid)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -6045,7 +6060,7 @@
 			   		this.spinner.stop();
 			   		this.handleError(e);
 			   	}), null, ignoreSelection, scale || 1, transparentBackground,
-			   		addShadow, null, null, border, noCrop);
+			   		addShadow, null, null, border, noCrop, grid);
 			}
 			catch (e)
 			{
@@ -6178,7 +6193,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid)
 	{
 		try
 		{
@@ -6205,7 +6220,7 @@
 				bg = '#ffffff';
 			}
 			
-			this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
 				mxUtils.bind(this, function(svgRoot)
 			{
 				var img = new Image();
@@ -6239,22 +6254,60 @@
 							ctx.fill();
 				   		}
 	
-				   		ctx.scale(scale, scale);
-				   		
-				   		// Workaround for broken data URI images in Safari on first export
-				   		if (mxClient.IS_SF)
-				   		{			   		
-							window.setTimeout(function()
+					    ctx.scale(scale, scale);
+
+					    function drawImage()
+					    {
+					    	// Workaround for broken data URI images in Safari on first export
+					   		if (mxClient.IS_SF)
+					   		{			   		
+								window.setTimeout(function()
+								{
+									ctx.drawImage(img, border / scale, border / scale);
+									callback(canvas);
+								}, 0);
+					   		}
+					   		else
+					   		{
+					   			ctx.drawImage(img, border / scale, border / scale);
+					   			callback(canvas);
+					   		}
+					    };
+					    
+					    if (grid)
+					    {
+						    var view = graph.view;
+							var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
+							gridImage = 'data:image/svg+xml;base64,' + gridImage;
+			                var phase = graph.gridSize * view.gridSteps * scale;
+			                
+			                var b = graph.getGraphBounds();
+							var x0 = b.x * scale;
+							var y0 = b.y * scale;
+							
+							var background = new Image();
+							background.src = gridImage;
+	
+							background.onload = function()
 							{
-								ctx.drawImage(img, border / scale, border / scale);
-								callback(canvas);
-							}, 0);
-				   		}
-				   		else
-				   		{
-				   			ctx.drawImage(img, border / scale, border / scale);
-				   			callback(canvas);
-				   		}
+								var x = -Math.round(phase - mxUtils.mod(view.translate.x * scale - x0, phase));
+								var y = -Math.round(phase - mxUtils.mod(view.translate.y * scale - y0, phase));
+	
+								for (var i = x; i < w; i += phase)
+								{
+									for (var j = y; j < h; j += phase)
+									{
+										ctx.drawImage(background, i / scale, j / scale);	
+									}
+								}
+							
+								drawImage();
+							};
+					    }
+					    else
+				    	{
+					    	drawImage();
+				    	}
 			   		}
 			   		catch (e)
 			   		{
