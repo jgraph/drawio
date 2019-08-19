@@ -49,7 +49,6 @@
 - Fixes incorrect zTXt header for PNG+XML files
 - Fixes rounding of ellipse positions in SVG
 - Fixes rounding for fixed connection points
-- Uses mxGraph 3.7.5 beta 6
 
 23-JUL-2019: 11.0.4
 
@@ -59,13 +58,11 @@
 
 - Fixes handling of repository paths in GitLab
 - Ignores hidden cells for selectAll
-- Uses mxGraph 3.7.5 beta 5
 
 22-JUL-2019: 11.0.2
 
 - Replaces alt+click with shift+click in ChromeOS
 - Uses draw.io Viewer app for lightbox mode
-- Uses mxGraph 3.7.5 beta 4
 
 20-JUL-2019: 11.0.1
 
