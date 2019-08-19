@@ -175,6 +175,7 @@
         },
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
+        {name: 'allowArrows', dispName: 'Allow Arrows', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
         	enumList: [{val: 'none', dispName: 'None'},
@@ -3716,6 +3717,55 @@
 			
 			return layoutManagerGetLayout.apply(this, arguments);
 		}
+		
+		this.updateGlobalUrlVariables();
+	};
+	
+	/**
+	 * Updates the global variables from the vars URL parameter.
+	 */
+	Graph.prototype.updateGlobalUrlVariables = function()
+	{
+		if (urlParams['vars'] != null)
+		{
+			try
+			{
+				this.globalUrlVars = JSON.parse(decodeURIComponent(urlParams['vars']));
+			}
+			catch (e)
+			{
+				if (window.console != null)
+				{
+					console.log('Error in vars URL parameter: ' + e);
+				}
+			}
+		}
+	};
+
+	/**
+	 * Returns all global variables used for export. This function never returns null.
+	 * This can be overridden by plugins to return global variables for export.
+	 */
+	Graph.prototype.getExportVariables = function()
+	{
+		return (this.globalUrlVars != null) ? this.globalUrlVars : {};
+	};
+	
+	/**
+	 * Adds support for vars URL parameter.
+	 */
+	var graphGetGlobalVariable = Graph.prototype.getGlobalVariable;
+	
+	Graph.prototype.getGlobalVariable = function(name)
+	{
+		var val = graphGetGlobalVariable.apply(this, arguments);
+		
+		if (val == null && this.globalUrlVars != null)
+		{
+			val = this.globalUrlVars[name];
+		}
+		
+		return val;
 	};
 
 	/**
@@ -3769,41 +3819,6 @@
 	{
 		// FIXME: Safari only disabled due to mathjax rendering errors
 		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
-	};
-
-	/**
-	 * Adds support for vars URL parameter.
-	 */
-	var graphGetGlobalVariable = Graph.prototype.getGlobalVariable;
-	
-	Graph.prototype.getGlobalVariable = function(name)
-	{
-		var val = graphGetGlobalVariable.apply(this, arguments);
-		
-		if (val == null)
-		{
-			if (this.globalUrlVars == null && urlParams['vars'] != null)
-			{
-				try
-				{
-					this.globalUrlVars = JSON.parse(decodeURIComponent(urlParams['vars']));
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.log('Error in vars URL parameter: ' + e);
-					}
-				}
-			}
-			
-			if (this.globalUrlVars != null)
-			{
-				val = this.globalUrlVars[name];
-			}
-		}
-		
-		return val;
 	};
 
 	/**

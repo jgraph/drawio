@@ -369,7 +369,7 @@ Draw.loadPlugin(function(ui)
 	ui.showLinkDialog = function(value, btnLabel, fn)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
-		this.showDialog(dlg.container, 480, 165, true, true);
+		this.showDialog(dlg.container, 500, 180, true, true);
 		dlg.init();
 	};
 	
@@ -401,7 +401,8 @@ Draw.loadPlugin(function(ui)
 							url = url.substring(0, hash);
 						}
 						
-						newWin.location = url + '#' + encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+						//When page title has a [ at the beginning, conf adds id- to anchor name
+						newWin.location = url + '#' + (info.title.indexOf('[') == 0? 'id-' : '') + encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
 					}
 				}, function()
 				{

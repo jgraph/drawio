@@ -877,7 +877,9 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			pStyle = pStyle || {};
 			for (var i=0; i<ch.length; i++) 
 			{
-				if (ch[i].nodeType == 3) 
+				var curCh = ch[i];
+				
+				if (curCh.nodeType == 3) 
 				{ //#text
 					var fontStyle = that.cellState.style["fontStyle"];
 					var styleMap = {
@@ -890,14 +892,22 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						underline: pStyle['underline'] || (fontStyle & 4)
 					};
 					
+					var brNext = false;
+					
+					if (i + 1 < ch.length && ch[i + 1].nodeName.toUpperCase() == 'BR')
+					{
+						brNext = true;
+						i++;
+					}
+					
 					//VSDX doesn't have numbered list!
-					createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + ch[i].textContent);
+					createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + curCh.textContent + (brNext? '\n' : ''));
 				} 
-				else if (ch[i].nodeType == 1) 
+				else if (curCh.nodeType == 1) 
 				{ //element
-					var nodeName = ch[i].nodeName.toUpperCase();
-					var chLen = ch[i].childNodes.length;
-					var style = window.getComputedStyle(ch[i], null);
+					var nodeName = curCh.nodeName.toUpperCase();
+					var chLen = curCh.childNodes.length;
+					var style = window.getComputedStyle(curCh, null);
 					var styleMap = {
 						bold: style.getPropertyValue('font-weight') == 'bold' || pStyle['bold'],
 						italic: style.getPropertyValue('font-style') == 'italic' || pStyle['italic'],
@@ -936,7 +946,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 					
 					if (chLen > 0)
 					{
-						processNodeChildren(ch[i].childNodes, styleMap);
+						processNodeChildren(curCh.childNodes, styleMap);
 						
 						//Close the UL by adding another pp with no Vullets
 						if (nodeName == "UL")
@@ -957,7 +967,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 					else
 					{
 						//VSDX doesn't have numbered list!
-						createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + ch[i].textContent);
+						createTextRow(styleMap, charSect, pSect, text, (pStyle['OL']? pStyle['LiIndex'] + '. ' : '') + curCh.textContent);
 					}
 				}
 			}

@@ -275,6 +275,7 @@
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 				<file name="DrawioUser.js" />
 				<file name="DrawioComment.js" />
@@ -375,6 +376,7 @@
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
 			</sources>
 		</jscomp>

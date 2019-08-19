@@ -1266,7 +1266,7 @@ App.prototype.init = function()
 						{
 							if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
 								mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <
-								new Date().getTime() - (4 * 24 * 60 * 60 * 1000)) &&
+								new Date().getTime() - (2 * 24 * 60 * 60 * 1000)) &&
 								(!this.editor.chromeless || this.editor.editable))
 							{
 								this.drive.checkRealtimeFiles(mxUtils.bind(this, function()

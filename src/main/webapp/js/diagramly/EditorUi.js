@@ -931,6 +931,11 @@
 					fileNode.setAttribute('type', md);
 				}
 				
+				if (this.pages != null)
+				{
+					fileNode.setAttribute('pages', this.pages.length);
+				}
+				
 				if (nonCompressed)
 				{
 					fileNode.setAttribute('compressed', 'false');
@@ -1742,7 +1747,8 @@
 	 */
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
 	{
-		var bounds = this.editor.graph.getGraphBounds();
+		var graph = this.editor.graph;
+		var bounds = graph.getGraphBounds();
 		
 		// Exports only current page for images that does not contain file data, but for
 		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
@@ -1782,7 +1788,7 @@
        		}
        	}
        	
-		var bg = this.editor.graph.background;
+		var bg = graph.background;
 		
 		if (format == 'png' && transparent)
 		{
@@ -1793,18 +1799,24 @@
 			bg = '#ffffff';
 		}
 		
+		var extras = {};
+		extras.globalVars = graph.getExportVariables();
+		
+		if (grid)
+		{
+			extras.grid = {
+				size: graph.gridSize,
+				steps: graph.view.gridSteps,
+				color: graph.view.gridColor
+			}
+		}		
+		
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range + allPages +
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
 			'&filename=' + encodeURIComponent(filename) : '') +
-			(grid? '&extras=' + encodeURIComponent(JSON.stringify({
-				grid: {
-					size: this.editor.graph.gridSize,
-					steps: this.editor.graph.view.gridSteps,
-					color: this.editor.graph.view.gridColor
-				}
-			})) : '') +
+			'&extras=' + encodeURIComponent(JSON.stringify(extras)) +
 			(scale != null? '&scale=' + scale : '') +
 			(border != null? '&border=' + border : ''));
 	};
@@ -3827,7 +3839,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createImageDataUri = function(canvas, xml, format)
+	EditorUi.prototype.createImageDataUri = function(canvas, xml, format, dpi)
 	{
    	    var data = canvas.toDataURL('image/' + format);
    	    
@@ -3842,17 +3854,22 @@
    	    	data = this.writeGraphModelToPng(data, 'tEXt', 'mxfile', encodeURIComponent(xml));
    	    }
    	    
+   	    if (dpi > 0)
+    	{
+   	    	data = this.writeGraphModelToPng(data, 'pHYs', 'dpi', dpi);
+    	}
+   	    
    	    return data;
 	};
 	
 	/**
 	 * 
 	 */
-	EditorUi.prototype.saveCanvas = function(canvas, xml, format, ignorePageName)
+	EditorUi.prototype.saveCanvas = function(canvas, xml, format, ignorePageName, dpi)
 	{
 		var ext = ((format == 'jpeg') ? 'jpg' : format);
 		var filename = this.getBaseFilename(ignorePageName) + '.' + ext;
-   	    var data = this.createImageDataUri(canvas, xml, format);
+   	    var data = this.createImageDataUri(canvas, xml, format, dpi);
    	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
 	
@@ -4476,7 +4493,8 @@
 					svgRoot.getElementsByTagName('defs')[0].appendChild(style);
 				}
 				
-				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+					'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 					mxUtils.getXml(svgRoot);
 				
 		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
@@ -6016,7 +6034,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format, grid)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format, grid, dpi)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -6041,7 +6059,7 @@
 			   		{
 			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
 			   				null, null, ignoreSelection, currentPage) : null,
-			   				format, !currentPage);
+			   				format, !currentPage, dpi);
 			   		}
 			   		catch (e)
 			   		{
@@ -8280,9 +8298,17 @@
 			{
 				result = f.substring(0, pos - 8);
 				
-				var chunkData = key + String.fromCharCode(0) +
-					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
-					value;
+				if (type == 'pHYs' && key == 'dpi')
+				{
+					var dpm = Math.round(value / 0.0254); //One inch is equal to exactly 0.0254 meters.
+					var chunkData = writeInt(dpm) + writeInt(dpm) + String.fromCharCode(1);
+				}
+				else
+				{
+					var chunkData = key + String.fromCharCode(0) +
+						((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+						value;
+				}
 				
 				var crc = 0xffffffff;
 				crc = this.updateCRC(crc, type, 0, 4);
@@ -8301,7 +8327,7 @@
 		while (n);
 		
 		return 'data:image/png;base64,' + ((window.btoa) ? btoa(result) : Base64.encode(result, true));
-	}
+	};
 	
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
@@ -8562,7 +8588,7 @@
 		printAction.setEnabled(!mxClient.IS_IOS || !navigator.standalone);
 		printAction.visible = printAction.isEnabled();
 		
-		// Scales pages/graph to fit available size
+		// Installs additional keyboard shortcuts for editor
 		if (!this.editor.chromeless || this.editor.editable)
 		{
 			// Defines additional hotkeys
@@ -8579,249 +8605,8 @@
 		    	this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
 			}
 		    
-			// Handles copy paste of images from clipboard
-			if (!mxClient.IS_IE)
-			{
-				graph.container.addEventListener('paste', mxUtils.bind(this, function(evt)
-				{
-					var graph = this.editor.graph;
-					
-					if (!mxEvent.isConsumed(evt))
-					{
-						try
-						{
-							var data = (evt.clipboardData || evt.originalEvent.clipboardData);
-							var containsText = false;
-							
-							// Workaround for asynchronous paste event processing in textInput
-							// is to ignore this event if it contains text/html/rtf (see below).
-							// NOTE: Image is not pasted into textInput so can't listen there.
-							for (var i = 0; i < data.types.length; i++)
-							{	
-								if (data.types[i].substring(0, 5) === 'text/')
-								{
-									containsText = true;
-									break;
-								}
-							}
-							
-							if (!containsText)
-							{
-								var items = data.items;
-								
-								for (index in items)
-								{
-									var item = items[index];
-									
-									if (item.kind === 'file')
-									{
-										if (graph.isEditing())
-										{
-										    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
-										    	{
-										    		// Inserts image into current text box
-										    		graph.insertImage(data, w, h);
-										    	}, function()
-										    	{
-										    		// No post processing
-										    	}, function(file)
-										    	{
-										    		// Handles only images
-										    		return file.type.substring(0, 6) == 'image/';
-										    	}, function(queue)
-										    	{
-										    		// Invokes elements of queue in order
-										    		for (var i = 0; i < queue.length; i++)
-										    		{
-										    			queue[i]();
-										    		}
-										    	});
-										}
-										else
-										{
-											var pt = this.editor.graph.getInsertPoint();
-											this.importFiles([item.getAsFile()], pt.x, pt.y, this.maxImageSize);
-											mxEvent.consume(evt);
-										}
-										
-										break;
-									}
-								}
-							}
-						}
-						catch (e)
-						{
-							// ignore
-						}
-					}
-				}), false);
-			}
-
-			// Focused but invisible textarea during control or meta key events
-			var textInput = document.createElement('div');
-			textInput.setAttribute('autocomplete', 'off');
-			textInput.setAttribute('autocorrect', 'off');
-			textInput.setAttribute('autocapitalize', 'off');
-			textInput.setAttribute('spellcheck', 'false');
-			textInput.style.position = 'absolute';
-			textInput.style.whiteSpace = 'nowrap';
-			textInput.style.overflow = 'hidden';
-			textInput.style.display = 'block';
-			textInput.contentEditable = true;
-			mxUtils.setOpacity(textInput, 0);
-			textInput.style.width = '1px';
-			textInput.style.height = '1px';
-			textInput.innerHTML = '&nbsp;';
-
-			var restoreFocus = false;
-			
-			// Disables built-in cut, copy and paste shortcuts
-			this.keyHandler.bindControlKey(88, null);
-			this.keyHandler.bindControlKey(67, null);
-			this.keyHandler.bindControlKey(86, null);
-
-			// Shows a textare when control/cmd is pressed to handle native clipboard actions
-			mxEvent.addListener(document, 'keydown', mxUtils.bind(this, function(evt)
-			{
-				// No dialog visible
-				var source = mxEvent.getSource(evt);
-				
-				if (graph.container != null && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() &&
-					this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA')
-				{
-					if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
-						(mxClient.IS_MAC && evt.keyCode == 91 /* Meta */))
-					{
-						// Cannot use parentNode for check in IE
-						if (!restoreFocus)
-						{
-							// Avoid autoscroll but allow handling of all pass-through ctrl shortcuts
-							textInput.style.left = (graph.container.scrollLeft + 10) + 'px';
-							textInput.style.top = (graph.container.scrollTop + 10) + 'px';
-							
-							graph.container.appendChild(textInput);
-							restoreFocus = true;
-							
-							// Workaround for selected document content in quirks mode
-							if (mxClient.IS_QUIRKS)
-							{
-								window.setTimeout(function()
-								{
-									textInput.focus();
-									document.execCommand('selectAll', false, null);
-								}, 0);
-							}
-							else
-							{
-								textInput.focus();
-								document.execCommand('selectAll', false, null);
-							}
-						}
-					}
-				}
-			}));
-
-			// Clears input and restores focus and selection
-			function clearInput()
-			{
-				window.setTimeout(function()
-				{
-					textInput.innerHTML = '&nbsp;';
-					textInput.focus();
-					document.execCommand('selectAll', false, null);
-				}, 0);
-			};
-			
-			mxEvent.addListener(document, 'keyup', mxUtils.bind(this, function(evt)
-			{
-				// Workaround for asynchronous event read invalid in IE quirks mode
-				var keyCode = evt.keyCode;
-				
-				// Asynchronous workaround for scroll to origin after paste if the
-				// Ctrl-key is not pressed for long enough in FF on Windows
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
-						keyCode == 91 /* Meta */))
-					{
-						restoreFocus = false;
-						
-						if (!graph.isEditing() && this.dialog == null && graph.container != null)
-						{
-							graph.container.focus();
-						}
-						
-						textInput.parentNode.removeChild(textInput);
-						
-						// Workaround for lost cursor in focused element
-						if (this.dialog == null)
-						{
-							mxUtils.clearSelection();
-						}
-					}
-				}), 0);
-			}));
-
-			mxEvent.addListener(textInput, 'copy', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled())
-				{
-					try
-					{
-						mxClipboard.copy(graph);
-						this.copyCells(textInput);
-						clearInput();
-					}
-					catch (e)
-					{
-						this.handleError(e);
-					}
-				}
-			}));
-			
-			mxEvent.addListener(textInput, 'cut', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled())
-				{
-					try
-					{
-						mxClipboard.copy(graph);
-						this.copyCells(textInput, true);
-						clearInput();
-					}
-					catch (e)
-					{
-						this.handleError(e);
-					}
-				}
-			}));
-			
-			mxEvent.addListener(textInput, 'paste', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
-				{
-					textInput.innerHTML = '&nbsp;';
-					textInput.focus();
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						this.pasteCells(evt, textInput);
-						textInput.innerHTML = '&nbsp;';
-					}), 0);
-				}
-			}), true);
-			
-			// Needed for IE11
-			var isSelectionAllowed2 = this.isSelectionAllowed;
-			this.isSelectionAllowed = function(evt)
-			{
-				if (mxEvent.getSource(evt) == textInput)
-				{
-					return true;
-				}
-
-				return isSelectionAllowed2.apply(this, arguments);
-			};
+		    this.installImagePasteHandler();
+		    this.installNativeClipboardHandler();
 		};
 
 		var y = Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight || 0) / 2;
@@ -8936,39 +8721,10 @@
 			}));
 		}
 		
-		//Add ruler in test mode only
-		//TODO add the ruler containers correctly and make the vertical one dynamic as the side panel size can change
+		//Add ruler with url only
 		if (urlParams['ruler'] == '1' && typeof mxRuler !== 'undefined')
 		{
-			var hRulerDiv = document.createElement('div');
-			hRulerDiv.style.position = 'absolute';
-			hRulerDiv.style.top = '95px';
-			hRulerDiv.style.left = '250px';
-			hRulerDiv.style.width = '2000px';
-			hRulerDiv.style.height = '30px';
-			hRulerDiv.style.background = 'whiteSmoke';
-			document.body.appendChild(hRulerDiv);
-			
-			var vRulerDiv = document.createElement('div');
-			vRulerDiv.style.position = 'absolute';
-			vRulerDiv.style.top = '125px';
-			vRulerDiv.style.left = '220px';
-			vRulerDiv.style.width = '30px';
-			vRulerDiv.style.height = '1000px';
-			vRulerDiv.style.background = 'whiteSmoke';
-			document.body.appendChild(vRulerDiv);
-
-			var square = document.createElement('div');
-			square.style.position = 'absolute';
-			square.style.top = '95px';
-			square.style.left = '220px';
-			square.style.width = '30px';
-			square.style.height = '30px';
-			square.style.background = 'whiteSmoke';
-			document.body.appendChild(square);
-
-			this.vRuler = new mxRuler(this.editor.graph, vRulerDiv, true);
-			this.hRuler = new mxRuler(this.editor.graph, hRulerDiv, false);
+			this.ruler = new mxDualRuler(this, this.editor.graph.view.unit);
 		}
 		
 		// Adds an element to edit the style in the footer in test mode
@@ -9216,6 +8972,263 @@
 		}
 		
 		this.installSettings();
+	};
+	
+	/**
+	 * Installs handler for pasting image from clipboard.
+	 */
+	EditorUi.prototype.installImagePasteHandler = function()
+	{
+		if (!mxClient.IS_IE)
+		{
+			var graph = this.editor.graph;
+			
+			graph.container.addEventListener('paste', mxUtils.bind(this, function(evt)
+			{
+				if (!mxEvent.isConsumed(evt))
+				{
+					try
+					{
+						var data = (evt.clipboardData || evt.originalEvent.clipboardData);
+						var containsText = false;
+						
+						// Workaround for asynchronous paste event processing in textInput
+						// is to ignore this event if it contains text/html/rtf (see below).
+						// NOTE: Image is not pasted into textInput so can't listen there.
+						for (var i = 0; i < data.types.length; i++)
+						{	
+							if (data.types[i].substring(0, 5) === 'text/')
+							{
+								containsText = true;
+								break;
+							}
+						}
+						
+						if (!containsText)
+						{
+							var items = data.items;
+							
+							for (index in items)
+							{
+								var item = items[index];
+								
+								if (item.kind === 'file')
+								{
+									if (graph.isEditing())
+									{
+									    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
+									    	{
+									    		// Inserts image into current text box
+									    		graph.insertImage(data, w, h);
+									    	}, function()
+									    	{
+									    		// No post processing
+									    	}, function(file)
+									    	{
+									    		// Handles only images
+									    		return file.type.substring(0, 6) == 'image/';
+									    	}, function(queue)
+									    	{
+									    		// Invokes elements of queue in order
+									    		for (var i = 0; i < queue.length; i++)
+									    		{
+									    			queue[i]();
+									    		}
+									    	});
+									}
+									else
+									{
+										var pt = this.editor.graph.getInsertPoint();
+										this.importFiles([item.getAsFile()], pt.x, pt.y, this.maxImageSize);
+										mxEvent.consume(evt);
+									}
+									
+									break;
+								}
+							}
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+			}), false);
+		}
+	};
+	
+	/**
+	 * Installs the native clipboard support.
+	 */
+	EditorUi.prototype.installNativeClipboardHandler = function()
+	{
+		var graph = this.editor.graph;
+
+		// Focused but invisible textarea during control or meta key events
+		var textInput = document.createElement('div');
+		textInput.setAttribute('autocomplete', 'off');
+		textInput.setAttribute('autocorrect', 'off');
+		textInput.setAttribute('autocapitalize', 'off');
+		textInput.setAttribute('spellcheck', 'false');
+		textInput.style.position = 'absolute';
+		textInput.style.whiteSpace = 'nowrap';
+		textInput.style.overflow = 'hidden';
+		textInput.style.display = 'block';
+		textInput.contentEditable = true;
+		mxUtils.setOpacity(textInput, 0);
+		textInput.style.width = '1px';
+		textInput.style.height = '1px';
+		textInput.innerHTML = '&nbsp;';
+
+		var restoreFocus = false;
+		
+		// Disables built-in cut, copy and paste shortcuts
+		this.keyHandler.bindControlKey(88, null);
+		this.keyHandler.bindControlKey(67, null);
+		this.keyHandler.bindControlKey(86, null);
+
+		// Shows a textare when control/cmd is pressed to handle native clipboard actions
+		mxEvent.addListener(document, 'keydown', mxUtils.bind(this, function(evt)
+		{
+			// No dialog visible
+			var source = mxEvent.getSource(evt);
+			
+			if (graph.container != null && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() &&
+				this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA')
+			{
+				if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
+					(mxClient.IS_MAC && evt.keyCode == 91 /* Meta */))
+				{
+					// Cannot use parentNode for check in IE
+					if (!restoreFocus)
+					{
+						// Avoid autoscroll but allow handling of all pass-through ctrl shortcuts
+						textInput.style.left = (graph.container.scrollLeft + 10) + 'px';
+						textInput.style.top = (graph.container.scrollTop + 10) + 'px';
+						
+						graph.container.appendChild(textInput);
+						restoreFocus = true;
+						
+						// Workaround for selected document content in quirks mode
+						if (mxClient.IS_QUIRKS)
+						{
+							window.setTimeout(function()
+							{
+								textInput.focus();
+								document.execCommand('selectAll', false, null);
+							}, 0);
+						}
+						else
+						{
+							textInput.focus();
+							document.execCommand('selectAll', false, null);
+						}
+					}
+				}
+			}
+		}));
+
+		// Clears input and restores focus and selection
+		function clearInput()
+		{
+			window.setTimeout(function()
+			{
+				textInput.innerHTML = '&nbsp;';
+				textInput.focus();
+				document.execCommand('selectAll', false, null);
+			}, 0);
+		};
+		
+		mxEvent.addListener(document, 'keyup', mxUtils.bind(this, function(evt)
+		{
+			// Workaround for asynchronous event read invalid in IE quirks mode
+			var keyCode = evt.keyCode;
+			
+			// Asynchronous workaround for scroll to origin after paste if the
+			// Ctrl-key is not pressed for long enough in FF on Windows
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
+					keyCode == 91 /* Meta */))
+				{
+					restoreFocus = false;
+					
+					if (!graph.isEditing() && this.dialog == null && graph.container != null)
+					{
+						graph.container.focus();
+					}
+					
+					textInput.parentNode.removeChild(textInput);
+					
+					// Workaround for lost cursor in focused element
+					if (this.dialog == null)
+					{
+						mxUtils.clearSelection();
+					}
+				}
+			}), 0);
+		}));
+
+		mxEvent.addListener(textInput, 'copy', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled())
+			{
+				try
+				{
+					mxClipboard.copy(graph);
+					this.copyCells(textInput);
+					clearInput();
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+			}
+		}));
+		
+		mxEvent.addListener(textInput, 'cut', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled())
+			{
+				try
+				{
+					mxClipboard.copy(graph);
+					this.copyCells(textInput, true);
+					clearInput();
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+			}
+		}));
+		
+		mxEvent.addListener(textInput, 'paste', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+			{
+				textInput.innerHTML = '&nbsp;';
+				textInput.focus();
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					this.pasteCells(evt, textInput);
+					textInput.innerHTML = '&nbsp;';
+				}), 0);
+			}
+		}), true);
+		
+		// Needed for IE11
+		var isSelectionAllowed2 = this.isSelectionAllowed;
+		this.isSelectionAllowed = function(evt)
+		{
+			if (mxEvent.getSource(evt) == textInput)
+			{
+				return true;
+			}
+
+			return isSelectionAllowed2.apply(this, arguments);
+		};
 	};
 
 	/**
@@ -12177,7 +12190,7 @@
 		ExportDialog.showXmlOption = false;
 		ExportDialog.showGifOption = false;
 		
-		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
+		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
 		{
 			var graph = editorUi.editor.graph;
 			
@@ -12207,21 +12220,27 @@
 						if (format == 'png')
 						{
 							editorUi.exportImage(s, bg == null || bg == 'none', true,
-						   		false, false, b, true, false);
+						   		false, false, b, true, false, null, null, dpi);
 						}
 						else 
 						{
 							editorUi.exportImage(s, false, true,
-								false, false, b, true, false, 'jpeg');
+								false, false, b, true, false, 'jpeg', null, dpi);
 						}
 					}
 					else 
 					{
+						var extras = {
+							globalVars: graph.getExportVariables()
+						};
+						
 						editorUi.saveRequest(name, format,
 							function(newTitle, base64)
 							{
 								return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
 									((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
+									'&extras=' + encodeURIComponent(JSON.stringify(extras)) +
+									(dpi > 0? '&dpi=' + dpi : '') +
 									'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
 									'&border=' + b + '&xml=' + encodeURIComponent(data));
 							});

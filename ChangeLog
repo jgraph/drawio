@@ -1,3 +1,12 @@
+19-AUG-2019: 11.1.5
+
+- Fixes ignored background for multipage PDF export
+- Adds Lollipop Notation shape in UML section
+- Fixes export for global placeholders
+- Adds XML declaration for SVG export
+- Enables block alignment for text
+- Adds allowArrows style
+
 08-AUG-2019: 11.1.4
 
 - Fixes grid NPE in export dialog
@@ -12,7 +21,7 @@
 05-AUG-2019: 11.1.2
 
 - Fixes encoding of embedded PNG data
-- Ads custom Gitlab URL option
+- Adds custom Gitlab URL option
 
 02-AUG-2019: 11.1.1
 
@@ -49,6 +58,7 @@
 - Fixes incorrect zTXt header for PNG+XML files
 - Fixes rounding of ellipse positions in SVG
 - Fixes rounding for fixed connection points
+- Uses mxGraph 4.0.3 beta 4
 
 23-JUL-2019: 11.0.4
 
@@ -58,11 +68,13 @@
 
 - Fixes handling of repository paths in GitLab
 - Ignores hidden cells for selectAll
+- Uses mxGraph 4.0.3 beta 3
 
 22-JUL-2019: 11.0.2
 
 - Replaces alt+click with shift+click in ChromeOS
 - Uses draw.io Viewer app for lightbox mode
+- Uses mxGraph 4.0.3 beta 2
 
 20-JUL-2019: 11.0.1
 

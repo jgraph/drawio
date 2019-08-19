@@ -686,7 +686,7 @@ function VsdxExport(editorUi)
 
 	function writeXmlDoc2Zip(zip, name, xmlDoc, noHeader)
 	{
-		zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc));
+		zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc, '\n'));
 	};
 	
 	function addPagesXML(zip, pages, modelsAttr) 

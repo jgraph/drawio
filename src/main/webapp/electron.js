@@ -1076,7 +1076,8 @@ function exportDiagram(event, args, directFinalize)
 				}
 				else if (args.format == 'png' || args.format == 'jpg' || args.format == 'jpeg')
 				{
-					var newBounds = {width: Math.ceil(bounds.width + bounds.x), height: Math.ceil(bounds.height + bounds.y)};
+					//Adds an extra pixel to prevent scrollbars from showing
+					var newBounds = {width: Math.ceil(bounds.width + bounds.x) + 1, height: Math.ceil(bounds.height + bounds.y) + 1};
 					browser.setBounds(newBounds);
 					
 					//TODO The browser takes sometime to show the graph (also after resize it takes some time to render)

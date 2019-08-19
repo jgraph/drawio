@@ -981,41 +981,6 @@
 				menu.addSeparator(parent);
 				this.addSubmenu('testDevelop', menu, parent);
 			}
-			
-			if (urlParams['ruler'] == '1')
-			{
-				mxResources.parse('rulerInch=Ruler unit: Inches');
-
-				editorUi.actions.addAction('rulerInch', mxUtils.bind(this, function()
-				{
-					editorUi.vRuler.setUnit(mxRuler.prototype.INCHES);
-					editorUi.hRuler.setUnit(mxRuler.prototype.INCHES);
-					editorUi.vRuler.drawRuler(true);
-					editorUi.hRuler.drawRuler(true);
-				}));
-
-				mxResources.parse('rulerCM=Ruler unit: CMs');
-
-				editorUi.actions.addAction('rulerCM', mxUtils.bind(this, function()
-				{
-					editorUi.vRuler.setUnit(mxRuler.prototype.CENTIMETER);
-					editorUi.hRuler.setUnit(mxRuler.prototype.CENTIMETER);
-					editorUi.vRuler.drawRuler(true);
-					editorUi.hRuler.drawRuler(true);
-				}));
-
-				mxResources.parse('rulerPixel=Ruler unit: Pixels');
-
-				editorUi.actions.addAction('rulerPixel', mxUtils.bind(this, function()
-				{
-					editorUi.vRuler.setUnit(mxRuler.prototype.PIXELS);
-					editorUi.hRuler.setUnit(mxRuler.prototype.PIXELS);
-					editorUi.vRuler.drawRuler(true);
-					editorUi.hRuler.drawRuler(true);
-				}));
-
-				this.addMenuItems(menu, ['-', 'rulerInch', 'rulerCM', 'rulerPixel'], parent);
-			}
 		})));
 		
 		// Only visible in test mode
@@ -2990,6 +2955,28 @@
 			this.addMenuItems(menu, ['shapes', '-', 'pageView', 'pageScale', '-',
 			                         'scrollbars', 'tooltips', '-',
 			                         'grid', 'guides'], parent);
+			
+			if (urlParams['ruler'] == '1')
+			{
+				mxResources.parse('ruler=Ruler');
+				
+				var rulerAction = editorUi.actions.addAction('ruler', function()
+				{
+					if (editorUi.ruler != null)
+					{
+						editorUi.ruler.destroy();
+						editorUi.ruler = null;
+					}
+					else
+					{
+						editorUi.ruler = new mxDualRuler(editorUi, editorUi.editor.graph.view.unit);
+					}
+				});
+				rulerAction.setToggleAction(true);
+				rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
+						
+				this.addMenuItem(menu, 'ruler', parent);
+			}
 			
 			if (mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))
 			{

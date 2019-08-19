@@ -2801,6 +2801,26 @@
 		};
 	});
 	
+	// Registers and defines the custom marker
+	mxMarker.addMarker('halfCircle', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
+	{
+		var nx = unitX * (size + sw + 1);
+		var ny = unitY * (size + sw + 1);
+		var pt = pe.clone();
+		
+		pe.x -= nx;
+		pe.y -= ny;
+
+		return function()
+		{
+			c.begin();
+			c.moveTo(pt.x - ny, pt.y + nx);
+			c.quadTo(pe.x - ny, pe.y + nx, pe.x, pe.y);
+			c.quadTo(pe.x + ny, pe.y - nx, pt.x + ny, pt.y - nx);
+			c.stroke();
+		};
+	});
+
 	mxMarker.addMarker('async', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{
 		// The angle of the forward facing arrow sides against the x axis is

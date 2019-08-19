@@ -1429,6 +1429,27 @@ var PageSetupDialog = function(editorUi)
 	row.appendChild(td);
 	tbody.appendChild(row);
 	
+	if (urlParams['ruler'] == '1')
+	{
+		row = document.createElement('tr');
+		
+		td = document.createElement('td');
+		td.style.verticalAlign = 'top';
+		td.style.fontSize = '10pt';
+		mxUtils.write(td, mxResources.get('unit', null, 'Unit') + ':');
+		
+		row.appendChild(td);
+		
+		td = document.createElement('td');
+		td.style.verticalAlign = 'top';
+		td.style.fontSize = '10pt';
+		
+		var unitSelect = PageSetupDialog.addUnitPanel(td, graph.view.unit);
+		
+		row.appendChild(td);
+		tbody.appendChild(row);
+	}
+	
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
@@ -1588,6 +1609,11 @@ var PageSetupDialog = function(editorUi)
 			!change.ignoreColor || !change.ignoreImage)
 		{
 			graph.model.execute(change);
+		}
+		
+		if (unitSelect != null)
+		{
+			graph.view.setUnit(parseInt(unitSelect.value));
 		}
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';
@@ -1897,6 +1923,46 @@ PageSetupDialog.getFormats = function()
 	        {key: 'a6', title: 'A6 (105 mm x 148 mm)', format: new mxRectangle(0, 0, 413, 583)},
 	        {key: 'a7', title: 'A7 (74 mm x 105 mm)', format: new mxRectangle(0, 0, 291, 413)},
 	        {key: 'custom', title: mxResources.get('custom'), format: null}];
+};
+
+PageSetupDialog.addUnitPanel = function(div, unit, unitListener)
+{
+	var unitSelect = document.createElement('select');
+	unitSelect.style.marginBottom = '8px';
+	unitSelect.style.width = '202px';
+
+	var units = PageSetupDialog.getUnits();
+	
+	for (var i = 0; i < units.length; i++)
+	{
+		var u = units[i];
+
+		var unitOption = document.createElement('option');
+		unitOption.setAttribute('value', u.unit);
+		mxUtils.write(unitOption, mxResources.get(u.key, null, u.title));
+		unitSelect.appendChild(unitOption);
+	}
+
+	div.appendChild(unitSelect);
+	
+	unitSelect.value = unit;
+	
+	if (unitListener != null)
+	{
+		mxEvent.addListener(unitSelect, 'change', function(evt)
+		{
+			unitListener(parseInt(unitSelect.value));
+		});
+	}
+	
+	return unitSelect;
+};
+
+PageSetupDialog.getUnits = function()
+{
+	return [{key: 'pixel', title: 'Pixel', unit: mxConstants.PIXELS},
+	        {key: 'inch', title: 'Inch', unit: mxConstants.INCHES},
+	        {key: 'cm', title: 'CM', unit: mxConstants.CENTIMETERS}];
 };
 
 /**

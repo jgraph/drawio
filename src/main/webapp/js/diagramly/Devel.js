@@ -126,6 +126,8 @@ mxscript(drawDevUrl + 'js/diagramly/Pages.js');
 mxscript(drawDevUrl + 'js/diagramly/Trees.js');
 mxscript(drawDevUrl + 'js/diagramly/Minimal.js');
 mxscript(drawDevUrl + 'js/diagramly/DistanceGuides.js');
+mxscript(drawDevUrl + 'js/diagramly/mxRuler.js');
+mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');
 mxscript(drawDevUrl + 'js/diagramly/DevTools.js');
 
 // Vsdx/vssx support
@@ -135,9 +137,6 @@ mxscript(drawDevUrl + 'js/diagramly/vsdx/bmpDecoder.js');
 mxscript(drawDevUrl + 'js/diagramly/vsdx/importer.js');
 mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
-// mxRuler
-mxscript(drawDevUrl + 'js/diagramly/ruler/mxRuler.js');
-
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 
@@ -146,5 +145,3 @@ if (urlParams['tableLayout'] == '1')
 {
   mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
 }
-
-mxscript(drawDevUrl + 'js/diagramly/mxFreehand.js');

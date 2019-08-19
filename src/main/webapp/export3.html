@@ -103,6 +103,12 @@
 				diagrams = xmlDoc.documentElement.getElementsByTagName('diagram');
 			}
 	        
+			//Add global variables to graph
+			if (extras != null && extras.globalVars != null)
+			{
+				graph.globalUrlVars = extras.globalVars;
+			}
+			
 	        /**
 			 * Implements %page% and %pagenumber% placeholders
 			 */
@@ -319,7 +325,8 @@
 				codec.decode(xmlDoc.documentElement, model);
 	
 				// Loads background color
-				var bg = (data.bg != null && data.bg.length > 0) ? data.bg : xmlDoc.documentElement.getAttribute('background');
+				var bg = (data.bg != null && data.bg.length > 0 && data.format != 'pdf') ?
+					data.bg : xmlDoc.documentElement.getAttribute('background');
 	
 				// Normalizes values for transparent backgrounds
 				if (bg == 'none' || bg == '')
@@ -334,7 +341,7 @@
 				}
 	
 				// Sets background color on page
-				if (bg != null)
+				if (bg != null && data.format != 'pdf')
 				{
 					document.body.style.backgroundColor = bg;
 				}
