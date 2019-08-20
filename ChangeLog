@@ -1,3 +1,7 @@
+20-AUG-2019: 11.2.1
+
+- Fixes possible NPEs
+
 20-AUG-2019: 11.2.0
 
 - Adds ruler and units

@@ -1589,11 +1589,6 @@ var PageSetupDialog = function(editorUi)
 		{
 			graph.model.execute(change);
 		}
-		
-		if (unitSelect != null)
-		{
-			graph.view.setUnit(parseInt(unitSelect.value));
-		}
 	});
 	applyBtn.className = 'geBtn gePrimaryBtn';
 	td.appendChild(applyBtn);
@@ -1902,46 +1897,6 @@ PageSetupDialog.getFormats = function()
 	        {key: 'a6', title: 'A6 (105 mm x 148 mm)', format: new mxRectangle(0, 0, 413, 583)},
 	        {key: 'a7', title: 'A7 (74 mm x 105 mm)', format: new mxRectangle(0, 0, 291, 413)},
 	        {key: 'custom', title: mxResources.get('custom'), format: null}];
-};
-
-PageSetupDialog.addUnitPanel = function(div, unit, unitListener)
-{
-	var unitSelect = document.createElement('select');
-	unitSelect.style.marginBottom = '8px';
-	unitSelect.style.width = '202px';
-
-	var units = PageSetupDialog.getUnits();
-	
-	for (var i = 0; i < units.length; i++)
-	{
-		var u = units[i];
-
-		var unitOption = document.createElement('option');
-		unitOption.setAttribute('value', u.unit);
-		mxUtils.write(unitOption, mxResources.get(u.key, null, u.title));
-		unitSelect.appendChild(unitOption);
-	}
-
-	div.appendChild(unitSelect);
-	
-	unitSelect.value = unit;
-	
-	if (unitListener != null)
-	{
-		mxEvent.addListener(unitSelect, 'change', function(evt)
-		{
-			unitListener(parseInt(unitSelect.value));
-		});
-	}
-	
-	return unitSelect;
-};
-
-PageSetupDialog.getUnits = function()
-{
-	return [{key: 'point', title: 'Point', unit: mxConstants.POINTS},
-	        {key: 'inch', title: 'Inch', unit: mxConstants.INCHES},
-	        {key: 'mm', title: 'MM', unit: mxConstants.MILLIMETERS}];
 };
 
 /**

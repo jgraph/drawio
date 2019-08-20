@@ -16,7 +16,7 @@ DriveClient = function(editorUi)
 	this.mimeType = 'application/vnd.jgraph.mxfile.realtime';
 	
 	// Reading files now possible with no initial click in drive
-	if (this.ui.editor.chromeless && !this.ui.editor.editable)
+	if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1')
 	{
 		this.appId = '850530949725';
 		this.clientId = '850530949725.apps.googleusercontent.com';

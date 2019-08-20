@@ -8720,18 +8720,20 @@
 			}));
 		}
 		
-		//Adding mxRuler to editor
-		var view = this.editor.graph.view;
-		
-		view.setUnit(mxSettings.getUnit());
-		
-		view.addListener('unitChanged', function(sender, evt)
+		// Adding mxRuler to editor
+		if (typeof window.mxSettings !== 'undefined')
 		{
-			mxSettings.setUnit(evt.getProperty('unit'));
-			mxSettings.save();		
-		});
-		
-		this.ruler = mxSettings.isRulerOn()? new mxDualRuler(this, view.unit) : null;
+			var view = this.editor.graph.view;
+			view.setUnit(mxSettings.getUnit());
+			
+			view.addListener('unitChanged', function(sender, evt)
+			{
+				mxSettings.setUnit(evt.getProperty('unit'));
+				mxSettings.save();		
+			});
+			
+			this.ruler = mxSettings.isRulerOn()? new mxDualRuler(this, view.unit) : null;
+		}
 		
 		// Adds an element to edit the style in the footer in test mode
 		if (urlParams['styledev'] == '1')
