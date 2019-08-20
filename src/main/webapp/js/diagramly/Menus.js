@@ -131,6 +131,53 @@
 
 			editorUi.showDialog(dlg.container, 620, 440, true, true);
 		})).isEnabled = isGraphEnabled;
+		
+		var pointAction = editorUi.actions.addAction('points', function()
+		{
+			editorUi.editor.graph.view.setUnit(mxConstants.POINTS);
+		});
+		
+		pointAction.setToggleAction(true);
+		pointAction.setSelectedCallback(function() { return editorUi.editor.graph.view.unit == mxConstants.POINTS; });
+		
+		var inchAction = editorUi.actions.addAction('inches', function()
+		{
+			editorUi.editor.graph.view.setUnit(mxConstants.INCHES);
+		});
+		
+		inchAction.setToggleAction(true);
+		inchAction.setSelectedCallback(function() { return editorUi.editor.graph.view.unit == mxConstants.INCHES; });
+		
+		var mmAction = editorUi.actions.addAction('millimeters', function()
+		{
+			editorUi.editor.graph.view.setUnit(mxConstants.MILLIMETERS);
+		});
+		
+		mmAction.setToggleAction(true);
+		mmAction.setSelectedCallback(function() { return editorUi.editor.graph.view.unit == mxConstants.MILLIMETERS; });
+
+		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			this.addMenuItems(menu, ['points', /*'inches',*/ 'millimeters'], parent);
+		})));
+		
+		var rulerAction = editorUi.actions.addAction('ruler', function()
+		{
+			mxSettings.setRulerOn(!mxSettings.isRulerOn());
+			mxSettings.save();
+			
+			if (editorUi.ruler != null)
+			{
+				editorUi.ruler.destroy();
+				editorUi.ruler = null;
+			}
+			else
+			{
+				editorUi.ruler = new mxDualRuler(editorUi, editorUi.editor.graph.view.unit);
+			}
+		});
+		rulerAction.setToggleAction(true);
+		rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
 
 		if (window.mxFreehand)
 		{
@@ -2952,31 +2999,10 @@
 				}
 			}
 			
-			this.addMenuItems(menu, ['shapes', '-', 'pageView', 'pageScale', '-',
-			                         'scrollbars', 'tooltips', '-',
-			                         'grid', 'guides'], parent);
-			
-			if (urlParams['ruler'] == '1')
-			{
-				mxResources.parse('ruler=Ruler');
-				
-				var rulerAction = editorUi.actions.addAction('ruler', function()
-				{
-					if (editorUi.ruler != null)
-					{
-						editorUi.ruler.destroy();
-						editorUi.ruler = null;
-					}
-					else
-					{
-						editorUi.ruler = new mxDualRuler(editorUi, editorUi.editor.graph.view.unit);
-					}
-				});
-				rulerAction.setToggleAction(true);
-				rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
-						
-				this.addMenuItem(menu, 'ruler', parent);
-			}
+			this.addMenuItems(menu, ['shapes', '-', 'pageView', 'pageScale']);
+			this.addSubmenu('units', menu, parent);				
+			this.addMenuItems(menu, ['-', 'scrollbars', 'tooltips', 'ruler', '-',
+                'grid', 'guides'], parent);
 			
 			if (mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))
 			{

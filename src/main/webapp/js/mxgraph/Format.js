@@ -1909,58 +1909,58 @@ ArrangePanel.prototype.addAngle = function(div)
 	return div;
 };
 
-ArrangePanel.prototype.getUnit = function()
+BaseFormatPanel.prototype.getUnit = function()
 {
 	var unit = this.editorUi.editor.graph.view.unit;
 	
 	switch(unit)
 	{
-		case mxConstants.PIXELS:
+		case mxConstants.POINTS:
 			return 'pt';
 		case mxConstants.INCHES:
 			return '"';
-		case mxConstants.CENTIMETERS:
-			return 'cm';
+		case mxConstants.MILLIMETERS:
+			return 'mm';
 	}
 };
 
-ArrangePanel.prototype.inUnit = function(pixels)
+BaseFormatPanel.prototype.inUnit = function(pixels)
 {
 	return this.editorUi.editor.graph.view.formatUnitText(pixels);
 };
 
-ArrangePanel.prototype.fromUnit = function(value)
+BaseFormatPanel.prototype.fromUnit = function(value)
 {
 	var unit = this.editorUi.editor.graph.view.unit;
 	
 	switch(unit)
 	{
-		case mxConstants.PIXELS:
+		case mxConstants.POINTS:
 			return value;
 		case mxConstants.INCHES:
 			return value * mxConstants.PIXELS_PER_INCH;
-		case mxConstants.CENTIMETERS:
-			return value * mxConstants.PIXELS_PER_CM;
+		case mxConstants.MILLIMETERS:
+			return value * mxConstants.PIXELS_PER_MM;
 	}
 };
 
-ArrangePanel.prototype.isFloatUnit = function()
+BaseFormatPanel.prototype.isFloatUnit = function()
 {
-	return this.editorUi.editor.graph.view.unit != mxConstants.PIXELS;
+	return this.editorUi.editor.graph.view.unit != mxConstants.POINTS;
 };
 
-ArrangePanel.prototype.getUnitStep = function()
+BaseFormatPanel.prototype.getUnitStep = function()
 {
 	var unit = this.editorUi.editor.graph.view.unit;
 	
 	switch(unit)
 	{
-		case mxConstants.PIXELS:
+		case mxConstants.POINTS:
 			return 1;
 		case mxConstants.INCHES:
 			return 0.1;
-		case mxConstants.CENTIMETERS:
-			return 0.1;
+		case mxConstants.MILLIMETERS:
+			return 0.5;
 	}
 };
 
@@ -5513,6 +5513,7 @@ DiagramFormatPanel.prototype.addOptions = function(div)
  */
 DiagramFormatPanel.prototype.addGridOption = function(container)
 {
+	var fPanel = this;
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
 	
@@ -5520,9 +5521,9 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
 	input.style.width = '38px';
-	input.value = graph.getGridSize() + ' pt';
+	input.value = this.inUnit(graph.getGridSize()) + ' ' + this.getUnit(); 
 	
-	var stepper = this.createStepper(input, update);
+	var stepper = this.createStepper(input, update, this.getUnitStep(), null, null, null, this.isFloatUnit());
 	input.style.display = (graph.isGridEnabled()) ? '' : 'none';
 	stepper.style.display = input.style.display;
 
@@ -5543,20 +5544,29 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	
 	function update(evt)
 	{
-		var value = parseInt(input.value);
-		value = Math.max(1, (isNaN(value)) ? 10 : value);
+		var value = fPanel.isFloatUnit()? parseFloat(input.value) : parseInt(input.value);
+		value = fPanel.fromUnit(Math.max(fPanel.inUnit(1), (isNaN(value)) ? fPanel.inUnit(10) : value));
 		
 		if (value != graph.getGridSize())
 		{
 			graph.setGridSize(value)
 		}
 
-		input.value = value + ' pt';
+		input.value = fPanel.inUnit(value) + ' ' + fPanel.getUnit();
 		mxEvent.consume(evt);
 	};
 
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);
+	
+	var unitChangeListener = function(sender, evt)
+	{
+		input.value = fPanel.inUnit(graph.getGridSize()) + ' ' + fPanel.getUnit();
+		fPanel.format.refresh();
+	};
+	
+	graph.view.addListener('unitChanged', unitChangeListener);
+	this.listeners.push({destroy: function() { graph.view.removeListener(unitChangeListener); }});
 	
 	if (mxClient.IS_SVG)
 	{
@@ -5710,24 +5720,6 @@ DiagramFormatPanel.prototype.addPaperSize = function(div)
 	
 	graph.getModel().addListener(mxEvent.CHANGE, listener);
 	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
-	
-	if (urlParams['ruler'] == '1')
-	{
-		div.appendChild(this.createTitle(mxResources.get('unit', null, 'Unit')));
-		
-		var unitSelect = PageSetupDialog.addUnitPanel(div, graph.view.unit, function(unit)
-		{
-			graph.view.setUnit(unit);
-		});
-		
-		var unitChangeListener = function(sender, evt)
-		{
-			unitSelect.value = evt.getProperty('unit');
-		};
-		
-		graph.view.addListener('unitChanged', unitChangeListener);
-		this.listeners.push({destroy: function() { graph.view.removeListener(unitChangeListener); }});
-	}
 	
 	return div;
 };

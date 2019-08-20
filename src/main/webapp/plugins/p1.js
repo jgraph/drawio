@@ -46,8 +46,7 @@ Draw.loadPlugin(function(ui) {
 	
 	Graph.prototype.getExportVariables = function()
 	{
-		var vars = graphGetExportVariables;
-		
+		var vars = graphGetExportVariables.apply(this, arguments);
 		var file = ui.getCurrentFile();
 		
 		vars['today'] = new Date().toLocaleString();

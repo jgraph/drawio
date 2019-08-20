@@ -1429,27 +1429,6 @@ var PageSetupDialog = function(editorUi)
 	row.appendChild(td);
 	tbody.appendChild(row);
 	
-	if (urlParams['ruler'] == '1')
-	{
-		row = document.createElement('tr');
-		
-		td = document.createElement('td');
-		td.style.verticalAlign = 'top';
-		td.style.fontSize = '10pt';
-		mxUtils.write(td, mxResources.get('unit', null, 'Unit') + ':');
-		
-		row.appendChild(td);
-		
-		td = document.createElement('td');
-		td.style.verticalAlign = 'top';
-		td.style.fontSize = '10pt';
-		
-		var unitSelect = PageSetupDialog.addUnitPanel(td, graph.view.unit);
-		
-		row.appendChild(td);
-		tbody.appendChild(row);
-	}
-	
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
@@ -1960,9 +1939,9 @@ PageSetupDialog.addUnitPanel = function(div, unit, unitListener)
 
 PageSetupDialog.getUnits = function()
 {
-	return [{key: 'pixel', title: 'Pixel', unit: mxConstants.PIXELS},
+	return [{key: 'point', title: 'Point', unit: mxConstants.POINTS},
 	        {key: 'inch', title: 'Inch', unit: mxConstants.INCHES},
-	        {key: 'cm', title: 'CM', unit: mxConstants.CENTIMETERS}];
+	        {key: 'mm', title: 'MM', unit: mxConstants.MILLIMETERS}];
 };
 
 /**

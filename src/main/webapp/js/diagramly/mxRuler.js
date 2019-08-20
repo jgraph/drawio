@@ -22,10 +22,21 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	var RULER_THIKNESS = 30;
     var ruler = this;
     this.unit = unit;
+    var style = window.uiTheme == 'dark'? {
+    	bkgClr: '#2a2a2a',
+    	strokeClr: '#BBBBBB',
+    	fontClr: '#BBBBBB',
+    	guideClr: '#0088cf'
+    } : {
+    	bkgClr: 'whiteSmoke',
+    	strokeClr: '#BBBBBB',
+    	fontClr: '#BBBBBB',
+    	guideClr: '#0000BB'
+    };
     //create the container
     var container = document.createElement('div');
     container.style.position = 'absolute';
-    container.style.background = 'whiteSmoke';
+    container.style.background = style.bkgClr;
 	document.body.appendChild(container);
 	mxEvent.disableContextMenu(container);
     	
@@ -69,6 +80,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		}
 	};
 
+	editorUi.refresh(true);
 	resizeRulerContainer();
     	
     var canvas = document.createElement("canvas");
@@ -78,8 +90,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     container.style.overflow = 'hidden';
     canvas.style.position = "relative";
     container.appendChild(canvas);
-    //Disable alpha to improve performance as we don't need it
-    var ctx = canvas.getContext("2d", window.uiTheme == 'dark'? {alpha: false} : null);
+    //Disable alpha to improve performance as we don't need it?
+    var ctx = canvas.getContext('2d');
     this.ui = editorUi;
     var graph = editorUi.editor.graph;
     this.graph = graph;
@@ -132,11 +144,11 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	
         ctx.beginPath();
         ctx.lineWidth = 0.7;
-        ctx.strokeStyle = "#BBBBBB";
+        ctx.strokeStyle = style.strokeClr;
         ctx.setLineDash([]);
         ctx.font = "9px Arial";
-        ctx.fillStyle = '#BBBBBB';
-
+        ctx.fillStyle = style.fontClr;
+        
         ctx.beginPath();
         ctx.moveTo(0, 0);
         ctx.lineTo(RULER_THIKNESS, RULER_THIKNESS);
@@ -175,14 +187,14 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
         switch(ruler.unit) 
         {
-            case mxConstants.PIXELS:
+            case mxConstants.POINTS:
                 len = 10;
                 tickStep = 10;
                 tickSize = [25,5,5,5,5,10,5,5,5,5];
                 break;
-            case mxConstants.CENTIMETERS:
+            case mxConstants.MILLIMETERS:
                 len = 10;
-                tickStep = mxConstants.PIXELS_PER_CM / len;
+                tickStep = mxConstants.PIXELS_PER_MM;
                 tickSize = [25,5,5,5,5,10,5,5,5,5];
                 break;
             case mxConstants.INCHES:
@@ -199,11 +211,22 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         var step = tickStep;
         
         if (ruler.unit != mxConstants.INCHES || (scale > 2 || scale < 0.25))
-            step = scale>= 1 ? (tickStep / Math.floor(scale)) : Math.floor(10 / scale / 10) * 10;
-
+        {
+            step = scale >= 1 ? tickStep / scale : Math.floor(10 / scale / 10) * 10;
+        }
+        
+        var lastTick = null;
+            
         for (var i = RULER_THIKNESS + rStart % (step * scale); i <= (isVertical? canvas.height : canvas.width); i += step * scale) 
         {
             var current = Math.round((i - rStart) / scale / step);
+            
+            if (current == lastTick)
+        	{
+            	continue;
+        	}
+            
+            lastTick = current;
             var text = null;
             
             if (current % len == 0) 
@@ -292,6 +315,13 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         };
     };
     
+    this.setStyle = function(newStyle)
+    {
+    	style = newStyle;
+    	container.style.background = style.bkgClr;
+    	drawRuler();
+    }
+    
     //Showing guides on cell move
     this.origGuideMove = mxGuide.prototype.move;
 	
@@ -299,37 +329,61 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	{
 		if (ruler.guidePart != null)
 		{
-			ctx.putImageData(ruler.guidePart.imgData, ruler.guidePart.x, ruler.guidePart.y);	
+			ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
+			ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
+			ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);	
 		}
 		
 		var ret = ruler.origGuideMove.apply(this, arguments);
 
-		var x, y, imgData;
+		var x1, y1, imgData1, x2, y2, imgData2, x3, y3, imgData3;
 		ctx.lineWidth = 0.5;
-        ctx.strokeStyle = "#0000BB";
+        ctx.strokeStyle = style.guideClr;
         ctx.setLineDash([2]);
 
         if (isVertical)
 		{
-			y = bounds.y + ret.y + RULER_THIKNESS - this.graph.container.scrollTop;
-			x = 0;
-			imgData = ctx.getImageData(x, y, RULER_THIKNESS, 5);
-			drawLine(x, y, RULER_THIKNESS, y);
+			y1 = bounds.y + ret.y + RULER_THIKNESS - this.graph.container.scrollTop;
+			x1 = 0;
+			y2 = y1 + bounds.height / 2;
+			x2 = RULER_THIKNESS / 2;
+			y3 = y1 + bounds.height;
+			x3 = 0;
+			imgData1 = ctx.getImageData(x1, y1, RULER_THIKNESS, 5);
+			drawLine(x1, y1, RULER_THIKNESS, y1);
+			imgData2 = ctx.getImageData(x2, y2, RULER_THIKNESS, 5);
+			drawLine(x2, y2, RULER_THIKNESS, y2);
+			imgData3 = ctx.getImageData(x3, y3, RULER_THIKNESS, 5);
+			drawLine(x3, y3, RULER_THIKNESS, y3);
 		}
 		else
 		{
-			var y = 0;
-			var x = bounds.x + ret.x + RULER_THIKNESS - this.graph.container.scrollLeft;
-			imgData = ctx.getImageData(x , y, 5, RULER_THIKNESS);
-			drawLine(x, y, x, RULER_THIKNESS);
+			y1 = 0;
+			x1 = bounds.x + ret.x + RULER_THIKNESS - this.graph.container.scrollLeft;
+			y2 = RULER_THIKNESS / 2;
+			x2 = x1 + bounds.width / 2;
+			y3 = 0;
+			x3 = x1 + bounds.width;
+			imgData1 = ctx.getImageData(x1 , y1, 5, RULER_THIKNESS);
+			drawLine(x1, y1, x1, RULER_THIKNESS);
+			imgData2 = ctx.getImageData(x2 , y2, 5, RULER_THIKNESS);
+			drawLine(x2, y2, x2, RULER_THIKNESS);
+			imgData3 = ctx.getImageData(x3 , y3, 5, RULER_THIKNESS);
+			drawLine(x3, y3, x3, RULER_THIKNESS);
 		}
 		
-		if (ruler.guidePart == null || ruler.guidePart.x != x || ruler.guidePart.y != y)
+		if (ruler.guidePart == null || ruler.guidePart.x1 != x1 || ruler.guidePart.y1 != y1)
 		{
 			ruler.guidePart = { 
-				imgData: imgData,
-				x: x,
-				y: y
+				imgData1: imgData1,
+				x1: x1,
+				y1: y1,
+				imgData2: imgData2,
+				x2: x2,
+				y2: y2,
+				imgData3: imgData3,
+				x3: x3,
+				y3: y3
 			}	
 		}
 		
@@ -344,17 +398,17 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		
 		if (ruler.guidePart != null)
 		{
-			ctx.putImageData(ruler.guidePart.imgData, ruler.guidePart.x, ruler.guidePart.y);	
+			ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
+			ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
+			ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);
+			ruler.guidePart = null;
 		}
 		
 		return ret;
 	};
-	
-	drawRuler();
-	editorUi.refresh(true);
 };
 
-mxRuler.prototype.unit = mxConstants.PIXELS;
+mxRuler.prototype.unit = mxConstants.POINTS;
 
 mxRuler.prototype.setUnit = function(unit) 
 {
@@ -366,10 +420,10 @@ mxRuler.prototype.formatText = function(pixels)
 {
     switch(this.unit) 
     {
-        case mxConstants.PIXELS:
+        case mxConstants.POINTS:
             return Math.round(pixels);
-        case mxConstants.CENTIMETERS:
-            return (pixels / mxConstants.PIXELS_PER_CM).toFixed(2);
+        case mxConstants.MILLIMETERS:
+            return (pixels / mxConstants.PIXELS_PER_MM).toFixed(1);
         case mxConstants.INCHES:
             return (pixels / mxConstants.PIXELS_PER_INCH).toFixed(2);
     }
@@ -402,6 +456,9 @@ function mxDualRuler(editorUi, unit)
 	
 	this.vRuler = new mxRuler(editorUi, unit, true);
 	this.hRuler = new mxRuler(editorUi, unit, false, true);
+	
+	this.vRuler.drawRuler();
+	this.hRuler.drawRuler();
 };
 
 mxDualRuler.prototype.setUnit = function(unit) 
@@ -409,6 +466,12 @@ mxDualRuler.prototype.setUnit = function(unit)
 	this.vRuler.setUnit(unit);
 	this.hRuler.setUnit(unit);
 };
+
+mxDualRuler.prototype.setStyle = function(newStyle)
+{
+	this.vRuler.setStyle(newStyle);
+	this.hRuler.setStyle(newStyle);
+}
 
 mxDualRuler.prototype.destroy = function() 
 {

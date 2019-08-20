@@ -55,6 +55,18 @@ if (!Date.now)
 }
 
 // Changes default colors
+/**
+ * Measurements Units
+ */
+mxConstants.POINTS = 1;
+mxConstants.MILLIMETERS = 2;
+mxConstants.INCHES = 3;
+/**
+ * This ratio is with page scale 1
+ */
+mxConstants.PIXELS_PER_MM = 3.937;
+mxConstants.PIXELS_PER_INCH = 100;
+
 mxConstants.SHADOW_OPACITY = 0.25;
 mxConstants.SHADOWCOLOR = '#000000';
 mxConstants.VML_SHADOWCOLOR = '#d0d0d0';
@@ -96,7 +108,7 @@ mxGraphView.prototype.minGridSize = 4;
 mxGraphView.prototype.gridColor = '#e0e0e0';
 
 //Units
-mxGraphView.prototype.unit = mxConstants.PIXELS;
+mxGraphView.prototype.unit = mxConstants.POINTS;
 
 mxGraphView.prototype.setUnit = function(unit) 
 {
@@ -7735,10 +7747,10 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 		    switch(unit) 
 		    {
-		        case mxConstants.PIXELS:
+		        case mxConstants.POINTS:
 		            return pixels;
-		        case mxConstants.CENTIMETERS:
-		            return (pixels / mxConstants.PIXELS_PER_CM).toFixed(2);
+		        case mxConstants.MILLIMETERS:
+		            return (pixels / mxConstants.PIXELS_PER_MM).toFixed(1);
 		        case mxConstants.INCHES:
 		            return (pixels / mxConstants.PIXELS_PER_INCH).toFixed(2);
 		    }

@@ -854,8 +854,9 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('language', menu, parent);
 			}
 			
+			ui.menus.addSubmenu('units', menu, parent);
 			menu.addSeparator(parent);
-			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips'], parent);
+			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler'], parent);
             
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{

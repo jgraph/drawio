@@ -1080,7 +1080,7 @@ var ExportDialog = function(editorUi)
 	
 	td = document.createElement('td');
 	td.style.fontSize = '10pt';
-	mxUtils.write(td, mxResources.get('dpi', null, 'DPI') + ':');
+	mxUtils.write(td, mxResources.get('dpi') + ':');
 	
 	row.appendChild(td);
 	

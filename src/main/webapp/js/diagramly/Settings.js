@@ -160,6 +160,22 @@ var mxSettings =
 	{
 		mxSettings.settings.pageFormat = value;
 	},
+	getUnit: function()
+	{
+		return mxSettings.settings.unit || mxConstants.POINTS;
+	},
+	setUnit: function(value)
+	{
+		mxSettings.settings.unit = value;
+	},
+	isRulerOn: function()
+	{
+		return mxSettings.settings.isRulerOn;
+	},
+	setRulerOn: function(value)
+	{
+		mxSettings.settings.isRulerOn = value;
+	},
 	init: function()
 	{
 		mxSettings.settings = 
@@ -182,7 +198,9 @@ var mxSettings =
 			openCounter: 0,
 			version: mxSettings.currentVersion,
 			// Only defined and true for new settings which haven't been saved
-			isNew: true
+			isNew: true,
+			unit: mxConstants.POINTS,
+			isRulerOn: false
 		};
 	},
 	save: function()

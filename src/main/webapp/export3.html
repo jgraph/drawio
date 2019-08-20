@@ -48,13 +48,16 @@
 			{
 				extras = JSON.parse(data.extras);
 			} 
-			catch(e)
+			catch (e)
 			{
 				try 
 				{
 					extras = JSON.parse(decodeURIComponent(data.extras));
 				}
-				catch(e){}
+				catch (e)
+				{
+					// ignore
+				}
 			}
 
 			var gridColor = null;
