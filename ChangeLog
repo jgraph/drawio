@@ -1,3 +1,7 @@
+23-AUG-2019: 11.2.2
+
+- Add support for loading zipped draw.io and Gliffy formats
+
 20-AUG-2019: 11.2.1
 
 - Fixes possible NPEs

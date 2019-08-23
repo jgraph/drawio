@@ -840,10 +840,32 @@ function VsdxExport(editorUi)
 						
 						var diagramName = page.getName();
 						var graph = editorUi.editor.graph;
-						var modelAttrib = getGraphAttributes(graph);
-						pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
-						addImagesRels(zip, i+1);
-						modelsAttr[diagramName] = modelAttrib;
+						
+						//Handles dark mode
+						var temp = null;
+						
+						if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+						{
+							temp = graph.stylesheet;
+							graph.stylesheet = graph.getDefaultStylesheet();
+							graph.refresh();
+						}
+						
+						try
+						{
+							var modelAttrib = getGraphAttributes(graph);
+							pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
+							addImagesRels(zip, i+1);
+							modelsAttr[diagramName] = modelAttrib;
+						}
+						finally
+						{
+							if (temp != null)
+							{
+								graph.stylesheet = temp;
+								graph.refresh();
+							}
+						}
 					}
 					
 					if (currentPage != editorUi.currentPage)

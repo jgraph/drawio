@@ -17,6 +17,7 @@ const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
 const { systemPreferences } = require('electron')
+const disableUpdate = require('./disableUpdate').disableUpdate();
 autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
@@ -204,7 +205,7 @@ app.on('ready', e =>
 	        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
 	        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
 	        .option('-f, --format <format>',
-			    'if output file name extension is specified, this option is ignored (file type is determined from output extension)',
+			    'if output file name extension is specified, this option is ignored (file type is determined from output extension, possible export formats are pdf, png, jpg, svg, vsdx)',
 			    validFormatRegExp, 'pdf')
 			.option('-q, --quality <quality>',
 				'output image quality for JPEG (default: 90)', parseInt)
@@ -563,6 +564,11 @@ app.on('ready', e =>
 	      }]
 	}]
 	
+	if (disableUpdate)
+	{
+		template[0].submenu.splice(2, 1);
+	}
+	
 	if (process.platform === 'darwin')
 	{
 	    template = [{
@@ -600,6 +606,11 @@ app.on('ready', e =>
 	        selector: 'paste:'
 	      }]
 	    }]
+	    
+	    if (disableUpdate)
+		{
+			template[0].submenu.splice(2, 1);
+		}
 	}
 	
 	const menuBar = menu.buildFromTemplate(template)
@@ -611,7 +622,7 @@ app.on('ready', e =>
 		owner: 'jgraph'
 	})
 	
-	if (!store.get('dontCheckUpdates'))
+	if (!disableUpdate && !store.get('dontCheckUpdates'))
 	{
 		autoUpdater.checkForUpdates()
 	}

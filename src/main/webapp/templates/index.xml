@@ -45,7 +45,6 @@
   <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_VM_Components.xml</add>
 </clibs>
 <template url="business/accd.xml" libs="general"/>
-<template url="business/accd.xml" libs="general"/>
 <template url="business/archimate.xml" libs="general;archimate3"/>
 <template url="business/bpmn.xml" libs="general;bpmn"/>
 <template url="business/business_model_1.xml" libs="general;signs"/>

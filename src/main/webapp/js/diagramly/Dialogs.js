@@ -358,26 +358,30 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	var temp = document.createElement('div');
 	temp.style.marginBottom = '10px';
 	
-	var showMore = document.createElement('a');
-	showMore.style.color = 'gray';
-	showMore.style.fontSize = '12px';
-	showMore.style.cursor = 'pointer';
-	showMore.style.userSelect = 'none';
-	mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
-	
-	temp.appendChild(showMore);
-	p2.appendChild(temp);
-	p2.appendChild(cb);
-	
-	mxEvent.addListener(showMore, 'click', function(evt)
+	if (!editorUi.isOfflineApp())
 	{
-		container.innerHTML = '';
-		showMore.innerHTML = '';
-		StorageDialog.extended = !StorageDialog.extended;
-		addButtons();
+		var showMore = document.createElement('a');
+		showMore.style.color = 'gray';
+		showMore.style.fontSize = '12px';
+		showMore.style.cursor = 'pointer';
+		showMore.style.userSelect = 'none';
 		mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
-		mxEvent.consume(evt);
-	});
+		
+		temp.appendChild(showMore);
+		p2.appendChild(temp);
+		
+		mxEvent.addListener(showMore, 'click', function(evt)
+		{
+			container.innerHTML = '';
+			showMore.innerHTML = '';
+			StorageDialog.extended = !StorageDialog.extended;
+			addButtons();
+			mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
+			mxEvent.consume(evt);
+		});
+	}
+
+	p2.appendChild(cb);
 	
 	var span = document.createElement('span');
 	span.style.color = 'gray';
@@ -389,7 +393,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	
 	var recent = editorUi.getRecent();
 
-	if (recent != null && recent.length > 0)
+	if (!editorUi.isOfflineApp() && recent != null && recent.length > 0)
 	{
 		var recentSelect = document.createElement('select');
 		recentSelect.style.marginTop = '8px';

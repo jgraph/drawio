@@ -181,19 +181,12 @@ window.uiTheme = window.uiTheme || (function()
 	{
 		if (ui == null)
 		{
-			if (window.mxIsElectron5 && require('electron').remote.systemPreferences.isDarkMode())
-			{
-				ui = 'dark';
-			}
-			else
-			{
-		        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	
-		        if (iw <= 414)
-		        {
-		        	ui = 'min';
-		        }
-			}
+	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+	        if (iw <= 414)
+	        {
+	        	ui = 'min';
+	        }
 		}
 	}
 	catch (e)

@@ -6937,7 +6937,30 @@
 								{
 									try
 									{
-										this.doImportVisio(xhr.response, done, onerror, filename);
+										var resp = xhr.response;
+
+										if (resp.type == 'text/xml')
+										{
+											var reader = new FileReader();
+											
+											reader.onload = mxUtils.bind(this, function(e)
+											{
+												try
+												{
+													done(e.target.result);
+												}
+												catch (e)
+												{
+													onerror({message: mxResources.get('errorLoadingFile')});
+												}
+											});
+					
+											reader.readAsText(resp);
+										}
+										else
+										{
+											this.doImportVisio(resp, done, onerror, filename);
+										}
 									}
 									catch (e)
 									{
@@ -7503,6 +7526,90 @@
 		}
 	};
 	
+	
+	EditorUi.prototype.importZipFile = function(file, success, onerror)
+	{
+		var ui = this;
+		
+		JSZip.loadAsync(file)                                   
+        .then(function(zip) 
+        {
+        	if (Object.keys(zip.files).length == 0)
+        	{
+        		onerror();
+        	}
+        	else
+        	{
+        		var gliffyLatestVer = {version: 0};
+        		var drawioFound = false;
+        		
+                zip.forEach(function (relativePath, zipEntry) 
+                {
+                	var name = zipEntry.name.toLowerCase();
+					
+                    if (name == 'diagram/diagram.xml') //draw.io zip format has the latest diagram version at diagram/diagram.xml
+                    {
+                    	drawioFound = true;
+                    	
+	                    zipEntry.async("string").then(function(str){
+	                    	if (str.indexOf('<mxfile ') == 0)
+	                    	{
+	                    		success(str);
+	                    	}
+	                    	else
+                    		{
+	                    		onerror();
+                    		}
+	                    });
+                    }
+                    else if (name.indexOf('versions/') == 0) //Gliffy zip format has the versions inside versions folder
+                   	{
+                    	var version = parseInt(name.substr(9)); //9 is the length of versions/
+                    	
+                    	if (version > gliffyLatestVer.version)
+                    	{
+                    		gliffyLatestVer = {version: version, zipEntry: zipEntry}
+                    	}
+                   	}
+                });
+                
+                if (gliffyLatestVer.version > 0)
+            	{
+                	gliffyLatestVer.zipEntry.async("string").then(function(data)
+                	{
+                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
+                		{
+                			ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+                			{
+                				if (xhr.readyState == 4)
+                				{
+                					if (xhr.status >= 200 && xhr.status <= 299)
+                					{
+                						success(xhr.responseText);
+                					}
+                					else
+                					{
+                						onerror();
+                					}
+                				}
+                			}), file.name);
+                		}
+                		else
+            			{
+                			onerror();
+            			}
+                	});
+            	}
+                else if (!drawioFound)
+            	{
+                	onerror();
+            	}
+        	}
+        }, function (e) {
+    		onerror(e);
+        });                    
+	};
+	
 	/**
 	 * Imports the given XML into the existing diagram.
 	 */
@@ -7602,6 +7709,17 @@
 					}
 				}
 			}), filename);
+		}
+		else if (data.indexOf('PK') == 0 && file != null)
+		{
+			async = true;
+			
+			this.importZipFile(file, handleResult, mxUtils.bind(this, function()
+			{
+				//If importing as a zip file failed, just insert as text
+				cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
+				done(cells);
+			}));
 		}
 		else if (!/(\.v(sd|dx))($|\?)/i.test(filename) && !/(\.vs(s|x))($|\?)/i.test(filename))
 		{
@@ -7985,7 +8103,7 @@
 				    	    				{
 				    		    				return cells;
 				    	    				});
-										});
+										}, file);
 						    		}
 								}
 							});
@@ -9953,6 +10071,18 @@
 					    				this.handleError(e, mxResources.get('errorLoadingFile'));
 					    			}
 				    			}
+								else if (data.indexOf('PK') == 0)
+								{
+									this.importZipFile(file, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}), mxUtils.bind(this, function()
+									{
+										this.spinner.stop();
+										this.openLocalFile(data, name, temp);
+									}));
+								}
 								else
 								{
 									if (file.type.substring(0, 9) == 'image/png')
@@ -12233,7 +12363,7 @@
 						else 
 						{
 							editorUi.exportImage(s, false, true,
-								false, false, b, true, false, 'jpeg', null, dpi);
+								false, false, b, true, false, 'jpeg');
 						}
 					}
 					else 

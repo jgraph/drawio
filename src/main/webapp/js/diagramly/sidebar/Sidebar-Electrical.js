@@ -454,16 +454,16 @@
 
 		this.addPaletteFunctions('electrical\Instruments', 'Electrical / Instruments', false,
 		[
-			this.createVertexTemplateEntry(mein + 'ampermeter;', 
-					90, 90, '', 'Ampermeter', null, null, this.getTagsForStencil(gnmein, 'ampermeter', dtmein).join(' ')),
+			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;aspect=fixed;fontSize=50;', 
+					90, 90, 'A', 'Ammeter', null, null, this.getTagsForStencil(gnmein, 'ampermeter ammeter', dtmein).join(' ')),
 			this.createVertexTemplateEntry(mein + 'galvanometer;', 
 					90, 90, '', 'Galvanometer', null, null, this.getTagsForStencil(gnmein, 'galvanometer', dtmein).join(' ')),
 			this.createVertexTemplateEntry(mein + 'oscilloscope;', 
 					90, 90, '', 'Oscilloscope', null, null, this.getTagsForStencil(gnmein, 'oscilloscope', dtmein).join(' ')),
 			this.createVertexTemplateEntry(mein + 'signal_generator;', 
 					90, 90, '', 'Signal Generator', null, null, this.getTagsForStencil(gnmein, 'signal_generator', dtmein).join(' ')),
-			this.createVertexTemplateEntry(mein + 'voltmeter;', 
-					90, 90, '', 'Voltmeter', null, null, this.getTagsForStencil(gnmein, 'voltmeter', dtmein).join(' '))
+			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;aspect=fixed;fontSize=50;', 
+					90, 90, 'V', 'Voltmeter', null, null, this.getTagsForStencil(gnmein, 'ampermeter ammeter', dtmein).join(' '))
 		]);
 
 		this.addPaletteFunctions('electrical\Misc', 'Electrical / Misc', false,
@@ -476,8 +476,8 @@
 					64.8, 69.78, '', 'Loop Antenna', null, null, this.getTagsForStencil(gnmer, 'loop_antenna', dtmer).join(' ')),
 			this.createVertexTemplateEntry(mem + 'loop_antenna', 
 					100, 100, '', 'Loop Antenna', null, null, this.getTagsForStencil(gnmess, 'loop antenna', dtmem).join(' ')),
-			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.electrical.electro-mechanical.motor_1;html=1;shadow=0;dashed=0;fillColor=#ffffff;align=center;fontSize=30;strokeColor=#000000;strokeWidth=1;', 
-					100, 60, 'M', 'Electrical Motor', null, null, this.getTagsForStencil(gnmeem, 'motor_1', dtmeem).join(' ')),
+			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;fillColor=#ffffff;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;aspect=fixed;fontSize=35;', 
+					60, 60, 'M', 'Electrical Motor', null, null, this.getTagsForStencil(gnmeem, 'motor_1', dtmeem).join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.electrical.electro-mechanical.motor_2;html=1;shadow=0;dashed=0;fillColor=#ffffff;align=center;fontSize=30;strokeColor=#000000;strokeWidth=1;', 
 					100, 60, '', 'Motor Armature', null, null, this.getTagsForStencil(gnmeem, 'motor_2', dtmeem).join(' ')),
 			this.createVertexTemplateEntry(mem + 'co-ax;', 

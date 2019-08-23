@@ -1229,32 +1229,7 @@ App.prototype.init = function()
 			{
 				var doInit = mxUtils.bind(this, function()
 				{
-					/**
-					 * Holds the x-coordinate of the point.
-					 */
 					this.drive = new DriveClient(this);
-					
-					/**
-					 * Adds important notice for new app if drive file is loaded in old app.
-					 */
-					if (this.drive.appId == '420247213240')
-					{
-						this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
-						{
-							var file = this.getCurrentFile();
-							
-							if (file != null && file.constructor == DriveFile)
-							{
-								var td = document.getElementById('geFooterItem2');
-								
-								if (td != null)
-								{
-									td.innerHTML = '<a href="https://support.draw.io/display/DO/2014/11/27/Switching+application+in+Google+Drive" ' +
-										'target="_blank" title="IMPORTANT NOTICE">IMPORTANT NOTICE</a>';
-								}
-							}
-						}));
-					}
 					
 					this.drive.addListener('userChanged', mxUtils.bind(this, function()
 					{
@@ -1657,8 +1632,7 @@ App.prototype.checkLicense = function()
 
 		// Timestamp is workaround for cached response in certain environments
 		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) + 
-				'&ds=' + encodeURIComponent(driveUser.displayName) + '&lc=' + encodeURIComponent(driveUser.locale) + 
-				'&ts=' + new Date().getTime(),
+				'&lc=' + encodeURIComponent(driveUser.locale) + '&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
 				try
