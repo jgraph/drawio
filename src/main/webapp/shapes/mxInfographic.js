@@ -1,5 +1,5 @@
 /**
- * $Id: mxBasic.js,v 1.5 2016/04/1 12:32:06 mate Exp $
+ * $Id: mxInfographic.js,v 1.5 2016/04/1 12:32:06 mate Exp $
  * Copyright (c) 2006-2018, JGraph Ltd
  */
 //**********************************************************************************************************************************************************
@@ -1765,7 +1765,7 @@ mxShapeInfographicBannerSingleFold.prototype.getConstraints = function(style, w,
 /**
 * Extends mxShape.
 */
-function mxShapeBasicShadedCube(bounds, fill, stroke, strokewidth)
+function mxShapeInfographicShadedCube(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
@@ -1778,11 +1778,11 @@ function mxShapeBasicShadedCube(bounds, fill, stroke, strokewidth)
 /**
 * Extends mxShape.
 */
-mxUtils.extend(mxShapeBasicShadedCube, mxActor);
+mxUtils.extend(mxShapeInfographicShadedCube, mxActor);
 
-mxShapeBasicShadedCube.prototype.cst = {SHADED_CUBE : 'mxgraph.infographic.shadedCube'};
+mxShapeInfographicShadedCube.prototype.cst = {SHADED_CUBE : 'mxgraph.infographic.shadedCube'};
 
-mxShapeBasicShadedCube.prototype.customProperties = [
+mxShapeInfographicShadedCube.prototype.customProperties = [
 	{name:'isoAngle', dispName: 'Perspective', type:'float', defVal:15, min:0}
 ];
 
@@ -1791,7 +1791,7 @@ mxShapeBasicShadedCube.prototype.customProperties = [
 * 
 * Paints the vertex shape.
 */
-mxShapeBasicShadedCube.prototype.paintVertexShape = function(c, x, y, w, h)
+mxShapeInfographicShadedCube.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
 
@@ -1830,9 +1830,9 @@ mxShapeBasicShadedCube.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.registerShape(mxShapeBasicShadedCube.prototype.cst.SHADED_CUBE, mxShapeBasicShadedCube);
+mxCellRenderer.registerShape(mxShapeInfographicShadedCube.prototype.cst.SHADED_CUBE, mxShapeInfographicShadedCube);
 
-Graph.handleFactory[mxShapeBasicShadedCube.prototype.cst.SHADED_CUBE] = function(state)
+Graph.handleFactory[mxShapeInfographicShadedCube.prototype.cst.SHADED_CUBE] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['isoAngle'], function(bounds)
 	{
@@ -1848,7 +1848,7 @@ Graph.handleFactory[mxShapeBasicShadedCube.prototype.cst.SHADED_CUBE] = function
 	return handles;
 };
 
-mxShapeBasicShadedCube.prototype.getConstraints = function(style, w, h)
+mxShapeInfographicShadedCube.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
@@ -1881,7 +1881,7 @@ mxShapeBasicShadedCube.prototype.getConstraints = function(style, w, h)
 /**
 * Extends mxShape.
 */
-function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
+function mxShapeInfographicPartConcEllipse(bounds, fill, stroke, strokewidth)
 {
 	mxShape.call(this);
 	this.bounds = bounds;
@@ -1896,11 +1896,11 @@ function mxShapeBasicPartConcEllipse(bounds, fill, stroke, strokewidth)
 /**
 * Extends mxShape.
 */
-mxUtils.extend(mxShapeBasicPartConcEllipse, mxActor);
+mxUtils.extend(mxShapeInfographicPartConcEllipse, mxActor);
 
-mxShapeBasicPartConcEllipse.prototype.cst = {PART_CONC_ELLIPSE : 'mxgraph.infographic.partConcEllipse'};
+mxShapeInfographicPartConcEllipse.prototype.cst = {PART_CONC_ELLIPSE : 'mxgraph.infographic.partConcEllipse'};
 
-mxShapeBasicPartConcEllipse.prototype.customProperties = [
+mxShapeInfographicPartConcEllipse.prototype.customProperties = [
 	{name:'startAngle', dispName:'Start Angle', min:0, max:1, defVal: 0.25},
 	{name:'endAngle', dispName:'End Angle', min:0, max:1, defVal: 0.1},
 	{name:'arcWidth', dispName:'Arc Width', min:0, max:1, defVal: 0.5}
@@ -1911,7 +1911,7 @@ mxShapeBasicPartConcEllipse.prototype.customProperties = [
 * 
 * Paints the vertex shape.
 */
-mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
+mxShapeInfographicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
 
@@ -2003,9 +2003,9 @@ mxShapeBasicPartConcEllipse.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.fill();
 };
 
-mxCellRenderer.registerShape(mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE, mxShapeBasicPartConcEllipse);
+mxCellRenderer.registerShape(mxShapeInfographicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE, mxShapeInfographicPartConcEllipse);
 
-Graph.handleFactory[mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE] = function(state)
+Graph.handleFactory[mxShapeInfographicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['startAngle'], function(bounds)
 	{
@@ -2065,7 +2065,7 @@ Graph.handleFactory[mxShapeBasicPartConcEllipse.prototype.cst.PART_CONC_ELLIPSE]
 	return handles;
 };
 
-mxShapeBasicPartConcEllipse.prototype.getConstraints = function(style, w, h)
+mxShapeInfographicPartConcEllipse.prototype.getConstraints = function(style, w, h)
 {
 	var constr = [];
 	

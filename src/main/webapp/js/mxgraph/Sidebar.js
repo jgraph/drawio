@@ -446,6 +446,47 @@ Sidebar.prototype.addDataEntry = function(tags, width, height, title, data)
 };
 
 /**
+ * Adds the give entries to the search index.
+ */
+Sidebar.prototype.addEntries = function(images)
+{
+	for (var i = 0; i < images.length; i++)
+	{
+		(mxUtils.bind(this, function(img)
+		{
+			var data = img.data;
+			
+			if (data != null && img.title != null)
+			{
+				this.addEntry(img.title, mxUtils.bind(this, function()
+				{
+					data = this.editorUi.convertDataUri(data);
+					var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
+					
+					if (img.aspect == 'fixed')
+					{
+						s += 'aspect=fixed;'
+					}
+					
+					return this.createVertexTemplate(s + 'image=' +
+						data, img.w, img.h, '', img.title || '', false, false, true)
+				}));
+			}
+			else if (img.xml != null && img.title != null)
+			{
+				this.addEntry(img.title, mxUtils.bind(this, function()
+				{
+					var cells = this.editorUi.stringToCells(Graph.decompress(img.xml));
+
+					return this.createVertexTemplateFromCells(
+						cells, img.w, img.h, img.title || '', true, false, true);
+				}));
+			}
+		}))(images[i]);
+	}
+};
+
+/**
  * Hides the current tooltip.
  */
 Sidebar.prototype.addEntry = function(tags, fn)
@@ -639,6 +680,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	input.style.width = '100%';
 	input.style.outline = 'none';
 	input.style.padding = '6px';
+	input.style.paddingRight = '20px';
 	inner.appendChild(input);
 
 	var cross = document.createElement('img');
@@ -764,6 +806,12 @@ Sidebar.prototype.addSearchPalette = function(expand)
 							active = false;
 							page++;
 							this.insertSearchHint(div, searchTerm, count, page, results, len, more, terms);
+							
+							// Allows to repeat the search
+							if (results.length == 0 && page == 1)
+							{
+								searchTerm = '';
+							}
 
 							if (center.parentNode != null)
 							{
@@ -832,18 +880,6 @@ Sidebar.prototype.addSearchPalette = function(expand)
 			mxEvent.consume(evt);
 		}
 	}));
-	
-	mxEvent.addListener(input, 'focus', function()
-	{
-		input.style.paddingRight = '';
-	});
-	
-	mxEvent.addListener(input, 'blur', function()
-	{
-		input.style.paddingRight = '20px';
-	});
-
-	input.style.paddingRight = '20px';
 	
 	mxEvent.addListener(input, 'keyup', mxUtils.bind(this, function(evt)
 	{

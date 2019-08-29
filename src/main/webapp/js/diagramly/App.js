@@ -1956,10 +1956,10 @@ App.prototype.getThumbnail = function(width, fn)
 		
 		if (this.pages != null && (this.currentPage != this.pages[0] || darkTheme))
 		{
-			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());
 			var graphGetGlobalVariable = graph.getGlobalVariable;
+			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());
 			var page = this.pages[0];
-
+			
 			// Avoids override of stylesheet in getSvg for dark mode
 			if (darkTheme)
 			{
@@ -1979,7 +1979,8 @@ App.prototype.getThumbnail = function(width, fn)
 				
 				return graphGetGlobalVariable.apply(this, arguments);
 			};
-	
+			
+			graph.getGlobalVariable = graphGetGlobalVariable;
 			document.body.appendChild(graph.container);
 			graph.model.setRoot(page.root);
 		}

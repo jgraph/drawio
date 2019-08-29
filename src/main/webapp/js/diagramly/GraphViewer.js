@@ -143,7 +143,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				if (this.graphConfig['toolbar-nohide'] == true)
 				{
-					this.editor.defaultGraphOverflow = 'visible'; 					
+					this.editor.defaultGraphOverflow = 'visible';
 				}
 				
 				//Extract graph model from html & svg formats 
@@ -160,7 +160,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				if (mxClient.IS_SVG)
 				{
 					// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
-					this.editor.graph.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
+					this.graph.addSvgShadow(this.graph.view.canvas.ownerSVGElement, null, true);
 				}
 				
 				// Adds page placeholders
@@ -197,6 +197,10 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 							else if (name == 'pagenumber')
 							{
 								return self.currentPage + 1;
+							}
+							else if (name == 'pagecount')
+							{
+								return diagrams.length;
 							}
 							
 							return graphGetGlobalVariable.apply(this, arguments);

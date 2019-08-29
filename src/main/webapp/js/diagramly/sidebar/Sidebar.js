@@ -744,6 +744,7 @@
 							{
 								var dataLoaded = mxUtils.bind(this, function(images)
 								{
+									this.addEntries(images);
 									this.editorUi.addLibraryEntries(images, content);
 								});
 								

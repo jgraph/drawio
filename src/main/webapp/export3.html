@@ -23,6 +23,7 @@
 	<script>
 		var mxIsElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
 		var GOOGLE_APPS_MAX_AREA = 25000000;
+		var GOOGLE_SHEET_MAX_AREA = 1048576; //1024x1024
 		
 		Editor.initMath();
 	
@@ -111,27 +112,7 @@
 			{
 				graph.globalUrlVars = extras.globalVars;
 			}
-			
-	        /**
-			 * Implements %page% and %pagenumber% placeholders
-			 */
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			
-			graph.getGlobalVariable = function(name)
-			{
-				if (name == 'page')
-				{
-					return (diagrams == null) ? 'Page-1' :
-						(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
-				}
-				else if (name == 'pagenumber')
-				{
-					return from + 1;
-				}
-				
-				return graphGetGlobalVariable.apply(this, arguments);
-			};
-			
+
 			/**
 			 * Disables custom links on shapes.
 			 */
@@ -483,6 +464,11 @@
 							else if (b.width < 4 * pageWidth && b.height < 6 * pageWidth)
 							{
 								s = 2;
+							}
+							
+							if (extras != null && extras.isGoogleSheet != null)
+							{
+								GOOGLE_APPS_MAX_AREA = GOOGLE_SHEET_MAX_AREA;
 							}
 							
 							//The image cannot exceed 25 MP to be included in Google Apps

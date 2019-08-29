@@ -1,3 +1,18 @@
+29-AUG-2019: 11.2.4
+
+- Fixes segment connector rounding issue
+- Updates AWS icons
+- Fixes partial concentric ellipse
+- Fixes search for custom libraries
+- Adds pagecount placeholder
+
+26-AUG-2019: 11.2.3
+
+- Fit window zoom no longer ignores selection
+- Updates page IDs in custom links on import
+- Updates link hint after selection change
+- Updates cell IDs in custom links
+
 23-AUG-2019: 11.2.2
 
 - Add support for loading zipped draw.io and Gliffy formats

@@ -1323,8 +1323,8 @@
 		if (this.pages != null && this.currentPage != this.pages[0] && (forceSvg ||
 			(!forceXml && file != null && /(\.svg)$/i.test(file.getTitle()))))
 		{
-			graph = this.createTemporaryGraph(graph.getStylesheet());
 			var graphGetGlobalVariable = graph.getGlobalVariable;
+			graph = this.createTemporaryGraph(graph.getStylesheet());
 			var page = this.pages[0];
 	
 			graph.getGlobalVariable = function(name)
@@ -2840,40 +2840,7 @@
 		// KNOWN: Existing entries are not replaced after edit of custom library
 		if (this.sidebar != null && images != null)
 		{
-			for (var i = 0; i < images.length; i++)
-			{
-				(mxUtils.bind(this, function(img)
-				{
-					var data = img.data;
-					
-					if (data != null && img.title != null)
-					{
-						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
-						{
-							data = this.convertDataUri(data);
-							var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
-							
-							if (img.aspect == 'fixed')
-							{
-								s += 'aspect=fixed;'
-							}
-							
-							return this.sidebar.createVertexTemplate(s + 'image=' +
-								data, img.w, img.h, '', img.title || '', false, false, true)
-						}));
-					}
-					else if (img.xml != null && img.title != null)
-					{
-						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
-						{
-							var cells = this.stringToCells(Graph.decompress(img.xml));
-	
-							return this.sidebar.createVertexTemplateFromCells(
-								cells, img.w, img.h, img.title || '', true, false, true);
-						}));
-					}
-				}))(images[i]);
-			}
+			this.sidebar.addEntries(images);
 		}
 		
 		// Adds new sidebar entry for this library
@@ -6826,7 +6793,7 @@
 		var graph = this.editor.graph;
 		var href = graph.getLinkForCell(cell);
 		
-		if (href != null && href.substring(0, 13) == 'data:page/id,')
+		if (href != null)
 		{
 			graph.setLinkForCell(cell, this.updatePageLink(mapping, href));
 		}
@@ -6841,7 +6808,7 @@
 			{
 				href = links[i].getAttribute('href');
 				
-				if (href != null && href.substring(0, 13) == 'data:page/id,')
+				if (href != null)
 				{
 					links[i].setAttribute('href', this.updatePageLink(mapping, href));
 					changed = true;
@@ -6865,9 +6832,48 @@
 	 */
 	EditorUi.prototype.updatePageLink = function(mapping, href)
 	{
-		var newId = mapping[href.substring(href.indexOf(',') + 1)];
+		if (href.substring(0, 13) == 'data:page/id,')
+		{
+			var newId = mapping[href.substring(href.indexOf(',') + 1)];
+			href = (newId != null) ? 'data:page/id,' + newId : null;
+		}
+		else if (href.substring(0, 17) == 'data:action/json,')
+		{
+			try
+			{
+				var link = JSON.parse(href.substring(17));
+
+				if (link.actions != null)
+				{
+					for (var i = 0; i < link.actions.length; i++)
+					{
+						var action = link.actions[i];
+						
+						if (action.open != null && action.open.substring(0, 13) == 'data:page/id,')
+						{
+							var newId = mapping[action.open.substring(action.open.indexOf(',') + 1)];
+							
+							if (newId != null)
+							{
+								action.open = 'data:page/id,' + newId;
+							}
+							else
+							{
+								delete action.open;
+							}
+						}
+					}
+					
+					href = 'data:action/json,' + JSON.stringify(link);
+				}
+			}
+			catch (e)
+			{
+				// Ignore
+			}
+		}
 		
-		return (newId != null) ? 'data:page/id,' + newId : null;
+		return href;
 	};
 	
 	/**
@@ -7531,83 +7537,105 @@
 	{
 		var ui = this;
 		
-		JSZip.loadAsync(file)                                   
-        .then(function(zip) 
-        {
-        	if (Object.keys(zip.files).length == 0)
-        	{
-        		onerror();
-        	}
-        	else
-        	{
-        		var gliffyLatestVer = {version: 0};
-        		var drawioFound = false;
-        		
-                zip.forEach(function (relativePath, zipEntry) 
-                {
-                	var name = zipEntry.name.toLowerCase();
-					
-                    if (name == 'diagram/diagram.xml') //draw.io zip format has the latest diagram version at diagram/diagram.xml
-                    {
-                    	drawioFound = true;
-                    	
-	                    zipEntry.async("string").then(function(str){
-	                    	if (str.indexOf('<mxfile ') == 0)
-	                    	{
-	                    		success(str);
-	                    	}
-	                    	else
-                    		{
-	                    		onerror();
-                    		}
-	                    });
-                    }
-                    else if (name.indexOf('versions/') == 0) //Gliffy zip format has the versions inside versions folder
-                   	{
-                    	var version = parseInt(name.substr(9)); //9 is the length of versions/
-                    	
-                    	if (version > gliffyLatestVer.version)
-                    	{
-                    		gliffyLatestVer = {version: version, zipEntry: zipEntry}
-                    	}
-                   	}
-                });
-                
-                if (gliffyLatestVer.version > 0)
-            	{
-                	gliffyLatestVer.zipEntry.async("string").then(function(data)
-                	{
-                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
-                		{
-                			ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
-                			{
-                				if (xhr.readyState == 4)
-                				{
-                					if (xhr.status >= 200 && xhr.status <= 299)
-                					{
-                						success(xhr.responseText);
-                					}
-                					else
-                					{
-                						onerror();
-                					}
-                				}
-                			}), file.name);
-                		}
-                		else
-            			{
-                			onerror();
-            			}
-                	});
-            	}
-                else if (!drawioFound)
-            	{
-                	onerror();
-            	}
-        	}
-        }, function (e) {
-    		onerror(e);
-        });                    
+		var delayed = mxUtils.bind(this, function()
+		{
+			this.loadingExtensions = false;
+			
+			if (typeof JSZip  !== 'undefined')
+			{
+				JSZip.loadAsync(file)                                   
+		        .then(function(zip) 
+		        {
+		        	if (Object.keys(zip.files).length == 0)
+		        	{
+		        		onerror();
+		        	}
+		        	else
+		        	{
+		        		var gliffyLatestVer = {version: 0};
+		        		var drawioFound = false;
+		        		
+		                zip.forEach(function (relativePath, zipEntry) 
+		                {
+		                	var name = zipEntry.name.toLowerCase();
+							
+		                    if (name == 'diagram/diagram.xml') //draw.io zip format has the latest diagram version at diagram/diagram.xml
+		                    {
+		                    	drawioFound = true;
+		                    	
+			                    zipEntry.async("string").then(function(str){
+			                    	if (str.indexOf('<mxfile ') == 0)
+			                    	{
+			                    		success(str);
+			                    	}
+			                    	else
+		                    		{
+			                    		onerror();
+		                    		}
+			                    });
+		                    }
+		                    else if (name.indexOf('versions/') == 0) //Gliffy zip format has the versions inside versions folder
+		                   	{
+		                    	var version = parseInt(name.substr(9)); //9 is the length of versions/
+		                    	
+		                    	if (version > gliffyLatestVer.version)
+		                    	{
+		                    		gliffyLatestVer = {version: version, zipEntry: zipEntry}
+		                    	}
+		                   	}
+		                });
+		                
+		                if (gliffyLatestVer.version > 0)
+		            	{
+		                	gliffyLatestVer.zipEntry.async("string").then(function(data)
+		                	{
+		                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
+		                		{
+		                			ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+		                			{
+		                				if (xhr.readyState == 4)
+		                				{
+		                					if (xhr.status >= 200 && xhr.status <= 299)
+		                					{
+		                						success(xhr.responseText);
+		                					}
+		                					else
+		                					{
+		                						onerror();
+		                					}
+		                				}
+		                			}), file.name);
+		                		}
+		                		else
+		            			{
+		                			onerror();
+		            			}
+		                	});
+		            	}
+		                else if (!drawioFound)
+		            	{
+		                	onerror();
+		            	}
+		        	}
+		        }, function (e) {
+		    		onerror(e);
+		        }); 
+			}
+			else
+			{
+				onerror();
+			}
+		});
+		
+		if (typeof JSZip === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
+		{
+			this.loadingExtensions = true;
+			mxscript('js/extensions.min.js', delayed);
+		}
+		else
+		{
+			delayed();
+		}
 	};
 	
 	/**
@@ -8529,7 +8557,7 @@
 			
 			return done;
 		};
-		
+
 		// Extends clear default style to clear persisted settings
 		var clearDefaultStyle = this.clearDefaultStyle;
 		
@@ -8632,8 +8660,23 @@
 
 		// Specifies the default filename
 		this.defaultFilename = mxResources.get('untitledDiagram');
+
+		// Adds export for %page%, %pagenumber% and %pagecount% placeholders
+		var graphGetExportVariables = graph.getExportVariables;
 		
-		// Adds placeholder for %page% and %pagenumber%
+		graph.getExportVariables = function()
+		{
+			var vars = graphGetExportVariables.apply(this, arguments);
+			
+			vars['pagecount'] = (ui.pages != null) ? ui.pages.length : 1;
+			vars['page'] = (ui.currentPage != null) ? ui.currentPage.getName() : '';
+			vars['pagenumber'] = (ui.pages != null && ui.currentPage != null) ?
+				mxUtils.indexOf(ui.pages, ui.currentPage) + 1 : 1;
+			
+			return vars;
+		};
+
+		// Adds %page%, %pagenumber% and %pagecount% placeholders
 		var graphGetGlobalVariable = graph.getGlobalVariable;
 		
 		graph.getGlobalVariable = function(name)
@@ -8652,6 +8695,10 @@
 				{
 					return 1;
 				}
+			}
+			else if (name == 'pagecount')
+			{
+				return (ui.pages != null) ? ui.pages.length : 1;
 			}
 			
 			return graphGetGlobalVariable.apply(this, arguments);
@@ -10734,8 +10781,8 @@
 								// LATER: Add caching for the graph or SVG while not on first page
 								if (this.pages != null && this.currentPage != this.pages[0])
 								{
-									graph = this.createTemporaryGraph(graph.getStylesheet());
 									var graphGetGlobalVariable = graph.getGlobalVariable;
+									graph = this.createTemporaryGraph(graph.getStylesheet());
 									var page = this.pages[0];
 							
 									graph.getGlobalVariable = function(name)

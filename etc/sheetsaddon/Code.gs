@@ -128,7 +128,7 @@ function insertDiagram(id, page, col, row)
   var blob = result[0];
   var w = result[1];
   var h = result[2];
-  var s = result[3];
+  var s = result[3] < 1? 1: result[3];
   var img = null;
   
   if (blob != null)
@@ -366,7 +366,7 @@ function updateDiagram(id, page, scale, elt, pageId)
     var blob = result[0];
     var w = result[1];
     var h = result[2];
-    var s = result[3];
+    var s = result[3] < 1? 1: result[3];
     
     if (blob != null)
     {
@@ -406,7 +406,7 @@ function fetchImage(id, page, scale, pageId)
 		  "format": "png",
           "scale": scale || "1",
 		  "xml": fileData,
-		  "extras": "{\"isPng\": " + isPng + ", \"isGoogleApp\": true}"
+		  "extras": "{\"isPng\": " + isPng + ", \"isGoogleApp\": true, \"isGoogleSheet\": true}"
 		};
     
     	if (pageId != null)

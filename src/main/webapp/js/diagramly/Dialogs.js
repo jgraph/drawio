@@ -5363,6 +5363,10 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		{
 			return realPage + 1;
 		}
+		else if (name == 'pagecount')
+		{
+			return (diagrams != null) ? diagrams.length : 1;
+		}
 		
 		return graphGetGlobalVariable.apply(this, arguments);
 	};
@@ -5769,9 +5773,9 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 									try
 									{
 										var temp = parseInt(pageSelect.value);
-										parseDiagram(diagrams[temp]);
 										currentPage = temp;
 										realPage = currentPage;
+										parseDiagram(diagrams[temp]);
 									}
 									catch (e)
 									{
@@ -6037,6 +6041,10 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 		else if (name == 'pagenumber')
 		{
 			return currentPage + 1;
+		}
+		else if (name == 'pagecount')
+		{
+			return (diagrams != null) ? diagrams.length : 1;
 		}
 		
 		return graphGetGlobalVariable.apply(this, arguments);

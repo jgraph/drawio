@@ -220,6 +220,10 @@
 							{
 								return 1;
 							}
+							else if (name == 'pagecount')
+							{
+								return diagrams.length;
+							}
 							
 							return graphGetGlobalVariable.apply(this, arguments);
 						};

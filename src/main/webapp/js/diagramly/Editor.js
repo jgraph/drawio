@@ -3352,12 +3352,12 @@
 						else if (colorset['fill'] == '')
 						{
 							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						
 						if (colorset['stroke'] == mxConstants.NONE)
@@ -3367,12 +3367,12 @@
 						else if (colorset['stroke'] == '')
 						{
 							btn.style.border = '1px solid ' + mxUtils.getValue(graph.defaultVertexStyle, 
-								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff');
+								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
-									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#000000' : '#ffffff'));
+									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff'));
 						}
 					}
 					else
@@ -3585,6 +3585,7 @@
 	 * Adds rack child layout style.
 	 */
 	var graphInit = Graph.prototype.init;
+	
 	Graph.prototype.init = function()
 	{
 		graphInit.apply(this, arguments);
@@ -3782,7 +3783,7 @@
 		
 		return this.defaultStylesheet;
 	};
-	
+
 	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.
 	 */
@@ -3865,6 +3866,7 @@
 	 * Sets default style (used in editor.get/setGraphXml below)
 	 */
 	var graphLoadStylesheet = Graph.prototype.loadStylesheet;
+	
 	Graph.prototype.loadStylesheet = function()
 	{
 		graphLoadStylesheet.apply(this, arguments);
@@ -3900,6 +3902,8 @@
 			// Some actions are stateless and must be handled before the transaction
 			var link = JSON.parse(href.substring(17));
 
+			// When adding new actions that reference cell IDs support for updating
+			// those cell IDs must be handled in Graph.updateCustomLinkActions
 			if (link.actions != null)
 			{
 				// Executes open actions before starting transaction
@@ -3984,7 +3988,126 @@
 			}
 		}
 	};
+	
+	/**
+	 * Updates cell IDs in custom links on the given cell and its label.
+	 */
+	Graph.prototype.updateCustomLinksForCell = function(mapping, cell)
+	{
+		var href = this.getLinkForCell(cell);
+		
+		if (href != null && href.substring(0, 17) == 'data:action/json,')
+		{
+			this.setLinkForCell(cell, this.updateCustomLink(mapping, href));
+		}
+		
+		if (this.isHtmlLabel(cell))
+		{
+			var temp = document.createElement('div');
+			temp.innerHTML = this.getLabel(cell);
+			var links = temp.getElementsByTagName('a');
+			var changed = false;
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				href = links[i].getAttribute('href');
+				
+				if (href != null && href.substring(0, 17) == 'data:action/json,')
+				{
+					links[i].setAttribute('href', this.updateCustomLink(mapping, href));
+					changed = true;
+				}
+			}
+			
+			if (changed)
+			{
+				this.labelChanged(cell, temp.innerHTML);
+			}
+		}
+	};
+	
+	/**
+	 * Updates cell IDs in the given custom link and returns the updated link.
+	 */
+	Graph.prototype.updateCustomLink = function(mapping, href)
+	{
+		if (href.substring(0, 17) == 'data:action/json,')
+		{
+			try
+			{
+				// Some actions are stateless and must be handled before the transaction
+				var link = JSON.parse(href.substring(17));
 
+				if (link.actions != null)
+				{
+					this.updateCustomLinkActions(mapping, link.actions);
+					href = 'data:action/json,' + JSON.stringify(link);
+				}
+			}
+			catch (e)
+			{
+				// Ignore
+			}
+		}
+		
+		return href;
+	};
+
+	/**
+	 * Updates cell IDs in the given custom link actions.
+	 */
+	Graph.prototype.updateCustomLinkActions = function(mapping, actions)
+	{
+		for (var i = 0; i < actions.length; i++)
+		{
+			var action = actions[i];
+			
+			this.updateCustomLinkAction(mapping, action.toggle);
+			this.updateCustomLinkAction(mapping, action.show);
+			this.updateCustomLinkAction(mapping, action.hide);
+			this.updateCustomLinkAction(mapping, action.select);
+			this.updateCustomLinkAction(mapping, action.highlight);
+			this.updateCustomLinkAction(mapping, action.scroll);
+		}
+	};
+	
+	/**
+	 * Updates cell IDs in the given custom link action.
+	 */
+	Graph.prototype.updateCustomLinkAction = function(mapping, action)
+	{
+		if (action != null && action.cells != null)
+		{
+			var result = [];
+			
+			for (var i = 0; i < action.cells.length; i++)
+			{
+				if (action.cells[i] == '*')
+				{
+					result.push(action.cells[i]);
+				}
+				else
+				{
+					var temp = mapping[action.cells[i]];
+					
+					if (temp != null)
+					{
+						if (temp != '')
+						{
+							result.push(temp);
+						}
+					}
+					else
+					{
+						result.push(action.cells[i]);
+					}
+				}
+			}
+			
+			action.cells = result;
+		}
+	};
+	
 	/**
 	 * Handles each action in the action array of a custom link. This code
 	 * handles toggle actions for cell IDs.
@@ -4903,6 +5026,10 @@
 							else if (name == 'pagenumber')
 							{
 								return i + 1;
+							}
+							else if (name == 'pagecount')
+							{
+								return (editorUi.pages != null) ? editorUi.pages.length : 1;
 							}
 							
 							return graphGetGlobalVariable.apply(this, arguments);
