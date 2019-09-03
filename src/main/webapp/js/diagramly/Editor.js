@@ -3783,6 +3783,14 @@
 		
 		return this.defaultStylesheet;
 	};
+	
+	/**
+	 * Overiddes function to use url parameter
+	 */
+	Graph.prototype.isViewer = function()
+	{
+		return urlParams['viewer'];
+	};
 
 	/**
 	 * Temporarily overrides stylesheet during image export in dark mode.

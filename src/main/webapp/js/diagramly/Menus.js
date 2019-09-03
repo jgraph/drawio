@@ -326,7 +326,7 @@
 					mxEvent.addListener(allPages, 'change', cropEnableFn);
 					mxEvent.addListener(currentPage, 'change', cropEnableFn);
 					mxEvent.addListener(selection, 'change', cropEnableFn);
-					dlgH = 231;
+					dlgH = 240;
 				}
 				else
 				{

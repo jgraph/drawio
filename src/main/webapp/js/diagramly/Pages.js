@@ -615,7 +615,7 @@ Graph.prototype.setViewState = function(state)
 		this.foldingEnabled = state.foldingEnabled;
 		this.setShadowVisible(state.shadowVisible, false);
 		this.scrollbars = state.scrollbars;
-		this.pageVisible = state.pageVisible;
+		this.pageVisible = !this.isViewer() && state.pageVisible;
 		this.background = state.background;
 		this.backgroundImage = state.backgroundImage;
 		this.pageScale = state.pageScale;

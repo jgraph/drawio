@@ -441,7 +441,7 @@ Editor.prototype.readGraphState = function(node)
 		this.graph.pageScale = mxGraph.prototype.pageScale;
 	}
 
-	if (!this.graph.isLightboxView())
+	if (!this.graph.isLightboxView() && !this.graph.isViewer())
 	{
 		var pv = node.getAttribute('page');
 	

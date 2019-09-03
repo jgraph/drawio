@@ -1423,7 +1423,7 @@ EditorUi.prototype.initCanvas = function()
 	{
         resize = mxUtils.bind(this, function(autoscale, maxScale, cx, cy)
         {
-            if (graph.container != null)
+            if (graph.container != null && !graph.isViewer())
             {
                 cx = (cx != null) ? cx : 0;
                 cy = (cy != null) ? cy : 0;
@@ -1527,7 +1527,7 @@ EditorUi.prototype.initCanvas = function()
 			this.chromelessToolbar.style.whiteSpace = 'nowrap';
 			this.chromelessToolbar.style.backgroundColor = '#000000';
 			this.chromelessToolbar.style.padding = '10px 10px 8px 10px';
-			this.chromelessToolbar.style.left = '50%';
+			this.chromelessToolbar.style.left = (graph.isViewer()) ? '0' : '50%';
 			
 			if (!mxClient.IS_VML)
 			{
@@ -1538,8 +1538,16 @@ EditorUi.prototype.initCanvas = function()
 			var updateChromelessToolbarPosition = mxUtils.bind(this, function()
 			{
 				var css = mxUtils.getCurrentStyle(graph.container);
-			 	this.chromelessToolbar.style.bottom = ((css != null) ? parseInt(css['margin-bottom'] || 0) : 0) +
-			 		((this.tabContainer != null) ? (20 + parseInt(this.tabContainer.style.height)) : 20) + 'px';
+				
+				if (graph.isViewer())
+				{
+					this.chromelessToolbar.style.top = '0';
+				}
+				else
+				{
+				 	this.chromelessToolbar.style.bottom = ((css != null) ? parseInt(css['margin-bottom'] || 0) : 0) +
+				 		((this.tabContainer != null) ? (20 + parseInt(this.tabContainer.style.height)) : 20) + 'px';
+				} 
 			});
 			
 			this.editor.addListener('resetGraphView', updateChromelessToolbarPosition);
@@ -1861,7 +1869,12 @@ EditorUi.prototype.initCanvas = function()
 	
 			// Initial state invisible
 			this.chromelessToolbar.style.display = 'none';
-			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transform', 'translate(-50%,0)');
+			
+			if (!graph.isViewer())
+			{
+				mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transform', 'translate(-50%,0)');
+			}
+			
 			graph.container.appendChild(this.chromelessToolbar);
 			
 			mxEvent.addListener(graph.container, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', mxUtils.bind(this, function(evt)
@@ -1988,62 +2001,66 @@ EditorUi.prototype.initCanvas = function()
 			graphViewValidate.apply(this, arguments);
 		};
 		
-		var graphSizeDidChange = graph.sizeDidChange;
-		graph.sizeDidChange = function()
+		if (!graph.isViewer())
 		{
-			if (this.container != null && mxUtils.hasScrollbars(this.container))
+			var graphSizeDidChange = graph.sizeDidChange;
+			
+			graph.sizeDidChange = function()
 			{
-				var pages = this.getPageLayout();
-				var pad = this.getPagePadding();
-				var size = this.getPageSize();
-				
-				// Updates the minimum graph size
-				var minw = Math.ceil(2 * pad.x + pages.width * size.width);
-				var minh = Math.ceil(2 * pad.y + pages.height * size.height);
-				
-				var min = graph.minimumGraphSize;
-				
-				// LATER: Fix flicker of scrollbar size in IE quirks mode
-				// after delayed call in window.resize event handler
-				if (min == null || min.width != minw || min.height != minh)
+				if (this.container != null && mxUtils.hasScrollbars(this.container))
 				{
-					graph.minimumGraphSize = new mxRectangle(0, 0, minw, minh);
+					var pages = this.getPageLayout();
+					var pad = this.getPagePadding();
+					var size = this.getPageSize();
+					
+					// Updates the minimum graph size
+					var minw = Math.ceil(2 * pad.x + pages.width * size.width);
+					var minh = Math.ceil(2 * pad.y + pages.height * size.height);
+					
+					var min = graph.minimumGraphSize;
+					
+					// LATER: Fix flicker of scrollbar size in IE quirks mode
+					// after delayed call in window.resize event handler
+					if (min == null || min.width != minw || min.height != minh)
+					{
+						graph.minimumGraphSize = new mxRectangle(0, 0, minw, minh);
+					}
+					
+					// Updates auto-translate to include padding and graph size
+					var dx = pad.x - pages.x * size.width;
+					var dy = pad.y - pages.y * size.height;
+					
+					if (!this.autoTranslate && (this.view.translate.x != dx || this.view.translate.y != dy))
+					{
+						this.autoTranslate = true;
+						this.view.x0 = pages.x;
+						this.view.y0 = pages.y;
+	
+						// NOTE: THIS INVOKES THIS METHOD AGAIN. UNFORTUNATELY THERE IS NO WAY AROUND THIS SINCE THE
+						// BOUNDS ARE KNOWN AFTER THE VALIDATION AND SETTING THE TRANSLATE TRIGGERS A REVALIDATION.
+						// SHOULD MOVE TRANSLATE/SCALE TO VIEW.
+						var tx = graph.view.translate.x;
+						var ty = graph.view.translate.y;
+						graph.view.setTranslate(dx, dy);
+						
+						// LATER: Fix rounding errors for small zoom
+						graph.container.scrollLeft += Math.round((dx - tx) * graph.view.scale);
+						graph.container.scrollTop += Math.round((dy - ty) * graph.view.scale);
+						
+						this.autoTranslate = false;
+						
+						return;
+					}
+	
+					graphSizeDidChange.apply(this, arguments);
 				}
-				
-				// Updates auto-translate to include padding and graph size
-				var dx = pad.x - pages.x * size.width;
-				var dy = pad.y - pages.y * size.height;
-				
-				if (!this.autoTranslate && (this.view.translate.x != dx || this.view.translate.y != dy))
+				else
 				{
-					this.autoTranslate = true;
-					this.view.x0 = pages.x;
-					this.view.y0 = pages.y;
-
-					// NOTE: THIS INVOKES THIS METHOD AGAIN. UNFORTUNATELY THERE IS NO WAY AROUND THIS SINCE THE
-					// BOUNDS ARE KNOWN AFTER THE VALIDATION AND SETTING THE TRANSLATE TRIGGERS A REVALIDATION.
-					// SHOULD MOVE TRANSLATE/SCALE TO VIEW.
-					var tx = graph.view.translate.x;
-					var ty = graph.view.translate.y;
-					graph.view.setTranslate(dx, dy);
-					
-					// LATER: Fix rounding errors for small zoom
-					graph.container.scrollLeft += Math.round((dx - tx) * graph.view.scale);
-					graph.container.scrollTop += Math.round((dy - ty) * graph.view.scale);
-					
-					this.autoTranslate = false;
-					
-					return;
+					// Fires event but does not invoke superclass
+					this.fireEvent(new mxEventObject(mxEvent.SIZE, 'bounds', this.getGraphBounds()));
 				}
-
-				graphSizeDidChange.apply(this, arguments);
-			}
-			else
-			{
-				// Fires event but does not invoke superclass
-				this.fireEvent(new mxEventObject(mxEvent.SIZE, 'bounds', this.getGraphBounds()));
-			}
-		};
+			};
+		}
 	}
 	
 	// Accumulates the zoom factor while the rendering is taking place

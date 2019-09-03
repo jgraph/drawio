@@ -864,7 +864,7 @@
 			editLink = url;
 			redirect = editLink;
 		}
-			
+
 		if (node == null)
 		{
 			return '';
@@ -944,6 +944,10 @@
 			else
 			{
 				fileNode = fileNode.cloneNode(true);
+				fileNode.removeAttribute('modified');
+				fileNode.removeAttribute('host');
+				fileNode.removeAttribute('agent');
+				fileNode.removeAttribute('etag');
 				fileNode.removeAttribute('userAgent');
 				fileNode.removeAttribute('version');
 				fileNode.removeAttribute('editor');
@@ -8896,8 +8900,10 @@
 				mxSettings.setUnit(evt.getProperty('unit'));
 				mxSettings.save();		
 			});
+
+			var showRuler = urlParams['ruler'] == '1' || (mxSettings.isRulerOn() && urlParams['lightbox'] != '1');
 			
-			this.ruler = mxSettings.isRulerOn()? new mxDualRuler(this, view.unit) : null;
+			this.ruler = showRuler? new mxDualRuler(this, view.unit) : null;
 		}
 		
 		// Adds an element to edit the style in the footer in test mode

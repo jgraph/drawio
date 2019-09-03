@@ -3,6 +3,9 @@
 	// Adds MSCAE shapes
 	Sidebar.prototype.addMSCAEPalette = function()
 	{
+		this.addMSCAECompaniesPalette();
+		this.addMSCAEEnterpriseFlatPalette();
+		
 		this.addMSCAEGeneralPalette();
 		this.addMSCAECloudPalette();
 		this.addMSCAEEnterprisePalette();
@@ -16,6 +19,371 @@
 		this.addMSCAEDeprecatedPalette();
 		this.addMSCAECloudColorPalette();
 		this.addMSCAEDeprecatedColorPalette();
+	};
+
+	Sidebar.prototype.addMSCAECompaniesPalette = function()
+	{
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.';
+
+		// Space savers
+		var sb = this;
+		var gn = 'mxgraph.mscae.cloud';
+		var dt = 'ms microsoft cloud enterprise company companies';
+		var r = 100;
+		
+		var fns =
+		[
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Cache_Redis_Product.svg;',
+					r * 0.5, r * 0.42, '', 'Cache Redis Product Icon', null, null, this.getTagsForStencil(gn, 'azure cache redis product icon', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Databricks.svg;',
+					r * 0.5, r * 0.48, '', 'Databricks', null, null, this.getTagsForStencil(gn, 'azure databricks', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/HDInsight.svg;',
+					r * 0.5, r * 0.48, '', 'HDInsight', null, null, this.getTagsForStencil(gn, 'azure hdinsight', dt).join(' ')),
+			this.createVertexTemplateEntry('shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.hockeyapp;fillColor=#0079D6;pointerEvents=1;',
+					r * 0.5, r * 0.38, '', 'HockeyApp', null, null, this.getTagsForStencil(gn, 'azure hockey app hockeyapp', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/OpenShift.svg;',	
+					r * 0.5, r * 0.46, '', 'OpenShift', null, null, this.getTagsForStencil(gn, 'azure open shift openshift', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Cloud_Cycle.svg;',	
+					r * 0.5, r * 0.46, '', 'Cloud Cycle', null, null, this.getTagsForStencil(gn, 'cloud cycle', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Kubernetes.svg;',	
+					r * 0.5, r * 0.48, '', 'Kubernetes', null, null, this.getTagsForStencil(gn, 'kubernetes', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/PluralSight_mono.svg;',	
+					r * 0.5, r * 0.5, '', 'PluralSight Mono', null, null, this.getTagsForStencil(gn, 'pluralsight mono', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/DC_OS.svg;',	
+					r * 0.4, r * 0.5, '', 'DC OS', null, null, this.getTagsForStencil(gn, 'dc os', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Docker.svg;',	
+					r * 0.5, r * 0.41, '', 'Docker', null, null, this.getTagsForStencil(gn, 'docker', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/StackOverflow.svg;',	
+					r * 0.4, r * 0.5, '', 'StackOverflow', null, null, this.getTagsForStencil(gn, 'stack overflow stackoverflow so', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/WebAppUmbraco.svg;',	
+					r * 0.49, r * 0.5, '', 'WebAppUmbraco', null, null, this.getTagsForStencil(gn, 'webappumbraco webapp umbraco', dt).join(' ')),
+			this.createVertexTemplateEntry('aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/WebAppWordPress.svg;',	
+					r * 0.49, r * 0.5, '', 'WebAppWordPress', null, null, this.getTagsForStencil(gn, 'webappwordpress webapp wordpress', dt).join(' ')),
+		];
+			
+		this.addPalette('mscaeCompanies', 'CAE / Companies', false, mxUtils.bind(this, function(content)
+				{
+					for (var i = 0; i < fns.length; i++)
+					{
+						content.appendChild(fns[i](content));
+					}
+		}));
+	};
+
+	Sidebar.prototype.addMSCAEEnterpriseFlatPalette = function()
+	{
+		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.';
+		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.';
+
+		// Space savers
+		var sb = this;
+		var gn = 'mxgraph.mscae.cloud';
+		var dt = 'ms microsoft cloud enterprise flat';
+		var r = 100;
+		
+		var fns =
+		[
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.d;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Federation Services Proxy', null, null, this.getTagsForStencil(gn, 'active directory ad fs federation services proxy', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.ad_fs;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Federation Services', null, null, this.getTagsForStencil(gn, 'active directory ad fs federation services', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.android_phone;fillColor=#00188D;',
+					r * 0.3, r * 0.5, '', 'Android Phone', null, null, this.getTagsForStencil(gn, 'android phone', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.application;fillColor=#00188D;',
+					r * 0.5, r * 0.34, '', 'Application', null, null, this.getTagsForStencil(gn, 'application', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.application_blank;fillColor=#00188D;',
+					r * 0.5, r * 0.43, '', 'Application (blank)', null, null, this.getTagsForStencil(gn, 'application blank', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.app_generic;fillColor=#00188D;',
+					r * 0.5, r * 0.39, '', 'Application (generic)', null, null, this.getTagsForStencil(gn, 'application generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.application_server;fillColor=#00188D;',
+					r * 0.43, r * 0.5, '', 'Application Server', null, null, this.getTagsForStencil(gn, 'application server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.application_server2;fillColor=#00188D;',
+					r * 0.43, r * 0.5, '', 'Application Server', null, null, this.getTagsForStencil(gn, 'application server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.pack;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Pack', null, null, this.getTagsForStencil(gn, 'pack', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.backup_local;fillColor=#00188D;',
+					r * 0.49, r * 0.5, '', 'Backup (local)', null, null, this.getTagsForStencil(gn, 'backup local', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.backup_online;fillColor=#00188D;',
+					r * 0.5, r * 0.4, '', 'Backup (local)', null, null, this.getTagsForStencil(gn, 'backup local', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.calendar;fillColor=#00188D;',
+					r * 0.5, r * 0.41, '', 'Calendar', null, null, this.getTagsForStencil(gn, 'calendar', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.certificate;fillColor=#00188D;',
+					r * 0.5, r * 0.4, '', 'Certificate', null, null, this.getTagsForStencil(gn, 'certificate', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.client_application;fillColor=#00188D;',
+					r * 0.5, r * 0.32, '', 'Client Application', null, null, this.getTagsForStencil(gn, 'client application', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.cloud;fillColor=#00188D;',
+					r * 0.5, r * 0.32, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.internet;fillColor=#00188D;',
+					r * 0.5, r * 0.31, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.cluster_server;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Cluster Server', null, null, this.getTagsForStencil(gn, 'cluster server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.code_file;fillColor=#00188D;',
+					r * 0.49, r * 0.5, '', 'Code File', null, null, this.getTagsForStencil(gn, 'code file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.connectors;fillColor=#00188D;',
+					r * 0.5, r * 0.34, '', 'Connectors', null, null, this.getTagsForStencil(gn, 'connectors', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.database_generic;fillColor=#00188D;',
+					r * 0.37, r * 0.5, '', 'Database (generic)', null, null, this.getTagsForStencil(gn, 'database generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.database_server;fillColor=#00188D;',
+					r * 0.38, r * 0.5, '', 'Database (server)', null, null, this.getTagsForStencil(gn, 'database server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.database_synchronization;fillColor=#00188D;',
+					r * 0.39, r * 0.5, '', 'Database (synchronization)', null, null, this.getTagsForStencil(gn, 'database synchronization', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.device;fillColor=#00188D;',
+					r * 0.5, r * 0.26, '', 'Device', null, null, this.getTagsForStencil(gn, 'device', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.direct_access_feature;fillColor=#00188D;',
+					r * 0.5, r * 0.44, '', 'Direct Access (feature)', null, null, this.getTagsForStencil(gn, 'direct access feature', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.code_file;fillColor=#00188D;',
+					r * 0.47, r * 0.5, '', 'Document DB file', null, null, this.getTagsForStencil(gn, 'documentdb document db database file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.document;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Document', null, null, this.getTagsForStencil(gn, 'document', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.domain_controller;fillColor=#00188D;',
+					r * 0.36, r * 0.5, '', 'Domain Controller', null, null, this.getTagsForStencil(gn, 'domain controller', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.enterprise;fillColor=#00188D;',
+					r * 0.3, r * 0.5, '', 'Enterprise Building', null, null, this.getTagsForStencil(gn, 'enterprise building', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.file;fillColor=#00188D;',
+					r * 0.47, r * 0.5, '', 'File (general)', null, null, this.getTagsForStencil(gn, 'file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.filter;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Filter', null, null, this.getTagsForStencil(gn, 'filter', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.firewall;fillColor=#00188D;',
+					r * 0.5, r * 0.44, '', 'Firewall', null, null, this.getTagsForStencil(gn, 'firewall', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.folder;fillColor=#00188D;',
+					r * 0.5, r * 0.43, '', 'Folder', null, null, this.getTagsForStencil(gn, 'folder', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.gateway;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Gateway', null, null, this.getTagsForStencil(gn, 'gateway', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general.graph;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Graph', null, null, this.getTagsForStencil(gn, 'graph', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.health_monitoring;fillColor=#00188D;',
+					r * 0.5, r * 0.42, '', 'Health Monitoring', null, null, this.getTagsForStencil(gn, 'health monitoring', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.healthy;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Healthy', null, null, this.getTagsForStencil(gn, 'healthy', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.import_generic;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Import (generic)', null, null, this.getTagsForStencil(gn, 'import generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.internet_hollow;fillColor=#00188D;',
+					r * 0.5, r * 0.31, '', 'Internet (hollow)', null, null, this.getTagsForStencil(gn, 'internet hollow', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.internet;fillColor=#00188D;',
+					r * 0.5, r * 0.31, '', 'Internet', null, null, this.getTagsForStencil(gn, 'internet', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.key_permissions;fillColor=#00188D;',
+					r * 0.26, r * 0.5, '', 'Key, Permissions', null, null, this.getTagsForStencil(gn, 'key permissions', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.keyboard;fillColor=#00188D;',
+					r * 0.5, r * 0.3, '', 'Keyboard', null, null, this.getTagsForStencil(gn, 'keyboard', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.laptop;fillColor=#00188D;',
+					r * 0.5, r * 0.3, '', 'Laptop', null, null, this.getTagsForStencil(gn, 'laptop', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.load_balancer_generic;fillColor=#00188D;',
+					r * 0.37, r * 0.5, '', 'Load Balancer (generic)', null, null, this.getTagsForStencil(gn, 'load balancer generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.load_testing;fillColor=#00188D;',
+					r * 0.48, r * 0.5, '', 'Load Testing', null, null, this.getTagsForStencil(gn, 'load testing', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.lock_unlocked;fillColor=#00188D;',
+					r * 0.37, r * 0.5, '', 'Lock (unlocked)', null, null, this.getTagsForStencil(gn, 'lock unlocked unprotected accessible', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.lock;fillColor=#00188D;',
+					r * 0.39, r * 0.5, '', 'Lock, protected', null, null, this.getTagsForStencil(gn, 'lock protected', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.maintenance;fillColor=#00188D;',
+					r * 0.39, r * 0.5, '', 'Maintenance', null, null, this.getTagsForStencil(gn, 'maintenance', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.management_console;fillColor=#00188D;',
+					r * 0.5, r * 0.34, '', 'Management Console', null, null, this.getTagsForStencil(gn, 'management console', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.message2;fillColor=#00188D;',
+					r * 0.5, r * 0.37, '', 'Message', null, null, this.getTagsForStencil(gn, 'message', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.monitor_running_apps;fillColor=#00188D;',
+					r * 0.5, r * 0.39, '', 'Monitor Running Apps', null, null, this.getTagsForStencil(gn, 'monitor running apps', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.computer;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Monitor', null, null, this.getTagsForStencil(gn, 'monitor computer', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.mouse;fillColor=#00188D;',
+					r * 0.3, r * 0.5, '', 'Mouse', null, null, this.getTagsForStencil(gn, 'mouse', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.network_card;fillColor=#00188D;',
+					r * 0.5, r * 0.35, '', 'Network Card', null, null, this.getTagsForStencil(gn, 'network card', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.not_allowed;fillColor=#EA1C24;',
+					r * 0.5, r * 0.5, '', 'Not Allowed', null, null, this.getTagsForStencil(gn, 'not allowed', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.performance_monitor;fillColor=#00188D;',
+					r * 0.5, r * 0.36, '', 'Performance Monitor', null, null, this.getTagsForStencil(gn, 'performance monitor', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.performance;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Performance', null, null, this.getTagsForStencil(gn, 'performance', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.mobile;fillColor=#00188D;',
+					r * 0.35, r * 0.5, '', 'Mobile', null, null, this.getTagsForStencil(gn, 'mobile', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.plug_and_play;fillColor=#00188D;',
+					r * 0.4, r * 0.5, '', 'Plug and Play', null, null, this.getTagsForStencil(gn, 'plug and play', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.other.powerpoint;fillColor=#DE5D24;',
+					r * 0.5, r * 0.5, '', 'PowerPoint', null, null, this.getTagsForStencil(gn, 'powerpoint', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.powershell_file;fillColor=#00188D;',
+					r * 0.47, r * 0.5, '', 'PowerShell file', null, null, this.getTagsForStencil(gn, 'powershell file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.protocol_stack;fillColor=#00188D;',
+					r * 0.5, r * 0.34, '', 'Protocol Stack', null, null, this.getTagsForStencil(gn, 'protocol stack', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.queue_generic;fillColor=#00188D;',
+					r * 0.5, r * 0.15, '', 'Queue Generic', null, null, this.getTagsForStencil(gn, 'queue generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.rms_connector;fillColor=#00188D;',
+					r * 0.38, r * 0.5, '', 'RMS Connector', null, null, this.getTagsForStencil(gn, 'rms connector', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.router;fillColor=#00188D;',
+					r * 0.5, r * 0.39, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.router;fillColor=#00188D;',
+					r * 0.5, r * 0.39, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.rdp_remoting_file;fillColor=#0078D7;',
+					r * 0.48, r * 0.5, '', 'RPD Remoting file', null, null, this.getTagsForStencil(gn, 'rpd remoting file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.script_file;fillColor=#00188D;',
+					r * 0.47, r * 0.5, '', 'Script file', null, null, this.getTagsForStencil(gn, 'script file', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.secure_virtual_machine;fillColor=#00188D;',
+					r * 0.5, r * 0.38, '', 'Secure Virtual Machine', null, null, this.getTagsForStencil(gn, 'secure virtual machine', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.server;fillColor=#00188D;',
+					r * 0.5, r * 0.15, '', 'Server (blade)', null, null, this.getTagsForStencil(gn, 'server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.server_generic;fillColor=#00188D;',
+					r * 0.24, r * 0.5, '', 'Server (generic)', null, null, this.getTagsForStencil(gn, 'server generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.server_directory;fillColor=#00188D;',
+					r * 0.36, r * 0.5, '', 'Server Directory', null, null, this.getTagsForStencil(gn, 'server directory', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.server_farm;fillColor=#00188D;',
+					r * 0.5, r * 0.32, '', 'Server Farm', null, null, this.getTagsForStencil(gn, 'server farm', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.server_rack;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Server Rack', null, null, this.getTagsForStencil(gn, 'server rack', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.settings;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Settings', null, null, this.getTagsForStencil(gn, 'settings', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.shared_folder;fillColor=#00188D;',
+					r * 0.43, r * 0.5, '', 'Shared Folder', null, null, this.getTagsForStencil(gn, 'shared folder', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.smartcard;fillColor=#00188D;',
+					r * 0.5, r * 0.32, '', 'Smartcard', null, null, this.getTagsForStencil(gn, 'smartcard', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.startup_task;fillColor=#0078D7;',
+					r * 0.48, r * 0.5, '', 'Startup Task', null, null, this.getTagsForStencil(gn, 'startup task', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.storage;fillColor=#00188D;',
+					r * 0.5, r * 0.41, '', 'Storage', null, null, this.getTagsForStencil(gn, 'storage', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.table;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Table', null, null, this.getTagsForStencil(gn, 'table', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.tablet;fillColor=#00188D;',
+					r * 0.5, r * 0.37, '', 'Tablet', null, null, this.getTagsForStencil(gn, 'tablet', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.tool;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Tool', null, null, this.getTagsForStencil(gn, 'tool', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.triggers;fillColor=#0078D7;',
+					r * 0.47, r * 0.5, '', 'Triggers', null, null, this.getTagsForStencil(gn, 'triggers', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general.tunnel;fillColor=#00188D;',
+					r * 0.5, r * 0.09, '', 'Tunnel', null, null, this.getTagsForStencil(gn, 'tunnel', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.udf_function;fillColor=#0078D7;',
+					r * 0.47, r * 0.5, '', 'UDF Function', null, null, this.getTagsForStencil(gn, 'udf function', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.unhealthy;fillColor=#0078D7;',
+					r * 0.5, r * 0.41, '', 'Unhealthy', null, null, this.getTagsForStencil(gn, 'unhealthy', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.unhealthy;fillColor=#00188D;',
+					r * 0.5, r * 0.41, '', 'Unhealthy', null, null, this.getTagsForStencil(gn, 'unhealthy', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.usb;fillColor=#00188D;',
+					r * 0.5, r * 0.23, '', 'USB', null, null, this.getTagsForStencil(gn, 'usb', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.user;fillColor=#00188D;',
+					r * 0.47, r * 0.5, '', 'User (enterprise)', null, null, this.getTagsForStencil(gn, 'user', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.user_permissions;fillColor=#0078D7;',
+					r * 0.47, r * 0.5, '', 'User permissions', null, null, this.getTagsForStencil(gn, 'user permissions', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.general.video;fillColor=#00188D;',
+					r * 0.49, r * 0.5, '', 'Video', null, null, this.getTagsForStencil(gn, 'video', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.azure.virtual_machine_feature;fillColor=#00188D;',
+					r * 0.5, r * 0.45, '', 'Virtual Machine', null, null, this.getTagsForStencil(gn, 'virtual machine', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.web_server;fillColor=#00188D;',
+					r * 0.38, r * 0.5, '', 'Web Server', null, null, this.getTagsForStencil(gn, 'web server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.website_generic;fillColor=#7D7D7D;',
+					r * 0.5, r * 0.44, '', 'Website (generic)', null, null, this.getTagsForStencil(gn, 'website generic', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.windows_server;fillColor=#00188D;',
+					r * 0.39, r * 0.5, '', 'Windows Server', null, null, this.getTagsForStencil(gn, 'windows server', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.wireless_connection;fillColor=#00188D;',
+					r * 0.42, r * 0.5, '', 'Wireless Connection', null, null, this.getTagsForStencil(gn, 'wireless connection', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.workstation_client;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'Workstation Client', null, null, this.getTagsForStencil(gn, 'workstation client', dt).join(' ')),
+			this.createVertexTemplateEntry(
+					'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.enterprise.xml_web_service;fillColor=#00188D;',
+					r * 0.5, r * 0.5, '', 'XML Web Service', null, null, this.getTagsForStencil(gn, 'xml web service', dt).join(' ')),
+		];
+			
+		this.addPalette('mscaeEnterpriseFlat', 'CAE / Enterprise (flat)', false, mxUtils.bind(this, function(content)
+				{
+					for (var i = 0; i < fns.length; i++)
+					{
+						content.appendChild(fns[i](content));
+					}
+		}));
 	};
 
 	Sidebar.prototype.addMSCAECloudPalette = function()

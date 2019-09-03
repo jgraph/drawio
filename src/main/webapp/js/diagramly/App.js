@@ -1057,6 +1057,22 @@ App.prototype.initializeEmbedMode = function()
 };
 
 /**
+ * TODO: Define viewer protocol and implement new viewer style toolbar
+ */
+App.prototype.initializeViewerMode = function()
+{
+	var parent = window.opener || window.parent;
+
+	if (parent != null)
+	{
+		this.editor.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function()
+		{
+			parent.postMessage(JSON.stringify(this.createLoadMessage('size')), '*');
+		}));
+	}
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -1488,6 +1504,11 @@ App.prototype.init = function()
 		}
 		
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
+	}
+	
+	if (this.editor.graph.isViewer())
+	{
+		this.initializeViewerMode();
 	}
 };
 

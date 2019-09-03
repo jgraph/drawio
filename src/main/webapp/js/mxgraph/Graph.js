@@ -1621,6 +1621,14 @@ Graph.prototype.isLightboxView = function()
 };
 
 /**
+ * Sets the XML node for the current diagram.
+ */
+Graph.prototype.isViewer = function()
+{
+	return false;
+};
+
+/**
  * Installs automatic layout via styles
  */
 Graph.prototype.labelLinkClicked = function(state, elt, evt)

@@ -2353,6 +2353,44 @@
         <fillstroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="76.4" name="Message2" strokewidth="inherit" w="99.6">
+    <connections>
+        <constraint name="N" perimeter="0" x="0.5" y="0"/>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+        <constraint name="NE" perimeter="0" x="0.98" y="0.02"/>
+        <constraint name="NW" perimeter="0" x="0.02" y="0.02"/>
+        <constraint name="SE" perimeter="0" x="0.98" y="0.98"/>
+        <constraint name="SW" perimeter="0" x="0.02" y="0.98"/>
+    </connections>
+    <foreground>
+        <path>
+            <move x="0.3" y="5.4"/>
+            <arc large-arc-flag="0" rx="5" ry="5" sweep-flag="1" x="4.8" x-axis-rotation="0" y="0"/>
+            <line x="94.5" y="0"/>
+            <arc large-arc-flag="0" rx="5" ry="5" sweep-flag="1" x="99.3" x-axis-rotation="0" y="5"/>
+            <line x="99.3" y="70.9"/>
+            <arc large-arc-flag="0" rx="5" ry="5" sweep-flag="1" x="95.05" x-axis-rotation="0" y="76.4"/>
+            <line x="4.55" y="76.4"/>
+            <arc large-arc-flag="0" rx="5" ry="5" sweep-flag="1" x="0.3" x-axis-rotation="0" y="70.9"/>
+            <close/>
+            <move x="11.3" y="10.1"/>
+            <line x="49.1" y="39.6"/>
+            <line x="87" y="10.1"/>
+            <close/>
+            <move x="45.6" y="49.5"/>
+            <line x="10.3" y="22.1"/>
+            <line x="10.3" y="66.4"/>
+            <line x="89.4" y="66.6"/>
+            <line x="89.4" y="21.4"/>
+            <line x="52.4" y="49.7"/>
+            <arc large-arc-flag="0" rx="5.5" ry="5.5" sweep-flag="1" x="45.6" x-axis-rotation="0" y="49.5"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="99.42" name="Mobile" strokewidth="inherit" w="67.28">
     <connections>
         <constraint name="N" perimeter="0" x="0.5" y="0"/>

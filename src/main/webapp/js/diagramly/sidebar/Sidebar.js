@@ -106,7 +106,7 @@
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
 	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'vvd'}, 
 	                                   {id: 'sitemap'}, {id: 'dfd'},
-	                                   {id: 'mscae', prefix: 'mscae', libs: ['Cloud', 'Enterprise', 'General', 'General Symbols', 'Intune', 'OMS', 'OpsManager', 'Other', 'System Center', 'Virtual Machine', 'Deprecated', 'Cloud Color', 'Deprecated Color']},
+	                                   {id: 'mscae', prefix: 'mscae', libs: ['Companies', 'EnterpriseFlat', 'Cloud', 'Enterprise', 'General', 'General Symbols', 'Intune', 'OMS', 'OpsManager', 'Other', 'System Center', 'Virtual Machine', 'Deprecated', 'Cloud Color', 'Deprecated Color']},
 	                                   {id: 'active_directory'},
 	                                   {id: 'bpmn', prefix: 'bpmn', libs: [''/*prefix is library*/, 'Gateways', 'Events']},
 	                                   {id: 'clipart', prefix: null, libs: ['computer', 'finance', 'clipart', 'networking', 'people', 'telco']},
