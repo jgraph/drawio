@@ -11,7 +11,7 @@
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
  * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -19,33 +19,40 @@
 
 function mxRuler(editorUi, unit, isVertical, isSecondery) 
 {
-	var RULER_THIKNESS = 30;
+	var RULER_THICKNESS = 14;
     var ruler = this;
     this.unit = unit;
-    var style = window.uiTheme == 'dark'? {
-    	bkgClr: '#2a2a2a',
-    	strokeClr: '#BBBBBB',
-    	fontClr: '#BBBBBB',
-    	guideClr: '#0088cf'
-    } : {
-    	bkgClr: 'whiteSmoke',
-    	strokeClr: '#BBBBBB',
+    var style = window.uiTheme != 'dark'? {
+    	bkgClr: '#ffffff',
+    	outBkgClr: '#e8e9ed',
+    	cornerClr: '#fbfbfb',
+    	strokeClr: '#dadce0',
     	fontClr: '#BBBBBB',
     	guideClr: '#0000BB'
+    } : {
+    	bkgClr: '#202020',
+    	outBkgClr: '#2a2a2a',
+    	cornerClr: '#2a2a2a',
+    	strokeClr: '#505759',
+    	fontClr: '#BBBBBB',
+    	guideClr: '#0088cf'
     };
     //create the container
     var container = document.createElement('div');
     container.style.position = 'absolute';
     container.style.background = style.bkgClr;
-	document.body.appendChild(container);
+    container.style[isVertical? 'borderRight' : 'borderBottom'] = '0.5px solid ' + style.strokeClr;
+	container.style.borderLeft = '0.5px solid ' + style.strokeClr;	
+
+    document.body.appendChild(container);
 	mxEvent.disableContextMenu(container);
-    	
+	
 	function resizeRulerContainer()
 	{
 	    container.style.top = editorUi.origContTop + 'px';
 	    container.style.left = editorUi.origContLeft + 'px';
-	    container.style.width = (isVertical? RULER_THIKNESS : editorUi.origContWidth) + 'px';
-	    container.style.height = (isVertical? editorUi.origContHeight : RULER_THIKNESS) + 'px';
+	    container.style.width = (isVertical? RULER_THICKNESS : editorUi.origContWidth) + 'px';
+	    container.style.height = (isVertical? editorUi.origContHeight : RULER_THICKNESS) + 'px';
 	};
     
 	this.editorUiRefresh = editorUi.refresh;
@@ -72,23 +79,23 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		
 		if (isVertical)
 		{
-			cont.style.left = (cont.offsetLeft + RULER_THIKNESS) + 'px';
+			cont.style.left = (cont.offsetLeft + RULER_THICKNESS) + 'px';
 		}
 		else
 		{
-			cont.style.top = (cont.offsetTop + RULER_THIKNESS) + 'px';
+			cont.style.top = (cont.offsetTop + RULER_THICKNESS) + 'px';
 		}
 	};
 
 	editorUi.refresh(true);
 	resizeRulerContainer();
     	
-    var canvas = document.createElement("canvas");
+    var canvas = document.createElement('canvas');
     //initial sizing which is corrected by the graph size event
     canvas.width = container.offsetWidth;
     canvas.height = container.offsetHeight;
     container.style.overflow = 'hidden';
-    canvas.style.position = "relative";
+    canvas.style.position = 'relative';
     container.appendChild(canvas);
     //Disable alpha to improve performance as we don't need it?
     var ctx = canvas.getContext('2d');
@@ -112,28 +119,15 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         {
             if (isVertical) 
             {
-                var x = x1;
-                var y = y1 - 3;
-                var metric = ctx.measureText(text);
-
                 ctx.save();
-
-                // We want to find the center of the text (or whatever point you want) and rotate about it
-                var tx = x + (metric.width / 2) + 8;
-                var ty = y + 5;
-
-                // Translate to near the center to rotate about the center
-                ctx.translate(tx, ty);
-                // Then rotate...
+                ctx.translate(x1, y1);
                 ctx.rotate(-Math.PI / 2);
-                // Then translate back to draw in the right place!
-                ctx.translate(-tx, -ty);
-                ctx.fillText(text, x, y);
+                ctx.fillText(text, 0, 0);
                 ctx.restore();
             }
             else
             {
-                ctx.fillText(text, isVertical? x1 : x1 + 3, isVertical? y1 - 3 : y1 + 9);
+                ctx.fillText(text, x1, y1);
             }
         }
     };
@@ -146,43 +140,36 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         ctx.lineWidth = 0.7;
         ctx.strokeStyle = style.strokeClr;
         ctx.setLineDash([]);
-        ctx.font = "9px Arial";
-        ctx.fillStyle = style.fontClr;
-        
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(RULER_THIKNESS, RULER_THIKNESS);
-        ctx.stroke();
+        ctx.font = '9px Arial';
+        ctx.textAlign = 'center';
         
         var scale = graph.view.scale;
         var bgPages = graph.view.getBackgroundPageBounds();
         var t = graph.view.translate;
         var bounds = graph.view.getGraphBounds();
+        var hasPageView = graph.pageVisible;
         
-        var rStart = (isVertical? bgPages.y -  graph.container.scrollTop : bgPages.x - graph.container.scrollLeft);
+        //The beginning of the ruler (zero)
+        var rStart = hasPageView? RULER_THICKNESS + (isVertical? bgPages.y -  graph.container.scrollTop : bgPages.x - graph.container.scrollLeft) 
+        		: RULER_THICKNESS + (isVertical? t.y -  graph.container.scrollTop : t.x - graph.container.scrollLeft);
 
         //handle negative pages
-        if (isVertical) 
+        var pageShift = 0;
+        
+        if (hasPageView)
         {
-            var y = ((bounds.y) / scale - t.y);
-            
-            if (y <= -1) 
-            {
-                rStart += Math.ceil(Math.abs(y) / graph.pageFormat.height) * graph.pageFormat.height * scale;
-            }
-        }
-        else
-        {
-            var x = ((bounds.x) / scale - t.x);
-            
-            if (x <= -1)
-            {
-                rStart += Math.ceil(Math.abs(x) / graph.pageFormat.width) * graph.pageFormat.width * scale;
-            }
+	        if (isVertical) 
+	        {
+	            var y = ((bounds.y + 1) / scale - t.y); // + 1 is for overcoming rounding error  
+	            pageShift = Math.floor(y / graph.pageFormat.height) * graph.pageFormat.height * scale;
+	        }
+	        else
+	        {
+	            var x = ((bounds.x + 1) / scale - t.x); // + 1 is for overcoming rounding error
+	            pageShift = Math.floor(x / graph.pageFormat.width) * graph.pageFormat.width * scale;
+	        }
         }
         
-        rStart += isVertical? (graph.container.offsetTop - ruler.container.offsetTop) : (graph.container.offsetLeft - ruler.container.offsetLeft);
-
         var tickStep, tickSize, len;
 
         switch(ruler.unit) 
@@ -190,12 +177,12 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
             case mxConstants.POINTS:
                 len = 10;
                 tickStep = 10;
-                tickSize = [25,5,5,5,5,10,5,5,5,5];
+                tickSize = [3,5,5,5,5,10,5,5,5,5];
                 break;
             case mxConstants.MILLIMETERS:
                 len = 10;
                 tickStep = mxConstants.PIXELS_PER_MM;
-                tickSize = [25,5,5,5,5,10,5,5,5,5];
+                tickSize = [5,3,3,3,3,6,3,3,3,3];
                 break;
             case mxConstants.INCHES:
             	if (scale <=0.5 || scale >=4)
@@ -204,45 +191,79 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
                     len = 16;
                 
                 tickStep = mxConstants.PIXELS_PER_INCH / len;
-                tickSize = [25,5,8,5,12,5,8,5,15,5,8,5,12,5,8,5];
+                tickSize = [5,3,5,3,7,3,5,3,7,3,5,3,7,3,5,3];
                 break;
         }
-        
+
+        //Handle step size and change it with large/small scale
         var step = tickStep;
         
-        if (ruler.unit != mxConstants.INCHES || (scale > 2 || scale < 0.25))
+        if (scale >= 2)
+    	{
+        	step = tickStep / (Math.floor(scale / 2) * 2);
+    	}
+        else if (scale <= 0.5)
+    	{
+        	step = tickStep * (Math.floor((1 / scale) / 2) * (ruler.unit == mxConstants.MILLIMETERS? 2 : 1));
+    	}
+
+        var lastTick = null;
+        
+        //End of the ruler (pages end)
+        var rEnd = hasPageView? Math.min(rStart + (isVertical? bgPages.height: bgPages.width), isVertical? canvas.height : canvas.width) : (isVertical? canvas.height : canvas.width);
+
+        if (hasPageView)
         {
-            step = scale >= 1 ? tickStep / scale : Math.floor(10 / scale / 10) * 10;
+	        //Clear the outside page part with a different color
+	        ctx.fillStyle = style.outBkgClr;
+	        
+	        if (isVertical)
+	    	{
+	        	ctx.fillRect(0, RULER_THICKNESS, RULER_THICKNESS, rStart - RULER_THICKNESS);
+		        ctx.fillRect(0, rEnd, RULER_THICKNESS, canvas.height);
+	    	}
+	        else
+	        {
+		        ctx.fillRect(RULER_THICKNESS, 0, rStart - RULER_THICKNESS, RULER_THICKNESS);
+		        ctx.fillRect(rEnd, 0, canvas.width, RULER_THICKNESS);
+	        }
         }
         
-        var lastTick = null;
-            
-        for (var i = RULER_THIKNESS + rStart % (step * scale); i <= (isVertical? canvas.height : canvas.width); i += step * scale) 
+        //Draw ticks
+        ctx.fillStyle = style.fontClr;
+        
+        for (var i = hasPageView? rStart : rStart % (step * scale); i <= rEnd; i += step * scale) 
         {
-            var current = Math.round((i - rStart) / scale / step);
-            
-            if (current == lastTick)
-        	{
-            	continue;
-        	}
-            
-            lastTick = current;
-            var text = null;
-            
-            if (current % len == 0) 
-            {
-                text = ruler.formatText(current * step) + "";
-            }
-            
-            if (isVertical) 
-            {
-                drawLine(RULER_THIKNESS - tickSize[Math.abs(current) % len], i, RULER_THIKNESS, i, text);
-            }
-            else
-            {
-                drawLine(i, RULER_THIKNESS - tickSize[Math.abs(current) % len], i, RULER_THIKNESS, text);
-            }
+        	 var current = Math.round((i - rStart) / scale / step);
+        	
+        	 if (i < RULER_THICKNESS || current == lastTick) //Prevent wasting time in drawing non-visible/duplicate lines
+         	 {
+             	 continue;
+         	 }
+             
+             lastTick = current;
+             var text = null;
+             
+             if (current % len == 0) 
+             {
+                 text = ruler.formatText(pageShift + current * step) + '';
+             }
+        		 
+        	 if (isVertical) 
+             {
+                 drawLine(RULER_THICKNESS - tickSize[Math.abs(current) % len], i, RULER_THICKNESS, i, text);
+             }
+             else
+             {
+                 drawLine(i, RULER_THICKNESS - tickSize[Math.abs(current) % len], i, RULER_THICKNESS, text);
+             }
         }
+        
+        //Draw corner rect
+        ctx.lineWidth = 1;
+        drawLine(isVertical? 0 : RULER_THICKNESS, isVertical? RULER_THICKNESS : 0, RULER_THICKNESS, RULER_THICKNESS);
+        ctx.fillStyle = style.cornerClr;
+        ctx.fillRect(0, 0, RULER_THICKNESS, RULER_THICKNESS);
     };
     
 	var sizeListener = function() 
@@ -251,7 +272,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	    
 	    if (isVertical)
     	{
-	    	var newH = div.offsetHeight + RULER_THIKNESS;
+	    	var newH = div.offsetHeight + RULER_THICKNESS;
 	    	
 	    	if (canvas.height != newH)
     		{
@@ -262,7 +283,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	}
 	    else 
     	{
-	    	var newW = div.offsetWidth + RULER_THIKNESS;
+	    	var newW = div.offsetWidth + RULER_THICKNESS;
 	    	
 	    	if (canvas.width != newW)
     		{
@@ -277,6 +298,11 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
 	var efficientSizeListener = debounce(sizeListener, 10);
 	this.sizeListener = efficientSizeListener;
+	
+	this.pageListener = function()
+	{
+		drawRuler();
+	};
 	
 	var efficientScrollListener = debounce(function()
 	{
@@ -296,8 +322,9 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     };
 	
     graph.addListener(mxEvent.SIZE, efficientSizeListener);
-    graph.container.addEventListener("scroll", efficientScrollListener);
-    graph.view.addListener("unitChanged", this.unitListener);
+    graph.container.addEventListener('scroll', efficientScrollListener);
+    graph.view.addListener('unitChanged', this.unitListener);
+    editorUi.addListener('pageViewChanged', this.pageListener);
 
     function debounce(func, wait, immediate) 
     {
@@ -343,33 +370,33 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
         if (isVertical)
 		{
-			y1 = bounds.y + ret.y + RULER_THIKNESS - this.graph.container.scrollTop;
+			y1 = bounds.y + ret.y + RULER_THICKNESS - this.graph.container.scrollTop;
 			x1 = 0;
 			y2 = y1 + bounds.height / 2;
-			x2 = RULER_THIKNESS / 2;
+			x2 = RULER_THICKNESS / 2;
 			y3 = y1 + bounds.height;
 			x3 = 0;
-			imgData1 = ctx.getImageData(x1, y1, RULER_THIKNESS, 5);
-			drawLine(x1, y1, RULER_THIKNESS, y1);
-			imgData2 = ctx.getImageData(x2, y2, RULER_THIKNESS, 5);
-			drawLine(x2, y2, RULER_THIKNESS, y2);
-			imgData3 = ctx.getImageData(x3, y3, RULER_THIKNESS, 5);
-			drawLine(x3, y3, RULER_THIKNESS, y3);
+			imgData1 = ctx.getImageData(x1, y1, RULER_THICKNESS, 5);
+			drawLine(x1, y1, RULER_THICKNESS, y1);
+			imgData2 = ctx.getImageData(x2, y2, RULER_THICKNESS, 5);
+			drawLine(x2, y2, RULER_THICKNESS, y2);
+			imgData3 = ctx.getImageData(x3, y3, RULER_THICKNESS, 5);
+			drawLine(x3, y3, RULER_THICKNESS, y3);
 		}
 		else
 		{
 			y1 = 0;
-			x1 = bounds.x + ret.x + RULER_THIKNESS - this.graph.container.scrollLeft;
-			y2 = RULER_THIKNESS / 2;
+			x1 = bounds.x + ret.x + RULER_THICKNESS - this.graph.container.scrollLeft;
+			y2 = RULER_THICKNESS / 2;
 			x2 = x1 + bounds.width / 2;
 			y3 = 0;
 			x3 = x1 + bounds.width;
-			imgData1 = ctx.getImageData(x1 , y1, 5, RULER_THIKNESS);
-			drawLine(x1, y1, x1, RULER_THIKNESS);
-			imgData2 = ctx.getImageData(x2 , y2, 5, RULER_THIKNESS);
-			drawLine(x2, y2, x2, RULER_THIKNESS);
-			imgData3 = ctx.getImageData(x3 , y3, 5, RULER_THIKNESS);
-			drawLine(x3, y3, x3, RULER_THIKNESS);
+			imgData1 = ctx.getImageData(x1 , y1, 5, RULER_THICKNESS);
+			drawLine(x1, y1, x1, RULER_THICKNESS);
+			imgData2 = ctx.getImageData(x2 , y2, 5, RULER_THICKNESS);
+			drawLine(x2, y2, x2, RULER_THICKNESS);
+			imgData3 = ctx.getImageData(x3 , y3, 5, RULER_THICKNESS);
+			drawLine(x3, y3, x3, RULER_THICKNESS);
 		}
 		
 		if (ruler.guidePart == null || ruler.guidePart.x1 != x1 || ruler.guidePart.y1 != y1)
@@ -435,8 +462,9 @@ mxRuler.prototype.destroy = function()
 	mxGuide.prototype.move = this.origGuideMove;
 	mxGuide.prototype.destroy = this.origGuideDestroy;
     this.graph.removeListener(this.sizeListener);
-    this.graph.container.removeEventListener("scroll", this.scrollListener);
-    this.graph.view.removeListener("unitChanged", this.unitListener);
+    this.graph.container.removeEventListener('scroll', this.scrollListener);
+    this.graph.view.removeListener('unitChanged', this.unitListener);
+    this.ui.removeListener('pageViewChanged', this.pageListener);
     
     if (this.container != null)
     {
@@ -456,6 +484,51 @@ function mxDualRuler(editorUi, unit)
 	
 	this.vRuler = new mxRuler(editorUi, unit, true);
 	this.hRuler = new mxRuler(editorUi, unit, false, true);
+
+	// Adds units context menu
+	var installMenu = mxUtils.bind(this, function(node)
+	{
+		mxEvent.addGestureListeners(node, null, null, mxUtils.bind(this, function(evt)
+		{
+			if (editorUi.editor.graph.isEnabled() && !editorUi.editor.graph.isMouseDown &&
+				(mxEvent.isTouchEvent(evt) || mxEvent.isPopupTrigger(evt)))
+			{
+				editorUi.editor.graph.popupMenuHandler.hideMenu();
+				editorUi.hideCurrentMenu();
+
+				if (!mxEvent.isTouchEvent(evt) || !menuWasVisible)
+				{
+					var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
+					{
+						editorUi.menus.addMenuItems(menu, ['points', /*'inches',*/ 'millimeters'], parent);
+					}));
+					
+					menu.div.className += ' geMenubarMenu';
+					menu.smartSeparators = true;
+					menu.showDisabled = true;
+					menu.autoExpand = true;
+					
+					// Disables autoexpand and destroys menu when hidden
+					menu.hideMenu = mxUtils.bind(this, function()
+					{
+						mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+						editorUi.resetCurrentMenu();
+						menu.destroy();
+					});
+			
+					var x = mxEvent.getClientX(evt);
+					var y = mxEvent.getClientY(evt);
+					menu.popup(x, y, null, evt);
+					editorUi.setCurrentMenu(menu, node);
+				}
+				
+				mxEvent.consume(evt);
+			}
+		}));
+	});
+	
+	installMenu(this.hRuler.container);
+	installMenu(this.vRuler.container);
 	
 	this.vRuler.drawRuler();
 	this.hRuler.drawRuler();

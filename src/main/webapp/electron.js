@@ -827,10 +827,11 @@ const LARGE_IMAGE_AREA = 30000000;
 //NOTE: Key length must not be longer than 79 bytes (not checked)
 function writePngWithText(origBuff, key, text, compressed, base64encoded)
 {
+	var isDpi = key == 'dpi';
 	var inOffset = 0;
 	var outOffset = 0;
 	var data = text;
-	var dataLen = key.length + data.length + 1; //we add 1 zeros with non-compressed data
+	var dataLen = isDpi? 9 : key.length + data.length + 1; //we add 1 zeros with non-compressed data, for pHYs it's 2 of 4-byte-int + 1 byte
 	
 	//prepare compressed data to get its size
 	if (compressed)
@@ -839,7 +840,7 @@ function writePngWithText(origBuff, key, text, compressed, base64encoded)
 		dataLen = key.length + data.length + 2; //we add 2 zeros with compressed data
 	}
 	
-	var outBuff = Buffer.allocUnsafe(origBuff.length + dataLen + 4); //4 is the header size "zTXt" or "tEXt"
+	var outBuff = Buffer.allocUnsafe(origBuff.length + dataLen + 4); //4 is the header size "zTXt", "tEXt" or "pHYs"
 	
 	try
 	{
@@ -879,30 +880,49 @@ function writePngWithText(origBuff, key, text, compressed, base64encoded)
 				outBuff.writeInt32BE(dataLen, outOffset);
 				outOffset += 4;
 				
-				var typeSignature = (compressed) ? "zTXt" : "tEXt";
+				var typeSignature = isDpi? 'pHYs' : (compressed ? "zTXt" : "tEXt");
 				outBuff.write(typeSignature, outOffset);
 				
 				outOffset += 4;
-				outBuff.write(key, outOffset);
-				outOffset += key.length;
-				outBuff.writeInt8(0, outOffset);
-				outOffset ++;
 
-				if (compressed)
+				if (isDpi)
 				{
-					outBuff.writeInt8(0, outOffset);
-					outOffset ++;
-					data.copy(outBuff, outOffset);
+					var dpm = Math.round(parseInt(text) / 0.0254) || 3937; //One inch is equal to exactly 0.0254 meters. 3937 is 100dpi
+
+					outBuff.writeInt32BE(dpm, outOffset);
+					outBuff.writeInt32BE(dpm, outOffset + 4);
+					outBuff.writeInt8(1, outOffset + 8);
+					outOffset += 9;
+
+					data = Buffer.allocUnsafe(9);
+					data.writeInt32BE(dpm, 0);
+					data.writeInt32BE(dpm, 4);
+					data.writeInt8(1, 8);
 				}
 				else
 				{
-					outBuff.write(data, outOffset);	
-				}
-				
-				outOffset += data.length;				
+					outBuff.write(key, outOffset);
+					outOffset += key.length;
+					outBuff.writeInt8(0, outOffset);
+					outOffset ++;
 
-				var crcVal = crc.crc32(typeSignature);
-				crc.crc32(data, crcVal);
+					if (compressed)
+					{
+						outBuff.writeInt8(0, outOffset);
+						outOffset ++;
+						data.copy(outBuff, outOffset);
+					}
+					else
+					{
+						outBuff.write(data, outOffset);	
+					}
+
+					outOffset += data.length;				
+				}
+
+				var crcVal = 0xffffffff;
+				crcVal = crc.crcjam(typeSignature, crcVal);
+				crcVal = crc.crcjam(data, crcVal);
 
 				// CRC
 				outBuff.writeInt32BE(crcVal ^ 0xffffffff, outOffset);
@@ -1101,6 +1121,11 @@ function exportDiagram(event, args, directFinalize)
 							img = img.resize(newBounds);
 
 							var data = args.format == 'png'? img.toPNG() : img.toJPEG(args.jpegQuality || 90);
+							
+							if (args.dpi != null && args.format == 'png')
+							{
+								data = writePngWithText(data, 'dpi', args.dpi);
+							}
 							
 							if (args.embedXml == "1" && args.format == 'png')
 							{

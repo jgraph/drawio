@@ -1157,7 +1157,7 @@
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
-				else if (src.substring(0, 19) != 'chrome-extension://')
+				else if (src.substring(0, 19) != 'chrome-extension://' && !mxClient.IS_CHROMEAPP)
 				{
 					src = convert.apply(this, arguments);
 				}

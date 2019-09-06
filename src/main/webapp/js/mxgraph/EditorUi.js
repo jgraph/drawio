@@ -987,9 +987,9 @@ EditorUi.prototype.formatEnabled = true;
 EditorUi.prototype.formatWidth = 240;
 
 /**
- * Specifies the height of the toolbar. Default is 40.
+ * Specifies the height of the toolbar. Default is 38.
  */
-EditorUi.prototype.toolbarHeight = 40;
+EditorUi.prototype.toolbarHeight = 38;
 
 /**
  * Specifies the height of the footer. Default is 28.

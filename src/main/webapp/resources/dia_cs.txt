@@ -340,6 +340,7 @@ googlePlus=Google+
 googleSharingNotAvailable=Sharing is only available via Google Drive. Please click Open below and share from the more actions menu:
 googleSlides=Google Slides
 googleSites=Google Stránky
+googleSheets=Google Sheets
 gradient=Barevný přechod
 gradientColor=Barva
 grid=Mřížka

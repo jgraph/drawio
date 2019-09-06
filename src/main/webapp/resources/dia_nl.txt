@@ -340,6 +340,7 @@ googlePlus=Google+
 googleSharingNotAvailable=Delen is alleen beschikbaar via Google Drive. Klik hieronder op Openen, Meer acties, Delen:
 googleSlides=Google Dia's
 googleSites=Google Sites
+googleSheets=Google Sheets
 gradient=Gradiënt
 gradientColor=Kleur
 grid=Raster

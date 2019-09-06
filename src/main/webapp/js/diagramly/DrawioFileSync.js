@@ -335,7 +335,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 			elt.style.display = 'inline-block';
 			elt.style.verticalAlign = 'bottom';
 			elt.style.color = '#666';
-			elt.style.top = '8px';
+			elt.style.top = '6px';
 			elt.style.right = (uiTheme != 'atlas') ?  '70px' : '50px';
 			elt.style.padding = '2px';
 			elt.style.fontSize = '8pt';

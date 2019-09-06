@@ -1660,6 +1660,11 @@
 			editorUi.openLink('https://slidesaddon.draw.io');
 		});
 
+		editorUi.actions.addAction('googleSheets...', function()
+		{
+			editorUi.openLink('https://sheetsaddon.draw.io');
+		});
+
 		editorUi.actions.addAction('googleSites...', function()
 		{
 			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
@@ -2329,7 +2334,7 @@
 
 			if (urlParams['embed'] != '1' && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', '-', 'microsoftOffice'], parent);
+				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', 'googleSheets', '-', 'microsoftOffice'], parent);
 			}
 		})));
 

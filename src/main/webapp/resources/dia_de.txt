@@ -340,6 +340,7 @@ googlePlus=Google+
 googleSharingNotAvailable=Teilen ist nur in Google Drive verfügbar. Klicken Sie Öffnen und teilen Sie über das Menu Weitere Aktionen:
 googleSlides=Google Slides
 googleSites=Google Sites
+googleSheets=Google Sheets
 gradient=Verlauf
 gradientColor=Farbe
 grid=Gitternetz

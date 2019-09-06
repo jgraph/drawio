@@ -340,6 +340,7 @@ googlePlus=googlePlus
 googleSharingNotAvailable=googleSharingNotAvailable
 googleSlides=googleSlides
 googleSites=googleSites
+googleSheets=googleSheets
 gradient=gradient
 gradientColor=gradientColor
 grid=grid

@@ -60,15 +60,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	demo.style.userSelect = 'none';
 	
 	mxUtils.write(demo, mxResources.get('decideLater'));
+	mxUtils.setPrefixedStyle(demo.style, 'transform', 'translate(-50%,0)');
+	demo.style.left = '50%';
 	
 	if (editorUi.isOfflineApp())
 	{
-		demo.style.right = '20px';
-	}
-	else
-	{
-		mxUtils.setPrefixedStyle(demo.style, 'transform', 'translate(-50%,0)');
-		demo.style.left = '50%';
+		demo.style.bottom = '28px';
 	}
 	
 	this.init = function()
@@ -639,7 +636,8 @@ var SplashDialog = function(editorUi)
 	
 	var btn = document.createElement('button');
 	btn.className = 'geBigButton';
-	btn.style.overflow = 'hidden';
+	btn.style.fontSize = '18px';
+	btn.style.padding = '10px';
 	btn.style.width = '340px';
 	
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
@@ -683,7 +681,8 @@ var SplashDialog = function(editorUi)
 	var btn = document.createElement('button');
 	btn.className = 'geBigButton';
 	btn.style.marginBottom = '22px';
-	btn.style.overflow = 'hidden';
+	btn.style.fontSize = '18px';
+	btn.style.padding = '10px';
 	btn.style.width = '340px';
 	
 	if (mxClient.IS_QUIRKS)
@@ -6912,6 +6911,8 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	button.insertBefore(img, button.firstChild);
 	button.style.marginTop = '6px';
 	button.className = 'geBigButton';
+	button.style.fontSize = '18px';
+	button.style.padding = '14px';
 
 	div.appendChild(hd);
 	div.appendChild(p);
@@ -9997,6 +9998,8 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	button.insertBefore(img, button.firstChild);
 	button.style.marginTop = '6px';
 	button.className = 'geBigButton';
+	button.style.fontSize = '18px';
+	button.style.padding = '14px';
 
 	div.appendChild(hd);
 	div.appendChild(p);

@@ -200,7 +200,7 @@ var mxSettings =
 			// Only defined and true for new settings which haven't been saved
 			isNew: true,
 			unit: mxConstants.POINTS,
-			isRulerOn: false
+			isRulerOn: true
 		};
 	},
 	save: function()

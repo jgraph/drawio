@@ -340,6 +340,7 @@ googlePlus=구글 플러스
 googleSharingNotAvailable=Sharing is only available via Google Drive. Please click Open below and share from the more actions menu:
 googleSlides=Google Slides
 googleSites=구글 사이트
+googleSheets=Google Sheets
 gradient=그라데이션
 gradientColor=색
 grid=격자

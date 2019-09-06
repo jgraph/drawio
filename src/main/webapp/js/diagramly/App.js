@@ -943,7 +943,7 @@ App.prototype.warnInterval = 300000;
  */
 if (urlParams['embed'] != '1')
 {
-	App.prototype.menubarHeight = 60;
+	App.prototype.menubarHeight = 64;
 }
 else
 {
@@ -2990,8 +2990,8 @@ App.prototype.showSplash = function(force)
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (serviceCount < 2 ||
-			mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 :
+			((serviceCount < 2) ? 230 : 260), true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
@@ -3023,8 +3023,8 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 300,
-			(serviceCount >= 4) ? 440 : 320, true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 240 : 300,
+			(serviceCount >= 4) ? 440 : ((this.isOfflineApp()) ? 300 : 320), true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
@@ -4792,6 +4792,14 @@ App.prototype.updateButtonContainer = function()
 					this.commentButton.style.marginRight = '10px';
 					this.commentButton.style.marginTop = '-3px';
 				}
+				else if (uiTheme == 'min')
+				{
+					this.commentButton.style.marginTop = '1px';
+				}
+				else
+				{
+					this.commentButton.style.marginTop = '-5px';
+				}
 				
 				mxEvent.addListener(this.commentButton, 'click', mxUtils.bind(this, function()
 				{
@@ -4820,8 +4828,11 @@ App.prototype.updateButtonContainer = function()
 				this.shareButton = document.createElement('div');
 				this.shareButton.className = 'geBtn gePrimaryBtn';
 				this.shareButton.style.display = 'inline-block';
-				this.shareButton.style.padding = '0 10px 0 10px';
-				this.shareButton.style.marginTop = '-4px';
+				this.shareButton.style.backgroundColor = '#F2931E';
+				this.shareButton.style.borderColor = '#F08705';
+				this.shareButton.style.backgroundImage = 'none';
+				this.shareButton.style.padding = '2px 10px 0 10px';
+				this.shareButton.style.marginTop = '-10px';
 				this.shareButton.style.height = '28px';
 				this.shareButton.style.lineHeight = '28px';
 				this.shareButton.style.minWidth = '0px';
@@ -4834,6 +4845,12 @@ App.prototype.updateButtonContainer = function()
 				icon.style.marginRight = '4px';
 				icon.style.marginTop = '-3px';
 				this.shareButton.appendChild(icon);
+				
+				if (uiTheme != 'dark' && uiTheme != 'atlas')
+				{
+					this.shareButton.style.color = 'black';
+					icon.style.filter = 'invert(100%)';
+				}
 				
 				mxUtils.write(this.shareButton, mxResources.get('share'));
 				
@@ -5376,10 +5393,11 @@ App.prototype.updateHeader = function()
 		this.appIcon = document.createElement('a');
 		this.appIcon.style.display = 'block';
 		this.appIcon.style.position = 'absolute';
-		this.appIcon.style.width = '40px';
-		this.appIcon.style.height = (this.menubarHeight - 16) + 'px';
-		this.appIcon.style.margin = '8px 0px 8px 8px';
-		this.appIcon.style.borderRadius = '4px';
+		this.appIcon.style.width = '28px';
+		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
+		this.appIcon.style.margin = '14px 0px 8px 20px';
+		this.appIcon.style.opacity = '0.75';
+		this.appIcon.style.borderRadius = '3px';
 		
 		if (uiTheme != 'dark')
 		{
@@ -5397,9 +5415,11 @@ App.prototype.updateHeader = function()
 		// NOTE: This uses the diagram bit of the old logo as it looks better in this case
 		//this.appIcon.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src=' + IMAGE_PATH + '/logo-white.png,sizingMethod=\'scale\')';
 		var logo = (!mxClient.IS_SVG) ? 'url(\'' + IMAGE_PATH + '/logo-white.png\')' :
-			'url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzA2LjE4NSAxMjAuMjk2IgogICB2aWV3Qm94PSIyNCAyNiA2OCA2OCIKICAgeT0iMHB4IgogICB4PSIwcHgiCiAgIHZlcnNpb249IjEuMSI+CiAgIAkgPGc+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNDEuMDYxIgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjkiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTUyOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNzUuMDc2IgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjgiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTAwOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGc+PHBhdGgKICAgICAgICAgZD0iTTUyLjc3Myw3Ny4wODRjMCwxLjk1NC0xLjU5OSwzLjU1My0zLjU1MywzLjU1M0gzNi45OTljLTEuOTU0LDAtMy41NTMtMS41OTktMy41NTMtMy41NTN2LTkuMzc5ICAgIGMwLTEuOTU0LDEuNTk5LTMuNTUzLDMuNTUzLTMuNTUzaDEyLjIyMmMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjc3LjA4NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnCiAgICAgICBpZD0iZzM0MTkiPjxwYXRoCiAgICAgICAgIGQ9Ik02Ny43NjIsNDguMDc0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINTEuOTg4Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M0g2NC4yMWMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjQ4LjA3NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnPjxwYXRoCiAgICAgICAgIGQ9Ik04Mi43NTIsNzcuMDg0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINjYuOTc3Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M2gxMi4yMjJjMS45NTQsMCwzLjU1MywxLjU5OSwzLjU1MywzLjU1M1Y3Ny4wODR6IgogICAgICAgICBmaWxsPSIjRkZGRkZGIiAvPjwvZz48L2c+PC9zdmc+)';
+			((uiTheme == 'dark') ? 'url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIKICAgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMzA2LjE4NSAxMjAuMjk2IgogICB2aWV3Qm94PSIyNCAyNiA2OCA2OCIKICAgeT0iMHB4IgogICB4PSIwcHgiCiAgIHZlcnNpb249IjEuMSI+CiAgIAkgPGc+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNDEuMDYxIgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjkiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTUyOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGxpbmUKICAgICAgIHkyPSI3Mi4zOTQiCiAgICAgICB4Mj0iNzUuMDc2IgogICAgICAgeTE9IjQzLjM4NCIKICAgICAgIHgxPSI1OC4wNjgiCiAgICAgICBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiCiAgICAgICBzdHJva2Utd2lkdGg9IjMuNTAwOCIKICAgICAgIHN0cm9rZT0iI0ZGRkZGRiIKICAgICAgIGZpbGw9Im5vbmUiIC8+PGc+PHBhdGgKICAgICAgICAgZD0iTTUyLjc3Myw3Ny4wODRjMCwxLjk1NC0xLjU5OSwzLjU1My0zLjU1MywzLjU1M0gzNi45OTljLTEuOTU0LDAtMy41NTMtMS41OTktMy41NTMtMy41NTN2LTkuMzc5ICAgIGMwLTEuOTU0LDEuNTk5LTMuNTUzLDMuNTUzLTMuNTUzaDEyLjIyMmMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjc3LjA4NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnCiAgICAgICBpZD0iZzM0MTkiPjxwYXRoCiAgICAgICAgIGQ9Ik02Ny43NjIsNDguMDc0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINTEuOTg4Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M0g2NC4yMWMxLjk1NCwwLDMuNTUzLDEuNTk5LDMuNTUzLDMuNTUzVjQ4LjA3NHoiCiAgICAgICAgIGZpbGw9IiNGRkZGRkYiIC8+PC9nPjxnPjxwYXRoCiAgICAgICAgIGQ9Ik04Mi43NTIsNzcuMDg0YzAsMS45NTQtMS41OTksMy41NTMtMy41NTMsMy41NTNINjYuOTc3Yy0xLjk1NCwwLTMuNTUzLTEuNTk5LTMuNTUzLTMuNTUzdi05LjM3OSAgICBjMC0xLjk1NCwxLjU5OS0zLjU1MywzLjU1My0zLjU1M2gxMi4yMjJjMS45NTQsMCwzLjU1MywxLjU5OSwzLjU1MywzLjU1M1Y3Ny4wODR6IgogICAgICAgICBmaWxsPSIjRkZGRkZGIiAvPjwvZz48L2c+PC9zdmc+)' :
+			'url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJFYmVuZV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIKCSB2aWV3Qm94PSIwIDAgMjI1IDIyNSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgMjI1IDIyNTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MXtmaWxsOiNERjZDMEM7fQoJLnN0MntmaWxsOiNGRkZGRkY7fQo8L3N0eWxlPgo8cGF0aCBjbGFzcz0ic3QxIiBkPSJNMjI1LDIxNS40YzAsNS4zLTQuMyw5LjYtOS41LDkuNmwwLDBINzcuMWwtNDQuOC00NS41TDYwLjIsMTM0bDgyLjctMTAyLjdsODIuMSw4NC41VjIxNS40eiIvPgo8cGF0aCBjbGFzcz0ic3QyIiBkPSJNMTg0LjYsMTI1LjhoLTIzLjdsLTI1LTQyLjdjNS43LTEuMiw5LjgtNi4yLDkuNy0xMlYzOWMwLTYuOC01LjQtMTIuMy0xMi4yLTEyLjNoLTAuMUg5MS42CgljLTYuOCwwLTEyLjMsNS40LTEyLjMsMTIuMlYzOXYzMi4xYzAsNS44LDQsMTAuOCw5LjcsMTJsLTI1LDQyLjdINDAuNGMtNi44LDAtMTIuMyw1LjQtMTIuMywxMi4ydjAuMXYzMi4xCgljMCw2LjgsNS40LDEyLjMsMTIuMiwxMi4zaDAuMWg0MS43YzYuOCwwLDEyLjMtNS40LDEyLjMtMTIuMnYtMC4xdi0zMi4xYzAtNi44LTUuNC0xMi4zLTEyLjItMTIuM2gtMC4xaC00bDI0LjgtNDIuNGgxOS4zCglsMjQuOSw0Mi40SDE0M2MtNi44LDAtMTIuMyw1LjQtMTIuMywxMi4ydjAuMXYzMi4xYzAsNi44LDUuNCwxMi4zLDEyLjIsMTIuM2gwLjFoNDEuN2M2LjgsMCwxMi4zLTUuNCwxMi4zLTEyLjJ2LTAuMXYtMzIuMQoJYzAtNi44LTUuNC0xMi4zLTEyLjItMTIuM0MxODQuNywxMjUuOCwxODQuNywxMjUuOCwxODQuNiwxMjUuOHoiLz4KPC9zdmc+Cg==)');
 		this.appIcon.style.backgroundImage = logo;		
 		this.appIcon.style.backgroundPosition = 'center center';
+		this.appIcon.style.backgroundSize = '100% 100%';
 		this.appIcon.style.backgroundRepeat = 'no-repeat';
 		
 		mxUtils.setPrefixedStyle(this.appIcon.style, 'transition', 'all 125ms linear');
@@ -5415,26 +5435,32 @@ App.prototype.updateHeader = function()
 				if (mode == App.MODE_GOOGLE)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/google-drive-logo-white.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 				else if (mode == App.MODE_DROPBOX)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/dropbox-logo-white.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 				else if (mode == App.MODE_ONEDRIVE)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/onedrive-logo-white.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 				else if (mode == App.MODE_GITHUB)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/github-logo-white.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 				else if (mode == App.MODE_GITLAB)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/gitlab-logo-white.svg)';
+					this.appIcon.style.backgroundSize = '100% 100%';
 				}
 				else if (mode == App.MODE_TRELLO)
 				{
 					this.appIcon.style.backgroundImage = 'url(' + IMAGE_PATH + '/trello-logo-white-orange.svg)';
+					this.appIcon.style.backgroundSize = '70% 70%';
 				}
 			}
 		}));
@@ -5442,6 +5468,7 @@ App.prototype.updateHeader = function()
 		mxEvent.addListener(this.appIcon, 'mouseout', mxUtils.bind(this, function()
 		{
 			this.appIcon.style.backgroundImage = logo;
+			this.appIcon.style.backgroundSize = '90% 90%';
 		}));
 		
 		if (urlParams['embed'] != '1')
@@ -5452,8 +5479,8 @@ App.prototype.updateHeader = function()
 		this.fnameWrapper = document.createElement('div');
 		this.fnameWrapper.style.position = 'absolute';
 		this.fnameWrapper.style.right = '120px';
-		this.fnameWrapper.style.left = '50px';
-		this.fnameWrapper.style.top = '6px';
+		this.fnameWrapper.style.left = '60px';
+		this.fnameWrapper.style.top = '9px';
 		this.fnameWrapper.style.height = '26px';
 		this.fnameWrapper.style.display = 'none';
 		this.fnameWrapper.style.overflow = 'hidden';
@@ -5498,9 +5525,10 @@ App.prototype.updateHeader = function()
 			this.menubarContainer.appendChild(this.fnameWrapper);
 		
 			this.menubar.container.style.position = 'absolute';
-			this.menubar.container.style.paddingLeft = '52px';
+			this.menubar.container.style.paddingLeft = '59px';
+			this.toolbar.container.style.paddingLeft = '16px';
 			this.menubar.container.style.boxSizing = 'border-box';
-			this.menubar.container.style.top = '29px';
+			this.menubar.container.style.top = '34px';
 		}
 		
 		/**
@@ -5510,7 +5538,7 @@ App.prototype.updateHeader = function()
 		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
-		this.toggleFormatElement.style.top = '8px';
+		this.toggleFormatElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
 		this.toggleFormatElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '30px' : '10px';
 		this.toggleFormatElement.style.padding = '2px';
 		this.toggleFormatElement.style.fontSize = '14px';
@@ -5558,7 +5586,7 @@ App.prototype.updateHeader = function()
 		this.fullscreenElement.setAttribute('title', mxResources.get('fullscreen'));
 		this.fullscreenElement.style.position = 'absolute';
 		this.fullscreenElement.style.display = 'inline-block';
-		this.fullscreenElement.style.top = '8px';
+		this.fullscreenElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
 		this.fullscreenElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '50px' : '30px';
 		this.fullscreenElement.style.padding = '2px';
 		this.fullscreenElement.style.fontSize = '14px';
@@ -5619,7 +5647,7 @@ App.prototype.updateHeader = function()
 			this.toggleElement.style.width = '16px';
 			this.toggleElement.style.height = '16px';
 			this.toggleElement.style.color = '#666';
-			this.toggleElement.style.top = '8px';
+			this.toggleElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
 			this.toggleElement.style.right = '10px';
 			this.toggleElement.style.padding = '2px';
 			this.toggleElement.style.fontSize = '14px';
@@ -5673,10 +5701,11 @@ App.prototype.toggleCompactMode = function(forceHide)
 	if (!forceHide && this.appIcon.style.display == 'none')
 	{
 		this.menubar.container.style.position = 'absolute';
-		this.menubar.container.style.paddingLeft = '52px';
+		this.menubar.container.style.paddingLeft = '59px';
 		this.menubar.container.style.paddingTop = '';
 		this.menubar.container.style.paddingBottom = '';
-		this.menubar.container.style.top = '29px';
+		this.menubar.container.style.top = '34px';
+		this.toolbar.container.style.paddingLeft = '16px';
 		this.buttonContainer.style.visibility = 'visible';
 		this.appIcon.style.display = 'block';
 		this.fnameWrapper.style.display = 'block';
@@ -5692,6 +5721,7 @@ App.prototype.toggleCompactMode = function(forceHide)
 		this.menubar.container.style.paddingTop = '0px';
 		this.menubar.container.style.paddingBottom = '0px';
 		this.menubar.container.style.top = '0px';
+		this.toolbar.container.style.paddingLeft = '8px';
 		this.buttonContainer.style.visibility = 'hidden';
 		this.appIcon.style.display = 'none';
 		this.fnameWrapper.style.display = 'none';

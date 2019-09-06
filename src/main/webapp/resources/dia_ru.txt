@@ -340,6 +340,7 @@ googlePlus=Google+
 googleSharingNotAvailable=Совместный доступ к документу возможен только с использованием Google Drive. Щелкните по ссылке Открыть и используйте команды меню чтобы открыть доступ
 googleSlides=Google Slides
 googleSites=Google Sites
+googleSheets=Google Sheets
 gradient=Градиент
 gradientColor=Цвет
 grid=Сетка

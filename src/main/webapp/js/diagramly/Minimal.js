@@ -23,7 +23,7 @@ EditorUi.initMinimalTheme = function()
        	   'table.mxWindow * { font-size:13px; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
-           'html body a.geMenuItem { opacity: 0.75; }' +
+           'html body a.geMenuItem { opacity: 0.75; cursor: pointer; user-select:none; }' +
            'html body a.geMenuItem[disabled] { opacity: 0.2; }' +
            'html body a.geMenuItem[disabled]:active { opacity: 0.2; }' +
            'html body div.geActivePage { opacity: 0.7; }' +
@@ -34,7 +34,7 @@ EditorUi.initMinimalTheme = function()
            'html table.mxPopupMenu tr.mxPopupMenuItemHover:active { opacity:0.7; }' +
            'html body .geDialog input, html body .geToolbarContainer input, html body .mxWindow input {padding:2px;display:inline-block; }' +
            'div.geDialog { border-radius: 5px; }' +
-           'html body div.geDialog button.geBigButton { color: #fff !important; }' +
+           'html body div.geDialog button.geBigButton { color: #fff !important; border: none !important; }' +
            '.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
            'html body .mxWindow .geColorBtn, html body .geDialog .geColorBtn { background: none; }' +
            'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: #353535 !important; border-style: solid; border-width: 1px; border-color: rgb(216, 216, 216); }' +
@@ -45,7 +45,7 @@ EditorUi.initMinimalTheme = function()
            'html body .gePrimaryBtn:hover { background: #29b6f2; border: none; box-shadow: inherit; }' +
            'html body button.gePrimaryBtn:hover { background: #29b6f2; border: none; }' +
            '.geBtn button { min-width:72px !important; }' +
-           'div.geToolbarContainer a.geButton { margin:2px; padding: 0 2px 4px 2px; } ' +
+           'div.geToolbarContainer a.geButton { margin:0px; padding: 0 2px 4px 2px; } ' +
            '.geDialog, .mxWindow td.mxWindowPane *, div.geSprite, td.mxWindowTitle, .geDiagramContainer { box-sizing:content-box; }' +
            '.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
            'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
@@ -447,35 +447,18 @@ EditorUi.initMinimalTheme = function()
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'relative';
-			div.style.marginTop = '2px';
+			div.style.marginTop = '8px';
+			div.style.marginRight = '4px';
 			
-			var button = document.createElement('button');
-			mxUtils.write(button, mxResources.get('save'));
-			button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
-			button.className = (urlParams['saveAndExit'] == '1') ? 'geMenuItem' : 'geMenuItem gePrimaryBtn';
-			button.style.fontSize = '14px';
-			button.style.padding = '6px';
-			button.style.borderRadius = '3px';
+			var button = document.createElement('a');
+			button.className = 'geMenuItem gePrimaryBtn';
 			button.style.marginLeft = '8px';
-			button.style.cursor = 'pointer';
+			button.style.padding = '6px';
 			
-			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+			if (urlParams['noSaveBtn'] == '1')
 			{
-				this.actions.get('save').funct();
-			}));
-			
-			div.appendChild(button);
-			
-			if (urlParams['saveAndExit'] == '1')
-			{
-				button = document.createElement('a');
 				mxUtils.write(button, mxResources.get('saveAndExit'));
 				button.setAttribute('title', mxResources.get('saveAndExit'));
-				button.className = 'geMenuItem gePrimaryBtn';
-				button.style.fontSize = '14px';
-				button.style.marginLeft = '6px';
-				button.style.padding = '6px';
-				button.style.cursor = 'pointer';
 				
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
@@ -484,15 +467,42 @@ EditorUi.initMinimalTheme = function()
 				
 				div.appendChild(button);
 			}
+			else
+			{
+				mxUtils.write(button, mxResources.get('save'));
+				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
+				
+				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('save').funct();
+				}));
+				
+				div.appendChild(button);
+				
+				if (urlParams['saveAndExit'] == '1')
+				{
+					button = document.createElement('a');
+					mxUtils.write(button, mxResources.get('saveAndExit'));
+					button.setAttribute('title', mxResources.get('saveAndExit'));
+					button.className = 'geMenuItem';
+					button.style.marginLeft = '6px';
+					button.style.padding = '6px';
+					
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
+			}
 
 			button = document.createElement('a');
 			mxUtils.write(button, mxResources.get('exit'));
 			button.setAttribute('title', mxResources.get('exit'));
 			button.className = 'geMenuItem';
-			button.style.fontSize = '14px';
 			button.style.marginLeft = '6px';
 			button.style.padding = '6px';
-			button.style.cursor = 'pointer';
 			
 			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 			{
@@ -1389,7 +1399,7 @@ EditorUi.initMinimalTheme = function()
 					elt.style.zIndex = '1';
 					elt.style.right = '8px';
 					elt.style.cursor = 'pointer';
-					elt.style.top = (urlParams['embed'] == '1') ? '13px' : '11px';
+					elt.style.top = (urlParams['embed'] == '1') ? '12px' : '11px';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
 				}

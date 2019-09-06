@@ -3556,7 +3556,8 @@
 		
 		var elt2 = document.createElement('a');
 		elt2.className = 'geTitle';
-		elt2.style.color = '#188038';
+		elt2.style.color = '#DF6C0C';
+		elt2.style.fontWeight = 'bold';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
 		elt2.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
@@ -6391,7 +6392,7 @@
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
-				else if (src.substring(0, 19) != 'chrome-extension://')
+				else if (src.substring(0, 19) != 'chrome-extension://' && !mxClient.IS_CHROMEAPP)
 				{
 					src = convert.apply(this, arguments);
 				}
@@ -10328,6 +10329,12 @@
 		this.hsplit.style.display = (enabled) ? '' : 'none';
 		this.editor.graph.setEnabled(enabled);
 		
+		if (this.ruler != null)
+		{
+			this.ruler.hRuler.container.style.visibility = (enabled) ? '' : 'hidden';
+			this.ruler.vRuler.container.style.visibility = (enabled) ? '' : 'hidden';
+		}
+		
 		if (this.tabContainer != null)
 		{
 			this.tabContainer.style.visibility = (enabled) ? '' : 'hidden';	
@@ -11133,15 +11140,12 @@
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'absolute';
-			div.style.paddingTop = (uiTheme == 'atlas') ? '2px' : '3px';
+			div.style.paddingTop = (uiTheme == 'atlas') ? '2px' : '0px';
 			div.style.paddingLeft = '8px';
 			div.style.paddingBottom = '2px';
 
 			var button = document.createElement('button');
 			button.className = 'geBigButton';
-			button.style.fontSize = '12px';
-			button.style.padding = '4px 6px 4px 6px';
-			button.style.borderRadius = '3px';
 			
 			if (urlParams['noSaveBtn'] == '1')
 			{
@@ -11172,10 +11176,8 @@
 					button = document.createElement('a');
 					mxUtils.write(button, mxResources.get('saveAndExit'));
 					button.setAttribute('title', mxResources.get('saveAndExit'));
-					button.style.fontSize = '12px';
+					button.className = 'geBigButton geBigStandardButton';
 					button.style.marginLeft = '6px';
-					button.style.padding = '4px';
-					button.style.cursor = 'pointer';
 					
 					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 					{
@@ -11189,11 +11191,9 @@
 			button = document.createElement('a');
 			mxUtils.write(button, mxResources.get('exit'));
 			button.setAttribute('title', mxResources.get('exit'));
-			button.style.fontSize = '12px';
+			button.className = 'geBigButton geBigStandardButton';
 			button.style.marginLeft = '6px';
 			button.style.marginRight = '20px';
-			button.style.padding = '4px';
-			button.style.cursor = 'pointer';
 			
 			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 			{
@@ -12392,7 +12392,7 @@
 			}
 		    else if (format == 'svg')
 			{
-		    		editorUi.hideDialog();
+		    	editorUi.hideDialog();
 				editorUi.saveData(name, 'svg', mxUtils.getXml(graph.getSvg(bg, s, b)), 'image/svg+xml');
 			}
 		    else
@@ -13149,14 +13149,17 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	function writeCommentDate(comment, dateDiv)
 	{
 		dateDiv.innerHTML = '';
-		var str = editorUi.timeSince(new Date(comment.modifiedDate));
+		var ts = new Date(comment.modifiedDate);
+		var str = editorUi.timeSince(ts);
 		
 		if (str == null)
 		{
 			str = mxResources.get('lessThanAMinute');
 		}
 		
-		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));	
+		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));
+		dateDiv.setAttribute('title', ts.toLocaleDateString() + ' ' +
+				ts.toLocaleTimeString());
 	};
 	
 	function showBusy(commentDiv)
@@ -13414,8 +13417,6 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
 					var actionsDisplay = comment.isResolved? 'none' : '';
 					var replies = collectReplies(comment).replies;
-
-					
 					var color = (uiTheme == 'dark') ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
 					
 					for (var i = 0; i < replies.length; i++)

@@ -7964,7 +7964,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return result;
 		};
-	
+
 		/**
 		 * Updates the hint for the current operation.
 		 */
@@ -8020,6 +8020,37 @@ if (typeof mxVertexHandler != 'undefined')
 				this.linkHint.style.display = '';
 			}
 		};
+		
+		/**
+		 * Hides link hint while moving cells.
+		 */
+		var edgeHandlerMouseMove = mxEdgeHandler.prototype.mouseMove;
+		
+		mxEdgeHandler.prototype.mouseMove = function(sender, me)
+		{
+			edgeHandlerMouseMove.apply(this, arguments);
+			
+			if (this.graph.graphHandler != null && this.graph.graphHandler.first != null &&
+				this.linkHint != null && this.linkHint.style.display != 'none')
+			{
+				this.linkHint.style.display = 'none';
+			}
+		}
+		
+		/**
+		 * Hides link hint while moving cells.
+		 */
+		var edgeHandlerMouseUp = mxEdgeHandler.prototype.mouseUp;
+		
+		mxEdgeHandler.prototype.mouseUp = function(sender, me)
+		{
+			edgeHandlerMouseUp.apply(this, arguments);
+			
+			if (this.linkHint != null && this.linkHint.style.display == 'none')
+			{
+				this.linkHint.style.display = '';
+			}
+		}
 	
 		/**
 		 * Updates the hint for the current operation.
@@ -8581,7 +8612,7 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			this.state.view.graph.turnShapes([this.state.cell]);
 		};
-		
+
 		var vertexHandlerMouseMove = mxVertexHandler.prototype.mouseMove;
 	
 		// Workaround for "isConsumed not defined" in MS Edge is to use arguments
@@ -8595,10 +8626,16 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					this.rotationShape.node.style.display = 'none';
 				}
+				
+				if (this.linkHint != null && this.linkHint.style.display != 'none')
+				{
+					this.linkHint.style.display = 'none';
+				}
 			}
 		};
 		
 		var vertexHandlerMouseUp = mxVertexHandler.prototype.mouseUp;
+		
 		mxVertexHandler.prototype.mouseUp = function(sender, me)
 		{
 			vertexHandlerMouseUp.apply(this, arguments);
@@ -8607,6 +8644,11 @@ if (typeof mxVertexHandler != 'undefined')
 			if (this.rotationShape != null && this.rotationShape.node != null)
 			{
 				this.rotationShape.node.style.display = (this.graph.getSelectionCount() == 1) ? '' : 'none';
+			}
+			
+			if (this.linkHint != null && this.linkHint.style.display == 'none')
+			{
+				this.linkHint.style.display = '';
 			}
 		};
 	

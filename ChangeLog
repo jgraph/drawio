@@ -1,3 +1,10 @@
+06-SEP-2019: 11.2.6
+
+- Enables ruler by default
+- Fixes clipart export in Chrome app
+- Adds File, Embed, Google Sheets
+- Updated CSS styles
+
 03-SEP-2019: 11.2.5
 
 - Updates MSCAE stencils

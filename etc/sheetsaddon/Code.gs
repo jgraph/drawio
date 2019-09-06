@@ -56,6 +56,16 @@ function insertDiagrams()
   SpreadsheetApp.getUi().showModalDialog(html, 'Select draw.io Diagrams:');
 }
 
+function refreshSheet()
+{
+  var cur = SpreadsheetApp.getActiveSheet();
+  var dummy = SpreadsheetApp.getActive().insertSheet("Working...");
+  SpreadsheetApp.setActiveSheet(dummy);
+  SpreadsheetApp.flush();
+  SpreadsheetApp.setActiveSheet(cur, true);
+  SpreadsheetApp.getActive().deleteSheet(dummy);
+}
+
 /**
  * Inserts an image for the given diagram.
  */
@@ -112,9 +122,8 @@ function pickerHandler(items)
         msg += errors.join("\n");
         SpreadsheetApp.getUi().alert(msg);
       }
-
-      //Trying to refresh but it doesn't work!
-      SpreadsheetApp.flush();
+    
+      refreshSheet();
   }
 }
 
@@ -241,6 +250,7 @@ function updateElements(elts)
       if (updated > 0)
       {
         msg += updated + " diagram" + ((updated > 1) ? "s" : "") + " updated\n";
+        refreshSheet();
       }
       
       if (errors.length > 0)
@@ -374,7 +384,6 @@ function updateDiagram(id, page, scale, elt, pageId)
 
       // replace image with the same link
       var img = elt.replace(blob);
-      //TODO needs refresh after setting image dimensions
       img.setWidth( w / s );
 	  img.setHeight( h / s );
       var link = createLink(id, page, result[4], scale);
