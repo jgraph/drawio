@@ -325,6 +325,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     graph.container.addEventListener('scroll', efficientScrollListener);
     graph.view.addListener('unitChanged', this.unitListener);
     editorUi.addListener('pageViewChanged', this.pageListener);
+    editorUi.addListener('pageScaleChanged', this.pageListener);
+    editorUi.addListener('pageFormatChanged', this.pageListener);
 
     function debounce(func, wait, immediate) 
     {
@@ -465,6 +467,8 @@ mxRuler.prototype.destroy = function()
     this.graph.container.removeEventListener('scroll', this.scrollListener);
     this.graph.view.removeListener('unitChanged', this.unitListener);
     this.ui.removeListener('pageViewChanged', this.pageListener);
+    this.ui.removeListener('pageScaleChanged', this.pageListener);
+    this.ui.removeListener('pageFormatChanged', this.pageListener);
     
     if (this.container != null)
     {
@@ -488,14 +492,20 @@ function mxDualRuler(editorUi, unit)
 	// Adds units context menu
 	var installMenu = mxUtils.bind(this, function(node)
 	{
-		mxEvent.addGestureListeners(node, null, null, mxUtils.bind(this, function(evt)
+		var menuWasVisible = false;
+
+		mxEvent.addGestureListeners(node, mxUtils.bind(this, function(evt)
+		{
+			menuWasVisible = editorUi.currentMenu != null;
+			mxEvent.consume(evt);
+		}), null, mxUtils.bind(this, function(evt)
 		{
 			if (editorUi.editor.graph.isEnabled() && !editorUi.editor.graph.isMouseDown &&
 				(mxEvent.isTouchEvent(evt) || mxEvent.isPopupTrigger(evt)))
 			{
 				editorUi.editor.graph.popupMenuHandler.hideMenu();
 				editorUi.hideCurrentMenu();
-
+				
 				if (!mxEvent.isTouchEvent(evt) || !menuWasVisible)
 				{
 					var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
