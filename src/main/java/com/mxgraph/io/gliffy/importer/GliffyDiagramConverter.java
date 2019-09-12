@@ -74,6 +74,8 @@ public class GliffyDiagramConverter
 	private Map<String, GliffyLayer> layers;
 
 	private Pattern rotationPattern = Pattern.compile("rotation=(\\-?\\w+)");
+	
+	private StringBuilder report;
 
 	/**
 	 * Constructs a new converter and starts a conversion.
@@ -90,7 +92,7 @@ public class GliffyDiagramConverter
 		drawioDiagram.setExtendParents(false);
 		drawioDiagram.setExtendParentsOnAdd(false);
 		drawioDiagram.setConstrainChildren(false);
-
+		this.report = new StringBuilder();
 		start();
 	}
 
@@ -112,10 +114,13 @@ public class GliffyDiagramConverter
 		try
 		{
 			importLayers();
-
 			for (GliffyObject obj : gliffyDiagram.stage.getObjects())
 			{
-				importObject(obj, obj.parent);
+				try {
+					importObject(obj, obj.parent);
+				} catch (Throwable thr) {
+					report.append("-- Warning, Object " + obj.id + " cannot be transformed. Please contact support for more details." + System.lineSeparator());
+				}
 			}
 		}
 		finally
@@ -1051,5 +1056,15 @@ public class GliffyDiagramConverter
 		int start = style.indexOf(wrongValue);
 		int end = start + wrongValue.length();
 		style.replace(start, end, correctValue);
+	}
+
+	public StringBuilder getReport()
+	{
+		return report;
+	}
+
+	public void setReport(StringBuilder report)
+	{
+		this.report = report;
 	}
 }
