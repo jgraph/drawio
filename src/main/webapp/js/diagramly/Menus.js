@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
  */
 (function()
 {
@@ -66,7 +66,7 @@
 		var dropboxEnabled = ((urlParams['embed'] != '1' && urlParams['db'] != '0') || (urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
 			mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9);
 		var oneDriveEnabled = (window.location.hostname == 'www.draw.io' || window.location.hostname == 'test.draw.io' ||
-				window.location.hostname == 'drive.draw.io' || window.location.hostname == 'legacy.draw.io') &&
+				window.location.hostname == 'drive.draw.io') &&
 				(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
 				urlParams['od'] == '1')) && !navigator.userAgent.match(/(iPad|iPhone|iPod)/g) &&
 				(navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10));

@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 60.3 60.2" style="enable-background:new 0 0 60.3 60.2;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#ECC01B;}
-	.st1{fill:#FFFFFF;}
-</style>
-<title>INDIVIDUAL ICONS</title>
-<ellipse class="st0" cx="30.1" cy="30.1" rx="30.1" ry="30.1"/>
-<path class="st1" d="M39.9,30.4L38.4,32l3.6,3.6h-6.1V22.4l-8.8-8.8H13.9v32.9h21.9v-8.8H42l-3.6,3.6l1.5,1.5l6.3-6.3L39.9,30.4z
-	 M33.7,44.3H16.1V15.8H26v7.7h7.7v12.1H26v2.2h7.7V44.3z"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60.3 60.2"><circle cx="30.1" cy="30.1" r="30.1" fill="#ecc01b"/><path d="M39.9 30.4L38.4 32l3.6 3.6h-6.1V22.4l-8.8-8.8H13.9v32.9h21.9v-8.8H42l-3.6 3.6 1.5 1.5 6.3-6.3-6.3-6.1zm-6.2 13.9H16.1V15.8H26v7.7h7.7v12.1H26v2.2h7.7v6.5z" fill="#fff"/></svg>

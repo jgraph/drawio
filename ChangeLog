@@ -1,3 +1,10 @@
+18-SEP-2019: 11.2.9
+
+- Adds pre and post config JS files
+- Fixes page numbers in PDF export
+- Adds globalVars to configuration
+- Adds DRAWIO_CONFIG variable 
+
 08-SEP-2019: 11.2.8
 
 - Fixes bugs in PlantUML for Confluence Cloud

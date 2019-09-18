@@ -240,7 +240,7 @@ App.DROPBOX_APPKEY = 'libwls2fa9szdji';
 App.DROPBOX_URL = 'js/dropbox/Dropbox-sdk.min.js';
 
 /**
- * Sets the delay for autosave in milliseconds. Default is 2000.
+ * Sets URL to load the Dropbox dropins JS from.
  */
 App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
 
@@ -259,11 +259,6 @@ App.TRELLO_URL = 'https://api.trello.com/1/client.js';
  * Trello JQuery dependency
  */
 App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
-
-/**
- * Trello JQuery dependency
- */
-App.FOOTER_PLUGIN_URL = 'https://www.jgraph.com/drawio-footer.js';
 
 /**
  * Specifies the key for the pusher project.
@@ -850,6 +845,21 @@ App.main = function(callback, createUi)
 		if (window.console != null)
 		{
 			console.error(e);
+		}
+	}
+	
+	if (window.DRAWIO_CONFIG != null)
+	{
+		try
+		{
+			Editor.configure(window.DRAWIO_CONFIG, true);
+		}
+		catch (e)
+		{
+			if (window.console != null)
+			{
+				console.log('Error in global configuration: ' + e, window.DRAWIO_CONFIG);
+			}
 		}
 	}
 	
@@ -1599,18 +1609,9 @@ App.prototype.isDriveDomain = function()
 {
 	return urlParams['drive'] != '0' &&
 		(window.location.hostname == 'test.draw.io' ||
-		window.location.hostname == 'cdn.draw.io' ||
 		window.location.hostname == 'www.draw.io' ||
 		window.location.hostname == 'drive.draw.io' ||
 		window.location.hostname == 'jgraph.github.io');
-};
-
-/**
- * Returns true if the current domain is for the old drive app.
- */
-App.prototype.isLegacyDriveDomain = function()
-{
-	return urlParams['drive'] == 0 || window.location.hostname == 'legacy.draw.io';
 };
 
 /**

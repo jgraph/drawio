@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2017, JGraph Ltd
- * Copyright (c) 2006-2017, Gaudenz Alder
+ * Copyright (c) 2006-2019, JGraph Ltd
+ * Copyright (c) 2006-2019, draw.io AG
  */
 DriveClient = function(editorUi)
 {
@@ -18,23 +18,15 @@ DriveClient = function(editorUi)
 	// Reading files now possible with no initial click in drive
 	if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1')
 	{
-		this.appId = '850530949725';
-		this.clientId = '850530949725.apps.googleusercontent.com';
+		this.appId = window.DRAWIO_GOOGLE_VIEWER_APP_ID || '850530949725';
+		this.clientId = window.DRAWIO_GOOGLE_VIEWER_CLIENT_ID || '850530949725.apps.googleusercontent.com';
 		this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
 			'https://www.googleapis.com/auth/userinfo.profile'];
 	}
-	else if (this.ui.isDriveDomain())
-	{
-		this.appId = '671128082532';
-		this.clientId = '671128082532.apps.googleusercontent.com';
-	}
 	else
 	{
-		// Uses a different mime-type and realtime model than the drive domain
-		// because realtime models for different app IDs are not compatible
-		this.appId = '420247213240';
-		this.clientId = '420247213240-hnbju1pt13seqrc1hhd5htpotk4g9q7u.apps.googleusercontent.com';
-		this.mimeType = 'application/vnd.jgraph.mxfile.rtlegacy';
+		this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
+		this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
 	}
 	
 	this.mimeTypes = this.xmlMimeType + 'application/mxe,application/mxr,' +
@@ -107,11 +99,6 @@ DriveClient.prototype.libraryMimeType = 'application/vnd.jgraph.mxlibrary';
  * Contains the hostname of the new app.
  */
 DriveClient.prototype.newAppHostname = 'www.draw.io';
-
-/**
- * Contains the hostname of the old app.
- */
-DriveClient.prototype.oldAppHostname = 'legacy.draw.io';
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -917,25 +904,6 @@ DriveClient.prototype.getRealtimeData = function(id, success, error, retryCount)
 };
 
 /**
- * Checks if the client is authorized and calls the next step.
- */
-DriveClient.prototype.loadRealtime = function(resp, success, error)
-{
-	// Redirects to new app because the realtime models of different apps are not visible
-	if (urlParams['ignoremime'] != '1' && this.appId == '420247213240' &&
-		(resp.mimeType == 'application/vnd.jgraph.mxfile.realtime' ||
-		resp.mimeType == 'application/mxr'))
-	{
-		this.redirectToNewApp(error, resp.id);
-	}
-	// Shows the file as read-only without conversion
-	else
-	{
-		success();
-	}
-};
-
-/**
  * Checks if the client is authorized and calls the next step. The ignoreMime argument is
  * used for import via getFile. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
@@ -1170,7 +1138,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			var mod0 = file.desc.modifiedDate;
 			var head0 = file.desc.headRevisionId;
 			var saveAsPng = this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle());
-			noCheck = (noCheck != null) ? noCheck : (!this.ui.isLegacyDriveDomain() || urlParams['ignoremime'] == '1');
+			noCheck = (noCheck != null) ? noCheck : urlParams['ignoremime'] == '1';
 			
 			// NOTE: Unloading arg is currently ignored, saving during unload/beforeUnload is not possible using
 			// asynchronous code, which is needed to create the thumbnail, or asynchronous requests which is the only

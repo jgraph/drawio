@@ -1189,7 +1189,7 @@
 				    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
 					    		cell.geometry.height, cell.value);
 				}),
-				this.addEntry('tree mindmap central idea branch topic', function()
+				this.addEntry('tree mindmap mindmaps central idea branch topic', function()
 				{
 					var mindmap = new mxCell('Mindmap', new mxGeometry(0, 0, 420, 126),
 						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;');
@@ -1267,7 +1267,7 @@
 					return sb.createVertexTemplateFromCells([mindmap], mindmap.geometry.width,
 						mindmap.geometry.height, mindmap.value);
 				}),
-				this.addEntry('tree mindmap central idea', function()
+				this.addEntry('tree mindmap mindmaps central idea', function()
 				{
 					var cell = new mxCell('Central Idea', new mxGeometry(0, 0, 100, 40),
 				    	'ellipse;whiteSpace=wrap;html=1;align=center;' +
@@ -1277,7 +1277,7 @@
 			    	return sb.createVertexTemplateFromCells([cell], cell.geometry.width,
 			    		cell.geometry.height, cell.value);
 				}),
-				this.addEntry('tree mindmap branch', function()
+				this.addEntry('tree mindmap mindmaps branch', function()
 				{
 			    	var cell = new mxCell('Branch', new mxGeometry(0, 0, 80, 20),
 			    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
@@ -1296,7 +1296,7 @@
 					return sb.createVertexTemplateFromCells([cell, edge], cell.geometry.width,
 						cell.geometry.height, cell.value);
 				}),
-				this.addEntry('tree mindmap sub topic', function()
+				this.addEntry('tree mindmap mindmaps sub topic', function()
 				{
 			   		var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 72, 26),
 			    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +

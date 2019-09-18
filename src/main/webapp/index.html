@@ -18,8 +18,12 @@
 	<meta name="theme-color" content="#d89000">
 	<script type="text/javascript">
 		var mxIsElectron = (window && window.process && window.process.type) || (navigator.userAgent.toLowerCase().indexOf(' electron/') > -1);
-		
 		var mxIsElectron5 = mxIsElectron && parseInt(process.versions.electron) >= 5;
+		var hostName = window.location.hostname;
+		// Supported domains are *.draw.io that draw.io host, or the packaged version in Quip
+		var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
+								(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
+
 		/**
 		 * URL Parameters and protocol description are here:
 		 *
@@ -347,6 +351,7 @@
 			var geBasePath = mxDevUrl + '/javascript/examples/grapheditor/www/js';
 			var mxBasePath = mxDevUrl + '/javascript/src';
 			
+			mxscript(drawDevUrl + 'js/PreConfig.js');
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
 			mxscript(geBasePath + '/Init.js');
 			mxscript(mxDevUrl + '/javascript/src/js/mxClient.js');
@@ -355,20 +360,33 @@
 			// required in some browsers to make sure mxClient.js (and the files that it
 			// loads asynchronously) are available when the code loaded in Devel.js runs.
 			mxscript(drawDevUrl + 'js/diagramly/Devel.js');
+			mxscript(drawDevUrl + 'js/PostConfig.js');
 		}
 		else
 		{
+			if (!supportedDomain)
+			{
+				mxscript('js/PreConfig.js');
+			}
+			
 			mxscript('js/app.min.js');
+			
+			if (!supportedDomain)
+			{
+				mxscript('js/PostConfig.js');
+			}
 		}
 
 		// Electron
 		if (mxIsElectron)
 		{
+			mxscript('js/PreConfig.js');
 			mxscript('js/diagramly/DesktopLibrary.js');
 			mxscript('js/diagramly/ElectronApp.js');
 			mxscript('js/extensions.min.js');
 			mxscript('js/stencils.min.js');
 			mxscript('js/shapes.min.js');
+			mxscript('js/PostConfig.js');
 		}
 		
 		// Adds basic error handling

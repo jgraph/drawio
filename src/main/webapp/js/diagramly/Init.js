@@ -42,6 +42,9 @@ window.PLUGINS_BASE_PATH = window.PLUGINS_BASE_PATH || '';
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';
 
+// Specifies global configuration via variable
+window.DRAWIO_CONFIG = window.DRAWIO_CONFIG || null;
+
 // Sets the base path, the UI language via URL param and configures the
 // supported languages to avoid 404s. The loading of all core language
 // resources is disabled as all required resources are in grapheditor.

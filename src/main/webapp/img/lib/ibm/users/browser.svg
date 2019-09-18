@@ -1,14 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 59.6 59.6" style="enable-background:new 0 0 59.6 59.6;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#C2952D;}
-	.st1{fill:#FFFFFF;}
-</style>
-<title>INDIVIDUAL ICONS</title>
-<circle class="st0" cx="29.8" cy="29.8" r="29.8"/>
-<rect x="9.9" y="12.3" class="st1" width="39.8" height="31.2"/>
-<rect x="13" y="15.4" class="st0" width="33.7" height="24.1"/>
-<rect x="13" y="44.4" class="st1" width="33.7" height="2.9"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 59.6 59.6"><circle cx="29.8" cy="29.8" r="29.8" fill="#c2952d"/><path d="M9.9 12.3h39.8v31.2H9.9z" fill="#fff"/><path d="M13 15.4h33.7v24.1H13z" fill="#c2952d"/><path d="M13 44.4h33.7v2.9H13z" fill="#fff"/></svg>

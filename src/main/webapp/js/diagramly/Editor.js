@@ -616,6 +616,11 @@
 				EditorUi.templateFile = config.templateFile;
 			}
 			
+			if (config.globalVars != null)
+			{
+				Editor.globalVars = config.globalVars;
+			}
+			
 			if (config.customFonts)
 			{
 				Menus.prototype.defaultFonts = config.customFonts.
@@ -3727,11 +3732,22 @@
 	 */
 	Graph.prototype.updateGlobalUrlVariables = function()
 	{
+		this.globalVars = Editor.globalVars;
+		
 		if (urlParams['vars'] != null)
 		{
 			try
 			{
-				this.globalUrlVars = JSON.parse(decodeURIComponent(urlParams['vars']));
+				this.globalVars = (this.globalVars != null) ? mxUtils.clone(this.globalVars) : {};
+				var vars = JSON.parse(decodeURIComponent(urlParams['vars']));
+				
+				if (vars != null)
+				{
+					for (var key in vars)
+					{
+						this.globalVars[key] = vars[key];
+					}
+				}
 			}
 			catch (e)
 			{
@@ -3749,7 +3765,7 @@
 	 */
 	Graph.prototype.getExportVariables = function()
 	{
-		return (this.globalUrlVars != null) ? this.globalUrlVars : {};
+		return (this.globalVars != null) ? mxUtils.clone(this.globalVars) : {};
 	};
 	
 	/**
@@ -3761,9 +3777,9 @@
 	{
 		var val = graphGetGlobalVariable.apply(this, arguments);
 		
-		if (val == null && this.globalUrlVars != null)
+		if (val == null && this.globalVars != null)
 		{
-			val = this.globalUrlVars[name];
+			val = this.globalVars[name];
 		}
 		
 		return val;

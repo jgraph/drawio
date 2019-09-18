@@ -110,7 +110,7 @@
 			//Add global variables to graph
 			if (extras != null && extras.globalVars != null)
 			{
-				graph.globalUrlVars = extras.globalVars;
+				graph.globalVars = extras.globalVars;
 			}
 
 			/**
@@ -610,6 +610,28 @@
 						//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
 						to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
 					}
+				}
+				else
+				{
+					/**
+					 * Implements %page% and %pagenumber% placeholders
+					 */
+					var graphGetGlobalVariable = graph.getGlobalVariable;
+					
+					graph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return (diagrams == null) ? 'Page-1' :
+								(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
+						}
+						else if (name == 'pagenumber')
+						{
+							return from + 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
 				}
 					
 				for (var i = from; i <= to; i++) 
