@@ -915,11 +915,24 @@
 				fileNode.removeAttribute('userAgent');
 				fileNode.removeAttribute('version');
 				fileNode.removeAttribute('editor');
+				fileNode.removeAttribute('pages');
 				fileNode.removeAttribute('type');
+				
+				if (mxClient.IS_CHROMEAPP)
+				{
+					fileNode.setAttribute('host', 'Chrome');
+				}
+				else if (EditorUi.isElectronApp)
+				{
+					fileNode.setAttribute('host', 'Electron');
+				}
+				else
+				{
+					fileNode.setAttribute('host', window.location.hostname);
+				}
 				
 				// Adds new metadata
 				fileNode.setAttribute('modified', new Date().toISOString());
-				fileNode.setAttribute('host', window.location.hostname);
 				fileNode.setAttribute('agent', navigator.userAgent);
 				fileNode.setAttribute('version', EditorUi.VERSION);
 				fileNode.setAttribute('etag', Editor.guid());
@@ -934,11 +947,6 @@
 				if (this.pages != null)
 				{
 					fileNode.setAttribute('pages', this.pages.length);
-				}
-				
-				if (nonCompressed)
-				{
-					fileNode.setAttribute('compressed', 'false');
 				}
 			}
 			else
@@ -986,6 +994,7 @@
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
+		nonCompressed = (nonCompressed != null) ? nonCompressed : !Editor.compressXml;
 		
 		var node = this.editor.getGraphXml(ignoreSelection);
 			
@@ -1502,18 +1511,10 @@
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
 		
 		// Checks for parser errors
-		var errors = (node != null) ? node.getElementsByTagName('parsererror') : null;
+		var cause = Editor.extractParserError(node, mxResources.get('invalidOrMissingFile'));
 		
-		if (errors != null && errors.length > 0)
+		if (cause)
 		{
-			var cause = mxResources.get('invalidOrMissingFile');
-			var divs = errors[0].getElementsByTagName('div');
-			
-			if (divs.length > 0)
-			{
-				cause = mxUtils.getTextContent(divs[0]);
-			}
-			
 			throw new Error(cause);
 		}
 		else
@@ -5907,7 +5908,8 @@
 		   		{
 		   			if (diagramData == null)
 		   			{
-		   				diagramData = this.getFileData(true);
+		   				diagramData = this.getFileData(true, null, null, null, null,
+		   						null, null, null, null, false);
 		   			}
 		   			
 		   	   	    var data = canvas.toDataURL('image/png');

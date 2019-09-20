@@ -7,20 +7,33 @@
 		this.addGCP2ServiceCardsPalette();
 		this.addGCP2UserDeviceCardsPalette();
 		this.addGCP2ComputePalette();
-		this.addGCP2APIPlatformEcosystemsPalette();
-		this.addGCP2IdentitySecurityPalette();
-		this.addGCP2BigDataPalette();
+		this.addGCP2APIManagementPalette();
+		this.addGCP2SecurityPalette();
+		this.addGCP2DataAnalyticsPalette();
 		this.addGCP2DataTransferPalette();
 		this.addGCP2CloudAIPalette();
 		this.addGCP2InternetOfThingsPalette();
-		this.addGCP2StorageDatabasesPalette();
+		this.addGCP2DatabasesPalette();
+		this.addGCP2StoragePalette();
 		this.addGCP2ManagementToolsPalette();
 		this.addGCP2NetworkingPalette();
 		this.addGCP2DeveloperToolsPalette();
 		this.addGCP2ExpandedProductCardsPalette();
 		this.addGCP2ProductCardsPalette();
 		this.addGCP2GeneralIconsPalette();
-		this.addGCP2IconsPalette();
+		this.addGCP2IconsAIMachineLearningPalette();
+		this.addGCP2IconsComputePalette();
+		this.addGCP2IconsDataAnalyticsPalette();
+		this.addGCP2IconsManagementToolsPalette();
+		this.addGCP2IconsNetworkingPalette();
+		this.addGCP2IconsDeveloperToolsPalette();
+		this.addGCP2IconsAPIManagementPalette()
+		this.addGCP2IconsInternetOfThingsPalette();
+		this.addGCP2IconsDatabasesPalette();
+		this.addGCP2IconsStoragePalette();
+		this.addGCP2IconsSecurityPalette();
+		this.addGCP2IconsMigrationPalette();
+		this.addGCP2IconsHybridAndMultiCloudPalette();
 	};
 	
 	Sidebar.prototype.addGCP2PathsPalette = function()
@@ -593,6 +606,8 @@
 		this.addGCP2CardSet('Cloud\nFunctions', 'cloud_functions', 120, 150, dt + 'functions', fns);
 		this.addGCP2CardSet('Kubernetes\nEngine', 'container_engine', 130, 170, dt + 'kubernetes engine', fns);
 		this.addGCP2CardSet('Container-\nOptimized OS', 'container_optimized_os', 140, 200, dt + 'container optimized os operating system', fns);
+		this.addGCP2CardSet('Cloud Run', 'cloud_run', 120, 120, dt + 'cloud run', fns);
+		this.addGCP2CardSet('GKE-on-Prem', 'gke_on_prem', 140, 140, dt + 'gke on prem premise', fns);
 
 		this.addPalette('gcp2Compute', 'GCP / Compute', false, mxUtils.bind(this, function(content)
 		{
@@ -603,9 +618,9 @@
 		}));
 	};
 	
-	Sidebar.prototype.addGCP2APIPlatformEcosystemsPalette = function()
+	Sidebar.prototype.addGCP2APIManagementPalette = function()
 	{
-		var dt = 'gcp google cloud platform api ecosystems ';
+		var dt = 'gcp google cloud platform api management ';
 		var fns = [];
 		
 		this.addGCP2CardSet('API\nAnalytics', 'api_analytics', 110, 140, dt + 'api analytics application programming interface', fns);
@@ -615,7 +630,7 @@
 		this.addGCP2CardSet('Apigee API\nPlatform', 'apigee_api_platform', 130, 170, dt + 'apigee api platform application programming interface', fns);
 		this.addGCP2CardSet('Developer\nPortal', 'developer_portal', 120, 160, dt + 'developer portal', fns);
 
-		this.addPalette('gcp2API Platform and Ecosystems', 'GCP / API Platform and Ecosystems', false, mxUtils.bind(this, function(content)
+		this.addPalette('gcp2API Management', 'GCP / API Management', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{
@@ -624,9 +639,9 @@
 		}));
 	};
 	
-	Sidebar.prototype.addGCP2IdentitySecurityPalette = function()
+	Sidebar.prototype.addGCP2SecurityPalette = function()
 	{
-		var dt = 'gcp google cloud platform identity security ';
+		var dt = 'gcp google cloud platform security ';
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nIAM', 'cloud_iam', 100, 120, dt + 'cloud iam', fns);
@@ -639,7 +654,7 @@
 		this.addGCP2CardSet('Cloud Security\nCommand Center', 'cloud_security_command_center', 160, 240, dt + 'cloud security command center', fns);
 		this.addGCP2CardSet('Security Key\nEnforcement', 'security_key_enforcement', 130, 200, dt + 'security key enforcement', fns);
 		
-		this.addPalette('gcp2Identity and Security', 'GCP / Identity and Security', false, mxUtils.bind(this, function(content)
+		this.addPalette('gcp2Security', 'GCP / Security', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{
@@ -648,9 +663,9 @@
 		}));
 	};
 
-	Sidebar.prototype.addGCP2BigDataPalette = function()
+	Sidebar.prototype.addGCP2DataAnalyticsPalette = function()
 	{
-		var dt = 'gcp google cloud platform big data ';
+		var dt = 'gcp google cloud platform data analytics ';
 		var fns = [];
 		
 		this.addGCP2CardSet('BigQuery', 'bigquery', 120, 120, dt + 'bigquery', fns);
@@ -661,8 +676,10 @@
 		this.addGCP2CardSet('Genomics', 'genomics', 120, 120, dt + 'genomics', fns);
 		this.addGCP2CardSet('Cloud\nDataprep', 'cloud_dataprep', 110, 150, dt + 'dataprep', fns);
 		this.addGCP2CardSet('Cloud\nComposer', 'cloud_composer', 120, 150, dt + 'cloud composer', fns);
+		this.addGCP2CardSet('Cloud Data Catalog', 'cloud_data_catalog', 170, 170, dt + 'cloud data catalog', fns);
+		this.addGCP2CardSet('Cloud Data Fusion', 'cloud_data_fusion', 160, 160, dt + 'cloud data fusion', fns);
 
-		this.addPalette('gcp2Big Data', 'GCP / Big Data', false, mxUtils.bind(this, function(content)
+		this.addPalette('gcp2Data Analytics', 'GCP / Data Analytics', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{
@@ -700,8 +717,6 @@
 		this.addGCP2CardSet('Jobs\nAPI', 'cloud_jobs_api', 90, 110, dt + 'jobs api application programming interface', fns);
 		this.addGCP2CardSet('Cloud Video\nIntelligence API', 'cloud_video_intelligence_api', 150, 220, dt + 'cloud video intelligence api application programming interface', fns);
 		this.addGCP2CardSet('Advanced\nSolutions Lab', 'advanced_solutions_lab', 140, 200, dt + 'advanced solutions lab', fns);
-//		this.addGCP2CardSet('Cloud\nAutoML', 'cloud_automl', 110, 140, dt + 'automl auto ml', fns);
-//		this.addGCP2CardSet('Cloud\nText-to-Speech', 'cloud_text_to_speech', 110, 140, dt + 'text to speech', fns);
 
 		this.addPalette('gcp2Cloud AI', 'GCP / Cloud AI', false, mxUtils.bind(this, function(content)
 		{
@@ -718,7 +733,6 @@
 		var fns = [];
 		
 		this.addGCP2CardSet('Cloud\nIoT Core', 'cloud_iot_core', 110, 150, dt + 'core', fns);
-		this.addGCP2CardSet('Cloud\nIoT Edge', 'cloud_iot_edge', 110, 150, dt + 'edge', fns);
 
 		this.addPalette('gcp2Internet of Things', 'GCP / Internet of Things', false, mxUtils.bind(this, function(content)
 		{
@@ -729,21 +743,37 @@
 		}));
 	};
 	
-	Sidebar.prototype.addGCP2StorageDatabasesPalette = function()
+	Sidebar.prototype.addGCP2DatabasesPalette = function()
 	{
-		var dt = 'gcp google cloud platform storage databases ';
+		var dt = 'gcp google cloud platform databases ';
 		var fns = [];
 		
-		this.addGCP2CardSet('Cloud\nStorage', 'cloud_storage', 110, 140, dt, fns);
 		this.addGCP2CardSet('Cloud\nSQL', 'cloud_sql', 100, 120, dt + 'sql', fns);
 		this.addGCP2CardSet('Cloud\nBigtable', 'cloud_bigtable', 110, 140, dt + 'bigtable', fns);
 		this.addGCP2CardSet('Cloud\nSpanner', 'cloud_spanner', 110, 150, dt + 'spanner', fns);
-		this.addGCP2CardSet('Cloud\nDatastore', 'cloud_datastore', 120, 150, dt + 'datastore', fns);
-		this.addGCP2CardSet('Persistent\nDisk', 'persistent_disk', 120, 150, dt + 'persistent disk', fns);
 		this.addGCP2CardSet('Cloud\nMemorystore', 'cloud_memorystore', 140, 170, dt + 'memorystore', fns);
+		this.addGCP2CardSet('Cloud\nFirestore', 'cloud_firestore', 110, 150, dt + 'filestore', fns);
+		this.addGCP2CardSet('Cloud\nDatastore', 'cloud_datastore', 120, 150, dt + 'datastore', fns);
+
+		this.addPalette('gcp2Databases', 'GCP / Databases', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2StoragePalette = function()
+	{
+		var dt = 'gcp google cloud platform storage ';
+		var fns = [];
+		
+		this.addGCP2CardSet('Cloud\nStorage', 'cloud_storage', 110, 140, dt, fns);
+		this.addGCP2CardSet('Persistent\nDisk', 'persistent_disk', 120, 150, dt + 'persistent disk', fns);
 		this.addGCP2CardSet('Cloud\nFilestore', 'cloud_filestore', 110, 150, dt + 'filestore', fns);
 
-		this.addPalette('gcp2Storage and Databases', 'GCP / Storage and Databases', false, mxUtils.bind(this, function(content)
+		this.addPalette('gcp2Storage', 'GCP / Storage', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{
@@ -817,7 +847,7 @@
 		
 		this.addGCP2CardSet('Cloud\nSDK', 'placeholder', 100, 120, dt + 'sdk software development kit', fns);
 		this.addGCP2CardSet('Cloud\nBuild', 'container_builder', 100, 130, dt + 'build', fns);
-		this.addGCP2CardSet('Deployment\nManager', 'cloud_deployment_manager', 130, 180, dt + 'deployment manager', fns);
+		this.addGCP2CardSet('Gradle App\nEnginge Plugin', 'placeholder', 150, 210, dt + 'gradle app engine plugin application', fns);
 		this.addGCP2CardSet('Cloud Tools for\nVisual Studio', 'cloud_tools_for_powershell', 150, 220, dt + 'tools for visual studio', fns);
 		this.addGCP2CardSet('Cloud Source\nRepositories', 'placeholder', 140, 210, dt + 'cloud source repositories', fns);
 		this.addGCP2CardSet('Maven App\nEngine Plugin', 'placeholder', 140, 200, dt + 'maven app engine plugin', fns);
@@ -827,7 +857,6 @@
 		this.addGCP2CardSet('Cloud Tools for\nPowerShell', 'cloud_tools_for_powershell', 150, 210, dt + 'tools for powershell', fns);
 		this.addGCP2CardSet('IDE Plugins', 'cloud_tools_for_powershell', 130, 130, dt + 'ide plugins integrated development environment', fns);
 		this.addGCP2CardSet('Container\nRegistry', 'container_registry', 120, 160, dt + 'container registry', fns);
-		this.addGCP2CardSet('Gradle App\nEnginge Plugin', 'placeholder', 150, 210, dt + 'gradle app engine plugin application', fns);
 
 		this.addPalette('gcp2Developer Tools', 'GCP / Developer Tools', false, mxUtils.bind(this, function(content)
 		{
@@ -937,30 +966,18 @@
 		}));
 	};
 	
-	Sidebar.prototype.addGCP2IconsPalette = function()
+	Sidebar.prototype.addGCP2IconsAIMachineLearningPalette = function()
 	{
 		var sb = this;
 		var s = 1.5;
 		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
-		var dt = 'gcp google cloud platform icons icon ';
+		var dt = 'gcp google cloud platform icons icon ai machine learning ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
 		
 		var fns = [
-		    this.createVertexTemplateEntry(n + 'compute_engine', 
-		    		s * 44, s * 39, 'Compute\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'compute engine').join(' ')),
-		    this.createVertexTemplateEntry(n + 'app_engine', 
-		    		s * 44, s * 39, 'App\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'app engine').join(' ')),
-		    this.createVertexTemplateEntry(n + 'container_engine', 
-		    		s * 44, s * 39, 'Kubernetes\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'kubernetes engine').join(' ')),
-		    this.createVertexTemplateEntry(n + 'gpu', 
-		    		s * 44, s * 39, 'GPU', null, null, null, this.getTagsForStencil(gn, '', dt + 'gpu graphics processing unit').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_functions', 
-		    		s * 44, s * 39, 'Cloud\nFunctions', null, null, null, this.getTagsForStencil(gn, '', dt + 'functions').join(' ')),
-		    this.createVertexTemplateEntry(n + 'container_optimized_os', 
-		    		s * 44, s * 39, 'Container-\nOptimized OS', null, null, null, this.getTagsForStencil(gn, '', dt + 'container optimized os operating system').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_machine_learning', 
-		    		s * 44, s * 39, 'Cloud Machine\nLearning Engine', null, null, null, this.getTagsForStencil(gn, '', dt + 'machine learning engine').join(' ')),
+		    		s * 44, s * 39, 'AI Platform', null, null, null, this.getTagsForStencil(gn, '', dt + 'ai artificial intelligence platform').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_vision_api', 
 		    		s * 44, s * 39, 'Cloud\nVision API', null, null, null, this.getTagsForStencil(gn, '', dt + 'vision api application programming interface').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_speech_api', 
@@ -983,8 +1000,86 @@
 		    		s * 44, s * 39, 'Cloud\nText-to-Speech', null, null, null, this.getTagsForStencil(gn, '', dt + 'text to speech').join(' ')),
 		    this.createVertexTemplateEntry(n + 'dialogflow_enterprise_edition', 
 		    		s * 44, s * 39, 'Dialogflow\nEnterprise\nEdition', null, null, null, this.getTagsForStencil(gn, '', dt + 'dialogflow enterprise edition').join(' ')),
-		    this.createVertexTemplateEntry(n + 'transfer_appliance', 
-		    		s * 44, s * 39, 'Transfer\nAppliance', null, null, null, this.getTagsForStencil(gn, '', dt + 'transfer appliance').join(' ')),
+		    this.createVertexTemplateEntry(n + 'ai_hub', 
+		    		s * 44, s * 39, 'AI Hub', null, null, null, this.getTagsForStencil(gn, '', dt + 'ai artificial intelligence hub').join(' ')),
+		    this.createVertexTemplateEntry(n + 'automl_video_intelligence', 
+		    		s * 44, s * 39, 'AutoML Video\nIntelligence', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl video intelligence').join(' ')),
+		    this.createVertexTemplateEntry(n + 'automl_natural_language', 
+		    		s * 44, s * 39, 'AutoML Natural\nLanguage', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl natural language').join(' ')),
+		    this.createVertexTemplateEntry(n + 'automl_tables', 
+		    		s * 44, s * 39, 'AutoML Tables', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl tables').join(' ')),
+		    this.createVertexTemplateEntry(n + 'automl_translation', 
+		    		s * 44, s * 39, 'AutoML\nTranslation', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl translation').join(' ')),
+		    this.createVertexTemplateEntry(n + 'automl_vision', 
+		    		s * 44, s * 39, 'AutoML Vision', null, null, null, this.getTagsForStencil(gn, '', dt + 'automl vision').join(' ')),
+		    this.createVertexTemplateEntry(n + 'recommendations_ai', 
+		    		s * 44, s * 39, 'Recommendations\nAI', null, null, null, this.getTagsForStencil(gn, '', dt + 'recommendations ai artificial intelligence').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_inference_api', 
+		    		s * 44, s * 39, 'Cloud\nInference API', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud inference api application programming interface').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'AI Platform\nData Labeling\nService', null, null, null, this.getTagsForStencil(gn, '', dt + 'ai artificial intelligence platform data labeling service').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons AI Machine Learning', 'GCP Icons / AI and Machine Learning', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsComputePalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon compute ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
+		    this.createVertexTemplateEntry(n + 'compute_engine', 
+		    		s * 44, s * 39, 'Compute\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'compute engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'app_engine', 
+		    		s * 44, s * 39, 'App\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'app engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_engine', 
+		    		s * 44, s * 39, 'Kubernetes\nEngine', null, null, null, this.getTagsForStencil(gn, '', dt + 'kubernetes engine').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_run', 
+		    		s * 44, s * 39, 'Cloud Run', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud run').join(' ')),
+		    this.createVertexTemplateEntry(n + 'gpu', 
+		    		s * 44, s * 39, 'GPU', null, null, null, this.getTagsForStencil(gn, '', dt + 'gpu graphics processing unit').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_functions', 
+		    		s * 44, s * 39, 'Cloud\nFunctions', null, null, null, this.getTagsForStencil(gn, '', dt + 'functions').join(' ')),
+		    this.createVertexTemplateEntry(n + 'container_optimized_os', 
+		    		s * 44, s * 39, 'Container-\nOptimized OS', null, null, null, this.getTagsForStencil(gn, '', dt + 'container optimized os operating system').join(' ')),
+		    this.createVertexTemplateEntry(n + 'gke_on_prem', 
+		    		s * 44, s * 39, 'Cloud Run', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud run').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Compute', 'GCP Icons / Compute', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsDataAnalyticsPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon data analytics ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'bigquery', 
 		    		s * 44, s * 39, 'BigQuery', null, null, null, this.getTagsForStencil(gn, '', dt + 'bigquery big query').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_dataflow', 
@@ -993,6 +1088,8 @@
 		    		s * 44, s * 39, 'Cloud\nDataproc', null, null, null, this.getTagsForStencil(gn, '', dt + 'dataproc').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_dataprep', 
 		    		s * 44, s * 39, 'Cloud\nDataprep', null, null, null, this.getTagsForStencil(gn, '', dt + 'dataprep').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_data_catalog', 
+		    		s * 44, s * 39, 'Cloud Data Catalog', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud data catalog').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_datalab', 
 		    		s * 44, s * 39, 'Cloud\nDatalab', null, null, null, this.getTagsForStencil(gn, '', dt + 'datalab').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_pubsub', 
@@ -1001,24 +1098,31 @@
 		    		s * 44, s * 39, 'Genomics', null, null, null, this.getTagsForStencil(gn, '', dt + 'genomics').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_composer', 
 		    		s * 44, s * 39, 'Cloud\nComposer', null, null, null, this.getTagsForStencil(gn, '', dt + 'composer').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_iam', 
-		    		s * 44, s * 39, 'Cloud IAM', null, null, null, this.getTagsForStencil(gn, '', dt + 'iam').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_iam', 
-		    		s * 44, s * 39, 'Cloud Resource\nManager', null, null, null, this.getTagsForStencil(gn, '', dt + 'resource manager').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_security_scanner', 
-		    		s * 44, s * 39, 'Cloud Security\nScanner', null, null, null, this.getTagsForStencil(gn, '', dt + 'security scanner').join(' ')),
-		    this.createVertexTemplateEntry(n + 'key_management_service', 
-		    		s * 44, s * 39, 'Key\nManagement\nService', null, null, null, this.getTagsForStencil(gn, '', dt + 'key management service').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_security_command_center', 
-		    		s * 44, s * 39, 'Cloud Security\nCommand\nCenter', null, null, null, this.getTagsForStencil(gn, '', dt + 'security command center').join(' ')),
-		    this.createVertexTemplateEntry(n + 'beyondcorp', 
-		    		s * 44, s * 39, 'BeyondCorp', null, null, null, this.getTagsForStencil(gn, '', dt + 'beyondcorp beyond corp').join(' ')),
-		    this.createVertexTemplateEntry(n + 'data_loss_prevention_api', 
-		    		s * 44, s * 39, 'Data Loss\nPrevention API', null, null, null, this.getTagsForStencil(gn, '', dt + 'data loss prevention api application programming interface').join(' ')),
-		    this.createVertexTemplateEntry(n + 'identity_aware_proxy', 
-		    		s * 44, s * 39, 'Identity-Aware\nProxy', null, null, null, this.getTagsForStencil(gn, '', dt + 'identity aware proxy').join(' ')),
-		    this.createVertexTemplateEntry(n + 'security_key_enforcement', 
-		    		s * 44, s * 39, 'Security Key\nEnforcement', null, null, null, this.getTagsForStencil(gn, '', dt + 'security key enforcement').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_data_fusion', 
+		    		s * 44, s * 39, 'Cloud Data\nFusion', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud data fusion').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Data Analytics', 'GCP Icons / Data Analytics', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsManagementToolsPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon management tools ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'stackdriver', 
 		    		s * 44, s * 39, 'Stackdriver', null, null, null, this.getTagsForStencil(gn, '', dt + 'stackdriver').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_deployment_manager', 
@@ -1045,6 +1149,31 @@
 		    		s * 44, s * 39, 'Cloud\nBilling API', null, null, null, this.getTagsForStencil(gn, '', dt + 'billing api application programming interface').join(' ')),
 		    this.createVertexTemplateEntry(n + 'profiler', 
 		    		s * 44, s * 39, 'Profiler', null, null, null, this.getTagsForStencil(gn, '', dt + 'profiler').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_service_mesh', 
+		    		s * 44, s * 39, 'Cloud Service Mesh', null, null, null, this.getTagsForStencil(gn, '', dt + 'cloud service mesh').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Management Tools', 'GCP Icons / Management Tools', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsNetworkingPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon networking ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'virtual_private_cloud', 
 		    		s * 44, s * 39, 'Virtual\nPrivate Cloud', null, null, null, this.getTagsForStencil(gn, '', dt + 'vpc virtual private').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_load_balancing', 
@@ -1075,9 +1204,36 @@
 		    		s * 44, s * 39, 'Standard\nNetwork Tier', null, null, null, this.getTagsForStencil(gn, '', dt + 'standard network tier').join(' ')),
 		    this.createVertexTemplateEntry(n + 'premium_network_tier', 
 		    		s * 44, s * 39, 'Premium\nNetwork Tier', null, null, null, this.getTagsForStencil(gn, '', dt + 'premium network tier').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_nat', 
+		    		s * 44, s * 39, 'Cloud NAT', null, null, null, this.getTagsForStencil(gn, '', dt + 'nat').join(' ')),
+		    this.createVertexTemplateEntry(n + 'traffic_director', 
+		    		s * 44, s * 39, 'Traffic Director', null, null, null, this.getTagsForStencil(gn, '', dt + 'traffic director').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Networking', 'GCP Icons / Networking', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsDeveloperToolsPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon developer tools ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'placeholder', 
 		    		s * 44, s * 39, 'Cloud SDK', null, null, null, this.getTagsForStencil(gn, '', dt + 'sdk software development kit').join(' ')),
-		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    this.createVertexTemplateEntry(n + 'cloud_test_lab', 
 		    		s * 44, s * 39, 'Cloud\nTest Lab', null, null, null, this.getTagsForStencil(gn, '', dt + 'test lab').join(' ')),
 		    this.createVertexTemplateEntry(n + 'placeholder', 
 		    		s * 44, s * 39, 'Cloud Source\nRepositories', null, null, null, this.getTagsForStencil(gn, '', dt + 'source repositories').join(' ')),
@@ -1096,9 +1252,38 @@
 		    this.createVertexTemplateEntry(n + 'placeholder', 
 		    		s * 44, s * 39, 'Gradle App\nEngine Plugin', null, null, null, this.getTagsForStencil(gn, '', dt + 'gradle app application engine plugin').join(' ')),
 		    this.createVertexTemplateEntry(n + 'container_builder', 
-		    		s * 44, s * 39, 'Code Build', null, null, null, this.getTagsForStencil(gn, '', dt + 'code build').join(' ')),
+		    		s * 44, s * 39, 'Cloud Build', null, null, null, this.getTagsForStencil(gn, '', dt + 'build').join(' ')),
 		    this.createVertexTemplateEntry(n + 'placeholder', 
 		    		s * 44, s * 39, 'Cloud Tools\nfor IntelliJ', null, null, null, this.getTagsForStencil(gn, '', dt + 'tools for intellij').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_code', 
+		    		s * 44, s * 39, 'Cloud Code', null, null, null, this.getTagsForStencil(gn, '', dt + 'code').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_tasks', 
+		    		s * 44, s * 39, 'Cloud Tasks', null, null, null, this.getTagsForStencil(gn, '', dt + 'tasks').join(' ')),
+		    this.createVertexTemplateEntry('html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;fontSize=11;fontStyle=1;fontColor=#999999;shape=mxgraph.gcp2.cloud_scheduler', 
+		    		s * 20, s * 23, 'Cloud Scheduler', null, null, null, this.getTagsForStencil(gn, '', dt + 'scheduler').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Developer Tools', 'GCP Icons / Developer Tools', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsAPIManagementPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon api application programming interface management';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'api_analytics', 
 		    		s * 44, s * 39, 'API\nAnalytics', null, null, null, this.getTagsForStencil(gn, '', dt + 'api application programming interface analytics').join(' ')),
 		    this.createVertexTemplateEntry(n + 'api_monetization', 
@@ -1111,12 +1296,54 @@
 		    		s * 44, s * 39, 'Developer\nPortal', null, null, null, this.getTagsForStencil(gn, '', dt + 'developer portal').join(' ')),
 		    this.createVertexTemplateEntry(n + 'apigee_sense', 
 		    		s * 44, s * 39, 'Apigee\nSense', null, null, null, this.getTagsForStencil(gn, '', dt + 'apigee sense').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons API Management', 'GCP Icons / API Management', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsInternetOfThingsPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon internet of things iot ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'cloud_iot_core', 
 		    		s * 44, s * 39, 'Cloud IoT\nCore', null, null, null, this.getTagsForStencil(gn, '', dt + 'iot internet of things core').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_iot_edge', 
-		    		s * 44, s * 39, 'Cloud IoT\nEdge', null, null, null, this.getTagsForStencil(gn, '', dt + 'iot internet of things edge').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_storage', 
-		    		s * 44, s * 39, 'Cloud\nStorage', null, null, null, this.getTagsForStencil(gn, '', dt + 'storage').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Internet of Things', 'GCP Icons / Internet of Things', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsDatabasesPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon databases db ';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'cloud_bigtable', 
 		    		s * 44, s * 39, 'Cloud\nBigtable', null, null, null, this.getTagsForStencil(gn, '', dt + 'bigtable').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_datastore', 
@@ -1127,15 +1354,127 @@
 		    		s * 44, s * 39, 'Cloud SQL', null, null, null, this.getTagsForStencil(gn, '', dt + 'sql').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_spanner', 
 		    		s * 44, s * 39, 'Cloud\nSpanner', null, null, null, this.getTagsForStencil(gn, '', dt + 'spanner').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_firestore', 
+		    		s * 44, s * 39, 'Cloud\nFirestore', null, null, null, this.getTagsForStencil(gn, '', dt + 'firestore').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Databases', 'GCP Icons / Databases', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsStoragePalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon storage';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
 		    this.createVertexTemplateEntry(n + 'persistent_disk', 
 		    		s * 44, s * 39, 'Persistent\nDisk', null, null, null, this.getTagsForStencil(gn, '', dt + 'persistent disk').join(' ')),
 		    this.createVertexTemplateEntry(n + 'cloud_filestore', 
 		    		s * 44, s * 39, 'Cloud\nFilestore', null, null, null, this.getTagsForStencil(gn, '', dt + 'filestore').join(' ')),
-		    this.createVertexTemplateEntry(n + 'cloud_firestore', 
-		    		s * 44, s * 39, 'Cloud\nFirestore', null, null, null, this.getTagsForStencil(gn, '', dt + 'firestore').join(' '))
+		    this.createVertexTemplateEntry(n + 'cloud_storage', 
+		    		s * 44, s * 39, 'Cloud\nStorage', null, null, null, this.getTagsForStencil(gn, '', dt + 'storage').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
 	 	];
 		
-		this.addPalette('gcp2Icons', 'GCP / Icons', false, mxUtils.bind(this, function(content)
+		this.addPalette('gcp2Icons Storage', 'GCP Icons / Storage', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsSecurityPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon security';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
+		    this.createVertexTemplateEntry(n + 'cloud_iam', 
+		    		s * 44, s * 39, 'Cloud IAM', null, null, null, this.getTagsForStencil(gn, '', dt + 'iam').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_iam', 
+		    		s * 44, s * 39, 'Cloud Resource\nManager', null, null, null, this.getTagsForStencil(gn, '', dt + 'resource manager').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_security_scanner', 
+		    		s * 44, s * 39, 'Cloud Security\nScanner', null, null, null, this.getTagsForStencil(gn, '', dt + 'security scanner').join(' ')),
+		    this.createVertexTemplateEntry(n + 'key_management_service', 
+		    		s * 44, s * 39, 'Key\nManagement\nService', null, null, null, this.getTagsForStencil(gn, '', dt + 'key management service').join(' ')),
+		    this.createVertexTemplateEntry(n + 'cloud_security_command_center', 
+		    		s * 44, s * 39, 'Cloud Security\nCommand\nCenter', null, null, null, this.getTagsForStencil(gn, '', dt + 'security command center').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Security', 'GCP Icons / Security', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsMigrationPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon migration';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
+		    this.createVertexTemplateEntry(n + 'transfer_appliance', 
+		    		s * 44, s * 39, 'Transfer\nAppliance', null, null, null, this.getTagsForStencil(gn, '', dt + 'transfer appliance').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Migration', 'GCP Icons / Migration', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
+	};
+	
+	Sidebar.prototype.addGCP2IconsHybridAndMultiCloudPalette = function()
+	{
+		var sb = this;
+		var s = 1.5;
+		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var dt = 'gcp google cloud platform icons icon migration';
+		var gn = 'mxgraph.gcp2';
+		var fns = [];
+		
+		var fns = [
+		    this.createVertexTemplateEntry(n + 'traffic_director', 
+		    		s * 44, s * 39, 'Traffic Director', null, null, null, this.getTagsForStencil(gn, '', dt + 'traffic director').join(' ')),
+		    this.createVertexTemplateEntry(n + 'stackdriver', 
+		    		s * 44, s * 39, 'Stackdriver', null, null, null, this.getTagsForStencil(gn, '', dt + 'stackdriver').join(' ')),
+		    this.createVertexTemplateEntry(n + 'placeholder', 
+		    		s * 44, s * 39, 'Generic GCP\nProduct', null, null, null, this.getTagsForStencil(gn, '', dt + 'generic placeholder product').join(' '))
+	 	];
+		
+		this.addPalette('gcp2Icons Hybrid and Multi Cloud', 'GCP Icons / Hybrid and Multi Cloud', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{

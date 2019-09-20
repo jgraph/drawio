@@ -49,6 +49,11 @@ GraphViewer.prototype.toolbarZIndex = 999;
 GraphViewer.prototype.autoFit = true;
 
 /**
+ * If the diagram should be centered. Default is false.
+ */
+GraphViewer.prototype.center = false;
+
+/**
  * Specifies if zooming in for auto fit is allowed. Default is false.
  */
 GraphViewer.prototype.allowZoomIn = false;
@@ -85,6 +90,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig['auto-fit'] : this.autoFit;
 	this.allowZoomIn = (this.graphConfig['allow-zoom-in'] != null) ?
 		this.graphConfig['allow-zoom-in'] : this.allowZoomIn;
+	this.center = (this.graphConfig['center'] != null) ?
+		this.graphConfig['center'] : this.center;
 	this.checkVisibleState = (this.graphConfig['check-visible-state'] != null) ?
 		this.graphConfig['check-visible-state'] : this.checkVisibleState;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
@@ -551,13 +558,19 @@ GraphViewer.prototype.addSizeHandler = function()
 			if (!this.handlingResize)
 			{
 				this.handlingResize = true;
-
+				
 				this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
 					((this.allowZoomIn) ? null : 1));
-				this.graph.fit(null, null, null, null, false, true);
+				this.graph.fit((maxScale != null) ? 0 : null, null, null, null, false, true);
+				var tmp = this.graph.getGraphBounds();
+				
+				if (this.center)
+				{
+					this.graph.center();
+				}	
+				
 				this.graph.maxFitScale = null;
 				
-				var tmp = this.graph.getGraphBounds();
 				this.updateContainerHeight(container, Math.max(this.minHeight, tmp.height + 2 * this.graph.border + 1));
 
 				this.graph.initialViewState = {
@@ -598,7 +611,7 @@ GraphViewer.prototype.addSizeHandler = function()
 	else
 	{
 		// Sets initial size for responsive diagram to stop at actual size
-		if (this.widthIsEmpty)
+		if (this.widthIsEmpty && !(container.style.height != '' && this.autoFit))
 		{
 			this.updateContainerWidth(container, bounds.width + 2 * this.graph.border);
 		}
@@ -650,15 +663,18 @@ GraphViewer.prototype.addSizeHandler = function()
 			container.style.minWidth = '100%';
 		}
 		
+		var maxHeight = (this.graphConfig['max-height'] != null) ? this.graphConfig['max-height'] :
+			((container.style.height != '' && this.autoFit) ? container.offsetHeight : undefined);
+		
 		if (container.offsetWidth > 0 && (this.allowZoomIn ||
 			(bounds.width + 2 * this.graph.border > container.offsetWidth ||
-			bounds.height + 2 * this.graph.border > this.graphConfig['max-height'])))
+			bounds.height + 2 * this.graph.border > maxHeight)))
 		{
 			var maxScale = null;
-			
-			if (this.graphConfig['max-height'] != null)
+
+			if (maxHeight != null && bounds.height + 2 * this.graph.border > maxHeight)
 			{
-				maxScale = this.graphConfig['max-height'] / (bounds.height + 2 * this.graph.border);
+				maxScale = (maxHeight - 2 * this.graph.border) / bounds.height;
 			}
 
 			this.fitGraph(maxScale);

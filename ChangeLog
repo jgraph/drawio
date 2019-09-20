@@ -1,9 +1,17 @@
+20-SEP-2019: 11.3.0
+
+- Updates Google Cloud Platform stencils
+- Gliffy import improvements
+- Uses uncompressed XML to fix search in Confluence Cloud
+- Adds global compressXml switch
+- Fixes print output in dark mode
+
 18-SEP-2019: 11.2.9
 
 - Adds pre and post config JS files
 - Fixes page numbers in PDF export
 - Adds globalVars to configuration
-- Adds DRAWIO_CONFIG variable 
+- Adds DRAWIO_CONFIG variable
 
 08-SEP-2019: 11.2.8
 

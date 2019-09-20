@@ -848,7 +848,16 @@ DrawioFile.prototype.updateFileData = function()
  */
 DrawioFile.prototype.isCompressed = function()
 {
-	return (this.ui.fileNode != null) ? this.ui.fileNode.getAttribute('compressed') != 'false' : true;
+	var compressed = (this.ui.fileNode != null) ? this.ui.fileNode.getAttribute('compressed') : null;
+	
+	if (compressed != null)
+	{
+		return compressed != 'false';
+	}
+	else
+	{
+		return Editor.compressXml;
+	}
 };
 
 /**
