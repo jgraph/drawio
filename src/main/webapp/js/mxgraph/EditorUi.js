@@ -2973,6 +2973,13 @@ EditorUi.prototype.updateActionStates = function()
     this.updatePasteActionStates();
 };
 
+EditorUi.prototype.zeroOffset = new mxPoint(0, 0);
+
+EditorUi.prototype.getDiagramContainerOffset = function()
+{
+	return this.zeroOffset;
+};
+
 /**
  * Refreshes the viewport.
  */
@@ -3043,8 +3050,10 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	this.formatContainer.style.width = fw + 'px';
 	this.formatContainer.style.display = (this.format != null) ? '' : 'none';
 	
-	this.diagramContainer.style.left = (this.hsplit.parentNode != null) ? (effHsplitPosition + this.splitSize) + 'px' : '0px';
-	this.diagramContainer.style.top = this.sidebarContainer.style.top;
+	var diagContOffset = this.getDiagramContainerOffset();
+	var contLeft = (this.hsplit.parentNode != null) ? (effHsplitPosition + this.splitSize) : 0;
+	this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
+	this.diagramContainer.style.top = (tmp + diagContOffset.y) + 'px';
 	this.footerContainer.style.height = this.footerHeight + 'px';
 	this.hsplit.style.top = this.sidebarContainer.style.top;
 	this.hsplit.style.bottom = (this.footerHeight + off) + 'px';
@@ -3053,7 +3062,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	
 	if (this.tabContainer != null)
 	{
-		this.tabContainer.style.left = this.diagramContainer.style.left;
+		this.tabContainer.style.left = contLeft + 'px';
 	}
 	
 	if (quirks)

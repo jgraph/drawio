@@ -170,10 +170,12 @@
 			{
 				editorUi.ruler.destroy();
 				editorUi.ruler = null;
+				editorUi.refresh();
 			}
 			else
 			{
 				editorUi.ruler = new mxDualRuler(editorUi, editorUi.editor.graph.view.unit);
+				editorUi.refresh();
 			}
 		});
 		rulerAction.setToggleAction(true);

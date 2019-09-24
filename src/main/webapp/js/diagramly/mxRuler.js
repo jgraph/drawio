@@ -19,7 +19,7 @@
 
 function mxRuler(editorUi, unit, isVertical, isSecondery) 
 {
-	var RULER_THICKNESS = 14;
+	var RULER_THICKNESS = this.RULER_THICKNESS;
     var ruler = this;
     this.unit = unit;
     var style = window.uiTheme != 'dark'? {
@@ -49,45 +49,23 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	
 	function resizeRulerContainer()
 	{
-	    container.style.top = editorUi.origContTop + 'px';
-	    container.style.left = editorUi.origContLeft + 'px';
-	    container.style.width = (isVertical? RULER_THICKNESS : editorUi.origContWidth) + 'px';
-	    container.style.height = (isVertical? editorUi.origContHeight : RULER_THICKNESS) + 'px';
+		var diagCont = editorUi.diagramContainer;
+		
+	    container.style.top = (diagCont.offsetTop - RULER_THICKNESS) + 'px';
+	    container.style.left = (diagCont.offsetLeft - RULER_THICKNESS) + 'px';
+	    container.style.width = ((isVertical? 0 : diagCont.offsetWidth) + RULER_THICKNESS) + 'px';
+	    container.style.height = ((isVertical? diagCont.offsetHeight : 0) + RULER_THICKNESS) + 'px';
 	};
     
 	this.editorUiRefresh = editorUi.refresh;
 	
 	editorUi.refresh = function(minor)
 	{
-		//If it is called with true, then only our added code is executed
-		if (minor != true) 
-		{
-			ruler.editorUiRefresh.apply(editorUi, arguments);
-		}
-		
-		var cont = editorUi.diagramContainer;
-		
-		if (!isSecondery)
-		{
-			editorUi.origContTop = cont.offsetTop;
-			editorUi.origContLeft = cont.offsetLeft;
-			editorUi.origContWidth = cont.offsetWidth;
-			editorUi.origContHeight = cont.offsetHeight;
-		}
+		ruler.editorUiRefresh.apply(editorUi, arguments);
 		
 		resizeRulerContainer();
-		
-		if (isVertical)
-		{
-			cont.style.left = (cont.offsetLeft + RULER_THICKNESS) + 'px';
-		}
-		else
-		{
-			cont.style.top = (cont.offsetTop + RULER_THICKNESS) + 'px';
-		}
 	};
 
-	editorUi.refresh(true);
 	resizeRulerContainer();
     	
     var canvas = document.createElement('canvas');
@@ -437,6 +415,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	};
 };
 
+mxRuler.prototype.RULER_THICKNESS = 14;
 mxRuler.prototype.unit = mxConstants.POINTS;
 
 mxRuler.prototype.setUnit = function(unit) 
@@ -474,13 +453,18 @@ mxRuler.prototype.destroy = function()
     {
     	this.container.parentNode.removeChild(this.container);
     }
-    
-	this.ui.diagramContainer.style.left = this.ui.origContLeft + 'px';
-	this.ui.diagramContainer.style.top = this.ui.origContTop + 'px';
 };
 
 function mxDualRuler(editorUi, unit)
 {
+	var rulerOffset = new mxPoint(mxRuler.prototype.RULER_THICKNESS, mxRuler.prototype.RULER_THICKNESS);
+	this.editorUiGetDiagContOffset = editorUi.getDiagramContainerOffset;
+
+	editorUi.getDiagramContainerOffset = function()
+	{
+		return rulerOffset;
+	};
+
 	this.editorUiRefresh = editorUi.refresh;
 	this.ui = editorUi;
 	this.origGuideMove = mxGuide.prototype.move;
@@ -563,4 +547,5 @@ mxDualRuler.prototype.destroy = function()
 	this.ui.refresh = this.editorUiRefresh;
 	mxGuide.prototype.move = this.origGuideMove;
 	mxGuide.prototype.destroy = this.origGuideDestroy;
+	this.ui.getDiagramContainerOffset = this.editorUiGetDiagContOffset;
 };

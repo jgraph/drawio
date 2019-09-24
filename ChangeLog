@@ -1,3 +1,8 @@
+24-SEP-2019: 11.3.1
+
+- Fixes uncompressed XML in SVG
+- Fixes offset for ruler
+
 20-SEP-2019: 11.3.0
 
 - Updates Google Cloud Platform stencils

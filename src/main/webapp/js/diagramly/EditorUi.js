@@ -846,7 +846,7 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml,
-		embeddedCallback, ignoreSelection, compact, nonCompressed)
+		embeddedCallback, ignoreSelection, compact, uncompressed)
 	{
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
@@ -876,7 +876,7 @@
 			// Ignores case for possible HTML or XML nodes
 			if (fileNode.nodeName.toLowerCase() != 'mxfile')
 			{
-				if (nonCompressed)
+				if (uncompressed)
 				{
 					var diagramNode = node.ownerDocument.createElement('diagram');
 					diagramNode.setAttribute('id', Editor.guid());
@@ -962,7 +962,7 @@
 				fileNode.removeAttribute('type');
 			}
 
-			var xml = (nonCompressed) ? mxUtils.getPrettyXml(fileNode) : mxUtils.getXml(fileNode);
+			var xml = (uncompressed) ? mxUtils.getPrettyXml(fileNode) : mxUtils.getXml(fileNode);
 			
 			// Writes the file as an embedded HTML file
 			if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
@@ -990,17 +990,17 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, nonCompressed)
+	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, uncompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
-		nonCompressed = (nonCompressed != null) ? nonCompressed : !Editor.compressXml;
+		uncompressed = (uncompressed != null) ? uncompressed : !Editor.compressXml;
 		
 		var node = this.editor.getGraphXml(ignoreSelection);
 			
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
-			if (nonCompressed)
+			if (uncompressed)
 			{
 				EditorUi.removeChildNodes(this.currentPage.node);
 				this.currentPage.node.appendChild(node);
@@ -1030,7 +1030,7 @@
 							var temp = enc.encode(new mxGraphModel(this.pages[i].root));
 							this.editor.graph.saveViewState(this.pages[i].viewState, temp);
 							
-							if (nonCompressed)
+							if (uncompressed)
 							{
 								EditorUi.removeChildNodes(this.pages[i].node);
 								this.pages[i].node.appendChild(temp);
@@ -1043,7 +1043,7 @@
 							// Marks the page as up-to-date
 							delete this.pages[i].needsUpdate;
 						}
-						else if (nonCompressed)
+						else if (uncompressed)
 						{
 							var temp = Editor.parseDiagramNode(this.pages[i].node);
 							EditorUi.removeChildNodes(this.pages[i].node);
@@ -1322,45 +1322,50 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection,
-		currentPage, node, compact, file, nonCompressed)
+		currentPage, node, compact, file, uncompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
 		
-		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, nonCompressed);
-		file = (file != null) ? file : this.getCurrentFile();
-		var graph = this.editor.graph;
-		
-		// Exports SVG for first page while other page is visible by creating a graph
-		// LATER: Add caching for the graph or SVG while not on first page
-		if (this.pages != null && this.currentPage != this.pages[0] && (forceSvg ||
-			(!forceXml && file != null && /(\.svg)$/i.test(file.getTitle()))))
+		// Forces compression of embedded XML
+		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			graph = this.createTemporaryGraph(graph.getStylesheet());
-			var page = this.pages[0];
-	
-			graph.getGlobalVariable = function(name)
+			uncompressed = false;
+			
+			// Exports SVG for first page while other page is visible by creating a graph
+			// LATER: Add caching for the graph or SVG while not on first page
+			if (this.pages != null && this.currentPage != this.pages[0])
 			{
-				if (name == 'page')
+				var graphGetGlobalVariable = graph.getGlobalVariable;
+				graph = this.createTemporaryGraph(graph.getStylesheet());
+				var page = this.pages[0];
+		
+				graph.getGlobalVariable = function(name)
 				{
-					return page.getName();
-				}
-				else if (name == 'pagenumber')
-				{
-					return 1;
-				}
-				
-				return graphGetGlobalVariable.apply(this, arguments);
-			};
-	
-			document.body.appendChild(graph.container);
-			graph.model.setRoot(page.root);
+					if (name == 'page')
+					{
+						return page.getName();
+					}
+					else if (name == 'pagenumber')
+					{
+						return 1;
+					}
+					
+					return graphGetGlobalVariable.apply(this, arguments);
+				};
+		
+				document.body.appendChild(graph.container);
+				graph.model.setRoot(page.root);
+			}
 		}
 		
+		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, uncompressed);
+		file = (file != null) ? file : this.getCurrentFile();
+		var graph = this.editor.graph;
+
 		var result = this.createFileData(node, graph, file, window.location.href,
 			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact,
-			nonCompressed);
+			uncompressed);
 		
 		// Removes temporary graph from DOM
 		if (graph != this.editor.graph)
@@ -1625,7 +1630,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border, grid)
+	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border, grid)
 	{
 		try
 		{
@@ -1637,7 +1642,7 @@
 			{
 		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 		    		this.getFileData(true, null, null, null, ignoreSelection, currentPage,
-		    			null, null, null, nonCompressed);
+		    			null, null, null, uncompressed);
 		    	
 		    	this.saveData(filename, format, data, 'text/xml');
 			}
@@ -4452,7 +4457,8 @@
 				
 				if (editable)
 				{
-					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
+						currentPage, null, null, null, false));
 				}
 				
 				if (this.editor.fontCss != null)
@@ -8907,6 +8913,7 @@
 			var showRuler = urlParams['ruler'] == '1' || (mxSettings.isRulerOn() && urlParams['lightbox'] != '1');
 			
 			this.ruler = showRuler? new mxDualRuler(this, view.unit) : null;
+			this.refresh();
 		}
 		
 		// Adds an element to edit the style in the footer in test mode
@@ -10891,8 +10898,9 @@
 				        	{
 				        		bg = null;
 				        	}
-					        	
-							msg.xml = this.getFileData(true);
+
+							msg.xml = this.getFileData(true, null, null, null, null,
+								null, null, null, null, false);
 							msg.format = 'svg';
 					        	
 				        	if (data.embedImages || data.embedImages == null)
