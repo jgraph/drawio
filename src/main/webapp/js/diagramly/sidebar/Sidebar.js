@@ -956,6 +956,10 @@
 			{
 				this.addRackF5Palette();
 			}
+			else if (rack[i].toLowerCase() === 'dell')
+			{
+				this.addRackDellPalette();
+			}
 			else
 			{
 				this.addStencilPalette('rack' + rack[i], 'Rack / ' + rack[i],

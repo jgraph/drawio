@@ -76,4 +76,48 @@
 		]);
 	};
 	
+	Sidebar.prototype.addRackDellPalette = function()
+	{
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
+		
+		//default tags
+		var dt = 'rack equipment ';
+
+		this.addPaletteFunctions('rackDell', 'Rack / Dell', false,
+		[
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.dell_poweredge_1u;', 162, 15, '', 'PowerEdge 1U', null, null, dt + 'poweredge 1u'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.dell_poweredge_2u;', 162, 30, '', 'PowerEdge 2U', null, null, dt + 'poweredge 2u'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.dell_poweredge_4u;', 162, 60, '', 'PowerEdge 4U', null, null, dt + 'poweredge 4u'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.power_strip;', 162, 15, '', 'Power Strip', null, null, dt + 'power strip'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_630;', 162, 15, '', 'PowerEdge 630', null, null, dt + 'poweredge 630'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_c4140;', 162, 15, '', 'PowerEdge C4140', null, null, dt + 'poweredge c4140'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m1000e_enclosure;', 162, 150, '', 'PowerEdge M1000e Enclosure', null, null, dt + 'poweredge m1000e enclosure'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m420;', 20, 37, '', 'PowerEdge M420', null, null, dt + 'poweredge m420'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m520;', 20, 37, '', 'PowerEdge M520', null, null, dt + 'poweredge m520'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m610x;', 20, 37, '', 'PowerEdge M610x', null, null, dt + 'poweredge m610x'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m620;', 20, 37, '', 'PowerEdge M620', null, null, dt + 'poweredge m620'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m820;', 20, 143, '', 'PowerEdge M820', null, null, dt + 'poweredge m820'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_m915;', 20, 143, '', 'PowerEdge M915', null, null, dt + 'poweredge m820'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r240;', 162, 15, '', 'PowerEdge R240', null, null, dt + 'poweredge r240'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r340;', 162, 15, '', 'PowerEdge R340', null, null, dt + 'poweredge r340'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r440;', 162, 15, '', 'PowerEdge R440', null, null, dt + 'poweredge r440'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r540;', 162, 27, '', 'PowerEdge R540', null, null, dt + 'poweredge r540'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r640;', 162, 15, '', 'PowerEdge R640', null, null, dt + 'poweredge r640'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r6415;', 162, 15, '', 'PowerEdge R6415', null, null, dt + 'poweredge r6415'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r6515;', 162, 15, '', 'PowerEdge R6515', null, null, dt + 'poweredge r6515'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r6525;', 162, 15, '', 'PowerEdge R6525', null, null, dt + 'poweredge r6525'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r730;', 162, 30, '', 'PowerEdge R730', null, null, dt + 'poweredge r730'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r730xd;', 162, 30, '', 'PowerEdge R730xd', null, null, dt + 'poweredge r730xd'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r740;', 162, 30, '', 'PowerEdge R740', null, null, dt + 'poweredge r740'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r740xd;', 162, 30, '', 'PowerEdge R740xd', null, null, dt + 'poweredge r740xd'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r740xd2;', 162, 30, '', 'PowerEdge R740xd2', null, null, dt + 'poweredge r740xd2'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r7415;', 162, 30, '', 'PowerEdge R7415', null, null, dt + 'poweredge r7415'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r7425;', 162, 30, '', 'PowerEdge R7425', null, null, dt + 'poweredge r7425'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r7515;', 162, 30, '', 'PowerEdge R7515', null, null, dt + 'poweredge r7515'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r840;', 162, 30, '', 'PowerEdge R840', null, null, dt + 'poweredge r840'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r940;', 162, 45, '', 'PowerEdge R940', null, null, dt + 'poweredge r940'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_xr2;', 162, 15, '', 'PowerEdge XR2', null, null, dt + 'poweredge xr2')
+		]);
+	};
+
 })();

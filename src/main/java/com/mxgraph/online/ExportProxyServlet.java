@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 public class ExportProxyServlet extends HttpServlet
 {
-	//TODO Move this URL to configuration
 	private final String EXPORT_URL = "http://localhost:8000/";
 	
 	/**
@@ -30,7 +29,14 @@ public class ExportProxyServlet extends HttpServlet
 	{
 		try
 		{
-			URL url = new URL(EXPORT_URL);
+			String exportUrl = System.getenv("EXPORT_URL");
+			
+			if (exportUrl == null)
+			{
+				exportUrl = EXPORT_URL;
+			}
+			
+			URL url = new URL(exportUrl);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			
 			con.setRequestMethod("POST");

@@ -1263,7 +1263,8 @@ App.prototype.init = function()
 						this.restoreLibraries();
 						this.checkLicense();
 						
-						if (App.GOOGLE_REALTIME_EOL - Date.now() >= 0)
+						// Stop notification one day before API is disabled
+						if (App.GOOGLE_REALTIME_EOL - Date.now() > 86400000)
 						{
 							if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
 								mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <

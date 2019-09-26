@@ -34,8 +34,8 @@ Notice that mapping port 80 to container's port 80 allows certbot to work in sta
 
 ##Method 2 (build a new docker image with the new version)
 
-1. In fjudith/draw.io Dockerfile, change VERSION to the required version. For example, `ARG VERSION=11.2.9`
-1. Build the new docker image `docker build -t fjudith/draw.io .`
+1. Download the VERSION file to get the latest draw.io version `wget https://raw.githubusercontent.com/jgraph/drawio/master/VERSION`
+1. Build the new docker image `docker build --build-arg VERSION=&#96;cat VERSION&#96; -t fjudith/draw.io .`
 1. Run the new image instead of the old one
 
 #Changing draw.io configuration
