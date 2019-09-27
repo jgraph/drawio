@@ -5804,7 +5804,7 @@ App.prototype.updateUserElement = function()
 											{
 												this.handleError(resp);
 											}), true); //Remember is true since add account imply keeping that account
-										}), mxResources.get('closingFile', null, 'Closing file...'));
+										}), mxResources.get('closingFile') + '...');
 										
 										mxEvent.consume(evt);
 									}));
@@ -5849,7 +5849,7 @@ App.prototype.updateUserElement = function()
 							btn.style.float = 'right';
 							div.appendChild(btn);
 							
-							var btn = mxUtils.button(mxResources.get('addAccount', null, 'Add Account'), mxUtils.bind(this, function()
+							var btn = mxUtils.button(mxResources.get('addAccount'), mxUtils.bind(this, function()
 							{
 								var authWin = this.drive.createAuthWin();
 								//FIXME This doean't work to set focus back to main window until closing the file is done
@@ -5869,7 +5869,7 @@ App.prototype.updateUserElement = function()
 									{
 										this.handleError(resp);
 									}), true, authWin); //Remember is true since add account imply keeping that account
-								}), mxResources.get('closingFile', null, 'Closing file...'));
+								}), mxResources.get('closingFile') + '...');
 							}));
 							btn.className = 'geBtn';
 							btn.style.margin = '0px';

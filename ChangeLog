@@ -1,3 +1,6 @@
+27-SEP-2019: 12.0.0
+
+- Fixes Google auth for multiple users
 - Fixes default grid color in dark mode
 
 26-SEP-2019: 11.3.2

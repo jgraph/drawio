@@ -208,13 +208,12 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		// Blocks any non-alphabetic chars in colors
 		if (/(^#?[a-zA-Z0-9]*$)/.test(color))
 		{
-			ColorDialog.addRecentColor(color, 12);
-			
 			if (color != 'none' && color.charAt(0) != '#')
 			{
 				color = '#' + color;
 			}
 
+			ColorDialog.addRecentColor((color != 'none') ? color.substring(1) : color, 12);
 			applyFunction(color);
 			editorUi.hideDialog();
 		}
