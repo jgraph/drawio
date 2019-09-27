@@ -5,6 +5,7 @@ accessDenied=Accés denegat
 action=Action
 actualSize=Mida real
 add=Afegeix
+addAccount=Add account
 addedFile=Afegit {1}
 addImages=Afegeix imatges
 addImageUrl=Afegeix l'URL de la imatge

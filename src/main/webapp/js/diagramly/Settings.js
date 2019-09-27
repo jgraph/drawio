@@ -41,13 +41,20 @@ var mxSettings =
 	{
 		mxSettings.settings.showStartScreen = showStartScreen;
 	},
-	getGridColor: function()
+	getGridColor: function(darkMode)
 	{
-		return mxSettings.settings.gridColor;
+		return (darkMode) ? mxSettings.settings.darkGridColor : mxSettings.settings.gridColor;
 	},
-	setGridColor: function(gridColor)
+	setGridColor: function(gridColor, darkMode)
 	{
-		mxSettings.settings.gridColor = gridColor;
+		if (darkMode)
+		{
+			mxSettings.settings.darkGridColor = gridColor;
+		}
+		else
+		{
+			mxSettings.settings.gridColor = gridColor;
+		}
 	},
 	getAutosave: function()
 	{
@@ -192,7 +199,8 @@ var mxSettings =
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,
-			gridColor: mxGraphView.prototype.gridColor,
+			gridColor: mxGraphView.prototype.defaultGridColor,
+			darkGridColor: mxGraphView.prototype.defaultDarkGridColor,
 			autosave: true,
 			resizeImages: null,
 			openCounter: 0,
@@ -308,7 +316,12 @@ var mxSettings =
 				
 				if (mxSettings.settings.gridColor == null)
 				{
-					mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
+					mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
+				}
+
+				if (mxSettings.settings.darkGridColor == null)
+				{
+					mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
 				}
 				
 				if (mxSettings.settings.autosave == null)

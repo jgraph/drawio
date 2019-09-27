@@ -1347,8 +1347,7 @@
 							req.setRequestHeaders = function(request)
 							{
 								mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
-								var token = gapi.auth.getToken().access_token;
-								request.setRequestHeader('authorization', 'Bearer ' + token);	
+								request.setRequestHeader('authorization', 'Bearer ' + editorUi.drive.token);	
 							};
 							
 							req.send(function(req)

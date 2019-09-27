@@ -5,6 +5,7 @@ accessDenied=Přístup odepřen
 action=Action
 actualSize=Skutečná velikost
 add=Přidat
+addAccount=Add account
 addedFile=Přidáno: {1}
 addImages=Přidat obrázky
 addImageUrl=Přidat URL obrázku

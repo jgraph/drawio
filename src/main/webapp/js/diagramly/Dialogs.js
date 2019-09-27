@@ -736,7 +736,7 @@ var SplashDialog = function(editorUi)
 	
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
-		var driveUser = (editorUi.drive != null) ? editorUi.drive.getUser() : null;
+		var driveUsers = (editorUi.drive != null) ? editorUi.drive.getUsersList() : [];
 		
 		function addLogout(logout)
 		{
@@ -763,48 +763,68 @@ var SplashDialog = function(editorUi)
 			buttons.appendChild(link);
 		};
 		
-		if (editorUi.mode == App.MODE_GOOGLE && driveUser != null)
+		if (editorUi.mode == App.MODE_GOOGLE && driveUsers.length > 0)
 		{
-			btn.style.marginBottom = '24px';
-			
-			var link = document.createElement('a');
-			link.setAttribute('href', 'javascript:void(0)');
-			link.style.display = 'inline-block';
-			link.style.marginTop = '6px';
-			mxUtils.write(link, mxResources.get('changeUser') + ' (' + driveUser.displayName + ')');
+			var title = document.createElement('span');
+			title.style.marginTop = '6px';
+			mxUtils.write(title, mxResources.get('changeUser') + ':');
 
 			// Makes room after last big buttons
 			btn.style.marginBottom = '16px';
 			buttons.style.paddingBottom = '18px';
 			
-			mxEvent.addListener(link, 'click', function()
+			buttons.appendChild(title);
+			
+			var usersSelect = document.createElement('select');
+			usersSelect.style.marginLeft = '4px';
+			usersSelect.style.width = '200px';
+			
+			for (var i = 0; i < driveUsers.length; i++)
 			{
-				editorUi.hideDialog();
-				editorUi.drive.clearUserId();
-				editorUi.drive.setUser(null);
-				gapi.auth.signOut();
-
-				// Restores current dialog after clearing user
-				editorUi.setMode(App.MODE_GOOGLE);
-				editorUi.hideDialog();
-				editorUi.showSplash();
+				var option = document.createElement('option');
+				mxUtils.write(option, driveUsers[i].displayName);
+				option.value = i;
+				usersSelect.appendChild(option);
+				//More info (email) about the user in a disabled option
+				option = document.createElement('option');
+				option.innerHTML = '&nbsp;&nbsp;&nbsp;';
+				mxUtils.write(option, '<' + driveUsers[i].email + '>');
+				option.setAttribute('disabled', 'disabled');
+				usersSelect.appendChild(option);
+			}
+			
+			//Add account option
+			var option = document.createElement('option');
+			mxUtils.write(option, mxResources.get('addAccount'));
+			option.value = driveUsers.length;
+			usersSelect.appendChild(option);
+			
+			mxEvent.addListener(usersSelect, 'change', function()
+			{
+				var userIndex = usersSelect.value;
+				var existingAccount = driveUsers.length != userIndex;
 				
-				// FIXME: Does not force showing the auth dialog if only one user is logged in
-				editorUi.drive.authorize(false, mxUtils.bind(this, mxUtils.bind(this, function()
+				if (existingAccount)
 				{
+					editorUi.drive.setUser(driveUsers[userIndex]);
+				}
+				
+				editorUi.drive.authorize(existingAccount, function()
+				{
+					editorUi.setMode(App.MODE_GOOGLE);
 					editorUi.hideDialog();
 					editorUi.showSplash();
-				})), mxUtils.bind(this, function(resp)
+				}, function(resp)
 				{
 					editorUi.handleError(resp, null, function()
 					{
 						editorUi.hideDialog();
 						editorUi.showSplash();
 					});
-				}));
+				}, true);
 			});
-
-			buttons.appendChild(link);
+			
+			buttons.appendChild(usersSelect);
 		}
 		else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
 		{
@@ -1980,11 +2000,10 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 							// Creates one picker and reuses it to avoid polluting the DOM
 							if (editorUi.photoPicker == null)
 							{
-								var token = gapi.auth.getToken().access_token;
 								var picker = new google.picker.PickerBuilder()
 									.setAppId(editorUi.drive.appId)	
 									.setLocale(mxLanguage)
-									.setOAuthToken(token)
+									.setOAuthToken(editorUi.drive.token)
 						            .addView(google.picker.ViewId.PHOTO_UPLOAD);
 								
 								editorUi.photoPicker = picker.setCallback(function(data)
@@ -4541,11 +4560,10 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 						// Creates one picker and reuses it to avoid polluting the DOM
 						if (editorUi.photoPicker == null)
 						{
-					    	var token = gapi.auth.getToken().access_token;
 							var picker = new google.picker.PickerBuilder()
 								.setAppId(editorUi.drive.appId)	
 								.setLocale(mxLanguage)
-								.setOAuthToken(token)
+								.setOAuthToken(editorUi.drive.token)
 					            .addView(google.picker.ViewId.PHOTO_UPLOAD);
 							
 							editorUi.photoPicker = picker.setCallback(function(data)
@@ -4931,7 +4949,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					// Creates one picker and reuses it to avoid polluting the DOM
 					if (editorUi.linkPicker == null)
 					{
-					    	var token = gapi.auth.getToken().access_token;
 						var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
 				        		.setParent('root')
 				        		.setIncludeFolders(true)
@@ -4946,7 +4963,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 						var picker = new google.picker.PickerBuilder()
 							.setAppId(editorUi.drive.appId)	
 							.setLocale(mxLanguage)
-							.setOAuthToken(token)
+							.setOAuthToken(editorUi.drive.token)
 							.enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
 						    .addView(view)
 							.addView(view2)

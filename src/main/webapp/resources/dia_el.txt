@@ -5,6 +5,7 @@ accessDenied=Απαγόρευση εισόδου
 action=Action
 actualSize=Πραγματικό Μέγεθος
 add=Προσθήκη
+addAccount=Add account
 addedFile=Προστέθηκε {1}
 addImages=Προσθήκη εικόνων
 addImageUrl=Προσθήκη εικόνας URL

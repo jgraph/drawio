@@ -5,6 +5,7 @@ accessDenied=Hozzáférés elutasítva
 action=Action
 actualSize=Aktuális méret
 add=Hozzáad
+addAccount=Add account
 addedFile={1} hozzáadva
 addImages=Képet hozzáad
 addImageUrl=Kép URL hozzáadás

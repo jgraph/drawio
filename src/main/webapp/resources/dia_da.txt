@@ -5,6 +5,7 @@ accessDenied=Adgang nægtet
 action=Action
 actualSize=Faktisk størrelse
 add=Tilføj
+addAccount=Add account
 addedFile=Tilføjet {1}
 addImages=Tilføj billeder
 addImageUrl=Tilføj billed-URL

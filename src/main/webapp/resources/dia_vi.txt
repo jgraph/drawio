@@ -5,6 +5,7 @@ accessDenied=Truy cập bị từ chối
 action=Action
 actualSize=Kích thước thực tế
 add=Thêm
+addAccount=Add account
 addedFile=Đã thêm {1}
 addImages=Thêm hình ảnh
 addImageUrl=Thêm đường dẫn hình ảnh

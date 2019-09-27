@@ -71,10 +71,10 @@ DriveFile.prototype.getMode = function()
  */
 DriveFile.prototype.getPublicUrl = function(fn)
 {
-	gapi.client.drive.permissions.list(
-	{
-		'fileId': this.desc.id
-	}).execute(mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest({
+		url: '/files/' + this.desc.id + '/permissions'
+	}, 
+	mxUtils.bind(this, function(resp)
 	{
 		if (resp != null && resp.items != null)
 		{
@@ -536,8 +536,11 @@ DriveFile.prototype.isRevisionHistorySupported = function()
  */
 DriveFile.prototype.getRevisions = function(success, error)
 {
-	this.ui.drive.executeRequest(gapi.client.drive.revisions.list({'fileId': this.getId()}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/revisions'
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		for (var i = 0; i < resp.items.length; i++)
 		{
@@ -652,9 +655,11 @@ DriveFile.prototype.setDescriptorEtag = function(desc, etag)
  */
 DriveFile.prototype.loadPatchDescriptor = function(success, error)
 {
-	this.ui.drive.executeRequest(gapi.client.drive.files.get({'fileId': this.getId(),
-		'fields': this.ui.drive.catchupFields, 'supportsTeamDrives': true}),
-		mxUtils.bind(this, function(desc)
+	this.ui.drive.executeRequest(
+	{	
+		url: '/files/' + this.getId() + '?supportsTeamDrives=true&fields=' + this.ui.drive.catchupFields
+	},
+	mxUtils.bind(this, function(desc)
 	{
 		success(desc);
 	}), error);
@@ -712,8 +717,11 @@ DriveFile.prototype.getComments = function(success, error)
 		return comment;
 	};
 	
-	this.ui.drive.executeRequest(gapi.client.drive.comments.list({'fileId': this.getId()}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/comments'
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		var comments = [];
 		
@@ -735,8 +743,13 @@ DriveFile.prototype.addComment = function(comment, success, error)
 {
 	var body = {'content': comment.content};
 	
-	this.ui.drive.executeRequest(gapi.client.drive.comments.insert({'fileId': this.getId(), 'resource': body}),
-		mxUtils.bind(this, function(resp)
+	this.ui.drive.executeRequest(
+	{
+		url: '/files/' + this.getId() + '/comments',
+		method: 'POST',
+		params: body
+	},
+	mxUtils.bind(this, function(resp)
 	{
 		success(resp.commentId); //pass comment id
 	}), error);

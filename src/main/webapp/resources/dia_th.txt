@@ -5,6 +5,7 @@ accessDenied=ปฏิเสธการเข้าถึง
 action=Action
 actualSize=ขนาดปกติ
 add=เพิ่ม
+addAccount=Add account
 addedFile=เพิ่ม  {1} แล้ว
 addImages=เพิ่มรูปภาพ
 addImageUrl=เพิ่ม URL รูปภาพ

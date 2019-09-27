@@ -5,6 +5,7 @@ accessDenied=Accesso negato
 action=Action
 actualSize=Dimensioni attuali
 add=Aggiungi
+addAccount=Add account
 addedFile=Aggiunto
 addImages=Aggiungi immagini
 addImageUrl=Aggiungi immagine da URL

@@ -5,6 +5,7 @@ accessDenied=Aliro rifuzita
 action=Ago
 actualSize=Vera grandeco
 add=Aldoni
+addAccount=Add account
 addedFile={1} aldonita
 addImages=Aldoni bildojn
 addImageUrl=Add Image URL

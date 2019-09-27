@@ -5,6 +5,7 @@ accessDenied=Accès refusé
 action=Action
 actualSize=Taille réelle
 add=Ajouter
+addAccount=Add account
 addedFile=Ajouté(e) {1}
 addImages=Ajouter des images
 addImageUrl=Ajouter l'URL d'une image

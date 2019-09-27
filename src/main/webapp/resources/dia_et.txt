@@ -5,6 +5,7 @@ accessDenied=Ligipääs keelatud
 action=Tegevus
 actualSize=Tegelik suurus
 add=Lisa
+addAccount=Add account
 addedFile=Lisatud {1}
 addImages=Lisa pilte
 addImageUrl=Lisa pildi URL

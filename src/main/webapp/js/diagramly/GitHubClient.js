@@ -769,7 +769,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	var content = document.createElement('div');
 	content.style.whiteSpace = 'nowrap';
 	content.style.overflow = 'hidden';
-	content.style.height = '224px';
+	content.style.height = '304px';
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get((showFiles) ? 'selectFile' : 'selectFolder'));
@@ -783,7 +783,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	div.style.padding = '4px';
 	div.style.overflow = 'auto';
 	div.style.lineHeight = '1.2em';
-	div.style.height = '194px';
+	div.style.height = '274px';
 	content.appendChild(div);
 	
 	var listItem = document.createElement('div');
@@ -797,7 +797,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
 	}));
-	this.ui.showDialog(dlg.container, 340, 270, true, true);
+	this.ui.showDialog(dlg.container, 420, 360, true, true);
 	
 	if (showFiles)
 	{
@@ -808,9 +808,10 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		var link = document.createElement('a');
 		link.setAttribute('href', 'javascript:void(0);');
+		link.setAttribute('title', label);
 		mxUtils.write(link,  label);
 		mxEvent.addListener(link, 'click', fn);
-
+		
 		if (padding != null)
 		{
 			var temp = listItem.cloneNode();

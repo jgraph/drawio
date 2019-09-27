@@ -5,6 +5,7 @@ accessDenied=erişim engellendi
 action=Action
 actualSize=Gerçek boyut
 add=Ekle
+addAccount=Add account
 addedFile=Eklendi
 addImages=Resim ekle
 addImageUrl=Resim URL'si ekle

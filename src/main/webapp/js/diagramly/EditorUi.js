@@ -14,6 +14,17 @@
 	 */
 	EditorUi.compactUi = uiTheme != 'atlas';
 	
+
+	/**
+	 * Overrides default grid color for dark mode
+	 */
+	mxGraphView.prototype.defaultDarkGridColor = '#6e6e6e';
+	
+	if (uiTheme == 'dark')
+	{
+		mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultDarkGridColor;
+	}
+	
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
@@ -3660,14 +3671,77 @@
 							this.handleError(resp, title, fn, invokeFnOnClose, notFoundMessage)
 						}), retry, mxResources.get('changeUser'), mxUtils.bind(this, function()
 						{
-							if (this.spinner.spin(document.body, mxResources.get('loading')))
+							var driveUsers = this.drive.getUsersList();
+							
+							var div = document.createElement('div');
+							
+							var title = document.createElement('span');
+							title.style.marginTop = '6px';
+							mxUtils.write(title, mxResources.get('changeUser') + ': ');
+							
+							div.appendChild(title);
+							
+							var usersSelect = document.createElement('select');
+							usersSelect.style.width = '200px';
+							
+							//TODO This code is similar to Dialogs.js change user part in SplashDialog
+							function fillUsersSelect()
 							{
-								this.drive.clearUserId();
-								gapi.auth.signOut();
+								usersSelect.innerHTML = '';
 								
-								// Reload page to reset client auth
-								window.location.reload();
+								for (var i = 0; i < driveUsers.length; i++)
+								{
+									var option = document.createElement('option');
+									mxUtils.write(option, driveUsers[i].displayName);
+									option.value = i;
+									usersSelect.appendChild(option);
+									//More info (email) about the user in a disabled option
+									option = document.createElement('option');
+									option.innerHTML = '&nbsp;&nbsp;&nbsp;';
+									mxUtils.write(option, '<' + driveUsers[i].email + '>');
+									option.setAttribute('disabled', 'disabled');
+									usersSelect.appendChild(option);
+								}
+								
+								//Add account option
+								var option = document.createElement('option');
+								mxUtils.write(option, mxResources.get('addAccount'));
+								option.value = driveUsers.length;
+								usersSelect.appendChild(option);
 							}
+							
+							fillUsersSelect();
+							
+							mxEvent.addListener(usersSelect, 'change', mxUtils.bind(this, function()
+							{
+								var userIndex = usersSelect.value;
+								var existingAccount = driveUsers.length != userIndex;
+								
+								if (existingAccount)
+								{
+									this.drive.setUser(driveUsers[userIndex]);
+								}
+								
+								this.drive.authorize(existingAccount, mxUtils.bind(this, function()
+								{
+									if (!existingAccount) 
+									{
+										driveUsers = this.drive.getUsersList();
+										fillUsersSelect();
+									}
+								}), mxUtils.bind(this, function(resp)
+								{
+									this.handleError(resp);
+								}), true);
+							}));
+							
+							div.appendChild(usersSelect);
+							
+							var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+							{
+								this.loadFile(window.location.hash.substr(1), true);
+							}));
+							this.showDialog(dlg.container, 300, 75, true, true);
 						}), mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
 							window.location.hash = '';
@@ -9497,6 +9571,30 @@
 			// Gets recent colors from settings
 			ColorDialog.recentColors = mxSettings.getRecentColors();
 
+			// Avoids overridden values for changes in
+			// multiple windows and updates shared values 
+			if (isLocalStorage)
+			{
+				try
+				{
+					window.addEventListener('storage', mxUtils.bind(this, function(evt)
+					{
+						if (evt.key == mxSettings.key)
+						{
+							mxSettings.load();
+							
+							// Updates values
+							ColorDialog.recentColors = mxSettings.getRecentColors();
+							this.menus.customFonts = mxSettings.getCustomFonts();
+						}
+					}), false);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+
 			// Updates UI to reflect current edge style
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
 			
@@ -9537,11 +9635,13 @@
 			/**
 			 * Persists default grid color.
 			 */
-			this.editor.graph.view.gridColor = mxSettings.getGridColor();
+			this.editor.graph.view.gridColor = mxSettings.getGridColor(uiTheme == 'dark');
 			
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setGridColor(this.editor.graph.view.gridColor);
+				console.log('gridColorChanged', this.editor.graph.view.gridColor);
+				
+				mxSettings.setGridColor(this.editor.graph.view.gridColor, uiTheme == 'dark');
 				mxSettings.save();
 			}));
 

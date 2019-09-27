@@ -5,6 +5,7 @@ accessDenied=Pääsy kielletty
 action=Action
 actualSize=Oikea koko
 add=Lisää
+addAccount=Add account
 addedFile=Lisätty tiedosto
 addImages=Lisää kuvia
 addImageUrl=Lisää kuvan URL

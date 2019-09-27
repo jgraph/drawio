@@ -5,6 +5,7 @@ accessDenied=‫הגישה דחתה‬
 action=Action
 actualSize=‫גודל אמיתי‬
 add=‫הוסף‬
+addAccount=Add account
 addedFile=‫נוסף {1}‬
 addImages=‫הוסף תמונות‬
 addImageUrl=‫הוסף קישור לתמונה‬

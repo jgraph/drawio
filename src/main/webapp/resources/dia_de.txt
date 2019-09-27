@@ -5,6 +5,7 @@ accessDenied=Zugriff verweigert
 action=Aktion
 actualSize=Tatsächliche Größe
 add=Einfügen
+addAccount=Konto hinzufügen
 addedFile={1} eingefügt
 addImages=Bilder hinzufügen
 addImageUrl=Bild URL hinzufügen

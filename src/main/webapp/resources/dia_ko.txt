@@ -5,6 +5,7 @@ accessDenied=접근거부
 action=Action
 actualSize=실제 크기
 add=추가
+addAccount=Add account
 addedFile=추가된 {1}
 addImages=이미지 추가
 addImageUrl=이미지 URL 추가

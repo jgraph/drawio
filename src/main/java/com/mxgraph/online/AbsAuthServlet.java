@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -20,7 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
 {
-
+	private static final boolean DEBUG = false;
+	private static final String SEPARATOR = "/:::/";
+	
 	static public class Config 
 	{
 		public String DEV_CLIENT_SECRET = null, CLIENT_SECRET = null, DEV_CLIENT_ID = null, CLIENT_ID = null,
@@ -32,6 +35,13 @@ abstract public class AbsAuthServlet extends HttpServlet
 		return null;
 	}
 
+	protected String processAuthError(String errorCode)
+	{
+		//Usually sending null is enough as it is used as a value for auth info
+		//If more processing is needed, override this method
+		return processAuthResponse("null", false);
+	}
+	
 	protected String processAuthResponse(String authRes, boolean jsonResponse)
 	{
 		return "";
@@ -45,23 +55,88 @@ abstract public class AbsAuthServlet extends HttpServlet
 	{
 		String code = request.getParameter("code");
 		String refreshToken = request.getParameter("refresh_token");
+		String error = request.getParameter("error");
+		HashMap<String, String> stateVars = new HashMap<>();
+		
+		try
+		{
+			String state = request.getParameter("state");
+			
+			if (state != null)
+			{
+				String[] parts = state.split("&");
+				
+				for (String part : parts)
+				{
+					String[] keyVal = part.split("=");
+					stateVars.put(keyVal[0], keyVal[1]);
+				}
+			}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
+		int configIndex = 0;
+		
+		try 
+		{
+			String appIndex = stateVars.get("appIndex");
+					
+			if (appIndex != null)
+			{
+				configIndex = Integer.parseInt(appIndex);
+			}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
 		Config CONFIG = getConfig();
 		String secret, client, redirectUri;
+		String[] secrets, clients;
 		
 		if ("127.0.0.1".equals(request.getServerName()))
 		{
-			secret = CONFIG.DEV_CLIENT_SECRET;
-			client = CONFIG.DEV_CLIENT_ID;
+			secrets = CONFIG.DEV_CLIENT_SECRET.split(SEPARATOR);
+			clients = CONFIG.DEV_CLIENT_ID.split(SEPARATOR);
 			redirectUri = CONFIG.DEV_REDIRECT_URI;
 		}
 		else
 		{
-			secret = CONFIG.CLIENT_SECRET;
-			client = CONFIG.CLIENT_ID;
+			secrets = CONFIG.CLIENT_SECRET.split(SEPARATOR);
+			clients = CONFIG.CLIENT_ID.split(SEPARATOR);
 			redirectUri = CONFIG.REDIRECT_URI;
 		}
 
-		if (code == null && refreshToken == null)
+		secret = secrets.length > configIndex ? secrets[configIndex] : secrets[0];
+		client = clients.length > configIndex ? clients[configIndex] : clients[0];
+
+		if (error != null)
+		{
+			try
+			{
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				
+				OutputStream out = response.getOutputStream();
+	
+				PrintWriter writer = new PrintWriter(out);
+
+				// Writes JavaScript code
+				writer.println(processAuthError(error));
+	
+				writer.flush();
+				writer.close();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			}
+		}
+		else if (code == null && refreshToken == null)
 		{
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
@@ -135,7 +210,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 			catch(IOException e)
 			{
 				e.printStackTrace();
-
+				StringBuilder details = new StringBuilder("");
+				
 				if (con != null)
 				{
 					try 
@@ -148,6 +224,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 						while ((inputLine = in.readLine()) != null)
 						{
 							System.err.println(inputLine);
+							details.append(inputLine);
+							details.append("\n");
 						}
 						in.close();
 					}
@@ -164,6 +242,19 @@ abstract public class AbsAuthServlet extends HttpServlet
 				else
 				{
 					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+				}
+				
+				if (DEBUG)
+				{
+					OutputStream out = response.getOutputStream();
+					
+					PrintWriter writer = new PrintWriter(out);
+	
+					e.printStackTrace(writer);
+					writer.println(details.toString());
+		
+					writer.flush();
+					writer.close();
 				}
 			}
 			catch (Exception e) 

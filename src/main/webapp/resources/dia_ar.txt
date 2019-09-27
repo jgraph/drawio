@@ -5,6 +5,7 @@ accessDenied=Access Denied
 action=Action
 actualSize=‫الحجم الحقيقي‬
 add=‫إضافة‬
+addAccount=Add account
 addedFile=Added {1}
 addImages=‫إضافة صور‬
 addImageUrl=‫إضافة رابط صورة‬

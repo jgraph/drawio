@@ -5,6 +5,7 @@ accessDenied=Достъпът отказан
 action=Action
 actualSize=Действителен размер
 add=Добавяне
+addAccount=Add account
 addedFile=Добавен {1}
 addImages=Добавяне на изображения
 addImageUrl=Добавяне на URL на изображението

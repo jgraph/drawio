@@ -279,12 +279,7 @@ App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
-App.GOOGLE_APIS = 'client,drive-share'; 
-
-/**
- * Google Realtime API export endpoint end of life on 09/27/2019.
- */
-App.GOOGLE_REALTIME_EOL = 1569535200000;
+App.GOOGLE_APIS = 'drive-share'; 
 
 /**
  * Function: authorize
@@ -910,7 +905,7 @@ mxUtils.extend(App, EditorUi);
 /**
  * Executes the first step for connecting to Google Drive.
  */
-App.prototype.defaultUserPicture = 'https://lh3.googleusercontent.com/-HIzvXUy6QUY/AAAAAAAAAAI/AAAAAAAAAAA/giuR7PQyjEk/photo.jpg?sz=30';
+App.prototype.defaultUserPicture = 'https://lh3.googleusercontent.com/-HIzvXUy6QUY/AAAAAAAAAAI/AAAAAAAAAAA/giuR7PQyjEk/photo.jpg?sz=64';
 
 /**
  * 
@@ -1262,42 +1257,6 @@ App.prototype.init = function()
 						this.updateUserElement();
 						this.restoreLibraries();
 						this.checkLicense();
-						
-						// Stop notification one day before API is disabled
-						if (App.GOOGLE_REALTIME_EOL - Date.now() > 86400000)
-						{
-							if (this.drive.user != null && (!isLocalStorage || mxSettings.settings == null ||
-								mxSettings.settings.closeRealtimeWarning == null || mxSettings.settings.closeRealtimeWarning <
-								new Date().getTime() - (2 * 24 * 60 * 60 * 1000)) &&
-								(!this.editor.chromeless || this.editor.editable))
-							{
-								this.drive.checkRealtimeFiles(mxUtils.bind(this, function()
-								{
-									var footer = createFooter('You need to take action to convert legacy files. Click here.',
-										'https://desk.draw.io/support/solutions/articles/16000092210',
-										'geStatusAlert',
-										mxUtils.bind(this, function()
-										{
-											footer.parentNode.removeChild(footer);
-											this.hideFooter();
-					
-											// Close permanently
-											if (isLocalStorage && mxSettings.settings != null)
-											{
-												mxSettings.settings.closeRealtimeWarning = Date.now();
-												mxSettings.save();
-											}
-										}));
-	
-									document.body.appendChild(footer);
-									
-									window.setTimeout(mxUtils.bind(this, function()
-									{
-										mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-									}), 1500);
-								}));
-							}
-						}
 					}))
 					
 					// Notifies listeners of new client
@@ -1306,24 +1265,7 @@ App.prototype.init = function()
 				
 				if (window.DrawGapiClientCallback != null)
 				{
-					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:' + App.GOOGLE_APIS, mxUtils.bind(this, function(resp)
-					{
-						// Starts the app without the Google Option if the API fails to load
-						if (gapi.client != null)
-						{
-							gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
-							{
-								// Needed to avoid popup blocking for non-immediate authentication
-								gapi.auth.init(mxUtils.bind(this, function()
-								{
-									if (gapi.client.drive != null)
-									{
-										doInit();
-									}
-								}));
-							}));
-						}
-					}));
+					gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + App.GOOGLE_APIS, doInit);
 					
 					/**
 					 * Clears any callbacks.
@@ -2436,33 +2378,7 @@ App.prototype.loadGapi = function(then)
 {
 	if (typeof gapi !== 'undefined')
 	{
-		gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + 'auth:' + App.GOOGLE_APIS, mxUtils.bind(this, function(resp)
-		{
-			// Starts the app without the Google Option if the API fails to load
-			if (gapi.client == null)
-			{
-				this.drive = null;
-				this.mode = null;
-				then();
-			}
-			else
-			{
-				gapi.client.load('drive', 'v2', mxUtils.bind(this, function()
-				{
-					// Needed to avoid popup blocking for non-immediate authentication
-					gapi.auth.init(mxUtils.bind(this, function()
-					{
-						if (gapi.client.drive == null)
-						{
-							this.drive = null;
-							this.mode = null;
-						}
-						
-						then();
-					}));
-				}));
-			}
-		}));
+		gapi.load(((urlParams['picker'] != '0') ? 'picker,': '') + App.GOOGLE_APIS, then);
 	}
 };
 
@@ -5823,75 +5739,140 @@ App.prototype.updateUserElement = function()
 										
 					if (this.drive != null)
 					{
-						var driveUser = this.drive.getUser();
+						var driveUsers = this.drive.getUsersList();
 						
-						if (driveUser != null)
+						if (driveUsers.length > 0)
 						{
-							connected = true;
-							this.userPanel.innerHTML += '<table title="User ID: ' + driveUser.id +
-								'" style="font-size:10pt;padding:20px 20px 10px 10px;">' +
-								'<tr><td valign="middle">' +
-								((driveUser.pictureUrl != null) ?
-									'<img width="50" height="50" style="margin-right:8px;border-radius:50%;" src="' + driveUser.pictureUrl + '"/>' :
-									'<img width="46" height="46" style="margin-right:4px;margin-top:0px;" src="' + this.defaultUserPicture + '"/>') +
-								'</td><td valign="top" style="white-space:nowrap;' +
-								((driveUser.pictureUrl != null) ? 'padding-top:4px;' : '') +
-								'">' + mxUtils.htmlEntities(driveUser.displayName) + '<br>' +
-								'<small style="color:gray;">' + mxUtils.htmlEntities(driveUser.email) +
-								'</small><div style="margin-top:4px;"><i>' +
-								mxResources.get('googleDrive') + '</i></div></tr></table>';
-							var div = document.createElement('div');
-							div.style.textAlign = 'center';
-							div.style.paddingBottom = '12px';
-							div.style.whiteSpace = 'nowrap';
-
 							// LATER: Cannot change user while file is open since close will not work with new
 							// credentials and closing the file using fileLoaded(null) will show splash dialog.
-							var btn = mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
+							var closeFile = mxUtils.bind(this, function(callback, spinnerMsg)
 							{
 								var file = this.getCurrentFile();
 
 								if (file != null && file.constructor == DriveFile)
 								{
-									this.confirm(mxResources.get('areYouSure'), mxUtils.bind(this, function()
+									this.spinner.spin(document.body, spinnerMsg);
+										
+//									file.close();
+									this.fileLoaded(null);
+
+									// LATER: Use callback to wait for thumbnail update
+									window.setTimeout(mxUtils.bind(this, function()
 									{
-										this.spinner.spin(document.body, mxResources.get('signOut'));
-										
-										this.diagramContainer.style.display = 'none';
-										this.formatContainer.style.display = 'none';
-										this.hsplit.style.display = 'none';
-										this.sidebarContainer.style.display = 'none';
-										this.sidebarFooterContainer.style.display = 'none';
-										
-										if (this.tabContainer != null)
-										{
-											this.tabContainer.style.display = 'none';
-										}
-											
-										file.close();
-	
-										// LATER: Use callback to wait for thumbnail update
-										window.setTimeout(mxUtils.bind(this, function()
-										{
-											// Workaround to disable the splash screen before reload
-											this.showDialog = function() {};
-											window.location.hash = '';
-											this.drive.clearUserId();
-											gapi.auth.signOut();
-											
-											// Reload page to reset client auth
-											window.location.reload();
-										}), (file != null && file.constructor == DriveFile) ? 2000 : 0);
-									}));
+										this.spinner.stop();
+										callback();
+									}), 2000);
 								}
 								else
 								{
-									this.drive.clearUserId();
-									this.drive.setUser(null);
-									gapi.auth.signOut();
+									callback();
 								}
+							});
+							
+							var createUserRow = mxUtils.bind(this, function (user)
+							{
+								var tr = document.createElement('tr');
+								tr.style.cssText = user.isCurrent? '' : 'background-color: whitesmoke; cursor: pointer';
+								tr.setAttribute('title', 'User ID: ' + user.id);
+								tr.innerHTML = '<td valign="middle" style="height: 59px;width: 66px;' + 
+									(user.isCurrent? '' : 'border-top: 1px solid rgb(224, 224, 224);') + '">' +
+									'<img width="50" height="50" style="margin: 4px 8px 0 8px;border-radius:50%;" src="' + 
+									((user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture) + '"/>' +
+									'</td><td valign="middle" style="white-space:nowrap;' +
+									((user.pictureUrl != null) ? 'padding-top:4px;' : '') +
+									(user.isCurrent? '' : 'border-top: 1px solid rgb(224, 224, 224);') +
+									'">' + mxUtils.htmlEntities(user.displayName) + '<br>' +
+									'<small style="color:gray;">' + mxUtils.htmlEntities(user.email) +
+									'</small><div style="margin-top:4px;"><i>' +
+									mxResources.get('googleDrive') + '</i></div>';
+								
+								if (!user.isCurrent)
+								{
+									mxEvent.addListener(tr, 'click', mxUtils.bind(this, function(evt)
+									{
+										closeFile(mxUtils.bind(this, function()
+										{
+											this.stateArg = null;
+											this.drive.setUser(user);
+											
+											this.drive.authorize(true, mxUtils.bind(this, function()
+											{
+												this.setMode(App.MODE_GOOGLE);
+												this.hideDialog();
+												this.showSplash();
+											}), mxUtils.bind(this, function(resp)
+											{
+												this.handleError(resp);
+											}), true); //Remember is true since add account imply keeping that account
+										}), mxResources.get('closingFile', null, 'Closing file...'));
+										
+										mxEvent.consume(evt);
+									}));
+								}
+							
+								return tr;
+							});
+							
+							connected = true;
+							
+							var driveUserTable = document.createElement('table');
+							driveUserTable.style.cssText ='font-size:10pt;padding: 20px 0 0 0;min-width: 300px;border-spacing: 0;';
+
+							for (var i = 0; i < driveUsers.length; i++)
+							{
+								driveUserTable.appendChild(createUserRow(driveUsers[i]));
+							}
+							
+							this.userPanel.appendChild(driveUserTable);
+							
+							var div = document.createElement('div');
+							div.style.textAlign = 'left';
+							div.style.padding = '8px';
+							div.style.whiteSpace = 'nowrap';
+							div.style.borderTop = '1px solid rgb(224, 224, 224)';
+
+							var btn = mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
+							{
+								this.confirm(mxResources.get('areYouSure'), mxUtils.bind(this, function()
+								{
+									closeFile(mxUtils.bind(this, function()
+									{
+										this.stateArg = null;
+										this.drive.logout();
+										this.setMode(App.MODE_GOOGLE);
+										this.hideDialog();
+										this.showSplash();
+									}), mxResources.get('signOut'));
+								}));
 							}));
 							btn.className = 'geBtn';
+							btn.style.float = 'right';
+							div.appendChild(btn);
+							
+							var btn = mxUtils.button(mxResources.get('addAccount', null, 'Add Account'), mxUtils.bind(this, function()
+							{
+								var authWin = this.drive.createAuthWin();
+								//FIXME This doean't work to set focus back to main window until closing the file is done
+								authWin.blur();
+								window.focus();
+								
+								closeFile(mxUtils.bind(this, function()
+								{
+									this.stateArg = null;
+									
+									this.drive.authorize(false, mxUtils.bind(this, function()
+									{
+										this.setMode(App.MODE_GOOGLE);
+										this.hideDialog();
+										this.showSplash();
+									}), mxUtils.bind(this, function(resp)
+									{
+										this.handleError(resp);
+									}), true, authWin); //Remember is true since add account imply keeping that account
+								}), mxResources.get('closingFile', null, 'Closing file...'));
+							}));
+							btn.className = 'geBtn';
+							btn.style.margin = '0px';
 							div.appendChild(btn);
 							this.userPanel.appendChild(div);
 						}
@@ -5907,12 +5888,17 @@ App.prototype.updateUserElement = function()
 							}
 							
 							connected = true;
-							this.userPanel.innerHTML += '<table style="font-size:10pt;padding:20px 20px 10px 10px;"><tr><td valign="top">' +
+							var userTable = document.createElement('table');
+							userTable.style.cssText = 'font-size:10pt;padding:' + (connected? '10' : '20') + 'px 20px 10px 10px;';
+							
+							userTable.innerHTML += '<tr><td valign="top">' +
 								((logo != null) ? '<img style="margin-right:6px;" src="' + logo + '" width="40" height="40"/></td>' : '') +
 								'<td valign="middle" style="white-space:nowrap;">' + mxUtils.htmlEntities(user.displayName) +
 								((user.email != null) ? '<br><small style="color:gray;">' + mxUtils.htmlEntities(user.email) + '</small>' : '') +
 								((label != null) ? '<div style="margin-top:4px;"><i>' + mxUtils.htmlEntities(label) + '</i></div>' : '') +
-								'</td></tr></table>';
+								'</td></tr>';
+							
+							this.userPanel.appendChild(userTable);
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
 							div.style.paddingBottom = '12px';

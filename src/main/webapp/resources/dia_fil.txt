@@ -5,6 +5,7 @@ accessDenied=Tinanggihan ang pagpasok
 action=Action
 actualSize=Aktwal na sukat
 add=Magdagdag
+addAccount=Add account
 addedFile=Idinagdag
 addImages=Magdagdag ng mga imahe
 addImageUrl=Magdagdag ng URL ng imahe

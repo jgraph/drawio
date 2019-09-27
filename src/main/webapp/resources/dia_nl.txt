@@ -5,6 +5,7 @@ accessDenied=Toegang geweigerd
 action=Actie
 actualSize=Ware grootte
 add=Toevoegen
+addAccount=Add account
 addedFile={1} toegevoegd
 addImages=Afbeeldingen toevoegen
 addImageUrl=Afbeelding-URL toevoegen

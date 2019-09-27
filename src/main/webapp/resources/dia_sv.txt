@@ -5,6 +5,7 @@ accessDenied=Åtkomst nekad
 action=Action
 actualSize=Verklig storlek
 add=Lägg till
+addAccount=Add account
 addedFile=Tillagd
 addImages=Lägg till bilder
 addImageUrl=Lägg till URL för bild

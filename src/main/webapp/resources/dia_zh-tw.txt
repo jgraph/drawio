@@ -5,6 +5,7 @@ accessDenied=拒絕存取
 action=Action
 actualSize=實際尺寸
 add=新增
+addAccount=Add account
 addedFile=已新增{1}
 addImages=新增圖片
 addImageUrl=新增圖片URL

@@ -5,6 +5,7 @@ accessDenied=Acces interzis
 action=Action
 actualSize=Dimensiunea reală
 add=Adaugă
+addAccount=Add account
 addedFile=Adăugat {1}
 addImages=Adaugă imagini
 addImageUrl=Adaugă imagine URL

@@ -500,7 +500,7 @@ Graph.prototype.createViewState = function(node)
 	
 	return {
 		gridEnabled: node.getAttribute('grid') != '0',
-		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(),
+		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(uiTheme == 'dark'),
 		gridSize: parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize,
 		guidesEnabled: node.getAttribute('guides') != '0',
 		foldingEnabled: node.getAttribute('fold') != '0',

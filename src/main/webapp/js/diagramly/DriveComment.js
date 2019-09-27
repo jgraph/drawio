@@ -20,12 +20,12 @@ DriveComment.prototype.addReply = function(reply, success, error, doResolve, doR
 		body.verb = 'reopen';
 	}
 	
-	this.file.ui.drive.executeRequest(gapi.client.drive.replies.insert(
+	this.file.ui.drive.executeRequest(
 		{
-			'fileId': this.file.getId(),
-			'commentId': this.id,
-			'resource': body
-		}),
+			url: '/files/' + this.file.getId() + '/comments/' + this.id + '/replies',
+			params: body,
+			method: 'POST'
+		},
 		mxUtils.bind(this, function(resp)
 		{
 			success(resp.replyId); //pass comment id
@@ -39,17 +39,16 @@ DriveComment.prototype.editComment = function(newContent, success, error)
 	 
 	this.file.ui.drive.executeRequest(
 		this.pCommentId?
-		gapi.client.drive.replies.patch({
-			'fileId': this.file.getId(),
-			'commentId': this.pCommentId,
-			'replyId': this.id,
-			'resource': body
-		}) :
-		gapi.client.drive.comments.patch({
-			'fileId': this.file.getId(),
-			'commentId': this.id,
-			'resource': body
-		}),
+		{
+			url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id, 
+			params: body,
+			method: 'PATCH'
+		} :
+		{
+			url: '/files/' + this.file.getId() + '/comments/' + this.id, 
+			params: body,
+			method: 'PATCH'
+		},
 	success, error);
 };
 
@@ -57,14 +56,13 @@ DriveComment.prototype.deleteComment = function(success, error)
 {
 	this.file.ui.drive.executeRequest(
 		this.pCommentId?
-		gapi.client.drive.replies.delete({
-			'fileId': this.file.getId(),
-			'commentId': this.pCommentId,
-			'replyId': this.id
-		}):
-		gapi.client.drive.comments.delete({
-			'fileId': this.file.getId(),
-			'commentId': this.id
-		}),
+		{
+			url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id,
+			method: 'DELETE'
+		}:
+		{
+			url: '/files/' + this.file.getId() + '/comments/' + this.id,
+			method: 'DELETE'
+		},
 	success, error);
 };

@@ -5,6 +5,7 @@ accessDenied=Akses Ditolak
 action=Action
 actualSize=Saiz Sebenar
 add=Tambah
+addAccount=Add account
 addedFile=Tambah {1}
 addImages=Tambah Imej
 addImageUrl=Tambah URL Imej

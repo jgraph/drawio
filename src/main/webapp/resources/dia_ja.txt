@@ -5,6 +5,7 @@ accessDenied=アクセス拒否されました
 action=Action
 actualSize=実寸
 add=追加する
+addAccount=Add account
 addedFile=追加された {1}
 addImages=画像を追加する
 addImageUrl=画像のURLを追加する

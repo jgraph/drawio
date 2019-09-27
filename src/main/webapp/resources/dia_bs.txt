@@ -5,6 +5,7 @@ accessDenied=Pristup odbijen
 action=Action
 actualSize=Prirodna veličina
 add=Dodaj
+addAccount=Add account
 addedFile=Dodato {1}
 addImages=Dodaj slike
 addImageUrl=Dodaj URL slike

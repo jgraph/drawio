@@ -5,6 +5,7 @@ accessDenied=Brak dostępu
 action=Action
 actualSize=Rozmiar rzeczywisty
 add=Dodaj
+addAccount=Add account
 addedFile=Dodano {1}
 addImages=Dodaj obrazy
 addImageUrl=Dodaj adres URL obrazu

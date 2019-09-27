@@ -5,6 +5,7 @@ accessDenied=访问被拒
 action=Action
 actualSize=实际尺寸
 add=添加
+addAccount=Add account
 addedFile=已添加 {1}
 addImages=添加图片
 addImageUrl=添加图片链接

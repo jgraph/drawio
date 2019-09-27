@@ -5,6 +5,7 @@ accessDenied=Akses Ditolak
 action=Action
 actualSize=Ukuran Aktual
 add=Tambahkan
+addAccount=Add account
 addedFile=Ditambahkan
 addImages=Tambahkan Gambar
 addImageUrl=Tambahkan URL Gambar
