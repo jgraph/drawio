@@ -295,7 +295,7 @@ mxBpmnShape.prototype.redrawPath = function(c, x, y, w, h, layer)
 					w = w * 0.76;
 				}
 				
-				isInverse = false;
+				var isInverse = false;
 				
 				if (s === 'star')
 				{
