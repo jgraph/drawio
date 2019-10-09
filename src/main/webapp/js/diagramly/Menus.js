@@ -178,6 +178,7 @@
 				editorUi.refresh();
 			}
 		});
+		rulerAction.setEnabled(editorUi.canvasSupported && document.documentMode != 9);
 		rulerAction.setToggleAction(true);
 		rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
 
@@ -203,7 +204,10 @@
 					
 					this.freehandWindow.window.setVisible(graph.freehand.isDrawing());
 				}
-			})).isEnabled = isGraphEnabled;
+			})).isEnabled = function()
+			{
+				return isGraphEnabled() && mxClient.IS_SVG;
+			};
 		}
 		
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()

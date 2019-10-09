@@ -2137,7 +2137,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 		"y:LineStyle": {
 			"color": {key: "strokeColor", mod: "color"},
 			"type": desktopLineStyleFn,
-			"width": "strokeWidth",
+			"width": "strokeWidth"
 		},
 		"y:Arrows": {
 			"source": startArrow,

@@ -1116,7 +1116,7 @@ EditorUi.prototype.onKeyPress = function(evt)
 	
 	// KNOWN: Focus does not work if label is empty in quirks mode
 	if (this.isImmediateEditingEvent(evt) && !graph.isEditing() && !graph.isSelectionEmpty() && evt.which !== 0 &&
-		!mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
+		evt.which !== 27 && !mxEvent.isAltDown(evt) && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt))
 	{
 		graph.escape();
 		graph.startEditing();

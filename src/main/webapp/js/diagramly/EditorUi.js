@@ -58,6 +58,11 @@
 	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
 
 	/**
+	 * Cache timeout is 10 seconds.
+	 */
+	Editor.cacheTimeout = 10000;
+	
+	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
 	 * NOTE: This must also be enabled on the server-side.
 	 */
@@ -182,7 +187,7 @@
 	{
 		try
 		{
-			if (window.console != null && urlParams['dev'] == '1')
+			if (window.console != null && urlParams['test'] == '1')
 			{
 				var args = [new Date().toISOString()];
 				
@@ -8984,9 +8989,11 @@
 				mxSettings.save();		
 			});
 
-			var showRuler = urlParams['ruler'] == '1' || (mxSettings.isRulerOn() && urlParams['lightbox'] != '1');
+			var showRuler = this.canvasSupported && document.documentMode != 9 &&
+				(urlParams['ruler'] == '1' || mxSettings.isRulerOn()) &&
+				(!this.editor.isChromelessView() || this.editor.editable);
 			
-			this.ruler = showRuler? new mxDualRuler(this, view.unit) : null;
+			this.ruler = (showRuler) ? new mxDualRuler(this, view.unit) : null;
 			this.refresh();
 		}
 		

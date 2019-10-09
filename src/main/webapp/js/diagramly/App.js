@@ -545,7 +545,8 @@ App.main = function(callback, createUi)
 		}
 		
 		// Loads Pusher API
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto' &&
+		if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+			DrawioFile.SYNC == 'auto' && urlParams['embed'] != '1' && urlParams['local'] != '1' &&
 			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 		{
 			// TODO: Check if async loading is fast enough
@@ -1347,7 +1348,7 @@ App.prototype.init = function()
 		}
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' &&
-			urlParams['stealth'] != '1' && urlParams['offline'] != '1' &&
+			urlParams['local'] != '1' && urlParams['stealth'] != '1' && urlParams['offline'] != '1' &&
 			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
@@ -1356,20 +1357,31 @@ App.prototype.init = function()
 			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
 				acceptResponse = false;
+				
+				// Switches to manual sync if cache cannot be reached
+				DrawioFile.SYNC = 'manual';
+				
+				var file = this.getCurrentFile();
+				
+				if (file != null && file.sync != null)
+				{
+					file.sync.destroy();
+					file.sync = null;
+					
+					var status = mxUtils.htmlEntities(mxResources.get('timeout'));
+					this.editor.setStatus('<div title="'+ status +
+						'" class="geStatusAlert" style="overflow:hidden;">' + status +
+						'</div>');
+				}
+				
 				EditorUi.logEvent({category: 'TIMEOUT-CACHE-CHECK', action: 'timeout', label: 408});
-			}), this.timeout);
+			}), Editor.cacheTimeout);
 			
 			var t0 = new Date().getTime();
 			
 			mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
 			{
 				window.clearTimeout(timeoutThread);
-				
-//				if (acceptResponse)
-//				{
-//					EditorUi.logEvent({category: 'ALIVE-CACHE-CHECK', action: 'alive', label:
-//						req.getStatus() + '.' + (new Date().getTime() - t0)});
-//				}
 			}));
 
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
@@ -2435,15 +2447,7 @@ App.prototype.load = function()
 				{
 					this.loadGapi(mxUtils.bind(this, function()
 					{
-						if (urlParams['convert-realtime'] == '1')
-						{
-							this.spinner.stop();
-							this.drive.convertRealtimeFiles();
-						}
-						else
-						{
-							this.start();
-						}
+						this.start();
 					}));
 				}
 			}

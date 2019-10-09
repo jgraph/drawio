@@ -553,8 +553,8 @@
 					if (value.substring(0, idx) == 'mxGraphModel')
 					{
 						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
-						var xmlData = Graph.bytesToString(pako.inflateRaw(
-							value.substring(idx + 2))).replace(/\+/g,' ');
+						var xmlData = pako.inflateRaw(
+							value.substring(idx + 2), { to : 'string' }).replace(/\+/g,' ');
 						
 						if (xmlData != null && xmlData.length > 0)
 						{
@@ -4527,6 +4527,44 @@
 			{
 				this.setDefaultParent(cell);
 			}
+		}
+	};
+
+	/**
+	 * Returns a base64 encoded version of the compressed string.
+	 */
+	Graph.compress = function(data, deflate)
+	{
+		if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+	   		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data), { to : 'string' }) :
+	   			pako.deflateRaw(encodeURIComponent(data),  { to : 'string' });
+	   		
+	   		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
+		}
+	};
+
+	/**
+	 * Returns a decompressed version of the base64 encoded string.
+	 */
+	Graph.decompress = function(data, inflate)
+	{
+	   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+			var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
+			
+   			var inflated = (inflate) ? pako.inflate(tmp,  { to : 'string' }) :
+				pako.inflateRaw(tmp,  { to : 'string' })
+
+			return Graph.zapGremlins(decodeURIComponent(inflated));
 		}
 	};
 

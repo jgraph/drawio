@@ -1463,7 +1463,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								file.getCurrentEtag() : null;
 							var retryCount = 0;
 							
-							var executeSave = mxUtils.bind(this, function(realOverwrite)
+							var doExecuteSave = mxUtils.bind(this, function(realOverwrite)
 							{
 								file.saveLevel = 5;
 								
@@ -1570,6 +1570,46 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								catch (e)
 								{
 									criticalError(e);
+								}
+							});
+
+							// Workaround for Google returning the wrong etag after file save is to
+							// update the etag before save and check if the headRevisionId changed
+							var executeSave = mxUtils.bind(this, function(realOverwrite)
+							{
+								if (realOverwrite)
+								{
+									doExecuteSave(realOverwrite);
+								}
+								else
+								{
+									this.executeRequest({
+										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
+									}, 
+									mxUtils.bind(this, function(desc2)
+									{
+										try
+										{
+											// Checks head revision ID and updates etag or returns conflict
+											if (desc2 != null && desc2.headRevisionId == head0)
+											{
+												etag = desc2.etag;
+												doExecuteSave(realOverwrite);
+											}
+											else
+											{
+												error({error: {code: 412}}, desc2);
+											}
+										}
+										catch (e)
+										{
+											criticalError(e);
+										}
+									}), mxUtils.bind(this, function(err)
+									{
+										// Simulated 
+										error(err);
+									}));
 								}
 							});
 							

@@ -1101,7 +1101,9 @@ EditorUi.prototype.updateTabContainer = function()
 				
 				mxEvent.addListener(tab, 'dragend', mxUtils.bind(this, function(evt)
 				{
-					startIndex = null;
+					// Workaround for end before drop in Chrome on Win10 is to
+					// reset startIndex in drop event handler instead
+					// startIndex = null;
 					evt.stopPropagation();
 					evt.preventDefault();
 				}));
@@ -1125,6 +1127,7 @@ EditorUi.prototype.updateTabContainer = function()
 						this.movePage(startIndex, index);
 					}
 
+					startIndex = null;
 					evt.stopPropagation();
 					evt.preventDefault();
 				}));

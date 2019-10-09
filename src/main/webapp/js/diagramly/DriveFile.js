@@ -13,6 +13,12 @@ DriveFile = function(ui, data, desc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
+ * Workaround for changing etag after save is higher autosave delay to allow
+ * for preflight etag update and decrease possible conflicts on file save.
+ */
+DriveFile.prototype.autosaveDelay = 2500;
+
+/**
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
@@ -632,6 +638,22 @@ DriveFile.prototype.setDescriptor = function(desc)
 DriveFile.prototype.getDescriptorSecret = function(desc)
 {
 	return this.ui.drive.getCustomProperty(desc, 'secret');
+};
+
+/**
+ * Updates the revision ID on the given descriptor.
+ */
+DriveFile.prototype.setDescriptorRevisionId = function(desc, id)
+{
+	desc.headRevisionId = id;
+};
+
+/**
+ * Returns the revision ID from the given descriptor.
+ */
+DriveFile.prototype.getDescriptorRevisionId = function(desc)
+{
+	return desc.headRevisionId;
 };
 
 /**

@@ -2139,9 +2139,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				// TODO: Remove unescape, use btoa for compatibility with graph.compress
 				function compress(s)
 				{
-					return encode64(Graph.bytesToString(
-						pako.deflateRaw(unescape(
-						encodeURIComponent(s)))));
+					return encode64(pako.deflateRaw(s, { to : 'string' }));
 				};
 
 				var xhr = new XMLHttpRequest();

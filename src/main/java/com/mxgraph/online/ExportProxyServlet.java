@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -21,25 +22,60 @@ public class ExportProxyServlet extends HttpServlet
 {
 	private final String EXPORT_URL = "http://localhost:8000/";
 	
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-	protected void doPost(HttpServletRequest request,
+	private final String[] supportedServices = {"EXPORT_URL", "PLANTUML_URL", "VSD_CONVERT_URL", "EMF_CONVERT_URL"};
+	
+	private void doRequest(String method, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
 		try
 		{
-			String exportUrl = System.getenv("EXPORT_URL");
+			int serviceId = 0;
+			String proxyPath = "";
+			String queryString = "";
+			
+			try 
+			{
+				if (request.getQueryString() != null)
+				{
+					queryString = "?" + request.getQueryString(); 	
+				}
+				
+				if (request.getPathInfo() != null) // /{serviceId}/*
+				{
+					String[] pathParts = request.getPathInfo().split("/");
+	
+					if (pathParts.length > 1)
+					{
+						serviceId = Integer.parseInt(pathParts[1]);
+					}
+					
+					if (pathParts.length > 2)
+					{
+						proxyPath = String.join("/", Arrays.copyOfRange(pathParts, 2, pathParts.length));
+					}
+					
+					if (serviceId < 0 || serviceId > supportedServices.length)
+					{
+						serviceId = 0;
+					}
+				}
+			}
+			catch (Exception e) 
+			{
+				// Ignore and use 0
+			}
+			
+			String exportUrl = System.getenv(supportedServices[serviceId]);
 			
 			if (exportUrl == null)
 			{
 				exportUrl = EXPORT_URL;
 			}
 			
-			URL url = new URL(exportUrl);
+			URL url = new URL(exportUrl + proxyPath + queryString);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			
-			con.setRequestMethod("POST");
+			con.setRequestMethod(method);
 			
 			//Copy request headers to export server
 			Enumeration<String> headerNames = request.getHeaderNames();
@@ -56,16 +92,20 @@ public class ExportProxyServlet extends HttpServlet
 	            }
 	        }
 	        
-			// Send post request
-			con.setDoOutput(true);
-			
-			OutputStream params = con.getOutputStream();
-			Utils.copy(request.getInputStream(), params);
-			params.flush();
-			params.close();
-			
+	        if ("POST".equals(method))
+	        {
+				// Send post request
+				con.setDoOutput(true);
+				
+				OutputStream params = con.getOutputStream();
+				Utils.copy(request.getInputStream(), params);
+				params.flush();
+				params.close();
+	        }
+	        
+	        int responseCode = con.getResponseCode();
 			//Copy response code
-			response.setStatus(con.getResponseCode());
+			response.setStatus(responseCode);
 			
 			//Copy response headers
 			Map<String, List<String>> map = con.getHeaderFields();
@@ -86,7 +126,17 @@ public class ExportProxyServlet extends HttpServlet
 			
 			//Copy response
 			OutputStream out = response.getOutputStream();
-			Utils.copy(con.getInputStream(), out);
+			
+			//Error
+			if (responseCode >= 400)
+			{
+				Utils.copy(con.getErrorStream(), out);
+			}
+			else //Success
+			{
+				Utils.copy(con.getInputStream(), out);
+			}
+			
 			out.flush();
 			out.close();
 		}
@@ -96,5 +146,24 @@ public class ExportProxyServlet extends HttpServlet
 					HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			e.printStackTrace();
 		}
+	}
+
+	
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException
+	{
+		doRequest("GET", request, response);
+	}
+	
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
+	 */
+	protected void doPost(HttpServletRequest request,
+	HttpServletResponse response) throws ServletException, IOException
+	{
+		doRequest("POST", request, response);
 	}
 }

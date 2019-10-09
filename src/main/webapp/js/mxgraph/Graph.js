@@ -8184,6 +8184,7 @@ if (typeof mxVertexHandler != 'undefined')
 		mxVertexHandler.prototype.rotationEnabled = true;
 		mxVertexHandler.prototype.manageSizers = true;
 		mxVertexHandler.prototype.livePreview = true;
+		mxGraphHandler.prototype.maxLivePreview = 16;
 	
 		// Increases default rubberband opacity (default is 20)
 		mxRubberband.prototype.defaultOpacity = 30;
@@ -8690,12 +8691,6 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			var update = mxUtils.bind(this, function()
 			{
-				// Shows rotation handle only if one vertex is selected
-				if (this.rotationShape != null && this.rotationShape.node != null)
-				{
-					this.rotationShape.node.style.display = (this.graph.getSelectionCount() == 1) ? '' : 'none';
-				}
-				
 				if (this.specialHandle != null)
 				{
 					this.specialHandle.node.style.display = (this.graph.isEnabled() && this.graph.getSelectionCount() < this.graph.graphHandler.maxCells) ? '' : 'none';
@@ -8882,6 +8877,13 @@ if (typeof mxVertexHandler != 'undefined')
 		var vertexHandlerRedrawHandles = mxVertexHandler.prototype.redrawHandles;
 		mxVertexHandler.prototype.redrawHandles = function()
 		{
+			// Shows rotation handle only if one vertex is selected
+			if (this.rotationShape != null && this.rotationShape.node != null)
+			{
+				this.rotationShape.node.style.display = (this.graph.getSelectionCount() == 1 &&
+					(this.index == null || this.index == mxEvent.ROTATION_HANDLE)) ? '' : 'none';
+			}
+			
 			vertexHandlerRedrawHandles.apply(this);
 
 			if (this.state != null && this.linkHint != null)
@@ -8910,20 +8912,7 @@ if (typeof mxVertexHandler != 'undefined')
 					this.state.view.graph.tolerance) + 'px';
 			}
 		};
-
 		
-		var vertexHandlerReset = mxVertexHandler.prototype.reset;
-		mxVertexHandler.prototype.reset = function()
-		{
-			vertexHandlerReset.apply(this, arguments);
-			
-			// Shows rotation handle only if one vertex is selected
-			if (this.rotationShape != null && this.rotationShape.node != null)
-			{
-				this.rotationShape.node.style.display = (this.graph.getSelectionCount() == 1) ? '' : 'none';
-			}
-		};
-	
 		var vertexHandlerDestroy = mxVertexHandler.prototype.destroy;
 		mxVertexHandler.prototype.destroy = function()
 		{

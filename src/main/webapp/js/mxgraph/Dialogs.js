@@ -2163,8 +2163,6 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 				{
 					zoomOutAction.funct();
 				}
-	
-				mxEvent.consume(evt);
 			}
 		});
 	}

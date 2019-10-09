@@ -1,3 +1,31 @@
+09-OCT-2019: 12.1.0
+
+- Escape no longer starts editing in Safari and IE 11
+- Uses revision IDs for realtime in Google Drive
+- Fixes ignored alignment for autosize cells
+- Switches to manual sync on cache timeout
+- Disables resize live preview for groups
+- Fixes test URL parameter for logging
+- Adds live preview for moving cells
+- Uses mxGraph 4.0.3 beta 5
+- Uses quirks mode in IE 9
+
+08-OCT-2019: 12.0.3
+
+- Fixes vertical label position of Data shape
+- Handles changed etag in Google Drive after save
+- Fixes page reorder for Chrome on Windows 10 in embed mode
+
+02-OCT-2019: 12.0.2
+
+- Updates pako to 1.0.10
+- Fixes VSS naming problem
+- Restores folder support to Confluence Cloud diagram viewer
+
+01-OCT-2019: 12.0.1
+
+- Adds testing for new pako version
+
 27-SEP-2019: 12.0.0
 
 - Fixes Google auth for multiple users

@@ -139,6 +139,10 @@
     <servlet-name>ExportProxyServlet</servlet-name>
     <url-pattern>/export</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>
