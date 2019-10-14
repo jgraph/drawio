@@ -8,23 +8,6 @@ DriveClient = function(editorUi)
 	
 	DrawioClient.call(this, editorUi, 'gDriveAuthInfo');
 
-	var authInfo = JSON.parse(this.token);
-	
-	if (authInfo != null && authInfo.current != null)
-	{
-		authInfo = authInfo.current;
-		
-		this.userId = authInfo.userId;
-		this.token = authInfo.access_token;
-		
-		var remainingTime = (authInfo.expires - Date.now()) / 1000;
-		
-		authInfo.expires_in = remainingTime < 600? 1 : remainingTime; //10 min tolerance window in case of any rounding errors
-		this.resetTokenRefresh(authInfo);
-
-		this.authCalled = false;
-	}
-	
 	/**
 	 * Holds a reference to the UI. Needed for the sharing client.
 	 */
@@ -37,6 +20,10 @@ DriveClient = function(editorUi)
 	// Reading files now possible with no initial click in drive
 	if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1')
 	{
+		// Uses separate name for the viewer auth tokens
+		this.cookieName = 'gDriveViewerAuthInfo';
+		this.token = this.getPersistentToken();
+		
 		this.appId = window.DRAWIO_GOOGLE_VIEWER_APP_ID || '850530949725';
 		this.clientId = window.DRAWIO_GOOGLE_VIEWER_CLIENT_ID || '850530949725.apps.googleusercontent.com';
 		this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
@@ -57,6 +44,23 @@ DriveClient = function(editorUi)
 	{
 		this.scopes.push('https://www.googleapis.com/auth/photos.upload');
 	}
+	
+	var authInfo = JSON.parse(this.token);
+	
+	if (authInfo != null && authInfo.current != null)
+	{
+		authInfo = authInfo.current;
+		
+		this.userId = authInfo.userId;
+		this.token = authInfo.access_token;
+		
+		var remainingTime = (authInfo.expires - Date.now()) / 1000;
+		
+		authInfo.expires_in = remainingTime < 600? 1 : remainingTime; //10 min tolerance window in case of any rounding errors
+		this.resetTokenRefresh(authInfo);
+
+		this.authCalled = false;
+	}
 };
 
 // Extends mxEventSource
@@ -65,7 +69,7 @@ mxUtils.extend(DriveClient, mxEventSource);
 // Extends DrawioClient
 mxUtils.extend(DriveClient, DrawioClient);
 
-DriveClient.prototype.redirectUri = 'https://' + window.location.hostname + '/google';
+DriveClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/google';
 DriveClient.prototype.GDriveBaseUrl = 'https://www.googleapis.com/drive/v2';
 
 /**
@@ -1547,6 +1551,15 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 															}
 															else
 															{
+
+																if (urlParams['test'] == '1' && resp.headRevisionId == head0)
+																{
+																	EditorUi.debug('DriveClient: Remote Etag Changed',
+																		'local', etag, 'remote', resp.etag,
+																		'rev', file.desc.headRevisionId,
+																		'response', [resp], 'file', [file]);
+																}
+																
 																error(err, resp);
 															}
 														}
@@ -1593,6 +1606,14 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 											// Checks head revision ID and updates etag or returns conflict
 											if (desc2 != null && desc2.headRevisionId == head0)
 											{
+												if (urlParams['test'] == '1' && etag != desc2.etag)
+												{
+													EditorUi.debug('DriveClient: Preflight Etag Update',
+														'from', etag, 'to', desc2.etag,
+														'rev', file.desc.headRevisionId,
+														'response', [desc2], 'file', [file]);
+												}
+												
 												etag = desc2.etag;
 												doExecuteSave(realOverwrite);
 											}

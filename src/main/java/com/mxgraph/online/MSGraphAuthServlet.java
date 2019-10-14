@@ -12,6 +12,7 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/msgraph_client_secret";
 	public static String DEV_CLIENT_ID_FILE_PATH = "/WEB-INF/msgraph_dev_client_id";
 	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/msgraph_client_id";
+	public static String CLIENT_REDIRECT_URI_FILE_PATH = "/WEB-INF/msgraph_client_redirect_uri";
 	
 	private static Config CONFIG = null;
 	
@@ -69,8 +70,19 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 				throw new RuntimeException("Client ID invalid.");
 			}
 			
+			try
+			{
+				CONFIG.REDIRECT_URI = Utils
+						.readInputStream(getServletContext()
+								.getResourceAsStream(CLIENT_REDIRECT_URI_FILE_PATH))
+						.replaceAll("\n", "");
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException("Redirect Uri is invalid");
+			}
+			
 			CONFIG.DEV_REDIRECT_URI = "https://test.draw.io/microsoft";
-			CONFIG.REDIRECT_URI = "https://www.draw.io/microsoft";
 			CONFIG.AUTH_SERVICE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 		}
 		

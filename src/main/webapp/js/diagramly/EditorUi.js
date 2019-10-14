@@ -7255,6 +7255,167 @@
 	};
 
 	/**
+	 * Generates a plant UML image. Possible types are svg, png and txt.
+	 */
+	EditorUi.prototype.generatePlantUmlImage = function(data, type, success, error)
+	{	
+		function encode64(data)
+		{
+			r = "";
+			
+			for (i = 0; i < data.length; i += 3)
+			{
+				if (i + 2 == data.length)
+				{
+					r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
+				}
+				else if (i + 1 == data.length)
+				{
+					r += append3bytes(data.charCodeAt(i), 0, 0);
+				}
+				else
+				{
+					r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1),
+						data.charCodeAt(i + 2));
+				}
+			}
+			
+			return r;
+		}
+
+		function append3bytes(b1, b2, b3)
+		{
+			c1 = b1 >> 2;
+			c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+			c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+			c4 = b3 & 0x3F;
+			r = "";
+			r += encode6bit(c1 & 0x3F);
+			r += encode6bit(c2 & 0x3F);
+			r += encode6bit(c3 & 0x3F);
+			r += encode6bit(c4 & 0x3F);
+			
+			return r;
+		}
+
+		function encode6bit(b)
+		{
+			if (b < 10)
+			{
+				return String.fromCharCode(48 + b);
+			}
+			
+			b -= 10;
+			
+			if (b < 26)
+			{
+				return String.fromCharCode(65 + b);
+			}
+			
+			b -= 26;
+			
+			if (b < 26)
+			{
+				return String.fromCharCode(97 + b);
+			}
+			
+			b -= 26;
+			
+			if (b == 0)
+			{
+				return '-';
+			}
+			
+			if (b == 1)
+			{
+				return '_';
+			}
+			
+			return '?';
+		}
+
+		// TODO: Remove unescape, use btoa for compatibility with graph.compress
+		function compress(s)
+		{
+			return encode64(pako.deflateRaw(s, { to : 'string' }));
+		};
+
+		var plantUmlServerUrl = (type == 'txt') ? PLANT_URL + '/txt/' :
+			((type == 'png') ? PLANT_URL + '/png/' : PLANT_URL + '/svg/');
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', plantUmlServerUrl + compress(data), true);
+
+		if (type != 'txt')
+		{
+			xhr.responseType = 'blob';
+		}
+
+		xhr.onload = function(e)
+		{
+			if (this.status >= 200 && this.status < 300)
+			{
+				if (type == 'txt')
+				{
+					success(this.response);
+				}
+				else
+				{
+					var reader = new FileReader();
+					reader.readAsDataURL(this.response);
+
+					reader.onloadend = function(e)
+					{
+						var img = new Image();
+
+						img.onload = function()
+						{
+							var w = img.width;
+							var h = img.height;
+
+							// Workaround for 0 image size in IE11
+							if (w == 0 && h == 0)
+							{
+								var data = reader.result;
+								var comma = data.indexOf(',');
+								var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+								var root = mxUtils.parseXml(svgText);
+								var svgs = root.getElementsByTagName('svg');
+
+								if (svgs.length > 0)
+								{
+									w = parseFloat(svgs[0].getAttribute('width'));
+									h = parseFloat(svgs[0].getAttribute('height'));
+								}
+							}
+							
+							success(reader.result, w, h);
+						};
+
+						img.src = reader.result;
+					};
+
+					reader.onerror = function(e)
+					{
+						error(e);
+					};
+				}
+			}
+			else
+			{
+				error(e);
+			}
+		};
+
+		xhr.onerror = function(e)
+		{
+			error(e);
+		};
+
+		xhr.send();
+	};
+
+	/**
 	 * Inserts the given text as a preformatted HTML text.
 	 */
 	EditorUi.prototype.insertAsPreText = function(text, x, y)
@@ -7266,7 +7427,7 @@
 		try
 		{
 			cell = graph.insertVertex(null, null, '<pre>' + text + '</pre>',
-				x, y, 1, 1, 'text;html=1;align=center;verticalAlign=middle;');
+				x, y, 1, 1, 'text;html=1;align=left;verticalAlign=top;');
 			graph.updateCellSize(cell, true);
 		}
 		finally
@@ -8625,6 +8786,73 @@
 		
 		var ui = this;
 		var graph = this.editor.graph;
+		
+		// Overrides function to add editing for Plant UML.
+		var cellEditorStartEditing = graph.cellEditor.startEditing;
+		
+		graph.cellEditor.startEditing = function(cell, trigger)
+		{
+			var data = this.graph.getAttributeForCell(cell, 'plantUmlData');
+			
+			if (data != null)
+			{
+				var obj = JSON.parse(data);
+				
+		    	var dlg = new TextareaDialog(ui, mxResources.get('plantUml') + ':',
+		    		obj.data, function(text)
+				{
+		    		if (text != null)
+					{
+		    			if (ui.spinner.spin(document.body, mxResources.get('inserting')))
+		    			{
+		    				ui.generatePlantUmlImage(text, obj.format, function(data, w, h)
+		    				{
+		    					ui.spinner.stop();
+
+		    					graph.getModel().beginUpdate();
+		    					try
+		    					{
+		    						if (obj.format == 'txt')
+			    					{
+			    						graph.labelChanged(cell, '<pre>' + data + '</pre>');
+			    						graph.updateCellSize(cell, true);
+			    					}
+		    						else
+		    						{
+		    							graph.setCellStyles('image', ui.convertDataUri(data), [cell]);
+		    							var geo = graph.model.getGeometry(cell);
+		    							
+		    							if (geo != null)
+		    							{
+		    								geo = geo.clone();
+		    								geo.width = w;
+		    								geo.height = h;
+		    								graph.cellsResized([cell], [geo], false);
+		    							}
+		    						}
+		    						
+		    						graph.setAttributeForCell(cell, 'plantUmlData',
+			    						JSON.stringify({data: text, format: obj.format}));
+		    					}
+		    					finally
+		    					{
+		    						graph.getModel().endUpdate();
+		    					}
+		    				}, function(err)
+		    				{
+		    					ui.handleError(e);
+		    				});
+		    			}
+					}
+				}, null, null, 400, 220);
+				ui.showDialog(dlg.container, 420, 300, true, true);
+				dlg.init();
+			}
+			else
+			{
+				cellEditorStartEditing.apply(this, arguments);
+			}
+		};
 		
 		// Redirects custom link title via UI for page links
 		graph.getLinkTitle = function(href)

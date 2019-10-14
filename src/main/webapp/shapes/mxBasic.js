@@ -2431,9 +2431,10 @@ mxShapeBasicPie.prototype.cst = {PIE : 'mxgraph.basic.pie'};
 mxShapeBasicPie.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
-
-	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
-	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var startAngleSource = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngleSource = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var startAngle = 2 * Math.PI * startAngleSource;
+	var endAngle = 2 * Math.PI * endAngleSource;
 	var rx = w * 0.5;
 	var ry = h * 0.5;
 	
@@ -2451,15 +2452,36 @@ mxShapeBasicPie.prototype.paintVertexShape = function(c, x, y, w, h)
 		
 	var bigArc = 0;
 	
-	if (angDiff > Math.PI)
+	if (angDiff >= Math.PI)
 	{
 		bigArc = 1;
 	}
 		
 	c.begin();
-	c.moveTo(rx, ry);
-	c.lineTo(startX, startY);
-	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	var startAngleDiff = startAngleSource % 1;
+	var endAngleDiff = endAngleSource % 1;
+	
+	if (startAngleDiff == 0 && endAngleDiff == 0.5)
+	{
+		c.moveTo(rx, ry);
+		c.lineTo(startX, startY);
+		c.arcTo(rx, ry, 0, 0, 1, w, h * 0.5);
+		c.arcTo(rx, ry, 0, 0, 1, w * 0.5, h);
+	}
+	else if (startAngleDiff == 0.5 && endAngleDiff == 0)
+	{
+		c.moveTo(rx, ry);
+		c.lineTo(startX, startY);
+		c.arcTo(rx, ry, 0, 0, 1, 0, h * 0.5);
+		c.arcTo(rx, ry, 0, 0, 1, w * 0.5, 0);
+	}
+	else
+	{
+		c.moveTo(rx, ry);
+		c.lineTo(startX, startY);
+		c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	}
+	
 	c.close();
 	c.fillAndStroke();
 };
@@ -2554,8 +2576,10 @@ mxShapeBasicArc.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
 
-	var startAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
-	var endAngle = 2 * Math.PI * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var startAngleSource = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'startAngle', this.startAngle))));
+	var endAngleSource = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'endAngle', this.endAngle))));
+	var startAngle = 2 * Math.PI * startAngleSource;
+	var endAngle = 2 * Math.PI * endAngleSource;
 	var rx = w * 0.5;
 	var ry = h * 0.5;
 	
@@ -2579,8 +2603,28 @@ mxShapeBasicArc.prototype.paintVertexShape = function(c, x, y, w, h)
 	}
 		
 	c.begin();
-	c.moveTo(startX, startY);
-	c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	
+	var startAngleDiff = startAngleSource % 1;
+	var endAngleDiff = endAngleSource % 1;
+	
+	if (startAngleDiff == 0 && endAngleDiff == 0.5)
+	{
+		c.moveTo(startX, startY);
+		c.arcTo(rx, ry, 0, 0, 1, w, h * 0.5);
+		c.arcTo(rx, ry, 0, 0, 1, w * 0.5, h);
+	}
+	else if (startAngleDiff == 0.5 && endAngleDiff == 0)
+	{
+		c.moveTo(startX, startY);
+		c.arcTo(rx, ry, 0, 0, 1, 0, h * 0.5);
+		c.arcTo(rx, ry, 0, 0, 1, w * 0.5, 0);
+	}
+	else
+	{
+		c.moveTo(startX, startY);
+		c.arcTo(rx, ry, 0, bigArc, 1, endX, endY);
+	}
+
 	c.stroke();
 };
 

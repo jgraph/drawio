@@ -846,6 +846,17 @@ DrawioFile.prototype.updateFileData = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+DrawioFile.prototype.isCompressedStorage = function()
+{
+	return true;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DrawioFile.prototype.isCompressed = function()
 {
 	var compressed = (this.ui.fileNode != null) ? this.ui.fileNode.getAttribute('compressed') : null;
@@ -856,7 +867,7 @@ DrawioFile.prototype.isCompressed = function()
 	}
 	else
 	{
-		return Editor.compressXml;
+		return this.isCompressedStorage() && Editor.compressXml;
 	}
 };
 

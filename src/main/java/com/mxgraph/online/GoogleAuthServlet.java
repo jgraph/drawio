@@ -10,6 +10,7 @@ public class GoogleAuthServlet extends AbsAuthServlet
 {
 	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/google_client_secret";
 	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/google_client_id";
+	public static String CLIENT_REDIRECT_URI_FILE_PATH = "/WEB-INF/google_client_redirect_uri";
 	private static Config CONFIG = null;
 	
 	protected Config getConfig()
@@ -44,9 +45,20 @@ public class GoogleAuthServlet extends AbsAuthServlet
 				throw new RuntimeException("Client ID path invalid");
 			}
 			
+			try
+			{
+				CONFIG.REDIRECT_URI = Utils
+						.readInputStream(getServletContext()
+								.getResourceAsStream(CLIENT_REDIRECT_URI_FILE_PATH))
+						.replaceAll("\n", "");
+			}
+			catch (IOException e)
+			{
+				throw new RuntimeException("Client ID path invalid");
+			}
+			
 			CONFIG.AUTH_SERVICE_URL = "https://www.googleapis.com/oauth2/v4/token";
 			CONFIG.DEV_REDIRECT_URI = "https://test.draw.io/google";
-			CONFIG.REDIRECT_URI = "https://www.draw.io/google";
 		}
 		
 		return CONFIG;

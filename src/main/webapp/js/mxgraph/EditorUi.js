@@ -972,7 +972,7 @@ EditorUi.compactUi = true;
 EditorUi.prototype.splitSize = (mxClient.IS_TOUCH || mxClient.IS_POINTER) ? 12 : 8;
 
 /**
- * Specifies the height of the menubar. Default is 34.
+ * Specifies the height of the menubar. Default is 30.
  */
 EditorUi.prototype.menubarHeight = 30;
 
@@ -1013,12 +1013,12 @@ EditorUi.prototype.hsplitPosition = (screen.width <= 640) ? 118 : ((urlParams['s
 EditorUi.prototype.allowAnimation = true;
 
 /**
- * Specifies if animations are allowed in <executeLayout>. Default is true.
+ * Default is 2.
  */
 EditorUi.prototype.lightboxMaxFitScale = 2;
 
 /**
- * Specifies if animations are allowed in <executeLayout>. Default is true.
+ * Default is 4.
  */
 EditorUi.prototype.lightboxVerticalDivider = 4;
 

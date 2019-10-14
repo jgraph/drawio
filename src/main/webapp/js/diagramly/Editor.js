@@ -363,7 +363,37 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
-	
+
+	/**
+	 * Compresses the given string.
+	 */
+	Editor.fastCompress = function(data)
+	{
+		if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+			return pako.deflateRaw(data, {to: 'string'});
+		}
+	};
+
+	/**
+	 * Decompresses the given string.
+	 */
+	Editor.fastDecompress = function(data)
+	{
+	   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
+		{
+			return data;
+		}
+		else
+		{
+			return pako.inflateRaw(data, {to: 'string'});
+		}
+	};
+
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
@@ -553,8 +583,8 @@
 					if (value.substring(0, idx) == 'mxGraphModel')
 					{
 						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
-						var xmlData = pako.inflateRaw(
-							value.substring(idx + 2), { to : 'string' }).replace(/\+/g,' ');
+						var xmlData = pako.inflateRaw(value.substring(idx + 2),
+							{to: 'string'}).replace(/\+/g,' ');
 						
 						if (xmlData != null && xmlData.length > 0)
 						{
@@ -4527,44 +4557,6 @@
 			{
 				this.setDefaultParent(cell);
 			}
-		}
-	};
-
-	/**
-	 * Returns a base64 encoded version of the compressed string.
-	 */
-	Graph.compress = function(data, deflate)
-	{
-		if (data == null || data.length == 0 || typeof(pako) === 'undefined')
-		{
-			return data;
-		}
-		else
-		{
-	   		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data), { to : 'string' }) :
-	   			pako.deflateRaw(encodeURIComponent(data),  { to : 'string' });
-	   		
-	   		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
-		}
-	};
-
-	/**
-	 * Returns a decompressed version of the base64 encoded string.
-	 */
-	Graph.decompress = function(data, inflate)
-	{
-	   	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
-		{
-			return data;
-		}
-		else
-		{
-			var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
-			
-   			var inflated = (inflate) ? pako.inflate(tmp,  { to : 'string' }) :
-				pako.inflateRaw(tmp,  { to : 'string' })
-
-			return Graph.zapGremlins(decodeURIComponent(inflated));
 		}
 	};
 

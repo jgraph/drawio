@@ -1102,8 +1102,8 @@ Graph.compress = function(data, deflate)
 	}
 	else
 	{
-   		var tmp = Graph.bytesToString((deflate) ? pako.deflate(encodeURIComponent(data)) :
-   			pako.deflateRaw(encodeURIComponent(data)));
+   		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data), {to: 'string'}) :
+   			pako.deflateRaw(encodeURIComponent(data), {to: 'string'});
    		
    		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
 	}
@@ -1122,9 +1122,10 @@ Graph.decompress = function(data, inflate)
 	{
 		var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
 		
-		return Graph.zapGremlins(decodeURIComponent(
-			Graph.bytesToString((inflate) ? pako.inflate(tmp) :
-				pako.inflateRaw(tmp))));
+		var inflated = (inflate) ? pako.inflate(tmp, {to: 'string'}) :
+			pako.inflateRaw(tmp, {to: 'string'})
+
+		return Graph.zapGremlins(decodeURIComponent(inflated));
 	}
 };
 
@@ -8577,7 +8578,8 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var state = this.graph.view.getState(cells[0]);
 					
-					if (state != null && state.width < 2 && state.height < 2 && state.text != null && state.text.boundingBox != null)
+					if (state != null && state.width < 2 && state.height < 2 && state.text != null &&
+						state.text.boundingBox != null)
 					{
 						return mxRectangle.fromRectangle(state.text.boundingBox);
 					}
@@ -8586,7 +8588,26 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return mxGraphHandlerGetBoundingBox.apply(this, arguments);
 		};
+
+		// Ignores child cells with part style as guides
+		var mxGraphHandlerGetGuideStates = mxGraphHandler.prototype.getGuideStates;
 		
+		mxGraphHandler.prototype.getGuideStates = function()
+		{
+			var states = mxGraphHandlerGetGuideStates.apply(this, arguments);
+			var result = [];
+			
+			for (var i = 0; i < states.length; i++)
+			{
+				if (mxUtils.getValue(states[i].style, 'part', '0') != '1')
+				{
+					result.push(states[i]);
+				}
+			}
+			
+			return result;
+		};
+
 		// Uses text bounding box for edge labels
 		var mxVertexHandlerGetSelectionBounds = mxVertexHandler.prototype.getSelectionBounds;
 		mxVertexHandler.prototype.getSelectionBounds = function(state)

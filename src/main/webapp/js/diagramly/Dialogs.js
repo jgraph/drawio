@@ -2054,182 +2054,41 @@ var ParseDialog = function(editorUi, title, defaultType)
 		
 		if (type == 'plantUmlPng' || type == 'plantUmlSvg' || type == 'plantUmlTxt')
 		{
-			var plantUmlServerUrl = (type == 'plantUmlTxt') ? PLANT_URL + '/txt/' :
-				((type == 'plantUmlPng') ? PLANT_URL + '/png/' : PLANT_URL + '/svg/');
-			var graph = editorUi.editor.graph;
-
-			// TODO: Change server to return base64 and accept POST request
 			if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
 			{
-				function encode64(data)
+				var graph = editorUi.editor.graph;
+				var format = (type == 'plantUmlTxt') ? 'txt' :
+					((type == 'plantUmlPng') ? 'png' : 'svg');
+				editorUi.generatePlantUmlImage(text, format, function(data, w, h)
 				{
-					r = "";
+					editorUi.spinner.stop();
+					var cell = null;
 					
-					for (i = 0; i < data.length; i += 3)
+					graph.getModel().beginUpdate();
+					try
 					{
-						if (i + 2 == data.length)
-						{
-							r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
-						}
-						else if (i + 1 == data.length)
-						{
-							r += append3bytes(data.charCodeAt(i), 0, 0);
-						}
-						else
-						{
-							r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1),
-								data.charCodeAt(i + 2));
-						}
+						cell = (format == 'txt') ?
+							editorUi.insertAsPreText(data, insertPoint.x, insertPoint.y) :
+							graph.insertVertex(null, null, null, insertPoint.x, insertPoint.y,
+								w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
+								'image=' + editorUi.convertDataUri(data) + ';')
+						graph.setAttributeForCell(cell, 'plantUmlData',
+							JSON.stringify({data: text, format: format}));
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
 					}
 					
-					return r;
-				}
-
-				function append3bytes(b1, b2, b3)
-				{
-					c1 = b1 >> 2;
-					c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
-					c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
-					c4 = b3 & 0x3F;
-					r = "";
-					r += encode6bit(c1 & 0x3F);
-					r += encode6bit(c2 & 0x3F);
-					r += encode6bit(c3 & 0x3F);
-					r += encode6bit(c4 & 0x3F);
-					
-					return r;
-				}
-
-				function encode6bit(b)
-				{
-					if (b < 10)
+					if (cell != null)
 					{
-						return String.fromCharCode(48 + b);
+						graph.setSelectionCell(cell);
+						graph.scrollCellToVisible(cell);
 					}
-					
-					b -= 10;
-					
-					if (b < 26)
-					{
-						return String.fromCharCode(65 + b);
-					}
-					
-					b -= 26;
-					
-					if (b < 26)
-					{
-						return String.fromCharCode(97 + b);
-					}
-					
-					b -= 26;
-					
-					if (b == 0)
-					{
-						return '-';
-					}
-					
-					if (b == 1)
-					{
-						return '_';
-					}
-					
-					return '?';
-				}
-
-				// TODO: Remove unescape, use btoa for compatibility with graph.compress
-				function compress(s)
-				{
-					return encode64(pako.deflateRaw(s, { to : 'string' }));
-				};
-
-				var xhr = new XMLHttpRequest();
-				xhr.open('GET', plantUmlServerUrl + compress(text), true);
-
-				if (type != 'plantUmlTxt')
-				{
-					xhr.responseType = 'blob';
-				}
-
-				xhr.onload = function(e)
-				{
-					if (this.status >= 200 && this.status < 300)
-					{
-						if (type == 'plantUmlTxt')
-						{
-							editorUi.spinner.stop();
-							graph.setSelectionCell(editorUi.insertAsPreText(
-								this.response, insertPoint.x, insertPoint.y));
-							graph.scrollCellToVisible(graph.getSelectionCell());
-						}
-						else
-						{
-							var reader = new FileReader();
-							reader.readAsDataURL(this.response);
-
-							reader.onloadend = function(e)
-							{
-								var img = new Image();
-
-								img.onload = function()
-								{
-									editorUi.spinner.stop();
-									var w = img.width;
-									var h = img.height;
-
-									// Workaround for 0 image size in IE11
-									if (w == 0 && h == 0)
-									{
-										var data = reader.result;
-										var comma = data.indexOf(',');
-										var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-										var root = mxUtils.parseXml(svgText);
-										var svgs = root.getElementsByTagName('svg');
-
-										if (svgs.length > 0)
-										{
-											w = parseFloat(svgs[0].getAttribute('width'));
-											h = parseFloat(svgs[0].getAttribute('height'));
-										}
-									}
-
-									graph.getModel().beginUpdate();
-									try
-									{
-										cell = graph.insertVertex(null, null, text, insertPoint.x, insertPoint.y,
-											w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
-											'image=' + editorUi.convertDataUri(reader.result) + ';');
-									}
-									finally
-									{
-										graph.getModel().endUpdate();
-									}
-
-									graph.setSelectionCell(cell);
-									graph.scrollCellToVisible(graph.getSelectionCell());
-								};
-
-								img.src = reader.result;
-							};
-
-							reader.onerror = function(e)
-							{
-								editorUi.handleError(e);
-							};
-						}
-					}
-					else
-					{
-						editorUi.spinner.stop();
-						editorUi.handleError(e);
-					}
-				};
-
-				xhr.onerror = function(e)
+				}, function(err)
 				{
 					editorUi.handleError(e);
-				};
-
-				xhr.send();
+				});
 			}
 		}
 		else if (type == 'table')

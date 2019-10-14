@@ -713,7 +713,7 @@
 		editorUi.actions.addAction('feedback...', function()
 		{
 			var dlg = new FeedbackDialog(editorUi);
-			editorUi.showDialog(dlg.container, 610, 360, true, true);
+			editorUi.showDialog(dlg.container, 610, 360, true, false);
 			dlg.init();
 		});
 

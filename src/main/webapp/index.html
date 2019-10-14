@@ -158,7 +158,6 @@
 
 			if (mxIsElectron5)
 			{
-				//TODO Remove unsafe-eval which requires removing dependency on eval in many parts of the code (stencils, styles, decoder, ...) 
 				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io; img-src * data:; media-src *; font-src *', 'Content-Security-Policy');
 			}
 		})();

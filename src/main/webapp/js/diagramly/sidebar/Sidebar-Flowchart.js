@@ -12,8 +12,8 @@
 		
 		this.addPaletteFunctions('flowchart', mxResources.get('flowchart'), false,
 		[
-			this.createVertexTemplateEntry(s + 'annotation_1;align=left;pointerEvents=1;connectable=0;', w * 0.5, h, '', 'Annotation', null, null, this.getTagsForStencil(gn, 'annotation_1', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'annotation_2;align=left;labelPosition=right;pointerEvents=1;connectable=0;', w * 0.5, h, '', 'Annotation', null, null, this.getTagsForStencil(gn, 'annotation_2', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'annotation_1;align=left;pointerEvents=1;', w * 0.5, h, '', 'Annotation', null, null, this.getTagsForStencil(gn, 'annotation_1', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'annotation_2;align=left;labelPosition=right;pointerEvents=1;', w * 0.5, h, '', 'Annotation', null, null, this.getTagsForStencil(gn, 'annotation_2', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'card;whiteSpace=wrap;size=20;arcSize=12;', w, h * 0.6, '', 'Card', null, null, this.getTagsForStencil(gn, 'card', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'collate;', w, h, '', 'Collate', null, null, this.getTagsForStencil(gn, 'collate', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=parallelogram;html=1;strokeWidth=2;perimeter=parallelogramPerimeter;whiteSpace=wrap;rounded=1;arcSize=12;size=0.23;', w, h * 0.6, '', 'Data', null, null, this.getTagsForStencil(gn, 'data', dt).join(' ')),

@@ -93,19 +93,15 @@
 	margin-top:-5px;
 	padding:4px 6px 4px 6px;
 	font-size:12px;
-	background-image: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
-    background-image: -o-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
-    background-image: -webkit-gradient(linear,left top,left bottom,from(#dff0d8),to(#c8e5bc));
-    background-image: linear-gradient(to bottom,#dff0d8 0,#c8e5bc 100%);
+	background: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
+    background: -o-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
+    background: -webkit-gradient(linear,left top,left bottom,from(#dff0d8),to(#c8e5bc));
+    background: linear-gradient(to bottom,#dff0d8 0,#c8e5bc 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffdff0d8', endColorstr='#ffc8e5bc', GradientType=0);
     background-repeat: repeat-x;
     border:1px solid #b2dba1;
 	border-radius:3px;
 	color:#3c763d !important;
-}
-.geStatusMessage:hover {
-	background:#c8e5bc;
-	border-color:#b2dba1;
 }
 .geAlert {
 	position:absolute;

@@ -131,6 +131,16 @@
   </servlet-mapping>
   <servlet>
     <description/>
+    <display-name>ConverterServlet</display-name>
+    <servlet-name>ConverterServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ConverterServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConverterServlet</servlet-name>
+    <url-pattern>/convert</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
     <display-name>ExportProxyServlet</display-name>
     <servlet-name>ExportProxyServlet</servlet-name>
     <servlet-class>com.mxgraph.online.ExportProxyServlet</servlet-class>

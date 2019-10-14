@@ -325,7 +325,7 @@
 				}
 	
 				// Sets background color on page
-				if (bg != null && data.format != 'pdf')
+				if (bg != null && (data.format != 'pdf' || xmlDoc.documentElement.getAttribute('page') != '1'))
 				{
 					document.body.style.backgroundColor = bg;
 				}

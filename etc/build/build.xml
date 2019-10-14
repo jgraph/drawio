@@ -414,6 +414,7 @@
 			<classpath refid="javac.class.path" />
 		</javac>
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
+		<copy todir="${javac.dir}/com/mxgraph/io/gliffy/importer" file="${src.dir}/com/mxgraph/io/gliffy/importer/gliffyTranslation.properties" />
 	</target>
 
 	<target name="clean" description="Cleans build directories">

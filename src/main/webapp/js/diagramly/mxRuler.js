@@ -341,9 +341,16 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		{
 			if (ruler.guidePart != null)
 			{
-				ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
-				ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
-				ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);	
+				try
+				{
+					ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
+					ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
+					ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
 			
 			ret = ruler.origGuideMove.apply(this, arguments);
@@ -421,10 +428,17 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		
 		if (ruler.guidePart != null)
 		{
-			ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
-			ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
-			ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);
-			ruler.guidePart = null;
+			try
+			{
+				ctx.putImageData(ruler.guidePart.imgData1, ruler.guidePart.x1, ruler.guidePart.y1);	
+				ctx.putImageData(ruler.guidePart.imgData2, ruler.guidePart.x2, ruler.guidePart.y2);	
+				ctx.putImageData(ruler.guidePart.imgData3, ruler.guidePart.x3, ruler.guidePart.y3);
+				ruler.guidePart = null;
+			}
+			catch (e)
+			{
+				// ignore
+			}
 		}
 		
 		return ret;

@@ -1,3 +1,12 @@
+14-OCT-2019: 12.1.1
+
+- Uses uncompressed XML files in GitLab and GitHub
+- Fixes background color for cropped PDF export
+- Improves logic for hiding cell moving guides
+- Fixes token override in Google Drive viewer
+- Adds roundtrip editing for PlantUML images
+- Uses mxGraph 4.0.3 beta 6
+
 09-OCT-2019: 12.1.0
 
 - Escape no longer starts editing in Safari and IE 11
