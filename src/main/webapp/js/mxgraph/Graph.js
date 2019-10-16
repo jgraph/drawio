@@ -1864,6 +1864,14 @@ Graph.prototype.initLayoutManager = function()
 				
 				return flowLayout;
 			}
+			else if (style['childLayout'] == 'circleLayout')
+			{
+				return new mxCircleLayout(this.graph);
+			}
+			else if (style['childLayout'] == 'organicLayout')
+			{
+				return new mxFastOrganicLayout(this.graph);
+			}
 		}
 		
 		return null;

@@ -355,61 +355,68 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 			
 			ret = ruler.origGuideMove.apply(this, arguments);
 	
-			var x1, y1, imgData1, x2, y2, imgData2, x3, y3, imgData3;
-			ctx.lineWidth = 0.5;
-	        ctx.strokeStyle = style.guideClr;
-	        ctx.setLineDash([2]);
-	
-	        if (isVertical)
+			try
 			{
-				y1 = bounds.y + ret.y + RULER_THICKNESS - this.graph.container.scrollTop;
-				x1 = 0;
-				y2 = y1 + bounds.height / 2;
-				x2 = RULER_THICKNESS / 2;
-				y3 = y1 + bounds.height;
-				x3 = 0;
-				imgData1 = ctx.getImageData(x1, y1 - 1, RULER_THICKNESS, 3);
-				drawLine(x1, y1, RULER_THICKNESS, y1);
-				y1--;
-				imgData2 = ctx.getImageData(x2, y2 - 1, RULER_THICKNESS, 3);
-				drawLine(x2, y2, RULER_THICKNESS, y2);
-				y2--;
-				imgData3 = ctx.getImageData(x3, y3 - 1, RULER_THICKNESS, 3);
-				drawLine(x3, y3, RULER_THICKNESS, y3);
-				y3--;
+				var x1, y1, imgData1, x2, y2, imgData2, x3, y3, imgData3;
+				ctx.lineWidth = 0.5;
+		        ctx.strokeStyle = style.guideClr;
+		        ctx.setLineDash([2]);
+		
+		        if (isVertical)
+				{
+					y1 = bounds.y + ret.y + RULER_THICKNESS - this.graph.container.scrollTop;
+					x1 = 0;
+					y2 = y1 + bounds.height / 2;
+					x2 = RULER_THICKNESS / 2;
+					y3 = y1 + bounds.height;
+					x3 = 0;
+					imgData1 = ctx.getImageData(x1, y1 - 1, RULER_THICKNESS, 3);
+					drawLine(x1, y1, RULER_THICKNESS, y1);
+					y1--;
+					imgData2 = ctx.getImageData(x2, y2 - 1, RULER_THICKNESS, 3);
+					drawLine(x2, y2, RULER_THICKNESS, y2);
+					y2--;
+					imgData3 = ctx.getImageData(x3, y3 - 1, RULER_THICKNESS, 3);
+					drawLine(x3, y3, RULER_THICKNESS, y3);
+					y3--;
+				}
+				else
+				{
+					y1 = 0;
+					x1 = bounds.x + ret.x + RULER_THICKNESS - this.graph.container.scrollLeft;
+					y2 = RULER_THICKNESS / 2;
+					x2 = x1 + bounds.width / 2;
+					y3 = 0;
+					x3 = x1 + bounds.width;
+					imgData1 = ctx.getImageData(x1 - 1, y1, 3, RULER_THICKNESS);
+					drawLine(x1, y1, x1, RULER_THICKNESS);
+					x1--;
+					imgData2 = ctx.getImageData(x2 - 1, y2, 3, RULER_THICKNESS);
+					drawLine(x2, y2, x2, RULER_THICKNESS);
+					x2--;
+					imgData3 = ctx.getImageData(x3 - 1, y3, 3, RULER_THICKNESS);
+					drawLine(x3, y3, x3, RULER_THICKNESS);
+					x3--;
+				}
+				
+				if (ruler.guidePart == null || ruler.guidePart.x1 != x1 || ruler.guidePart.y1 != y1)
+				{
+					ruler.guidePart = { 
+						imgData1: imgData1,
+						x1: x1,
+						y1: y1,
+						imgData2: imgData2,
+						x2: x2,
+						y2: y2,
+						imgData3: imgData3,
+						x3: x3,
+						y3: y3
+					}	
+				}
 			}
-			else
+			catch (e)
 			{
-				y1 = 0;
-				x1 = bounds.x + ret.x + RULER_THICKNESS - this.graph.container.scrollLeft;
-				y2 = RULER_THICKNESS / 2;
-				x2 = x1 + bounds.width / 2;
-				y3 = 0;
-				x3 = x1 + bounds.width;
-				imgData1 = ctx.getImageData(x1 - 1, y1, 3, RULER_THICKNESS);
-				drawLine(x1, y1, x1, RULER_THICKNESS);
-				x1--;
-				imgData2 = ctx.getImageData(x2 - 1, y2, 3, RULER_THICKNESS);
-				drawLine(x2, y2, x2, RULER_THICKNESS);
-				x2--;
-				imgData3 = ctx.getImageData(x3 - 1, y3, 3, RULER_THICKNESS);
-				drawLine(x3, y3, x3, RULER_THICKNESS);
-				x3--;
-			}
-			
-			if (ruler.guidePart == null || ruler.guidePart.x1 != x1 || ruler.guidePart.y1 != y1)
-			{
-				ruler.guidePart = { 
-					imgData1: imgData1,
-					x1: x1,
-					y1: y1,
-					imgData2: imgData2,
-					x2: x2,
-					y2: y2,
-					imgData3: imgData3,
-					x3: x3,
-					y3: y3
-				}	
+				// ignore
 			}
 		}
 		else

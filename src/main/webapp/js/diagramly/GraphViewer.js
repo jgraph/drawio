@@ -496,7 +496,8 @@ GraphViewer.prototype.addSizeHandler = function()
 			
 			if (this.graphConfig['toolbar-nohide'] != true)
 			{
-				if (container.offsetWidth <= tmp.width + 2 * this.graph.border * this.graph.view.scale)
+				// Shows scrollbars if graph is larger than available width
+				if (tmp.width + 2 * this.graph.border > container.offsetWidth - 2)
 				{
 					container.style.overflow = 'auto';
 				}
@@ -516,7 +517,8 @@ GraphViewer.prototype.addSizeHandler = function()
 				
 				// Workaround for position:relative set in ResizeSensor
 				var origin = mxUtils.getScrollOrigin(document.body)
-				var b = (document.body.style.position === 'relative') ? document.body.getBoundingClientRect() :
+				var b = (document.body.style.position === 'relative') ?
+					document.body.getBoundingClientRect() :
 					{left: -origin.x, top: -origin.y};
 				r = {left: r.left - b.left, top: r.top - b.top, bottom: r.bottom - b.top, right: r.right - b.left};
 				
@@ -553,39 +555,42 @@ GraphViewer.prototype.addSizeHandler = function()
 	{
 		var cachedOffsetWidth = container.offsetWidth;
 		
-		if (cachedOffsetWidth != lastOffsetWidth)
+		if (cachedOffsetWidth != lastOffsetWidth && !this.handlingResize)
 		{
-			if (!this.handlingResize)
-			{
-				this.handlingResize = true;
-				
-				this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
-					((this.allowZoomIn) ? null : 1));
-				this.graph.fit((maxScale != null) ? 0 : null, null, null, null, false, true);
-				var tmp = this.graph.getGraphBounds();
-				
-				if (this.center)
-				{
-					this.graph.center();
-				}	
-				
-				this.graph.maxFitScale = null;
-				
-				this.updateContainerHeight(container, Math.max(this.minHeight, tmp.height + 2 * this.graph.border + 1));
+			this.handlingResize = true;
+			
+			this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
+				((this.allowZoomIn) ? null : 1));
+			this.graph.container.style.overflow = 'hidden';
+			this.graph.fit();
 
-				this.graph.initialViewState = {
-					translate: this.graph.view.translate.clone(),
-					scale: this.graph.view.scale
-				};
-				
-				lastOffsetWidth = cachedOffsetWidth;
-				
-				// Workaround for fit triggering scrollbars triggering doResize (infinite loop)
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					this.handlingResize = false;
-				}), 0);
+			if (this.center || !(this.graphConfig.resize != false || container.style.height == ''))
+			{
+				this.graph.center();
+				console.log('center0');
+			}	
+			
+			this.graph.maxFitScale = null;
+			
+			if (this.graphConfig.resize != false || container.style.height == '')
+			{
+				this.updateContainerHeight(container, Math.max(this.minHeight,
+					this.graph.getGraphBounds().height +
+					2 * this.graph.border + 1));
 			}
+
+			this.graph.initialViewState = {
+				translate: this.graph.view.translate.clone(),
+				scale: this.graph.view.scale
+			};
+			
+			lastOffsetWidth = cachedOffsetWidth;
+			
+			// Workaround for fit triggering scrollbars triggering doResize (infinite loop)
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.handlingResize = false;
+			}), 0);
 		}
 	});
 
@@ -616,7 +621,10 @@ GraphViewer.prototype.addSizeHandler = function()
 			this.updateContainerWidth(container, bounds.width + 2 * this.graph.border);
 		}
 		
-		this.updateContainerHeight(container, Math.max(this.minHeight, bounds.height + 2 * this.graph.border + 1));
+		if (this.graphConfig.resize != false || container.style.height == '')
+		{
+			this.updateContainerHeight(container, Math.max(this.minHeight, bounds.height + 2 * this.graph.border + 1));
+		}
 
 		if (!this.zoomEnabled && this.autoFit)
 		{
@@ -672,17 +680,21 @@ GraphViewer.prototype.addSizeHandler = function()
 		{
 			var maxScale = null;
 
-			if (maxHeight != null && bounds.height + 2 * this.graph.border > maxHeight)
+			if (maxHeight != null && bounds.height + 2 * this.graph.border > maxHeight - 2)
 			{
-				maxScale = (maxHeight - 2 * this.graph.border) / bounds.height;
+				maxScale = (maxHeight - 2 * this.graph.border - 2) / bounds.height;
 			}
 
 			this.fitGraph(maxScale);
 		}
+		else if (!this.widthIsEmpty && !(this.graphConfig.resize != false || container.style.height == ''))
+		{
+			this.graph.center((!this.widthIsEmpty || bounds.width < this.minWidth) && this.graphConfig.resize != true);
+		}
 		else
 		{
-			this.graph.view.setTranslate(Math.floor((this.graph.border - bounds.x) / this.graph.view.scale),
-				Math.floor((this.graph.border - bounds.y) / this.graph.view.scale));
+			this.graph.view.setTranslate(Math.floor(this.graph.border - bounds.x / this.graph.view.scale),
+				Math.floor(this.graph.border - bounds.y / this.graph.view.scale));
 			lastOffsetWidth = container.offsetWidth;
 		}
 		

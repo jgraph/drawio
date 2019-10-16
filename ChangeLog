@@ -1,3 +1,9 @@
+16-OCT-2019: 12.1.2
+
+- Fixes scrollbars in Confluence Cloud and Jira Cloud
+- Fixes export of uncompressed XML files to PDF
+- Uses mxGraph 4.0.3 beta 7
+
 14-OCT-2019: 12.1.1
 
 - Uses uncompressed XML files in GitLab and GitHub

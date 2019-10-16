@@ -643,7 +643,13 @@
 							pageId = diagrams[i].getAttribute('id')
 						}
 						
-						xmlDoc = mxUtils.parseXml(Graph.decompress(mxUtils.getTextContent(diagrams[i])));
+						xmlDoc = Editor.parseDiagramNode(diagrams[i]);
+						
+						if (xmlDoc != null)
+						{
+							xmlDoc = xmlDoc.ownerDocument;
+						}
+
 						graph.getModel().clear();
 						from = i;
 						renderPage();
