@@ -57,31 +57,38 @@ abstract public class AbsAuthServlet extends HttpServlet
 		String refreshToken = request.getParameter("refresh_token");
 		String error = request.getParameter("error");
 		HashMap<String, String> stateVars = new HashMap<>();
+		int configIndex = 0;
 		
 		try
 		{
 			String state = request.getParameter("state");
 			
-			if (state != null)
+			try 
 			{
-				String[] parts = state.split("&");
-				
-				for (String part : parts)
+				if (state != null)
 				{
-					String[] keyVal = part.split("=");
-					stateVars.put(keyVal[0], keyVal[1]);
+					String[] parts = state.split("&");
+					
+					for (String part : parts)
+					{
+						String[] keyVal = part.split("=");
+						stateVars.put(keyVal[0], keyVal[1]);
+					}
+				}
+			
+				String appIndex = stateVars.get("appIndex");
+						
+				if (appIndex != null)
+				{
+					configIndex = Integer.parseInt(appIndex);
 				}
 			}
-			
-			int configIndex = 0;
-
-			String appIndex = stateVars.get("appIndex");
-					
-			if (appIndex != null)
+			catch(Exception e)
 			{
-				configIndex = Integer.parseInt(appIndex);
+				//Ignore, incorrect arguments
+				e.printStackTrace();
 			}
-			
+
 			Config CONFIG = getConfig();
 			String secret, client, redirectUri;
 			String[] secrets, clients;

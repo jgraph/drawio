@@ -1342,6 +1342,7 @@
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
+		var graph = this.editor.graph;
 		
 		// Forces compression of embedded XML
 		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
@@ -1377,7 +1378,6 @@
 		
 		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, uncompressed);
 		file = (file != null) ? file : this.getCurrentFile();
-		var graph = this.editor.graph;
 
 		var result = this.createFileData(node, graph, file, window.location.href,
 			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact,

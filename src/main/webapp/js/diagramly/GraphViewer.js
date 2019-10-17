@@ -559,15 +559,19 @@ GraphViewer.prototype.addSizeHandler = function()
 		{
 			this.handlingResize = true;
 			
+			// Hides scrollbars to force update of translate
+			if (container.style.overflow == 'auto')
+			{
+				container.style.overflow = 'hidden';
+			}
+			
 			this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
 				((this.allowZoomIn) ? null : 1));
-			this.graph.container.style.overflow = 'hidden';
 			this.graph.fit();
 
 			if (this.center || !(this.graphConfig.resize != false || container.style.height == ''))
 			{
 				this.graph.center();
-				console.log('center0');
 			}	
 			
 			this.graph.maxFitScale = null;

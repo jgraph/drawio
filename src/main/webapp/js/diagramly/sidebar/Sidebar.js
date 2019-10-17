@@ -940,7 +940,6 @@
 		this.addCiscoSafePalette();
 		this.addCumulusPalette();
 		this.addCitrixPalette();
-//		this.addGCP2Palette();
 		this.addGCP2Palette();
 		this.addIBMPalette();
 		this.addNetworkPalette();
