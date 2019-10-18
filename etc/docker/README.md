@@ -1,4 +1,4 @@
-This guide is based on fjudith/draw.io docker image [docker-draw.io repository](https://github.com/fjudith/docker-draw.io)
+This guide is based on fjudith/draw.io docker image [docker-draw.io repository](https://github.com/jgraph/docker-draw.io)
 
 #HTTPS SSL Certificate via Let's Encrypt
 
