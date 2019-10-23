@@ -9881,3 +9881,217 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	
 	this.container = div;
 };
+
+/**
+ * Aspect Dialog
+ * @module drawio/aspect-dialog
+ */
+function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
+{
+	this.aspect = {pageId : pageId || editorUi.pages[0].getId(), layerIds : layerIds || []};
+	var div = document.createElement('div');
+	
+	var title = document.createElement('h5');
+	title.style.margin = '0 0 10px';
+	mxUtils.write(title, mxResources.get('pages'));
+	div.appendChild(title);
+
+	var pagesContainer = document.createElement('div');
+	pagesContainer.className = 'geAspectDlgList';
+	div.appendChild(pagesContainer);
+
+	title = document.createElement('h5');
+	title.style.margin = '0 0 10px';
+	mxUtils.write(title, mxResources.get('layers'));
+	div.appendChild(title);
+
+	var layersContainer = document.createElement('div');
+	layersContainer.className = 'geAspectDlgList';
+	div.appendChild(layersContainer);
+	
+	this.pagesContainer = pagesContainer;
+	this.layersContainer = layersContainer;
+	this.ui = editorUi;
+	
+	var btns = document.createElement('div');
+	btns.style.marginTop = '16px';
+	btns.style.textAlign = 'center';
+	
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+		
+		if (cancelFn != null)
+		{
+			cancelFn();
+		}
+	});
+	
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	var okBtn = mxUtils.button(mxResources.get('ok'), mxUtils.bind(this, function()
+	{
+		editorUi.hideDialog();
+		okFn({pageId: this.selectedPage, layerIds: Object.keys(this.selectedLayers)});
+	}));
+
+	btns.appendChild(okBtn);
+	okBtn.className = 'geBtn gePrimaryBtn';
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	okBtn.setAttribute('disabled', 'disabled');
+	this.okBtn = okBtn;
+	div.appendChild(btns);
+	this.container = div;
+};
+
+//Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
+AspectDialog.prototype.init = function()
+{
+	for (var i = 0; i < this.ui.pages.length; i++)
+	{
+		var page = this.ui.updatePageRoot(this.ui.pages[i]);
+
+		this.createPageItem(page.getId(), page.getName(), page.node, page.root);
+	}
+};
+
+AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
+{
+	mxEvent.disableContextMenu(container);
+	container.style.userSelect = 'none';
+
+	var graph = new Graph(container);
+	graph.setTooltips(false);
+	graph.setEnabled(false);
+	graph.setPanning(false);
+	graph.minFitScale = null;
+	graph.maxFitScale = null;
+	graph.centerZoom = true;
+	
+	var node = pageNode.firstElementChild;
+	
+	if (node != null)
+	{
+		var bg = node.getAttribute('background');
+		
+		if (bg == null || bg == '' || bg == mxConstants.NONE)
+		{
+			bg = '#ffffff';
+		}
+		
+		container.style.backgroundColor = bg;
+		
+		var codec = new mxCodec(node.ownerDocument);
+		var model = graph.getModel();
+		codec.decode(node, model);
+		
+		var childCount = model.getChildCount(model.root);
+		
+		var showAll = layerId == null;
+		
+		// handle layers visibility
+		for (var i = 0; i < childCount; i++)
+		{
+			var child = model.getChildAt(model.root, i);
+			model.setVisible(child, showAll || layerId == child.id);
+		}
+
+		graph.maxFitScale = 1;
+		graph.fit(0);
+		graph.center();
+	}
+	
+	return graph;
+};
+
+AspectDialog.prototype.createPageItem = function(pageId, pageName, pageNode, pageRoot)
+{
+	var $listItem = document.createElement('div');
+	$listItem.className = 'geAspectDlgListItem';
+	$listItem.setAttribute('data-page-id', pageId)
+	$listItem.innerHTML = '<div style="max-width: 100%; max-height: 100%;"></div><div class="geAspectDlgListItemText">' + pageName + '</div>';
+	
+	this.pagesContainer.appendChild($listItem);
+	
+	var graph = this.createViewer($listItem.childNodes[0], pageNode);
+	
+	var onClick = mxUtils.bind(this, function()
+	{
+		if (this.selectedItem != null)
+		{
+			this.selectedItem.className = 'geAspectDlgListItem';
+		}
+		
+		this.selectedItem = $listItem;
+		this.selectedPage = pageId;
+		$listItem.className += ' geAspectDlgListItemSelected';
+		this.layersContainer.innerHTML = '';
+		this.selectedLayers = {};
+		this.okBtn.setAttribute('disabled', 'disabled');
+		
+		var graphModel = graph.model;
+		var layers = graphModel.getChildCells(graphModel.getRoot());
+		
+		for (var i = 0; i < layers.length; i++) 
+		{
+			this.createLayerItem(layers[i], pageId, graph, pageNode);
+		}
+	});
+	
+	mxEvent.addListener($listItem, 'click', onClick);
+	
+	if(this.aspect.pageId == pageId) 
+	{
+		onClick();
+	}
+};
+
+AspectDialog.prototype.createLayerItem = function(layer, pageId, graph, pageNode)
+{
+	var graphModel = graph.model;
+	var layerName = graph.convertValueToString(layer) || (mxResources.get('background') || 'Background');
+	var $listItem = document.createElement('div');
+	$listItem.setAttribute('data-layer-id', layer.id);
+	$listItem.className = 'geAspectDlgListItem';
+	$listItem.innerHTML = '<div style="max-width: 100%; max-height: 100%;"></div><div class="geAspectDlgListItemText">' + layerName + '</div>';
+	this.layersContainer.appendChild($listItem);
+	
+	this.createViewer($listItem.childNodes[0], pageNode, layer.id);
+
+	var onClick = mxUtils.bind(this, function()
+	{
+		if ($listItem.className.indexOf('geAspectDlgListItemSelected') >= 0) //Selected
+		{
+			$listItem.className = 'geAspectDlgListItem';
+			delete this.selectedLayers[layer.id];
+			
+			if (Object.keys(this.selectedLayers).length == 0)
+			{
+				this.okBtn.setAttribute('disabled', 'disabled');
+			}
+		}
+		else
+		{
+			$listItem.className += ' geAspectDlgListItemSelected';
+			this.selectedLayers[layer.id] = true;
+			this.okBtn.removeAttribute('disabled');
+		}
+	});
+	
+	mxEvent.addListener($listItem, 'click', onClick);
+	
+	if(this.aspect.layerIds.indexOf(layer.id) != -1) 
+	{
+		onClick();
+	}
+};

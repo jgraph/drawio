@@ -8838,7 +8838,7 @@
 		    					{
 		    						graph.getModel().endUpdate();
 		    					}
-		    				}, function(err)
+		    				}, function(e)
 		    				{
 		    					ui.handleError(e);
 		    				});
@@ -11131,16 +11131,27 @@
 						   	    postDataBack(uri);
 							});
 					
+							var pageId = data.pageId || (this.pages != null? this.pages[0].getId() : null);
+							
 							// LATER: Uses external export if current page (not first page) has mathEnabled
 							if (this.isExportToCanvas())
 							{
-								// Exports PNG for first page while other page is visible by creating a graph
+								// Exports PNG for first/specific page while other page is visible by creating a graph
 								// LATER: Add caching for the graph or SVG while not on first page
-								if (this.pages != null && this.currentPage != this.pages[0])
+								if (this.pages != null && this.currentPage.getId() != pageId)
 								{
 									var graphGetGlobalVariable = graph.getGlobalVariable;
 									graph = this.createTemporaryGraph(graph.getStylesheet());
-									var page = this.pages[0];
+									var page;
+									
+									for (var i = 0; i < this.pages.length; i++)
+									{
+										if (this.pages[i].getId() == pageId)
+										{
+											page = this.updatePageRoot(this.pages[i]);
+											break;
+										}
+									}
 							
 									graph.getGlobalVariable = function(name)
 									{
@@ -11160,6 +11171,24 @@
 									graph.model.setRoot(page.root);
 								}
 
+								//Set visible layers based on message setting
+								if (data.layerIds != null)
+								{
+									var graphModel = graph.model;
+									var layers = graphModel.getChildCells(graphModel.getRoot());
+									var layerIdsMap = {};
+									
+									for (var i = 0; i < data.layerIds.length; i++)
+									{
+										layerIdsMap[data.layerIds[i]] = true;
+									}
+
+									for (var i = 0; i < layers.length; i++)
+									{
+										graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
+									}
+								}
+								
 								this.exportToCanvas(mxUtils.bind(this, function(canvas)
 							   	{
 									processUri(canvas.toDataURL('image/png'));
@@ -11174,8 +11203,10 @@
 								// Double encoding for XML arg is needed for UTF8 encoding
 						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
 						       		((data.format == 'xmlpng') ? '1' : '0') + 
+						       		(pageId != null? '&pageId=' + pageId : '') +
+						       		(data.layerIds != null? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
 						       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
-						       		encodeURIComponent(encodeURIComponent(xml)));
+						       		encodeURIComponent(xml));
 
 								req.send(mxUtils.bind(this, function(req)
 								{

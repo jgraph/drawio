@@ -292,6 +292,15 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.graph.panningHandler.ignoreCell = true;
 				this.graph.setPanning(false);
 		
+				if (this.graphConfig.toolbar != null)
+				{
+					this.addToolbar();
+				}
+				else if (this.graphConfig.title != null && this.showTitleAsTooltip)
+				{
+					container.setAttribute('title', this.graphConfig.title);
+				}
+				
 				this.addSizeHandler();
 				this.showLayers(this.graph);
 				this.addClickHandler(this.graph);
@@ -324,15 +333,6 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					
 					return done;
 				};
-				
-				if (this.graphConfig.toolbar != null)
-				{
-					this.addToolbar();
-				}
-				else if (this.graphConfig.title != null && this.showTitleAsTooltip)
-				{
-					container.setAttribute('title', this.graphConfig.title);
-				}
 				
 				this.fireEvent(new mxEventObject('render'));
 			});
@@ -749,30 +749,37 @@ GraphViewer.prototype.updateContainerHeight = function(container, height)
 GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 {
 	var layers = this.graphConfig.layers;
+	var idx = (layers != null) ? layers.split(' ') : [];
+	var layerIds = this.graphConfig.layerIds;
 	
-	if (layers != null || sourceGraph != null)
+	if (idx.length > 0 || layerIds != null || sourceGraph != null)
 	{
-		var idx = (layers != null) ? layers.split(' ') : null;
+		var source = (sourceGraph != null) ? sourceGraph.getModel() : null;
+		var model = graph.getModel();
+		model.beginUpdate();
 		
-		if (sourceGraph != null || idx.length > 0)
+		try
 		{
-			var source = (sourceGraph != null) ? sourceGraph.getModel() : null;
-			var model = graph.getModel();
-			model.beginUpdate();
+			var childCount = model.getChildCount(model.root);
 			
-			try
+			// Hides all layers
+			for (var i = 0; i < childCount; i++)
 			{
-				var childCount = model.getChildCount(model.root);
-				
-				// Hides all layers
-				for (var i = 0; i < childCount; i++)
+				model.setVisible(model.getChildAt(model.root, i),
+					(sourceGraph != null) ? source.isVisible(source.getChildAt(source.root, i)) : false);
+			}
+			
+			// Shows specified layers (eg. 0 1 3)
+			if (source == null)
+			{
+				if (layerIds != null)
 				{
-					model.setVisible(model.getChildAt(model.root, i),
-						(sourceGraph != null) ? source.isVisible(source.getChildAt(source.root, i)) : false);
+					for (var i = 0; i < layerIds.length; i++)
+					{
+						model.setVisible(model.getCell(layerIds[i]), true);
+					}
 				}
-				
-				// Shows specified layers (eg. 0 1 3)
-				if (source == null)
+				else
 				{
 					for (var i = 0; i < idx.length; i++)
 					{
@@ -780,10 +787,10 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 					}
 				}
 			}
-			finally
-			{
-				model.endUpdate();
-			}
+		}
+		finally
+		{
+			model.endUpdate();
 		}
 	}
 };

@@ -79,7 +79,7 @@
 			// Parses XML
 			var doc = mxUtils.parseXml(data.xml);
 			var node = Editor.extractGraphModel(doc.documentElement, true);
-			
+
 			if (node == null)
 			{
 				//Electron pdf export
@@ -331,7 +331,7 @@
 				}
 				
 				//handle layers
-				if (extras != null && extras.layers != null)
+				if (extras != null && (extras.layers != null || extras.layerIds != null))
 				{
 					var childCount = model.getChildCount(model.root);
 					
@@ -340,14 +340,24 @@
 					{
 						model.setVisible(model.getChildAt(model.root, i), false);
 					}
-					
-					for (var i = 0; i < extras.layers.length; i++)
+
+					if (extras.layerIds != null)
 					{
-						var layer = model.getChildAt(model.root, extras.layers[i]);
-						
-						if (layer != null)
+						for (var i = 0; i < extras.layerIds.length; i++)
 						{
-							model.setVisible(layer, true);
+							model.setVisible(model.getCell(extras.layerIds[i]), true);
+						}
+					}
+					else
+					{
+						for (var i = 0; i < extras.layers.length; i++)
+						{
+							var layer = model.getChildAt(model.root, extras.layers[i]);
+							
+							if (layer != null)
+							{
+								model.setVisible(layer, true);
+							}
 						}
 					}
 				}

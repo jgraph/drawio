@@ -1440,3 +1440,47 @@ html td.mxWindowTitle {
 	top: 5px;
 	right: 5px;
 }
+
+.geAspectDlgListItem 
+{
+	width : 120px;
+	height : 120px;
+	display : inline-block;
+	border: 3px solid #F0F0F0;
+	border-radius: 5px;
+	padding: 5px;
+	margin : 2px 2px 20px 2px;
+}
+
+.geAspectDlgListItem:hover
+{
+	border: 3px solid #c5c5c5;
+}
+
+.geAspectDlgListItemSelected 
+{
+	border: 3px solid #3b73af;
+}
+
+.geAspectDlgListItemSelected:hover
+{
+	border: 3px solid #405a86;
+}
+
+.geAspectDlgListItemText
+{
+	text-overflow: ellipsis;
+	max-width: 100%;
+	min-height : 2em;
+	overflow : hidden;
+	text-align : center;
+	margin-top : 10px;
+}
+
+.geAspectDlgList
+{
+	min-height: 184px;
+	white-space: nowrap;
+	overflow-x : auto;
+	overflow-y : hidden;
+}
