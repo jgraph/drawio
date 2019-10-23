@@ -52,11 +52,11 @@
 		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 		
 		<delete file="${basedir}/Graph-Stylesheet.js"/>
-		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes['default-style2'] = mxUtils.parseXml('</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes['default-style2'] = mxUtils.parseXml(`</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
 		<delete file="${basedir}/.tmp1.js"/>
 		<copy file="${war.dir}/styles/dark-default.xml" tofile="${basedir}/.tmp1.xml" overwrite="true"/>
@@ -64,11 +64,11 @@
 		<replaceregexp file="${basedir}/.tmp1.xml" match="\t" flags="g" replace=""/>
 		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = mxUtils.parseXml('</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = mxUtils.parseXml(`</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
 		
 		<delete file="${basedir}/.tmp2.js"/>
@@ -77,11 +77,11 @@
 		<replaceregexp file="${basedir}/.tmp2.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 		
 		<delete file="${basedir}/Graph-Resources.js"/>
-		<echo file="${basedir}/Graph-Resources.js">mxResources.parse('</echo>
+		<echo file="${basedir}/Graph-Resources.js">mxResources.parse(`</echo>
 		<concat destfile="${basedir}/Graph-Resources.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp2.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Resources.js" append="true">');</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Resources.js" append="true">`);</echo>
 		
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/grapheditor.min.js">
 			<sources dir="${grapheditor.dir}">
