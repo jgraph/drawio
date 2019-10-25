@@ -180,7 +180,7 @@ EditorUi = function(editor, container, lightbox)
 		
 		this.keydownHandler = mxUtils.bind(this, function(evt)
 		{
-			if (evt.which == 32 /* Space */)
+			if (evt.which == 32 /* Space */ && !graph.isEditing())
 			{
 				spaceKeyPressed = true;
 				this.hoverIcons.reset();

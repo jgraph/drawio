@@ -951,3 +951,6 @@ units=units
 points=points
 inches=inches
 millimeters=millimeters
+confEditDraftDelOrExt=confEditDraftDelOrExt
+confDiagEditedExt=confDiagEditedExt
+macroNotFound=macroNotFound

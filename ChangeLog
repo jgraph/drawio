@@ -1,3 +1,8 @@
+24-OCT-2019: 12.1.5
+
+- Fixes scopes for Google Drive Connector for Confluence Cloud
+- Fixes opening libraries from GitLab
+
 23-OCT-2019: 12.1.4
 
 - Fixes scrollbars in Confluence Diagram Viewer
