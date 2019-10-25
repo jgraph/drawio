@@ -233,7 +233,11 @@
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'treeFolding', dispName: 'Tree Folding', type: 'bool', defVal: false},
-        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false}
+        {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false},
+        {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	return state.vertices.length > 0 && format.editorUi.editor.graph.isContainer(state.vertices[0]);
+        }}
 	];
 	/**
 	 * Default value for the CSV import dialog.
@@ -3242,7 +3246,7 @@
 				
 				if (typeof(prop.isVisible) == 'function')
 				{
-					if (!prop.isVisible(state)) continue;
+					if (!prop.isVisible(state, this)) continue;
 				}
 				
 				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined

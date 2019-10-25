@@ -113,7 +113,7 @@ DrawioFileSync = function(file)
 		{
 			try
 			{
-				var msg = this.stringToObject(data);
+				var msg = this.stringToObject('x'+data);
 				
 				if (msg != null)
 				{
@@ -135,12 +135,16 @@ DrawioFileSync = function(file)
 			}
 			catch (e)
 			{
-				this.file.redirectToNewApp(mxUtils.bind(this, function()
-				{
-					// Callback adds cancel option
-				}));
+				// LATER: Seems to trigger too often, need to find cause
+//				this.file.redirectToNewApp(mxUtils.bind(this, function()
+//				{
+//					// Callback adds cancel option
+//				}), e.message);
+				EditorUi.logError('Protocol Error in Client ' + this.clientId,
+					null, 'Protocol_' + DrawioFileSync.PROTOCOL,
+					e.message);
 				
-				if (window.console != null && urlParams['test'] == '1')
+				if (window.console != null)
 				{
 					console.log(e);
 				}

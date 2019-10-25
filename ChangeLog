@@ -1,3 +1,10 @@
+25-OCT-2019: 12.1.6
+
+- Fixes missing center guides for certain cases
+- Fixes lightbox in Trello
+- Adds moveCells style
+- Uses mxGraph 4.0.6 beta 2
+
 24-OCT-2019: 12.1.5
 
 - Fixes scopes for Google Drive Connector for Confluence Cloud

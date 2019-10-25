@@ -3820,6 +3820,7 @@
 	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel, closable)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		var height = Math.min(200, Math.ceil(msg.length / 50) * 28);
 		
 		var dlg = new ConfirmDialog(this, msg, function()
 		{
@@ -3837,8 +3838,9 @@
 			{
 				cancelFn();
 			}
-		}, okLabel, cancelLabel);
-		this.showDialog(dlg.container, 340, 90, true, closable);
+		}, okLabel, cancelLabel, null, null, null, null, height);
+		
+		this.showDialog(dlg.container, 340, 34 + height, true, closable);
 		dlg.init();
 	};
 
@@ -14145,15 +14147,17 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 /**
  * 
  */
-var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel, okImg, cancelImg, showRememberOption, imgSrc)
+var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel,
+		okImg, cancelImg, showRememberOption, imgSrc, maxHeight)
 {
 	var div = document.createElement('div');
 	div.style.textAlign = 'center';
+	maxHeight = (maxHeight != null) ? maxHeight : 44;
 	
 	var p2 = document.createElement('div');
 	p2.style.padding = '6px';
 	p2.style.overflow = 'auto';
-	p2.style.maxHeight = '44px';
+	p2.style.maxHeight = maxHeight + 'px';
 	p2.style.lineHeight = '1.2em';
 	
 	if (mxClient.IS_QUIRKS)

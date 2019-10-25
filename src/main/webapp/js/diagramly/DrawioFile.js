@@ -1537,7 +1537,7 @@ DrawioFile.prototype.showConflictDialog = function(overwrite, synchronize)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-DrawioFile.prototype.redirectToNewApp = function(error)
+DrawioFile.prototype.redirectToNewApp = function(error, details)
 {
 	this.ui.spinner.stop();
 	
@@ -1547,6 +1547,12 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		
 		var url = window.location.protocol + '//' + window.location.host + '/' + this.ui.getSearch(
 			['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']) + '#' + this.getHash();
+		var msg = mxResources.get('redirectToNewApp');
+		
+		if (details != null)
+		{
+			msg += ' (' + details + ')';
+		}
 		
 		var redirect = mxUtils.bind(this, function()
 		{
@@ -1581,7 +1587,7 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 		{
 			if (this.isModified())
 			{
-				this.ui.confirm(mxResources.get('redirectToNewApp'), mxUtils.bind(this, function()
+				this.ui.confirm(msg, mxUtils.bind(this, function()
 				{
 					this.redirectDialogShowing = false;
 					error();
@@ -1589,7 +1595,7 @@ DrawioFile.prototype.redirectToNewApp = function(error)
 			}
 			else
 			{
-				this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
+				this.ui.confirm(msg, redirect, mxUtils.bind(this, function()
 				{
 					this.redirectDialogShowing = false;
 					error();
