@@ -96,8 +96,8 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			contents.executeJavaScript('if(typeof global.__emt_isModified === \'function\'){global.__emt_isModified()}', true,
-				isModified =>
+			contents.executeJavaScript('if(typeof global.__emt_isModified === \'function\'){global.__emt_isModified()}', true)
+				.then((isModified) =>
 				{
 					if (__DEV__) 
 					{
@@ -1146,16 +1146,13 @@ function exportDiagram(event, args, directFinalize)
 				}
 				else if (args.format == 'pdf')
 				{
-					contents.printToPDF(pdfOptions, (error, data) => 
+					contents.printToPDF(pdfOptions).then((data) => 
 					{
-						if (error)
-						{
-							event.reply('export-error', error);
-						}
-						else
-						{
-							event.reply('export-success', data);
-						}
+						event.reply('export-success', data);
+					})
+					.catch((error) => 
+					{
+						event.reply('export-error', error);
 					});
 				}
 				else if (args.format == 'svg')

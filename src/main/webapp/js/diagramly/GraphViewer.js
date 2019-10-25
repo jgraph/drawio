@@ -751,8 +751,9 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 	var layers = this.graphConfig.layers;
 	var idx = (layers != null) ? layers.split(' ') : [];
 	var layerIds = this.graphConfig.layerIds;
+	var hasLayerIds = layerIds != null && layerIds.length > 0;
 	
-	if (idx.length > 0 || layerIds != null || sourceGraph != null)
+	if (idx.length > 0 || hasLayerIds || sourceGraph != null)
 	{
 		var source = (sourceGraph != null) ? sourceGraph.getModel() : null;
 		var model = graph.getModel();
@@ -772,7 +773,7 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 			// Shows specified layers (eg. 0 1 3)
 			if (source == null)
 			{
-				if (layerIds != null)
+				if (hasLayerIds)
 				{
 					for (var i = 0; i < layerIds.length; i++)
 					{

@@ -140,9 +140,9 @@ DrawioFileSync = function(file)
 //				{
 //					// Callback adds cancel option
 //				}), e.message);
-				EditorUi.logError('Protocol Error in Client ' + this.clientId,
+				EditorUi.logError('Protocol Error ' + e.message,
 					null, 'protocol_' + DrawioFileSync.PROTOCOL,
-					e.message);
+					'client_' + this.clientId);
 				
 				if (window.console != null)
 				{
