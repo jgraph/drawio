@@ -113,7 +113,7 @@ DrawioFileSync = function(file)
 		{
 			try
 			{
-				var msg = this.stringToObject('x'+data);
+				var msg = this.stringToObject(data);
 				
 				if (msg != null)
 				{
@@ -141,7 +141,7 @@ DrawioFileSync = function(file)
 //					// Callback adds cancel option
 //				}), e.message);
 				EditorUi.logError('Protocol Error in Client ' + this.clientId,
-					null, 'Protocol_' + DrawioFileSync.PROTOCOL,
+					null, 'protocol_' + DrawioFileSync.PROTOCOL,
 					e.message);
 				
 				if (window.console != null)
