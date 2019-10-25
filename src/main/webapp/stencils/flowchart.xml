@@ -386,8 +386,8 @@
 </connections>
 <background>
 <path>
-<move x="0" y="20"/>
-<arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="3.7" y="24.83"/>
+<move x="0" y="21.27"/>
+<arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="3.7" y="26"/>
 <line x="93" y="0"/>
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="98" y="5"/>
 <line x="98" y="55"/>
