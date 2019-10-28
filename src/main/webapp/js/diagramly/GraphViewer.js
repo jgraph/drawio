@@ -567,7 +567,7 @@ GraphViewer.prototype.addSizeHandler = function()
 			
 			this.graph.maxFitScale = (maxScale != null) ? maxScale : (this.graphConfig.zoom ||
 				((this.allowZoomIn) ? null : 1));
-			this.graph.fit();
+			this.graph.fit(null, null, null, null, null, true);
 
 			if (this.center || !(this.graphConfig.resize != false || container.style.height == ''))
 			{
