@@ -41,7 +41,7 @@ if (urlParams['dev'] == '1')
 					
 					if (geo.points != null)
 					{
-						tip += 'points=(' + geo.points.length + ')=';
+						tip += 'points(' + geo.points.length + ')=';
 						
 						for (var i = 0; i < geo.points.length; i++)
 						{

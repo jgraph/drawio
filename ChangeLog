@@ -1,3 +1,12 @@
+30-OCT-2019: 12.1.9
+
+- Fixes anchor points for certain shape styles
+- Adds connection points for document shape
+- Fixes handling of SVG with relative size
+- Adds custom data import for Lucidchart
+- Fixes timing issue in tooltips plugin
+- Uses mxGraph 4.0.6 beta 3
+
 28-OCT-2019: 12.1.8
 
 - Fixes ignored height in viewer

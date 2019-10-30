@@ -3784,7 +3784,7 @@ LucidImporter = {};
 		return '';
 	}
 	
-	function updateCell(cell, obj)
+	function updateCell(cell, obj, graph)
 	{
 		var a = getAction(obj);
 		
@@ -3801,13 +3801,36 @@ LucidImporter = {};
 
 			if (p != null)
 			{
-				//adds label
+				// Adds label
 				cell.value = convertText(p);
 				cell.style += addAllStyles(cell.style, p, a, cell);
 				
 				if (!cell.style.includes('strokeColor'))
 				{
 					cell.style += getStrokeColor(p, a);
+				}
+				
+				// Adds custom data
+				for (var property in p)
+				{
+					if (p.hasOwnProperty(property) && 
+						property.toString().startsWith('ShapeData_'))
+					{
+						try
+						{
+							var data = p[property];
+							graph.setAttributeForCell(cell, data.Label.
+								replace(/[^a-z0-9]/ig, '_').
+								replace(/^\d*/, '_'), data.Value);
+						}
+						catch (e)
+						{
+							if (window.console)
+							{
+								console.log('Ignored ' + property + ':', e);
+							}
+						}
+					}
 				}
 				
 				// Edge style
@@ -3865,7 +3888,7 @@ LucidImporter = {};
 					{
 						cell.style += 'endArrow=' + edgeStyleMap[p.Endpoint2.Style].replace(/startSize/g, 'endSize') + ';';
 					}
-					
+
 					// Anchor points and arrows
 					// TODO: Convert waypoints, elbowPoints
 					updateEndpoint(cell, p.Endpoint1, true);
@@ -3875,7 +3898,7 @@ LucidImporter = {};
 		}
 	};
 	
-	function createVertex(obj)
+	function createVertex(obj, graph)
 	{
 		var p = getAction(obj).Properties;
 		var b = p.BoundingBox;
@@ -3888,7 +3911,7 @@ LucidImporter = {};
 		v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round(b.y * scale + dy),
 				Math.round(b.w * scale), Math.round(b.h * scale)), vertexStyle);
 	    v.vertex = true;
-	    updateCell(v, obj);
+	    updateCell(v, obj, graph);
 
 	    return v;
 	};
@@ -4082,7 +4105,7 @@ LucidImporter = {};
 					}
 					else if (obj.IsBlock && obj.Action != null && obj.Action.Properties != null)
 					{
-					    lookup[obj.id] = createVertex(obj);
+					    lookup[obj.id] = createVertex(obj, graph);
 					}
 					
 					queue.push(obj);

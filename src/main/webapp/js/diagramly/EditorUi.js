@@ -8227,8 +8227,26 @@
 									    						if (svgs.length > 0)
 										    					{
 									    							var svgRoot = svgs[0];
-										    						var w = parseFloat(svgRoot.getAttribute('width'));
-										    						var h = parseFloat(svgRoot.getAttribute('height'));
+										    						var w = svgRoot.getAttribute('width');
+										    						var h = svgRoot.getAttribute('height');
+										    						
+										    						if (w != null && w.charAt(w.length - 1) != '%')
+									    							{
+									    								w = parseFloat(w);
+									    							}
+									    							else
+									    							{
+									    								w = NaN;
+									    							}
+										    						
+										    						if (h != null && h.charAt(h.length - 1) != '%')
+									    							{
+									    								h = parseFloat(h);
+									    							}
+									    							else
+									    							{
+									    								h = NaN;
+									    							}
 										    						
 										    						// Check if viewBox attribute already exists
 										    						var vb = svgRoot.getAttribute('viewBox');

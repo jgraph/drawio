@@ -135,14 +135,11 @@ DrawioFileSync = function(file)
 			}
 			catch (e)
 			{
-				// LATER: Seems to trigger too often, need to find cause
-//				this.file.redirectToNewApp(mxUtils.bind(this, function()
-//				{
-//					// Callback adds cancel option
-//				}), e.message);
+				var len = (data != null) ? data.length : 'null';
+				
 				EditorUi.logError('Protocol Error ' + e.message,
-					null, 'protocol_' + DrawioFileSync.PROTOCOL,
-					'client_' + this.clientId);
+					null, 'data_' + len + '_file_' + this.file.getHash() +
+					'_client_' + this.clientId);
 				
 				if (window.console != null)
 				{

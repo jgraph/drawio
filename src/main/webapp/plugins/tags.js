@@ -62,7 +62,7 @@ Draw.loadPlugin(function(editorUi)
 		div.style.height = 'auto';
 		
 		var searchInput = document.createElement('input');
-		searchInput.setAttribute('placeholder', 'Add tags');
+		searchInput.setAttribute('placeholder', 'Type in the tags and press Enter to add them');
 		searchInput.setAttribute('type', 'text');
 		searchInput.style.width = '100%';
 		searchInput.style.boxSizing = 'border-box';
@@ -239,7 +239,7 @@ Draw.loadPlugin(function(editorUi)
 			
 			var title = document.createElement('div');
 			title.style.marginBottom = '8px';
-			mxUtils.write(title, (filter != null) ? 'Select hidden tags:' : 'Select common tags for cell(s):');
+			mxUtils.write(title, (filter != null) ? 'Select hidden tags:' : 'Or add/remove existing tags for cell(s):');
 			tagCloud.appendChild(title);
 			
 			var found = 0;

@@ -26,7 +26,7 @@
 			this.createVertexTemplateEntry(s + 'extract_or_measurement;whiteSpace=wrap;', w * 0.95, h * 0.6, '', 'Extract or Measurement', null, null, this.getTagsForStencil(gn, 'extract_or_measurement', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=internalStorage;whiteSpace=wrap;html=1;dx=15;dy=15;rounded=1;arcSize=8;strokeWidth=2;', w * 0.7, h * 0.7, '', 'Internal Storage', null, null, this.getTagsForStencil(gn, 'internal_storage', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'loop_limit;whiteSpace=wrap;', w, h * 0.6, '', 'Loop Limit', null, null, this.getTagsForStencil(gn, 'loop_limit', dt).join(' ')),
-			this.createVertexTemplateEntry(s3 + 'manualInput;whiteSpace=wrap;rounded=1;size=26;arcSize=11;', w, h * 0.6, '', 'Manual Input', null, null, this.getTagsForStencil(gn, 'manual_input', dt).join(' ')),
+			this.createVertexTemplateEntry('html=1;strokeWidth=2;shape=manualInput;whiteSpace=wrap;rounded=1;size=26;arcSize=11;', w, h * 0.6, '', 'Manual Input', null, null, this.getTagsForStencil(gn, 'manual_input', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;size=0.23;arcSize=10;flipV=1;', w, h * 0.6, '', 'Manual Operation', null, null, this.getTagsForStencil(gn, 'manual_operation', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'merge_or_storage;whiteSpace=wrap;', w * 0.95, h * 0.6, '', 'Merge or Storage', null, null, this.getTagsForStencil(gn, 'merge_or_storage', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'multi-document;whiteSpace=wrap;', w * 0.88, h * 0.6, '', 'Multi-Document', null, null, this.getTagsForStencil(gn, 'multi-document', dt).join(' ')),

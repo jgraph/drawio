@@ -166,7 +166,7 @@
         {name: 'endFill', dispName: 'End Fill', type: 'bool', defVal: true},
         {name: 'perimeterSpacing', dispName: 'Terminal Spacing', type: 'float', defVal: 0},
         {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
-        {name: 'snapToPoint', dispName: 'Snap to Anchor', type: 'bool', defVal: false},
+        {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
         {
