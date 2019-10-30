@@ -394,7 +394,7 @@
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="94" y="60"/>
 <line x="5" y="60"/>
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="0" y="55"/>
-<line x="0" y="25"/>
+<line x="0" y="28.73"/>
 <close/>
 </path>
 </background>
