@@ -625,7 +625,11 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 					}
 					else 
 					{
-						this.logout();
+						//When the request fails (e.g, Hibernate on Windows), the status is 0, this doesn't mean the token is invalid
+						if (req.getStatus() != 0) 
+						{
+							this.logout();
+						}
 
 						if (error != null)
 						{
@@ -1590,6 +1594,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							// update the etag before save and check if the headRevisionId changed
 							var executeSave = mxUtils.bind(this, function(realOverwrite)
 							{
+								file.saveLevel = 9;
+								
 								if (realOverwrite)
 								{
 									doExecuteSave(realOverwrite);
@@ -1778,7 +1784,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			}
 			else
 			{
-				this.verifyMimeType(file.getId(), fn, true);
+				file.saveLevel = 10;
+				this.verifyMimeType(file.getId(), fn, true, error);
 			}
 		}
 		else
@@ -1827,8 +1834,20 @@ DriveClient.prototype.verifyMimeType = function(fileId, fn, force, error)
 				{
 					fn();
 				}
+			}), mxUtils.bind(this, function(err)
+			{
+				this.checkingMimeType = false;
+				
+				if (error != null)
+				{
+					error(err);
+				}
 			}));
 		}
+	}
+	else if (fn != null)
+	{
+		fn();
 	}
 };
 

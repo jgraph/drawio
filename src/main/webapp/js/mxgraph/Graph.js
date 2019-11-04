@@ -1541,8 +1541,11 @@ Graph.prototype.init = function(container)
 			{
 				var prev = g.getAttribute('transform');
 				g.setAttribute('transformOrigin', '0 0');
-				g.setAttribute('transform', 'scale(' + this.currentScale + ',' + this.currentScale + ')' +
-					'translate(' + this.currentTranslate.x + ',' + this.currentTranslate.y + ')');
+				var s = Math.round(this.currentScale * 100) / 100;
+				var dx = Math.round(this.currentTranslate.x * 100) / 100;
+				var dy = Math.round(this.currentTranslate.y * 100) / 100;
+				g.setAttribute('transform', 'scale(' + s + ',' + s + ')' +
+					'translate(' + dx + ',' + dy + ')');
 	
 				// Applies workarounds only if translate has changed
 				if (prev != g.getAttribute('transform'))
@@ -6860,7 +6863,11 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.createSvgCanvas = function(node)
 		{
-			return new mxSvgCanvas2D(node);
+			var canvas = new mxSvgCanvas2D(node);
+			
+			canvas.pointerEvents = true;
+			
+			return canvas;
 		};
 		
 		/**

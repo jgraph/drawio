@@ -1,3 +1,13 @@
+04-NOV-2019: 12.2.0
+
+- Fixes Google auth after hibernate on Windows
+- Fixes print in lightbox for some file types
+- Fixes extension for command line export
+- Open file asks for new or same window
+- Handles trashed state in Google Drive
+- Fixes links in labels for SVG export
+- Appends tab name for image export
+
 30-OCT-2019: 12.1.9
 
 - Fixes anchor points for certain shape styles

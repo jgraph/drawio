@@ -981,6 +981,17 @@ DrawioFile.prototype.isMovable = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+DrawioFile.prototype.isTrashed = function()
+{
+	return false;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DrawioFile.prototype.move = function(folderId, success, error) { };
 
 /**
@@ -1624,7 +1635,15 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 		}
 		else if (saved)
 		{
-			this.addAllSavedStatus();
+			if (this.isTrashed())
+			{
+				this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey)) + ' (' +
+					mxUtils.htmlEntities(mxResources.get('fileMovedToTrash')) + ')');
+			}
+			else
+			{
+				this.addAllSavedStatus();
+			}
 
 			if (this.sync != null)
 			{

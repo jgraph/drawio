@@ -13,7 +13,6 @@
 	 * Overrides compact UI setting.
 	 */
 	EditorUi.compactUi = uiTheme != 'atlas';
-	
 
 	/**
 	 * Overrides default grid color for dark mode
@@ -3610,7 +3609,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3655,7 +3654,7 @@
 							', ' + this.drive.user.email+ ')' : ''));
 					}
 					
-					var id = window.location.hash;
+					var id = (fileHash != null) ? fileHash : window.location.hash;
 					
 					// #U handles case where we tried to fallback to Google File and
 					// hash property still shows the public URL we tried to load
@@ -3749,13 +3748,19 @@
 							this.showDialog(dlg.container, 300, 75, true, true);
 						}), mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
-							window.location.hash = '';
+							this.hideDialog();
+							
+							if (fn != null)
+							{
+								fn();
+							}
 						}), 480, 150);
 								
 						return;
 					}
 				}
-				else if (e.message != null)
+				
+				if (e.message != null)
 				{
 					msg = mxUtils.htmlEntities(e.message);
 				}
@@ -3840,7 +3845,7 @@
 			}
 		}, okLabel, cancelLabel, null, null, null, null, height);
 		
-		this.showDialog(dlg.container, 340, 34 + height, true, closable);
+		this.showDialog(dlg.container, 340, 46 + height, true, closable);
 		dlg.init();
 	};
 
@@ -6119,7 +6124,7 @@
 			   		{
 			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
 			   				null, null, ignoreSelection, currentPage) : null,
-			   				format, !currentPage, dpi);
+			   				format, (this.pages == null || this.pages.length == 0), dpi);
 			   		}
 			   		catch (e)
 			   		{
@@ -9583,15 +9588,18 @@
 		var graph = this.editor.graph;
 
 		// Focused but invisible textarea during control or meta key events
+		// LATER: Disable text rendering to avoid delay while keeping focus
 		var textInput = document.createElement('div');
 		textInput.setAttribute('autocomplete', 'off');
 		textInput.setAttribute('autocorrect', 'off');
 		textInput.setAttribute('autocapitalize', 'off');
 		textInput.setAttribute('spellcheck', 'false');
+		textInput.style.textRendering = 'optimizeSpeed';
 		textInput.style.position = 'absolute';
 		textInput.style.whiteSpace = 'nowrap';
 		textInput.style.overflow = 'hidden';
 		textInput.style.display = 'block';
+		textInput.style.fontSize = '0px';
 		textInput.contentEditable = true;
 		mxUtils.setOpacity(textInput, 0);
 		textInput.style.width = '1px';
@@ -9725,6 +9733,7 @@
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
+				var t0 = new Date().getTime();
 				textInput.innerHTML = '&nbsp;';
 				textInput.focus();
 				

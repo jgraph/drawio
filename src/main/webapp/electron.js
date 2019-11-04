@@ -201,6 +201,7 @@ app.on('ready', e =>
 	        .usage('[options] [input file/folder]')
 	        .allowUnknownOption() //-h and --help are considered unknown!!
 	        .option('-c, --create', 'creates a new empty file if no file is passed')
+	        .option('-k, --check', 'does not overwrite existing files')
 	        .option('-x, --export', 'export the input file/folder based on the given options')
 	        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
 	        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
@@ -402,16 +403,32 @@ app.on('ready', e =>
 											}
 											else if (inStat.isFile())
 											{
-												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0])) + '.' + format;
+												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0],
+													path.extname(paths[0]))) + '.' + format;
+												
 											}
 											else //dir
 											{
-												outFileName = path.join(path.dirname(curFile), path.basename(curFile)) + '.' + format;
+												outFileName = path.join(path.dirname(curFile), path.basename(curFile,
+													path.extname(curFile))) + '.' + format;
 											}
 											
 											try
 											{
-												fs.writeFileSync(outFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
+												var counter = 0;
+												var realFileName = outFileName;
+												
+												if (program.rawArgs.indexOf('-k') > -1 || program.rawArgs.indexOf('--check') > -1)
+												{
+													while (fs.existsSync(realFileName))
+													{
+														counter++;
+														realFileName = path.join(path.dirname(outFileName), path.basename(outFileName,
+															path.extname(outFileName))) + '-' + counter + path.extname(outFileName);
+													}
+												}
+												
+												fs.writeFileSync(realFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
 												console.log(curFile + ' -> ' + outFileName);
 											}
 											catch(e)
@@ -1037,21 +1054,6 @@ function exportDiagram(event, args, directFinalize)
 
 		contents.on('did-finish-load', function()
 	    {
-			contents.send('render', {
-				xml: args.xml,
-				format: args.format,
-				w: args.w,
-				h: args.h,
-				border: args.border || 0,
-				bg: args.bg,
-				"from": args["from"],
-				to: args.to,
-				pageId: args.pageId,
-				allPages: args.allPages,
-				scale: args.scale || 1,
-				extras: args.extras
-			});
-			
 			ipcMain.once('render-finished', (evt, bounds) =>
 			{
 				var pdfOptions = {pageSize: 'A4'};
@@ -1168,6 +1170,21 @@ function exportDiagram(event, args, directFinalize)
 				{
 					event.reply('export-error', 'Error: Unsupported format');
 				}
+			});
+
+			contents.send('render', {
+				xml: args.xml,
+				format: args.format,
+				w: args.w,
+				h: args.h,
+				border: args.border || 0,
+				bg: args.bg,
+				"from": args["from"],
+				to: args.to,
+				pageId: args.pageId,
+				allPages: args.allPages,
+				scale: args.scale || 1,
+				extras: args.extras
 			});
 	    });
 	}

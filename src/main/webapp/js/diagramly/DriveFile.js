@@ -140,6 +140,17 @@ DriveFile.prototype.isMovable = function()
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+DriveFile.prototype.isTrashed = function()
+{
+	return this.desc.labels.trashed;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DriveFile.prototype.save = function(revision, success, error, unloading, overwrite)
 {
 	DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()

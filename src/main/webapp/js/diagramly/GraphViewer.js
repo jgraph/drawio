@@ -156,6 +156,12 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				//Extract graph model from html & svg formats 
 				this.xmlNode = this.editor.extractGraphModel(this.xmlNode, true);
 				
+				if (this.xmlNode != xmlNode)
+				{
+					this.xml = mxUtils.getXml(this.xmlNode);
+					this.xmlDocument = this.xmlNode.ownerDocument;
+				}
+				
 				// Handles relative images
 				var self = this;
 				
@@ -171,9 +177,9 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				}
 				
 				// Adds page placeholders
-				if (xmlNode.nodeName == 'mxfile')
+				if (this.xmlNode.nodeName == 'mxfile')
 				{
-					var diagrams = xmlNode.getElementsByTagName('diagram');
+					var diagrams = this.xmlNode.getElementsByTagName('diagram');
 					
 					if (diagrams.length > 0)
 					{
@@ -1456,6 +1462,8 @@ GraphViewer.prototype.showLocalLightbox = function()
 	// LATER: Make possible to assign after instance was created
 	urlParams['pages'] = '1';
 	urlParams['page'] = this.currentPage;
+	urlParams['page-id'] = this.graphConfig.pageId;
+	urlParams['layer-ids'] = this.graphConfig.layerIds != null? this.graphConfig.layerIds.join(' ') : null;
 	urlParams['nav'] = (this.graphConfig.nav != false) ? '1' : '0';
 	urlParams['layers'] = (this.layersEnabled) ? '1' : '0';
 	
@@ -1470,14 +1478,17 @@ GraphViewer.prototype.showLocalLightbox = function()
 	EditorUi.prototype.addBeforeUnloadListener = function() {};
 	EditorUi.prototype.addChromelessClickHandler = function() {};
 	
-	// Workaround for lost reference with same ID (cannot override after instance is created)
+	// Workaround for lost reference with same ID is to change
+	// ID which must be done before calling EditorUi constructor
+	var previousShadowId = Graph.prototype.shadowId;
 	Graph.prototype.shadowId = 'lightboxDropShadow';
 	
 	var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
 	ui.editor.editBlankUrl = this.editBlankUrl;
 	
-	// Workaround for lost reference with same ID
-	Graph.prototype.shadowId = 'dropShadow';
+	// Overrides instance variable and restores prototype state
+	ui.editor.graph.shadowId = 'lightboxDropShadow';
+	Graph.prototype.shadowId = previousShadowId;
 
 	// Disables refresh
 	ui.refresh = function() {};

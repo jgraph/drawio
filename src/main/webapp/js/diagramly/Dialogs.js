@@ -2201,7 +2201,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 							if (listCell == null)
 							{
 								listCell = new mxCell(lines[i], new mxGeometry(x0, 0, 160, 26 + 4),
-									'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;');
+									'swimlane;fontStyle=1;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 								listCell.vertex = true;
 								cells.push(listCell);
 

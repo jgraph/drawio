@@ -386,14 +386,15 @@
 </connections>
 <background>
 <path>
-<move x="0" y="25"/>
-<line x="93" y="0"/>
+<move x="0" y="28.73"/>
+<arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="3.7" y="24"/>
+<line x="91.7" y="0.17"/>
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="98" y="5"/>
 <line x="98" y="55"/>
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="94" y="60"/>
 <line x="5" y="60"/>
 <arc rx="5" ry="5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="0" y="55"/>
-<line x="0" y="25"/>
+<line x="0" y="28.73"/>
 <close/>
 </path>
 </background>

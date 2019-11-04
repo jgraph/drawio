@@ -1594,6 +1594,9 @@ App.prototype.sanityCheck = function()
 
 			msg = mxResources.get('lastSaved', [str]);
 		}
+		
+		// Resets possible stale state
+		this.spinner.stop();
 
 		this.showError(mxResources.get('unsavedChanges'), msg, mxResources.get('ignore'),
 			mxUtils.bind(this, function()
@@ -4352,9 +4355,9 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							}
 							else
 							{
-								window.location.hash = '#' + currentFile.getHash();	
+								window.location.hash = '#' + currentFile.getHash();
 							}
-						}));
+						}), null, null, '#' + peerChar + id);
 					}));
 				}
 			}
@@ -4385,9 +4388,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 	{
 		fn();
 	}
-	else if (currentFile != null && currentFile.isModified() && !sameWindow)
+	else if (currentFile != null && !sameWindow)
 	{
-		window.openWindow(this.getUrl() + '#' + id, null, fn);
+		this.showDialog(new PopupDialog(this, this.getUrl() + '#' + id,
+			null, fn).container, 320, 140, true, true);
 	}
 	else
 	{
@@ -4895,7 +4899,7 @@ App.prototype.save = function(name, done)
 		}
 		catch (err)
 		{
-			file.handleFileError(err, true);
+			error(err);
 		}
 	}
 };

@@ -4927,6 +4927,23 @@
 			
 			function printGraph(thisGraph, pv, forcePageBreaks)
 			{
+				// Workaround for CSS transforms affecting the print output
+				// is to disable during print output and restore after
+				var prev = thisGraph.useCssTransforms;
+				var prevTranslate = thisGraph.currentTranslate;
+				var prevScale = thisGraph.currentScale;
+				var prevViewTranslate = thisGraph.view.translate;
+				var prevViewScale = thisGraph.view.scale;
+
+				if (thisGraph.useCssTransforms)
+				{
+					thisGraph.useCssTransforms = false;
+					thisGraph.currentTranslate = new mxPoint(0,0);
+					thisGraph.currentScale = 1;
+					thisGraph.view.translate = new mxPoint(0,0);
+					thisGraph.view.scale = 1;
+				}
+
 				// Negative coordinates are cropped or shifted if page visible
 				var gb = thisGraph.getGraphBounds();
 				var border = 0;
@@ -4973,7 +4990,7 @@
 				{
 					autoOrigin = true;
 				}
-
+				
 				if (pv == null)
 				{
 					pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
@@ -5064,6 +5081,16 @@
 					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
 				}
 				
+				// Restores state if css transforms are used
+				if (prev)
+				{
+					thisGraph.useCssTransforms = prev;
+					thisGraph.currentTranslate = prevTranslate;
+					thisGraph.currentScale = prevScale;
+					thisGraph.view.translate = prevViewTranslate;
+					thisGraph.view.scale = prevViewScale;
+				}
+				
 				return pv;
 			};
 			
@@ -5092,7 +5119,7 @@
 				{
 					var page = editorUi.pages[i];
 					var tempGraph = (page == editorUi.currentPage) ? graph : null;
-					
+
 					if (tempGraph == null)
 					{
 						tempGraph = editorUi.createTemporaryGraph(graph.getStylesheet());
@@ -5152,7 +5179,7 @@
 						editorUi.updatePageRoot(page);
 						tempGraph.model.setRoot(page.root);
 					}
-
+					
 					pv = printGraph(tempGraph, pv, i != imax);
 
 					if (tempGraph != graph)
