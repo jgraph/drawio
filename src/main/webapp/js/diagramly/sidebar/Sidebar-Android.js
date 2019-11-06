@@ -22,13 +22,13 @@
 
 		var fns =
 		[
-			this.createVertexTemplateEntry(s2 + 'phone2;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+			this.createVertexTemplateEntry(s2 + 'phone2;strokeColor=#c0c0c0;', 
 					200, 390, '', 'Phone', null, null, dt + 'phone mobile portrait'),
-			this.createVertexTemplateEntry(s2 + 'phone2;fillColor=#ffffff;strokeColor=#c0c0c0;direction=south;', 
+			this.createVertexTemplateEntry(s2 + 'phone2;strokeColor=#c0c0c0;direction=south;', 
 					390, 200, '', 'Phone (landscape)', null, null, dt + 'phone mobile landscape'),
-			this.createVertexTemplateEntry(s2 + 'tab2;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+			this.createVertexTemplateEntry(s2 + 'tab2;strokeColor=#c0c0c0;', 
 					472, 686, '', 'Tab', null, null, dt + 'tab tablet portrait'),
-			this.createVertexTemplateEntry(s2 + 'tab2;fillColor=#ffffff;strokeColor=#c0c0c0;direction=north;', 
+			this.createVertexTemplateEntry(s2 + 'tab2;strokeColor=#c0c0c0;direction=north;', 
 					686, 472, '', 'Tab (landscape)', null, null, dt + 'tab tablet landscape'),
 			this.createVertexTemplateEntry(s + 'action_bar;fillColor=#1A1A1A;strokeColor=#c0c0c0;strokeWidth=2;fontColor=#FFFFFF;', 
 					185, 30, '', 'Action Bar', null, null, dt + 'action bar dark portrait'),
@@ -61,7 +61,7 @@
 					
 			this.addEntry(dt + 'checkboxes checkbox', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s7 + 'transparent;strokeColor=#33b5e5;fillColor=#ffffff');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s7 + 'transparent;strokeColor=#33b5e5');
 			   	bg.vertex = true;
 			   	var button1 = new mxCell('Setting 1', new mxGeometry(0, 0, 165, 12.5), inh + 'shape=transparent;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
 			   	button1.vertex = true;
@@ -105,7 +105,7 @@
 				
 			this.addEntry(dt + 'radiobuttons radiobutton', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s7 + 'transparent;strokeColor=#33b5e5;fillColor=#ffffff;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 165, 50), s7 + 'transparent;strokeColor=#33b5e5');
 			   	bg.vertex = true;
 			   	var button1 = new mxCell('Option 1', new mxGeometry(0, 0, 165, 12.5), inh + 'shape=transparent;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
 			   	button1.vertex = true;

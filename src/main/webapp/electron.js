@@ -22,7 +22,7 @@ autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
 
-const __DEV__ = process.env.NODE_ENV === 'development'
+const __DEV__ = process.env.DRAWIO_ENV === 'dev'
 		
 let windowsRegistry = []
 let cmdQPressed = false

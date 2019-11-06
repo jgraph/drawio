@@ -1,3 +1,10 @@
+06-NOV-2019: 12.2.1
+
+- Fixes slow paste from clipboard in modern browsers
+- Improves handling of timeouts in Google Drive
+- Fixes event handling on iOS
+- Uses mxGraph 4.0.6 beta 4
+
 04-NOV-2019: 12.2.0
 
 - Fixes Google auth after hibernate on Windows

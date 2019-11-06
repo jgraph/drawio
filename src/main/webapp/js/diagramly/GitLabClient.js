@@ -39,7 +39,9 @@ GitLabClient.prototype.authenticate = function(success, error)
 			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 			{
 				var state = '123';
-				var redirectUri = encodeURIComponent(window.location.origin + '/gitlab.html');
+				var href = window.location.href;
+				var dir = href.substring(0, href.lastIndexOf('/'));
+				var redirectUri = encodeURIComponent(dir + '/gitlab.html');
 				var win = window.open(DRAWIO_GITLAB_URL + '/oauth/authorize?client_id=' +
 					this.clientId + '&scope=' + this.scope + '&redirect_uri=' + redirectUri +
 					'&response_type=token&state=' + state, 'gitlabauth');

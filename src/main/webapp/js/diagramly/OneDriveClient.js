@@ -895,6 +895,15 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 	{
 		if (url != null && data != null)
 		{
+			//OneDrive has a limit on PUT API of 4MB, larger files needs to use the upload session method
+			if (data.length >= 4000000 /*4MB*/)
+			{
+				error({message: mxResources.get('drawingTooLarge') + ' (' +
+					this.ui.formatFileSize(data.length) + ' / 4 MB)'});
+				
+				return;
+			}
+			
 			var doExecute = mxUtils.bind(this, function(failOnAuth)
 			{
 				try

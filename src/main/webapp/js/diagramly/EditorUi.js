@@ -9595,15 +9595,20 @@
 		textInput.setAttribute('autocapitalize', 'off');
 		textInput.setAttribute('spellcheck', 'false');
 		textInput.style.textRendering = 'optimizeSpeed';
+		textInput.style.background = 'transparent';
+		textInput.style.color = 'transparent';
 		textInput.style.position = 'absolute';
 		textInput.style.whiteSpace = 'nowrap';
 		textInput.style.overflow = 'hidden';
 		textInput.style.display = 'block';
-		textInput.style.fontSize = '0px';
-		textInput.contentEditable = true;
-		mxUtils.setOpacity(textInput, 0);
+		textInput.style.fontSize = '1';
+		textInput.style.zIndex = '-1';
+		textInput.style.resize = 'none';
+		textInput.style.outline = 'none';
 		textInput.style.width = '1px';
 		textInput.style.height = '1px';
+		mxUtils.setOpacity(textInput, 0);
+		textInput.contentEditable = true;
 		textInput.innerHTML = '&nbsp;';
 
 		var restoreFocus = false;
@@ -9737,11 +9742,18 @@
 				textInput.innerHTML = '&nbsp;';
 				textInput.focus();
 				
-				window.setTimeout(mxUtils.bind(this, function()
+				if (evt.clipboardData != null)
 				{
-					this.pasteCells(evt, textInput);
-					textInput.innerHTML = '&nbsp;';
-				}), 0);
+					this.pasteCells(evt, textInput, true);
+				}
+
+				if (!mxEvent.isConsumed(evt))
+				{
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						this.pasteCells(evt, textInput, false);
+					}), 0);
+				}
 			}
 		}), true);
 		
@@ -9960,14 +9972,8 @@
 		
 		if (!graph.isSelectionEmpty())
 		{
-			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
-			
-			// LATER: Add span with XML in data attribute
-			// var span = document.createElement('span');
-			// span.setAttribute('data-jgraph-type', 'application/vnd.jgraph.xml');
-			// span.setAttribute('data-jgraph-content', mxUtils.getXml(graph.encodeCells(clones)));
-			
 			// Fixes cross-platform clipboard UTF8 issues by encoding as URI
+			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
 			var xml = mxUtils.getXml(this.editor.graph.encodeCells(cells));
 			mxUtils.setTextContent(elt, encodeURIComponent(xml));
 			
@@ -9995,10 +10001,20 @@
 	/**
 	 * Creates the format panel and adds overrides.
 	 */
-	EditorUi.prototype.pasteCells = function(evt, elt)
+	EditorUi.prototype.pasteCells = function(evt, realElt, useEvent)
 	{
 		if (!mxEvent.isConsumed(evt))
 		{
+			var elt = realElt;
+			
+			if (useEvent && evt.clipboardData != null)
+			{
+				// Creates a dummy element and parses the HTML to get
+				// consistent behaviour for system paste HTML into elt
+				elt = document.createElement('div');
+				elt.innerHTML = evt.clipboardData.getData('text/html');
+			}
+			
 			var spans = elt.getElementsByTagName('span');
 		
 			if (spans != null && spans.length > 0 && spans[0].getAttribute('data-lucid-type') ===
@@ -10011,7 +10027,19 @@
 					this.convertLucidChart(content, mxUtils.bind(this, function(xml)
 					{
 						var graph = this.editor.graph;
-						graph.setSelectionCells(this.importXml(xml, 0, 0));
+						
+						if (graph.lastPasteXml == xml)
+						{
+							graph.pasteCounter++;
+						}
+						else
+						{
+							graph.lastPasteXml = xml;
+							graph.pasteCounter = 0;
+						}
+						
+						var dx = graph.pasteCounter * graph.gridSize;
+						graph.setSelectionCells(this.importXml(xml, dx, dx));
 						graph.scrollCellToVisible(graph.getSelectionCell());
 					}), mxUtils.bind(this, function(e)
 					{
@@ -10023,11 +10051,10 @@
 			}
 			else
 			{
-				var graph = this.editor.graph;
 				var xml = mxUtils.trim((mxClient.IS_QUIRKS || document.documentMode == 8) ?
 					mxUtils.getTextContent(elt) : elt.textContent);
 				var compat = false;
-	
+				
 				// Workaround for junk after XML in VM
 				try
 				{
@@ -10061,21 +10088,23 @@
 				{
 					// ignore
 				}
-				
-				if (graph.lastPasteXml == xml)
-				{
-					graph.pasteCounter++;
-				}
-				else
-				{
-					graph.lastPasteXml = xml;
-					graph.pasteCounter = 0;
-				}
-				
-				var dx = graph.pasteCounter * graph.gridSize;
-				
+
 				if (xml != null && xml.length > 0)
 				{
+					var graph = this.editor.graph;
+					
+					if (graph.lastPasteXml == xml)
+					{
+						graph.pasteCounter++;
+					}
+					else
+					{
+						graph.lastPasteXml = xml;
+						graph.pasteCounter = 0;
+					}
+
+					var dx = graph.pasteCounter * graph.gridSize;
+										
 					if (compat || this.isCompatibleString(xml))
 					{
 						graph.setSelectionCells(this.importXml(xml, dx, dx));
@@ -10117,8 +10146,15 @@
 						}
 					}
 				}
+				else if (!useEvent)
+				{
+					graph.lastPasteXml = null;
+					graph.pasteCounter = 0;
+				}
 			}
 		}
+		
+		realElt.innerHTML = '&nbsp;';
 	};
 
 	/**

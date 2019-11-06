@@ -207,7 +207,7 @@
 					 
 			 this.addEntry(dt + 'Spot Fleet', function()
              {
-				var bg1 = new mxCell('', new mxGeometry(0, 30, 200, 200), 'rounded=1;fillColor=none;strokeColor=#000000;gradientColor=none;arcSize=10;dashed=1;');
+				var bg1 = new mxCell('', new mxGeometry(0, 30, 200, 200), 'rounded=1;fillColor=none;gradientColor=none;arcSize=10;dashed=1;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 43, 40), n + 'spot_instance;fillColor=#F58534;strokeColor=none;gradientColor=none;');
 				bg2.vertex = true;
@@ -466,18 +466,18 @@
 		
 		this.addPaletteFunctions('aws3Groups', 'AWS17 / Groups', false,
 		[
-			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;strokeColor=#000000;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;',
+			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;',
 					 s * 133, s * 133, '', 'Auto Scaling Group', null, null, this.getTagsForStencil(gn, 'auto scaling group', dt).join(' ')),
 			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;strokeColor=#F59D56;fillColor=none;gradientColor=none;dashPattern=8 4;strokeWidth=2;',
 					 s * 133, s * 133, '', 'Availability Zone', null, null, this.getTagsForStencil(gn, 'availability zone', dt).join(' ')),
-			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;strokeColor=#000000;fillColor=none;gradientColor=none;dashPattern=1 1;strokeWidth=2;',
+			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;fillColor=none;gradientColor=none;dashPattern=1 1;strokeWidth=2;',
 					 s * 133, s * 133, '', 'Region', null, null, this.getTagsForStencil(gn, 'region', dt).join(' ')),
 			 this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;strokeColor=#ff0000;fillColor=none;gradientColor=none;dashPattern=8 4;strokeWidth=2;',
 					 s * 133, s * 133, '', 'Security Group', null, null, this.getTagsForStencil(gn, 'security group', dt).join(' ')),
 					 
 				 this.addEntry(dt + 'elastic beanstalk container', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 30, 41), n + 'elastic_beanstalk;fillColor=#F58536;gradientColor=none;dashed=0;');
 				bg2.vertex = true;
@@ -487,7 +487,7 @@
 			 
 				 this.addEntry(dt + 'ec2 instance container', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 40, 41), n + 'instance;fillColor=#F58536;gradientColor=none;dashed=0;');
 				bg2.vertex = true;
@@ -497,7 +497,7 @@
 	
 				 this.addEntry(dt + 'vpc subnet', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 30, 35), n + 'permissions;fillColor=#D9A741;gradientColor=none;dashed=0;');
 				bg2.vertex = true;
@@ -510,7 +510,7 @@
 			 
 			 this.addEntry(dt + 'virtual private cloud', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 52, 36), n + 'virtual_private_cloud;fillColor=#F58536;gradientColor=none;dashed=0;');
 				bg2.vertex = true;
@@ -520,7 +520,7 @@
 	
 			 this.addEntry(dt + 'cloud', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 52, 36), n + 'cloud;fillColor=#F58536;gradientColor=none;dashed=0;');
 				bg2.vertex = true;
@@ -530,7 +530,7 @@
 			 
 			 this.addEntry(dt + 'corporate data center', function()
 			 {
-				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;strokeColor=#000000;fillColor=none;gradientColor=none;strokeWidth=2;');
+				var bg1 = new mxCell('', new mxGeometry(0, 20, 200, 200), 'rounded=1;arcSize=10;dashed=0;fillColor=none;gradientColor=none;strokeWidth=2;');
 				bg1.vertex = true;
 				var bg2 = new mxCell('', new mxGeometry(20, 0, 30, 42), n + 'corporate_data_center;fillColor=#7D7C7C;gradientColor=none;dashed=0;');
 				bg2.vertex = true;

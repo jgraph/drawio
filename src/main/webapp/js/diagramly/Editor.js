@@ -1190,6 +1190,13 @@
 	 */
 	Editor.prototype.isCorsEnabledForUrl = function(url)
 	{
+		//Disable proxy for electron since it doesn't exist (it is served locally) and it works with most of the sites
+		//The same with Chrome App, never use proxy
+		if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+		{
+			return true;
+		}
+		
 		if (urlParams['cors'] != null && this.corsRegExp == null)
 		{
 			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));

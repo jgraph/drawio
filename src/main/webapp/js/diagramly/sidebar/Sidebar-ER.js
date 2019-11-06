@@ -142,7 +142,7 @@
 				
 				return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Spacer');
 			}),
-			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;strokeColor=#000000;fillColor=#e0e0e0;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=14;',
+			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;fillColor=#e0e0e0;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=14;',
 				80, 26, 'Title', 'Title', null, null, 'er entity relation table title label'),
 	   		this.addEntry(dt + 'table', function()
 			{

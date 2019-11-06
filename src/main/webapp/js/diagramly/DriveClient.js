@@ -1175,7 +1175,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		
 		var error = mxUtils.bind(this, function(e)
 		{
-			file.saveLevel = null;
+			file.saveLevel = 11;
 			
 			if (errFn != null)
 			{
@@ -1219,6 +1219,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		var criticalError = mxUtils.bind(this, function(e)
 		{
 			error(e);
+			file.saveLevel = 12;
 	
 			try
 			{
@@ -1481,12 +1482,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										file.desc.mimeType != this.libraryMimeType;
 									var acceptResponse = true;
 									
-									// Allow for re-auth flow with 4x timeout
+									// Allow for re-auth flow with 3x timeout
 									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 									{
 										acceptResponse = false;
 										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-									}), 4 * this.ui.timeout);
+									}), 3 * this.ui.timeout);
 									
 									this.executeRequest(this.createUploadRequest(file.getId(), meta,
 										data, revision || realOverwrite || unknown, binary,
@@ -1602,40 +1603,61 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								}
 								else
 								{
+									var acceptResponse = true;
+									
+									// Allow for re-auth flow with 3x timeout
+									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									{
+										acceptResponse = false;
+										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+									}), 3 * this.ui.timeout);
+									
 									this.executeRequest({
 										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
-									}, 
+									},
 									mxUtils.bind(this, function(desc2)
 									{
-										try
+										window.clearTimeout(timeoutThread);
+										
+										if (acceptResponse)
 										{
-											// Checks head revision ID and updates etag or returns conflict
-											if (desc2 != null && desc2.headRevisionId == head0)
+											file.saveLevel = 13;
+											
+											try
 											{
-												if (urlParams['test'] == '1' && etag != desc2.etag)
+												// Checks head revision ID and updates etag or returns conflict
+												if (desc2 != null && desc2.headRevisionId == head0)
 												{
-													EditorUi.debug('DriveClient: Preflight Etag Update',
-														'from', etag, 'to', desc2.etag,
-														'rev', file.desc.headRevisionId,
-														'response', [desc2], 'file', [file]);
+													if (urlParams['test'] == '1' && etag != desc2.etag)
+													{
+														EditorUi.debug('DriveClient: Preflight Etag Update',
+															'from', etag, 'to', desc2.etag,
+															'rev', file.desc.headRevisionId,
+															'response', [desc2], 'file', [file]);
+													}
+													
+													etag = desc2.etag;
+													doExecuteSave(realOverwrite);
 												}
-												
-												etag = desc2.etag;
-												doExecuteSave(realOverwrite);
+												else
+												{
+													error({error: {code: 412}}, desc2);
+												}
 											}
-											else
+											catch (e)
 											{
-												error({error: {code: 412}}, desc2);
+												criticalError(e);
 											}
-										}
-										catch (e)
-										{
-											criticalError(e);
 										}
 									}), mxUtils.bind(this, function(err)
 									{
 										// Simulated 
-										error(err);
+										window.clearTimeout(timeoutThread);
+										
+										if (acceptResponse)
+										{
+											error(err);
+										}
 									}));
 								}
 							});
@@ -1820,29 +1842,57 @@ DriveClient.prototype.verifyMimeType = function(fileId, fn, force, error)
 		{
 			this.checkingMimeType = true;
 			
-			this.executeRequest({
-				url: '/files/' + fileId + '?supportsTeamDrives=true&fields=mimeType'
-			}, mxUtils.bind(this, function(resp)
+			var acceptResponse = true;
+			
+			// Allow for re-auth flow with 3x timeout
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				this.checkingMimeType = false;
-				
-				if (resp != null && resp.mimeType == 'application/vnd.jgraph.mxfile.realtime')
-				{
-					this.redirectToNewApp(error, fileId);
-				}
-				else if (fn != null)
-				{
-					fn();
-				}
-			}), mxUtils.bind(this, function(err)
-			{
+				acceptResponse = false;
 				this.checkingMimeType = false;
 				
 				if (error != null)
 				{
-					error(err);
+					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+				}
+			}), 3 * this.ui.timeout);
+			
+			this.executeRequest({
+				url: '/files/' + fileId + '?supportsTeamDrives=true&fields=mimeType'
+			}, mxUtils.bind(this, function(resp)
+			{
+				window.clearTimeout(timeoutThread);
+				
+				if (acceptResponse)
+				{
+					this.checkingMimeType = false;
+					
+					if (resp != null && resp.mimeType == 'application/vnd.jgraph.mxfile.realtime')
+					{
+						this.redirectToNewApp(error, fileId);
+					}
+					else if (fn != null)
+					{
+						fn();
+					}
+				}
+			}), mxUtils.bind(this, function(err)
+			{
+				window.clearTimeout(timeoutThread);
+				
+				if (acceptResponse)
+				{
+					this.checkingMimeType = false;
+					
+					if (error != null)
+					{
+						error(err);
+					}
 				}
 			}));
+		}
+		else if (fn != null)
+		{
+			fn();
 		}
 	}
 	else if (fn != null)

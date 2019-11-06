@@ -3128,7 +3128,7 @@ LucidImporter = {};
 	{
 		var s = '';
 		
-		if (style != null && style != '' && !style.endsWith(';'))
+		if (style != null && style != '' && style.charAt(style.length - 1) != ';')
 		{
 			s = ';';
 		}
