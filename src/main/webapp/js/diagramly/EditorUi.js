@@ -9974,7 +9974,7 @@
 		{
 			// Fixes cross-platform clipboard UTF8 issues by encoding as URI
 			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
-			var xml = mxUtils.getXml(this.editor.graph.encodeCells(cells));
+			var xml = mxUtils.getXml(graph.encodeCells(cells));
 			mxUtils.setTextContent(elt, encodeURIComponent(xml));
 			
 			if (removeCells)
@@ -10089,10 +10089,10 @@
 					// ignore
 				}
 
+				var graph = this.editor.graph;
+				
 				if (xml != null && xml.length > 0)
 				{
-					var graph = this.editor.graph;
-					
 					if (graph.lastPasteXml == xml)
 					{
 						graph.pasteCounter++;

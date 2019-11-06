@@ -1,3 +1,7 @@
+06-NOV-2019: 12.2.2
+
+- Fixes NPE in pasteCells
+
 06-NOV-2019: 12.2.1
 
 - Fixes slow paste from clipboard in modern browsers
