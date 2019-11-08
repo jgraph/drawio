@@ -32,7 +32,7 @@
 		 	this.createVertexTemplateEntry('shape=dimension;direction=west;whiteSpace=wrap;html=1;align=center;points=[];verticalAlign=top;spacingTop=-8;labelBackgroundColor=#ffffff', 100, 40, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
 		 	this.createVertexTemplateEntry('shape=dimension;direction=north;whiteSpace=wrap;html=1;align=right;points=[];verticalAlign=middle;labelBackgroundColor=#ffffff', 40, 100, 'Label', 'Vertical Dimension', null, null, 'vertical dimension measure distance unit'),
 		 	this.createVertexTemplateEntry('shape=dimension;direction=south;whiteSpace=wrap;html=1;align=left;points=[];verticalAlign=middle;labelBackgroundColor=#ffffff', 40, 100, 'Label', 'Horizontal Dimension', null, null, 'horizontal dimension measure distance unit'),
-		 	this.createVertexTemplateEntry(s + 'window;fillColor=#ffffff;', 
+		 	this.createVertexTemplateEntry(s + 'window;', 
 					w, 10, '', 'Window', null, null, this.getTagsForStencil(gn, 'window', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'stairs;', 
 					300, 100, '', 'Stairs', null, null, this.getTagsForStencil(gn, 'stairs', dt).join(' ')),

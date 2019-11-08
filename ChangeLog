@@ -1,3 +1,11 @@
+08-NOV-2019: 12.2.3
+
+- Improves stencils in dark mode
+- Removes electron useragent check
+- Fixes shifted text labels in PDF with math
+- Adds clipping for print output
+- Uses mxGraph 4.0.6 beta 5
+
 06-NOV-2019: 12.2.2
 
 - Fixes NPE in pasteCells

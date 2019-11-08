@@ -4,20 +4,19 @@
 	Sidebar.prototype.addRackGeneralPalette = function()
 	{
 		var s = 'strokeColor=#666666;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;';
-		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
-		var sr2 = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
 		var dt = 'rack equipment ';
 		
 		this.addPaletteFunctions('rackGeneral', 'Rack / General', false,
 		[
-			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;fillColor2=#f4f4f4;fillColor=#ffffff;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 228.6, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
-			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;fillColor2=#f4f4f4;fillColor=#ffffff;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=33;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=ascend;', 210, 228.6, '', 'Numbered Rack Cabinet', null, null, dt + 'cabinet numbered'),
+			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 228.6, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
+			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=33;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=ascend;', 210, 228.6, '', 'Numbered Rack Cabinet', null, null, dt + 'cabinet numbered'),
 			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 228.6, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
 			this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=33;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=ascend;', 210, 228.6, '', 'Numbered Rack Cabinet', null, null, dt + 'cabinet numbered'),
 			this.createVertexTemplateEntry(sr + 'text;', 160, 15, '', 'Spacing', null, null, dt + 'spacing'),
-			this.createVertexTemplateEntry(sr2 + 'shape=mxgraph.rackGeneral.plate;fillColor=#e8e8e8;', 160, 15, '', 'Cover Plate', null, null, dt + 'cover plate'),
+			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rackGeneral.plate;fillColor=#e8e8e8;', 160, 15, '', 'Cover Plate', null, null, dt + 'cover plate'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.1u_rack_server;', 160, 15, '', 'Server', null, null, dt + 'server'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rackGeneral.horCableDuct;', 160, 15, '', 'Horizontal Cable Duct', null, null, dt + 'horizontal cable duct'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rackGeneral.horRoutingBank;', 160, 20, '', 'Horizontal Routing Bank', null, null, dt + 'horizontal routing bank'),
@@ -41,7 +40,7 @@
 	
 	Sidebar.prototype.addRackF5Palette = function()
 	{
-		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
 		var dt = 'rack equipment ';
@@ -78,7 +77,7 @@
 	
 	Sidebar.prototype.addRackDellPalette = function()
 	{
-		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;fillColor=#ffffff;outlineConnect=0;';
+		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
 		var dt = 'rack equipment ';

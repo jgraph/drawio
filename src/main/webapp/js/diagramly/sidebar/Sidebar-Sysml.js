@@ -918,13 +918,13 @@
 		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
-		    	var assoc1 = new mxCell('ITransCmd', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=bottom;endArrow=sysMLReqInt;endSize=8;exitX=0;exitY=0.5;fillColor=#ffffff;');
+		    	var assoc1 = new mxCell('ITransCmd', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=bottom;endArrow=sysMLReqInt;endSize=8;exitX=0;exitY=0.5;');
 		    	assoc1.geometry.setTerminalPoint(new mxPoint(0, 0), false);
 		    	assoc1.geometry.relative = true;
 		    	assoc1.geometry.x = 1;
 		    	assoc1.edge = true;
 		    	cardCell.insertEdge(assoc1, true);
-		    	var assoc2 = new mxCell('ITransData', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=top;endArrow=sysMLProvInt;endSize=12;exitX=0;exitY=0.5;fillColor=#ffffff;');
+		    	var assoc2 = new mxCell('ITransData', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=top;endArrow=sysMLProvInt;endSize=12;exitX=0;exitY=0.5;');
 		    	assoc2.geometry.setTerminalPoint(new mxPoint(0, 60), false);
 		    	assoc2.geometry.relative = true;
 		    	assoc2.geometry.x = 1;
@@ -943,13 +943,13 @@
 		    	label1.setConnectable(false);
 		    	label1.vertex = true;
 		    	cardCell.insert(label1);
-		    	var assoc1 = new mxCell('ITransCmd', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=bottom;endArrow=sysMLReqInt;endSize=8;exitX=0;exitY=0.5;fillColor=#ffffff;');
+		    	var assoc1 = new mxCell('ITransCmd', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=bottom;endArrow=sysMLReqInt;endSize=8;exitX=0;exitY=0.5;');
 		    	assoc1.geometry.setTerminalPoint(new mxPoint(0, 0), false);
 		    	assoc1.geometry.relative = true;
 		    	assoc1.geometry.x = 1;
 		    	assoc1.edge = true;
 		    	cardCell.insertEdge(assoc1, true);
-		    	var assoc2 = new mxCell('ITransData', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=top;endArrow=sysMLProvInt;endSize=12;exitX=0;exitY=0.5;fillColor=#ffffff;');
+		    	var assoc2 = new mxCell('ITransData', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;html=1;align=left;verticalAlign=top;endArrow=sysMLProvInt;endSize=12;exitX=0;exitY=0.5;');
 		    	assoc2.geometry.setTerminalPoint(new mxPoint(0, 60), false);
 		    	assoc2.geometry.relative = true;
 		    	assoc2.geometry.x = 1;
@@ -1084,7 +1084,7 @@
 			this.addDataEntry(dt + 'fork node', 200, 80, 'Fork Node',
 				'7ZZNb4JAEIZ/DXdYrPZq0XppExMPPa8yhU2XHbKMn7++Czt+QDQ1RpMeJCHZfeeD2feBhCBOis3EyjL/xBR0EI+DOLGI5FfFJgGtAxGqNIhHgRChuwPxfiEaNdGwlBYMXVMgfMFK6iV4xQsVbTULVS7Lemlh4Vq+5VS4KUeRW34rrRPUaJvEOGwup6/AklpI/SHnoKdYKVJoXM4cibA4SRhqlZnCj0pYugiP4+KwuXikRuLzTAALILt1KVzQ9ycO1yql3Es9r+Sgspx7vHKWrPw+O/Q5uuUWbNh58+K/zYM0gxlvQc9xPT4Kp1Y2MbfO0aodGpK6Fk06tLbRDZq6wuLSpFA/vva5Imlpn4ElmEaz+ANffPZ4nzVTu3qESBw8ridrOVzh0i6g9VpcYboFLUmt2q3OmcqlU1Suowi3TKaDwc2aAXFSh8ThqVfB6d0fzv61baNh47touhhcxb+DwF+MCJkCQ4keBuXlCeVWKPHDoPSfUG6F8vIwKIMnlFuhDO4FxW2Pf2I+/fRH7Rc='),
 			    
-		    this.createVertexTemplateEntry('shape=ellipse;html=1;illColor=#000000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlignment=top;perimeter=ellipsePerimeter;', 
+		    this.createVertexTemplateEntry('shape=ellipse;html=1;fillColor=#000000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlignment=top;perimeter=ellipsePerimeter;', 
 		    		40, 40, '', 'Initial Node', null, null, this.getTagsForStencil(gn, '', dt + 'initial node').join(' ')),
 			this.addDataEntry(dt + 'join node', 200, 80, 'Join Node',
 				'7ZZNb8IwDIZ/Ta6oNBvsugLjskmTdtg5tKbNltZVahjs189NMigfk5AAaQcqVXLs1076PjlUyFG5mlpVFy+YgRFyIuTIIpKPytUIjBFxpDMhxyKOI35F/PRHte+qUa0sVHRKQ+wblsoswGfEMPlAXTU1pJzo9XpiOPaihtYmiJpC1W1oIeVtkoJKPvm4z+FcGzNCg9YJZeQezi/Bkk6VeVYzMK/YaNJYsWaGRFiywLSFRKWfucVFlXVmzN3TmfFodN72EtacDV/ANVj96YJLBQumgCWQXbPkt0EOfMuXzqjwuTufKUDnRRjy4L2MVOPX+WbQ1mEOgsnHDZeHhu+bC1kOb2EJZoZfk22ia7WrcVyg1d9YkeJC4syDdrPWdaiyR2udCmtgz5KGLH7Ce/hO6TVv+rvdrB9v7GzPsGNmgwubws6lOcFfC0aRXu6OOmZfaH3lm0dbLnEUHF8HJnsASNkcKDTtMdic4iQsd5fH8ntbnenK0h6IDpoKKzhAdwjKTfl3qAKa/tXQ3N/QnIdGXg3N4IbmPDT3V0MzvKE5D83wUmh4uf2f8/Lu794P'),

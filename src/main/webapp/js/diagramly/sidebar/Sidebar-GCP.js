@@ -5,7 +5,7 @@
 	{
 		var sb = this;
 		var n = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp.compute.';
-		var n1 = 'dashed=0;html=1;strokeColor=#dddddd;fillcolor=#ffffff;gradientColor=none;shadow=1;strokeWidth=1;';
+		var n1 = 'dashed=0;html=1;strokeColor=#dddddd;gradientColor=none;shadow=1;strokeWidth=1;';
 		var gn = 'mxgraph.gcp.product_cards';
 		var dt = 'gcp google cloud platform card';
 		var s = 0.3; //scale

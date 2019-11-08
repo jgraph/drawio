@@ -14,7 +14,7 @@
 		//default tags
 		var dt = 'ios icon ';
 		
-		var s = 'html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;fillColor=#ffffff;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
+		var s = 'html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var gn = 'mxgraph.ios7.icons';
 		
@@ -143,16 +143,16 @@
 		var fns =
 		[
 		 	this.createVertexTemplateEntry(
-		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.iphone;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.iphone;strokeColor=#c0c0c0;', 
 		 			sizeX, sizeY, '', 'iPhone (Portrait)', null, null, this.getTagsForStencil(gn, 'phone', dt + 'portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
-		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad7inch;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad7inch;strokeColor=#c0c0c0;', 
 		 			sizeX * 1.83, sizeY * 1.3725, '', "iPad (7'')", null, null, this.getTagsForStencil(gn, 'tablet tab 7', dt + 'portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
-		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad10inch;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad10inch;strokeColor=#c0c0c0;', 
 		 			sizeX * 2.44, sizeY * 1.7325, '', "iPad (10'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
-		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad13inch;fillColor=#ffffff;strokeColor=#c0c0c0;', 
+		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad13inch;strokeColor=#c0c0c0;', 
 		 			sizeX * 2.86, sizeY * 2.0325, '', "iPad (13'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'portrait').join(' ')),
 			this.addDataEntry(dt + 'app bar portrait', 175, 15, 'App Bar (portrait)',
 				'zVVdb4IwFP01fZTw6cejoDNLZmLYkj03o0CzQkmpivv1u0BBEIw+zMUmJL3n3tt7e05LkeUlxUbgLN7ygDBkrZHlCc5lPUsKjzCGTJ0GyFoh09ThQ+bLFa9RefUMC5LKexLMOuGA2Z7USA3k8sQUEMsE2loZyHJzKfg3+aSBjBskxgE/gqGDEeA8JoEywJOVKyRFVO5Oozyf7amGs8zFAvwhZczjjIuqihVWA3CIDih03/hSnsIyruqTCEmKq3utILXRDeEJkeIEIUfVcBkxc+q0mNAobtIUhvPajtrUM3MwUeSNE2kNiPSWvv+69gd8NsQI8gX1XcxolILJSFiaIU/lO/0pA+Ylixn+omn0VjlXpt2PaMwOj7garVYXLHZJV5Cq8MEzteBdTJvjTJ/UmdMUox3mHX2EeMWaIAxLeiC9cmNqqIo7TqGRttxkql0oyMMwJ3KgX9vpXZLaA0kNOPJLx9ltb4l6oeJTaVRcaPTPmqnyE0vvlX+Qhs5Aw8UcNejtSynqfV+5lb5ixVj0Q6ZPKrlxU3B77O/4R4LbzgMEB/P8WNbh3bf0Fw=='),
@@ -160,18 +160,18 @@
 				'zZVdb4IwFIZ/TS81UMDppaIzS2Zi2JJdN6NAs0JJqYr79TvQovJh9MbFJiScj/ac87wlIMdPy7UkebIRIeXIWSHHl0Io/ZaWPuUcYYuFyFkijC14EH69ErXrqJUTSTN1zwasN+wJ31Ht0Y5CHblxJCqFtpY2chaFkuKHfrFQJY0nIaE4gGGBEZIioaExIJJXJ6RlXE03ZqJ42bExyfMFkRCPGOe+4ELWVZyoXuCH7JBB900sExkcszB9UqloeXXW2mUGXVORUiWPkHIwDVfzTjUPK6EsTpptnvaRQtvxaeuZHLwYeMMgnR5Ifx4Eb6ugx7MBI+k31F8QzuIMTE6jyoxEpj7Yb5UwrSjm5Jtl8XsdXGK3ndGYFxxJvU5adSheQjcuU+FT5ObAu0jjYdJHc+fGhugFeW8IvKEmKSeK7Wmr3JAapuJWMGjkVG40GXcUFFFUUNXT79TpXZK6PUltuPJzz9tubonaUfGpNCo7Gv2zZqb8CLfLP0hDr6fhbIoa7+2PUuq5r3yVgaFiz9opkyeV3L4puOs9TnD3EYKDef5Z6vTLf+kf'),
 			
 			this.createVertexTemplateEntry(
-					s + 'slider;barPos=20;strokeColor=#0080f0;fillColor=#ffffff;strokeColor2=#a0a0a0;', 
+					s + 'slider;barPos=20;strokeColor=#0080f0;strokeColor2=#a0a0a0;', 
 					sizeX * 0.75, sizeY * 0.0375, '', 'Slider', null, null, this.getTagsForStencil(gn, dt + 'slider', null).join(' ')),
 			this.createVertexTemplateEntry(
-					s2 + 'downloadBar;verticalAlign=middle;fontSize=8;fontColor=#000000;buttonText=;barPos=30;fillColor=#aaaaaa;strokeColor=#0080f0;align=center;', 
+					s2 + 'downloadBar;verticalAlign=middle;fontSize=8;buttonText=;barPos=30;fillColor=#aaaaaa;strokeColor=#0080f0;align=center;', 
 					sizeX * 0.75, sizeY * 0.075, 'Downloading 2 of 6\n\n', 'Download bar', null, null, this.getTagsForStencil(gn, 'downloadBar', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'adjust;fillColor=#ffffff;gradientColor=none;', 
+					sm + 'adjust;gradientColor=none;', 
 					sizeX * 0.4, sizeY * 0.05, '', 'Adjust', null, null, this.getTagsForStencil(gn, 'adjust', dt + '').join(' ')),
 					
 			this.addEntry(dt + 'horizontal button bar', function()
 			{
-				var bg = new mxCell('', new mxGeometry(0, 0, 164, 12.5), s2 + 'rrect;rSize=3;strokeColor=#0080F0;fillColor=#ffffff;gradientColor=none;');
+				var bg = new mxCell('', new mxGeometry(0, 0, 164, 12.5), s2 + 'rrect;rSize=3;strokeColor=#0080F0;gradientColor=none;');
 				bg.vertex = true;
 				var button1 = new mxCell('Item 1', new mxGeometry(0, 0, 41, 12.5), inh + s2 + 'leftButton;rSize=3;fontSize=8;');
 				button1.vertex = true;
@@ -198,7 +198,7 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 164, 20), 'shape=rect;fillColor=#F6F6F8;strokeColor=none;');
 			   	bg.vertex = true;
-			   	var text1 = new mxCell('Label', new mxGeometry(55, 0, 54, 20), 'text;fontColor=#000000;fontSize=10;verticalAlign=middle;align=center;spacingTop=2;');
+			   	var text1 = new mxCell('Label', new mxGeometry(55, 0, 54, 20), 'text;fontSize=10;verticalAlign=middle;align=center;spacingTop=2;');
 			   	text1.vertex = true;
 			   	bg.insert(text1);
 			   	var text2 = new mxCell('Label', new mxGeometry(109, 0, 55, 20), 'text;fontColor=#0080f0;fontSize=10;verticalAlign=middle;align=right;spacingTop=2;spacingRight=4;');
@@ -212,7 +212,7 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 164, 20), 'shape=rect;fillColor=#e0e0e0;strokeColor=none;');
 			   	bg.vertex = true;
-			   	var part1 = new mxCell('', new mxGeometry(0, 0, 164, 20), s2 + 'marginRect;rx=3;ry=3;rectMargin=5;fillColor=#ffffff;strokeColor=none;');
+			   	var part1 = new mxCell('', new mxGeometry(0, 0, 164, 20), s2 + 'marginRect;rx=3;ry=3;rectMargin=5;strokeColor=none;');
 			   	part1.vertex = true;
 			   	bg.insert(part1);
 			   	var icon1 = new mxCell('Search', new mxGeometry(0.5, 0.5, 6, 6), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#e0e0e0;fillColor=none;fontColor=#e0e0e0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;fontSize=6;fontStyle=0;spacingTop=2;');
@@ -396,10 +396,10 @@
 					sm + 'right;strokeColor=#0080f0;', 
 					sizeX * 0.03, sizeY * 0.03, '', 'Right', null, null, this.getTagsForStencil(gnm, 'right', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'increase;fillColor=#ffffff;strokeColor=#0080f0;', 
+					sm + 'increase;strokeColor=#0080f0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Increase', null, null, this.getTagsForStencil(gnm, 'increase', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'info;fillColor=#ffffff;strokeColor=#0080f0;', 
+					sm + 'info;strokeColor=#0080f0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Info', null, null, this.getTagsForStencil(gnm, 'info', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'more_2;strokeColor=#a0a0a0;', 
@@ -411,7 +411,7 @@
 					sm + 'options;fillColor=#222222;', 
 					sizeX * 0.06, sizeY * 0.015, '', 'Options', null, null, this.getTagsForStencil(gnm, 'options', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'pause;fillColor=#ffffff;strokeColor=#0080f0;', 
+					sm + 'pause;strokeColor=#0080f0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Pause', null, null, this.getTagsForStencil(gnm, 'pause', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'star;fillColor=#0080f0;strokeColor=none;', 

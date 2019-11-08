@@ -1175,8 +1175,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		
 		var error = mxUtils.bind(this, function(e)
 		{
-			file.saveLevel = 11;
-			
 			if (errFn != null)
 			{
 				errFn(e);
@@ -1191,7 +1189,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			{
 				if (!file.isConflict(e))
 				{
-					var err = 'error_' + (file.getErrorMessage(e) || 'unknown');
+					var err = 'sl_' + file.saveLevel + '-error_' +
+						(file.getErrorMessage(e) || 'unknown');
 	
 					if (e != null && e.error != null && e.error.code != null)
 					{
@@ -1219,7 +1218,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		var criticalError = mxUtils.bind(this, function(e)
 		{
 			error(e);
-			file.saveLevel = 12;
 	
 			try
 			{
@@ -1231,6 +1229,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
 					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
 					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
+					'\nSaveLevel=' + file.saveLevel +
 					'\nMessage=' + e.message +
 					'\n\nStack:\n' + e.stack);
 			}
@@ -1343,109 +1342,108 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						{
 							file.saveDelay = new Date().getTime() - t0;
 							
-							// Checks if modified time is in the future and head revision has changed
-							var delta = new Date(resp.modifiedDate).getTime() - new Date(mod0).getTime();
-							
-							if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
+							if (resp == null)
 							{
-								var reasons = [];
-								
-								if (delta <= 0)
-								{
-									reasons.push('invalid modified time');
-								}
-								
-								if (etag0 == resp.etag)
-								{
-									reasons.push('stale etag');
-								}
-								
-								if (revision && head0 == resp.headRevisionId)
-								{
-									reasons.push('stale revision');
-								}
-								
-								var temp = reasons.join(', ');
-								error({message: mxResources.get('errorSavingFile') + ': ' + temp}, resp);
-								
-								// Logs failed save
-								try
-								{
-									EditorUi.sendReport('Critical: Error saving to Google Drive ' +
-										new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
-										'\nFile=' + file.desc.id + ' ' + file.desc.mimeType +
-										'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
-										 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
-										'\nErrors=' + temp + '\nOld=' + head0 + ' ' + mod0 + ' etag-hash=' +
-										this.ui.hashValue(etag0) + '\nNew=' + resp.headRevisionId + ' ' +
-										resp.modifiedDate + ' etag-hash=' + this.ui.hashValue(resp.etag))
-									EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
-										null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
-										'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
-										this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
-										'user-' + ((this.user != null) ? this.user.id : 'nouser') +
-									 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync'));
-								}
-								catch (e)
-								{
-									// ignore
-								}
+								error({message: mxResources.get('errorSavingFile') + ': Empty response'});
 							}
 							else
 							{
-								file.saveLevel = null;
-						    	success(resp, savedData);
-		
-						    	if (prevDesc != null)
+								// Checks if modified time is in the future and head revision has changed
+								var delta = new Date(resp.modifiedDate).getTime() - new Date(mod0).getTime();
+								
+								if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 								{
-						    		// Pins previous revision
-									this.executeRequest({
-										url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId + '?supportsTeamDrives=true'
-									}, mxUtils.bind(this, mxUtils.bind(this, function(resp)
-									{
-										resp.pinned = true;
-										
-										this.executeRequest({
-											url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId,
-											method: 'PUT',
-											params: resp
-										});
-									})));
+									var reasons = [];
 									
-									// Logs conversion
+									if (delta <= 0)
+									{
+										reasons.push('invalid modified time');
+									}
+									
+									if (etag0 == resp.etag)
+									{
+										reasons.push('stale etag');
+									}
+									
+									if (revision && head0 == resp.headRevisionId)
+									{
+										reasons.push('stale revision');
+									}
+									
+									var temp = reasons.join(', ');
+									error({message: mxResources.get('errorSavingFile') + ': ' + temp}, resp);
+									
+									// Logs failed save
 									try
 									{
-										EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
-											action: 'from_' + prevDesc.id + '.' + prevDesc.headRevisionId +
-											'-to_' + file.desc.id + '.' + file.desc.headRevisionId,
-											label: (this.user != null) ? ('user_' + this.user.id) : 'nouser' +
-											((file.sync != null) ? '-client_' + file.sync.clientId : 'nosync')});
+										EditorUi.logError('Critical: Error saving to Google Drive ' + file.desc.id,
+											null, 'from-' + head0 + '.' + mod0 + '-' + this.ui.hashValue(etag0) +
+											'-to-' + resp.headRevisionId + '.' + resp.modifiedDate + '-' +
+											this.ui.hashValue(resp.etag) + ((temp.length > 0) ? '-errors-' + temp : ''),
+											'user-' + ((this.user != null) ? this.user.id : 'nouser') +
+										 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync'));
 									}
 									catch (e)
 									{
 										// ignore
 									}
 								}
-						    	
-								// Logs successful save
-								try
+								else
 								{
-									EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
-										'-rev0_' + head0 + '-mod0_' + mod0,
-										action: 'rev-' + resp.headRevisionId +
-										'-mod_' + resp.modifiedDate + '-size_' + file.getSize() +
-										'-mime_' + file.desc.mimeType +
-										((this.ui.editor.autosave) ? '' : '-nosave') +
-										((file.isAutosave()) ? '' : '-noauto') +
-										((file.changeListenerEnabled) ? '' : '-nolisten') +
-										((file.inConflictState) ? '-conflict' : '') +
-										((file.invalidChecksum) ? '-invalid' : ''),
-										label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
-										((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
-								}
-								catch (e)
-								{
-									// ignore
+									file.saveLevel = null;
+							    	success(resp, savedData);
+			
+							    	if (prevDesc != null)
+									{
+							    		// Pins previous revision
+										this.executeRequest({
+											url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId + '?supportsTeamDrives=true'
+										}, mxUtils.bind(this, mxUtils.bind(this, function(resp)
+										{
+											resp.pinned = true;
+											
+											this.executeRequest({
+												url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId,
+												method: 'PUT',
+												params: resp
+											});
+										})));
+										
+										// Logs conversion
+										try
+										{
+											EditorUi.logEvent({category: file.convertedFrom + '-CONVERT-FILE-' + file.getHash(),
+												action: 'from_' + prevDesc.id + '.' + prevDesc.headRevisionId +
+												'-to_' + file.desc.id + '.' + file.desc.headRevisionId,
+												label: (this.user != null) ? ('user_' + this.user.id) : 'nouser' +
+												((file.sync != null) ? '-client_' + file.sync.clientId : 'nosync')});
+										}
+										catch (e)
+										{
+											// ignore
+										}
+									}
+							    	
+									// Logs successful save
+									try
+									{
+										EditorUi.logEvent({category: 'SUCCESS-SAVE-FILE-' + file.getHash() +
+											'-rev0_' + head0 + '-mod0_' + mod0,
+											action: 'rev-' + resp.headRevisionId +
+											'-mod_' + resp.modifiedDate + '-size_' + file.getSize() +
+											'-mime_' + file.desc.mimeType +
+											((this.ui.editor.autosave) ? '' : '-nosave') +
+											((file.isAutosave()) ? '' : '-noauto') +
+											((file.changeListenerEnabled) ? '' : '-nolisten') +
+											((file.inConflictState) ? '-conflict' : '') +
+											((file.invalidChecksum) ? '-invalid' : ''),
+											label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+											((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
+									}
+									catch (e)
+									{
+										// ignore
+									}
 								}
 							}
 						}

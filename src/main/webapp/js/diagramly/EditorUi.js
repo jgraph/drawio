@@ -1011,26 +1011,57 @@
 		currentPage = (currentPage != null) ? currentPage : false;
 		uncompressed = (uncompressed != null) ? uncompressed : !Editor.compressXml;
 		
+		// Generats graph model XML node for single page export
 		var node = this.editor.getGraphXml(ignoreSelection);
-			
+		
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
-			if (uncompressed)
-			{
-				EditorUi.removeChildNodes(this.currentPage.node);
-				this.currentPage.node.appendChild(node);
-			}
-			else
-			{
-				var data = Graph.compressNode(node);
-				mxUtils.setTextContent(this.currentPage.node, data);
-			}
-			
+			// Updates current page XML if selection is ignored
+			EditorUi.removeChildNodes(this.currentPage.node);
+			mxUtils.setTextContent(this.currentPage.node, Graph.compressNode(node));
+
+			// Creates a clone of the file node for processing
 			node = this.fileNode.cloneNode(false);
+
+			// Appends the node of the page and applies compression
+			function appendPage(pageNode)
+			{
+				var models = pageNode.getElementsByTagName('mxGraphModel');
+				var modelNode = (models.length > 0) ? models[0] : null;
+				var clone = pageNode;
+				
+				if (modelNode == null && uncompressed)
+				{
+					var text = mxUtils.trim(mxUtils.getTextContent(pageNode));
+					clone = pageNode.cloneNode(false);
+					
+					if (text.length > 0)
+					{
+						var tmp = Graph.decompress(text);
+						
+						if (tmp != null && tmp.length > 0)
+						{
+							clone.appendChild(mxUtils.parseXml(tmp).documentElement);
+						}
+					}
+				}
+				else if (modelNode != null && !uncompressed)
+				{
+					clone = pageNode.cloneNode(false);
+					mxUtils.setTextContent(clone, Graph.compressNode(modelNode));
+				}
+				else
+				{
+					clone = pageNode.cloneNode(true);
+				}
+				
+				node.appendChild(clone);
+			};
+
 			
 			if (currentPage)
 			{
-				node.appendChild(this.currentPage.node);
+				appendPage(this.currentPage.node);
 			}
 			else
 			{
@@ -1044,29 +1075,15 @@
 							var enc = new mxCodec(mxUtils.createXmlDocument());
 							var temp = enc.encode(new mxGraphModel(this.pages[i].root));
 							this.editor.graph.saveViewState(this.pages[i].viewState, temp);
-							
-							if (uncompressed)
-							{
-								EditorUi.removeChildNodes(this.pages[i].node);
-								this.pages[i].node.appendChild(temp);
-							}
-							else
-							{
-								mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
-							}
-							
+							EditorUi.removeChildNodes(this.pages[i].node);
+							mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
+
 							// Marks the page as up-to-date
 							delete this.pages[i].needsUpdate;
 						}
-						else if (uncompressed)
-						{
-							var temp = Editor.parseDiagramNode(this.pages[i].node);
-							EditorUi.removeChildNodes(this.pages[i].node);
-							this.pages[i].node.appendChild(temp);
-						}
 					}
 					
-					node.appendChild(this.pages[i].node);
+					appendPage(this.pages[i].node);
 				}
 			}
 		}
@@ -4888,7 +4905,7 @@
 			else
 			{
 				data = '#R' + encodeURIComponent((allPages) ?
-					this.getFileData(true, null, null, null, null, null, null, true) :
+					this.getFileData(true, null, null, null, null, null, null, true, null, false) :
 					Graph.compress(mxUtils.getXml(this.editor.getGraphXml())))
 			}
 		}
@@ -9472,22 +9489,6 @@
 		
 		this.initPages();
 
-		// Installs listener for fixing references in undo history in
-		// collaborative editing where terminals may have vanished
-	    // Undo/Redo listener to update edit's references before executing undo/redo
-	    this.editUpdateListener = mxUtils.bind(this, function(sender, evt)
-	    {
-	    	var edit = evt.getProperty('edit');
-	    	    
-	    	if (edit != null)
-	    	{
-	    		this.updateEditReferences(edit);
-	    	}
-	    });
-	    
-	    this.editor.undoManager.addListener(mxEvent.BEFORE_UNDO, this.editUpdateListener);
-	    this.editor.undoManager.addListener(mxEvent.BEFORE_REDO, this.editUpdateListener);
-
 		// Embedded mode
 		if (urlParams['embed'] == '1')
 		{
@@ -9595,6 +9596,8 @@
 		textInput.setAttribute('autocapitalize', 'off');
 		textInput.setAttribute('spellcheck', 'false');
 		textInput.style.textRendering = 'optimizeSpeed';
+		textInput.style.fontFamily = 'monospace';
+		textInput.style.wordBreak = 'break-all';
 		textInput.style.background = 'transparent';
 		textInput.style.color = 'transparent';
 		textInput.style.position = 'absolute';
@@ -12799,12 +12802,6 @@
 
 	EditorUi.prototype.destroy = function()
 	{
-		if (this.editUpdateListener)
-		{
-			this.editor.undoManager.removeListener(this.editUpdateListener);	
-			this.editUpdateListener = null;
-		}
-
 		if (this.exportDialog != null)
 		{
 			this.exportDialog.parentNode.removeChild(this.exportDialog);
@@ -12883,87 +12880,6 @@
 			}
 		};
 	}
-
-	/*********************************************************************************************
-	 * This section is a fix for undo/redo edits having stale 1st- and 2nd-order references      *
-	 * The code might be reworked or even thrown out when a conceptually nicer solution is found *
-	 *********************************************************************************************/
-
-	/**
-	 * Updates all references in all edits and their changes in order to correspond to current model
-	 */
-	EditorUi.prototype.updateEditReferences = function(edit)
-	{
-        for (var i = 0; i < edit.changes.length; i++)
-        {
-            var change = edit.changes[i];
-            
-            if (change != null && change.constructor == mxChildChange)
-            {
-                if (change.child != null)
-                {
-                    var child = change.child;
-                    
-                    if (child.source != null && child.source.id != null)
-                    {
-                        var modelSource = this.getFutureCellForEdit(change.model, edit, child.source.id);
-                        
-                        if (modelSource != child.source)
-                        {
-                            child.source = modelSource
-                        }
-                    }
-                    
-                    if (child.target != null && child.target.id != null)
-                    {
-                        var modelTarget = this.getFutureCellForEdit(change.model, edit, child.target.id);
-
-                        if (modelTarget != child.target)
-                        {
-                            child.target = modelTarget
-                        }
-                    }
-                }
-            }
-        }
-	};
-
-	/**
-	 * Looks ahead in edit's changes to see if the last child change containing ID is one that creates a cell, then returns it.
-	 * If cell already exists in a model, returns it first.
-	 */
-	EditorUi.prototype.getFutureCellForEdit = function(model, edit, id)
-	{
-		var result = model.getCell(id);
-		
-		if (result == null)
-		{
-			// Scans changes backwards
-			for (var i = edit.changes.length - 1; i >= 0; i--)
-			{
-				var change = edit.changes[i];
-				
-				if (change.constructor == mxChildChange)
-				{
-					// Checks if child is being added in this change
-					if (change.child != null && change.child.id == id)
-					{
-						// Checks if cell is being removed
-						if (model.contains(change.previous))
-						{
-							result = change.child;
-						}
-						
-						// Stops scan in any case, at the end of the edit
-						// the cell will be either added or deleted
-						break;
-					}
-				}
-			}
-		}
-		
-		return result;
-	};
 
 	EditorUi.prototype.getDiagramTextContent = function()
 	{

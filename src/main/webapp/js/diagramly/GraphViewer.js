@@ -1294,7 +1294,7 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 		
 		if (ui != null)
 		{
-			if (href != null && !(graph.isExternalProtocol(href) || graph.isBlankLink(href)))
+			if (href != null && !(graph.isExternalProtocol(href) || graph.isBlankLink(href) || graph.customLinkClicked(href)))
 			{
 				// Hides lightbox if any links are clicked
 				// Async handling needed for anchors to work
@@ -1302,6 +1302,10 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 				{
 					ui.destroy();
 				}, 0);
+			}
+			else
+			{
+				mxEvent.consume(evt);
 			}
 		}
 		else if (href != null && ui == null && graph.isCustomLink(href) &&
