@@ -3902,7 +3902,7 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || (!this.editor.graph.mathEnabled && this.useCanvasForExport);
+		return mxClient.IS_CHROMEAPP || this.useCanvasForExport;
 	};
 
 	/**
@@ -4170,7 +4170,7 @@
 						}
 						else
 						{
-							win.document.write('<pre>' + mxUtils.htmlEntities(data, false) + '<pre>');
+							win.document.write('<pre>' + mxUtils.htmlEntities(data, false) + '</pre>');
 							win.document.close();
 						}
 					}
@@ -4231,7 +4231,7 @@
 				}
 				else
 				{
-					win.document.write('<html><img src="data:' +
+					win.document.write('<html><img style="max-width:100%;" src="data:' +
 						mimeType + ((base64Encoded) ? ';base64,' +
 						data : ';charset=utf8,' + encodeURIComponent(data)) +
 						'"/></html>');
@@ -4577,21 +4577,21 @@
 				var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 					'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 					mxUtils.getXml(svgRoot);
-				
-		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
-		    		{
-		    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
-		    		}
-		    		else
-		    		{
-		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-		    			{
-		    				mxUtils.popup(svg);
-		    			}));
-		    		}
+			
+	    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
+	    		{
+	    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
+	    		}
+	    		else
+	    		{
+	    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+	    			{
+	    				mxUtils.popup(svg);
+	    			}));
+	    		}
 			});
 			
-			this.convertMath(this.editor.graph, svgRoot, false, mxUtils.bind(this, function()
+			this.convertMath(this.editor.graph, svgRoot, mxUtils.bind(this, function()
 			{
 				if (embedImages)
 				{
@@ -5873,9 +5873,30 @@
 	/**
 	 * Converts math in the given SVG
 	 */
-	EditorUi.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	EditorUi.prototype.convertMath = function(graph, svgRoot, callback)
 	{
-		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		// CSS styles are needed for the math to render correctly
+		// unfortunately, there is no ID on the MathJax CSS only
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (defs != null && defs.length > 0)
+		{
+			var styles = document.getElementsByTagName('style');
+			
+			for (var i = 0; i < styles.length; i++)
+			{
+				if (styles[i].getAttribute('type') == 'text/css')
+				{
+					defs[0].appendChild(styles[i].cloneNode(true));
+				}
+			}
+		}
+		
+		// NOTE: This is never true as mathEnabled is not set on off-screen graphs
+		// (on-screen is handled via createSvgImageExport override in Editor.js)
+		if (graph != this.editor.graph && graph.mathEnabled &&
+			typeof(MathJax) !== 'undefined' &&
+			typeof(MathJax.Hub) !== 'undefined')
 		{
 	      	// Temporarily attaches to DOM for rendering
 			// FIXME: If adding svgRoot to body, the text
@@ -5885,7 +5906,7 @@
 			// if math is enabled.
 //			document.body.appendChild(svgRoot);
 			Editor.MathJaxRender(svgRoot);
-	      
+
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				MathJax.Hub.Queue(mxUtils.bind(this, function ()
@@ -6448,7 +6469,7 @@
 							defs[0].appendChild(st);
 						}
 						
-						this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+						this.convertMath(graph, svgRoot, mxUtils.bind(this, function()
 						{
 							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 						}));
@@ -7248,6 +7269,11 @@
 				}
 				catch (e)
 				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+					
 					error(e);
 				}
 			}

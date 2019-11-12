@@ -1,3 +1,10 @@
+12-NOV-2019: 12.2.4
+
+- Updates IBM stencils
+- Fixes Lucidchart import NPE
+- Adds pools and lanes in BPMN General library
+- Adds client-side SVG and PNG export for math
+
 08-NOV-2019: 12.2.3
 
 - Improves stencils in dark mode

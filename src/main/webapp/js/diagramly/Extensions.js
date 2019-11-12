@@ -9261,7 +9261,7 @@ LucidImporter = {};
 						item[i].vertex = true;
 						v.insert(item[i]);
 						item[i].style += st +
-							getOpacity(p, a, cell) +
+							getOpacity(p, a, item[i]) +
 							getFontSize(p['Text' + (i + 1)]) +
 							getFontColor(p['Text' + (i + 1)]) + 
 							getFontStyle(p['Text' + (i + 1)]);
@@ -9328,7 +9328,7 @@ LucidImporter = {};
 					else
 					{
 						item[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, item[i]);
 					}
 
 					item[i].value = convertText(p['Field' + (i + 1)]);
@@ -9391,7 +9391,7 @@ LucidImporter = {};
 					else
 					{
 						key[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, key[i]);
 					}
 
 					key[i].value = convertText(p['Key' + (i + 1)]);
@@ -9412,7 +9412,7 @@ LucidImporter = {};
 					else
 					{
 						item[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, item[i]);
 					}
 
 					item[i].value = convertText(p['Field' + (i + 1)]);
@@ -9477,7 +9477,7 @@ LucidImporter = {};
 					else
 					{
 						key[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, key[i]);
 					}
 
 					key[i].style += addAllStyles(key[i].style, p, a, key[i]);
@@ -9498,7 +9498,7 @@ LucidImporter = {};
 					else
 					{
 						item[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, item[i]);
 					}
 
 					item[i].style += addAllStyles(item[i].style, p, a, item[i]);
@@ -9570,7 +9570,7 @@ LucidImporter = {};
 					else
 					{
 						key[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, v);
+							getOpacity(p, a, key[i]);
 					}
 
 					key[i].style += addAllStyles(key[i].style, p, a, key[i]);
@@ -9591,7 +9591,7 @@ LucidImporter = {};
 					else
 					{
 						item[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, cell);
+							getOpacity(p, a, item[i]);
 					}
 
 					item[i].style += addAllStyles(item[i].style, p, a, item[i]);
@@ -9612,7 +9612,7 @@ LucidImporter = {};
 					else
 					{
 						type[i].style += 'fillColor=none;' + 
-							getOpacity(p, a, v);
+							getOpacity(p, a, type[i]);
 					}
 
 					type[i].style += addAllStyles(type[i].style, p, a, type[i]);

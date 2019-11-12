@@ -196,7 +196,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 				}
 				catch(IOException e)
 				{
-					e.printStackTrace();
 					StringBuilder details = new StringBuilder("");
 					
 					if (con != null)
@@ -229,6 +228,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 					else
 					{
 						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+						e.printStackTrace();
+						System.err.println(details);
 					}
 					
 					if (DEBUG)

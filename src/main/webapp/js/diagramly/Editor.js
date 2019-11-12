@@ -3912,7 +3912,67 @@
 		
 		return result;
 	};
+	
+	/**
+	 * Overridden to support client-side math typesetting.
+	 */
+	var graphCreateSvgImageExport = Graph.prototype.createSvgImageExport;
+	
+	Graph.prototype.createSvgImageExport = function()
+	{
+		var imgExport = graphCreateSvgImageExport.apply(this, arguments);
+		
+		if (this.mathEnabled)
+		{
+			var graph = this;
+			var origin = graph.container.getBoundingClientRect();
+			var dy = graph.container.scrollTop - origin.y;
+			var dx = graph.container.scrollLeft - origin.x;
+			var drawText = imgExport.drawText;
 
+			// Copies rendered math from container to SVG document
+			imgExport.drawText = function(state, canvas)
+			{
+				if (state.text != null && state.text.node != null &&
+					state.text.node.ownerSVGElement == null)
+				{
+					// Copies text into DOM using actual bounding box
+					var rect = state.text.node.getBoundingClientRect();
+					
+					// Sets position on foreignObject
+					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+					fo.setAttribute('x', (rect.x + dx) * canvas.state.scale + canvas.state.dx);
+					fo.setAttribute('y', (rect.y + dy) * canvas.state.scale + canvas.state.dy);
+					fo.setAttribute('width', rect.width * canvas.state.scale);
+					fo.setAttribute('height', rect.height * canvas.state.scale);
+					
+					// Resets position on inner DIV
+					var clone = state.text.node.cloneNode(true);
+					clone.style.top = '0px';
+					clone.style.left = '0px';
+					clone.style.transform = '';
+					
+					// Removes all math elements
+					var ele = clone.getElementsByTagName('math');
+					
+					while (ele.length > 0)
+					{
+						ele[0].parentNode.removeChild(ele[0]);
+					}
+					
+					fo.appendChild(clone);
+					canvas.root.ownerSVGElement.appendChild(fo);
+				}
+				else
+				{
+					drawText.apply(this, arguments);
+				}
+			};
+		}
+		
+		return imgExport;
+	};
+	
 	/**
 	 * Safari has problems with math typesetting inside foreignObjects.
 	 */
