@@ -6,6 +6,8 @@ About
 
 draw.io is a client-side, static web application. There is no user authenication or data storage concept in this repo. The online version stores data in mainstream cloud storage options, currently Google Drive, OneDrive, Dropbox, Github, Gitlab or Trello.
 
+There are a range of [integrations into other tools](https://about.draw.io/integrations-ecosystem/), some by this core team, some by third-parties.
+
 draw.io has an official [Docker image](https://github.com/jgraph/docker-drawio) for local deployment, as well as [Desktop versions](https://github.com/jgraph/drawio-desktop) for MacOS, Linux and Windows.
 
 draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
