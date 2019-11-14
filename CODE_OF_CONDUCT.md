@@ -1,4 +1,4 @@
-# Contributor Covenant Code of Conduct:
+# Contributor Code of Conduct:
 
 ## Our Pledge
 
@@ -21,6 +21,11 @@ Examples of unacceptable behavior by participants include:
 * Public or private harassment
 * Publishing others' private information, such as a physical or electronic address, without explicit permission
 * Other conduct which could reasonably be considered inappropriate in a professional setting
+* Not respecting other people's time, this is an open source project
+* Being impatient or rude
+* Pressing developers for prority fixes or ETAs
+* Guilting the developers into focusing on your issue(s)
+* Repeatedly showing an inappropriate level of entitlement
 
 ## Our Responsibilities
 
