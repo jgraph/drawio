@@ -4,7 +4,7 @@ About
 -----
 [draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project. It is a production-grade deployment, with full [security process](https://github.com/jgraph/security-privacy-legal).
 
-draw.io is a client-side, static web application. There is no user authenication or data storage concept in this repo. The online version stores data in mainstream cloud storage options, currently Google Drive, OneDrive, Dropbox, GitHub, Gitlab or Trello.
+draw.io is a client-side, static web application. There is no user authentication or data storage concept in this repo. The online version stores data in mainstream cloud storage options, currently Google Drive, OneDrive, Dropbox, GitHub, Gitlab or Trello.
 
 There are a range of [integrations into other tools](https://about.draw.io/integrations-ecosystem/), some by this core team, some by third-parties.
 
