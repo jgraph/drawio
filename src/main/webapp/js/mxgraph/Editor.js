@@ -100,7 +100,7 @@ Editor.useLocalStorage = typeof(Storage) != 'undefined' && mxClient.IS_IOS;
 /**
  * Images below are for lightbox and embedding toolbars.
  */
-Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAXVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC5BxTwAAAAH3RSTlMAlUF8boNQIE0LBgOgkGlHNSwqFIx/dGVUOjApmV9ezNACSAAAAIVJREFUGNNtjNsOgzAMQ5NeoVcKDAZs+//PXLKI8YKlWvaRU7jXuFpb9qsbdK05XILUiE8JHQox1Pv3OgFUzf1AGqWqUg+QBwLF0YAeegBlCNgRWOpB5vUfTCmeoHQ/wNdy0jLH/cM+b+wLTw4n/7ACEmHVVy8h6qy8V7MNcGowWpsNbvUFcGUEdSi1s/oAAAAASUVORK5CYII=' :
+Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDB6Ii8+PHBhdGggZD0iTTExIDE4aDJ2LTJoLTJ2MnptMS0xNkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6bTAtMTRjLTIuMjEgMC00IDEuNzktNCA0aDJjMC0xLjEuOS0yIDItMnMyIC45IDIgMmMwIDItMyAxLjc1LTMgNWgyYzAtMi4yNSAzLTIuNSAzLTUgMC0yLjIxLTEuNzktNC00LTR6Ii8+PC9zdmc+' :
 	IMAGE_PATH + '/help.png';
 
 /**
@@ -195,6 +195,21 @@ Editor.previousLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAA
 Editor.nextLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAPFBMVEUAAAD////////////////////////////////////////////////////////////////////////////YSWgTAAAAE3RSTlMA7fci493c0MW8uJ6CZks4MxQHEZL6ewAAAFRJREFUOMvd0skRgCAQBVEFwQ0V7fxzNQP6wI05v6pZ/kyj1b7FNgik2gQzzLcAwiUAigHOTwDHK4A1CmB5BJANJG1hQ9qafYcqFlZP3IFc9eVGrR+iIgkDQRUXIAAAAABJRU5ErkJggg==';
 
 /**
+ * Specifies the image to be used for the refresh button.
+ */
+Editor.refreshLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAolBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8ELnaCAAAANXRSTlMABfyE2QKU+dfNyyDyoVYKwnTv7N+6rntsYlFNQjEqEw316uSzf2c1JB3GvqebiVw6GAjQB4DQr10AAAE7SURBVDjLvZLXcoMwEABPIgRCx3TT3A3udqL//7UgAdGRcR4yk8k+idsdmgS/QyWEqD/axS2JDV33zlnzLHIzQ2MDq9OeJ3m8l76KKENYlxrmM/b65Ys1+8YxnTEZFIEY0vVhszFWfUGZDJpQTDznTgAe5k4XhQxILB7ruzBQn+kkyDXuHfRtjoYDEvH7J9Lz98dBZXXL94X0Ofco2PFlChKbjVzEdakoSlKjoNoqPYkJ/wUZAYwc+PpLj1Ei7+jdoBWlwQZoJv2H1w3CWgRvo7dd9DP5btgwCWz0M02+oVoxCcIWeY9PNmR6B++m9prMxYEISpCBYBlfy9bc745is7UUULAem1Ww7FfalsiA2uaJsgmWP3pQI9q9/yMLkaaHAp2fxhHff/cNq7dBdHXhGW7l+Mo2zU0Cf8knJ2xA0oJ8enwAAAAASUVORK5CYII='; 
+
+/**
+ * Specifies the image to be used for the back button.
+ */
+Editor.backLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAclBMVEUAAAD////////////////+/v7////////////////////////////////////////////+/v7///////////////////////////////////////////////////////////////////////////////8vKLfTAAAAJXRSTlMACh7h9gby3NLIwzwZ55uVJgH57b+8tbCljYV1RRMQ46FrTzQw+vtxOQAAAJ5JREFUOMuF00cWgzAQA1DRDQFCbwFSdf8rZpdVrNH2z3tuMv7mldZQ2WN2yi8x+TT8JvyTkqvwpiKvwsOIrA1fWr+XGTklfj8dOQR+D3KyUF6QufBkJN0hfCazEv6sZBRCJDUcPasGKpu1RLtYE8lkHAPBQLoTsK/SfAyRw5FjAuhCzC2MSj0gJ+66lHatgXdKboD9tfREB5m9/+3iC9jHDYvsGNcUAAAAAElFTkSuQmCC';
+
+/**
+ * Specifies the image to be used for the back button.
+ */
+Editor.fullscreenLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAllBMVEUAAAD////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////AJcWoAAAAMXRSTlMA+wIFxPWPCIb446tnUxmsoIykgxTe29jQnpKBe2MNsZhVTR/KyLuWbFhEPjUq7L9z+bQj+gAAAWxJREFUOMttk4l2gkAMRTODCO4FtQgIbnWpS9v8/881iZFh8R51NO8GJ+gAjMN8zuTRFSw04cIOHQcqFHH6oaQFGxf0jeBjEgB8Y52TpW9Ag4zB5QICWOtHrgwGuFZBcw+gPP0MFS7+iiD5inOmDIQS9sZgTwUzwEzyxhxHVEEU7NdDUXsqUPtqjIgR2IZSCT4upzSeIeOdcMHnfDsx3giPoezfU6MrQGB5//SckLEG2xYscK4GfnUFqaix39zrwooaOD/cXoYuvHKQIc7pzd3HVPusp6t2FAW/RmjMonbl8vwHDeZo/GkleJC7e+p5XA/rAq1X/V10wKag04rBpa2/d0LL4OYYceOEtsG5jyMntI1wS+N1BGcQBl/CoLoPOl9ABrW/BP53e1bwSJHHlkIVchJwmHwyyfJ4kIvEnKtwkxNSEct83KSChT7WiWgDZ3ccZ0BM4tloJow2YUAtifNT3njnyD+y/pMsnP4DN3Y4yl1Gyk0AAAAASUVORK5CYII=';
+
+/**
  * Specifies the image URL to be used for the transparent background.
  */
 Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
@@ -274,6 +289,11 @@ Editor.prototype.appName = document.title;
  * 
  */
 Editor.prototype.editBlankUrl = window.location.protocol + '//' + window.location.host + '/';
+
+/**
+ * Default value for the graph container overflow style.
+ */
+Editor.prototype.defaultGraphOverflow = 'hidden';
 
 /**
  * Initializes the environment.
@@ -381,7 +401,7 @@ Editor.prototype.resetGraph = function()
 	this.graph.pageVisible = this.graph.defaultPageVisible;
 	this.graph.pageBreaksVisible = this.graph.pageVisible; 
 	this.graph.preferPageSize = this.graph.pageBreaksVisible;
-	this.graph.background = this.graph.defaultGraphBackground;
+	this.graph.background = null;
 	this.graph.pageScale = mxGraph.prototype.pageScale;
 	this.graph.pageFormat = mxGraph.prototype.pageFormat;
 	this.graph.currentScale = 1;
@@ -421,7 +441,7 @@ Editor.prototype.readGraphState = function(node)
 		this.graph.pageScale = mxGraph.prototype.pageScale;
 	}
 
-	if (!this.graph.isLightboxView())
+	if (!this.graph.isLightboxView() && !this.graph.isViewer())
 	{
 		var pv = node.getAttribute('page');
 	
@@ -575,7 +595,7 @@ Editor.prototype.updateGraphComponents = function()
 	if (graph.container != null)
 	{
 		graph.view.validateBackground();
-		graph.container.style.overflow = (graph.scrollbars) ? 'auto' : 'hidden';
+		graph.container.style.overflow = (graph.scrollbars) ? 'auto' : this.defaultGraphOverflow;
 		
 		this.fireEvent(new mxEventObject('updateGraphComponents'));
 	}
@@ -628,7 +648,7 @@ Editor.prototype.createUndoManager = function()
 		
 		for (var i = 0; i < cand.length; i++)
 		{
-			if ((model.isVertex(cand[i]) || model.isEdge(cand[i])) && graph.view.getState(cand[i]) != null)
+			if (graph.view.getState(cand[i]) != null)
 			{
 				cells.push(cand[i]);
 			}
@@ -725,7 +745,7 @@ OpenFile.prototype.cancel = function(cancel)
 /**
  * Basic dialogs that are available in the viewer (print dialog).
  */
-function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent)
+function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize, ignoreBgClick)
 {
 	var dx = 0;
 	
@@ -743,9 +763,9 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var h0 = h;
 	
 	// clientHeight check is attempted fix for print dialog offset in viewer lightbox
-	var dh = (document.documentElement.clientHeight > 0) ? document.documentElement.clientHeight :
-		Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight);
-	var left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
+	var ds = mxUtils.getDocumentSize();
+	var dh = ds.height;
+	var left = Math.max(1, Math.round((ds.width - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 	
 	// Keeps window size inside available space
@@ -754,7 +774,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		elt.style.maxHeight = '100%';
 	}
 	
-	w = Math.min(w, document.body.scrollWidth - 64);
+	w = (document.body != null) ? Math.min(w, document.body.scrollWidth - 64) : w;
 	h = Math.min(h, dh - 64);
 	
 	// Increments zIndex to put subdialogs and background over existing dialogs and background
@@ -830,20 +850,35 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		document.body.appendChild(img);
 		this.dialogImg = img;
 		
-		mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
+		if (!ignoreBgClick)
 		{
-			editorUi.hideDialog(true);
-		}));
+			mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
+			{
+				editorUi.hideDialog(true);
+			}));
+		}
 	}
 	
 	this.resizeListener = mxUtils.bind(this, function()
 	{
-		dh = Math.max(document.body.clientHeight, document.documentElement.clientHeight);
+		if (onResize != null)
+		{
+			var newWH = onResize();
+			
+			if (newWH != null)
+			{
+				w0 = w = newWH.w;
+				h0 = h = newWH.h;
+			}
+		}
+		
+		var ds = mxUtils.getDocumentSize();
+		dh = ds.height;
 		this.bg.style.height = dh + 'px';
 		
-		left = Math.max(1, Math.round((document.body.clientWidth - w - 64) / 2));
+		left = Math.max(1, Math.round((ds.width - w - 64) / 2));
 		top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-		w = Math.min(w0, document.body.scrollWidth - 64);
+		w = (document.body != null) ? Math.min(w0, document.body.scrollWidth - 64) : w0;
 		h = Math.min(h0, dh - 64);
 		
 		var pos = this.getPosition(left, top, w, h);
@@ -927,11 +962,15 @@ Dialog.prototype.getPosition = function(left, top)
 /**
  * Removes the dialog from the DOM.
  */
-Dialog.prototype.close = function(cancel)
+Dialog.prototype.close = function(cancel, isEsc)
 {
 	if (this.onDialogClose != null)
 	{
-		this.onDialogClose(cancel);
+		if (this.onDialogClose(cancel, isEsc) == false)
+		{
+			return false;
+		}
+		
 		this.onDialogClose = null;
 	}
 	
@@ -948,6 +987,116 @@ Dialog.prototype.close = function(cancel)
 	
 	mxEvent.removeListener(window, 'resize', this.resizeListener);
 	this.container.parentNode.removeChild(this.container);
+};
+
+/**
+ * 
+ */
+var ErrorDialog = function(editorUi, title, message, buttonText, fn, retry, buttonText2, fn2, hide, buttonText3, fn3)
+{
+	hide = (hide != null) ? hide : true;
+	
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+
+	if (title != null)
+	{
+		var hd = document.createElement('div');
+		hd.style.padding = '0px';
+		hd.style.margin = '0px';
+		hd.style.fontSize = '18px';
+		hd.style.paddingBottom = '16px';
+		hd.style.marginBottom = '10px';
+		hd.style.borderBottom = '1px solid #c0c0c0';
+		hd.style.color = 'gray';
+		hd.style.whiteSpace = 'nowrap';
+		hd.style.textOverflow = 'ellipsis';
+		hd.style.overflow = 'hidden';
+		mxUtils.write(hd, title);
+		hd.setAttribute('title', title);
+		div.appendChild(hd);
+	}
+
+	var p2 = document.createElement('div');
+	p2.style.lineHeight = '1.2em';
+	p2.style.padding = '6px';
+	p2.innerHTML = message;
+	div.appendChild(p2);
+	
+	var btns = document.createElement('div');
+	btns.style.marginTop = '12px';
+	btns.style.textAlign = 'center';
+	
+	if (retry != null)
+	{
+		var retryBtn = mxUtils.button(mxResources.get('tryAgain'), function()
+		{
+			editorUi.hideDialog();
+			retry();
+		});
+		retryBtn.className = 'geBtn';
+		btns.appendChild(retryBtn);
+		
+		btns.style.textAlign = 'center';
+	}
+	
+	if (buttonText3 != null)
+	{
+		var btn3 = mxUtils.button(buttonText3, function()
+		{
+			if (fn3 != null)
+			{
+				fn3();
+			}
+		});
+		
+		btn3.className = 'geBtn';
+		btns.appendChild(btn3);
+	}
+	
+	var btn = mxUtils.button(buttonText, function()
+	{
+		if (hide)
+		{
+			editorUi.hideDialog();
+		}
+		
+		if (fn != null)
+		{
+			fn();
+		}
+	});
+	
+	btn.className = 'geBtn';
+	btns.appendChild(btn);
+
+	if (buttonText2 != null)
+	{
+		var mainBtn = mxUtils.button(buttonText2, function()
+		{
+			if (hide)
+			{
+				editorUi.hideDialog();
+			}
+			
+			if (fn2 != null)
+			{
+				fn2();
+			}
+		});
+		
+		mainBtn.className = 'geBtn gePrimaryBtn';
+		btns.appendChild(mainBtn);
+	}
+
+	this.init = function()
+	{
+		btn.focus();
+	};
+	
+	div.appendChild(btns);
+
+	this.container = div;
 };
 
 /**
@@ -1179,26 +1328,33 @@ PrintDialog.prototype.create = function(editorUi)
  */
 PrintDialog.printPreview = function(preview)
 {
-	if (preview.wnd != null)
+	try
 	{
-		var printFn = function()
+		if (preview.wnd != null)
 		{
-			preview.wnd.focus();
-			preview.wnd.print();
-			preview.wnd.close();
-		};
-		
-		// Workaround for Google Chrome which needs a bit of a
-		// delay in order to render the SVG contents
-		// Needs testing in production
-		if (mxClient.IS_GC)
-		{
-			window.setTimeout(printFn, 500);
+			var printFn = function()
+			{
+				preview.wnd.focus();
+				preview.wnd.print();
+				preview.wnd.close();
+			};
+			
+			// Workaround for Google Chrome which needs a bit of a
+			// delay in order to render the SVG contents
+			// Needs testing in production
+			if (mxClient.IS_GC)
+			{
+				window.setTimeout(printFn, 500);
+			}
+			else
+			{
+				printFn();
+			}
 		}
-		else
-		{
-			printFn();
-		}
+	}
+	catch (e)
+	{
+		// ignores possible Access Denied
 	}
 };
 
@@ -1731,7 +1887,8 @@ PageSetupDialog.getFormats = function()
 {
 	return [{key: 'letter', title: 'US-Letter (8,5" x 11")', format: mxConstants.PAGE_FORMAT_LETTER_PORTRAIT},
 	        {key: 'legal', title: 'US-Legal (8,5" x 14")', format: new mxRectangle(0, 0, 850, 1400)},
-	        {key: 'tabloid', title: 'US-Tabloid (279 mm x 432 mm)', format: new mxRectangle(0, 0, 1100, 1700)},
+	        {key: 'tabloid', title: 'US-Tabloid (11" x 17")', format: new mxRectangle(0, 0, 1100, 1700)},
+	        {key: 'executive', title: 'US-Executive (7" x 10")', format: new mxRectangle(0, 0, 700, 1000)},
 	        {key: 'a0', title: 'A0 (841 mm x 1189 mm)', format: new mxRectangle(0, 0, 3300, 4681)},
 	        {key: 'a1', title: 'A1 (594 mm x 841 mm)', format: new mxRectangle(0, 0, 2339, 3300)},
 	        {key: 'a2', title: 'A2 (420 mm x 594 mm)', format: new mxRectangle(0, 0, 1654, 2336)},
@@ -1740,6 +1897,11 @@ PageSetupDialog.getFormats = function()
 	        {key: 'a5', title: 'A5 (148 mm x 210 mm)', format: new mxRectangle(0, 0, 583, 827)},
 	        {key: 'a6', title: 'A6 (105 mm x 148 mm)', format: new mxRectangle(0, 0, 413, 583)},
 	        {key: 'a7', title: 'A7 (74 mm x 105 mm)', format: new mxRectangle(0, 0, 291, 413)},
+	        {key: 'b4', title: 'B4 (250 mm x 353 mm)', format: new mxRectangle(0, 0, 980, 1390)},
+	        {key: 'b5', title: 'B5 (176 mm x 250 mm)', format: new mxRectangle(0, 0, 690, 980)},
+	        {key: '16-9', title: '16:9 (1600 x 900)', format: new mxRectangle(0, 0, 1600, 900)},
+	        {key: '16-10', title: '16:10 (1920 x 1200)', format: new mxRectangle(0, 0, 1920, 1200)},
+	        {key: '4-3', title: '4:3 (1600 x 1200)', format: new mxRectangle(0, 0, 1600, 1200)},
 	        {key: 'custom', title: mxResources.get('custom'), format: null}];
 };
 

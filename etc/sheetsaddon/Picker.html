@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+<script type="text/javascript">
+  var DIALOG_DIMENSIONS = {width: 600, height: 420};
+  var DEVELOPER_KEY = 'AIzaSyB4sU8tc25bR_87qNb7eUVQN72_vv8mpbU';
+
+  /**
+   * Loads the Google Picker API.
+   */
+  function onApiLoad()
+  {
+    gapi.load('picker', {'callback': function()
+    {
+      getOAuthToken();
+    }});
+  }
+
+  /**
+   * Gets the user's OAuth 2.0 access token from the server-side script so that
+   * it can be passed to Picker. This technique keeps Picker from needing to
+   * show its own authorization dialog, but is only possible if the OAuth scope
+   * that Picker needs is available in Apps Script. Otherwise, your Picker code
+   * will need to declare its own OAuth scopes.
+   */
+  function getOAuthToken()
+  {
+	try
+	{
+    	google.script.run.withSuccessHandler(createPicker)
+        	.withFailureHandler(showError).getOAuthToken();
+	}
+	catch (e)
+	{
+		showError(e.message);
+	}
+  }
+
+  /**
+   * Creates a Picker that can access the user's spreadsheets. This function
+   * uses advanced options to hide the Picker's left navigation panel and
+   * default title bar.
+   *
+   * @param {string} token An OAuth 2.0 access token that lets Picker access the
+   *     file type specified in the addView call.
+   */
+  function createPicker(token)
+  {
+    if (token)
+    {
+		var view1 = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+		    .setParent('root')
+		    .setIncludeFolders(true)
+			.setMimeTypes('*/*');
+		
+		var view2 = new google.picker.DocsView()
+			.setIncludeFolders(true);
+		
+		var view3 = new google.picker.DocsView()
+			.setEnableTeamDrives(true)
+			.setIncludeFolders(true);
+
+		var view4 = new google.picker.DocsUploadView()
+			.setIncludeFolders(true);
+
+		var picker = new google.picker.PickerBuilder()
+		    .addView(view1)
+		    .addView(view2)
+		    .addView(view3)
+		    .addView(view4)
+		    .addView(google.picker.ViewId.RECENTLY_PICKED)
+		    .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+		    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+		    .hideTitleBar()
+		    .setOAuthToken(token)
+		    .setDeveloperKey(DEVELOPER_KEY)
+		    .setCallback(pickerCallback)
+		    .setOrigin(google.script.host.origin)
+		    .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
+		    .build();
+		picker.setVisible(true);
+    }
+    else
+    {
+      	showError('Unable to load the file picker.');
+    }
+  }
+
+  /**
+   * A callback function that extracts the chosen document's metadata from the
+   * response object. For details on the response object, see
+   * https://developers.google.com/picker/docs/result
+   *
+   * @param {object} data The response object.
+   */
+  function pickerCallback(data)
+  {
+    var action = data[google.picker.Response.ACTION];
+    
+    if (action == google.picker.Action.PICKED)
+    {
+      var items = [];
+      var docs = data[google.picker.Response.DOCUMENTS];
+      
+      for (var i = 0; i < docs.length; i++)
+      {
+        items.push({name: docs[i][google.picker.Document.NAME], id: docs[i][google.picker.Document.ID]}); 
+      }
+      
+      if (items.length > 0)
+      {
+        selectPages(items, function(execute)
+        {
+          if (execute)
+          {
+            document.getElementById('status').innerHTML = (items.length > 1) ?
+              'Inserting ' + items.length + ' Diagrams...' : "Inserting Diagram...";
+            google.script.run.withSuccessHandler(closeWindow).pickerHandler(items);
+          }
+          else
+          {
+            google.script.host.close();
+          }
+        });
+      }
+      else
+      {
+        google.script.host.close();
+      }
+    }
+    else if (action == google.picker.Action.CANCEL)
+    {
+      google.script.host.close();
+    }
+  }
+    
+  /**
+   * Closes the window after all diagrams have been inserted.
+   */
+  function selectPages(items, handler)
+  {
+    document.getElementById('spinner').style.display = 'none';
+    
+    var pageInputs = [];
+    var table = document.createElement('table');
+    table.setAttribute('cellpadding', '4');
+    table.style.width = '100%';
+    var tbody = document.createElement('tbody');
+    
+    var title = document.createElement('td');
+    title.setAttribute('colspan', '2');
+    title.innerHTML = '<font size="3">Select ' + ((items.length > 1) ? 'Pages' : 'Page') +
+      ' and Click Insert</font>';
+    
+    var row = document.createElement('tr');
+    row.appendChild(title);
+    tbody.appendChild(row);
+    
+    for (var i = 0; i < items.length; i++)
+    {
+      var row = document.createElement('tr');
+      
+      var td1 = document.createElement('td');
+      td1.appendChild(document.createTextNode(items[i].name));
+      td1.setAttribute('title', 'ID ' + items[i].id);
+      row.appendChild(td1);
+      
+      var td2 = document.createElement('td');
+      td2.style.textAlign = 'right';
+      td2.style.paddingLeft = '10px';
+      td2.innerHTML = 'Page: ';
+      var input = document.createElement('input');
+      input.setAttribute('type', 'number');
+      input.setAttribute('min', '1');
+      input.setAttribute('value', '1');
+      input.style.width = '60px';
+      td2.appendChild(input);
+      pageInputs.push(input);
+      row.appendChild(td2);
+      
+      tbody.appendChild(row);
+    }
+    
+    var buttons = document.createElement('td');
+    buttons.setAttribute('colspan', '2');
+    buttons.setAttribute('align', 'right');
+
+    var insertButton = document.createElement('button');
+    insertButton.innerHTML = 'Insert';
+    insertButton.className = 'blue';
+    buttons.appendChild(insertButton);
+
+    insertButton.addEventListener('click', function()
+    {
+      table.parentNode.removeChild(table);
+      document.getElementById('spinner').style.display = '';
+      
+      for (var i = 0; i < items.length; i++)
+      {
+        items[i].page = (parseInt(pageInputs[i].value) || 1) - 1;
+      }
+      
+      handler(true);
+    });
+
+    var cancelButton = document.createElement('button');
+    cancelButton.innerHTML = 'Cancel';
+    buttons.appendChild(cancelButton);
+
+    cancelButton.addEventListener('click', function()
+    {
+      handler(false);
+    });
+
+    var row = document.createElement('tr');
+    row.appendChild(buttons);
+    tbody.appendChild(row);
+    
+    table.appendChild(tbody);
+    document.body.appendChild(table);
+  }
+
+  /**
+   * Closes the window after all diagrams have been inserted.
+   */
+  function closeWindow()
+  {
+    google.script.host.close();
+  }
+
+  /**
+   * Displays an error message within the #result element.
+   *
+   * @param {string} message The error message to display.
+   */
+  function showError(message)
+  {
+	document.getElementById('icon').setAttribute('src', 'https://www.draw.io/images/stop-flat-icon-80.png');
+    document.getElementById('status').innerHTML = 'Error: ' + message;
+  }
+</script>
+</head>
+<body>
+<div id="spinner" style="text-align:center;padding-top:100px;">
+<img id="icon" src="https://www.draw.io/images/ajax-loader.gif"/>
+<h3 id="status" style="margin-top:6px;">Loading...</h3>
+</div>
+<script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+</body>
+</html>
+

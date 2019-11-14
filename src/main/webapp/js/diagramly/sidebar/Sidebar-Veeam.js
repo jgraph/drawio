@@ -16,11 +16,11 @@
 	
 	Sidebar.prototype.addVeeamDataCenterPalette = function()
 	{
-		var sn = 'shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
-		var s = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#4495D1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
-		var s2 = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#EF8F21;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
-		var s3 = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#4495D1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.';
-		var s4 = 'shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#EF8F21;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.';
+		var sn = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
+		var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#4495D1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
+		var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#EF8F21;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
+		var s3 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#4495D1;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.';
+		var s4 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#EF8F21;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.';
 
 		// Space savers
 		var sb = this;
@@ -150,13 +150,13 @@
 					w * 12, h * 9.2, '', 'Library', null, null, this.getTagsForStencil(gn, 'library', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'license;',
 					w * 12.7, h * 14.1, '', 'License', null, null, this.getTagsForStencil(gn, 'license', dt).join(' ')),
-			this.createVertexTemplateEntry(s3 + 'magnifying_glass;',
+			this.createVertexTemplateEntry(s3 + 'magnifying_glass;pointerEvents=1;',
 					w * 13.8, h * 13.6, '', 'Magnifying Glass', null, null, this.getTagsForStencil(gn, 'magnifying glass', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'script;',
 					w * 11.2, h * 11.2, '', 'Script', null, null, this.getTagsForStencil(gn, 'script', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'search;',
 					w * 11.2, h * 11.2, '', 'Search', null, null, this.getTagsForStencil(gn, 'search', dt).join(' ')),
-			this.createVertexTemplateEntry(s3 + 'smb;',
+			this.createVertexTemplateEntry(s3 + 'smb;pointerEvents=1;',
 					w * 20, h * 14.1, '', 'SMB', null, null, this.getTagsForStencil(gn, 'smb', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'tasks;',
 					w * 9.2, h * 12.7, '', 'Tasks', null, null, this.getTagsForStencil(gn, 'tasks', dt).join(' ')),
@@ -172,7 +172,7 @@
 					w * 9.2, h * 12.7, '', 'Report', null, null, this.getTagsForStencil(gn, 'report', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'privilege;',
 					w * 15.1, h * 14.5, '', 'Policy', null, null, this.getTagsForStencil(gn, 'policy', dt).join(' ')),
-			this.createVertexTemplateEntry(s3 + 'restore;',
+			this.createVertexTemplateEntry(s3 + 'restore;pointerEvents=1;',
 					w * 11.2, h * 11.2, '', 'Restore', null, null, this.getTagsForStencil(gn, 'restore', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'role;',
 					w * 9.2, h * 12.7, '', 'Role', null, null, this.getTagsForStencil(gn, 'role', dt).join(' ')),
@@ -207,17 +207,17 @@
 		
 		var fns =
 		[
-			this.createVertexTemplateEntry('shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
+			this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
 					w * 27.4, h * 4.8, '', 'Veeam logo', null, null, this.getTagsForStencil(gn, 'veeam logo', dt).join(' ')),
 			this.createVertexTemplateEntry(s4 + 'active_directory;',
 					w * 11.2, h * 11.2, '', 'Active Directory', null, null, this.getTagsForStencil(gn, 'active directory', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'agent;',
+			this.createVertexTemplateEntry(s + 'agent;pointerEvents=1;',
 					w * 11.2, h * 11.2, '', 'Agent', null, null, this.getTagsForStencil(gn, 'agent', dt).join(' ')),
 			this.createVertexTemplateEntry(s3 + 'automated_testing;',
 					w * 11.2, h * 11.2, '', 'Automated Testing', null, null, this.getTagsForStencil(gn, 'automated testing', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'backup_browser;',
 					w * 11.2, h * 11.2, '', 'Backup Browser', null, null, this.getTagsForStencil(gn, 'backup browser', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'data_mover;',
+			this.createVertexTemplateEntry(s + 'data_mover;pointerEvents=1;',
 					w * 11.2, h * 11.2, '', 'Data Mover', null, null, this.getTagsForStencil(gn, 'data mover', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'database;',
 					w * 15.7, h * 13.5, '', 'Database', null, null, this.getTagsForStencil(gn, 'database db', dt).join(' ')),
@@ -265,7 +265,7 @@
 					w * 11.2, h * 11.2, '', 'vSphere', null, null, this.getTagsForStencil(gn, 'vsphere virtual sphere', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'web_ui;',
 					w * 11.2, h * 11.2, '', 'Web UI', null, null, this.getTagsForStencil(gn, 'web ui user interface', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'transport_service;',
+			this.createVertexTemplateEntry(s + 'transport_service;pointerEvents=1;',
 					w * 11.2, h * 11.2, '', 'Transport Service', null, null, this.getTagsForStencil(gn, 'transport service', dt).join(' '))
 		];
 			
@@ -391,7 +391,7 @@
 					w * 11.1, h * 12.2, '', 'Company Administrator', null, null, this.getTagsForStencil(gn, 'company administrator', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'alert;',
 					w * 8.3, h * 8.3, '', 'Alert', null, null, this.getTagsForStencil(gn, 'alert', dt).join(' ')),
-			this.createVertexTemplateEntry(s4 + 'zipped;',
+			this.createVertexTemplateEntry(s4 + 'zipped;pointerEvents=1;',
 					w * 1.7, h * 14.3, '', 'Zipped', null, null, this.getTagsForStencil(gn, 'zipped', dt).join(' ')),
 			this.createVertexTemplateEntry(s4 + 'shared;',
 					w * 11.5, h * 6.2, '', 'Shared', null, null, this.getTagsForStencil(gn, 'shared', dt).join(' ')),
@@ -413,7 +413,7 @@
 					w * 9, h * 9, '', 'Active', null, null, this.getTagsForStencil(gn, 'active', dt).join(' ')),
 			this.createVertexTemplateEntry(s4 + 'delayed;',
 					w * 9, h * 9, '', 'Delayed', null, null, this.getTagsForStencil(gn, 'delayed', dt).join(' ')),
-			this.createVertexTemplateEntry(s3 + 'restore;',
+			this.createVertexTemplateEntry(s3 + 'restore;pointerEvents=1;',
 					w * 7.8, h * 7.4, '', 'Restore', null, null, this.getTagsForStencil(gn, 'restore', dt).join(' ')),
 			this.createVertexTemplateEntry(s4 + 'locked;',
 					w * 7.6, h * 8.6, '', 'Locked', null, null, this.getTagsForStencil(gn, 'locked', dt).join(' ')),
@@ -626,7 +626,7 @@
 		
 		var fns =
 		[
-			this.createVertexTemplateEntry('shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
+			this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
 					w * 27.4, h * 4.8, '', 'Veeam logo', null, null, this.getTagsForStencil(gn, 'veeam logo', dt).join(' ')),
 			this.createVertexTemplateEntry(s4 + 'backup_replication;',
 					w * 11.2, h * 11.2, '', 'Backup and Replication', null, null, this.getTagsForStencil(gn, 'backup and replication', dt).join(' ')),

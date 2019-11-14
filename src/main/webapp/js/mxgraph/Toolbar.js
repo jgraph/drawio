@@ -291,21 +291,21 @@ Toolbar.prototype.createTextToolbar = function()
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
 	var alignMenu = this.addMenuFunction('', mxResources.get('align'), false, mxUtils.bind(this, function(menu)
 	{
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyleft', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
 		}), null, 'geIcon geSprite geSprite-left');
 		elt.setAttribute('title', mxResources.get('left'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifycenter', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
 		}), null, 'geIcon geSprite geSprite-center');
 		elt.setAttribute('title', mxResources.get('center'));
 
-		elt = menu.addItem('', null, mxUtils.bind(this, function()
+		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
-			document.execCommand('justifyright', false, null);
+			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
 		}), null, 'geIcon geSprite geSprite-right');
 		elt.setAttribute('title', mxResources.get('right'));
 
@@ -450,7 +450,7 @@ Toolbar.prototype.createTextToolbar = function()
 	var elt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
 	{
 		var elt = graph.getSelectedElement();
-		var cell = graph.getParentByName(elt, 'TD', graph.cellEditor.text2);
+		var cell = graph.getParentByNames(elt, ['TD', 'TH'], graph.cellEditor.text2);
 		var row = graph.getParentByName(elt, 'TR', graph.cellEditor.text2);
 
 		if (row == null)
@@ -469,7 +469,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertcolumnbefore');
 			elt.setAttribute('title', mxResources.get('insertColumnBefore'));
@@ -482,7 +482,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertcolumnafter');
 			elt.setAttribute('title', mxResources.get('insertColumnAfter'));
@@ -497,7 +497,7 @@ Toolbar.prototype.createTextToolbar = function()
 					}
 					catch (e)
 					{
-						mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+						this.editorUi.handleError(e);
 					}
 				}
 			}), null, 'geIcon geSprite geSprite-deletecolumn');
@@ -511,7 +511,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertrowbefore');
 			elt.setAttribute('title', mxResources.get('insertRowBefore'));
@@ -524,7 +524,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-insertrowafter');
 			elt.setAttribute('title', mxResources.get('insertRowAfter'));
@@ -537,7 +537,7 @@ Toolbar.prototype.createTextToolbar = function()
 				}
 				catch (e)
 				{
-					mxUtils.alert(mxResources.get('error') + ': ' + e.message);
+					this.editorUi.handleError(e);
 				}
 			}), null, 'geIcon geSprite geSprite-deleterow');
 			elt.setAttribute('title', mxResources.get('deleteRow'));
@@ -835,14 +835,12 @@ Toolbar.prototype.addClickHandler = function(elt, funct)
 			mxEvent.consume(evt);
 		});
 		
-		if (document.documentMode != null && document.documentMode >= 9)
-		{
-			// Prevents focus
-			mxEvent.addListener(elt, 'mousedown', function(evt)
-			{
-				evt.preventDefault();
-			});
-		}
+		// Prevents focus
+	    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
+    	{
+			evt.preventDefault();
+		}));
 	}
 };
 
@@ -852,7 +850,6 @@ Toolbar.prototype.addClickHandler = function(elt, funct)
 Toolbar.prototype.createButton = function(classname)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geButton';
 
 	var inner = document.createElement('div');
@@ -873,7 +870,6 @@ Toolbar.prototype.createButton = function(classname)
 Toolbar.prototype.createLabel = function(label, tooltip)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geLabel';
 	mxUtils.write(elt, label);
 	
@@ -930,16 +926,12 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 			mxEvent.consume(evt);
 		}));
 
-		// Hides menu if already showing
-		mxEvent.addListener(elt, 'mousedown', mxUtils.bind(this, function(evt)
+		// Hides menu if already showing and prevents focus
+        mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
 		{
 			show = this.currentElt != elt;
-			
-			// Prevents focus
-			if (document.documentMode != null && document.documentMode >= 9)
-			{
-				evt.preventDefault();
-			}
+			evt.preventDefault();
 		}));
 	}
 };

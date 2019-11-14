@@ -52,11 +52,11 @@
 		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 		
 		<delete file="${basedir}/Graph-Stylesheet.js"/>
-		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes[Graph.prototype.defaultThemeName] = mxUtils.parseXml('</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js">Graph.prototype.defaultThemes['default-style2'] = mxUtils.parseXml(`</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
 		<delete file="${basedir}/.tmp1.js"/>
 		<copy file="${war.dir}/styles/dark-default.xml" tofile="${basedir}/.tmp1.xml" overwrite="true"/>
@@ -64,11 +64,11 @@
 		<replaceregexp file="${basedir}/.tmp1.xml" match="\t" flags="g" replace=""/>
 		<replaceregexp file="${basedir}/.tmp1.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = mxUtils.parseXml('</echo>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">Graph.prototype.defaultThemes['darkTheme'] = mxUtils.parseXml(`</echo>
 		<concat destfile="${basedir}/Graph-Stylesheet.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp1.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Stylesheet.js" append="true">').documentElement;</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
 		
 		<delete file="${basedir}/.tmp2.js"/>
@@ -77,11 +77,11 @@
 		<replaceregexp file="${basedir}/.tmp2.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
 		
 		<delete file="${basedir}/Graph-Resources.js"/>
-		<echo file="${basedir}/Graph-Resources.js">mxResources.parse('</echo>
+		<echo file="${basedir}/Graph-Resources.js">mxResources.parse(`</echo>
 		<concat destfile="${basedir}/Graph-Resources.js" fixlastline="no" append="true">
 			<filelist dir="${basedir}" files=".tmp2.xml"/>
-    		</concat>
-		<echo file="${basedir}/Graph-Resources.js" append="true">');</echo>
+		</concat>
+		<echo file="${basedir}/Graph-Resources.js" append="true">`);</echo>
 		
 		<jscomp compilationLevel="simple" forceRecompile="true" debug="false" output="${basedir}/grapheditor.min.js">
 			<sources dir="${grapheditor.dir}">
@@ -101,6 +101,7 @@
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
+				<file name="Sidebar-ActiveDirectory.js" />
 				<file name="Sidebar-Advanced.js" />
 				<file name="Sidebar-AlliedTelesis.js" />
 				<file name="Sidebar-Android.js" />
@@ -112,6 +113,7 @@
 				<file name="Sidebar-AWS3.js" />
 				<file name="Sidebar-AWS3D.js" />
 				<file name="Sidebar-AWS4.js" />
+				<file name="Sidebar-AWS4b.js" />
 				<file name="Sidebar-Azure.js" />
 				<file name="Sidebar-Basic.js" />
 				<file name="Sidebar-Bootstrap.js" />
@@ -119,6 +121,7 @@
 				<file name="Sidebar-Cabinet.js" />
 				<file name="Sidebar-CiscoSafe.js" />
 				<file name="Sidebar-Citrix.js" />
+				<file name="Sidebar-Cumulus.js" />
 				<file name="Sidebar-DFD.js" />
 				<file name="Sidebar-EIP.js" />
 				<file name="Sidebar-Electrical.js" />
@@ -142,6 +145,7 @@
 				<file name="Sidebar-Sitemap.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-VVD.js" />
 				<file name="Sidebar-WebIcons.js" />
 			</sources>
 		</jscomp>
@@ -191,6 +195,8 @@
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
+				<file name="DrawioComment.js" />
+				<file name="DrawioUser.js" />
 			</sources>
 					
 			<sources dir="${basedir}">
@@ -254,17 +260,25 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
 				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
 				<file name="Settings.js" />
+				<file name="DrawioFileSync.js" />
 				<file name="App.js" />
 				<file name="Menus.js" />
 				<file name="Pages.js" />
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
+				<file name="mxFreehand.js" />
+				<file name="DrawioUser.js" />
+				<file name="DrawioComment.js" />
 			</sources>
 				
 			<sources dir="${basedir}">
@@ -275,6 +289,7 @@
 		<concat destfile="${basedir}/base.min.js" fixlastline="yes" append="no">
 			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
@@ -309,11 +324,15 @@
 				<file name="LocalLibrary.js" />
 				<file name="StorageFile.js" />
 				<file name="StorageLibrary.js" />
+				<file name="RemoteFile.js" />
+				<file name="RemoteLibrary.js" />
 				<file name="UrlLibrary.js" />
 				<file name="Dialogs.js" />
 				<file name="Editor.js" />
 				<file name="EditorUi.js" />
+				<file name="DiffSync.js" />
 				<file name="Settings.js" />
+				<file name="DrawioFileSync.js" />
 			</sources>
 				
 			<sources dir="${basedir}">
@@ -328,8 +347,6 @@
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="DrawioClient.js" />
 				<file name="DrawioUser.js" />
-				<file name="DriveRealtime.js" />
-				<file name="RealtimeMapping.js" />
 				<file name="DriveFile.js" />
 				<file name="DriveLibrary.js" />
 				<file name="DriveClient.js" />
@@ -345,7 +362,11 @@
 				<file name="TrelloFile.js" />
 				<file name="TrelloLibrary.js" />
 				<file name="TrelloClient.js" />
-				<file name="ChatWindow.js" />
+				<file name="GitLabFile.js" />
+				<file name="GitLabLibrary.js" />
+				<file name="GitLabClient.js" />
+				<file name="DrawioComment.js" />
+				<file name="DriveComment.js" />
 			</sources>
 			
 			<sources dir="${war.dir}/js/diagramly">
@@ -355,12 +376,15 @@
 				<file name="Trees.js" />
 				<file name="Minimal.js" />
 				<file name="DistanceGuides.js" />
+				<file name="mxRuler.js" />
+				<file name="mxFreehand.js" />
 			</sources>
 		</jscomp>
 
 		<concat destfile="${war.dir}/js/app.min.js" fixlastline="yes" append="no">
 			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
+			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
@@ -390,15 +414,12 @@
 			<classpath refid="javac.class.path" />
 		</javac>
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />
+		<copy todir="${javac.dir}/com/mxgraph/io/gliffy/importer" file="${src.dir}/com/mxgraph/io/gliffy/importer/gliffyTranslation.properties" />
 	</target>
 
 	<target name="clean" description="Cleans build directories">
-		<delete failonerror="false">
-			<fileset dir="${javac.dir}">
-			</fileset>
-			<fileset dir="${build.dir}">
-			</fileset>
-		</delete>
+		<delete dir="${javac.dir}"/>
+		<delete dir="${build.dir}"/>
 		<delete file="${basedir}/base.min.js"/>
 		<delete file="${basedir}/base-viewer.min.js"/>
 	</target>

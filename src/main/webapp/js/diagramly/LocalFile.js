@@ -176,13 +176,5 @@ LocalFile.prototype.rename = function(title, success, error)
 LocalFile.prototype.open = function()
 {
 	this.ui.setFileData(this.getData());
-	
-	// Only used to update the status when the file changes
-	this.changeListener = mxUtils.bind(this, function(sender, eventObject)
-	{
-		this.setModified(true);
-		this.addUnsavedStatus();
-	});
-	
-	this.ui.editor.graph.model.addListener(mxEvent.CHANGE, this.changeListener);
+	this.installListeners();
 };

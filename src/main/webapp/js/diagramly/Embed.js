@@ -73,7 +73,7 @@
 
 			var script = document.createElement('script');
 			script.type = 'text/javascript';
-			script.src = 'https://math.draw.io/current/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+			script.src = 'https://www.draw.io/math/MathJax.js?config=TeX-MML-AM_HTMLorMML';
 			document.getElementsByTagName('head')[0].appendChild(script);
 		}
 	};
@@ -170,7 +170,7 @@
 				}
 				else
 				{
-					xml = graph.decompress(xml);
+					xml = Graph.decompress(xml);
 				}
 				
 				var xmlDocument = mxUtils.parseXml(xml);
@@ -185,7 +185,7 @@
 					if (diagrams.length > 0)
 					{
 						xml = mxUtils.getTextContent(diagrams[0]);
-						xml = graph.decompress(xml);
+						xml = Graph.decompress(xml);
 						xmlDocument = mxUtils.parseXml(xml);
 					}
 				}
@@ -219,6 +219,10 @@
 							else if (name == 'pagenumber')
 							{
 								return 1;
+							}
+							else if (name == 'pagecount')
+							{
+								return diagrams.length;
 							}
 							
 							return graphGetGlobalVariable.apply(this, arguments);
@@ -536,7 +540,7 @@
 							    				if (divs2.length > 0)
 							    				{
 							    					var data = mxUtils.getTextContent(divs2[0]);
-							    	        		data = graph.decompress(data);
+							    	        		data = Graph.decompress(data);
 							    	        		
 							    	        		if (data.length > 0)
 							    	        		{
@@ -572,7 +576,7 @@
 							    			
 							    			if (diagrams.length > 0)
 							    			{
-							    				data = graph.decompress(mxUtils.getTextContent(diagrams[0]));
+							    				data = Graph.decompress(mxUtils.getTextContent(diagrams[0]));
 							    				newDocument = mxUtils.parseXml(data);
 							    			}
 							    		}

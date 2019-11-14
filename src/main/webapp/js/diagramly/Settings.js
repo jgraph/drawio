@@ -10,7 +10,7 @@ var mxSettings =
 	/**
 	 * Defines current version of settings.
 	 */
-	currentVersion: 17,
+	currentVersion: 18,
 	
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
 	
@@ -41,13 +41,20 @@ var mxSettings =
 	{
 		mxSettings.settings.showStartScreen = showStartScreen;
 	},
-	getGridColor: function()
+	getGridColor: function(darkMode)
 	{
-		return mxSettings.settings.gridColor;
+		return (darkMode) ? mxSettings.settings.darkGridColor : mxSettings.settings.gridColor;
 	},
-	setGridColor: function(gridColor)
+	setGridColor: function(gridColor, darkMode)
 	{
-		mxSettings.settings.gridColor = gridColor;
+		if (darkMode)
+		{
+			mxSettings.settings.darkGridColor = gridColor;
+		}
+		else
+		{
+			mxSettings.settings.gridColor = gridColor;
+		}
 	},
 	getAutosave: function()
 	{
@@ -72,6 +79,14 @@ var mxSettings =
 	setOpenCounter: function(openCounter)
 	{
 		mxSettings.settings.openCounter = openCounter;
+	},
+	setCustomFonts: function(fonts)
+	{
+		mxSettings.settings.customFonts = fonts;
+	},
+	getCustomFonts: function(fonts)
+	{
+		return mxSettings.settings.customFonts;
 	},
 	getLibraries: function()
 	{
@@ -152,12 +167,29 @@ var mxSettings =
 	{
 		mxSettings.settings.pageFormat = value;
 	},
+	getUnit: function()
+	{
+		return mxSettings.settings.unit || mxConstants.POINTS;
+	},
+	setUnit: function(value)
+	{
+		mxSettings.settings.unit = value;
+	},
+	isRulerOn: function()
+	{
+		return mxSettings.settings.isRulerOn;
+	},
+	setRulerOn: function(value)
+	{
+		mxSettings.settings.isRulerOn = value;
+	},
 	init: function()
 	{
 		mxSettings.settings = 
 		{
 			language: '',
 			configVersion: Editor.configVersion,
+			customFonts: [],
 			libraries: Sidebar.prototype.defaultEntries,
 			customLibraries: Editor.defaultCustomLibraries,
 			plugins: [],
@@ -167,13 +199,16 @@ var mxSettings =
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,
-			gridColor: mxGraphView.prototype.gridColor,
-			autosave: !EditorUi.isElectronApp,
+			gridColor: mxGraphView.prototype.defaultGridColor,
+			darkGridColor: mxGraphView.prototype.defaultDarkGridColor,
+			autosave: true,
 			resizeImages: null,
 			openCounter: 0,
 			version: mxSettings.currentVersion,
 			// Only defined and true for new settings which haven't been saved
-			isNew: true
+			isNew: true,
+			unit: mxConstants.POINTS,
+			isRulerOn: true
 		};
 	},
 	save: function()
@@ -228,6 +263,11 @@ var mxSettings =
 				{
 					mxSettings.settings.recentColors = [];
 				}
+
+				if (mxSettings.settings.customFonts == null)
+				{
+					mxSettings.settings.customFonts = [];
+				}
 				
 				if (mxSettings.settings.libraries == null)
 				{
@@ -276,7 +316,12 @@ var mxSettings =
 				
 				if (mxSettings.settings.gridColor == null)
 				{
-					mxSettings.settings.gridColor = mxGraphView.prototype.gridColor;
+					mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
+				}
+
+				if (mxSettings.settings.darkGridColor == null)
+				{
+					mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
 				}
 				
 				if (mxSettings.settings.autosave == null)

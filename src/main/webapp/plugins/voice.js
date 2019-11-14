@@ -36,7 +36,7 @@ Draw.loadPlugin(function(ui) {
 	var micImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA5UlEQVR4Xr3SMYrCQBTGcSfIQiAgRIS9hOANBCurPUAuIAp7A7FVsFkIbLGYA9gKtoKNYG3jll5AFNKG518YMD6SISD4wY9J4MvkMYwRkZqOMSZkifGFe1b4pnvW3TqK8oMo14twxUgXPRSlDxU7TcUNPqATlG7wCi93cA2Iq2x7l7IJsgofB6UTiEjKklFqsabQSdFA5jqDAzrYQGeNNv5d9yDBEAME6NreFmP8Yuma4A8hFpiLSFNAYYYYn0jwCIUnxMcER4h1whS+7hseXKcu9ifGeQ+qeO8GjN7DPve+Q6+oewPhmE63Qfsb6AAAAABJRU5ErkJggg==';
 	
 	// True if we're on ChromOs
-	var chromeOs = /\bCrOS\b/.test(navigator.userAgent);
+	var chromeOs = mxClient.IS_CHROMEOS;
 	
 	// Maximum length of message to speak
 	var maxMessageLength = 1000;

@@ -72,20 +72,6 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>IconSearch</display-name>
-    <servlet-name>IconSearch</servlet-name>
-    <servlet-class>com.mxgraph.online.IconSearchServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>IconSearch</servlet-name>
-    <url-pattern>/iconSearch</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>IconSearch</servlet-name>
-    <url-pattern>/iconfinder</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>ImgurRedirect</display-name>
     <servlet-name>ImgurRedirect</servlet-name>
     <servlet-class>com.mxgraph.online.ImgurRedirectServlet</servlet-class>
@@ -106,40 +92,6 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>EmailServlet</display-name>
-    <servlet-name>EmailServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.EmailServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>EmailServlet</servlet-name>
-    <url-pattern>/email</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>EmailServlet</servlet-name>
-    <url-pattern>/error</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
-    <display-name>LicenseServlet</display-name>
-    <servlet-name>LicenseServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.LicenseServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>LicenseServlet</servlet-name>
-    <url-pattern>/license</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
-    <display-name>LicenseInitServlet</display-name>
-    <servlet-name>LicenseInitServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.LicenseInitServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>LicenseInitServlet</servlet-name>
-    <url-pattern>/license-init</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>AppShortcutServlet</display-name>
     <servlet-name>AppShortcutServlet</servlet-name>
     <servlet-class>com.mxgraph.online.AppShortcutServlet</servlet-class>
@@ -149,25 +101,6 @@
     <url-pattern>/app</url-pattern>
   </servlet-mapping>
   <servlet>
-    <description/>
-    <display-name>ConnectImageServlet</display-name>
-    <servlet-name>ConnectImageServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.ConnectImageServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ConnectImageServlet</servlet-name>
-    <url-pattern>/connectImage</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <display-name>ConnectRenderServlet</display-name>
-    <servlet-name>ConnectRenderServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.ConnectRenderServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ConnectRenderServlet</servlet-name>
-    <url-pattern>/connectRender</url-pattern>
-  </servlet-mapping>
-  <servlet>
     <display-name>LogServlet</display-name>
     <servlet-name>LogServlet</servlet-name>
     <servlet-class>com.mxgraph.online.LogServlet</servlet-class>
@@ -175,6 +108,50 @@
   <servlet-mapping>
     <servlet-name>LogServlet</servlet-name>
     <url-pattern>/log</url-pattern>
+  </servlet-mapping>
+    <servlet>
+    <description/>
+    <display-name>MSGraphAuthServlet</display-name>
+    <servlet-name>MSGraphAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.MSGraphAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MSGraphAuthServlet</servlet-name>
+    <url-pattern>/microsoft</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>GoogleAuthServlet</display-name>
+    <servlet-name>GoogleAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.GoogleAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>GoogleAuthServlet</servlet-name>
+    <url-pattern>/google</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>ConverterServlet</display-name>
+    <servlet-name>ConverterServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ConverterServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ConverterServlet</servlet-name>
+    <url-pattern>/convert</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>ExportProxyServlet</display-name>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.ExportProxyServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <url-pattern>/export</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ExportProxyServlet</servlet-name>
+    <url-pattern>/service/*</url-pattern>
   </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>

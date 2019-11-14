@@ -392,7 +392,7 @@ function VsdxExport(editorUi)
 	{
 		var state = graph.view.getState(cell, true);
 		
-		if (state == null)
+		if (state == null || state.absolutePoints == null || state.cellBounds == null)
 		{
 			return null;
 		}
@@ -531,16 +531,23 @@ function VsdxExport(editorUi)
 				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo, true);
 				cell.treatAsSingle = false;
 				cell.setGeometry(geo);
-				gShapes.appendChild(subShape);
+				
+				if (subShape != null)
+				{
+					gShapes.appendChild(subShape);
+				}
 				
 				//add group children
-				for (var i = 0; i < cell.children.length; i++)
+				for (var i = 0; i < cell.getChildCount(); i++)
 				{
 					var child = cell.children[i];
 					
 					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo, true);
 					
-					gShapes.appendChild(subShape);
+					if (subShape != null)
+					{
+						gShapes.appendChild(subShape);
+					}
 				}
 				
 				shape.appendChild(gShapes);
@@ -679,7 +686,7 @@ function VsdxExport(editorUi)
 
 	function writeXmlDoc2Zip(zip, name, xmlDoc, noHeader)
 	{
-		zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc));
+		zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc, '\n'));
 	};
 	
 	function addPagesXML(zip, pages, modelsAttr) 
@@ -833,10 +840,32 @@ function VsdxExport(editorUi)
 						
 						var diagramName = page.getName();
 						var graph = editorUi.editor.graph;
-						var modelAttrib = getGraphAttributes(graph);
-						pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
-						addImagesRels(zip, i+1);
-						modelsAttr[diagramName] = modelAttrib;
+						
+						//Handles dark mode
+						var temp = null;
+						
+						if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+						{
+							temp = graph.stylesheet;
+							graph.stylesheet = graph.getDefaultStylesheet();
+							graph.refresh();
+						}
+						
+						try
+						{
+							var modelAttrib = getGraphAttributes(graph);
+							pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
+							addImagesRels(zip, i+1);
+							modelsAttr[diagramName] = modelAttrib;
+						}
+						finally
+						{
+							if (temp != null)
+							{
+								graph.stylesheet = temp;
+								graph.refresh();
+							}
+						}
 					}
 					
 					if (currentPage != editorUi.currentPage)
@@ -889,6 +918,7 @@ function VsdxExport(editorUi)
 		catch(e) 
 		{
 			console.log(e);
+			editorUi.spinner.stop();
 			return false;
 		}
 	};	

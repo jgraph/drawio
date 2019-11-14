@@ -3,5 +3,8 @@
  */
 Draw.loadPlugin(function(ui)
 {
-	ui.hideFooter();
+	if (!window.mxIsElectron5)
+	{
+		alert('You need to update to latest draw.io desktop');
+	}
 });

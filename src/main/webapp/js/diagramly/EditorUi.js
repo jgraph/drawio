@@ -13,17 +13,53 @@
 	 * Overrides compact UI setting.
 	 */
 	EditorUi.compactUi = uiTheme != 'atlas';
+
+	/**
+	 * Overrides default grid color for dark mode
+	 */
+	mxGraphView.prototype.defaultDarkGridColor = '#6e6e6e';
+	
+	if (uiTheme == 'dark')
+	{
+		mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultDarkGridColor;
+	}
 	
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
-	EditorUi.enableLogging = /.*\.draw\.io$/.test(window.location.hostname) &&
+	EditorUi.enableLogging = urlParams['stealth'] != '1' &&
+		/.*\.draw\.io$/.test(window.location.hostname) &&
 		window.location.hostname != 'support.draw.io';
 	
+	/**
+	 * Protocol and hostname to use for embedded files. Default is https://www.draw.io
+	 */
+	EditorUi.drawHost = 'https://www.draw.io';
+	
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.lastErrorMessage = null;
+
+	/**
+	 * Switch to disable logging for mode and search terms.
+	 */
+	EditorUi.ignoredAnonymizedChars = '\n\t`~!@#$%^&*()_+{}|:"<>?-=[]\;\'.\/,\n\t';
+
 	/**
 	 * Specifies the URL for the templates index file.
 	 */
 	EditorUi.templateFile = TEMPLATE_PATH + '/index.xml';
+
+	/**
+	 * Specifies the URL for the diffsync cache.
+	 */
+	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
+
+	/**
+	 * Cache timeout is 10 seconds.
+	 */
+	Editor.cacheTimeout = 10000;
 	
 	/**
 	 * Switch to enable PlantUML in the insert from text dialog.
@@ -43,6 +79,217 @@
 	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
 	
 	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.logError = function(message, url, linenumber, colno, err)
+	{
+		if (urlParams['dev'] == '1')
+		{
+			EditorUi.debug('logError', message, url, linenumber, colno, err);
+		}
+		else if (EditorUi.enableLogging)
+		{
+			try
+			{
+				if (message == EditorUi.lastErrorMessage || (message != null && url != null &&
+					((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+				{
+					// TODO log external domain script failure "Script error." is
+					// reported when the error occurs in a script that is hosted
+					// on a domain other than the domain of the current page
+				}
+				// DocumentClosedError seems to be an FF bug an can be ignored for now
+				else if (message != null && message.indexOf('DocumentClosedError') < 0)
+				{
+					EditorUi.lastErrorMessage = message;
+					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
+						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
+						'CONFIG' : 'SEVERE';
+					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+					err = (err != null) ? err : new Error(message);
+
+					var img = new Image();
+					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
+		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
+		    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
+		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+				}
+			}
+			catch (err)
+			{
+				// do nothing
+			}
+		}
+	};
+	
+	/**
+	 * Updates action states depending on the selection.
+	 */
+	EditorUi.logEvent = function(data)
+	{
+		if (urlParams['dev'] == '1')
+		{
+			EditorUi.debug('logEvent', data);
+		}
+		else if (EditorUi.enableLogging)
+		{
+			try
+			{
+				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
+				var img = new Image();
+				img.src = logDomain + '/images/1x1.png?' +
+						'v=' + encodeURIComponent(EditorUi.VERSION) +
+						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
+	    	}
+			catch (e)
+			{
+	    			// ignore
+			}
+		}
+	};
+
+	/**
+	 * Sending error reports.
+	 */
+	EditorUi.sendReport = function(data, maxLength)
+	{
+		if (urlParams['dev'] == '1')
+		{
+			EditorUi.debug('sendReport', data);
+		}
+		else if (EditorUi.enableLogging)
+		{
+			try
+			{
+				maxLength = (maxLength != null) ? maxLength : 50000;
+
+				if (data.length > maxLength)
+				{
+					data = data.substring(0, maxLength) + '\n...[SHORTENED]'
+				}
+				
+				mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
+					'&url=' + encodeURIComponent(window.location.href) +
+					'&data=' + encodeURIComponent(data));
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
+	};
+
+	/**
+	 * Adds the listener for automatically saving the diagram for local changes.
+	 */
+	EditorUi.debug = function()
+	{
+		try
+		{
+			if (window.console != null && urlParams['test'] == '1')
+			{
+				var args = [new Date().toISOString()];
+				
+				for (var i = 0; i < arguments.length; i++)
+			    {
+					args.push(arguments[i]);
+			    }
+			    
+				console.log.apply(console, args);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	};
+
+	/**
+	 * Static method for pasing PNG files.
+	 */
+	EditorUi.parsePng = function(f, fn, error)
+	{
+		var pos = 0;
+		
+		function fread(d, count)
+		{
+			var start = pos;
+			pos += count;
+			
+			return d.substring(start, pos);
+		};
+		
+		// Reads unsigned long 32 bit big endian
+		function _freadint(d)
+		{
+			var bytes = fread(d, 4);
+			
+			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+		};
+		
+		// Checks signature
+		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		// Reads header chunk
+		fread(f,4);
+		
+		if (fread(f,4) != 'IHDR')
+		{
+			if (error != null)
+			{
+				error();
+			}
+			
+			return;
+		}
+		
+		fread(f, 17);
+		
+		do
+		{
+			var n = _freadint(f);
+			var type = fread(f,4);
+			
+			if (fn != null)
+			{
+				if (fn(pos - 8, type, n))
+				{
+					break;
+				}
+			}
+			
+			value = fread(f,n);
+			fread(f,4);
+			
+			if (type == 'IEND')
+			{
+				break;
+			}
+		}
+		while (n);
+	};
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.removeChildNodes = function(node)
+	{
+		while (node.firstChild != null)
+		{
+			node.removeChild(node.firstChild);
+		}
+	};
+	
+	/**
 	 * Contains the default XML for an empty diagram.
 	 */
 	EditorUi.prototype.emptyDiagramXml = '<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/></root></mxGraphModel>';
@@ -58,9 +305,15 @@
 	EditorUi.prototype.mode = null;
 
 	/**
+	 * General timeout is 25 seconds.
+	 * LATER: Move to Editor
+	 */
+	EditorUi.prototype.timeout = Editor.prototype.timeout;
+
+	/**
 	 * Allows for two buttons in the sidebar footer.
 	 */
-	EditorUi.prototype.sidebarFooterHeight = 36;
+	EditorUi.prototype.sidebarFooterHeight = 38;
 
 	/**
 	 * Specifies the default custom shape style.
@@ -103,6 +356,11 @@
 	EditorUi.prototype.maxBackgroundBytes = 2500000;
 
 	/**
+	 * Maximum size for text files in labels is 0.5 MB.
+	 */
+	EditorUi.prototype.maxTextBytes = 500000;
+
+	/**
 	 * Holds the current file.
 	 */
 	EditorUi.prototype.currentFile = null;
@@ -123,6 +381,11 @@
 	 */
 	EditorUi.prototype.formatEnabled = urlParams['format'] != '0';
 
+	/**
+	 * Whether template action should be shown in insert menu.
+	 */
+	EditorUi.prototype.insertTemplateEnabled = true;
+	
 	/**
 	 * Restores app defaults for UI
 	 */
@@ -271,9 +534,9 @@
 	/**
 	 * Returns true if no external comms allowed or possible
 	 */
-	EditorUi.prototype.isOffline = function()
+	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
-		return this.isOfflineApp() || !navigator.onLine || urlParams['stealth'] == '1';
+		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && urlParams['stealth'] == '1');
 	};
 
 	/**
@@ -336,7 +599,13 @@
 						mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
 					}
 					
-					status.innerHTML = label + '...';
+					if (label.substring(label.length - 3, label.length) != '...' &&
+						label.charAt(label.length - 1) != '!')
+					{
+						label = label + '...';
+					}
+					
+					status.innerHTML = label;
 					container.appendChild(status);
 					spinner.status = status;
 					
@@ -396,80 +665,6 @@
 	};
 
 	/**
-	 * Static method for pasing PNG files.
-	 */
-	EditorUi.parsePng = function(f, fn, error)
-	{
-		var pos = 0;
-		
-		function fread(d, count)
-		{
-			var start = pos;
-			pos += count;
-			
-			return d.substring(start, pos);
-		};
-		
-		// Reads unsigned long 32 bit big endian
-		function _freadint(d)
-		{
-			var bytes = fread(d, 4);
-			
-			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
-				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
-		};
-		
-		// Checks signature
-		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		// Reads header chunk
-		fread(f,4);
-		
-		if (fread(f,4) != 'IHDR')
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		fread(f, 17);
-		
-		do
-		{
-			var n = _freadint(f);
-			var type = fread(f,4);
-			
-			if (fn != null)
-			{
-				if (fn(pos - 8, type, n))
-				{
-					break;
-				}
-			}
-			
-			value = fread(f,n);
-			fread(f,4);
-			
-			if (type == 'IEND')
-			{
-				break;
-			}
-		}
-		while (n);
-	};
-
-	/**
 	 * Returns true if the given string contains a compatible graph model.
 	 */
 	EditorUi.prototype.isCompatibleString = function(data)
@@ -487,6 +682,28 @@
 		}
 		
 		return false;
+	};
+
+	/**
+	 * Returns true if the given binary data is a Visio file.
+	 */
+	EditorUi.prototype.isVisioData = function(data)
+	{
+		return data.length > 8 && (data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
+			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x04) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06);
+	};
+
+	/**
+	 * Returns true if the given binary data is a PNG file.
+	 */
+	EditorUi.prototype.isPngData = function(data)
+	{
+		return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
+			data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
+			data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
 	};
 
 	/**
@@ -548,7 +765,7 @@
 				data = data.slice(0, index) + replaceString + data.slice(index + replaceStrLen - 1, data.length);
 			}
 			
-			data = this.editor.graph.zapGremlins(data);
+			data = Graph.zapGremlins(data);
 		}
 		
 		return data;
@@ -643,7 +860,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact)
+	EditorUi.prototype.createFileData = function(node, graph, file, url, forceXml, forceSvg, forceHtml,
+		embeddedCallback, ignoreSelection, compact, uncompressed)
 	{
 		graph = (graph != null) ? graph : this.editor.graph;
 		forceXml = (forceXml != null) ? forceXml : false;
@@ -661,7 +879,7 @@
 			editLink = url;
 			redirect = editLink;
 		}
-			
+
 		if (node == null)
 		{
 			return '';
@@ -673,50 +891,93 @@
 			// Ignores case for possible HTML or XML nodes
 			if (fileNode.nodeName.toLowerCase() != 'mxfile')
 			{
-				// Removes control chars in input for correct roundtrip check
-				var text = graph.zapGremlins(mxUtils.getXml(node));
-				var data = graph.compress(text);
-				
-				// Fallback to plain XML for invalid compression
-				// TODO: Remove this fallback with active pages
-				if (graph.decompress(data) != text)
-				{
-					return text;
-				}
-				else
+				if (uncompressed)
 				{
 					var diagramNode = node.ownerDocument.createElement('diagram');
 					diagramNode.setAttribute('id', Editor.guid());
-					mxUtils.setTextContent(diagramNode, data);
+					diagramNode.appendChild(node);
 					
 					fileNode = node.ownerDocument.createElement('mxfile');
 					fileNode.appendChild(diagramNode);
+				}
+				else
+				{
+					// Removes control chars in input for correct roundtrip check
+					var text = Graph.zapGremlins(mxUtils.getXml(node));
+					var data = Graph.compress(text);
+					
+					// Fallback to plain XML for invalid compression
+					// TODO: Remove this fallback with active pages
+					if (Graph.decompress(data) != text)
+					{
+						return text;
+					}
+					else
+					{
+						var diagramNode = node.ownerDocument.createElement('diagram');
+						diagramNode.setAttribute('id', Editor.guid());
+						mxUtils.setTextContent(diagramNode, data);
+						
+						fileNode = node.ownerDocument.createElement('mxfile');
+						fileNode.appendChild(diagramNode);
+					}
 				}
 			}
 			
 			if (!compact)
 			{
-				fileNode.setAttribute('userAgent', navigator.userAgent);
+				// Removes old metadata
+				fileNode.removeAttribute('userAgent');
+				fileNode.removeAttribute('version');
+				fileNode.removeAttribute('editor');
+				fileNode.removeAttribute('pages');
+				fileNode.removeAttribute('type');
+				
+				if (mxClient.IS_CHROMEAPP)
+				{
+					fileNode.setAttribute('host', 'Chrome');
+				}
+				else if (EditorUi.isElectronApp)
+				{
+					fileNode.setAttribute('host', 'Electron');
+				}
+				else
+				{
+					fileNode.setAttribute('host', window.location.hostname);
+				}
+				
+				// Adds new metadata
+				fileNode.setAttribute('modified', new Date().toISOString());
+				fileNode.setAttribute('agent', navigator.userAgent);
 				fileNode.setAttribute('version', EditorUi.VERSION);
-				fileNode.setAttribute('editor', 'www.draw.io');
-		
+				fileNode.setAttribute('etag', Editor.guid());
+				
 				var md = (file != null) ? file.getMode() : this.mode;
 				
 				if (md != null)
 				{
 					fileNode.setAttribute('type', md);
 				}
+				
+				if (this.pages != null)
+				{
+					fileNode.setAttribute('pages', this.pages.length);
+				}
 			}
 			else
 			{
 				fileNode = fileNode.cloneNode(true);
+				fileNode.removeAttribute('modified');
+				fileNode.removeAttribute('host');
+				fileNode.removeAttribute('agent');
+				fileNode.removeAttribute('etag');
 				fileNode.removeAttribute('userAgent');
 				fileNode.removeAttribute('version');
 				fileNode.removeAttribute('editor');
 				fileNode.removeAttribute('type');
 			}
 
-			var xml = mxUtils.getXml(fileNode);
+			var xml = (uncompressed) ? mxUtils.getPrettyXml(fileNode) : mxUtils.getXml(fileNode);
 			
 			// Writes the file as an embedded HTML file
 			if (!forceSvg && !forceXml && (forceHtml || (file != null && /(\.html)$/i.test(file.getTitle()))))
@@ -744,45 +1005,85 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage)
+	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, uncompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
+		uncompressed = (uncompressed != null) ? uncompressed : !Editor.compressXml;
 		
+		// Generats graph model XML node for single page export
 		var node = this.editor.getGraphXml(ignoreSelection);
-			
+		
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
-			var data = this.editor.graph.compress(this.editor.graph.zapGremlins(mxUtils.getXml(node)));
-			mxUtils.setTextContent(this.currentPage.node, data);
+			// Updates current page XML if selection is ignored
+			EditorUi.removeChildNodes(this.currentPage.node);
+			mxUtils.setTextContent(this.currentPage.node, Graph.compressNode(node));
+
+			// Creates a clone of the file node for processing
 			node = this.fileNode.cloneNode(false);
+
+			// Appends the node of the page and applies compression
+			function appendPage(pageNode)
+			{
+				var models = pageNode.getElementsByTagName('mxGraphModel');
+				var modelNode = (models.length > 0) ? models[0] : null;
+				var clone = pageNode;
+				
+				if (modelNode == null && uncompressed)
+				{
+					var text = mxUtils.trim(mxUtils.getTextContent(pageNode));
+					clone = pageNode.cloneNode(false);
+					
+					if (text.length > 0)
+					{
+						var tmp = Graph.decompress(text);
+						
+						if (tmp != null && tmp.length > 0)
+						{
+							clone.appendChild(mxUtils.parseXml(tmp).documentElement);
+						}
+					}
+				}
+				else if (modelNode != null && !uncompressed)
+				{
+					clone = pageNode.cloneNode(false);
+					mxUtils.setTextContent(clone, Graph.compressNode(modelNode));
+				}
+				else
+				{
+					clone = pageNode.cloneNode(true);
+				}
+				
+				node.appendChild(clone);
+			};
+
 			
 			if (currentPage)
 			{
-				node.appendChild(this.currentPage.node);
+				appendPage(this.currentPage.node);
 			}
 			else
 			{
 				// Restores order of pages
 				for (var i = 0; i < this.pages.length; i++)
 				{
-					var mapping = this.pages[i].mapping;
-					
-					// Updates XML of all pages for realtime
-					if (this.currentPage != this.pages[i] && mapping != null && mapping.needsUpdate)
+					if (this.currentPage != this.pages[i])
 					{
-						var enc = new mxCodec(mxUtils.createXmlDocument());
-						var temp = enc.encode(mapping.graphModel);
-					
-						// Uses the graph state from the realtime model
-						mapping.writeRealtimeToNode(temp);					
-						mxUtils.setTextContent(this.pages[i].node, this.editor.graph.compressNode(temp));
-						
-						// Marks the page as up-to-date
-						mapping.needsUpdate = false;
+						if (this.pages[i].needsUpdate)
+						{
+							var enc = new mxCodec(mxUtils.createXmlDocument());
+							var temp = enc.encode(new mxGraphModel(this.pages[i].root));
+							this.editor.graph.saveViewState(this.pages[i].viewState, temp);
+							EditorUi.removeChildNodes(this.pages[i].node);
+							mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
+
+							// Marks the page as up-to-date
+							delete this.pages[i].needsUpdate;
+						}
 					}
 					
-					node.appendChild(this.pages[i].node);
+					appendPage(this.pages[i].node);
 				}
 			}
 		}
@@ -791,49 +1092,312 @@
 	};
 	
 	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizeString = function(text, zeros)
+	{
+		var result = [];
+		
+		for (var i = 0; i < text.length; i++)
+		{
+			var c = text.charAt(i);
+			
+			if (EditorUi.ignoredAnonymizedChars.indexOf(c) >= 0)
+			{
+				result.push(c);
+			}
+			else if (!isNaN(parseInt(c)))
+			{
+				result.push((zeros) ? '0' : Math.round(Math.random() * 9));
+			}
+			else if (c.toLowerCase() != c)
+			{
+				result.push(String.fromCharCode(65 + Math.round(Math.random() * 25)));
+			}
+			else if (c.toUpperCase() != c)
+			{
+				result.push(String.fromCharCode(97 + Math.round(Math.random() * 25)));
+			}
+			else if (/\s/.test(c))
+			{
+				/* any whitespace */
+				result.push(' ');
+			}
+			else
+			{
+				result.push('?');
+			}
+		}
+		
+		return result.join('');
+	};
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizePatch = function(patch)
+	{
+		if (patch[EditorUi.DIFF_INSERT] != null)
+		{
+			for (var i = 0; i < patch[EditorUi.DIFF_INSERT].length; i++)
+			{
+				try
+				{
+					var data = patch[EditorUi.DIFF_INSERT][i].data;
+					var doc = mxUtils.parseXml(data);
+					var clone = doc.documentElement.cloneNode(false);
+					
+					if (clone.getAttribute('name') != null)
+					{
+						clone.setAttribute('name', this.anonymizeString(clone.getAttribute('name')));
+					}
+					
+					patch[EditorUi.DIFF_INSERT][i].data = mxUtils.getXml(clone);
+				}
+				catch (e)
+				{
+					patch[EditorUi.DIFF_INSERT][i].data = e.message;
+				}
+			}
+		}
+		
+		if (patch[EditorUi.DIFF_UPDATE] != null)
+		{
+			for (var pageId in patch[EditorUi.DIFF_UPDATE])
+			{
+				var diff = patch[EditorUi.DIFF_UPDATE][pageId];
+				
+				if (diff.name != null)
+				{
+					diff.name = this.anonymizeString(diff.name);
+				}
+				
+				if (diff.cells != null)
+				{
+					var anonymizeCellDiffs = mxUtils.bind(this, function(key)
+					{
+						var cellDiffs = diff.cells[key];
+						
+						if (cellDiffs != null)
+						{
+							for (var cellId in cellDiffs)
+							{
+								if (cellDiffs[cellId].value != null)
+								{
+									cellDiffs[cellId].value = '[' +
+										cellDiffs[cellId].value.length + ']';
+								}
+
+								if (cellDiffs[cellId].xmlValue != null)
+								{
+									cellDiffs[cellId].xmlValue = '[' +
+										cellDiffs[cellId].xmlValue.length + ']';
+								}
+								
+								if (cellDiffs[cellId].style != null)
+								{
+									cellDiffs[cellId].style = '[' +
+										cellDiffs[cellId].style.length + ']';
+								}
+								
+								if (Object.keys(cellDiffs[cellId]).length == 0)
+								{
+									delete cellDiffs[cellId];
+								}
+							}
+							
+							if (Object.keys(cellDiffs).length == 0)
+							{
+								delete diff.cells[key];
+							}
+						}
+					});
+					
+					anonymizeCellDiffs(EditorUi.DIFF_INSERT);
+					anonymizeCellDiffs(EditorUi.DIFF_UPDATE);
+					
+					if (Object.keys(diff.cells).length == 0)
+					{
+						delete diff.cells;
+					}
+				}
+	
+				if (Object.keys(diff).length == 0)
+				{
+					delete patch[EditorUi.DIFF_UPDATE][pageId];
+				}
+			}
+			
+			if (Object.keys(patch[EditorUi.DIFF_UPDATE]).length == 0)
+			{
+				delete patch[EditorUi.DIFF_UPDATE];
+			}
+		}
+			
+		return patch;
+	};
+
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizeAttributes = function(node, zeros)
+	{
+		if (node.attributes != null)
+		{
+			for (var i = 0; i < node.attributes.length; i++)
+			{
+				if (node.attributes[i].name != 'as')
+				{
+					node.setAttribute(node.attributes[i].name,
+						this.anonymizeString(node.attributes[i].value, zeros));
+				}
+			}
+		}
+		
+		if (node.childNodes != null)
+		{
+			for (var i = 0; i < node.childNodes.length; i++)
+			{
+				this.anonymizeAttributes(node.childNodes[i], zeros);
+			}
+		}
+	};
+	
+	/**
+	 * Removes any values, styles and geometries from the given XML node.
+	 */
+	EditorUi.prototype.anonymizeNode = function(node, zeros)
+	{
+		var nodes = node.getElementsByTagName('mxCell');
+		
+		for (var i = 0; i < nodes.length; i++)
+		{
+			if (nodes[i].getAttribute('value') != null)
+			{
+				nodes[i].setAttribute('value', '[' + nodes[i].getAttribute('value').length + ']');
+			}
+
+			if (nodes[i].getAttribute('xmlValue') != null)
+			{
+				nodes[i].setAttribute('xmlValue', '[' + nodes[i].getAttribute('xmlValue').length + ']');
+			}
+			
+			if (nodes[i].getAttribute('style') != null)
+			{
+				nodes[i].setAttribute('style', '[' + nodes[i].getAttribute('style').length + ']');
+			}
+			
+			if (nodes[i].parentNode != null && nodes[i].parentNode.nodeName != 'root' &&
+				nodes[i].parentNode.parentNode != null)
+			{
+				nodes[i].setAttribute('id', nodes[i].parentNode.getAttribute('id'));
+				nodes[i].parentNode.parentNode.replaceChild(nodes[i], nodes[i].parentNode);
+			}
+		}
+		
+		return node;
+	};
+
+	/**
 	 * Translates this point by the given vector.
 	 * 
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, currentPage, node, compact, file)
+	EditorUi.prototype.synchronizeCurrentFile = function(forceReload)
+	{
+		var currentFile = this.getCurrentFile();
+		
+		if (currentFile != null)
+		{
+			if (currentFile.savingFile)
+			{
+				this.handleError({message: mxResources.get('busy')});
+			}
+			else if (!forceReload && currentFile.invalidChecksum)
+			{
+				currentFile.handleFileError(null, true);
+			}
+			else if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
+			{
+				currentFile.clearAutosave();
+				this.editor.setStatus('');
+				
+				if (forceReload)
+				{
+					currentFile.reloadFile(mxUtils.bind(this, function()
+					{
+						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
+					}), mxUtils.bind(this, function(err)
+					{
+						currentFile.handleFileError(err, true);
+					}));
+				}
+				else
+				{
+					currentFile.synchronizeFile(mxUtils.bind(this, function()
+					{
+						currentFile.handleFileSuccess(DrawioFile.SYNC == 'manual');
+					}), mxUtils.bind(this, function(err)
+					{
+						currentFile.handleFileError(err, true);
+					}));
+				}
+			}
+		}
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection,
+		currentPage, node, compact, file, uncompressed)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
-		
-		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage);
-		file = (file != null) ? file : this.getCurrentFile();
 		var graph = this.editor.graph;
 		
-		// Exports SVG for first page while other page is visible by creating a graph
-		// LATER: Add caching for the graph or SVG while not on first page
-		if (this.pages != null && this.currentPage != this.pages[0] && (forceSvg ||
-			(!forceXml && file != null && /(\.svg)$/i.test(file.getTitle()))))
+		// Forces compression of embedded XML
+		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
-			graph = this.createTemporaryGraph(graph.getStylesheet());
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			var page = this.pages[0];
-	
-			graph.getGlobalVariable = function(name)
+			uncompressed = false;
+			
+			// Exports SVG for first page while other page is visible by creating a graph
+			// LATER: Add caching for the graph or SVG while not on first page
+			if (this.pages != null && this.currentPage != this.pages[0])
 			{
-				if (name == 'page')
+				var graphGetGlobalVariable = graph.getGlobalVariable;
+				graph = this.createTemporaryGraph(graph.getStylesheet());
+				var page = this.pages[0];
+		
+				graph.getGlobalVariable = function(name)
 				{
-					return page.getName();
-				}
-				else if (name == 'pagenumber')
-				{
-					return 1;
-				}
-				
-				return graphGetGlobalVariable.apply(this, arguments);
-			};
-	
-			document.body.appendChild(graph.container);
-			graph.model.setRoot(page.root);
+					if (name == 'page')
+					{
+						return page.getName();
+					}
+					else if (name == 'pagenumber')
+					{
+						return 1;
+					}
+					
+					return graphGetGlobalVariable.apply(this, arguments);
+				};
+		
+				document.body.appendChild(graph.container);
+				graph.model.setRoot(page.root);
+			}
 		}
 		
+		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, uncompressed);
+		file = (file != null) ? file : this.getCurrentFile();
+
 		var result = this.createFileData(node, graph, file, window.location.href,
-			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact);
+			forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection, compact,
+			uncompressed);
 		
 		// Removes temporary graph from DOM
 		if (graph != this.editor.graph)
@@ -851,7 +1415,7 @@
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		var bg = null;
-		var js = 'https://www.draw.io/js/embed-static.min.js';
+		var js = EditorUi.drawHost + '/js/embed-static.min.js';
 	
 		// LATER: Merge common code with EmbedDialog
 		if (graph != null)
@@ -869,7 +1433,7 @@
 	
 				if (s.length > 0)
 				{
-					js = 'https://www.draw.io/embed.js?s=' + s;
+					js = EditorUi.drawHost + '/embed.js?s=' + s;
 				}
 			}
 			
@@ -902,14 +1466,14 @@
 		}
 	
 		// Removes control chars in input for correct roundtrip check
-		var text = (node != null) ? this.editor.graph.zapGremlins(mxUtils.getXml(node)) : '';
+		var text = (node != null) ? Graph.zapGremlins(mxUtils.getXml(node)) : '';
 		
 		// Double compression for mxfile not fixed since it may cause imcompatibilites with
 		// embed clients that rely on this format. HTML files and export use getHtml2.
-		var data = this.editor.graph.compress(text);
+		var data = Graph.compress(text);
 		
 		// Fallback to URI encoded XML for invalid compression
-		if (this.editor.graph.decompress(data) != text)
+		if (Graph.decompress(data) != text)
 		{
 			data = encodeURIComponent(text);
 		}
@@ -928,7 +1492,7 @@
 			((redirect == null) ? '<script type="text/javascript" src="' + js + '"></script>' :
 			'<a style="position:absolute;top:50%;left:50%;margin-top:-128px;margin-left:-64px;" ' +
 			'href="' + redirect + '" target="_blank"><img border="0" ' +
-			'src="https://www.draw.io/images/drawlogo128.png"/></a>') +
+			'src="' + EditorUi.drawHost + '/images/drawlogo128.png"/></a>') +
 			'\n</body>\n</html>\n';
 	};
 	
@@ -938,7 +1502,7 @@
 	EditorUi.prototype.getHtml2 = function(xml, graph, title, editLink, redirect)
 	{
 		var bg = null;
-		var js = 'https://www.draw.io/js/viewer.min.js';
+		var js = EditorUi.drawHost + '/js/viewer.min.js';
 		var s = '';
 	
 		// Makes XHTML compatible
@@ -948,7 +1512,7 @@
 		}
 		
 		var data = {highlight: '#0000ff', nav: this.editor.graph.foldingEnabled, resize: true,
-			xml: this.editor.graph.zapGremlins(xml), toolbar: 'pages zoom layers lightbox'};
+			xml: Graph.zapGremlins(xml), toolbar: 'pages zoom layers lightbox'};
 		
 		if (this.pages != null && this.currentPage != null)
 		{
@@ -967,7 +1531,7 @@
 			((redirect == null) ? '<script type="text/javascript" src="' + js + '"></script>' :
 			'<a style="position:absolute;top:50%;left:50%;margin-top:-128px;margin-left:-64px;" ' +
 			'href="' + redirect + '" target="_blank"><img border="0" ' +
-			'src="https://www.draw.io/images/drawlogo128.png"/></a>') +
+			'src="' + EditorUi.drawHost + '/images/drawlogo128.png"/></a>') +
 			'\n</body>\n</html>\n';
 	};
 
@@ -982,20 +1546,12 @@
 		this.pages = null;
 
 		var node = (data != null && data.length > 0) ? mxUtils.parseXml(data).documentElement : null;
-
-		// Checks for parser errors
-		var errors = node.getElementsByTagName('parsererror');
 		
-		if (errors.length > 0)
+		// Checks for parser errors
+		var cause = Editor.extractParserError(node, mxResources.get('invalidOrMissingFile'));
+		
+		if (cause)
 		{
-			var cause = mxResources.get('invalidOrMissingFile');
-			var divs = errors[0].getElementsByTagName('div');
-			
-			if (divs.length > 0)
-			{
-				cause = mxUtils.getTextContent(divs[0]);
-			}
-			
 			throw new Error(cause);
 		}
 		else
@@ -1008,7 +1564,7 @@
 			{
 				node = tmp;
 			}
-	
+
 			if (node != null && node.nodeName == 'mxfile')
 			{
 				var nodes = node.getElementsByTagName('diagram');
@@ -1016,12 +1572,20 @@
 				if (urlParams['pages'] != '0' || nodes.length > 1 ||
 					(nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
+					var selectedPage = null;
 					this.fileNode = node;
 					this.pages = [];
 					
 					// Wraps page nodes
 					for (var i = 0; i < nodes.length; i++)
 					{
+						// Adds page ID based on page order to match
+						// remote IDs given if IDs are missing here
+						if (nodes[i].getAttribute('id') == null)
+						{
+							nodes[i].setAttribute('id', i);
+						}
+						
 						var page = new DiagramPage(nodes[i]);
 						
 						// Checks for invalid page names
@@ -1031,9 +1595,15 @@
 						}
 						
 						this.pages.push(page);
+						
+						if (urlParams['page-id'] != null && page.getId() == urlParams['page-id'])
+						{
+							selectedPage = page;
+						}
 					}
 					
-					this.currentPage = this.pages[Math.max(0, Math.min(this.pages.length - 1, urlParams['page'] || 0))];
+					this.currentPage = (selectedPage != null) ? selectedPage :
+						this.pages[Math.max(0, Math.min(this.pages.length - 1, urlParams['page'] || 0))];
 					node = this.currentPage.node;
 				}
 			}
@@ -1070,7 +1640,8 @@
 		var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 		
 		if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) ||
-			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename))
+			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename) ||
+			/(\.drawio)$/i.test(basename))
 		{
 			basename = basename.substring(0, basename.lastIndexOf('.'));
 		}
@@ -1091,7 +1662,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, nonCompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent)
+	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border, grid)
 	{
 		try
 		{
@@ -1102,8 +1673,8 @@
 			if (format == 'xml')
 			{
 		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-		    		((nonCompressed) ? mxUtils.getXml(this.editor.getGraphXml(ignoreSelection)) :
-		    			this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+		    		this.getFileData(true, null, null, null, ignoreSelection, currentPage,
+		    			null, null, null, uncompressed);
 		    	
 		    	this.saveData(filename, format, data, 'text/xml');
 			}
@@ -1192,7 +1763,7 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1216,9 +1787,10 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
 	{
-		var bounds = this.editor.graph.getGraphBounds();
+		var graph = this.editor.graph;
+		var bounds = graph.getGraphBounds();
 		
 		// Exports only current page for images that does not contain file data, but for
 		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
@@ -1258,18 +1830,36 @@
        		}
        	}
        	
-		var bg = this.editor.graph.background;
+		var bg = graph.background;
 		
 		if (format == 'png' && transparent)
 		{
 			bg = mxConstants.NONE;
 		}
-       	
+		else if (!transparent && (bg == null || bg == mxConstants.NONE))
+		{
+			bg = '#ffffff';
+		}
+		
+		var extras = {globalVars: graph.getExportVariables()};
+		
+		if (grid)
+		{
+			extras.grid = {
+				size: graph.gridSize,
+				steps: graph.view.gridSteps,
+				color: graph.view.gridColor
+			};
+		}		
+		
 		return new mxXmlRequest(EXPORT_URL, 'format=' + format + range + allPages +
 			'&bg=' + ((bg != null) ? bg : mxConstants.NONE) +
 			'&base64=' + base64 + '&embedXml=' + embed + '&xml=' +
 			encodeURIComponent(data) + ((filename != null) ?
-			'&filename=' + encodeURIComponent(filename) : ''));
+			'&filename=' + encodeURIComponent(filename) : '') +
+			'&extras=' + encodeURIComponent(JSON.stringify(extras)) +
+			(scale != null? '&scale=' + scale : '') +
+			(border != null? '&border=' + border : ''));
 	};
 	
 	/**
@@ -1388,9 +1978,9 @@
 		{
             var realUrl = desc.url;
             
-            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+            if ((/^https?:\/\//.test(realUrl)) && !this.editor.isCorsEnabledForUrl(realUrl))
             {
-                realUrl = PROXY_URL + '?url=' + encodeURIComponent(desc.url);
+                realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
             }
 
             // LATER: Remove cache-control header
@@ -1420,6 +2010,7 @@
 	EditorUi.prototype.updateDiagram = function(xml)
 	{
 		var doc = null;
+		var ui = this;
 		
 		function createOverlay(desc)
 		{
@@ -1429,7 +2020,7 @@
 			// Installs a handler for clicks on the overlay
 			overlay.addListener(mxEvent.CLICK, function(sender, evt)
 			{
-				editorUi.alert(desc.tooltip);
+				ui.alert(desc.tooltip);
 			});
 			
 			return overlay;
@@ -1704,13 +2295,14 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.fileLoaded = function(file)
+	EditorUi.prototype.fileLoaded = function(file, noDialogs)
 	{
+		var oldFile = this.getCurrentFile();
+		this.fileLoadedError = null;
+		this.setCurrentFile(null);
 		var result = false;
 		this.hideDialog();
-		var oldFile = this.getCurrentFile();
-		this.setCurrentFile(null);
-	
+		
 		if (oldFile != null)
 		{
 			oldFile.removeListener(this.descriptorChangedListener);
@@ -1737,7 +2329,7 @@
 			this.setBackgroundImage(null);
 					
 			// Avoids empty hash with no value
-			if (window.location.hash != null && window.location.hash.length > 0)
+			if (!noDialogs && window.location.hash != null && window.location.hash.length > 0)
 			{
 				window.location.hash = '';
 			}
@@ -1751,40 +2343,60 @@
 
 			this.editor.setStatus('');
 			this.updateUi();
-			this.showSplash();
+			
+			if (!noDialogs)
+			{
+				this.showSplash();
+			}
 		});
 	
 		if (file != null)
 		{
 			try
 			{
+				// Workaround for delayed scroll repaint with min UI in Safari
+				if (mxClient.IS_SF && uiTheme == 'min')
+				{
+					this.diagramContainer.style.visibility = '';
+				}
+				
 				// Order is significant, current file needed for correct
 				// file format for initial save after starting realtime
+				this.openingFile = true;
 				this.setCurrentFile(file);
 				file.addListener('descriptorChanged', this.descriptorChangedListener);
 				file.addListener('contentChanged', this.descriptorChangedListener);
 				file.open();
+				delete this.openingFile;
 				
 				// DescriptorChanged updates the enabled state of the graph
 				this.setGraphEnabled(true);
 				this.setMode(file.getMode());
-				// this.editor.graph.model.prefix = Editor.guid() + '-';
+				this.editor.graph.model.prefix = Editor.guid() + '-';
 				this.editor.undoManager.clear();
 				this.descriptorChanged();
 				this.updateUi();
 				
 				// Realtime files have a valid status message
-				if (file.realtime == null)
+				if (!file.isEditable())
 				{
-					if (!file.isEditable())
+					this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
+						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
+				}
+				// Handles modified state after error of loading new file
+				else if (file.isModified())
+				{
+					file.addUnsavedStatus();
+					
+					// Restores unsaved data
+					if (file.backupPatch != null)
 					{
-						this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
-							mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
+						file.patch([file.backupPatch]);
 					}
-					else
-					{
-						this.editor.setStatus('');
-					}
+				}
+				else
+				{
+					this.editor.setStatus('');
 				}
 	
 				if (!this.editor.isChromelessView() || this.editor.editable)
@@ -1814,10 +2426,13 @@
 
 				if (!this.isOffline() && file.getMode() != null)
 				{
-					this.logEvent({category: 'File', action: 'open', label: file.getMode()})
+					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
+						action: 'size_' + file.getSize(),
+						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
 				}
 				
-				if (this.mode == file.getMode() && file.getMode() != App.MODE_DEVICE && file.getMode() != null)
+				if (this.editor.editable && this.mode == file.getMode() &&
+					file.getMode() != App.MODE_DEVICE && file.getMode() != null)
 				{
 					try
 					{
@@ -1841,31 +2456,34 @@
 			}
 			catch (e)
 			{
+				this.fileLoadedError = e;
+				
 				// Makes sure the file does not save the invalid UI model and overwrites anything important
 				if (window.console != null)
 				{
+					console.error(e);
 					console.log('error in fileLoaded:', file, e);
 				}
 				
 				if (EditorUi.enableLogging && !this.isOffline())
 				{
-			        	try
-			        	{
+		        	try
+		        	{
 						var img = new Image();
 						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				    		img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-				    			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
-			    				((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-			    				((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
-			        	}
-			        	catch (e)
-			        	{
-			        		// ignore
-			        	}
+				    	img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
+				   			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
+			    			((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
+			    			((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+		        	}
+		        	catch (e)
+		        	{
+		        		// ignore
+		        	}
 				}
 				
 				// Asynchronous handling of errors
-				this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+				var fn = mxUtils.bind(this, function()
 				{
 					// Removes URL parameter and reloads the page
 					if (urlParams['url'] != null && this.spinner.spin(document.body, mxResources.get('reconnecting')))
@@ -1874,21 +2492,22 @@
 					}
 					else if (oldFile != null)
 					{
-						// Workaround for close realtime model is to reload the file from scratch
-						if (oldFile.constructor == DriveFile && oldFile.realtime != null)
-						{
-							this.loadFile(oldFile.getHash());
-						}
-						else
-						{
-							this.fileLoaded(oldFile);
-						}
+						this.fileLoaded(oldFile);
 					}
 					else
 					{
 						noFile();
 					}
-				}));
+				});
+				
+				if (!noDialogs)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true);
+				}
+				else
+				{
+					fn();
+				}
 			}
 		}
 		else
@@ -1898,155 +2517,134 @@
 		
 		return result;
 	};
-	
-	/**
-	 * Returns true if there is an ongoing interaction with the user, such as text editing, resizing,
-	 * moving, connecting, drag and drop from sidebar, rubberband selection or when a dialog is showing.
-	 */
-	EditorUi.prototype.isActive = function()
-	{
-		return this.editor.graph.isEditing() || this.editor.graph.isMouseDown || this.dialog != null;
-	};
-	
-	/**
-	 * Invokes the given function when <isActive> returns false.
-	 */
-	EditorUi.prototype.runWhenIdle = function(fn)
-	{
-		var runIt = function()
-		{
-			if (window.requestAnimationFrame != null)
-			{
-				window.requestAnimationFrame(fn);	
-			}
-			else
-			{
-				fn();
-			}
-		};
-		
-		if (!this.isActive())
-		{
-			runIt();
-		}
-		else
-		{
-			var invoke = mxUtils.bind(this, function()
-			{
-				if (!this.isActive())
-				{
-					this.editor.graph.removeMouseListener(mouseListener);
-					this.editor.removeListener('hideDialog', invoke);
-					this.editor.graph.removeListener(invoke);
-					
-					runIt();
-				}
-			});
-			
-			var mouseListener = 
-			{
-				mouseDown: function() {},
-			    mouseMove: function() {},
-			    mouseUp: invoke
-			};
-			
-			this.editor.graph.addListener(mxEvent.EDITING_STOPPED, invoke);
-			this.editor.graph.addListener(mxEvent.ESCAPE, invoke);
-			this.editor.graph.addMouseListener(mouseListener);
-			this.editor.addListener('hideDialog', invoke);
-		}
-	};
-	
+
 	/**
 	 * Creates a hash value for the current file.
 	 */
-	EditorUi.prototype.getCurrentFileHashValue = function()
+	EditorUi.prototype.getHashValueForPages = function(pages, details)
 	{
-		return this.hashValue((this.pages != null) ? this.pages : this.editor.graph.model.root, function(obj, key, isXmlNode)
+		// TODO: Avoid encoding to XML to make it faster
+		var hash = 0;
+		var model = new mxGraphModel();
+		var codec = new mxCodec();
+
+		if (details != null)
 		{
-			if (isXmlNode)
+			details.byteCount = 0;
+			details.attrCount = 0;
+			details.eltCount = 0;
+			details.nodeCount = 0;
+		}
+		
+		for (var i = 0; i < pages.length; i++)
+		{
+			this.updatePageRoot(pages[i]);
+			var diagram = pages[i].node.cloneNode(false);
+			
+			// FIXME: Check why names can be null in newer files
+			// ignore in hash and do not diff null names for now
+			diagram.removeAttribute('name');
+			
+			// Model is only a holder for the root
+			model.root = pages[i].root;
+			var xmlNode = codec.encode(model);
+			this.editor.graph.saveViewState(pages[i].viewState, xmlNode, true);
+			
+			// Local defaults may be different in files so ignore
+			xmlNode.removeAttribute('pageWidth');
+			xmlNode.removeAttribute('pageHeight');
+			
+			diagram.appendChild(xmlNode);
+			
+			if (details != null)
 			{
-				return obj.getAttribute(key);
+				details.eltCount += diagram.getElementsByTagName('*').length;
+				details.nodeCount += diagram.getElementsByTagName('mxCell').length;
 			}
-			else if (obj.constructor === mxCell && (key === 'source' || key === 'target'))
+			
+			hash = ((hash << 5) - hash + this.hashValue(diagram, function(obj, key, value, isXml)
 			{
-				var cell = obj[key];
-				
-				return (cell != null && cell.id != null) ? cell.id : null;
-			}
-			else if (key !== 'mxObjectId' && key !== 'mxTransient' &&
-				(obj.constructor !== mxCell || (key !== 'parent' && key !== 'rtCell')) &&
-				(obj.constructor !== DiagramPage || key === 'root'))
-			{
-				return obj[key];
-			}
-			else
-			{
-				return null;
-			}
-		});
+				// Ignores JS machine rounding errors in known numeric attributes
+				// eg. 412.33333333333326 (Webkit/FF) == 412.33333333333325 (Edge/IE11)
+				if (isXml && (obj.nodeName == 'mxGeometry' || obj.nodeName == 'mxPoint') &&
+					(key == 'x' || key == 'y' || key == 'width' || key == 'height'))
+				{
+					return Math.round(value);
+				}
+				// Workaround for previous in patch written to mxCell in 10.0.23
+				else if (isXml && obj.nodeName == 'mxCell' && key == 'previous')
+				{
+					return null;
+				}
+				else
+				{
+					return value;
+				}
+			}, details)) << 0;
+		}
+		
+		return hash;
 	};
 	
 	/**
 	 * Creates a hash value for the given object. Replacer returns the value of the
 	 * property or attribute for the given object or XML node.
 	 */
-	EditorUi.prototype.hashValue = function(obj, replacer)
+	EditorUi.prototype.hashValue = function(obj, replacer, details)
 	{
 		var hash = 0;
 		
 		// Checks for XML nodes
-		if (typeof obj === 'object' && typeof obj.nodeType === 'number' &&
+		if (obj != null && typeof obj === 'object' && typeof obj.nodeType === 'number' &&
 			typeof obj.nodeName === 'string' && typeof obj.getAttribute === 'function')
 		{
 			if (obj.nodeName != null)
 			{
-				hash = hash ^ this.hashValue(obj.nodeName, replacer);
+				hash = hash ^ this.hashValue(obj.nodeName, replacer, details);
 			}
 			
-			for (var i = 0; i < obj.attributes.length; i++)
+			if (obj.attributes != null)
 			{
-				var key = obj.attributes[i].name;
-				var value = (replacer != null) ? replacer(obj, key, true) : obj.attributes[i].value;
-
-				if (value != null)
+				if (details != null)
 				{
-					hash = hash ^ this.hashValue(key, replacer) ^
-						this.hashValue(value, replacer);
+					details.attrCount += obj.attributes.length;
+				}
+				
+				for (var i = 0; i < obj.attributes.length; i++)
+				{
+					var key = obj.attributes[i].name;
+					var value = (replacer != null) ? replacer(obj, key, obj.attributes[i].value, true) : obj.attributes[i].value;
+	
+					if (value != null)
+					{
+						hash = hash ^ (this.hashValue(key, replacer, details) +
+							this.hashValue(value, replacer, details));
+					}
 				}
 			}
 			
-			for (var i = 0; i < obj.children.length; i++)
+			if (obj.childNodes != null)
 			{
-				hash = hash ^ this.hashValue(obj.children[i], replacer);
+				for (var i = 0; i < obj.childNodes.length; i++)
+				{
+					hash = ((hash << 5) - hash + this.hashValue(
+						obj.childNodes[i], replacer, details)) << 0;
+				}
 			}
 		}
-		else if (typeof obj === 'object' || typeof obj === 'array')
-    	{
-			for (var key in obj)
-		    {
-				var value = (replacer != null) ? replacer(obj, key) : obj[key];
-				
-				if (value != null && key == 'rtCell')
-				{
-					value = null;
-				}
-				
-				if (value != null)
-				{
-					hash = hash ^ this.hashValue(String(key), replacer) ^
-						this.hashValue(value, replacer);
-				}
-		    }
-    	}
 		else if (obj != null && typeof obj !== 'function')
 		{
 			var str = String(obj);
 			var temp = 0;
+
+			if (details != null)
+			{
+				details.byteCount += str.length;
+			}
 			
 			for (var i = 0; i < str.length; i++)
 			{
-		    	temp  = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
+		    	temp = ((temp << 5) - temp + str.charCodeAt(i)) << 0;
 			}
 		    
 			hash = hash ^ temp;
@@ -2062,71 +2660,16 @@
 	{
 		// empty
 	};
-	
-	/**
-	 * Updates action states depending on the selection.
-	 */
-	EditorUi.prototype.logEvent = function(data)
-	{
-		if (EditorUi.enableLogging)
-		{
-			try
-			{
-				var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				var img = new Image();
-				img.src = logDomain + '/images/1x1.png?' +
-						'v=' + encodeURIComponent(EditorUi.VERSION) +
-						((data != null) ? '&data=' + encodeURIComponent(JSON.stringify(data)) : '');
-	    	}
-			catch (e)
-			{
-	    			// ignore
-			}
-		}
-	};
 
 	/**
-	 * Debug output.
+	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.sendReport = function(data, maxLength)
-	{
-		maxLength = (maxLength != null) ? maxLength : 3000000;
-		
-		try
-		{
-			if (data.length > maxLength)
-			{
-				data = data.substring(0, maxLength) + '\n...[SHORTENED]'
-			}
-			
-			mxUtils.post('/email', 'version=' + encodeURIComponent(EditorUi.VERSION) +
-				'&url=' + encodeURIComponent(window.location.href) +
-				'&data=' + encodeURIComponent(data));
-		}
-		catch (e)
-		{
-			// ignore
-		}
-	};
+	EditorUi.prototype.restoreLibraries = function() { };
 
 	/**
-	 * Updates action states depending on the selection.
+	 * Hook for subclassers.
 	 */
-	EditorUi.prototype.restoreLibraries = function()
-	{
-		// hook for subclassers
-	};
-
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
-	{
-		// hook for subclassers
-	};
+	EditorUi.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn) { };
 	
 	/**
 	 * 
@@ -2323,11 +2866,7 @@
 				if (dropTarget == null)
 				{
 					dropTarget = document.createElement('div');
-					mxUtils.setPrefixedStyle(dropTarget.style, 'borderRadius', '6px');
-					dropTarget.style.border = '3px dotted lightGray';
-					dropTarget.style.textAlign = 'center';
-					dropTarget.style.padding = '8px';
-					dropTarget.style.color = '#B3B3B3';
+					dropTarget.className = 'geDropTarget';
 					mxUtils.write(dropTarget, mxResources.get('dragElementsHere'));
 				}
 				
@@ -2343,40 +2882,7 @@
 		// KNOWN: Existing entries are not replaced after edit of custom library
 		if (this.sidebar != null && images != null)
 		{
-			for (var i = 0; i < images.length; i++)
-			{
-				(mxUtils.bind(this, function(img)
-				{
-					var data = img.data;
-					
-					if (data != null && img.title != null)
-					{
-						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
-						{
-							data = this.convertDataUri(data);
-							var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
-							
-							if (img.aspect == 'fixed')
-							{
-								s += 'aspect=fixed;'
-							}
-							
-							return this.sidebar.createVertexTemplate(s + 'image=' +
-								data, img.w, img.h, '', img.title || '', false, false, true)
-						}));
-					}
-					else if (img.xml != null && img.title != null)
-					{
-						this.sidebar.addEntry(img.title, mxUtils.bind(this, function()
-						{
-							var cells = this.stringToCells(this.editor.graph.decompress(img.xml));
-	
-							return this.sidebar.createVertexTemplateFromCells(
-								cells, img.w, img.h, img.title || '', true, false, true);
-						}));
-					}
-				}))(images[i]);
-			}
+			this.sidebar.addEntries(images);
 		}
 		
 		// Adds new sidebar entry for this library
@@ -2535,7 +3041,7 @@
 				contentDiv.appendChild(this.sidebar.createVertexTemplateFromCells(
 					cells, bounds.width, bounds.height, title || '', true, false, false));
 	
-				var xml = this.editor.graph.compress(mxUtils.getXml(this.editor.graph.encodeCells(cells)));
+				var xml = Graph.compress(mxUtils.getXml(this.editor.graph.encodeCells(cells)));
 				var entry = {xml: xml, w: bounds.width, h: bounds.height};
 				
 				if (title != null)
@@ -2585,25 +3091,13 @@
 				mxEvent.consume(evt);
 			});
 			
-			// Defines inactive border state
-			contentDiv.style.border = '3px solid transparent';
-			
 			// Adds drop handler from graph
 			mxEvent.addGestureListeners(contentDiv, function(){}, mxUtils.bind(this, function(evt)
 			{
 				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler.shape != null)
 				{
 					graph.graphHandler.shape.node.style.visibility = 'hidden';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					else
-					{
-						contentDiv.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					
+					contentDiv.style.backgroundColor = '#f1f3f4';
 					contentDiv.style.cursor = 'copy';
 					graph.panningManager.stop();
 					graph.autoScroll = false;
@@ -2624,13 +3118,7 @@
 			{
 				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler != null)
 				{
-					contentDiv.style.border = '3px solid transparent';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
-					
+					contentDiv.style.backgroundColor = '';
 					contentDiv.style.cursor = 'default';
 					this.sidebar.showTooltips = true;
 					graph.panningManager.stop();
@@ -2648,7 +3136,7 @@
 				if (graph.isMouseDown && graph.graphHandler.shape != null)
 				{
 					graph.graphHandler.shape.node.style.visibility = 'visible';
-					contentDiv.style.border = '3px solid transparent';
+					contentDiv.style.backgroundColor = '';
 					contentDiv.style.cursor = '';
 					graph.autoScroll = true;
 					
@@ -2661,11 +3149,6 @@
 					{
 						graph.graphHandler.hint.style.visibility = 'visible';	
 					}
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
 				}
 			}));
 			
@@ -2674,15 +3157,7 @@
 			{
 				mxEvent.addListener(contentDiv, 'dragover', mxUtils.bind(this, function(evt)
 				{
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					else
-					{
-						contentDiv.style.border = '3px dotted rgb(254, 137, 12)';
-					}
-					
+					contentDiv.style.backgroundColor = '#f1f3f4';
 					evt.dataTransfer.dropEffect = 'copy';
 					contentDiv.style.cursor = 'copy';
 					this.sidebar.hideTooltip();
@@ -2692,13 +3167,8 @@
 				
 				mxEvent.addListener(contentDiv, 'drop', mxUtils.bind(this, function(evt)
 				{
-					contentDiv.style.border = '3px solid transparent';
 					contentDiv.style.cursor = '';
-					
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
+					contentDiv.style.backgroundColor = '';
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {	
@@ -2753,8 +3223,7 @@
 												
 												for (var i = 0; i < pages.length; i++)
 												{
-													var temp = mxUtils.getTextContent(pages[i]);
-													var cells = this.stringToCells(this.editor.graph.decompress(temp));
+													var cells = this.stringToCells(Editor.getDiagramNodeXml(pages[i]));
 													var size = this.editor.graph.getBoundingBoxFromGeometry(cells);
 													addCells(cells, new mxRectangle(0, 0, size.width, size.height), evt);
 												}
@@ -2826,16 +3295,8 @@
 	
 				mxEvent.addListener(contentDiv, 'dragleave', function(evt)
 				{
-					if (dropTarget != null)
-					{
-						dropTarget.style.border = '3px dotted lightGray';
-					}
-					else
-					{
-						contentDiv.style.border = '3px solid transparent';
-						contentDiv.style.cursor = '';
-					}
-	
+					contentDiv.style.cursor = '';
+					contentDiv.style.backgroundColor = '';
 					evt.stopPropagation();
 					evt.preventDefault();
 				});
@@ -2907,7 +3368,7 @@
 			}
 			else if (img.xml != null)
 			{
-				var cells = this.stringToCells(this.editor.graph.decompress(img.xml));
+				var cells = this.stringToCells(Graph.decompress(img.xml));
 				
 				if (cells.length > 0)
 				{
@@ -2932,9 +3393,11 @@
 	/**
 	 * EditorUi Overrides
 	 */
+	EditorUi.prototype.footerHeight = 0;
+	
     if (urlParams['offline'] == '1' || EditorUi.isElectronApp)
     {
-		EditorUi.prototype.footerHeight = 4;
+		//EditorUi.prototype.footerHeight = 4;
     }
     else
     {
@@ -2944,7 +3407,7 @@
     		Sidebar.prototype.thumbHeight = 64;
 		}
 
-		EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
+		//EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
 		
 		// Fetches footer from page
 		EditorUi.prototype.createFooter = function()
@@ -2953,28 +3416,28 @@
 			
 			if (footer != null)
 			{
-				footer.style.visibility = 'visible';
-				
-				// Adds button to hide the footer
-				var img = document.createElement('img');
-				img.setAttribute('border', '0');
-				img.setAttribute('src', Dialog.prototype.closeImage);
-				img.setAttribute('title', mxResources.get('hide'));
-				footer.appendChild(img)
-
-				if (mxClient.IS_QUIRKS)
-				{
-					img.style.position = 'relative';
-					img.style.styleFloat = 'right';
-					img.style.top = '-30px';
-					img.style.left = '164px';
-					img.style.cursor = 'pointer';
-				}
-				
-				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-				{
-					this.hideFooter();
-				}));
+//				footer.style.visibility = 'hidden';
+//				
+//				// Adds button to hide the footer
+//				var img = document.createElement('img');
+//				img.setAttribute('border', '0');
+//				img.setAttribute('src', Dialog.prototype.closeImage);
+//				img.setAttribute('title', mxResources.get('hide'));
+//				footer.appendChild(img)
+//
+//				if (mxClient.IS_QUIRKS)
+//				{
+//					img.style.position = 'relative';
+//					img.style.styleFloat = 'right';
+//					img.style.top = '-30px';
+//					img.style.left = '164px';
+//					img.style.cursor = 'pointer';
+//				}
+//				
+//				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+//				{
+//					this.hideFooter();
+//				}));
 			}
 
 			return footer;
@@ -2996,25 +3459,15 @@
     		Editor.prototype.initialTopSpacing = 3;
     		EditorUi.prototype.menubarHeight = 41;
     		EditorUi.prototype.toolbarHeight = 38;
-    		EditorUi.prototype.hsplitPosition = 188;
-    		Sidebar.prototype.thumbWidth = 46;
-    		Sidebar.prototype.thumbHeight = 46;
-    		Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 0 : 1;
-    		Sidebar.prototype.thumbBorder = 2;
     	}
     	else if (uiTheme == 'dark')
     	{
     		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
 			Dialog.backdropColor = '#2a2a2a';
-	    		Graph.prototype.defaultThemeName = 'darkTheme';
+	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
-			Graph.prototype.defaultGraphBackground = null;
 			Graph.prototype.defaultPageBorderColor = '#505759';
-		    Graph.prototype.svgShadowColor = '#e0e0e0';
-		    Graph.prototype.svgShadowOpacity = '0.6';
-		    Graph.prototype.svgShadowSize = '0.8';
-		    Graph.prototype.svgShadowBlur = '1.4';
 			Format.prototype.inactiveTabBackgroundColor = 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
@@ -3036,14 +3489,14 @@
      */
     EditorUi.prototype.hideFooter = function()
     {
-	    	var footer = document.getElementById('geFooter');
-		    	
-	    	if (footer != null)
-	    	{
-	    		this.footerHeight = 0;
-	    		footer.style.display = 'none';
-	    		this.refresh();
-	    	}
+    	var footer = document.getElementById('geFooter');
+	    	
+    	if (footer != null)
+    	{
+    		this.footerHeight = 0;
+    		footer.style.display = 'none';
+    		this.refresh();
+    	}
     };
 
     /**
@@ -3099,7 +3552,7 @@
 	{
 		var dlg = new LibraryDialog(this, name, sidebar, images, file, mode);
 		
-		this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
+		this.showDialog(dlg.container, 640, 440, true, false, mxUtils.bind(this, function(cancel)
 		{
 			if (cancel && this.getCurrentFile() == null && urlParams['embed'] != '1')
 			{
@@ -3111,23 +3564,51 @@
 	};
 
 	/**
+	 * Overridden to update after view state changes.
+	 */
+	var editorUiCreateFormat = EditorUi.prototype.createFormat;
+	
+	EditorUi.prototype.createFormat = function(container)
+	{
+		var format = editorUiCreateFormat.apply(this, arguments);
+		
+		this.editor.graph.addListener('viewStateChanged', mxUtils.bind(this, function(evt)
+		{
+			if (this.editor.graph.isSelectionEmpty())
+			{
+				format.refresh();
+			}
+		}));
+		
+		return format;
+	};
+	
+	/**
 	 * Hook for sidebar footer container.
 	 */
 	EditorUi.prototype.createSidebarFooterContainer = function()
 	{
-		var div =  this.createDiv('geSidebarContainer');
+		var div =  this.createDiv('geSidebarContainer geSidebarFooter');
 		div.style.position = 'absolute';
 		div.style.overflow = 'hidden';
-		div.style.borderWidth = '3px';
-
+		
 		var elt2 = document.createElement('a');
-		elt2.setAttribute('href', 'javascript:void(0);');
 		elt2.className = 'geTitle';
+		elt2.style.color = '#DF6C0C';
+		elt2.style.fontWeight = 'bold';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
+		elt2.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
 
 		mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
 
+		// Prevents focus
+		mxEvent.addListener(elt2, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+			mxUtils.bind(this, function(evt)
+		{
+			evt.preventDefault();
+		}));
+		
 		mxEvent.addListener(elt2, 'click', mxUtils.bind(this, function(evt)
 		{
 			this.actions.get('shapes').funct();
@@ -3145,7 +3626,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3169,25 +3650,134 @@
 					};
 				}
 				
-				if (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' && typeof(gapi.drive.realtime) != 'undefined' &&
-					e.type == gapi.drive.realtime.ErrorType.FORBIDDEN)
+				if (e.code == 404 || e.status == 404 || e.code == 403)
 				{
-					msg = mxUtils.htmlEntities(mxResources.get('forbidden'));
-				}
-				else if (e.code == 404 || e.status == 404 || (typeof(gapi) != 'undefined' && typeof(gapi.drive) != 'undefined' &&
-						typeof(gapi.drive.realtime) != 'undefined' && e.type == gapi.drive.realtime.ErrorType.NOT_FOUND))
-				{
-					msg = mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied'));
-					var id = window.location.hash;
-					
-					if (id != null && id.substring(0, 2) == '#G')
+					if (e.code == 403)
 					{
-						id = id.substring(2);
-						msg += ' <a href="https://drive.google.com/open?id=' + id + '" target="_blank">' +
-							mxUtils.htmlEntities(mxResources.get('tryOpeningViaThisPage')) + '</a>';
+						if (e.message != null)
+						{
+							msg = mxUtils.htmlEntities(e.message);
+						}
+						else
+						{
+							msg = mxUtils.htmlEntities(mxResources.get('accessDenied'));
+						}
+					}
+					else
+					{
+						msg = (notFoundMessage != null) ? notFoundMessage :
+							mxUtils.htmlEntities(mxResources.get('fileNotFoundOrDenied') +
+							((this.drive != null && this.drive.user != null) ? ' (' + this.drive.user.displayName +
+							', ' + this.drive.user.email+ ')' : ''));
+					}
+					
+					var id = (fileHash != null) ? fileHash : window.location.hash;
+					
+					// #U handles case where we tried to fallback to Google File and
+					// hash property still shows the public URL we tried to load
+					if (id != null && (id.substring(0, 2) == '#G' ||
+						id.substring(0, 45) == '#Uhttps%3A%2F%2Fdrive.google.com%2Fuc%3Fid%3D') &&
+						((resp != null && resp.error != null && ((resp.error.errors != null &&
+						resp.error.errors.length > 0 && resp.error.errors[0].reason == 'fileAccess') ||
+						(resp.error.data != null && resp.error.data.length > 0 &&
+						resp.error.data[0].reason == 'fileAccess'))) ||
+						e.code == 404 || e.status == 404))
+					{
+						id = (id.substring(0, 2) == '#U') ? id.substring(45, id.lastIndexOf('%26ex')) : id.substring(2);
+						
+						// Special case where the button must have a different label and function
+						this.showError(title, msg, mxResources.get('openInNewWindow'), mxUtils.bind(this, function()
+						{
+							this.editor.graph.openLink('https://drive.google.com/open?id=' + id);
+							this.handleError(resp, title, fn, invokeFnOnClose, notFoundMessage)
+						}), retry, mxResources.get('changeUser'), mxUtils.bind(this, function()
+						{
+							var driveUsers = this.drive.getUsersList();
+							
+							var div = document.createElement('div');
+							
+							var title = document.createElement('span');
+							title.style.marginTop = '6px';
+							mxUtils.write(title, mxResources.get('changeUser') + ': ');
+							
+							div.appendChild(title);
+							
+							var usersSelect = document.createElement('select');
+							usersSelect.style.width = '200px';
+							
+							//TODO This code is similar to Dialogs.js change user part in SplashDialog
+							function fillUsersSelect()
+							{
+								usersSelect.innerHTML = '';
+								
+								for (var i = 0; i < driveUsers.length; i++)
+								{
+									var option = document.createElement('option');
+									mxUtils.write(option, driveUsers[i].displayName);
+									option.value = i;
+									usersSelect.appendChild(option);
+									//More info (email) about the user in a disabled option
+									option = document.createElement('option');
+									option.innerHTML = '&nbsp;&nbsp;&nbsp;';
+									mxUtils.write(option, '<' + driveUsers[i].email + '>');
+									option.setAttribute('disabled', 'disabled');
+									usersSelect.appendChild(option);
+								}
+								
+								//Add account option
+								var option = document.createElement('option');
+								mxUtils.write(option, mxResources.get('addAccount'));
+								option.value = driveUsers.length;
+								usersSelect.appendChild(option);
+							}
+							
+							fillUsersSelect();
+							
+							mxEvent.addListener(usersSelect, 'change', mxUtils.bind(this, function()
+							{
+								var userIndex = usersSelect.value;
+								var existingAccount = driveUsers.length != userIndex;
+								
+								if (existingAccount)
+								{
+									this.drive.setUser(driveUsers[userIndex]);
+								}
+								
+								this.drive.authorize(existingAccount, mxUtils.bind(this, function()
+								{
+									if (!existingAccount) 
+									{
+										driveUsers = this.drive.getUsersList();
+										fillUsersSelect();
+									}
+								}), mxUtils.bind(this, function(resp)
+								{
+									this.handleError(resp);
+								}), true);
+							}));
+							
+							div.appendChild(usersSelect);
+							
+							var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+							{
+								this.loadFile(window.location.hash.substr(1), true);
+							}));
+							this.showDialog(dlg.container, 300, 75, true, true);
+						}), mxResources.get('cancel'), mxUtils.bind(this, function()
+						{
+							this.hideDialog();
+							
+							if (fn != null)
+							{
+								fn();
+							}
+						}), 480, 150);
+								
+						return;
 					}
 				}
-				else if (e.message != null)
+				
+				if (e.message != null)
 				{
 					msg = mxUtils.htmlEntities(e.message);
 				}
@@ -3195,7 +3785,7 @@
 				{
 					msg = mxUtils.htmlEntities(e.response.error);
 				}
-				else if (window.App !== 'undefined')
+				else if (typeof window.App !== 'undefined')
 				{
 					if (e.code == App.ERROR_TIMEOUT)
 					{
@@ -3207,28 +3797,29 @@
 					}
 				}
 			}
+			
+			var btn3 = null;
+			var fn3 = null;
+			
+			if (e != null && e.helpLink != null)
+			{
+				btn3 = mxResources.get('help');
+				
+				fn3 = mxUtils.bind(this, function()
+				{
+					return this.editor.graph.openLink(e.helpLink);
+				});
+			}
 	
-			this.showError(title, msg, btn, fn, retry);
+			this.showError(title, msg, btn, fn, retry, null, null, btn3, fn3,
+				null, null, null, (invokeFnOnClose) ? fn : null);
 		}
 		else if (fn != null)
 		{
 			fn();
 		}
 	};
-	
-	/**
-	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
-	 */
-	EditorUi.prototype.showError = function(title, msg, btn, fn, retry, btn2, fn2, btn3, fn3, w, h, hide)
-	{
-		var dlg = new ErrorDialog(this, title, msg, btn || mxResources.get('ok'), fn, retry, btn2, fn2, hide, btn3, fn3);
-		this.showDialog(dlg.container, w || 340, h || 150, true, false);
-		dlg.init();
-	};
-	
+
 	/**
 	 * Translates this point by the given vector.
 	 * 
@@ -3248,11 +3839,12 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel)
+	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel, closable)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		var height = Math.min(200, Math.ceil(msg.length / 50) * 28);
 		
-		this.showDialog(new ConfirmDialog(this, msg, function()
+		var dlg = new ConfirmDialog(this, msg, function()
 		{
 			resume();
 			
@@ -3268,7 +3860,10 @@
 			{
 				cancelFn();
 			}
-		}, okLabel, cancelLabel).container, 340, 90, true, false);	
+		}, okLabel, cancelLabel, null, null, null, null, height);
+		
+		this.showDialog(dlg.container, 340, 46 + height, true, closable);
+		dlg.init();
 	};
 
 	/**
@@ -3279,6 +3874,11 @@
 	 */
 	EditorUi.prototype.setCurrentFile = function(file)
 	{
+		if (file != null)
+		{
+			file.opened = new Date();
+		}
+		
 		this.currentFile = file;
 	};
 
@@ -3302,7 +3902,7 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || (!this.editor.graph.mathEnabled && this.useCanvasForExport);
+		return mxClient.IS_CHROMEAPP || this.useCanvasForExport;
 	};
 
 	/**
@@ -3319,7 +3919,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createImageDataUri = function(canvas, xml, format)
+	EditorUi.prototype.createImageDataUri = function(canvas, xml, format, dpi)
 	{
    	    var data = canvas.toDataURL('image/' + format);
    	    
@@ -3331,8 +3931,13 @@
    	    
    	    if (xml != null)
    	    {
-   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel', atob(this.editor.graph.compress(xml)));
+   	    	data = this.writeGraphModelToPng(data, 'tEXt', 'mxfile', encodeURIComponent(xml));
    	    }
+   	    
+   	    if (dpi > 0)
+    	{
+   	    	data = this.writeGraphModelToPng(data, 'pHYs', 'dpi', dpi);
+    	}
    	    
    	    return data;
 	};
@@ -3340,11 +3945,11 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.saveCanvas = function(canvas, xml, format)
+	EditorUi.prototype.saveCanvas = function(canvas, xml, format, ignorePageName, dpi)
 	{
 		var ext = ((format == 'jpeg') ? 'jpg' : format);
-		var filename = this.getBaseFilename() + '.' + ext;
-   	    var data = this.createImageDataUri(canvas, xml, format);
+		var filename = this.getBaseFilename(ignorePageName) + '.' + ext;
+   	    var data = this.createImageDataUri(canvas, xml, format, dpi);
    	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
 	
@@ -3358,6 +3963,22 @@
 			document.documentMode != 9 && document.documentMode != 8 &&
 			document.documentMode != 7 && !mxClient.IS_QUIRKS) ||
 			this.isOfflineApp() || mxClient.IS_IOS);
+	};
+	
+	/**
+	 * Translates this point by the given vector.
+	 * 
+	 * @param {number} dx X-coordinate of the translation.
+	 * @param {number} dy Y-coordinate of the translation.
+	 */
+	EditorUi.prototype.showTextDialog = function(title, text)
+	{
+    	var dlg = new TextareaDialog(this, title, text, null, null, mxResources.get('close'));
+    	dlg.textarea.style.width = '600px';
+    	dlg.textarea.style.height = '380px';
+		this.showDialog(dlg.container, 620, 460, true, true, null, null, null, null, true);
+		dlg.init();
+		document.execCommand('selectall', false, null);
 	};
 	
 	/**
@@ -3393,16 +4014,10 @@
 				win.close();
 			}
 		}
-		else if (mxClient.IS_IOS)
-		{
-			// Poor man's saveAs in iOS via context menu of selected output
-		    	var dlg = new TextareaDialog(this, filename + ':', data, null, null, mxResources.get('close'));
-		    	dlg.textarea.style.width = '600px';
-		    	dlg.textarea.style.height = '380px';
-				this.showDialog(dlg.container, 620, 460, true, true);
-				dlg.init();
-				document.execCommand('selectall', false, null);
-		}
+//		else if (mxClient.IS_IOS)
+//		{
+//			this.showTextDialog(filename + ':', data);
+//		}
 		else
 		{
 			var a = document.createElement('a');
@@ -3471,7 +4086,7 @@
 	EditorUi.prototype.createEchoRequest = function(data, filename, mimeType, base64Encoded, format, base64Response)
 	{
 		var param = (typeof(pako) === 'undefined' || true) ? 'xml=' + encodeURIComponent(data) :
-			'data=' + encodeURIComponent(this.editor.graph.compress(data));
+			'data=' + encodeURIComponent(Graph.compress(data));
 		
 		return new mxXmlRequest(SAVE_URL, param +
 			((mimeType != null) ? '&mime=' + mimeType : '') +
@@ -3526,6 +4141,13 @@
 		allowTab = (allowTab != null) ? allowTab : (format != 'vsdx') && (!mxClient.IS_IOS || !navigator.standalone);
 		var count = this.getServiceCount(allowBrowser);
 		
+		if (isLocalStorage)
+		{
+			count++;
+		}
+		
+		var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
+		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
 			try
@@ -3548,7 +4170,7 @@
 						}
 						else
 						{
-							win.document.write(mxUtils.htmlEntities(data, false));
+							win.document.write('<pre>' + mxUtils.htmlEntities(data, false) + '</pre>');
 							win.document.close();
 						}
 					}
@@ -3580,10 +4202,9 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
-			null, count > 1, (count > 4 && (!allowBrowser || count < 6)) ? 3 : 4, data, mimeType, base64Encoded);
-		var noServices = (mxClient.IS_IOS) ? 0 : 1;
-		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
-		this.showDialog(dlg.container, 420, height, true, true);
+			null, count > 1, rowLimit, data, mimeType, base64Encoded);
+		var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 270) : 160;
+		this.showDialog(dlg.container, 400, height, true, true);
 		dlg.init();
 	};
 	
@@ -3597,7 +4218,7 @@
 		{
 			var win = window.open('about:blank');
 			
-			if (win == null)
+			if (win == null || win.document == null)
 			{
 				mxUtils.popup(data, true);
 			}
@@ -3610,7 +4231,7 @@
 				}
 				else
 				{
-					win.document.write('<html><img src="data:' +
+					win.document.write('<html><img style="max-width:100%;" src="data:' +
 						mimeType + ((base64Encoded) ? ';base64,' +
 						data : ';charset=utf8,' + encodeURIComponent(data)) +
 						'"/></html>');
@@ -3626,7 +4247,7 @@
 			var win = window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
 					data : ';charset=utf8,' + encodeURIComponent(data)));
 			
-			if (win == null)
+			if (win == null || win.document == null)
 			{
 				mxUtils.popup(data, true);
 			}
@@ -3780,6 +4401,13 @@
 		allowTab = (allowTab != null) ? allowTab : !mxClient.IS_IOS || !navigator.standalone;
 		var count = this.getServiceCount(false);
 		
+		if (isLocalStorage)
+		{
+			count++;
+		}
+		
+		var rowLimit = (count <= 4) ? 2 : (count > 6 ? 4 : 3);
+		
 		var dlg = new CreateDialog(this, filename, mxUtils.bind(this, function(newTitle, mode)
 		{
 			if (mode == '_blank' || newTitle != null && newTitle.length > 0)
@@ -3850,11 +4478,20 @@
 		{
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
-			null, count > 1, (count > 4) ? 3 : 4, data, mimeType, base64Encoded);
-		var noServices = (mxClient.IS_IOS) ? 0 : 1;
-		var height = (count == noServices) ? 160 : ((count > 4) ? 390 : 270);
+			null, count > 1, rowLimit, data, mimeType, base64Encoded);
+		
+		var height = (this.isServices(count)) ? ((count > 4) ? 390 : 270) : 160;
 		this.showDialog(dlg.container, 380, height, true, true);
 		dlg.init();
+	};
+
+	/**
+	 * Returns whether or not any services should be shown in dialogs
+	 */
+	EditorUi.prototype.isServices = function(count)
+	{
+		var noServices = 1; //(mxClient.IS_IOS) ? 0 : 1;
+		return count != noServices;
 	};
 
 	/**
@@ -3912,7 +4549,7 @@
 			
 			if (addShadow)
 			{
-				this.editor.graph.addSvgShadow(svgRoot, svgRoot);
+				this.editor.graph.addSvgShadow(svgRoot);
 			}
 			
 			var filename = this.getBaseFilename() + '.svg';
@@ -3923,7 +4560,8 @@
 				
 				if (editable)
 				{
-					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection, currentPage));
+					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
+						currentPage, null, null, null, false));
 				}
 				
 				if (this.editor.fontCss != null)
@@ -3936,23 +4574,24 @@
 					svgRoot.getElementsByTagName('defs')[0].appendChild(style);
 				}
 				
-				var svg = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+					'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 					mxUtils.getXml(svgRoot);
-				
-		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
-		    		{
-		    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
-		    		}
-		    		else
-		    		{
-		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-		    			{
-		    				mxUtils.popup(svg);
-		    			}));
-		    		}
+			
+	    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
+	    		{
+	    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
+	    		}
+	    		else
+	    		{
+	    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+	    			{
+	    				mxUtils.popup(svg);
+	    			}));
+	    		}
 			});
 			
-			this.convertMath(this.editor.graph, svgRoot, false, mxUtils.bind(this, function()
+			this.convertMath(this.editor.graph, svgRoot, mxUtils.bind(this, function()
 			{
 				if (embedImages)
 				{
@@ -3988,7 +4627,7 @@
 		cb.style.marginRight = '8px';
 		cb.style.marginTop = '16px';
 		cb.setAttribute('type', asRadio? 'radio' : 'checkbox');
-		var id = "cb" + Math.random();
+		var id = 'geCheckbox-' + Editor.guid();
 		cb.id = id;
 		
 		if (radioGroupName != null)
@@ -4240,14 +4879,10 @@
 			}
 		}
 		
-		if (allPages)
+		if (allPages && this.currentPage != null && this.pages != null &&
+			this.currentPage != this.pages[0])
 		{
-			var index = this.getSelectedPageIndex();
-			
-			if (index > 0)
-			{
-				params.push('page=' + index);
-			}
+			params.push('page-id=' + this.currentPage.getId());
 		}
 		
 		var data = '';
@@ -4270,8 +4905,8 @@
 			else
 			{
 				data = '#R' + encodeURIComponent((allPages) ?
-					this.getFileData(true, null, null, null, null, null, null, true) :
-					this.editor.graph.compress(mxUtils.getXml(this.editor.getGraphXml())))
+					this.getFileData(true, null, null, null, null, null, null, true, null, false) :
+					Graph.compress(mxUtils.getXml(this.editor.getGraphXml())))
 			}
 		}
 
@@ -4281,7 +4916,7 @@
 		}
 
 		return ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || !(/.*\.draw\.io$/.test(window.location.hostname))) ?
-			'https://www.draw.io/' : 'https://' + window.location.host + '/') +
+			EditorUi.drawHost : 'https://' + window.location.host + '/') +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
 	
@@ -4374,10 +5009,10 @@
 		var s2 = (fetchParam.length > 0) ?
 			(((urlParams['dev'] == '1') ?
 			'https://test.draw.io/embed2.js?dev=1' :
-			'https://www.draw.io/embed2.js?')) + fetchParam :
+			EditorUi.drawHost + '/embed2.js?')) + fetchParam :
 			(((urlParams['dev'] == '1') ?
 			'https://test.draw.io/js/viewer.min.js' :
-			'https://www.draw.io/js/viewer.min.js'));
+			window.VIEWER_URL ? window.VIEWER_URL : EditorUi.drawHost + '/js/viewer.min.js'));
 		var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
 		
 		fn(value, scr);
@@ -4672,16 +5307,39 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude)
+	EditorUi.prototype.showRemoteExportDialog = function(btnLabel, helpLink, callback, hideInclude, showZoomBorder)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, mxResources.get('image'));
-		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:' + (showZoomBorder? '10' : '4') +'px';
 		div.appendChild(hd);
 
+		if (showZoomBorder)
+		{
+			mxUtils.write(div, mxResources.get('zoom') + ':');
+			var zoomInput = document.createElement('input');
+			zoomInput.setAttribute('type', 'text');
+			zoomInput.style.marginRight = '16px';
+			zoomInput.style.width = '60px';
+			zoomInput.style.marginLeft = '4px';
+			zoomInput.style.marginRight = '12px';
+			zoomInput.value = this.lastExportZoom || '100%';
+			div.appendChild(zoomInput);
+			
+			mxUtils.write(div, mxResources.get('borderWidth') + ':');
+			var borderInput = document.createElement('input');
+			borderInput.setAttribute('type', 'text');
+			borderInput.style.marginRight = '16px';
+			borderInput.style.width = '60px';
+			borderInput.style.marginLeft = '4px';
+			borderInput.value = this.lastExportBorder || '0';
+			div.appendChild(borderInput);
+			mxUtils.br(div);
+		}
+		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
 			this.editor.graph.isSelectionEmpty());
 		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
@@ -4697,10 +5355,13 @@
 		
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
+			var scale = parseInt(zoomInput.value) / 100 || 1;
+			var border = parseInt(borderInput.value) || 0;
+			
 			callback(!selection.checked, (include != null) ? include.checked : false,
-				(transparent != null) ? transparent.checked : false);
+				(transparent != null) ? transparent.checked : false, scale, border);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 300, (hideInclude) ? 100 : 186, true, true);
+		this.showDialog(dlg.container, 300, (showZoomBorder? 25 : 0) + (hideInclude ? 125 : 210), true, true);
 	};
 	
 	/**
@@ -4741,8 +5402,9 @@
 		div.appendChild(borderInput);
 		mxUtils.br(div);
 		
+		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
-			graph.background == mxConstants.NONE || graph.background == null, null, null, format != 'jpeg');
+			defaultTransparent, null, null, format != 'jpeg');
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
 			false, graph.isSelectionEmpty());
 
@@ -4798,6 +5460,14 @@
 			mxUtils.write(div, mxResources.get('embedImages'));
 			mxUtils.br(div);
 			
+			height += 26;
+		}
+		
+		var grid = null;
+		
+		if (format == 'png' || format == 'jpeg')
+		{
+			grid = this.addCheckbox(div, mxResources.get('grid'), false, this.isOffline() || !this.canvasSupported, false, true); 
 			height += 26;
 		}
 		
@@ -4859,7 +5529,7 @@
 			mxUtils.br(div);
 			height += 26;
 		}
-		
+
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			this.lastExportBorder = borderInput.value;
@@ -4867,9 +5537,9 @@
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
-				linkSelect.value);
+				linkSelect.value, (grid != null? grid.checked : null));
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, height, true, true);
+		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
 		
 		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
@@ -4965,7 +5635,7 @@
 			{
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('" + EditorUi.drawHost + "/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") +
 					((layers) ? '&layers=1' : '') + "');}})(this);\"";
 				css += 'cursor:pointer;';
@@ -5088,7 +5758,7 @@
 			{
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = "onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
-					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
+					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('" + EditorUi.drawHost + "/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}})(this);\"";
 				css += 'cursor:pointer;';
 			}
@@ -5123,7 +5793,7 @@
 					"svg.getAttribute('content')),'*');window.removeEventListener('message',r);}};" +
 					"window.addEventListener('message',r);" +
 					// Opens lightbox window
-					"svg.wnd=window.open('https://www.draw.io/?client=1&lightbox=1" +
+					"svg.wnd=window.open('" + EditorUi.drawHost + "/?client=1&lightbox=1" +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}}})(this);";
 				svgRoot.setAttribute('onclick', js);
 				css += 'cursor:pointer;';
@@ -5134,7 +5804,7 @@
 			{
 				var w = parseInt(svgRoot.getAttribute('width'));
 				var h = parseInt(svgRoot.getAttribute('height'));
-				svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+				svgRoot.setAttribute('viewBox', '-0.5 -0.5 ' + w + ' ' + h);
 				css += 'max-width:100%;max-height:' + h + 'px;';
 				svgRoot.removeAttribute('height');
 			}
@@ -5203,9 +5873,30 @@
 	/**
 	 * Converts math in the given SVG
 	 */
-	EditorUi.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	EditorUi.prototype.convertMath = function(graph, svgRoot, callback)
 	{
-		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		// CSS styles are needed for the math to render correctly
+		// unfortunately, there is no ID on the MathJax CSS only
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (defs != null && defs.length > 0)
+		{
+			var styles = document.getElementsByTagName('style');
+			
+			for (var i = 0; i < styles.length; i++)
+			{
+				if (styles[i].getAttribute('type') == 'text/css')
+				{
+					defs[0].appendChild(styles[i].cloneNode(true));
+				}
+			}
+		}
+		
+		// NOTE: This is never true as mathEnabled is not set on off-screen graphs
+		// (on-screen is handled via createSvgImageExport override in Editor.js)
+		if (graph != this.editor.graph && graph.mathEnabled &&
+			typeof(MathJax) !== 'undefined' &&
+			typeof(MathJax.Hub) !== 'undefined')
 		{
 	      	// Temporarily attaches to DOM for rendering
 			// FIXME: If adding svgRoot to body, the text
@@ -5215,7 +5906,7 @@
 			// if math is enabled.
 //			document.body.appendChild(svgRoot);
 			Editor.MathJaxRender(svgRoot);
-	      
+
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				MathJax.Hub.Queue(mxUtils.bind(this, function ()
@@ -5273,12 +5964,7 @@
 			
 			if (diagramNode != null)
 			{
-				var tmp = graph.decompress(mxUtils.getTextContent(diagramNode));
-				
-				if (tmp != null && tmp.length > 0)
-				{
-					node = mxUtils.parseXml(tmp).documentElement;
-				}
+				node = Editor.parseDiagramNode(diagramNode);
 			}
 		}
 		
@@ -5307,77 +5993,88 @@
 	 */
 	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData)
 	{
-		var graph = this.editor.graph;
-		var diagramData = null;
-		
-		// Exports PNG for given optional data
-		if (optionalData != null && optionalData.length > 0)
+		try
 		{
-			graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
-			document.body.appendChild(graph.container);
-			this.decodeNodeIntoGraph(this.editor.extractGraphModel(
-				mxUtils.parseXml(optionalData).documentElement, true), graph);
-			diagramData = optionalData;
-		}
-		// Exports PNG for first page while other page is showing
-		else if (this.pages != null && this.currentPage != this.pages[0])
-		{
-			graph = this.createTemporaryGraph(graph.getStylesheet());
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			var page = this.pages[0];
-	
-			graph.getGlobalVariable = function(name)
+			var graph = this.editor.graph;
+			var diagramData = null;
+			
+			// Exports PNG for given optional data
+			if (optionalData != null && optionalData.length > 0)
 			{
-				if (name == 'page')
+				graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+				document.body.appendChild(graph.container);
+				this.decodeNodeIntoGraph(this.editor.extractGraphModel(
+					mxUtils.parseXml(optionalData).documentElement, true), graph);
+				diagramData = optionalData;
+			}
+			// Exports PNG for first page while other page is showing
+			else if (this.pages != null && this.currentPage != this.pages[0])
+			{
+				graph = this.createTemporaryGraph(graph.getStylesheet());
+				var graphGetGlobalVariable = graph.getGlobalVariable;
+				var page = this.pages[0];
+		
+				graph.getGlobalVariable = function(name)
 				{
-					return page.getName();
-				}
-				else if (name == 'pagenumber')
-				{
-					return 1;
-				}
-				
-				return graphGetGlobalVariable.apply(this, arguments);
-			};
+					if (name == 'page')
+					{
+						return page.getName();
+					}
+					else if (name == 'pagenumber')
+					{
+						return 1;
+					}
+					
+					return graphGetGlobalVariable.apply(this, arguments);
+				};
+		
+				document.body.appendChild(graph.container);
+				graph.model.setRoot(page.root);
+			}
+		
+		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
+		   	{
+		   		try
+		   		{
+		   			if (diagramData == null)
+		   			{
+		   				diagramData = this.getFileData(true, null, null, null, null,
+		   						null, null, null, null, false);
+		   			}
+		   			
+		   	   	    var data = canvas.toDataURL('image/png');
+		   	   	    data = this.writeGraphModelToPng(data,
+		   	   	    	'tEXt', 'mxfile', encodeURIComponent(diagramData));
+	   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
 	
-			document.body.appendChild(graph.container);
-			graph.model.setRoot(page.root);
-		}
-	
-	   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
-	   	{
-	   		try
-	   		{
-	   			if (diagramData == null)
-	   			{
-	   				diagramData = this.getFileData(true);
-	   			}
-	   			
-	   	   	    var data = canvas.toDataURL('image/png');
-   	   	   		data = this.writeGraphModelToPng(data, 'zTXt', 'mxGraphModel',
-   	   	   			atob(this.editor.graph.compress(diagramData)));
-   	   	   		success(data.substring(data.lastIndexOf(',') + 1));
-
-				// Removes temporary graph from DOM
-   	   	   		if (graph != this.editor.graph)
-				{
-					graph.container.parentNode.removeChild(graph.container);
-				}
-	   		}
-	   		catch (e)
-	   		{
-	   			if (error != null)
+					// Removes temporary graph from DOM
+	   	   	   		if (graph != this.editor.graph)
+					{
+						graph.container.parentNode.removeChild(graph.container);
+					}
+		   		}
+		   		catch (e)
+		   		{
+		   			if (error != null)
+		   			{
+		   				error(e);
+		   			}
+		   		}
+		   	}), null, null, null, mxUtils.bind(this, function(e)
+		   	{
+		   		if (error != null)
 	   			{
 	   				error(e);
 	   			}
-	   		}
-	   	}), null, null, null, mxUtils.bind(this, function(e)
-	   	{
-	   		if (error != null)
-   			{
-   				error(e);
-   			}
-	   	}), null, null, null, null, graph.shadowVisible, null, graph);
+		   	}), null, null, null, null, graph.shadowVisible, null, graph);
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+		}
 	}
 	
 	/**
@@ -5396,6 +6093,11 @@
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
 		var svgRoot = graph.getSvg(bg, null, null, null, null, ignoreSelection);
+		
+		if (graph.shadowVisible)
+		{
+			graph.addSvgShadow(svgRoot);
+		}
 
 		if (xml != null)
 		{
@@ -5435,7 +6137,7 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format, grid, dpi)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -5459,7 +6161,8 @@
 			   		try
 			   		{
 			   			this.saveCanvas(canvas, (editable) ? this.getFileData(true, null,
-			   				null, null, ignoreSelection, currentPage) : null, format);
+			   				null, null, ignoreSelection, currentPage) : null,
+			   				format, (this.pages == null || this.pages.length == 0), dpi);
 			   		}
 			   		catch (e)
 			   		{
@@ -5478,7 +6181,7 @@
 			   		this.spinner.stop();
 			   		this.handleError(e);
 			   	}), null, ignoreSelection, scale || 1, transparentBackground,
-			   		addShadow, null, null, border, noCrop);
+			   		addShadow, null, null, border, noCrop, grid);
 			}
 			catch (e)
 			{
@@ -5579,7 +6282,7 @@
                             
                             var realUrl = url;
                             
-                            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+                            if ((/^https?:\/\//.test(realUrl)) && !this.editor.isCorsEnabledForUrl(realUrl))
                             {
                                 realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
                             }
@@ -5611,139 +6314,187 @@
 	 *
 	 */
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid)
 	{
-		limitHeight = (limitHeight != null) ? limitHeight : true;
-		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
-		graph = (graph != null) ? graph : this.editor.graph;
-		border = (border != null) ? border : 0;
-		
-		var bg = (transparentBackground) ? null : graph.background;
-		
-		if (bg == mxConstants.NONE)
+		try
 		{
-			bg = null;
-		}
-		
-		if (bg == null)
-		{
-			bg = background;
-		}
-		
-		// Handles special case where background is null but transparent is false
-		if (bg == null && transparentBackground == false)
-		{
-			bg = this.editor.graph.defaultPageBackgroundColor;
-		}
-		
-		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
-			mxUtils.bind(this, function(svgRoot)
-		{
-			var img = new Image();
+			limitHeight = (limitHeight != null) ? limitHeight : true;
+			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+			graph = (graph != null) ? graph : this.editor.graph;
+			border = (border != null) ? border : 0;
 			
-			img.onload = mxUtils.bind(this, function()
+			var bg = (transparentBackground) ? null : graph.background;
+			
+			if (bg == mxConstants.NONE)
 			{
-		   		try
-		   		{
-		   			var canvas = document.createElement('canvas');
-					var w = parseInt(svgRoot.getAttribute('width'));
-					var h = parseInt(svgRoot.getAttribute('height'));
-					scale = (scale != null) ? scale : 1;
-					
-					if (width != null)
-					{
-						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
-					}
-					
-					w = Math.ceil(scale * w) + 2 * border;
-					h = Math.ceil(scale * h) + 2 * border;
-					
-					canvas.setAttribute('width', w);
-			   		canvas.setAttribute('height', h);
-			   		var ctx = canvas.getContext('2d');
-			   		
-			   		if (bg != null)
+				bg = null;
+			}
+			
+			if (bg == null)
+			{
+				bg = background;
+			}
+			
+			// Handles special case where background is null but transparent is false
+			if (bg == null && transparentBackground == false)
+			{
+				bg = '#ffffff';
+			}
+			
+			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+				mxUtils.bind(this, function(svgRoot)
+			{
+				var img = new Image();
+				
+				img.onload = mxUtils.bind(this, function()
+				{
+			   		try
 			   		{
-			   			ctx.beginPath();
-						ctx.rect(0, 0, w, h);
-						ctx.fillStyle = bg;
-						ctx.fill();
-			   		}
-
-			   		ctx.scale(scale, scale);
-			   		
-			   		// Workaround for broken data URI images in Safari on first export
-			   		if (mxClient.IS_SF)
-			   		{			   		
-						window.setTimeout(function()
+			   			var canvas = document.createElement('canvas');
+						var w = parseInt(svgRoot.getAttribute('width'));
+						var h = parseInt(svgRoot.getAttribute('height'));
+						scale = (scale != null) ? scale : 1;
+						
+						if (width != null)
 						{
-							ctx.drawImage(img, border / scale, border / scale);
-							callback(canvas);
-						}, 0);
+							scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+						}
+						
+						w = Math.ceil(scale * w) + 2 * border;
+						h = Math.ceil(scale * h) + 2 * border;
+						
+						canvas.setAttribute('width', w);
+				   		canvas.setAttribute('height', h);
+				   		var ctx = canvas.getContext('2d');
+				   		
+				   		if (bg != null)
+				   		{
+				   			ctx.beginPath();
+							ctx.rect(0, 0, w, h);
+							ctx.fillStyle = bg;
+							ctx.fill();
+				   		}
+	
+					    ctx.scale(scale, scale);
+
+					    function drawImage()
+					    {
+					    	// Workaround for broken data URI images in Safari on first export
+					   		if (mxClient.IS_SF)
+					   		{			   		
+								window.setTimeout(function()
+								{
+									ctx.drawImage(img, border / scale, border / scale);
+									callback(canvas);
+								}, 0);
+					   		}
+					   		else
+					   		{
+					   			ctx.drawImage(img, border / scale, border / scale);
+					   			callback(canvas);
+					   		}
+					    };
+					    
+					    if (grid)
+					    {
+						    var view = graph.view;
+							var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
+							gridImage = 'data:image/svg+xml;base64,' + gridImage;
+			                var phase = graph.gridSize * view.gridSteps * scale;
+			                
+			                var b = graph.getGraphBounds();
+							var x0 = b.x * scale;
+							var y0 = b.y * scale;
+							
+							var background = new Image();
+							background.src = gridImage;
+	
+							background.onload = function()
+							{
+								var x = -Math.round(phase - mxUtils.mod(view.translate.x * scale - x0, phase));
+								var y = -Math.round(phase - mxUtils.mod(view.translate.y * scale - y0, phase));
+	
+								for (var i = x; i < w; i += phase)
+								{
+									for (var j = y; j < h; j += phase)
+									{
+										ctx.drawImage(background, i / scale, j / scale);	
+									}
+								}
+							
+								drawImage();
+							};
+					    }
+					    else
+				    	{
+					    	drawImage();
+				    	}
 			   		}
-			   		else
+			   		catch (e)
 			   		{
-			   			ctx.drawImage(img, border / scale, border / scale);
-			   			callback(canvas);
+			   			if (error != null)
+						{
+							error(e);
+						}
 			   		}
-		   		}
-		   		catch (e)
-		   		{
-		   			if (error != null)
+				});
+				
+				img.onerror = function(e)
+				{
+					//console.log('img', e, img.src);
+					
+					if (error != null)
 					{
 						error(e);
 					}
-		   		}
-			});
-			
-			img.onerror = function(e)
-			{
-				//console.log('img', e, img.src);
-				
-				if (error != null)
+				};
+	
+				try
 				{
-					error(e);
-				}
-			};
-
-			try
-			{
-				if (addShadow)
-				{
-					this.editor.graph.addSvgShadow(svgRoot, svgRoot);
-				}
-				
-				var done = mxUtils.bind(this, function()
-				{
-					if (this.editor.resolvedFontCss != null)
+					if (addShadow)
 					{
-						var st = document.createElement('style');
-						st.setAttribute('type', 'text/css');
-						st.innerHTML = this.editor.resolvedFontCss;
-						
-						// Must be in defs section for FF to work
-						var defs = svgRoot.getElementsByTagName('defs');
-						defs[0].appendChild(st);
+						this.editor.graph.addSvgShadow(svgRoot);
 					}
 					
-					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					var done = mxUtils.bind(this, function()
 					{
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-					}));
-				});
-				
-				this.loadFonts(done);
-			}
-			catch (e)
-			{
-				//console.log('src', e, img.src);
-				
-				if (error != null)
-				{
-					error(e);
+						if (this.editor.resolvedFontCss != null)
+						{
+							var st = document.createElement('style');
+							st.setAttribute('type', 'text/css');
+							st.innerHTML = this.editor.resolvedFontCss;
+							
+							// Must be in defs section for FF to work
+							var defs = svgRoot.getElementsByTagName('defs');
+							defs[0].appendChild(st);
+						}
+						
+						this.convertMath(graph, svgRoot, mxUtils.bind(this, function()
+						{
+							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+						}));
+					});
+					
+					this.loadFonts(done);
 				}
+				catch (e)
+				{
+					//console.log('src', e, img.src);
+					
+					if (error != null)
+					{
+						error(e);
+					}
+				}
+			}), imageCache, converter);
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
 			}
-		}), imageCache, converter);
+		}
 	};
 
 	/**
@@ -5769,11 +6520,11 @@
 					src = self.svgBrokenImage.src;
 				}
 				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl &&
-						(!self.crossOriginImages || !self.isCorsEnabledForUrl(src)))
+						(!self.crossOriginImages || !self.editor.isCorsEnabledForUrl(src)))
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
-				else if (src.substring(0, 19) != 'chrome-extension://')
+				else if (src.substring(0, 19) != 'chrome-extension://' && !mxClient.IS_CHROMEAPP)
 				{
 					src = convert.apply(this, arguments);
 				}
@@ -5824,36 +6575,46 @@
 			{
 				(mxUtils.bind(this, function(img)
 				{
-					var src = converter.convert(img.getAttribute(srcAttr));
-		        	
-					// Data URIs are pass-through
-					if (src != null && src.substring(0, 5) != 'data:')
+					try
 					{
-						var tmp = cache[src];
-						
-						if (tmp == null)
+						if (img != null)
 						{
-							inc();
-							
-							this.convertImageToDataUri(src, function(uri)
+							var src = converter.convert(img.getAttribute(srcAttr));
+				        	
+							// Data URIs are pass-through
+							if (src != null && src.substring(0, 5) != 'data:')
 							{
-								if (uri != null)
-								{
-									cache[src] = uri;
-									img.setAttribute(srcAttr, uri);
-								}
+								var tmp = cache[src];
 								
-								dec();
-							});
-						}
-						else
-						{
-							img.setAttribute(srcAttr, tmp);
+								if (tmp == null)
+								{
+									inc();
+									
+									this.convertImageToDataUri(src, function(uri)
+									{
+										if (uri != null)
+										{
+											cache[src] = uri;
+											img.setAttribute(srcAttr, uri);
+										}
+										
+										dec();
+									});
+								}
+								else
+								{
+									img.setAttribute(srcAttr, tmp);
+								}
+							}
+							else if (src != null)
+							{
+								img.setAttribute(srcAttr, src);
+							}
 						}
 					}
-					else if (src != null)
+					catch (e)
 					{
-						img.setAttribute(srcAttr, src);
+						// ignore
 					}
 				}))(images[i]);
 			}
@@ -5874,12 +6635,12 @@
 	/**
 	 * Checks if the client is authorized and calls the next step.
 	 */
-	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary)
 	{
 		try
 		{
-			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
-				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			var binary = !noBinary && (forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url));
 			retry = (retry != null) ? retry : true;
 			
 			var fn = mxUtils.bind(this, function()
@@ -5921,13 +6682,13 @@
 					}
 					else if (error != null)
 			    	{
-			    		error({code: App.ERROR_UNKNOWN}, req);
+			    		error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);
 			    	}
-				}), function()
+				}), function(req)
 				{
 			    	if (error != null)
 			    	{
-			    		error({code: App.ERROR_UNKNOWN});
+			    		error({message: mxResources.get('error') + ' ' + req.getStatus()});
 			    	}
 				}, binary, this.timeout, function()
 			    {
@@ -5954,18 +6715,7 @@
 	 */
 	EditorUi.prototype.isCorsEnabledForUrl = function(url)
 	{
-		if (urlParams['cors'] != null && this.corsRegExp == null)
-		{
-			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
-		}
-		
-		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
-			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
-			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
-			url.substring(0, 19) === 'https://rawgit.com/' ||
-			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
-			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
-			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
+		return this.editor.isCorsEnabledForUrl(url);
 	};
 
 	/**
@@ -5976,54 +6726,89 @@
 	 */
 	EditorUi.prototype.convertImageToDataUri = function(url, callback)
 	{
-		if (/(\.svg)$/i.test(url))
+		try
 		{
-			mxUtils.get(url, mxUtils.bind(this, function(req)
+			var acceptResponse = true;
+			
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				callback(this.createSvgDataUri(req.getText()));
-			}),
-			function()
-			{
+				acceptResponse = false;
 				callback(this.svgBrokenImage.src);
-			});
+			}), this.timeout);
+	
+			if (/(\.svg)$/i.test(url))
+			{
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.createSvgDataUri(req.getText()));
+					}
+				}),
+				function()
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(this.svgBrokenImage.src);
+					}
+				});
+			}
+			else
+			{
+			    var img = new Image();
+			    var self = this;
+			    
+			    if (this.crossOriginImages)
+		    	{
+				    img.crossOrigin = 'anonymous';
+			    }
+			    
+			    img.onload = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+				        try
+				        {
+					        var canvas = document.createElement('canvas');
+					        var ctx = canvas.getContext('2d');
+					        canvas.height = img.height;
+					        canvas.width = img.width;
+					        ctx.drawImage(img, 0, 0);
+
+				        	callback(canvas.toDataURL());
+				        }
+				        catch (e)
+				        {
+			        		callback(self.svgBrokenImage.src);
+				        }
+					}
+			    };
+			    
+			    img.onerror = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(self.svgBrokenImage.src);
+					}
+			    };
+			    
+			    img.src = url;
+			}
 		}
-		else
+		catch (e)
 		{
-		    var img = new Image();
-		    var self = this;
-		    
-		    if (this.crossOriginImages)
-	    	{
-			    img.crossOrigin = 'anonymous';
-		    }
-		    
-		    img.onload = function()
-		    {
-		        var canvas = document.createElement('canvas');
-		        var ctx = canvas.getContext('2d');
-		        canvas.height = img.height;
-		        canvas.width = img.width;
-		        ctx.drawImage(img, 0, 0);
-		        
-		        try
-		        {
-	        		callback(canvas.toDataURL());
-		        }
-		        catch (e)
-		        {
-	        		callback(self.svgBrokenImage.src);
-		        }
-		    };
-		    
-		    img.onerror = function()
-		    {
-	    		callback(self.svgBrokenImage.src);
-		    };
-		    
-		    img.src = url;
+			callback(this.svgBrokenImage.src);
 		}
 	};
-	
+
 	/**
 	 * Handling drag and drop and import.
 	 */
@@ -6043,53 +6828,70 @@
 	
 			if (xml != null && xml.length > 0)
 			{
-				var doc = mxUtils.parseXml(xml);
-				
-				// Checks for mxfile with multiple pages
-				var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
-				
-				if (node != null && node.nodeName == 'mxfile' && this.pages != null)
+				// Adds pages
+				graph.model.beginUpdate();
+				try
 				{
-					var diagrams = node.getElementsByTagName('diagram');
+					var doc = mxUtils.parseXml(xml);
+					
+					// Checks for mxfile with multiple pages
+					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
 
-					if (diagrams.length == 1)
+					if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 					{
-						node = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[0]))).documentElement;
-					}
-					else if (diagrams.length > 1)
-					{
-						// Adds pages
-						graph.model.beginUpdate();
-						try
+						var diagrams = node.getElementsByTagName('diagram');
+	
+						if (diagrams.length == 1)
 						{
-							for (var i = 0; i < diagrams.length; i++)
+							node = Editor.parseDiagramNode(diagrams[0]);
+						}
+						else if (diagrams.length > 1)
+						{
+							var mapping = {};
+							var pages = [];
+							var i0 = 0;
+							
+							// Adds first page to current page if current page is only page and empty
+							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
 							{
-								// Imported pages must obtain a new ID
+								node = Editor.parseDiagramNode(diagrams[0]);
+								crop = false;
+								i0 = 1;
+							}
+
+							for (var i = i0; i < diagrams.length; i++)
+							{
+								// Imported pages must obtain a new ID and
+								// all links to pages must be updated below
+								var oldId = diagrams[i].getAttribute('id')
 								diagrams[i].removeAttribute('id');
 								
 								var page = this.updatePageRoot(new DiagramPage(diagrams[i]));
+								mapping[oldId] = diagrams[i].getAttribute('id');
 								var index = this.pages.length;
 								
 								// Checks for invalid page names
 								if (page.getName() == null)
 								{
 									page.setName(mxResources.get('pageWithNumber', [index + 1]));
-									page.needsUpdate = true;
 								}
 								
-								graph.model.execute(new ChangePage(this, page, page, index));
+								graph.model.execute(new ChangePage(this, page, page, index, true));
+								pages.push(page);
 							}
-						}
-						finally
-						{
-							graph.model.endUpdate();
+							
+							this.updatePageLinks(mapping, pages);
 						}
 					}
+					
+					if (node != null && node.nodeName === 'mxGraphModel')
+					{
+						cells = graph.importGraphModel(node, dx, dy, crop);
+					}
 				}
-				
-				if (node != null && node.nodeName === 'mxGraphModel')
+				finally
 				{
-					cells = graph.importGraphModel(node, dx, dy, crop);
+					graph.model.endUpdate();
 				}
 			}
 		}
@@ -6097,13 +6899,118 @@
 		{
 			if (!noErrorHandling)
 			{
-				this.handleError(e, mxResources.get('invalidOrMissingFile'));
+				this.handleError(e);
 			}
-			
-			throw e;
+			else
+			{
+				throw e;
+			}
 		}
 		
 		return cells;
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinks = function(mapping, pages)
+	{
+		for (var i = 0; i < pages.length; i++)
+		{
+			this.updatePageLinksForCell(mapping, pages[i].root);
+		}
+	};
+	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLinksForCell = function(mapping, cell)
+	{
+		var temp = document.createElement('div');
+		var graph = this.editor.graph;
+		var href = graph.getLinkForCell(cell);
+		
+		if (href != null)
+		{
+			graph.setLinkForCell(cell, this.updatePageLink(mapping, href));
+		}
+		
+		if (graph.isHtmlLabel(cell))
+		{
+			temp.innerHTML = graph.getLabel(cell);
+			var links = temp.getElementsByTagName('a');
+			var changed = false;
+			
+			for (var i = 0; i < links.length; i++)
+			{
+				href = links[i].getAttribute('href');
+				
+				if (href != null)
+				{
+					links[i].setAttribute('href', this.updatePageLink(mapping, href));
+					changed = true;
+				}
+			}
+			
+			if (changed)
+			{
+				graph.labelChanged(cell, temp.innerHTML);
+			}
+		}
+		
+		for (var i = 0; i < graph.model.getChildCount(cell); i++)
+		{
+			this.updatePageLinksForCell(mapping, graph.model.getChildAt(cell, i));
+		}
+	};
+
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updatePageLink = function(mapping, href)
+	{
+		if (href.substring(0, 13) == 'data:page/id,')
+		{
+			var newId = mapping[href.substring(href.indexOf(',') + 1)];
+			href = (newId != null) ? 'data:page/id,' + newId : null;
+		}
+		else if (href.substring(0, 17) == 'data:action/json,')
+		{
+			try
+			{
+				var link = JSON.parse(href.substring(17));
+
+				if (link.actions != null)
+				{
+					for (var i = 0; i < link.actions.length; i++)
+					{
+						var action = link.actions[i];
+						
+						if (action.open != null && action.open.substring(0, 13) == 'data:page/id,')
+						{
+							var newId = mapping[action.open.substring(action.open.indexOf(',') + 1)];
+							
+							if (newId != null)
+							{
+								action.open = 'data:page/id,' + newId;
+							}
+							else
+							{
+								delete action.open;
+							}
+						}
+					}
+					
+					href = 'data:action/json,' + JSON.stringify(link);
+				}
+			}
+			catch (e)
+			{
+				// Ignore
+			}
+		}
+		
+		return href;
 	};
 	
 	/**
@@ -6132,46 +7039,96 @@
 			
 			if (this.doImportVisio)
 			{
-				if (this.isRemoteVisioFormat(filename) && VSD_CONVERT_URL != null) 
+				var remote = this.isRemoteVisioFormat(filename);
+				
+				try
 				{
-					var formData = new FormData();
-					formData.append('file1', file, filename);
-
-					var xhr = new XMLHttpRequest();
-					xhr.open('POST', VSD_CONVERT_URL);
-					xhr.responseType = 'blob';
+					var ext = 'UNKNOWN-VISIO';
+					var dot = filename.lastIndexOf('.');
 					
-					xhr.onreadystatechange = mxUtils.bind(this, function()
+					if (dot >= 0 && dot < filename.length)
 					{
-						if (xhr.readyState == 4)
-						{	
-							if (xhr.status >= 200 && xhr.status <= 299)
-							{
-								try
-								{
-									//add back the file name
-									xhr.response.name = filename;
-									this.doImportVisio(xhr.response, done, onerror);
-								}
-								catch (e)
-								{
-									onerror(e);
-								}
-							}
-							else
-							{
-								onerror({});
-							}
-						}
-					});
+						ext = filename.substring(dot + 1).toUpperCase();
+					}
 					
-					xhr.send(formData);
+					EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',
+						action: 'filename_' + filename,
+						label: (remote) ? 'remote' : 'local'});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				
+				if (remote) 
+				{
+					if (VSD_CONVERT_URL != null)
+					{
+						var formData = new FormData();
+						formData.append('file1', file, filename);
+	
+						var xhr = new XMLHttpRequest();
+						xhr.open('POST', VSD_CONVERT_URL);
+						xhr.responseType = 'blob';
+						this.addRemoteServiceSecurityCheck(xhr);
+						
+						xhr.onreadystatechange = mxUtils.bind(this, function()
+						{
+							if (xhr.readyState == 4)
+							{	
+								if (xhr.status >= 200 && xhr.status <= 299)
+								{
+									try
+									{
+										var resp = xhr.response;
+
+										if (resp.type == 'text/xml')
+										{
+											var reader = new FileReader();
+											
+											reader.onload = mxUtils.bind(this, function(e)
+											{
+												try
+												{
+													done(e.target.result);
+												}
+												catch (e)
+												{
+													onerror({message: mxResources.get('errorLoadingFile')});
+												}
+											});
+					
+											reader.readAsText(resp);
+										}
+										else
+										{
+											this.doImportVisio(resp, done, onerror, filename);
+										}
+									}
+									catch (e)
+									{
+										onerror(e);
+									}
+								}
+								else
+								{
+									onerror({});
+								}
+							}
+						});
+						
+						xhr.send(formData);
+					}
+					else
+					{
+						onerror({message: this.getServiceName() == 'conf'? mxResources.get('vsdNoConfig') : mxResources.get('serviceUnavailableOrBlocked')});
+					}
 				}
 				else
 				{
 					try
 					{
-						this.doImportVisio(file, done, onerror);
+						this.doImportVisio(file, done, onerror, filename);
 					}
 					catch (e)
 					{
@@ -6179,9 +7136,14 @@
 					}
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportVisio && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6192,7 +7154,6 @@
 		}
 	};
 
-	
 	/**
 	 * Imports the given GraphML (yEd) file
 	 */
@@ -6219,9 +7180,14 @@
 					onerror(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline())
+		if (!this.doImportGraphML && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6245,16 +7211,26 @@
 			{
 				try
 				{
-					new VsdxExport(this).exportCurrentDiagrams();
+					var expSuccess = new VsdxExport(this).exportCurrentDiagrams();
+					
+					if (!expSuccess)
+					{
+						this.handleError({message: mxResources.get('unknownError')});
+					}
 				}
 				catch (e)
 				{
 					this.handleError(e);
 				}
 			}
+			else
+			{
+				this.spinner.stop();
+				this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
+			}
 		});
 		
-		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline())
+		if (typeof VsdxExport === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			mxscript('js/extensions.min.js', delayed);
@@ -6279,10 +7255,25 @@
 			{
 				try
 				{
+					EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
+						action: 'size_' + data.length});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				
+				try
+				{
 					success(LucidImporter.importState(JSON.parse(data)));
 				}
 				catch (e)
 				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+					
 					error(e);
 				}
 			}
@@ -6293,7 +7284,7 @@
 		});
 		
 		if (typeof window.LucidImporter === 'undefined' &&
-			!this.loadingExtensions && !this.isOffline())
+			!this.loadingExtensions && !this.isOffline(true))
 		{
 			this.loadingExtensions = true;
 			
@@ -6314,6 +7305,167 @@
 	};
 
 	/**
+	 * Generates a plant UML image. Possible types are svg, png and txt.
+	 */
+	EditorUi.prototype.generatePlantUmlImage = function(data, type, success, error)
+	{	
+		function encode64(data)
+		{
+			r = "";
+			
+			for (i = 0; i < data.length; i += 3)
+			{
+				if (i + 2 == data.length)
+				{
+					r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1), 0);
+				}
+				else if (i + 1 == data.length)
+				{
+					r += append3bytes(data.charCodeAt(i), 0, 0);
+				}
+				else
+				{
+					r += append3bytes(data.charCodeAt(i), data.charCodeAt(i + 1),
+						data.charCodeAt(i + 2));
+				}
+			}
+			
+			return r;
+		}
+
+		function append3bytes(b1, b2, b3)
+		{
+			c1 = b1 >> 2;
+			c2 = ((b1 & 0x3) << 4) | (b2 >> 4);
+			c3 = ((b2 & 0xF) << 2) | (b3 >> 6);
+			c4 = b3 & 0x3F;
+			r = "";
+			r += encode6bit(c1 & 0x3F);
+			r += encode6bit(c2 & 0x3F);
+			r += encode6bit(c3 & 0x3F);
+			r += encode6bit(c4 & 0x3F);
+			
+			return r;
+		}
+
+		function encode6bit(b)
+		{
+			if (b < 10)
+			{
+				return String.fromCharCode(48 + b);
+			}
+			
+			b -= 10;
+			
+			if (b < 26)
+			{
+				return String.fromCharCode(65 + b);
+			}
+			
+			b -= 26;
+			
+			if (b < 26)
+			{
+				return String.fromCharCode(97 + b);
+			}
+			
+			b -= 26;
+			
+			if (b == 0)
+			{
+				return '-';
+			}
+			
+			if (b == 1)
+			{
+				return '_';
+			}
+			
+			return '?';
+		}
+
+		// TODO: Remove unescape, use btoa for compatibility with graph.compress
+		function compress(s)
+		{
+			return encode64(pako.deflateRaw(s, { to : 'string' }));
+		};
+
+		var plantUmlServerUrl = (type == 'txt') ? PLANT_URL + '/txt/' :
+			((type == 'png') ? PLANT_URL + '/png/' : PLANT_URL + '/svg/');
+		
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', plantUmlServerUrl + compress(data), true);
+
+		if (type != 'txt')
+		{
+			xhr.responseType = 'blob';
+		}
+
+		xhr.onload = function(e)
+		{
+			if (this.status >= 200 && this.status < 300)
+			{
+				if (type == 'txt')
+				{
+					success(this.response);
+				}
+				else
+				{
+					var reader = new FileReader();
+					reader.readAsDataURL(this.response);
+
+					reader.onloadend = function(e)
+					{
+						var img = new Image();
+
+						img.onload = function()
+						{
+							var w = img.width;
+							var h = img.height;
+
+							// Workaround for 0 image size in IE11
+							if (w == 0 && h == 0)
+							{
+								var data = reader.result;
+								var comma = data.indexOf(',');
+								var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+								var root = mxUtils.parseXml(svgText);
+								var svgs = root.getElementsByTagName('svg');
+
+								if (svgs.length > 0)
+								{
+									w = parseFloat(svgs[0].getAttribute('width'));
+									h = parseFloat(svgs[0].getAttribute('height'));
+								}
+							}
+							
+							success(reader.result, w, h);
+						};
+
+						img.src = reader.result;
+					};
+
+					reader.onerror = function(e)
+					{
+						error(e);
+					};
+				}
+			}
+			else
+			{
+				error(e);
+			}
+		};
+
+		xhr.onerror = function(e)
+		{
+			error(e);
+		};
+
+		xhr.send();
+	};
+
+	/**
 	 * Inserts the given text as a preformatted HTML text.
 	 */
 	EditorUi.prototype.insertAsPreText = function(text, x, y)
@@ -6325,7 +7477,7 @@
 		try
 		{
 			cell = graph.insertVertex(null, null, '<pre>' + text + '</pre>',
-				x, y, 1, 1, 'text;html=1;align=center;verticalAlign=middle;');
+				x, y, 1, 1, 'text;html=1;align=left;verticalAlign=top;');
 			graph.updateCellSize(cell, true);
 		}
 		finally
@@ -6457,7 +7609,7 @@
 			}
 			else
 			{
-				text = this.editor.graph.zapGremlins(mxUtils.trim(text));
+				text = Graph.zapGremlins(mxUtils.trim(text));
 			
 				if (this.isCompatibleString(text))
 				{
@@ -6495,6 +7647,14 @@
 				    		{
 				    			text = mxUtils.htmlEntities(text);
 				    		}
+
+				    		//TODO Refuse unsupported file types early as at this stage a lot of processing has beed done and time is wasted. 
+				    		//		For example, 5 MB PDF files is processed and then only 0.5 MB of meaningless text is added!
+				    		//Limit labels to maxTextBytes
+				    		if (text.length > this.maxTextBytes)
+			    			{
+				    			text = text.substring(0, this.maxTextBytes) + '...';
+			    			}
 				    		
 							// Apply value and updates the cell size to fit the text block
 							cell.value = text;
@@ -6576,7 +7736,9 @@
 	 */
 	EditorUi.prototype.isLucidChartData = function(data)
 	{
-		return data != null && data.substring(0, 26) == '{"state":"{\\"Properties\\":';
+		return data != null && (data.substring(0, 26) ==
+			'{"state":"{\\"Properties\\":' ||
+			data.substring(0, 14) == '{"Properties":');
 	};
 
 	/**
@@ -6584,23 +7746,33 @@
 	 */
 	EditorUi.prototype.importLocalFile = function(device, noSplash)
 	{
-		// input.click does not work in IE on Windows 7
-		if (device && Graph.fileSupport && ((!mxClient.IS_IE && !mxClient.IS_IE11) ||
-			navigator.appVersion.indexOf('Windows NT 6.1') < 0))
+		if (device && Graph.fileSupport)
 		{
-			var input = document.createElement('input');
-			input.setAttribute('type', 'file');
-			
-			mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
+			if (this.importFileInputElt == null) 
 			{
-				if (input.files != null)
+				var input = document.createElement('input');
+				input.setAttribute('type', 'file');
+				
+				mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
 				{
-					// Using null for position will disable crop of input file
-					this.importFiles(input.files, null, null, this.maxImageSize);
-				}
-			}));
-
-			input.click();
+					if (input.files != null)
+					{
+						// Using null for position will disable crop of input file
+						this.importFiles(input.files, null, null, this.maxImageSize);
+						
+			    		// Resets input to force change event for same file (type reset required for IE)
+						input.type = '';
+						input.type = 'file';
+			    		input.value = '';
+					}
+				}));
+				
+				input.style.display = 'none';
+				document.body.appendChild(input);
+				this.importFileInputElt = input;
+			}
+			
+			this.importFileInputElt.click();
 		}
 		else
 		{
@@ -6628,12 +7800,12 @@
 					
 					this.importVisio(file, mxUtils.bind(this, function(xml)
 					{
-						this.importXml(xml);
+						this.importXml(xml, 0, 0, true);
 					}), null, filename);
 				}
 				else
 				{				
-					this.editor.graph.setSelectionCells(this.importXml(xml));
+					this.editor.graph.setSelectionCells(this.importXml(xml, 0, 0, true));
 				}
 			}));
 
@@ -6660,6 +7832,112 @@
 					}
 				});
 			}
+		}
+	};
+	
+	
+	EditorUi.prototype.importZipFile = function(file, success, onerror)
+	{
+		var ui = this;
+		
+		var delayed = mxUtils.bind(this, function()
+		{
+			this.loadingExtensions = false;
+			
+			if (typeof JSZip  !== 'undefined')
+			{
+				JSZip.loadAsync(file)                                   
+		        .then(function(zip) 
+		        {
+		        	if (Object.keys(zip.files).length == 0)
+		        	{
+		        		onerror();
+		        	}
+		        	else
+		        	{
+		        		var gliffyLatestVer = {version: 0};
+		        		var drawioFound = false;
+		        		
+		                zip.forEach(function (relativePath, zipEntry) 
+		                {
+		                	var name = zipEntry.name.toLowerCase();
+							
+		                    if (name == 'diagram/diagram.xml') //draw.io zip format has the latest diagram version at diagram/diagram.xml
+		                    {
+		                    	drawioFound = true;
+		                    	
+			                    zipEntry.async("string").then(function(str){
+			                    	if (str.indexOf('<mxfile ') == 0)
+			                    	{
+			                    		success(str);
+			                    	}
+			                    	else
+		                    		{
+			                    		onerror();
+		                    		}
+			                    });
+		                    }
+		                    else if (name.indexOf('versions/') == 0) //Gliffy zip format has the versions inside versions folder
+		                   	{
+		                    	var version = parseInt(name.substr(9)); //9 is the length of versions/
+		                    	
+		                    	if (version > gliffyLatestVer.version)
+		                    	{
+		                    		gliffyLatestVer = {version: version, zipEntry: zipEntry}
+		                    	}
+		                   	}
+		                });
+		                
+		                if (gliffyLatestVer.version > 0)
+		            	{
+		                	gliffyLatestVer.zipEntry.async("string").then(function(data)
+		                	{
+		                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
+		                		{
+		                			ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+		                			{
+		                				if (xhr.readyState == 4)
+		                				{
+		                					if (xhr.status >= 200 && xhr.status <= 299)
+		                					{
+		                						success(xhr.responseText);
+		                					}
+		                					else
+		                					{
+		                						onerror();
+		                					}
+		                				}
+		                			}), file.name);
+		                		}
+		                		else
+		            			{
+		                			onerror();
+		            			}
+		                	});
+		            	}
+		                else if (!drawioFound)
+		            	{
+		                	onerror();
+		            	}
+		        	}
+		        }, function (e) {
+		    		onerror(e);
+		        }); 
+			}
+			else
+			{
+				onerror();
+			}
+		});
+		
+		if (typeof JSZip === 'undefined' && !this.loadingExtensions && !this.isOffline(true))
+		{
+			this.loadingExtensions = true;
+			mxscript('js/extensions.min.js', delayed);
+		}
+		else
+		{
+			delayed();
 		}
 	};
 	
@@ -6762,6 +8040,17 @@
 					}
 				}
 			}), filename);
+		}
+		else if (data.indexOf('PK') == 0 && file != null)
+		{
+			async = true;
+			
+			this.importZipFile(file, handleResult, mxUtils.bind(this, function()
+			{
+				//If importing as a zip file failed, just insert as text
+				cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
+				done(cells);
+			}));
 		}
 		else if (!/(\.v(sd|dx))($|\?)/i.test(filename) && !/(\.vs(s|x))($|\?)/i.test(filename))
 		{
@@ -6873,7 +8162,7 @@
 			{
 				graph.setSelectionCells(cells);
 			});
-	
+			
 			if (this.spinner.spin(document.body, mxResources.get('loading')))
 			{
 				var count = files.length;
@@ -6900,15 +8189,15 @@
 							graph.getModel().beginUpdate();
 							try
 							{
-							    	for (var j = 0; j < queue.length; j++)
-							    	{
-							    		var tmp = queue[j]();
-							    		
-							    		if (tmp != null)
-							    		{
-							    			cells = cells.concat(tmp);
-							    		}
-							    	}
+						    	for (var j = 0; j < queue.length; j++)
+						    	{
+						    		var tmp = queue[j]();
+						    		
+						    		if (tmp != null)
+						    		{
+						    			cells = cells.concat(tmp);
+						    		}
+						    	}
 							}
 							finally
 							{
@@ -6925,12 +8214,15 @@
 					(mxUtils.bind(this, function(index)
 					{
 						var file = files[index];
-						var reader = new FileReader();
 						
-						reader.onload = mxUtils.bind(this, function(e)
+						if (file != null)
 						{
-							if (filterFn == null || filterFn(file))
+							var reader = new FileReader();
+							
+							reader.onload = mxUtils.bind(this, function(e)
 							{
+								if (filterFn == null || filterFn(file))
+								{
 						    		if (file.type.substring(0, 6) == 'image/')
 						    		{
 						    			if (file.type.substring(0, 9) == 'image/svg')
@@ -6983,8 +8275,26 @@
 									    						if (svgs.length > 0)
 										    					{
 									    							var svgRoot = svgs[0];
-										    						var w = parseFloat(svgRoot.getAttribute('width'));
-										    						var h = parseFloat(svgRoot.getAttribute('height'));
+										    						var w = svgRoot.getAttribute('width');
+										    						var h = svgRoot.getAttribute('height');
+										    						
+										    						if (w != null && w.charAt(w.length - 1) != '%')
+									    							{
+									    								w = parseFloat(w);
+									    							}
+									    							else
+									    							{
+									    								w = NaN;
+									    							}
+										    						
+										    						if (h != null && h.charAt(h.length - 1) != '%')
+									    							{
+									    								h = parseFloat(h);
+									    							}
+									    							else
+									    							{
+									    								h = NaN;
+									    							}
 										    						
 										    						// Check if viewBox attribute already exists
 										    						var vb = svgRoot.getAttribute('viewBox');
@@ -7142,29 +8452,30 @@
 				    	    				{
 				    		    				return cells;
 				    	    				});
-										});
+										}, file);
 						    		}
-							}
-						});
-						
-						// Handles special cases
-						if (/(\.v(dx|sdx?))($|\?)/i.test(file.name) || /(\.vs(x|sx?))($|\?)/i.test(file.name))
-						{
-							fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+								}
+							});
+							
+							// Handles special cases
+							if (/(\.v(dx|sdx?))($|\?)/i.test(file.name) || /(\.vs(x|sx?))($|\?)/i.test(file.name))
 							{
-								barrier(index, function()
-	    	    				{
-	    		    				return cells;
-	    	    				});
-							}, file);
-						}
-						else if (file.type.substring(0, 5) == 'image')
-						{
-							reader.readAsDataURL(file);
-						}
-						else
-						{
-							reader.readAsText(file);
+								fn(null, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+								{
+									barrier(index, function()
+		    	    				{
+		    		    				return cells;
+		    	    				});
+								}, file);
+							}
+							else if (file.type.substring(0, 5) == 'image')
+							{
+								reader.readAsDataURL(file);
+							}
+							else
+							{
+								reader.readAsText(file);
+							}
 						}
 					}))(i);
 				}
@@ -7173,6 +8484,16 @@
 		
 		if (largeImages)
 		{
+			// Workaround for lost files array in async code
+			var tmp = [];
+			
+			for (var i = 0; i < files.length; i++)
+			{
+				tmp.push(files[i]);
+			}
+			
+			files = tmp;
+			
 			this.confirmImageResize(function(doResize)
 			{
 				resizeImages = doResize;
@@ -7250,6 +8571,16 @@
 		};
 		
 		xhr.send(formData);
+		
+		try
+		{
+			EditorUi.logEvent({category: 'GLIFFY-IMPORT-FILE',
+				action: 'size_' + file.size});
+		}
+		catch (e)
+		{
+			// ignore
+		}
 	};
 	
 	/**
@@ -7346,7 +8677,7 @@
 	
 		for (var n = 0; n < len; n++)
 		{
-			c = EditorUi.prototype.crcTable[(c ^ data[off + n]) & 0xff] ^ (c >>> 8);
+			c = EditorUi.prototype.crcTable[(c ^ data.charCodeAt(off + n)) & 0xff] ^ (c >>> 8);
 		}
 	
 		return c;
@@ -7433,11 +8764,18 @@
 			{
 				result = f.substring(0, pos - 8);
 				
-				var chunkData = key + String.fromCharCode(0) +
-					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
-					value;
+				if (type == 'pHYs' && key == 'dpi')
+				{
+					var dpm = Math.round(value / 0.0254); //One inch is equal to exactly 0.0254 meters.
+					var chunkData = writeInt(dpm) + writeInt(dpm) + String.fromCharCode(1);
+				}
+				else
+				{
+					var chunkData = key + String.fromCharCode(0) +
+						((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+						value;
+				}
 				
-				// FIXME: Wrong crc
 				var crc = 0xffffffff;
 				crc = this.updateCRC(crc, type, 0, 4);
 				crc = this.updateCRC(crc, chunkData, 0, chunkData.length);
@@ -7455,78 +8793,14 @@
 		while (n);
 		
 		return 'data:image/png;base64,' + ((window.btoa) ? btoa(result) : Base64.encode(result, true));
-	}
+	};
 	
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
 	 */
 	EditorUi.prototype.extractGraphModelFromPng = function(data)
 	{
-		var result = null;
-		
-		try
-		{
-			var base64 = data.substring(data.indexOf(',') + 1);
-
-			// Workaround for invalid character error in Safari
-			var binary = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
-			
-			EditorUi.parsePng(binary, mxUtils.bind(this, function(pos, type, length)
-			{
-				var value = binary.substring(pos + 8, pos + 8 + length);
-				
-				if (type == 'zTXt')
-				{
-					var idx = value.indexOf(String.fromCharCode(0));
-					
-					if (value.substring(0, idx) == 'mxGraphModel')
-					{
-						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
-						var xmlData = this.editor.graph.bytesToString(pako.inflateRaw(
-							value.substring(idx + 2))).replace(/\+/g,' ');
-						
-						if (xmlData != null && xmlData.length > 0)
-						{
-							result = xmlData;
-						}
-					}
-				}
-				// Uncompressed section is normally not used
-				else if (type == 'tEXt')
-				{
-					var vals = value.split(String.fromCharCode(0));
-					
-					if (vals.length > 1 && vals[0] == 'mxGraphModel')
-					{
-						result = vals[1];
-					}
-				}
-				
-				if (result != null || type == 'IDAT')
-				{
-					// Stops processing the file as our text chunks
-					// are always placed before the data section
-					return true;
-				}
-			}));
-		}
-		catch (e)
-		{
-			// ignores decoding errors
-		}
-		
-		if (result != null && result.charAt(0) == '%')
-		{
-			result = decodeURIComponent(result);
-		}
-		
-		// Workaround for double encoded content
-		if (result != null && result.charAt(0) == '%')
-		{
-			result = decodeURIComponent(result);
-		}
-		
-		return result;
+		return Editor.extractGraphModelFromPng(data);
 	};
 
 	/**
@@ -7537,19 +8811,33 @@
 	 */
 	EditorUi.prototype.loadImage = function(uri, onload, onerror)
 	{
-		var img = new Image();
-		
-		img.onload = function()
+		try
 		{
-			onload(img);
+			var img = new Image();
+			
+			img.onload = function()
+			{
+				onload(img);
+			}
+			
+			if (onerror != null)
+			{
+				img.onerror = onerror;
+			}
+			
+			img.src = uri;
 		}
-		
-		if (onerror != null)
+		catch (e)
 		{
-			img.onerror = onerror;
+			if (onerror != null)
+			{
+				onerror(e);
+			}
+			else
+			{
+				throw e;
+			}
 		}
-		
-		img.src = uri;
 	};
 
 	// Initializes the user interface
@@ -7566,6 +8854,73 @@
 		
 		var ui = this;
 		var graph = this.editor.graph;
+		
+		// Overrides function to add editing for Plant UML.
+		var cellEditorStartEditing = graph.cellEditor.startEditing;
+		
+		graph.cellEditor.startEditing = function(cell, trigger)
+		{
+			var data = this.graph.getAttributeForCell(cell, 'plantUmlData');
+			
+			if (data != null)
+			{
+				var obj = JSON.parse(data);
+				
+		    	var dlg = new TextareaDialog(ui, mxResources.get('plantUml') + ':',
+		    		obj.data, function(text)
+				{
+		    		if (text != null)
+					{
+		    			if (ui.spinner.spin(document.body, mxResources.get('inserting')))
+		    			{
+		    				ui.generatePlantUmlImage(text, obj.format, function(data, w, h)
+		    				{
+		    					ui.spinner.stop();
+
+		    					graph.getModel().beginUpdate();
+		    					try
+		    					{
+		    						if (obj.format == 'txt')
+			    					{
+			    						graph.labelChanged(cell, '<pre>' + data + '</pre>');
+			    						graph.updateCellSize(cell, true);
+			    					}
+		    						else
+		    						{
+		    							graph.setCellStyles('image', ui.convertDataUri(data), [cell]);
+		    							var geo = graph.model.getGeometry(cell);
+		    							
+		    							if (geo != null)
+		    							{
+		    								geo = geo.clone();
+		    								geo.width = w;
+		    								geo.height = h;
+		    								graph.cellsResized([cell], [geo], false);
+		    							}
+		    						}
+		    						
+		    						graph.setAttributeForCell(cell, 'plantUmlData',
+			    						JSON.stringify({data: text, format: obj.format}));
+		    					}
+		    					finally
+		    					{
+		    						graph.getModel().endUpdate();
+		    					}
+		    				}, function(e)
+		    				{
+		    					ui.handleError(e);
+		    				});
+		    			}
+					}
+				}, null, null, 400, 220);
+				ui.showDialog(dlg.container, 420, 300, true, true);
+				dlg.init();
+			}
+			else
+			{
+				cellEditorStartEditing.apply(this, arguments);
+			}
+		};
 		
 		// Redirects custom link title via UI for page links
 		graph.getLinkTitle = function(href)
@@ -7590,7 +8945,7 @@
 			
 			return done;
 		};
-		
+
 		// Extends clear default style to clear persisted settings
 		var clearDefaultStyle = this.clearDefaultStyle;
 		
@@ -7693,8 +9048,23 @@
 
 		// Specifies the default filename
 		this.defaultFilename = mxResources.get('untitledDiagram');
+
+		// Adds export for %page%, %pagenumber% and %pagecount% placeholders
+		var graphGetExportVariables = graph.getExportVariables;
 		
-		// Adds placeholder for %page% and %pagenumber%
+		graph.getExportVariables = function()
+		{
+			var vars = graphGetExportVariables.apply(this, arguments);
+			
+			vars['pagecount'] = (ui.pages != null) ? ui.pages.length : 1;
+			vars['page'] = (ui.currentPage != null) ? ui.currentPage.getName() : '';
+			vars['pagenumber'] = (ui.pages != null && ui.currentPage != null) ?
+				mxUtils.indexOf(ui.pages, ui.currentPage) + 1 : 1;
+			
+			return vars;
+		};
+
+		// Adds %page%, %pagenumber% and %pagecount% placeholders
 		var graphGetGlobalVariable = graph.getGlobalVariable;
 		
 		graph.getGlobalVariable = function(name)
@@ -7713,6 +9083,10 @@
 				{
 					return 1;
 				}
+			}
+			else if (name == 'pagecount')
+			{
+				return (ui.pages != null) ? ui.pages.length : 1;
 			}
 			
 			return graphGetGlobalVariable.apply(this, arguments);
@@ -7766,7 +9140,7 @@
 		printAction.setEnabled(!mxClient.IS_IOS || !navigator.standalone);
 		printAction.visible = printAction.isEnabled();
 		
-		// Scales pages/graph to fit available size
+		// Installs additional keyboard shortcuts for editor
 		if (!this.editor.chromeless || this.editor.editable)
 		{
 			// Defines additional hotkeys
@@ -7780,234 +9154,11 @@
 			
 		    if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 			{
-		    	this.altShiftActions[82] = 'refresh'; // Alt+Shift+R
+		    	this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
 			}
 		    
-			// Handles copy paste of images from clipboard
-			if (!mxClient.IS_IE)
-			{
-				graph.container.addEventListener('paste', mxUtils.bind(this, function(evt)
-				{
-					var graph = this.editor.graph;
-					
-					if (!mxEvent.isConsumed(evt))
-					{
-						try
-						{
-							var data = (evt.clipboardData || evt.originalEvent.clipboardData);
-							var containsText = false;
-							
-							// Workaround for asynchronous paste event processing in textInput
-							// is to ignore this event if it contains text/html/rtf (see below).
-							// NOTE: Image is not pasted into textInput so can't listen there.
-							for (var i = 0; i < data.types.length; i++)
-							{	
-								if (data.types[i].substring(0, 5) === 'text/')
-								{
-									containsText = true;
-									break;
-								}
-							}
-							
-							if (!containsText)
-							{
-								var items = data.items;
-								
-								for (index in items)
-								{
-									var item = items[index];
-									
-									if (item.kind === 'file')
-									{
-										if (graph.isEditing())
-										{
-										    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
-										    	{
-										    		// Inserts image into current text box
-										    		graph.insertImage(data, w, h);
-										    	}, function()
-										    	{
-										    		// No post processing
-										    	}, function(file)
-										    	{
-										    		// Handles only images
-										    		return file.type.substring(0, 6) == 'image/';
-										    	}, function(queue)
-										    	{
-										    		// Invokes elements of queue in order
-										    		for (var i = 0; i < queue.length; i++)
-										    		{
-										    			queue[i]();
-										    		}
-										    	});
-										}
-										else
-										{
-											var pt = this.editor.graph.getInsertPoint();
-											this.importFiles([item.getAsFile()], pt.x, pt.y, this.maxImageSize);
-											mxEvent.consume(evt);
-										}
-										
-										break;
-									}
-								}
-							}
-						}
-						catch (e)
-						{
-							// ignore
-						}
-					}
-				}), false);
-			}
-
-			// Focused but invisible textarea during control or meta key events
-			var textInput = document.createElement('div');
-			textInput.style.position = 'absolute';
-			textInput.style.whiteSpace = 'nowrap';
-			textInput.style.overflow = 'hidden';
-			textInput.style.display = 'block';
-			textInput.contentEditable = true;
-			mxUtils.setOpacity(textInput, 0);
-			textInput.style.width = '1px';
-			textInput.style.height = '1px';
-			textInput.innerHTML = '&nbsp;';
-
-			var restoreFocus = false;
-			
-			// Disables built-in cut, copy and paste shortcuts
-			this.keyHandler.bindControlKey(88, null);
-			this.keyHandler.bindControlKey(67, null);
-			this.keyHandler.bindControlKey(86, null);
-
-			// Shows a textare when control/cmd is pressed to handle native clipboard actions
-			mxEvent.addListener(document, 'keydown', mxUtils.bind(this, function(evt)
-			{
-				// No dialog visible
-				var source = mxEvent.getSource(evt);
-				
-				if (graph.container != null && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() &&
-					this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA')
-				{
-					if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
-						(mxClient.IS_MAC && evt.keyCode == 91 /* Meta */))
-					{
-						// Cannot use parentNode for check in IE
-						if (!restoreFocus)
-						{
-							// Avoid autoscroll but allow handling of all pass-through ctrl shortcuts
-							textInput.style.left = (graph.container.scrollLeft + 10) + 'px';
-							textInput.style.top = (graph.container.scrollTop + 10) + 'px';
-							
-							graph.container.appendChild(textInput);
-							restoreFocus = true;
-							
-							// Workaround for selected document content in quirks mode
-							if (mxClient.IS_QUIRKS)
-							{
-								window.setTimeout(function()
-								{
-									textInput.focus();
-									document.execCommand('selectAll', false, null);
-								}, 0);
-							}
-							else
-							{
-								textInput.focus();
-								document.execCommand('selectAll', false, null);
-							}
-						}
-					}
-				}
-			}));
-
-			// Clears input and restores focus and selection
-			function clearInput()
-			{
-				window.setTimeout(function()
-				{
-					textInput.innerHTML = '&nbsp;';
-					textInput.focus();
-					document.execCommand('selectAll', false, null);
-				}, 0);
-			};
-			
-			mxEvent.addListener(document, 'keyup', mxUtils.bind(this, function(evt)
-			{
-				// Workaround for asynchronous event read invalid in IE quirks mode
-				var keyCode = evt.keyCode;
-				
-				// Asynchronous workaround for scroll to origin after paste if the
-				// Ctrl-key is not pressed for long enough in FF on Windows
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
-						keyCode == 91 /* Meta */))
-					{
-						restoreFocus = false;
-						
-						if (!graph.isEditing() && this.dialog == null && graph.container != null)
-						{
-							graph.container.focus();
-						}
-						
-						textInput.parentNode.removeChild(textInput);
-						
-						// Workaround for lost cursor in focused element
-						if (this.dialog == null)
-						{
-							mxUtils.clearSelection();
-						}
-					}
-				}), 0);
-			}));
-
-			mxEvent.addListener(textInput, 'copy', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled())
-				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput);
-					clearInput();
-				}
-			}));
-			
-			mxEvent.addListener(textInput, 'cut', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled())
-				{
-					mxClipboard.copy(graph);
-					this.copyCells(textInput, true);
-					clearInput();
-				}
-			}));
-			
-			mxEvent.addListener(textInput, 'paste', mxUtils.bind(this, function(evt)
-			{
-				if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
-				{
-					textInput.innerHTML = '&nbsp;';
-					textInput.focus();
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						this.pasteCells(evt, textInput);
-						textInput.innerHTML = '&nbsp;';
-					}), 0);
-				}
-			}), true);
-			
-			// Needed for IE11
-			var isSelectionAllowed2 = this.isSelectionAllowed;
-			this.isSelectionAllowed = function(evt)
-			{
-				if (mxEvent.getSource(evt) == textInput)
-				{
-					return true;
-				}
-
-				return isSelectionAllowed2.apply(this, arguments);
-			};
+		    this.installImagePasteHandler();
+		    this.installNativeClipboardHandler();
 		};
 
 		var y = Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight || 0) / 2;
@@ -8122,39 +9273,24 @@
 			}));
 		}
 		
-		//Add ruler in test mode only
-		//TODO add the ruler containers correctly and make the vertical one dynamic as the side panel size can change
-		if (urlParams['ruler'] == '1' && typeof mxRuler !== 'undefined')
+		// Adding mxRuler to editor
+		if (typeof window.mxSettings !== 'undefined')
 		{
-			var hRulerDiv = document.createElement('div');
-			hRulerDiv.style.position = 'absolute';
-			hRulerDiv.style.top = '95px';
-			hRulerDiv.style.left = '250px';
-			hRulerDiv.style.width = '2000px';
-			hRulerDiv.style.height = '30px';
-			hRulerDiv.style.background = 'whiteSmoke';
-			document.body.appendChild(hRulerDiv);
+			var view = this.editor.graph.view;
+			view.setUnit(mxSettings.getUnit());
 			
-			var vRulerDiv = document.createElement('div');
-			vRulerDiv.style.position = 'absolute';
-			vRulerDiv.style.top = '125px';
-			vRulerDiv.style.left = '220px';
-			vRulerDiv.style.width = '30px';
-			vRulerDiv.style.height = '1000px';
-			vRulerDiv.style.background = 'whiteSmoke';
-			document.body.appendChild(vRulerDiv);
+			view.addListener('unitChanged', function(sender, evt)
+			{
+				mxSettings.setUnit(evt.getProperty('unit'));
+				mxSettings.save();		
+			});
 
-			var square = document.createElement('div');
-			square.style.position = 'absolute';
-			square.style.top = '95px';
-			square.style.left = '220px';
-			square.style.width = '30px';
-			square.style.height = '30px';
-			square.style.background = 'whiteSmoke';
-			document.body.appendChild(square);
-
-			this.vRuler = new mxRuler(this.editor.graph, vRulerDiv, true);
-			this.hRuler = new mxRuler(this.editor.graph, hRulerDiv, false);
+			var showRuler = this.canvasSupported && document.documentMode != 9 &&
+				(urlParams['ruler'] == '1' || mxSettings.isRulerOn()) &&
+				(!this.editor.isChromelessView() || this.editor.editable);
+			
+			this.ruler = (showRuler) ? new mxDualRuler(this, view.unit) : null;
+			this.refresh();
 		}
 		
 		// Adds an element to edit the style in the footer in test mode
@@ -8376,9 +9512,9 @@
 			    evt.preventDefault();
 			}), false);
 		}
-
-		this.initPages();
 		
+		this.initPages();
+
 		// Embedded mode
 		if (urlParams['embed'] == '1')
 		{
@@ -8388,6 +9524,281 @@
 		this.installSettings();
 	};
 	
+	/**
+	 * Installs handler for pasting image from clipboard.
+	 */
+	EditorUi.prototype.installImagePasteHandler = function()
+	{
+		if (!mxClient.IS_IE)
+		{
+			var graph = this.editor.graph;
+			
+			graph.container.addEventListener('paste', mxUtils.bind(this, function(evt)
+			{
+				if (!mxEvent.isConsumed(evt))
+				{
+					try
+					{
+						var data = (evt.clipboardData || evt.originalEvent.clipboardData);
+						var containsText = false;
+						
+						// Workaround for asynchronous paste event processing in textInput
+						// is to ignore this event if it contains text/html/rtf (see below).
+						// NOTE: Image is not pasted into textInput so can't listen there.
+						for (var i = 0; i < data.types.length; i++)
+						{	
+							if (data.types[i].substring(0, 5) === 'text/')
+							{
+								containsText = true;
+								break;
+							}
+						}
+						
+						if (!containsText)
+						{
+							var items = data.items;
+							
+							for (index in items)
+							{
+								var item = items[index];
+								
+								if (item.kind === 'file')
+								{
+									if (graph.isEditing())
+									{
+									    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
+									    	{
+									    		// Inserts image into current text box
+									    		graph.insertImage(data, w, h);
+									    	}, function()
+									    	{
+									    		// No post processing
+									    	}, function(file)
+									    	{
+									    		// Handles only images
+									    		return file.type.substring(0, 6) == 'image/';
+									    	}, function(queue)
+									    	{
+									    		// Invokes elements of queue in order
+									    		for (var i = 0; i < queue.length; i++)
+									    		{
+									    			queue[i]();
+									    		}
+									    	});
+									}
+									else
+									{
+										var pt = this.editor.graph.getInsertPoint();
+										this.importFiles([item.getAsFile()], pt.x, pt.y, this.maxImageSize);
+										mxEvent.consume(evt);
+									}
+									
+									break;
+								}
+							}
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+			}), false);
+		}
+	};
+	
+	/**
+	 * Installs the native clipboard support.
+	 */
+	EditorUi.prototype.installNativeClipboardHandler = function()
+	{
+		var graph = this.editor.graph;
+
+		// Focused but invisible textarea during control or meta key events
+		// LATER: Disable text rendering to avoid delay while keeping focus
+		var textInput = document.createElement('div');
+		textInput.setAttribute('autocomplete', 'off');
+		textInput.setAttribute('autocorrect', 'off');
+		textInput.setAttribute('autocapitalize', 'off');
+		textInput.setAttribute('spellcheck', 'false');
+		textInput.style.textRendering = 'optimizeSpeed';
+		textInput.style.fontFamily = 'monospace';
+		textInput.style.wordBreak = 'break-all';
+		textInput.style.background = 'transparent';
+		textInput.style.color = 'transparent';
+		textInput.style.position = 'absolute';
+		textInput.style.whiteSpace = 'nowrap';
+		textInput.style.overflow = 'hidden';
+		textInput.style.display = 'block';
+		textInput.style.fontSize = '1';
+		textInput.style.zIndex = '-1';
+		textInput.style.resize = 'none';
+		textInput.style.outline = 'none';
+		textInput.style.width = '1px';
+		textInput.style.height = '1px';
+		mxUtils.setOpacity(textInput, 0);
+		textInput.contentEditable = true;
+		textInput.innerHTML = '&nbsp;';
+
+		var restoreFocus = false;
+		
+		// Disables built-in cut, copy and paste shortcuts
+		this.keyHandler.bindControlKey(88, null);
+		this.keyHandler.bindControlKey(67, null);
+		this.keyHandler.bindControlKey(86, null);
+
+		// Shows a textare when control/cmd is pressed to handle native clipboard actions
+		mxEvent.addListener(document, 'keydown', mxUtils.bind(this, function(evt)
+		{
+			// No dialog visible
+			var source = mxEvent.getSource(evt);
+			
+			if (graph.container != null && graph.isEnabled() && !graph.isMouseDown && !graph.isEditing() &&
+				this.dialog == null && source.nodeName != 'INPUT' && source.nodeName != 'TEXTAREA')
+			{
+				if (evt.keyCode == 224 /* FF */ || (!mxClient.IS_MAC && evt.keyCode == 17 /* Control */) ||
+					(mxClient.IS_MAC && evt.keyCode == 91 /* Meta */))
+				{
+					// Cannot use parentNode for check in IE
+					if (!restoreFocus)
+					{
+						// Avoid autoscroll but allow handling of all pass-through ctrl shortcuts
+						textInput.style.left = (graph.container.scrollLeft + 10) + 'px';
+						textInput.style.top = (graph.container.scrollTop + 10) + 'px';
+						
+						graph.container.appendChild(textInput);
+						restoreFocus = true;
+						
+						// Workaround for selected document content in quirks mode
+						if (mxClient.IS_QUIRKS)
+						{
+							window.setTimeout(function()
+							{
+								textInput.focus();
+								document.execCommand('selectAll', false, null);
+							}, 0);
+						}
+						else
+						{
+							textInput.focus();
+							document.execCommand('selectAll', false, null);
+						}
+					}
+				}
+			}
+		}));
+
+		// Clears input and restores focus and selection
+		function clearInput()
+		{
+			window.setTimeout(function()
+			{
+				textInput.innerHTML = '&nbsp;';
+				textInput.focus();
+				document.execCommand('selectAll', false, null);
+			}, 0);
+		};
+		
+		mxEvent.addListener(document, 'keyup', mxUtils.bind(this, function(evt)
+		{
+			// Workaround for asynchronous event read invalid in IE quirks mode
+			var keyCode = evt.keyCode;
+			
+			// Asynchronous workaround for scroll to origin after paste if the
+			// Ctrl-key is not pressed for long enough in FF on Windows
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
+					keyCode == 91 /* Meta */))
+				{
+					restoreFocus = false;
+					
+					if (!graph.isEditing() && this.dialog == null && graph.container != null)
+					{
+						graph.container.focus();
+					}
+					
+					textInput.parentNode.removeChild(textInput);
+					
+					// Workaround for lost cursor in focused element
+					if (this.dialog == null)
+					{
+						mxUtils.clearSelection();
+					}
+				}
+			}), 0);
+		}));
+
+		mxEvent.addListener(textInput, 'copy', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled())
+			{
+				try
+				{
+					mxClipboard.copy(graph);
+					this.copyCells(textInput);
+					clearInput();
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+			}
+		}));
+		
+		mxEvent.addListener(textInput, 'cut', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled())
+			{
+				try
+				{
+					mxClipboard.copy(graph);
+					this.copyCells(textInput, true);
+					clearInput();
+				}
+				catch (e)
+				{
+					this.handleError(e);
+				}
+			}
+		}));
+		
+		mxEvent.addListener(textInput, 'paste', mxUtils.bind(this, function(evt)
+		{
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+			{
+				var t0 = new Date().getTime();
+				textInput.innerHTML = '&nbsp;';
+				textInput.focus();
+				
+				if (evt.clipboardData != null)
+				{
+					this.pasteCells(evt, textInput, true);
+				}
+
+				if (!mxEvent.isConsumed(evt))
+				{
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						this.pasteCells(evt, textInput, false);
+					}), 0);
+				}
+			}
+		}), true);
+		
+		// Needed for IE11
+		var isSelectionAllowed2 = this.isSelectionAllowed;
+		this.isSelectionAllowed = function(evt)
+		{
+			if (mxEvent.getSource(evt) == textInput)
+			{
+				return true;
+			}
+
+			return isSelectionAllowed2.apply(this, arguments);
+		};
+	};
+
 	/**
 	 * 
 	 */
@@ -8465,9 +9876,44 @@
 			// Gets recent colors from settings
 			ColorDialog.recentColors = mxSettings.getRecentColors();
 
+			// Avoids overridden values for changes in
+			// multiple windows and updates shared values 
+			if (isLocalStorage)
+			{
+				try
+				{
+					window.addEventListener('storage', mxUtils.bind(this, function(evt)
+					{
+						if (evt.key == mxSettings.key)
+						{
+							mxSettings.load();
+							
+							// Updates values
+							ColorDialog.recentColors = mxSettings.getRecentColors();
+							this.menus.customFonts = mxSettings.getCustomFonts();
+						}
+					}), false);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+
 			// Updates UI to reflect current edge style
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
-
+			
+			/**
+			 * Persists custom fonts.
+			 */
+			this.menus.customFonts = mxSettings.getCustomFonts();
+			
+			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
+			{
+				mxSettings.setCustomFonts(this.menus.customFonts);
+				mxSettings.save();
+			}));
+			
 			/**
 			 * Persists copy on connect switch.
 			 */
@@ -8494,11 +9940,13 @@
 			/**
 			 * Persists default grid color.
 			 */
-			this.editor.graph.view.gridColor = mxSettings.getGridColor();
+			this.editor.graph.view.gridColor = mxSettings.getGridColor(uiTheme == 'dark');
 			
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setGridColor(this.editor.graph.view.gridColor);
+				console.log('gridColorChanged', this.editor.graph.view.gridColor);
+				
+				mxSettings.setGridColor(this.editor.graph.view.gridColor, uiTheme == 'dark');
 				mxSettings.save();
 			}));
 
@@ -8553,15 +10001,9 @@
 		
 		if (!graph.isSelectionEmpty())
 		{
-			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
-			
-			// LATER: Add span with XML in data attribute
-			// var span = document.createElement('span');
-			// span.setAttribute('data-jgraph-type', 'application/vnd.jgraph.xml');
-			// span.setAttribute('data-jgraph-content', mxUtils.getXml(graph.encodeCells(clones)));
-			
 			// Fixes cross-platform clipboard UTF8 issues by encoding as URI
-			var xml = mxUtils.getXml(this.editor.graph.encodeCells(cells));
+			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
+			var xml = mxUtils.getXml(graph.encodeCells(cells));
 			mxUtils.setTextContent(elt, encodeURIComponent(xml));
 			
 			if (removeCells)
@@ -8588,10 +10030,20 @@
 	/**
 	 * Creates the format panel and adds overrides.
 	 */
-	EditorUi.prototype.pasteCells = function(evt, elt)
+	EditorUi.prototype.pasteCells = function(evt, realElt, useEvent)
 	{
 		if (!mxEvent.isConsumed(evt))
 		{
+			var elt = realElt;
+			
+			if (useEvent && evt.clipboardData != null)
+			{
+				// Creates a dummy element and parses the HTML to get
+				// consistent behaviour for system paste HTML into elt
+				elt = document.createElement('div');
+				elt.innerHTML = evt.clipboardData.getData('text/html');
+			}
+			
 			var spans = elt.getElementsByTagName('span');
 		
 			if (spans != null && spans.length > 0 && spans[0].getAttribute('data-lucid-type') ===
@@ -8603,7 +10055,21 @@
 				{
 					this.convertLucidChart(content, mxUtils.bind(this, function(xml)
 					{
-						this.editor.graph.setSelectionCells(this.importXml(xml, 0, 0));
+						var graph = this.editor.graph;
+						
+						if (graph.lastPasteXml == xml)
+						{
+							graph.pasteCounter++;
+						}
+						else
+						{
+							graph.lastPasteXml = xml;
+							graph.pasteCounter = 0;
+						}
+						
+						var dx = graph.pasteCounter * graph.gridSize;
+						graph.setSelectionCells(this.importXml(xml, dx, dx));
+						graph.scrollCellToVisible(graph.getSelectionCell());
 					}), mxUtils.bind(this, function(e)
 					{
 						this.handleError(e);
@@ -8614,11 +10080,10 @@
 			}
 			else
 			{
-				var graph = this.editor.graph;
 				var xml = mxUtils.trim((mxClient.IS_QUIRKS || document.documentMode == 8) ?
 					mxUtils.getTextContent(elt) : elt.textContent);
 				var compat = false;
-	
+				
 				// Workaround for junk after XML in VM
 				try
 				{
@@ -8652,21 +10117,23 @@
 				{
 					// ignore
 				}
-				
-				if (graph.lastPasteXml == xml)
-				{
-					graph.pasteCounter++;
-				}
-				else
-				{
-					graph.lastPasteXml = xml;
-					graph.pasteCounter = 0;
-				}
-				
-				var dx = graph.pasteCounter * graph.gridSize;
+
+				var graph = this.editor.graph;
 				
 				if (xml != null && xml.length > 0)
 				{
+					if (graph.lastPasteXml == xml)
+					{
+						graph.pasteCounter++;
+					}
+					else
+					{
+						graph.lastPasteXml = xml;
+						graph.pasteCounter = 0;
+					}
+
+					var dx = graph.pasteCounter * graph.gridSize;
+										
 					if (compat || this.isCompatibleString(xml))
 					{
 						graph.setSelectionCells(this.importXml(xml, dx, dx));
@@ -8708,8 +10175,15 @@
 						}
 					}
 				}
+				else if (!useEvent)
+				{
+					graph.lastPasteXml = null;
+					graph.pasteCounter = 0;
+				}
 			}
 		}
+		
+		realElt.innerHTML = '&nbsp;';
 	};
 
 	/**
@@ -8856,7 +10330,7 @@
 											else
 											{
 												window.openWindow(((mxClient.IS_CHROMEAPP) ?
-													'https://www.draw.io/' : 'https://' + location.host + '/') +
+													(EditorUi.drawHost + '/') : 'https://' + location.host + '/') +
 													window.location.search + '#U' + encodeURIComponent(data));
 											}
 										}
@@ -8966,137 +10440,156 @@
 				
 					reader.onload = mxUtils.bind(this, function(e)
 					{
-						var data = e.target.result;
-						var name = file.name;
-						
-						if (name != null && name.length > 0)
+						try
 						{
-							if (!this.useCanvasForExport && /(\.png)$/i.test(name))
-							{
-								name = name.substring(0, name.length - 4) + '.xml';
-							}
+							var data = e.target.result;
+							var name = file.name;
 							
-							var handleResult = mxUtils.bind(this, function(xml)
+							if (name != null && name.length > 0)
 							{
-								var dot = name.lastIndexOf('.');
-								
-								if (dot >= 0)
+								if (!this.useCanvasForExport && /(\.png)$/i.test(name))
 								{
-									name = name.substring(0, name.lastIndexOf('.')) + '.xml';
-								}
-								else
-								{
-									name = name + '.xml';
+									name = name.substring(0, name.length - 4) + '.drawio';
 								}
 								
-								if (xml.substring(0, 10) == '<mxlibrary')
+								var handleResult = mxUtils.bind(this, function(xml)
 								{
+									var dot = name.lastIndexOf('.');
+									
+									if (dot >= 0)
+									{
+										name = name.substring(0, name.lastIndexOf('.')) + '.drawio';
+									}
+									else
+									{
+										name = name + '.drawio';
+									}
+									
+									if (xml.substring(0, 10) == '<mxlibrary')
+									{
+										// Creates new temporary file if library is dropped in splash screen
+										if (this.getCurrentFile() == null && urlParams['embed'] != '1')
+										{
+											this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
+										}
+									
+					    				try
+						    			{
+					    					this.loadLibrary(new LocalLibrary(this, xml, name));
+						    			}
+					    				catch (e)
+						    			{
+						    				this.handleError(e, mxResources.get('errorLoadingFile'));
+						    			}
+									}
+									else
+									{
+										this.openLocalFile(xml, name, temp);
+									}
+								});
+								
+								if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
+								{
+									this.importVisio(file, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}));
+								}
+								else if (/(\.*<graphml )/.test(data)) 
+								{
+									this.importGraphML(data, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}));
+								}
+								else if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload &&
+									this.isRemoteFileFormat(data, name))
+								{
+									this.parseFile(file, mxUtils.bind(this, function(xhr)
+									{
+										if (xhr.readyState == 4)
+										{
+											this.spinner.stop();
+											
+											if (xhr.status >= 200 && xhr.status <= 299)
+											{
+												handleResult(xhr.responseText);
+											}
+											else
+											{
+												this.handleError({message: mxResources.get((xhr.status == 413) ?
+				            						'drawingTooLarge' : 'invalidOrMissingFile')},
+				            						mxResources.get('errorLoadingFile'));
+											}
+										}
+									}));
+								}
+								else if (this.isLucidChartData(data))
+								{
+									if (/(\.json)$/i.test(name))
+									{
+										name = name.substring(0, name.length - 5) + '.drawio';
+									}
+	
+									// LATER: Add import step that produces cells and use callback
+									this.convertLucidChart(data, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										this.openLocalFile(xml, name, temp);
+									}), mxUtils.bind(this, function(e)
+									{
+										this.spinner.stop();
+										this.handleError(e);
+									}));
+								}
+								else if (e.target.result.substring(0, 10) == '<mxlibrary')
+				    			{
+									this.spinner.stop();
+									
 									// Creates new temporary file if library is dropped in splash screen
 									if (this.getCurrentFile() == null && urlParams['embed'] != '1')
 									{
 										this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
 									}
-								
+									
 				    				try
 					    			{
-				    					this.loadLibrary(new LocalLibrary(this, xml, name));
+					    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
 					    			}
-				    				catch (e)
+					    			catch (e)
 					    			{
 					    				this.handleError(e, mxResources.get('errorLoadingFile'));
 					    			}
+				    			}
+								else if (data.indexOf('PK') == 0)
+								{
+									this.importZipFile(file, mxUtils.bind(this, function(xml)
+									{
+										this.spinner.stop();
+										handleResult(xml);
+									}), mxUtils.bind(this, function()
+									{
+										this.spinner.stop();
+										this.openLocalFile(data, name, temp);
+									}));
 								}
 								else
 								{
-									this.openLocalFile(xml, name, temp);
-								}
-							});
-							
-							if  (/(\.v(dx|sdx?))($|\?)/i.test(name) || /(\.vs(x|sx?))($|\?)/i.test(name))
-							{
-								this.importVisio(file, mxUtils.bind(this, function(xml)
-								{
-									this.spinner.stop();
-									handleResult(xml);
-								}));
-							}
-							else if (/(\.*<graphml )/.test(data)) 
-							{
-								this.importGraphML(data, mxUtils.bind(this, function(xml)
-								{
-									this.spinner.stop();
-									handleResult(xml);
-								}));
-							}
-							else if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload &&
-								this.isRemoteFileFormat(data, name))
-							{
-								this.parseFile(file, mxUtils.bind(this, function(xhr)
-								{
-									if (xhr.readyState == 4)
+									if (file.type.substring(0, 9) == 'image/png')
 									{
-										this.spinner.stop();
-										
-										if (xhr.status >= 200 && xhr.status <= 299)
-										{
-											handleResult(xhr.responseText);
-										}
-										else
-										{
-											this.handleError({message: mxResources.get((xhr.status == 413) ?
-			            						'drawingTooLarge' : 'invalidOrMissingFile')},
-			            						mxResources.get('errorLoadingFile'));
-										}
+										data = this.extractGraphModelFromPng(data);
 									}
-								}));
-							}
-							else if (this.isLucidChartData(data))
-							{
-								if (/(\.json)$/i.test(name))
-								{
-									name = name.substring(0, name.length - 5) + '.xml';
-								}
-
-								// LATER: Add import step that produces cells and use callback
-								this.convertLucidChart(data, mxUtils.bind(this, function(xml)
-								{
+									
 									this.spinner.stop();
-									this.openLocalFile(xml, name, temp);
-								}), mxUtils.bind(this, function(e)
-								{
-									this.spinner.stop();
-									this.handleError(e);
-								}));
-							}
-							else if (e.target.result.substring(0, 10) == '<mxlibrary')
-			    			{
-								this.spinner.stop();
-								
-								// Creates new temporary file if library is dropped in splash screen
-								if (this.getCurrentFile() == null && urlParams['embed'] != '1')
-								{
-									this.openLocalFile(this.emptyDiagramXml, this.defaultFilename, temp);
+									this.openLocalFile(data, name, temp);
 								}
-								
-			    				try
-				    			{
-				    				this.loadLibrary(new LocalLibrary(this, e.target.result, file.name));
-				    			}
-				    			catch (e)
-				    			{
-				    				this.handleError(e, mxResources.get('errorLoadingFile'));
-				    			}
-			    			}
-							else
-							{
-								if (file.type.substring(0, 9) == 'image/png')
-								{
-									data = this.extractGraphModelFromPng(data);
-								}
-								
-								this.spinner.stop();
-								this.openLocalFile(data, name, temp);
 							}
+						}
+						catch (e)
+						{
+							this.handleError(e);
 						}
 					});
 					
@@ -9181,6 +10674,10 @@
 					}
 				}));
 			}
+		}
+		else
+		{
+			throw new Error(mxResources.get('notADiagramFile'));
 		}
 	};
 	
@@ -9269,6 +10766,12 @@
 		this.sidebarContainer.style.display = (enabled) ? '' : 'none';
 		this.hsplit.style.display = (enabled) ? '' : 'none';
 		this.editor.graph.setEnabled(enabled);
+		
+		if (this.ruler != null)
+		{
+			this.ruler.hRuler.container.style.visibility = (enabled) ? '' : 'hidden';
+			this.ruler.vRuler.container.style.visibility = (enabled) ? '' : 'hidden';
+		}
 		
 		if (this.tabContainer != null)
 		{
@@ -9469,7 +10972,7 @@
 							}
 							else if (data.charAt(0) != '<')
 							{
-								data = this.editor.graph.decompress(data);
+								data = Graph.decompress(data);
 							}
 						}
 					}
@@ -9574,6 +11077,7 @@
 					
 					var enableRecentDocs = data.enableRecent == 1;
 					var enableSearchDocs = data.enableSearch == 1;
+					var enableCustomTemp = data.enableCustomTemp == 1;
 					
 					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
 					{
@@ -9598,21 +11102,31 @@
 					}), null, null, null, null, null, null, null, 
 					enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
 					{
-						this.recentReadyCallback = recentReadyCallback;
-						
-						parent.postMessage(JSON.stringify({event: 'recentDocs'}), '*');
+						this.remoteInvoke('getRecentDiagrams', null, null, recentReadyCallback, function()
+						{
+							recentReadyCallback(null, 'Network Error!');
+						});
 					}) : null, 
 					enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
 					{
-						this.searchReadyCallback = searchReadyCallback;
-						
-						parent.postMessage(JSON.stringify({event: 'searchDocs', searchStr: searchStr}), '*');
+						this.remoteInvoke('searchDiagrams', [searchStr], null, searchReadyCallback, function()
+						{
+							searchReadyCallback(null, 'Network Error!');
+						});
 					}) : null, 
-					function(url, info, name) 
+					mxUtils.bind(this, function(url, info, name) 
 					{
+						//If binary files are possible, we can get the file content using remote invokation, imported it, and send final mxFile back
 						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
 							name: name}), '*');
-					});
+					}), null, null,
+					enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
+					{
+						this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
+						{
+							customTempCallback({}, 0); //ignore error by sending empty templates
+						});
+					}) : null);
 
 					this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 					{
@@ -9625,41 +11139,10 @@
 					
 					return;
 				}
-				else if (data.action == 'searchDocsList')
-				{
-					this.searchReadyCallback(data.list, data.errorMsg);
-				}
-				else if (data.action == 'recentDocsList')
-				{
-					this.recentReadyCallback(data.list, data.errorMsg);
-				}
 				else if (data.action == 'textContent')
 				{
-					this.editor.graph.setEnabled(false);
-					var graph = this.editor.graph;
-						
-					var allPagesTxt = '';
-					
-					if (this.pages != null)
-					{
-						for (var i = 0; i < this.pages.length; i++)
-						{
-							var pageGraph = graph;
-							
-							if (this.currentPage != this.pages[i])
-							{
-								pageGraph = this.createTemporaryGraph(graph.getStylesheet());
-								pageGraph.model.setRoot(this.pages[i].root);								
-							}
-							allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
-						}
-					}
-					else
-					{
-						allPagesTxt = graph.getIndexableText();
-					}
-					
-					this.editor.graph.setEnabled(true);
+					//TODO Remove this message and use remove invokation instead
+					var allPagesTxt = this.getDiagramTextContent();
 					parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
 					return;
 				}
@@ -9729,8 +11212,8 @@
 								
 						   	    if (data.format == 'xmlpng')
 						   	    {
-						   	    		uri = this.writeGraphModelToPng(uri, 'zTXt', 'mxGraphModel',
-						   	    				atob(this.editor.graph.compress(xml)));	
+						   	    	uri = this.writeGraphModelToPng(uri, 'tEXt', 'mxfile',
+						   	    		encodeURIComponent(xml));
 						   	    }
 						   	    	
 								// Removes temporary graph from DOM
@@ -9742,16 +11225,27 @@
 						   	    postDataBack(uri);
 							});
 					
+							var pageId = data.pageId || (this.pages != null? this.pages[0].getId() : null);
+							
 							// LATER: Uses external export if current page (not first page) has mathEnabled
 							if (this.isExportToCanvas())
 							{
-								// Exports PNG for first page while other page is visible by creating a graph
+								// Exports PNG for first/specific page while other page is visible by creating a graph
 								// LATER: Add caching for the graph or SVG while not on first page
-								if (this.pages != null && this.currentPage != this.pages[0])
+								if (this.pages != null && this.currentPage.getId() != pageId)
 								{
-									graph = this.createTemporaryGraph(graph.getStylesheet());
 									var graphGetGlobalVariable = graph.getGlobalVariable;
-									var page = this.pages[0];
+									graph = this.createTemporaryGraph(graph.getStylesheet());
+									var page;
+									
+									for (var i = 0; i < this.pages.length; i++)
+									{
+										if (this.pages[i].getId() == pageId)
+										{
+											page = this.updatePageRoot(this.pages[i]);
+											break;
+										}
+									}
 							
 									graph.getGlobalVariable = function(name)
 									{
@@ -9771,21 +11265,42 @@
 									graph.model.setRoot(page.root);
 								}
 
+								//Set visible layers based on message setting
+								if (data.layerIds != null)
+								{
+									var graphModel = graph.model;
+									var layers = graphModel.getChildCells(graphModel.getRoot());
+									var layerIdsMap = {};
+									
+									for (var i = 0; i < data.layerIds.length; i++)
+									{
+										layerIdsMap[data.layerIds[i]] = true;
+									}
+
+									for (var i = 0; i < layers.length; i++)
+									{
+										graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
+									}
+								}
+								
 								this.exportToCanvas(mxUtils.bind(this, function(canvas)
 							   	{
 									processUri(canvas.toDataURL('image/png'));
 							   	}), null, null, null, mxUtils.bind(this, function()
 								{
 							   		processUri(null);
-								}), null, null, null, null, null, null, graph);
+								}), null, null, data.scale, null, null, null, graph);
 							}
 							else
 							{
 								// Data from server is base64 encoded to avoid binary XHR
 								// Double encoding for XML arg is needed for UTF8 encoding
 						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
-						       		((data.format == 'xmlpng') ? '1' : '0') + '&base64=1&xml=' +
-						       		encodeURIComponent(encodeURIComponent(xml)));
+						       		((data.format == 'xmlpng') ? '1' : '0') + 
+						       		(pageId != null? '&pageId=' + pageId : '') +
+						       		(data.layerIds != null? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
+						       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
+						       		encodeURIComponent(xml));
 
 								req.send(mxUtils.bind(this, function(req)
 								{
@@ -9843,8 +11358,9 @@
 				        	{
 				        		bg = null;
 				        	}
-					        	
-							msg.xml = this.getFileData(true);
+
+							msg.xml = this.getFileData(true, null, null, null, null,
+								null, null, null, null, false);
 							msg.format = 'svg';
 					        	
 				        	if (data.embedImages || data.embedImages == null)
@@ -9858,22 +11374,22 @@
 					        		{
 						        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
 					        			{
-										this.editor.graph.setEnabled(true);
-										this.spinner.stop();
-										
-										msg.data = this.createSvgDataUri(svg);
-										parent.postMessage(JSON.stringify(msg), '*');
+											this.editor.graph.setEnabled(true);
+											this.spinner.stop();
+											
+											msg.data = this.createSvgDataUri(svg);
+											parent.postMessage(JSON.stringify(msg), '*');
 					        			}));
 					        		}
 					        		else
 					        		{
 					        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
 					        			{
-										this.editor.graph.setEnabled(true);
-										this.spinner.stop();
-										
-										msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-										parent.postMessage(JSON.stringify(msg), '*');
+											this.editor.graph.setEnabled(true);
+											this.spinner.stop();
+											
+											msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+											parent.postMessage(JSON.stringify(msg), '*');
 					        			}));
 					        		}
 								}
@@ -9916,7 +11432,8 @@
 						if (uiTheme == 'atlas')
 						{
 							this.buttonContainer.style.paddingRight = '12px';
-							this.buttonContainer.style.paddingTop = '12px';
+							this.buttonContainer.style.paddingTop = '6px';
+							this.buttonContainer.style.right = '25px';
 						}
 						else if (uiTheme != 'min')
 						{
@@ -9941,6 +11458,21 @@
 					{
 						data = data.xml;
 					}
+				}
+				else if (data.action == 'remoteInvokeReady') 
+				{
+					this.handleRemoteInvokeReady(parent);
+					return;
+				}
+				else if (data.action == 'remoteInvoke') 
+				{
+					this.handleRemoteInvoke(data);
+					return;
+				}
+				else if (data.action == 'remoteInvokeResponse')
+				{
+					this.handleRemoteInvokeResponse(data);
+					return;
 				}
 				else
 				{
@@ -10078,34 +11610,17 @@
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'absolute';
-			div.style.paddingTop = (uiTheme == 'atlas') ? '2px' : '3px';
+			div.style.paddingTop = (uiTheme == 'atlas') ? '2px' : '0px';
 			div.style.paddingLeft = '8px';
 			div.style.paddingBottom = '2px';
 
 			var button = document.createElement('button');
-			mxUtils.write(button, mxResources.get('save'));
-			button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
 			button.className = 'geBigButton';
-			button.style.fontSize = '12px';
-			button.style.padding = '4px 6px 4px 6px';
-			button.style.borderRadius = '3px';
 			
-			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+			if (urlParams['noSaveBtn'] == '1')
 			{
-				this.actions.get('save').funct();
-			}));
-			
-			div.appendChild(button);
-			
-			if (urlParams['saveAndExit'] == '1')
-			{
-				button = document.createElement('a');
 				mxUtils.write(button, mxResources.get('saveAndExit'));
 				button.setAttribute('title', mxResources.get('saveAndExit'));
-				button.style.fontSize = '12px';
-				button.style.marginLeft = '6px';
-				button.style.padding = '4px';
-				button.style.cursor = 'pointer';
 				
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
@@ -10114,15 +11629,41 @@
 				
 				div.appendChild(button);
 			}
+			else
+			{
+				mxUtils.write(button, mxResources.get('save'));
+				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
+				
+				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('save').funct();
+				}));
+				
+				div.appendChild(button);
+				
+				if (urlParams['saveAndExit'] == '1')
+				{
+					button = document.createElement('a');
+					mxUtils.write(button, mxResources.get('saveAndExit'));
+					button.setAttribute('title', mxResources.get('saveAndExit'));
+					button.className = 'geBigButton geBigStandardButton';
+					button.style.marginLeft = '6px';
+					
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
+			}
 
 			button = document.createElement('a');
 			mxUtils.write(button, mxResources.get('exit'));
 			button.setAttribute('title', mxResources.get('exit'));
-			button.style.fontSize = '12px';
+			button.className = 'geBigButton geBigStandardButton';
 			button.style.marginLeft = '6px';
 			button.style.marginRight = '20px';
-			button.style.padding = '4px';
-			button.style.cursor = 'pointer';
 			
 			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 			{
@@ -10148,22 +11689,54 @@
     			Editor.defaultCsvValue, mxUtils.bind(this, function(newValue)
 			{
     			this.importCsv(newValue);
-			}), null, null, 620, 430, null, true, true, mxResources.get('import'));
+			}), null, null, 620, 430, null, true, true, mxResources.get('import'),
+				!this.isOffline() ? 'https://about.draw.io/import-from-csv-to-drawio/' : null);
 		}
 		
-		this.showDialog(this.importCsvDialog.container, 640, 520, true, true);
+		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);
 		this.importCsvDialog.init();
 	};
 
+
 	/**
-	 * TODO: Move to Editor
+	 * Runs the layout from the given JavaScript array which is of the form [{layout: name, config: obj}, ...]
+	 * where name is the layout constructor name and config contains the properties of the layout instance.
+	 */
+	EditorUi.prototype.executeLayoutList = function(layoutList, done)
+	{
+		var graph = this.editor.graph;
+		var cells = graph.getSelectionCells();
+
+		for (var i = 0; i < layoutList.length; i++)
+		{
+			var layout = new window[layoutList[i].layout](graph);
+			
+			if (layoutList[i].config != null)
+			{
+				for (var key in layoutList[i].config)
+				{
+					layout[key] = layoutList[i].config[key];
+				}
+			}
+			
+			this.executeLayout(function()
+			{
+				layout.execute(graph.getDefaultParent(), cells.length == 0 ? null : cells);
+			}, i == layoutList.length - 1, done);
+		}
+	};
+	
+	/**
+	 *
 	 */
 	EditorUi.prototype.importCsv = function(text, done)
 	{
 		try
 		{
     		var lines = text.split('\n');
+    		var allCells = [];
     		var cells = [];
+    		var dups = {};
     		
     		if (lines.length > 0)
     		{
@@ -10172,6 +11745,10 @@
         		
         		// Default values
         		var style = null;
+        		var styles = null;
+        		var stylename = null;
+        		var labelname = null;
+        		var labels = null;
         		var parentstyle = null;
         		var identity = null;
         		var parent = null;
@@ -10256,6 +11833,14 @@
 		    				{
 		    					label = graph.sanitizeHtml(value);
 		    				}
+		    				else if (key == 'labelname' && value.length > 0 && value != '-')
+		    				{
+		    					labelname = value;
+		    				}
+		    				else if (key == 'labels' && value.length > 0 && value != '-')
+		    				{
+		    					labels = JSON.parse(value);
+		    				}
 		    				else if (key == 'style')
 		    				{
 		    					style = value;
@@ -10263,6 +11848,14 @@
 		    				else if (key == 'parentstyle')
 		    				{
 		    					parentstyle = value;
+		    				}
+		    				else if (key == 'stylename' && value.length > 0 && value != '-')
+		    				{
+		    					stylename = value;
+		    				}
+		    				else if (key == 'styles' && value.length > 0 && value != '-')
+		    				{
+		    					styles = JSON.parse(value);
 		    				}
 		    				else if (key == 'identity' && value.length > 0 && value != '-')
 		    				{
@@ -10328,7 +11921,12 @@
         			}
         		}
         		
-    			var keys = this.editor.csvToArray(lines[index]);
+        		if (lines[index] == null)
+        		{
+        			throw new Error(mxResources.get('invalidOrMissingFile'));
+        		}
+        		
+        		var keys = this.editor.csvToArray(lines[index]);
     			
     			// Converts name of identity and parent to indexes of column
     			var identityIndex = null;
@@ -10373,7 +11971,13 @@
 		    		{
     	    			var values = this.editor.csvToArray(lines[i]);
     	    			
-	    				if (values.length == keys.length)
+    	    			if (values == null)
+    	    			{
+    	    				var short = (lines[i].length > 40) ? lines[i].substring(0, 40) + '...' : lines[i];
+    	    				
+    	    				throw new Error(i + ' (' + short + ') ' + mxResources.get('containsValidationErrors'));
+    	    			}
+    	    			else if (values.length == keys.length)
 		    			{
 	    					var cell = null;
 	    					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
@@ -10382,27 +11986,61 @@
 	    					{
 	    						cell = graph.model.getCell(id);
 	    					}
-
-	    					if (cell == null)
-	    					{
-				    			var cell = new mxCell(label, new mxGeometry(x0, y,
-				    				0, 0), style || 'whiteSpace=wrap;html=1;');
-								cell.vertex = true;
-								cell.id = id;
-	    					}
 	    					
+	    					var exists = cell != null;
+	    					var newCell = new mxCell(label, new mxGeometry(x0, y,
+			    				0, 0), style || 'whiteSpace=wrap;html=1;');
+	    					newCell.vertex = true;
+	    					newCell.id = id;
+							
 							for (var j = 0; j < values.length; j++)
 					    	{
-								graph.setAttributeForCell(cell, keys[j], values[j]);
+								graph.setAttributeForCell(newCell, keys[j], values[j]);
 					    	}
 							
-							graph.setAttributeForCell(cell, 'placeholders', '1');
-							cell.style = graph.replacePlaceholders(cell, cell.style);
+							if (labelname != null && labels != null)
+							{
+								var tempLabel = labels[newCell.getAttribute(labelname)];
 								
-	    					for (var e = 0; e < edges.length; e++)
-	    					{
-	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-	    					}
+								if (tempLabel != null)
+								{
+									graph.labelChanged(newCell, tempLabel);
+								}
+							}
+
+							if (stylename != null && styles != null)
+							{
+								var tempStyle = styles[newCell.getAttribute(stylename)];
+								
+								if (tempStyle != null)
+								{
+									newCell.style = tempStyle;
+								}
+							}
+	
+							graph.setAttributeForCell(newCell, 'placeholders', '1');
+							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
+
+							if (exists)
+							{
+								graph.model.setGeometry(cell, newCell.geometry);
+								graph.model.setStyle(cell, newCell.style);
+								
+								if (mxUtils.indexOf(cells, cell) < 0)
+								{
+									cells.push(cell);
+								}
+							}
+							
+							cell = newCell;
+	    					
+							if (!exists)
+							{
+		    					for (var e = 0; e < edges.length; e++)
+		    					{
+		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
+		    					}
+							}
 							
 							if (link != null && link != 'link')
 							{
@@ -10411,7 +12049,7 @@
 								// Removes attribute
 								graph.setAttributeForCell(cell, link, null);
 							}
-	
+							
 							// Sets the size
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 							var size = this.editor.graph.getPreferredSizeForCell(cell);
@@ -10449,18 +12087,31 @@
 								y += cell.geometry.height + nodespacing;
 							}
 							
-	    					var parent = (parentIndex != null) ? graph.model.getCell(
-	    						namespace + values[parentIndex]) : null;
-	    					
-	    					if (parent != null)
-	    					{
-	    						parent.style = graph.replacePlaceholders(parent, parentstyle);
-	    						graph.addCell(cell, parent);
-	    					}
-	    					else
-	    					{
-	    						cells.push(graph.addCell(cell));
-	    					}
+							if (!exists)
+							{
+		    					var parent = (parentIndex != null) ? graph.model.getCell(
+		    						namespace + values[parentIndex]) : null;
+								allCells.push(cell);
+		    					
+		    					if (parent != null)
+		    					{
+		    						parent.style = graph.replacePlaceholders(parent, parentstyle);
+		    						graph.addCell(cell, parent);
+		    					}
+		    					else
+		    					{
+		    						cells.push(graph.addCell(cell));
+		    					}
+							}
+							else
+							{
+								if (dups[id] == null)
+								{
+									dups[id] = [];
+								}
+								
+								dups[id].push(cell);
+							}
 		    			}
 		    		}
 	    			
@@ -10474,49 +12125,63 @@
 						for (var i = 0; i < cells.length; i++)
 	    				{
 							var cell = cells[i];
-	
-	    					var tmp = cell.getAttribute(edge.from);
-	    					
-	    					if (tmp != null)
-	    					{
-	    						// Removes attribute
-		    					graph.setAttributeForCell(cell, edge.from, null);
-	    						var refs = tmp.split(',');
+							
+							var insertEdge = mxUtils.bind(this, function(realCell, dataCell, edge)
+							{
+								var tmp = dataCell.getAttribute(edge.from);
 		    					
-		    					for (var j = 0; j < refs.length; j++)
-		        				{
-		    						var ref = lookups[edge.to][refs[j]];
+		    					if (tmp != null)
+		    					{
+		    						// Removes attribute
+			    					graph.setAttributeForCell(dataCell, edge.from, null);
+		    						var refs = tmp.split(',');
 		    						
-		    						if (ref != null)
-		    						{
-		    							var label = edge.label;
-		    							
-		    							if (edge.fromlabel != null)
-		    							{
-		    								label = (cell.getAttribute(edge.fromlabel) || '') + (label || '');
-		    							}
-		    							
-		    							if (edge.tolabel != null)
-		    							{
-		    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-		    							}
-		    							
-		    							select.push(graph.insertEdge(null, null, label || '',
-			    							(edge.invert) ? ref : cell, (edge.invert) ? cell : ref,
-							    			edge.style || graph.createCurrentEdgeStyle()));
-		    							mxUtils.remove((edge.invert) ? cell : ref, roots);
-		    						}
-		        				}
-	    					}
+			    					for (var j = 0; j < refs.length; j++)
+			        				{
+			    						var ref = lookups[edge.to][refs[j]];
+			    						
+			    						if (ref != null)
+			    						{
+			    							var label = edge.label;
+			    							
+			    							if (edge.fromlabel != null)
+			    							{
+			    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+			    							}
+			    							
+			    							if (edge.tolabel != null)
+			    							{
+			    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+			    							}
+			    							
+			    							select.push(graph.insertEdge(null, null, label || '',
+				    							(edge.invert) ? ref : realCell, (edge.invert) ? realCell : ref,
+								    			edge.style || graph.createCurrentEdgeStyle()));
+			    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
+			    						}
+			        				}
+		    					}
+							});
+							
+							insertEdge(cell, cell, edge);
+
+    						// Checks more entries
+    						if (dups[cell.id] != null)
+    						{
+    							for (var j = 0; j < dups[cell.id].length; j++)
+    		    				{
+    								insertEdge(cell, dups[cell.id][j], edge);
+    		    				}
+    						}
 						}
 					}
 						
 					// Removes ignored attributes after processing above
 					if (ignore != null)
 					{
-						for (var i = 0; i < cells.length; i++)
+						for (var i = 0; i < allCells.length; i++)
 						{
-							var cell = cells[i];
+							var cell = allCells[i];
 							
 							for (var j = 0; j < ignore.length; j++)
 					    	{
@@ -10525,125 +12190,143 @@
 						}
 					}
 					
-					var edgeLayout = new mxParallelEdgeLayout(graph);
-					edgeLayout.spacing = edgespacing;
-			
-					var postProcess = function()
+					if (cells.length > 0)
 					{
-						edgeLayout.execute(graph.getDefaultParent());
+						var edgeLayout = new mxParallelEdgeLayout(graph);
+						edgeLayout.spacing = edgespacing;
+				
+						var postProcess = function()
+						{
+							if (edgeLayout.spacing > 0)
+							{
+								edgeLayout.execute(graph.getDefaultParent());
+							}
+							
+			    			// Aligns cells to grid and/or rounds positions
+							for (var i = 0; i < cells.length; i++)
+		    				{
+								var geo = graph.getCellGeometry(cells[i]);
+								geo.x = Math.round(graph.snap(geo.x));
+								geo.y = Math.round(graph.snap(geo.y));
+								
+								if (width == 'auto')
+								{
+									geo.width = Math.round(graph.snap(geo.width));	
+								}
+								
+								if (height == 'auto')
+								{
+									geo.height = Math.round(graph.snap(geo.height));	
+								}
+		    				}
+						};
 						
-    	    			// Aligns cells to grid and/or rounds positions
-						for (var i = 0; i < cells.length; i++)
-	    				{
-							var geo = graph.getCellGeometry(cells[i]);
-							geo.x = Math.round(graph.snap(geo.x));
-							geo.y = Math.round(graph.snap(geo.y));
-							
-							if (width == 'auto')
+						if (layout.charAt(0) == '[')
+						{
+			    			// Required for layouts to work with new cells
+							var temp = afterInsert;
+			    			graph.view.validate();
+							this.executeLayoutList(JSON.parse(layout), function()
 							{
-								geo.width = Math.round(graph.snap(geo.width));	
-							}
-							
-							if (height == 'auto')
-							{
-								geo.height = Math.round(graph.snap(geo.height));	
-							}
-	    				}
-					};
-					
-					if (layout == 'circle')
-					{
-						var circleLayout = new mxCircleLayout(graph);
-	    				circleLayout.resetEdges = false;
-	    				
-	    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
-	    				
-    	    				// Ignore other cells
-	    				circleLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-					
-			    		this.executeLayout(function()
-			    		{
-			    			circleLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-			    		}, true, afterInsert);
-    				
-			    		afterInsert = null;
-					}
-					else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
-							(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
-	    				treeLayout.levelDistance = nodespacing;
-	    				treeLayout.edgeRouting = false;
-	    				treeLayout.resetEdges = false;
-	    				
-	    				this.executeLayout(function()
-	    	    		{
-	    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
-	    	    		}, true, afterInsert);
-	    				
-	    				afterInsert = null;
-	    			}
-	    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
-	    					(layout == 'auto' && roots.length == 1))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-		    			var flowLayout = new mxHierarchicalLayout(graph,
-		    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
-		    			flowLayout.intraCellSpacing = nodespacing;
-		    			flowLayout.parallelEdgeSpacing = edgespacing;
-		    			flowLayout.interRankCellSpacing = levelspacing;
-		    			flowLayout.disableEdgeStyle = false;
-		    			
-		        		this.executeLayout(function()
-		        		{
-		        			flowLayout.execute(graph.getDefaultParent(), select);
-		        			
-		        			// Workaround for flow layout moving cells to origin
-		        			graph.moveCells(select, x0, y0);
-		        		}, true, afterInsert);
+								postProcess();
+								temp();
+							});
+							afterInsert = null;
+						}
+						else if (layout == 'circle')
+						{
+							var circleLayout = new mxCircleLayout(graph);
+		    				circleLayout.resetEdges = false;
+		    				
+		    				var circleLayoutIsVertexIgnored = circleLayout.isVertexIgnored;
+		    				
+			    			// Ignore other cells
+		    				circleLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return circleLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+						
+				    		this.executeLayout(function()
+				    		{
+				    			circleLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+				    		}, true, afterInsert);
+						
+				    		afterInsert = null;
+						}
+						else if (layout == 'horizontaltree' || layout == 'verticaltree' ||
+								(layout == 'auto' && select.length == 2 * cells.length - 1 && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
 			    			
-		    			afterInsert = null;
-		    		}
-	    			else if (layout == 'organic' || (layout == 'auto' &&
-	    					select.length > cells.length))
-	    			{
-		    			// Required for layouts to work with new cells
-		    			graph.view.validate();
-		    			
-	    				var organicLayout = new mxFastOrganicLayout(graph);
-	    				organicLayout.forceConstant = nodespacing * 3;
-	    				organicLayout.resetEdges = false;
-
-	    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
-
-    	    				// Ignore other cells
-	    				organicLayout.isVertexIgnored = function(vertex)
-	    				{
-	    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
-	    						mxUtils.indexOf(cells, vertex) < 0;
-	    				};
-
-	    				var edgeLayout = new mxParallelEdgeLayout(graph);
-	    				edgeLayout.spacing = edgespacing;
-	    				
-	    	    		this.executeLayout(function()
-	    	    		{
-	    	    			organicLayout.execute(graph.getDefaultParent());
-			    			postProcess();
-	    	    		}, true, afterInsert);
-	    	    		
-	    	    		afterInsert = null;
-	    			}
+		    				var treeLayout = new mxCompactTreeLayout(graph, layout == 'horizontaltree');
+		    				treeLayout.levelDistance = nodespacing;
+		    				treeLayout.edgeRouting = false;
+		    				treeLayout.resetEdges = false;
+		    				
+		    				this.executeLayout(function()
+		    	    		{
+		    					treeLayout.execute(graph.getDefaultParent(), (roots.length > 0) ? roots[0] : null);
+		    	    		}, true, afterInsert);
+		    				
+		    				afterInsert = null;
+		    			}
+		    			else if (layout == 'horizontalflow' || layout == 'verticalflow' ||
+		    					(layout == 'auto' && roots.length == 1))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+			    			var flowLayout = new mxHierarchicalLayout(graph,
+			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+			    			flowLayout.intraCellSpacing = nodespacing;
+			    			flowLayout.parallelEdgeSpacing = edgespacing;
+			    			flowLayout.interRankCellSpacing = levelspacing;
+			    			flowLayout.disableEdgeStyle = false;
+			    			
+			        		this.executeLayout(function()
+			        		{
+			        			flowLayout.execute(graph.getDefaultParent(), select);
+			        			
+			        			// Workaround for flow layout moving cells to origin
+			        			graph.moveCells(select, x0, y0);
+			        		}, true, afterInsert);
+				    			
+			    			afterInsert = null;
+			    		}
+		    			else if (layout == 'organic' || (layout == 'auto' &&
+		    					select.length > cells.length))
+		    			{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+			    			
+		    				var organicLayout = new mxFastOrganicLayout(graph);
+		    				organicLayout.forceConstant = nodespacing * 3;
+		    				organicLayout.resetEdges = false;
+		
+		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
+		
+			    				// Ignore other cells
+		    				organicLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+		
+		    				var edgeLayout = new mxParallelEdgeLayout(graph);
+		    				edgeLayout.spacing = edgespacing;
+		    				
+		    	    		this.executeLayout(function()
+		    	    		{
+		    	    			organicLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+		    	    		}, true, afterInsert);
+		    	    		
+		    	    		afterInsert = null;
+		    			}
+					}
 	    			
 	    			this.hideDialog();
         		}
@@ -10744,7 +12427,7 @@
 	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
 	{
 		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
-		this.showDialog(dlg.container, 480, 130, true, true);
+		this.showDialog(dlg.container, 560, 130, true, true);
 		dlg.init();
 	};
 
@@ -10860,7 +12543,7 @@
 	 */
 	EditorUi.prototype.getServiceCount = function(allowBrowser, splash)
 	{
-		var serviceCount = 0;
+		var serviceCount = 1;
 		
 		if (this.drive != null || typeof window.DriveClient === 'function')
 		{
@@ -10882,17 +12565,12 @@
 			serviceCount++
 		}
 		
-		if (!splash && (this.trello != null || typeof window.TrelloClient === 'function'))
+		if (!splash && (this.gitLab != null))
 		{
 			serviceCount++
 		}
 		
-		if (allowBrowser && isLocalStorage && (urlParams['browser'] == '1' || mxClient.IS_IOS))
-		{
-			serviceCount++
-		}
-		
-		if (!mxClient.IS_IOS)
+		if (splash && allowBrowser && isLocalStorage && urlParams['browser'] == '1')
 		{
 			serviceCount++
 		}
@@ -10943,6 +12621,10 @@
 		this.actions.get('zoomIn').setEnabled(active);
 		this.actions.get('zoomOut').setEnabled(active);
 		this.actions.get('resetView').setEnabled(active);
+		
+		// Updates undo history states
+		this.actions.get('undo').setEnabled(this.canUndo() && editable);
+		this.actions.get('redo').setEnabled(this.canRedo() && editable);
 	
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);
@@ -11073,6 +12755,22 @@
 	};
 	
 	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.scheduleSanityCheck = function()
+	{
+		// do nothing
+	};
+	
+	/**
+	 * Hook for subclassers
+	 */
+	EditorUi.prototype.stopSanityCheck = function()
+	{
+		// do nothing
+	};
+
+	/**
 	 * Returns true if a diagram is cative and editable.
 	 */
 	EditorUi.prototype.isDiagramActive = function()
@@ -11094,7 +12792,7 @@
 		var graph = this.editor.graph;
 		var active = this.isDiagramActive();
 		var file = this.getCurrentFile();
-		var enabled = file != null || urlParams['embed'] == '1';
+		var enabled = file != null || urlParams['embed'] == '1';
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
@@ -11115,7 +12813,7 @@
 		this.actions.get('find').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('layers').setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		this.actions.get('outline').setEnabled(this.diagramContainer.style.visibility != 'hidden');
-		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
+		this.actions.get('rename').setEnabled((file != null && file.isRenamable()) || urlParams['embed'] == '1');
 		this.actions.get('close').setEnabled(file != null);
 		this.menus.get('publish').setEnabled(file != null && !file.isRestricted());
 		
@@ -11147,7 +12845,7 @@
 		ExportDialog.showXmlOption = false;
 		ExportDialog.showGifOption = false;
 		
-		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b)
+		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
 		{
 			var graph = editorUi.editor.graph;
 			
@@ -11158,27 +12856,48 @@
 			}
 		    else if (format == 'svg')
 			{
-		    		editorUi.hideDialog();
+		    	editorUi.hideDialog();
 				editorUi.saveData(name, 'svg', mxUtils.getXml(graph.getSvg(bg, s, b)), 'image/svg+xml');
 			}
 		    else
 		    {
-		    		var data = editorUi.getFileData(true, null, null, null, null, true);
-		    		var bounds = graph.getGraphBounds();
+		    	var data = editorUi.getFileData(true, null, null, null, null, true);
+		    	var bounds = graph.getGraphBounds();
 				var w = Math.floor(bounds.width * s / graph.view.scale);
 				var h = Math.floor(bounds.height * s / graph.view.scale);
 				
 				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 				{
 					editorUi.hideDialog();
-					editorUi.saveRequest(name, format,
-						function(newTitle, base64)
+					
+					if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
+					{
+						if (format == 'png')
 						{
-							return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
-								((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
-								'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
-								'&border=' + b + '&xml=' + encodeURIComponent(data));
-						});
+							editorUi.exportImage(s, bg == null || bg == 'none', true,
+						   		false, false, b, true, false, null, null, dpi);
+						}
+						else 
+						{
+							editorUi.exportImage(s, false, true,
+								false, false, b, true, false, 'jpeg');
+						}
+					}
+					else 
+					{
+						var extras = {globalVars: graph.getExportVariables()};
+						
+						editorUi.saveRequest(name, format,
+							function(newTitle, base64)
+							{
+								return new mxXmlRequest(EXPORT_URL, 'format=' + format + '&base64=' + (base64 || '0') +
+									((newTitle != null) ? '&filename=' + encodeURIComponent(newTitle) : '') +
+									'&extras=' + encodeURIComponent(JSON.stringify(extras)) +
+									(dpi > 0? '&dpi=' + dpi : '') +
+									'&bg=' + ((bg != null) ? bg : 'none') + '&w=' + w + '&h=' + h +
+									'&border=' + b + '&xml=' + encodeURIComponent(data));
+							});
+					}
 				}
 				else
 				{
@@ -11188,4 +12907,1372 @@
 		};
 	}
 
+	EditorUi.prototype.getDiagramTextContent = function()
+	{
+		this.editor.graph.setEnabled(false);
+		var graph = this.editor.graph;
+			
+		var allPagesTxt = '';
+		
+		if (this.pages != null)
+		{
+			for (var i = 0; i < this.pages.length; i++)
+			{
+				var pageGraph = graph;
+				
+				if (this.currentPage != this.pages[i])
+				{
+					pageGraph = this.createTemporaryGraph(graph.getStylesheet());
+					pageGraph.model.setRoot(this.pages[i].root);								
+				}
+				allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
+			}
+		}
+		else
+		{
+			allPagesTxt = graph.getIndexableText();
+		}
+		
+		this.editor.graph.setEnabled(true);
+		return allPagesTxt;
+	};
+	
+	EditorUi.prototype.showRemotelyStoredLibrary = function(title)
+	{
+		var selectedLibs = {};
+		var div = document.createElement('div');
+		div.style.whiteSpace = 'nowrap';
+		var graph = this.editor.graph;
+		
+		var hd = document.createElement('h3');
+		mxUtils.write(hd, mxUtils.htmlEntities(title));
+		hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
+		div.appendChild(hd);
+
+		var libsSection = document.createElement('div');
+		libsSection.style.cssText = 'border:1px solid lightGray;overflow: auto;height:300px';
+
+		libsSection.innerHTML = '<div style="text-align:center;padding:8px;"><img src="/images/spin.gif"></div>';
+		
+		var loadedLibs = {};
+		
+		try
+		{
+			var custLibs = mxSettings.getCustomLibraries();
+			
+			for (var j = 0; j < custLibs.length; j++)
+			{
+				var l = custLibs[j];
+				
+				if (l.substring(0, 1) == 'R')
+				{
+					var libDesc = JSON.parse(decodeURIComponent(l.substring(1)));
+					loadedLibs[libDesc[0]] = {
+						id: libDesc[0], 
+               			title: libDesc[1], 
+               			downloadUrl: libDesc[2]
+					};
+				}
+			}
+		}
+		catch(e){}
+
+		this.remoteInvoke('getCustomLibraries', null, null, function(libsList)
+		{
+			libsSection.innerHTML = '';
+			
+			if (libsList.length == 0)
+			{
+				libsSection.innerHTML = '<div style="text-align:center;padding-top:20px;color:gray;">' +
+					mxUtils.htmlEntities(mxResources.get('noLibraries')) + '</div>';
+			}
+			else
+			{
+				for (var i = 0; i < libsList.length; i++)
+				{
+					var lib = libsList[i];
+					
+					if (loadedLibs[lib.id])
+					{
+						selectedLibs[lib.id] = lib;
+					}
+					
+					var libCheck = this.addCheckbox(libsSection, lib.title, loadedLibs[lib.id]); 
+	
+					(function(lib2, check)
+					{
+						mxEvent.addListener(check, 'change', function()
+						{
+							if (this.checked)
+							{
+								selectedLibs[lib2.id] = lib2;
+							}
+							else
+							{
+								delete selectedLibs[lib2.id];
+							}
+						});
+					})(lib, libCheck)
+				}
+			}
+		}, mxUtils.bind(this, function(e)
+		{
+			libsSection.innerHTML = '';
+			var status = document.createElement('div');
+			status.style.padding = '8px';
+			status.style.textAlign = 'center';
+			mxUtils.write(status, mxResources.get('error') + ': ');
+			mxUtils.write(status, (e != null && e.message != null) ?
+				e.message : mxResources.get('unknownError'));
+			libsSection.appendChild(status);
+		}));
+
+		div.appendChild(libsSection);
+		
+		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
+		{
+			this.spinner.spin(document.body, mxResources.get('loading'));
+			var pendingLibs = 0;
+			
+			for (var id in selectedLibs)
+			{
+				if (loadedLibs[id] != null) continue; //already loaded!
+				
+				pendingLibs++;
+				
+				(mxUtils.bind(this, function(lib)
+				{
+					this.remoteInvoke('getFileContent', [lib.downloadUrl], null, mxUtils.bind(this, function(libContent)
+					{
+						pendingLibs--;
+						
+						if (pendingLibs == 0) this.spinner.stop();
+						
+						try
+						{
+							this.loadLibrary(new RemoteLibrary(this, libContent, lib));
+						}
+						catch (e)
+						{
+							this.handleError(e, mxResources.get('errorLoadingFile'));
+						}
+					}), mxUtils.bind(this, function()
+					{
+						pendingLibs--;
+						
+						if (pendingLibs == 0) this.spinner.stop();
+						
+						this.handleError(null, mxResources.get('errorLoadingFile'));
+					}));
+				}))(selectedLibs[id]);
+			}
+			
+			for (var id in loadedLibs)
+			{
+				if (!selectedLibs[id]) //Removed
+				{
+					this.closeLibrary(new RemoteLibrary(this, null, loadedLibs[id])); //create a dummy library such that we can call closeLibrary
+				}
+			}
+			
+			if (pendingLibs == 0) this.spinner.stop();
+		}), null, null, 'https://desk.draw.io/support/solutions/articles/16000092763');
+		this.showDialog(dlg.container, 340, 375, true, true, null, null, null, null, true);
+	};
+	
+	//Remote invokation, currently limited to functions in EditorUi (and its sub objects) for security reasons
+	//White-listed functions and some info about it
+	EditorUi.prototype.remoteInvokableFns = {
+		getDiagramTextContent: {isAsync: false}
+	};
+	
+	EditorUi.prototype.remoteInvokeCallbacks = [];
+	EditorUi.prototype.remoteInvokeQueue = [];
+
+	EditorUi.prototype.handleRemoteInvokeReady = function(remoteWin)
+	{
+		this.remoteWin = remoteWin;
+		
+		for (var i = 0; i < this.remoteInvokeQueue.length; i++)
+		{
+			remoteWin.postMessage(this.remoteInvokeQueue[i], '*');
+		}
+		
+		this.remoteInvokeQueue = [];
+	};
+	
+	EditorUi.prototype.handleRemoteInvokeResponse = function(msg)
+	{
+		var msgMarkers = msg.msgMarkers;
+		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
+		
+		if (msg.error)
+		{
+			if (callback.error) callback.error(msg.error.errResp);
+		}
+		else if (callback.callback)
+		{
+			callback.callback.apply(this, msg.resp);
+		}
+		
+		this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
+	};
+
+	EditorUi.prototype.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)
+	{
+		var acceptResponse = true;
+		
+		var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			acceptResponse = false;
+			error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+		}), this.timeout);
+
+		var wrapper = mxUtils.bind(this, function()
+		{
+	    	window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				callback.apply(this, arguments);
+			}
+		});
+		
+		msgMarkers = msgMarkers || {};
+		msgMarkers.callbackId = this.remoteInvokeCallbacks.length;
+		this.remoteInvokeCallbacks.push({callback: wrapper, error: error});
+		var msg = JSON.stringify({event: 'remoteInvoke', funtionName: remoteFn, functionArgs: remoteFnArgs, msgMarkers: msgMarkers});
+		
+		if (this.remoteWin != null) //remote invoke is ready
+		{
+			this.remoteWin.postMessage(msg, '*');
+		}
+		else
+		{
+			this.remoteInvokeQueue.push(msg);
+		}
+	};
+
+	EditorUi.prototype.handleRemoteInvoke = function(msg)
+	{
+		var sendResponse = mxUtils.bind(this, function(resp, error)
+		{
+			var respMsg = {event: 'remoteInvokeResponse', msgMarkers: msg.msgMarkers};
+			
+			if (error != null)
+			{
+				respMsg.error = {errResp: error};
+			}
+			else if (resp != null) 
+			{
+				respMsg.resp = resp;
+			}
+			
+			this.remoteWin.postMessage(JSON.stringify(respMsg), '*');
+		});
+		
+		try
+		{
+			//Remote invoke are allowed to call functions in AC
+			var funtionName = msg.funtionName;
+			var functionInfo = this.remoteInvokableFns[funtionName];
+			
+			if (functionInfo != null && typeof this[funtionName] === 'function')
+			{
+				var functionArgs = msg.functionArgs;
+				
+				//Confirm functionArgs are not null and is array, otherwise, discard it
+				if (!Array.isArray(functionArgs))
+				{
+					functionArgs = [];
+				}
+				
+				//for functions with callbacks (async) we assume last two arguments are success, error
+				if (functionInfo.isAsync)
+				{
+					//success
+					functionArgs.push(function() 
+					{
+						sendResponse(Array.prototype.slice.apply(arguments));
+					});
+					
+					//error
+					functionArgs.push(function(err) 
+					{
+						sendResponse(null, err || 'Unkown Error');
+					});
+					
+					this[funtionName].apply(this, functionArgs);
+				}
+				else
+				{
+					var resp = this[funtionName].apply(this, functionArgs);
+					
+					sendResponse([resp]);
+				}
+			}
+			else
+			{
+				sendResponse(null, 'Invalid Call: ' + funtionName + ' is not found.');
+			}
+		}
+		catch(e)
+		{
+			sendResponse(null, 'Invalid Call: An error occured, ' + e.message);
+		}
+	};
+	
+	/**
+	 *
+	 * Comments: We need these functions as wrapper of File functions in order to facilitate overriding them if comments are needed without having a file
+	 * 			 (e.g. Confluence Plugin)
+	 * 
+	 */
+	
+	/**
+	 * Are comments supported
+	 */
+	EditorUi.prototype.commentsSupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.commentsSupported() : false;
+	};
+
+	/**
+	 * Show refresh button?
+	 */
+	EditorUi.prototype.commentsRefreshNeeded = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.commentsRefreshNeeded() : true;
+	};
+	
+	/**
+	 * Show save button?
+	 */
+	EditorUi.prototype.commentsSaveNeeded = function()
+	{
+		var file = this.getCurrentFile();
+
+		return file != null? file.commentsSaveNeeded() : false;
+	};
+	
+	/**
+	 * Get comments
+	 */
+	EditorUi.prototype.getComments = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.getComments(success, error);
+		}
+		else 
+		{
+			success([]); //placeholder
+		}
+	};
+
+	/**
+	 * Add a comment
+	 */
+	EditorUi.prototype.addComment = function(comment, success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			file.addComment(comment, success, error);
+		}
+		else 
+		{
+			success(Date.now()); //placeholder
+		}
+	};
+
+	/**
+	 * Can add a reply to a reply
+	 */
+	EditorUi.prototype.canReplyToReplies = function()
+	{
+		var file = this.getCurrentFile();
+			
+		return file != null? file.canReplyToReplies() : true;
+	};
+
+	/**
+	 * Can add comments (The permission to comment)
+	 */
+	EditorUi.prototype.canComment = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null? file.canComment() : true;
+	};
+
+	/**
+	 * Get a new comment object
+	 */
+	EditorUi.prototype.newComment = function(content, user)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null)
+		{
+			return file.newComment(content, user)
+		}
+		else 
+		{
+			return new DrawioComment(this, null, content, Date.now(), Date.now(), false, user);
+		}
+	};
+	
+	//==================================================== End of comments =================================================================
+	
+	/**
+	 * Does revisions history available
+	 */
+	EditorUi.prototype.isRevisionHistorySupported = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null && file.isRevisionHistorySupported();
+	};
+
+	/**
+	 * Get revisions of current file
+	 */
+	EditorUi.prototype.getRevisions = function(success, error)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.getRevisions)
+		{
+			file.getRevisions(success, error);
+		}
+		else
+		{
+			error({message: mxResources.get('unknownError')});
+		}
+	};
+	
+	/**
+	 * Is revisions history enabled
+	 */
+	EditorUi.prototype.isRevisionHistoryEnabled = function()
+	{
+		var file = this.getCurrentFile();
+		
+		return file != null &&
+				((file.constructor == DriveFile && file.isEditable()) ||
+				file.constructor == DropboxFile);
+	};
+	
+	//===========Adding methods to find the service running draw.io and allowing calling draw.io remote services
+	EditorUi.prototype.getServiceName = function()
+	{
+		return 'draw.io';
+	};
+	
+	EditorUi.prototype.addRemoteServiceSecurityCheck = function(xhr)
+	{
+		//Using a standard header with specific sequence
+		xhr.setRequestHeader('Content-Language', 'da, mi, en, de-DE');
+	};
 })();
+
+/**
+ * Comments Window, It is used by both editor and viewer. So, it is here in a common place
+ */
+var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
+{
+	var readOnly = !editorUi.canComment();
+	var canReplyToReplies = editorUi.canReplyToReplies();
+	var curEdited = null;
+		
+	var div = document.createElement('div');
+	div.className = 'geCommentsWin';
+	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+
+	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
+	
+	var listDiv = document.createElement('div');
+	listDiv.className = 'geCommentsList';
+	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
+	div.appendChild(listDiv);
+	
+	var noComments = document.createElement('span');
+	noComments.style.cssText = 'display:none;padding-top:10px;text-align:center;';
+	mxUtils.write(noComments, mxResources.get('noCommentsFound'));
+	
+	var selectionComment = null;
+	
+	var ldiv = document.createElement('div');
+	
+	ldiv.className = 'geToolbarContainer geCommentsToolbar';
+	ldiv.style.height = tbarHeight;
+	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
+	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		ldiv.style.filter = 'none';
+	}
+	
+	var link = document.createElement('a');
+	link.className = 'geButton';
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		link.style.filter = 'none';
+	}
+	
+	function updateNoComments()
+	{
+		var divs = listDiv.getElementsByTagName('div');
+		var visibleCount = 0;
+		
+		for (var i = 0; i < divs.length; i++)
+		{
+			if (divs[i].style.display != 'none' && divs[i].parentNode == listDiv)
+			{
+				visibleCount++;
+			}
+		}
+		
+		noComments.style.display = (visibleCount == 0) ? 'block' : 'none';
+	};
+	
+	function editComment(comment, cdiv, saveCallback, deleteOnCancel)
+	{
+		curEdited = {div: cdiv, comment: comment, saveCallback: saveCallback, deleteOnCancel: deleteOnCancel};
+		
+		var commentTxt = cdiv.querySelector('.geCommentTxt');
+		var actionsDiv = cdiv.querySelector('.geCommentActionsList');
+		
+		var textArea = document.createElement('textarea');
+		textArea.className = 'geCommentEditTxtArea';
+		textArea.style.minHeight = commentTxt.offsetHeight + 'px';
+		textArea.value = comment.content;
+		cdiv.insertBefore(textArea, commentTxt);
+		
+		var btnDiv = document.createElement('div');
+		btnDiv.className = 'geCommentEditBtns';
+		
+		function reset()
+		{
+			cdiv.removeChild(textArea);
+			cdiv.removeChild(btnDiv);
+			actionsDiv.style.display = 'block';
+			commentTxt.style.display = 'block';	
+		};
+		
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+		{
+			if (deleteOnCancel)
+			{
+				cdiv.parentNode.removeChild(cdiv);
+				updateNoComments();
+			}
+			else
+			{
+				reset();
+			}
+			
+			curEdited = null;
+		});
+		
+		cancelBtn.className = 'geCommentEditBtn';
+		btnDiv.appendChild(cancelBtn);
+		
+		var saveBtn = mxUtils.button(mxResources.get('save'), function()
+		{
+			commentTxt.innerHTML = '';
+			comment.content = textArea.value;
+			mxUtils.write(commentTxt, comment.content);
+			reset();
+			saveCallback(comment);
+			curEdited = null;
+		});
+		
+		// Updates modified state and handles placeholder text
+		mxEvent.addListener(textArea, 'keydown', mxUtils.bind(this, function(evt)
+		{
+			if (!mxEvent.isConsumed(evt))
+			{
+				if ((mxEvent.isControlDown(evt) || (mxClient.IS_MAC &&
+					mxEvent.isMetaDown(evt))) && evt.keyCode == 13 /* Ctrl+Enter */)
+				{
+					saveBtn.click();
+					mxEvent.consume(evt);
+				}
+				else if (evt.keyCode == 27 /* Escape */)
+				{
+					cancelBtn.click();
+					mxEvent.consume(evt);
+				}
+			}
+		}));
+		
+		// Focused to include in viewport before focusin textbox
+		saveBtn.focus();
+		saveBtn.className = 'geCommentEditBtn gePrimaryBtn';
+		btnDiv.appendChild(saveBtn);
+
+		cdiv.insertBefore(btnDiv, commentTxt);
+		actionsDiv.style.display = 'none';
+		commentTxt.style.display = 'none';
+		textArea.focus();
+	};
+	
+	function writeCommentDate(comment, dateDiv)
+	{
+		dateDiv.innerHTML = '';
+		var ts = new Date(comment.modifiedDate);
+		var str = editorUi.timeSince(ts);
+		
+		if (str == null)
+		{
+			str = mxResources.get('lessThanAMinute');
+		}
+		
+		mxUtils.write(dateDiv, mxResources.get('timeAgo', [str], '{1} ago'));
+		dateDiv.setAttribute('title', ts.toLocaleDateString() + ' ' +
+				ts.toLocaleTimeString());
+	};
+	
+	function showBusy(commentDiv)
+	{
+		var busyImg = document.createElement('img');
+		busyImg.className = 'geCommentBusyImg';
+		busyImg.src= IMAGE_PATH + '/spin.gif';
+		commentDiv.appendChild(busyImg);
+		commentDiv.busyImg = busyImg;
+	};
+	
+	function showError(commentDiv)
+	{
+		commentDiv.style.border = '1px solid red';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+	
+	function showDone(commentDiv)
+	{
+		commentDiv.style.border = '';
+		commentDiv.removeChild(commentDiv.busyImg);
+	};
+
+	function addComment(comment, parentArr, parent, level, showResolved)
+	{
+		//Skip resolved comments if showResolved is not set
+		if (!showResolved && comment.isResolved)
+		{
+			return;
+		}
+
+		noComments.style.display = 'none';
+		
+		var cdiv = document.createElement('div');
+		cdiv.className = 'geCommentContainer';
+		cdiv.setAttribute('data-commentId', comment.id);
+		cdiv.style.marginLeft = (level * 20 + 5) + 'px';
+
+		if (comment.isResolved && uiTheme != 'dark')
+		{
+			cdiv.style.backgroundColor = 'ghostWhite';
+		}
+		
+		var headerDiv = document.createElement('div');
+		headerDiv.className = 'geCommentHeader';
+		
+		var userImg = document.createElement('img');
+		userImg.className = 'geCommentUserImg';
+		userImg.src = comment.user.pictureUrl || Editor.userImage;
+		headerDiv.appendChild(userImg);
+		
+		var headerTxt = document.createElement('div');
+		headerTxt.className = 'geCommentHeaderTxt';
+		headerDiv.appendChild(headerTxt);
+		
+		var usernameDiv = document.createElement('div');
+		usernameDiv.className = 'geCommentUsername';
+		mxUtils.write(usernameDiv, comment.user.displayName || '');
+		headerTxt.appendChild(usernameDiv);
+		
+		var dateDiv = document.createElement('div');
+		dateDiv.className = 'geCommentDate';
+		dateDiv.setAttribute('data-commentId', comment.id);
+		writeCommentDate(comment, dateDiv);
+		headerTxt.appendChild(dateDiv);
+		cdiv.appendChild(headerDiv);
+		
+		var commentTxtDiv = document.createElement('div');
+		commentTxtDiv.className = 'geCommentTxt';
+		mxUtils.write(commentTxtDiv, comment.content || '');
+		cdiv.appendChild(commentTxtDiv);
+		
+		var actionsDiv = document.createElement('div');
+		actionsDiv.className = 'geCommentActions';
+		var actionsList = document.createElement('ul');
+		actionsList.className = 'geCommentActionsList';
+		actionsDiv.appendChild(actionsList);
+		
+		function addAction(name, evtHandler, hide)
+		{
+			var action = document.createElement('li');
+			action.className = 'geCommentAction';
+			var actionLnk = document.createElement('a');
+			actionLnk.className = 'geCommentActionLnk';
+			mxUtils.write(actionLnk, name);
+			action.appendChild(actionLnk);
+			
+			mxEvent.addListener(actionLnk, 'click', function(evt)
+			{
+				evtHandler(evt, comment);
+				evt.preventDefault();
+				mxEvent.consume(evt);
+			});
+			
+			actionsList.appendChild(action);
+			
+			if (hide) action.style.display = 'none';
+		};
+		
+		function collectReplies()
+		{
+			var replies = [];
+			var pdiv = cdiv;
+			
+			function collectReplies(comment) 
+			{
+				replies.push(pdiv);
+				
+				if (comment.replies != null)
+				{
+					for (var i = 0; i < comment.replies.length; i++) 
+					{
+						pdiv = pdiv.nextSibling;
+						collectReplies(comment.replies[i]); 
+					}
+				}	
+			}
+			
+			collectReplies(comment);
+			
+			return {pdiv: pdiv, replies: replies};
+		};
+		
+		function addReply(initContent, editIt, saveCallback, doResolve, doReopen)
+		{
+			var pdiv = collectReplies().pdiv;
+			
+			var newReply = editorUi.newComment(initContent, editorUi.getCurrentUser());
+			newReply.pCommentId = comment.id;
+			
+			if (comment.replies == null) comment.replies = [];
+			
+			var replyComment = addComment(newReply, comment.replies, pdiv, level + 1);
+
+			function doAddReply()
+			{
+				showBusy(replyComment);
+				
+				comment.addReply(newReply, function(id)
+				{
+					newReply.id = id;
+					comment.replies.push(newReply);
+					showDone(replyComment);
+					
+					if (saveCallback) saveCallback();
+					
+				}, function(err)
+				{
+					doEdit();
+					showError(replyComment);
+					editorUi.handleError(err, null, null, null,
+						mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+				}, doResolve, doReopen);				
+			};
+			
+			function doEdit()
+			{
+				editComment(newReply, replyComment, function(newReply)
+				{
+					doAddReply();
+				}, true);
+			};
+
+			if (editIt)
+			{
+				doEdit();
+			}
+			else
+			{
+				doAddReply();
+			}
+		};
+		
+		if (!readOnly && (level == 0 || canReplyToReplies))
+		{
+			addAction(mxResources.get('reply'), function()
+			{
+				addReply('', true);
+			}, comment.isResolved);
+		}
+		
+		var user = editorUi.getCurrentUser();
+		
+		if (user != null && user.id == comment.user.id && !readOnly)
+		{
+			addAction(mxResources.get('edit'), function()
+			{
+				function doEditComment()
+				{
+					editComment(comment, cdiv, function()
+					{
+						showBusy(cdiv);
+						
+						comment.editComment(comment.content, function()
+						{
+							showDone(cdiv);
+						}, function(err)
+						{
+							showError(cdiv);
+							doEditComment();
+							editorUi.handleError(err, null, null, null,
+								mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+						});
+					});
+				};
+				
+				doEditComment();
+			}, comment.isResolved);
+			
+			addAction(mxResources.get('delete'), function()
+			{
+				editorUi.confirm(mxResources.get('areYouSure'), function()
+				{
+					showBusy(cdiv);
+					
+					comment.deleteComment(function()
+					{
+						var replies = collectReplies(comment).replies;
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							listDiv.removeChild(replies[i]);
+						}
+						
+						for (var i = 0; i < parentArr.length; i++)
+						{
+							if (parentArr[i] == comment) 
+							{
+								parentArr.splice(i, 1);
+								break;
+							}
+						}
+						
+						noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
+					}, function(err)
+					{
+						showError(cdiv);
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				});
+			}, comment.isResolved);
+		}
+		
+		if (!readOnly && level == 0) //Resolve is a top-level action only
+		{
+			function toggleResolve(evt)
+			{
+				function doToggle()
+				{
+					var resolveActionLnk = evt.target;
+					resolveActionLnk.innerHTML = '';
+
+					comment.isResolved = !comment.isResolved;
+					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
+					var actionsDisplay = comment.isResolved? 'none' : '';
+					var replies = collectReplies(comment).replies;
+					var color = (uiTheme == 'dark') ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
+					
+					for (var i = 0; i < replies.length; i++)
+					{
+						replies[i].style.backgroundColor = color;
+						
+						var forOpenActions = replies[i].querySelectorAll('.geCommentAction');
+						
+						for (var j = 0; j < forOpenActions.length; j ++) 
+						{
+							if (forOpenActions[j] == resolveActionLnk.parentNode) continue;
+							
+							forOpenActions[j].style.display = actionsDisplay;
+						}
+
+						if (!resolvedChecked)
+						{
+							replies[i].style.display = 'none';
+						}
+					}
+					
+					updateNoComments();
+				};
+				
+				if (comment.isResolved)
+				{
+					addReply(mxResources.get('reOpened') + ': ', true, doToggle, false, true);
+				}
+				else
+				{
+					addReply(mxResources.get('markedAsResolved'), false, doToggle, true);
+				}
+			};
+			
+			addAction(comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'), toggleResolve);
+		}
+		
+		cdiv.appendChild(actionsDiv);
+		
+		if (parent != null) 
+		{
+			listDiv.insertBefore(cdiv, parent.nextSibling);
+		}
+		else
+		{
+			listDiv.appendChild(cdiv);
+		}
+		
+		for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+		{
+			var reply = comment.replies[i];
+			reply.isResolved = comment.isResolved; //copy isResolved to child comments (replies)
+			addComment(reply, comment.replies, null, level + 1, showResolved);
+		}
+		
+		if (curEdited != null)
+		{
+			if (curEdited.comment.id == comment.id)
+			{
+				var origContent = comment.content;
+				comment.content = curEdited.comment.content;
+				editComment(comment, cdiv, curEdited.saveCallback, curEdited.deleteOnCancel);
+				comment.content = origContent;
+			}
+			else if (curEdited.comment.id == null && curEdited.comment.pCommentId == comment.id)
+			{
+				listDiv.appendChild(curEdited.div);
+				editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+			}
+		}
+
+		return cdiv;
+	};
+
+	if (!readOnly)
+	{
+		var addLink = link.cloneNode();
+		addLink.innerHTML = '<div class="geSprite geSprite-plus" style="display:inline-block;"></div>';
+		addLink.setAttribute('title', mxResources.get('create') + '...');
+		
+		mxEvent.addListener(addLink, 'click', function(evt)
+		{
+			var newComment = editorUi.newComment('', editorUi.getCurrentUser());
+			var newCommentDiv = addComment(newComment, comments, null, 0);
+			
+			function doAddComment()
+			{
+				editComment(newComment, newCommentDiv, function(newComment)
+				{
+					showBusy(newCommentDiv);
+					
+					editorUi.addComment(newComment, function(id)
+					{
+						newComment.id = id;
+						comments.push(newComment);
+						showDone(newCommentDiv);
+					}, function(err)
+					{
+						showError(newCommentDiv);
+						doAddComment();
+						editorUi.handleError(err, null, null, null,
+							mxUtils.htmlEntities(mxResources.get('objectNotFound')));
+					});
+				}, true);
+			}
+			
+			doAddComment();
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(addLink);
+	}
+
+	var resolvedLink = link.cloneNode();
+	resolvedLink.innerHTML = '<img src="' + IMAGE_PATH + '/check.png" style="width: 16px; padding: 2px;">';
+	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
+	var resolvedChecked = false;
+	
+	if (uiTheme == 'dark')
+	{
+		resolvedLink.style.filter = 'invert(100%)';
+	}
+	
+	mxEvent.addListener(resolvedLink, 'click', function(evt)
+	{
+		resolvedChecked = !resolvedChecked;
+		
+		this.className = resolvedChecked? 'geButton geCheckedBtn' : 'geButton';
+		refresh();
+		
+		evt.preventDefault();
+		mxEvent.consume(evt);
+	});
+	
+	ldiv.appendChild(resolvedLink);
+	
+	if (editorUi.commentsRefreshNeeded())
+	{
+		var refreshLink = link.cloneNode();
+		refreshLink.innerHTML = '<img src="' + IMAGE_PATH + '/update16.png" style="width: 16px; padding: 2px;">';
+		refreshLink.setAttribute('title', mxResources.get('refresh'));
+	
+		if (uiTheme == 'dark')
+		{
+			refreshLink.style.filter = 'invert(100%)';
+		}
+		
+		mxEvent.addListener(refreshLink, 'click', function(evt)
+		{
+			refresh();
+			
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(refreshLink);
+	}
+	
+	if (editorUi.commentsSaveNeeded())
+	{
+		var saveLink = link.cloneNode();
+		saveLink.innerHTML = '<img src="' + IMAGE_PATH + '/save.png" style="width: 20px; padding: 2px;">';
+		saveLink.setAttribute('title', mxResources.get('save'));
+	
+		if (uiTheme == 'dark')
+		{
+			saveLink.style.filter = 'invert(100%)';
+		}
+		
+		mxEvent.addListener(saveLink, 'click', function(evt)
+		{
+			saveCallback();
+			
+			evt.preventDefault();
+			mxEvent.consume(evt);
+		});
+		
+		ldiv.appendChild(saveLink);
+	}
+
+	div.appendChild(ldiv);	
+
+	var comments = [];
+
+	var refresh = mxUtils.bind(this, function()
+	{
+		this.hasError = false;
+		
+		if (curEdited != null)
+		{
+			curEdited.div = curEdited.div.cloneNode(true);
+			var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
+			var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
+			
+			curEdited.comment.content = commentEditTxt.value;
+			commentEditTxt.parentNode.removeChild(commentEditTxt);
+			commentEditBtns.parentNode.removeChild(commentEditBtns);
+		}
+		
+		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="' + IMAGE_PATH + '/spin.gif" valign="middle"> ' +
+			mxUtils.htmlEntities(mxResources.get('loading')) + '...</div>';
+		
+		canReplyToReplies = editorUi.canReplyToReplies();
+		
+		if (editorUi.commentsSupported())
+		{
+			editorUi.getComments(function(list)
+			{
+				function sortReplies(replies)
+				{
+					if (replies != null)
+					{
+						//Sort replies old to new
+						replies.sort(function(r1, r2)
+						{
+							return new Date(r1.modifiedDate) - new Date(r2.modifiedDate);
+						});
+						
+						for (var i = 0; i < replies.length; i++)
+						{
+							sortReplies(replies[i].replies);
+						}						
+					}
+				};
+				
+				//Sort comments old to new
+				list.sort(function(c1, c2)
+				{
+					return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
+				});
+
+				listDiv.innerHTML = '';
+				listDiv.appendChild(noComments);
+				noComments.style.display = 'block';
+				comments = list;
+				
+				for (var i = 0; i < comments.length; i++)
+				{
+					sortReplies(comments[i].replies);
+					addComment(comments[i], comments, null, 0, resolvedChecked);
+				}
+				
+				//New comment case
+				if (curEdited != null && curEdited.comment.id == null && curEdited.comment.pCommentId == null)
+				{
+					listDiv.appendChild(curEdited.div);
+					editComment(curEdited.comment, curEdited.div, curEdited.saveCallback, curEdited.deleteOnCancel);
+				}
+				
+			}, mxUtils.bind(this, function(err)
+			{
+				listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error') + (err && err.message? ': ' + err.message : ''));
+				this.hasError = true;
+			}));
+		}
+		else
+		{
+			//TODO if comments are not supported, close the dialog
+			listDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('error'));
+		}
+	});
+
+	refresh();
+	
+	this.refreshComments = refresh;
+
+	//Refresh the modified date of each comment if the window is visible
+	var refreshCommentsTime = mxUtils.bind(this, function()
+	{
+		if (!this.window.isVisible()) return; //only update if it is visible
+		
+		var modDateDivs = listDiv.querySelectorAll('.geCommentDate');
+		var modDateDivsMap = {};
+		
+		for (var i = 0; i < modDateDivs.length; i++)
+		{
+			var div = modDateDivs[i];
+			modDateDivsMap[div.getAttribute('data-commentId')] = div;
+		}
+		
+		function processComment(comment) 
+		{
+			var div = modDateDivsMap[comment.id];
+			
+			if (div == null) return; //resolved comments
+			
+			writeCommentDate(comment, div);
+			
+			for (var i = 0; comment.replies != null && i < comment.replies.length; i++)
+			{
+				processComment(comment.replies[i]);
+			}
+		};
+		
+		for (var i = 0; i < comments.length; i++)
+		{
+			processComment(comments[i]);
+		}
+	});
+
+	//Periodically refresh time every one minute
+	setInterval(refreshCommentsTime, 60000);
+	this.refreshCommentsTime = refreshCommentsTime;
+	
+	this.window = new mxWindow(mxResources.get('comments'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 300, 200);
+	this.window.destroyOnClose = false;
+	this.window.setMaximizable(false);
+	this.window.setResizable(true);
+	this.window.setClosable(true);
+	this.window.setVisible(true);
+	
+	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+	{
+		this.window.fit();
+	}));
+	
+	this.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = this.window.getX();
+		var y = this.window.getY();
+		
+		this.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	this.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		this.window.destroy();
+	}
+};
+
+/**
+ * 
+ */
+var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelLabel,
+		okImg, cancelImg, showRememberOption, imgSrc, maxHeight)
+{
+	var div = document.createElement('div');
+	div.style.textAlign = 'center';
+	maxHeight = (maxHeight != null) ? maxHeight : 44;
+	
+	var p2 = document.createElement('div');
+	p2.style.padding = '6px';
+	p2.style.overflow = 'auto';
+	p2.style.maxHeight = maxHeight + 'px';
+	p2.style.lineHeight = '1.2em';
+	
+	if (mxClient.IS_QUIRKS)
+	{
+		p2.style.height = '60px';
+	}
+	
+	mxUtils.write(p2, message);
+	div.appendChild(p2);
+	
+	if (imgSrc != null)
+	{
+		var p3 = document.createElement('div');
+		p3.style.padding = '6px 0 6px 0';
+		var img = document.createElement('img');
+		img.setAttribute('src', imgSrc);
+		p3.appendChild(img);
+		div.appendChild(p3);
+	}
+	
+	var btns = document.createElement('div');
+	btns.style.textAlign = 'center';
+	btns.style.whiteSpace = 'nowrap';
+
+	var cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+
+	var cancelBtn = mxUtils.button(cancelLabel || mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+		
+		if (cancelFn != null)
+		{
+			cancelFn(cb.checked);
+		}
+	});
+	cancelBtn.className = 'geBtn';
+	
+	if (cancelImg != null)
+	{
+		cancelBtn.innerHTML = cancelImg + '<br>' + cancelBtn.innerHTML;
+		cancelBtn.style.paddingBottom = '8px';
+		cancelBtn.style.paddingTop = '8px';
+		cancelBtn.style.height = 'auto';
+		cancelBtn.style.width = '40%';
+	}
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+	
+	var okBtn = mxUtils.button(okLabel || mxResources.get('ok'), function()
+	{
+		editorUi.hideDialog();
+		
+		if (okFn != null)
+		{
+			okFn(cb.checked);
+		}
+	});
+	btns.appendChild(okBtn);
+	
+	if (okImg != null)
+	{
+		okBtn.innerHTML = okImg + '<br>' + okBtn.innerHTML + '<br>';
+		okBtn.style.paddingBottom = '8px';
+		okBtn.style.paddingTop = '8px';
+		okBtn.style.height = 'auto';
+		okBtn.className = 'geBtn';
+		okBtn.style.width = '40%';
+	}
+	else
+	{
+		okBtn.className = 'geBtn gePrimaryBtn';
+	}
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
+
+	div.appendChild(btns);
+	
+	if (showRememberOption)
+	{
+		btns.style.marginTop = '10px';
+		var p2 = document.createElement('p');
+		p2.style.marginTop = '20px';
+		p2.appendChild(cb);
+		var span = document.createElement('span');
+		mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
+		p2.appendChild(span);
+		div.appendChild(p2);
+		
+		mxEvent.addListener(span, 'click', function(evt)
+		{
+			cb.checked = !cb.checked;
+			mxEvent.consume(evt);
+		});
+	}
+	else
+	{
+		btns.style.marginTop = '12px';
+	}
+
+	this.init = function()
+	{
+		okBtn.focus();
+	};
+	
+	this.container = div;
+};

@@ -12,7 +12,7 @@
 		
 		this.addPaletteFunctions('basic', mxResources.get('basic'), false,
 		[
-			this.createVertexTemplateEntry(s2 + 'rect;fillColor=#ffffff;fillColor2=none;strokeColor=#000000;strokeWidth=1;size=20;indent=5;', 120, 60, '', 'Partial Rectangle'),
+			this.createVertexTemplateEntry(s2 + 'rect;fillColor2=none;strokeWidth=1;size=20;indent=5;', 120, 60, '', 'Partial Rectangle'),
 			this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;top=0;bottom=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 			this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;right=0;top=0;bottom=0;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
 			this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),

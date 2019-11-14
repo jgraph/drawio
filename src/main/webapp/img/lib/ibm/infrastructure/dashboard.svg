@@ -1,15 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 65 64.7" style="enable-background:new 0 0 65 64.7;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#7DBD31;}
-	.st1{fill:#FFFFFF;}
-</style>
-<title>IBM Cloud Private Ref Arch</title>
-<ellipse class="st0" cx="32.5" cy="32.4" rx="32.5" ry="32.4"/>
-<path class="st1" d="M27.2,40.6c-2.9-2.9-2.9-7.6,0-10.6s7.6-2.9,10.6,0c2.9,2.9,2.9,7.6,0,10.6c0,0,0,0,0,0l2.1,2.1
-	C44,38.7,44,32,39.9,28s-10.7-4.1-14.8,0s-4.1,10.7,0,14.8c0,0,0,0,0,0L27.2,40.6z"/>
-<polygon class="st1" points="31,45.8 34,45.8 32.5,32.4 "/>
-<path class="st1" d="M10.1,14.4v35.9h44.8V14.4H10.1z M53.4,48.8H11.6V21.9h41.8V48.8z"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64.7"><ellipse cx="32.5" cy="32.4" rx="32.5" ry="32.4" fill="#7dbd31"/><path d="M27.2 40.6c-2.9-2.9-2.9-7.6 0-10.6s7.6-2.9 10.6 0c2.9 2.9 2.9 7.6 0 10.6l2.1 2.1c4.1-4 4.1-10.7 0-14.7s-10.7-4.1-14.8 0a10.44 10.44 0 0 0 0 14.8l2.1-2.2zm3.8 5.2h3l-1.5-13.4zM10.1 14.4v35.9h44.8V14.4H10.1zm43.3 34.4H11.6V21.9h41.8v26.9z" fill="#fff"/></svg>

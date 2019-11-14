@@ -16,7 +16,7 @@
 	
 	Sidebar.prototype.addArchimate3ApplicationPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#99ffff;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#99ffff;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -76,8 +76,8 @@
 
 	Sidebar.prototype.addArchimate3BusinessPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffff99;strokeColor=#000000;shape=mxgraph.archimate3.';
-		var am3 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffff99;strokeColor=#000000;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffff99;shape=mxgraph.archimate3.';
+		var am3 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffff99;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -147,7 +147,7 @@
 
 	Sidebar.prototype.addArchimate3CompositePalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#FFB973;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#FFB973;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -159,8 +159,8 @@
 		
 		var fns =
 		[
-			this.createVertexTemplateEntry(am2 + 'application;appType=actor;archiType=square;', 
-					w * 150, h * 75, '', 'Location', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' ')),
+			this.createVertexTemplateEntry(am2 + 'application;appType=location;archiType=square;', 
+					w * 150, h * 75, '', 'Location', null, null, this.getTagsForStencil(gn, '', dt + 'location').join(' ')),
 			this.createVertexTemplateEntry('shape=folder;spacingTop=10;tabWidth=100;tabHeight=25;tabPosition=left;html=1;dashed=1;', 
 					w * 150, h * 105, '', 'Group', null, null, this.getTagsForStencil(gn, '', dt + 'actor').join(' '))
 		];
@@ -176,8 +176,8 @@
 	
 	Sidebar.prototype.addArchimate3ImplementationAndMigrationPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#FFE0E0;strokeColor=#000000;shape=mxgraph.archimate3.';
-		var am3 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#E0FFE0;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#FFE0E0;shape=mxgraph.archimate3.';
+		var am3 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#E0FFE0;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -214,7 +214,7 @@
 	
 	Sidebar.prototype.addArchimate3MotivationPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#CCCCFF;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -232,9 +232,9 @@
 					w * 150, h * 75, '', 'Driver', null, null, this.getTagsForStencil(gn, '', dt + 'driver').join(' ')),
 			this.createVertexTemplateEntry(am2 + 'application;appType=assess;archiType=oct;', 
 					w * 150, h * 75, '', 'Assesment', null, null, this.getTagsForStencil(gn, '', dt + 'assessment').join(' ')),
-			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;', 
+			this.createVertexTemplateEntry('shape=ellipse;html=1;whiteSpace=wrap;fillColor=#CCCCFF;perimeter=ellipsePerimeter;', 
 					w * 150, h * 75, '', 'Value', null, null, this.getTagsForStencil(gn, '', dt + 'value').join(' ')),
-			this.createVertexTemplateEntry('shape=cloud;html=1;whiteSpace=wrap;fillColor=#CCCCFF;strokeColor=#000000;', 
+			this.createVertexTemplateEntry('shape=cloud;html=1;whiteSpace=wrap;fillColor=#CCCCFF;', 
 					w * 150, h * 75, '', 'Meaning', null, null, this.getTagsForStencil(gn, '', dt + 'meaning').join(' ')),
 			this.createVertexTemplateEntry(am2 + 'application;appType=goal;archiType=oct;', 
 					w * 150, h * 75, '', 'Goal', null, null, this.getTagsForStencil(gn, '', dt + 'goal').join(' ')),
@@ -263,7 +263,7 @@
 	
 	Sidebar.prototype.addArchimate3PhysicalPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -346,9 +346,9 @@
 					w * 160, 0, '', 'Specialization', null, this.getTagsForStencil(gn, '', dt + 'specialization').join(' ')),
 			this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;',
 					w * 160, 0, '', 'Association', null, this.getTagsForStencil(gn, '', dt + 'association').join(' ')),
-			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#000000;strokeColor=#000000;', 
+			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#000000', 
 					10, 10, '', 'And Junction', null, this.getTagsForStencil(gn, '', dt + 'junction').join(' ')),
-			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#ffffff;strokeColor=#000000;', 
+			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#ffffff', 
 					10, 10, '', 'Or Junction', null, this.getTagsForStencil(gn, '', dt + 'junction').join(' '))
 		];
 			
@@ -363,7 +363,7 @@
 	
 	Sidebar.prototype.addArchimate3StrategyPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#F5DEAA;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#F5DEAA;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -377,9 +377,9 @@
 		[
 			this.createVertexTemplateEntry(am2 + 'application;appType=resource;archiType=square;', 
 					w * 150, h * 75, '', 'Resource', null, null, this.getTagsForStencil(gn, '', dt + 'resource').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=capability;archiType=rounded;', 
 					w * 150, h * 75, '', 'Capability', null, null, this.getTagsForStencil(gn, '', dt + 'capability').join(' ')),
-			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=square;', 
+			this.createVertexTemplateEntry(am2 + 'application;appType=course;archiType=rounded;', 
 					w * 150, h * 75, '', 'Course of Action', null, null, this.getTagsForStencil(gn, '', dt + 'course action').join(' '))
 		];
 			
@@ -394,7 +394,7 @@
 	
 	Sidebar.prototype.addArchimate3TechnologyPalette = function()
 	{
-		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;strokeColor=#000000;shape=mxgraph.archimate3.';
+		var am2 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#AFFFAF;shape=mxgraph.archimate3.';
 
 		// Space savers
 		var sb = this;
@@ -468,10 +468,4 @@
 					}
 		}));
 	};
-	
-	
-	
-	
-	
-	
 })();

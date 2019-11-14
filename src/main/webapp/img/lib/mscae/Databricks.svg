@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 width="24px" height="25.26px" viewBox="0 0 24 25.26" enable-background="new 0 0 24 25.26" xml:space="preserve">
-<title>Artboard 4</title>
-<g>
-	<polygon fill="#DF262B" points="0,18.937 12,25.26 24,18.937 24,14.886 0,14.886 	"/>
-	<polygon fill="#F25F32" points="12,8.562 0,14.886 12,21.209 24,14.886 	"/>
-</g>
-<g>
-	<polygon fill="#DF262B" points="0,10.375 12,16.698 24,10.375 24,6.323 0,6.323 	"/>
-	<polygon fill="#F25F32" points="12,0 0,6.323 12,12.647 24,6.323 	"/>
-</g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="25.26"><path fill="#df262b" d="M0 18.937l12 6.323 12-6.323v-4.05H0z"/><path fill="#f25f32" d="M12 8.562L0 14.886l12 6.323 12-6.323z"/><path fill="#df262b" d="M0 10.375l12 6.323 12-6.323V6.323H0z"/><path fill="#f25f32" d="M12 0L0 6.323l12 6.324 12-6.324z"/></svg>

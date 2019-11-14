@@ -4,54 +4,15 @@
 Draw.loadPlugin(function(editorUi)
 {
 	var div = document.createElement('div');
-	var keep = '\n\t`~!@#$%^&*()_+{}|:"<>?-=[]\;\'.\/,\n\t';
 	
 	// Adds resource for action
 	mxResources.parse('anonymizeCurrentPage=Anonymize Current Page');
-	
-	function anonymizeString(text)
-	{
-		var result = [];
-		
-		for (var i = 0; i < text.length; i++)
-		{
-			var c = text.charAt(i);
-			
-			if (keep.indexOf(c) >= 0)
-			{
-				result.push(c);
-			}
-			else if (!isNaN(parseInt(c)))
-			{
-				result.push(Math.round(Math.random() * 9));
-			}
-			else if (c.toLowerCase() != c)
-			{
-				result.push(String.fromCharCode(65 + Math.round(Math.random() * 25)));
-			}
-			else if (c.toUpperCase() != c)
-			{
-				result.push(String.fromCharCode(97 + Math.round(Math.random() * 25)));
-			}
-			else if (/\s/.test(c))
-			{
-				/* any whitespace */
-				result.push(' ');
-			}
-			else
-			{
-				result.push('�');
-			}
-		}
-		
-		return result.join('');
-	};
-	
+
 	function replaceTextContent(elt)
 	{
 		if (elt.nodeValue != null)
 		{
-			elt.nodeValue = anonymizeString(elt.nodeValue);
+			elt.nodeValue = editorUi.anonymizeString(elt.nodeValue);
 		}
 		
 		if (elt.nodeType == mxConstants.NODETYPE_ELEMENT)
@@ -65,7 +26,6 @@ Draw.loadPlugin(function(editorUi)
 			}
 		}
 	};
-
 	
 	function anonymizeHtml(html)
 	{
@@ -99,7 +59,7 @@ Draw.loadPlugin(function(editorUi)
 				}
 				else
 				{
-					label = anonymizeString(label);
+					label = editorUi.anonymizeString(label);
 				}
 				
 				queue.push({cell: cell, label: label});
@@ -108,6 +68,13 @@ Draw.loadPlugin(function(editorUi)
 			for (var i = 0; i < queue.length; i++)
 			{
 				model.setValue(queue[i].cell, queue[i].label);
+			}
+						
+			// Change page title
+			if (editorUi.currentPage != null)
+			{
+				model.execute(new RenamePage(editorUi, editorUi.currentPage,
+					editorUi.anonymizeString(editorUi.currentPage.getName())));
 			}
 		}
 		finally

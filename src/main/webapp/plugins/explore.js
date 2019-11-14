@@ -358,7 +358,8 @@ Draw.loadPlugin(function(ui)
 		ui.editor.graph.click = function(me)
 		{
 			if (ui.editor.graph.model.isVertex(me.getCell()) &&
-				ui.editor.graph.model.getEdgeCount(me.getCell()) > 0)
+				ui.editor.graph.model.getEdgeCount(me.getCell()) > 0 &&
+				this.getLinkForCell(me.getCell()) == null)
 			{
 				exploreFromHere(me.getCell());
 			}

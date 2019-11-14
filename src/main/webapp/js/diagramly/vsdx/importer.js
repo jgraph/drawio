@@ -15,7 +15,7 @@ var com;
              * @class
              */
             var mxVsdxCodec = (function () {
-                function mxVsdxCodec() {
+                function mxVsdxCodec(editorUi) {
                     this.RESPONSE_END = "</mxfile>";
                     this.RESPONSE_DIAGRAM_START = "";
                     this.RESPONSE_DIAGRAM_END = "</diagram>";
@@ -44,6 +44,7 @@ var com;
                      */
                     this.debugPaths = false;
                     this.vsdxModel = null;
+                    this.editorUi = editorUi;
                 }
                 mxVsdxCodec.vsdxPlaceholder_$LI$ = function ()
                 {
@@ -193,17 +194,12 @@ var com;
 	                            var entry = array122[index121];
 	                            {
 	                                var page_1 = entry.getValue();
-	                                if (!page_1.isBackground()) {
+	                                //As per many requests, include all pages in the output
+	                                //if (!page_1.isBackground()) 
+	                                {
 	                                    var graph_1 = this_1.createMxGraph();
 	                                    graph_1.getModel().beginUpdate();
 	                                    this_1.importPage(page_1, graph_1, graph_1.getDefaultParent());
-	                                    var backPage = page_1.getBackPage();
-	                                    if (backPage != null) {
-	                                        graph_1.getModel().setValue(graph_1.getDefaultParent(), page_1.getPageName());
-	                                        var backCell = new mxCell(backPage.getPageName());
-	                                        graph_1.addCell(backCell, graph_1.getModel().getRoot(), 0, null, null);
-	                                        this_1.importPage(backPage, graph_1, graph_1.getDefaultParent());
-	                                    }
 	                                    this_1.scaleGraph(graph_1, page_1.getPageScale() / page_1.getDrawingScale());
 	                                    graph_1.getModel().endUpdate();
 	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_START); })(xmlBuilder);
@@ -223,7 +219,7 @@ var com;
 	                    //console.log(xmlBuilder.str);
 	                    if (callback) 
 	                    {
-	                    		callback(xmlBuilder.str);
+                     		callback(xmlBuilder.str);
 	                    }
                     };
 
@@ -332,10 +328,13 @@ var com;
 	                            				//send to emf conversion service
 	                        					var formData = new FormData();
 	                        					formData.append('img', emfBlob, name);
-
+	                        					formData.append('inputformat', 'emf');
+	                        					formData.append('outputformat', 'png');
+	                        					
 	                        					var xhr = new XMLHttpRequest();
 	                        					xhr.open('POST', EMF_CONVERT_URL);
 	                        					xhr.responseType = 'blob';
+	                        					_this.editorUi.addRemoteServiceSecurityCheck(xhr);
 	                        					
 	                        					xhr.onreadystatechange = mxUtils.bind(this, function()
 	                        					{
@@ -347,8 +346,10 @@ var com;
 	                        								{
 	                        									var reader = new FileReader();
 	                        									reader.readAsDataURL(xhr.response); 
-	                        									reader.onloadend = function() {
-	                        									    mediaData[filename] = reader.result.substr(22); //data:image/png;base64, is 23 character
+	                        									reader.onloadend = function() 
+	                        									{
+	                        										var dataPos = reader.result.indexOf(',') + 1;
+	                        									    mediaData[filename] = reader.result.substr(dataPos);
 		                        									emfDone();
 	                        									}
 	                        								}
@@ -442,7 +443,7 @@ var com;
                     });                    
                 };
                 mxVsdxCodec.prototype.createMxGraph = function () {
-                    var graph = new mxGraph();
+                    var graph = new Graph();
                     graph.setExtendParents(false);
                     graph.setExtendParentsOnAdd(false);
                     graph.setConstrainChildren(false);
@@ -460,11 +461,11 @@ var com;
                     if (page != null) {
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
                     	//TODO FIXME htmlEntities is not exactly as escapeXml11 but close
-                        var pageName_1 = mxUtils.htmlEntities(page.getPageName());
-                        output += "<diagram name=\"" + pageName_1 + "\">";
+                        var pageName_1 = mxUtils.htmlEntities(page.getPageName()) + (page.isBackground()? ' (Background)' : '');
+                        output += '<diagram name="' + pageName_1 + '" id="' + pageName_1 + '">';
                     }
                     
-                    output += Graph.prototype.compress(modelString);
+                    output += Graph.compress(modelString);
                     return output;
                 };
                 /**
@@ -573,7 +574,23 @@ var com;
                  * @param {*} parent The parent of the elements to be imported.
                  * @return {number}
                  */
-                mxVsdxCodec.prototype.importPage = function (page, graph, parent) {
+                mxVsdxCodec.prototype.importPage = function (page, graph, parent) 
+                {
+                	//BackPages can include another backPage, so it is recursive
+                	var backPage = page.getBackPage();
+                    
+                	if (backPage != null) 
+                    {
+                        graph.getModel().setValue(graph.getDefaultParent(), page.getPageName());
+                        var backCell = new mxCell(backPage.getPageName());
+                        graph.addCell(backCell, graph.getModel().getRoot(), 0, null, null);
+                        this.importPage(backPage, graph, graph.getDefaultParent());
+                    }
+                	
+                	//TODO KNOWN ISSUE: VSDX layers are virtual grouping where parts of a group can be members of a layers while the remaining group members belong to another layer
+                	//					This cannot be done in draw.io currently
+                	//					Also, layers should NOT affect cells order. So, as a best effort solution, layers should be orders such that the cells order is maintained
+                	
                 	//add page layers
                 	var layers = page.getLayers();
                 	this.layersMap[0] = graph.getDefaultParent();
@@ -687,6 +704,18 @@ var com;
                                     m.entries[i].value = v;
                                     return;
                                 } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexShapeMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, id), shape);
+                            
+                            var lnkObj = shape.getHyperlink();
+                            
+                            if (lnkObj.extLink)
+                            {
+                            	graph.setLinkForCell(v1, lnkObj.extLink);
+                            }
+                            else if (lnkObj.pageLink)
+                        	{
+                            	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
+                        	}
+                            
                             return v1;
                         }
                         else {
@@ -1248,15 +1277,16 @@ var com;
         (function (io) {
             var mxVssxCodec = (function (_super) {
                 __extends(mxVssxCodec, _super);
-                function mxVssxCodec() {
+                function mxVssxCodec(editorUi) {
                     var _this = _super.call(this) || this;
                     _this.RESPONSE_END = "";
                     _this.RESPONSE_DIAGRAM_START = "";
                     _this.RESPONSE_DIAGRAM_END = "";
                     _this.RESPONSE_HEADER = "";
+                    _this.editorUi = editorUi;
                     return _this;
                 }
-                mxVssxCodec.prototype.decodeVssx = function (file, callback, charset) {
+                mxVssxCodec.prototype.decodeVssx = function (file, callback, charset, onerror) {
                 	var _this = this;
                     var library = { str: "<mxlibrary>[", toString: function () { return this.str; } };
                     this.decodeVsdx(file, function(shapesInPages) 
@@ -1344,7 +1374,7 @@ var com;
                                         	{
                                             	shapeName_1 = "";
                                         	}
-                                            shapeName_1 = JSON.stringify(mxUtils.htmlEntities(shapeName_1));
+                                            shapeName_1 = mxUtils.htmlEntities(JSON.stringify(shapeName_1));
                                             /* append */ (function (sb) { return sb.str = sb.str.concat(shapeName_1); })(shapes_1);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat("}"); })(shapes_1);
                                             comma_1 = ",";
@@ -1361,7 +1391,21 @@ var com;
                         /* append */ (function (sb) { return sb.str = sb.str.concat("]</mxlibrary>"); })(library);
                         if (callback)
                     	{
-                        	callback(library.str);
+	                    	try
+	                    	{
+	                    		callback(library.str);
+	                    	}
+	                    	catch(e)
+	                    	{
+	                    		if (onerror != null) 
+	                    		{
+	                    			onerror(e);
+	                    		}
+	                    		else
+	                    		{
+	                    			callback("");
+	                    		}
+	                    	}
                     	}
                     }, charset);
                 };
@@ -2468,6 +2512,14 @@ var com;
                         return parsedGeom.str;
                     };
                     /*private*/ mxVsdxGeometryList.prototype.processGeo = function (shape, p, parsedGeom, lastGeoStyle, withFill) {
+                    	var rounding = shape.getRounding();
+                    	var roundingStr = '';
+                        
+                        if (rounding > 0)
+                    	{
+                        	roundingStr = ' rounded="1" arcSize="' + (rounding * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor) + '" ';
+                    	}
+                        
                         var _loop_2 = function (index130) {
                             var geo = this_2.geomList[index130];
                             {
@@ -2477,12 +2529,12 @@ var com;
                                 if (!(str_1.length === 0)) {
                                     var geoStyle = this_2.getGeoStyle(geo);
                                     if (lastGeoStyle === -1) {
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else if (lastGeoStyle !== geoStyle) {
                                         this_2.closePath(parsedGeom, lastGeoStyle);
-                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path>"); })(parsedGeom);
+                                        /* append */ (function (sb) { return sb.str = sb.str.concat("<path" + roundingStr + ">"); })(parsedGeom);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(str_1); })(parsedGeom);
                                     }
                                     else {
@@ -2959,16 +3011,14 @@ var com;
                                                     var entry = array132[index131];
                                                     {
                                                         var page = entry.getValue();
-                                                        if (!page.isBackground()) {
-                                                            var backId = page.getBackPageId();
-                                                            if (backId != null) {
-                                                                var background = (function (m, k) { if (m.entries == null)
-                                                                    m.entries = []; for (var i = 0; i < m.entries.length; i++)
-                                                                    if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
-                                                                        return m.entries[i].value;
-                                                                    } return null; })(backgroundMap, backId);
-                                                                page.setBackPage(background);
-                                                            }
+                                                        var backId = page.getBackPageId();
+                                                        if (backId != null) {
+                                                            var background = (function (m, k) { if (m.entries == null)
+                                                                m.entries = []; for (var i = 0; i < m.entries.length; i++)
+                                                                if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+                                                                    return m.entries[i].value;
+                                                                } return null; })(backgroundMap, backId);
+                                                            page.setBackPage(background);
                                                         }
                                                     }
                                                 }
@@ -3086,7 +3136,7 @@ var com;
                             return o1 === o2;
                         } })(backGround, com.mxgraph.io.vsdx.mxVsdxConstants.TRUE)) ? true : false;
                         var back = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.BACK_PAGE);
-                        if (!this.__isBackground && back != null && back.length > 0) {
+                        if (back != null && back.length > 0) {
                             this.backPageId = parseFloat(back);
                         }
                         this.Id = parseFloat(pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID));
@@ -4053,8 +4103,28 @@ var com;
                             }
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if (retColor != null && (styleVariation & 8) > 0) {
-                            retColor = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if (retColor != null && (styleVariation & 8) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        	var lineHSLClr = lineClr.toHsl();
+                            var fillHSLClr = retColor.toHsl();
+                            
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	retColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()))
+                        	{
+                            	retColor = lineClr;
+                        	}
                         }
                         return retColor;
                     };
@@ -4132,8 +4202,27 @@ var com;
                             lineClr = this.getStyleColor(lineColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 4) > 0) {
-                            lineClr = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 4) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                            var fillHSLClr = fillColor.toHsl();
+                            var lineHSLClr = lineClr.toHsl();
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
+                            }
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	lineClr = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
+                            }
+                            else if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) > Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()))
+                        	{
+                            	lineClr = fillColor;
+                        	}
                         }
                         return lineClr;
                     };
@@ -4266,18 +4355,43 @@ var com;
                             txtColor = this.getStyleColor(fontColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        if ((styleVariation & 2) > 0) {
-                            var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
+                        
+                        //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
+                        if ((styleVariation & 2) > 0) 
+                        {
+                        	var bkgHSLClr = this.getStyleColor(8).toHsl();
+                        	var txtHSLClr = txtColor.toHsl();
+                        	var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var fillHSLClr = fillColor.toHsl();
                             var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var lineHSLClr = lineClr.toHsl();
-                            if (fillHSLClr.getLum() < lineHSLClr.getLum()) {
-                                txtColor = fillColor;
+                            
+                            if (Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum()) >= 0.1666) 
+                            {
+                            	//nothing
                             }
-                            else {
-                                txtColor = lineClr;
+                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            {
+                            	txtColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
+                            else
+                        	{
+                            	var lineDiff = Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum());
+                            	var fillDiff = Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum());
+                            	var txtDiff = Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum());
+                            	var max = Math.max(lineDiff, fillDiff, txtDiff);
+                            	
+                            	if (max == lineDiff)
+                        		{
+                            		txtColor = lineClr;
+                        		}
+                            	else if (max == fillDiff)
+                        		{
+                            		txtColor = fillColor;
+                        		}
+                        	}
                         }
+                        
                         return txtColor;
                     };
                     mxVsdxTheme.prototype.getFontColor = function (quickStyleVals, fontColors) {
@@ -8632,9 +8746,11 @@ var com;
                                                     if (position === void 0) { position = 0; }
                                                     return str.substr(position, searchString.length) === searchString;
                                                 })(format, "{{")) {
-                                                    //TODO FIXME find a date formatter (may be https://github.com/noahcooper/SimpleDateFormatJS)
-                                                	//value = new java.text.SimpleDateFormat(/* replaceAll */ format.replace(new RegExp("\\{|\\}", 'g'), "")).format(new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000))));
-                                                	value = new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000))).toString();
+                                                	//Our date format function swaps M/m meaning
+                                                	format = format.replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
+                                                	//Date can be in string date format or a number
+                                                	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
+                                                	value = Graph.prototype.formatDate(date, /* replaceAll */ format.replace(new RegExp("\\{|\\}", 'g'), ""));
                                                 }
                                             }
                                             catch (e) {
@@ -8717,60 +8833,29 @@ var com;
                     Shape.prototype.hasGeomList = function () {
                         return this.geomList != null && this.geomList.hasGeom();
                     };
+                    
                     /**
-                     * Transform plain text into a HTML list if the Para element referenced by
-                     * pp indicates it.
-                     * @param {string} text Text to be transformed.
-                     * @param {string} pp Reference to a Para element.
-                     * @return {string} Text like a HTML list.
+                     * Check if the paragraph is a list and return the list with its style
+                     * @param {string} pp Reference to a Para element
+                     * @return {string} the opening tag of the list with style or null if no list is found
                      */
-                    Shape.prototype.textToList = function (text, pp) {
-                        if (!(function (o1, o2) { if (o1 && o1.equals) {
-                            return o1.equals(o2);
-                        }
-                        else {
-                            return o1 === o2;
-                        } })(pp, "")) {
+                    Shape.prototype.getPPList = function (pp) 
+                    {
+                    	var ul = null;
+                    	
+                        if (pp != '') 
+                        {
                             var bullet = this.getBullet(pp);
-                            if (!(function (o1, o2) { if (o1 && o1.equals) {
-                                return o1.equals(o2);
-                            }
-                            else {
-                                return o1 === o2;
-                            } })(bullet, "0")) {
-                                var entries = text.split("\n");
-                                
-                                if (!entries[entries.length - 1]) 
-                                {
-                                	entries.pop();
-                                }
-                                
-                                var ret = "";
-                                for (var index159 = 0; index159 < entries.length; index159++) {
-                                    var entry = entries[index159];
-                                    {
-                                        ret += com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(entry, "li");
-                                    }
-                                }
-                                ret = com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "ul");
-                                var styleMap = ({});
-                                if ((function (o1, o2) { if (o1 && o1.equals) {
-                                    return o1.equals(o2);
-                                }
-                                else {
-                                    return o1 === o2;
-                                } })(bullet, "4")) {
-                                    /* put */ (styleMap["list-style-type"] = "square");
-                                }
-                                else {
-                                    /* put */ (styleMap["list-style-type"] = "disc");
-                                }
-                                ret = this.insertAttributes(ret, styleMap);
-                                return ret;
+                            
+                            if (bullet != '0') 
+                            {
+                            	ul = '<ul style="margin: 0;list-style-type: ' + (bullet == '4'? 'square' : 'disc') + '">';
                             }
                         }
-                        return text;
+                        
+                        return ul;
                     };
+                    
                     /**
                      * Returns the paragraph formated according the properties in the last
                      * Para element referenced.
@@ -9748,8 +9833,41 @@ var com;
                      * @param {*} txtChildren
                      */
                     VsdxShape.prototype.getHtmlTextContent = function (txtChildren) {
-                        var ret = "";
+                    	var ret = "";
                         var first = true;
+                        var ulMode = false;
+                        var ulModeFirst = false; 
+                        
+                    	function processLblTxt(text) 
+                        {
+                            text = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(text);
+                            
+                            if (ulModeFirst)
+                        	{
+                            	text = '<li>' + text;
+                            	ulModeFirst = false;
+                        	}
+                            
+                            if (ulMode)
+                        	{
+                        		var entries = text.split('\n');
+                                
+                                if (!entries[entries.length - 1]) 
+                                {
+                                	entries.pop();
+                                	ulModeFirst = true; 
+                                }
+                                
+                                text = entries.join('</li><li>');
+                        	}
+                            else
+                        	{
+                            	text = text.replace(new RegExp('\n', 'g'), '<br/>').replace(new RegExp(com.mxgraph.io.vsdx.Shape.UNICODE_LINE_SEP, 'g'), '<br/>');
+                        	}
+                            
+                            return this.getTextCharFormated(text);
+                        };
+
                         if (txtChildren != null && txtChildren.length > 0) {
                             for (var index = 0; index < txtChildren.length; index++) {
                                 var node = txtChildren.item(index);
@@ -9776,17 +9894,34 @@ var com;
                                 }
                                 else {
                                     return o1 === o2;
-                                } })(node.nodeName, "pp")) {
+                                } })(node.nodeName, "pp")) 
+                                {
                                     var elem = node;
                                     this.pp = this.getIndex(elem);
-                                    if (first) {
+
+                                    if (ulMode)
+                                	{
+                                    	//TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
+                                    	ret += '</li></ul>';
+                                	}
+                                    
+                                    if (first) 
+                                    {
                                         first = false;
                                     }
-                                    else {
+                                    else 
+                                    {
                                         ret += "</p>";
                                     }
+                                    
                                     var para = "<p>";
                                     ret += this.getTextParagraphFormated(para);
+                                    
+                                    var ul = this.getPPList(this.pp);
+                                    
+                                    ulMode = ul != null;
+                                    ulModeFirst = ulMode; 
+                                    ret += ulMode? ul : '';
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
@@ -9804,7 +9939,7 @@ var com;
                                         text = (function (m, k) { return m[k] ? m[k] : null; })(this.masterShape.fields, this.fld);
                                     }
                                     if (text != null)
-                                        ret += this.processLblTxt(text);
+                                        ret += processLblTxt.call(this, text);
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
@@ -9813,22 +9948,23 @@ var com;
                                     return o1 === o2;
                                 } })(node.nodeName, "#text")) {
                                     var text = node.textContent;
-                                    ret += this.processLblTxt(text);
+                                    ret += processLblTxt.call(this, text);
                                 }
                             }
-                            ;
                         }
+                        
+                        if (ulMode)
+                    	{
+                        	//TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
+                        	ret += '</li></ul>';
+                    	}
+                        
                         var end = first ? "" : "</p>";
                         ret += end;
                         com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "div");
                         return ret;
                     };
-                    /*private*/ VsdxShape.prototype.processLblTxt = function (text) {
-                        text = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(text);
-                        text = this.textToList(text, this.pp);
-                        text = text.replace(new RegExp("\n", 'g'), "<br/>").replace(new RegExp(com.mxgraph.io.vsdx.Shape.UNICODE_LINE_SEP_$LI$(), 'g'), "<br/>");
-                        return this.getTextCharFormated(text);
-                    };
+                    
                     /**
                      * Checks if a nameU is for big connectors.
                      * @param {string} nameU NameU attribute.
@@ -10122,6 +10258,20 @@ var com;
                             hor = false;
                         }
                         return hor;
+                    };
+                    
+                    /**
+                     * Get hyperlink address or subaddress
+                     */
+                    VsdxShape.prototype.getHyperlink = function () 
+                    {
+                    	var addressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('Address', null, 'Hyperlink');
+                    	var extLink = this.getValue(addressElem, '');
+                    	
+                    	var subAddressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('SubAddress', null, 'Hyperlink');
+                    	var pageLink = this.getValue(subAddressElem, '');
+
+                    	return {extLink: extLink, pageLink: pageLink};
                     };
                     /**
                      * Analyzes the shape and returns a string with the style.
@@ -10428,7 +10578,7 @@ var com;
                      * The property may to be defined in master shape or line stylesheet.<br/>
                      * @return {boolean} Returns <code>true</code> if the cell is Rounded.
                      */
-                    VsdxShape.prototype.isRounded = function () {
+                    VsdxShape.prototype.getRounding = function () {
                         var val = this.getValue(this.getCellElement$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.ROUNDING), "0");
                         if ((function (o1, o2) { if (o1 && o1.equals) {
                             return o1.equals(o2);
@@ -10438,7 +10588,7 @@ var com;
                         } })("Themed", val)) {
                             val = "0";
                         }
-                        return parseFloat(val) > 0;
+                        return parseFloat(val);
                     };
                     /**
                      * Return if the line has shadow.<br/>
@@ -10788,7 +10938,7 @@ var com;
                                     return result;
                                 }
                                 
-                                var enc = Graph.prototype.compress(parsedGeom);
+                                var enc = Graph.compress(parsedGeom);
                                 /* put */ (result[mxConstants.STYLE_SHAPE] = "stencil(" + enc + ")");
                             }
                             catch (e) {
@@ -10993,7 +11143,26 @@ var com;
                         }
                         return false;
                     };
-                    VsdxShape.prototype.isRotatedLabel = function () {
+                    
+                    VsdxShape.prototype.isVerticalLabel = function ()
+                    {
+                    	var txtDir = this.getAttribute('TextDirection', 'V', '');
+                    	
+                    	if (!txtDir && this.masterShape != null)
+                		{
+                    		txtDir = this.masterShape.getAttribute('TextDirection', 'V', '');
+                		}
+                    	
+                    	return txtDir == '1';
+                    };
+                    
+                    VsdxShape.prototype.isRotatedLabel = function () 
+                    {
+                    	if (this.isVerticalLabel()) 
+                    	{
+                    		return true;
+                    	}
+                    		
                         var txtAngleValue = this.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE, "V", "");
                         if (this.masterShape != null) {
                             if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -11228,7 +11397,7 @@ var com;
                         } })(lbkgnd, "")) {
                             /* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
                         }
-                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.isRounded() ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
+                        /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.getRounding() > 0 ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
                         return this.styleMap;
                     };
                     /**
@@ -11326,6 +11495,13 @@ var com;
                                 (styleMap["whiteSpace"] = "wrap");
                             /* remove */ delete styleMap["shape"];
                             /* remove */ delete styleMap["image"];
+                            
+                            if (this.isVerticalLabel())
+                        	{
+                            	txtAngleV += Math.PI + 0.01; //TODO Added 0.01 since we don't override the parent rotation if labRot is zero. Why?
+                            	styleMap['horizontal'] = '0';
+                        	}
+                            
                             var rotation = this.getRotation();
                             if (txtAngleV !== 0) {
                                 var labRot = 360 - (function (x) { return x * 180 / Math.PI; })(txtAngleV);
@@ -11893,14 +12069,16 @@ com.mxgraph.io.vsdx.mxPropertiesManager.__static_initialize();
 com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder_$LI$();
 com.mxgraph.io.mxVsdxCodec.parsererrorNS_$LI$();
 
-EditorUi.prototype.doImportVisio = function(file, done, onerror)
+EditorUi.prototype.doImportVisio = function(file, done, onerror, filename)
 {
-	if (file.name != null && /(\.vs(x|sx?))($|\?)/i.test(file.name))
+	filename = filename || file.name;
+	
+	if (filename != null && /(\.vs(x|sx?))($|\?)/i.test(filename))
 	{
-		new com.mxgraph.io.mxVssxCodec().decodeVssx(file, done);
+		new com.mxgraph.io.mxVssxCodec(this).decodeVssx(file, done, null, onerror);
 	}
 	else
 	{
-		new com.mxgraph.io.mxVsdxCodec().decodeVsdx(file, done, null, onerror);
+		new com.mxgraph.io.mxVsdxCodec(this).decodeVsdx(file, done, null, onerror);
 	}
 };

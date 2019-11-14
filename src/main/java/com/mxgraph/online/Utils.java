@@ -196,21 +196,6 @@ public class Utils
 	}
 
 	/**
-	 * Rotates the given point by the given cos and sin.
-	 */
-	public static mxPoint getRotatedPoint(mxPoint pt, double cos, double sin,
-			mxPoint c)
-	{
-		double x = pt.getX() - c.getX();
-		double y = pt.getY() - c.getY();
-
-		double x1 = x * cos - y * sin;
-		double y1 = y * cos + x * sin;
-
-		return new mxPoint(x1 + c.getX(), y1 + c.getY());
-	}
-
-	/**
 	 * Rotates the given geometry (in place) by the given rotation (in degrees).
 	 */
 	public static void rotatedGeometry(mxGeometry geo, double rotation,

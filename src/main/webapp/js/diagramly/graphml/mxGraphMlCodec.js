@@ -2137,7 +2137,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 		"y:LineStyle": {
 			"color": {key: "strokeColor", mod: "color"},
 			"type": desktopLineStyleFn,
-			"width": "strokeWidth",
+			"width": "strokeWidth"
 		},
 		"y:Arrows": {
 			"source": startArrow,
@@ -2601,7 +2601,7 @@ mxGraphMlCodec.prototype.processPage = function (graph, pageIndex)
     var modelString = mxUtils.getXml(node);
     
     var output = "<diagram name=\"Page " + pageIndex + "\">";
-    output += Graph.prototype.compress(modelString);
+    output += Graph.compress(modelString);
     output += "</diagram>";
     return output;
 

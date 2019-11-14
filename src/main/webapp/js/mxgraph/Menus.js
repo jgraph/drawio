@@ -91,6 +91,7 @@ Menus.prototype.init = function()
 			menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 			{
 				this.customFonts = [];
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 			}), parent);
 			
 			menu.addSeparator(parent);
@@ -98,7 +99,11 @@ Menus.prototype.init = function()
 		
 		this.promptChange(menu, mxResources.get('custom') + '...', '', mxConstants.DEFAULT_FONTFAMILY, mxConstants.STYLE_FONTFAMILY, parent, true, mxUtils.bind(this, function(newValue)
 		{
-			this.customFonts.push(newValue);
+			if (mxUtils.indexOf(this.customFonts, newValue) < 0)
+			{
+				this.customFonts.push(newValue);
+				this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+			}
 		}));
 	})));
 	this.put('formatBlock', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -108,8 +113,11 @@ Menus.prototype.init = function()
 			return menu.addItem(label, null, mxUtils.bind(this, function()
 			{
 				// TODO: Check if visible
-				graph.cellEditor.textarea.focus();
-	      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				if (graph.cellEditor.textarea != null)
+				{
+					graph.cellEditor.textarea.focus();
+		      		document.execCommand('formatBlock', false, '<' + tag + '>');
+				}
 			}), parent);
 		};
 		
@@ -133,22 +141,25 @@ Menus.prototype.init = function()
 		{
 			this.styleChange(menu, fontsize, [mxConstants.STYLE_FONTSIZE], [fontsize], null, parent, function()
 			{
-				// Creates an element with arbitrary size 3
-				document.execCommand('fontSize', false, '3');
-				
-				// Changes the css font size of the first font element inside the in-place editor with size 3
-				// hopefully the above element that we've just created. LATER: Check for new element using
-				// previous result of getElementsByTagName (see other actions)
-				var elts = graph.cellEditor.textarea.getElementsByTagName('font');
-				
-				for (var i = 0; i < elts.length; i++)
+				if (graph.cellEditor.textarea != null)
 				{
-					if (elts[i].getAttribute('size') == '3')
+					// Creates an element with arbitrary size 3
+					document.execCommand('fontSize', false, '3');
+					
+					// Changes the css font size of the first font element inside the in-place editor with size 3
+					// hopefully the above element that we've just created. LATER: Check for new element using
+					// previous result of getElementsByTagName (see other actions)
+					var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+					
+					for (var i = 0; i < elts.length; i++)
 					{
-						elts[i].removeAttribute('size');
-						elts[i].style.fontSize = fontsize + 'px';
-						
-						break;
+						if (elts[i].getAttribute('size') == '3')
+						{
+							elts[i].removeAttribute('size');
+							elts[i].style.fontSize = fontsize + 'px';
+							
+							break;
+						}
 					}
 				}
 			});
@@ -573,7 +584,7 @@ Menus.prototype.addInsertTableItem = function(menu)
 	{
 		var td = graph.getParentByName(mxEvent.getSource(evt), 'TD');
 		
-		if (td != null)
+		if (td != null && graph.cellEditor.textarea != null)
 		{
 			var row2 = graph.getParentByName(td, 'TR');
 			
@@ -810,6 +821,16 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 			for (var i = 0; i < keys.length; i++)
 			{
 				graph.setCellStyles(keys[i], values[i]);
+
+				// Removes CSS alignment to produce consistent output
+				if (keys[i] == mxConstants.STYLE_ALIGN)
+				{
+					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+					{
+						elt.removeAttribute('align');
+						elt.style.textAlign = null;
+					});
+				}
 			}
 			
 			if (post != null)
@@ -1182,7 +1203,6 @@ Menubar.prototype.hideMenu = function()
 Menubar.prototype.addMenu = function(label, funct, before)
 {
 	var elt = document.createElement('a');
-	elt.setAttribute('href', 'javascript:void(0);');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
 	this.addMenuHandler(elt, funct);
@@ -1244,13 +1264,15 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 				clickHandler(evt);
 			}
 		}));
-
-		// Hides menu if already showing
-		mxEvent.addListener(elt, 'mousedown', mxUtils.bind(this, function()
+		
+		// Hides menu if already showing and prevents focus
+        mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+        	mxUtils.bind(this, function(evt)
 		{
 			show = this.currentElt != elt;
+			evt.preventDefault();
 		}));
-		
+
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 		{
 			clickHandler(evt);

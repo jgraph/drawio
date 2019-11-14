@@ -21,18 +21,83 @@
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
 	<script>
+		var mxIsElectron = navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
+		var GOOGLE_APPS_MAX_AREA = 25000000;
+		var GOOGLE_SHEET_MAX_AREA = 1048576; //1024x1024
+		
 		Editor.initMath();
 	
 		function render(data)
 		{
+			var autoScale = false;
+			
+			if (data.scale == 'auto')
+			{
+				autoScale = true;
+				data.scale = 1;
+			}
+			
 			var graph = new Graph(document.getElementById('graph'));
 			data.border = parseInt(data.border) || 0;
 			data.w = parseFloat(data.w) || 0;
 			data.h = parseFloat(data.h) || 0;
 			data.scale = parseFloat(data.scale) || 1;
+			
+			var extras = null;
+			
+			try
+			{
+				extras = JSON.parse(data.extras);
+			} 
+			catch (e)
+			{
+				try 
+				{
+					extras = JSON.parse(decodeURIComponent(data.extras));
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
 
+			var gridColor = null;
+			
+			if (extras != null && extras.grid != null)
+			{
+				graph.gridSize = extras.grid.size;
+				graph.view.gridSteps = extras.grid.steps;
+				gridColor = extras.grid.color;
+			}
+			
+			//PNG+XML format
+			if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
+			{
+				data.xml = Editor.extractGraphModelFromPng('data:image/png;base64,' + data.xml);
+			}
+			
 			// Parses XML
-			var xmlDoc = mxUtils.parseXml(data.xml);
+			var doc = mxUtils.parseXml(data.xml);
+			var node = Editor.extractGraphModel(doc.documentElement, true);
+
+			if (node == null)
+			{
+				//Electron pdf export
+				try 
+				{
+					const { ipcRenderer } = require('electron');
+					
+					ipcRenderer.send('render-finished', null);
+				}
+				catch(e)
+				{
+					console.log(e);
+				}
+				
+				return graph;
+			}
+			
+			var xmlDoc = node.ownerDocument;
 			var diagrams = null;
 			var from = 0;
 			
@@ -42,29 +107,59 @@
 				diagrams = xmlDoc.documentElement.getElementsByTagName('diagram');
 			}
 	        
-	        /**
-			 * Implements %page% and %pagenumber% placeholders
-			 */
-			var graphGetGlobalVariable = graph.getGlobalVariable;
-			
-			graph.getGlobalVariable = function(name)
+			//Add global variables to graph
+			if (extras != null && extras.globalVars != null)
 			{
-				if (name == 'page')
+				graph.globalVars = extras.globalVars;
+			}
+
+			/**
+			 * Disables custom links on shapes.
+			 */
+			var graphGetLinkForCell = graph.getLinkForCell;
+			
+			graph.getLinkForCell = function(cell)
+			{
+				var link = graphGetLinkForCell.apply(this, arguments);
+				
+				if (link != null && this.isCustomLink(link))
 				{
-					return (diagrams == null) ? 'Page-1' :
-						(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
-				}
-				else if (name == 'pagenumber')
-				{
-					return from + 1;
+					link = null;
 				}
 				
-				return graphGetGlobalVariable.apply(this, arguments);
+				return link;
+			};
+			
+			/**
+			 * Disables custom links in labels.
+			 */
+			var cellRendererRedrawLabelShape = graph.cellRenderer.redrawLabelShape;
+			
+			graph.cellRenderer.redrawLabelShape = function(shape)
+			{
+				cellRendererRedrawLabelShape.apply(this, arguments);
+				
+				if (shape.node != null)
+				{
+					var links = shape.node.getElementsByTagName('a');
+
+					for (var i = 0; i < links.length; i++)
+					{
+						var href = links[i].getAttribute('href');
+						
+						if (href != null && graph.isCustomLink(href))
+						{
+							links[i].setAttribute('href', '#');
+						}
+					}	
+				}
 			};
 			
 			var preview = null;
 			var waitCounter = 1;
 			var bounds;
+			var pageId;
+			var expScale;
 			// Waits for all images to finish loading
 			var cache = new Object();
 			var math = false;
@@ -78,7 +173,24 @@
 					doneDiv.id = 'LoadingComplete';
 					doneDiv.style.display = 'none';
 					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
+					doneDiv.setAttribute('page-id', pageId);
+					doneDiv.setAttribute('scale', expScale);
 					document.body.appendChild(doneDiv);
+					
+					//Electron pdf export
+					if (mxIsElectron)
+					{
+						try 
+						{
+							const { ipcRenderer } = require('electron');
+							
+							ipcRenderer.send('render-finished', bounds);
+						}
+						catch(e)
+						{
+							console.log(e);
+						}
+					}
 				}
 			};
 			
@@ -118,6 +230,51 @@
 				{
 					window.MathJax.Hub.Queue(function ()
 					{
+						// Wraps all text labels in SVG foreignObjects to avoid
+						// Chrome changing offset for textboxes near page border
+						var pages = document.querySelectorAll('[id^=mxPage]');
+						
+						for (var i = 0; i < pages.length; i++)
+						{
+							var page = pages[i];
+							var svg = page.getElementsByTagName('svg')[0];
+							var divs = page.getElementsByTagName('div');
+							var snap = [];
+							
+							for (var j = 0; j < divs.length; j++)
+							{
+								if (divs[j].parentNode == svg.parentNode)
+								{
+									snap.push(divs[j]);
+								}
+							}
+							
+							var top = svg.parentNode.getBoundingClientRect();
+							
+							for (var j = 0; j < snap.length; j++)
+							{
+								if (snap[j].parentNode == svg.parentNode)
+								{
+									var fo = svg.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+									var rect = snap[j].getBoundingClientRect();
+									
+									// Sets position on foreignObject
+									fo.setAttribute('x', rect.x);
+									fo.setAttribute('y', rect.y - top.y);
+									fo.setAttribute('width', rect.width);
+									fo.setAttribute('height', rect.height);
+									
+									// Resets position on inner DIV
+ 									snap[j].style.top = '0px';
+									snap[j].style.left = '0px';
+									snap[j].style.transform = '';
+									
+									fo.appendChild(snap[j]);
+									svg.appendChild(fo);
+								}
+							}
+						}
+						
 						decrementWaitCounter();
 					});
 				}, 0);
@@ -133,9 +290,43 @@
 				}
 			};
 
+			function renderGrid()
+			{
+				if (gridColor == null) return;
+					
+				var view = graph.view;
+				var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(gridColor))));
+				gridImage = 'url(' + 'data:image/svg+xml;base64,' + gridImage + ')';
+                var phase = graph.gridSize * view.gridSteps * view.scale;
+                
+				var x0 = 0;
+				var y0 = 0;
+				
+				if (view.backgroundPageShape != null)
+				{
+					var bds = view.getBackgroundPageBounds();
+					
+					x0 = 1 + bds.x;
+					y0 = 1 + bds.y;
+				}
+				
+				// Computes the offset to maintain origin for grid
+				var position = -Math.round(phase - mxUtils.mod(view.translate.x * view.scale - x0, phase)) + 'px ' +
+					-Math.round(phase - mxUtils.mod(view.translate.y * view.scale - y0, phase)) + 'px';
+				
+				var pages = document.querySelectorAll('[id^=mxPage]');
+				
+				var cssTxt = 'margin: 0;padding: 0;background-image: ' + gridImage + ';background-position: ' + position;
+				document.body.style.cssText = cssTxt;
+
+				for (var i = 0; i < pages.length; i++)
+				{
+					pages[i].style.cssText = cssTxt;
+				}
+			};
+			
 			function renderPage()
 			{
-				
 				// Enables math typesetting
 				math |= xmlDoc.documentElement.getAttribute('math') == '1';
 				
@@ -159,10 +350,12 @@
 				
 				// Parses XML into graph
 				var codec = new mxCodec(xmlDoc);
-				codec.decode(xmlDoc.documentElement, graph.getModel());
+				var model = graph.getModel();
+				codec.decode(xmlDoc.documentElement, model);
 	
 				// Loads background color
-				var bg = (data.bg != null && data.bg.length > 0) ? data.bg : xmlDoc.documentElement.getAttribute('background');
+				var bg = (data.bg != null && data.bg.length > 0 && data.format != 'pdf') ?
+					data.bg : xmlDoc.documentElement.getAttribute('background');
 	
 				// Normalizes values for transparent backgrounds
 				if (bg == 'none' || bg == '')
@@ -177,16 +370,48 @@
 				}
 	
 				// Sets background color on page
-				if (bg != null)
+				if (bg != null && (data.format != 'pdf' || xmlDoc.documentElement.getAttribute('page') != '1'))
 				{
 					document.body.style.backgroundColor = bg;
 				}
-	
+				
+				//handle layers
+				if (extras != null && (extras.layers != null || extras.layerIds != null))
+				{
+					var childCount = model.getChildCount(model.root);
+					
+					// Hides all layers
+					for (var i = 0; i < childCount; i++)
+					{
+						model.setVisible(model.getChildAt(model.root, i), false);
+					}
+
+					if (extras.layerIds != null)
+					{
+						for (var i = 0; i < extras.layerIds.length; i++)
+						{
+							model.setVisible(model.getCell(extras.layerIds[i]), true);
+						}
+					}
+					else
+					{
+						for (var i = 0; i < extras.layers.length; i++)
+						{
+							var layer = model.getChildAt(model.root, extras.layers[i]);
+							
+							if (layer != null)
+							{
+								model.setVisible(layer, true);
+							}
+						}
+					}
+				}
+				
 				// Sets initial value for PDF page background
 				graph.pdfPageVisible = false;
 				
 				// Handles PDF output where the output should match the page format if the page is visible
-				if (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0)
+				if (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0 && data.scale == 1)
 				{
 					var pw = xmlDoc.documentElement.getAttribute('pageWidth');
 					var ph = xmlDoc.documentElement.getAttribute('pageHeight');
@@ -207,7 +432,7 @@
 					graph.getPageSize = function()
 					{
 						return new mxRectangle(0, 0, this.pageFormat.width * this.pageScale,
-								this.pageFormat.height * this.pageScale);
+							this.pageFormat.height * this.pageScale);
 					};
 					
 					graph.getPageLayout = function()
@@ -243,9 +468,9 @@
 						var page = this.graph.getPageSize();
 						
 						return new mxRectangle(this.scale * (this.translate.x + layout.x * page.width),
-								this.scale * (this.translate.y + layout.y * page.height),
-								this.scale * layout.width * page.width,
-								this.scale * layout.height * page.height);
+							this.scale * (this.translate.y + layout.y * page.height),
+							this.scale * layout.width * page.width,
+							this.scale * layout.height * page.height);
 					};
 				}
 	
@@ -254,17 +479,64 @@
 					var b = graph.getGraphBounds();
 					
 					// Floor is needed to keep rendering crisp
-					if (data.w > 0 && data.h > 0)
+					if (data.w > 0 || data.h > 0)
 					{
-						var s = Math.min(data.w / b.width, data.h / b.height);
+						var s = 1;
+						
+						if (data.w > 0 && data.h > 0)
+						{
+							s = Math.min(data.w / b.width, data.h / b.height);
+						}
+						else if (data.w > 0)
+						{
+							s = data.w / b.width;
+						}
+						else
+						{
+							s = data.h / b.height;
+						}
+						
 						graph.view.scaleAndTranslate(s,
-							Math.floor(data.border / s - b.x),
-							Math.floor(data.border / s - b.y));
+							Math.floor(data.border / s - Math.floor(b.x)),
+							Math.floor(data.border / s - Math.floor(b.y)));
 					}
 					else
 					{
-						graph.view.scaleAndTranslate(data.scale, Math.floor(data.border - b.x),
-							Math.floor(data.border - b.y));
+						var s = data.scale;
+						
+						if (autoScale)
+						{
+							var pageWidth = (extras != null && extras.pageWidth != null) ? extras.pageWidth : 800;
+							
+							if (b.width < pageWidth & b.height < 1.5 * pageWidth)
+							{
+								s = 4;
+							}
+							else if (b.width < 2 * pageWidth & b.height < 3 * pageWidth)
+							{
+								s = 3;
+							}
+							else if (b.width < 4 * pageWidth && b.height < 6 * pageWidth)
+							{
+								s = 2;
+							}
+							
+							if (extras != null && extras.isGoogleSheet != null)
+							{
+								GOOGLE_APPS_MAX_AREA = GOOGLE_SHEET_MAX_AREA;
+							}
+							
+							//The image cannot exceed 25 MP to be included in Google Apps
+							if (b.width * s * b.height * s > GOOGLE_APPS_MAX_AREA)
+							{
+								//Subtracting 0.01 to prevent any other rounding that can make slightly over 25 MP 
+								s = Math.sqrt(GOOGLE_APPS_MAX_AREA / (b.width * b.height)) - 0.01;
+							}
+						}
+						
+						graph.view.scaleAndTranslate(s,
+							Math.floor(data.border - Math.floor(b.x)),
+							Math.floor(data.border - Math.floor(b.y)));
 					}
 				}
 				else
@@ -286,8 +558,9 @@
 				
 				// Gets the diagram bounds and sets the document size
 				bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
-				bounds.width = Math.ceil(bounds.width + data.border);
+				bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
 				bounds.height = Math.ceil(bounds.height + data.border);
+				expScale = graph.view.scale || 1;
 				
 				// Converts the graph to a vertical sequence of pages for PDF export
 				if (graph.pdfPageVisible)
@@ -304,7 +577,7 @@
 			
 					// Applies print scale
 					pf = mxRectangle.fromRectangle(pf);
-					pf.width = Math.ceil(pf.width);
+					pf.width = Math.ceil(pf.width) + 1; //The 1 extra pixels to prevent cutting the cells on the right edge of the page
 					pf.height = Math.ceil(pf.height);
 					
 					// Starts at first visible page
@@ -312,7 +585,8 @@
 					x0 -= layout.x * pf.width;
 					y0 -= layout.y * pf.height;
 					
-					if (preview == null) {
+					if (preview == null)
+					{
 						preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 						preview.printBackgroundImage = true;
 						preview.autoOrigin = autoOrigin;
@@ -372,17 +646,65 @@
 				//Parameters to and all pages should not be sent with formats other than PDF with page view enabled
 				if (!data.allPages)
 				{
-					from = Math.max(0, Math.min(parseInt(data.from) || from, diagrams.length - 1));
-					to = parseInt(data.to);
-					//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
-					to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
+					if (data.pageId != null)
+					{
+						for (var i = 0; i < diagrams.length; i++)
+						{
+							if (data.pageId == diagrams[i].getAttribute('id'))
+							{
+								from = i;
+								to = i;
+								break;
+							}
+						}
+					}
+					else
+					{
+						from = Math.max(0, Math.min(parseInt(data.from) || from, diagrams.length - 1));
+						to = parseInt(data.to);
+						//If to is not defined, use from (so one page), otherwise, to is restricted to the range from "from" to diagrams.length - 1
+						to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
+					}
+				}
+				else
+				{
+					/**
+					 * Implements %page% and %pagenumber% placeholders
+					 */
+					var graphGetGlobalVariable = graph.getGlobalVariable;
+					
+					graph.getGlobalVariable = function(name)
+					{
+						if (name == 'page')
+						{
+							return (diagrams == null) ? 'Page-1' :
+								(diagrams[from].getAttribute('name') || ('Page-' + (from + 1)));
+						}
+						else if (name == 'pagenumber')
+						{
+							return from + 1;
+						}
+						
+						return graphGetGlobalVariable.apply(this, arguments);
+					};
 				}
 					
 				for (var i = from; i <= to; i++) 
 				{
 					if (diagrams[i] != null)
 					{
-						xmlDoc = mxUtils.parseXml(graph.decompress(mxUtils.getTextContent(diagrams[i])));
+						if (pageId == null)
+						{
+							pageId = diagrams[i].getAttribute('id')
+						}
+						
+						xmlDoc = Editor.parseDiagramNode(diagrams[i]);
+						
+						if (xmlDoc != null)
+						{
+							xmlDoc = xmlDoc.ownerDocument;
+						}
+
 						graph.getModel().clear();
 						from = i;
 						renderPage();
@@ -394,16 +716,65 @@
 				renderPage();
 			}
 			
+			renderGrid();
 			// Includes images in SVG and HTML labels
 			waitForImages('image', 'xlink:href');
 			waitForImages('img', 'src');
 			renderMath(document.body);
 			// Immediate return if not waiting for any content
 			decrementWaitCounter();
+			
+			return graph;
 		};
+		
+		/**
+		 * Returns the exported SVG for the given graph (see EditorUi.exportSvg).
+		 */
+		function getSvgData(graph)
+		{
+			var bg = graph.background;
+			
+			if (bg == mxConstants.NONE)
+			{
+				bg = null;
+			}
+			
+			var svgRoot = graph.getSvg(bg, 1, 0, false, null, true, null, null, null);
+			
+			if (graph.shadowVisible)
+			{
+				graph.addSvgShadow(svgRoot);
+			}
+			
+			return '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+				mxUtils.getXml(svgRoot);
+		};
+		
+		//Electron pdf export
+		if (mxIsElectron)
+		{
+			try 
+			{
+				const { ipcRenderer } = require('electron');
+				var graph = null;
+				
+				ipcRenderer.on('render', (event, arg) => 
+				{
+					graph = render(arg);
+				});
+				
+				ipcRenderer.on('get-svg-data', (event, arg) => 
+				{
+					ipcRenderer.send('svg-data', getSvgData(graph));
+				});
+			}
+			catch(e)
+			{
+				console.log(e);
+			}
+		}
 	</script>
 </head>
 <body style="margin:0px;">
 	<div id="graph" style="width:100%;height:100%;"></div>
-</body>
 </html>

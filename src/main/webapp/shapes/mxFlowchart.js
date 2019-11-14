@@ -58,7 +58,16 @@ mxShapeFlowchartDocument2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxCellRenderer.registerShape(mxShapeFlowchartDocument2.prototype.cst.DOCUMENT2, mxShapeFlowchartDocument2);
 
-mxShapeFlowchartDocument2.prototype.constraints = null;
+mxShapeFlowchartDocument2.prototype.constraints =
+	[new mxConnectionConstraint(new mxPoint(0.25, 0), false),
+    new mxConnectionConstraint(new mxPoint(0.5, 0), false),
+    new mxConnectionConstraint(new mxPoint(0.75, 0), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.25), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(0, 0.75), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.25), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), false),
+	new mxConnectionConstraint(new mxPoint(1, 0.75), false)];
 
 Graph.handleFactory[mxShapeFlowchartDocument2.prototype.cst.DOCUMENT2] = function(state)
 {

@@ -7,6 +7,7 @@ GitHubFile = function(ui, data, meta)
 	DrawioFile.call(this, ui, data);
 	
 	this.meta = meta;
+	this.peer = this.ui.gitHub;
 };
 
 //Extends mxEventSource
@@ -18,14 +19,23 @@ mxUtils.extend(GitHubFile, DrawioFile);
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+GitHubFile.prototype.getId = function()
+{
+	return encodeURIComponent(this.meta.org) + '/' +
+		((this.meta.repo != null) ? encodeURIComponent(this.meta.repo) + '/' +
+		((this.meta.ref != null) ? this.meta.ref +
+		((this.meta.path != null) ? '/' + this.meta.path : '') : '') : '');
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 GitHubFile.prototype.getHash = function()
 {
-	return encodeURIComponent('H' + encodeURIComponent(this.meta.org) + '/' +
-		((this.meta.repo != null) ?
-			encodeURIComponent(this.meta.repo) + '/' +
-			((this.meta.ref != null) ?
-				this.meta.ref + ((this.meta.path != null) ?
-					'/' + this.meta.path : '') : '') : ''));
+	return encodeURIComponent('H' + this.getId());
 };
 
 /**
@@ -48,6 +58,14 @@ GitHubFile.prototype.getPublicUrl = function(fn)
 	{
 		fn(null);
 	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+GitHubFile.prototype.isConflict = function(err)
+{
+	return err != null && err.status == 409;
 };
 
 /**
@@ -92,14 +110,65 @@ GitHubFile.prototype.isRenamable = function()
 };
 
 /**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+GitHubFile.prototype.getLatestVersion = function(success, error)
+{
+	this.peer.getFile(this.getId(), success, error);
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-GitHubFile.prototype.save = function(revision, success, error)
+GitHubFile.prototype.isCompressedStorage = function()
 {
-	this.doSave(this.getTitle(), success, error);
+	return false;
+};
+
+/**
+ * Hook for subclassers to update the descriptor from given file
+ */
+GitHubFile.prototype.getDescriptor = function()
+{
+	return this.meta;
+};
+
+/**
+ * Hook for subclassers to update the descriptor from given file
+ */
+GitHubFile.prototype.setDescriptor = function(desc)
+{
+	this.meta = desc;
+};
+
+/**
+ * Adds all listeners.
+ */
+GitHubFile.prototype.getDescriptorEtag = function(desc)
+{
+	return desc.sha;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+GitHubFile.prototype.setDescriptorEtag = function(desc, etag)
+{
+	desc.sha = etag;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+GitHubFile.prototype.save = function(revision, success, error, unloading, overwrite, message)
+{
+	this.doSave(this.getTitle(), success, error, unloading, overwrite, message);
 };
 
 /**
@@ -119,15 +188,17 @@ GitHubFile.prototype.saveAs = function(title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-GitHubFile.prototype.doSave = function(title, success, error)
+GitHubFile.prototype.doSave = function(title, success, error, unloading, overwrite, message)
 {
 	// Forces update of data for new extensions
 	var prev = this.meta.name;
 	this.meta.name = title;
-	DrawioFile.prototype.save.apply(this, arguments);
-	this.meta.name = prev;
 	
-	this.saveFile(title, false, success, error);
+	DrawioFile.prototype.save.apply(this, [null, mxUtils.bind(this, function()
+	{
+		this.meta.name = prev;
+		this.saveFile(title, false, success, error, unloading, overwrite, message);
+	}), error, unloading, overwrite]);
 };
 
 /**
@@ -136,7 +207,7 @@ GitHubFile.prototype.doSave = function(title, success, error)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-GitHubFile.prototype.saveFile = function(title, revision, success, error)
+GitHubFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite, message)
 {
 	if (!this.isEditable())
 	{
@@ -147,93 +218,153 @@ GitHubFile.prototype.saveFile = function(title, revision, success, error)
 	}
 	else if (!this.savingFile)
 	{
-		this.savingFile = true;
-		
-		if (this.getTitle() == title)
+		var doSave = mxUtils.bind(this, function(message)
 		{
-			// Makes sure no changes get lost while the file is saved
-			var prevModified = this.isModified;
-			var modified = this.isModified();
-
-			var prepare = mxUtils.bind(this, function()
+			if (this.getTitle() == title)
 			{
-				this.setModified(false);
+				var prevModified = null;
+				var modified = null;
 				
-				this.isModified = function()
+				try
 				{
-					return modified;
-				};
-			});
-			
-			prepare();
-			
-			this.ui.gitHub.saveFile(this, mxUtils.bind(this, function(commit)
-			{
-				this.savingFile = false;
-				this.isModified = prevModified;
-				this.meta.sha = commit.content.sha;
-				this.meta.html_url = commit.content.html_url;
-				this.meta.download_url = commit.content.download_url;
-				this.contentChanged();
-
-				if (success != null)
-				{
-					success();
-				}
-			}),
-			mxUtils.bind(this, function(err)
-			{
-				this.savingFile = false;
-				this.isModified = prevModified;
-				this.setModified(modified || this.isModified());
-				
-				if (this.isModified())
-				{
-					this.addUnsavedStatus();
-				}
-				
-				if (error != null)
-				{
-					// Handles modified state for retries
-					if (err != null && err.retry != null)
-					{
-						var retry = err.retry;
+					// Makes sure no changes get lost while the file is saved
+					prevModified = this.isModified;
+					modified = this.isModified();
+					this.savingFile = true;
+					this.savingFileTime = new Date();
 						
-						err.retry = function()
-						{
-							prepare();
-							retry();
-						};
-					}
-					
-					error(err);
-				}
-			}));
-		}
-		else
-		{
-			this.ui.pickFolder(App.MODE_GITHUB, mxUtils.bind(this, function(folderId)
-			{
-				this.ui.gitHub.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
-				{
-					this.savingFile = false;
-					
-					if (success != null)
+					// Makes sure no changes get lost while the file is saved
+					var prepare = mxUtils.bind(this, function()
 					{
-						success();
-					}
+						this.setModified(false);
+						
+						this.isModified = function()
+						{
+							return modified;
+						};
+					});
 					
-					this.ui.fileLoaded(file);
-				}), mxUtils.bind(this, function()
+					var savedEtag = this.getCurrentEtag();
+					var savedData = this.data;
+					prepare();
+
+					this.peer.saveFile(this, mxUtils.bind(this, function(etag)
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setDescriptorEtag(this.meta, etag);
+						
+						this.fileSaved(savedData, savedEtag, mxUtils.bind(this, function()
+						{
+							this.contentChanged();
+							
+							if (success != null)
+							{
+								success();
+							}
+						}), error);
+					}),
+					mxUtils.bind(this, function(err)
+					{
+						this.savingFile = false;
+						this.isModified = prevModified;
+						this.setModified(modified || this.isModified());
+	
+						if (this.isConflict(err))
+						{
+							this.inConflictState = true;
+							
+							if (error != null)
+							{
+								// Passes current commit message to avoid
+								// multiple dialogs after synchronize
+								error({commitMessage: message});
+							}
+						}
+						else if (error != null)
+						{
+							// Handles modified state for retries
+							if (err != null && err.retry != null)
+							{
+								var retry = err.retry;
+								
+								err.retry = function()
+								{
+									prepare();
+									retry();
+								};
+							}
+							
+							error(err);
+						}
+					}), overwrite, message);
+				}
+				catch (e)
 				{
 					this.savingFile = false;
+					
+					if (prevModified != null)
+					{
+						this.isModified = prevModified;
+					}
+					
+					if (modified != null)
+					{
+						this.setModified(modified || this.isModified());
+					}
 					
 					if (error != null)
 					{
-						error();
+						error(e);
 					}
-				}), false, folderId);
-			}));
+					else
+					{
+						throw e;
+					}
+				}
+			}
+			else
+			{
+				this.savingFile = true;
+				this.savingFileTime = new Date();
+				
+				this.ui.pickFolder(this.getMode(), mxUtils.bind(this, function(folderId)
+				{
+					this.peer.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
+					{
+						this.savingFile = false;
+						
+						if (success != null)
+						{
+							success();
+						}
+						
+						this.ui.fileLoaded(file);
+					}), mxUtils.bind(this, function()
+					{
+						this.savingFile = false;
+						
+						if (error != null)
+						{
+							error();
+						}
+					}), false, folderId, message);
+				}));
+			}
+		});
+		
+		if (message != null)
+		{
+			doSave(message);
+		}
+		else
+		{
+			this.peer.showCommitDialog(this.meta.name,
+				this.getDescriptorEtag(this.meta) == null ||
+				this.meta.isNew, mxUtils.bind(this, function(message)
+			{
+				doSave(message);	
+			}), error);
 		}
 	}
 	else if (error != null)
