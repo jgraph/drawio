@@ -9885,7 +9885,341 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 };
 
 /**
- * Aspect Dialog
+ * Constructs a new font dialog.
+ */
+var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
+{
+	var row, td, label;
+	
+	var table = document.createElement('table');
+	var tbody = document.createElement('tbody');
+	table.style.marginTop = '8px';
+
+	//System fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var sysFontRadio = document.createElement('input');
+	sysFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	sysFontRadio.setAttribute('value', 'sysfonts');
+	sysFontRadio.setAttribute('type', 'radio');
+	sysFontRadio.setAttribute('name', 'current-fontdialog');
+	sysFontRadio.setAttribute('id', 'fontdialog-sysfonts');
+	td.appendChild(sysFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-sysfonts');
+	mxUtils.write(label, (mxResources.get('sysFonts', null, 'System Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var sysFontInput = document.createElement('input');
+	
+	if (curType == 's')
+	{
+		sysFontInput.setAttribute('value', curFontname);
+	}
+	
+	sysFontInput.style.marginLeft = '4px';
+	sysFontInput.style.width = '250px';
+	sysFontInput.className = 'dlg_fontName_s';
+	
+	td = document.createElement('td');
+	td.appendChild(sysFontInput);
+	row.appendChild(td);
+	
+	tbody.appendChild(row);
+
+	//Google fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var googleFontRadio = document.createElement('input');
+	googleFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	googleFontRadio.setAttribute('value', 'googlefonts');
+	googleFontRadio.setAttribute('type', 'radio');
+	googleFontRadio.setAttribute('name', 'current-fontdialog');
+	googleFontRadio.setAttribute('id', 'fontdialog-googlefonts');
+	td.appendChild(googleFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-googlefonts');
+	mxUtils.write(label, (mxResources.get('googleFonts', null, 'Google Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var googleFontInput = document.createElement('input');
+
+	if (curType == 'g')
+	{
+		googleFontInput.setAttribute('value', curFontname);
+	}
+	
+	googleFontInput.style.marginLeft = '4px';
+	googleFontInput.style.width = '250px';
+	googleFontInput.className = 'dlg_fontName_g';
+	
+	td = document.createElement('td');
+	td.appendChild(googleFontInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	//Generic remote fonts section
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.fontWeight = 'bold';
+	
+	var webFontRadio = document.createElement('input');
+	webFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	webFontRadio.setAttribute('value', 'webfonts');
+	webFontRadio.setAttribute('type', 'radio');
+	webFontRadio.setAttribute('name', 'current-fontdialog');
+	webFontRadio.setAttribute('id', 'fontdialog-webfonts');
+	td.appendChild(webFontRadio);
+	
+	label = document.createElement('label');
+	label.setAttribute('for', 'fontdialog-webfonts');
+	mxUtils.write(label, (mxResources.get('webfonts', null, 'Web Fonts')));
+	td.appendChild(label);
+	
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontname', null, 'Font Name')) + ':');
+
+	row.appendChild(td);
+	
+	var webFontInput = document.createElement('input');
+
+	if (curType == 'w')
+	{
+		webFontInput.setAttribute('value', curFontname);
+	}
+	
+	webFontInput.style.marginLeft = '4px';
+	webFontInput.style.width = '250px';
+	webFontInput.className = 'dlg_fontName_w';
+	
+	td = document.createElement('td');
+	td.appendChild(webFontInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.whiteSpace = 'nowrap';
+	td.style.fontSize = '10pt';
+	td.style.width = '120px';
+	td.style.paddingLeft = '15px';
+	mxUtils.write(td, (mxResources.get('fontUrl', null, 'Font URL')) + ':');
+
+	row.appendChild(td);
+	
+	var webFontUrlInput = document.createElement('input');
+	webFontUrlInput.setAttribute('value', curUrl || '');
+	webFontUrlInput.style.marginLeft = '4px';
+	webFontUrlInput.style.width = '250px';
+	webFontUrlInput.className = 'dlg_fontUrl';
+	
+	td = document.createElement('td');
+	td.appendChild(webFontUrlInput);
+	row.appendChild(td);
+	tbody.appendChild(row);
+	
+	this.init = function()
+	{
+		var input = sysFontInput;
+		
+		if (curType == 'g')
+		{
+			input = googleFontInput;
+		}
+		else if (curType == 'w')
+		{
+			input = webFontInput;
+		}
+		
+		input.focus();
+		
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		{
+			input.select();
+		}
+		else
+		{
+			document.execCommand('selectAll', false, null);
+		}
+	};
+
+	row = document.createElement('tr');
+	td = document.createElement('td');
+	td.colSpan = 2;
+	td.style.paddingTop = '20px';
+	td.style.whiteSpace = 'nowrap';
+	td.setAttribute('align', 'right');
+	
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		editorUi.hideDialog();
+	});
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		td.appendChild(cancelBtn);
+	}
+	
+	function validateFn(fontName, fontUrl, type)
+	{
+		var urlPattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+		
+		if (fontName == null || fontName.length == 0)
+		{
+			table.querySelector('.dlg_fontName_' + type).style.border = '1px solid red';
+			return false;
+		}
+		
+		if (type == 'w' && !urlPattern.test(fontUrl))
+		{
+			table.querySelector('.dlg_fontUrl').style.border = '1px solid red';
+			return false;
+		}
+		
+		return true;
+	};
+	
+	var okBtn = mxUtils.button(mxResources.get('apply'), function()
+	{
+		var fontName, fontUrl, type;
+		
+		if (sysFontRadio.checked)
+		{
+			fontName = sysFontInput.value;
+			type = 's';
+		}
+		else if (googleFontRadio.checked)
+		{
+			fontName = googleFontInput.value;
+			fontUrl = Editor.GOOGLE_FONTS + encodeURIComponent(fontName).replace(/%20/g, '+');
+			type = 'g';
+		}
+		else if (webFontRadio.checked)
+		{
+			fontName = webFontInput.value;
+			fontUrl = webFontUrlInput.value;
+			type = 'w';
+		}
+		
+		if (validateFn(fontName, fontUrl, type))
+		{
+			fn(fontName, fontUrl, type);
+			editorUi.hideDialog();
+		}
+	});
+	okBtn.className = 'geBtn gePrimaryBtn';
+
+	function enterSubmit(e)
+	{
+		this.style.border = '';
+		
+		if (e.keyCode == 13)
+		{
+			okBtn.click();
+		}
+	};
+	
+	mxEvent.addListener(sysFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(googleFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(webFontInput, 'keypress', enterSubmit);
+	mxEvent.addListener(webFontUrlInput, 'keypress', enterSubmit);
+	
+	mxEvent.addListener(sysFontInput, 'focus', function()
+	{
+		sysFontRadio.setAttribute('checked', 'checked');
+		sysFontRadio.checked = true;
+	});
+	
+	mxEvent.addListener(googleFontInput, 'focus', function()
+	{
+		googleFontRadio.setAttribute('checked', 'checked');
+		googleFontRadio.checked = true;
+	});
+
+	mxEvent.addListener(webFontInput, 'focus', function()
+	{
+		webFontRadio.setAttribute('checked', 'checked');
+		webFontRadio.checked = true;
+	});
+
+	mxEvent.addListener(webFontUrlInput, 'focus', function()
+	{
+		webFontRadio.setAttribute('checked', 'checked');
+		webFontRadio.checked = true;
+	});
+
+	td.appendChild(okBtn);
+	
+	if (!editorUi.editor.cancelFirst)
+	{
+		td.appendChild(cancelBtn);
+	}
+
+	row.appendChild(td);
+	tbody.appendChild(row);
+	table.appendChild(tbody);
+	
+	this.container = table;
+};
+
+/* Aspect Dialog
  * @module drawio/aspect-dialog
  */
 function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)

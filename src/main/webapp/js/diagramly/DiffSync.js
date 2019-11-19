@@ -26,7 +26,7 @@ EditorUi.prototype.codec = new mxCodec();
  * Contains all view state properties that should not be ignored in diff sync.
  */
 EditorUi.prototype.viewStateProperties = {background: true, backgroundImage: true, shadowVisible: true,
-	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true};
+	foldingEnabled: true, pageScale: true, mathEnabled: true, pageFormat: true, extFonts: true};
 
 /**
  * Contains all known cell properties that should be ignored for a generic cell diff.

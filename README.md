@@ -2,13 +2,7 @@
 
 About
 -----
-[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project. It is a production-grade deployment, with full [security process](https://github.com/jgraph/security-privacy-legal).
-
-draw.io is a client-side, static web application. There is no user authentication or data storage concept in this repo. The online version stores data in mainstream cloud storage options, currently Google Drive, OneDrive, Dropbox, GitHub, Gitlab or Trello.
-
-There are a range of [integrations into other tools](https://about.draw.io/integrations-ecosystem/), some by this core team, some by third-parties.
-
-draw.io has an official [Docker image](https://github.com/jgraph/docker-drawio) for local deployment, as well as [Desktop versions](https://github.com/jgraph/drawio-desktop) for MacOS, Linux and Windows.
+[draw.io](https://www.draw.io) is an online diagramming web site that delivers the source in this project.
 
 draw.io uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
 
@@ -26,6 +20,8 @@ The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of
 Running
 -------
 One way to run draw.io is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations).
+
+Another way is to use [the recommended Docker project](https://github.com/fjudith/docker-draw.io) or to download [draw.io Desktop](https://get.draw.io).
 
 The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
 

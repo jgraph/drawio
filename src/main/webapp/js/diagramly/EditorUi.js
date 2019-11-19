@@ -1625,6 +1625,31 @@
 			{
 				this.currentPage.root = this.editor.graph.model.root;
 			}
+			
+			if (urlParams['layer-ids'] != null)
+			{
+				try
+				{
+					var layerIds = urlParams['layer-ids'].split(' ');
+					var layerIdsMap = {};
+					
+					for (var i = 0; i < layerIds.length; i++)
+					{
+						layerIdsMap[layerIds[i]] = true;
+					}
+					
+					var model = this.editor.graph.getModel();
+					var children = model.getChildren(model.root);
+					
+					// handle layers visibility
+					for (var i = 0; i < children.length; i++)
+					{
+						var child = children[i];
+						model.setVisible(child, layerIdsMap[child.id] || false);
+					}
+				}
+				catch(e){} //ignore
+			}
 		}
 	};
 
@@ -4545,7 +4570,7 @@
 			// because PhantomJS seems to ignore switch statements and paint all text.
 			var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
 				ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
-				((linkTarget == 'self') ? '_top' : null));
+				((linkTarget == 'self') ? '_top' : null), null, true);
 			
 			if (addShadow)
 			{
@@ -6192,6 +6217,129 @@
 	};
 
 	/**
+	 * For the fonts in CSS to be applied when rendering images on canvas, the actual
+	 * font data must be made available via a data URI encoding of the file.
+	 */
+    EditorUi.prototype.embedCssFonts = function(fontCss, then)
+    {
+        var parts = fontCss.split('url(');
+        var waiting = 0;
+        
+        if (this.cachedFonts == null) 
+        {
+        	this.cachedFonts = {};
+        }
+
+        // Strips leading and trailing quotes and spaces
+        function trimString(str)
+        {
+            return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+        };
+        
+        var finish = mxUtils.bind(this, function()
+        {
+            if (waiting == 0)
+            {
+                // Constructs string
+                var result = [parts[0]];
+                
+                for (var j = 1; j < parts.length; j++)
+                {
+                    var idx = parts[j].indexOf(')');
+                    result.push('url("');
+                    result.push(this.cachedFonts[trimString(parts[j].substring(0, idx))]);
+                    result.push('"' + parts[j].substring(idx));
+                }
+                
+                then(result.join(''));
+            }
+        });
+        
+        if (parts.length > 0)
+        {
+            for (var i = 1; i < parts.length; i++)
+            {
+                var idx = parts[i].indexOf(')');
+                var format = null;
+                
+                // Checks if there is a format directive
+                var fmtIdx = parts[i].indexOf('format(', idx);
+                
+                if (fmtIdx > 0)
+                {
+                    format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                }
+
+                (mxUtils.bind(this, function(url)
+                {
+                    if (this.cachedFonts[url] == null)
+                    {
+                        // Mark font as being fetched and fetch it
+                    	this.cachedFonts[url] = url;
+                        waiting++;
+                        
+                        var mime = 'application/x-font-ttf';
+                        
+                        // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+                        if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
+                        {
+                            mime = 'image/svg+xml';
+                        }
+                        else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
+                        {
+                            mime = 'application/x-font-opentype';
+                        }
+                        else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-woff';
+                        }
+                        else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-woff2';
+                        }
+                        else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
+                        {
+                            mime = 'application/vnd.ms-fontobject';
+                        }
+                        else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-sfnt';
+                        }
+                        
+                        var realUrl = url;
+                        
+                        if ((/^https?:\/\//.test(realUrl)) && !this.editor.isCorsEnabledForUrl(realUrl))
+                        {
+                            realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+                        }
+
+                        // LATER: Remove cache-control header
+                        this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+                        {
+                        	this.cachedFonts[url] = uri;
+                            waiting--;
+                            finish();
+                        }), mxUtils.bind(this, function(err)
+                        {
+                            // LATER: handle error
+                            waiting--;
+                            finish();
+                        }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+                    }
+                }))(trimString(parts[i].substring(0, idx)), format);
+            }
+            
+            //In case all fonts are cached
+            finish();
+        }
+        else
+    	{
+        	//No font urls found
+        	then(fontCss);
+    	}
+    };
+	
+	/**
 	 * For the fontCSS to be applied when rendering images on canvas, the actual
 	 * font data must be made available via a data URI encoding of the file.
 	 */
@@ -6199,117 +6347,86 @@
     {
         if (this.editor.fontCss != null && this.editor.resolvedFontCss == null)
         {
-            var parts = this.editor.fontCss.split('url(');
-            var waiting = 0;
-            var fonts = {};
-
-            // Strips leading and trailing quotes and spaces
-            function trimString(str)
-            {
-                return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-            };
-            
-            var finish = mxUtils.bind(this, function()
-            {
-                if (waiting == 0)
-                {
-                    // Constructs string
-                    var result = [parts[0]];
-                    
-                    for (var j = 1; j < parts.length; j++)
-                    {
-                        var idx = parts[j].indexOf(')');
-                        result.push('url("');
-                        result.push(fonts[trimString(parts[j].substring(0, idx))]);
-                        result.push('"' + parts[j].substring(idx));
-                    }
-                    
-                    this.editor.resolvedFontCss = result.join('');
-                    then();
-                }
-            });
-            
-            if (parts.length > 0)
-            {
-                for (var i = 1; i < parts.length; i++)
-                {
-                    var idx = parts[i].indexOf(')');
-                    var format = null;
-                    
-                    // Checks if there is a format directive
-                    var fmtIdx = parts[i].indexOf('format(', idx);
-                    
-                    if (fmtIdx > 0)
-                    {
-                        format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
-                    }
-    
-                    (mxUtils.bind(this, function(url)
-                    {
-                        if (fonts[url] == null)
-                        {
-                            // Mark font es being fetched and fetch it
-                            fonts[url] = url;
-                            waiting++;
-                            
-                            var mime = 'application/x-font-ttf';
-                            
-                            // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
-                            if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
-                            {
-                                mime = 'image/svg+xml';
-                            }
-                            else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
-                            {
-                                mime = 'application/x-font-opentype';
-                            }
-                            else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-woff';
-                            }
-                            else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-woff2';
-                            }
-                            else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
-                            {
-                                mime = 'application/vnd.ms-fontobject';
-                            }
-                            else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-sfnt';
-                            }
-                            
-                            var realUrl = url;
-                            
-                            if ((/^https?:\/\//.test(realUrl)) && !this.editor.isCorsEnabledForUrl(realUrl))
-                            {
-                                realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
-                            }
-
-                            // LATER: Remove cache-control header
-                            this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
-                            {
-                                fonts[url] = uri;
-                                waiting--;
-                                finish();
-                            }), mxUtils.bind(this, function(err)
-                            {
-                                // LATER: handle error
-                                waiting--;
-                                finish();
-                            }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
-                        }
-                    }))(trimString(parts[i].substring(0, idx)), format);
-                }
-            }
+        	this.embedCssFonts(this.editor.fontCss, function(resolvedFontCss)
+			{
+        		this.editor.resolvedFontCss = resolvedFontCss;
+        		then();
+			});
         }
         else
         {
             then();
         }
     };
-	
+    
+    EditorUi.prototype.embedExtFonts = function(callback)
+    {
+    	var extFonts = this.editor.graph.extFonts; 
+    	
+    	//Add extrnal fonts
+		if (extFonts != null && extFonts.length > 0)
+		{
+			var styleCnt = '', waiting = 0;
+			
+			if (this.cachedGoogleFonts == null)
+			{
+				this.cachedGoogleFonts = {};
+			}
+			    	
+			var googleCssDone = mxUtils.bind(this, function()
+			{
+				if (waiting == 0)
+	            {
+					this.embedCssFonts(styleCnt, callback);
+	            }
+			});
+			
+			for (var i = 0; i < extFonts.length; i++)
+			{
+				var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
+				
+				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				{
+					if (this.cachedGoogleFonts[fontUrl] == null)
+					{
+						waiting++;
+						
+						this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
+	                    {
+							this.cachedGoogleFonts[fontUrl] = css;
+							styleCnt += css;
+	                        waiting--;
+	                        googleCssDone();
+	                    }), mxUtils.bind(this, function(err)
+	                    {
+	                        // LATER: handle error
+	                        waiting--;
+	                        styleCnt += '@import url(' + fontUrl + ');';
+	                        googleCssDone();
+	                    }));
+					}
+					else
+					{
+						styleCnt += this.cachedGoogleFonts[fontUrl];
+					}
+				}
+				else
+				{
+					styleCnt += '@font-face {' +
+			            'font-family: "'+ fontName +'";' + 
+			            'src: url("'+ fontUrl +'");' + 
+			            '}';
+				}				
+			}
+			
+			googleCssDone();
+		}
+		else
+		{
+			callback();
+		}
+    };
+    
 	/**
 	 *
 	 */
@@ -6456,17 +6573,22 @@
 						this.editor.graph.addSvgShadow(svgRoot);
 					}
 					
+					var addFontCss = function(fontCss)
+					{
+						var st = document.createElement('style');
+						st.setAttribute('type', 'text/css');
+						st.innerHTML = fontCss;
+						
+						// Must be in defs section for FF to work
+						var defs = svgRoot.getElementsByTagName('defs');
+						defs[0].appendChild(st);	
+					};
+					
 					var done = mxUtils.bind(this, function()
 					{
 						if (this.editor.resolvedFontCss != null)
 						{
-							var st = document.createElement('style');
-							st.setAttribute('type', 'text/css');
-							st.innerHTML = this.editor.resolvedFontCss;
-							
-							// Must be in defs section for FF to work
-							var defs = svgRoot.getElementsByTagName('defs');
-							defs[0].appendChild(st);
+							addFontCss(this.editor.resolvedFontCss);
 						}
 						
 						this.convertMath(graph, svgRoot, mxUtils.bind(this, function()
@@ -6475,7 +6597,15 @@
 						}));
 					});
 					
-					this.loadFonts(done);
+					this.embedExtFonts(mxUtils.bind(this, function(extFontsEmbeddedCss)
+					{
+						if (extFontsEmbeddedCss != null)
+						{
+							addFontCss(extFontsEmbeddedCss);
+						}
+						
+						this.loadFonts(done);
+					}));
 				}
 				catch (e)
 				{
@@ -7026,6 +7156,7 @@
 	 */
 	EditorUi.prototype.importVisio = function(file, done, onerror, filename)
 	{
+		//A reduced version of this code is used in conf/jira plugins, review that code whenever this function is changed
 		filename = (filename != null) ? filename : file.name; 
 
 		onerror = (onerror != null) ? onerror : mxUtils.bind(this, function(e)
@@ -7257,6 +7388,7 @@
 				{
 					EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
 						action: 'size_' + data.length});
+					EditorUi.debug('convertLucidChart', data);
 				}
 				catch (e)
 				{

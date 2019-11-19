@@ -10,7 +10,7 @@
  * 
  * Use an additional "open" variable in the config JSON to open a file after parsing as follows:
  * 
- * ...#C%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%2C"open"%3A"ID_WITH_PREFIX"%7D
+ * ...#_TICKETS%7B"ticketsConfig"%3A %7B"deskApiKey"%3A"YOUR_API_KEY"%2C"deskDomain"%3A"YOUR_DOMAIN"%7D%2C"open"%3A"ID_WITH_PREFIX"%7D
  * 
  * Required JSON parameters:
  * - deskApiKey=api_key (see user profile)
@@ -68,12 +68,12 @@ Draw.loadPlugin(function(ui)
 		document.body.removeChild(div);
 	};
 	
-	if (window.location.hash != null && window.location.hash.substring(0, 2) == '#C')
+	if (window.location.hash != null && window.location.hash.substring(0, 9) == '#_TICKETS')
 	{
 		try
 		{
 			var temp = JSON.parse(decodeURIComponent(
-				window.location.hash.substring(2)));
+				window.location.hash.substring(9)));
 			
 			if (temp != null && temp.ticketsConfig != null)
 			{

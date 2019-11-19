@@ -1,7 +1,7 @@
 /**
- * Copyright (c) 2006-2012, JGraph Ltd
- */
-/**
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
+ *
  * Constructs the actions object for the given UI.
  */
 function Actions(editorUi)
@@ -153,7 +153,7 @@ Actions.prototype.init = function()
 				ui.copiedSize = new mxRectangle(geo.x, geo.y, geo.width, geo.height);
 			}
 		}
-	}, null, null, 'Alt+Shit+X');
+	}, null, null, 'Alt+Shift+X');
 
 	this.addAction('pasteSize', function(evt)
 	{
@@ -187,7 +187,7 @@ Actions.prototype.init = function()
 				graph.getModel().endUpdate();
 			}
 		}
-	}, null, null, 'Alt+Shit+V');
+	}, null, null, 'Alt+Shift+V');
 	
 	function deleteCells(includeEdges)
 	{

@@ -169,28 +169,33 @@
 			{
 				if (--waitCounter < 1)
 				{
-					var doneDiv = document.createElement("div");
-					doneDiv.id = 'LoadingComplete';
-					doneDiv.style.display = 'none';
-					doneDiv.setAttribute('bounds', JSON.stringify(bounds));
-					doneDiv.setAttribute('page-id', pageId);
-					doneDiv.setAttribute('scale', expScale);
-					document.body.appendChild(doneDiv);
-					
-					//Electron pdf export
-					if (mxIsElectron)
+					//Note: This code targets Chrome as it is the browser used by export server
+					//Ensure that all fonts has been loaded, this promise is never rejected
+					document.fonts.ready.then(function() 
 					{
-						try 
+						var doneDiv = document.createElement("div");
+						doneDiv.id = 'LoadingComplete';
+						doneDiv.style.display = 'none';
+						doneDiv.setAttribute('bounds', JSON.stringify(bounds));
+						doneDiv.setAttribute('page-id', pageId);
+						doneDiv.setAttribute('scale', expScale);
+						document.body.appendChild(doneDiv);
+
+						//Electron pdf export
+						if (mxIsElectron)
 						{
-							const { ipcRenderer } = require('electron');
-							
-							ipcRenderer.send('render-finished', bounds);
+							try 
+							{
+								const { ipcRenderer } = require('electron');
+								
+								ipcRenderer.send('render-finished', bounds);
+							}
+							catch(e)
+							{
+								console.log(e);
+							}
 						}
-						catch(e)
-						{
-							console.log(e);
-						}
-					}
+					});
 				}
 			};
 			
@@ -290,6 +295,63 @@
 				}
 			};
 
+			function loadExtFonts(extFonts)
+			{
+				try
+				{
+					extFonts = extFonts.split('|').map(function(ef)
+					{
+						var parts = ef.split('^');
+						return {name: parts[0], url: parts[1]};
+					});
+				}
+				catch(e)
+				{
+					//ignore and return!
+					return;
+				}
+				
+				waitCounter += extFonts.length;
+
+				//Note: This code targets Chrome as it is the browser used by export server
+				for (var i = 0; i < extFonts.length; i++)
+				{
+					if (extFonts[i].url.indexOf(Editor.GOOGLE_FONTS) == 0)
+					{
+						var link = document.createElement('link');
+						
+						link.setAttribute('rel', 'stylesheet');
+						link.setAttribute('charset', 'UTF-8');
+						link.setAttribute('type', 'text/css');
+						
+						link.onload = decrementWaitCounter;
+						link.onerror = decrementWaitCounter;
+					
+						link.setAttribute('href', extFonts[i].url);
+						var head = document.getElementsByTagName('head')[0];
+				   		head.appendChild(link);
+					}
+					else
+					{
+						//Relative urls doesn't work
+						if (extFonts[i].url.indexOf(PROXY_URL) == 0 && PROXY_URL.indexOf('http') == -1)
+						{
+							var href = window.location.href;
+							href = href.substring(0, href.lastIndexOf('/') + 1);
+							extFonts[i].url = href + extFonts[i].url;
+						}
+						
+						var font = new FontFace(extFonts[i].name, 'url(' + extFonts[i].url + ')');
+						
+						font.load().then(function(loadedFont)
+						{
+							document.fonts.add(loadedFont);
+							decrementWaitCounter();
+						}).catch(decrementWaitCounter);
+					}
+				}
+			};
+
 			function renderGrid()
 			{
 				if (gridColor == null) return;
@@ -335,6 +397,14 @@
 					mxClient.NO_FO = true;
 				}
 	
+				//Load external fonts
+				var extFonts = xmlDoc.documentElement.getAttribute('extFonts');
+				
+				if (extFonts)
+				{
+					loadExtFonts(extFonts);
+				}
+				
 				// Configure graph
 				graph.foldingEnabled = false;
 				graph.setEnabled(false);
@@ -777,4 +847,5 @@
 </head>
 <body style="margin:0px;">
 	<div id="graph" style="width:100%;height:100%;"></div>
+</body>
 </html>

@@ -255,7 +255,7 @@ DrawioFileSync.prototype.start = function()
 			{
 				this.pusher.connect();
 				this.channel = this.pusher.subscribe(this.channelId);
-				EditorUi.debug('Sync.start', [this]);
+				EditorUi.debug('Sync.start', 'v' + DrawioFileSync.PROTOCOL, [this]);
 			}
 			catch (e)
 			{

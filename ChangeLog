@@ -1,3 +1,19 @@
+19-NOV-2019: 12.2.7
+
+- Adds #_CONFIG_ hash property for configuration via URL
+- Fixes for external font support
+- Adds Extras, draw.io Configuration menu
+- Adds Link item in page context menu
+
+13-NOV-2019: 12.2.6
+
+- Reverts Google auth change in 12.2.5
+
+13-NOV-2019: 12.2.5
+
+- Add external font support
+- Adds configuration option in local storage
+
 12-NOV-2019: 12.2.4
 
 - Updates IBM stencils

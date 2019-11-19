@@ -84,9 +84,20 @@ var mxSettings =
 	{
 		mxSettings.settings.customFonts = fonts;
 	},
-	getCustomFonts: function(fonts)
+	getCustomFonts: function()
 	{
-		return mxSettings.settings.customFonts;
+		//Convert from old format to the new one
+		var custFonts = mxSettings.settings.customFonts || [];
+		
+		for (var i = 0 ; i < custFonts.length; i++)
+		{
+			if (typeof custFonts[i] === 'string')
+			{
+				custFonts[i] = {name: custFonts[i], url: null};
+			}
+		}
+		
+		return custFonts;
 	},
 	getLibraries: function()
 	{
@@ -208,7 +219,7 @@ var mxSettings =
 			// Only defined and true for new settings which haven't been saved
 			isNew: true,
 			unit: mxConstants.POINTS,
-			isRulerOn: true
+			isRulerOn: false
 		};
 	},
 	save: function()
@@ -245,8 +256,13 @@ var mxSettings =
 		{
 			var temp = JSON.parse(value);
 			
-			if ((Editor.config != null && Editor.config.override) ||
-				temp.configVersion != Editor.configVersion)
+			if (Editor.config != null && (Editor.config.override ||
+					temp.configVersion != Editor.configVersion))
+				{
+					mxSettings.settings = null;
+				}
+			
+			if (temp == null || (Editor.config != null && Editor.config.override))
 			{
 				mxSettings.settings = null;
 			}
@@ -269,7 +285,12 @@ var mxSettings =
 					mxSettings.settings.customFonts = [];
 				}
 				
-				if (mxSettings.settings.libraries == null)
+				// Newer configuration versions overwrite the default libraries
+				if (Editor.config != null && temp.configVersion != Editor.configVersion)
+				{
+					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
+				}
+				else if (mxSettings.settings.libraries == null)
 				{
 					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
 				}

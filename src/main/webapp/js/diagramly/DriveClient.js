@@ -1729,83 +1729,64 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			
 			// Indirection to generate thumbnails if enabled and supported
 			// (required because generation of thumbnails is asynchronous)
-			var fn = mxUtils.bind(this, function()
+			try
 			{
-				try
-				{
-					file.saveLevel = 2;
+				file.saveLevel = 2;
 
-					// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
-					if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-						(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
-						!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
+				// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
+				if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
+					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
+					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
+					{
+						// Callback for getThumbnail
+						try
 						{
-							// Callback for getThumbnail
+							file.thumbTime = null;
+							var thumb = null;
+
 							try
 							{
-								file.thumbTime = null;
-								var thumb = null;
-	
-								try
+								if (canvas != null)
 								{
-									if (canvas != null)
-									{
-										// Security errors are possible
-										thumb = canvas.toDataURL('image/png');
-									}
-									
-									// Maximum thumbnail size is 2MB
-									if (thumb != null)
-									{
-										if (thumb.length > this.maxThumbnailSize)
-										{
-											thumb = null;
-										}
-										else
-										{
-											// Converts base64 data into required format for Drive (base64url with no prefix)
-											thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
-										}
-									}
-								}
-								catch (e)
-								{
-									thumb = null;
+									// Security errors are possible
+									thumb = canvas.toDataURL('image/png');
 								}
 								
-								doSave(thumb, 'image/png');
+								// Maximum thumbnail size is 2MB
+								if (thumb != null)
+								{
+									if (thumb.length > this.maxThumbnailSize)
+									{
+										thumb = null;
+									}
+									else
+									{
+										// Converts base64 data into required format for Drive (base64url with no prefix)
+										thumb = thumb.substring(thumb.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
+									}
+								}
 							}
 							catch (e)
 							{
-								criticalError(e);
+								thumb = null;
 							}
-						})))
-					{
-						// If-branch
-						file.thumbTime = null;
-						doSave(null, null, file.constructor != DriveLibrary);
-					}
-				}
-				catch (e)
+							
+							doSave(thumb, 'image/png');
+						}
+						catch (e)
+						{
+							criticalError(e);
+						}
+					})))
 				{
-					criticalError(e);
+					// If-branch
+					file.thumbTime = null;
+					doSave(null, null, file.constructor != DriveLibrary);
 				}
-			});
-			
-			// New revision is required if mime type changes, but the mime type should not be replaced
-			// if the file has been converted to the new realtime format. To check this we make sure
-			// that the mime type has not changed before updating it in the case of the legacy app.
-			// Note: We need to always check the mime type because saveFile cancels previous save
-			// attempts so if the save frequency is higher than the time for all retries than you
-			// will never see the error message and accumulate lots of changes that will be lost.
-			if (noCheck || !revision)
-			{
-				fn();
 			}
-			else
+			catch (e)
 			{
-				file.saveLevel = 10;
-				this.verifyMimeType(file.getId(), fn, true, error);
+				criticalError(e);
 			}
 		}
 		else
@@ -1817,132 +1798,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 	catch (e)
 	{
 		criticalError(e);
-	}
-};
-
-/**
- * Verifies the mime type of the given file ID.
- */
-DriveClient.prototype.verifyMimeType = function(fileId, fn, force, error)
-{
-	if (this.lastMimeCheck == null)
-	{
-		this.lastMimeCheck = 0;
-	}
-	
-	var now = new Date().getTime();
-
-	if (force || now - this.lastMimeCheck > this.mimeTypeCheckCoolOff)
-	{
-		this.lastMimeCheck = now;
-
-		if (!this.checkingMimeType)
-		{
-			this.checkingMimeType = true;
-			
-			var acceptResponse = true;
-			
-			// Allow for re-auth flow with 3x timeout
-			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-			{
-				acceptResponse = false;
-				this.checkingMimeType = false;
-				
-				if (error != null)
-				{
-					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-				}
-			}), 3 * this.ui.timeout);
-			
-			this.executeRequest({
-				url: '/files/' + fileId + '?supportsTeamDrives=true&fields=mimeType'
-			}, mxUtils.bind(this, function(resp)
-			{
-				window.clearTimeout(timeoutThread);
-				
-				if (acceptResponse)
-				{
-					this.checkingMimeType = false;
-					
-					if (resp != null && resp.mimeType == 'application/vnd.jgraph.mxfile.realtime')
-					{
-						this.redirectToNewApp(error, fileId);
-					}
-					else if (fn != null)
-					{
-						fn();
-					}
-				}
-			}), mxUtils.bind(this, function(err)
-			{
-				window.clearTimeout(timeoutThread);
-				
-				if (acceptResponse)
-				{
-					this.checkingMimeType = false;
-					
-					if (error != null)
-					{
-						error(err);
-					}
-				}
-			}));
-		}
-		else if (fn != null)
-		{
-			fn();
-		}
-	}
-	else if (fn != null)
-	{
-		fn();
-	}
-};
-
-/**
- * Checks if the client is authorized and calls the next step.
- */
-DriveClient.prototype.redirectToNewApp = function(error, fileId)
-{
-	this.ui.spinner.stop();
-	
-	if (!this.redirectDialogShowing)
-	{
-		this.redirectDialogShowing = true;
-		
-		var url = window.location.protocol + '//' + this.newAppHostname + '/' + this.ui.getSearch(
-			['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']) + '#G' + fileId;
-		
-		var redirect = mxUtils.bind(this, function()
-		{
-			this.redirectDialogShowing = false;
-			
-			if (window.location.href == url)
-			{
-				window.location.reload();
-			}
-			else
-			{
-				window.location.href = url;
-			}
-		});
-		
-		if (error != null)
-		{
-			this.ui.confirm(mxResources.get('redirectToNewApp'), redirect, mxUtils.bind(this, function()
-			{
-				this.redirectDialogShowing = false;
-				
-				if (error != null)
-				{
-					error();
-				}
-			}));
-		}
-		else
-		{
-			this.ui.alert(mxResources.get('redirectToNewApp'), redirect);
-		}
 	}
 };
 

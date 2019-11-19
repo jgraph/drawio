@@ -800,6 +800,20 @@
 			  	Editor.prototype.fontCss = config.fontCss;
 			}
 			
+			if (config.autosaveDelay != null)
+			{
+				var val = parseInt(config.autosaveDelay);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					DrawioFile.prototype.autosaveDelay = val;
+				}
+				else
+				{
+					EditorUi.debug('Invalid autosaveDelay: ' + config.autosaveDelay);
+				}
+			}
+			
 			if (config.plugins != null && !untrusted)
 			{
 				// Required for callback
@@ -813,6 +827,8 @@
 		}
 	};
 
+	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
+	
 	/**
 	 * Generates a unique ID of the given length
 	 */
@@ -933,6 +949,29 @@
 				this.graph.updateCssTransform();
 
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
+				
+				var extFonts = node.getAttribute('extFonts');
+				
+				if (extFonts)
+				{
+					try
+					{
+						extFonts = extFonts.split('|').map(function(ef)
+						{
+							var parts = ef.split('^');
+							return {name: parts[0], url: parts[1]};
+						});
+						
+						for (var i = 0; i < extFonts.length; i++)
+						{
+							this.graph.addExtFont(extFonts[i].name, extFonts[i].url);
+						}
+					}
+					catch(e)
+					{
+						console.log('ExtFonts format error: ' + e.message);
+					}
+				}
 			}
 	
 			// Calls updateGraphComponents
@@ -970,6 +1009,16 @@
 		
 		node.setAttribute('math', (this.graph.mathEnabled) ? '1' : '0');
 		node.setAttribute('shadow', (this.graph.shadowVisible) ? '1' : '0');
+		
+		if (this.graph.extFonts != null && this.graph.extFonts.length > 0)
+		{
+			var strExtFonts = this.graph.extFonts.map(function(ef)
+			{
+				return ef.name + '^' + ef.url;
+			});
+			
+			node.setAttribute('extFonts', strExtFonts.join('|'));
+		}
 		
 		return node;
 	};
@@ -1211,7 +1260,7 @@
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
-
+	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
@@ -1684,7 +1733,7 @@
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || (!this.graph.mathEnabled && this.useCanvasForExport);
+		return mxClient.IS_CHROMEAPP || ((this.graph.extFonts == null || this.graph.extFonts.length == 0) && this.useCanvasForExport);
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -3891,7 +3940,8 @@
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
 	
-	Graph.prototype.getSvg = function()
+	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
+			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts)
 	{
 		var temp = null;
 		
@@ -3903,6 +3953,43 @@
 		}
 		
 		var result = graphGetSvg.apply(this, arguments);
+		
+		//Add extrnal fonts
+		if (incExtFonts && this.extFonts != null && this.extFonts.length > 0)
+		{
+			var svgDoc = result.ownerDocument;
+			
+			var defs = (svgDoc.createElementNS != null) ?
+			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+			
+			var style = (svgDoc.createElementNS != null) ?
+			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			
+			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
+			
+			var styleCnt = '';
+			    	
+			for (var i = 0; i < this.extFonts.length; i++)
+			{
+				var fontName = this.extFonts[i].name, fontUrl = this.extFonts[i].url;
+				
+				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				{
+					styleCnt += '@import url(' + fontUrl + ');';
+				}
+				else
+				{
+					styleCnt += '@font-face {' +
+			            'font-family: "'+ fontName +'";' + 
+			            'src: url("'+ fontUrl +'");' + 
+			            '}';
+				}				
+			}
+			
+			style.appendChild(svgDoc.createTextNode(styleCnt));
+			defs.appendChild(style);
+			result.appendChild(defs);
+		}
 		
 		if (temp != null)
 		{
@@ -4649,6 +4736,7 @@
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
+	mxStencilRegistry.libraries['kubernetes'] = [SHAPES_PATH + '/mxKubernetes.js', STENCIL_PATH + '/kubernetes.xml'];
 	mxStencilRegistry.libraries['flowchart'] = [SHAPES_PATH + '/mxFlowchart.js', STENCIL_PATH + '/flowchart.xml'];
 	mxStencilRegistry.libraries['ios'] = [SHAPES_PATH + '/mockup/mxMockupiOS.js'];
 	mxStencilRegistry.libraries['rackGeneral'] = [SHAPES_PATH + '/rack/mxRack.js', STENCIL_PATH + '/rack/general.xml'];
