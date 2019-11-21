@@ -872,7 +872,8 @@ Actions.prototype.init = function()
 				graph.getModel().beginUpdate();
 				try
 				{
-					graph.toggleCellStyleFlags(mxConstants.STYLE_FONTSTYLE, style);
+					var cells = graph.getSelectionCells();
+					graph.toggleCellStyleFlags(mxConstants.STYLE_FONTSTYLE, style, cells);
 					
 					// Removes bold and italic tags and CSS styles inside labels
 					if ((style & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
@@ -910,6 +911,14 @@ Actions.prototype.init = function()
 								graph.replaceElement(elt);
 							}
 						});
+					}
+					
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.model.getChildCount(cells[i]) == 0)
+						{
+							graph.autoSizeCell(cells[i], false);
+						}
 					}
 				}
 				finally

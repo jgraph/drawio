@@ -1,3 +1,10 @@
+21-NOV-2019: 12.2.9
+
+- Fixes autosize for font size and style changes
+- Adds PDF extension check in save dialog
+- Fixes callback error in embed mode
+- Uses mxGraph 4.0.6 beta 6
+
 21-NOV-2019: 12.2.8
 
 - Removes state URL parameter

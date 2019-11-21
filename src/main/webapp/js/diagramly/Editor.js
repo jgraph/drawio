@@ -1693,40 +1693,28 @@
         }
     };
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
-	 * Converts math in the given SVG
+	 * Copies MathJax CSS into the SVG output.
 	 */
-	Editor.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	Editor.prototype.addMathCss = function(svgRoot)
 	{
-		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (defs != null && defs.length > 0)
 		{
-	      	// Temporarily attaches to DOM for rendering
-			// FIXME: If adding svgRoot to body, the text
-			// value of the math is appended, if not
-			// added to DOM then LaTeX does not work.
-			// This must be fixed to enable client-side export
-			// if math is enabled.
-//			document.body.appendChild(svgRoot);
-			Editor.MathJaxRender(svgRoot);
-	      
-			window.setTimeout(mxUtils.bind(this, function()
+			var styles = document.getElementsByTagName('style');
+			
+			for (var i = 0; i < styles.length; i++)
 			{
-				MathJax.Hub.Queue(mxUtils.bind(this, function ()
+				// Ignores style elements with no MathJax CSS
+				if (mxUtils.getTextContent(styles[i]).indexOf('MathJax') > 0)
 				{
-					// Removes from DOM
-//					svgRoot.parentNode.removeChild(svgRoot);
-					
-					callback();
-				}));
-			}), 0);
-		}
-		else
-		{
-			callback();
+					defs[0].appendChild(styles[i].cloneNode(true));
+				}
+			}
 		}
 	};
-
+	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * See fixme in convertMath for client-side image generation with math.

@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Pronađen nacrt
 dragAndDropNotSupported=Prevlačenje nije podržano
 dropboxCharsNotAllowed=Sledeći znaci nisu dozvoljeni: \ / : ? * " |

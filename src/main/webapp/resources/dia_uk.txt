@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Темно
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Знайдено чернетку '{1}'. Завантажте її в виправник або відмовтеся, щоб продовжити.
 dragAndDropNotSupported=Перетягування зображень не підтримуємо. Чи бажаєте натомість привнести його?
 dropboxCharsNotAllowed=Перелічені знаки не підтримувані: \ / : ? * " |

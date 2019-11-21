@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Vázlat találva a '{1}'-hoz. Töltse a szerkesztőbe, vagy dobja el a folytatásért.
 dragAndDropNotSupported=Fogd és vidd nincs támogatva képekhez. Szeretné-e importálni?
 dropboxCharsNotAllowed=A következő betűk nem engedélyezettek: \ / : ? * " |

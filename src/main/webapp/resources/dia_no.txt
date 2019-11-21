@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Et utkast av '{1}' er funnet. Last det ned i editoren eller forkast det for å fortsette.
 dragAndDropNotSupported=Dra og slipp funksjon er ikke tilgjengelig for bilder. Vil du importere i stedet for?
 dropboxCharsNotAllowed=Følgende tegn er ikke tillatt: \ / : ? * " |

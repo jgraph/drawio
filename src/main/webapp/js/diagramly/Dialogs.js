@@ -3493,12 +3493,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
  * Constructs a dialog for creating new files from a template URL.
  * Also used for dialog choosing where to save or export resources
  */
-var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension,
-	allowBrowser, allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints)
+var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension, allowBrowser,
+	allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints, hideDialog)
 {
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
 	rowLimit = (rowLimit != null) ? rowLimit : 4;
+	hideDialog = (hideDialog != null) ? hideDialog : true;
 
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
@@ -3920,8 +3921,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		
 		if (mode == null || (title != null && title.length > 0))
 		{
-			editorUi.hideDialog();
-			createFn(title, mode);
+			if (hideDialog)
+			{
+				editorUi.hideDialog();
+			}
+			
+			createFn(title, mode, nameInput);
 		};
 	}
 	

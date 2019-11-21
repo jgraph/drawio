@@ -100,6 +100,7 @@ configLinkWarn=configLinkWarn
 configLinkConfirm=configLinkConfirm
 csv=csv
 dark=dark
+didYouMeanToExportToPdf=didYouMeanToExportToPdf
 draftFound=draftFound
 dragAndDropNotSupported=dragAndDropNotSupported
 dropboxCharsNotAllowed=dropboxCharsNotAllowed

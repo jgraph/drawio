@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=黒
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=ドラフト{1}が見つかりました。読み込む、または廃棄する。
 dragAndDropNotSupported=画像のドラッグアンドドロップには対応していません。その代わりに画像読み込みを選択しますか？
 dropboxCharsNotAllowed=次の文字は使用できません: \ / : ? * " |

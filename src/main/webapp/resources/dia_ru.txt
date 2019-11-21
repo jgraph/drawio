@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Темная
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Был обнаружен черновик '{1}'. Загрузите его в редактор или откажитесь, чтобы продолжить.
 dragAndDropNotSupported=Перетаскивание изображений не поддерживается. Импортировать изображение?
 dropboxCharsNotAllowed=Следующие символы не допускаются: \ / : ? * " |

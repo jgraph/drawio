@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Vedos tiedostolle '{1}' on löytynyt. Lataa se muokattavaksi tai hylkää se jatkaaksesi.
 dragAndDropNotSupported=Vedä ja pudota'-toiminto ei tue kuvia. Haluatko tuoda kuvat?
 dropboxCharsNotAllowed=Seuraavat merkit eivät ole sallittuja: \ / : ? * " |

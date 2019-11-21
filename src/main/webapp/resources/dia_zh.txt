@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound={1}的草图已找到。载入其进行编辑或丢弃以继续。
 dragAndDropNotSupported=暂不支持图片拖放功能。要选择导入选项吗？
 dropboxCharsNotAllowed=系统不允许使用下列字符：\ / : ? * " |

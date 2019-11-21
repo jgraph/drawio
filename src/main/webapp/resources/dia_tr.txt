@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Taslak (1) için bulundu. Editöre yükleyiniz veya devam etmek için iptal ediniz.
 dragAndDropNotSupported=Desteklenmeyen resimleri sürükle ve at. Veya bu resimleri geri çağırmak ister misiniz ?
 dropboxCharsNotAllowed=Bu karakterler desteklenmemektedir : \ / : ? * " |

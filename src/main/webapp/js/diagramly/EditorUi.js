@@ -4620,7 +4620,7 @@
 				
 				if (this.editor.graph.mathEnabled)
 				{
-					this.addMathCss(svgRoot);
+					this.editor.addMathCss(svgRoot);
 				}
 				
 				if (embedImages)
@@ -5905,28 +5905,6 @@
 	};
 
 	/**
-	 * Copies MathJax CSS into the SVG output.
-	 */
-	EditorUi.prototype.addMathCss = function(svgRoot)
-	{
-		var defs = svgRoot.getElementsByTagName('defs');
-		
-		if (defs != null && defs.length > 0)
-		{
-			var styles = document.getElementsByTagName('style');
-			
-			for (var i = 0; i < styles.length; i++)
-			{
-				// Ignores style elements with no MathJax CSS
-				if (mxUtils.getTextContent(styles[i]).indexOf('MathJax') > 0)
-				{
-					defs[0].appendChild(styles[i].cloneNode(true));
-				}
-			}
-		}
-	};
-	
-	/**
 	 * 
 	 */
 	EditorUi.prototype.decodeNodeIntoGraph = function(node, graph)
@@ -6570,7 +6548,7 @@
 						
 						if (graph.mathEnabled)
 						{
-							this.addMathCss(svgRoot);
+							this.editor.addMathCss(svgRoot);
 						}
 						
 						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
@@ -13225,20 +13203,19 @@
 		var msgMarkers = msg.msgMarkers;
 		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
 		
-		if (callback == null)
+		if (callback != null)
 		{
-			throw new Error('No callback for ' + ((msgMarkers != null) ? msgMarkers.callbackId : 'null'));
+			if (msg.error)
+			{
+				if (callback.error) callback.error(msg.error.errResp);
+			}
+			else if (callback.callback)
+			{
+				callback.callback.apply(this, msg.resp);
+			}
+			
+			this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
 		}
-		else if (msg.error)
-		{
-			if (callback.error) callback.error(msg.error.errResp);
-		}
-		else if (callback.callback)
-		{
-			callback.callback.apply(this, msg.resp);
-		}
-		
-		this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
 	};
 
 	EditorUi.prototype.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)

@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=O schiță pentru '{1}' a fost găsită. Încarc-o în editor sau înlătureaz-o pentru a continua.
 dragAndDropNotSupported= „Drag and Drop” nu este suportat pentru imagini. Doriți să importați in schimb?
 dropboxCharsNotAllowed=Următoarele caractere nu sunt permise: \ / : ? * " |

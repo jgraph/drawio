@@ -100,6 +100,7 @@ configLinkWarn=This link configures draw.io. Only click OK if you trust whoever 
 configLinkConfirm=Click OK to configure and restart draw.io.
 csv=CSV
 dark=Dark
+didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound={1}'의 임시저장이 확인되었습니다. 편집하시려면 불러오기를 클릭하시고, 계속하시려면 취소를 클릭해 주시기 바랍니다.
 dragAndDropNotSupported=이미지 드래그하여 붙여넣기는 지원되지 않습니다. 이미지를 불러오시겠습니까?
 dropboxCharsNotAllowed=다음 문자는 사용할 수 없습니다. \ / : ? * " |

@@ -642,8 +642,9 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 			graph.getModel().beginUpdate();
 			try
 			{
-				graph.setCellStyles(key, value, graph.getSelectionCells());
-				
+				var cells = graph.getSelectionCells();
+				graph.setCellStyles(key, value, cells);
+
 				// Handles special case for fontSize where HTML labels are parsed and updated
 				if (key == mxConstants.STYLE_FONTSIZE)
 				{
@@ -654,8 +655,16 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 					});
 				}
 				
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (graph.model.getChildCount(cells[i]) == 0)
+					{
+						graph.autoSizeCell(cells[i], false);
+					}
+				}
+				
 				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-						'values', [value], 'cells', graph.getSelectionCells()));
+						'values', [value], 'cells', cells));
 			}
 			finally
 			{

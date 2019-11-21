@@ -582,7 +582,7 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 	node.setAttribute('math', (vs != null && vs.mathEnabled) ? '1' : '0');
 	node.setAttribute('shadow', (vs != null && vs.shadowVisible) ? '1' : '0');
 	
-	if (vs.extFonts != null && vs.extFonts.length > 0)
+	if (vs != null && vs.extFonts != null && vs.extFonts.length > 0)
 	{
 		node.setAttribute('extFonts', vs.extFonts.map(function(ef)
 		{
