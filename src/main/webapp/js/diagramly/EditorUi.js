@@ -4551,73 +4551,78 @@
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
-			var selectionEmpty = this.editor.graph.isSelectionEmpty();
-			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
-			var bg = (transparentBackground) ? null : this.editor.graph.background;
-			
-			if (bg == mxConstants.NONE)
+			try
 			{
-				bg = null;
-			}
-			
-			// Handles special case where background is null but transparent is false
-			if (bg == null && transparentBackground == false)
-			{
-				bg = '#ffffff';
-			}
-			
-			// Sets or disables alternate text for foreignObjects. Disabling is needed
-			// because PhantomJS seems to ignore switch statements and paint all text.
-			var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
-				ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
-				((linkTarget == 'self') ? '_top' : null), null, true);
-			
-			if (addShadow)
-			{
-				this.editor.graph.addSvgShadow(svgRoot);
-			}
-			
-			var filename = this.getBaseFilename() + '.svg';
-
-			var doSave = mxUtils.bind(this, function(svgRoot)
-			{
-				this.spinner.stop();
+				var selectionEmpty = this.editor.graph.isSelectionEmpty();
+				ignoreSelection = (ignoreSelection != null) ? ignoreSelection : selectionEmpty;
+				var bg = (transparentBackground) ? null : this.editor.graph.background;
 				
-				if (editable)
+				if (bg == mxConstants.NONE)
 				{
-					svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
-						currentPage, null, null, null, false));
+					bg = null;
 				}
 				
-				if (this.editor.fontCss != null)
+				// Handles special case where background is null but transparent is false
+				if (bg == null && transparentBackground == false)
 				{
-					var svgDoc = svgRoot.ownerDocument;
-					var style = (svgDoc.createElementNS != null) ?
-							svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
-					style.setAttribute('type', 'text/css');
-					mxUtils.setTextContent(style, this.editor.fontCss);
-					svgRoot.getElementsByTagName('defs')[0].appendChild(style);
+					bg = '#ffffff';
 				}
 				
-				var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-					'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-					mxUtils.getXml(svgRoot);
-			
-	    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
-	    		{
-	    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
-	    		}
-	    		else
-	    		{
-	    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-	    			{
-	    				mxUtils.popup(svg);
-	    			}));
-	    		}
-			});
-			
-			this.convertMath(this.editor.graph, svgRoot, mxUtils.bind(this, function()
-			{
+				// Sets or disables alternate text for foreignObjects. Disabling is needed
+				// because PhantomJS seems to ignore switch statements and paint all text.
+				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
+					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
+					((linkTarget == 'self') ? '_top' : null), null, true);
+				
+				if (addShadow)
+				{
+					this.editor.graph.addSvgShadow(svgRoot);
+				}
+				
+				var filename = this.getBaseFilename() + '.svg';
+	
+				var doSave = mxUtils.bind(this, function(svgRoot)
+				{
+					this.spinner.stop();
+					
+					if (editable)
+					{
+						svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
+							currentPage, null, null, null, false));
+					}
+					
+					if (this.editor.fontCss != null)
+					{
+						var svgDoc = svgRoot.ownerDocument;
+						var style = (svgDoc.createElementNS != null) ?
+								svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+						style.setAttribute('type', 'text/css');
+						mxUtils.setTextContent(style, this.editor.fontCss);
+						svgRoot.getElementsByTagName('defs')[0].appendChild(style);
+					}
+					
+					var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+						'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+						mxUtils.getXml(svgRoot);
+				
+		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
+		    		{
+		    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
+		    		}
+		    		else
+		    		{
+		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+		    			{
+		    				mxUtils.popup(svg);
+		    			}));
+		    		}
+				});
+				
+				if (this.editor.graph.mathEnabled)
+				{
+					this.addMathCss(svgRoot);
+				}
+				
 				if (embedImages)
 				{
 					// Caches images
@@ -4632,7 +4637,11 @@
 				{
 					doSave(svgRoot);
 				}
-			}));
+			}
+			catch (e)
+			{
+				this.handleError(e);
+			}
 		}
 	};
 	
@@ -5896,12 +5905,10 @@
 	};
 
 	/**
-	 * Converts math in the given SVG
+	 * Copies MathJax CSS into the SVG output.
 	 */
-	EditorUi.prototype.convertMath = function(graph, svgRoot, callback)
+	EditorUi.prototype.addMathCss = function(svgRoot)
 	{
-		// CSS styles are needed for the math to render correctly
-		// unfortunately, there is no ID on the MathJax CSS only
 		var defs = svgRoot.getElementsByTagName('defs');
 		
 		if (defs != null && defs.length > 0)
@@ -5910,42 +5917,12 @@
 			
 			for (var i = 0; i < styles.length; i++)
 			{
-				if (styles[i].getAttribute('type') == 'text/css')
+				// Ignores style elements with no MathJax CSS
+				if (mxUtils.getTextContent(styles[i]).indexOf('MathJax') > 0)
 				{
 					defs[0].appendChild(styles[i].cloneNode(true));
 				}
 			}
-		}
-		
-		// NOTE: This is never true as mathEnabled is not set on off-screen graphs
-		// (on-screen is handled via createSvgImageExport override in Editor.js)
-		if (graph != this.editor.graph && graph.mathEnabled &&
-			typeof(MathJax) !== 'undefined' &&
-			typeof(MathJax.Hub) !== 'undefined')
-		{
-	      	// Temporarily attaches to DOM for rendering
-			// FIXME: If adding svgRoot to body, the text
-			// value of the math is appended, if not
-			// added to DOM then LaTeX does not work.
-			// This must be fixed to enable client-side export
-			// if math is enabled.
-//			document.body.appendChild(svgRoot);
-			Editor.MathJaxRender(svgRoot);
-
-			window.setTimeout(mxUtils.bind(this, function()
-			{
-				MathJax.Hub.Queue(mxUtils.bind(this, function ()
-				{
-					// Removes from DOM
-//					svgRoot.parentNode.removeChild(svgRoot);
-					
-					callback();
-				}));
-			}), 0);
-		}
-		else
-		{
-			callback();
 		}
 	};
 	
@@ -6347,11 +6324,11 @@
     {
         if (this.editor.fontCss != null && this.editor.resolvedFontCss == null)
         {
-        	this.embedCssFonts(this.editor.fontCss, function(resolvedFontCss)
+        	this.embedCssFonts(this.editor.fontCss, mxUtils.bind(this, function(resolvedFontCss)
 			{
         		this.editor.resolvedFontCss = resolvedFontCss;
         		then();
-			});
+			}));
         }
         else
         {
@@ -6591,10 +6568,12 @@
 							addFontCss(this.editor.resolvedFontCss);
 						}
 						
-						this.convertMath(graph, svgRoot, mxUtils.bind(this, function()
+						if (graph.mathEnabled)
 						{
-							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-						}));
+							this.addMathCss(svgRoot);
+						}
+						
+						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 					});
 					
 					this.embedExtFonts(mxUtils.bind(this, function(extFontsEmbeddedCss)
@@ -11128,490 +11107,498 @@
 					data = null;
 				}
 				
-				if (data == null)
+				try
 				{
-					// Ignore
-					return;
-				}
-				else if (data.action == 'dialog')
-				{
-					this.showError((data.titleKey != null) ? mxResources.get(data.titleKey) : data.title,
-						(data.messageKey != null) ? mxResources.get(data.messageKey) : data.message,
-						(data.buttonKey != null) ? mxResources.get(data.buttonKey) : data.button);
-					
-					if (data.modified != null)
+					if (data == null)
 					{
-						this.editor.modified = data.modified;
+						// Ignore
+						return;
 					}
-					
-					return;
-				}
-				else if (data.action == 'prompt')
-				{
-					this.spinner.stop();
-					
-					var dlg = new FilenameDialog(this, data.defaultValue || '',
-						(data.okKey != null) ? mxResources.get(data.okKey) : null, function(value)
+					else if (data.action == 'dialog')
 					{
-						if (value != null)
-						{
-							parent.postMessage(JSON.stringify({event: 'prompt', value: value, message: data}), '*');
-						}
-					}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title);
-					this.showDialog(dlg.container, 300, 80, true, false);
-					dlg.init();
-					
-					return;
-				}
-				else if (data.action == 'draft')
-				{
-					var tmp = extractDiagramXml(data.xml);
-					this.spinner.stop();
-					
-					var dlg = new DraftDialog(this, mxResources.get('draftFound', [data.name || this.defaultFilename]),
-						tmp, mxUtils.bind(this, function()
-					{
-						this.hideDialog();
-						parent.postMessage(JSON.stringify({event: 'draft', result: 'edit', message: data}), '*');
-					}), mxUtils.bind(this, function()
-					{
-						this.hideDialog();
-						parent.postMessage(JSON.stringify({event: 'draft', result: 'discard', message: data}), '*');
-					}), (data.editKey) ? mxResources.get(data.editKey) : null,
-						(data.discardKey) ? mxResources.get(data.discardKey) : null,
-						(data.ignore) ? mxUtils.bind(this, function()
-						{
-							this.hideDialog();
-							parent.postMessage(JSON.stringify({event: 'draft', result: 'ignore', message: data}), '*');
-						}) : null);
-					this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
-					{
-						if (cancel)
-						{
-							this.actions.get('exit').funct();
-						}
-					}));
-					
-					try
-					{
-						dlg.init();
-					}
-					catch (e)
-					{
-						parent.postMessage(JSON.stringify({event: 'draft', error: e.toString(), message: data}), '*');
-					}
-					
-					return;
-				}
-				else if (data.action == 'template')
-				{
-					this.spinner.stop();
-					
-					var enableRecentDocs = data.enableRecent == 1;
-					var enableSearchDocs = data.enableSearch == 1;
-					var enableCustomTemp = data.enableCustomTemp == 1;
-					
-					var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
-					{
-						xml = xml || this.emptyDiagramXml;
+						this.showError((data.titleKey != null) ? mxResources.get(data.titleKey) : data.title,
+							(data.messageKey != null) ? mxResources.get(data.messageKey) : data.message,
+							(data.buttonKey != null) ? mxResources.get(data.buttonKey) : data.button);
 						
-						// LATER: Add autosave option in template message
-						if (data.callback != null)
+						if (data.modified != null)
 						{
-							parent.postMessage(JSON.stringify({event: 'template', xml: xml,
-								blank: xml == this.emptyDiagramXml, name: name}), '*');
+							this.editor.modified = data.modified;
 						}
-						else
-						{
-							fn(xml, evt, xml != this.emptyDiagramXml);
-							
-							// Workaround for status updated before modified applied
-							if (!this.editor.modified)
-							{
-								this.editor.setStatus('');
-							}
-						}
-					}), null, null, null, null, null, null, null, 
-					enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
-					{
-						this.remoteInvoke('getRecentDiagrams', null, null, recentReadyCallback, function()
-						{
-							recentReadyCallback(null, 'Network Error!');
-						});
-					}) : null, 
-					enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
-					{
-						this.remoteInvoke('searchDiagrams', [searchStr], null, searchReadyCallback, function()
-						{
-							searchReadyCallback(null, 'Network Error!');
-						});
-					}) : null, 
-					mxUtils.bind(this, function(url, info, name) 
-					{
-						//If binary files are possible, we can get the file content using remote invokation, imported it, and send final mxFile back
-						parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
-							name: name}), '*');
-					}), null, null,
-					enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
-					{
-						this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
-						{
-							customTempCallback({}, 0); //ignore error by sending empty templates
-						});
-					}) : null);
-
-					this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
-					{
-						if (cancel)
-						{
-							this.actions.get('exit').funct();
-						}
-					}));
-					dlg.init();
-					
-					return;
-				}
-				else if (data.action == 'textContent')
-				{
-					//TODO Remove this message and use remove invokation instead
-					var allPagesTxt = this.getDiagramTextContent();
-					parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
-					return;
-				}
-				else if (data.action == 'status')
-				{
-					if (data.messageKey != null)
-					{
-						this.editor.setStatus(mxUtils.htmlEntities(mxResources.get(data.messageKey)));
+						
+						return;
 					}
-					else if (data.message != null)
-					{
-						this.editor.setStatus(mxUtils.htmlEntities(data.message));
-					}
-					
-					if (data.modified != null)
-					{
-						this.editor.modified = data.modified;
-					}
-					
-					return;
-				}
-				else if (data.action == 'spinner')
-				{
-					var msg = (data.messageKey != null) ? mxResources.get(data.messageKey) : data.message;
-					
-					if (data.show != null && !data.show)
+					else if (data.action == 'prompt')
 					{
 						this.spinner.stop();
-					}
-					else
-					{
-						this.spinner.spin(document.body, msg)
-					}
-
-					return;
-				}
-				else if (data.action == 'export')
-				{
-					if (data.format == 'png' || data.format == 'xmlpng')
-					{
-						if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
-							(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+						
+						var dlg = new FilenameDialog(this, data.defaultValue || '',
+							(data.okKey != null) ? mxResources.get(data.okKey) : null, function(value)
 						{
-							var xml = (data.xml != null) ? data.xml : this.getFileData(true);
-							this.editor.graph.setEnabled(false);
-							var graph = this.editor.graph;
-							
-							var postDataBack = mxUtils.bind(this, function(uri)
+							if (value != null)
 							{
-								this.editor.graph.setEnabled(true);
-								this.spinner.stop();
-								
-								var msg = this.createLoadMessage('export');
-								msg.format = data.format;
-								msg.message = data;
-								msg.data = uri;
-								msg.xml = encodeURIComponent(xml);
-								parent.postMessage(JSON.stringify(msg), '*');
-							});
-							
-							var processUri = mxUtils.bind(this, function(uri)
+								parent.postMessage(JSON.stringify({event: 'prompt', value: value, message: data}), '*');
+							}
+						}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title);
+						this.showDialog(dlg.container, 300, 80, true, false);
+						dlg.init();
+						
+						return;
+					}
+					else if (data.action == 'draft')
+					{
+						var tmp = extractDiagramXml(data.xml);
+						this.spinner.stop();
+						
+						var dlg = new DraftDialog(this, mxResources.get('draftFound', [data.name || this.defaultFilename]),
+							tmp, mxUtils.bind(this, function()
+						{
+							this.hideDialog();
+							parent.postMessage(JSON.stringify({event: 'draft', result: 'edit', message: data}), '*');
+						}), mxUtils.bind(this, function()
+						{
+							this.hideDialog();
+							parent.postMessage(JSON.stringify({event: 'draft', result: 'discard', message: data}), '*');
+						}), (data.editKey) ? mxResources.get(data.editKey) : null,
+							(data.discardKey) ? mxResources.get(data.discardKey) : null,
+							(data.ignore) ? mxUtils.bind(this, function()
 							{
-								if (uri == null)
-								{
-									uri = Editor.blankImage;
-								}
-								
-						   	    if (data.format == 'xmlpng')
-						   	    {
-						   	    	uri = this.writeGraphModelToPng(uri, 'tEXt', 'mxfile',
-						   	    		encodeURIComponent(xml));
-						   	    }
-						   	    	
-								// Removes temporary graph from DOM
-						   	    if (graph != this.editor.graph)
-								{
-									graph.container.parentNode.removeChild(graph.container);
-								}
-				   	   	    	
-						   	    postDataBack(uri);
-							});
-					
-							var pageId = data.pageId || (this.pages != null? this.pages[0].getId() : null);
-							
-							// LATER: Uses external export if current page (not first page) has mathEnabled
-							if (this.isExportToCanvas())
+								this.hideDialog();
+								parent.postMessage(JSON.stringify({event: 'draft', result: 'ignore', message: data}), '*');
+							}) : null);
+						this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
+						{
+							if (cancel)
 							{
-								// Exports PNG for first/specific page while other page is visible by creating a graph
-								// LATER: Add caching for the graph or SVG while not on first page
-								if (this.pages != null && this.currentPage.getId() != pageId)
-								{
-									var graphGetGlobalVariable = graph.getGlobalVariable;
-									graph = this.createTemporaryGraph(graph.getStylesheet());
-									var page;
-									
-									for (var i = 0; i < this.pages.length; i++)
-									{
-										if (this.pages[i].getId() == pageId)
-										{
-											page = this.updatePageRoot(this.pages[i]);
-											break;
-										}
-									}
+								this.actions.get('exit').funct();
+							}
+						}));
+						
+						try
+						{
+							dlg.init();
+						}
+						catch (e)
+						{
+							parent.postMessage(JSON.stringify({event: 'draft', error: e.toString(), message: data}), '*');
+						}
+						
+						return;
+					}
+					else if (data.action == 'template')
+					{
+						this.spinner.stop();
+						
+						var enableRecentDocs = data.enableRecent == 1;
+						var enableSearchDocs = data.enableSearch == 1;
+						var enableCustomTemp = data.enableCustomTemp == 1;
+						
+						var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
+						{
+							xml = xml || this.emptyDiagramXml;
 							
-									graph.getGlobalVariable = function(name)
-									{
-										if (name == 'page')
-										{
-											return page.getName();
-										}
-										else if (name == 'pagenumber')
-										{
-											return 1;
-										}
-										
-										return graphGetGlobalVariable.apply(this, arguments);
-									};
-							
-									document.body.appendChild(graph.container);
-									graph.model.setRoot(page.root);
-								}
-
-								//Set visible layers based on message setting
-								if (data.layerIds != null)
-								{
-									var graphModel = graph.model;
-									var layers = graphModel.getChildCells(graphModel.getRoot());
-									var layerIdsMap = {};
-									
-									for (var i = 0; i < data.layerIds.length; i++)
-									{
-										layerIdsMap[data.layerIds[i]] = true;
-									}
-
-									for (var i = 0; i < layers.length; i++)
-									{
-										graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
-									}
-								}
-								
-								this.exportToCanvas(mxUtils.bind(this, function(canvas)
-							   	{
-									processUri(canvas.toDataURL('image/png'));
-							   	}), null, null, null, mxUtils.bind(this, function()
-								{
-							   		processUri(null);
-								}), null, null, data.scale, null, null, null, graph);
+							// LATER: Add autosave option in template message
+							if (data.callback != null)
+							{
+								parent.postMessage(JSON.stringify({event: 'template', xml: xml,
+									blank: xml == this.emptyDiagramXml, name: name}), '*');
 							}
 							else
 							{
-								// Data from server is base64 encoded to avoid binary XHR
-								// Double encoding for XML arg is needed for UTF8 encoding
-						       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
-						       		((data.format == 'xmlpng') ? '1' : '0') + 
-						       		(pageId != null? '&pageId=' + pageId : '') +
-						       		(data.layerIds != null? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
-						       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
-						       		encodeURIComponent(xml));
-
-								req.send(mxUtils.bind(this, function(req)
+								fn(xml, evt, xml != this.emptyDiagramXml);
+								
+								// Workaround for status updated before modified applied
+								if (!this.editor.modified)
 								{
-									// Temp graph was never created at this point so we can
-									// skip processUri since it already contains the XML
-									if (req.getStatus() >= 200 && req.getStatus() <= 299)
-									{
-										postDataBack('data:image/png;base64,' + req.getText());
-									}
-									else
-									{
-										processUri(null);
-									}
-								}), mxUtils.bind(this, function()
-								{
-									processUri(null);
-								}));
+									this.editor.setStatus('');
+								}
 							}
-						}
+						}), null, null, null, null, null, null, null, 
+						enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
+						{
+							this.remoteInvoke('getRecentDiagrams', null, null, recentReadyCallback, function()
+							{
+								recentReadyCallback(null, 'Network Error!');
+							});
+						}) : null, 
+						enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
+						{
+							this.remoteInvoke('searchDiagrams', [searchStr], null, searchReadyCallback, function()
+							{
+								searchReadyCallback(null, 'Network Error!');
+							});
+						}) : null, 
+						mxUtils.bind(this, function(url, info, name) 
+						{
+							//If binary files are possible, we can get the file content using remote invokation, imported it, and send final mxFile back
+							parent.postMessage(JSON.stringify({event: 'template', docUrl: url, info: info,
+								name: name}), '*');
+						}), null, null,
+						enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
+						{
+							this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
+							{
+								customTempCallback({}, 0); //ignore error by sending empty templates
+							});
+						}) : null);
+	
+						this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
+						{
+							if (cancel)
+							{
+								this.actions.get('exit').funct();
+							}
+						}));
+						dlg.init();
+						
+						return;
 					}
-					else
+					else if (data.action == 'textContent')
 					{
-						// SVG is generated from graph so parse optional XML
-						if (data.xml != null && data.xml.length > 0)
+						//TODO Remove this message and use remove invokation instead
+						var allPagesTxt = this.getDiagramTextContent();
+						parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
+						return;
+					}
+					else if (data.action == 'status')
+					{
+						if (data.messageKey != null)
 						{
-							this.setFileData(data.xml);
+							this.editor.setStatus(mxUtils.htmlEntities(mxResources.get(data.messageKey)));
+						}
+						else if (data.message != null)
+						{
+							this.editor.setStatus(mxUtils.htmlEntities(data.message));
 						}
 						
-						var msg = this.createLoadMessage('export');
-						
-						// Forces new HTML format if pages exists
-						if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
-							(this.pages != null && this.pages.length > 1))))
+						if (data.modified != null)
 						{
-							var node = this.getXmlFileData();
-							msg.xml = mxUtils.getXml(node);
-							msg.data = this.getFileData(null, null, true, null, null, null, node);
-							msg.format = data.format;
+							this.editor.modified = data.modified;
 						}
-						else if (data.format == 'html')
+						
+						return;
+					}
+					else if (data.action == 'spinner')
+					{
+						var msg = (data.messageKey != null) ? mxResources.get(data.messageKey) : data.message;
+						
+						if (data.show != null && !data.show)
 						{
-							var xml = this.editor.getGraphXml();
-							msg.data = this.getHtml(xml, this.editor.graph);
-							msg.xml = mxUtils.getXml(xml);
-							msg.format = data.format;
+							this.spinner.stop();
 						}
 						else
 						{
-							// Creates a preview with no alt text for unsupported browsers
-				        	mxSvgCanvas2D.prototype.foAltText = null;
-				        	
-				        	var bg = this.editor.graph.background;
-				        	
-				        	if (bg == mxConstants.NONE)
-				        	{
-				        		bg = null;
-				        	}
-
-							msg.xml = this.getFileData(true, null, null, null, null,
-								null, null, null, null, false);
-							msg.format = 'svg';
-					        	
-				        	if (data.embedImages || data.embedImages == null)
-				        	{
-								if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
-									(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+							this.spinner.spin(document.body, msg)
+						}
+	
+						return;
+					}
+					else if (data.action == 'export')
+					{
+						if (data.format == 'png' || data.format == 'xmlpng')
+						{
+							if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
+								(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+							{
+								var xml = (data.xml != null) ? data.xml : this.getFileData(true);
+								this.editor.graph.setEnabled(false);
+								var graph = this.editor.graph;
+								
+								var postDataBack = mxUtils.bind(this, function(uri)
 								{
-									this.editor.graph.setEnabled(false);
+									this.editor.graph.setEnabled(true);
+									this.spinner.stop();
 									
-					        		if (data.format == 'xmlsvg')
-					        		{
-						        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
-					        			{
-											this.editor.graph.setEnabled(true);
-											this.spinner.stop();
-											
-											msg.data = this.createSvgDataUri(svg);
-											parent.postMessage(JSON.stringify(msg), '*');
-					        			}));
-					        		}
-					        		else
-					        		{
-					        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
-					        			{
-											this.editor.graph.setEnabled(true);
-											this.spinner.stop();
-											
-											msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-											parent.postMessage(JSON.stringify(msg), '*');
-					        			}));
-					        		}
-								}
-					        		
-				        		return;
-				        	}
-				        	else
-				        	{
-				        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
-				        		this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
-				        		msg.data = this.createSvgDataUri(svg);
-					        }
-						}
-
-						parent.postMessage(JSON.stringify(msg), '*');
-					}
-					
-					return;
-				}
-				else if (data.action == 'load')
-				{
-					autosave = data.autosave == 1;
-					this.hideDialog();
-					
-					if (data.modified != null && urlParams['modified'] == null)
-					{
-						urlParams['modified'] = data.modified;
-					}
-					
-					if (data.saveAndExit != null && urlParams['saveAndExit'] == null)
-					{
-						urlParams['saveAndExit'] = data.saveAndExit;
-					}
-					
-					if (data.title != null && this.buttonContainer != null)
-					{
-						var tmp = document.createElement('span');
-						mxUtils.write(tmp, data.title);
+									var msg = this.createLoadMessage('export');
+									msg.format = data.format;
+									msg.message = data;
+									msg.data = uri;
+									msg.xml = encodeURIComponent(xml);
+									parent.postMessage(JSON.stringify(msg), '*');
+								});
+								
+								var processUri = mxUtils.bind(this, function(uri)
+								{
+									if (uri == null)
+									{
+										uri = Editor.blankImage;
+									}
+									
+							   	    if (data.format == 'xmlpng')
+							   	    {
+							   	    	uri = this.writeGraphModelToPng(uri, 'tEXt', 'mxfile',
+							   	    		encodeURIComponent(xml));
+							   	    }
+							   	    	
+									// Removes temporary graph from DOM
+							   	    if (graph != this.editor.graph)
+									{
+										graph.container.parentNode.removeChild(graph.container);
+									}
+					   	   	    	
+							   	    postDataBack(uri);
+								});
 						
-						if (uiTheme == 'atlas')
-						{
-							this.buttonContainer.style.paddingRight = '12px';
-							this.buttonContainer.style.paddingTop = '6px';
-							this.buttonContainer.style.right = '25px';
+								var pageId = data.pageId || (this.pages != null? this.pages[0].getId() : null);
+								
+								// LATER: Uses external export if current page (not first page) has mathEnabled
+								if (this.isExportToCanvas())
+								{
+									// Exports PNG for first/specific page while other page is visible by creating a graph
+									// LATER: Add caching for the graph or SVG while not on first page
+									if (this.pages != null && this.currentPage.getId() != pageId)
+									{
+										var graphGetGlobalVariable = graph.getGlobalVariable;
+										graph = this.createTemporaryGraph(graph.getStylesheet());
+										var page;
+										
+										for (var i = 0; i < this.pages.length; i++)
+										{
+											if (this.pages[i].getId() == pageId)
+											{
+												page = this.updatePageRoot(this.pages[i]);
+												break;
+											}
+										}
+								
+										graph.getGlobalVariable = function(name)
+										{
+											if (name == 'page')
+											{
+												return page.getName();
+											}
+											else if (name == 'pagenumber')
+											{
+												return 1;
+											}
+											
+											return graphGetGlobalVariable.apply(this, arguments);
+										};
+								
+										document.body.appendChild(graph.container);
+										graph.model.setRoot(page.root);
+									}
+	
+									//Set visible layers based on message setting
+									if (data.layerIds != null)
+									{
+										var graphModel = graph.model;
+										var layers = graphModel.getChildCells(graphModel.getRoot());
+										var layerIdsMap = {};
+										
+										for (var i = 0; i < data.layerIds.length; i++)
+										{
+											layerIdsMap[data.layerIds[i]] = true;
+										}
+	
+										for (var i = 0; i < layers.length; i++)
+										{
+											graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
+										}
+									}
+									
+									this.exportToCanvas(mxUtils.bind(this, function(canvas)
+								   	{
+										processUri(canvas.toDataURL('image/png'));
+								   	}), null, null, null, mxUtils.bind(this, function()
+									{
+								   		processUri(null);
+									}), null, null, data.scale, null, null, null, graph);
+								}
+								else
+								{
+									// Data from server is base64 encoded to avoid binary XHR
+									// Double encoding for XML arg is needed for UTF8 encoding
+							       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
+							       		((data.format == 'xmlpng') ? '1' : '0') + 
+							       		(pageId != null? '&pageId=' + pageId : '') +
+							       		(data.layerIds != null? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
+							       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
+							       		encodeURIComponent(xml));
+	
+									req.send(mxUtils.bind(this, function(req)
+									{
+										// Temp graph was never created at this point so we can
+										// skip processUri since it already contains the XML
+										if (req.getStatus() >= 200 && req.getStatus() <= 299)
+										{
+											postDataBack('data:image/png;base64,' + req.getText());
+										}
+										else
+										{
+											processUri(null);
+										}
+									}), mxUtils.bind(this, function()
+									{
+										processUri(null);
+									}));
+								}
+							}
 						}
-						else if (uiTheme != 'min')
+						else
 						{
-							this.buttonContainer.style.paddingRight = '38px';
-							this.buttonContainer.style.paddingTop = '6px';
+							// SVG is generated from graph so parse optional XML
+							if (data.xml != null && data.xml.length > 0)
+							{
+								this.setFileData(data.xml);
+							}
+							
+							var msg = this.createLoadMessage('export');
+							
+							// Forces new HTML format if pages exists
+							if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
+								(this.pages != null && this.pages.length > 1))))
+							{
+								var node = this.getXmlFileData();
+								msg.xml = mxUtils.getXml(node);
+								msg.data = this.getFileData(null, null, true, null, null, null, node);
+								msg.format = data.format;
+							}
+							else if (data.format == 'html')
+							{
+								var xml = this.editor.getGraphXml();
+								msg.data = this.getHtml(xml, this.editor.graph);
+								msg.xml = mxUtils.getXml(xml);
+								msg.format = data.format;
+							}
+							else
+							{
+								// Creates a preview with no alt text for unsupported browsers
+					        	mxSvgCanvas2D.prototype.foAltText = null;
+					        	
+					        	var bg = this.editor.graph.background;
+					        	
+					        	if (bg == mxConstants.NONE)
+					        	{
+					        		bg = null;
+					        	}
+	
+								msg.xml = this.getFileData(true, null, null, null, null,
+									null, null, null, null, false);
+								msg.format = 'svg';
+						        	
+					        	if (data.embedImages || data.embedImages == null)
+					        	{
+									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
+										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+									{
+										this.editor.graph.setEnabled(false);
+										
+						        		if (data.format == 'xmlsvg')
+						        		{
+							        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
+						        			{
+												this.editor.graph.setEnabled(true);
+												this.spinner.stop();
+												
+												msg.data = this.createSvgDataUri(svg);
+												parent.postMessage(JSON.stringify(msg), '*');
+						        			}));
+						        		}
+						        		else
+						        		{
+						        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
+						        			{
+												this.editor.graph.setEnabled(true);
+												this.spinner.stop();
+												
+												msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
+												parent.postMessage(JSON.stringify(msg), '*');
+						        			}));
+						        		}
+									}
+						        		
+					        		return;
+					        	}
+					        	else
+					        	{
+					        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
+					        		this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
+					        		msg.data = this.createSvgDataUri(svg);
+						        }
+							}
+	
+							parent.postMessage(JSON.stringify(msg), '*');
 						}
-
-						if (this.embedFilenameSpan != null)
-						{
-							this.embedFilenameSpan.parentNode.removeChild(this.embedFilenameSpan);
-						}
-
-						this.buttonContainer.appendChild(tmp);
-						this.embedFilenameSpan = tmp;
+						
+						return;
 					}
-					
-					if (data.xmlpng != null)
+					else if (data.action == 'load')
 					{
-						data = this.extractGraphModelFromPng(data.xmlpng);
+						autosave = data.autosave == 1;
+						this.hideDialog();
+						
+						if (data.modified != null && urlParams['modified'] == null)
+						{
+							urlParams['modified'] = data.modified;
+						}
+						
+						if (data.saveAndExit != null && urlParams['saveAndExit'] == null)
+						{
+							urlParams['saveAndExit'] = data.saveAndExit;
+						}
+						
+						if (data.title != null && this.buttonContainer != null)
+						{
+							var tmp = document.createElement('span');
+							mxUtils.write(tmp, data.title);
+							
+							if (uiTheme == 'atlas')
+							{
+								this.buttonContainer.style.paddingRight = '12px';
+								this.buttonContainer.style.paddingTop = '6px';
+								this.buttonContainer.style.right = '25px';
+							}
+							else if (uiTheme != 'min')
+							{
+								this.buttonContainer.style.paddingRight = '38px';
+								this.buttonContainer.style.paddingTop = '6px';
+							}
+	
+							if (this.embedFilenameSpan != null)
+							{
+								this.embedFilenameSpan.parentNode.removeChild(this.embedFilenameSpan);
+							}
+	
+							this.buttonContainer.appendChild(tmp);
+							this.embedFilenameSpan = tmp;
+						}
+						
+						if (data.xmlpng != null)
+						{
+							data = this.extractGraphModelFromPng(data.xmlpng);
+						}
+						else
+						{
+							data = data.xml;
+						}
+					}
+					else if (data.action == 'remoteInvokeReady') 
+					{
+						this.handleRemoteInvokeReady(parent);
+						return;
+					}
+					else if (data.action == 'remoteInvoke') 
+					{
+						this.handleRemoteInvoke(data);
+						return;
+					}
+					else if (data.action == 'remoteInvokeResponse')
+					{
+						this.handleRemoteInvokeResponse(data);
+						return;
 					}
 					else
 					{
-						data = data.xml;
+						// Unknown message must stop execution
+						parent.postMessage(JSON.stringify({error: 'unknownMessage', data: JSON.stringify(data)}), '*');
+						
+						return;
 					}
 				}
-				else if (data.action == 'remoteInvokeReady') 
+				catch (e)
 				{
-					this.handleRemoteInvokeReady(parent);
-					return;
-				}
-				else if (data.action == 'remoteInvoke') 
-				{
-					this.handleRemoteInvoke(data);
-					return;
-				}
-				else if (data.action == 'remoteInvokeResponse')
-				{
-					this.handleRemoteInvokeResponse(data);
-					return;
-				}
-				else
-				{
-					// Unknown message must stop execution
-					parent.postMessage(JSON.stringify({error: 'unknownMessage', data: JSON.stringify(data)}), '*');
-					
-					return;
+					// TODO: Block handling of more messages when in error state
+					this.handleError(e);
 				}
 			}
 			
@@ -13238,7 +13225,11 @@
 		var msgMarkers = msg.msgMarkers;
 		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
 		
-		if (msg.error)
+		if (callback == null)
+		{
+			throw new Error('No callback for ' + ((msgMarkers != null) ? msgMarkers.callbackId : 'null'));
+		}
+		else if (msg.error)
 		{
 			if (callback.error) callback.error(msg.error.errResp);
 		}

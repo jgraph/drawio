@@ -3003,11 +3003,17 @@ App.prototype.start = function()
 				{
 					if (this.stateArg.ids != null)
 					{
+						if (window.history && window.history.replaceState)
+						{
+							// Removes state URL parameter without reloading the page
+							window.history.replaceState(null, null, window.location.pathname +
+								this.getSearch(['state']));
+						}
+						
 						window.location.hash = 'G' + this.stateArg.ids[0];
 					}
 				}
-		
-				if ((window.location.hash == null || window.location.hash.length <= 1) &&
+				else if ((window.location.hash == null || window.location.hash.length <= 1) &&
 					this.drive != null && this.stateArg != null && this.stateArg.action == 'create')
 				{
 					this.setMode(App.MODE_GOOGLE);

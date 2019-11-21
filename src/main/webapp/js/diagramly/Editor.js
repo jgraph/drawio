@@ -1856,10 +1856,12 @@
 						defs[0].appendChild(st);
 					}
 					
-					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					if (graph.mathEnabled)
 					{
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-					}));
+						this.addMathCss(svgRoot);
+					}
+					
+					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 				});
 				
 				this.loadFonts(done);
@@ -3954,17 +3956,12 @@
 		
 		var result = graphGetSvg.apply(this, arguments);
 		
-		//Add extrnal fonts
+		// Adds extrnal fonts
 		if (incExtFonts && this.extFonts != null && this.extFonts.length > 0)
 		{
 			var svgDoc = result.ownerDocument;
-			
-			var defs = (svgDoc.createElementNS != null) ?
-			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
-			
 			var style = (svgDoc.createElementNS != null) ?
-			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
-			
+		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
 			
 			var styleCnt = '';
@@ -3987,8 +3984,7 @@
 			}
 			
 			style.appendChild(svgDoc.createTextNode(styleCnt));
-			defs.appendChild(style);
-			result.appendChild(defs);
+			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 		
 		if (temp != null)
@@ -4013,32 +4009,25 @@
 		{
 			var graph = this;
 			var origin = graph.container.getBoundingClientRect();
-			var dy = graph.container.scrollTop - origin.y;
-			var dx = graph.container.scrollLeft - origin.x;
+			var y0 = graph.container.scrollTop - origin.y;
+			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
 
-			// Copies rendered math from container to SVG document
 			imgExport.drawText = function(state, canvas)
 			{
 				if (state.text != null && state.text.node != null &&
 					state.text.node.ownerSVGElement == null)
 				{
-					// Copies text into DOM using actual bounding box
+					// Copies text into DOM using untransformed bounding box
+					var tr = state.text.node.style.transform;
+					state.text.node.style.transform = '';
 					var rect = state.text.node.getBoundingClientRect();
-					
-					// Sets position on foreignObject
-					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
-					fo.setAttribute('x', (rect.x + dx) * canvas.state.scale + canvas.state.dx);
-					fo.setAttribute('y', (rect.y + dy) * canvas.state.scale + canvas.state.dy);
-					fo.setAttribute('width', rect.width * canvas.state.scale);
-					fo.setAttribute('height', rect.height * canvas.state.scale);
-					
-					// Resets position on inner DIV
 					var clone = state.text.node.cloneNode(true);
-					clone.style.top = '0px';
-					clone.style.left = '0px';
-					clone.style.transform = '';
-					
+					state.text.node.style.transform = tr;
+
+					// Removes unused style
+					clone.style.transformOrigin = '';
+
 					// Removes all math elements
 					var ele = clone.getElementsByTagName('math');
 					
@@ -4047,6 +4036,54 @@
 						ele[0].parentNode.removeChild(ele[0]);
 					}
 					
+					// Sets position on foreignObject
+					var s = canvas.state.scale * state.text.scale;
+					var x = (rect.x + x0) / state.text.scale + canvas.state.dx;
+					var y = (rect.y + y0) / state.text.scale + canvas.state.dy;
+					var w = rect.width;
+					var h = rect.height;
+					
+					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+					fo.setAttribute('x', x * s);
+					fo.setAttribute('y', y * s);
+					fo.setAttribute('width', w);
+					fo.setAttribute('height', h);
+					
+					// Resets position on inner DIV
+					clone.style.top = '0px';
+					clone.style.left = '0px';
+					
+					// Applies transform on foreignObject
+					var theta = state.text.getTextRotation();
+					var dx = state.text.margin.x;
+					var dy = state.text.margin.y;
+					var tx = (2 * w * dx - w * s * dx) / s;
+					var ty = (2 * h * dy - h * s * dy) / s;
+					
+					// FIXME: Center/right aligned text with rotation and export zoom
+					if (s != 1 && theta != 0)
+					{
+//						var rad = theta * (Math.PI / 180);
+//						var pt = mxUtils.getRotatedPoint(new mxPoint(dx, dy), Math.cos(rad), Math.sin(rad));
+//						tx -= 2 * pt.x * w * s + 2 * pt.y * h * s;
+//						ty -= 2 * pt.y * h * s + 2 * pt.x * w * s;
+//						console.log('s', s, theta, dx, w, pt);
+					}
+					
+					var tr = 'translate(' +
+						canvas.format(tx) + ',' +
+						canvas.format(ty) + ')';
+					
+					if (theta != 0)
+					{
+						tr += ' rotate(' + theta + ')';
+					}
+					
+					fo.setAttribute('transform-origin',
+						canvas.format((x - dx * w) * s) + ' ' +
+						canvas.format((y - dy * h) * s));
+					fo.setAttribute('transform', tr +
+						' scale(' + s + ')');
 					fo.appendChild(clone);
 					canvas.root.ownerSVGElement.appendChild(fo);
 				}

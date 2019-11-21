@@ -8280,6 +8280,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 								label.style.cursor = 'text';
 								label.style.color = '';
 								label.setAttribute('contentEditable', 'true');
+								mxUtils.setPrefixedStyle(label.style, 'user-select', 'text');
 								label.focus();
 								document.execCommand('selectAll', false, null);
 								

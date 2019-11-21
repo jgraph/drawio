@@ -129,7 +129,7 @@ mxGraphView.prototype.gridSteps = 4;
 mxGraphView.prototype.minGridSize = 4;
 
 // UrlParams is null in embed mode
-mxGraphView.prototype.defaultGridColor = '#e0e0e0';
+mxGraphView.prototype.defaultGridColor = '#d0d0d0';
 mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultGridColor;
 
 //Units

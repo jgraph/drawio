@@ -1,3 +1,7 @@
+21-NOV-2019: 12.2.8
+
+- Removes state URL parameter
+
 19-NOV-2019: 12.2.7
 
 - Adds #_CONFIG_ hash property for configuration via URL
