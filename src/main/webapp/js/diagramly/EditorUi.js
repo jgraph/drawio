@@ -34,8 +34,8 @@
 	/**
 	 * Protocol and hostname to use for embedded files. Default is https://www.draw.io
 	 */
-	EditorUi.drawHost = 'https://www.draw.io';
-	
+	EditorUi.drawHost = window.EDITOR_UI_DRAW_URL;
+
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
@@ -1528,11 +1528,13 @@
 			((redirect != null) ? '<meta http-equiv="refresh" content="0;URL=\'' + redirect + '\'"/>\n' : '') +
 			'<meta charset="utf-8"/>\n</head>\n<body>' +
 			'\n<div class="mxgraph" style="' + style + '" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>\n' +
-			((redirect == null) ? '<script type="text/javascript" src="' + js + '"></script>' :
-			'<a style="position:absolute;top:50%;left:50%;margin-top:-128px;margin-left:-64px;" ' +
-			'href="' + redirect + '" target="_blank"><img border="0" ' +
-			'src="' + EditorUi.drawHost + '/images/drawlogo128.png"/></a>') +
-			'\n</body>\n</html>\n';
+			((redirect == null) ?
+        '<script type="text/javascript" src="' + EditorUi.drawHost + '/js/PreConfig.js"></script>' +
+            '<script type="text/javascript" src="' + js + '"></script>' :
+			  '<a style="position:absolute;top:50%;left:50%;margin-top:-128px;margin-left:-64px;" ' +
+			    'href="' + redirect + '" target="_blank"><img border="0" ' +
+			    'src="' + EditorUi.drawHost + '/images/drawlogo128.png"/></a>') +
+			    '\n</body>\n</html>\n';
 	};
 
 	/**
@@ -5047,8 +5049,8 @@
 			(((urlParams['dev'] == '1') ?
 			'https://test.draw.io/js/viewer.min.js' :
 			window.VIEWER_URL ? window.VIEWER_URL : EditorUi.drawHost + '/js/viewer.min.js'));
-		var scr = '<script type="text/javascript" src="' + s2 + '"></script>';
-		
+		var scr = '<script type="text/javascript" src="/js/PreConfig.js"></script>' +
+              '<script type="text/javascript" src="' + s2 + '"></script>';
 		fn(value, scr);
 	};
 
