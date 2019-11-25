@@ -320,7 +320,8 @@
 	{
 		this.libs = (stc != null && (force || stc.length > 0)) ? stc : ((urlParams['libs'] != null &&
 			urlParams['libs'].length > 0) ? decodeURIComponent(urlParams['libs']) :
-			((mxSettings != null) ? mxSettings.getLibraries() : this.defaultEntries));
+			((mxSettings != null && mxSettings.settings != null) ? mxSettings.getLibraries() :
+			this.defaultEntries));
 		var tmp = this.libs.split(';');
 		
 		// Maps library names via the alias table

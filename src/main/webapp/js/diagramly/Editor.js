@@ -1714,6 +1714,24 @@
 			}
 		}
 	};
+
+	/**
+	 * Adds the global fontCss configuration.
+	 */
+	Editor.prototype.addFontCss = function(svgRoot)
+	{
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (this.fontCss != null && defs != null && defs.length > 0)
+		{
+			var svgDoc = svgRoot.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			style.setAttribute('type', 'text/css');
+			mxUtils.setTextContent(style, this.fontCss);
+			defs[0][0].appendChild(style);
+		}
+	};
 	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
@@ -4001,21 +4019,22 @@
 			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
 
-			imgExport.drawText = function(state, canvas)
+			imgExport.drawText = function(state, c)
 			{
-				if (state.text != null && state.text.node != null &&
-					state.text.node.ownerSVGElement == null)
+				if (c.addForeignObject != null && state.text != null && state.text.checkBounds() &&
+					state.text.node != null && state.text.node.ownerSVGElement == null)
 				{
+					c.save();
+					
 					// Copies text into DOM using untransformed bounding box
-					var tr = state.text.node.style.transform;
-					state.text.node.style.transform = '';
-					var rect = state.text.node.getBoundingClientRect();
 					var clone = state.text.node.cloneNode(true);
-					state.text.node.style.transform = tr;
 
-					// Removes unused style
+					// Clears styles that go to wrapper group
 					clone.style.transformOrigin = '';
-
+					clone.style.transform = '';
+					clone.style.top = '0px';
+					clone.style.left = '0px';
+					
 					// Removes all math elements
 					var ele = clone.getElementsByTagName('math');
 					
@@ -4024,56 +4043,53 @@
 						ele[0].parentNode.removeChild(ele[0]);
 					}
 					
-					// Sets position on foreignObject
-					var s = canvas.state.scale * state.text.scale;
-					var x = (rect.x + x0) / state.text.scale + canvas.state.dx;
-					var y = (rect.y + y0) / state.text.scale + canvas.state.dy;
-					var w = rect.width;
-					var h = rect.height;
+					var s = state.text.scale;
+					var x = state.text.bounds.x / s;
+					var y = state.text.bounds.y / s;
+					var w = state.text.bounds.width / s;
+					var h = state.text.bounds.height / s;
 					
-					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
-					fo.setAttribute('x', x * s);
-					fo.setAttribute('y', y * s);
-					fo.setAttribute('width', w);
-					fo.setAttribute('height', h);
+					state.text.updateTransform(c, x, y, w, h);
+					state.text.configureCanvas(c, x, y, w, h);
+
+					// Checks if text contains HTML markup
+					var realHtml = mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML;
 					
-					// Resets position on inner DIV
-					clone.style.top = '0px';
-					clone.style.left = '0px';
+					// Always renders labels as HTML in VML
+					var fmt = (realHtml || c instanceof mxVmlCanvas2D) ? 'html' : '';
+					var val = state.text.value;
 					
-					// Applies transform on foreignObject
-					var theta = state.text.getTextRotation();
-					var dx = state.text.margin.x;
-					var dy = state.text.margin.y;
-					var tx = (2 * w * dx - w * s * dx) / s;
-					var ty = (2 * h * dy - h * s * dy) / s;
-					
-					// FIXME: Center/right aligned text with rotation and export zoom
-					if (s != 1 && theta != 0)
+					if (!realHtml && fmt == 'html')
 					{
-//						var rad = theta * (Math.PI / 180);
-//						var pt = mxUtils.getRotatedPoint(new mxPoint(dx, dy), Math.cos(rad), Math.sin(rad));
-//						tx -= 2 * pt.x * w * s + 2 * pt.y * h * s;
-//						ty -= 2 * pt.y * h * s + 2 * pt.x * w * s;
-//						console.log('s', s, theta, dx, w, pt);
+						val =  mxUtils.htmlEntities(val, false);
 					}
 					
-					var tr = 'translate(' +
-						canvas.format(tx) + ',' +
-						canvas.format(ty) + ')';
-					
-					if (theta != 0)
+					if (fmt == 'html' && !mxUtils.isNode(state.text.value))
 					{
-						tr += ' rotate(' + theta + ')';
+						val = mxUtils.replaceTrailingNewlines(val, '<div><br></div>');			
 					}
 					
-					fo.setAttribute('transform-origin',
-						canvas.format((x - dx * w) * s) + ' ' +
-						canvas.format((y - dy * h) * s));
-					fo.setAttribute('transform', tr +
-						' scale(' + s + ')');
-					fo.appendChild(clone);
-					canvas.root.ownerSVGElement.appendChild(fo);
+					// Handles trailing newlines to make sure they are visible in rendering output
+					val = (!mxUtils.isNode(state.text.value) && state.text.replaceLinefeeds && fmt == 'html') ?
+						val.replace(/\n/g, '<br/>') : val;
+						
+					var dir = state.text.textDirection;
+				
+					if (dir == mxConstants.TEXT_DIRECTION_AUTO && !realHtml)
+					{
+						dir = state.text.getAutoDirection();
+					}
+					
+					if (dir != mxConstants.TEXT_DIRECTION_LTR && dir != mxConstants.TEXT_DIRECTION_RTL)
+					{
+						dir = null;
+					}
+					
+					c.addForeignObject(x + c.state.dx, y + c.state.dy, w, h, val,
+						state.text.align, state.text.valign, state.text.wrap, fmt,
+						state.text.overflow, state.text.clipped, state.text.getTextRotation(),
+						dir, clone, c.root.ownerSVGElement);
+					c.restore();
 				}
 				else
 				{

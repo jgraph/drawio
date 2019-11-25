@@ -628,8 +628,28 @@ Actions.prototype.init = function()
 		graph.zoomTo(1);
 		ui.resetScrollbars();
 	}, null, null, Editor.ctrlKey + '+H');
-	this.addAction('zoomIn', function(evt) { graph.zoomIn(); }, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
-	this.addAction('zoomOut', function(evt) { graph.zoomOut(); }, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
+	this.addAction('zoomIn', function(evt)
+	{
+		if (urlParams['zoom'] == 'fast')
+		{
+			graph.lazyZoom(true, true);
+		}
+		else
+		{
+			graph.zoomIn();
+		}
+	}, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
+	this.addAction('zoomOut', function(evt)
+	{
+		if (urlParams['zoom'] == 'fast')
+		{
+			graph.lazyZoom(false, true);
+		}
+		else
+		{
+			graph.zoomOut();
+		}
+	}, null, null, Editor.ctrlKey + ' - (Numpad) / Alt+Mousewheel');
 	this.addAction('fitWindow', function()
 	{
 		var bounds = (graph.isSelectionEmpty()) ? graph.getGraphBounds() : graph.getBoundingBox(graph.getSelectionCells());

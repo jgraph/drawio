@@ -3921,13 +3921,12 @@
 	/**
 	 * Handling for canvas export.
 	 */
-
-	/**
-	 * See fixme in convertMath for client-side image generation with math.
-	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || this.useCanvasForExport;
+		// FIXME: Safari disabled due to mathjax rendering errors
+		return mxClient.IS_CHROMEAPP || ((!mxClient.IS_SF ||
+			!this.editor.graph.mathEnabled) &&
+			this.useCanvasForExport);
 	};
 
 	/**
@@ -4239,7 +4238,8 @@
 	EditorUi.prototype.openInNewWindow = function(data, mimeType, base64Encoded)
 	{
 		// In Google Chrome 60 the code from below produces a blank window
-		if (mxClient.IS_GC || mxClient.IS_EDGE || document.documentMode == 11 || document.documentMode == 10)
+		if (mxClient.IS_GC || mxClient.IS_EDGE || mxClient.IS_FF ||
+			document.documentMode == 11 || document.documentMode == 10)
 		{
 			var win = window.open('about:blank');
 			
@@ -4591,16 +4591,6 @@
 							currentPage, null, null, null, false));
 					}
 					
-					if (this.editor.fontCss != null)
-					{
-						var svgDoc = svgRoot.ownerDocument;
-						var style = (svgDoc.createElementNS != null) ?
-								svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
-						style.setAttribute('type', 'text/css');
-						mxUtils.setTextContent(style, this.editor.fontCss);
-						svgRoot.getElementsByTagName('defs')[0].appendChild(style);
-					}
-					
 					var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
 						'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
 						mxUtils.getXml(svgRoot);
@@ -4617,6 +4607,9 @@
 		    			}));
 		    		}
 				});
+
+				// Adds CSS
+				this.editor.addFontCss(svgRoot);
 				
 				if (this.editor.graph.mathEnabled)
 				{
@@ -5751,7 +5744,8 @@
 	 */
 	EditorUi.prototype.createEmbedSvg = function(fit, shadow, image, lightbox, edit, layers, fn)
 	{
-		var svgRoot = this.editor.graph.getSvg();
+		var svgRoot = this.editor.graph.getSvg(null, null, null, null, null,
+				null, null, null, null, null, !image);
 		
 		// Keeps hashtag links on same page
 		var links = svgRoot.getElementsByTagName('a');
@@ -5786,7 +5780,7 @@
 		{
    			var onclick = ' ';
    			var css = '';
-   			
+
    			// Adds double click handling
 			if (lightbox)
 			{
@@ -5846,6 +5840,14 @@
 			if (css != '')
 			{
 				svgRoot.setAttribute('style', css);
+			}
+			
+			// Adds CSS
+			this.editor.addFontCss(svgRoot);
+			
+			if (this.editor.graph.mathEnabled)
+			{
+				this.editor.addMathCss(svgRoot);
 			}
 			
 			fn(mxUtils.getXml(svgRoot));
@@ -6544,11 +6546,6 @@
 						if (this.editor.resolvedFontCss != null)
 						{
 							addFontCss(this.editor.resolvedFontCss);
-						}
-						
-						if (graph.mathEnabled)
-						{
-							this.editor.addMathCss(svgRoot);
 						}
 						
 						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
@@ -13203,19 +13200,20 @@
 		var msgMarkers = msg.msgMarkers;
 		var callback = this.remoteInvokeCallbacks[msgMarkers.callbackId];
 		
-		if (callback != null)
+		if (callback == null)
 		{
-			if (msg.error)
-			{
-				if (callback.error) callback.error(msg.error.errResp);
-			}
-			else if (callback.callback)
-			{
-				callback.callback.apply(this, msg.resp);
-			}
-			
-			this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
+			throw new Error('No callback for ' + ((msgMarkers != null) ? msgMarkers.callbackId : 'null'));
 		}
+		else if (msg.error)
+		{
+			if (callback.error) callback.error(msg.error.errResp);
+		}
+		else if (callback.callback)
+		{
+			callback.callback.apply(this, msg.resp);
+		}
+			
+		this.remoteInvokeCallbacks[msgMarkers.callbackId] = null; //set it to null only to keep the index
 	};
 
 	EditorUi.prototype.remoteInvoke = function(remoteFn, remoteFnArgs, msgMarkers, callback, error)

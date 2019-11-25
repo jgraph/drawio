@@ -1,3 +1,8 @@
+25-NOV-2019: 12.3.0
+
+- Fixes client-side math export in Firefox
+- Uses mxGraph 4.0.6 beta 7
+
 21-NOV-2019: 12.2.9
 
 - Fixes autosize for font size and style changes

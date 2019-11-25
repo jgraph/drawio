@@ -1541,10 +1541,16 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																	// Logs overwrite
 																	try
 																	{
-																		EditorUi.logError('Warning: Stale Etag Overwrite ' + file.getHash(),
-																			null, file.desc.id + '.' + file.desc.headRevisionId,
-																			((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
-																			((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync'));
+																		EditorUi.logEvent({category: 'STALE-ETAG-SAVE-FILE-' + file.getHash(),
+																			action: 'rev_' + file.desc.headRevisionId + '-mod_' + file.desc.modifiedDate +
+																				'-size_' + file.getSize() + '-mime_' + file.desc.mimeType +
+																			((this.ui.editor.autosave) ? '' : '-nosave') +
+																			((file.isAutosave()) ? '' : '-noauto') +
+																			((file.changeListenerEnabled) ? '' : '-nolisten') +
+																			((file.inConflictState) ? '-conflict' : '') +
+																			((file.invalidChecksum) ? '-invalid' : ''),
+																			label: ((this.user != null) ? ('user_' + this.user.id) : 'nouser') +
+																			((file.sync != null) ? ('-client_' + file.sync.clientId) : '-nosync')});
 																	}
 																	catch (e)
 																	{

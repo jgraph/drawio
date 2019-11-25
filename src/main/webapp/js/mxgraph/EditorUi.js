@@ -2069,8 +2069,10 @@ EditorUi.prototype.initCanvas = function()
 	graph.cumulativeZoomFactor = 1;
 	
 	var cursorPosition = null;
+	var mainGroup = graph.view.getDrawPane();
+	var bgGroup = graph.view.getBackgroundPane();
 
-	graph.lazyZoom = function(zoomIn)
+	graph.lazyZoom = function(zoomIn, ignoreCursorPosition)
 	{
 		if (this.updateZoomTimeout != null)
 		{
@@ -2078,7 +2080,7 @@ EditorUi.prototype.initCanvas = function()
 		}
 
 		// Switches to 1% zoom steps below 15%
-		// Lower bound depdends on rounding below
+		// Lower bound depends on rounding below
 		if (zoomIn)
 		{
 			if (this.view.scale * this.cumulativeZoomFactor < 0.15)
@@ -2108,10 +2110,48 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}
 		
+		if (urlParams['zoom'] == 'fast')
+		{
+			var cx = (ignoreCursorPosition) ? graph.container.scrollWidth / 2 :
+				cursorPosition.x + graph.container.scrollLeft - graph.container.offsetLeft;
+			var cy = (ignoreCursorPosition) ? graph.container.scrollHeight / 2 :
+				cursorPosition.y + graph.container.scrollTop - graph.container.offsetTop;
+			mainGroup.setAttribute('transform-origin', cx + ' ' + cy);
+			mainGroup.setAttribute('transform', 'scale(' +
+				this.cumulativeZoomFactor + ')');
+			bgGroup.setAttribute('transform-origin', cx + ' ' + cy);
+			bgGroup.setAttribute('transform', 'scale(' +
+					this.cumulativeZoomFactor + ')');
+
+			var page = graph.view.backgroundPageShape.node;
+
+			mxUtils.setPrefixedStyle(page.style, 'transform-origin',
+				(ignoreCursorPosition) ? '50%' : ((cursorPosition.x + graph.container.offsetLeft - page.offsetLeft) + 'px') + ' ' +
+				(ignoreCursorPosition) ? '50%' : ((cursorPosition.y - page.offsetTop) + 'px'));
+			mxUtils.setPrefixedStyle(page.style, 'transform',
+				'scale(' + this.cumulativeZoomFactor + ')');
+
+			graph.view.getOverlayPane().style.opacity = '0';
+			graph.view.getDecoratorPane().style.opacity = '0';
+			console.log('here', this.cumulativeZoomFactor, cx, page.offsetLeft, page.offsetWidth);
+		}
+		
 		this.cumulativeZoomFactor = Math.max(0.01, Math.min(this.view.scale * this.cumulativeZoomFactor, 160) / this.view.scale);
 		
         this.updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
         {
+        	if (urlParams['zoom'] == 'fast')
+    		{
+        		mainGroup.removeAttribute('transform-origin');
+            	mainGroup.removeAttribute('transform');
+            	bgGroup.removeAttribute('transform-origin');
+            	bgGroup.removeAttribute('transform');
+            	graph.view.getOverlayPane().style.opacity = '';
+            	graph.view.getDecoratorPane().style.opacity = '';
+    			mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform-origin', null);
+    			mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform', null);
+    		}
+        	
             var offset = mxUtils.getOffset(graph.container);
             var dx = 0;
             var dy = 0;
@@ -2143,7 +2183,7 @@ EditorUi.prototype.initCanvas = function()
             
             this.cumulativeZoomFactor = 1;
             this.updateZoomTimeout = null;
-        }), this.lazyZoomDelay);
+        }), (urlParams['zoom'] == 'fast') ? 500 : this.lazyZoomDelay);
 	};
 	
 	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up)

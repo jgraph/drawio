@@ -225,65 +225,66 @@
 			
 			// Waits for MathJax.Hub to become available to register
 			// wait counter callback asynchronously after math render
-			var editorDoMathJaxRender = Editor.doMathJaxRender;
+			// FIXME: Transforms ignored
+// 			var editorDoMathJaxRender = Editor.doMathJaxRender;
 			
-			Editor.doMathJaxRender = function(container)
-			{
-				editorDoMathJaxRender.apply(this, arguments);
+// 			Editor.doMathJaxRender = function(container)
+// 			{
+// 				editorDoMathJaxRender.apply(this, arguments);
 				
-				window.setTimeout(function()
-				{
-					window.MathJax.Hub.Queue(function ()
-					{
-						// Wraps all text labels in SVG foreignObjects to avoid
-						// Chrome changing offset for textboxes near page border
-						var pages = document.querySelectorAll('[id^=mxPage]');
+// 				window.setTimeout(function()
+// 				{
+// 					window.MathJax.Hub.Queue(function ()
+// 					{
+// 						// Wraps all text labels in SVG foreignObjects to avoid
+// 						// Chrome changing offset for textboxes near page border
+// 						var pages = document.querySelectorAll('[id^=mxPage]');
 						
-						for (var i = 0; i < pages.length; i++)
-						{
-							var page = pages[i];
-							var svg = page.getElementsByTagName('svg')[0];
-							var divs = page.getElementsByTagName('div');
-							var snap = [];
+// 						for (var i = 0; i < pages.length; i++)
+// 						{
+// 							var page = pages[i];
+// 							var svg = page.getElementsByTagName('svg')[0];
+// 							var divs = page.getElementsByTagName('div');
+// 							var snap = [];
 							
-							for (var j = 0; j < divs.length; j++)
-							{
-								if (divs[j].parentNode == svg.parentNode)
-								{
-									snap.push(divs[j]);
-								}
-							}
+// 							for (var j = 0; j < divs.length; j++)
+// 							{
+// 								if (divs[j].parentNode == svg.parentNode)
+// 								{
+// 									snap.push(divs[j]);
+// 								}
+// 							}
 							
-							var top = svg.parentNode.getBoundingClientRect();
+// 							var top = svg.parentNode.getBoundingClientRect();
 							
-							for (var j = 0; j < snap.length; j++)
-							{
-								if (snap[j].parentNode == svg.parentNode)
-								{
-									var fo = svg.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
-									var rect = snap[j].getBoundingClientRect();
+// 							for (var j = 0; j < snap.length; j++)
+// 							{
+// 								if (snap[j].parentNode == svg.parentNode)
+// 								{
+// 									var fo = svg.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
+// 									var rect = snap[j].getBoundingClientRect();
 									
-									// Sets position on foreignObject
-									fo.setAttribute('x', rect.x);
-									fo.setAttribute('y', rect.y - top.y);
-									fo.setAttribute('width', rect.width);
-									fo.setAttribute('height', rect.height);
+// 									// Sets position on foreignObject
+// 									fo.setAttribute('x', rect.x);
+// 									fo.setAttribute('y', rect.y - top.y);
+// 									fo.setAttribute('width', rect.width);
+// 									fo.setAttribute('height', rect.height);
 									
-									// Resets position on inner DIV
- 									snap[j].style.top = '0px';
-									snap[j].style.left = '0px';
-									snap[j].style.transform = '';
+// 									// Resets position on inner DIV
+//  									snap[j].style.top = '0px';
+// 									snap[j].style.left = '0px';
+// 									snap[j].style.transform = '';
 									
-									fo.appendChild(snap[j]);
-									svg.appendChild(fo);
-								}
-							}
-						}
+// 									fo.appendChild(snap[j]);
+// 									svg.appendChild(fo);
+// 								}
+// 							}
+// 						}
 						
-						decrementWaitCounter();
-					});
-				}, 0);
-			};
+// 						decrementWaitCounter();
+// 					});
+// 				}, 0);
+// 			};
 			
 			// Adds async MathJax rendering task
 			function renderMath(elt)
