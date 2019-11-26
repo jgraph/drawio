@@ -1,3 +1,7 @@
+26-NOV-2019: 12.3.1
+
+- Fixes PDF export with math typesetting
+
 25-NOV-2019: 12.3.0
 
 - Fixes client-side math export in Firefox

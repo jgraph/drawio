@@ -225,19 +225,19 @@
 			
 			// Waits for MathJax.Hub to become available to register
 			// wait counter callback asynchronously after math render
-			// FIXME: Transforms ignored
-// 			var editorDoMathJaxRender = Editor.doMathJaxRender;
+			var editorDoMathJaxRender = Editor.doMathJaxRender;
 			
-// 			Editor.doMathJaxRender = function(container)
-// 			{
-// 				editorDoMathJaxRender.apply(this, arguments);
+			Editor.doMathJaxRender = function(container)
+			{
+				editorDoMathJaxRender.apply(this, arguments);
 				
-// 				window.setTimeout(function()
-// 				{
-// 					window.MathJax.Hub.Queue(function ()
-// 					{
-// 						// Wraps all text labels in SVG foreignObjects to avoid
-// 						// Chrome changing offset for textboxes near page border
+				window.setTimeout(function()
+				{
+					window.MathJax.Hub.Queue(function ()
+					{
+						// Wraps all text labels in SVG foreignObjects to avoid
+						// Chrome changing offset for textboxes near page border
+						// FIXME: Transforms ignored
 // 						var pages = document.querySelectorAll('[id^=mxPage]');
 						
 // 						for (var i = 0; i < pages.length; i++)
@@ -281,10 +281,10 @@
 // 							}
 // 						}
 						
-// 						decrementWaitCounter();
-// 					});
-// 				}, 0);
-// 			};
+						decrementWaitCounter();
+					});
+				}, 0);
+			};
 			
 			// Adds async MathJax rendering task
 			function renderMath(elt)
