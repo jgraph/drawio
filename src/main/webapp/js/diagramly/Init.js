@@ -27,7 +27,7 @@ window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
 window.VIEWER_URL = null;
-window.EDITOR_UI_DRAW_URL = window.EDITOR_UI_DRAW_URL || 'http://editor-drawio.ido.test:8080';
+window.EDITOR_UI_DRAW_URL = window.EDITOR_UI_DRAW_URL || 'https://www.draw.io';
 
 // Paths and files
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
