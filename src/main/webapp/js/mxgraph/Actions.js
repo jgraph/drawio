@@ -230,7 +230,14 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+Delete');
 	this.addAction('duplicate', function()
 	{
-		graph.setSelectionCells(graph.duplicateCells());
+		try
+		{
+			graph.setSelectionCells(graph.duplicateCells());
+		}
+		catch (e)
+		{
+			ui.handleError(e);
+		}
 	}, null, null, Editor.ctrlKey + '+D');
 	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function()
 	{

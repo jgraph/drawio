@@ -6536,9 +6536,31 @@
 						st.setAttribute('type', 'text/css');
 						st.innerHTML = fontCss;
 						
-						// Must be in defs section for FF to work
+						// Creates defs element if not available
 						var defs = svgRoot.getElementsByTagName('defs');
-						defs[0].appendChild(st);	
+						var defsElt = null;
+						
+						if (defs.length == 0)
+						{
+							defsElt = (svgDoc.createElementNS != null) ?
+								svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+							
+							if (svgRoot.firstChild != null)
+							{
+								svgRoot.insertBefore(defsElt, svgRoot.firstChild);
+							}
+							else
+							{
+								svgRoot.appendChild(defsElt);
+							}
+						}
+						else
+						{
+							defsElt = defs[0];
+						}
+						
+						// Must be in defs section for FF to work
+						defsElt.appendChild(st);	
 					};
 					
 					var done = mxUtils.bind(this, function()
@@ -14089,13 +14111,20 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		if (curEdited != null)
 		{
-			curEdited.div = curEdited.div.cloneNode(true);
-			var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
-			var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
-			
-			curEdited.comment.content = commentEditTxt.value;
-			commentEditTxt.parentNode.removeChild(commentEditTxt);
-			commentEditBtns.parentNode.removeChild(commentEditBtns);
+			try
+			{
+				curEdited.div = curEdited.div.cloneNode(true);
+				var commentEditTxt = curEdited.div.querySelector('.geCommentEditTxtArea');
+				var commentEditBtns = curEdited.div.querySelector('.geCommentEditBtns');
+				
+				curEdited.comment.content = commentEditTxt.value;
+				commentEditTxt.parentNode.removeChild(commentEditTxt);
+				commentEditBtns.parentNode.removeChild(commentEditBtns);
+			}
+			catch (e)
+			{
+				editorUi.handleError(e);
+			}
 		}
 		
 		listDiv.innerHTML = '<div style="padding-top:10px;text-align:center;"><img src="' + IMAGE_PATH + '/spin.gif" valign="middle"> ' +

@@ -1384,16 +1384,26 @@ App.prototype.init = function()
 				/**
 				 * Holds the x-coordinate of the point.
 				 */
-				this.dropbox = new DropboxClient(this);
-				
-				this.dropbox.addListener('userChanged', mxUtils.bind(this, function()
+				try
 				{
-					this.updateUserElement();
-					this.restoreLibraries();
-				}));
-				
-				// Notifies listeners of new client
-				this.fireEvent(new mxEventObject('clientLoaded', 'client', this.dropbox));
+					this.dropbox = new DropboxClient(this);
+					
+					this.dropbox.addListener('userChanged', mxUtils.bind(this, function()
+					{
+						this.updateUserElement();
+						this.restoreLibraries();
+					}));
+					
+					// Notifies listeners of new client
+					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.dropbox));
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+				}
 			}
 			else if (window.DrawDropboxClientCallback == null)
 			{
