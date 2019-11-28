@@ -1577,6 +1577,28 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 };
 
 /**
+ * Returns an absolute URL to the given page or null of absolute links
+ * to pages are not supported in this file.
+ */
+EditorUi.prototype.getLinkForPage = function(page)
+{
+	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+	{
+		var file = this.getCurrentFile();
+		
+		if (file != null && file.constructor != LocalFile && this.getServiceName() == 'draw.io')
+		{
+			var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
+			search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
+			
+			return window.location.protocol + '//' + window.location.host + '/' + search + '#' + file.getHash();
+		}
+	}
+	
+	return null;
+};
+
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.createPageMenu = function(page, label)
@@ -1600,18 +1622,15 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		{
 			this.renamePage(page, label);
 		}), parent);
-
-		var file = this.getCurrentFile();
 		
-		if (file != null && file.constructor != LocalFile)
+		var url = this.getLinkForPage(page);
+		
+		if (url != null)
 		{
 			menu.addSeparator(parent);
 			
 			menu.addItem(mxResources.get('link'), null, mxUtils.bind(this, function()
 			{
-				var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
-				search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
-				var url = window.location.protocol + '//' + window.location.host + '/' + search + '#' + file.getHash();
 				var dlg = new EmbedDialog(this, url);
 				this.showDialog(dlg.container, 440, 240, true, true);
 				dlg.init();

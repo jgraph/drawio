@@ -1085,19 +1085,7 @@
 					this.addMenuItems(menu, ['feedback'], parent);
 				}
 
-				this.addMenuItems(menu, ['support', '-'], parent);
-				
-				if (!EditorUi.isElectronApp && !navigator.standalone && urlParams['embed'] != '1')
-				{
-					this.addMenuItems(menu, ['downloadDesktop'], parent);
-				}
-				
-				if (!navigator.standalone && urlParams['embed'] != '1')
-				{
-					this.addMenuItems(menu, ['useOffline'], parent);
-				}
-				
-				this.addMenuItems(menu, ['-', 'about'], parent);
+				this.addMenuItems(menu, ['support', '-', 'about'], parent);
 			}
 			
 			if (urlParams['test'] == '1')

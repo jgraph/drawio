@@ -54,8 +54,13 @@
 	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : 'https://rt.draw.io/cache';
+	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : window.REALTIME_URL;
 
+	if (EditorUi.cacheUrl == null && typeof DrawioFile !== 'undefined')
+	{
+		DrawioFile.SYNC = 'none'; //Disable real-time sync
+	}
+	
 	/**
 	 * Cache timeout is 10 seconds.
 	 */
@@ -10226,67 +10231,74 @@
 					// ignore
 				}
 
-				var graph = this.editor.graph;
-				
-				if (xml != null && xml.length > 0)
+				try
 				{
-					if (graph.lastPasteXml == xml)
+					var graph = this.editor.graph;
+					
+					if (xml != null && xml.length > 0)
 					{
-						graph.pasteCounter++;
-					}
-					else
-					{
-						graph.lastPasteXml = xml;
-						graph.pasteCounter = 0;
-					}
-
-					var dx = graph.pasteCounter * graph.gridSize;
-										
-					if (compat || this.isCompatibleString(xml))
-					{
-						graph.setSelectionCells(this.importXml(xml, dx, dx));
-					}
-					else
-					{
-						var pt = graph.getInsertPoint();
-						
-						if (graph.isMouseInsertPoint())
+						if (graph.lastPasteXml == xml)
 						{
-							dx = 0;
+							graph.pasteCounter++;
+						}
+						else
+						{
+							graph.lastPasteXml = xml;
+							graph.pasteCounter = 0;
+						}
+	
+						var dx = graph.pasteCounter * graph.gridSize;
+											
+						if (compat || this.isCompatibleString(xml))
+						{
+							graph.setSelectionCells(this.importXml(xml, dx, dx));
+						}
+						else
+						{
+							var pt = graph.getInsertPoint();
 							
-							// No offset for insert at mouse position
-							if (graph.lastPasteXml == xml && graph.pasteCounter > 0)
+							if (graph.isMouseInsertPoint())
 							{
-								graph.pasteCounter--;
+								dx = 0;
+								
+								// No offset for insert at mouse position
+								if (graph.lastPasteXml == xml && graph.pasteCounter > 0)
+								{
+									graph.pasteCounter--;
+								}
+							}
+							
+							graph.setSelectionCells(this.insertTextAt(xml, pt.x + dx, pt.y + dx, true));
+						}
+						
+						if (!graph.isSelectionEmpty())
+						{
+							graph.scrollCellToVisible(graph.getSelectionCell());
+						
+							if (this.hoverIcons != null)
+							{
+								this.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
+							}
+							
+							try
+							{
+								mxEvent.consume(evt);
+							}
+							catch (e)
+							{
+								// ignore event no longer exists in async handler in IE8-
 							}
 						}
-						
-						graph.setSelectionCells(this.insertTextAt(xml, pt.x + dx, pt.y + dx, true));
 					}
-					
-					if (!graph.isSelectionEmpty())
+					else if (!useEvent)
 					{
-						graph.scrollCellToVisible(graph.getSelectionCell());
-					
-						if (this.hoverIcons != null)
-						{
-							this.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
-						}
-						
-						try
-						{
-							mxEvent.consume(evt);
-						}
-						catch (e)
-						{
-							// ignore event no longer exists in async handler in IE8-
-						}
+						graph.lastPasteXml = null;
+						graph.pasteCounter = 0;
 					}
 				}
-				else if (!useEvent)
+				catch (e)
 				{
-					graph.lastPasteXml = null;
-					graph.pasteCounter = 0;
+					this.handleError(e);
 				}
 			}
 		}

@@ -852,9 +852,18 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		
 		if (!ignoreBgClick)
 		{
-			mxEvent.addGestureListeners(this.bg, null, null, mxUtils.bind(this, function(evt)
+			var mouseDownSeen = false;
+			
+			mxEvent.addGestureListeners(this.bg, mxUtils.bind(this, function(evt)
 			{
-				editorUi.hideDialog(true);
+				mouseDownSeen = true;
+			}), null, mxUtils.bind(this, function(evt)
+			{
+				if (mouseDownSeen)
+				{
+					editorUi.hideDialog(true);
+					mouseDownSeen = false;
+				}
 			}));
 		}
 	}

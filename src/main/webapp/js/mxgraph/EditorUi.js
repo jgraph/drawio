@@ -4303,7 +4303,20 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	{
 		keyHandler.bindControlKey(36, function() { if (graph.isEnabled()) { graph.foldCells(true); }}); // Ctrl+Home
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
-		keyHandler.bindControlKey(13, function() { if (graph.isEnabled()) { graph.setSelectionCells(graph.duplicateCells(graph.getSelectionCells(), false)); }}); // Ctrl+Enter
+		keyHandler.bindControlKey(13, function()
+		{
+			if (graph.isEnabled())
+			{
+				try
+				{
+					graph.setSelectionCells(graph.duplicateCells(graph.getSelectionCells(), false));
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}
+		}); // Ctrl+Enter
 		keyHandler.bindAction(8, false, 'delete'); // Backspace
 		keyHandler.bindAction(8, true, 'deleteAll'); // Backspace
 		keyHandler.bindAction(46, false, 'delete'); // Delete

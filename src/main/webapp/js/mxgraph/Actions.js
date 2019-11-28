@@ -80,7 +80,17 @@ Actions.prototype.init = function()
 	this.addAction('undo', function() { ui.undo(); }, null, 'sprite-undo', Editor.ctrlKey + '+Z');
 	this.addAction('redo', function() { ui.redo(); }, null, 'sprite-redo', (!mxClient.IS_WIN) ? Editor.ctrlKey + '+Shift+Z' : Editor.ctrlKey + '+Y');
 	this.addAction('cut', function() { mxClipboard.cut(graph); }, null, 'sprite-cut', Editor.ctrlKey + '+X');
-	this.addAction('copy', function() { mxClipboard.copy(graph); }, null, 'sprite-copy', Editor.ctrlKey + '+C');
+	this.addAction('copy', function()
+	{
+		try
+		{
+			mxClipboard.copy(graph);
+		}
+		catch (e)
+		{
+			ui.handleError(e);
+		}
+	}, null, 'sprite-copy', Editor.ctrlKey + '+C');
 	this.addAction('paste', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
