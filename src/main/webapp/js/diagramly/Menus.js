@@ -1080,12 +1080,17 @@
 				
 				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart', 'userManual', '-'], parent);
 				
+				if (!EditorUi.isElectronApp && !navigator.standalone && urlParams['embed'] != '1')	
+				{	
+					this.addMenuItems(menu, ['downloadDesktop'], parent);	
+				}
+				
 				if (!mxClient.IS_CHROMEAPP)
 				{
-					this.addMenuItems(menu, ['feedback'], parent);
+					this.addMenuItems(menu, ['feedback', 'support'], parent);
 				}
 
-				this.addMenuItems(menu, ['support', '-', 'about'], parent);
+				this.addMenuItems(menu, ['-', 'about'], parent);
 			}
 			
 			if (urlParams['test'] == '1')

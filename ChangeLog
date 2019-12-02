@@ -1,3 +1,8 @@
+02-DEC-2019: 12.3.5
+
+- Fixes deletion bugs causing search incorrect results in Jira Cloud
+- Fixes text alignment for block elements
+
 02-DEC-2019: 12.3.4
 
 - Fixes Gliffy global text size setting on import

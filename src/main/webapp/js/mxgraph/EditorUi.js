@@ -2065,93 +2065,109 @@ EditorUi.prototype.initCanvas = function()
 	
 	// Accumulates the zoom factor while the rendering is taking place
 	// so that not the complete sequence of zoom steps must be painted
-	graph.updateZoomTimeout = null;
+	var bgGroup = graph.view.getBackgroundPane();
+	var mainGroup = graph.view.getDrawPane();
 	graph.cumulativeZoomFactor = 1;
-	
+	var updateZoomTimeout = null;
 	var cursorPosition = null;
 	var scrollPosition = null;
-	var updateZoomTimeout = null
-	var mainGroup = graph.view.getDrawPane();
-	var bgGroup = graph.view.getBackgroundPane();
 	
 	var isFastZoomEnabled = function()
 	{
-		return urlParams['zoom'] == 'fast' && !graph.mathEnabled;
+		return urlParams['zoom'] == 'fast' && !graph.mathEnabled && !mxClient.NO_FO;
 	};
 	
 	var scheduleZoom = function()
-	{	
+	{
 		if (updateZoomTimeout != null)
 		{
 			window.clearTimeout(updateZoomTimeout);
 		}
 
-        updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
-        {
-        	if (isFastZoomEnabled())
-    		{
-            	// Transforms background page
-  				if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
-  				{
-  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform-origin', null);
-  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform', null);
-  				}
-  				
-  				// Transforms graph and background image
-        		mainGroup.removeAttribute('transform-origin');
-            	mainGroup.removeAttribute('transform');
-            	bgGroup.removeAttribute('transform-origin');
-            	bgGroup.removeAttribute('transform');
-            	
-            	// Shows interactive elements
-            	graph.view.getOverlayPane().style.opacity = '';
-            	graph.view.getDecoratorPane().style.opacity = '';
-    		}
-        	
-        	var tx = graph.container.scrollLeft - scrollPosition.x;
-        	var ty = graph.container.scrollTop - scrollPosition.y;
-        	
-            var prev = graph.view.scale;
-            graph.zoom(graph.cumulativeZoomFactor);
-            var s = graph.view.scale;
-            
-            if (s != prev)
-            {
-	            var offset = mxUtils.getOffset(graph.container);
-	            var dx = 0;
-	            var dy = 0;
-	            
-	            if (cursorPosition != null)
-	            {
-	                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
-	                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
-	            }
-
-                if (resize != null)
-                {
-                	ui.chromelessResize(false, null, dx * (graph.cumulativeZoomFactor - 1),
-                		dy * (graph.cumulativeZoomFactor - 1));
-                }
-                
-                if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))
-                {
-                    graph.container.scrollLeft -= dx * (graph.cumulativeZoomFactor - 1) + tx;
-                    graph.container.scrollTop -= dy * (graph.cumulativeZoomFactor - 1) + ty;
-                }
-            }
-            
-            graph.cumulativeZoomFactor = 1;
-            updateZoomTimeout = null;
-        }), (isFastZoomEnabled()) ? 800 : this.lazyZoomDelay);
+		window.setTimeout(function()
+		{
+			if (!graph.isMouseDown)
+			{
+				updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
+		        {
+		        	if (isFastZoomEnabled())
+		    		{
+		            	// Transforms background page
+		  				if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
+		  				{
+		  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform-origin', null);
+		  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform', null);
+		  				}
+		  				
+		  				// Transforms graph and background image
+		        		mainGroup.removeAttribute('transform-origin');
+		            	mainGroup.removeAttribute('transform');
+		            	bgGroup.removeAttribute('transform-origin');
+		            	bgGroup.removeAttribute('transform');
+		            	
+		            	// Shows interactive elements
+		            	graph.view.getDecoratorPane().style.opacity = '';
+		            	graph.view.getOverlayPane().style.opacity = '';
+		    		}
+		        	
+		        	var sp = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
+		        	var prev = graph.view.scale;
+		            graph.zoom(graph.cumulativeZoomFactor);
+		            var s = graph.view.scale;
+		            
+		            if (s != prev)
+		            {
+			            var offset = mxUtils.getOffset(graph.container);
+			            var dx = 0;
+			            var dy = 0;
+			            
+			            if (cursorPosition != null)
+			            {
+			                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
+			                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
+			            }
+		
+			            if (scrollPosition != null)
+			            {
+			            	dx += sp.x - scrollPosition.x;
+			            	dy += sp.y - scrollPosition.y;
+			            }
+			            
+		                if (resize != null)
+		                {
+		                	ui.chromelessResize(false, null, dx * (graph.cumulativeZoomFactor - 1),
+		                		dy * (graph.cumulativeZoomFactor - 1));
+		                }
+		                
+		                if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))
+		                {
+		                    graph.container.scrollLeft -= dx * (graph.cumulativeZoomFactor - 1);
+		                    graph.container.scrollTop -= dy * (graph.cumulativeZoomFactor - 1);
+		                }
+		            }
+		            
+		            graph.cumulativeZoomFactor = 1;
+		            updateZoomTimeout = null;
+		            scrollPosition = null;
+		            cursorPosition = null;
+		        }), (isFastZoomEnabled()) ? 800 : this.lazyZoomDelay);
+			}
+		}, 0);
 	};
 
 	graph.lazyZoom = function(zoomIn, ignoreCursorPosition)
 	{
-		// Switches to 2% zoom steps below 15%
-		// Lower bound depends on rounding below
+		if (ignoreCursorPosition)
+		{
+			cursorPosition = new mxPoint(
+				graph.container.offsetLeft + graph.container.clientWidth / 2,
+				graph.container.offsetTop + graph.container.clientHeight / 2);
+		}
+		
+		// Switches to 5% zoom steps below 15%
 		if (zoomIn)
 		{
-			if (this.view.scale * this.cumulativeZoomFactor < 0.15)
+			if (this.view.scale * this.cumulativeZoomFactor <= 0.15)
 			{
 				this.cumulativeZoomFactor *= (this.view.scale + 0.05) / this.view.scale;
 			}
@@ -2182,6 +2198,7 @@ EditorUi.prototype.initCanvas = function()
 
 		if (isFastZoomEnabled())
 		{
+			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
 			var cx = (ignoreCursorPosition) ? graph.container.scrollLeft + graph.container.clientWidth / 2 :
 				cursorPosition.x + graph.container.scrollLeft - graph.container.offsetLeft;
 			var cy = (ignoreCursorPosition) ? graph.container.scrollTop + graph.container.clientHeight / 2 :
@@ -2208,8 +2225,8 @@ EditorUi.prototype.initCanvas = function()
 					'scale(' + this.cumulativeZoomFactor + ')');
 			}
 
-			graph.view.getOverlayPane().style.opacity = '0';
 			graph.view.getDecoratorPane().style.opacity = '0';
+			graph.view.getOverlayPane().style.opacity = '0';
 			
 			if (ui.hoverIcons != null)
 			{
@@ -2220,10 +2237,25 @@ EditorUi.prototype.initCanvas = function()
 		scheduleZoom();
 	};
 	
-	// Hold back repaint until scroll ends
+	// Holds back repaint until after mouse gestures
+	mxEvent.addGestureListeners(document.body, function(evt)
+	{
+		if (updateZoomTimeout != null)
+		{
+			window.clearTimeout(updateZoomTimeout);
+		}
+	}, null, function(evt)
+	{
+		if (graph.cumulativeZoomFactor != 1)
+		{
+			scheduleZoom();
+		}
+	});
+	
+	// Holds back repaint until scroll ends
 	mxEvent.addListener(graph.container, 'scroll', function()
 	{
-		if (updateZoomTimeout)
+		if (updateZoomTimeout && !graph.isMouseDown)
 		{
 			scheduleZoom();
 		}
@@ -2241,7 +2273,6 @@ EditorUi.prototype.initCanvas = function()
 				if (source == graph.container)
 				{
 					cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-					scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
 					graph.lazyZoom(up);
 					mxEvent.consume(evt);
 			

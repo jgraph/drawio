@@ -7282,15 +7282,29 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxCellEditor.prototype.alignText = function(align, evt)
 		{
-			if (!this.isTableSelected() == (evt == null || !mxEvent.isShiftDown(evt)))
+			var shiftPressed = evt != null && mxEvent.isShiftDown(evt);
+			
+			if (shiftPressed || (window.getSelection != null && window.getSelection().containsNode != null))
 			{
-				this.graph.cellEditor.setAlign(align);
+				var allSelected = true;
 				
-				this.graph.processElements(this.textarea, function(elt)
+				this.graph.processElements(this.textarea, function(node)
 				{
-					elt.removeAttribute('align');
-					elt.style.textAlign = null;
+					if (shiftPressed || window.getSelection().containsNode(node, true))
+					{
+						node.removeAttribute('align');
+						node.style.textAlign = null;
+					}
+					else
+					{
+						allSelected = false;
+					}
 				});
+				
+				if (allSelected)
+				{
+					this.graph.cellEditor.setAlign(align);
+				}
 			}
 			
 			document.execCommand('justify' + align.toLowerCase(), false, null);
