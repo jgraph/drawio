@@ -5493,7 +5493,7 @@ App.prototype.updateHeader = function()
 		this.appIcon.style.width = '28px';
 		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
 		this.appIcon.style.margin = '14px 0px 8px 20px';
-		this.appIcon.style.opacity = '0.75';
+		this.appIcon.style.opacity = '0.85';
 		this.appIcon.style.borderRadius = '3px';
 		
 		if (uiTheme != 'dark')

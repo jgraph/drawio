@@ -1,3 +1,9 @@
+02-DEC-2019: 12.3.4
+
+- Fixes Gliffy global text size setting on import
+- Fixes settings override with configuration
+- Adds custom fonts in print output
+
 28-NOV-2019: 12.3.3
 
 - Adds more ERD shapes

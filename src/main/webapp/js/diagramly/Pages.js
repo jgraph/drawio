@@ -504,10 +504,10 @@ Graph.prototype.createViewState = function(node)
 		try
 		{
 			extFonts = extFonts.split('|').map(function(ef)
-				{
-					var parts = ef.split('^');
-					return {name: parts[0], url: parts[1]};
-				});
+			{
+				var parts = ef.split('^');
+				return {name: parts[0], url: parts[1]};
+			});
 		}
 		catch(e)
 		{

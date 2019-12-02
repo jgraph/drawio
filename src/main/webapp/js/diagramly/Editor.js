@@ -5213,6 +5213,29 @@
 							doc.writeln(editorUi.editor.fontCss);
 							doc.writeln('</style>');
 						}
+						
+						if (thisGraph.extFonts != null)
+						{
+							for (var i = 0; i < thisGraph.extFonts.length; i++)
+							{
+								var fontName = thisGraph.extFonts[i].name;
+								var fontUrl = thisGraph.extFonts[i].url;
+								
+								if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+								{
+							   		doc.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
+								}
+								else
+								{
+							   		doc.writeln('<style type="text/css">');
+							   		doc.writeln('@font-face {\n' +
+								            '\tfont-family: "'+ fontName +'";\n' + 
+								            '\tsrc: url("'+ fontUrl +'");\n' + 
+								            '}');
+							   		doc.writeln('</style>');
+								}
+							}
+						}
 					};
 					
 					if (typeof(MathJax) !== 'undefined')
@@ -5275,6 +5298,29 @@
 					pv.backgroundColor = bg;
 					pv.autoOrigin = autoOrigin;
 					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
+					
+					if (thisGraph.extFonts != null && pv.wnd != null)
+					{
+						for (var i = 0; i < thisGraph.extFonts.length; i++)
+						{
+							var fontName = thisGraph.extFonts[i].name;
+							var fontUrl = thisGraph.extFonts[i].url;
+							
+							if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+							{
+						   		pv.wnd.document.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
+							}
+							else
+							{
+						   		pv.wnd.document.writeln('<style type="text/css">');
+						   		pv.wnd.document.writeln('@font-face {\n' +
+							            '\tfont-family: "'+ fontName +'";\n' + 
+							            '\tsrc: url("'+ fontUrl +'");\n' + 
+							            '}');
+						   		pv.wnd.document.writeln('</style>');
+							}
+						}
+					}
 				}
 				
 				// Restores state if css transforms are used
@@ -5343,6 +5389,7 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
+							tempGraph.extFonts = page.viewState.extFonts;
 						}
 					
 						tempGraph.background = bg;

@@ -712,6 +712,7 @@ public class GliffyDiagramConverter
 					cell.setValue(fragmentText);
 					gliffyObject.children.remove(0);
 				}
+				setFontSizeBasedOnGlobal(style);
 			}
 			else if (gliffyObject.isLine())
 			{
@@ -736,6 +737,7 @@ public class GliffyDiagramConverter
 				textObject = gliffyObject;
 				cell.setVertex(true);
 				style.append("text;html=1;nl2Br=0;");
+//				setFontSizeBasedOnGlobal(style);
 				cell.setValue(gliffyObject.getText());
 
 				//if text is a child of a cell, use relative geometry and set X and Y to 0
@@ -1030,6 +1032,15 @@ public class GliffyDiagramConverter
 		gliffyObject.mxObject = cell;
 
 		return cell;
+	}
+
+	private void setFontSizeBasedOnGlobal(StringBuilder style)
+	{
+		if (gliffyDiagram.stage.getTextStyles() != null && gliffyDiagram.stage.getTextStyles().getGlobal() != null
+				&& gliffyDiagram.stage.getTextStyles().getGlobal().getSize() != null)
+		{
+			style.append("fontSize=" + gliffyDiagram.stage.getTextStyles().getGlobal().getSize() + ";");
+		}
 	}
 
 	/**

@@ -256,13 +256,8 @@ var mxSettings =
 		{
 			var temp = JSON.parse(value);
 			
-			if (Editor.config != null && (Editor.config.override ||
-					temp.configVersion != Editor.configVersion))
-				{
-					mxSettings.settings = null;
-				}
-			
-			if (temp == null || (Editor.config != null && Editor.config.override))
+			if (temp == null || (Editor.config != null && Editor.config.override) ||
+				temp.configVersion != Editor.configVersion)
 			{
 				mxSettings.settings = null;
 			}

@@ -20,6 +20,8 @@ public class Stage
 	private List<GliffyObject> objects;
 	
 	private List<GliffyLayer> layers;
+	
+	private TextStyles textStyles;
 
 	public Stage()
 	{
@@ -101,5 +103,15 @@ public class Stage
 
 	public void setLayers(List<GliffyLayer> layers) {
 		this.layers = layers;
+	}
+
+	public TextStyles getTextStyles()
+	{
+		return textStyles;
+	}
+
+	public void setTextStyles(TextStyles textStyles)
+	{
+		this.textStyles = textStyles;
 	}
 }
