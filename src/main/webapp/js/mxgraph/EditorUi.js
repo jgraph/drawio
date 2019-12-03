@@ -1373,9 +1373,14 @@ EditorUi.prototype.initClipboard = function()
 };
 
 /**
- * Initializes the infinite canvas.
+ * Delay between zoom steps when not using preview.
  */
 EditorUi.prototype.lazyZoomDelay = 20;
+
+/**
+ * Delay before update of DOM when using preview.
+ */
+EditorUi.prototype.previewZoomDelay = 420;
 
 /**
  * Initializes the infinite canvas.
@@ -2074,10 +2079,11 @@ EditorUi.prototype.initCanvas = function()
 	
 	var isFastZoomEnabled = function()
 	{
-		return urlParams['zoom'] == 'fast' && !graph.mathEnabled && !mxClient.NO_FO;
+		return urlParams['zoom'] != 'nocss' && !graph.mathEnabled &&
+			!mxClient.NO_FO && !graph.useCssTransforms;
 	};
 	
-	var scheduleZoom = function()
+	var scheduleZoom = function(immediate)
 	{
 		if (updateZoomTimeout != null)
 		{
@@ -2150,7 +2156,7 @@ EditorUi.prototype.initCanvas = function()
 		            updateZoomTimeout = null;
 		            scrollPosition = null;
 		            cursorPosition = null;
-		        }), (isFastZoomEnabled()) ? 800 : this.lazyZoomDelay);
+		        }), (immediate) ? 0 : ((isFastZoomEnabled()) ? ui.previewZoomDelay : ui.lazyZoomDelay));
 			}
 		}, 0);
 	};
@@ -2194,7 +2200,7 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}
 
-		this.cumulativeZoomFactor = Math.max(0.01, Math.min(this.view.scale * this.cumulativeZoomFactor, 160)) / this.view.scale;
+		this.cumulativeZoomFactor = Math.max(0.05, Math.min(this.view.scale * this.cumulativeZoomFactor, 160)) / this.view.scale;
 
 		if (isFastZoomEnabled())
 		{
@@ -2248,7 +2254,8 @@ EditorUi.prototype.initCanvas = function()
 	{
 		if (graph.cumulativeZoomFactor != 1)
 		{
-			scheduleZoom();
+			// Forces immediate rendering on non-panning clicks
+			scheduleZoom(mxEvent.isLeftMouseButton(evt));
 		}
 	});
 	
@@ -2272,8 +2279,23 @@ EditorUi.prototype.initCanvas = function()
 			{
 				if (source == graph.container)
 				{
-					cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+					var cp = cursorPosition;
+					var cz = graph.cumulativeZoomFactor; 
+					
+					cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));;
 					graph.lazyZoom(up);
+					
+					if (cp != null)
+					{
+						// FIXME: Wheel on point then move and wheel again within timeout jumps around
+						var f = cz / graph.cumulativeZoomFactor;
+						var tx = (cursorPosition.x - cp.x) * f / graph.view.scale;
+						var ty = (cursorPosition.y - cp.y) * f / graph.view.scale;
+						//console.log('cp', cursorPosition, cp, cz / graph.cumulativeZoomFactor, tx, graph.zoomFactor, f);
+						graph.container.scrollLeft -= tx;
+						graph.container.scrollTop -= ty;
+					}
+					
 					mxEvent.consume(evt);
 			
 					return false;

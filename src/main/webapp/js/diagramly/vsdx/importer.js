@@ -2321,7 +2321,12 @@ var com;
                         var _loop_1 = function (index124) {
                             var row = this_1.rows[index124];
                             {
-                                /* append */ (function (sb) { return sb.str = sb.str.concat(row.handle(p, shape)); })(geomElemParsed);
+                                /* append */ 
+                            	(function (sb) 
+                                {
+                            		//Some files has null rows
+                                	return sb.str = sb.str.concat(row != null? row.handle(p, shape) : ''); 
+                                })(geomElemParsed);
                             }
                         };
                         var this_1 = this;
@@ -2346,7 +2351,11 @@ var com;
                          * @return {number}
                          */
                         mxVsdxGeometry$0.prototype.compare = function (r1, r2) {
-                            return r1.getIndex() - r2.getIndex();
+                        	//Some files has null rows
+                        	var r1i = r1 != null? r1.getIndex() : 0;
+                        	var r2i = r2 != null? r2.getIndex() : 0;
+                        	
+                            return r1i - r2i;
                         };
                         return mxVsdxGeometry$0;
                     }());
@@ -3319,7 +3328,9 @@ var com;
                                     else {
                                         return o1 === o2;
                                     } })(masterId, "")) {
-                                        elem = masterTmp.getSubShape(masterId).getShape();
+                                    	var subShape = masterTmp.getSubShape(masterId)
+                                    	//Some files has non-existing master sub-shapes
+                                        elem = subShape != null? subShape.getShape() : elem;
                                     }
                                     isEdge = this.isEdge(elem);
                                 }

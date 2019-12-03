@@ -6575,6 +6575,11 @@
 							addFontCss(this.editor.resolvedFontCss);
 						}
 						
+						if (this.editor.graph.mathEnabled)
+						{
+							this.editor.addMathCss(svgRoot);
+						}
+						
 						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 					});
 					

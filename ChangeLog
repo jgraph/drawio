@@ -1,3 +1,9 @@
+03-DEC-2019: 12.3.6
+
+- Moves rotation handle to top right corner
+- Adds faster mouse wheel zoom
+- Uses mxGraph 4.0.6 beta 8
+
 02-DEC-2019: 12.3.5
 
 - Fixes deletion bugs causing search incorrect results in Jira Cloud
