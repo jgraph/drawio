@@ -800,6 +800,20 @@
 			  	Editor.prototype.fontCss = config.fontCss;
 			}
 			
+			if (config.autosaveDelay != null)
+			{
+				var val = parseInt(config.autosaveDelay);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					DrawioFile.prototype.autosaveDelay = val;
+				}
+				else
+				{
+					EditorUi.debug('Invalid autosaveDelay: ' + config.autosaveDelay);
+				}
+			}
+			
 			if (config.plugins != null && !untrusted)
 			{
 				// Required for callback
@@ -813,6 +827,8 @@
 		}
 	};
 
+	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
+	
 	/**
 	 * Generates a unique ID of the given length
 	 */
@@ -933,6 +949,29 @@
 				this.graph.updateCssTransform();
 
 				this.graph.setShadowVisible(node.getAttribute('shadow') == '1', false);
+				
+				var extFonts = node.getAttribute('extFonts');
+				
+				if (extFonts)
+				{
+					try
+					{
+						extFonts = extFonts.split('|').map(function(ef)
+						{
+							var parts = ef.split('^');
+							return {name: parts[0], url: parts[1]};
+						});
+						
+						for (var i = 0; i < extFonts.length; i++)
+						{
+							this.graph.addExtFont(extFonts[i].name, extFonts[i].url);
+						}
+					}
+					catch(e)
+					{
+						console.log('ExtFonts format error: ' + e.message);
+					}
+				}
 			}
 	
 			// Calls updateGraphComponents
@@ -970,6 +1009,16 @@
 		
 		node.setAttribute('math', (this.graph.mathEnabled) ? '1' : '0');
 		node.setAttribute('shadow', (this.graph.shadowVisible) ? '1' : '0');
+		
+		if (this.graph.extFonts != null && this.graph.extFonts.length > 0)
+		{
+			var strExtFonts = this.graph.extFonts.map(function(ef)
+			{
+				return ef.name + '^' + ef.url;
+			});
+			
+			node.setAttribute('extFonts', strExtFonts.join('|'));
+		}
 		
 		return node;
 	};
@@ -1211,7 +1260,7 @@
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
-
+	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
@@ -1644,47 +1693,53 @@
         }
     };
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
-	 * Converts math in the given SVG
+	 * Copies MathJax CSS into the SVG output.
 	 */
-	Editor.prototype.convertMath = function(graph, svgRoot, fixPosition, callback)
+	Editor.prototype.addMathCss = function(svgRoot)
 	{
-		if (graph.mathEnabled && typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (defs != null && defs.length > 0)
 		{
-	      	// Temporarily attaches to DOM for rendering
-			// FIXME: If adding svgRoot to body, the text
-			// value of the math is appended, if not
-			// added to DOM then LaTeX does not work.
-			// This must be fixed to enable client-side export
-			// if math is enabled.
-//			document.body.appendChild(svgRoot);
-			Editor.MathJaxRender(svgRoot);
-	      
-			window.setTimeout(mxUtils.bind(this, function()
+			var styles = document.getElementsByTagName('style');
+			
+			for (var i = 0; i < styles.length; i++)
 			{
-				MathJax.Hub.Queue(mxUtils.bind(this, function ()
+				// Ignores style elements with no MathJax CSS
+				if (mxUtils.getTextContent(styles[i]).indexOf('MathJax') > 0)
 				{
-					// Removes from DOM
-//					svgRoot.parentNode.removeChild(svgRoot);
-					
-					callback();
-				}));
-			}), 0);
-		}
-		else
-		{
-			callback();
+					defs[0].appendChild(styles[i].cloneNode(true));
+				}
+			}
 		}
 	};
 
+	/**
+	 * Adds the global fontCss configuration.
+	 */
+	Editor.prototype.addFontCss = function(svgRoot)
+	{
+		var defs = svgRoot.getElementsByTagName('defs');
+		
+		if (this.fontCss != null && defs != null && defs.length > 0)
+		{
+			var svgDoc = svgRoot.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			style.setAttribute('type', 'text/css');
+			mxUtils.setTextContent(style, this.fontCss);
+			defs[0][0].appendChild(style);
+		}
+	};
+	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * See fixme in convertMath for client-side image generation with math.
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || (!this.graph.mathEnabled && this.useCanvasForExport);
+		return mxClient.IS_CHROMEAPP || ((this.graph.extFonts == null || this.graph.extFonts.length == 0) && this.useCanvasForExport);
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -1807,10 +1862,12 @@
 						defs[0].appendChild(st);
 					}
 					
-					this.convertMath(graph, svgRoot, true, mxUtils.bind(this, function()
+					if (graph.mathEnabled)
 					{
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-					}));
+						this.addMathCss(svgRoot);
+					}
+					
+					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 				});
 				
 				this.loadFonts(done);
@@ -3891,7 +3948,8 @@
 	 */
 	var graphGetSvg = Graph.prototype.getSvg;
 	
-	Graph.prototype.getSvg = function()
+	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
+			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts)
 	{
 		var temp = null;
 		
@@ -3903,6 +3961,37 @@
 		}
 		
 		var result = graphGetSvg.apply(this, arguments);
+		
+		// Adds extrnal fonts
+		if (incExtFonts && this.extFonts != null && this.extFonts.length > 0)
+		{
+			var svgDoc = result.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
+			
+			var styleCnt = '';
+			    	
+			for (var i = 0; i < this.extFonts.length; i++)
+			{
+				var fontName = this.extFonts[i].name, fontUrl = this.extFonts[i].url;
+				
+				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				{
+					styleCnt += '@import url(' + fontUrl + ');';
+				}
+				else
+				{
+					styleCnt += '@font-face {' +
+			            'font-family: "'+ fontName +'";' + 
+			            'src: url("'+ fontUrl +'");' + 
+			            '}';
+				}				
+			}
+			
+			style.appendChild(svgDoc.createTextNode(styleCnt));
+			result.getElementsByTagName('defs')[0].appendChild(style);
+		}
 		
 		if (temp != null)
 		{
@@ -3926,31 +4015,25 @@
 		{
 			var graph = this;
 			var origin = graph.container.getBoundingClientRect();
-			var dy = graph.container.scrollTop - origin.y;
-			var dx = graph.container.scrollLeft - origin.x;
+			var y0 = graph.container.scrollTop - origin.y;
+			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
 
-			// Copies rendered math from container to SVG document
-			imgExport.drawText = function(state, canvas)
+			imgExport.drawText = function(state, c)
 			{
-				if (state.text != null && state.text.node != null &&
-					state.text.node.ownerSVGElement == null)
+				if (c.addForeignObject != null && state.text != null && state.text.checkBounds() &&
+					state.text.node != null && state.text.node.ownerSVGElement == null)
 				{
-					// Copies text into DOM using actual bounding box
-					var rect = state.text.node.getBoundingClientRect();
+					c.save();
 					
-					// Sets position on foreignObject
-					var fo = canvas.root.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
-					fo.setAttribute('x', (rect.x + dx) * canvas.state.scale + canvas.state.dx);
-					fo.setAttribute('y', (rect.y + dy) * canvas.state.scale + canvas.state.dy);
-					fo.setAttribute('width', rect.width * canvas.state.scale);
-					fo.setAttribute('height', rect.height * canvas.state.scale);
-					
-					// Resets position on inner DIV
+					// Copies text into DOM using untransformed bounding box
 					var clone = state.text.node.cloneNode(true);
+
+					// Clears styles that go to wrapper group
+					clone.style.transformOrigin = '';
+					clone.style.transform = '';
 					clone.style.top = '0px';
 					clone.style.left = '0px';
-					clone.style.transform = '';
 					
 					// Removes all math elements
 					var ele = clone.getElementsByTagName('math');
@@ -3960,8 +4043,53 @@
 						ele[0].parentNode.removeChild(ele[0]);
 					}
 					
-					fo.appendChild(clone);
-					canvas.root.ownerSVGElement.appendChild(fo);
+					var s = state.text.scale;
+					var x = state.text.bounds.x / s;
+					var y = state.text.bounds.y / s;
+					var w = state.text.bounds.width / s;
+					var h = state.text.bounds.height / s;
+					
+					state.text.updateTransform(c, x, y, w, h);
+					state.text.configureCanvas(c, x, y, w, h);
+
+					// Checks if text contains HTML markup
+					var realHtml = mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML;
+					
+					// Always renders labels as HTML in VML
+					var fmt = (realHtml || c instanceof mxVmlCanvas2D) ? 'html' : '';
+					var val = state.text.value;
+					
+					if (!realHtml && fmt == 'html')
+					{
+						val =  mxUtils.htmlEntities(val, false);
+					}
+					
+					if (fmt == 'html' && !mxUtils.isNode(state.text.value))
+					{
+						val = mxUtils.replaceTrailingNewlines(val, '<div><br></div>');			
+					}
+					
+					// Handles trailing newlines to make sure they are visible in rendering output
+					val = (!mxUtils.isNode(state.text.value) && state.text.replaceLinefeeds && fmt == 'html') ?
+						val.replace(/\n/g, '<br/>') : val;
+						
+					var dir = state.text.textDirection;
+				
+					if (dir == mxConstants.TEXT_DIRECTION_AUTO && !realHtml)
+					{
+						dir = state.text.getAutoDirection();
+					}
+					
+					if (dir != mxConstants.TEXT_DIRECTION_LTR && dir != mxConstants.TEXT_DIRECTION_RTL)
+					{
+						dir = null;
+					}
+					
+					c.addForeignObject(x + c.state.dx, y + c.state.dy, w, h, val,
+						state.text.align, state.text.valign, state.text.wrap, fmt,
+						state.text.overflow, state.text.clipped, state.text.getTextRotation(),
+						dir, clone, c.root.ownerSVGElement);
+					c.restore();
 				}
 				else
 				{
@@ -4649,6 +4777,7 @@
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
+	mxStencilRegistry.libraries['kubernetes'] = [SHAPES_PATH + '/mxKubernetes.js', STENCIL_PATH + '/kubernetes.xml'];
 	mxStencilRegistry.libraries['flowchart'] = [SHAPES_PATH + '/mxFlowchart.js', STENCIL_PATH + '/flowchart.xml'];
 	mxStencilRegistry.libraries['ios'] = [SHAPES_PATH + '/mockup/mxMockupiOS.js'];
 	mxStencilRegistry.libraries['rackGeneral'] = [SHAPES_PATH + '/rack/mxRack.js', STENCIL_PATH + '/rack/general.xml'];
@@ -5084,6 +5213,29 @@
 							doc.writeln(editorUi.editor.fontCss);
 							doc.writeln('</style>');
 						}
+						
+						if (thisGraph.extFonts != null)
+						{
+							for (var i = 0; i < thisGraph.extFonts.length; i++)
+							{
+								var fontName = thisGraph.extFonts[i].name;
+								var fontUrl = thisGraph.extFonts[i].url;
+								
+								if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+								{
+							   		doc.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
+								}
+								else
+								{
+							   		doc.writeln('<style type="text/css">');
+							   		doc.writeln('@font-face {\n' +
+								            '\tfont-family: "'+ fontName +'";\n' + 
+								            '\tsrc: url("'+ fontUrl +'");\n' + 
+								            '}');
+							   		doc.writeln('</style>');
+								}
+							}
+						}
 					};
 					
 					if (typeof(MathJax) !== 'undefined')
@@ -5146,6 +5298,29 @@
 					pv.backgroundColor = bg;
 					pv.autoOrigin = autoOrigin;
 					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
+					
+					if (thisGraph.extFonts != null && pv.wnd != null)
+					{
+						for (var i = 0; i < thisGraph.extFonts.length; i++)
+						{
+							var fontName = thisGraph.extFonts[i].name;
+							var fontUrl = thisGraph.extFonts[i].url;
+							
+							if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+							{
+						   		pv.wnd.document.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
+							}
+							else
+							{
+						   		pv.wnd.document.writeln('<style type="text/css">');
+						   		pv.wnd.document.writeln('@font-face {\n' +
+							            '\tfont-family: "'+ fontName +'";\n' + 
+							            '\tsrc: url("'+ fontUrl +'");\n' + 
+							            '}');
+						   		pv.wnd.document.writeln('</style>');
+							}
+						}
+					}
 				}
 				
 				// Restores state if css transforms are used
@@ -5214,6 +5389,7 @@
 							mathEnabled = page.viewState.mathEnabled;
 							bg = page.viewState.background;
 							bgImage = page.viewState.backgroundImage;
+							tempGraph.extFonts = page.viewState.extFonts;
 						}
 					
 						tempGraph.background = bg;

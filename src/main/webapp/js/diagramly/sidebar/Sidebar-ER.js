@@ -17,6 +17,35 @@
 		// Default tags
 		var dt = 'er entity relation ';
 		
+		function createEdge(style, m, n)
+		{
+			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), style);
+			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
+			edge.geometry.setTerminalPoint(new mxPoint(160, 0), false);
+			edge.geometry.relative = true;
+			edge.edge = true;
+			
+			if (m != null)
+			{
+		    	var cell1 = new mxCell(m, new mxGeometry(-1, 0, 0, 0), 'resizable=0;html=1;align=left;verticalAlign=bottom;');
+		    	cell1.geometry.relative = true;
+		    	cell1.setConnectable(false);
+		    	cell1.vertex = true;
+		    	edge.insert(cell1);
+			}
+			
+			if (n != null)
+			{
+		    	var cell2 = new mxCell(n, new mxGeometry(1, 0, 0, 0), 'resizable=0;html=1;align=right;verticalAlign=bottom;');
+		    	cell2.geometry.relative = true;
+		    	cell2.setConnectable(false);
+		    	cell2.vertex = true;
+		    	edge.insert(cell2);
+			}
+			
+			return edge;
+		};
+		
 		var fns = [
 	   		this.addEntry(dt + 'table', function()
 			{
@@ -156,32 +185,105 @@
 
 				cell.insert(cell1);
 				
-				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Entity 2');
+				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Entity');
 			}),
-			this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;margin=10;strokeWidth=2;fontSize=14;whiteSpace=wrap;html=1;align=center;', w, h, 'Attribute', 'Attribute', null, null, dt + 'attribute'),
-			this.createVertexTemplateEntry('ellipse;shape=cloud;strokeWidth=2;fontSize=14;whiteSpace=wrap;html=1;align=center;', w, h, 'Cloud', 'Cloud', null, null, dt + 'cloud'),
-			this.createVertexTemplateEntry('strokeWidth=2;rounded=1;arcSize=10;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Entity', 'Entity 3', null, null, dt),
-			this.createVertexTemplateEntry('strokeWidth=2;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Entity', 'Entity 4', null, null, dt),
-			this.createVertexTemplateEntry('shape=ext;strokeWidth=2;margin=10;double=1;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Entity', 'Entity 5', null, null, dt),
-			this.createVertexTemplateEntry('shape=rhombus;strokeWidth=2;fontSize=17;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Has', 'Has', null, null, dt + 'has'),
-			this.createVertexTemplateEntry('shape=rhombus;double=1;strokeWidth=2;fontSize=17;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;fontSize=14;', w, h, 'Has', 'Has', null, null, dt + 'has'),
+			this.createVertexTemplateEntry('whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Entity', null, null, dt),
+			this.createVertexTemplateEntry('rounded=1;arcSize=10;whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Entity (Rounded)', null, null, dt + 'chen'),
+			this.createVertexTemplateEntry('shape=ext;margin=3;double=1;whiteSpace=wrap;html=1;align=center;', 100, 40, 'Entity', 'Weak Entity', null, null, dt + 'chen'),
+			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;',
+				100, 40, 'Attribute', 'Attribute', null, null, dt + 'attribute chen'),
+			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;fontStyle=4;',
+				100, 40, 'Attribute', 'Key Attribute', null, null, dt + 'attribute key chen'),
+			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;',
+				100, 40, '<span style="border-bottom: 1px dotted">Attribute</span>', 'Weak Key Attribute', null, null, dt + 'attribute key weak chen'),
+			this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;align=center;dashed=1;',
+				100, 40, 'Attribute', 'Derived Attribute', null, null, dt + 'attribute derived chen'),
+			this.createVertexTemplateEntry('ellipse;shape=doubleEllipse;margin=3;whiteSpace=wrap;html=1;align=center;',
+				100, 40, 'Attribute', 'Multivalue Attribute', null, null, dt + 'attribute multivalue chen'),
+			this.createVertexTemplateEntry('shape=associativeEntity;whiteSpace=wrap;html=1;align=center;',
+				140, 60, 'Associative\nEntity', 'Associative Entity', null, null, dt + 'associative entity chen'),
+			this.createVertexTemplateEntry('shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;',
+				120, 60, 'Relationship', 'Relationship', null, null, dt + 'chen'),
+			this.createVertexTemplateEntry('shape=rhombus;double=1;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;',
+				120, 60, 'Relationship', 'Identifying Relationship', null, null, dt + 'chen'),
+			this.createVertexTemplateEntry('ellipse;shape=cloud;whiteSpace=wrap;html=1;align=center;', 100, 60, 'Cloud', 'Cloud', null, null, dt + 'cloud'),
 	   	 	this.addEntry(dt + 'hierarchy', function()
 	   		{
-			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;strokeWidth=2;arcSize=10;fontSize=14;');
+			   	var cell = new mxCell('', new mxGeometry(0, 0, 100, 100), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;');
 			   	cell.vertex = true;
 			   	
-			   	var cell1 = new mxCell('main', new mxGeometry(0, 0, 50, 100), 'html=1;strokeWidth=2;shape=mxgraph.er.anchor;fontSize=14;whiteSpace=wrap;');
+			   	var cell1 = new mxCell('main', new mxGeometry(0, 0, 50, 100), 'html=1;shape=mxgraph.er.anchor;whiteSpace=wrap;');
 			   	cell1.vertex = true;
 			   	cell.insert(cell1);
 			   	
-			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'rounded=1;absoluteArcSize=1;html=1;strokeWidth=2;arcSize=10;fontSize=14;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
+			   	var cell2 = new mxCell('sub', new mxGeometry(50, 5, 45, 90), 'rounded=1;absoluteArcSize=1;html=1;arcSize=10;whiteSpace=wrap;points=[];strokeColor=inherit;fillColor=inherit;');
 			   	cell2.vertex = true;
 			   	cell.insert(cell2);
 				
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Hierarchy'); 
 	   		}),
-			this.createVertexTemplateEntry('shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;', w, h, 'Note', 'Note', null, null, dt + 'note'),
-		 	this.createEdgeTemplateEntry('edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERzeroToMany;endFill=1;', w, h, '', '0 to Many Optional', null, dt + 'zero many optional'),
+			this.createVertexTemplateEntry('shape=note;size=20;whiteSpace=wrap;html=1;', w, h, 'Note', 'Note', null, null, dt + 'note'),
+			this.addEntry(dt + 'relation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;')],
+					160, 0, 'Untitled Relation');
+			}),
+			this.addEntry(dt + 'mandatory participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;', null, '1')],
+					160, 0, 'Mandatory Participation (0:1)');
+			}),
+			this.addEntry(dt + 'mandatory participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;', null, 'N')],
+					160, 0, 'Mandatory Participation (0:N)');
+			}),
+			this.addEntry(dt + 'mandatory participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;', 'M', 'N')],
+					160, 0, 'Mandatory Participation (M:N)');
+			}),
+			this.addEntry(dt + 'optional participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;dashed=1;dashPattern=1 2;', null, '1')],
+					160, 0, 'Optional Participation (0:1)');
+			}),
+			this.addEntry(dt + 'optional participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;dashed=1;dashPattern=1 2;', null, 'N')],
+					160, 0, 'Optional Participation (0:N)');
+			}),
+			this.addEntry(dt + 'optional participation chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('endArrow=none;html=1;rounded=0;dashed=1;dashPattern=1 2;', 'M', 'N')],
+					160, 0, 'Optional Participation (M:N)');
+			}),
+			this.addEntry(dt + 'recursive relationship chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('shape=link;html=1;rounded=0;', null, '1')],
+					160, 0, 'Recursive Relationship (0:1)');
+			}),
+			this.addEntry(dt + 'recursive relationship chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('shape=link;html=1;rounded=0;', null, 'N')],
+					160, 0, 'Recursive Relationship (0:N)');
+			}),
+			this.addEntry(dt + 'recursive relationship chen', function()
+			{
+				return sb.createEdgeTemplateFromCells(
+					[createEdge('shape=link;html=1;rounded=0;', 'M', 'N')],
+					160, 0, 'Recursive Relationship (M:N)');
+			}),
+			this.createEdgeTemplateEntry('edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERzeroToMany;endFill=1;', w, h, '', '0 to Many Optional', null, dt + 'zero many optional'),
 		 	this.createEdgeTemplateEntry('edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;', w, h, '', '1 to Many', null, dt + 'one many'),
 		 	this.createEdgeTemplateEntry('edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;', w, h, '', '1 Mandatory', null, dt + 'one mandatory'),
 		 	this.createEdgeTemplateEntry('edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;', w, h, '', '1 to 1', null, dt + 'one'),

@@ -323,6 +323,7 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
   var model = graph.getModel();
   var cells = model.cells;
   var view = graph.getView();
+  var cellSpacing = 20;
   
   // Ignores cells that have no states
   var tmp = {};
@@ -360,8 +361,8 @@ mxWebColaAdaptor.prototype.graphToLayout = function(graph, movableVertices)
       var node = {};
       // node.x = bounds.getCenterX();
       // node.y = bounds.getCenterY();
-      node.width = bounds.width;
-      node.height = bounds.height;
+      node.width = bounds.width + cellSpacing;
+      node.height = bounds.height + cellSpacing;
       node.index = colaId;
       node.name = cell.value;
       node.fixed = false;
@@ -509,7 +510,7 @@ mxWebColaAdaptor.prototype.createLink = function(sourceId, targetId, cellIds)
   link.source = cellIds[sourceId];
   link.target = cellIds[targetId];
   link.weight = 0.5;
-  link.length = Graph.prototype.defaultEdgeLength;
+  link.length = 200; //Graph.prototype.defaultEdgeLength;
   return link;
 }
 

@@ -882,7 +882,7 @@ mxStencilRegistry.allowEval = false;
 					this.savingFile = true;
 					var fs = require('fs');
 					
-					var errorWrapper = mxUtils.bind(this, function()
+					var errorWrapper = mxUtils.bind(this, function(e)
 					{
 						this.savingFile = false;
 						this.isModified = prevModified;
@@ -890,9 +890,11 @@ mxStencilRegistry.allowEval = false;
 						
 						if (error != null)
 						{
-	        				error();
+	        				error(e);
 						}
 					});
+					
+					var retryCount = 0;
 					
 					var writeFile = mxUtils.bind(this, function()
 					{
@@ -903,7 +905,9 @@ mxStencilRegistry.allowEval = false;
 						}
 						else
 						{
-							fs.writeFile(this.fileObject.path, data, enc || this.fileObject.encoding,
+							var writeEnc = enc || this.fileObject.encoding;
+							
+							fs.writeFile(this.fileObject.path, data, writeEnc,
 								mxUtils.bind(this, function (e)
 						    {
 				        		if (e)
@@ -920,20 +924,40 @@ mxStencilRegistry.allowEval = false;
 						        		}
 										else
 										{
-											this.savingFile = false;
-											this.isModified = prevModified;
-											var lastDesc = this.stat;
-											this.stat = stat2;
+											// Workaround for possible writing errors is to check the written
+											// contents of the file and retry 3 times before showing an error
+											var writtenData = fs.readFileSync(this.fileObject.path, writeEnc);
 											
-											this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+											if (data != writtenData)
 											{
-												this.contentChanged();
+												retryCount++;
 												
-												if (success != null)
+												if (retryCount < 3)
 												{
-													success();
+													writeFile();
 												}
-											}), error);
+												else
+												{
+													errorWrapper({message: mxResources.get('errorSavingFile')});
+												}
+											}
+											else
+											{
+												this.savingFile = false;
+												this.isModified = prevModified;
+												var lastDesc = this.stat;
+												this.stat = stat2;
+												
+												this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+												{
+													this.contentChanged();
+													
+													if (success != null)
+													{
+														success();
+													}
+												}), error);
+											}
 										}
 									}));
 				        		}

@@ -214,7 +214,7 @@ Draw.loadPlugin(function(editorUi)
 					// Ignores short edges
 					var state = graph.view.getState(cell);
 					
-					if (Math.random() > 0.5 && state.length > 50)
+					if (Math.random() > 0.5 && state != null && state.length > 50)
 					{
 						var update = doc.createElement('update');
 						update.setAttribute('id', cell.id);

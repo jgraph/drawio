@@ -93,7 +93,9 @@ abstract public class AbsAuthServlet extends HttpServlet
 			String secret, client, redirectUri;
 			String[] secrets, clients;
 
-			if ("127.0.0.1".equals(request.getServerName()))
+			if ("127.0.0.1".equals(request.getServerName()) || 
+					"devhost.jgraph.com".equals(request.getServerName()) ||
+					"localhost".equals(request.getServerName()))
 			{
 				secrets = CONFIG.DEV_CLIENT_SECRET.split(SEPARATOR);
 				clients = CONFIG.DEV_CLIENT_ID.split(SEPARATOR);

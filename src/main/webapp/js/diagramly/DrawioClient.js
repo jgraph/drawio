@@ -118,35 +118,42 @@ DrawioClient.prototype.getPersistentToken = function(trySessionStorage)
  */
 DrawioClient.prototype.setPersistentToken = function(token, sessionOnly)
 {
-	if (token != null)
+	try
 	{
-		if (isLocalStorage)
+		if (token != null)
 		{
-			if (sessionOnly)
+			if (isLocalStorage)
 			{
-				sessionStorage.setItem('.' + this.cookieName, token);
+				if (sessionOnly)
+				{
+					sessionStorage.setItem('.' + this.cookieName, token);
+				}
+				else 
+				{
+					localStorage.setItem('.' + this.cookieName, token);
+				}
 			}
-			else 
+			else if (typeof(Storage) != 'undefined')
 			{
-				localStorage.setItem('.' + this.cookieName, token);
+				var expiration = new Date();
+				expiration.setYear(expiration.getFullYear() + 10);
+				var cookie = this.cookieName + '=' + token + '; path=/' + (sessionOnly? '' : '; expires=' + expiration.toUTCString());
+		
+				if (document.location.protocol.toLowerCase() == 'https')
+				{
+					cookie = cookie + ';secure';
+				}
+		
+				document.cookie = cookie;
 			}
 		}
-		else if (typeof(Storage) != 'undefined')
+		else
 		{
-			var expiration = new Date();
-			expiration.setYear(expiration.getFullYear() + 10);
-			var cookie = this.cookieName + '=' + token + '; path=/' + (sessionOnly? '' : '; expires=' + expiration.toUTCString());
-	
-			if (document.location.protocol.toLowerCase() == 'https')
-			{
-				cookie = cookie + ';secure';
-			}
-	
-			document.cookie = cookie;
+			this.clearPersistentToken();
 		}
 	}
-	else
+	catch (e)
 	{
-		this.clearPersistentToken();
+		this.ui.handleError(e);
 	}
 };

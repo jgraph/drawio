@@ -818,18 +818,32 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 		graph.getModel().beginUpdate();
 		try
 		{
+			var cells = graph.getSelectionCells();
+			
 			for (var i = 0; i < keys.length; i++)
 			{
-				graph.setCellStyles(keys[i], values[i]);
+				graph.setCellStyles(keys[i], values[i], cells);
 
 				// Removes CSS alignment to produce consistent output
 				if (keys[i] == mxConstants.STYLE_ALIGN)
 				{
-					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+					graph.updateLabelElements(cells, function(elt)
 					{
 						elt.removeAttribute('align');
 						elt.style.textAlign = null;
 					});
+				}
+				
+				// Updates autosize after font changes
+				if (keys[i] == mxConstants.STYLE_FONTFAMILY)
+				{
+					for (var i = 0; i < cells.length; i++)
+					{
+						if (graph.model.getChildCount(cells[i]) == 0)
+						{
+							graph.autoSizeCell(cells[i], false);
+						}
+					}
 				}
 			}
 			
@@ -838,8 +852,8 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 				post();
 			}
 			
-			this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', keys, 'values', values,
-				'cells', graph.getSelectionCells()));
+			this.editorUi.fireEvent(new mxEventObject('styleChanged',
+				'keys', keys, 'values', values, 'cells', cells));
 		}
 		finally
 		{
