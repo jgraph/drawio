@@ -1062,6 +1062,23 @@ DrawioFile.prototype.open = function()
 	
 	if (data != null)
 	{
+		//Remove external fonts of previous file
+		function removeExtFont(elems)
+		{
+			for (var i = 0; elems != null && i < elems.length; i++)
+			{
+				var e = elems[i];
+				
+				if (e.id != null && e.id.indexOf('extFont_') == 0)
+				{
+					e.parentNode.removeChild(e);
+				}
+			}
+		};
+		
+		removeExtFont(document.querySelectorAll('head > style[id]'));
+		removeExtFont(document.querySelectorAll('head > link[id]'));
+		
 		this.ui.setFileData(data);
 		
 		// Updates shadow in case any page IDs have been updated

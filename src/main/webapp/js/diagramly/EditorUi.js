@@ -7538,26 +7538,33 @@
 
 						img.onload = function()
 						{
-							var w = img.width;
-							var h = img.height;
-
-							// Workaround for 0 image size in IE11
-							if (w == 0 && h == 0)
+							try
 							{
-								var data = reader.result;
-								var comma = data.indexOf(',');
-								var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-								var root = mxUtils.parseXml(svgText);
-								var svgs = root.getElementsByTagName('svg');
-
-								if (svgs.length > 0)
+								var w = img.width;
+								var h = img.height;
+	
+								// Workaround for 0 image size in IE11
+								if (w == 0 && h == 0)
 								{
-									w = parseFloat(svgs[0].getAttribute('width'));
-									h = parseFloat(svgs[0].getAttribute('height'));
+									var data = reader.result;
+									var comma = data.indexOf(',');
+									var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+									var root = mxUtils.parseXml(svgText);
+									var svgs = root.getElementsByTagName('svg');
+	
+									if (svgs.length > 0)
+									{
+										w = parseFloat(svgs[0].getAttribute('width'));
+										h = parseFloat(svgs[0].getAttribute('height'));
+									}
 								}
+								
+								success(reader.result, w, h);
 							}
-							
-							success(reader.result, w, h);
+							catch (e)
+							{
+								error(e);
+							}
 						};
 
 						img.src = reader.result;
@@ -10154,12 +10161,36 @@
 		{
 			var elt = realElt;
 			
-			if (useEvent && evt.clipboardData != null)
+			if (useEvent && evt.clipboardData != null && evt.clipboardData.getData)
 			{
-				// Creates a dummy element and parses the HTML to get
-				// consistent behaviour for system paste HTML into elt
-				elt = document.createElement('div');
-				elt.innerHTML = evt.clipboardData.getData('text/html');
+				var data = evt.clipboardData.getData('text/html');
+				
+				if (data != null && data.length > 0)
+				{
+					elt = document.createElement('div');
+					elt.innerHTML = data;
+					
+					// Workaround for innerText not ignoring style elements in Chrome
+					var styles = elt.getElementsByTagName('style');
+					
+					if (styles != null)
+					{
+						while (styles.length > 0)
+						{
+							styles[0].parentNode.removeChild(styles[0]);
+						}
+					}
+				}
+				else
+				{
+					data = evt.clipboardData.getData('text/plain');
+					
+					if (data != null && data.length > 0)
+					{
+						elt = document.createElement('div');
+						mxUtils.setTextContent(elt, data);
+					}
+				}
 			}
 			
 			var spans = elt.getElementsByTagName('span');
@@ -10198,8 +10229,8 @@
 			}
 			else
 			{
-				var xml = mxUtils.trim((mxClient.IS_QUIRKS || document.documentMode == 8) ?
-					mxUtils.getTextContent(elt) : elt.textContent);
+				var xml = mxUtils.trim((elt.innerText == null) ?
+					mxUtils.getTextContent(elt) : elt.innerText);
 				var compat = false;
 				
 				// Workaround for junk after XML in VM

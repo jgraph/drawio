@@ -297,7 +297,11 @@
 				}
 			  	
 			  	var t = document.getElementsByTagName('script')[0];
-			  	t.parentNode.insertBefore(s, t);
+			  	
+			  	if (t != null)
+			  	{
+			  		t.parentNode.insertBefore(s, t);
+			  	}
 			}
 			else
 			{

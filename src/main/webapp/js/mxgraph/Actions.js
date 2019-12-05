@@ -647,9 +647,9 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+H');
 	this.addAction('zoomIn', function(evt)
 	{
-		if (urlParams['zoom'] != 'nocss')
+		if (graph.isFastZoomEnabled())
 		{
-			graph.lazyZoom(true, true);
+			graph.lazyZoom(true, true, ui.buttonZoomDelay);
 		}
 		else
 		{
@@ -658,9 +658,9 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
 	this.addAction('zoomOut', function(evt)
 	{
-		if (urlParams['zoom'] != 'nocss')
+		if (graph.isFastZoomEnabled())
 		{
-			graph.lazyZoom(false, true);
+			graph.lazyZoom(false, true, ui.buttonZoomDelay);
 		}
 		else
 		{

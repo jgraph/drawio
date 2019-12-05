@@ -1,3 +1,8 @@
+05-DEC-2019: 12.3.7
+
+- Fixes handling of clipboard data
+- Uses mxGraph 4.0.6 beta 9
+
 03-DEC-2019: 12.3.6
 
 - Moves rotation handle to top right corner

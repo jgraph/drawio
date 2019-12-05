@@ -232,7 +232,7 @@ EditorUi.prototype.patchViewState = function(page, diff)
 		
 		if (page == this.currentPage)
 		{
-			this.editor.graph.setViewState(page.viewState);
+			this.editor.graph.setViewState(page.viewState, true);
 		}
 	}
 };

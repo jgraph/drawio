@@ -628,7 +628,7 @@ Graph.prototype.getViewState = function()
 /**
  * Overrides setDefaultParent
  */
-Graph.prototype.setViewState = function(state)
+Graph.prototype.setViewState = function(state, removeOldExtFonts)
 {
 	if (state != null)
 	{
@@ -656,7 +656,9 @@ Graph.prototype.setViewState = function(state)
 		var oldExtFonts = this.extFonts;
 		this.extFonts = state.extFonts || [];
 
-		if (oldExtFonts != null)
+		// Removing old fonts is important for real-time synchronization
+		// But, for page change, it results in undesirable font flicker
+		if (removeOldExtFonts && oldExtFonts != null)
 		{
 			for (var i = 0; i < oldExtFonts.length; i++)
 			{
