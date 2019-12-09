@@ -1,3 +1,13 @@
+09-DEC-2019: 12.3.9
+
+- Fixes NPE in Lucidchart import
+- Adds check for empty layerID array in GraphViewer
+
+06-DEC-2019: 12.3.8
+
+- Improves Gliffy import of nested links
+- Adds pageID target export selection in Confluence Cloud
+
 05-DEC-2019: 12.3.7
 
 - Fixes handling of clipboard data

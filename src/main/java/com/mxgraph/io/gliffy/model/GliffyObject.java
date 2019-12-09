@@ -30,6 +30,8 @@ public class GliffyObject implements PostDeserializable
 	
 	public static Set<String> FORCE_CONSTRAINTS_SHAPES = new HashSet<String>();
 	
+	public static Set<String> DEEPLY_NESTED_LINKS = new HashSet<String>();
+	
 	private static Map<String, double[]> SHAPES_COORD_FIX = new HashMap<>();
 
 	public float x;
@@ -225,6 +227,12 @@ public class GliffyObject implements PostDeserializable
 		
 		//There are many shapes where fillColor is the strokeColor
 		FILLCLR_IS_STROKECLR_SHAPES.add("com.gliffy.stencil.rectangle.no_fill_line_bottom_2px_off");
+		
+		//these shapes put links on their grandchildren
+		DEEPLY_NESTED_LINKS.add("com.gliffy.shape.basic.basic_v1.default.chevron_box_right");
+		DEEPLY_NESTED_LINKS.add("com.gliffy.shape.basic.basic_v1.default.chevron_box_left");
+		DEEPLY_NESTED_LINKS.add("com.gliffy.shape.basic.basic_v1.default.chevron_tail_right");
+		DEEPLY_NESTED_LINKS.add("com.gliffy.shape.basic.basic_v1.default.chevron_tail_left");
 	}
 
 	public GliffyObject()
@@ -310,17 +318,46 @@ public class GliffyObject implements PostDeserializable
 			
 		Iterator<GliffyObject> it = children.iterator();
 		
-		while (it.hasNext()) 
+		StringBuilder sb = new StringBuilder();
+		if(isDeeplyNestedLink()) 
 		{
-			GliffyObject child = it.next();
-
-			if (child.isLink())
+			getDeeplyNestedLink(sb);
+		}
+		else 
+		{
+			while (it.hasNext()) 
 			{
-				return child.graphic.getLink().href;
+				GliffyObject child = it.next();
+				
+				if (child.isLink())
+				{
+					return child.graphic.getLink().href;
+				}
 			}
 		}
 
-		return null;
+		return sb.length() > 0 ? sb.toString() : null;
+	}
+	
+	/**
+	 * Inspects entire hierarchy of sub-elements to get the link URL.
+	 * 
+	 * @param sb placeholder for link URL
+	 */
+	private void getDeeplyNestedLink(StringBuilder sb) 
+	{
+		for(GliffyObject child : children) 
+		{
+			if (child.isLink())
+			{
+				sb.append(child.graphic.getLink().href);
+				return;
+			}
+			else if(child.children != null && !child.children.isEmpty())
+			{
+				child.getDeeplyNestedLink(sb);
+			}
+		}
 	}
 
 	/**
@@ -402,6 +439,11 @@ public class GliffyObject implements PostDeserializable
 	public boolean isVennCircle()
 	{
 		return uid != null && uid.startsWith("com.gliffy.shape.venn");
+	}
+	
+	public boolean isDeeplyNestedLink() 
+	{
+		return uid != null && DEEPLY_NESTED_LINKS.contains(uid);
 	}
 
 	public String getGradientColor()

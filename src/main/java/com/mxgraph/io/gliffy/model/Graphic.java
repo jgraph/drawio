@@ -29,13 +29,17 @@ public class Graphic
 
 	public static abstract class GliffyAbstractShape
 	{
-		public int strokeWidth;
+		private float strokeWidth;
 
 		public String strokeColor;
 
 		public String fillColor;
 
 		public String dashStyle;
+		
+		public int getStrokeWidth() {
+			return Math.round(strokeWidth);
+		}
 	}
 
 	public static class GliffyLine extends GliffyAbstractShape
@@ -61,9 +65,9 @@ public class Graphic
 
 		public int state;
 
-		public int shadowX;
+		public float shadowX;
 
-		public int shadowY;
+		public float shadowY;
 
 		public float opacity;
 

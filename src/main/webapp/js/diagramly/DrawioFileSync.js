@@ -102,7 +102,7 @@ DrawioFileSync = function(file)
 		}
 	});
 	
-	// Listens to remove messages
+	// Listens to messages
 	this.changeListener = mxUtils.bind(this, function(data)
 	{
 		this.file.stats.msgReceived++;
@@ -135,6 +135,12 @@ DrawioFileSync = function(file)
 			}
 			catch (e)
 			{
+				// Checks if file was changed
+				if (this.isConnected())
+				{
+					this.fileChangedNotify();
+				}
+				
 				var len = (data != null) ? data.length : 'null';
 				
 				EditorUi.logError('Protocol Error ' + e.message,

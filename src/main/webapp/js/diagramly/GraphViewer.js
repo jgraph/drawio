@@ -1467,10 +1467,11 @@ GraphViewer.prototype.showLocalLightbox = function()
 	urlParams['pages'] = '1';
 	urlParams['page'] = this.currentPage;
 	urlParams['page-id'] = this.graphConfig.pageId;
-	urlParams['layer-ids'] = this.graphConfig.layerIds != null? this.graphConfig.layerIds.join(' ') : null;
+	urlParams['layer-ids'] = (this.graphConfig.layerIds != null && this.graphConfig.layerIds.length > 0)
+														? this.graphConfig.layerIds.join(' ') : null;
 	urlParams['nav'] = (this.graphConfig.nav != false) ? '1' : '0';
 	urlParams['layers'] = (this.layersEnabled) ? '1' : '0';
-	
+
 	// PostMessage not working and Permission denied for opened access in IE9-
 	if (document.documentMode == null || document.documentMode >= 10)
 	{

@@ -4292,7 +4292,7 @@ LucidImporter = {};
 	   	v.insert(dummy);
 	   	cells = [dummy];
 	   	
-		var e = sb.cloneCell(edge);
+		var e = edge.clone();
 		cell.insertEdge(e, false);
 		dummy.insertEdge(e, true);
 		cells.push(e);
@@ -4311,7 +4311,7 @@ LucidImporter = {};
 	   	v.insert(dummy2);
 	   	cells = [dummy2];
 	   	
-		var e = sb.cloneCell(edge);
+		var e = edge.clone();
 		dummy1.insertEdge(e, true);
 		dummy2.insertEdge(e, false);
 		cells.push(e);

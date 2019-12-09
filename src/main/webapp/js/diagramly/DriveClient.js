@@ -1621,6 +1621,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									},
 									mxUtils.bind(this, function(desc2)
 									{
+										file.saveLevel = 11;
 										window.clearTimeout(timeoutThread);
 										
 										if (acceptResponse)
@@ -1656,6 +1657,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									}), mxUtils.bind(this, function(err)
 									{
 										// Simulated 
+										file.saveLevel = 12;
 										window.clearTimeout(timeoutThread);
 										
 										if (acceptResponse)
@@ -1663,6 +1665,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 											error(err);
 										}
 									}));
+									
+									file.saveLevel = 10;
 								}
 							});
 							
