@@ -1,3 +1,8 @@
+12-DEC-2019: 12.4.1
+
+- Fixes initial key state for cloning
+- Uses mxGraph 4.0.6 beta 11
+
 12-DEC-2019: 12.4.0
 
 - Adds Catalan translations, credit Pere Orga pere@orga.cat

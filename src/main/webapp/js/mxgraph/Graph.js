@@ -687,8 +687,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    var isForceRubberBandEvent = rubberband.isForceRubberbandEvent;
 	    rubberband.isForceRubberbandEvent = function(me)
 	    {
-		    	return isForceRubberBandEvent.apply(this, arguments) ||
-		    		(mxClient.IS_CHROMEOS && mxEvent.isShiftDown(me.getEvent())) ||
+		    	return (isForceRubberBandEvent.apply(this, arguments) && !mxEvent.isShiftDown(me.getEvent()) &&
+		    		!mxEvent.isControlDown(me.getEvent())) || (mxClient.IS_CHROMEOS && mxEvent.isShiftDown(me.getEvent())) ||
 		    		(mxUtils.hasScrollbars(this.graph.container) && mxClient.IS_FF &&
 		    		mxClient.IS_WIN && me.getState() == null && mxEvent.isTouchEvent(me.getEvent()));
 	    };
@@ -3359,12 +3359,17 @@ HoverIcons.prototype.init = function()
 
 	this.elts = [this.arrowUp, this.arrowRight, this.arrowDown, this.arrowLeft];
 
+	this.resetHandler = mxUtils.bind(this, function()
+	{
+		this.reset();
+	});
+	
 	this.repaintHandler = mxUtils.bind(this, function()
 	{
 		this.repaint();
 	});
 
-	this.graph.selectionModel.addListener(mxEvent.CHANGE, this.repaintHandler);
+	this.graph.selectionModel.addListener(mxEvent.CHANGE, this.resetHandler);
 	this.graph.model.addListener(mxEvent.CHANGE, this.repaintHandler);
 	this.graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, this.repaintHandler);
 	this.graph.view.addListener(mxEvent.TRANSLATE, this.repaintHandler);
@@ -8007,7 +8012,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxGraphHandler.prototype.updateHint = function(me)
 		{
-			if (this.pBounds != null)
+			if (this.pBounds != null && (this.shape != null || this.livePreviewActive))
 			{
 				if (this.hint == null)
 				{
@@ -8223,7 +8228,8 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			this.hint.style.left = Math.round(me.getGraphX() - this.hint.clientWidth / 2) + 'px';
-			this.hint.style.top = (Math.max(me.getGraphY(), point.y) + this.state.view.graph.gridSize) + 'px';
+			this.hint.style.top = (Math.max(me.getGraphY(), point.y) +
+				2 * this.state.view.graph.gridSize) + 'px';
 			
 			if (this.linkHint != null)
 			{
