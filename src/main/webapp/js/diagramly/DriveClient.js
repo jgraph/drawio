@@ -154,6 +154,11 @@ DriveClient.prototype.maxRetries = 5;
 /**
  * Executes the first step for connecting to Google Drive.
  */
+DriveClient.prototype.staleEtagMaxRetries = 3;
+
+/**
+ * Executes the first step for connecting to Google Drive.
+ */
 DriveClient.prototype.coolOff = 1000;
 
 /**
@@ -1227,6 +1232,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					new Date().toISOString() + ':' +
 					'\n\nBrowser=' + navigator.userAgent +
 					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
+					'\nMime=' + file.desc.mimeType +
 					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
 					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 					'\nSaveLevel=' + file.saveLevel +
@@ -1513,8 +1519,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 												}
 												else
 												{
-													// Check for stale etag which can happen if a file is being saved or if
-													// the etag simply isn't change but system still returns a 412 error (stale)
+													// Workaround for correct etag and Google always returns 412 conflict error (stale etag)
 													this.executeRequest({
 														url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
 													}, 
@@ -1527,12 +1532,19 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 															// Stale etag detected, retry with delay
 															if (resp != null && resp.etag == etag)
 															{
-																if (retryCount < this.maxRetries)
+																if (retryCount < this.staleEtagMaxRetries)
 																{
 																	retryCount++;
 																	var jitter = 1 + 0.1 * (Math.random() - 0.5);
 																	var delay = retryCount * 2 * this.coolOff * jitter;
 																	window.setTimeout(executeSave, delay);
+																	
+																	
+																	if (urlParams['test'] == '1')
+																	{
+																		EditorUi.debug('DriveClient: Stale Etag Detected',
+																			'retry', retryCount, 'delay', delay);
+																	}
 																}
 																else
 																{

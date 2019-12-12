@@ -2523,6 +2523,20 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 	}
 	
+	// Limits drop style to non-transparent shapes
+	var dropStyleEnabled = true;
+	
+	if (firstVertex != null && cells.length == 1)
+	{
+		var vstyle = graph.getCellStyle(cells[firstVertex]);
+		
+		if (vstyle != null)
+		{
+			dropStyleEnabled = mxUtils.getValue(vstyle, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
+				mxUtils.getValue(vstyle, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE;
+		}
+	}
+	
 	var dragSource = mxUtils.makeDraggable(elt, this.editorUi.editor.graph, mxUtils.bind(this, function(graph, evt, target, x, y)
 	{
 		if (this.updateThread != null)
@@ -2841,7 +2855,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 
 		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 2500ms
-		if (timeOnTarget < 2500 && state != null && !mxEvent.isShiftDown(evt) &&
+		if (dropStyleEnabled && (timeOnTarget < 2500) && state != null && !mxEvent.isShiftDown(evt) &&
 			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images
 			(((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) &&
 			(mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||

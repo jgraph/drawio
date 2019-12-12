@@ -1,3 +1,10 @@
+12-DEC-2019: 12.4.0
+
+- Adds Catalan translations, credit Pere Orga pere@orga.cat
+- Fixes drag cells to library, subtree moving live preview
+- Fixes conf cloud gliffy mass import paging bug
+- Uses mxGraph 4.0.6 beta 10
+
 09-DEC-2019: 12.3.9
 
 - Fixes NPE in Lucidchart import

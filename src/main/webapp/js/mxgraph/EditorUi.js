@@ -2105,11 +2105,27 @@ EditorUi.prototype.initCanvas = function()
 		  				}
 		  				
 		  				// Transforms graph and background image
-		        		mainGroup.removeAttribute('transform-origin');
-		            	mainGroup.removeAttribute('transform');
-		            	bgGroup.removeAttribute('transform-origin');
-		            	bgGroup.removeAttribute('transform');
-		            	
+		  				mainGroup.style.transformOrigin = '';
+		  				bgGroup.style.transformOrigin = '';
+
+		  				// Workaround for no reset of transform in Safari
+		  				if (mxClient.IS_SF)
+		  				{
+			  				mainGroup.style.transform = 'scale(1)';
+			  				bgGroup.style.transform = 'scale(1)';
+			  				
+			  				window.setTimeout(function()
+	  						{
+			  					mainGroup.style.transform = '';
+	  							bgGroup.style.transform = '';
+	  						}, 0)
+		  				}
+		  				else
+		  				{
+			  				mainGroup.style.transform = '';
+			  				bgGroup.style.transform = '';
+		  				}
+		  				
 		            	// Shows interactive elements
 		            	graph.view.getDecoratorPane().style.opacity = '';
 		            	graph.view.getOverlayPane().style.opacity = '';
@@ -2208,12 +2224,10 @@ EditorUi.prototype.initCanvas = function()
 				cursorPosition.x + graph.container.scrollLeft - graph.container.offsetLeft;
 			var cy = (ignoreCursorPosition) ? graph.container.scrollTop + graph.container.clientHeight / 2 :
 				cursorPosition.y + graph.container.scrollTop - graph.container.offsetTop;
-			mainGroup.setAttribute('transform-origin', cx + ' ' + cy);
-			mainGroup.setAttribute('transform', 'scale(' +
-				this.cumulativeZoomFactor + ')');
-			bgGroup.setAttribute('transform-origin', cx + ' ' + cy);
-			bgGroup.setAttribute('transform', 'scale(' +
-					this.cumulativeZoomFactor + ')');
+			mainGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
+			mainGroup.style.transform = 'scale(' + this.cumulativeZoomFactor + ')';
+			bgGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
+			bgGroup.style.transform = 'scale(' + this.cumulativeZoomFactor + ')';
 
 			if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
 			{

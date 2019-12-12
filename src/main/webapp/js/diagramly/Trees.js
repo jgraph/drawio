@@ -1127,13 +1127,11 @@
 				
 				mxEvent.addGestureListeners(this.moveHandle, mxUtils.bind(this, function(evt)
 				{
-					this.graph.graphHandler.start(this.state.cell, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-					this.graph.graphHandler.cells = this.graph.getSubtree(this.state.cell);
-					this.graph.graphHandler.bounds = this.state.view.getBounds(this.graph.graphHandler.cells);
-					this.graph.graphHandler.pBounds = this.graph.graphHandler.getPreviewBounds(this.graph.graphHandler.cells);
+					this.graph.graphHandler.start(this.state.cell, mxEvent.getClientX(evt), mxEvent.getClientY(evt), this.graph.getSubtree(this.state.cell));
 					this.graph.graphHandler.cellWasClicked = true;
 					this.graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
 					this.graph.isMouseDown = true;
+					ui.hoverIcons.reset();
 					mxEvent.consume(evt);
 				}));
 			}
@@ -1151,6 +1149,18 @@
 					((this.state.width < 40) ? 10 : 0) + 2 + 'px';
 				this.moveHandle.style.top = this.state.y + this.state.height +
 					((this.state.height < 40) ? 10 : 0) + 2 + 'px';
+			}
+		};
+		
+		var vertexHandlerSetHandlesVisible = mxVertexHandler.prototype.setHandlesVisible;
+
+		mxVertexHandler.prototype.setHandlesVisible = function(visible)
+		{
+			vertexHandlerSetHandlesVisible.apply(this, arguments);
+			
+			if (this.moveHandle != null)
+			{
+				this.moveHandle.style.display = (visible) ? '' : 'none';
 			}
 		};
 		

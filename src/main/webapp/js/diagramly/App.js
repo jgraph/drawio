@@ -805,7 +805,7 @@ App.main = function(callback, createUi)
 			 */
 			if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
 			{
-				EditorUi.debug('Started in ' + (new Date().getTime() - t0.getTime()) + 'ms');
+				EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
 				
 				if (urlParams['export'] != null)
 				{
@@ -2375,13 +2375,42 @@ App.prototype.appIconClicked = function(evt)
 				this.openLink('https://drive.google.com/?authuser=0');
 			}
 		}
-		else if (mode == App.MODE_DROPBOX)
-		{
-			this.openLink('https://www.dropbox.com/');
-		}
 		else if (mode == App.MODE_ONEDRIVE)
 		{
-			this.openLink('https://onedrive.live.com/');
+			if (file != null && file.meta != null && file.meta.webUrl != null)
+			{
+				var url = file.meta.webUrl;
+				var name = encodeURIComponent(file.meta.name);
+				
+				if (url.substring(url.length - name.length, url.length) == name)
+				{
+					url = url.substring(0, url.length - name.length);
+				}
+				
+				this.openLink(url);
+			}
+			else
+			{
+				this.openLink('https://onedrive.live.com/');
+			}
+		}
+		else if (mode == App.MODE_DROPBOX)
+		{
+			if (file != null && file.stat != null && file.stat.path_display != null)
+			{
+				var url = 'https://www.dropbox.com/home/Apps/drawio' + file.stat.path_display;
+				
+				if (!mxEvent.isShiftDown(evt))
+				{
+					url = url.substring(0, url.length - file.stat.name.length);
+				}
+				
+				this.openLink(url);
+			}
+			else
+			{
+				this.openLink('https://www.dropbox.com/');
+			}
 		}
 		else if (mode == App.MODE_TRELLO)
 		{

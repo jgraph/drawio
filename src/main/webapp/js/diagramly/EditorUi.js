@@ -2335,6 +2335,7 @@
 		
 		if (oldFile != null)
 		{
+			EditorUi.debug('File.closed', [oldFile]);
 			oldFile.removeListener(this.descriptorChangedListener);
 			oldFile.close();
 		}
@@ -2460,6 +2461,8 @@
 						action: 'size_' + file.getSize(),
 						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
 				}
+				
+				EditorUi.debug('File.opened', [file]);
 				
 				if (this.editor.editable && this.mode == file.getMode() &&
 					file.getMode() != App.MODE_DEVICE && file.getMode() != null)
@@ -2953,6 +2956,7 @@
 		btn.setAttribute('title', mxResources.get('close'));
 		btn.setAttribute('valign', 'absmiddle');
 		btn.setAttribute('border', '0');
+		btn.style.cursor = 'pointer';
 		btn.style.margin = '0 3px';
 		
 		var saveBtn = null;
@@ -3124,23 +3128,19 @@
 			// Adds drop handler from graph
 			mxEvent.addGestureListeners(contentDiv, function(){}, mxUtils.bind(this, function(evt)
 			{
-				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler.shape != null)
+				if (graph.isMouseDown && graph.panningManager != null && graph.graphHandler.first != null)
 				{
-					graph.graphHandler.shape.node.style.visibility = 'hidden';
-					contentDiv.style.backgroundColor = '#f1f3f4';
-					contentDiv.style.cursor = 'copy';
-					graph.panningManager.stop();
-					graph.autoScroll = false;
-					
-					if (graph.graphHandler.guide != null)
-					{
-						graph.graphHandler.guide.setVisible(false);
-					}
+					graph.graphHandler.suspend();
 					
 					if (graph.graphHandler.hint != null)
 					{
 						graph.graphHandler.hint.style.visibility = 'hidden';	
 					}
+					
+					contentDiv.style.backgroundColor = '#f1f3f4';
+					contentDiv.style.cursor = 'copy';
+					graph.panningManager.stop();
+					graph.autoScroll = false;
 					
 					mxEvent.consume(evt);
 				}
@@ -3152,9 +3152,11 @@
 					contentDiv.style.cursor = 'default';
 					this.sidebar.showTooltips = true;
 					graph.panningManager.stop();
+					
 					graph.graphHandler.reset();
 					graph.isMouseDown = false;
 					graph.autoScroll = true;
+					
 					addSelection(evt);
 					mxEvent.consume(evt);
 				}
@@ -3163,22 +3165,18 @@
 			// Handles mouse leaving the library and restoring move
 			mxEvent.addListener(contentDiv, 'mouseleave', mxUtils.bind(this, function(evt)
 			{
-				if (graph.isMouseDown && graph.graphHandler.shape != null)
+				if (graph.isMouseDown && graph.graphHandler.first != null)
 				{
-					graph.graphHandler.shape.node.style.visibility = 'visible';
-					contentDiv.style.backgroundColor = '';
-					contentDiv.style.cursor = '';
-					graph.autoScroll = true;
-					
-					if (graph.graphHandler.guide != null)
-					{
-						graph.graphHandler.guide.setVisible(true);
-					}
-					
+					graph.graphHandler.resume();
+
 					if (graph.graphHandler.hint != null)
 					{
 						graph.graphHandler.hint.style.visibility = 'visible';	
 					}
+					
+					contentDiv.style.backgroundColor = '';
+					contentDiv.style.cursor = '';
+					graph.autoScroll = true;
 				}
 			}));
 			
@@ -6423,113 +6421,113 @@
 			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
 				mxUtils.bind(this, function(svgRoot)
 			{
-				var img = new Image();
-				
-				img.onload = mxUtils.bind(this, function()
+				try
 				{
-			   		try
-			   		{
-			   			var canvas = document.createElement('canvas');
-						var w = parseInt(svgRoot.getAttribute('width'));
-						var h = parseInt(svgRoot.getAttribute('height'));
-						scale = (scale != null) ? scale : 1;
-						
-						if (width != null)
-						{
-							scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
-						}
-						
-						w = Math.ceil(scale * w) + 2 * border;
-						h = Math.ceil(scale * h) + 2 * border;
-						
-						canvas.setAttribute('width', w);
-				   		canvas.setAttribute('height', h);
-				   		var ctx = canvas.getContext('2d');
-				   		
-				   		if (bg != null)
+					var img = new Image();
+					
+					img.onload = mxUtils.bind(this, function()
+					{
+				   		try
 				   		{
-				   			ctx.beginPath();
-							ctx.rect(0, 0, w, h);
-							ctx.fillStyle = bg;
-							ctx.fill();
-				   		}
-	
-					    ctx.scale(scale, scale);
-
-					    function drawImage()
-					    {
-					    	// Workaround for broken data URI images in Safari on first export
-					   		if (mxClient.IS_SF)
-					   		{			   		
-								window.setTimeout(function()
-								{
-									ctx.drawImage(img, border / scale, border / scale);
-									callback(canvas);
-								}, 0);
-					   		}
-					   		else
-					   		{
-					   			ctx.drawImage(img, border / scale, border / scale);
-					   			callback(canvas);
-					   		}
-					    };
-					    
-					    if (grid)
-					    {
-						    var view = graph.view;
-							var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
-							gridImage = 'data:image/svg+xml;base64,' + gridImage;
-			                var phase = graph.gridSize * view.gridSteps * scale;
-			                
-			                var b = graph.getGraphBounds();
-							var x0 = b.x * scale;
-							var y0 = b.y * scale;
+				   			var canvas = document.createElement('canvas');
+							var w = parseInt(svgRoot.getAttribute('width'));
+							var h = parseInt(svgRoot.getAttribute('height'));
+							scale = (scale != null) ? scale : 1;
 							
-							var background = new Image();
-							background.src = gridImage;
-	
-							background.onload = function()
+							if (width != null)
 							{
-								var x = -Math.round(phase - mxUtils.mod(view.translate.x * scale - x0, phase));
-								var y = -Math.round(phase - mxUtils.mod(view.translate.y * scale - y0, phase));
-	
-								for (var i = x; i < w; i += phase)
-								{
-									for (var j = y; j < h; j += phase)
-									{
-										ctx.drawImage(background, i / scale, j / scale);	
-									}
-								}
+								scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+							}
 							
-								drawImage();
-							};
-					    }
-					    else
-				    	{
-					    	drawImage();
-				    	}
-			   		}
-			   		catch (e)
-			   		{
-			   			if (error != null)
+							w = Math.ceil(scale * w) + 2 * border;
+							h = Math.ceil(scale * h) + 2 * border;
+							
+							canvas.setAttribute('width', w);
+					   		canvas.setAttribute('height', h);
+					   		var ctx = canvas.getContext('2d');
+					   		
+					   		if (bg != null)
+					   		{
+					   			ctx.beginPath();
+								ctx.rect(0, 0, w, h);
+								ctx.fillStyle = bg;
+								ctx.fill();
+					   		}
+		
+						    ctx.scale(scale, scale);
+	
+						    function drawImage()
+						    {
+						    	// Workaround for broken data URI images in Safari on first export
+						   		if (mxClient.IS_SF)
+						   		{			   		
+									window.setTimeout(function()
+									{
+										ctx.drawImage(img, border / scale, border / scale);
+										callback(canvas);
+									}, 0);
+						   		}
+						   		else
+						   		{
+						   			ctx.drawImage(img, border / scale, border / scale);
+						   			callback(canvas);
+						   		}
+						    };
+						    
+						    if (grid)
+						    {
+							    var view = graph.view;
+								var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
+								gridImage = 'data:image/svg+xml;base64,' + gridImage;
+				                var phase = graph.gridSize * view.gridSteps * scale;
+				                
+				                var b = graph.getGraphBounds();
+								var x0 = b.x * scale;
+								var y0 = b.y * scale;
+								
+								var background = new Image();
+								background.src = gridImage;
+		
+								background.onload = function()
+								{
+									var x = -Math.round(phase - mxUtils.mod(view.translate.x * scale - x0, phase));
+									var y = -Math.round(phase - mxUtils.mod(view.translate.y * scale - y0, phase));
+		
+									for (var i = x; i < w; i += phase)
+									{
+										for (var j = y; j < h; j += phase)
+										{
+											ctx.drawImage(background, i / scale, j / scale);	
+										}
+									}
+								
+									drawImage();
+								};
+						    }
+						    else
+					    	{
+						    	drawImage();
+					    	}
+				   		}
+				   		catch (e)
+				   		{
+				   			if (error != null)
+							{
+								error(e);
+							}
+				   		}
+					});
+					
+					img.onerror = function(e)
+					{
+						//console.log('img', e, img.src);
+						
+						if (error != null)
 						{
 							error(e);
 						}
-			   		}
-				});
-				
-				img.onerror = function(e)
-				{
-					//console.log('img', e, img.src);
-					
-					if (error != null)
-					{
-						error(e);
-					}
-				};
-	
-				try
-				{
+					};
+
 					if (addShadow)
 					{
 						this.editor.graph.addSvgShadow(svgRoot);
@@ -6570,27 +6568,47 @@
 					
 					var done = mxUtils.bind(this, function()
 					{
-						if (this.editor.resolvedFontCss != null)
+						try
 						{
-							addFontCss(this.editor.resolvedFontCss);
+							if (this.editor.resolvedFontCss != null)
+							{
+								addFontCss(this.editor.resolvedFontCss);
+							}
+							
+							if (this.editor.graph.mathEnabled)
+							{
+								this.editor.addMathCss(svgRoot);
+							}
+							
+							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 						}
-						
-						if (this.editor.graph.mathEnabled)
+						catch (e)
 						{
-							this.editor.addMathCss(svgRoot);
+							if (error != null)
+							{
+								error(e);
+							}
 						}
-						
-						img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
 					});
 					
 					this.embedExtFonts(mxUtils.bind(this, function(extFontsEmbeddedCss)
 					{
-						if (extFontsEmbeddedCss != null)
+						try
 						{
-							addFontCss(extFontsEmbeddedCss);
+							if (extFontsEmbeddedCss != null)
+							{
+								addFontCss(extFontsEmbeddedCss);
+							}
+							
+							this.loadFonts(done);
 						}
-						
-						this.loadFonts(done);
+						catch (e)
+						{
+							if (error != null)
+							{
+								error(e);
+							}
+						}
 					}));
 				}
 				catch (e)

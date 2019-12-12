@@ -17,8 +17,11 @@
 	color: black;
 	padding:6px;
 }
-.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
+.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel {
 	cursor:pointer !important;
+}
+.geSidebarContainer .geTitle {
+	cursor:default !important;
 }
 .geBackgroundPage {
   	box-shadow:0px 0px 2px 1px #d1d1d1;

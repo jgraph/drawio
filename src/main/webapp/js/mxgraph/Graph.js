@@ -1358,7 +1358,7 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isFastZoomEnabled = function()
 	{
-		return mxClient.IS_GC && urlParams['zoom'] != 'nocss' && !this.mathEnabled &&
+		return urlParams['zoom'] != 'nocss' && !this.mathEnabled &&
 			!mxClient.NO_FO && !this.useCssTransforms;
 	};
 	
@@ -8007,7 +8007,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxGraphHandler.prototype.updateHint = function(me)
 		{
-			if (this.shape != null)
+			if (this.pBounds != null)
 			{
 				if (this.hint == null)
 				{
@@ -8022,9 +8022,11 @@ if (typeof mxVertexHandler != 'undefined')
 				var unit = this.graph.view.unit;
 				
 				this.hint.innerHTML = formatHintText(x, unit) + ', ' + formatHintText(y, unit);
-	
-				this.hint.style.left = (this.shape.bounds.x + Math.round((this.shape.bounds.width - this.hint.clientWidth) / 2)) + 'px';
-				this.hint.style.top = (this.shape.bounds.y + this.shape.bounds.height + 12) + 'px';
+				
+				this.hint.style.left = (this.pBounds.x + this.currentDx +
+					Math.round((this.pBounds.width - this.hint.clientWidth) / 2)) + 'px';
+				this.hint.style.top = (this.pBounds.y + this.currentDy +
+					this.pBounds.height + 12) + 'px';
 			}
 		};
 	

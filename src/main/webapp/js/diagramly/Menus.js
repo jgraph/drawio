@@ -810,7 +810,7 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://desk.draw.io/support/solutions/articles/16000058316',
-					[[mxResources.get('link'), function(evt, input)
+					(EditorUi.isElectronApp) ? null : [[mxResources.get('link'), function(evt, input)
 					{
 						if (input.value.length > 0)
 						{
