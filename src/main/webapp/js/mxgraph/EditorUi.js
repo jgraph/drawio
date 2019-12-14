@@ -2280,10 +2280,10 @@ EditorUi.prototype.initCanvas = function()
 		}
 	});
 
-	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up)
+	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force)
 	{
 		// Add Ctrl+wheel (or pinch on trackpad) native browser zoom event for macOS
-		if ((this.dialogs == null || this.dialogs.length == 0) && graph.isZoomWheelEvent(evt))
+		if ((this.dialogs == null || this.dialogs.length == 0) && (force || graph.isZoomWheelEvent(evt)))
 		{
 			var source = mxEvent.getSource(evt);
 			

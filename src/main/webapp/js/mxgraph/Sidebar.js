@@ -2494,6 +2494,35 @@ Sidebar.prototype.getDropAndConnectGeometry = function(source, target, direction
 };
 
 /**
+ * Limits drop style to non-transparent source shapes.
+ */
+Sidebar.prototype.isDropStyleEnabled = function(cells, firstVertex)
+{
+	var result = true;
+	
+	if (firstVertex != null && cells.length == 1)
+	{
+		var vstyle = this.graph.getCellStyle(cells[firstVertex]);
+		
+		if (vstyle != null)
+		{
+			result = mxUtils.getValue(vstyle, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
+				mxUtils.getValue(vstyle, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Ignores swimlanes as drop style targets.
+ */
+Sidebar.prototype.isDropStyleTargetIgnored = function(state)
+{
+	return this.graph.isSwimlane(state.cell);
+};
+
+/**
  * Creates a drag source for the given element.
  */
 Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds)
@@ -2523,19 +2552,7 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 	}
 	
-	// Limits drop style to non-transparent shapes
-	var dropStyleEnabled = true;
-	
-	if (firstVertex != null && cells.length == 1)
-	{
-		var vstyle = graph.getCellStyle(cells[firstVertex]);
-		
-		if (vstyle != null)
-		{
-			dropStyleEnabled = mxUtils.getValue(vstyle, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
-				mxUtils.getValue(vstyle, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE;
-		}
-	}
+	var dropStyleEnabled = this.isDropStyleEnabled(cells, firstVertex);
 	
 	var dragSource = mxUtils.makeDraggable(elt, this.editorUi.editor.graph, mxUtils.bind(this, function(graph, evt, target, x, y)
 	{
@@ -2862,8 +2879,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE) != mxConstants.NONE)) ||
 			mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) == 'image') ||
-			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) && 
-			((graph.model.isVertex(state.cell) && firstVertex != null) ||
+			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) &&
+			!this.isDropStyleTargetIgnored(state) && ((graph.model.isVertex(state.cell) && firstVertex != null) ||
 			(graph.model.isEdge(state.cell) && graph.model.isEdge(cells[0]))))
 		{
 			currentStyleTarget = state;

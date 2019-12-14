@@ -1,3 +1,12 @@
+14-DEC-2019: 12.4.2
+
+- Improves move/resize preview and guides
+- Adds pinch to zoom for macOS trackpad
+- Disables drop style for swimlanes
+- Adds anchor points for corners
+- Fixes edge label move preview
+- Uses mxGraph 4.0.6 beta 11
+
 12-DEC-2019: 12.4.1
 
 - Fixes initial key state for cloning

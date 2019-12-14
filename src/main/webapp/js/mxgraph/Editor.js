@@ -215,6 +215,11 @@ Editor.fullscreenLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACA
 Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
 
 /**
+ * Specifies the image URL to be used for the transparent background.
+ */
+Editor.hintOffset = 20;
+
+/**
  * Specifies if the diagram should be saved automatically if possible. Default
  * is true.
  */
