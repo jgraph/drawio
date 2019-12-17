@@ -1358,7 +1358,7 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isFastZoomEnabled = function()
 	{
-		return this.scrollbars && urlParams['zoom'] != 'nocss' && !this.mathEnabled &&
+		return urlParams['zoom'] != 'nocss' && !this.mathEnabled &&
 			!mxClient.NO_FO && !this.useCssTransforms;
 	};
 	
@@ -1762,7 +1762,7 @@ Graph.prototype.customLinkClicked = function(link)
 };
 
 /**
- * Returns true if the fiven href references an external protocol that
+ * Returns true if the given href references an external protocol that
  * should never open in a new window. Default returns true for mailto.
  */
 Graph.prototype.isExternalProtocol = function(href)
@@ -3384,6 +3384,8 @@ HoverIcons.prototype.init = function()
 	this.graph.view.addListener(mxEvent.DOWN, this.repaintHandler);
 	this.graph.view.addListener(mxEvent.UP, this.repaintHandler);
 	this.graph.addListener(mxEvent.ROOT, this.repaintHandler);
+	this.graph.addListener(mxEvent.ESCAPE, this.resetHandler);
+	mxEvent.addListener(this.graph.container, 'scroll', this.resetHandler);
 	
 	// Resets the mouse point on escape
 	this.graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
@@ -8880,83 +8882,90 @@ if (typeof mxVertexHandler != 'undefined')
 	
 		mxVertexHandler.prototype.updateLinkHint = function(link, links)
 		{
-			if ((link == null && (links == null || links.length == 0)) ||
-				this.graph.getSelectionCount() > 1)
+			try
 			{
-				if (this.linkHint != null)
+				if ((link == null && (links == null || links.length == 0)) ||
+					this.graph.getSelectionCount() > 1)
 				{
-					this.linkHint.parentNode.removeChild(this.linkHint);
-					this.linkHint = null;
+					if (this.linkHint != null)
+					{
+						this.linkHint.parentNode.removeChild(this.linkHint);
+						this.linkHint = null;
+					}
+				}
+				else if (link != null || (links != null && links.length > 0))
+				{
+					if (this.linkHint == null)
+					{
+						this.linkHint = createHint();
+						this.linkHint.style.padding = '6px 8px 6px 8px';
+						this.linkHint.style.opacity = '1';
+						this.linkHint.style.filter = '';
+						
+						this.graph.container.appendChild(this.linkHint);
+					}
+	
+					this.linkHint.innerHTML = '';
+					
+					if (link != null)
+					{
+						this.linkHint.appendChild(this.graph.createLinkForHint(link));
+						
+						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
+						{
+							var changeLink = document.createElement('img');
+							changeLink.setAttribute('src', Editor.editImage);
+							changeLink.setAttribute('title', mxResources.get('editLink'));
+							changeLink.setAttribute('width', '11');
+							changeLink.setAttribute('height', '11');
+							changeLink.style.marginLeft = '10px';
+							changeLink.style.marginBottom = '-1px';
+							changeLink.style.cursor = 'pointer';
+							this.linkHint.appendChild(changeLink);
+							
+							mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
+							{
+								this.graph.setSelectionCell(this.state.cell);
+								this.graph.editLink();
+								mxEvent.consume(evt);
+							}));
+							
+							var removeLink = document.createElement('img');
+							removeLink.setAttribute('src', Dialog.prototype.clearImage);
+							removeLink.setAttribute('title', mxResources.get('removeIt', [mxResources.get('link')]));
+							removeLink.setAttribute('width', '13');
+							removeLink.setAttribute('height', '10');
+							removeLink.style.marginLeft = '4px';
+							removeLink.style.marginBottom = '-1px';
+							removeLink.style.cursor = 'pointer';
+							this.linkHint.appendChild(removeLink);
+							
+							mxEvent.addListener(removeLink, 'click', mxUtils.bind(this, function(evt)
+							{
+								this.graph.setLinkForCell(this.state.cell, null);
+								mxEvent.consume(evt);
+							}));
+						}
+					}
+	
+					if (links != null)
+					{
+						for (var i = 0; i < links.length; i++)
+						{
+							var div = document.createElement('div');
+							div.style.marginTop = (link != null || i > 0) ? '6px' : '0px';
+							div.appendChild(this.graph.createLinkForHint(
+								links[i].getAttribute('href'),
+								mxUtils.getTextContent(links[i])));
+							
+							this.linkHint.appendChild(div);
+						}
+					}
 				}
 			}
-			else if (link != null || (links != null && links.length > 0))
+			catch (e)
 			{
-				if (this.linkHint == null)
-				{
-					this.linkHint = createHint();
-					this.linkHint.style.padding = '6px 8px 6px 8px';
-					this.linkHint.style.opacity = '1';
-					this.linkHint.style.filter = '';
-					
-					this.graph.container.appendChild(this.linkHint);
-				}
-
-				this.linkHint.innerHTML = '';
-				
-				if (link != null)
-				{
-					this.linkHint.appendChild(this.graph.createLinkForHint(link));
-					
-					if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
-					{
-						var changeLink = document.createElement('img');
-						changeLink.setAttribute('src', Editor.editImage);
-						changeLink.setAttribute('title', mxResources.get('editLink'));
-						changeLink.setAttribute('width', '11');
-						changeLink.setAttribute('height', '11');
-						changeLink.style.marginLeft = '10px';
-						changeLink.style.marginBottom = '-1px';
-						changeLink.style.cursor = 'pointer';
-						this.linkHint.appendChild(changeLink);
-						
-						mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
-						{
-							this.graph.setSelectionCell(this.state.cell);
-							this.graph.editLink();
-							mxEvent.consume(evt);
-						}));
-						
-						var removeLink = document.createElement('img');
-						removeLink.setAttribute('src', Dialog.prototype.clearImage);
-						removeLink.setAttribute('title', mxResources.get('removeIt', [mxResources.get('link')]));
-						removeLink.setAttribute('width', '13');
-						removeLink.setAttribute('height', '10');
-						removeLink.style.marginLeft = '4px';
-						removeLink.style.marginBottom = '-1px';
-						removeLink.style.cursor = 'pointer';
-						this.linkHint.appendChild(removeLink);
-						
-						mxEvent.addListener(removeLink, 'click', mxUtils.bind(this, function(evt)
-						{
-							this.graph.setLinkForCell(this.state.cell, null);
-							mxEvent.consume(evt);
-						}));
-					}
-				}
-
-				if (links != null)
-				{
-					for (var i = 0; i < links.length; i++)
-					{
-						var div = document.createElement('div');
-						div.style.marginTop = (link != null || i > 0) ? '6px' : '0px';
-						div.appendChild(this.graph.createLinkForHint(
-							links[i].getAttribute('href'),
-							mxUtils.getTextContent(links[i])));
-						
-						this.linkHint.appendChild(div);
-					}
-				}
+				// ignore
 			}
 		};
 		

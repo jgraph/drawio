@@ -141,11 +141,11 @@ DrawioFileSync = function(file)
 					this.fileChangedNotify();
 				}
 				
-				var len = (data != null) ? data.length : 'null';
-				
-				EditorUi.logError('Protocol Error ' + e.message,
-					null, 'data_' + len + '_file_' + this.file.getHash() +
-					'_client_' + this.clientId);
+//				var len = (data != null) ? data.length : 'null';
+//				
+//				EditorUi.logError('Protocol Error ' + e.message,
+//					null, 'data_' + len + '_file_' + this.file.getHash() +
+//					'_client_' + this.clientId);
 				
 				if (window.console != null)
 				{

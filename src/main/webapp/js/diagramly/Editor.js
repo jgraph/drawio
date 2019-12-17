@@ -3169,7 +3169,7 @@
 							
 							if (prop.allowAuto)
 							{
-								if (inputVal.trim().toLowerCase() == 'auto')
+								if (inputVal.trim != null && inputVal.trim().toLowerCase() == 'auto')
 								{
 									inputVal = 'auto';
 									pType = 'string';
@@ -4775,6 +4775,7 @@
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['cisco19'] = [SHAPES_PATH + '/mxCisco19.js', STENCIL_PATH + '/cisco19.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
 	mxStencilRegistry.libraries['kubernetes'] = [SHAPES_PATH + '/mxKubernetes.js', STENCIL_PATH + '/kubernetes.xml'];

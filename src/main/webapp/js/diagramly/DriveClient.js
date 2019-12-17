@@ -1264,35 +1264,37 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			// However, this would result in a missing thumbnail in most cases so a better solution might be to reduce
 			// the autosave interval in DriveRealtime, but that would increase the number of requests.
 			unloading = (unloading != null) ? unloading : false;
+			var prevDesc = null;
+			var pinned = false;
+			var meta =
+			{
+				'mimeType': file.desc.mimeType,
+				'title': file.getTitle()
+			};
 			
+			// Overrides old mime type and creates a revision
+			if (this.isGoogleRealtimeMimeType(meta.mimeType))
+			{
+				meta.mimeType = this.xmlMimeType;
+				prevDesc = file.desc;
+				revision = true;
+				pinned = true;
+			}
+			// Overrides mime type for unknown file type uploads
+			else if (meta.mimeType == 'application/octet-stream' ||
+				(urlParams['override-mime'] == '1' &&
+				meta.mimeType != this.xmlMimeType))
+			{
+				meta.mimeType = this.xmlMimeType;
+			}
+					
 			// Adds optional thumbnail to upload request
 			var doSave = mxUtils.bind(this, function(thumb, thumbMime, keepExisting)
 			{
 				try
 				{
 					file.saveLevel = 3;
-					var prevDesc = null;
-					var pinned = false;
-					var meta =
-					{
-						'mimeType': file.desc.mimeType,
-						'title': file.getTitle()
-					};
-					
-					// Overrides old mime type and creates a revision
-					if (this.isGoogleRealtimeMimeType(file.desc.mimeType))
-					{
-						meta.mimeType = this.xmlMimeType;
-						prevDesc = file.desc;
-						revision = true;
-						pinned = true;
-					}
-					// Overrides mime type for unknown file type uploads
-					else if (meta.mimeType == 'application/octet-stream')
-					{
-						meta.mimeType = this.xmlMimeType;
-					}
-					
+
 					if (file.constructor == DriveFile)
 					{
 						if (properties == null)
@@ -1757,7 +1759,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 
 				// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 				if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
+					(meta.mimeType != null && meta.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 					{
 						// Callback for getThumbnail

@@ -264,7 +264,7 @@ mxShapeDFDDataStoreID.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(0, h);
 	c.lineTo(0, 0);
 	c.lineTo(w, 0);
-	c.stroke();
+	c.fillAndStroke();
 	
 	c.setShadow(false);
 	

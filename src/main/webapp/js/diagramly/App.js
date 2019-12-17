@@ -1483,7 +1483,7 @@ App.prototype.init = function()
 					{
 						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
 						this.footerShowing = false;
-					}), 15000);
+					}), 60000);
 				}
 	//			else if ((!isLocalStorage || mxSettings.settings == null ||
 	//				mxSettings.settings.closeRateFooter == null) &&
@@ -2754,7 +2754,11 @@ App.prototype.showAlert = function(message)
  */
 App.prototype.start = function()
 {
-	this.bg.parentNode.removeChild(this.bg);
+	if (this.bg != null && this.bg.parentNode != null)
+	{
+		this.bg.parentNode.removeChild(this.bg);
+	}
+	
 	this.restoreLibraries();
 	this.spinner.stop();
 	

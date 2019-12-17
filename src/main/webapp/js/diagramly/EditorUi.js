@@ -6477,32 +6477,56 @@
 						    if (grid)
 						    {
 							    var view = graph.view;
+							    var curViewScale = view.scale;
+							    view.scale = 1; //Reset the scale temporary to generate unscaled grid image which is then scaled
 								var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
+								view.scale = curViewScale;
 								gridImage = 'data:image/svg+xml;base64,' + gridImage;
 				                var phase = graph.gridSize * view.gridSteps * scale;
 				                
 				                var b = graph.getGraphBounds();
-								var x0 = b.x * scale;
-								var y0 = b.y * scale;
+								var tx = view.translate.x * curViewScale;
+								var ty = view.translate.y * curViewScale;
+								var x0 = tx + (b.x - tx) / curViewScale;
+								var y0 = ty + (b.y - ty) / curViewScale;
 								
 								var background = new Image();
-								background.src = gridImage;
 		
 								background.onload = function()
 								{
-									var x = -Math.round(phase - mxUtils.mod(view.translate.x * scale - x0, phase));
-									var y = -Math.round(phase - mxUtils.mod(view.translate.y * scale - y0, phase));
-		
-									for (var i = x; i < w; i += phase)
+									try
 									{
-										for (var j = y; j < h; j += phase)
+										var x = -Math.round(phase - mxUtils.mod((tx - x0) * scale, phase));
+										var y = -Math.round(phase - mxUtils.mod((ty - y0) * scale, phase));
+			
+										for (var i = x; i < w; i += phase)
 										{
-											ctx.drawImage(background, i / scale, j / scale);	
+											for (var j = y; j < h; j += phase)
+											{
+												ctx.drawImage(background, i / scale, j / scale);	
+											}
 										}
+									
+										drawImage();
 									}
-								
-									drawImage();
+							   		catch (e)
+							   		{
+							   			if (error != null)
+										{
+											error(e);
+										}
+							   		}
 								};
+								
+								background.onerror = function(e)
+								{
+									if (error != null)
+									{
+										error(e);
+									}
+								};
+								
+								background.src = gridImage;
 						    }
 						    else
 					    	{

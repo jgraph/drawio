@@ -1036,6 +1036,23 @@ EditorUi.prototype.init = function()
 	
 	if (!graph.standalone)
 	{
+		// Hides tooltips and connection points when scrolling
+		mxEvent.addListener(graph.container, 'scroll', mxUtils.bind(this, function()
+		{
+			graph.tooltipHandler.hide();
+			
+			if (graph.connectionHandler != null && graph.connectionHandler.constraintHandler != null)
+			{
+				graph.connectionHandler.constraintHandler.reset();
+			}
+		}));
+		
+		// Hides tooltip on escape
+		graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
+		{
+			graph.tooltipHandler.hide();
+		}));
+		
 		mxEvent.addListener(graph.container, 'keydown', mxUtils.bind(this, function(evt)
 		{
 			this.onKeyDown(evt);
@@ -2132,22 +2149,22 @@ EditorUi.prototype.initCanvas = function()
 		    		}
 		        	
 		        	var sp = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
+		            var offset = mxUtils.getOffset(graph.container);
 		        	var prev = graph.view.scale;
+		            var dx = 0;
+		            var dy = 0;
+		            
+		            if (cursorPosition != null)
+		            {
+		                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
+		                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
+		            }
+	
 		            graph.zoom(graph.cumulativeZoomFactor);
 		            var s = graph.view.scale;
 		            
 		            if (s != prev)
 		            {
-			            var offset = mxUtils.getOffset(graph.container);
-			            var dx = 0;
-			            var dy = 0;
-			            
-			            if (cursorPosition != null)
-			            {
-			                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
-			                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
-			            }
-		
 			            if (scrollPosition != null)
 			            {
 			            	dx += sp.x - scrollPosition.x;
@@ -2178,6 +2195,9 @@ EditorUi.prototype.initCanvas = function()
 
 	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay)
 	{
+		// TODO: Fix ignored cursor position if scrollbars are disabled
+		ignoreCursorPosition = ignoreCursorPosition || !graph.scrollbars;
+		
 		if (ignoreCursorPosition)
 		{
 			cursorPosition = new mxPoint(
@@ -2220,6 +2240,7 @@ EditorUi.prototype.initCanvas = function()
 		if (graph.isFastZoomEnabled())
 		{
 			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
+			
 			var cx = (ignoreCursorPosition) ? graph.container.scrollLeft + graph.container.clientWidth / 2 :
 				cursorPosition.x + graph.container.scrollLeft - graph.container.offsetLeft;
 			var cy = (ignoreCursorPosition) ? graph.container.scrollTop + graph.container.clientHeight / 2 :
@@ -2282,26 +2303,51 @@ EditorUi.prototype.initCanvas = function()
 
 	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force)
 	{
-		// Add Ctrl+wheel (or pinch on trackpad) native browser zoom event for macOS
-		if ((this.dialogs == null || this.dialogs.length == 0) && (force || graph.isZoomWheelEvent(evt)))
+		if (this.dialogs == null || this.dialogs.length == 0)
 		{
-			var source = mxEvent.getSource(evt);
-			
-			while (source != null)
+			// Scrolls with scrollbars turned off
+			if (!graph.scrollbars && !graph.isZoomWheelEvent(evt))
+            {
+                var t = graph.view.getTranslate();
+                var step = 40 / graph.view.scale;
+                
+                if (!mxEvent.isShiftDown(evt))
+                {
+                    graph.view.setTranslate(t.x, t.y + ((up) ? step : -step));
+                }
+                else
+                {
+                    graph.view.setTranslate(t.x + ((up) ? -step : step), t.y);
+                }
+            }
+			else if (force || graph.isZoomWheelEvent(evt))
 			{
-				if (source == graph.container)
-				{
-					cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));;
-					graph.lazyZoom(up);
-					mxEvent.consume(evt);
-			
-					return false;
-				}
+				var source = mxEvent.getSource(evt);
 				
-				source = source.parentNode;
+				while (source != null)
+				{
+					if (source == graph.container)
+					{
+						cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));;
+						graph.lazyZoom(up);
+						mxEvent.consume(evt);
+				
+						return false;
+					}
+					
+					source = source.parentNode;
+				}
 			}
 		}
 	}), graph.container);
+	
+	// Uses fast zoom for pinch gestures on iOS
+	graph.panningHandler.zoomGraph = function(evt)
+	{
+		graph.cumulativeZoomFactor = evt.scale;
+		graph.lazyZoom(evt.scale > 0, true);
+		mxEvent.consume(evt);
+	};
 };
 
 /**
@@ -2668,26 +2714,10 @@ EditorUi.prototype.setScrollbars = function(value)
 
 	if (prev != graph.container.style.overflow)
 	{
-		if (graph.container.style.overflow == 'hidden')
-		{
-			var t = graph.view.translate;
-			graph.view.setTranslate(t.x - graph.container.scrollLeft / graph.view.scale, t.y - graph.container.scrollTop / graph.view.scale);
-			graph.container.scrollLeft = 0;
-			graph.container.scrollTop = 0;
-			graph.minimumGraphSize = null;
-			graph.sizeDidChange();
-		}
-		else
-		{
-			var dx = graph.view.translate.x;
-			var dy = graph.view.translate.y;
-
-			graph.view.translate.x = 0;
-			graph.view.translate.y = 0;
-			graph.sizeDidChange();
-			graph.container.scrollLeft -= Math.round(dx * graph.view.scale);
-			graph.container.scrollTop -= Math.round(dy * graph.view.scale);
-		}
+		graph.container.scrollTop = 0;
+		graph.container.scrollLeft = 0;
+		graph.view.scaleAndTranslate(1, 0, 0);
+		this.resetScrollbars();
 	}
 	
 	this.fireEvent(new mxEventObject('scrollbarsChanged'));
@@ -2756,19 +2786,19 @@ EditorUi.prototype.resetScrollbars = function()
 		}
 		else
 		{
-			// This code is not actively used since the default for scrollbars is always true
-			if (graph.pageVisible)
-			{
-				var b = graph.view.getBackgroundPageBounds();
-				graph.view.setTranslate(Math.floor(Math.max(0, (graph.container.clientWidth - b.width) / 2) - b.x),
-					Math.floor(Math.max(0, (graph.container.clientHeight - b.height) / 2) - b.y));
-			}
-			else
-			{
-				var bounds = graph.getGraphBounds();
-				graph.view.setTranslate(Math.floor(Math.max(0, Math.max(0, (graph.container.clientWidth - bounds.width) / 2) - bounds.x)),
-					Math.floor(Math.max(0, Math.max(20, (graph.container.clientHeight - bounds.height) / 4)) - bounds.y));
-			}
+			var b = mxRectangle.fromRectangle((graph.pageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds())
+			var tr = graph.view.translate;
+			var s = graph.view.scale;
+            b.x = b.x / s - tr.x;
+            b.y = b.y / s - tr.y;
+            b.width /= s;
+            b.height /= s;
+            
+            var dy = (graph.pageVisible) ? 0 : Math.max(0, (graph.container.clientHeight - b.height) / 4); 
+            
+			graph.view.setTranslate(Math.floor(Math.max(0,
+				(graph.container.clientWidth - b.width) / 2) - b.x + 2),
+				Math.floor(dy - b.y + 1));
 		}
 	}
 };

@@ -2721,8 +2721,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			while (i0 < templates.length && (first || mxUtils.mod(i0, 30) != 0))
 			{
 				var tmp = templates[i0++];
-				addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
+				var btn = addButton(tmp.url, tmp.libs, tmp.title, tmp.tooltip? tmp.tooltip : tmp.title,
 					tmp.select, tmp.imgUrl, tmp.info, tmp.onClick, tmp.preview, tmp.noImg, tmp.clibs);
+				
+				if (first)
+				{
+					btn.click();
+				}
+				
 				first = false;
 			}
 		}		
@@ -3117,6 +3123,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 
 		div.appendChild(elt);
+		return elt;
 	};
 
 	var categories = {}, customCats = {};
