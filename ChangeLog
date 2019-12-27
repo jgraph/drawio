@@ -1,3 +1,7 @@
+27-DEC-2019: 12.4.7
+
+- Fixes bug for loading viewer in Confluence Cloud
+
 27-DEC-2019: 12.4.6
 
 - Fixes mobile Safari in desktop mode
