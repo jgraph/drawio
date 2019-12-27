@@ -268,6 +268,12 @@ public class Utils
 				{
 					valid = true;
 				}
+				
+				// application/svg+xml
+				if (c2 == 's' && c3 == 'v' && c4 == 'g' && c5 == ' ')
+				{
+					valid = true;
+				}
 			}
 
 			// big and little (identical) endian UTF-8 encodings, with BOM

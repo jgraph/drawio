@@ -1,3 +1,8 @@
+27-DEC-2019: 12.4.6
+
+- Fixes mobile Safari in desktop mode
+- Uses mxGraph 4.0.6 beta 15
+
 27-DEC-2019: 12.4.5
 
 - Uses mxGraph 4.0.6 beta 14
@@ -5,7 +10,6 @@
 
 27-DEC-2019: 12.4.4
 
-- Fixes events for mobile Safari in desktop mode
 - Fixes proxy URL for Confluence Cloud lightbox
 - Fixes possible text wrapping for SVG export
 - Adds custom fonts for embedded SVG files
