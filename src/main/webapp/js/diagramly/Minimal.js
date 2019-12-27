@@ -890,32 +890,27 @@ EditorUi.initMinimalTheme = function()
             ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
         
-        this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
+        (mxUtils.bind(this, function()
         {
-            ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
-            	'insertText', 'insertLink', '-', 'insertImage'], parent);
-            
-            if (ui.insertTemplateEnabled && !ui.isOffline())
+			var insertMenu = this.get('insert');
+			var insertMenuFunct = insertMenu.funct;
+			
+			insertMenu.funct = function(menu, parent)
 			{
-                ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
-			}
-            
-            menu.addSeparator(parent);
-            this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
-			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
-			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
-            menu.addSeparator(parent);
-            
-            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-            {
-            	ui.menus.addMenuItems(menu, ['import'], parent);
-            }
-            else
-            {
-            	ui.menus.addSubmenu('importFrom', menu, parent);
-            }
-        })));
-
+				insertMenuFunct.apply(this, arguments);
+				menu.addSeparator(parent);
+	            
+	            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+	            {
+	            	ui.menus.addMenuItems(menu, ['import'], parent);
+	            }
+	            else
+	            {
+	            	ui.menus.addSubmenu('importFrom', menu, parent);
+	            }
+			};
+        }))();
+		
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];
 

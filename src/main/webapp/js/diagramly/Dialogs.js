@@ -2576,8 +2576,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
-	rightHighlight = (rightHighlight != null) ? rightHighlight : '#e6eff8';
-	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : '1px solid #ccd9ea';
+	rightHighlight = (rightHighlight != null) ? rightHighlight : ((uiTheme == 'dark') ? 'transparent' : '#e6eff8');
+	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : ((uiTheme == 'dark') ? '1px dotted rgb(235, 242, 249)' : '1px solid #ccd9ea');
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
@@ -3021,7 +3021,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
 		
-		if (tooltip != null && tooltip.length > 0)
+		if (title != null)
+		{
+			elt.setAttribute('title', mxResources.get(title, null, title));
+		}
+		else if (tooltip != null && tooltip.length > 0)
 		{
 			elt.setAttribute('title', tooltip);
 		}
@@ -3042,7 +3046,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				create();
 			});
-
 		}
 		else if (!noImg && url != null && url.length > 0)
 		{
@@ -3051,6 +3054,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			elt.style.backgroundImage = 'url(' + png + ')';
 			elt.style.backgroundPosition = 'center center';
 			elt.style.backgroundRepeat = 'no-repeat';
+			
+			if (title != null)
+			{
+				elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;' + ((uiTheme == 'dark') ? '' : 'background:rgba(255,255,255,0.85);') +
+					'border:inherit;"><tr><td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
+					'border-radius:3px;background:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
+					mxResources.get(title, null, title) + '</span></td></tr></table>';
+			}
 			
 			var createIt = false;
 			
@@ -3096,8 +3107,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1em;word-break: break-all;"><tr>' +
-				'<td align="center" valign="middle">' + mxResources.get(title, null, title) + '</td></tr></table>';
+			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;"><tr>' +
+				'<td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
+				'border-radius:3px;background:#ffffff;overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
+				mxResources.get(title, null, title) + '</span></td></tr></table>';
 			
 			if (select)
 			{
@@ -3131,7 +3144,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
-	
 	var templates = categories['basic'];
 	
 	function initUi()
@@ -3171,7 +3183,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					label = label.substring(0, 18) + '&hellip;';
 				}
 				
-				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
+				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
 				entry.setAttribute('title', label + ' (' + templateList.length + ')');
 				mxUtils.write(entry, entry.getAttribute('title'));
 				
@@ -3226,7 +3238,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				label = label.substring(0, 18) + '&hellip;';
 			}
 			
-			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;';
+			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
 			entry.setAttribute('title', label + ' (' + templateList.length + ')');
 			mxUtils.write(entry, entry.getAttribute('title'));
 			
@@ -3267,7 +3279,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		
 		addTemplates();
-	}
+	};
 
 	if (!compact)
 	{

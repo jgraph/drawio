@@ -738,6 +738,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 //TODO How to make this function secure with no injection??
 Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 {
+	// KNOWN: Font not added when pasting cells with custom fonts
 	if (fontName && fontUrl)
 	{
 		var fontId = 'extFont_' + fontName;
@@ -750,6 +751,9 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 			}
 			else
 			{
+				var head = document.getElementsByTagName('head')[0];
+				
+				// KNOWN: Should load fonts synchronously
 				var style = document.createElement('style');
 				
 				style.appendChild(document.createTextNode('@font-face {\n' +
@@ -757,7 +761,7 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 			            '\tsrc: url("'+ fontUrl +'");\n' + 
 			            '}'));
 				
-				style.setAttribute('id', fontId);				
+				style.setAttribute('id', fontId);
 				var head = document.getElementsByTagName('head')[0];
 		   		head.appendChild(style);
 			}

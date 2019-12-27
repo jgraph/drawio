@@ -776,7 +776,11 @@ Actions.prototype.init = function()
 			
 			if (!isNaN(val) && val > 0)
 			{
-				ui.setPageScale(val / 100);
+				var change = new ChangePageSetup(ui, null, null, null, val / 100);
+				change.ignoreColor = true;
+				change.ignoreImage = true;
+				
+				graph.model.execute(change);
 			}
 		}), mxResources.get('pageScale') + ' (%)');
 		this.editorUi.showDialog(dlg.container, 300, 80, true, true);

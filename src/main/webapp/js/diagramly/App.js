@@ -2114,7 +2114,7 @@ App.prototype.getThumbnail = function(width, fn)
 		}
 		
 		// Uses client-side canvas export
-		if (mxClient.IS_CHROMEAPP || (!graph.mathEnabled && this.useCanvasForExport))
+		if (mxClient.IS_CHROMEAPP || this.useCanvasForExport)
 		{
 		   	this.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{

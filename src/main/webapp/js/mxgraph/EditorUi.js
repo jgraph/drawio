@@ -2328,7 +2328,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					if (source == graph.container)
 					{
-						cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));;
+						cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 						graph.lazyZoom(up);
 						mxEvent.consume(evt);
 				
@@ -2847,7 +2847,7 @@ EditorUi.prototype.setPageVisible = function(value)
 /**
  * Change types
  */
-function ChangePageSetup(ui, color, image, format)
+function ChangePageSetup(ui, color, image, format, pageScale)
 {
 	this.ui = ui;
 	this.color = color;
@@ -2856,6 +2856,8 @@ function ChangePageSetup(ui, color, image, format)
 	this.previousImage = image;
 	this.format = format;
 	this.previousFormat = format;
+	this.pageScale = pageScale;
+	this.previousPageScale = pageScale;
 	
 	// Needed since null are valid values for color and image
 	this.ignoreColor = false;
@@ -2903,22 +2905,34 @@ ChangePageSetup.prototype.execute = function()
     	this.ui.setFoldingEnabled(this.foldingEnabled);
         this.foldingEnabled = !this.foldingEnabled;
     }
+
+    if (this.previousPageScale != null)
+    {
+	    var currentPageScale = this.ui.editor.graph.pageScale;
+	    
+	    if (this.previousPageScale != currentPageScale)
+	    {
+	    	this.ui.setPageScale(this.previousPageScale);
+	        this.previousPageScale = currentPageScale;
+	    }
+    }
 };
 
 // Registers codec for ChangePageSetup
 (function()
 {
-	var codec = new mxObjectCodec(new ChangePageSetup(),  ['ui', 'previousColor', 'previousImage', 'previousFormat']);
+	var codec = new mxObjectCodec(new ChangePageSetup(),  ['ui', 'previousColor', 'previousImage', 'previousFormat', 'previousPageScale']);
 
 	codec.afterDecode = function(dec, node, obj)
 	{
 		obj.previousColor = obj.color;
 		obj.previousImage = obj.image;
 		obj.previousFormat = obj.format;
+		obj.previousPageScale = obj.pageScale;
 
         if (obj.foldingEnabled != null)
         {
-        		obj.foldingEnabled = !obj.foldingEnabled;
+        	obj.foldingEnabled = !obj.foldingEnabled;
         }
        
 		return obj;
@@ -4245,6 +4259,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			if (queue.length > 0)
 			{
 				graph.getModel().beginUpdate();
+				
 				try
 				{
 					for (var i = 0; i < queue.length; i++)
@@ -4258,7 +4273,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 				{
 					graph.getModel().endUpdate();
 				}
-				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}, 200);
 	};

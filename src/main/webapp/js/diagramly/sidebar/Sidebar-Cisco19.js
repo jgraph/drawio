@@ -3,26 +3,33 @@
 	// Adds Cisco Safe stencils
 	Sidebar.prototype.addCisco19Palette = function()
 	{
-		this.addCisco19LANSwitchingPalette();
-		this.addCisco19RoutingWANPalette();
-		this.addCisco19NetworkManagementPalette();
-		this.addCisco19DataCenterPalette();
-		this.addCisco19WirelessLANPalette();
-		this.addCisco19CollaborationPalette();
-		this.addCisco19SecurityCloudsAndConnectorsPalette();
-		this.addCisco19EndpointClientDeviceIconsPalette();
-		this.addCisco19DNASDAccessPalette();
-		this.addCisco19SDWANViptelaPalette();
-		this.addCisco19StealthwatchPalette();
-		this.addCisco19SafePalette();
+		var sc = "points=[[0.015,0.015,0],[0.985,0.015,0],[0.985,0.985,0],[0.015,0.985,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];";
+		var s = sc + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
+			'pointerEvents=1;shape=mxgraph.cisco19.';
+		var s2 = "points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.8555,0],[0.145,0.855,0]];" + 
+			mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
+			'pointerEvents=1;shape=mxgraph.cisco19.';
+		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
+			'pointerEvents=1;shape=mxgraph.cisco19.';
+		
+		this.addCisco19LANSwitchingPalette(s, s2, s3);
+		this.addCisco19RoutingWANPalette(s, s2, s3);
+		this.addCisco19NetworkManagementPalette(s, s2, s3);
+		this.addCisco19DataCenterPalette(s, s2, s3);
+		this.addCisco19WirelessLANPalette(s, s2, s3);
+		this.addCisco19CollaborationPalette(s, s2, s3);
+		this.addCisco19SecurityCloudsAndConnectorsPalette(s, s2, s3);
+		this.addCisco19EndpointClientDeviceIconsPalette(s, s2, s3);
+		this.addCisco19DNASDAccessPalette(s, s2, s3);
+		this.addCisco19SDWANViptelaPalette(s, s2, s3);
+		this.addCisco19StealthwatchPalette(s, s2, s3);
+		this.addCisco19SafePalette(s, s2, s3);
 	};
 	
-	Sidebar.prototype.addCisco19LANSwitchingPalette = function()
+	Sidebar.prototype.addCisco19LANSwitchingPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco lan switching local area network';
 
@@ -69,38 +76,36 @@
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19RoutingWANPalette = function()
+	Sidebar.prototype.addCisco19RoutingWANPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco routing wan wide area network';
 
 		this.addPaletteFunctions('cisco19Routing WAN', 'Cisco 19 / Routing WAN', false,
 		[
-			this.createVertexTemplateEntry(s + 'rect;prIcon=router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Router', null, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=csr_1000v;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=csr_1000v;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'CSR1000v', null, null, this.getTagsForStencil(gn, 'csr1000v', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=wireless_router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=wireless_router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h * 1.2, '', 'Wireless Router', null, null, this.getTagsForStencil(gn, 'wireless router', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=l3_modular3;fillColor=#FAFAFA;strokeColor=#C1272D;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=l3_modular3;fillColor=#FAFAFA;strokeColor=#C1272D;', 
 					w, h, '', 'L3 Modular', null, null, this.getTagsForStencil(gn, 'l3 modular', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=ucs_express;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=ucs_express;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'UCS Express', null, null, this.getTagsForStencil(gn, 'ucs express', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=router_with_voice;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=router_with_voice;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Router with Voice', null, null, this.getTagsForStencil(gn, 'router with voice', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=router_with_firewall;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=router_with_firewall;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Router with Firewall', null, null, this.getTagsForStencil(gn, 'router with firewall', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=netflow_router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=netflow_router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'NetFlow Router', null, null, this.getTagsForStencil(gn, 'netflow router', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=secure_router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=secure_router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Secure Router (color)', null, null, this.getTagsForStencil(gn, 'secure router color', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=secure_router;fillColor=#FAFAFA;strokeColor=#6696AB;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=secure_router;fillColor=#FAFAFA;strokeColor=#6696AB;', 
 					w, h, '', 'Secure Router (subdued)', null, null, this.getTagsForStencil(gn, 'secure router subdued', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=ip_telephone_router;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=ip_telephone_router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'IP Telephone Router', null, null, this.getTagsForStencil(gn, 'ip telephone router internet protocol', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=content_router;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Content Router', null, null, this.getTagsForStencil(gn, 'content router', dt).join(' ')),
@@ -114,19 +119,17 @@
 					w * 1.28, h, '', 'Router with Firewall', null, null, this.getTagsForStencil(gn, 'router with firewall', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=netflow_router2;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'NetFlow Router', null, null, this.getTagsForStencil(gn, 'netflow router', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=asr_1000;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.25,0,0],[0.75,0,0],[0.25,1,0],[0.75,1,0],[0.125,0.25,0],[0.875,0.25,0],[0.875,0.75,0],[0.125,0.75,0]];' + s3 + 'rect;prIcon=asr_1000;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.14, h, '', 'ASR 1000', null, null, this.getTagsForStencil(gn, 'asr 1000', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=asr_9000;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=asr_9000;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'ASR 9000', null, null, this.getTagsForStencil(gn, 'asr 9000', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19NetworkManagementPalette = function()
+	Sidebar.prototype.addCisco19NetworkManagementPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco network management';
 
@@ -139,12 +142,10 @@
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19DataCenterPalette = function()
+	Sidebar.prototype.addCisco19DataCenterPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco data center';
 
@@ -152,7 +153,7 @@
 		[
 			this.createVertexTemplateEntry(s + 'rect;prIcon=nexus_9300;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Nexus 9300', null, null, this.getTagsForStencil(gn, 'nexus 9300', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'x509_certificate;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.015,0.015,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[0.985,0.015,0],[1,0.22,0],[1,0.44,0],[1,0.67,0],[0.985,0.89,0],[0,0.22,0],[0,0.44,0],[0,0.67,0],[0.015,0.89,0],[0.25,0.91,0],[0.5,0.91,0],[0.785,0.955,0]];' + s3 + 'x509_certificate;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.95, '', 'x.509 Certificate', null, null, this.getTagsForStencil(gn, 'x509 certificate', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=hypervisor;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h * 1.3, '', 'Hypervisor', null, null, this.getTagsForStencil(gn, 'hypervisor', dt).join(' ')),
@@ -168,9 +169,9 @@
 					w * 1.2, h * 0.5, '', 'UCS C-Series Server', null, null, this.getTagsForStencil(gn, 'ucs c series server', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=nexus_5k_with_integrated_vsm;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Nexus 5K with Integrated VSM', null, null, this.getTagsForStencil(gn, 'nexus 5k with integrated vsm', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=aci;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.305,0.305,0],[0.695,0.305,0],[0.7,0.7,0],[0.3,0.7,0]];' + s3 + 'rect;prIcon=aci;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'ACI', null, null, this.getTagsForStencil(gn, 'aci', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'vts;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry(s2 + 'vts;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'VTS', null, null, this.getTagsForStencil(gn, 'vts', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=ucs_5108_blade_chassis;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'UCS 5108 Blade Chassis', null, null, this.getTagsForStencil(gn, 'ucs 5108 blade chassis', dt).join(' ')),
@@ -217,24 +218,22 @@
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19WirelessLANPalette = function()
+	Sidebar.prototype.addCisco19WirelessLANPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco wireless lan local area network';
 
 		this.addPaletteFunctions('cisco19Wireless LAN', 'Cisco 19 / Wireless LAN', false,
 		[
-			this.createVertexTemplateEntry(s + 'wifi_indicator;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0,0.58,0],[0.09,0.58,0],[0.36,0.39,0],[0.64,0.195,0],[0.91,0,0],[1,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[1,1,0],[0,1,0],[0.09,1,0],[0.36,1,0],[0.64,1,0],[0.91,1,0],[0,0.79,0]];' + s3 + 'wifi_indicator;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'WiFi Indicator', null, null, this.getTagsForStencil(gn, 'wifi indicator', dt).join(' ')),
-			this.createVertexTemplateEntry(s + '3g_4g_indicator;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.005,0.09,0],[0.08,0,0],[0.76,0.25,0],[1,0.92,0],[0.91,0.995,0],[0.57,0.995,0],[0.045,0.955,0],[0.005,0.43,0]];' + s3 + '3g_4g_indicator;fillColor=#005073;strokeColor=none;', 
 					w, h, '', '3G/4G Indicator', null, null, this.getTagsForStencil(gn, '3g 4g indicator', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=dual_mode_access_point;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Dual Mode Access Point', null, null, this.getTagsForStencil(gn, 'dual mode access point', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'wireless_access_point;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.03,0.36,0],[0.18,0,0],[0.5,0.34,0],[0.82,0,0],[0.97,0.36,0],[1,0.67,0],[0.975,0.975,0],[0.5,1,0],[0.025,0.975,0],[0,0.67,0]];' + s3 + 'wireless_access_point;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'Wireless Acess Point', null, null, this.getTagsForStencil(gn, 'access point', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=wireless_location_appliance;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Wireless Location Appliance', null, null, this.getTagsForStencil(gn, 'location appliance', dt).join(' ')),
@@ -247,12 +246,10 @@
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19CollaborationPalette = function()
+	Sidebar.prototype.addCisco19CollaborationPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco collaboration';
 
@@ -264,11 +261,11 @@
 					w * 1.28, h, '', 'Primary Codec', null, null, this.getTagsForStencil(gn, 'primary codec', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=secondary_codec;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Secondary Codec', null, null, this.getTagsForStencil(gn, 'secondary codec', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'laptop_video_client;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.225,0],[0.5,0,0],[0.87,0.225,0],[0.885,0.5,0],[0.985,0.99,0],[0.5,1,0],[0.015,0.99,0],[0.115,0.5,0]];' + s3 + 'laptop_video_client;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.85, '', 'Laptop Video Client', null, null, this.getTagsForStencil(gn, 'laptop video client', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=immersive_telepresence_endpoint;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 2.3, h, '', 'Immersive Telepresence Endpoint', null, null, this.getTagsForStencil(gn, 'immersive telepresence endpoint', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'hdtv;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[1,0.4,0],[1,0.8,0],[0.815,1,0],[0.5,1,0],[0.185,1,0],[0,0.8,0],[0,0.4,0]];' + s3 + 'hdtv;fillColor=#005073;strokeColor=none;', 
 					w * 1.2, h, '', 'HDTV', null, null, this.getTagsForStencil(gn, 'hdtv', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=virtual_desktop_service;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Virtual Desktop Service', null, null, this.getTagsForStencil(gn, 'virtual desktop service', dt).join(' ')),
@@ -296,11 +293,11 @@
 					w * 1.28, h, '', 'Cisco Unified Contact Center Enterprise and Hosted', null, null, this.getTagsForStencil(gn, 'cisco unified contact center enterprise and hosted', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=h323;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'H.323', null, null, this.getTagsForStencil(gn, 'h323', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'surveillance_camera;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.015,0.015,0],[0.5,0,0],[0.985,0.015,0],[1,0.22,0],[0.985,0.43,0],[0.73,0.85,0],[0.5,1,0],[0.285,0.85,0],[0.015,0.43,0],[0,0.22,0]];' + s3 + 'surveillance_camera;fillColor=#005073;strokeColor=none;', 
 					w * 1.28, h, '', 'Surveillance Camera', null, null, this.getTagsForStencil(gn, 'surveillance camera', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=monitor;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Monitor', null, null, this.getTagsForStencil(gn, 'monitor', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'upc_unified_personal_communicator;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.225,0],[0.5,0,0],[0.87,0.225,0],[0.885,0.5,0],[0.985,0.99,0],[0.5,1,0],[0.015,0.99,0],[0.115,0.5,0]];' + s3 + 'upc_unified_personal_communicator;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.85, '', 'UPC Unified Personal Communicator', null, null, this.getTagsForStencil(gn, 'upc unified personal communicator', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=telepresence_endpoint_twin_data_display;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Telepresence Endpoint (twin data display)', null, null, this.getTagsForStencil(gn, 'telepresence endpoint twin data display', dt).join(' ')),
@@ -314,11 +311,11 @@
 					w * 1.28, h, '', 'Media Server', null, null, this.getTagsForStencil(gn, 'media server', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=ip_ip_gateway;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'IP IP Gateway', null, null, this.getTagsForStencil(gn, 'ip gateway', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'webex', 
+			this.createVertexTemplateEntry(s2 + 'webex', 
 					w, h, '', 'WebEx', null, null, this.getTagsForStencil(gn, 'webex', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=clock;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=clock;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Clock', null, null, this.getTagsForStencil(gn, 'clock', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'phone_polycom;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[0.75,0.37,0],[0.96,0.735,0],[0.5,1,0],[0.045,0.73,0],[0.25,0.37,0]];' + s3 + 'phone_polycom;fillColor=#005073;strokeColor=none;', 
 					w * 0.95, h, '', 'Phone Polycom', null, null, this.getTagsForStencil(gn, 'phone polycom', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=unity;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Unity', null, null, this.getTagsForStencil(gn, 'unity', dt).join(' ')),
@@ -328,9 +325,9 @@
 					w * 1.28, h, '', 'Cisco MeetingPlace Express', null, null, this.getTagsForStencil(gn, 'meetingplace express', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=set_top;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Set Top', null, null, this.getTagsForStencil(gn, 'set top', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'ip_phone;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.59,0,0],[0.87,0.015,0],[0.88,0.3,0],[0.99,0.99,0],[0.5,1,0],[0.01,0.99,0],[0.075,0.5,0],[0.17,0.115,0]];' + s3 + 'ip_phone;fillColor=#005073;strokeColor=none;', 
 					w * 1.15, h, '', 'IP Phone', null, null, this.getTagsForStencil(gn, 'ip phone internet protocol', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'camera;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0,0.5,0],[0.19,0.02,0],[0.59,0,0],[0.985,0.02,0],[1,0.5,0],[0.985,0.98,0],[0.59,1,0],[0.19,0.98,0]];' + s3 + 'camera;fillColor=#005073;strokeColor=none;', 
 					w * 1.8, h, '', 'Camera', null, null, this.getTagsForStencil(gn, 'camera', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=da_encoder;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'DA Encoder', null, null, this.getTagsForStencil(gn, 'da encoder analog digital', dt).join(' ')),
@@ -340,7 +337,7 @@
 					w * 1.28, h, '', 'DA Decoder', null, null, this.getTagsForStencil(gn, 'da decoder analog digital', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=ad_decoder;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'AD Decoder', null, null, this.getTagsForStencil(gn, 'ad decoder analog digital', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'joystick_keyboard;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.24,0],[0.5,0.2,0],[0.62,0,0],[0.87,0.24,0],[0.95,0.55,0],[0.96,0.95,0],[0.5,1,0],[0.04,0.95,0],[0.05,0.55,0]];' + s3 + 'joystick_keyboard;fillColor=#005073;strokeColor=none;', 
 					w * 1.8, h, '', 'Joystick Keyboard', null, null, this.getTagsForStencil(gn, 'joystick keyboard', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=collab2;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Collaboration', null, null, this.getTagsForStencil(gn, 'collaboration', dt).join(' ')),
@@ -351,15 +348,14 @@
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19SecurityCloudsAndConnectorsPalette = function()
+	Sidebar.prototype.addCisco19SecurityCloudsAndConnectorsPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco security clouds connectors';
-
+		var sCloud = 'points=[[0,0.64,0],[0.2,0.15,0],[0.4,0.01,0],[0.79,0.25,0],[1,0.65,0],[0.8,0.86,0],[0.41,1,0],[0.16,0.86,0]];';
+		
 		this.addPaletteFunctions('cisco19Security Clouds Connectors', 'Cisco 19 / Security, Clouds and Connectors', false,
 		[
 			this.createVertexTemplateEntry(s + 'rect;prIcon=acs;fillColor=#FAFAFA;strokeColor=#005073;', 
@@ -386,77 +382,73 @@
 					w * 1.28, h, '', 'Firewall', null, null, this.getTagsForStencil(gn, 'firewall', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=asa_5500;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'ASA 5500', null, null, this.getTagsForStencil(gn, 'asa 5500', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'ldap;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[0.765,0.48,0],[0.99,0.98,0],[0.5,1,0],[0.01,0.98,0],[0.235,0.48,0]];' + s3 + 'ldap;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.85, '', 'LDAP', null, null, this.getTagsForStencil(gn, 'ldap', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'key;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0,0.5,0],[0.24,0,0],[0.5,0.28,0],[0.995,0.475,0],[0.5,0.72,0],[0.24,1,0]];' + s3 + 'key;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.45, '', 'Key', null, null, this.getTagsForStencil(gn, 'key', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'lock;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry(s2 + 'lock;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'Lock', null, null, this.getTagsForStencil(gn, 'lock', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cloud;fillColor=#6B6B6B;strokeColor=none;', 
+			this.createVertexTemplateEntry(sCloud + s3 + 'cloud;fillColor=#6B6B6B;strokeColor=none;', 
 					w, h * 0.6, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cloud;fillColor=#A6A6A6;strokeColor=none;', 
+			this.createVertexTemplateEntry(sCloud + s3 + 'cloud;fillColor=#A6A6A6;strokeColor=none;', 
 					w, h * 0.6, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cloud;fillColor=#FABD66;strokeColor=none;', 
+			this.createVertexTemplateEntry(sCloud + s3 + 'cloud;fillColor=#FABD66;strokeColor=none;', 
 					w, h * 0.6, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cloud;fillColor=#186180;strokeColor=none;', 
+			this.createVertexTemplateEntry(sCloud + s3 + 'cloud;fillColor=#186180;strokeColor=none;', 
 					w, h * 0.6, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cloud2;fillColor=#FFE9AA;strokeColor=none;', 
+			this.createVertexTemplateEntry(sCloud + s3 + 'cloud2;fillColor=#FFE9AA;strokeColor=none;', 
 					w, h * 0.6, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=security_management;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Security Management (color)', null, null, this.getTagsForStencil(gn, 'security management color', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=security_management;fillColor=#FAFAFA;strokeColor=#6696AB;', 
 					w, h, '', 'Security Management (subdued)', null, null, this.getTagsForStencil(gn, 'security management subdued', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'secure_endpoints;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.02,0],[0.5,0,0],[0.87,0.02,0],[0.885,0.4,0],[0.985,0.985,0],[0.5,1,0],[0.015,0.985,0],[0.115,0.4,0]];' + s3 + 'secure_endpoints;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.7, '', 'Secure Endpoint (laptop)', null, null, this.getTagsForStencil(gn, 'secure endpoints laptop', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19EndpointClientDeviceIconsPalette = function()
+	Sidebar.prototype.addCisco19EndpointClientDeviceIconsPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco endpoint client device icons';
 
 		this.addPaletteFunctions('cisco19Endpoint Client Device Icons', 'Cisco 19 / Endpoint Client and Device Icons', false,
 		[
-			this.createVertexTemplateEntry(s + 'workstation;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.03,0.03,0],[0.5,0,0],[0.97,0.03,0],[1,0.4,0],[0.97,0.745,0],[0.5,1,0],[0.03,0.745,0],[0,0.4,0]];' + s3 + 'workstation;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.8, '', 'Workstation', null, null, this.getTagsForStencil(gn, 'workstation', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'laptop;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.02,0],[0.5,0,0],[0.87,0.02,0],[0.885,0.4,0],[0.985,0.985,0],[0.5,1,0],[0.015,0.985,0],[0.115,0.4,0]];' + s3 + 'laptop;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.7, '', 'Laptop', null, null, this.getTagsForStencil(gn, 'laptop', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'handheld;fillColor=#005073;strokeColor=none;', 
 					w * 0.75, h, '', 'Handheld', null, null, this.getTagsForStencil(gn, 'handheld', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'cell_phone;fillColor=#005073;strokeColor=none;', 
 					w * 0.5, h, '', 'Cell Phone', null, null, this.getTagsForStencil(gn, 'cell phone', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'tablet;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.015,0.14,0],[0.5,0,0],[0.985,0.14,0],[1,0.57,0],[0.99,0.98,0],[0.5,1,0],[0.01,0.98,0],[0,0.57,0]];' + s3 + 'tablet;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.8, '', 'Tablet', null, null, this.getTagsForStencil(gn, 'tablet', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'printer;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.22,0.185,0],[0.5,0,0],[0.78,0.185,0],[0.975,0.49,0],[1,0.73,0],[0.975,0.97,0],[0.5,1,0],[0.025,0.97,0],[0,0.73,0],[0.025,0.49,0]];' + s3 + 'printer;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.9, '', 'Printer', null, null, this.getTagsForStencil(gn, 'printer', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'pos;fillColor=#005073;strokeColor=none;', 
 					w * 1.28, h, '', 'POS', null, null, this.getTagsForStencil(gn, 'pos', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'home_office;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.115,0.05,0],[0.335,0,0],[0.98,0.52,0],[1,0.71,0],[0.68,1,0],[0.065,0.76,0],[0,0.33,0],[0.68,0.33,0]];' + s3 + 'home_office;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'Home Office', null, null, this.getTagsForStencil(gn, 'home office', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'user;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.35,0,0],[0.98,0.51,0],[1,0.71,0],[0.67,1,0],[0,0.795,0],[0,0.65,0]];' + s3 + 'user;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'User', null, null, this.getTagsForStencil(gn, 'user', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'secure_endpoint_pc;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.02,0.015,0],[0.5,0,0],[0.98,0.015,0],[1,0.38,0],[0.895,0.98,0],[0.5,1,0],[0.105,0.98,0],[0,0.38,0]];' + s3 + 'secure_endpoint_pc;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.8, '', 'Secure Endpoint (PC)', null, null, this.getTagsForStencil(gn, 'secure endpoints pc', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'secure_endpoints;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.13,0.02,0],[0.5,0,0],[0.87,0.02,0],[0.885,0.4,0],[0.985,0.985,0],[0.5,1,0],[0.015,0.985,0],[0.115,0.4,0]];' + s3 + 'secure_endpoints;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.7, '', 'Secure Endpoint (laptop)', null, null, this.getTagsForStencil(gn, 'secure endpoints laptop', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'data_center;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.5,0,0],[1,0.34,0],[1,1],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.34,0],[1,0.67,0],[0,0.67,0],[0.325,0,0],[0.675,0,0]];' + s3 + 'data_center;fillColor=#005073;strokeColor=none;', 
 					w * 2, h * 1.4, '', 'Data Center', null, null, this.getTagsForStencil(gn, 'data center', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'branch;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[1,1,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];' + s3 + 'branch;fillColor=#005073;strokeColor=none;', 
 					w, h, '', 'Branch', null, null, this.getTagsForStencil(gn, 'branch', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19DNASDAccessPalette = function()
+	Sidebar.prototype.addCisco19DNASDAccessPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco dna sd access';
 
@@ -464,37 +456,33 @@
 		[
 			this.createVertexTemplateEntry(s + 'rect;prIcon=cisco_dna_center;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'Cisco DNA Center', null, null, this.getTagsForStencil(gn, 'dna center', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'cisco_dna;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.5,0.37,0],[1,0.09,0],[1,0.9,0],[0,0.08,0],[0,0.91,0],[0.5,0.61,0],[0.045,0.5,0],[0.96,0.5,0]];' + s3 + 'cisco_dna;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.6, '', 'Cisco DNA', null, null, this.getTagsForStencil(gn, 'dna', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19SDWANViptelaPalette = function()
+	Sidebar.prototype.addCisco19SDWANViptelaPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco sd wan viptela wide area network';
 
 		this.addPaletteFunctions('cisco19SD WAN Viptela', 'Cisco 19 / SD-WAN and Viptela', false,
 		[
-			this.createVertexTemplateEntry(s + 'rect;prIcon=vbond;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=vbond;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'vBond', null, null, this.getTagsForStencil(gn, 'vbond', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=vmanage;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=vmanage;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'vManage', null, null, this.getTagsForStencil(gn, 'vmanage', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'rect;prIcon=vsmart;fillColor=#FAFAFA;strokeColor=#005073;', 
+			this.createVertexTemplateEntry(s2 + 'rect;prIcon=vsmart;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w, h, '', 'vSmart', null, null, this.getTagsForStencil(gn, 'vsmart', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19StealthwatchPalette = function()
+	Sidebar.prototype.addCisco19StealthwatchPalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco stealthwatch';
 
@@ -502,19 +490,17 @@
 		[
 			this.createVertexTemplateEntry(s + 'rect;prIcon=flow_collector;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Flow Collector', null, null, this.getTagsForStencil(gn, 'flow collector', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'stealthwatch_management_console_smc;fillColor=#005073;strokeColor=none;', 
+			this.createVertexTemplateEntry('points=[[0.03,0.03,0],[0.5,0,0],[0.97,0.03,0],[1,0.4,0],[0.97,0.745,0],[0.5,1,0],[0.03,0.745,0],[0,0.4,0]];' + s3 + 'stealthwatch_management_console_smc;fillColor=#005073;strokeColor=none;', 
 					w, h * 0.8, '', 'Stealthwatch Management Console (SMC)', null, null, this.getTagsForStencil(gn, 'stealthwatch management console smc', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'rect;prIcon=cognitive;fillColor=#FAFAFA;strokeColor=#005073;', 
 					w * 1.28, h, '', 'Cognitive', null, null, this.getTagsForStencil(gn, 'cognitive', dt).join(' '))
 		]);
 	};
 	
-	Sidebar.prototype.addCisco19SafePalette = function()
+	Sidebar.prototype.addCisco19SafePalette = function(s, s2, s3)
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
-		 	'points=[[0.06,0.06,0],[0.94,0.06,0],[0.94,0.94,0],[0.06,0.94,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;shape=mxgraph.cisco19.';
 		var gn = 'mxgraph.cisco19';
 		var dt = 'cisco stealthwatch';
 

@@ -2532,18 +2532,19 @@
 				}
 			}
 		});
-
+		
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
-				'insertText', 'insertLink', '-', 'insertImage'], parent);
+			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse',
+				'insertRhombus', '-', 'insertText', 'insertLink', '-',
+				'createShape', 'insertFreehand', '-', 'insertImage'], parent);
 
 			if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['insertTemplate', '-'], parent);
+				this.addMenuItems(menu, ['insertTemplate'], parent);
 			}
-
-			this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
+			
+			menu.addSeparator(parent);
 			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 		})));

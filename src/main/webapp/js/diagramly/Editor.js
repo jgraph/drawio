@@ -790,14 +790,7 @@
 			
 			if (config.fontCss)
 			{
-				var s = document.createElement('style');
-				s.setAttribute('type', 'text/css');
-				s.appendChild(document.createTextNode(config.fontCss));
-				
-				var t = document.getElementsByTagName('script')[0];
-			  	t.parentNode.insertBefore(s, t);
-			  	
-			  	Editor.prototype.fontCss = config.fontCss;
+				Editor.configureFontCss(config.fontCss);
 			}
 			
 			if (config.autosaveDelay != null)
@@ -827,6 +820,49 @@
 		}
 	};
 
+	/**
+	 * Adds the global fontCss configuration.
+	 */
+	Editor.configureFontCss = function(fontCss)
+	{
+		if (fontCss != null)
+		{
+			Editor.prototype.fontCss = fontCss;
+			var t = document.getElementsByTagName('script')[0];
+			
+			if (t != null && t.parentNode != null)
+			{
+				var s = document.createElement('style');
+				s.setAttribute('type', 'text/css');
+				s.appendChild(document.createTextNode(fontCss));
+				t.parentNode.insertBefore(s, t);
+				
+				// Preloads fonts where supported
+				var parts = fontCss.split('url(');
+				
+				// Strips leading and trailing quotes and spaces
+				function trimString(str)
+				{
+				    return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+				};
+				
+				for (var i = 1; i < parts.length; i++)
+				{
+				    var idx = parts[i].indexOf(')');
+				    var url = trimString(parts[i].substring(0, idx));
+				    
+				    var l = document.createElement('link');
+					l.setAttribute('rel', 'preload');
+					l.setAttribute('href', url);
+					l.setAttribute('as', 'font');
+					l.setAttribute('crossorigin', '');
+					
+				  	t.parentNode.insertBefore(l, t);
+				}
+			}
+		}
+	};
+	
 	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
 	
 	/**
@@ -1718,18 +1754,41 @@
 	/**
 	 * Adds the global fontCss configuration.
 	 */
-	Editor.prototype.addFontCss = function(svgRoot)
+	Editor.prototype.addFontCss = function(svgRoot, fontCss)
 	{
-		var defs = svgRoot.getElementsByTagName('defs');
+		fontCss = (fontCss != null) ? fontCss : this.fontCss;
 		
-		if (this.fontCss != null && defs != null && defs.length > 0)
+		// Creates defs element if not available
+		if (fontCss != null)
 		{
+			var defs = svgRoot.getElementsByTagName('defs');
 			var svgDoc = svgRoot.ownerDocument;
+			var defsElt = null;
+			
+			if (defs.length == 0)
+			{
+				defsElt = (svgDoc.createElementNS != null) ?
+					svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+				
+				if (svgRoot.firstChild != null)
+				{
+					svgRoot.insertBefore(defsElt, svgRoot.firstChild);
+				}
+				else
+				{
+					svgRoot.appendChild(defsElt);
+				}
+			}
+			else
+			{
+				defsElt = defs[0];
+			}
+
 			var style = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			style.setAttribute('type', 'text/css');
-			mxUtils.setTextContent(style, this.fontCss);
-			defs[0][0].appendChild(style);
+			mxUtils.setTextContent(style, fontCss);
+			defsElt.appendChild(style);
 		}
 	};
 	
@@ -1739,7 +1798,9 @@
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || ((this.graph.extFonts == null || this.graph.extFonts.length == 0) && this.useCanvasForExport);
+		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
+		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.graph.mathEnabled ||
+			(!mxClient.IS_SF && !(mxClient.IS_GC && !mxClient.IS_MAC))));
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -3970,7 +4031,8 @@
 		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
 			
-			var styleCnt = '';
+			var prefix = '';
+			var postfix = '';
 			    	
 			for (var i = 0; i < this.extFonts.length; i++)
 			{
@@ -3978,18 +4040,18 @@
 				
 				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
 				{
-					styleCnt += '@import url(' + fontUrl + ');';
+					prefix += '@import url(' + fontUrl + ');\n';
 				}
 				else
 				{
-					styleCnt += '@font-face {' +
-			            'font-family: "'+ fontName +'";' + 
-			            'src: url("'+ fontUrl +'");' + 
-			            '}';
+					postfix += '@font-face {\n' +
+			            'font-family: "'+ fontName +'";\n' + 
+			            'src: url("'+ fontUrl +'");\n' + 
+			            '}\n';
 				}				
 			}
 			
-			style.appendChild(svgDoc.createTextNode(styleCnt));
+			style.appendChild(svgDoc.createTextNode(prefix + postfix));
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 		
@@ -4775,6 +4837,7 @@
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['c4'] = [SHAPES_PATH + '/mxC4.js'];
 	mxStencilRegistry.libraries['cisco19'] = [SHAPES_PATH + '/mxCisco19.js', STENCIL_PATH + '/cisco19.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];

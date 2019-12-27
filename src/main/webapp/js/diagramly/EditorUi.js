@@ -654,11 +654,12 @@
 			oldStop.call(this);
 			this.active = false;
 			
-			if (spinner.status != null)
+			if (spinner.status != null && spinner.status.parentNode != null)
 			{
 				spinner.status.parentNode.removeChild(spinner.status);
-				spinner.status = null;
 			}
+
+			spinner.status = null;
 		};
 		
 		spinner.pause = function()
@@ -964,7 +965,7 @@
 					fileNode.setAttribute('type', md);
 				}
 				
-				if (this.pages != null)
+				if (fileNode.getElementsByTagName('diagram').length > 1 && this.pages != null)
 				{
 					fileNode.setAttribute('pages', this.pages.length);
 				}
@@ -3926,10 +3927,9 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		// FIXME: Safari disabled due to mathjax rendering errors
-		return mxClient.IS_CHROMEAPP || ((!mxClient.IS_SF ||
-			!this.editor.graph.mathEnabled) &&
-			this.useCanvasForExport);
+		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
+		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.editor.graph.mathEnabled ||
+			(!mxClient.IS_SF && !(mxClient.IS_GC && !mxClient.IS_MAC))));
 	};
 
 	/**
@@ -6066,8 +6066,9 @@
 	 * Returns the SVG of the diagram with embedded XML. If a callback function is
 	 * used, the images are converted to data URIs.
 	 */
-	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection, redirect)
+	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection, redirect, embedImages)
 	{
+		embedImages = (embedImages != null) ? embedImages : true;
 		var bg = graph.background;
 		
 		if (bg == mxConstants.NONE)
@@ -6093,7 +6094,7 @@
 		{
 			svgRoot.setAttribute('resource', url);
 		}
-
+		
 		// LATER: Click on SVG content to start editing
 //		if (redirect != null)
 //		{
@@ -6104,11 +6105,23 @@
 
 		if (callback != null)
 		{
-			this.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
+			this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
 			{
-				callback(((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
-					'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
-					mxUtils.getXml(svgRoot));
+				if (embedImages)
+				{
+					this.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
+					{
+						callback(((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
+							'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
+							mxUtils.getXml(svgRoot));
+					}));
+				}
+				else
+				{
+					callback(((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
+						'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
+						mxUtils.getXml(svgRoot));
+				}
 			}));
 		}
 		else
@@ -6117,6 +6130,44 @@
 				'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
 				mxUtils.getXml(svgRoot);
 		}
+	};
+	
+	/**
+	 * Embeds font CSS as data URIs into the given svgRoot.
+	 */
+	EditorUi.prototype.embedFonts = function(svgRoot, callback)
+	{
+		this.loadFonts(mxUtils.bind(this, function()
+		{
+			try
+			{
+				if (this.editor.resolvedFontCss != null)
+				{
+					this.editor.addFontCss(svgRoot, this.editor.resolvedFontCss);
+				}
+				
+				this.embedExtFonts(mxUtils.bind(this, function(extFontsEmbeddedCss)
+				{
+					try
+					{
+						if (extFontsEmbeddedCss != null)
+						{
+							this.editor.addFontCss(svgRoot, extFontsEmbeddedCss);
+						}
+						
+						callback(svgRoot);
+					}
+					catch (e)
+					{
+						callback(svgRoot);
+					}
+				}));
+			}
+			catch (e)
+			{
+				callback(svgRoot);
+			}
+		}));
 	};
 	
 	/**
@@ -6557,38 +6608,10 @@
 						this.editor.graph.addSvgShadow(svgRoot);
 					}
 					
-					var addFontCss = function(fontCss)
+					if (this.editor.graph.mathEnabled)
 					{
-						var st = document.createElement('style');
-						st.setAttribute('type', 'text/css');
-						st.innerHTML = fontCss;
-						
-						// Creates defs element if not available
-						var defs = svgRoot.getElementsByTagName('defs');
-						var defsElt = null;
-						
-						if (defs.length == 0)
-						{
-							defsElt = (svgDoc.createElementNS != null) ?
-								svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
-							
-							if (svgRoot.firstChild != null)
-							{
-								svgRoot.insertBefore(defsElt, svgRoot.firstChild);
-							}
-							else
-							{
-								svgRoot.appendChild(defsElt);
-							}
-						}
-						else
-						{
-							defsElt = defs[0];
-						}
-						
-						// Must be in defs section for FF to work
-						defsElt.appendChild(st);	
-					};
+						this.editor.addMathCss(svgRoot);
+					}
 					
 					var done = mxUtils.bind(this, function()
 					{
@@ -6596,12 +6619,7 @@
 						{
 							if (this.editor.resolvedFontCss != null)
 							{
-								addFontCss(this.editor.resolvedFontCss);
-							}
-							
-							if (this.editor.graph.mathEnabled)
-							{
-								this.editor.addMathCss(svgRoot);
+								this.editor.addFontCss(svgRoot, this.editor.resolvedFontCss);
 							}
 							
 							img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
@@ -6621,7 +6639,7 @@
 						{
 							if (extFontsEmbeddedCss != null)
 							{
-								addFontCss(extFontsEmbeddedCss);
+								this.editor.addFontCss(svgRoot, extFontsEmbeddedCss);
 							}
 							
 							this.loadFonts(done);
@@ -11562,46 +11580,50 @@
 								msg.xml = this.getFileData(true, null, null, null, null,
 									null, null, null, null, false);
 								msg.format = 'svg';
-						        	
-					        	if (data.embedImages || data.embedImages == null)
+								
+								var postResult = mxUtils.bind(this, function(svg)
+								{
+									this.editor.graph.setEnabled(true);
+									this.spinner.stop();
+								
+									msg.data = this.createSvgDataUri(svg);
+									parent.postMessage(JSON.stringify(msg), '*');
+								});
+								
+								if (data.format == 'xmlsvg')
+								{
+									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
+										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+									{
+										this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null, data.embedImages);
+									}
+								}
+								else
 					        	{
 									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
 										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 									{
 										this.editor.graph.setEnabled(false);
-										
-						        		if (data.format == 'xmlsvg')
-						        		{
-							        		this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, mxUtils.bind(this, function(svg)
-						        			{
-												this.editor.graph.setEnabled(true);
-												this.spinner.stop();
-												
-												msg.data = this.createSvgDataUri(svg);
-												parent.postMessage(JSON.stringify(msg), '*');
-						        			}));
-						        		}
-						        		else
-						        		{
-						        			this.convertImages(this.editor.graph.getSvg(bg), mxUtils.bind(this, function(svgRoot)
-						        			{
-												this.editor.graph.setEnabled(true);
-												this.spinner.stop();
-												
-												msg.data = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-												parent.postMessage(JSON.stringify(msg), '*');
-						        			}));
-						        		}
+					        			var svgRoot = this.editor.graph.getSvg(bg);
+					        			
+					        			this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
+										{
+					        				if (data.embedImages || data.embedImages == null)
+					        				{
+												this.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
+							        			{
+													postResult(mxUtils.getXml(svgRoot));
+							        			}));
+					        				}
+					        				else
+					        				{
+					        					postResult(mxUtils.getXml(svgRoot));
+					        				}
+										}));
 									}
-						        		
-					        		return;
 					        	}
-					        	else
-					        	{
-					        		var svg = (data.format == 'xmlsvg') ? this.getEmbeddedSvg(this.getFileData(true),
-					        		this.editor.graph, null, true) : mxUtils.getXml(this.editor.graph.getSvg(bg));
-					        		msg.data = this.createSvgDataUri(svg);
-						        }
+								
+								return;
 							}
 	
 							parent.postMessage(JSON.stringify(msg), '*');

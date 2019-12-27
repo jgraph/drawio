@@ -23,6 +23,10 @@ abstract public class AbsAuthServlet extends HttpServlet
 {
 	private static final boolean DEBUG = false;
 	private static final String SEPARATOR = "/:::/";
+	public static final int X_WWW_FORM_URLENCODED = 1;
+	public static final int JSON = 2;
+	
+	protected int postType = X_WWW_FORM_URLENCODED; 
 	
 	static public class Config 
 	{
@@ -140,30 +144,60 @@ abstract public class AbsAuthServlet extends HttpServlet
 					con = (HttpURLConnection) obj.openConnection();
 		
 					con.setRequestMethod("POST");
-					con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		
+					
 					boolean jsonResponse = false;
 					StringBuilder urlParameters = new StringBuilder();
-					
-					urlParameters.append("client_id=");
-					urlParameters.append(client);
-					urlParameters.append("&redirect_uri=");
-					urlParameters.append(redirectUri);
-					urlParameters.append("&client_secret=");
-					urlParameters.append(secret);
-					
-					if (code != null)
+
+					if (postType == X_WWW_FORM_URLENCODED)
 					{
-						urlParameters.append("&code=");
-						urlParameters.append(code);
-						urlParameters.append("&grant_type=authorization_code");
+						con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+		
+						urlParameters.append("client_id=");
+						urlParameters.append(client);
+						urlParameters.append("&redirect_uri=");
+						urlParameters.append(redirectUri);
+						urlParameters.append("&client_secret=");
+						urlParameters.append(secret);
+					
+						if (code != null)
+						{
+							urlParameters.append("&code=");
+							urlParameters.append(code);
+							urlParameters.append("&grant_type=authorization_code");
+						}
+						else
+						{
+							urlParameters.append("&refresh_token=");
+							urlParameters.append(refreshToken);
+							urlParameters.append("&grant_type=refresh_token");
+							jsonResponse = true;
+						}
 					}
-					else
+					else if (postType == JSON)
 					{
-						urlParameters.append("&refresh_token=");
-						urlParameters.append(refreshToken);
-						urlParameters.append("&grant_type=refresh_token");
-						jsonResponse = true;
+						con.setRequestProperty("Content-Type", "application/json");
+						
+						urlParameters.append("{");
+						urlParameters.append("\"client_id\": \"");
+						urlParameters.append(client);
+						urlParameters.append("\", \"redirect_uri\": \"");
+						urlParameters.append(redirectUri);
+						urlParameters.append("\", \"client_secret\": \"");
+						urlParameters.append(secret);
+					
+						if (code != null)
+						{
+							urlParameters.append("\", \"code\": \"");
+							urlParameters.append(code);
+							urlParameters.append("\", \"grant_type\": \"authorization_code\"}");
+						}
+						else
+						{
+							urlParameters.append("\", \"refresh_token\": \"");
+							urlParameters.append(refreshToken);
+							urlParameters.append("\", \"grant_type\": \"refresh_token\"}");
+							jsonResponse = true;
+						}
 					}
 					
 					// Send post request

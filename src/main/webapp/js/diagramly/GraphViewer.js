@@ -412,6 +412,9 @@ GraphViewer.prototype.getImageUrl = function(url)
  */
 GraphViewer.prototype.setXmlNode = function(xmlNode)
 {
+	//Extract graph model from html & svg formats 
+	xmlNode = this.editor.extractGraphModel(xmlNode, true);
+
 	this.xmlDocument = xmlNode.ownerDocument;
 	this.xml = mxUtils.getXml(xmlNode);
 	this.xmlNode = xmlNode;

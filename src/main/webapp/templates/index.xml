@@ -44,6 +44,11 @@
   <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Vertical_Related.xml</add>
   <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_VM_Components.xml</add>
 </clibs>
+<template url="basic/flowchart.xml" title="flowchart" libs="general;flowchart"/>
+<template url="basic/classes.xml" title="classDiagram" libs="general;uml"/>
+<template url="basic/orgchart.xml" title="orgChart" libs="general;basic;arrows"/>
+<template url="basic/swimlanes.xml" title="swimlaneDiagram" libs="general;flowchart;bpmn"/>
+<template url="basic/erd.xml" title="entityRelationshipDiagram" libs="general;er"/>
 <template url="business/accd.xml" libs="general"/>
 <template url="business/archimate.xml" libs="general;archimate3"/>
 <template url="business/bpmn.xml" libs="general;bpmn"/>

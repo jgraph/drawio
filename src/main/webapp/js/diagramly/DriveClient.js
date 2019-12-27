@@ -1626,21 +1626,23 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									// Allow for re-auth flow with 3x timeout
 									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 									{
+										file.saveLevel = 11;
 										acceptResponse = false;
 										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 									}), 3 * this.ui.timeout);
+									
+									file.saveLevel = 10;
 									
 									this.executeRequest({
 										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
 									},
 									mxUtils.bind(this, function(desc2)
 									{
-										file.saveLevel = 11;
 										window.clearTimeout(timeoutThread);
 										
 										if (acceptResponse)
 										{
-											file.saveLevel = 13;
+											file.saveLevel = 12;
 											
 											try
 											{
@@ -1671,16 +1673,14 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									}), mxUtils.bind(this, function(err)
 									{
 										// Simulated 
-										file.saveLevel = 12;
 										window.clearTimeout(timeoutThread);
 										
 										if (acceptResponse)
 										{
+											file.saveLevel = 13;
 											error(err);
 										}
 									}));
-									
-									file.saveLevel = 10;
 								}
 							});
 							
@@ -1765,7 +1765,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						// Callback for getThumbnail
 						try
 						{
-							file.thumbTime = null;
 							var thumb = null;
 
 							try
@@ -1804,7 +1803,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					})))
 				{
 					// If-branch
-					file.thumbTime = null;
 					doSave(null, null, file.constructor != DriveLibrary);
 				}
 			}

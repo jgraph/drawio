@@ -383,7 +383,7 @@ public class Utils
 			}
 
 			// otf
-			if (c1 == 0x4F && c2 == 0x5a && c3 == 0x54 && c4 == 0x4F
+			if (c1 == 0x4F && c2 == 0x54 && c3 == 0x54 && c4 == 0x4F
 					&& c5 == 0x00)
 			{
 				valid = true;

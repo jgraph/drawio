@@ -45,6 +45,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Bootstrap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-BPMN.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-C4.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Cabinet.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Cisco19.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-CiscoSafe.js');
