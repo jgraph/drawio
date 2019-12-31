@@ -329,7 +329,7 @@ EditorUi.initMinimalTheme = function()
 	EditorUi.prototype.closableScratchpad = false;
     EditorUi.prototype.toolbarHeight = 46;
 	EditorUi.prototype.footerHeight = 0;
-	Graph.prototype.editAfterInsert = true;
+	Graph.prototype.editAfterInsert = !mxClient.IS_IOS && !mxClient.IS_ANDROID;
 
     /**
      * Sets the XML node for the current diagram.

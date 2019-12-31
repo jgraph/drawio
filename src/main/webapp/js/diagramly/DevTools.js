@@ -62,7 +62,11 @@ if (urlParams['dev'] == '1')
 							'size=' + parseFloat(state.width) + 'x' + parseFloat(state.height);
 					}
 				}
-	
+				
+				if (cell.style != null)
+				{
+					tip += '<br>style=<div style="display:inline-block;vertical-align:bottom;white-space:nowrap;width:480px;overflow:hidden;text-overflow:ellipsis;">' + cell.style + '</span>';
+				}
 			}
 			
 			return tip;

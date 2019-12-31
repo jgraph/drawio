@@ -3533,11 +3533,14 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	}));
 	
 	// Prevents focus
-    mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-    	mxUtils.bind(this, function(evt)
+	if (!mxClient.IS_QUIRKS)
 	{
-		evt.preventDefault();
-	}));
+	    mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	    	mxUtils.bind(this, function(evt)
+		{
+			evt.preventDefault();
+		}));
+	}
 };
 
 /**

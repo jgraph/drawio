@@ -13,6 +13,7 @@
   <!-- Path patterns not supported in production -->
   <static-files>
     <include path="/**">
+      <http-header name="Referrer-Policy" value="strict-origin" />
 	  <http-header name="Access-Control-Allow-Origin" value="*"/>
 	</include>
   </static-files>

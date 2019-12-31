@@ -3566,7 +3566,9 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
 	}
 	
-	if (data != null && mimeType != null && mimeType.substring(0, 6) == 'image/')
+	// Disables SVG preview if no foreign object is supported
+	if (data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
+		(mimeType != 'image/svg+xml' || (!mxClient.IS_IE && !mxClient.IS_IE11))))
 	{
 		nameInput.style.width = '160px';
 		var preview = null;
