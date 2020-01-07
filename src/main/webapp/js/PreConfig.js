@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 // Overrides of global vars need to be pre-loaded
 window.EXPORT_URL = 'REPLACE_WITH_YOUR_IMAGE_SERVER';

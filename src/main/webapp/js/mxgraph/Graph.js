@@ -6765,67 +6765,73 @@ if (typeof mxVertexHandler != 'undefined')
 					Math.floor((border / scale - bounds.y) / vs));
 				
 				// Convert HTML entities
-				var htmlConverter = document.createElement('textarea');
+				var htmlConverter = document.createElement('div');
 				
 				// Adds simple text fallback for viewers with no support for foreignObjects
-				var createAlternateContent = svgCanvas.createAlternateContent;
-				svgCanvas.createAlternateContent = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
+				var getAlternateText = svgCanvas.getAlternateText;
+				svgCanvas.getAlternateText = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
 				{
-					var s = this.state;
-	
-					// Assumes a max character width of 0.2em
-					if (this.foAltText != null && (w == 0 || (s.fontSize != 0 && str.length < (w * 5) / s.fontSize)))
+					// Assumes a max character width of 0.5em
+					if (str != null && this.state.fontSize > 0)
 					{
-						var alt = this.createElement('text');
-						alt.setAttribute('x', Math.round(w / 2));
-						alt.setAttribute('y', Math.round((h + s.fontSize) / 2));
-						alt.setAttribute('fill', s.fontColor || 'black');
-						alt.setAttribute('text-anchor', 'middle');
-						alt.setAttribute('font-size', Math.round(s.fontSize) + 'px');
-						alt.setAttribute('font-family', s.fontFamily);
-						
-						if ((s.fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
-						{
-							alt.setAttribute('font-weight', 'bold');
-						}
-						
-						if ((s.fontStyle & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC)
-						{
-							alt.setAttribute('font-style', 'italic');
-						}
-						
-						var txtDecor = [];
-						
-						if ((s.fontStyle & mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE)
-						{
-							txtDecor.push('underline');
-						}
-						
-						if ((s.fontStyle & mxConstants.FONT_STRIKETHROUGH) == mxConstants.FONT_STRIKETHROUGH)
-						{
-							txtDecor.push('line-through');
-						}
-						
-						if (txtDecor.length > 0)
-						{
-							alt.setAttribute('text-decoration', txtDecor.join(' '));
-						}
-						
 						try
 						{
-							htmlConverter.innerHTML = str;
-							alt.textContent = htmlConverter.value;
+							if (mxUtils.isNode(str))
+							{
+								str = str.innerText;
+							}
+							else
+							{
+								htmlConverter.innerHTML = str;
+								str = mxUtils.extractTextWithWhitespace(htmlConverter.childNodes);
+							}
 							
-							return alt;
+							// Workaround for substring breaking double byte UTF
+							var exp = Math.ceil(2 * w / this.state.fontSize);
+							var result = [];
+							var length = 0;
+							var index = 0;
+							
+							while ((exp == 0 || length < exp) && index < str.length)
+							{
+								var char = str.charCodeAt(index);
+								
+								if (char == 10 || char == 13)
+								{
+									if (length > 0)
+									{
+										break;
+									}
+								}
+								else
+								{
+									result.push(str.charAt(index));
+
+									if (char < 255)
+									{
+										length++;
+									}
+								}
+								
+								index++;
+							}
+							
+							// Uses result and adds ellipsis if more than 1 char remains
+							if (result.length < str.length && str.length - result.length > 1)
+							{
+								str = mxUtils.trim(result.join('')) + '...';
+							}
+							
+							return str;
 						}
 						catch (e)
 						{
-							return createAlternateContent.apply(this, arguments);
+							return getAlternateText.apply(this, arguments);
 						}
 					}
 					else
 					{
-						return createAlternateContent.apply(this, arguments);
+						return getAlternateText.apply(this, arguments);
 					}
 				};
 				
@@ -8784,7 +8790,19 @@ if (typeof mxVertexHandler != 'undefined')
 		// Invokes turn on single click on rotation handle
 		mxVertexHandler.prototype.rotateClick = function()
 		{
-			this.state.view.graph.turnShapes([this.state.cell]);
+			var stroke = mxUtils.getValue(this.state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
+			var fill = mxUtils.getValue(this.state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
+			
+			if (this.state.view.graph.model.isVertex(this.state.cell) &&
+				stroke == mxConstants.NONE && fill == mxConstants.NONE)
+			{
+				var angle = mxUtils.mod(mxUtils.getValue(this.state.style, mxConstants.STYLE_ROTATION, 0) + 90, 360);
+				this.state.view.graph.setCellStyles(mxConstants.STYLE_ROTATION, angle, [this.state.cell]);
+			}
+			else
+			{
+				this.state.view.graph.turnShapes([this.state.cell]);
+			}
 		};
 
 		var vertexHandlerMouseMove = mxVertexHandler.prototype.mouseMove;

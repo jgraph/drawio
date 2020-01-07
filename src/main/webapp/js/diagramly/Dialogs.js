@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 
 var StorageDialog = function(editorUi, fn, rowLimit)
@@ -3566,44 +3566,28 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
 	}
 	
-	// Disables SVG preview if no foreign object is supported
+	// Disables SVG preview if SVG is not supported in browser
 	if (data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
-		(mimeType != 'image/svg+xml' || (!mxClient.IS_IE && !mxClient.IS_IE11))))
+		(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG)))
 	{
 		nameInput.style.width = '160px';
-		var preview = null;
-		
-		// Workaround for broken images in SVG preview in Chrome
-		if (mimeType == 'image/svg+xml' && mxClient.IS_SVG)
-		{
-			preview = document.createElement('div');
-			preview.innerHTML = mxUtils.trim(data);
-			var svg = preview.getElementsByTagName('svg')[0];
-			var w = parseInt(svg.getAttribute('width'));
-			var h = parseInt(svg.getAttribute('height'));
-			svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-			svg.setAttribute('width', '120px');
-			svg.setAttribute('height', '80px');
-		}
-		else
-		{
-			preview = document.createElement('img');
-			preview.setAttribute('src', 'data:' + mimeType + ((base64Encoded) ? ';base64,': ';utf8,') + data);
-		}
-		
+		var preview = document.createElement('img');
+		var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
+		preview.setAttribute('src', 'data:' + mimeType + ';base64,' + temp);
 		preview.style.position = 'absolute';
 		preview.style.top = '70px';
 		preview.style.right = '100px';
 		preview.style.maxWidth = '120px';
 		preview.style.maxHeight = '80px';
-		mxUtils.setPrefixedStyle(preview.style, 'transform', 'translate(50%,-50%)');
+		mxUtils.setPrefixedStyle(preview.style, 'transform',
+			'translate(50%,-50%)');
 		div.appendChild(preview);
 		
 		if (allowTab && Editor.popupsAllowed)
 		{
 			preview.style.cursor = 'pointer';
 			
-			mxEvent.addListener(preview, 'click', function()
+			mxEvent.addGestureListeners(preview, null, null, function()
 			{
 				create('_blank');
 			});
@@ -5025,7 +5009,7 @@ var AboutDialog = function(editorUi)
 
 	var small = document.createElement('small');
 	small.style.color = clr;
-	small.innerHTML = '&copy; 2005-2019 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
+	small.innerHTML = '&copy; 2005-2020 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
 	div.appendChild(small);
 	
 	mxEvent.addListener(div, 'click', function(e)

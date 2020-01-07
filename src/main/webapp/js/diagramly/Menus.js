@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 (function()
 {
@@ -293,7 +293,7 @@
 				// Export PDF action for chrome OS (same as print with different dialog title)
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
 						(editorUi.pages != null && editorUi.pages.length > 1) ?
-						420 : 360, true, true);
+						450 : 370, true, true);
 			}
 			else
 			{

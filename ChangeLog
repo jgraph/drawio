@@ -1,3 +1,14 @@
+07-JAN-2019: 12.5.0
+
+- Enables reflow in HTML output
+- Fixes text rendering issues
+- Uses mxGraph 4.1.0 pre 1
+- Adds Galician language
+
+06-JAN-2019: 12.4.9
+
+- Adds support for multiple redirect URLs in token-based-auth 
+
 31-DEC-2019: 12.4.8
 
 - Adds referrer policy header

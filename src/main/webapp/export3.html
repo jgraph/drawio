@@ -235,52 +235,6 @@
 				{
 					window.MathJax.Hub.Queue(function ()
 					{
-						// Wraps all text labels in SVG foreignObjects to avoid
-						// Chrome changing offset for textboxes near page border
-						// FIXME: Transforms ignored
-// 						var pages = document.querySelectorAll('[id^=mxPage]');
-						
-// 						for (var i = 0; i < pages.length; i++)
-// 						{
-// 							var page = pages[i];
-// 							var svg = page.getElementsByTagName('svg')[0];
-// 							var divs = page.getElementsByTagName('div');
-// 							var snap = [];
-							
-// 							for (var j = 0; j < divs.length; j++)
-// 							{
-// 								if (divs[j].parentNode == svg.parentNode)
-// 								{
-// 									snap.push(divs[j]);
-// 								}
-// 							}
-							
-// 							var top = svg.parentNode.getBoundingClientRect();
-							
-// 							for (var j = 0; j < snap.length; j++)
-// 							{
-// 								if (snap[j].parentNode == svg.parentNode)
-// 								{
-// 									var fo = svg.ownerDocument.createElementNS(mxConstants.NS_SVG, 'foreignObject');
-// 									var rect = snap[j].getBoundingClientRect();
-									
-// 									// Sets position on foreignObject
-// 									fo.setAttribute('x', rect.x);
-// 									fo.setAttribute('y', rect.y - top.y);
-// 									fo.setAttribute('width', rect.width);
-// 									fo.setAttribute('height', rect.height);
-									
-// 									// Resets position on inner DIV
-//  									snap[j].style.top = '0px';
-// 									snap[j].style.left = '0px';
-// 									snap[j].style.transform = '';
-									
-// 									fo.appendChild(snap[j]);
-// 									svg.appendChild(fo);
-// 								}
-// 							}
-// 						}
-						
 						decrementWaitCounter();
 					});
 				}, 0);
@@ -393,11 +347,6 @@
 				// Enables math typesetting
 				math |= xmlDoc.documentElement.getAttribute('math') == '1';
 				
-				if (math)
-				{
-					mxClient.NO_FO = true;
-				}
-	
 				//Load external fonts
 				var extFonts = xmlDoc.documentElement.getAttribute('extFonts');
 				

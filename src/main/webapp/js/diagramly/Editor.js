@@ -899,7 +899,7 @@
 	/**
 	 * This should not be enabled if reflows are required for math rendering.
 	 */
-	Editor.prototype.useForeignObjectForMath = false;
+	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
 
 	/**
 	 * Executes the first step for connecting to Google Drive.
@@ -1792,7 +1792,6 @@
 		}
 	};
 	
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * See fixme in convertMath for client-side image generation with math.
 	 */
@@ -1800,7 +1799,7 @@
 	{
 		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
 		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.graph.mathEnabled ||
-			(!mxClient.IS_SF && !(mxClient.IS_GC && !mxClient.IS_MAC))));
+			(!mxClient.IS_SF && !((mxClient.IS_GC || mxClient.IS_EDGE) && !mxClient.IS_MAC))));
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -4080,78 +4079,38 @@
 			var y0 = graph.container.scrollTop - origin.y;
 			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
-
+			
+			// Replaces input with rendered markup
 			imgExport.drawText = function(state, c)
 			{
-				if (c.addForeignObject != null && state.text != null && state.text.checkBounds() &&
-					state.text.node != null && state.text.node.ownerSVGElement == null)
+				if (state.text != null && state.text.value != null && state.text.checkBounds() &&
+					(mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML))
 				{
-					c.save();
+					var clone = state.text.getContentNode();
 					
-					// Copies text into DOM using untransformed bounding box
-					var clone = state.text.node.cloneNode(true);
-
-					// Clears styles that go to wrapper group
-					clone.style.transformOrigin = '';
-					clone.style.transform = '';
-					clone.style.top = '0px';
-					clone.style.left = '0px';
-					
-					// Removes all math elements
-					var ele = clone.getElementsByTagName('math');
-					
-					while (ele.length > 0)
+					if (clone != null)
 					{
-						ele[0].parentNode.removeChild(ele[0]);
-					}
-					
-					var s = state.text.scale;
-					var x = state.text.bounds.x / s;
-					var y = state.text.bounds.y / s;
-					var w = state.text.bounds.width / s;
-					var h = state.text.bounds.height / s;
-					
-					state.text.updateTransform(c, x, y, w, h);
-					state.text.configureCanvas(c, x, y, w, h);
-
-					// Checks if text contains HTML markup
-					var realHtml = mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML;
-					
-					// Always renders labels as HTML in VML
-					var fmt = (realHtml || c instanceof mxVmlCanvas2D) ? 'html' : '';
-					var val = state.text.value;
-					
-					if (!realHtml && fmt == 'html')
-					{
-						val =  mxUtils.htmlEntities(val, false);
-					}
-					
-					if (fmt == 'html' && !mxUtils.isNode(state.text.value))
-					{
-						val = mxUtils.replaceTrailingNewlines(val, '<div><br></div>');			
-					}
-					
-					// Handles trailing newlines to make sure they are visible in rendering output
-					val = (!mxUtils.isNode(state.text.value) && state.text.replaceLinefeeds && fmt == 'html') ?
-						val.replace(/\n/g, '<br/>') : val;
+						clone = clone.cloneNode(true);
 						
-					var dir = state.text.textDirection;
-				
-					if (dir == mxConstants.TEXT_DIRECTION_AUTO && !realHtml)
-					{
-						dir = state.text.getAutoDirection();
+						// Removes duplicate math output
+						if (clone.getElementsByTagNameNS)
+						{
+							var ele = clone.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math');
+							
+							while (ele.length > 0)
+							{
+								ele[0].parentNode.removeChild(ele[0]);
+							}
+						}
+						
+						if (clone.innerHTML != null)
+						{
+							var prev = state.text.value;
+							state.text.value = clone.innerHTML;
+							drawText.apply(this, arguments);
+							state.text.value = prev;
+						}
 					}
-					
-					if (dir != mxConstants.TEXT_DIRECTION_LTR && dir != mxConstants.TEXT_DIRECTION_RTL)
-					{
-						dir = null;
-					}
-					
-					c.addForeignObject(x + c.state.dx, y + c.state.dy, w, h, val,
-						state.text.align, state.text.valign, state.text.wrap, fmt,
-						state.text.overflow, state.text.clipped, state.text.getTextRotation(),
-						dir, clone, c.root.ownerSVGElement);
-					c.restore();
 				}
 				else
 				{
@@ -4161,17 +4120,6 @@
 		}
 		
 		return imgExport;
-	};
-	
-	/**
-	 * Safari has problems with math typesetting inside foreignObjects.
-	 */
-	var graphIsCssTransformsSupported = Graph.prototype.isCssTransformsSupported;
-	
-	Graph.prototype.isCssTransformsSupported = function()
-	{
-		// FIXME: Safari only disabled due to mathjax rendering errors
-		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
 	};
 
 	/**
@@ -5310,8 +5258,8 @@
 						pv.renderPage = function(w, h, dx, dy, content, pageNumber)
 						{
 							var prev = mxClient.NO_FO;
-							mxClient.NO_FO = (this.graph.mathEnabled && !this.useForeignObjectForMath) ?
-									true : this.originalNoForeignObject;
+							mxClient.NO_FO = (this.graph.mathEnabled && !editorUi.editor.useForeignObjectForMath) ?
+								true : editorUi.editor.originalNoForeignObject;
 							
 							var result = printPreviewRenderPage.apply(this, arguments);
 

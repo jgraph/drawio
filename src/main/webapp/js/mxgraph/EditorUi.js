@@ -231,6 +231,14 @@ EditorUi = function(editor, container, lightbox)
 				(mxClient.IS_MAC && mxEvent.isMetaDown(evt)) ||
 				(mxClient.IS_SF && mxEvent.isShiftDown(evt))));
 		};
+				
+		// Adds space+wheel for zoom
+		var graphIsZoomWheelEvent = graph.isZoomWheelEvent;
+		
+		graph.isZoomWheelEvent = function()
+		{
+			return spaceKeyPressed || graphIsZoomWheelEvent.apply(this, arguments);
+		};
 		
 		// Switches toolbar for text editing
 		var textMode = false;
@@ -2328,6 +2336,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					if (source == graph.container)
 					{
+						graph.tooltipHandler.hideTooltip();
 						cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 						graph.lazyZoom(up);
 						mxEvent.consume(evt);

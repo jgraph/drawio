@@ -86,7 +86,7 @@ DrawioFileSync = function(file)
 				
 				if (user != null)
 				{
-					join.name = user.displayName;
+					join.name = encodeURIComponent(user.displayName);
 					join.uid = user.id;
 				}
 
@@ -96,9 +96,11 @@ DrawioFileSync = function(file)
 				this.file.stats.msgSent++;
 				this.announced = true;
 			}
-
-			// Catchup on any lost edits
-			this.fileChangedNotify();
+			else
+			{
+				// Catchup on any lost edits
+				this.fileChangedNotify();
+			}
 		}
 	});
 	
@@ -141,11 +143,12 @@ DrawioFileSync = function(file)
 					this.fileChangedNotify();
 				}
 				
-//				var len = (data != null) ? data.length : 'null';
-//				
-//				EditorUi.logError('Protocol Error ' + e.message,
-//					null, 'data_' + len + '_file_' + this.file.getHash() +
-//					'_client_' + this.clientId);
+				// NOTE: Probably UTF16 in username for join/leave message causing this
+				var len = (data != null) ? data.length : 'null';
+				
+				EditorUi.logError('Protocol Error ' + e.message,
+					null, 'data_' + len + '_file_' + this.file.getHash() +
+					'_client_' + this.clientId);
 				
 				if (window.console != null)
 				{
@@ -205,12 +208,12 @@ DrawioFileSync.prototype.maxCatchupRetries = 15;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.maxCacheReadyRetries = 2;
+DrawioFileSync.prototype.maxCacheReadyRetries = 1;
 
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.cacheReadyDelay = 500;
+DrawioFileSync.prototype.cacheReadyDelay = 700;
 
 /**
  * Inactivity timeout is 30 minutes.
@@ -553,7 +556,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 		if (data.name != null)
 		{
 			this.lastMessage = mxResources.get((data.a == 'join') ?
-				'userJoined' : 'userLeft', [data.name]);
+				'userJoined' : 'userLeft', [decodeURIComponent(data.name)]);
 			this.resetUpdateStatusThread();
 			this.updateStatus();
 		}
@@ -606,7 +609,7 @@ DrawioFileSync.prototype.fileChangedNotify = function()
 			}), mxUtils.bind(this, function()
 			{
 				return !this.file.savingFile && this.notifyThread != thread;
-			}));
+			}), true);
 		}
 	}
 };
@@ -614,7 +617,7 @@ DrawioFileSync.prototype.fileChangedNotify = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.fileChanged = function(success, error, abort)
+DrawioFileSync.prototype.fileChanged = function(success, error, abort, lazy)
 {
 	var thread = window.setTimeout(mxUtils.bind(this, function()
 	{
@@ -648,7 +651,7 @@ DrawioFileSync.prototype.fileChanged = function(success, error, abort)
 				}), error);
 			}
 		}
-	}), 0);
+	}), (lazy) ? this.cacheReadyDelay : 0);
 	
 	this.notifyThread = thread;
 	
@@ -754,7 +757,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 							acceptResponse = false;
 							this.reload(success, error, abort);
 						}), this.ui.timeout);
-						
+
 						mxUtils.get(EditorUi.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
 							'&from=' + encodeURIComponent(current) + '&to=' + encodeURIComponent(etag) +
 							((secret != null) ? '&secret=' + encodeURIComponent(secret) : ''),
@@ -838,12 +841,13 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 											this.merge(temp, checksum, desc, success, error, abort);
 										}
 										// Retries if cache entry was not yet there
-										else if (cacheReadyRetryCount <= this.maxCacheReadyRetries &&
+										else if (cacheReadyRetryCount <= this.maxCacheReadyRetries - 1 &&
 											!failed && req.getStatus() != 401)
 										{
 											cacheReadyRetryCount++;
 											this.file.stats.cacheMiss++;
-											window.setTimeout(doCatchup, (cacheReadyRetryCount + 1) * this.cacheReadyDelay);
+											window.setTimeout(doCatchup, (cacheReadyRetryCount + 1) *
+												this.cacheReadyDelay);
 										}
 										else
 										{
@@ -1259,7 +1263,7 @@ DrawioFileSync.prototype.destroy = function()
 		
 		if (user != null)
 		{
-			leave.name = user.displayName;
+			leave.name = encodeURIComponent(user.displayName);
 			leave.uid = user.id;
 		}
 		

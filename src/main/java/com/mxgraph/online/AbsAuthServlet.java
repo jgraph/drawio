@@ -95,7 +95,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 
 			Config CONFIG = getConfig();
 			String secret, client, redirectUri;
-			String[] secrets, clients;
+			String[] secrets, clients, redirectUris;
 
 			if ("127.0.0.1".equals(request.getServerName()) || 
 					"devhost.jgraph.com".equals(request.getServerName()) ||
@@ -103,17 +103,18 @@ abstract public class AbsAuthServlet extends HttpServlet
 			{
 				secrets = CONFIG.DEV_CLIENT_SECRET.split(SEPARATOR);
 				clients = CONFIG.DEV_CLIENT_ID.split(SEPARATOR);
-				redirectUri = CONFIG.DEV_REDIRECT_URI;
+				redirectUris = CONFIG.DEV_REDIRECT_URI.split(SEPARATOR);
 			}
 			else
 			{
 				secrets = CONFIG.CLIENT_SECRET.split(SEPARATOR);
 				clients = CONFIG.CLIENT_ID.split(SEPARATOR);
-				redirectUri = CONFIG.REDIRECT_URI;
+				redirectUris = CONFIG.REDIRECT_URI.split(SEPARATOR);
 			}
 	
 			secret = secrets.length > configIndex ? secrets[configIndex] : secrets[0];
 			client = clients.length > configIndex ? clients[configIndex] : clients[0];
+			redirectUri = redirectUris.length > configIndex ? redirectUris[configIndex] : redirectUris[0];
 	
 			if (error != null)
 			{

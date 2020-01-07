@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2019, JGraph Ltd
+// Copyright (c) 2006-2020, JGraph Ltd
 /**
  */
 DesktopLibrary = function(ui, data, fileObj)

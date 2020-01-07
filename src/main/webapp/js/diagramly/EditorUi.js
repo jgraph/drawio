@@ -3927,9 +3927,7 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
-		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.editor.graph.mathEnabled ||
-			(!mxClient.IS_SF && !(mxClient.IS_GC && !mxClient.IS_MAC))));
+		return this.editor.isExportToCanvas();
 	};
 
 	/**
@@ -4182,8 +4180,7 @@
 				// Opens a new window
 				if (mode == '_blank')
 				{
-					if (mimeType != null && mimeType.substring(0, 6) == 'image/' &&
-						(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG))
+					if (mimeType != null && mimeType.substring(0, 6) == 'image/')
 					{
 						this.openInNewWindow(data, mimeType, base64Encoded);
 					}
@@ -4240,44 +4237,44 @@
 	 */
 	EditorUi.prototype.openInNewWindow = function(data, mimeType, base64Encoded)
 	{
-		// In Google Chrome 60 the code from below produces a blank window
-		if (mxClient.IS_GC || mxClient.IS_EDGE || mxClient.IS_FF ||
-			document.documentMode == 11 || document.documentMode == 10)
+		var win = window.open('about:blank');
+		
+		if (win == null || win.document == null)
 		{
-			var win = window.open('about:blank');
-			
-			if (win == null || win.document == null)
+			mxUtils.popup(data, true);
+		}
+		else
+		{
+			if (mimeType == 'image/svg+xml' && !mxClient.IS_SVG)
 			{
-				mxUtils.popup(data, true);
+				// KNOWN: Output is scaled in Chrome on macOS
+				win.document.write('<html><pre>' + mxUtils.htmlEntities(data, false) + '</pre></html>');
+				win.document.close();
 			}
 			else
 			{
-				// Workaround for broken images in SVG output in Chrome
+				var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
+				
 				if (mimeType == 'image/svg+xml')
 				{
-					win.document.write('<html>' + data + '</html>');
+					// Workaround for scaled output in Chrome
+					if (mxClient.IS_GC && mxClient.IS_MAC)
+					{
+						win.document.write('<html><object style="max-width:100%;" data="data:' +
+								mimeType  + ';base64,' + temp + '"/></html>');
+					}
+					else
+					{
+						win.document.write('<html>'+ data + '</html>');
+					}
 				}
 				else
 				{
 					win.document.write('<html><img style="max-width:100%;" src="data:' +
-						mimeType + ((base64Encoded) ? ';base64,' +
-						data : ';charset=utf8,' + encodeURIComponent(data)) +
-						'"/></html>');
+						mimeType  + ';base64,' + temp + '"/></html>');
 				}
 				
 				win.document.close();
-			}
-		}
-		else
-		{
-			// win.open is workaround for cleared contents in Chrome after delay
-			// when using location.replace
-			var win = window.open('data:' + mimeType + ((base64Encoded) ? ';base64,' +
-					data : ';charset=utf8,' + encodeURIComponent(data)));
-			
-			if (win == null || win.document == null)
-			{
-				mxUtils.popup(data, true);
 			}
 		}
 	};
@@ -5511,6 +5508,10 @@
 		{
 			allPages.style.display = 'none';
 		}
+		else
+		{
+			height += 26;
+		}
 	
 		mxEvent.addListener(include, 'change', function()
 		{
@@ -5534,7 +5535,6 @@
 		linkSelect.style.marginLeft = '8px';
 		linkSelect.style.marginRight = '10px';
 		linkSelect.className = 'geBtn';
-
 
 		var autoOption = document.createElement('option');
 		autoOption.setAttribute('value', 'auto');
@@ -9228,7 +9228,7 @@
 		{
 			ui.showDialog(new PrintDialog(ui).container, 360,
 				(ui.pages != null && ui.pages.length > 1) ?
-				420 : 360, true, true);
+				450 : 370, true, true);
 		};
 
 		// Specifies the default filename

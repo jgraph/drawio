@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 
 // urlParams is null when used for embedding
@@ -103,6 +103,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'es' : 'Español',
 	'fil' : 'Filipino',
 	'fr' : 'Français',
+	'gl' : 'Galego',
 	'it' : 'Italiano',
 	'hu' : 'Magyar',
 	'nl' : 'Nederlands',
