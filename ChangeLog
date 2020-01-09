@@ -1,3 +1,8 @@
+09-JAN-2019: 12.5.1
+
+- Fixes label offsets in viewer
+- Uses mxGraph 4.1.0 pre 2
+
 07-JAN-2019: 12.5.0
 
 - Enables reflow in HTML output

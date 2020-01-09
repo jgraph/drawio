@@ -897,7 +897,7 @@
 	Editor.prototype.timeout = 25000;
 	
 	/**
-	 * This should not be enabled if reflows are required for math rendering.
+	 * Zoomed mathjax output is causing problems in Safari.
 	 */
 	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
 

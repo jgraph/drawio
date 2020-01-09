@@ -1363,11 +1363,13 @@ Graph.prototype.init = function(container)
 	};
 
 	/**
-	 * Only foreignObject supported for now (no IE11).
+	 * Only foreignObject supported for now (no IE11). Safari disabled as it ignores
+	 * overflow visible on foreignObject in negative space (lightbox and viewer).
 	 */
 	Graph.prototype.isCssTransformsSupported = function()
 	{
-		return this.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO;
+		return this.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO &&
+			(!this.lightbox || !mxClient.IS_SF);
 	};
 
 	/**

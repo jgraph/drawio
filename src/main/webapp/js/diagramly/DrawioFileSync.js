@@ -144,16 +144,16 @@ DrawioFileSync = function(file)
 				}
 				
 				// NOTE: Probably UTF16 in username for join/leave message causing this
-				var len = (data != null) ? data.length : 'null';
-				
-				EditorUi.logError('Protocol Error ' + e.message,
-					null, 'data_' + len + '_file_' + this.file.getHash() +
-					'_client_' + this.clientId);
-				
-				if (window.console != null)
-				{
-					console.log(e);
-				}
+//				var len = (data != null) ? data.length : 'null';
+//				
+//				EditorUi.logError('Protocol Error ' + e.message,
+//					null, 'data_' + len + '_file_' + this.file.getHash() +
+//					'_client_' + this.clientId);
+//				
+//				if (window.console != null)
+//				{
+//					console.log(e);
+//				}
 			}
 		}
 	});

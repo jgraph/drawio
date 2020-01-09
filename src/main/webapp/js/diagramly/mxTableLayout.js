@@ -260,7 +260,7 @@ mxTableLayout.prototype.calcDims = function(parent)
 		var cellCount = rows * cols;
 		
 		//if auto-add without parent-resize, then each cell size in the table depends on how many columns/rows
-		if (/*!this.resizeParent && */(this.autoAddCol || this.autoAddRow) && childCount > cellCount)
+		if (!this.resizeParent && (this.autoAddCol || this.autoAddRow) && childCount > cellCount)
 		{
 			var actualChildCount = 0;
 			//get actual child count (movable and not ignored)
@@ -490,6 +490,8 @@ function mxTableLayoutHandle(index, isCol, state, layoutDims)
 mxUtils.extend(mxTableLayoutHandle, mxHandle);
 
 mxTableLayoutHandle.prototype.color = '#00FF00';
+mxTableLayoutHandle.prototype.MIN_COL_W = 10;
+mxTableLayoutHandle.prototype.MIN_ROW_H = 10;
 
 mxTableLayoutHandle.prototype.createShape = function(html)
 {
@@ -545,46 +547,277 @@ mxTableLayoutHandle.prototype.getPosition = function(bounds)
 mxTableLayoutHandle.prototype.setPosition = function(bounds, pt)
 {
 	this.state.style['resizeParent'] = '0';
+	var anotherRedraw = [];
 	
 	if (this.isCol)
 	{
+		if (this.origCellWidth == null)
+		{
+			this.origCellWidth = this.dims.cellWidth.slice();
+		}
+		
 		this.state.style['equalColumns'] = '0';
 		var oldColW = this.dims.cellWidth[this.index];
 		var newColW = oldColW + pt.x - this.x;
-		this.dims.cellWidth[this.index] = newColW;
 		
-		if (newColW > oldColW)
+		if (newColW < this.MIN_COL_W)
 		{
-			this.dims.cellWidth[this.index + 1] -= (newColW - oldColW);
+			this.dims.cellWidth[this.index] = this.MIN_COL_W;
+			var addedW = oldColW - this.MIN_COL_W;
+			newColW = Math.abs(newColW - this.MIN_COL_W);
+			var i = this.index - 1;
+			
+			while (i >= 0 && newColW > 0)
+			{
+				if (newColW < this.dims.cellWidth[i] - this.MIN_COL_W)
+				{
+					this.dims.cellWidth[i] -= newColW;
+					addedW += newColW;
+					newColW = 0;
+				}
+				else
+				{
+					var diff = this.dims.cellWidth[i] - this.MIN_COL_W;
+					newColW -= diff;
+					addedW += diff;
+					this.dims.cellWidth[i] = this.MIN_COL_W;
+				}
+				
+				anotherRedraw.push(i);
+				i--;
+			}
+			
+			this.dims.cellWidth[this.index + 1] += addedW;
+		}
+		else if (this.dims.cellWidth[this.index + 1] < (newColW - oldColW + this.MIN_COL_W))
+		{
+			var addedW = this.dims.cellWidth[this.index + 1] - this.MIN_COL_W;
+			this.dims.cellWidth[this.index + 1] = this.MIN_COL_W;
+			var neededW = newColW - oldColW;
+			var i = this.index + 2;
+			
+			while (i < this.dims.cols && neededW > 0)
+			{
+				if (neededW < this.dims.cellWidth[i] - this.MIN_COL_W)
+				{
+					this.dims.cellWidth[i] -= neededW;
+					addedW += neededW;
+					neededW = 0;
+				}
+				else
+				{
+					var diff = this.dims.cellWidth[i] - this.MIN_COL_W;
+					neededW -= diff;
+					addedW += diff;
+					this.dims.cellWidth[i] = this.MIN_COL_W;
+				}
+				
+				anotherRedraw.push(i - 1);
+				i++;
+			}
+			
+			this.dims.cellWidth[this.index] += addedW;
 		}
 		else
 		{
-			this.dims.cellWidth[this.index + 1] += (oldColW - newColW);
+			if (newColW > oldColW)
+			{
+				var diff = newColW - oldColW;
+				var addAll = false;
+				var i;
+				
+				//check other cols if we already resized them
+				for (i = 0; i < this.index && diff > 0; i++)
+				{
+					var cDiff = this.origCellWidth[i] - this.dims.cellWidth[i];
+
+					if (cDiff != 0)
+					{
+						cDiff = Math.min(diff, cDiff);
+						diff -= cDiff;
+						this.dims.cellWidth[i] += cDiff;
+						anotherRedraw.push(i);
+						addAll = true;
+					}
+				}
+				
+				for (; i < this.index && addAll; i++)
+				{
+					anotherRedraw.push(i);
+				}
+				
+				this.dims.cellWidth[this.index] += diff;
+				this.dims.cellWidth[this.index + 1] -= (newColW - oldColW);
+			}
+			else
+			{
+				var diff = oldColW - newColW;
+				var addAll = false;
+				var i;
+				
+				//check other cols if we already resized them
+				for (i = this.dims.cols - 2; i >= this.index  && diff > 0; i--)
+				{
+					var cDiff = this.origCellWidth[i + 1] - this.dims.cellWidth[i + 1];
+
+					if (cDiff != 0)
+					{
+						cDiff = Math.min(diff, cDiff);
+						diff -= cDiff;
+						this.dims.cellWidth[i + 1] += cDiff;
+						anotherRedraw.push(i); // FIXME this.index can be redrawn twice 
+						addAll = true;
+					}
+				}
+				
+				for (; i > this.index && addAll; i--)
+				{
+					anotherRedraw.push(i);
+				}
+				
+				this.dims.cellWidth[this.index] = newColW;
+				this.dims.cellWidth[this.index + 1] += diff;
+			}
 		}
-		
+		console.log(this.dims.cellWidth)
 		var perc = [];
 		
 		for (var i = 0; i < this.dims.cols; i++)
 		{
 			perc.push((this.dims.cellWidth[i] / this.dims.fillWidth) * 100);
 		}
-		
+
 		this.state.style['colPercentages'] = perc.join(',');
 	}
 	else
 	{
-		this.state.style['equalRows'] = '0';
-		var oldColH = this.dims.cellHeight[this.index];
-		var newColH = oldColH + pt.y - this.y;
-		this.dims.cellHeight[this.index] = newColH;
-		
-		if (newColH > oldColH)
+		if (this.origCellHeight == null)
 		{
-			this.dims.cellHeight[this.index + 1] -= (newColH - oldColH);
+			this.origCellHeight = this.dims.cellHeight.slice();
+		}
+			
+		this.state.style['equalRows'] = '0';
+		var oldRowH = this.dims.cellHeight[this.index];
+		var newRowH = oldRowH + pt.y - this.y;
+		
+		if (newRowH < this.MIN_ROW_H)
+		{
+			this.dims.cellHeight[this.index] = this.MIN_ROW_H;
+			var addedH = oldRowH - this.MIN_ROW_H;
+			newRowH = Math.abs(newRowH - this.MIN_ROW_H);
+			var i = this.index - 1;
+			
+			while (i >= 0 && newRowH > 0)
+			{
+				if (newRowH < this.dims.cellHeight[i] - this.MIN_ROW_H)
+				{
+					this.dims.cellHeight[i] -= newRowH;
+					addedH += newRowH;
+					newRowH = 0;
+				}
+				else
+				{
+					var diff = this.dims.cellHeight[i] - this.MIN_ROW_H;
+					newRowH -= diff;
+					addedH += diff;
+					this.dims.cellHeight[i] = this.MIN_ROW_H;
+				}
+				
+				anotherRedraw.push(i);
+				i--;
+			}
+			
+			this.dims.cellHeight[this.index + 1] += addedH;
+		}
+		else if (this.dims.cellHeight[this.index + 1] < (newRowH - oldRowH + this.MIN_ROW_H))
+		{
+			var addedH = this.dims.cellHeight[this.index + 1] - this.MIN_ROW_H;
+			this.dims.cellHeight[this.index + 1] = this.MIN_ROW_H;
+			var neededH = newRowH - oldRowH;
+			var i = this.index + 2;
+			
+			while (i < this.dims.rows && neededH > 0)
+			{
+				if (neededH < this.dims.cellHeight[i] - this.MIN_ROW_H)
+				{
+					this.dims.cellHeight[i] -= neededH;
+					addedH += neededH;
+					neededH = 0;
+				}
+				else
+				{
+					var diff = this.dims.cellHeight[i] - this.MIN_ROW_H;
+					neededH -= diff;
+					addedH += diff;
+					this.dims.cellHeight[i] = this.MIN_ROW_H;
+				}
+				
+				anotherRedraw.push(i - 1);
+				i++;
+			}
+			
+			this.dims.cellHeight[this.index] += addedH;
 		}
 		else
 		{
-			this.dims.cellHeight[this.index + 1] += (oldColH - newColH);
+			if (newRowH > oldRowH)
+			{
+				var diff = newRowH - oldRowH;
+				var addAll = false;
+				var i;
+				
+				//check other cols if we already resized them
+				for (i = 0; i < this.index && diff > 0; i++)
+				{
+					var cDiff = this.origCellHeight[i] - this.dims.cellHeight[i];
+
+					if (cDiff != 0)
+					{
+						cDiff = Math.min(diff, cDiff);
+						diff -= cDiff;
+						this.dims.cellHeight[i] += cDiff;
+						anotherRedraw.push(i);
+						addAll = true;
+					}
+				}
+				
+				for (; i < this.index && addAll; i++)
+				{
+					anotherRedraw.push(i);
+				}
+				
+				this.dims.cellHeight[this.index] += diff;
+				this.dims.cellHeight[this.index + 1] -= (newRowH - oldRowH);
+			}
+			else
+			{
+				var diff = oldRowH - newRowH;
+				var addAll = false;
+				var i;
+				
+				//check other cols if we already resized them
+				for (i = this.dims.rows - 2; i >= this.index  && diff > 0; i--)
+				{
+					var cDiff = this.origCellHeight[i + 1] - this.dims.cellHeight[i + 1];
+
+					if (cDiff != 0)
+					{
+						cDiff = Math.min(diff, cDiff);
+						diff -= cDiff;
+						this.dims.cellHeight[i + 1] += cDiff;
+						anotherRedraw.push(i); // FIXME this.index can be redrawn twice 
+						addAll = true;
+					}
+				}
+				
+				for (; i > this.index && addAll; i--)
+				{
+					anotherRedraw.push(i);
+				}
+				
+				this.dims.cellHeight[this.index] = newRowH;
+				this.dims.cellHeight[this.index + 1] += diff;
+			}
 		}
 		
 		var perc = [];
@@ -593,8 +826,15 @@ mxTableLayoutHandle.prototype.setPosition = function(bounds, pt)
 		{
 			perc.push((this.dims.cellHeight[i] / this.dims.fillHeight) * 100);
 		}
-
+		
 		this.state.style['rowPercentages'] = perc.join(',');
+	}
+
+	var handlers = this.isCol? this.dims.colHandlers : this.dims.rowHandlers;
+	
+	for (var i = 0; i < anotherRedraw.length; i++)
+	{
+		handlers[anotherRedraw[i]].redraw();
 	}
 };
 
@@ -604,11 +844,13 @@ mxTableLayoutHandle.prototype.execute = function()
 	
 	if (this.isCol)
 	{
+		this.origCellWidth = null;
 		this.copyStyle('equalColumns');
 		this.copyStyle('colPercentages');
 	}
 	else
 	{
+		this.origCellHeight = null;
 		this.copyStyle('equalRows');
 		this.copyStyle('rowPercentages');
 	}
@@ -622,6 +864,7 @@ mxTableLayout.prototype.origCreateCustomHandles = mxVertexHandler.prototype.crea
 
 mxVertexHandler.prototype.createCustomHandles = function()
 {
+	var rowHandlers = [], colHandlers = [];
 	var origHandlers = mxTableLayout.prototype.origCreateCustomHandles.apply(this, arguments);
 	
 	var cell = this.state.cell;
@@ -635,15 +878,21 @@ mxVertexHandler.prototype.createCustomHandles = function()
 		}
 		
 		var dims = layout.calcDims(this.state.cell);
+		dims.rowHandlers = rowHandlers;
+		dims.colHandlers = colHandlers;
 		
 		for (var i = 0; i < dims.rows - 1; i++)
 		{
-			origHandlers.push(new mxTableLayoutHandle(i, false, this.state, dims));
+			var rowH = new mxTableLayoutHandle(i, false, this.state, dims);
+			origHandlers.push(rowH);
+			rowHandlers.push(rowH);
 		}
 		
 		for (var i = 0; i < dims.cols - 1; i++)
 		{
-			origHandlers.push(new mxTableLayoutHandle(i, true, this.state, dims));
+			var colH = new mxTableLayoutHandle(i, true, this.state, dims);
+			origHandlers.push(colH);
+			colHandlers.push(colH);
 		}
 	}
 	
