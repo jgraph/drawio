@@ -308,16 +308,34 @@ GitLabClient.prototype.getFile = function(path, success, error, asLibrary, check
 		
 		// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
 		if (!checkExists && (/\.v(dx|sdx?)$/i.test(path) || /\.gliffy$/i.test(path) ||
-			(!this.ui.useCanvasForExport && binary)))
+			/\.pdf$/i.test(path) || (!this.ui.useCanvasForExport && binary)))
 		{
 			// Should never be null
 			if (this.token != null)
 			{
-				var url = this.baseUrl + '/projects/' + encodeURIComponent(org + '/' + repo) + '/repository/files/' + encodeURIComponent(ref);
+				// Adds random parameter to bypass cache
+				var rnd = '&t=' + new Date().getTime();
+				var url = this.baseUrl + '/projects/' + encodeURIComponent(org + '/' + repo) +
+					'/repository/files/' + encodeURIComponent(path) + '?ref=' + ref;
 				var tokens = path.split('/');
 				var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
-		
-				this.ui.convertFile(url, name, null, this.extension, success, error);
+				
+				this.ui.convertFile(url + rnd, name, null, this.extension, success, error, mxUtils.bind(this, function(url, cb, err)
+				{
+					var req = new mxXmlRequest(url, null, 'GET');
+					
+					this.executeRequest(req, mxUtils.bind(this, function(req)
+					{
+						try
+						{
+							cb(this.getFileContent(JSON.parse(req.getText())));
+						}
+						catch (e)
+						{
+							err(e);
+						}
+					}), err);
+				}));
 			}
 			else
 			{
@@ -353,16 +371,9 @@ GitLabClient.prototype.getFile = function(path, success, error, asLibrary, check
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibrary, refPos)
+GitLabClient.prototype.getFileContent = function(data)
 {
-	var gitLabUrl = DRAWIO_GITLAB_URL + '/';
-	var htmlUrl = gitLabUrl + org + '/' + repo + '/blob/' + ref + '/' + data.file_path;
-	var downloadUrl = gitLabUrl + org + '/' + repo + '/raw/' + ref + '/' + data.file_path + '?inline=false';
 	var fileName = data.file_name;
-
-	var meta = {'org': org, 'repo': repo, 'ref': ref, 'name': fileName,
-		'path': data.file_path, 'html_url': htmlUrl, 'download_url': downloadUrl,
-		'last_commit_id': data.last_commit_id, 'refPos': refPos};
 	var content = data.content;
 	
 	if (data.encoding === 'base64')
@@ -374,6 +385,10 @@ GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibra
 		else if (/\.gif$/i.test(fileName))
 		{
 			content = 'data:image/gif;base64,' + content;
+		}
+		else if (/\.pdf$/i.test(fileName))
+		{
+			content = 'data:application/pdf;base64,' + content;
 		}
 		else
 		{
@@ -396,6 +411,27 @@ GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibra
 			}
 		}
 	}
+	
+	return content;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibrary, refPos)
+{
+	var gitLabUrl = DRAWIO_GITLAB_URL + '/';
+	var htmlUrl = gitLabUrl + org + '/' + repo + '/blob/' + ref + '/' + data.file_path;
+	var downloadUrl = gitLabUrl + org + '/' + repo + '/raw/' + ref + '/' + data.file_path + '?inline=false';
+	var fileName = data.file_name;
+
+	var meta = {'org': org, 'repo': repo, 'ref': ref, 'name': fileName,
+		'path': data.file_path, 'html_url': htmlUrl, 'download_url': downloadUrl,
+		'last_commit_id': data.last_commit_id, 'refPos': refPos};
+	var content = this.getFileContent(data);
 	
 	return (asLibrary) ? new GitLabLibrary(this.ui, content, meta) : new GitLabFile(this.ui, content, meta);
 };

@@ -1,3 +1,9 @@
+14-JAN-2019: 12.5.2
+
+- Adds option to include XML in PDF
+- Replaces app cache with PWA
+- Uses mxGraph 4.1.0 pre 3
+
 09-JAN-2019: 12.5.1
 
 - Fixes label offsets in viewer

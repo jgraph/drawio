@@ -537,11 +537,21 @@ App.main = function(callback, createUi)
 			mxscript('js/stencils.min.js');
 			mxscript('js/extensions.min.js');
 			
-			var frame = document.createElement('iframe');
-			frame.setAttribute('width', '0');
-			frame.setAttribute('height', '0');
-			frame.setAttribute('src', 'offline.html');
-			document.body.appendChild(frame);
+			// Check that service workers are supported
+			if ('serviceWorker' in navigator) {
+			  // Use the window load event to keep the page load performant
+			  window.addEventListener('load', function() {
+			    navigator.serviceWorker.register('/service-worker.js');
+			  });
+			}
+			else if (window.applicationCache != null)
+			{
+				var frame = document.createElement('iframe');
+				frame.setAttribute('width', '0');
+				frame.setAttribute('height', '0');
+				frame.setAttribute('src', 'offline.html');
+				document.body.appendChild(frame);
+			}
 		}
 		
 		// Loads Pusher API
@@ -5357,7 +5367,7 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
  * readXml argument is used for import. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
  */
-App.prototype.convertFile = function(url, filename, mimeType, extension, success, error)
+App.prototype.convertFile = function(url, filename, mimeType, extension, success, error, executeRequest)
 {
 	var name = filename;
 	
@@ -5422,9 +5432,18 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		{
 			try
 			{
-				if (/\.png$/i.test(filename))
+				if (/\.pdf$/i.test(filename))
 				{
-					temp = this.extractGraphModelFromPng(data);
+					var temp = Editor.extractGraphModelFromPdf(data);
+						
+					if (temp != null && temp.length > 0)
+					{
+						success(new LocalFile(this, temp, name, true));
+					}
+				}
+				else if (/\.png$/i.test(filename))
+				{
+					var temp = this.extractGraphModelFromPng(data);
 					
 					if (temp != null)
 					{
@@ -5466,8 +5485,9 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 			}
 		});
 
-		var binary = /\.png$/i.test(filename) || /\.jpe?g$/i.test(filename) || (mimeType != null &&
-			mimeType.substring(0, 6) == 'image/');
+		var binary = /\.png$/i.test(filename) || /\.jpe?g$/i.test(filename) ||
+		 	/\.pdf$/i.test(filename) || (mimeType != null &&
+		 	mimeType.substring(0, 6) == 'image/');
 		
 		// NOTE: Cannot force non-binary request via loadUrl so needs separate
 		// code as decoding twice on content with binary data did not work
@@ -5488,7 +5508,11 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 					    	{
 					    		data = 'data:image/png;base64,' + data;	
 					    	}
-					    	else
+				    		else if (/\.pdf$/i.test(filename))
+					    	{
+					    		data = 'data:application/pdf;base64,' + data;	
+					    	}
+				    		else
 					    	{
 					    		// Workaround for character encoding issues in IE10/11
 					    		data = (window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ? atob(data) : Base64.decode(data);
@@ -5515,6 +5539,10 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 					error({code: App.ERROR_TIMEOUT, retry: fn});
 				}
 		    });
+		}
+		else if (executeRequest != null)
+		{
+			executeRequest(url, handleData, error, binary);
 		}
 		else
 		{

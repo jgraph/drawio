@@ -561,6 +561,136 @@
 		
 		return xml;
 	};
+
+	/**
+	 * Static method for parsing PDF files.
+	 */
+	Editor.extractGraphModelFromPdf = function(base64)
+	{
+		base64 = base64.substring(base64.indexOf(',') + 1);
+
+		// Workaround for invalid character error in Safari
+		var f = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
+		var check = '\n/Subject (';
+		var result = null;
+		var curline = '';
+		var checked = 0;
+		var pos = 0;
+		var obj = [];
+		var buf = null;
+		var nr = null;
+		
+		while (pos < f.length)
+		{
+			var b = f.charCodeAt(pos);
+			pos += 1;
+			
+			if (b != 10)
+			{
+				curline += String.fromCharCode(b);
+			}
+			
+			if (b == check.charCodeAt(checked))
+			{
+				checked++;
+			}
+			else
+			{
+				checked = 0;
+			}
+			
+			if (checked == check.length)
+			{
+				var end = f.indexOf(')\n', pos);
+				
+				// Default case is XML inlined in Subject metadata
+				if (end > pos)
+				{
+					result = f.substring(pos, end);
+					
+					break;
+				}
+			}
+			
+			// Creates table for lookup if no inline data is found
+			if (b == 10)
+			{
+				if (curline == 'endobj')
+				{
+					buf = null;
+				}
+				else if (curline.substring(curline.length - 3, curline.length) == 'obj' ||
+					curline == 'xref' || curline == 'trailer')
+				{
+					buf = [];
+					obj[curline.split(' ')[0]] = buf;
+				}
+				else if (buf != null)
+				{
+					buf.push(curline);
+				}
+				
+				curline = '';
+			}
+		}
+		
+		// Extract XML via references
+		if (result == null)
+		{
+			result = Editor.extractGraphModelFromXref(obj);
+		}
+		
+		if (result != null)
+		{
+			result = decodeURIComponent(result.
+					replace(/\\\(/g, "(").
+					replace(/\\\)/g, ")"));
+		}
+		
+		return result;
+	};
+
+	/**
+	 * Static method for extracting Subject via references of the form
+	 * 
+	 * << /Size 33 /Root 20 0 R /Info 1 0 R and 1 0 obj << /Subject 22 0 R
+	 * 
+	 * Where Info is the metadata block and Subject is the data block.
+	 */
+	Editor.extractGraphModelFromXref = function(obj)
+	{
+		var trailer = obj['trailer'];
+		var result = null;
+
+		// Gets Info object
+		if (trailer != null)
+		{
+			var arr = /.* \/Info (\d+) (\d+) R/g.exec(trailer.join('\n'));
+			
+			if (arr != null && arr.length > 0)
+			{
+				var info = obj[arr[1]];
+				
+				if (info != null)
+				{
+					arr = /.* \/Subject (\d+) (\d+) R/g.exec(info.join('\n'));
+				
+					if (arr != null && arr.length > 0)
+					{
+						var subj = obj[arr[1]];
+						
+						if (subj != null)
+						{
+							subj = subj.join('\n');
+							result = subj.substring(1, subj.length - 1);
+						}
+					}
+				}
+			}
+		}
+		
+		return result;
+	};
 	
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.

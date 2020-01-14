@@ -4385,7 +4385,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	    		linkInput.value = image;
 	    	});
 	    	
-	    	editorUi.showDialog(dlg.container, 200, 200, true, true);
+	    	editorUi.showDialog(dlg.container, 300, 380, true, true);
 			dlg.init();
 		});
 		
@@ -7466,114 +7466,101 @@ var CropImageDialog = function(editorUi, image, fn)
 {
 	var div = document.createElement('div');
 	
-	var table = document.createElement('table');
-	var tbody = document.createElement('tbody');
+	var croppieDiv = document.createElement('div');
+	croppieDiv.style.width = '300px';
+	croppieDiv.style.height = '300px';
+	div.appendChild(croppieDiv);
+	var croppie = null;
 	
-	var row = document.createElement('tr');
-	var size = document.createElement('td');
-	size.style.whiteSpace = 'nowrap';
-	size.setAttribute('colspan', '2');
-	mxUtils.write(size, mxResources.get('loading') + '...');
-	row.appendChild(size);
-	tbody.appendChild(row);
-	
-	var row = document.createElement('tr');
-	var left = document.createElement('td');
-	var right = document.createElement('td');
-	table.style.paddingLeft = '6px';
-	
-	mxUtils.write(left, mxResources.get('left') + ':');
-	
-	var xInput = document.createElement('input');
-	xInput.setAttribute('type', 'text');
-	xInput.style.width = '100px';
-	xInput.value = '0';
+	function createCroppie(isCircle)
+	{
+		if (croppie != null)
+		{
+			croppie.destroy();
+		}
+		
+		if (isCircle)
+		{
+			croppie = new Croppie(croppieDiv, {
+				viewport: { width: 150, height: 150, type: 'circle' },
+				enableExif: true,
+			    showZoomer: false,
+			    enableResize: false,
+			    enableOrientation: true
+			});
+			
+			croppie.bind({
+			    url: image
+			});
+		}
+		else
+		{
+			croppie = new Croppie(croppieDiv, {
+				viewport: { width: 150, height: 150, type: 'square' },
+				enableExif: true,
+			    showZoomer: false,
+			    enableResize: true,
+			    enableOrientation: true
+			});
+			
+			croppie.bind({
+			    url: image
+			});
+		}	
+	};
 	
 	this.init = function()
 	{
-		xInput.focus();
-		xInput.select();
+		createCroppie();
 	};
 
-	right.appendChild(xInput);
-
-	row.appendChild(left);
-	row.appendChild(right);
-	
-	tbody.appendChild(row);
-	
-	row = document.createElement('tr');
-	left = document.createElement('td');
-	right = document.createElement('td');
-	
-	mxUtils.write(left, mxResources.get('top') + ':');
-	
-	var yInput = document.createElement('input');
-	yInput.setAttribute('type', 'text');
-	yInput.style.width = '100px';
-	yInput.value = '0';
-
-	right.appendChild(yInput);
-
-	row.appendChild(left);
-	row.appendChild(right);
-	
-	tbody.appendChild(row);
-	
-	row = document.createElement('tr');
-	left = document.createElement('td');
-	right = document.createElement('td');
-	
-	mxUtils.write(left, mxResources.get('right') + ':');
-	
-	var wInput = document.createElement('input');
-	wInput.setAttribute('type', 'text');
-	wInput.style.width = '100px';
-	wInput.value = '0';
-
-	right.appendChild(wInput);
-
-	row.appendChild(left);
-	row.appendChild(right);
-	
-	tbody.appendChild(row);
-	
-	row = document.createElement('tr');
-	left = document.createElement('td');
-	right = document.createElement('td');
-	
-	mxUtils.write(left, mxResources.get('bottom') + ':');
-	
-	var hInput = document.createElement('input');
-	hInput.setAttribute('type', 'text');
-	hInput.style.width = '100px';
-	hInput.value = '0';
-
-	right.appendChild(hInput);
-
-	row.appendChild(left);
-	row.appendChild(right);
-	
-	tbody.appendChild(row);
-	
-	row = document.createElement('tr');
-	left = document.createElement('td');
-	right = document.createElement('td');
-	
-	mxUtils.write(left, mxResources.get('circle') + ':');
-	
-	row.appendChild(left);
-	
 	var circleInput = document.createElement('input');
 	circleInput.setAttribute('type', 'checkbox');
+	circleInput.setAttribute('id', 'croppieCircle');
+	circleInput.style.margin = '5px';
+	div.appendChild(circleInput);
+	
+	var circleLbl = document.createElement('label');
+	circleLbl.setAttribute('for', 'croppieCircle');
+	mxUtils.write(circleLbl, mxResources.get('circle'));
+	div.appendChild(circleLbl);
+	
+	var wrap, btnLeft, btnRight, iLeft, iRight;
 
-	right.appendChild(circleInput);
-	row.appendChild(right);
+    wrap = document.createElement('div');
+    btnLeft = document.createElement('button');
+    btnRight = document.createElement('button');
+
+    wrap.appendChild(btnLeft);
+    wrap.appendChild(btnRight);
+
+    iLeft = document.createElement('i');
+    iRight = document.createElement('i');
+    btnLeft.appendChild(iLeft);
+    btnRight.appendChild(iRight);
+
+    wrap.className = 'cr-rotate-controls';
+    wrap.style.float = 'right';
+    wrap.style.position = 'inherit';
+    btnLeft.className = 'cr-rotate-l';
+    btnRight.className = 'cr-rotate-r';
+    
+    div.appendChild(wrap);
+
+    btnLeft.addEventListener('click', function () 
+    {
+    	croppie.rotate(-90);
+    });
+    
+    btnRight.addEventListener('click', function () 
+    {
+    	croppie.rotate(90);
+    });
 	
-	tbody.appendChild(row);
-	
-	table.appendChild(tbody);
-	div.appendChild(table);
+	mxEvent.addListener(circleInput, 'change', function()
+	{
+		createCroppie(this.checked);
+	});
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
@@ -7581,58 +7568,15 @@ var CropImageDialog = function(editorUi, image, fn)
 	});
 	cancelBtn.className = 'geBtn';
 	
-	var imageObj = new Image();
-
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
-		editorUi.hideDialog();
-		
-		var canvas = document.createElement('canvas');
-		var context = canvas.getContext('2d');
-		var w = imageObj.width;
-		var h = imageObj.height;
-		
-		// draw cropped image
-		var sourceX = parseInt(xInput.value);
-		var sourceY = parseInt(yInput.value);
-		var sourceWidth = Math.max(1, w - sourceX - parseInt(wInput.value));
-		var sourceHeight = Math.max(1, h - sourceY - parseInt(hInput.value));
-		canvas.width = sourceWidth;
-		canvas.height = sourceHeight;
-		
-		if (circleInput.checked)
-		{
-			context.fillStyle = '#000000';
-			context.arc(sourceWidth / 2, sourceHeight / 2, Math.min(sourceWidth / 2,
-				sourceHeight / 2), 0, 2 * Math.PI);
-			context.fill();
-			context.globalCompositeOperation = 'source-in';
-		}
-		
-	    context.drawImage(imageObj, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
-		fn(canvas.toDataURL());
+		croppie.result({type: 'base64', size: 'original'}).then(function(base64Img) {
+			fn(base64Img);
+			editorUi.hideDialog();
+		});
 	});
 	
 	applyBtn.className = 'geBtn gePrimaryBtn';
-	applyBtn.setAttribute('disabled', 'disabled');
-	
-	imageObj.onload = function()
-	{
-		applyBtn.removeAttribute('disabled');
-		size.innerHTML = '';
-		mxUtils.write(size, mxResources.get('width') + ': ' + imageObj.width + ' ' +
-			mxResources.get('height') + ': ' + imageObj.height);
-	};
-
-	imageObj.src = image;
-	
-	mxEvent.addListener(div, 'keypress', function(e)
-	{
-		if (e.keyCode == 13)
-		{
-			applyBtn.click();
-		}
-	});
 	
 	var buttons = document.createElement('div');
 	buttons.style.marginTop = '20px';
@@ -10116,6 +10060,18 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.style.paddingTop = '20px';
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
+	
+		
+	if (!editorUi.isOffline())
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink('https://www.diagrams.net/blog/external-fonts');
+		});
+		
+		helpBtn.className = 'geBtn';	
+		td.appendChild(helpBtn);
+	}
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{

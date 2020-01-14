@@ -502,7 +502,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			
 			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
 			if (/\.v(dx|sdx?)$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
-				(!this.ui.useCanvasForExport && binary))
+				/\.pdf$/i.test(meta.name) || (!this.ui.useCanvasForExport && binary))
 			{
 				var mimeType = (meta.file != null) ? meta.file.mimeType : null;
 				this.ui.convertFile(meta['@microsoft.graph.downloadUrl'], meta.name, mimeType,
@@ -618,7 +618,8 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    		error(this.parseRequestText(req));
 			    	}
 				}), binary || (meta.file != null && meta.file.mimeType != null &&
-					meta.file.mimeType.substring(0, 6) == 'image/'));
+					(meta.file.mimeType.substring(0, 6) == 'image/' ||
+					meta.file.mimeType == 'application/pdf')));
 			}
 		}
 		else

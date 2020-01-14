@@ -143,6 +143,9 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 
+//Croppie
+mxscript(drawDevUrl + 'js/croppie/croppie.min.js');
+
 //Table Layout
 if (urlParams['tableLayout'] == '1')
 {

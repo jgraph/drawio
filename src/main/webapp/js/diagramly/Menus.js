@@ -319,7 +319,7 @@
 					}
 				};
 				
-				var dlgH = 172;
+				var dlgH = 180;
 				
 				if (editorUi.pdfPageExport && !noPages)
 				{
@@ -350,9 +350,21 @@
 					}
 				}
 				
+				var includeOption = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+					editorUi.getServiceName() == 'draw.io';
+				var include = (includeOption) ? editorUi.addCheckbox(div,
+					mxResources.get('includeCopyOfMyDiagram'), true) : null;
+					
+				if (includeOption)
+				{
+					dlgH += 30;
+				}
+				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('pdf', null, null, !selection.checked, noPages? true : !allPages.checked, !crop.checked, null, null, null, grid.checked);
+					editorUi.downloadFile('pdf', null, null, !selection.checked,
+						noPages? true : !allPages.checked, !crop.checked, null, null,
+						null, grid.checked, include != null && include.checked);
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
 			}
@@ -1979,6 +1991,10 @@
 				{
 					mime = 'image/gif';
 				}
+				else if (/\.pdf$/i.test(filename))
+				{
+					mime = 'application/pdf';
+				}
 				
 				return mime;
 			});
@@ -3210,9 +3226,9 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', 'save'], parent);
+				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', urlParams['noSaveBtn'] == '1'? 'saveAndExit' : 'save'], parent);
 				
-				if (urlParams['saveAndExit'] == '1')
+				if (urlParams['saveAndExit'] == '1' && urlParams['noSaveBtn'] != '1')
 				{
 					this.addMenuItems(menu, ['saveAndExit'], parent);
 				}

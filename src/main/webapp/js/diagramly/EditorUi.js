@@ -525,7 +525,8 @@
 	 */
 	EditorUi.prototype.isAppCache = function()
 	{
-		return (urlParams['appcache'] == '1' || this.isOfflineApp());
+		return (urlParams['appcache'] == '1' || this.isOfflineApp()) &&
+			!('serviceWorker' in navigator);
 	};
 	
 	/**
@@ -1693,7 +1694,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage, pageVisible, transparent, scale, border, grid)
+	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage,
+		pageVisible, transparent, scale, border, grid, includeXml)
 	{
 		try
 		{
@@ -1794,7 +1796,8 @@
 							this.editor.graph.pageVisible = pageVisible;
 						}
 						
-						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid);
+						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
+							transparent, currentPage, scale, border, grid, includeXml);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1818,7 +1821,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent,
+		currentPage, scale, border, grid, includeXml)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -1835,7 +1839,7 @@
 			throw {message: mxResources.get('drawingTooLarge')};
 		}
 		
-		var embed = '0';
+		var embed = (includeXml) ? '1' : '0';
        	
 		if (format == 'pdf' && currentPage == false)
 		{
@@ -3224,6 +3228,17 @@
 								
 								var doImport = mxUtils.bind(this, function(theData, theMimeType)
 								{
+									if (theData != null && theMimeType == 'application/pdf')
+									{
+										var xml = Editor.extractGraphModelFromPdf(theData);
+					
+										if (xml != null && xml.length > 0)
+										{
+											theMimeType = 'text/xml';
+											theData = xml;
+										}
+									}
+									
 									if (theData != null && theMimeType == 'text/xml')
 									{
 										var doc = mxUtils.parseXml(theData);
@@ -6816,7 +6831,8 @@
 		try
 		{
 			var binary = !noBinary && (forceBinary || /(\.png)($|\?)/i.test(url) ||
-				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url));
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url) ||
+				/(\.pdf)($|\?)/i.test(url));
 			retry = (retry != null) ? retry : true;
 			
 			var fn = mxUtils.bind(this, function()
@@ -6852,7 +6868,7 @@
 								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
 								data = dataUriPrefix + this.base64Encode(data);
 							}
-				    		
+							
 				    		success(data);
 				    	}
 					}
@@ -7706,15 +7722,25 @@
 			{
 				var graph = this.editor.graph;
 				
+				// Checks for embedded XML in PDF
+				if (text.substring(0, 28) == 'data:application/pdf;base64,')
+	    		{
+					var xml = Editor.extractGraphModelFromPdf(text);
+					
+					if (xml != null && xml.length > 0)
+					{
+						return this.importXml(xml, dx, dy, crop, true);
+					}
+	    		}
+				
 				// Checks for embedded XML in PNG
 				if (text.substring(0, 22) == 'data:image/png;base64,')
 				{
 					var xml = this.extractGraphModelFromPng(text);
-					var result = this.importXml(xml, dx, dy, crop, true); 
 					
-					if (result.length > 0)
+					if (xml != null && xml.length > 0)
 					{
-						return result;
+						return this.importXml(xml, dx, dy, crop, true);
 					}
 				}
 				
@@ -8330,16 +8356,25 @@
 	
 			fn = (fn != null) ? fn : mxUtils.bind(this, function(data, mimeType, x, y, w, h, filename, done, file)
 			{
-				if (data != null && data.substring(0, 10) == '<mxlibrary')
+				try
 				{
-					this.spinner.stop();
-					this.loadLibrary(new LocalLibrary(this, data, filename));
-	    			
-	    			return null;
+					if (data != null && data.substring(0, 10) == '<mxlibrary')
+					{
+						this.spinner.stop();
+						this.loadLibrary(new LocalLibrary(this, data, filename));
+		    			
+		    			return null;
+					}
+					else
+					{
+						return this.importFile(data, mimeType, x, y, w, h, filename, done, file, crop, ignoreEmbeddedXml);
+					}
 				}
-				else
+				catch (e)
 				{
-					return this.importFile(data, mimeType, x, y, w, h, filename, done, file, crop, ignoreEmbeddedXml);
+					this.handleError(e);
+					
+					return null;
 				}
 			});
 			
@@ -8408,7 +8443,7 @@
 							{
 								if (filterFn == null || filterFn(file))
 								{
-						    		if (file.type.substring(0, 6) == 'image/')
+									if (file.type.substring(0, 6) == 'image/')
 						    		{
 						    			if (file.type.substring(0, 9) == 'image/svg')
 						    			{
@@ -8631,7 +8666,9 @@
 						    		}
 						    		else
 						    		{
-										fn(e.target.result, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+						    			var data = e.target.result;
+						    			
+										fn(data, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
 										{
 											barrier(index, function()
 				    	    				{
@@ -8653,7 +8690,7 @@
 		    	    				});
 								}, file);
 							}
-							else if (file.type.substring(0, 5) == 'image')
+							else if (file.type.substring(0, 5) == 'image' || file.type == 'application/pdf')
 							{
 								reader.readAsDataURL(file);
 							}
@@ -10667,6 +10704,10 @@
 								{
 									name = name.substring(0, name.length - 4) + '.drawio';
 								}
+								else if (/(\.pdf)$/i.test(name))
+								{
+									name = name.substring(0, name.length - 4) + '.drawio';
+								}
 								
 								var handleResult = mxUtils.bind(this, function(xml)
 								{
@@ -10797,6 +10838,15 @@
 									{
 										data = this.extractGraphModelFromPng(data);
 									}
+									else if (file.type == 'application/pdf')
+						    		{
+										var xml = Editor.extractGraphModelFromPdf(data);
+										
+										if (xml != null)
+										{
+											data = xml;
+										}
+						    		}
 									
 									this.spinner.stop();
 									this.openLocalFile(data, name, temp);
@@ -10816,7 +10866,9 @@
 						window.openFile = null;
 					});
 					
-					if (file.type.substring(0, 5) === 'image' && file.type.substring(0, 9) !== 'image/svg')
+					if ((file.type.substring(0, 5) === 'image' ||
+						file.type === 'application/pdf') &&
+						file.type.substring(0, 9) !== 'image/svg')
 					{
 						reader.readAsDataURL(file);
 					}
@@ -12876,7 +12928,7 @@
 		
 		if (this.isAppCache())
 		{
-			var appCache = applicationCache;
+			var appCache = window.applicationCache;
 			
 			// NOTE: HTML5 Cache is deprecated
 			if (appCache != null && this.offlineStatus == null)
@@ -12905,7 +12957,6 @@
 					}
 				}));
 				
-				var appCache = window.applicationCache;
 				var lastStatus = null;
 				
 				var updateStatus = mxUtils.bind(this, function()

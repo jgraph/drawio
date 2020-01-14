@@ -76,6 +76,12 @@
 				data.xml = Editor.extractGraphModelFromPng('data:image/png;base64,' + data.xml);
 			}
 			
+			//IE11 sends incorrect xml
+			if (data.xml.substring(0, 11) == '<#document>')
+			{
+				data.xml = data.xml.substring(11, data.xml.length - 12);
+			}
+			
 			// Parses XML
 			var doc = mxUtils.parseXml(data.xml);
 			var node = Editor.extractGraphModel(doc.documentElement, true);

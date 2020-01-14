@@ -222,7 +222,7 @@ mxStencilRegistry.allowEval = false;
 		        {
 		        	var path = paths[0];
 		        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
-		        	var encoding = (asImage || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
+		        	var encoding = (asImage || /\.pdf$/i.test(path) || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
 		        		'base64' : 'utf-8';
 
 					if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
@@ -278,7 +278,16 @@ mxStencilRegistry.allowEval = false;
 									}
 									else
 									{
-										if (/\.png$/i.test(path))
+										if (/\.pdf$/i.test(path))
+									    {
+											var tmp = Editor.extractGraphModelFromPdf(data);
+											
+											if (tmp != null)
+											{
+												data = tmp;
+											}
+							    		}
+										else if (/\.png$/i.test(path))
 										{
 											var tmp = editorUi.extractGraphModelFromPng(data);
 											
@@ -634,7 +643,7 @@ mxStencilRegistry.allowEval = false;
 		var index = path.lastIndexOf('.png');
 		var isPng = index > -1 && index == path.length - 4;
 		var isVsdx = /\.vsdx$/i.test(path) || /\.vssx$/i.test(path);
-		var encoding = isVsdx? null : (isPng ? 'base64' : 'utf-8');
+		var encoding = isVsdx? null : ((isPng || /\.pdf$/i.test(path)) ? 'base64' : 'utf-8');
 
 		fs.readFile(path, encoding, mxUtils.bind(this, function (e, data)
 		{
@@ -649,7 +658,7 @@ mxStencilRegistry.allowEval = false;
 				fileEntry.name = path.replace(/^.*[\\\/]/, '');
 				fileEntry.type = encoding;
 
-				//VSDX files are imported instead of being open
+				// VSDX and PDF files are imported instead of being opened
 				if (isVsdx)
 				{
 					var name = fileEntry.name;
@@ -694,8 +703,19 @@ mxStencilRegistry.allowEval = false;
 					
 					return;
 				}
-				
-				if (isPng)
+				else if (/\.pdf$/i.test(path))
+			    {
+					var tmp = Editor.extractGraphModelFromPdf('data:application/pdf;base64,' + data);
+					
+					if (tmp != null)
+					{
+						var name = fileEntry.name;
+						fn(null, tmp, null, name.substring(0, name.lastIndexOf('.')) + '.drawio');
+						
+						return;
+					}
+	    		}
+				else if (isPng)
 				{
 					// Detecting png by extension. Would need https://github.com/mscdex/mmmagic
 					// to do it by inspection

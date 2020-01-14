@@ -1094,6 +1094,16 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 							}
 						}
 					}
+					else if (/\.pdf$/i.test(resp.title))
+					{
+						var xml = Editor.extractGraphModelFromPdf(data);
+						
+						if (xml != null && xml.length > 0)
+						{
+							importFile = true;
+							data = xml;
+						}
+					}
 					// Checks for base64 encoded mxfile
 					else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
 					{
@@ -1151,7 +1161,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 			}
 		}), error, ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
 			resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
-			/\.jpe?g$/i.test(resp.title));
+			/\.jpe?g$/i.test(resp.title) || /\.pdf$/i.test(resp.title));
 	}
 	catch (e)
 	{

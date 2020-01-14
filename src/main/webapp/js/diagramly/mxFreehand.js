@@ -19,7 +19,7 @@ function mxFreehand(graph)
 	var autoClose = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
-	var stopClickEnabled = false;
+	var stopClickEnabled = true
 
 	this.setClosedPath = function(isClosed)//TODO add closed settings
 	{
@@ -63,7 +63,7 @@ function mxFreehand(graph)
 	
 	var endPath = mxUtils.bind(this, function(e)
 	{
-	    if (path) 
+	    if (path)
 	    {
 	    	// Click stops drawing
 	    	var doStop = stopClickEnabled && drawPoints.length > 0 &&
