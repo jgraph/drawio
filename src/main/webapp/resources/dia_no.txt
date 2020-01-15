@@ -400,6 +400,7 @@ insertRowBefore=Legg til rad ovenfor
 insertRowAfter=Legg til rad nedenfor
 insertText=Legg til tekst
 inserting=Legger til
+installDrawio=Install draw.io
 invalidFilename=Diagrammet kan ikke inneholde de følgende tegnene: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Du har en ugyldig lisens, vennligst se her <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Lagre diagrammer til
 saveLibrary403=Utilstrekkelig tillatelse til å redigere dette biblioteket
 saveLibrary500=Det oppsto en feil i lagringen av biblioteket
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Lagrer
 scratchpad=Kladdeblokk
 scrollbars=Rullefelt

@@ -400,6 +400,7 @@ insertRowBefore=Üste satır ekle
 insertRowAfter=Alta satır ekle
 insertText=Metin ekle
 inserting=Ekleniyor
+installDrawio=Install draw.io
 invalidFilename=Diyagram adları şu karakterleri içermelidir : \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lisansınız geçersiz, lütfen <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a> a bakınız
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Diyagramları şuna kaydet:
 saveLibrary403=Bu kitaplığı değiştirmek için başarısız izinler
 saveLibrary500=Kitaplığı kaydederken hata oluştu
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Kaydediliyor
 scratchpad=Bloknot
 scrollbars=Kaydırma çubuğu

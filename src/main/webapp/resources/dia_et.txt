@@ -400,6 +400,7 @@ insertRowBefore=Sisesta rida ülespoole
 insertRowAfter=Sisesta rida allapoole
 insertText=Sisesta tekst
 inserting=Sisestamine
+installDrawio=Install draw.io
 invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke:  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">lehte</a>.
 invalidInput=Viga sisestamisel
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Salvesta diagrammid...
 saveLibrary403=Puuduvad õigused selle raamatukogu muutmiseks
 saveLibrary500=Viga raamatukogu salvestamisel
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Salvestan
 scratchpad=Märkmik
 scrollbars=Kerimisriba

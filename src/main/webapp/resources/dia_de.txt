@@ -400,6 +400,7 @@ insertRowBefore=Zeile oberhalb einfügen
 insertRowAfter=Zeile unterhalb einfügen
 insertText=Text einfügen
 inserting=Wird eingefügt
+installDrawio=draw.io installieren
 invalidFilename=Diagramm Namen dürfen keine der folgenden Zeichen enthalten\ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Ihre Lizenz ist ungültig, bitte besuchen Sie diese <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">Seite</a>.
 invalidInput=Ungültige Eingabe
@@ -634,6 +635,7 @@ saveDiagramFirst=Bitte speichern Sie zuerst das Diagramm
 saveDiagramsTo=Diagramme speichern in
 saveLibrary403=Keine Berechtigung zum Bearbeiten der Bibliothek
 saveLibrary500=Fehler beim Speichern der Bibliothek
+saveLibraryReadOnly=Bibliothek konnte nicht gespeichert werden, während der schreibgeschützte Modus aktiv ist
 saving=Wird gespeichert
 scratchpad=Notizblock
 scrollbars=Scrollbars

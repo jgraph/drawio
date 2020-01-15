@@ -400,6 +400,7 @@ insertRowBefore=Inserir linha acima
 insertRowAfter=Inserir linha abaixo
 insertText=Inserir texto
 inserting=Inserindo
+installDrawio=Install draw.io
 invalidFilename=Nomes de diagramas não podem conter os seguintes caracteres: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Sua licença é inválida, por favor veja <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Salvar diagramas em
 saveLibrary403=Permissões insuficientes para editar esta biblioteca
 saveLibrary500=Ocorreu um erro enquanto a biblioteca estava sendo salva
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Salvando
 scratchpad=Bloco de rascunho
 scrollbars=Barras de rolagem

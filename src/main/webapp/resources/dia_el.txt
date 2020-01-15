@@ -400,6 +400,7 @@ insertRowBefore=Εισαγωγή σειράς από πάνω
 insertRowAfter=Εισαγωγή σειράς μετά
 insertText=Εισαγωγή κειμένου
 inserting=Εισάγοντας
+installDrawio=Install draw.io
 invalidFilename=Το όνομα του διαγράμματος δεν πρέπει να περιέχει τους παρακάτω χρακτήρες: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Η άδεια χρήσης σας δεν είναι έγκυρη, παρακαλώ δείτε αυτό  <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Αποθήκευση διαγραμμάτων σε
 saveLibrary403=Ανεπαρκή δικαιώματα για να επεξεργαστείτε αυτή την βιβλιοθήκη
 saveLibrary500=Παρουσιάστηκε σφάλμα κατά την διαδικασία αποθήκευσης της βιβλιοθήκης
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Γίνεται αποθήκευση
 scratchpad=Σημειωματάριο
 scrollbars=Μπάρες κύλισης

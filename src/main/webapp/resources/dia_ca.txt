@@ -400,6 +400,7 @@ insertRowBefore=Afegeix una fila amunt
 insertRowAfter=Afegeix una fila avall
 insertText=Afegeix text
 inserting=Afegint
+installDrawio=Install draw.io
 invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { < & + ? = "
 invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">pàgina</a>.
 invalidInput=L'entrada no és vàlida
@@ -634,6 +635,7 @@ saveDiagramFirst=Deseu primer el diagrama
 saveDiagramsTo=Desa els diagrames a
 saveLibrary403=Permisos insuficients per editar aquesta biblioteca
 saveLibrary500=Hi ha hagut un error desant la biblioteca
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Desant
 scratchpad=Scratchpad
 scrollbars=Barres de desplaçament

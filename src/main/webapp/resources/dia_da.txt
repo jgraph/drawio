@@ -400,6 +400,7 @@ insertRowBefore=Indsæt række ovenover
 insertRowAfter=Indsæt række nedenfor
 insertText=Indsæt tekst
 inserting=Indsætter
+installDrawio=Install draw.io
 invalidFilename=Diagramnavn må ikke indeholde de følgende tegn: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Din licens er ugyldig, se venligst <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">side</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Gem diagrammer i
 saveLibrary403=Utilstrækkelige tilladelse til at ændre på dette bibliotek
 saveLibrary500=Der forekom en fejl under gemning af dette bibliotek
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Gemmer
 scratchpad=Notesblok
 scrollbars=Rullebjælker

@@ -400,6 +400,7 @@ insertRowBefore=Umetni red iznad
 insertRowAfter=Umetni red nakon
 insertText=Umetni tekst
 inserting=Umetanje
+installDrawio=Install draw.io
 invalidFilename=Imena dijagrama ne smiju sadržavati sljedeće znakove: \ / | : ; { < & + ? = "
 invalidLicenseSeeThisPage=Vaša licenca nije validna, molimo pogledajte ovo <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Prvo sačuvajte dijagram
 saveDiagramsTo=Spasi dijagrame u
 saveLibrary403=Nedovoljne ovlasti za uređivanje ove biblioteke
 saveLibrary500=Pojavila se greška prilikom spašavanja biblioteke
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Spašavanje
 scratchpad=Radna memorija
 scrollbars=Skrolbarovi

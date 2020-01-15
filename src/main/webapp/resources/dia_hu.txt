@@ -400,6 +400,7 @@ insertRowBefore=Sort beszúr felette
 insertRowAfter=Sort beszúr alatta
 insertText=Szöveget beszúr
 inserting=Beszúrás
+installDrawio=Install draw.io
 invalidFilename=A diagram nem tartalmazhatja a következő betűket: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Az engedélye érvénytelen, kérjük tekintse meg ezt <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Diagramok mentése ide:
 saveLibrary403=Elégtelen engedély a könyvtár szerkesztéséhez
 saveLibrary500=Hiba történt a könyvtár mentésekor
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Mentés
 scratchpad=Jegyzetblokk
 scrollbars=Gördítősávok

@@ -400,6 +400,7 @@ insertRowBefore=Vložit řádek nad
 insertRowAfter=Vložit řádek za
 insertText=Vložit text
 inserting=Vkládání
+installDrawio=Install draw.io
 invalidFilename=Jména diagramů nesmí obsahovat tyto znaky: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Vaše licence je neplatná, podívejte se prosím na tuto <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">stránku</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Uložit diagramy do
 saveLibrary403=K úpravě této knihovny nemáte dostatečné oprávnění.
 saveLibrary500=Při ukládání knihovny došlo k chybě.
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Ukládám
 scratchpad=Poznámky
 scrollbars=Rolovací lišty

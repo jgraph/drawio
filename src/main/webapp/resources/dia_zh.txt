@@ -400,6 +400,7 @@ insertRowBefore=上方插入行
 insertRowAfter=下方插入行
 insertText=插入文本
 inserting=正在插入
+installDrawio=Install draw.io
 invalidFilename=图表名称不能包含以下特殊字符： \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=您的许可无效，请参阅此<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">页面</a>。
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=把图表存至
 saveLibrary403=没有足够的权限编辑此图库
 saveLibrary500=保存图库时出错
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=保存中
 scratchpad=便笺本
 scrollbars=滚动条

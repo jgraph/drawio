@@ -400,6 +400,7 @@ insertRowBefore=Rij bovenaan invoegen
 insertRowAfter=Rij onderaan invoegen
 insertText=Tekst invoegen
 inserting=Invoegen
+installDrawio=Install draw.io
 invalidFilename=Een Diagramnaam mag niet de volgende tekens bevatten: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">pagina</a>.
 invalidInput=Ingeldige invoer
@@ -634,6 +635,7 @@ saveDiagramFirst=Sla het diagram eerst op
 saveDiagramsTo=Diagrammen opslaan naar
 saveLibrary403=Onvoldoende rechten om deze bibliotheek te bewerken
 saveLibrary500=Er is een fout opgetreden bij het opslaan van de bibliotheek
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Opslaan
 scratchpad=Pallet
 scrollbars=Schuifbalken

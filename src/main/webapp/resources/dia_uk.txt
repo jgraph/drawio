@@ -400,6 +400,7 @@ insertRowBefore=Вставити рядок зверху
 insertRowAfter=Вставити рядок внизу
 insertText=Вставити письмо
 inserting=Вставляю
+installDrawio=Install draw.io
 invalidFilename=Назва діаграма не повинна мати такі знаки:  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Ваш дозвіл на використання недійсний, будь ласка,прочитайте це <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Хибний ввод
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Зберегти діаграми в 
 saveLibrary403=Недостатньо повноважень, щоб редагувати цю бібліотеку
 saveLibrary500=При збереженні бібліотеки виникла помилка
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Збереження
 scratchpad=Блокнот
 scrollbars=Смуга прокрутки

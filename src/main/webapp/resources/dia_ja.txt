@@ -400,6 +400,7 @@ insertRowBefore=行を上に挿入
 insertRowAfter=行を下に挿入
 insertText=テキスト
 inserting=挿入中
+installDrawio=Install draw.io
 invalidFilename=ダイアグラム名に次の文字を含めることはできません。 \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=あなたの免許証が有効ではない、これを参照してください<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=ファイルの保存先
 saveLibrary403=このライブラリを編集する権限がありません。
 saveLibrary500=ライブラリ保存中にエラーが発生しました。
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=保存中
 scratchpad=スクラッチパッド
 scrollbars=スクロールバー

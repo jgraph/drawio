@@ -400,6 +400,7 @@ insertRowBefore=Вмъкване на ред отгоре
 insertRowAfter=Вмъкване на ред отдолу
 insertText=Вмъкване на текст
 inserting=Вмъкване 
+installDrawio=Install draw.io
 invalidFilename=Диаграмата не трябва да съдържа следните символи: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Вашият лиценз не е валиден. Моля вижте тук <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Запазване на диаграми в
 saveLibrary403=Недостатъчни разрешения за редактиране на тази библиотека
 saveLibrary500=Възникна грешка при запазване на библиотеката
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Запазване
 scratchpad=Бележник
 scrollbars=Скролиращи ленти

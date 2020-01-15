@@ -400,6 +400,7 @@ insertRowBefore=แทรกบรรทัดข้างบน
 insertRowAfter=แทรกบรรทัดข้างล่าง
 insertText=แทรกข้อความ
 inserting=การแทรก
+installDrawio=Install draw.io
 invalidFilename=ชื่อแผนภาพจะต้องไม่มีเครื่องหมายเหล่านี้  \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=ใบอนุญาตของคุณไม่ถูกต้อง  โปรดดู <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=บันทึกแผนภาพไปยัง
 saveLibrary403=สิทธิ์ไม่เพียงพอในการแก้ไขไลบรารีนี้
 saveLibrary500=เกิดข้อผิดพลาดขณะบันทึกไลบรารี่
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=กำลังบันทึก
 scratchpad=Scratchpad
 scrollbars=แถบเลื่อน

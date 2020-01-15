@@ -400,6 +400,7 @@ insertRowBefore=Magsingit ng hanay sa ibabaw
 insertRowAfter=Magsingit ng hilera pagkatapos
 insertText=Magsingit ng teksto
 inserting=Nagsisingit
+installDrawio=Install draw.io
 invalidFilename=Ang pangalan ng mga Dayagram ay hindi maaaring magtaglay ng sumusunod na mga simbolo: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=I-save ang mga dayagram sa
 saveLibrary403=Di sapat ang pahintulot para i-edit ang library na ito
 saveLibrary500=May pagkakamali habang sini-save ang library
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Nagse-save
 scratchpad=Scratchpad
 scrollbars=Mga Scrollbar

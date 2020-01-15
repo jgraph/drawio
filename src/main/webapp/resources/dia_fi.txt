@@ -400,6 +400,7 @@ insertRowBefore=Lisää rivi yläpuolelle
 insertRowAfter=Lisää rivi alapuolelle
 insertText=Lisää tekstiä
 inserting=Lisätään
+installDrawio=Install draw.io
 invalidFilename=Kaavioiden nimet eivät saa sisältää seuraavia merkkejä : \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Tallenna kaaviot
 saveLibrary403=Puutteellinen lupa kokoelman editoimiseen
 saveLibrary500=Kokoelman tallennuksen aikana tapahtui virhe
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Tallennetaan
 scratchpad=Työmuisti
 scrollbars=Vierityspalkit

@@ -400,6 +400,7 @@ insertRowBefore=‫وارد کردن یک ردیف در بالا‬
 insertRowAfter=‫وارد کردن یک ردیف در بعد‬
 insertText=‫وارد کردن متن‬
 inserting=‫وارد کردن‬
+installDrawio=Install draw.io
 invalidFilename=‫نامهای نمودارها نباید شامل کاراکترهای زیر باشد:  \ / | : ; { } < > & + ? = "‬
 invalidLicenseSeeThisPage=‫مجوز شما نامعتبر است. لطفا این بخش را ببینید <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">صفحه</a>.‬
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=‫ذخیره نمودار در‬
 saveLibrary403=‫مجوز برای ویرایش کتابخانه کافی نیست‬
 saveLibrary500=‫خطا به هنگام ذخیره کتابخانه‬
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=‫در حال ذخیره کردن‬
 scratchpad=‫صفحه پیش نویس‬
 scrollbars=‫چرخانک‬

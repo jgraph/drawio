@@ -538,11 +538,13 @@ App.main = function(callback, createUi)
 			mxscript('js/extensions.min.js');
 			
 			// Check that service workers are supported
-			if ('serviceWorker' in navigator) {
-			  // Use the window load event to keep the page load performant
-			  window.addEventListener('load', function() {
-			    navigator.serviceWorker.register('/service-worker.js');
-			  });
+			if ('serviceWorker' in navigator)
+			{
+				// Use the window load event to keep the page load performant
+				window.addEventListener('load', function()
+				{
+					navigator.serviceWorker.register('/service-worker.js');
+				});
 			}
 			else if (window.applicationCache != null)
 			{
@@ -552,6 +554,15 @@ App.main = function(callback, createUi)
 				frame.setAttribute('src', 'offline.html');
 				document.body.appendChild(frame);
 			}
+		}
+		else if ('serviceWorker' in navigator &&
+			navigator.serviceWorker.controller)
+		{
+			// Needed to update cache if PWA was used
+			window.addEventListener('load', function()
+			{
+				navigator.serviceWorker.register('/service-worker.js');
+			});
 		}
 		
 		// Loads Pusher API
@@ -1457,7 +1468,71 @@ App.prototype.init = function()
 			this.mode = App.mode;
 		}
 		
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && (!this.editor.chromeless || this.editor.editable))
+		// Integrates Add to Home Screen
+		if (urlParams['offline'] == '1' && 'serviceWorker' in navigator &&
+			!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+		{
+			var deferredPrompt = null;
+			
+			window.addEventListener('beforeinstallprompt', mxUtils.bind(this, function(e)
+			{
+				if (!this.footerShowing && (!isLocalStorage || mxSettings.settings == null ||
+					mxSettings.settings.closeAddToHomeScreenFooter == null))
+				{
+					deferredPrompt = e;
+					
+					var done = mxUtils.bind(this, function()
+					{
+						footer.parentNode.removeChild(footer);
+						this.footerShowing = false;
+						deferredPrompt = null;
+						this.hideFooter();
+	
+						// Close permanently
+						if (isLocalStorage && mxSettings.settings != null)
+						{
+							mxSettings.settings.closeAddToHomeScreenFooter = Date.now();
+							mxSettings.save();
+						}
+					});
+					
+					var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
+							mxUtils.htmlEntities(mxResources.get('installDrawio', null, 'Install draw.io')) + '</font>',
+							'https://www.draw.io/index.html?offline=1',
+							'geStatusMessage geBtn gePrimaryBtn', done, null, mxUtils.bind(this, function()
+						{
+						    // Show the prompt
+							if (deferredPrompt != null)
+							{
+							    deferredPrompt.prompt();
+							    
+							    // Wait for the user to respond to the prompt
+							    deferredPrompt.userChoice.then(done);
+							} 
+						}));
+		
+					// Push to after splash dialog background
+					footer.style.zIndex = mxPopupMenu.prototype.zIndex;
+					footer.style.padding = '18px 50px 12px 30px';
+					footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
+					document.body.appendChild(footer);
+					this.footerShowing = true;
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+					}), 500);
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+						this.footerShowing = false;
+					}), 60000);
+				}
+			}));
+		}
+		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && (!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
@@ -1467,10 +1542,13 @@ App.prototype.init = function()
 					mxSettings.settings.closeDesktopFooter == null) && !this.footerShowing && urlParams['open'] == null)
 				{
 					var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
-						IMAGE_PATH + '/logo.png' + '"><font size="3">' + mxResources.get('downloadDesktop') + '...</font>', 'https://get.draw.io/', 'geStatusMessage',
+						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
+						mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
+						'https://get.draw.io/', 'geStatusMessage geBtn gePrimaryBtn',
 						mxUtils.bind(this, function()
 						{
 							footer.parentNode.removeChild(footer);
+							this.footerShowing = false;
 							this.hideFooter();
 	
 							// Close permanently
@@ -1480,7 +1558,11 @@ App.prototype.init = function()
 								mxSettings.save();
 							}
 						}));
-	
+			
+					// Push to after splash dialog background
+					footer.style.zIndex = mxPopupMenu.prototype.zIndex;
+					footer.style.padding = '18px 50px 12px 30px';
+					footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
 					document.body.appendChild(footer);
 					this.footerShowing = true;
 					

@@ -400,6 +400,7 @@ insertRowBefore=Masukkan Baris di Atas
 insertRowAfter=Masukkan Baris Selepas
 insertText=Masukkan Teks
 inserting=Memasukkan
+installDrawio=Install draw.io
 invalidFilename=Nama gambarajah tidak boleh mengandungi aksara yang berikut: \ / | : ; { } < > & + ? = "
 invalidLicenseSeeThisPage=Lesen anda tidak sah, sila lihat ini <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Simpan gambarajah ke
 saveLibrary403=Keizinan tidak mencukupi untuk menyunting pustaka ini
 saveLibrary500=Terdapat ralat semasa menyimpan pustaka ini
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Menyimpan
 scratchpad=Scratchpad
 scrollbars=Baris gulung

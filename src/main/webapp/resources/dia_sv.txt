@@ -400,6 +400,7 @@ insertRowBefore=Infoga rad ovanför
 insertRowAfter=Infoga rad efter
 insertText=Infoga text
 inserting=Infogar
+installDrawio=Install draw.io
 invalidFilename=Diagrammet får inte innehålla följande tecken: \ / | : ; { } < > & + ? = 
 invalidLicenseSeeThisPage=Din licens är ogiltig, vänligen se <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Spara diagram till
 saveLibrary403=Otillräckliga korregeringsrättigheter för detta bibliotek
 saveLibrary500=Ett fel uppstod under sparande av biblioteket 
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Sparande
 scratchpad=Anteckningsblock
 scrollbars=Rullningslister

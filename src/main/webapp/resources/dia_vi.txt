@@ -400,6 +400,7 @@ insertRowBefore=Chèn dòng lên trên
 insertRowAfter=Chèn dòng xuống dưới
 insertText=Chèn văn bản
 inserting=Đang chèn
+installDrawio=Install draw.io
 invalidFilename=Tên biểu đồ không được chứa những kí tự sau: \ / | : ' { } < > & + ? = "
 invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">trang này</a>.
 invalidInput=Invalid input
@@ -634,6 +635,7 @@ saveDiagramFirst=Please save the diagram first
 saveDiagramsTo=Lưu biểu đồ vào
 saveLibrary403=Không có quyền chỉnh sửa thư viện này
 saveLibrary500=Có lỗi khi lưu thư viện
+saveLibraryReadOnly=Could not save library while read-only mode is active
 saving=Đang lưu
 scratchpad=Scratchpad
 scrollbars=Thanh cuộn
