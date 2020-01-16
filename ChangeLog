@@ -1,3 +1,8 @@
+16-JAN-2019: 12.5.5
+
+- Fixes inconsistent label wrapping
+- Uses mxGraph 4.1.0 pre 5
+
 15-JAN-2019: 12.5.4
 
 - Adds PWA install prompt handler
