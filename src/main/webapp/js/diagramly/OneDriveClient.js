@@ -11,7 +11,7 @@ OneDriveClient = function(editorUi)
 	if (authInfo != null)
 	{
 		this.token = authInfo.access_token;
-		this.endpointHint = authInfo.endpointHint.replace('/Documents', '/_layouts/15/onedrive.aspx');
+		this.endpointHint = authInfo.endpointHint != null ? authInfo.endpointHint.replace('/Documents', '/_layouts/15/onedrive.aspx') : authInfo.endpointHint;
 		this.tokenExpiresOn = authInfo.expiresOn;
 		
 		var remainingTime = (this.tokenExpiresOn - Date.now()) / 1000;

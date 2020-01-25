@@ -1,3 +1,7 @@
+25-JAN-2020: 12.5.8
+
+- Fixes possible NPE in OneDrive client
+
 25-JAN-2020: 12.5.7
 
 - Fixes access to OneDrive Sharepoint folders
