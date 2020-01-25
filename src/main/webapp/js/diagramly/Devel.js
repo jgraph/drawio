@@ -13,6 +13,7 @@ mxscript(drawDevUrl + 'js/deflate/pako.min.js');
 mxscript(drawDevUrl + 'js/deflate/base64.js');
 mxscript(drawDevUrl + 'js/jscolor/jscolor.js');
 mxscript(drawDevUrl + 'js/sanitizer/sanitizer.min.js');
+mxscript(drawDevUrl + 'js/croppie/croppie.min.js');
 
 // Uses grapheditor from devhost
 mxscript(geBasePath +'/Editor.js');
@@ -142,9 +143,6 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
 //GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
-
-//Croppie
-mxscript(drawDevUrl + 'js/croppie/croppie.min.js');
 
 //Table Layout
 if (urlParams['tableLayout'] == '1')

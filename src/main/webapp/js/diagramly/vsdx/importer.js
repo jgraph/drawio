@@ -1305,8 +1305,6 @@ var com;
                                     var master = array129[index128];
                                     {
                                         var shapeGraph = this_1.createMxGraph();
-                                        var shapeElem = master.getMasterShape().getShape();
-                                        var shape = new com.mxgraph.io.vsdx.VsdxShape(page, shapeElem, !page.isEdge(shapeElem), masterShapes, null, this_1.vsdxModel);
                                         
                                         var scale = 1;
                                         
@@ -1329,34 +1327,46 @@ var com;
                                         	 
                                         	 scale = pScaleV / dScaleV;
                                     	}
+
+                                        var hasCells = false;
                                         
-                                        var cell = null;
-                                        if (shape.isVertex()) {
-                                            /* clear */ this_1.edgeShapeMap.entries = [];
-                                            /* clear */ this_1.parentsMap.entries = [];
-                                            cell = this_1.addShape(shapeGraph, shape, shapeGraph.getDefaultParent(), 0, 1169);
-                                            {
-                                                var array131 = (function (m) { if (m.entries == null)
-                                                    m.entries = []; return m.entries; })(this_1.edgeShapeMap);
-                                                for (var index130 = 0; index130 < array131.length; index130++) {
-                                                    var edgeEntry = array131[index130];
-                                                    {
-                                                        var parent_1 = (function (m, k) { if (m.entries == null)
-                                                            m.entries = []; for (var i = 0; i < m.entries.length; i++)
-                                                            if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
-                                                                return m.entries[i].value;
-                                                            } return null; })(this_1.parentsMap, edgeEntry.getKey());
-                                                        this_1.addUnconnectedEdge(shapeGraph, parent_1, edgeEntry.getValue(), 1169);
-                                                    }
-                                                }
-                                            }
+                                        for (var chI = 0; master.firstLevelShapes != null && chI < master.firstLevelShapes.length; chI++)
+                                        {
+	                                        var shapeElem = master.firstLevelShapes[chI].getShape();
+	                                        var shape = new com.mxgraph.io.vsdx.VsdxShape(page, shapeElem, !page.isEdge(shapeElem), masterShapes, null, this_1.vsdxModel);
+	
+	                                        var cell = null;
+	                                        if (shape.isVertex()) {
+	                                            /* clear */ this_1.edgeShapeMap.entries = [];
+	                                            /* clear */ this_1.parentsMap.entries = [];
+	                                            cell = this_1.addShape(shapeGraph, shape, shapeGraph.getDefaultParent(), 0, 1169);
+	                                            {
+	                                                var array131 = (function (m) { if (m.entries == null)
+	                                                    m.entries = []; return m.entries; })(this_1.edgeShapeMap);
+	                                                for (var index130 = 0; index130 < array131.length; index130++) {
+	                                                    var edgeEntry = array131[index130];
+	                                                    {
+	                                                        var parent_1 = (function (m, k) { if (m.entries == null)
+	                                                            m.entries = []; for (var i = 0; i < m.entries.length; i++)
+	                                                            if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+	                                                                return m.entries[i].value;
+	                                                            } return null; })(this_1.parentsMap, edgeEntry.getKey());
+	                                                        this_1.addUnconnectedEdge(shapeGraph, parent_1, edgeEntry.getValue(), 1169);
+	                                                    }
+	                                                }
+	                                            }
+	                                        }
+	                                        else {
+	                                            cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
+	                                        }
+	                                        
+	                                        hasCells |= (cell != null);
                                         }
-                                        else {
-                                            cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
-                                        }
-                                        if (cell != null) {
+                                        
+                                        if (hasCells) 
+                                        {
                                         	this_1.scaleGraph(shapeGraph, scale);
-                                            var geo_1 = this_1.normalizeGeo(cell);
+                                        	var size = this_1.normalizeGraph(shapeGraph);
                                             this_1.sanitiseGraph(shapeGraph);
                                             if (shapeGraph.getModel().getChildCount(shapeGraph.getDefaultParent()) === 0)
                                                 return "continue";
@@ -1365,9 +1375,9 @@ var com;
                                             var shapeXML_1 = _super.prototype.processPage.call(this_1, shapeGraph, null);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat(shapeXML_1); })(shapes_1);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat("\",\"w\":"); })(shapes_1);
-                                            /* append */ (function (sb) { return sb.str = sb.str.concat(geo_1.width); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(size.width); })(shapes_1);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat(",\"h\":"); })(shapes_1);
-                                            /* append */ (function (sb) { return sb.str = sb.str.concat(geo_1.height); })(shapes_1);
+                                            /* append */ (function (sb) { return sb.str = sb.str.concat(size.height); })(shapes_1);
                                             /* append */ (function (sb) { return sb.str = sb.str.concat(",\"title\":"); })(shapes_1);
                                             var shapeName_1 = master.getName();
                                             if (shapeName_1 == null)
@@ -1430,6 +1440,86 @@ var com;
                     }
                     return geo;
                 };
+                
+                mxVssxCodec.prototype.normalizeGraph = function (graph) 
+                {
+                	//Find minX/Y, maxX/Y
+                	var minX, minY, maxX, maxY;
+
+                	function getDimMinMax(pt)
+                	{
+                		if (pt != null)
+                		{
+                			if (minX == null)
+	            			{
+	                			minX = pt.x; minY = pt.y; maxX = pt.x + (pt.width || 0); maxY = pt.y + (pt.height || 0);
+	            			}
+	                		else
+                			{
+	                			minX = Math.min(pt.x, minX);
+	                			minY = Math.min(pt.y, minY);
+	                			maxX = Math.max(pt.x + (pt.width || 0), maxX);
+	                			maxY = Math.max(pt.y + (pt.height || 0), maxY);
+                			}
+                		}
+                	};
+                	
+                	for (var id in graph.model.cells)
+            		{
+                		var cell = graph.model.cells[id];
+                		var geo = cell.geometry;
+                		
+                		if (geo != null && cell.parent.id == 1)
+                		{
+                			if (cell.vertex)
+                			{
+                				getDimMinMax(geo);
+                			}
+                			else
+            				{
+                				getDimMinMax(geo.sourcePoint);
+							    getDimMinMax(geo.targetPoint);
+							    var points = geo.points;
+							    
+							    for (var i = 0; points != null && i < points.length; i++) 
+								{
+							        getDimMinMax(points[i]);   
+							    }
+            				}
+                		}
+            		}
+                	
+                	//Remove minX, minY from all geo and fix edges also
+                	var srcP = {x: minX, y: minY};
+                	
+                	for (var id in graph.model.cells)
+            		{
+                		var cell = graph.model.cells[id];
+                		var geo = cell.geometry;
+                		
+                		if (geo != null && cell.parent.id == 1)
+                		{
+	                		geo.x -= minX;
+	                		geo.y -= minY;
+                	
+	                		if (cell.isEdge())
+	            			{
+		                        this.transPoint(geo.sourcePoint, srcP);
+	                			this.transPoint(geo.targetPoint, srcP);
+		                        this.transPoint(geo.offset, srcP);
+		                        var points = geo.points;
+		                        
+	                            for (var i = 0; points != null && i < points.length; i++) 
+	                            {
+	                                this.transPoint(points[i], srcP);
+	                            }
+	            			}
+                		}
+            		}
+
+                	return {width: maxX - minX, height: maxY - minY}
+                };
+                
                 mxVssxCodec.prototype.transPoint = function (p, srcP) {
                     if (p != null) {
                         p.x = (p.x - srcP.x);
@@ -2700,7 +2790,13 @@ var com;
                      * @param {*} shapeElem
                      * @param {com.mxgraph.io.vsdx.mxVsdxModel} model
                      */
-                    mxVsdxMaster.prototype.processMasterShape = function (shapeElem, model) {
+                    mxVsdxMaster.prototype.processMasterShape = function (shapeElem, model, internal) 
+                    {
+                    	if (!internal) 
+                		{
+                    		this.firstLevelShapes = [];
+                		}
+                    	
                         var shapeChild = shapeElem.firstChild;
                         while ((shapeChild != null)) {
                             if ((shapeChild != null && (shapeChild.nodeType == 1)) && (function (o1, o2) { if (o1 && o1.equals) {
@@ -2722,13 +2818,36 @@ var com;
                                         var masterShape = new com.mxgraph.io.vsdx.Shape(shape, model);
                                         this.masterShape = (this.masterShape == null) ? masterShape : this.masterShape;
                                         /* put */ (this.childShapes[shapeId] = masterShape);
-                                        this.processMasterShape(shape, model);
+                                        
+                                        if (!internal) 
+                                		{
+                                    		this.firstLevelShapes.push(masterShape);
+                                		}
+                                        
+                                        this.processMasterShape(shape, model, true);
                                     }
                                     shapesChild = shapesChild.nextSibling;
                                 }
                                 ;
-                                break;
                             }
+                            else if (shapeChild != null && shapeChild.nodeType == 1 && shapeChild.nodeName == "Connects") 
+                            {
+                            	this.connects = {};
+                                var connectsChild = shapeChild.firstChild;
+                                
+                                while (connectsChild != null) 
+                                {
+                                    if (connectsChild != null && connectsChild.nodeType == 1 && connectsChild.nodeName == "Connect") 
+                                    {
+                                        var connectElem = connectsChild;
+                                        var connect = new com.mxgraph.io.vsdx.mxVsdxConnect(connectElem);
+                                        this.connects[connect.getFromSheet()] = connect;
+                                    }
+                                    
+                                    connectsChild = connectsChild.nextSibling;
+                                }
+                            }
+                            
                             shapeChild = shapeChild.nextSibling;
                         }
                         ;

@@ -1186,6 +1186,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 {
 	try
 	{
+		var retryCount = 0;
 		file.saveLevel = 1;
 		
 		var error = mxUtils.bind(this, function(e)
@@ -1246,6 +1247,8 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
 					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 					'\nSaveLevel=' + file.saveLevel +
+					'\nSaveAsPng=' + (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle())) +
+					'\nRetryCount=' + retryCount +
 					'\nMessage=' + e.message +
 					'\n\nStack:\n' + e.stack);
 			}
@@ -1359,6 +1362,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						try
 						{
 							file.saveDelay = new Date().getTime() - t0;
+							file.saveLevel = 16;
 							
 							if (resp == null)
 							{
@@ -1371,6 +1375,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 								{
+									file.saveLevel = 17;
 									var reasons = [];
 									
 									if (delta <= 0)
@@ -1486,7 +1491,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							var etag = (!overwrite && file.constructor == DriveFile &&
 								(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
 								file.getCurrentEtag() : null;
-							var retryCount = 0;
 							
 							var doExecuteSave = mxUtils.bind(this, function(realOverwrite)
 							{
@@ -1522,7 +1526,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										if (acceptResponse)
 										{
 											file.saveLevel = 6;
-												
+											
 											try
 											{
 												if (!file.isConflict(err))
@@ -1538,7 +1542,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 													mxUtils.bind(this, function(resp)
 													{
 														file.saveLevel = 7;
-	
+														
 														try
 														{
 															// Stale etag detected, retry with delay
@@ -1550,7 +1554,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 																	var jitter = 1 + 0.1 * (Math.random() - 0.5);
 																	var delay = retryCount * 2 * this.coolOff * jitter;
 																	window.setTimeout(executeSave, delay);
-																	
 																	
 																	if (urlParams['test'] == '1')
 																	{
@@ -1627,10 +1630,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (realOverwrite)
 								{
+									file.saveLevel = 14;
 									doExecuteSave(realOverwrite);
 								}
 								else
 								{
+									file.saveLevel = 15;
 									var acceptResponse = true;
 									
 									// Allow for re-auth flow with 3x timeout
@@ -1898,7 +1903,8 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 
 	var reqObj = 
 	{
-		'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') + '?uploadType=multipart&supportsTeamDrives=true&fields=' + this.allFields,
+		'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') +
+			'?uploadType=multipart&supportsTeamDrives=true&fields=' + this.allFields,
 		'method': (id != null) ? 'PUT' : 'POST',
 		'headers': headers,
 		'params': delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +
@@ -1908,12 +1914,12 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	
 	if (!revision)
 	{
-		reqObj.url += '&newRevision=false';
+		reqObj.fullUrl += '&newRevision=false';
 	}
 	
 	if (pinned)
 	{
-		reqObj.url += '&pinned=true';
+		reqObj.fullUrl += '&pinned=true';
 	}
 	
 	return reqObj;

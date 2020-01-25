@@ -342,33 +342,30 @@ Editor.prototype.editAsNew = function(xml, title)
 		p += ((p.length > 0) ? '&' : '?') + 'ui=' + urlParams['ui'];
 	}
 	
-	if (this.editorWindow != null && !this.editorWindow.closed)
+	if (typeof window.postMessage !== 'undefined' &&
+		(document.documentMode == null ||
+		document.documentMode >= 10))
 	{
-		this.editorWindow.focus();
+		var wnd = null;
+		
+		var l = mxUtils.bind(this, function(evt)
+		{
+			if (evt.data == 'ready' && evt.source == wnd)
+			{
+				mxEvent.removeListener(window, 'message', l);
+				wnd.postMessage(xml, '*');
+			}
+		});
+			
+		mxEvent.addListener(window, 'message', l);
+		wnd = this.graph.openLink(this.getEditBlankUrl(
+			p + ((p.length > 0) ? '&' : '?') +
+			'client=1'), null, true);
 	}
 	else
 	{
-		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
-		{
-			if (this.editorWindow == null)
-			{
-				mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
-				{
-					if (evt.data == 'ready' && evt.source == this.editorWindow)
-					{
-						this.editorWindow.postMessage(xml, '*');
-					}
-				}));
-			}
-
-			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p +
-				((p.length > 0) ? '&' : '?') + 'client=1'), null, true);
-		}
-		else
-		{
-			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p) +
-				'#R' + encodeURIComponent(xml));
-		}
+		this.graph.openLink(this.getEditBlankUrl(p) +
+			'#R' + encodeURIComponent(xml));
 	}
 };
 

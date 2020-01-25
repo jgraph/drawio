@@ -28,6 +28,8 @@ Draw.loadPlugin(function(ui) {
 			this.numberCounter++;
 			this.redrawNumberShape(state);
 		}
+		
+		return state;
 	};
 	
 	graph.view.redrawNumberShape = function(state)
@@ -64,8 +66,7 @@ Draw.loadPlugin(function(ui) {
 				state.secondLabel.scale = scale;
 				state.secondLabel.bounds = bounds;
 				state.secondLabel.redraw();
-				console.log('redraw', state, this.numberCounter, value);
-			}	
+			}
 		}
 	};
 

@@ -1,36 +1,50 @@
-16-JAN-2019: 12.5.5
+25-JAN-2020: 12.5.7
+
+- Fixes access to OneDrive Sharepoint folders
+- Creates fewer revisions in Google Drive
+- Uses mxGraph 4.1.1 beta 1
+- Uses PlantUML 2019.7
+
+22-JAN-2020: 12.5.6
+
+- Fixes offline download for mobile Safari
+- Fixes newlines in custom shape editor
+- Uses mxGraph 4.1.0 pre 6
+- Adds movableLabel style
+
+16-JAN-2020: 12.5.5
 
 - Fixes inconsistent label wrapping
 - Uses mxGraph 4.1.0 pre 5
 
-15-JAN-2019: 12.5.4
+15-JAN-2020: 12.5.4
 
 - Adds PWA install prompt handler
 
-14-JAN-2019: 12.5.3
+14-JAN-2020: 12.5.3
 
 - Fixes line height in labels
 - Uses mxGraph 4.1.0 pre 4
 
-14-JAN-2019: 12.5.2
+14-JAN-2020: 12.5.2
 
 - Adds option to include XML in PDF
 - Replaces app cache with PWA
 - Uses mxGraph 4.1.0 pre 3
 
-09-JAN-2019: 12.5.1
+09-JAN-2020: 12.5.1
 
 - Fixes label offsets in viewer
 - Uses mxGraph 4.1.0 pre 2
 
-07-JAN-2019: 12.5.0
+07-JAN-2020: 12.5.0
 
 - Enables reflow in HTML output
 - Fixes text rendering issues
 - Uses mxGraph 4.1.0 pre 1
 - Adds Galician language
 
-06-JAN-2019: 12.4.9
+06-JAN-2020: 12.4.9
 
 - Adds support for multiple redirect URLs in token-based-auth 
 

@@ -2360,22 +2360,20 @@ Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
 	if (cells.length == 2 && this.model.isVertex(cells[1]))
 	{
 		this.setSelectionCell(cells[1]);
+		this.scrollCellToVisible(cells[1]);
 		
 		if (hoverIcons != null)
 		{
-			// Adds hover icons to new target vertex for touch devices
+			// Adds hover icons for cloned vertex or hides icons
 			if (mxEvent.isTouchEvent(evt))
 			{
 				hoverIcons.update(hoverIcons.getState(this.view.getState(cells[1])));
 			}
 			else
 			{
-				// Hides hover icons after click with mouse
 				hoverIcons.reset();
 			}
 		}
-		
-		this.scrollCellToVisible(cells[1]);
 	}
 	else
 	{
@@ -2970,6 +2968,18 @@ Graph.prototype.isCellConnectable = function(cell)
 	
 	return (style != null && style['connectable'] != null) ? style['connectable'] != '0' :
 		mxGraph.prototype.isCellConnectable.apply(this, arguments);
+};
+
+/**
+ * Adds labelMovable style.
+ */
+Graph.prototype.isLabelMovable = function(cell)
+{
+	var state = this.view.getState(cell);
+	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	
+	return (style != null && style['movableLabel'] != null) ? style['movableLabel'] != '0' :
+		mxGraph.prototype.isLabelMovable.apply(this, arguments);
 };
 
 /**
@@ -3761,31 +3771,8 @@ HoverIcons.prototype.click = function(state, dir, me)
 	}
 	else if (state != null)
 	{
-		var cells = this.graph.connectVertex(state.cell, dir, this.graph.defaultEdgeLength, evt);
-		this.graph.selectCellsForConnectVertex(cells, evt, this);
-		
-		// Selects only target vertex if one exists
-		if (cells.length == 2 && this.graph.model.isVertex(cells[1]))
-		{
-			this.graph.setSelectionCell(cells[1]);
-			
-			// Adds hover icons to new target vertex for touch devices
-			if (mxEvent.isTouchEvent(evt))
-			{
-				this.update(this.getState(this.graph.view.getState(cells[1])));
-			}
-			else
-			{
-				// Hides hover icons after click with mouse
-				this.reset();
-			}
-			
-			this.graph.scrollCellToVisible(cells[1]);
-		}
-		else
-		{
-			this.graph.setSelectionCells(cells);
-		}
+		this.graph.selectCellsForConnectVertex(this.graph.connectVertex(
+			state.cell, dir, this.graph.defaultEdgeLength, evt), evt, this);
 	}
 	
 	me.consume();
@@ -5019,17 +5006,6 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 
 		/**
-		 * Function: isCellLocked
-		 * 
-		 * Returns true if the given cell does not allow new connections to be created.
-		 * This implementation returns false.
-		 */
-		mxConnectionHandler.prototype.isCellEnabled = function(cell)
-		{
-			return !this.graph.isCellLocked(cell);
-		};
-
-		/**
 		 * 
 		 */
 		Graph.prototype.defaultVertexStyle = {};
@@ -5861,27 +5837,24 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var state = this.view.getState(parents[i]);
 					
-					if (state != null && (this.model.isEdge(state.cell) || this.model.isVertex(state.cell)) && this.isCellDeletable(state.cell))
+					if (state != null && (this.model.isEdge(state.cell) ||
+						this.model.isVertex(state.cell)) &&
+						this.isCellDeletable(state.cell) &&
+						this.isTransparentState(state))
 					{
-						var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
-						var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
+						var allChildren = true;
 						
-						if (stroke == mxConstants.NONE && fill == mxConstants.NONE)
+						for (var j = 0; j < this.model.getChildCount(state.cell) && allChildren; j++)
 						{
-							var allChildren = true;
-							
-							for (var j = 0; j < this.model.getChildCount(state.cell) && allChildren; j++)
+							if (!dict.get(this.model.getChildAt(state.cell, j)))
 							{
-								if (!dict.get(this.model.getChildAt(state.cell, j)))
-								{
-									allChildren = false;
-								}
+								allChildren = false;
 							}
-							
-							if (allChildren)
-							{
-								cells.push(state.cell);
-							}
+						}
+						
+						if (allChildren)
+						{
+							cells.push(state.cell);
 						}
 					}
 				}
@@ -5899,20 +5872,10 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				if (this.isCellDeletable(cells[i]))
+				if (this.isCellDeletable(cells[i]) && this.isTransparentState(
+					this.view.getState(cells[i])))
 				{
-					var state = this.view.getState(cells[i]);
-					
-					if (state != null)
-					{
-						var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
-						var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
-						
-						if (stroke == mxConstants.NONE && fill == mxConstants.NONE)
-						{
-							cellsToRemove.push(cells[i]);
-						}
-					}
+					cellsToRemove.push(cells[i]);
 				}
 			}
 			
@@ -5920,7 +5883,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			mxGraph.prototype.removeCellsAfterUngroup.apply(this, arguments);
 		};
-		
+
 		/**
 		 * Sets the link for the given cell.
 		 */
@@ -6706,7 +6669,8 @@ if (typeof mxVertexHandler != 'undefined')
 				showText = (showText != null) ? showText : true;
 	
 				var bounds = (ignoreSelection || nocrop) ?
-						this.getGraphBounds() : this.getBoundingBox(this.getSelectionCells());
+					this.getGraphBounds() : this.getBoundingBox(
+					this.getSelectionCells());
 	
 				if (bounds == null)
 				{
@@ -6891,7 +6855,7 @@ if (typeof mxVertexHandler != 'undefined')
 	
 				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
 				this.updateSvgLinks(root, linkTarget, true);
-			
+				
 				return root;
 			}
 			finally
@@ -7928,15 +7892,11 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				mxCellEditorApplyValue.apply(this, arguments);
 				
-				if (this.graph.isCellDeletable(state.cell) && this.graph.model.getChildCount(state.cell) == 0)
+				if (value == '' && this.graph.isCellDeletable(state.cell) &&
+					this.graph.model.getChildCount(state.cell) == 0 &&
+					this.graph.isTransparentState(state))
 				{
-					var stroke = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE);
-					var fill = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE);
-					
-					if (value == '' && stroke == mxConstants.NONE && fill == mxConstants.NONE)
-					{
-						this.graph.removeCells([state.cell], false);
-					}
+					this.graph.removeCells([state.cell], false);
 				}
 			}
 			finally

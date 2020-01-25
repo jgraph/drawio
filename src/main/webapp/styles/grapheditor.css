@@ -10,6 +10,12 @@
 .geEditor input, select, textarea, button {
        font-size: inherit;
 }
+.geEditor input {
+       border-width: 2px;
+}
+.geEditor select {
+       border-width: 1px;
+}
 .geEditor div.mxTooltip {
 	background: whiteSmoke;
 	border-color: lightGray;

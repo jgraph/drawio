@@ -20,7 +20,7 @@ EditorUi.initMinimalTheme = function()
        style.innerHTML = '* { -webkit-font-smoothing: antialiased; }' +
        	   'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
        	   'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
-       	   'table.mxWindow * { font-size:13px; }' +
+       	   'table.mxWindow * :not(svg *) { font-size:13px; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
            'html body a.geMenuItem { opacity: 0.75; cursor: pointer; user-select:none; }' +
@@ -563,6 +563,8 @@ EditorUi.initMinimalTheme = function()
             menu.addSeparator();
             this.addSubmenu('layout', menu);
             this.addSubmenu('view', menu, null, mxResources.get('options'));
+            menu.addSeparator();
+            this.addSubmenu('insert', menu);
             this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
         }
         else if (graph.isEnabled())
@@ -770,6 +772,15 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
+			    
+            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+            {
+            	ui.menus.addMenuItems(menu, ['import'], parent);
+            }
+            else
+            {
+            	ui.menus.addSubmenu('importFrom', menu, parent);
+            }
 
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers'], parent);
 			
@@ -899,15 +910,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				insertMenuFunct.apply(this, arguments);
 				menu.addSeparator(parent);
-	            
-	            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-	            {
-	            	ui.menus.addMenuItems(menu, ['import'], parent);
-	            }
-	            else
-	            {
-	            	ui.menus.addSubmenu('importFrom', menu, parent);
-	            }
+				ui.menus.addMenuItems(menu, ['-', 'toggleShapes'], parent);
 			};
         }))();
 		

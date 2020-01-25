@@ -544,33 +544,23 @@ EditorUi = function(editor, container, lightbox)
 			model.beginUpdate();
 			try
 			{
-				// Applies only basic text styles
-				if (asText)
+				for (var i = 0; i < cells.length; i++)
 				{
-					var edge = model.isEdge(cell);
-					var current = (edge) ? graph.currentEdgeStyle : graph.currentVertexStyle;
-					var textStyles = ['fontSize', 'fontFamily', 'fontColor'];
-					
-					for (var j = 0; j < textStyles.length; j++)
+					var cell = cells[i];
+
+					var appliedStyles;
+
+					if (asText)
 					{
-						var value = current[textStyles[j]];
-						
-						if (value != null)
-						{
-							graph.setCellStyles(textStyles[j], value, cells);
-						}
+						// Applies only basic text styles
+						appliedStyles = ['fontSize', 'fontFamily', 'fontColor'];
 					}
-				}
-				else
-				{
-					for (var i = 0; i < cells.length; i++)
+					else
 					{
-						var cell = cells[i];
-	
 						// Removes styles defined in the cell style from the styles to be applied
 						var cellStyle = model.getStyle(cell);
 						var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
-						var appliedStyles = styles.slice();
+						appliedStyles = styles.slice();
 						
 						for (var j = 0; j < tokens.length; j++)
 						{
@@ -607,29 +597,29 @@ EditorUi = function(editor, container, lightbox)
 					 			}
 					 		}
 						}
-		
-						// Applies the current style to the cell
-						var edge = model.isEdge(cell);
-						var current = (edge) ? graph.currentEdgeStyle : graph.currentVertexStyle;
-						var newStyle = model.getStyle(cell);
-						
-						for (var j = 0; j < appliedStyles.length; j++)
+					}
+					
+					// Applies the current style to the cell
+					var edge = model.isEdge(cell);
+					var current = (edge) ? graph.currentEdgeStyle : graph.currentVertexStyle;
+					var newStyle = model.getStyle(cell);
+					
+					for (var j = 0; j < appliedStyles.length; j++)
+					{
+						var key = appliedStyles[j];
+						var styleValue = current[key];
+	
+						if (styleValue != null && (key != 'shape' || edge))
 						{
-							var key = appliedStyles[j];
-							var styleValue = current[key];
-		
-							if (styleValue != null && (key != 'shape' || edge))
+							// Special case: Connect styles are not applied here but in the connection handler
+							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
 							{
-								// Special case: Connect styles are not applied here but in the connection handler
-								if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
-								{
-									newStyle = mxUtils.setStyle(newStyle, key, styleValue);
-								}
+								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
 							}
 						}
-						
-						model.setStyle(cell, newStyle);
 					}
+					
+					model.setStyle(cell, newStyle);
 				}
 			}
 			finally

@@ -11,7 +11,7 @@ OneDriveClient = function(editorUi)
 	if (authInfo != null)
 	{
 		this.token = authInfo.access_token;
-		this.endpointHint = authInfo.endpointHint;
+		this.endpointHint = authInfo.endpointHint.replace('/Documents', '/_layouts/15/onedrive.aspx');
 		this.tokenExpiresOn = authInfo.expiresOn;
 		
 		var remainingTime = (this.tokenExpiresOn - Date.now()) / 1000;
@@ -345,7 +345,8 @@ OneDriveClient.prototype.getAccountTypeAndEndpoint = function(success, error)
 				
 				if (resp.webUrl.indexOf('.sharepoint.com') > 0) 
 			 	{
-					this.endpointHint = resp.webUrl;
+					//TODO Confirm this works with all sharepoint sites
+					this.endpointHint = resp.webUrl.replace('/Documents', '/_layouts/15/onedrive.aspx');
 				}
 				else
 				{

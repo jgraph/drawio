@@ -226,6 +226,12 @@
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
+        {name: 'movableLabel', dispName: 'Movable Label', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+    		var geo = (state.vertices.length > 0) ? format.editorUi.editor.graph.getCellGeometry(state.vertices[0]) : null;
+    		
+    		return geo != null && !geo.relative;
+        }},
         {name: 'resizable', dispName: 'Resizable', type: 'bool', defVal: true},
         {name: 'resizeWidth', dispName: 'Resize Width', type: 'bool', defVal: false},
         {name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false},

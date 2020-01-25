@@ -712,7 +712,6 @@ public class GliffyDiagramConverter
 					cell.setValue(fragmentText);
 					gliffyObject.children.remove(0);
 				}
-				setFontSizeBasedOnGlobal(style);
 			}
 			else if (gliffyObject.isLine())
 			{
@@ -1031,15 +1030,6 @@ public class GliffyDiagramConverter
 		gliffyObject.mxObject = cell;
 
 		return cell;
-	}
-
-	private void setFontSizeBasedOnGlobal(StringBuilder style)
-	{
-		if (gliffyDiagram.stage.getTextStyles() != null && gliffyDiagram.stage.getTextStyles().getGlobal() != null
-				&& gliffyDiagram.stage.getTextStyles().getGlobal().getSize() != null)
-		{
-			style.append("fontSize=" + gliffyDiagram.stage.getTextStyles().getGlobal().getSize() + ";");
-		}
 	}
 
 	/**

@@ -1227,7 +1227,7 @@ App.prototype.init = function()
 		}));
 	}
 	
-	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler, helpLink, clickHandler)
+	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
 	{
 		var footer = document.createElement('div');
 		footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
@@ -1241,7 +1241,7 @@ App.prototype.init = function()
 		mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
 		footer.style.whiteSpace = 'nowrap';
 		footer.innerHTML = '<a href="' + ((link != null) ? link : 'javascript:void(0)') +
-			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
+			'" ' + ((!noBlank) ? 'target="_blank" ' : '') + 'style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
 			icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
 			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
 		
@@ -1258,13 +1258,21 @@ App.prototype.init = function()
 
 		if (closeHandler)
 		{
-			mxEvent.addListener(img, 'click', closeHandler);
+			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
+			{
+				closeHandler(e);
+				mxEvent.consume(e);
+			}));
 		}
 		
 		if (clickHandler != null)
 		{
 			footer.style.paddingRight = '40px';
-			mxEvent.addListener(footer, 'click', clickHandler);
+			
+			mxEvent.addListener(footer, 'click', mxUtils.bind(this, function(e)
+			{
+				clickHandler(e);
+			}));
 		}
 		
 		return footer;
@@ -1537,15 +1545,34 @@ App.prototype.init = function()
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
 				var file = this.getCurrentFile();
+				var mode = (file != null) ? file.getMode() : null;
 				
-				if (file.mode == App.MODE_DEVICE && (!isLocalStorage || mxSettings.settings == null ||
+				if ((mode == App.MODE_DEVICE || mode == App.MODE_BROWSER) && (!isLocalStorage || mxSettings.settings == null ||
 					mxSettings.settings.closeDesktopFooter == null) && !this.footerShowing && urlParams['open'] == null)
 				{
-					var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
-						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
-						mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
-						'https://get.draw.io/', 'geStatusMessage geBtn gePrimaryBtn',
-						mxUtils.bind(this, function()
+					mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
+					{
+						var rel = JSON.parse(req.getText());
+						var href = 'https://get.draw.io/';
+						
+						if (rel != null)
+						{
+							if (rel.tag_name != null && rel.name != null && rel.html_url != null)
+							{
+								if (mxClient.IS_MAC)
+								{
+									href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+				        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
+								}
+								else if (mxClient.IS_WIN)
+								{
+									href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+				        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
+								}
+							}
+						}
+						
+						var closeHandler = mxUtils.bind(this, function()
 						{
 							footer.parentNode.removeChild(footer);
 							this.footerShowing = false;
@@ -1557,25 +1584,31 @@ App.prototype.init = function()
 								mxSettings.settings.closeDesktopFooter = Date.now();
 								mxSettings.save();
 							}
-						}));
-			
-					// Push to after splash dialog background
-					footer.style.zIndex = mxPopupMenu.prototype.zIndex;
-					footer.style.padding = '18px 50px 12px 30px';
-					footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
-					document.body.appendChild(footer);
-					this.footerShowing = true;
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-					}), 500);
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-						this.footerShowing = false;
-					}), 60000);
+						});
+						
+						var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+							IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
+							mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
+							href, 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, closeHandler);
+						
+						// Push to after splash dialog background
+						footer.style.zIndex = mxPopupMenu.prototype.zIndex;
+						footer.style.padding = '18px 50px 12px 30px';
+						footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
+						document.body.appendChild(footer);
+						this.footerShowing = true;
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+						}), 500);
+						
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+							this.footerShowing = false;
+						}), 60000);
+					}));
 				}
 	//			else if ((!isLocalStorage || mxSettings.settings == null ||
 	//				mxSettings.settings.closeRateFooter == null) &&

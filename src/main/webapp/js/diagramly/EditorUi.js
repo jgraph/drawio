@@ -4054,17 +4054,25 @@
 				win.close();
 			}
 		}
-//		else if (mxClient.IS_IOS)
-//		{
-//			this.showTextDialog(filename + ':', data);
-//		}
+		else if (mxClient.IS_IOS && mxClient.IS_SF && this.isOffline())
+		{
+			// Workaround for "WebKitBlobResource error 1" in mobile Safari
+			if (!navigator.standalone && mimeType != null && mimeType.substring(0, 6) == 'image/')
+			{
+				this.openInNewWindow(data, mimeType, base64Encoded);
+			}
+			else
+			{
+				this.showTextDialog(filename + ':', data);
+			}
+		}
 		else
 		{
 			var a = document.createElement('a');
 			
-			// Workaround for mxXmlRequest.simulate no longer working in Safari/PaleMoon
-			// if this is used (ie PNG export broken after XML export in Safari/PaleMoon).
-			var useDownload = !mxClient.IS_SF && navigator.userAgent.indexOf("PaleMoon/") < 0 &&
+			// Workaround for mxXmlRequest.simulate no longer working in PaleMoon
+			// if this is used (ie PNG export broken after XML export in PaleMoon).
+			var useDownload = navigator.userAgent.indexOf("PaleMoon/") < 0 &&
 				typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
@@ -7025,6 +7033,7 @@
 				try
 				{
 					var doc = mxUtils.parseXml(xml);
+					var mapping = {};
 					
 					// Checks for mxfile with multiple pages
 					var node = this.editor.extractGraphModel(doc.documentElement, this.pages != null);
@@ -7032,20 +7041,25 @@
 					if (node != null && node.nodeName == 'mxfile' && this.pages != null)
 					{
 						var diagrams = node.getElementsByTagName('diagram');
-	
+
 						if (diagrams.length == 1)
 						{
 							node = Editor.parseDiagramNode(diagrams[0]);
+							
+							if (this.currentPage != null)
+							{
+								mapping[diagrams[0].getAttribute('id')] = this.currentPage.getId();
+							}
 						}
 						else if (diagrams.length > 1)
 						{
-							var mapping = {};
 							var pages = [];
 							var i0 = 0;
 							
 							// Adds first page to current page if current page is only page and empty
 							if (this.pages != null && this.pages.length == 1 && this.isDiagramEmpty())
 							{
+								mapping[diagrams[0].getAttribute('id')] = this.pages[0].getId();
 								node = Editor.parseDiagramNode(diagrams[0]);
 								crop = false;
 								i0 = 1;
@@ -7079,6 +7093,11 @@
 					if (node != null && node.nodeName === 'mxGraphModel')
 					{
 						cells = graph.importGraphModel(node, dx, dy, crop);
+						
+						for (var i = 0; i < cells.length; i++)
+						{
+							this.updatePageLinksForCell(mapping, cells[i]);
+						}
 					}
 				}
 				finally
@@ -7121,7 +7140,7 @@
 		var temp = document.createElement('div');
 		var graph = this.editor.graph;
 		var href = graph.getLinkForCell(cell);
-		
+
 		if (href != null)
 		{
 			graph.setLinkForCell(cell, this.updatePageLink(mapping, href));
@@ -9788,25 +9807,25 @@
 								{
 									if (graph.isEditing())
 									{
-									    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
-									    	{
-									    		// Inserts image into current text box
-									    		graph.insertImage(data, w, h);
-									    	}, function()
-									    	{
-									    		// No post processing
-									    	}, function(file)
-									    	{
-									    		// Handles only images
-									    		return file.type.substring(0, 6) == 'image/';
-									    	}, function(queue)
-									    	{
-									    		// Invokes elements of queue in order
-									    		for (var i = 0; i < queue.length; i++)
-									    		{
-									    			queue[i]();
-									    		}
-									    	});
+								    	this.importFiles([item.getAsFile()], 0, 0, this.maxImageSize, function(data, mimeType, x, y, w, h)
+								    	{
+								    		// Inserts image into current text box
+								    		graph.insertImage(data, w, h);
+								    	}, function()
+								    	{
+								    		// No post processing
+								    	}, function(file)
+								    	{
+								    		// Handles only images
+								    		return file.type.substring(0, 6) == 'image/';
+								    	}, function(queue)
+								    	{
+								    		// Invokes elements of queue in order
+								    		for (var i = 0; i < queue.length; i++)
+								    		{
+								    			queue[i]();
+								    		}
+								    	});
 									}
 									else
 									{
@@ -10166,8 +10185,6 @@
 			
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				console.log('gridColorChanged', this.editor.graph.view.gridColor);
-				
 				mxSettings.setGridColor(this.editor.graph.view.gridColor, uiTheme == 'dark');
 				mxSettings.save();
 			}));
@@ -10412,15 +10429,15 @@
 							{
 								this.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
 							}
+						}
 							
-							try
-							{
-								mxEvent.consume(evt);
-							}
-							catch (e)
-							{
-								// ignore event no longer exists in async handler in IE8-
-							}
+						try
+						{
+							mxEvent.consume(evt);
+						}
+						catch (e)
+						{
+							// ignore event no longer exists in async handler in IE8-
 						}
 					}
 					else if (!useEvent)
