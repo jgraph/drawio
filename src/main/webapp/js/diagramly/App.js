@@ -1552,24 +1552,32 @@ App.prototype.init = function()
 				{
 					mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
 					{
-						var rel = JSON.parse(req.getText());
 						var href = 'https://get.draw.io/';
 						
-						if (rel != null)
+						try
 						{
-							if (rel.tag_name != null && rel.name != null && rel.html_url != null)
+							var rel = JSON.parse(req.getText());
+							
+							if (rel != null)
 							{
-								if (mxClient.IS_MAC)
+								if (rel.tag_name != null && rel.name != null && rel.html_url != null)
 								{
-									href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-				        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
-								}
-								else if (mxClient.IS_WIN)
-								{
-									href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-				        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
+									if (mxClient.IS_MAC)
+									{
+										href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+					        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
+									}
+									else if (mxClient.IS_WIN)
+									{
+										href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+					        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
+									}
 								}
 							}
+						}
+						catch (e)
+						{
+							// ignores parsing errors
 						}
 						
 						var closeHandler = mxUtils.bind(this, function()

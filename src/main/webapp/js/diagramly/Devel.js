@@ -76,6 +76,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Rack.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sitemap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sysml.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam2.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-VVD.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-WebIcons.js');
 
@@ -148,4 +149,13 @@ mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 if (urlParams['tableLayout'] == '1')
 {
   mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
+}
+
+//Org Chart Layout
+if (urlParams['orgLayout'] == '1')
+{
+  mxscript(drawDevUrl + 'js/orgchart/bridge.min.js');
+  mxscript(drawDevUrl + 'js/orgchart/bridge.collections.min.js');
+  mxscript(drawDevUrl + 'js/orgchart/OrgChart.Layout.min.js');
+  mxscript(drawDevUrl + 'js/orgchart/mxOrgChart.js');
 }

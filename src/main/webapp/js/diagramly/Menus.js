@@ -1019,6 +1019,14 @@
 		layoutMenu.funct = function(menu, parent)
 		{
 			layoutMenuFunct.apply(this, arguments);
+		
+			if (urlParams['orgLayout'] == '1')
+			{
+				menu.addItem('Org. Chart', null, function()
+				{
+					mxOrgChart(editorUi);
+				}, parent, null, isGraphEnabled());
+			}
 			
 			menu.addSeparator(parent);
 			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');

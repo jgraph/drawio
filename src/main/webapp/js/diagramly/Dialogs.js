@@ -10260,6 +10260,8 @@ function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 //Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
 AspectDialog.prototype.init = function()
 {
+	this.ui.getFileData(true); //Force pages to update their nodes
+	
 	for (var i = 0; i < this.ui.pages.length; i++)
 	{
 		var page = this.ui.updatePageRoot(this.ui.pages[i]);
@@ -10281,7 +10283,7 @@ AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
 	graph.maxFitScale = null;
 	graph.centerZoom = true;
 	
-	var node = pageNode.firstElementChild;
+	var node = Editor.parseDiagramNode(pageNode); //Handles compressed and non-compressed page node
 	
 	if (node != null)
 	{
@@ -10361,7 +10363,6 @@ AspectDialog.prototype.createPageItem = function(pageId, pageName, pageNode, pag
 
 AspectDialog.prototype.createLayerItem = function(layer, pageId, graph, pageNode)
 {
-	var graphModel = graph.model;
 	var layerName = graph.convertValueToString(layer) || (mxResources.get('background') || 'Background');
 	var $listItem = document.createElement('div');
 	$listItem.setAttribute('data-layer-id', layer.id);

@@ -1,3 +1,11 @@
+28-JAN-2020: 12.6.1
+
+- Adds new Veeam sidebar
+
+28-JAN-2020: 12.6.0
+
+- Fixes aspect dialog incorrect layers
+
 25-JAN-2020: 12.5.8
 
 - Fixes possible NPE in OneDrive client
