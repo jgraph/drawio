@@ -1,11 +1,15 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
-labels: ''
-assignees: ''
 
 ---
+
+### Preflight Checklist
+<!-- Please ensure you've completed the following steps by replacing [ ] with [x]-->
+
+* [ ] I have read the [Contributing Guidelines](https://github.com/jgraph/drawio/blob/master/CONTRIBUTING.md) for this project.
+* [ ] I agree to follow the [Code of Conduct](https://github.com/jgraph/drawio/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
+* [ ] I have searched the issue tracker for a feature request that matches the one I want to file, without success.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
@@ -22,6 +26,10 @@ A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
+
+**draw.io version (In the Help->About menu of the draw.io editor):**
+
+- draw.io version [e.g. 12.6.7]
 
 **Desktop (please complete the following information):**
  - OS: [e.g. iOS]
