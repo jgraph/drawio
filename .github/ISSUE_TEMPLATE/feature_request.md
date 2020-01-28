@@ -4,7 +4,6 @@ about: Suggest an idea for this project
 
 ---
 
-* [ ] I have read the [Contributing Guidelines](https://github.com/jgraph/drawio/blob/master/CONTRIBUTING.md) for this project.
 * [ ] I agree to follow the [Code of Conduct](https://github.com/jgraph/drawio/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
 * [ ] I have searched the issue tracker for a feature request that matches the one I want to file, without success.
 
