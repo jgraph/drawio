@@ -1362,7 +1362,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						try
 						{
 							file.saveDelay = new Date().getTime() - t0;
-							file.saveLevel = 16;
+							file.saveLevel = 17;
 							
 							if (resp == null)
 							{
@@ -1375,7 +1375,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 								{
-									file.saveLevel = 17;
+									file.saveLevel = 18;
 									var reasons = [];
 									
 									if (delta <= 0)
@@ -1637,6 +1637,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								{
 									file.saveLevel = 15;
 									var acceptResponse = true;
+									file.saveLevel = 16;
 									
 									// Allow for re-auth flow with 3x timeout
 									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
@@ -1731,7 +1732,14 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							    	}
 							    	catch (e)
 							    	{
-							    		executeSave(false)
+							    		try
+							    		{
+							    			executeSave(false)
+							    		}
+										catch (e2)
+										{
+											criticalError(e2);
+										}
 							    	}
 								});
 								

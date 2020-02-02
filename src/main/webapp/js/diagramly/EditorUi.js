@@ -4054,7 +4054,7 @@
 				win.close();
 			}
 		}
-		else if (mxClient.IS_IOS && mxClient.IS_SF && this.isOffline())
+		else if (mxClient.IS_IOS && this.isOffline())
 		{
 			// Workaround for "WebKitBlobResource error 1" in mobile Safari
 			if (!navigator.standalone && mimeType != null && mimeType.substring(0, 6) == 'image/')
@@ -4071,9 +4071,10 @@
 			var a = document.createElement('a');
 			
 			// Workaround for mxXmlRequest.simulate no longer working in PaleMoon
-			// if this is used (ie PNG export broken after XML export in PaleMoon).
+			// if this is used (ie PNG export broken after XML export in PaleMoon)
+			// and for "WebKitBlobResource error 1" for all browsers on iOS.
 			var useDownload = navigator.userAgent.indexOf("PaleMoon/") < 0 &&
-				typeof a.download !== 'undefined';
+				!mxClient.IS_IOS && typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
 			if (mxClient.IS_GC)

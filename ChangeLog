@@ -1,6 +1,18 @@
+02-FEB-2020: 12.6.3
+
+- Updates move preview after key events
+- Fixes rounding errors for routing
+- Uses mxGraph 4.1.1 beta 3
+
+30-JAN-2020: 12.6.2
+
+- Fixes WebKitBlobResource error on iOS
+- Adds layers for VSDX export
+- Uses mxGraph 4.1.1 beta 2
+
 28-JAN-2020: 12.6.1
 
-- Adds new Veeam sidebar
+- Adds new Veeam shapes
 
 28-JAN-2020: 12.6.0
 

@@ -4222,27 +4222,54 @@ EditorUi.prototype.createKeyHandler = function(editor)
 					}
 					else
 					{
-						var dx = 0;
-						var dy = 0;
+						var cells = graph.getMovableCells(graph.getSelectionCells());
+						var realCells = [];
 						
-						if (keyCode == 37)
-						{
-							dx = -stepSize;
-						}
-						else if (keyCode == 38)
-						{
-							dy = -stepSize;
-						}
-						else if (keyCode == 39)
-						{
-							dx = stepSize;
-						}
-						else if (keyCode == 40)
-						{
-							dy = stepSize;
-						}
-						
-						graph.moveCells(graph.getMovableCells(graph.getSelectionCells()), dx, dy);
+					    for (var i = 0; i < cells.length; i++)
+					    {
+							var state = graph.view.getState(cells[i]);
+							var style = (state != null) ? state.style : graph.getCellStyle(cells[i]);
+					    	
+							if (mxUtils.getValue(style, 'part', '0') == '1')
+							{
+						        var parent = graph.model.getParent(cells[i]);
+					
+						        if (graph.model.isVertex(parent) && mxUtils.indexOf(cells, parent) < 0)
+						        {
+						            realCells.push(parent);
+						        }
+							}
+							else
+							{
+								realCells.push(cells[i]);
+							}
+					    }
+					    
+					    if (realCells.length > 0)
+					    {
+						    cells = realCells;
+							var dx = 0;
+							var dy = 0;
+							
+							if (keyCode == 37)
+							{
+								dx = -stepSize;
+							}
+							else if (keyCode == 38)
+							{
+								dy = -stepSize;
+							}
+							else if (keyCode == 39)
+							{
+								dx = stepSize;
+							}
+							else if (keyCode == 40)
+							{
+								dy = stepSize;
+							}
+							
+							graph.moveCells(cells, dx, dy);
+					    }
 					}				
 				}
 			}

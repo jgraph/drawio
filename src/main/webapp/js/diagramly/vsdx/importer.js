@@ -595,26 +595,33 @@ var com;
                 	var layers = page.getLayers();
                 	this.layersMap[0] = graph.getDefaultParent();
                 	
-                	if (layers.length > 1)
+            		for (var k = 0; k < layers.length; k++)
             		{
-                		for (var k = 1; k < layers.length; k++)
-	            		{
-                			var layer = layers[k];
-                			var layerCell = new mxCell();		
-                			layerCell.setVisible(layer.Visible == 1);
+            			var layer = layers[k];
+            			
+            			if (k == 0)
+            			{
+            				var layerCell = graph.getDefaultParent();
+            			}
+            			else
+            			{
+            				var layerCell = new mxCell();
+            				graph.addCell(layerCell, graph.model.root, k);
+            			}
+            			
+            			layerCell.setVisible(layer.Visible == 1);
 
-                			if (layer.Lock == 1)
-                			{
-                				layerCell.setStyle("locked=1;");
-                			}
-                			
-                			//TODO handlle color and other properties
-                			layerCell.setValue(layer.Name);
-                			
-                			this.layersMap[k] = layerCell;
-                    		graph.addCell(layerCell, graph.model.root, k);
-	            		}
+            			if (layer.Lock == 1)
+            			{
+            				layerCell.setStyle("locked=1;");
+            			}
+            			
+            			//TODO handlle color and other properties
+            			layerCell.setValue(layer.Name);
+            			
+            			this.layersMap[k] = layerCell;
             		}
+
                 	//add shapes
                     var shapes = page.getShapes();
                     var entries = (function (a) { var i = 0; return { next: function () { return i < a.length ? a[i++] : null; }, hasNext: function () { return i < a.length; } }; })(/* entrySet */ (function (m) { if (m.entries == null)

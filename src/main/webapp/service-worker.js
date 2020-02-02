@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "a47c27e2820bc498831b2c5bedccc800"
+    "revision": "0bc6d325a00a8b17599888b78f240e69"
   },
   {
     "url": "index.html",
@@ -18,15 +18,15 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "114ed79fe7b406c1b7d034459b989e1d"
+    "revision": "6d1fdbc4b5e424d0713b28de2676d9e9"
   },
   {
     "url": "js/stencils.min.js",
-    "revision": "29c858398e8354cd77d0c81b3e8a43ca"
+    "revision": "fdb0ffc3355997c93f0e7773d1376a82"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "25b5872708446c8f83ec4d7a8de3c915"
+    "revision": "9b497ff1ec749be17d547373bea332ef"
   },
   {
     "url": "js/diagramly/ElectronApp.js",

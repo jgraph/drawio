@@ -3043,7 +3043,14 @@ LucidImporter = {};
 				}
 			}
 		}
-
+		else if (text == null && props.t0 != null)
+		{
+			if (props.t0.t != null)
+			{
+				text = props.t0;
+			}
+		}
+		
 		// TODO: Convert text object to HTML
 		if (text != null)
 		{
@@ -3051,6 +3058,7 @@ LucidImporter = {};
 			{
 				text.t = text.t.replace(/</g, '&lt;');
 				text.t = text.t.replace(/>/g, '&gt;');
+				
 				return text.t;
 			}
 			
@@ -3060,6 +3068,7 @@ LucidImporter = {};
 				{
 					text.Value.t = text.Value.t.replace(/</g, '&lt;');
 					text.Value.t = text.Value.t.replace(/>/g, '&gt;');
+					
 					return text.Value.t;
 				}
 			}
@@ -3783,6 +3792,42 @@ LucidImporter = {};
 		
 		return '';
 	}
+
+	// Adds metadata
+	function addCustomData(cell, p, graph)
+	{
+		for (var property in p)
+		{
+			if (p.hasOwnProperty(property) && 
+				property.toString().startsWith('ShapeData_'))
+			{
+				try
+				{
+					var data = p[property];
+					var key = mxUtils.trim(data.Label).replace(/[^a-z0-9]+/ig, '_').
+						replace(/^\d+/, '').replace(/_+$/, '');
+					var currentKey = key;
+					var counter = 0;
+					
+					// Resolves conflicts by adding counter postfix
+					while (graph.getAttributeForCell(cell, currentKey) != null)
+					{
+						counter++;
+						currentKey = key + '_' + counter;
+					}
+					
+					graph.setAttributeForCell(cell, currentKey, (data.Value != null) ? data.Value : '');
+				}
+				catch (e)
+				{
+					if (window.console)
+					{
+						console.log('Ignored ' + property + ':', e);
+					}
+				}
+			}
+		}
+	};
 	
 	function updateCell(cell, obj, graph)
 	{
@@ -3810,28 +3855,7 @@ LucidImporter = {};
 					cell.style += getStrokeColor(p, a);
 				}
 				
-				// Adds custom data
-				for (var property in p)
-				{
-					if (p.hasOwnProperty(property) && 
-						property.toString().startsWith('ShapeData_'))
-					{
-						try
-						{
-							var data = p[property];
-							graph.setAttributeForCell(cell, data.Label.
-								replace(/[^a-z0-9]/ig, '_').
-								replace(/^\d*/, '_'), data.Value);
-						}
-						catch (e)
-						{
-							if (window.console)
-							{
-								console.log('Ignored ' + property + ':', e);
-							}
-						}
-					}
-				}
+				addCustomData(cell, p, graph);
 				
 				// Edge style
 				if (cell.edge)
@@ -3916,12 +3940,12 @@ LucidImporter = {};
 	    return v;
 	};
 	
-	function createEdge(obj)
+	function createEdge(obj, graph)
 	{
 		var e = new mxCell('', new mxGeometry(0, 0, 100, 100), edgeStyle);
 		e.geometry.relative = true;
 		e.edge = true;
-		updateCell(e, obj);
+		updateCell(e, obj, graph);
 		
 		// Adds text labels
 		var a = getAction(obj);
@@ -4087,7 +4111,7 @@ LucidImporter = {};
 						
 						if (!created)
 						{
-						    lookup[obj.id] = createVertex(obj);
+						    lookup[obj.id] = createVertex(obj, graph);
 							queue.push(obj);
 						}
 					}
@@ -4133,7 +4157,7 @@ LucidImporter = {};
 			{
 				var src = (p.Endpoint1.Block != null) ? lookup[p.Endpoint1.Block] : null;
 				var trg = (p.Endpoint2.Block != null) ? lookup[p.Endpoint2.Block] : null;
-				var e = createEdge(obj);
+				var e = createEdge(obj, graph);
 				
 				if (src == null && p.Endpoint1 != null)
 				{

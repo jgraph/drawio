@@ -585,9 +585,11 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		// if the parent is not already in the list of cells. container style is used to disable
 		// step into swimlanes and dropTarget style is used to disable acting as a drop target.
 		// LATER: Handle recursive parts
+		var graphHandlerGetCells = this.graphHandler.getCells;
+		
 		this.graphHandler.getCells = function(initialCell)
 		{
-		    var cells = mxGraphHandler.prototype.getCells.apply(this, arguments);
+		    var cells = graphHandlerGetCells.apply(this, arguments);
 		    var newCells = [];
 
 		    for (var i = 0; i < cells.length; i++)
@@ -612,7 +614,22 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 
 		    return newCells;
 		};
+		
+		// Handles parts of cells for drag and drop
+		var graphHandlerStart = this.graphHandler.start;
+		
+		this.graphHandler.start = function(cell, x, y, cells)
+		{
+			var state = this.graph.view.getState(cell);
 
+			if (state != null && mxUtils.getValue(state.style, 'part', false))
+			{
+				cell = this.graph.model.getParent(cell);
+			}
+			
+			graphHandlerStart.apply(this, arguments);
+		};
+		
 		// Handles parts of cells when cloning the source for new connections
 		this.connectionHandler.createTargetVertex = function(evt, source)
 		{
@@ -5906,9 +5923,10 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.getAttributeForCell = function(cell, attributeName, defaultValue)
 		{
-			return (cell.value != null && typeof cell.value === 'object') ?
-				(cell.value.getAttribute(attributeName) || defaultValue) :
-				defaultValue;
+			var value = (cell.value != null && typeof cell.value === 'object') ?
+				cell.value.getAttribute(attributeName) : null;
+			
+			return (value != null) ? value : defaultValue;
 		};
 
 		/**
@@ -7948,7 +7966,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			mxGraphHandlerMoveCells.apply(this, arguments);
 		};
-		
+
 		/**
 		 * Hints on handlers
 		 */
