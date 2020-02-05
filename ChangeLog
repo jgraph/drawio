@@ -1,3 +1,11 @@
+04-FEB-2020: 12.6.5
+
+- Adds expand style for containers
+- Adds warning for fallback labels
+- Improvements for CSV import
+- Uses mxGraph 4.1.1 beta 5
+- Adds new AWS 19 shapes
+
 02-FEB-2020: 12.6.4
 
 - Uses mxGraph 4.1.1 beta 4

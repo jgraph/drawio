@@ -1249,6 +1249,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					'\nSaveLevel=' + file.saveLevel +
 					'\nSaveAsPng=' + (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle())) +
 					'\nRetryCount=' + retryCount +
+					'\nError=' + e +
 					'\nMessage=' + e.message +
 					'\n\nStack:\n' + e.stack);
 			}

@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "dc34476c8a993b60a793ba1a084b9d56"
+    "revision": "e4bdc7bc591e4ac5a3efc3a8cd0c0c90"
   },
   {
     "url": "index.html",
@@ -22,7 +22,7 @@ if (workbox)
   },
   {
     "url": "js/stencils.min.js",
-    "revision": "fdb0ffc3355997c93f0e7773d1376a82"
+    "revision": "033242ce61a98a1223a9f896b97ec107"
   },
   {
     "url": "js/extensions.min.js",
@@ -90,7 +90,7 @@ if (workbox)
   },
   {
     "url": "resources/dia.txt",
-    "revision": "3bb5936ead8bbdcbeb44595928fc454c"
+    "revision": "9d820f5a07c86de75410ae2616f1e416"
   },
   {
     "url": "images/delete.png",

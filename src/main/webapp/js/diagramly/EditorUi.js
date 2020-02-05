@@ -12224,31 +12224,31 @@
         			throw new Error(mxResources.get('invalidOrMissingFile'));
         		}
         		
-        		var keys = this.editor.csvToArray(lines[index]);
-    			
-    			// Converts name of identity and parent to indexes of column
-    			var identityIndex = null;
+    			// Converts identity and parent to index and validates XML attribute names
+    			var keys = this.editor.csvToArray(lines[index]);
+        		var identityIndex = null;
     			var parentIndex = null;
+    			var attribs = [];
     			
-    			if (identity != null || parent != null)
-    			{
-    				for (var i = 0; i < keys.length; i++)
-		    		{
-    					if (identity == keys[i])
-    					{
-    						identityIndex = i;
-    					}
-    					
-    					if (parent == keys[i])
-    					{
-    						parentIndex = i;
-    					}
-		    		}
-    			}
-    			
+				for (var i = 0; i < keys.length; i++)
+	    		{
+					if (identity == keys[i])
+					{
+						identityIndex = i;
+					}
+					
+					if (parent == keys[i])
+					{
+						parentIndex = i;
+					}
+					
+					attribs.push(mxUtils.trim(keys[i]).replace(/[^a-z0-9]+/ig, '_').
+						replace(/^\d+/, '').replace(/_+$/, ''));
+	    		}
+				
     			if (label == null)
     			{
-    				label = '%' + keys[0] + '%';
+    				label = '%' + attribs[0] + '%';
     			}
     			
     			if (edges != null)
@@ -12262,157 +12262,166 @@
 					}
 				}
     			
+    			// Parse and validate input
+    			var arrays = [];
+    			
+    			for (var i = index + 1; i < lines.length; i++)
+	    		{
+	    			var values = this.editor.csvToArray(lines[i]);
+	    			
+	    			if (values == null)
+	    			{
+	    				var short = (lines[i].length > 40) ? lines[i].substring(0, 40) + '...' : lines[i];
+	    				
+	    				throw new Error(short + ' (' + i + '):\n' + mxResources.get('containsValidationErrors'));
+	    			}
+	    			else if (values.length > 0)
+		    		{
+	    				arrays.push(values);
+	    			}
+	    		}
+    			
         		graph.model.beginUpdate();
         		try
         		{
-	    			for (var i = index + 1; i < lines.length; i++)
+	    			for (var i = 0; i < arrays.length; i++)
 		    		{
-    	    			var values = this.editor.csvToArray(lines[i]);
-    	    			
-    	    			if (values == null)
-    	    			{
-    	    				var short = (lines[i].length > 40) ? lines[i].substring(0, 40) + '...' : lines[i];
-    	    				
-    	    				throw new Error(i + ' (' + short + ') ' + mxResources.get('containsValidationErrors'));
-    	    			}
-    	    			else if (values.length == keys.length)
-		    			{
-	    					var cell = null;
-	    					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
-	    					
-	    					if (id != null)
+    	    			var values = arrays[i];
+    					var cell = null;
+    					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
+    					
+    					if (id != null)
+    					{
+    						cell = graph.model.getCell(id);
+    					}
+    					
+    					var exists = cell != null;
+    					var newCell = new mxCell(label, new mxGeometry(x0, y,
+		    				0, 0), style || 'whiteSpace=wrap;html=1;');
+    					newCell.vertex = true;
+    					newCell.id = id;
+						
+						for (var j = 0; j < values.length; j++)
+				    	{
+							graph.setAttributeForCell(newCell, attribs[j], values[j]);
+				    	}
+						
+						if (labelname != null && labels != null)
+						{
+							var tempLabel = labels[newCell.getAttribute(labelname)];
+							
+							if (tempLabel != null)
+							{
+								graph.labelChanged(newCell, tempLabel);
+							}
+						}
+
+						if (stylename != null && styles != null)
+						{
+							var tempStyle = styles[newCell.getAttribute(stylename)];
+							
+							if (tempStyle != null)
+							{
+								newCell.style = tempStyle;
+							}
+						}
+
+						graph.setAttributeForCell(newCell, 'placeholders', '1');
+						newCell.style = graph.replacePlaceholders(newCell, newCell.style);
+
+						if (exists)
+						{
+							graph.model.setGeometry(cell, newCell.geometry);
+							graph.model.setStyle(cell, newCell.style);
+							
+							if (mxUtils.indexOf(cells, cell) < 0)
+							{
+								cells.push(cell);
+							}
+						}
+						
+						cell = newCell;
+    					
+						if (!exists)
+						{
+	    					for (var e = 0; e < edges.length; e++)
 	    					{
-	    						cell = graph.model.getCell(id);
+	    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
 	    					}
-	    					
-	    					var exists = cell != null;
-	    					var newCell = new mxCell(label, new mxGeometry(x0, y,
-			    				0, 0), style || 'whiteSpace=wrap;html=1;');
-	    					newCell.vertex = true;
-	    					newCell.id = id;
+						}
+						
+						if (link != null && link != 'link')
+						{
+							graph.setLinkForCell(cell, cell.getAttribute(link));
 							
-							for (var j = 0; j < values.length; j++)
-					    	{
-								graph.setAttributeForCell(newCell, keys[j], values[j]);
-					    	}
-							
-							if (labelname != null && labels != null)
+							// Removes attribute
+							graph.setAttributeForCell(cell, link, null);
+						}
+						
+						// Sets the size
+						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+						var size = this.editor.graph.getPreferredSizeForCell(cell);
+						
+						if (cell.vertex)
+						{
+							if (left != null && cell.getAttribute(left) != null)
 							{
-								var tempLabel = labels[newCell.getAttribute(labelname)];
-								
-								if (tempLabel != null)
-								{
-									graph.labelChanged(newCell, tempLabel);
-								}
+								cell.geometry.x = x0 + parseFloat(cell.getAttribute(left));
 							}
 
-							if (stylename != null && styles != null)
+							if (top != null && cell.getAttribute(top) != null)
 							{
-								var tempStyle = styles[newCell.getAttribute(stylename)];
-								
-								if (tempStyle != null)
-								{
-									newCell.style = tempStyle;
-								}
-							}
-	
-							graph.setAttributeForCell(newCell, 'placeholders', '1');
-							newCell.style = graph.replacePlaceholders(newCell, newCell.style);
-
-							if (exists)
-							{
-								graph.model.setGeometry(cell, newCell.geometry);
-								graph.model.setStyle(cell, newCell.style);
-								
-								if (mxUtils.indexOf(cells, cell) < 0)
-								{
-									cells.push(cell);
-								}
+								cell.geometry.y = y0 + parseFloat(cell.getAttribute(top));
 							}
 							
-							cell = newCell;
-	    					
-							if (!exists)
+							if (width.charAt(0) == '@' && cell.getAttribute(width.substring(1)) != null)
 							{
-		    					for (var e = 0; e < edges.length; e++)
-		    					{
-		    						lookups[edges[e].to][cell.getAttribute(edges[e].to)] = cell;
-		    					}
-							}
-							
-							if (link != null && link != 'link')
-							{
-								graph.setLinkForCell(cell, cell.getAttribute(link));
-								
-								// Removes attribute
-								graph.setAttributeForCell(cell, link, null);
-							}
-							
-							// Sets the size
-							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
-							var size = this.editor.graph.getPreferredSizeForCell(cell);
-							
-							if (cell.vertex)
-							{
-								if (left != null && cell.getAttribute(left) != null)
-								{
-									cell.geometry.x = x0 + parseFloat(cell.getAttribute(left));
-								}
-	
-								if (top != null && cell.getAttribute(top) != null)
-								{
-									cell.geometry.y = y0 + parseFloat(cell.getAttribute(top));
-								}
-								
-								if (width.charAt(0) == '@' && cell.getAttribute(width.substring(1)) != null)
-								{
-									cell.geometry.width = parseFloat(cell.getAttribute(width.substring(1)));
-								}
-								else
-								{
-									cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
-								}
-
-								if (height.charAt(0) == '@' && cell.getAttribute(height.substring(1)) != null)
-								{
-									cell.geometry.height = parseFloat(cell.getAttribute(height.substring(1)));
-								}
-								else
-								{
-									cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
-								}
-								
-								y += cell.geometry.height + nodespacing;
-							}
-							
-							if (!exists)
-							{
-		    					var parent = (parentIndex != null) ? graph.model.getCell(
-		    						namespace + values[parentIndex]) : null;
-								allCells.push(cell);
-		    					
-		    					if (parent != null)
-		    					{
-		    						parent.style = graph.replacePlaceholders(parent, parentstyle);
-		    						graph.addCell(cell, parent);
-		    					}
-		    					else
-		    					{
-		    						cells.push(graph.addCell(cell));
-		    					}
+								cell.geometry.width = parseFloat(cell.getAttribute(width.substring(1)));
 							}
 							else
 							{
-								if (dups[id] == null)
-								{
-									dups[id] = [];
-								}
-								
-								dups[id].push(cell);
+								cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
 							}
-		    			}
-		    		}
-	    			
+
+							if (height.charAt(0) == '@' && cell.getAttribute(height.substring(1)) != null)
+							{
+								cell.geometry.height = parseFloat(cell.getAttribute(height.substring(1)));
+							}
+							else
+							{
+								cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
+							}
+							
+							y += cell.geometry.height + nodespacing;
+						}
+						
+						if (!exists)
+						{
+	    					var parent = (parentIndex != null) ? graph.model.getCell(
+	    						namespace + values[parentIndex]) : null;
+							allCells.push(cell);
+	    					
+	    					if (parent != null)
+	    					{
+	    						parent.style = graph.replacePlaceholders(parent, parentstyle);
+	    						graph.addCell(cell, parent);
+	    					}
+	    					else
+	    					{
+	    						cells.push(graph.addCell(cell));
+	    					}
+						}
+						else
+						{
+							if (dups[id] == null)
+							{
+								dups[id] = [];
+							}
+							
+							dups[id].push(cell);
+						}
+	    			}
+
 					var roots = cells.slice();
 					var select = cells.slice();
 	
@@ -12420,9 +12429,9 @@
 					{
 						var edge = edges[e];
 	
-						for (var i = 0; i < cells.length; i++)
+						for (var i = 0; i < allCells.length; i++)
 	    				{
-							var cell = cells[i];
+							var cell = allCells[i];
 							
 							var insertEdge = mxUtils.bind(this, function(realCell, dataCell, edge)
 							{
@@ -12432,32 +12441,41 @@
 		    					{
 		    						// Removes attribute
 			    					graph.setAttributeForCell(dataCell, edge.from, null);
-		    						var refs = tmp.split(',');
-		    						
-			    					for (var j = 0; j < refs.length; j++)
-			        				{
-			    						var ref = lookups[edge.to][refs[j]];
+			    					
+			    					if (tmp != '')
+			    					{
+			    						var refs = tmp.split(',');
 			    						
-			    						if (ref != null)
-			    						{
-			    							var label = edge.label;
-			    							
-			    							if (edge.fromlabel != null)
-			    							{
-			    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
-			    							}
-			    							
-			    							if (edge.tolabel != null)
-			    							{
-			    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-			    							}
-			    							
-			    							select.push(graph.insertEdge(null, null, label || '',
-				    							(edge.invert) ? ref : realCell, (edge.invert) ? realCell : ref,
-								    			edge.style || graph.createCurrentEdgeStyle()));
-			    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
-			    						}
-			        				}
+				    					for (var j = 0; j < refs.length; j++)
+				        				{
+				    						var ref = lookups[edge.to][refs[j]];
+				    						
+				    						if (ref != null)
+				    						{
+				    							var label = edge.label;
+				    							
+				    							if (edge.fromlabel != null)
+				    							{
+				    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+				    							}
+				    							
+				    							if (edge.tolabel != null)
+				    							{
+				    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+				    							}
+				    							
+				    							var placeholders = ((edge.placeholders == 'target') ==
+				    								!edge.invert) ? ref : realCell;
+				    							var style = (edge.style != null) ?
+				    								graph.replacePlaceholders(placeholders, edge.style) :
+				    								graph.createCurrentEdgeStyle();
+
+				    							select.push(graph.insertEdge(null, null, label || '', (edge.invert) ?
+				    								ref : realCell, (edge.invert) ? realCell : ref, style));
+				    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
+				    						}
+				        				}
+			    					}
 		    					}
 							});
 							

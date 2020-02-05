@@ -222,6 +222,7 @@
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', defVal: false},
         {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true},
+        {name: 'expand', dispName: 'Expand', type: 'bool', defVal: true},
         {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
@@ -306,6 +307,8 @@
 		'#\n' +
 		'## Connections between rows ("from": source colum, "to": target column).\n' +
 		'## Label, style and invert are optional. Defaults are \'\', current style and false.\n' +
+		'## If placeholders are used in the style, they are replaced with data from the source.\n' +
+		'## An optional placeholders can be set to target to use data from the target instead.\n' +
 		'## In addition to label, an optional fromlabel and tolabel can be used to name the column\n' +
 		'## that contains the text for the label in the edges source or target (invert ignored).\n' +
 		'## The label is concatenated in the form fromlabel + label + tolabel if all are defined.\n' +
@@ -4056,6 +4059,17 @@
 		}
 		
 		this.updateGlobalUrlVariables();
+	};
+
+	/**
+	 * Disables fast zoom with shadow in lightbox for Safari
+	 * to work around blank output on retina screen.
+	 */
+	var graphIsFastZoomEnabled = Graph.prototype.isFastZoomEnabled;
+	
+	Graph.prototype.isFastZoomEnabled = function()
+	{
+		return graphIsFastZoomEnabled.apply(this, arguments) && (!this.shadowVisible || !mxClient.IS_SF);
 	};
 	
 	/**

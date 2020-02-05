@@ -455,10 +455,16 @@ Sidebar.prototype.addEntries = function(images)
 		(mxUtils.bind(this, function(img)
 		{
 			var data = img.data;
+			var tags = (img.title != null) ? img.title : '';
 			
-			if (data != null && img.title != null)
+			if (img.tags != null)
 			{
-				this.addEntry(img.title, mxUtils.bind(this, function()
+				tags += ' ' + img.tags;
+			}
+
+			if (data != null && tags.length > 0)
+			{
+				this.addEntry(tags, mxUtils.bind(this, function()
 				{
 					data = this.editorUi.convertDataUri(data);
 					var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
@@ -472,9 +478,9 @@ Sidebar.prototype.addEntries = function(images)
 						data, img.w, img.h, '', img.title || '', false, false, true)
 				}));
 			}
-			else if (img.xml != null && img.title != null)
+			else if (img.xml != null && tags.length > 0)
 			{
-				this.addEntry(img.title, mxUtils.bind(this, function()
+				this.addEntry(tags, mxUtils.bind(this, function()
 				{
 					var cells = this.editorUi.stringToCells(Graph.decompress(img.xml));
 

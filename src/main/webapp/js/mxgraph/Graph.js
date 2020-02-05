@@ -1035,6 +1035,16 @@ Graph.lineJumpsEnabled = true;
 Graph.defaultJumpSize = 6;
 
 /**
+ * Text for foreign object warning.
+ */
+Graph.foreignObjectWarningText = 'Viewer does not support full SVG 1.1';
+
+/**
+ * Link for foreign object warning.
+ */
+Graph.foreignObjectWarningLink = 'https://desk.draw.io/support/solutions/articles/16000042487';
+
+/**
  * Helper function for creating SVG data URI.
  */
 Graph.createSvgImage = function(w, h, data, coordWidth, coordHeight)
@@ -2973,6 +2983,27 @@ Graph.prototype.isContainer = function(cell)
 	{
 		return style['container'] == '1';
 	}
+};
+
+/**
+ * Adds a expand style.
+ */
+Graph.prototype.isExtendParent = function(cell)
+{
+	var parent = this.model.getParent(cell);
+	
+	if (parent != null)
+	{
+		var state = this.view.getState(parent);
+		var style = (state != null) ? state.style : this.getCellStyle(parent);
+		
+		if (style != null && style['expand'] != null)
+		{
+			return style['expand'] != '0';
+		}
+	}
+	
+	return mxGraph.prototype.isExtendParent.apply(this, arguments);
 };
 
 /**
@@ -6873,6 +6904,7 @@ if (typeof mxVertexHandler != 'undefined')
 	
 				imgExport.drawState(this.getView().getState(this.model.root), svgCanvas);
 				this.updateSvgLinks(root, linkTarget, true);
+				this.addForeignObjectWarning(svgCanvas, root);
 				
 				return root;
 			}
@@ -6884,6 +6916,46 @@ if (typeof mxVertexHandler != 'undefined')
 					this.view.revalidate();
 					this.sizeDidChange();
 				}
+			}
+		};
+		
+		/**
+		 * Adds warning for truncated labels in older viewers.
+		 */
+		Graph.prototype.addForeignObjectWarning = function(canvas, root)
+		{
+			if (root.getElementsByTagName('foreignObject').length > 0)
+			{
+				var sw = canvas.createElement('switch');
+				var g1 = canvas.createElement('g');
+				g1.setAttribute('requiredFeatures', 'http://www.w3.org/TR/SVG11/feature#Extensibility');
+				var a = canvas.createElement('a');
+				a.setAttribute('transform', 'translate(0,-5)');
+				
+				// Workaround for implicit namespace handling in HTML5 export, IE adds NS1 namespace so use code below
+				// in all IE versions except quirks mode. KNOWN: Adds xlink namespace to each image tag in output.
+				if (a.setAttributeNS == null || (root.ownerDocument != document && document.documentMode == null))
+				{
+					a.setAttribute('xlink:href', Graph.foreignObjectWarningLink);
+					a.setAttribute('target', '_blank');
+				}
+				else
+				{
+					a.setAttributeNS(mxConstants.NS_XLINK, 'xlink:href', Graph.foreignObjectWarningLink);
+					a.setAttributeNS(mxConstants.NS_XLINK, 'target', '_blank');
+				}
+				
+				var text = canvas.createElement('text');
+				text.setAttribute('text-anchor', 'middle');
+				text.setAttribute('font-size', '10px');
+				text.setAttribute('x', '50%');
+				text.setAttribute('y', '100%');
+				mxUtils.write(text, Graph.foreignObjectWarningText);
+				
+				sw.appendChild(g1);
+				a.appendChild(text);
+				sw.appendChild(a);
+				root.appendChild(sw);
 			}
 		};
 		

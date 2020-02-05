@@ -568,6 +568,7 @@ App.main = function(callback, createUi)
 		// Loads Pusher API
 		if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 			DrawioFile.SYNC == 'auto' && urlParams['embed'] != '1' && urlParams['local'] != '1' &&
+			(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
 			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 		{
 			// TODO: Check if async loading is fast enough

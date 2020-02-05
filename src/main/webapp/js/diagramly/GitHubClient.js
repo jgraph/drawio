@@ -50,7 +50,15 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 		error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 	}), this.ui.timeout);
 	
-	mxUtils.get(this.baseUrl + '/user?access_token=' + this.token, mxUtils.bind(this, function(userReq)
+	var userReq = new mxXmlRequest(this.baseUrl + '/user', null, 'GET');
+	var temp = this.token;
+	
+	userReq.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Authorization', 'token ' + temp);
+	};
+	
+	userReq.send(mxUtils.bind(this, function()
 	{
 		window.clearTimeout(timeoutThread);
 		
@@ -82,7 +90,7 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 				success();
 			}
 		}
-	}));
+	}), error);
 };
 
 /**
