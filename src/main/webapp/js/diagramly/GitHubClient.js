@@ -413,12 +413,12 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 		// Should never be null
 		if (this.token != null)
 		{
-			var url = this.baseUrl + '/repos/' + org + '/' + repo + '/contents/' +
-				path + '?ref=' + ref + '&token=' + this.token;
+			var url = this.baseUrl + '/repos/' + org + '/' + repo +
+				'/contents/' + path + '?ref=' + ref;
+			var headers = {'Authorization': 'token ' + this.token};
 			tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
-	
-			this.ui.convertFile(url, name, null, this.extension, success, error);
+			this.ui.convertFile(url, name, null, this.extension, success, error, null, headers);
 		}
 		else
 		{

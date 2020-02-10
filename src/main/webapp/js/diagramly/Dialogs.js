@@ -5878,7 +5878,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 /**
  * Constructs a new revision dialog
  */
-var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, discardLabel, ignoreFn)
+var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, discardLabel, ignoreFn, drafts)
 {
 	var div = document.createElement('div');
 	
@@ -5886,8 +5886,50 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	titleDiv.style.marginTop = '0px';
 	titleDiv.style.whiteSpace = 'nowrap';
 	titleDiv.style.overflow = 'auto';
+	titleDiv.style.lineHeight = 'normal';
 	mxUtils.write(titleDiv, title);
 	div.appendChild(titleDiv);
+	
+	var select = document.createElement('select');
+	
+	var draftSelected = mxUtils.bind(this, function()
+	{
+		doc = mxUtils.parseXml(drafts[select.value].data);
+		node = editorUi.editor.extractGraphModel(doc.documentElement, true);
+		currentPage = 0;
+			
+		this.init();
+	});
+	
+	if (drafts != null)
+	{
+		select.style.marginLeft = '4px';
+		
+		for (var i = 0; i < drafts.length; i++)
+		{
+			var opt = document.createElement('option');
+			opt.setAttribute('value', i);
+			var ts0 = new Date(drafts[i].created);
+			var ts1 = new Date(drafts[i].modified);
+			
+			mxUtils.write(opt, ts0.toLocaleDateString() + ' ' +
+				ts0.toLocaleTimeString() + ' - ' +
+				((ts0.toDateString() != ts1.toDateString() || true) ?
+				ts1.toLocaleDateString() : ' ') +
+				' ' + ts1.toLocaleTimeString());
+			
+			select.appendChild(opt);
+		}
+		
+		titleDiv.appendChild(select);
+		
+		mxEvent.addListener(select, 'change', draftSelected);
+	}
+	
+	if (xml == null)
+	{
+		xml = drafts[0].data;
+	}
 	
 	var container = document.createElement('div');
 	container.style.position = 'absolute';
@@ -6003,7 +6045,26 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	zoomActualBtn.style.margin = '2px';
 	mxUtils.setOpacity(zoomActualBtn, 60);
 
-	var restoreBtn = mxUtils.button(discardLabel || mxResources.get('discard'), discardFn);
+	var restoreBtn = mxUtils.button(discardLabel || mxResources.get('discard'), function()
+	{
+		discardFn.apply(this, [select.value, mxUtils.bind(this, function()
+		{
+			if (select.parentNode != null)
+			{
+				select.options[select.selectedIndex].parentNode.removeChild(select.options[select.selectedIndex]);
+				
+				if (select.options.length > 0)
+				{
+					select.value = select.options[0].value;
+					draftSelected();
+				}
+				else
+				{
+					editorUi.hideDialog(true);
+				}
+			}
+		})]);
+	});
 	restoreBtn.className = 'geBtn';
 	
 	var pageSelect = document.createElement('select');
@@ -6014,7 +6075,10 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	pageSelect.style.marginRight = '6px';
 	pageSelect.style.display = 'none';
 
-	var showBtn = mxUtils.button(editLabel || mxResources.get('edit'), editFn);
+	var showBtn = mxUtils.button(editLabel || mxResources.get('edit'), function()
+	{
+		editFn.apply(this, [select.value])
+	});
 	showBtn.className = 'geBtn gePrimaryBtn';
 
 	var buttons = document.createElement('div');
@@ -6084,6 +6148,8 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 			{
 				parseDiagram(diagrams[currentPage]);
 			}
+
+			pageSelect.innerHTML = '';
 			
 			if (diagrams.length > 1)
 			{
@@ -6103,6 +6169,10 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	
 					pageSelect.appendChild(pageOption);
 				}
+			}
+			else
+			{
+				pageSelect.style.display = 'none';
 			}
 		}
 		else
@@ -8453,7 +8523,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			else
 			{
 				addButton(data, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-						null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+					null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 				div.scrollTop = div.scrollHeight;
 			}
 		};
@@ -8462,17 +8532,16 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	function dropHandler(evt)
 	{
 		evt.stopPropagation();
-	    evt.preventDefault();
-    		errorShowed = false;
-	    
-	    dropTargetIndex = getIndexForEvent(evt);
+		evt.preventDefault();
+		errorShowed = false;
+		dropTargetIndex = getIndexForEvent(evt);
 		
-	    if (dragSourceIndex != null)
+		if (dragSourceIndex != null)
 		{
-			if (dropTargetIndex != null && dropTargetIndex < div.children.length)
-			{
+	    	if (dropTargetIndex != null && dropTargetIndex < div.children.length)
+	    	{
 				images.splice((dropTargetIndex > dragSourceIndex) ? dropTargetIndex - 1 : dropTargetIndex,
-						0, images.splice(dragSourceIndex, 1)[0]);
+					0, images.splice(dragSourceIndex, 1)[0]);
 				div.insertBefore(div.children[dragSourceIndex], div.children[dropTargetIndex]);
 			}
 			else
@@ -8481,14 +8550,14 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				div.appendChild(div.children[dragSourceIndex]);
 			}
 		}
-	    else if (evt.dataTransfer.files.length > 0)
-	    {
-	    		editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
+		else if (evt.dataTransfer.files.length > 0)
+		{
+			editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, createImportHandler(evt));
 		}
-	    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
-	    {
-	    		var uri = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
-	    	
+		else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
+		{
+			var uri = decodeURIComponent(evt.dataTransfer.getData('text/uri-list'));
+			
 			if (/(\.jpg)($|\?)/i.test(uri) || /(\.png)($|\?)/i.test(uri) ||
 				/(\.gif)($|\?)/i.test(uri) || /(\.svg)($|\?)/i.test(uri))
 			{
@@ -8498,10 +8567,10 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					div.scrollTop = div.scrollHeight;
 				});
 			}
-	    }
-	    
-	    evt.stopPropagation();
-	    evt.preventDefault();
+		}
+		
+		evt.stopPropagation();
+		evt.preventDefault();
 	};
 	
 	mxEvent.addListener(div, 'dragover', dragOver);

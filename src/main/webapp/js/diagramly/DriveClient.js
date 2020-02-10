@@ -779,7 +779,8 @@ DriveClient.prototype.updateUser = function(success, error)
 {
 	try
 	{
-		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=' + this.token;
+		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json';
+		var headers = {'Authorization': 'Bearer ' + this.token};
 		
 		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
 		{
@@ -807,7 +808,7 @@ DriveClient.prototype.updateUser = function(success, error)
 					success();
 				}
 	    	}), error);
-		}), error);
+		}), error, null, null, null, null, headers);
 	}
 	catch (e)
 	{
@@ -972,8 +973,10 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 					if (/\.v(dx|sdx?)$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
 						(!this.ui.useCanvasForExport && binary))
 					{
-						var url = resp.downloadUrl + '&access_token=' + this.token;
-						this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
+						var url = resp.downloadUrl;
+						var headers = {'Authorization': 'Bearer ' + this.token};
+						
+						this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error, null, headers);
 					}
 					else
 					{
@@ -1026,7 +1029,8 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 {
 	try
 	{
-		var url = resp.downloadUrl + '&access_token=' + this.token;
+		var headers = {'Authorization': 'Bearer ' + this.token};
+		var url = resp.downloadUrl;
 		
 		// Loads XML to initialize realtime document if realtime is empty
 		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
@@ -1161,7 +1165,8 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 			}
 		}), error, ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
 			resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
-			/\.jpe?g$/i.test(resp.title) || /\.pdf$/i.test(resp.title));
+			/\.jpe?g$/i.test(resp.title) || /\.pdf$/i.test(resp.title),
+			null, null, null, headers);
 	}
 	catch (e)
 	{
@@ -1363,7 +1368,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						try
 						{
 							file.saveDelay = new Date().getTime() - t0;
-							file.saveLevel = 17;
+							file.saveLevel = 11;
 							
 							if (resp == null)
 							{
@@ -1376,7 +1381,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 								{
-									file.saveLevel = 18;
+									file.saveLevel = 12;
 									var reasons = [];
 									
 									if (delta <= 0)
@@ -1502,13 +1507,21 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									var unknown = file.desc.mimeType != this.xmlMimeType && file.desc.mimeType != this.mimeType &&
 										file.desc.mimeType != this.libraryMimeType;
 									var acceptResponse = true;
+									var timeoutThread = null;
 									
 									// Allow for re-auth flow with 3x timeout
-									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									try
 									{
-										acceptResponse = false;
-										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-									}), 3 * this.ui.timeout);
+										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+										{
+											acceptResponse = false;
+											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+										}), 3 * this.ui.timeout);
+									}
+									catch (e)
+									{
+										// Ignore window closed
+									}
 									
 									this.executeRequest(this.createUploadRequest(file.getId(), meta,
 										data, revision || realOverwrite || unknown, binary,
@@ -1631,24 +1644,26 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (realOverwrite)
 								{
-									file.saveLevel = 14;
 									doExecuteSave(realOverwrite);
 								}
 								else
 								{
-									file.saveLevel = 15;
 									var acceptResponse = true;
-									file.saveLevel = 16;
+									var timeoutThread = null;
 									
 									// Allow for re-auth flow with 3x timeout
-									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									try
 									{
-										file.saveLevel = 11;
-										acceptResponse = false;
-										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-									}), 3 * this.ui.timeout);
-									
-									file.saveLevel = 10;
+										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+										{
+											acceptResponse = false;
+											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+										}), 3 * this.ui.timeout);
+									}
+									catch (e)
+									{
+										// Ignore window closed
+									}
 									
 									this.executeRequest({
 										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
@@ -1659,7 +1674,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										
 										if (acceptResponse)
 										{
-											file.saveLevel = 12;
+											file.saveLevel = 10;
 											
 											try
 											{
@@ -1694,7 +1709,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										
 										if (acceptResponse)
 										{
-											file.saveLevel = 13;
+											file.saveLevel = 11;
 											error(err);
 										}
 									}));

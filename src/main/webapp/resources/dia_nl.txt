@@ -103,6 +103,7 @@ csv=CSV
 dark=Donker
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Een concept van '{1}' is gevonden. Laad het in de editor of negeer het om door te gaan.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Slepen en plaatsen is niet beschikbaar voor afbeeldingen. Wilt u in plaats daarvan importeren?
 dropboxCharsNotAllowed=De volgende tekens zijn niet toegestaan: \ / : ? * " |
 check=Controleren

@@ -252,103 +252,96 @@ var mxSettings =
 	},
 	parse: function(value)
 	{
-		if (value != null)
+		var config = (value != null) ? JSON.parse(value) : null;
+
+		if (config == null || (config.configVersion != Editor.configVersion) ||
+			(Editor.config != null && Editor.config.override))
 		{
-			var temp = JSON.parse(value);
+			mxSettings.settings = null;
+			mxSettings.init();
+		}
+		else
+		{
+			mxSettings.settings = config;
 			
-			if (temp == null || (Editor.config != null && Editor.config.override) ||
-				temp.configVersion != Editor.configVersion)
+			if (mxSettings.settings.plugins == null)
 			{
-				mxSettings.settings = null;
+				mxSettings.settings.plugins = [];
 			}
-			else
+			
+			if (mxSettings.settings.recentColors == null)
 			{
-				mxSettings.settings = temp;
-	
-				if (mxSettings.settings.plugins == null)
-				{
-					mxSettings.settings.plugins = [];
-				}
-				
-				if (mxSettings.settings.recentColors == null)
-				{
-					mxSettings.settings.recentColors = [];
-				}
+				mxSettings.settings.recentColors = [];
+			}
 
-				if (mxSettings.settings.customFonts == null)
-				{
-					mxSettings.settings.customFonts = [];
-				}
-				
-				// Newer configuration versions overwrite the default libraries
-				if (Editor.config != null && temp.configVersion != Editor.configVersion)
-				{
-					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
-				}
-				else if (mxSettings.settings.libraries == null)
-				{
-					mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
-				}
-				
-				if (mxSettings.settings.customLibraries == null)
-				{
-					mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
-				}
-				
-				if (mxSettings.settings.ui == null)
-				{
-					mxSettings.settings.ui = '';
-				}
-				
-				if (mxSettings.settings.formatWidth == null)
-				{
-					mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
-				}
-				
-				if (mxSettings.settings.lastAlert != null)
-				{
-					delete mxSettings.settings.lastAlert;
-				}
-				
-				if (mxSettings.settings.createTarget == null)
-				{
-					mxSettings.settings.createTarget = false;
-				}
-				
-				if (mxSettings.settings.pageFormat == null)
-				{
-					mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
-				}
-				
-				if (mxSettings.settings.search == null)
-				{
-					mxSettings.settings.search = true;
-				}
-				
-				if (mxSettings.settings.showStartScreen == null)
-				{
-					mxSettings.settings.showStartScreen = true;
-				}		
-				
-				if (mxSettings.settings.gridColor == null)
-				{
-					mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
-				}
+			if (mxSettings.settings.customFonts == null)
+			{
+				mxSettings.settings.customFonts = [];
+			}
+			
+			if (mxSettings.settings.libraries == null)
+			{
+				mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
+			}
+			
+			if (mxSettings.settings.customLibraries == null)
+			{
+				mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
+			}
+			
+			if (mxSettings.settings.ui == null)
+			{
+				mxSettings.settings.ui = '';
+			}
+			
+			if (mxSettings.settings.formatWidth == null)
+			{
+				mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
+			}
+			
+			if (mxSettings.settings.lastAlert != null)
+			{
+				delete mxSettings.settings.lastAlert;
+			}
+			
+			if (mxSettings.settings.createTarget == null)
+			{
+				mxSettings.settings.createTarget = false;
+			}
+			
+			if (mxSettings.settings.pageFormat == null)
+			{
+				mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
+			}
+			
+			if (mxSettings.settings.search == null)
+			{
+				mxSettings.settings.search = true;
+			}
+			
+			if (mxSettings.settings.showStartScreen == null)
+			{
+				mxSettings.settings.showStartScreen = true;
+			}		
+			
+			if (mxSettings.settings.gridColor == null)
+			{
+				mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
+			}
 
-				if (mxSettings.settings.darkGridColor == null)
-				{
-					mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
-				}
-				
-				if (mxSettings.settings.autosave == null)
-				{
-					mxSettings.settings.autosave = true;
-				}
-				
-				if (mxSettings.settings.scratchpadSeen != null)
-				{
-					delete mxSettings.settings.scratchpadSeen;
-				}
+			if (mxSettings.settings.darkGridColor == null)
+			{
+				mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
+			}
+			
+			if (mxSettings.settings.autosave == null)
+			{
+				mxSettings.settings.autosave = true;
+			}
+			
+			if (mxSettings.settings.scratchpadSeen != null)
+			{
+				delete mxSettings.settings.scratchpadSeen;
 			}
 		}
 	},

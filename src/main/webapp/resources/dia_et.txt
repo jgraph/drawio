@@ -103,6 +103,7 @@ csv=CSV
 dark=Tume
 didYouMeanToExportToPdf=Kas soovisid PDFi eksportida?
 draftFound=Mustand {1} jaoks on leitud. Lae see töötluskeskkonda või tühista jätkamiseks.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Piltidele puudub pukseerimise tugi. Kas sooviksid selle asemel importida?
 dropboxCharsNotAllowed=Järgnevad tähemärgid pole lubatud:  \ / : ? * " |
 check=Kontrolli

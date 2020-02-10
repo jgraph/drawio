@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Ett utkast för '{1}' har lokaliserats. Ladda utkastet till behandlaren eller ta bort det för att fortsätta.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Dra-och-släpp tillåts ej för bilder. Vill du istället importera?
 dropboxCharsNotAllowed=Följande tecken får inte användas: \ / : ? * " |
 check=Kontroll

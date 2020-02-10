@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Byl nalezen koncept pro '{1}'. Abyste mohli pokračovat, nahrajte ho do editoru nebo jej zahoďte.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Pro obrázky není funkce Drag & Drop k dispozici. Chcete ho místo toho naimportovat?
 dropboxCharsNotAllowed=Následující znaky nejsou povoleny: \ / : ? * " |
 check=Zkontrolovat

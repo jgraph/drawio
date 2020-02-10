@@ -103,6 +103,7 @@ csv=Valores separados por vírgulas (CSV)
 dark=Escuro 
 didYouMeanToExportToPdf=Referíaste a exportar a PDF?
 draftFound=Atopouse un borrador para '{1}'. Carrégao no editor ou descártao para continuares.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Arrastre e solte non está implementado para imaxes. Prefires importalas?
 dropboxCharsNotAllowed=Os seguintes caracteres non están permitidos: \ / : ? * " |
 check=Validar

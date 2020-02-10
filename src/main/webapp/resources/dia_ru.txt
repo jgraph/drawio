@@ -103,6 +103,7 @@ csv=CSV
 dark=Темная
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Был обнаружен черновик '{1}'. Загрузите его в редактор или откажитесь, чтобы продолжить.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Перетаскивание изображений не поддерживается. Импортировать изображение?
 dropboxCharsNotAllowed=Следующие символы не допускаются: \ / : ? * " |
 check=Проверить

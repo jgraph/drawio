@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Encontrado um projeto. Carregar no editor ou rejeitar para continuar.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Arrastar e largar não suportado para imagens. Deseja importar?
 dropboxCharsNotAllowed=Os seguintes caracteres não são permitidos: \/:?*"|
 check=Verificar

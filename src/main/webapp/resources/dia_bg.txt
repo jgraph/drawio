@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Открита е чернова за {1}. За да продължите, я качете в редактора или я откажете. 
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Опцията плъзгане и пускане не се поддържа за изображения. Желаете ли да импортирате вместо това?
 dropboxCharsNotAllowed=Следните знаци не са позволени: \ / : ? * " |
 check=Проверка

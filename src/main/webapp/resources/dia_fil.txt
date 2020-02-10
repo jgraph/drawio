@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Isang draft para sa '{1}' ang nahanap. Ikarga ito sa loob ng editor o isantabi ito para magpatuloy
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Ang paghila at paglagay ay hindi suportado para sa mga imahe. Gusto mo bang mag angkat na lang?
 dropboxCharsNotAllowed=Ang mga sumusunod na simbolo ay hindi pinahihintulutan: \ / : ? * " |
 check=Alamin

@@ -2096,6 +2096,7 @@ EditorUi.prototype.initCanvas = function()
 	var updateZoomTimeout = null;
 	var cursorPosition = null;
 	var scrollPosition = null;
+	var filter = null;
 	
 	var scheduleZoom = function(delay)
 	{
@@ -2182,10 +2183,16 @@ EditorUi.prototype.initCanvas = function()
 		                }
 		            }
 		            
+					if (filter != null)
+					{
+						mainGroup.setAttribute('filter', filter);
+					}
+					
 		            graph.cumulativeZoomFactor = 1;
 		            updateZoomTimeout = null;
 		            scrollPosition = null;
 		            cursorPosition = null;
+		            filter = null;
 		        }), (delay != null) ? delay : ((graph.isFastZoomEnabled()) ? ui.wheelZoomDelay : ui.lazyZoomDelay));
 			}
 		}, 0);
@@ -2237,6 +2244,12 @@ EditorUi.prototype.initCanvas = function()
 
 		if (graph.isFastZoomEnabled())
 		{
+			if (filter == null && mainGroup.getAttribute('filter') != '')
+			{
+				filter = mainGroup.getAttribute('filter');
+				mainGroup.removeAttribute('filter');
+			}
+
 			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
 			
 			var cx = (ignoreCursorPosition) ? graph.container.scrollLeft + graph.container.clientWidth / 2 :

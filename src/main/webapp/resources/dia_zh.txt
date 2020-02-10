@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=是否要导出到 PDF？
 draftFound={1} 的草稿已经找到。将其加载到编辑器或将其丢弃以继续。
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=暂不支持图片拖放功能。是否要使用导入？
 dropboxCharsNotAllowed=系统不允许使用下列字符：\ / : ? * " |
 check=核查

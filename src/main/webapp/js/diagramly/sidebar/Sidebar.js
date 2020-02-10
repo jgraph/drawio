@@ -100,6 +100,11 @@
 	 * https://desk.draw.io/support/solutions/articles/16000042546
 	 */
 	Sidebar.prototype.enabledLibraries = null;
+	
+	/**
+	 * Maximum number of custom libraries to preload into the search index.
+	 */
+	Sidebar.prototype.maxPreloadCount = 20;
 
 	/**
 	 *
@@ -246,7 +251,6 @@
 		}
 	};
 
-	
 	/**
 	 * Shows or hides a palette.
 	 */
@@ -738,6 +742,8 @@
 		// Adds custom sections first
 		if (this.customEntries != null)
 		{
+			var preloadCount = 0;
+			
 			for (var i = 0; i < this.customEntries.length; i++)
 			{
 				var section = this.customEntries[i];
@@ -750,35 +756,64 @@
 					{
 						(mxUtils.bind(this, function(lib)
 						{
-							this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
-								false, mxUtils.bind(this, function(content, title)
+							var data = null;
+							var error = null;
+							var content = null;
+							var title = null;
+							
+							var showError = mxUtils.bind(this, function(err, c)
 							{
-								var dataLoaded = mxUtils.bind(this, function(images)
+								var div = document.createElement('span');
+								div.style.paddingBottom = '6px';
+								div.style.paddingTop = '6px';
+								div.style.fontSize = '11px';
+								mxUtils.write(div, err);
+								c.innerHTML = '<img align="top" src="' + mxGraph.prototype.warningImage.src + '"/> ';
+								c.appendChild(div);
+							});
+							
+							var barrier = mxUtils.bind(this, function()
+							{
+								if (content != null && title != null)
 								{
-									this.addEntries(images);
-									this.editorUi.addLibraryEntries(images, content);
-								});
-								
-								var showError = mxUtils.bind(this, function(err)
-								{
-									content.innerHTML = '';
-									var div = document.createElement('div');
-									div.style.color = 'rgb(179, 179, 179)';
-									div.style.textAlign = 'center';
-									div.style.paddingTop = '6px';
-									mxUtils.write(div, err);
-									content.appendChild(div);
-								});
-								
-								if (lib.data)
-								{
-									dataLoaded(lib.data);
+									if (error != null)
+									{
+										content.style.display = 'block';
+										title.innerHTML = '';
+										mxUtils.write(title, this.editorUi.getResource(lib.title));
+										showError(error, content);
+									}
+									else if (data != null)
+									{
+										this.editorUi.addLibraryEntries(data, content);
+										content.style.display = 'block';
+										title.innerHTML = '';
+										mxUtils.write(title, this.editorUi.getResource(lib.title));
+									}
+									else
+									{
+										content.style.display = 'none';
+										title.innerHTML = '';
+										mxUtils.write(title, mxResources.get('loading') + '...');
+									}
 								}
-								else
+							});
+							
+							if (lib.data == null && lib.url != null && (!lib.preload && preloadCount >= this.maxPreloadCount))
+							{
+								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
+									false, mxUtils.bind(this, function(content, title)
 								{
+									var dataLoaded = mxUtils.bind(this, function(images)
+									{
+										this.addEntries(images);
+										this.editorUi.addLibraryEntries(images, content);
+									});
+
 									content.style.display = 'none';
 									title.innerHTML = '';
 									mxUtils.write(title, mxResources.get('loading') + '...');
+									
 									var url = lib.url;
 									
 									if (!this.editorUi.editor.isCorsEnabledForUrl(url))
@@ -803,16 +838,77 @@
 											}
 											else
 											{
-												showError(mxResources.get('notALibraryFile'));
+												showError(mxResources.get('notALibraryFile'), content);
 											}
 										}
 										catch (e)
 										{
-											showError(mxResources.get('error') + ': ' + e.message);
+											showError(mxResources.get('error') + ': ' + e.message, content);
 										}
 									}));
+								}));
+							}
+							else
+							{							
+								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
+									false, mxUtils.bind(this, function(c, t)
+								{
+									content = c;
+									title = t;
+									barrier();
+								}));
+								
+								if (lib.data != null)
+								{
+									this.addEntries(lib.data);
+									data = lib.data;
+									barrier();
 								}
-							}));
+								else if (lib.url != null)
+								{
+									preloadCount++;					
+									var url = lib.url;
+									
+									if (!this.editorUi.editor.isCorsEnabledForUrl(url))
+									{
+										url = PROXY_URL + '?url=' + encodeURIComponent(url);
+									}
+									
+									this.editorUi.loadUrl(url, mxUtils.bind(this, function(temp)
+									{
+										try
+										{
+											var doc = mxUtils.parseXml(temp);
+											
+											if (doc.documentElement.nodeName == 'mxlibrary')
+											{
+												data = JSON.parse(mxUtils.getTextContent(doc.documentElement));
+												this.addEntries(data);
+												barrier();
+											}
+											else
+											{
+												error = mxResources.get('notALibraryFile');
+												barrier();
+											}
+										}
+										catch (e)
+										{
+											error = mxResources.get('error') + ': ' + e.message;
+											barrier();
+										}
+									}), mxUtils.bind(this, function(e)
+									{
+										error = (e != null && e.message != null) ? e.message : e;
+										barrier();
+									}));
+								}
+								else
+								{
+									error = mxResources.get('invalidInput');
+									barrier();
+								}
+							}
 						}))(entry.libs[k]);
 					}
 				}

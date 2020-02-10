@@ -3686,56 +3686,49 @@
 
 		mxVertexHandler.prototype.createCustomHandles = function()
 		{
-			// Not rotatable means locked
-			if (this.state.view.graph.getSelectionCount() == 1)
+			if (this.graph.isCellRotatable(this.state.cell))
+			// LATER: Make locked state independent of rotatable flag, fix toggle if default is false
+			//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
 			{
-				if (this.graph.isCellRotatable(this.state.cell))
-				// LATER: Make locked state independent of rotatable flag, fix toggle if default is false
-				//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
-				{
-					var name = this.state.style['shape'];
+				var name = this.state.style['shape'];
 
-					if (mxCellRenderer.defaultShapes[name] == null &&
-						mxStencilRegistry.getStencil(name) == null)
-					{
-						name = mxConstants.SHAPE_RECTANGLE;
-					}
-					
-					var fn = handleFactory[name];
-					
-					if (fn == null && this.state.shape != null && this.state.shape.isRoundable())
-					{
-						fn = handleFactory[mxConstants.SHAPE_RECTANGLE];
-					}
+				if (mxCellRenderer.defaultShapes[name] == null &&
+					mxStencilRegistry.getStencil(name) == null)
+				{
+					name = mxConstants.SHAPE_RECTANGLE;
+				}
 				
-					if (fn != null)
-					{
-						return fn(this.state);
-					}
+				var fn = handleFactory[name];
+				
+				if (fn == null && this.state.shape != null && this.state.shape.isRoundable())
+				{
+					fn = handleFactory[mxConstants.SHAPE_RECTANGLE];
+				}
+			
+				if (fn != null)
+				{
+					return fn(this.state);
 				}
 			}
 			
 			return null;
 		};
-		
+
 		mxEdgeHandler.prototype.createCustomHandles = function()
 		{
-			if (this.state.view.graph.getSelectionCount() == 1)
+			var name = this.state.style['shape'];
+			
+			if (mxCellRenderer.defaultShapes[name] == null &&
+				mxStencilRegistry.getStencil(name) == null)
 			{
-				var name = this.state.style['shape'];
-				
-				if (mxCellRenderer.defaultShapes[name] == null &&
-					mxStencilRegistry.getStencil(name) == null)
-				{
-					name = mxConstants.SHAPE_CONNECTOR;
-				}
-				
-				var fn = handleFactory[name];
-				
-				if (fn != null)
-				{
-					return fn(this.state);
-				}
+				name = mxConstants.SHAPE_CONNECTOR;
+			}
+			
+			var fn = handleFactory[name];
+			
+			if (fn != null)
+			{
+				return fn(this.state);
 			}
 			
 			return null;

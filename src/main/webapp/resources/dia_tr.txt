@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Taslak (1) için bulundu. Editöre yükleyiniz veya devam etmek için iptal ediniz.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Desteklenmeyen resimleri sürükle ve at. Veya bu resimleri geri çağırmak ister misiniz ?
 dropboxCharsNotAllowed=Bu karakterler desteklenmemektedir : \ / : ? * " |
 check=Kontrol ediniz

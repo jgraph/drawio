@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=พบฉบับร่างของ '{1}' แล้ว โหลดไปยังตัวแก้ไขหรือยกเลิกเพื่อดำเนินการต่อ
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=รูปภาพไม่รองรับการลากและวาง คุณต้องการนำเข้าแทนหรือไม่
 dropboxCharsNotAllowed=ไม่อนุญาตให้ใช้อักขระต่อไปนี้: \ / : ? * " |
 check=ตรวจสอบ

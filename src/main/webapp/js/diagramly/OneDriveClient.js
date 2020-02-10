@@ -911,13 +911,21 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				try
 				{
 					var acceptResponse = true;
+					var timeoutThread = null;
 					
-					var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+					try
 					{
-						acceptResponse = false;
-						error({code: App.ERROR_TIMEOUT, retry: doExecute});
-					}), this.ui.timeout);
-		
+						timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							acceptResponse = false;
+							error({code: App.ERROR_TIMEOUT, retry: doExecute});
+						}), this.ui.timeout);
+					}
+					catch (e)
+					{
+						// Ignore window closed
+					}
+					
 					var req = new mxXmlRequest(url, data, method);
 					
 					req.setRequestHeaders = mxUtils.bind(this, function(request, params)

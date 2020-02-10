@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Tìm thấy một bản nháp cho '{1}'. Tải lại bản nháp này hoặc loại bỏ bản nháp để tiếp tục
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Kéo và thả không hỗ trợ cho hình ảnh. Thay vào đó, bạn có muốn nhập hình ảnh vào không?
 dropboxCharsNotAllowed=Những kí tự sau không được chấp nhận: \ / : ? * " |
 check=Kiểm tra

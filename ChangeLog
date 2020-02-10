@@ -1,3 +1,17 @@
+10-FEB-2020: 12.6.7
+
+- Fixes clipping for edge labels in PDF output
+- Uses mxGraph 4.1.1 beta 7
+- Adds draft states
+
+07-FEB-2020: 12.6.6
+
+- Searches collapsed custom libraries
+- Fixes configured default libraries
+- Adds tags to configured libraries
+- Uses auth header for Google Drive
+- Uses mxGraph 4.1.1 beta 6
+
 04-FEB-2020: 12.6.5
 
 - Adds expand style for containers

@@ -952,6 +952,7 @@ App.main = function(callback, createUi)
 				{
 					EditorUi.debug('Using global configuration', window.DRAWIO_CONFIG);
 					Editor.configure(window.DRAWIO_CONFIG);
+					mxSettings.load();
 				}
 				catch (e)
 				{
@@ -977,6 +978,7 @@ App.main = function(callback, createUi)
 						{
 							EditorUi.debug('Using local configuration', configData);
 							Editor.configure(configData);
+							mxSettings.load();
 						}
 					}
 					catch (e)
@@ -1227,57 +1229,6 @@ App.prototype.init = function()
 			this.restoreLibraries();
 		}));
 	}
-	
-	var createFooter = mxUtils.bind(this, function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
-	{
-		var footer = document.createElement('div');
-		footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
-			'white-space:nowrap;left:50%;bottom:2px;';
-		footer.className = className;
-
-		var icn = ((className == 'geStatusAlert') ? '<img src="' + mxClient.imageBasePath + '/warning.gif" border="0" ' +
-			'style="margin-top:-4px;margin-right:8px;margin-left:8px;" valign="middle"/>' : '');
-		
-		mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-		mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
-		footer.style.whiteSpace = 'nowrap';
-		footer.innerHTML = '<a href="' + ((link != null) ? link : 'javascript:void(0)') +
-			'" ' + ((!noBlank) ? 'target="_blank" ' : '') + 'style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-			icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
-			'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
-		
-		var img = document.createElement('img');
-		
-		img.setAttribute('src', Dialog.prototype.closeImage);
-		img.setAttribute('title', mxResources.get('close'));
-		img.style.position = 'absolute';
-		img.style.cursor = 'pointer';
-		img.style.right = '10px';
-		img.style.top = '12px';
-
-		footer.appendChild(img);
-
-		if (closeHandler)
-		{
-			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
-			{
-				closeHandler(e);
-				mxEvent.consume(e);
-			}));
-		}
-		
-		if (clickHandler != null)
-		{
-			footer.style.paddingRight = '40px';
-			
-			mxEvent.addListener(footer, 'click', mxUtils.bind(this, function(e)
-			{
-				clickHandler(e);
-			}));
-		}
-		
-		return footer;
-	});
 
 	/**
 	 * Lazy-loading for individual backends
@@ -1505,11 +1456,12 @@ App.prototype.init = function()
 						}
 					});
 					
-					var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+					var footer = this.createFooter('<img border="0" align="absmiddle" ' +
+						'style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
 						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
-							mxUtils.htmlEntities(mxResources.get('installDrawio', null, 'Install draw.io')) + '</font>',
-							'https://www.draw.io/index.html?offline=1',
-							'geStatusMessage geBtn gePrimaryBtn', done, null, mxUtils.bind(this, function()
+						mxUtils.htmlEntities(mxResources.get('installDrawio', null, 'Install draw.io')) + '</font>',
+						'https://www.draw.io/index.html?offline=1', 'geStatusMessage geBtn gePrimaryBtn', done, null,
+						mxUtils.bind(this, function()
 						{
 						    // Show the prompt
 							if (deferredPrompt != null)
@@ -1541,83 +1493,17 @@ App.prototype.init = function()
 				}
 			}));
 		}
-		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && (!this.editor.chromeless || this.editor.editable))
+		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['open'] == null &&
+			(!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
 				var file = this.getCurrentFile();
 				var mode = (file != null) ? file.getMode() : null;
 				
-				if ((mode == App.MODE_DEVICE || mode == App.MODE_BROWSER) && (!isLocalStorage || mxSettings.settings == null ||
-					mxSettings.settings.closeDesktopFooter == null) && !this.footerShowing && urlParams['open'] == null)
+				if (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER)
 				{
-					mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
-					{
-						var href = 'https://get.draw.io/';
-						
-						try
-						{
-							var rel = JSON.parse(req.getText());
-							
-							if (rel != null)
-							{
-								if (rel.tag_name != null && rel.name != null && rel.html_url != null)
-								{
-									if (mxClient.IS_MAC)
-									{
-										href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-					        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
-									}
-									else if (mxClient.IS_WIN)
-									{
-										href = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-					        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
-									}
-								}
-							}
-						}
-						catch (e)
-						{
-							// ignores parsing errors
-						}
-						
-						var closeHandler = mxUtils.bind(this, function()
-						{
-							footer.parentNode.removeChild(footer);
-							this.footerShowing = false;
-							this.hideFooter();
-	
-							// Close permanently
-							if (isLocalStorage && mxSettings.settings != null)
-							{
-								mxSettings.settings.closeDesktopFooter = Date.now();
-								mxSettings.save();
-							}
-						});
-						
-						var footer = createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
-							IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
-							mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
-							href, 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, closeHandler);
-						
-						// Push to after splash dialog background
-						footer.style.zIndex = mxPopupMenu.prototype.zIndex;
-						footer.style.padding = '18px 50px 12px 30px';
-						footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
-						document.body.appendChild(footer);
-						this.footerShowing = true;
-						
-						window.setTimeout(mxUtils.bind(this, function()
-						{
-							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-						}), 500);
-						
-						window.setTimeout(mxUtils.bind(this, function()
-						{
-							mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-							this.footerShowing = false;
-						}), 60000);
-					}));
+					this.showDownloadDesktopFooter();
 				}
 	//			else if ((!isLocalStorage || mxSettings.settings == null ||
 	//				mxSettings.settings.closeRateFooter == null) &&
@@ -1759,6 +1645,9 @@ App.prototype.init = function()
 	}
 };
 
+/**
+ * Schedules a sanity check.
+ */
 App.prototype.scheduleSanityCheck = function()
 {
 	if (this.sanityCheckThread == null)
@@ -1771,6 +1660,9 @@ App.prototype.scheduleSanityCheck = function()
 	}
 };
 
+/**
+ * Stops sanity checks.
+ */
 App.prototype.stopSanityCheck = function()
 {
 	if (this.sanityCheckThread != null)
@@ -1780,6 +1672,9 @@ App.prototype.stopSanityCheck = function()
 	}
 };
 
+/**
+ * Shows a warning after some time with unsaved changes and autosave.
+ */
 App.prototype.sanityCheck = function()
 {
 	var file = this.getCurrentFile();
@@ -1851,6 +1746,7 @@ App.prototype.isDriveDomain = function()
 		(window.location.hostname == 'test.draw.io' ||
 		window.location.hostname == 'www.draw.io' ||
 		window.location.hostname == 'drive.draw.io' ||
+		window.location.hostname == 'app.diagrams.net' ||
 		window.location.hostname == 'jgraph.github.io');
 };
 
@@ -1869,6 +1765,140 @@ App.prototype.getPusher = function()
 	}
 	
 	return this.pusher;
+};
+
+/**
+ * Shows a footer to download the desktop version once per session.
+ */
+App.prototype.showDownloadDesktopFooter = function()
+{
+	if (!this.downloadDesktopFooterShown && !this.footerShowing && (!isLocalStorage ||
+		mxSettings.settings == null || mxSettings.settings.closeDesktopFooter == null))
+	{
+		this.downloadDesktopFooterShown = true;
+		
+		var closeHandler = mxUtils.bind(this, function()
+		{
+			footer.parentNode.removeChild(footer);
+			this.footerShowing = false;
+			this.hideFooter();
+
+			// Close permanently
+			if (isLocalStorage && mxSettings.settings != null)
+			{
+				mxSettings.settings.closeDesktopFooter = Date.now();
+				mxSettings.save();
+			}
+		});
+		
+		var footer = this.createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+			IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
+			mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
+			'https://get.draw.io/', 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, closeHandler);
+		
+		// Push to after splash dialog background
+		footer.style.zIndex = mxPopupMenu.prototype.zIndex;
+		footer.style.padding = '18px 50px 12px 30px';
+		footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
+		document.body.appendChild(footer);
+		this.footerShowing = true;
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+		}), 500);
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+			this.footerShowing = false;
+		}), 60000);
+		
+		// Updates the download link to point to the right operating system
+		mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
+		{
+			try
+			{
+				var a = footer.getElementsByTagName('a')[0];
+				var rel = JSON.parse(req.getText());
+				
+				if (rel != null)
+				{
+					if (rel.tag_name != null && rel.name != null && rel.html_url != null)
+					{
+						if (mxClient.IS_MAC)
+						{
+							a.setAttribute('href', 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+		        				rel.tag_name + '/draw.io-' + rel.name + '.dmg');
+						}
+						else if (mxClient.IS_WIN)
+						{
+							a.setAttribute('href', 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+		        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe');
+						}
+					}
+				}
+			}
+			catch (e)
+			{
+				// ignores parsing errors
+			}
+		}));
+	}
+};
+
+/**
+ * Creates a footer.
+ */
+App.prototype.createFooter = function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
+{
+	var footer = document.createElement('div');
+	footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
+		'white-space:nowrap;left:50%;bottom:2px;';
+	footer.className = className;
+
+	var icn = ((className == 'geStatusAlert') ? '<img src="' + mxClient.imageBasePath + '/warning.gif" border="0" ' +
+		'style="margin-top:-4px;margin-right:8px;margin-left:8px;" valign="middle"/>' : '');
+	
+	mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+	mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
+	footer.style.whiteSpace = 'nowrap';
+	footer.innerHTML = '<a href="' + ((link != null) ? link : 'javascript:void(0)') +
+		'" ' + ((!noBlank) ? 'target="_blank" ' : '') + 'style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
+		icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
+		'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
+	
+	var img = document.createElement('img');
+	
+	img.setAttribute('src', Dialog.prototype.closeImage);
+	img.setAttribute('title', mxResources.get('close'));
+	img.style.position = 'absolute';
+	img.style.cursor = 'pointer';
+	img.style.right = '10px';
+	img.style.top = '12px';
+
+	footer.appendChild(img);
+
+	if (closeHandler)
+	{
+		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
+		{
+			closeHandler(e);
+			mxEvent.consume(e);
+		}));
+	}
+	
+	if (clickHandler != null)
+	{
+		footer.style.paddingRight = '40px';
+		
+		mxEvent.addListener(footer, 'click', mxUtils.bind(this, function(e)
+		{
+			clickHandler(e);
+		}));
+	}
+	
+	return footer;
 };
 
 /**
@@ -1961,44 +1991,6 @@ App.prototype.updateActionStates = function()
 };
 
 /**
- * Updates draft in local storage
- */
-App.prototype.updateDraft = function()
-{
-	if (isLocalStorage && localStorage != null)
-	{
-		localStorage.setItem('.draft', JSON.stringify({modified:
-			new Date().getTime(), data: this.getFileData()}));
-	}
-};
-
-/**
- * Returns the draft in local storage
- */
-App.prototype.getDraft = function()
-{
-	// FIXME: Handle multiple tabs
-//	if (isLocalStorage && localStorage != null)
-//	{
-//		try
-//		{
-//			var draft = localStorage.getItem('.draft');
-//			
-//			if (draft != null)
-//			{
-//				return JSON.parse(draft);
-//			}
-//		}
-//		catch (e)
-//		{
-//			// ignore quota etc
-//		}
-//	}
-
-	return null;
-};
-
-/**
  * Adds the specified entry to the recent file list in local storage
  */
 App.prototype.addRecent = function(entry)
@@ -2070,24 +2062,6 @@ App.prototype.resetRecent = function(entry)
 		catch (e)
 		{
 			// ignore
-		}
-	}
-};
-
-/**
- * Clears the draft save in local storage
- */
-App.prototype.removeDraft = function()
-{
-	if (isLocalStorage && localStorage != null && urlParams['splash'] == '0')
-	{
-		try
-		{
-			localStorage.removeItem('.draft');
-		}
-		catch (e)
-		{
-			// ignore quota etc
 		}
 	}
 };
@@ -2892,7 +2866,7 @@ App.prototype.start = function()
 	{
 		this.bg.parentNode.removeChild(this.bg);
 	}
-	
+
 	this.restoreLibraries();
 	this.spinner.stop();
 	
@@ -2901,6 +2875,29 @@ App.prototype.start = function()
 		// Listens to changes of the hash if not in embed or client mode
 		if (urlParams['client'] != '1' && urlParams['embed'] != '1')
 		{
+			// Installs listener to claim current draft if there is one
+			try
+			{
+				if (isLocalStorage)
+				{
+					window.addEventListener('storage', mxUtils.bind(this, function(evt)
+					{
+						var file = this.getCurrentFile();
+						EditorUi.debug('storage event', evt, file);
+	
+						if (file != null && evt.key == '.draft-alive-check' && evt.newValue != null && file.draftId != null)
+						{
+							this.draftAliveCheck = evt.newValue;
+							file.saveDraft();
+						}
+					}));
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+			
 			// KNOWN: Does not work in quirks mode
 			mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
 			{
@@ -3042,31 +3039,17 @@ App.prototype.start = function()
 						{
 							var id = this.getDiagramId();
 							
-							if (urlParams['splash'] == '0' && (id == null || id.length == 0))
+							if (EditorUi.enableDrafts && this.getServiceName() == 'draw.io' && (id == null || id.length == 0))
 							{
-								if (!mxClient.IS_CHROMEAPP)
-								{
-									var draft = this.getDraft();
-									var fileData = (draft != null) ? draft.data : this.getFileData();
-									var prev = Editor.useLocalStorage;
-									this.createFile(this.defaultFilename, fileData, null, null, null, null, null, true);
-									Editor.useLocalStorage = prev;
-									
-									// Draft was used so the user should save the file
-									if (draft != null)
-									{
-										var file = this.getCurrentFile();
-										
-										if (file != null)
-										{
-											file.addUnsavedStatus();
-										}
-									}
-								}
+								this.checkDrafts();
+							}
+							else if (urlParams['splash'] != '0')
+							{
+								this.loadFile(id);
 							}
 							else
 							{
-								this.loadFile(id);
+								this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
 							}
 						}
 					}
@@ -3223,6 +3206,150 @@ App.prototype.start = function()
 };
 
 /**
+ * Checks for orphaned drafts.
+ */
+App.prototype.loadDraft = function(xml, success)
+{
+	this.createFile(this.defaultFilename, xml, null, null, mxUtils.bind(this, function()
+	{
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			var file = this.getCurrentFile();
+			
+			if (file != null)
+			{
+				file.fileChanged();
+				
+				if (success != null)
+				{
+					success();
+				}
+			}
+		}), 0);
+	}), null, null, true);
+};
+
+/**
+ * Checks for orphaned drafts.
+ */
+App.prototype.checkDrafts = function()
+{
+	try
+	{
+		// Triggers storage event for other windows to mark active drafts
+		var guid = Editor.guid();
+		localStorage.setItem('.draft-alive-check', guid);
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			localStorage.removeItem('.draft-alive-check');
+
+			this.getDatabaseItems(mxUtils.bind(this, function(items)
+			{
+				// Collects orphaned drafts
+				var drafts = [];
+				
+				for (var i = 0; i < items.length; i++)
+				{
+					try
+					{
+						var key = items[i].key;
+						
+						if (key != null && key.substring(0, 7) == '.draft_')
+						{
+							var obj = JSON.parse(items[i].data);
+							
+							if (obj != null && obj.type == 'draft' && obj.aliveCheck != guid)
+							{
+								obj.key = key;
+								drafts.push(obj);
+							}
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
+				
+				if (drafts.length == 1)
+				{
+					this.loadDraft(drafts[0].data, mxUtils.bind(this, function()
+					{
+						this.removeDatabaseItem(drafts[0].key);
+					}));
+				}
+				else if (drafts.length > 1)
+				{
+					var ts = new Date(drafts[0].modified);
+					
+					var dlg = new DraftDialog(this, (drafts.length > 1) ? mxResources.get('selectDraft') :
+						mxResources.get('draftFound', [ts.toLocaleDateString() + ' ' + ts.toLocaleTimeString()]),
+						(drafts.length > 1) ? null : drafts[0].data, mxUtils.bind(this, function(index)
+					{
+						this.hideDialog();
+						index = (index != '') ? index : 0;
+						
+						this.loadDraft(drafts[index].data, mxUtils.bind(this, function()
+						{
+							this.removeDatabaseItem(drafts[index].key);
+						}));
+					}), mxUtils.bind(this, function(index, success)
+					{
+						index = (index != '') ? index : 0;
+						
+						// Discard draft
+						this.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, function()
+						{
+							this.removeDatabaseItem(drafts[index].key);
+							
+							if (success != null)
+							{
+								success();
+							}
+						}), mxResources.get('no'), mxResources.get('yes'));
+					}), null, null, null, (drafts.length > 1) ? drafts : null);
+					this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
+					{
+						if (urlParams['splash'] == '0')
+						{
+							this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+						}
+						else
+						{
+							this.loadFile();
+						}
+					}));
+					dlg.init();
+				}
+				else if (urlParams['splash'] != '0')
+				{
+					this.loadFile();
+				}
+				else
+				{
+					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+				}
+			}), mxUtils.bind(this, function()
+			{
+				if (urlParams['splash'] != '0')
+				{
+					this.loadFile();
+				}
+				else
+				{
+					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+				}
+			}));
+		}), 0);
+	}
+	catch (e)
+	{
+		// ignore
+	}
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -3249,6 +3376,11 @@ App.prototype.showSplash = function(force)
 					Editor.useLocalStorage = prev;
 				}
 			}), true);
+		
+		if (this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER)
+		{
+			this.showDownloadDesktopFooter();
+		}
 	});
 	
 	if (this.editor.isChromelessView())
@@ -3789,7 +3921,10 @@ App.prototype.saveFile = function(forceDialog, success)
 		// FIXME: Invoke for local files
 		var done = mxUtils.bind(this, function()
 		{
-			this.removeDraft();
+			if (EditorUi.enableDrafts)
+			{
+				file.removeDraft();
+			}
 			
 			if (this.getCurrentFile() != file && !file.isModified())
 			{
@@ -4743,7 +4878,7 @@ App.prototype.getLibraryStorageHint = function(file)
  * Updates action states depending on the selection.
  */
 App.prototype.restoreLibraries = function()
-{	
+{
 	this.loadLibraries(mxSettings.getCustomLibraries(), mxUtils.bind(this, function()
 	{
 		this.loadLibraries((urlParams['clibs'] || '').split(';'));
@@ -5491,7 +5626,7 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
  * readXml argument is used for import. Default is false. The optional
  * readLibrary argument is used for reading libraries. Default is false.
  */
-App.prototype.convertFile = function(url, filename, mimeType, extension, success, error, executeRequest)
+App.prototype.convertFile = function(url, filename, mimeType, extension, success, error, executeRequest, headers)
 {
 	var name = filename;
 	
@@ -5519,7 +5654,15 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		{
 			req.responseType = 'blob';
 		}
-
+		
+		if (headers)
+		{
+			for (var key in headers)
+			{
+				req.setRequestHeader(key, headers[key]);
+			}
+		}
+		
 		req.onload = mxUtils.bind(this, function()
 		{
 			if (req.status >= 200 && req.status <= 299)
@@ -5662,7 +5805,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 				{
 					error({code: App.ERROR_TIMEOUT, retry: fn});
 				}
-		    });
+		    }, headers);
 		}
 		else if (executeRequest != null)
 		{
@@ -5670,7 +5813,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 		}
 		else
 		{
-			this.loadUrl(url, handleData, error, binary);
+			this.loadUrl(url, handleData, error, binary, null, null, null, headers);
 		}
 	}
 };

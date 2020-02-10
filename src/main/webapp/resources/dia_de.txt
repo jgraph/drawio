@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Wollten Sie als PDF exportieren?
 draftFound=Ein Entwurf für '{1}' wurde gefunden. Setzen Sie die Bearbeitung fort oder verwerfen Sie die Änderungen.
+selectDraft=Wählen Sie einen Entwurf zur Bearbeitung:
 dragAndDropNotSupported=Drag and drop not supported for images. Would you like to import instead?
 dropboxCharsNotAllowed=Unzulässige Zeichen: \ / : ? * " |
 check=Prüfen

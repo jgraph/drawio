@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=‫پیش نویس '{1}' یافت شد. آن را به داخل ویرایشگر بارگذاری کنید و یا آن را برای ادامه دادن حذف کنید.‬
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=‫حرکت و کشیدن و انداختن برای تصاویر امکانپذیر نیست. آیا می خواهید بجای آن تصاویر را وارد کنید؟‬
 dropboxCharsNotAllowed=‫کاراکترهای زیر مجاز نمی باشند: \ / : ? * " |‬
 check=‫بررسی کردن‬

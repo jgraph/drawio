@@ -550,6 +550,10 @@ GraphViewer.prototype.addSizeHandler = function()
 					}
 				}
 			}
+			else if (this.toolbar != null)
+			{
+				this.toolbar.style.width = Math.max(this.minToolbarWidth, container.offsetWidth) + 'px';
+			}
 			
 			updatingOverflow = false;
 		}

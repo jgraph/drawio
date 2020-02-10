@@ -103,6 +103,7 @@ csv=CSV
 dark=Fosc
 didYouMeanToExportToPdf=Voleu exportar-ho a PDF?
 draftFound=S'ha trobat un esborrany per a '{1}'. Carrega'l a l'editor o descarta'l per continuar.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Les imatges no es poden arrossegar i deixar anar. Voleu importar-les?
 dropboxCharsNotAllowed=No es permeten aquests caràcters: \ / : ? * " |
 check=Comprova

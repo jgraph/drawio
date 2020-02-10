@@ -77,6 +77,12 @@
 	 */
 	EditorUi.isElectronApp = window != null && window.process != null &&
 		window.process.versions != null && window.process.versions['electron'] != null;
+	
+	/**
+	 * Specifies if drafts should be saved in IndexedDB.
+	 */
+	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP && isLocalStorage &&
+		!EditorUi.isElectronApp && urlParams['drafts'] != '0';
 
 	/**
 	 * Link for scratchpad help.
@@ -2841,14 +2847,14 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.loadLibrary = function(file)
+	EditorUi.prototype.loadLibrary = function(file, expand)
 	{
 		var doc = mxUtils.parseXml(file.getData());
 		
 		if (doc.documentElement.nodeName == 'mxlibrary')
 		{
 			var images = JSON.parse(mxUtils.getTextContent(doc.documentElement));
-			this.libraryLoaded(file, images, doc.documentElement.getAttribute('title'));
+			this.libraryLoaded(file, images, doc.documentElement.getAttribute('title'), expand);
 		}
 		else
 		{
@@ -2873,7 +2879,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle)
+	EditorUi.prototype.libraryLoaded = function(file, images, optionalTitle, expand)
 	{
 		if (this.sidebar == null)
 		{
@@ -2925,7 +2931,8 @@
 		
 		// Adds new sidebar entry for this library
 		var tmp = (optionalTitle != null && optionalTitle.length > 0) ? optionalTitle : file.getTitle();
-		var contentDiv = this.sidebar.addPalette(file.getHash(), tmp, true, mxUtils.bind(this, function(content)
+		var contentDiv = this.sidebar.addPalette(file.getHash(), tmp,
+			(expand != null) ? expand : true, mxUtils.bind(this, function(content)
 		{
 			addImages(images, content);
 	    }));
@@ -2950,7 +2957,7 @@
 	    // Workaround for CSS error in IE8 (standards and quirks)
 	    if (!mxClient.IS_QUIRKS && document.documentMode != 8)
 	    {
-	    		buttons.style.backgroundColor = 'inherit';
+	    	buttons.style.backgroundColor = 'inherit';
 	    }
 	    
 	    title.style.position = 'relative';
@@ -3209,7 +3216,7 @@
 				    	{
 							if (data != null && mimeType.substring(0, 6) == 'image/')
 							{
-								var style = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;image=' +
+								var style = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;aspect=fixed;image=' +
 									this.convertDataUri(data);
 								var cells = [new mxCell('', new mxGeometry(0, 0, w, h), style)];
 								cells[0].vertex = true;
@@ -6835,7 +6842,7 @@
 	/**
 	 * Checks if the client is authorized and calls the next step.
 	 */
-	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary)
+	EditorUi.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary, headers)
 	{
 		try
 		{
@@ -6883,7 +6890,15 @@
 					}
 					else if (error != null)
 			    	{
-			    		error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);
+						if (req.getStatus() == 0)
+						{
+							// Handles CORS errors
+							error({message: mxResources.get('accessDenied')}, req);
+						}
+						else
+						{
+							error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);
+						}
 			    	}
 				}), function(req)
 				{
@@ -6897,7 +6912,7 @@
 					{
 						error({code: App.ERROR_TIMEOUT, retry: fn});
 					}
-			    });
+			    }, headers);
 			});
 			
 			fn();
@@ -13542,10 +13557,106 @@
 	};
 	
 	/**
-	 *
-	 * Comments: We need these functions as wrapper of File functions in order to facilitate overriding them if comments are needed without having a file
-	 * 			 (e.g. Confluence Plugin)
-	 * 
+	 * Opens the application keystore.
+	 */
+	EditorUi.prototype.openDatabase = function(success, error)
+	{
+		if (this.database == null)
+		{
+			var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB;
+			
+			if (indexedDB != null)
+			{
+				try
+				{
+					var req = indexedDB.open('database', '1.0');
+					
+					req.onupgradeneeded = function(e)
+					{
+						e.target.result.createObjectStore('objects', {keyPath: 'key'});
+					}
+					
+					req.onsuccess = mxUtils.bind(this, function(e)
+					{
+						this.database = e.target.result;
+						success(this.database);
+					});
+					
+					req.onerror = error;
+				}
+				catch (e)
+				{
+					error(e);
+				}
+			}
+			else
+			{
+				error();
+			}
+		}
+		else
+		{
+			success(this.database);
+		}
+	};
+	
+	EditorUi.prototype.setDatabaseItem = function(key, data, success, error)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			var trx = db.transaction(['objects'], 'readwrite');
+			var req = trx.objectStore('objects').put({key: key, data: data});
+			req.onsuccess = success;
+	        req.onerror = error;
+		}), error);
+	};
+
+	/**
+	 * Removes the item for the given key from the database.
+	 */
+	EditorUi.prototype.removeDatabaseItem = function(key, success, error)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			var trx = db.transaction(['objects'], 'readwrite');
+			var req = trx.objectStore('objects').delete(key);
+			req.onsuccess = success;
+	        req.onerror = error;
+		}), error);
+	};
+	
+	/**
+	 * Returns all items from the database.
+	 */
+	EditorUi.prototype.getDatabaseItems = function(success, error)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			var trx = db.transaction(['objects'], 'readwrite');
+			var req = trx.objectStore('objects').openCursor(
+				IDBKeyRange.lowerBound(0));
+			var items = [];
+			
+			req.onsuccess = function(e)
+			{
+				if (e.target.result == null)
+				{
+					success(items);
+				}
+				else
+				{
+					items.push(e.target.result.value);
+					e.target.result.continue();
+				}
+	        };
+	        
+	        req.onerror = error;
+		}), error);
+	};
+	
+	/**
+	 * Comments: We need these functions as wrapper of File functions in order to facilitate
+	 * overriding them if comments are needed without having a file (e.g. Confluence Plugin)
 	 */
 	
 	/**

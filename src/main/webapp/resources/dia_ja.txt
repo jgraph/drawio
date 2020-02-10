@@ -103,6 +103,7 @@ csv=CSV
 dark=黒
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=ドラフト{1}が見つかりました。読み込む、または廃棄する。
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=画像のドラッグアンドドロップには対応していません。その代わりに画像読み込みを選択しますか？
 dropboxCharsNotAllowed=次の文字は使用できません: \ / : ? * " |
 check=チェック

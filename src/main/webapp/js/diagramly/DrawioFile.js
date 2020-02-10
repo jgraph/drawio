@@ -21,6 +21,7 @@ DrawioFile = function(ui, data)
 	this.data = data || '';
 	this.shadowData = this.data;
 	this.shadowPages = null;
+	this.created = new Date().getTime();
 	
 	// Creates the stats object
 	this.stats = {
@@ -1365,6 +1366,57 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
+DrawioFile.prototype.saveDraft = function()
+{
+	try
+	{
+		if (this.draftId == null)
+		{
+			this.draftId = Editor.guid();
+		}
+		
+		var draft = {type: 'draft',
+			created: this.created,
+			modified: new Date().getTime(),
+			data: this.ui.getFileData(),
+			title: this.getTitle(),
+			aliveCheck: this.ui.draftAliveCheck};
+		this.ui.setDatabaseItem('.draft_' + this.draftId,
+			JSON.stringify(draft));
+		
+		EditorUi.debug('draft saved', this.draftId, draft);
+	}
+	catch (e)
+	{
+		console.error(e);
+		
+		// Removes any stored draft
+		this.removeDraft();
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DrawioFile.prototype.removeDraft = function()
+{
+	try
+	{
+		if (this.draftId != null)
+		{
+			this.ui.removeDatabaseItem('.draft_' + this.draftId);
+			EditorUi.debug('draft deleted', '.draft_' + this.draftId);
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
 DrawioFile.prototype.addUnsavedStatus = function(err)
 {
 	if (!this.inConflictState && this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
@@ -1379,19 +1431,6 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 		}
 		else
 		{
-			// FIXME: Handle multiple tabs
-	//		if (this.ui.mode == null && urlParams['splash'] == '0')
-	//		{
-	//			try
-	//			{
-	//				this.ui.updateDraft();
-	//				this.setModified(false);
-	//			}
-	//			catch (e)
-	//			{
-	//				// Keeps modified flag unchanged
-	//			}
-	//		}
 			var msg = this.getErrorMessage(err);
 
 			if (msg == null && this.lastSaved != null)
@@ -1434,6 +1473,11 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 				this.ui.editor.setStatus('<div title="'+ status +
 					'" class="geStatusAlert" style="overflow:hidden;">' + status +
 					' (' + mxUtils.htmlEntities(err.message) + ')</div>');
+			}
+			
+			if (EditorUi.enableDrafts)
+			{
+				this.saveDraft();
 			}
 		}
 	}

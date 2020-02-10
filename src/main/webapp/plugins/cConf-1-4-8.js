@@ -681,4 +681,32 @@ Draw.loadPlugin(function(ui)
 			success(revs, restoreFn);
 		}, error);
 	};
+	
+	//============= Support Action ===============
+	ui.actions.addAction('support...', function()
+	{
+		ui.remoteInvoke('getPageInfo', [true], null, function(info)
+		{
+			var url = info.url;
+			
+			if (url != null)
+			{
+				var wikiPos = url.indexOf('/wiki/');
+				
+				if (wikiPos > -1)
+				{
+					url = url.substring(0, wikiPos);
+				}
+				
+				ui.openLink(url + '/wiki/plugins/servlet/ac/com.mxgraph.confluence.plugins.diagramly/support');
+			}
+			else
+			{
+				ui.openLink('https://about.draw.io/support/');
+			}
+		}, function()
+		{
+			ui.openLink('https://about.draw.io/support/');
+		});
+	});
 });

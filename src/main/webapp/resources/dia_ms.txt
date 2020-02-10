@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Draf bagi '{1}' telah dijumpai. Muat ia ke dalam editor atau buang untuk meneruskan.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Seret dan lepas tidak disokong untuk imej. Adakah anda mahu mengimport?
 dropboxCharsNotAllowed=Aksara-aksara berikut tidak dibenarkan: \ / : ? * " |
 check=Semak

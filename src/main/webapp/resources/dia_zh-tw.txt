@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=發現現有的「{1}」的草圖。要載入它進行編輯或是丟棄以繼續?
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=不支援圖片拖放。是否使用匯入選項?
 dropboxCharsNotAllowed=不得使用以下字元：\ / : ? * " |
 check=檢查

@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound={1} nacrt pronađen. Učitajte ga u uređivač ili ga odbacite kako biste nastavili.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Prevlačenje nije podržano kada je riječ o slikama. Želite li uvesti umjesto toga?
 dropboxCharsNotAllowed=Sljedeći znakovi nisu dozvoljeni: \ / : ? * " |
 check=Provjeri

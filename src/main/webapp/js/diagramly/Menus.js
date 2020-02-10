@@ -381,6 +381,11 @@
 			
 			function fn()
 			{
+				if (currentFile != null)
+				{
+					currentFile.removeDraft();
+				}
+				
 				editorUi.fileLoaded(null);
 			};
 			
@@ -1024,7 +1029,9 @@
 			{
 				menu.addItem('Org. Chart', null, function()
 				{
-					mxOrgChart(editorUi);
+					var graph = editorUi.editor.graph;
+					var orgChartLayout = new mxOrgChartLayout(graph);
+					orgChartLayout.execute(graph.getDefaultParent());
 				}, parent, null, isGraphEnabled());
 			}
 			

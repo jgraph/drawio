@@ -103,6 +103,7 @@ csv=CSV
 dark=Темно
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=Знайдено чернетку '{1}'. Завантажте її в виправник або відмовтеся, щоб продовжити.
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=Перетягування зображень не підтримуємо. Чи бажаєте натомість привнести його?
 dropboxCharsNotAllowed=Перелічені знаки не підтримувані: \ / : ? * " |
 check=Перевірити

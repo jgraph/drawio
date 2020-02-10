@@ -103,6 +103,7 @@ csv=CSV
 dark=Dark
 didYouMeanToExportToPdf=Did you mean to export to PDF?
 draftFound=‫נמצאה טיוטה עבור '{1}'. טען אותה אל העורך או מחק אותה כדי להמשיך.‬
+selectDraft=Select a draft to continue editing:
 dragAndDropNotSupported=‫גרירה אינה נתמכת עבור תמונות. תרצה לייבא תמונה במקום?‬
 dropboxCharsNotAllowed=‫התווים הבאים אינם מותרים לשימוש: / \ : ? * " |‬
 check=‫בדוק‬
