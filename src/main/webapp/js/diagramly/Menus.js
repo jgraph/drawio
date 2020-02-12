@@ -1024,16 +1024,131 @@
 		layoutMenu.funct = function(menu, parent)
 		{
 			layoutMenuFunct.apply(this, arguments);
+			
+			menu.addSeparator(parent);
 		
-			if (urlParams['orgLayout'] == '1')
+			menu.addItem(mxResources.get('orgChart') + '...', null, function()
 			{
-				menu.addItem('Org. Chart', null, function()
+				var branchOptimizer = null, parentChildSpacingVal = 20, siblingSpacingVal = 20, notExecuted = true;
+				
+				function doLayout()
 				{
-					var graph = editorUi.editor.graph;
-					var orgChartLayout = new mxOrgChartLayout(graph);
-					orgChartLayout.execute(graph.getDefaultParent());
-				}, parent, null, isGraphEnabled());
-			}
+					if (typeof mxOrgChartLayout !== 'undefined' && branchOptimizer != null && notExecuted)
+					{
+						var graph = editorUi.editor.graph;
+						var orgChartLayout = new mxOrgChartLayout(graph, branchOptimizer, parentChildSpacingVal, siblingSpacingVal);
+						orgChartLayout.execute(graph.getDefaultParent());
+						notExecuted = false;
+					}
+				};
+				
+				var div = document.createElement('div');
+				
+				var title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('orgChartType') + ': ');
+				
+				div.appendChild(title);
+				
+				var typeSelect = document.createElement('select');
+				typeSelect.style.width = '200px';
+				typeSelect.style.boxSizing = 'border-box';
+				
+				//Types are hardcoded here since the code is not loaded yet
+				var typesArr = [mxResources.get('linear'),
+					mxResources.get('hanger2'),
+					mxResources.get('hanger4'),
+					mxResources.get('fishbone1'),
+					mxResources.get('fishbone2'),
+					mxResources.get('1ColumnLeft'),
+					mxResources.get('1ColumnRight'),
+					mxResources.get('smart')
+				];
+				
+				for (var i = 0; i < typesArr.length; i++)
+				{
+					var option = document.createElement('option');
+					mxUtils.write(option, typesArr[i]);
+					option.value = i;
+					
+					if (i == 2)
+					{
+						option.setAttribute('selected', 'selected');
+					}
+					
+					typeSelect.appendChild(option);
+				}
+					
+				mxEvent.addListener(typeSelect, 'change', function()
+				{
+					branchOptimizer = typeSelect.value;
+				});
+				
+				div.appendChild(typeSelect);
+				
+				title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('parentChildSpacing') + ': ');
+				div.appendChild(title);
+				
+				var parentChildSpacing = document.createElement('input');
+				parentChildSpacing.type = 'number';
+				parentChildSpacing.value = parentChildSpacingVal;
+				parentChildSpacing.style.width = '200px';
+				parentChildSpacing.style.boxSizing = 'border-box';
+				div.appendChild(parentChildSpacing);
+				
+				mxEvent.addListener(parentChildSpacing, 'change', function()
+				{
+					parentChildSpacingVal = parentChildSpacing.value;
+				});
+				
+				title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('siblingSpacing') + ': ');
+				div.appendChild(title);
+				
+				var siblingSpacing = document.createElement('input');
+				siblingSpacing.type = 'number';
+				siblingSpacing.value = siblingSpacingVal;
+				siblingSpacing.style.width = '200px';
+				siblingSpacing.style.boxSizing = 'border-box';
+				div.appendChild(siblingSpacing);
+				
+				mxEvent.addListener(siblingSpacing, 'change', function()
+				{
+					siblingSpacingVal = siblingSpacing.value;
+				});
+				
+				var dlg = new CustomDialog(editorUi, div, function()
+				{
+					if (branchOptimizer == null) branchOptimizer = 2;
+					doLayout();
+				});
+				editorUi.showDialog(dlg.container, 355, 125, true, true);
+				
+				var delayed = function()
+				{
+					editorUi.loadingOrgChart = false;
+					doLayout();
+				};
+				
+				if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
+				{
+					editorUi.loadingOrgChart = true;
+					mxscript('js/orgchart.min.js', delayed);
+				}
+				else
+				{
+					delayed();
+				}
+			}, parent, null, isGraphEnabled());
 			
 			menu.addSeparator(parent);
 			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');

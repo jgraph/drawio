@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "6a5b4f7606a4f4123ad03042a50c7ede"
+    "revision": "8abaa8385221ff9a0a3c80651e57195f"
   },
   {
     "url": "index.html",
-    "revision": "0ee7e232e5e7e8cb87df23a7edd625db"
+    "revision": "4fc7d6872beb53ad00b0b15abbdccfea"
   },
   {
     "url": "open.html",
@@ -90,7 +90,7 @@ if (workbox)
   },
   {
     "url": "resources/dia.txt",
-    "revision": "26b509d2e116e5ad6162e54153779e89"
+    "revision": "493ad0c11b08219880007941d232f3a1"
   },
   {
     "url": "images/delete.png",

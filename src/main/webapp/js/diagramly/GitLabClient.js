@@ -26,6 +26,11 @@ GitLabClient.prototype.scope = 'api%20read_repository%20write_repository';
 GitLabClient.prototype.baseUrl = DRAWIO_GITLAB_URL + '/api/v4';
 
 /**
+ * Name for the auth token header.
+ */
+GitLabClient.prototype.authToken = 'Bearer';
+
+/**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitLabClient.prototype.authenticate = function(success, error)
@@ -122,11 +127,11 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 		}), this.ui.timeout);
 		
-		var temp = this.token;
+		var temp = this.authToken + ' ' + this.token;
 		
 		req.setRequestHeaders = function(request, params)
 		{
-			request.setRequestHeader('Authorization', 'Bearer ' + temp);
+			request.setRequestHeader('Authorization', temp);
 			request.setRequestHeader('PRIVATE_TOKEN', temp);
 			request.setRequestHeader('Content-Type', 'application/json');
 		};

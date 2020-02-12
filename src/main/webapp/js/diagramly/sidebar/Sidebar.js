@@ -433,8 +433,8 @@
             			entries: [{title: 'ArchiMate 3.0', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
             			          {title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
             			          {title: mxResources.get('bpmn'), id: 'bpmn', image: IMAGE_PATH + '/sidebar-bpmn.png'},
-            			          {title: mxResources.get('leanMapping'), id: 'lean_mapping', image: IMAGE_PATH + '/sidebar-leanmapping.png'},
-            			          {title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'}]},
+            			          {title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'},
+            			          {title: 'Value Stream Mapping', id: 'lean_mapping', image: IMAGE_PATH + '/sidebar-leanmapping.png'}]},
             			{title: mxResources.get('other'),
             			entries: [{title: mxResources.get('cabinets'), id: 'cabinets', image: IMAGE_PATH + '/sidebar-cabinets.png'},
             					  {title: 'Infographic', id: 'infographic', image: IMAGE_PATH + '/sidebar-infographic.png'},
@@ -1083,7 +1083,6 @@
 		this.addArchimate3Palette();
 		this.addArchiMatePalette();
 		this.addBpmnPalette(dir, false);
-		this.addLeanMappingPalette();
 		
 		for (var i = 0; i < sysml.length; i++)
 		{
@@ -1136,6 +1135,8 @@
 				this.addSysMLStereotypesPalette();
 			}
 		}
+
+		this.addLeanMappingPalette();
 
 		this.addCabinetsPalette();
 		this.addInfographicPalette();

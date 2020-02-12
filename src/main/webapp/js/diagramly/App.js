@@ -3039,7 +3039,9 @@ App.prototype.start = function()
 						{
 							var id = this.getDiagramId();
 							
-							if (EditorUi.enableDrafts && this.getServiceName() == 'draw.io' && (id == null || id.length == 0))
+							if (EditorUi.enableDrafts && urlParams['mode'] == null &&
+								this.getServiceName() == 'draw.io' &&
+								(id == null || id.length == 0))
 							{
 								this.checkDrafts();
 							}

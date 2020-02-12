@@ -152,10 +152,7 @@ if (urlParams['tableLayout'] == '1')
 }
 
 //Org Chart Layout
-if (urlParams['orgLayout'] == '1')
-{
-  mxscript(drawDevUrl + 'js/orgchart/bridge.min.js');
-  mxscript(drawDevUrl + 'js/orgchart/bridge.collections.min.js');
-  mxscript(drawDevUrl + 'js/orgchart/OrgChart.Layout.min.js');
-  mxscript(drawDevUrl + 'js/orgchart/mxOrgChartLayout.js');
-}
+mxscript(drawDevUrl + 'js/orgchart/bridge.min.js');
+mxscript(drawDevUrl + 'js/orgchart/bridge.collections.min.js');
+mxscript(drawDevUrl + 'js/orgchart/OrgChart.Layout.min.js');
+mxscript(drawDevUrl + 'js/orgchart/mxOrgChartLayout.js');

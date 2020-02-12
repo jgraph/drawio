@@ -34,7 +34,7 @@
 	/**
 	 * Protocol and hostname to use for embedded files. Default is https://www.draw.io
 	 */
-	EditorUi.drawHost = 'https://www.draw.io';
+	EditorUi.drawHost = window.DRAWIO_BASE_URL;
 	
 	/**
 	 * Switch to disable logging for mode and search terms.
@@ -1515,7 +1515,7 @@
 	EditorUi.prototype.getHtml2 = function(xml, graph, title, editLink, redirect)
 	{
 		var bg = null;
-		var js = EditorUi.drawHost + '/js/viewer.min.js';
+		var js = window.DRAWIO_VIEWER_URL || EditorUi.drawHost + '/js/viewer.min.js';
 		var s = '';
 	
 		// Makes XHTML compatible
@@ -13586,10 +13586,13 @@
 				}
 				catch (e)
 				{
-					error(e);
+					if (error != null)
+					{
+						error(e);
+					}
 				}
 			}
-			else
+			else if (error != null)
 			{
 				error();
 			}
@@ -13604,10 +13607,20 @@
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
-			var trx = db.transaction(['objects'], 'readwrite');
-			var req = trx.objectStore('objects').put({key: key, data: data});
-			req.onsuccess = success;
-	        req.onerror = error;
+			try
+			{
+				var trx = db.transaction(['objects'], 'readwrite');
+				var req = trx.objectStore('objects').put({key: key, data: data});
+				req.onsuccess = success;
+		        req.onerror = error;
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
 		}), error);
 	};
 
@@ -13632,25 +13645,35 @@
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
-			var trx = db.transaction(['objects'], 'readwrite');
-			var req = trx.objectStore('objects').openCursor(
-				IDBKeyRange.lowerBound(0));
-			var items = [];
-			
-			req.onsuccess = function(e)
+			try
 			{
-				if (e.target.result == null)
+				var trx = db.transaction(['objects'], 'readwrite');
+				var req = trx.objectStore('objects').openCursor(
+					IDBKeyRange.lowerBound(0));
+				var items = [];
+				
+				req.onsuccess = function(e)
 				{
-					success(items);
-				}
-				else
+					if (e.target.result == null)
+					{
+						success(items);
+					}
+					else
+					{
+						items.push(e.target.result.value);
+						e.target.result.continue();
+					}
+		        };
+		        
+		        req.onerror = error;
+			}
+			catch (e)
+			{
+				if (error != null)
 				{
-					items.push(e.target.result.value);
-					e.target.result.continue();
+					error(e);
 				}
-	        };
-	        
-	        req.onerror = error;
+			}
 		}), error);
 	};
 	

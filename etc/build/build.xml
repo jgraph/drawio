@@ -317,8 +317,22 @@
 			</sources>
 		</jscomp>
 		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
-	    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
-	    	</concat>
+    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
+    	</concat>
+		
+		<delete file="${war.dir}/js/orgchart.min.js"/>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
+    	</concat>
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp3.js">
+			<sources dir="${war.dir}/js/orgchart">
+				<file name="mxOrgChartLayout.js" />
+			</sources>
+		</jscomp>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="yes">
+			<filelist dir="${basedir}" files=".tmp3.js"/>
+    	</concat>
+		<delete file="${basedir}/.tmp3.js"/>
 		
 		<delete file="${basedir}/.tmp1.js"/>
 		

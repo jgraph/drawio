@@ -1,3 +1,9 @@
+12-FEB-2020: 12.6.8
+
+- Ignores drafts with mode parameter
+- Fixes GitLab authentication
+- Uses mxGraph 4.1.1 beta 8
+
 10-FEB-2020: 12.6.7
 
 - Fixes clipping for edge labels in PDF output

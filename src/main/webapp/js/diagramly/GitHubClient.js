@@ -38,6 +38,11 @@ GitHubClient.prototype.baseUrl = 'https://api.github.com';
 GitHubClient.prototype.maxFileSize = 1000000 /*1MB*/;
 
 /**
+ * Name for the auth token header.
+ */
+GitHubClient.prototype.authToken = 'token';
+
+/**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
@@ -51,11 +56,11 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 	}), this.ui.timeout);
 	
 	var userReq = new mxXmlRequest(this.baseUrl + '/user', null, 'GET');
-	var temp = this.token;
+	var temp = this.authToken + ' ' + this.token;
 	
 	userReq.setRequestHeaders = function(request, params)
 	{
-		request.setRequestHeader('Authorization', 'token ' + temp);
+		request.setRequestHeader('Authorization', temp);
 	};
 	
 	userReq.send(mxUtils.bind(this, function()
@@ -258,11 +263,11 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, retry: fn});
 		}), this.ui.timeout);
 		
-		var temp = this.token;
+		var temp = this.authToken + ' ' + this.token;
 		
 		req.setRequestHeaders = function(request, params)
 		{
-			request.setRequestHeader('Authorization', 'token ' + temp);
+			request.setRequestHeader('Authorization', temp);
 		};
 		
 		req.send(mxUtils.bind(this, function()

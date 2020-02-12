@@ -214,14 +214,33 @@
         			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'comic', '0') == '1';
         }},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
-        {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
-        {name: 'container', dispName: 'Container', type: 'bool', defVal: false},
-        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true},
+        {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			format.editorUi.editor.graph.model.getChildCount(state.vertices[0]) == 0;
+        }},
+        {name: 'collapsible', dispName: 'Collapsible', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	
+        	return cell != null && ((graph.isContainer(cell) && state.style['collapsible'] != '0') ||
+        		(!graph.isContainer(cell) && state.style['collapsible'] == '1'));
+        }, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0;;
+        }},
+        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			!format.editorUi.editor.graph.isSwimlane(state.vertices[0]) &&
+    			mxUtils.getValue(state.style, 'childLayout', null) == null;
+        }},
         {name: 'expand', dispName: 'Expand', type: 'bool', defVal: true},
         {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
@@ -3512,7 +3531,8 @@
 					if (!prop.isVisible(state, this)) continue;
 				}
 				
-				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined
+				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') :
+					((prop.getDefaultValue != null) ? prop.getDefaultValue(state, this) : prop.defVal); //or undefined if defVal is undefined
 
 				if (prop.type == 'separator')
 				{

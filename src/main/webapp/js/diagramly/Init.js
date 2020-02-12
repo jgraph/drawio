@@ -27,7 +27,8 @@ window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '5cdc018a32acddf6eba37592d9
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
-window.VIEWER_URL = null;
+window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || 'https://www.draw.io';
+window.DRAWIO_VIEWER_URL = window.DRAWIO_VIEWER_URL || null;
 
 // Paths and files
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';

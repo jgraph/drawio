@@ -16,9 +16,39 @@
  * (end)
  * 
  */
-function mxOrgChartLayout(graph)
+function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpacing)
 {
 	mxGraphLayout.call(this, graph);
+	
+	switch(parseInt(branchOptimizer))
+	{
+		case 0:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_LINEAR;
+			break;
+		case 1:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER2;
+			break;
+		case 3:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE1;
+			break;
+		case 4:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE2;
+			break;
+		case 5:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_L;
+			break;
+		case 6:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_R;
+			break;
+		case 7:
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_SMART;
+			break;
+		default: //and case 2
+			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4;
+	}
+	
+	this.parentChildSpacing = parentChildSpacing > 0 ? parentChildSpacing : 20;
+	this.siblingSpacing = siblingSpacing > 0 ? siblingSpacing : 20;
 };
 
 /**
@@ -26,6 +56,16 @@ function mxOrgChartLayout(graph)
  */
 mxOrgChartLayout.prototype = new mxGraphLayout();
 mxOrgChartLayout.prototype.constructor = mxOrgChartLayout;
+
+//Branch Optimizers
+mxOrgChartLayout.prototype.BRANCH_OPT_LINEAR = 'branchOptimizerAllLinear';
+mxOrgChartLayout.prototype.BRANCH_OPT_HANGER2 = 'branchOptimizerAllHanger2';
+mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4 = 'branchOptimizerAllHanger4';
+mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE1 = 'branchOptimizerAllFishbone1';
+mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE2 = 'branchOptimizerAllFishbone2';
+mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_L = 'branchOptimizerAllSingleColumnLeft';
+mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_R = 'branchOptimizerAllSingleColumnRight';
+mxOrgChartLayout.prototype.BRANCH_OPT_SMART = 'branchOptimizerSmart';
 
 /**
  * Function: execute
@@ -38,7 +78,7 @@ mxOrgChartLayout.prototype.execute = function(parent)
 	this.graph.model.beginUpdate();
 	try
 	{
-		RPOrgChart.main(this.graph, parent);		
+		RPOrgChart.main(this.graph, parent, this.branchOptimizer, this.parentChildSpacing, this.siblingSpacing);		
 	}
 	finally
 	{
@@ -54,13 +94,16 @@ Bridge.define('RPOrgChart',
 
             }
         },
-        main: function (graph, parent) {
+        main: function (graph, parent, branchOptimizer, parentChildSpacing, siblingSpacing) {
             Bridge.Console.log = console.log;
             Bridge.Console.error = console.error;
             Bridge.Console.debug = console.debug;
 
             RPOrgChart.graph = graph;
             RPOrgChart.parent = parent;
+            RPOrgChart.branchOptimizer = branchOptimizer;
+            RPOrgChart.parentChildSpacing = parseInt(parentChildSpacing);
+            RPOrgChart.siblingSpacing = parseInt(siblingSpacing);
             RPOrgChart.buildChart(true);
         },
 
@@ -130,62 +173,82 @@ Bridge.define('RPOrgChart',
 
             var linearLayoutStrategy = new OrgChart.Layout.LinearLayoutStrategy();
             linearLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
+            linearLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            linearLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("linear", linearLayoutStrategy);
 
             var multiLineHangerLayoutStrategy = new OrgChart.Layout.MultiLineHangerLayoutStrategy();
             multiLineHangerLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
             multiLineHangerLayoutStrategy.MaxSiblingsPerRow = 2;
+            multiLineHangerLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            multiLineHangerLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("hanger2", multiLineHangerLayoutStrategy);
 
             multiLineHangerLayoutStrategy = new OrgChart.Layout.MultiLineHangerLayoutStrategy();
             multiLineHangerLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
             multiLineHangerLayoutStrategy.MaxSiblingsPerRow = 4;
+            multiLineHangerLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            multiLineHangerLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("hanger4", multiLineHangerLayoutStrategy);
 
             var singleColumnLayoutStrategy = new OrgChart.Layout.SingleColumnLayoutStrategy();
             singleColumnLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Right;
+            singleColumnLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            singleColumnLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("singleColumnRight", singleColumnLayoutStrategy);
 
             singleColumnLayoutStrategy = new OrgChart.Layout.SingleColumnLayoutStrategy();
             singleColumnLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Left;
+            singleColumnLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            singleColumnLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("singleColumnLeft", singleColumnLayoutStrategy);
 
             var fishboneLayoutStrategy = new OrgChart.Layout.MultiLineFishboneLayoutStrategy();
             fishboneLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
             fishboneLayoutStrategy.MaxGroups = 1;
+            fishboneLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            fishboneLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("fishbone1", fishboneLayoutStrategy);
 
             fishboneLayoutStrategy = new OrgChart.Layout.MultiLineFishboneLayoutStrategy();
             fishboneLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
             fishboneLayoutStrategy.MaxGroups = 2;
+            fishboneLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            fishboneLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("fishbone2", fishboneLayoutStrategy);
 
             var hstackLayoutStrategy = new OrgChart.Layout.StackingLayoutStrategy();
             hstackLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.InvalidValue;
             hstackLayoutStrategy.Orientation = OrgChart.Layout.StackOrientation.SingleRowHorizontal;
-            hstackLayoutStrategy.ParentChildSpacing = 10;
+            hstackLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            hstackLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("hstack", hstackLayoutStrategy);
 
             var vstackLayoutStrategy = new OrgChart.Layout.StackingLayoutStrategy();
             vstackLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.InvalidValue;
             vstackLayoutStrategy.Orientation = OrgChart.Layout.StackOrientation.SingleColumnVertical;
-            vstackLayoutStrategy.ParentChildSpacing = 10;
+            vstackLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            vstackLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("vstack", vstackLayoutStrategy);
 
             vstackLayoutStrategy = new OrgChart.Layout.StackingLayoutStrategy();
             vstackLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.InvalidValue;
             vstackLayoutStrategy.Orientation = OrgChart.Layout.StackOrientation.SingleColumnVertical;
-            vstackLayoutStrategy.SiblingSpacing = 20;
+            vstackLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            vstackLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("vstackMiddle", vstackLayoutStrategy);
 
             vstackLayoutStrategy = new OrgChart.Layout.StackingLayoutStrategy();
             vstackLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.InvalidValue;
             vstackLayoutStrategy.Orientation = OrgChart.Layout.StackOrientation.SingleColumnVertical;
-            vstackLayoutStrategy.SiblingSpacing = 50;
+            vstackLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            vstackLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("vstackTop", vstackLayoutStrategy);
 
             var assistantsLayoutStrategy = new OrgChart.Layout.FishboneAssistantsLayoutStrategy();
             assistantsLayoutStrategy.ParentAlignment = OrgChart.Layout.BranchParentAlignment.Center;
+            assistantsLayoutStrategy.ParentChildSpacing = RPOrgChart.parentChildSpacing;
+            assistantsLayoutStrategy.SiblingSpacing = RPOrgChart.siblingSpacing;
             diagram.LayoutSettings.LayoutStrategies.add("assistants", assistantsLayoutStrategy);
 
             diagram.LayoutSettings.DefaultLayoutStrategyId = "vstack";
@@ -238,11 +301,8 @@ Bridge.define('RPOrgChart',
             RPOrgChart.diagram.getVisualTree().IterateParentFirst(visitorFunc);
         },
 
-        //TODO implement this
         getBranchOptimizerFunc: function () {
-//			                var value = $("input[name='SelectBranchOptimizer']:checked").val();
-            var func = RPOrgChart['branchOptimizer' + 'AllHanger4'];
-            return func;
+            return RPOrgChart[RPOrgChart.branchOptimizer];
         },
 
         branchOptimizerAllLinear: function(node) {
