@@ -3603,7 +3603,8 @@
 
 			var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-turquoise',
 				'plain-orange', 'plain-yellow', 'plain-red', 'plain-pink', 'plain-purple', 'gray',
-				'blue', 'green', 'turquoise', 'orange', 'yellow', 'red', 'pink', 'purple'];
+				'blue', 'green', 'turquoise', 'orange', 'yellow', 'red', 'pink', 'purple',
+				'material-blue', 'material-red', 'material-green', 'material-yellow', 'material-gray'];
 
 			function updateScheme(colorsets)
 			{
