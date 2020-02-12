@@ -116,6 +116,21 @@
 		<add as="fillColor" value="#E1D5E7"/>
 		<add as="strokeColor" value="#9673A6"/>
 	</add>
+	<add as="material-blue">
+		<add as="fillColor" value="#4285F4"/>
+	</add>
+	<add as="material-red">
+		<add as="fillColor" value="#DB4437"/>
+	</add>
+	<add as="material-green">
+		<add as="fillColor" value="#0F9D58"/>
+	</add>
+	<add as="material-yellow">
+		<add as="fillColor" value="#f4b400"/>
+	</add>
+	<add as="material-gray">
+		<add as="fillColor" value="#575757"/>
+	</add>
 	<add as="text">
 		<add as="fillColor" value="none"/>
 		<add as="gradientColor" value="none"/>
