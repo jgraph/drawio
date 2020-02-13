@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Sistem tipografic matematic
 makeCopy=Fă o copie
 manual=Manual
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

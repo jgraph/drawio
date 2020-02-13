@@ -458,6 +458,7 @@ maps=Мапи
 mathematicalTypesetting=Математичне утворювання
 makeCopy=Зробити сколок
 manual=Вручну
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

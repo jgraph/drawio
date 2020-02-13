@@ -458,6 +458,7 @@ maps=Карты
 mathematicalTypesetting=Математический набор
 makeCopy=Создать копию
 manual=Вручную
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

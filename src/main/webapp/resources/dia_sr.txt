@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Matematički slog
 makeCopy=Kreiraj kopiju
 manual=Ručno
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

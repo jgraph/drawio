@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Matematisk typsättning
 makeCopy=Gör en kopia
 manual=Manual
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

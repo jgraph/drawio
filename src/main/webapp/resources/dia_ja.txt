@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=数式組版
 makeCopy=複製する
 manual=マニュアル
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

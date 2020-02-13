@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=‫סידור דפוס מתמטי‬
 makeCopy=‫צור עותק‬
 manual=‫ידני‬
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=수학 공식 입력
 makeCopy=복사본 만들기
 manual=수동
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

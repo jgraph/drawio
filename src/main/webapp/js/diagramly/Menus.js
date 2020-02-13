@@ -2567,7 +2567,8 @@
 			{
 				menu.addItem(title, null, mxUtils.bind(this, function()
 				{
-					if (method == 'fromText' || method == 'formatSql' || method == 'plantUml')
+					if (method == 'fromText' || method == 'formatSql' ||
+						method == 'plantUml' || method == 'mermaid')
 					{
 						var dlg = new ParseDialog(editorUi, title, method);
 						editorUi.showDialog(dlg.container, 620, 420, true, false);
@@ -2703,7 +2704,7 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
+			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{

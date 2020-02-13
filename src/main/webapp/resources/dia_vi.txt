@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Sắp chữ kiểu toán học
 makeCopy=Tạo bản sao
 manual=Hướng dẫn
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

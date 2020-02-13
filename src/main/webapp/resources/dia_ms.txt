@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Atur Huruf Matematik
 makeCopy=Buat satu Salinan
 manual=Manual
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

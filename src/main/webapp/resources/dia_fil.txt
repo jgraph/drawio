@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Matematikong Typesetting
 makeCopy=Gumawa ng kopya
 manual=De-Mano
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

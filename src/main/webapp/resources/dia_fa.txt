@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=‫حروف چینی ریاضی‬
 makeCopy=‫ایجاد یک کپی‬
 manual=‫دَستی‬
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

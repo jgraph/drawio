@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Matematiksel dizgi
 makeCopy=Kopyasını yap
 manual=Elle
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

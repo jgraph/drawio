@@ -1829,7 +1829,7 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 				evt.stopPropagation();
 				evt.preventDefault();
 			}));
-					
+			
 			mxEvent.addListener(dlg, 'drop', mxUtils.bind(this, function(evt)
 			{
 			    if (dropElt != null)
@@ -1858,7 +1858,7 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 			    		{
 			    			queue[i]();
 			    		}
-			    	}, true, editorUi.maxBackgroundBytes, editorUi.maxBackgroundBytes);
+			    	}, true, editorUi.maxBackgroundBytes, editorUi.maxBackgroundBytes, true);
 	    		}
 			    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
@@ -2075,7 +2075,45 @@ var ParseDialog = function(editorUi, title, defaultType)
 								w, h, 'shape=image;noLabel=1;verticalAlign=top;aspect=fixed;imageAspect=0;' +
 								'image=' + editorUi.convertDataUri(data) + ';')
 						graph.setAttributeForCell(cell, 'plantUmlData',
-							JSON.stringify({data: text, format: format}));
+							JSON.stringify({data: text, format: format},
+							null, 2));
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
+					
+					if (cell != null)
+					{
+						graph.setSelectionCell(cell);
+						graph.scrollCellToVisible(cell);
+					}
+				}, function(e)
+				{
+					editorUi.handleError(e);
+				});
+			}
+		}
+		else if (type == 'mermaid')
+		{
+			if (editorUi.spinner.spin(document.body, mxResources.get('inserting')))
+			{
+				var graph = editorUi.editor.graph;
+				
+				editorUi.generateMermaidImage(text, format, function(data, w, h)
+				{
+					editorUi.spinner.stop();
+					var cell = null;
+					
+					graph.getModel().beginUpdate();
+					try
+					{
+						cell = graph.insertVertex(null, null, null, insertPoint.x, insertPoint.y,
+								w, h, 'shape=image;noLabel=1;verticalAlign=top;imageAspect=1;' +
+								'image=' + data + ';')
+						graph.setAttributeForCell(cell, 'mermaidData',
+							JSON.stringify({data: text, config:
+							EditorUi.defaultMermaidConfig}, null, 2));
 					}
 					finally
 					{
@@ -2383,7 +2421,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	
 	var typeSelect = document.createElement('select');
 	
-	if (defaultType == 'formatSql')
+	if (defaultType == 'formatSql' || defaultType == 'mermaid')
 	{
 		typeSelect.style.display = 'none';
 	}
@@ -2412,6 +2450,16 @@ var ParseDialog = function(editorUi, title, defaultType)
 		tableOption.setAttribute('selected', 'selected');
 	}
 	
+	var mermaidOption = document.createElement('option');
+	mermaidOption.setAttribute('value', 'mermaid');
+	mxUtils.write(mermaidOption, mxResources.get('formatSql'));
+	
+	if (defaultType == 'mermaid')
+	{
+		typeSelect.appendChild(mermaidOption);
+		mermaidOption.setAttribute('selected', 'selected');
+	}
+	
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
 	mxUtils.write(diagramOption, mxResources.get('diagram'));
@@ -2420,7 +2468,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	{
 		typeSelect.appendChild(diagramOption);
 	}
-		
+
 	var plantUmlSvgOption = document.createElement('option');
 	plantUmlSvgOption.setAttribute('value', 'plantUmlSvg');
 	mxUtils.write(plantUmlSvgOption, mxResources.get('plantUml') + ' (' + mxResources.get('formatSvg') + ')');
@@ -2453,6 +2501,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 		{
 			return 'Person\n-name: String\n-birthDate: Date\n--\n+getName(): String\n+setName(String): void\n+isBirthday(): boolean\n\n' +
 				'Address\n-street: String\n-city: String\n-state: String';
+		}
+		else if (typeSelect.value == 'mermaid')
+		{
+			return 'graph TD;\n  A-->B;\n  A-->C;\n  B-->D;\n  C-->D;';
 		}
 		else if (typeSelect.value == 'table')
 		{
@@ -2526,6 +2578,19 @@ var ParseDialog = function(editorUi, title, defaultType)
 			textarea.value = defaultValue;
 		}
 	});
+	
+	if (!editorUi.isOffline() && (defaultType == 'mermaid' || defaultType == 'plantUml'))
+	{
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink((defaultType == 'mermaid') ?
+				'https://mermaid-js.github.io/mermaid/#/' :
+				'https://plantuml.com/');
+		});
+		
+		helpBtn.className = 'geBtn';	
+		div.appendChild(helpBtn);
+	}
 	
 	var cancelBtn = mxUtils.button(mxResources.get('close'), function()
 	{
@@ -4251,25 +4316,25 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 
 			    if (evt.dataTransfer.files.length > 0)
 			    {
-				    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, fileName, resize)
-				    	{
-				    		apply(data, resize);
-				    	}, function()
-				    	{
-				    		// No post processing
-				    	}, function(file)
-				    	{
-				    		// Handles only images
-				    		return file.type.substring(0, 6) == 'image/';
-				    	}, function(queue)
-				    	{
-				    		// Invokes elements of queue in order
-				    		for (var i = 0; i < queue.length; i++)
-				    		{
-				    			queue[i]();
-				    		}
-				    	}, !mxEvent.isControlDown(evt));
-		    		}
+			    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxImageSize, function(data, mimeType, x, y, w, h, fileName, resize)
+			    	{
+			    		apply(data, resize);
+			    	}, function()
+			    	{
+			    		// No post processing
+			    	}, function(file)
+			    	{
+			    		// Handles only images
+			    		return file.type.substring(0, 6) == 'image/';
+			    	}, function(queue)
+			    	{
+			    		// Invokes elements of queue in order
+			    		for (var i = 0; i < queue.length; i++)
+			    		{
+			    			queue[i]();
+			    		}
+			    	}, !mxEvent.isControlDown(evt), null, null, true);
+	    		}
 			    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
 				    	var uri = evt.dataTransfer.getData('text/uri-list');

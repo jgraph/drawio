@@ -1,3 +1,8 @@
+13-FEB-2020: 12.7.0
+
+- Adds dropTarget style property
+- Adds Insert, Advanced, Mermaid
+
 12-FEB-2020: 12.6.8
 
 - Ignores drafts with mode parameter

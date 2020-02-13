@@ -458,6 +458,7 @@ maps=Maps
 mathematicalTypesetting=Μαθηματική ρύθμιση κειμένου προς εκτύπωση
 makeCopy=Δημιουργία αντιγράφου
 manual=Χειροκίνητα
+mermaid=Mermaid
 microsoftOffice=Microsoft Office
 microsoftExcel=Microsoft Excel
 microsoftPowerPoint=Microsoft PowerPoint

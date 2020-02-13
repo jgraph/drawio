@@ -224,6 +224,17 @@
     		return state.vertices.length == 1 && state.edges.length == 0 &&
     			format.editorUi.editor.graph.model.getChildCount(state.vertices[0]) == 0;
         }},
+        {name: 'dropTarget', dispName: 'Drop Target', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	
+        	return cell != null && (graph.isSwimlane(cell) || graph.model.getChildCount(cell) > 0);
+        }, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			mxUtils.getValue(state.style, 'part', '0') != '1';
+        }},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', getDefaultValue: function(state, format)
         {
         	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
@@ -233,7 +244,7 @@
         		(!graph.isContainer(cell) && state.style['collapsible'] == '1'));
         }, isVisible: function(state, format)
         {
-    		return state.vertices.length == 1 && state.edges.length == 0;;
+    		return state.vertices.length == 1 && state.edges.length == 0;
         }},
         {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true, isVisible: function(state, format)
         {

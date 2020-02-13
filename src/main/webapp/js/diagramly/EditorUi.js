@@ -88,7 +88,48 @@
 	 * Link for scratchpad help.
 	 */
 	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
-	
+			
+	/**
+	 * Default Mermaid config.
+	 */
+	EditorUi.defaultMermaidConfig = {
+		theme:'neutral',
+		arrowMarkerAbsolute:false,
+	    flowchart:
+	    {
+	    	htmlLabels:true
+	    },
+	    sequence:
+	    {
+	    	diagramMarginX:50,
+	    	diagramMarginY:10,
+	    	actorMargin:50,
+	    	width:150,
+	    	height:65,
+	    	boxMargin:10,
+	    	boxTextMargin:5,
+	    	noteMargin:10,
+	    	messageMargin:35,
+	    	mirrorActors:true,
+	    	bottomMarginAdj:1,
+	    	useMaxWidth:true,
+	    	rightAngles:false,
+	    	showSequenceNumbers:false
+	    },
+	    gantt:{
+	    	titleTopMargin:25,
+	    	barHeight:20,
+	    	barGap:4,
+	    	topPadding:50,
+	    	leftPadding:75,
+	    	gridLineStartPadding:35,
+	    	fontSize:11,
+	    	fontFamily:'"Open-Sans", "sans-serif"',
+	    	numberSectionStyles:4,
+	    	axisFormat:'%Y-%m-%d'
+	    }
+	};
+
 	/**
 	 * Updates action states depending on the selection.
 	 */
@@ -7290,7 +7331,7 @@
 				
 				if (remote) 
 				{
-					if (VSD_CONVERT_URL != null)
+					if (VSD_CONVERT_URL != null && !this.isOffline())
 					{
 						var formData = new FormData();
 						formData.append('file1', file, filename);
@@ -7533,6 +7574,82 @@
 		}
 	};
 
+	/**
+	 * Generates a Mermaid image.
+	 */
+	EditorUi.prototype.generateMermaidImage = function(data, config, success, error)
+	{
+		var ui = this;
+		
+		var delayed = function()
+		{
+			try
+			{
+				this.loadingMermaid = false;
+				
+				config = (config != null) ? config : EditorUi.defaultMermaidConfig;
+				config.securityLevel = 'strict';
+				config.startOnLoad = false;
+
+				mermaid.mermaidAPI.initialize(config);
+	    		
+				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data, function(svg)
+				{
+					var img = new Image();
+					var uri = ui.createSvgDataUri(svg);
+					
+					img.onload = function()
+					{
+						try
+						{
+							var w = img.width;
+							var h = img.height;
+
+							// Workaround for 0 image size in IE11
+							if (w == 0 && h == 0)
+							{
+								var root = mxUtils.parseXml(svg);
+								var svgs = root.getElementsByTagName('svg');
+
+								if (svgs.length > 0)
+								{
+									w = parseFloat(svgs[0].getAttribute('width'));
+									h = parseFloat(svgs[0].getAttribute('height'));
+								}
+							}
+							
+							success(ui.convertDataUri(uri), w, h);
+						}
+						catch (e)
+						{
+							error(e);
+						}
+					};
+
+					img.src = uri;
+				});
+			}
+			catch (e)
+			{
+				error(e);
+			}
+		};
+
+		if (typeof mermaid === 'undefined' && !this.loadingMermaid && !this.isOffline(true))
+		{
+			this.loadingMermaid = true;
+			
+			mxscript('js/mermaid/mermaid.min.js', function()
+			{
+				delayed();	
+			});
+		}
+		else
+		{
+			delayed();
+		}
+	};
+	
 	/**
 	 * Generates a plant UML image. Possible types are svg, png and txt.
 	 */
@@ -8356,7 +8473,8 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn, resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
+	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn,
+		resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
 	{
 		x = (x != null) ? x : 0;
 		y = (y != null) ? y : 0;
@@ -9112,70 +9230,141 @@
 		var ui = this;
 		var graph = this.editor.graph;
 		
+		// Starts editing PlantUML data
+		graph.cellEditor.editPlantUmlData = function(cell, trigger, data)
+		{
+			var obj = JSON.parse(data);
+			
+	    	var dlg = new TextareaDialog(ui, mxResources.get('plantUml') + ':',
+	    		obj.data, function(text)
+			{
+	    		if (text != null)
+				{
+	    			if (ui.spinner.spin(document.body, mxResources.get('inserting')))
+	    			{
+	    				ui.generatePlantUmlImage(text, obj.format, function(data, w, h)
+	    				{
+	    					ui.spinner.stop();
+
+	    					graph.getModel().beginUpdate();
+	    					try
+	    					{
+	    						if (obj.format == 'txt')
+		    					{
+		    						graph.labelChanged(cell, '<pre>' + data + '</pre>');
+		    						graph.updateCellSize(cell, true);
+		    					}
+	    						else
+	    						{
+	    							graph.setCellStyles('image', ui.convertDataUri(data), [cell]);
+	    							var geo = graph.model.getGeometry(cell);
+	    							
+	    							if (geo != null)
+	    							{
+	    								geo = geo.clone();
+	    								geo.width = w;
+	    								geo.height = h;
+	    								graph.cellsResized([cell], [geo], false);
+	    							}
+	    						}
+	    						
+	    						graph.setAttributeForCell(cell, 'plantUmlData',
+		    						JSON.stringify({data: text, format: obj.format}));
+	    					}
+	    					finally
+	    					{
+	    						graph.getModel().endUpdate();
+	    					}
+	    				}, function(e)
+	    				{
+	    					ui.handleError(e);
+	    				});
+	    			}
+				}
+			}, null, null, 400, 220);
+			ui.showDialog(dlg.container, 420, 300, true, true);
+			dlg.init();
+		};
+		
+		// Starts editing Mermaid data
+		graph.cellEditor.editMermaidData = function(cell, trigger, data)
+		{
+			var obj = JSON.parse(data);
+			
+	    	var dlg = new TextareaDialog(ui, mxResources.get('mermaid') + ':',
+	    		obj.data, function(text)
+			{
+	    		if (text != null)
+				{
+	    			if (ui.spinner.spin(document.body, mxResources.get('inserting')))
+	    			{
+	    				ui.generateMermaidImage(text, obj.config, function(data, w, h)
+	    				{
+	    					ui.spinner.stop();
+
+	    					graph.getModel().beginUpdate();
+	    					try
+	    					{
+	    						graph.setCellStyles('image', data, [cell]);
+    							var geo = graph.model.getGeometry(cell);
+    							
+    							if (geo != null)
+    							{
+    								geo = geo.clone();
+    								geo.width = Math.max(geo.width, w);
+    								geo.height = Math.max(geo.height, h);
+    								graph.cellsResized([cell], [geo], false);
+    							}
+	    						
+	    						graph.setAttributeForCell(cell, 'mermaidData',
+		    						JSON.stringify({data: text, config:
+		    						obj.config}, null, 2));
+	    					}
+	    					finally
+	    					{
+	    						graph.getModel().endUpdate();
+	    					}
+	    				}, function(e)
+	    				{
+	    					ui.handleError(e);
+	    				});
+	    			}
+				}
+			}, null, null, 400, 220);
+			ui.showDialog(dlg.container, 420, 300, true, true);
+			dlg.init();
+		};
+		
 		// Overrides function to add editing for Plant UML.
 		var cellEditorStartEditing = graph.cellEditor.startEditing;
 		
 		graph.cellEditor.startEditing = function(cell, trigger)
 		{
-			var data = this.graph.getAttributeForCell(cell, 'plantUmlData');
-			
-			if (data != null)
+			try
 			{
-				var obj = JSON.parse(data);
+				var data = this.graph.getAttributeForCell(cell, 'plantUmlData');
 				
-		    	var dlg = new TextareaDialog(ui, mxResources.get('plantUml') + ':',
-		    		obj.data, function(text)
+				if (data != null)
 				{
-		    		if (text != null)
+					this.editPlantUmlData(cell, trigger, data);
+				}
+				else
+				{
+					data = this.graph.getAttributeForCell(cell, 'mermaidData');
+				
+					if (data != null)
 					{
-		    			if (ui.spinner.spin(document.body, mxResources.get('inserting')))
-		    			{
-		    				ui.generatePlantUmlImage(text, obj.format, function(data, w, h)
-		    				{
-		    					ui.spinner.stop();
-
-		    					graph.getModel().beginUpdate();
-		    					try
-		    					{
-		    						if (obj.format == 'txt')
-			    					{
-			    						graph.labelChanged(cell, '<pre>' + data + '</pre>');
-			    						graph.updateCellSize(cell, true);
-			    					}
-		    						else
-		    						{
-		    							graph.setCellStyles('image', ui.convertDataUri(data), [cell]);
-		    							var geo = graph.model.getGeometry(cell);
-		    							
-		    							if (geo != null)
-		    							{
-		    								geo = geo.clone();
-		    								geo.width = w;
-		    								geo.height = h;
-		    								graph.cellsResized([cell], [geo], false);
-		    							}
-		    						}
-		    						
-		    						graph.setAttributeForCell(cell, 'plantUmlData',
-			    						JSON.stringify({data: text, format: obj.format}));
-		    					}
-		    					finally
-		    					{
-		    						graph.getModel().endUpdate();
-		    					}
-		    				}, function(e)
-		    				{
-		    					ui.handleError(e);
-		    				});
-		    			}
+						this.editMermaidData(cell, trigger, data);
 					}
-				}, null, null, 400, 220);
-				ui.showDialog(dlg.container, 420, 300, true, true);
-				dlg.init();
+					else
+					{
+						cellEditorStartEditing.apply(this, arguments);
+					}
+				}
 			}
-			else
+			catch (e)
 			{
-				cellEditorStartEditing.apply(this, arguments);
+				ui.handleError(e);
 			}
 		};
 		

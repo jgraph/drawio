@@ -3379,7 +3379,8 @@ App.prototype.showSplash = function(force)
 				}
 			}), true);
 		
-		if (this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER)
+		if ((!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp) &&
+			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
 		{
 			this.showDownloadDesktopFooter();
 		}
