@@ -1,3 +1,9 @@
+17-FEB-2020: 12.7.1
+
+- DropTarget style has precedence over container
+- Replaces UML module shape
+- Uses mxGraph 4.1.1 beta 9
+
 13-FEB-2020: 12.7.0
 
 - Adds dropTarget style property
@@ -6,6 +12,7 @@
 12-FEB-2020: 12.6.8
 
 - Ignores drafts with mode parameter
+- Adds Arrange, Layout, Org Chart
 - Fixes GitLab authentication
 - Uses mxGraph 4.1.1 beta 8
 

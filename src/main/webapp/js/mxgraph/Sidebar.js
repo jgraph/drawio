@@ -1321,7 +1321,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;',
 			180, 120, 'Block', 'Block', null, null, dt + 'block'),
-		this.createVertexTemplateEntry('shape=component;align=left;spacingLeft=36;', 120, 60, 'Module', 'Module', null, null, dt + 'module'),
+		this.createVertexTemplateEntry('shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;', 100, 50, 'Module', 'Module', null, null, dt + 'module component'),
 		this.createVertexTemplateEntry('shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;', 70, 50,
 		   	'package', 'Package', null, null, dt + 'package'),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;',
@@ -3178,9 +3178,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 					target = model.getParent(target);
 				}
 				
-				if (graph.view.currentRoot == target || (!graph.isValidRoot(target) &&
+				if (target != null && (graph.view.currentRoot == target ||
+					(!graph.isValidRoot(target) && 
 					graph.getModel().getChildCount(target) == 0) ||
-					graph.isCellLocked(target) || model.isEdge(target))
+					graph.isCellLocked(target) || model.isEdge(target) ||
+					!graph.isValidDropTarget(target, cells, evt)))
 				{
 					target = null;
 				}

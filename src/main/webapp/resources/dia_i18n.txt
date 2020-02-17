@@ -1007,3 +1007,4 @@ fishbone2=fishbone2
 smart=smart
 parentChildSpacing=parentChildSpacing
 siblingSpacing=siblingSpacing
+confNoPermErr=confNoPermErr
