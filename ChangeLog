@@ -1,3 +1,11 @@
+19-FEB-2020: 12.7.2
+
+- Removes HTML 5 application cache
+- Adds Alt+Click for sidebar items
+- Fixes rounding for page guides
+- Adds language support for PWA
+- Uses mxGraph 4.1.1 beta 10
+
 17-FEB-2020: 12.7.1
 
 - DropTarget style has precedence over container

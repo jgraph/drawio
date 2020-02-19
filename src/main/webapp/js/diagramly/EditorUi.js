@@ -566,22 +566,13 @@
 	{
 		return this.editor.graph.mathEnabled;
 	};
-	
-	/**
-	 * Returns true if using application cache
-	 */
-	EditorUi.prototype.isAppCache = function()
-	{
-		return (urlParams['appcache'] == '1' || this.isOfflineApp()) &&
-			!('serviceWorker' in navigator);
-	};
-	
+
 	/**
 	 * Returns true if offline app, which isn't a defined thing
 	 */
 	EditorUi.prototype.isOfflineApp = function()
 	{
-		return (urlParams['offline'] == '1');
+		return urlParams['offline'] == '1';
 	};
 
 	/**
@@ -3487,55 +3478,15 @@
 	 */
 	EditorUi.prototype.footerHeight = 0;
 	
-    if (urlParams['offline'] == '1' || EditorUi.isElectronApp)
-    {
-		//EditorUi.prototype.footerHeight = 4;
-    }
-    else
-    {
-		if (urlParams['savesidebar'] == '1')
-		{
-    		Sidebar.prototype.thumbWidth = 64;
-    		Sidebar.prototype.thumbHeight = 64;
-		}
+	if (urlParams['savesidebar'] == '1')
+	{
+		Sidebar.prototype.thumbWidth = 64;
+		Sidebar.prototype.thumbHeight = 64;
+	}
 
-		//EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
-		
-		// Fetches footer from page
-		EditorUi.prototype.createFooter = function()
-		{
-			var footer = document.getElementById('geFooter');
-			
-			if (footer != null)
-			{
-//				footer.style.visibility = 'hidden';
-//				
-//				// Adds button to hide the footer
-//				var img = document.createElement('img');
-//				img.setAttribute('border', '0');
-//				img.setAttribute('src', Dialog.prototype.closeImage);
-//				img.setAttribute('title', mxResources.get('hide'));
-//				footer.appendChild(img)
-//
-//				if (mxClient.IS_QUIRKS)
-//				{
-//					img.style.position = 'relative';
-//					img.style.styleFloat = 'right';
-//					img.style.top = '-30px';
-//					img.style.left = '164px';
-//					img.style.cursor = 'pointer';
-//				}
-//				
-//				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-//				{
-//					this.hideFooter();
-//				}));
-			}
-
-			return footer;
-		};
-    }
-    
+	/**
+	 * Programmatic settings for theme.
+	 */
     EditorUi.initTheme = function()
     {
     	if (uiTheme == 'atlas')
@@ -3575,37 +3526,7 @@
     };
     
     EditorUi.initTheme();
-    
-    /**
-     * Hides the footer.
-     */
-    EditorUi.prototype.hideFooter = function()
-    {
-    	var footer = document.getElementById('geFooter');
-	    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = 0;
-    		footer.style.display = 'none';
-    		this.refresh();
-    	}
-    };
 
-    /**
-     * Shows the footer.
-     */
-    EditorUi.prototype.showFooter = function(height)
-    {
-    	var footer = document.getElementById('geFooter');
-	    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = height;
-    		footer.style.display = 'inline';
-    		this.refresh();
-    	}
-    };
-    
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
@@ -6442,11 +6363,13 @@
         }
     };
     
+    /**
+     * Embeds extrnal fonts
+     */
     EditorUi.prototype.embedExtFonts = function(callback)
     {
     	var extFonts = this.editor.graph.extFonts; 
     	
-    	//Add extrnal fonts
 		if (extFonts != null && extFonts.length > 0)
 		{
 			var styleCnt = '', waiting = 0;
@@ -6466,40 +6389,41 @@
 			
 			for (var i = 0; i < extFonts.length; i++)
 			{
-				var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
-				
-				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				(function(fontName, fontUrl)
 				{
-					if (this.cachedGoogleFonts[fontUrl] == null)
+					if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
 					{
-						waiting++;
-						
-						this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
-	                    {
-							this.cachedGoogleFonts[fontUrl] = css;
-							styleCnt += css;
-	                        waiting--;
-	                        googleCssDone();
-	                    }), mxUtils.bind(this, function(err)
-	                    {
-	                        // LATER: handle error
-	                        waiting--;
-	                        styleCnt += '@import url(' + fontUrl + ');';
-	                        googleCssDone();
-	                    }));
+						if (this.cachedGoogleFonts[fontUrl] == null)
+						{
+							waiting++;
+							
+							this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
+		                    {
+								this.cachedGoogleFonts[fontUrl] = css;
+								styleCnt += css;
+		                        waiting--;
+		                        googleCssDone();
+		                    }), mxUtils.bind(this, function(err)
+		                    {
+		                        // LATER: handle error
+		                        waiting--;
+		                        styleCnt += '@import url(' + fontUrl + ');';
+		                        googleCssDone();
+		                    }));
+						}
+						else
+						{
+							styleCnt += this.cachedGoogleFonts[fontUrl];
+						}
 					}
 					else
 					{
-						styleCnt += this.cachedGoogleFonts[fontUrl];
+						styleCnt += '@font-face {' +
+				            'font-family: "'+ fontName +'";' + 
+				            'src: url("'+ fontUrl +'");' + 
+				            '}';
 					}
-				}
-				else
-				{
-					styleCnt += '@font-face {' +
-			            'font-family: "'+ fontName +'";' + 
-			            'src: url("'+ fontUrl +'");' + 
-			            '}';
-				}				
+				})(extFonts[i].name, extFonts[i].url);
 			}
 			
 			googleCssDone();
@@ -7151,9 +7075,12 @@
 					{
 						cells = graph.importGraphModel(node, dx, dy, crop);
 						
-						for (var i = 0; i < cells.length; i++)
+						if (cells != null)
 						{
-							this.updatePageLinksForCell(mapping, cells[i]);
+							for (var i = 0; i < cells.length; i++)
+							{
+								this.updatePageLinksForCell(mapping, cells[i]);
+							}
 						}
 					}
 				}
@@ -7639,10 +7566,14 @@
 		{
 			this.loadingMermaid = true;
 			
-			mxscript('js/mermaid/mermaid.min.js', function()
+			if (urlParams['dev'] == '1')
 			{
-				delayed();	
-			});
+				mxscript('js/mermaid/mermaid.min.js', delayed);
+			}
+			else
+			{
+				mxscript('js/extensions.min.js', delayed);
+			}
 		}
 		else
 		{
@@ -13165,96 +13096,8 @@
 				this.toolbar.edgeStyleMenu.setEnabled(editable);
 			}
 		}
-		
-		if (this.isAppCache())
-		{
-			var appCache = window.applicationCache;
-			
-			// NOTE: HTML5 Cache is deprecated
-			if (appCache != null && this.offlineStatus == null)
-			{
-				this.offlineStatus = document.createElement('div');
-				this.offlineStatus.className = 'geItem';
-				this.offlineStatus.style.position = 'absolute';
-				this.offlineStatus.style.fontSize = '8pt';
-				this.offlineStatus.style.top = '2px';
-				this.offlineStatus.style.right = '12px';
-				this.offlineStatus.style.color = '#666';
-				this.offlineStatus.style.margin = '4px';
-				this.offlineStatus.style.padding = '2px';
-				this.offlineStatus.style.verticalAlign = 'middle';
-				this.offlineStatus.innerHTML = '';
-				
-				this.menubarContainer.appendChild(this.offlineStatus);
-				
-				mxEvent.addListener(this.offlineStatus, 'click', mxUtils.bind(this, function()
-				{
-					var img = this.offlineStatus.getElementsByTagName('img');
-					
-					if (img != null && img.length > 0)
-					{
-						this.alert(img[0].getAttribute('title'));
-					}
-				}));
-				
-				var lastStatus = null;
-				
-				var updateStatus = mxUtils.bind(this, function()
-				{
-					var newStatus = appCache.status;
-					var html = '';
-					
-					if (newStatus == appCache.CHECKING)
-					{
-						newStatus = appCache.DOWNLOADING;
-					}
-					
-					switch (newStatus)
-					{
-						case appCache.UNCACHED: // UNCACHED == 0
-							html = '';
-							break;
-						case appCache.IDLE: // IDLE == 1
-							html = (uiTheme == 'min') ? '' : '<img title="draw.io is up to date." border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
-							break;
-						case appCache.DOWNLOADING: // DOWNLOADING == 3
-							html = '<img title="Downloading new version..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
-							break;
-						case appCache.UPDATEREADY:  // UPDATEREADY == 4
-							html = '<img title="' + mxUtils.htmlEntities(mxResources.get('restartForChangeRequired')) +
-					    		'" border="0" src="' + IMAGE_PATH + '/download.png"/>';
-							break;
-						case appCache.OBSOLETE: // OBSOLETE == 5
-							html = '<img title="Obsolete" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-							break;
-						default:
-							html = '<img title="Unknown" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-							break;
-					}
-					
-					if (newStatus != lastStatus)
-					{
-						this.offlineStatus.innerHTML = html;
-						lastStatus = newStatus;
-					}
-				});
 
-				mxEvent.addListener(appCache, 'checking', updateStatus);
-				mxEvent.addListener(appCache, 'noupdate', updateStatus);
-				mxEvent.addListener(appCache, 'downloading', updateStatus);
-				mxEvent.addListener(appCache, 'progress', updateStatus);
-				mxEvent.addListener(appCache, 'cached', updateStatus);
-				mxEvent.addListener(appCache, 'updateready', updateStatus);
-				mxEvent.addListener(appCache, 'obsolete', updateStatus);
-				mxEvent.addListener(appCache, 'error', updateStatus);
-				
-				updateStatus();
-			}
-		}
-		else
-		{
-			this.updateUserElement();
-		}
+		this.updateUserElement();
 	};
 	
 	/**

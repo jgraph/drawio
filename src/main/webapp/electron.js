@@ -58,17 +58,16 @@ function createWindow (opt = {})
 		query:
 		{
 			'dev': __DEV__ ? 1 : 0,
-			'drawdev': __DEV__ ? 1 : 0,
 			'test': __DEV__ ? 1 : 0,
-			'db': 0,
 			'gapi': 0,
+			'db': 0,
 			'od': 0,
 			'gh': 0,
+			'gl': 0,
 			'tr': 0,
-			'analytics': 0,
+			'browser': 0,
 			'picker': 0,
 			'mode': 'device',
-			'browser': 0,
 			'export': 'https://exp.draw.io/ImageExport4/export'
 		},
 		slashes: true
@@ -502,7 +501,7 @@ app.on('ready', e =>
     	
     	return;
 	}
-    else if (program.rawArgs.indexOf('-h') > -1 || program.rawArgs.indexOf('--help') > -1) //To prevent execution when help arg is used
+    else if (program.rawArgs.indexOf('-h') > -1 || program.rawArgs.indexOf('--help') > -1 || program.rawArgs.indexOf('-V') > -1 || program.rawArgs.indexOf('--version') > -1) //To prevent execution when help/version arg is used
 	{
     	return;
 	}
@@ -527,7 +526,7 @@ app.on('ready', e =>
     	
         win.webContents.send('args-obj', program);
         
-        win.webContents.setZoomFactor(1);
+        win.webContents.zoomFactor = 1;
         win.webContents.setVisualZoomLevelLimits(1, 1);
         win.webContents.setLayoutZoomLevelLimits(0, 0);
     });
@@ -557,7 +556,7 @@ app.on('ready', e =>
 	}
 
 	let template = [{
-	    label: app.getName(),
+	    label: app.name,
 	    submenu: [
 	      {
 	        label: 'Website',
@@ -589,10 +588,10 @@ app.on('ready', e =>
 	if (process.platform === 'darwin')
 	{
 	    template = [{
-	      label: app.getName(),
+	      label: app.name,
 	      submenu: [
 	        {
-	          label: 'About ' + app.getName(),
+	          label: 'About ' + app.name,
 	          click() { shell.openExternal('https://about.draw.io'); }
 	        },
 	        {
@@ -698,7 +697,7 @@ app.on('will-finish-launching', function()
 		    {
 		        win.webContents.send('args-obj', {args: [path]});
 		        
-		        win.webContents.setZoomFactor(1);
+		        win.webContents.zoomFactor = 1;
 		        win.webContents.setVisualZoomLevelLimits(1, 1);
 		        win.webContents.setLayoutZoomLevelLimits(0, 0);
 		    });
@@ -816,7 +815,7 @@ autoUpdater.on('update-available', (a, b) =>
 					type: 'question',
 					buttons: ['Install', 'Later'],
 					defaultId: 0,
-					message: 'A new version of ' + app.getName() + ' has been downloaded',
+					message: 'A new version of ' + app.name + ' has been downloaded',
 					detail: 'It will be installed the next time you restart the application',
 				}).then(result =>
 				{

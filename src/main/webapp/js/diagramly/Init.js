@@ -57,7 +57,7 @@ window.DRAWIO_CONFIG = window.DRAWIO_CONFIG || null;
 window.mxLoadResources = window.mxLoadResources || false;
 window.mxLanguage = window.mxLanguage || (function() 
 {
-	var lang = (urlParams['offline'] == '1') ? 'en' : urlParams['lang'];
+	var lang = urlParams['lang'];
 	
 	// Known issue: No JSON object at this point in quirks in IE8
 	if (lang == null && typeof(JSON) != 'undefined')

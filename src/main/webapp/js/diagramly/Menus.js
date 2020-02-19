@@ -827,7 +827,25 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://desk.draw.io/support/solutions/articles/16000058316',
-					(EditorUi.isElectronApp) ? null : [[mxResources.get('link'), function(evt, input)
+					(EditorUi.isElectronApp) ? null : [[mxResources.get('reset'), function(evt, input)
+					{
+						editorUi.confirm(mxResources.get('areYouSure'), function()
+						{
+							try
+							{
+								localStorage.removeItem('.configuration');
+								localStorage.removeItem('.drawio-config');
+								localStorage.removeItem('.mode');
+								
+								editorUi.hideDialog();
+								editorUi.alert(mxResources.get('restartForChangeRequired'));
+							}
+							catch (e)
+							{
+								editorUi.handleError(e);	
+							}
+						});
+					}], [mxResources.get('link'), function(evt, input)
 					{
 						if (input.value.length > 0)
 						{
@@ -863,7 +881,7 @@
 		// storing the choice. We do not want to use cookies for older browsers.
 		// Note that the URL param lang=XX is available for setting the language
 		// in older browsers. URL param has precedence over the saved setting.
-		if (mxClient.IS_CHROMEAPP || (isLocalStorage && urlParams['offline'] != '1'))
+		if (mxClient.IS_CHROMEAPP || isLocalStorage)
 		{
 			this.put('language', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
@@ -1031,8 +1049,12 @@
 			{
 				var branchOptimizer = null, parentChildSpacingVal = 20, siblingSpacingVal = 20, notExecuted = true;
 				
-				function doLayout()
+				// Invoked when orgchart code was loaded
+				var delayed = function()
 				{
+					editorUi.loadingOrgChart = false;
+					editorUi.spinner.stop();
+					
 					if (typeof mxOrgChartLayout !== 'undefined' && branchOptimizer != null && notExecuted)
 					{
 						var graph = editorUi.editor.graph;
@@ -1042,6 +1064,31 @@
 					}
 				};
 				
+				// Invoked from dialog
+				function doLayout()
+				{
+					if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
+					{
+						if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+						{
+							editorUi.loadingOrgChart = true;
+							
+							if (urlParams['dev'] == '1')
+							{
+								mxscript('js/orgchart.min.js', delayed);
+							}
+							else
+							{
+								mxscript('js/extensions.min.js', delayed);
+							}
+						}
+					}
+					else
+					{
+						delayed();
+					}
+				};
+
 				var div = document.createElement('div');
 				
 				var title = document.createElement('div');
@@ -1128,26 +1175,15 @@
 				
 				var dlg = new CustomDialog(editorUi, div, function()
 				{
-					if (branchOptimizer == null) branchOptimizer = 2;
+					if (branchOptimizer == null)
+					{
+						branchOptimizer = 2;
+					}
+					
 					doLayout();
 				});
+				
 				editorUi.showDialog(dlg.container, 355, 125, true, true);
-				
-				var delayed = function()
-				{
-					editorUi.loadingOrgChart = false;
-					doLayout();
-				};
-				
-				if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
-				{
-					editorUi.loadingOrgChart = true;
-					mxscript('js/orgchart.min.js', delayed);
-				}
-				else
-				{
-					delayed();
-				}
 			}, parent, null, isGraphEnabled());
 			
 			menu.addSeparator(parent);

@@ -19,10 +19,6 @@
 	<script type="text/javascript">
 		var mxIsElectron = window && window.process && window.process.type;
 		var mxIsElectron5 = mxIsElectron && parseInt(process.versions.electron) >= 5;
-		var hostName = window.location.hostname;
-		// Supported domains are *.draw.io that draw.io host, or the packaged version in Quip
-		var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
-								(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
 
 		/**
 		 * URL Parameters and protocol description are here:
@@ -222,32 +218,6 @@
 			cursor:pointer;
 			margin:5px;
 		}
-		.geFooterContainer div.geSocialFooter a {
-			display:inline;
-			padding:0px;
-		}
-		.geFooterContainer div.geSocialFooter a img {
-			margin-top:10px;
-			opacity:0.5;
-		}
-		.geFooterContainer div.geSocialFooter a img:hover {
-			opacity:1;
-		}
-		.geFooterContainer>div#geFooter>img {
-			opacity:0.5;
-			border:1px solid transparent;
-			cursor:pointer;
-			margin-top:3px;
-			margin-right:6px;
-			position:absolute;
-			right:4px;
-			top:12px;
-			padding:1px;
-			cursor:pointer;
-		}
-		.geFooterContainer>div#geFooter>img:hover {
-			opacity: 1;
-		}
 	</style>
 	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
 	<!--[if (IE 9)|(IE 10)]><!-->
@@ -368,17 +338,26 @@
 		}
 		else
 		{
-			if (!supportedDomain)
+			(function()
 			{
-				mxscript('js/PreConfig.js');
-			}
-			
-			mxscript('js/app.min.js');
-			
-			if (!supportedDomain)
-			{
-				mxscript('js/PostConfig.js');
-			}
+				var hostName = window.location.hostname;
+				
+				// Supported domains are *.draw.io and the packaged version in Quip
+				var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
+					(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
+				
+				if (!supportedDomain)
+				{
+					mxscript('js/PreConfig.js');
+				}
+				
+				mxscript('js/app.min.js');
+				
+				if (!supportedDomain)
+				{
+					mxscript('js/PostConfig.js');
+				}
+			})();
 		}
 
 		// Electron
@@ -418,41 +397,6 @@
 			Please ensure JavaScript is enabled.
 		</p>
 	</div>
-</div>
-<div id="geFooter" style="visibility:hidden;overflow:hidden;margin-right:170px;height:100%;">
-	<div class="geSocialFooter" style="position:absolute;right:32px;white-space:nowrap;">
-    	<a href="https://www.youtube.com/channel/UCiTtRN9b8P4CoSfpkfgEJHA" title="draw.io on Youtube" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_youtube.png" alt="draw.io on Youtube"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://www.facebook.com/pages/drawio/161015263923018" title="draw.io on Facebook" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_facebook.png" alt="draw.io on Facebook"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://www.twitter.com/drawio" title="draw.io on Twitter" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_twitter.png" alt="draw.io on Twitter"/>
-    	</a>
-    	&nbsp;
-    	<a href="https://github.com/jgraph/drawio" title="draw.io on GitHub" target="_blank">
-    		<img border="0" width="24" height="24" src="images/glyphicons_github.png" alt="draw.io on GitHub"/>
-    	</a>
-	</div>
-	<table align="center" height="100%">
-		<tr>
-			<td id="geFooterItem1" align="center" style="width:280px;transition: all 1s ease;">
-				<a title="GitHub" href="https://github.com/jgraph/drawio" target="_blank">
-					<img border="0" align="absmiddle" style="margin-top:-4px;padding-right:10px;"
-						width="24" height="24" src="images/glyphicons_github.png"/>Fork us on GitHub</a>
-			</td>
-			<td id="geFooterItem2" align="center" style="width:260px;">
-				<a id="geFooterLink1" title="Download draw.io Desktop" target="_blank"
-					href="https://get.draw.io/">
-					<img border="0" align="absmiddle" style="margin-top:-2px;padding-right:10px;"
-					width="26" src="images/drawlogo48.png">Download draw.io Desktop
-				</a>
-			</td>
-		</tr>
-	</table>
 </div>
 <script type="text/javascript">
 /**

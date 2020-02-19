@@ -627,7 +627,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
  */
 EditorUi.prototype.getPagesForNode = function(node, nodeName)
 {
-	var tmp = this.editor.extractGraphModel(node, true);
+	var tmp = this.editor.extractGraphModel(node, true, true);
 	
 	if (tmp != null)
 	{
@@ -642,7 +642,7 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 		for (var i = 0; i < diagrams.length; i++)
 		{
 			var page = new DiagramPage(diagrams[i]);
-			this.updatePageRoot(page);
+			this.updatePageRoot(page, true);
 			pages.push(page);
 		}
 	}
@@ -651,7 +651,7 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 		var graph = this.editor.graph;
 		var page = new DiagramPage(node.ownerDocument.createElement('diagram'));
 		page.setName(mxResources.get('pageWithNumber', [1]));
-		mxUtils.setTextContent(page.node, Graph.compressNode(node));
+		mxUtils.setTextContent(page.node, Graph.compressNode(node, true));
 		pages.push(page);
 	}
 	

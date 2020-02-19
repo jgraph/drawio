@@ -20,6 +20,14 @@ async function handleRequest(request)
 	let reqBodyTxt = new TextDecoder("utf-8").decode(reqBody.value);
 	let params = new URL('http://dummy.com?' + reqBodyTxt).searchParams;
 	let domain = params.get('domain');
+	
+	//Try Query string parameters
+	if (domain == null)
+	{
+		let params = new URL(request.url).searchParams;
+		domain = params.get('domain');
+	}
+	
 //	let email = params.get('email');
 //	let locale = params.get('lc');
 //	let displayName = params.get('ds');

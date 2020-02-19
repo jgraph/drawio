@@ -63,11 +63,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	mxUtils.setPrefixedStyle(demo.style, 'transform', 'translate(-50%,0)');
 	demo.style.left = '50%';
 	
-	if (editorUi.isOfflineApp())
-	{
-		demo.style.bottom = '28px';
-	}
-	
 	this.init = function()
 	{
 		if (mxClient.IS_QUIRKS || document.documentMode == 8)

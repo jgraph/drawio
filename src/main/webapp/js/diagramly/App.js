@@ -368,14 +368,14 @@ App.getStoredMode = function()
 			}
 			
 			App.mode = urlParams['mode'];
-			
-			if (App.mode == null)
-			{
-				// Stored mode overrides preferred mode
-				App.mode = App.getStoredMode();
-			}
 		}
-
+			
+		if (App.mode == null)
+		{
+			// Stored mode overrides preferred mode
+			App.mode = App.getStoredMode();
+		}
+		
 		/**
 		 * Lazy loading backends.
 		 */
@@ -530,39 +530,50 @@ App.main = function(callback, createUi)
 	
 	if (window.mxscript != null)
 	{
-		// Injects offline dependencies
-		if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
+		// Check that service workers are supported and registers,
+		// unregisters or updates the installed service worker
+		try
 		{
-			mxscript('js/shapes.min.js');
-			mxscript('js/stencils.min.js');
-			mxscript('js/extensions.min.js');
-			
-			// Check that service workers are supported
 			if ('serviceWorker' in navigator)
 			{
-				// Use the window load event to keep the page load performant
-				window.addEventListener('load', function()
+				if (urlParams['offline'] == '1')
 				{
-					navigator.serviceWorker.register('/service-worker.js');
-				});
-			}
-			else if (window.applicationCache != null)
-			{
-				var frame = document.createElement('iframe');
-				frame.setAttribute('width', '0');
-				frame.setAttribute('height', '0');
-				frame.setAttribute('src', 'offline.html');
-				document.body.appendChild(frame);
+					mxscript('js/shapes.min.js');
+					mxscript('js/stencils.min.js');
+					mxscript('js/extensions.min.js');
+		
+					// Use the window load event to keep the page load performant
+					window.addEventListener('load', function()
+					{
+						navigator.serviceWorker.register('/service-worker.js');
+					});
+				}
+				else if (urlParams['offline'] == '0')
+				{
+					navigator.serviceWorker.getRegistrations().then(function(registrations)
+					{
+						for(let registration of registrations)
+						{
+							registration.unregister()
+						}
+					});
+				}
+				else if (navigator.serviceWorker.controller)
+				{
+					// Updates cache if PWA was registered
+					window.addEventListener('load', function()
+					{
+						navigator.serviceWorker.register('/service-worker.js');
+					});
+				}
 			}
 		}
-		else if ('serviceWorker' in navigator &&
-			navigator.serviceWorker.controller)
+		catch (e)
 		{
-			// Needed to update cache if PWA was used
-			window.addEventListener('load', function()
+			if (window.console != null)
 			{
-				navigator.serviceWorker.register('/service-worker.js');
-			});
+				console.error(e);
+			}
 		}
 		
 		// Loads Pusher API
@@ -1446,7 +1457,6 @@ App.prototype.init = function()
 						footer.parentNode.removeChild(footer);
 						this.footerShowing = false;
 						deferredPrompt = null;
-						this.hideFooter();
 	
 						// Close permanently
 						if (isLocalStorage && mxSettings.settings != null)
@@ -1456,7 +1466,7 @@ App.prototype.init = function()
 						}
 					});
 					
-					var footer = this.createFooter('<img border="0" align="absmiddle" ' +
+					var footer = this.createBanner('<img border="0" align="absmiddle" ' +
 						'style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
 						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
 						mxUtils.htmlEntities(mxResources.get('installDrawio', null, 'Install draw.io')) + '</font>',
@@ -1493,8 +1503,8 @@ App.prototype.init = function()
 				}
 			}));
 		}
-		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['open'] == null &&
-			(!this.editor.chromeless || this.editor.editable))
+		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+			urlParams['open'] == null && (!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
@@ -1503,56 +1513,8 @@ App.prototype.init = function()
 				
 				if (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER)
 				{
-					this.showDownloadDesktopFooter();
+					this.showDownloadDesktopBanner();
 				}
-	//			else if ((!isLocalStorage || mxSettings.settings == null ||
-	//				mxSettings.settings.closeRateFooter == null) &&
-	//				(!this.editor.chromeless || this.editor.editable) &&
-	//				!this.footerShowing && urlParams['open'] == null)
-	//			{
-	//				var star = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZ' +
-	//					'XdvcmtzIENTM5jWRgMAAAQRdEVYdFhNTDpjb20uYWRvYmUueG1wADw/eHBhY2tldCBiZWdpbj0iICAgIiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+Cjx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8i' +
-	//					'IHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDQuMS1jMDM0IDQ2LjI3Mjk3NiwgU2F0IEphbiAyNyAyMDA3IDIyOjExOjQxICAgICAgICAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDI' +
-	//					'vMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp4YXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8eGFwOkNyZW' +
-	//					'F0b3JUb29sPkFkb2JlIEZpcmV3b3JrcyBDUzM8L3hhcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhhcDpDcmVhdGVEYXRlPjIwMDgtMDItMTdUMDI6MzY6NDVaPC94YXA6Q3JlYXRlRGF0ZT4KICAgICAgICAgPHhhcDpNb2RpZ' +
-	//					'nlEYXRlPjIwMDktMDMtMTdUMTQ6MTI6MDJaPC94YXA6TW9kaWZ5RGF0ZT4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmRjPSJo' +
-	//					'dHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+CiAgICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2UvcG5nPC9kYzpmb3JtYXQ+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo' +
-	//					'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIC' +
-	//					'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI' +
-	//					'CAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIIImu8AAAAAVdEVYdENyZWF0aW9uIFRpbWUAMi8xNy8wOCCcqlgAAAHuSURBVDiNlZJBi1JRGIbfk+fc0ZuMXorJe4XujWoMdREaA23HICj6AQeLINr0C4I27ab2' +
-	//					'7VqOI9+q/sH8gMDceG1RkIwgClEXFMbRc5zTZgZURmG+5fu9PN/7Hg6wZohoh4h21nn4uqXW+q0xZgzg+SrPlTXX73uet+26bp6ICpcGaK1fua57M5vN3tZav7gUgIiSqVTqcRAEm0EQbCaTyQoRXb3Iy4hoG8CT6XSaY4xtMMa' +
-	//					'SQohMPp8v+r7vAEC3243CMGwqpfoApsaYE8uyfgM45ABOjDEvXdfNlMvlzFINAIDneY7neZVzvdlsDgaDQYtzfsjOIjtKqU+e5+0Wi0V3VV8ACMOw3+/3v3HOX0sp/7K53te11h/S6fRuoVAIhBAL76OUOm2320dRFH0VQuxJKf' +
-	//					'8BAFu+UKvVvpRKpWe2bYt5fTweq0ajQUKIN1LK43N94SMR0Y1YLLYlhBBKqQUw51wkEol7WmuzoC8FuJtIJLaUUoii6Ljb7f4yxpz6vp9zHMe2bfvacDi8BeDHKkBuNps5rVbr52QyaVuW9ZExttHpdN73ej0/Ho+nADxYCdBaV' +
-	//					'0aj0RGAz5ZlHUgpx2erR/V6/d1wOHwK4CGA/QsBnPN9AN+llH+WkqFare4R0QGAO/M6M8Ysey81/wGqa8MlVvHPNAAAAABJRU5ErkJggg==';
-	//				var rate = '<a style="cursor:default;" title="Please Rate Us"><b>Please Rate Us:</b></a>' +
-	//					'<img border="0" align="absmiddle" title="1 star" style="margin-top:-6px;cursor:pointer;margin-left:8px;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="2 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="3 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="4 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '" ' +
-	//					'onclick="javascript:window.open(\'https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews\');">';
-	//				
-	//				var footer = createFooter(rate, null, 'geStatusMessage', null, null,
-	//					mxUtils.bind(this, function()
-	//					{
-	//						footer.parentNode.removeChild(footer);
-	//						this.hideFooter();
-	//
-	//						// Close permanently
-	//						if (isLocalStorage && mxSettings.settings != null)
-	//						{
-	//							mxSettings.settings.closeRateFooter = Date.now();
-	//							mxSettings.save();
-	//						}
-	//					}));
-	//				
-	//				document.body.appendChild(footer);
-	//				this.footerShowing = true;
-	//				
-	//				window.setTimeout(mxUtils.bind(this, function()
-	//				{
-	//					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-	//				}), 1500);
-	//			}
 			}));
 		}
 		
@@ -1770,7 +1732,7 @@ App.prototype.getPusher = function()
 /**
  * Shows a footer to download the desktop version once per session.
  */
-App.prototype.showDownloadDesktopFooter = function()
+App.prototype.showDownloadDesktopBanner = function()
 {
 	if (!this.downloadDesktopFooterShown && !this.footerShowing && (!isLocalStorage ||
 		mxSettings.settings == null || mxSettings.settings.closeDesktopFooter == null))
@@ -1781,7 +1743,6 @@ App.prototype.showDownloadDesktopFooter = function()
 		{
 			footer.parentNode.removeChild(footer);
 			this.footerShowing = false;
-			this.hideFooter();
 
 			// Close permanently
 			if (isLocalStorage && mxSettings.settings != null)
@@ -1791,7 +1752,7 @@ App.prototype.showDownloadDesktopFooter = function()
 			}
 		});
 		
-		var footer = this.createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+		var footer = this.createBanner('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
 			IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
 			mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
 			'https://get.draw.io/', 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, closeHandler);
@@ -1848,9 +1809,9 @@ App.prototype.showDownloadDesktopFooter = function()
 };
 
 /**
- * Creates a footer.
+ * Creates a popup banner.
  */
-App.prototype.createFooter = function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
+App.prototype.createBanner = function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
 {
 	var footer = document.createElement('div');
 	footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
@@ -3365,8 +3326,7 @@ App.prototype.showSplash = function(force)
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 :
-			((serviceCount < 2) ? 230 : 260), true, true,
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
@@ -3379,10 +3339,10 @@ App.prototype.showSplash = function(force)
 				}
 			}), true);
 		
-		if ((!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp) &&
+		if ((!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp) && !this.isOfflineApp() &&
 			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
 		{
-			this.showDownloadDesktopFooter();
+			this.showDownloadDesktopBanner();
 		}
 	});
 	
@@ -3423,63 +3383,59 @@ App.prototype.showSplash = function(force)
 App.prototype.addLanguageMenu = function(elt, addLabel)
 {
 	var img = null;
+	var langMenu = this.menus.get('language');
 	
-	if (!this.isOfflineApp() || mxClient.IS_CHROMEAPP)
+	if (langMenu != null)
 	{
-		var langMenu = this.menus.get('language');
+		img = document.createElement('div');
+		img.setAttribute('title', mxResources.get('language'));
+		img.className = 'geIcon geSprite geSprite-globe';
+		img.style.position = 'absolute';
+		img.style.cursor = 'pointer';
+		img.style.bottom = '20px';
+		img.style.right = '20px';
 		
-		if (langMenu != null)
+		if (addLabel)
 		{
-			img = document.createElement('div');
-			img.setAttribute('title', mxResources.get('language'));
-			img.className = 'geIcon geSprite geSprite-globe';
-			img.style.position = 'absolute';
-			img.style.cursor = 'pointer';
-			img.style.bottom = '20px';
-			img.style.right = '20px';
-			
-			if (addLabel)
-			{
-				img.style.direction = 'rtl';
-				img.style.textAlign = 'right';
-				img.style.right = '24px';
+			img.style.direction = 'rtl';
+			img.style.textAlign = 'right';
+			img.style.right = '24px';
 
-				var label = document.createElement('span');
-				label.style.display = 'inline-block';
-				label.style.fontSize = '12px';
-				label.style.margin = '5px 24px 0 0';
-				label.style.color = 'gray';
-				label.style.userSelect = 'none';
-				
-				mxUtils.write(label, mxResources.get('language'));
-				img.appendChild(label);
-			}
+			var label = document.createElement('span');
+			label.style.display = 'inline-block';
+			label.style.fontSize = '12px';
+			label.style.margin = '5px 24px 0 0';
+			label.style.color = 'gray';
+			label.style.userSelect = 'none';
 			
-			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
-			{
-				this.editor.graph.popupMenuHandler.hideMenu();
-				var menu = new mxPopupMenu(this.menus.get('language').funct);
-				menu.div.className += ' geMenubarMenu';
-				menu.smartSeparators = true;
-				menu.showDisabled = true;
-				menu.autoExpand = true;
-				
-				// Disables autoexpand and destroys menu when hidden
-				menu.hideMenu = mxUtils.bind(this, function()
-				{
-					mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
-					menu.destroy();
-				});
-		
-				var offset = mxUtils.getOffset(img);
-				menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
-				
-				// Allows hiding by clicking on document
-				this.setCurrentMenu(menu);
-			}));
-		
-			elt.appendChild(img);
+			mxUtils.write(label, mxResources.get('language'));
+			img.appendChild(label);
 		}
+		
+		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.editor.graph.popupMenuHandler.hideMenu();
+			var menu = new mxPopupMenu(this.menus.get('language').funct);
+			menu.div.className += ' geMenubarMenu';
+			menu.smartSeparators = true;
+			menu.showDisabled = true;
+			menu.autoExpand = true;
+			
+			// Disables autoexpand and destroys menu when hidden
+			menu.hideMenu = mxUtils.bind(this, function()
+			{
+				mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+				menu.destroy();
+			});
+	
+			var offset = mxUtils.getOffset(img);
+			menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
+			
+			// Allows hiding by clicking on document
+			this.setCurrentMenu(menu);
+		}));
+	
+		elt.appendChild(img);
 	}
 	
 	return img;
@@ -6067,7 +6023,6 @@ App.prototype.updateHeader = function()
 
 			this.toggleFormatPanel(!collapsed);
 			this.hsplitPosition = (!collapsed) ? 0 : initialPosition;
-			this.hideFooter();
 			collapsed = !collapsed;
 			mxEvent.consume(evt);
 		}));

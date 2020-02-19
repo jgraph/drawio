@@ -551,13 +551,13 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 						(layout.y * ph + t.y) * s, pw * s, ph * s));
 				}
 				
-				for (var j = 0; j < layout.height; j++)
+				for (var j = 1; j < layout.height; j++)
 				{
 					guides.push(new mxRectangle((layout.x * pw + t.x) * s,
 						((layout.y + j) * ph + t.y) * s, pw * s, ph * s));
 				}
 				
-				// Page center guides have predence over normal guides
+				// Page center guides have precedence over normal guides
 				result = guides.concat(result);
 			}
 			
@@ -1114,9 +1114,11 @@ Graph.bytesToString = function(arr)
 /**
  * Returns a base64 encoded version of the compressed outer XML of the given node.
  */
-Graph.compressNode = function(node)
+Graph.compressNode = function(node, checked)
 {
-	return Graph.compress(Graph.zapGremlins(mxUtils.getXml(node)));
+	var xml = mxUtils.getXml(node);
+	
+	return Graph.compress((checked) ? xml : Graph.zapGremlins(xml));
 };
 
 /**
@@ -1140,7 +1142,7 @@ Graph.compress = function(data, deflate)
 /**
  * Returns a decompressed version of the base64 encoded string.
  */
-Graph.decompress = function(data, inflate)
+Graph.decompress = function(data, inflate, checked)
 {
    	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
 	{
@@ -1150,10 +1152,11 @@ Graph.decompress = function(data, inflate)
 	{
 		var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
 		
-		var inflated = (inflate) ? pako.inflate(tmp, {to: 'string'}) :
-			pako.inflateRaw(tmp, {to: 'string'})
+		var inflated = decodeURIComponent((inflate) ?
+			pako.inflate(tmp, {to: 'string'}) :
+			pako.inflateRaw(tmp, {to: 'string'}));
 
-		return Graph.zapGremlins(decodeURIComponent(inflated));
+		return (checked) ? inflated : Graph.zapGremlins(inflated);
 	}
 };
 
@@ -1946,16 +1949,14 @@ Graph.prototype.getPageLayout = function()
 	}
 	else
 	{
-		// Computes untransformed graph bounds
-		var x = Math.ceil(bounds.x / this.view.scale - this.view.translate.x);
-		var y = Math.ceil(bounds.y / this.view.scale - this.view.translate.y);
-		var w = Math.floor(bounds.width / this.view.scale);
-		var h = Math.floor(bounds.height / this.view.scale);
-		
-		var x0 = Math.floor(x / size.width);
-		var y0 = Math.floor(y / size.height);
-		var w0 = Math.ceil((x + w) / size.width) - x0;
-		var h0 = Math.ceil((y + h) / size.height) - y0;
+		var x0 = Math.floor(Math.ceil(bounds.x / this.view.scale -
+			this.view.translate.x) / size.width);
+		var y0 = Math.floor(Math.ceil(bounds.y / this.view.scale -
+			this.view.translate.y) / size.height);
+		var w0 = Math.ceil((Math.floor((bounds.x + bounds.width) / this.view.scale) -
+			this.view.translate.x) / size.width) - x0;
+		var h0 = Math.ceil((Math.floor((bounds.y + bounds.height) / this.view.scale) -
+			this.view.translate.y) / size.height) - y0;
 		
 		return new mxRectangle(x0, y0, w0, h0);
 	}
@@ -5245,7 +5246,7 @@ if (typeof mxVertexHandler != 'undefined')
 						cells = this.moveCells(tempModel.getChildren(layers[0]),
 							dx, dy, false, this.getDefaultParent());
 						
-						// Imported default default parent maps to local default parent
+						// Imported default parent maps to local default parent
 						cellMapping[tempModel.getChildAt(tempModel.root, 0).getId()] =
 							this.getDefaultParent().getId();
 					}
@@ -5253,28 +5254,36 @@ if (typeof mxVertexHandler != 'undefined')
 					{
 						for (var i = 0; i < layers.length; i++)
 						{
-							cells = cells.concat(this.model.getChildren(this.moveCells(
-								[layers[i]], dx, dy, false, this.model.getRoot())[0]));
+							var children = this.model.getChildren(this.moveCells(
+								[layers[i]], dx, dy, false, this.model.getRoot())[0]);
+							
+							if (children != null)
+							{
+								cells = cells.concat(children);
+							}
 						}
 					}
 					
-					// Adds mapping for all cloned entries from imported to local cell ID
-					this.createCellMapping(cloneMap, lookup, cellMapping);
-					this.updateCustomLinks(cellMapping, cells);
-					
-					if (crop)
+					if (cells != null)
 					{
-						if (this.isGridEnabled())
-						{
-							dx = this.snap(dx);
-							dy = this.snap(dy);
-						}
+						// Adds mapping for all cloned entries from imported to local cell ID
+						this.createCellMapping(cloneMap, lookup, cellMapping);
+						this.updateCustomLinks(cellMapping, cells);
 						
-						var bounds = this.getBoundingBoxFromGeometry(cells, true);
-						
-						if (bounds != null)
+						if (crop)
 						{
-							this.moveCells(cells, dx - bounds.x, dy - bounds.y);
+							if (this.isGridEnabled())
+							{
+								dx = this.snap(dx);
+								dy = this.snap(dy);
+							}
+							
+							var bounds = this.getBoundingBoxFromGeometry(cells, true);
+							
+							if (bounds != null)
+							{
+								this.moveCells(cells, dx - bounds.x, dy - bounds.y);
+							}
 						}
 					}
 				}
@@ -6097,6 +6106,29 @@ if (typeof mxVertexHandler != 'undefined')
 				2 * this.gridSize)));
 			
 			return new mxPoint(x, y);
+		};
+				
+		/**
+		 * 
+		 */
+		Graph.prototype.getCenterInsertPoint = function(bbox)
+		{
+			if (mxUtils.hasScrollbars(this.container))
+			{
+				return new mxPoint(
+					this.snap((this.container.scrollLeft + this.container.clientWidth / 2) / this.view.scale -
+						this.view.translate.x - bbox.width / 2),
+					this.snap((this.container.scrollTop + this.container.clientHeight / 2) / this.view.scale -
+						this.view.translate.y - bbox.height / 2));
+			}
+			else
+			{
+				return new mxPoint(
+					this.snap(this.container.clientWidth / 2 / this.view.scale -
+						this.view.translate.x - bbox.width / 2),
+					this.snap(this.container.clientHeight / 2 / this.view.scale -
+						this.view.translate.y - bbox.height / 2));
+			}
 		};
 		
 		/**

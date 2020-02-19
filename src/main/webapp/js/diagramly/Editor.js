@@ -440,7 +440,7 @@
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
-	Editor.extractGraphModel = function(node, allowMxFile)
+	Editor.extractGraphModel = function(node, allowMxFile, checked)
 	{
 		if (node != null && typeof(pako) !== 'undefined')
 		{
@@ -480,7 +480,7 @@
 					if (divs2.length > 0)
 					{
 						var data = mxUtils.getTextContent(divs2[0]);
-		        		data = Graph.decompress(data);
+		        		data = Graph.decompress(data, null, checked);
 		        		
 		        		if (data.length > 0)
 		        		{
@@ -536,7 +536,7 @@
 			
 			if (diagramNode != null)
 			{
-				node = Editor.parseDiagramNode(diagramNode);
+				node = Editor.parseDiagramNode(diagramNode, checked);
 			}
 		}
 		
@@ -551,14 +551,14 @@
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
 	 */
-	Editor.parseDiagramNode = function(diagramNode)
+	Editor.parseDiagramNode = function(diagramNode, checked)
 	{
 		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
 		var node = null;
 		
 		if (text.length > 0)
 		{
-			var tmp = Graph.decompress(text);
+			var tmp = Graph.decompress(text, null, checked);
 			
 			if (tmp != null && tmp.length > 0)
 			{
@@ -1270,7 +1270,7 @@
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
-	Editor.prototype.extractGraphModel = function(node, allowMxFile)
+	Editor.prototype.extractGraphModel = function(node, allowMxFile, checked)
 	{
 		return Editor.extractGraphModel.apply(this, arguments);
 	};
