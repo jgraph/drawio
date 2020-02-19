@@ -215,6 +215,11 @@ Editor.fullscreenLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACA
 Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
 
 /**
+ * Specifies the image URL to be used for the transparent background.
+ */
+Editor.hintOffset = 20;
+
+/**
  * Specifies if the diagram should be saved automatically if possible. Default
  * is true.
  */
@@ -337,33 +342,30 @@ Editor.prototype.editAsNew = function(xml, title)
 		p += ((p.length > 0) ? '&' : '?') + 'ui=' + urlParams['ui'];
 	}
 	
-	if (this.editorWindow != null && !this.editorWindow.closed)
+	if (typeof window.postMessage !== 'undefined' &&
+		(document.documentMode == null ||
+		document.documentMode >= 10))
 	{
-		this.editorWindow.focus();
+		var wnd = null;
+		
+		var l = mxUtils.bind(this, function(evt)
+		{
+			if (evt.data == 'ready' && evt.source == wnd)
+			{
+				mxEvent.removeListener(window, 'message', l);
+				wnd.postMessage(xml, '*');
+			}
+		});
+			
+		mxEvent.addListener(window, 'message', l);
+		wnd = this.graph.openLink(this.getEditBlankUrl(
+			p + ((p.length > 0) ? '&' : '?') +
+			'client=1'), null, true);
 	}
 	else
 	{
-		if (typeof window.postMessage !== 'undefined' && (document.documentMode == null || document.documentMode >= 10))
-		{
-			if (this.editorWindow == null)
-			{
-				mxEvent.addListener(window, 'message', mxUtils.bind(this, function(evt)
-				{
-					if (evt.data == 'ready' && evt.source == this.editorWindow)
-					{
-						this.editorWindow.postMessage(xml, '*');
-					}
-				}));
-			}
-
-			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p +
-				((p.length > 0) ? '&' : '?') + 'client=1'), null, true);
-		}
-		else
-		{
-			this.editorWindow = this.graph.openLink(this.getEditBlankUrl(p) +
-				'#R' + encodeURIComponent(xml));
-		}
+		this.graph.openLink(this.getEditBlankUrl(p) +
+			'#R' + encodeURIComponent(xml));
 	}
 };
 
@@ -762,8 +764,14 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var w0 = w;
 	var h0 = h;
 	
-	// clientHeight check is attempted fix for print dialog offset in viewer lightbox
 	var ds = mxUtils.getDocumentSize();
+	
+	// Workaround for print dialog offset in viewer lightbox
+	if (window.innerHeight != null)
+	{
+		ds.height = window.innerHeight;
+	}
+	
 	var dh = ds.height;
 	var left = Math.max(1, Math.round((ds.width - w - 64) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));

@@ -655,9 +655,9 @@ public class GliffyDiagramConverter
 
 				if (style.lastIndexOf("strokeWidth") == -1)
 				{
-					style.append("strokeWidth=" + shape.strokeWidth).append(";");
+					style.append("strokeWidth=" + shape.getStrokeWidth()).append(";");
 
-					if (shape.strokeWidth == 0 && !isChevron)
+					if (shape.getStrokeWidth() == 0 && !isChevron)
 					{
 						style.append("strokeColor=none;");
 					}
@@ -712,7 +712,6 @@ public class GliffyDiagramConverter
 					cell.setValue(fragmentText);
 					gliffyObject.children.remove(0);
 				}
-				setFontSizeBasedOnGlobal(style);
 			}
 			else if (gliffyObject.isLine())
 			{
@@ -720,13 +719,13 @@ public class GliffyDiagramConverter
 
 				cell.setEdge(true);
 				style.append("shape=filledEdge;");
-				style.append("strokeWidth=" + line.strokeWidth).append(";");
+				style.append("strokeWidth=" + line.getStrokeWidth()).append(";");
 				style.append("strokeColor=" + line.strokeColor).append(";");
 				style.append("fillColor=" + line.fillColor).append(";");
 				style.append(ArrowMapping.get(line.startArrow).toString(true)).append(";");
 				style.append(ArrowMapping.get(line.endArrow).toString(false)).append(";");
 				style.append("rounded=" + (line.cornerRadius != null ? "1" : "0")).append(";");
-				style.append(DashStyleMapping.get(line.dashStyle, line.strokeWidth));
+				style.append(DashStyleMapping.get(line.dashStyle, line.getStrokeWidth()));
 				style.append(LineMapping.get(line.interpolationType));
 
 				geometry.setX(0);
@@ -737,7 +736,6 @@ public class GliffyDiagramConverter
 				textObject = gliffyObject;
 				cell.setVertex(true);
 				style.append("text;html=1;nl2Br=0;");
-//				setFontSizeBasedOnGlobal(style);
 				cell.setValue(gliffyObject.getText());
 
 				//if text is a child of a cell, use relative geometry and set X and Y to 0
@@ -852,7 +850,7 @@ public class GliffyDiagramConverter
 			GliffyObject header = gliffyObject.children.get(0);// first child is the header of the swimlane
 
 			GliffyShape shape = header.graphic.getShape();
-			style.append("strokeWidth=" + shape.strokeWidth).append(";");
+			style.append("strokeWidth=" + shape.getStrokeWidth()).append(";");
 			style.append("shadow=" + (shape.dropShadow ? 1 : 0)).append(";");
 			style.append("fillColor=" + shape.fillColor).append(";");
 			style.append("strokeColor=" + shape.strokeColor).append(";");
@@ -867,7 +865,7 @@ public class GliffyDiagramConverter
 				GliffyShape gs = gLane.graphic.getShape();
 				StringBuilder laneStyle = new StringBuilder();
 				laneStyle.append("swimlane;collapsible=0;swimlaneLine=0;");
-				laneStyle.append("strokeWidth=" + gs.strokeWidth).append(";");
+				laneStyle.append("strokeWidth=" + gs.getStrokeWidth()).append(";");
 				laneStyle.append("shadow=" + (gs.dropShadow ? 1 : 0)).append(";");
 				laneStyle.append("fillColor=" + gs.fillColor).append(";");
 				laneStyle.append("strokeColor=" + gs.strokeColor).append(";");
@@ -918,7 +916,7 @@ public class GliffyDiagramConverter
 
 			style.append("shape=" + StencilTranslator.translate(gliffyObject.uid, null)).append(";");
 			style.append("shadow=" + (mindmap.dropShadow ? 1 : 0)).append(";");
-			style.append("strokeWidth=" + mindmap.strokeWidth).append(";");
+			style.append("strokeWidth=" + mindmap.getStrokeWidth()).append(";");
 			style.append("fillColor=" + mindmap.fillColor).append(";");
 			style.append("strokeColor=" + mindmap.strokeColor).append(";");
 			style.append(DashStyleMapping.get(mindmap.dashStyle, 1));
@@ -1032,15 +1030,6 @@ public class GliffyDiagramConverter
 		gliffyObject.mxObject = cell;
 
 		return cell;
-	}
-
-	private void setFontSizeBasedOnGlobal(StringBuilder style)
-	{
-		if (gliffyDiagram.stage.getTextStyles() != null && gliffyDiagram.stage.getTextStyles().getGlobal() != null
-				&& gliffyDiagram.stage.getTextStyles().getGlobal().getSize() != null)
-		{
-			style.append("fontSize=" + gliffyDiagram.stage.getTextStyles().getGlobal().getSize() + ";");
-		}
 	}
 
 	/**

@@ -29,7 +29,9 @@ mxUtils.extend(mxShapeArrows2Arrow, mxActor);
 mxShapeArrows2Arrow.prototype.customProperties = [
 	{name: 'dx', dispName: 'Arrowhead Length', type: 'float', min: 0, defVal: 40},
 	{name: 'dy', dispName: 'Arrow Width', type: 'float', min:0, max:1, defVal: 0.6},
-	{name: 'notch', dispName: 'Notch', type: 'float', min:0, defVal: 0}
+	{name: 'notch', dispName: 'Notch', type: 'float', min:0, defVal: 0},
+	{name: 'headCrossline', dispName: 'Head Crossline', type: 'bool', defVal: false},
+	{name: 'tailCrossline', dispName: 'Tail Crossline', type: 'bool', defVal: false}
 ];
 
 mxShapeArrows2Arrow.prototype.cst = {
@@ -48,6 +50,8 @@ mxShapeArrows2Arrow.prototype.paintVertexShape = function(c, x, y, w, h)
 	var dy = h * 0.5 * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'dy', this.dy))));
 	var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'dx', this.dx))));
 	var notch = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'notch', this.notch))));
+	var headCrossline = mxUtils.getValue(this.style, 'headCrossline', false);
+	var tailCrossline = mxUtils.getValue(this.style, 'tailCrossline', false);
 
 	c.begin();
 	c.moveTo(0, dy);
@@ -60,6 +64,24 @@ mxShapeArrows2Arrow.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(notch, h * 0.5);
 	c.close();
 	c.fillAndStroke();
+	
+	c.setShadow(false);
+	
+	if (headCrossline)
+	{
+		c.begin();
+		c.moveTo(w - dx, dy);
+		c.lineTo(w - dx, h - dy);
+		c.stroke();
+	}
+	
+	if (tailCrossline)
+	{
+		c.begin();
+		c.moveTo(notch, dy);
+		c.lineTo(notch, h - dy);
+		c.stroke();
+	}
 };
 
 mxShapeArrows2Arrow.prototype.getLabelBounds = function(rect)

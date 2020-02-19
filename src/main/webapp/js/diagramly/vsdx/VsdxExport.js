@@ -334,7 +334,7 @@ function VsdxExport(editorUi)
 		if (lbkgnd) shape.appendChild(createCellElem("TextBkgnd", lbkgnd, xmlDoc));
 	};
 
-	function createShape(id, geo, xmlDoc, parentHeight, isChild)
+	function createShape(id, geo, layerIndex, xmlDoc, parentHeight, isChild)
 	{
 		var shape = createElt(xmlDoc, that.XMLNS, "Shape");
 		
@@ -352,6 +352,7 @@ function VsdxExport(editorUi)
 		shape.appendChild(createCellElemScaled("Height", geo.height, xmlDoc));
 		shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
 		shape.appendChild(createCellElemScaled("LocPinY", hh, xmlDoc));
+		shape.appendChild(createCellElem("LayerMember", layerIndex + "", xmlDoc));
 		
 		return shape;
 	};
@@ -388,7 +389,7 @@ function VsdxExport(editorUi)
 			return 6;
 	};
 
-	function createEdge(cell, graph, xmlDoc, parentHeight, isChild)
+	function createEdge(cell, layerIndex, graph, xmlDoc, parentHeight, isChild)
 	{
 		var state = graph.view.getState(cell, true);
 		
@@ -444,7 +445,7 @@ function VsdxExport(editorUi)
 		shape.appendChild(createCellElem("BegTrigger", "2", xmlDoc, cell.source? "_XFTRIGGER(Sheet."+ getCellVsdxId(cell.source.id) +"!EventXFMod)" : null));
 		shape.appendChild(createCellElem("EndTrigger", "2", xmlDoc, cell.target? "_XFTRIGGER(Sheet."+ getCellVsdxId(cell.target.id) +"!EventXFMod)" : null));
 		shape.appendChild(createCellElem("ConFixedCode", "6", xmlDoc));
-		shape.appendChild(createCellElem("LayerMember", "0", xmlDoc));
+		shape.appendChild(createCellElem("LayerMember", layerIndex + "", xmlDoc));
 
 		applyMxCellStyle(state, shape, xmlDoc);
 		
@@ -491,7 +492,7 @@ function VsdxExport(editorUi)
 		return shape;
 	};
 	
-	function convertMxCell2Shape(cell, graph, xmlDoc, parentHeight, parentGeo, isChild)
+	function convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, parentHeight, parentGeo, isChild)
 	{
 		var geo = cell.geometry;
 		
@@ -511,7 +512,7 @@ function VsdxExport(editorUi)
 			if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group 
 			{
 				//Create group shape as an empty shape with no geo
-				var shape = createShape(vsdxId + "10000", geo, xmlDoc, parentHeight, isChild);
+				var shape = createShape(vsdxId + "10000", geo, layerIndex, xmlDoc, parentHeight, isChild);
 				shape.setAttribute("Type", "Group");
 				
 				//Create group shape
@@ -528,7 +529,7 @@ function VsdxExport(editorUi)
 				newGeo.y = 0;
 				cell.setGeometry(newGeo);
 				cell.treatAsSingle = true;
-				var subShape = convertMxCell2Shape(cell, graph, xmlDoc, geo.height, geo, true);
+				var subShape = convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, geo.height, geo, true);
 				cell.treatAsSingle = false;
 				cell.setGeometry(geo);
 				
@@ -542,7 +543,7 @@ function VsdxExport(editorUi)
 				{
 					var child = cell.children[i];
 					
-					var subShape = convertMxCell2Shape(child, graph, xmlDoc, geo.height, geo, true);
+					var subShape = convertMxCell2Shape(child, layerIndex, graph, xmlDoc, geo.height, geo, true);
 					
 					if (subShape != null)
 					{
@@ -560,7 +561,7 @@ function VsdxExport(editorUi)
 			else if (cell.vertex)
 			{
 	
-				var shape = createShape(vsdxId, geo, xmlDoc, parentHeight, isChild);
+				var shape = createShape(vsdxId, geo, layerIndex, xmlDoc, parentHeight, isChild);
 				
 				var state = graph.view.getState(cell, true);
 
@@ -591,7 +592,7 @@ function VsdxExport(editorUi)
 			}
 			else
 			{
-				return createEdge(cell, graph, xmlDoc, parentHeight, isChild);
+				return createEdge(cell, layerIndex, graph, xmlDoc, parentHeight, isChild);
 			}
 		}
 		else
@@ -632,15 +633,23 @@ function VsdxExport(editorUi)
 		vsdxCanvas.scale(1 / s);
 		vsdxCanvas.newPage();
 		
-		var defParent = graph.getDefaultParent();
+		var layers = graph.model.getChildCells(graph.model.root);
+		var layerIdsMaps = {};
+		
+		for (var k = 0; k < layers.length; k++)
+		{
+			layerIdsMaps[layers[k].id] = k;
+		}
 		
 		for (var id in model.cells) 
 		{
 			var cell = model.cells[id];
 			//top-most cells
-			if (cell.parent == defParent)
+			var layerIndex = cell.parent != null? layerIdsMaps[cell.parent.id] : null;
+			
+			if (layerIndex != null)
 			{
-				var shape = convertMxCell2Shape(cell, graph, xmlDoc, modelAttrib.pageHeight);
+				var shape = convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, modelAttrib.pageHeight);
 				
 				if (shape != null)
 					shapes.appendChild(shape);
@@ -689,7 +698,7 @@ function VsdxExport(editorUi)
 		zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc, '\n'));
 	};
 	
-	function addPagesXML(zip, pages, modelsAttr) 
+	function addPagesXML(zip, pages, pageLayers, modelsAttr) 
 	{
 		var pagesXmlDoc = mxUtils.createXmlDocument();
 		var pagesRelsXmlDoc = mxUtils.createXmlDocument();
@@ -721,26 +730,31 @@ function VsdxExport(editorUi)
 			var relE = createElt(pagesXmlDoc, that.XMLNS,"Rel");
 			relE.setAttributeNS(that.XMLNS_R, "r:id", "rId" + i);
 
-			//Layer (not needed!, it works without it)
+			//Add Layers
 			var layerSec = createElt(pagesXmlDoc, that.XMLNS, "Section");
 			layerSec.setAttribute("N", "Layer");
 
-			var layerRow = createElt(pagesXmlDoc, that.XMLNS, "Row");
-			layerRow.setAttribute("IX", "0");
-
-			layerSec.appendChild(layerRow)
+			var layers = pageLayers[name];
 			
-			layerRow.appendChild(createCellElem("Name", 'Connector', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Color", '255', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Status", '0', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Visible", '1', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Print", '1', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Active", '0', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Lock", '0', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Snap", '1', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("Glue", '1', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("NameUniv", 'Connector', pagesXmlDoc));
-			layerRow.appendChild(createCellElem("ColorTrans", '0', pagesXmlDoc));
+			for (var k = 0; k < layers.length; k++)
+			{
+				var layerRow = createElt(pagesXmlDoc, that.XMLNS, "Row");
+				layerRow.setAttribute("IX", k + "");
+	
+				layerSec.appendChild(layerRow)
+				
+				layerRow.appendChild(createCellElem("Name", layers[k].name, pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Color", '255', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Status", '0', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Visible", layers[k].visible? '1' : '0', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Print", '1', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Active", '0', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Lock", layers[k].locked? '1' : '0', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Snap", '1', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("Glue", '1', pagesXmlDoc));
+				layerRow.appendChild(createCellElem("NameUniv", layers[k].name, pagesXmlDoc));
+				layerRow.appendChild(createCellElem("ColorTrans", '0', pagesXmlDoc));
+			}
 			
 			pageSheet.appendChild(layerSec);
 			
@@ -820,9 +834,29 @@ function VsdxExport(editorUi)
 				idsCounter = 1;
 				
 				var pages = {};
+				var pageLayers = {};
 				var modelsAttr = {};
 				
 				var pagesCount = editorUi.pages != null? editorUi.pages.length : 1;
+				
+				function collectLayers(graph, diagramName)
+				{
+					var layers = graph.model.getChildCells(graph.model.root);
+					pageLayers[diagramName] = [];
+					
+					for (var k = 0; k < layers.length; k++)
+					{
+						//KNOWN We don't export invisible layers, we may support it later but we need to have a full cell state for invisible cells
+						if (layers[k].visible)
+						{
+							pageLayers[diagramName].push({
+								name: layers[k].value || 'Background',
+								visible: layers[k].visible,
+								locked: layers[k].style && layers[k].style.indexOf('locked=1') >= 0 
+							});
+						}
+					}
+				};
 				
 				if (editorUi.pages != null) 
 				{
@@ -855,6 +889,7 @@ function VsdxExport(editorUi)
 						{
 							var modelAttrib = getGraphAttributes(graph);
 							pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
+							collectLayers(graph, diagramName);
 							addImagesRels(zip, i+1);
 							modelsAttr[diagramName] = modelAttrib;
 						}
@@ -881,13 +916,14 @@ function VsdxExport(editorUi)
 					var modelAttrib = getGraphAttributes(graph);
 					var diagramName = "Page1";
 					pages[diagramName] = convertMxModel2Page(graph, modelAttrib);
+					collectLayers(graph, diagramName);
 					addImagesRels(zip, 1);
 					modelsAttr[diagramName] = modelAttrib;
 				}
 				
 				createVsdxSkeleton(zip, pagesCount);
 				
-				addPagesXML(zip, pages, modelsAttr);
+				addPagesXML(zip, pages, pageLayers, modelsAttr);
 
 				var createZipFile = function() 
 				{

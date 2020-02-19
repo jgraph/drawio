@@ -1,3 +1,191 @@
+17-FEB-2020: 12.7.1
+
+- DropTarget style has precedence over container
+- Replaces UML module shape
+- Uses mxGraph 4.1.1 beta 9
+
+13-FEB-2020: 12.7.0
+
+- Adds dropTarget style property
+- Adds Insert, Advanced, Mermaid
+
+12-FEB-2020: 12.6.8
+
+- Ignores drafts with mode parameter
+- Adds Arrange, Layout, Org Chart
+- Fixes GitLab authentication
+- Uses mxGraph 4.1.1 beta 8
+
+10-FEB-2020: 12.6.7
+
+- Fixes clipping for edge labels in PDF output
+- Uses mxGraph 4.1.1 beta 7
+- Adds draft states
+
+07-FEB-2020: 12.6.6
+
+- Searches collapsed custom libraries
+- Fixes configured default libraries
+- Adds tags to configured libraries
+- Uses auth header for Google Drive
+- Uses mxGraph 4.1.1 beta 6
+
+04-FEB-2020: 12.6.5
+
+- Adds expand style for containers
+- Adds warning for fallback labels
+- Improvements for CSV import
+- Uses mxGraph 4.1.1 beta 5
+- Adds new AWS 19 shapes
+
+02-FEB-2020: 12.6.4
+
+- Uses mxGraph 4.1.1 beta 4
+- Fixes possible NPE
+
+02-FEB-2020: 12.6.3
+
+- Updates move preview after key events
+- Fixes rounding errors for routing
+- Uses mxGraph 4.1.1 beta 3
+
+30-JAN-2020: 12.6.2
+
+- Fixes WebKitBlobResource error on iOS
+- Adds layers for VSDX export
+- Uses mxGraph 4.1.1 beta 2
+
+28-JAN-2020: 12.6.1
+
+- Adds new Veeam shapes
+
+28-JAN-2020: 12.6.0
+
+- Fixes aspect dialog incorrect layers
+
+25-JAN-2020: 12.5.8
+
+- Fixes possible NPE in OneDrive client
+
+25-JAN-2020: 12.5.7
+
+- Fixes access to OneDrive Sharepoint folders
+- Creates fewer revisions in Google Drive
+- Uses mxGraph 4.1.1 beta 1
+- Uses PlantUML 2019.7
+
+22-JAN-2020: 12.5.6
+
+- Fixes offline download for mobile Safari
+- Fixes newlines in custom shape editor
+- Uses mxGraph 4.1.0 pre 6
+- Adds movableLabel style
+
+16-JAN-2020: 12.5.5
+
+- Fixes inconsistent label wrapping
+- Uses mxGraph 4.1.0 pre 5
+
+15-JAN-2020: 12.5.4
+
+- Adds PWA install prompt handler
+
+14-JAN-2020: 12.5.3
+
+- Fixes line height in labels
+- Uses mxGraph 4.1.0 pre 4
+
+14-JAN-2020: 12.5.2
+
+- Adds option to include XML in PDF
+- Replaces app cache with PWA
+- Uses mxGraph 4.1.0 pre 3
+
+09-JAN-2020: 12.5.1
+
+- Fixes label offsets in viewer
+- Uses mxGraph 4.1.0 pre 2
+
+07-JAN-2020: 12.5.0
+
+- Enables reflow in HTML output
+- Fixes text rendering issues
+- Uses mxGraph 4.1.0 pre 1
+- Adds Galician language
+
+06-JAN-2020: 12.4.9
+
+- Adds support for multiple redirect URLs in token-based-auth 
+
+31-DEC-2019: 12.4.8
+
+- Adds referrer policy header
+- Uses mxGraph 4.0.6 beta 16
+
+27-DEC-2019: 12.4.7
+
+- Fixes bug for loading viewer in Confluence Cloud
+
+27-DEC-2019: 12.4.6
+
+- Fixes mobile Safari in desktop mode
+- Uses mxGraph 4.0.6 beta 15
+
+27-DEC-2019: 12.4.5
+
+- Uses mxGraph 4.0.6 beta 14
+- Fixes possible NPE
+
+27-DEC-2019: 12.4.4
+
+- Fixes proxy URL for Confluence Cloud lightbox
+- Fixes possible text wrapping for SVG export
+- Adds custom fonts for embedded SVG files
+- Pass-through OTF fonts in proxy servlet
+- Adds basic diagram templates
+- Uses mxGraph 4.0.6 beta 13
+
+17-DEC-2019: 12.4.3
+
+- Uses fast zoom preview on iOS
+- Uses mxGraph 4.0.6 beta 12
+
+14-DEC-2019: 12.4.2
+
+- Improves move/resize preview and guides
+- Adds pinch to zoom for macOS trackpad
+- Disables drop style for swimlanes
+- Adds anchor points for corners
+- Fixes edge label move preview
+- Uses mxGraph 4.0.6 beta 11
+
+12-DEC-2019: 12.4.1
+
+- Fixes initial key state for cloning
+- Uses mxGraph 4.0.6 beta 11
+
+12-DEC-2019: 12.4.0
+
+- Adds Catalan translations, credit Pere Orga pere@orga.cat
+- Fixes drag cells to library, subtree moving live preview
+- Fixes conf cloud gliffy mass import paging bug
+- Uses mxGraph 4.0.6 beta 10
+
+09-DEC-2019: 12.3.9
+
+- Fixes NPE in Lucidchart import
+- Adds check for empty layerID array in GraphViewer
+
+06-DEC-2019: 12.3.8
+
+- Improves Gliffy import of nested links
+- Adds pageID target export selection in Confluence Cloud
+
+05-DEC-2019: 12.3.7
+
+- Fixes handling of clipboard data
+- Uses mxGraph 4.0.6 beta 9
+
 03-DEC-2019: 12.3.6
 
 - Moves rotation handle to top right corner

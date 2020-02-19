@@ -11,7 +11,7 @@ OneDriveClient = function(editorUi)
 	if (authInfo != null)
 	{
 		this.token = authInfo.access_token;
-		this.endpointHint = authInfo.endpointHint;
+		this.endpointHint = authInfo.endpointHint != null ? authInfo.endpointHint.replace('/Documents', '/_layouts/15/onedrive.aspx') : authInfo.endpointHint;
 		this.tokenExpiresOn = authInfo.expiresOn;
 		
 		var remainingTime = (this.tokenExpiresOn - Date.now()) / 1000;
@@ -345,7 +345,8 @@ OneDriveClient.prototype.getAccountTypeAndEndpoint = function(success, error)
 				
 				if (resp.webUrl.indexOf('.sharepoint.com') > 0) 
 			 	{
-					this.endpointHint = resp.webUrl;
+					//TODO Confirm this works with all sharepoint sites
+					this.endpointHint = resp.webUrl.replace('/Documents', '/_layouts/15/onedrive.aspx');
 				}
 				else
 				{
@@ -502,7 +503,7 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			
 			// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
 			if (/\.v(dx|sdx?)$/i.test(meta.name) || /\.gliffy$/i.test(meta.name) ||
-				(!this.ui.useCanvasForExport && binary))
+				/\.pdf$/i.test(meta.name) || (!this.ui.useCanvasForExport && binary))
 			{
 				var mimeType = (meta.file != null) ? meta.file.mimeType : null;
 				this.ui.convertFile(meta['@microsoft.graph.downloadUrl'], meta.name, mimeType,
@@ -618,7 +619,8 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    		error(this.parseRequestText(req));
 			    	}
 				}), binary || (meta.file != null && meta.file.mimeType != null &&
-					meta.file.mimeType.substring(0, 6) == 'image/'));
+					(meta.file.mimeType.substring(0, 6) == 'image/' ||
+					meta.file.mimeType == 'application/pdf')));
 			}
 		}
 		else
@@ -909,13 +911,21 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 				try
 				{
 					var acceptResponse = true;
+					var timeoutThread = null;
 					
-					var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+					try
 					{
-						acceptResponse = false;
-						error({code: App.ERROR_TIMEOUT, retry: doExecute});
-					}), this.ui.timeout);
-		
+						timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							acceptResponse = false;
+							error({code: App.ERROR_TIMEOUT, retry: doExecute});
+						}), this.ui.timeout);
+					}
+					catch (e)
+					{
+						// Ignore window closed
+					}
+					
 					var req = new mxXmlRequest(url, data, method);
 					
 					req.setRequestHeaders = mxUtils.bind(this, function(request, params)

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 (function()
 {
@@ -293,7 +293,7 @@
 				// Export PDF action for chrome OS (same as print with different dialog title)
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
 						(editorUi.pages != null && editorUi.pages.length > 1) ?
-						420 : 360, true, true);
+						450 : 370, true, true);
 			}
 			else
 			{
@@ -319,7 +319,7 @@
 					}
 				};
 				
-				var dlgH = 172;
+				var dlgH = 180;
 				
 				if (editorUi.pdfPageExport && !noPages)
 				{
@@ -350,9 +350,21 @@
 					}
 				}
 				
+				var includeOption = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+					editorUi.getServiceName() == 'draw.io';
+				var include = (includeOption) ? editorUi.addCheckbox(div,
+					mxResources.get('includeCopyOfMyDiagram'), true) : null;
+					
+				if (includeOption)
+				{
+					dlgH += 30;
+				}
+				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					editorUi.downloadFile('pdf', null, null, !selection.checked, noPages? true : !allPages.checked, !crop.checked, null, null, null, grid.checked);
+					editorUi.downloadFile('pdf', null, null, !selection.checked,
+						noPages? true : !allPages.checked, !crop.checked, null, null,
+						null, grid.checked, include != null && include.checked);
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
 			}
@@ -369,6 +381,11 @@
 			
 			function fn()
 			{
+				if (currentFile != null)
+				{
+					currentFile.removeDraft();
+				}
+				
 				editorUi.fileLoaded(null);
 			};
 			
@@ -810,7 +827,7 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://desk.draw.io/support/solutions/articles/16000058316',
-					[[mxResources.get('link'), function(evt, input)
+					(EditorUi.isElectronApp) ? null : [[mxResources.get('link'), function(evt, input)
 					{
 						if (input.value.length > 0)
 						{
@@ -1007,6 +1024,131 @@
 		layoutMenu.funct = function(menu, parent)
 		{
 			layoutMenuFunct.apply(this, arguments);
+			
+			menu.addSeparator(parent);
+		
+			menu.addItem(mxResources.get('orgChart') + '...', null, function()
+			{
+				var branchOptimizer = null, parentChildSpacingVal = 20, siblingSpacingVal = 20, notExecuted = true;
+				
+				function doLayout()
+				{
+					if (typeof mxOrgChartLayout !== 'undefined' && branchOptimizer != null && notExecuted)
+					{
+						var graph = editorUi.editor.graph;
+						var orgChartLayout = new mxOrgChartLayout(graph, branchOptimizer, parentChildSpacingVal, siblingSpacingVal);
+						orgChartLayout.execute(graph.getDefaultParent());
+						notExecuted = false;
+					}
+				};
+				
+				var div = document.createElement('div');
+				
+				var title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('orgChartType') + ': ');
+				
+				div.appendChild(title);
+				
+				var typeSelect = document.createElement('select');
+				typeSelect.style.width = '200px';
+				typeSelect.style.boxSizing = 'border-box';
+				
+				//Types are hardcoded here since the code is not loaded yet
+				var typesArr = [mxResources.get('linear'),
+					mxResources.get('hanger2'),
+					mxResources.get('hanger4'),
+					mxResources.get('fishbone1'),
+					mxResources.get('fishbone2'),
+					mxResources.get('1ColumnLeft'),
+					mxResources.get('1ColumnRight'),
+					mxResources.get('smart')
+				];
+				
+				for (var i = 0; i < typesArr.length; i++)
+				{
+					var option = document.createElement('option');
+					mxUtils.write(option, typesArr[i]);
+					option.value = i;
+					
+					if (i == 2)
+					{
+						option.setAttribute('selected', 'selected');
+					}
+					
+					typeSelect.appendChild(option);
+				}
+					
+				mxEvent.addListener(typeSelect, 'change', function()
+				{
+					branchOptimizer = typeSelect.value;
+				});
+				
+				div.appendChild(typeSelect);
+				
+				title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('parentChildSpacing') + ': ');
+				div.appendChild(title);
+				
+				var parentChildSpacing = document.createElement('input');
+				parentChildSpacing.type = 'number';
+				parentChildSpacing.value = parentChildSpacingVal;
+				parentChildSpacing.style.width = '200px';
+				parentChildSpacing.style.boxSizing = 'border-box';
+				div.appendChild(parentChildSpacing);
+				
+				mxEvent.addListener(parentChildSpacing, 'change', function()
+				{
+					parentChildSpacingVal = parentChildSpacing.value;
+				});
+				
+				title = document.createElement('div');
+				title.style.marginTop = '6px';
+				title.style.display = 'inline-block';
+				title.style.width = '140px';
+				mxUtils.write(title, mxResources.get('siblingSpacing') + ': ');
+				div.appendChild(title);
+				
+				var siblingSpacing = document.createElement('input');
+				siblingSpacing.type = 'number';
+				siblingSpacing.value = siblingSpacingVal;
+				siblingSpacing.style.width = '200px';
+				siblingSpacing.style.boxSizing = 'border-box';
+				div.appendChild(siblingSpacing);
+				
+				mxEvent.addListener(siblingSpacing, 'change', function()
+				{
+					siblingSpacingVal = siblingSpacing.value;
+				});
+				
+				var dlg = new CustomDialog(editorUi, div, function()
+				{
+					if (branchOptimizer == null) branchOptimizer = 2;
+					doLayout();
+				});
+				editorUi.showDialog(dlg.container, 355, 125, true, true);
+				
+				var delayed = function()
+				{
+					editorUi.loadingOrgChart = false;
+					doLayout();
+				};
+				
+				if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
+				{
+					editorUi.loadingOrgChart = true;
+					mxscript('js/orgchart.min.js', delayed);
+				}
+				else
+				{
+					delayed();
+				}
+			}, parent, null, isGraphEnabled());
 			
 			menu.addSeparator(parent);
 			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');
@@ -1979,6 +2121,10 @@
 				{
 					mime = 'image/gif';
 				}
+				else if (/\.pdf$/i.test(filename))
+				{
+					mime = 'application/pdf';
+				}
 				
 				return mime;
 			});
@@ -2421,7 +2567,8 @@
 			{
 				menu.addItem(title, null, mxUtils.bind(this, function()
 				{
-					if (method == 'fromText' || method == 'formatSql' || method == 'plantUml')
+					if (method == 'fromText' || method == 'formatSql' ||
+						method == 'plantUml' || method == 'mermaid')
 					{
 						var dlg = new ParseDialog(editorUi, title, method);
 						editorUi.showDialog(dlg.container, 620, 420, true, false);
@@ -2532,18 +2679,19 @@
 				}
 			}
 		});
-
+		
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
-				'insertText', 'insertLink', '-', 'insertImage'], parent);
+			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse',
+				'insertRhombus', '-', 'insertText', 'insertLink', '-',
+				'createShape', 'insertFreehand', '-', 'insertImage'], parent);
 
 			if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['insertTemplate', '-'], parent);
+				this.addMenuItems(menu, ['insertTemplate'], parent);
 			}
-
-			this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
+			
+			menu.addSeparator(parent);
 			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 		})));
@@ -2556,7 +2704,7 @@
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', '-', 'formatSql']);
+			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{
@@ -3209,9 +3357,9 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', 'save'], parent);
+				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', urlParams['noSaveBtn'] == '1'? 'saveAndExit' : 'save'], parent);
 				
-				if (urlParams['saveAndExit'] == '1')
+				if (urlParams['saveAndExit'] == '1' && urlParams['noSaveBtn'] != '1')
 				{
 					this.addMenuItems(menu, ['saveAndExit'], parent);
 				}

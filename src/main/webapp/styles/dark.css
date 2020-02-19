@@ -26,6 +26,9 @@ html body a {
 html body div.mxRubberband {
 	border:1px dashed #ffffff !important; background:#505759 !important;
 }
+html body .geTemplate {
+	color:#000000;
+}
 html body .geToolbarContainer, html body .geSidebar, html body .geSidebarContainer .geTitle, html body input,
 html body textarea, html body button, html body .geColorBtn, html body .geBaseButton, html body .geSidebarTooltip,
 html body .geBaseButton {

@@ -33,7 +33,7 @@
 	 */
 	Sidebar.prototype.signs = ['Animals', 'Food', 'Healthcare', 'Nature', 'People', 'Safety', 'Science', 'Sports', 'Tech', 'Transportation', 'Travel'];
 
-	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users', 'VPC'];
+	Sidebar.prototype.ibm = ['Analytics', 'Applications', 'Blockchain', 'Data', 'DevOps', 'Infrastructure', 'Management', 'Miscellaneous', 'Security', 'Social', 'Users', 'VPC', 'Boxes', 'Connectors'];
 
 	Sidebar.prototype.allied_telesis = ['Buildings', 'Computer and Terminals', 'Media Converters', 'Security', 'Storage', 'Switch', 'Wireless'];
 
@@ -50,6 +50,8 @@
 	Sidebar.prototype.cisco = ['Buildings', 'Computers and Peripherals', 'Controllers and Modules', 'Directors', 'Hubs and Gateways', 'Misc',
 	                           'Modems and Phones', 'People', 'Routers', 'Security', 'Servers', 'Storage', 'Switches', 'Wireless'];
 	
+	Sidebar.prototype.cisco19 = ['LAN Switching', 'Routing WAN', 'Network Management', 'Data Center', 'Wireless LAN', 'Collaboration', 'Security Clouds Connectors', 'Endpoint Client Device Icons', 'DNA SD Access', 'SD WAN Viptela', 'ETA Stealthwatch', 'SAFE'];
+
 	Sidebar.prototype.cisco_safe = ['Architecture', 'Capability', 'Design', 'Threat'];
 	
 	Sidebar.prototype.sysml = ['Model Elements', 'Blocks', 'Ports and Flows', 'Constraint Blocks', 'Activities', 'Interactions', 'State Machines', 
@@ -73,13 +75,14 @@
 							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
 	
 	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Blockchain', 
-							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Engagement',
+							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Enablement', 'Customer Engagement',
 							  'Database', 'End User Computing', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
 							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
 
 	Sidebar.prototype.office = ['Clouds', 'Communications', 'Concepts', 'Databases', 'Devices', 'Security', 'Servers', 'Services', 'Sites', 'Users'];
 
 	Sidebar.prototype.veeam = ['Data Center', 'Misc', 'Software', 'Storage', 'UsersStatus', 'VASComponents', 'Backup Replication', 'Products', 'VMs and Tape', '2D', '3D'];
+	Sidebar.prototype.veeam2 = ['Auxiliary', 'Data Center', 'Features', 'General', 'Products and Components', 'Software', 'States', 'Storage', '3D'];
 
 	Sidebar.prototype.archimate3 = ['Application', 'Business', 'Composite', 'Implementation and Migration', 'Motivation', 'Physical', 'Relationships', 'Strategy', 'Technology'];
 
@@ -97,6 +100,11 @@
 	 * https://desk.draw.io/support/solutions/articles/16000042546
 	 */
 	Sidebar.prototype.enabledLibraries = null;
+	
+	/**
+	 * Maximum number of custom libraries to preload into the search index.
+	 */
+	Sidebar.prototype.maxPreloadCount = 20;
 
 	/**
 	 *
@@ -105,7 +113,7 @@
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
 	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'vvd'}, 
-	                                   {id: 'sitemap'}, {id: 'dfd'}, {id : 'kubernetes'},
+	                                   {id: 'sitemap'}, {id:'c4'}, {id: 'dfd'}, {id : 'kubernetes'}, {id : 'cisco19', prefix: 'cisco19', libs: Sidebar.prototype.cisco19},
 	                                   {id: 'mscae', prefix: 'mscae', libs: ['Companies', 'EnterpriseFlat', 'IntuneFlat', 'OMSFlat', 'System CenterFlat', 'AI and ML Service', 'Analytics Service', 'Compute Service', 'Compute Service VM', 'Container Service', 'Databases Service', 'DevOps Service', 'General Service', 'Identity Service', 'Integration Service', 'Internet of Things Service', 'Intune Service', 'Management and Governance Service', 'Management and Governance Service Media', 'Migrate Service', 'Mixed Reality Service', 'Mobile Service', 'Networking Service', 'Other Category Service', 'Security Service', 'Storage Service', 'Web Service']},
 	                                   {id: 'active_directory'},
 	                                   {id: 'bpmn', prefix: 'bpmn', libs: [''/*prefix is library*/, 'Gateways', 'Events']},
@@ -133,6 +141,7 @@
            	                           {id: 'cisco_safe', prefix: 'cisco_safe', libs: Sidebar.prototype.cisco_safe},
            	                           {id: 'office', prefix: 'office', libs: Sidebar.prototype.office},
            	                           {id: 'veeam', prefix: 'veeam', libs: Sidebar.prototype.veeam},
+           	                           {id: 'veeam2', prefix: 'veeam2', libs: Sidebar.prototype.veeam2},
            	                           {id: 'cabinets', libs: ['cabinets']},
            	                           {id: 'floorplan', libs: ['floorplan']},
            	                           {id: 'bootstrap', libs: ['bootstrap']},
@@ -242,7 +251,6 @@
 		}
 	};
 
-	
 	/**
 	 * Shows or hides a palette.
 	 */
@@ -391,6 +399,7 @@
             					  {title: mxResources.get('android'), id: 'android', image: IMAGE_PATH + '/sidebar-android.png'},
             					  {title: 'Atlassian', id: 'atlassian', image: IMAGE_PATH + '/sidebar-atlassian.png'},
             			          {title: mxResources.get('bootstrap'), id: 'bootstrap', image: IMAGE_PATH + '/sidebar-bootstrap.png'},
+            			          {title: 'C4', id: 'c4', image: IMAGE_PATH + '/sidebar-c4.png'},
             			          {title: 'Data Flow Diagram', id: 'dfd', image: IMAGE_PATH + '/sidebar-dfd.png'},
             			          {title: mxResources.get('entityRelation'), id: 'er', image: IMAGE_PATH + '/sidebar-er.png'},
             			          {title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
@@ -400,13 +409,14 @@
             			{title: mxResources.get('networking'),
             			entries: [{title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
             					  {title: 'AWS17', id: 'aws3', image: IMAGE_PATH + '/sidebar-aws3.png'},
-							      {title: 'AWS18', id: 'aws4b', image: IMAGE_PATH + '/sidebar-aws4.png'},
+							      {title: 'AWS18', id: 'aws4b', image: IMAGE_PATH + '/sidebar-aws4b.png'},
 							      {title: 'AWS19', id: 'aws4', image: IMAGE_PATH + '/sidebar-aws4.png'},
 			            			// TODO: Add isometric containers  		                          
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
             			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
+            			          {title: 'Cisco19', id: 'cisco19', image: IMAGE_PATH + '/sidebar-cisco19.png'},
             			          {title: 'Cisco Safe', id: 'cisco_safe', image: IMAGE_PATH + '/sidebar-cisco_safe.png'},
             			          {title: 'Cumulus', id: 'cumulus', image: IMAGE_PATH + '/sidebar-cumulus.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
@@ -417,14 +427,14 @@
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
             			          {title: 'Office', id: 'office', image: IMAGE_PATH + '/sidebar-office.png'},
             			          {title: mxResources.get('rack'), id: 'rack', image: IMAGE_PATH + '/sidebar-rack.png'},
-            			          {title: 'Veeam', id: 'veeam', image: IMAGE_PATH + '/sidebar-veeam.png'},
+            			          {title: 'Veeam', id: 'veeam2', image: IMAGE_PATH + '/sidebar-veeam.png'},
             			          {title: 'VMware', id: 'vvd', image: IMAGE_PATH + '/sidebar-vvd.png'}]},
             			{title: mxResources.get('business'),
             			entries: [{title: 'ArchiMate 3.0', id: 'archimate3', image: IMAGE_PATH + '/sidebar-archimate3.png'},
             			          {title: mxResources.get('archiMate21'), id: 'archimate', image: IMAGE_PATH + '/sidebar-archimate.png'},
             			          {title: mxResources.get('bpmn'), id: 'bpmn', image: IMAGE_PATH + '/sidebar-bpmn.png'},
-            			          {title: mxResources.get('leanMapping'), id: 'lean_mapping', image: IMAGE_PATH + '/sidebar-leanmapping.png'},
-            			          {title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'}]},
+            			          {title: mxResources.get('sysml'), id: 'sysml', image: IMAGE_PATH + '/sidebar-sysml.png'},
+            			          {title: 'Value Stream Mapping', id: 'lean_mapping', image: IMAGE_PATH + '/sidebar-leanmapping.png'}]},
             			{title: mxResources.get('other'),
             			entries: [{title: mxResources.get('cabinets'), id: 'cabinets', image: IMAGE_PATH + '/sidebar-cabinets.png'},
             					  {title: 'Infographic', id: 'infographic', image: IMAGE_PATH + '/sidebar-infographic.png'},
@@ -710,12 +720,14 @@
 		var rack = this.rack;
 		var pids = this.pids;
 		var cisco = this.cisco;
+		var cisco19 = this.cisco19;
 		var cisco_safe = this.cisco_safe;
 		var sysml = this.sysml;
 		var eip = this.eip;
 		var gmdl = this.gmdl;
 		var office = this.office;
 		var veeam = this.veeam;
+		var veeam2 = this.veeam2;
 		var archimate3 = this.archimate3;
 		var electrical = this.electrical;
 		
@@ -730,6 +742,8 @@
 		// Adds custom sections first
 		if (this.customEntries != null)
 		{
+			var preloadCount = 0;
+			
 			for (var i = 0; i < this.customEntries.length; i++)
 			{
 				var section = this.customEntries[i];
@@ -742,35 +756,64 @@
 					{
 						(mxUtils.bind(this, function(lib)
 						{
-							this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
-								false, mxUtils.bind(this, function(content, title)
+							var data = null;
+							var error = null;
+							var content = null;
+							var title = null;
+							
+							var showError = mxUtils.bind(this, function(err, c)
 							{
-								var dataLoaded = mxUtils.bind(this, function(images)
+								var div = document.createElement('span');
+								div.style.paddingBottom = '6px';
+								div.style.paddingTop = '6px';
+								div.style.fontSize = '11px';
+								mxUtils.write(div, err);
+								c.innerHTML = '<img align="top" src="' + mxGraph.prototype.warningImage.src + '"/> ';
+								c.appendChild(div);
+							});
+							
+							var barrier = mxUtils.bind(this, function()
+							{
+								if (content != null && title != null)
 								{
-									this.addEntries(images);
-									this.editorUi.addLibraryEntries(images, content);
-								});
-								
-								var showError = mxUtils.bind(this, function(err)
-								{
-									content.innerHTML = '';
-									var div = document.createElement('div');
-									div.style.color = 'rgb(179, 179, 179)';
-									div.style.textAlign = 'center';
-									div.style.paddingTop = '6px';
-									mxUtils.write(div, err);
-									content.appendChild(div);
-								});
-								
-								if (lib.data)
-								{
-									dataLoaded(lib.data);
+									if (error != null)
+									{
+										content.style.display = 'block';
+										title.innerHTML = '';
+										mxUtils.write(title, this.editorUi.getResource(lib.title));
+										showError(error, content);
+									}
+									else if (data != null)
+									{
+										this.editorUi.addLibraryEntries(data, content);
+										content.style.display = 'block';
+										title.innerHTML = '';
+										mxUtils.write(title, this.editorUi.getResource(lib.title));
+									}
+									else
+									{
+										content.style.display = 'none';
+										title.innerHTML = '';
+										mxUtils.write(title, mxResources.get('loading') + '...');
+									}
 								}
-								else
+							});
+							
+							if (lib.data == null && lib.url != null && (!lib.preload && preloadCount >= this.maxPreloadCount))
+							{
+								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
+									false, mxUtils.bind(this, function(content, title)
 								{
+									var dataLoaded = mxUtils.bind(this, function(images)
+									{
+										this.addEntries(images);
+										this.editorUi.addLibraryEntries(images, content);
+									});
+
 									content.style.display = 'none';
 									title.innerHTML = '';
 									mxUtils.write(title, mxResources.get('loading') + '...');
+									
 									var url = lib.url;
 									
 									if (!this.editorUi.editor.isCorsEnabledForUrl(url))
@@ -795,16 +838,77 @@
 											}
 											else
 											{
-												showError(mxResources.get('notALibraryFile'));
+												showError(mxResources.get('notALibraryFile'), content);
 											}
 										}
 										catch (e)
 										{
-											showError(mxResources.get('error') + ': ' + e.message);
+											showError(mxResources.get('error') + ': ' + e.message, content);
 										}
 									}));
+								}));
+							}
+							else
+							{							
+								this.addPalette(entry.id + '.' + k, this.editorUi.getResource(lib.title),
+									false, mxUtils.bind(this, function(c, t)
+								{
+									content = c;
+									title = t;
+									barrier();
+								}));
+								
+								if (lib.data != null)
+								{
+									this.addEntries(lib.data);
+									data = lib.data;
+									barrier();
 								}
-							}));
+								else if (lib.url != null)
+								{
+									preloadCount++;					
+									var url = lib.url;
+									
+									if (!this.editorUi.editor.isCorsEnabledForUrl(url))
+									{
+										url = PROXY_URL + '?url=' + encodeURIComponent(url);
+									}
+									
+									this.editorUi.loadUrl(url, mxUtils.bind(this, function(temp)
+									{
+										try
+										{
+											var doc = mxUtils.parseXml(temp);
+											
+											if (doc.documentElement.nodeName == 'mxlibrary')
+											{
+												data = JSON.parse(mxUtils.getTextContent(doc.documentElement));
+												this.addEntries(data);
+												barrier();
+											}
+											else
+											{
+												error = mxResources.get('notALibraryFile');
+												barrier();
+											}
+										}
+										catch (e)
+										{
+											error = mxResources.get('error') + ': ' + e.message;
+											barrier();
+										}
+									}), mxUtils.bind(this, function(e)
+									{
+										error = (e != null && e.message != null) ? e.message : e;
+										barrier();
+									}));
+								}
+								else
+								{
+									error = mxResources.get('invalidInput');
+									barrier();
+								}
+							}
 						}))(entry.libs[k]);
 					}
 				}
@@ -933,6 +1037,7 @@
 		this.addAWS3DPalette();
 		this.addAzurePalette();
 		this.addMSCAEPalette();
+		this.addC4Palette();
 		
 		for (var i = 0; i < cisco.length; i++)
 		{
@@ -941,6 +1046,7 @@
 				';html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;', null, null, 1.6);
 		}
 
+		this.addCisco19Palette();
 		this.addCiscoSafePalette();
 		this.addCumulusPalette();
 		this.addCitrixPalette();
@@ -972,11 +1078,11 @@
 		}
 
 		this.addVeeamPalette();
+		this.addVeeam2Palette();
 		this.addVVDPalette();
 		this.addArchimate3Palette();
 		this.addArchiMatePalette();
 		this.addBpmnPalette(dir, false);
-		this.addLeanMappingPalette();
 		
 		for (var i = 0; i < sysml.length; i++)
 		{
@@ -1029,6 +1135,8 @@
 				this.addSysMLStereotypesPalette();
 			}
 		}
+
+		this.addLeanMappingPalette();
 
 		this.addCabinetsPalette();
 		this.addInfographicPalette();

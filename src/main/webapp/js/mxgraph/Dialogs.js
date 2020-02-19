@@ -1606,6 +1606,11 @@ var EditDataDialog = function(ui, cell)
 		texts[index] = form.addTextarea(names[count] + ':', value, 2);
 		texts[index].style.width = '100%';
 		
+		if (value.indexOf('\n') > 0)
+		{
+			texts[index].setAttribute('rows', '2');
+		}
+		
 		addRemoveButton(texts[index], name);
 	};
 	

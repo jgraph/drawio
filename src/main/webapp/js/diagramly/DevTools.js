@@ -53,10 +53,20 @@ if (urlParams['dev'] == '1')
 				{
 //					tip += 'pos=' + this.view.formatUnitText(parseFloat(geo.x)) + ',' + this.view.formatUnitText(parseFloat(geo.y)) + '<br>' +
 //						'size=' + this.view.formatUnitText(parseFloat(geo.width)) + 'x' + this.view.formatUnitText(parseFloat(geo.height));
-					tip += 'pos=' + parseFloat(geo.x) + ',' + parseFloat(geo.y) + '<br>' +
-						'size=' + parseFloat(geo.width) + 'x' + parseFloat(geo.height);
+					tip += 'x/y=' + parseFloat(geo.x) + ',' + parseFloat(geo.y) + '<br>' +
+						'w/h=' + parseFloat(geo.width) + 'x' + parseFloat(geo.height);
+					
+					if (state != null)
+					{
+						tip += '<br>pos=' + parseFloat(state.x) + ',' + parseFloat(state.y) + '<br>' +
+							'size=' + parseFloat(state.width) + 'x' + parseFloat(state.height);
+					}
 				}
-	
+				
+				if (cell.style != null)
+				{
+					tip += '<br>style=<div style="display:inline-block;vertical-align:bottom;white-space:nowrap;width:480px;overflow:hidden;text-overflow:ellipsis;">' + cell.style + '</span>';
+				}
 			}
 			
 			return tip;

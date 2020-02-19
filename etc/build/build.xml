@@ -118,7 +118,9 @@
 				<file name="Sidebar-Basic.js" />
 				<file name="Sidebar-Bootstrap.js" />
 				<file name="Sidebar-BPMN.js" />
+				<file name="Sidebar-C4.js" />
 				<file name="Sidebar-Cabinet.js" />
+				<file name="Sidebar-Cisco19.js" />
 				<file name="Sidebar-CiscoSafe.js" />
 				<file name="Sidebar-Citrix.js" />
 				<file name="Sidebar-Cumulus.js" />
@@ -146,6 +148,7 @@
 				<file name="Sidebar-Sitemap.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-Veeam.js" />
+				<file name="Sidebar-Veeam2.js" />
 				<file name="Sidebar-VVD.js" />
 				<file name="Sidebar-WebIcons.js" />
 			</sources>
@@ -292,6 +295,7 @@
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
 			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/croppie" files="croppie.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 
@@ -313,8 +317,23 @@
 			</sources>
 		</jscomp>
 		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
-	    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
-	    	</concat>
+    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
+			<fileset dir="${war.dir}/js/mermaid" includes="**/*.min.js"/>
+    	</concat>
+		
+		<delete file="${war.dir}/js/orgchart.min.js"/>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
+    	</concat>
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp3.js">
+			<sources dir="${war.dir}/js/orgchart">
+				<file name="mxOrgChartLayout.js" />
+			</sources>
+		</jscomp>
+		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="yes">
+			<filelist dir="${basedir}" files=".tmp3.js"/>
+    	</concat>
+		<delete file="${basedir}/.tmp3.js"/>
 		
 		<delete file="${basedir}/.tmp1.js"/>
 		
@@ -387,6 +406,7 @@
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
 			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/croppie" files="croppie.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 

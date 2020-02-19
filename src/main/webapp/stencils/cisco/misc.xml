@@ -3673,7 +3673,6 @@
 <close/>
 </path>
 <fill/>
-<restore/>
 <rect/>
 <stroke/>
 <strokecolor color="#ffffff"/>
@@ -3695,7 +3694,6 @@
 <close/>
 </path>
 <stroke/>
-<save/>
 <path>
 <move x="11.33" y="52.33"/>
 <curve x1="11.66" y1="52.33" x2="11.66" y2="52" x3="11.66" y3="52"/>

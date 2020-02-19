@@ -628,7 +628,7 @@ Graph.prototype.getViewState = function()
 /**
  * Overrides setDefaultParent
  */
-Graph.prototype.setViewState = function(state)
+Graph.prototype.setViewState = function(state, removeOldExtFonts)
 {
 	if (state != null)
 	{
@@ -656,7 +656,9 @@ Graph.prototype.setViewState = function(state)
 		var oldExtFonts = this.extFonts;
 		this.extFonts = state.extFonts || [];
 
-		if (oldExtFonts != null)
+		// Removing old fonts is important for real-time synchronization
+		// But, for page change, it results in undesirable font flicker
+		if (removeOldExtFonts && oldExtFonts != null)
 		{
 			for (var i = 0; i < oldExtFonts.length; i++)
 			{
@@ -736,6 +738,7 @@ Graph.prototype.setViewState = function(state)
 //TODO How to make this function secure with no injection??
 Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 {
+	// KNOWN: Font not added when pasting cells with custom fonts
 	if (fontName && fontUrl)
 	{
 		var fontId = 'extFont_' + fontName;
@@ -748,6 +751,9 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 			}
 			else
 			{
+				var head = document.getElementsByTagName('head')[0];
+				
+				// KNOWN: Should load fonts synchronously
 				var style = document.createElement('style');
 				
 				style.appendChild(document.createTextNode('@font-face {\n' +
@@ -755,7 +761,7 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 			            '\tsrc: url("'+ fontUrl +'");\n' + 
 			            '}'));
 				
-				style.setAttribute('id', fontId);				
+				style.setAttribute('id', fontId);
 				var head = document.getElementsByTagName('head')[0];
 		   		head.appendChild(style);
 			}
@@ -1643,6 +1649,16 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		{
 			this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 		}), parent);
+		
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && this.getServiceName() == 'draw.io')
+		{		
+			menu.addSeparator(parent);
+			
+			menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
+			{
+				this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
+			}), parent);
+		}
 	});
 };
 

@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 
 // urlParams is null when used for embedding
@@ -17,7 +17,7 @@ window.isSvgBrowser = window.isSvgBrowser || (navigator.userAgent.indexOf('MSIE'
 
 // CUSTOM_PARAMETERS - URLs for save and export
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
-window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml4';
+window.PLANT_URL = window.PLANT_URL || 'https://exp-plant.draw.io/plantuml-1-2019-7';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || 'https://www.draw.io/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || 'https://convert.draw.io/VsdConverter/api/converter';
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || 'https://convert.draw.io/emf2png/convertEMF';
@@ -27,7 +27,8 @@ window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '5cdc018a32acddf6eba37592d9
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'open';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
-window.VIEWER_URL = null;
+window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || 'https://www.draw.io';
+window.DRAWIO_VIEWER_URL = window.DRAWIO_VIEWER_URL || null;
 
 // Paths and files
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';
@@ -103,6 +104,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'es' : 'Español',
 	'fil' : 'Filipino',
 	'fr' : 'Français',
+	'gl' : 'Galego',
 	'it' : 'Italiano',
 	'hu' : 'Magyar',
 	'nl' : 'Nederlands',

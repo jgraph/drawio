@@ -455,10 +455,16 @@ Sidebar.prototype.addEntries = function(images)
 		(mxUtils.bind(this, function(img)
 		{
 			var data = img.data;
+			var tags = (img.title != null) ? img.title : '';
 			
-			if (data != null && img.title != null)
+			if (img.tags != null)
 			{
-				this.addEntry(img.title, mxUtils.bind(this, function()
+				tags += ' ' + img.tags;
+			}
+
+			if (data != null && tags.length > 0)
+			{
+				this.addEntry(tags, mxUtils.bind(this, function()
 				{
 					data = this.editorUi.convertDataUri(data);
 					var s = 'shape=image;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;';
@@ -472,9 +478,9 @@ Sidebar.prototype.addEntries = function(images)
 						data, img.w, img.h, '', img.title || '', false, false, true)
 				}));
 			}
-			else if (img.xml != null && img.title != null)
+			else if (img.xml != null && tags.length > 0)
 			{
-				this.addEntry(img.title, mxUtils.bind(this, function()
+				this.addEntry(tags, mxUtils.bind(this, function()
 				{
 					var cells = this.editorUi.stringToCells(Graph.decompress(img.xml));
 
@@ -1315,7 +1321,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;spacingTop=8;spacingLeft=2;spacingRight=12;shape=cube;size=10;direction=south;fontStyle=4;html=1;',
 			180, 120, 'Block', 'Block', null, null, dt + 'block'),
-		this.createVertexTemplateEntry('shape=component;align=left;spacingLeft=36;', 120, 60, 'Module', 'Module', null, null, dt + 'module'),
+		this.createVertexTemplateEntry('shape=module;align=left;spacingLeft=20;align=center;verticalAlign=top;', 100, 50, 'Module', 'Module', null, null, dt + 'module component'),
 		this.createVertexTemplateEntry('shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;', 70, 50,
 		   	'package', 'Package', null, null, dt + 'package'),
 		this.createVertexTemplateEntry('verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1;',
@@ -2494,6 +2500,35 @@ Sidebar.prototype.getDropAndConnectGeometry = function(source, target, direction
 };
 
 /**
+ * Limits drop style to non-transparent source shapes.
+ */
+Sidebar.prototype.isDropStyleEnabled = function(cells, firstVertex)
+{
+	var result = true;
+	
+	if (firstVertex != null && cells.length == 1)
+	{
+		var vstyle = this.graph.getCellStyle(cells[firstVertex]);
+		
+		if (vstyle != null)
+		{
+			result = mxUtils.getValue(vstyle, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
+				mxUtils.getValue(vstyle, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE;
+		}
+	}
+	
+	return result;
+};
+
+/**
+ * Ignores swimlanes as drop style targets.
+ */
+Sidebar.prototype.isDropStyleTargetIgnored = function(state)
+{
+	return this.graph.isSwimlane(state.cell);
+};
+
+/**
  * Creates a drag source for the given element.
  */
 Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds)
@@ -2522,6 +2557,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			break;
 		}
 	}
+	
+	var dropStyleEnabled = this.isDropStyleEnabled(cells, firstVertex);
 	
 	var dragSource = mxUtils.makeDraggable(elt, this.editorUi.editor.graph, mxUtils.bind(this, function(graph, evt, target, x, y)
 	{
@@ -2841,15 +2878,15 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 		}
 
 		// Shift means disabled, delayed on cells with children, shows after this.dropTargetDelay, hides after 2500ms
-		if (timeOnTarget < 2500 && state != null && !mxEvent.isShiftDown(evt) &&
+		if (dropStyleEnabled && (timeOnTarget < 2500) && state != null && !mxEvent.isShiftDown(evt) &&
 			// If shape is equal or target has no stroke, fill and gradient then use longer delay except for images
 			(((mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE) != mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) &&
 			(mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, mxConstants.NONE) != mxConstants.NONE ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) != mxConstants.NONE ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_GRADIENTCOLOR, mxConstants.NONE) != mxConstants.NONE)) ||
 			mxUtils.getValue(sourceCellStyle, mxConstants.STYLE_SHAPE) == 'image') ||
-			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) && 
-			((graph.model.isVertex(state.cell) && firstVertex != null) ||
+			timeOnTarget > 1500 || graph.model.isEdge(state.cell)) && (timeOnTarget > this.dropTargetDelay) &&
+			!this.isDropStyleTargetIgnored(state) && ((graph.model.isVertex(state.cell) && firstVertex != null) ||
 			(graph.model.isEdge(state.cell) && graph.model.isEdge(cells[0]))))
 		{
 			currentStyleTarget = state;
@@ -3141,9 +3178,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 					target = model.getParent(target);
 				}
 				
-				if (graph.view.currentRoot == target || (!graph.isValidRoot(target) &&
+				if (target != null && (graph.view.currentRoot == target ||
+					(!graph.isValidRoot(target) && 
 					graph.getModel().getChildCount(target) == 0) ||
-					graph.isCellLocked(target) || model.isEdge(target))
+					graph.isCellLocked(target) || model.isEdge(target) ||
+					!graph.isValidDropTarget(target, cells, evt)))
 				{
 					target = null;
 				}
@@ -3300,7 +3339,7 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells)
  */
 Sidebar.prototype.createVertexTemplateEntry = function(style, width, height, value, title, showLabel, showTitle, tags)
 {
-	tags = (tags != null && tags.length > 0) ? tags : title.toLowerCase();
+	tags = (tags != null && tags.length > 0) ? tags : ((title != null) ? title.toLowerCase() : '');
 	
 	return this.addEntry(tags, mxUtils.bind(this, function()
  	{
@@ -3502,11 +3541,14 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	}));
 	
 	// Prevents focus
-    mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-    	mxUtils.bind(this, function(evt)
+	if (!mxClient.IS_QUIRKS)
 	{
-		evt.preventDefault();
-	}));
+	    mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+	    	mxUtils.bind(this, function(evt)
+		{
+			evt.preventDefault();
+		}));
+	}
 };
 
 /**

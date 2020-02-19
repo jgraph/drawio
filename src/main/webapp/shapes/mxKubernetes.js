@@ -1,6 +1,6 @@
 /**
  * $Id: mxKubernetes.js,v 1.5 2019/14/11 12:32:06 mate Exp $
- * Copyright (c) 2006-2018, JGraph Ltd
+ * Copyright (c) 2006-2020, JGraph Ltd
  */
 //**********************************************************************************************************************************************************
 // Kubernetes icon
@@ -92,10 +92,12 @@ mxShapeKubernetesIcon.prototype.paintVertexShape = function(c, x, y, w, h)
 	frame.drawShape(c, this, w * 0.03, h * 0.03, w * 0.94, h * 0.94);
 	
 	var prStencil = mxStencilRegistry.getStencil('mxgraph.kubernetes.' + prIcon);
-
-	c.setFillColor(strokeColor);
 	
-	prStencil.drawShape(c, this, w * 0.2, h * 0.2, w * 0.6, h * 0.6);
+	if (prStencil != null)
+	{
+		c.setFillColor(strokeColor);
+		prStencil.drawShape(c, this, w * 0.2, h * 0.2, w * 0.6, h * 0.6);
+	}
 };
 
 mxCellRenderer.registerShape(mxShapeKubernetesIcon.prototype.cst.ICON, mxShapeKubernetesIcon);

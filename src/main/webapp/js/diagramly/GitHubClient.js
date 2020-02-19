@@ -38,6 +38,11 @@ GitHubClient.prototype.baseUrl = 'https://api.github.com';
 GitHubClient.prototype.maxFileSize = 1000000 /*1MB*/;
 
 /**
+ * Name for the auth token header.
+ */
+GitHubClient.prototype.authToken = 'token';
+
+/**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
@@ -50,7 +55,15 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 		error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 	}), this.ui.timeout);
 	
-	mxUtils.get(this.baseUrl + '/user?access_token=' + this.token, mxUtils.bind(this, function(userReq)
+	var userReq = new mxXmlRequest(this.baseUrl + '/user', null, 'GET');
+	var temp = this.authToken + ' ' + this.token;
+	
+	userReq.setRequestHeaders = function(request, params)
+	{
+		request.setRequestHeader('Authorization', temp);
+	};
+	
+	userReq.send(mxUtils.bind(this, function()
 	{
 		window.clearTimeout(timeoutThread);
 		
@@ -82,7 +95,7 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 				success();
 			}
 		}
-	}));
+	}), error);
 };
 
 /**
@@ -250,11 +263,11 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, retry: fn});
 		}), this.ui.timeout);
 		
-		var temp = this.token;
+		var temp = this.authToken + ' ' + this.token;
 		
 		req.setRequestHeaders = function(request, params)
 		{
-			request.setRequestHeader('Authorization', 'token ' + temp);
+			request.setRequestHeader('Authorization', temp);
 		};
 		
 		req.send(mxUtils.bind(this, function()
@@ -400,17 +413,17 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 	
 	// Handles .vsdx, Gliffy and PNG+XML files by creating a temporary file
 	if (!checkExists && (/\.v(dx|sdx?)$/i.test(path) || /\.gliffy$/i.test(path) ||
-		(!this.ui.useCanvasForExport && binary)))
+		/\.pdf$/i.test(path) || (!this.ui.useCanvasForExport && binary)))
 	{
 		// Should never be null
 		if (this.token != null)
 		{
-			var url = this.baseUrl + '/repos/' + org + '/' + repo + '/contents/' +
-				path + '?ref=' + ref + '&token=' + this.token;
+			var url = this.baseUrl + '/repos/' + org + '/' + repo +
+				'/contents/' + path + '?ref=' + ref;
+			var headers = {'Authorization': 'token ' + this.token};
 			tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
-	
-			this.ui.convertFile(url, name, null, this.extension, success, error);
+			this.ui.convertFile(url, name, null, this.extension, success, error, null, headers);
 		}
 		else
 		{

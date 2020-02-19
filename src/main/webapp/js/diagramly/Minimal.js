@@ -20,7 +20,7 @@ EditorUi.initMinimalTheme = function()
        style.innerHTML = '* { -webkit-font-smoothing: antialiased; }' +
        	   'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
        	   'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
-       	   'table.mxWindow * { font-size:13px; }' +
+       	   'table.mxWindow * :not(svg *) { font-size:13px; }' +
            'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700;border-radius: 5px; }' +
            'html body button.geBtn:active { opacity: 0.6; }' +
            'html body a.geMenuItem { opacity: 0.75; cursor: pointer; user-select:none; }' +
@@ -329,7 +329,7 @@ EditorUi.initMinimalTheme = function()
 	EditorUi.prototype.closableScratchpad = false;
     EditorUi.prototype.toolbarHeight = 46;
 	EditorUi.prototype.footerHeight = 0;
-	Graph.prototype.editAfterInsert = true;
+	Graph.prototype.editAfterInsert = !mxClient.IS_IOS && !mxClient.IS_ANDROID;
 
     /**
      * Sets the XML node for the current diagram.
@@ -563,6 +563,8 @@ EditorUi.initMinimalTheme = function()
             menu.addSeparator();
             this.addSubmenu('layout', menu);
             this.addSubmenu('view', menu, null, mxResources.get('options'));
+            menu.addSeparator();
+            this.addSubmenu('insert', menu);
             this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
         }
         else if (graph.isEnabled())
@@ -770,6 +772,15 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			ui.menus.addSubmenu('exportAs', menu, parent);
+			    
+            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+            {
+            	ui.menus.addMenuItems(menu, ['import'], parent);
+            }
+            else
+            {
+            	ui.menus.addSubmenu('importFrom', menu, parent);
+            }
 
 			ui.menus.addMenuItems(menu, ['-', 'outline', 'layers'], parent);
 			
@@ -890,32 +901,19 @@ EditorUi.initMinimalTheme = function()
             ui.menus.addMenuItems(menu, ['importText', 'plantUml', '-', 'formatSql', 'importCsv', '-', 'createShape', 'editDiagram'], parent);
         })));
         
-        this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
+        (mxUtils.bind(this, function()
         {
-            ui.menus.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus', '-',
-            	'insertText', 'insertLink', '-', 'insertImage'], parent);
-            
-            if (ui.insertTemplateEnabled && !ui.isOffline())
+			var insertMenu = this.get('insert');
+			var insertMenuFunct = insertMenu.funct;
+			
+			insertMenu.funct = function(menu, parent)
 			{
-                ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
-			}
-            
-            menu.addSeparator(parent);
-            this.addMenuItems(menu, ['createShape', 'insertFreehand', '-'], parent);
-			this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
-			this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
-            menu.addSeparator(parent);
-            
-            if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-            {
-            	ui.menus.addMenuItems(menu, ['import'], parent);
-            }
-            else
-            {
-            	ui.menus.addSubmenu('importFrom', menu, parent);
-            }
-        })));
-
+				insertMenuFunct.apply(this, arguments);
+				menu.addSeparator(parent);
+				ui.menus.addMenuItems(menu, ['-', 'toggleShapes'], parent);
+			};
+        }))();
+		
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];
 

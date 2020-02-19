@@ -123,7 +123,7 @@
 			 this.createVertexTemplateEntry(s + 'users.svg;',
 					 d * 0.66, d, '', 'Users', false, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'vista_client.svg;',
-					 d * 0.76, d, '', 'Vist Client', false, null, this.getTagsForStencil(gn, 'vista client', dt).join(' ')),
+					 d * 0.76, d, '', 'Vista Client', false, null, this.getTagsForStencil(gn, 'vista client', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'vista_terminal.svg;',
 					 d * 0.65, d, '', 'Vista Terminal', false, null, this.getTagsForStencil(gn, 'vista terminal', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'web_server.svg;',

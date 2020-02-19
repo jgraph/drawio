@@ -162,7 +162,6 @@
 			<constraint name="W" perimeter="0" x="0" y="0.5"/>
 		</connections>
 		<background>
-			<save/>
 			<path>
 				<move x="0" y="55"/>
 				<line x="41" y="55"/>
@@ -402,7 +401,6 @@
 			<constraint name="W" perimeter="0" x="0" y="0.5"/>
 		</connections>
 		<background>
-			<save/>
 			<path>
 				<move x="0" y="55"/>
 				<line x="41" y="55"/>

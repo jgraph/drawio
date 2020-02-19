@@ -214,18 +214,55 @@
         			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'comic', '0') == '1';
         }},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
-        {name: 'collapsible', dispName: 'Collapsible', type: 'bool', defVal: false},
-        {name: 'container', dispName: 'Container', type: 'bool', defVal: false},
-        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true},
+        {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			format.editorUi.editor.graph.model.getChildCount(state.vertices[0]) == 0;
+        }},
+        {name: 'dropTarget', dispName: 'Drop Target', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	
+        	return cell != null && (graph.isSwimlane(cell) || graph.model.getChildCount(cell) > 0);
+        }, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			mxUtils.getValue(state.style, 'part', '0') != '1';
+        }},
+        {name: 'collapsible', dispName: 'Collapsible', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	
+        	return cell != null && ((graph.isContainer(cell) && state.style['collapsible'] != '0') ||
+        		(!graph.isContainer(cell) && state.style['collapsible'] == '1'));
+        }, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0;
+        }},
+        {name: 'recursiveResize', dispName: 'Resize Children', type: 'bool', defVal: true, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			!format.editorUi.editor.graph.isSwimlane(state.vertices[0]) &&
+    			mxUtils.getValue(state.style, 'childLayout', null) == null;
+        }},
+        {name: 'expand', dispName: 'Expand', type: 'bool', defVal: true},
         {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
+        {name: 'movableLabel', dispName: 'Movable Label', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+    		var geo = (state.vertices.length > 0) ? format.editorUi.editor.graph.getCellGeometry(state.vertices[0]) : null;
+    		
+    		return geo != null && !geo.relative;
+        }},
         {name: 'resizable', dispName: 'Resizable', type: 'bool', defVal: true},
         {name: 'resizeWidth', dispName: 'Resize Width', type: 'bool', defVal: false},
         {name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false},
@@ -300,6 +337,8 @@
 		'#\n' +
 		'## Connections between rows ("from": source colum, "to": target column).\n' +
 		'## Label, style and invert are optional. Defaults are \'\', current style and false.\n' +
+		'## If placeholders are used in the style, they are replaced with data from the source.\n' +
+		'## An optional placeholders can be set to target to use data from the target instead.\n' +
 		'## In addition to label, an optional fromlabel and tolabel can be used to name the column\n' +
 		'## that contains the text for the label in the edges source or target (invert ignored).\n' +
 		'## The label is concatenated in the form fromlabel + label + tolabel if all are defined.\n' +
@@ -561,6 +600,136 @@
 		
 		return xml;
 	};
+
+	/**
+	 * Static method for parsing PDF files.
+	 */
+	Editor.extractGraphModelFromPdf = function(base64)
+	{
+		base64 = base64.substring(base64.indexOf(',') + 1);
+
+		// Workaround for invalid character error in Safari
+		var f = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
+		var check = '\n/Subject (';
+		var result = null;
+		var curline = '';
+		var checked = 0;
+		var pos = 0;
+		var obj = [];
+		var buf = null;
+		var nr = null;
+		
+		while (pos < f.length)
+		{
+			var b = f.charCodeAt(pos);
+			pos += 1;
+			
+			if (b != 10)
+			{
+				curline += String.fromCharCode(b);
+			}
+			
+			if (b == check.charCodeAt(checked))
+			{
+				checked++;
+			}
+			else
+			{
+				checked = 0;
+			}
+			
+			if (checked == check.length)
+			{
+				var end = f.indexOf(')\n', pos);
+				
+				// Default case is XML inlined in Subject metadata
+				if (end > pos)
+				{
+					result = f.substring(pos, end);
+					
+					break;
+				}
+			}
+			
+			// Creates table for lookup if no inline data is found
+			if (b == 10)
+			{
+				if (curline == 'endobj')
+				{
+					buf = null;
+				}
+				else if (curline.substring(curline.length - 3, curline.length) == 'obj' ||
+					curline == 'xref' || curline == 'trailer')
+				{
+					buf = [];
+					obj[curline.split(' ')[0]] = buf;
+				}
+				else if (buf != null)
+				{
+					buf.push(curline);
+				}
+				
+				curline = '';
+			}
+		}
+		
+		// Extract XML via references
+		if (result == null)
+		{
+			result = Editor.extractGraphModelFromXref(obj);
+		}
+		
+		if (result != null)
+		{
+			result = decodeURIComponent(result.
+					replace(/\\\(/g, "(").
+					replace(/\\\)/g, ")"));
+		}
+		
+		return result;
+	};
+
+	/**
+	 * Static method for extracting Subject via references of the form
+	 * 
+	 * << /Size 33 /Root 20 0 R /Info 1 0 R and 1 0 obj << /Subject 22 0 R
+	 * 
+	 * Where Info is the metadata block and Subject is the data block.
+	 */
+	Editor.extractGraphModelFromXref = function(obj)
+	{
+		var trailer = obj['trailer'];
+		var result = null;
+
+		// Gets Info object
+		if (trailer != null)
+		{
+			var arr = /.* \/Info (\d+) (\d+) R/g.exec(trailer.join('\n'));
+			
+			if (arr != null && arr.length > 0)
+			{
+				var info = obj[arr[1]];
+				
+				if (info != null)
+				{
+					arr = /.* \/Subject (\d+) (\d+) R/g.exec(info.join('\n'));
+				
+					if (arr != null && arr.length > 0)
+					{
+						var subj = obj[arr[1]];
+						
+						if (subj != null)
+						{
+							subj = subj.join('\n');
+							result = subj.substring(1, subj.length - 1);
+						}
+					}
+				}
+			}
+		}
+		
+		return result;
+	};
 	
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
@@ -790,14 +959,7 @@
 			
 			if (config.fontCss)
 			{
-				var s = document.createElement('style');
-				s.setAttribute('type', 'text/css');
-				s.appendChild(document.createTextNode(config.fontCss));
-				
-				var t = document.getElementsByTagName('script')[0];
-			  	t.parentNode.insertBefore(s, t);
-			  	
-			  	Editor.prototype.fontCss = config.fontCss;
+				Editor.configureFontCss(config.fontCss);
 			}
 			
 			if (config.autosaveDelay != null)
@@ -827,6 +989,49 @@
 		}
 	};
 
+	/**
+	 * Adds the global fontCss configuration.
+	 */
+	Editor.configureFontCss = function(fontCss)
+	{
+		if (fontCss != null)
+		{
+			Editor.prototype.fontCss = fontCss;
+			var t = document.getElementsByTagName('script')[0];
+			
+			if (t != null && t.parentNode != null)
+			{
+				var s = document.createElement('style');
+				s.setAttribute('type', 'text/css');
+				s.appendChild(document.createTextNode(fontCss));
+				t.parentNode.insertBefore(s, t);
+				
+				// Preloads fonts where supported
+				var parts = fontCss.split('url(');
+				
+				// Strips leading and trailing quotes and spaces
+				function trimString(str)
+				{
+				    return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+				};
+				
+				for (var i = 1; i < parts.length; i++)
+				{
+				    var idx = parts[i].indexOf(')');
+				    var url = trimString(parts[i].substring(0, idx));
+				    
+				    var l = document.createElement('link');
+					l.setAttribute('rel', 'preload');
+					l.setAttribute('href', url);
+					l.setAttribute('as', 'font');
+					l.setAttribute('crossorigin', '');
+					
+				  	t.parentNode.insertBefore(l, t);
+				}
+			}
+		}
+	};
+	
 	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
 	
 	/**
@@ -861,9 +1066,9 @@
 	Editor.prototype.timeout = 25000;
 	
 	/**
-	 * This should not be enabled if reflows are required for math rendering.
+	 * Zoomed mathjax output is causing problems in Safari.
 	 */
-	Editor.prototype.useForeignObjectForMath = false;
+	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
 
 	/**
 	 * Executes the first step for connecting to Google Drive.
@@ -1718,28 +1923,52 @@
 	/**
 	 * Adds the global fontCss configuration.
 	 */
-	Editor.prototype.addFontCss = function(svgRoot)
+	Editor.prototype.addFontCss = function(svgRoot, fontCss)
 	{
-		var defs = svgRoot.getElementsByTagName('defs');
+		fontCss = (fontCss != null) ? fontCss : this.fontCss;
 		
-		if (this.fontCss != null && defs != null && defs.length > 0)
+		// Creates defs element if not available
+		if (fontCss != null)
 		{
+			var defs = svgRoot.getElementsByTagName('defs');
 			var svgDoc = svgRoot.ownerDocument;
+			var defsElt = null;
+			
+			if (defs.length == 0)
+			{
+				defsElt = (svgDoc.createElementNS != null) ?
+					svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+				
+				if (svgRoot.firstChild != null)
+				{
+					svgRoot.insertBefore(defsElt, svgRoot.firstChild);
+				}
+				else
+				{
+					svgRoot.appendChild(defsElt);
+				}
+			}
+			else
+			{
+				defsElt = defs[0];
+			}
+
 			var style = (svgDoc.createElementNS != null) ?
 				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			style.setAttribute('type', 'text/css');
-			mxUtils.setTextContent(style, this.fontCss);
-			defs[0][0].appendChild(style);
+			mxUtils.setTextContent(style, fontCss);
+			defsElt.appendChild(style);
 		}
 	};
 	
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * See fixme in convertMath for client-side image generation with math.
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		return mxClient.IS_CHROMEAPP || ((this.graph.extFonts == null || this.graph.extFonts.length == 0) && this.useCanvasForExport);
+		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
+		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.graph.mathEnabled ||
+			(!mxClient.IS_SF && !((mxClient.IS_GC || mxClient.IS_EDGE) && !mxClient.IS_MAC))));
 	};
 
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
@@ -3169,7 +3398,7 @@
 							
 							if (prop.allowAuto)
 							{
-								if (inputVal.trim().toLowerCase() == 'auto')
+								if (inputVal.trim != null && inputVal.trim().toLowerCase() == 'auto')
 								{
 									inputVal = 'auto';
 									pType = 'string';
@@ -3313,7 +3542,8 @@
 					if (!prop.isVisible(state, this)) continue;
 				}
 				
-				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') : prop.defVal; //or undefined if defVal is undefined
+				var pValue = state.style[key] != null? mxUtils.htmlEntities(state.style[key] + '') :
+					((prop.getDefaultValue != null) ? prop.getDefaultValue(state, this) : prop.defVal); //or undefined if defVal is undefined
 
 				if (prop.type == 'separator')
 				{
@@ -3861,6 +4091,17 @@
 		
 		this.updateGlobalUrlVariables();
 	};
+
+	/**
+	 * Disables fast zoom with shadow in lightbox for Safari
+	 * to work around blank output on retina screen.
+	 */
+	var graphIsFastZoomEnabled = Graph.prototype.isFastZoomEnabled;
+	
+	Graph.prototype.isFastZoomEnabled = function()
+	{
+		return graphIsFastZoomEnabled.apply(this, arguments) && (!this.shadowVisible || !mxClient.IS_SF);
+	};
 	
 	/**
 	 * Updates the global variables from the vars URL parameter.
@@ -3970,7 +4211,8 @@
 		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
 			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') : style.setAttribute('type', 'text/css');
 			
-			var styleCnt = '';
+			var prefix = '';
+			var postfix = '';
 			    	
 			for (var i = 0; i < this.extFonts.length; i++)
 			{
@@ -3978,18 +4220,18 @@
 				
 				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
 				{
-					styleCnt += '@import url(' + fontUrl + ');';
+					prefix += '@import url(' + fontUrl + ');\n';
 				}
 				else
 				{
-					styleCnt += '@font-face {' +
-			            'font-family: "'+ fontName +'";' + 
-			            'src: url("'+ fontUrl +'");' + 
-			            '}';
+					postfix += '@font-face {\n' +
+			            'font-family: "'+ fontName +'";\n' + 
+			            'src: url("'+ fontUrl +'");\n' + 
+			            '}\n';
 				}				
 			}
 			
-			style.appendChild(svgDoc.createTextNode(styleCnt));
+			style.appendChild(svgDoc.createTextNode(prefix + postfix));
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
 		
@@ -4018,78 +4260,38 @@
 			var y0 = graph.container.scrollTop - origin.y;
 			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
-
+			
+			// Replaces input with rendered markup
 			imgExport.drawText = function(state, c)
 			{
-				if (c.addForeignObject != null && state.text != null && state.text.checkBounds() &&
-					state.text.node != null && state.text.node.ownerSVGElement == null)
+				if (state.text != null && state.text.value != null && state.text.checkBounds() &&
+					(mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML))
 				{
-					c.save();
+					var clone = state.text.getContentNode();
 					
-					// Copies text into DOM using untransformed bounding box
-					var clone = state.text.node.cloneNode(true);
-
-					// Clears styles that go to wrapper group
-					clone.style.transformOrigin = '';
-					clone.style.transform = '';
-					clone.style.top = '0px';
-					clone.style.left = '0px';
-					
-					// Removes all math elements
-					var ele = clone.getElementsByTagName('math');
-					
-					while (ele.length > 0)
+					if (clone != null)
 					{
-						ele[0].parentNode.removeChild(ele[0]);
-					}
-					
-					var s = state.text.scale;
-					var x = state.text.bounds.x / s;
-					var y = state.text.bounds.y / s;
-					var w = state.text.bounds.width / s;
-					var h = state.text.bounds.height / s;
-					
-					state.text.updateTransform(c, x, y, w, h);
-					state.text.configureCanvas(c, x, y, w, h);
-
-					// Checks if text contains HTML markup
-					var realHtml = mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML;
-					
-					// Always renders labels as HTML in VML
-					var fmt = (realHtml || c instanceof mxVmlCanvas2D) ? 'html' : '';
-					var val = state.text.value;
-					
-					if (!realHtml && fmt == 'html')
-					{
-						val =  mxUtils.htmlEntities(val, false);
-					}
-					
-					if (fmt == 'html' && !mxUtils.isNode(state.text.value))
-					{
-						val = mxUtils.replaceTrailingNewlines(val, '<div><br></div>');			
-					}
-					
-					// Handles trailing newlines to make sure they are visible in rendering output
-					val = (!mxUtils.isNode(state.text.value) && state.text.replaceLinefeeds && fmt == 'html') ?
-						val.replace(/\n/g, '<br/>') : val;
+						clone = clone.cloneNode(true);
 						
-					var dir = state.text.textDirection;
-				
-					if (dir == mxConstants.TEXT_DIRECTION_AUTO && !realHtml)
-					{
-						dir = state.text.getAutoDirection();
+						// Removes duplicate math output
+						if (clone.getElementsByTagNameNS)
+						{
+							var ele = clone.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math');
+							
+							while (ele.length > 0)
+							{
+								ele[0].parentNode.removeChild(ele[0]);
+							}
+						}
+						
+						if (clone.innerHTML != null)
+						{
+							var prev = state.text.value;
+							state.text.value = clone.innerHTML;
+							drawText.apply(this, arguments);
+							state.text.value = prev;
+						}
 					}
-					
-					if (dir != mxConstants.TEXT_DIRECTION_LTR && dir != mxConstants.TEXT_DIRECTION_RTL)
-					{
-						dir = null;
-					}
-					
-					c.addForeignObject(x + c.state.dx, y + c.state.dy, w, h, val,
-						state.text.align, state.text.valign, state.text.wrap, fmt,
-						state.text.overflow, state.text.clipped, state.text.getTextRotation(),
-						dir, clone, c.root.ownerSVGElement);
-					c.restore();
 				}
 				else
 				{
@@ -4099,17 +4301,6 @@
 		}
 		
 		return imgExport;
-	};
-	
-	/**
-	 * Safari has problems with math typesetting inside foreignObjects.
-	 */
-	var graphIsCssTransformsSupported = Graph.prototype.isCssTransformsSupported;
-	
-	Graph.prototype.isCssTransformsSupported = function()
-	{
-		// FIXME: Safari only disabled due to mathjax rendering errors
-		return graphIsCssTransformsSupported.apply(this, arguments) && !mxClient.IS_SF;
 	};
 
 	/**
@@ -4775,6 +4966,8 @@
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
 	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['c4'] = [SHAPES_PATH + '/mxC4.js'];
+	mxStencilRegistry.libraries['cisco19'] = [SHAPES_PATH + '/mxCisco19.js', STENCIL_PATH + '/cisco19.xml'];
 	mxStencilRegistry.libraries['dfd'] = [SHAPES_PATH + '/mxDFD.js'];
 	mxStencilRegistry.libraries['er'] = [SHAPES_PATH + '/er/mxER.js'];
 	mxStencilRegistry.libraries['kubernetes'] = [SHAPES_PATH + '/mxKubernetes.js', STENCIL_PATH + '/kubernetes.xml'];
@@ -4804,6 +4997,7 @@
 	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', STENCIL_PATH + '/bootstrap.xml'];
 	mxStencilRegistry.libraries['gmdl'] = [SHAPES_PATH + '/mxGmdl.js', STENCIL_PATH + '/gmdl.xml'];
 	mxStencilRegistry.libraries['gcp2'] = [SHAPES_PATH + '/mxGCP2.js', STENCIL_PATH + '/gcp2.xml'];
+	mxStencilRegistry.libraries['ibm'] = [SHAPES_PATH + '/mxIBM.js', STENCIL_PATH + '/ibm.xml'];
 	mxStencilRegistry.libraries['cabinets'] = [SHAPES_PATH + '/mxCabinets.js', STENCIL_PATH + '/cabinets.xml'];
 	mxStencilRegistry.libraries['archimate'] = [SHAPES_PATH + '/mxArchiMate.js'];
 	mxStencilRegistry.libraries['archimate3'] = [SHAPES_PATH + '/mxArchiMate3.js'];
@@ -4814,6 +5008,7 @@
 	mxStencilRegistry.libraries['aws4'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['aws4b'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['veeam'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam.xml'];
+	mxStencilRegistry.libraries['veeam2'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam2.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];
 	mxStencilRegistry.libraries['pid2misc'] = [SHAPES_PATH + '/pid2/mxPidMisc.js', STENCIL_PATH + '/pid/misc.xml'];
 	mxStencilRegistry.libraries['pid2valves'] = [SHAPES_PATH + '/pid2/mxPidValves.js'];
@@ -5246,8 +5441,8 @@
 						pv.renderPage = function(w, h, dx, dy, content, pageNumber)
 						{
 							var prev = mxClient.NO_FO;
-							mxClient.NO_FO = (this.graph.mathEnabled && !this.useForeignObjectForMath) ?
-									true : this.originalNoForeignObject;
+							mxClient.NO_FO = (this.graph.mathEnabled && !editorUi.editor.useForeignObjectForMath) ?
+								true : editorUi.editor.originalNoForeignObject;
 							
 							var result = printPreviewRenderPage.apply(this, arguments);
 

@@ -10,6 +10,12 @@
 .geEditor input, select, textarea, button {
        font-size: inherit;
 }
+.geEditor input {
+       border-width: 2px;
+}
+.geEditor select {
+       border-width: 1px;
+}
 .geEditor div.mxTooltip {
 	background: whiteSmoke;
 	border-color: lightGray;
@@ -17,8 +23,11 @@
 	color: black;
 	padding:6px;
 }
-.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebarContainer .geTitle {
+.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel {
 	cursor:pointer !important;
+}
+.geSidebarContainer .geTitle {
+	cursor:default !important;
 }
 .geBackgroundPage {
   	box-shadow:0px 0px 2px 1px #d1d1d1;

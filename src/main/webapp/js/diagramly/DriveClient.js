@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2006-2019, JGraph Ltd
- * Copyright (c) 2006-2019, draw.io AG
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * Copyright (c) 2006-2020, draw.io AG
  */
 DriveClient = function(editorUi)
 {
@@ -150,6 +150,11 @@ DriveClient.prototype.lastTokenRefresh = 0;
  * Executes the first step for connecting to Google Drive.
  */
 DriveClient.prototype.maxRetries = 5;
+
+/**
+ * Executes the first step for connecting to Google Drive.
+ */
+DriveClient.prototype.staleEtagMaxRetries = 3;
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -774,7 +779,8 @@ DriveClient.prototype.updateUser = function(success, error)
 {
 	try
 	{
-		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=' + this.token;
+		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json';
+		var headers = {'Authorization': 'Bearer ' + this.token};
 		
 		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
 		{
@@ -802,7 +808,7 @@ DriveClient.prototype.updateUser = function(success, error)
 					success();
 				}
 	    	}), error);
-		}), error);
+		}), error, null, null, null, null, headers);
 	}
 	catch (e)
 	{
@@ -967,8 +973,10 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 					if (/\.v(dx|sdx?)$/i.test(resp.title) || /\.gliffy$/i.test(resp.title) ||
 						(!this.ui.useCanvasForExport && binary))
 					{
-						var url = resp.downloadUrl + '&access_token=' + this.token;
-						this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error);
+						var url = resp.downloadUrl;
+						var headers = {'Authorization': 'Bearer ' + this.token};
+						
+						this.ui.convertFile(url, resp.title, resp.mimeType, this.extension, success, error, null, headers);
 					}
 					else
 					{
@@ -1021,7 +1029,8 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 {
 	try
 	{
-		var url = resp.downloadUrl + '&access_token=' + this.token;
+		var headers = {'Authorization': 'Bearer ' + this.token};
+		var url = resp.downloadUrl;
 		
 		// Loads XML to initialize realtime document if realtime is empty
 		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
@@ -1089,6 +1098,16 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 							}
 						}
 					}
+					else if (/\.pdf$/i.test(resp.title))
+					{
+						var xml = Editor.extractGraphModelFromPdf(data);
+						
+						if (xml != null && xml.length > 0)
+						{
+							importFile = true;
+							data = xml;
+						}
+					}
 					// Checks for base64 encoded mxfile
 					else if (data.substring(0, 32) == 'data:image/png;base64,PG14ZmlsZS')
 					{
@@ -1146,7 +1165,8 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 			}
 		}), error, ((resp.mimeType != null && resp.mimeType.substring(0, 6) == 'image/' &&
 			resp.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(resp.title) ||
-			/\.jpe?g$/i.test(resp.title));
+			/\.jpe?g$/i.test(resp.title) || /\.pdf$/i.test(resp.title),
+			null, null, null, headers);
 	}
 	catch (e)
 	{
@@ -1171,6 +1191,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 {
 	try
 	{
+		var retryCount = 0;
 		file.saveLevel = 1;
 		
 		var error = mxUtils.bind(this, function(e)
@@ -1227,9 +1248,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					new Date().toISOString() + ':' +
 					'\n\nBrowser=' + navigator.userAgent +
 					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
+					'\nMime=' + file.desc.mimeType +
 					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
 					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
 					'\nSaveLevel=' + file.saveLevel +
+					'\nSaveAsPng=' + (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle())) +
+					'\nRetryCount=' + retryCount +
+					'\nError=' + e +
 					'\nMessage=' + e.message +
 					'\n\nStack:\n' + e.stack);
 			}
@@ -1258,35 +1283,37 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			// However, this would result in a missing thumbnail in most cases so a better solution might be to reduce
 			// the autosave interval in DriveRealtime, but that would increase the number of requests.
 			unloading = (unloading != null) ? unloading : false;
+			var prevDesc = null;
+			var pinned = false;
+			var meta =
+			{
+				'mimeType': file.desc.mimeType,
+				'title': file.getTitle()
+			};
 			
+			// Overrides old mime type and creates a revision
+			if (this.isGoogleRealtimeMimeType(meta.mimeType))
+			{
+				meta.mimeType = this.xmlMimeType;
+				prevDesc = file.desc;
+				revision = true;
+				pinned = true;
+			}
+			// Overrides mime type for unknown file type uploads
+			else if (meta.mimeType == 'application/octet-stream' ||
+				(urlParams['override-mime'] == '1' &&
+				meta.mimeType != this.xmlMimeType))
+			{
+				meta.mimeType = this.xmlMimeType;
+			}
+					
 			// Adds optional thumbnail to upload request
 			var doSave = mxUtils.bind(this, function(thumb, thumbMime, keepExisting)
 			{
 				try
 				{
 					file.saveLevel = 3;
-					var prevDesc = null;
-					var pinned = false;
-					var meta =
-					{
-						'mimeType': file.desc.mimeType,
-						'title': file.getTitle()
-					};
-					
-					// Overrides old mime type and creates a revision
-					if (this.isGoogleRealtimeMimeType(file.desc.mimeType))
-					{
-						meta.mimeType = this.xmlMimeType;
-						prevDesc = file.desc;
-						revision = true;
-						pinned = true;
-					}
-					// Overrides mime type for unknown file type uploads
-					else if (meta.mimeType == 'application/octet-stream')
-					{
-						meta.mimeType = this.xmlMimeType;
-					}
-					
+
 					if (file.constructor == DriveFile)
 					{
 						if (properties == null)
@@ -1341,6 +1368,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						try
 						{
 							file.saveDelay = new Date().getTime() - t0;
+							file.saveLevel = 11;
 							
 							if (resp == null)
 							{
@@ -1353,6 +1381,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								
 								if (delta <= 0 || etag0 == resp.etag || (revision && head0 == resp.headRevisionId))
 								{
+									file.saveLevel = 12;
 									var reasons = [];
 									
 									if (delta <= 0)
@@ -1468,7 +1497,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							var etag = (!overwrite && file.constructor == DriveFile &&
 								(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
 								file.getCurrentEtag() : null;
-							var retryCount = 0;
 							
 							var doExecuteSave = mxUtils.bind(this, function(realOverwrite)
 							{
@@ -1479,13 +1507,21 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									var unknown = file.desc.mimeType != this.xmlMimeType && file.desc.mimeType != this.mimeType &&
 										file.desc.mimeType != this.libraryMimeType;
 									var acceptResponse = true;
+									var timeoutThread = null;
 									
 									// Allow for re-auth flow with 3x timeout
-									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									try
 									{
-										acceptResponse = false;
-										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-									}), 3 * this.ui.timeout);
+										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+										{
+											acceptResponse = false;
+											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+										}), 3 * this.ui.timeout);
+									}
+									catch (e)
+									{
+										// Ignore window closed
+									}
 									
 									this.executeRequest(this.createUploadRequest(file.getId(), meta,
 										data, revision || realOverwrite || unknown, binary,
@@ -1504,7 +1540,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										if (acceptResponse)
 										{
 											file.saveLevel = 6;
-												
+											
 											try
 											{
 												if (!file.isConflict(err))
@@ -1513,26 +1549,31 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 												}
 												else
 												{
-													// Check for stale etag which can happen if a file is being saved or if
-													// the etag simply isn't change but system still returns a 412 error (stale)
+													// Workaround for correct etag and Google always returns 412 conflict error (stale etag)
 													this.executeRequest({
 														url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
 													}, 
 													mxUtils.bind(this, function(resp)
 													{
 														file.saveLevel = 7;
-	
+														
 														try
 														{
 															// Stale etag detected, retry with delay
 															if (resp != null && resp.etag == etag)
 															{
-																if (retryCount < this.maxRetries)
+																if (retryCount < this.staleEtagMaxRetries)
 																{
 																	retryCount++;
 																	var jitter = 1 + 0.1 * (Math.random() - 0.5);
 																	var delay = retryCount * 2 * this.coolOff * jitter;
 																	window.setTimeout(executeSave, delay);
+																	
+																	if (urlParams['test'] == '1')
+																	{
+																		EditorUi.debug('DriveClient: Stale Etag Detected',
+																			'retry', retryCount, 'delay', delay);
+																	}
 																}
 																else
 																{
@@ -1608,13 +1649,21 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 								else
 								{
 									var acceptResponse = true;
+									var timeoutThread = null;
 									
 									// Allow for re-auth flow with 3x timeout
-									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+									try
 									{
-										acceptResponse = false;
-										error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
-									}), 3 * this.ui.timeout);
+										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+										{
+											acceptResponse = false;
+											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+										}), 3 * this.ui.timeout);
+									}
+									catch (e)
+									{
+										// Ignore window closed
+									}
 									
 									this.executeRequest({
 										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
@@ -1625,7 +1674,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										
 										if (acceptResponse)
 										{
-											file.saveLevel = 13;
+											file.saveLevel = 10;
 											
 											try
 											{
@@ -1660,6 +1709,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										
 										if (acceptResponse)
 										{
+											file.saveLevel = 11;
 											error(err);
 										}
 									}));
@@ -1698,7 +1748,14 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							    	}
 							    	catch (e)
 							    	{
-							    		executeSave(false)
+							    		try
+							    		{
+							    			executeSave(false)
+							    		}
+										catch (e2)
+										{
+											criticalError(e2);
+										}
 							    	}
 								});
 								
@@ -1741,13 +1798,12 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 
 				// NOTE: getThumbnail is asynchronous and returns false if no thumbnails can be created
 				if (unloading || saveAsPng || file.constructor == DriveLibrary || !this.enableThumbnails || urlParams['thumb'] == '0' ||
-					(file.desc.mimeType != null && file.desc.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
+					(meta.mimeType != null && meta.mimeType.substring(0, 29) != 'application/vnd.jgraph.mxfile') ||
 					!this.ui.getThumbnail(this.thumbnailWidth, mxUtils.bind(this, function(canvas)
 					{
 						// Callback for getThumbnail
 						try
 						{
-							file.thumbTime = null;
 							var thumb = null;
 
 							try
@@ -1786,7 +1842,6 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 					})))
 				{
 					// If-branch
-					file.thumbTime = null;
 					doSave(null, null, file.constructor != DriveLibrary);
 				}
 			}
@@ -1872,7 +1927,8 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 
 	var reqObj = 
 	{
-		'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') + '?uploadType=multipart&supportsTeamDrives=true&fields=' + this.allFields,
+		'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') +
+			'?uploadType=multipart&supportsTeamDrives=true&fields=' + this.allFields,
 		'method': (id != null) ? 'PUT' : 'POST',
 		'headers': headers,
 		'params': delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +
@@ -1882,12 +1938,12 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	
 	if (!revision)
 	{
-		reqObj.url += '&newRevision=false';
+		reqObj.fullUrl += '&newRevision=false';
 	}
 	
 	if (pinned)
 	{
-		reqObj.url += '&pinned=true';
+		reqObj.fullUrl += '&pinned=true';
 	}
 	
 	return reqObj;

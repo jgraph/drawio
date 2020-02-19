@@ -112,7 +112,7 @@
 		    this.createEdgeTemplateEntry('shape=mxgraph.lean_mapping.electronic_info_flow_edge;html=1;', 100, 100, 'Monthly', 'Electronic Information', null, this.getTagsForStencil(gn, 'electronic_info_flow_edge', dt).join(' '))
 		];
 		
-		this.addPalette('lean_mapping', mxResources.get('leanMapping'), false, mxUtils.bind(this, function(content)
+		this.addPalette('lean_mapping', 'Value Stream Mapping', false, mxUtils.bind(this, function(content)
 		{
 			for (var i = 0; i < fns.length; i++)
 			{

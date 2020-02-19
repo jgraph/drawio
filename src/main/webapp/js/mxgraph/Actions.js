@@ -253,7 +253,7 @@ Actions.prototype.init = function()
 	{
 		graph.turnShapes(graph.getSelectionCells());
 	}, null, null, Editor.ctrlKey + '+R'));
-	this.addAction('selectVertices', function() { graph.selectVertices(); }, null, null, Editor.ctrlKey + '+Shift+I');
+	this.addAction('selectVertices', function() { graph.selectVertices(null, true); }, null, null, Editor.ctrlKey + '+Shift+I');
 	this.addAction('selectEdges', function() { graph.selectEdges(); }, null, null, Editor.ctrlKey + '+Shift+E');
 	this.addAction('selectAll', function() { graph.selectAll(null, true); }, null, null, Editor.ctrlKey + '+A');
 	this.addAction('selectNone', function() { graph.clearSelection(); }, null, null, Editor.ctrlKey + '+Shift+A');
@@ -647,9 +647,9 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+H');
 	this.addAction('zoomIn', function(evt)
 	{
-		if (urlParams['zoom'] != 'nocss')
+		if (graph.isFastZoomEnabled())
 		{
-			graph.lazyZoom(true, true);
+			graph.lazyZoom(true, true, ui.buttonZoomDelay);
 		}
 		else
 		{
@@ -658,9 +658,9 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + ' + (Numpad) / Alt+Mousewheel');
 	this.addAction('zoomOut', function(evt)
 	{
-		if (urlParams['zoom'] != 'nocss')
+		if (graph.isFastZoomEnabled())
 		{
-			graph.lazyZoom(false, true);
+			graph.lazyZoom(false, true, ui.buttonZoomDelay);
 		}
 		else
 		{
@@ -776,7 +776,11 @@ Actions.prototype.init = function()
 			
 			if (!isNaN(val) && val > 0)
 			{
-				ui.setPageScale(val / 100);
+				var change = new ChangePageSetup(ui, null, null, null, val / 100);
+				change.ignoreColor = true;
+				change.ignoreImage = true;
+				
+				graph.model.execute(change);
 			}
 		}), mxResources.get('pageScale') + ' (%)');
 		this.editorUi.showDialog(dlg.container, 300, 80, true, true);
