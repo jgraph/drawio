@@ -28,7 +28,8 @@
 	 * Switch to disable logging for mode and search terms.
 	 */
 	EditorUi.enableLogging = urlParams['stealth'] != '1' &&
-		/.*\.draw\.io$/.test(window.location.hostname) &&
+		(/.*\.draw\.io$/.test(window.location.hostname) ||
+		/.*\.diagrams\.net$/.test(window.location.hostname)) &&
 		window.location.hostname != 'support.draw.io';
 	
 	/**
@@ -8419,13 +8420,13 @@
 	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn,
 		resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
 	{
-		x = (x != null) ? x : 0;
-		y = (y != null) ? y : 0;
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		maxBytes = (maxBytes != null) ? maxBytes : this.maxImageBytes;
 		
 		var crop = x != null && y != null;
 		var resizeImages = true;
+		x = (x != null) ? x : 0;
+		y = (y != null) ? y : 0;
 		
 		// Checks if large images are imported
 		var largeImages = false;
@@ -9797,19 +9798,25 @@
 					var x = pt.x / scale - tr.x;
 					var y = pt.y / scale - tr.y;
 					
-					if (mxEvent.isAltDown(evt))
-					{
-						x = 0;
-						y = 0;
-					}
-					
 				    if (evt.dataTransfer.files.length > 0)
 				    {
+						if (mxEvent.isAltDown(evt))
+						{
+							x = null;
+							y = null;
+						}
+						
 						this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null, null,
 							mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
 		    		}
 				    else
 				    {
+						if (mxEvent.isAltDown(evt))
+						{
+							x = 0;
+							y = 0;
+						}
+						
 				    	var uri = (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0) ?
 				    		evt.dataTransfer.getData('text/uri-list') : null;
 				    	var data = this.extractGraphModelFromEvent(evt, this.pages != null);

@@ -1,3 +1,8 @@
+21-FEB-2020:12.7.4
+
+- Changes Google picker to support team drives
+- Fixes crop for imported files
+
 21-FEB-2020: 12.7.3
 
 - Fixes caching of Google fonts

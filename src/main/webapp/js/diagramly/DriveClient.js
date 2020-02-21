@@ -37,7 +37,7 @@ DriveClient = function(editorUi)
 		this.appIndex = 1;
 	}
 	
-	this.mimeTypes = this.xmlMimeType + 'application/mxe,application/mxr,' +
+	this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
 		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
 	
 	if (urlParams['photos'] == '1')
@@ -2014,7 +2014,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 						.setIncludeFolders(true);
 					
 					var view3 = new google.picker.DocsView()
-						.setEnableTeamDrives(true)
+						.setEnableDrives(true)
 						.setIncludeFolders(true);
 					
 					var view4 = new google.picker.DocsUploadView()
@@ -2037,7 +2037,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 				        .setOAuthToken(this[name + 'Token'])
 				        .setLocale(mxLanguage)
 				        .setAppId(this.appId)
-				        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+				        .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 				        .addView(view)
 				        .addView(view2)
 				        .addView(view3)
@@ -2136,7 +2136,7 @@ DriveClient.prototype.pickFolder = function(fn, force)
 							
 							var view3 = new google.picker.DocsView()
 								.setIncludeFolders(true)
-								.setEnableTeamDrives(true)
+								.setEnableDrives(true)
 								.setSelectFolderEnabled(true)
 								.setMimeTypes('application/vnd.google-apps.folder');
 							
@@ -2145,7 +2145,7 @@ DriveClient.prototype.pickFolder = function(fn, force)
 						        .setOAuthToken(this[name + 'Token'])
 						        .setLocale(mxLanguage)
 						        .setAppId(this.appId)
-							    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+							    .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 						        .addView(view)
 						        .addView(view2)
 						        .addView(view3)
@@ -2265,7 +2265,7 @@ DriveClient.prototype.pickLibrary = function(fn)
 						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
 				
 					var view3 = new google.picker.DocsView()
-						.setEnableTeamDrives(true)
+						.setEnableDrives(true)
 						.setIncludeFolders(true)
 						.setMimeTypes(this.libraryMimeType + ',application/xml,text/plain,application/octet-stream');
 					
@@ -2276,7 +2276,7 @@ DriveClient.prototype.pickLibrary = function(fn)
 				        .setOAuthToken(this.libraryPickerToken)
 				        .setLocale(mxLanguage)
 				        .setAppId(this.appId)
-				        .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+				        .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 				        .addView(view)
 				        .addView(view2)
 				        .addView(view3)
