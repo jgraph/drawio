@@ -4158,7 +4158,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	linkInput.setAttribute('autocomplete', 'off');
 	linkInput.setAttribute('autocapitalize', 'off');
 	linkInput.style.marginTop = '6px';
-	var realWidth = (Graph.fileSupport) ? 420 : 340;
+	var realWidth = (Graph.fileSupport) ? 460 : 340;
 	linkInput.style.width = realWidth + ((mxClient.IS_QUIRKS) ? 20 : -20) + 'px';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';

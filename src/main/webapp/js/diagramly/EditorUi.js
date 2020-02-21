@@ -90,14 +90,14 @@
 	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
 			
 	/**
-	 * Default Mermaid config.
+	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {
 		theme:'neutral',
 		arrowMarkerAbsolute:false,
 	    flowchart:
 	    {
-	    	htmlLabels:true
+	    	htmlLabels:false
 	    },
 	    sequence:
 	    {
@@ -2534,23 +2534,14 @@
 			{
 				this.fileLoadedError = e;
 				
-				// Makes sure the file does not save the invalid UI model and overwrites anything important
-				if (window.console != null)
-				{
-					console.error(e);
-					console.log('error in fileLoaded:', file, e);
-				}
-				
 				if (EditorUi.enableLogging && !this.isOffline())
 				{
 		        	try
 		        	{
-						var img = new Image();
-						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				    	img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-				   			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
-			    			((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-			    			((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+		        		EditorUi.logEvent({category: 'ERROR-LOAD-FILE-' +
+		        			((file != null) ? file.getHash() : 'none'),
+		        			action: 'message_' + e.message,
+		        			label: 'stack_' + e.stack});
 		        	}
 		        	catch (e)
 		        	{
@@ -3533,8 +3524,8 @@
     EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting, convertDataUri)
 	{
 		// KNOWN: IE+FF don't return keyboard focus after image dialog (calling focus doesn't help)
-	    	var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
-		this.showDialog(dlg.container, (Graph.fileSupport) ? 440 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
+	    var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
+		this.showDialog(dlg.container, (Graph.fileSupport) ? 480 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
 		dlg.init();
 	};
 
@@ -3643,6 +3634,31 @@
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
+
+		// Logs errors and writes stack to console
+		if (resp.stack != null && resp.message != null)
+		{
+			try
+			{
+				if (window.console != null)
+				{
+					console.error(resp);
+				}
+			}
+			catch (ex)
+			{
+				// ignore
+			}
+			
+			try
+			{
+				EditorUi.logError('EditorUi.handleError: ' + e.message, null, null, e);
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
 	
 		if (e != null || title != null)
 		{
@@ -6378,7 +6394,7 @@
 			{
 				this.cachedGoogleFonts = {};
 			}
-			    	
+			
 			var googleCssDone = mxUtils.bind(this, function()
 			{
 				if (waiting == 0)
@@ -6389,7 +6405,7 @@
 			
 			for (var i = 0; i < extFonts.length; i++)
 			{
-				(function(fontName, fontUrl)
+				(mxUtils.bind(this, function(fontName, fontUrl)
 				{
 					if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
 					{
@@ -6423,7 +6439,7 @@
 				            'src: url("'+ fontUrl +'");' + 
 				            '}';
 					}
-				})(extFonts[i].name, extFonts[i].url);
+				}))(extFonts[i].name, extFonts[i].url);
 			}
 			
 			googleCssDone();
@@ -7517,43 +7533,39 @@
 				config = (config != null) ? config : EditorUi.defaultMermaidConfig;
 				config.securityLevel = 'strict';
 				config.startOnLoad = false;
-
+				
 				mermaid.mermaidAPI.initialize(config);
 	    		
 				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data, function(svg)
 				{
-					var img = new Image();
-					var uri = ui.createSvgDataUri(svg);
-					
-					img.onload = function()
+					try
 					{
-						try
+						// Workaround for namespace errors in SVG output for IE
+						if (mxClient.IS_IE || mxClient.IS_IE11)
 						{
-							var w = img.width;
-							var h = img.height;
+							svg = svg.replace(/ xmlns:\S*="http:\/\/www.w3.org\/XML\/1998\/namespace"/g, '').
+								replace(/ (NS xml|\S*):space="preserve"/g, ' xml:space="preserve"');
+						}
+						
+						var doc = mxUtils.parseXml(svg);
+						var svgs = doc.getElementsByTagName('svg');
 
-							// Workaround for 0 image size in IE11
-							if (w == 0 && h == 0)
-							{
-								var root = mxUtils.parseXml(svg);
-								var svgs = root.getElementsByTagName('svg');
-
-								if (svgs.length > 0)
-								{
-									w = parseFloat(svgs[0].getAttribute('width'));
-									h = parseFloat(svgs[0].getAttribute('height'));
-								}
-							}
+						if (svgs.length > 0)
+						{
+							var w = parseFloat(svgs[0].getAttribute('width'));
+							var h = parseFloat(svgs[0].getAttribute('height'));
 							
-							success(ui.convertDataUri(uri), w, h);
+							success(ui.convertDataUri(ui.createSvgDataUri(svg)), w, h);
 						}
-						catch (e)
+						else
 						{
-							error(e);
+							error({message: mxResources.get('invalidInput')});
 						}
-					};
-
-					img.src = uri;
+					}
+					catch (e)
+					{
+						error(e);
+					}
 				});
 			}
 			catch (e)

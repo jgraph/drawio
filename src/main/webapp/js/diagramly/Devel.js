@@ -1,12 +1,11 @@
 /*
- * $Id: Devel.js,v 1.27 2014/01/08 16:38:06 gaudenz Exp $
- * Copyright (c) 2006-2013, JGraph Ltd
+ * Copyright (c) 2006-2020, JGraph Ltd
+ * 
+ * This provides an indirection to make sure the mxClient.js
+ * loads before the dependent classes below are loaded. This
+ * is used for development mode where the JS is in separate
+ * files and the mxClient.js loads other files.
  */
-// This provides an indirection to make sure the mxClient.js
-// loads before the dependent classes below are loaded. This
-// is used for development mode where the JS is in separate
-// files and the mxClient.js loads other files.
-// Adds external dependencies
 mxscript(drawDevUrl + 'js/cryptojs/aes.min.js');
 mxscript(drawDevUrl + 'js/spin/spin.min.js');
 mxscript(drawDevUrl + 'js/deflate/pako.min.js');
@@ -97,7 +96,6 @@ mxscript(drawDevUrl + 'js/diagramly/DiffSync.js');
 mxscript(drawDevUrl + 'js/diagramly/Settings.js');
 mxscript(drawDevUrl + 'js/diagramly/DrawioFileSync.js');
 
-
 //Comments
 mxscript(drawDevUrl + 'js/diagramly/DrawioComment.js');
 mxscript(drawDevUrl + 'js/diagramly/DriveComment.js');
@@ -142,16 +140,16 @@ mxscript(drawDevUrl + 'js/diagramly/vsdx/bmpDecoder.js');
 mxscript(drawDevUrl + 'js/diagramly/vsdx/importer.js');
 mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 
-//GraphMl Import
+// GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 
-//Table Layout
+// Table Layout
 if (urlParams['tableLayout'] == '1')
 {
   mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
 }
 
-//Org Chart Layout
+// Org Chart Layout
 if (urlParams['orgChartDev'] == '1')
 {
 	mxscript(drawDevUrl + 'js/orgchart/bridge.min.js');

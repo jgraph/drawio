@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "bce6eba979df64a3f71819eacbb5b914"
+    "revision": "2a273b6cae6fa398d331959fa74bb141"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "833eef7776ed3d6ae55184563a53433f"
+    "revision": "4aefbe4b829a81f2fbb072db53f401dd"
   },
   {
     "url": "js/diagramly/ElectronApp.js",
@@ -26,7 +26,7 @@ if (workbox)
   },
   {
     "url": "index.html",
-    "revision": "e2966553b5f283c5bbe115cad6106f46"
+    "revision": "51c6852dcfa89abe9195ac4b125149f2"
   },
   {
     "url": "open.html",

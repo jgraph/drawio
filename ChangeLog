@@ -1,3 +1,7 @@
+21-FEB-2020: 12.7.3
+
+- Fixes caching of Google fonts
+
 19-FEB-2020: 12.7.2
 
 - Removes HTML 5 application cache

@@ -741,7 +741,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		var click = this.click;
 		this.click = function(me)
 		{
-			var locked = me.state == null && me.sourceState != null && this.isCellLocked(me.sourceState.cell);
+			var locked = me.state == null && me.sourceState != null &&
+				this.isCellLocked(me.sourceState.cell);
 			
 			if ((!this.isEnabled() || locked) && !me.isConsumed())
 			{
@@ -749,8 +750,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				
 				if (cell != null)
 				{
-					var link = this.getLinkForCell(cell);
-					
+					var link = this.getClickableLinkForCell(cell);
+
 					if (link != null)
 					{
 						if (this.isCustomLink(link))
@@ -797,7 +798,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		{
 			if (!this.isEnabled() || this.isCellLocked(cell))
 			{
-				var link = this.getLinkForCell(cell);
+				var link = this.getClickableLinkForCell(cell);
 				
 				if (link != null)
 				{
@@ -2095,6 +2096,32 @@ Graph.prototype.setGridSize = function(value)
 };
 
 /**
+ * Function: getClickableLinkForCell
+ * 
+ * Returns the first non-null link for the cell or its ancestors.
+ * 
+ * Parameters:
+ * 
+ * cell - <mxCell> whose link should be returned.
+ */
+Graph.prototype.getClickableLinkForCell = function(cell)
+{
+	do
+	{
+		var link = this.getLinkForCell(cell);
+		
+		if (link != null)
+		{
+			return link;
+		}
+		
+		cell = this.model.getParent(cell);
+	} while (cell != null);
+	
+	return null;
+};
+
+/**
  * Private helper method.
  */
 Graph.prototype.getGlobalVariable = function(name)
@@ -2698,7 +2725,9 @@ Graph.prototype.getIndexableText = function()
  */
 Graph.prototype.convertValueToString = function(cell)
 {
-	if (cell.value != null && typeof(cell.value) == 'object')
+	var value = this.model.getValue(cell);
+	
+	if (value != null && typeof(value) == 'object')
 	{
 		if (this.isReplacePlaceholders(cell) && cell.getAttribute('placeholder') != null)
 		{
@@ -2721,7 +2750,7 @@ Graph.prototype.convertValueToString = function(cell)
 		}
 		else
 		{	
-			return cell.value.getAttribute('label') || '';
+			return value.getAttribute('label') || '';
 		}
 	}
 	
@@ -6113,6 +6142,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.getCenterInsertPoint = function(bbox)
 		{
+			bbox = (bbox != null) ? bbox : new mxRectangle();
+			
 			if (mxUtils.hasScrollbars(this.container))
 			{
 				return new mxPoint(

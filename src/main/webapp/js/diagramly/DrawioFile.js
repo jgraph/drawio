@@ -836,9 +836,9 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DrawioFile.prototype.updateFileData = function()
+DrawioFile.prototype.updateFileData = function(compressOverride)
 {
-	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, !this.isCompressed()));
+	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, compressOverride != null? !compressOverride : !this.isCompressed()));
 };
 
 /**
@@ -870,6 +870,31 @@ DrawioFile.prototype.isCompressed = function()
 	{
 		return this.isCompressedStorage() && Editor.compressXml;
 	}
+};
+
+
+DrawioFile.prototype.decompress = function()
+{
+	this.updateFileData(false);
+	
+	if (this.ui.fileNode != null)
+	{
+		this.ui.fileNode.setAttribute('compressed', 'false');
+	}
+	
+	this.fileChanged();
+};
+
+DrawioFile.prototype.compress = function()
+{
+	this.updateFileData(true);
+
+	if (this.ui.fileNode != null)
+	{
+		this.ui.fileNode.setAttribute('compressed', 'true');
+	}
+	
+	this.fileChanged();
 };
 
 /**

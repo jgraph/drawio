@@ -78,7 +78,7 @@ DriveFile.prototype.getMode = function()
 DriveFile.prototype.getPublicUrl = function(fn)
 {
 	this.ui.drive.executeRequest({
-		url: '/files/' + this.desc.id + '/permissions?supportsTeamDrives=true'
+		url: '/files/' + this.desc.id + '/permissions?supportsAllDrives=true'
 	}, 
 	mxUtils.bind(this, function(resp)
 	{
@@ -693,7 +693,7 @@ DriveFile.prototype.loadPatchDescriptor = function(success, error)
 {
 	this.ui.drive.executeRequest(
 	{	
-		url: '/files/' + this.getId() + '?supportsTeamDrives=true&fields=' + this.ui.drive.catchupFields
+		url: '/files/' + this.getId() + '?supportsAllDrives=true&fields=' + this.ui.drive.catchupFields
 	},
 	mxUtils.bind(this, function(desc)
 	{

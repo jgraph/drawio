@@ -510,7 +510,38 @@
 		{
 			return autosaveAction.isEnabled() && editorUi.editor.autosave;
 		});
+		
+		var compressedAction = editorUi.actions.addAction('compressed', function()
+		{
+			var file = editorUi.getCurrentFile();
+			
+			if (file != null)
+			{
+				if (file.isCompressed())
+				{
+					file.decompress();
+				}
+				else
+				{
+					file.compress();
+				}
+			}
+		});
+		
+		compressedAction.setToggleAction(true);
+		
+		compressedAction.setSelectedCallback(function()
+		{
+			var file = editorUi.getCurrentFile();
+			
+			return file != null && file.isCompressed();
+		});
 
+		compressedAction.isEnabled = function()
+		{
+			return editorUi.getCurrentFile() != null;
+		}
+		
 		editorUi.actions.addAction('editGeometry...', function()
 		{
 			var cells = graph.getSelectionCells();
@@ -1595,7 +1626,7 @@
 						{
 							// LATER: Download full model dump with history
 							var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-									fileId + '/realtime?supportsTeamDrives=true', null, 'GET');
+									fileId + '/realtime?supportsAllDrives=true', null, 'GET');
 	
 							// Adds auth token
 							req.setRequestHeaders = function(request)
@@ -3306,7 +3337,7 @@
 
 			if (urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['autosave'], parent);
+				this.addMenuItems(menu, ['autosave', 'compressed'], parent);
 			}
 			
 			menu.addSeparator(parent);

@@ -1,10 +1,25 @@
 # To change mermaid.min.js for IE11
 
-Arrow functions must be replaced manually for IE11 to be able to read the
-file with no syntax errors. Here are examples for replacing functions:
+1. Clone Mermaid source from Github
+1. Change the file `webpack.config.base.js`. Look for `const jsRule = {` and replace that block with
 
-Find: o=(t,e)=>
-Replace: o=function(t,e)
+```
+const jsRule = {
+  test: /\.js$/,
+  include: [
+    path.resolve(__dirname, './src'),
+    path.resolve(__dirname, './node_modules/dagre-d3-renderer/lib'),
+    path.resolve(__dirname, './node_modules/crypto-random-string'),
+    path.resolve(__dirname, './node_modules/@braintree/sanitize-url'),
+    path.resolve(__dirname, './node_modules/dagre'),
+    path.resolve(__dirname, './node_modules/graphlib'),
+    path.resolve(__dirname, './node_modules/he'),
+    path.resolve(__dirname, './node_modules/scope-css')
+  ],
+  use: {
+    loader: 'babel-loader'
+  }
+};
+```
 
-Find: t.exports=({length:t,type:e,characters:n})=>{
-Replace: t.exports=function(obj){var t=obj.length;var e=obj.type;var n=obj.characters;
+The idea is to add any library used in package.json that is not compatible with IE11

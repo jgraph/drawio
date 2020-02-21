@@ -310,22 +310,37 @@
 				
 				if (isTreeVertex(target))
 				{
+					var subtree = [];
+					
 					graph.traverse(target, true, function(vertex, edge)
 					{
 						if (edge != null)
 						{
-							tmp.push(edge);
+							subtree.push(edge);
 						}
-	
-						tmp.push(vertex);
 						
-						return true;
+						if (graph.getIncomingEdges(vertex).length == 1)
+						{
+							subtree.push(vertex);
+							
+							return true;
+						}
+						else
+						{
+							subtree = [];
+
+							return false;
+						}
 					});
 					
-					var edges = graph.getIncomingEdges(cells[i]);
-					cells = cells.concat(edges);
+					if (subtree.length > 0)
+					{
+						tmp = tmp.concat(subtree);
+						var edges = graph.getIncomingEdges(cells[i]);
+						cells = cells.concat(edges);
+					}
 				}
-				else
+				else if (target != null)
 				{
 					tmp.push(cells[i]);
 				}
@@ -1115,7 +1130,9 @@
 		{
 			vertexHandlerInit.apply(this, arguments);
 			
-			if ((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) && this.graph.getOutgoingEdges(this.state.cell).length > 0)
+			if ((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) &&
+				!this.state.style['childLayout'] == 'flowLayout' &&
+				this.graph.getOutgoingEdges(this.state.cell).length > 0)
 			{
 				this.moveHandle = mxUtils.createImage(moveImage);
 				this.moveHandle.setAttribute('title', 'Move Subtree');

@@ -834,7 +834,7 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 	if (id != null && title != null)
 	{
 		this.executeRequest({url: '/files/' + id + '/copy?fields=' + encodeURIComponent(this.allFields)
-				+ '&supportsTeamDrives=true', //&alt=json
+				+ '&supportsAllDrives=true', //&alt=json
 				method: 'POST',
 				params: {'title': title, 'properties':
 					[{'key': 'channel', 'value': Editor.guid()}]}
@@ -881,7 +881,7 @@ DriveClient.prototype.moveFile = function(id, folderId, success, error)
 DriveClient.prototype.createDriveRequest = function(id, body)
 {
 	return {
-		'url': '/files/' + id + '?uploadType=multipart&supportsTeamDrives=true',
+		'url': '/files/' + id + '?uploadType=multipart&supportsAllDrives=true',
 		'method': 'PUT',
 		'contentType': 'application/json; charset=UTF-8',
 		'params': body
@@ -902,7 +902,7 @@ DriveClient.prototype.getLibrary = function(id, success, error)
 DriveClient.prototype.loadDescriptor = function(id, success, error, fields)
 {
 	this.executeRequest({
-		url: '/files/' + id + '?supportsTeamDrives=true&fields=' + (fields != null ? fields : this.allFields)
+		url: '/files/' + id + '?supportsAllDrives=true&fields=' + (fields != null ? fields : this.allFields)
 	}, success, error);
 };
 
@@ -943,7 +943,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 	if (urlParams['rev'] != null)
 	{
 		this.executeRequest({
-				url: '/files/' + id + '/revisions/' + urlParams['rev'] + '?supportsTeamDrives=true'
+				url: '/files/' + id + '/revisions/' + urlParams['rev'] + '?supportsAllDrives=true'
 			},
 			mxUtils.bind(this, function(resp)
 			{
@@ -1426,7 +1426,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									{
 							    		// Pins previous revision
 										this.executeRequest({
-											url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId + '?supportsTeamDrives=true'
+											url: '/files/' + prevDesc.id + '/revisions/' + prevDesc.headRevisionId + '?supportsAllDrives=true'
 										}, mxUtils.bind(this, mxUtils.bind(this, function(resp)
 										{
 											resp.pinned = true;
@@ -1551,7 +1551,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 												{
 													// Workaround for correct etag and Google always returns 412 conflict error (stale etag)
 													this.executeRequest({
-														url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
+														url: '/files/' + file.getId() + '?supportsAllDrives=true&fields=' + this.catchupFields
 													}, 
 													mxUtils.bind(this, function(resp)
 													{
@@ -1666,7 +1666,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 									}
 									
 									this.executeRequest({
-										url: '/files/' + file.getId() + '?supportsTeamDrives=true&fields=' + this.catchupFields
+										url: '/files/' + file.getId() + '?supportsAllDrives=true&fields=' + this.catchupFields
 									},
 									mxUtils.bind(this, function(desc2)
 									{
@@ -1928,7 +1928,7 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 	var reqObj = 
 	{
 		'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') +
-			'?uploadType=multipart&supportsTeamDrives=true&fields=' + this.allFields,
+			'?uploadType=multipart&supportsAllDrives=true&fields=' + this.allFields,
 		'method': (id != null) ? 'PUT' : 'POST',
 		'headers': headers,
 		'params': delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +

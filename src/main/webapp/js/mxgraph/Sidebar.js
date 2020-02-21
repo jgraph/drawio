@@ -3310,18 +3310,26 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells)
 	
 	ds.mouseUp = function(evt)
 	{
-		if (!mxEvent.isPopupTrigger(evt) && this.currentGraph == null &&
-			this.dragElement != null && this.dragElement.style.display == 'none')
+		try
 		{
-			sb.itemClicked(cells, ds, evt, elt);
+			if (!mxEvent.isPopupTrigger(evt) && this.currentGraph == null &&
+				this.dragElement != null && this.dragElement.style.display == 'none')
+			{
+				sb.itemClicked(cells, ds, evt, elt);
+			}
+	
+			oldMouseUp.apply(ds, arguments);
+			mxUtils.setOpacity(elt, 100);
+			first = null;
+			
+			// Blocks tooltips on this element after single click
+			sb.currentElt = elt;
 		}
-
-		oldMouseUp.apply(ds, arguments);
-		mxUtils.setOpacity(elt, 100);
-		first = null;
-		
-		// Blocks tooltips on this element after single click
-		sb.currentElt = elt;
+		catch (e)
+		{
+			ds.reset();
+			sb.editorUi.handleError(e);
+		}
 	};
 };
 

@@ -221,8 +221,7 @@
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
         {
-    		return state.vertices.length == 1 && state.edges.length == 0 &&
-    			format.editorUi.editor.graph.model.getChildCount(state.vertices[0]) == 0;
+    		return state.vertices.length == 1 && state.edges.length == 0;
         }},
         {name: 'dropTarget', dispName: 'Drop Target', type: 'bool', getDefaultValue: function(state, format)
         {

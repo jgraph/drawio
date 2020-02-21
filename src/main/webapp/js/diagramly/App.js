@@ -552,9 +552,9 @@ App.main = function(callback, createUi)
 				{
 					navigator.serviceWorker.getRegistrations().then(function(registrations)
 					{
-						for(let registration of registrations)
+						for(var i = 0; i < registrations.length; i++)
 						{
-							registration.unregister()
+							registrations[i].unregister();
 						}
 					});
 				}

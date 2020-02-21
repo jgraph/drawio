@@ -17,7 +17,9 @@ const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
 const { systemPreferences } = require('electron')
-const disableUpdate = require('./disableUpdate').disableUpdate();
+const disableUpdate = require('./disableUpdate').disableUpdate() || 
+						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
+						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox
 autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
