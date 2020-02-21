@@ -3636,7 +3636,7 @@
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
 
 		// Logs errors and writes stack to console
-		if (resp.stack != null && resp.message != null)
+		if (resp != null && resp.stack != null && resp.message != null)
 		{
 			try
 			{
