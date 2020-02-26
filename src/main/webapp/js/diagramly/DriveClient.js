@@ -28,13 +28,11 @@ DriveClient = function(editorUi)
 		this.clientId = window.DRAWIO_GOOGLE_VIEWER_CLIENT_ID || '850530949725.apps.googleusercontent.com';
 		this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
 			'https://www.googleapis.com/auth/userinfo.profile'];
-		this.appIndex = 0;
 	}
 	else
 	{
 		this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
 		this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
-		this.appIndex = 1;
 	}
 	
 	this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
@@ -616,8 +614,8 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 		{
 			if (immediate) //Note, we checked refresh token is not null above
 			{
-				//state is used to identify which app is used
-				var req = new mxXmlRequest(this.redirectUri + '?state=appIndex%3D' + this.appIndex + '&refresh_token=' + authInfo.refresh_token, null, 'GET');
+				//state is used to identify which app/domain is used
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname) + '&refresh_token=' + authInfo.refresh_token, null, 'GET');
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -650,7 +648,7 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 						'&response_type=code&include_granted_scopes=true' +
 						(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
 						'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
-						'&state=appIndex%3D' + this.appIndex; //To identify which app is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname); //To identify which app/domain is used
 				
 				if (popup == null)
 				{

@@ -507,7 +507,8 @@ App.main = function(callback, createUi)
 	// Logs uncaught errors
 	window.onerror = function(message, url, linenumber, colno, err)
 	{
-		EditorUi.logError(message, url, linenumber, colno, err);
+		EditorUi.logError('Global: ' + ((message != null) ? message : ''),
+			url, linenumber, colno, err);
 	};
 
 	// Removes info text in embed mode
@@ -2823,11 +2824,21 @@ App.prototype.showAlert = function(message)
  */
 App.prototype.start = function()
 {
+	// Handles all errors
+	var ui = this; 
+	
+	window.onerror = function(message, url, linenumber, colno, err)
+	{
+		EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
+			url, linenumber, colno, err);
+		ui.handleError({message: message}, mxResources.get('unknownError'), null, null, null, null, true);
+	};
+	
 	if (this.bg != null && this.bg.parentNode != null)
 	{
 		this.bg.parentNode.removeChild(this.bg);
 	}
-
+	
 	this.restoreLibraries();
 	this.spinner.stop();
 	

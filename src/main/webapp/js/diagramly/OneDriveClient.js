@@ -191,7 +191,8 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 			
 			if (authInfo != null)
 			{
-				var req = new mxXmlRequest(this.redirectUri + '?refresh_token=' + authInfo.refresh_token, null, 'GET');
+				var req = new mxXmlRequest(this.redirectUri + '?refresh_token=' + authInfo.refresh_token +
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname), null, 'GET'); //To identify which app/domain is used
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -233,7 +234,8 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 					var url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize' +
 						'?client_id=' + this.clientId + '&response_type=code' +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
-						'&scope=' + encodeURIComponent(this.scopes);
+						'&scope=' + encodeURIComponent(this.scopes) +
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname); //To identify which app/domain is used
 	
 					var width = 525,
 						height = 525,

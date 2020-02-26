@@ -2224,7 +2224,15 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 								geo = geo.clone();
 								fn(geo, value);
 								
+								var state = graph.view.getState(cells[i]);
+								
+								if (state != null && graph.isRecursiveVertexResize(state))
+								{
+									graph.resizeChildCells(cells[i], geo);
+								}
+								
 								graph.getModel().setGeometry(cells[i], geo);
+								graph.constrainChildCells(cells[i]);
 							}
 						}
 					}

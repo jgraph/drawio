@@ -1,4 +1,24 @@
-21-FEB-2020:12.7.4
+26-FEB-2020: 12.7.8
+
+- Adds logging for Confluence cloud errors
+- Adds global error dialog
+
+26-FEB-2020: 12.7.7
+
+- Adds error logging for Confluence and Jira cloud
+
+25-FEB-2020: 12.7.6
+
+- Fixes NPE in viewer
+
+25-FEB-2020: 12.7.5
+
+- Fixes removed contentID macro parameter in Confluence cloud
+- Adds recursive resize for size change in Arrange panel
+- Disables drop target for composite BPMN/UML shapes
+- Fixes missing tree move icon
+
+21-FEB-2020: 12.7.4
 
 - Changes Google picker to support team drives
 - Fixes crop for imported files

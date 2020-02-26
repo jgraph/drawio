@@ -1469,6 +1469,15 @@ Graph.prototype.init = function(container)
 		return null;
 	};
 
+	/**
+	 * Returns if the child cells of the given vertex cell state should be resized.
+	 */
+	Graph.prototype.isRecursiveVertexResize = function(state)
+	{
+		return !this.isSwimlane(state.cell) && this.model.getChildCount(state.cell) > 0 &&
+			!this.isCellCollapsed(state.cell) && mxUtils.getValue(state.style, 'recursiveResize', '1') == '1' &&
+			mxUtils.getValue(state.style, 'childLayout', null) == null;
+	}
 
 	/**
 	 * Function: repaint
@@ -8196,10 +8205,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxVertexHandler.prototype.isRecursiveResize = function(state, me)
 		{
-			return !this.graph.isSwimlane(state.cell) && this.graph.model.getChildCount(state.cell) > 0 &&
-				!mxEvent.isControlDown(me.getEvent()) && !this.graph.isCellCollapsed(state.cell) &&
-				mxUtils.getValue(state.style, 'recursiveResize', '1') == '1' &&
-				mxUtils.getValue(state.style, 'childLayout', null) == null;
+			return this.graph.isRecursiveVertexResize(state) &&
+				!mxEvent.isControlDown(me.getEvent());
 		};
 		
 		/**

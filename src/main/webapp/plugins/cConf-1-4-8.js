@@ -583,7 +583,7 @@ Draw.loadPlugin(function(ui)
 	{
 		if (confComments == null)
 		{
-			ui.remoteInvoke('getComments', [macroData.contentId], null, function(comments)
+			ui.remoteInvoke('getComments', [macroData.contentId || macroData.custContentId], null, function(comments)
 			{
 				confComments = [];
 				

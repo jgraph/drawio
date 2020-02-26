@@ -134,11 +134,11 @@
 	/**
 	 * Updates action states depending on the selection.
 	 */
-	EditorUi.logError = function(message, url, linenumber, colno, err)
+	EditorUi.logError = function(message, url, linenumber, colno, err, severity)
 	{
 		if (urlParams['dev'] == '1')
 		{
-			EditorUi.debug('logError', message, url, linenumber, colno, err);
+			EditorUi.debug('logError', message, url, linenumber, colno, err, severity);
 		}
 		else if (EditorUi.enableLogging)
 		{
@@ -155,9 +155,9 @@
 				else if (message != null && message.indexOf('DocumentClosedError') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
-					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
-						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-						'CONFIG' : 'SEVERE';
+					severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
+						message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
+						message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
 					err = (err != null) ? err : new Error(message);
 
@@ -245,7 +245,10 @@
 				
 				for (var i = 0; i < arguments.length; i++)
 			    {
-					args.push(arguments[i]);
+					if (arguments[i] != null)
+					{
+						args.push(arguments[i]);
+					}
 			    }
 			    
 				console.log.apply(console, args);
@@ -1598,7 +1601,7 @@
 		
 		if (cause)
 		{
-			throw new Error(cause);
+			throw new Error(mxResources.get('notADiagramFile') + ' (' + cause + ')');
 		}
 		else
 		{
@@ -2570,7 +2573,7 @@
 				
 				if (!noDialogs)
 				{
-					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true);
+					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true, null, null, true);
 				}
 				else
 				{
@@ -3631,7 +3634,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash, disableLogging)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -3643,7 +3646,7 @@
 			{
 				if (window.console != null)
 				{
-					console.error(resp);
+					console.error('EditorUi.handleError:', resp);
 				}
 			}
 			catch (ex)
@@ -3653,7 +3656,10 @@
 			
 			try
 			{
-				EditorUi.logError('EditorUi.handleError: ' + e.message, null, null, e);
+				if (!disableLogging && urlParams['dev'] != '1')
+				{
+					EditorUi.logError(resp.message, null, null, resp, 'INFO');
+				}
 			}
 			catch (e)
 			{
@@ -9136,13 +9142,16 @@
 			
 			img.onload = function()
 			{
+				img.width = (img.width > 0) ? img.width : 120;
+				img.height = (img.height > 0) ? img.height : 120;
+				
 				onload(img);
-			}
+			};
 			
 			if (onerror != null)
 			{
 				img.onerror = onerror;
-			}
+			};
 			
 			img.src = uri;
 		}

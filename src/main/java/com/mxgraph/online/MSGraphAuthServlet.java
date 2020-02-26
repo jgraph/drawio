@@ -8,11 +8,8 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class MSGraphAuthServlet extends AbsAuthServlet
 {
-	public static String DEV_CLIENT_SECRET_FILE_PATH = "/WEB-INF/msgraph_dev_client_secret";
 	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/msgraph_client_secret";
-	public static String DEV_CLIENT_ID_FILE_PATH = "/WEB-INF/msgraph_dev_client_id";
 	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/msgraph_client_id";
-	public static String CLIENT_REDIRECT_URI_FILE_PATH = "/WEB-INF/msgraph_client_redirect_uri";
 	
 	private static Config CONFIG = null;
 	
@@ -20,70 +17,49 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 	{
 		if (CONFIG == null)
 		{
-			CONFIG = new Config();
+			String clientSerets, clientIds;
 			
 			try
 			{
-				CONFIG.DEV_CLIENT_SECRET = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(DEV_CLIENT_SECRET_FILE_PATH))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Dev client secret path invalid.");
-			}
-			
-			try
-			{
-				CONFIG.CLIENT_SECRET = Utils
+				clientSerets = Utils
 						.readInputStream(getServletContext()
 								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Client secret path invalid.");
+				throw new RuntimeException("Client secrets path invalid.");
 			}
 			
 			try
 			{
-				CONFIG.DEV_CLIENT_ID = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(DEV_CLIENT_ID_FILE_PATH))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Dev client ID invalid.");
-			}
-
-			try
-			{
-				CONFIG.CLIENT_ID = Utils
+				clientIds = Utils
 						.readInputStream(getServletContext()
 								.getResourceAsStream(CLIENT_ID_FILE_PATH))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Client ID invalid.");
+				throw new RuntimeException("Client IDs path invalid.");
 			}
 			
+			CONFIG = new Config(clientIds, clientSerets);
+			CONFIG.REDIRECT_PATH = "/microsoft";
+			CONFIG.AUTH_SERVICE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+			
+			//TODO This code is temporary until new method is propagated
 			try
 			{
-				CONFIG.REDIRECT_URI = Utils
+				CONFIG.OLD_REDIRECT_URL = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_REDIRECT_URI_FILE_PATH))
+								.getResourceAsStream("/WEB-INF/msgraph_old_client_redirect_uri"))
 						.replaceAll("\n", "");
+				CONFIG.OLD_CLIENT_ID = clientIds;
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Redirect Uri is invalid");
+				throw new RuntimeException("OLD CONFIGs path is invalid");
 			}
-			
-			CONFIG.DEV_REDIRECT_URI = "https://test.draw.io/microsoft";
-			CONFIG.AUTH_SERVICE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 		}
 		
 		return CONFIG;

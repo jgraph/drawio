@@ -1130,8 +1130,11 @@
 		{
 			vertexHandlerInit.apply(this, arguments);
 			
+			var parent = this.graph.model.getParent(this.state.cell);
+			var pstate = this.graph.view.getState(parent);
+			
 			if ((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) &&
-				!this.state.style['childLayout'] == 'flowLayout' &&
+				(pstate == null || pstate.style['childLayout'] != 'flowLayout') &&
 				this.graph.getOutgoingEdges(this.state.cell).length > 0)
 			{
 				this.moveHandle = mxUtils.createImage(moveImage);

@@ -10,55 +10,59 @@ public class GoogleAuthServlet extends AbsAuthServlet
 {
 	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/google_client_secret";
 	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/google_client_id";
-	public static String CLIENT_REDIRECT_URI_FILE_PATH = "/WEB-INF/google_client_redirect_uri";
+	
 	private static Config CONFIG = null;
 	
 	protected Config getConfig()
 	{
 		if (CONFIG == null)
 		{
-			CONFIG = new Config();
+			String clientSerets, clientIds;
 			
 			try
 			{
-				CONFIG.CLIENT_SECRET = Utils
+				clientSerets = Utils
 						.readInputStream(getServletContext()
 								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
 						.replaceAll("\n", "");
-				CONFIG.DEV_CLIENT_SECRET = CONFIG.CLIENT_SECRET;
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Client secret path invalid");
+				throw new RuntimeException("Client secrets path invalid");
 			}
 
 			try
 			{
-				CONFIG.CLIENT_ID = Utils
+				clientIds = Utils
 						.readInputStream(getServletContext()
 								.getResourceAsStream(CLIENT_ID_FILE_PATH))
 						.replaceAll("\n", "");
-				CONFIG.DEV_CLIENT_ID = CONFIG.CLIENT_ID;
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Client ID path invalid");
+				throw new RuntimeException("Client IDs path invalid");
 			}
 			
+			CONFIG = new Config(clientIds, clientSerets);
+			CONFIG.REDIRECT_PATH = "/google";
+			CONFIG.AUTH_SERVICE_URL = "https://www.googleapis.com/oauth2/v4/token";
+			
+			//TODO This code is temporary until new method is propagated
 			try
 			{
-				CONFIG.REDIRECT_URI = Utils
+				CONFIG.OLD_REDIRECT_URL = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_REDIRECT_URI_FILE_PATH))
+								.getResourceAsStream("/WEB-INF/google_old_client_redirect_uri"))
+						.replaceAll("\n", "");
+				CONFIG.OLD_CLIENT_ID = Utils
+						.readInputStream(getServletContext()
+								.getResourceAsStream("/WEB-INF/google_old_client_id"))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
 			{
-				throw new RuntimeException("Client ID path invalid");
+				throw new RuntimeException("OLD CONFIGs path is invalid");
 			}
-			
-			CONFIG.AUTH_SERVICE_URL = "https://www.googleapis.com/oauth2/v4/token";
-			CONFIG.DEV_REDIRECT_URI = "https://test.draw.io/google";
 		}
 		
 		return CONFIG;

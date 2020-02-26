@@ -359,11 +359,19 @@ EditorUi = function(editor, container, lightbox)
 			}
 		};
 		
+		// Updates toolbar and handles possible errors
 		var cellEditorStopEditing = graph.cellEditor.stopEditing;
 		graph.cellEditor.stopEditing = function(cell, trigger)
 		{
-			cellEditorStopEditing.apply(this, arguments);
-			updateToolbar();
+			try
+			{
+				cellEditorStopEditing.apply(this, arguments);
+				updateToolbar();
+			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
 		};
 		
 	    // Enables scrollbars and sets cursor style for the container

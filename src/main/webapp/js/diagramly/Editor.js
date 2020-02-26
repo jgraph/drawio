@@ -822,7 +822,7 @@
 			}
 		}
 		
-		return cause;
+		return (cause != null) ? mxUtils.trim(cause) : cause;
 	};
 
 	/**
