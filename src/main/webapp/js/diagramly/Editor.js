@@ -1456,6 +1456,7 @@
 		}
 		
 		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
+			url.includes("127.0.0.1") ||
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
