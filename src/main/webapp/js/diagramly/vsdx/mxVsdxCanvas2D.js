@@ -238,14 +238,14 @@ mxVsdxCanvas2D.prototype.rect = function(x, y, w, h)
 	h = h * s.scale;
 
 	var geo = this.xmGeo;
-	x = ((x - geo.x + s.dx) * s.scale) /w;
-	y = ((geo.height - y + geo.y - s.dy) * s.scale) /h;
-
-	this.geoSec.appendChild(this.createRowRel("RelMoveTo", this.geoStepIndex++, x, y));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x + 1, y));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x + 1, y - 1));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x, y - 1));
-	this.geoSec.appendChild(this.createRowRel("RelLineTo", this.geoStepIndex++, x, y));	
+	x = ((x - geo.x + s.dx) * s.scale);
+	y = ((geo.height - y + geo.y - s.dy) * s.scale);
+	
+	this.geoSec.appendChild(this.createRowScaled("MoveTo", this.geoStepIndex++, x, y));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x + w, y));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x + w, y - h));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x, y - h));
+	this.geoSec.appendChild(this.createRowScaled("LineTo", this.geoStepIndex++, x, y));
 };
 
 /**

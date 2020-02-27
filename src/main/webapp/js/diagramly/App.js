@@ -1733,6 +1733,58 @@ App.prototype.getPusher = function()
 /**
  * Shows a footer to download the desktop version once per session.
  */
+App.prototype.showDiagramsDotNetBanner = function()
+{
+	if (!this.diagramsNetFooterShown && !this.footerShowing && (!isLocalStorage ||
+		mxSettings.settings == null || mxSettings.settings.closeDiagramsFooter == null))
+	{
+		this.diagramsNetFooterShown = true;
+		var href = 'https://www.diagrams.net/blog/move-diagrams-net';
+		
+		var closeHandler = mxUtils.bind(this, function()
+		{
+			footer.parentNode.removeChild(footer);
+			this.footerShowing = false;
+
+			// Close permanently
+			if (isLocalStorage && mxSettings.settings != null)
+			{
+				mxSettings.settings.closeDiagramsFooter = Date.now();
+				mxSettings.save();
+			}
+		});
+		
+		var footer = this.createBanner('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
+			IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">draw.io is now diagrams.net</font>',
+			href, 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, mxUtils.bind(this, function()
+		{
+			window.open(href);
+			closeHandler();
+		}));
+		
+		// Push to after splash dialog background
+		footer.style.zIndex = mxPopupMenu.prototype.zIndex;
+		footer.style.padding = '18px 50px 12px 30px';
+		footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
+		document.body.appendChild(footer);
+		this.footerShowing = true;
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
+		}), 500);
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
+			this.footerShowing = false;
+		}), 20000);
+	}
+};
+
+/**
+ * Shows a footer to download the desktop version once per session.
+ */
 App.prototype.showDownloadDesktopBanner = function()
 {
 	if (!this.downloadDesktopFooterShown && !this.footerShowing && (!isLocalStorage ||
@@ -2831,7 +2883,8 @@ App.prototype.start = function()
 	{
 		EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
 			url, linenumber, colno, err);
-		ui.handleError({message: message}, mxResources.get('unknownError'), null, null, null, null, true);
+		ui.handleError({message: message}, mxResources.get('unknownError'),
+			null, null, null, null, true);
 	};
 	
 	if (this.bg != null && this.bg.parentNode != null)
@@ -2841,7 +2894,7 @@ App.prototype.start = function()
 	
 	this.restoreLibraries();
 	this.spinner.stop();
-	
+
 	try
 	{
 		// Listens to changes of the hash if not in embed or client mode
@@ -2863,6 +2916,12 @@ App.prototype.start = function()
 							file.saveDraft();
 						}
 					}));
+				}
+
+				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+					(!this.editor.chromeless || this.editor.editable))
+				{
+					this.showDiagramsDotNetBanner();
 				}
 			}
 			catch (e)
@@ -3350,7 +3409,7 @@ App.prototype.showSplash = function(force)
 				}
 			}), true);
 		
-		if ((!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp) && !this.isOfflineApp() &&
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
 			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
 		{
 			this.showDownloadDesktopBanner();
@@ -5798,9 +5857,9 @@ App.prototype.updateHeader = function()
 		this.appIcon = document.createElement('a');
 		this.appIcon.style.display = 'block';
 		this.appIcon.style.position = 'absolute';
-		this.appIcon.style.width = '28px';
+		this.appIcon.style.width = '32px';
 		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
-		this.appIcon.style.margin = '14px 0px 8px 20px';
+		this.appIcon.style.margin = '14px 0px 8px 16px';
 		this.appIcon.style.opacity = '0.85';
 		this.appIcon.style.borderRadius = '3px';
 		
