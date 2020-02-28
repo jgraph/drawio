@@ -1456,14 +1456,15 @@
 		}
 		
 		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
-			url.includes("127.0.0.1") ||
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
 			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
 			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
-			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
+			/^https?:\/\/[^\/]*\.github\.io\//.test(url) ||
+			url.startsWith("https://127.0.0.1") || url.startsWith("http://127.0.0.1") || 
+			url.startsWith("https://localhost") || url.startsWith("http://localhost");
 	};
 	
 	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
