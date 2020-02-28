@@ -1335,17 +1335,20 @@ App.prototype.init = function()
 			{
 				var doInit = mxUtils.bind(this, function()
 				{
-					this.drive = new DriveClient(this);
-					
-					this.drive.addListener('userChanged', mxUtils.bind(this, function()
+					if (window.DriveClient != null)
 					{
-						this.updateUserElement();
-						this.restoreLibraries();
-						this.checkLicense();
-					}))
-					
-					// Notifies listeners of new client
-					this.fireEvent(new mxEventObject('clientLoaded', 'client', this.drive));
+						this.drive = new DriveClient(this);
+						
+						this.drive.addListener('userChanged', mxUtils.bind(this, function()
+						{
+							this.updateUserElement();
+							this.restoreLibraries();
+							this.checkLicense();
+						}))
+						
+						// Notifies listeners of new client
+						this.fireEvent(new mxEventObject('clientLoaded', 'client', this.drive));
+					}
 				});
 				
 				if (window.DrawGapiClientCallback != null)
