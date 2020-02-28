@@ -1096,7 +1096,7 @@ App.embedModePluginsCount = 0;
  */
 App.loadPlugins = function(plugins, useInclude)
 {
-	EditorUi.debug('Loading plugins', plugins);
+	EditorUi.debug('Loading plugins from "' + window.PLUGINS_BASE_PATH + '"', plugins); 
 
 	for (var i = 0; i < plugins.length; i++)
 	{
@@ -1288,7 +1288,7 @@ App.prototype.init = function()
 		 */
 		var initTrelloClient = mxUtils.bind(this, function()
 		{
-			if (typeof window.Trello !== 'undefined')
+			if ((typeof window.Trello !== 'undefined') && (window.TrelloClient != null))
 			{
 				try
 				{
@@ -1331,7 +1331,7 @@ App.prototype.init = function()
 			/**
 			 * Creates google drive client if all required libraries are available.
 			 */
-			if (typeof gapi !== 'undefined')
+			if ( (typeof gapi !== 'undefined') && (window.DriveClient != null))
 			{
 				var doInit = mxUtils.bind(this, function()
 				{
