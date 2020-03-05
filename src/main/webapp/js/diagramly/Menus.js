@@ -712,19 +712,17 @@
 
 		var showingAbout = false;
 		
-		editorUi.actions.put('about', new Action(mxResources.get('aboutDrawio') + '...', function()
+		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function()
 		{
-			if (!showingAbout)
+			if (editorUi.isOffline())
 			{
-				editorUi.showDialog(new AboutDialog(editorUi).container, 220, 300, true, true, function()
-				{
-					showingAbout = false;
-				});
-				
-				showingAbout = true;
+				editorUi.alert('diagrams.net ' + EditorUi.VERSION);
 			}
-			
-		}, null, null, 'F1'));
+			else
+			{
+				editorUi.openLink('https://www.diagrams.net/');
+			}
+		}));
 		
 		editorUi.actions.addAction('userManual...', function()
 		{

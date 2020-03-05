@@ -130,7 +130,7 @@
 	/**
 	 * Disables the shadow option in the format panel.
 	 */
-	Editor.shadowOptionEnabled = true;
+	Editor.shadowOptionEnabled = !mxClient.IS_SF;
 
 	/**
 	 * Reference to the config object passed to <configure>.
@@ -4905,7 +4905,7 @@
 	 */
 	Graph.prototype.setShadowVisible = function(value, fireEvent)
 	{
-		if (mxClient.IS_SVG)
+		if (mxClient.IS_SVG && !mxClient.IS_SF)
 		{
 			fireEvent = (fireEvent != null) ? fireEvent : true;
 			this.shadowVisible = value;

@@ -134,13 +134,13 @@
 	/**
 	 * Updates action states depending on the selection.
 	 */
-	EditorUi.logError = function(message, url, linenumber, colno, err, severity)
+	EditorUi.logError = function(message, url, linenumber, colno, err, severity, quiet)
 	{
-		if (urlParams['dev'] == '1')
-		{
-			EditorUi.debug('logError', message, url, linenumber, colno, err, severity);
-		}
-		else if (EditorUi.enableLogging)
+		severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
+			message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
+			message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
+		
+		if (EditorUi.enableLogging && urlParams['dev'] != '1')
 		{
 			try
 			{
@@ -155,9 +155,6 @@
 				else if (message != null && message.indexOf('DocumentClosedError') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
-					severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
-						message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
-						message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
 					err = (err != null) ? err : new Error(message);
 
@@ -168,10 +165,22 @@
 		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
 				}
 			}
-			catch (err)
+			catch (e)
 			{
 				// do nothing
 			}
+		}
+
+		try
+		{
+			if (!quiet && window.console != null)
+			{
+				console.error(severity, message, url, linenumber, colno, err);
+			}
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 	
@@ -3644,21 +3653,17 @@
 		{
 			try
 			{
-				if (window.console != null)
+				if (!disableLogging)
 				{
-					console.error('EditorUi.handleError:', resp);
+					EditorUi.logError('Caught: ' + ((resp.message != null) ?
+						resp.message : 'null'), null, null, null, resp, 'INFO');
 				}
-			}
-			catch (ex)
-			{
-				// ignore
-			}
-			
-			try
-			{
-				if (!disableLogging && urlParams['dev'] != '1')
+				else
 				{
-					EditorUi.logError(resp.message, null, null, resp, 'INFO');
+					if (window.console != null)
+					{
+						console.error('EditorUi.handleError:', resp);
+					}
 				}
 			}
 			catch (e)

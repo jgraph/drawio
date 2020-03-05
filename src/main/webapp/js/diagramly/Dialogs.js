@@ -5024,68 +5024,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 /**
  * Constructs a new about dialog
  */
-var AboutDialog = function(editorUi)
-{
-	var div = document.createElement('div');
-	div.style.marginTop = '6px';
-	div.setAttribute('align', 'center');
-	
-	var img = document.createElement('img');
-	img.style.border = '0px';
-	
-	if (mxClient.IS_SVG)
-	{
-		img.setAttribute('width', '164');
-		img.setAttribute('height', '221');
-		img.style.width = '164px';
-		img.style.height = '221px';
-		img.setAttribute('src', IMAGE_PATH + '/drawlogo-text-bottom.svg');
-	}
-	else
-	{
-		img.setAttribute('width', '176');
-		img.setAttribute('height', '219');
-		img.style.width = '170px';
-		img.style.height = '219px';
-		img.setAttribute('src', IMAGE_PATH + '/logo-flat.png');
-	}
-	
-	if (uiTheme == 'dark')
-	{
-		img.style.filter = 'grayscale(100%) invert(100%)';
-	}
-	
-	div.appendChild(img);
-	mxUtils.br(div);
-	
-	var clr = (uiTheme == 'dark') ? '#cccccc' : '#505050';
-	var v = document.createElement('small');
-	v.innerHTML = 'v ' + EditorUi.VERSION;
-	v.style.color = clr;
-	div.appendChild(v);
-	
-	mxUtils.br(div);
-	mxUtils.br(div);
-
-	var small = document.createElement('small');
-	small.style.color = clr;
-	small.innerHTML = '&copy; 2005-2020 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
-	div.appendChild(small);
-	
-	mxEvent.addListener(div, 'click', function(e)
-	{
-		if (mxEvent.getSource(e).nodeName != 'A')
-		{
-			editorUi.hideDialog();
-		}
-	});
-	
-	this.container = div;
-};
-
-/**
- * Constructs a new about dialog
- */
 var FeedbackDialog = function(editorUi)
 {
 	var div = document.createElement('div');

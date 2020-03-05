@@ -1,5 +1,6 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
+about=Σχετικά με το 
 aboutDrawio=Σχετικά με το draw.io
 accessDenied=Απαγόρευση εισόδου
 action=Action

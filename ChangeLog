@@ -1,3 +1,10 @@
+05-FEB-2020: 12.8.0
+
+- Fixes PDF export for multiple page formats
+- Fixes PDF export page variable placeholder
+- Disables drop shadow in Safari browser
+- Changes name to diagrams.net
+
 27-FEB-2020: 12.7.9
 
 - Fixes update of indicator shapes

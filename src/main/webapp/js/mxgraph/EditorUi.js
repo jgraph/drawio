@@ -2325,7 +2325,7 @@ EditorUi.prototype.initCanvas = function()
 		if (this.dialogs == null || this.dialogs.length == 0)
 		{
 			// Scrolls with scrollbars turned off
-			if (!graph.scrollbars && !graph.isZoomWheelEvent(evt))
+			if (!graph.scrollbars && graph.isScrollWheelEvent(evt))
             {
                 var t = graph.view.getTranslate();
                 var step = 40 / graph.view.scale;
@@ -4481,7 +4481,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus
 	keyHandler.bindAction(80, true, 'print'); // Ctrl+P
 	keyHandler.bindAction(79, true, 'outline', true); // Ctrl+Shift+O
-	keyHandler.bindAction(112, false, 'about'); // F1
 
 	if (!this.editor.chromeless || this.editor.editable)
 	{

@@ -895,7 +895,7 @@ Actions.prototype.init = function()
 			
 			showingAbout = true;
 		}
-	}, null, null, 'F1'));
+	}));
 	
 	// Font style actions
 	var toggleFontStyle = mxUtils.bind(this, function(key, style, fn, shortcut)

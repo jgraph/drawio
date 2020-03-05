@@ -2041,6 +2041,14 @@ Graph.prototype.isZoomWheelEvent = function(evt)
 };
 
 /**
+ * Returns true if the given scroll wheel event should be used for scrolling.
+ */
+Graph.prototype.isScrollWheelEvent = function(evt)
+{
+	return !this.isZoomWheelEvent(evt);
+};
+
+/**
  * Adds Alt+click to select cells behind cells (Shift+Click on Chrome OS).
  */
 Graph.prototype.isTransparentClickEvent = function(evt)
