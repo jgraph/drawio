@@ -3282,7 +3282,7 @@
 										}
 									}
 									
-									if (theData != null && theMimeType == 'text/xml')
+									if (theData != null) //Try to parse the file as xml (can be a library or mxfile). Otherwise, an error will be shown
 									{
 										var doc = mxUtils.parseXml(theData);
 										

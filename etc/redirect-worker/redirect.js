@@ -147,7 +147,7 @@ const redirectMap = new Map([
 		['/', 'https://appsource.microsoft.com/product/office/wa200000113']
 	])],
 	['slidesaddon.draw.io', new Map([
-		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams_for_slides/58828304893']
+		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams_for_slides/588283048931']
 	])],
 	['sheetsaddon.draw.io', new Map([
 		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams_for_sheets/948903782998']

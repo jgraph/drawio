@@ -1,8 +1,13 @@
-05-FEB-2020: 12.8.1
+09-MAR-2020: 12.8.2
+
+- Fixes Confluence Cloud lightbox and Jira Cloud editor iFrame resize
+
+
+05-MAR-2020: 12.8.1
 
 - Fixes Confluence Cloud editor iFrame resize
 
-05-FEB-2020: 12.8.0
+05-MAR-2020: 12.8.0
 
 - Fixes PDF export for multiple page formats
 - Fixes PDF export page variable placeholder

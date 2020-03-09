@@ -508,6 +508,21 @@ app.on('ready', e =>
     	return;
 	}
     
+    //Prevent multiple instances of the application (casuses issues with configuration)
+    const gotTheLock = app.requestSingleInstanceLock()
+
+    if (!gotTheLock) 
+    {
+    	app.quit()
+    } 
+    else 
+    {
+    	app.on('second-instance', (event, commandLine, workingDirectory) => {
+    		//Create another window
+    		createWindow();
+    	})
+    }
+
     let win = createWindow()
     
     win.webContents.on('did-finish-load', function()

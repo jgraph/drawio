@@ -3211,7 +3211,14 @@
 		// Overrides edit menu to add find and editGeometry
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
+			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy']);
+			
+			if (mxIsElectron && editorUi.isExportToCanvas())
+			{
+				this.addMenuItems(menu, ['copyAsImage']);
+			}
+			
+			this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-',
 									 'find', '-', 'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
 			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);

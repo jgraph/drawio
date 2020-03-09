@@ -1009,3 +1009,4 @@ smart=smart
 parentChildSpacing=parentChildSpacing
 siblingSpacing=siblingSpacing
 confNoPermErr=confNoPermErr
+copyAsImage=copyAsImage

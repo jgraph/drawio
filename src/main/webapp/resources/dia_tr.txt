@@ -1009,3 +1009,4 @@ smart=Smart
 parentChildSpacing=Parent Child Spacing
 siblingSpacing=Sibling Spacing
 confNoPermErr=Sorry, you don't have enough permissions to view this embedded diagram from page {1}
+copyAsImage=Copy as Image

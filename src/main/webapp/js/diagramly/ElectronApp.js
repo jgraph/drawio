@@ -216,7 +216,10 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 
-		        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
+		        var paths = dialog.showOpenDialogSync({
+		        	defaultPath: remote.app.getPath('documents'),
+		        	properties: ['openFile']
+		        });
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
@@ -406,6 +409,51 @@ mxStencilRegistry.allowEval = false;
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
+		
+		var copyAsImage = this.actions.addAction('copyAsImage', mxUtils.bind(this, function()
+		{
+			const electron = require('electron');
+			var remote = electron.remote;
+			var clipboard = remote.clipboard;
+			var nativeImage = remote.nativeImage;
+			
+			if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
+			{
+				editorUi.exportToCanvas(function(canvas)
+				{
+			   		try
+			   		{
+			   			var img = nativeImage.createFromDataURL(editorUi.createImageDataUri(canvas, null, 'png'));
+			   			clipboard.writeImage(img);
+		   				editorUi.spinner.stop();
+			   		}
+			   		catch (e)
+			   		{
+			   			editorUi.handleError(e);
+			   		}
+				}, null, null, null, function(e)
+				{
+					editorUi.spinner.stop();
+					editorUi.handleError(e);
+			   	}, null, false, 1, true);
+			}
+		}));
+		
+		copyAsImage.isEnabled = function()
+		{
+			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
+		}
+		
+		var uiCreatePopupMenu = editorUi.menus.createPopupMenu;
+		editorUi.menus.createPopupMenu = function(menu, cell, evt)
+		{
+			uiCreatePopupMenu.apply(this, arguments);
+
+			if (editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty())
+			{
+				this.addMenuItems(menu, ['-', 'copyAsImage'], null, evt);
+			}
+		};
 	}
 	
 	var appLoad = App.prototype.load;
@@ -606,7 +654,15 @@ mxStencilRegistry.allowEval = false;
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 
-        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
+        var paths = dialog.showOpenDialogSync({
+        	defaultPath: remote.app.getPath('documents'),
+        	filters: [
+        	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml'] },
+        	    { name: 'VSDX Documents', extensions: ['vsdx'] },
+        	    { name: 'All Files', extensions: ['*'] }
+    	    ],
+        	properties: ['openFile']
+        });
 	           
         if (paths !== undefined && paths[0] != null)
         {
@@ -1029,7 +1085,7 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 	
-				var path = dialog.showSaveDialogSync({defaultPath: this.title});
+				var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + this.title});
 	
 		        if (path != null)
 		        {
@@ -1065,7 +1121,7 @@ mxStencilRegistry.allowEval = false;
 			filename += '.drawio';
 		}
 		
-		var path = dialog.showSaveDialogSync({defaultPath: filename});
+		var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + filename});
         
         if (path != null)
         {
@@ -1436,7 +1492,7 @@ mxStencilRegistry.allowEval = false;
 		// to give the spinner some time to stop spinning
 		window.setTimeout(mxUtils.bind(this, function()
 		{
-			var dlgConfig = {defaultPath: filename};
+			var dlgConfig = {defaultPath: remote.app.getPath('documents') + '/' + filename};
 			var filters = null;
 			
 			switch (format)
