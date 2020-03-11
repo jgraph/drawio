@@ -3213,7 +3213,7 @@
 		{
 			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy']);
 			
-			if (mxIsElectron && editorUi.isExportToCanvas())
+			if (mxIsElectron)
 			{
 				this.addMenuItems(menu, ['copyAsImage']);
 			}

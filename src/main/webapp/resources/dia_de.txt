@@ -1009,4 +1009,4 @@ smart=Smart
 parentChildSpacing=Vertikaler Abstand
 siblingSpacing=Horizontaler Abstand
 confNoPermErr=Sorry, you don't have enough permissions to view this embedded diagram from page {1}
-copyAsImage=Copy as Image
+copyAsImage=Als Bild kopieren

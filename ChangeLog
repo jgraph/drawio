@@ -1,7 +1,14 @@
+11-MAR-2020: 12.8.3
+
+- Switches to PlantUML build 1.2020.2
+- Adds app.diagrams.net support for onedrive and cache responses
+- Fixes infinite resizing of viewer in conf cloud
+- Uses all layers for drop target selection
+- Uses mxGraph 4.1.1 beta 12
+
 09-MAR-2020: 12.8.2
 
 - Fixes Confluence Cloud lightbox and Jira Cloud editor iFrame resize
-
 
 05-MAR-2020: 12.8.1
 

@@ -3139,14 +3139,14 @@ Graph.prototype.selectCells = function(vertices, edges, parent)
  */
 Graph.prototype.getSwimlaneAt = function (x, y, parent)
 {
-	parent = parent || this.getDefaultParent();
-
-	if (!this.isCellLocked(parent))
+	var result = mxGraph.prototype.getSwimlaneAt.apply(this, arguments);
+	
+	if (this.isCellLocked(result))
 	{
-		return mxGraph.prototype.getSwimlaneAt.apply(this, arguments);
+		result = null;
 	}
 	
-	return null;
+	return result;
 };
 
 /**

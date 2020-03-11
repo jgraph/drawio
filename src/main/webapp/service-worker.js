@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "c739afb702a9c20aea3b73adafdb17e8"
+    "revision": "991b4ef9193bf09d2e2f5efbe1f7e94b"
   },
   {
     "url": "js/extensions.min.js",
@@ -14,15 +14,15 @@ if (workbox)
   },
   {
     "url": "js/diagramly/ElectronApp.js",
-    "revision": "3b3392fee63dbb57d9938087c1c2febe"
+    "revision": "d8fdc81b19a75ea223f26cab343b401d"
   },
   {
     "url": "js/stencils.min.js",
-    "revision": "033242ce61a98a1223a9f896b97ec107"
+    "revision": "a1ffae1ccfc3919e5df304f6703db220"
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "6d1fdbc4b5e424d0713b28de2676d9e9"
+    "revision": "87caed91dc56473486dd90291eadd057"
   },
   {
     "url": "index.html",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_de.txt",
-    "revision": "92e190dd74963ea87a40863f82cd2c92"
+    "revision": "87dbeb930ec3474c6d25a1abdfa55aeb"
   },
   {
     "url": "resources/dia_sl.txt",

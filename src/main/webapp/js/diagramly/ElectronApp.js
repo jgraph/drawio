@@ -443,15 +443,17 @@ mxStencilRegistry.allowEval = false;
 		{
 			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
 		}
-		
-		var uiCreatePopupMenu = editorUi.menus.createPopupMenu;
-		editorUi.menus.createPopupMenu = function(menu, cell, evt)
+	
+		// Inserts copyAsImage into popup menu
+		editorUi.menus.addPopupMenuEditItems = function(menu, cell, evt)
 		{
-			uiCreatePopupMenu.apply(this, arguments);
-
-			if (editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty())
+			if (editorUi.editor.graph.isSelectionEmpty())
 			{
-				this.addMenuItems(menu, ['-', 'copyAsImage'], null, evt);
+				this.addMenuItems(menu, ['pasteHere'], null, evt);
+			}
+			else
+			{
+				this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', 'copyAsImage', '-', 'duplicate'], null, evt);
 			}
 		};
 	}
