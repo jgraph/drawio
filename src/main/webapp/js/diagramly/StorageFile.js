@@ -31,6 +31,11 @@ StorageFile.prototype.autosaveDelay = 2000;
 StorageFile.prototype.maxAutosaveDelay = 20000;
 
 /**
+ * A differentiator of the stored object type (file or lib)
+ */
+StorageFile.prototype.type = 'F';
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -105,6 +110,48 @@ StorageFile.prototype.saveAs = function(title, success, error)
 	this.saveFile(title, false, success, error);
 };
 
+
+StorageFile.getFileContent = function(ui, title, success, error)
+{
+	ui.getDatabaseItem(title, function(obj)
+	{
+		success(obj != null? obj.data : null);
+	}, 
+	mxUtils.bind(this, function()
+	{
+		if (ui.database == null) //fallback to localstorage
+		{
+			ui.getLocalData(title, success);
+		}
+		else if (error != null)
+		{
+			error();
+		}
+	}), 'files');
+};
+
+StorageFile.getFileInfo = function(ui, title, success, error)
+{
+	ui.getDatabaseItem(title, function(obj)
+	{
+		success(obj);
+	}, 
+	mxUtils.bind(this, function()
+	{
+		if (ui.database == null) //fallback to localstorage
+		{
+			ui.getLocalData(title, function(data)
+			{
+				success(data != null? {title: title} : null);
+			});
+		}
+		else if (error != null)
+		{
+			error();
+		}
+	}), 'filesInfo');
+};
+
 /**
  * Translates this point by the given vector.
  * 
@@ -131,7 +178,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 			
 			try
 			{
-				this.ui.setLocalData(this.title, this.getData(), mxUtils.bind(this, function()
+				var saveDone = mxUtils.bind(this, function()
 				{
 					this.setModified(false);
 					this.contentChanged();
@@ -140,7 +187,29 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 					{
 						success();
 					}
-		        }));
+		        });
+				
+				var data = this.getData();
+				
+				this.ui.setDatabaseItem(null, [{
+						title: this.title,
+						size: data.length,
+						lastModified: Date.now(),
+						type: this.type
+					}, {
+						title: this.title,
+						data: data
+					}], saveDone, mxUtils.bind(this, function()
+					{
+						if (this.ui.database == null) //fallback to localstorage
+						{
+							this.ui.setLocalData(this.title, data, saveDone);
+						}
+						else if (error != null)
+						{
+							error();
+						}
+					}), ['filesInfo', 'files']);
 			}
 			catch (e)
 			{
@@ -158,7 +227,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 		}
 		else
 		{
-			this.ui.getLocalData(title, mxUtils.bind(this, function(data)
+			StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
 			{
 				if (!this.isRenamable() || this.getTitle() == title || data == null)
 				{
@@ -168,7 +237,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 				{
 					this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
 				}
-			}));
+			}), error);
 		}
 	}
 };
@@ -185,7 +254,7 @@ StorageFile.prototype.rename = function(title, success, error)
 
 	if (oldTitle != title)
 	{
-		this.ui.getLocalData(title, mxUtils.bind(this, function(data)
+		StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
 		{
 			var fn = mxUtils.bind(this, function()
 			{
@@ -211,7 +280,7 @@ StorageFile.prototype.rename = function(title, success, error)
 			{
 				fn();
 			}
-		}));
+		}), error);
 	}
 	else
 	{
@@ -236,10 +305,10 @@ StorageFile.prototype.open = function()
  */
 StorageFile.prototype.getLatestVersion = function(success, error)
 {
-	this.ui.getLocalData(this.title, mxUtils.bind(this, function(data)
+	StorageFile.getFileContent(this.ui, this.title, mxUtils.bind(this, function(data)
 	{
 		success(new StorageFile(this.ui, data, this.title));
-	}));
+	}), error);
 };
 
 /**
@@ -254,4 +323,101 @@ StorageFile.prototype.destroy = function()
 		mxEvent.removeListener(window, 'storage', this.storageListener);
 		this.storageListener = null;
 	}
+};
+
+StorageFile.listLocalStorageFiles = function(type)
+{
+	var filesInfo = [];
+	
+	for (var i = 0; i < localStorage.length; i++)
+	{
+		var key = localStorage.key(i);
+		var value = localStorage.getItem(key);
+		
+		if (key.length > 0 && key.charAt(0) != '.' && value.length > 0)
+		{
+			var isFile = (type == null || type == 'F') && (value.substring(0, 8) === '<mxfile ' ||
+						value.substring(0, 5) === '<?xml' || value.substring(0, 12) === '<!--[if IE]>');
+			var isLib = (type == null || type == 'L') && (value.substring(0, 11) === '<mxlibrary>');
+
+			if (isFile || isLib)
+			{
+				filesInfo.push({
+					title: key,
+					type: isFile? 'F' : 'L',
+					size: value.length,
+					lastModified: Date.now()
+				});
+			}	
+		}
+	}
+	
+	return filesInfo;
+};
+	
+StorageFile.migrate = function(db) 
+{
+	var lsFilesInfo = StorageFile.listLocalStorageFiles();
+	lsFilesInfo.push({title: '.scratchpad', type: 'L'}); //Adding scratchpad also since it is a library (storage file)
+	var tx = db.transaction(['files', 'filesInfo'], 'readwrite');
+	var files = tx.objectStore('files');
+	var filesInfo = tx.objectStore('filesInfo');
+	
+	for (var i = 0; i < lsFilesInfo.length; i++)
+	{
+		var lsFileInfo = lsFilesInfo[i];
+		var data = localStorage.getItem(lsFileInfo.title);
+		files.add({
+			title: lsFileInfo.title,
+			data: data
+		});
+		filesInfo.add(lsFileInfo);
+	}
+};
+
+StorageFile.listFiles = function(ui, type, success, error)
+{
+	ui.getDatabaseItems(function(filesInfo)
+	{
+		var files = [];
+		
+		if (filesInfo != null)
+		{
+			for (var i = 0; i < filesInfo.length; i++)
+			{
+				if (filesInfo[i].title.charAt(0) != '.' && (type == null || filesInfo[i].type == type))
+				{
+					files.push(filesInfo[i]);
+				}
+			}
+		}
+		
+		success(files);
+	}, function()
+	{
+		if (ui.database == null) //fallback to localstorage
+		{
+			success(StorageFile.listLocalStorageFiles(type));
+		}
+		else if (error != null)
+		{
+			error();
+		}
+	}, 'filesInfo');
+};
+
+StorageFile.deleteFile = function(ui, title, success, error)
+{
+	ui.removeDatabaseItem([title, title], success, function()
+	{
+		if (ui.database == null) //fallback to localstorage
+		{
+			localStorage.removeItem(title)
+			success();
+		}
+		else if (error != null)
+		{
+			error();
+		}
+	}, ['files', 'filesInfo']);
 };

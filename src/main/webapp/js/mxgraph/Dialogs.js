@@ -2237,7 +2237,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	var layerCount = null;
 	var selectionLayer = null;
-	
 	var ldiv = document.createElement('div');
 	
 	ldiv.className = 'geToolbarContainer';
@@ -2468,7 +2467,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	}
 	
 	ldiv.appendChild(addLink);
-
 	div.appendChild(ldiv);	
 	
 	function refresh()
@@ -2765,6 +2763,11 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	this.window.setResizable(true);
 	this.window.setClosable(true);
 	this.window.setVisible(true);
+	
+	this.init = function()
+	{
+		listDiv.scrollTop = listDiv.scrollHeight - listDiv.clientHeight;	
+	};
 
 	this.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
 	{

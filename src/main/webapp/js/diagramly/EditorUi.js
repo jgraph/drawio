@@ -2768,7 +2768,7 @@
 		{
 			if (this.scratchpad == null)
 			{
-				this.getLocalData('.scratchpad', mxUtils.bind(this, function(xml)
+				StorageFile.getFileContent(this, '.scratchpad', mxUtils.bind(this, function(xml)
 				{
 					if (xml == null)
 					{
@@ -10320,7 +10320,9 @@
 			
 			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setCustomFonts(this.menus.customFonts);
+				var customFonts = evt.getProperty('customFonts');
+				this.menus.customFonts = customFonts;
+				mxSettings.setCustomFonts(customFonts);
 				mxSettings.save();
 			}));
 			
@@ -13634,20 +13636,56 @@
 			{
 				try
 				{
-					var req = indexedDB.open('database', '1.0');
+					var req = indexedDB.open('database', 2);
 					
 					req.onupgradeneeded = function(e)
 					{
-						e.target.result.createObjectStore('objects', {keyPath: 'key'});
+						var db = req.result;
+						
+						if (e.oldVersion < 1)
+						{
+						    // Version 1 is the first version of the database.
+							db.createObjectStore('objects', {keyPath: 'key'});
+						}
+						
+						if (e.oldVersion < 2)
+						{
+							// Version 2 introduces browser file storage.
+							db.createObjectStore('files', {keyPath: 'title'});
+							db.createObjectStore('filesInfo', {keyPath: 'title'});
+							EditorUi.migrateStorageFiles = true;
+						}
 					}
 					
 					req.onsuccess = mxUtils.bind(this, function(e)
 					{
-						this.database = e.target.result;
-						success(this.database);
+						var db = req.result;
+						this.database = db;
+						
+						if (EditorUi.migrateStorageFiles)
+						{
+							StorageFile.migrate(db);
+							EditorUi.migrateStorageFiles = false;
+						}
+						
+						success(db);
+						
+						db.onversionchange = function() 
+						{
+							//TODO Handle DB revision update while code is running
+							//		Save open file and request a page reload before closing the DB
+						    db.close();
+						};
 					});
 					
 					req.onerror = error;
+					
+					req.onblocked = function() 
+					{
+						//TODO Use this when a new version is introduced
+						// there's another open connection to same database
+						// and it wasn't closed after db.onversionchange triggered for them
+					};
 				}
 				catch (e)
 				{
@@ -13668,16 +13706,33 @@
 		}
 	};
 	
-	EditorUi.prototype.setDatabaseItem = function(key, data, success, error)
+	/**
+	 * Add/Update item(s) in the database. It supports multiple stores transactions by sending an array of data, storeName 
+	 * (key is optional, can be an array also if multiple stores are needed)
+	 */
+	EditorUi.prototype.setDatabaseItem = function(key, data, success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
 			try
 			{
-				var trx = db.transaction(['objects'], 'readwrite');
-				var req = trx.objectStore('objects').put({key: key, data: data});
-				req.onsuccess = success;
-		        req.onerror = error;
+				storeName = storeName || 'objects';
+				
+				if (!Array.isArray(storeName))
+				{
+					storeName = [storeName];
+					key = [key];
+					data = [data];
+				}
+				
+				var trx = db.transaction(storeName, 'readwrite');
+				trx.oncomplete = success;
+				trx.onerror = error;
+		        
+				for (var i = 0; i < storeName.length; i++)
+				{
+					trx.objectStore(storeName[i]).put(key != null && key[i] != null? {key: key[i], data: data[i]} : data[i]);
+				}
 			}
 			catch (e)
 			{
@@ -13692,28 +13747,71 @@
 	/**
 	 * Removes the item for the given key from the database.
 	 */
-	EditorUi.prototype.removeDatabaseItem = function(key, success, error)
+	EditorUi.prototype.removeDatabaseItem = function(key, success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
-			var trx = db.transaction(['objects'], 'readwrite');
-			var req = trx.objectStore('objects').delete(key);
-			req.onsuccess = success;
-	        req.onerror = error;
+			storeName = storeName || 'objects';
+			
+			if (!Array.isArray(storeName))
+			{
+				storeName = [storeName];
+				key = [key];
+			}
+			
+			var trx = db.transaction(storeName, 'readwrite');
+			trx.oncomplete = success;
+			trx.onerror = error;
+			
+			for (var i = 0; i < storeName.length; i++)
+			{
+				trx.objectStore(storeName[i]).delete(key[i]);
+			}
+		}), error);
+	};
+	
+	/**
+	 * Returns one item from the database.
+	 */
+	EditorUi.prototype.getDatabaseItem = function(key, success, error, storeName)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			try
+			{
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).get(key);
+				
+				req.onsuccess = function()
+				{
+					success(req.result);
+				};
+				
+		        req.onerror = error;
+			}
+	        catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
 		}), error);
 	};
 	
 	/**
 	 * Returns all items from the database.
 	 */
-	EditorUi.prototype.getDatabaseItems = function(success, error)
+	EditorUi.prototype.getDatabaseItems = function(success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
 			try
 			{
-				var trx = db.transaction(['objects'], 'readwrite');
-				var req = trx.objectStore('objects').openCursor(
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).openCursor(
 					IDBKeyRange.lowerBound(0));
 				var items = [];
 				
@@ -13742,6 +13840,35 @@
 		}), error);
 	};
 	
+	/**
+	 * Returns all item keys from the database.
+	 */
+	EditorUi.prototype.getDatabaseItemKeys = function(success, error, storeName)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			try
+			{
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).getAllKeys();
+				
+				req.onsuccess = function()
+				{
+					success(req.result);
+		        };
+		        
+		        req.onerror = error;
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), error);
+	};
 	/**
 	 * Comments: We need these functions as wrapper of File functions in order to facilitate
 	 * overriding them if comments are needed without having a file (e.g. Confluence Plugin)

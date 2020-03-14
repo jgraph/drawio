@@ -1239,6 +1239,15 @@ Actions.prototype.init = function()
 			document.execCommand('superscript', false, null);
 		}
 	}), null, null, Editor.ctrlKey + '+.');
+	action = this.addAction('indent', mxUtils.bind(this, function()
+	{
+		// NOTE: Alt+Tab for outdent implemented via special code in
+		// keyHandler.getFunction in EditorUi.js. Ctrl+Tab is reserved.
+	    if (graph.cellEditor.isContentEditing())
+	    {
+			document.execCommand('indent', false, null);
+		}
+	}), null, null, 'Shift+Tab');
 	this.addAction('image...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
@@ -1335,7 +1344,7 @@ Actions.prototype.init = function()
 		if (this.layersWindow == null)
 		{
 			// LATER: Check outline window for initial placement
-			this.layersWindow = new LayersWindow(ui, document.body.offsetWidth - 280, 120, 220, 180);
+			this.layersWindow = new LayersWindow(ui, document.body.offsetWidth - 280, 120, 220, 196);
 			this.layersWindow.window.addListener('show', function()
 			{
 				ui.fireEvent(new mxEventObject('layers'));
@@ -1346,6 +1355,8 @@ Actions.prototype.init = function()
 			});
 			this.layersWindow.window.setVisible(true);
 			ui.fireEvent(new mxEventObject('layers'));
+			
+			this.layersWindow.init();
 		}
 		else
 		{

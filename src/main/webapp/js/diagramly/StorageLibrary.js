@@ -19,6 +19,11 @@ StorageLibrary = function(ui, data, title)
 mxUtils.extend(StorageLibrary, StorageFile);
 
 /**
+ * A differentiator of the stored object type (file or lib)
+ */
+StorageLibrary.prototype.type = 'L';
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.

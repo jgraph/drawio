@@ -1115,7 +1115,8 @@ EditorUi.prototype.onKeyDown = function(evt)
 	var graph = this.editor.graph;
 	
 	// Tab selects next cell
-	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
+	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt) &&
+		(!graph.isEditing() || !mxEvent.isShiftDown(evt)))
 	{
 		if (graph.isEditing())
 		{
@@ -4138,11 +4139,14 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	var isEventIgnored = keyHandler.isEventIgnored;
 	keyHandler.isEventIgnored = function(evt)
 	{
-		// Handles undo/redo/ctrl+./,/u via action and allows ctrl+b/i only if editing value is HTML (except for FF and Safari)
-		return (!this.isControlDown(evt) || mxEvent.isShiftDown(evt) || (evt.keyCode != 90 && evt.keyCode != 89 &&
-			evt.keyCode != 188 && evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
-			!this.isControlDown(evt) || (this.graph.cellEditor.isContentEditing() && !mxClient.IS_FF && !mxClient.IS_SF)) &&
-			isEventIgnored.apply(this, arguments);
+		// Handles undo/redo/ctrl+./,/u via action and allows ctrl+b/i
+		// only if editing value is HTML (except for FF and Safari)
+		return !(mxEvent.isShiftDown(evt) && evt.keyCode == 9) &&
+			((!this.isControlDown(evt) || mxEvent.isShiftDown(evt) ||
+			(evt.keyCode != 90 && evt.keyCode != 89 && evt.keyCode != 188 &&
+			evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
+			!this.isControlDown(evt) ||  (this.graph.cellEditor.isContentEditing() &&
+			!mxClient.IS_FF && !mxClient.IS_SF)) && isEventIgnored.apply(this, arguments));
 	};
 	
 	// Ignores graph enabled state but not chromeless state
@@ -4347,7 +4351,15 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			
 			if (evt.keyCode == 9 && mxEvent.isAltDown(evt))
 			{
-				if (mxEvent.isShiftDown(evt))
+				if (graph.cellEditor.isContentEditing())
+			    {
+					// Alt+Shift+Tab while editing
+					return function()
+					{
+						document.execCommand('outdent', false, null);
+					};
+				}
+				else if (mxEvent.isShiftDown(evt))
 				{
 					// Alt+Shift+Tab
 					return function()
@@ -4539,6 +4551,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(85, true, 'ungroup', true); // Ctrl+Shift+U
 		keyHandler.bindAction(190, true, 'superscript'); // Ctrl+.
 		keyHandler.bindAction(188, true, 'subscript'); // Ctrl+,
+		keyHandler.bindAction(9, false, 'indent', true); // Shift+Tab,
 		keyHandler.bindKey(13, function() { if (graph.isEnabled()) { graph.startEditingAtCell(); }}); // Enter
 		keyHandler.bindKey(113, function() { if (graph.isEnabled()) { graph.startEditingAtCell(); }}); // F2
 	}

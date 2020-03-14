@@ -287,7 +287,7 @@
 		
 		editorUi.actions.put('exportPdf', new Action(mxResources.get('formatPdf') + '...', function()
 		{
-			if ((typeof(mxIsElectron5) === 'undefined' || !mxIsElectron5) &&
+			if ((typeof(mxIsElectron) === 'undefined' || !mxIsElectron) &&
 				(editorUi.isOffline() || editorUi.printPdfExport))
 			{
 				// Export PDF action for chrome OS (same as print with different dialog title)
@@ -3542,11 +3542,13 @@
 		/**
 		 * External Fonts undoable change
 		 */
-		function ChangeExtFonts(ui, extFonts)
+		function ChangeExtFonts(ui, extFonts, customFonts)
 		{
 			this.ui = ui;
 			this.extFonts = extFonts;
 			this.previousExtFonts = extFonts;
+			this.customFonts = customFonts;
+			this.prevCustomFonts = customFonts;
 		};
 
 		/**
@@ -3555,6 +3557,11 @@
 		ChangeExtFonts.prototype.execute = function()
 		{
 			var graph = this.ui.editor.graph;
+			
+			
+			this.customFonts = this.prevCustomFonts;
+			this.prevCustomFonts = this.ui.menus.customFonts;
+			this.ui.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 			
 			this.extFonts = this.previousExtFonts;
 			var tmp = graph.extFonts;
@@ -3571,7 +3578,7 @@
 			
 			graph.extFonts = [];
 			
-			for (var i = 0; i < this.previousExtFonts.length; i++)
+			for (var i = 0; this.previousExtFonts != null && i < this.previousExtFonts.length; i++)
 			{
 				this.ui.editor.graph.addExtFont(this.previousExtFonts[i].name, this.previousExtFonts[i].url);
 			}
@@ -3582,7 +3589,7 @@
 		//Replace the default font family menu
 		this.put('fontFamily', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var addItem = mxUtils.bind(this, function(fontname, fontUrl)
+			var addItem = mxUtils.bind(this, function(fontname, fontUrl, deletable)
 			{
 				var graph = this.editorUi.editor.graph;
 				
@@ -3607,6 +3614,50 @@
 					//Add the font to the file in case it was a previous font from the settings
 					graph.addExtFont(fontname, fontUrl);
 				});
+				
+				if (deletable)
+				{
+					var img = document.createElement('span');
+					img.className = 'geSprite geSprite-delete';
+					img.style.cursor = 'pointer';
+					img.style.display = 'inline-block';
+					tr.firstChild.nextSibling.nextSibling.appendChild(img);
+					
+					mxEvent.addListener(img, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', mxUtils.bind(this, function(evt)
+					{
+						var extFonts = mxUtils.clone(this.editorUi.editor.graph.extFonts);
+						
+						if (extFonts != null && extFonts.length > 0)
+						{
+							for (var i = 0; i < extFonts.length; i++)
+							{
+								if (extFonts[i].name == fontname)
+								{
+									extFonts.splice(i, 1);
+									break;
+								}
+							}
+						}
+						
+						var customFonts = mxUtils.clone(this.customFonts);
+						
+						for (var i = 0; i < customFonts.length; i++)
+						{
+							if (customFonts[i].name == fontname)
+							{
+								customFonts.splice(i, 1);
+								break;
+							}
+						}
+						
+						var change = new ChangeExtFonts(this.editorUi, extFonts, customFonts);
+						this.editorUi.editor.graph.model.execute(change);
+						
+						this.editorUi.menubar.hideMenu();
+						mxEvent.consume(evt);
+					}));
+				}
+				
 				tr.firstChild.nextSibling.style.fontFamily = fontname;
 			});
 			
@@ -3641,7 +3692,7 @@
 				
 				if (changed)
 				{
-					this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+					this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 				}
 			}
 			
@@ -3650,7 +3701,7 @@
 				for (var i = 0; i < this.customFonts.length; i++)
 				{
 					var name = this.customFonts[i].name, url = this.customFonts[i].url;
-					addItem(name, url);
+					addItem(name, url, true);
 					
 					//Load external fonts without saving them to the file
 					this.editorUi.editor.graph.addExtFont(name, url, true);
@@ -3660,11 +3711,8 @@
 				
 				menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 				{
-					var change = new ChangeExtFonts(this.editorUi, []);
+					var change = new ChangeExtFonts(this.editorUi, [], []);
 					this.editorUi.editor.graph.model.execute(change);
-					
-					this.customFonts = [];
-					this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 				}), parent);
 				
 				menu.addSeparator(parent);
@@ -3742,7 +3790,7 @@
 							if (addToCustom)
 							{
 								this.customFonts.push({name: fontName, url: fontUrl});
-								this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+								this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 							}
 						}
 						finally

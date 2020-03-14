@@ -18,7 +18,6 @@
 	<meta name="theme-color" content="#d89000">
 	<script type="text/javascript">
 		var mxIsElectron = window && window.process && window.process.type;
-		var mxIsElectron5 = mxIsElectron && parseInt(process.versions.electron) >= 5;
 
 		/**
 		 * URL Parameters and protocol description are here:
@@ -102,11 +101,6 @@
 						window.location.href = href;
 					}
 				}
-				else if (!mxIsElectron5)
-				{
-					// It's electron, but v3 or lower
-					window.location.href = 'https://about.draw.io/updates-to-draw-io-desktop/';
-				}
 			})();
 		}
 		
@@ -152,7 +146,7 @@
 			addMeta('apple-mobile-web-app-title', name);
 			addMeta('application-name', name);
 
-			if (mxIsElectron5)
+			if (mxIsElectron)
 			{
 				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src-elem \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
 			}
@@ -165,7 +159,7 @@
 	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
 	<link rel="stylesheet" type="text/css" href="js/croppie/croppie.min.css">
     <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
-    <link rel="canonical" href="https://www.draw.io">
+    <link rel="canonical" href="https://app.diagrams.net">
 	<link rel="manifest" href="images/manifest.json">
 	<link rel="shortcut icon" href="favicon.ico">
 	<style type="text/css">

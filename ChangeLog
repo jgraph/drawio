@@ -1,3 +1,16 @@
+14-MAR-2020: 12.8.5
+
+- Fixes drag and drop of images to containers in Firefox
+- Adds (Alt+)Shift+Tab for outdent/indent while editing
+- No longer selects moved cells after undo/redo
+- Reduces number of automatic layout runs
+- Merges PWA into online app
+- Uses mxGraph 4.1.1 beta 13
+
+11-MAR-2020: 12.8.4
+
+- Changes canonical URL to app.diagrams.net
+
 11-MAR-2020: 12.8.3
 
 - Switches to PlantUML build 1.2020.2

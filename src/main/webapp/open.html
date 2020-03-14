@@ -53,110 +53,156 @@
 			var div = document.createElement('div');
 			div.style.fontFamily = 'Arial';
 
-			var keys = [];
-			
-			for (var i = 0; i < localStorage.length; i++)
+			window.parent.listBrowserFiles(function(filesInfo)
 			{
-				var key = localStorage.key(i);
-				var value = localStorage.getItem(key);
-				
-				if (key.length > 0 && key.charAt(0) != '.' && value.length > 0 &&
-					(value.substring(0, 8) === '<mxfile ' || value.substring(0, 11) === '<mxlibrary>' ||
-					value.substring(0, 5) === '<?xml') || value.substring(0, 12) === '<!--[if IE]>')
+				if (filesInfo.length == 0)
 				{
-					keys.push(key);
+					window.parent.mxUtils.write(div, window.parent.mxResources.get('noFiles'));
+					window.parent.mxUtils.br(div);
 				}
-			}
-			
-			if (keys.length == 0)
-			{
-				window.parent.mxUtils.write(div, window.parent.mxResources.get('noFiles'));
-				window.parent.mxUtils.br(div);
-			}
-			else
-			{
-				// Sorts the array by filename (key)
-				keys.sort(function (a, b)
+				else
 				{
-				    return a.toLowerCase().localeCompare(b.toLowerCase());
+					// Sorts the array by filename (titles)
+					filesInfo.sort(function (a, b)
+					{
+					    return a.title.toLowerCase().localeCompare(b.title.toLowerCase());
+					});
+					
+					var table = document.createElement('table');
+					var hrow = document.createElement('tr');
+					hrow.style.backgroundColor = '#D6D6D6';
+					hrow.style.height = '25px';
+					hrow.style.textAlign = 'left';
+					table.appendChild(hrow);
+					var hName = document.createElement('th');
+					window.parent.mxUtils.write(hName, window.parent.mxResources.get('name'));
+					hrow.appendChild(hName);
+					var hModified = document.createElement('th');
+					hModified.style.width = '130px';
+					window.parent.mxUtils.write(hModified, window.parent.mxResources.get('lastModified'));
+					hrow.appendChild(hModified);
+					var hSize = document.createElement('th');
+					window.parent.mxUtils.write(hSize, window.parent.mxResources.get('size'));
+					hSize.style.width = '70px';
+					hrow.appendChild(hSize);
+					var hCtrl = document.createElement('th');
+					hCtrl.style.width = '23px';
+					hrow.appendChild(hCtrl);
+					table.style.fontSize = '12pt';
+					table.style.width = '100%';
+
+					for (var i = 0; i < filesInfo.length; i++)
+					{
+						var fileInfo = filesInfo[i];
+						
+						if (fileInfo.title.length > 0)
+						{
+							var row = document.createElement('tr');
+							table.appendChild(row);
+							
+							if (i & 1 == 1)
+							{
+								row.style.backgroundColor = '#E6E6E6';
+							}
+								
+							var nameTd = document.createElement('td');
+							row.appendChild(nameTd);
+							var link = document.createElement('a');
+							link.style.fontDecoration = 'none';
+							window.parent.mxUtils.write(link, fileInfo.title);
+							link.setAttribute('href', 'javascript:void(0);');
+							nameTd.appendChild(link);
+							
+							var modifiedTd = document.createElement('td');
+							row.appendChild(modifiedTd);
+							var str = window.parent.EditorUi.prototype.timeSince(new Date(fileInfo.lastModified));
+							
+							if (str == null)
+							{
+								str = window.parent.mxResources.get('lessThanAMinute');
+							}
+							
+							window.parent.mxUtils.write(modifiedTd, window.parent.mxResources.get('timeAgo', [str]));
+							
+							var sizeTd = document.createElement('td');
+							row.appendChild(sizeTd);
+							window.parent.mxUtils.write(sizeTd, window.parent.EditorUi.prototype.formatFileSize(fileInfo.size));
+							
+							var ctrlTd = document.createElement('td');
+							row.appendChild(ctrlTd);
+							ctrlTd.style.textAlign = 'center';
+							var img = document.createElement('span');
+							img.className = 'geSprite geSprite-delete';
+							img.style.cursor = 'pointer';
+							img.style.display = 'inline-block';
+							ctrlTd.appendChild(img);
+							
+							window.parent.mxEvent.addListener(img, 'click', (function(k)
+							{
+								return function()
+								{
+									if (window.parent.mxUtils.confirm(window.parent.mxResources.get('delete') + ' "' + k + '"?'))
+									{
+										window.parent.deleteBrowserFile(k, function()
+										{
+											window.location.reload();											
+										});
+									}
+								};
+							})(fileInfo.title));
+		
+							window.parent.mxEvent.addListener(link, 'click', (function(k)
+							{
+								return function()
+								{
+									if (window.parent.openNew && window.parent.baseUrl != null)
+									{
+										var of = window.parent.openFile;
+										window.parent.openBrowserFile(k, function(data)
+										{
+											window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
+											{
+												of.cancel(false);
+											}, function()
+											{
+												of.setData(data, k);
+											});									
+										}, function()
+										{
+											//TODO add error
+										});
+									}
+									else
+									{
+										window.parent.openBrowserFile(k, function(data)
+										{
+											window.parent.openFile.setData(data, k);
+										}, function()
+										{
+											//TODO add error
+										});
+									}
+								};
+							})(fileInfo.title));
+						}
+					}
+					
+					div.appendChild(table);
+				}
+				
+				var closeButton = window.parent.mxUtils.button(window.parent.mxResources.get('close'), function()
+				{
+					hideWindow(true);
 				});
 				
-				for (var i = 0; i < keys.length; i++)
-				{
-					var key = keys[i];
-					
-					// Ignores "dot" files and dropbox cookies
-					if (key.length > 0)
-					{
-						var link = document.createElement('a');
-						link.style.fontDecoration = 'none';
-						link.style.fontSize = '14pt';
-	
-						window.parent.mxUtils.write(link, key);
-						link.setAttribute('href', 'javascript:void(0);');
-						div.appendChild(link);
-						
-						var img = document.createElement('span');
-						img.className = 'geSprite geSprite-delete';
-						img.style.position = 'relative';
-						img.style.cursor = 'pointer';
-						img.style.display = 'inline-block';
-						img.style.cssFloat = 'right';
-						img.style.styleFloat = 'right';
-						img.style.paddingRight = '20px';
-						div.appendChild(img);
-						
-						window.parent.mxUtils.br(div);
-						
-						window.parent.mxEvent.addListener(img, 'click', (function(k)
-						{
-							return function()
-							{
-								if (window.parent.mxUtils.confirm(window.parent.mxResources.get('delete') + ' "' + k + '"?'))
-								{
-									localStorage.removeItem(k);
-									window.location.reload();
-								}
-							};
-						})(key));
-	
-						window.parent.mxEvent.addListener(link, 'click', (function(k)
-						{
-							return function()
-							{
-								if (window.parent.openNew && window.parent.baseUrl != null)
-								{
-									var of = window.parent.openFile;
-									var data = localStorage.getItem(k);
-									
-									window.parent.openWindow(window.parent.baseUrl + '#L' + encodeURIComponent(k), function()
-									{
-										of.cancel(false);
-									}, function()
-									{
-										of.setData(data, k);
-									});
-								}
-								else
-								{
-									window.parent.openFile.setData(localStorage.getItem(k), k);
-								}
-							};
-						})(key));
-					}
-				}
-			}
-
-			window.parent.mxUtils.br(div);
-			
-			var closeButton = window.parent.mxUtils.button(window.parent.mxResources.get('close'), function()
-			{
-				hideWindow(true);
+				closeButton.className = 'geBtn';
+				closeButton.style.position = 'fixed';
+				closeButton.style.bottom = '0px';
+				closeButton.style.right = '0px';
+				div.appendChild(closeButton);
+				
+				document.body.appendChild(div);
 			});
-			closeButton.className = 'geBtn';
-			div.appendChild(closeButton);
-			
-			document.body.appendChild(div);
 		}
 		else
 		{
