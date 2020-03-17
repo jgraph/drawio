@@ -1,3 +1,8 @@
+17-MAR-2020: 12.8.6
+
+- Migrates localStorage from draw.io to diagrams.net
+- Fixes XML embedding within PDFs
+
 14-MAR-2020: 12.8.5
 
 - Fixes drag and drop of images to containers in Firefox

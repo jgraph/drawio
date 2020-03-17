@@ -13480,7 +13480,8 @@
 	//Remote invokation, currently limited to functions in EditorUi (and its sub objects) for security reasons
 	//White-listed functions and some info about it
 	EditorUi.prototype.remoteInvokableFns = {
-		getDiagramTextContent: {isAsync: false}
+		getDiagramTextContent: {isAsync: false},
+		getLocalStorageFiles: {isAsync: false, allowedDomains: ['app.diagrams.net']}
 	};
 	
 	EditorUi.prototype.remoteInvokeCallbacks = [];
@@ -13580,6 +13581,26 @@
 			
 			if (functionInfo != null && typeof this[funtionName] === 'function')
 			{
+				if (functionInfo.allowedDomains)
+				{
+					var allowed = false;
+					
+					for (var i = 0; i < functionInfo.allowedDomains.length; i++)
+					{
+						if (location.host == functionInfo.allowedDomains[i])
+						{
+							allowed = true;
+							break;
+						}
+					}
+					
+					if (!allowed)
+					{
+						sendResponse(null, 'Invalid Call: ' + funtionName + ' is not allowed.');
+						return;
+					}
+				}
+				
 				var functionArgs = msg.functionArgs;
 				
 				//Confirm functionArgs are not null and is array, otherwise, discard it
@@ -13666,6 +13687,72 @@
 						{
 							StorageFile.migrate(db);
 							EditorUi.migrateStorageFiles = false;
+						}
+
+						if (location.host == 'app.diagrams.net' && localStorage.getItem('.drawioMigrated') != '1' && !this.drawioMigrationStarted)
+						{
+							this.drawioMigrationStarted = true;
+							var drawioFrame = document.createElement('iframe');
+							drawioFrame.style.display = 'none';
+							drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json');
+					    	document.body.appendChild(drawioFrame);
+					    	
+					    	var messageListener = mxUtils.bind(this, function(evt)
+							{
+								var drawMsg = JSON.parse(evt.data);
+								
+								if (drawMsg.event == 'init')
+								{
+									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
+									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFiles'}), '*');
+								}
+								else if (drawMsg.event == 'remoteInvokeResponse' && drawMsg.resp != null
+											&& drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+								{
+									var index = 0;
+									
+									var next = mxUtils.bind(this, function()
+									{
+										index++;
+										importOneFile();
+									});
+									
+									var importOneFile = mxUtils.bind(this, function()
+									{
+										if (index >= drawMsg.resp[0].length)
+										{
+											localStorage.setItem('.drawioMigrated', '1');
+											return;
+										}
+										
+										var file = drawMsg.resp[0][index];
+										
+										StorageFile.getFileInfo(this, file.title, mxUtils.bind(this, function(info)
+										{
+											if (info == null) //Don't overwrite
+											{
+												this.setDatabaseItem(null, [{
+													title: file.title,
+													size: file.size,
+													lastModified: file.lastModified,
+													type: file.type
+												}, {
+													title: file.title,
+													data: file.data
+												}], next, next /* Ignore errors */, ['filesInfo', 'files']);
+											}
+											else
+											{
+												next();
+											}
+										}), next);  //Ignore errors
+									});
+									
+									importOneFile();
+								}
+							});
+
+							window.addEventListener('message', messageListener);
 						}
 						
 						success(db);
@@ -14026,6 +14113,38 @@
 	{
 		//Using a standard header with specific sequence
 		xhr.setRequestHeader('Content-Language', 'da, mi, en, de-DE');
+	};
+	
+	
+	EditorUi.prototype.getLocalStorageFiles = function()
+	{
+		var files = [];
+		
+		for (var i = 0; i < localStorage.length; i++)
+		{
+			var key = localStorage.key(i);
+			var value = localStorage.getItem(key);
+			
+			if (key.length > 0 && (key == '.scratchpad' || key.charAt(0) != '.') && value.length > 0)
+			{
+				var isFile = (value.substring(0, 8) === '<mxfile ' ||
+							value.substring(0, 5) === '<?xml' || value.substring(0, 12) === '<!--[if IE]>');
+				var isLib = (value.substring(0, 11) === '<mxlibrary>');
+
+				if (isFile || isLib)
+				{
+					files.push({
+						title: key,
+						type: isFile? 'F' : 'L',
+						size: value.length,
+						lastModified: Date.now(),
+						data: value
+					});
+				}	
+			}
+		}
+		
+		return files;
 	};
 })();
 

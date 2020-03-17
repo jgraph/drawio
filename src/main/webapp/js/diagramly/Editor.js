@@ -609,7 +609,7 @@
 
 		// Workaround for invalid character error in Safari
 		var f = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
-		var check = '\n/Subject (';
+		var check = '/Subject (%3Cmxfile';
 		var result = null;
 		var curline = '';
 		var checked = 0;
@@ -639,7 +639,8 @@
 			
 			if (checked == check.length)
 			{
-				var end = f.indexOf(')\n', pos);
+				var end = f.indexOf('%3C%2Fmxfile%3E)', pos) + 15; //15 is the length of encoded </mxfile>
+				pos -= 9; //9 is the length of encoded <mxfile
 				
 				// Default case is XML inlined in Subject metadata
 				if (end > pos)

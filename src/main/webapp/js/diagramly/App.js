@@ -1443,7 +1443,7 @@ App.prototype.init = function()
 				});
 			}));
 		}
-		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
 			urlParams['open'] == null && (!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
