@@ -130,7 +130,7 @@
 	/**
 	 * Disables the shadow option in the format panel.
 	 */
-	Editor.shadowOptionEnabled = true;
+	Editor.shadowOptionEnabled = !mxClient.IS_SF;
 
 	/**
 	 * Reference to the config object passed to <configure>.
@@ -221,8 +221,7 @@
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
         {
-    		return state.vertices.length == 1 && state.edges.length == 0 &&
-    			format.editorUi.editor.graph.model.getChildCount(state.vertices[0]) == 0;
+    		return state.vertices.length == 1 && state.edges.length == 0;
         }},
         {name: 'dropTarget', dispName: 'Drop Target', type: 'bool', getDefaultValue: function(state, format)
         {
@@ -440,7 +439,7 @@
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
-	Editor.extractGraphModel = function(node, allowMxFile)
+	Editor.extractGraphModel = function(node, allowMxFile, checked)
 	{
 		if (node != null && typeof(pako) !== 'undefined')
 		{
@@ -480,7 +479,7 @@
 					if (divs2.length > 0)
 					{
 						var data = mxUtils.getTextContent(divs2[0]);
-		        		data = Graph.decompress(data);
+		        		data = Graph.decompress(data, null, checked);
 		        		
 		        		if (data.length > 0)
 		        		{
@@ -536,7 +535,7 @@
 			
 			if (diagramNode != null)
 			{
-				node = Editor.parseDiagramNode(diagramNode);
+				node = Editor.parseDiagramNode(diagramNode, checked);
 			}
 		}
 		
@@ -551,14 +550,14 @@
 	/**
 	 * Extracts the XML from the compressed or non-compressed text chunk.
 	 */
-	Editor.parseDiagramNode = function(diagramNode)
+	Editor.parseDiagramNode = function(diagramNode, checked)
 	{
 		var text = mxUtils.trim(mxUtils.getTextContent(diagramNode));
 		var node = null;
 		
 		if (text.length > 0)
 		{
-			var tmp = Graph.decompress(text);
+			var tmp = Graph.decompress(text, null, checked);
 			
 			if (tmp != null && tmp.length > 0)
 			{
@@ -823,7 +822,7 @@
 			}
 		}
 		
-		return cause;
+		return (cause != null) ? mxUtils.trim(cause) : cause;
 	};
 
 	/**
@@ -1270,7 +1269,7 @@
 	/**
 	 * Helper function to extract the graph model XML node.
 	 */
-	Editor.prototype.extractGraphModel = function(node, allowMxFile)
+	Editor.prototype.extractGraphModel = function(node, allowMxFile, checked)
 	{
 		return Editor.extractGraphModel.apply(this, arguments);
 	};
@@ -4906,7 +4905,7 @@
 	 */
 	Graph.prototype.setShadowVisible = function(value, fireEvent)
 	{
-		if (mxClient.IS_SVG)
+		if (mxClient.IS_SVG && !mxClient.IS_SF)
 		{
 			fireEvent = (fireEvent != null) ? fireEvent : true;
 			this.shadowVisible = value;
@@ -4994,7 +4993,7 @@
 	mxStencilRegistry.libraries['mockup/navigation'] = [SHAPES_PATH + '/mockup/mxMockupNavigation.js', STENCIL_PATH + '/mockup/misc.xml'];
 	mxStencilRegistry.libraries['mockup/text'] = [SHAPES_PATH + '/mockup/mxMockupText.js'];
 	mxStencilRegistry.libraries['floorplan'] = [SHAPES_PATH + '/mxFloorplan.js', STENCIL_PATH + '/floorplan.xml'];
-	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', STENCIL_PATH + '/bootstrap.xml'];
+	mxStencilRegistry.libraries['bootstrap'] = [SHAPES_PATH + '/mxBootstrap.js', SHAPES_PATH + '/mxBasic.js', STENCIL_PATH + '/bootstrap.xml'];
 	mxStencilRegistry.libraries['gmdl'] = [SHAPES_PATH + '/mxGmdl.js', STENCIL_PATH + '/gmdl.xml'];
 	mxStencilRegistry.libraries['gcp2'] = [SHAPES_PATH + '/mxGCP2.js', STENCIL_PATH + '/gcp2.xml'];
 	mxStencilRegistry.libraries['ibm'] = [SHAPES_PATH + '/mxIBM.js', STENCIL_PATH + '/ibm.xml'];

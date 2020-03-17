@@ -796,11 +796,11 @@ Graph.prototype.addExtFont = function(fontName, fontUrl, dontRemember)
 /**
  * Executes selection of a new page.
  */
-EditorUi.prototype.updatePageRoot = function(page)
+EditorUi.prototype.updatePageRoot = function(page, checked)
 {
 	if (page.root == null)
 	{
-		var node = this.editor.extractGraphModel(page.node);
+		var node = this.editor.extractGraphModel(page.node, null, checked);
 		var cause = Editor.extractParserError(node);
 		
 		if (cause)

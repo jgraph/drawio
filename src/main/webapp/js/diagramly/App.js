@@ -368,14 +368,14 @@ App.getStoredMode = function()
 			}
 			
 			App.mode = urlParams['mode'];
-			
-			if (App.mode == null)
-			{
-				// Stored mode overrides preferred mode
-				App.mode = App.getStoredMode();
-			}
 		}
-
+			
+		if (App.mode == null)
+		{
+			// Stored mode overrides preferred mode
+			App.mode = App.getStoredMode();
+		}
+		
 		/**
 		 * Lazy loading backends.
 		 */
@@ -507,7 +507,8 @@ App.main = function(callback, createUi)
 	// Logs uncaught errors
 	window.onerror = function(message, url, linenumber, colno, err)
 	{
-		EditorUi.logError(message, url, linenumber, colno, err);
+		EditorUi.logError('Global: ' + ((message != null) ? message : ''),
+			url, linenumber, colno, err, null, true);
 	};
 
 	// Removes info text in embed mode
@@ -530,39 +531,41 @@ App.main = function(callback, createUi)
 	
 	if (window.mxscript != null)
 	{
-		// Injects offline dependencies
-		if (urlParams['offline'] == '1' || urlParams['appcache'] == '1')
+		// Runs as progressive web app if service workers are supported
+		try
 		{
-			mxscript('js/shapes.min.js');
-			mxscript('js/stencils.min.js');
-			mxscript('js/extensions.min.js');
-			
-			// Check that service workers are supported
 			if ('serviceWorker' in navigator)
 			{
-				// Use the window load event to keep the page load performant
-				window.addEventListener('load', function()
+				if (urlParams['offline'] == '0' || urlParams['dev'] == '1')
 				{
-					navigator.serviceWorker.register('/service-worker.js');
-				});
-			}
-			else if (window.applicationCache != null)
-			{
-				var frame = document.createElement('iframe');
-				frame.setAttribute('width', '0');
-				frame.setAttribute('height', '0');
-				frame.setAttribute('src', 'offline.html');
-				document.body.appendChild(frame);
+					navigator.serviceWorker.getRegistrations().then(function(registrations)
+					{
+						for(var i = 0; i < registrations.length; i++)
+						{
+							registrations[i].unregister();
+						}
+					});
+				}
+				else
+				{
+					mxscript('js/shapes.min.js');
+					mxscript('js/stencils.min.js');
+					mxscript('js/extensions.min.js');
+		
+					// Use the window load event to keep the page load performant
+					window.addEventListener('load', function()
+					{
+						navigator.serviceWorker.register('/service-worker.js');
+					});
+				}
 			}
 		}
-		else if ('serviceWorker' in navigator &&
-			navigator.serviceWorker.controller)
+		catch (e)
 		{
-			// Needed to update cache if PWA was used
-			window.addEventListener('load', function()
+			if (window.console != null)
 			{
-				navigator.serviceWorker.register('/service-worker.js');
-			});
+				console.error(e);
+			}
 		}
 		
 		// Loads Pusher API
@@ -1429,72 +1432,19 @@ App.prototype.init = function()
 		}
 		
 		// Integrates Add to Home Screen
-		if (urlParams['offline'] == '1' && 'serviceWorker' in navigator &&
-			!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+		if ('serviceWorker' in navigator && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+			(/.*\.diagrams\.net$/.test(window.location.hostname) || urlParams['offline'] == '1'))
 		{
-			var deferredPrompt = null;
-			
 			window.addEventListener('beforeinstallprompt', mxUtils.bind(this, function(e)
 			{
-				if (!this.footerShowing && (!isLocalStorage || mxSettings.settings == null ||
-					mxSettings.settings.closeAddToHomeScreenFooter == null))
+				this.showBanner('AddToHomeScreenFooter', mxResources.get('installDrawio'), function()
 				{
-					deferredPrompt = e;
-					
-					var done = mxUtils.bind(this, function()
-					{
-						footer.parentNode.removeChild(footer);
-						this.footerShowing = false;
-						deferredPrompt = null;
-						this.hideFooter();
-	
-						// Close permanently
-						if (isLocalStorage && mxSettings.settings != null)
-						{
-							mxSettings.settings.closeAddToHomeScreenFooter = Date.now();
-							mxSettings.save();
-						}
-					});
-					
-					var footer = this.createFooter('<img border="0" align="absmiddle" ' +
-						'style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
-						IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
-						mxUtils.htmlEntities(mxResources.get('installDrawio', null, 'Install draw.io')) + '</font>',
-						'https://www.draw.io/index.html?offline=1', 'geStatusMessage geBtn gePrimaryBtn', done, null,
-						mxUtils.bind(this, function()
-						{
-						    // Show the prompt
-							if (deferredPrompt != null)
-							{
-							    deferredPrompt.prompt();
-							    
-							    // Wait for the user to respond to the prompt
-							    deferredPrompt.userChoice.then(done);
-							} 
-						}));
-		
-					// Push to after splash dialog background
-					footer.style.zIndex = mxPopupMenu.prototype.zIndex;
-					footer.style.padding = '18px 50px 12px 30px';
-					footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
-					document.body.appendChild(footer);
-					this.footerShowing = true;
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-					}), 500);
-					
-					window.setTimeout(mxUtils.bind(this, function()
-					{
-						mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-						this.footerShowing = false;
-					}), 60000);
-				}
+				    e.prompt();
+				});
 			}));
 		}
-		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['open'] == null &&
-			(!this.editor.chromeless || this.editor.editable))
+		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+			urlParams['open'] == null && (!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
@@ -1503,61 +1453,13 @@ App.prototype.init = function()
 				
 				if (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER)
 				{
-					this.showDownloadDesktopFooter();
+					this.showDownloadDesktopBanner();
 				}
-	//			else if ((!isLocalStorage || mxSettings.settings == null ||
-	//				mxSettings.settings.closeRateFooter == null) &&
-	//				(!this.editor.chromeless || this.editor.editable) &&
-	//				!this.footerShowing && urlParams['open'] == null)
-	//			{
-	//				var star = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZ' +
-	//					'XdvcmtzIENTM5jWRgMAAAQRdEVYdFhNTDpjb20uYWRvYmUueG1wADw/eHBhY2tldCBiZWdpbj0iICAgIiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+Cjx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8i' +
-	//					'IHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDQuMS1jMDM0IDQ2LjI3Mjk3NiwgU2F0IEphbiAyNyAyMDA3IDIyOjExOjQxICAgICAgICAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDI' +
-	//					'vMjItcmRmLXN5bnRheC1ucyMiPgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp4YXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iPgogICAgICAgICA8eGFwOkNyZW' +
-	//					'F0b3JUb29sPkFkb2JlIEZpcmV3b3JrcyBDUzM8L3hhcDpDcmVhdG9yVG9vbD4KICAgICAgICAgPHhhcDpDcmVhdGVEYXRlPjIwMDgtMDItMTdUMDI6MzY6NDVaPC94YXA6Q3JlYXRlRGF0ZT4KICAgICAgICAgPHhhcDpNb2RpZ' +
-	//					'nlEYXRlPjIwMDktMDMtMTdUMTQ6MTI6MDJaPC94YXA6TW9kaWZ5RGF0ZT4KICAgICAgPC9yZGY6RGVzY3JpcHRpb24+CiAgICAgIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiCiAgICAgICAgICAgIHhtbG5zOmRjPSJo' +
-	//					'dHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyI+CiAgICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2UvcG5nPC9kYzpmb3JtYXQ+CiAgICAgIDwvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgo' +
-	//					'gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgIC' +
-	//					'AgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgI' +
-	//					'CAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIIImu8AAAAAVdEVYdENyZWF0aW9uIFRpbWUAMi8xNy8wOCCcqlgAAAHuSURBVDiNlZJBi1JRGIbfk+fc0ZuMXorJe4XujWoMdREaA23HICj6AQeLINr0C4I27ab2' +
-	//					'7VqOI9+q/sH8gMDceG1RkIwgClEXFMbRc5zTZgZURmG+5fu9PN/7Hg6wZohoh4h21nn4uqXW+q0xZgzg+SrPlTXX73uet+26bp6ICpcGaK1fua57M5vN3tZav7gUgIiSqVTqcRAEm0EQbCaTyQoRXb3Iy4hoG8CT6XSaY4xtMMa' +
-	//					'SQohMPp8v+r7vAEC3243CMGwqpfoApsaYE8uyfgM45ABOjDEvXdfNlMvlzFINAIDneY7neZVzvdlsDgaDQYtzfsjOIjtKqU+e5+0Wi0V3VV8ACMOw3+/3v3HOX0sp/7K53te11h/S6fRuoVAIhBAL76OUOm2320dRFH0VQuxJKf' +
-	//					'8BAFu+UKvVvpRKpWe2bYt5fTweq0ajQUKIN1LK43N94SMR0Y1YLLYlhBBKqQUw51wkEol7WmuzoC8FuJtIJLaUUoii6Ljb7f4yxpz6vp9zHMe2bfvacDi8BeDHKkBuNps5rVbr52QyaVuW9ZExttHpdN73ej0/Ho+nADxYCdBaV' +
-	//					'0aj0RGAz5ZlHUgpx2erR/V6/d1wOHwK4CGA/QsBnPN9AN+llH+WkqFare4R0QGAO/M6M8Ysey81/wGqa8MlVvHPNAAAAABJRU5ErkJggg==';
-	//				var rate = '<a style="cursor:default;" title="Please Rate Us"><b>Please Rate Us:</b></a>' +
-	//					'<img border="0" align="absmiddle" title="1 star" style="margin-top:-6px;cursor:pointer;margin-left:8px;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="2 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="3 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '">' +
-	//					'<img border="0" align="absmiddle" title="4 stars" style="margin-top:-6px;margin-left:3px;cursor:pointer;" src="' + star + '" ' +
-	//					'onclick="javascript:window.open(\'https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews\');">';
-	//				
-	//				var footer = createFooter(rate, null, 'geStatusMessage', null, null,
-	//					mxUtils.bind(this, function()
-	//					{
-	//						footer.parentNode.removeChild(footer);
-	//						this.hideFooter();
-	//
-	//						// Close permanently
-	//						if (isLocalStorage && mxSettings.settings != null)
-	//						{
-	//							mxSettings.settings.closeRateFooter = Date.now();
-	//							mxSettings.save();
-	//						}
-	//					}));
-	//				
-	//				document.body.appendChild(footer);
-	//				this.footerShowing = true;
-	//				
-	//				window.setTimeout(mxUtils.bind(this, function()
-	//				{
-	//					mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-	//				}), 1500);
-	//			}
 			}));
 		}
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' && DrawioFile.SYNC == 'auto' &&
-			urlParams['local'] != '1' && urlParams['stealth'] != '1' && urlParams['offline'] != '1' &&
+			urlParams['local'] != '1' && urlParams['stealth'] != '1' && this.isOffline() &&
 			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
@@ -1770,56 +1672,31 @@ App.prototype.getPusher = function()
 /**
  * Shows a footer to download the desktop version once per session.
  */
-App.prototype.showDownloadDesktopFooter = function()
+App.prototype.showNameChangeBanner = function()
 {
-	if (!this.downloadDesktopFooterShown && !this.footerShowing && (!isLocalStorage ||
-		mxSettings.settings == null || mxSettings.settings.closeDesktopFooter == null))
+	this.showBanner('DiagramsFooter', 'draw.io is now diagrams.net', mxUtils.bind(this, function()
 	{
-		this.downloadDesktopFooterShown = true;
-		
-		var closeHandler = mxUtils.bind(this, function()
-		{
-			footer.parentNode.removeChild(footer);
-			this.footerShowing = false;
-			this.hideFooter();
+		this.openLink('https://www.diagrams.net/blog/move-diagrams-net');
+	}));
+};
 
-			// Close permanently
-			if (isLocalStorage && mxSettings.settings != null)
-			{
-				mxSettings.settings.closeDesktopFooter = Date.now();
-				mxSettings.save();
-			}
-		});
-		
-		var footer = this.createFooter('<img border="0" align="absmiddle" style="margin-top:-6px;cursor:pointer;margin-left:8px;margin-right:12px;width:24px;height:24px;" src="' +
-			IMAGE_PATH + '/logo.png' + '"><font size="3" style="color:#ffffff;">' +
-			mxUtils.htmlEntities(mxResources.get('downloadDesktop')) + '</font>',
-			'https://get.draw.io/', 'geStatusMessage geBtn gePrimaryBtn', closeHandler, null, closeHandler);
-		
-		// Push to after splash dialog background
-		footer.style.zIndex = mxPopupMenu.prototype.zIndex;
-		footer.style.padding = '18px 50px 12px 30px';
-		footer.getElementsByTagName('img')[1].style.filter = 'invert(1)';
-		document.body.appendChild(footer);
-		this.footerShowing = true;
-		
-		window.setTimeout(mxUtils.bind(this, function()
+/**
+ * Shows a footer to download the desktop version once per session.
+ */
+App.prototype.showDownloadDesktopBanner = function()
+{
+	var link = 'https://get.draw.io/';
+	
+	if (this.showBanner('DesktopFooter', mxResources.get('downloadDesktop'), mxUtils.bind(this, function()
 		{
-			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,0%)');
-		}), 500);
-		
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-			this.footerShowing = false;
-		}), 60000);
-		
-		// Updates the download link to point to the right operating system
+			this.openLink(link);
+		})))
+	{
+		// Downloads installer for macOS and Windows
 		mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
 		{
 			try
 			{
-				var a = footer.getElementsByTagName('a')[0];
 				var rel = JSON.parse(req.getText());
 				
 				if (rel != null)
@@ -1828,77 +1705,110 @@ App.prototype.showDownloadDesktopFooter = function()
 					{
 						if (mxClient.IS_MAC)
 						{
-							a.setAttribute('href', 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-		        				rel.tag_name + '/draw.io-' + rel.name + '.dmg');
+							link = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+		        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
 						}
 						else if (mxClient.IS_WIN)
 						{
-							a.setAttribute('href', 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-		        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe');
+							link = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
+		        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
 						}
 					}
 				}
 			}
 			catch (e)
 			{
-				// ignores parsing errors
+				// ignore
 			}
 		}));
 	}
 };
 
 /**
- * Creates a footer.
+ * Creates a popup banner.
  */
-App.prototype.createFooter = function(label, link, className, closeHandler, helpLink, clickHandler, noBlank)
+App.prototype.showBanner = function(id, label, onclick)
 {
-	var footer = document.createElement('div');
-	footer.style.cssText = 'position:absolute;bottom:0px;max-width:90%;padding:10px;padding-right:26px;' +
-		'white-space:nowrap;left:50%;bottom:2px;';
-	footer.className = className;
-
-	var icn = ((className == 'geStatusAlert') ? '<img src="' + mxClient.imageBasePath + '/warning.gif" border="0" ' +
-		'style="margin-top:-4px;margin-right:8px;margin-left:8px;" valign="middle"/>' : '');
+	var result = false;
 	
-	mxUtils.setPrefixedStyle(footer.style, 'transform', 'translate(-50%,110%)');
-	mxUtils.setPrefixedStyle(footer.style, 'transition', 'all 1s ease');
-	footer.style.whiteSpace = 'nowrap';
-	footer.innerHTML = '<a href="' + ((link != null) ? link : 'javascript:void(0)') +
-		'" ' + ((!noBlank) ? 'target="_blank" ' : '') + 'style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;">' +
-		icn + label + icn + '</a>' + ((helpLink != null) ? '<a href="' + helpLink +
-		'" target="_blank" style="display:inline;text-decoration:none;font-weight:700;font-size:13px;opacity:1;margin-right:8px;">Help</a>' : '');
-	
-	var img = document.createElement('img');
-	
-	img.setAttribute('src', Dialog.prototype.closeImage);
-	img.setAttribute('title', mxResources.get('close'));
-	img.style.position = 'absolute';
-	img.style.cursor = 'pointer';
-	img.style.right = '10px';
-	img.style.top = '12px';
-
-	footer.appendChild(img);
-
-	if (closeHandler)
+	if (!this.bannerShowing && !this['hideBanner' + id] &&
+		(!isLocalStorage || mxSettings.settings == null ||
+		mxSettings.settings['close' + id] == null))
 	{
+		var banner = document.createElement('div');
+		banner.style.cssText = 'position:absolute;bottom:10px;left:50%;max-width:90%;padding:18px 34px 12px 20px;' +
+			'font-size:16px;font-weight:bold;white-space:nowrap;cursor:pointer;z-index:' + mxPopupMenu.prototype.zIndex + ';';
+		mxUtils.setPrefixedStyle(banner.style, 'box-shadow', '1px 1px 2px 0px #ddd');
+		mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+		mxUtils.setPrefixedStyle(banner.style, 'transition', 'all 1s ease');
+		banner.className = 'geBtn gePrimaryBtn';
+		
+		var logo = document.createElement('img');
+		logo.setAttribute('src', IMAGE_PATH + '/logo.png');
+		logo.setAttribute('border', '0');
+		logo.setAttribute('align', 'absmiddle');
+		logo.style.cssText = 'margin-top:-4px;margin-left:8px;margin-right:12px;width:26px;height:26px;';
+		banner.appendChild(logo);
+
+		var img = document.createElement('img');
+		img.setAttribute('src', Dialog.prototype.closeImage);
+		img.setAttribute('title', mxResources.get('close'));
+		img.setAttribute('border', '0');
+		img.style.cssText = 'position:absolute;right:10px;top:12px;filter:invert(1);';
+		banner.appendChild(img);
+		
+		mxUtils.write(banner, label);
+		document.body.appendChild(banner);
+		this.bannerShowing = true;
+		
+		var onclose = mxUtils.bind(this, function(showAgain)
+		{
+			if (banner.parentNode != null)
+			{
+				banner.parentNode.removeChild(banner);
+				this['hideBanner' + id] = true;
+				this.bannerShowing = false;
+				
+				if (isLocalStorage && mxSettings.settings != null && !showAgain)
+				{
+					mxSettings.settings['close' + id] = Date.now();
+					mxSettings.save();
+				}
+			}
+		});
+		
 		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
 		{
-			closeHandler(e);
 			mxEvent.consume(e);
+			onclose();
 		}));
-	}
-	
-	if (clickHandler != null)
-	{
-		footer.style.paddingRight = '40px';
 		
-		mxEvent.addListener(footer, 'click', mxUtils.bind(this, function(e)
+		mxEvent.addListener(banner, 'click', mxUtils.bind(this, function(e)
 		{
-			clickHandler(e);
+			mxEvent.consume(e);
+			onclick();
+			onclose();
 		}));
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,0%)');
+		}), 500);
+		
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+			
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				onclose(true);
+			}), 1000);
+		}), 30000);
+		
+		result = true;
 	}
 	
-	return footer;
+	return result;
 };
 
 /**
@@ -2862,14 +2772,25 @@ App.prototype.showAlert = function(message)
  */
 App.prototype.start = function()
 {
+	// Handles all errors
+	var ui = this; 
+	
+	window.onerror = function(message, url, linenumber, colno, err)
+	{
+		EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
+			url, linenumber, colno, err, null, true);
+		ui.handleError({message: message}, mxResources.get('unknownError'),
+			null, null, null, null, true);
+	};
+	
 	if (this.bg != null && this.bg.parentNode != null)
 	{
 		this.bg.parentNode.removeChild(this.bg);
 	}
-
+	
 	this.restoreLibraries();
 	this.spinner.stop();
-	
+
 	try
 	{
 		// Listens to changes of the hash if not in embed or client mode
@@ -2891,6 +2812,13 @@ App.prototype.start = function()
 							file.saveDraft();
 						}
 					}));
+				}
+
+				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+					/.*\.draw\.io$/.test(window.location.hostname) &&
+					(!this.editor.chromeless || this.editor.editable))
+				{
+					this.showNameChangeBanner();
 				}
 			}
 			catch (e)
@@ -3365,8 +3293,7 @@ App.prototype.showSplash = function(force)
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 :
-			((serviceCount < 2) ? 230 : 260), true, true,
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
@@ -3379,10 +3306,10 @@ App.prototype.showSplash = function(force)
 				}
 			}), true);
 		
-		if ((!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp) &&
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
 			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
 		{
-			this.showDownloadDesktopFooter();
+			this.showDownloadDesktopBanner();
 		}
 	});
 	
@@ -3423,63 +3350,59 @@ App.prototype.showSplash = function(force)
 App.prototype.addLanguageMenu = function(elt, addLabel)
 {
 	var img = null;
+	var langMenu = this.menus.get('language');
 	
-	if (!this.isOfflineApp() || mxClient.IS_CHROMEAPP)
+	if (langMenu != null)
 	{
-		var langMenu = this.menus.get('language');
+		img = document.createElement('div');
+		img.setAttribute('title', mxResources.get('language'));
+		img.className = 'geIcon geSprite geSprite-globe';
+		img.style.position = 'absolute';
+		img.style.cursor = 'pointer';
+		img.style.bottom = '20px';
+		img.style.right = '20px';
 		
-		if (langMenu != null)
+		if (addLabel)
 		{
-			img = document.createElement('div');
-			img.setAttribute('title', mxResources.get('language'));
-			img.className = 'geIcon geSprite geSprite-globe';
-			img.style.position = 'absolute';
-			img.style.cursor = 'pointer';
-			img.style.bottom = '20px';
-			img.style.right = '20px';
-			
-			if (addLabel)
-			{
-				img.style.direction = 'rtl';
-				img.style.textAlign = 'right';
-				img.style.right = '24px';
+			img.style.direction = 'rtl';
+			img.style.textAlign = 'right';
+			img.style.right = '24px';
 
-				var label = document.createElement('span');
-				label.style.display = 'inline-block';
-				label.style.fontSize = '12px';
-				label.style.margin = '5px 24px 0 0';
-				label.style.color = 'gray';
-				label.style.userSelect = 'none';
-				
-				mxUtils.write(label, mxResources.get('language'));
-				img.appendChild(label);
-			}
+			var label = document.createElement('span');
+			label.style.display = 'inline-block';
+			label.style.fontSize = '12px';
+			label.style.margin = '5px 24px 0 0';
+			label.style.color = 'gray';
+			label.style.userSelect = 'none';
 			
-			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
-			{
-				this.editor.graph.popupMenuHandler.hideMenu();
-				var menu = new mxPopupMenu(this.menus.get('language').funct);
-				menu.div.className += ' geMenubarMenu';
-				menu.smartSeparators = true;
-				menu.showDisabled = true;
-				menu.autoExpand = true;
-				
-				// Disables autoexpand and destroys menu when hidden
-				menu.hideMenu = mxUtils.bind(this, function()
-				{
-					mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
-					menu.destroy();
-				});
-		
-				var offset = mxUtils.getOffset(img);
-				menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
-				
-				// Allows hiding by clicking on document
-				this.setCurrentMenu(menu);
-			}));
-		
-			elt.appendChild(img);
+			mxUtils.write(label, mxResources.get('language'));
+			img.appendChild(label);
 		}
+		
+		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.editor.graph.popupMenuHandler.hideMenu();
+			var menu = new mxPopupMenu(this.menus.get('language').funct);
+			menu.div.className += ' geMenubarMenu';
+			menu.smartSeparators = true;
+			menu.showDisabled = true;
+			menu.autoExpand = true;
+			
+			// Disables autoexpand and destroys menu when hidden
+			menu.hideMenu = mxUtils.bind(this, function()
+			{
+				mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+				menu.destroy();
+			});
+	
+			var offset = mxUtils.getOffset(img);
+			menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
+			
+			// Allows hiding by clicking on document
+			this.setCurrentMenu(menu);
+		}));
+	
+		elt.appendChild(img);
 	}
 	
 	return img;
@@ -3549,6 +3472,22 @@ App.prototype.pickFile = function(mode)
 				window.openNew = this.getCurrentFile() != null && !this.isDiagramEmpty();
 				window.baseUrl = this.getUrl();
 				window.openKey = 'open';
+				
+				window.listBrowserFiles = mxUtils.bind(this, function(success, error) 
+				{
+					StorageFile.listFiles(this, 'F', success, error);
+				});
+				
+				window.openBrowserFile = mxUtils.bind(this, function(title, success, error)
+				{
+					StorageFile.getFileContent(this, title, success, error);
+				});
+				
+				window.deleteBrowserFile = mxUtils.bind(this, function(title, success, error)
+				{
+					StorageFile.deleteFile(this, title, success, error);
+				});
+				
 				var prevValue = Editor.useLocalStorage;
 				Editor.useLocalStorage = (mode == App.MODE_BROWSER);
 				this.openFile();
@@ -3703,6 +3642,21 @@ App.prototype.pickLibrary = function(mode)
 	{
 		window.openNew = false;
 		window.openKey = 'open';
+		
+		window.listBrowserFiles = mxUtils.bind(this, function(success, error) 
+		{
+			StorageFile.listFiles(this, 'L', success, error);
+		});
+		
+		window.openBrowserFile = mxUtils.bind(this, function(title, success, error)
+		{
+			StorageFile.getFileContent(this, title, success, error);
+		});
+		
+		window.deleteBrowserFile = mxUtils.bind(this, function(title, success, error)
+		{
+			StorageFile.deleteFile(this, title, success, error);
+		});
 		
 		var prevValue = Editor.useLocalStorage;
 		Editor.useLocalStorage = mode == App.MODE_BROWSER;
@@ -4486,11 +4440,19 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				}
 				else
 				{
-					try
+					var error = mxUtils.bind(this, function (e)
 					{
-						id = decodeURIComponent(id.substring(1));
-						var data = localStorage.getItem(id);
-						
+						this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
+						{
+							var tempFile = this.getCurrentFile();
+							window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
+						}));
+					});
+					
+					id = decodeURIComponent(id.substring(1));
+					
+					StorageFile.getFileContent(this, id, mxUtils.bind(this, function(data)
+					{
 						if (data != null)
 						{
 							this.fileLoaded(new StorageFile(this, data, id));
@@ -4502,17 +4464,9 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						}
 						else
 						{
-							throw {message: mxResources.get('fileNotFound')};
+							error({message: mxResources.get('fileNotFound')});
 						}
-					}
-					catch (e)
-					{
-						this.handleError(e, mxResources.get('errorLoadingFile'), mxUtils.bind(this, function()
-						{
-							var tempFile = this.getCurrentFile();
-							window.location.hash = (tempFile != null) ? tempFile.getHash() : '';
-						}));
-					}
+					}), error);
 				}
 			}
 			else if (file != null)
@@ -4980,7 +4934,7 @@ App.prototype.loadLibraries = function(libs, done)
 									{
 										var name = decodeURIComponent(id.substring(1));
 										
-										var xml = this.getLocalData(name, mxUtils.bind(this, function(xml)
+										StorageFile.getFileContent(this, name, mxUtils.bind(this, function(xml)
 										{
 											if (name == '.scratchpad' && xml == null)
 											{
@@ -4995,7 +4949,7 @@ App.prototype.loadLibraries = function(libs, done)
 											{
 												onerror();
 											}
-										}));
+										}), onerror);
 									}
 									catch (e)
 									{
@@ -5831,9 +5785,9 @@ App.prototype.updateHeader = function()
 		this.appIcon = document.createElement('a');
 		this.appIcon.style.display = 'block';
 		this.appIcon.style.position = 'absolute';
-		this.appIcon.style.width = '28px';
+		this.appIcon.style.width = '32px';
 		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
-		this.appIcon.style.margin = '14px 0px 8px 20px';
+		this.appIcon.style.margin = '14px 0px 8px 16px';
 		this.appIcon.style.opacity = '0.85';
 		this.appIcon.style.borderRadius = '3px';
 		
@@ -6067,7 +6021,6 @@ App.prototype.updateHeader = function()
 
 			this.toggleFormatPanel(!collapsed);
 			this.hsplitPosition = (!collapsed) ? 0 : initialPosition;
-			this.hideFooter();
 			collapsed = !collapsed;
 			mxEvent.consume(evt);
 		}));

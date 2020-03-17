@@ -58,7 +58,7 @@
 			.setIncludeFolders(true);
 		
 		var view3 = new google.picker.DocsView()
-			.setEnableTeamDrives(true)
+			.setEnableDrives(true)
 			.setIncludeFolders(true);
 
 		var view4 = new google.picker.DocsUploadView()
@@ -71,7 +71,7 @@
 		    .addView(view4)
 		    .addView(google.picker.ViewId.RECENTLY_PICKED)
 		    .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
-		    .enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+		    .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 		    .hideTitleBar()
 		    .setOAuthToken(token)
 		    .setDeveloperKey(DEVELOPER_KEY)

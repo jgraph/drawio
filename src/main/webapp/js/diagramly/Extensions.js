@@ -36,23 +36,24 @@ LucidImporter = {};
 	];
 	
 	var edgeStyleMap = {
-						'None': 'none',
-						'Arrow': 'block;endFill=1',
-						'Hollow Arrow': 'block;endFill=0',
+						'None': 'none;',
+						'Arrow': 'block;endFill=1;',
+						'Hollow Arrow': 'block;endFill=0;',
 						'Open Arrow': 'open;',
-						'CFN ERD Zero Or More Arrow': 'ERzeroToMany;startSize=10',
-						'CFN ERD One Or More Arrow': 'ERoneToMany;startSize=10',
-						'CFN ERD Many Arrow': 'ERmany;startSize=10',
-						'CFN ERD Exactly One Arrow': 'ERmandOne;startSize=10',
-						'CFN ERD Zero Or One Arrow': 'ERzeroToOne;startSize=10',
-						'CFN ERD One Arrow': 'ERone;startSize=16',
-						'Generalization': 'block;endFill=0;startSize=12',
-						'Big Open Arrow': 'open;startSize=10',
-						'Asynch1': 'openAsync;flipH=1;startSize=10',
-						'Asynch2': 'openAsync;startSize=10',
-						'Aggregation': 'diamond;endFill=0;startSize=16',
-						'Composition': 'diamond;endFill=1;startSize=16',
-						'BlockEnd': 'none;endFill=1;startSize=16'
+						'CFN ERD Zero Or More Arrow': 'ERzeroToMany;startSize=10;',
+						'CFN ERD One Or More Arrow': 'ERoneToMany;startSize=10;',
+						'CFN ERD Many Arrow': 'ERmany;startSize=10;',
+						'CFN ERD Exactly One Arrow': 'ERmandOne;startSize=10;',
+						'CFN ERD Zero Or One Arrow': 'ERzeroToOne;startSize=10;',
+						'CFN ERD One Arrow': 'ERone;startSize=16;',
+						'Generalization': 'block;endFill=0;startSize=12;',
+						'Big Open Arrow': 'open;startSize=10;',
+						'Asynch1': 'openAsync;flipH=1;startSize=10;',
+						'Asynch2': 'openAsync;startSize=10;',
+						'Aggregation': 'diamond;endFill=0;startSize=16;',
+						'Composition': 'diamond;endFill=1;startSize=16;',
+						'BlockEnd': 'none;endFill=1;startSize=16;',
+						'Measure': 'ERone;startSize=10;'
 	};
 
 	var styleMap = {
@@ -3905,12 +3906,32 @@ LucidImporter = {};
 
 					if (p.Endpoint1.Style != null)
 					{
-						cell.style += 'startArrow=' + edgeStyleMap[p.Endpoint1.Style] + ';';
+						if (edgeStyleMap[p.Endpoint1.Style] != null)
+						{
+							cell.style += 'startArrow=' + edgeStyleMap[p.Endpoint1.Style] + ';';
+						}
+						else
+						{
+							if (window.console)
+							{
+								console.log('Unknown endpoint style: ' + p.Endpoint1.Style);
+							}
+						}
 					}
 					
 					if (p.Endpoint2.Style != null)
 					{
-						cell.style += 'endArrow=' + edgeStyleMap[p.Endpoint2.Style].replace(/startSize/g, 'endSize') + ';';
+						if (edgeStyleMap[p.Endpoint2.Style] != null)
+						{
+							cell.style += 'endArrow=' + edgeStyleMap[p.Endpoint2.Style].replace(/startSize/g, 'endSize') + ';';
+						}
+						else
+						{
+							if (window.console)
+							{
+								console.log('Unknown endpoint style: ' + p.Endpoint2.Style);
+							}
+						}
 					}
 
 					// Anchor points and arrows

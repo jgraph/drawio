@@ -1,5 +1,6 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
+about=about
 aboutDrawio=aboutDrawio
 accessDenied=accessDenied
 action=action
@@ -1008,3 +1009,4 @@ smart=smart
 parentChildSpacing=parentChildSpacing
 siblingSpacing=siblingSpacing
 confNoPermErr=confNoPermErr
+copyAsImage=copyAsImage

@@ -287,7 +287,7 @@
 		
 		editorUi.actions.put('exportPdf', new Action(mxResources.get('formatPdf') + '...', function()
 		{
-			if ((typeof(mxIsElectron5) === 'undefined' || !mxIsElectron5) &&
+			if ((typeof(mxIsElectron) === 'undefined' || !mxIsElectron) &&
 				(editorUi.isOffline() || editorUi.printPdfExport))
 			{
 				// Export PDF action for chrome OS (same as print with different dialog title)
@@ -510,7 +510,38 @@
 		{
 			return autosaveAction.isEnabled() && editorUi.editor.autosave;
 		});
+		
+		var compressedAction = editorUi.actions.addAction('compressed', function()
+		{
+			var file = editorUi.getCurrentFile();
+			
+			if (file != null)
+			{
+				if (file.isCompressed())
+				{
+					file.decompress();
+				}
+				else
+				{
+					file.compress();
+				}
+			}
+		});
+		
+		compressedAction.setToggleAction(true);
+		
+		compressedAction.setSelectedCallback(function()
+		{
+			var file = editorUi.getCurrentFile();
+			
+			return file != null && file.isCompressed();
+		});
 
+		compressedAction.isEnabled = function()
+		{
+			return editorUi.getCurrentFile() != null;
+		}
+		
 		editorUi.actions.addAction('editGeometry...', function()
 		{
 			var cells = graph.getSelectionCells();
@@ -681,19 +712,17 @@
 
 		var showingAbout = false;
 		
-		editorUi.actions.put('about', new Action(mxResources.get('aboutDrawio') + '...', function()
+		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function()
 		{
-			if (!showingAbout)
+			if (editorUi.isOffline())
 			{
-				editorUi.showDialog(new AboutDialog(editorUi).container, 220, 300, true, true, function()
-				{
-					showingAbout = false;
-				});
-				
-				showingAbout = true;
+				editorUi.alert('diagrams.net ' + EditorUi.VERSION);
 			}
-			
-		}, null, null, 'F1'));
+			else
+			{
+				editorUi.openLink('https://www.diagrams.net/');
+			}
+		}));
 		
 		editorUi.actions.addAction('userManual...', function()
 		{
@@ -827,7 +856,25 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://desk.draw.io/support/solutions/articles/16000058316',
-					(EditorUi.isElectronApp) ? null : [[mxResources.get('link'), function(evt, input)
+					(EditorUi.isElectronApp) ? null : [[mxResources.get('reset'), function(evt, input)
+					{
+						editorUi.confirm(mxResources.get('areYouSure'), function()
+						{
+							try
+							{
+								localStorage.removeItem('.configuration');
+								localStorage.removeItem('.drawio-config');
+								localStorage.removeItem('.mode');
+								
+								editorUi.hideDialog();
+								editorUi.alert(mxResources.get('restartForChangeRequired'));
+							}
+							catch (e)
+							{
+								editorUi.handleError(e);	
+							}
+						});
+					}], [mxResources.get('link'), function(evt, input)
 					{
 						if (input.value.length > 0)
 						{
@@ -863,7 +910,7 @@
 		// storing the choice. We do not want to use cookies for older browsers.
 		// Note that the URL param lang=XX is available for setting the language
 		// in older browsers. URL param has precedence over the saved setting.
-		if (mxClient.IS_CHROMEAPP || (isLocalStorage && urlParams['offline'] != '1'))
+		if (mxClient.IS_CHROMEAPP || isLocalStorage)
 		{
 			this.put('language', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
@@ -1031,8 +1078,12 @@
 			{
 				var branchOptimizer = null, parentChildSpacingVal = 20, siblingSpacingVal = 20, notExecuted = true;
 				
-				function doLayout()
+				// Invoked when orgchart code was loaded
+				var delayed = function()
 				{
+					editorUi.loadingOrgChart = false;
+					editorUi.spinner.stop();
+					
 					if (typeof mxOrgChartLayout !== 'undefined' && branchOptimizer != null && notExecuted)
 					{
 						var graph = editorUi.editor.graph;
@@ -1042,6 +1093,31 @@
 					}
 				};
 				
+				// Invoked from dialog
+				function doLayout()
+				{
+					if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
+					{
+						if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+						{
+							editorUi.loadingOrgChart = true;
+							
+							if (urlParams['dev'] == '1')
+							{
+								mxscript('js/orgchart.min.js', delayed);
+							}
+							else
+							{
+								mxscript('js/extensions.min.js', delayed);
+							}
+						}
+					}
+					else
+					{
+						delayed();
+					}
+				};
+
 				var div = document.createElement('div');
 				
 				var title = document.createElement('div');
@@ -1128,26 +1204,15 @@
 				
 				var dlg = new CustomDialog(editorUi, div, function()
 				{
-					if (branchOptimizer == null) branchOptimizer = 2;
+					if (branchOptimizer == null)
+					{
+						branchOptimizer = 2;
+					}
+					
 					doLayout();
 				});
+				
 				editorUi.showDialog(dlg.container, 355, 125, true, true);
-				
-				var delayed = function()
-				{
-					editorUi.loadingOrgChart = false;
-					doLayout();
-				};
-				
-				if (typeof mxOrgChartLayout === 'undefined' && !editorUi.loadingOrgChart && !editorUi.isOffline(true))
-				{
-					editorUi.loadingOrgChart = true;
-					mxscript('js/orgchart.min.js', delayed);
-				}
-				else
-				{
-					delayed();
-				}
 			}, parent, null, isGraphEnabled());
 			
 			menu.addSeparator(parent);
@@ -1559,7 +1624,7 @@
 						{
 							// LATER: Download full model dump with history
 							var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-									fileId + '/realtime?supportsTeamDrives=true', null, 'GET');
+									fileId + '/realtime?supportsAllDrives=true', null, 'GET');
 	
 							// Adds auth token
 							req.setRequestHeaders = function(request)
@@ -3146,7 +3211,14 @@
 		// Overrides edit menu to add find and editGeometry
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'paste', 'delete', '-', 'duplicate', '-',
+			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy']);
+			
+			if (mxIsElectron)
+			{
+				this.addMenuItems(menu, ['copyAsImage']);
+			}
+			
+			this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-',
 									 'find', '-', 'editData', 'editTooltip', '-', 'editStyle', 'editGeometry', '-',
 			                         'edit', '-', 'editLink', 'openLink', '-',
 			                         'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
@@ -3270,7 +3342,7 @@
 
 			if (urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['autosave'], parent);
+				this.addMenuItems(menu, ['autosave', 'compressed'], parent);
 			}
 			
 			menu.addSeparator(parent);
@@ -3470,11 +3542,13 @@
 		/**
 		 * External Fonts undoable change
 		 */
-		function ChangeExtFonts(ui, extFonts)
+		function ChangeExtFonts(ui, extFonts, customFonts)
 		{
 			this.ui = ui;
 			this.extFonts = extFonts;
 			this.previousExtFonts = extFonts;
+			this.customFonts = customFonts;
+			this.prevCustomFonts = customFonts;
 		};
 
 		/**
@@ -3483,6 +3557,11 @@
 		ChangeExtFonts.prototype.execute = function()
 		{
 			var graph = this.ui.editor.graph;
+			
+			
+			this.customFonts = this.prevCustomFonts;
+			this.prevCustomFonts = this.ui.menus.customFonts;
+			this.ui.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 			
 			this.extFonts = this.previousExtFonts;
 			var tmp = graph.extFonts;
@@ -3499,7 +3578,7 @@
 			
 			graph.extFonts = [];
 			
-			for (var i = 0; i < this.previousExtFonts.length; i++)
+			for (var i = 0; this.previousExtFonts != null && i < this.previousExtFonts.length; i++)
 			{
 				this.ui.editor.graph.addExtFont(this.previousExtFonts[i].name, this.previousExtFonts[i].url);
 			}
@@ -3510,7 +3589,7 @@
 		//Replace the default font family menu
 		this.put('fontFamily', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var addItem = mxUtils.bind(this, function(fontname, fontUrl)
+			var addItem = mxUtils.bind(this, function(fontname, fontUrl, deletable)
 			{
 				var graph = this.editorUi.editor.graph;
 				
@@ -3535,6 +3614,50 @@
 					//Add the font to the file in case it was a previous font from the settings
 					graph.addExtFont(fontname, fontUrl);
 				});
+				
+				if (deletable)
+				{
+					var img = document.createElement('span');
+					img.className = 'geSprite geSprite-delete';
+					img.style.cursor = 'pointer';
+					img.style.display = 'inline-block';
+					tr.firstChild.nextSibling.nextSibling.appendChild(img);
+					
+					mxEvent.addListener(img, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', mxUtils.bind(this, function(evt)
+					{
+						var extFonts = mxUtils.clone(this.editorUi.editor.graph.extFonts);
+						
+						if (extFonts != null && extFonts.length > 0)
+						{
+							for (var i = 0; i < extFonts.length; i++)
+							{
+								if (extFonts[i].name == fontname)
+								{
+									extFonts.splice(i, 1);
+									break;
+								}
+							}
+						}
+						
+						var customFonts = mxUtils.clone(this.customFonts);
+						
+						for (var i = 0; i < customFonts.length; i++)
+						{
+							if (customFonts[i].name == fontname)
+							{
+								customFonts.splice(i, 1);
+								break;
+							}
+						}
+						
+						var change = new ChangeExtFonts(this.editorUi, extFonts, customFonts);
+						this.editorUi.editor.graph.model.execute(change);
+						
+						this.editorUi.menubar.hideMenu();
+						mxEvent.consume(evt);
+					}));
+				}
+				
 				tr.firstChild.nextSibling.style.fontFamily = fontname;
 			});
 			
@@ -3569,7 +3692,7 @@
 				
 				if (changed)
 				{
-					this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+					this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 				}
 			}
 			
@@ -3578,7 +3701,7 @@
 				for (var i = 0; i < this.customFonts.length; i++)
 				{
 					var name = this.customFonts[i].name, url = this.customFonts[i].url;
-					addItem(name, url);
+					addItem(name, url, true);
 					
 					//Load external fonts without saving them to the file
 					this.editorUi.editor.graph.addExtFont(name, url, true);
@@ -3588,11 +3711,8 @@
 				
 				menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 				{
-					var change = new ChangeExtFonts(this.editorUi, []);
+					var change = new ChangeExtFonts(this.editorUi, [], []);
 					this.editorUi.editor.graph.model.execute(change);
-					
-					this.customFonts = [];
-					this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 				}), parent);
 				
 				menu.addSeparator(parent);
@@ -3670,7 +3790,7 @@
 							if (addToCustom)
 							{
 								this.customFonts.push({name: fontName, url: fontUrl});
-								this.editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+								this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
 							}
 						}
 						finally

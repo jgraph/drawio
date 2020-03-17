@@ -644,19 +644,27 @@ Editor.prototype.createUndoManager = function()
 	// Keeps the selection in sync with the history
 	var undoHandler = function(sender, evt)
 	{
-		var cand = graph.getSelectionCellsForChanges(evt.getProperty('edit').changes);
-		var model = graph.getModel();
-		var cells = [];
-		
-		for (var i = 0; i < cand.length; i++)
+		var cand = graph.getSelectionCellsForChanges(evt.getProperty('edit').changes, function(change)
 		{
-			if (graph.view.getState(cand[i]) != null)
-			{
-				cells.push(cand[i]);
-			}
-		}
+			// Only selects changes to the cell hierarchy
+			return !(change instanceof mxChildChange);
+		});
 		
-		graph.setSelectionCells(cells);
+		if (cand.length > 0)
+		{
+			var model = graph.getModel();
+			var cells = [];
+			
+			for (var i = 0; i < cand.length; i++)
+			{
+				if (graph.view.getState(cand[i]) != null)
+				{
+					cells.push(cand[i]);
+				}
+			}
+			
+			graph.setSelectionCells(cells);
+		}
 	};
 	
 	undoMgr.addListener(mxEvent.UNDO, undoHandler);

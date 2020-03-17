@@ -1,0 +1,13 @@
+For Deployment:
+
+As david@jgraph.com use (see Tools, Script Editor):
+https://docs.google.com/spreadsheets/d/1yUT6UE9bKDJCx7Kj1VEbrEaLyigcTO_bxyRXBDlFoLU/edit
+
+Open the web app script in the script editor.
+Make the changes you wanted. Test the code to ensure it functions as intended and is bug-free.
+Click File > Manage Versions. Enter a new version description and click Save New Version. Click OK to close the dialog.
+Click Publish > Deploy as Sheets add-on. Update the Project version to the new version you just created.
+Click Update web shop draft.
+In the new window, click on Publish changes.
+
+If you get error "Sorry, unable to open the file at this time.", try Incognito mode.

@@ -28,7 +28,8 @@
 	 * Switch to disable logging for mode and search terms.
 	 */
 	EditorUi.enableLogging = urlParams['stealth'] != '1' &&
-		/.*\.draw\.io$/.test(window.location.hostname) &&
+		(/.*\.draw\.io$/.test(window.location.hostname) ||
+		/.*\.diagrams\.net$/.test(window.location.hostname)) &&
 		window.location.hostname != 'support.draw.io';
 	
 	/**
@@ -90,14 +91,14 @@
 	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
 			
 	/**
-	 * Default Mermaid config.
+	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {
 		theme:'neutral',
 		arrowMarkerAbsolute:false,
 	    flowchart:
 	    {
-	    	htmlLabels:true
+	    	htmlLabels:false
 	    },
 	    sequence:
 	    {
@@ -133,13 +134,13 @@
 	/**
 	 * Updates action states depending on the selection.
 	 */
-	EditorUi.logError = function(message, url, linenumber, colno, err)
+	EditorUi.logError = function(message, url, linenumber, colno, err, severity, quiet)
 	{
-		if (urlParams['dev'] == '1')
-		{
-			EditorUi.debug('logError', message, url, linenumber, colno, err);
-		}
-		else if (EditorUi.enableLogging)
+		severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
+			message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
+			message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
+		
+		if (EditorUi.enableLogging && urlParams['dev'] != '1')
 		{
 			try
 			{
@@ -154,9 +155,6 @@
 				else if (message != null && message.indexOf('DocumentClosedError') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
-					var severity = (message.indexOf('NetworkError') >= 0 || message.indexOf('SecurityError') >= 0 ||
-						message.indexOf('NS_ERROR_FAILURE') >= 0 || message.indexOf('out of memory') >= 0) ?
-						'CONFIG' : 'SEVERE';
 					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
 					err = (err != null) ? err : new Error(message);
 
@@ -167,10 +165,22 @@
 		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
 				}
 			}
-			catch (err)
+			catch (e)
 			{
 				// do nothing
 			}
+		}
+
+		try
+		{
+			if (!quiet && window.console != null)
+			{
+				console.error(severity, message, url, linenumber, colno, err);
+			}
+		}
+		catch (e)
+		{
+			// ignore
 		}
 	};
 	
@@ -244,7 +254,10 @@
 				
 				for (var i = 0; i < arguments.length; i++)
 			    {
-					args.push(arguments[i]);
+					if (arguments[i] != null)
+					{
+						args.push(arguments[i]);
+					}
 			    }
 			    
 				console.log.apply(console, args);
@@ -566,22 +579,13 @@
 	{
 		return this.editor.graph.mathEnabled;
 	};
-	
-	/**
-	 * Returns true if using application cache
-	 */
-	EditorUi.prototype.isAppCache = function()
-	{
-		return (urlParams['appcache'] == '1' || this.isOfflineApp()) &&
-			!('serviceWorker' in navigator);
-	};
-	
+
 	/**
 	 * Returns true if offline app, which isn't a defined thing
 	 */
 	EditorUi.prototype.isOfflineApp = function()
 	{
-		return (urlParams['offline'] == '1');
+		return urlParams['offline'] == '1';
 	};
 
 	/**
@@ -1606,7 +1610,7 @@
 		
 		if (cause)
 		{
-			throw new Error(cause);
+			throw new Error(mxResources.get('notADiagramFile') + ' (' + cause + ')');
 		}
 		else
 		{
@@ -2543,23 +2547,14 @@
 			{
 				this.fileLoadedError = e;
 				
-				// Makes sure the file does not save the invalid UI model and overwrites anything important
-				if (window.console != null)
-				{
-					console.error(e);
-					console.log('error in fileLoaded:', file, e);
-				}
-				
 				if (EditorUi.enableLogging && !this.isOffline())
 				{
 		        	try
 		        	{
-						var img = new Image();
-						var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-				    	img.src = logDomain + '/log?v=' + encodeURIComponent(EditorUi.VERSION) +
-				   			'&msg=errorInFileLoaded:url:' + encodeURIComponent(window.location.href) +
-			    			((e != null && e.message != null) ? ':err:' + encodeURIComponent(e.message) : '') +
-			    			((e != null && e.stack != null) ? '&stack=' + encodeURIComponent(e.stack) : '');
+		        		EditorUi.logEvent({category: 'ERROR-LOAD-FILE-' +
+		        			((file != null) ? file.getHash() : 'none'),
+		        			action: 'message_' + e.message,
+		        			label: 'stack_' + e.stack});
 		        	}
 		        	catch (e)
 		        	{
@@ -2587,7 +2582,7 @@
 				
 				if (!noDialogs)
 				{
-					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true);
+					this.handleError(e, mxResources.get('errorLoadingFile'), fn, true, null, null, true);
 				}
 				else
 				{
@@ -2773,7 +2768,7 @@
 		{
 			if (this.scratchpad == null)
 			{
-				this.getLocalData('.scratchpad', mxUtils.bind(this, function(xml)
+				StorageFile.getFileContent(this, '.scratchpad', mxUtils.bind(this, function(xml)
 				{
 					if (xml == null)
 					{
@@ -3287,7 +3282,7 @@
 										}
 									}
 									
-									if (theData != null && theMimeType == 'text/xml')
+									if (theData != null) //Try to parse the file as xml (can be a library or mxfile). Otherwise, an error will be shown
 									{
 										var doc = mxUtils.parseXml(theData);
 										
@@ -3487,55 +3482,15 @@
 	 */
 	EditorUi.prototype.footerHeight = 0;
 	
-    if (urlParams['offline'] == '1' || EditorUi.isElectronApp)
-    {
-		//EditorUi.prototype.footerHeight = 4;
-    }
-    else
-    {
-		if (urlParams['savesidebar'] == '1')
-		{
-    		Sidebar.prototype.thumbWidth = 64;
-    		Sidebar.prototype.thumbHeight = 64;
-		}
+	if (urlParams['savesidebar'] == '1')
+	{
+		Sidebar.prototype.thumbWidth = 64;
+		Sidebar.prototype.thumbHeight = 64;
+	}
 
-		//EditorUi.prototype.footerHeight = (screen.width >= 760 && screen.height >= 240) ? 46 : 0;
-		
-		// Fetches footer from page
-		EditorUi.prototype.createFooter = function()
-		{
-			var footer = document.getElementById('geFooter');
-			
-			if (footer != null)
-			{
-//				footer.style.visibility = 'hidden';
-//				
-//				// Adds button to hide the footer
-//				var img = document.createElement('img');
-//				img.setAttribute('border', '0');
-//				img.setAttribute('src', Dialog.prototype.closeImage);
-//				img.setAttribute('title', mxResources.get('hide'));
-//				footer.appendChild(img)
-//
-//				if (mxClient.IS_QUIRKS)
-//				{
-//					img.style.position = 'relative';
-//					img.style.styleFloat = 'right';
-//					img.style.top = '-30px';
-//					img.style.left = '164px';
-//					img.style.cursor = 'pointer';
-//				}
-//				
-//				mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
-//				{
-//					this.hideFooter();
-//				}));
-			}
-
-			return footer;
-		};
-    }
-    
+	/**
+	 * Programmatic settings for theme.
+	 */
     EditorUi.initTheme = function()
     {
     	if (uiTheme == 'atlas')
@@ -3575,45 +3530,15 @@
     };
     
     EditorUi.initTheme();
-    
-    /**
-     * Hides the footer.
-     */
-    EditorUi.prototype.hideFooter = function()
-    {
-    	var footer = document.getElementById('geFooter');
-	    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = 0;
-    		footer.style.display = 'none';
-    		this.refresh();
-    	}
-    };
 
-    /**
-     * Shows the footer.
-     */
-    EditorUi.prototype.showFooter = function(height)
-    {
-    	var footer = document.getElementById('geFooter');
-	    	
-    	if (footer != null)
-    	{
-    		this.footerHeight = height;
-    		footer.style.display = 'inline';
-    		this.refresh();
-    	}
-    };
-    
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
     EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting, convertDataUri)
 	{
 		// KNOWN: IE+FF don't return keyboard focus after image dialog (calling focus doesn't help)
-	    	var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
-		this.showDialog(dlg.container, (Graph.fileSupport) ? 440 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
+	    var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
+		this.showDialog(dlg.container, (Graph.fileSupport) ? 480 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
 		dlg.init();
 	};
 
@@ -3718,10 +3643,34 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash)
+	EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage, fileHash, disableLogging)
 	{
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
+
+		// Logs errors and writes stack to console
+		if (resp != null && resp.stack != null && resp.message != null)
+		{
+			try
+			{
+				if (!disableLogging)
+				{
+					EditorUi.logError('Caught: ' + ((resp.message != null) ?
+						resp.message : 'null'), null, null, null, resp, 'INFO');
+				}
+				else
+				{
+					if (window.console != null)
+					{
+						console.error('EditorUi.handleError:', resp);
+					}
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		}
 	
 		if (e != null || title != null)
 		{
@@ -6442,11 +6391,13 @@
         }
     };
     
+    /**
+     * Embeds extrnal fonts
+     */
     EditorUi.prototype.embedExtFonts = function(callback)
     {
     	var extFonts = this.editor.graph.extFonts; 
     	
-    	//Add extrnal fonts
 		if (extFonts != null && extFonts.length > 0)
 		{
 			var styleCnt = '', waiting = 0;
@@ -6455,7 +6406,7 @@
 			{
 				this.cachedGoogleFonts = {};
 			}
-			    	
+			
 			var googleCssDone = mxUtils.bind(this, function()
 			{
 				if (waiting == 0)
@@ -6466,40 +6417,41 @@
 			
 			for (var i = 0; i < extFonts.length; i++)
 			{
-				var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
-				
-				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				(mxUtils.bind(this, function(fontName, fontUrl)
 				{
-					if (this.cachedGoogleFonts[fontUrl] == null)
+					if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
 					{
-						waiting++;
-						
-						this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
-	                    {
-							this.cachedGoogleFonts[fontUrl] = css;
-							styleCnt += css;
-	                        waiting--;
-	                        googleCssDone();
-	                    }), mxUtils.bind(this, function(err)
-	                    {
-	                        // LATER: handle error
-	                        waiting--;
-	                        styleCnt += '@import url(' + fontUrl + ');';
-	                        googleCssDone();
-	                    }));
+						if (this.cachedGoogleFonts[fontUrl] == null)
+						{
+							waiting++;
+							
+							this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
+		                    {
+								this.cachedGoogleFonts[fontUrl] = css;
+								styleCnt += css;
+		                        waiting--;
+		                        googleCssDone();
+		                    }), mxUtils.bind(this, function(err)
+		                    {
+		                        // LATER: handle error
+		                        waiting--;
+		                        styleCnt += '@import url(' + fontUrl + ');';
+		                        googleCssDone();
+		                    }));
+						}
+						else
+						{
+							styleCnt += this.cachedGoogleFonts[fontUrl];
+						}
 					}
 					else
 					{
-						styleCnt += this.cachedGoogleFonts[fontUrl];
+						styleCnt += '@font-face {' +
+				            'font-family: "'+ fontName +'";' + 
+				            'src: url("'+ fontUrl +'");' + 
+				            '}';
 					}
-				}
-				else
-				{
-					styleCnt += '@font-face {' +
-			            'font-family: "'+ fontName +'";' + 
-			            'src: url("'+ fontUrl +'");' + 
-			            '}';
-				}				
+				}))(extFonts[i].name, extFonts[i].url);
 			}
 			
 			googleCssDone();
@@ -7151,9 +7103,12 @@
 					{
 						cells = graph.importGraphModel(node, dx, dy, crop);
 						
-						for (var i = 0; i < cells.length; i++)
+						if (cells != null)
 						{
-							this.updatePageLinksForCell(mapping, cells[i]);
+							for (var i = 0; i < cells.length; i++)
+							{
+								this.updatePageLinksForCell(mapping, cells[i]);
+							}
 						}
 					}
 				}
@@ -7590,43 +7545,39 @@
 				config = (config != null) ? config : EditorUi.defaultMermaidConfig;
 				config.securityLevel = 'strict';
 				config.startOnLoad = false;
-
+				
 				mermaid.mermaidAPI.initialize(config);
 	    		
 				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data, function(svg)
 				{
-					var img = new Image();
-					var uri = ui.createSvgDataUri(svg);
-					
-					img.onload = function()
+					try
 					{
-						try
+						// Workaround for namespace errors in SVG output for IE
+						if (mxClient.IS_IE || mxClient.IS_IE11)
 						{
-							var w = img.width;
-							var h = img.height;
+							svg = svg.replace(/ xmlns:\S*="http:\/\/www.w3.org\/XML\/1998\/namespace"/g, '').
+								replace(/ (NS xml|\S*):space="preserve"/g, ' xml:space="preserve"');
+						}
+						
+						var doc = mxUtils.parseXml(svg);
+						var svgs = doc.getElementsByTagName('svg');
 
-							// Workaround for 0 image size in IE11
-							if (w == 0 && h == 0)
-							{
-								var root = mxUtils.parseXml(svg);
-								var svgs = root.getElementsByTagName('svg');
-
-								if (svgs.length > 0)
-								{
-									w = parseFloat(svgs[0].getAttribute('width'));
-									h = parseFloat(svgs[0].getAttribute('height'));
-								}
-							}
+						if (svgs.length > 0)
+						{
+							var w = parseFloat(svgs[0].getAttribute('width'));
+							var h = parseFloat(svgs[0].getAttribute('height'));
 							
-							success(ui.convertDataUri(uri), w, h);
+							success(ui.convertDataUri(ui.createSvgDataUri(svg)), w, h);
 						}
-						catch (e)
+						else
 						{
-							error(e);
+							error({message: mxResources.get('invalidInput')});
 						}
-					};
-
-					img.src = uri;
+					}
+					catch (e)
+					{
+						error(e);
+					}
 				});
 			}
 			catch (e)
@@ -7639,10 +7590,14 @@
 		{
 			this.loadingMermaid = true;
 			
-			mxscript('js/mermaid/mermaid.min.js', function()
+			if (urlParams['dev'] == '1')
 			{
-				delayed();	
-			});
+				mxscript('js/mermaid/mermaid.min.js', delayed);
+			}
+			else
+			{
+				mxscript('js/extensions.min.js', delayed);
+			}
 		}
 		else
 		{
@@ -8476,13 +8431,13 @@
 	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn,
 		resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
 	{
-		x = (x != null) ? x : 0;
-		y = (y != null) ? y : 0;
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		maxBytes = (maxBytes != null) ? maxBytes : this.maxImageBytes;
 		
 		var crop = x != null && y != null;
 		var resizeImages = true;
+		x = (x != null) ? x : 0;
+		y = (y != null) ? y : 0;
 		
 		// Checks if large images are imported
 		var largeImages = false;
@@ -9192,13 +9147,16 @@
 			
 			img.onload = function()
 			{
+				img.width = (img.width > 0) ? img.width : 120;
+				img.height = (img.height > 0) ? img.height : 120;
+				
 				onload(img);
-			}
+			};
 			
 			if (onerror != null)
 			{
 				img.onerror = onerror;
-			}
+			};
 			
 			img.src = uri;
 		}
@@ -9854,19 +9812,25 @@
 					var x = pt.x / scale - tr.x;
 					var y = pt.y / scale - tr.y;
 					
-					if (mxEvent.isAltDown(evt))
-					{
-						x = 0;
-						y = 0;
-					}
-					
 				    if (evt.dataTransfer.files.length > 0)
 				    {
+						if (mxEvent.isAltDown(evt))
+						{
+							x = null;
+							y = null;
+						}
+						
 						this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null, null,
 							mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
 		    		}
 				    else
 				    {
+						if (mxEvent.isAltDown(evt))
+						{
+							x = 0;
+							y = 0;
+						}
+						
 				    	var uri = (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0) ?
 				    		evt.dataTransfer.getData('text/uri-list') : null;
 				    	var data = this.extractGraphModelFromEvent(evt, this.pages != null);
@@ -10356,7 +10320,9 @@
 			
 			this.addListener('customFontsChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setCustomFonts(this.menus.customFonts);
+				var customFonts = evt.getProperty('customFonts');
+				this.menus.customFonts = customFonts;
+				mxSettings.setCustomFonts(customFonts);
 				mxSettings.save();
 			}));
 			
@@ -13165,96 +13131,8 @@
 				this.toolbar.edgeStyleMenu.setEnabled(editable);
 			}
 		}
-		
-		if (this.isAppCache())
-		{
-			var appCache = window.applicationCache;
-			
-			// NOTE: HTML5 Cache is deprecated
-			if (appCache != null && this.offlineStatus == null)
-			{
-				this.offlineStatus = document.createElement('div');
-				this.offlineStatus.className = 'geItem';
-				this.offlineStatus.style.position = 'absolute';
-				this.offlineStatus.style.fontSize = '8pt';
-				this.offlineStatus.style.top = '2px';
-				this.offlineStatus.style.right = '12px';
-				this.offlineStatus.style.color = '#666';
-				this.offlineStatus.style.margin = '4px';
-				this.offlineStatus.style.padding = '2px';
-				this.offlineStatus.style.verticalAlign = 'middle';
-				this.offlineStatus.innerHTML = '';
-				
-				this.menubarContainer.appendChild(this.offlineStatus);
-				
-				mxEvent.addListener(this.offlineStatus, 'click', mxUtils.bind(this, function()
-				{
-					var img = this.offlineStatus.getElementsByTagName('img');
-					
-					if (img != null && img.length > 0)
-					{
-						this.alert(img[0].getAttribute('title'));
-					}
-				}));
-				
-				var lastStatus = null;
-				
-				var updateStatus = mxUtils.bind(this, function()
-				{
-					var newStatus = appCache.status;
-					var html = '';
-					
-					if (newStatus == appCache.CHECKING)
-					{
-						newStatus = appCache.DOWNLOADING;
-					}
-					
-					switch (newStatus)
-					{
-						case appCache.UNCACHED: // UNCACHED == 0
-							html = '';
-							break;
-						case appCache.IDLE: // IDLE == 1
-							html = (uiTheme == 'min') ? '' : '<img title="draw.io is up to date." border="0" src="' + IMAGE_PATH + '/checkmark.gif"/>';
-							break;
-						case appCache.DOWNLOADING: // DOWNLOADING == 3
-							html = '<img title="Downloading new version..." border="0" src="' + IMAGE_PATH + '/spin.gif"/>';
-							break;
-						case appCache.UPDATEREADY:  // UPDATEREADY == 4
-							html = '<img title="' + mxUtils.htmlEntities(mxResources.get('restartForChangeRequired')) +
-					    		'" border="0" src="' + IMAGE_PATH + '/download.png"/>';
-							break;
-						case appCache.OBSOLETE: // OBSOLETE == 5
-							html = '<img title="Obsolete" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-							break;
-						default:
-							html = '<img title="Unknown" border="0" src="' + IMAGE_PATH + '/clear.gif"/>';
-							break;
-					}
-					
-					if (newStatus != lastStatus)
-					{
-						this.offlineStatus.innerHTML = html;
-						lastStatus = newStatus;
-					}
-				});
 
-				mxEvent.addListener(appCache, 'checking', updateStatus);
-				mxEvent.addListener(appCache, 'noupdate', updateStatus);
-				mxEvent.addListener(appCache, 'downloading', updateStatus);
-				mxEvent.addListener(appCache, 'progress', updateStatus);
-				mxEvent.addListener(appCache, 'cached', updateStatus);
-				mxEvent.addListener(appCache, 'updateready', updateStatus);
-				mxEvent.addListener(appCache, 'obsolete', updateStatus);
-				mxEvent.addListener(appCache, 'error', updateStatus);
-				
-				updateStatus();
-			}
-		}
-		else
-		{
-			this.updateUserElement();
-		}
+		this.updateUserElement();
 	};
 	
 	/**
@@ -13758,20 +13636,56 @@
 			{
 				try
 				{
-					var req = indexedDB.open('database', '1.0');
+					var req = indexedDB.open('database', 2);
 					
 					req.onupgradeneeded = function(e)
 					{
-						e.target.result.createObjectStore('objects', {keyPath: 'key'});
+						var db = req.result;
+						
+						if (e.oldVersion < 1)
+						{
+						    // Version 1 is the first version of the database.
+							db.createObjectStore('objects', {keyPath: 'key'});
+						}
+						
+						if (e.oldVersion < 2)
+						{
+							// Version 2 introduces browser file storage.
+							db.createObjectStore('files', {keyPath: 'title'});
+							db.createObjectStore('filesInfo', {keyPath: 'title'});
+							EditorUi.migrateStorageFiles = true;
+						}
 					}
 					
 					req.onsuccess = mxUtils.bind(this, function(e)
 					{
-						this.database = e.target.result;
-						success(this.database);
+						var db = req.result;
+						this.database = db;
+						
+						if (EditorUi.migrateStorageFiles)
+						{
+							StorageFile.migrate(db);
+							EditorUi.migrateStorageFiles = false;
+						}
+						
+						success(db);
+						
+						db.onversionchange = function() 
+						{
+							//TODO Handle DB revision update while code is running
+							//		Save open file and request a page reload before closing the DB
+						    db.close();
+						};
 					});
 					
 					req.onerror = error;
+					
+					req.onblocked = function() 
+					{
+						//TODO Use this when a new version is introduced
+						// there's another open connection to same database
+						// and it wasn't closed after db.onversionchange triggered for them
+					};
 				}
 				catch (e)
 				{
@@ -13792,16 +13706,33 @@
 		}
 	};
 	
-	EditorUi.prototype.setDatabaseItem = function(key, data, success, error)
+	/**
+	 * Add/Update item(s) in the database. It supports multiple stores transactions by sending an array of data, storeName 
+	 * (key is optional, can be an array also if multiple stores are needed)
+	 */
+	EditorUi.prototype.setDatabaseItem = function(key, data, success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
 			try
 			{
-				var trx = db.transaction(['objects'], 'readwrite');
-				var req = trx.objectStore('objects').put({key: key, data: data});
-				req.onsuccess = success;
-		        req.onerror = error;
+				storeName = storeName || 'objects';
+				
+				if (!Array.isArray(storeName))
+				{
+					storeName = [storeName];
+					key = [key];
+					data = [data];
+				}
+				
+				var trx = db.transaction(storeName, 'readwrite');
+				trx.oncomplete = success;
+				trx.onerror = error;
+		        
+				for (var i = 0; i < storeName.length; i++)
+				{
+					trx.objectStore(storeName[i]).put(key != null && key[i] != null? {key: key[i], data: data[i]} : data[i]);
+				}
 			}
 			catch (e)
 			{
@@ -13816,28 +13747,71 @@
 	/**
 	 * Removes the item for the given key from the database.
 	 */
-	EditorUi.prototype.removeDatabaseItem = function(key, success, error)
+	EditorUi.prototype.removeDatabaseItem = function(key, success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
-			var trx = db.transaction(['objects'], 'readwrite');
-			var req = trx.objectStore('objects').delete(key);
-			req.onsuccess = success;
-	        req.onerror = error;
+			storeName = storeName || 'objects';
+			
+			if (!Array.isArray(storeName))
+			{
+				storeName = [storeName];
+				key = [key];
+			}
+			
+			var trx = db.transaction(storeName, 'readwrite');
+			trx.oncomplete = success;
+			trx.onerror = error;
+			
+			for (var i = 0; i < storeName.length; i++)
+			{
+				trx.objectStore(storeName[i]).delete(key[i]);
+			}
+		}), error);
+	};
+	
+	/**
+	 * Returns one item from the database.
+	 */
+	EditorUi.prototype.getDatabaseItem = function(key, success, error, storeName)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			try
+			{
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).get(key);
+				
+				req.onsuccess = function()
+				{
+					success(req.result);
+				};
+				
+		        req.onerror = error;
+			}
+	        catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
 		}), error);
 	};
 	
 	/**
 	 * Returns all items from the database.
 	 */
-	EditorUi.prototype.getDatabaseItems = function(success, error)
+	EditorUi.prototype.getDatabaseItems = function(success, error, storeName)
 	{
 		this.openDatabase(mxUtils.bind(this, function(db)
 		{
 			try
 			{
-				var trx = db.transaction(['objects'], 'readwrite');
-				var req = trx.objectStore('objects').openCursor(
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).openCursor(
 					IDBKeyRange.lowerBound(0));
 				var items = [];
 				
@@ -13866,6 +13840,35 @@
 		}), error);
 	};
 	
+	/**
+	 * Returns all item keys from the database.
+	 */
+	EditorUi.prototype.getDatabaseItemKeys = function(success, error, storeName)
+	{
+		this.openDatabase(mxUtils.bind(this, function(db)
+		{
+			try
+			{
+				storeName = storeName || 'objects';
+				var trx = db.transaction([storeName], 'readonly');
+				var req = trx.objectStore(storeName).getAllKeys();
+				
+				req.onsuccess = function()
+				{
+					success(req.result);
+		        };
+		        
+		        req.onerror = error;
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), error);
+	};
 	/**
 	 * Comments: We need these functions as wrapper of File functions in order to facilitate
 	 * overriding them if comments are needed without having a file (e.g. Confluence Plugin)

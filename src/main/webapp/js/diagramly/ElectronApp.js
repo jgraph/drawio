@@ -1,7 +1,6 @@
 window.PLUGINS_BASE_PATH = '.';
-window.OPEN_URL = 'https://www.draw.io/open';
 window.TEMPLATE_PATH = 'templates';
-window.DRAW_MATH_URL = window.mxIsElectron5? 'math' : 'https://www.draw.io/math';
+window.DRAW_MATH_URL = 'math';
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 //Disables eval for JS (uses shapes.min.js)
@@ -216,7 +215,10 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 
-		        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
+		        var paths = dialog.showOpenDialogSync({
+		        	defaultPath: remote.app.getPath('documents'),
+		        	properties: ['openFile']
+		        });
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
@@ -406,6 +408,53 @@ mxStencilRegistry.allowEval = false;
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
+		
+		var copyAsImage = this.actions.addAction('copyAsImage', mxUtils.bind(this, function()
+		{
+			const electron = require('electron');
+			var remote = electron.remote;
+			var clipboard = remote.clipboard;
+			var nativeImage = remote.nativeImage;
+			
+			if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
+			{
+				editorUi.exportToCanvas(function(canvas)
+				{
+			   		try
+			   		{
+			   			var img = nativeImage.createFromDataURL(editorUi.createImageDataUri(canvas, null, 'png'));
+			   			clipboard.writeImage(img);
+		   				editorUi.spinner.stop();
+			   		}
+			   		catch (e)
+			   		{
+			   			editorUi.handleError(e);
+			   		}
+				}, null, null, null, function(e)
+				{
+					editorUi.spinner.stop();
+					editorUi.handleError(e);
+			   	}, null, false, 1, true);
+			}
+		}));
+		
+		copyAsImage.isEnabled = function()
+		{
+			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
+		}
+	
+		// Inserts copyAsImage into popup menu
+		editorUi.menus.addPopupMenuEditItems = function(menu, cell, evt)
+		{
+			if (editorUi.editor.graph.isSelectionEmpty())
+			{
+				this.addMenuItems(menu, ['pasteHere'], null, evt);
+			}
+			else
+			{
+				this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', 'copyAsImage', '-', 'duplicate'], null, evt);
+			}
+		};
 	}
 	
 	var appLoad = App.prototype.load;
@@ -606,7 +655,15 @@ mxStencilRegistry.allowEval = false;
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 
-        var paths = dialog.showOpenDialogSync({properties: ['openFile']});
+        var paths = dialog.showOpenDialogSync({
+        	defaultPath: remote.app.getPath('documents'),
+        	filters: [
+        	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml'] },
+        	    { name: 'VSDX Documents', extensions: ['vsdx'] },
+        	    { name: 'All Files', extensions: ['*'] }
+    	    ],
+        	properties: ['openFile']
+        });
 	           
         if (paths !== undefined && paths[0] != null)
         {
@@ -1029,7 +1086,7 @@ mxStencilRegistry.allowEval = false;
 				var remote = electron.remote;
 				var dialog = remote.dialog;
 	
-				var path = dialog.showSaveDialogSync({defaultPath: this.title});
+				var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + this.title});
 	
 		        if (path != null)
 		        {
@@ -1065,7 +1122,7 @@ mxStencilRegistry.allowEval = false;
 			filename += '.drawio';
 		}
 		
-		var path = dialog.showSaveDialogSync({defaultPath: filename});
+		var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + filename});
         
         if (path != null)
         {
@@ -1277,8 +1334,6 @@ mxStencilRegistry.allowEval = false;
 		return this.response;
 	}
 	
-	if (mxIsElectron5)
-	{
 		//Direct export to pdf
 		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
 		{
@@ -1360,70 +1415,69 @@ mxStencilRegistry.allowEval = false;
 			});
 		};
 		
-		//Export Dialog Pdf case
-		var origExportFile = ExportDialog.exportFile;
+	//Export Dialog Pdf case
+	var origExportFile = ExportDialog.exportFile;
+	
+	ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
+	{
+		var graph = editorUi.editor.graph;
 		
-		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
+		if (format == 'xml' || format == 'svg')
 		{
-			var graph = editorUi.editor.graph;
+			return origExportFile.apply(this, arguments);
+		}
+		else
+		{
+			var data = editorUi.getFileData(true, null, null, null, null, true);
+    		var bounds = graph.getGraphBounds();
+			var w = Math.floor(bounds.width * s / graph.view.scale);
+			var h = Math.floor(bounds.height * s / graph.view.scale);
 			
-			if (format == 'xml' || format == 'svg')
+			if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
 			{
-				return origExportFile.apply(this, arguments);
-			}
-			else
-			{
-				var data = editorUi.getFileData(true, null, null, null, null, true);
-	    		var bounds = graph.getGraphBounds();
-				var w = Math.floor(bounds.width * s / graph.view.scale);
-				var h = Math.floor(bounds.height * s / graph.view.scale);
+				editorUi.hideDialog();
 				
-				if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
+				if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
 				{
-					editorUi.hideDialog();
-					
-					if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
+					if (format == 'png')
 					{
-						if (format == 'png')
-						{
-							editorUi.exportImage(s, bg == null || bg == 'none', true,
-						   		false, false, b, true, false, null, null, dpi);
-						}
-						else 
-						{
-							editorUi.exportImage(s, false, true,
-								false, false, b, true, false, 'jpeg');
-						}
+						editorUi.exportImage(s, bg == null || bg == 'none', true,
+					   		false, false, b, true, false, null, null, dpi);
 					}
 					else 
 					{
-						var extras = {globalVars: graph.getExportVariables()};
-						
-						editorUi.saveRequest(name, format,
-							function(newTitle, base64)
-							{
-								return new mxElectronRequest('export', {
-									format: format,
-									xml: data,
-									bg: (bg != null) ? bg : mxConstants.NONE,
-									filename: (newTitle != null) ? newTitle : null,
-									w: w,
-									h: h,
-									border: b,
-									base64: (base64 || '0'),
-									extras: JSON.stringify(extras),
-									dpi: dpi > 0? dpi : null
-								}); 
-							});
+						editorUi.exportImage(s, false, true,
+							false, false, b, true, false, 'jpeg');
 					}
 				}
-				else
+				else 
 				{
-					mxUtils.alert(mxResources.get('drawingTooLarge'));
+					var extras = {globalVars: graph.getExportVariables()};
+					
+					editorUi.saveRequest(name, format,
+						function(newTitle, base64)
+						{
+							return new mxElectronRequest('export', {
+								format: format,
+								xml: data,
+								bg: (bg != null) ? bg : mxConstants.NONE,
+								filename: (newTitle != null) ? newTitle : null,
+								w: w,
+								h: h,
+								border: b,
+								base64: (base64 || '0'),
+								extras: JSON.stringify(extras),
+								dpi: dpi > 0? dpi : null
+							}); 
+						});
 				}
 			}
-		};
-	}
+			else
+			{
+				mxUtils.alert(mxResources.get('drawingTooLarge'));
+			}
+		}
+	};
 	
 	EditorUi.prototype.saveData = function(filename, format, data, mimeType, base64Encoded)
 	{
@@ -1436,7 +1490,7 @@ mxStencilRegistry.allowEval = false;
 		// to give the spinner some time to stop spinning
 		window.setTimeout(mxUtils.bind(this, function()
 		{
-			var dlgConfig = {defaultPath: filename};
+			var dlgConfig = {defaultPath: remote.app.getPath('documents') + '/' + filename};
 			var filters = null;
 			
 			switch (format)

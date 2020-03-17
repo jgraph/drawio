@@ -26,13 +26,6 @@
       		<format property="time.stamp" pattern="MM/dd/yyyy hh:mm aa" unit="hour"/>
   		</tstamp>
 		
-		<echo file="${war.dir}/cache.manifest" append="false">CACHE MANIFEST${line.separator}${line.separator}</echo>
-		<echo file="${war.dir}/cache.manifest" append="true"># THIS FILE WAS GENERATED. DO NOT MODIFY!${line.separator}</echo>
-		<echo file="${war.dir}/cache.manifest" append="true"># ${time.stamp}${line.separator}${line.separator}</echo>
-	    	<concat destfile="${war.dir}/cache.manifest" fixlastline="yes" append="true">
-	    		<filelist dir="${basedir}" files="cache.txt"/>
-	    	</concat>
-    	
 		<delete dir="${basedir}/../../build"/>
 	</target>
 
@@ -316,11 +309,7 @@
 				<file name="mxGraphMlCodec.js" />
 			</sources>
 		</jscomp>
-		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
-    		<fileset dir="${war.dir}/js/jszip" includes="**/*.min.js"/>
-			<fileset dir="${war.dir}/js/mermaid" includes="**/*.min.js"/>
-    	</concat>
-		
+
 		<delete file="${war.dir}/js/orgchart.min.js"/>
 		<concat destfile="${war.dir}/js/orgchart.min.js" fixlastline="yes" append="no">
 			<filelist dir="${war.dir}/js/orgchart" files="bridge.min.js,bridge.collections.min.js,OrgChart.Layout.min.js"/>
@@ -334,6 +323,12 @@
 			<filelist dir="${basedir}" files=".tmp3.js"/>
     	</concat>
 		<delete file="${basedir}/.tmp3.js"/>
+
+		<concat destfile="${war.dir}/js/extensions.min.js" fixlastline="yes" append="yes">
+			<fileset file="${war.dir}/js/jszip/jszip.min.js"/>
+			<fileset file="${war.dir}/js/mermaid/mermaid.min.js"/>
+			<fileset file="${war.dir}/js/orgchart.min.js"/>
+    	</concat>
 		
 		<delete file="${basedir}/.tmp1.js"/>
 		

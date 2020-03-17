@@ -63,11 +63,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	mxUtils.setPrefixedStyle(demo.style, 'transform', 'translate(-50%,0)');
 	demo.style.left = '50%';
 	
-	if (editorUi.isOfflineApp())
-	{
-		demo.style.bottom = '28px';
-	}
-	
 	this.init = function()
 	{
 		if (mxClient.IS_QUIRKS || document.documentMode == 8)
@@ -4163,7 +4158,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	linkInput.setAttribute('autocomplete', 'off');
 	linkInput.setAttribute('autocapitalize', 'off');
 	linkInput.style.marginTop = '6px';
-	var realWidth = (Graph.fileSupport) ? 420 : 340;
+	var realWidth = (Graph.fileSupport) ? 460 : 340;
 	linkInput.style.width = realWidth + ((mxClient.IS_QUIRKS) ? 20 : -20) + 'px';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
@@ -4892,13 +4887,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 				            .setSelectFolderEnabled(true);
 						var view21 = new google.picker.DocsView()
 							.setIncludeFolders(true)
-							.setEnableTeamDrives(true)
+							.setEnableDrives(true)
 				            .setSelectFolderEnabled(true);
 						var picker = new google.picker.PickerBuilder()
 							.setAppId(editorUi.drive.appId)	
 							.setLocale(mxLanguage)
 							.setOAuthToken(editorUi.drive.token)
-							.enableFeature(google.picker.Feature.SUPPORT_TEAM_DRIVES)
+							.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
 						    .addView(view)
 							.addView(view2)
 							.addView(view21)
@@ -5023,68 +5018,6 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 
 	div.appendChild(btns);
 
-	this.container = div;
-};
-
-/**
- * Constructs a new about dialog
- */
-var AboutDialog = function(editorUi)
-{
-	var div = document.createElement('div');
-	div.style.marginTop = '6px';
-	div.setAttribute('align', 'center');
-	
-	var img = document.createElement('img');
-	img.style.border = '0px';
-	
-	if (mxClient.IS_SVG)
-	{
-		img.setAttribute('width', '164');
-		img.setAttribute('height', '221');
-		img.style.width = '164px';
-		img.style.height = '221px';
-		img.setAttribute('src', IMAGE_PATH + '/drawlogo-text-bottom.svg');
-	}
-	else
-	{
-		img.setAttribute('width', '176');
-		img.setAttribute('height', '219');
-		img.style.width = '170px';
-		img.style.height = '219px';
-		img.setAttribute('src', IMAGE_PATH + '/logo-flat.png');
-	}
-	
-	if (uiTheme == 'dark')
-	{
-		img.style.filter = 'grayscale(100%) invert(100%)';
-	}
-	
-	div.appendChild(img);
-	mxUtils.br(div);
-	
-	var clr = (uiTheme == 'dark') ? '#cccccc' : '#505050';
-	var v = document.createElement('small');
-	v.innerHTML = 'v ' + EditorUi.VERSION;
-	v.style.color = clr;
-	div.appendChild(v);
-	
-	mxUtils.br(div);
-	mxUtils.br(div);
-
-	var small = document.createElement('small');
-	small.style.color = clr;
-	small.innerHTML = '&copy; 2005-2020 <a href="https://about.draw.io/" style="color:inherit;" target="_blank">JGraph Ltd</a>.<br>All Rights Reserved.';
-	div.appendChild(small);
-	
-	mxEvent.addListener(div, 'click', function(e)
-	{
-		if (mxEvent.getSource(e).nodeName != 'A')
-		{
-			editorUi.hideDialog();
-		}
-	});
-	
 	this.container = div;
 };
 
