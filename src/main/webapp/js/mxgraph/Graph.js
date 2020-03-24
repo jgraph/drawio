@@ -4281,36 +4281,65 @@ HoverIcons.prototype.setCurrentState = function(state)
 /**
  * Returns true if the given cell is a table.
  */
-Graph.prototype.createTable = function(rows, cols)
+Graph.prototype.createParent = function(parent, child, childCount)
 {
-	var w = 40;
-	var h = 30;
+	parent = this.cloneCell(parent);
 	
-	var table = new mxCell('', new mxGeometry(0, 0, cols * w, rows * h),
-		'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=tableLayout;');
-    table.vertex = true;
-    
-    for (var i = 0; i < rows; i++)
+	for (var i = 0; i < childCount; i++)
     {
-    	var row = new mxCell('', new mxGeometry(0, i * h, cols * w, h),
-			'html=1;whiteSpace=wrap;part=1;container=1;collapsible=0;' +
-			'childLayout=rowLayout;points=[[0,0.5],[1,0.5]];');
-	    row.vertex = true;
-	    
-	    for (var j = 0; j < cols; j++)
-	    {
-	    	var cell = new mxCell('', new mxGeometry(j * w, i * h, w, h),
-				'html=1;whiteSpace=wrap;part=1;connectable=0;');
-		    cell.vertex = true;
-		    row.insert(cell);
-	    }
-	    
-	    table.insert(row);
+		parent.insert(this.cloneCell(child));
     }
-    
-	console.log('createTable', rows, cols, table);
 	
-    return table;
+	return parent;
+};
+
+/**
+ * Returns true if the given cell is a table.
+ */
+Graph.prototype.createTable = function(rowCount, colCount, w, h)
+{
+	w = (w != null) ? w : 40;
+	h = (h != null) ? h : 30;
+	
+	return this.createParent(this.createVertex(null, null, '', 0, 0, colCount * w, rowCount * h,
+		'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=tableLayout;'),
+		this.createParent(this.createVertex(null, null, '', 0, 0, colCount * w, h,
+    		'html=1;whiteSpace=wrap;container=1;collapsible=0;' +
+			'childLayout=rowLayout;points=[[0,0.5],[1,0.5]];'),
+			this.createVertex(null, null, '', 0, 0, w, h,
+				'html=1;whiteSpace=wrap;connectable=0;'),
+			colCount),
+		rowCount);
+};
+
+/**
+ * 
+ */
+Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, h)
+{
+	w = (w != null) ? w : 120;
+	h = (h != null) ? h : 120;
+	
+	var table = this.createVertex(null, null, '', 0, 0, colCount * w, rowCount * h,
+		'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=tableLayout;fillColor=none;connectable=0;');
+	var row = this.createVertex(null, null, '', 0, 0, colCount * w, h,
+		'swimlane;horizontal=0;html=1;whiteSpace=wrap;collapsible=0;container=1;' +
+		'childLayout=rowLayout;points=[[0,0.5],[1,0.5]];connectable=0;');
+	table.insert(this.createParent(row, this.createVertex(null, null,  '', 0, 0, w, h,
+		'swimlane;html=1;whiteSpace=wrap;connectable=0;collapsible=0;container=1;'),
+		colCount));
+	
+	if (rowCount > 1)
+	{
+		return this.createParent(table, this.createParent(row,
+			this.createVertex(null, null,  '', 0, 0, w, h,
+			'html=1;whiteSpace=wrap;connectable=0;collapsible=0;container=1;fillColor=none;'),
+			colCount), rowCount - 1);
+	}
+	else
+	{
+		return table;
+	}
 };
 
 /**

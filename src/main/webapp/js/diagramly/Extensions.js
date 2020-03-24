@@ -3280,6 +3280,24 @@ LucidImporter = {};
 		
 		return '';
 	}
+		
+	function getLink(m)
+	{
+		if (m != null)
+		{
+			for (var i = 0; i < m.length; i++)
+			{
+				if (m[i].n = 'lk' && m[i].v != null &&
+					m[i].v.length > 0 &&
+					m[i].v[0].tp == 'ext')
+				{
+					return m[i].v[0].url;
+				}
+			}
+		}
+		
+		return null;
+	}
 
 	function getFontColor(properties)
 	{
@@ -3608,6 +3626,16 @@ LucidImporter = {};
 		return '';
 	}
 
+	function getHeaderColor(color)
+	{
+		if (color != null)
+		{
+			return mxConstants.STYLE_FILLCOLOR + '=' + color.substring(0, 7) + ';';
+		}
+		
+		return '';
+	}
+	
 	function getOpacity(properties, action, cell)
 	{
 		var style = '';
@@ -3660,41 +3688,45 @@ LucidImporter = {};
 
 	function getRotation(properties, action, cell)
 	{
+		var s = '';
+	
 		// Converts rotation
 		if (properties.Rotation != null)
 		{
 			// KNOWN: TextRotation currently ignored
 			var deg = mxUtils.toDegree(parseFloat(properties.Rotation));
+			var h = true;
 			
 			// Fixes the case for horizontal swimlanes where we use horizontal=0
 			// and Lucid uses rotation
-			
 			if (action.Class == 'AdvancedSwimLaneBlockRotated')
 			{
 				deg += 90;
 				cell.geometry.rotate90();
+				h = false;
 			}
 			else if (mxUtils.indexOf(rccw, action.Class) >= 0)
 			{
 				deg -= 90;
 				cell.geometry.rotate90();
-				cell.geometry.rotate90();
-				cell.geometry.rotate90();
 			}
 			else if (mxUtils.indexOf(rcw2, action.Class) >= 0)
 			{
 				deg += 180;
-				cell.geometry.rotate90();
-				cell.geometry.rotate90();
 			}
 			
 			if (deg != 0)
 			{
-				return 'rotation=' + deg + ';';
+				s += 'rotation=' + deg + ';'
+			}
+			
+			if (!h)
+			{
+				s +=  'horizontal=0;';
 			}
 		}
 		
-		return '';
+		return s;
 	}
 	
 	function getFlipH(properties)
@@ -3798,9 +3830,25 @@ LucidImporter = {};
 		return '';
 	}
 
-	// Adds metadata
+	// Adds metadata, link, converts placeholders
 	function addCustomData(cell, p, graph)
 	{
+		if (p.Link != null && p.Link.length > 0 && p.Link[0].tp == 'ext')
+		{
+			graph.setAttributeForCell(cell, 'link', p.Link[0].url);
+		}
+		else if (p.Text != null)
+		{
+			var link = getLink(getTextM(p.Text));
+			
+			if (link != null)
+			{
+				graph.setAttributeForCell(cell, 'link', link);
+			}
+		}
+		
+		replacePlaceholders(cell, graph);
+		
 		for (var property in p)
 		{
 			if (p.hasOwnProperty(property) && 
@@ -3820,6 +3868,58 @@ LucidImporter = {};
 						console.log('Ignored ' + property + ':', e);
 					}
 				}
+			}
+		}
+	};
+	
+	var placeholderPattern = new RegExp('{{(date\{.*\}|[^%^\{^\}]+)}}', 'g');
+	
+	function replacePlaceholders(cell, graph)
+	{
+		var result = [];
+		var str = graph.convertValueToString(cell);
+		var doReplace = false;
+		
+		if (str != null)
+		{
+			var last = 0;
+			
+			while (match = placeholderPattern.exec(str))
+			{
+				var val = match[0];
+				doReplace = true;
+				
+				if (val.length > 2)
+				{
+					var tmp = val.substring(2, val.length - 2);
+					
+					if (tmp == 'documentName')
+					{
+						tmp = 'filename';
+					}
+					else if (tmp.substring(0, 5) == 'date:')
+					{
+						// LATER: Convert more date masks
+						tmp = 'date{' + tmp.substring(5).replace(/MMMM/g, 'mmmm') + '}';
+					}
+					else if (tmp.substring(0, 9) == 'i18nDate:')
+					{
+						// LATER: Convert more named date masks
+						tmp = 'date{' + tmp.substring(9).replace(/i18nShort/g, 'shortDate')
+							.replace(/i18nMediumWithTime/g, 'mmm d, yyyy hh:MM TT') + '}';
+					}
+					
+					tmp = '%' + tmp + '%';
+					result.push(str.substring(last, match.index) + ((tmp != null) ? tmp : val));
+					last = match.index + val.length;
+				}
+			}
+			
+			if (doReplace)
+			{
+				result.push(str.substring(last));
+				graph.setAttributeForCell(cell, 'label', result.join(''));
+				graph.setAttributeForCell(cell, 'placeholders', '1');
 			}
 		}
 	};
@@ -4546,7 +4646,7 @@ LucidImporter = {};
 	    v.vertex = true;
 
 	    var cls = (obj.Class != null) ? obj.Class : (a != null) ? a.Class : null;
-	    
+	    var rotatedSL = false;
 	    
 	    //composite shapes
 		switch (cls)
@@ -4596,6 +4696,7 @@ LucidImporter = {};
 				break;
 				
 			case 'AdvancedSwimLaneBlockRotated' :
+				rotatedSL = true;
 			case 'AdvancedSwimLaneBlock' :
 				var lanesNum = 0;
 				
@@ -4604,34 +4705,54 @@ LucidImporter = {};
 					lanesNum = p.Lanes.length;
 				}
 
-				v.style = "strokeColor=none;fillColor=none;"
+				v.style = 'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=tableLayout;strokeColor=none;fillColor=none;';
 				v.style += addAllStyles(v.style, p, a, v);
 				
 				var totalOffset = 0; //relative
 				var lane = new Array();
+
+				var laneStyle = rotatedSL? 'swimlane;horizontal=0;html=1;whiteSpace=wrap;part=1;container=1;collapsible=0;childLayout=rowLayout;startSize=25;'
+												: 'swimlane;html=1;whiteSpace=wrap;part=1;connectable=0;collapsible=0;startSize=25;';
 				
-				for (var i = 0; i < lanesNum; i++)
+				if (!rotatedSL)
 				{
-					var currOffset = parseFloat(p.Lanes[i].p);
+					var tbl = v;
+					v = new mxCell('', new mxGeometry(x, y, w, h), 'html=1;whiteSpace=wrap;part=1;container=1;collapsible=0;childLayout=rowLayout');
+				    v.vertex = true;
+				    tbl.insert(lane[i]);
+				}
+				
+				for (var j = 0; j < lanesNum; j++)
+				{
+					var currOffset = parseFloat(p.Lanes[j].p);
+					var i = parseInt(p.Lanes[j].tid) || j;
 					
-					lane.push(new mxCell('', new mxGeometry(w * totalOffset, 0,	w * currOffset, h), 'shape=swimlane;startSize=25;'));
+					lane.push(new mxCell('', new mxGeometry(w * totalOffset, 0,	w * currOffset, h), laneStyle));
 					
-					lane[i].vertex = true;
-					v.insert(lane[i]);
-					lane[i].value = convertText(p["Lane_" + i]);
-					lane[i].style += 	
+					lane[j].vertex = true;
+					v.insert(lane[j]);
+					lane[j].value = convertText(p["Lane_" + i]);
+					lane[j].style +=
+									addAllStyles(lane[j].style, p, a, lane[j]) +
 									getFontSize(p["Lane_" + i]) +
 									getFontColor(p["Lane_" + i]) + 
 									getFontStyle(p["Lane_" + i]) +
-									getTextAlignment(p["Lane_" + i], lane[i]) + 
+									getTextAlignment(p["Lane_" + i], lane[j]) + 
 									getTextLeftSpacing(p["Lane_" + i]) +
 									getTextRightSpacing(p["Lane_" + i]) + 
 									getTextTopSpacing(p["Lane_" + i]) +
 									getTextBottomSpacing(p["Lane_" + i]) + 
 									getTextGlobalSpacing(p["Lane_" + i]) +
-									getTextVerticalAlignment(p["Lane_" + i]); 
-					addAllStyles(lane[i].style, p, a, lane[i]);
-
+									getTextVerticalAlignment(p["Lane_" + i]) +
+									getHeaderColor(p["HeaderFill_" + i]);
+					
+					if (rotatedSL)
+					{
+						var dc = new mxCell('', new mxGeometry(0, 0, h - 25, w * currOffset), 'html=1;whiteSpace=wrap;part=1;connectable=0;fillColor=none;strokeColor=none;');
+					    dc.vertex = true;
+						lane[j].insert(dc);
+					}
+					
 					totalOffset += currOffset;
 				}
 				

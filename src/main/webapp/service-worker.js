@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "887b6bc2f181d2888215c8712415a3e7"
+    "revision": "980a618d19ca664cdf543f7e9da9fbef"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "205dd0e7a7fbd8cbcb7d0752de501b18"
+    "revision": "02e798ec6d2bc29c702e201dce553719"
   },
   {
     "url": "js/diagramly/ElectronApp.js",
@@ -406,7 +406,10 @@ if (workbox)
   }
 ],
 	{
-		// Ignore all URL parameters.
+		// Ignore all URL parameters
+		// FIXME: Using this /open redirects to /open.html so
+		// DO NOT use filenames matching servlet mappings!
+		// See https://github.com/GoogleChromeLabs/sw-precache#ignoreurlparametersmatching-arrayregex
 		ignoreURLParametersMatching: [/.*/]
 	});
 }

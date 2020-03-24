@@ -9584,6 +9584,12 @@
 		graph.getExportVariables = function()
 		{
 			var vars = graphGetExportVariables.apply(this, arguments);
+			var file = ui.getCurrentFile();
+			
+			if (file != null)
+			{
+				vars['filename'] = file.getTitle();
+			}
 			
 			vars['pagecount'] = (ui.pages != null) ? ui.pages.length : 1;
 			vars['page'] = (ui.currentPage != null) ? ui.currentPage.getName() : '';
@@ -9598,7 +9604,13 @@
 		
 		graph.getGlobalVariable = function(name)
 		{
-			if (name == 'page' && ui.currentPage != null)
+			var file = ui.getCurrentFile();
+			
+			if (name == 'filename' && file != null)
+			{
+				return file.getTitle();
+			}
+			else if (name == 'page' && ui.currentPage != null)
 			{
 				return ui.currentPage.getName();
 			}
@@ -13812,7 +13824,7 @@
 							// Version 2 introduces browser file storage.
 							db.createObjectStore('files', {keyPath: 'title'});
 							db.createObjectStore('filesInfo', {keyPath: 'title'});
-							EditorUi.migrateStorageFiles = true;
+							EditorUi.migrateStorageFiles = isLocalStorage;
 						}
 					}
 					
