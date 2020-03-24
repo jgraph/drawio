@@ -1,7 +1,7 @@
 {
-  "name": "draw.io",
-  "version": "12.6.5",
-  "description": "draw.io desktop",
+  "name": "diagrams.net",
+  "version": "12.9.2",
+  "description": "diagrams.net desktop",
   "main": "electron.js",
   "scripts": {
     "start": "electron ."
@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/jgraph/drawio",
   "dependencies": {
-    "commander": "^4.1.0",
-    "electron-log": "^4.0.3",
-    "electron-updater": "^4.1.2",
+    "commander": "^5.0.0",
+    "electron-log": "^4.1.0",
+    "electron-updater": "^4.2.0",
     "electron-progressbar": "^1.2.0",
     "electron-store": "^5.1.0",
     "compression": "^1.7.4",
     "crc": "^3.8.0"
   },
   "devDependencies": {
-    "electron": "^8.0.0"
+    "electron": "^8.1.1"
   }
 }
