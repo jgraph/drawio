@@ -1,3 +1,31 @@
+24-MAR:2020: 12.9.1
+
+- Fixes insert HTML table from text panel
+
+23-MAR:2020: 12.9.0
+
+- Fixes encoding errors in stencils.min.js
+- Moves resize live preview to front
+- Adds Threat Modeling shapes
+- Uses mxGraph 4.1.1 beta 14
+
+23-MAR:2020: 12.8.9
+
+- Adds Lucidchart import feedback
+- Adds search for all pages
+- Adds new polygon shapes
+
+18-MAR:2020: 12.8.8
+
+- Improvements to localStorage migration
+- Improvements to AWS shapes
+
+17-MAR:2020: 12.8.7
+
+- Improvements to localStorage migration
+- Fixes align and distribute buttons in Arrange panel
+- Improvements for Lucidchart import
+
 17-MAR-2020: 12.8.6
 
 - Migrates localStorage from draw.io to diagrams.net

@@ -534,9 +534,10 @@ App.main = function(callback, createUi)
 		// Runs as progressive web app if service workers are supported
 		try
 		{
-			if ('serviceWorker' in navigator)
+			if ('serviceWorker' in navigator && (/.*\.diagrams\.net$/.test(window.location.hostname) ||
+				/.*\.draw\.io$/.test(window.location.hostname) || urlParams['offline'] == '1'))
 			{
-				if (urlParams['offline'] == '0' || urlParams['dev'] == '1')
+				if (urlParams['offline'] == '0' || (urlParams['offline'] != '1' && urlParams['dev'] == '1'))
 				{
 					navigator.serviceWorker.getRegistrations().then(function(registrations)
 					{
@@ -1431,19 +1432,20 @@ App.prototype.init = function()
 			this.mode = App.mode;
 		}
 		
-		// Integrates Add to Home Screen
-		if ('serviceWorker' in navigator && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			(/.*\.diagrams\.net$/.test(window.location.hostname) || urlParams['offline'] == '1'))
+		// Add to Home Screen dialog for mobile devices
+		if ('serviceWorker' in navigator && (mxClient.IS_ANDROID || mxClient.IS_IOS))
 		{
 			window.addEventListener('beforeinstallprompt', mxUtils.bind(this, function(e)
 			{
-				this.showBanner('AddToHomeScreenFooter', mxResources.get('installDrawio'), function()
+				this.showBanner('AddToHomeScreenFooter', mxResources.get('installApp'), function()
 				{
 				    e.prompt();
 				});
 			}));
 		}
-		else if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
+		
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS &&
 			urlParams['open'] == null && (!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
@@ -1722,93 +1724,6 @@ App.prototype.showDownloadDesktopBanner = function()
 			}
 		}));
 	}
-};
-
-/**
- * Creates a popup banner.
- */
-App.prototype.showBanner = function(id, label, onclick)
-{
-	var result = false;
-	
-	if (!this.bannerShowing && !this['hideBanner' + id] &&
-		(!isLocalStorage || mxSettings.settings == null ||
-		mxSettings.settings['close' + id] == null))
-	{
-		var banner = document.createElement('div');
-		banner.style.cssText = 'position:absolute;bottom:10px;left:50%;max-width:90%;padding:18px 34px 12px 20px;' +
-			'font-size:16px;font-weight:bold;white-space:nowrap;cursor:pointer;z-index:' + mxPopupMenu.prototype.zIndex + ';';
-		mxUtils.setPrefixedStyle(banner.style, 'box-shadow', '1px 1px 2px 0px #ddd');
-		mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
-		mxUtils.setPrefixedStyle(banner.style, 'transition', 'all 1s ease');
-		banner.className = 'geBtn gePrimaryBtn';
-		
-		var logo = document.createElement('img');
-		logo.setAttribute('src', IMAGE_PATH + '/logo.png');
-		logo.setAttribute('border', '0');
-		logo.setAttribute('align', 'absmiddle');
-		logo.style.cssText = 'margin-top:-4px;margin-left:8px;margin-right:12px;width:26px;height:26px;';
-		banner.appendChild(logo);
-
-		var img = document.createElement('img');
-		img.setAttribute('src', Dialog.prototype.closeImage);
-		img.setAttribute('title', mxResources.get('close'));
-		img.setAttribute('border', '0');
-		img.style.cssText = 'position:absolute;right:10px;top:12px;filter:invert(1);';
-		banner.appendChild(img);
-		
-		mxUtils.write(banner, label);
-		document.body.appendChild(banner);
-		this.bannerShowing = true;
-		
-		var onclose = mxUtils.bind(this, function(showAgain)
-		{
-			if (banner.parentNode != null)
-			{
-				banner.parentNode.removeChild(banner);
-				this['hideBanner' + id] = true;
-				this.bannerShowing = false;
-				
-				if (isLocalStorage && mxSettings.settings != null && !showAgain)
-				{
-					mxSettings.settings['close' + id] = Date.now();
-					mxSettings.save();
-				}
-			}
-		});
-		
-		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
-		{
-			mxEvent.consume(e);
-			onclose();
-		}));
-		
-		mxEvent.addListener(banner, 'click', mxUtils.bind(this, function(e)
-		{
-			mxEvent.consume(e);
-			onclick();
-			onclose();
-		}));
-		
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,0%)');
-		}), 500);
-		
-		window.setTimeout(mxUtils.bind(this, function()
-		{
-			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
-			
-			window.setTimeout(mxUtils.bind(this, function()
-			{
-				onclose(true);
-			}), 1000);
-		}), 30000);
-		
-		result = true;
-	}
-	
-	return result;
 };
 
 /**
@@ -3307,6 +3222,7 @@ App.prototype.showSplash = function(force)
 			}), true);
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS &&
 			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
 		{
 			this.showDownloadDesktopBanner();

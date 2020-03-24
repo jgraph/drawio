@@ -731,7 +731,7 @@
 
 		editorUi.actions.addAction('support...', function()
 		{
-			editorUi.openLink('https://about.draw.io/support/');
+			editorUi.openLink('https://drawio-app.com/support/');
 		});
 
 		editorUi.actions.addAction('exportOptionsDisabled...', function()
@@ -796,7 +796,7 @@
 		{
 			if (this.findWindow == null)
 			{
-				this.findWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 240, 140);
+				this.findWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 240, 155);
 				this.findWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('find'));
@@ -823,12 +823,12 @@
 		
 		if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
 		{
-			editorUi.actions.addAction('drawConfig...', function()
+			editorUi.actions.addAction('configuration...', function()
 			{
 				// Add help, link button
 				var value = localStorage.getItem('.configuration');
 				
-		    	var dlg = new TextareaDialog(editorUi, mxResources.get('drawConfig') + ':',
+		    	var dlg = new TextareaDialog(editorUi, mxResources.get('configuration') + ':',
 		    		(value != null) ? JSON.stringify(JSON.parse(value), null, 2) : '', function(newValue)
 				{
 					if (newValue != null)
@@ -1285,16 +1285,11 @@
 					input.focus();
 				}, 0);
 				
-				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart', 'userManual', '-'], parent);
-				
-				if (!EditorUi.isElectronApp && !navigator.standalone && urlParams['embed'] != '1')	
-				{	
-					this.addMenuItems(menu, ['downloadDesktop'], parent);	
-				}
+				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart', '-', 'userManual'], parent);
 				
 				if (!mxClient.IS_CHROMEAPP)
 				{
-					this.addMenuItems(menu, ['feedback', 'support'], parent);
+					this.addMenuItems(menu, ['support'], parent);
 				}
 
 				this.addMenuItems(menu, ['-', 'about'], parent);
@@ -2677,6 +2672,15 @@
     	        graph.startEditing(cell);
     		}
     		
+    		// Async call is workaroun for touch events resetting hover icons
+    		window.setTimeout(function()
+    		{
+	    		if (editorUi.hoverIcons != null)
+				{
+					editorUi.hoverIcons.update(graph.view.getState(cell));
+				}
+    		}, 0);
+    		
 	    	return cell;
 		};
 		
@@ -3352,7 +3356,7 @@
 				this.addMenuItem(menu, 'plugins', parent);
 			}
 
-			this.addMenuItems(menu, ['tags', '-', 'editDiagram', '-', 'drawConfig'], parent);
+			this.addMenuItems(menu, ['tags', '-', 'editDiagram', '-', 'configuration'], parent);
 			
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);

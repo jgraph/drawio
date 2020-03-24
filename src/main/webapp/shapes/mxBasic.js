@@ -4642,3 +4642,114 @@ Graph.handleFactory[mxShapeBasicRect2.prototype.cst.DIAG_ROUND_RECT] = function(
 	
 	return handles;
 };
+
+//**********************************************************************************************************************************************************
+//Polygon
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPolygon(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+	this.dy = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPolygon, mxActor);
+
+mxShapeBasicPolygon.prototype.customProperties = [
+	{name: 'polyline', dispName: 'Polyline', type: 'bool', defVal:false},
+];
+
+mxShapeBasicPolygon.prototype.cst = {POLYGON : 'mxgraph.basic.polygon'};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPolygon.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+    try
+    {
+        c.translate(x, y);
+        var coords = JSON.parse(mxUtils.getValue(this.state.style, 'polyCoords', '[]'));
+    	var polyline = mxUtils.getValue(this.style, 'polyline', false);
+     
+        if (coords.length > 0)
+        {
+            c.begin();
+            c.moveTo(coords[0][0] * w, coords[0][1] * h);
+           
+            for (var i = 1; i < coords.length; i++)
+            {
+                c.lineTo(coords[i][0] * w, coords[i][1] * h);
+            }
+       
+            if (polyline == false)
+            {
+                c.close();
+            }
+            
+            c.end();
+            c.fillAndStroke();
+        }
+    }
+    catch (e)
+    {
+        // ignore
+    }
+};
+ 
+mxCellRenderer.registerShape(mxShapeBasicPolygon.prototype.cst.POLYGON, mxShapeBasicPolygon);
+
+// Workaround for possible inconsistent app.min.js and shapes.min.js
+if (Graph.handlePadding != null)
+{
+	Graph.handlePadding['mxgraph.basic.polygon'] = true;
+}
+
+mxShapeBasicPolygon.prototype.constraints = null;
+ 
+Graph.handleFactory[mxShapeBasicPolygon.prototype.cst.POLYGON] = function(state)
+{
+    var handles = [];
+ 
+    try
+    {
+        var c = JSON.parse(mxUtils.getValue(state.style, 'polyCoords', '[]'));
+               
+        for (var i = 0; i < c.length; i++)
+        {
+            (function(index)
+            {
+                handles.push(Graph.createHandle(state, ['polyCoords'], function(bounds)
+                {
+                    return new mxPoint(bounds.x + c[index][0] * bounds.width, bounds.y + c[index][1] * bounds.height);
+                }, function(bounds, pt)
+                {
+                    var x = Math.round(100 * Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width))) / 100;
+                    var y = Math.round(100 * Math.max(0, Math.min(1, (pt.y - bounds.y) / bounds.height))) / 100;
+                   
+                    c[index] = [x, y];
+                    state.style['polyCoords'] = JSON.stringify(c);
+                   
+                }));
+            })(i);
+        }
+    }
+    catch (e)
+    {
+        // ignore
+    }
+   
+    return handles;
+};

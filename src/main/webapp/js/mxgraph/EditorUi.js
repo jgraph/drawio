@@ -1057,6 +1057,12 @@ EditorUi.prototype.init = function()
 		graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
 		{
 			graph.tooltipHandler.hide();
+			var rb = graph.getRubberband();
+			
+			if (rb != null)
+			{
+				rb.cancel();
+			}
 		}));
 		
 		mxEvent.addListener(graph.container, 'keydown', mxUtils.bind(this, function(evt)

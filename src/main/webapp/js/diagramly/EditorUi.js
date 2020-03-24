@@ -3906,6 +3906,117 @@
 		this.showDialog(dlg.container, 340, 46 + height, true, closable);
 		dlg.init();
 	};
+	
+	/**
+	 * Creates a popup banner.
+	 */
+	EditorUi.prototype.showBanner = function(id, label, onclick)
+	{
+		var result = false;
+		
+		if (!this.bannerShowing && !this['hideBanner' + id] &&
+			(!isLocalStorage || mxSettings.settings == null ||
+			mxSettings.settings['close' + id] == null))
+		{
+			var banner = document.createElement('div');
+			banner.style.cssText = 'position:absolute;bottom:10px;left:50%;max-width:90%;padding:18px 34px 12px 20px;' +
+				'font-size:16px;font-weight:bold;white-space:nowrap;cursor:pointer;z-index:' + mxPopupMenu.prototype.zIndex + ';';
+			mxUtils.setPrefixedStyle(banner.style, 'box-shadow', '1px 1px 2px 0px #ddd');
+			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+			mxUtils.setPrefixedStyle(banner.style, 'transition', 'all 1s ease');
+			banner.className = 'geBtn gePrimaryBtn';
+			
+			var logo = document.createElement('img');
+			logo.setAttribute('src', IMAGE_PATH + '/logo.png');
+			logo.setAttribute('border', '0');
+			logo.setAttribute('align', 'absmiddle');
+			logo.style.cssText = 'margin-top:-4px;margin-left:8px;margin-right:12px;width:26px;height:26px;';
+			banner.appendChild(logo);
+	
+			var img = document.createElement('img');
+			img.setAttribute('src', Dialog.prototype.closeImage);
+			img.setAttribute('title', mxResources.get('close'));
+			img.setAttribute('border', '0');
+			img.style.cssText = 'position:absolute;right:10px;top:12px;filter:invert(1);padding:6px;margin:-6px;cursor:default;';
+			banner.appendChild(img);
+			
+			mxUtils.write(banner, label);
+			document.body.appendChild(banner);
+			this.bannerShowing = true;
+			
+			var div = document.createElement('div');
+			div.style.cssText = 'font-size:11px;text-align:center;font-weight:normal;';
+			var chk = document.createElement('input');
+			chk.setAttribute('type', 'checkbox');
+			chk.setAttribute('id', 'geDoNotShowAgainCheckbox');
+			chk.style.marginRight = '6px';
+			div.appendChild(chk);
+			
+			var label = document.createElement('label');
+			label.setAttribute('for', 'geDoNotShowAgainCheckbox');
+			mxUtils.write(label, mxResources.get('doNotShowAgain'));
+			div.appendChild(label);
+			banner.style.paddingBottom = '30px';
+			banner.appendChild(div);
+			
+			var onclose = mxUtils.bind(this, function(showAgain)
+			{
+				if (banner.parentNode != null)
+				{
+					banner.parentNode.removeChild(banner);
+					this.bannerShowing = false;
+					
+					if (chk.checked)
+					{
+						this['hideBanner' + id] = true;
+	
+						if (isLocalStorage && mxSettings.settings != null)
+						{
+							mxSettings.settings['close' + id] = Date.now();
+							mxSettings.save();
+						}
+					}
+				}
+			});
+			
+			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
+			{
+				mxEvent.consume(e);
+				onclose();
+			}));
+			
+			mxEvent.addListener(banner, 'click', mxUtils.bind(this, function(e)
+			{
+				var source = mxEvent.getSource(e);
+				
+				if (source != chk && source != label)
+				{
+					mxEvent.consume(e);
+					onclick();
+					onclose();
+				}
+			}));
+			
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,0%)');
+			}), 500);
+			
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					onclose(true);
+				}), 1000);
+			}), 30000);
+			
+			result = true;
+		}
+		
+		return result;
+	};
 
 	/**
 	 * Translates this point by the given vector.
@@ -7941,6 +8052,20 @@
 						{
 							this.editor.graph.setSelectionCells(
 								this.importXml(xml, dx, dy, crop));
+							
+							if (!this.isOffline() &&
+								(/.*\.diagrams\.net$/.test(window.location.hostname) ||
+								/.*\.appspot\.com$/.test(window.location.hostname) ||
+								/.*\.draw\.io$/.test(window.location.hostname)))
+							{
+								this.showBanner('LucidChartImportSurvey', mxResources.get('notSatisfiedWithImport'),
+									mxUtils.bind(this, function()
+								{
+									var dlg = new FeedbackDialog(this, 'Lucidchart Import Feedback', true, text);
+									this.showDialog(dlg.container, 610, 360, true, false);
+									dlg.init();
+								}));
+							}
 						}), mxUtils.bind(this, function(e)
 						{
 							this.handleError(e);
@@ -9871,6 +9996,16 @@
 				    			{
 				    				html = a[0].getAttribute('href');
 				    			}
+					    		else
+					    		{
+					    			// Extracts preformatted text
+					    			var pre = div.getElementsByTagName('pre');
+					    			
+					    			if (pre != null && pre.length == 1)
+					    			{
+					    				html = mxUtils.getTextContent(pre[0]);
+					    			}
+					    		}
 				    		}
 				    		
 				    		var resizeImages = true;
@@ -11928,7 +12063,7 @@
 					}
 					else if (data.action == 'remoteInvoke') 
 					{
-						this.handleRemoteInvoke(data);
+						this.handleRemoteInvoke(data, evt.origin);
 						return;
 					}
 					else if (data.action == 'remoteInvokeResponse')
@@ -13320,6 +13455,7 @@
 				if (this.currentPage != this.pages[i])
 				{
 					pageGraph = this.createTemporaryGraph(graph.getStylesheet());
+					this.updatePageRoot(this.pages[i]);
 					pageGraph.model.setRoot(this.pages[i].root);								
 				}
 				allPagesTxt += this.pages[i].getName() + ' ' + pageGraph.getIndexableText() + ' ';
@@ -13481,7 +13617,9 @@
 	//White-listed functions and some info about it
 	EditorUi.prototype.remoteInvokableFns = {
 		getDiagramTextContent: {isAsync: false},
-		getLocalStorageFiles: {isAsync: false, allowedDomains: ['app.diagrams.net']}
+		getLocalStorageFile: {isAsync: false, allowedDomains: ['app.diagrams.net']},
+		getLocalStorageFileNames: {isAsync: false, allowedDomains: ['app.diagrams.net']},
+		setMigratedFlag: {isAsync: false, allowedDomains: ['app.diagrams.net']}
 	};
 	
 	EditorUi.prototype.remoteInvokeCallbacks = [];
@@ -13555,7 +13693,7 @@
 		}
 	};
 
-	EditorUi.prototype.handleRemoteInvoke = function(msg)
+	EditorUi.prototype.handleRemoteInvoke = function(msg, origin)
 	{
 		var sendResponse = mxUtils.bind(this, function(resp, error)
 		{
@@ -13587,7 +13725,7 @@
 					
 					for (var i = 0; i < functionInfo.allowedDomains.length; i++)
 					{
-						if (location.host == functionInfo.allowedDomains[i])
+						if (origin == 'https://' + functionInfo.allowedDomains[i])
 						{
 							allowed = true;
 							break;
@@ -13689,72 +13827,155 @@
 							EditorUi.migrateStorageFiles = false;
 						}
 
-						if (location.host == 'app.diagrams.net' && localStorage.getItem('.drawioMigrated') != '1' && !this.drawioMigrationStarted)
+						if (location.host == 'app.diagrams.net' && !this.drawioMigrationStarted)
 						{
 							this.drawioMigrationStarted = true;
-							var drawioFrame = document.createElement('iframe');
-							drawioFrame.style.display = 'none';
-							drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json');
-					    	document.body.appendChild(drawioFrame);
-					    	
-					    	var messageListener = mxUtils.bind(this, function(evt)
+							
+							this.getDatabaseItem('.drawioMigrated3', mxUtils.bind(this, function(value)
 							{
-								var drawMsg = JSON.parse(evt.data);
-								
-								if (drawMsg.event == 'init')
+								if (value) //Already migrated
 								{
-									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
-									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFiles'}), '*');
+									return;
 								}
-								else if (drawMsg.event == 'remoteInvokeResponse' && drawMsg.resp != null
-											&& drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+								
+								var drawioFrame = document.createElement('iframe');
+								drawioFrame.style.display = 'none';
+								drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json');
+						    	document.body.appendChild(drawioFrame);
+						    	var collectNames = true, allDone = false;
+						    	var fileNames, index = 0;
+						    	
+						    	var markAsMigrated = mxUtils.bind(this, function()
 								{
-									var index = 0;
-									
-									var next = mxUtils.bind(this, function()
+						    		allDone = true;
+									this.setDatabaseItem('.drawioMigrated3', true);
+									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'setMigratedFlag'}), '*');
+								});
+								
+								var next = mxUtils.bind(this, function()
+								{
+									index++;
+									fetchOneFile();
+								});
+								
+								var fetchOneFile = mxUtils.bind(this, function()
+								{
+									try
 									{
-										index++;
-										importOneFile();
-									});
-									
-									var importOneFile = mxUtils.bind(this, function()
-									{
-										if (index >= drawMsg.resp[0].length)
+										if (index >= fileNames.length)
 										{
-											localStorage.setItem('.drawioMigrated', '1');
+											markAsMigrated();
 											return;
 										}
 										
-										var file = drawMsg.resp[0][index];
+										var fileTitle = fileNames[index];
 										
-										StorageFile.getFileInfo(this, file.title, mxUtils.bind(this, function(info)
+										StorageFile.getFileContent(this, fileTitle, mxUtils.bind(this, function(data)
 										{
-											if (info == null) //Don't overwrite
+											if (data == null || (fileTitle == '.scratchpad' && data == this.emptyLibraryXml)) //Don't overwrite
 											{
-												this.setDatabaseItem(null, [{
-													title: file.title,
-													size: file.size,
-													lastModified: file.lastModified,
-													type: file.type
-												}, {
-													title: file.title,
-													data: file.data
-												}], next, next /* Ignore errors */, ['filesInfo', 'files']);
+												drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFile', functionArgs: [fileTitle]}), '*');
 											}
 											else
 											{
 												next();
 											}
 										}), next);  //Ignore errors
-									});
+									}
+									catch(e)
+									{
+										//Log error
+										EditorUi.logError('Migration Caught: ' + e.message, null, null, null, e, 'INFO');
+									}
+								});
+								
+								var importOneFile = mxUtils.bind(this, function(file)
+								{
+									try
+									{
+										this.setDatabaseItem(null, [{
+											title: file.title,
+											size: file.data.length,
+											lastModified: Date.now(),
+											type: file.isLib? 'L' : 'F'
+										}, {
+											title: file.title,
+											data: file.data
+										}], next, next /* Ignore errors */, ['filesInfo', 'files']);
+									}
+									catch(e)
+									{
+										//Log error
+										EditorUi.logError('Migration Caught: ' + e.message, null, null, null, e, 'INFO');
+									}
+								});
+										
+						    	var messageListener = mxUtils.bind(this, function(evt)
+								{
+						    		var evtData;
+						    		
+									try
+									{
+										//Only accept messages from migration iframe
+										if (evt.source != drawioFrame.contentWindow)
+										{
+											return;
+										}
+										
+										evtData = evt.data;
+										var drawMsg = JSON.parse(evt.data);
 									
-									importOneFile();
-								}
-							});
-
-							window.addEventListener('message', messageListener);
+										if (drawMsg.event == 'init')
+										{
+											drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
+											drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFileNames'}), '*');
+										}
+										else if (drawMsg.event == 'remoteInvokeResponse' && !allDone)
+										{
+											if (collectNames)
+											{
+												if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+												{
+													fileNames = drawMsg.resp[0];
+													collectNames = false;
+													fetchOneFile();
+												}
+												else
+												{
+													//Nothing in draw.io localStorage
+													markAsMigrated();
+												}
+											}
+											else
+											{
+												//Add the file, then move to the next
+												if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+												{
+													importOneFile(drawMsg.resp[0]);
+												}
+												else
+												{
+													next();
+												}
+											}
+										}
+									}
+									catch(e)
+									{
+										try
+										{
+											evtData = JSON.stringify(evtData);
+										}
+										catch(e2){}
+										//Log error
+										EditorUi.logError('Migration Caught: ' + e.message + (e.message.indexOf('JSON') >= 0? ' >> ' + evtData : ''), null, null, null, e, 'INFO');
+									}
+								});
+	
+								window.addEventListener('message', messageListener);
+							})); //Ignore errors
 						}
-						
+							
 						success(db);
 						
 						db.onversionchange = function() 
@@ -14115,9 +14336,13 @@
 		xhr.setRequestHeader('Content-Language', 'da, mi, en, de-DE');
 	};
 	
-	
-	EditorUi.prototype.getLocalStorageFiles = function()
+	EditorUi.prototype.getLocalStorageFileNames = function()
 	{
+		if (localStorage.getItem('.localStorageMigrated') == '1')
+		{
+			return null;
+		}
+		
 		var files = [];
 		
 		for (var i = 0; i < localStorage.length; i++)
@@ -14133,18 +14358,28 @@
 
 				if (isFile || isLib)
 				{
-					files.push({
-						title: key,
-						type: isFile? 'F' : 'L',
-						size: value.length,
-						lastModified: Date.now(),
-						data: value
-					});
+					files.push(key);
 				}	
 			}
 		}
 		
 		return files;
+	};
+	
+	EditorUi.prototype.getLocalStorageFile = function(key)
+	{
+		if (localStorage.getItem('.localStorageMigrated') == '1')
+		{
+			return null;
+		}
+		
+		var value = localStorage.getItem(key);
+		return {title: key, data: value, isLib: value.substring(0, 11) === '<mxlibrary>'};
+	};
+	
+	EditorUi.prototype.setMigratedFlag = function()
+	{
+		localStorage.setItem('.localStorageMigrated', '1');	
 	};
 })();
 

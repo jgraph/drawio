@@ -1206,7 +1206,8 @@ OneDriveClient.prototype.logout = function()
 			localStorage.removeItem('odpickerv7cache');	
 		}
 	}
-	
+
+	window.open('https://login.microsoftonline.com/common/oauth2/v2.0/logout', 'logout', 'width=525,height=525,status=no,resizable=yes,toolbar=no,menubar=no,scrollbars=yes');
 	this.clearPersistentToken();
 	this.setUser(null);
 	this.token = null;

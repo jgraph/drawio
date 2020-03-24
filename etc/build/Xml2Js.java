@@ -26,7 +26,7 @@ public class Xml2Js
 	/**
 	 * 
 	 */
-	public static String CHARSET_FOR_URL_ENCODING = "ISO-8859-1";
+	public static String CHARSET_FOR_URL_ENCODING = "UTF-8";
 
 	/**
 	 * 
@@ -112,7 +112,7 @@ public class Xml2Js
 
 		while (tmp != null)
 		{
-			result.append(tmp + "\n");
+			result.append(tmp.trim());
 			tmp = reader.readLine();
 		}
 

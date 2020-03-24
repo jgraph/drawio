@@ -3262,11 +3262,6 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 		var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
 			graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
 		ds.drop(graph, evt, null, pt.x, pt.y, true);
-		
-		if (this.editorUi.hoverIcons != null && (mxEvent.isTouchEvent(evt) || mxEvent.isPenEvent(evt)))
-		{
-			this.editorUi.hoverIcons.update(graph.view.getState(graph.getSelectionCell()));
-		}
 	}
 };
 

@@ -1496,8 +1496,13 @@ ArrangePanel.prototype.init = function()
 	{
 		this.container.appendChild(this.addFlip(this.createPanel()));
 	}
-
-	if (ss.vertices.length == 1 && ss.edges.length == 0 &&
+	
+	if (ss.vertices.length > 1)
+	{
+		this.container.appendChild(this.addAlign(this.createPanel()));
+		this.container.appendChild(this.addDistribute(this.createPanel()));
+	}
+	else if (ss.vertices.length == 1 && ss.edges.length == 0 &&
 		(graph.isTable(ss.vertices[0]) ||
 		graph.isTableRow(ss.vertices[0]) ||
 		graph.isTableCell(ss.vertices[0])))
@@ -1991,7 +1996,7 @@ ArrangePanel.prototype.addAngle = function(div)
 
 		btn = mxUtils.button(label, function(evt)
 		{
-			ui.actions.get('turn').funct();
+			ui.actions.get('turn').funct(evt);
 		})
 		
 		btn.setAttribute('title', label + ' (' + this.editorUi.actions.get('turn').shortcut + ')');

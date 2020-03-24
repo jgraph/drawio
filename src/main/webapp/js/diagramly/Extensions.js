@@ -3323,8 +3323,11 @@ LucidImporter = {};
 	
 	function getFontStyle(properties)
 	{
-		var m = getTextM(properties);
+		return getFontStyleString(getTextM(properties));
+	}
 		
+	function getFontStyleString(m)
+	{
 		if (m != null)
 		{
 			var fontStyle = 0;
@@ -3753,11 +3756,7 @@ LucidImporter = {};
 	function getStrokeStyle(properties)
 	{
 		// Stroke style
-		if (properties.StrokeStyle == 'dashed')
-		{
-			return 'dashed=1;';
-		}
-		else if (properties.StrokeStyle == 'dotted')
+		if (properties.StrokeStyle == 'dotted')
 		{
 			return 'dashed=1;dashPattern=1 4;';
 		}
@@ -3769,6 +3768,11 @@ LucidImporter = {};
 		{
 			return 'dashed=1;dashPattern=1 1;';
 		}
+		else if (properties.StrokeStyle != null && properties.
+			StrokeStyle.substring(0, 6) == 'dashed')
+		{
+			return 'dashed=1;';
+		} 
 		
 		return '';
 	}
@@ -3807,17 +3811,7 @@ LucidImporter = {};
 					var data = p[property];
 					var key = mxUtils.trim(data.Label).replace(/[^a-z0-9]+/ig, '_').
 						replace(/^\d+/, '').replace(/_+$/, '');
-					var currentKey = key;
-					var counter = 0;
-					
-					// Resolves conflicts by adding counter postfix
-					while (graph.getAttributeForCell(cell, currentKey) != null)
-					{
-						counter++;
-						currentKey = key + '_' + counter;
-					}
-					
-					graph.setAttributeForCell(cell, currentKey, (data.Value != null) ? data.Value : '');
+					setAttributeForCell(cell, key, data.Value, graph);
 				}
 				catch (e)
 				{
@@ -3830,7 +3824,22 @@ LucidImporter = {};
 		}
 	};
 	
-	function updateCell(cell, obj, graph)
+	function setAttributeForCell(cell, key, value, graph)
+	{
+		var currentKey = key;
+		var counter = 0;
+		
+		// Resolves conflicts by adding counter postfix
+		while (graph.getAttributeForCell(cell, currentKey) != null)
+		{
+			counter++;
+			currentKey = key + '_' + counter;
+		}
+		
+		graph.setAttributeForCell(cell, currentKey, (value != null) ? value : '');
+	};
+	
+	function updateCell(cell, obj, graph, source, target)
 	{
 		var a = getAction(obj);
 		
@@ -3878,13 +3887,14 @@ LucidImporter = {};
 							
 							for (var i = 0; i < p.ElbowPoints.length; i++)
 							{
-								cell.geometry.points.push(new mxPoint(Math.round(p.ElbowPoints[i].x * scale + dx),
-										Math.round(p.ElbowPoints[i].y * scale + dy)));
+								cell.geometry.points.push(new mxPoint(
+									Math.round(p.ElbowPoints[i].x * scale + dx),
+									Math.round(p.ElbowPoints[i].y * scale + dy)));
 							}
 						}
 						else if (p.Shape == 'elbow')
 						{
-							if (p.Endpoint1.Block != null && p.Endpoint1.Block != null)
+							if (p.Endpoint1.Block != null && p.Endpoint2.Block != null)
 							{
 								cell.style += 'edgeStyle=orthogonalEdgeStyle;';
 							}
@@ -3893,7 +3903,7 @@ LucidImporter = {};
 								cell.style += 'edgeStyle=elbowEdgeStyle;';
 							}
 						}
-						else if (p.Endpoint1.Block != null && p.Endpoint1.Block != null)
+						else if (p.Endpoint1.Block != null && p.Endpoint2.Block != null)
 						{
 							cell.style += 'edgeStyle=orthogonalEdgeStyle;';
 	
@@ -3934,12 +3944,46 @@ LucidImporter = {};
 						}
 					}
 
+					// Inserts implicit or explicit control points for loops
+					var implicitY = false;
+					
+					if (p.ElbowPoints == null && p.Endpoint1.Block != null &&
+						p.Endpoint1.Block == p.Endpoint2.Block)
+					{
+						if (p.ElbowControlPoints != null)
+						{
+							cell.geometry.points = [];
+							
+							for (var i = 0; i < p.ElbowControlPoints.length; i++)
+							{
+								var pt = p.ElbowControlPoints[i];
+								
+								cell.geometry.points.push(new mxPoint(
+									Math.round(pt.x * scale + dx),
+									Math.round(pt.y * scale + dx)));
+							}
+						}
+						else if (source != null && target != null)
+						{
+							var exit = new mxPoint(Math.round(source.geometry.x + source.geometry.width * p.Endpoint1.LinkX),
+								Math.round(source.geometry.y + source.geometry.height * p.Endpoint1.LinkY));
+							var entry = new mxPoint(Math.round(target.geometry.x + target.geometry.width * p.Endpoint2.LinkX),
+								Math.round(target.geometry.y + target.geometry.height * p.Endpoint2.LinkY));
+							cell.geometry.points = [new mxPoint(exit.x + 20, exit.y), new mxPoint(entry.x + 20, entry.y)];
+							implicitY = true;
+						}
+					}
+					
 					// Anchor points and arrows
-					// TODO: Convert waypoints, elbowPoints
-					updateEndpoint(cell, p.Endpoint1, true);
-					updateEndpoint(cell, p.Endpoint2, false);
+					updateEndpoint(cell, p.Endpoint1, true, implicitY);
+					updateEndpoint(cell, p.Endpoint2, false, implicitY);
 				}
 			}
+		}
+		
+		if (obj.id != null)
+		{
+			setAttributeForCell(cell, 'lucidchartObjectId', obj.id, graph);
 		}
 	};
 	
@@ -3957,16 +4001,16 @@ LucidImporter = {};
 				Math.round(b.w * scale), Math.round(b.h * scale)), vertexStyle);
 	    v.vertex = true;
 	    updateCell(v, obj, graph);
-
+	    
 	    return v;
 	};
 	
-	function createEdge(obj, graph)
+	function createEdge(obj, graph, source, target)
 	{
 		var e = new mxCell('', new mxGeometry(0, 0, 100, 100), edgeStyle);
 		e.geometry.relative = true;
 		e.edge = true;
-		updateCell(e, obj, graph);
+		updateCell(e, obj, graph, source, target);
 		
 		// Adds text labels
 		var a = getAction(obj);
@@ -3984,12 +4028,17 @@ LucidImporter = {};
 				count++;
 			}
 			
-			var count = 1;
+			count = 0;
 			
-			while (ta['m' + count] != null)
+			while (ta['m' + count] != null || count < 1)
 			{
 				var tmp = ta['m' + count];
-				e = insertLabel(tmp, e, obj);
+				
+				if (tmp != null)
+				{
+					e = insertLabel(tmp, e, obj);
+				}
+				
 				count++;
 			}
 
@@ -4012,12 +4061,38 @@ LucidImporter = {};
 	function insertLabel(textArea, e, obj)
 	{
 		var x = (parseFloat(textArea.Location) - 0.5) * 2;
-		var lab = new mxCell(convertText(textArea), new mxGeometry(x, 0, 0, 0), labelStyle);
-		lab.geometry.relative = true
+		var lab = new mxCell(convertText(textArea), new mxGeometry(x, 0, 0, 0),
+			labelStyle + getEdgeLabelStyle(textArea));
+		lab.geometry.relative = true;
 		lab.vertex = true;
 		e.insert(lab);
 		
 		return e;
+	};
+	
+	function getEdgeLabelStyle(obj)
+	{
+		var size = defaultFontSize;
+		var style = '';
+		
+		if (obj != null && obj.Value != null && obj.Value.m != null)
+		{
+			style = getFontStyleString(obj.Value.m);
+			
+			for (var i = 0; i < obj.Value.m.length; i++)
+			{
+				if (obj.Value.m[i].n == 's')
+				{
+					size = scale * parseFloat(obj.Value.m[i].v);
+				}
+				else if (obj.Value.m[i].n == 'c')
+				{
+					style += 'fontColor=' + obj.Value.m[i].v + ';'
+				}
+			}
+		}
+		
+		return style + ';fontSize=' + size + ';';
 	};
 	
 	function createStyle(key, prop, defaultValue, fn)
@@ -4035,14 +4110,14 @@ LucidImporter = {};
 		return '';
 	};
 
-	function updateEndpoint(cell, endpoint, source)
+	function updateEndpoint(cell, endpoint, source, ignoreY)
 	{
 		if (endpoint != null)
 		{
 			if (endpoint.LinkX != null && endpoint.LinkY != null)
 			{
 				cell.style += ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' +
-					((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';' +
+					((!ignoreY) ? (((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';') : '') +
 					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=1;';
 			}
 		}
@@ -4156,29 +4231,38 @@ LucidImporter = {};
 					queue.push(obj);
 				}
 			}
-				
+
+			if (g.Lines != null)
+			{
+				for (var key in g.Lines)
+				{
+					if (mxUtils.indexOf(hidden, key) < 0)
+					{
+						var obj = g.Lines[key];
+						obj.id = key;
+						
+						queue.push(obj);
+					}
+				}
+			}
+			
 			// Sorts all cells by ZOrder
 			queue.sort(function(a, b)
 			{
 				a = getAction(a);
 				b = getAction(b);
 				
-				if (a.Properties != null)
-				{
-					if (b.Properties != null)
-					{
-						return a.Properties.ZOrder - b.Properties.ZOrder;
-					}
-				}
+				var ai = (a.Properties != null) ? a.Properties.ZOrder : a.ZOrder;
+				var bi = (b.Properties != null) ? b.Properties.ZOrder : b.ZOrder;
 				
-				return 0;
+				return (ai != null && bi != null) ? ai - bi : 0;
 			});
 			
 			function addLine(obj, p)
 			{
 				var src = (p.Endpoint1.Block != null) ? lookup[p.Endpoint1.Block] : null;
 				var trg = (p.Endpoint2.Block != null) ? lookup[p.Endpoint2.Block] : null;
-				var e = createEdge(obj, graph);
+				var e = createEdge(obj, graph, src, trg);
 				
 				if (src == null && p.Endpoint1 != null)
 				{
@@ -4210,20 +4294,12 @@ LucidImporter = {};
 					var p = obj.Action.Properties;
 					addLine(obj, p);
 				}
-			}
-			
-			if (g.Lines != null)
-			{
-				for (var key in g.Lines)
+				else if (obj.StrokeStyle != null)
 				{
-					if (mxUtils.indexOf(hidden, key) < 0)
-					{
-						var obj = g.Lines[key];
-					    addLine(obj, obj);
-					}
+					addLine(obj, obj);
 				}
 			}
-			
+
 			if (crop && dx != null && dy != null)
 			{
 				if (graph.isGridEnabled())
