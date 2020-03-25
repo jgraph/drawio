@@ -13845,14 +13845,14 @@
 							
 							this.getDatabaseItem('.drawioMigrated3', mxUtils.bind(this, function(value)
 							{
-								if (value) //Already migrated
+								if (value && urlParams['forceMigration'] != '1') //Already migrated
 								{
 									return;
 								}
 								
 								var drawioFrame = document.createElement('iframe');
 								drawioFrame.style.display = 'none';
-								drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json');
+								drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json&forceMigration=' + urlParams['forceMigration']);
 						    	document.body.appendChild(drawioFrame);
 						    	var collectNames = true, allDone = false;
 						    	var fileNames, index = 0;
@@ -13897,7 +13897,7 @@
 									catch(e)
 									{
 										//Log error
-										EditorUi.logError('Migration Caught: ' + e.message, null, null, null, e, 'INFO');
+										console.log(e);
 									}
 								});
 								
@@ -13918,14 +13918,12 @@
 									catch(e)
 									{
 										//Log error
-										EditorUi.logError('Migration Caught: ' + e.message, null, null, null, e, 'INFO');
+										console.log(e);
 									}
 								});
 										
 						    	var messageListener = mxUtils.bind(this, function(evt)
 								{
-						    		var evtData;
-						    		
 									try
 									{
 										//Only accept messages from migration iframe
@@ -13934,8 +13932,13 @@
 											return;
 										}
 										
-										evtData = evt.data;
-										var drawMsg = JSON.parse(evt.data);
+										var drawMsg = {};
+										
+										try
+										{
+											drawMsg = JSON.parse(evt.data);
+										}
+										catch(e){} //Ignore
 									
 										if (drawMsg.event == 'init')
 										{
@@ -13974,13 +13977,7 @@
 									}
 									catch(e)
 									{
-										try
-										{
-											evtData = JSON.stringify(evtData);
-										}
-										catch(e2){}
-										//Log error
-										EditorUi.logError('Migration Caught: ' + e.message + (e.message.indexOf('JSON') >= 0? ' >> ' + evtData : ''), null, null, null, e, 'INFO');
+										console.log(e);
 									}
 								});
 	
@@ -14350,7 +14347,7 @@
 	
 	EditorUi.prototype.getLocalStorageFileNames = function()
 	{
-		if (localStorage.getItem('.localStorageMigrated') == '1')
+		if (localStorage.getItem('.localStorageMigrated') == '1' && urlParams['forceMigration'] != '1')
 		{
 			return null;
 		}
@@ -14380,7 +14377,7 @@
 	
 	EditorUi.prototype.getLocalStorageFile = function(key)
 	{
-		if (localStorage.getItem('.localStorageMigrated') == '1')
+		if (localStorage.getItem('.localStorageMigrated') == '1' && urlParams['forceMigration'] != '1')
 		{
 			return null;
 		}

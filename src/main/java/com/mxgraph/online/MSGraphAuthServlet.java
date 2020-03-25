@@ -85,7 +85,8 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 			res.append("{");
 			res.append("	window.opener.onOneDriveCallback(authInfo, window);");
 			res.append("} else {");
-			res.append("	Office.initialize = function () { Office.context.ui.messageParent(JSON.stringify(authInfo));}");
+			res.append("	var authInfoStr = JSON.stringify(authInfo);");
+			res.append("	Office.initialize = function () { Office.context.ui.messageParent(authInfoStr);}");
 			res.append("}");
 			res.append("</script></head><body></body></html>");
 		}

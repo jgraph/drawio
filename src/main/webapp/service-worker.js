@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "980a618d19ca664cdf543f7e9da9fbef"
+    "revision": "31cad05a550b429156c1da7d4dcde90e"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "02e798ec6d2bc29c702e201dce553719"
+    "revision": "c418b80522c531920ebe08b9d2a87451"
   },
   {
     "url": "js/diagramly/ElectronApp.js",
@@ -51,6 +51,22 @@ if (workbox)
   {
     "url": "js/croppie/croppie.min.css",
     "revision": "fc297c9002c79c15a132f13ee3ec427e"
+  },
+  {
+    "url": "js/dropbox/Dropbox-sdk.min.js",
+    "revision": "4b9842892aa37b156db0a8364b7a83b0"
+  },
+  {
+    "url": "js/onedrive/OneDrive.js",
+    "revision": "d82b9c14d7a069efabef719a8a5f3975"
+  },
+  {
+    "url": "math/MathJax.js",
+    "revision": "c32a502b8b4a6bd6bad8ddb1b59e9e72"
+  },
+  {
+    "url": "math/config/TeX-MML-AM_HTMLorMML.js",
+    "revision": "35c6f70100f11ab8f38be59ad53b903e"
   },
   {
     "url": "resources/dia.txt",

@@ -252,7 +252,12 @@
     			mxUtils.getValue(state.style, 'childLayout', null) == null;
         }},
         {name: 'expand', dispName: 'Expand', type: 'bool', defVal: true},
-        {name: 'part', dispName: 'Part', type: 'bool', defVal: false},
+        {name: 'part', dispName: 'Part', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	var model = format.editorUi.editor.graph.model;
+        	
+        	return (state.vertices.length > 0) ? model.isVertex(model.getParent(state.vertices[0])) : false;
+        }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -270,6 +275,12 @@
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'treeFolding', dispName: 'Tree Folding', type: 'bool', defVal: false},
         {name: 'treeMoving', dispName: 'Tree Moving', type: 'bool', defVal: false},
+        {name: 'pointerEvents', dispName: 'Pointer Events', type: 'bool', defVal: true, isVisible: function(state, format)
+        {
+        	var fillColor = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
+        	
+        	return fillColor == null || fillColor == mxConstants.NONE;
+        }},
         {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
         {
         	return state.vertices.length > 0 && format.editorUi.editor.graph.isContainer(state.vertices[0]);

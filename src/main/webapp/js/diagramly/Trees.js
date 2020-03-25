@@ -7,8 +7,6 @@
 	/**
 	 * Defines resources.
 	 */
-	var moveImage =  (!mxClient.IS_SVG) ? IMAGE_PATH + '/move.png' :
-		'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAASCAMAAABhEH5lAAAASFBMVEUAAAAAAAB/f3/9/f319fUfHx/7+/s+Pj69vb0AAAAAAAAAAAAAAAAAAAAAAAAAAAB2dnZ1dXUAAAAAAAAVFRX///8ZGRkGBgbOcI1hAAAAE3RSTlMA+vr9/f38+fb1893Bo00u+/tFvPJUBQAAAIRJREFUGNM0jEcSxCAQAxlydGqD///TNWxZBx1aXVIrWysplbapL3sFxgDq/idXBnHgBPK1nIxwc55vCXl6dRFtrV6svs/A/UjsPcpzA5tqyByD92HqQlMFh45BG6ND1DiKSoPDdm96N77bg5F+wyaEqRGb8ZiOwHQqdg9hehszcLAEIQB2lQ4p/sEpnAAAAABJRU5ErkJggg==';
 	EditorUi.prototype.altShiftActions[68] = 'selectDescendants'; // Alt+Shift+D
 	
 	/**
@@ -164,7 +162,7 @@
 				var sib = graph.getOutgoingEdges(cell);
 				menu.addSeparator();
 				
-				if (sib != null && sib.length > 0)
+				if (sib.length > 0)
 				{
 					if (isTreeVertex(graph.getSelectionCell()))
 					{
@@ -1100,7 +1098,8 @@
 		{
 			var cells = [initialCell];
 			
-			if ((isTreeMoving(initialCell) || isTreeVertex(initialCell)) && !hasLayoutParent(initialCell))
+			if ((isTreeMoving(initialCell) || isTreeVertex(initialCell)) &&
+				!hasLayoutParent(initialCell))
 			{
 				// Gets the subtree from cell downwards
 				graph.traverse(initialCell, true, function(vertex, edge)
@@ -1122,7 +1121,6 @@
 	
 			return cells;
 		};
-
 		
 		var vertexHandlerInit = mxVertexHandler.prototype.init;
 		
@@ -1130,14 +1128,11 @@
 		{
 			vertexHandlerInit.apply(this, arguments);
 			
-			var parent = this.graph.model.getParent(this.state.cell);
-			var pstate = this.graph.view.getState(parent);
-			
-			if ((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) &&
-				(pstate == null || pstate.style['childLayout'] != 'flowLayout') &&
-				this.graph.getOutgoingEdges(this.state.cell).length > 0)
+			if (((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) &&
+				!hasLayoutParent(this.state.cell)) && this.graph.getOutgoingEdges(
+				this.state.cell).length > 0)
 			{
-				this.moveHandle = mxUtils.createImage(moveImage);
+				this.moveHandle = mxUtils.createImage(Editor.moveImage);
 				this.moveHandle.setAttribute('title', 'Move Subtree');
 				this.moveHandle.style.position = 'absolute';
 				this.moveHandle.style.cursor = 'pointer';
@@ -1147,7 +1142,9 @@
 				
 				mxEvent.addGestureListeners(this.moveHandle, mxUtils.bind(this, function(evt)
 				{
-					this.graph.graphHandler.start(this.state.cell, mxEvent.getClientX(evt), mxEvent.getClientY(evt), this.graph.getSubtree(this.state.cell));
+					this.graph.graphHandler.start(this.state.cell,
+						mxEvent.getClientX(evt), mxEvent.getClientY(evt),
+						this.graph.getSubtree(this.state.cell));
 					this.graph.graphHandler.cellWasClicked = true;
 					this.graph.isMouseTrigger = mxEvent.isMouseEvent(evt);
 					this.graph.isMouseDown = true;
