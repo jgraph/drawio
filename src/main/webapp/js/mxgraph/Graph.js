@@ -201,8 +201,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	// TODO: Wrap should not affect isHtmlLabel output (should be handled later)
 	this.isHtmlLabel = function(cell)
 	{
-		var state = this.view.getState(cell);
-		var style = (state != null) ? state.style : this.getCellStyle(cell);
+		var style = this.getCurrentCellStyle(cell);
 		
 		return (style != null) ? (style['html'] == '1' || style[mxConstants.STYLE_WHITE_SPACE] == 'wrap') : false;
 	};
@@ -594,30 +593,16 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 
 		    for (var i = 0; i < cells.length; i++)
 		    {
-				var state = this.graph.view.getState(cells[i]);
-				var style = (state != null) ? state.style : this.graph.getCellStyle(cells[i]);
+		    	var cell = this.graph.getCompositeParent(cells[i]);
 		    	
-				if (mxUtils.getValue(style, 'part', '0') == '1')
-				{
-			        var parent = cells[i];
-			        
-			        do
-			        {
-			        	parent = this.graph.model.getParent(parent);
-				        state = this.graph.view.getState(parent);
-				        style = (state != null) ? state.style : this.graph.getCellStyle(parent);
-			        } while (parent != null && mxUtils.getValue(style, 'part', '0') == '1')
-			        
-			        if (this.graph.model.isVertex(parent) &&
-			        	mxUtils.indexOf(cells, parent) < 0)
-			        {
-			            newCells.push(parent);
-			        }
-				}
-				else
-				{
-					newCells.push(cells[i]);
-				}
+		    	if (cell == cells[i])
+		    	{
+		    		newCells.push(cells[i]);
+		    	}
+		    	else if (cell != null && mxUtils.indexOf(cells, cell) < 0)
+		        {
+		            newCells.push(cell);
+		        }
 		    }
 
 		    return newCells;
@@ -628,12 +613,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		
 		this.graphHandler.start = function(cell, x, y, cells)
 		{
-			var state = this.graph.view.getState(cell);
-
-			if (state != null && mxUtils.getValue(state.style, 'part', false))
-			{
-				cell = this.graph.model.getParent(cell);
-			}
+			cell = this.graph.getCompositeParent(cell);
 			
 			graphHandlerStart.apply(this, arguments);
 		};
@@ -641,18 +621,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		// Handles parts of cells when cloning the source for new connections
 		this.connectionHandler.createTargetVertex = function(evt, source)
 		{
-			var state = this.graph.view.getState(source);
-			var style = (state != null) ? state.style : this.graph.getCellStyle(source);
-	    	
-			if (mxUtils.getValue(style, 'part', false))
-			{
-				var parent = this.graph.model.getParent(source);
-
-				if (this.graph.model.isVertex(parent))
-				{
-					source = parent;
-				}
-			}
+			source = this.graph.getCompositeParent(source);
 			
 			return mxConnectionHandler.prototype.createTargetVertex.apply(this, arguments);
 		};
@@ -672,18 +641,18 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    
 	    this.connectionHandler.mouseMove = function()
 	    {
-		    	var prev = this.currentState;
-		    	connectionHandlerMouseMove.apply(this, arguments);
-		    	
-		    	if (prev != this.currentState)
-		    	{
-		    		startTime = new Date().getTime();
-		    		timeOnTarget = 0;
-		    	}
-		    	else
-		    	{
-			    	timeOnTarget = new Date().getTime() - startTime;
-		    	}
+	    	var prev = this.currentState;
+	    	connectionHandlerMouseMove.apply(this, arguments);
+	    	
+	    	if (prev != this.currentState)
+	    	{
+	    		startTime = new Date().getTime();
+	    		timeOnTarget = 0;
+	    	}
+	    	else
+	    	{
+		    	timeOnTarget = new Date().getTime() - startTime;
+	    	}
 	    };
 
 	    // Activates outline connect after 1500ms with touch event or if alt is pressed inside the shape
@@ -1062,12 +1031,6 @@ Graph.foreignObjectWarningText = 'Viewer does not support full SVG 1.1';
  * Link for foreign object warning.
  */
 Graph.foreignObjectWarningLink = 'https://desk.draw.io/support/solutions/articles/16000042487';
-
-/**
- * Maps from shape name to boolean for handle padding override,
- * eg. Graph.handlePadding['mxgraph.basic.polygon'] = true
- */
-Graph.handlePadding = {};
 
 /**
  * Helper function for creating SVG data URI.
@@ -1502,6 +1465,28 @@ Graph.prototype.init = function(container)
 			!this.isCellCollapsed(state.cell) && mxUtils.getValue(state.style, 'recursiveResize', '1') == '1' &&
 			mxUtils.getValue(state.style, 'childLayout', null) == null;
 	}
+		
+	/**
+	 * Returns the first parent that is not a part.
+	 */
+	Graph.prototype.isPart = function(cell)
+	{
+		return (!this.model.isVertex(cell)) ? false :
+			mxUtils.getValue(this.getCurrentCellStyle(cell), 'part', '0') == '1';
+	};
+	
+	/**
+	 * Returns the first parent that is not a part.
+	 */
+	Graph.prototype.getCompositeParent = function(cell)
+	{
+		while (this.isPart(cell))
+		{
+			cell = this.model.getParent(cell);
+		}
+		
+		return cell;
+	};
 
 	/**
 	 * Function: repaint
@@ -2138,8 +2123,7 @@ Graph.prototype.getLabel = function(cell)
  */
 Graph.prototype.isLabelMovable = function(cell)
 {
-	var state = this.view.getState(cell);
-	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	var style = this.getCurrentCellStyle(cell);
 	
 	return !this.isCellLocked(cell) &&
 		((this.model.isEdge(cell) && this.edgeLabelsMovable) ||
@@ -2648,19 +2632,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 			}
 			
 			// Handle consistuents for cloning
-			var state = this.view.getState(cellToClone);
-			var style = (state != null) ? state.style : this.getCellStyle(cellToClone);
-	    	
-			if (mxUtils.getValue(style, 'part', false))
-			{
-		        var tmpParent = this.model.getParent(cellToClone);
-
-		        if (this.model.isVertex(tmpParent))
-		        {
-		        	cellToClone = tmpParent;
-		        }
-			}
-			
+			cellToClone = this.getCompositeParent(cellToClone);
 			realTarget = this.duplicateCells([cellToClone], false)[0];
 			
 			var geo = this.getCellGeometry(realTarget);
@@ -3064,8 +3036,7 @@ Graph.prototype.resizeParentStacks = function(parent, layout, dx, dy)
  */
 Graph.prototype.isContainer = function(cell)
 {
-	var state = this.view.getState(cell);
-	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	var style = this.getCurrentCellStyle(cell);
 	
 	if (this.isSwimlane(cell))
 	{
@@ -3086,10 +3057,9 @@ Graph.prototype.isExtendParent = function(cell)
 	
 	if (parent != null)
 	{
-		var state = this.view.getState(parent);
-		var style = (state != null) ? state.style : this.getCellStyle(parent);
+		var style = this.getCurrentCellStyle(parent);
 		
-		if (style != null && style['expand'] != null)
+		if (style['expand'] != null)
 		{
 			return style['expand'] != '0';
 		}
@@ -3103,10 +3073,9 @@ Graph.prototype.isExtendParent = function(cell)
  */
 Graph.prototype.isCellConnectable = function(cell)
 {
-	var state = this.view.getState(cell);
-	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	var style = this.getCurrentCellStyle(cell);
 	
-	return (style != null && style['connectable'] != null) ? style['connectable'] != '0' :
+	return (style['connectable'] != null) ? style['connectable'] != '0' :
 		mxGraph.prototype.isCellConnectable.apply(this, arguments);
 };
 
@@ -3115,10 +3084,9 @@ Graph.prototype.isCellConnectable = function(cell)
  */
 Graph.prototype.isLabelMovable = function(cell)
 {
-	var state = this.view.getState(cell);
-	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	var style = this.getCurrentCellStyle(cell);
 	
-	return (style != null && style['movableLabel'] != null) ? style['movableLabel'] != '0' :
+	return (style['movableLabel'] != null) ? style['movableLabel'] != '0' :
 		mxGraph.prototype.isLabelMovable.apply(this, arguments);
 };
 
@@ -3199,8 +3167,7 @@ Graph.prototype.getSwimlaneAt = function (x, y, parent)
  */
 Graph.prototype.isCellFoldable = function(cell)
 {
-	var state = this.view.getState(cell);
-	var style = (state != null) ? state.style : this.getCellStyle(cell);
+	var style = this.getCurrentCellStyle(cell);
 	
 	return this.foldingEnabled && (style['treeFolding'] == '1' ||
 		(!this.isCellLocked(cell) &&
@@ -3498,7 +3465,7 @@ HoverIcons.prototype.roundDrop = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '
 /**
  * Refresh target.
  */
-HoverIcons.prototype.refreshTarget = new mxImage((mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAmCAYAAACoPemuAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NDQxNERDRTU1QjY1MTFFNDkzNTRFQTVEMTdGMTdBQjciIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NDQxNERDRTY1QjY1MTFFNDkzNTRFQTVEMTdGMTdBQjciPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo0NDE0RENFMzVCNjUxMUU0OTM1NEVBNUQxN0YxN0FCNyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo0NDE0RENFNDVCNjUxMUU0OTM1NEVBNUQxN0YxN0FCNyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsvuX50AAANaSURBVHja7FjRZ1tRGD9ZJ1NCyIQSwrivI4Q8hCpjlFDyFEoYfSp9Ko1QWnmo0If+BSXkIfo0QirTMUpeGo2EPfWllFYjZMLKLDJn53d3biU337m5J223bPbxk5t7v+/c3/2+73znO8fDOWezKM/YjMpz68Lj8ejY+QTeCCwLxOS9qPxtyN+6wAeBTwJ31CCO0cJDjXBGBN4LfIepSwykTUT1bgpuib0SONIgo8KRHOtRiCFcvUcgZeGrHPNBxLIyFPyRgTGz0xLbegJCdmzpElue5KlAIMDX19d5uVzm5+fnfDAYmMA17uEZdOx2Yvb/sHlu2S0xwymn5ufneTab5b1ej08S6EAXNrDd2dnhiUTim21MvMtwQ6yiIrWwsMDPzs64rsBmf3/fvM7n89TYlUnEllSkQqEQv7q64g+Vk5MTVXosORErU0Zer5f0FEIlw2N6MxwO82QyaXql2+2SxDqdjopYWUUsqEp45IldqtWq6UWVh/1+P7+8vCTJ4QMUJSRIEXuneoH96w8PDyeWAnhSJfCqwm6NIlaklFdXV0cGhRcQ2mlJQXK5nMq2YPEZbnteU1U2lUqN/D84OGD9fl+5fgnSrFarsUwmw0qlEru4uBjTicViTk3Cr27HSnxR+Doyz0ZE1CAWiUTusbu7y9rttlZv5fP5WDQavYfIMba4uEipfhF8XtqJoZXx/uH+sC/4vPg7OljZZQbsCmLtYzc3N6zRaJhotVrmfx0xDINtbm6athYUeXpHdbBNaqZUKpWxWXV7e2vex+xaWVnhc3NzjrPUXgexyCt0m67LBV7uJMITjqRE4o8tZeg8FPpFitgapYxiOC0poFgsji1jKNo6BZZckrAGUtJsNk1vqAihCBcKhTE7hNWhqw2qFnGy5UFOUYJVIJ1OjzSE+BCEilon0URavRmBqnbbQ00AXbm+vnZc9O1tj72OnQoc2+cwygRkb2+P1et17ZoEm3g87lRmjgWZ00kbXkNuse6/Bu2wlegIxfb2tuvWGroO4bO2c4bbzUh60mxDXm1sbJhhxkQYnhS4h2fUZoRAWnf7lv8N27f8P7Xhnekjgpk+VKGOoQbsiY+hhhtF3YO7twIJ+ULvUGv+GQ2fQEvWxI/THNx5/p/BaspPAQYAqStgiSQwCDoAAAAASUVORK5CYII=' :
+HoverIcons.prototype.refreshTarget = new mxImage((mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjM2cHgiIGhlaWdodD0iMzZweCI+PGVsbGlwc2UgZmlsbD0iIzI5YjZmMiIgY3g9IjEyIiBjeT0iMTIiIHJ4PSIxMiIgcnk9IjEyIi8+PHBhdGggdHJhbnNmb3JtPSJzY2FsZSgwLjgpIHRyYW5zbGF0ZSgyLjQsIDIuNCkiIHN0cm9rZT0iI2ZmZiIgZmlsbD0iI2ZmZiIgZD0iTTEyIDZ2M2w0LTQtNC00djNjLTQuNDIgMC04IDMuNTgtOCA4IDAgMS41Ny40NiAzLjAzIDEuMjQgNC4yNkw2LjcgMTQuOGMtLjQ1LS44My0uNy0xLjc5LS43LTIuOCAwLTMuMzEgMi42OS02IDYtNnptNi43NiAxLjc0TDE3LjMgOS4yYy40NC44NC43IDEuNzkuNyAyLjggMCAzLjMxLTIuNjkgNi02IDZ2LTNsLTQgNCA0IDR2LTNjNC40MiAwIDgtMy41OCA4LTggMC0xLjU3LS40Ni0zLjAzLTEuMjQtNC4yNnoiLz48cGF0aCBkPSJNMCAwaDI0djI0SDB6IiBmaWxsPSJub25lIi8+PC9zdmc+Cg==' :
 	IMAGE_PATH + '/refresh.png', 38, 38);
 
 /**
@@ -4384,70 +4351,65 @@ Graph.prototype.getActualStartSize = function(swimlane, ignoreState)
 	
 	if (this.isSwimlane(swimlane))
 	{
-		var state = (ignoreState) ? null : this.view.getState(swimlane);
-		var style = (state != null) ? state.style : this.getCellStyle(swimlane);
+		var style = this.getCurrentCellStyle(swimlane, ignoreState);
+		var size = parseInt(mxUtils.getValue(style,
+			mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
+		var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, 0) == 1;
+		var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, 0) == 1;
+		var h = mxUtils.getValue(style, mxConstants.STYLE_HORIZONTAL, true);
+		var n = 0;
 		
-		if (style != null)
+		if (!h)
 		{
-			var size = parseInt(mxUtils.getValue(style,
-				mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
-			var flipH = mxUtils.getValue(style, mxConstants.STYLE_FLIPH, 0) == 1;
-			var flipV = mxUtils.getValue(style, mxConstants.STYLE_FLIPV, 0) == 1;
-			var h = mxUtils.getValue(style, mxConstants.STYLE_HORIZONTAL, true);
-			var n = 0;
-			
-			if (!h)
-			{
-				n++;
-			}
-			
-			var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
-			
-			if (dir == mxConstants.DIRECTION_NORTH)
-			{
-				n++;
-			}
-			else if (dir == mxConstants.DIRECTION_WEST)
-			{
-				n += 2;
-			}
-			else if (dir == mxConstants.DIRECTION_SOUTH)
-			{
-				n += 3;
-			}
-			
-			n = mxUtils.mod(n, 4);
-			
-			if (n == 0)
-			{
-				result.y = size;
-			}
-			else if (n == 1)
-			{
-				result.x = size;
-			}
-			else if (n == 2)
-			{
-				result.height = size;
-			}
-			else if (n == 3)
-			{
-				result.width = size;
-			}
-			
-			if (flipV)
-			{
-				var tmp = result.y;
-				result.y = result.height;
-				result.height = tmp;
-			}
-			
-			if (flipH)
-			{
-				var tmp = result.x;
-				result.x = result.width;
-				result.width = tmp;
-			}
+			n++;
+		}
+		
+		var dir = mxUtils.getValue(style, mxConstants.STYLE_DIRECTION, mxConstants.DIRECTION_EAST);
+		
+		if (dir == mxConstants.DIRECTION_NORTH)
+		{
+			n++;
+		}
+		else if (dir == mxConstants.DIRECTION_WEST)
+		{
+			n += 2;
+		}
+		else if (dir == mxConstants.DIRECTION_SOUTH)
+		{
+			n += 3;
+		}
+		
+		n = mxUtils.mod(n, 4);
+		
+		if (n == 0)
+		{
+			result.y = size;
+		}
+		else if (n == 1)
+		{
+			result.x = size;
+		}
+		else if (n == 2)
+		{
+			result.height = size;
+		}
+		else if (n == 3)
+		{
+			result.width = size;
+		}
+		
+		if (flipV)
+		{
+			var tmp = result.y;
+			result.y = result.height;
+			result.height = tmp;
+		}
+		
+		if (flipH)
+		{
+			var tmp = result.x;
+			result.x = result.width;
+			result.width = tmp;
 		}
 	}
 	
@@ -6176,17 +6138,12 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			if (edge != null)
 			{
-				var state = this.view.getState(edge);
-				var style = (state != null) ? state.style : this.getCellStyle(edge);
-				
-				if (style != null)
-				{
-					var elbow = mxUtils.getValue(style, mxConstants.STYLE_ELBOW,
-						mxConstants.ELBOW_HORIZONTAL);
-					var value = (elbow == mxConstants.ELBOW_HORIZONTAL) ?
-						mxConstants.ELBOW_VERTICAL : mxConstants.ELBOW_HORIZONTAL;
-					this.setCellStyles(mxConstants.STYLE_ELBOW, value, [edge]);
-				}
+				var style = this.getCurrentCellStyle(edge);
+				var elbow = mxUtils.getValue(style, mxConstants.STYLE_ELBOW,
+					mxConstants.ELBOW_HORIZONTAL);
+				var value = (elbow == mxConstants.ELBOW_HORIZONTAL) ?
+					mxConstants.ELBOW_VERTICAL : mxConstants.ELBOW_HORIZONTAL;
+				this.setCellStyles(mxConstants.STYLE_ELBOW, value, [edge]);
 			}
 		};
 
@@ -6222,8 +6179,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.isValidDropTarget = function(cell)
 		{
-			var state = this.view.getState(cell);
-			var style = (state != null) ? state.style : this.getCellStyle(cell);
+			var style = this.getCurrentCellStyle(cell);
 		
 			return (mxUtils.getValue(style, 'part', '0') != '1' ||
 				this.isContainer(cell)) &&
@@ -7309,9 +7265,7 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.isCellResizable = function(cell)
 		{
 			var result = mxGraph.prototype.isCellResizable.apply(this, arguments);
-		
-			var state = this.view.getState(cell);
-			var style = (state != null) ? state.style : this.getCellStyle(cell);
+			var style = this.getCurrentCellStyle(cell);
 				
 			return result || (mxUtils.getValue(style, mxConstants.STYLE_RESIZABLE, '1') != '0' &&
 				style[mxConstants.STYLE_WHITE_SPACE] == 'wrap');
@@ -9164,8 +9118,37 @@ if (typeof mxVertexHandler != 'undefined')
 				name = mxConstants.SHAPE_RECTANGLE;
 			}
 			
-			if ((this.graph.cellEditor.getEditingCell() == this.state.cell || Graph.handlePadding[name]) && 
-				this.sizers != null && this.sizers.length > 0 && this.sizers[0] != null)
+			// Checks if custom handles are overlapping with the shape border
+			var handlePadding = this.graph.cellEditor.getEditingCell() == this.state.cell;
+			
+			if (!handlePadding)
+			{
+				if (this.customHandles != null)
+				{
+					for (var i = 0; i < this.customHandles.length; i++)
+					{
+						if (this.customHandles[i].shape != null &&
+							this.customHandles[i].shape.bounds != null)
+						{
+							var b = this.customHandles[i].shape.bounds;
+							var px = b.getCenterX();
+							var py = b.getCenterY();
+							
+							if ((Math.abs(this.state.x - px) < b.width / 2) ||
+								(Math.abs(this.state.y - py) < b.height / 2) ||
+								(Math.abs(this.state.x + this.state.width - px) < b.width / 2) ||
+								(Math.abs(this.state.y + this.state.height - py) < b.height / 2))
+							{
+								handlePadding = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			if (handlePadding && this.sizers != null &&
+				this.sizers.length > 0 && this.sizers[0] != null)
 			{
 				tol /= 2;
 				
@@ -9952,8 +9935,8 @@ if (typeof mxVertexHandler != 'undefined')
 				this.rowMoveHandle = mxUtils.createImage(Editor.moveImage);
 				this.rowMoveHandle.style.position = 'absolute';
 				this.rowMoveHandle.style.cursor = 'pointer';
-				this.rowMoveHandle.style.width = '18px';
-				this.rowMoveHandle.style.height = '18px';
+				this.rowMoveHandle.style.width = '24px';
+				this.rowMoveHandle.style.height = '24px';
 				this.graph.container.appendChild(this.rowMoveHandle);
 				
 				mxEvent.addGestureListeners(this.rowMoveHandle, mxUtils.bind(this, function(evt)

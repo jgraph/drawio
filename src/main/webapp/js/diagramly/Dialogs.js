@@ -5051,7 +5051,10 @@ var FeedbackDialog = function(editorUi, subject, emailOptional, diagramData)
 		var diagram = textarea.value +
 			((cb.checked) ? '\nDiagram:\n' + ((diagramData != null) ?
 			diagramData : mxUtils.getXml(editorUi.getXmlFileData())) : '') +
-			'\nBrowser:\n' + navigator.userAgent;
+			'\nuserAgent:\n' + navigator.userAgent +
+			'\nappVersion:\n' + navigator.appVersion +
+			'\nappName:\n' + navigator.appName +
+			'\nplatform:\n' + navigator.platform;
 		
 		if (diagram.length > FeedbackDialog.maxAttachmentSize)
 		{

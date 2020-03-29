@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "31cad05a550b429156c1da7d4dcde90e"
+    "revision": "1f628344fbe3149bfa77f4e911bb32e0"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "c418b80522c531920ebe08b9d2a87451"
+    "revision": "4b413246e76d68bda3df488ed263b1f3"
   },
   {
     "url": "js/diagramly/ElectronApp.js",
@@ -22,11 +22,11 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "8f40e5ae3dff71f75031e4bd3d714856"
+    "revision": "279c1a8ff65b895c15ec63b6a76a6523"
   },
   {
     "url": "index.html",
-    "revision": "ef6e260760a1fa3ca029dbbc0fb6231a"
+    "revision": "f3ac4388152d7b33518a2e668f37bebf"
   },
   {
     "url": "open.html",
@@ -38,7 +38,7 @@ if (workbox)
   },
   {
     "url": "styles/grapheditor.css",
-    "revision": "2f1b366eeffa3dae8b004b5e632a22e8"
+    "revision": "4b2c4b76bae7c1a7c7df74fff3cb75af"
   },
   {
     "url": "styles/atlas.css",
@@ -274,7 +274,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_zh.txt",
-    "revision": "2613670f0bb3a8e057d660e8e6479b45"
+    "revision": "4f58d7a52a139737652b51f8bbd76e72"
   },
   {
     "url": "resources/dia_bn.txt",
@@ -298,7 +298,7 @@ if (workbox)
   },
   {
     "url": "images/manifest.json",
-    "revision": "dbd6ca1756a56c64e9e9f4437a37286d"
+    "revision": "643baa6201812ed8760b027338e09db9"
   },
   {
     "url": "images/logo.png",

@@ -2035,12 +2035,11 @@ Sidebar.prototype.updateShapes = function(source, targets)
 			if ((graph.getModel().isVertex(targetCell) == graph.getModel().isVertex(source)) ||
 				(graph.getModel().isEdge(targetCell) == graph.getModel().isEdge(source)))
 			{
-				var state = graph.view.getState(targetCell);
-				var style = (state != null) ? state.style : graph.getCellStyle(targets[i]);
+				var style = graph.getCurrentCellStyle(targets[i]);
 				graph.getModel().setStyle(targetCell, cellStyle);
 				
 				// Removes all children of composite cells
-				if (state != null && mxUtils.getValue(state.style, 'composite', '0') == '1')
+				if (mxUtils.getValue(style, 'composite', '0') == '1')
 				{
 					var childCount = graph.model.getChildCount(targetCell);
 					
@@ -2050,24 +2049,21 @@ Sidebar.prototype.updateShapes = function(source, targets)
 					}
 				}
 
-				if (style != null)
+				// Replaces the participant style in the lifeline shape with the target shape
+				if (style[mxConstants.STYLE_SHAPE] == 'umlLifeline' &&
+					sourceCellStyle[mxConstants.STYLE_SHAPE] != 'umlLifeline')
 				{
-					// Replaces the participant style in the lifeline shape with the target shape
-					if (style[mxConstants.STYLE_SHAPE] == 'umlLifeline' &&
-						sourceCellStyle[mxConstants.STYLE_SHAPE] != 'umlLifeline')
-					{
-						graph.setCellStyles(mxConstants.STYLE_SHAPE, 'umlLifeline', [targetCell]);
-						graph.setCellStyles('participant', sourceCellStyle[mxConstants.STYLE_SHAPE], [targetCell]);
-					}
+					graph.setCellStyles(mxConstants.STYLE_SHAPE, 'umlLifeline', [targetCell]);
+					graph.setCellStyles('participant', sourceCellStyle[mxConstants.STYLE_SHAPE], [targetCell]);
+				}
+				
+				for (var j = 0; j < styles.length; j++)
+				{
+					var value = style[styles[j]];
 					
-					for (var j = 0; j < styles.length; j++)
+					if (value != null)
 					{
-						var value = style[styles[j]];
-						
-						if (value != null)
-						{
-							graph.setCellStyles(styles[j], value, [targetCell]);
-						}
+						graph.setCellStyles(styles[j], value, [targetCell]);
 					}
 				}
 				

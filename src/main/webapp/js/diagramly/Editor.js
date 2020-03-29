@@ -7,7 +7,7 @@
 	/**
 	 * Specifies the app name. Default is document.title.
 	 */
-	Editor.prototype.appName = 'draw.io';
+	Editor.prototype.appName = 'diagrams.net';
 	
 	/**
 	 * Known extensions for own files.

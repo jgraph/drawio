@@ -91,12 +91,11 @@ LucidImporter = {};
 			'DisplayBlock': 'shape=display',
 			'OffPageLinkBlock': 'shape=offPageConnector',
 			'BraceNoteBlock': cs,
-			'NoteBlock': s + 'flowchart.annotation_1',
+			'NoteBlock': 'shape=partialRectangle;right=0', //s + flowchart.annotation_1
 //Containers
 			'AdvancedSwimLaneBlock': cs,
-			'AdvancedSwimLaneBlockRotated': cs, //TODO
-//			'AdvancedSwimLaneBlockRotated': 'swimlane;horizontal=0', //TODO
-			'RectangleContainerBlock': 'fillColor=none;container=1',
+			'AdvancedSwimLaneBlockRotated': cs,
+			'RectangleContainerBlock': 'container=1;collapsible=0',
 			'DiamondContainerBlock':  'shape=rhombus;fillColor=none;container=1',
 			'RoundedRectangleContainerBlock': 'fillColor=none;container=1;rounded=1;absoluteArcSize=1;arcSize=24',
 			'CircleContainerBlock': 'shape=ellipse;fillColor=none;container=1',
@@ -249,9 +248,9 @@ LucidImporter = {};
 //			'UMLInterruptingEdgeBlock' NA
 			'UMLOffPageLinkBlock' : s + 'sysml.sendSigAct;direction=south',
 //			'UMLExpansionNodeBlock' NA
-			'UMLMultiLanePoolBlock' : cs, //TODO
-			'UMLMultiLanePoolRotatedBlock' : cs, //TODO
-			'UMLMultidimensionalSwimlane' : cs, //TODO
+			'UMLMultiLanePoolBlock' : cs,
+			'UMLMultiLanePoolRotatedBlock' : cs,
+			'UMLMultidimensionalSwimlane' : cs,
 //UML Sequence
 			'UMLActivationBlock' : '',
 			'UMLDeletionBlock' : s + 'sysml.x;strokeWidth=4',
@@ -267,6 +266,7 @@ LucidImporter = {};
 //			'UMLAssemblyConnectorBlock' NA
 			'UMLProvidedInterfaceBlock' : 'shape=lollipop;direction=south',
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north',
+			'UMLSwimLaneBlockV2': cs,
 //UML Deployment
 //UML Entity Relationship
 			'UMLEntityBlock' : '',
@@ -283,8 +283,8 @@ LucidImporter = {};
 			'BPMNGateway' : cs,
 			'BPMNData' : cs,
 			'BPMNDataStore' : 'shape=datastore', 
-			'BPMNAdvancedPoolBlock' : cs, //TODO
-			'BPMNAdvancedPoolBlockRotated' : cs, //TODO
+			'BPMNAdvancedPoolBlock' : cs,
+			'BPMNAdvancedPoolBlockRotated' : cs,
 			'BPMNBlackPool' : cs,
 //Data Flow
 			'DFDExternalEntityBlock' : cs,
@@ -2147,7 +2147,7 @@ LucidImporter = {};
 //			'AutoScalingGroup2017' : '',
 //			'AvailabilityZone2017' : '',
 //			'Region2017' : '',
-//			'SecurityGroup2017' : '',
+			'SecurityGroup2017' : 'verticalAlign=bottom',
 //			'ElasticBeanStalkContainer2017' : '',
 //			'EC2InstanceContents2017' : '',
 //			'VPCSubnet2017' : '',
@@ -2618,25 +2618,43 @@ LucidImporter = {};
 			'External_SDKAWS19' : 'shape=mxgraph.aws4.external_sdk;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeColor=none',
 			'External_ToolkitAWS19' : 'shape=mxgraph.aws4.external_toolkit;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeColor=none',
 			
-// AWS 19 - Groups
-			'AWSCloudAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100',
-			'AWSCloudaltAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100',
-			'RegionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;dashed=1;fontColor=#0E82B8',
+// AWS 19 - Groups (Note: repeated below without _v2)
+			'AWSCloudAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
+			'AWSCloudaltAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
+			'RegionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;dashed=1;fontColor=#0E82B8;fillColor=none',
 			'AvailabilityZoneAWS19_v2' : 'verticalAlign=top;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;fontColor=#0E82B8',
 			'SecuritygroupAWS19_v2' : 'verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#DD3522',
-			'AutoScalingAWS19_v2' : 'shape=mxgraph.aws4.groupCenter;grIcon=mxgraph.aws4.group_auto_scaling_group;grStroke=1;verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#D75F17;spacingTop=25',
-			'VirtualprivatecloudVPCAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#2C8723',
-			'PrivateSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=#E0EFF6;strokeColor=#0E82B8;fontColor=#0E82B8',
-			'PublicSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=#E4EFE3;strokeColor=#2C8723;fontColor=#2C8723',
-			'ServercontentsAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_on_premise;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#5A6C86',
-			'CorporatedatacenterAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_corporate_data_center;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#5A6C86',
-			'ElasticBeanstalkcontainerAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_elastic_beanstalk;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#D75F17',
-			'EC2instancecontentsAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_ec2_instance_contents;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#D75F17',
-			'SpotFleetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_spot_fleet;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#D75F17',
-			'AWSStepFunctionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_step_functions_workflow;verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;fontColor=#CB1261',
-			'GenericGroup1AWS19_v2' : 'verticalAlign=top;align=left;spacingLeft=30;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;strokeColor=#5A6C86;fontColor=#5A6C86',
-			'GenericGroup2AWS19_v2' : 'verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=#EAECEF',
+			'AutoScalingAWS19_v2' : 'shape=mxgraph.aws4.groupCenter;grIcon=mxgraph.aws4.group_auto_scaling_group;grStroke=1;verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#D75F17;spacingTop=25;fillColor=none',
+			'VirtualprivatecloudVPCAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#2C8723;fillColor=none',
+			'PrivateSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;strokeColor=#0E82B8;fontColor=#0E82B8;fillColor=none',
+			'PublicSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;strokeColor=#2C8723;fontColor=#2C8723;fillColor=none',
+			'ServercontentsAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_on_premise;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
+			'CorporatedatacenterAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_corporate_data_center;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
+			'ElasticBeanstalkcontainerAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_elastic_beanstalk;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'EC2instancecontentsAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_ec2_instance_contents;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'SpotFleetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_spot_fleet;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'AWSStepFunctionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_step_functions_workflow;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#CB1261;fillColor=none',
+			'GenericGroup1AWS19_v2' : 'verticalAlign=top;align=center;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;strokeColor=#5A6C86;fontColor=#5A6C86',
+			'GenericGroup2AWS19_v2' : 'verticalAlign=top;align=center;fillOpacity=100;fillColor=#EAECEF',
 
+			//Repeated from the above
+			'AWSCloudAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
+			'AWSCloudaltAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
+			'RegionAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;dashed=1;fontColor=#0E82B8;fillColor=none',
+			'AvailabilityZoneAWS19' : 'verticalAlign=top;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;fontColor=#0E82B8;strokeOpacity=100;strokeColor=#147eba',
+			'SecuritygroupAWS19' : 'verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#DD3522',
+			'AutoScalingAWS19' : 'shape=mxgraph.aws4.groupCenter;grIcon=mxgraph.aws4.group_auto_scaling_group;grStroke=1;verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#D75F17;spacingTop=25;fillColor=none',
+			'VirtualprivatecloudVPCAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#2C8723;fillColor=none',
+			'PrivateSubnetAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;strokeColor=#0E82B8;fontColor=#0E82B8;fillOpacity=13;fillColor=#147eba',
+			'PublicSubnetAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;strokeColor=#2C8723;fontColor=#2C8723;fillOpacity=13;fillColor=#248814',
+			'ServercontentsAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_on_premise;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
+			'CorporatedatacenterAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_corporate_data_center;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
+			'ElasticBeanstalkcontainerAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_elastic_beanstalk;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'EC2instancecontentsAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_ec2_instance_contents;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'SpotFleetAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_spot_fleet;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
+			'AWSStepFunctionAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_step_functions_workflow;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#CB1261;fillColor=none',
+			'GenericGroup1AWS19' : 'verticalAlign=top;align=center;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;strokeColor=#5A6C86;fontColor=#5A6C86',
+			'GenericGroup2AWS19' : 'verticalAlign=top;align=center;fillOpacity=100;fillColor=#EAECEF',
 // AWS 19 - Internet of Things			
 			'InternetofThingsAWS19' : 'shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.internet_of_things;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top',
 			'AmazonFreeRTOSlightbgAWS19' : 'shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.freertos;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeColor=#ffffff',
@@ -2994,7 +3012,9 @@ LucidImporter = {};
 			'SMPricing' : s + 'sitemap.pricing;strokeColor=#000000;fillColor=#E6E6E6',
 			'SMProfile' : s + 'sitemap.profile;strokeColor=#000000;fillColor=#E6E6E6',
 			'SMSlideshow' : s + 'sitemap.slideshow;strokeColor=#000000;fillColor=#E6E6E6',
-			'SMUpload' : s + 'sitemap.upload;strokeColor=#000000;fillColor=#E6E6E6'
+			'SMUpload' : s + 'sitemap.upload;strokeColor=#000000;fillColor=#E6E6E6',
+//Special cases
+			'PresentationFrameBlock' : cs
 	};
 	
 	// actual code start
@@ -3625,7 +3645,7 @@ LucidImporter = {};
 		}
 		else
 		{
-			return createStyle(mxConstants.STYLE_STROKECOLOR, properties.LineColor.substring(0, 7), '#000000');
+			return createStyle(mxConstants.STYLE_STROKECOLOR, getColor(properties.LineColor), '#000000');
 		}
 		
 		return '';
@@ -3635,7 +3655,7 @@ LucidImporter = {};
 	{
 		if (color != null)
 		{
-			return mxConstants.STYLE_FILLCOLOR + '=' + color.substring(0, 7) + ';';
+			return mxConstants.STYLE_FILLCOLOR + '=' + getColor(color) + ';';
 		}
 		
 		return '';
@@ -3650,7 +3670,11 @@ LucidImporter = {};
 			if (properties.LineColor.length > 7)
 			{
 				var sOpac = "0x" + properties.LineColor.substring(properties.LineColor.length - 2, properties.LineColor.length);
-				style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
+				
+				if(!cell.style.includes('strokeOpacity'))
+				{
+					style += 'strokeOpacity=' + Math.round(parseInt(sOpac) / 2.55) + ';';
+				}
 			}
 		}
 		
@@ -3704,7 +3728,7 @@ LucidImporter = {};
 			
 			// Fixes the case for horizontal swimlanes where we use horizontal=0
 			// and Lucid uses rotation
-			if (action.Class == 'AdvancedSwimLaneBlockRotated')
+			if (deg != 0 && ((action.Class == 'UMLSwimLaneBlockV2') || (action.Class.indexOf('Rotated') >= 0 && (action.Class.indexOf('Pool') >= 0 || action.Class.indexOf('SwimLane') >= 0))))
 			{
 				deg += 90;
 				cell.geometry.rotate90();
@@ -3765,6 +3789,11 @@ LucidImporter = {};
 		return '';
 	}
 
+	function getColor(color)
+	{
+		return color.substring(0, 7);
+	}
+	
 	function getFillColor(properties, action)
 	{
 		// Gradients and fill color
@@ -3774,12 +3803,12 @@ LucidImporter = {};
 			{
 				if (properties.FillColor.cs != null && properties.FillColor.cs.length > 1)
 				{
-					return createStyle(mxConstants.STYLE_FILLCOLOR, properties.FillColor.cs[0].c.substring(0, 7)) + createStyle(mxConstants.STYLE_GRADIENTCOLOR, properties.FillColor.cs[1].c.substring(0, 7));
+					return createStyle(mxConstants.STYLE_FILLCOLOR, getColor(properties.FillColor.cs[0].c)) + createStyle(mxConstants.STYLE_GRADIENTCOLOR, getColor(properties.FillColor.cs[1].c));
 				}
 			}
 			else if (typeof properties.FillColor === 'string')
 			{
-				return createStyle(mxConstants.STYLE_FILLCOLOR, properties.FillColor.substring(0, 7), '#FFFFFF');
+				return createStyle(mxConstants.STYLE_FILLCOLOR, getColor(properties.FillColor), '#FFFFFF');
 			}
 			else
 			{
@@ -4111,6 +4140,31 @@ LucidImporter = {};
 	    v.vertex = true;
 	    updateCell(v, obj, graph);
 	    
+	    //FillOpacity affects icon also, so create a parent as a background color
+	    if (v != null && v.style.indexOf(';grIcon=') >= 0)
+    	{
+	    	var parent = new mxCell('', new mxGeometry(v.geometry.x, v.geometry.y,
+	    			v.geometry.width, v.geometry.height), vertexStyle);
+	    	parent.vertex = true;
+	    	var a = getAction(obj);
+			
+			if (a != null)
+			{
+				var p = (a.Properties != null) ? a.Properties : a;
+
+				if (p != null)
+				{
+					parent.style += addAllStyles(parent.style, p, a, parent);
+				}
+			}
+			
+		    v.geometry.x = 0;
+		    v.geometry.y = 0;
+		    v.style += 'part=1;';
+		    parent.insert(v);
+		    v = parent;
+    	}
+	    
 	    return v;
 	};
 	
@@ -4322,7 +4376,7 @@ LucidImporter = {};
 						
 						if (!created)
 						{
-						    lookup[obj.id] = createVertex(obj, graph);
+							lookup[obj.id] = createVertex(obj, graph);
 							queue.push(obj);
 						}
 					}
@@ -4666,7 +4720,6 @@ LucidImporter = {};
 	    v.vertex = true;
 
 	    var cls = (obj.Class != null) ? obj.Class : (a != null) ? a.Class : null;
-	    var rotatedSL = false;
 	    
 	    //composite shapes
 		switch (cls)
@@ -4714,10 +4767,17 @@ LucidImporter = {};
 				label.style += 	
 					addAllStyles(label.style, p, a, label);
 				break;
-				
+			case 'BPMNAdvancedPoolBlockRotated' :
+			case 'UMLMultiLanePoolRotatedBlock' :
+			case 'UMLMultiLanePoolBlock' :
+			case 'BPMNAdvancedPoolBlock' :
 			case 'AdvancedSwimLaneBlockRotated' :
-				rotatedSL = true;
 			case 'AdvancedSwimLaneBlock' :
+			case 'UMLSwimLaneBlockV2':
+			    var rotatedSL = p['Rotation'] != 0;
+			    var isPool = cls.indexOf('Pool') > 0;
+			    var isBPMN = cls.indexOf('BPMN') == 0;
+			    var hasTxt = p["MainText"] != null;
 				var lanesNum = 0;
 				
 				if (p.Lanes != null)
@@ -4725,26 +4785,32 @@ LucidImporter = {};
 					lanesNum = p.Lanes.length;
 				}
 
-				v.style = 'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
-					'horizontalStack=0;resizeParent=1;strokeColor=none;fillColor=none;dropTarget=0;';
+				v.style = (isPool? 'swimlane;' : 'fillColor=none;strokeColor=none;pointerEvents=0;') + 
+					'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
+					'resizeParent=1;dropTarget=0;' + (rotatedSL? 'horizontalStack=0;' : '');
 				v.style += addAllStyles(v.style, p, a, v);
+				
+				if (hasTxt)
+				{
+					v.value = convertText(p["MainText"]);
+					v.style += getFontSize(p["MainText"]) +
+							getFontColor(p["MainText"]) + 
+							getFontStyle(p["MainText"]) +
+							getTextAlignment(p["MainText"], v) + 
+							getTextLeftSpacing(p["MainText"]) +
+							getTextRightSpacing(p["MainText"]) + 
+							getTextTopSpacing(p["MainText"]) +
+							getTextBottomSpacing(p["MainText"]) + 
+							getTextGlobalSpacing(p["MainText"]) +
+							getTextVerticalAlignment(p["MainText"]);
+				}
 				
 				var totalOffset = 0; //relative
 				var lane = new Array();
 
-				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=25;dropTarget=0;';
-				
-				if (!rotatedSL)
-				{
-					var tbl = v;
-					v = new mxCell('', new mxGeometry(x, y, w, h), 'html=1;whiteSpace=wrap;container=1;collapsible=0;strokeColor=none;fillColor=none;dropTarget=0;');
-				    v.vertex = true;
-				    tbl.insert(v);
-				}
-				else
-				{
-					laneStyle += 'horizontal=0;'
-				}
+				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=25;dropTarget=0;' + 
+								(rotatedSL? 'horizontal=0;': '') +
+								(isBPMN? 'swimlaneLine=0;fillColor=none;' : '');
 				
 				for (var j = 0; j < lanesNum; j++)
 				{
@@ -4772,9 +4838,86 @@ LucidImporter = {};
 
 					totalOffset += currOffset;
 				}
-				
 				break;
+			case 'UMLMultidimensionalSwimlane' :
+				var rowsNum = 0;
+				var colsNum = 0;
 				
+				if (p.Rows != null && p.Columns)
+				{
+					rowsNum = p.Rows.length;
+					colsNum = p.Columns.length;
+				}
+
+				v.style = 'group';
+				
+				var colStartSize = p.TitleHeight * scale || 25;
+				var rowStartSize = p.TitleWidth  * scale || 25;
+				
+				var contStyle = 'fillColor=none;strokeColor=none;html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
+									'resizeParent=1;dropTarget=0;';
+				var rows = new mxCell('', new mxGeometry(0, colStartSize, w, h - colStartSize), contStyle + 'horizontalStack=0;');
+				rows.vertex = true;
+				var cols = new mxCell('', new mxGeometry(rowStartSize, 0, w - rowStartSize, h), contStyle);
+				cols.vertex = true;
+				
+				v.insert(rows);
+				v.insert(cols);
+				var y = 0;
+				
+				var rowStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;horizontal=0;startSize=' + rowStartSize + ';';
+				
+				for (var j = 0; j < rowsNum; j++)
+				{
+					var rh = parseInt(p.Rows[j].height) * scale;
+					var i = parseInt(p.Rows[j].id) || j;
+					
+					var r = new mxCell('', new mxGeometry(0, y, w, rh), rowStyle);
+					y += rh;
+					r.vertex = true;
+					rows.insert(r);
+					r.value = convertText(p["Row_" + i]);
+					r.style +=
+									addAllStyles(r.style, p, a, r) +
+									getFontSize(p["Row_" + i]) +
+									getFontColor(p["Row_" + i]) + 
+									getFontStyle(p["Row_" + i]) +
+									getTextAlignment(p["Row_" + i], r) + 
+									getTextLeftSpacing(p["Row_" + i]) +
+									getTextRightSpacing(p["Row_" + i]) + 
+									getTextTopSpacing(p["Row_" + i]) +
+									getTextBottomSpacing(p["Row_" + i]) + 
+									getTextGlobalSpacing(p["Row_" + i]) +
+									getTextVerticalAlignment(p["Row_" + i]);
+				}
+				
+				var colStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;startSize=' + colStartSize + ';';
+				var x = 0;
+				
+				for (var j = 0; j < colsNum; j++)
+				{
+					var cw = parseInt(p.Columns[j].width) * scale;
+					var i = parseInt(p.Columns[j].id) || j;
+					
+					var c = new mxCell('', new mxGeometry(x, 0, cw, h), colStyle);
+					x += cw;
+					c.vertex = true;
+					cols.insert(c);
+					c.value = convertText(p["Column_" + i]);
+					c.style +=
+									addAllStyles(c.style, p, a, c) +
+									getFontSize(p["Column_" + i]) +
+									getFontColor(p["Column_" + i]) + 
+									getFontStyle(p["Column_" + i]) +
+									getTextAlignment(p["Column_" + i], c) + 
+									getTextLeftSpacing(p["Column_" + i]) +
+									getTextRightSpacing(p["Column_" + i]) + 
+									getTextTopSpacing(p["Column_" + i]) +
+									getTextBottomSpacing(p["Column_" + i]) + 
+									getTextGlobalSpacing(p["Column_" + i]) +
+									getTextVerticalAlignment(p["Column_" + i]);
+				}
+				break;
 			case 'AndroidDevice' :
 				if (p.AndroidDeviceName != null)
 				{
@@ -6287,12 +6430,6 @@ LucidImporter = {};
 				v.value = convertText(p.Text);
 
 				break;
-			case 'UMLMultiLanePoolBlock' :
-				break;
-			case 'UMLMultiLanePoolRotatedBlock' :
-				break;
-			case 'UMLMultidimensionalSwimlane' :
-				break;
 			case 'UMLComponentBoxBlock' :
 				break;
 			case 'BPMNActivity' :
@@ -6725,10 +6862,6 @@ LucidImporter = {};
 				
 				v.style += addAllStyles(v.style, p, a, v);
 				
-				break;
-			case 'BPMNAdvancedPoolBlock' :
-				break;
-			case 'BPMNAdvancedPoolBlockRotated' :
 				break;
 			case 'BPMNBlackPool' :
 				v.style += addAllStyles(v.style, p, a, v);
@@ -8242,7 +8375,7 @@ LucidImporter = {};
 					v = new mxCell('', new mxGeometry(Math.round(b.x * scale + dx), Math.round((b.y + oldH - b.h) * scale + dy),
 							Math.round(b.w * scale), Math.round(b.h * scale)), '');
 				    v.vertex = true;
-				    updateCell(v, obj);
+				    updateCell(v, obj, graph);
 				}
 				
 				if (obj.Class == 'PEPoweredValveBlock')
@@ -10040,6 +10173,18 @@ LucidImporter = {};
 				break;
 			case 'GCPInputBlank' :
 				addGCP2UserDeviceCard('transparent', 1, 1, w, h, v, p, a);
+				break;
+			case 'PresentationFrameBlock' :
+				if (p.ZOrder == 0) //These are hidden
+				{
+					v.style += 'strokeColor=none;fillColor=none;';
+				}
+				else
+				{
+					v.style += getLabelStyle(p.Text);
+					v.style += addAllStyles(v.style, p, a, v);
+					v.value = convertText(p.Text);
+				}
 				break;
 		}
 

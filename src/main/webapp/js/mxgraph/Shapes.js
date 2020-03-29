@@ -2611,7 +2611,7 @@
 			
 			if (mxUtils.getValue(this.style, 'left', '1') == '1')
 			{
-				c.lineTo(x, y - this.strokewidth / 2);
+				c.lineTo(x, y);
 			}
 						
 			c.end();
@@ -2807,6 +2807,37 @@
 		};
 	});
 
+	// Registers and defines the custom marker
+	mxMarker.addMarker('box', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
+	{
+		var nx = unitX * (size + sw + 1);
+		var ny = unitY * (size + sw + 1);
+		var px = pe.x + nx / 2;
+		var py = pe.y + ny / 2;
+		
+		pe.x -= nx;
+		pe.y -= ny;
+
+		return function()
+		{
+			c.begin();
+			c.moveTo(px - nx / 2 - ny / 2, py - ny / 2 + nx / 2);
+			c.lineTo(px - nx / 2 + ny / 2, py - ny / 2 - nx / 2);
+			c.lineTo(px + ny / 2 - 3 * nx / 2, py - 3 * ny / 2 - nx / 2);
+			c.lineTo(px - ny / 2 - 3 * nx / 2, py - 3 * ny / 2 + nx / 2);
+			c.close();
+			
+			if (filled)
+			{
+				c.fillAndStroke();
+			}
+			else
+			{
+				c.stroke();
+			}
+		};
+	});
+	
 	// Registers and defines the custom marker
 	mxMarker.addMarker('cross', function(c, shape, type, pe, unitX, unitY, size, source, sw, filled)
 	{

@@ -1,3 +1,10 @@
+29-MAR:2020: 12.9.4
+
+- Adds delegating connector and half circle markers
+- Improvements for Lucidchart import
+- Enables cloud storage in PWA
+- Uses mxGraph 4.1.1 beta 15
+
 25-MAR:2020: 12.9.3
 
 - Fixes update of filename placeholder

@@ -509,7 +509,8 @@
 						try
 						{
 							// Workaround for unsupported CORS in IE9 XHR
-							var xhr = (navigator.userAgent.indexOf('MSIE 9') > 0) ? new XDomainRequest() : new XMLHttpRequest();
+							var xhr = (navigator.userAgent != null && navigator.userAgent.indexOf('MSIE 9') > 0) ?
+								new XDomainRequest() : new XMLHttpRequest();
 							xhr.open('GET', url);
 							
 						    xhr.onload = mxUtils.bind(this, function()

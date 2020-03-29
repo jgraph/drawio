@@ -1190,7 +1190,12 @@ EditorUi.prototype.getCssClassForMarker = function(prefix, shape, marker, fill)
 	}
 	else
 	{
-		if (marker == mxConstants.ARROW_CLASSIC)
+		// SVG marker sprites
+		if (marker == 'box' || marker == 'halfCircle')
+		{
+			result = 'geSprite geSvgSprite geSprite-' + marker + ((prefix == 'end') ? ' geFlipSprite' : '');
+		}
+		else if (marker == mxConstants.ARROW_CLASSIC)
 		{
 			result = (fill == '1') ? 'geSprite geSprite-' + prefix + 'classic' : 'geSprite geSprite-' + prefix + 'classictrans';
 		}
@@ -3952,7 +3957,8 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 		{
 			// Animates the changes in the graph model except
 			// for Camino, where animation is too slow
-			if (this.allowAnimation && animate && navigator.userAgent.indexOf('Camino') < 0)
+			if (this.allowAnimation && animate && (navigator.userAgent == null ||
+				navigator.userAgent.indexOf('Camino') < 0))
 			{
 				// New API for animating graph layout results asynchronously
 				var morph = new mxMorphing(graph);
@@ -4258,8 +4264,8 @@ EditorUi.prototype.createKeyHandler = function(editor)
 						
 					    for (var i = 0; i < cells.length; i++)
 					    {
-							var state = graph.view.getState(cells[i]);
-							var style = (state != null) ? state.style : graph.getCellStyle(cells[i]);
+					    	// TODO: Use getCompositeParent
+							var style = graph.getCurrentCellStyle(cells[i]);
 					    	
 							if (mxUtils.getValue(style, 'part', '0') == '1')
 							{

@@ -1244,7 +1244,10 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 				
 				EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
 					new Date().toISOString() + ':' +
-					'\n\nBrowser=' + navigator.userAgent +
+					'\n\nUserAgent=' + navigator.userAgent +
+					'\nAppVersion=' + navigator.appVersion +
+					'\nAppName=' + navigator.appName +
+					'\nPlatform=' + navigator.platform +
 					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
 					'\nMime=' + file.desc.mimeType +
 					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +

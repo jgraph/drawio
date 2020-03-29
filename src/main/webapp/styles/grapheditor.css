@@ -703,6 +703,18 @@ html body .geBigStandardButton:active {
 .geSprite-horizontalelbow { background-position: 0 -5903px; }
 .geSprite-horizontalisometric { background-position: 0 -5949px; }
 .geSprite-verticalisometric { background-position: 0 -5995px; }
+.geSvgSprite {
+	background-position: center center;
+}
+.geFlipSprite {
+	transform:scaleX(-1);
+}
+.geSprite-box {
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='10' transform='translate(0.5,0.5)'><rect stroke='black' fill='none' x='2' y='2' width='6' height='6'/><path stroke='black' d='M8 5 L 18 5'/></svg>");
+}
+.geSprite-halfCircle {
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='10' transform='translate(0.5,0.5)'><path stroke='black' fill='none' d='M 2 2 Q 6 2 6 5 Q 6 8 2 8 M 6 5 L 18 5'/></svg>");
+}
 html div.mxRubberband {
 	border-color:#0000DD;
 	background:#99ccff;

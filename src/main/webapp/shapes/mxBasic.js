@@ -4711,12 +4711,6 @@ mxShapeBasicPolygon.prototype.paintVertexShape = function(c, x, y, w, h)
  
 mxCellRenderer.registerShape(mxShapeBasicPolygon.prototype.cst.POLYGON, mxShapeBasicPolygon);
 
-// Workaround for possible inconsistent app.min.js and shapes.min.js
-if (Graph.handlePadding != null)
-{
-	Graph.handlePadding['mxgraph.basic.polygon'] = true;
-}
-
 mxShapeBasicPolygon.prototype.constraints = null;
  
 Graph.handleFactory[mxShapeBasicPolygon.prototype.cst.POLYGON] = function(state)

@@ -2057,8 +2057,7 @@ Draw.loadPlugin(function(ui) {
 
 				if (label == null || label.length == 0 || label.length > maxLabelLength || mxUtils.isNumeric(label))
 				{
-					var state = this.view.getState(cell);
-					var style = (state != null) ? state.style : this.getCellStyle(cell);
+					var style = this.getCurrentCellStyle(cell);
 					var tmp = style[mxConstants.STYLE_SHAPE];
 
 					if (tmp == 'label')

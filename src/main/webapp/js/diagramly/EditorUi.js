@@ -1006,7 +1006,7 @@
 				
 				// Adds new metadata
 				fileNode.setAttribute('modified', new Date().toISOString());
-				fileNode.setAttribute('agent', navigator.userAgent);
+				fileNode.setAttribute('agent', navigator.appVersion);
 				fileNode.setAttribute('version', EditorUi.VERSION);
 				fileNode.setAttribute('etag', Editor.guid());
 				
@@ -4181,11 +4181,12 @@
 			// Workaround for mxXmlRequest.simulate no longer working in PaleMoon
 			// if this is used (ie PNG export broken after XML export in PaleMoon)
 			// and for "WebKitBlobResource error 1" for all browsers on iOS.
-			var useDownload = navigator.userAgent.indexOf("PaleMoon/") < 0 &&
+			var useDownload = (navigator.userAgent == null ||
+				navigator.userAgent.indexOf("PaleMoon/") < 0) &&
 				!mxClient.IS_IOS && typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
-			if (mxClient.IS_GC)
+			if (mxClient.IS_GC && navigator.userAgent != null)
 			{
 				var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)
 				var vers = raw ? parseInt(raw[2], 10) : false;
