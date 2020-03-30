@@ -19,10 +19,12 @@ The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of
 
 Running
 -------
-The simplest way to run draw.io initially is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/draw.io/war/index.html) will have the full editor functionality (sans the integrations).
+One way to run draw.io is to fork this project, [publish the master branch to GitHub pages](https://help.github.com/categories/github-pages-basics/) and the [pages sites](https://jgraph.github.io/drawio/src/main/webapp/index.html) will have the full editor functionality (sans the integrations).
+
+Another way is to use [the recommended Docker project](https://github.com/fjudith/docker-draw.io) or to download [draw.io Desktop](https://get.draw.io).
 
 The full packaged .war of the client and servlets is built when the project is tagged and available on the [releases page](https://github.com/jgraph/draw.io/releases).
 
 Supported Browsers
 ------------------
-draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 7.1.x, 8.0.x, 9.1.x and 10.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 10.x and 9.x) and Edge 23+.
+draw.io supports IE 11, Chrome 32+, Firefox 38+, Safari 9.1.x, 10.1.x and 11.0.x, Opera 20+, Native Android browser 5.1.x+, the default browser in the current and previous major iOS versions (e.g. 11.2.x and 10.3.x) and Edge 23+.

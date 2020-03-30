@@ -1,0 +1,185 @@
+<templates>
+<clibs name="azure">
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/additional_or_support.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/ai_machine_learning.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/apps_and_system_logos.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/azure.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/azure_additional_or_support.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/buildings.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/databases.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/developer.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/files.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/generic.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/infrastructure.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/integration.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/integration_patterns.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/iot_devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/office365.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/others.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/power_bi.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/powerapps_and_flows.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/sap.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/servers.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/users_and_roles.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/deprecated.xml</add>
+</clibs>
+<clibs name="fortinet">
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Buildings.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Cloud.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Connector_DevOps_API.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Features.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Generic_Devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Generic_Products.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Generic_Technology.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_OT_and_IoT.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_People_and_NOC_SOC.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_People_and_Red_Blue_Team.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Platform_Core_Elements.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Products.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_SaaS_Family_of_Offerings.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Solutions_and_Deployment_Scenarios.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Threats_and_Threat_Services.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Vertical_Related.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_VM_Components.xml</add>
+</clibs>
+<template url="basic/flowchart.xml" title="flowchart" libs="general;flowchart"/>
+<template url="basic/classes.xml" title="classDiagram" libs="general;uml"/>
+<template url="basic/orgchart.xml" title="orgChart" libs="general;basic;arrows"/>
+<template url="basic/swimlanes.xml" title="swimlaneDiagram" libs="general;flowchart;bpmn"/>
+<template url="basic/erd.xml" title="entityRelationshipDiagram" libs="general;er"/>
+<template url="business/accd.xml" libs="general"/>
+<template url="business/archimate.xml" libs="general;archimate3"/>
+<template url="business/bpmn.xml" libs="general;bpmn"/>
+<template url="business/business_model_1.xml" libs="general;signs"/>
+<template url="business/business_model_2.xml" libs="general"/>
+<template url="business/business_model_canvas_1.xml" libs="general;signs"/>
+<template url="business/ishikawa_1.xml" libs="general"/>
+<template url="business/ishikawa_2.xml" libs="general"/>
+<template url="business/pert_1.xml" libs="general"/>
+<template url="business/pert_2.xml" libs="general"/>
+<template url="business/timeline_1.xml" libs="general"/>
+<template url="business/timeline_2.xml" libs="general"/>
+<template url="business/timeline_3.xml" libs="general"/>
+<template url="business/timeline_4.xml" libs="general"/>
+<template url="charts/bar_chart_1.xml" libs="general"/>
+<template url="charts/coc.xml" libs="general"/>
+<template url="charts/org_chart_1.xml" libs="general"/>
+<template url="charts/org_chart_2.xml" libs="general"/>
+<template url="charts/work_breakdown_structure.xml" libs="general"/>
+<template url="cloud/aws_1.xml" libs="general;aws4"/>
+<template url="cloud/aws_2.xml" libs="general;aws4"/>
+<template url="cloud/aws_3.xml" libs="general;aws4"/>
+<template url="cloud/aws_4.xml" libs="general;aws4"/>
+<template url="cloud/aws_5.xml" libs="general;aws4"/>
+<template url="cloud/aws_6.xml" libs="general;aws4"/>
+<template url="cloud/aws_7.xml" libs="general;aws4"/>
+<template url="cloud/aws_8.xml" libs="general;aws4"/>
+<template url="cloud/aws_9.xml" libs="general;aws4"/>
+<template url="cloud/aws_10.xml" libs="general;aws4"/>
+<template url="cloud/aws_3d.xml" libs="general;aws3d"/>
+<template url="cloud/azure_1.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_2.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_3.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_4.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_5.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_6.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_7.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_8.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_9.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/gcp_backup_and_archive_api_hosting.xml" libs="gcp2"/>
+<template url="cloud/gcp_big_data_complex_event_processing.xml" libs="gcp2"/>
+<template url="cloud/gcp_dev_test_continuous_delivery_with_spinnaker.xml" libs="gcp2"/>
+<template url="cloud/gcp_digital_marketing_dmp_data_warehouse.xml" libs="gcp2"/>
+<template url="cloud/gcp_financial_services_monte_carlo_simulations.xml" libs="gcp2"/>
+<template url="cloud/gcp_gaming_backend_database.xml" libs="gcp2"/>
+<template url="cloud/gcp_general_app_engine_and_cloud_endpoints.xml" libs="gcp2"/>
+<template url="cloud/gcp_internet_of_things_mqtt_to_pubsub_broker.xml" libs="gcp2"/>
+<template url="cloud/gcp_lifesciences_genomics_secondary_analysis.xml" libs="gcp2"/>
+<template url="cloud/gcp_media_hybrid_rendering.xml" libs="gcp2"/>
+<template url="cloud/gcp_retail_beacons_and_targeted_marketing.xml" libs="gcp2"/>
+<template url="cloud/gcp_websites_content_hosting.xml" libs="gcp2"/>
+<template url="cloud/ibm_bda_reference_architecture.xml" libs="general;ibm"/>
+<template url="cloud/ibm_blockchain.xml" libs="general;ibm"/>
+<template url="cloud/ibm_cognitive_conversation.xml" libs="general;ibm"/>
+<template url="cloud/ibm_cognitive_discovery.xml" libs="general;ibm"/>
+<template url="cloud/ibm_iot_architecture.xml" libs="general;ibm"/>
+<template url="cloud/ibm_microservices.xml" libs="general;ibm"/>
+<template url="cloud/ibm_private_cloud.xml" libs="general;ibm"/>
+<template url="cloud/ibm_vcenter_server_platform.xml" libs="general;ibm"/>
+<template url="cloud/ibm_vpc_architecture.xml" libs="general;ibm"/>
+<template url="engineering/cabinet.xml" libs="general;cabinets"/>
+<template url="engineering/electrical_1.xml" libs="general;electrical"/>
+<template url="engineering/electrical_2.xml" libs="general;electrical"/>
+<template url="flowcharts/cross_functional_flowchart_1.xml" libs="general;flowchart"/>
+<template url="flowcharts/cross_functional_flowchart_2.xml" libs="general;flowchart"/>
+<template url="flowcharts/data_flow_1.xml" libs="general;uml"/>
+<template url="flowcharts/data_flow_2.xml" libs="general;uml"/>
+<template url="flowcharts/data_flow_3.xml" libs="general;uml"/>
+<template url="flowcharts/epc.xml" libs="general;flowchart"/>
+<template url="flowcharts/flowchart_1.xml" libs="general;flowchart"/>
+<template url="flowcharts/flowchart_2.xml" libs="general;flowchart"/>
+<template url="flowcharts/workflow_1.xml" libs="general;flowchart"/>
+<template url="layout/blog_wireframe.xml" libs="general;mockups"/>
+<template url="layout/bootstrap.xml" libs="general;bootstrap"/>
+<template url="layout/wireframe_1.xml" libs="general;mockups"/>
+<template url="layout/wireframe_2.xml" libs="general;mockups"/>
+<template url="maps/concept_map_1.xml" libs="general"/>
+<template url="maps/concept_map_2.xml" libs="general"/>
+<template url="maps/living_beings_mind_map.xml" libs="general"/>
+<template url="maps/mind_map.xml" libs="general"/>
+<template url="maps/site_map.xml" libs="general"/>
+<template url="network/active_directory.xml" libs="general;citrix"/>
+<template url="network/arista.xml" libs="general" clibs="Uhttps%3A%2F%2Fjgraph.github.io%2Fdrawio-libs%2Flibs%2F%2Farista.xml"/>
+<template url="network/cisco_1.xml" libs="general;cisco"/>
+<template url="network/cisco_2.xml" libs="general;cisco"/>
+<template url="network/citrix.xml" libs="general;citrix"/>
+<template url="network/enterprise_1.xml" libs="general;citrix"/>
+<template url="network/fortinet.xml" libs="general" clibs="fortinet"/>
+<template url="network/internet.xml" libs="general;network"/>
+<template url="network/lan.xml" libs="general;network"/>
+<template url="network/network.xml" libs="general" clibs="Uhttps%3A%2F%2Fjgraph.github.io%2Fdrawio-libs%2Flibs%2F%2Fflat-color-icons.xml"/>
+<template url="network/telecomm.xml" libs="general;network"/>
+<template url="network/veeam.xml" libs="general;veeam"/>
+<template url="network/wireless_home_network.xml" libs="general;network;clipart"/>
+<template url="other/block.xml" libs="general;"/>
+<template url="other/cycle_1.xml" libs="general;"/>
+<template url="other/decision_tree.xml" libs="general;"/>
+<template url="other/delivery_diagram.xml" libs="general;" clibs="Uhttps%3A%2F%2Fjgraph.github.io%2Fdrawio-libs%2Flibs%2F%2Fdelivery-icons.xml"/>
+<template url="other/educational.xml" libs="general;"/>
+<template url="other/floor_plan.xml" libs="general;floorplan"/>
+<template url="other/infographic_1.xml" libs="general;mockups;signs"/>
+<template url="other/infographic_2.xml" libs="general;mockups;signs"/>
+<template url="other/infographic_3.xml" libs="general;mockups;signs"/>
+<template url="other/infographic_4.xml" libs="general;mockups;signs"/>
+<template url="other/lan_plan.xml" libs="general;floorplan"/>
+<template url="software/class_1.xml" libs="general;uml"/>
+<template url="software/class_2.xml" libs="general;uml"/>
+<template url="software/component.xml" libs="general;uml"/>
+<template url="software/database_1.xml" libs="general;uml"/>
+<template url="software/database_2.xml" libs="general;uml"/>
+<template url="software/database_3.xml" libs="general;uml"/>
+<template url="software/eip.xml" libs="general;eip"/>
+<template url="software/entity_relationship.xml" libs="general;uml;er"/>
+<template url="tables/authority_matrix.xml" libs="general"/>
+<template url="tables/gantt_1.xml" libs="general"/>
+<template url="tables/gantt_2.xml" libs="general"/>
+<template url="tables/gantt_3.xml" libs="general"/>
+<template url="uml/activity_diagram_1.xml" libs="general;uml"/>
+<template url="uml/activity_diagram_2.xml" libs="general;uml"/>
+<template url="uml/sequence_1.xml" libs="general;uml"/>
+<template url="uml/sequence_2.xml" libs="general;uml"/>
+<template url="uml/state_machine.xml" libs="general;uml"/>
+<template url="uml/sysml.xml" libs="general;uml;sysml"/>
+<template url="uml/uml_1.xml" libs="general;uml"/>
+<template url="uml/uml_2.xml" libs="general;uml"/>
+<template url="venn/spider_1.xml" libs="general"/>
+<template url="venn/spider_2.xml" libs="general"/>
+<template url="venn/venn_1.xml" libs="general"/>
+<template url="venn/venn_2.xml" libs="general"/>
+<template url="venn/venn_3.xml" libs="general"/>
+<template url="venn/venn_4.xml" libs="general"/>
+<template url="venn/venn_5.xml" libs="general"/>
+<template url="venn/venn_6.xml" libs="general"/>
+</templates>
