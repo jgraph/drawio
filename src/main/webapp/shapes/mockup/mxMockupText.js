@@ -458,7 +458,7 @@ mxShapeMockupCallout.prototype.paintVertexShape = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxShapeMockupCallout.prototype.cst.SHAPE_CALLOUT, mxShapeMockupCallout);
 
 //**********************************************************************************************************************************************************
-//Sticky Note
+//Sticky Note (LEGACY)
 //**********************************************************************************************************************************************************
 /**
  * Extends mxShape.
@@ -537,6 +537,71 @@ mxShapeMockupStickyNote.prototype.foreground = function(c, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeMockupStickyNote.prototype.cst.SHAPE_STICKY_NOTE, mxShapeMockupStickyNote);
+
+//**********************************************************************************************************************************************************
+//Sticky Note v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeMockupStickyNote2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeMockupStickyNote2, mxShape);
+
+mxShapeMockupStickyNote2.prototype.cst = {
+		SHAPE_STICKY_NOTE : 'mxgraph.mockup.text.stickyNote2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeMockupStickyNote2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	this.background(c, w, h);
+	c.setShadow(false);
+	this.foreground(c, w, h);
+};
+
+mxShapeMockupStickyNote2.prototype.background = function(c, w, h)
+{
+	c.begin();
+	c.moveTo(w * 0.03, h * 0.07);
+	c.lineTo(w * 0.89, h * 0.06);
+	c.arcTo(2.81 * w, 2.92 * h, 1, 0, 0, w * 0.99, h * 0.98);
+	c.lineTo(w * 0.09, h * 0.99);
+	c.arcTo(2.81 * w, 2.92 * h, 1, 0, 1, w * 0.03, h * 0.07);
+	c.close();
+	c.fill();
+};
+
+mxShapeMockupStickyNote2.prototype.foreground = function(c, w, h)
+{
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(w * 0.28 , 0);
+	c.lineTo(w * 0.59, 0);
+	c.lineTo(w * 0.6, h * 0.12);
+	c.lineTo(w * 0.28, h * 0.13);
+	c.close();
+	c.fill();
+};
+
+mxCellRenderer.registerShape(mxShapeMockupStickyNote2.prototype.cst.SHAPE_STICKY_NOTE, mxShapeMockupStickyNote2);
 
 //**********************************************************************************************************************************************************
 //Bulleted List

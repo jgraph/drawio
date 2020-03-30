@@ -1,3 +1,8 @@
+30-MAR:2020: 12.9.5
+
+- Uses mxGraph 4.1.1 beta 16
+- Fixes some shapes
+
 29-MAR:2020: 12.9.4
 
 - Adds delegating connector and half circle markers

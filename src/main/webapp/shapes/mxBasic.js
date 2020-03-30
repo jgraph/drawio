@@ -137,8 +137,6 @@ mxShapeBasicRectCallout.prototype.getLabelMargins = function()
 
 mxCellRenderer.registerShape(mxShapeBasicRectCallout.prototype.cst.RECT_CALLOUT, mxShapeBasicRectCallout);
 
-mxShapeBasicRectCallout.prototype.constraints = null;
-
 Graph.handleFactory[mxShapeBasicRectCallout.prototype.cst.RECT_CALLOUT] = function(state)
 {
 	var handles = [Graph.createHandle(state, ['dx', 'dy'], function(bounds)
@@ -4747,3 +4745,270 @@ Graph.handleFactory[mxShapeBasicPolygon.prototype.cst.POLYGON] = function(state)
    
     return handles;
 };
+
+//**********************************************************************************************************************************************************
+//Rectangle with pattern fill
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeBasicPatternFillRect(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	this.dx = 0.5;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeBasicPatternFillRect, mxActor);
+
+mxShapeBasicPatternFillRect.prototype.cst = {PATTERN_FILL_RECT : 'mxgraph.basic.patternFillRect'};
+
+mxShapeBasicPatternFillRect.prototype.customProperties = [
+	{name: 'step', dispName: 'Fill Step', type: 'float', min:0, defVal:5},
+	{name: 'fillStyle', dispName: 'Fill Style', type: 'enum', defVal:'none',
+		enumList:[
+			{val: 'none', dispName: 'None'},
+			{val: 'diag', dispName: 'Diagonal'},
+			{val: 'diagRev', dispName: 'Diagonal Reverse'},
+			{val: 'vert', dispName: 'Vertical'},
+			{val: 'hor', dispName: 'Horizontal'},
+			{val: 'grid', dispName: 'Grid'},
+			{val: 'diagGrid', dispName: 'Diagonal Grid'}
+	]},
+	{name: 'fillStrokeWidth', dispName: 'Fill Stroke Width', type: 'float', min:0, defVal:1},
+	{name: 'fillStrokeColor', dispName: 'Fill Stroke Color', type: 'color', defVal:'#cccccc'},
+	{name: 'top', dispName: 'Top Line', type: 'bool', defVal:true},
+	{name: 'right', dispName: 'Right Line', type: 'bool', defVal:true},
+	{name: 'bottom', dispName: 'Bottom Line', type: 'bool', defVal:true},
+	{name: 'left', dispName: 'Left Line', type: 'bool', defVal:true}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeBasicPatternFillRect.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+	var strokeWidth = mxUtils.getValue(this.style, 'strokeWidth', '1');
+	
+	c.rect(0, 0, w, h);
+	c.fill();
+
+	var fillStrokeColor = mxUtils.getValue(this.style, 'fillStrokeColor', '#cccccc');
+	var fillStrokeWidth = parseFloat(mxUtils.getValue(this.style, 'fillStrokeWidth', 1));
+	
+	c.setStrokeColor(fillStrokeColor);
+	c.setStrokeWidth(fillStrokeWidth);
+	
+	var step = parseFloat(mxUtils.getValue(this.style, 'step', 5));
+	var fillStyle = mxUtils.getValue(this.style, 'fillStyle', 'none');
+
+	if (fillStyle == 'diag' || fillStyle == 'diagGrid')
+	{
+		step = step * 1.41;
+		var i = 0;
+		
+		c.begin();
+		
+		while (i < (h + w))
+		{
+			var cx = 0;
+			var cy = 0;
+			
+			if (i <= h)
+			{
+				c.moveTo(0, i);
+				
+				if(i <= w)
+				{
+					c.lineTo(i, 0);
+				}
+				else
+				{
+					c.lineTo(w, i - w);
+				}
+			}
+			else
+			{
+				c.moveTo(i - h, h);
+				
+				if(i <= w)
+				{
+					c.lineTo(i, 0);
+				}
+				else
+				{
+					c.lineTo(w, i - w);
+				}
+			}
+			
+			i = i + step;
+		}
+		
+		c.stroke();
+	}
+	else if (fillStyle == 'vert' || fillStyle == 'grid')
+	{
+		c.begin();
+		var i = 0;
+		
+		while (i <= w)
+		{
+			var cx = 0;
+			var cy = 0;
+			
+			c.moveTo(i, 0);
+			c.lineTo(i, h);
+			
+			i = i + step;
+		}
+		
+		c.stroke();
+	}
+	
+	if (fillStyle == 'diagRev' || fillStyle == 'diagGrid')
+	{
+		if (fillStyle == 'diagRev')
+		{
+			step = step * 1.41;
+		}
+
+		var i = 0;
+		
+		c.begin();
+		
+		while (i < (h + w))
+		{
+			var cx = 0;
+			var cy = 0;
+			
+			if (i <= h)
+			{
+				c.moveTo(w, i);
+				
+				if(i <= w)
+				{
+					c.lineTo(w - i, 0);
+				}
+				else
+				{
+					c.lineTo(w - w, i - w);
+				}
+			}
+			else
+			{
+				c.moveTo(w - i + h, h);
+				
+				if(i <= w)
+				{
+					c.lineTo(w - i, 0);
+				}
+				else
+				{
+					c.lineTo(0, i - w);
+				}
+			}
+			
+			i = i + step;
+		}
+		
+		c.stroke();
+	}
+	else if (fillStyle == 'hor' || fillStyle == 'grid')
+	{
+		c.begin();
+		var i = 0;
+		
+		while (i <= h)
+		{
+			var cx = 0;
+			var cy = 0;
+			
+			c.moveTo(0, i);
+			c.lineTo(w, i);
+			
+			i = i + step;
+		}
+		
+		c.stroke();
+	}
+
+	c.setStrokeColor(strokeColor);
+	c.setStrokeWidth(strokeWidth);
+	
+	c.begin();
+	c.moveTo(0, 0);
+	
+	if (mxUtils.getValue(this.style, 'top', '1') == '1')
+	{
+		c.lineTo(w, 0);
+	}
+	else
+	{
+		c.moveTo(w, 0);
+	}
+	
+	if (mxUtils.getValue(this.style, 'right', '1') == '1')
+	{
+		c.lineTo(w, h);
+	}
+	else
+	{
+		c.moveTo(w, h);
+	}
+	
+	if (mxUtils.getValue(this.style, 'bottom', '1') == '1')
+	{
+		c.lineTo(0, h);
+	}
+	else
+	{
+		c.moveTo(0, h);
+	}
+	
+	if (mxUtils.getValue(this.style, 'left', '1') == '1')
+	{
+		c.lineTo(0, 0);
+	}
+				
+	c.end();
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeBasicPatternFillRect.prototype.cst.PATTERN_FILL_RECT, mxShapeBasicPatternFillRect);
+
+mxShapeBasicPatternFillRect.prototype.getConstraints = function(style, w, h)
+{
+	var constr = [];
+
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.25), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.75, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0.25, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.75), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+	constr.push(new mxConnectionConstraint(new mxPoint(0, 0.25), false));
+
+	return (constr);
+}
+
