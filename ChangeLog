@@ -1,3 +1,10 @@
+31-MAR:2020: 12.9.6
+
+- Improvements for Lucidchart import
+- Fixes CORS errors for some icons
+- Fixes ER shapes for dark mode
+- Uses mxGraph 4.1.1
+
 30-MAR:2020: 12.9.5
 
 - Uses mxGraph 4.1.1 beta 16

@@ -2147,7 +2147,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					}
 					
 					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 26),
-						'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+						'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;align=center;');
 					tableCell.vertex = true;
 					cells.push(tableCell);
 					

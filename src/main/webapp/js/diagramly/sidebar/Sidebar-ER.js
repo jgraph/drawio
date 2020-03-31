@@ -50,7 +50,7 @@
 	   		this.addEntry(dt + 'table', function()
 			{
 				var cell = new mxCell('Table', new mxGeometry(0, 0, 160, 110),
-			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;fontSize=14;');
+			    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=14;');
 				cell.vertex = true;
 				cell.insert(sb.cloneCell(row, 'Row 1'));
 				cell.insert(sb.cloneCell(row, 'Row 2'));
@@ -61,7 +61,7 @@
 	   	 	this.addEntry(dt + 'table section subsection', function()
 	   		{
 				var cell = new mxCell('Section', new mxGeometry(0, 0, 140, 110),
-		    		'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=22;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;fontSize=14;');
+		    		'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=22;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=14;');
 				cell.vertex = true;
 
 				cell.insert(sb.cloneCell(row, 'Row 1'));
@@ -71,9 +71,9 @@
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Section'); 
 	   		}),
 			this.addDataEntry(dt + 'table section subsection', 160, 144, 'ER Table 1',
-				'7ZjbbqMwEIafhtuVDSHdXBZ60GpTqWr6AgYcsNbYrHE2SZ9+x8a0SUmURCnZdkUOEjMeH2bm44+CF8Tl6l6RqniQGeVecOuhaw9NvCBWUuo327rKVUw593zEMi+48Xwfwdfz7w6FYRuGKqKo0CfN9JuZfwhf0MbzTBJOG2+t19x56yUrORFgRXMp9MyNILDTgvFsStZyYbauNUl/tVZUSMVeIJ5A5jcYHDCs9Iy9mMn+2KzGOI8ll8ruE1Bk3lszZ2ZFt5eiNcx9bPPE71wPZLUVOCW1bk8pOSdVzRJ7bjOxJCpnIpJay9IFtVnebR9qbl8wTjjLBfhS2IuqthZNNngEtqsmVZqu9rbGujb74lpzT2VJtVpD+JJlunDR46aVqKAsL9olRqPGSerGkb/O3dF18LjGH6Ah6NCwEOz3gv7IukAUpDKXkJhmhD/RVBORm9FIy8rVk9N5W3/lDm+uk7bmeKOmTWxkasdSwq+du2RZZlfdBEVIS2JdkZSJfNrsEozeXE9uN+OSsOScyyWYBSxGhTmN1EST5JXhSjKhbSnDCD5Q8Rh9C70QMo3Bxm82fEy40rEUtVaE2a5SAG1JDWxRpmT1DGjRNtvN+yV8x4x/LDP+ScxMdiAToD6IGXWIefx5NivJ5j25o+/HIrPNx4fhcYgAk6aD++hep1IIU5akrRnqMhCcxEBwMQbCDgMKyukj3I9ooMME2MW+uGJcXiHg97gHOsYdOv61PjR0/GfiEJ4tDv20/2qPOJxPwSAOX18cvg/icAlxuPqk4jDZIw7BIA6DOPgYDepwCXWYfFJ1wPjj+z/owiV1AffyfxN3H1oOutCDLuDTHlTuEoZzAbDOjQflLmjrgfpf'),
+				'7Vhhb5swEP01fJ1sCOnysZCtmppKVdM/YMABa8amxlmS/vqdwTRJSZREKaydkIjEPc6H793Li2LHC/P1nSJF9iATyh3vh4NuHTRxvFBJqbdxBeXrkHLuuIgljjd1XBfBx3F/nkrDVRoqiKJCX7TSrVf+IXxJa+SZRJzWaKk33KLliuWcCIiChRR6bp8giOOM8WRGNnJpXl1qEv9uoiCTir1CPoHOpxgAeKz0nL2axe54L2NuVtqaipaQ89j0g99BD2S9lzgjpW52IzknRcmian9mYU5UykQgtZa5TSKcpQLuY6hFVdNTvSs8gtiyQpWm66MUV9Auv5biOypzqtUG0lcs0ZnNHtcjQRlladaUGI1qkJQ1kL6tPTA9QOwAT0zVa011KdjLkv5K2oPNSGFuoTHNCH+isSYiNU8DLQvLF6eLhl9lN2/uo4ZTvMNpnRsY7lhM+K2Fc5YkVdUF4zyUXALtUyErRZUFiZlIZ/VbvNEWerJvM5CEkgsuVxBmUIwKsxupiSbRmxYLyYSuqPQDuIDxEH3zHR86DSHG2xguk650KEWpFWHVVCkIaUWNmIJEyeIZpEObbnd177/TjHuuZtyLNDM5IBkPdaGYUUsxj/dXayXa/c4dmPu5ktnXx4fJ45QCTJtW3GfPOpZCGFqihjPU1oB3kQa83jTgtzSggE4X4W5MA51WQFXsiztG/w4Bv6sdqGPcUse/9odaHf+ZOfhXm0M34785Yg7Xq2Awh69vDt8Hc+jDHG4+qTlMjpiDN5jDYA4uRoM79OEOk0/qDhh//PwHX+jTF3An/zdx+/Bx8IUOfAFfdlB5yBiuFUAF7hx426S9g/G/'),
 			this.addDataEntry(dt + 'table section subsection', 160, 112, 'ER Table 2',
-				'7ZdRb+IwDIB/TV9Pabuy2+Najj2MSdPYHzBtaKNLkyrNDtivPydNRjtAwLFN22lQpNqxndj+atEgzurVjYKmupMF5UH8KyDXAbkK4kxJqTeyVdWrjHIeRIQVQTwOoojgL4gmh8xCa0YaUFTokzyjzvMP8CfaaR5hzmmnbfWaO227ZDUHgVK6kELP3ApBOa8YL6awlk9m61ZD/ttLaSUVe0Z7wMzHISpwWekZezbO0chEY5xnkktl94kpMd+B58xEdHsp2qLvvc8zfKW6g9XAcAqt9qeUnEPTsrk9t3GsQZVMpFJrWTsjn+VkeKiF/eA6cFYK1OW4F1W+Fl024QXKrppUabra2xqr6vfFteaGyppqtUbzJSt05axHXStJRVlZ+RChaxy0naJ88d3RddS4xh+gId6iQcklKsJtHipozC3mpRnwB5prEKVZTbVsXDk5XfjyK3d2cz/vl9yXtLNNTelYDvzaqWtWFDZqnxMhLYhtAzkT5bTbZUQ2qge3m2mJxJALjmnE4wqDUWFOIzVomL8g3EgmtK1kkuKFBc/IjyRIMNMM5XAj42XMlc6kaLUCZptKkbMlNaylhZLNI5JFfbb9xyV5hUx0LDLRSchc7SAmJu8BzMUWMPe3WKzJ7UnE9EsU7iNoQM0OGo4FaUjNxVtBc4gLk7ZL72gCcimEKdPc15BskxGfREYy+igykj2jJHqfURJ+j5IvPkpG+0bJScR8j5J/HyXJJx0ll5/uX4kN9sXnyMfPDf+Ivy0dP7foOBuLM+dDR8d/Nhwuzx4O57bfKnsvzc5o8HL9Fw=='),
+				'7ZdRb6MwDMc/Da+nAKW7PQ5628M6aVr3BQykEF2IUciu7T79ORDWsrZqe92m7TSJStg4Tvz3D6t4YVItbzTU5R3mXHrhL49deezSCxONaNZ266qWCZfSC5jIvXDiBQGjnxdcHwrz2zBWg+bKnLQy6Fb+AfnEO88jpJJ33saspPM2C1FJUGTFc1Rm5p4wsrNSyHwKK3yyWzcGst+9FZeoxTPFA1U+8clBj7WZiWe7OBgPImZ2pcupeUMx9309/ivXHSwHgVNoTH8alBLqRqTt+ezCCnQhVIzGYOWCQIpC0X1Gubjua+pO5Y/Idqpwbfhyr8Sta1NfJ/ENx4obvaLwhchN6aLHXUtYyUVR9il81wBoOkfxsnZH98jjGnigq+FWVzUuyOFv97WE2t5SXUaAfOCZAVXYp7HB2skl+byXV7uz2/t0l6RdbGylExnIK+euRJ63WedCygQlkuoThS1QTQ2ZUMW022XM1q4Ht5ttCVLKuaQywklJybiyp0EDBtIXFGsUyrRKRjFdJHjCfkReRJUmZPtrmy4brk2CqjEaRNtUThwtuGUpzjXWj0QO76vdxD56hUxwLDLBSchc7iAmZO8BzGgLmPtbEuv69iRiNiXy9xE0oGYHDceCNKRm9FbQHOLClu3KO5qADJWyMqW9hmybjPAkMqLxR5ER7RklwfuMEv97lHzxUTLeN0pOIuZ7lPz7KIk+6Si5+HT/StpkX3yOfPzc6F/xt6Xj5xYdZ2Nx5nzo6PjPhsPF2cPh3Pa3zo2PXxc0+Ej+Cw=='),
 				
 			this.addEntry(dt + 'table row', function()
 			{
@@ -171,12 +171,12 @@
 				
 				return sb.createVertexTemplateFromCells([cell.clone()], cell.geometry.width, cell.geometry.height, 'Spacer');
 			}),
-			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;fillColor=#e0e0e0;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=14;',
+			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;spacingLeft=4;spacingRight=4;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;fontSize=14;',
 				80, 26, 'Title', 'Title', null, null, 'er entity relation table title label'),
 	   		this.addEntry(dt + 'table', function()
 			{
 	   			var cell = new mxCell('Entity', new mxGeometry(0, 0, 160, 120),
-	   		    	'swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;fillColor=#008cff;fontColor=#FFFFFF;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;');
+	   		    	'swimlane;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;');
 	   			cell.vertex = true;
 	   			
 	   			var cell1 = new mxCell('+Attribute1\n+Attribute2\n+Attribute3', new mxGeometry(0, 30, 160, 90),

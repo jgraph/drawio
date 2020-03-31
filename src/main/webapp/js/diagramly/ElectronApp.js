@@ -214,15 +214,18 @@ mxStencilRegistry.allowEval = false;
 				const electron = require('electron');
 				var remote = electron.remote;
 				var dialog = remote.dialog;
-
+				const sysPath = require('path')
+				var lastDir = localStorage.getItem('.lastImpDir');
+				
 		        var paths = dialog.showOpenDialogSync({
-		        	defaultPath: remote.app.getPath('documents'),
+		        	defaultPath: lastDir || remote.app.getPath('documents'),
 		        	properties: ['openFile']
 		        });
 			           
 		        if (paths !== undefined && paths[0] != null)
 		        {
 		        	var path = paths[0];
+		        	localStorage.setItem('.lastImpDir', sysPath.dirname(path));
 		        	var asImage = /\.png$/i.test(path) || /\.gif$/i.test(path) || /\.jpe?g$/i.test(path);
 		        	var encoding = (asImage || /\.pdf$/i.test(path) || /\.vsdx$/i.test(path) || /\.vssx$/i.test(path)) ?
 		        		'base64' : 'utf-8';
@@ -654,9 +657,11 @@ mxStencilRegistry.allowEval = false;
 		const electron = require('electron');
 		var remote = electron.remote;
 		var dialog = remote.dialog;
-
+		const sysPath = require('path')
+		var lastDir = localStorage.getItem('.lastOpenDir');
+		
         var paths = dialog.showOpenDialogSync({
-        	defaultPath: remote.app.getPath('documents'),
+        	defaultPath: lastDir || remote.app.getPath('documents'),
         	filters: [
         	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml'] },
         	    { name: 'VSDX Documents', extensions: ['vsdx'] },
@@ -667,6 +672,8 @@ mxStencilRegistry.allowEval = false;
 	           
         if (paths !== undefined && paths[0] != null)
         {
+        	localStorage.setItem('.lastOpenDir', sysPath.dirname(paths[0]));
+        	
 			this.readGraphFile(fn, mxUtils.bind(this, function(err)
 			{
 				this.handleError(err);
@@ -1085,11 +1092,14 @@ mxStencilRegistry.allowEval = false;
 				const electron = require('electron');
 				var remote = electron.remote;
 				var dialog = remote.dialog;
-	
-				var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + this.title});
+				const sysPath = require('path')
+				var lastDir = localStorage.getItem('.lastSaveDir');
+				
+				var path = dialog.showSaveDialogSync({defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + this.title});
 	
 		        if (path != null)
 		        {
+		        	localStorage.setItem('.lastSaveDir', sysPath.dirname(path));
 					this.fileObject = new Object();
 					this.fileObject.path = path;
 					this.fileObject.name = path.replace(/^.*[\\\/]/, '');
@@ -1114,6 +1124,8 @@ mxStencilRegistry.allowEval = false;
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 		var filename = this.title;
+		const sysPath = require('path')
+		var lastDir = localStorage.getItem('.lastSaveDir');
 		
 		// Adds default extension
 		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
@@ -1122,10 +1134,11 @@ mxStencilRegistry.allowEval = false;
 			filename += '.drawio';
 		}
 		
-		var path = dialog.showSaveDialogSync({defaultPath: remote.app.getPath('documents') + '/' + filename});
+		var path = dialog.showSaveDialogSync({defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + filename});
         
         if (path != null)
         {
+        	localStorage.setItem('.lastSaveDir', sysPath.dirname(path));
 			this.fileObject = new Object();
 			this.fileObject.path = path;
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
@@ -1485,12 +1498,14 @@ mxStencilRegistry.allowEval = false;
 		var remote = electron.remote;
 		var dialog = remote.dialog;
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
+		const sysPath = require('path')
+		var lastDir = localStorage.getItem('.lastExpDir');
 		
 		// Spinner.stop is asynchronous so we must invoke save dialog asynchronously
 		// to give the spinner some time to stop spinning
 		window.setTimeout(mxUtils.bind(this, function()
 		{
-			var dlgConfig = {defaultPath: remote.app.getPath('documents') + '/' + filename};
+			var dlgConfig = {defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + filename};
 			var filters = null;
 			
 			switch (format)
@@ -1539,6 +1554,8 @@ mxStencilRegistry.allowEval = false;
 	
 	        if (path != null)
 	        {
+	        	localStorage.setItem('.lastExpDir', sysPath.dirname(path));
+
 	        	if (data == null || data.length == 0)
 				{
 					this.handleError({message: mxResources.get('errorSavingFile')});

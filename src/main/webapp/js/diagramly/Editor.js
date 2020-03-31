@@ -1467,12 +1467,14 @@
 			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
 		}
 		
+		// No access-control-allow-origin for some Iconfinder images, add this when fixed:
+		// /^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
 			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
 			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
-			/^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
+			/^https?:\/\/[^\/]*\.diagrams\.new\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
