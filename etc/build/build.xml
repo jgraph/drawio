@@ -218,8 +218,15 @@
 		<echo file="${basedir}/.tmp2.js">
 			(function()
 			{
-				Editor.initMath();
-				GraphViewer.initCss();
+				if (window.onDrawioViewerInit != null)
+				{
+					window.onDrawioViewerInit();
+				}
+				else
+				{
+					Editor.initMath();
+					GraphViewer.initCss();
+				}
 				
 				if (window.onDrawioViewerLoad != null)
 				{
