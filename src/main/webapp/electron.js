@@ -519,7 +519,22 @@ app.on('ready', e =>
     {
     	app.on('second-instance', (event, commandLine, workingDirectory) => {
     		//Create another window
-    		createWindow();
+    		let win = createWindow()
+    	    
+    	    win.webContents.on('did-finish-load', function()
+    	    {
+    	    	//Open the file if new app request is from opening a file
+    	    	var potFile = commandLine.pop();
+    	    	
+    	    	if (fs.existsSync(potFile))
+    	    	{
+    	    		win.webContents.send('args-obj', {args: [potFile]});
+    	    	}
+    	    	
+    	        win.webContents.zoomFactor = 1;
+    	        win.webContents.setVisualZoomLevelLimits(1, 1);
+    	        win.webContents.setLayoutZoomLevelLimits(0, 0);
+    	    });
     	})
     }
 

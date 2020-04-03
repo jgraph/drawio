@@ -113,7 +113,8 @@ Format.prototype.initSelectionState = function()
 {
 	return {vertices: [], edges: [], x: null, y: null, width: null, height: null, style: {},
 		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,
-		comic: true, autoSize: false, image: true, shadow: true, lineJumps: true};
+		comic: true, autoSize: false, image: true, shadow: true, lineJumps: true,
+		resizable: true, movable: true, rotatable: true};
 };
 
 /**
@@ -125,6 +126,10 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 	
 	if (graph.getModel().isVertex(cell))
 	{
+		result.resizable = result.resizable && graph.isCellResizable(cell);
+		result.rotatable = result.rotatable && graph.isCellRotatable(cell);
+		result.movable = result.movable && graph.isCellMovable(cell) &&
+			!graph.isTableRow(cell) && !graph.isTableCell(cell);
 		result.vertices.push(cell);
 		var geo = graph.getCellGeometry(cell);
 		
@@ -190,6 +195,9 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 	else if (graph.getModel().isEdge(cell))
 	{
 		result.edges.push(cell);
+		result.resizable = false;
+		result.rotatable = false;
+		result.movable = false;
 	}
 
 	var state = graph.view.getState(cell);
@@ -1963,7 +1971,7 @@ ArrangePanel.prototype.addAngle = function(div)
 	var update = null;
 	var btn = null;
 	
-	if (ss.edges.length == 0)
+	if (ss.rotatable)
 	{
 		mxUtils.write(span, mxResources.get('angle'));
 		div.appendChild(span);
@@ -2096,10 +2104,10 @@ ArrangePanel.prototype.addGeometry = function(container)
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
 	var rect = this.format.getSelectionState();
-	
+
 	var div = this.createPanel();
 	div.style.paddingBottom = '8px';
-	
+		
 	var span = document.createElement('div');
 	span.style.position = 'absolute';
 	span.style.width = '50px';
@@ -2147,7 +2155,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	this.addLabel(div, mxResources.get('width'), 84);
 	this.addLabel(div, mxResources.get('height'), 20);
 	mxUtils.br(div);
-	
+
 	var wrapper = document.createElement('div');
 	wrapper.style.paddingTop = '8px';
 	wrapper.style.paddingRight = '20px';
@@ -2192,7 +2200,10 @@ ArrangePanel.prototype.addGeometry = function(container)
 		}
 	});
 	
-	container.appendChild(div);
+	if (rect.resizable)
+	{
+		container.appendChild(div);
+	}
 	
 	var div2 = this.createPanel();
 	div2.style.paddingBottom = '30px';
@@ -2297,7 +2308,10 @@ ArrangePanel.prototype.addGeometry = function(container)
 		}
 	});
 
-	container.appendChild(div2);
+	if (rect.movable)
+	{
+		container.appendChild(div2);
+	}
 };
 
 /**

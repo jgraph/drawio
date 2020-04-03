@@ -3780,9 +3780,13 @@
 		// Exposes custom handles
 		Graph.createHandle = createHandle;
 		Graph.handleFactory = handleFactory;
+		
+		var vertexHandlerCreateCustomHandles = mxVertexHandler.prototype.createCustomHandles;
 
 		mxVertexHandler.prototype.createCustomHandles = function()
 		{
+			var handles = vertexHandlerCreateCustomHandles.apply(this, arguments);
+			
 			if (this.graph.isCellRotatable(this.state.cell))
 			// LATER: Make locked state independent of rotatable flag, fix toggle if default is false
 			//if (this.graph.isCellResizable(this.state.cell) || this.graph.isCellMovable(this.state.cell))
@@ -3804,11 +3808,23 @@
 			
 				if (fn != null)
 				{
-					return fn(this.state);
+					var temp = fn(this.state);
+					
+					if (temp != null)
+					{
+						if (handles == null)
+						{
+							handles = temp;
+						}
+						else
+						{
+							handles = handles.concat(temp);
+						}
+					}
 				}
 			}
 			
-			return null;
+			return handles;
 		};
 
 		mxEdgeHandler.prototype.createCustomHandles = function()

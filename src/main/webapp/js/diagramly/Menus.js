@@ -730,7 +730,7 @@
 
 		editorUi.actions.addAction('support...', function()
 		{
-			editorUi.openLink('https://drawio-app.com/support/');
+			editorUi.openLink('https://github.com/jgraph/drawio/wiki/Getting-Support');
 		});
 
 		editorUi.actions.addAction('exportOptionsDisabled...', function()
@@ -1284,14 +1284,8 @@
 					input.focus();
 				}, 0);
 				
-				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart', '-', 'userManual'], parent);
-				
-				if (!mxClient.IS_CHROMEAPP)
-				{
-					this.addMenuItems(menu, ['support'], parent);
-				}
-
-				this.addMenuItems(menu, ['-', 'about'], parent);
+				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
+					'-', 'userManual', 'support', '-', 'about'], parent);
 			}
 			
 			if (urlParams['test'] == '1')

@@ -1,56 +1,63 @@
-31-MAR:2020: 12.9.6
+03-APR-2020: 12.9.7
+
+- Optional size, position and angle panels
+- Improvements for Lucidchart import
+- Adds combo box for extensions
+- Uses mxGraph 4.1.2 beta 1
+
+31-MAR-2020: 12.9.6
 
 - Improvements for Lucidchart import
 - Fixes CORS errors for some icons
 - Fixes ER shapes for dark mode
 - Uses mxGraph 4.1.1
 
-30-MAR:2020: 12.9.5
+30-MAR-2020: 12.9.5
 
 - Uses mxGraph 4.1.1 beta 16
 - Fixes some shapes
 
-29-MAR:2020: 12.9.4
+29-MAR-2020: 12.9.4
 
 - Adds delegating connector and half circle markers
 - Improvements for Lucidchart import
 - Enables cloud storage in PWA
 - Uses mxGraph 4.1.1 beta 15
 
-25-MAR:2020: 12.9.3
+25-MAR-2020: 12.9.3
 
 - Fixes update of filename placeholder
 - Improvements for Lucidchart import
 - Fixes minor issues with layouts
 
-24-MAR:2020: 12.9.2
+24-MAR-2020: 12.9.2
 
 - Adds filename placeholder
 - Fixes Gliffy import
 
-24-MAR:2020: 12.9.1
+24-MAR-2020: 12.9.1
 
 - Fixes insert HTML table from text panel
 
-23-MAR:2020: 12.9.0
+23-MAR-2020: 12.9.0
 
 - Fixes encoding errors in stencils.min.js
 - Moves resize live preview to front
 - Adds Threat Modeling shapes
 - Uses mxGraph 4.1.1 beta 14
 
-23-MAR:2020: 12.8.9
+23-MAR-2020: 12.8.9
 
 - Adds Lucidchart import feedback
 - Adds search for all pages
 - Adds new polygon shapes
 
-18-MAR:2020: 12.8.8
+18-MAR-2020: 12.8.8
 
 - Improvements to localStorage migration
 - Improvements to AWS shapes
 
-17-MAR:2020: 12.8.7
+17-MAR-2020: 12.8.7
 
 - Improvements to localStorage migration
 - Fixes align and distribute buttons in Arrange panel

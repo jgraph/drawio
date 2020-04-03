@@ -3520,6 +3520,7 @@
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
 			mxGraphHandler.prototype.previewColor = '#cccccc';
 			StyleFormatPanel.prototype.defaultStrokeColor = '#cccccc';
+			mxConstants.DROP_TARGET_COLOR = '#00ff00';
 			
 			if (mxClient.IS_SVG)
 			{

@@ -1557,7 +1557,8 @@ App.prototype.init = function()
  */
 App.prototype.scheduleSanityCheck = function()
 {
-	if (this.sanityCheckThread == null)
+	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+		this.sanityCheckThread == null)
 	{
 		this.sanityCheckThread = window.setTimeout(mxUtils.bind(this, function()
 		{

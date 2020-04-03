@@ -8,7 +8,22 @@
 	 * Specifies the app name. Default is document.title.
 	 */
 	Editor.prototype.appName = 'diagrams.net';
+		
+	/**
+	 * Known file types.
+	 */
+	Editor.prototype.diagramFileTypes = [
+		{description: 'diagramXmlDesc', extension: 'drawio'},
+		{description: 'diagramPngDesc', extension: 'png'},
+		{description: 'diagramSvgDesc', extension: 'svg'},
+		{description: 'diagramHtmlDesc', extension: 'html'},
+		{description: 'diagramXmlDesc', extension: 'xml'}];
 	
+	/**
+	 * Known file types.
+	 */
+	Editor.prototype.libraryFileTypes = [{description: 'Library (.drawiolib, .xml)', extensions: ['drawiolib', 'xml']}];
+
 	/**
 	 * Known extensions for own files.
 	 */
@@ -16,7 +31,7 @@
 		{ext: 'html', title: 'filetypeHtml'},
 		{ext: 'png', title: 'filetypePng'},
 		{ext: 'svg', title: 'filetypeSvg'}];
-	
+
 	/**
 	 * Used in the GraphViewer lightbox.
 	 */

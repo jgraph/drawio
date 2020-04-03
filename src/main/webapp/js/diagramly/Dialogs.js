@@ -2734,7 +2734,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
 	nameInput.style.marginLeft = '10px';
-	nameInput.style.width = (compact) ? '220px' : '430px';
+	nameInput.style.width = (compact) ? '144px' : '284px';
 	
 	this.init = function()
 	{
@@ -2752,15 +2752,21 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 		}
 	};
+	
+	// Adds filetype dropdown
+	var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
+	typeSelect.style.marginLeft = '6px';
+	typeSelect.style.width = (compact) ? '80px' : '140px';
 
 	if (showName)
 	{
 		header.appendChild(nameInput);
+		header.appendChild(typeSelect);
 		
 		if (editorUi.editor.fileExtensions != null)
 		{
-			var hint = FilenameDialog.createTypeHint(
-					editorUi, nameInput, editorUi.editor.fileExtensions);
+			var hint = FilenameDialog.createTypeHint(editorUi,
+				nameInput, editorUi.editor.fileExtensions);
 			hint.style.marginTop = '12px';
 			
 			header.appendChild(hint);
@@ -3600,11 +3606,11 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', title);
-	nameInput.style.width = '280px';
+	nameInput.style.width = '200px';
 	nameInput.style.marginLeft = '10px';
 	nameInput.style.marginBottom = '20px';
 	nameInput.style.maxWidth = '70%';
-		
+	
 	this.init = function()
 	{
 		nameInput.focus();

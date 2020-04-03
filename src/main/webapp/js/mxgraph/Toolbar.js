@@ -172,7 +172,7 @@ Toolbar.prototype.init = function()
 	var insertMenu = this.addMenu('', mxResources.get('insert') + ' (' + mxResources.get('doubleClickTooltip') + ')', true, 'insert', null, true);
 	this.addDropDownArrow(insertMenu, 'geSprite-plus', 38, 48, -4, -3, 36, -8);
 	
-	if (urlParams['dev'] == '1')
+	if (urlParams['test'] == '1')
 	{
 		this.addSeparator();
 		

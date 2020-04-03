@@ -1953,7 +1953,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	td = document.createElement('td');
 	td.style.whiteSpace = 'nowrap';
 	td.style.fontSize = '10pt';
-	td.style.width = '120px';
+	td.style.width = (hints) ? '80px' : '120px';
 	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
 	
 	row.appendChild(td);
@@ -2063,6 +2063,16 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		
 		if (hints != null)
 		{
+			if (editorUi.editor.diagramFileTypes != null)
+			{
+				var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
+				typeSelect.style.marginLeft = '6px';
+				typeSelect.style.width = '74px';
+				
+				td.appendChild(typeSelect);
+				nameInput.style.width = (w != null) ? (w - 40) + 'px' : '140px';
+			}
+
 			td.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
 		}
 	}
@@ -2154,9 +2164,8 @@ FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 		
 		for (var i = 0; i < hints.length; i++)
 		{
-			if (hints[i].ext.length > 0 &&
-				nameInput.value.substring(nameInput.value.length -
-						hints[i].ext.length - 1) == '.' + hints[i].ext)
+			if (hints[i].ext.length > 0 && nameInput.value.toLowerCase().substring(
+				nameInput.value.length - hints[i].ext.length - 1) == '.' + hints[i].ext)
 			{
 				hint.setAttribute('src',  mxClient.imageBasePath + '/warning.png');
 				hint.setAttribute('title', mxResources.get(hints[i].title));
@@ -2189,6 +2198,75 @@ FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 	nameChanged();
 	
 	return hint;
+};
+
+/**
+ * 
+ */
+FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
+{
+	var typeSelect = document.createElement('select');
+	
+	for (var i = 0; i < types.length; i++)
+	{
+		var typeOption = document.createElement('option');
+		typeOption.setAttribute('value', i);
+		mxUtils.write(typeOption, mxResources.get(types[i].description) +
+			' (.' + types[i].extension + ')');
+		typeSelect.appendChild(typeOption);
+	}
+			
+	mxEvent.addListener(typeSelect, 'change', function(evt)
+	{
+		var ext = types[typeSelect.value].extension;
+		var idx = nameInput.value.lastIndexOf('.');
+		
+		if (idx > 0)
+		{
+			var ext = types[typeSelect.value].extension;
+			nameInput.value = nameInput.value.substring(0, idx + 1) + ext;
+		}
+		else
+		{
+			nameInput.value = nameInput.value + '.' + ext;
+		}
+		
+		if ('createEvent' in document)
+		{
+		    var changeEvent = document.createEvent('HTMLEvents');
+		    changeEvent.initEvent('change', false, true);
+		    nameInput.dispatchEvent(changeEvent);
+		}
+		else
+		{
+		    nameInput.fireEvent('onchange');
+		}
+	});
+	
+	mxEvent.addListener(nameInput, 'change', function(evt)
+	{
+		var idx = nameInput.value.lastIndexOf('.');
+		var active = 0;
+		
+		// Finds current extension
+		if (idx > 0)
+		{
+			var ext = nameInput.value.toLowerCase().substring(idx + 1);
+			
+			for (var i = 0; i < types.length; i++)
+			{
+				if (ext == types[i].extension)
+				{
+					active = i;
+					break;
+				}
+			}
+		}
+		
+		typeSelect.value = active;
+	});
+	
+	return typeSelect;
 };
 
 /**
