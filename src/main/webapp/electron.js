@@ -652,6 +652,10 @@ app.on('ready', e =>
 	        label: 'Paste',
 	        accelerator: 'CmdOrCtrl+V',
 	        selector: 'paste:'
+	      }, {
+	        label: 'Paste and Match Style',
+	        accelerator: 'CmdOrCtrl+Alt+Shift+V',
+	        selector: 'pasteAndMatchStyle:'
 	      }]
 	    }]
 	    
