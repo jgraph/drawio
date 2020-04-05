@@ -2243,7 +2243,7 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 		}
 	});
 	
-	mxEvent.addListener(nameInput, 'change', function(evt)
+	var nameInputChanged = function(evt)
 	{
 		var idx = nameInput.value.lastIndexOf('.');
 		var active = 0;
@@ -2264,7 +2264,10 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 		}
 		
 		typeSelect.value = active;
-	});
+	};
+	
+	mxEvent.addListener(nameInput, 'change', nameInputChanged);
+	nameInputChanged();
 	
 	return typeSelect;
 };

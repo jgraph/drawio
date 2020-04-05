@@ -89,7 +89,7 @@
 	 * Link for scratchpad help.
 	 */
 	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
-			
+
 	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
@@ -404,6 +404,12 @@
 	 * Defines the maximum size for images.
 	 */
 	EditorUi.prototype.maxImageSize = 520;
+	
+	/**
+	 * Defines the maximum width for pasted text.
+	 * Use 0 to disable check.
+	 */
+	EditorUi.prototype.maxTextWidth = 520;
 
 	/**
 	 * Images above 100K should be resampled.
@@ -8084,7 +8090,7 @@
 				    		// Fires cellsInserted to apply the current style to the inserted text.
 				    		// This requires the value to be empty when the event is fired.
 				    		cell = graph.insertVertex(graph.getDefaultParent(), null, '',
-								graph.snap(dx), graph.snap(dy), 1, 1, 'text;' + ((html) ? 'html=1;' : ''));
+								graph.snap(dx), graph.snap(dy), 1, 1, 'text;whiteSpace=wrap;' + ((html) ? 'html=1;' : ''));
 				    		graph.fireEvent(new mxEventObject('textInserted', 'cells', [cell]));
 						
 				    		// Single tag is converted
@@ -8104,6 +8110,14 @@
 							// Apply value and updates the cell size to fit the text block
 							cell.value = text;
 							graph.updateCellSize(cell);
+							
+							// Adds wrapping for large text blocks
+							if (this.maxTextWidth > 0 && cell.geometry.width > this.maxTextWidth)
+							{
+								var size = graph.getPreferredSizeForCell(cell, this.maxTextWidth);
+								cell.geometry.width = size.width;
+								cell.geometry.height = size.height;
+							}
 							
 							// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
 							var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
@@ -10332,14 +10346,14 @@
 				
 				if (evt.clipboardData != null)
 				{
-					this.pasteCells(evt, textInput, true);
+					this.pasteCells(evt, textInput, true, true);
 				}
 
 				if (!mxEvent.isConsumed(evt))
 				{
 					window.setTimeout(mxUtils.bind(this, function()
 					{
-						this.pasteCells(evt, textInput, false);
+						this.pasteCells(evt, textInput, false, true);
 					}), 0);
 				}
 			}
@@ -10585,15 +10599,16 @@
 			elt.innerHTML = '';
 		}
 	};
-	
+
 	/**
 	 * Creates the format panel and adds overrides.
 	 */
-	EditorUi.prototype.pasteCells = function(evt, realElt, useEvent)
+	EditorUi.prototype.pasteCells = function(evt, realElt, useEvent, pasteAsLabel)
 	{
 		if (!mxEvent.isConsumed(evt))
 		{
 			var elt = realElt;
+			var asHtml = false;
 			
 			if (useEvent && evt.clipboardData != null && evt.clipboardData.getData)
 			{
@@ -10603,6 +10618,7 @@
 				{
 					elt = document.createElement('div');
 					elt.innerHTML = data;
+					asHtml = true;
 					
 					// Workaround for innerText not ignoring style elements in Chrome
 					var styles = elt.getElementsByTagName('style');
@@ -10614,6 +10630,8 @@
 							styles[0].parentNode.removeChild(styles[0]);
 						}
 					}
+					
+					Graph.removePasteFormatting(elt);
 				}
 				else
 				{
@@ -10663,7 +10681,8 @@
 			}
 			else
 			{
-				var xml = mxUtils.trim((elt.innerText == null) ?
+				var xml = (asHtml) ? elt.outerHTML :
+					mxUtils.trim((elt.innerText == null) ?
 					mxUtils.getTextContent(elt) : elt.innerText);
 				var compat = false;
 				
@@ -10722,6 +10741,10 @@
 						if (compat || this.isCompatibleString(xml))
 						{
 							graph.setSelectionCells(this.importXml(xml, dx, dx));
+						}
+						else if (pasteAsLabel && graph.getSelectionCount() == 1)
+						{
+							graph.labelChanged(graph.getSelectionCell(), xml);
 						}
 						else
 						{

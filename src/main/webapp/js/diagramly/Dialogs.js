@@ -2754,14 +2754,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	};
 	
 	// Adds filetype dropdown
-	var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
-	typeSelect.style.marginLeft = '6px';
-	typeSelect.style.width = (compact) ? '80px' : '140px';
-
 	if (showName)
 	{
 		header.appendChild(nameInput);
-		header.appendChild(typeSelect);
+
+		if (editorUi.editor.diagramFileTypes != null)
+		{
+			var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
+			typeSelect.style.marginLeft = '6px';
+			typeSelect.style.width = (compact) ? '80px' : '140px';
+			header.appendChild(typeSelect);
+		}
 		
 		if (editorUi.editor.fileExtensions != null)
 		{
@@ -3629,6 +3632,14 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 
 	if (hints != null)
 	{
+		if (editorUi.editor.diagramFileTypes != null)
+		{
+			var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
+			typeSelect.style.marginLeft = '6px';
+			typeSelect.style.width = '80px';
+			div.appendChild(typeSelect);
+		}
+		
 		div.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
 	}
 	
@@ -6116,7 +6127,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 				
 				if (bg == null || bg == '' || bg == mxConstants.NONE)
 				{
-					bg = '#ffffff';
+					bg = (uiTheme == 'dark') ? 'transparent' : '#ffffff';
 				}
 				
 				container.style.backgroundColor = bg;

@@ -1,3 +1,8 @@
+05-APR-2020: 12.9.8
+
+- Fixes formatting for pasted text
+- Uses mxGraph 4.1.2 beta 1
+
 03-APR-2020: 12.9.7
 
 - Optional size, position and angle panels
