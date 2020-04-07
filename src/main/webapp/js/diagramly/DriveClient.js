@@ -38,11 +38,6 @@ DriveClient = function(editorUi)
 	this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
 		'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
 	
-	if (urlParams['photos'] == '1')
-	{
-		this.scopes.push('https://www.googleapis.com/auth/photos.upload');
-	}
-	
 	var authInfo = JSON.parse(this.token);
 	
 	if (authInfo != null && authInfo.current != null)

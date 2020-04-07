@@ -2681,15 +2681,18 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	var graphHandlerGetInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent;
 	mxGraphHandler.prototype.getInitialCellForEvent = function(me)
 	{
+		var cell = graphHandlerGetInitialCellForEvent.apply(this, arguments);
 		var model = this.graph.getModel();
 		var psel = model.getParent(this.graph.getSelectionCell());
-		var cell = graphHandlerGetInitialCellForEvent.apply(this, arguments);
 		var parent = model.getParent(cell);
 		
 		if (psel == null || (psel != cell && psel != parent))
 		{
-			while (!this.graph.isCellSelected(cell) && !this.graph.isCellSelected(parent) &&
-				model.isVertex(parent) && !this.graph.isContainer(parent))
+			while (!this.graph.isCellSelected(cell) &&
+				!this.graph.isCellSelected(parent) &&
+				(!this.graph.isContainer(parent) ||
+				this.graph.isPart(cell)) &&
+				model.isVertex(parent))
 			{
 				cell = parent;
 				parent = this.graph.getModel().getParent(cell);

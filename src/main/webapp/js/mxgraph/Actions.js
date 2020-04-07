@@ -280,7 +280,7 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+L');
 
 	// Navigation actions
-	this.addAction('home', function() { graph.home(); }, null, null, 'Home');
+	this.addAction('home', function() { graph.home(); }, null, null, 'Shift+Home');
 	this.addAction('exitGroup', function() { graph.exitGroup(); }, null, null, Editor.ctrlKey + '+Shift+Home');
 	this.addAction('enterGroup', function() { graph.enterGroup(); }, null, null, Editor.ctrlKey + '+Shift+End');
 	this.addAction('collapse', function() { graph.foldCells(true); }, null, null, Editor.ctrlKey + '+Home');
@@ -644,7 +644,7 @@ Actions.prototype.init = function()
 	{
 		graph.zoomTo(1);
 		ui.resetScrollbars();
-	}, null, null, Editor.ctrlKey + '+H');
+	}, null, null, 'Home');
 	this.addAction('zoomIn', function(evt)
 	{
 		if (graph.isFastZoomEnabled())

@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "8548e6ad3bc466efae221cd0e783d7a5"
+    "revision": "80e5991af0d0ba1977b99ecdc3e8c90a"
   },
   {
     "url": "js/extensions.min.js",
@@ -309,6 +309,10 @@ if (workbox)
     "revision": "0aabacbc0873816e1e09e4736ae44c7d"
   },
   {
+    "url": "images/apple-touch-icon.png",
+    "revision": "73da7989a23ce9a4be565ec65658a239"
+  },
+  {
     "url": "images/favicon-16x16.png",
     "revision": "1a79d5461a5d2bf21f6652e0ac20d6e5"
   },
@@ -343,6 +347,30 @@ if (workbox)
   {
     "url": "images/logo-flat.png",
     "revision": "038070ab43aee6e54a791211859fc67b"
+  },
+  {
+    "url": "images/google-drive-logo.svg",
+    "revision": "5d9f2f5bbc7dcc252730a0072bb23059"
+  },
+  {
+    "url": "images/onedrive-logo.svg",
+    "revision": "3645b344ec0634c1290dd58d7dc87b97"
+  },
+  {
+    "url": "images/dropbox-logo.svg",
+    "revision": "e6be408c77cf9c82d41ac64fa854280a"
+  },
+  {
+    "url": "images/github-logo.svg",
+    "revision": "a1a999b69a275eac0cb918360ac05ae1"
+  },
+  {
+    "url": "images/gitlab-logo.svg",
+    "revision": "0faea8c818899e58533e153c44b10517"
+  },
+  {
+    "url": "images/trello-logo.svg",
+    "revision": "006fd0d7d70d7e95dc691674cb12e044"
   },
   {
     "url": "images/osa_drive-harddisk.png",

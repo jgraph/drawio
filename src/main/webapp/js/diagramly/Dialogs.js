@@ -1956,69 +1956,6 @@ var BackgroundImageDialog = function(editorUi, applyFn)
 	{
 		btns.appendChild(cancelBtn);
 	}
-	
-	if (!editorUi.isOffline())
-	{
-		// Dialogs not allowed inside iframes
-		if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && window.self === window.top)
-		{
-			var searchBtn = mxUtils.button(mxResources.get('search'), function()
-			{
-				// Creates one picker and reuses it to avoid polluting the DOM
-				if (editorUi.imageSearchPicker == null)
-				{
-					var picker = new google.picker.PickerBuilder()
-						.setLocale(mxLanguage)
-						.addView(google.picker.ViewId.IMAGE_SEARCH)
-						.enableFeature(google.picker.Feature.NAV_HIDDEN);
-					
-					editorUi.imageSearchPicker = picker.setCallback(function(data)
-					{
-						ImageDialog.filePicked(data);
-				    }).build();
-				}
-				
-				editorUi.imageSearchPicker.setVisible(true);
-			});
-			
-			searchBtn.className = 'geBtn';
-			btns.appendChild(searchBtn);
-	
-			if (editorUi.drive != null && urlParams['photos'] == '1')
-			{
-				var gpBtn = mxUtils.button(mxResources.get('googlePlus'), function()
-				{
-					if (editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
-					{
-						editorUi.drive.checkToken(mxUtils.bind(this, function()
-						{
-							editorUi.spinner.stop();
-							
-							// Creates one picker and reuses it to avoid polluting the DOM
-							if (editorUi.photoPicker == null)
-							{
-								var picker = new google.picker.PickerBuilder()
-									.setAppId(editorUi.drive.appId)	
-									.setLocale(mxLanguage)
-									.setOAuthToken(editorUi.drive.token)
-						            .addView(google.picker.ViewId.PHOTO_UPLOAD);
-								
-								editorUi.photoPicker = picker.setCallback(function(data)
-								{
-									ImageDialog.filePicked(data);
-							    }).build();
-							}
-							
-							editorUi.photoPicker.setVisible(true);
-						}));
-					}
-				});
-				
-				gpBtn.className = 'geBtn';
-				btns.appendChild(gpBtn);
-			}
-		}
-	}
 
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
@@ -4469,63 +4406,6 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		cropBtn.className = 'geBtn';
 		btns.appendChild(cropBtn);
 	}
-	
-	if (typeof(google) != 'undefined' && typeof(google.picker) != 'undefined' && window.self === window.top)
-	{
-		var searchBtn = mxUtils.button(mxResources.get('search'), function()
-		{
-			// Creates one picker and reuses it to avoid polluting the DOM
-			if (editorUi.imageSearchPicker == null)
-			{
-				var picker = new google.picker.PickerBuilder()
-					.setLocale(mxLanguage)
-					.addView(google.picker.ViewId.IMAGE_SEARCH)
-					.enableFeature(google.picker.Feature.NAV_HIDDEN);
-				
-				editorUi.imageSearchPicker = picker.setCallback(function(data)
-				{
-					ImageDialog.filePicked(data);
-			    }).build();
-			}
-			
-			editorUi.imageSearchPicker.setVisible(true);
-		});
-		searchBtn.className = 'geBtn';
-		btns.appendChild(searchBtn);
-
-		if (editorUi.drive != null && urlParams['photos'] == '1')
-		{
-			var gpBtn = mxUtils.button(mxResources.get('googlePlus'), function()
-			{
-				if (editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
-				{
-					editorUi.drive.checkToken(mxUtils.bind(this, function()
-					{
-						editorUi.spinner.stop();
-						
-						// Creates one picker and reuses it to avoid polluting the DOM
-						if (editorUi.photoPicker == null)
-						{
-							var picker = new google.picker.PickerBuilder()
-								.setAppId(editorUi.drive.appId)	
-								.setLocale(mxLanguage)
-								.setOAuthToken(editorUi.drive.token)
-					            .addView(google.picker.ViewId.PHOTO_UPLOAD);
-							
-							editorUi.photoPicker = picker.setCallback(function(data)
-							{
-								ImageDialog.filePicked(data);
-						    }).build();
-						}
-						
-						editorUi.photoPicker.setVisible(true);
-					}));
-				}
-			});
-			gpBtn.className = 'geBtn';
-			btns.appendChild(gpBtn);
-		}
-	}
 
 	mxEvent.addListener(linkInput, 'keypress', function(e)
 	{
@@ -4914,16 +4794,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 						    .addView(view)
 							.addView(view2)
 							.addView(view21)
-							.addView(google.picker.ViewId.RECENTLY_PICKED)
-				            .addView(google.picker.ViewId.IMAGE_SEARCH)
-				            .addView(google.picker.ViewId.VIDEO_SEARCH)
-				            .addView(google.picker.ViewId.MAPS);
-						
-						if (urlParams['photos'] == '1')
-						{
-							picker.addView(google.picker.ViewId.PHOTO_UPLOAD)
-						}
-						
+							.addView(google.picker.ViewId.RECENTLY_PICKED);
+
 						editorUi.linkPicker = picker.setCallback(function(data)
 						{
 							LinkDialog.filePicked(data);

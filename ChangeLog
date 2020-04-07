@@ -1,3 +1,14 @@
+07-APR-2020: 12.9.9
+
+- Uses mxGraph 4.1.2 beta 2
+- Removes Google image search
+- Removes photos URL parameter
+- Fixes pasting links and data URIs
+- Fixes Sharepoint sites in OneDrive picker
+- Workaround for lightbox in Jira Service desk
+- Adds center option for Confluence Cloud viewer
+- Replaces Home with Shift+Home, Ctrl+H with Home
+
 05-APR-2020: 12.9.8
 
 - Fixes formatting for pasted text

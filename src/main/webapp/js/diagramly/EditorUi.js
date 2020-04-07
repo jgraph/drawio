@@ -1547,7 +1547,7 @@
 		return ((redirect == null) ? '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' : '') +
 			'<!DOCTYPE html>\n<html' + ((redirect != null) ? ' xmlns="http://www.w3.org/1999/xhtml">' : '>') +
 			'\n<head>\n' + ((redirect == null) ? ((title != null) ? '<title>' + mxUtils.htmlEntities(title) +
-				'</title>\n' : '') : '<title>Draw.io Diagram</title>\n') +
+				'</title>\n' : '') : '<title>diagrams.net</title>\n') +
 			((redirect != null) ? '<meta http-equiv="refresh" content="0;URL=\'' + redirect + '\'"/>\n' : '') +
 			'</head>\n<body' +
 			(((redirect == null && bg != null && bg != mxConstants.NONE) ? ' style="background-color:' + bg + ';">' : '>')) +
@@ -1588,7 +1588,7 @@
 		return ((redirect == null) ? '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' : '') +
 			'<!DOCTYPE html>\n<html' + ((redirect != null) ? ' xmlns="http://www.w3.org/1999/xhtml">' : '>') +
 			'\n<head>\n' + ((redirect == null) ? ((title != null) ? '<title>' + mxUtils.htmlEntities(title) +
-				'</title>\n' : '') : '<title>Draw.io Diagram</title>\n') +
+				'</title>\n' : '') : '<title>diagrams.net</title>\n') +
 			((redirect != null) ? '<meta http-equiv="refresh" content="0;URL=\'' + redirect + '\'"/>\n' : '') +
 			'<meta charset="utf-8"/>\n</head>\n<body>' +
 			'\n<div class="mxgraph" style="' + style + '" data-mxgraph="' + mxUtils.htmlEntities(JSON.stringify(data)) + '"></div>\n' +
@@ -8119,10 +8119,15 @@
 								cell.geometry.height = size.height;
 							}
 							
-							// See http://stackoverflow.com/questions/6927719/url-regex-does-not-work-in-javascript
-							var regexp = /\b((?:[a-z][\w-]+:(?:\/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/i;
+							// See https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
+							var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+							    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+							    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+							    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+							    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+							    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
 							
-							if (regexp.test(cell.value))
+							if (pattern.test(cell.value))
 							{
 								graph.setLinkForCell(cell, cell.value);
 							}
@@ -10631,6 +10636,25 @@
 						}
 					}
 					
+					// Special case of link pasting from Chrome
+					if (elt.firstChild != null && elt.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT &&
+						elt.firstChild.nextSibling != null && elt.firstChild.nextSibling.nodeType == mxConstants.NODETYPE_ELEMENT &&
+						elt.firstChild.nodeName == 'META' && elt.firstChild.nextSibling.nodeName == 'A' &&
+						elt.firstChild.nextSibling.nextSibling == null)
+					{
+						var temp = (elt.firstChild.nextSibling.innerText == null) ?
+							mxUtils.getTextContent(elt.firstChild.nextSibling) :
+							elt.firstChild.nextSibling.innerText;
+					
+						console.log('here', elt.firstChild.nodeName, elt.firstChild.nextSibling.nodeName);
+											
+						if (temp == elt.firstChild.nextSibling.getAttribute('href'))
+						{
+							mxUtils.setTextContent(elt, temp);
+							asHtml = false;
+						}
+					}
+					
 					Graph.removePasteFormatting(elt);
 				}
 				else
@@ -12330,7 +12354,7 @@
 			{
     			this.importCsv(newValue);
 			}), null, null, 620, 430, null, true, true, mxResources.get('import'),
-				!this.isOffline() ? 'https://about.draw.io/import-from-csv-to-drawio/' : null);
+				!this.isOffline() ? 'https://drawio-app.com/import-from-csv-to-drawio/' : null);
 		}
 		
 		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);

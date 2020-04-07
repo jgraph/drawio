@@ -144,6 +144,15 @@ Draw.loadPlugin(function(ui)
 		{
 			macroData.lbox = (checked) ? '1' : '0';
 		}));
+		
+		// Viewer centering
+		div.appendChild(this.createOption(mxResources.get('center'), function()
+		{
+			return macroData.pCenter == '1';
+		}, function(checked)
+		{
+			macroData.pCenter = (checked) ? '1' : '0';
+		}));
 
 		// High Resolution Preview
 		div.appendChild(this.createOption(mxResources.get('hiResPreview', null, 'High Res Preview'), function()

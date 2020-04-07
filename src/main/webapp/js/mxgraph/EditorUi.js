@@ -4499,7 +4499,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	
 	keyHandler.bindControlShiftKey(36, function() { graph.exitGroup(); }); // Ctrl+Shift+Home
 	keyHandler.bindControlShiftKey(35, function() { graph.enterGroup(); }); // Ctrl+Shift+End
-	keyHandler.bindKey(36, function() { graph.home(); }); // Home
+	keyHandler.bindShiftKey(36, function() { graph.home(); }); // Ctrl+Shift+Home
 	keyHandler.bindKey(35, function() { graph.refresh(); }); // End
 	keyHandler.bindAction(107, true, 'zoomIn'); // Ctrl+Plus
 	keyHandler.bindAction(109, true, 'zoomOut'); // Ctrl+Minus
@@ -4525,10 +4525,10 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			}
 		}); // Ctrl+Enter
 		keyHandler.bindAction(8, false, 'delete'); // Backspace
-		keyHandler.bindAction(8, true, 'deleteAll'); // Backspace
+		keyHandler.bindAction(8, true, 'deleteAll'); // Shift+Backspace
 		keyHandler.bindAction(46, false, 'delete'); // Delete
 		keyHandler.bindAction(46, true, 'deleteAll'); // Ctrl+Delete
-		keyHandler.bindAction(72, true, 'resetView'); // Ctrl+H
+		keyHandler.bindAction(36, false, 'resetView'); // Home
 		keyHandler.bindAction(72, true, 'fitWindow', true); // Ctrl+Shift+H
 		keyHandler.bindAction(74, true, 'fitPage'); // Ctrl+J
 		keyHandler.bindAction(74, true, 'fitTwoPages', true); // Ctrl+Shift+J
