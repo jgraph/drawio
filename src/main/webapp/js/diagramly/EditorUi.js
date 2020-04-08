@@ -8120,14 +8120,7 @@
 							}
 							
 							// See https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
-							var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-							    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-							    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-							    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-							    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-							    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-							
-							if (pattern.test(cell.value))
+							if (Graph.isLink(cell.value))
 							{
 								graph.setLinkForCell(cell, cell.value);
 							}
@@ -10646,8 +10639,6 @@
 							mxUtils.getTextContent(elt.firstChild.nextSibling) :
 							elt.firstChild.nextSibling.innerText;
 					
-						console.log('here', elt.firstChild.nodeName, elt.firstChild.nextSibling.nodeName);
-											
 						if (temp == elt.firstChild.nextSibling.getAttribute('href'))
 						{
 							mxUtils.setTextContent(elt, temp);
@@ -10705,7 +10696,9 @@
 			}
 			else
 			{
-				var xml = (asHtml) ? elt.outerHTML :
+				// KNOWN: Paste from IE11 to other browsers on Windows
+				// seems to paste the contents of index.html
+				var xml = (asHtml) ? elt.innerHTML :
 					mxUtils.trim((elt.innerText == null) ?
 					mxUtils.getTextContent(elt) : elt.innerText);
 				var compat = false;
@@ -10769,6 +10762,11 @@
 						else if (pasteAsLabel && graph.getSelectionCount() == 1)
 						{
 							graph.labelChanged(graph.getSelectionCell(), xml);
+
+							if (Graph.isLink(xml))
+							{
+								graph.setLinkForCell(graph.getSelectionCell(), xml);
+							}
 						}
 						else
 						{

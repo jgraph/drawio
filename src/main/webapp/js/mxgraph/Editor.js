@@ -2751,13 +2751,16 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 			}
 			else
 			{
-				var model = this.graph.getModel();
-				var parent = model.getParent(cell);
-				
-				while (!this.graph.isCellSelected(parent) && model.isVertex(parent))
+				if (!this.graph.isToggleEvent(me.getEvent()))
 				{
-					cell = parent;
-					parent = model.getParent(cell);
+					var model = this.graph.getModel();
+					var parent = model.getParent(cell);
+					
+					while (!this.graph.isCellSelected(parent) && model.isVertex(parent))
+					{
+						cell = parent;
+						parent = model.getParent(cell);
+					}
 				}
 				
 				this.graph.selectCellForEvent(cell, me.getEvent());

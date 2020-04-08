@@ -25,6 +25,9 @@ LucidImporter = {};
 	var gcpIcon = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=none;shape=mxgraph.gcp2.';
 	var kupIcon = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=none;shape=mxgraph.kubernetes.icon;prIcon=';
 	
+	//Instead of doing a massive code refactoring, this ugly global variable is used
+	var isLastLblHTML = false;
+	
 	//stencils to rotate counter clockwise 90 degrees
 	var rccw = [
 		'AEUSBBlock', 
@@ -3739,8 +3742,324 @@ LucidImporter = {};
 	};
 	
 	// actual code start
+	//TODO This can be optimized more
+	function convertTxt2Html(txt, m)
+	{
+		var nlPos = [], p = -1, html = '';
+
+		while ((p = txt.indexOf('\n', p + 1)) > -1)
+		{
+			nlPos.push(p + 1);
+		}
+
+		m.sort(function(a, b)
+		{
+			return a.s - b.s;
+		});
+
+		var sMap = {}, ends = [];
+
+		for (var i = 0; i < m.length; i++)
+		{
+			var item = m[i];
+			
+			if (sMap[item.s] == null)
+			{
+				for (var j = 0; j < nlPos.length; j++)
+				{
+					if (nlPos[j] > item.s)
+					{
+						sMap[item.s] = nlPos[j];
+						break;
+					}
+				}
+
+				if (sMap[item.s] == null)
+				{
+					sMap[item.s] = txt.length;
+				}
+			}
+
+			if (item.e == null)
+			{
+				item.e = sMap[item.s];
+			}
+
+			ends.push(item);
+		}
+
+		ends.sort(function(a, b)
+		{
+			return a.e - b.e;
+		});
+
+		var i = 0, j = 0, curStyles = {}, openTags = [], openTagsCount = [], listActive = false, listType, listItemActive = false;
+		
+		function startTag(styles, newBlock)
+		{
+			var str = '';
+			var tagCount = 0;
+			var t = styles['t'];
+
+			if (styles['lk'])
+			{
+				var lk = styles['lk'];
+				
+				if (lk.v != null && lk.v.length > 0 && lk.v[0].tp == 'ext')
+				{
+					str += '<a href="' + lk.v[0].url + '">';
+					openTags.push('a');
+					tagCount++;
+				}
+			}
+			
+			if (newBlock)
+			{
+				var l = styles['l'] || {};
+				
+				if (t != null && (listActive == false || listActive != t.v || listType != l.v))
+				{
+					if (listActive)
+					{
+						str += endTag();
+					}
+					
+					listActive = t.v;
+					listType = l.v;
+					
+					if (t.v == 'ul')
+					{
+						str += '<ul ';
+						openTags.push('ul');
+					}
+					else
+					{
+						str += '<ol ';
+						openTags.push('ol');
+					}
+					
+					openTagsCount.push(1);
+					str += 'style="margin: 0px; text-align:' + (styles['a']? styles['a'].v : 'left') + '; list-style-type:';
+					
+					if (t.v == 'hl')
+					{
+						str += 'upper-roman';
+					}
+					else
+					{
+						switch(l.v)
+						{
+							case 'auto':
+								str += 'disc';
+								break;
+							case 'inv': //Approx
+								str += 'circle';
+								break;
+							case 'disc': 
+								str += 'circle';
+								break;
+							case 'trib': //Approx
+								str += 'square';
+								break;
+							case 'square':
+								str += 'square';
+								break;	
+							case 'dash': //Approx
+								str += 'square';
+								break;	
+							case 'heart': //Approx
+								str += 'disc';
+								break;
+							default:
+								str += 'decimal';					
+						}
+					}
+					
+					str += '">';
+				}
+				else if (t == null)
+				{
+					if (listActive)
+					{
+						str += endTag();
+						listActive = false;
+					}
+
+					str += '<div style="';
+					openTags.push('div');
+					tagCount++;
+				}
+			}
+			else
+			{
+				if (listActive && !listItemActive)
+				{
+					str += endTag();
+					listActive = false;
+				}
+				
+				str += '<span style="';
+				openTags.push('span');
+				tagCount++;
+			}
+
+			if (newBlock && t != null)
+			{
+				listItemActive = true;
+				str += '<li>';
+				openTags.push('li');
+				tagCount++;
+				
+				str += '<span style="';
+				openTags.push('span');
+				tagCount++;
+			}
+
+			if (styles['s'])
+			{
+				str += 'font-size:' + Math.round(styles['s'].v * scale) + 'px;';
+			}
+
+			if (styles['c'])
+			{
+				var v = styles['c'].v;
+				
+				if (v != null)
+				{
+					if (v.charAt(0) != '#')
+					{
+						v = '#' + v;
+					}
+
+					v = v.substring(0, 7);
+					str += 'color:' + v + ';';
+				}
+			}
+
+			if ((styles['b'] && styles['b'].v) || (styles['fc'] && styles['fc'].v && styles['fc'].v.indexOf('Bold') == 0))
+			{
+				str += 'font-weight: bold;';
+			}
+			
+			if (styles['i'] && styles['i'].v)
+			{
+				str += 'font-style: italic;';
+			}
+
+			if (styles['u'] && styles['u'].v)
+			{
+				str += 'text-decoration: underline;';
+			}
+
+			if (!listActive)
+			{
+				str += 'text-align: ' + (styles['a']? styles['a'].v : 'center') + ';';
+			}
+			
+			if (styles['il'])
+			{
+				str += 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
+			}
+
+			if (styles['ir'])
+			{
+				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
+			}
+
+			if (styles['mt'])
+			{
+				str += 'margin-top: ' + Math.round(styles['mt'].v * scale) + 'px;';
+			}
+
+			if (styles['mb'])
+			{
+				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
+			}
+
+			str += '">'
+			openTagsCount.push(tagCount);
+
+			return str;
+		};
+
+		function endTag(txt, curS, curE, all)
+		{
+			var str = txt? txt.substring(curS, curE) : '';
+
+			do
+			{
+				var count = openTagsCount.pop();
+	
+				for (var i = 0; i < count; i++) 
+				{
+					var tag = openTags.pop();
+					
+					if (tag == 'li')
+					{
+						listItemActive = false;
+					}
+					
+					str += '</' + tag + '>';
+				}
+			}
+			while(all && openTags.length > 0);
+
+			return str;
+		}
+		
+		var curS = 0, curE = 0;
+		
+		while(i < m.length || j < ends.length)
+		{
+			var s = m[i], e = ends[j];
+
+			if (s && s.s < e.e) //s can be null when all starts are used, e ends after s
+			{
+				curS = s.s;
+				var newBlock = false;
+
+				if (curS - curE > 0)
+				{
+					html += startTag(curStyles, newBlock) + endTag(txt, curE, curS); 
+				}
+				
+				while(s != null && s.s == curS)
+				{
+					if (s.n == 'a' || s.n == 'il' || s.n == 'ir' || s.n == 'mt' || s.n == 'mb' || s.n == 't')
+					{
+						newBlock = true;
+					}
+					
+					curStyles[s.n] = s;
+					s = m[++i];
+				}
+				
+				html += startTag(curStyles, newBlock);
+			}
+			else
+			{
+				curE = e.e;
+
+				do
+				{
+					delete curStyles[e.n];
+					e = ends[++j];
+				}
+				while(e != null && e.e == curE);
+				
+				html += endTag(txt, curS, curE);
+				curS = curE;
+			}
+		}
+		
+		html += endTag(null, null, null, true); //End any open tag
+		console.log(html);
+		return html;
+	};
+	
 	function convertText(props)
 	{
+		isLastLblHTML = false;
 		var text = (props.Text != null) ? props.Text :
 			((props.Value != null) ? props.Value :
 			props.Lane_0);
@@ -3793,7 +4112,7 @@ LucidImporter = {};
 			}
 		}
 		
-		// TODO: Convert text object to HTML
+		// TODO: Convert text object to HTML. One case is covered. Is there others?
 		if (text != null)
 		{
 			if (text.t != null)
@@ -3801,7 +4120,32 @@ LucidImporter = {};
 				text.t = text.t.replace(/</g, '&lt;');
 				text.t = text.t.replace(/>/g, '&gt;');
 				
-				return text.t;
+				var txt = text.t;
+				var m = text.m;
+				
+				//Convert text object to HTML if needed
+				try
+				{
+					for (var i = 0; i < m.length; i++)
+					{
+						if (m[i].s > 0)
+						{
+							isLastLblHTML = true;
+							break;
+						}
+					}
+					
+					if (isLastLblHTML)
+					{
+						return convertTxt2Html(txt, m);
+					}
+				}
+				catch(e)
+				{
+					console.log(e);
+				}
+				
+				return txt;
 			}
 			
 			if (text.Value != null)
@@ -3866,23 +4210,25 @@ LucidImporter = {};
 		return null;
 	}
 	
-	function getLabelStyle(properties)
+	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = getFontSize(properties) +
+		var style = (noLblStyle? 'overflow=width;' : 
+				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
 				getTextAlignment(properties) + 
 				getTextLeftSpacing(properties) +
 				getTextRightSpacing(properties) + 
 				getTextTopSpacing(properties) +
-				getTextBottomSpacing(properties) + 
+				getTextBottomSpacing(properties) 
+			  ) + 
 				getTextGlobalSpacing(properties) +
 				getTextVerticalAlignment(properties);
 		
 		return style;  
 	}
 	
-	function addAllStyles(style, properties, action, cell)
+	function addAllStyles(style, properties, action, cell, noLblStyle)
 	{
 		var s = '';
 		
@@ -3892,6 +4238,7 @@ LucidImporter = {};
 		}
 		
 		s +=	
+		  (noLblStyle? 'overflow=width;' : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
@@ -3899,7 +4246,8 @@ LucidImporter = {};
 			addStyle(mxConstants.STYLE_SPACING_LEFT, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_RIGHT, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_TOP, style, properties, action, cell) +			
-			addStyle(mxConstants.STYLE_SPACING_BOTTOM, style, properties, action, cell) +			
+			addStyle(mxConstants.STYLE_SPACING_BOTTOM, style, properties, action, cell)
+		  ) +			
 			addStyle(mxConstants.STYLE_SPACING, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_VERTICAL_ALIGN, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_STROKECOLOR, style, properties, action, cell) +			
@@ -4730,7 +5078,7 @@ LucidImporter = {};
 			{
 				// Adds label
 				cell.value = (!ignoreLabel) ? convertText(p) : '';
-				cell.style += addAllStyles(cell.style, p, a, cell);
+				cell.style += addAllStyles(cell.style, p, a, cell, isLastLblHTML);
 				
 				if (!cell.style.includes('strokeColor'))
 				{
@@ -5134,6 +5482,13 @@ LucidImporter = {};
 					{
 					    lookup[obj.id] = createVertex(obj, graph);
 					}
+					else if (obj.IsGenerator && obj.GeneratorData && obj.GeneratorData.p)
+					{
+						if (obj.GeneratorData.p.ClassName == 'OrgChart2018')
+						{
+							//createOrgChart(obj, graph, lookup, queue);
+						}
+					}
 					
 					queue.push(obj);
 				}
@@ -5360,7 +5715,7 @@ LucidImporter = {};
     	v.vertex = true;
 	    var icon1 = new mxCell(label, new mxGeometry(0, 0.5, 24, 24), 
 	    		'dashed=0;connectable=0;html=1;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.' + icon + ';part=1;shadow=0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=5;'); 
-	    icon1.style += addAllStyles(icon1.style, p, a, icon1);
+	    icon1.style += addAllStyles(icon1.style, p, a, icon1, isLastLblHTML);
 	    
 	    icon1.geometry.relative = true;
 	    icon1.geometry.offset = new mxPoint(5, -12);
@@ -5390,7 +5745,7 @@ LucidImporter = {};
 	    icon1.geometry.relative = true;
 	    icon1.geometry.offset = new mxPoint(- scaleX * w * 0.35, 10 + (1 - scaleY) * w * 0.35);
     	icon1.vertex = true;
-    	icon1.style += addAllStyles(icon1.style, p, a, icon1);
+    	icon1.style += addAllStyles(icon1.style, p, a, icon1, isLastLblHTML);
     	v.insert(icon1);
 	};
 	
@@ -5503,7 +5858,7 @@ LucidImporter = {};
 				v.insert(label);
 				
 				label.style += 	
-					addAllStyles(label.style, p, a, label);
+					addAllStyles(label.style, p, a, label, isLastLblHTML);
 				break;
 			case 'BPMNAdvancedPoolBlockRotated' :
 			case 'UMLMultiLanePoolRotatedBlock' :
@@ -5531,14 +5886,16 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p["MainText"]);
-					v.style += getFontSize(p["MainText"]) +
+					v.style += (isLastLblHTML? 'overflow=width;' : 
+							getFontSize(p["MainText"]) +
 							getFontColor(p["MainText"]) + 
 							getFontStyle(p["MainText"]) +
 							getTextAlignment(p["MainText"], v) + 
 							getTextLeftSpacing(p["MainText"]) +
 							getTextRightSpacing(p["MainText"]) + 
 							getTextTopSpacing(p["MainText"]) +
-							getTextBottomSpacing(p["MainText"]) + 
+							getTextBottomSpacing(p["MainText"]) 
+							) +
 							getTextGlobalSpacing(p["MainText"]) +
 							getTextVerticalAlignment(p["MainText"]);
 				}
@@ -5561,7 +5918,8 @@ LucidImporter = {};
 					v.insert(lane[j]);
 					lane[j].value = convertText(p["Lane_" + i]);
 					lane[j].style +=
-									addAllStyles(lane[j].style, p, a, lane[j]) +
+									addAllStyles(lane[j].style, p, a, lane[j], isLastLblHTML) +
+									(isLastLblHTML? '' : 
 									getFontSize(p["Lane_" + i]) +
 									getFontColor(p["Lane_" + i]) + 
 									getFontStyle(p["Lane_" + i]) +
@@ -5569,7 +5927,8 @@ LucidImporter = {};
 									getTextLeftSpacing(p["Lane_" + i]) +
 									getTextRightSpacing(p["Lane_" + i]) + 
 									getTextTopSpacing(p["Lane_" + i]) +
-									getTextBottomSpacing(p["Lane_" + i]) + 
+									getTextBottomSpacing(p["Lane_" + i]) 
+									) +
 									getTextGlobalSpacing(p["Lane_" + i]) +
 									getTextVerticalAlignment(p["Lane_" + i]) +
 									getHeaderColor(p["HeaderFill_" + i]);
@@ -5616,7 +5975,8 @@ LucidImporter = {};
 					rows.insert(r);
 					r.value = convertText(p["Row_" + i]);
 					r.style +=
-									addAllStyles(r.style, p, a, r) +
+									addAllStyles(r.style, p, a, r, isLastLblHTML) +
+									(isLastLblHTML? '' : 
 									getFontSize(p["Row_" + i]) +
 									getFontColor(p["Row_" + i]) + 
 									getFontStyle(p["Row_" + i]) +
@@ -5624,7 +5984,8 @@ LucidImporter = {};
 									getTextLeftSpacing(p["Row_" + i]) +
 									getTextRightSpacing(p["Row_" + i]) + 
 									getTextTopSpacing(p["Row_" + i]) +
-									getTextBottomSpacing(p["Row_" + i]) + 
+									getTextBottomSpacing(p["Row_" + i]) 
+									) +
 									getTextGlobalSpacing(p["Row_" + i]) +
 									getTextVerticalAlignment(p["Row_" + i]);
 				}
@@ -5643,7 +6004,8 @@ LucidImporter = {};
 					cols.insert(c);
 					c.value = convertText(p["Column_" + i]);
 					c.style +=
-									addAllStyles(c.style, p, a, c) +
+									addAllStyles(c.style, p, a, c, isLastLblHTML) +
+									(isLastLblHTML? '' : 
 									getFontSize(p["Column_" + i]) +
 									getFontColor(p["Column_" + i]) + 
 									getFontStyle(p["Column_" + i]) +
@@ -5651,7 +6013,8 @@ LucidImporter = {};
 									getTextLeftSpacing(p["Column_" + i]) +
 									getTextRightSpacing(p["Column_" + i]) + 
 									getTextTopSpacing(p["Column_" + i]) +
-									getTextBottomSpacing(p["Column_" + i]) + 
+									getTextBottomSpacing(p["Column_" + i]) 
+									) + 
 									getTextGlobalSpacing(p["Column_" + i]) +
 									getTextVerticalAlignment(p["Column_" + i]);
 				}
@@ -5741,13 +6104,13 @@ LucidImporter = {};
 				okButton.vertex = true;
 				v.insert(okButton);
 				dialog.value = convertText(p.DialogTitle);
-				dialog.style += getLabelStyle(p.DialogTitle);
+				dialog.style += getLabelStyle(p.DialogTitle, isLastLblHTML);
 				dialogText.value = convertText(p.DialogText);
-				dialogText.style += getLabelStyle(p.DialogText);
+				dialogText.style += getLabelStyle(p.DialogText, isLastLblHTML);
 				cancelButton.value = convertText(p.Button_0);
-				cancelButton.style += getLabelStyle(p.Button_0);
+				cancelButton.style += getLabelStyle(p.Button_0, isLastLblHTML);
 				okButton.value = convertText(p.Button_1);
-				okButton.style += getLabelStyle(p.Button_1);
+				okButton.style += getLabelStyle(p.Button_1, isLastLblHTML);
 
 				if (p.Scheme == 'Dark')
 				{
@@ -5771,7 +6134,7 @@ LucidImporter = {};
 				dialog.vertex = true;
 				v.insert(dialog);
 				dialog.value = convertText(p.DialogTitle);
-				dialog.style += getLabelStyle(p.DialogTitle);
+				dialog.style += getLabelStyle(p.DialogTitle, isLastLblHTML);
 				var line = new mxCell('', new mxGeometry(0, 25, w, 10), 'shape=line;strokeColor=#33B5E5;');
 				line.vertex = true;
 				v.insert(line);
@@ -5779,12 +6142,12 @@ LucidImporter = {};
 				cancelButton.vertex = true;
 				v.insert(cancelButton);
 				cancelButton.value = convertText(p.Button_0);
-				cancelButton.style += getLabelStyle(p.Button_0);
+				cancelButton.style += getLabelStyle(p.Button_0, isLastLblHTML);
 				var okButton = new mxCell('', new mxGeometry(w * 0.5, h - 25, w * 0.5, 25), 'fillColor=none;');
 				okButton.vertex = true;
 				v.insert(okButton);
 				okButton.value = convertText(p.Button_1);
-				okButton.style += getLabelStyle(p.Button_1);
+				okButton.style += getLabelStyle(p.Button_1, isLastLblHTML);
 
 				var triangle1 = new mxCell('', new mxGeometry(w * 0.5 - 4, 41, 8, 4), 'shape=triangle;direction=north;');
 				triangle1.vertex = true;
@@ -5800,12 +6163,12 @@ LucidImporter = {};
 				prevDate1.vertex = true;
 				v.insert(prevDate1);
 				prevDate1.value = convertText(p.Label_1);
-				prevDate1.style += getLabelStyle(p.Label_1);
+				prevDate1.style += getLabelStyle(p.Label_1, isLastLblHTML);
 				var prevDate2 = new mxCell('', new mxGeometry(w * 0.125, 50, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
 				prevDate2.vertex = true;
 				v.insert(prevDate2);
 				prevDate2.value = convertText(p.Label_0);
-				prevDate2.style += getLabelStyle(p.Label_0);
+				prevDate2.style += getLabelStyle(p.Label_0, isLastLblHTML);
 
 				var prevDate3 = null;
 				
@@ -5815,7 +6178,7 @@ LucidImporter = {};
 					prevDate3.vertex = true;
 					v.insert(prevDate3);
 					prevDate3.value = convertText(p.Label_2);
-					prevDate3.style += getLabelStyle(p.Label_2);
+					prevDate3.style += getLabelStyle(p.Label_2, isLastLblHTML);
 				}
 
 				var line1 = new mxCell('', new mxGeometry(w * 0.43, 60, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
@@ -5832,7 +6195,7 @@ LucidImporter = {};
 				date1.vertex = true;
 				v.insert(date1);
 				date1.value = convertText(p.Label_4);
-				date1.style += getLabelStyle(p.Label_4);
+				date1.style += getLabelStyle(p.Label_4, isLastLblHTML);
 				
 				var sep = null;
 				
@@ -5842,19 +6205,19 @@ LucidImporter = {};
 					sep.vertex = true;
 					v.insert(sep);
 					sep.value = convertText(p.Label_Colon);
-					sep.style += getLabelStyle(p.Label_Colon);
+					sep.style += getLabelStyle(p.Label_Colon, isLastLblHTML);
 				}
 				
 				var date2 = new mxCell('', new mxGeometry(w * 0.125, 65, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
 				date2.vertex = true;
 				v.insert(date2);
 				date2.value = convertText(p.Label_3);
-				date2.style += getLabelStyle(p.Label_3);
+				date2.style += getLabelStyle(p.Label_3, isLastLblHTML);
 				var date3 = new mxCell('', new mxGeometry(w * 0.625, 65, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
 				date3.vertex = true;
 				v.insert(date3);
 				date3.value = convertText(p.Label_5);
-				date3.style += getLabelStyle(p.Label_5);
+				date3.style += getLabelStyle(p.Label_5, isLastLblHTML);
 
 				var line4 = new mxCell('', new mxGeometry(w * 0.43, 75, w * 0.14, 10), 'shape=line;strokeColor=#33B5E5;');
 				line4.vertex = true;
@@ -5870,17 +6233,17 @@ LucidImporter = {};
 				nextDate1.vertex = true;
 				v.insert(nextDate1);
 				nextDate1.value = convertText(p.Label_7);
-				nextDate1.style += getLabelStyle(p.Label_7);
+				nextDate1.style += getLabelStyle(p.Label_7, isLastLblHTML);
 				var nextDate2 = new mxCell('', new mxGeometry(w * 0.125, 80, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
 				nextDate2.vertex = true;
 				v.insert(nextDate2);
 				nextDate2.value = convertText(p.Label_6);
-				nextDate2.style += getLabelStyle(p.Label_6);
+				nextDate2.style += getLabelStyle(p.Label_6, isLastLblHTML);
 				var nextDate3 = new mxCell('', new mxGeometry(w * 0.625, 80, w * 0.2, 15), 'strokeColor=none;fillColor=none;');
 				nextDate3.vertex = true;
 				v.insert(nextDate3);
 				nextDate3.value = convertText(p.Label_8);
-				nextDate3.style += getLabelStyle(p.Label_8);
+				nextDate3.style += getLabelStyle(p.Label_8, isLastLblHTML);
 				
 				var triangle4 = new mxCell('', new mxGeometry(w * 0.5 - 4, 99, 8, 4), 'shape=triangle;direction=south;');
 				triangle4.vertex = true;
@@ -5932,7 +6295,7 @@ LucidImporter = {};
 					header.vertex = true;
 					v.insert(header);
 					header.value = convertText(p.Header);
-					header.style += getLabelStyle(p.Header);
+					header.style += getLabelStyle(p.Header, isLastLblHTML);
 					
 					itemFullH -= startH;
 					
@@ -5957,7 +6320,7 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].value = convertText(p["Item_" + i]);
-					item[i].style += getLabelStyle(p["Item_" + i]);
+					item[i].style += getLabelStyle(p["Item_" + i], isLastLblHTML);
 					
 					if (i > 0)
 					{
@@ -6006,7 +6369,7 @@ LucidImporter = {};
 					tab[i].vertex = true;
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
-					tab[i].style += getLabelStyle(p["Tab_" + i]);
+					tab[i].style += getLabelStyle(p["Tab_" + i], isLastLblHTML);
 					
 					if (i > 0)
 					{
@@ -6099,8 +6462,8 @@ LucidImporter = {};
 				}
 				
 				v.value = convertText(p.Label);
-				v.style += getLabelStyle(p.Label);
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += getLabelStyle(p.Label, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 
@@ -6175,7 +6538,7 @@ LucidImporter = {};
 				
 			case 'AndroidButton' :
 				v.value = convertText(p.Label);
-				v.style += getLabelStyle(p.Label) + 'shape=partialRectangle;left=0;right=0;';
+				v.style += getLabelStyle(p.Label, isLastLblHTML) + 'shape=partialRectangle;left=0;right=0;';
 
 				if (p.Scheme == 'Dark')
 				{
@@ -6191,7 +6554,7 @@ LucidImporter = {};
 				
 			case 'AndroidTextBox' :
 				v.value = convertText(p.Label);
-				v.style += getLabelStyle(p.Label);
+				v.style += getLabelStyle(p.Label, isLastLblHTML);
 
 				var underline = new mxCell('', new mxGeometry(2, h - 6, w - 4, 4), 'shape=partialRectangle;top=0;fillColor=none;');
 				underline.vertex = true;
@@ -6328,7 +6691,7 @@ LucidImporter = {};
 					tab[i].vertex = true;
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
-					tab[i].style += getLabelStyle(p["Tab_" + i]);
+					tab[i].style += getLabelStyle(p["Tab_" + i], isLastLblHTML);
 					
 					if (p.Selected == i)
 					{
@@ -6372,22 +6735,22 @@ LucidImporter = {};
 				var text1 = new mxCell(convertText(p.Text), new mxGeometry(w * 0.35, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
 				text1.vertex = true;
 				v.insert(text1);
-				text1.style += getLabelStyle(p.Text);
+				text1.style += getLabelStyle(p.Text, isLastLblHTML);
 				
 				var text2 = new mxCell(convertText(p.Carrier), new mxGeometry(w * 0.09, 0, w * 0.2, h), 'strokeColor=none;fillColor=none;');
 				text2.vertex = true;
 				v.insert(text2);
-				text2.style += getLabelStyle(p.Carrier);
+				text2.style += getLabelStyle(p.Carrier, isLastLblHTML);
 				
 				v.style += addAllStyles(v.style, p, a, v);
 				break;
 				
 			case 'iOSSearchBar' :
-				v.style += 'strokeColor=none;';
-				v.style += addAllStyles(v.style, p, a, v) +
-					getLabelStyle(p.Search);
-				
 				v.value = convertText(p.Search);
+
+				v.style += 'strokeColor=none;';
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML) +
+					getLabelStyle(p.Search, isLastLblHTML);
 				
 				var icon1 = new mxCell('', new mxGeometry(w * 0.3, h * 0.3, h * 0.4, h * 0.4), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#000000;fillColor=none;');
 				icon1.vertex = true;
@@ -6396,20 +6759,20 @@ LucidImporter = {};
 				break;
 				
 			case 'iOSNavBar' :
-				v.style += 'shape=partialRectangle;top=0;right=0;left=0;strokeColor=#979797;';
-					+ getLabelStyle(p.Title);
-				v.style += addAllStyles(v.style, p, a, v);
 				v.value = convertText(p.Title);
+				v.style += 'shape=partialRectangle;top=0;right=0;left=0;strokeColor=#979797;';
+					+ getLabelStyle(p.Title, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				var text1 = new mxCell(convertText(p.LeftText), new mxGeometry(w * 0.03, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
 				text1.vertex = true;
 				v.insert(text1);
-				text1.style += getLabelStyle(p.LeftText);
+				text1.style += getLabelStyle(p.LeftText, isLastLblHTML);
 				
 				var text2 = new mxCell(convertText(p.RightText), new mxGeometry(w * 0.65, 0, w * 0.3, h), 'strokeColor=none;fillColor=none;');
 				text2.vertex = true;
 				v.insert(text2);
-				text2.style += getLabelStyle(p.RightText);
+				text2.style += getLabelStyle(p.RightText, isLastLblHTML);
 				
 				var icon1 = new mxCell('', new mxGeometry(w * 0.02, h * 0.2, h * 0.3, h * 0.5), 'shape=mxgraph.ios7.misc.left;strokeColor=#007AFF;strokeWidth=2;');
 				icon1.vertex = true;
@@ -6438,9 +6801,8 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += getFontSize(p["Tab_" + i]);
-
-					tab[i].style += 
+					tab[i].style += (isLastLblHTML? 'overflow=width;' :
+									getFontSize(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
 									getTextAlignment(p["Tab_" + i]) + 
@@ -6448,7 +6810,7 @@ LucidImporter = {};
 									getTextRightSpacing(p["Tab_" + i]) + 
 									getTextTopSpacing(p["Tab_" + i]) +
 									getTextBottomSpacing(p["Tab_" + i]) + 
-									getTextGlobalSpacing(p["Tab_" + i]);
+									getTextGlobalSpacing(p["Tab_" + i]));
 					
 					tab[i].style += 'verticalAlign=bottom;';
 					
@@ -6469,91 +6831,91 @@ LucidImporter = {};
 				firstDate1.vertex = true;
 				v.insert(firstDate1);
 				firstDate1.value = convertText(p.Option11);
-				firstDate1.style += getLabelStyle(p.Option11);
+				firstDate1.style += getLabelStyle(p.Option11, isLastLblHTML);
 				var firstDate2 = new mxCell('', new mxGeometry(w * 0.5, 0, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				firstDate2.vertex = true;
 				v.insert(firstDate2);
 				firstDate2.value = convertText(p.Option21);
-				firstDate2.style += getLabelStyle(p.Option21);
+				firstDate2.style += getLabelStyle(p.Option21, isLastLblHTML);
 				var firstDate3 = new mxCell('', new mxGeometry(w * 0.65, 0, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				firstDate3.vertex = true;
 				v.insert(firstDate3);
 				firstDate3.value = convertText(p.Option31);
-				firstDate3.style += getLabelStyle(p.Option31);
+				firstDate3.style += getLabelStyle(p.Option31, isLastLblHTML);
 
 				var secondDate1 = new mxCell('', new mxGeometry(0, h * 0.2, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate1.vertex = true;
 				v.insert(secondDate1);
 				secondDate1.value = convertText(p.Option12);
-				secondDate1.style += getLabelStyle(p.Option12);
+				secondDate1.style += getLabelStyle(p.Option12, isLastLblHTML);
 				var secondDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.2, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate2.vertex = true;
 				v.insert(secondDate2);
 				secondDate2.value = convertText(p.Option22);
-				secondDate2.style += getLabelStyle(p.Option22);
+				secondDate2.style += getLabelStyle(p.Option22, isLastLblHTML);
 				var secondDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.2, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate3.vertex = true;
 				v.insert(secondDate3);
 				secondDate3.value = convertText(p.Option32);
-				secondDate3.style += getLabelStyle(p.Option32);
+				secondDate3.style += getLabelStyle(p.Option32, isLastLblHTML);
 
 				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate1.vertex = true;
 				v.insert(currDate1);
 				currDate1.value = convertText(p.Option13);
-				currDate1.style += getLabelStyle(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13, isLastLblHTML);
 				var currDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate2.vertex = true;
 				v.insert(currDate2);
 				currDate2.value = convertText(p.Option23);
-				currDate2.style += getLabelStyle(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23, isLastLblHTML);
 				var currDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate3.vertex = true;
 				v.insert(currDate3);
 				currDate3.value = convertText(p.Option33);
-				currDate3.style += getLabelStyle(p.Option33);
+				currDate3.style += getLabelStyle(p.Option33, isLastLblHTML);
 				var currDate4 = new mxCell('', new mxGeometry(w * 0.80, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate4.vertex = true;
 				v.insert(currDate4);
 				currDate4.value = convertText(p.Option43);
-				currDate4.style += getLabelStyle(p.Option43);
+				currDate4.style += getLabelStyle(p.Option43, isLastLblHTML);
 
 				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate1.vertex = true;
 				v.insert(fourthDate1);
 				fourthDate1.value = convertText(p.Option14);
-				fourthDate1.style += getLabelStyle(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14, isLastLblHTML);
 				var fourthDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate2.vertex = true;
 				v.insert(fourthDate2);
 				fourthDate2.value = convertText(p.Option24);
-				fourthDate2.style += getLabelStyle(p.Option24);
+				fourthDate2.style += getLabelStyle(p.Option24, isLastLblHTML);
 				var fourthDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate3.vertex = true;
 				v.insert(fourthDate3);
 				fourthDate3.value = convertText(p.Option34);
-				fourthDate3.style += getLabelStyle(p.Option34);
+				fourthDate3.style += getLabelStyle(p.Option34, isLastLblHTML);
 				var fourthDate4 = new mxCell('', new mxGeometry(w * 0.8, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate4.vertex = true;
 				v.insert(fourthDate4);
 				fourthDate4.value = convertText(p.Option44);
-				fourthDate4.style += getLabelStyle(p.Option44);
+				fourthDate4.style += getLabelStyle(p.Option44, isLastLblHTML);
 
 				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.5, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate1.vertex = true;
 				v.insert(fifthDate1);
 				fifthDate1.value = convertText(p.Option15);
-				fifthDate1.style += getLabelStyle(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15, isLastLblHTML);
 				var fifthDate2 = new mxCell('', new mxGeometry(w * 0.5, h * 0.8, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate2.vertex = true;
 				v.insert(fifthDate2);
 				fifthDate2.value = convertText(p.Option25);
-				fifthDate2.style += getLabelStyle(p.Option25);
+				fifthDate2.style += getLabelStyle(p.Option25, isLastLblHTML);
 				var fifthDate3 = new mxCell('', new mxGeometry(w * 0.65, h * 0.8, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate3.vertex = true;
 				v.insert(fifthDate3);
 				fifthDate3.value = convertText(p.Option35);
-				fifthDate3.style += getLabelStyle(p.Option35);
+				fifthDate3.style += getLabelStyle(p.Option35, isLastLblHTML);
 
 				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
 				line1.vertex = true;
@@ -6572,66 +6934,66 @@ LucidImporter = {};
 				firstDate1.vertex = true;
 				v.insert(firstDate1);
 				firstDate1.value = convertText(p.Option11);
-				firstDate1.style += getLabelStyle(p.Option11);
+				firstDate1.style += getLabelStyle(p.Option11, isLastLblHTML);
 				var firstDate2 = new mxCell('', new mxGeometry(w * 0.25, 0, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
 				firstDate2.vertex = true;
 				v.insert(firstDate2);
 				firstDate2.value = convertText(p.Option21);
-				firstDate2.style += getLabelStyle(p.Option21);
+				firstDate2.style += getLabelStyle(p.Option21, isLastLblHTML);
 
 				var secondDate1 = new mxCell('', new mxGeometry(0, h * 0.2, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate1.vertex = true;
 				v.insert(secondDate1);
 				secondDate1.value = convertText(p.Option12);
-				secondDate1.style += getLabelStyle(p.Option12);
+				secondDate1.style += getLabelStyle(p.Option12, isLastLblHTML);
 				var secondDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.2, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate2.vertex = true;
 				v.insert(secondDate2);
 				secondDate2.value = convertText(p.Option22);
-				secondDate2.style += getLabelStyle(p.Option22);
+				secondDate2.style += getLabelStyle(p.Option22, isLastLblHTML);
 
 				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate1.vertex = true;
 				v.insert(currDate1);
 				currDate1.value = convertText(p.Option13);
-				currDate1.style += getLabelStyle(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13, isLastLblHTML);
 				var currDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.4, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate2.vertex = true;
 				v.insert(currDate2);
 				currDate2.value = convertText(p.Option23);
-				currDate2.style += getLabelStyle(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23, isLastLblHTML);
 				var currDate4 = new mxCell('', new mxGeometry(w * 0.7, h * 0.4, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate4.vertex = true;
 				v.insert(currDate4);
 				currDate4.value = convertText(p.Option33);
-				currDate4.style += getLabelStyle(p.Option33);
+				currDate4.style += getLabelStyle(p.Option33, isLastLblHTML);
 
 				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate1.vertex = true;
 				v.insert(fourthDate1);
 				fourthDate1.value = convertText(p.Option14);
-				fourthDate1.style += getLabelStyle(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14, isLastLblHTML);
 				var fourthDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.6, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate2.vertex = true;
 				v.insert(fourthDate2);
 				fourthDate2.value = convertText(p.Option24);
-				fourthDate2.style += getLabelStyle(p.Option24);
+				fourthDate2.style += getLabelStyle(p.Option24, isLastLblHTML);
 				var fourthDate4 = new mxCell('', new mxGeometry(w * 0.7, h * 0.6, w * 0.15, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate4.vertex = true;
 				v.insert(fourthDate4);
 				fourthDate4.value = convertText(p.Option34);
-				fourthDate4.style += getLabelStyle(p.Option34);
+				fourthDate4.style += getLabelStyle(p.Option34, isLastLblHTML);
 
 				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate1.vertex = true;
 				v.insert(fifthDate1);
 				fifthDate1.value = convertText(p.Option15);
-				fifthDate1.style += getLabelStyle(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15, isLastLblHTML);
 				var fifthDate2 = new mxCell('', new mxGeometry(w * 0.25, h * 0.8, w * 0.3, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate2.vertex = true;
 				v.insert(fifthDate2);
 				fifthDate2.value = convertText(p.Option25);
-				fifthDate2.style += getLabelStyle(p.Option25);
+				fifthDate2.style += getLabelStyle(p.Option25, isLastLblHTML);
 
 				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
 				line1.vertex = true;
@@ -6650,56 +7012,56 @@ LucidImporter = {};
 				firstDate3.vertex = true;
 				v.insert(firstDate3);
 				firstDate3.value = convertText(p.Option31);
-				firstDate3.style += getLabelStyle(p.Option31);
+				firstDate3.style += getLabelStyle(p.Option31, isLastLblHTML);
 
 				var secondDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.2, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
 				secondDate3.vertex = true;
 				v.insert(secondDate3);
 				secondDate3.value = convertText(p.Option32);
-				secondDate3.style += getLabelStyle(p.Option32);
+				secondDate3.style += getLabelStyle(p.Option32, isLastLblHTML);
 
 				var currDate1 = new mxCell('', new mxGeometry(0, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate1.vertex = true;
 				v.insert(currDate1);
 				currDate1.value = convertText(p.Option13);
-				currDate1.style += getLabelStyle(p.Option13);
+				currDate1.style += getLabelStyle(p.Option13, isLastLblHTML);
 				var currDate2 = new mxCell('', new mxGeometry(w * 0.2, h * 0.4, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate2.vertex = true;
 				v.insert(currDate2);
 				currDate2.value = convertText(p.Option23);
-				currDate2.style += getLabelStyle(p.Option23);
+				currDate2.style += getLabelStyle(p.Option23, isLastLblHTML);
 				var currDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.4, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate3.vertex = true;
 				v.insert(currDate3);
 				currDate3.value = convertText(p.Option33);
-				currDate3.style += getLabelStyle(p.Option33);
+				currDate3.style += getLabelStyle(p.Option33, isLastLblHTML);
 				var currDate4 = new mxCell('', new mxGeometry(w * 0.6, h * 0.4, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
 				currDate4.vertex = true;
 				v.insert(currDate4);
 				currDate4.value = convertText(p.Option43);
-				currDate4.style += getLabelStyle(p.Option43);
+				currDate4.style += getLabelStyle(p.Option43, isLastLblHTML);
 
 				var fourthDate1 = new mxCell('', new mxGeometry(0, h * 0.6, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate1.vertex = true;
 				v.insert(fourthDate1);
 				fourthDate1.value = convertText(p.Option14);
-				fourthDate1.style += getLabelStyle(p.Option14);
+				fourthDate1.style += getLabelStyle(p.Option14, isLastLblHTML);
 				var fourthDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.6, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fourthDate3.vertex = true;
 				v.insert(fourthDate3);
 				fourthDate3.value = convertText(p.Option34);
-				fourthDate3.style += getLabelStyle(p.Option34);
+				fourthDate3.style += getLabelStyle(p.Option34, isLastLblHTML);
 
 				var fifthDate1 = new mxCell('', new mxGeometry(0, h * 0.8, w * 0.25, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate1.vertex = true;
 				v.insert(fifthDate1);
 				fifthDate1.value = convertText(p.Option15);
-				fifthDate1.style += getLabelStyle(p.Option15);
+				fifthDate1.style += getLabelStyle(p.Option15, isLastLblHTML);
 				var fifthDate3 = new mxCell('', new mxGeometry(w * 0.45, h * 0.8, w * 0.2, h * 0.2), 'strokeColor=none;fillColor=none;');
 				fifthDate3.vertex = true;
 				v.insert(fifthDate3);
 				fifthDate3.value = convertText(p.Option35);
-				fifthDate3.style += getLabelStyle(p.Option35);
+				fifthDate3.style += getLabelStyle(p.Option35, isLastLblHTML);
 
 				var line1 = new mxCell('', new mxGeometry(0, h * 0.4 - 2, w, 4), 'shape=line;strokeColor=#888888;');
 				line1.vertex = true;
@@ -6714,15 +7076,15 @@ LucidImporter = {};
 				break;
 				
 			case 'iOSBasicCell' :
-				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;spacing=0;align=left;spacingLeft=' + (p.SeparatorInset * scale) + ';';
-				v.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text) +
-					getTextVerticalAlignment(p.text);
-				v.style += addAllStyles(v.style, p, a, v);
-
 				v.value = convertText(p.text);
-				
+				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;spacing=0;align=left;spacingLeft=' + (p.SeparatorInset * scale) + ';';
+				v.style += (isLastLblHTML? '' : 
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text)) +
+					getTextVerticalAlignment(p.text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+
 				switch (p.AccessoryIndicatorType) 
 				{
 					case 'Disclosure' :
@@ -6762,20 +7124,21 @@ LucidImporter = {};
 				
 			case 'iOSSubtitleCell' :
 				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=top;spacingLeft=' + (p.SeparatorInset * scale) + ';';
-				v.style += getFontSize(p.subtext) +
-					getFontColor(p.subtext) + 
-					getFontStyle(p.subtext);
-				v.style += addAllStyles(v.style, p, a, v);
-
 				v.value = convertText(p.subtext);
+				v.style += (isLastLblHTML? '' : 
+					getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext));
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var subtext = new mxCell('', new mxGeometry(0, h * 0.4, w, h * 0.6), 'fillColor=none;strokeColor=none;spacing=0;align=left;verticalAlign=bottom;spacingLeft=' + (p.SeparatorInset * scale) + ';');
 				subtext.vertex = true;
 				v.insert(subtext);
-				subtext.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text);
 				subtext.value = convertText(p.text);
+				subtext.style += (isLastLblHTML? '' : 
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text));
 
 				switch (p.AccessoryIndicatorType) 
 				{
@@ -6816,13 +7179,13 @@ LucidImporter = {};
 				
 			case 'iOSRightDetailCell' :
 				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=middle;spacingLeft=' + (p.SeparatorInset * scale) + ';';
-				v.style += getFontSize(p.subtext) +
-					getFontColor(p.subtext) + 
-					getFontStyle(p.subtext);
-				v.style += addAllStyles(v.style, p, a, v);
-
 				v.value = convertText(p.subtext);
-				
+				v.style += (isLastLblHTML? '' :
+					getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext));
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+					
 				var subtext = null;
 				
 				switch (p.AccessoryIndicatorType) 
@@ -6873,10 +7236,11 @@ LucidImporter = {};
 
 				subtext.vertex = true;
 				v.insert(subtext);
-				subtext.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text);
 				subtext.value = convertText(p.text);
+				subtext.style += (isLastLblHTML? '' :
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text));
 
 				break;
 				
@@ -6887,18 +7251,20 @@ LucidImporter = {};
 				var text = new mxCell('', new mxGeometry(0, 0, w * 0.25, h), 'fillColor=none;strokeColor=none;spacing=0;align=right;verticalAlign=middle;spacingRight=3;');
 				text.vertex = true;
 				v.insert(text);
-				text.style += getFontSize(p.subtext) +
-					getFontColor(p.subtext) + 
-					getFontStyle(p.subtext);
 				text.value = convertText(p.subtext);
+				text.style += (isLastLblHTML? '' :
+					getFontSize(p.subtext) +
+					getFontColor(p.subtext) + 
+					getFontStyle(p.subtext));
 
 				var subtext = new mxCell('', new mxGeometry(w * 0.25, 0, w * 0.5, h), 'fillColor=none;strokeColor=none;spacing=0;align=left;verticalAlign=middle;spacingLeft=3;');
 				subtext.vertex = true;
 				v.insert(subtext);
-				subtext.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text);
 				subtext.value = convertText(p.text);
+				subtext.style += (isLastLblHTML? '' :
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text));
 
 				switch (p.AccessoryIndicatorType) 
 				{
@@ -6943,28 +7309,31 @@ LucidImporter = {};
 				var text1 = new mxCell('', new mxGeometry(0, 0, w, h * 0.4), 'fillColor=none;strokeColor=none;spacing=10;align=left;');
 				text1.vertex = true;
 				v.insert(text1);
-				text1.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text);
 				text1.value = convertText(p.text);
+				text1.style += (isLastLblHTML? '' :
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text));
 
 				var text2 = new mxCell('', new mxGeometry(0, h * 0.6, w, h * 0.4), 'fillColor=none;strokeColor=none;spacing=10;align=left;');
 				text2.vertex = true;
 				v.insert(text2);
-				text2.style += getFontSize(p["bottom-text"]) +
-					getFontColor(p["bottom-text"]) + 
-					getFontStyle(p["bottom-text"]);
 				text2.value = convertText(p["bottom-text"]);
+				text2.style += (isLastLblHTML? '' :
+					getFontSize(p["bottom-text"]) +
+					getFontColor(p["bottom-text"]) + 
+					getFontStyle(p["bottom-text"]));
 
 				break;
 				
 			case 'iOSTablePlainHeaderFooter' :
 				v.style += 'fillColor=#F7F7F7;strokeColor=none;align=left;spacingLeft=5;spacing=0;';
-				v.style += getFontSize(p.text) +
-					getFontColor(p.text) + 
-					getFontStyle(p.text);
 				v.value = convertText(p.text);
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += (isLastLblHTML? '' :
+					getFontSize(p.text) +
+					getFontColor(p.text) + 
+					getFontStyle(p.text));
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
@@ -6987,14 +7356,13 @@ LucidImporter = {};
 					item2.vertex = true;
 					v.insert(item2);
 					
+					item2.value = convertText(p.Text);
 					item2.style += 	getStrokeColor(p, a) + 
 						getFillColor(p, a) +
 						getOpacity(p, a, item2) + 
 						getShadow(p) +
 						getStrokeWidth(p) +
-						getLabelStyle(p);
-					
-					item2.value = convertText(p.Text);
+						getLabelStyle(p, isLastLblHTML);
 					
 					if (p.Future)
 					{
@@ -7009,17 +7377,16 @@ LucidImporter = {};
 						v.style += 'dashed=1;';
 					}
 					
+					v.value = convertText(p.Text);
 					v.style += 	getStrokeColor(p, a) + 
 						getFillColor(p, a) +
 						getOpacity(p, a, v) + 
 						getShadow(p) +
 						getStrokeWidth(p) + 
-						getLabelStyle(p);
-				
-					v.value = convertText(p.Text);
+						getLabelStyle(p, isLastLblHTML);
 				}
 				
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
@@ -7104,8 +7471,8 @@ LucidImporter = {};
 				item1.vertex = true;
 				v.insert(item1);
 				
-				item1.style += 	getLabelStyle(p);
 				item1.value = convertText(p.Text);
+				item1.style += 	getLabelStyle(p, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v);
 				
 				break;
@@ -7122,12 +7489,10 @@ LucidImporter = {};
 					item2.vertex = true;
 					v.insert(item2);
 					
-					item2.style += 	
-						getLabelStyle(p.Text);
-					item2.style += addAllStyles(item2.style, p, a, item2);
-					
 					item2.value = convertText(p.Text);
-				
+					item2.style += 	
+						getLabelStyle(p.Text, isLastLblHTML);
+					item2.style += addAllStyles(item2.style, p, a, item2, isLastLblHTML);
 				break;
 
 			case 'UMLConstraintBlock' :				
@@ -7157,45 +7522,37 @@ LucidImporter = {};
 								getFontColor(p, label);
 				brace1.style += addAllStyles(brace1.style, p, a, brace1);
 				brace2.style += addAllStyles(brace2.style, p, a, brace2);
-				label.style += addAllStyles(label.style, p, a, label);
+				label.style += addAllStyles(label.style, p, a, label, isLastLblHTML);
 				break;
 
 			case 'UMLTextBlock' : 
-				v.style += 'strokeColor=none;' +
-					getLabelStyle(p.Text);
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
-
+				v.style += 'strokeColor=none;' +
+					getLabelStyle(p.Text, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				break;
 			case 'UMLComponentBoxBlock' :
 				break;
 			case 'BPMNActivity' :
+				v.value = convertText(p.Text);
+				
 				switch (p.bpmnActivityType)
 				{
 					case 1:
 						v.style += 
-							getLabelStyle(p.Text);
-					
-						v.value = convertText(p.Text);
+							getLabelStyle(p.Text, isLastLblHTML);
 						break
 					case 2:
 						v.style += 'shape=ext;double=1;' +
-							getLabelStyle(p.Text);
-				
-						v.value = convertText(p.Text);
+							getLabelStyle(p.Text, isLastLblHTML);
 						break
 					case 3:
 						v.style += 'shape=ext;dashed=1;dashPattern=2 1;' +
-							getLabelStyle(p.Text);
-
-						v.value = convertText(p.Text);
+							getLabelStyle(p.Text, isLastLblHTML);
 						break
 					case 4:
 						v.style += 'shape=ext;strokeWidth=2;' + 
-							getLabelStyle(p.Text);
-					
-						v.value = convertText(p.Text);
+							getLabelStyle(p.Text, isLastLblHTML);
 						break
 				}
 
@@ -7472,7 +7829,7 @@ LucidImporter = {};
 					
 				}
 
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 			case 'BPMNChoreography' :
@@ -7501,7 +7858,7 @@ LucidImporter = {};
 					v.insert(item1);
 				}
 
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 			case 'BPMNGateway' :
@@ -7568,7 +7925,7 @@ LucidImporter = {};
 						text1.vertex = true;
 						v.insert(text1);
 						text1.value = convertText(p.Text);
-						text1.style += getLabelStyle(p);
+						text1.style += getLabelStyle(p, isLastLblHTML);
 						break;
 					case 3:
 						var item1 = new mxCell('', new mxGeometry(0, 0, 12, 10), 'shape=singleArrow;part=1;arrowWidth=0.4;arrowSize=0.4;');
@@ -7594,7 +7951,7 @@ LucidImporter = {};
 						text1.vertex = true;
 						v.insert(text1);
 						text1.value = convertText(p.Text);
-						text1.style += getLabelStyle(p);
+						text1.style += getLabelStyle(p, isLastLblHTML);
 						break;
 				}
 				
@@ -7602,9 +7959,8 @@ LucidImporter = {};
 				
 				break;
 			case 'BPMNBlackPool' :
-				v.style += addAllStyles(v.style, p, a, v);
-
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				var item1 = new mxCell('', new mxGeometry(0, 0, w, h), 'fillColor=#000000;strokeColor=none;opacity=30;');
 				item1.vertex = true;
@@ -7626,32 +7982,27 @@ LucidImporter = {};
 				var item2 = new mxCell('', new mxGeometry(w * 0.05, h * 0.05, w * 0.95, h * 0.95), 'part=1;');
 				item2.vertex = true;
 				v.insert(item2);
-				
-				item2.style += 	
-					getLabelStyle(p.Text);
-				item2.style += addAllStyles(item2.style, p, a, item2);
-					
 				item2.value = convertText(p.Text);
+				item2.style += 	
+					getLabelStyle(p.Text, isLastLblHTML);
+				item2.style += addAllStyles(item2.style, p, a, item2, isLastLblHTML);
 				
 				break;
 				
 			case 'GSDFDDataStoreBlock' :
-				
-				v.style += 'shape=partialRectangle;right=0;' + 
-					getLabelStyle(p.Text);
-				v.style += addAllStyles(v.style, p, a, v);
-			
 				v.value = convertText(p.Text);
-
+				v.style += 'shape=partialRectangle;right=0;' + 
+					getLabelStyle(p.Text, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+			
 				var item1 = new mxCell('', new mxGeometry(0, 0, w * 0.2, h), 'part=1;');
 				item1.vertex = true;
 				v.insert(item1);
 				
-				item1.style += 	
-					getLabelStyle(p.Number);
-				item1.style += addAllStyles(item1.style, p, a, item1);
-
 				item1.value = convertText(p.Number);
+				item1.style += 	
+					getLabelStyle(p.Number, isLastLblHTML);
+				item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 
 				break;
 				
@@ -7735,6 +8086,8 @@ LucidImporter = {};
 							//Spans
 							for (var k = i + 1; k < i + spans.h; k++)
 							{
+								if (rowHs[k] == null) continue;
+								
 								ch += rowHs[k];
 								skipCells[k + ',' + j] = true;
 								
@@ -7746,6 +8099,8 @@ LucidImporter = {};
 							
 							for (var k = j + 1; k < j + spans.w; k++)
 							{
+								if (colWs[k] == null) continue;
+								
 								cw += colWs[k];
 								skipCells[i + ',' + k] = true;
 								
@@ -7769,7 +8124,8 @@ LucidImporter = {};
 							cell.vertex = true;
 							cell.value = convertText(cellLbl);
 							cell.style +=
-								addAllStyles(cell.style, p, a, cell) +
+								addAllStyles(cell.style, p, a, cell, isLastLblHTML) +
+							  (isLastLblHTML? '' : 
 								getFontSize(cellLbl) +
 								getFontColor(cellLbl) + 
 								getFontStyle(cellLbl) +
@@ -7777,7 +8133,8 @@ LucidImporter = {};
 								getTextLeftSpacing(cellLbl) +
 								getTextRightSpacing(cellLbl) + 
 								getTextTopSpacing(cellLbl) +
-								getTextBottomSpacing(cellLbl) + 
+								getTextBottomSpacing(cellLbl)
+							  ) + 
 								getTextGlobalSpacing(cellLbl) +
 								getTextVerticalAlignment(cellLbl);
 							v.insert(cell);
@@ -7802,7 +8159,7 @@ LucidImporter = {};
 					v.value = convertText(p.Resources);
 				}
 
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				if (obj.Class == 'VSMDedicatedProcessBlock')
 				{
@@ -7819,7 +8176,7 @@ LucidImporter = {};
 				text1.vertex = true;
 				v.insert(text1);
 				text1.value = convertText(p.Title);
-				text1.style += getLabelStyle(p.Title);
+				text1.style += getLabelStyle(p.Title, isLastLblHTML);
 
 				break;
 				
@@ -7827,25 +8184,23 @@ LucidImporter = {};
 				v.style += 'shape=mxgraph.lean_mapping.manufacturing_process_shared;spacingTop=-5;verticalAlign=top;';
 
 				v.value = convertText(p.Text);
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var text1 = new mxCell('', new mxGeometry(w * 0.1, h * 0.3, w * 0.8, h * 0.6), 'part=1;');
 				text1.vertex = true;
 				v.insert(text1);
 				text1.value = convertText(p.Resource);
 				text1.style += 	
-					getLabelStyle(p.Resource);
-				text1.style += addAllStyles(text1.style, p, a, text1);
+					getLabelStyle(p.Resource, isLastLblHTML);
+				text1.style += addAllStyles(text1.style, p, a, text1, isLastLblHTML);
 
 				break;
 				
 			case 'VSMWorkcellBlock' :
 				v.style += 'shape=mxgraph.lean_mapping.work_cell;verticalAlign=top;spacingTop=-2;';
-				
-				v.style += addAllStyles(v.style, p, a, v);
+				v.value = convertText(p.Text);				
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 		
-				v.value = convertText(p.Text);
-
 				break;
 			case 'VSMSafetyBufferStockBlock' :
 			case 'VSMDatacellBlock' :
@@ -7872,14 +8227,14 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].value = convertText(p["cell_" + i]);
-					item[i].style += getLabelStyle(p["cell_" + i]);
+					item[i].style += getLabelStyle(p["cell_" + i], isLastLblHTML);
 				}
 				
 				break;
 			case 'VSMInventoryBlock' : 
 				v.style += 'shape=mxgraph.lean_mapping.inventory_box;verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 		
 				break;
 			case 'VSMSupermarketBlock' :
@@ -7910,7 +8265,7 @@ LucidImporter = {};
 					text[i].vertex = true;
 					v.insert(text[i]);
 					text[i].value = convertText(p["cell_" + i]);
-					text[i].style += getLabelStyle(p["cell_" + i]);
+					text[i].style += getLabelStyle(p["cell_" + i], isLastLblHTML);
 				}
 				
 				break;
@@ -7921,9 +8276,8 @@ LucidImporter = {};
 				break;
 			case 'VSMGoSeeProductionBlock' :
 				v.style += 'shape=ellipse;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.17, h * 0.2, 13, 6), 'shape=mxgraph.lean_mapping.go_see_production_scheduling;flipH=1;part=1;whiteSpace=wrap;html=1;');
 				item1.vertex = true;
@@ -7949,10 +8303,9 @@ LucidImporter = {};
 				var item3 = new mxCell('', new mxGeometry(0, h * 0.2, w * 0.9, h * 0.8), 'shape=mxgraph.lean_mapping.go_see_production_scheduling;flipH=1;part=1;whiteSpace=wrap;html=1;spacing=2;' + st);
 				item3.vertex = true;
 				v.insert(item3);
-				item3.style += addAllStyles(item3.style, p, a, item3);
-				
 				item3.value = convertText(p.Text);
-
+				item3.style += addAllStyles(item3.style, p, a, item3, isLastLblHTML);
+				
 				break;
 			case 'VSMTimelineBlock' :
 				break;
@@ -7966,8 +8319,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 35, 40), 'strokeColor=none;shape=mxgraph.aws3.spot_instance;fillColor=#f58536;');
 					item2.geometry.relative = true;
@@ -7982,8 +8335,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 30, 40), 'strokeColor=none;shape=mxgraph.aws3.elastic_beanstalk;fillColor=#759C3E;');
 					item2.geometry.relative = true;
@@ -7998,8 +8351,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 32, 40), 'strokeColor=none;shape=mxgraph.aws3.ec2;fillColor=#F58534;');
 					item2.geometry.relative = true;
@@ -8014,8 +8367,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 32, 40), 'strokeColor=none;shape=mxgraph.aws3.permissions;fillColor=#146EB4;');
 					item2.geometry.relative = true;
@@ -8030,8 +8383,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 60, 40), 'strokeColor=none;shape=mxgraph.aws3.virtual_private_cloud;fillColor=#146EB4;');
 					item2.geometry.relative = true;
@@ -8046,8 +8399,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 60, 40), 'strokeColor=none;shape=mxgraph.aws3.cloud;fillColor=#F58534;');
 					item2.geometry.relative = true;
@@ -8062,8 +8415,8 @@ LucidImporter = {};
 					item1.geometry.relative = true;
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += addAllStyles(item1.style, p, a, item1);
 					item1.value = convertText(p.Title);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, 0, 25, 40), 'strokeColor=none;shape=mxgraph.aws3.corporate_data_center;fillColor=#7D7C7C;');
 					item2.geometry.relative = true;
@@ -8074,33 +8427,29 @@ LucidImporter = {};
 				else
 				{
 					v.style = 'resizeWidth=1;resizeHeight=1;fillColor=none;align=center;verticalAlign=bottom;spacing=2;rounded=1;arcSize=10;';
-					v.style += addAllStyles(v.style, p, a, v);
-					
 					v.value = convertText(p.Title);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				}
 
 				break;
 			case 'AWSElasticComputeCloudBlock2' :
 				v.style += 'strokeColor=none;shape=mxgraph.aws3.ec2;verticalLabelPosition=bottom;align=center;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Title);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
 			case 'AWSRoute53Block2' :
 				v.style += 'strokeColor=none;shape=mxgraph.aws3.route_53;verticalLabelPosition=bottom;align=center;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Title);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
 			case 'AWSRDBSBlock2' :
 				v.style += 'strokeColor=none;shape=mxgraph.aws3.rds;verticalLabelPosition=bottom;align=center;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Title);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
@@ -8158,9 +8507,8 @@ LucidImporter = {};
 				
 			case 'EE_OpAmp' :
 				v.style += 'shape=mxgraph.electrical.abstract.operational_amp_1;'; 
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Title);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				if (p.ToggleCharge)
 				{
@@ -8175,9 +8523,8 @@ LucidImporter = {};
 			case 'EIDeadLetterChannelBlock' :
 			case 'EIGuaranteedDeliveryBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				if (obj.Class == 'EIMessageChannelBlock')
 				{
@@ -8221,9 +8568,8 @@ LucidImporter = {};
 
 			case 'EIChannelAdapterBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(0, h * 0.07, w * 0.21, h * 0.86), 'fillColor=#FFFF33;part=1;');
 				item1.vertex = true;
@@ -8266,9 +8612,8 @@ LucidImporter = {};
 			case 'EIDocumentMessageBlock' :
 			case 'EIEventMessageBlock' :
 				v.style += 'strokeColor=none;fillColor=none;verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(0, 0, 17, 17), 'shape=ellipse;fillColor=#808080;part=1;');
 				item1.vertex = true;
@@ -8291,7 +8636,7 @@ LucidImporter = {};
 					{
 						case 'EIMessageBlock' :
 							item2[i].value = convertText(p['message_' + (i + 1)]);
-							item2.style += getLabelStyle(p['message_' + (i + 1)]);
+							item2.style += getLabelStyle(p['message_' + (i + 1)], isLastLblHTML);
 							break;
 						case 'EICommandMessageBlock' :
 							item2[i].value = 'C';
@@ -8326,9 +8671,8 @@ LucidImporter = {};
 				
 			case 'EIMessageEndpointBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-		    	v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.45, h * 0.25, w * 0.3, h * 0.5), 'part=1;fillColor=#ffffff');
 				item1.vertex = true;
@@ -8345,9 +8689,8 @@ LucidImporter = {};
 				break;
 			case 'EIPublishSubscribeChannelBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-		    	v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 			   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeColor=#818181;strokeWidth=1;endFill=1;endSize=6;');
 			   	edge1.geometry.relative = true;
@@ -8368,9 +8711,8 @@ LucidImporter = {};
 				
 			case 'EIMessageBusBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-		    	v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 			   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=none;rounded=0;endArrow=block;dashed=0;html=1;strokeWidth=1;endFill=1;endSize=4;startArrow=block;startFill=1;startSize=4;');
 			   	edge1.geometry.relative = true;
@@ -8400,9 +8742,8 @@ LucidImporter = {};
 				
 			case 'EIRequestReplyBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-		    	v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.2, h * 0.21, w * 0.16, h * 0.24), 'part=1;fillColor=#ffffff;');
 				item1.vertex = true;
@@ -8430,9 +8771,8 @@ LucidImporter = {};
 
 			case 'EIReturnAddressBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.1, h * 0.15, w * 0.8, h * 0.7), 'part=1;shape=mxgraph.eip.retAddr;fillColor=#FFE040;');
 				item1.vertex = true;
@@ -8443,9 +8783,8 @@ LucidImporter = {};
 				
 			case 'EICorrelationIDBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.04, h * 0.06, w * 0.18, h * 0.28), 'shape=ellipse;fillColor=#808080;part=1;');
 				item1.vertex = true;
@@ -8521,9 +8860,8 @@ LucidImporter = {};
 			case 'EIMessageSequenceBlock' :
 				
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('1', new mxGeometry(w * 0.2, h * 0.4, w * 0.1, h * 0.19), 'fontStyle=1;fillColor=#ffffff;fontSize=' + defaultFontSize + ';part=1;');
 				item1.vertex = true;
@@ -8564,9 +8902,8 @@ LucidImporter = {};
 			case 'EIMessageExpirationBlock' :
 				
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.3, h * 0.2, w * 0.4, h * 0.6), 'shape=mxgraph.ios7.icons.clock;fillColor=#ffffff;flipH=1;part=1;');
 				item1.vertex = true;
@@ -8577,10 +8914,9 @@ LucidImporter = {};
 				
 			case 'EIMessageBrokerBlock' :
 				v.style += 'strokeColor=none;fillColor=none;verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
-
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+				
 				var item1 = new mxCell('', new mxGeometry(w * 0.38, h * 0.42, w * 0.24, h * 0.16), 'part=1;fillColor=#aefe7d;');
 				item1.vertex = true;
 				v.insert(item1);
@@ -8661,9 +8997,8 @@ LucidImporter = {};
 				break;
 			case 'EIDurableSubscriberBlock' :	
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 			   	var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=elbowEdgeStyle;rounded=0;endArrow=block;endFill=1;endSize=6;');
 			   	edge1.geometry.relative = true;
@@ -8684,9 +9019,8 @@ LucidImporter = {};
 				
 			case 'EIControlBusBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.25, h * 0.25, w * 0.5, h * 0.5), 'shape=mxgraph.eip.control_bus;part=1;');
 				item1.vertex = true;
@@ -8697,9 +9031,8 @@ LucidImporter = {};
 				
 			case 'EIMessageHistoryBlock' :
 				v.style += 'strokeColor=none;fillColor=none;verticalLabelPosition=bottom;verticalAlign=top;';
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(0, 0, 17, 17), 'shape=ellipse;fillColor=#808080;part=1;');
 				item1.vertex = true;
@@ -8725,9 +9058,9 @@ LucidImporter = {};
 				item4.vertex = true;
 				v.insert(item4);
 				item4.value = convertText(p.message_0);
-				item4.style += getLabelStyle(p.message_0);
+				item4.style += getLabelStyle(p.message_0, isLastLblHTML);
 				
-				item4.style += addAllStyles(item4.style, p, a, item4);
+				item4.style += addAllStyles(item4.style, p, a, item4, isLastLblHTML);
 
 				edge4 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;');
 		    	edge4.geometry.relative = true;
@@ -8751,10 +9084,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(w - 20, currY, 20, 20), 'part=1;');
 					item2[i].vertex = true;
 					item2[i].value = convertText(p['message_' + (i + 1)]);
-					item2.style += getLabelStyle(p['message_' + (i + 1)]);
+					item2.style += getLabelStyle(p['message_' + (i + 1)], isLastLblHTML);
 					v.insert(item2[i]);
 					
-					item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
+					item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 	
 					edge[i] = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;rounded=0;exitX=0;exitY=0.5;endArrow=none;dashed=0;html=1;');
 			    	edge[i].geometry.relative = true;
@@ -8980,8 +9313,7 @@ LucidImporter = {};
 				
 			case 'PEVesselBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-					
-					v.value = convertText(p.Text);
+				v.value = convertText(p.Text);
 				
 				switch (p.vesselType)
 				{
@@ -8993,14 +9325,13 @@ LucidImporter = {};
 						break;
 				}
 
-		    	v.style += addAllStyles(v.style, p, a, v);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 				
 			case 'PEClosedTankBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-					
-					v.value = convertText(p.Text);
+				v.value = convertText(p.Text);
 
 				if (p.peakedRoof == 1 && p.stumpType == 0)
 				{
@@ -9011,13 +9342,12 @@ LucidImporter = {};
 					v.style += 'shape=mxgraph.pid.vessels.tank_(boot);';
 				}
 				
-		    	v.style += addAllStyles(v.style, p, a, v);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				break;
 				
 			case 'PEColumnBlock' :
 				v.style += 'verticalLabelPosition=bottom;verticalAlign=top;';
-					
-					v.value = convertText(p.Text);
+				v.value = convertText(p.Text);
 
 				if (p.columnType == 0)
 				{
@@ -9028,15 +9358,14 @@ LucidImporter = {};
 					v.style += 'shape=mxgraph.pid.vessels.tank;';
 				}
 				
-		    	v.style += addAllStyles(v.style, p, a, v);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 				
 			case 'PECompressorTurbineBlock' :
 				v.style += 'strokeColor=none;fillColor=none;'; 
-		    	v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+		    	v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(0, h * 0.2, w, h * 0.6), 'part=1;shape=trapezoid;perimeter=trapezoidPerimeter;direction=south;');
 				item1.vertex = true;
@@ -9101,9 +9430,8 @@ LucidImporter = {};
 			case 'PEMotorDrivenTurbineBlock' :
 				
 				v.style += 'shape=ellipse;'; 
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Text);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item1 = new mxCell('', new mxGeometry(w * 0.2, h * 0.2, w * 0.6, h * 0.6), 'part=1;shape=trapezoid;perimeter=trapezoidPerimeter;direction=south;');
 				item1.vertex = true;
@@ -9152,18 +9480,16 @@ LucidImporter = {};
 					var item1 = new mxCell('', new mxGeometry(0, 0, w, w * 0.5), 'part=1;strokeColor=none;fillColor=none;');
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += getLabelStyle(p.TopText);
-					item1.style += addAllStyles(item1.style, p, a, item1);
-					
 					item1.value = convertText(p.TopText);
+					item1.style += getLabelStyle(p.TopText, isLastLblHTML);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, w * 0.5, w, w * 0.5), 'part=1;strokeColor=none;fillColor=none;');
 					item2.vertex = true;
 					v.insert(item2);
-					item2.style += getLabelStyle(p.BotText);
-					item2.style += addAllStyles(item2.style, p, a, item2);
-					
 					item2.value = convertText(p.BotText);
+					item2.style += getLabelStyle(p.BotText, isLastLblHTML);
+					item2.style += addAllStyles(item2.style, p, a, item2, isLastLblHTML);
 				}
 				else
 				{
@@ -9171,18 +9497,16 @@ LucidImporter = {};
 					var item1 = new mxCell('', new mxGeometry(0, 0, w, h * 0.5), 'part=1;strokeColor=none;fillColor=none;');
 					item1.vertex = true;
 					v.insert(item1);
-					item1.style += getLabelStyle(p.TopText);
-					item1.style += addAllStyles(item1.style, p, a, item1);
-					
 					item1.value = convertText(p.TopText);
+					item1.style += getLabelStyle(p.TopText, isLastLblHTML);
+					item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 					
 					var item2 = new mxCell('', new mxGeometry(0, h * 0.5, w, h * 0.5), 'part=1;strokeColor=none;fillColor=none;');
 					item2.vertex = true;
 					v.insert(item2);
-					item2.style += getLabelStyle(p.BotText);
-					item2.style += addAllStyles(item2.style, p, a, item2);
-					
 					item2.value = convertText(p.BotText);
+					item2.style += getLabelStyle(p.BotText, isLastLblHTML);
+					item2.style += addAllStyles(item2.style, p, a, item2, isLastLblHTML);
 				}
 				
 				switch(p.instrumentLocation)
@@ -9260,18 +9584,19 @@ LucidImporter = {};
 							var item1 = new mxCell('', new mxGeometry(w * 0.325, 0, w * 0.35, h * 0.35), 'part=1;strokeColor=none;fillColor=none;spacingTop=2;');
 							item1.vertex = true;
 							v.insert(item1);
-							item1.style += 'fontSize=6;' + 
+							item1.value = convertText(p.PoweredText);
+							item1.style += (isLastLblHTML? '' : 
+								'fontSize=6;' + 
 								getFontColor(p.PoweredText) + 
 								getFontStyle(p.PoweredText) +
 								getTextAlignment(p.PoweredText) + 
 								getTextLeftSpacing(p.PoweredText) +
 								getTextRightSpacing(p.PoweredText) + 
 								getTextBottomSpacing(p.PoweredText) + 
-								getTextGlobalSpacing(p.PoweredText) +
+								getTextGlobalSpacing(p.PoweredText)
+								) +
 								getTextVerticalAlignment(p.PoweredText);
-							item1.style += addAllStyles(item1.style, p, a, item1);
-							
-							item1.value = convertText(p.PoweredText);
+							item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 						}
 						else
 						{
@@ -9310,7 +9635,7 @@ LucidImporter = {};
 					}
 				}
 				
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 
@@ -9356,12 +9681,12 @@ LucidImporter = {};
 				v.style += addAllStyles(v.style, p, a, v);
 				break;
 			case 'UI2WindowBlock' :
+				v.value = convertText(p.Title);
 				v.style += 'shape=mxgraph.mockup.containers.window;mainText=;align=center;verticalAlign=top;spacing=5;' +
+					(isLastLblHTML? '' :	
 					getFontSize(p.Title) +
 					getFontColor(p.Title) + 
-					getFontStyle(p.Title);
-
-				v.value = convertText(p.Title);
+					getFontStyle(p.Title));
 
 				if (p.vScroll == 1)
 				{
@@ -9399,23 +9724,21 @@ LucidImporter = {};
 					v.insert(item4);
 				}
 
-				v.style += addAllStyles(v.style, p, a, v);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				break;
 			case 'UI2DialogBlock' :
-				v.style += 
-					getLabelStyle(p.Text);
-
 				v.value = convertText(p.Text);
+				v.style += 
+					getLabelStyle(p.Text, isLastLblHTML);
 
 				var item1 = new mxCell('', new mxGeometry(0, 0, w, 30), 'part=1;resizeHeight=0;');
 				item1.vertex = true;
 				v.insert(item1);
-				item1.style += getLabelStyle(p.Title);
-				item1.style += addAllStyles(item1.style, p, a, item1);
-				
 				item1.value = convertText(p.Title);
-
+				item1.style += getLabelStyle(p.Title, isLastLblHTML);
+				item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
+				
 				var item2 = new mxCell('', new mxGeometry(1, 0.5, 20, 20), 'part=1;shape=ellipse;strokeColor=#008cff;resizable=0;fillColor=none;html=1;');
 			   	item2.geometry.relative = true;
 			   	item2.geometry.offset = new mxPoint(-25, -10);
@@ -9473,30 +9796,27 @@ LucidImporter = {};
 						item1[i] = new mxCell('', new mxGeometry(0, i * itemH, w, itemH), 'part=1;fillColor=#000000;fillOpacity=25;');
 						item1[i].vertex = true;
 						v.insert(item1[i]);
-						item1[i].style += 
-							getLabelStyle(p['Panel_' + (i + 1)]);
-						
 						item1[i].value = convertText(p['Panel_' + (i + 1)]);
+						item1[i].style += 
+							getLabelStyle(p['Panel_' + (i + 1)], isLastLblHTML);
 					}
 					else if (i == (p.Selected - 1))
 					{
 						item1[i] = new mxCell('', new mxGeometry(0, i * itemH, w, itemH), 'part=1;fillColor=none;');
 						item1[i].vertex = true;
 						v.insert(item1[i]);
-						item1[i].style += 
-							getLabelStyle(p['Panel_' + (i + 1)]);
-						
 						item1[i].value = convertText(p['Panel_' + (i + 1)]);
+						item1[i].style += 
+							getLabelStyle(p['Panel_' + (i + 1)], isLastLblHTML);
 					}
 					else
 					{
 						item1[i] = new mxCell('', new mxGeometry(0, h - (p.Panels - p.Selected) * itemH + (i - p.Selected) * itemH, w, itemH), 'part=1;fillColor=#000000;fillOpacity=25;');
 						item1[i].vertex = true;
 						v.insert(item1[i]);
-						item1[i].style += 
-							getLabelStyle(p['Panel_' + (i + 1)]);
-						
 						item1[i].value = convertText(p['Panel_' + (i + 1)]);
+						item1[i].style += 
+							getLabelStyle(p['Panel_' + (i + 1)], isLastLblHTML);
 					}
 
 					if (item1[i].style.indexOf(';align=') < 0)
@@ -9565,15 +9885,14 @@ LucidImporter = {};
 				}
 				item4.vertex = true;
 				v.insert(item4);
+				item4.value = convertText(p['Content_1']);
 				item4.style += 
-					getLabelStyle(p['Content_1']);
+					getLabelStyle(p['Content_1'], isLastLblHTML);
 				
-				if (item4.style.indexOf(';align=') < 0)
+				if (!isLastLblHTML && item4.style.indexOf(';align=') < 0)
 				{
 					item4.style += 'align=left;spacingLeft=5;';
 				}
-				
-				item4.value = convertText(p['Content_1']);
 				
 				v.style += addAllStyles(v.style, p, a, v);
 
@@ -9600,10 +9919,9 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(startW + i * itemW, 0, itemW - itemS, itemH), '');
 						item2[i].vertex = true;
 						v.insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
-						
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
 					}
 					else
 					{
@@ -9616,9 +9934,9 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, 0, itemW - itemS, itemH), 'fillColor=#000000;fillOpacity=25;');
 						item2[i].vertex = true;
 						item1[i].insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
 					}
 
 					if (item2[i].style.indexOf(';align=') < 0)
@@ -9702,11 +10020,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW - itemS, itemH), '');
 						item2[i].vertex = true;
 						v.insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 					else
 					{
@@ -9718,11 +10035,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, 0, itemW - itemS, itemH), 'fillColor=#000000;fillOpacity=25;');
 						item2[i].vertex = true;
 						item1[i].insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 
 					if (item2[i].style.indexOf(';align=') < 0)
@@ -9805,11 +10121,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, startH + i * itemH, itemW, itemH - itemS), '');
 						item2[i].vertex = true;
 						v.insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 					else
 					{
@@ -9821,10 +10136,9 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, 0, itemW, itemH - itemS), 'fillColor=#000000;fillOpacity=25;');
 						item2[i].vertex = true;
 						item1[i].insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Tab_' + (i + 1)]);
-						
 						item2[i].value = convertText(p['Tab_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Tab_' + (i + 1)], isLastLblHTML);
 					}
 
 					if (item2[i].style.indexOf(';align=') < 0)
@@ -9898,9 +10212,10 @@ LucidImporter = {};
 					item1[i] = new mxCell('', new mxGeometry(0, i * itemH + itemH * 0.5 - 5, 10, 10), 'labelPosition=right;part=1;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=3;');
 					item1[i].vertex = true;
 					v.insert(item1[i]);
+					item1[i].value = convertText(p['Option_' + (i + 1)]);
 					item1[i].style += 
-						getLabelStyle(p['Option_' + (i + 1)]);
-					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i]);
+						getLabelStyle(p['Option_' + (i + 1)], isLastLblHTML);
+					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i], isLastLblHTML);
 					
 					if (p.Selected[i + 1] != null)
 					{
@@ -9922,7 +10237,6 @@ LucidImporter = {};
 						}
 					}
 					
-					item1[i].value = convertText(p['Option_' + (i + 1)]);
 				}
 				
 				break;
@@ -9938,9 +10252,10 @@ LucidImporter = {};
 					item1[i] = new mxCell('', new mxGeometry(i * itemW, h * 0.5 - 5, 10, 10), 'labelPosition=right;part=1;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=3;');
 					item1[i].vertex = true;
 					v.insert(item1[i]);
+					item1[i].value = convertText(p['Option_' + (i + 1)]);
 					item1[i].style += 
-						getLabelStyle(p['Option_' + (i + 1)]);
-					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i]);
+						getLabelStyle(p['Option_' + (i + 1)], isLastLblHTML);
+					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i], isLastLblHTML);
 					
 					if (p.Selected[i + 1] != null)
 					{
@@ -9962,7 +10277,6 @@ LucidImporter = {};
 						}
 					}
 					
-					item1[i].value = convertText(p['Option_' + (i + 1)]);
 				}
 				
 				break;
@@ -9978,9 +10292,10 @@ LucidImporter = {};
 					item1[i] = new mxCell('', new mxGeometry(0, i * itemH + itemH * 0.5 - 5, 10, 10), 'shape=ellipse;labelPosition=right;part=1;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=3;');
 					item1[i].vertex = true;
 					v.insert(item1[i]);
+					item1[i].value = convertText(p['Option_' + (i + 1)]);
 					item1[i].style += 
-						getLabelStyle(p['Option_' + (i + 1)]);
-					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i]);
+						getLabelStyle(p['Option_' + (i + 1)], isLastLblHTML);
+					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i], isLastLblHTML);
 					
 					if (p.Selected != null)
 					{
@@ -10001,8 +10316,6 @@ LucidImporter = {};
 							item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
 						}
 					}
-					
-					item1[i].value = convertText(p['Option_' + (i + 1)]);
 				}
 				
 				break;
@@ -10018,9 +10331,10 @@ LucidImporter = {};
 					item1[i] = new mxCell('', new mxGeometry(i * itemW, h * 0.5 - 5, 10, 10), 'shape=ellipse;labelPosition=right;part=1;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=3;');
 					item1[i].vertex = true;
 					v.insert(item1[i]);
+					item1[i].value = convertText(p['Option_' + (i + 1)]);
 					item1[i].style += 
-						getLabelStyle(p['Option_' + (i + 1)]);
-					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i]);
+						getLabelStyle(p['Option_' + (i + 1)], isLastLblHTML);
+					item1[i].style += addAllStyles(item1[i].style, p, a, item1[i], isLastLblHTML);
 					
 					if (p.Selected != null)
 					{
@@ -10042,7 +10356,6 @@ LucidImporter = {};
 						}
 					}
 					
-					item1[i].value = convertText(p['Option_' + (i + 1)]);
 				}
 				
 				break;
@@ -10067,12 +10380,11 @@ LucidImporter = {};
 				var item1 = new mxCell('', new mxGeometry(0, 0, w * 0.6, h), 'part=1;');
 				item1.vertex = true;
 				v.insert(item1);
+				item1.value = convertText(p.Date);
 				item1.style +=  
-					getLabelStyle(p.Date);
+					getLabelStyle(p.Date, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v);
 				
-				item1.value = convertText(p.Date);
-
 				var fc = getStrokeColor(p, a);
 				fc = fc.replace('strokeColor', 'fillColor');
 				
@@ -10094,9 +10406,8 @@ LucidImporter = {};
 					getFontSize(p.Search) +
 					getFontColor(p.Search) + 
 					getFontStyle(p.Search);
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Search);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 
@@ -10113,9 +10424,8 @@ LucidImporter = {};
 					getFontSize(p.Number) +
 					getFontColor(p.Number) + 
 					getFontStyle(p.Number);
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Number);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
@@ -10135,11 +10445,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), '');
 						item2[i].vertex = true;
 						v.insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Button_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Button_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Button_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 					else
 					{
@@ -10152,11 +10461,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, 0, itemW, h), 'fillColor=#000000;fillOpacity=25;');
 						item2[i].vertex = true;
 						item1[i].insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Button_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Button_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Button_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 				}
 				
@@ -10176,11 +10484,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, i * itemH, w, itemH), '');
 						item2[i].vertex = true;
 						v.insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Button_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Button_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Button_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 					else
 					{
@@ -10192,11 +10499,10 @@ LucidImporter = {};
 						item2[i] = new mxCell('', new mxGeometry(0, 0, w, itemH), 'fillColor=#000000;fillOpacity=25;');
 						item2[i].vertex = true;
 						item1[i].insert(item2[i]);
-						item2[i].style += 
-							getLabelStyle(p['Button_' + (i + 1)]);
-						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i]);
-						
 						item2[i].value = convertText(p['Button_' + (i + 1)]);
+						item2[i].style += 
+							getLabelStyle(p['Button_' + (i + 1)], isLastLblHTML);
+						item2[i].style += addAllStyles(item2[i].style, p, a, item2[i], isLastLblHTML);
 					}
 				}
 				
@@ -10223,10 +10529,9 @@ LucidImporter = {};
 					
 					item2[i].vertex = true;
 					v.insert(item2[i]);
-					item2[i].style += 
-						getLabelStyle(p['Link_' + (i + 1)]);
-					
 					item2[i].value = convertText(p['Link_' + (i + 1)]);
+					item2[i].style += 
+						getLabelStyle(p['Link_' + (i + 1)], isLastLblHTML);
 				}
 				
 				break;
@@ -10244,10 +10549,9 @@ LucidImporter = {};
 					item1[i] = new mxCell('', new mxGeometry(i * itemW, 0, itemW, h), 'fillColor=none;strokeColor=none;');
 					item1[i].vertex = true;
 					v.insert(item1[i]);
-					item1[i].style += 
-						getLabelStyle(p['Link_' + (i + 1)]);
-					
 					item1[i].value = convertText(p['Link_' + (i + 1)]);
+					item1[i].style += 
+						getLabelStyle(p['Link_' + (i + 1)], isLastLblHTML);
 				}
 				
 				for (var i = 1; i < (p.Links); i++)
@@ -10282,10 +10586,9 @@ LucidImporter = {};
 					item1[i].geometry.offset = new mxPoint(i * itemW, 0);
 					item1[i].vertex = true;
 					v.insert(item1[i]);
-					item1[i].style += 
-						getLabelStyle(p['MenuItem_' + (i + 1)]);
-					
 					item1[i].value = convertText(p['MenuItem_' + (i + 1)]);
+					item1[i].style += 
+						getLabelStyle(p['MenuItem_' + (i + 1)], isLastLblHTML);
 				}
 				
 				break;
@@ -10413,39 +10716,34 @@ LucidImporter = {};
 				break;
 				
 			case 'UI2TooltipSquareBlock' :
-				v.style += 'html=1;shape=callout;flipV=1;base=13;size=7;position=0.5;position2=0.66;rounded=1;arcSize=' + (p.RoundCorners) + ';' +
-					getLabelStyle(p.Tip);
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Tip);
+				v.style += 'html=1;shape=callout;flipV=1;base=13;size=7;position=0.5;position2=0.66;rounded=1;arcSize=' + (p.RoundCorners) + ';' +
+					getLabelStyle(p.Tip, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 			case 'UI2CalloutBlock' :
-				v.style += 'shape=ellipse;' +
-					getLabelStyle(p.Txt);
-				v.style += addAllStyles(v.style, p, a, v);
-				
 				v.value = convertText(p.Txt);
-				
+				v.style += 'shape=ellipse;' +
+					getLabelStyle(p.Txt, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
 				
 			case 'UI2AlertBlock' :
-				v.style += 
-					getLabelStyle(p.Txt);
-				v.style += addAllStyles(v.style, p, a, v);
-
 				v.value = convertText(p.Txt);
+				v.style += 
+					getLabelStyle(p.Txt, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				var item1 = new mxCell('', new mxGeometry(0, 0, w, 30), 'part=1;resizeHeight=0;');
 				item1.vertex = true;
 				v.insert(item1);
-				item1.style +=
-					getLabelStyle(p.Title);
-				item1.style += addAllStyles(item1.style, p, a, item1);
-				
 				item1.value = convertText(p.Title);
-
+				item1.style +=
+					getLabelStyle(p.Title, isLastLblHTML);
+				item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
+				
 				var item2 = new mxCell('', new mxGeometry(1, 0.5, 20, 20), 'part=1;shape=ellipse;strokeColor=#008cff;resizable=0;fillColor=none;html=1;');
 			   	item2.geometry.relative = true;
 			   	item2.geometry.offset = new mxPoint(-25, -10);
@@ -10466,11 +10764,10 @@ LucidImporter = {};
 				   	item3[i].geometry.offset = new mxPoint(-totalW * 0.5 + i * (bw + bs), -40);
 					item3[i].vertex = true;
 					v.insert(item3[i]);
-					item3[i].style +=
-						getLabelStyle(p['Button_' + (i + 1)]);
-					item3[i].style += addAllStyles(item3[i].style, p, a, item3[i]);
-					
 					item3[i].value = convertText(p['Button_' + (i + 1)]);
+					item3[i].style +=
+						getLabelStyle(p['Button_' + (i + 1)], isLastLblHTML);
+					item3[i].style += addAllStyles(item3[i].style, p, a, item3[i], isLastLblHTML);
 				}
 				
 				break;
@@ -10487,12 +10784,11 @@ LucidImporter = {};
 						st = 'swimlaneFillColor=#ffffff;'
 					}
 					
+					v.value = convertText(p.Title);
 					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
 						'startSize=' + th + ';' +
-						getLabelStyle(p.Title);
-					v.style += addAllStyles(v.style, p, a, v);
-						
-					v.value = convertText(p.Title);
+						getLabelStyle(p.Title, isLastLblHTML);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 					
 					var item = new Array();
 					var divider = new Array();
@@ -10533,11 +10829,10 @@ LucidImporter = {};
 				}
 				else
 				{
-					v.style += 
-						getLabelStyle(p.Title);
-					v.style += addAllStyles(v.style, p, a, v);
-						
 					v.value = convertText(p.Title);
+					v.style += 
+						getLabelStyle(p.Title, isLastLblHTML);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				}
 
 				break;
@@ -10552,10 +10847,11 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
+				v.value = convertText(p.Name);
 				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
 					'startSize=' + th + ';' +
-					getLabelStyle(p.Name);
-				v.style += addAllStyles(v.style, p, a, v);
+					getLabelStyle(p.Name, isLastLblHTML);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
 				if (p.ShadedHeader)
 				{
@@ -10565,8 +10861,6 @@ LucidImporter = {};
 				{
 					v.style += getFillColor(p, a);
 				}
-				
-				v.value = convertText(p.Name);
 				
 				var item = new Array();
 				var currH = th / h;
@@ -10608,9 +10902,10 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
+				v.value = convertText(p.Name);
 				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
 					'startSize=' + th + ';' +
-					getLabelStyle(p.Name);
+					getLabelStyle(p.Name, isLastLblHTML);
 
 				if (p.ShadedHeader)
 				{
@@ -10621,8 +10916,7 @@ LucidImporter = {};
 					v.style += getFillColor(p, a);
 				}
 				
-				v.style += addAllStyles(v.style, p, a, v);
-				v.value = convertText(p.Name);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item = new Array();
 				var key = new Array();
@@ -10707,8 +11001,8 @@ LucidImporter = {};
 					v.style += getFillColor(p, a);
 				}
 				
-				v.style += addAllStyles(v.style, p, a, v);
 				v.value = convertText(p.Name);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item = new Array();
 				var key = new Array();
@@ -10742,8 +11036,8 @@ LucidImporter = {};
 							getOpacity(p, a, key[i]);
 					}
 
-					key[i].style += addAllStyles(key[i].style, p, a, key[i]);
 					key[i].value = convertText(p['Field' + (i + 1)]);
+					key[i].style += addAllStyles(key[i].style, p, a, key[i], isLastLblHTML);
 					
 					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW, p['Type' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
 					item[i].vertex = true;
@@ -10763,8 +11057,8 @@ LucidImporter = {};
 							getOpacity(p, a, item[i]);
 					}
 
-					item[i].style += addAllStyles(item[i].style, p, a, item[i]);
 					item[i].value = convertText(p['Type' + (i + 1)]);
+					item[i].style += addAllStyles(item[i].style, p, a, item[i], isLastLblHTML);
 					
 					currH += p['Field' + (i + 1) + '_h'] * scale;
 				}
@@ -10793,8 +11087,8 @@ LucidImporter = {};
 					v.style += getFillColor(p, a);
 				}
 				
-				v.style += addAllStyles(v.style, p, a, v);
 				v.value = convertText(p.Name);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				var item = new Array();
 				var key = new Array();
@@ -10835,8 +11129,8 @@ LucidImporter = {};
 							getOpacity(p, a, key[i]);
 					}
 
-					key[i].style += addAllStyles(key[i].style, p, a, key[i]);
 					key[i].value = convertText(p['Key' + (i + 1)]);
+					key[i].style += addAllStyles(key[i].style, p, a, key[i], isLastLblHTML);
 					
 					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW - typeW, p['Field' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
 					item[i].vertex = true;
@@ -10856,8 +11150,8 @@ LucidImporter = {};
 							getOpacity(p, a, item[i]);
 					}
 
-					item[i].style += addAllStyles(item[i].style, p, a, item[i]);
 					item[i].value = convertText(p['Field' + (i + 1)]);
+					item[i].style += addAllStyles(item[i].style, p, a, item[i], isLastLblHTML);
 					
 					type[i] = new mxCell('', new mxGeometry(w - typeW, currH, typeW, p['Type' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
 					type[i].vertex = true;
@@ -10877,8 +11171,8 @@ LucidImporter = {};
 							getOpacity(p, a, type[i]);
 					}
 
-					type[i].style += addAllStyles(type[i].style, p, a, type[i]);
 					type[i].value = convertText(p['Type' + (i + 1)]);
+					type[i].style += addAllStyles(type[i].style, p, a, type[i], isLastLblHTML);
 					
 					currH += p['Key' + (i + 1) + '_h'] * scale;
 				}
@@ -11052,8 +11346,8 @@ LucidImporter = {};
 				else
 				{
 					v.style += getLabelStyle(p.Text);
-					v.style += addAllStyles(v.style, p, a, v);
 					v.value = convertText(p.Text);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				}
 				break;
 			case 'SVGPathBlock2' :
@@ -11086,5 +11380,96 @@ LucidImporter = {};
 		}
 
 	    return v;
+	};
+	
+	//TODO A lot of work is still needed to build the cell, do the layout, ...
+	function createOrgChart(obj, graph, lookup, queue)
+	{
+		try
+		{
+			var chartType = obj.GeneratorData.p.OrgChartBlockType;
+			var fields = obj.GeneratorData.p.FieldNames;
+			var layoutSettings = obj.GeneratorData.p.LayoutSettings;
+			var cellDefaultStyle = obj.GeneratorData.p.BlockItemDefaultStyle;
+			var edgeDefaultStyle = obj.GeneratorData.p.EdgeItemDefaultStyle;
+			var chartDataSrc = obj.GeneratorData.gs.Items.n;
+			var chartData = [];
+			var parents = {};
+			var idPrefix = Date.now() + '_';
+			
+			for (var i = 0; i < chartDataSrc.length; i++)
+			{
+				var d = chartDataSrc[i];
+				chartData.push(d.f);
+				var id = idPrefix + d.pk;
+				parents[id] = d.ie;
+				var cell = new mxCell('', new mxGeometry(0, 0, 200, 100), '');
+			    cell.vertex = true;
+				lookup[id] = cell;
+				queue.push({id: id});
+			}
+			
+			for (var key in parents)
+			{
+				var p = parents[key];
+				
+				if (p[0] && p[0].nf)
+				{
+					var src = lookup[idPrefix + p[0].nf];
+					var trg = lookup[key];
+					var e = new mxCell('', new mxGeometry(0, 0, 100, 100), '');
+					e.geometry.relative = true;
+					e.edge = true;
+					graph.addCell(e, null, null, src, trg);
+				}
+			}
+			
+			var chartCells = obj.GeneratorData.povs;
+			
+			if (chartCells != null)
+			{
+				for (var key in chartCells)
+				{
+					var items = chartCells[key];
+					
+					for (var i = 0; i < items.length; i++)
+					{
+						var item = JSON.parse(items[i]);
+						console.log(item);
+						if (key.indexOf('-line') > 0) 
+						{
+							//No Endpoint1 so not useful as is
+//							queue.push({
+//								id: key + i,
+//								IsLine: true,
+//								Action: {
+//									Properties: item
+//								}
+//							});
+						}
+						else
+						{
+							//Sometimes it has no boundingBox as well as being not in sync
+//							var mainKey = Object.keys(item)[0];
+//							var constItem = {
+//								"id": key + i,
+//								"IsBlock": true,
+//								"Action": {
+//									"Action": "CreateBlock",
+//									"Class": "DefaultSquareBlock",
+//									"Properties": item
+//								}
+//							};
+//							
+//							constItem.Action.Properties.Text = item[mainKey];
+//							constItem.Action.Properties.TextVAlign = item[mainKey + '_VAlign'];
+//							lookup[key + i] = createVertex(constItem, graph);
+//							queue.push(constItem);
+						}
+					}
+				}
+			}
+		}
+		catch(e){}
 	};
 })();

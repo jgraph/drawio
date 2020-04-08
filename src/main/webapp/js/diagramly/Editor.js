@@ -246,8 +246,7 @@
         	return cell != null && (graph.isSwimlane(cell) || graph.model.getChildCount(cell) > 0);
         }, isVisible: function(state, format)
         {
-    		return state.vertices.length == 1 && state.edges.length == 0 &&
-    			mxUtils.getValue(state.style, 'part', '0') != '1';
+    		return state.vertices.length == 1 && state.edges.length == 0;
         }},
         {name: 'collapsible', dispName: 'Collapsible', type: 'bool', getDefaultValue: function(state, format)
         {

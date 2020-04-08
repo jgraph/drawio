@@ -1,3 +1,10 @@
+08-APR-2020: 12.9.10
+
+- Fixes toggle selection for cells in containers
+- Fixes copy paste of cells in Firefox
+- Improvements for Lucidchart import
+- Uses mxGraph 4.1.2 beta 3
+
 07-APR-2020: 12.9.9
 
 - Uses mxGraph 4.1.2 beta 2
