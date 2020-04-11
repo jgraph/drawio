@@ -3759,7 +3759,7 @@ LucidImporter = {};
 
 		var sMap = {}, ends = [];
 
-		for (var i = 0; i < m.length; i++)
+		for (var i = 0; i < m.length; i++) //TODO Using newlines to mark the end of blocks without end has some issues 
 		{
 			var item = m[i];
 			
@@ -3986,6 +3986,14 @@ LucidImporter = {};
 		{
 			var str = txt? txt.substring(curS, curE) : '';
 
+			//TODO Check this is always the case. Most of the time this is correct, also, the empty tag should be removed
+			if (str == '\n')
+			{
+				str = '';
+			}
+			
+			str = str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+			
 			do
 			{
 				var count = openTagsCount.pop();
@@ -4009,11 +4017,11 @@ LucidImporter = {};
 		
 		var curS = 0, curE = 0;
 		
-		while(i < m.length || j < ends.length)
+		while(i >= j && (i < m.length || j < ends.length))
 		{
 			var s = m[i], e = ends[j];
 
-			if (s && s.s < e.e) //s can be null when all starts are used, e ends after s
+			if (s && e && s.s < e.e) //s can be null when all starts are used, e ends after s BUT sometimes there are errors in the file
 			{
 				curS = s.s;
 				var newBlock = false;
@@ -4025,6 +4033,7 @@ LucidImporter = {};
 				
 				while(s != null && s.s == curS)
 				{
+					//TODO alignment ('a') sometimes introduce unnecessary new lines. Maybe use newline to define block elements
 					if (s.n == 'a' || s.n == 'il' || s.n == 'ir' || s.n == 'mt' || s.n == 'mb' || s.n == 't')
 					{
 						newBlock = true;
@@ -4036,7 +4045,7 @@ LucidImporter = {};
 				
 				html += startTag(curStyles, newBlock);
 			}
-			else
+			else if (e)
 			{
 				curE = e.e;
 
@@ -4053,7 +4062,7 @@ LucidImporter = {};
 		}
 		
 		html += endTag(null, null, null, true); //End any open tag
-		console.log(html);
+
 		return html;
 	};
 	
@@ -4117,9 +4126,6 @@ LucidImporter = {};
 		{
 			if (text.t != null)
 			{
-				text.t = text.t.replace(/</g, '&lt;');
-				text.t = text.t.replace(/>/g, '&gt;');
-				
 				var txt = text.t;
 				var m = text.m;
 				
@@ -4144,6 +4150,9 @@ LucidImporter = {};
 				{
 					console.log(e);
 				}
+				
+				txt = txt.replace(/</g, '&lt;');
+				txt = txt.replace(/>/g, '&gt;');
 				
 				return txt;
 			}
@@ -4212,7 +4221,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = (noLblStyle? 'overflow=width;' : 
+		var style = (noLblStyle? 'overflow=width;html=1;' : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4238,7 +4247,7 @@ LucidImporter = {};
 		}
 		
 		s +=	
-		  (noLblStyle? 'overflow=width;' : 
+		  (noLblStyle? 'overflow=width;html=1;' : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
@@ -4742,6 +4751,16 @@ LucidImporter = {};
 		return '';
 	}
 	
+	function getLaneColor(color)
+	{
+		if (color != null)
+		{
+			return 'swimlaneFillColor=' + getColor(color) + ';';
+		}
+		
+		return '';
+	}
+	
 	function getOpacity(properties, action, cell)
 	{
 		var style = '';
@@ -4809,7 +4828,7 @@ LucidImporter = {};
 			
 			// Fixes the case for horizontal swimlanes where we use horizontal=0
 			// and Lucid uses rotation
-			if (deg != 0 && ((action.Class == 'UMLSwimLaneBlockV2') || (action.Class.indexOf('Rotated') >= 0 && (action.Class.indexOf('Pool') >= 0 || action.Class.indexOf('SwimLane') >= 0))))
+			if (deg != 0 && ((action.Class == 'UMLSwimLaneBlockV2') || ((action.Class.indexOf('Rotated') >= 0 || deg == -90 || deg == 270) && (action.Class.indexOf('Pool') >= 0 || action.Class.indexOf('SwimLane') >= 0))))
 			{
 				deg += 90;
 				cell.geometry.rotate90();
@@ -4918,7 +4937,11 @@ LucidImporter = {};
 		}
 		else if (properties.StrokeStyle == 'dotdotdot')
 		{
-			return 'dashed=1;dashPattern=1 1;';
+			return 'dashed=1;dashPattern=1 2;';
+		}
+		else if (properties.StrokeStyle == 'longdash')
+		{
+			return 'dashed=1;dashPattern=16 6;';
 		}
 		else if (properties.StrokeStyle != null && properties.
 			StrokeStyle.substring(0, 6) == 'dashed')
@@ -5090,7 +5113,7 @@ LucidImporter = {};
 				// Edge style
 				if (cell.edge)
 				{
-					if (p.Rounding != null)
+					if (p.Rounding != null && p.Shape != 'diagonal') //No rounding for diagornal edges
 					{
 						cell.style += 'rounded=1;arcSize=' + p.Rounding + ';';
 					}
@@ -5164,33 +5187,36 @@ LucidImporter = {};
 						}
 					}
 
+					var waypoints = p.ElbowControlPoints || p.Joints;
+					
+					if (waypoints != null)
+					{
+						cell.geometry.points = [];
+						
+						for (var i = 0; i < waypoints.length; i++)
+						{
+							var pt = waypoints[i];
+							
+							cell.geometry.points.push(new mxPoint(
+								Math.round(pt.x * scale + dx),
+								Math.round(pt.y * scale + dy)));
+						}
+					}
+					
 					// Inserts implicit or explicit control points for loops
 					var implicitY = false;
 					
 					if (p.ElbowPoints == null && p.Endpoint1.Block != null &&
 						p.Endpoint1.Block == p.Endpoint2.Block)
 					{
-						if (p.ElbowControlPoints != null)
-						{
-							cell.geometry.points = [];
-							
-							for (var i = 0; i < p.ElbowControlPoints.length; i++)
-							{
-								var pt = p.ElbowControlPoints[i];
-								
-								cell.geometry.points.push(new mxPoint(
-									Math.round(pt.x * scale + dx),
-									Math.round(pt.y * scale + dx)));
-							}
-						}
-						else if (source != null && target != null)
+						if (p.ElbowControlPoints == null && source != null && target != null)
 						{
 							var exit = new mxPoint(Math.round(source.geometry.x + source.geometry.width * p.Endpoint1.LinkX),
 								Math.round(source.geometry.y + source.geometry.height * p.Endpoint1.LinkY));
 							var entry = new mxPoint(Math.round(target.geometry.x + target.geometry.width * p.Endpoint2.LinkX),
 								Math.round(target.geometry.y + target.geometry.height * p.Endpoint2.LinkY));
-							var dx = (exit.x == entry.x) ? 20 : 0;
-							var dy = (exit.y == entry.y) ? 0 : 0;
+							dx = (exit.x == entry.x) ? 20 : 0;
+							dy = (exit.y == entry.y) ? 0 : 0;
 							
 							cell.geometry.points = [new mxPoint(exit.x + dx, exit.y + dy), new mxPoint(entry.x + dx, entry.y + dy)];
 							implicitX = (exit.y == entry.y);
@@ -5293,7 +5319,7 @@ LucidImporter = {};
 
 			if (ta.Text != null)
 			{
-				e = insertLabel(ta, e, obj);
+				e = insertLabel(ta.Text, e, obj);
 			}
 
 			var ta = (p != null) ? p.TextAreas : obj.TextAreas;
@@ -5342,7 +5368,19 @@ LucidImporter = {};
 				}
 				else if (obj.Value.m[i].n == 'c')
 				{
-					style += 'fontColor=' + obj.Value.m[i].v + ';'
+					var v = obj.Value.m[i].v;
+					
+					if (v != null)
+					{
+						if (v.charAt(0) != '#')
+						{
+							v = '#' + v;
+						}
+
+						v = v.substring(0, 7);
+					}
+					
+					style += 'fontColor=' + v + ';'
 				}
 			}
 		}
@@ -5401,6 +5439,51 @@ LucidImporter = {};
 		}
 		
 		return hidden;
+	};
+	
+	function createGroup(obj, lookup)
+	{
+		try
+		{
+			var group = new mxCell('', new mxGeometry(), 'group;dropTarget=0;');
+			group.vertex = true;
+			var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+			var members = obj.Members || obj.Action.Properties.Members;
+				
+			for (var key in members)
+			{
+				var v = lookup[key];
+				
+				if (v != null)
+				{
+					minX = Math.min(minX, v.geometry.x);
+					minY = Math.min(minY, v.geometry.y);
+					maxX = Math.max(maxX, v.geometry.x + v.geometry.width);
+					maxY = Math.max(maxY, v.geometry.y + v.geometry.height);
+				}
+				
+				v.parent = group;
+				group.insert(v);
+			}
+			
+			group.geometry.x = minX;
+			group.geometry.y = minY;
+			group.geometry.width = maxX - minX;
+			group.geometry.height = maxY - minY;
+			
+			for (var i = 0; i < group.children.length; i++)
+			{
+				var geo = group.children[i].geometry;
+				geo.x -= minX;
+				geo.y -= minY;
+			}
+			
+			return group;
+		}
+		catch(e)
+		{
+			console.log(e);
+		}
 	};
 	
 	function importLucidPage(graph, g, dx, dy, crop, noSelection)
@@ -5492,6 +5575,51 @@ LucidImporter = {};
 					
 					queue.push(obj);
 				}
+				
+				//Add groups
+				for (var i = 0; i < g.Objects.length; i++)
+				{
+					var obj = g.Objects[i];
+					
+					if (obj.IsGroup)
+					{
+						var group = createGroup(obj, lookup);
+						
+						if (group)
+						{
+							lookup[obj.id] = group;
+							queue.push(obj);	
+						}
+					}
+				}
+			}
+			
+			//Create non-hidden groups
+			if (g.Groups != null)
+			{
+				try
+				{
+					for (var key in g.Groups)
+					{
+						var obj = g.Groups[key];
+						obj.id = key;
+
+						if (obj.Hidden == 0 && obj.Members != null)
+						{
+							var group = createGroup(obj, lookup);
+							
+							if (group)
+							{
+								lookup[obj.id] = group;
+								queue.push(obj);	
+							}
+						}
+					}
+				}
+				catch(e)
+				{
+					console.log(e);
+				}
 			}
 
 			if (g.Lines != null)
@@ -5549,7 +5677,10 @@ LucidImporter = {};
 				
 				if (v != null)
 				{
-					select.push(graph.addCell(v));
+					if (v.parent == null)
+					{
+						select.push(graph.addCell(v));
+					}
 				}
 				else if (obj.IsLine && obj.Action != null && obj.Action.Properties != null)
 				{
@@ -5931,7 +6062,8 @@ LucidImporter = {};
 									) +
 									getTextGlobalSpacing(p["Lane_" + i]) +
 									getTextVerticalAlignment(p["Lane_" + i]) +
-									getHeaderColor(p["HeaderFill_" + i]);
+									getHeaderColor(p["HeaderFill_" + i]) +
+									getLaneColor(p["BodyFill_" + i]);
 
 					totalOffset += currOffset;
 				}
@@ -6801,7 +6933,7 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'overflow=width;' :
+					tab[i].style += (isLastLblHTML? 'overflow=width;html=1;' :
 									getFontSize(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
@@ -7135,7 +7267,7 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? '' : 
+				subtext.style += (isLastLblHTML? 'html=1;' : 
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
@@ -7237,7 +7369,7 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? '' :
+				subtext.style += (isLastLblHTML? 'html=1;' :
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
@@ -7252,7 +7384,7 @@ LucidImporter = {};
 				text.vertex = true;
 				v.insert(text);
 				text.value = convertText(p.subtext);
-				text.style += (isLastLblHTML? '' :
+				text.style += (isLastLblHTML? 'html=1;' :
 					getFontSize(p.subtext) +
 					getFontColor(p.subtext) + 
 					getFontStyle(p.subtext));
@@ -7261,7 +7393,7 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? '' :
+				subtext.style += (isLastLblHTML? 'html=1;' :
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
@@ -7310,7 +7442,7 @@ LucidImporter = {};
 				text1.vertex = true;
 				v.insert(text1);
 				text1.value = convertText(p.text);
-				text1.style += (isLastLblHTML? '' :
+				text1.style += (isLastLblHTML? 'html=1;' :
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
@@ -7319,7 +7451,7 @@ LucidImporter = {};
 				text2.vertex = true;
 				v.insert(text2);
 				text2.value = convertText(p["bottom-text"]);
-				text2.style += (isLastLblHTML? '' :
+				text2.style += (isLastLblHTML? 'html=1;' :
 					getFontSize(p["bottom-text"]) +
 					getFontColor(p["bottom-text"]) + 
 					getFontStyle(p["bottom-text"]));
@@ -10776,7 +10908,7 @@ LucidImporter = {};
 				if (p.Simple == 0)
 				{
 					var st = getFillColor(p, a);
-					var th = Math.round(p.TitleHeight * scale);
+					var th = Math.round(p.TitleHeight * scale) || 25;
 					st = st.replace('fillColor', 'swimlaneFillColor');
 					
 					if (st == '')
@@ -10785,7 +10917,7 @@ LucidImporter = {};
 					}
 					
 					v.value = convertText(p.Title);
-					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
 						'startSize=' + th + ';' +
 						getLabelStyle(p.Title, isLastLblHTML);
 					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -10805,17 +10937,28 @@ LucidImporter = {};
 						
 						var itemH = 0;
 						
-						if (i < p.Attributes)
+						//Text2 is used when p.Attributes is zero!
+						if (p.Attributes == 0)
 						{
-							itemH = p['Text' + (i + 1) + 'Percent'];
-							currH += itemH;
+							i = 1;
+							itemH = 1;
 						}
 						else
 						{
-							itemH = 1 - currH;
+							if (i < p.Attributes)
+							{
+								itemH = p['Text' + (i + 1) + 'Percent'];
+								currH += itemH;
+							}
+							else
+							{
+								itemH = 1 - currH;
+							}
 						}
 						
-						item[i] = new mxCell('', new mxGeometry(0, 0, w, Math.round((h - th) * itemH)), 'part=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+						var extH = p.ExtraHeightSet && i == 1? (p.ExtraHeight * scale) : 0;
+						
+						item[i] = new mxCell('', new mxGeometry(0, 0, w, Math.round((h - th) * itemH) + extH), 'part=1;html=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
 						item[i].vertex = true;
 						v.insert(item[i]);
 						item[i].style += st +
@@ -10869,7 +11012,7 @@ LucidImporter = {};
 				{
 					var itemH = 0;
 					
-					item[i] = new mxCell('', new mxGeometry(0, 0, w, p['Field' + (i + 1) + '_h'] * scale), 'part=1;resizeHeight=0;strokeColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i] = new mxCell('', new mxGeometry(0, 0, w, p['Field' + (i + 1) + '_h'] * scale), 'part=1;resizeHeight=0;strokeColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;');
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
@@ -10932,7 +11075,7 @@ LucidImporter = {};
 				{
 					var itemH = 0;
 
-					key[i] = new mxCell('', new mxGeometry(0, currH, keyW, p['Key' + (i + 1) + '_h'] * scale), 'strokeColor=none;part=1;resizeHeight=0;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					key[i] = new mxCell('', new mxGeometry(0, currH, keyW, p['Key' + (i + 1) + '_h'] * scale), 'strokeColor=none;part=1;resizeHeight=0;align=center;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;');
 					key[i].vertex = true;
 					v.insert(key[i]);
 					key[i].style += st +
@@ -10952,7 +11095,7 @@ LucidImporter = {};
 
 					key[i].value = convertText(p['Key' + (i + 1)]);
 					
-					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW, p['Field' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+					item[i] = new mxCell('', new mxGeometry(keyW, currH, w - keyW, p['Field' + (i + 1) + '_h'] * scale), 'shape=partialRectangle;top=0;right=0;bottom=0;part=1;resizeHeight=0;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;');
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
@@ -11379,6 +11522,11 @@ LucidImporter = {};
 				break;
 		}
 
+		if (v.style && v.style.indexOf('html') < 0)
+		{
+			v.style += 'html=1;';
+		}
+		
 	    return v;
 	};
 	

@@ -86,9 +86,10 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 			res.append("	window.opener.onOneDriveCallback(authInfo, window);");
 			res.append("} else {");
 			res.append("	var authInfoStr = JSON.stringify(authInfo);");
-			res.append("	Office.initialize = function () { Office.context.ui.messageParent(authInfoStr);}");
+			res.append("	localStorage.setItem('tmpODAuth', authInfoStr);");
+			res.append("	Office.onReady(function () { Office.context.ui.messageParent(authInfoStr);});");
 			res.append("}");
-			res.append("</script></head><body></body></html>");
+			res.append("</script></head><body><div>Automatic login interrupted. Please close and select OneDrive again.</div></body></html>");
 		}
 
 		return res.toString();

@@ -1,0 +1,34 @@
+/* contains styles specific to the Confluence integration */
+
+
+html tr.mxPopupMenuItemHover {
+	background-color: #3B73AF;
+	color: #FFFFFF;
+}
+
+html div.mxPopupMenu {
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
+	border-bottom-left-radius: 3px;
+	border-bottom-right-radius: 3px;
+	box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+	
+    font-size: 14px;
+    line-height: 1;
+}
+
+.geMenubar 
+{
+	background-color: #205081;
+}
+
+.geMenubarContainer a
+{
+	color: #FFFFFF !important;
+	padding: 10px 10px !important;
+}
+
+.geMenubarContainer .geItem:hover
+{
+	background-color: #3B73A7 !important;
+}

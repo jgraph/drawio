@@ -1296,7 +1296,7 @@
 					
 			    	var cell3 = new mxCell('Branch', new mxGeometry(320, 80, 72, 26),
 			    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
-			    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+			    		'fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
 			    		'snapToPoint=1;autosize=1;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
 			    	cell3.vertex = true;
 
@@ -1323,7 +1323,7 @@
 					
 			    	var cell5 = new mxCell('Branch', new mxGeometry(20, 80, 72, 26),
 			    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
-			    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+			    		'fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
 			    		'snapToPoint=1;autosize=1;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
 			    	cell5.vertex = true;
 	
@@ -1362,7 +1362,7 @@
 				{
 			    	var cell = new mxCell('Branch', new mxGeometry(0, 0, 80, 20),
 			    		'whiteSpace=wrap;html=1;shape=partialRectangle;top=0;left=0;bottom=1;right=0;points=[[0,1],[1,1]];' +
-			    		'strokeColor=#000000;fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
+			    		'fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
 			    		'snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
 			    	cell.vertex = true;
 	

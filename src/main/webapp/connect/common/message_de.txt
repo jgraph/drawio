@@ -1,0 +1,89 @@
+diagramly.new.diagram=Draw.io Diagramm
+diagramly.edit.diagram=Bearbeiten
+diagramly.reader.edit=Bearbeiten
+diagramly.reader.remove=Entfernen
+diagramly.reader.fit=Zoom anpassen
+diagramly.reader.zoomActual=Tatsächliche Grösse
+diagramly.reader.zoomOut=Herauszoomen
+diagramly.reader.zoomIn=Hineinzoomen
+diagramly.reader.confirmDelete=Möchten Sie das Diagramm wirklich löschen?
+diagramly.reader.fullScreen=Vollbild
+diagramly.reader.closeFullScreen=Schließen
+drawio.reader.evaluation=draw.io Testlizenz
+
+#macro properties editor
+drawio.macrooptions.size.label=Grösse
+drawio.macrooptions.options.label=Optionen
+drawio.macrooptions.width.label=Breite
+drawio.macrooptions.height.label=Höhe
+drawio.macrooptions.border.label=Rahmen
+drawio.macrooptions.border.desc=Rahmen um das Diagramm anzeigen
+drawio.macrooptions.grid.label=Gitternetz
+drawio.macrooptions.grid.desc=Gitternetz anzeigen
+drawio.macrooptions.fitWindow.label=An Fenstergrösse anpassen
+drawio.macrooptions.fitWindow.desc=Diagramm auf Fenstergrösse zoomen
+drawio.macrooptions.autoSize.label=Automatische Grösse
+drawio.macrooptions.viewerToolbar.label=Toolbar
+drawio.macrooptions.autoSize.desc=Breite und Höhe an Diagramm anpassen
+drawio.macrooptions.save.button=Speichern
+com.mxgraph.confluence.plugins.diagramly.diagramly.desc=Draw.io is a free online diagram drawing application for workflow, BPM, org charts, UML, ER, network diagrams.
+
+diagramly.propertypanel.macrooptions=Draw.io Makro Einstellungen
+diagramly.propertypanel.editMacro=Makro bearbeiten
+diagramly.propertypanel.dupediagram=Duplizieren
+drawio.propertypanel.size.original=Original
+
+#search labels
+diagramly.search.header=Nach Diagrammen suchen
+diagramly.search.button=Suchen
+diagramly.search.allspaces=Alle Bereiche
+diagramly.search.description=Geben Sie den Namen eines Diagramms ein
+diagramly.search.diagramName=Diagramm
+diagramly.search.spaceName=Bereichsname
+diagramly.search.lastModified=Zuletzt geändert
+diagramly.search.noResults=Es wurden keine Diagramme gefunden
+diagramly.search.error=Fehler bei der Suche. Ursache
+diagramly.search.select.button=Erstellen
+diagramly.search.copy.button=Kopieren
+diagramly.search.import.button=Importieren
+diagramly.search.cancel.button=Abbrechen
+
+#blueprint popup create dialog
+diagramly.create.header=Wie möchten Sie das Diagramm erstellen?
+diagramly.create.blank=Leer
+diagramly.create.search=Suchen
+diagramly.create.select.button=Erstellen
+diagramly.create.search.button=Suchen
+diagramly.create.back.button=Zurück
+diagramly.create.cancel.button=Abbrechen
+
+diagramly.import.description=Wählen Sie eine Visio-Datei (.vdx)
+diagramly.import.error=Es gab einen Fehler beim Import
+diagramly.duplicate.newName=Bitte geben Sie den Namen ein
+diagramly.duplicate.nameConflict=Diagramm konnte nicht dupliziert werden. Bitte geben Sie einen anderen Namen ein.
+diagramly.duplicate.error=Diagramm konnte nicht dupliziert werden. Bitte versuchen Sie es später.
+diagramly.import.uploading=Datei wird geladen...
+drawio-rest.name=Drawio Rest
+drawio-rest.description=Drawio Rest Plugin
+drawio.pagetemplate.cantadddiagram=Diagramme können nicht in Vorlagen sondern nur in Seiten eingefügt werden.
+drawio.linktodiagram.button=Link zum Diagramm
+
+#new diagram dialog
+drawio.templates.label=Draw.io Vorlagen
+drawio.search.recent=Zuletzt geöffnet
+drawio.template.businessprocess=Geschäftsprozesse
+drawio.template.charts=Grafiken
+drawio.template.engineering=Technik
+drawio.template.flowcharts=Ablaufdiagramme
+drawio.template.mindmaps=Mindmaps
+drawio.template.mockups=Mockups
+drawio.template.networkdiagrams=Netzwerkdiagramme
+drawio.template.other=Andere
+drawio.template.softwaredesign=Software Design
+drawio.template.venndiagrams=Venn Diagramme
+drawio.template.wireframes=Drahtgittermodelle
+
+drawio.admin.info=Plugin Information
+drawio.admin.config=Plugin Konfiguration
+drawio.admin.config.externalImageService=Externen Bild-Service verwenden
+drawio.admin.config.saveChanges=Änderungen speichern

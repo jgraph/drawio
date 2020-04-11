@@ -1,0 +1,84 @@
+.diagramly-selected {
+	background-color: #EEEEEE;
+}
+
+.diagramly-search-results {
+	 
+}
+
+.diagramly-results-table {
+	width: 100%;
+	border-spacing: 0px;
+	padding: 0 10px 0 10px;
+	
+}
+
+.diagramly-results-table td {
+	line-height: 24px;
+	color: #666666;
+    cursor: default;
+    text-decoration: none;
+}
+
+.diagramly-results-table th {
+	font-size: 12px;
+	line-height: 24px;
+	margin: 0;
+	overflow: hidden;
+	border-bottom: 1px solid #F0F0F0;
+    color: #666666;
+    font-weight: bold;
+    text-align: left;
+}
+
+
+
+.diagramly-blueprint-list {
+	
+}
+
+.diagramly-blueprint-list-item-wrapper {
+	width : 90px; 
+	height : 90px;
+	text-align : center;
+	
+}
+
+.diagramly-blueprint-list-item {
+	width : 100%; 
+	height : 100%; 
+	border : 3px solid #F0F0F0;
+	border-radius : 5px; 
+	padding : 2px;
+}
+
+.diagramly-blueprint-list-item-hover {
+	border : 3px solid #c5c5c5;
+}
+
+.diagramly-blueprint-list-item-selected {
+	border : 3px solid #3b73af;
+}
+
+.drawio-list-item-wrapper {
+	width : 90px; 
+	height : 90px;
+	text-align : center;
+	
+}
+
+.drawio-list-item {
+	width : 100%; 
+	height : 100%; 
+	border : 3px solid #F0F0F0;
+	border-radius : 5px; 
+	padding : 2px;
+}
+
+.drawio-list-item-hover {
+	border : 3px solid #c5c5c5;
+}
+
+.drawio-list-item-selected {
+	border : 3px solid #3b73af;
+}

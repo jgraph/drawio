@@ -29,6 +29,10 @@
 		<add as="align" value="left"/>
 		<add as="verticalAlign" value="top"/>
 	</add>
+	<add as="edgeLabel" extend="text">
+		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="fontSize" value="11"/>
+	</add>
 	<add as="label">
 		<add as="fontStyle" value="1"/>
 		<add as="align" value="left"/>

@@ -1,0 +1,411 @@
+{
+    "name": "Diagram Viewer for Confluence",
+    "description": "Diagram Viewer for Confluence",
+    "key": "com.mxgraph.confluence.plugins.driveconnector",
+    "baseUrl": "https://www.draw.io",
+    "apiMigrations": {
+        "gdpr": true
+    },
+    "vendor": 
+    {
+        "name": "draw.io AG",
+        "url": "https://about.draw.io"
+    },
+    "links": {
+        "documentation": "https://desk.draw.io/support/solutions/articles/16000042550"
+    },
+    "version": "1.0.2",
+    "authentication": 
+    {
+        "type": "none"
+    },
+    "modules": 
+    {
+    	"generalPages":
+    	[
+            {
+                "key": "lightbox",
+                "url": "/connect/gdriveconnector/od-viewer.html?lightbox=1",
+                "location": "hidden",
+                "name": {
+                    "value": "Lightbox"
+                }
+            },
+            {
+                "key": "GDLightbox",
+                "location": "hidden",
+                "url": "/connect/gdriveconnector/viewer.html?lightbox=1",
+                "name": {
+                    "value": "Lightbox",
+                    "i18n": "lightbox"
+                }
+            },
+            {
+                "key": "DULightbox",
+                "location": "hidden",
+                "url": "/connect/gdriveconnector/att-viewer.html?lightbox=1",
+                "name": {
+                    "value": "Lightbox",
+                    "i18n": "lightbox"
+                }
+            },
+            {
+            	"key": "macroEditor",
+                "url": "/connect/gdriveconnector/od-macroEditor.html",
+                "location": "hidden",
+                "name": {
+                    "value": "OneDrive Editor"
+                }
+            }
+        ],
+        "dynamicContentMacros":
+       	[
+            {
+                "name": 
+                {
+                    "i18n": "gdriveconnector",
+                    "value": "Google Drive File"
+                },
+                "url": "/connect/gdriveconnector/viewer.html?fileId=${fileId}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&macroVer={macroVer}&isDrawio=${isDrawio}&autoSize=${autoSize}&aspect=${aspect}",
+                "width": "600px",
+                "height": "400px",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Inserts a Google Drive file"
+                }, "icon": 
+                {
+		          "width": 144,
+		          "height": 144,
+		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "gdriveconnector",
+			    "editor": {
+				    "url": "/connect/gdriveconnector/macroEditor.html",
+				    "width": "80%",
+				    "height": "60%"
+				},
+			    "parameters": 
+			    [
+				    {
+				      "identifier": "fileId",
+				      "name": 
+				      {
+				        "value": "Google Drive file ID"
+				      },
+				      "type": "string",
+				      "hidden": true,
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "mimeType",
+				      "name": 
+				      {
+				        "value": "Google Drive file mime type"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "filename",
+				      "name": 
+				      {
+				        "value": "Name of the Google Drive file"
+				      },
+				      "type": "string",
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "isDrawio",
+				      "name": 
+				      {
+				        "value": "Is the file a draw.io file"
+				      },
+				      "type": "boolean",
+				      "hidden": true,
+				      "defaultValue": "false"
+				    },
+				    {
+				      "identifier": "macroVer",
+				      "name": 
+				      {
+				        "value": "Macro Version"
+				      },
+				      "type": "string",
+				      "hidden": true
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Height"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "Auto Size"
+				      },
+				      "type": "string",
+				      "hidden": true
+				    }
+  				]
+            },
+            {
+                "name": 
+                {
+                    "i18n": "onedriveMacro",
+                    "value": "OneDrive File"
+                },
+                "url": "/connect/gdriveconnector/od-viewer.html?fileId=${fileId}&driveId=${driveId}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&isDrawio=${isDrawio}&embeddedUrl=${embeddedUrl}&autoSize=${autoSize}&aspect=${aspect}",
+                "width": "600px",
+                "height": "400px",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Inserts a OneDrive file"
+                }, "icon": 
+                {
+		          "width": 144,
+		          "height": 144,
+		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "onedriveconnector",
+			    "parameters": 
+			    [
+			    	{
+				      "identifier": "filename",
+				      "name": 
+				      {
+				        "value": "Name of the OneDrive file"
+				      },
+				      "type": "string",
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "fileId",
+				      "name": 
+				      {
+				        "value": "OneDrive file ID"
+				      },
+				      "type": "string",
+				      "hidden": true,
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "driveId",
+				      "name": 
+				      {
+				        "value": "OneDrive drive ID"
+				      },
+				      "type": "string",
+				      "hidden": true,
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "mimeType",
+				      "name": 
+				      {
+				        "value": "OneDrive file mime type"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Height"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "isDrawio",
+				      "name": 
+				      {
+				        "value": "Is the file a draw.io file"
+				      },
+				      "type": "boolean",
+				      "hidden": true,
+				      "defaultValue": "false"
+				    },
+				    {
+				      "identifier": "embeddedUrl",
+				      "name": 
+				      {
+				        "value": "Embedded Url for personal accounts"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "Auto Size"
+				      },
+				      "type": "string",
+				      "hidden": true
+				    }
+  				],
+  				"editor": {
+				    "url": "/connect/gdriveconnector/od-macroEditor.html",
+				    "width": "80%",
+				    "height": "60%"
+				}
+            },
+            {
+                "name": 
+                {
+                    "i18n": "attViewerMacro",
+                    "value": "Upload draw.io Diagram"
+                },
+                "url": "/connect/gdriveconnector/att-viewer.html?pageId=${page.id}&attId=${attId}&attVer=${attVer}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&isDrawio=${isDrawio}&autoSize=${autoSize}&aspect=${aspect}",
+                "width": "600px",
+                "height": "400px",
+                "description": 
+                {
+                    "i18n": "description",
+                    "value": "Upload a diagram file to a page"
+                }, "icon": 
+                {
+		          "width": 144,
+		          "height": 144,
+		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		        },
+		        "categories": [
+		          "visuals"
+		        ],
+		        "outputType": "block",
+		        "featured": true,
+                "key": "attviewerconnector",
+			    "parameters": 
+			    [
+			    	{
+				      "identifier": "filename",
+				      "name": 
+				      {
+				        "value": "Name of the diagram file"
+				      },
+				      "type": "string",
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "attId",
+				      "name": 
+				      {
+				        "value": "Attachment file ID"
+				      },
+				      "type": "string",
+				      "hidden": true,
+				      "required": true,
+            		  "multiple": false,
+            		  "defaultValue": "None"
+				    },
+				    {
+				      "identifier": "attVer",
+				      "name": 
+				      {
+				        "value": "Attachment file version"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "mimeType",
+				      "name": 
+				      {
+				        "value": "Attachment file mime type"
+				      },
+				      "type": "string",
+				       "hidden": true
+				    },
+				    {
+				      "identifier": "isDrawio",
+				      "name": 
+				      {
+				        "value": "Is the file a draw.io file"
+				      },
+				      "type": "boolean",
+				      "hidden": true,
+				      "defaultValue": "false"
+				    },
+				    {
+				      "identifier": "width",
+				      "name": 
+				      {
+				        "value": "width"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "height",
+				      "name": 
+				      {
+				        "value": "Height"
+				      },
+				      "type": "string"
+				    },
+				    {
+				      "identifier": "autoSize",
+				      "name": 
+				      {
+				        "value": "Auto Size"
+				      },
+				      "type": "string",
+				      "hidden": true
+				    }
+  				],
+  				"editor": {
+				    "url": "/connect/gdriveconnector/att-macroEditor.html",
+				    "width": "80%",
+				    "height": "60%"
+				}
+            }
+        ]
+    },
+    "scopes": [
+    "read",
+    "write",
+    "delete"
+  	]
+}

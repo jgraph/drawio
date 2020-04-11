@@ -1,0 +1,9 @@
+diagramly.reader.edit=Bearbeiten
+diagramly.reader.remove=Entfernen
+diagramly.reader.fit=Zoom anpassen
+diagramly.reader.zoomActual=TatsÃ¤chliche GrÃ¶sse
+diagramly.reader.zoomOut=Herauszoomen
+diagramly.reader.zoomIn=Hineinzoomen
+diagramly.reader.confirmDelete=Sind Sie sicher, Sie wollen dieses Diagramm zu lÃ¶schen?
+diagramly.reader.fullScreen=Vollbild
+diagramly.reader.closeFullScreen=SchlieÃen vollbild

@@ -190,7 +190,7 @@ var com;
 	                    {
 	                        var array122 = (function (m) { if (m.entries == null)
 	                            m.entries = []; return m.entries; })(pages);
-	                        var _loop_1 = function (index121) {
+	                        var _loop_1 = function (index121, remaining) {
 	                            var entry = array122[index121];
 	                            {
 	                                var page_1 = entry.getValue();
@@ -199,27 +199,51 @@ var com;
 	                                {
 	                                    var graph_1 = this_1.createMxGraph();
 	                                    graph_1.getModel().beginUpdate();
-	                                    this_1.importPage(page_1, graph_1, graph_1.getDefaultParent());
+	                                    this_1.importPage(page_1, graph_1, graph_1.getDefaultParent(), true);
 	                                    this_1.scaleGraph(graph_1, page_1.getPageScale() / page_1.getDrawingScale());
 	                                    graph_1.getModel().endUpdate();
-	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_START); })(xmlBuilder);
-	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.processPage(graph_1, page_1)); })(xmlBuilder);
-	                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_END); })(xmlBuilder);
+
+	                                    this_1.postImportPage(page_1, graph_1, function()
+	                                    {
+	                                    	this_1.sanitiseGraph(graph_1);
+		                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_START); })(xmlBuilder);
+		                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.processPage(graph_1, page_1)); })(xmlBuilder);
+		                                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_END); })(xmlBuilder);
+		                                    
+		                                    if (index121 < array122.length - 1)
+		                                	{
+		    	                            	_loop_1(index121 + 1, remaining);
+		                                	}
+		    	                            else
+		                                	{
+		    	                            	remaining();
+		                                	}
+	                                    });
 	                                }
 	                            }
 	                        };
 	                        var this_1 = _this;
-	                        for (var index121 = 0; index121 < array122.length; index121++) {
-	                            _loop_1(index121);
+	                        
+	                        if (array122.length > 0)
+                        	{
+	                        	_loop_1(0, remaining);
+                        	}
+	                        else
+	                        {
+	                        	remaining();
 	                        }
 	                    }
-	                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_END); })(xmlBuilder);
-	                    var dateAfter = new Date();
-                       	//console.log("File processed in " + (dateAfter - dateBefore) + "ms");
-	                    //console.log(xmlBuilder.str);
-	                    if (callback) 
+	                    
+	                    function remaining()
 	                    {
-                     		callback(xmlBuilder.str);
+		                    /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_END); })(xmlBuilder);
+		                    var dateAfter = new Date();
+	                       	//console.log("File processed in " + (dateAfter - dateBefore) + "ms");
+		                    //console.log(xmlBuilder.str);
+		                    if (callback) 
+		                    {
+	                     		callback(xmlBuilder.str);
+		                    }
 	                    }
                     };
 
@@ -574,7 +598,7 @@ var com;
                  * @param {*} parent The parent of the elements to be imported.
                  * @return {number}
                  */
-                mxVsdxCodec.prototype.importPage = function (page, graph, parent) 
+                mxVsdxCodec.prototype.importPage = function (page, graph, parent, noSanitize) 
                 {
                 	//BackPages can include another backPage, so it is recursive
                 	var backPage = page.getBackPage();
@@ -663,9 +687,117 @@ var com;
                         }
                     }
                     ;
-                    this.sanitiseGraph(graph);
+                    if (!noSanitize)
+                    {
+                        this.sanitiseGraph(graph);
+                    }
+
                     return pageHeight;
                 };
+                
+                /**
+                 * This function is for doing any async processing needed after importing a page
+                 */
+                mxVsdxCodec.prototype.postImportPage = function(page, graph, callback)
+                {
+                	try
+                	{
+                		var me = this;
+                		var toCropImgs = [];
+	                	var shapes = page.getShapes().entries || [];
+	                	
+	                	for (var i = 0; i < shapes.length; i++)
+	            		{
+	                		var shape = shapes[i].value || {};
+	                		
+	                		if (shape.toBeCroppedImg)
+	                		{
+	                			toCropImgs.push(shape);
+	                		}
+	            		}
+	                	
+	                	if (toCropImgs.length > 0)
+                		{
+	                		function cropImage(index, callback)
+	                		{
+	                			function next()
+	                			{
+	                				if (index < toCropImgs.length - 1)
+	                				{
+		                				cropImage(index + 1, callback);
+	                				}
+		                			else
+	                				{
+		                				callback();
+	                				}
+	                			};
+	                			
+	                			var shape = toCropImgs[index];
+	                			var imgInfo = shape.toBeCroppedImg;
+	                			
+	                			var cell = (function (m, k) { if (m.entries == null)
+	                                m.entries = []; for (var i = 0; i < m.entries.length; i++)
+	                                if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
+	                                    return m.entries[i].value;
+	                                } return null; })(me.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(page.Id, shape.Id));
+	                            
+	                			var img = new Image();
+	                			
+	                			img.onload = function()
+	                			{
+	                				var data = imgInfo.iData;
+                                    var type = imgInfo.iType;
+                                    
+	                				try
+		                			{
+                                        //TODO There is still some minor inaccuracy in width/height
+                                        var scaleX = img.width / imgInfo.imgWidth;
+                                        var scaleY = img.height / imgInfo.imgHeight;
+		                				var offsetX = (-imgInfo.imgOffsetX) * scaleX;
+		                				var offsetY = (imgInfo.imgHeight - imgInfo.height + imgInfo.imgOffsetY) * scaleY;
+		                			    var c = document.createElement("canvas");
+		                			    c.width = imgInfo.width * scaleX;
+		                              	c.height = imgInfo.height * scaleY;
+                                        var ctx = c.getContext("2d");
+                                        ctx.fillStyle = "#FFFFFF";
+                                        ctx.fillRect(0, 0, c.width, c.height);
+                                        ctx.drawImage(img, offsetX, offsetY, c.width, c.height, 0, 0, c.width, c.height);
+		                            	var jpgData = c.toDataURL("image/jpeg");
+	                                    data = jpgData.substr(23); //23 is the length of "data:image/jpeg;base64,"
+                                        type = 'jpg';
+		                			}
+	                				catch(e) 
+	                				{
+	                					console.log(e);
+	                				}
+	                				
+	                				cell.style += ';image=data:image/' + type + ',' + data;
+	                			    next();
+	                			};
+	                			
+	                			img.src = 'data:image/' + imgInfo.iType + ';base64,' + imgInfo.iData;
+
+	                			img.onerror = function()
+	                			{
+	                				cell.style += ';image=data:image/' + imgInfo.iType + ',' + imgInfo.iData;
+	                				next();
+	                			}
+	                		};
+	                		
+	                		cropImage(0, callback);
+                		}
+	                	else
+                		{
+	                		callback();
+	                	}
+                	}
+                	catch(e)
+                	{
+                        console.log(e);
+                        callback();
+                	}
+                };
+                
                 /**
                  * Adds a vertex to the graph if 'shape' is a vertex or add the shape to edgeShapeMap if it is an edge.
                  * This method doesn't import sub-shapes of 'shape'.
@@ -9511,6 +9643,13 @@ var com;
                         _this.vertex = vertex || (_this.childShapes != null && !(function (m) { if (m.entries == null)
                             m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1));
                         _this.layerMember = _this.getValue(_this.getCellElement$java_lang_String("LayerMember"));
+                        
+                        //We don't have a cell belongs to multiple layers
+                        if (_this.layerMember && _this.layerMember.indexOf('0;') == 0)
+                    	{
+                        	 _this.layerMember =  _this.layerMember.substr(2);
+                    	}
+                        
                         return _this;
                     }
                     VsdxShape.__static_initialize = function () { if (!VsdxShape.__static_initialized) {
@@ -11061,7 +11200,32 @@ var com;
                                     /* put */ (result["aspect"] = "fixed");
                                     var iType = (function (m, k) { return m[k] ? m[k] : null; })(imageData, "iType");
                                     var iData = (function (m, k) { return m[k] ? m[k] : null; })(imageData, "iData");
-                                    /* put */ (result["image"] = "data:image/" + iType + "," + iData);
+                                    
+                                    var imgOffsetX = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgOffsetX'), "0"));
+                                    var imgOffsetY = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgOffsetY'), "0"));
+                                    var imgWidth = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgWidth'), "0"));
+                                    var imgHeight = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgHeight'), "0"));
+                                    var width = parseFloat(this.getValue(this.getCellElement$java_lang_String('Width'), "0"));
+                                    var height = parseFloat(this.getValue(this.getCellElement$java_lang_String('Height'), "0"));
+                                    
+                                    if (imgOffsetX != 0 || imgOffsetY != 0)
+                                	{
+                                    	this.toBeCroppedImg = {
+                                			imgOffsetX: imgOffsetX, 
+                                			imgOffsetY: imgOffsetY, 
+                                			imgWidth: imgWidth, 
+                                			imgHeight: imgHeight,
+                                			width: width,
+                                			height: height,
+                                			iType: iType,
+                            				iData: iData
+                                    	};
+                                	}
+                                    else
+                                    {
+                                    	/* put */ (result["image"] = "data:image/" + iType + "," + iData);
+                                    }
+                                    
                                     return result;
                                 }
                                 var parsedGeom = this.parseGeom();

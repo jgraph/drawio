@@ -13858,20 +13858,30 @@
 					
 					req.onupgradeneeded = function(e)
 					{
-						var db = req.result;
-						
-						if (e.oldVersion < 1)
+						try
 						{
-						    // Version 1 is the first version of the database.
-							db.createObjectStore('objects', {keyPath: 'key'});
+							var db = req.result;
+							
+							if (e.oldVersion < 1)
+							{
+							    // Version 1 is the first version of the database.
+								db.createObjectStore('objects', {keyPath: 'key'});
+							}
+							
+							if (e.oldVersion < 2)
+							{
+								// Version 2 introduces browser file storage.
+								db.createObjectStore('files', {keyPath: 'title'});
+								db.createObjectStore('filesInfo', {keyPath: 'title'});
+								EditorUi.migrateStorageFiles = isLocalStorage;
+							}
 						}
-						
-						if (e.oldVersion < 2)
+						catch (e)
 						{
-							// Version 2 introduces browser file storage.
-							db.createObjectStore('files', {keyPath: 'title'});
-							db.createObjectStore('filesInfo', {keyPath: 'title'});
-							EditorUi.migrateStorageFiles = isLocalStorage;
+							if (error != null)
+							{
+								error(e);
+							}
 						}
 					}
 					

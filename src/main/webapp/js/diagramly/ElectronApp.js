@@ -505,8 +505,8 @@ mxStencilRegistry.allowEval = false;
 	{
 		var paths = argsObj.args;
 		
-		// If a file is passed
-		if (paths !== undefined && paths[0] != null && this.spinner.spin(document.body, mxResources.get('loading')))
+		// If a file is passed, and it is not an argument (has a leading -)
+		if (paths !== undefined && paths[0] != null && paths[0].indexOf('-') != 0 && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var path = paths[0];
 			this.hideDialog();

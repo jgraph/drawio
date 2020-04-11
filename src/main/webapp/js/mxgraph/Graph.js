@@ -1922,76 +1922,79 @@ Graph.prototype.initLayoutManager = function()
 {
 	this.layoutManager = new mxLayoutManager(this);
 	
-	this.layoutManager.getLayout = function(cell, eventName)
+	this.layoutManager.hasLayout = function(cell, eventName)
 	{
 		return this.graph.getCellStyle(cell)['childLayout'] != null;
 	};
 	
 	this.layoutManager.getLayout = function(cell, eventName)
 	{
-		var style = this.graph.getCellStyle(cell);
-
-		if (style['childLayout'] == 'stackLayout')
+		if (eventName == mxEvent.END_UPDATE)
 		{
-			var stackLayout = new mxStackLayout(this.graph, true);
-			stackLayout.resizeParentMax = mxUtils.getValue(style, 'resizeParentMax', '1') == '1';
-			stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
-			stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
-			stackLayout.spacing = style['stackSpacing'] || stackLayout.spacing;
-			stackLayout.border = style['stackBorder'] || stackLayout.border;
-			stackLayout.marginLeft = style['marginLeft'] || 0;
-			stackLayout.marginRight = style['marginRight'] || 0;
-			stackLayout.marginTop = style['marginTop'] || 0;
-			stackLayout.marginBottom = style['marginBottom'] || 0;
-			stackLayout.fill = true;
-			
-			return stackLayout;
-		}
-		else if (style['childLayout'] == 'treeLayout')
-		{
-			var treeLayout = new mxCompactTreeLayout(this.graph);
-			treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
-			treeLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
-			treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
-			treeLayout.maintainParentLocation = true;
-			treeLayout.edgeRouting = false;
-			treeLayout.resetEdges = false;
-			
-			return treeLayout;
-		}
-		else if (style['childLayout'] == 'flowLayout')
-		{
-			var flowLayout = new mxHierarchicalLayout(this.graph, mxUtils.getValue(style,
-				'flowOrientation', mxConstants.DIRECTION_EAST));
-			flowLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-			flowLayout.parentBorder = mxUtils.getValue(style, 'parentPadding', 20);
-			flowLayout.maintainParentLocation = true;
-			
-			// Special undocumented styles for changing the hierarchical
-			flowLayout.intraCellSpacing = mxUtils.getValue(style, 'intraCellSpacing',
-				mxHierarchicalLayout.prototype.intraCellSpacing);
-			flowLayout.interRankCellSpacing = mxUtils.getValue(style, 'interRankCellSpacing',
-				mxHierarchicalLayout.prototype.interRankCellSpacing);
-			flowLayout.interHierarchySpacing = mxUtils.getValue(style, 'interHierarchySpacing',
-				mxHierarchicalLayout.prototype.interHierarchySpacing);
-			flowLayout.parallelEdgeSpacing = mxUtils.getValue(style, 'parallelEdgeSpacing',
-				mxHierarchicalLayout.prototype.parallelEdgeSpacing);
-			
-			return flowLayout;
-		}
-		else if (style['childLayout'] == 'circleLayout')
-		{
-			return new mxCircleLayout(this.graph);
-		}
-		else if (style['childLayout'] == 'organicLayout')
-		{
-			return new mxFastOrganicLayout(this.graph);
-		}
-		else if (style['childLayout'] == 'tableLayout')
-		{
-			return new TableLayout(this.graph);
+			var style = this.graph.getCellStyle(cell);
+	
+			if (style['childLayout'] == 'stackLayout')
+			{
+				var stackLayout = new mxStackLayout(this.graph, true);
+				stackLayout.resizeParentMax = mxUtils.getValue(style, 'resizeParentMax', '1') == '1';
+				stackLayout.horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
+				stackLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				stackLayout.resizeLast = mxUtils.getValue(style, 'resizeLast', '0') == '1';
+				stackLayout.spacing = style['stackSpacing'] || stackLayout.spacing;
+				stackLayout.border = style['stackBorder'] || stackLayout.border;
+				stackLayout.marginLeft = style['marginLeft'] || 0;
+				stackLayout.marginRight = style['marginRight'] || 0;
+				stackLayout.marginTop = style['marginTop'] || 0;
+				stackLayout.marginBottom = style['marginBottom'] || 0;
+				stackLayout.fill = true;
+				
+				return stackLayout;
+			}
+			else if (style['childLayout'] == 'treeLayout')
+			{
+				var treeLayout = new mxCompactTreeLayout(this.graph);
+				treeLayout.horizontal = mxUtils.getValue(style, 'horizontalTree', '1') == '1';
+				treeLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				treeLayout.groupPadding = mxUtils.getValue(style, 'parentPadding', 20);
+				treeLayout.levelDistance = mxUtils.getValue(style, 'treeLevelDistance', 30);
+				treeLayout.maintainParentLocation = true;
+				treeLayout.edgeRouting = false;
+				treeLayout.resetEdges = false;
+				
+				return treeLayout;
+			}
+			else if (style['childLayout'] == 'flowLayout')
+			{
+				var flowLayout = new mxHierarchicalLayout(this.graph, mxUtils.getValue(style,
+					'flowOrientation', mxConstants.DIRECTION_EAST));
+				flowLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
+				flowLayout.parentBorder = mxUtils.getValue(style, 'parentPadding', 20);
+				flowLayout.maintainParentLocation = true;
+				
+				// Special undocumented styles for changing the hierarchical
+				flowLayout.intraCellSpacing = mxUtils.getValue(style, 'intraCellSpacing',
+					mxHierarchicalLayout.prototype.intraCellSpacing);
+				flowLayout.interRankCellSpacing = mxUtils.getValue(style, 'interRankCellSpacing',
+					mxHierarchicalLayout.prototype.interRankCellSpacing);
+				flowLayout.interHierarchySpacing = mxUtils.getValue(style, 'interHierarchySpacing',
+					mxHierarchicalLayout.prototype.interHierarchySpacing);
+				flowLayout.parallelEdgeSpacing = mxUtils.getValue(style, 'parallelEdgeSpacing',
+					mxHierarchicalLayout.prototype.parallelEdgeSpacing);
+				
+				return flowLayout;
+			}
+			else if (style['childLayout'] == 'circleLayout')
+			{
+				return new mxCircleLayout(this.graph);
+			}
+			else if (style['childLayout'] == 'organicLayout')
+			{
+				return new mxFastOrganicLayout(this.graph);
+			}
+			else if (style['childLayout'] == 'tableLayout')
+			{
+				return new TableLayout(this.graph);
+			}
 		}
 		
 		return null;
@@ -4437,7 +4440,7 @@ Graph.prototype.updateTableRowHeight = function(row, dy)
 /**
  * Updates column width and row height.
  */
-Graph.prototype.setTableColumnWidth = function(col, width)
+Graph.prototype.updateTableColumnWidth = function(col, dx)
 {
 	var model = this.getModel();
 	var row = model.getParent(col);
@@ -4448,15 +4451,6 @@ Graph.prototype.setTableColumnWidth = function(col, width)
 	model.beginUpdate();
 	try
 	{
-		var geo = this.getCellGeometry(col);
-		var dx = 0;
-	
-		// Gets delta
-		if (geo != null)
-		{
-			dx = width - geo.width;
-		}
-
 		// Sets width of child cell
 		for (var i = 0; i < model.getChildCount(table); i++)
 		{
@@ -4473,12 +4467,12 @@ Graph.prototype.setTableColumnWidth = function(col, width)
 					if (geo != null)
 					{
 						geo = geo.clone();
-						geo.width = width;
+						geo.width += dx;
 						model.setGeometry(cell, geo);
 					}
 				}
 				
-				// Shifts and resizes neighbor child cell
+				// Shifts and resizes neighbor column
 				if (index < model.getChildCount(row) - 1)
 				{
 					cell = model.getChildAt(row, index + 1);
@@ -4556,7 +4550,6 @@ TableLayout.prototype.getLayout = function(parent, vertical)
  */
 TableLayout.prototype.execute = function(parent)
 {
-	// FIXME: Invoked twice
 	if (parent != null)
 	{
 		var offset = this.graph.getActualStartSize(parent);
@@ -5775,10 +5768,70 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * Overridden to flatten cell hierarchy for selecting next and previous.
+		 */
+		var graphSelectCell = Graph.prototype.selectCell;
+		Graph.prototype.selectCell = function(isNext, isParent, isChild)
+		{
+			if (isParent || isChild)
+			{
+				graphSelectCell.apply(this, arguments);
+			}
+			else
+			{
+				var cell = this.getSelectionCell();
+				var index = null;
+				var cells = [];
+				
+				// LATER: Reverse traverse order for !isNext
+				var flatten = mxUtils.bind(this, function(temp)
+				{
+					if (this.view.getState(temp) != null &&
+						(this.model.isVertex(temp) ||
+						this.model.isEdge(temp)))
+					{
+						cells.push(temp);
+						
+						if (temp == cell)
+						{
+							index = cells.length - 1;
+						}
+						else if ((isNext && cell == null && cells.length > 0) ||
+							(index != null && ((isNext && cells.length > index)) ||
+							(!isNext && index > 0)))
+						{
+							return;
+						}
+					}
+		
+					for (var i = 0; i < this.model.getChildCount(temp); i++)
+					{
+						flatten(this.model.getChildAt(temp, i));
+					}
+				});
+				
+				flatten(this.model.root);
+				
+				if (cells.length > 0)
+				{
+					if (index != null)
+					{
+						index = mxUtils.mod(index + ((isNext) ? 1 : -1), cells.length)
+					}
+					else
+					{
+						index = 0;
+					}
+					
+					this.setSelectionCell(cells[index]);
+				}
+			}
+		};
+	
+		/**
 		 * Overrides cloning cells in moveCells.
 		 */
 		var graphMoveCells = Graph.prototype.moveCells;
-		
 		Graph.prototype.moveCells = function(cells, dx, dy, clone, target, evt, mapping)
 		{
 			mapping = (mapping != null) ? mapping : new Object();
@@ -5792,7 +5845,42 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return result;
 		};
+				
+		/**
+		 * Overriddes to delete label for table cells.
+		 */
+		var graphRemoveCells = Graph.prototype.removeCells;
+		Graph.prototype.removeCells = function(cells, includeEdges)
+		{
+			var result = [];
+			
+			this.model.beginUpdate();
+			try
+			{
+				// Clears labels on table cells
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (this.isTableCell(cells[i]) ||
+						this.isTableRow(cells[i]))
+					{
+						this.labelChanged(cells[i], '');
+					}
+					else
+					{
+						result.push(cells[i]);
+					}
+				}
+				
+				result = graphRemoveCells.apply(this, [result, includeEdges]);
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
 
+			return result;
+		};
+		
 		/**
 		 * Updates cells IDs for custom links in the given cells.
 		 */
@@ -6572,12 +6660,13 @@ if (typeof mxVertexHandler != 'undefined')
 			// Creates a new edge label with a predefined text
 			var label = new mxCell();
 			label.value = 'Text';
-			label.style = 'text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];'
 			label.geometry = new mxGeometry(0, 0, 0, 0);
 			label.vertex = true;
+			var style = 'html=1;align=center;verticalAlign=middle;resizable=0;points=[];';
 
 			if (state != null && this.model.isEdge(state.cell))
 			{
+				label.style = 'edgeLabel;' + style;
 				label.geometry.relative = true;
 				label.connectable = false;
 		    
@@ -6596,6 +6685,7 @@ if (typeof mxVertexHandler != 'undefined')
 			else
 			{
 				var tr = this.view.translate;
+				label.style = 'text;' + style;
 				label.geometry.width = 40;
 				label.geometry.height = 20;
 				label.geometry.x = Math.round(x / this.view.scale) -
@@ -8879,7 +8969,6 @@ if (typeof mxVertexHandler != 'undefined')
 			return shape;
 		};
 		
-		
 		/**
 		 * Creates the shape used to draw the selection border.
 		 */
@@ -8900,12 +8989,12 @@ if (typeof mxVertexHandler != 'undefined')
 		var vertexHandlerGetSelectionStrokeWidth = mxVertexHandler.prototype.getSelectionStrokeWidth;
 		mxVertexHandler.prototype.getSelectionStrokeWidth = function(bounds)
 		{
+			// LATER: Use strokewidth 1 when active
 			return this.graph.cellEditor.getEditingCell() == this.state.cell ||
-				(this.graph.isCellResizable(this.state.cell) &&
 				(!this.graph.isTable(this.state.cell) ||
 				!this.graph.isCellSelected(this.state.cell)) &&
 				!this.graph.isTableRow(this.state.cell) &&
-				!this.graph.isTableCell(this.state.cell)) ?
+				!this.graph.isTableCell(this.state.cell) ?
 				vertexHandlerGetSelectionStrokeWidth.apply(this, arguments) : 2;
 		};
 
@@ -9112,8 +9201,7 @@ if (typeof mxVertexHandler != 'undefined')
 							
 							handle.execute = function()
 							{
-								var geo = this.graph.model.getGeometry(this.state.cell);
-								this.graph.setTableColumnWidth(this.state.cell, geo.width + dx);
+								this.graph.updateTableColumnWidth(this.state.cell, dx);
 								dx = 0;
 							};
 							

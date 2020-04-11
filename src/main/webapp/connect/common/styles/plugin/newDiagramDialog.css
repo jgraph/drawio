@@ -1,0 +1,49 @@
+.drawio-list {
+	width: 120px;
+	height: 120px;
+	text-align: center;
+	padding-bottom: 50px;
+	padding-right: 30px;
+	float: left;
+}
+
+.drawio-list-item {
+	width: 100%;
+	height: 100%;
+	border: 3px solid #F0F0F0;
+	border-radius: 5px;
+	padding: 2px;
+}
+
+.drawio-list-item-hover {
+	border: 3px solid #c5c5c5;
+}
+
+.drawio-list-item-selected {
+	border: 3px solid #3b73af;
+}
+
+.drawio-separator {
+	border-top: 1px solid #F0F0F0;
+	clear: both;
+	padding-top : 10px; 
+	padding-bottom : 10px;
+}
+
+.drawio-thumbnail {
+	width: 100%;
+	height: 100%; background-repeat : no-repeat;
+	background-size: contain;
+	background-repeat: no-repeat;
+}
+
+.drawio-template-panel-header {
+	padding-left: 10px;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font-style: italic;
+}
+
+.drawio-search-results {
+	padding-top : 10px;
+}
