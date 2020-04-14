@@ -775,7 +775,7 @@ DriveClient.prototype.updateUser = function(success, error)
 		var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json';
 		var headers = {'Authorization': 'Bearer ' + this.token};
 		
-		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
+		this.ui.editor.loadUrl(url, mxUtils.bind(this, function(data)
 		{
 	    	var info = JSON.parse(data);
 	    	
@@ -1026,7 +1026,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 		var url = resp.downloadUrl;
 		
 		// Loads XML to initialize realtime document if realtime is empty
-		this.ui.loadUrl(url, mxUtils.bind(this, function(data)
+		this.ui.editor.loadUrl(url, mxUtils.bind(this, function(data)
 		{
 			try
 			{

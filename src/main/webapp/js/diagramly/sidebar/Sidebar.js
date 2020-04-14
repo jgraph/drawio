@@ -512,7 +512,7 @@
 					var doc = parser.parseFromString('<body style="background:#ffffff;font-family:Helvetica,Arial;">' +
 							title2.outerHTML + clone.outerHTML + '</body>', 'text/html');
 					
-					this.editorUi.convertImages(doc.documentElement, mxUtils.bind(this, function(body)
+					this.editorUi.editor.convertImages(doc.documentElement, mxUtils.bind(this, function(body)
 					{
 						var html = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" ' +
 							'href="https://www.draw.io/styles/grapheditor.css"></head>' +
@@ -821,7 +821,7 @@
 										url = PROXY_URL + '?url=' + encodeURIComponent(url);
 									}
 									
-									this.editorUi.loadUrl(url, mxUtils.bind(this, function(data)
+									this.editorUi.editor.loadUrl(url, mxUtils.bind(this, function(data)
 									{
 										content.style.display = 'block';
 										title.innerHTML = '';
@@ -874,7 +874,7 @@
 										url = PROXY_URL + '?url=' + encodeURIComponent(url);
 									}
 									
-									this.editorUi.loadUrl(url, mxUtils.bind(this, function(temp)
+									this.editorUi.editor.loadUrl(url, mxUtils.bind(this, function(temp)
 									{
 										try
 										{

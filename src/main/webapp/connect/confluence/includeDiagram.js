@@ -879,7 +879,7 @@ function includeDiagramMain(confPageId, draftPage)
 			{
 				if (isPng)
 				{
-					resp = 'data:image/png;base64,' + EditorUi.prototype.base64Encode (resp);
+					resp = 'data:image/png;base64,' + Editor.base64Encode (resp);
 					resp = AC.extractGraphModelFromPng(resp);
 				}
 				

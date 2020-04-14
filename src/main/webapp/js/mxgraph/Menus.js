@@ -1174,7 +1174,7 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 	
 		if (graph.getSelectionCount() == 1)
 		{
-			this.addMenuItems(menu, ['-', 'editData', 'editLink'], null, evt);
+			this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], null, evt);
 	
 			// Shows edit image action if there is an image in the style
 			if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)

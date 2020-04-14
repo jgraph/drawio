@@ -118,6 +118,11 @@
 	Editor.cameraLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KTMInWQAAA/BJREFUWAnFl0uIjWEYx885buPSuGwmSYwtwsY1ikKSNYNclmQnadgrZSPlsnBLSlaGBdNYKY0Vdi4L4zYzIqxGxmXG//d+7//0+uY7nWMiT/2/53mf+3v7vnNKpf9M5UbrDw8Pj4m+wzmeT1FBUS6Xf+YNox6reMONukijMXUTM3NmI75PyXcJPwRWg5kS7xysDLNmfEUxpx2rceNE50IlYjyRklcLf0prY+x4BTqfmx3ZUHQaO9ISGngYq38V/1EH+ECPa+QaK1u1kVBQirDMChiS3CTeIkwWvghtwhKBpZ8g1CO2B99FynVU/KowSRgQ3mlrBsVZ1awmQlS0SGbfXglfBPbdRGMm5O8RXg2P835pDCvzWjghTHETcLpZLHwS8kTCtBEK1SN83Egam8YxyVZqc+Do5qkwS+gT9grNwkUBG6cbsG/gs3BTuC/0ChCxq4QtwgzBMdwUZBPyN4Ftfi4sYPZHktbOSRlIuutRP5jYj0ueZp88xyYcS/zZoiLyQT1IA/cTj7eSlwnrhI+JnkQbCwo2Sx/2M7VJt17wdhVtgxvrpoFnAuSAbJQ97biZAlKxBfD9wgOhV+BgIR/AZtJ4kwD5PGSj7OmmekjWEy0oAQHAS3+KpBpzXqYK3UItopHpSRMno2N+cm7gDYnfRCcr3QBqriMHLJDkeyhFfiG5aVbK+8rhtP9M6QcIEJHX5Fp9NMAyQlYiu+OOJNlODCIXyka/P23bncTdiC7OydC1+v1Bsb+5r84DK8S3Rdmf5cRUFW3bXtWUSt1Rdk6G4SyJV2o1YId+vNUxr+x5yCJiapFtcxQzLjrxboGcMxvFJwEOKnLwjIbkx/sdSmeSaUY++SwTAxV+4DJT7RVwkbk46gNCsifIItuy0e9PF33Cb4homhN5YRyzL5q5V2VNkv98kqgoGTo3YF9CnMM5Y5rItFfvBSi9JulVXOgI+VwIntkt+SaZ6weQfcovJf7zpTfl86P/wAF7Fz18NeKwmvAWCaX0Z/uMHQr42ZxvR/Rxcw5xM+9J/CJq8w2gduDhmDgso/QrBH47dEXQ1IqczyHpIOfIRtnTtV7SwO1oKXKkU3fbToFGSDHtMWcaH1WBuVYnDbRFi99iqSMySdzxXckrazUh23KBVYGIcfNBkTxca0e4ATJ0KukGYVBgr/MnlhPOtQq/ksUfCbzh+EFCjtnCUoHfjhA/OsiTv2HcEvJMELp0VakZDliTmriTdPivxU4VmEhtPrGV+KJhO7ZKt0doFZh1fgZSBWIW2AGEHwg3BUWOnKtH+suqdw07tYMfglCrWPD5mw9qVYuniaXkT0OtWaSuo5LJTY1RBf+roF9X5+y/5qU+DAAAAABJRU5ErkJggg==';
 	
 	/**
+	 * Broken image symbol for offline SVG.
+	 */
+	Editor.svgBrokenImage = Graph.createSvgImage(10, 10, '<rect x="0" y="0" width="10" height="10" stroke="#000" fill="transparent"/><path d="m 0 0 L 10 10 L 0 10 L 10 0" stroke="#000" fill="transparent"/>');
+
+	/**
 	 * Default value for custom libraries in mxSettings.
 	 */
 	Editor.defaultCustomLibraries = [];
@@ -1101,6 +1106,11 @@
 	Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURIComponent(urlParams['edit']) : null;
 
 	/**
+	 * Specifies if img.crossOrigin is supported. This is true for all browsers except IE10 and earlier.
+	 */
+	Editor.prototype.crossOriginImages = !mxClient.IS_IE;
+	
+	/**
 	 * Adds support for old stylesheets and compressed files
 	 */
 	var editorSetGraphXml = Editor.prototype.setGraphXml;
@@ -1493,7 +1503,6 @@
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
 	
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
 	 */
@@ -1514,10 +1523,10 @@
 				
 				if (remote && !navigator.onLine)
 				{
-					src = EditorUi.prototype.svgBrokenImage.src; //TODO move it to Editor?
+					src = Editor.svgBrokenImage.src;
 				}
 				else if (remote && src.substring(0, converter.baseUrl.length) != converter.baseUrl &&
-						(!EditorUi.prototype.crossOriginImages || !self.isCorsEnabledForUrl(src))) //TODO move it to Editor?
+						(!self.crossOriginImages || !self.isCorsEnabledForUrl(src)))
 				{
 					src = PROXY_URL + '?url=' + encodeURIComponent(src);
 				}
@@ -1533,70 +1542,102 @@
 		return converter;
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * 
 	 */
-	Editor.prototype.createSvgDataUri = function(svg)
+	Editor.createSvgDataUri = function(svg)
 	{
 		return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * 
 	 */
 	Editor.prototype.convertImageToDataUri = function(url, callback)
 	{
-		if (/(\.svg)$/i.test(url))
+		try
 		{
-			mxUtils.get(url, mxUtils.bind(this, function(req)
+			var acceptResponse = true;
+			
+			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				callback(this.createSvgDataUri(req.getText()));
-			}),
-			function()
+				acceptResponse = false;
+				callback(Editor.svgBrokenImage.src);
+			}), this.timeout);
+	
+			if (/(\.svg)$/i.test(url))
 			{
-				callback(EditorUi.prototype.svgBrokenImage.src);
-			});
+				mxUtils.get(url, mxUtils.bind(this, function(req)
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(Editor.createSvgDataUri(req.getText()));
+					}
+				}),
+				function()
+				{
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(Editor.svgBrokenImage.src);
+					}
+				});
+			}
+			else
+			{
+			    var img = new Image();
+			    
+			    if (this.crossOriginImages)
+		    	{
+				    img.crossOrigin = 'anonymous';
+			    }
+			    
+			    img.onload = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+				        try
+				        {
+					        var canvas = document.createElement('canvas');
+					        var ctx = canvas.getContext('2d');
+					        canvas.height = img.height;
+					        canvas.width = img.width;
+					        ctx.drawImage(img, 0, 0);
+
+				        	callback(canvas.toDataURL());
+				        }
+				        catch (e)
+				        {
+			        		callback(Editor.svgBrokenImage.src);
+				        }
+					}
+			    };
+			    
+			    img.onerror = function()
+			    {
+			    	window.clearTimeout(timeoutThread);
+					
+					if (acceptResponse)
+					{
+						callback(Editor.svgBrokenImage.src);
+					}
+			    };
+			    
+			    img.src = url;
+			}
 		}
-		else
+		catch (e)
 		{
-		    var img = new Image();
-		    var self = this;
-		    
-		    if (EditorUi.prototype.crossOriginImages)
-	    	{
-			    img.crossOrigin = 'anonymous';
-		    }
-		    
-		    img.onload = function()
-		    {
-		        var canvas = document.createElement('canvas');
-		        var ctx = canvas.getContext('2d');
-		        canvas.height = img.height;
-		        canvas.width = img.width;
-		        ctx.drawImage(img, 0, 0);
-		        
-		        try
-		        {
-	        		callback(canvas.toDataURL());
-		        }
-		        catch (e)
-		        {
-	        		callback(EditorUi.prototype.svgBrokenImage.src);
-		        }
-		    };
-		    
-		    img.onerror = function()
-		    {
-	    		callback(EditorUi.prototype.svgBrokenImage.src);
-		    };
-		    
-		    img.src = url;
+			callback(Editor.svgBrokenImage.src);
 		}
 	};
-
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	
+	
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
 	 */
@@ -1636,36 +1677,46 @@
 			{
 				(mxUtils.bind(this, function(img)
 				{
-					var src = converter.convert(img.getAttribute(srcAttr));
-		        	
-					// Data URIs are pass-through
-					if (src != null && src.substring(0, 5) != 'data:')
+					try
 					{
-						var tmp = cache[src];
-						
-						if (tmp == null)
+						if (img != null)
 						{
-							inc();
-							
-							this.convertImageToDataUri(src, function(uri)
+							var src = converter.convert(img.getAttribute(srcAttr));
+				        	
+							// Data URIs are pass-through
+							if (src != null && src.substring(0, 5) != 'data:')
 							{
-								if (uri != null)
-								{
-									cache[src] = uri;
-									img.setAttribute(srcAttr, uri);
-								}
+								var tmp = cache[src];
 								
-								dec();
-							});
-						}
-						else
-						{
-							img.setAttribute(srcAttr, tmp);
+								if (tmp == null)
+								{
+									inc();
+									
+									this.convertImageToDataUri(src, function(uri)
+									{
+										if (uri != null)
+										{
+											cache[src] = uri;
+											img.setAttribute(srcAttr, uri);
+										}
+										
+										dec();
+									});
+								}
+								else
+								{
+									img.setAttribute(srcAttr, tmp);
+								}
+							}
+							else if (src != null)
+							{
+								img.setAttribute(srcAttr, src);
+							}
 						}
 					}
-					else if (src != null)
+					catch (e)
 					{
-						img.setAttribute(srcAttr, src);
+						// ignore
 					}
 				}))(images[i]);
 			}
@@ -1683,12 +1734,11 @@
 		}
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Base64 encodes the given string. This method seems to be more
 	 * robust for encoding PNG from binary AJAX responses.
 	 */
-	Editor.prototype.base64Encode = function(str)
+	Editor.base64Encode = function(str)
 	{
 	    var CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	    var out = "", i = 0, len = str.length, c1, c2, c3;
@@ -1726,16 +1776,16 @@
 	    return out;
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 * Checks if the client is authorized and calls the next step.
 	 */
-	Editor.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix)
+	Editor.prototype.loadUrl = function(url, success, error, forceBinary, retry, dataUriPrefix, noBinary, headers)
 	{
 		try
 		{
-			var binary = forceBinary || /(\.png)($|\?)/i.test(url) ||
-				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url);
+			var binary = !noBinary && (forceBinary || /(\.png)($|\?)/i.test(url) ||
+				/(\.jpe?g)($|\?)/i.test(url) || /(\.gif)($|\?)/i.test(url) ||
+				/(\.pdf)($|\?)/i.test(url));
 			retry = (retry != null) ? retry : true;
 			
 			var fn = mxUtils.bind(this, function()
@@ -1769,21 +1819,29 @@
 								// LATER: Could be JPG but modern browsers
 								// ignore the mime type in the data URI
 								dataUriPrefix = (dataUriPrefix != null) ? dataUriPrefix : 'data:image/png;base64,';
-								data = dataUriPrefix + this.base64Encode(data);
+								data = dataUriPrefix + Editor.base64Encode(data);
 							}
-				    		
+							
 				    		success(data);
 				    	}
 					}
 					else if (error != null)
 			    	{
-			    		error({code: App.ERROR_UNKNOWN}, req);
+						if (req.getStatus() == 0)
+						{
+							// Handles CORS errors
+							error({message: mxResources.get('accessDenied')}, req);
+						}
+						else
+						{
+							error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);
+						}
 			    	}
-				}), function()
+				}), function(req)
 				{
 			    	if (error != null)
 			    	{
-			    		error({code: App.ERROR_UNKNOWN});
+			    		error({message: mxResources.get('error') + ' ' + req.getStatus()});
 			    	}
 				}, binary, this.timeout, function()
 			    {
@@ -1791,7 +1849,7 @@
 					{
 						error({code: App.ERROR_TIMEOUT, retry: fn});
 					}
-			    });
+			    }, headers);
 			});
 			
 			fn();
@@ -1804,8 +1862,130 @@
 			}
 		}
 	};
+	
+	/**
+	 * For the fonts in CSS to be applied when rendering images on canvas, the actual
+	 * font data must be made available via a data URI encoding of the file.
+	 */
+    Editor.prototype.embedCssFonts = function(fontCss, then)
+    {
+        var parts = fontCss.split('url(');
+        var waiting = 0;
+        
+        if (this.cachedFonts == null) 
+        {
+        	this.cachedFonts = {};
+        }
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+        // Strips leading and trailing quotes and spaces
+        function trimString(str)
+        {
+            return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+        };
+        
+        var finish = mxUtils.bind(this, function()
+        {
+            if (waiting == 0)
+            {
+                // Constructs string
+                var result = [parts[0]];
+                
+                for (var j = 1; j < parts.length; j++)
+                {
+                    var idx = parts[j].indexOf(')');
+                    result.push('url("');
+                    result.push(this.cachedFonts[trimString(parts[j].substring(0, idx))]);
+                    result.push('"' + parts[j].substring(idx));
+                }
+                
+                then(result.join(''));
+            }
+        });
+        
+        if (parts.length > 0)
+        {
+            for (var i = 1; i < parts.length; i++)
+            {
+                var idx = parts[i].indexOf(')');
+                var format = null;
+                
+                // Checks if there is a format directive
+                var fmtIdx = parts[i].indexOf('format(', idx);
+                
+                if (fmtIdx > 0)
+                {
+                    format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                }
+
+                (mxUtils.bind(this, function(url)
+                {
+                    if (this.cachedFonts[url] == null)
+                    {
+                        // Mark font as being fetched and fetch it
+                    	this.cachedFonts[url] = url;
+                        waiting++;
+                        
+                        var mime = 'application/x-font-ttf';
+                        
+                        // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
+                        if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
+                        {
+                            mime = 'image/svg+xml';
+                        }
+                        else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
+                        {
+                            mime = 'application/x-font-opentype';
+                        }
+                        else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-woff';
+                        }
+                        else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-woff2';
+                        }
+                        else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
+                        {
+                            mime = 'application/vnd.ms-fontobject';
+                        }
+                        else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
+                        {
+                            mime = 'application/font-sfnt';
+                        }
+                        
+                        var realUrl = url;
+                        
+                        if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
+                        {
+                            realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+                        }
+
+                        // LATER: Remove cache-control header
+                        this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+                        {
+                        	this.cachedFonts[url] = uri;
+                            waiting--;
+                            finish();
+                        }), mxUtils.bind(this, function(err)
+                        {
+                            // LATER: handle error
+                            waiting--;
+                            finish();
+                        }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+                    }
+                }))(trimString(parts[i].substring(0, idx)), format);
+            }
+            
+            //In case all fonts are cached
+            finish();
+        }
+        else
+    	{
+        	//No font urls found
+        	then(fontCss);
+    	}
+    };
+	
 	/**
 	 * For the fontCSS to be applied when rendering images on canvas, the actual
 	 * font data must be made available via a data URI encoding of the file.
@@ -1814,117 +1994,89 @@
     {
         if (this.fontCss != null && this.resolvedFontCss == null)
         {
-            var parts = this.fontCss.split('url(');
-            var waiting = 0;
-            var fonts = {};
-
-            // Strips leading and trailing quotes and spaces
-            function trimString(str)
-            {
-                return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-            };
-            
-            var finish = mxUtils.bind(this, function()
-            {
-                if (waiting == 0)
-                {
-                    // Constructs string
-                    var result = [parts[0]];
-                    
-                    for (var j = 1; j < parts.length; j++)
-                    {
-                        var idx = parts[j].indexOf(')');
-                        result.push('url("');
-                        result.push(fonts[trimString(parts[j].substring(0, idx))]);
-                        result.push('"' + parts[j].substring(idx));
-                    }
-                    
-                    this.resolvedFontCss = result.join('');
-                    then();
-                }
-            });
-            
-            if (parts.length > 0)
-            {
-                for (var i = 1; i < parts.length; i++)
-                {
-                    var idx = parts[i].indexOf(')');
-                    var format = null;
-                    
-                    // Checks if there is a format directive
-                    var fmtIdx = parts[i].indexOf('format(', idx);
-                    
-                    if (fmtIdx > 0)
-                    {
-                        format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
-                    }
-    
-                    (mxUtils.bind(this, function(url)
-                    {
-                        if (fonts[url] == null)
-                        {
-                            // Mark font es being fetched and fetch it
-                            fonts[url] = url;
-                            waiting++;
-                            
-                            var mime = 'application/x-font-ttf';
-                            
-                            // See https://stackoverflow.com/questions/2871655/proper-mime-type-for-fonts
-                            if (format == 'svg' || /(\.svg)($|\?)/i.test(url))
-                            {
-                                mime = 'image/svg+xml';
-                            }
-                            else if (format == 'otf' || format == 'embedded-opentype' || /(\.otf)($|\?)/i.test(url))
-                            {
-                                mime = 'application/x-font-opentype';
-                            }
-                            else if (format == 'woff' || /(\.woff)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-woff';
-                            }
-                            else if (format == 'woff2' || /(\.woff2)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-woff2';
-                            }
-                            else if (format == 'eot' || /(\.eot)($|\?)/i.test(url))
-                            {
-                                mime = 'application/vnd.ms-fontobject';
-                            }
-                            else if (format == 'sfnt' || /(\.sfnt)($|\?)/i.test(url))
-                            {
-                                mime = 'application/font-sfnt';
-                            }
-                            
-                            var realUrl = url;
-                            
-                            if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
-                            {
-                                realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
-                            }
-
-                            // LATER: Remove cache-control header
-                            this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
-                            {
-                                fonts[url] = uri;
-                                waiting--;
-                                finish();
-                            }), mxUtils.bind(this, function(err)
-                            {
-                                // LATER: handle error
-                                waiting--;
-                                finish();
-                            }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
-                        }
-                    }))(trimString(parts[i].substring(0, idx)), format);
-                }
-            }
+        	this.embedCssFonts(this.fontCss, mxUtils.bind(this, function(resolvedFontCss)
+			{
+        		this.resolvedFontCss = resolvedFontCss;
+        		then();
+			}));
         }
         else
         {
             then();
         }
     };
-
+    
+    /**
+     * Embeds external fonts
+     */
+    Editor.prototype.embedExtFonts = function(callback)
+    {
+    	var extFonts = this.graph.extFonts; 
+    	
+		if (extFonts != null && extFonts.length > 0)
+		{
+			var styleCnt = '', waiting = 0;
+			
+			if (this.cachedGoogleFonts == null)
+			{
+				this.cachedGoogleFonts = {};
+			}
+			
+			var googleCssDone = mxUtils.bind(this, function()
+			{
+				if (waiting == 0)
+	            {
+					this.embedCssFonts(styleCnt, callback);
+	            }
+			});
+			
+			for (var i = 0; i < extFonts.length; i++)
+			{
+				(mxUtils.bind(this, function(fontName, fontUrl)
+				{
+					if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+					{
+						if (this.cachedGoogleFonts[fontUrl] == null)
+						{
+							waiting++;
+							
+							this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
+		                    {
+								this.cachedGoogleFonts[fontUrl] = css;
+								styleCnt += css;
+		                        waiting--;
+		                        googleCssDone();
+		                    }), mxUtils.bind(this, function(err)
+		                    {
+		                        // LATER: handle error
+		                        waiting--;
+		                        styleCnt += '@import url(' + fontUrl + ');';
+		                        googleCssDone();
+		                    }));
+						}
+						else
+						{
+							styleCnt += this.cachedGoogleFonts[fontUrl];
+						}
+					}
+					else
+					{
+						styleCnt += '@font-face {' +
+				            'font-family: "'+ fontName +'";' + 
+				            'src: url("'+ fontUrl +'");' + 
+				            '}';
+					}
+				}))(extFonts[i].name, extFonts[i].url);
+			}
+			
+			googleCssDone();
+		}
+		else
+		{
+			callback();
+		}
+    };
+	
 	/**
 	 * Copies MathJax CSS into the SVG output.
 	 */
@@ -1998,153 +2150,290 @@
 			(!mxClient.IS_SF && !((mxClient.IS_GC || mxClient.IS_EDGE) && !mxClient.IS_MAC))));
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
 	/**
 	 *
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid)
 	{
-		limitHeight = (limitHeight != null) ? limitHeight : true;
-		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
-		graph = (graph != null) ? graph : this.graph;
-		border = (border != null) ? border : 0;
-		
-		var bg = (transparentBackground) ? null : graph.background;
-		
-		if (bg == mxConstants.NONE)
+		try
 		{
-			bg = null;
-		}
-		
-		if (bg == null)
-		{
-			bg = background;
-		}
-		
-		// Handles special case where background is null but transparent is false
-		if (bg == null && transparentBackground == false)
-		{
-			bg = this.graph.defaultPageBackgroundColor;
-		}
-		
-		this.convertImages(graph.getSvg(bg, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
-			mxUtils.bind(this, function(svgRoot)
-		{
-			var img = new Image();
+			limitHeight = (limitHeight != null) ? limitHeight : true;
+			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
+			graph = (graph != null) ? graph : this.graph;
+			border = (border != null) ? border : 0;
 			
-			img.onload = mxUtils.bind(this, function()
-			{
-		   		try
-		   		{
-		   			var canvas = document.createElement('canvas');
-					var w = parseInt(svgRoot.getAttribute('width'));
-					var h = parseInt(svgRoot.getAttribute('height'));
-					scale = (scale != null) ? scale : 1;
-					
-					if (width != null)
-					{
-						scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
-					}
-					
-					w = Math.ceil(scale * w) + 2 * border;
-					h = Math.ceil(scale * h) + 2 * border;
-					
-					canvas.setAttribute('width', w);
-			   		canvas.setAttribute('height', h);
-			   		var ctx = canvas.getContext('2d');
-			   		
-			   		if (bg != null)
-			   		{
-			   			ctx.beginPath();
-						ctx.rect(0, 0, w, h);
-						ctx.fillStyle = bg;
-						ctx.fill();
-			   		}
-
-			   		ctx.scale(scale, scale);
-			   		
-			   		// Workaround for broken data URI images in Safari on first export
-			   		if (mxClient.IS_SF)
-			   		{			   		
-						window.setTimeout(function()
-						{
-							ctx.drawImage(img, border / scale, border / scale);
-							callback(canvas);
-						}, 0);
-			   		}
-			   		else
-			   		{
-			   			ctx.drawImage(img, border / scale, border / scale);
-			   			callback(canvas);
-			   		}
-		   		}
-		   		catch (e)
-		   		{
-		   			if (error != null)
-					{
-						error(e);
-					}
-		   		}
-			});
+			var bg = (transparentBackground) ? null : graph.background;
 			
-			img.onerror = function(e)
+			if (bg == mxConstants.NONE)
 			{
-				//console.log('img', e, img.src);
-				
-				if (error != null)
-				{
-					error(e);
-				}
-			};
-
-			try
+				bg = null;
+			}
+			
+			if (bg == null)
 			{
-				if (addShadow)
+				bg = background;
+			}
+			
+			// Handles special case where background is null but transparent is false
+			if (bg == null && transparentBackground == false)
+			{
+				bg = '#ffffff';
+			}
+			
+			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
+				mxUtils.bind(this, function(svgRoot)
+			{
+				try
 				{
-					this.graph.addSvgShadow(svgRoot);
-				}
-				
-				var done = mxUtils.bind(this, function()
-				{
-					if (this.resolvedFontCss != null)
+					var img = new Image();
+					
+					img.onload = mxUtils.bind(this, function()
 					{
-						var st = document.createElement('style');
-						st.setAttribute('type', 'text/css');
-						st.innerHTML = this.resolvedFontCss;
+				   		try
+				   		{
+				   			var canvas = document.createElement('canvas');
+							var w = parseInt(svgRoot.getAttribute('width'));
+							var h = parseInt(svgRoot.getAttribute('height'));
+							scale = (scale != null) ? scale : 1;
+							
+							if (width != null)
+							{
+								scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
+							}
+							
+							w = Math.ceil(scale * w) + 2 * border;
+							h = Math.ceil(scale * h) + 2 * border;
+							
+							canvas.setAttribute('width', w);
+					   		canvas.setAttribute('height', h);
+					   		var ctx = canvas.getContext('2d');
+					   		
+					   		if (bg != null)
+					   		{
+					   			ctx.beginPath();
+								ctx.rect(0, 0, w, h);
+								ctx.fillStyle = bg;
+								ctx.fill();
+					   		}
+		
+						    ctx.scale(scale, scale);
+	
+						    function drawImage()
+						    {
+						    	// Workaround for broken data URI images in Safari on first export
+						   		if (mxClient.IS_SF)
+						   		{			   		
+									window.setTimeout(function()
+									{
+										ctx.drawImage(img, border / scale, border / scale);
+										callback(canvas);
+									}, 0);
+						   		}
+						   		else
+						   		{
+						   			ctx.drawImage(img, border / scale, border / scale);
+						   			callback(canvas);
+						   		}
+						    };
+						    
+						    if (grid)
+						    {
+							    var view = graph.view;
+							    var curViewScale = view.scale;
+							    view.scale = 1; //Reset the scale temporary to generate unscaled grid image which is then scaled
+								var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(view.gridColor))));
+								view.scale = curViewScale;
+								gridImage = 'data:image/svg+xml;base64,' + gridImage;
+				                var phase = graph.gridSize * view.gridSteps * scale;
+				                
+				                var b = graph.getGraphBounds();
+								var tx = view.translate.x * curViewScale;
+								var ty = view.translate.y * curViewScale;
+								var x0 = tx + (b.x - tx) / curViewScale;
+								var y0 = ty + (b.y - ty) / curViewScale;
+								
+								var background = new Image();
+		
+								background.onload = function()
+								{
+									try
+									{
+										var x = -Math.round(phase - mxUtils.mod((tx - x0) * scale, phase));
+										var y = -Math.round(phase - mxUtils.mod((ty - y0) * scale, phase));
+			
+										for (var i = x; i < w; i += phase)
+										{
+											for (var j = y; j < h; j += phase)
+											{
+												ctx.drawImage(background, i / scale, j / scale);	
+											}
+										}
+									
+										drawImage();
+									}
+							   		catch (e)
+							   		{
+							   			if (error != null)
+										{
+											error(e);
+										}
+							   		}
+								};
+								
+								background.onerror = function(e)
+								{
+									if (error != null)
+									{
+										error(e);
+									}
+								};
+								
+								background.src = gridImage;
+						    }
+						    else
+					    	{
+						    	drawImage();
+					    	}
+				   		}
+				   		catch (e)
+				   		{
+				   			if (error != null)
+							{
+								error(e);
+							}
+				   		}
+					});
+					
+					img.onerror = function(e)
+					{
+						//console.log('img', e, img.src);
 						
-						// Must be in defs section for FF to work
-						var defs = svgRoot.getElementsByTagName('defs');
-						defs[0].appendChild(st);
+						if (error != null)
+						{
+							error(e);
+						}
+					};
+
+					if (addShadow)
+					{
+						this.graph.addSvgShadow(svgRoot);
 					}
 					
-					if (graph.mathEnabled)
+					if (this.graph.mathEnabled)
 					{
 						this.addMathCss(svgRoot);
 					}
 					
-					img.src = this.createSvgDataUri(mxUtils.getXml(svgRoot));
-				});
-				
-				this.loadFonts(done);
-			}
-			catch (e)
-			{
-				//console.log('src', e, img.src);
-				
-				if (error != null)
-				{
-					error(e);
+					var done = mxUtils.bind(this, function()
+					{
+						try
+						{
+							if (this.resolvedFontCss != null)
+							{
+								this.addFontCss(svgRoot, this.resolvedFontCss);
+							}
+							
+							img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+						}
+						catch (e)
+						{
+							if (error != null)
+							{
+								error(e);
+							}
+						}
+					});
+					
+					this.embedExtFonts(mxUtils.bind(this, function(extFontsEmbeddedCss)
+					{
+						try
+						{
+							if (extFontsEmbeddedCss != null)
+							{
+								this.addFontCss(svgRoot, extFontsEmbeddedCss);
+							}
+							
+							this.loadFonts(done);
+						}
+						catch (e)
+						{
+							if (error != null)
+							{
+								error(e);
+							}
+						}
+					}));
 				}
+				catch (e)
+				{
+					//console.log('src', e, img.src);
+					
+					if (error != null)
+					{
+						error(e);
+					}
+				}
+			}), imageCache, converter);
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
 			}
-		}), imageCache, converter);
+		}
+	};
+	
+	Editor.crcTable = [];
+	
+	for (var n = 0; n < 256; n++)
+	{
+		var c = n;
+		
+		for (var k = 0; k < 8; k++)
+		{
+			if ((c & 1) == 1)
+			{
+				c = 0xedb88320 ^ (c >>> 1);
+			}
+			else
+			{
+				c >>>= 1;
+			}
+
+			Editor.crcTable[n] = c;
+		}
+	}
+	
+	Editor.updateCRC = function(crc, data, off, len)
+	{
+		var c = crc;
+	
+		for (var n = 0; n < len; n++)
+		{
+			c = Editor.crcTable[(c ^ data.charCodeAt(off + n)) & 0xff] ^ (c >>> 8);
+		}
+	
+		return c;
 	};
 
-	//TODO This function is a replica of EditorUi one, it is planned to replace all calls to EditorUi one to point to this one
+	Editor.crc32 = function(str)
+	{
+	    var crc = 0 ^ (-1);
+
+	    for (var i = 0; i < str.length; i++ )
+	    {
+	        crc = (crc >>> 8) ^ Editor.crcTable[(crc ^ str.charCodeAt(i)) & 0xFF];
+	    }
+
+	    return (crc ^ (-1)) >>> 0;
+	};
+
 	/**
 	 * Adds the given text to the compressed or non-compressed text chunk.
 	 */
-	Editor.prototype.writeGraphModelToPng = function(data, type, key, value, error)
+	Editor.writeGraphModelToPng = function(data, type, key, value, error)
 	{
 		var base64 = data.substring(data.indexOf(',') + 1);
 		var f = (window.atob) ? atob(base64) : Base64.decode(base64, true);
@@ -2209,13 +2498,21 @@
 			{
 				result = f.substring(0, pos - 8);
 				
-				var chunkData = key + String.fromCharCode(0) +
-					((type == 'zTXt') ? String.fromCharCode(0) : '') + 
-					value;
+				if (type == 'pHYs' && key == 'dpi')
+				{
+					var dpm = Math.round(value / 0.0254); //One inch is equal to exactly 0.0254 meters.
+					var chunkData = writeInt(dpm) + writeInt(dpm) + String.fromCharCode(1);
+				}
+				else
+				{
+					var chunkData = key + String.fromCharCode(0) +
+						((type == 'zTXt') ? String.fromCharCode(0) : '') + 
+						value;
+				}
 				
 				var crc = 0xffffffff;
-				crc = EditorUi.prototype.updateCRC(crc, type, 0, 4); //TODO move code to Editor?
-				crc = EditorUi.prototype.updateCRC(crc, chunkData, 0, chunkData.length);
+				crc = Editor.updateCRC(crc, type, 0, 4);
+				crc = Editor.updateCRC(crc, chunkData, 0, chunkData.length);
 				
 				result += writeInt(chunkData.length) + type + chunkData + writeInt(crc ^ 0xffffffff);
 				result += f.substring(pos - 8, f.length);
@@ -2230,7 +2527,7 @@
 		while (n);
 		
 		return 'data:image/png;base64,' + ((window.btoa) ? btoa(result) : Base64.encode(result, true));
-	}
+	};
 
 	/**
 	 * Adds persistence for recent colors

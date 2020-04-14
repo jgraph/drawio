@@ -925,7 +925,7 @@
 													{
 														if (isPng)
 														{
-															newXml = 'data:image/png;base64,' + EditorUi.prototype.base64Encode (newXml);
+															newXml = 'data:image/png;base64,' + Editor.base64Encode (newXml);
 															newXml = AC.extractGraphModelFromPng(newXml);
 														}
 														

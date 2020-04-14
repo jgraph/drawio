@@ -1929,7 +1929,7 @@ Graph.prototype.initLayoutManager = function()
 	
 	this.layoutManager.getLayout = function(cell, eventName)
 	{
-		if (eventName == mxEvent.END_UPDATE)
+		if (eventName != mxEvent.BEGIN_UPDATE)
 		{
 			var style = this.graph.getCellStyle(cell);
 	

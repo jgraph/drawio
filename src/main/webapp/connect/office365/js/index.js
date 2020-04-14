@@ -410,7 +410,7 @@
 				
 				if (isPng)
 				{
-					cnt = 'data:image/png;base64,' + EditorUi.prototype.base64Encode (cnt);
+					cnt = 'data:image/png;base64,' + Editor.base64Encode (cnt);
 					cnt = AC.extractGraphModelFromPng(cnt);
 				}
 				

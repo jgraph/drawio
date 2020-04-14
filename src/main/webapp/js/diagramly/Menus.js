@@ -2199,7 +2199,7 @@
 							// Imports SVG as images
 							if (/\.svg$/i.test(file.getTitle()) && !editorUi.editor.isDataSvg(file.getData()))
 							{
-								file.setData(editorUi.createSvgDataUri(file.getData()));
+								file.setData(Editor.createSvgDataUri(file.getData()));
 								mime = 'image/svg+xml';
 							}
 							
@@ -2323,7 +2323,7 @@
 							var mime = (/(\.png)($|\?)/i.test(fileUrl)) ? 'image/png' : 'text/xml';
 							
 							// Uses proxy to avoid CORS issues
-							editorUi.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(fileUrl), function(data)
+							editorUi.editor.loadUrl(PROXY_URL + '?url=' + encodeURIComponent(fileUrl), function(data)
 							{
 								doImportFile(data, mime, fileUrl);
 							},
