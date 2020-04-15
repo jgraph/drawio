@@ -631,10 +631,13 @@ GitLabClient.prototype.saveFile = function(file, success, error, overwrite, mess
 	{
 		if (this.ui.useCanvasForExport && /(\.png)$/i.test(path))
 		{
+			var p = this.ui.getPngFileProperties(this.ui.fileNode);
+			
 			this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 			{
 				fn(file.meta.last_commit_id, data);
-			}), error, (this.ui.getCurrentFile() != file) ? file.getData() : null);
+			}), error, (this.ui.getCurrentFile() != file) ?
+				file.getData() : null, p.scale, p.border);
 		}
 		else
 		{

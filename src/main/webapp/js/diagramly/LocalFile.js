@@ -141,10 +141,13 @@ LocalFile.prototype.saveFile = function(title, revision, success, error)
 	
 	if (binary)
 	{
+		var p = this.ui.getPngFileProperties(this.ui.fileNode);
+
 		this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
 		{
 			doSave(imageData);
-		}), error, (this.ui.getCurrentFile() != this) ? this.getData() : null);
+		}), error, (this.ui.getCurrentFile() != this) ?
+			this.getData() : null, p.scale, p.border);
 	}
 	else
 	{

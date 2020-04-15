@@ -1770,10 +1770,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 		
 					if (saveAsPng)
 					{
+						var p = this.ui.getPngFileProperties(this.ui.fileNode);
+						
 						this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 						{
 							doExecuteRequest(data, true);
-						}), error, (this.ui.getCurrentFile() != file) ? savedData : null);
+						}), error, (this.ui.getCurrentFile() != file) ?
+							savedData : null, p.scale, p.border);
 					}
 					else
 					{

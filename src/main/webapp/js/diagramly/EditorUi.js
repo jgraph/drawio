@@ -1771,7 +1771,7 @@
 		    	{
 		    		if (data.length <= MAX_REQUEST_SIZE)
 		    		{
-		    	    		this.saveData(filename, 'svg', data, 'image/svg+xml');
+		    	    	this.saveData(filename, 'svg', data, 'image/svg+xml');
 		    		}
 		    		else
 		    		{
@@ -4123,6 +4123,15 @@
 	 */
 	EditorUi.prototype.doSaveLocalFile = function(data, filename, mimeType, base64Encoded, format)
 	{
+		// Appends .drawio extension for XML files with no extension
+		// to avoid the browser to automatically append .xml instead
+		if (mimeType == 'text/xml' &&
+			!/(\.drawio)$/i.test(filename) &&
+			!/(\.xml)$/i.test(filename))
+		{
+			filename = filename + '.drawio';
+		}
+		
 		// Newer versions of IE
 		if (window.Blob && navigator.msSaveOrOpenBlob)
 		{
@@ -6092,10 +6101,45 @@
 		return node;
 	};
 	
+		
 	/**
 	 * 
 	 */
-	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData)
+	EditorUi.prototype.getPngFileProperties = function(node)
+	{
+		var scale = 1;
+		var border = 0;
+		
+		if (node != null)
+		{
+			if (node.hasAttribute('scale'))
+			{
+				var temp = parseFloat(node.getAttribute('scale'));
+				
+				if (!isNaN(temp) && temp > 0)
+				{
+					scale = temp;
+				}
+			}
+			
+			if (node.hasAttribute('border'))
+			{
+				var temp = parseInt(node.getAttribute('border'));
+				
+				if (!isNaN(temp) && temp > 0)
+				{
+					border = temp;
+				}
+			}
+		}
+		
+		return {scale: scale, border: border};
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.getEmbeddedPng = function(success, error, optionalData, scale, border)
 	{
 		try
 		{
@@ -6135,7 +6179,7 @@
 				document.body.appendChild(graph.container);
 				graph.model.setRoot(page.root);
 			}
-		
+			
 		   	this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 		   	{
 		   		try
@@ -6170,7 +6214,7 @@
 	   			{
 	   				error(e);
 	   			}
-		   	}), null, null, null, null, graph.shadowVisible, null, graph);
+		   	}), null, null, scale, null, graph.shadowVisible, null, graph, border);
 		}
 		catch (e)
 		{

@@ -2267,6 +2267,7 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	};
 	
 	mxEvent.addListener(nameInput, 'change', nameInputChanged);
+	mxEvent.addListener(nameInput, 'keyup', nameInputChanged);
 	nameInputChanged();
 	
 	return typeSelect;

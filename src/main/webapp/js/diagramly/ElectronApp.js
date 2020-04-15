@@ -142,12 +142,39 @@ mxStencilRegistry.allowEval = false;
 			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
 			menu.addSeparator(parent);
-			this.addMenuItems(menu, ['newLibrary', 'openLibrary', '-', 'pageSetup',
-				'print', '-', 'close'], parent);
+			this.addMenuItems(menu, ['newLibrary', 'openLibrary'], parent);
+
+			var file = editorUi.getCurrentFile();
+			
+			if (file != null && editorUi.fileNode != null)
+			{
+				var filename = (file.getTitle() != null) ?
+					file.getTitle() : editorUi.defaultFilename;
+				
+				if (!/(\.html)$/i.test(filename) &&
+					!/(\.svg)$/i.test(filename))
+				{
+					this.addMenuItems(menu, ['-', 'properties']);
+				}
+			}
+			
+			this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'close'], parent);
 			// LATER: Find API for application.quit
 		})));
 	};
 	
+	function getDocumentsFolder()
+	{
+		//On windows, misconfigured Documents folder cause an exception
+		try
+		{
+			return require('electron').remote.app.getPath('documents');
+		}
+		catch(e) {}
+		
+		return '.';
+	};
+
 	var graphCreateLinkForHint = Graph.prototype.createLinkForHint;
 	
 	Graph.prototype.createLinkForHint = function(href, label)
@@ -218,7 +245,7 @@ mxStencilRegistry.allowEval = false;
 				var lastDir = localStorage.getItem('.lastImpDir');
 				
 		        var paths = dialog.showOpenDialogSync({
-		        	defaultPath: lastDir || remote.app.getPath('documents'),
+		        	defaultPath: lastDir || getDocumentsFolder(),
 		        	properties: ['openFile']
 		        });
 			           
@@ -661,7 +688,7 @@ mxStencilRegistry.allowEval = false;
 		var lastDir = localStorage.getItem('.lastOpenDir');
 		
         var paths = dialog.showOpenDialogSync({
-        	defaultPath: lastDir || remote.app.getPath('documents'),
+        	defaultPath: lastDir || getDocumentsFolder(),
         	filters: [
         	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml'] },
         	    { name: 'VSDX Documents', extensions: ['vsdx'] },
@@ -949,6 +976,20 @@ mxStencilRegistry.allowEval = false;
 		return stat != null && this.stat != null && stat.mtimeMs != this.stat.mtimeMs;
 	};
 	
+	LocalFile.prototype.getFilename = function()
+	{
+		var filename = this.title;
+		
+		// Adds default extension
+		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
+			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename) && !/(\.drawio)$/i.test(filename)))
+		{
+			filename += '.drawio';
+		}
+		
+		return filename;
+	};
+	
 	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
 	{
 		if (!this.savingFile)
@@ -1080,10 +1121,12 @@ mxStencilRegistry.allowEval = false;
 				}
 				else
 				{
+					var p = this.ui.getPngFileProperties(this.ui.fileNode);
+
 					this.ui.getEmbeddedPng(function(data)
 					{
 						doSave(atob(data), 'binary');
-					}, error);
+					}, error, null, p.scale, p.border);
 				}
 			});
 			
@@ -1095,7 +1138,7 @@ mxStencilRegistry.allowEval = false;
 				const sysPath = require('path')
 				var lastDir = localStorage.getItem('.lastSaveDir');
 				
-				var path = dialog.showSaveDialogSync({defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + this.title});
+				var path = dialog.showSaveDialogSync({defaultPath: (lastDir || getDocumentsFolder()) + '/' + this.getFilename()});
 	
 		        if (path != null)
 		        {
@@ -1123,18 +1166,19 @@ mxStencilRegistry.allowEval = false;
 		const electron = require('electron');
 		var remote = electron.remote;
 		var dialog = remote.dialog;
-		var filename = this.title;
 		const sysPath = require('path')
 		var lastDir = localStorage.getItem('.lastSaveDir');
 		
-		// Adds default extension
-		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
-			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename) && !/(\.drawio)$/i.test(filename)))
-		{
-			filename += '.drawio';
-		}
-		
-		var path = dialog.showSaveDialogSync({defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + filename});
+		var path = dialog.showSaveDialogSync({
+			defaultPath: (lastDir || getDocumentsFolder()) + '/' + this.getFilename(),
+			filters: [
+				{ name: 'XML File (.drawio)', extensions: ['drawio'] },
+				{ name: 'Editable Bitmap Image (.png)', extensions: ['png'] },
+				{ name: 'Editable Vector Image (.svg)', extensions: ['svg'] },
+				{ name: 'HTML File (.html)', extensions: ['html'] },
+				{ name: 'XML File (.xml)', extensions: ['xml'] }
+	        ]
+		});
         
         if (path != null)
         {
@@ -1505,7 +1549,7 @@ mxStencilRegistry.allowEval = false;
 		// to give the spinner some time to stop spinning
 		window.setTimeout(mxUtils.bind(this, function()
 		{
-			var dlgConfig = {defaultPath: (lastDir || remote.app.getPath('documents')) + '/' + filename};
+			var dlgConfig = {defaultPath: (lastDir || getDocumentsFolder()) + '/' + filename};
 			var filters = null;
 			
 			switch (format)

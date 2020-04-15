@@ -181,6 +181,13 @@
 		rulerAction.setToggleAction(true);
 		rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
 
+		editorUi.actions.addAction('properties...', function()
+		{
+			var dlg = new FilePropertiesDialog(editorUi);
+			editorUi.showDialog(dlg.container, 320, 120, true, true);
+			dlg.init();
+		}).isEnabled = isGraphEnabled;
+	
 		if (window.mxFreehand)
 		{
 			editorUi.actions.put('insertFreehand', new Action(mxResources.get('freehand') + '...', function(evt)
@@ -3524,6 +3531,18 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
+				if (file != null && editorUi.fileNode != null)
+				{
+					var filename = (file.getTitle() != null) ?
+						file.getTitle() : editorUi.defaultFilename;
+					
+					if (!/(\.html)$/i.test(filename) &&
+						!/(\.svg)$/i.test(filename))
+					{
+						this.addMenuItems(menu, ['-', 'properties']);
+					}
+				}
+				
 				this.addMenuItems(menu, ['-', 'pageSetup'], parent);
 				
 				// Cannot use print in standalone mode on iOS as we cannot open new windows
@@ -3531,7 +3550,7 @@
 				{
 					this.addMenuItems(menu, ['print'], parent);
 				}
-				
+
 				this.addMenuItems(menu, ['-', 'close']);
 			}
 		})));
@@ -3554,8 +3573,6 @@
 		ChangeExtFonts.prototype.execute = function()
 		{
 			var graph = this.ui.editor.graph;
-			
-			
 			this.customFonts = this.prevCustomFonts;
 			this.prevCustomFonts = this.ui.menus.customFonts;
 			this.ui.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));

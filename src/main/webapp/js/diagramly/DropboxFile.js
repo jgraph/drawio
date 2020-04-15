@@ -281,10 +281,13 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 					
 					if (this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle()))
 					{
+						var p = this.ui.getPngFileProperties(this.ui.fileNode);
+						
 						this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 						{
 							doSave(this.ui.base64ToBlob(data, 'image/png'));
-						}), error, (this.ui.getCurrentFile() != this) ? this.getData() : null);
+						}), error, (this.ui.getCurrentFile() != this) ?
+							this.getData() : null, p.scale, p.border);
 					}
 					else
 					{

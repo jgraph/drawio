@@ -135,7 +135,7 @@ EditorUi.initMinimalTheme = function()
 	    }
 	};
 
-	function toggleFormat(ui)
+	function toggleFormat(ui, visible)
 	{
 		var graph = ui.editor.graph;
 	    graph.popupMenuHandler.hideMenu();
@@ -157,7 +157,8 @@ EditorUi.initMinimalTheme = function()
 	    }
 	    else
 	    {
-	        ui.formatWindow.window.setVisible(!ui.formatWindow.window.isVisible());
+	        ui.formatWindow.window.setVisible((visible != null) ?
+	        	visible : !ui.formatWindow.window.isVisible());
 	    }
 
         if (ui.formatWindow.window.isVisible())
@@ -166,7 +167,7 @@ EditorUi.initMinimalTheme = function()
         }
 	};
 
-	function toggleShapes(ui)
+	function toggleShapes(ui, visible)
 	{
 		var graph = ui.editor.graph;
 	    graph.popupMenuHandler.hideMenu();
@@ -283,7 +284,8 @@ EditorUi.initMinimalTheme = function()
 	    }
 	    else
 	    {
-    		ui.sidebarWindow.window.setVisible(!ui.sidebarWindow.window.isVisible());
+    		ui.sidebarWindow.window.setVisible((visible != null) ?
+    			visible : !ui.sidebarWindow.window.isVisible());
 	    }
         
         if (ui.sidebarWindow.window.isVisible())
@@ -650,15 +652,32 @@ EditorUi.initMinimalTheme = function()
 		
 		if (!enabled)
 		{
-            if (this.sidebarWindow != null)
+			if (this.sidebarWindow != null)
             {
-                this.sidebarWindow.window.setVisible(false);
+            	this.sidebarWindow.window.setVisible(false);
             }
-            
+
             if (this.formatWindow != null)
             {
             	this.formatWindow.window.setVisible(false);
             }
+		}
+		else
+		{
+			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+			
+			if (iw >= 1000)
+			{
+				if (this.sidebarWindow != null)
+	            {
+	                this.sidebarWindow.window.setVisible(true);
+	            }
+	            
+	            if (this.formatWindow != null)
+	            {
+	            	this.formatWindow.window.setVisible(true);
+	            }
+			}
 		}
 	};
 	
@@ -791,14 +810,26 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addMenuItems(menu, ['-', 'find', 'tags'], parent);
 			
+			if (file != null && ui.fileNode != null)
+			{
+				var filename = (file.getTitle() != null) ?
+					file.getTitle() : ui.defaultFilename;
+				
+				if (!/(\.html)$/i.test(filename) &&
+					!/(\.svg)$/i.test(filename))
+				{
+					this.addMenuItems(menu, ['-', 'properties']);
+				}
+			}
+
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (!mxClient.IS_IOS || !navigator.standalone)
 			{
 				ui.menus.addMenuItems(menu, ['-', 'print', '-'], parent);
 			}
 			
-            ui.menus.addSubmenu('help', menu, parent);
-            
+			ui.menus.addSubmenu('help', menu, parent);
+
             if (urlParams['embed'] == '1')
 			{
 				ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
@@ -965,103 +996,108 @@ EditorUi.initMinimalTheme = function()
 	{
 		editorUiInit.apply(this, arguments);
 
-        var div = document.createElement('div');
-        div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
-        div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
-        this.sidebar = this.createSidebar(div);
+		var div = document.createElement('div');
+		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
+		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
+		this.sidebar = this.createSidebar(div);
+     
+		if (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null)
+		{
+			toggleShapes(this, true);
+		}
         
-        if (urlParams['clibs'] != null || urlParams['libs'] != null)
-        {
-        	toggleShapes(this);
-        }
+		if (iw >= 1000)
+		{
+			toggleFormat(this, true);
+		}
         
-        // Needed for creating elements in Format panel
-        var ui = this;
-        var graph = ui.editor.graph;
-        ui.toolbar = this.createToolbar(ui.createDiv('geToolbar'));
-        ui.defaultLibraryName = mxResources.get('untitledLibrary');
-        
-        var menubar = document.createElement('div');
-        menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
-        
-        var before = null;
-        var menuObj = new Menubar(ui, menubar);
-        
-        function addMenu(id, small, img)
-        {
-            var menu = ui.menus.get(id);
-            
-            var elt = menuObj.addMenu(mxResources.get(id), mxUtils.bind(this, function()
-            {
-                // Allows extensions of menu.functid
-                menu.funct.apply(this, arguments);
-            }), before);
-            
-            elt.className = 'geMenuItem';
-            elt.style.display = 'inline-block';
-            elt.style.boxSizing = 'border-box';
-            elt.style.top = '6px';
-            elt.style.marginRight = '6px';
-            elt.style.height = '30px';
-            elt.style.paddingTop = '6px';
-            elt.style.paddingBottom = '6px';
-            elt.style.cursor = 'pointer';
-            elt.setAttribute('title', mxResources.get(id));
-            ui.menus.menuCreated(menu, elt, 'geMenuItem');
-            
-            if (img != null)
-            {
-            	elt.style.backgroundImage = 'url(' + img + ')';
-            	elt.style.backgroundPosition = 'center center';
-            	elt.style.backgroundRepeat = 'no-repeat';
-            	elt.style.backgroundSize = '24px 24px';
-            	elt.style.width = '34px';
-            	elt.innerHTML = '';
-            }
-            else if (!small)
-            {
-            	elt.style.backgroundImage = 'url(' + mxWindow.prototype.normalizeImage + ')';
-            	elt.style.backgroundPosition = 'right 6px center';
-            	elt.style.backgroundRepeat = 'no-repeat';
-            	elt.style.paddingRight = '22px';
-            } 
+		// Needed for creating elements in Format panel
+		var ui = this;
+		var graph = ui.editor.graph;
+		ui.toolbar = this.createToolbar(ui.createDiv('geToolbar'));
+		ui.defaultLibraryName = mxResources.get('untitledLibrary');
 
-            return elt;
-        };
+		var menubar = document.createElement('div');
+		menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
+
+		var before = null;
+		var menuObj = new Menubar(ui, menubar);
+
+		function addMenu(id, small, img)
+		{
+			var menu = ui.menus.get(id);
+
+			var elt = menuObj.addMenu(mxResources.get(id), mxUtils.bind(this, function()
+			{
+				// Allows extensions of menu.functid
+				menu.funct.apply(this, arguments);
+			}), before);
+            
+			elt.className = 'geMenuItem';
+			elt.style.display = 'inline-block';
+			elt.style.boxSizing = 'border-box';
+			elt.style.top = '6px';
+			elt.style.marginRight = '6px';
+			elt.style.height = '30px';
+			elt.style.paddingTop = '6px';
+			elt.style.paddingBottom = '6px';
+			elt.style.cursor = 'pointer';
+			elt.setAttribute('title', mxResources.get(id));
+			ui.menus.menuCreated(menu, elt, 'geMenuItem');
+            
+			if (img != null)
+			{
+				elt.style.backgroundImage = 'url(' + img + ')';
+				elt.style.backgroundPosition = 'center center';
+				elt.style.backgroundRepeat = 'no-repeat';
+				elt.style.backgroundSize = '24px 24px';
+				elt.style.width = '34px';
+				elt.innerHTML = '';
+			}
+			else if (!small)
+			{
+				elt.style.backgroundImage = 'url(' + mxWindow.prototype.normalizeImage + ')';
+				elt.style.backgroundPosition = 'right 6px center';
+				elt.style.backgroundRepeat = 'no-repeat';
+				elt.style.paddingRight = '22px';
+			} 
+
+			return elt;
+		};
         
-        function addMenuItem(label, fn, small, tooltip, action, img)
-        {
-            var btn = document.createElement('a');
-            btn.className = 'geMenuItem';
-            btn.style.display = 'inline-block';
-            btn.style.boxSizing = 'border-box';
-            btn.style.height = '30px';
-            btn.style.padding = '6px';
-            btn.style.position = 'relative';
-            btn.style.verticalAlign = 'top';
-            btn.style.top = '0px';
+		function addMenuItem(label, fn, small, tooltip, action, img)
+		{
+			var btn = document.createElement('a');
+			btn.className = 'geMenuItem';
+			btn.style.display = 'inline-block';
+			btn.style.boxSizing = 'border-box';
+			btn.style.height = '30px';
+			btn.style.padding = '6px';
+			btn.style.position = 'relative';
+			btn.style.verticalAlign = 'top';
+			btn.style.top = '0px';
+
+			if (ui.statusContainer != null)
+			{
+				menubar.insertBefore(btn, ui.statusContainer);
+			}
+			else
+			{
+				menubar.appendChild(btn);
+			}
             
-            if (ui.statusContainer != null)
-            {
-            	menubar.insertBefore(btn, ui.statusContainer);
-            }
-            else
-            {
-            	menubar.appendChild(btn);
-            }
-            
-            if (img != null)
-            {
-            	btn.style.backgroundImage = 'url(' + img + ')';
-            	btn.style.backgroundPosition = 'center center';
-            	btn.style.backgroundRepeat = 'no-repeat';
-            	btn.style.backgroundSize = '24px 24px';
-                btn.style.width = '34px';
-            }
-            else
-            {
-                mxUtils.write(btn, label);
-            }
+			if (img != null)
+			{
+				btn.style.backgroundImage = 'url(' + img + ')';
+				btn.style.backgroundPosition = 'center center';
+				btn.style.backgroundRepeat = 'no-repeat';
+				btn.style.backgroundSize = '24px 24px';
+				btn.style.width = '34px';
+			}
+			else
+			{
+				mxUtils.write(btn, label);
+			}
             
     		// Prevents focus
             mxEvent.addListener(btn, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',

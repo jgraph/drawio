@@ -1,5 +1,5 @@
 /**
- * Draw.io Diagrams Sheets add-on v1.0
+ * diagrams.net Diagrams Sheets add-on v1.0
  * Copyright (c) 2019, JGraph Ltd
  */
 var EXPORT_URL = "https://exp.draw.io/ImageExport4/export";
@@ -41,7 +41,7 @@ function onInstall()
  * @return {string} The user's OAuth 2.0 access token.
  */
 function getOAuthToken() {
-  DriveApp.getRootFolder();
+  DriveApp.getFolders();
   return ScriptApp.getOAuthToken();
 }
 
@@ -53,7 +53,7 @@ function insertDiagrams()
   var html = HtmlService.createHtmlOutputFromFile('Picker.html')
       .setWidth(620).setHeight(440)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Select draw.io Diagrams:');
+  SpreadsheetApp.getUi().showModalDialog(html, 'Select Diagrams:');
 }
 
 function refreshSheet()

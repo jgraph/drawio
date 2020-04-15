@@ -873,10 +873,13 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 		
 		if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
 		{
+			var p = this.ui.getPngFileProperties(this.ui.fileNode);
+			
 			this.ui.getEmbeddedPng(mxUtils.bind(this, function(data)
 			{
 				fn(this.ui.base64ToBlob(data, 'image/png'));
-			}), error, (this.ui.getCurrentFile() != file) ? savedData : null);
+			}), error, (this.ui.getCurrentFile() != file) ?
+				savedData : null, p.scale, p.border);
 		}
 		else
 		{
