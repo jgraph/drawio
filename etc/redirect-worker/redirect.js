@@ -126,6 +126,7 @@ const redirectMap = new Map([
 		['/features/examples/', 'https://drawio-app.com/'],
 		['/features/training-material/', 'https://drawio-app.com/tutorials/'],
 		['/terms-conditions/', 'https://seibert-media.com/general-terms/'],
+		['/support/', 'https://github.com/jgraph/drawio/wiki/Getting-Support'],
 		['/', 'https://drawio-app.com/']
 	])],
 	['blog.draw.io', new Map([

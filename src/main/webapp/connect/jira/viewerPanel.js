@@ -336,26 +336,35 @@
 								'width:' + tileWidthCss + ';height:' + tileWidthCss + ';border:1px solid transparent;overflow: hidden;'; 
 							container.className = 'loading';
 							
+							//Find displayName
+							value.displayName = value.filename || value.displayName || value.diagramName;
+							
 							// Adds filename and ID to side panel
-							var title = document.createElement('div');
+							var title = document.createElement('div'), createDate = null;
 							
-							if (value.createDate != null)
+							function setTitle()
 							{
-								var createDate = value.createDate.toLocaleString();
-								mxUtils.write(title, value.filename + ' (' + createDate + ')');
-								var displayName = value.author != null ? value.author.displayName : '';
-								title.setAttribute('title', value.filename + ' (' + createDate + ') - ' + displayName +
-										' [ID: ' + value.id + ']');
-							}
-							else
-							{
-								var t = value.displayName || value.diagramName;
-								mxUtils.write(title, t);
-								var modifiedDate = value.modifiedDate? ' (' + new Date(value.modifiedDate).toLocaleString() + ')' : '';
-								title.setAttribute('title', t + modifiedDate + (value.createdBy? ' - ' + value.createdBy : '') +
-										(value.lastModifiedBy? ' [Last Modified By: ' + value.lastModifiedBy + ']' : ''));
-							}
+								title.innerHTML = '';
+								
+								if (value.createDate != null)
+								{
+									createDate = value.createDate.toLocaleString();
+									mxUtils.write(title, value.filename + ' (' + createDate + ')');
+									var displayName = value.author != null ? value.author.displayName : '';
+									title.setAttribute('title', value.filename + ' (' + createDate + ') - ' + displayName +
+											' [ID: ' + value.id + ']');
+								}
+								else
+								{
+									var t = value.displayName || value.diagramName;
+									mxUtils.write(title, t);
+									var modifiedDate = value.modifiedDate? ' (' + new Date(value.modifiedDate).toLocaleString() + ')' : '';
+									title.setAttribute('title', t + modifiedDate + (value.createdBy? ' - ' + value.createdBy : '') +
+											(value.lastModifiedBy? ' [Last Modified By: ' + value.lastModifiedBy + ']' : ''));
+								}
+							};
 							
+							setTitle();
 							title.style.cssText = 'position:relative;box-sizing:border-box;width:' + tileWidthCss + ';padding: 6px 0 0 3px;height:' + tbHeight +
 								'px;margin-bottom:-' + tbHeight + 'px;text-align:left;white-space:nowrap;cursor:pointer;overflow:hidden;';
 							tile.appendChild(title);					
@@ -414,7 +423,7 @@
 										}},
 										'remove': {title: mxResources.get('delete'), image: removeImage, handler: function()
 										{
-											if (confirm(mxResources.get('removeIt', [value.filename || value.displayName || value.diagramName]) + '?'))
+											if (confirm(mxResources.get('removeIt', [value.displayName]) + '?'))
 											{
 												if (value.diagramUrl != null || value.service != null)
 												{
@@ -595,7 +604,7 @@
 										'toolbar-position': 'top', toolbar: (value.diagramUrl != null || value.service != null? '' : 'edit ') +
 										'pages layers lightbox remove', border: 8, 'auto-fit': true, resize: false,
 										pageId: pageId, layerIds: layerIds,
-										nav: true, title: value.filename || value.displayName || value.diagramName, 'toolbar-buttons': btnDefs});
+										nav: true, title: value.displayName, 'toolbar-buttons': btnDefs});
 									
 									// Handles resize of iframe after zoom
 									var graphDoResizeContainer = viewer.graph.doResizeContainer;
@@ -633,11 +642,11 @@
 										
 										AP.dialog.create(
 										{
-						                   header: value.diagramUrl != null || value.service != null? (value.displayName || value.diagramName) : value.filename + ' (' + createDate + ')',
+						                   header: value.displayName + (createDate? ' (' + createDate + ')' : ''),
 										   key: 'drawioFullScreenViewer',
 						                   size: 'fullscreen',
 										   chrome: true,
-										   customData: {diagramUrl: value.diagramUrl, diagramName: value.filename || value.displayName || value.diagramName, 
+										   customData: {diagramUrl: value.diagramUrl, diagramName: value.displayName, 
 											   diagramId: value.id || attId, pageId: pageId, layerIds: layerIds, diagInfo: value}
 										});					
 									};
@@ -759,6 +768,8 @@
 									{
 										var prefix = new Date(fileInfo.modifiedDate).getTime() + '_';
 										var postfix = 'G' + fileInfo.id;
+										value.displayName = fileInfo.title;
+										setTitle();
 										
 										tryCachedFile(prefix, postfix, value.nameDiff, function()
 										{
@@ -802,6 +813,8 @@
 									{
 										var prefix = new Date(fileInfo.lastModifiedDateTime).getTime() + '_';
 										var postfix = 'W' + fileInfo.id;
+										value.displayName = fileInfo.name;
+										setTitle();
 										
 										tryCachedFile(prefix, postfix, value.nameDiff, function()
 										{

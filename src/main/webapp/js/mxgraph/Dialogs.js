@@ -50,16 +50,16 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		}
 	};
 
-	var picker = new jscolor.color(input);
+	var picker = new mxJSColor.color(input);
 	picker.pickerOnfocus = false;
 	picker.showPicker();
 
 	var div = document.createElement('div');
-	jscolor.picker.box.style.position = 'relative';
-	jscolor.picker.box.style.width = '230px';
-	jscolor.picker.box.style.height = '100px';
-	jscolor.picker.box.style.paddingBottom = '10px';
-	div.appendChild(jscolor.picker.box);
+	mxJSColor.picker.box.style.position = 'relative';
+	mxJSColor.picker.box.style.width = '230px';
+	mxJSColor.picker.box.style.height = '100px';
+	mxJSColor.picker.box.style.paddingBottom = '10px';
+	div.appendChild(mxJSColor.picker.box);
 
 	var center = document.createElement('center');
 	

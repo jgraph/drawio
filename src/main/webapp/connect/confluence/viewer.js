@@ -949,6 +949,7 @@
 														{
 															var isPng = fileInfo.mimeType == 'image/png';
 															var timestamp = new Date(fileInfo.modifiedDate).getTime();
+															viewer.updateTitle(fileInfo.title);
 															
 															AC.getAttachmentInfo(id, name, function(info)
 															{
@@ -986,6 +987,7 @@
 														{
 															var isPng = fileInfo.file.mimeType == 'image/png';
 															var timestamp = new Date(fileInfo.lastModifiedDateTime).getTime();
+															viewer.updateTitle(fileInfo.name);
 															
 															AC.getAttachmentInfo(id, name, function(info)
 															{

@@ -1,3 +1,7 @@
+16-APR-2020: 12.9.14
+
+- renamed jscolor to mxJSColor to avoid clash
+
 15-APR-2020: 12.9.13
 
 - Adds file properties dialog
