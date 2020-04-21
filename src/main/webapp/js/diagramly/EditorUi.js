@@ -4381,23 +4381,14 @@
 			}
 			else
 			{
-				var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
-				
 				if (mimeType == 'image/svg+xml')
 				{
-					// Workaround for scaled output in Chrome
-					if (mxClient.IS_GC && mxClient.IS_MAC)
-					{
-						win.document.write('<html><object style="max-width:100%;" data="data:' +
-								mimeType  + ';base64,' + temp + '"/></html>');
-					}
-					else
-					{
-						win.document.write('<html>'+ data + '</html>');
-					}
+					win.document.write('<html>'+ data + '</html>');
 				}
 				else
 				{
+					var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
+				
 					win.document.write('<html><img style="max-width:100%;" src="data:' +
 						mimeType  + ';base64,' + temp + '"/></html>');
 				}

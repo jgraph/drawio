@@ -51,11 +51,8 @@
 				AuthorInit: function ()
 				{
 					MathJax.Hub.Config({
-						jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/HTML-CSS'],
+						jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/SVG'],
 						extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
-						'HTML-CSS': {
-							imageFont: null
-						},
 						TeX: {
 						  extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
 						}

@@ -1351,7 +1351,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js?config=TeX-MML-AM_HTMLorMML';
+		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js';
 		Editor.mathJaxQueue = [];
 		
 		Editor.doMathJaxRender = function(container)
@@ -1377,13 +1377,14 @@
 				// Specification recommends using SVG over HTML-CSS if browser is known
 				// Check if too inconsistent with image export and print output
 				MathJax.Hub.Config(config || {
-					jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/HTML-CSS'],
+					jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/SVG'],
 					extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
-					'HTML-CSS': {
-						imageFont: null
-					},
 					TeX: {
-					  extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
+						extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
+					},
+					// Needed for client-side export to work
+					SVG: {
+						useFontCache: false
 					},
 					// Ignores math in in-place editor
 					tex2jax: {
@@ -2141,13 +2142,11 @@
 	};
 	
 	/**
-	 * See fixme in convertMath for client-side image generation with math.
+	 * Disables client-side image export if math is enabled.
 	 */
 	Editor.prototype.isExportToCanvas = function()
 	{
-		// LATER: Fix math rendering in Safari and CSS in Chrome on Windows and Linux
-		return mxClient.IS_CHROMEAPP || (this.useCanvasForExport && (!this.graph.mathEnabled ||
-			(!mxClient.IS_SF && !((mxClient.IS_GC || mxClient.IS_EDGE) && !mxClient.IS_MAC))));
+		return mxClient.IS_CHROMEAPP || this.useCanvasForExport;
 	};
 
 	/**
@@ -5969,19 +5968,16 @@
 					doc.writeln('MathJax.Hub.Config({');
 					doc.writeln('showMathMenu: false,');
 					doc.writeln('messageStyle: "none",');
-					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/HTML-CSS"],');
+					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/SVG"],');
 					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-					doc.writeln('"HTML-CSS": {');
-					doc.writeln('imageFont: null');
-					doc.writeln('},');
 					doc.writeln('TeX: {');
 					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
 					doc.writeln('},');
 					doc.writeln('tex2jax: {');
-					doc.writeln('	ignoreClass: "geDisableMathJax"');
+					doc.writeln('ignoreClass: "geDisableMathJax"');
 				  	doc.writeln('},');
 				  	doc.writeln('asciimath2jax: {');
-					doc.writeln('	ignoreClass: "geDisableMathJax"');
+					doc.writeln('ignoreClass: "geDisableMathJax"');
 				  	doc.writeln('}');
 					doc.writeln('});');
 					

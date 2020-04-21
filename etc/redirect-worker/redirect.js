@@ -113,6 +113,7 @@ const redirectMap = new Map([
 		['/simplified-tags-plugin/', 'https://www.diagrams.net/doc/faq/tags-plugin'],
 		['/github-support/', 'https://www.diagrams.net/blog/github-support'],
 		['/support-for-your-language-in-draw-io/', 'https://www.diagrams.net/blog/translate-drawio'],
+		['/translate-drawio/', 'https://www.diagrams.net/blog/translate-drawio'],
 		['/altshiftcursor/', 'https://www.diagrams.net/blog/shortcut-clone-connect'],
 		['/altshiftselect-now-removes-selected-cells%ef%bb%bf/', 'https://www.diagrams.net/blog/shortcut-deselect-shapes'],
 		['/draw-io-diagrams-for-confluence/', 'https://www.diagrams.net/integrations'],

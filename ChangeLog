@@ -1,6 +1,13 @@
+21-APR-2020: 13.0.0
+
+- Redirects old desktop versions
+- Fixes Edit menu in Chrome app
+- Uses SVG for math typesetting
+- Uses mxGraph 4.1.2 beta 4
+
 16-APR-2020: 12.9.14
 
-- renamed jscolor to mxJSColor to avoid clash
+- Renamed jscolor to mxJSColor to avoid clash
 
 15-APR-2020: 12.9.13
 
