@@ -5062,7 +5062,7 @@
 		}
 
 		return ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || !(/.*\.draw\.io$/.test(window.location.hostname))) ?
-			EditorUi.drawHost : 'https://' + window.location.host + '/') +
+			EditorUi.drawHost : 'https://' + window.location.host) + '/' +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
 	

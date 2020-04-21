@@ -1,3 +1,8 @@
+21-APR-2020: 13.0.1
+
+- Replaces HTML-CSS MathJax output files
+- Forces loading MathJS locally in export server/Desktop
+
 21-APR-2020: 13.0.0
 
 - Redirects old desktop versions

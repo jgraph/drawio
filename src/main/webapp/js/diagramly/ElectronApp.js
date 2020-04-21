@@ -10,6 +10,9 @@ mxStencilRegistry.allowEval = false;
 {
 	// Overrides default mode
 	App.mode = App.MODE_DEVICE;
+	
+	// Disables preview option in embed dialog
+	EmbedDialog.showPreviewOption = false;
 
 	// Disables new window option in edit diagram dialog
 	EditDiagramDialog.showNewWindowOption = false;
