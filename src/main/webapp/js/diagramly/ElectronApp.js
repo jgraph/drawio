@@ -535,8 +535,8 @@ mxStencilRegistry.allowEval = false;
 	{
 		var paths = argsObj.args;
 		
-		// If a file is passed, and it is not an argument (has a leading -)
-		if (paths !== undefined && paths[0] != null && paths[0].indexOf('-') != 0 && this.spinner.spin(document.body, mxResources.get('loading')))
+		// If a file is passed, and it is not an argument (has a leading -) [On mac, file-open event sends the file as a special path with - in the beginning] 
+		if (paths !== undefined && paths[0] != null && (paths[0].indexOf('-') != 0 || paths[1] == '$macOpen$') && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var path = paths[0];
 			this.hideDialog();
@@ -992,6 +992,9 @@ mxStencilRegistry.allowEval = false;
 		
 		return filename;
 	};
+	
+	// Prototype inheritance needs new functions to be added to subclasses
+	LocalLibrary.prototype.getFilename = LocalFile.prototype.getFilename;
 	
 	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
 	{

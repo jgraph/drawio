@@ -547,10 +547,11 @@ app.on('ready', e =>
     		if (program.args != null)
     		{
     			program.args.push(firstWinFilePath);
+    			program.args.push('$macOpen$');
     		}
     		else
 			{
-    			program.args = [firstWinFilePath];
+    			program.args = [firstWinFilePath, '$macOpen$'];
 			}
 		}
     	
@@ -727,7 +728,7 @@ app.on('will-finish-launching', function()
 		    
 		    win.webContents.on('did-finish-load', function()
 		    {
-		        win.webContents.send('args-obj', {args: [path]});
+		        win.webContents.send('args-obj', {args: [path, '$macOpen$']});
 		        
 		        win.webContents.zoomFactor = 1;
 		        win.webContents.setVisualZoomLevelLimits(1, 1);

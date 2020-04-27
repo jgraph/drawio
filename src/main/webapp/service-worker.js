@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "0a8a721148ce3e53a4437cb149dbe8da"
+    "revision": "cee5f8cf5c6c8ac7af34e941cce93438"
   },
   {
     "url": "js/extensions.min.js",
@@ -22,7 +22,7 @@ if (workbox)
   },
   {
     "url": "index.html",
-    "revision": "ecd9225c372feb9758d1f276ef6f0ab8"
+    "revision": "59c1288e11981558166be99a4665fd13"
   },
   {
     "url": "open.html",
@@ -59,10 +59,6 @@ if (workbox)
   {
     "url": "math/MathJax.js",
     "revision": "c32a502b8b4a6bd6bad8ddb1b59e9e72"
-  },
-  {
-    "url": "math/config/TeX-MML-AM_HTMLorMML.js",
-    "revision": "35c6f70100f11ab8f38be59ad53b903e"
   },
   {
     "url": "resources/dia.txt",
@@ -238,7 +234,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_tr.txt",
-    "revision": "0764d82abf5b90044c7df062d36b90ce"
+    "revision": "b968e66aefc9085772e9235c3e31e742"
   },
   {
     "url": "resources/dia_te.txt",
@@ -270,7 +266,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_zh.txt",
-    "revision": "bf9d6b66e0cb4fc1b250bae2c6d33c3d"
+    "revision": "cfc58655731298d1fccd8c1bfe961b8f"
   },
   {
     "url": "resources/dia_bn.txt",

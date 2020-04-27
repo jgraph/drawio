@@ -1384,6 +1384,9 @@
 					},
 					// Needed for client-side export to work
 					SVG: {
+						font: (urlParams['math-font'] != null) ?
+							decodeURIComponent(urlParams['math-font']) :
+							'TeX',
 						useFontCache: false
 					},
 					// Ignores math in in-place editor
@@ -4520,7 +4523,9 @@
 		if (this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
-			this.stylesheet = this.getDefaultStylesheet()
+			this.stylesheet = this.getDefaultStylesheet();
+			// LATER: Fix math export in dark mode by fetching text nodes before
+			// calling refresh and changing the font color in-place
 			this.refresh();
 		}
 		
@@ -5639,6 +5644,16 @@
 			// Workaround to match available paper size in actual print output
 			printScale *= 0.75;
 			
+			// Disables dark mode while printing
+			var darkStylesheet = null;
+			
+			if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
+			{
+				darkStylesheet = graph.stylesheet;
+				graph.stylesheet = graph.getDefaultStylesheet()
+				graph.refresh();
+			}
+			
 			function printGraph(thisGraph, pv, forcePageBreaks)
 			{
 				// Workaround for CSS transforms affecting the print output
@@ -5882,7 +5897,7 @@
 
 					if (tempGraph == null)
 					{
-						tempGraph = editorUi.createTemporaryGraph(graph.getStylesheet());
+						tempGraph = editorUi.createTemporaryGraph(graph.stylesheet);//getStylesheet());
 
 						// Restores graph settings that are relevant for printing
 						var pageVisible = true;
@@ -5973,6 +5988,11 @@
 					doc.writeln('TeX: {');
 					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
 					doc.writeln('},');
+					doc.writeln('SVG: {');
+					doc.writeln('font: "' + ((urlParams['math-font'] != null) ?
+						decodeURIComponent(urlParams['math-font']) :
+						'TeX') + '"');
+					doc.writeln('},');
 					doc.writeln('tex2jax: {');
 					doc.writeln('ignoreClass: "geDisableMathJax"');
 				  	doc.writeln('},');
@@ -5999,6 +6019,13 @@
 				{
 					PrintDialog.printPreview(pv);
 				}
+			}
+			
+			// Restores dark mode
+			if (darkStylesheet != null)
+			{
+				graph.stylesheet = darkStylesheet;
+				graph.refresh();
 			}
 		};
 		

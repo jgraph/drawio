@@ -1,3 +1,9 @@
+27-APR-2020: 13.0.2
+
+- Fixes print output in dark mode
+- Preserves pasted text colors
+- Adds math-font URL parameter
+
 21-APR-2020: 13.0.1
 
 - Replaces HTML-CSS MathJax output files

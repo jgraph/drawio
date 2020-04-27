@@ -1,5 +1,6 @@
 // Copyright (c) 2006-2020, JGraph Ltd
 /**
+ *
  */
 DesktopLibrary = function(ui, data, fileObj)
 {
@@ -18,11 +19,9 @@ DesktopLibrary.prototype.getHash = function()
 	return 'S' + encodeURIComponent(this.fileObj.path);
 };
 
-DesktopLibrary.prototype.isAutosave = function()
-{
-	return this.fileObj != null;
-};
-
+/**
+ * 
+ */
 DesktopLibrary.prototype.save = function(revision, success, error)
 {
 	LocalFile.prototype.saveFile.apply(this, arguments);

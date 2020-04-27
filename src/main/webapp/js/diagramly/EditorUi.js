@@ -6135,6 +6135,7 @@
 		try
 		{
 			var graph = this.editor.graph;
+			var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
 			var diagramData = null;
 			
 			// Exports PNG for given optional data
@@ -6147,7 +6148,7 @@
 				diagramData = optionalData;
 			}
 			// Exports PNG for first page while other page is showing
-			else if (this.pages != null && this.currentPage != this.pages[0])
+			else if (darkTheme || (this.pages != null && this.currentPage != this.pages[0]))
 			{
 				graph = this.createTemporaryGraph(graph.getStylesheet());
 				var graphGetGlobalVariable = graph.getGlobalVariable;

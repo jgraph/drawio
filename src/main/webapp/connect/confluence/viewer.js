@@ -205,7 +205,7 @@
 					//Check if the user can edit this diagram
 					if (userCanEdit[id] == null)
 					{
-						if (inComment)
+						if (inComment || (owningPageId != null && candidateId != owningPageId)) //TODO If the page id in the macro doesn't match the current page, we cannot edit it, fix this by allowing finding macro by owningPageId
 						{
 							userCanEdit[id] = -1; //TODO enable editing macros in comments externally (requires finding which comment it belongs to and editing that comment content)
 						}

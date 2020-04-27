@@ -1161,8 +1161,11 @@ Graph.removePasteFormatting = function(elt)
 		if (elt.nodeType == mxConstants.NODETYPE_ELEMENT && elt.style != null)
 		{
 			elt.style.whiteSpace = '';
-			elt.style.background = '';
-			elt.style.color = '';
+			
+			if (elt.style.color = '#000000')
+			{
+				elt.style.color = '';
+			}
 		}
 		
 		elt = elt.nextSibling;

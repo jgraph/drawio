@@ -2002,7 +2002,7 @@ App.prototype.getThumbnail = function(width, fn)
 		// To avoid refresh during save dark theme uses separate graph instance
 		var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
 		
-		if (this.pages != null && (this.currentPage != this.pages[0] || darkTheme))
+		if (darkTheme || (this.pages != null && this.currentPage != this.pages[0]))
 		{
 			var graphGetGlobalVariable = graph.getGlobalVariable;
 			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());

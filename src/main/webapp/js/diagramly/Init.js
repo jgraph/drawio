@@ -295,13 +295,25 @@ function setCurrentXml(data, filename)
 	
 	if (host != 'test.draw.io')
 	{
-		var searchString = 'draw.io';
+		var searchString = 'diagrams.net';
 		var position = host.length - searchString.length;
 		var lastIndex = host.lastIndexOf(searchString, position);
 		
 		if (lastIndex !== -1 && lastIndex === position)
 		{
-			window.DRAWIO_LOG_URL = 'https://log.draw.io';
+			window.DRAWIO_LOG_URL = 'https://log.diagrams.net';
+		}
+		else
+		{
+			// For atlas integrations
+			var searchString = 'draw.io';
+			var position = host.length - searchString.length;
+			var lastIndex = host.lastIndexOf(searchString, position);
+			
+			if (lastIndex !== -1 && lastIndex === position)
+			{
+				window.DRAWIO_LOG_URL = 'https://log.draw.io';
+			}
 		}
 	}
 })();
