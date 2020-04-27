@@ -392,7 +392,7 @@
  * Main
  */
 if (navigator.userAgent != null && navigator.userAgent.toLowerCase().
-	indexOf(' electron/') >= 0 && process.versions.electron < 5)
+	indexOf(' electron/') >= 0 && typeof process !== 'undefined' && process.versions.electron < 5)
 {
 	// Redirects old Electron app to latest version
 	var div = document.getElementById('geInfo');
