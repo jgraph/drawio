@@ -4796,7 +4796,7 @@ LucidImporter = {};
 
 	function getRounded(properties, action, cell)
 	{
-		if (!cell.edge)
+		if (!cell.edge && !cell.style.includes('rounded'))
 		{
 			//rounding check
 			if (properties.Rounding != null)
@@ -5792,6 +5792,7 @@ LucidImporter = {};
             	xml.push(' name="' + mxUtils.htmlEntities(pages[i].Properties.Title) + '"');
             }
             
+            xml.push(' id="' + i + '"'); //Add page ids in case it is needed in aspects
 			importLucidPage(graph, pages[i], null, null, null, true);
             var node = codec.encode(graph.getModel());
             graph.getModel().clear();
@@ -5998,91 +5999,203 @@ LucidImporter = {};
 			case 'AdvancedSwimLaneBlockRotated' :
 			case 'AdvancedSwimLaneBlock' :
 			case 'UMLSwimLaneBlockV2':
-			    var rotatedSL = p['Rotation'] != 0;
-			    var isPool = cls.indexOf('Pool') > 0;
-			    var isBPMN = cls.indexOf('BPMN') == 0;
-			    var hasTxt = p["MainText"] != null;
+				//Lucid changed swimlanes format
+				var mainTxtFld = 'MainText', laneFld = null, headerFillFld = 'HeaderFill_', bodyFillFld = 'BodyFill_';
+				var mainTxtHeight = 25, laneTxtHeight = 25;
 				var lanesNum = 0;
 				
 				if (p.Lanes != null)
 				{
 					lanesNum = p.Lanes.length;
 				}
+				else if (p.PrimaryLane != null)
+				{
+					lanesNum = p.PrimaryLane.length;
 
-				v.style = (isPool? 'swimlane;' : 'fillColor=none;strokeColor=none;pointerEvents=0;') + 
+					//In this format, boundingBox is not accurate!
+					w = 0, h = 0;
+					
+					for (var i = 0; i < lanesNum; i++)
+					{
+						w += p.PrimaryLane[i];
+					}
+					
+					for (var i = 0; i < p.SecondaryLane.length; i++)
+					{
+						h += p.SecondaryLane[i];
+					}
+					
+				    function fixTitleHeight(val)
+					{
+						if (!val) 
+						{
+							return 0;
+						}
+						else if (val < 32)
+						{
+							val = 32;
+						}
+						else if (val > 208)
+						{
+							val = 208;
+						}
+
+						return val * scale;
+					};
+
+					mainTxtHeight = fixTitleHeight(p.PrimaryPoolTitleHeight);
+					laneTxtHeight = fixTitleHeight(p.PrimaryLaneTitleHeight);
+					
+					w = w * scale;
+					h = h * scale + mainTxtHeight + laneTxtHeight;
+					v.geometry.width = w;
+					v.geometry.height = h;
+					
+					mainTxtFld = 'poolPrimaryTitleKey';
+					headerFillFld = 'PrimaryLaneHeaderFill_';
+					bodyFillFld = 'CellFill_0,';
+					laneFld = p.PrimaryLaneTextAreaIds;
+					
+					if (laneFld == null)
+					{
+						laneFld = [];
+						
+						for (var i = 0; i < lanesNum; i++)
+						{
+							laneFld.push('Primary_' + i);
+						}
+					}
+				}
+				
+				if (p.IsPrimaryLaneVertical == false)
+				{
+					p['Rotation'] = -1.5707963267948966; //-90
+					var origX = v.geometry.x;
+					var origY = v.geometry.y;
+				}
+				
+			    var rotatedSL = p['Rotation'] != 0; 
+			    var isPool = cls.indexOf('Pool') > 0;
+			    var isBPMN = cls.indexOf('BPMN') == 0;
+			    var hasTxt = p[mainTxtFld] != null;
+				
+				v.style = (isPool? 'swimlane;startSize=' + mainTxtHeight + ';' : 'fillColor=none;strokeColor=none;pointerEvents=0;') + 
 					'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
 					'resizeParent=1;dropTarget=0;' + (rotatedSL? 'horizontalStack=0;' : '');
 				v.style += addAllStyles(v.style, p, a, v);
 				
 				if (hasTxt)
 				{
-					v.value = convertText(p["MainText"]);
+					v.value = convertText(p[mainTxtFld]);
 					v.style += (isLastLblHTML? 'overflow=width;' : 
-							getFontSize(p["MainText"]) +
-							getFontColor(p["MainText"]) + 
-							getFontStyle(p["MainText"]) +
-							getTextAlignment(p["MainText"], v) + 
-							getTextLeftSpacing(p["MainText"]) +
-							getTextRightSpacing(p["MainText"]) + 
-							getTextTopSpacing(p["MainText"]) +
-							getTextBottomSpacing(p["MainText"]) 
+							getFontSize(p[mainTxtFld]) +
+							getFontColor(p[mainTxtFld]) + 
+							getFontStyle(p[mainTxtFld]) +
+							getTextAlignment(p[mainTxtFld], v) + 
+							getTextLeftSpacing(p[mainTxtFld]) +
+							getTextRightSpacing(p[mainTxtFld]) + 
+							getTextTopSpacing(p[mainTxtFld]) +
+							getTextBottomSpacing(p[mainTxtFld]) 
 							) +
-							getTextGlobalSpacing(p["MainText"]) +
-							getTextVerticalAlignment(p["MainText"]);
+							getTextGlobalSpacing(p[mainTxtFld]) +
+							getTextVerticalAlignment(p[mainTxtFld]);
 				}
 				
 				var totalOffset = 0; //relative
 				var lane = new Array();
 
-				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=25;dropTarget=0;' + 
+				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=' + laneTxtHeight + ';dropTarget=0;rounded=0;' + 
 								(rotatedSL? 'horizontal=0;': '') +
 								(isBPMN? 'swimlaneLine=0;fillColor=none;' : '');
 				
 				for (var j = 0; j < lanesNum; j++)
 				{
-					var currOffset = parseFloat(p.Lanes[j].p);
-					var i = parseInt(p.Lanes[j].tid) || j;
+					if (laneFld == null)
+					{
+						var currOffset = parseFloat(p.Lanes[j].p);
+						var i = parseInt(p.Lanes[j].tid) || j;
+						var curLane = 'Lane_' + i;
+					}
+					else
+					{
+						var currOffset = (p.PrimaryLane[j] * scale)/ w;
+						var i = j;
+						var curLane = laneFld[j];
+					}
 					
 					lane.push(new mxCell('', new mxGeometry(w * totalOffset, 0,	w * currOffset, h), laneStyle));
 					
 					lane[j].vertex = true;
 					v.insert(lane[j]);
-					lane[j].value = convertText(p["Lane_" + i]);
+					lane[j].value = convertText(p[curLane]);
 					lane[j].style +=
 									addAllStyles(lane[j].style, p, a, lane[j], isLastLblHTML) +
 									(isLastLblHTML? '' : 
-									getFontSize(p["Lane_" + i]) +
-									getFontColor(p["Lane_" + i]) + 
-									getFontStyle(p["Lane_" + i]) +
-									getTextAlignment(p["Lane_" + i], lane[j]) + 
-									getTextLeftSpacing(p["Lane_" + i]) +
-									getTextRightSpacing(p["Lane_" + i]) + 
-									getTextTopSpacing(p["Lane_" + i]) +
-									getTextBottomSpacing(p["Lane_" + i]) 
+									getFontSize(p[curLane]) +
+									getFontColor(p[curLane]) + 
+									getFontStyle(p[curLane]) +
+									getTextAlignment(p[curLane], lane[j]) + 
+									getTextLeftSpacing(p[curLane]) +
+									getTextRightSpacing(p[curLane]) + 
+									getTextTopSpacing(p[curLane]) +
+									getTextBottomSpacing(p[curLane]) 
 									) +
-									getTextGlobalSpacing(p["Lane_" + i]) +
-									getTextVerticalAlignment(p["Lane_" + i]) +
-									getHeaderColor(p["HeaderFill_" + i]) +
-									getLaneColor(p["BodyFill_" + i]);
+									getTextGlobalSpacing(p[curLane]) +
+									getTextVerticalAlignment(p[curLane]) +
+									getHeaderColor(p[headerFillFld + i]) +
+									getLaneColor(p[bodyFillFld + i]);
 
 					totalOffset += currOffset;
+				}
+				
+				if (origX != null)
+				{
+					v.geometry.x = origX;
+					v.geometry.y = origY;
 				}
 				break;
 			case 'UMLMultidimensionalSwimlane' :
 				var rowsNum = 0;
 				var colsNum = 0;
+				var rowFld = null, colFld = null;
 				
-				if (p.Rows != null && p.Columns)
+				if (p.Rows != null && p.Columns != null)
 				{
 					rowsNum = p.Rows.length;
 					colsNum = p.Columns.length;
+					var colStartSize = p.TitleHeight * scale || 25;
+					var rowStartSize = p.TitleWidth  * scale || 25;
 				}
-
-				v.style = 'group';
-				
-				var colStartSize = p.TitleHeight * scale || 25;
-				var rowStartSize = p.TitleWidth  * scale || 25;
-				
+				else if (p.PrimaryLane != null && p.SecondaryLane != null)
+				{
+					rowsNum = p.SecondaryLane.length;
+					colsNum = p.PrimaryLane.length;
+					var rowStartSize = p.SecondaryLaneTitleHeight  * scale || 25;
+					var colStartSize = p.PrimaryLaneTitleHeight * scale || 25;
+					
+					//In this format, boundingBox is not accurate!
+					w = 0, h = 0;
+					
+					for (var i = 0; i < rowsNum; i++)
+					{
+						h += p.SecondaryLane[i];
+					}
+					
+					for (var i = 0; i < colsNum; i++)
+					{
+						w += p.PrimaryLane[i];
+					}
+					
+					w = w * scale + rowStartSize;
+					h = h * scale + colStartSize;
+					v.geometry.width = w;
+					v.geometry.height = h;
+					
+					rowFld = p.SecondaryLaneTextAreaIds;
+					colFld = p.PrimaryLaneTextAreaIds;
+				}
+					
+				v.style = 'group;';
 				var contStyle = 'fillColor=none;strokeColor=none;html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
 									'resizeParent=1;dropTarget=0;';
 				var rows = new mxCell('', new mxGeometry(0, colStartSize, w, h - colStartSize), contStyle + 'horizontalStack=0;');
@@ -6098,28 +6211,37 @@ LucidImporter = {};
 				
 				for (var j = 0; j < rowsNum; j++)
 				{
-					var rh = parseInt(p.Rows[j].height) * scale;
-					var i = parseInt(p.Rows[j].id) || j;
+					if (rowFld == null)
+					{
+						var rh = parseInt(p.Rows[j].height) * scale;
+						var i = parseInt(p.Rows[j].id) || j;
+						var curRow = 'Row_' + i;
+					}
+					else
+					{
+						var rh = p.SecondaryLane[j] * scale;
+						var curRow = rowFld[j];
+					}
 					
 					var r = new mxCell('', new mxGeometry(0, y, w, rh), rowStyle);
 					y += rh;
 					r.vertex = true;
 					rows.insert(r);
-					r.value = convertText(p["Row_" + i]);
+					r.value = convertText(p[curRow]);
 					r.style +=
 									addAllStyles(r.style, p, a, r, isLastLblHTML) +
 									(isLastLblHTML? '' : 
-									getFontSize(p["Row_" + i]) +
-									getFontColor(p["Row_" + i]) + 
-									getFontStyle(p["Row_" + i]) +
-									getTextAlignment(p["Row_" + i], r) + 
-									getTextLeftSpacing(p["Row_" + i]) +
-									getTextRightSpacing(p["Row_" + i]) + 
-									getTextTopSpacing(p["Row_" + i]) +
-									getTextBottomSpacing(p["Row_" + i]) 
+									getFontSize(p[curRow]) +
+									getFontColor(p[curRow]) + 
+									getFontStyle(p[curRow]) +
+									getTextAlignment(p[curRow], r) + 
+									getTextLeftSpacing(p[curRow]) +
+									getTextRightSpacing(p[curRow]) + 
+									getTextTopSpacing(p[curRow]) +
+									getTextBottomSpacing(p[curRow]) 
 									) +
-									getTextGlobalSpacing(p["Row_" + i]) +
-									getTextVerticalAlignment(p["Row_" + i]);
+									getTextGlobalSpacing(p[curRow]) +
+									getTextVerticalAlignment(p[curRow]);
 				}
 				
 				var colStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;startSize=' + colStartSize + ';';
@@ -6127,28 +6249,37 @@ LucidImporter = {};
 				
 				for (var j = 0; j < colsNum; j++)
 				{
-					var cw = parseInt(p.Columns[j].width) * scale;
-					var i = parseInt(p.Columns[j].id) || j;
+					if (colFld == null)
+					{
+						var cw = parseInt(p.Columns[j].width) * scale;
+						var i = parseInt(p.Columns[j].id) || j;
+						var curCol = 'Column_' + i;
+					}
+					else
+					{
+						var cw = p.PrimaryLane[j] * scale;
+						var curCol = colFld[j];
+					}
 					
 					var c = new mxCell('', new mxGeometry(x, 0, cw, h), colStyle);
 					x += cw;
 					c.vertex = true;
 					cols.insert(c);
-					c.value = convertText(p["Column_" + i]);
+					c.value = convertText(p[curCol]);
 					c.style +=
 									addAllStyles(c.style, p, a, c, isLastLblHTML) +
 									(isLastLblHTML? '' : 
-									getFontSize(p["Column_" + i]) +
-									getFontColor(p["Column_" + i]) + 
-									getFontStyle(p["Column_" + i]) +
-									getTextAlignment(p["Column_" + i], c) + 
-									getTextLeftSpacing(p["Column_" + i]) +
-									getTextRightSpacing(p["Column_" + i]) + 
-									getTextTopSpacing(p["Column_" + i]) +
-									getTextBottomSpacing(p["Column_" + i]) 
+									getFontSize(p[curCol]) +
+									getFontColor(p[curCol]) + 
+									getFontStyle(p[curCol]) +
+									getTextAlignment(p[curCol], c) + 
+									getTextLeftSpacing(p[curCol]) +
+									getTextRightSpacing(p[curCol]) + 
+									getTextTopSpacing(p[curCol]) +
+									getTextBottomSpacing(p[curCol]) 
 									) + 
-									getTextGlobalSpacing(p["Column_" + i]) +
-									getTextVerticalAlignment(p["Column_" + i]);
+									getTextGlobalSpacing(p[curCol]) +
+									getTextVerticalAlignment(p[curCol]);
 				}
 				break;
 			case 'AndroidDevice' :

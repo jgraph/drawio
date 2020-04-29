@@ -523,14 +523,17 @@ app.on('ready', e =>
     	    
     	    win.webContents.on('did-finish-load', function()
     	    {
-    	    	//Open the file if new app request is from opening a file
-    	    	var potFile = commandLine.pop();
-    	    	
-    	    	if (fs.existsSync(potFile))
-    	    	{
-    	    		win.webContents.send('args-obj', {args: [potFile]});
-    	    	}
-    	    	
+    	    	ipcMain.once('app-load-finished', (evt, data) =>
+    			{
+	    	    	//Open the file if new app request is from opening a file
+	    	    	var potFile = commandLine.pop();
+	    	    	
+	    	    	if (fs.existsSync(potFile))
+	    	    	{
+	    	    		win.webContents.send('args-obj', {args: [potFile]});
+	    	    	}
+    			});
+    			
     	        win.webContents.zoomFactor = 1;
     	        win.webContents.setVisualZoomLevelLimits(1, 1);
     	        win.webContents.setLayoutZoomLevelLimits(0, 0);
@@ -547,18 +550,20 @@ app.on('ready', e =>
     		if (program.args != null)
     		{
     			program.args.push(firstWinFilePath);
-    			program.args.push('$macOpen$');
     		}
     		else
 			{
-    			program.args = [firstWinFilePath, '$macOpen$'];
+    			program.args = [firstWinFilePath];
 			}
 		}
     	
     	firstWinLoaded = true;
     	
-        win.webContents.send('args-obj', program);
-        
+    	ipcMain.once('app-load-finished', (evt, data) =>
+		{
+			win.webContents.send('args-obj', program);
+		});
+    	
         win.webContents.zoomFactor = 1;
         win.webContents.setVisualZoomLevelLimits(1, 1);
         win.webContents.setLayoutZoomLevelLimits(0, 0);
@@ -725,15 +730,18 @@ app.on('will-finish-launching', function()
 	app.on("open-file", function(event, path) 
 	{
 	    event.preventDefault();
-	    
+
 	    if (firstWinLoaded)
 	    {
 		    let win = createWindow();
 		    
 		    win.webContents.on('did-finish-load', function()
 		    {
-		        win.webContents.send('args-obj', {args: [path, '$macOpen$']});
-		        
+		    	ipcMain.once('app-load-finished', (evt, data) =>
+		    	{
+		    		win.webContents.send('args-obj', {args: [path]});
+		    	});
+		    	
 		        win.webContents.zoomFactor = 1;
 		        win.webContents.setVisualZoomLevelLimits(1, 1);
 		        win.webContents.setLayoutZoomLevelLimits(0, 0);

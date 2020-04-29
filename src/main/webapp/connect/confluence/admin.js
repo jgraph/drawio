@@ -917,3 +917,134 @@ function getAndApplyTranslation(callback)
 		}
 	});
 };
+
+var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
+{
+	var link = document.createElement('a');
+	link.href = location.href;
+	link.href = link.href; //to have 'host' populated under IE
+	var hostUrl = link.protocol + '//' + link.hostname;
+
+	function importLucidDoc(pageId, pageType, spaceKey, params, macroId, success, error, skip) 
+	{
+		var docId = params[0];
+		var autoSize = params[1];
+		var pageCount = params[2];
+		var pages = params[3];
+		var autoUpdate = params[4]; //TODO How can we get an old version based on the "updated" timestamp?
+		var width = params[5];
+		var height = params[6];
+		var align = params[7];
+		var updated = params[8];
+		
+		var docInfo = docsMap[docId];
+		var docName = docInfo? docInfo.text : docId;
+		
+		logDiv.append($('<div>' + mxResources.get('confAGliffyDiagFound', [AC.htmlEntities(docName), 'Lucidchart']) + '...</div>'));
+		
+		chrome.runtime.sendMessage(importExtensionId, {msg: 'fileContent', docId: docId}, function(resp)
+		{
+			if (resp.error)
+			{
+				logDiv.append($('<div style="color:red">' + mxResources.get('confAImportGliffyFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+				error({macroId:macroId});
+			}
+			else
+			{
+				try 
+				{
+					var drawXML = LucidImporter.importState(resp.content);
+					var pageIndex = pages? parseInt(pages) : 1;
+					var imgWidth = autoSize == 1? null : width;
+					var imageData = null, imageType = null;
+					
+					chrome.runtime.sendMessage(importExtensionId, 
+						{msg: 'fileImage', docId: docId, pageId: pageIndex <= pageCount? (pageIndex - 1) : 0, width: imgWidth}, function(resp)
+					{
+						//If image failed, just warn. No need to skip this file
+						if (resp.error)
+						{
+							logDiv.append($('<div style="color:orange">' + mxResources.get('confASavingLucidDiagImgFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+						}
+						else
+						{
+							imageData = resp.content;
+							var p = resp.content.indexOf('base64,');
+							imageData = resp.content.substring(p + 7); //7 is the length of "base64,"
+							imageType = resp.content.substring(5, p-1); //5 is the length of "data:"
+						}
+						
+						AC.saveDiagram(pageId, docName + ".drawio", drawXML,
+						function(resp)
+						{
+		 					resp = JSON.parse(resp);
+		 					
+		 					var attInfo = {
+		 						name: docName + ".drawio", 
+		 						revision: resp.results[0].version.number,
+		 						macroId: macroId,
+ 								width: autoSize == 1? null : width,
+ 								height: autoSize == 1? null : height,
+								pCenter: align == 'center'? 1 : null,
+								aspect: pages? ((pageIndex - 1) + ' 1') : null
+	 						};
+		 					
+		 					//Add custom content
+		 					AC.saveCustomContent(spaceKey, pageId, pageType, docName + ".drawio", docName + ".drawio", attInfo.revision, null, null, 
+ 							function(responseText)
+ 							{
+ 								var content = JSON.parse(responseText);
+								
+ 								attInfo.contentId = content.id;
+ 								attInfo.contentVer = content.version.number;
+								
+ 								if (imageData != null)
+ 								{
+ 									AC.saveDiagram(pageId, docName + '.png', AC.b64toBlob(imageData, imageType),
+									function()
+									{
+ 										logDiv.append($('<div>' + mxResources.get('confALucidDiagImgImported', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+										logDiv.append($('<div>' + mxResources.get('confAGliffyDiagImported', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+										success(attInfo);
+									}, function()
+									{
+										logDiv.append($('<div style="color:orange">' + mxResources.get('confASavingLucidDiagImgFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+										success(attInfo);
+									}, false, 'image/png', mxResources.get('drawPrev'));
+ 								}
+ 								else
+ 								{
+ 									logDiv.append($('<div>' + mxResources.get('confAGliffyDiagImported', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+ 									success(attInfo);
+ 								}
+ 							}, function(err)
+ 							{
+ 								logDiv.append($('<div style="color:red">' + mxResources.get('confASavingImpGliffyFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+			 					console.log(err);
+			 					error({macroId:macroId});
+ 							});
+		 					
+		 				}, function(err) 
+		 				{
+		 					logDiv.append($('<div style="color:red">' + mxResources.get('confASavingImpGliffyFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+		 					console.log(err);
+		 					error({macroId:macroId});
+		 				}, false, 'application/vnd.jgraph.mxfile', mxResources.get('confAImportedFromByDraw', [docName]));
+					});
+				}
+				catch(e)
+				{
+					console.log(e);
+					logDiv.append($('<div style="color:red">' + mxResources.get('confAImportGliffyFailed', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
+					error({macroId:macroId});
+				}
+			}
+		});
+	};
+	
+	logDiv.html("<br>");
+	
+	MassDiagramsProcessor('lucidchart', 'Lucidchart', 
+			['documentId', 'autoSize', 'pageCount', 'pages', 'autoUpdate', 'width', 'height', 'align', 'updated'], 
+			importLucidDoc, logDiv);
+};

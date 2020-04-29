@@ -529,14 +529,17 @@ mxStencilRegistry.allowEval = false;
 				ipcRenderer.send('export-vsdx-finished', null);
 			}
 		})	
+
+		//We do some async stuff during app loading so we need to know exactly when loading is finished (it is not when onload is finished)
+		ipcRenderer.send('app-load-finished', null);
 	}
 	
 	App.prototype.loadArgs = function(argsObj)
 	{
 		var paths = argsObj.args;
 		
-		// If a file is passed, and it is not an argument (has a leading -) [On mac, file-open event sends the file as a special path with - in the beginning] 
-		if (paths !== undefined && paths[0] != null && (paths[0].indexOf('-') != 0 || paths[1] == '$macOpen$') && this.spinner.spin(document.body, mxResources.get('loading')))
+		// If a file is passed, and it is not an argument (has a leading -) 
+		if (paths !== undefined && paths[0] != null && paths[0].indexOf('-') != 0 && this.spinner.spin(document.body, mxResources.get('loading')))
 		{
 			var path = paths[0];
 			this.hideDialog();
