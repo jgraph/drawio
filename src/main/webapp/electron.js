@@ -646,23 +646,15 @@ app.on('ready', e =>
 	      ]
 	    }, {
 	      label: 'Edit',
-	      submenu: [{
-	        label: 'Cut',
-	        accelerator: 'CmdOrCtrl+X',
-	        selector: 'cut:'
-	      }, {
-	        label: 'Copy',
-	        accelerator: 'CmdOrCtrl+C',
-	        selector: 'copy:'
-	      }, {
-	        label: 'Paste',
-	        accelerator: 'CmdOrCtrl+V',
-	        selector: 'paste:'
-	      }, {
-	        label: 'Paste and Match Style',
-	        accelerator: 'CmdOrCtrl+Alt+Shift+V',
-	        selector: 'pasteAndMatchStyle:'
-	      }]
+	      submenu: [
+	        { role: 'undo' },
+	        { role: 'redo' },
+	        { role: 'cut' },
+	        { role: 'copy' },
+	        { role: 'paste' },
+	        { role: 'pasteAndMatchStyle' },
+	        { role: 'selectAll' }
+	      ]
 	    }]
 	    
 	    if (disableUpdate)
