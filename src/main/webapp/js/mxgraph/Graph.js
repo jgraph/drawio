@@ -1162,7 +1162,7 @@ Graph.removePasteFormatting = function(elt)
 		{
 			elt.style.whiteSpace = '';
 			
-			if (elt.style.color = '#000000')
+			if (elt.style.color == '#000000')
 			{
 				elt.style.color = '';
 			}

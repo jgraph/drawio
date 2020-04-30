@@ -3908,7 +3908,7 @@ App.prototype.saveFile = function(forceDialog, success)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
+App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, asLibrary)
 {
 	var base64 = false;
 	var realUrl = url;
@@ -3929,9 +3929,24 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 		{
 			var data = (!base64) ? responseData : ((window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ?
 				atob(responseData) : Base64.decode(responseData));
+			var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
+				/(\.vs(x|sx?))($|\?)/i.test(filterFn);
 			
-			if (/(\.v(dx|sdx?))($|\?)/i.test(filterFn) || this.isVisioData(data))
+			if (isVisioFilename || this.isVisioData(data))
 			{
+				// Adds filename to control converter code
+				if (!isVisioFilename)
+				{
+					if (asLibrary)
+					{
+						filterFn = this.isRemoteVisioData(data) ? 'raw.vss' : 'raw.vssx';
+					}
+					else
+					{
+						filterFn = this.isRemoteVisioData(data) ? 'raw.vsd' : 'raw.vsdx';
+					}
+				}
+				
 				this.importVisio(this.base64ToBlob(responseData.substring(responseData.indexOf(',') + 1)), function(xml)
 				{
 					onload(xml);
@@ -3973,7 +3988,8 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename)
 		{
 			onerror(e);
 		}
-	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn), null, null, base64);
+	}), onerror, /(\.png)($|\?)/i.test(filterFn) || /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
+		/(\.vs(x|sx?))($|\?)/i.test(filterFn), null, null, base64);
 };
 
 /**
@@ -4867,43 +4883,18 @@ App.prototype.loadLibraries = function(libs, done)
 							
 							if (!this.isOffline())
 							{
-								var realUrl = url;
-								
-								if (!this.editor.isCorsEnabledForUrl(realUrl))
+								this.loadTemplate(url, mxUtils.bind(this, function(text)
 								{
-									var nocache = 't=' + new Date().getTime();
-									realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&' + nocache;
-								}
-								
-								try
-								{
-									// Uses proxy to avoid CORS issues
-									mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+									if (text != null && text.length > 0)
 									{
-										if (req.getStatus() >= 200 && req.getStatus() <= 299)
-										{
-											try
-											{
-												onload(new UrlLibrary(this, req.getText(), url));
-											}
-											catch (e)
-											{
-												onerror();
-											}
-										}
-										else
-										{
-											onerror();
-										}
-									}), function()
+										// LATER: Convert mxfile to mxlibrary using code from libraryLoaded
+										onload(new UrlLibrary(this, text, url));
+									}
+									else
 									{
 										onerror();
-									});
-								}
-								catch (e)
-								{
-									onerror();
-								}
+									}
+								}), onerror, null, true);
 							}
 						}
 						else if (service == 'R')

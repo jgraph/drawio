@@ -743,13 +743,25 @@
 	 */
 	EditorUi.prototype.isVisioData = function(data)
 	{
-		return data.length > 8 && (data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+		return data.length > 8 && ((data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
 			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
 			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
 			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x04) || (data.charCodeAt(0) == 0x50 && data.charCodeAt(1) == 0x4B &&
-			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06);
+			data.charCodeAt(2) == 0x03 && data.charCodeAt(3) == 0x06));
 	};
 
+	/**
+	 * Returns true if the given binary data is a Visio file that requires remote conversion.
+	 * This code returns true for vss, vsd and vdx files.
+	 */
+	EditorUi.prototype.isRemoteVisioData = function(data)
+	{
+		return data.length > 8 && ((data.charCodeAt(0) == 0xD0 && data.charCodeAt(1) == 0xCF &&
+			data.charCodeAt(2) == 0x11 && data.charCodeAt(3) == 0xE0 && data.charCodeAt(4) == 0xA1 && data.charCodeAt(5) == 0xB1 &&
+			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x3C && data.charCodeAt(1) == 0x3F &&
+			data.charCodeAt(2) == 0x78 && data.charCodeAt(3) == 0x6D && data.charCodeAt(3) == 0x6C));
+	};
+	
 	/**
 	 * Returns true if the given binary data is a PNG file.
 	 */
@@ -6646,6 +6658,15 @@
 					if (dot >= 0 && dot < filename.length)
 					{
 						ext = filename.substring(dot + 1).toUpperCase();
+					}
+					else
+					{
+						var slash = filename.lastIndexOf('/');
+						
+						if (slash >= 0 && slash < filename.length)
+						{
+							filename = filename.substring(slash + 1);
+						}
 					}
 					
 					EditorUi.logEvent({category: ext + '-MS-IMPORT-FILE',

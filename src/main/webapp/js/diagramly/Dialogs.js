@@ -8481,7 +8481,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	{
 		return function(data, mimeType, x, y, w, h, img, doneFn, file)
 		{
-			if (file != null && (/(\.vsdx)($|\?)/i.test(file.name) || /(\.vssx)($|\?)/i.test(file.name)))
+			if (file != null && (/(\.v(dx|sdx?))($|\?)/i.test(file.name) || /(\.vs(x|sx?))($|\?)/i.test(file.name)))
 			{
 				editorUi.importVisio(file, mxUtils.bind(this, function(xml)
 				{

@@ -256,7 +256,7 @@ function replacePageMacro(page, regExps, processAttFn, pageUpdateSuccess, pageUp
 	return macrosCount;
 };
 
-var MassDiagramsProcessor = function(macroName, readableName, attParams, processAttFn, logDiv)
+var MassDiagramsProcessor = function(macroName, readableName, attParams, processAttFn, logDiv, doneFn)
 {
 	var start = 0, limit = 100;
 	var regExps = getMacroRegExps(macroName, attParams);
@@ -339,6 +339,11 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 		if (processPage())
 		{
 			logDiv.append($('<div>' + mxResources.get('confAAllDiagDone', [readableName]) + '</div>'));
+			
+			if (doneFn)
+			{
+				doneFn();
+			}
 		}
 	};
 	
@@ -387,6 +392,11 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 		if (pagesCount == 0)
 		{
 			logDiv.append($('<div>' + mxResources.get('confANoDiagFound', [readableName]) + '</div>'));
+			
+			if (doneFn)
+			{
+				doneFn();
+			}
 		}
 		else
 		{
@@ -918,7 +928,7 @@ function getAndApplyTranslation(callback)
 	});
 };
 
-var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
+var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv, doneFn)
 {
 	var link = document.createElement('a');
 	link.href = location.href;
@@ -939,6 +949,8 @@ var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
 		
 		var docInfo = docsMap[docId];
 		var docName = docInfo? docInfo.text : docId;
+		var diagramName = docName + '-' + docId + '.drawio';
+		var diagramDisplayName = docName;
 		
 		logDiv.append($('<div>' + mxResources.get('confAGliffyDiagFound', [AC.htmlEntities(docName), 'Lucidchart']) + '...</div>'));
 		
@@ -974,13 +986,14 @@ var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
 							imageType = resp.content.substring(5, p-1); //5 is the length of "data:"
 						}
 						
-						AC.saveDiagram(pageId, docName + ".drawio", drawXML,
+						AC.saveDiagram(pageId, diagramName, drawXML,
 						function(resp)
 						{
 		 					resp = JSON.parse(resp);
 		 					
 		 					var attInfo = {
-		 						name: docName + ".drawio", 
+		 						name: diagramName,
+		 						diagramDisplayName: diagramDisplayName,
 		 						revision: resp.results[0].version.number,
 		 						macroId: macroId,
  								width: autoSize == 1? null : width,
@@ -990,7 +1003,7 @@ var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
 	 						};
 		 					
 		 					//Add custom content
-		 					AC.saveCustomContent(spaceKey, pageId, pageType, docName + ".drawio", docName + ".drawio", attInfo.revision, null, null, 
+		 					AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, attInfo.revision, null, null, 
  							function(responseText)
  							{
  								var content = JSON.parse(responseText);
@@ -1000,7 +1013,7 @@ var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
 								
  								if (imageData != null)
  								{
- 									AC.saveDiagram(pageId, docName + '.png', AC.b64toBlob(imageData, imageType),
+ 									AC.saveDiagram(pageId, diagramName + '.png', AC.b64toBlob(imageData, imageType),
 									function()
 									{
  										logDiv.append($('<div>' + mxResources.get('confALucidDiagImgImported', [AC.htmlEntities(docName), 'Lucidchart']) + '</div>'));
@@ -1046,5 +1059,5 @@ var LucidConnMassImporter = function(docsMap, importExtensionId, logDiv)
 	
 	MassDiagramsProcessor('lucidchart', 'Lucidchart', 
 			['documentId', 'autoSize', 'pageCount', 'pages', 'autoUpdate', 'width', 'height', 'align', 'updated'], 
-			importLucidDoc, logDiv);
+			importLucidDoc, logDiv, doneFn);
 };

@@ -3,6 +3,7 @@
  * 
  * TODO: Move to dynamic loading minimized plugin.
  */
+//This covers version 52 of Lucidchart ("BCUVersion": 52 or "BackwardsCompatibilityStateVersion": 52)
 LucidImporter = {};
 (function()
 {
@@ -6107,6 +6108,7 @@ LucidImporter = {};
 				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=' + laneTxtHeight + ';dropTarget=0;rounded=0;' + 
 								(rotatedSL? 'horizontal=0;': '') +
 								(isBPMN? 'swimlaneLine=0;fillColor=none;' : '');
+				p['Rotation'] = 0; //Override rotation such that it doesn't mess with our coordinates
 				
 				for (var j = 0; j < lanesNum; j++)
 				{
@@ -6122,8 +6124,11 @@ LucidImporter = {};
 						var i = j;
 						var curLane = laneFld[j];
 					}
-					
-					lane.push(new mxCell('', new mxGeometry(w * totalOffset, 0,	w * currOffset, h), laneStyle));
+
+					var childX = w * totalOffset;
+					var childY = isPool? mainTxtHeight : 0;
+					lane.push(new mxCell('', rotatedSL? new mxGeometry(childY, childX,	h - childY, w * currOffset) :
+						new mxGeometry(childX, childY,	w * currOffset, h - childY), laneStyle));
 					
 					lane[j].vertex = true;
 					v.insert(lane[j]);

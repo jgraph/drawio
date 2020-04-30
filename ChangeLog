@@ -1,3 +1,11 @@
+30-APR-2020: 13.0.4
+
+- Adds support for vss(x) via clibs parameter
+- Fixes inserting file to empty GitLab repo
+- Fixes drop vss file into library dialog
+- Fixes event handling for iPadOS 13.4.1
+- Uses mxGraph 4.1.2 beta 5
+
 29-APR-2020: 13.0.3
 
 - Lucidchart import improvements

@@ -77,7 +77,11 @@
 						
 						importBtn.click(function()
 						{
-							LucidConnMassImporter(response.filesMap, importExtensionId, logDiv)
+							$('#loadingImg').show();
+							LucidConnMassImporter(response.filesMap, importExtensionId, logDiv, function()
+							{
+								$('#loadingImg').hide();
+							})
 						});
 					}	
 				};

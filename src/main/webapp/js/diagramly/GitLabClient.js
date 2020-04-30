@@ -236,7 +236,7 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 /**
  * Finds index of ref in given token list. This is required to support groups and subgroups.
  */
-GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, knownRefPos)
+GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, knownRefPos, checkRepo)
 {
 	if (knownRefPos != null)
 	{
@@ -261,8 +261,8 @@ GitLabClient.prototype.getRefIndex = function(tokens, isFolder, success, error, 
 				var ref = tokens[refPos];
 				var path = tokens.slice(refPos + 1, tokens.length).join('/');
 				var url = this.baseUrl + '/projects/' + encodeURIComponent(org + '/' + repo) + '/repository/' +
-					(!isFolder ? 'files/' + encodeURIComponent(path) + '?ref=' + ref :
-					'tree?path=' + path + '&ref=' + ref);
+					(!isFolder ? 'files/' + encodeURIComponent(path) + '?ref=' + ref : (checkRepo ?
+					'branches?per_page=1&page=1&ref=' + ref : 'tree?path=' + path + '&ref=' + ref));
 				
 				var req = new mxXmlRequest(url, null, 'HEAD');
 				
@@ -450,8 +450,9 @@ GitLabClient.prototype.createGitLabFile = function(org, repo, ref, data, asLibra
 GitLabClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId, base64Encoded)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
+	var tok = folderId.split('/');
 	
-	this.getRefIndex(folderId.split('/'), true, mxUtils.bind(this, function(tokens, refPos)
+	this.getRefIndex(tok, true, mxUtils.bind(this, function(tokens, refPos)
 	{
 		var repoPos = Math.max(refPos - 1, 0);
 		var org = tokens.slice(0, repoPos).join('/');
@@ -511,7 +512,7 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 				error();
 			}
 		}))
-	}), error);
+	}), error, null, tok.length <= 4);
 };
 
 /**
