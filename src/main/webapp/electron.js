@@ -16,6 +16,7 @@ const {autoUpdater} = require("electron-updater")
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
+const contextMenu = require('electron-context-menu');
 const { systemPreferences } = require('electron')
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
@@ -30,6 +31,10 @@ let windowsRegistry = []
 let cmdQPressed = false
 let firstWinLoaded = false
 let firstWinFilePath = null
+
+contextMenu({
+	showInspectElement: false
+});
 
 function createWindow (opt = {})
 {
