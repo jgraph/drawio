@@ -1180,7 +1180,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties)
+DriveClient.prototype.saveFile = function(file, revision, success, errFn, noCheck, unloading, overwrite, properties, secret)
 {
 	try
 	{
@@ -1330,7 +1330,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 						}
 						
 						// Pass to access cache for each etag
-						properties.push({'key': 'secret', 'value': Editor.guid(32)});
+						properties.push({'key': 'secret', 'value': (secret != null) ? secret : Editor.guid(32)});
 					}
 					
 					// Specifies that no thumbnail should be uploaded in which case the existing thumbnail is used

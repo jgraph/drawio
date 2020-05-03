@@ -1464,7 +1464,7 @@ App.prototype.init = function()
 		}
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' && DrawioFile.SYNC == 'auto' &&
-			urlParams['local'] != '1' && urlParams['stealth'] != '1' && this.isOffline() &&
+			urlParams['local'] != '1' && urlParams['stealth'] != '1' && !this.isOffline() &&
 			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive

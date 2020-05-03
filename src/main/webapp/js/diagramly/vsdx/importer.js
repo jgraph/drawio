@@ -151,6 +151,13 @@ var com;
                     }
                 };
                 
+                mxVsdxCodec.incorrectXMLReqExp = [
+                	{
+                		regExp: /(\>[^&<]*)\&([^&<;]*\<)/g,
+                		repl: '$1&amp;$2'
+                	}
+                ];
+                
                 /**
                  * Parses the input VSDX format and uses the information to populate
                  * the specified graph.
@@ -318,6 +325,18 @@ var com;
 	                                        	if (str.charCodeAt(1) === 0 && str.charCodeAt(3) === 0 && str.charCodeAt(5) === 0)
                                         		{
 	                                        		doc = mxVsdxCodec.parseXml(mxVsdxCodec.decodeUTF16LE(str));
+                                        		}
+	                                        	else
+                                        		{
+	                                        		for (var r = 0; r < mxVsdxCodec.incorrectXMLReqExp.length; r++)
+                                        			{
+	                                        			if (mxVsdxCodec.incorrectXMLReqExp[r].regExp.test(str))
+                                        				{
+	                                        				str = str.replace(mxVsdxCodec.incorrectXMLReqExp[r].regExp, mxVsdxCodec.incorrectXMLReqExp[r].repl);
+                                        				}
+                                        			}
+	                                        		
+	                                        		doc = mxVsdxCodec.parseXml(str);
                                         		}
 	                                        	//TODO add any other non-standard encoding that may be needed 
 	                                        }
@@ -11696,7 +11715,12 @@ var com;
                         else {
                             return o1 === o2;
                         } })(lbkgnd, "")) {
-                            /* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
+                        	var isFullyTransparent = this.getValue(this.getCellElement$java_lang_String('TextBkgndTrans'), '0') == '1';
+                        	
+                        	if (!isFullyTransparent)
+                        	{
+                        		/* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
+                        	}
                         }
                         /* put */ (this.styleMap[mxConstants.STYLE_ROUNDED] = this.getRounding() > 0 ? com.mxgraph.io.vsdx.mxVsdxConstants.TRUE : com.mxgraph.io.vsdx.mxVsdxConstants.FALSE);
                         return this.styleMap;

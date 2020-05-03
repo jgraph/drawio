@@ -182,20 +182,6 @@ OneDriveFile.prototype.setDescriptor = function(desc)
 };
 
 /**
- * Using the quickXorHash of the content as the access password.
- */
-OneDriveFile.prototype.getDescriptorSecret = function(desc)
-{
-	if (desc.file != null && desc.file.hashes != null &&
-		desc.file.hashes.quickXorHash != null)
-	{
-		return desc.file.hashes.quickXorHash;
-	}
-	
-	return null;
-};
-
-/**
  * Adds all listeners.
  */
 OneDriveFile.prototype.getDescriptorEtag = function(desc)

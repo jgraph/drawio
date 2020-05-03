@@ -647,13 +647,14 @@ app.on('ready', e =>
 	    }, {
 	      label: 'Edit',
 	      submenu: [
-	        { role: 'undo' },
-	        { role: 'redo' },
-	        { role: 'cut' },
-	        { role: 'copy' },
-	        { role: 'paste' },
-	        { role: 'pasteAndMatchStyle' },
-	        { role: 'selectAll' }
+			{ role: 'undo' },
+			{ role: 'redo' },
+			{ type: 'separator' },
+			{ role: 'cut' },
+			{ role: 'copy' },
+			{ role: 'paste' },
+			{ role: 'pasteAndMatchStyle' },
+			{ role: 'selectAll' }
 	      ]
 	    }]
 	    

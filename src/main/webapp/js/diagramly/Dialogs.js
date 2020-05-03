@@ -2671,7 +2671,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
 	nameInput.style.marginLeft = '10px';
-	nameInput.style.width = (compact) ? '144px' : '284px';
+	nameInput.style.width = (compact) ? '144px' : '244px';
 	
 	this.init = function()
 	{
@@ -2699,7 +2699,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
 			typeSelect.style.marginLeft = '6px';
-			typeSelect.style.width = (compact) ? '80px' : '140px';
+			typeSelect.style.width = (compact) ? '80px' : '180px';
 			header.appendChild(typeSelect);
 		}
 		

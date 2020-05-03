@@ -1065,17 +1065,17 @@
 	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
 	
 	/**
-	 * Generates a unique ID of the given length
+	 * Alphabet for global unique IDs.
 	 */
 	Editor.GUID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_';
 
 	/**
-	 * Generates a unique ID of the given length
+	 * Default length for global unique IDs.
 	 */
 	Editor.GUID_LENGTH = 20;
 	
 	/**
-	 * Generates a unique ID of the given length
+	 * Default length for global unique IDs.
 	 */
 	Editor.guid = function(length)
 	{
