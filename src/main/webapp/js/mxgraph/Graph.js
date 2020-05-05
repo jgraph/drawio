@@ -4347,8 +4347,7 @@ Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, 
 	w = (w != null) ? w : 120;
 	h = (h != null) ? h : 120;
 	
-	var s = 'swimlane;html=1;whiteSpace=wrap;' +
-		'collapsible=0;recursiveResize=0;expand=0;';
+	var s = 'swimlane;html=1;whiteSpace=wrap;collapsible=0;recursiveResize=0;expand=0;';
 	
 	var table = this.createVertex(null, null, '', 0, 0,
 		colCount * w, rowCount * h, s + 'containerType=table;container=0;dropTarget=0;' +

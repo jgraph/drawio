@@ -3737,6 +3737,42 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc)
 };
 
 /**
+ * Handles ctrl+enter keystroke to clone cells.
+ */
+EditorUi.prototype.ctrlEnter = function()
+{
+	var graph = this.editor.graph;
+
+	if (graph.isEnabled())
+	{
+		try
+		{
+			var cells = graph.getSelectionCells();
+		    var lookup = new mxDictionary();
+		    var newCells = [];
+
+		    for (var i = 0; i < cells.length; i++)
+		    {
+		    	// Clones table rows instead of cells
+		    	var cell = (graph.isTableCell(cells[i])) ? graph.model.getParent(cells[i]) : cells[i];
+		    	
+		    	if (cell != null && !lookup.get(cell))
+		    	{
+		    		lookup.put(cell, true);
+		            newCells.push(cell);
+		        }
+		    }
+		    
+			graph.setSelectionCells(graph.duplicateCells(newCells, false));
+		}
+		catch (e)
+		{
+			this.handleError(e);
+		}
+	}
+};
+
+/**
  * Display a color dialog.
  */
 EditorUi.prototype.pickColor = function(color, apply)
@@ -4526,20 +4562,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	{
 		keyHandler.bindControlKey(36, function() { if (graph.isEnabled()) { graph.foldCells(true); }}); // Ctrl+Home
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
-		keyHandler.bindControlKey(13, function()
-		{
-			if (graph.isEnabled())
-			{
-				try
-				{
-					graph.setSelectionCells(graph.duplicateCells(graph.getSelectionCells(), false));
-				}
-				catch (e)
-				{
-					ui.handleError(e);
-				}
-			}
-		}); // Ctrl+Enter
+		keyHandler.bindControlKey(13, function() { ui.ctrlEnter(); }); // Ctrl+Enter
 		keyHandler.bindAction(8, false, 'delete'); // Backspace
 		keyHandler.bindAction(8, true, 'deleteAll'); // Shift+Backspace
 		keyHandler.bindAction(46, false, 'delete'); // Delete

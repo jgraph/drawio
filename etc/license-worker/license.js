@@ -20,6 +20,7 @@ async function handleRequest(request)
 	let reqBodyTxt = new TextDecoder("utf-8").decode(reqBody.value);
 	let params = new URL('http://dummy.com?' + reqBodyTxt).searchParams;
 	let domain = params.get('domain');
+	let confLicense = params.get('confLicense');
 	
 	//Try Query string parameters
 	if (domain == null)
@@ -38,9 +39,15 @@ async function handleRequest(request)
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}
+	else if (confLicense != null && domain != null)
+	{
+		let msg = encodeURIComponent(('license:confLicense=' + confLicense + ',domain=' + domain));
+		let url = "https://log.diagrams.net/" + msg;
+		fetch(url);
+	}
 	else if (domain != null)
 	{
-		let msg = encodeURIComponent(('license:atlas-cloud:' + domain));
+		let msg = encodeURIComponent(('license:domain=' + domain));
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}
