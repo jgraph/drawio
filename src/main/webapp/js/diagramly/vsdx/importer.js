@@ -305,7 +305,7 @@ var com;
 	        					var filename = zipEntry.name;
 	                        	var name = filename.toLowerCase();
 	        					var nameLen = name.length;
-	                            if (name.indexOf('.xml') == nameLen - 4 || name.indexOf('.xml.rels') == nameLen - 9) //xml files
+	                            if (name.indexOf('.xml') == nameLen - 4 || name.indexOf('.rels') == nameLen - 5) //xml files
 	                            {
 	                            	filesCount++;
 	        	                    zipEntry.async("string").then(function (str) 
@@ -8852,10 +8852,72 @@ var com;
                         }
                         else {
                             return o1 === o2;
-                        } })(childName, "ForeignData")) {
+                        } })(childName, "ForeignData")) 
+                        {
+                        	function getForeignRel(elem, filename)
+                        	{
+                        		var fdChild = elem.firstChild;
+                                
+                                while (fdChild != null) 
+                                {
+                                    if (fdChild.nodeType == 1) 
+                                    {
+                                        var fdElem = fdChild;
+                                        var grandchildName = fdElem.nodeName;
+                                        
+                                        if (grandchildName.toLowerCase() == "rel") 
+                                        {
+                                            var rid = fdElem.getAttribute("r:id");
+                                            
+                                            if (rid != null && !(rid.length === 0)) 
+                                            {
+                                                var index = filename.lastIndexOf('/');
+                                                var pre = "";
+                                                var post = "";
+                                                
+                                                try 
+                                                {
+                                                    pre = filename.substring(0, index);
+                                                    post = filename.substring(index, filename.length);
+                                                }
+                                                catch (e) 
+                                                {
+                                                    return;
+                                                }
+                                                
+                                                var relElem = model.getRelationship(rid, pre + "/_rels" + post + ".rels");
+                                                
+                                                if (relElem != null) 
+                                                {
+                                                    var target = relElem.getAttribute("Target") || "";
+                                                    var type = relElem.getAttribute("Type");
+                                                    index = target.lastIndexOf('/');
+                                                    
+                                                    try 
+                                                    {
+                                                        target = target.substring(index + 1, target.length);
+                                                    }
+                                                    catch (e) 
+                                                    {
+                                                        return;
+                                                    }
+                                                    
+                                                    return {type: type, target: target};
+                                                }
+                                                
+                                                return;
+                                            }
+                                        }
+                                    }
+                                    fdChild = fdChild.nextSibling;
+                                }
+                            }
+                            
                             var filename = elem.ownerDocument.vsdxFileName; //was getDocumentURI()
                             var iType = elem.getAttribute("ForeignType");
                             var compression = elem.getAttribute("CompressionType") || "";
+                            var typeTarget = null;
+
                             if ((function (o1, o2) { if (o1 && o1.equals) {
                                 return o1.equals(o2);
                             }
@@ -8885,70 +8947,66 @@ var com;
                             } })(iType, "EnhMetaFile")) {
                                 compression = "png"; //we convert emf files to png
                             }
+                            else if (iType == "Object") //This is a very basic support for embedded visio objects by looking for associated image
+                            {
+                                typeTarget = getForeignRel(elem, filename);
+
+                                if (typeTarget.type.indexOf('/oleObject') > 0)
+                                {
+                                    var relElem = model.getRelationship("rId1", "visio/embeddings/_rels/" + typeTarget.target + ".rels");
+                                    
+                                    if (relElem != null) 
+                                    {
+                                        var target = relElem.getAttribute("Target");
+                                        var type = relElem.getAttribute("Type");
+                                        
+                                        try 
+                                        {
+                                            var index = target.lastIndexOf('/');
+                                            target = target.substring(index + 1, target.length);
+                                        }
+                                        catch (e) 
+                                        {
+                                            return;
+                                        }
+                                        
+                                        compression = "png";
+                                        typeTarget = {type: type, target: target};
+                                    }
+                                    else
+                                    {
+                                        return;
+                                    }
+                                }
+                            }
                             else {
                                 return;
                             }
-                            var fdChild = elem.firstChild;
-                            if (fdChild != null) {
-                                if (fdChild != null && (fdChild.nodeType == 1)) {
-                                    var fdElem = fdChild;
-                                    var grandchildName = fdElem.nodeName;
-                                    if ((function (o1, o2) { if (o1 && o1.equals) {
-                                        return o1.equals(o2);
-                                    }
-                                    else {
-                                        return o1 === o2;
-                                    } })(grandchildName.toLowerCase(), "rel")) {
-                                        var rid = fdElem.getAttribute("r:id");
-                                        if (rid != null && !(rid.length === 0)) {
-                                            var index = filename.lastIndexOf('/');
-                                            var pre = "";
-                                            var post = "";
-                                            try {
-                                                pre = filename.substring(0, index);
-                                                post = filename.substring(index, filename.length);
-                                            }
-                                            catch (e) {
-                                                return;
-                                            }
-                                            ;
-                                            var relElem = model.getRelationship(rid, pre + "/_rels" + post + ".rels");
-                                            if (relElem != null) {
-                                                var target = relElem.getAttribute("Target") || "";
-                                                var type = relElem.getAttribute("Type");
-                                                index = target.lastIndexOf('/');
-                                                try {
-                                                    target = target.substring(index + 1, target.length);
-                                                }
-                                                catch (e) {
-                                                    return;
-                                                }
-                                                ;
-                                                if (type != null && (function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(type, "image")) {
-                                                    this.imageData = ({});
-                                                    var iData = model.getMedia(com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder + "/media/" + target);
-                                                    if (!iData)
-                                                	{
-                                                    	/* put */ (this.imageData["iData"] = Shape.ERROR_IMAGE);
-                                                    	/* put */ (this.imageData["iType"] = 'svg+xml');
-                                                	}
-                                                    else
-                                                	{
-	                                                    /* put */ (this.imageData["iData"] = iData);
-	                                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".bmp")) {
-	                                                        compression = "jpg";
-	                                                    }
-	                                                    /* put */ (this.imageData["iType"] = compression);
-                                                	}
-                                                }
-                                            }
-                                            else {
-                                            }
-                                            return;
-                                        }
-                                    }
+
+                            if (typeTarget == null)
+                            {
+                                typeTarget = getForeignRel(elem, filename);
+                            }
+
+                            var type = typeTarget.type, target = typeTarget.target;
+
+                            if (type != null && (function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(type, "image")) 
+                            {
+                                this.imageData = ({});
+                                var iData = model.getMedia(com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder + "/media/" + target);
+                                if (!iData)
+                                {
+                                    /* put */ (this.imageData["iData"] = Shape.ERROR_IMAGE);
+                                    /* put */ (this.imageData["iType"] = 'svg+xml');
                                 }
-                                fdChild = fdChild.nextSibling;
+                                else
+                                {
+                                    /* put */ (this.imageData["iData"] = iData);
+                                    if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(target.toLowerCase(), ".bmp")) {
+                                        compression = "jpg";
+                                    }
+                                    /* put */ (this.imageData["iType"] = compression);
+                                }
                             }
                         }
                         else if ((function (o1, o2) { if (o1 && o1.equals) {

@@ -151,6 +151,22 @@ EditorUi = function(editor, container, lightbox)
 		// Creates hover icons
 		this.hoverIcons = this.createHoverIcons();
 		
+		// Hides hover icons when cells are moved
+		if (graph.graphHandler != null)
+		{
+			var graphHandlerStart = graph.graphHandler.start;
+			
+			graph.graphHandler.start = function()
+			{
+				if (ui.hoverIcons != null)
+				{
+					ui.hoverIcons.reset();
+				}
+				
+				graphHandlerStart.apply(this, arguments);
+			};
+		}
+		
 		// Adds tooltip when mouse is over scrollbars to show space-drag panning option
 		mxEvent.addListener(this.diagramContainer, 'mousemove', mxUtils.bind(this, function(evt)
 		{

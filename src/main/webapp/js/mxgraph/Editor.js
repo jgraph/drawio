@@ -104,9 +104,15 @@ Editor.moveImage = (mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz
 	IMAGE_PATH + '/move.png';
 
 /**
+ * 
+ */
+Editor.rowMoveImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAEBAMAAACw6DhOAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAFElEQVQImWNgNVdzYBAUFBRggLMAEzYBy29kEPgAAAAASUVORK5CYII=' :
+	IMAGE_PATH + '/thumb_horz.png';
+
+/**
  * Images below are for lightbox and embedding toolbars.
  */
-Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBmaWxsPSJub25lIiBkPSJNMCAwaDI0djI0SDB6Ii8+PHBhdGggZD0iTTExIDE4aDJ2LTJoLTJ2MnptMS0xNkM2LjQ4IDIgMiA2LjQ4IDIgMTJzNC40OCAxMCAxMCAxMCAxMC00LjQ4IDEwLTEwUzE3LjUyIDIgMTIgMnptMCAxOGMtNC40MSAwLTgtMy41OS04LThzMy41OS04IDgtOCA4IDMuNTkgOCA4LTMuNTkgOC04IDh6bTAtMTRjLTIuMjEgMC00IDEuNzktNCA0aDJjMC0xLjEuOS0yIDItMnMyIC45IDIgMmMwIDItMyAxLjc1LTMgNWgyYzAtMi4yNSAzLTIuNSAzLTUgMC0yLjIxLTEuNzktNC00LTR6Ii8+PC9zdmc+' :
+Editor.helpImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAcAAAAEBAMAAACw6DhOAAAAGFBMVEUzMzP///9tbW1QUFCKiopBQUF8fHxfX1/IXlmXAAAAFElEQVQImWNgNVdzYBAUFBRggLMAEzYBy29kEPgAAAAASUVORK5CYII=' :
 	IMAGE_PATH + '/help.png';
 
 /**
@@ -2707,28 +2713,35 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	var graphHandlerIsDelayedSelection = mxGraphHandler.prototype.isDelayedSelection;
 	mxGraphHandler.prototype.isDelayedSelection = function(cell, me)
 	{
-		var result = graphHandlerIsDelayedSelection.apply(this, arguments);
-		
-		if (!result)
+		if (this.graph.cellEditor.getEditingCell() == cell)
 		{
-			var model = this.graph.getModel();
-			var parent = model.getParent(cell);
-			
-			while (parent != null)
-			{
-				// Inconsistency for unselected parent swimlane is intended for easier moving
-				// of stack layouts where the container title section is too far away
-				if (this.graph.isCellSelected(parent) && model.isVertex(parent))
-				{
-					result = true;
-					break;
-				}
-				
-				parent = model.getParent(parent);
-			}
+			return false;
 		}
-		
-		return result;
+		else
+		{
+			var result = graphHandlerIsDelayedSelection.apply(this, arguments);
+			
+			if (!result)
+			{
+				var model = this.graph.getModel();
+				var parent = model.getParent(cell);
+				
+				while (parent != null)
+				{
+					// Inconsistency for unselected parent swimlane is intended for easier moving
+					// of stack layouts where the container title section is too far away
+					if (this.graph.isCellSelected(parent) && model.isVertex(parent))
+					{
+						result = true;
+						break;
+					}
+					
+					parent = model.getParent(parent);
+				}
+			}
+			
+			return result;
+		}
 	};
 	
 	// Delayed selection of parent group

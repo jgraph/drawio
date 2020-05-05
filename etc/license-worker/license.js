@@ -38,6 +38,12 @@ async function handleRequest(request)
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}
+	else if (domain != null)
+	{
+		let msg = encodeURIComponent(('license:atlas-cloud:' + domain));
+		let url = "https://log.diagrams.net/" + msg;
+		fetch(url);
+	}
 	
 	if (domain != null)
 	{
