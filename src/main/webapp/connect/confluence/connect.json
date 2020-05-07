@@ -2,7 +2,7 @@
     "name": "draw.io",
     "description": "draw.io add-on for Confluence",
     "key": "com.mxgraph.confluence.plugins.diagramly",
-    "baseUrl": "https://confluence.draw.io",
+    "baseUrl": "https://ca14f165.ngrok.io",
     "enableLicensing": true,
     "apiMigrations": {
         "gdpr": true

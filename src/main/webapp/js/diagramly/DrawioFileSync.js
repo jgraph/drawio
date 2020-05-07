@@ -1172,6 +1172,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 				var shadow = (this.file.shadowPages != null) ?
 					this.file.shadowPages : this.ui.getPagesForNode(
 					mxUtils.parseXml(this.file.shadowData).documentElement)
+				var lastSecret = this.file.getDescriptorSecret(lastDesc);
 				var checksum = this.ui.getHashValueForPages(pages);
 				var diff = this.ui.diffPages(shadow, pages);
 				
@@ -1191,6 +1192,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
 					'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
 					'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
+					((lastSecret != null) ? '&last-secret=' + encodeURIComponent(lastSecret) : '') +
 					((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : '') +
 					((token != null) ? '&token=' + encodeURIComponent(token) : ''),
 					mxUtils.bind(this, function(req)

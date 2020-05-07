@@ -21,12 +21,23 @@ async function handleRequest(request)
 	let params = new URL('http://dummy.com?' + reqBodyTxt).searchParams;
 	let domain = params.get('domain');
 	let confLicense = params.get('confLicense');
+	let licenseDump = params.get('licenseDump');
+	let sParams = new URL(request.url).searchParams;
 	
 	//Try Query string parameters
 	if (domain == null)
 	{
-		let params = new URL(request.url).searchParams;
-		domain = params.get('domain');
+		domain = sParams.get('domain');
+	}
+	
+	if (confLicense == null)
+	{
+		confLicense = sParams.get('confLicense');
+	}
+	
+	if (SEN == null)
+	{
+		SEN = sParams.get('SEN');
 	}
 	
 	let email = params.get('email');
@@ -48,6 +59,13 @@ async function handleRequest(request)
 	else if (domain != null)
 	{
 		let msg = encodeURIComponent(('license:domain=' + domain));
+		let url = "https://log.diagrams.net/" + msg;
+		fetch(url);
+	}
+	
+	if (licenseDump != null)
+	{
+		let msg = encodeURIComponent(('license:licenseDump=' + licenseDump));
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}

@@ -1,3 +1,7 @@
+07-MAY-2020: 13.0.9
+
+- Adds patch chain validation for real time
+
 05-MAY-2020: 13.0.8
 
 - Adds ctrl+enter for table cells

@@ -5,9 +5,16 @@
 async function handleRequest(request) {
   let requestURL = new URL(request.url)
   let host = requestURL.host
+  let sub = host;
   let path = requestURL.pathname
   
-  let hostRedirectMap = redirectMap.get(host)
+  if (host != null)
+  {
+	  let parts = host.split('.')
+	  sub = parts[0]
+  }
+
+  let hostRedirectMap = redirectMap.get(sub)
   
   if (hostRedirectMap)
   {
@@ -54,7 +61,7 @@ addEventListener('fetch', async event => {
 })
 
 const redirectMap = new Map([
-	['about.draw.io', new Map([
+	['about', new Map([
 		['/drawio-desktop-10-7-5-release', 'https://github.com/jgraph/drawio-desktop/releases/tag/v10.7.5'],
 		['/insert-from-text-now-supports-plantuml', '/use-plantuml-in-draw-io'],
 		['/integrate-draw-io/', '/integrations-ecosystem/'],
@@ -128,40 +135,40 @@ const redirectMap = new Map([
 		['/features/training-material/', 'https://drawio-app.com/tutorials/'],
 		['/terms-conditions/', 'https://seibert-media.com/general-terms/'],
 		['/support/', 'https://github.com/jgraph/drawio/wiki/Getting-Support'],
-		['/', 'https://drawio-app.com/']
+		['/', 'https://www.diagrams.net']
 	])],
-	['blog.draw.io', new Map([
-		['/', 'https://drawio-app.com/blog']
+	['blog', new Map([
+		['/', 'https://www.diagrams.net/blog']
 	])],
-	['download.draw.io', new Map([
+	['download', new Map([
 		['/', 'https://github.com/jgraph/drawio-desktop/releases/latest']
 	])],
-	['get.draw.io', new Map([
+	['get', new Map([
 		['/', 'https://github.com/jgraph/drawio-desktop/releases/latest']
 	])],
-	['docsaddon.draw.io', new Map([
+	['docsaddon', new Map([
 		['/', 'https://gsuite.google.com/marketplace/app/drawio_viewer_for_docs/224440279306']
 	])],
-	['gsuite.draw.io', new Map([
+	['gsuite', new Map([
 		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams/671128082532']
 	])],
-	['office.draw.io', new Map([
+	['office', new Map([
 		['/', 'https://appsource.microsoft.com/product/office/wa200000113']
 	])],
-	['slidesaddon.draw.io', new Map([
+	['slidesaddon', new Map([
 		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams_for_slides/588283048931']
 	])],
-	['sheetsaddon.draw.io', new Map([
+	['sheetsaddon', new Map([
 		['/', 'https://gsuite.google.com/marketplace/app/drawio_diagrams_for_sheets/948903782998']
 	])],
-	['doc.draw.io', new Map([
+	['doc', new Map([
 		['/i18n', 'https://docs.google.com/spreadsheets/d/1FoYdyEraEQuWofzbYCDPKN7EdKgS_2ZrsDrOA8scgwQ'],
-		['/', 'https://support.draw.io']
+		['/', 'https://www.diagrams.net/doc/']
 	])],
-	['app.draw.io', new Map([
-		['/', 'https://www.draw.io/app']
+	['app', new Map([
+		['/', 'https://app.diagrams.net']
 	])],
-	['new.draw.io', new Map([
-		['/', 'https://www.draw.io/?splash=0']
+	['new', new Map([
+		['/', 'https://app.diagrams.net/?splash=0']
 	])]
 ])
