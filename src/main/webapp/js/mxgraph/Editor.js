@@ -2683,115 +2683,67 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 		
 		return result;
 	};
-
-	// Selects ancestors before descendants
-	var graphHandlerGetInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent;
-	mxGraphHandler.prototype.getInitialCellForEvent = function(me)
-	{
-		var cell = graphHandlerGetInitialCellForEvent.apply(this, arguments);
-		var model = this.graph.getModel();
-		var psel = model.getParent(this.graph.getSelectionCell());
-		var parent = model.getParent(cell);
-		
-		if (psel == null || (psel != cell && psel != parent))
-		{
-			while (!this.graph.isCellSelected(cell) &&
-				!this.graph.isCellSelected(parent) &&
-				(!this.graph.isContainer(parent) ||
-				this.graph.isPart(cell)) &&
-				model.isVertex(parent))
-			{
-				cell = parent;
-				parent = this.graph.getModel().getParent(cell);
-			}
-		}
-		
-		return cell;
-	};
 	
-	// Selection is delayed to mouseup if ancestor is selected
-	var graphHandlerIsDelayedSelection = mxGraphHandler.prototype.isDelayedSelection;
-	mxGraphHandler.prototype.isDelayedSelection = function(cell, me)
+	/**
+	 * Selects tables before cells and rows.
+	 */
+	var mxGraphHandlerIsPropagateSelectionCell = mxGraphHandler.prototype.isPropagateSelectionCell;
+	mxGraphHandler.prototype.isPropagateSelectionCell = function(cell, immediate)
 	{
-		if (this.graph.cellEditor.getEditingCell() == cell)
+		var result = false;
+		var parent = this.graph.model.getParent(cell)
+		
+		if (immediate)
 		{
-			return false;
+			var geo = this.graph.getCellGeometry(cell);
+			
+			return !this.graph.model.isEdge(cell) &&
+				!this.graph.model.isEdge(parent) &&
+				!this.graph.isSiblingSelected(cell) &&
+				(geo == null || geo.relative ||
+				!this.graph.isContainer(parent) ||
+				this.graph.isPart(cell));
 		}
 		else
 		{
-			var result = graphHandlerIsDelayedSelection.apply(this, arguments);
+			result = mxGraphHandlerIsPropagateSelectionCell.apply(this, arguments);
 			
-			if (!result)
+			if (this.graph.isTableCell(cell) || this.graph.isTableRow(cell))
 			{
-				var model = this.graph.getModel();
-				var parent = model.getParent(cell);
+				var table = parent;
 				
-				while (parent != null)
+				if (!this.graph.isTable(table))
 				{
-					// Inconsistency for unselected parent swimlane is intended for easier moving
-					// of stack layouts where the container title section is too far away
-					if (this.graph.isCellSelected(parent) && model.isVertex(parent))
-					{
-						result = true;
-						break;
-					}
-					
-					parent = model.getParent(parent);
-				}
-			}
-			
-			return result;
-		}
-	};
-	
-	// Delayed selection of parent group
-	mxGraphHandler.prototype.selectDelayed = function(me)
-	{
-		if (!this.graph.popupMenuHandler.isPopupTrigger(me))
-		{
-			var cell = me.getCell();
-			
-			if (cell == null)
-			{
-				cell = this.cell;
-			}
-
-			// Selects folded cell for hit on folding icon
-			var state = this.graph.view.getState(cell)
-			
-			if (state != null && me.isSource(state.control))
-			{
-				this.graph.selectCellForEvent(cell, me.getEvent());
-			}
-			else
-			{
-				if (!this.graph.isToggleEvent(me.getEvent()))
-				{
-					var model = this.graph.getModel();
-					var parent = model.getParent(cell);
-					
-					while (!this.graph.isCellSelected(parent) && model.isVertex(parent))
-					{
-						cell = parent;
-						parent = model.getParent(cell);
-					}
+					table = this.graph.model.getParent(table);
 				}
 				
-				this.graph.selectCellForEvent(cell, me.getEvent());
+				result = !this.graph.selectionCellsHandler.isHandled(table) ||
+					this.graph.isCellSelected(cell) || (this.graph.isTableCell(cell) &&
+					this.graph.isCellSelected(parent));
 			}
 		}
+		
+		return result;
 	};
 
-	// Returns last selected ancestor
+	/**
+	 * Returns last selected ancestor
+	 */
 	mxPopupMenuHandler.prototype.getCellForPopupEvent = function(me)
 	{
 		var cell = me.getCell();
 		var model = this.graph.getModel();
 		var parent = model.getParent(cell);
+		var state = this.graph.view.getState(parent);
+		var selected = this.graph.isCellSelected(cell);
 		
-		while (model.isVertex(parent) && !this.graph.isContainer(parent))
+		while (state != null && (model.isVertex(parent) || model.isEdge(parent)))
 		{
-			if (this.graph.isCellSelected(parent))
+			var temp = this.graph.isCellSelected(parent);
+			selected = selected || temp;
+			
+			if (temp || (!selected && (this.graph.isTableCell(cell) ||
+				this.graph.isTableRow(cell))))
 			{
 				cell = parent;
 			}

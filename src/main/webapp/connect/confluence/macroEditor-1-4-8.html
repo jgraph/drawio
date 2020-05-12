@@ -183,7 +183,7 @@
 	                if (resp != null && resp.license != null)
 	                {
 	                	var xhr = new XMLHttpRequest();
-	                	xhr.open('POST', '/license?licenseDump=' + JSON.stringify(resp), true);
+	                	xhr.open('POST', '/license?licenseDump=' + encodeURIComponent(JSON.stringify(resp)), true);
 	        			xhr.send(null);
 	                }
             	}

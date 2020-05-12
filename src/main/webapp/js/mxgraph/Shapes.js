@@ -3147,7 +3147,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(max, (pt.x - bounds.x) / (bounds.width * 0.75)));
-				}, null, true)];
+				}, false, true)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3175,13 +3175,8 @@
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
 					var size = (fixed) ? (pt.x - bounds.x) : Math.max(0, Math.min(max, (pt.x - bounds.x) / bounds.width));
 					
-					if (fixed && !mxEvent.isAltDown(me.getEvent()))
-					{
-						size = state.view.graph.snap(size);
-					}
-					
 					this.state.style['size'] = size;
-				}, null, redrawEdges)];
+				}, false, redrawEdges)];
 				
 				if (allowArcHandle && mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3206,7 +3201,7 @@
 				{
 					this.state.style['size'] = Math.round(Math.max(0, Math.min(Math.min(bounds.width, pt.x - bounds.x),
 							Math.min(bounds.height, pt.y - bounds.y))) / factor);
-				})];
+				}, false)];
 				
 				if (allowArcHandle && mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3472,7 +3467,7 @@
 						(mxUtils.getValue(this.state.style, mxConstants.STYLE_HORIZONTAL, 1) == 1) ?
 							Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y))) :
 							Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x)));
-				})];
+				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED))
 				{
@@ -3525,7 +3520,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(0.5, (pt.x - bounds.x) / bounds.width));
-				})];
+				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3573,7 +3568,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.round(Math.max(0, Math.min(bounds.height, (pt.y - bounds.y) * 4 / 3)));
-				})];
+				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3592,7 +3587,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.x + bounds.width - pt.x) / bounds.width));
-				})];
+				}, false)];
 			},
 			'callout': function(state)
 			{
@@ -3608,7 +3603,7 @@
 					var base = Math.max(0, Math.min(bounds.width, mxUtils.getValue(this.state.style, 'base', CalloutShape.prototype.base)));
 					this.state.style['size'] = Math.round(Math.max(0, Math.min(bounds.height, bounds.y + bounds.height - pt.y)));
 					this.state.style['position'] = Math.round(Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width)) * 100) / 100;
-				}), createHandle(state, ['position2'], function(bounds)
+				}, false), createHandle(state, ['position2'], function(bounds)
 				{
 					var position2 = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position2', CalloutShape.prototype.position2)));
 
@@ -3616,7 +3611,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['position2'] = Math.round(Math.max(0, Math.min(1, (pt.x - bounds.x) / bounds.width)) * 100) / 100;
-				}), createHandle(state, ['base'], function(bounds)
+				}, false), createHandle(state, ['base'], function(bounds)
 				{
 					var size = Math.max(0, Math.min(bounds.height, mxUtils.getValue(this.state.style, 'size', CalloutShape.prototype.size)));
 					var position = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position', CalloutShape.prototype.position)));
@@ -3628,7 +3623,7 @@
 					var position = Math.max(0, Math.min(1, mxUtils.getValue(this.state.style, 'position', CalloutShape.prototype.position)));
 
 					this.state.style['base'] = Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x - position * bounds.width)));
-				})];
+				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3649,7 +3644,7 @@
 				{
 					this.state.style['dx'] = Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x)));
 					this.state.style['dy'] = Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y)));
-				})];
+				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
 				{
@@ -3686,7 +3681,7 @@
 				{
 					this.state.style['dx'] = Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x)));
 					this.state.style['dy'] = Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y)));
-				})];
+				}, false)];
 			},
 			'tee': function(state)
 			{
@@ -3700,7 +3695,7 @@
 				{
 					this.state.style['dx'] = Math.round(Math.max(0, Math.min(bounds.width / 2, (pt.x - bounds.x - bounds.width / 2)) * 2));
 					this.state.style['dy'] = Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y)));
-				})];
+				}, false)];
 			},
 			'singleArrow': createArrowHandleFunction(1),
 			'doubleArrow': createArrowHandleFunction(0.5),			
@@ -3728,7 +3723,7 @@
 					
 					this.state.style['tabWidth'] = Math.round(tw);
 					this.state.style['tabHeight'] = Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y)));
-				})];
+				}, false)];
 			},
 			'document': function(state)
 			{
@@ -3740,7 +3735,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.y + bounds.height - pt.y) / bounds.height));
-				})];
+				}, false)];
 			},
 			'tape': function(state)
 			{
@@ -3752,7 +3747,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, ((pt.y - bounds.y) / bounds.height) * 2));
-				})];
+				}, false)];
 			},
 			'offPageConnector': function(state)
 			{
@@ -3764,7 +3759,7 @@
 				}, function(bounds, pt)
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.y + bounds.height - pt.y) / bounds.height));
-				})];
+				}, false)];
 			},
 			'step': createDisplayHandleFunction(StepShape.prototype.size, true, null, true, StepShape.prototype.fixedSize),
 			'hexagon': createDisplayHandleFunction(HexagonShape.prototype.size, true, 0.5, true),

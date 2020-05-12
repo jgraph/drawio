@@ -10776,21 +10776,25 @@
 						var tmp = extractDiagramXml(data.xml);
 						this.spinner.stop();
 						
-						var dlg = new DraftDialog(this, mxResources.get('draftFound', [data.name || this.defaultFilename]),
+						var dlg = new DraftDialog(this, mxResources.get('draftFound',
+								[data.name || this.defaultFilename]),
 							tmp, mxUtils.bind(this, function()
 						{
 							this.hideDialog();
-							parent.postMessage(JSON.stringify({event: 'draft', result: 'edit', message: data}), '*');
+							parent.postMessage(JSON.stringify({event: 'draft',
+								result: 'edit', message: data}), '*');
 						}), mxUtils.bind(this, function()
 						{
 							this.hideDialog();
-							parent.postMessage(JSON.stringify({event: 'draft', result: 'discard', message: data}), '*');
+							parent.postMessage(JSON.stringify({event: 'draft',
+								result: 'discard', message: data}), '*');
 						}), (data.editKey) ? mxResources.get(data.editKey) : null,
 							(data.discardKey) ? mxResources.get(data.discardKey) : null,
 							(data.ignore) ? mxUtils.bind(this, function()
 							{
 								this.hideDialog();
-								parent.postMessage(JSON.stringify({event: 'draft', result: 'ignore', message: data}), '*');
+								parent.postMessage(JSON.stringify({event: 'draft',
+									result: 'ignore', message: data}), '*');
 							}) : null);
 						this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
 						{
@@ -10806,7 +10810,8 @@
 						}
 						catch (e)
 						{
-							parent.postMessage(JSON.stringify({event: 'draft', error: e.toString(), message: data}), '*');
+							parent.postMessage(JSON.stringify({event: 'draft',
+								error: e.toString(), message: data}), '*');
 						}
 						
 						return;
@@ -10819,7 +10824,8 @@
 						var enableSearchDocs = data.enableSearch == 1;
 						var enableCustomTemp = data.enableCustomTemp == 1;
 						
-						var dlg = new NewDialog(this, false, data.callback != null, mxUtils.bind(this, function(xml, name)
+						var dlg = new NewDialog(this, false, data.callback != null,
+							mxUtils.bind(this, function(xml, name)
 						{
 							xml = xml || this.emptyDiagramXml;
 							
@@ -10827,7 +10833,8 @@
 							if (data.callback != null)
 							{
 								parent.postMessage(JSON.stringify({event: 'template', xml: xml,
-									blank: xml == this.emptyDiagramXml, name: name}), '*');
+									blank: xml == this.emptyDiagramXml, name: name,
+									message: data}), '*');
 							}
 							else
 							{
@@ -10881,9 +10888,10 @@
 					}
 					else if (data.action == 'textContent')
 					{
-						//TODO Remove this message and use remove invokation instead
+						//TODO Remove this message and use remote invokation instead
 						var allPagesTxt = this.getDiagramTextContent();
-						parent.postMessage(JSON.stringify({event: 'textContent', data: allPagesTxt, message: data}), '*');
+						parent.postMessage(JSON.stringify({event: 'textContent',
+							data: allPagesTxt, message: data}), '*');
 						return;
 					}
 					else if (data.action == 'status')
@@ -11071,6 +11079,9 @@
 							
 							var msg = this.createLoadMessage('export');
 							
+							// Attaches incoming message
+							msg.message = data;
+							
 							// Forces new HTML format if pages exists
 							if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
 								(this.pages != null && this.pages.length > 1))))
@@ -11166,6 +11177,16 @@
 						if (data.saveAndExit != null && urlParams['saveAndExit'] == null)
 						{
 							urlParams['saveAndExit'] = data.saveAndExit;
+						}
+						
+						if (data.noSaveBtn != null && urlParams['noSaveBtn'] == null)
+						{
+							urlParams['noSaveBtn'] = data.noSaveBtn;
+						}
+						
+						if (data.noExitBtn != null && urlParams['noExitBtn'] == null)
+						{
+							urlParams['noExitBtn'] = data.noExitBtn;
 						}
 						
 						if (data.title != null && this.buttonContainer != null)
@@ -11408,19 +11429,22 @@
 				}
 			}
 
-			button = document.createElement('a');
-			mxUtils.write(button, mxResources.get('exit'));
-			button.setAttribute('title', mxResources.get('exit'));
-			button.className = 'geBigButton geBigStandardButton';
-			button.style.marginLeft = '6px';
-			button.style.marginRight = '20px';
-			
-			mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+			if (urlParams['noExitBtn'] != '1')
 			{
-				this.actions.get('exit').funct();
-			}));
-			
-			div.appendChild(button);
+				button = document.createElement('a');
+				mxUtils.write(button, mxResources.get('exit'));
+				button.setAttribute('title', mxResources.get('exit'));
+				button.className = 'geBigButton geBigStandardButton';
+				button.style.marginLeft = '6px';
+				button.style.marginRight = '20px';
+				
+				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				{
+					this.actions.get('exit').funct();
+				}));
+				
+				div.appendChild(button);
+			}
 			
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);

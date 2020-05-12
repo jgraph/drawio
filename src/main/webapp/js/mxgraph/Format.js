@@ -1510,10 +1510,10 @@ ArrangePanel.prototype.init = function()
 		this.container.appendChild(this.addAlign(this.createPanel()));
 		this.container.appendChild(this.addDistribute(this.createPanel()));
 	}
-	else if (ss.vertices.length == 1 && ss.edges.length == 0 &&
-		(graph.isTable(ss.vertices[0]) ||
+	
+	if (graph.isTable(ss.vertices[0]) ||
 		graph.isTableRow(ss.vertices[0]) ||
-		graph.isTableCell(ss.vertices[0])))
+		graph.isTableCell(ss.vertices[0]))
 	{
 		this.container.appendChild(this.addTable(this.createPanel()));
 	}

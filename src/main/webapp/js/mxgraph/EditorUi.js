@@ -2452,12 +2452,14 @@ EditorUi.prototype.addChromelessClickHandler = function()
 /**
  * 
  */
-EditorUi.prototype.toggleFormatPanel = function(forceHide)
+EditorUi.prototype.toggleFormatPanel = function(visible)
 {
+	visible = (visible != null) ? visible : this.formatWidth == 0;
+	
 	if (this.format != null)
 	{
-		this.formatWidth = (forceHide || this.formatWidth > 0) ? 0 : 240;
-		this.formatContainer.style.display = (forceHide || this.formatWidth > 0) ? '' : 'none';
+		this.formatWidth = (visible) ? 240 : 0;
+		this.formatContainer.style.display = (visible) ? '' : 'none';
 		this.refresh();
 		this.format.refresh();
 		this.fireEvent(new mxEventObject('formatWidthChanged'));

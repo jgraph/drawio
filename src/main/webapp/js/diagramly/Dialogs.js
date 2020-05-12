@@ -5504,8 +5504,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							{
 								if (diagramNode != null)
 								{
-									diagramNode = parseGraphModel(mxUtils.parseXml(Graph.decompress(
-								        	mxUtils.getTextContent(diagramNode))).documentElement);
+									diagramNode = parseGraphModel(Editor.parseDiagramNode(diagramNode));
 								}
 								
 								return diagramNode;
@@ -6010,14 +6009,15 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 				graph.fit(8);
 				graph.center();
 			}
+			
+			return dataNode;
 		};
 			
 		function parseDiagram(diagramNode)
 		{
 			if (diagramNode != null)
 			{
-				diagramNode = parseGraphModel(mxUtils.parseXml(Graph.decompress(
-			        	mxUtils.getTextContent(diagramNode))).documentElement);
+				diagramNode = parseGraphModel(Editor.parseDiagramNode(diagramNode));
 			}
 			
 			return diagramNode;

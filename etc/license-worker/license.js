@@ -35,9 +35,9 @@ async function handleRequest(request)
 		confLicense = sParams.get('confLicense');
 	}
 	
-	if (SEN == null)
+	if (licenseDump == null)
 	{
-		SEN = sParams.get('SEN');
+		licenseDump = sParams.get('licenseDump');
 	}
 	
 	let email = params.get('email');
@@ -52,22 +52,50 @@ async function handleRequest(request)
 	}
 	else if (confLicense != null && domain != null)
 	{
-		let msg = encodeURIComponent(('license:confLicense=' + confLicense + ',domain=' + domain));
+		let msg = encodeURIComponent(('license:cc-domain=' + domain + ',confLicense=' + confLicense));
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}
 	else if (domain != null)
 	{
-		let msg = encodeURIComponent(('license:domain=' + domain));
+		let msg = encodeURIComponent(('license:cc-domain=' + domain));
 		let url = "https://log.diagrams.net/" + msg;
 		fetch(url);
 	}
 	
 	if (licenseDump != null)
 	{
-		let msg = encodeURIComponent(('license:licenseDump=' + licenseDump));
-		let url = "https://log.diagrams.net/" + msg;
+		let msg = encodeURIComponent('license:cc-licenseDump=') + licenseDump;
+		let url = 'https://log.diagrams.net/' + msg;
 		fetch(url);
+		
+		try
+		{
+			let licenseContent = decodeURIComponent(licenseDump);
+			let obj = JSON.parse(licenseContent);
+//			msg = encodeURIComponent(JSON.stringify(obj));
+//			url = 'https://log.diagrams.net/license:cc-obj-string' + msg;
+//			fetch(url);
+			
+			if (obj != null && obj.installedDate != null)
+			{
+				msg = encodeURIComponent('license:cc-installDate:' + obj.installedDate + ',eval:' + obj.license.evaluation + ',active:' + obj.license.active);
+				url = 'https://log.diagrams.net/' + msg;
+				fetch(url);
+				
+				if (obj.installedDate.startsWith('2019') && obj.license.active && obj.license.evaluation)
+				{
+					url = 'https://log.diagrams.net/license:cc-OMGWTFBBQ';
+					fetch(url);
+				}
+			}
+		}
+		catch (e)
+		{
+			let msg = encodeURIComponent('license:cc-error=') + e;
+			let url = 'https://log.diagrams.net/' + msg;
+			fetch(url);
+		}
 	}
 	
 	if (domain != null)

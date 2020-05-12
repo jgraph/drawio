@@ -298,7 +298,8 @@
         {
         	var fillColor = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
         	
-        	return fillColor == null || fillColor == mxConstants.NONE;
+        	return format.editorUi.editor.graph.isSwimlane(state.vertices[0]) ||
+        		fillColor == null || fillColor == mxConstants.NONE;
         }},
         {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
         {
@@ -3941,10 +3942,61 @@
 			var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-turquoise',
 				'plain-orange', 'plain-yellow', 'plain-red', 'plain-pink', 'plain-purple', 'gray',
 				'blue', 'green', 'turquoise', 'orange', 'yellow', 'red', 'pink', 'purple'];
-
-			function updateScheme(colorsets)
+			
+			// Maximum palettes to switch the switcher
+			var maxEntries = 10;
+						
+			// Selector
+			var switcher = document.createElement('div');
+			switcher.style.whiteSpace = 'nowrap';
+			switcher.style.position = 'relative';
+			switcher.style.textAlign = 'center';
+			
+			var dots = [];
+			
+			for (var i = 0; i < this.defaultColorSchemes.length; i++)
 			{
-				function addButton(colorset)
+				var dot = document.createElement('div');
+				dot.style.display = 'inline-block';
+				dot.style.width = '6px';
+				dot.style.height = '6px';
+				dot.style.marginLeft = '4px';
+				dot.style.marginRight = '3px';
+				dot.style.borderRadius = '3px';
+				dot.style.cursor = 'pointer';
+				dot.style.background = 'transparent';
+				dot.style.border = '1px solid #b5b6b7';
+				
+				(mxUtils.bind(this, function(index)
+				{
+					mxEvent.addListener(dot, 'click', mxUtils.bind(this, function()
+					{
+						setScheme(index);
+					}));
+				}))(i);
+				
+				mxEvent.add
+				
+				dots.push(dot);
+				
+				switcher.appendChild(dot);
+			}
+			
+			var setScheme = mxUtils.bind(this, function(index)
+			{
+				if (this.editorUi.currentScheme != null)
+				{
+					dots[this.editorUi.currentScheme].style.background = 'transparent';
+				}
+				
+				this.editorUi.currentScheme = index;
+				updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
+				dots[this.editorUi.currentScheme].style.background = '#84d7ff';
+			});
+			
+			var updateScheme = mxUtils.bind(this, function(colorsets)
+			{
+				var addButton = mxUtils.bind(this, function(colorset)
 				{
 					var btn = mxUtils.button('', function(evt)
 					{
@@ -4022,7 +4074,7 @@
 	
 					btn.className = 'geStyleButton';
 					btn.style.width = '36px';
-					btn.style.height = '30px';
+					btn.style.height = (this.defaultColorSchemes.length <= maxEntries) ? '24px' : '30px';
 					btn.style.margin = '0px 6px 6px 0px';
 					
 					if (colorset != null)
@@ -4081,7 +4133,7 @@
 					}
 					
 					picker.appendChild(btn);
-				};
+				});
 				
 				picker.innerHTML = '';
 				
@@ -4094,25 +4146,30 @@
 					
 					addButton(colorsets[i]);
 				}
-			};
+			});
 
 			if (this.editorUi.currentScheme == null)
 			{
-				this.editorUi.currentScheme = 0;
+				setScheme((uiTheme == 'dark') ? 1 : 0);
 			}
+			else
+			{
+				setScheme(this.editorUi.currentScheme);
+			}
+			
+			var bottom = (this.defaultColorSchemes.length <= maxEntries) ? 28 : 8;
 
 			var left = document.createElement('div');
-			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
+			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
 				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
 			
 			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
 			{
-				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme - 1, this.defaultColorSchemes.length);
-				updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
+				setScheme(mxUtils.mod(this.editorUi.currentScheme - 1, this.defaultColorSchemes.length));
 			}));
 			
 			var right = document.createElement('div');
-			right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:8px;width:20px;margin:4px;opacity:0.5;' +
+			right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
 				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
 
 			if (this.defaultColorSchemes.length > 1)
@@ -4123,8 +4180,7 @@
 			
 			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
 			{
-				this.editorUi.currentScheme = mxUtils.mod(this.editorUi.currentScheme + 1, this.defaultColorSchemes.length);
-				updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
+				setScheme(mxUtils.mod(this.editorUi.currentScheme + 1, this.defaultColorSchemes.length));
 			}));
 			
 			// Hover state
@@ -4144,6 +4200,11 @@
 			addHoverState(right);
 			
 			updateScheme(this.defaultColorSchemes[this.editorUi.currentScheme]);
+			
+			if (this.defaultColorSchemes.length <= maxEntries)
+			{
+				div.appendChild(switcher);
+			}
 			
 			return div;
 		};

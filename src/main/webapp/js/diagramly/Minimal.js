@@ -576,12 +576,12 @@ EditorUi.initMinimalTheme = function()
     };
     
     // Overridden to toggle window instead
-    EditorUi.prototype.toggleFormatPanel = function(forceHide)
+    EditorUi.prototype.toggleFormatPanel = function(visible)
     {
         if (this.formatWindow != null)
         {
-        	this.formatWindow.window.setVisible((forceHide) ?
-               false : !this.formatWindow.window.isVisible());
+        	this.formatWindow.window.setVisible((visible != null) ?
+        		visible : !this.formatWindow.window.isVisible());
         }
         else
         {

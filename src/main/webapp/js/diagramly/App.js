@@ -1048,6 +1048,16 @@ App.prototype.fullscreenImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/fullscreen.p
 App.prototype.warnInterval = 300000;
 
 /**
+ *
+ */
+App.prototype.compactMode = false;
+
+/**
+ *
+ */
+App.prototype.fullscreenMode = false;
+	
+/**
  * Overriden UI settings depending on mode.
  */
 if (urlParams['embed'] != '1')
@@ -5899,7 +5909,6 @@ App.prototype.updateHeader = function()
 		}
 		
 		var initialPosition = this.hsplitPosition;
-		var collapsed = false;
 
 		if (uiTheme == 'dark')
 		{
@@ -5908,14 +5917,21 @@ App.prototype.updateHeader = function()
 		
 		mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
 		{
+			var visible = this.fullscreenMode;
+			
 			if (uiTheme != 'atlas' && urlParams['embed'] != '1')
 			{
-				this.toggleCompactMode(!collapsed);
+				this.toggleCompactMode(visible);
 			}
 
-			this.toggleFormatPanel(!collapsed);
-			this.hsplitPosition = (!collapsed) ? 0 : initialPosition;
-			collapsed = !collapsed;
+			if (!visible)
+			{
+				initialPosition = this.hsplitPosition;
+			}
+			
+			this.hsplitPosition = (visible) ? initialPosition : 0;
+			this.toggleFormatPanel(visible);
+			this.fullscreenMode = !visible;
 			mxEvent.consume(evt);
 		}));
 
@@ -5981,9 +5997,11 @@ App.prototype.updateHeader = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-App.prototype.toggleCompactMode = function(forceHide)
+App.prototype.toggleCompactMode = function(visible)
 {
-	if (!forceHide && this.appIcon.style.display == 'none')
+	visible = (visible != null) ? visible : this.compactMode;
+	
+	if (visible)
 	{
 		this.menubar.container.style.position = 'absolute';
 		this.menubar.container.style.paddingLeft = '59px';
@@ -6015,6 +6033,8 @@ App.prototype.toggleCompactMode = function(forceHide)
 		this.refresh();
 		this.toggleElement.style.backgroundImage = 'url(\'' + this.chevronDownImage + '\')';
 	}
+	
+	this.compactMode = !visible;
 };
 
 /**
