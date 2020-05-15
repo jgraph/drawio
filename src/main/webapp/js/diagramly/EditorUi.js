@@ -10558,28 +10558,25 @@
 					this.addEmbedButtons();
 					this.setGraphEnabled(true);
 					
-					if (xml != null && xml.length > 0)
+					if (xml == null || xml.length == 0)
 					{
-						this.setFileData(xml);
-						
-						if (!this.editor.isChromelessView())
-						{
-							this.showLayersDialog();
-						}
-						else if (this.editor.graph.isLightboxView())
-						{
-							this.lightboxFit();
-						}
-						
-						if (this.chromelessResize)
-						{
-							this.chromelessResize();
-						}
+						xml = this.emptyDiagramXml;
 					}
-					else
+					
+					this.setFileData(xml);
+					
+					if (!this.editor.isChromelessView())
 					{
-						this.editor.graph.model.clear();
-						this.editor.fireEvent(new mxEventObject('resetGraphView'));
+						this.showLayersDialog();
+					}
+					else if (this.editor.graph.isLightboxView())
+					{
+						this.lightboxFit();
+					}
+					
+					if (this.chromelessResize)
+					{
+						this.chromelessResize();
 					}
 	
 					this.editor.undoManager.clear();
@@ -10947,7 +10944,7 @@
 									msg.format = data.format;
 									msg.message = data;
 									msg.data = uri;
-									msg.xml = encodeURIComponent(xml);
+									msg.xml = xml;
 									parent.postMessage(JSON.stringify(msg), '*');
 								});
 								
@@ -11318,7 +11315,12 @@
 				// Sends the bounds of the graph to the host after parsing
 				if (urlParams['returnbounds'] == '1' || urlParams['proto'] == 'json')
 				{
-					parent.postMessage(JSON.stringify(this.createLoadMessage('load')), '*');
+					var resp = this.createLoadMessage('load');
+					
+					// Attaches XML to response
+					resp.xml = data;
+					
+					parent.postMessage(JSON.stringify(resp), '*');
 				}
 			});
 			
@@ -11387,6 +11389,7 @@
 
 			var button = document.createElement('button');
 			button.className = 'geBigButton';
+			var lastBtn = button;
 			
 			if (urlParams['noSaveBtn'] == '1')
 			{
@@ -11426,6 +11429,7 @@
 					}));
 					
 					div.appendChild(button);
+					lastBtn = button;
 				}
 			}
 
@@ -11436,7 +11440,6 @@
 				button.setAttribute('title', mxResources.get('exit'));
 				button.className = 'geBigButton geBigStandardButton';
 				button.style.marginLeft = '6px';
-				button.style.marginRight = '20px';
 				
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
@@ -11444,7 +11447,10 @@
 				}));
 				
 				div.appendChild(button);
+				lastBtn = button;
 			}
+			
+			lastBtn.style.marginRight = '20px';
 			
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);

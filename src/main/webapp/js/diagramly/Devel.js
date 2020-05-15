@@ -57,6 +57,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Electrical.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ER.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Floorplan.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Flowchart.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-FluidPower.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-GCP.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-GCP2.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Gmdl.js');

@@ -3439,7 +3439,10 @@
 					this.addMenuItems(menu, ['saveAndExit'], parent);
 				}
 				
-				this.addMenuItems(menu, ['exit'], parent);
+				if (urlParams['noExitBtn'] != '1')
+				{
+					this.addMenuItems(menu, ['exit'], parent);
+				}
 			}
 			else
 			{

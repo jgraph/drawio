@@ -146,6 +146,7 @@
            	                           {id: 'floorplan', libs: ['floorplan']},
            	                           {id: 'bootstrap', libs: ['bootstrap']},
            	                           {id: 'atlassian', libs: ['atlassian']},
+	                                   {id: 'fluid_power', libs: ['fluid_power']},
 	                                   {id: 'gmdl', prefix: 'gmdl', libs: Sidebar.prototype.gmdl},
            	                           {id: 'archimate3', prefix: 'archimate3', libs: Sidebar.prototype.archimate3},
            	                           {id: 'archimate', libs: ['archimate']},
@@ -441,6 +442,7 @@
             			          {title: mxResources.get('eip'), id: 'eip', image: IMAGE_PATH + '/sidebar-eip.png'},
             			          {title: mxResources.get('electrical'), id: 'electrical', image: IMAGE_PATH + '/sidebar-electrical.png'},
             			          {title: mxResources.get('floorplans'), id: 'floorplan', image: IMAGE_PATH + '/sidebar-floorplans.png'},
+            			          {title: 'Fluid Power (ISO 1219)', id: 'fluid_power', image: IMAGE_PATH + '/sidebar-fluid_power.png'},
             			          {title: mxResources.get('gmdl'), id: 'gmdl', image: IMAGE_PATH + '/sidebar-gmdl.png'},
             			          {title: mxResources.get('procEng'), id: 'pid', image: IMAGE_PATH + '/sidebar-pid.png'},
             			          {title: 'Threat Modeling', id: 'threatModeling', image: IMAGE_PATH + '/sidebar-threatmodeling.png'},
@@ -1175,6 +1177,7 @@
 		
 		this.addElectricalPalette();
 		this.addFloorplanPalette();
+		this.addFluidPowerPalette();
 		
 		for (var i = 0; i < gmdl.length; i++)
 		{

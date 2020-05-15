@@ -1,6 +1,6 @@
 {
     "name": "Diagram Viewer for Confluence",
-    "description": "Diagram Viewer for Confluence",
+    "description": "Deprecated Google Connector",
     "key": "com.mxgraph.confluence.plugins.driveconnector",
     "baseUrl": "https://www.draw.io",
     "apiMigrations": {
@@ -8,13 +8,10 @@
     },
     "vendor": 
     {
-        "name": "draw.io AG",
-        "url": "https://about.draw.io"
+        "name": "Seibert Media",
+        "url": "https://info.seibert-media.net"
     },
-    "links": {
-        "documentation": "https://desk.draw.io/support/solutions/articles/16000042550"
-    },
-    "version": "1.0.2",
+    "version": "1.0.3",
     "authentication": 
     {
         "type": "none"
@@ -63,21 +60,19 @@
             {
                 "name": 
                 {
-                    "i18n": "gdriveconnector",
-                    "value": "Google Drive File"
+                    "value": "Unused"
                 },
                 "url": "/connect/gdriveconnector/viewer.html?fileId=${fileId}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&macroVer={macroVer}&isDrawio=${isDrawio}&autoSize=${autoSize}&aspect=${aspect}",
                 "width": "600px",
                 "height": "400px",
                 "description": 
                 {
-                    "i18n": "description",
-                    "value": "Inserts a Google Drive file"
+                    "value": "Unused"
                 }, "icon": 
                 {
-		          "width": 144,
-		          "height": 144,
-		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		          "width": 80,
+		          "height": 80,
+		          "url": "/images/stop-flat-icon-80.png"
 		        },
 		        "categories": [
 		          "visuals"
@@ -173,21 +168,19 @@
             {
                 "name": 
                 {
-                    "i18n": "onedriveMacro",
-                    "value": "OneDrive File"
+                    "value": "Unused"
                 },
                 "url": "/connect/gdriveconnector/od-viewer.html?fileId=${fileId}&driveId=${driveId}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&isDrawio=${isDrawio}&embeddedUrl=${embeddedUrl}&autoSize=${autoSize}&aspect=${aspect}",
                 "width": "600px",
                 "height": "400px",
                 "description": 
                 {
-                    "i18n": "description",
-                    "value": "Inserts a OneDrive file"
+                    "value": "Unused"
                 }, "icon": 
                 {
-		          "width": 144,
-		          "height": 144,
-		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		          "width": 80,
+		          "height": 80,
+		          "url": "/images/stop-flat-icon-80.png"
 		        },
 		        "categories": [
 		          "visuals"
@@ -294,21 +287,19 @@
             {
                 "name": 
                 {
-                    "i18n": "attViewerMacro",
-                    "value": "Upload draw.io Diagram"
+                    "value": "Unused"
                 },
                 "url": "/connect/gdriveconnector/att-viewer.html?pageId=${page.id}&attId=${attId}&attVer=${attVer}&filename=${filename}&width=${width}&height=${height}&mimeType=${mimeType}&isDrawio=${isDrawio}&autoSize=${autoSize}&aspect=${aspect}",
                 "width": "600px",
                 "height": "400px",
                 "description": 
                 {
-                    "i18n": "description",
-                    "value": "Upload a diagram file to a page"
+                    "value": "Unused"
                 }, "icon": 
                 {
-		          "width": 144,
-		          "height": 144,
-		          "url": "/connect/gdriveconnector/images/gdriveconnector.png"
+		          "width": 80,
+		          "height": 80,
+		          "url": "/images/stop-flat-icon-80.png"
 		        },
 		        "categories": [
 		          "visuals"
@@ -404,8 +395,6 @@
         ]
     },
     "scopes": [
-    "read",
-    "write",
-    "delete"
+    "read"
   	]
 }

@@ -123,6 +123,7 @@
 				<file name="Sidebar-ER.js" />
 				<file name="Sidebar-Floorplan.js" />
 				<file name="Sidebar-Flowchart.js" />
+				<file name="Sidebar-FluidPower.js" />
 				<file name="Sidebar-GCP.js" />
 				<file name="Sidebar-GCP2.js" />
 				<file name="Sidebar-Gmdl.js" />
