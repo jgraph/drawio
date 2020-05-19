@@ -303,13 +303,9 @@ function includeDiagramMain(confPageId, draftPage)
 				theMacroData.aspectHash = aspectHash;
 				theMacroData.imgPageId = confPageId;
 				
-				var bounds = curViewer.graph.getGraphBounds();
-				
-				if (bounds != null)
-				{
-					theMacroData.width = Math.round(bounds.width) || null;
-					theMacroData.height = Math.round(bounds.height) || null;
-				}
+				var bounds = curViewer.graph.view.graphBounds;
+				theMacroData.width = Math.round(bounds.width) || null;
+				theMacroData.height = Math.round(bounds.height) || null;
 				
 				function saveMacro()
 				{
@@ -397,7 +393,7 @@ function includeDiagramMain(confPageId, draftPage)
 								startSaving, function(resp)
 								{
 									showError('Unexpected error. Cannot cannot save cached file');
-								}, false, 'application/vnd.jgraph.mxfile', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
+								}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
 					};
 					
 					if (editMode)

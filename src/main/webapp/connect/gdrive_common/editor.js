@@ -1,8 +1,7 @@
-function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOnly)
+function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOnly, genImage)
 {
 	idSuffix = idSuffix || '';
 	var noThumbImg = '/images/google-drive-logo.svg';
-	var connectUrl = GAC.getBaseUrl() + '/atlassian-connect';
 	
 	var opts =
 	{
@@ -54,16 +53,19 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 
 	function showError(elem, errMsg)
 	{
-		elem.innerHTML = '<img src="/mxgraph/images/error.gif" border="0" align="absmiddle"/> ' + 
+		elem.innerHTML = '<img src="data:image/gif;base64,R0lGODlhEAAQAPcAAADGAIQAAISEhP8AAP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAAALAAAAAAQABAAAAhoAAEIFBigYMGBCAkGGMCQ4cGECxtKHBAAYUQCEzFSHLiQgMeGHjEGEAAg4oCQJz86LCkxpEqHAkwyRClxpEyXGmGaREmTIsmOL1GO/DkzI0yOE2sKIMlRJsWhCQHENDiUaVSpS5cmDAgAOw==" border="0" align="absmiddle"/> ' + 
 			errMsg;
 	};
 	
 	function setPreview(file)
 	{
-		AP.dialog.getButton('submit').enable();
-		var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-		
-		if (altSubmitBtn) altSubmitBtn.enable();
+		if (typeof AP != 'undefined')
+		{
+			AP.dialog.getButton('submit').enable();
+			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+			
+			if (altSubmitBtn) altSubmitBtn.enable();
+		}
 		
 		var thumbImg = GAC.$('#thumbImg' + idSuffix);
 
@@ -131,16 +133,19 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 
 		curViewer = viewer;
 		
-		AP.dialog.getButton('submit').enable();
-		var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-		
-		if (altSubmitBtn) altSubmitBtn.enable();
+		if (typeof AP != 'undefined')
+		{
+			AP.dialog.getButton('submit').enable();
+			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+			
+			if (altSubmitBtn) altSubmitBtn.enable();
+		}
 	};
 	
 	// Waits for both APIs to load in parallel
 	function main()
 	{
-		if (notStandalone || (typeof window.AP !== 'undefined' && typeof window.google != 'undefined'))
+		if ((notStandalone || typeof window.AP !== 'undefined') && typeof window.google != 'undefined')
 		{
 			try
 			{
@@ -214,11 +219,38 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 			}
 				
 			selectedFile.aspect = curViewer.diagrams[curViewer.currentPage].getAttribute('id') + ' ' + layerIds.join(' ');
+			
+			if (autoSize)
+			{
+				var bounds = curViewer.graph.view.graphBounds;
+				width = Math.round(bounds.width) || null;
+				height = Math.round(bounds.height) || null;
+			}
 		}
 		
 		spinner.spin(GAC.$('#preview' + idSuffix));
 		
-		onSubmit(selectedFile, width, height, autoSize, selFileContent);
+		var image = null;
+		
+		function finalize()
+		{
+			onSubmit(selectedFile, width, height, autoSize, selFileContent, image);	
+		};
+		
+		if (genImage && curViewer.editor.isExportToCanvas())
+		{
+			curViewer.editor.exportToCanvas(function(canvas)
+	    	{
+				var data = canvas.toDataURL('image/png');
+				image = data.substring(data.lastIndexOf(',') + 1);
+	   	   		finalize();
+	    	}
+	    	, null, null, null, finalize);
+		}
+		else
+		{
+			finalize()		
+		}
 	}
 	
 	this.doSubmit = genericOnSubmit;
@@ -240,6 +272,8 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 			
 			GAC.$('#filePicker' + idSuffix).addEventListener('click', function(evt) 
 			{
+				evt.preventDefault();
+				
 				GAC.pickFile(function(file)
 				{
 					function handleNonDrawFile() //If the file is not a draw.io diagram
@@ -310,8 +344,6 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 						handleNonDrawFile();
 					}
 				}, true); //Allow folder selection. If it's not needed in Jira use !notStandalone
-				
-				evt.preventDefault();
 			});
 			
 			function removeErrMsg() 
@@ -396,6 +428,33 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 				});
 			}
 		}
+	};
+	
+	this.loadDarwioFile = function(fileInfo)
+	{
+		GAC.$('#filename' + idSuffix).value = fileInfo.diagramDisplayName;
+		GAC.$('#autoSize' + idSuffix).checked = true;
+		var prevDiv = GAC.$('#preview' + idSuffix);
+		prevDiv.innerHTML = '';
+		spinner.spin(prevDiv);
+
+		GAC.getFileInfo(fileInfo.sFileId, function(file)
+		{
+			selectedFile = file;
+			GAC.$('#filename' + idSuffix).value = file.title;
+			
+			GAC.getDrawioFileDoc(file, function(doc, cnt)
+			{
+				selFileContent = cnt;
+				prevDrawioFile(doc, prevDiv, file, fileInfo.aspect);
+			}, function()
+			{
+				showError(prevDiv, 'Cannot read "' + file.title + '" file from Google Drive.');
+			});
+		}, function()
+		{
+			showError(prevDiv, 'Fetching file info from Google Drive failed.');
+		});
 	};
 	
 	function autoSizeChanged(isChecked)

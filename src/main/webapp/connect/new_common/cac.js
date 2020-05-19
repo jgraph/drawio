@@ -112,7 +112,7 @@ CAC.getPageInfo = function(callback)
 
 CAC.uploadCachedMxFile = function(fileContent, filename, success, error)
 {
-	CAC.uploadAttachment(fileContent, filename, 'application/vnd.jgraph.mxfile', 'Diagram Viewer Cached file', success, error)
+	CAC.uploadAttachment(fileContent, filename, 'application/vnd.jgraph.mxfile.cached', 'Diagram Viewer Cached file', success, error)
 };
 
 CAC.delOldCachedFiles = function(pageId, filename, timestamp)

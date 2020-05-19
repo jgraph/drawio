@@ -10563,6 +10563,9 @@
 						xml = this.emptyDiagramXml;
 					}
 					
+					// Creates temporary file for diff sync in embed mode
+					this.setCurrentFile(new LocalFile(this, xml,
+						this.defaultFilename, true));
 					this.setFileData(xml);
 					
 					if (!this.editor.isChromelessView())
@@ -11220,6 +11223,28 @@
 						{
 							data = data.xml;
 						}
+					}
+					else if (data.action == 'merge')
+					{
+						var file = this.getCurrentFile();
+						
+						if (file != null)
+						{
+							var tmp = extractDiagramXml(data.xml);
+
+							if (tmp != null && tmp != '')
+							{
+								file.mergeFile(new LocalFile(this, tmp), function()
+								{
+									parent.postMessage(JSON.stringify({event: 'merge', message: data}), '*');
+								}, function(err)
+								{
+									parent.postMessage(JSON.stringify({event: 'merge', message: data, error: err}), '*');
+								});
+							}
+						}
+						
+						return;
 					}
 					else if (data.action == 'remoteInvokeReady') 
 					{

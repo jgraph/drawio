@@ -1,7 +1,6 @@
-function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOnly)
+function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOnly, genImage)
 {
 	idSuffix = idSuffix || '';
-	var connectUrl = AC.getBaseUrl() + '/atlassian-connect';
 	var isDrawio = false;
 	
 	var opts =
@@ -43,7 +42,7 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 
 	function showError(elem, errMsg)
 	{
-		elem.innerHTML = '<img src="/mxgraph/images/error.gif" border="0" align="absmiddle"/> ' + 
+		elem.innerHTML = '<img src="data:image/gif;base64,R0lGODlhEAAQAPcAAADGAIQAAISEhP8AAP///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////yH5BAEAAAAALAAAAAAQABAAAAhoAAEIFBigYMGBCAkGGMCQ4cGECxtKHBAAYUQCEzFSHLiQgMeGHjEGEAAg4oCQJz86LCkxpEqHAkwyRClxpEyXGmGaREmTIsmOL1GO/DkzI0yOE2sKIMlRJsWhCQHENDiUaVSpS5cmDAgAOw==" border="0" align="absmiddle"/> ' + 
 			errMsg;
 	};
 	
@@ -77,10 +76,13 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 
 		curViewer = viewer;
 		
-		AP.dialog.getButton('submit').enable();
-		var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-		
-		if (altSubmitBtn) altSubmitBtn.enable();
+		if (typeof AP != 'undefined')
+		{
+			AP.dialog.getButton('submit').enable();
+			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+			
+			if (altSubmitBtn) altSubmitBtn.enable();
+		}
 	};
 	
 	function prevImageFile(url, prevDiv, success, error)
@@ -101,10 +103,13 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 			prevDiv.style.lineHeight = prevDiv.offsetHeight + 'px';
 			prevDiv.appendChild(img);								
 
-			AP.dialog.getButton('submit').enable();
-			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-			
-			if (altSubmitBtn) altSubmitBtn.enable();
+			if (typeof AP != 'undefined')
+			{
+				AP.dialog.getButton('submit').enable();
+				var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+				
+				if (altSubmitBtn) altSubmitBtn.enable();
+			}
 			
 			spinner.stop();
 			
@@ -180,25 +185,59 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 			}
 				
 			aspect = curViewer.diagrams[curViewer.currentPage].getAttribute('id') + ' ' + layerIds.join(' ');
+			
+			if (autoSize)
+			{
+				var bounds = curViewer.graph.view.graphBounds;
+				width = Math.round(bounds.width) || null;
+				height = Math.round(bounds.height) || null;
+			}
 		}
 		
-		AP.dialog.getButton('submit').disable();
-		var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-		
-		if (altSubmitBtn) altSubmitBtn.disable();
+		if (typeof AP != 'undefined')
+		{
+			AP.dialog.getButton('submit').disable();
+			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+			
+			if (altSubmitBtn) altSubmitBtn.disable();
+		}
 		
 		spinner.spin(AC.$('#preview' + idSuffix));
 
-		onSubmit(selectedFile, selFileContent, editedFile, width, height, autoSize, isDrawio, aspect, function()
+
+		var image = null;
+		
+		function finalize()
 		{
-			AP.dialog.getButton('submit').enable();
-			var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
-			
-			if (altSubmitBtn) altSubmitBtn.enable();
-			
-			showError(AC.$('#errorMsg' + idSuffix), 'Uploading file failed');
-			spinner.stop();
-		});
+			onSubmit(selectedFile, selFileContent, editedFile, width, height, autoSize, isDrawio, aspect, function()
+			{
+				if (typeof AP != 'undefined')
+				{
+					AP.dialog.getButton('submit').enable();
+					var altSubmitBtn = AP.dialog.getButton('altSubmitBtn');
+					
+					if (altSubmitBtn) altSubmitBtn.enable();
+				}
+				
+				showError(AC.$('#errorMsg' + idSuffix), 'Uploading file failed');
+				spinner.stop();
+			}, image);
+		};
+		
+		if (genImage && curViewer.editor.isExportToCanvas())
+		{
+			curViewer.editor.exportToCanvas(function(canvas)
+	    	{
+				var data = canvas.toDataURL('image/png');
+				image = data.substring(data.lastIndexOf(',') + 1);
+	   	   		finalize();
+	    	}
+	    	, null, null, null, finalize);
+		}
+		else
+		{
+			finalize()		
+		}
 	}
 
 	this.doSubmit = genericOnSubmit;
@@ -324,6 +363,7 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 					}
 					
 					selectedFile = file;
+					editedFile = null;
 				}					
 				else
 				{
@@ -423,6 +463,47 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 				}
 			});
 		}
+	};
+	
+	//This function expects having the downloadUrl in the fileInfo
+	this.loadDarwioFile = function(fileInfo)
+	{
+		editedFile = fileInfo;
+		AC.$('#filename' + idSuffix).value = fileInfo.diagramDisplayName;
+		AC.$('#autoSize' + idSuffix).checked = true;
+		var prevDiv = AC.$('#preview' + idSuffix);
+		prevDiv.innerHTML = '';
+		spinner.spin(prevDiv);
+
+		var req = new XMLHttpRequest();
+        req.open('GET', fileInfo.downloadUrl);
+        
+        req.onreadystatechange = function()
+        {
+            if (this.readyState == 4)
+            {
+                if (this.status >= 200 && this.status <= 299)
+                {
+                	selFileContent = req.responseText;
+                	var doc = mxUtils.parseXml(selFileContent);
+					
+					try
+					{
+						prevDrawioFile(doc, prevDiv, fileInfo.diagramDisplayName, fileInfo.aspect);
+					}
+					catch(e)
+					{
+						showError(prevDiv, 'Attachment file "' + fileInfo.diagramName + '" is corrupted');
+					}
+                }
+                else
+                {
+                	showError(prevDiv, 'Cannot read attachment file "' + fileInfo.diagramName + '".');
+                }
+            }
+        };
+        
+        req.send();
 	};
 	
 	function autoSizeChanged(isChecked)

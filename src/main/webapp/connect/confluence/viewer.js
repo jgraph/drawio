@@ -940,7 +940,7 @@
 			            										updateImage, function(resp)
 			            										{
 			            											showError(mxResources.get('confSaveCacheFailed'));
-			            										}, false, 'application/vnd.jgraph.mxfile', 'Embedded draw.io diagram - ' + timestamp, false, false);
+			            										}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram - ' + timestamp, false, false);
 													};
 													
 													if (service == 'GDrive')

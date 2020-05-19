@@ -2026,7 +2026,7 @@
 				//Add support to saving files if embedded mode is running with files
 				var file = editorUi.getCurrentFile();
 				
-				if (file != null)
+				if (file != null && (file.constructor != LocalFile || file.mode != null))
 				{
 					editorUi.saveFile();
 				}
