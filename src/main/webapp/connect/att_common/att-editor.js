@@ -466,7 +466,7 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 	};
 	
 	//This function expects having the downloadUrl in the fileInfo
-	this.loadDarwioFile = function(fileInfo)
+	this.loadDrawioFile = function(fileInfo)
 	{
 		editedFile = fileInfo;
 		AC.$('#filename' + idSuffix).value = fileInfo.diagramDisplayName;

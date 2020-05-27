@@ -1503,7 +1503,7 @@
 			url.substring(0, 23) === 'https://cdn.rawgit.com/' ||
 			url.substring(0, 19) === 'https://rawgit.com/' ||
 			/^https?:\/\/[^\/]*\.blob.core.windows.net\//.test(url) ||
-			/^https?:\/\/[^\/]*\.diagrams\.new\/proxy/.test(url) ||
+			/^https?:\/\/[^\/]*\.diagrams\.net\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.draw\.io\/proxy/.test(url) ||
 			/^https?:\/\/[^\/]*\.github\.io\//.test(url);
 	};
@@ -2157,7 +2157,8 @@
 	 *
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid)
+		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
+		keepTheme)
 	{
 		try
 		{
@@ -2181,11 +2182,11 @@
 			// Handles special case where background is null but transparent is false
 			if (bg == null && transparentBackground == false)
 			{
-				bg = '#ffffff';
+				bg = (keepTheme) ? this.graph.defaultPageBackgroundColor : '#ffffff';;
 			}
 			
-			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection, null, null, null, addShadow),
-				mxUtils.bind(this, function(svgRoot)
+			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection,
+				null, null, null, addShadow, null, keepTheme), mxUtils.bind(this, function(svgRoot)
 			{
 				try
 				{
@@ -4578,11 +4579,11 @@
 	var graphGetSvg = Graph.prototype.getSvg;
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
-			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts)
+		ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts, keepTheme)
 	{
 		var temp = null;
 		
-		if (this.themes != null && this.defaultThemeName == 'darkTheme')
+		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
 			this.stylesheet = this.getDefaultStylesheet();

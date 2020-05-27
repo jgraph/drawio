@@ -1409,6 +1409,27 @@ var com;
                             model.remove(removeChild);
                         }
                     }
+                    
+                    //Check for -ve width/height cells and correct it
+                    var geo = cell.geometry;
+                    
+                    if (geo != null)
+                	{
+                    	if (geo.height < 0)
+                		{
+                    		geo.height = Math.abs(geo.height);
+                    		geo.y -= geo.height;
+                    		cell.style += ';flipV=1;';
+                		}
+
+                    	if (geo.width < 0)
+                		{
+                    		geo.width = Math.abs(geo.width);
+                    		geo.x -= geo.width;
+                    		cell.style += ';flipH=1;';
+                		}
+                	}
+                    
                     if (childCount > 0) {
                         childCount = model.getChildCount(cell);
                     }

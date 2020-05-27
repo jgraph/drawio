@@ -32,7 +32,7 @@
 				break;
 			case 'loadFile':
 				editedFile = msg.fileInfo.sFileId;
-				editor.loadDarwioFile(msg.fileInfo);
+				editor.loadDrawioFile(msg.fileInfo);
 				break;
 			}
 		}

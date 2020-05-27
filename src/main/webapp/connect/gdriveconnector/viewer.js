@@ -16,7 +16,7 @@
 	
 	script.onload = function()
 	{
-		GAC.getPageInfo(function(pageId, draftPage)
+		GAC.getCurPageId(function(pageId, draftPage)
 		{
 			confPageId = pageId;
 			isDraft = draftPage;

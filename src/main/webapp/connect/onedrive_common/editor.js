@@ -426,7 +426,7 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 		}
 	};
 	
-	this.loadDarwioFile = function(fileInfo)
+	this.loadDrawioFile = function(fileInfo)
 	{
 		AC.$('#filename' + idSuffix).value = fileInfo.diagramDisplayName;
 		AC.$('#autoSize' + idSuffix).checked = true;

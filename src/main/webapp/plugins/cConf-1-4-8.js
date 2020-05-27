@@ -485,7 +485,7 @@ Draw.loadPlugin(function(ui)
 			
 			if (anchor)
 			{
-				ui.remoteInvoke('getPageInfo', [false], null, function(info)
+				ui.remoteInvoke('getPageInfo', [true], null, function(info)
 				{
 					var url = info.url;
 					
@@ -499,8 +499,8 @@ Draw.loadPlugin(function(ui)
 							url = url.substring(0, hash);
 						}
 						
-						//When page title has a [ at the beginning, conf adds id- to anchor name
-						newWin.location = url + '#' + (info.title.indexOf('[') == 0? 'id-' : '') + encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+						//We assume the new editor for simplicity
+						newWin.location = url + '#' + encodeURIComponent(anchor.replace(/\s/g, '-'));
 					}
 				}, function()
 				{

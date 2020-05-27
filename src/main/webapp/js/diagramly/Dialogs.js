@@ -620,6 +620,11 @@ var SplashDialog = function(editorUi)
 		logo.src = IMAGE_PATH + '/osa_database.png';
 		service = mxResources.get('browser');
 	}
+	else if (editorUi.mode == App.MODE_TRELLO)
+	{
+		logo.src = IMAGE_PATH + '/trello-logo.svg';
+		service = mxResources.get('trello');
+	}
 	else
 	{
 		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';

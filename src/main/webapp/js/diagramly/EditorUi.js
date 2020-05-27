@@ -4678,7 +4678,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, embedImages, border, noCrop, currentPage, linkTarget)
+		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -4696,14 +4696,14 @@
 				// Handles special case where background is null but transparent is false
 				if (bg == null && transparentBackground == false)
 				{
-					bg = '#ffffff';
+					bg = (keepTheme) ? this.editor.graph.defaultPageBackgroundColor : '#ffffff';
 				}
 				
 				// Sets or disables alternate text for foreignObjects. Disabling is needed
 				// because PhantomJS seems to ignore switch statements and paint all text.
 				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
 					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
-					((linkTarget == 'self') ? '_top' : null), null, true);
+					((linkTarget == 'self') ? '_top' : null), null, true, keepTheme);
 				
 				if (addShadow)
 				{
@@ -5221,7 +5221,7 @@
 			var testLink = document.createElement('a');
 			testLink.style.paddingLeft = '12px';
 			testLink.style.color = 'gray';
-			testLink.setAttribute('href', 'javascript:void(0);');
+			testLink.style.cursor = 'pointer';
 			mxUtils.write(testLink, mxResources.get('share'));
 			radioSection.appendChild(testLink);
 			
@@ -5339,7 +5339,7 @@
 			testLink.style.paddingLeft = '12px';
 			testLink.style.color = 'gray';
 			testLink.style.fontSize = '11px';
-			testLink.setAttribute('href', 'javascript:void(0);');
+			testLink.style.cursor = 'pointer';
 			mxUtils.write(testLink, mxResources.get('check'));
 			hintSection.appendChild(testLink);
 			
@@ -5563,6 +5563,14 @@
 		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
 		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
 			defaultTransparent, null, null, format != 'jpeg');
+		var keepTheme = null;
+		
+		if (uiTheme == 'dark')
+		{
+			keepTheme = this.addCheckbox(div, mxResources.get('dark'), true); 
+			height += 26;
+		}
+		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
 			false, graph.isSelectionEmpty());
 
@@ -5698,7 +5706,8 @@
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
-				linkSelect.value, (grid != null? grid.checked : null));
+				linkSelect.value, (grid != null) ? grid.checked : null,
+				(keepTheme != null) ? keepTheme.checked : null);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -6340,7 +6349,8 @@
 	/**
 	 *
 	 */
-	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow, editable, border, noCrop, currentPage, format, grid, dpi)
+	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow,
+		editable, border, noCrop, currentPage, format, grid, dpi, keepTheme)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -6384,7 +6394,7 @@
 			   		this.spinner.stop();
 			   		this.handleError(e);
 			   	}), null, ignoreSelection, scale || 1, transparentBackground,
-			   		addShadow, null, null, border, noCrop, grid);
+			   		addShadow, null, null, border, noCrop, grid, keepTheme);
 			}
 			catch (e)
 			{
@@ -11396,6 +11406,19 @@
 		var parent = window.opener || window.parent;
 		var msg = (urlParams['proto'] == 'json') ? JSON.stringify({event: 'init'}) : (urlParams['ready'] || 'ready');
 		parent.postMessage(msg, '*');
+		
+		// Adds JSON event for opening links
+		if (urlParams['proto'] == 'json')
+		{
+			var graphOpenLink = this.editor.graph.openLink;
+			
+			this.editor.graph.openLink = function(href, target, allowOpener)
+			{
+				graphOpenLink.apply(this, arguments);
+				
+				parent.postMessage(JSON.stringify({event: 'openLink', href: href, target: target, allowOpener: allowOpener}), '*');
+			};
+		}
 	};
 	
 	/**
@@ -11418,15 +11441,18 @@
 			
 			if (urlParams['noSaveBtn'] == '1')
 			{
-				mxUtils.write(button, mxResources.get('saveAndExit'));
-				button.setAttribute('title', mxResources.get('saveAndExit'));
-				
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				if (urlParams['saveAndExit'] != '0')
 				{
-					this.actions.get('saveAndExit').funct();
-				}));
-				
-				div.appendChild(button);
+					mxUtils.write(button, mxResources.get('saveAndExit'));
+					button.setAttribute('title', mxResources.get('saveAndExit'));
+					
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
 			}
 			else
 			{
@@ -13577,11 +13603,12 @@
 	};
 	
 	EditorUi.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
-			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid)
+			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid, keepTheme)
 	{
 		EditorUi.logEvent('SHOULD NOT BE CALLED: exportToCanvas');
 		return this.editor.exportToCanvas(callback, width, imageCache, background, error, limitHeight,
-				ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid);	
+			ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border,
+			noCrop, grid, keepTheme);	
 	};
 	
 	EditorUi.prototype.createImageUrlConverter = function()

@@ -3050,15 +3050,20 @@
 	// Handlers are only added if mxVertexHandler is defined (ie. not in embedded graph)
 	if (typeof mxVertexHandler !== 'undefined')
 	{
-		function createHandle(state, keys, getPositionFn, setPositionFn, ignoreGrid, redrawEdges)
+		function createHandle(state, keys, getPositionFn, setPositionFn, ignoreGrid, redrawEdges, executeFn)
 		{
 			var handle = new mxHandle(state, null, mxVertexHandler.prototype.secondaryHandleImage);
 			
-			handle.execute = function()
+			handle.execute = function(me)
 			{
 				for (var i = 0; i < keys.length; i++)
 				{	
 					this.copyStyle(keys[i]);
+				}
+				
+				if (executeFn)
+				{
+					executeFn(me);
 				}
 			};
 			
@@ -3449,7 +3454,16 @@
 			},
 			'swimlane': function(state)
 			{
-				var handles = [createHandle(state, [mxConstants.STYLE_STARTSIZE], function(bounds)
+				var handles = [];
+				
+				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED))
+				{
+					var size = parseFloat(mxUtils.getValue(state.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
+					handles.push(createArcHandle(state, size / 2));
+				}
+				
+				// Start size handle must be last item in handles for hover to work in tables (see mouse event handler in Graph)
+				handles.push(createHandle(state, [mxConstants.STYLE_STARTSIZE], function(bounds)
 				{
 					var size = parseFloat(mxUtils.getValue(state.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
 					
@@ -3467,13 +3481,35 @@
 						(mxUtils.getValue(this.state.style, mxConstants.STYLE_HORIZONTAL, 1) == 1) ?
 							Math.round(Math.max(0, Math.min(bounds.height, pt.y - bounds.y))) :
 							Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x)));
-				}, false)];
-				
-				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED))
+				}, false, null, function(me)
 				{
-					var size = parseFloat(mxUtils.getValue(state.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
-					handles.push(createArcHandle(state, size / 2));
-				}
+					if (mxEvent.isShiftDown(me.getEvent()))
+					{
+						var graph = state.view.graph;
+						
+						if (graph.isTableRow(state.cell) || graph.isTableCell(state.cell))
+						{
+							var dir = graph.getSwimlaneDirection(state.style);
+							var parent = graph.model.getParent(state.cell);
+							var cells = graph.model.getChildCells(parent, true);
+							var temp = []; 
+							
+							for (var i = 0; i < cells.length; i++)
+							{
+								// Finds siblings with the same direction and to set start size
+								if (cells[i] != state.cell && graph.isSwimlane(cells[i]) &&
+									graph.getSwimlaneDirection(graph.getCurrentCellStyle(
+									cells[i])) == dir)
+								{
+									temp.push(cells[i]);
+								}
+							}
+							
+							graph.setCellStyles(mxConstants.STYLE_STARTSIZE,
+								state.style[mxConstants.STYLE_STARTSIZE], temp);
+						}
+					}					
+				}));
 				
 				return handles;
 			},

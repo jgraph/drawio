@@ -92,7 +92,7 @@ CAC.htmlEntities = function(s, newline)
 	return s;
 };
 
-CAC.getPageInfo = function(callback)
+CAC.getCurPageId = function(callback)
 {
 	AP.navigator.getLocation(function (data)
     {
@@ -133,7 +133,7 @@ CAC.delOldCachedFiles = function(pageId, filename, timestamp)
 
 CAC.uploadAttachment = function(fileContent, filename, fileType, comment, success, error)
 {
-	CAC.getPageInfo(function(pageId, draftPage)
+	CAC.getCurPageId(function(pageId, draftPage)
 	{
 		var attFile = new Blob([fileContent], {type: fileType});
 		attFile.name = filename;

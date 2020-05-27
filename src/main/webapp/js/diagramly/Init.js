@@ -104,6 +104,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'et' : 'Eesti',
 	'en' : 'English',
 	'es' : 'Español',
+	'eu' : 'Euskadi',
 	'fil' : 'Filipino',
 	'fr' : 'Français',
 	'gl' : 'Galego',

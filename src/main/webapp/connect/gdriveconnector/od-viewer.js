@@ -15,7 +15,7 @@
 	
 	script.onload = function()
 	{
-		AC.getPageInfo(function(pageId, draftPage)
+		AC.getCurPageId(function(pageId, draftPage)
 		{
 			confPageId = pageId;
 			isDraft = draftPage;

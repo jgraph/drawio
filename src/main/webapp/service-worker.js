@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "1a26117d76b33a4b7a4698b254a12724"
+    "revision": "3d90d1d0f3bf400b5b41589e15c3ba7c"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "b6311ad55b3030c29977e2d8689eaa8e"
+    "revision": "ecd53ce33feef17a0ac6be648bfd056f"
   },
   {
     "url": "js/stencils.min.js",
@@ -118,7 +118,11 @@ if (workbox)
   },
   {
     "url": "resources/dia_es.txt",
-    "revision": "92862faa5d77c00ddcffb79caa524975"
+    "revision": "94be775c840c8f010f21727e37a91c3e"
+  },
+  {
+    "url": "resources/dia_eu.txt",
+    "revision": "467b2121c8e2313421f81335d8bcd646"
   },
   {
     "url": "resources/dia_ko.txt",
@@ -375,6 +379,30 @@ if (workbox)
   {
     "url": "images/osa_database.png",
     "revision": "c350d9d9b95f37b6cfe798b40ede5fb0"
+  },
+  {
+    "url": "images/google-drive-logo-white.svg",
+    "revision": "f329d8b1be7778515a85b93fc35d9f26"
+  },
+  {
+    "url": "images/dropbox-logo-white.svg",
+    "revision": "4ea8299ac3bc31a16f199ee3aec223bf"
+  },
+  {
+    "url": "images/onedrive-logo-white.svg",
+    "revision": "b3602fa0fc947009cff3f33a581cff4d"
+  },
+  {
+    "url": "images/github-logo-white.svg",
+    "revision": "537b1127b3ca0f95b45782d1304fb77a"
+  },
+  {
+    "url": "images/gitlab-logo-white.svg",
+    "revision": "5fede9ac2f394c716b8c23e3fddc3910"
+  },
+  {
+    "url": "images/trello-logo-white-orange.svg",
+    "revision": "e2a0a52ba3766682f138138d10a75eb5"
   },
   {
     "url": "images/logo-confluence.png",

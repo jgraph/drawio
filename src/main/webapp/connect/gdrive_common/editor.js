@@ -430,7 +430,7 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 		}
 	};
 	
-	this.loadDarwioFile = function(fileInfo)
+	this.loadDrawioFile = function(fileInfo)
 	{
 		GAC.$('#filename' + idSuffix).value = fileInfo.diagramDisplayName;
 		GAC.$('#autoSize' + idSuffix).checked = true;

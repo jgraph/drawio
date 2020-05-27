@@ -203,30 +203,11 @@ Actions.prototype.init = function()
 	{
 		// Cancels interactive operations
 		graph.escape();
-		var cells = graph.getDeletableCells(graph.getSelectionCells());
+		var select = graph.deleteCells(graph.getDeletableCells(graph.getSelectionCells()), includeEdges);
 		
-		if (cells != null && cells.length > 0)
+		if (select != null)
 		{
-			var parents = (graph.selectParentAfterDelete) ? graph.model.getParents(cells) : null;
-			graph.removeCells(cells, includeEdges);
-			
-			// Selects parents for easier editing of groups
-			if (parents != null)
-			{
-				var select = [];
-				
-				for (var i = 0; i < parents.length; i++)
-				{
-					if (graph.model.contains(parents[i]) &&
-						(graph.model.isVertex(parents[i]) ||
-						graph.model.isEdge(parents[i])))
-					{
-						select.push(parents[i]);
-					}
-				}
-				
-				graph.setSelectionCells(select);
-			}
+			graph.setSelectionCells(select);
 		}
 	};
 	

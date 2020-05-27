@@ -2713,6 +2713,29 @@ AC.getPageInfo = function(urlOnly, success, error)
 	});
 };
 
+AC.getContentProperty = function(contentId, propName, success, error)
+{
+	AP.request({
+		type: 'GET',
+		url: '/rest/api/content/' + contentId + '/property/' + encodeURIComponent(propName),
+		contentType: 'application/json;charset=UTF-8',
+		success: success,
+		error: error
+	});
+};
+
+AC.getConfPageEditorVer = function(pageId, callback)
+{
+	AC.getContentProperty(pageId, 'editor', function(resp)
+	{
+		resp = JSON.parse(resp);
+		callback(resp.value == 'v2'? 2 : 1);
+	}, function()
+	{
+		callback(1);// On error, assume the old editor
+	})
+};
+
 AC.gotoAnchor = function(anchor)
 {
 	AC.getPageInfo(false, function(info)
@@ -2729,9 +2752,22 @@ AC.gotoAnchor = function(anchor)
 				url = url.substring(0, hash);
 			}
 			
-			//When page title has a [ at the beginning, conf adds id- to anchor name
-			top.window.location = url + '#' + (info.title.indexOf('[') == 0? 'id-' : '') + 
-									encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+			AC.getConfPageEditorVer(info.id, function(ver)
+			{
+				if (ver == 1)
+				{
+					//When page title has a [ at the beginning, conf adds id- to anchor name
+					url = url + '#' + (info.title.indexOf('[') == 0? 'id-' : '') + 
+											encodeURI(info.title.replace(/\s/g, '') + '-' + anchor.replace(/\s/g, ''));
+				}
+				else
+				{
+					url = url + '#' + encodeURIComponent(anchor.replace(/\s/g, '-'));
+				}
+				
+				top.window.location = url;
+			});
+			
 		}
 	}, function()
 	{

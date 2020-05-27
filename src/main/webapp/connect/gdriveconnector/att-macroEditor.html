@@ -80,7 +80,7 @@ body {
 <script type="text/javascript">
   	AttViewerEditor(function(selectedFile, selFileContent, editedFile, width, height, autoSize, isDrawio, aspect, onError)
 	{
-  		AC.getPageInfo(function(pageId, draftPage)
+  		AC.getCurPageId(function(pageId, draftPage)
  		{
 			if (selectedFile != null)
 			{
@@ -134,7 +134,7 @@ body {
 		});
 	}, function(callback, onError)
 	{
-		AC.getPageInfo(function(pageId, draftPage)
+		AC.getCurPageId(function(pageId, draftPage)
 	   	{
 			AP.confluence.getMacroData(function(fileInfo)
 			{

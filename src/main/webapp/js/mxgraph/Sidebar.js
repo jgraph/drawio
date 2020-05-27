@@ -2126,9 +2126,15 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 						// Splits the target edge or inserts into target group
 						if (allowSplit && graph.isSplitTarget(target, cells, evt))
 						{
+							var s = graph.view.scale;
+							var tr = graph.view.translate;
+							var tx = (x + tr.x) * s;
+							var ty = (y + tr.y) * s;
+							
 							var clones = graph.cloneCells(cells);
 							graph.splitEdge(target, clones, null,
-								x - bounds.width / 2, y - bounds.height / 2);
+								x - bounds.width / 2, y - bounds.height / 2,
+								tx, ty);
 							select = clones;
 						}
 						else if (cells.length > 0)

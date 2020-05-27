@@ -94,23 +94,6 @@
 			dlg.init();
 		});
 
-		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
-		{
-			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-				'https://support.draw.io/display/DO/Exporting+Files',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-					editable, embedImages, border, cropImage, currentPage, linkTarget)
-				{
-					var val = parseInt(scale);
-					
-					if (!isNaN(val) && val > 0)
-					{
-					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-					   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
-					}
-				}), true, null, 'svg');
-		}));
-		
 		editorUi.actions.put('insertTemplate', new Action(mxResources.get('template') + '...', function()
 		{
 			var dlg = new NewDialog(editorUi, null, false, function(xml)
@@ -654,21 +637,38 @@
 			}
 		}));
 		
+		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
+		{
+			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
+				'https://desk.draw.io/support/solutions/articles/16000067785',
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+					editable, embedImages, border, cropImage, currentPage, linkTarget, grid, keepTheme)
+				{
+					var val = parseInt(scale);
+					
+					if (!isNaN(val) && val > 0)
+					{
+					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
+					   		editable, embedImages, border, !cropImage, currentPage, linkTarget, keepTheme);
+					}
+				}), true, null, 'svg');
+		}));
+		
 		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
 		{
 			if (editorUi.isExportToCanvas())
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://support.draw.io/display/DO/Exporting+Files',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, border, cropImage, currentPage, dummy, grid)
+					'https://desk.draw.io/support/solutions/articles/16000067785',
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+						editable, embedImages, border, cropImage, currentPage, dummy, grid, keepTheme)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-						   		addShadow, editable, border, !cropImage, currentPage, null, grid);
+						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection, addShadow,
+						   		editable, border, !cropImage, currentPage, null, grid, null, keepTheme);
 						}
 					}), true, true, 'png');
 			}
@@ -686,16 +686,16 @@
 			if (editorUi.isExportToCanvas())
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://support.draw.io/display/DO/Exporting+Files',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
-						addShadow, editable, embedImages, border, cropImage, currentPage, dummy, grid)
+					'https://desk.draw.io/support/solutions/articles/16000067785',
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
+						editable, embedImages, border, cropImage, currentPage, dummy, grid, keepTheme)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-							editorUi.exportImage(val / 100, false, ignoreSelection,
-							   	addShadow, false, border, !cropImage, false, 'jpeg', grid);
+							editorUi.exportImage(val / 100, false, ignoreSelection, addShadow,
+								false, border, !cropImage, false, 'jpeg', grid, null, keepTheme);
 						}
 					}), true, false, 'jpeg');
 			}
@@ -729,11 +729,6 @@
 			}
 		}));
 		
-		editorUi.actions.addAction('userManual...', function()
-		{
-			editorUi.openLink('https://support.draw.io/display/DO/Draw.io+Online+User+Manual');
-		});
-
 		editorUi.actions.addAction('support...', function()
 		{
 			editorUi.openLink('https://github.com/jgraph/drawio/wiki/Getting-Support');
@@ -1291,7 +1286,7 @@
 				}, 0);
 				
 				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
-					'-', 'userManual', 'support', '-', 'about'], parent);
+					'support', '-', 'about'], parent);
 			}
 			
 			if (urlParams['test'] == '1')
@@ -2683,23 +2678,6 @@
 	    	return cell;
 		};
 		
-		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
-		{
-			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-				'https://support.draw.io/display/DO/Exporting+Files',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-					editable, embedImages, border, cropImage, currentPage, linkTarget)
-				{
-					var val = parseInt(scale);
-					
-					if (!isNaN(val) && val > 0)
-					{
-					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-					   		editable, embedImages, border, !cropImage, currentPage, linkTarget);
-					}
-				}), true, null, 'svg');
-		}));
-		
 		editorUi.actions.put('insertText', new Action(mxResources.get('text'), function()
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
@@ -3367,7 +3345,7 @@
 					var tempDlg = new TemplatesDialog();
 					editorUi.showDialog(tempDlg.container, tempDlg.width, tempDlg.height, true, false, null, false, true);
 					tempDlg.init(editorUi, function(xml){console.log(xml)}, null,
-							null, null, "user", function(callback, username)
+							null, null, 'user', function(callback, username)
 					{
 						setTimeout(function(){
 							username? callback([
@@ -3432,11 +3410,23 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename', urlParams['noSaveBtn'] == '1'? 'saveAndExit' : 'save'], parent);
+				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename'], parent);
 				
-				if (urlParams['saveAndExit'] == '1' && urlParams['noSaveBtn'] != '1')
+				if (urlParams['noSaveBtn'] == '1')
 				{
-					this.addMenuItems(menu, ['saveAndExit'], parent);
+					if (urlParams['saveAndExit'] != '0')
+					{
+						this.addMenuItems(menu, ['saveAndExit'], parent);
+					}
+				}
+				else
+				{
+					this.addMenuItems(menu, ['save'], parent);
+					
+					if (urlParams['saveAndExit'] == '1')
+					{
+						this.addMenuItems(menu, ['saveAndExit'], parent);
+					}
 				}
 				
 				if (urlParams['noExitBtn'] != '1')

@@ -1,3 +1,11 @@
+27-MAY-2020: 13.1.4
+
+- Adds dark export option in dark mode
+- Adds Euskadi translations
+- Uses mxGraph 4.2.0 beta 4
+- Adds openLink JSON event
+- Adds %id% placeholder
+
 19-MAY-2020: 13.1.3
 
 - Adds merge JSON message

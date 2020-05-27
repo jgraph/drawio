@@ -37,6 +37,17 @@ async function handleRequest(request) {
 		  }
 		  else
 		  {
+			  if (path.startsWith('/label') || path.startsWith('/rest') || path.startsWith('/login.action'))
+			  {
+				  // blah
+			  }
+			  else
+			  {
+				  let msg = encodeURIComponent('redirect-worker-404-' + requestURL);
+				  let url = 'https://log.diagrams.net/' + msg;
+				  fetch(url);
+			  }
+
 			  let lastSlash = path.lastIndexOf('/');
 			  
 			  if (lastSlash >= 0)
@@ -50,8 +61,10 @@ async function handleRequest(request) {
 			  }
 		  }
 	  } while (!done)
+
+
   }
-  
+
   // If not in the map, return 404
   return new Response('NOT_FOUND', { status: 404 });
 }
@@ -135,7 +148,23 @@ const redirectMap = new Map([
 		['/features/training-material/', 'https://drawio-app.com/tutorials/'],
 		['/terms-conditions/', 'https://seibert-media.com/general-terms/'],
 		['/support/', 'https://github.com/jgraph/drawio/wiki/Getting-Support'],
-		['/', 'https://www.diagrams.net']
+		['/about-us/', 'https://www.diagrams.net/about.html'],
+		['/', 'https://drawio-app.com']
+	])],
+	['support', new Map([
+		['/label', 'https://127.0.0.1'],
+		['/rest', 'https://127.0.0.1'],
+		['/display/DFCS/draw.io+for+Confluence+Server', 'https://drawio-app.com'],
+		['/display/DO/Exporting+Files', 'https://desk.draw.io/a/solutions/articles/16000067785'],
+		['/display/DO/Online+Support', 'https://github.com/jgraph/drawio/wiki/Getting-Support'],
+		['/display/DO', 'https://github.com/jgraph/drawio/wiki/Getting-Support'],
+		['/display/DAFGD/draw.io+Add-on+for+Google+Docs', 'https://www.diagrams.net/blog/diagrams-google-docs.html'],
+		['/x/LYAk', 'https://seibert.biz/atlassianeula'],
+		['/display/DOB/2016/04/28/UML+State+Diagrams+with+draw.io', 'https://drawio-app.com/uml-state-diagrams-with-draw-io/'],
+		['/display/do/2015/01/08/gliffy+and+lucidchart+importing', 'https://desk.draw.io/support/solutions/articles/16000064013-mass-import-gliffy-diagrams-to-draw-io-in-confluence-server'],
+		['/display/DFCS/draw.io+for+Confluence+and+JIRA+support+terms+and+Service+Level+Agreement',
+		  'https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=server&tab=support'],
+		['/', 'https://github.com/jgraph/drawio/wiki/Getting-Support']
 	])],
 	['blog', new Map([
 		['/', 'https://www.diagrams.net/blog']
