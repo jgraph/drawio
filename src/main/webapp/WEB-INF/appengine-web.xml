@@ -13,10 +13,8 @@
   <!-- Path patterns not supported in production -->
   <static-files>
     <include path="/**">
-	  <http-header name="X-XSS-Protection" value="1; mode=block"/>
       <http-header name="Referrer-Policy" value="strict-origin" />
 	  <http-header name="Access-Control-Allow-Origin" value="*"/>
-	  <http-header name="Content-Security-Policy" value="default-src 'self'; script-src 'self' https://*.googleapis.com https://apis.google.com https://*.pusher.com https://code.jquery.com 'sha256-jsA78YB6l5VcS0/77x9mPWDga4n5mIWdGVnTqW5voMg=' 'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=' https://www.dropbox.com https://api.trello.com; connect-src 'self' https://*.draw.io https://*.googleapis.com wss://*.pusher.com https://api.github.com https://gitlab.com https://graph.microsoft.com https://*.sharepoint.com https://*.dropboxapi.com https://api.trello.com https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com https://*.1drv.com https://raw.githubusercontent.com; img-src * data:; media-src *; font-src *; frame-src 'self' https://*.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"/>
 	</include>
   </static-files>
 

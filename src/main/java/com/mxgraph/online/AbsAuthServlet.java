@@ -207,7 +207,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			//TODO after code is propagated, remove the version check
-			else if ("2".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
+			else if ("3".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}

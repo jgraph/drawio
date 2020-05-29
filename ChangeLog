@@ -1,3 +1,7 @@
+29-MAY-2020: 13.1.8
+
+- Removes CSP from GAE config
+
 29-MAY-2020: 13.1.7
 
 - Adds multiple edge labels in CSV import
