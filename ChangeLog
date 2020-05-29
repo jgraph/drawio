@@ -1,3 +1,19 @@
+29-MAY-2020: 13.1.7
+
+- Adds multiple edge labels in CSV import
+- Adds experimental support for tables
+- Adds Content-Security-Policy header
+- Adds link button in library dialog
+- Uses mxGraph 4.2.0 beta 5
+
+27-MAY-2020: 13.1.6
+
+- Fixes Gliffy popup issue
+
+27-MAY-2020: 13.1.5
+
+- Adds CSP restrictions
+
 27-MAY-2020: 13.1.4
 
 - Adds dark export option in dark mode

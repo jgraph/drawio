@@ -131,7 +131,7 @@ public class Graphic
 	
 	public GliffyMindmap Mindmap;
 	
-	public GliffyPopupNote gliffyPopupNote;
+	public GliffyPopupNote PopupNote;
 	
 	public Graphic()
 	{
@@ -171,6 +171,10 @@ public class Graphic
 	public GliffyMindmap getMindmap() 
 	{
 		return Mindmap;
+	}
+
+	public GliffyPopupNote getPopupNote() {
+		return PopupNote;
 	}
 
 

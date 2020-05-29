@@ -182,6 +182,23 @@ OneDriveClient.prototype.resetTokenRefresh = function(expires_in)
  */
 OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 {
+	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
+	
+	req.send(mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			this.authenticateStep2(req.getText(), success, error, failOnAuth);
+		}
+		else if (error != null)
+		{
+			error(req);
+		}
+	}), error);
+};
+
+OneDriveClient.prototype.authenticateStep2 = function(state, success, error, failOnAuth)
+{
 	if (window.onOneDriveCallback == null)
 	{
 		var auth = mxUtils.bind(this, function()
@@ -194,7 +211,7 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 			if (authInfo != null)
 			{
 				var req = new mxXmlRequest(this.redirectUri + '?refresh_token=' + authInfo.refresh_token +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname), null, 'GET'); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state), null, 'GET'); //To identify which app/domain is used
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -237,7 +254,7 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 						'?client_id=' + this.clientId + '&response_type=code' +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&scope=' + encodeURIComponent(this.scopes) +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state); //To identify which app/domain is used
 	
 					var width = 525,
 						height = 525,

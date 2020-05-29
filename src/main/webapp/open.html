@@ -110,7 +110,7 @@
 							var link = document.createElement('a');
 							link.style.fontDecoration = 'none';
 							window.parent.mxUtils.write(link, fileInfo.title);
-							link.setAttribute('href', 'javascript:void(0);');
+							link.style.cursor = 'pointer';
 							nameTd.appendChild(link);
 							
 							var modifiedTd = document.createElement('td');

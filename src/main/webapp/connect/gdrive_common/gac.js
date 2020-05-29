@@ -35,7 +35,7 @@ GAC.authGDrive = function(success, error, direct)
 	
 	if (window.onGoogleDriveCallback == null)
 	{
-		var auth = function()
+		var authStep2 = function(state)
 		{
 			var acceptAuthResponse = true;
 			
@@ -43,7 +43,7 @@ GAC.authGDrive = function(success, error, direct)
 				'&redirect_uri=' + encodeURIComponent(GAC.redirectUri) + 
 				'&response_type=code&access_type=offline&prompt=consent%20select_account&include_granted_scopes=true' +
 				'&scope=' + encodeURIComponent(GAC.scopes.join(' ')) +
-				'&state=' + encodeURIComponent('cId=' + GAC.clientId + '&domain=' + GAC.host); //To identify which app/domain is used
+				'&state=' + encodeURIComponent('cId=' + GAC.clientId + '&domain=' + GAC.host + '&ver=2&token=' + state); //To identify which app/domain is used
 
 			var width = 525,
 				height = 525,
@@ -125,6 +125,29 @@ GAC.authGDrive = function(success, error, direct)
 			}
 		};
 		
+		var auth = function()
+		{
+			var req = new XMLHttpRequest();
+			req.open('GET', GAC.redirectUri + '?getState=1');
+			
+			req.onreadystatechange = function()
+			{
+				if (this.readyState == 4)
+				{
+					if (this.status >= 200 && this.status <= 299)
+					{
+						authStep2(req.responseText);
+					}
+					else
+					{
+						error(this);
+					}
+				}
+			};
+			
+			req.send();
+		};
+
 		if (direct)
 		{
 			auth();
@@ -235,9 +258,53 @@ GAC.doAuthRequestPlain = function(url, method, params, success, error, contentTy
 				
 				if (authInfo != null && authInfo.refreshToken != null)
 				{
+					function doRefreshToken(state)
+					{
+						var req2 = new XMLHttpRequest();
+						req2.open('GET', GAC.redirectUri + '?refresh_token=' + authInfo.refreshToken +
+								'&state=' + encodeURIComponent('cId=' + GAC.clientId + '&domain=' + GAC.host + '&ver=2&token=' + state)); //To identify which app/domain is used
+						
+						req2.onreadystatechange = function()
+						{
+							if (this.readyState == 4)
+							{
+								if (this.status >= 200 && this.status <= 299)
+								{
+									var newAuthInfo = JSON.parse(req2.responseText);
+									GAC.token = newAuthInfo.access_token;
+									//Update existing authInfo and save it
+									authInfo.access_token = newAuthInfo.access_token;
+									authInfo.refresh_token = newAuthInfo.refresh_token;
+									authInfo.expires = Date.now() + newAuthInfo.expires_in * 1000;
+									authInfo.token = authInfo.access_token;
+									authInfo.refreshToken = authInfo.refresh_token;
+									GAC.setPersistentAuth(authInfo);
+									//Retry request with refreshed token
+									GAC.doAuthRequestPlain(url, method, params, success, error, contentType, isBinary, ++retryCount, isBlob);
+								}
+								else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+								{
+									if (failIfNotAuth)
+									{
+										error({authNeeded: true});
+									}
+									else
+									{
+										GAC.authGDrive(function()
+										{
+											//Retry request after authentication
+											GAC.doAuthRequestPlain(url, method, params, success, error, contentType, isBinary, ++retryCount, isBlob);
+										}, error);
+									}
+								}
+							}
+						}
+						
+						req2.send();
+					};
+					
 					var req2 = new XMLHttpRequest();
-					req2.open('GET', GAC.redirectUri + '?refresh_token=' + authInfo.refreshToken +
-							'&state=' + encodeURIComponent('cId=' + GAC.clientId + '&domain=' + GAC.host)); //To identify which app/domain is used
+					req2.open('GET', GAC.redirectUri + '?getState=1');
 					
 					req2.onreadystatechange = function()
 					{
@@ -245,35 +312,14 @@ GAC.doAuthRequestPlain = function(url, method, params, success, error, contentTy
 						{
 							if (this.status >= 200 && this.status <= 299)
 							{
-								var newAuthInfo = JSON.parse(req2.responseText);
-								GAC.token = newAuthInfo.access_token;
-								//Update existing authInfo and save it
-								authInfo.access_token = newAuthInfo.access_token;
-								authInfo.refresh_token = newAuthInfo.refresh_token;
-								authInfo.expires = Date.now() + newAuthInfo.expires_in * 1000;
-								authInfo.token = authInfo.access_token;
-								authInfo.refreshToken = authInfo.refresh_token;
-								GAC.setPersistentAuth(authInfo);
-								//Retry request with refreshed token
-								GAC.doAuthRequestPlain(url, method, params, success, error, contentType, isBinary, ++retryCount, isBlob);
+								doRefreshToken(req2.responseText);
 							}
-							else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+							else
 							{
-								if (failIfNotAuth)
-								{
-									error({authNeeded: true});
-								}
-								else
-								{
-									GAC.authGDrive(function()
-									{
-										//Retry request after authentication
-										GAC.doAuthRequestPlain(url, method, params, success, error, contentType, isBinary, ++retryCount, isBlob);
-									}, error);
-								}
+								error(this);
 							}
 						}
-					}
+					};
 					
 					req2.send();
 				}

@@ -1005,24 +1005,36 @@ public class GliffyDiagramConverter
 			}
 		}
 
-		if (link != null)
+		GliffyObject popup = getGliffyPopup(gliffyObject);
+		if (link != null || popup != null)
 		{
 			Document doc = mxDomUtils.createDocument();
 			Element uo = doc.createElement("UserObject");
-
-			Pair<Long, String> lightBox = extractLightboxDataFromGliffyUrl(link);
-			if (lightBox != null) {
-				link = "/plugins/drawio/lightbox.action?ceoId=" + lightBox.getKey() + "&diagramName=" + lightBox.getValue() + ".drawio";
-			}
-			uo.setAttribute("link", link);
-			drawioDiagram.getModel().setValue(cell, uo);
-
-			if (textObject != null)
+			
+			if (link != null) 
 			{
-				uo.setAttribute("label", textObject.getText());
-			}
-		}
+				Pair<Long, String> lightBox = extractLightboxDataFromGliffyUrl(link);
+				if (lightBox != null) 
+				{
+					link = "/plugins/drawio/lightbox.action?ceoId=" + lightBox.getKey() + "&diagramName=" + lightBox.getValue() + ".drawio";
+				}
+				uo.setAttribute("link", link);
+				drawioDiagram.getModel().setValue(cell, uo);
 
+				if (textObject != null)
+				{
+					uo.setAttribute("label", textObject.getText());
+				}
+			}
+			
+			if (popup != null) 
+			{
+				uo.setAttribute("tooltip", popup.graphic.getPopupNote().text);
+				drawioDiagram.getModel().setValue(cell, uo);
+			}
+
+		}
+		
 		//for debugging, add gliffy id to the output in the style 
 		style.append("gliffyId=" + gliffyObject.id + ";");
 
@@ -1030,6 +1042,21 @@ public class GliffyDiagramConverter
 		gliffyObject.mxObject = cell;
 
 		return cell;
+	}
+	
+	private GliffyObject getGliffyPopup(GliffyObject gliffyObject) {
+		if (gliffyObject.hasChildren()) 
+		{
+			for (GliffyObject child :  gliffyObject.children) 
+			{
+				if (child.graphic != null && child.graphic.type != null && child.graphic.type.equals(Graphic.Type.POPUPNOTE)) 
+				{
+					return child;
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**

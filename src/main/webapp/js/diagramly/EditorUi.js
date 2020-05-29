@@ -12003,8 +12003,36 @@
 				    								graph.replacePlaceholders(placeholders, edge.style) :
 				    								graph.createCurrentEdgeStyle();
 
-				    							select.push(graph.insertEdge(null, null, label || '', (edge.invert) ?
-				    								ref : realCell, (edge.invert) ? realCell : ref, style));
+				    							var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
+				    								ref : realCell, (edge.invert) ? realCell : ref, style);
+				    							
+				    							// Adds additional edge labels
+				    							if (edge.labels != null)
+				    							{
+				    								for (var k = 0; k < edge.labels.length; k++)
+				    								{
+				    									var def = edge.labels[k];
+				    									var elx = (def.x != null) ? def.x : 0;
+				    									var ely = (def.y != null) ? def.y : 0;
+				    									var st = 'resizable=0;html=1;';
+				    									var el = new mxCell(def.label || k,
+				    										new mxGeometry(elx,  ely, 0, 0), st);
+				    									el.vertex = true;
+				    									el.connectable = false;
+				    									el.geometry.relative = true;
+				    									
+				    									if (def.dx != null || def.dy != null)
+				    									{
+				    										el.geometry.offset = new mxPoint(
+				    											(def.dx != null) ? def.dx : 0,
+				    											(def.dy != null) ? def.dy : 0);
+				    									}
+				    									
+				    									edgeCell.insert(el);
+				    								}
+				    							}
+				    							
+				    							select.push(edgeCell);
 				    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
 				    						}
 				        				}

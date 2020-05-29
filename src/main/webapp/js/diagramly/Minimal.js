@@ -892,6 +892,11 @@ EditorUi.initMinimalTheme = function()
         })));
 
         var langMenu = this.get('language');
+        
+        this.put('table', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			ui.menus.addInsertTableCellItem(menu, parent);
+		})));
 
         // Extras menu is labelled preferences but keeps ID for extensions
         this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -940,6 +945,7 @@ EditorUi.initMinimalTheme = function()
 			insertMenu.funct = function(menu, parent)
 			{
 				insertMenuFunct.apply(this, arguments);
+				ui.menus.addSubmenu('table', menu, parent);
 				menu.addSeparator(parent);
 				ui.menus.addMenuItems(menu, ['-', 'toggleShapes'], parent);
 			};

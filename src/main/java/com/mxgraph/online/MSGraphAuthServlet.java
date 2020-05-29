@@ -46,20 +46,6 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 			CONFIG = new Config(clientIds, clientSerets);
 			CONFIG.REDIRECT_PATH = "/microsoft";
 			CONFIG.AUTH_SERVICE_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-			
-			//TODO This code is temporary until new method is propagated
-			try
-			{
-				CONFIG.OLD_REDIRECT_URL = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream("/WEB-INF/msgraph_old_client_redirect_uri"))
-						.replaceAll("\n", "");
-				CONFIG.OLD_CLIENT_ID = clientIds;
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("OLD CONFIGs path is invalid");
-			}
 		}
 		
 		return CONFIG;

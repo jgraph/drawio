@@ -167,6 +167,29 @@
     // Use the Office dialog API to open a pop-up and display the sign-in page for the identity provider.
     function showODLoginPopup() 
     {
+    	var req = new XMLHttpRequest();
+  	  	req.open('GET', AC.redirectUri + '?getState=1');
+  		
+  	  	req.onreadystatechange = function()
+  	  	{
+  	  		if (this.readyState == 4)
+  	  		{
+  	  			if (this.status >= 200 && this.status <= 299)
+  	  			{
+  	  				showODLoginPopupStep2(req.responseText);
+  	  			}
+  	  			else
+  	  			{
+  	  				AC.showError('Unexpected Error. Please try again later.');
+  	  			}
+  	  		}
+  	  	};
+  		
+  	  	req.send();
+    };
+    
+    function showODLoginPopupStep2(state)
+    {
     	AC.$('#connectContainer').style.display = 'none';
     	AC.$('#footerButton').style.display = 'none';
     	AC.$('#waitContainer').style.display = 'block';
@@ -174,7 +197,7 @@
 			'?client_id=' + AC.clientId + '&response_type=code' +
 			'&redirect_uri=' + encodeURIComponent(AC.redirectUri) +
 			'&scope=' + encodeURIComponent(AC.scopes) +
-			'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + window.location.hostname); //To identify which app/domain is used
+			'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state); //To identify which app/domain is used
 
         // height and width are percentages of the size of the parent Office application, e.g., PowerPoint, Excel, Word, etc.
         Office.context.ui.displayDialogAsync(url,

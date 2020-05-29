@@ -25,11 +25,34 @@
   
   function gotoAuthPage()
   {
+	  var req = new XMLHttpRequest();
+	  req.open('GET', 'https://' + window.location.hostname + '/google?getState=1');
+		
+	  req.onreadystatechange = function()
+	  {
+		  if (this.readyState == 4)
+		  {
+			  if (this.status >= 200 && this.status <= 299)
+			  {
+				  gotoAuthPageStep2(req.responseText);
+			  }
+			  else
+			  {
+				  AC.showError('Unexpected Error. Please try again later.');
+			  }
+		  }
+	  };
+		
+	  req.send();
+  };
+  
+  function gotoAuthPageStep2(state)
+  {
 	  window.location = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + driveClientId +
 		'&redirect_uri=' + encodeURIComponent('https://' + window.location.hostname + '/google') + 
 		'&response_type=code&access_type=offline&prompt=consent%20select_account&include_granted_scopes=true' +
 		'&scope=' + encodeURIComponent('https://www.googleapis.com/auth/drive.readonly') +
-		'&state=' + encodeURIComponent('cId=' + driveClientId + '&domain=' + window.location.hostname);
+		'&state=' + encodeURIComponent('cId=' + driveClientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state);
   };
   
   function getAccessToken(onSuccess, onError)
@@ -49,9 +72,34 @@
 			  {
 				  if (refreshToken != null)
 				  {
-					  //Get another refresh token
+					  function doRefreshToken(state)
+					  {
+						  //Get another refresh token
+						  var req = new XMLHttpRequest();
+						  req.open('GET', 'https://' + window.location.hostname + '/google?state=' + 
+								  encodeURIComponent('cId=' + driveClientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state) + 
+								  '&refresh_token=' + refreshToken);
+							
+						  req.onreadystatechange = function()
+						  {
+							  if (this.readyState == 4)
+							  {
+								  if (this.status >= 200 && this.status <= 299)
+								  {
+									  onGDriveCallback(JSON.parse(req.responseText), onSuccess);
+								  }
+								  else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+								  {
+									  onError();
+								  }
+								}
+						  }
+							
+						  req.send();
+					  };
+					  
 					  var req = new XMLHttpRequest();
-					  req.open('GET', 'https://' + window.location.hostname + '/google?state=' + encodeURIComponent('cId=' + driveClientId + '&domain=' + window.location.hostname) + '&refresh_token=' + refreshToken);
+					  req.open('GET', 'https://' + window.location.hostname + '/google?getState=1');
 						
 					  req.onreadystatechange = function()
 					  {
@@ -59,14 +107,14 @@
 						  {
 							  if (this.status >= 200 && this.status <= 299)
 							  {
-								  onGDriveCallback(JSON.parse(req.responseText), onSuccess);
+								  doRefreshToken(req.responseText);
 							  }
-							  else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+							  else
 							  {
 								  onError();
 							  }
-							}
-					  }
+						  }
+					  };
 						
 					  req.send();
 				  }

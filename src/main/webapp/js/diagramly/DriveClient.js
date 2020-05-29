@@ -526,6 +526,23 @@ DriveClient.prototype.createAuthWin = function(url)
  */
 DriveClient.prototype.authorize = function(immediate, success, error, remember, popup)
 {
+	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
+	
+	req.send(mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			this.authorizeStep2(req.getText(), immediate, success, error, remember, popup);
+		}
+		else if (error != null)
+		{
+			error(req);
+		}
+	}), error);
+};
+
+DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error, remember, popup)
+{
 	var updateAuthInfo = mxUtils.bind(this, function (newAuthInfo, remember, forceUserUpdate)
 	{
 		this.token = newAuthInfo.access_token;
@@ -610,7 +627,8 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 			if (immediate) //Note, we checked refresh token is not null above
 			{
 				//state is used to identify which app/domain is used
-				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname) + '&refresh_token=' + authInfo.refresh_token, null, 'GET');
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state)
+						+ '&refresh_token=' + authInfo.refresh_token, null, 'GET');
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -643,7 +661,7 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 						'&response_type=code&include_granted_scopes=true' +
 						(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
 						'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state); //To identify which app/domain is used
 				
 				if (popup == null)
 				{

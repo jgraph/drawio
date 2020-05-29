@@ -372,6 +372,9 @@
 		'## In addition to label, an optional fromlabel and tolabel can be used to name the column\n' +
 		'## that contains the text for the label in the edges source or target (invert ignored).\n' +
 		'## The label is concatenated in the form fromlabel + label + tolabel if all are defined.\n' +
+		'## Additional labels can be added by using an optional labels array with entries of the\n' +
+		'## form {"label": string, "x": number, "y": number, "dx": number, "dy": number} where\n' +
+		'## x is from -1 to 1 along the edge, y is orthogonal, and dx/dy are offsets in pixels.\n' +
 		'## The target column may contain a comma-separated list of values.\n' +
 		'## Multiple connect entries are allowed.\n' +
 		'#\n' +

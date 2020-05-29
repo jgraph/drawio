@@ -145,82 +145,7 @@
 				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src-elem \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
 			}
 		})();
-	</script>
-    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
-	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
-	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
-	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
-	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
-	<link rel="stylesheet" type="text/css" href="js/croppie/croppie.min.css">
-    <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
-    <link rel="canonical" href="https://app.diagrams.net">
-	<link rel="manifest" href="images/manifest.json">
-	<link rel="shortcut icon" href="favicon.ico">
-	<style type="text/css">
-		body { overflow:hidden; }
-		div.picker { z-index: 10007; }
-		.geSidebarContainer .geTitle input {
-			font-size:8pt;
-			color:#606060;
-		}
-		.geBlock {
-			z-index:-3;
-			margin:100px;
-			margin-top:40px;
-			margin-bottom:30px;
-			padding:20px;
-		}
-		.geBlock h1, .geBlock h2 {
-			margin-top:0px;
-			padding-top:0px;
-		}
-		.geEditor ::-webkit-scrollbar {
-		    width:14px;
-		    height:14px;
-		}
-		.geEditor ::-webkit-scrollbar-track {
-			background-clip:padding-box;
-			border:solid transparent;
-			border-width:1px;
-		}
-		.geEditor ::-webkit-scrollbar-corner {
-			background-color:transparent;
-		}
-		.geEditor ::-webkit-scrollbar-thumb {
-			background-color:rgba(0,0,0,.1);
-			background-clip:padding-box;
-			border:solid transparent;
-			border-radius:10px;
-		}
-		.geEditor ::-webkit-scrollbar-thumb:hover{
-			background-color:rgba(0,0,0,.4);
-		}
-		.geTemplate {
-			border:1px solid transparent;
-			display:inline-block;
-			_display:inline;
-			vertical-align:top;
-			border-radius:3px;
-			overflow:hidden;
-			font-size:14pt;
-			cursor:pointer;
-			margin:5px;
-		}
-	</style>
-	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
-	<!--[if (IE 9)|(IE 10)]><!-->
-		<script type="text/vbscript">
-			Function mxUtilsBinaryToArray(Binary)
-				Dim i
-				ReDim byteArray(LenB(Binary))
-				For i = 1 To LenB(Binary)
-					byteArray(i-1) = AscB(MidB(Binary, i, 1))
-				Next
-				mxUtilsBinaryToArray = byteArray
-			End Function
-		</script>
-	<!--<![endif]-->
-	<script type="text/javascript">
+		
 		/**
 		 * Synchronously adds scripts to the page.
 		 */
@@ -372,6 +297,80 @@
 			}
 		};
 	</script>
+    <link rel="chrome-webstore-item" href="https://chrome.google.com/webstore/detail/plgmlhohecdddhbmmkncjdmlhcmaachm">
+	<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
+	<link rel="stylesheet" type="text/css" href="js/croppie/croppie.min.css">
+    <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
+    <link rel="canonical" href="https://app.diagrams.net">
+	<link rel="manifest" href="images/manifest.json">
+	<link rel="shortcut icon" href="favicon.ico">
+	<style type="text/css">
+		body { overflow:hidden; }
+		div.picker { z-index: 10007; }
+		.geSidebarContainer .geTitle input {
+			font-size:8pt;
+			color:#606060;
+		}
+		.geBlock {
+			z-index:-3;
+			margin:100px;
+			margin-top:40px;
+			margin-bottom:30px;
+			padding:20px;
+		}
+		.geBlock h1, .geBlock h2 {
+			margin-top:0px;
+			padding-top:0px;
+		}
+		.geEditor ::-webkit-scrollbar {
+		    width:14px;
+		    height:14px;
+		}
+		.geEditor ::-webkit-scrollbar-track {
+			background-clip:padding-box;
+			border:solid transparent;
+			border-width:1px;
+		}
+		.geEditor ::-webkit-scrollbar-corner {
+			background-color:transparent;
+		}
+		.geEditor ::-webkit-scrollbar-thumb {
+			background-color:rgba(0,0,0,.1);
+			background-clip:padding-box;
+			border:solid transparent;
+			border-radius:10px;
+		}
+		.geEditor ::-webkit-scrollbar-thumb:hover{
+			background-color:rgba(0,0,0,.4);
+		}
+		.geTemplate {
+			border:1px solid transparent;
+			display:inline-block;
+			_display:inline;
+			vertical-align:top;
+			border-radius:3px;
+			overflow:hidden;
+			font-size:14pt;
+			cursor:pointer;
+			margin:5px;
+		}
+	</style>
+	<!-- Workaround for binary XHR in IE 9/10, see App.loadUrl -->
+	<!--[if (IE 9)|(IE 10)]><!-->
+		<script type="text/vbscript">
+			Function mxUtilsBinaryToArray(Binary)
+				Dim i
+				ReDim byteArray(LenB(Binary))
+				For i = 1 To LenB(Binary)
+					byteArray(i-1) = AscB(MidB(Binary, i, 1))
+				Next
+				mxUtilsBinaryToArray = byteArray
+			End Function
+		</script>
+	<!--<![endif]-->
 </head>
 <body class="geEditor">
 <div id="geInfo">

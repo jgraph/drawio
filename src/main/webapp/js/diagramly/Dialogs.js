@@ -743,8 +743,8 @@ var SplashDialog = function(editorUi)
 			btn.style.marginBottom = '24px';
 			
 			var link = document.createElement('a');
-			link.setAttribute('href', 'javascript:void(0)');
 			link.style.display = 'inline-block';
+			link.style.cursor = 'pointer';
 			link.style.marginTop = '6px';
 			mxUtils.write(link, mxResources.get('signOut'));
 
@@ -871,8 +871,8 @@ var SplashDialog = function(editorUi)
 		
 		mxUtils.br(buttons);
 		var link = document.createElement('a');
-		link.setAttribute('href', 'javascript:void(0)');
 		link.style.display = 'inline-block';
+		link.style.cursor = 'pointer';
 		link.style.marginTop = '8px';
 		mxUtils.write(link, mxResources.get('changeStorage'));
 		
@@ -894,8 +894,9 @@ var SplashDialog = function(editorUi)
 /**
  * Constructs a new embed dialog
  */
-var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title, tweet)
 {
+	tweet = (tweet != null) ? tweet : 'Check out the diagram I made using @drawio';
 	var div = document.createElement('div');
 	var maxSize = 500000;
 	var maxFbSize = 51200;
@@ -1090,8 +1091,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 				try
 				{
 					var url = 'https://twitter.com/intent/tweet?text=' + 
-						encodeURIComponent('Check out the diagram I made using @drawio') +
-						'&url=' + encodeURIComponent(text.value);
+						encodeURIComponent(tweet) + '&url=' +
+						encodeURIComponent(text.value);
 					editorUi.openLink(url);
 				}
 				catch (e)
@@ -4697,7 +4698,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
-		editorUi.openLink('https://desk.draw.io/solution/articles/16000080137');
+		editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000080137');
 	});
 
 	helpBtn.style.verticalAlign = 'middle';
@@ -8205,7 +8206,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					label.style.bottom = '-18px';
 					label.style.left = '10px';
 					label.style.right = '10px';
-					label.style.backgroundColor = '#ffffff';
+					label.style.backgroundColor = (uiTheme == 'dark') ? '#2a2a2a' : '#ffffff';
 					label.style.overflow = 'hidden';
 					label.style.textAlign = 'center';
 					
@@ -8589,6 +8590,51 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		btns.appendChild(cancelBtn);
 	}
 
+	if (editorUi.getServiceName() == 'draw.io' && file != null)
+	{
+		var btn = mxUtils.button(mxResources.get('link'), function()
+		{
+			if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+			{
+		    	file.getPublicUrl(function(url)
+				{
+					editorUi.spinner.stop();
+					
+					if (url != null)
+					{
+						var search = editorUi.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
+						search += ((search.length == 0) ? '?' : '&') + 'splash=0&clibs=U' + encodeURIComponent(url);
+						var dlg = new EmbedDialog(editorUi, window.location.protocol + '//' +
+							window.location.host + '/' + search, null, null, null, null,
+							'Check out the library I made using @drawio');
+						editorUi.showDialog(dlg.container, 440, 240, true);
+						dlg.init();
+					}
+					else if (file.constructor == DriveLibrary)
+					{
+					    editorUi.showError(mxResources.get('error'), mxResources.get('diagramIsNotPublic'),
+							mxResources.get('share'), mxUtils.bind(this, function()
+							{
+								editorUi.drive.showPermissions(file.getId());
+							}), null, mxResources.get('ok'), mxUtils.bind(this, function()
+							{
+								// Hides dialog
+							})
+						);
+					}
+					else
+					{
+						editorUi.handleError({message: mxResources.get('diagramIsNotPublic')});
+					}
+				});
+			}
+		});
+	}
+	
+	btn.setAttribute('id', 'btnDownload');
+	btn.className = 'geBtn';
+	btns.appendChild(btn);
+	
 	var btn = mxUtils.button(mxResources.get('export'), function()
 	{
     	var data = editorUi.createLibraryDataFromImages(images);
@@ -8663,7 +8709,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		btns.appendChild(btn);
 	}
 
-	var btn = mxUtils.button(mxResources.get('addImageUrl'), function()
+	var btn = mxUtils.button(mxResources.get('addImages'), function()
 	{
 		if (stopEditing != null)
 		{

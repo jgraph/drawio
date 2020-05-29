@@ -9,11 +9,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.SecureRandom;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,14 +29,18 @@ abstract public class AbsAuthServlet extends HttpServlet
 	private static final String SEPARATOR = "/:::/";
 	public static final int X_WWW_FORM_URLENCODED = 1;
 	public static final int JSON = 2;
+	private static final String STATE_COOKIE = "auth-state";
+	private static final int COOKIE_AGE = 600;
+	
+	public static final SecureRandom random = new SecureRandom();
+	public static BigInteger prime1 = null, prime2 = null;
+	public static long lastPrimeChange = 0;
 	
 	protected int postType = X_WWW_FORM_URLENCODED; 
 	
 	static public class Config 
 	{
 		public String REDIRECT_PATH = null, AUTH_SERVICE_URL = null;
-		//TODO These variables are temporary until new method is propagated
-		public String OLD_REDIRECT_URL = null, OLD_CLIENT_ID = null;
 
 		protected HashMap<String, String> clientSecretMap = new HashMap<>();
 		
@@ -88,11 +96,42 @@ abstract public class AbsAuthServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
+		//Prime secrets changes every 10 minutes
+		if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
+		{
+			synchronized (AbsAuthServlet.class)
+			{
+				//Recheck after acquiring the lock
+				if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
+				{
+					prime2 = prime1;
+					prime1 = BigInteger.probablePrime(256, random);
+					lastPrimeChange = new Date().getTime();
+				}
+			}
+		}
+		
+		String stateOnly = request.getParameter("getState");
+		
+		if ("1".equals(stateOnly))
+		{
+			String state = new BigInteger(256, random).multiply(prime1).toString(32);
+			response.setStatus(HttpServletResponse.SC_OK);
+			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
+			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + state + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
+			response.setHeader("Content-Type", "text/plain");
+			OutputStream out = response.getOutputStream();
+			out.write(state.getBytes());
+			out.flush();
+			out.close();
+			return;
+		}
+		
 		String code = request.getParameter("code");
 		String refreshToken = request.getParameter("refresh_token");
 		String error = request.getParameter("error");
 		HashMap<String, String> stateVars = new HashMap<>();
-		String secret = null, client = null, redirectUri = null, domain = null, appIndex = null; //TODO appIndex variable is temporary until new method is propagated
+		String secret = null, client = null, redirectUri = null, domain = null, stateToken = null, cookieToken = null, version = null;
 		
 		try
 		{
@@ -113,7 +152,30 @@ abstract public class AbsAuthServlet extends HttpServlet
 			
 				domain = stateVars.get("domain");
 				client = stateVars.get("cId");
-				appIndex = stateVars.get("appIndex"); //TODO appIndex variable is temporary until new method is propagated
+				stateToken = stateVars.get("token");
+				version = stateVars.get("ver");
+				
+				Cookie[] cookies = request.getCookies();
+				
+				for (Cookie cookie : cookies)
+				{
+					if (STATE_COOKIE.equals(cookie.getName()))
+					{
+						//Ensure cookie value is divisible with prime1 or prime2
+						String val = cookie.getValue();
+						BigInteger iVal = new BigInteger(val, 32);
+						
+						if (iVal.mod(prime1).equals(BigInteger.ZERO))
+						{
+							cookieToken = val;
+						}
+						else if (prime2 != null && iVal.mod(prime2).equals(BigInteger.ZERO))
+						{
+							cookieToken = val;
+						}
+						break;
+					}
+				}
 			}
 			catch(Exception e)
 			{
@@ -124,30 +186,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 			Config CONFIG = getConfig();
 			redirectUri = CONFIG.getRedirectUrl(domain != null? domain : request.getServerName());
 			
-			//TODO This code block is temporary until new method is propagated
-			if (appIndex != null || client == null)
-			{
-				int configIndex = 0;
-				
-				try
-				{
-					configIndex = Integer.parseInt(appIndex);
-				}
-				catch(Exception e) {} // Ignore
-
-				
-				String[] clients = CONFIG.OLD_CLIENT_ID.split(SEPARATOR);
-				String[] redirectUris = CONFIG.OLD_REDIRECT_URL.split(SEPARATOR);
-
-				if (configIndex < 0 || configIndex >= clients.length)
-				{
-					configIndex = 0;
-				}
-				
-				client = clients[configIndex];
-				redirectUri = redirectUris[configIndex];
-			}
-
 			secret = CONFIG.getClientSecret(client);
 			
 			if (error != null)
@@ -164,9 +202,14 @@ abstract public class AbsAuthServlet extends HttpServlet
 				writer.flush();
 				writer.close();
 			}
-			else if (code == null && refreshToken == null)
+			else if ((code == null && refreshToken == null) || client == null || redirectUri == null || secret == null)
 			{
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+			//TODO after code is propagated, remove the version check
+			else if ("2".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
+			{
+				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 			else
 			{

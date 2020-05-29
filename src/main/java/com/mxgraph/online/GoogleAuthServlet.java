@@ -46,23 +46,6 @@ public class GoogleAuthServlet extends AbsAuthServlet
 			CONFIG = new Config(clientIds, clientSerets);
 			CONFIG.REDIRECT_PATH = "/google";
 			CONFIG.AUTH_SERVICE_URL = "https://www.googleapis.com/oauth2/v4/token";
-			
-			//TODO This code is temporary until new method is propagated
-			try
-			{
-				CONFIG.OLD_REDIRECT_URL = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream("/WEB-INF/google_old_client_redirect_uri"))
-						.replaceAll("\n", "");
-				CONFIG.OLD_CLIENT_ID = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream("/WEB-INF/google_old_client_id"))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("OLD CONFIGs path is invalid");
-			}
 		}
 		
 		return CONFIG;

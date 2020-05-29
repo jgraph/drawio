@@ -53,7 +53,7 @@ AC.authOneDrive = function(success, error, direct)
 	
 	if (window.onOneDriveCallback == null)
 	{
-		var auth = function()
+		var authStep2 = function(state)
 		{
 			var acceptAuthResponse = true;
 			
@@ -61,7 +61,7 @@ AC.authOneDrive = function(success, error, direct)
 				'?client_id=' + AC.clientId + '&response_type=code' +
 				'&redirect_uri=' + encodeURIComponent(AC.redirectUri) +
 				'&scope=' + encodeURIComponent(AC.scopes) +
-				'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + AC.host); //To identify which app/domain is used
+				'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + AC.host + '&ver=2&token=' + state); //To identify which app/domain is used
 
 			var width = 525,
 				height = 525,
@@ -138,6 +138,29 @@ AC.authOneDrive = function(success, error, direct)
 			
 				popup.focus();
 			}
+		};
+		
+		var auth = function()
+		{
+			var req = new XMLHttpRequest();
+			req.open('GET', AC.redirectUri + '?getState=1');
+			
+			req.onreadystatechange = function()
+			{
+				if (this.readyState == 4)
+				{
+					if (this.status >= 200 && this.status <= 299)
+					{
+						authStep2(req.responseText);
+					}
+					else
+					{
+						error(this);
+					}
+				}
+			};
+			
+			req.send();
 		};
 		
 		if (direct)
@@ -226,9 +249,51 @@ AC.doAuthRequest = function(url, method, params, success, error, failIfNotAuth)
 				
 				if (authInfo != null)
 				{
+					function doRefreshToken(state)
+					{
+						var req2 = new XMLHttpRequest();
+						req2.open('GET', AC.redirectUri + '?refresh_token=' + authInfo.refresh_token +
+								'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + AC.host + '&ver=2&token=' + state)); //To identify which app/domain is used
+						
+						req2.onreadystatechange = function()
+						{
+							if (this.readyState == 4)
+							{
+								if (this.status >= 200 && this.status <= 299)
+								{
+									var newAuthInfo = JSON.parse(req2.responseText);
+									AC.token = newAuthInfo.access_token;
+									//Update existing authInfo and save it
+									authInfo.access_token = newAuthInfo.access_token;
+									authInfo.refresh_token = newAuthInfo.refresh_token;
+									authInfo.expiresOn = Date.now() + newAuthInfo.expires_in * 1000;
+									AC.setPersistentAuth(authInfo);
+									//Retry request with refreshed token
+									AC.doAuthRequest(url, method, params, success, error);
+								}
+								else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+								{
+									if (failIfNotAuth)
+									{
+										error({authNeeded: true});
+									}
+									else
+									{
+										AC.authOneDrive(function()
+										{
+											//Retry request after authentication
+											AC.doAuthRequest(url, method, params, success, error);
+										}, error);
+									}
+								}
+							}
+						}
+						
+						req2.send();
+					};
+					
 					var req2 = new XMLHttpRequest();
-					req2.open('GET', AC.redirectUri + '?refresh_token=' + authInfo.refresh_token +
-							'&state=' + encodeURIComponent('cId=' + AC.clientId + '&domain=' + AC.host)); //To identify which app/domain is used
+					req2.open('GET', AC.redirectUri + '?getState=1');
 					
 					req2.onreadystatechange = function()
 					{
@@ -236,33 +301,14 @@ AC.doAuthRequest = function(url, method, params, success, error, failIfNotAuth)
 						{
 							if (this.status >= 200 && this.status <= 299)
 							{
-								var newAuthInfo = JSON.parse(req2.responseText);
-								AC.token = newAuthInfo.access_token;
-								//Update existing authInfo and save it
-								authInfo.access_token = newAuthInfo.access_token;
-								authInfo.refresh_token = newAuthInfo.refresh_token;
-								authInfo.expiresOn = Date.now() + newAuthInfo.expires_in * 1000;
-								AC.setPersistentAuth(authInfo);
-								//Retry request with refreshed token
-								AC.doAuthRequest(url, method, params, success, error);
+								doRefreshToken(req2.responseText);
 							}
-							else // (Unauthorized) [e.g, invalid refresh token] (sometimes, the server returns errors other than 401 (e.g. 500))
+							else
 							{
-								if (failIfNotAuth)
-								{
-									error({authNeeded: true});
-								}
-								else
-								{
-									AC.authOneDrive(function()
-									{
-										//Retry request after authentication
-										AC.doAuthRequest(url, method, params, success, error);
-									}, error);
-								}
+								error(this);
 							}
 						}
-					}
+					};
 					
 					req2.send();
 				}

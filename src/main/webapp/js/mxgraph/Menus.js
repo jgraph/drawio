@@ -551,9 +551,34 @@ Menus.prototype.addMenu = function(name, popupMenu, parent)
 };
 
 /**
+ * Adds a menu item to insert a table cell.
+ */
+Menus.prototype.addInsertTableCellItem = function(menu, parent)
+{
+	var graph = this.editorUi.editor.graph;
+	
+	this.addInsertTableItem(menu, mxUtils.bind(this, function(evt, rows, cols)
+	{
+		var table = (mxEvent.isControlDown(evt) || mxEvent.isMetaDown(evt)) ?
+			graph.createCrossFunctionalSwimlane(rows, cols) :
+			graph.createTable(rows, cols, null, null,
+			(mxEvent.isShiftDown(evt)) ? 'Table' : null);
+		var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
+			graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([table], true));
+		var select = graph.importCells([table], pt.x, pt.y);
+		
+		if (select != null && select.length > 0)
+		{
+			graph.scrollCellToVisible(select[0]);
+			graph.setSelectionCells(select);
+		}
+	}), parent);
+};	
+
+/**
  * Adds a menu item to insert a table.
  */
-Menus.prototype.addInsertTableItem = function(menu, insertFn)
+Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 {
 	insertFn = (insertFn != null) ? insertFn : mxUtils.bind(this, function(evt, rows, cols)
 	{
@@ -629,7 +654,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn)
 		{
 			insertFn(evt, row2.sectionRowIndex + 1, td.cellIndex + 1);
 		}
-	}));
+	}), parent, null, null, null, true);
 	
 	// Quirks mode does not add cell padding if cell is empty, needs good old spacer solution
 	var quirksCellHtml = '<img src="' + mxClient.imageBasePath + '/transparent.gif' + '" width="16" height="16"/>';
