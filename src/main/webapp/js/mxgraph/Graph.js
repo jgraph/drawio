@@ -4832,14 +4832,18 @@ TableLayout.prototype.execute = function(parent)
 						row = row.clone();
 						row.x = offset.x;
 						row.width = tw;
+						row.y = Math.round(y);
 						
-						if (!resizeLastRow)
+						if (resizeLastRow)
 						{
-							row.y = Math.round(y);
+							y += row.height;
+						}
+						else
+						{
 							y += (row.height / sh) * th;
-							row.height = Math.round(y) - row.y;
-						}	
+						}
 						
+						row.height = Math.round(y) - row.y;
 						model.setGeometry(rows[i], row);
 					}
 					
@@ -8184,30 +8188,32 @@ if (typeof mxVertexHandler != 'undefined')
 			try
 			{
 				var table = cell;
+				var rows = null;
 				var index = 0;
 				
 				if (this.isTableCell(cell))
 				{
 					var row = model.getParent(cell);
 					table = model.getParent(row);
-					index = row.getIndex(cell);
+					index = mxUtils.indexOf(model.getChildCells(row, true), cell);
 				}
 				else if (this.isTableRow(cell))
 				{
 					table = model.getParent(cell);
-					index = model.getChildCount(cell) - 1;
+					index = model.getChildCells(cell, true).length - 1;
 				}
 				else if (this.isTable(cell))
 				{
-					index = model.getChildCount(model.getChildAt(cell, 0)) - 1;	
+					rows = model.getChildCells(cell, true);
+					index = model.getChildCells(rows[0], true).length - 1;
 				}
 				
 				var width = 0;
+				rows = (rows != null) ? rows : model.getChildCells(table, true);
 				
-				for (var i = 0; i < model.getChildCount(table); i++)
+				for (var i = 0; i < rows.length; i++)
 				{
-					var row = model.getChildAt(table, i);
-					var child = model.getChildAt(row, index);
+					var child = model.getChildCells(rows[i], true)[index];
 					model.remove(child);
 					
 					var geo = this.getCellGeometry(child);
@@ -8252,8 +8258,8 @@ if (typeof mxVertexHandler != 'undefined')
 				}
 				else if (this.isTable(cell))
 				{
-					row = model.getChildAt(cell,
-						model.getChildCount(cell) - 1);
+					var rows = model.getChildCells(cell, true);
+					row = rows[rows.length - 1];
 				}
 				
 				var table = model.getParent(row);

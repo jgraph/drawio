@@ -6,6 +6,40 @@
  * is used for development mode where the JS is in separate
  * files and the mxClient.js loads other files.
  */
+if (!mxIsElectron)
+{
+	(function()
+	{
+		var csp = 'default-src \'self\'; ' +
+			'script-src %dev-script-src% \'self\' https://storage.googleapis.com ' +
+				'https://apis.google.com https://*.pusher.com https://code.jquery.com '+
+				'https://www.dropbox.com https://api.trello.com ' +
+				// Scripts in index.html (not checked here)
+				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
+				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\';' +
+			'connect-src \'self\' https://*.draw.io https://*.googleapis.com wss://*.pusher.com ' +
+				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
+				'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
+				'https://*.dropboxapi.com https://api.trello.com https://*.google.com ' +
+				'https://fonts.gstatic.com https://fonts.googleapis.com;' +
+			'img-src * data:; media-src * data:; font-src *; ' +
+			'frame-src \'self\' https://*.google.com; ' +
+			'style-src %dev-style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com;';
+		var devCsp = csp.
+			// Loads common.css from mxgraph
+			replace(/%dev-style-src%/g, 'https://devhost.jgraph.com').
+			// Adds script tags and loads shapes with eval
+			replace(/%dev-script-src%/g, 'https://devhost.jgraph.com \'unsafe-eval\'');
+		mxmeta(null, devCsp, 'Content-Security-Policy');
+
+		console.log('Development', 'Content-Security-Policy', devCsp)
+		console.log('Production', 'Content-Security-Policy',
+			csp.replace(/%dev-style-src%/g, '').
+				replace(/%dev-script-src%/g, '').
+				replace(/  /g, ' '));
+	})();
+}
+			
 mxscript(drawDevUrl + 'js/cryptojs/aes.min.js');
 mxscript(drawDevUrl + 'js/spin/spin.min.js');
 mxscript(drawDevUrl + 'js/deflate/pako.min.js');

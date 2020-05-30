@@ -13,6 +13,7 @@
   <!-- Path patterns not supported in production -->
   <static-files>
     <include path="/**">
+	  <http-header name="Feature-Policy" value="accelerometer 'none'; ambient-light-sensor 'none'; battery 'none'; camera 'none'; display-capture 'none'; document-domain 'none; encrypted-media 'none'; fullscreen 'none'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; midi 'none'; navigation-override 'none'; payment 'none'; picture-in-picture 'none'; publickey-credentials-get 'none'; usb 'none'; wake-lock 'none'; xr-spatial-tracking 'none';"/>	
       <http-header name="Referrer-Policy" value="strict-origin" />
 	  <http-header name="Access-Control-Allow-Origin" value="*"/>
 	</include>

@@ -5837,7 +5837,8 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	container.style.position = 'absolute';
 	container.style.border = '1px solid lightGray';
 	container.style.marginTop = '10px';
-	container.style.width = '640px';
+	container.style.left = '40px';
+	container.style.right = '40px';
 	container.style.top = '46px';
 	container.style.bottom = '74px';
 	container.style.overflow = 'hidden';
@@ -5986,7 +5987,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	var buttons = document.createElement('div');
 	buttons.style.position = 'absolute';
 	buttons.style.bottom = '30px';
-	buttons.style.width = '640px';
+	buttons.style.right = '40px';
 	buttons.style.textAlign = 'right';
 
 	var tb = document.createElement('div');
@@ -8590,7 +8591,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		btns.appendChild(cancelBtn);
 	}
 
-	if (editorUi.getServiceName() == 'draw.io' && file != null)
+	if (editorUi.getServiceName() == 'draw.io' && file != null &&
+		// Limits button to ibraries which are known to have public URLs
+		(file.constructor == DriveLibrary || file.constructor == GitHubLibrary))
 	{
 		var btn = mxUtils.button(mxResources.get('link'), function()
 		{
@@ -8602,7 +8605,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					
 					if (url != null)
 					{
-						var search = editorUi.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
+						var search = editorUi.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state', 'clibs', 'ui']);
 						search += ((search.length == 0) ? '?' : '&') + 'splash=0&clibs=U' + encodeURIComponent(url);
 						var dlg = new EmbedDialog(editorUi, window.location.protocol + '//' +
 							window.location.host + '/' + search, null, null, null, null,
@@ -8629,11 +8632,10 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				});
 			}
 		});
+
+		btn.className = 'geBtn';
+		btns.appendChild(btn);
 	}
-	
-	btn.setAttribute('id', 'btnDownload');
-	btn.className = 'geBtn';
-	btns.appendChild(btn);
 	
 	var btn = mxUtils.button(mxResources.get('export'), function()
 	{

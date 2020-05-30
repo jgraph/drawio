@@ -1483,12 +1483,29 @@
 	};
 
 	/**
-	 * Returns true if the given URL is known to have CORS headers.
+	 * Returns true if the given URL is known to have CORS headers and is
+	 * allowed by CSP.
 	 */
 	Editor.prototype.isCorsEnabledForUrl = function(url)
 	{
-		return mxClient.IS_CHROMEAPP || EditorUi.isElectronApp;
+		// Disables proxy for desktop and chrome app as it is served locally
+		if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+		{
+			return true;
+		}
+		
+		// Blocked by CSP in production but allowed for hosted deployment
+		if (urlParams['cors'] != null && this.corsRegExp == null)
+		{
+			this.corsRegExp = new RegExp(decodeURIComponent(urlParams['cors']));
+		}
+		
+		// No access-control-allow-origin for some Iconfinder images, add this when fixed:
+		// /^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
+		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
+			url.substring(0, 34) === 'https://raw.githubusercontent.com/';
 	};
+	
 	
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering

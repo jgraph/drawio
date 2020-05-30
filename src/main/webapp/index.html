@@ -17,8 +17,6 @@
     <meta name="mobile-web-app-capable" content="yes">
 	<meta name="theme-color" content="#d89000">
 	<script type="text/javascript">
-		var mxIsElectron = window && window.process && window.process.type;
-
 		/**
 		 * URL Parameters and protocol description are here:
 		 *
@@ -74,6 +72,9 @@
 			}
 		}
 		
+		// Global variable for desktop
+		var mxIsElectron = window && window.process && window.process.type;
+
 		// Redirects page if required
 		if (urlParams['dev'] != '1')
 		{
@@ -105,46 +106,34 @@
 		}
 		
 		/**
-		 * Adds meta tags with application name (depends on offline URL parameter)
+		 * Adds meta tag to the page.
 		 */
-		(function()
+		function mxmeta(name, content, httpEquiv)
 		{
-			function addMeta(name, content, httpEquiv)
+			try
 			{
-				try
+				var s = document.createElement('meta');
+				
+				if (name != null) 
 				{
-					var s = document.createElement('meta');
-					
-					if (name != null) 
-					{
-						s.setAttribute('name', name);
-					}
-
-					s.setAttribute('content', content);
-					
-					if (httpEquiv != null) 
-					{
-						s.setAttribute('http-equiv', httpEquiv);
-					}
-
-				  	var t = document.getElementsByTagName('meta')[0];
-				  	t.parentNode.insertBefore(s, t);
+					s.setAttribute('name', name);
 				}
-				catch (e)
+
+				s.setAttribute('content', content);
+				
+				if (httpEquiv != null) 
 				{
-					// ignore
+					s.setAttribute('http-equiv', httpEquiv);
 				}
-			};
-			
-			var name = 'diagrams.net';
-			addMeta('apple-mobile-web-app-title', name);
-			addMeta('application-name', name);
 
-			if (mxIsElectron)
-			{
-				addMeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src-elem \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
+			  	var t = document.getElementsByTagName('meta')[0];
+			  	t.parentNode.insertBefore(s, t);
 			}
-		})();
+			catch (e)
+			{
+				// ignore
+			}
+		};
 		
 		/**
 		 * Synchronously adds scripts to the page.
@@ -199,9 +188,29 @@
 		 */
 		function mxinclude(src)
 		{
-			var g = document.createElement('script'); g.type = 'text/javascript'; g.async = true; g.src = src;
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(g, s);
+			var g = document.createElement('script');
+			g.type = 'text/javascript';
+			g.async = true;
+			g.src = src;
+			
+		    var s = document.getElementsByTagName('script')[0];
+		    s.parentNode.insertBefore(g, s);
 		};
+		
+		/**
+		 * Adds meta tags with application name (depends on offline URL parameter)
+		 */
+		(function()
+		{
+			var name = 'diagrams.net';
+			mxmeta('apple-mobile-web-app-title', name);
+			mxmeta('application-name', name);
+
+			if (mxIsElectron)
+			{
+				mxmeta(null, 'default-src \'self\' \'unsafe-inline\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src-elem \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
+			}
+		})();
 		
 		// Checks for local storage
 		var isLocalStorage = false;

@@ -1594,7 +1594,7 @@ EditorUi.prototype.getLinkForPage = function(page)
 		
 		if (file != null && file.constructor != LocalFile && this.getServiceName() == 'draw.io')
 		{
-			var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state']);
+			var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash', 'state', 'clibs', 'ui']);
 			search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
 			
 			return window.location.protocol + '//' + window.location.host + '/' + search + '#' + file.getHash();

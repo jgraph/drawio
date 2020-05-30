@@ -1,3 +1,8 @@
+29-MAY-2020: 13.1.9
+
+- Fixes insert tables on touch devices
+- Adds Feature-Policy header
+
 29-MAY-2020: 13.1.8
 
 - Removes CSP from GAE config

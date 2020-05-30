@@ -648,13 +648,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 	};
 	
 	// Show table size dialog
-	var elt2 = menu.addItem('', null, mxUtils.bind(this, function(evt)
-	{
-		if (td != null && row2 != null)
-		{
-			insertFn(evt, row2.sectionRowIndex + 1, td.cellIndex + 1);
-		}
-	}), parent, null, null, null, true);
+	var elt2 = menu.addItem('', null, null, parent, null, null, null, true);
 	
 	// Quirks mode does not add cell padding if cell is empty, needs good old spacer solution
 	var quirksCellHtml = '<img src="' + mxClient.imageBasePath + '/transparent.gif' + '" width="16" height="16"/>';
@@ -732,14 +726,16 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 	label.innerHTML = '1x1';
 	elt2.firstChild.appendChild(label);
 	
-	mxEvent.addListener(picker, 'mouseover', function(e)
+	function mouseover(e)
 	{
-		td = graph.getParentByName(mxEvent.getSource(e), 'TD');
+		td = graph.getParentByName(mxEvent.getSource(e), 'TD');		
+		var selected = false;
 		
 		if (td != null)
 		{
 			row2 = graph.getParentByName(td, 'TR');
-			extendPicker(picker, Math.min(20, row2.sectionRowIndex + 2), Math.min(20, td.cellIndex + 2));
+			var ext = (mxEvent.isMouseEvent(e)) ? 2 : 4;
+			extendPicker(picker, Math.min(20, row2.sectionRowIndex + ext), Math.min(20, td.cellIndex + ext));
 			label.innerHTML = (td.cellIndex + 1) + 'x' + (row2.sectionRowIndex + 1);
 			
 			for (var i = 0; i < picker.rows.length; i++)
@@ -749,6 +745,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 				for (var j = 0; j < r.cells.length; j++)
 				{
 					var cell = r.cells[j];
+					
+					if (i == row2.sectionRowIndex &&
+						j == td.cellIndex)
+					{
+						selected = cell.style.backgroundColor == 'blue';
+					}
 					
 					if (i <= row2.sectionRowIndex && j <= td.cellIndex)
 					{
@@ -760,10 +762,29 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 					}
 				}
 			}
-			
-			mxEvent.consume(e);
 		}
-	});
+		
+		mxEvent.consume(e);
+
+		return selected;
+	};
+	
+	mxEvent.addGestureListeners(picker, null, null, mxUtils.bind(this, function (e)
+	{
+		var selected = mouseover(e);
+		
+		if (td != null && row2 != null && selected)
+		{
+			insertFn(e, row2.sectionRowIndex + 1, td.cellIndex + 1);
+			
+			// Async required to block event for elements under menu
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.editorUi.hideCurrentMenu();
+			}), 0);
+		}
+	}));
+	mxEvent.addListener(picker, 'mouseover', mouseover);
 };
 
 /**
