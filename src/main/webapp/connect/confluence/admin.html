@@ -12,7 +12,9 @@
 			<h4 style="padding-top:20px;" data-i18n="gliffyImport">Gliffy Import</h4>
 			<div><br><span data-i18n="gliffyImportInst1">Click the "Start Import" button to import all Gliffy diagrams to draw.io.</span><br>
 			<span data-i18n="gliffyImportInst2">Please note that the import procedure will take some time and the browser window must remain open until the import is completed.</span></div>
-			<div style="padding-bottom:4px;"><br><button id="importBtn" disabled="disabled" class="aui-button aui-button-primary" data-i18n="startImport">Start Import</button></div>
+			<div style="padding-bottom:4px;"><br><button id="importBtn" disabled="disabled" class="aui-button aui-button-primary" data-i18n="startImport">Start Import</button>
+				<img id="busyIcon" src="/images/spin.gif" style="display: none">
+			</div>
 			<div id="operationLog"><br></div>
 		</div>
 		<script type="text/javascript">
@@ -48,7 +50,12 @@
 					
 					importBtn.click(function()
 					{
-						GliffyMassImporter(logDiv);
+						$('#busyIcon').show();
+						
+						GliffyMassImporter(logDiv, function()
+						{
+							$('#busyIcon').hide();
+						});
 					});
 				});
 			};

@@ -13,14 +13,21 @@ import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
+import javax.cache.Cache;
+import javax.cache.CacheException;
+import javax.cache.CacheFactory;
+import javax.cache.CacheManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
@@ -33,8 +40,25 @@ abstract public class AbsAuthServlet extends HttpServlet
 	private static final int COOKIE_AGE = 600;
 	
 	public static final SecureRandom random = new SecureRandom();
-	public static BigInteger prime1 = null, prime2 = null;
-	public static long lastPrimeChange = 0;
+	protected static Cache tokens;
+	
+	static
+	{
+		try
+		{
+			CacheFactory cacheFactory = CacheManager.getInstance()
+					.getCacheFactory();
+			Map<Object, Object> properties = new HashMap<>();
+			properties.put(MemcacheService.SetPolicy.ADD_ONLY_IF_NOT_PRESENT,
+					true);
+			properties.put(GCacheFactory.EXPIRATION_DELTA, COOKIE_AGE); //Cache servlet set it to 300 (5 min), all cache instances are the same so 5 will be enforced
+			tokens = cacheFactory.createCache(properties);
+		}
+		catch (CacheException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	protected int postType = X_WWW_FORM_URLENCODED; 
 	
@@ -96,29 +120,17 @@ abstract public class AbsAuthServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		//Prime secrets changes every 10 minutes
-		if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
-		{
-			synchronized (AbsAuthServlet.class)
-			{
-				//Recheck after acquiring the lock
-				if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
-				{
-					prime2 = prime1;
-					prime1 = BigInteger.probablePrime(256, random);
-					lastPrimeChange = new Date().getTime();
-				}
-			}
-		}
-		
 		String stateOnly = request.getParameter("getState");
 		
 		if ("1".equals(stateOnly))
 		{
-			String state = new BigInteger(256, random).multiply(prime1).toString(32);
+			String state = new BigInteger(256, random).toString(32);
+			String key = new BigInteger(256, random).toString(32);
+			String casheKey = request.getRemoteAddr() + ":" + key;
+			tokens.put(casheKey, state);
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
-			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + state + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
+			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
 			response.setHeader("Content-Type", "text/plain");
 			OutputStream out = response.getOutputStream();
 			out.write(state.getBytes());
@@ -161,18 +173,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 				{
 					if (STATE_COOKIE.equals(cookie.getName()))
 					{
-						//Ensure cookie value is divisible with prime1 or prime2
-						String val = cookie.getValue();
-						BigInteger iVal = new BigInteger(val, 32);
-						
-						if (iVal.mod(prime1).equals(BigInteger.ZERO))
-						{
-							cookieToken = val;
-						}
-						else if (prime2 != null && iVal.mod(prime2).equals(BigInteger.ZERO))
-						{
-							cookieToken = val;
-						}
+						//Get the cached state based on the cookie key 
+						cookieToken = (String) tokens.get(request.getRemoteAddr() + ":" + cookie.getValue());
 						break;
 					}
 				}

@@ -789,10 +789,10 @@ AC.getPageAttachments = function(pageId, success, error)
 {
 	var attachments = [];
 
-	function getAttsChunk(nextUrl)
+	function getAttsChunk(start)
 	{
 		AP.request({
-			url: nextUrl != null? nextUrl : '/rest/api/content/' + pageId + '/child/attachment?limit=100',
+			url: '/rest/api/content/' + pageId + '/child/attachment?limit=100&start=' + start,
 			type: 'GET',
 			contentType: 'application/json;charset=UTF-8',
 			success: function(resp) 
@@ -803,7 +803,8 @@ AC.getPageAttachments = function(pageId, success, error)
 				//Support paging
 				if (resp._links && resp._links.next) 
 				{
-					getAttsChunk(resp._links.next);
+					start += resp.limit; //Sometimes the limit is changed by the server
+					getAttsChunk(start);
 				}
 				else
 				{
@@ -814,7 +815,7 @@ AC.getPageAttachments = function(pageId, success, error)
 		});
 	};
 	
-	getAttsChunk();	
+	getAttsChunk(0);	
 };
 
 AC.searchDiagrams = function(searchStr, success, error)

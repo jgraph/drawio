@@ -1,4 +1,12 @@
-29-MAY-2020: 13.1.9
+31-MAY-2020: 13.1.11
+
+- Stability improvements and bug fixes
+
+31-MAY-2020: 13.1.10
+
+- Fixes minor bugs for tables
+
+30-MAY-2020: 13.1.9
 
 - Fixes insert tables on touch devices
 - Adds Feature-Policy header

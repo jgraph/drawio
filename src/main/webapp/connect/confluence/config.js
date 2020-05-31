@@ -1622,7 +1622,11 @@ script.onload = function()
 		
 		indexBtn.click(function()
 		{
-			DrawIoDiagramsIndexer($('#operationLog'));
+			$('#DRIbusyIcon').show();
+			DrawIoDiagramsIndexer($('#operationLog'), function()
+			{
+				$('#DRIbusyIcon').hide();
+			});
 		});
 		
 		var exportBtn = $('#exportBtn');

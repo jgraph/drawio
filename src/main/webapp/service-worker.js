@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "cff100af7cbd76d60113c1c8269bcda7"
+    "revision": "afad744593b70e0461ca487ba8b78468"
   },
   {
     "url": "js/extensions.min.js",
@@ -42,7 +42,7 @@ if (workbox)
   },
   {
     "url": "styles/dark.css",
-    "revision": "bd0e851bff9047866cfa0683fe89ac38"
+    "revision": "372fe7bbfa631d8c6ebbde5445b36c1d"
   },
   {
     "url": "js/croppie/croppie.min.css",

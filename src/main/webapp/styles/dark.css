@@ -6,6 +6,10 @@ html body.geEditor div.mxPopupMenu {
 	background:#2a2a2a;
 	box-shadow:none;
 }
+html .geSidebarContainer button {
+	border: 1px solid #505759;
+	border-radius: 3px;
+}
 html body.geEditor div.mxPopupMenu hr {
 	background-color:#505759;
 }
@@ -13,7 +17,7 @@ html body .geTabContainer {
 	border-top:1px solid #505759;
 	background-color:#2a2a2a;
 }
-html body .geMenubarContainer .geItem:active {
+html body .geMenubarContainer .geItem:active, html .geSidebarContainer button:active {
 	opacity: 0.7;
 }
 html body, html body .geFooterContainer, html body #geFooterItem1, html body textarea,
@@ -27,14 +31,15 @@ html body a {
 	color:#337ab7;
 }
 html body div.mxRubberband {
-	border:1px dashed #ffffff !important; background:#505759 !important;
+	border:1px dashed #ffffff !important;
+	background:#505759 !important;
 }
 html body .geTemplate {
 	color:#000000;
 }
 html body .geToolbarContainer, html body .geSidebar, html body .geSidebarContainer .geTitle, html body input,
 html body textarea, html body button, html body .geColorBtn, html body .geBaseButton, html body .geSidebarTooltip,
-html body .geBaseButton {
+html body .geBaseButton, html .geSidebarContainer button {
 	background:#2a2a2a;
 	border-color:#505759;
 	box-shadow:none;
@@ -108,7 +113,8 @@ html body tr.mxPopupMenuItemHover {
 	color:#cccccc;
 }
 html body .geSidebarContainer .geTitle:hover, html body .geSidebarContainer .geItem:hover,
-html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover {
+html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover,
+html .geSidebarContainer button:hover {
 	background:#000000;
 }
 html body .geToolbarContainer .geSeparator {
@@ -120,7 +126,7 @@ html body .geHsplit, html body .geVsplit, html body table.mxPopupMenu hr {
 }
 html body .geToolbarContainer .geButton:hover, html body .geToolbarContainer .geButton:active,
 html body .geToolbarContainer .geLabel:hover, html body .geToolbarContainer .geLabel:active,
-html body .geHsplit:hover, html body .geVsplit:hover {
+html body .geHsplit:hover, html body .geVsplit:hover, html .geSidebarContainer button:active {
 	background-color:#000;
 }
 html body .geToolbar {

@@ -409,7 +409,7 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 	});
 };
 
-var GliffyMassImporter = function(logDiv) 
+var GliffyMassImporter = function(logDiv, doneFn) 
 {
 	var link = document.createElement('a');
 	link.href = location.href;
@@ -513,7 +513,7 @@ var GliffyMassImporter = function(logDiv)
 	
 	logDiv.html("<br>");
 	
-	MassDiagramsProcessor('gliffy', 'Gliffy', ['name'], importGliffyAtt, logDiv);
+	MassDiagramsProcessor('gliffy', 'Gliffy', ['name'], importGliffyAtt, logDiv, doneFn);
 };
 
 function cleanBrokenCustomContents(logDiv, callback, error)
@@ -547,7 +547,7 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 			obj[diagramName] = {id: contentId, ver: contentVer};
 			pageCustomContents[pageId] = obj;
 		}
-		else if (pageCustomContents[pageId][diagramName])
+		else if (pageCustomContents[pageId][diagramName] && pageCustomContents[pageId][diagramName].id != contentId) //Sometimes, search returns duplicate entries!
 		{
 			customContent2Del.push({id: contentId, name: diagramName, duplicate: true});
 			return false;
@@ -601,11 +601,13 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 		}
 	};
 	
-    function collectAtts(pageId, callback, error, url, atts)
+    function collectAtts(pageId, callback, error, start, atts)
     {
     	//first call
-    	if (url == null)
+    	if (start == null)
     	{
+    		start = 0;
+
     		if (typeof(pendingCallbacks[pageId]) === 'undefined')
 			{
     			atts = {};
@@ -620,7 +622,7 @@ function cleanBrokenCustomContents(logDiv, callback, error)
     	
     	AP.request({
             type: 'GET',
-			url: url != null? url : '/rest/api/content/' + pageId + '/child/attachment?limit=100&expand=version',
+			url: '/rest/api/content/' + pageId + '/child/attachment?limit=100&expand=version&start=' + start,
             contentType: 'application/json;charset=UTF-8',
             success: function (resp) 
             {
@@ -635,7 +637,8 @@ function cleanBrokenCustomContents(logDiv, callback, error)
                	//Support pageing
 				if (resp._links && resp._links.next) 
 				{
-					collectAtts(pageId, callback, error, resp._links.next, atts);
+					start += resp.limit; //Sometimes the limit is changed by the server
+					collectAtts(pageId, callback, error, start, atts);
 				}
 				else
 				{
@@ -672,10 +675,10 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 		});
     };
     
-	function processChunk(nextUrl)
+	function processChunk(start)
 	{
 		AP.request({
-			url: nextUrl != null? nextUrl : '/rest/api/content/search?cql=' + encodeURIComponent('type="ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram"') + '&limit=50&expand=body.storage,version',  
+			url: '/rest/api/content/search?cql=' + encodeURIComponent('type="ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram"') + '&limit=50&expand=body.storage,version&start=' + start,  
 			success: function(resp) 
 			{
 				resp = JSON.parse(resp);
@@ -748,6 +751,7 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 							//ignore, this should not happen! But, if it happens, it means a corrupted custom content. Just delete it
 							console.log(e);
 							customContent2Del.push({id: list[i].id, name: list[i].title});
+							processedItems++;
 							checkDone();
 						}
 					}
@@ -758,7 +762,8 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 				//Support pageing
 				if (resp._links && resp._links.next) 
 				{
-					processChunk(resp._links.next);
+					start += resp.limit; //Sometimes the limit is changed by the server
+					processChunk(start);
 				}
 				else
 				{
@@ -770,10 +775,10 @@ function cleanBrokenCustomContents(logDiv, callback, error)
 		});
 	};
 	
-	processChunk();
+	processChunk(0);
 };
 
-var DrawIoDiagramsIndexer = function(logDiv)
+var DrawIoDiagramsIndexer = function(logDiv, doneFn)
 {
 	var pageCustomContents = {}, customContentsMap = {};
 	
@@ -890,7 +895,7 @@ var DrawIoDiagramsIndexer = function(logDiv)
 		
 		MassDiagramsProcessor('drawio', 'draw.io', 
 				drawioMacroParams,
-				fixDrawIoCustomContent, logDiv);
+				fixDrawIoCustomContent, logDiv, doneFn);
 	});
 };
 
