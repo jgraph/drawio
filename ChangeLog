@@ -1,4 +1,27 @@
-29-MAY-2020: 13.1.9
+02-JUN-2020: 13.1.13
+
+- Fixes caching for HTML embed code
+- Fixes copy paste from other apps
+- Fixes math client-side printing
+- Adds math-output URL parameter
+- Adds custom table properties
+- Uses mxGraph 4.2.0 beta 7
+
+01-JUN-2020: 13.1.12
+
+- Uses mxGraph 4.2.0 beta 6
+- Adds tables to Misc sidebar
+- Fixes OS clipboard in Firefox
+
+31-MAY-2020: 13.1.11
+
+- Stability improvements and bug fixes
+
+31-MAY-2020: 13.1.10
+
+- Fixes minor bugs for tables
+
+30-MAY-2020: 13.1.9
 
 - Fixes insert tables on touch devices
 - Adds Feature-Policy header

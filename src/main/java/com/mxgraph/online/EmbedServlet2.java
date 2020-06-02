@@ -227,6 +227,11 @@ public class EmbedServlet2 extends HttpServlet
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/javascript; charset=UTF-8");
 		response.setHeader("Last-Modified", lastModified);
+		
+		if (request.getParameter("fetch") != null)
+		{
+			response.setHeader("Cache-Control", "no-store");
+		}
 
 		OutputStream out = response.getOutputStream();
 

@@ -254,11 +254,13 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		    		{
 			   			var handler = this.selectionCellsHandler.getHandler(state.cell);
 
-			   			// Cell custom handles have precedence over row and col resize
+			   			// Cell handles have precedence over row and col resize
 		    			if (handler == null || handler.getHandleForEvent(me) == null)
 		    			{
 				    		var box = new mxRectangle(me.getGraphX(), me.getGraphY());
-			    			box.grow(mxShape.prototype.svgStrokeTolerance - 1);
+			    			box.grow(mxEvent.isTouchEvent(me.getEvent()) ?
+			    				mxShape.prototype.svgStrokeTolerance - 1 :
+			    				mxShape.prototype.svgStrokeTolerance / 2);
 			    			
 			    			if (this.isTableCell(state.cell))
 			    			{
@@ -519,7 +521,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				    		else
 				    		{
 				    			var box = new mxRectangle(me.getGraphX(), me.getGraphY());
-			    				box.grow(mxShape.prototype.svgStrokeTolerance - 1);
+			    				box.grow(mxShape.prototype.svgStrokeTolerance / 2);
 	
 					    		if (this.isTableCell(state.cell))
 					    		{
@@ -2055,7 +2057,12 @@ Graph.prototype.initLayoutManager = function()
 	
 	this.layoutManager.getLayout = function(cell, eventName)
 	{
-		if (eventName != mxEvent.BEGIN_UPDATE)
+		var parent = this.graph.model.getParent(cell);
+		
+		// Executes layouts from top to bottom except for nested layouts where
+		// child layouts are executed before and after the parent layout runs
+		// in case the layout changes the size of the child cell
+		if (eventName != mxEvent.BEGIN_UPDATE || this.hasLayout(parent, eventName))
 		{
 			var style = this.graph.getCellStyle(cell);
 	
@@ -3000,7 +3007,8 @@ Graph.prototype.getLinkForCell = function(cell)
 };
 
 /**
- * Overrides label orientation for collapsed swimlanes inside stack.
+ * Overrides label orientation for collapsed swimlanes inside stack and
+ * for partial rectangles inside tables.
  */
 Graph.prototype.getCellStyle = function(cell)
 {
@@ -3220,26 +3228,6 @@ Graph.prototype.isContainer = function(cell)
 	{
 		return style['container'] == '1';
 	}
-};
-
-/**
- * Adds a expand style.
- */
-Graph.prototype.isExtendParent = function(cell)
-{
-	var parent = this.model.getParent(cell);
-	
-	if (parent != null)
-	{
-		var style = this.getCurrentCellStyle(parent);
-		
-		if (style['expand'] != null)
-		{
-			return style['expand'] != '0';
-		}
-	}
-	
-	return mxGraph.prototype.isExtendParent.apply(this, arguments);
 };
 
 /**
@@ -4471,11 +4459,42 @@ Graph.prototype.createTable = function(rowCount, colCount, w, h, title, startSiz
 		((title != null) ? 'swimlane;startSize=' + startSize + ';' : '') +
 		'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=tableLayout;'),
 		this.createParent(this.createVertex(null, null, '', 0, 0, colCount * w, h,
-    		'html=1;whiteSpace=wrap;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;' +
-    		'strokeColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;'),
+    		'shape=partialRectangle;html=1;whiteSpace=wrap;collapsible=0;dropTarget=0;pointerEvents=0;' +
+    		'fillColor=none;strokeColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;'),
 			this.createVertex(null, null, '', 0, 0, w, h,
 				'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=none;'),
 				colCount, w, 0), rowCount, 0, h);
+};
+
+/**
+ * Sets the values for the cells and rows in the given table and returns the table.
+ */
+Graph.prototype.setTableValues = function(table, values, rowValues)
+{
+	var rows = this.model.getChildCells(table, true);
+	
+	for (var i = 0; i < rows.length; i++)
+	{
+		if (rowValues != null)
+		{
+			rows[i].value = rowValues[i];
+		}	
+		
+		if (values != null)
+		{
+			var cells = this.model.getChildCells(rows[i], true);
+			
+			for (var j = 0; j < cells.length; j++)
+			{
+				if (values[i][j] != null)
+				{
+					cells[j].value = values[i][j];
+				}
+			}
+		}
+	}
+	
+	return table;
 };
 
 /**
@@ -4545,8 +4564,9 @@ Graph.prototype.isTable = function(cell)
 /**
  * Updates the row and table heights.
  */
-Graph.prototype.setTableRowHeight = function(row, dy)
+Graph.prototype.setTableRowHeight = function(row, dy, extend)
 {
+	extend = (extend != null) ? extend : true;
 	var model = this.getModel();
 	
 	model.beginUpdate();
@@ -4561,15 +4581,47 @@ Graph.prototype.setTableRowHeight = function(row, dy)
 			rgeo.height += dy;
 			model.setGeometry(row, rgeo);
 			
-			// Updates height of table
 			var table = model.getParent(row);
+			var rows = model.getChildCells(table, true);
+			
+			// Shifts and resizes neighbor row
+			if (!extend)
+			{
+				var index = mxUtils.indexOf(rows, row);
+	
+				if (index < rows.length - 1)
+				{
+					var nextRow = rows[index + 1];
+					var geo = this.getCellGeometry(nextRow);
+				
+					if (geo != null)
+					{
+						geo = geo.clone();
+						geo.y += dy;
+						geo.height -= dy;
+						
+						model.setGeometry(nextRow, geo);
+					}
+				}
+			}
+			
+			// Updates height of table
 			var tgeo = this.getCellGeometry(table);
 			
 			if (tgeo != null)
 			{
-				tgeo = tgeo.clone();
-				tgeo.height += dy;
-				model.setGeometry(table, tgeo);
+				// Always extends for last row
+				if (!extend)
+				{
+					extend = row == rows[rows.length - 1];
+				}
+				
+				if (extend)
+				{
+					tgeo = tgeo.clone();
+					tgeo.height += dy;
+					model.setGeometry(table, tgeo);
+				}
 			}
 		}
 	}
@@ -4582,8 +4634,10 @@ Graph.prototype.setTableRowHeight = function(row, dy)
 /**
  * Updates column width and row height.
  */
-Graph.prototype.setTableColumnWidth = function(col, dx)
+Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 {
+	extend = (extend != null) ? extend : false;
+	
 	var model = this.getModel();
 	var row = model.getParent(col);
 	var table = model.getParent(row);
@@ -4621,13 +4675,18 @@ Graph.prototype.setTableColumnWidth = function(col, dx)
 				{
 					geo = geo.clone();
 					geo.x += dx;
-					geo.width -= dx;
+					
+					if (!extend)
+					{
+						geo.width -= dx;
+					}
+					
 					model.setGeometry(cell, geo);
 				}
 			}
 		}
 		
-		if (lastColumn)
+		if (lastColumn || extend)
 		{
 			// Updates width of table
 			var tgeo = this.getCellGeometry(table);
@@ -4749,8 +4808,8 @@ TableLayout.prototype.layoutRow = function(row, positions, height)
 		{
 			cell = cell.clone();
 			
-			cell.y = 0;
-			cell.height = height;
+			cell.y = off.y;
+			cell.height = height - off.y - off.height;
 			
 			if (positions != null)
 			{
@@ -6014,6 +6073,28 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * Overridden to add expand style.
+		 */
+		var graphIsExtendParent = Graph.prototype.isExtendParent;
+		Graph.prototype.isExtendParent = function(cell)
+		{
+			var parent = this.model.getParent(cell);
+			
+			if (parent != null)
+			{
+				var style = this.getCurrentCellStyle(parent);
+				
+				if (style['expand'] != null)
+				{
+					return style['expand'] != '0';
+				}
+			}
+			
+			return graphIsExtendParent.apply(this, arguments) &&
+				(parent == null || !this.isTable(parent));
+		};
+		
+		/**
 		 * Overridden to use table cell instead of table as parent.
 		 */
 		var graphSplitEdge = Graph.prototype.splitEdge;
@@ -6100,6 +6181,44 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.moveCells = function(cells, dx, dy, clone, target, evt, mapping)
 		{
 			mapping = (mapping != null) ? mapping : new Object();
+			
+			// Updates source and target table heights for moving rows
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (target != null && this.isTableRow(cells[i]))
+				{
+					var parent = this.model.getParent(cells[i]);
+					var row = this.getCellGeometry(cells[i]);
+					
+					if (parent != null && row != null &&
+						this.isTable(parent) &&
+						this.isTable(target) &&
+						(clone || parent != target))
+					{
+						if (!clone)
+						{
+							var table = this.getCellGeometry(parent);
+					
+							if (table != null)
+							{
+								table = table.clone();
+								table.height -= row.height;
+								this.model.setGeometry(parent, table);
+							}
+						}
+
+						var table = this.getCellGeometry(target);
+				
+						if (table != null)
+						{
+							table = table.clone();
+							table.height += row.height;
+							this.model.setGeometry(target, table);
+						}
+					}
+				}
+			}
+			
 			var result = graphMoveCells.apply(this, arguments);
 			
 			if (clone)
@@ -6127,10 +6246,52 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					if (this.isTableCell(cells[i]))
 					{
-						this.labelChanged(cells[i], '');
+						var row = this.model.getParent(cells[i]);
+						var table = this.model.getParent(row);
+						
+						// Removes table if one cell in one row left
+						if (this.model.getChildCount(row) == 1 &&
+							this.model.getChildCount(table) == 1)
+						{
+							if (mxUtils.indexOf(cells, table) < 0 &&
+								mxUtils.indexOf(result, table) < 0)
+							{
+								result.push(table);
+							}
+						}
+						else
+						{
+							this.labelChanged(cells[i], '');
+						}
 					}
 					else
 					{
+						// Deletes table if all rows are removed
+						if (this.isTableRow(cells[i]))
+						{
+							var table = this.model.getParent(cells[i]);
+							
+							if (mxUtils.indexOf(cells, table) < 0 &&
+								mxUtils.indexOf(result, table) < 0)
+							{
+								var rows = this.model.getChildCells(table, true);
+								var deleteCount = 0;
+								
+								for (var j = 0; j < rows.length; j++)
+								{
+									if (mxUtils.indexOf(cells, rows[j]) >= 0)
+									{
+										deleteCount++;
+									}
+								}
+								
+								if (deleteCount == rows.length)
+								{
+									result.push(table);
+								}
+							}
+						}
+						
 						result.push(cells[i]);
 					}
 				}
@@ -6422,13 +6583,17 @@ if (typeof mxVertexHandler != 'undefined')
 						if (geo != null)
 						{
 							// Rotates the size and position in the geometry
-							geo = geo.clone();
-							geo.x += geo.width / 2 - geo.height / 2;
-							geo.y += geo.height / 2 - geo.width / 2;
-							var tmp = geo.width;
-							geo.width = geo.height;
-							geo.height = tmp;
-							model.setGeometry(cell, geo);
+							if (!this.isTable(cell) && !this.isTableRow(cell) &&
+								!this.isTableCell(cell))
+							{
+								geo = geo.clone();
+								geo.x += geo.width / 2 - geo.height / 2;
+								geo.y += geo.height / 2 - geo.width / 2;
+								var tmp = geo.width;
+								geo.width = geo.height;
+								geo.height = tmp;
+								model.setGeometry(cell, geo);
+							}
 							
 							// Reads the current direction and advances by 90 degrees
 							var state = this.view.getState(cell);
@@ -6775,16 +6940,6 @@ if (typeof mxVertexHandler != 'undefined')
 			this.model.setValue(cell, value);
 		};
 		
-		
-		/**
-		 * Overridden to stop extending tables.
-		 */
-		var graphIsExtendParent = Graph.prototype.isExtendParent; 
-		Graph.prototype.isExtendParent = function(cell)
-		{
-			return graphIsExtendParent.apply(this, arguments) && !this.isTable(cell);
-		};
-		
 		/**
 		 * Overridden to stop moving edge labels between cells.
 		 */
@@ -6936,18 +7091,18 @@ if (typeof mxVertexHandler != 'undefined')
 			if (mxUtils.hasScrollbars(this.container))
 			{
 				return new mxPoint(
-					this.snap((this.container.scrollLeft + this.container.clientWidth / 2) / this.view.scale -
-						this.view.translate.x - bbox.width / 2),
-					this.snap((this.container.scrollTop + this.container.clientHeight / 2) / this.view.scale -
-						this.view.translate.y - bbox.height / 2));
+					this.snap(Math.round((this.container.scrollLeft + this.container.clientWidth / 2) /
+						this.view.scale - this.view.translate.x - bbox.width / 2)),
+					this.snap(Math.round((this.container.scrollTop + this.container.clientHeight / 2) /
+						this.view.scale - this.view.translate.y - bbox.height / 2)));
 			}
 			else
 			{
 				return new mxPoint(
-					this.snap(this.container.clientWidth / 2 / this.view.scale -
-						this.view.translate.x - bbox.width / 2),
-					this.snap(this.container.clientHeight / 2 / this.view.scale -
-						this.view.translate.y - bbox.height / 2));
+					this.snap(Math.round(this.container.clientWidth / 2 / this.view.scale -
+						this.view.translate.x - bbox.width / 2)),
+					this.snap(Math.round(this.container.clientHeight / 2 / this.view.scale -
+						this.view.translate.y - bbox.height / 2)));
 			}
 		};
 		
@@ -8188,50 +8343,71 @@ if (typeof mxVertexHandler != 'undefined')
 			try
 			{
 				var table = cell;
-				var rows = null;
-				var index = 0;
+				var row = cell;
 				
 				if (this.isTableCell(cell))
 				{
-					var row = model.getParent(cell);
+					row = model.getParent(cell);
+				}
+				
+				if (this.isTableRow(row))
+				{
 					table = model.getParent(row);
-					index = mxUtils.indexOf(model.getChildCells(row, true), cell);
-				}
-				else if (this.isTableRow(cell))
-				{
-					table = model.getParent(cell);
-					index = model.getChildCells(cell, true).length - 1;
-				}
-				else if (this.isTable(cell))
-				{
-					rows = model.getChildCells(cell, true);
-					index = model.getChildCells(rows[0], true).length - 1;
 				}
 				
-				var width = 0;
-				rows = (rows != null) ? rows : model.getChildCells(table, true);
+				var rows = model.getChildCells(table, true);
 				
-				for (var i = 0; i < rows.length; i++)
+				if (rows.length == 0)
 				{
-					var child = model.getChildCells(rows[i], true)[index];
-					model.remove(child);
-					
-					var geo = this.getCellGeometry(child);
-					
-					if (geo != null)
+					model.remove(table);
+				}
+				else
+				{
+					if (!this.isTableRow(row))
 					{
-						width = Math.max(width, geo.width);
+						row = rows[0];
 					}
-				}
-				
-				var tableGeo = this.getCellGeometry(table);
-				
-				if (tableGeo != null)
-				{
-					tableGeo = tableGeo.clone();
-					tableGeo.width -= width;
 					
-					model.setGeometry(table, tableGeo);
+					var cells = model.getChildCells(row, true);
+					
+					if (cells.length <= 1)
+					{
+						model.remove(table);
+					}
+					else
+					{
+						var index = cells.length - 1;
+						
+						if (this.isTableCell(cell))
+						{
+							index = mxUtils.indexOf(cells, cell);
+						}
+
+						var width = 0;
+		
+						for (var i = 0; i < rows.length; i++)
+						{
+							var child = model.getChildCells(rows[i], true)[index];
+							model.remove(child);
+							
+							var geo = this.getCellGeometry(child);
+							
+							if (geo != null)
+							{
+								width = Math.max(width, geo.width);
+							}
+						}
+						
+						var tableGeo = this.getCellGeometry(table);
+						
+						if (tableGeo != null)
+						{
+							tableGeo = tableGeo.clone();
+							tableGeo.width -= width;
+							
+							model.setGeometry(table, tableGeo);
+						}
+					}
 				}
 			}
 			finally
@@ -8250,37 +8426,52 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			try
 			{
+				var table = cell;
 				var row = cell;
 				
 				if (this.isTableCell(cell))
 				{
 					row = model.getParent(cell);
-				}
-				else if (this.isTable(cell))
-				{
-					var rows = model.getChildCells(cell, true);
-					row = rows[rows.length - 1];
+					cell = row;
 				}
 				
-				var table = model.getParent(row);
-				model.remove(row);
-				var height = 0;
-				
-				var geo = this.getCellGeometry(row);
-				
-				if (geo != null)
+				if (this.isTableRow(cell))
 				{
-					height = geo.height;
+					table = model.getParent(row);
 				}
 				
-				var tableGeo = this.getCellGeometry(table);
+				var rows = model.getChildCells(table, true);
 				
-				if (tableGeo != null)
+				if (rows.length <= 1)
 				{
-					tableGeo = tableGeo.clone();
-					tableGeo.height -= height;
+					model.remove(table);
+				}
+				else
+				{
+					if (!this.isTableRow(row))
+					{
+						row = rows[rows.length - 1];
+					}	
 					
-					model.setGeometry(table, tableGeo);
+					model.remove(row);
+					var height = 0;
+					
+					var geo = this.getCellGeometry(row);
+					
+					if (geo != null)
+					{
+						height = geo.height;
+					}
+					
+					var tableGeo = this.getCellGeometry(table);
+					
+					if (tableGeo != null)
+					{
+						tableGeo = tableGeo.clone();
+						tableGeo.height -= height;
+						
+						model.setGeometry(table, tableGeo);
+					}
 				}
 			}
 			finally
@@ -9316,7 +9507,46 @@ if (typeof mxVertexHandler != 'undefined')
 				this.hint = null;
 			}
 		};
-		
+								
+		/**
+		 * Overridden to allow for shrinking pools when lanes are resized.
+		 */
+		var stackLayoutResizeCell = mxStackLayout.prototype.resizeCell;
+		mxStackLayout.prototype.resizeCell = function(cell, bounds)
+		{
+			stackLayoutResizeCell.apply(this, arguments);
+			var style = this.graph.getCellStyle(cell);
+				
+			if (style['childLayout'] == null)
+			{
+				var parent = this.graph.model.getParent(cell);
+				var geo = (parent != null) ? this.graph.getCellGeometry(parent) : null;
+			
+				if (geo != null)
+				{
+					style = this.graph.getCellStyle(parent);
+					
+					if (style['childLayout'] == 'stackLayout')
+					{
+						var horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
+						geo = geo.clone();
+						
+						if (horizontal)
+						{
+							geo.height = bounds.height;
+						}
+						else
+						{
+							geo.width = bounds.width;
+							
+						}
+			
+						this.graph.model.setGeometry(parent, geo);			
+					}
+				}
+			}
+		};
+
 		/**
 		 * Shows handle for table instead of rows and cells.
 		 */
@@ -9530,153 +9760,137 @@ if (typeof mxVertexHandler != 'undefined')
 					handles = [];
 				}
 				
-				// Finds rows
-				var rows = [];
+				// Adds handles for rows and columns
+				var rows = graph.view.getCellStates(model.getChildCells(this.state.cell, true));
 				
-				for (var i = 0; i < model.getChildCount(this.state.cell); i++)
+				if (rows.length > 0)
 				{
-					var row = this.graph.view.getState(model.getChildAt(this.state.cell, i));
-					
-					if (row != null && model.isVertex(row.cell))
+					var cols = graph.view.getCellStates(model.getChildCells(rows[0].cell, true));
+	
+					// Adds column width handles
+					for (var i = 0; i < cols.length; i++)
 					{
-						rows.push(row); 
+						(mxUtils.bind(this, function(index)
+						{
+							var colState = cols[index];
+							var nextCol = (index < cols.length - 1) ? cols[index + 1] : null;
+							
+							var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1, true);
+							shape.isDashed = sel.isDashed;
+							
+							var handle = new mxHandle(colState, 'col-resize', null, shape);
+							handle.tableHandle = true;
+							var dx = 0;
+							
+							handle.shape.node.parentNode.insertBefore(handle.shape.node,
+								handle.shape.node.parentNode.firstChild);
+	
+							handle.redraw = function()
+							{
+								if (this.shape != null && this.state.shape != null)
+								{
+									var start = graph.getActualStartSize(tableState.cell);
+									this.shape.stroke = (dx == 0) ? mxConstants.NONE : sel.stroke;
+									this.shape.bounds.x = this.state.x + this.state.width +
+										dx * this.graph.view.scale;
+									this.shape.bounds.width = 1;
+									this.shape.bounds.y = tableState.y + ((index == cols.length - 1) ?
+										0 : start.y * this.graph.view.scale);
+									this.shape.bounds.height = tableState.height -
+										((index == cols.length - 1) ? 0 :
+										(start.height + start.y) * this.graph.view.scale);
+									this.shape.redraw();
+								}
+							};
+							
+							handle.setPosition = function(bounds, pt, me)
+							{
+								dx = Math.max(Graph.minTableColumnWidth - bounds.width,
+									pt.x - bounds.x - bounds.width);
+								
+								if (nextCol != null)
+								{
+									dx = Math.min(nextCol.x + nextCol.width - colState.x -
+										colState.width - Graph.minTableColumnWidth, dx);
+								}
+							};
+							
+							handle.execute = function(me)
+							{
+								if (dx != 0)
+								{
+									graph.setTableColumnWidth(this.state.cell, dx,
+										mxEvent.isShiftDown(me.getEvent()));
+								}
+								
+								dx = 0;
+							};
+							
+							handle.reset = function()
+							{
+								dx = 0;
+							};
+							
+							handles.push(handle);
+						}))(i);
 					}
-				}
-				
-				// Finds columns in row
-				var cols = [];
-				
-				for (var i = 0; i < model.getChildCount(rows[0].cell); i++)
-				{
-					var col = this.graph.view.getState(model.getChildAt(rows[0].cell, i));
 					
-					if (col != null && model.isVertex(col.cell))
+					// Adds row height handles
+					for (var i = 0; i < rows.length; i++)
 					{
-						cols.push(col); 
+						(mxUtils.bind(this, function(index)
+						{
+							var rowState = rows[index];
+	
+							var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1);
+							shape.isDashed = sel.isDashed;
+							
+							var handle = new mxHandle(rowState, 'row-resize', null, shape);
+							handle.tableHandle = true;
+							var dy = 0;
+	
+							handle.shape.node.parentNode.insertBefore(handle.shape.node,
+								handle.shape.node.parentNode.firstChild);
+							
+							handle.redraw = function()
+							{
+								if (this.shape != null && this.state.shape != null)
+								{
+									this.shape.stroke = (dy == 0) ? mxConstants.NONE : sel.stroke;;
+									this.shape.bounds.x = this.state.x;
+									this.shape.bounds.width = this.state.width;
+									this.shape.bounds.y = this.state.y + this.state.height +
+										dy * this.graph.view.scale;
+									this.shape.bounds.height = 1;
+									this.shape.redraw();
+								}
+							};
+							
+							handle.setPosition = function(bounds, pt, me)
+							{
+								dy = Math.max(Graph.minTableRowHeight - bounds.height,
+									pt.y - bounds.y - bounds.height);
+							};
+							
+							handle.execute = function(me)
+							{
+								if (dy != 0)
+								{
+									graph.setTableRowHeight(this.state.cell, dy,
+										!mxEvent.isShiftDown(me.getEvent()));
+								}
+								
+								dy = 0;
+							};
+							
+							handle.reset = function()
+							{
+								dy = 0;
+							};
+							
+							handles.push(handle);
+						}))(i);
 					}
-				}
-				
-				// Adds col width handles
-				for (var i = 0; i < cols.length; i++)
-				{
-					(mxUtils.bind(this, function(index)
-					{
-						var colState = cols[index];
-						var nextCol = (index < cols.length - 1) ? cols[index + 1] : null;
-						
-						// Adds handle to change column width
-						var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1, true);
-						shape.isDashed = sel.isDashed;
-						var handle = new mxHandle(colState, 'col-resize', null, shape);
-						handle.tableHandle = true;
-						var dx = 0;
-						
-						handle.shape.node.parentNode.insertBefore(handle.shape.node,
-							handle.shape.node.parentNode.firstChild);
-
-						handle.redraw = function()
-						{
-							if (this.shape != null && this.state.shape != null)
-							{
-								var start = graph.getActualStartSize(tableState.cell);
-								this.shape.stroke = (dx == 0) ? mxConstants.NONE : sel.stroke;
-								this.shape.bounds.x = this.state.x + this.state.width +
-									dx * this.graph.view.scale;
-								this.shape.bounds.width = 1;
-								this.shape.bounds.y = tableState.y + ((index == cols.length - 1) ?
-									0 : start.y * this.graph.view.scale);
-								this.shape.bounds.height = tableState.height -
-									((index == cols.length - 1) ? 0 :
-									(start.height + start.y) * this.graph.view.scale);
-								this.shape.redraw();
-							}
-						};
-						
-						handle.setPosition = function(bounds, pt, me)
-						{
-							dx = Math.max(Graph.minTableColumnWidth - bounds.width,
-								pt.x - bounds.x - bounds.width);
-							
-							if (nextCol != null)
-							{
-								dx = Math.min(nextCol.x + nextCol.width - colState.x -
-									colState.width - Graph.minTableColumnWidth, dx);
-							}
-						};
-						
-						handle.execute = function()
-						{
-							if (dx != 0)
-							{
-								graph.setTableColumnWidth(this.state.cell, dx);
-							}
-							
-							dx = 0;
-						};
-						
-						handle.reset = function()
-						{
-							dx = 0;
-						};
-						
-						handles.push(handle);
-					}))(i);
-				}
-				
-				// Adds row height handles
-				for (var i = 0; i < rows.length; i++)
-				{
-					(mxUtils.bind(this, function(index)
-					{
-						var rowState = rows[index];
-
-						// Adds handle to change row height
-						var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1);
-						shape.isDashed = sel.isDashed;
-						var handle = new mxHandle(rowState, 'row-resize', null, shape);
-						handle.tableHandle = true;
-						var dy = 0;
-
-						handle.shape.node.parentNode.insertBefore(handle.shape.node,
-							handle.shape.node.parentNode.firstChild);
-						
-						handle.redraw = function()
-						{
-							if (this.shape != null && this.state.shape != null)
-							{
-								this.shape.stroke = (dy == 0) ? mxConstants.NONE : sel.stroke;;
-								this.shape.bounds.x = this.state.x;
-								this.shape.bounds.width = this.state.width;
-								this.shape.bounds.y = this.state.y + this.state.height +
-									dy * this.graph.view.scale;
-								this.shape.bounds.height = 1;
-								this.shape.redraw();
-							}
-						};
-						
-						handle.setPosition = function(bounds, pt, me)
-						{
-							dy = Math.max(Graph.minTableRowHeight - bounds.height,
-								pt.y - bounds.y - bounds.height);
-						};
-						
-						handle.execute = function()
-						{
-							if (dy != 0)
-							{
-								graph.setTableRowHeight(this.state.cell, dy);
-							}
-							
-							dy = 0;
-						};
-						
-						handle.reset = function()
-						{
-							dy = 0;
-						};
-						
-						handles.push(handle);
-					}))(i);
 				}
 			}
 			

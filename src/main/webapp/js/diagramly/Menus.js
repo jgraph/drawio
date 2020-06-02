@@ -1314,8 +1314,12 @@
 			{
 				if (!graph.isSelectionEmpty())
 				{
+					var cells = graph.cloneCells(graph.getSelectionCells());
+					var bbox = graph.getBoundingBoxFromGeometry(cells);
+					cells = graph.moveCells(cells, -bbox.x, -bbox.y);
+					
 					editorUi.showTextDialog('Create Sidebar Entry', 'sb.createVertexTemplateFromData(\'' +
-						Graph.compress(mxUtils.getXml(graph.encodeCells(graph.getSelectionCells()))) +
+						Graph.compress(mxUtils.getXml(graph.encodeCells(cells))) +
 						'\', width, height, \'Title\');');
 				}
 			}));

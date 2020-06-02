@@ -9092,7 +9092,7 @@
 					    {
 				    		var html = evt.dataTransfer.getData('text/html');
 				    		var div = document.createElement('div');
-				    		div.innerHTML = html;
+				    		div.innerHTML = graph.sanitizeHtml(html);
 				    		
 				    		// The default is based on the extension
 				    		var asImage = null;
@@ -9103,6 +9103,11 @@
 				    		if (imgs != null && imgs.length == 1)
 				    		{
 				    			html = imgs[0].getAttribute('src');
+				    			
+				    			if (html == null)
+				    			{
+				    				html = imgs[0].getAttribute('srcset');
+				    			}
 				    			
 				    			// Handles special case where the src attribute has no valid extension
 				    			// in which case the text would be inserted as text with a link
@@ -9139,7 +9144,7 @@
 				    			graph.setSelectionCells(this.insertTextAt(html, x, y, true, asImage, null, resizeImages));
 				    		});
 				    		
-				    		if (asImage && html.length > this.resampleThreshold)
+				    		if (asImage && html != null && html.length > this.resampleThreshold)
 				    		{
 				    			this.confirmImageResize(function(doResize)
 		    					{
@@ -9712,8 +9717,10 @@
 				
 				if (data != null && data.length > 0)
 				{
+					var hasMeta = data.substring(0, 6) == '<meta ';
 					elt = document.createElement('div');
-					elt.innerHTML = data;
+					elt.innerHTML = ((hasMeta) ? '<meta charset="utf-8">' : '') +
+						this.editor.graph.sanitizeHtml(data);
 					asHtml = true;
 					
 					// Workaround for innerText not ignoring style elements in Chrome
@@ -10006,7 +10013,7 @@
 								    	
 								    	if (mxUtils.indexOf(provider.types, 'text/uri-list') >= 0)
 								    	{
-								    		var data = evt.dataTransfer.getData('text/uri-list');
+								    		data = evt.dataTransfer.getData('text/uri-list');
 								    	}
 								    	else
 								    	{
@@ -10016,7 +10023,7 @@
 										if (data != null && data.length > 0)
 										{
 											var div = document.createElement('div');
-								    		div.innerHTML = data;
+								    		div.innerHTML = this.editor.graph.sanitizeHtml(data);
 		
 								    		// Extracts single image
 								    		var imgs = div.getElementsByTagName('img');

@@ -1458,8 +1458,8 @@ App.prototype.init = function()
 		}
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
-			!mxClient.IS_ANDROID && !mxClient.IS_IOS &&
-			urlParams['open'] == null && (!this.editor.chromeless || this.editor.editable))
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS && urlParams['open'] == null &&
+			(!this.editor.chromeless || this.editor.editable))
 		{
 			this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
 			{
@@ -2727,7 +2727,7 @@ App.prototype.start = function()
 				}
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
-					/.*\.draw\.io$/.test(window.location.hostname) &&
+					urlParams['open'] == null && /.*\.draw\.io$/.test(window.location.hostname) &&
 					(!this.editor.chromeless || this.editor.editable))
 				{
 					this.showNameChangeBanner();
@@ -3036,6 +3036,14 @@ App.prototype.start = function()
 				}
 				else
 				{
+					// Removes open URL parameter. Hash is also updated in Init to load client.
+					if (urlParams['open'] != null && window.history && window.history.replaceState)
+					{
+						window.history.replaceState(null, null, window.location.pathname +
+							this.getSearch(['open']));
+						window.location.hash = urlParams['open'];
+					}
+					
 					done();
 				}
 			}

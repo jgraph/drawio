@@ -9,18 +9,26 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
+import javax.cache.Cache;
+import javax.cache.CacheException;
+import javax.cache.CacheFactory;
+import javax.cache.CacheManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
@@ -33,8 +41,25 @@ abstract public class AbsAuthServlet extends HttpServlet
 	private static final int COOKIE_AGE = 600;
 	
 	public static final SecureRandom random = new SecureRandom();
-	public static BigInteger prime1 = null, prime2 = null;
-	public static long lastPrimeChange = 0;
+	protected static Cache tokens;
+	
+	static
+	{
+		try
+		{
+			CacheFactory cacheFactory = CacheManager.getInstance()
+					.getCacheFactory();
+			Map<Object, Object> properties = new HashMap<>();
+			properties.put(MemcacheService.SetPolicy.ADD_ONLY_IF_NOT_PRESENT,
+					true);
+			properties.put(GCacheFactory.EXPIRATION_DELTA, COOKIE_AGE); //Cache servlet set it to 300 (5 min), all cache instances are the same so 5 will be enforced
+			tokens = cacheFactory.createCache(properties);
+		}
+		catch (CacheException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	
 	protected int postType = X_WWW_FORM_URLENCODED; 
 	
@@ -96,29 +121,17 @@ abstract public class AbsAuthServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		//Prime secrets changes every 10 minutes
-		if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
-		{
-			synchronized (AbsAuthServlet.class)
-			{
-				//Recheck after acquiring the lock
-				if (new Date().getTime() - lastPrimeChange > COOKIE_AGE * 1000)
-				{
-					prime2 = prime1;
-					prime1 = BigInteger.probablePrime(256, random);
-					lastPrimeChange = new Date().getTime();
-				}
-			}
-		}
-		
 		String stateOnly = request.getParameter("getState");
 		
 		if ("1".equals(stateOnly))
 		{
-			String state = new BigInteger(256, random).multiply(prime1).toString(32);
+			String state = new BigInteger(256, random).toString(32);
+			String key = new BigInteger(256, random).toString(32);
+			String casheKey = request.getRemoteAddr() + ":" + key;
+			tokens.put(casheKey, state);
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
-			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + state + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
+			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
 			response.setHeader("Content-Type", "text/plain");
 			OutputStream out = response.getOutputStream();
 			out.write(state.getBytes());
@@ -161,18 +174,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 				{
 					if (STATE_COOKIE.equals(cookie.getName()))
 					{
-						//Ensure cookie value is divisible with prime1 or prime2
-						String val = cookie.getValue();
-						BigInteger iVal = new BigInteger(val, 32);
-						
-						if (iVal.mod(prime1).equals(BigInteger.ZERO))
-						{
-							cookieToken = val;
-						}
-						else if (prime2 != null && iVal.mod(prime2).equals(BigInteger.ZERO))
-						{
-							cookieToken = val;
-						}
+						//Get the cached state based on the cookie key 
+						cookieToken = (String) tokens.get(request.getRemoteAddr() + ":" + cookie.getValue());
 						break;
 					}
 				}
@@ -213,151 +216,16 @@ abstract public class AbsAuthServlet extends HttpServlet
 			}
 			else
 			{
-				HttpURLConnection con = null;
+				Response authResp = contactOAuthServer(CONFIG.AUTH_SERVICE_URL, code, refreshToken, secret, client, redirectUri, 1);
+				response.setStatus(authResp.status);
 				
-				try
+				if (authResp.content != null)
 				{
-					String url = CONFIG.AUTH_SERVICE_URL;
-					URL obj = new URL(url);
-					con = (HttpURLConnection) obj.openConnection();
-		
-					con.setRequestMethod("POST");
-					
-					boolean jsonResponse = false;
-					StringBuilder urlParameters = new StringBuilder();
-
-					if (postType == X_WWW_FORM_URLENCODED)
-					{
-						con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		
-						urlParameters.append("client_id=");
-						urlParameters.append(client);
-						urlParameters.append("&redirect_uri=");
-						urlParameters.append(redirectUri);
-						urlParameters.append("&client_secret=");
-						urlParameters.append(secret);
-					
-						if (code != null)
-						{
-							urlParameters.append("&code=");
-							urlParameters.append(code);
-							urlParameters.append("&grant_type=authorization_code");
-						}
-						else
-						{
-							urlParameters.append("&refresh_token=");
-							urlParameters.append(refreshToken);
-							urlParameters.append("&grant_type=refresh_token");
-							jsonResponse = true;
-						}
-					}
-					else if (postType == JSON)
-					{
-						con.setRequestProperty("Content-Type", "application/json");
-						
-						urlParameters.append("{");
-						urlParameters.append("\"client_id\": \"");
-						urlParameters.append(client);
-						urlParameters.append("\", \"redirect_uri\": \"");
-						urlParameters.append(redirectUri);
-						urlParameters.append("\", \"client_secret\": \"");
-						urlParameters.append(secret);
-					
-						if (code != null)
-						{
-							urlParameters.append("\", \"code\": \"");
-							urlParameters.append(code);
-							urlParameters.append("\", \"grant_type\": \"authorization_code\"}");
-						}
-						else
-						{
-							urlParameters.append("\", \"refresh_token\": \"");
-							urlParameters.append(refreshToken);
-							urlParameters.append("\", \"grant_type\": \"refresh_token\"}");
-							jsonResponse = true;
-						}
-					}
-					
-					// Send post request
-					con.setDoOutput(true);
-					DataOutputStream wr = new DataOutputStream(con.getOutputStream());
-					wr.writeBytes(urlParameters.toString());
-					wr.flush();
-					wr.close();
-		
-					BufferedReader in = new BufferedReader(
-							new InputStreamReader(con.getInputStream()));
-					String inputLine;
-					StringBuffer authRes = new StringBuffer();
-		
-					while ((inputLine = in.readLine()) != null)
-					{
-						authRes.append(inputLine);
-					}
-					in.close();
-	
-					response.setStatus(con.getResponseCode());
-					
 					OutputStream out = response.getOutputStream();
-		
 					PrintWriter writer = new PrintWriter(out);
-	
-					// Writes JavaScript code
-					writer.println(processAuthResponse(authRes.toString(), jsonResponse));
-		
+					writer.println(authResp.content);
 					writer.flush();
 					writer.close();
-				}
-				catch(IOException e)
-				{
-					StringBuilder details = new StringBuilder("");
-					
-					if (con != null)
-					{
-						try 
-						{
-							BufferedReader in = new BufferedReader(
-									new InputStreamReader(con.getErrorStream()));
-							
-							String inputLine;
-		
-							while ((inputLine = in.readLine()) != null)
-							{
-								System.err.println(inputLine);
-								details.append(inputLine);
-								details.append("\n");
-							}
-							in.close();
-						}
-						catch (Exception e2) 
-						{
-							// Ignore
-						}
-					}
-					
-					if (e.getMessage() != null && e.getMessage().contains("401"))
-					{
-						response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-					}
-					else
-					{
-						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-						e.printStackTrace();
-						System.err.println(details);
-					}
-					
-					if (DEBUG)
-					{
-						OutputStream out = response.getOutputStream();
-						
-						PrintWriter writer = new PrintWriter(out);
-		
-						e.printStackTrace(writer);
-						writer.println(details.toString());
-			
-						writer.flush();
-						writer.close();
-					}
 				}
 			}
 		}
@@ -365,6 +233,159 @@ abstract public class AbsAuthServlet extends HttpServlet
 		{
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	class Response
+	{
+		public int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+		public String content = null;
+	}
+	
+	private Response contactOAuthServer(String authSrvUrl, String code, String refreshToken, String secret,
+			String client, String redirectUri, int retryCount)
+	{
+		HttpURLConnection con = null;
+		Response response = new Response();
+		
+		try
+		{
+			URL obj = new URL(authSrvUrl);
+			con = (HttpURLConnection) obj.openConnection();
+
+			con.setRequestMethod("POST");
+			
+			boolean jsonResponse = false;
+			StringBuilder urlParameters = new StringBuilder();
+
+			if (postType == X_WWW_FORM_URLENCODED)
+			{
+				con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+				urlParameters.append("client_id=");
+				urlParameters.append(client);
+				urlParameters.append("&redirect_uri=");
+				urlParameters.append(redirectUri);
+				urlParameters.append("&client_secret=");
+				urlParameters.append(secret);
+			
+				if (code != null)
+				{
+					urlParameters.append("&code=");
+					urlParameters.append(code);
+					urlParameters.append("&grant_type=authorization_code");
+				}
+				else
+				{
+					urlParameters.append("&refresh_token=");
+					urlParameters.append(refreshToken);
+					urlParameters.append("&grant_type=refresh_token");
+					jsonResponse = true;
+				}
+			}
+			else if (postType == JSON)
+			{
+				con.setRequestProperty("Content-Type", "application/json");
+				
+				urlParameters.append("{");
+				urlParameters.append("\"client_id\": \"");
+				urlParameters.append(client);
+				urlParameters.append("\", \"redirect_uri\": \"");
+				urlParameters.append(redirectUri);
+				urlParameters.append("\", \"client_secret\": \"");
+				urlParameters.append(secret);
+			
+				if (code != null)
+				{
+					urlParameters.append("\", \"code\": \"");
+					urlParameters.append(code);
+					urlParameters.append("\", \"grant_type\": \"authorization_code\"}");
+				}
+				else
+				{
+					urlParameters.append("\", \"refresh_token\": \"");
+					urlParameters.append(refreshToken);
+					urlParameters.append("\", \"grant_type\": \"refresh_token\"}");
+					jsonResponse = true;
+				}
+			}
+			
+			// Send post request
+			con.setDoOutput(true);
+			DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+			wr.writeBytes(urlParameters.toString());
+			wr.flush();
+			wr.close();
+
+			BufferedReader in = new BufferedReader(
+					new InputStreamReader(con.getInputStream()));
+			String inputLine;
+			StringBuffer authRes = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null)
+			{
+				authRes.append(inputLine);
+			}
+			in.close();
+
+			response.status = con.getResponseCode();
+			// Writes JavaScript code
+			response.content = processAuthResponse(authRes.toString(), jsonResponse);
+		}
+		catch(IOException e)
+		{
+			StringBuilder details = new StringBuilder("");
+			
+			if (con != null)
+			{
+				try 
+				{
+					BufferedReader in = new BufferedReader(
+							new InputStreamReader(con.getErrorStream()));
+					
+					String inputLine;
+
+					while ((inputLine = in.readLine()) != null)
+					{
+						System.err.println(inputLine);
+						details.append(inputLine);
+						details.append("\n");
+					}
+					in.close();
+				}
+				catch (Exception e2) 
+				{
+					// Ignore
+				}
+			}
+			
+			if (e.getMessage() != null && e.getMessage().contains("401"))
+			{
+				response.status = HttpServletResponse.SC_UNAUTHORIZED;
+			}
+			else if (retryCount > 0 && e.getMessage() != null && e.getMessage().contains("Connection timed out"))
+		    {
+				return contactOAuthServer(authSrvUrl, code, refreshToken, secret,
+						client, redirectUri, --retryCount);
+		    }
+			else
+			{
+				response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+				e.printStackTrace();
+				System.err.println(details);
+			}
+			
+			if (DEBUG)
+			{
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw);
+				e.printStackTrace(pw);
+				pw.println(details.toString());
+				pw.flush();
+				response.content = sw.toString();
+			}
+		}
+		
+		return response;
 	}
 
 }

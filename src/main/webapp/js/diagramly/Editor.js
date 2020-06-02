@@ -5,6 +5,15 @@
 (function()
 {
 	/**
+	 * Enables paste from Lucidchart
+	 */
+	if (typeof html4 !== 'undefined')
+	{
+		html4.ATTRIBS["span::data-lucid-content"] = 0;
+		html4.ATTRIBS["span::data-lucid-type"] = 0;
+	}
+
+	/**
 	 * Specifies the app name. Default is document.title.
 	 */
 	Editor.prototype.appName = 'diagrams.net';
@@ -207,6 +216,34 @@
 	 */
 	Editor.commonVertexProperties = [
         {type: 'separator'},
+        {name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	var style = graph.getCellStyle(cell);
+        	
+        	return mxUtils.getValue(style, 'resizeLastRow', '0') == '1';
+        }, isVisible: function(state, format)
+        {
+        	var graph = format.editorUi.editor.graph;
+        	
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			graph.isTable(state.vertices[0]);
+        }},
+        {name: 'resizeLast', dispName: 'Resize Last Column', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	var style = graph.getCellStyle(cell);
+        	
+        	return mxUtils.getValue(style, 'resizeLast', '0') == '1';
+        }, isVisible: function(state, format)
+        {
+        	var graph = format.editorUi.editor.graph;
+        	
+    		return state.vertices.length == 1 && state.edges.length == 0 &&
+    			graph.isTable(state.vertices[0]);
+        }},
         {name: 'fillOpacity', dispName: 'Fill Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'strokeOpacity', dispName: 'Stroke Opacity', type: 'int', min: 0, max: 100, defVal: 100},
         {name: 'overflow', dispName: 'Text Overflow', defVal: 'visible', type: 'enum',
@@ -221,7 +258,16 @@
         	enumList: [{val: 'none', dispName: 'None'}, {val: 'north', dispName: 'North'}, {val: 'east', dispName: 'East'}, {val: 'south', dispName: 'South'}, {val: 'west', dispName: 'West'}]
         },
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
-        {name: 'connectable', dispName: 'Connectable', type: 'bool', defVal: true},
+        {name: 'connectable', dispName: 'Connectable', type: 'bool', getDefaultValue: function(state, format)
+        {
+        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var graph = format.editorUi.editor.graph;
+        	
+        	return graph.isCellConnectable(cell);
+        }, isVisible: function(state, format)
+        {
+    		return state.vertices.length == 1 && state.edges.length == 0;
+        }},
         {name: 'allowArrows', dispName: 'Allow Arrows', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'perimeter', dispName: 'Perimeter', defVal: 'none', type: 'enum',
@@ -1368,6 +1414,37 @@
 				}
 			}, 0);
 		};
+		
+		var font = (urlParams['math-font'] != null) ?
+			decodeURIComponent(urlParams['math-font']) :
+			'TeX';
+		
+		config = (config != null) ? config :
+		{
+			jax: ['input/TeX', 'input/MathML', 'input/AsciiMath'].concat(
+				[(urlParams['math-output'] == 'html') ?
+					'output/HTML-CSS' : 'output/SVG']),
+			extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
+			TeX: {
+				extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
+			},
+			'HTML-CSS': {
+				availableFonts: [font],
+				imageFont: null
+			},
+			SVG: {
+				font: font,
+				// Needed for client-side export to work
+				useFontCache: false
+			},
+			// Ignores math in in-place editor
+			tex2jax: {
+				ignoreClass: 'mxCellEditor'
+		  	},
+		  	asciimath2jax: {
+				ignoreClass: 'mxCellEditor'
+		  	}
+		};
 
 		// Disables global typesetting and messages on startup, adds queue for
 		// asynchronous rendering while MathJax is loading
@@ -1378,36 +1455,7 @@
 			messageStyle: 'none',
 			AuthorInit: function ()
 			{
-				// Specification recommends using SVG over HTML-CSS if browser is known
-				// Check if too inconsistent with image export and print output
-				MathJax.Hub.Config(config || {
-					jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/SVG'],
-					extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
-					TeX: {
-						extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
-					},
-					// Needed for client-side export to work
-					SVG: {
-						font: (urlParams['math-font'] != null) ?
-							decodeURIComponent(urlParams['math-font']) :
-							'TeX',
-						useFontCache: false
-					},
-					// Ignores math in in-place editor
-					tex2jax: {
-						ignoreClass: 'mxCellEditor'
-				  	},
-				  	asciimath2jax: {
-						ignoreClass: 'mxCellEditor'
-				  	}
-				});
-				MathJax.Hub.Register.StartupHook('Begin', function()
-				{
-					for (var i = 0; i < Editor.mathJaxQueue.length; i++)
-					{
-						Editor.doMathJaxRender(Editor.mathJaxQueue[i]);
-					}
-				});
+				MathJax.Hub.Config(config);
 		    }
 		};
 
@@ -6040,39 +6088,20 @@
 				if (pv.mathEnabled)
 				{
 					var doc = pv.wnd.document;
-			
-					doc.writeln('<script type="text/x-mathjax-config">');
-					doc.writeln('MathJax.Hub.Config({');
-					doc.writeln('showMathMenu: false,');
-					doc.writeln('messageStyle: "none",');
-					doc.writeln('jax: ["input/TeX", "input/MathML", "input/AsciiMath", "output/SVG"],');
-					doc.writeln('extensions: ["tex2jax.js", "mml2jax.js", "asciimath2jax.js"],');
-					doc.writeln('TeX: {');
-					doc.writeln('extensions: ["AMSmath.js", "AMSsymbols.js", "noErrors.js", "noUndefined.js"]');
-					doc.writeln('},');
-					doc.writeln('SVG: {');
-					doc.writeln('font: "' + ((urlParams['math-font'] != null) ?
-						decodeURIComponent(urlParams['math-font']) :
-						'TeX') + '"');
-					doc.writeln('},');
-					doc.writeln('tex2jax: {');
-					doc.writeln('ignoreClass: "geDisableMathJax"');
-				  	doc.writeln('},');
-				  	doc.writeln('asciimath2jax: {');
-					doc.writeln('ignoreClass: "geDisableMathJax"');
-				  	doc.writeln('}');
-					doc.writeln('});');
 					
-					// Adds asynchronous printing when MathJax finished rendering
+					// Adds asynchronous printing when MathJax finishes rendering
 					if (print)
 					{
-						doc.writeln('MathJax.Hub.Queue(function () {');
-						doc.writeln('window.print();');
-						doc.writeln('});');
+						// Injects variable to execute print via Queue without unsafe-inline
+						pv.wnd.IMMEDIATE_PRINT = true;
+//						doc.writeln('<script type="text/x-mathjax-config">');
+//						doc.writeln('MathJax.Hub.Queue(function () {');
+//						doc.writeln('window.print();');
+//						doc.writeln('});');
+//						doc.writeln('</script>');
 					}
-					
-					doc.writeln('</script>');
-					doc.writeln('<script type="text/javascript" src="' + DRAW_MATH_URL + '/MathJax.js"></script>');
+
+					doc.writeln('<script type="text/javascript" src="' + DRAWIO_BASE_URL + '/js/math-print.js"></script>');
 				}
 				
 				pv.closeDocument();

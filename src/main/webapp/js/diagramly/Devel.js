@@ -11,19 +11,22 @@ if (!mxIsElectron)
 	(function()
 	{
 		var csp = 'default-src \'self\'; ' +
+			// storage.googleapis.com is needed for workbox-service-worker
 			'script-src %dev-script-src% \'self\' https://storage.googleapis.com ' +
 				'https://apis.google.com https://*.pusher.com https://code.jquery.com '+
 				'https://www.dropbox.com https://api.trello.com ' +
 				// Scripts in index.html (not checked here)
 				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
-				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\';' +
+				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\'; ' +
 			'connect-src \'self\' https://*.draw.io https://*.googleapis.com wss://*.pusher.com ' +
 				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
 				'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
 				'https://*.dropboxapi.com https://api.trello.com https://*.google.com ' +
-				'https://fonts.gstatic.com https://fonts.googleapis.com;' +
-			'img-src * data:; media-src * data:; font-src *; ' +
-			'frame-src \'self\' https://*.google.com; ' +
+				'https://fonts.gstatic.com https://fonts.googleapis.com; ' +
+			// font-src about: is required for MathJax HTML-CSS output with STIX
+			'img-src * data:; media-src * data:; font-src * about:; ' +
+			// www.draw.io required for browser data migration to app.diagrams.net
+			'frame-src \'self\' https://www.draw.io https://*.google.com; ' +
 			'style-src %dev-style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com;';
 		var devCsp = csp.
 			// Loads common.css from mxgraph

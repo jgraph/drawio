@@ -1063,28 +1063,48 @@ Sidebar.prototype.addMiscPalette = function(expand)
  			'<ul><li>Value 1</li><li>Value 2</li><li>Value 3</li></ul>', 'Unordered List'),
 	 	this.createVertexTemplateEntry('text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;', 100, 80,
  			'<ol><li>Value 1</li><li>Value 2</li><li>Value 3</li></ol>', 'Ordered List'),
-	 	this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=#ffffff;overflow=fill;rounded=0;', 280, 160,
+ 		this.addEntry('table', function()
+		{
+			return sb.createVertexTemplateFromData('7ZjJbsIwEIafxtcqC1uvCZRLe2n7Ai6ZEqvGjpyBwNt3nBgQCJS0grAIKUj2LGTmG+uXHBbGs+XY8Cx90wlIFo5YGButsVrNljFIyQJPJCwcsiDw6MeClyNev/R6GTegsElCUCUsuJxDZakMOa6kM6Q4o7KGPgujIhUIHxmfWFdBRZNtohVyocC4mImWkme5+CrzPWtJhUxe+UrPbUnIybPeRe71YBCWR1soTa7+MegZoFlRSCESTF3EoGrTS0FM03Wa693jeWWYbnK3RGjhoBwGFJ4A0D6QxOjsk5spoDNkWigEM1pQy7mzfQspYy215aq0otwoR6N/YM9Y5pYNdiN6qOXYe+qyLlUW097f7umx4QZjreivaGj2/cBzLCBvPIzgf8PonGAWnfpZ5CnP7JIqRsHlO0yQq6n1RvXnWNno7ZgOTKARobCWUO9MgLo3DWi5C6cFXr174LWRuRaA9R9q2EgNV7vI2xDHwW2c5f7FxPH5pgG1L46+dw/A2lRH33/I41/kcdCiPPoNbjrXcJr9+svO2Y5vg7vONSO6gETeyI2khtgZNZK2248ZpW/nW8cv', 180, 120, 'Table 1');
+		}),
+		this.addEntry('table', function()
+		{
+			return sb.createVertexTemplateFromData('7ZhRb+IwDMc/TV5PSUuBvbbbeNledqe9Z9RHowtJlZoB3/6cNgyxXkV3Gp2KJhUpsWNq/2z9pZTF2Xq3cLIsHm0OmsV3LM6ctdis1rsMtGYRVzmLb1kUcfqx6L7DK2ovL6UDg30CoibgVeoNNJbGUOFeB0OBa0rrVrA43RYK4Wcpl961paTJtrQGpTLgwpml1VqWlXqp47m3FErnD3JvNz4llOQ57NLwenAIu84SalPIfwF2Dej2dGSrcizCiXlTJi9ArYpDWKidy6oxrN5ij0RoEaD8G1D8CYDeA8mdLX9JtwIMhtIqg+DuXqnkKth+K60zq63naqyh2LRCZ//AO2MdWxeYpPRQyRn/kbCEMstoL457evxxh5k19FfUNP9+kBVuoerdjOj/mjH5hF5MWr14rpcRF62mVIUs/ZJSRyX1EyxRmpX3pucH2vjTx371bUUvfvFZftML4Us68bVnemz4dqfoBqA57aQZXwvNNwEdAOfsW2d76ez+FPkQsjvvnPTJeCZ99mWye9OJLxk9vuFlV/BOnNNrwTmk7grxLbwfEd75gMIr2rezw6zPxjPr4vz17WLD3b69HQDOxw/wC8S3+wZ2czU8L6i+tD1+2ql9J19+/gI=', 180, 120, 'Table 2');
+		}),
+		this.addEntry('table', function()
+		{
+			return sb.createVertexTemplateFromData('7ZhNb+IwEIZ/ja+VnRCgV9KPy+5lt9q7l8wSq8aOnGmBf7/jxCmC1AJVJVVQpUSy50OZeTx6JYel+Xr76GRV/rQFaJbeszR31mK7Wm9z0JolXBUsvWNJwullyUPEKxovr6QDg+ckJG3Cq9Qv0FpaQ407HQwlrqmsO8HSxaZUCL8rufSuDRVNtqU1KJUBF2KWVmtZ1epvk8+9pVS6+CF39sWXhJI83W4RPg8OYRttoTGF+h/BrgHdjkI2qsAyRMzbNnkJalV2aaF3LuvWsHrL3ROhRYDyPqD0EwAdAymcrZ6kWwEGQ2WVQXD3r9RyHWz/lNa51dZzNdZAF9b0ki3ooe5yfpOxjIrIaS/2e3p8uMPcmhodnY//FMgaN1CfzT35GPfJJ2Cf9LD/aZYJFz3+dSkrv6TSUUn9C5Yozcp7F6dn1/jo/dG8Q5342Wc4Mp7FLz3Jb3ohfFkUX398x4Zve4huAJrTKM30Wmi+aeUAOGffknp8CrtDukMo7Dw61JPxDPXsyxT2NoovGz2+4RVW8CjO6bXgHFJihfjW2IjGzgfUWNG/XnVjPRvPWIvT96+LzXH/+tUBnI8f4BfobPxedXs1PC8otLTd/5tpfAe/bv4D', 180, 120, 'Table 3');
+		}),
+		this.addEntry('table title', function()
+		{
+			return sb.createVertexTemplateFromData('7ZjfToMwFMafhltDYTi9HZve6I36AhWOo7G0pD3K5tN7Cp3L/gWWOHTGBJL2O23p+Z3mS0oQp+Xi1vCquNc5yCCeBXFqtMa2VS5SkDKIQpEH8TSIopDeILo5EGVNNKy4AYV9JkTthHcu36BVnvizhFa1uJRetbUoJVfUm1jkBh/Fh4vEIQkFlrTvKaNmXQiEx4pnLlhTVqRlWiEXCowfk2kpeWXFc7O2WyArhMzv+FK/uT2j28CqN/H7A4OwOJhjI/kEb0GXgGZJQ2qRY+FHXLUcwgLEvFhNS7zIbSvMv+aukVHDU9tPMN4huAOvE9A2kNzo6ombOaAXKi0Ugpm9U8rWay9CylRL7bgq7Utj9Ctsic3cJsFkQg+lnIYXSZDQzlLqs3WfHjfcYKoVLUVFc98HbrEG27sY0f5iLD0uj7yrNqNvKM2ouzS24JVrUgIouHyADLmau2iPY63c6HXV9hSkF7C48/RenghQctaAFptwBuB1+Rd4sWg4YON/czzGHMcDmuPVeZzl8Y+Z4/VZAxreHFn4F4AN6Y6M/dvjMfbI2ID+yHavRr/yOLPuy8/Jzm+Pu89vRvQDHnkmV5IOYic0Sequ/340sY2fI58=', 180, 150, 'Table with Title');
+		}),
+		this.addEntry('cross functional flowchart swimlane', function()
+		{
+			return sb.createVertexTemplateFromData('5ZhRb4IwEMc/Da8LBVH3Kjpftpf5CTq4SJNCSXsK+Ol3UtRtwc0YZBgTSHr/3pH2d+k/KY4fpuVS8zx5UzFIx184fqiVQjtKyxCkdDxXxI4/dzzPpdfxXs7MsnrWzbmGDC8p8GzBlssNWMUKBivZCKYQqeQZRbMEU1rhnNGwSATCKufRPqug9ZMWKSl5bsRHXeqSoiHaaCO28A5G7A4qlDnP4ibIlcgQ9GJLKzaNFiVCxq+8Upv9JpDTBw/RzCDXuLIfG+2Tmx2ARijPUqilBsESVAqoK0opRIyJzRi5lpSbgFgn+EPkxgrrY+0JKg0aru2M/UEyTpQWO5Uhl1+T6m0GM3po46H7FDgBrS+kmJ1ievbpGkOVGdRc1JSBGyzAXN8jr71H1aEVtuKvljGvg5aNBtmySGUZRPVxaJTrQPvtoMuzoI9MOwcdPDBoNu6T9PiBSXvTPklPBkn63vy+7XTczvCng+zZ76fjYtCT4fj98+Ny7tfumfu4pPu1e8YGSfre/L6tabfzezbQi283x4Odue7+h+OzYV5/+yHds+ff47W1K9Q3NX0KT//k6rlvv+w+AQ==', 400, 400, 'Cross-functional flowchart');
+		}),
+ 		this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=#ffffff;overflow=fill;rounded=0;', 280, 160,
  			'<table border="1" width="100%" height="100%" cellpadding="4" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr style="background-color:#A7C942;color:#ffffff;border:1px solid #98bf21;"><th align="left">Title 1</th><th align="left">Title 2</th><th align="left">Title 3</th></tr>' +
  			'<tr style="border:1px solid #98bf21;"><td>Value 1</td><td>Value 2</td><td>Value 3</td></tr>' +
  			'<tr style="background-color:#EAF2D3;border:1px solid #98bf21;"><td>Value 4</td><td>Value 5</td><td>Value 6</td></tr>' +
  			'<tr style="border:1px solid #98bf21;"><td>Value 7</td><td>Value 8</td><td>Value 9</td></tr>' +
- 			'<tr style="background-color:#EAF2D3;border:1px solid #98bf21;"><td>Value 10</td><td>Value 11</td><td>Value 12</td></tr></table>', 'Table 1'),
+ 			'<tr style="background-color:#EAF2D3;border:1px solid #98bf21;"><td>Value 10</td><td>Value 11</td><td>Value 12</td></tr></table>', 'HTML Table 1'),
 		this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=none;overflow=fill;', 180, 140,
  			'<table border="0" width="100%" height="100%" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr><td align="center">Value 1</td><td align="center">Value 2</td><td align="center">Value 3</td></tr>' +
  			'<tr><td align="center">Value 4</td><td align="center">Value 5</td><td align="center">Value 6</td></tr>' +
- 			'<tr><td align="center">Value 7</td><td align="center">Value 8</td><td align="center">Value 9</td></tr></table>', 'Table 2'),
+ 			'<tr><td align="center">Value 7</td><td align="center">Value 8</td><td align="center">Value 9</td></tr></table>', 'HTML Table 2'),
 	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;overflow=fill;', 180, 140,
  			'<table border="1" width="100%" height="100%" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr><td align="center">Value 1</td><td align="center">Value 2</td><td align="center">Value 3</td></tr>' +
  			'<tr><td align="center">Value 4</td><td align="center">Value 5</td><td align="center">Value 6</td></tr>' +
- 			'<tr><td align="center">Value 7</td><td align="center">Value 8</td><td align="center">Value 9</td></tr></table>', 'Table 3'),
+ 			'<tr><td align="center">Value 7</td><td align="center">Value 8</td><td align="center">Value 9</td></tr></table>', 'HTML Table 3'),
 	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;overflow=fill;', 160, 140,
  			'<table border="1" width="100%" height="100%" cellpadding="4" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr><th align="center"><b>Title</b></th></tr>' +
  			'<tr><td align="center">Section 1.1\nSection 1.2\nSection 1.3</td></tr>' +
- 			'<tr><td align="center">Section 2.1\nSection 2.2\nSection 2.3</td></tr></table>', 'Table 4'),
+ 			'<tr><td align="center">Section 2.1\nSection 2.2\nSection 2.3</td></tr></table>', 'HTML Table 4'),
 	 	this.addEntry('link hyperlink', mxUtils.bind(this, function()
 	 	{
 	 		var cell = new mxCell('Link', new mxGeometry(0, 0, 60, 40), 'text;html=1;strokeColor=none;fillColor=none;whiteSpace=wrap;align=center;verticalAlign=middle;fontColor=#0000EE;fontStyle=4;');
