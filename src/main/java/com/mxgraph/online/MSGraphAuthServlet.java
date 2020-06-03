@@ -51,6 +51,12 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 		return CONFIG;
 	}	
 
+	public MSGraphAuthServlet() 
+	{
+		super();
+		cookiePath = "/microsoft";
+	}
+	
 	protected String processAuthResponse(String authRes, boolean jsonResponse)
 	{
 		StringBuffer res = new StringBuffer();

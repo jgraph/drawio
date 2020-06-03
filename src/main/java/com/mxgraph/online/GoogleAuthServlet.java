@@ -51,6 +51,12 @@ public class GoogleAuthServlet extends AbsAuthServlet
 		return CONFIG;
 	}
 	
+	public GoogleAuthServlet()
+	{
+		super();
+		cookiePath = "/google";
+	}
+	
 	protected String processAuthResponse(String authRes, boolean jsonResponse)
 	{
 		StringBuffer res = new StringBuffer();

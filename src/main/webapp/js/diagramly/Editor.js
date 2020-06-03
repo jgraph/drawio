@@ -1456,6 +1456,14 @@
 			AuthorInit: function ()
 			{
 				MathJax.Hub.Config(config);
+				
+				MathJax.Hub.Register.StartupHook('Begin', function()	
+				{	
+					for (var i = 0; i < Editor.mathJaxQueue.length; i++)	
+					{	
+						Editor.doMathJaxRender(Editor.mathJaxQueue[i]);	
+					}	
+				});
 		    }
 		};
 
@@ -5850,6 +5858,16 @@
 					{
 						writeHead.apply(this, arguments);
 						
+						// Fixes font weight for PDF export in Chrome
+						if (mxClient.IS_GC)
+						{
+							doc.writeln('<style type="text/css">');
+							doc.writeln('@media print {');
+							doc.writeln('span.MathJax_SVG svg { shape-rendering: crispEdges; }');
+							doc.writeln('}');
+							doc.writeln('</style>');
+						}
+
 						if (editorUi.editor.fontCss != null)
 						{
 							doc.writeln('<style type="text/css">');
@@ -6090,15 +6108,11 @@
 					var doc = pv.wnd.document;
 					
 					// Adds asynchronous printing when MathJax finishes rendering
+					// via global variable that is checked in math-print.js to
+					// avoid generating unsafe-inline script or adding SHA to CSP
 					if (print)
 					{
-						// Injects variable to execute print via Queue without unsafe-inline
 						pv.wnd.IMMEDIATE_PRINT = true;
-//						doc.writeln('<script type="text/x-mathjax-config">');
-//						doc.writeln('MathJax.Hub.Queue(function () {');
-//						doc.writeln('window.print();');
-//						doc.writeln('});');
-//						doc.writeln('</script>');
 					}
 
 					doc.writeln('<script type="text/javascript" src="' + DRAWIO_BASE_URL + '/js/math-print.js"></script>');

@@ -1,3 +1,8 @@
+03-JUN-2020: 13.1.14
+
+- Fixes math font weight for PDF export
+- Stability improvements
+
 02-JUN-2020: 13.1.13
 
 - Fixes caching for HTML embed code

@@ -62,6 +62,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 	}
 	
 	protected int postType = X_WWW_FORM_URLENCODED; 
+	protected String cookiePath = "/";
 	
 	static public class Config 
 	{
@@ -131,7 +132,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 			tokens.put(casheKey, state);
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
-			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
+			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
 			response.setHeader("Content-Type", "text/plain");
 			OutputStream out = response.getOutputStream();
 			out.write(state.getBytes());
@@ -175,7 +176,11 @@ abstract public class AbsAuthServlet extends HttpServlet
 					if (STATE_COOKIE.equals(cookie.getName()))
 					{
 						//Get the cached state based on the cookie key 
-						cookieToken = (String) tokens.get(request.getRemoteAddr() + ":" + cookie.getValue());
+						String cacheKey = request.getRemoteAddr() + ":" + cookie.getValue();
+						cookieToken = (String) tokens.get(cacheKey);
+						//Delete cookie & cache after being used since it is a single use
+						tokens.remove(cacheKey);
+						response.setHeader("Set-Cookie", STATE_COOKIE + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
 						break;
 					}
 				}
@@ -210,7 +215,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			//TODO after code is propagated, remove the version check
-			else if ("3".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
+			else if ("2".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
