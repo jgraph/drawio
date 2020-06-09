@@ -4190,7 +4190,7 @@
 			// and for "WebKitBlobResource error 1" for all browsers on iOS.
 			var useDownload = (navigator.userAgent == null ||
 				navigator.userAgent.indexOf("PaleMoon/") < 0) &&
-				!mxClient.IS_IOS && typeof a.download !== 'undefined';
+				typeof a.download !== 'undefined';
 			
 			// Workaround for Chromium 65 cross-domain anchor download issue
 			if (mxClient.IS_GC && navigator.userAgent != null)
@@ -4223,7 +4223,7 @@
 					window.setTimeout(function()
 					{
 						URL.revokeObjectURL(a.href);
-					}, 0);
+					}, 20000);
 
 					a.click();
 					a.parentNode.removeChild(a);
@@ -6555,7 +6555,7 @@
 		
 		if (graph.isHtmlLabel(cell))
 		{
-			temp.innerHTML = graph.getLabel(cell);
+			temp.innerHTML = graph.sanitizeHtml(graph.getLabel(cell));
 			var links = temp.getElementsByTagName('a');
 			var changed = false;
 			
@@ -9751,7 +9751,24 @@
 						}
 					}
 					
-					Graph.removePasteFormatting(elt);
+					// Extracts single image source address
+					var img = (hasMeta && elt.firstChild != null) ? elt.firstChild.nextSibling : elt.firstChild;
+					
+					if (img != null && img.nextSibling == null)
+					{
+						var temp = img.getAttribute('src');
+						
+						if (temp != null)
+						{
+							mxUtils.setTextContent(elt, temp);
+							asHtml = false;
+						}
+					}
+					
+					if (asHtml)
+					{
+						Graph.removePasteFormatting(elt);
+					}
 				}
 				else
 				{
@@ -9866,12 +9883,20 @@
 						}
 						else if (pasteAsLabel && graph.getSelectionCount() == 1)
 						{
-							graph.labelChanged(graph.getSelectionCell(), xml);
-
-							if (Graph.isLink(xml))
+							if ((/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(xml) &&
+								graph.getCurrentCellStyle(graph.getSelectionCell())[mxConstants.STYLE_SHAPE] == 'image')
 							{
-								graph.setLinkForCell(graph.getSelectionCell(), xml);
+								graph.setCellStyles(mxConstants.STYLE_IMAGE, xml);
 							}
+							else
+							{
+								graph.labelChanged(graph.getSelectionCell(), xml);
+	
+								if (Graph.isLink(xml))
+								{
+									graph.setLinkForCell(graph.getSelectionCell(), xml);
+								}
+							} 
 						}
 						else
 						{

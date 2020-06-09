@@ -31,6 +31,14 @@
                     "i18n": "gliffyImport"
                 }
             },
+			{
+                "key": "lucidImport",
+                "url": "/connect/confluence/lucidMassImport.html",
+                "name": {
+                    "value": "draw.io Lucidchart Import",
+                    "i18n": "lucidImport"
+                }
+            },
             {
                 "key": "drawioConfig",
                 "url": "/connect/confluence/config.html",

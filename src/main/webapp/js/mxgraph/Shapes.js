@@ -7,6 +7,187 @@
  */
 (function()
 {
+	function paintTableBackground(state, c, x, y, w, h, r)
+	{
+		if (state != null)
+		{
+			var graph = state.view.graph;
+			var rows = graph.model.getChildCells(state.cell, true);
+			
+			if (rows.length > 0)
+			{
+				var evenRowColor = mxUtils.getValue(state.style,
+					'evenRowColor', mxConstants.NONE);
+				var oddRowColor = mxUtils.getValue(state.style,
+					'oddRowColor', mxConstants.NONE);
+				var evenColColor = mxUtils.getValue(state.style,
+					'evenColumnColor', mxConstants.NONE);
+				var oddColColor = mxUtils.getValue(state.style,
+					'oddColumnColor', mxConstants.NONE);
+				var cols = graph.model.getChildCells(rows[0], true);
+				
+				// Paints column backgrounds
+				for (var i = 0; i < cols.length; i++)
+				{
+					var clr = (mxUtils.mod(i, 2) == 1) ? evenColColor : oddColColor;
+					var geo = graph.getCellGeometry(cols[i]);
+					
+					if (geo != null && clr != mxConstants.NONE)
+					{
+						c.setFillColor(clr);
+						c.begin();
+						c.moveTo(x + geo.x, y);
+						
+						if (r > 0 && i == cols.length - 1)
+						{
+							c.lineTo(x + geo.x + geo.width - r, y);
+							c.quadTo(x + geo.x + geo.width, y, x + geo.x + geo.width, y + r);
+							c.lineTo(x + geo.x + geo.width, y + h - r);
+							c.quadTo(x + geo.x + geo.width, y + h, x + geo.x + geo.width - r, y + h);
+						}
+						else
+						{
+							c.lineTo(x + geo.x + geo.width, y);
+							c.lineTo(x + geo.x + geo.width, y + h);
+						}
+						
+						c.lineTo(x + geo.x, y + h);
+						c.close();
+						c.fill();
+					}
+				}
+				
+				// Paints row backgrounds
+				for (var i = 0; i < rows.length; i++)
+				{
+					var clr = (mxUtils.mod(i, 2) == 1) ? evenRowColor : oddRowColor;
+					var geo = graph.getCellGeometry(rows[i]);
+	
+					if (geo != null && clr != mxConstants.NONE)
+					{
+						var b = (i == rows.length - 1) ? y + h : y + geo.y + geo.height;
+						c.setFillColor(clr);
+						
+						c.begin();
+						c.moveTo(x, y + geo.y);
+						c.lineTo(x + w, y + geo.y);
+						
+						if (r > 0 && i == rows.length - 1)
+						{
+							c.lineTo(x + w, b - r);
+							c.quadTo(x + w, b, x + w - r, b);
+							c.lineTo(x + r, b);
+							c.quadTo(x, b, x, b - r);
+						}
+						else
+						{
+							c.lineTo(x + w, b);
+							c.lineTo(x, b);
+						}
+						
+						c.close();
+						c.fill();
+					}
+				}
+			}
+		}
+	};
+	
+	function paintTableForeground(state, c, x, y, w, h)
+	{
+		if (state != null)
+		{
+			var graph = state.view.graph;
+			var rows = graph.model.getChildCells(state.cell, true);
+			
+			if (rows.length > 0)
+			{
+				var rowLines = mxUtils.getValue(state.style,
+					'rowLines', '1') != '0';
+				var columnLines = mxUtils.getValue(state.style,
+					'columnLines', '1') != '0';
+				
+				// Paints row lines
+				if (rowLines)
+				{
+					for (var i = 1; i < rows.length; i++)
+					{
+						var geo = graph.getCellGeometry(rows[i]);
+						
+						if (geo != null)
+						{
+							c.begin();
+							c.moveTo(x, y + geo.y);
+							c.lineTo(x + w, y + geo.y);
+							c.end();
+							c.stroke();
+						}
+					}
+				}
+				
+				if (columnLines)
+				{
+					var cols = graph.model.getChildCells(rows[0], true);
+					
+					// Paints column lines
+					for (var i = 1; i < cols.length; i++)
+					{
+						var geo = graph.getCellGeometry(cols[i]);
+						
+						if (geo != null)
+						{
+							c.begin();
+							c.moveTo(x + geo.x, y);
+							c.lineTo(x + geo.x, y + h);
+							c.end();
+							c.stroke();
+						}
+					}
+				}
+			}
+		}
+	};
+	
+	// Extends swimlane to paint table column and row lines
+//	var mxSwimlanePaintSwimlane = mxSwimlane.prototype.paintSwimlane;
+//	mxSwimlane.prototype.paintSwimlane = function(c, x, y, w, h, start, fill, swimlaneLine)
+//	{
+//		mxSwimlanePaintSwimlane.apply(this, arguments);
+//		
+//		if (this.state != null && this.state.view.graph.isTable(this.state.cell))
+//		{
+//			c.translate(-x, -y);
+//			paintTableForeground(this.state, c, x, y, w, h);
+//		}
+//	};
+	
+	// Table Shape
+	function TableShape()
+	{
+		mxRectangleShape.call(this);
+	};
+	mxUtils.extend(TableShape, mxRectangleShape);
+	TableShape.prototype.paintBackground = function(c, x, y, w, h)
+	{
+		c.setStrokeColor(null);
+		mxRectangleShape.prototype.paintBackground.apply(this, arguments);
+		var r = (this.isRounded) ? this.getArcSize(w, h) : 0;
+		paintTableBackground(this.state, c, x, y, w, h, r);
+	};
+	TableShape.prototype.paintForeground = function(c, x, y, w, h)
+	{
+		// Paints background stroke in foreground
+		c.setStrokeColor(this.stroke);
+		c.setFillColor(null);
+		mxRectangleShape.prototype.paintBackground.apply(this, arguments);
+		
+		paintTableForeground(this.state, c, x, y, w, h);
+		
+		mxRectangleShape.prototype.paintForeground.apply(this, arguments);
+	};
+
+	mxCellRenderer.registerShape('table', TableShape);
+	
 	// Cube Shape, supports size style
 	function CubeShape()
 	{

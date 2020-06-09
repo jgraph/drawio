@@ -1023,3 +1023,6 @@ installFirst=Please install {1} first.
 drawioChromeExt=draw.io Chrome Extension
 loginFirstThen=Please login to {1} first, then {2}
 errFetchDocList=Error: Couldn't fetch documents list.
+builtinPlugins=Built-in Plugins
+extPlugins=External Plugins
+backupFound=Backup file found

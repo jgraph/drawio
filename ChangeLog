@@ -1,3 +1,8 @@
+09-JUN-2020: 13.2.0
+
+- Fixes WebKitBlobResource on iOS
+- Parsing improvements
+
 03-JUN-2020: 13.1.14
 
 - Fixes math font weight for PDF export

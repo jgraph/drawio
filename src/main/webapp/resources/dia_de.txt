@@ -1023,3 +1023,6 @@ installFirst=Bitte installieren Sie zuerst {1}
 drawioChromeExt=draw.io Chrome Extension
 loginFirstThen=Bitte melden Sie sich bei {1} an, dann {2}
 errFetchDocList=Fehler: Konnte Dokumentenliste nicht laden.
+builtinPlugins=Built-in Plugins
+extPlugins=External Plugins
+backupFound=Backup file found

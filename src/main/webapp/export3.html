@@ -203,8 +203,8 @@
 							try 
 							{
 								const { ipcRenderer } = require('electron');
-								
-								ipcRenderer.send('render-finished', bounds);
+								//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
+								ipcRenderer.send('render-finished', {bounds: JSON.stringify(bounds)});
 							}
 							catch(e)
 							{

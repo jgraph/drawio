@@ -1023,3 +1023,6 @@ installFirst=installFirst
 drawioChromeExt=drawioChromeExt
 loginFirstThen=loginFirstThen
 errFetchDocList=errFetchDocList
+builtinPlugins=builtinPlugins
+extPlugins=extPlugins
+backupFound=backupFound

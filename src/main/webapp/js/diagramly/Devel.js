@@ -6,7 +6,7 @@
  * is used for development mode where the JS is in separate
  * files and the mxClient.js loads other files.
  */
-if (!mxIsElectron)
+if (!mxIsElectron && location.protocol !== 'http:')
 {
 	(function()
 	{
@@ -18,7 +18,7 @@ if (!mxIsElectron)
 				// Scripts in index.html (not checked here)
 				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
 				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\'; ' +
-			'connect-src \'self\' https://*.draw.io https://*.googleapis.com wss://*.pusher.com ' +
+			'connect-src \'self\' https://*.draw.io https://*.diagrams.net https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
 				'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
 				'https://*.dropboxapi.com https://api.trello.com https://*.google.com ' +

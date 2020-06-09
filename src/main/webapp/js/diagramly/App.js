@@ -309,6 +309,27 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'page': '/plugins/page.js', 'gd': '/plugins/googledrive.js',
 	'tags': '/plugins/tags.js'};
 
+App.publicPlugin = [
+	'ex',
+	'voice',
+	'tips',
+	'svgdata',
+	'number',
+	'sql',
+	'props',
+	'text',
+	'anim',
+	'update',
+	'trees',
+//	'import',
+	'replay',
+	'anon',
+	'tickets',
+	'flow',
+	'webcola',
+//	'rnd', 'page', 'gd',
+	'tags'
+];
 /**
  * Function: authorize
  * 

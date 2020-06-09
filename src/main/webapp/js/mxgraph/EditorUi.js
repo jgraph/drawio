@@ -1171,15 +1171,19 @@ EditorUi.prototype.onKeyPress = function(evt)
 		if (mxClient.IS_FF)
 		{
 			var ce = graph.cellEditor;
-			ce.textarea.innerHTML = String.fromCharCode(evt.which);
-
-			// Moves cursor to end of textarea
-			var range = document.createRange();
-			range.selectNodeContents(ce.textarea);
-			range.collapse(false);
-			var sel = window.getSelection();
-			sel.removeAllRanges();
-			sel.addRange(range);
+			
+			if (ce.textarea != null)
+			{
+				ce.textarea.innerHTML = String.fromCharCode(evt.which);
+	
+				// Moves cursor to end of textarea
+				var range = document.createRange();
+				range.selectNodeContents(ce.textarea);
+				range.collapse(false);
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
 		}
 	}
 };
@@ -1371,6 +1375,23 @@ EditorUi.prototype.initClipboard = function()
 			for (var i = 0; i < clones.length; i++)
 			{
 				model.add(parent, clones[i]);
+				
+				// Checks for orphaned relative children and makes absolute				
+				var state = graph.view.getState(result[i]);
+				
+				if (state != null)
+				{
+					var geo = graph.getCellGeometry(clones[i]);
+				
+					if (geo != null && geo.relative && !model.isEdge(result[i]) &&
+						lookup[mxObjectIdentity.get(model.getParent(result[i]))] == null)
+					{
+						geo.offset = null;
+						geo.relative = false;
+						geo.x = state.x / state.view.scale - state.view.translate.x;
+						geo.y = state.y / state.view.scale - state.view.translate.y;
+					}
+				}
 			}
 			
 			graph.updateCustomLinks(graph.createCellMapping(cloneMap, lookup), clones);
