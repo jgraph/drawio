@@ -2914,7 +2914,7 @@ Graph.prototype.getIndexableText = function()
 		{
 			if (this.isHtmlLabel(cell))
 			{
-				tmp.innerHTML = this.getLabel(cell);
+				tmp.innerHTML = this.sanitizeHtml(this.getLabel(cell));
 				label = mxUtils.extractTextWithWhitespace([tmp]);
 			}
 			else

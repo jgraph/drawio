@@ -9754,7 +9754,9 @@
 					// Extracts single image source address
 					var img = (hasMeta && elt.firstChild != null) ? elt.firstChild.nextSibling : elt.firstChild;
 					
-					if (img != null && img.nextSibling == null)
+					if (img != null && img.nextSibling == null &&
+						img.nodeType == mxConstants.NODETYPE_ELEMENT &&
+						img.nodeName == 'IMG')
 					{
 						var temp = img.getAttribute('src');
 						
