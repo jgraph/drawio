@@ -7,15 +7,29 @@
  */
 (function()
 {
+	// LATER: Use this to implement striping
 	function paintTableBackground(state, c, x, y, w, h, r)
 	{
 		if (state != null)
 		{
 			var graph = state.view.graph;
+			var start = graph.getActualStartSize(state.cell);
 			var rows = graph.model.getChildCells(state.cell, true);
 			
 			if (rows.length > 0)
 			{
+				var events = false;
+				
+				if (this.style != null)
+				{
+					events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
+				}
+				
+				if (!events)
+				{
+					c.pointerEvents = false;
+				}
+				
 				var evenRowColor = mxUtils.getValue(state.style,
 					'evenRowColor', mxConstants.NONE);
 				var oddRowColor = mxUtils.getValue(state.style,
@@ -36,7 +50,7 @@
 					{
 						c.setFillColor(clr);
 						c.begin();
-						c.moveTo(x + geo.x, y);
+						c.moveTo(x + geo.x, y + start.y);
 						
 						if (r > 0 && i == cols.length - 1)
 						{
@@ -47,8 +61,8 @@
 						}
 						else
 						{
-							c.lineTo(x + geo.x + geo.width, y);
-							c.lineTo(x + geo.x + geo.width, y + h);
+							c.lineTo(x + geo.x + geo.width, y + start.y);
+							c.lineTo(x + geo.x + geo.width, y + h - start.height);
 						}
 						
 						c.lineTo(x + geo.x, y + h);
@@ -69,8 +83,8 @@
 						c.setFillColor(clr);
 						
 						c.begin();
-						c.moveTo(x, y + geo.y);
-						c.lineTo(x + w, y + geo.y);
+						c.moveTo(x + start.x, y + geo.y);
+						c.lineTo(x + w - start.width, y + geo.y);
 						
 						if (r > 0 && i == rows.length - 1)
 						{
@@ -81,8 +95,8 @@
 						}
 						else
 						{
-							c.lineTo(x + w, b);
-							c.lineTo(x, b);
+							c.lineTo(x + w - start.width, b);
+							c.lineTo(x + start.x, b);
 						}
 						
 						c.close();
@@ -92,100 +106,128 @@
 			}
 		}
 	};
-	
-	function paintTableForeground(state, c, x, y, w, h)
+
+	// Table Shape
+	function TableShape()
 	{
-		if (state != null)
+		mxSwimlane.call(this);
+	};
+	
+	mxUtils.extend(TableShape, mxSwimlane);
+
+	TableShape.prototype.getLabelBounds = function(rect)
+	{
+		var start = this.getTitleSize();
+		
+		if (start == 0)
 		{
-			var graph = state.view.graph;
-			var rows = graph.model.getChildCells(state.cell, true);
+			return mxShape.prototype.getLabelBounds.apply(this, arguments);
+		}
+		else
+		{
+			return mxSwimlane.prototype.getLabelBounds.apply(this, arguments);
+		}
+	};
+	
+	TableShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		// LATER: Split background to add striping
+		//paintTableBackground(this.state, c, x, y, w, h);
+		
+		var start = this.getTitleSize();
+		
+		if (start == 0)
+		{
+			mxRectangleShape.prototype.paintBackground.apply(this, arguments);
+		}
+		else
+		{
+			mxSwimlane.prototype.paintVertexShape.apply(this, arguments);
+			c.translate(-x, -y);
+		}
+		
+		this.paintForeground(c, x, y, w, h);
+	};
+
+	TableShape.prototype.paintForeground = function(c, x, y, w, h)
+	{
+		if (this.state != null)
+		{
+			var flipH = this.flipH;
+			var flipV = this.flipV;
 			
-			if (rows.length > 0)
+			if (this.direction == mxConstants.DIRECTION_NORTH || this.direction == mxConstants.DIRECTION_SOUTH)
 			{
-				var rowLines = mxUtils.getValue(state.style,
-					'rowLines', '1') != '0';
-				var columnLines = mxUtils.getValue(state.style,
-					'columnLines', '1') != '0';
-				
-				// Paints row lines
-				if (rowLines)
+				var tmp = flipH;
+				flipH = flipV;
+				flipV = tmp;
+			}
+			
+			// Negative transform to avoid save/restore
+			c.rotate(-this.getShapeRotation(), flipH, flipV, x + w / 2, y + h / 2);
+			
+			s = this.scale;
+			x = this.bounds.x / s;
+			y = this.bounds.y / s;
+			w = this.bounds.width / s;
+			h = this.bounds.height / s;
+			this.paintTableForeground(c, x, y, w, h);
+		}
+	};
+	
+	TableShape.prototype.paintTableForeground = function(c, x, y, w, h)
+	{
+		var graph = this.state.view.graph;
+		var start = graph.getActualStartSize(this.state.cell);
+		var rows = graph.model.getChildCells(this.state.cell, true);
+		
+		if (rows.length > 0)
+		{
+			var rowLines = mxUtils.getValue(this.state.style,
+				'rowLines', '1') != '0';
+			var columnLines = mxUtils.getValue(this.state.style,
+				'columnLines', '1') != '0';
+			
+			// Paints row lines
+			if (rowLines)
+			{
+				for (var i = 1; i < rows.length; i++)
 				{
-					for (var i = 1; i < rows.length; i++)
+					var geo = graph.getCellGeometry(rows[i]);
+					
+					if (geo != null)
 					{
-						var geo = graph.getCellGeometry(rows[i]);
-						
-						if (geo != null)
-						{
-							c.begin();
-							c.moveTo(x, y + geo.y);
-							c.lineTo(x + w, y + geo.y);
-							c.end();
-							c.stroke();
-						}
+						c.begin();
+						c.moveTo(x + start.x, y + geo.y);
+						c.lineTo(x + w - start.width, y + geo.y);
+						c.end();
+						c.stroke();
 					}
 				}
+			}
+			
+			if (columnLines)
+			{
+				var cols = graph.model.getChildCells(rows[0], true);
 				
-				if (columnLines)
+				// Paints column lines
+				for (var i = 1; i < cols.length; i++)
 				{
-					var cols = graph.model.getChildCells(rows[0], true);
+					var geo = graph.getCellGeometry(cols[i]);
 					
-					// Paints column lines
-					for (var i = 1; i < cols.length; i++)
+					if (geo != null)
 					{
-						var geo = graph.getCellGeometry(cols[i]);
-						
-						if (geo != null)
-						{
-							c.begin();
-							c.moveTo(x + geo.x, y);
-							c.lineTo(x + geo.x, y + h);
-							c.end();
-							c.stroke();
-						}
+						c.begin();
+						c.moveTo(x + geo.x + start.x, y + start.y);
+						c.lineTo(x + geo.x + start.x, y + h - start.height);
+						c.end();
+						c.stroke();
 					}
 				}
 			}
 		}
 	};
 	
-	// Extends swimlane to paint table column and row lines
-//	var mxSwimlanePaintSwimlane = mxSwimlane.prototype.paintSwimlane;
-//	mxSwimlane.prototype.paintSwimlane = function(c, x, y, w, h, start, fill, swimlaneLine)
-//	{
-//		mxSwimlanePaintSwimlane.apply(this, arguments);
-//		
-//		if (this.state != null && this.state.view.graph.isTable(this.state.cell))
-//		{
-//			c.translate(-x, -y);
-//			paintTableForeground(this.state, c, x, y, w, h);
-//		}
-//	};
-	
-	// Table Shape
-	function TableShape()
-	{
-		mxRectangleShape.call(this);
-	};
-	mxUtils.extend(TableShape, mxRectangleShape);
-	TableShape.prototype.paintBackground = function(c, x, y, w, h)
-	{
-		c.setStrokeColor(null);
-		mxRectangleShape.prototype.paintBackground.apply(this, arguments);
-		var r = (this.isRounded) ? this.getArcSize(w, h) : 0;
-		paintTableBackground(this.state, c, x, y, w, h, r);
-	};
-	TableShape.prototype.paintForeground = function(c, x, y, w, h)
-	{
-		// Paints background stroke in foreground
-		c.setStrokeColor(this.stroke);
-		c.setFillColor(null);
-		mxRectangleShape.prototype.paintBackground.apply(this, arguments);
-		
-		paintTableForeground(this.state, c, x, y, w, h);
-		
-		mxRectangleShape.prototype.paintForeground.apply(this, arguments);
-	};
-
 	mxCellRenderer.registerShape('table', TableShape);
 	
 	// Cube Shape, supports size style
@@ -4009,6 +4051,10 @@
 					mxStencilRegistry.getStencil(name) == null)
 				{
 					name = mxConstants.SHAPE_RECTANGLE;
+				}
+				else if (this.state.view.graph.isSwimlane(this.state.cell))
+				{
+					name = mxConstants.SHAPE_SWIMLANE;
 				}
 				
 				var fn = handleFactory[name];

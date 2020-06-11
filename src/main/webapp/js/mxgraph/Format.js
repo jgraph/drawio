@@ -4508,7 +4508,7 @@ StyleFormatPanel.prototype.getCustomColors = function()
 	var ss = this.format.getSelectionState();
 	var result = [];
 	
-	if (ss.style.shape == 'swimlane')
+	if (ss.style.shape == 'swimlane' || ss.style.shape == 'table')
 	{
 		result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: '#ffffff'});
 	}

@@ -752,7 +752,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			if (this.html2txtDiv == null)
 				this.html2txtDiv = document.createElement('div');
 			
-			this.html2txtDiv.innerHTML = str;
+			this.html2txtDiv.innerHTML = Graph.sanitizeHtml(str);
 			str = mxUtils.extractTextWithWhitespace(this.html2txtDiv.childNodes);
     	}
 		

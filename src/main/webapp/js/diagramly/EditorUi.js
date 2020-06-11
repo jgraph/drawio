@@ -3968,7 +3968,7 @@
 			banner.style.paddingBottom = '30px';
 			banner.appendChild(div);
 			
-			var onclose = mxUtils.bind(this, function(showAgain)
+			var onclose = mxUtils.bind(this, function()
 			{
 				if (banner.parentNode != null)
 				{
@@ -3994,15 +3994,30 @@
 				onclose();
 			}));
 			
+			var hide = mxUtils.bind(this, function()
+			{
+				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					onclose();
+				}), 1000);
+			});
+			
 			mxEvent.addListener(banner, 'click', mxUtils.bind(this, function(e)
 			{
 				var source = mxEvent.getSource(e);
 				
 				if (source != chk && source != label)
 				{
-					mxEvent.consume(e);
 					onclick();
 					onclose();
+				
+					mxEvent.consume(e);
+				}
+				else
+				{
+					hide();
 				}
 			}));
 			
@@ -4011,16 +4026,7 @@
 				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,0%)');
 			}), 500);
 			
-			window.setTimeout(mxUtils.bind(this, function()
-			{
-				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
-				
-				window.setTimeout(mxUtils.bind(this, function()
-				{
-					onclose(true);
-				}), 1000);
-			}), 30000);
-			
+			window.setTimeout(hide, 30000);
 			result = true;
 		}
 		

@@ -1711,6 +1711,19 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 							message = mxResources.get('confSessionExpired') +
 								' <a href="' + baseUrl + '/pages/dashboard.action" target="_blank">' + mxResources.get('login') + '</a>';
 						}
+						else if (err.status == 400)
+						{
+							try
+							{
+								var errObj = JSON.parse(err.responseText);
+								
+								if (errObj.message.indexOf('Content body cannot be converted to new editor') > 0)
+								{
+									message = 'A Confluence Bug (CONFCLOUD-69902) prevented saving the page. Please edit the diagram from "Confluence Page Editor" where you can restore you changes from "File -> Revision history".';
+								}	
+							}
+							catch(e){} //Ignore
+						}
 						
 						showError(key, message);
 					};

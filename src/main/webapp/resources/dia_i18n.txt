@@ -1026,3 +1026,4 @@ errFetchDocList=errFetchDocList
 builtinPlugins=builtinPlugins
 extPlugins=extPlugins
 backupFound=backupFound
+chromeOnly=chromeOnly

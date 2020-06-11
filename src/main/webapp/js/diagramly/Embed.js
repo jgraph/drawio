@@ -606,27 +606,27 @@
 							    	}
 							    	else
 							    	{
-							    		graph.container.innerHTML = 'Cannot load ' + url;
+							    		graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
 							    	}
 							    	
 							    	mxClient.NO_FO = originalNoFo;
 						    	}
 								catch (e)
 								{
-									graph.container.innerHTML = 'Cannot load ' + url + ': ' + e.message;
+									graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url) + ': ' + mxUtils.htmlEntities(e.message);
 								}
 						    });
 						    
 						    xhr.onerror = function()
 						    {
-						    	graph.container.innerHTML = 'Cannot load ' + url;
+						    	graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
 						    };
 						
 						    xhr.send();
 						}
 						catch (e)
 						{
-							graph.container.innerHTML = 'Cannot load ' + url + ': ' + e.message;
+							graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url) + ': ' + mxUtils.htmlEntities(e.message);
 						}
 					}
 					else

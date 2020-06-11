@@ -1026,3 +1026,4 @@ errFetchDocList=Error: Couldn't fetch documents list.
 builtinPlugins=Built-in Plugins
 extPlugins=External Plugins
 backupFound=Backup file found
+chromeOnly=This feature only works on Google Chrome

@@ -34,6 +34,7 @@
 			{
 				var importExtensionId = 'cnoplimhpndhhhnmoigbanpjeghjpohi';
 				var extensionInstallUrl = 'https://chrome.google.com/webstore/detail/diagramsnet-and-drawio-im/cnoplimhpndhhhnmoigbanpjeghjpohi';
+				var logDiv = $('#operationLog');
 
 				AP.sizeToParent(true);
 				
@@ -45,7 +46,6 @@
 				function prepareImporter(response)
 				{
 					//JQuery is loaded in this page, so we can use it
-					var logDiv = $('#operationLog');
 					var importBtn = $('#importBtn');
 					
 					if (!response) //Extension is not installed
@@ -88,7 +88,14 @@
 				
 				getAndApplyTranslation(function()
 				{
-					chrome.runtime.sendMessage(importExtensionId, {msg: 'filesTree', allAsMap: true}, prepareImporter);
+					if (typeof chrome === 'undefined')
+					{
+						logDiv.html('<span style="color:red">' + mxResources.get('chromeOnly') + '</span>');
+					}
+					else
+					{
+						chrome.runtime.sendMessage(importExtensionId, {msg: 'filesTree', allAsMap: true}, prepareImporter);
+					}
 				});
 			};
 	

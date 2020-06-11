@@ -1089,16 +1089,10 @@
 				// Preloads fonts where supported
 				var parts = fontCss.split('url(');
 				
-				// Strips leading and trailing quotes and spaces
-				function trimString(str)
-				{
-				    return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-				};
-				
 				for (var i = 1; i < parts.length; i++)
 				{
 				    var idx = parts[i].indexOf(')');
-				    var url = trimString(parts[i].substring(0, idx));
+				    var url = this.trimCssUrl(parts[i].substring(0, idx));
 				    
 				    var l = document.createElement('link');
 					l.setAttribute('rel', 'preload');
@@ -1922,6 +1916,60 @@
 			}
 		}
 	};
+		
+	/**
+	 * Strips leading and trailing quotes and spaces
+	 */
+    Editor.prototype.trimCssUrl = function(str)
+    {
+    	return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+    }
+    
+	/**
+	 * Makes all relative font URLs absolute in the given font CSS.
+	 */
+    Editor.prototype.absoluteCssFonts = function(fontCss)
+    {
+    	var result = null;
+    	
+    	if (fontCss != null)
+    	{
+    		var parts = fontCss.split('url(');
+    		
+    		if (parts.length > 0)
+    		{
+    			result = [parts[0]];
+    		
+    			for (var i = 1; i < parts.length; i++)
+    			{
+    				var idx = parts[i].indexOf(')');
+    				
+    				if (idx > 0)
+    				{
+	    				var url = this.trimCssUrl(parts[i].substring(0, idx));
+	    				
+	    				if (this.graph.isRelativeUrl(url))
+	    				{
+	                        url = window.location.protocol + '//' + window.location.hostname +
+	                        	((url.charAt(0) == '/') ? '' : window.location.pathname) + url;
+	                    }
+	    				
+	    				result.push('url("' + url + '"' + parts[i].substring(idx));
+    				}
+    				else
+    				{
+    					result.push(parts[i]);
+    				}
+    			}
+    		}
+    		else
+    		{
+    			result = [fontCss]
+    		}
+    	}
+    	
+    	return (result != null) ? result.join('') : null;
+	};
 	
 	/**
 	 * For the fonts in CSS to be applied when rendering images on canvas, the actual
@@ -1937,12 +1985,6 @@
         	this.cachedFonts = {};
         }
 
-        // Strips leading and trailing quotes and spaces
-        function trimString(str)
-        {
-            return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-        };
-        
         var finish = mxUtils.bind(this, function()
         {
             if (waiting == 0)
@@ -1954,7 +1996,7 @@
                 {
                     var idx = parts[j].indexOf(')');
                     result.push('url("');
-                    result.push(this.cachedFonts[trimString(parts[j].substring(0, idx))]);
+                    result.push(this.cachedFonts[this.trimCssUrl(parts[j].substring(0, idx))]);
                     result.push('"' + parts[j].substring(idx));
                 }
                 
@@ -1974,7 +2016,7 @@
                 
                 if (fmtIdx > 0)
                 {
-                    format = trimString(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                    format = this.trimCssUrl(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
                 }
 
                 (mxUtils.bind(this, function(url)
@@ -2033,7 +2075,7 @@
                             finish();
                         }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
                     }
-                }))(trimString(parts[i].substring(0, idx)), format);
+                }))(this.trimCssUrl(parts[i].substring(0, idx)), format);
             }
             
             //In case all fonts are cached
@@ -2164,8 +2206,8 @@
 	 */
 	Editor.prototype.addFontCss = function(svgRoot, fontCss)
 	{
-		fontCss = (fontCss != null) ? fontCss : this.fontCss;
-		
+		fontCss = (fontCss != null) ? fontCss : this.absoluteCssFonts(this.fontCss);
+
 		// Creates defs element if not available
 		if (fontCss != null)
 		{
@@ -3135,6 +3177,14 @@
 	        {name: 'separatorColor', dispName: 'Separator Color', type: 'color', defVal: null},
 	    ];
 		
+		mxCellRenderer.defaultShapes['table'].prototype.customProperties = [
+			{name: 'rowLines', dispName: 'Row Lines', type: 'bool', defVal: true},
+			{name: 'columnLines', dispName: 'Column Lines', type: 'bool', defVal: true},
+			{name: 'fixedRows', dispName: 'Fixed Rows', type: 'bool', defVal: false},
+			{name: 'resizeLast', dispName: 'Resize Last Column', type: 'bool', defVal: false},
+			{name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', defVal: false}].
+			concat(mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties);
+		
 		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
 	        {name: 'margin', dispName: 'Indent', type: 'float', min:0, defVal:4}
 	    ];
@@ -3750,6 +3800,7 @@
 				else
 				{
 					td.innerHTML = pValue;
+					
 					mxEvent.addListener(td, 'click', mxUtils.bind(that, function()
 					{
 						var input = document.createElement('input');

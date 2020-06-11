@@ -1701,14 +1701,16 @@ var CreateGraphDialog = function(editorUi, title, type)
 			div.appendChild(cancelBtn);
 		}
 		
-		var okBtn = mxUtils.button(mxResources.get('insert'), function()
+		var okBtn = mxUtils.button(mxResources.get('insert'), function(evt)
 		{
 			graph.clearCellOverlays();
 			
-			// Computes unscaled, untranslated graph bounds
-			var pt = editorUi.editor.graph.getFreeInsertPoint();
-			var cells = editorUi.editor.graph.importCells(
-				graph.getModel().getChildren(graph.getDefaultParent()), pt.x, pt.y);
+			var cells = graph.getModel().getChildren(graph.getDefaultParent());
+			var pt = (mxEvent.isAltDown(evt)) ?
+				editorUi.editor.graph.getFreeInsertPoint() :
+				editorUi.editor.graph.getCenterInsertPoint(
+				graph.getBoundingBoxFromGeometry(cells, true));
+			cells = editorUi.editor.graph.importCells(cells, pt.x, pt.y);
 			var view = editorUi.editor.graph.view;
 			var temp = view.getBounds(cells);
 			temp.x -= view.translate.x;
@@ -1989,7 +1991,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	var plantUmlExample = '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: Another authentication Response\n@enduml';
 	var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
 
-	function parse(text, type)
+	function parse(text, type, evt)
 	{
 		var lines = text.split('\n');
 		
@@ -2003,6 +2005,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				
 				function insertPlantUmlImage(text, format, data, w, h)
 				{
+					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint : graph.getCenterInsertPoint(new mxRectangle(0, 0, w, h));
 					var cell = null;
 					
 					graph.getModel().beginUpdate();
@@ -2062,6 +2065,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 				
 				editorUi.generateMermaidImage(text, format, function(data, w, h)
 				{
+					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint : graph.getCenterInsertPoint(new mxRectangle(0, 0, w, h));
 					editorUi.spinner.stop();
 					var cell = null;
 					
@@ -2168,14 +2172,9 @@ var ParseDialog = function(editorUi, title, defaultType)
 			if (cells.length > 0)
 			{
 				var graph = editorUi.editor.graph;
-				var view = graph.view;
-				var bds = graph.getGraphBounds();
-				
-				// Computes unscaled, untranslated graph bounds
-				var x = Math.ceil(Math.max(0, bds.x / view.scale - view.translate.x) + 4 * graph.gridSize);
-				var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
-
-				graph.setSelectionCells(graph.importCells(cells, x, y));
+				insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint :
+					graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
+				graph.setSelectionCells(graph.importCells(cells, insertPoint.x, insertPoint.y));
 				graph.scrollCellToVisible(graph.getSelectionCell());
 			}
 		}
@@ -2243,6 +2242,9 @@ var ParseDialog = function(editorUi, title, defaultType)
 				
 				if (cells.length > 0)
 				{
+					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint :
+						graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
+					
 					graph.getModel().beginUpdate();
 					try
 					{
@@ -2353,8 +2355,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 				editorUi.editor.graph.getModel().beginUpdate();
 				try
 				{
-					inserted = editorUi.editor.graph.importCells(graph.getModel().getChildren(
-						graph.getDefaultParent()), insertPoint.x, insertPoint.y)
+					cells = graph.getModel().getChildren(graph.getDefaultParent());
+					insertPoint = (mxEvent.isAltDown(evt)) ? insertPoint :
+						editorUi.editor.graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
+					inserted = editorUi.editor.graph.importCells(cells, insertPoint.x, insertPoint.y)
 					editorUi.editor.graph.fireEvent(new mxEventObject('cellsInserted', 'cells', inserted));
 				}
 				finally
@@ -2574,10 +2578,10 @@ var ParseDialog = function(editorUi, title, defaultType)
 		div.appendChild(cancelBtn);
 	}
 	
-	var okBtn = mxUtils.button(mxResources.get('insert'), function()
+	var okBtn = mxUtils.button(mxResources.get('insert'), function(evt)
 	{
 		editorUi.hideDialog();
-		parse(textarea.value, typeSelect.value);
+		parse(textarea.value, typeSelect.value, evt);
 	});
 	div.appendChild(okBtn);
 	
@@ -6316,11 +6320,11 @@ var FindWindow = function(ui, x, y, w, h)
 				{
 					if (graph.isHtmlLabel(state.cell))
 					{
-						tmp.innerHTML = graph.getLabel(state.cell);
+						tmp.innerHTML = graph.sanitizeHtml(graph.getLabel(state.cell));
 						label = mxUtils.extractTextWithWhitespace([tmp]);
 					}
 					else
-					{					
+					{
 						label = graph.getLabel(state.cell);
 					}
 		

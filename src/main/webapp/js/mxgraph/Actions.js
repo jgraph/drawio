@@ -552,7 +552,7 @@ Actions.prototype.init = function()
 				    		
 				    		// Removes HTML tags
 			    			var temp = document.createElement('div');
-			    			temp.innerHTML = label;
+			    			temp.innerHTML = graph.sanitizeHtml(label);
 			    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
 			    			
 							graph.cellLabelChanged(state.cell, label);
