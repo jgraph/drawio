@@ -1092,7 +1092,7 @@
 				for (var i = 1; i < parts.length; i++)
 				{
 				    var idx = parts[i].indexOf(')');
-				    var url = this.trimCssUrl(parts[i].substring(0, idx));
+				    var url = Editor.trimCssUrl(parts[i].substring(0, idx));
 				    
 				    var l = document.createElement('link');
 					l.setAttribute('rel', 'preload');
@@ -1105,7 +1105,15 @@
 			}
 		}
 	};
-	
+			
+	/**
+	 * Strips leading and trailing quotes and spaces
+	 */
+    Editor.trimCssUrl = function(str)
+    {
+    	return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
+    }
+    
 	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
 	
 	/**
@@ -1916,15 +1924,7 @@
 			}
 		}
 	};
-		
-	/**
-	 * Strips leading and trailing quotes and spaces
-	 */
-    Editor.prototype.trimCssUrl = function(str)
-    {
-    	return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
-    }
-    
+
 	/**
 	 * Makes all relative font URLs absolute in the given font CSS.
 	 */
@@ -1940,18 +1940,36 @@
     		{
     			result = [parts[0]];
     		
+    			// Gets path for URL
+    			var path = window.location.pathname;
+    			var idx = (path != null) ? path.lastIndexOf('/') : -1;
+    			
+    			if (idx >= 0)
+    			{
+    				path = path.substring(0, idx + 1);
+    			}
+    			
+    			// Gets base tag from head
+    			var temp = document.getElementsByTagName('base');
+    			var base = null;
+    			
+    			if (temp != null && temp.length > 0)
+    			{
+    				base = temp[0].getAttribute('href');
+    			}
+    		
     			for (var i = 1; i < parts.length; i++)
     			{
     				var idx = parts[i].indexOf(')');
     				
     				if (idx > 0)
     				{
-	    				var url = this.trimCssUrl(parts[i].substring(0, idx));
+	    				var url = Editor.trimCssUrl(parts[i].substring(0, idx));
 	    				
 	    				if (this.graph.isRelativeUrl(url))
 	    				{
-	                        url = window.location.protocol + '//' + window.location.hostname +
-	                        	((url.charAt(0) == '/') ? '' : window.location.pathname) + url;
+	                        url = (base != null) ? base + url : (window.location.protocol + '//' + window.location.hostname +
+	                        	((url.charAt(0) == '/') ? '' : path) + url);
 	                    }
 	    				
 	    				result.push('url("' + url + '"' + parts[i].substring(idx));
@@ -1996,7 +2014,7 @@
                 {
                     var idx = parts[j].indexOf(')');
                     result.push('url("');
-                    result.push(this.cachedFonts[this.trimCssUrl(parts[j].substring(0, idx))]);
+                    result.push(this.cachedFonts[Editor.trimCssUrl(parts[j].substring(0, idx))]);
                     result.push('"' + parts[j].substring(idx));
                 }
                 
@@ -2016,7 +2034,7 @@
                 
                 if (fmtIdx > 0)
                 {
-                    format = this.trimCssUrl(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
+                    format = Editor.trimCssUrl(parts[i].substring(fmtIdx + 7, parts[i].indexOf(')', fmtIdx)));
                 }
 
                 (mxUtils.bind(this, function(url)
@@ -2075,7 +2093,7 @@
                             finish();
                         }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
                     }
-                }))(this.trimCssUrl(parts[i].substring(0, idx)), format);
+                }))(Editor.trimCssUrl(parts[i].substring(0, idx)), format);
             }
             
             //In case all fonts are cached

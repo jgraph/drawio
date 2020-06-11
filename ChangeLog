@@ -1,3 +1,8 @@
+11-JUN-2020: 13.2.3
+
+- Uses base for fonts in SVG export
+- Fixes font URL trimming
+
 11-JUN-2020: 13.2.2
 
 - Fixes relative fonts in SVG export
