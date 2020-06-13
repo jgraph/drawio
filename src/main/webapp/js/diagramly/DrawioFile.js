@@ -1521,7 +1521,15 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			
 			if (EditorUi.enableDrafts && this.getMode() == null)
 			{
-				this.saveDraft();
+				if (this.saveDraftThread != null)
+				{
+					window.clearTimeout(this.saveDraftThread);
+				}
+				
+				this.saveDraftThread = window.setTimeout(mxUtils.bind(this, function()
+				{
+					this.saveDraft();
+				}), 0);
 			}
 		}
 	}

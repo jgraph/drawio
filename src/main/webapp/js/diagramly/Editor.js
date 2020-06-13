@@ -3920,6 +3920,7 @@
 			div.style.position = 'relative';
 			div.style.padding = '0';
 			var grid = document.createElement('table');
+			grid.className = 'geProperties';
 			grid.style.whiteSpace = 'nowrap';
 			grid.style.width = '100%';
 			//create header row

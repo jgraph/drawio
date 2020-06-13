@@ -4464,9 +4464,9 @@ Graph.prototype.createTable = function(rowCount, colCount, w, h, title, startSiz
 	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;html=1;whiteSpace=wrap;startSize=' +
 		((title != null) ? startSize : '0') + ';container=1;collapsible=0;childLayout=tableLayout;';
 	rowStyle = (rowStyle != null) ? rowStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;collapsible=0;dropTarget=0;' +
-    	'pointerEvents=0;fillColor=none;strokeColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;left=0;right=0;';
+    	'pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;';
 	cellStyle = (cellStyle != null) ? cellStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;' +
-		'strokeColor=none;fillColor=none;';
+		'overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;';
 	
 	return this.createParent(this.createVertex(null, null, (title != null) ? title : '',
 		0, 0, colCount * w, rowCount * h + ((title != null) ? startSize : 0), tableStyle),
@@ -4810,11 +4810,12 @@ TableLayout.prototype.getRowLayout = function(row, width)
  * 
  * Places the cells at the given positions in the given row.
  */
-TableLayout.prototype.layoutRow = function(row, positions, height)
+TableLayout.prototype.layoutRow = function(row, positions, height, tw)
 {
 	var model = this.graph.getModel();
 	var cells = model.getChildCells(row, true);
 	var off = this.graph.getActualStartSize(row, true);
+	var x = off.x;
 	var sw = 0;
 	
 	if (positions != null)
@@ -4838,17 +4839,21 @@ TableLayout.prototype.layoutRow = function(row, positions, height)
 			{
 				cell.x = positions[i];
 				cell.width = positions[i + 1] - cell.x;
+				
+				// Fills with last cell if not enough cells
+				if (i == cells.length - 1 && i < positions.length - 2)
+				{
+					cell.width = tw - cell.x - off.x - off.width;
+				}
 			}
 			else
 			{
+				cell.x = x;
+				x += cell.width;
+				
 				if (i == cells.length - 1)
 				{
-					var geo = this.graph.getCellGeometry(row);
-	
-					if (geo != null)
-					{
-						cell.width = geo.width - off.x - off.width - sw;
-					}
+					cell.width = tw - off.x - off.width - sw;
 				}
 				else
 				{	
@@ -4935,7 +4940,7 @@ TableLayout.prototype.execute = function(parent)
 					}
 					
 					// Updates cell geometries
-					sw = Math.max(sw, this.layoutRow(rows[i], pos, row.height));
+					sw = Math.max(sw, this.layoutRow(rows[i], pos, row.height, tw));
 				}
 				
 				if (fixedRows && th < sh)
@@ -6235,7 +6240,8 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			mapping = (mapping != null) ? mapping : new Object();
 			
-			// Updates source and target table heights for moving rows
+			// Updates source and target table heights and matches
+			// column count for moving rows between tables
 			for (var i = 0; i < cells.length; i++)
 			{
 				if (target != null && this.isTableRow(cells[i]))
@@ -6268,6 +6274,34 @@ if (typeof mxVertexHandler != 'undefined')
 							table.height += row.height;
 							this.model.setGeometry(target, table);
 						}
+						
+						// Matches column count
+						var rows = this.model.getChildCells(target, true);
+						
+						if (rows.length > 0)
+						{
+							var sourceCols = this.model.getChildCells(cells[i], true);
+							var cols = this.model.getChildCells(rows[0], true);
+							var count = cols.length - sourceCols.length;
+							
+							if (count > 0)
+							{
+								for (var j = 0; j < count; j++)
+								{
+									var cell = this.cloneCell(sourceCols[sourceCols.length - 1]);
+									cell.value = '';
+									
+									this.model.add(cells[i], cell);
+								}
+							}
+							else if (count < 0)
+							{
+								for (var j = 0; j > count; j--)
+								{
+									this.model.remove(sourceCols[sourceCols.length - count - 1]);
+								}
+							}	 
+						}
 					}
 				}
 			}
@@ -6277,7 +6311,7 @@ if (typeof mxVertexHandler != 'undefined')
 			if (clone)
 			{
 				this.updateCustomLinks(this.createCellMapping(mapping,
-						this.createCellLookup(cells)), result);
+					this.createCellLookup(cells)), result);
 			}
 			
 			return result;
@@ -7500,6 +7534,15 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			cells = (cells != null) ? cells : this.getSelectionCells();
 			append = (append != null) ? append : true;
+			
+			// Duplicates rows for table cells
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (this.isTableCell(cells[i]))
+				{
+					cells[i] = this.model.getParent(cells[i]);
+				}
+			}
 			
 			cells = this.model.getTopmostCells(cells);
 			
@@ -9688,19 +9731,6 @@ if (typeof mxVertexHandler != 'undefined')
 		/**
 		 * Creates the shape used to draw the selection border.
 		 */
-		var vertexHandlerIsMoveCustomHandlePreviewToFront = mxVertexHandler.prototype.isMoveCustomHandlePreviewToFront;
-		mxVertexHandler.prototype.isMoveCustomHandlePreviewToFront = function(handle)
-		{
-			return vertexHandlerIsMoveCustomHandlePreviewToFront.apply(this, arguments) ||
-				(this.graph.isTable(this.state.cell) && (mxUtils.getValue(this.state.style,
-				mxConstants.STYLE_FILLCOLOR, mxConstants.NONE) == mxConstants.NONE ||
-				(this.graph.isSwimlane(this.state.cell) && mxUtils.getValue(this.state.style,
-				mxConstants.STYLE_SWIMLANE_FILLCOLOR, mxConstants.NONE) == mxConstants.NONE)));
-		};
-		
-		/**
-		 * Creates the shape used to draw the selection border.
-		 */
 		var vertexHandlerCreateParentHighlightShape = mxVertexHandler.prototype.createParentHighlightShape;
 		mxVertexHandler.prototype.createParentHighlightShape = function(bounds)
 		{
@@ -9902,15 +9932,19 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 							};
 							
+							var shiftPressed = false;
+							
 							handle.setPosition = function(bounds, pt, me)
 							{
 								dx = Math.max(Graph.minTableColumnWidth - bounds.width,
 									pt.x - bounds.x - bounds.width);
+								shiftPressed = mxEvent.isShiftDown(me.getEvent());
 								
-								if (nextCol != null)
+								if (nextCol != null && !shiftPressed)
 								{
-									dx = Math.min(nextCol.x + nextCol.width - colState.x -
-										colState.width - Graph.minTableColumnWidth, dx);
+									dx = Math.min((nextCol.x + nextCol.width - colState.x -
+										colState.width) / graph.view.scale -
+										Graph.minTableColumnWidth, dx);
 								}
 							};
 							
@@ -9918,8 +9952,8 @@ if (typeof mxVertexHandler != 'undefined')
 							{
 								if (dx != 0)
 								{
-									graph.setTableColumnWidth(this.state.cell, dx,
-										mxEvent.isShiftDown(me.getEvent()));
+									graph.setTableColumnWidth(this.state.cell,
+										dx, shiftPressed);
 								}
 								
 								dx = 0;
@@ -9955,7 +9989,7 @@ if (typeof mxVertexHandler != 'undefined')
 							{
 								if (this.shape != null && this.state.shape != null)
 								{
-									this.shape.stroke = (dy == 0) ? mxConstants.NONE : sel.stroke;;
+									this.shape.stroke = (dy == 0) ? mxConstants.NONE : sel.stroke;
 									this.shape.bounds.x = this.state.x;
 									this.shape.bounds.width = this.state.width;
 									this.shape.bounds.y = this.state.y + this.state.height +
@@ -10049,6 +10083,7 @@ if (typeof mxVertexHandler != 'undefined')
 					if (rowState != null && model.isVertex(rowState.cell))
 					{
 						// Adds handle to move row
+						// LATER: Move to overlay pane to hide during zoom but keep padding
 						var moveHandle = mxUtils.createImage(Editor.rowMoveImage);
 						moveHandle.style.position = 'absolute';
 						moveHandle.style.cursor = 'pointer';

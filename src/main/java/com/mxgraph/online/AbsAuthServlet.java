@@ -16,6 +16,8 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -33,6 +35,7 @@ import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
 {
+	private static final Logger log = Logger.getLogger(AbsAuthServlet.class.getName());
 	private static final boolean DEBUG = false;
 	private static final String SEPARATOR = "/:::/";
 	public static final int X_WWW_FORM_URLENCODED = 1;
@@ -128,8 +131,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 		{
 			String state = new BigInteger(256, random).toString(32);
 			String key = new BigInteger(256, random).toString(32);
-			String casheKey = request.getRemoteAddr() + ":" + key;
-			tokens.put(casheKey, state);
+			tokens.put(key, state);
+			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
 			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
@@ -176,8 +179,9 @@ abstract public class AbsAuthServlet extends HttpServlet
 					if (STATE_COOKIE.equals(cookie.getName()))
 					{
 						//Get the cached state based on the cookie key 
-						String cacheKey = request.getRemoteAddr() + ":" + cookie.getValue();
+						String cacheKey = cookie.getValue();
 						cookieToken = (String) tokens.get(cacheKey);
+						log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
 						//Delete cookie & cache after being used since it is a single use
 						tokens.remove(cacheKey);
 						response.setHeader("Set-Cookie", STATE_COOKIE + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
@@ -217,6 +221,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 			//TODO after code is propagated, remove the version check
 			else if ("2".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
+				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 			else

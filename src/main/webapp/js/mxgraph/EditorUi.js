@@ -4120,7 +4120,7 @@ EditorUi.prototype.showDataDialog = function(cell)
 /**
  * Hides the current menu.
  */
-EditorUi.prototype.showBackgroundImageDialog = function(apply)
+EditorUi.prototype.showBackgroundImageDialog = function(apply, img)
 {
 	apply = (apply != null) ? apply : mxUtils.bind(this, function(image)
 	{
@@ -4130,7 +4130,7 @@ EditorUi.prototype.showBackgroundImageDialog = function(apply)
 		this.editor.graph.model.execute(change);
 	});
 	
-	var newValue = mxUtils.prompt(mxResources.get('backgroundImage'), '');
+	var newValue = mxUtils.prompt(mxResources.get('backgroundImage'), (img != null) ? img.src : '');
 	
 	if (newValue != null && newValue.length > 0)
 	{
@@ -4138,11 +4138,11 @@ EditorUi.prototype.showBackgroundImageDialog = function(apply)
 		
 		img.onload = function()
 		{
-			apply(new mxImage(newValue, img.width, img.height));
+			apply(new mxImage(newValue, img.width, img.height), false);
 		};
 		img.onerror = function()
 		{
-			apply(null);
+			apply(null, true);
 			mxUtils.alert(mxResources.get('fileNotFound'));
 		};
 		

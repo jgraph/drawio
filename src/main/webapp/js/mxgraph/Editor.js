@@ -1557,23 +1557,26 @@ var PageSetupDialog = function(editorUi)
 		{
 			changeImageLink.removeAttribute('title');
 			changeImageLink.style.fontSize = '';
-			changeImageLink.innerHTML = mxResources.get('change') + '...';
+			changeImageLink.innerHTML = mxUtils.htmlEntities(mxResources.get('change')) + '...';
 		}
 		else
 		{
 			changeImageLink.setAttribute('title', newBackgroundImage.src);
 			changeImageLink.style.fontSize = '11px';
-			changeImageLink.innerHTML = newBackgroundImage.src.substring(0, 42) + '...';
+			changeImageLink.innerHTML = mxUtils.htmlEntities(newBackgroundImage.src.substring(0, 42)) + '...';
 		}
 	};
 	
 	mxEvent.addListener(changeImageLink, 'click', function(evt)
 	{
-		editorUi.showBackgroundImageDialog(function(image)
+		editorUi.showBackgroundImageDialog(function(image, failed)
 		{
-			newBackgroundImage = image;
-			updateBackgroundImage();
-		});
+			if (!failed)
+			{
+				newBackgroundImage = image;
+				updateBackgroundImage();
+			}
+		}, newBackgroundImage);
 		
 		mxEvent.consume(evt);
 	});
@@ -1605,10 +1608,11 @@ var PageSetupDialog = function(editorUi)
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
 		editorUi.hideDialog();
+		var gridSize = parseInt(gridSizeInput.value);
 		
-		if (graph.gridSize !== gridSizeInput.value)
+		if (!isNaN(gridSize) && graph.gridSize !== gridSize)
 		{
-			graph.setGridSize(parseInt(gridSizeInput.value));
+			graph.setGridSize(gridSize);
 		}
 
 		var change = new ChangePageSetup(editorUi, newBackgroundColor,

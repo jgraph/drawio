@@ -3554,19 +3554,19 @@
 	/**
 	 * Hides the current menu.
 	 */
-	EditorUi.prototype.showBackgroundImageDialog = function(apply)
+	EditorUi.prototype.showBackgroundImageDialog = function(apply, img)
 	{
-		apply = (apply != null) ? apply : mxUtils.bind(this, function(image)
+		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed)
 		{
-			var change = new ChangePageSetup(this, null, image);
-			change.ignoreColor = true;
-			
-			this.editor.graph.model.execute(change);
+			if (!failed)
+			{
+				var change = new ChangePageSetup(this, null, image);
+				change.ignoreColor = true;
+				
+				this.editor.graph.model.execute(change);
+			}
 		});
-		var dlg = new BackgroundImageDialog(this, mxUtils.bind(this, function(image)
-		{
-			apply(image);
-		}));
+		var dlg = new BackgroundImageDialog(this, apply, img);
 		this.showDialog(dlg.container, 360, 200, true, true);
 		dlg.init();
 	};

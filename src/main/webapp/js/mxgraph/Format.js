@@ -112,9 +112,9 @@ Format.prototype.createSelectionState = function()
 Format.prototype.initSelectionState = function()
 {
 	return {vertices: [], edges: [], x: null, y: null, width: null, height: null, style: {},
-		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,
-		comic: true, autoSize: false, image: true, shadow: true, lineJumps: true,
-		resizable: true, movable: true, rotatable: true};
+		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,  comic: true,
+		autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
+		table: false, cell: false, row: false, movable: true, rotatable: true};
 };
 
 /**
@@ -130,6 +130,9 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 		result.rotatable = result.rotatable && graph.isCellRotatable(cell);
 		result.movable = result.movable && graph.isCellMovable(cell) &&
 			!graph.isTableRow(cell) && !graph.isTableCell(cell);
+		result.table = result.table || graph.isTable(cell);
+		result.cell = result.cell || graph.isTableCell(cell);
+		result.row = result.row || graph.isTableRow(cell);
 		result.vertices.push(cell);
 		var geo = graph.getCellGeometry(cell);
 		
@@ -1698,7 +1701,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count++;
 	}
 	else if (graph.getSelectionCount() == 1 && !graph.getModel().isEdge(cell) && !graph.isSwimlane(cell) &&
-			graph.getModel().getChildCount(cell) > 0)
+		!graph.isTable(cell) && !ss.row && !ss.cell && graph.getModel().getChildCount(cell) > 0)
 	{
 		btn = mxUtils.button(mxResources.get('ungroup'), function(evt)
 		{
@@ -1754,8 +1757,8 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		}
 	}
 	
-	if (graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell) &&
-   		graph.getModel().isVertex(graph.getModel().getParent(cell)))
+	if (graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell) && !ss.row &&
+		!ss.cell && graph.getModel().isVertex(graph.getModel().getParent(cell)))
 	{
 		if (count > 0)
 		{
@@ -1971,7 +1974,7 @@ ArrangePanel.prototype.addAngle = function(div)
 	var update = null;
 	var btn = null;
 	
-	if (ss.rotatable)
+	if (ss.rotatable && !ss.table && !ss.row && !ss.cell)
 	{
 		mxUtils.write(span, mxResources.get('angle'));
 		div.appendChild(span);
@@ -2152,7 +2155,17 @@ ArrangePanel.prototype.addGeometry = function(container)
 	});
 	
 	div.appendChild(autosizeBtn);
-	this.addLabel(div, mxResources.get('width'), 84);
+	
+	if (rect.row)
+	{
+		width.style.visibility = 'hidden';
+		width.nextSibling.style.visibility = 'hidden';
+	}
+	else
+	{
+		this.addLabel(div, mxResources.get('width'), 84);
+	}
+	
 	this.addLabel(div, mxResources.get('height'), 20);
 	mxUtils.br(div);
 
@@ -2165,15 +2178,30 @@ ArrangePanel.prototype.addGeometry = function(container)
 		mxConstants.STYLE_ASPECT, null, 'fixed', 'null');
 	opt.style.width = '100%';
 	wrapper.appendChild(opt);
-	div.appendChild(wrapper);
+		
+	if (!rect.cell && !rect.row)
+	{
+		div.appendChild(wrapper);
+	}
+	else
+	{
+		autosizeBtn.style.visibility = 'hidden';
+	}
 	
 	var constrainCheckbox = opt.getElementsByTagName('input')[0];
 	this.addKeyHandler(width, listener);
 	this.addKeyHandler(height, listener);
 	
-	widthUpdate = this.addGeometryHandler(width, function(geo, value)
+	widthUpdate = this.addGeometryHandler(width, function(geo, value, cell)
 	{
-		if (geo.width > 0)
+		if (graph.isTableCell(cell))
+		{
+			graph.setTableColumnWidth(cell, value - geo.width, true);
+			
+			// Blocks processing in caller
+			return true;
+		}
+		else if (geo.width > 0)
 		{
 			var value = Math.max(1, panel.fromUnit(value));
 			
@@ -2185,9 +2213,21 @@ ArrangePanel.prototype.addGeometry = function(container)
 			geo.width = value;
 		}
 	});
-	heightUpdate = this.addGeometryHandler(height, function(geo, value)
+	heightUpdate = this.addGeometryHandler(height, function(geo, value, cell)
 	{
-		if (geo.height > 0)
+		if (graph.isTableCell(cell))
+		{
+			cell = graph.model.getParent(cell);
+		}
+		
+		if (graph.isTableRow(cell))
+		{
+			graph.setTableRowHeight(cell, value - geo.height);
+			
+			// Blocks processing in caller
+			return true;
+		}
+		else if (geo.height > 0)
 		{
 			var value = Math.max(1, panel.fromUnit(value));
 			
@@ -2200,7 +2240,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 		}
 	});
 	
-	if (rect.resizable)
+	if (rect.resizable || rect.row || rect.cell)
 	{
 		container.appendChild(div);
 	}
@@ -2226,6 +2266,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	}, this.getUnitStep(), null, null, this.isFloatUnit());
 
 	mxUtils.br(div2);
+
 	this.addLabel(div2, mxResources.get('left'), 84);
 	this.addLabel(div2, mxResources.get('top'), 20);
 	
@@ -2350,17 +2391,19 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 							if (geo != null)
 							{
 								geo = geo.clone();
-								fn(geo, value);
 								
-								var state = graph.view.getState(cells[i]);
-								
-								if (state != null && graph.isRecursiveVertexResize(state))
+								if (!fn(geo, value, cells[i]))
 								{
-									graph.resizeChildCells(cells[i], geo);
+									var state = graph.view.getState(cells[i]);
+									
+									if (state != null && graph.isRecursiveVertexResize(state))
+									{
+										graph.resizeChildCells(cells[i], geo);
+									}
+									
+									graph.getModel().setGeometry(cells[i], geo);
+									graph.constrainChildCells(cells[i]);
 								}
-								
-								graph.getModel().setGeometry(cells[i], geo);
-								graph.constrainChildCells(cells[i]);
 							}
 						}
 					}
@@ -5545,7 +5588,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 		{
 			var btn = mxUtils.button(mxResources.get('image'), function(evt)
 			{
-				ui.showBackgroundImageDialog();
+				ui.showBackgroundImageDialog(null, ui.editor.graph.backgroundImage);
 				mxEvent.consume(evt);
 			})
 		

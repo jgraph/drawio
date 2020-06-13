@@ -1318,9 +1318,9 @@
 					var bbox = graph.getBoundingBoxFromGeometry(cells);
 					cells = graph.moveCells(cells, -bbox.x, -bbox.y);
 					
-					editorUi.showTextDialog('Create Sidebar Entry', 'sb.createVertexTemplateFromData(\'' +
-						Graph.compress(mxUtils.getXml(graph.encodeCells(cells))) +
-						'\', width, height, \'Title\');');
+					editorUi.showTextDialog('Create Sidebar Entry', 'this.addDataEntry(\'tag1 tag2\', ' +
+						bbox.width + ', ' + bbox.height + ', \'The Title\', \'' +
+						Graph.compress(mxUtils.getXml(graph.encodeCells(cells))) + '\'),');
 				}
 			}));
 	

@@ -777,6 +777,9 @@ html td.mxWindowTitle {
  	color:rgb(112, 112, 112);
  	padding:4px;
 }
+table.geProperties tr td {
+	height:21px;
+}
 .gePropHeader, .gePropRow {
 	border: 1px solid #e9e9e9;	
 }
