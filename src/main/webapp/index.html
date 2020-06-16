@@ -4,7 +4,8 @@
 <head>
     <title>Flowchart Maker &amp; Online Diagram Software</title>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="Description" content="diagrams.net is free online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams">
     <meta name="Keywords" content="diagram, online, flow chart, flowchart maker, uml, erd">
     <meta itemprop="name" content="diagrams.net - free flowchart maker and diagrams online">
@@ -230,14 +231,14 @@
 		if (urlParams['dev'] == '1')
 		{
 			// Used to request grapheditor/mxgraph sources in dev mode
-			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/mxgraph2';
+			var mxDevUrl = document.location.protocol + '../../../../GitHub/mxgraph'; //'//devhost.jgraph.com/mxgraph2';
 			
 			// Used to request draw.io sources in dev mode
-			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
+			var drawDevUrl = document.location.protocol + './'; //'//devhost.jgraph.com/drawio/src/main/webapp/';
 			
 			if (document.location.protocol == 'file:')
 			{
-				mxDevUrl = '../../../../../mxgraph2';
+				mxDevUrl = '../../../../mxgraph'; //'../../../../../mxgraph2';
 				drawDevUrl = './';
 				
 				// Forces includes for dev environment in node.js
@@ -381,6 +382,7 @@
 		</script>
 	<!--<![endif]-->
 </head>
+
 <body class="geEditor">
 <div id="geInfo">
 	<div class="geBlock" style="text-align:center;min-width:50%;">
