@@ -10819,6 +10819,10 @@
 							{
 								parent.postMessage(JSON.stringify({event: 'prompt', value: value, message: data}), '*');
 							}
+							else
+							{
+								parent.postMessage(JSON.stringify({event: 'prompt-cancel', message: data}), '*');
+							}
 						}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title);
 						this.showDialog(dlg.container, 300, 80, true, false);
 						dlg.init();
