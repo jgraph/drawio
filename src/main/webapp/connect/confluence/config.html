@@ -167,14 +167,5 @@
 				<div id="operationLog"><br></div>
 			</div>
 		</div>
-		<script type="text/javascript">
-			//Logs uncaught errors
-			window.onerror = function(message, url, linenumber, colno, err)
-			{
-				message = 'Confluence Cloud Config: ' + ((message != null) ? message : '');
-				
-				AC.logError(message, url, linenumber, colno, err);
-			};
-		</script>
 	</body>
 </html>

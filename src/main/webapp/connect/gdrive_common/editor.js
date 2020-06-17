@@ -125,6 +125,7 @@ function GDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawioOn
 			}
 		}
 		
+		Graph.prototype.shadowId = 'googleDriveDropShadow';
 		var viewer = new GraphViewer(container, doc.documentElement,
 				{highlight: '#3572b0', border: 8, 'auto-fit': true,
 				resize: false, nav: true, lightbox: false, title: file.title,

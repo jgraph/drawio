@@ -1275,16 +1275,12 @@ mxStencilRegistry.allowEval = false;
 					var savedData = this.data;
 					
 					// Makes sure no changes get lost while the file is saved
-					var prevModified = this.isModified;
-					var modified = this.isModified();
-					this.setModified(false);
+					this.setShadowModified(false);
 					this.savingFile = true;
 					
 					var errorWrapper = mxUtils.bind(this, function(e)
 					{
 						this.savingFile = false;
-						this.isModified = prevModified;
-						this.setModified(modified || this.isModified());
 						
 						if (error != null)
 						{
@@ -1306,8 +1302,9 @@ mxStencilRegistry.allowEval = false;
 						overwrite: overwrite
 					}, mxUtils.bind(this, function(resp)
 					{
+						//No changes during the saving process?
+						this.setModified(this.getShadowModified());
 						this.savingFile = false;
-						this.isModified = prevModified;
 						var lastDesc = this.stat;
 						this.stat = resp.stat;
 						

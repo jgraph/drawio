@@ -290,6 +290,17 @@ Toolbar.prototype.addTableDropDown = function()
 		elt.getElementsByTagName('img')[0].style.top = '5px';
 	}
 	
+	// Connects to insert menu enabled state
+	var menu = this.editorUi.menus.get('insert');
+	
+	if (menu != null)
+	{
+		menu.addListener('stateChanged', function()
+		{
+			elt.setEnabled(menu.enabled);
+		});
+	}
+	
 	return elt;
 };
 
@@ -528,7 +539,6 @@ Toolbar.prototype.createTextToolbar = function()
 	
 	this.addSeparator();
 	
-	// FIXME: Uses geButton here and geLabel in main menu
 	var insertMenu = this.addMenuFunction('', mxResources.get('insert'), true, mxUtils.bind(this, function(menu)
 	{
 		menu.addItem(mxResources.get('insertLink'), null, mxUtils.bind(this, function()

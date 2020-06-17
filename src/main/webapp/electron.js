@@ -7,7 +7,6 @@ const ipcMain = electron.ipcMain
 const dialog = electron.dialog
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
-const globalShortcut = electron.globalShortcut;
 const crc = require('crc');
 const zlib = require('zlib');
 const log = require('electron-log')
@@ -16,7 +15,6 @@ const {autoUpdater} = require("electron-updater")
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
-const { systemPreferences } = require('electron')
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
 						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox

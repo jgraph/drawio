@@ -9891,20 +9891,24 @@
 						}
 						else if (pasteAsLabel && graph.getSelectionCount() == 1)
 						{
+							var cell = graph.getStartEditingCell(graph.getSelectionCell(), evt);
+							
 							if ((/\.(gif|jpg|jpeg|tiff|png|svg)$/i).test(xml) &&
-								graph.getCurrentCellStyle(graph.getSelectionCell())[mxConstants.STYLE_SHAPE] == 'image')
+								graph.getCurrentCellStyle(cell)[mxConstants.STYLE_SHAPE] == 'image')
 							{
-								graph.setCellStyles(mxConstants.STYLE_IMAGE, xml);
+								graph.setCellStyles(mxConstants.STYLE_IMAGE, xml, [cell]);
 							}
 							else
 							{
-								graph.labelChanged(graph.getSelectionCell(), xml);
+								graph.labelChanged(cell, xml);
 	
 								if (Graph.isLink(xml))
 								{
-									graph.setLinkForCell(graph.getSelectionCell(), xml);
+									graph.setLinkForCell(cell, xml);
 								}
-							} 
+							}
+							
+							graph.setSelectionCell(cell);
 						}
 						else
 						{

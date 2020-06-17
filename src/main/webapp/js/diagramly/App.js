@@ -574,6 +574,7 @@ App.main = function(callback, createUi)
 					mxscript('js/shapes.min.js');
 					mxscript('js/stencils.min.js');
 					mxscript('js/extensions.min.js');
+					mxStencilRegistry.allowEval = false;
 		
 					// Use the window load event to keep the page load performant
 					window.addEventListener('load', function()
@@ -1185,6 +1186,14 @@ App.prototype.initializeEmbedMode = function()
 {
 	if (urlParams['embed'] == '1')
 	{
+		if (window.location.hostname == 'app.diagrams.net')
+		{
+			if (window.console != null)
+			{
+				console.warn('[Deprecation] app.diagrams.net will stop working for embed mode. Please use embed.diagrams.net.');
+			}
+		}
+		
 		if (App.embedModePluginsCount > 0 || this.initEmbedDone)
 		{
 			return; //Wait for plugins to load, or this is a duplicate call due to timeout

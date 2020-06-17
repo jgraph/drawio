@@ -416,6 +416,7 @@ GAC.pickFile = function(fn, acceptFolders)
 		{
 			  if (data[google.picker.Response.ACTION] == google.picker.Action.PICKED)
 		      {
+				  	picker.setVisible(false);
 				    var doc = data[google.picker.Response.DOCUMENTS][0];
 				    
 				    GAC.getFileInfo(doc.id, function(fullDoc)

@@ -299,6 +299,7 @@
 					if (allPages != this && this.checked)
 					{
 						crop.removeAttribute('disabled');
+						crop.checked = !graph.pageVisible;
 					}
 					else
 					{

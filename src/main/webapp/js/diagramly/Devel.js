@@ -12,7 +12,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 	{
 		var csp = 'default-src \'self\'; ' +
 			// storage.googleapis.com is needed for workbox-service-worker
-			'script-src %dev-script-src% \'self\' https://storage.googleapis.com ' +
+			'script-src %script-src% \'self\' https://storage.googleapis.com ' +
 				'https://apis.google.com https://*.pusher.com https://code.jquery.com '+
 				'https://www.dropbox.com https://api.trello.com ' +
 				// Scripts in index.html (not checked here)
@@ -26,19 +26,29 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			// font-src about: is required for MathJax HTML-CSS output with STIX
 			'img-src * data:; media-src * data:; font-src * about:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net
-			'frame-src \'self\' https://www.draw.io https://*.google.com; ' +
-			'style-src %dev-style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com;';
+			'frame-src %frame-src% \'self\' https://www.draw.io https://*.google.com; ' +
+			'style-src %style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com;'
+
 		var devCsp = csp.
-			// Loads common.css from mxgraph
-			replace(/%dev-style-src%/g, 'https://devhost.jgraph.com').
 			// Adds script tags and loads shapes with eval
-			replace(/%dev-script-src%/g, 'https://devhost.jgraph.com \'unsafe-eval\'');
+			replace(/%script-src%/g, 'https://devhost.jgraph.com \'unsafe-eval\'').
+			// Loads common.css from mxgraph
+			replace(/%style-src%/g, 'https://devhost.jgraph.com').
+			replace(/%frame-src%/g, '').
+			replace(/  /g, ' ');
 		mxmeta(null, devCsp, 'Content-Security-Policy');
 
-		console.log('Development', 'Content-Security-Policy', devCsp)
-		console.log('Production', 'Content-Security-Policy',
-			csp.replace(/%dev-style-src%/g, '').
-				replace(/%dev-script-src%/g, '').
+		console.log('Content-Security-Policy')
+		console.log('Development:', devCsp)
+		console.log('app.diagrams.net:',
+			csp.replace(/%script-src%/g, '').
+				replace(/%frame-src%/g, '').
+				replace(/%style-src%/g, '').
+				replace(/  /g, ' '));
+		console.log('confluence.draw.io:',
+			csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
+				replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
+				replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 				replace(/  /g, ' '));
 	})();
 }

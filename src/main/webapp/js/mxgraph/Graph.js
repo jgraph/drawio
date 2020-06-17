@@ -274,6 +274,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box, new mxRectangle(
 			    					state.x + state.width - 1, state.y, 1, state.height)))
 		    					{
+			    					var wasSelected = this.selectionCellsHandler.isHandled(table);
 			    					this.selectCellForEvent(table, me.getEvent());
 					    			handler = this.selectionCellsHandler.getHandler(table);
 		
@@ -284,6 +285,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 					    				if (handle != null)
 					    				{
 					    					handler.start(me.getGraphX(), me.getGraphY(), handle);
+					    					handler.blockDelayedSelection = !wasSelected;
 					    					me.consume();
 					    				}
 					    			}
@@ -1561,7 +1563,46 @@ Graph.prototype.init = function(container)
 	 * Contains the offset.
 	 */
 	Graph.prototype.currentTranslate = new mxPoint(0, 0);
-
+	
+	/**
+	 * Returns the cell for editing the given cell.
+	 */
+	Graph.prototype.getStartEditingCell = function(cell, trigger)
+	{
+		// Redirect editing for tables
+		var style = this.getCellStyle(cell);
+		var size = parseInt(mxUtils.getValue(style, mxConstants.STYLE_STARTSIZE, 0));
+		
+		if (this.isTable(cell) && (!this.isSwimlane(cell) ||
+			size == 0) && this.getLabel(cell) == '' &&
+			this.model.getChildCount(cell) > 0)
+		{
+			cell = this.model.getChildAt(cell, 0);
+			
+			style = this.getCellStyle(cell);
+			size = parseInt(mxUtils.getValue(style, mxConstants.STYLE_STARTSIZE, 0));
+		}
+		
+		// Redirect editing for table rows
+		if (this.isTableRow(cell) && (!this.isSwimlane(cell) ||
+			size == 0) && this.getLabel(cell) == '' &&
+			this.model.getChildCount(cell) > 0)
+		{
+			for (var i = 0; i < this.model.getChildCount(cell); i++)
+			{
+				var temp = this.model.getChildAt(cell, i);
+				
+				if (this.isCellEditable(temp))
+				{
+					cell = temp;
+					break;
+				}
+			}
+		}
+		
+		return cell;
+	};
+	
 	/**
 	 * Returns true if fast zoom preview should be used.
 	 */
@@ -9035,41 +9076,15 @@ if (typeof mxVertexHandler != 'undefined')
 		 * HTML in-place editor
 		 */
 		mxCellEditor.prototype.escapeCancelsEditing = false;
-		
+
+		/**
+		 * Overridden to set CSS classes.
+		 */
 		var mxCellEditorStartEditing = mxCellEditor.prototype.startEditing;
 		mxCellEditor.prototype.startEditing = function(cell, trigger)
 		{
-			// Redirect editing for tables
-			var style = this.graph.getCellStyle(cell);
-			var size = parseInt(mxUtils.getValue(style, mxConstants.STYLE_STARTSIZE, 0));
-			
-			if (this.graph.isTable(cell) && (!this.graph.isSwimlane(cell) ||
-				size == 0) && this.graph.getLabel(cell) == '' &&
-				this.graph.model.getChildCount(cell) > 0)
-			{
-				cell = this.graph.model.getChildAt(cell, 0);
-				
-				style = this.graph.getCellStyle(cell);
-				size = parseInt(mxUtils.getValue(style, mxConstants.STYLE_STARTSIZE, 0));
-			}
-			
-			// Redirect editing for table rows
-			if (this.graph.isTableRow(cell) && (!this.graph.isSwimlane(cell) ||
-				size == 0) && this.graph.getLabel(cell) == '' &&
-				this.graph.model.getChildCount(cell) > 0)
-			{
-				for (var i = 0; i < this.graph.model.getChildCount(cell); i++)
-				{
-					var temp = this.graph.model.getChildAt(cell, i);
-					
-					if (this.graph.isCellEditable(temp))
-					{
-						cell = temp;
-						break;
-					}
-				}
-			}
-			
+			cell = this.graph.getStartEditingCell(cell, trigger);
+
 			mxCellEditorStartEditing.apply(this, arguments);
 			
 			// Overrides class in case of HTML content to add
@@ -9883,6 +9898,7 @@ if (typeof mxVertexHandler != 'undefined')
 				var model = graph.model;
 				var tableState = this.state;
 				var sel = this.selectionBorder;
+				var self = this;
 				
 				if (handles == null)
 				{
@@ -9955,6 +9971,11 @@ if (typeof mxVertexHandler != 'undefined')
 									graph.setTableColumnWidth(this.state.cell,
 										dx, shiftPressed);
 								}
+								else if (!self.blockDelayedSelection)
+								{
+									var temp = graph.getCellAt(me.getGraphX(), me.getGraphY()) || tableState.cell; 
+									graph.selectCellForEvent(temp, me.getEvent());
+								}
 								
 								dx = 0;
 							};
@@ -10011,6 +10032,11 @@ if (typeof mxVertexHandler != 'undefined')
 								{
 									graph.setTableRowHeight(this.state.cell, dy,
 										!mxEvent.isShiftDown(me.getEvent()));
+								}
+								else if (!self.blockDelayedSelection)
+								{
+									var temp = graph.getCellAt(me.getGraphX(), me.getGraphY()) || tableState.cell; 
+									graph.selectCellForEvent(temp, me.getEvent());
 								}
 								
 								dy = 0;
@@ -10946,6 +10972,9 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				this.linkHint.style.display = '';
 			}
+			
+			// Resets state after gesture
+			this.blockDelayedSelection = null;
 		};
 	
 		var vertexHandlerInit = mxVertexHandler.prototype.init;
@@ -11212,6 +11241,11 @@ if (typeof mxVertexHandler != 'undefined')
 				ch[3].bounds.x = ch[1].bounds.x;
 				ch[3].bounds.y = ch[2].bounds.y;
 				ch[3].redraw();
+				
+				for (var i = 0; i < this.cornerHandles.length; i++)
+				{
+					this.cornerHandles[i].node.style.display = (this.graph.getSelectionCount() == 1) ? '' : 'none';
+				}
 			}
 			
 			// Shows rotation handle only if one vertex is selected

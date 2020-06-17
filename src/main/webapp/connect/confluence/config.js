@@ -1,3 +1,11 @@
+//Logs uncaught errors
+window.onerror = function(message, url, linenumber, colno, err)
+{
+	message = 'Confluence Cloud Config: ' + ((message != null) ? message : '');
+	
+	AC.logError(message, url, linenumber, colno, err);
+};
+
 var collectAllPages = function(callback, error)
 {
 	var start = 0, limit = 200;

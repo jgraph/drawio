@@ -1,3 +1,10 @@
+17-JUN-2020: 13.2.5
+
+- Adds embed.diagrams.net for embed mode
+- Adds Alt+Shift to toggle child cells
+- Fixes toggle selection for groups
+- Uses mxGraph 4.2.0 beta 10
+
 13-JUN-2020: 13.2.4
 
 - Uses tables in Misc and ER sidebar

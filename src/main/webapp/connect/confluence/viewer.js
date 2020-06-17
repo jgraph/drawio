@@ -1,5 +1,15 @@
 (function()
 {
+	// Logs uncaught errors
+	EditorUi.enableLogging = true;
+	
+	window.onerror = function(message, url, linenumber, colno, err)
+	{
+		message = 'Confluence Cloud: ' + ((message != null) ? message : '');
+		
+		EditorUi.logError(message, url, linenumber, colno, err);
+	};
+
 	var EXPORT_URL = 'https://exp.draw.io/ImageExport4/export';
 	
 	// Enables dynamic loading of shapes and stencils (same domain)

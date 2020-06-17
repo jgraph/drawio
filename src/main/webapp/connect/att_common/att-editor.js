@@ -68,12 +68,13 @@ function AttViewerEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawi
 			}
 		}
 		
+		Graph.prototype.shadowId = 'attachmentDropShadow';
 		var viewer = new GraphViewer(container, doc.documentElement,
 				{highlight: '#3572b0', border: 8, 'auto-fit': true,
 				resize: false, nav: true, lightbox: false, title: filename,
 				'toolbar-nohide': true, 'toolbar-position': 'top', toolbar: 'pages layers',
 				pageId: pageId, layerIds: layerIds});
-
+		
 		curViewer = viewer;
 		
 		if (typeof AP != 'undefined')

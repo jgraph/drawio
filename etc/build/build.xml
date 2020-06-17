@@ -241,7 +241,17 @@
 		
 		<concat destfile="${war.dir}/js/viewer.min.js" fixlastline="yes" append="no">
 			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
-    		</concat>
+    	</concat>
+
+		<echo file="${basedir}/.tmp3.js">
+			// Disables eval for JS (uses shapes.min.js)
+			mxStencilRegistry.allowEval = false;
+		</echo>
+		
+		<concat destfile="${war.dir}/js/viewer-static.min.js" fixlastline="yes" append="no">
+			<filelist dir="${war.dir}/js" files="viewer.min.js,shapes.min.js"/>
+			<filelist dir="${basedir}" files=".tmp3.js"/>
+    	</concat>
 
 		<delete file="${war.dir}/js/extensions.min.js"/>
 		<delete file="${basedir}/.tmp0.js"/>
@@ -249,6 +259,7 @@
 		<delete file="${basedir}/.tmp1.js"/>
 		<delete file="${basedir}/.tmp2.js"/>
 		<delete file="${basedir}/.tmp2.min.js"/>
+		<delete file="${basedir}/.tmp3.js"/>
 		<delete file="${basedir}/.tmp1.xml"/>
 		<delete file="${basedir}/.tmp2.xml"/>
 

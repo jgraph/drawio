@@ -331,6 +331,12 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 	urlParams['tr'] = '0';
 }
 
+// Uses embed mode on embed domain
+if (window.location.hostname == 'embed.diagrams.net')
+{
+	urlParams['embed'] = '1';
+}	
+
 // Disables math in offline mode
 if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 {

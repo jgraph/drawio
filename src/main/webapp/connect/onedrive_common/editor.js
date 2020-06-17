@@ -132,6 +132,7 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 			}
 		}
 		
+		Graph.prototype.shadowId = 'oneDriveDropShadow';
 		var viewer = new GraphViewer(container, doc.documentElement,
 				{highlight: '#3572b0', border: 8, 'auto-fit': true,
 				resize: false, nav: true, lightbox: false, title: filename,
@@ -309,10 +310,7 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 							}, handleNonDrawFile);
 						}, handleNonDrawFile);
 					}
-					//Handle draw.io potential files (html & xml)
-					else if (useDrawio || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png' 
-							|| /\.svg$/i.test(file.name) || /\.html$/i.test(file.name) || /\.xml$/i.test(file.name) 
-							|| /\.png$/i.test(file.name) || /\.drawio$/i.test(file.name))
+					else
 					{
 						AC.checkDrawioFile(file, function(doc, cnt)
 						{
@@ -321,10 +319,6 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 							drawioCheck.checked = true;
 							setAutosize();
 						}, handleNonDrawFile);
-					}
-					else
-					{
-						handleNonDrawFile();
 					}
 				});
 				

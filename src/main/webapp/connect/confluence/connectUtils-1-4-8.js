@@ -1,5 +1,10 @@
-// Renamed from ac.js. This is the version used for release 1.4.8-AC onwards
+// Sets base path for mxgraph library
+if (typeof window.mxBasePath === 'undefined')
+{
+	window.mxBasePath = '/mxgraph';
+}
 
+// Renamed from ac.js. This is the version used for release 1.4.8-AC onwards
 var AC = {};
 
 AC.autosaveTimeout = 10000;
@@ -173,7 +178,7 @@ AC.initI18nAsync = function(lang, callback)
 		});
 	};
 	
-	script.src = '/js/viewer.min.js';
+	script.src = '/js/viewer-static.min.js';
 	document.getElementsByTagName('head')[0].appendChild(script);
 };
 
