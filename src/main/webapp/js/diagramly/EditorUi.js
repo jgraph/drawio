@@ -10813,7 +10813,7 @@
 						this.spinner.stop();
 						
 						var dlg = new FilenameDialog(this, data.defaultValue || '',
-							(data.okKey != null) ? mxResources.get(data.okKey) : null, function(value)
+							(data.okKey != null) ? mxResources.get(data.okKey) : data.ok, function(value)
 						{
 							if (value != null)
 							{
