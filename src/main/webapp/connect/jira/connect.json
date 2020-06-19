@@ -15,7 +15,7 @@
      {
          "type": "none"
      },
-     "version": "1.3.3",
+     "version": "1.3.12",
      "scopes": 
      [
      	"READ",
@@ -130,7 +130,7 @@
 	  "webPanels": 
 	  [
       {
-        "url": "/connect/jira/viewerPanel-1-3-3.html?issueId=${issue.id}",
+        "url": "/connect/jira/viewerPanel-1-3-12.html?issueId=${issue.id}",
         "location": "atl.jira.view.issue.left.context",
         "layout": 
         {
@@ -189,7 +189,7 @@
         },
         "target": {
           "type": "web_panel",
-          "url": "/connect/jira/viewerPanel-1-3-3.html?issueId=${issue.id}"
+          "url": "/connect/jira/viewerPanel-1-3-12.html?issueId=${issue.id}"
         },
         "tooltip": {
           "value": "Show draw.io Diagrams Panel"
@@ -215,7 +215,7 @@
         },
         "target": {
           "type": "web_panel",
-          "url": "/connect/jira/viewerPanel-1-3-3.html?issueId=${issue.id}&glance=1"
+          "url": "/connect/jira/viewerPanel-1-3-12.html?issueId=${issue.id}&glance=1"
         },
         "name": {
           "value": "draw.io Diagrams"

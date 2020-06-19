@@ -1,3 +1,13 @@
+19-JUN-2020: 13.3.0
+
+- Adds ok for prompt JSON message
+- Adds prompt-cancel JSON event
+- Uses mxGraph 4.2.0
+
+17-JUN-2020: 13.2.6
+
+- Fixes caching issues for Confluence Cloud
+
 17-JUN-2020: 13.2.5
 
 - Adds embed.diagrams.net for embed mode

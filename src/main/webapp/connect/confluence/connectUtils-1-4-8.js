@@ -4,6 +4,9 @@ if (typeof window.mxBasePath === 'undefined')
 	window.mxBasePath = '/mxgraph';
 }
 
+// Sets absolute path for proxy
+window.PROXY_URL = window.PROXY_URL || '/proxy';
+
 // Renamed from ac.js. This is the version used for release 1.4.8-AC onwards
 var AC = {};
 

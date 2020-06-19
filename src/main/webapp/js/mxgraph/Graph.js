@@ -1964,8 +1964,8 @@ Graph.prototype.labelLinkClicked = function(state, elt, evt)
 {
 	var href = elt.getAttribute('href');
 	
-	if (href != null && !this.isCustomLink(href) && (mxEvent.isLeftMouseButton(evt) &&
-		!mxEvent.isPopupTrigger(evt)) || mxEvent.isTouchEvent(evt))
+	if (href != null && !this.isCustomLink(href) && ((mxEvent.isLeftMouseButton(evt) &&
+		!mxEvent.isPopupTrigger(evt)) || mxEvent.isTouchEvent(evt)))
 	{
 		if (!this.isEnabled() || this.isCellLocked(state.cell))
 		{

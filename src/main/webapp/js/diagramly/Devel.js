@@ -50,6 +50,11 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
 				replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 				replace(/  /g, ' '));
+		console.log('jira.draw.io:',
+			csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
+				replace(/%frame-src%/g, '').
+				replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
+				replace(/  /g, ' '));
 	})();
 }
 			

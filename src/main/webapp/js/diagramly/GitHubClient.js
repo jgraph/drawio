@@ -335,7 +335,15 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 					error({code: req.getStatus(), message: this.getErrorMessage(req, mxResources.get('error') + ' ' + req.getStatus())});
 				}
 			}
-		}), error);
+		}), mxUtils.bind(this, function(err)
+		{
+			window.clearTimeout(timeoutThread);
+				    	
+			if (acceptResponse)
+			{
+				error(err);
+			}
+		}));
 	});
 
 	var fn = mxUtils.bind(this, function(failOnAuth)

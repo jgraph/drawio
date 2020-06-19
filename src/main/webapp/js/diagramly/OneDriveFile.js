@@ -303,36 +303,22 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 		{
 			var doSave = mxUtils.bind(this, function()
 			{
-				var prevModified = null;
-				var modified = null;
-				
 				try
 				{
-					// Makes sure no changes get lost while the file is saved
-					prevModified = this.isModified;
-					modified = this.isModified();
-					this.savingFile = true;
+					// Sets shadow modified state during save
 					this.savingFileTime = new Date();
+					this.setShadowModified(false);
+					this.savingFile = true;
 					
-					var prepare = mxUtils.bind(this, function()
-					{
-						this.setModified(false);
-						
-						this.isModified = function()
-						{
-							return modified;
-						};
-					});
-						
 					var etag = (!overwrite && this.constructor == OneDriveFile &&
-							(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
-							this.getCurrentEtag() : null;
+						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
+						this.getCurrentEtag() : null;
 					var lastDesc = this.meta;
-					prepare();
 					
 					this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
 					{
-						this.isModified = prevModified;
+						// Checks for changes during save
+						this.setModified(this.getShadowModified());
 						this.savingFile = false;
 						this.meta = meta;
 	
@@ -345,76 +331,66 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 								success();
 							}
 						}), error);
-					}),
-					mxUtils.bind(this, function(err, req)
+					}), mxUtils.bind(this, function(err, req)
 					{
-						this.savingFile = false;
-						this.isModified = prevModified;
-						this.setModified(modified || this.isModified());
-						
-						if (this.isConflict(req))
-				    	{
-							this.inConflictState = true;
-	
-							if (this.sync != null)
-							{
-								this.savingFile = true;
-								this.savingFileTime = new Date();
-								
-								this.sync.fileConflict(null, mxUtils.bind(this, function()
-								{
-									// Adds random cool-off
-									window.setTimeout(mxUtils.bind(this, function()
-									{
-										this.updateFileData();
-										doSave();
-									}), 100 + Math.random() * 500);
-								}), mxUtils.bind(this, function()
-								{
-									this.savingFile = false;
+						try
+						{
+							this.savingFile = false;
+							
+							if (this.isConflict(req))
+					    	{
+								this.inConflictState = true;
+		
+								if (this.sync != null)
+								{	
+									this.savingFile = true;
 									
-									if (error != null)
+									this.sync.fileConflict(null, mxUtils.bind(this, function()
 									{
-										error();
-									}
-								}));
+										// Adds random cool-off
+										window.setTimeout(mxUtils.bind(this, function()
+										{
+											this.updateFileData();
+											doSave();
+										}), 100 + Math.random() * 500);
+									}), mxUtils.bind(this, function()
+									{
+										this.savingFile = false;
+							
+										if (error != null)
+										{
+											error();
+										}
+									}));
+								}
+								else if (error != null)
+								{
+									error();
+								}
 							}
 							else if (error != null)
 							{
-								error();
+								error(err);
 							}
 						}
-						else if (error != null)
+						catch (e)
 						{
-							// Handles modified state for retries
-							if (err != null && err.retry != null)
+							this.savingFile = false;
+				
+							if (error != null)
 							{
-								var retry = err.retry;
-								
-								err.retry = function()
-								{
-									prepare();
-									retry();
-								};
+								error(e);
 							}
-							
-							error(err);
+							else
+							{
+								throw e;
+							}
 						}
 					}), etag);
 				}
 				catch (e)
 				{
 					this.savingFile = false;
-					
-					if (prevModified != null)
-					{
-						this.isModified = prevModified;
-					}
-					
-					if (modified != null)
-					{
-						this.setModified(modified || this.isModified());
-					}
 					
 					if (error != null)
 					{
@@ -431,11 +407,15 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 		}
 		else
 		{
-			this.savingFile = true;
+			// Sets shadow modified state during save
 			this.savingFileTime = new Date();
+			this.setShadowModified(false);
+			this.savingFile = true;
 		
 			this.ui.oneDrive.insertFile(title, this.getData(), mxUtils.bind(this, function(file)
 			{
+				// Checks for changes during save
+				this.setModified(this.getShadowModified());
 				this.savingFile = false;
 				
 				if (success != null)

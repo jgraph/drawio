@@ -956,11 +956,23 @@ DrawioFile.prototype.isModified = function()
 	return this.modified;
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DrawioFile.prototype.getShadowModified = function()
 {
 	return this.shadowModified;
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DrawioFile.prototype.setShadowModified = function(value)
 {
 	this.shadowModified = value;
@@ -1818,7 +1830,7 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 			}
 			else if (!this.isModified())
 			{
-				var msg = (err != null) ? ((err.error != null) ? err.error.message : err.message) : null;
+				var msg = this.getErrorMessage(err);
 				
 				if (msg != null && msg.length > 60)
 				{
@@ -1826,8 +1838,8 @@ DrawioFile.prototype.handleFileError = function(err, manual)
 				}
 				
 				this.ui.editor.setStatus('<div class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
-					mxUtils.htmlEntities(mxResources.get('error')) +
-					((msg != null) ? ' (' + mxUtils.htmlEntities(msg) + ')' : '') + '</div>');
+					mxUtils.htmlEntities(mxResources.get('error')) + ((msg != null) ?
+					' (' + mxUtils.htmlEntities(msg) + ')' : '') + '</div>');
 			}
 		}
 	}
@@ -1905,7 +1917,14 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
  */
 DrawioFile.prototype.getErrorMessage = function(err)
 {
-	return (err != null) ? ((err.error != null) ? err.error.message : err.message) : null
+	var msg = (err != null) ? ((err.error != null) ? err.error.message : err.message) : null;
+	
+	if (msg == null && err != null && err.code == App.ERROR_TIMEOUT)
+	{
+		msg = mxResources.get('timeout');
+	}
+	
+	return msg;
 };
 
 /**

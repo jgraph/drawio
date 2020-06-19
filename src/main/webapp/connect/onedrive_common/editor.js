@@ -116,7 +116,7 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 
 		var container = document.createElement('div');
 		// NOTE: Height must be specified with default value "auto" to force automatic fit in viewer
-		container.style.cssText = 'position:absolute;width:100%;height:auto;bottom:0px;top:0px;border:1px solid transparent;';
+		container.style.cssText = 'position:absolute;width:auto;left:0px;right:0px;height:auto;bottom:0px;top:0px;border:1px solid transparent;';
 		prevDiv.appendChild(container);
 
 		var pageId, layerIds;
@@ -138,7 +138,17 @@ function OneDriveEditor(onSubmit, getFileInfoFn, idSuffix, notStandalone, drawio
 				resize: false, nav: true, lightbox: false, title: filename,
 				'toolbar-nohide': true, 'toolbar-position': 'top', toolbar: 'pages layers',
 				pageId: pageId, layerIds: layerIds});
-
+		
+		viewer.graph.addListener('size', function()
+		{
+			var root = this.view.getDrawPane().ownerSVGElement;
+			
+			if (root != null)
+			{
+				root.style.minHeight = '';
+			}
+		});
+		
 		curViewer = viewer;
 		
 		if (typeof AP != 'undefined')

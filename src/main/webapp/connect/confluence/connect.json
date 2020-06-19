@@ -15,7 +15,7 @@
     "links": {
         "documentation": "https://support.draw.io/display/DFCC/draw.io+for+Confluence+Cloud"
     },
-    "version": "1.4.8",
+    "version": "1.4.42",
     "authentication": 
     {
         "type": "none"
@@ -60,7 +60,7 @@
             {
                 "key": "lightbox",
                 "location": "hidden",
-                "url": "/connect/confluence/viewer-1-4-8.html?lightbox=1",
+                "url": "/connect/confluence/viewer-1-4-42.html?lightbox=1",
                 "name": {
                     "value": "Lightbox",
                     "i18n": "lightbox"
@@ -69,7 +69,7 @@
             {
                 "key": "customContentViewer",
                 "location": "hidden",
-                "url": "/connect/confluence/viewer-1-4-8.html?custom=1&contentId={content.id}",
+                "url": "/connect/confluence/viewer-1-4-42.html?custom=1&contentId={content.id}",
                 "name": {
                     "value": "draw.io Viewer",
                     "i18n": "drawViewer"
@@ -145,7 +145,7 @@
                     "i18n": "drawioMacro",
                     "value": "draw.io Diagram"
                 },
-                "url": "/connect/confluence/viewer-1-4-8.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId={contentId}&custContentId={custContentId}&contentVer={contentVer}&inComment={inComment}&aspect={aspect}&pCenter={pCenter}",
+                "url": "/connect/confluence/viewer-1-4-42.html?ceoId=${page.id}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId={contentId}&custContentId={custContentId}&contentVer={contentVer}&inComment={inComment}&aspect={aspect}&pCenter={pCenter}",
                 "width": "100%",
                 "description": 
                 {
@@ -261,7 +261,7 @@
                     "i18n": "incDrawioMacro",
                     "value": "Embed draw.io Diagram"
                 },
-                "url": "/connect/confluence/viewer-1-4-8.html?linked=1&ceoId=${page.id}&imgPageId=${imgPageId}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId=${contentId}&custContentId={custContentId}&contentVer=${contentVer}&diagramUrl=${diagramUrl}&aspect=${aspect}&aspectHash=${aspectHash}&attVer=${attVer}&service=${service}&sFileId=${sFileId}&odriveId=${odriveId}",
+                "url": "/connect/confluence/viewer-1-4-42.html?linked=1&ceoId=${page.id}&imgPageId=${imgPageId}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId=${contentId}&custContentId={custContentId}&contentVer=${contentVer}&diagramUrl=${diagramUrl}&aspect=${aspect}&aspectHash=${aspectHash}&attVer=${attVer}&service=${service}&sFileId=${sFileId}&odriveId=${odriveId}",
                 "width": "100%",
                 "description": 
                 {

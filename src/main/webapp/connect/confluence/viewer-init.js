@@ -29,6 +29,9 @@ RESOURCE_BASE = '/resources/dia';
 STENCIL_PATH = '/stencils';
 SHAPES_PATH = '/shapes';
 IMAGE_PATH = '/images';
+OPEN_URL = '/import';
+PROXY_URL = '/proxy';
+SAVE_URL = '/save';
 
 // Absolute for font conversion in lightbox to work
 PROXY_URL = '/proxy';

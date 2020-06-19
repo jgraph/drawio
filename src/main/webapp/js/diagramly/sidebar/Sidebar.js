@@ -52,7 +52,7 @@
 	
 	Sidebar.prototype.cisco19 = ['LAN Switching', 'Routing WAN', 'Network Management', 'Data Center', 'Wireless LAN', 'Collaboration', 'Security Clouds Connectors', 'Endpoint Client Device Icons', 'DNA SD Access', 'SD WAN Viptela', 'ETA Stealthwatch', 'SAFE'];
 
-	Sidebar.prototype.cisco_safe = ['Architecture', 'Capability', 'Design', 'Threat'];
+	Sidebar.prototype.cisco_safe = ['Architecture', 'Business Icons', 'Capability', 'Design', 'IoT Things Icons', 'People Places Things Icons', 'Security Icons', 'Technology Icons', 'Threat'];
 	
 	Sidebar.prototype.sysml = ['Model Elements', 'Blocks', 'Ports and Flows', 'Constraint Blocks', 'Activities', 'Interactions', 'State Machines', 
 	                           'Use Cases', 'Allocations', 'Requirements', 'Profiles', 'Stereotypes'];

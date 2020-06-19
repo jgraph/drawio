@@ -10813,11 +10813,15 @@
 						this.spinner.stop();
 						
 						var dlg = new FilenameDialog(this, data.defaultValue || '',
-							(data.okKey != null) ? mxResources.get(data.okKey) : null, function(value)
+							(data.okKey != null) ? mxResources.get(data.okKey) : data.ok, function(value)
 						{
 							if (value != null)
 							{
 								parent.postMessage(JSON.stringify({event: 'prompt', value: value, message: data}), '*');
+							}
+							else
+							{
+								parent.postMessage(JSON.stringify({event: 'prompt-cancel', message: data}), '*');
 							}
 						}, (data.titleKey != null) ? mxResources.get(data.titleKey) : data.title);
 						this.showDialog(dlg.container, 300, 80, true, false);

@@ -202,7 +202,15 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 						mxResources.get('error') + ' ' + req.getStatus())});
 				}
 			}
-		}), error);
+		}), mxUtils.bind(this, function(err)
+		{
+			window.clearTimeout(timeoutThread);
+				    	
+			if (acceptResponse)
+			{
+				error(err);
+			}
+		}));
 	});
 
 	var fn = mxUtils.bind(this, function(failOnAuth)

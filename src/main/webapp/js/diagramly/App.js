@@ -5187,9 +5187,8 @@ App.prototype.updateButtonContainer = function()
 App.prototype.save = function(name, done)
 {
 	var file = this.getCurrentFile();
-	var msg = mxResources.get('saving');
 	
-	if (file != null && this.spinner.spin(document.body, msg))
+	if (file != null && this.spinner.spin(document.body, mxResources.get('saving')))
 	{
 		this.editor.setStatus('');
 		
@@ -5210,6 +5209,14 @@ App.prototype.save = function(name, done)
 		
 		var error = mxUtils.bind(this, function(err)
 		{
+			if (err != null && err.retry == null && err.code == App.ERROR_TIMEOUT)
+			{
+				err.retry = mxUtils.bind(this, function()
+				{
+					this.save(name, done);
+				});
+			}
+			
 			file.handleFileError(err, true);
 		});
 		

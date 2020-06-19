@@ -1529,7 +1529,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 										{
 											acceptResponse = false;
-											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+											error({code: App.ERROR_TIMEOUT});
 										}), 3 * this.ui.timeout);
 									}
 									catch (e)
@@ -1671,7 +1671,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 										timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 										{
 											acceptResponse = false;
-											error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
+											error({code: App.ERROR_TIMEOUT});
 										}), 3 * this.ui.timeout);
 									}
 									catch (e)

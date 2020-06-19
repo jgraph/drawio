@@ -1,5 +1,74 @@
 (function()
 {
+	// Logs uncaught errors
+	EditorUi.enableLogging = true;
+	
+	window.onerror = function(message, url, linenumber, colno, err)
+	{
+		message = 'Jira Cloud: ' + ((message != null) ? message : '');
+		
+		EditorUi.logError(message, url, linenumber, colno, err);
+	};
+
+	//Parses URL parameters
+	function getUrlParam(param)
+	{
+		var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+		
+		if (result != null && result.length > 0)
+		{
+			return decodeURIComponent(result[1].replace(/\+/g, '%20'))
+		}
+		
+		return null;
+	};
+	
+	function getBaseUrl()
+	{
+		var baseUrl = getUrlParam('xdm_e', true) + getUrlParam('cp', true);
+		//Ensure baseUrl belongs to attlasian (*.jira.com and *.atlassian.net)
+		//Since we add cp to xdm_e, we had to ensure that there is a slash after the domain. Since if xdm_e is ok, cp can corrupt is such as cp = '.fakedomain.com' such that baseUrl is atlassian.net.fakedomain.com
+		if (/^https:\/\/([^\.])+\.jira\.com\//.test(baseUrl + '/') || /^https:\/\/([^\.])+\.atlassian\.net\//.test(baseUrl + '/')) 
+		{
+			return baseUrl;
+		}
+		throw 'Invalid baseUrl!';
+	};
+	
+	function getDocDim()
+	{
+		var body = document.body,
+	    html = document.documentElement;
+	
+		var height = Math.max(body.offsetHeight, html.clientHeight, html.offsetHeight);
+	
+		var width = Math.max(body.offsetWidth, html.clientWidth, html.offsetWidth);
+		
+		return {w: width, h: height};
+	};
+	// Sets global environment variables
+	RESOURCE_BASE = '/resources/dia';
+	STENCIL_PATH = '/stencils';
+	SHAPES_PATH = '/shapes';
+	IMAGE_PATH = '/images';
+	OPEN_URL = '/import';
+	PROXY_URL = '/proxy';
+	SAVE_URL = '/save';
+	
+	// Overrides browser language with JIRA user language
+	var lang = getUrlParam('loc');
+	
+	// Language is in the Connect URL
+	if (lang != null)
+	{
+		var dash = lang.indexOf('-');
+		
+		if (dash >= 0)
+		{
+			mxLanguage = lang.substring(0, dash);
+		}
+	}
+	
 	// Enables dynamic loading of shapes and stencils (same domain)
 	mxStencilRegistry.dynamicLoading = true;
 

@@ -215,28 +215,12 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 		{
 			if (checked)
 			{
-				var prevModified = null;
-				var modified = null;
-				
 				try
 				{
-					// Makes sure no changes get lost while the file is saved
-					prevModified = this.isModified;
-					modified = this.isModified();
-					this.savingFile = true;
+					// Sets shadow modified state during save
 					this.savingFileTime = new Date();
-	
-					var prepare = mxUtils.bind(this, function()
-					{
-						this.setModified(false);
-						
-						this.isModified = function()
-						{
-							return modified;
-						};
-					});
-					
-					prepare();
+					this.setShadowModified(false);
+					this.savingFile = true;
 					
 					var doSave = mxUtils.bind(this, function(data)
 					{
@@ -245,8 +229,9 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 						
 						this.ui.dropbox.saveFile(title, data, mxUtils.bind(this, function(stat)
 						{
+							// Checks for changes during save
+							this.setModified(this.getShadowModified());
 							this.savingFile = false;
-							this.isModified = prevModified;
 							this.stat = stat;
 							this.contentChanged();
 							
@@ -257,23 +242,9 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 						}), mxUtils.bind(this, function(err)
 						{
 							this.savingFile = false;
-							this.isModified = prevModified;
-							this.setModified(modified || this.isModified());
-							
+
 							if (error != null)
 							{
-								// Handles modified state for retries
-								if (err != null && err.retry != null)
-								{
-									var retry = err.retry;
-									
-									err.retry = function()
-									{
-										prepare();
-										retry();
-									};
-								}
-								
 								error(err);
 							}
 						}), folder);
@@ -297,17 +268,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 				catch (e)
 				{
 					this.savingFile = false;
-					
-					if (prevModified != null)
-					{
-						this.isModified = prevModified;
-					}
-					
-					if (modified != null)
-					{
-						this.setModified(modified || this.isModified());
-					}
-					
+
 					if (error != null)
 					{
 						error(e);

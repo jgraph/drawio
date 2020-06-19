@@ -152,7 +152,15 @@ OneDriveClient.prototype.updateUser = function(success, error, failOnAuth)
 				success();
 			}
 		}
-	}), error);
+	}), mxUtils.bind(this, function(err)
+	{
+		window.clearTimeout(timeoutThread);
+			    	
+		if (acceptResponse)
+		{
+			error(err);
+		}
+	}));
 };
 
 OneDriveClient.prototype.resetTokenRefresh = function(expires_in)
@@ -439,7 +447,15 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 					error(this.parseRequestText(req));
 				}
 			}
-		}), error);
+		}), mxUtils.bind(this, function(err)
+		{
+			window.clearTimeout(timeoutThread);
+				    	
+			if (acceptResponse)
+			{
+				error(err);
+			}
+		}));
 	});
 	
 	if (this.token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
@@ -831,59 +847,9 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 		var fn = mxUtils.bind(this, function(data)
 		{
 			var url = this.getItemURL(file.getId());
-	
+			
 			this.writeFile(url + '/content/', data, 'PUT', null, mxUtils.bind(this, function(resp)
 			{
-				// Checks for truncated files in OneDrive by comparing expected and actual file size
-				// Apparently in some cases the file is not truncated but the expected and actual
-				// file size do still defer and cases with truncated files have not been detected
-				// ie. there were no cases where the file size was significantly off.
-	//			try
-	//			{
-	//				if (typeof window.Blob !== 'undefined')
-	//				{
-	//
-	//					// Returns string length in bytes instead of chars to check returned file size
-	//					function byteCount(str)
-	//					{
-	//						try
-	//						{
-	//							return new Blob([str]).size
-	//						}
-	//						catch (e)
-	//						{
-	//							// ignore
-	//						}
-	//						
-	//						return null;
-	//					};
-	//					
-	//					var exp = (typeof data === 'string') ? byteCount(data) : data.size;
-	//					
-	//					if (resp != null && exp != null && resp.size != exp)
-	//					{
-	//						// Logs failed save
-	//						var user = this.getUser();
-	//						
-	//						EditorUi.sendReport('Critical: Truncated OneDrive File ' +
-	//							new Date().toISOString() + ':' + '\n\nBrowser=' + navigator.userAgent +
-	//							'\nFile=' + file.getId() + '\nMime=' + file.meta.file.mimeType +
-	//							'\nUser=' + ((user != null) ? user.id : 'unknown') +
-	//							 	'-client_' + ((file.sync != null) ? file.sync.clientId : 'nosync') +
-	//							'\nExpected=' + exp + ' Actual=' + resp.size)
-	//						EditorUi.logError('Critical: Truncated OneDrive File ' + file.getId(),
-	//							null, 'expected_' + exp + '-actual_' + resp.size +
-	//							'-mime_' + file.meta.file.mimeType,
-	//							'user-' + ((user != null) ? user.id : 'unknown') +
-	//						 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync'));
-	//					}
-	//				}
-	//			}
-	//			catch (e)
-	//			{
-	//				// ignore
-	//			}
-				
 				success(resp, savedData);
 			}), error, etag);
 		});
@@ -942,7 +908,7 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 						timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 						{
 							acceptResponse = false;
-							error({code: App.ERROR_TIMEOUT, retry: doExecute});
+							error({code: App.ERROR_TIMEOUT});
 						}), this.ui.timeout);
 					}
 					catch (e)

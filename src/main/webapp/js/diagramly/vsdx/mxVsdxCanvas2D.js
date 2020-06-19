@@ -734,8 +734,8 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 		if (w == 0 && h == 0)
 		{
 			var strSize = mxUtils.getSizeForString(str, that.cellState.style["fontSize"], that.cellState.style["fontFamily"]);
-			w = strSize.width * 1.2;
-			h = strSize.height * 1.2;
+			w = strSize.width * 2;
+			h = strSize.height * 2;
 		}
 		
 		//TODO support HTML text formatting and remaining attributes

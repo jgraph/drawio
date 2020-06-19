@@ -1,3 +1,12 @@
+// Sets base path for mxgraph library
+if (typeof window.mxBasePath === 'undefined')
+{
+	window.mxBasePath = '/mxgraph';
+}
+
+// Sets absolute path for proxy
+window.PROXY_URL = window.PROXY_URL || '/proxy';
+
 var AC = {};
 
 AC.getUrlParam = function(param, escape, url){
