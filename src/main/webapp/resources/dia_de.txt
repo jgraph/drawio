@@ -635,6 +635,7 @@ rightToLeft=Von rechts nach links
 rotate=Rotieren
 rotateTooltip=Klicken und ziehen um zu rotieren, klicken um nur Form um 90 Grad zu drehen
 rotation=Rotation
+rough=Skizze
 rounded=Abgerundet
 save=Speichern
 saveAndExit=Speichern & Beenden

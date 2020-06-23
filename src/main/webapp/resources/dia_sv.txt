@@ -635,6 +635,7 @@ rightToLeft=Höger till vänster
 rotate=Rotera
 rotateTooltip=Klicka-och-dra för att rotera, klicka för att rotera 90 grader
 rotation=Rotation
+rough=Rough
 rounded=Rundad
 save=Spara
 saveAndExit=Spara & Avsluta

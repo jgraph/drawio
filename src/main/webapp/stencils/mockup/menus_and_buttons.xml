@@ -4,11 +4,11 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#2c457e"/>
-            <roundrect x="0" y="0" w="81" h="25" arcsize="7.851851851851851"/>
+            <roundrect x="0" y="0" w="81" h="25" arcsize="7.852"/>
             <fillstroke/>
             <strokecolor color="#a4a4a4"/>
             <fillcolor color="#e3e3e4"/>
-            <roundrect x="90" y="0" w="81" h="25" arcsize="7.851851851851851"/>
+            <roundrect x="90" y="0" w="81" h="25" arcsize="7.852"/>
             <fillstroke/>
         </foreground>
     </shape>
@@ -17,11 +17,11 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#2c457e"/>
-            <roundrect x="0" y="0" w="81" h="32" arcsize="6.539351851851852"/>
+            <roundrect x="0" y="0" w="81" h="32" arcsize="6.54"/>
             <fillstroke/>
             <strokecolor color="#a4a4a4"/>
             <fillcolor color="#e3e3e4"/>
-            <roundrect x="90" y="0" w="81" h="32" arcsize="6.539351851851852"/>
+            <roundrect x="90" y="0" w="81" h="32" arcsize="6.54"/>
             <fillstroke/>
         </foreground>
     </shape>
@@ -111,7 +111,7 @@
             <stroke/>
             <strokecolor color="#000000"/>
             <fillcolor color="#c8dfff"/>
-            <roundrect x="0" y="0" w="34" h="24" arcsize="10.661764705882353"/>
+            <roundrect x="0" y="0" w="34" h="24" arcsize="10.662"/>
             <fillstroke/>
             <strokecolor color="#818181"/>
             <fillcolor color="none"/>
@@ -734,9 +734,9 @@
             <linejoin join="round"/>
             <linecap cap="round"/>
             <path>
-                <move x="129" y="54.69999999999999"/>
+                <move x="129" y="54.7"/>
                 <line x="134.5" y="57.5"/>
-                <line x="129" y="60.30000000000001"/>
+                <line x="129" y="60.301"/>
             </path>
             <stroke/>
         </foreground>
@@ -750,7 +750,7 @@
             <fillstroke/>
             <strokecolor color="#a6c7fd"/>
             <fillcolor color="#d8e8ff"/>
-            <roundrect x="0" y="0" w="121" h="24" arcsize="7.489669421487603"/>
+            <roundrect x="0" y="0" w="121" h="24" arcsize="7.49"/>
             <fillstroke/>
             <fillcolor color="#a6c7fd"/>
             <rect x="1" y="63" w="119" h="18"/>
@@ -760,9 +760,9 @@
             <linejoin join="round"/>
             <linecap cap="round"/>
             <path>
-                <move x="8.555565000000001" y="72.31139999999999"/>
-                <line x="8.962540000000004" y="74.83332999999999"/>
-                <line x="12.05556" y="70.66667000000001"/>
+                <move x="8.556" y="72.312"/>
+                <line x="8.963" y="74.834"/>
+                <line x="12.056" y="70.667"/>
             </path>
             <stroke/>
             <fillcolor color="#000000"/>
@@ -784,7 +784,7 @@
             <fillstroke/>
             <strokecolor color="#a6c7fd"/>
             <fillcolor color="#d8e8ff"/>
-            <roundrect x="0" y="0" w="52" h="24" arcsize="9.134615384615385"/>
+            <roundrect x="0" y="0" w="52" h="24" arcsize="9.135"/>
             <fillstroke/>
             <fillcolor color="#a6c7fd"/>
             <rect x="1" y="63" w="50" h="18"/>

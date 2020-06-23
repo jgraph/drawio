@@ -635,6 +635,7 @@ rightToLeft=Rechts naar links
 rotate=Draaien
 rotateTooltip=Klik en sleep om te draaien, klik om 90 graden te draaien
 rotation=Rotatie
+rough=Rough
 rounded=Afgerond
 save=Opslaan
 saveAndExit=Opslaan & afsluiten

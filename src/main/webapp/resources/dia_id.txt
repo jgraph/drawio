@@ -635,6 +635,7 @@ rightToLeft=Kanan ke kiri
 rotate=Putar
 rotateTooltip=Klik dan seret untuk memutar, klik untuk memutar 90 derajat
 rotation=Rotasi
+rough=Rough
 rounded=Bulat
 save=Simpan
 saveAndExit=Simpan & Keluar

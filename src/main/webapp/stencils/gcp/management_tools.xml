@@ -649,7 +649,7 @@
         <fillstroke/>
         <strokecolor color="none"/>
         <fillcolor color="#000000"/>
-        <alpha alpha="0.07000002"/>
+        <alpha alpha="0.071"/>
         <path>
             <move x="80.66" y="32.91"/>
             <line x="120.96" y="73.29"/>

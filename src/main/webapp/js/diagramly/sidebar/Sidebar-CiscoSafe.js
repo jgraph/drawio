@@ -1166,10 +1166,7 @@
 	   		 this.createVertexTemplateEntry(n2 + 'compositeIcon;bgIcon=threat5;resIcon=' + gn + '.threat_e7;',
 					 w2, w2 * 0.94, '', 'Threat E7', null, null, this.getTagsForStencil(gn, 'threat', dt).join(' ')),
 	   		 this.createVertexTemplateEntry(n2 + 'compositeIcon;bgIcon=threat5;resIcon=' + gn + '.threat_e8;',
-					 w2, w2 * 0.94, '', 'Threat E8', null, null, this.getTagsForStencil(gn, 'threat', dt).join(' ')),
+					 w2, w2 * 0.94, '', 'Threat E8', null, null, this.getTagsForStencil(gn, 'threat', dt).join(' '))
 		]);
 	};
-	
-	
-	
 })();

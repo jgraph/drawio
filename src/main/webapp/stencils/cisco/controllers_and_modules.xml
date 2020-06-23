@@ -578,7 +578,7 @@
 </shape>
 <shape name="Firewall Service Module (FwSM)" h="53" w="33" aspect="variable" strokewidth="inherit">
 <connections>
-<constraint x="0.5" y="0.0050" perimeter="0" name="N"/>
+<constraint x="0.5" y="0.005" perimeter="0" name="N"/>
 <constraint x="0.5" y="1" perimeter="0" name="S"/>
 <constraint x="0" y="0.5" perimeter="0" name="W"/>
 <constraint x="0.99" y="0.5" perimeter="0" name="E"/>

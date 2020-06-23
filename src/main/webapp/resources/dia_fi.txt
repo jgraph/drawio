@@ -635,6 +635,7 @@ rightToLeft=Oikealta vasemmalle
 rotate=Kierrä
 rotateTooltip=Klikkaa ja vedä kiertääksesi, klikkaa kääntääksesi 90 astetta
 rotation=Kiertäminen
+rough=Rough
 rounded=Pyöristetty
 save=Tallenna
 saveAndExit=Tallenna & poistu

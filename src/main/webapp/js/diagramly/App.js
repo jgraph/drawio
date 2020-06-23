@@ -2917,7 +2917,24 @@ App.prototype.start = function()
 							}
 							else if (urlParams['splash'] != '0')
 							{
-								this.loadFile(id);
+								this.loadFile(id, null, null, mxUtils.bind(this, function()
+								{
+									var temp = decodeURIComponent(urlParams['viewbox'] || '');
+									
+									if (temp != '')
+									{
+										try
+										{
+											var bounds = JSON.parse(temp);
+											this.editor.graph.fitWindow(bounds, bounds.border);
+										}
+										catch (e)
+										{
+											// Ignore invalid viewport
+											console.error(e);
+										}
+									}
+								}));
 							}
 							else
 							{
@@ -5209,12 +5226,12 @@ App.prototype.save = function(name, done)
 		
 		var error = mxUtils.bind(this, function(err)
 		{
-			if (err != null && err.retry == null && err.code == App.ERROR_TIMEOUT)
+			if (file.isModified())
 			{
-				err.retry = mxUtils.bind(this, function()
+				Editor.addRetryToError(err, mxUtils.bind(this, function()
 				{
 					this.save(name, done);
-				});
+				}));
 			}
 			
 			file.handleFileError(err, true);

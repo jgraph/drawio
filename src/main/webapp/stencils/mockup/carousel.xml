@@ -8,7 +8,7 @@
             <fillstroke/>
             <strokecolor color="#000000"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="479" h="185" arcsize="1.8732720194098065"/>
+            <roundrect x="0" y="0" w="479" h="185" arcsize="1.874"/>
             <fillstroke/>
             <rect x="0" y="170" w="15" h="15"/>
             <fillstroke/>
@@ -33,7 +33,7 @@
             <fillstroke/>
             <strokecolor color="#666666"/>
             <fillcolor color="#cccccc"/>
-            <roundrect x="16" y="171" w="64" h="12" arcsize="9.254807692307693"/>
+            <roundrect x="16" y="171" w="64" h="12" arcsize="9.255"/>
             <fillstroke/>
             <strokecolor color="#999999"/>
             <fillcolor color="#999999"/>
@@ -97,7 +97,7 @@
             <strokecolor color="#999999"/>
             <strokewidth width="2"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="40" h="15" arcsize="13.750000000000002"/>
+            <roundrect x="0" y="0" w="40" h="15" arcsize="13.751"/>
             <fillstroke/>
             <path>
                 <move x="20" y="0"/>
@@ -158,7 +158,7 @@
         <foreground>
             <strokecolor color="#000000"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="479" h="200" arcsize="1.7719206680584552"/>
+            <roundrect x="0" y="0" w="479" h="200" arcsize="1.772"/>
             <fillstroke/>
             <fillcolor color="#000000"/>
             <path>
@@ -242,7 +242,7 @@
         <foreground>
             <strokecolor color="#000000"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="439" h="200" arcsize="1.819476082004556"/>
+            <roundrect x="0" y="0" w="439" h="200" arcsize="1.82"/>
             <fillstroke/>
             <fillcolor color="#000000"/>
             <path>
@@ -291,7 +291,7 @@
             <strokecolor color="#999999"/>
             <strokewidth width="2"/>
             <fillcolor color="none"/>
-            <roundrect x="390" y="180" w="40" h="15" arcsize="13.750000000000002"/>
+            <roundrect x="390" y="180" w="40" h="15" arcsize="13.751"/>
             <stroke/>
             <path>
                 <move x="410" y="180"/>

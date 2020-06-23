@@ -2108,7 +2108,7 @@ AC.findMacroInPage = function(pageId, diagramName, lastMacroVer, success, error,
     			var macroDiagName = foundMacros[i].match(AC.findMacroParamRegEx["diagramName"]);
     			var macroRevision = foundMacros[i].match(AC.findMacroParamRegEx["revision"]);
     			
-    			if (macroDiagName != null && macroRevision != null && macroDiagName[1] == diagramName && macroRevision[1] == lastMacroVer)
+    			if (macroDiagName != null && macroRevision != null && macroDiagName[1] == diagramName && (macroRevision[1] == lastMacroVer || lastMacroVer == false))
 				{
     				var macroParams = {};
     				

@@ -635,6 +635,7 @@ rightToLeft=ขวาไปซ้าย
 rotate=หมุน
 rotateTooltip=คลิกและลากเพื่อหมุน คลิกเพื่อหมุน 90 องศา
 rotation=การหมุน
+rough=Rough
 rounded=รูปร่างกลม
 save=บันทึก
 saveAndExit=บันทึก และ ออก

@@ -152,7 +152,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.03" y="43.44"/>
             <line x="41.04" y="68.32"/>
@@ -4522,7 +4522,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.02" y="43.44"/>
             <line x="41.03" y="68.33"/>
@@ -4812,7 +4812,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.02" y="43.44"/>
             <line x="41.03" y="68.32"/>
@@ -5187,7 +5187,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.03" y="43.44"/>
             <line x="41.04" y="68.32"/>
@@ -6288,7 +6288,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.03" y="43.44"/>
             <line x="41.04" y="68.33"/>
@@ -19696,7 +19696,7 @@
         </path>
         <fill/>
         <fillcolor color="#919292"/>
-        <fillalpha alpha="0.29803999"/>
+        <fillalpha alpha="0.299"/>
         <path>
             <move x="82.03" y="43.44"/>
             <line x="41.04" y="68.33"/>

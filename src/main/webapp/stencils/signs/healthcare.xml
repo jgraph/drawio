@@ -2634,10 +2634,10 @@
 <connections>
 <constraint x="0.62" y="0" perimeter="0" name="N"/>
 <constraint x="0.5" y="0.855" perimeter="0" name="S"/>
-<constraint x="0.0070" y="0.5" perimeter="0" name="W"/>
+<constraint x="0.007" y="0.5" perimeter="0" name="W"/>
 <constraint x="0.99" y="0.5" perimeter="0" name="E"/>
 <constraint x="0.04" y="0.04" perimeter="0" name="NW"/>
-<constraint x="0.0070" y="1" perimeter="0" name="SW"/>
+<constraint x="0.007" y="1" perimeter="0" name="SW"/>
 <constraint x="1" y="1" perimeter="0" name="SE"/>
 </connections>
 <foreground>
@@ -4583,9 +4583,9 @@
 <constraint x="0.5" y="1" perimeter="0" name="S"/>
 <constraint x="0.075" y="0.5" perimeter="0" name="W"/>
 <constraint x="0.925" y="0.5" perimeter="0" name="E"/>
-<constraint x="0.01" y="0.0050" perimeter="0" name="NW"/>
+<constraint x="0.01" y="0.005" perimeter="0" name="NW"/>
 <constraint x="0.09" y="0.99" perimeter="0" name="SW"/>
-<constraint x="0.99" y="0.0050" perimeter="0" name="NE"/>
+<constraint x="0.99" y="0.005" perimeter="0" name="NE"/>
 <constraint x="0.91" y="0.99" perimeter="0" name="SE"/>
 </connections>
 <foreground>

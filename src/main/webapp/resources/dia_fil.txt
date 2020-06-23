@@ -635,6 +635,7 @@ rightToLeft=Kanan papunta ng kaliwa
 rotate=Paikutin
 rotateTooltip=Pindutin at hilahin para maikot, pindutin para maikot ng 90 degrees
 rotation=Pag-ikot
+rough=Rough
 rounded=Bilugan
 save=I-save
 saveAndExit=I-save at umalis

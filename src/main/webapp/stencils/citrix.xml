@@ -1214,7 +1214,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.66384017"/>
+        <strokewidth width="0.664"/>
         <ellipse h="51.7" w="51.7" x="17.26" y="47.38"/>
         <stroke/>
     </foreground>
@@ -1527,7 +1527,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.47854096"/>
+        <strokewidth width="0.479"/>
         <ellipse h="37.28" w="37.28" x="86.6" y="124.77"/>
         <stroke/>
     </foreground>
@@ -3230,7 +3230,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="1.20000005"/>
+        <strokewidth width="1.201"/>
         <path>
             <move x="150.91" y="190.57"/>
             <line x="144.56" y="192.24"/>
@@ -3241,7 +3241,7 @@
             <close/>
         </path>
         <stroke/>
-        <strokewidth width="0.60158336"/>
+        <strokewidth width="0.602"/>
         <path>
             <move x="88.74" y="167.84"/>
             <arc large-arc-flag="0" rx="26.74" ry="40.11" sweep-flag="1" x="79.72" x-axis-rotation="0" y="155.48"/>
@@ -3262,7 +3262,7 @@
         <stroke/>
         <strokecolor color="#697079"/>
         <fillcolor color="#697079"/>
-        <strokewidth width="0.50971419"/>
+        <strokewidth width="0.51"/>
         <path>
             <move x="81.57" y="169.71"/>
             <line x="79.53" y="135.47"/>
@@ -3300,7 +3300,7 @@
         <stroke/>
         <strokecolor color="#697079"/>
         <fillcolor color="#697079"/>
-        <strokewidth width="0.50971419"/>
+        <strokewidth width="0.51"/>
         <path>
             <move x="99.75" y="151.7"/>
             <line x="97.71" y="117.46"/>
@@ -3645,7 +3645,7 @@
         </path>
         <stroke/>
         <fillcolor color="#9ea5b5"/>
-        <strokewidth width="0.87052494"/>
+        <strokewidth width="0.871"/>
         <path>
             <move x="92.9" y="119.02"/>
             <arc large-arc-flag="0" rx="31.92" ry="16.69" sweep-flag="1" x="156.01" x-axis-rotation="0" y="119.02"/>
@@ -3678,7 +3678,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.87052494"/>
+        <strokewidth width="0.871"/>
         <path>
             <move x="92.9" y="119.02"/>
             <arc large-arc-flag="0" rx="31.92" ry="16.69" sweep-flag="1" x="156.01" x-axis-rotation="0" y="119.02"/>
@@ -5553,7 +5553,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="104.51"/>
         <stroke/>
         <strokecolor color="#666666"/>
@@ -5923,7 +5923,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="104.51"/>
         <stroke/>
         <restore/>
@@ -6139,7 +6139,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.34623036"/>
+        <strokewidth width="0.347"/>
         <path>
             <move x="112.19" y="166.12"/>
             <line x="112.19" y="165.34"/>
@@ -6261,7 +6261,7 @@
         </path>
         <stroke/>
         <fillcolor color="#2782c2"/>
-        <strokewidth width="0.74422389"/>
+        <strokewidth width="0.745"/>
         <path>
             <move x="86.21" y="174.38"/>
             <line x="73.97" y="120.46"/>
@@ -6318,7 +6318,7 @@
         <stroke/>
         <strokecolor color="#000000"/>
         <fillcolor color="#0b79b9"/>
-        <strokewidth width="0.74422389"/>
+        <strokewidth width="0.745"/>
         <path>
             <move x="82.33" y="103.1"/>
             <arc large-arc-flag="0" rx="16.12" ry="16.12" sweep-flag="1" x="98.45" x-axis-rotation="0" y="86.97"/>
@@ -6356,7 +6356,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.74422389"/>
+        <strokewidth width="0.745"/>
         <path>
             <move x="86.21" y="174.38"/>
             <line x="73.97" y="120.46"/>
@@ -6612,7 +6612,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="109.01"/>
         <stroke/>
         <fillcolor color="#ffffff"/>
@@ -7005,7 +7005,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="104.51"/>
         <stroke/>
         <restore/>
@@ -7066,7 +7066,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.45126531"/>
+        <strokewidth width="0.452"/>
         <path>
             <move x="114.76" y="146.53"/>
             <arc large-arc-flag="0" rx="16.41" ry="16.41" sweep-flag="1" x="105.53" x-axis-rotation="0" y="150.43"/>
@@ -7314,7 +7314,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="1.20000005"/>
+        <strokewidth width="1.201"/>
         <path>
             <move x="0" y="22"/>
             <line x="71" y="4.5"/>
@@ -7558,7 +7558,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="1.20000005"/>
+        <strokewidth width="1.201"/>
         <path>
             <move x="142.29" y="192.62"/>
             <line x="135.44" y="194.78"/>
@@ -7716,7 +7716,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.47854096"/>
+        <strokewidth width="0.479"/>
         <ellipse h="37.28" w="37.28" x="86.6" y="124.77"/>
         <stroke/>
         <restore/>
@@ -7877,7 +7877,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="1.08037233"/>
+        <strokewidth width="1.081"/>
         <ellipse h="84.16" w="84.16" x="3.93" y="1.33"/>
         <stroke/>
         <fillcolor color="#9ea5b5"/>
@@ -13036,7 +13036,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="104.51"/>
         <stroke/>
         <restore/>
@@ -13184,7 +13184,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.57652628"/>
+        <strokewidth width="0.577"/>
         <path>
             <move x="93.46" y="167.94"/>
             <line x="93.46" y="134.79"/>
@@ -15730,7 +15730,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokewidth width="0.96541548"/>
+        <strokewidth width="0.966"/>
         <ellipse h="75.2" w="75.2" x="76.3" y="109.01"/>
         <stroke/>
         <fillcolor color="#ffffff"/>
@@ -15791,7 +15791,7 @@
         </path>
         <fill/>
         <strokecolor color="#000000"/>
-        <strokewidth width="1.20000005"/>
+        <strokewidth width="1.201"/>
         <path>
             <move x="134.05" y="175.81"/>
             <line x="129.97" y="177.09"/>

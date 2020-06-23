@@ -635,6 +635,7 @@ rightToLeft=由右至左
 rotate=旋转
 rotateTooltip=点选拖拽旋转，或点击选择90度
 rotation=旋转
+rough=Rough
 rounded=圆角
 save=保存
 saveAndExit=保存并退出

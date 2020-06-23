@@ -635,6 +635,7 @@ rightToLeft=Paremalt vasakule
 rotate=Keera
 rotateTooltip=Kliki ja lohista keeramiseks, kliki 90-kraadiseks keeramiseks
 rotation=Keeramine
+rough=Rough
 rounded=Ümmargune
 save=Salvesta
 saveAndExit=Salvesta ja välju

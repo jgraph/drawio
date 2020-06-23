@@ -1689,7 +1689,7 @@
         <rect/>
         <stroke/>
         <fontcolor color="#333333"/>
-        <fontsize size="18.5399"/>
+        <fontsize size="18.54"/>
         <fontfamily family="'Helvetica-Bold'"/>
         <text str="M" valign="bottom" x="6.67" y="32.88"/>
         <text str="F" valign="bottom" x="22.11" y="32.88"/>
@@ -1988,7 +1988,7 @@
         <save/>
         <save/>
         <fontcolor color="#FFFFFF"/>
-        <fontsize size="10.5399"/>
+        <fontsize size="10.54"/>
         <fontfamily family="'Helvetica-Bold'"/>
         <text str="ROOT" valign="bottom" x="5.28" y="49.89"/>
         <restore/>
@@ -2075,7 +2075,7 @@
         </path>
         <fillstroke/>
         <fontcolor color="#FFFFFF"/>
-        <fontsize size="13.1409"/>
+        <fontsize size="13.141"/>
         <fontfamily family="'Helvetica-Bold'"/>
         <text str="STS" valign="bottom" x="6.6" y="50.36"/>
         <restore/>

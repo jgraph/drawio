@@ -401,9 +401,9 @@
 <constraint x="0.5" y="1" perimeter="0" name="S"/>
 <constraint x="0" y="0.5" perimeter="0" name="W"/>
 <constraint x="0.995" y="0.5" perimeter="0" name="E"/>
-<constraint x="0.0070" y="0.0070" perimeter="0" name="NW"/>
+<constraint x="0.007" y="0.007" perimeter="0" name="NW"/>
 <constraint x="0" y="1" perimeter="0" name="SW"/>
-<constraint x="0.99" y="0.0070" perimeter="0" name="NE"/>
+<constraint x="0.99" y="0.007" perimeter="0" name="NE"/>
 <constraint x="1" y="1" perimeter="0" name="SE"/>
 </connections>
 <background>

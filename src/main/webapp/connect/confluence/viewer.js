@@ -392,6 +392,21 @@
 						                    });
 										};
 										
+										function monitorPopup(editWin)
+										{
+											if (editWin != null)
+											{
+												var checkClosedTimer = setInterval(function() 
+												{
+												    if (editWin.closed !== false) 
+												    {
+												        clearInterval(checkClosedTimer);
+												        location.reload();
+												    }
+												}, 200);
+											}
+										};
+										
 										var editFunc = function()
 										{
 											if (lightbox)
@@ -400,6 +415,24 @@
 											}
 											else
 											{
+												//We support editing Google Drive, OneDrive only
+												if (linkedMode)
+												{
+													var editWin = null;
+													
+													if (service == 'GDrive')
+													{
+														editWin = window.open('https://' + window.location.hostname + '/#G' + encodeURIComponent(sFileId));
+													}
+													else if (service == 'OneDrive')
+													{
+														editWin = window.open('https://' + window.location.hostname + '/#W' + encodeURIComponent(odriveId + '/' + sFileId));
+													}
+													
+													monitorPopup(editWin);
+													return;
+												}
+												
 												AP.dialog.create(
 								                {
 							                		key: 'customContentEditor',
@@ -768,8 +801,10 @@
 											}
 											
 											
-											if (userCanEdit[id] != -1 //We treat 0 (unknown as allowed since anyway the editor will show an error on save) 
-													&& contentId != null && contentId.length > 0 && tbStyle != 'hidden' && !linkedMode && !isServiceDesk)
+											if ((userCanEdit[id] != -1 //We treat 0 (unknown as allowed since anyway the editor will show an error on save) 
+													&& contentId != null && contentId.length > 0 && tbStyle != 'hidden' && !linkedMode && !isServiceDesk) || 
+													
+													(service != null && service.length > 0 && service != 'AttFile'))
 											{
 												config.toolbar = 'edit ' + config.toolbar;
 												var editImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVBAMAAABbObilAAAAD1BMVEUAAAAAAAAQEBBycnIgICBqwj3hAAAAAXRSTlMAQObYZgAAADlJREFUCNdjoBwoChrAmCyGggJwYWVBBSiTSVDICKFa0AEuLCiEJKyAX5gBSZgBSZgBKGwMBKQ7HAAWzQSfKKAyBgAAAABJRU5ErkJggg==';
@@ -778,6 +813,36 @@
 												{
 													'edit': {title: mxResources.get('edit'), enabled: true,
 														image: editImage, handler: editFunc}
+												};
+											}
+											else if (linkedMode && contentId != null && contentId.length > 0)
+											{
+												config.toolbar = 'gotoPage ' + config.toolbar;
+												var gotoPageImg = 'data:image/png;base64,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'; 
+												
+												config['toolbar-buttons'] = 
+												{
+													'gotoPage': {title: mxResources.get('confGotoPage'), enabled: true,
+														image: gotoPageImg, handler: function()
+														{
+															//Check if the parent page has its macro
+															AC.findMacroInPage(id, name, false, function(macroFound, originalBody, matchingMacros, page)
+															{
+																var editWin = null;
+																var spaceKey = page._expandable && page._expandable.space? page._expandable.space.substr(page._expandable.space.lastIndexOf('/') + 1) : '';
+																
+																if (macroFound)
+																{
+																	editWin = window.open(baseUrl + '/spaces/' + encodeURIComponent(spaceKey) + '/pages/edit/' + id);
+																}
+																else
+																{
+																	editWin = window.open(baseUrl + '/pages/viewpageattachments.action?pageId=' + id + '&activeContentType=ac:com.mxgraph.confluence.plugins.diagramly:drawio-diagram');
+																}
+																
+																monitorPopup(editWin);
+															});
+														}}
 												};
 											}
 											

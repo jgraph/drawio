@@ -2718,7 +2718,7 @@
 </shape>
 <shape name="Jet Ski" h="86.34" w="99.5" aspect="variable" strokewidth="inherit">
 <connections>
-<constraint x="0.31" y="0.0050" perimeter="0" name="N"/>
+<constraint x="0.31" y="0.005" perimeter="0" name="N"/>
 <constraint x="0.5" y="0.995" perimeter="0" name="S"/>
 <constraint x="0.095" y="0.64" perimeter="0" name="W"/>
 <constraint x="0.995" y="0.65" perimeter="0" name="E"/>
@@ -3585,7 +3585,7 @@
 <connections>
 <constraint x="0.5" y="0.195" perimeter="0" name="N"/>
 <constraint x="0.55" y="0.995" perimeter="0" name="S"/>
-<constraint x="0.0050" y="0.6" perimeter="0" name="W"/>
+<constraint x="0.005" y="0.6" perimeter="0" name="W"/>
 <constraint x="1" y="0.42" perimeter="0" name="E"/>
 <constraint x="0.19" y="0.3" perimeter="0" name="NW"/>
 <constraint x="0.74" y="0" perimeter="0" name="NE"/>
@@ -3781,7 +3781,7 @@
 <connections>
 <constraint x="0.5" y="0.195" perimeter="0" name="N"/>
 <constraint x="0.405" y="1" perimeter="0" name="S"/>
-<constraint x="0.0050" y="0.5" perimeter="0" name="W"/>
+<constraint x="0.005" y="0.5" perimeter="0" name="W"/>
 <constraint x="0.855" y="0.38" perimeter="0" name="E"/>
 <constraint x="0.09" y="0.04" perimeter="0" name="NW"/>
 <constraint x="0.98" y="0.845" perimeter="0" name="SE"/>

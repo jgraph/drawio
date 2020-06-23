@@ -635,6 +635,7 @@ rightToLeft=Zprava doleva
 rotate=Otočit
 rotateTooltip=Klikněte a táhněte pro otočení, klikněte pro otočení o 90 stupňů
 rotation=Otočení
+rough=Rough
 rounded=Zaoblený
 save=Uložit
 saveAndExit=Uložit & ukončit

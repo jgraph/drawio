@@ -1392,7 +1392,7 @@
 <constraint x="0.985" y="0.47" perimeter="0" name="E"/>
 <constraint x="0.265" y="0" perimeter="0" name="NW"/>
 <constraint x="0.25" y="0.92" perimeter="0" name="SW"/>
-<constraint x="0.74" y="0.0050" perimeter="0" name="NE"/>
+<constraint x="0.74" y="0.005" perimeter="0" name="NE"/>
 <constraint x="0.74" y="0.92" perimeter="0" name="SE"/>
 </connections>
 <foreground>

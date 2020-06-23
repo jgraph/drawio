@@ -213,6 +213,7 @@
 			<filelist dir="${war.dir}/js/spin" files="spin.min.js"/>
 			<filelist dir="${war.dir}/js/sanitizer" files="sanitizer.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,.tmp1.js"/>
     	</concat>
 
@@ -302,6 +303,7 @@
 			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${war.dir}/js/croppie" files="croppie.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 
@@ -415,6 +417,7 @@
 			<filelist dir="${war.dir}/js/cryptojs" files="aes.min.js"/>
 			<filelist dir="${war.dir}/js/deflate" files="pako.min.js"/>
 			<filelist dir="${war.dir}/js/croppie" files="croppie.min.js"/>
+			<filelist dir="${war.dir}/js/rough" files="rough.min.js"/>
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 

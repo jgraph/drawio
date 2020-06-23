@@ -635,6 +635,7 @@ rightToLeft=Højre til venstre
 rotate=Roter
 rotateTooltip=Klik og træk for at rotere, klik for at rotere 90 grader
 rotation=Rotation
+rough=Rough
 rounded=Afrundet
 save=Gem
 saveAndExit=Gem & Afslut

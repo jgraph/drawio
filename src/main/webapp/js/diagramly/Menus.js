@@ -280,7 +280,8 @@
 			{
 				// Export PDF action for chrome OS (same as print with different dialog title)
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
-						(editorUi.pages != null && editorUi.pages.length > 1) ?
+						(editorUi.pages != null && editorUi.pages.length > 1 && (editorUi.editor.editable ||
+						urlParams['hide-pages'] != '1')) ?
 						450 : 370, true, true);
 			}
 			else
@@ -557,7 +558,8 @@
 		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
 		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
 		                    'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
-		                    'arcSize'];
+		                    'arcSize', 'comic', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
+		                    'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{

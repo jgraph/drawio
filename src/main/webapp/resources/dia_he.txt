@@ -635,6 +635,7 @@ rightToLeft=‫מימין לשמאל‬
 rotate=‫סובב‬
 rotateTooltip=‫לחץ וגרור כדי לסובב, לחץ כדי לסובב ב-90 מעלות‬
 rotation=‫סיבוב‬
+rough=Rough
 rounded=‫מעוגל‬
 save=‫שמור‬
 saveAndExit=‫שמור וצא‬

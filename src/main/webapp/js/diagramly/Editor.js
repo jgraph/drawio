@@ -172,7 +172,62 @@
 	 * mxSettings.parse, then the settings are reset.
 	 */
 	Editor.configVersion = null;
-	
+
+	/**
+	 * Common properties for all edges.
+	 */
+	Editor.commonProperties = [{name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'fillWeight', dispName: 'Fill Weight', type: 'int', defVal: -1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'hachureGap', dispName: 'Hachure Gap', type: 'int', defVal: -1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'hachureAngle', dispName: 'Hachure Angle', type: 'int', defVal: -41, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'curveFitting', dispName: 'Curve Fitting', type: 'float', defVal: 0.95, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'simplification', dispName: 'Simplification', type: 'float', defVal: 0, min: 0, max: 1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'disableMultiStroke', dispName: 'Disable Multi Stroke', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'disableMultiStrokeFill', dispName: 'Disable Multi Stroke Fill', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'dashOffset', dispName: 'Dash Offset', type: 'int', defVal: -1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'dashGap', dispName: 'Dash Gap', type: 'int', defVal: -1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'zigzagOffset', dispName: 'ZigZag Offset', type: 'int', defVal: -1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'comicStyle', dispName: 'Rough Style', type: 'enum', defVal: 'rough',
+        	enumList: [{val: 'rough', dispName: 'Default'}, {val: 'jiggle', dispName: 'Legacy'}], isVisible: function(state)
+	        {
+	        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+	        }
+        }
+	];
+
 	/**
 	 * Common properties for all edges.
 	 */
@@ -197,10 +252,6 @@
         {name: 'anchorPointDirection', dispName: 'Anchor Direction', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state)
-        {
-        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
-        }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
@@ -209,7 +260,7 @@
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
         {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false}
-	];
+	].concat(Editor.commonProperties);
 
 	/**
 	 * Common properties for all vertices.
@@ -280,10 +331,6 @@
         			{val: 'trapezoidPerimeter', dispName: 'Trapezoid'}, {val: 'stepPerimeter', dispName: 'Step'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1.5, isVisible: function(state, format)
-        {
-        	return mxUtils.getValue(state.style, 'comic', '0') == '1';
-        }},
         {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
         {
@@ -351,7 +398,8 @@
         {
         	return state.vertices.length > 0 && format.editorUi.editor.graph.isContainer(state.vertices[0]);
         }}
-	];
+	].concat(Editor.commonProperties);
+	
 	/**
 	 * Default value for the CSV import dialog.
 	 */
@@ -485,6 +533,543 @@
 		'Edward Morrison,Brand Manager,emo,Office 2,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
 		'Ron Donovan,System Admin,rdo,Office 3,Evan Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
 		'Tessa Valet,HR Director,tva,Office 4,Evan Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n';
+
+	/**
+	 * Compresses the given string.
+	 */
+	Editor.createRoughCanvas = function(c)
+	{
+		var rc = rough.canvas(
+		{
+			getContext: function()
+			{
+				return c;
+			}
+		});
+	
+		rc.draw = function(drawable)
+		{
+			var sets = drawable.sets || [];
+			var o = drawable.options || this.getDefaultOptions();
+			var ctx = this.ctx;
+			
+			for (var i = 0; i < sets.length; i++)
+			{
+				var drawing = sets[i];
+				
+				switch (drawing.type)
+				{
+					case 'path':
+						this._drawToContext(ctx, drawing, o);
+						break;
+					case 'fillPath':
+						this._drawToContext(ctx, drawing, o);
+						break;
+					case 'fillSketch':
+						this.fillSketch(ctx, drawing, o);
+						break;
+				}
+			}
+		};
+	
+		rc.fillSketch = function(ctx, drawing, o)
+		{
+			if (o.filled)
+			{
+				var strokeColor = c.state.strokeColor;
+				var strokeWidth = c.state.strokeWidth;
+				var strokeAlpha = c.state.strokeAlpha;
+				var dashed = c.state.dashed;
+				
+				var fweight = o.fillWeight;
+				if (fweight < 0)
+				{
+					fweight = o.strokeWidth / 2;
+				}
+	
+				c.setStrokeAlpha(c.state.fillAlpha);
+				c.setStrokeColor(o.fill || '');
+				c.setStrokeWidth(fweight);
+				c.setDashed(false);
+				
+				this._drawToContext(c, drawing);
+				
+				c.setDashed(dashed);
+				c.setStrokeColor(strokeColor);
+				c.setStrokeWidth(strokeWidth);
+				c.setStrokeAlpha(strokeAlpha);
+			}
+		};
+	
+		rc._drawToContext = function(ctx, drawing, o)
+		{
+			ctx.begin();
+			
+			for (var i = 0; i < drawing.ops.length; i++)
+			{
+				var item = drawing.ops[i];
+				var data = item.data;
+				
+				switch (item.op)
+				{
+					case 'move':
+						ctx.moveTo(data[0], data[1]);
+						break;
+					case 'bcurveTo':
+						ctx.curveTo(data[0], data[1], data[2], data[3], data[4], data[5]);
+						break;
+					case 'lineTo':
+						ctx.lineTo(data[0], data[1]);
+						break;
+				}
+			};
+	
+			ctx.end();
+	
+			if (drawing.type === 'fillPath' && o.filled)
+			{
+				ctx.fill();
+			}
+			else
+			{
+				ctx.stroke();
+			}
+		};
+	
+		return rc;
+	};
+	
+	/**
+	 * Uses RoughJs for drawing comic shapes.
+	 */
+	(function()
+	{	
+		/**
+		 * Adds handJiggle style (jiggle=n sets jiggle)
+		 */
+		function RoughCanvas(canvas, rc, shape)
+		{
+			this.canvas = canvas;
+			this.rc = rc;
+			this.shape = shape;
+			
+			// Avoids "spikes" in the output
+			this.canvas.setLineJoin('round');
+			this.canvas.setLineCap('round');
+			
+			this.originalBegin = this.canvas.begin;
+			this.canvas.begin = mxUtils.bind(this, RoughCanvas.prototype.begin);
+			
+			this.originalEnd = this.canvas.end;
+			this.canvas.end = mxUtils.bind(this, RoughCanvas.prototype.end);
+					
+			this.originalRect = this.canvas.rect;
+			this.canvas.rect = mxUtils.bind(this, RoughCanvas.prototype.rect);
+	
+			this.originalRroundrect = this.canvas.roundrect;
+			this.canvas.roundrect = mxUtils.bind(this, RoughCanvas.prototype.roundrect);
+			
+			this.originalEllipse = this.canvas.ellipse;
+			this.canvas.ellipse = mxUtils.bind(this, RoughCanvas.prototype.ellipse);
+			
+			this.originalLineTo = this.canvas.lineTo;
+			this.canvas.lineTo = mxUtils.bind(this, RoughCanvas.prototype.lineTo);
+			
+			this.originalMoveTo = this.canvas.moveTo;
+			this.canvas.moveTo = mxUtils.bind(this, RoughCanvas.prototype.moveTo);
+			
+			this.originalQuadTo = this.canvas.quadTo;
+			this.canvas.quadTo = mxUtils.bind(this, RoughCanvas.prototype.quadTo);
+			
+			this.originalCurveTo = this.canvas.curveTo;
+			this.canvas.curveTo = mxUtils.bind(this, RoughCanvas.prototype.curveTo);
+			
+			this.originalArcTo = this.canvas.arcTo;
+			this.canvas.arcTo = mxUtils.bind(this, RoughCanvas.prototype.arcTo);
+			
+			this.originalClose = this.canvas.close;
+			this.canvas.close = mxUtils.bind(this, RoughCanvas.prototype.close);
+			
+			this.originalFill = this.canvas.fill;
+			this.canvas.fill = mxUtils.bind(this, RoughCanvas.prototype.fill);
+			
+			this.originalStroke = this.canvas.stroke;
+			this.canvas.stroke = mxUtils.bind(this, RoughCanvas.prototype.stroke);
+			
+			this.originalFillAndStroke = this.canvas.fillAndStroke;
+			this.canvas.fillAndStroke = mxUtils.bind(this, RoughCanvas.prototype.fillAndStroke);
+			
+			this.path = [];
+			this.passThrough = false;
+		};
+	
+		RoughCanvas.prototype.moveOp = 'M';
+		RoughCanvas.prototype.lineOp = 'L';
+		RoughCanvas.prototype.quadOp = 'Q';
+		RoughCanvas.prototype.curveOp = 'C';
+		RoughCanvas.prototype.closeOp = 'Z';
+	
+		RoughCanvas.prototype.getStyle = function(stroke, fill)
+		{
+			// Random seed created from cell ID
+			var seed = 1;
+
+			if (this.shape.state != null)
+			{
+				var str = this.shape.state.cell.id;
+				
+				if (str != null)
+				{
+					for (var i = 0; i < str.length; i++)
+					{
+				    	seed = ((seed << 5) - seed + str.charCodeAt(i)) << 0;
+					}
+				}
+			}
+
+			var style = {strokeWidth: this.canvas.state.strokeWidth, seed: seed};
+			var defs = this.rc.getDefaultOptions();
+			
+			if (stroke)
+			{
+				style.stroke = this.canvas.state.strokeColor === 'none' ? 'transparent' : this.canvas.state.strokeColor;
+			}
+			else
+			{
+				delete style.stroke;
+			}
+			
+			var gradient = null;
+			style.filled = fill;
+			
+			if (fill)
+			{
+				style.fill = this.canvas.state.fillColor === 'none' ? '' : this.canvas.state.fillColor;
+				gradient = this.canvas.state.gradientColor === 'none' ? null : this.canvas.state.gradientColor;
+			}
+			else
+			{
+				style.fill == '';
+			}
+			
+			// Applies cell style
+			style['bowing'] = mxUtils.getValue(this.shape.style, 'bowing', defs['bowing']);
+			style['hachureAngle'] = mxUtils.getValue(this.shape.style, 'hachureAngle', defs['hachureAngle']);
+			style['curveFitting'] = mxUtils.getValue(this.shape.style, 'curveFitting', defs['curveFitting']);
+			style['roughness'] = mxUtils.getValue(this.shape.style, 'jiggle', defs['roughness']);
+			style['simplification'] = mxUtils.getValue(this.shape.style, 'simplification', defs['simplification']);
+			style['disableMultiStroke'] = mxUtils.getValue(this.shape.style, 'disableMultiStroke', defs['disableMultiStroke']);
+			style['disableMultiStrokeFill'] = mxUtils.getValue(this.shape.style, 'disableMultiStrokeFill', defs['disableMultiStrokeFill']);
+		
+			var hachureGap = mxUtils.getValue(this.shape.style, 'hachureGap', -1);
+			style['hachureGap'] = (hachureGap == 'auto') ? -1 : hachureGap;
+			style['dashGap'] = mxUtils.getValue(this.shape.style, 'dashGap', hachureGap);
+			style['dashOffset'] = mxUtils.getValue(this.shape.style, 'dashOffset', hachureGap);
+			style['zigzagOffset'] = mxUtils.getValue(this.shape.style, 'zigzagOffset', hachureGap);
+			
+			var fillWeight = mxUtils.getValue(this.shape.style, 'fillWeight', -1);
+			style['fillWeight'] = (fillWeight == 'auto') ? -1 : fillWeight;
+			
+			var fillStyle = mxUtils.getValue(this.shape.style, 'fillStyle', 'auto');
+			
+			if (fillStyle == 'auto')
+			{
+				var bg = (this.shape.state != null) ? this.shape.state.view.graph.defaultPageBackgroundColor : '#ffffff';
+				
+				fillStyle = (style.fill != null && (style.fill.toLowerCase() == bg || gradient != null)) ?
+					'solid' : defs['fillStyle']
+			}
+			
+			style['fillStyle'] = fillStyle;
+			
+			return style;
+		};
+		
+		RoughCanvas.prototype.begin = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalBegin.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.path = [];
+			}
+		};
+		
+		RoughCanvas.prototype.end = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalEnd.apply(this.canvas, arguments);
+			}
+			else
+			{
+				// do nothing
+			}
+		};
+		
+		RoughCanvas.prototype.addOp = function()
+		{
+			if (this.path != null)
+			{
+				this.path.push(arguments[0]);
+				
+				if (arguments.length > 2)
+				{
+					var s = this.canvas.state;
+		
+					for (var i = 2; i < arguments.length; i += 2)
+					{
+						this.lastX = arguments[i - 1];
+						this.lastY = arguments[i];
+						
+						this.path.push(this.canvas.format((this.lastX)));
+						this.path.push(this.canvas.format((this.lastY)));
+					}
+				}
+			}
+		};
+	
+		RoughCanvas.prototype.lineTo = function(endX, endY)
+		{
+			if (this.passThrough)
+			{
+				this.originalLineTo.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.addOp(this.lineOp, endX, endY);
+				this.lastX = endX;
+				this.lastY = endY;
+			}
+		};
+		
+		RoughCanvas.prototype.moveTo = function(endX, endY)
+		{
+			if (this.passThrough)
+			{
+				this.originalMoveTo.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.addOp(this.moveOp, endX, endY);
+				this.lastX = endX;
+				this.lastY = endY;
+				this.firstX = endX;
+				this.firstY = endY;
+			}
+		};
+		
+		RoughCanvas.prototype.close = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalClose.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.addOp(this.closeOp);
+			}
+		};
+		
+		RoughCanvas.prototype.quadTo = function(x1, y1, x2, y2)
+		{
+			if (this.passThrough)
+			{
+				this.originalQuadTo.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.addOp(this.quadOp, x1, y1, x2, y2);
+				this.lastX = x2;
+				this.lastY = y2;
+			}
+		};
+		
+		RoughCanvas.prototype.curveTo = function(x1, y1, x2, y2, x3, y3)
+		{
+			if (this.passThrough)
+			{
+				this.originalCurveTo.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.addOp(this.curveOp, x1, y1, x2, y2, x3, y3);
+				this.lastX = x3;
+				this.lastY = y3;
+			}
+		};
+		
+		RoughCanvas.prototype.arcTo = function(rx, ry, angle, largeArcFlag, sweepFlag, x, y)
+		{
+			if (this.passThrough)
+			{
+				this.originalArcTo.apply(this.canvas, arguments);
+			}
+			else
+			{
+				var curves = mxUtils.arcToCurves(this.lastX, this.lastY, rx, ry, angle, largeArcFlag, sweepFlag, x, y);
+				
+				if (curves != null)
+				{
+					for (var i = 0; i < curves.length; i += 6) 
+					{
+						this.curveTo(curves[i], curves[i + 1], curves[i + 2],
+							curves[i + 3], curves[i + 4], curves[i + 5]);
+					}
+				}
+				
+				this.lastX = x;
+				this.lastY = y;
+			}
+		};
+			
+		RoughCanvas.prototype.rect = function(x, y, w, h)
+		{
+			if (this.passThrough)
+			{
+				this.originalRect.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.path = [];
+				this.nextShape = this.rc.generator.rectangle(x, y, w, h, this.getStyle(true, true));
+			}
+		};
+	
+		RoughCanvas.prototype.ellipse = function(x, y, w, h)
+		{
+			if (this.passThrough)
+			{
+				this.originalEllipse.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.path = [];
+				this.nextShape = this.rc.generator.ellipse(x + w / 2, y + h / 2, w, h, this.getStyle(true, true));
+			}
+		};
+			
+		RoughCanvas.prototype.roundrect = function(x, y, w, h, dx, dy)
+		{
+			if (this.passThrough)
+			{
+				this.originalRoundrect.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.begin();
+				this.moveTo(x + dx, y);
+				this.lineTo(x + w - dx, y);
+				this.quadTo(x + w, y, x + w, y + dy);
+				this.lineTo(x + w, y + h - dy);
+				this.quadTo(x + w, y + h, x + w - dx, y + h);
+				this.lineTo(x + dx, y + h);
+				this.quadTo(x, y + h, x, y + h - dy);
+				this.lineTo(x, y + dy);
+				this.quadTo(x, y, x + dx, y);
+			}
+		};
+	
+		RoughCanvas.prototype.drawPath = function(style)
+		{
+			if (this.path.length > 0)
+			{
+				this.passThrough = true;
+				try
+				{
+					this.rc.path(this.path.join(' '), style);
+				}
+				catch (e)
+				{
+					// ignore
+				}
+				this.passThrough = false;
+			}
+			else if (this.nextShape != null)
+			{
+				for (var key in style)
+				{
+					this.nextShape.options[key] = style[key];
+				}
+	
+				this.passThrough = true;
+				this.rc.draw(this.nextShape);
+				this.passThrough = false;
+			}	
+		};
+		
+		RoughCanvas.prototype.stroke = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalStroke.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.drawPath(this.getStyle(true, false));
+			}
+		};
+		
+		RoughCanvas.prototype.fill = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalFill.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.drawPath(this.getStyle(false, true));
+			}
+		};
+		
+		RoughCanvas.prototype.fillAndStroke = function()
+		{
+			if (this.passThrough)
+			{
+				this.originalFillAndStroke.apply(this.canvas, arguments);
+			}
+			else
+			{
+				this.drawPath(this.getStyle(true, true));
+			}
+		};
+		
+		RoughCanvas.prototype.destroy = function()
+		{
+			 this.canvas.lineTo = this.originalLineTo;
+			 this.canvas.moveTo = this.originalMoveTo;
+			 this.canvas.close = this.originalClose;
+			 this.canvas.quadTo = this.originalQuadTo;
+			 this.canvas.curveTo = this.originalCurveTo;
+			 this.canvas.arcTo = this.originalArcTo;
+			 this.canvas.close = this.originalClose;
+			 this.canvas.fill = this.originalFill;
+			 this.canvas.stroke = this.originalStroke;
+			 this.canvas.fillAndStroke = this.originalFillAndStroke;
+			 this.canvas.begin = this.originalBegin;
+			 this.canvas.end = this.originalEnd;
+			 this.canvas.rect = this.originalRect;
+			 this.canvas.ellipse = this.originalEllipse;
+			 this.canvas.roundrect = this.originalRroundrect;
+		};
+
+		// Overrides to avoid call to rect
+		var shapeCreateHandJiggle = mxShape.prototype.createHandJiggle;
+		
+		mxShape.prototype.createHandJiggle = function(c)
+		{
+			if (this.style != null && mxUtils.getValue(this.style, 'comicStyle', 'rough') == 'jiggle')
+			{
+				return shapeCreateHandJiggle.apply(this, arguments);
+			}
+			else
+			{
+				return new RoughCanvas(c, Editor.createRoughCanvas(c), this);
+			}
+		};
+	})();
 
 	/**
 	 * Compresses the given string.
@@ -905,7 +1490,23 @@
 		
 		return (cause != null) ? mxUtils.trim(cause) : cause;
 	};
-
+	
+	/**
+	 * Adds the given retry function to the given error.
+	 */
+	Editor.addRetryToError = function(err, retry)
+	{
+		if (err != null)
+		{
+			var e = (err.error != null) ? err.error : err;
+			
+			if (e.retry == null)
+			{
+				e.retry = retry;
+			}
+		}
+	};
+	
 	/**
 	 * Global configuration of the Editor
 	 * see https://desk.draw.io/solution/articles/16000058316
@@ -4977,6 +5578,11 @@
 						cells = this.getCellsForAction(action.scroll);
 					}
 					
+					if (action.viewbox != null)
+					{
+						this.fitWindow(action.viewbox, action.viewbox.border);
+					}
+					
 					if (cells.length > 0)
 					{
 						this.scrollCellToVisible(cells[0]);
@@ -5673,11 +6279,16 @@
 		}
 		
 		pagesFromInput.setAttribute('max', pageCount);
-		pagesToInput.setAttribute('max', pageCount);		
+		pagesToInput.setAttribute('max', pageCount);
 		
-		if (pageCount > 1)
+		if (!editorUi.isPagesEnabled())
+		{
+			pagesRadio.checked = true;
+		}
+		else if (pageCount > 1)
 		{
 			div.appendChild(pagesSection);
+			pagesRadio.checked = true;
 		}
 		
 		// Adjust to ...

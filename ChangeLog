@@ -1,3 +1,10 @@
+23-JUN-2020: 13.3.1
+
+- Adds rough style and URL parameter
+- Adds support for viewbox in link actions
+- Adds hide-pages, viewbox URL parameters
+- Uses mxGraph 4.2.1
+
 19-JUN-2020: 13.3.0
 
 - Adds ok for prompt JSON message

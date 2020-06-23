@@ -635,6 +635,7 @@ rightToLeft=De la dreapta la stânga
 rotate=Rotire
 rotateTooltip=”click and drag” pentru a roti, click pentru a întoarce la 90 de grade.
 rotation=Rotație
+rough=Rough
 rounded=Rotunjit
 save=Salvare
 saveAndExit=Salvare şi ieşire

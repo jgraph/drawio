@@ -635,6 +635,7 @@ rightToLeft=Jobbrol balra
 rotate=Forgat
 rotateTooltip=Forgatáshoz kattint és húz, 90 fokos fordításhoz kattint
 rotation=Forgatás
+rough=Rough
 rounded=Lekerekített
 save=Mentés
 saveAndExit=Ment és kilép

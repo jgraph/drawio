@@ -184,7 +184,7 @@
         </path>
         <fill/>
         <fillcolor color="#000000"/>
-        <fillalpha alpha="0.07000002"/>
+        <fillalpha alpha="0.071"/>
         <path>
             <move x="96.96" y="152.79"/>
             <line x="44.47" y="100.3"/>

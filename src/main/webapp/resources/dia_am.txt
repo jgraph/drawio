@@ -635,6 +635,7 @@ rightToLeft=Right to left
 rotate=Rotate
 rotateTooltip=Click and drag to rotate, click to turn shape only by 90 degrees
 rotation=Rotation
+rough=Rough
 rounded=Rounded
 save=Save
 saveAndExit=Save & Exit

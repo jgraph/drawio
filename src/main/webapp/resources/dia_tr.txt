@@ -635,6 +635,7 @@ rightToLeft=Sağdan sola
 rotate=Döndür
 rotateTooltip=Döndürmek için tıklayın ve sürükleyin, 90 derece döndürmek için tıklayın
 rotation=Döndürme
+rough=Rough
 rounded=Yuvarlanmış
 save=Kaydet
 saveAndExit=Kaydet ve Çık

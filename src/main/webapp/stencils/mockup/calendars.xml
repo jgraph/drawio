@@ -4,7 +4,7 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="0" w="160" h="175" arcsize="2.9910714285714284"/>
+            <roundrect x="0" y="0" w="160" h="175" arcsize="2.992"/>
             <fillstroke/>
             <strokecolor color="#909090"/>
             <fillcolor color="#ffffff"/>
@@ -191,7 +191,7 @@
             <strokewidth width="1"/>
             <fillcolor color="none"/>
             <linejoin join="miter"/>
-            <roundrect x="8" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="8" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -205,7 +205,7 @@
             <strokewidth width="1"/>
             <linejoin join="miter"/>
             <linecap cap="butt"/>
-            <roundrect x="130" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="130" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -284,7 +284,7 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="0" w="160" h="175" arcsize="2.9910714285714284"/>
+            <roundrect x="0" y="0" w="160" h="175" arcsize="2.992"/>
             <fillstroke/>
             <strokecolor color="#909090"/>
             <fillcolor color="#ffffff"/>
@@ -471,7 +471,7 @@
             <strokewidth width="1"/>
             <fillcolor color="none"/>
             <linejoin join="miter"/>
-            <roundrect x="8" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="8" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -485,7 +485,7 @@
             <strokewidth width="1"/>
             <linejoin join="miter"/>
             <linecap cap="butt"/>
-            <roundrect x="130" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="130" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -564,7 +564,7 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="0" w="160" h="347" arcsize="2.2829610951008648"/>
+            <roundrect x="0" y="0" w="160" h="347" arcsize="2.283"/>
             <fillstroke/>
             <strokecolor color="#909090"/>
             <fillcolor color="#ffffff"/>
@@ -751,7 +751,7 @@
             <strokewidth width="1"/>
             <fillcolor color="none"/>
             <linejoin join="miter"/>
-            <roundrect x="8" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="8" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -765,7 +765,7 @@
             <strokewidth width="1"/>
             <linejoin join="miter"/>
             <linecap cap="butt"/>
-            <roundrect x="130" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="130" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -781,7 +781,7 @@
             <fillcolor color="#d9d9d9"/>
             <linejoin join="miter"/>
             <linecap cap="butt"/>
-            <rect x="9.999989999999997" y="217" w="20" h="20"/>
+            <rect x="10" y="217" w="20" h="20"/>
             <fillstroke/>
             <fillcolor color="#ffffff"/>
             <rect x="30" y="217" w="20" h="20"/>
@@ -796,7 +796,7 @@
             <fillstroke/>
             <rect x="130" y="217" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="237" w="20" h="20"/>
+            <rect x="10" y="237" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="237" w="20" h="20"/>
             <fillstroke/>
@@ -824,7 +824,7 @@
             <fillstroke/>
             <rect x="130" y="217" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="237" w="20" h="20"/>
+            <rect x="10" y="237" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="237" w="20" h="20"/>
             <fillstroke/>
@@ -838,7 +838,7 @@
             <fillstroke/>
             <rect x="130" y="237" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="257" w="20" h="20"/>
+            <rect x="10" y="257" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="257" w="20" h="20"/>
             <fillstroke/>
@@ -852,7 +852,7 @@
             <fillstroke/>
             <rect x="130" y="257" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="277" w="20" h="20"/>
+            <rect x="10" y="277" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="277" w="20" h="20"/>
             <fillstroke/>
@@ -866,7 +866,7 @@
             <fillstroke/>
             <rect x="130" y="277" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="257" w="20" h="20"/>
+            <rect x="10" y="257" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="257" w="20" h="20"/>
             <fillstroke/>
@@ -880,7 +880,7 @@
             <fillstroke/>
             <rect x="130" y="257" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="277" w="20" h="20"/>
+            <rect x="10" y="277" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="277" w="20" h="20"/>
             <fillstroke/>
@@ -892,7 +892,7 @@
             <fillstroke/>
             <rect x="130" y="277" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="297" w="20" h="20"/>
+            <rect x="10" y="297" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="297" w="20" h="20"/>
             <fillstroke/>
@@ -906,7 +906,7 @@
             <fillstroke/>
             <rect x="130" y="297" w="20" h="20"/>
             <fillstroke/>
-            <rect x="9.999989999999997" y="317" w="20" h="20"/>
+            <rect x="10" y="317" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="317" w="20" h="20"/>
             <fillstroke/>
@@ -922,7 +922,7 @@
             <rect x="130" y="317" w="20" h="20"/>
             <fillstroke/>
             <fillcolor color="#ffffff"/>
-            <rect x="9.999989999999997" y="297" w="20" h="20"/>
+            <rect x="10" y="297" w="20" h="20"/>
             <fillstroke/>
             <rect x="30" y="297" w="20" h="20"/>
             <fillstroke/>
@@ -1080,7 +1080,7 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#000000"/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="0" w="320" h="175" arcsize="2.2098214285714284"/>
+            <roundrect x="0" y="0" w="320" h="175" arcsize="2.21"/>
             <fillstroke/>
             <strokecolor color="#909090"/>
             <fillcolor color="#ffffff"/>
@@ -1267,7 +1267,7 @@
             <strokewidth width="1"/>
             <fillcolor color="none"/>
             <linejoin join="miter"/>
-            <roundrect x="8" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="8" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>
@@ -1281,7 +1281,7 @@
             <strokewidth width="1"/>
             <linejoin join="miter"/>
             <linecap cap="butt"/>
-            <roundrect x="290" y="8" w="23" h="18" arcsize="19.806763285024154"/>
+            <roundrect x="290" y="8" w="23" h="18" arcsize="19.807"/>
             <stroke/>
             <strokewidth width="2"/>
             <linejoin join="round"/>

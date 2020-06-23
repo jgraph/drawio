@@ -13,7 +13,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -93,7 +93,7 @@
     <foreground>
         <strokecolor color="#FFFFFF"/>
         <fillcolor color="#342074"/>
-        <strokewidth width="2.0571"/>
+        <strokewidth width="2.058"/>
         <miterlimit limit="10"/>
         <path>
             <move x="35.69" y="60.46"/>
@@ -127,7 +127,7 @@
         <fillstroke/>
         <strokecolor color="#444444"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="1.3714"/>
+        <strokewidth width="1.372"/>
         <path>
             <move x="15.35" y="69.97"/>
             <line x="0" y="61.11"/>
@@ -206,7 +206,7 @@
     <foreground>
         <strokecolor color="#FFFFFF"/>
         <fillcolor color="#53B1CB"/>
-        <strokewidth width="2.0571"/>
+        <strokewidth width="2.058"/>
         <miterlimit limit="10"/>
         <path>
             <move x="35.69" y="60.46"/>
@@ -240,7 +240,7 @@
         <fillstroke/>
         <strokecolor color="#444444"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="1.3714"/>
+        <strokewidth width="1.372"/>
         <path>
             <move x="15.35" y="69.97"/>
             <line x="0" y="61.11"/>
@@ -427,7 +427,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -507,7 +507,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -587,7 +587,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -667,7 +667,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -701,7 +701,7 @@
         <fillstroke/>
         <strokecolor color="#FFFFFF"/>
         <fillcolor color="#115193"/>
-        <strokewidth width="1.5148"/>
+        <strokewidth width="1.515"/>
         <path>
             <move x="31.18" y="55.68"/>
             <line x="14.14" y="45.84"/>
@@ -748,7 +748,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -828,7 +828,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -908,7 +908,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -988,7 +988,7 @@
     <foreground>
         <strokecolor color="#464646"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="2.2721"/>
+        <strokewidth width="2.273"/>
         <miterlimit limit="10"/>
         <path>
             <move x="31.17" y="72"/>
@@ -1068,7 +1068,7 @@
     <foreground>
         <strokecolor color="#FFFFFF"/>
         <fillcolor color="#737373"/>
-        <strokewidth width="2.0571"/>
+        <strokewidth width="2.058"/>
         <miterlimit limit="10"/>
         <path>
             <move x="35.69" y="60.46"/>
@@ -1102,7 +1102,7 @@
         <fillstroke/>
         <strokecolor color="#444444"/>
         <fillcolor color="#FFFFFF"/>
-        <strokewidth width="1.3714"/>
+        <strokewidth width="1.372"/>
         <path>
             <move x="15.35" y="69.97"/>
             <line x="0" y="61.11"/>

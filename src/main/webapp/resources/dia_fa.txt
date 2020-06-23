@@ -635,6 +635,7 @@ rightToLeft=‫راست به چپ‬
 rotate=‫چرخاندن‬
 rotateTooltip=‫برای چرخاندن کلیک کرده و بکشید، برای چرخش 90 درجه کلیک کنید‬
 rotation=‫چرخش‬
+rough=Rough
 rounded=‫گرد‬
 save=‫ذخیره کردن‬
 saveAndExit=‫ذخیره و خروج‬

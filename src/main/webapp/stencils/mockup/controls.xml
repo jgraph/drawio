@@ -19,7 +19,7 @@
             </path>
             <stroke/>
             <path>
-                <move x="109" y="0.4000000000000057"/>
+                <move x="109" y="0.401"/>
                 <line x="109" y="23"/>
             </path>
             <stroke/>
@@ -39,7 +39,7 @@
             </path>
             <stroke/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="9" w="219" h="9" arcsize="26.141552511415522"/>
+            <roundrect x="0" y="9" w="219" h="9" arcsize="26.142"/>
             <fillstroke/>
             <strokecolor color="#333333"/>
             <fillcolor color="#7f7f7f"/>
@@ -59,10 +59,10 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#333333"/>
             <fillcolor color="#4342a9"/>
-            <roundrect x="0" y="0" w="130" h="31" arcsize="5.992555831265508"/>
+            <roundrect x="0" y="0" w="130" h="31" arcsize="5.993"/>
             <fillstroke/>
             <fillcolor color="#c7c7c7"/>
-            <roundrect x="65" y="0" w="65" h="31" arcsize="7.1464019851116625"/>
+            <roundrect x="65" y="0" w="65" h="31" arcsize="7.147"/>
             <fillstroke/>
             <fontsize size="16"/>
             <fontstyle style="1"/>
@@ -111,7 +111,7 @@
                 <line x="54.31" y="53.49"/>
                 <arc rx="2" ry="2" x-axis-rotation="-63.57" large-arc-flag="0" sweep-flag="0" x="53.41" y="50.81"/>
                 <line x="26.32" y="37.35"/>
-                <arc rx="2" ry="2" x-axis-rotation="-63.57198" large-arc-flag="0" sweep-flag="0" x="23.64" y="38.25"/>
+                <arc rx="2" ry="2" x-axis-rotation="-63.571" large-arc-flag="0" sweep-flag="0" x="23.64" y="38.25"/>
                 <line x="23.56" y="38.41"/>
                 <arc rx="2" ry="2" x-axis-rotation="-63.57" large-arc-flag="0" sweep-flag="0" x="24.46" y="41.09"/>
                 <close/>
@@ -218,7 +218,7 @@
             </path>
             <stroke/>
             <path>
-                <move x="109" y="0.4000000000000057"/>
+                <move x="109" y="0.401"/>
                 <line x="109" y="23"/>
             </path>
             <stroke/>
@@ -238,7 +238,7 @@
             </path>
             <stroke/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="9" w="219" h="9" arcsize="26.141552511415522"/>
+            <roundrect x="0" y="9" w="219" h="9" arcsize="26.142"/>
             <fillstroke/>
             <fillcolor color="#4a3ca7"/>
             <rect x="60" y="9" w="100" h="9"/>
@@ -285,7 +285,7 @@
             </path>
             <stroke/>
             <path>
-                <move x="109" y="0.4000000000000057"/>
+                <move x="109" y="0.401"/>
                 <line x="109" y="23"/>
             </path>
             <stroke/>
@@ -305,10 +305,10 @@
             </path>
             <stroke/>
             <fillcolor color="#f2f2f2"/>
-            <roundrect x="0" y="9" w="219" h="9" arcsize="26.141552511415522"/>
+            <roundrect x="0" y="9" w="219" h="9" arcsize="26.142"/>
             <fillstroke/>
             <fillcolor color="#4a3ca7"/>
-            <rect x="60" y="9" w="49.199997" h="9"/>
+            <rect x="60" y="9" w="49.2" h="9"/>
             <fillstroke/>
             <strokecolor color="#333333"/>
             <fillcolor color="#7f7f7f"/>
@@ -605,10 +605,10 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#333333"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="130" h="31" arcsize="5.992555831265508"/>
+            <roundrect x="0" y="0" w="130" h="31" arcsize="5.993"/>
             <fillstroke/>
             <fillcolor color="#c7c7c7"/>
-            <roundrect x="0" y="0" w="65" h="31" arcsize="7.1464019851116625"/>
+            <roundrect x="0" y="0" w="65" h="31" arcsize="7.147"/>
             <fillstroke/>
             <fontsize size="16"/>
             <fontstyle style="1"/>
@@ -619,10 +619,10 @@
         <foreground>
             <strokecolor color="#333333"/>
             <fillcolor color="#772222"/>
-            <roundrect x="0" y="0" w="130" h="31" arcsize="5.992555831265508"/>
+            <roundrect x="0" y="0" w="130" h="31" arcsize="5.993"/>
             <fillstroke/>
             <fillcolor color="#c7c7c7"/>
-            <roundrect x="0" y="0" w="65" h="31" arcsize="7.1464019851116625"/>
+            <roundrect x="0" y="0" w="65" h="31" arcsize="7.147"/>
             <fillstroke/>
             <fontsize size="16"/>
             <fontstyle style="1"/>
@@ -635,10 +635,10 @@
             <strokecolor color="#000000"/>
             <strokecolor color="#333333"/>
             <fillcolor color="#ffffff"/>
-            <roundrect x="0" y="0" w="130" h="31" arcsize="5.992555831265508"/>
+            <roundrect x="0" y="0" w="130" h="31" arcsize="5.993"/>
             <fillstroke/>
             <fillcolor color="#c7c7c7"/>
-            <roundrect x="65" y="0" w="65" h="31" arcsize="7.1464019851116625"/>
+            <roundrect x="65" y="0" w="65" h="31" arcsize="7.147"/>
             <fillstroke/>
             <fontsize size="16"/>
             <fontstyle style="1"/>

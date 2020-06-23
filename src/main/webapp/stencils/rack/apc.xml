@@ -20,7 +20,7 @@
         <dashed dashed="1"/>
         <alpha alpha="1"/>
         <strokealpha alpha="1"/>
-        <fillalpha alpha="0.64313725"/>
+        <fillalpha alpha="0.644"/>
         <fontfamily family="sans-serif"/>
         <fontstyle style="0"/>
         <path>
@@ -53,7 +53,7 @@
         <rect h="25.21" w="53.99" x="91.82" y="2.95"/>
         <stroke/>
         <fillcolor color="#000000"/>
-        <fillalpha alpha="0.23137255"/>
+        <fillalpha alpha="0.232"/>
         <path>
             <move x="16.83" y="25.93"/>
             <line x="89.16" y="25.93"/>
@@ -120,7 +120,7 @@
         <dashed dashed="1"/>
         <alpha alpha="1"/>
         <strokealpha alpha="1"/>
-        <fillalpha alpha="0.64313728"/>
+        <fillalpha alpha="0.644"/>
         <fontfamily family="sans-serif"/>
         <fontstyle style="0"/>
         <path>
@@ -147,7 +147,7 @@
         <rect h="38" w="43" x="100.5" y="18.5"/>
         <stroke/>
         <fillcolor color="#000000"/>
-        <fillalpha alpha="0.23137255"/>
+        <fillalpha alpha="0.232"/>
         <path>
             <move x="16.83" y="63.55"/>
             <line x="143.83" y="63.55"/>
@@ -206,7 +206,7 @@
         </path>
         <fill/>
         <fillcolor color="#000000"/>
-        <fillalpha alpha="0.23232326"/>
+        <fillalpha alpha="0.233"/>
         <path>
             <move x="116.82" y="9.24"/>
             <line x="144.49" y="9.24"/>
@@ -234,7 +234,7 @@
         <rect/>
         <stroke/>
         <strokecolor color="#000000"/>
-        <strokealpha alpha="0.64313728"/>
+        <strokealpha alpha="0.644"/>
         <rect h="8.41" w="23" x="91.82" y="3.86"/>
         <stroke/>
         <fillcolor color="#000000"/>
@@ -245,7 +245,7 @@
         <dashpattern pattern="none"/>
         <dashed dashed="1"/>
         <strokealpha alpha="1"/>
-        <fillalpha alpha="0.64141415"/>
+        <fillalpha alpha="0.642"/>
         <fontfamily family="sans-serif"/>
         <fontstyle style="0"/>
         <path>

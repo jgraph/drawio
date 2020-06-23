@@ -635,6 +635,7 @@ rightToLeft=Eskuinetik ezkerrera
 rotate=Biratu
 rotateTooltip=Click and drag to rotate, click to turn shape only by 90 degrees
 rotation=Biraketa
+rough=Rough
 rounded=Borobildua
 save=Gorde
 saveAndExit=Gorde eta irten

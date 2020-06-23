@@ -1671,62 +1671,65 @@ EditorUi.prototype.initCanvas = function()
 				}), Editor.backLargeImage, mxResources.get('back', null, 'Back'));
 			}
 			
-			var prevButton = addButton(mxUtils.bind(this, function(evt)
+			if (this.isPagesEnabled())
 			{
-				this.actions.get('previousPage').funct();
-				mxEvent.consume(evt);
-			}), Editor.previousLargeImage, mxResources.get('previousPage'));
-			
-			var pageInfo = document.createElement('div');
-			pageInfo.style.display = 'inline-block';
-			pageInfo.style.verticalAlign = 'top';
-			pageInfo.style.fontFamily = 'Helvetica,Arial';
-			pageInfo.style.marginTop = '8px';
-			pageInfo.style.fontSize = '14px';
-			pageInfo.style.color = '#ffffff';
-			this.chromelessToolbar.appendChild(pageInfo);
-			
-			var nextButton = addButton(mxUtils.bind(this, function(evt)
-			{
-				this.actions.get('nextPage').funct();
-				mxEvent.consume(evt);
-			}), Editor.nextLargeImage, mxResources.get('nextPage'));
-			
-			var updatePageInfo = mxUtils.bind(this, function()
-			{
-				if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+				var prevButton = addButton(mxUtils.bind(this, function(evt)
 				{
-					pageInfo.innerHTML = '';
-					mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
-				}
-			});
-			
-			prevButton.style.paddingLeft = '0px';
-			prevButton.style.paddingRight = '4px';
-			nextButton.style.paddingLeft = '4px';
-			nextButton.style.paddingRight = '0px';
-			
-			var updatePageButtons = mxUtils.bind(this, function()
-			{
-				if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
-				{
-					nextButton.style.display = '';
-					prevButton.style.display = '';
-					pageInfo.style.display = 'inline-block';
-				}
-				else
-				{
-					nextButton.style.display = 'none';
-					prevButton.style.display = 'none';
-					pageInfo.style.display = 'none';
-				}
+					this.actions.get('previousPage').funct();
+					mxEvent.consume(evt);
+				}), Editor.previousLargeImage, mxResources.get('previousPage'));
 				
-				updatePageInfo();
-			});
-			
-			this.editor.addListener('resetGraphView', updatePageButtons);
-			this.editor.addListener('pageSelected', updatePageInfo);
-	
+				var pageInfo = document.createElement('div');
+				pageInfo.style.display = 'inline-block';
+				pageInfo.style.verticalAlign = 'top';
+				pageInfo.style.fontFamily = 'Helvetica,Arial';
+				pageInfo.style.marginTop = '8px';
+				pageInfo.style.fontSize = '14px';
+				pageInfo.style.color = '#ffffff';
+				this.chromelessToolbar.appendChild(pageInfo);
+				
+				var nextButton = addButton(mxUtils.bind(this, function(evt)
+				{
+					this.actions.get('nextPage').funct();
+					mxEvent.consume(evt);
+				}), Editor.nextLargeImage, mxResources.get('nextPage'));
+				
+				var updatePageInfo = mxUtils.bind(this, function()
+				{
+					if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+					{
+						pageInfo.innerHTML = '';
+						mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
+					}
+				});
+				
+				prevButton.style.paddingLeft = '0px';
+				prevButton.style.paddingRight = '4px';
+				nextButton.style.paddingLeft = '4px';
+				nextButton.style.paddingRight = '0px';
+				
+				var updatePageButtons = mxUtils.bind(this, function()
+				{
+					if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
+					{
+						nextButton.style.display = '';
+						prevButton.style.display = '';
+						pageInfo.style.display = 'inline-block';
+					}
+					else
+					{
+						nextButton.style.display = 'none';
+						prevButton.style.display = 'none';
+						pageInfo.style.display = 'none';
+					}
+					
+					updatePageInfo();
+				});
+				
+				this.editor.addListener('resetGraphView', updatePageButtons);
+				this.editor.addListener('pageSelected', updatePageInfo);
+			}
+		
 			addButton(mxUtils.bind(this, function(evt)
 			{
 				this.actions.get('zoomOut').funct();
@@ -2429,6 +2432,14 @@ EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 		this.actions.get('print').funct();
 		mxEvent.consume(evt);
 	}), Editor.printLargeImage, mxResources.get('print'));	
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.isPagesEnabled = function()
+{
+	return this.editor.editable || urlParams['hide-pages'] != '1';
 };
 
 /**

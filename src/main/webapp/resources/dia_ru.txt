@@ -635,6 +635,7 @@ rightToLeft=Справа налево
 rotate=Повернуть
 rotateTooltip=Нажмите и переместите для поворота, нажмите для поворота на 90 градусов
 rotation=Повернуть
+rough=Rough
 rounded=Скругленные углы
 save=Сохранить
 saveAndExit=Сохранить и выйти

@@ -635,6 +635,7 @@ rightToLeft=От дясно наляво
 rotate=Завъртане
 rotateTooltip=Кликнете и плъзнете за завъртане, кликнете, за да обърнете на 90 градуса
 rotation=Завъртане
+rough=Rough
 rounded=Заоблено
 save=Запазване
 saveAndExit=Запазване и изход

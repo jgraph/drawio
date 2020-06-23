@@ -635,6 +635,7 @@ rightToLeft=우에서 좌로
 rotate=회전
 rotateTooltip=클릭 후 드래그하여 회전, 클릭하여 90도 회전
 rotation=회전
+rough=Rough
 rounded=둥근선
 save=저장
 saveAndExit=저장 후 나가기

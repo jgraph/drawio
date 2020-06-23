@@ -635,6 +635,7 @@ rightToLeft=Phải sang trái
 rotate=Xoay
 rotateTooltip=Nhấp chuột và kéo để xoay, nhấp chuột để xoay 90 độ
 rotation=Xoay tròn
+rough=Rough
 rounded=Tròn
 save=Lưu
 saveAndExit=Lưu & Thoát

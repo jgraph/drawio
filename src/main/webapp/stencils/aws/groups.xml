@@ -13,7 +13,7 @@
 		<foreground>
 			<dashed dashed="1"/>
 			<dashpattern pattern="5 1 1 1"/>
-			<roundrect x="0" y="0" w="59" h="60" arcsize="10.084745762711865"/>
+			<roundrect x="0" y="0" w="59" h="60" arcsize="10.085"/>
 			<fillstroke/>
 		</foreground>
 	</shape>
@@ -31,7 +31,7 @@
 		<foreground>
 			<dashed dashed="1"/>
 			<dashpattern pattern="6 2"/>
-			<roundrect x="0" y="0" w="62.5" h="64.5" arcsize="9.451162790697675"/>
+			<roundrect x="0" y="0" w="62.5" h="64.5" arcsize="9.452"/>
 			<fillstroke/>
 		</foreground>
 	</shape>
@@ -763,7 +763,7 @@
         </path>
         <fillstroke/>
         <fontcolor color="#ffffff"/>
-        <fontsize size="52.3034"/>
+        <fontsize size="52.304"/>
         <fontfamily family="HelveticaNeueLTStd-Md"/>
         <text str="¢" valign="bottom" x="11.96" y="40.91"/>
     </foreground>
@@ -1004,7 +1004,7 @@
 		<foreground>
 			<dashed dashed="1"/>
 			<dashpattern pattern="1 1"/>
-			<roundrect x="0" y="0" w="58.5" h="57.5" arcsize="10.345596432552954"/>
+			<roundrect x="0" y="0" w="58.5" h="57.5" arcsize="10.346"/>
 			<fillstroke/>
 		</foreground>
 	</shape>
@@ -1021,12 +1021,12 @@
 		</connections>
 		<foreground>
 			<strokecolor color="#000000"/>
-			<roundrect x="0" y="0" w="58.5" h="58" arcsize="10.300618921308576"/>
+			<roundrect x="0" y="0" w="58.5" h="58" arcsize="10.301"/>
 			<stroke/>
 			<strokecolor color="#FF0000"/>
 			<dashed dashed="1"/>
 			<dashpattern pattern="1 6"/>
-			<roundrect x="0" y="0" w="58.5" h="58" arcsize="10.300618921308576"/>
+			<roundrect x="0" y="0" w="58.5" h="58" arcsize="10.301"/>
 			<stroke/>
 		</foreground>
 	</shape>
@@ -1791,7 +1791,7 @@
 			<constraint x="0.975" y="0.975" perimeter="0" name="SE"/>
 		</connections>
 		<foreground>
-			<roundrect x="0" y="0" w="62.5" h="64.5" arcsize="9.451162790697675"/>
+			<roundrect x="0" y="0" w="62.5" h="64.5" arcsize="9.452"/>
 			<fillstroke/>
 		</foreground>
 	</shape>

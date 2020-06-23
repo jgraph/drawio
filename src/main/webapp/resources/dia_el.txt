@@ -635,6 +635,7 @@ rightToLeft=Δεξιά προς αριστερά
 rotate=Περιστροφή
 rotateTooltip=Κάντε κλικ και σύρετε για περιστροφή, κλικ για στροφή 90 μοιρών
 rotation=Περιστροφή
+rough=Rough
 rounded=Σφαιρικό
 save=Αποθήκευση
 saveAndExit=Αποθήκευση & Έξοδος

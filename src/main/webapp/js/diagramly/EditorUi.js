@@ -5008,10 +5008,9 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile)
+	EditorUi.prototype.createUrlParameters = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, params)
 	{
-		var file = this.getCurrentFile();
-		var params = [];
+		params = (params != null) ? params : [];
 		
 		if (lightbox)
 		{
@@ -5049,8 +5048,18 @@
 			params.push('page-id=' + this.currentPage.getId());
 		}
 		
-		var data = '';
+		return params;
+	};
+	
+	/**
+	 * 
+	 */
+	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params)
+	{
+		params = (params != null) ? params : this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
+		var file = this.getCurrentFile();
 		var addTitle = true;
+		var data = '';
 		
 		if (url != null)
 		{
@@ -5305,7 +5314,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption)
+	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, showSelectionOption)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';

@@ -329,7 +329,7 @@
 <constraint x="0.98" y="0.985" perimeter="0" name="SE"/>
 </connections>
 <background>
-<roundrect x="0" y="0" w="70" h="70" arcsize="7.142857142857142"/>
+<roundrect x="0" y="0" w="70" h="70" arcsize="7.143"/>
 </background>
 <foreground>
 <fillstroke/>
@@ -665,7 +665,7 @@
 <constraint x="0.98" y="0.985" perimeter="0" name="SE"/>
 </connections>
 <background>
-<roundrect x="0" y="0" w="98" h="60" arcsize="6.717687074829931"/>
+<roundrect x="0" y="0" w="98" h="60" arcsize="6.718"/>
 </background>
 <foreground>
 <fillstroke/>

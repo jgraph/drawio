@@ -3808,7 +3808,7 @@
     <foreground>
         <save/>
         <fillcolor color="#6ebe4a"/>
-        <fillalpha alpha="0.9626168"/>
+        <fillalpha alpha="0.963"/>
         <path>
             <move x="45.6" y="26.43"/>
             <arc large-arc-flag="0" rx="7.5" ry="7.5" sweep-flag="0" x="38.21" x-axis-rotation="0" y="34.03"/>
@@ -10771,7 +10771,7 @@
 <shape aspect="variable" h="362.61" name="l3 switch with dual supervisor" strokewidth="inherit" w="190.99">
     <connections/>
     <foreground>
-        <strokewidth width="0.26461682"/>
+        <strokewidth width="0.265"/>
         <path>
             <move x="95.6" y="188.36"/>
             <line x="79.62" y="211.38"/>
@@ -14447,7 +14447,7 @@
         <rect/>
         <stroke/>
         <fillcolor color="#ffffff"/>
-        <strokewidth width="3.78458762"/>
+        <strokewidth width="3.785"/>
         <alpha alpha="0.5"/>
         <path>
             <move x="596.65" y="554.7"/>
@@ -18214,7 +18214,7 @@
         </path>
         <fill/>
         <fillcolor color="#ffffff"/>
-        <strokewidth width="1.00017309"/>
+        <strokewidth width="1.001"/>
         <alpha alpha="0.5"/>
         <path>
             <move x="95.52" y="64.61"/>
@@ -18248,7 +18248,7 @@
         <stroke/>
         <fillcolor color="#005073"/>
         <strokewidth width="1"/>
-        <fillalpha alpha="0.88317757"/>
+        <fillalpha alpha="0.884"/>
         <path>
             <move x="98.94" y="98.62"/>
             <curve x1="98.94" x2="98.34" x3="97.41" y1="99.63" y2="100.55" y3="100.94"/>
@@ -19641,7 +19641,7 @@
         </path>
         <fill/>
         <fillcolor color="#00bceb"/>
-        <fillalpha alpha="0.99532712"/>
+        <fillalpha alpha="0.996"/>
         <path>
             <move x="719.78" y="445.21"/>
             <curve x1="710.26" x2="617.91" x3="479.81" y1="571.03" y2="656.92" y3="667.43"/>

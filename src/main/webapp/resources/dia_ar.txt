@@ -635,6 +635,7 @@ rightToLeft=‫من اليمين إلى اليسار‬
 rotate=‫قم بالتدوير‬
 rotateTooltip=‫انقر و اسحب للتدوير, انقر للتدوير بزاوية 90 درجة.‬
 rotation=‫تدوير‬
+rough=Rough
 rounded=‫دائري‬
 save=‫حفظ‬
 saveAndExit=‫حفظ و مغادرة‬

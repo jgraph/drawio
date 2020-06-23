@@ -635,6 +635,7 @@ rightToLeft=Droite à Gauche
 rotate=Pivoter
 rotateTooltip=Cliquer et glisser pour pivoter, cliquer pour pivoter de 90 degrés
 rotation=Rotation
+rough=Rough
 rounded=Arrondi
 save=Enregistrer
 saveAndExit=Enregistrer et quitter

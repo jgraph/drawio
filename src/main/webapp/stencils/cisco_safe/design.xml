@@ -2144,7 +2144,7 @@
 <shape aspect="variable" h="69.07" name="blade server 2" strokewidth="inherit" w="80">
     <connections/>
     <foreground>
-        <strokewidth width="0.88429976"/>
+        <strokewidth width="0.885"/>
         <path>
             <move x="48.91" y="54.54"/>
             <curve x1="50.3" x2="51.4" x3="51.4" y1="54.54" y2="53.39" y3="52.04"/>
@@ -7288,7 +7288,7 @@
 <shape aspect="variable" h="69.07" name="load balancer 2" strokewidth="inherit" w="80">
     <connections/>
     <foreground>
-        <strokewidth width="0.80000043"/>
+        <strokewidth width="0.801"/>
         <path>
             <move x="58.18" y="66.26"/>
             <line x="76.36" y="34.29"/>

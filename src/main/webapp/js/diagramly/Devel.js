@@ -65,6 +65,7 @@ mxscript(drawDevUrl + 'js/deflate/base64.js');
 mxscript(drawDevUrl + 'js/jscolor/jscolor.js');
 mxscript(drawDevUrl + 'js/sanitizer/sanitizer.min.js');
 mxscript(drawDevUrl + 'js/croppie/croppie.min.js');
+mxscript(drawDevUrl + 'js/rough/rough.min.js');
 
 // Uses grapheditor from devhost
 mxscript(geBasePath +'/Editor.js');

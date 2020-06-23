@@ -635,6 +635,7 @@ rightToLeft=Direita para esquerda
 rotate=Rodar
 rotateTooltip=Clique e arraste para rodar, clique para girar 90 graus
 rotation=Rotação 
+rough=Rough
 rounded=Arredondado 
 save=Salvar
 saveAndExit=Salvar e sair
