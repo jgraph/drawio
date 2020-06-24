@@ -1091,7 +1091,15 @@
 					{
 						var graph = editorUi.editor.graph;
 						var orgChartLayout = new mxOrgChartLayout(graph, branchOptimizer, parentChildSpacingVal, siblingSpacingVal);
-						orgChartLayout.execute(graph.getDefaultParent());
+						
+						var cell = graph.getDefaultParent();
+						
+						if (graph.model.getChildCount(graph.getSelectionCell()) > 1)
+						{
+							cell = graph.getSelectionCell();
+						}
+						
+						orgChartLayout.execute(cell);
 						notExecuted = false;
 					}
 				};

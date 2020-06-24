@@ -293,7 +293,9 @@ Toolbar.prototype.addTableDropDown = function()
 	// Connects to insert menu enabled state
 	var menu = this.editorUi.menus.get('insert');
 	
-	if (menu != null)
+	// Workaround for possible not a function
+	// when extending HTML objects
+	if (menu != null && typeof elt.setEnabled === 'function')
 	{
 		menu.addListener('stateChanged', function()
 		{
@@ -814,7 +816,9 @@ Toolbar.prototype.addMenu = function(label, tooltip, showLabels, name, c, showAl
 		menu.funct.apply(menu, arguments);
 	}, c, showAll);
 	
-	if (!ignoreState)
+	// Workaround for possible not a function
+	// when extending HTML objects
+	if (!ignoreState && typeof elt.setEnabled === 'function')
 	{
 		menu.addListener('stateChanged', function()
 		{
@@ -902,7 +906,9 @@ Toolbar.prototype.addItem = function(sprite, key, c, ignoreDisabled)
 		
 		elt = this.addButton(sprite, tooltip, action.funct, c);
 
-		if (!ignoreDisabled)
+		// Workaround for possible not a function
+		// when extending HTML objects
+		if (!ignoreDisabled && typeof elt.setEnabled === 'function')
 		{
 			elt.setEnabled(action.enabled);
 			

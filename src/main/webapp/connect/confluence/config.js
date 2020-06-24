@@ -6,6 +6,45 @@ window.onerror = function(message, url, linenumber, colno, err)
 	AC.logError(message, url, linenumber, colno, err);
 };
 
+
+function restrictContentToAdmins(contentId)
+{
+	AP.user.getCurrentUser(function(user) 
+	{
+		AP.request({
+			type: 'PUT',
+			url: '/rest/api/content/' + contentId + '/restriction',
+			contentType: 'application/json;charset=UTF-8',
+			data: JSON.stringify([{
+	            "operation": "update",
+	            "restrictions": {
+	            	"user": [
+	                    {
+	                        "type": "known",
+	                        "accountId": user.atlassianAccountId
+	                    }
+	                ],
+	            	"group": [
+	                        {
+	                            "type": "group",
+	                            "name": "administrators"
+	                        },
+	                        {
+	                            "type": "group",
+	                            "name": "site-admins"
+	                        }
+	                    ]
+	                }
+				}
+	        ]),
+	        error: function(err)
+	        {
+	        	AC.logError('Confluence Cloud Config: Error in setting restrictions ' + err.responseText);
+	        }
+		});
+	});
+};
+
 var collectAllPages = function(callback, error)
 {
 	var start = 0, limit = 200;
@@ -519,9 +558,12 @@ var fixMissingComponents = function(existingPages)
             }),
             success: function (resp) 
             {
+            	var pageId = JSON.parse(resp).id;
+            	restrictContentToAdmins(pageId);
+            	
             	if (callback)
         		{
-            		callback(JSON.parse(resp).id);
+            		callback(pageId);
         		}
             	else
             	{
@@ -1603,6 +1645,7 @@ script.onload = function()
 			        	for (var i = 0; i < resp.results.length; i++)
 		        		{
 			        		var item = resp.results[i];
+			        		restrictContentToAdmins(item.id);
 			        		configSpaceFoundComponents[item.title] = item.id;
 		        		}
 			        	

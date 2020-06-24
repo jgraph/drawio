@@ -121,10 +121,6 @@
 <template url="flowcharts/flowchart_1.xml" libs="general;flowchart"/>
 <template url="flowcharts/flowchart_2.xml" libs="general;flowchart"/>
 <template url="flowcharts/workflow_1.xml" libs="general;flowchart"/>
-<template url="layout/blog_wireframe.xml" libs="general;mockups"/>
-<template url="layout/bootstrap.xml" libs="general;bootstrap"/>
-<template url="layout/wireframe_1.xml" libs="general;mockups"/>
-<template url="layout/wireframe_2.xml" libs="general;mockups"/>
 <template url="maps/concept_map_1.xml" libs="general"/>
 <template url="maps/concept_map_2.xml" libs="general"/>
 <template url="maps/living_beings_mind_map.xml" libs="general"/>
@@ -182,4 +178,9 @@
 <template url="venn/venn_4.xml" libs="general"/>
 <template url="venn/venn_5.xml" libs="general"/>
 <template url="venn/venn_6.xml" libs="general"/>
+<template url="wireframes/blog_1.xml" libs="general;mockups"/>
+<template url="wireframes/bootstrap_1.xml" libs="general;bootstrap"/>
+<template url="wireframes/home_page_hero_video_1.xml" libs="general;mockups"/>
+<template url="wireframes/home_page_1.xml" libs="general;mockups"/>
+<template url="wireframes/home_page_2.xml" libs="general;mockups"/>
 </templates>

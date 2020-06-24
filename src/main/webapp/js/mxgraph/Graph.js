@@ -6396,9 +6396,13 @@ if (typeof mxVertexHandler != 'undefined')
 								for (var j = 0; j < count; j++)
 								{
 									var cell = this.cloneCell(sourceCols[sourceCols.length - 1]);
-									cell.value = '';
 									
-									this.model.add(cells[i], cell);
+									if (cell != null)
+									{
+										cell.value = '';
+										
+										this.model.add(cells[i], cell);
+									}
 								}
 							}
 							else if (count < 0)

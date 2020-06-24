@@ -4779,27 +4779,33 @@
 									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
 										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
 								
-									if (colorset['fill'] == '')
+									if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)))
 									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,null);
-									}
-									else
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
-											mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
-									}
-									
-									if (colorset['stroke'] == '')
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
-									}
-									else
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
-											mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+										if (colorset['fill'] == '')
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,null);
+										}
+										else
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
+												mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
+										}
 									}
 									
-									if (graph.getModel().isVertex(cells[i]))
+									if (!mxEvent.isShiftDown(evt))
+									{
+										if (colorset['stroke'] == '')
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
+										}
+										else
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
+												mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+										}
+									}
+									
+									if (!mxEvent.isAltDown(evt) && graph.getModel().isVertex(cells[i]))
 									{
 										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
 											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));

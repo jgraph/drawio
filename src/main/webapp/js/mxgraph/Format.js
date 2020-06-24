@@ -5114,60 +5114,67 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		
 		// Updates toolbar icon for edge style
 		var edgeStyleDiv = edgeStyle.getElementsByTagName('div')[0];
-		var es = mxUtils.getValue(ss.style, mxConstants.STYLE_EDGE, null);
 		
-		if (mxUtils.getValue(ss.style, mxConstants.STYLE_NOEDGESTYLE, null) == '1')
+		if (edgeStyleDiv != null)
 		{
-			es = null;
-		}
-
-		if (es == 'orthogonalEdgeStyle' && mxUtils.getValue(ss.style, mxConstants.STYLE_CURVED, null) == '1')
-		{
-			edgeStyleDiv.className = 'geSprite geSprite-curved';
-		}
-		else if (es == 'straight' || es == 'none' || es == null)
-		{
-			edgeStyleDiv.className = 'geSprite geSprite-straight';
-		}
-		else if (es == 'entityRelationEdgeStyle')
-		{
-			edgeStyleDiv.className = 'geSprite geSprite-entity';
-		}
-		else if (es == 'elbowEdgeStyle')
-		{
-			edgeStyleDiv.className = 'geSprite ' + ((mxUtils.getValue(ss.style,
-				mxConstants.STYLE_ELBOW, null) == 'vertical') ?
-				'geSprite-verticalelbow' : 'geSprite-horizontalelbow');
-		}
-		else if (es == 'isometricEdgeStyle')
-		{
-			edgeStyleDiv.className = 'geSprite ' + ((mxUtils.getValue(ss.style,
-				mxConstants.STYLE_ELBOW, null) == 'vertical') ?
-				'geSprite-verticalisometric' : 'geSprite-horizontalisometric');
-		}
-		else
-		{
-			edgeStyleDiv.className = 'geSprite geSprite-orthogonal';
+			var es = mxUtils.getValue(ss.style, mxConstants.STYLE_EDGE, null);
+			
+			if (mxUtils.getValue(ss.style, mxConstants.STYLE_NOEDGESTYLE, null) == '1')
+			{
+				es = null;
+			}
+			
+			if (es == 'orthogonalEdgeStyle' && mxUtils.getValue(ss.style, mxConstants.STYLE_CURVED, null) == '1')
+			{
+				edgeStyleDiv.className = 'geSprite geSprite-curved';
+			}
+			else if (es == 'straight' || es == 'none' || es == null)
+			{
+				edgeStyleDiv.className = 'geSprite geSprite-straight';
+			}
+			else if (es == 'entityRelationEdgeStyle')
+			{
+				edgeStyleDiv.className = 'geSprite geSprite-entity';
+			}
+			else if (es == 'elbowEdgeStyle')
+			{
+				edgeStyleDiv.className = 'geSprite ' + ((mxUtils.getValue(ss.style,
+					mxConstants.STYLE_ELBOW, null) == 'vertical') ?
+					'geSprite-verticalelbow' : 'geSprite-horizontalelbow');
+			}
+			else if (es == 'isometricEdgeStyle')
+			{
+				edgeStyleDiv.className = 'geSprite ' + ((mxUtils.getValue(ss.style,
+					mxConstants.STYLE_ELBOW, null) == 'vertical') ?
+					'geSprite-verticalisometric' : 'geSprite-horizontalisometric');
+			}
+			else
+			{
+				edgeStyleDiv.className = 'geSprite geSprite-orthogonal';
+			}
 		}
 		
 		// Updates icon for edge shape
 		var edgeShapeDiv = edgeShape.getElementsByTagName('div')[0];
 		
-		if (ss.style.shape == 'link')
+		if (edgeShapeDiv != null)
 		{
-			edgeShapeDiv.className = 'geSprite geSprite-linkedge';
-		}
-		else if (ss.style.shape == 'flexArrow')
-		{
-			edgeShapeDiv.className = 'geSprite geSprite-arrow';
-		}
-		else if (ss.style.shape == 'arrow')
-		{
-			edgeShapeDiv.className = 'geSprite geSprite-simplearrow';
-		}
-		else
-		{
-			edgeShapeDiv.className = 'geSprite geSprite-connection';
+			if (ss.style.shape == 'link')
+			{
+				edgeShapeDiv.className = 'geSprite geSprite-linkedge';
+			}
+			else if (ss.style.shape == 'flexArrow')
+			{
+				edgeShapeDiv.className = 'geSprite geSprite-arrow';
+			}
+			else if (ss.style.shape == 'arrow')
+			{
+				edgeShapeDiv.className = 'geSprite geSprite-simplearrow';
+			}
+			else
+			{
+				edgeShapeDiv.className = 'geSprite geSprite-connection';
+			}
 		}
 		
 		if (ss.edges.length == graph.getSelectionCount())
@@ -5185,18 +5192,21 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		{
 			var markerDiv = elt.getElementsByTagName('div')[0];
 			
-			markerDiv.className = ui.getCssClassForMarker(prefix, ss.style.shape, marker, fill);
-			
-			if (markerDiv.className == 'geSprite geSprite-noarrow')
+			if (markerDiv != null)
 			{
-				markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
-				markerDiv.style.backgroundImage = 'none';
-				markerDiv.style.verticalAlign = 'top';
-				markerDiv.style.marginTop = '5px';
-				markerDiv.style.fontSize = '10px';
-				markerDiv.style.filter = 'none';
-				markerDiv.style.color = this.defaultStrokeColor;
-				markerDiv.nextSibling.style.marginTop = '0px';
+				markerDiv.className = ui.getCssClassForMarker(prefix, ss.style.shape, marker, fill);
+				
+				if (markerDiv.className == 'geSprite geSprite-noarrow')
+				{
+					markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
+					markerDiv.style.backgroundImage = 'none';
+					markerDiv.style.verticalAlign = 'top';
+					markerDiv.style.marginTop = '5px';
+					markerDiv.style.fontSize = '10px';
+					markerDiv.style.filter = 'none';
+					markerDiv.style.color = this.defaultStrokeColor;
+					markerDiv.nextSibling.style.marginTop = '0px';
+				}
 			}
 			
 			return markerDiv;
@@ -5208,15 +5218,18 @@ StyleFormatPanel.prototype.addStroke = function(container)
 				mxUtils.getValue(ss.style, 'endFill', '1'), lineEnd, 'end');
 
 		// Special cases for markers
-		if (ss.style.shape == 'arrow')
+		if (sourceDiv != null && targetDiv != null)
 		{
-			sourceDiv.className = 'geSprite geSprite-noarrow';
-			targetDiv.className = 'geSprite geSprite-endblocktrans';
-		}
-		else if (ss.style.shape == 'link')
-		{
-			sourceDiv.className = 'geSprite geSprite-noarrow';
-			targetDiv.className = 'geSprite geSprite-noarrow';
+			if (ss.style.shape == 'arrow')
+			{
+				sourceDiv.className = 'geSprite geSprite-noarrow';
+				targetDiv.className = 'geSprite geSprite-endblocktrans';
+			}
+			else if (ss.style.shape == 'link')
+			{
+				sourceDiv.className = 'geSprite geSprite-noarrow';
+				targetDiv.className = 'geSprite geSprite-noarrow';
+			}
 		}
 
 		mxUtils.setOpacity(edgeStyle, (ss.style.shape == 'arrow') ? 30 : 100);			
