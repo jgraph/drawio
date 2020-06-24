@@ -261,7 +261,7 @@
                     "i18n": "incDrawioMacro",
                     "value": "Embed draw.io Diagram"
                 },
-                "url": "/connect/confluence/viewer-1-4-42.html?linked=1&ceoId=${page.id}&imgPageId=${imgPageId}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId=${contentId}&custContentId={custContentId}&contentVer=${contentVer}&diagramUrl=${diagramUrl}&aspect=${aspect}&aspectHash=${aspectHash}&attVer=${attVer}&service=${service}&sFileId=${sFileId}&odriveId=${odriveId}",
+                "url": "/connect/confluence/viewer-1-4-42.html?linked=1&ceoId=${page.id}&imgPageId=${imgPageId}&diagramName=${diagramName}&revision=${revision}&width=${width}&height=${height}&tbstyle=${tbstyle}&simple=${simple}&lbox=${lbox}&zoom=${zoom}&links=${links}&owningPageId=${pageId}&displayName=${diagramDisplayName}&contentId=${contentId}&custContentId={custContentId}&contentVer=${contentVer}&diagramUrl=${diagramUrl}&csvFileUrl=${csvFileUrl}&aspect=${aspect}&aspectHash=${aspectHash}&attVer=${attVer}&service=${service}&sFileId=${sFileId}&odriveId=${odriveId}",
                 "width": "100%",
                 "description": 
                 {

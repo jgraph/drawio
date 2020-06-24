@@ -1,3 +1,15 @@
+24-JUN-2020: 13.3.3
+
+- Fixes move for tables with selected rows
+- Fixes flex arrow custom handle preview
+- Fixes ignored zoom for step perimeter
+- Uses mxGraph 4.2.1 beta 1
+
+24-JUN-2020: 13.3.2
+
+- Fixes sketch style for partial rectangles
+- No longer replaces comic style
+
 23-JUN-2020: 13.3.1
 
 - Adds rough style and URL parameter

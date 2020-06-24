@@ -198,12 +198,6 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 // GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 
-// Table Layout
-if (urlParams['tableLayout'] == '1')
-{
-  mxscript(drawDevUrl + 'js/diagramly/mxTableLayout.js');
-}
-
 // Org Chart Layout
 if (urlParams['orgChartDev'] == '1')
 {

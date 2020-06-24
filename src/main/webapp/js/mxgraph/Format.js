@@ -112,7 +112,7 @@ Format.prototype.createSelectionState = function()
 Format.prototype.initSelectionState = function()
 {
 	return {vertices: [], edges: [], x: null, y: null, width: null, height: null, style: {},
-		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,  comic: true,
+		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,
 		autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
 		table: false, cell: false, row: false, movable: true, rotatable: true};
 };
@@ -211,7 +211,6 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 		result.glass = result.glass && this.isGlassState(state);
 		result.rounded = result.rounded && this.isRoundedState(state);
 		result.lineJumps = result.lineJumps && this.isLineJumpState(state);
-		result.comic = result.comic && this.isComicState(state);
 		result.image = result.image && this.isImageState(state);
 		result.shadow = result.shadow && this.isShadowState(state);
 		result.fill = result.fill && this.isFillState(state);
@@ -280,14 +279,6 @@ Format.prototype.isLineJumpState = function(state)
 	var curved = mxUtils.getValue(state.style, mxConstants.STYLE_CURVED, false);
 	
 	return !curved && (shape == 'connector' || shape == 'filledEdge');
-};
-
-/**
- * Returns information about the current selection.
- */
-Format.prototype.isComicState = function(state)
-{
-	return true;
 };
 
 /**
@@ -3323,14 +3314,9 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, graph.getSelectionCells());
 		}
-
-//		// TODO: Does not work with styles that inherit fill/stroke none
-		// Based on the assumption that default text color is never set to none in a style
-//		if (color != null && color == defs[mxConstants.STYLE_FONTCOLOR])
-//		{
-//			graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, null, graph.getSelectionCells());
-//		}
 		
+		graph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, color, graph.getSelectionCells());
+
 		graph.updateLabelElements(graph.getSelectionCells(), function(elt)
 		{
 			elt.removeAttribute('color');
@@ -4470,6 +4456,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 	
 	var gradientPanel = this.createCellColorOption(mxResources.get('gradient'), mxConstants.STYLE_GRADIENTCOLOR, '#ffffff', function(color)
 	{
+		graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
+		
 		if (color == null || color == mxConstants.NONE)
 		{
 			gradientSelect.style.display = 'none';
@@ -4486,11 +4474,7 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
 	var fillPanel = this.createCellColorOption(label, fillKey, (defs[fillKey] != null) ? defs[fillKey] : '#ffffff', null, mxUtils.bind(this, function(color)
 	{
-		// TODO: Does not work with styles that inherit fill/stroke none like text
-//		if (color != null && color == defs[fillKey])
-//		{
-//			graph.setCellStyles(fillKey, null, graph.getSelectionCells());
-//		}
+		graph.updateCellStyles(fillKey, color, graph.getSelectionCells());
 	}));
 	fillPanel.style.fontWeight = 'bold';
 
@@ -4546,8 +4530,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 		}
 		else
 		{
-			fillStyleSelect.style.display = (ss.style.comic == '1') ? '' : 'none';
-			gradientPanel.style.display = (ss.style.comic != '1' || fillStyle == 'solid' || fillStyle == 'auto') ? '' : 'none';
+			fillStyleSelect.style.display = (ss.style.sketch == '1') ? '' : 'none';
+			gradientPanel.style.display = (ss.style.sketch != '1' || fillStyle == 'solid' || fillStyle == 'auto') ? '' : 'none';
 		}
 	});
 	
@@ -4676,11 +4660,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
 	var lineColor = this.createCellColorOption(label, strokeKey, (defs[strokeKey] != null) ? defs[strokeKey] : '#000000', null, mxUtils.bind(this, function(color)
 	{
-//		// TODO: Does not work with styles that inherit fill/stroke none like text
-//		if (color != null && color == defs[strokeKey])
-//		{
-//			graph.setCellStyles(strokeKey, null, graph.getSelectionCells());
-//		}
+		graph.updateCellStyles(strokeKey, color, graph.getSelectionCells());
 	}));
 	
 	lineColor.appendChild(styleSelect);
@@ -5483,15 +5463,7 @@ StyleFormatPanel.prototype.addEffects = function(div)
 			addOption(mxResources.get('glass'), mxConstants.STYLE_GLASS, 0);
 		}
 
-		if (ss.comic)
-		{
-			addOption(mxResources.get('rough'), 'comic', 0);
-		}
-		
-		if (count == 0)
-		{
-			div.style.display = 'none';
-		}
+		addOption(mxResources.get('sketch'), 'sketch', 0);
 	});
 	
 	graph.getModel().addListener(mxEvent.CHANGE, listener);

@@ -244,3 +244,18 @@ CAC.getJiraAttList = function(issueId, success, error)
 };
 
 CAC.noop = function(){};
+
+CAC.importCsv = function(csv, callback)
+{
+	//Adjust some functions such that it can be instanciated without UI
+	EditorUi.prototype.createUi = function(){};
+	EditorUi.prototype.addTrees = function(){};
+	EditorUi.prototype.updateActionStates = function(){};
+	var editorUi = new EditorUi();
+	
+	editorUi.importCsv(csv, function()
+	{
+		var csvModel = editorUi.editor.getGraphXml();
+		callback(csvModel, mxUtils.getXml(csvModel));
+	});
+};

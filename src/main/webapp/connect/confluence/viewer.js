@@ -46,6 +46,7 @@
 	var contentVer = getUrlParam('contentVer');
 	var linkedMode = getUrlParam('linked') == '1';
 	var diagramUrl = getUrlParam('diagramUrl');
+	var csvFileUrl = getUrlParam('csvFileUrl');
 	var inComment = getUrlParam('inComment') == '1';
 	var aspect = getUrlParam('aspect');
 	var imgPageId = getUrlParam('imgPageId');
@@ -959,7 +960,7 @@
 													{
 														if (imageData != null)
 														{
-															AC.saveDiagram(imgPageId, name + '-' + aspectHash + '.png', AC.b64toBlob(imageData, 'image/png'),
+															AC.saveDiagram(imgPageId, name + (aspectHash? '-' + aspectHash : '') + '.png', AC.b64toBlob(imageData, 'image/png'),
 																	ignoreFn, ignoreFn, false, 'image/png', 'draw.io aspect image' + (curAttVer != null? ' - ' + curAttVer : ''), false, false);
 														}
 													};
@@ -994,30 +995,87 @@
 												
 												function ignoreFn(){};
 												
-												if (service != null)
+												function renderAndCache(newXml, timestamp, isPng)
 												{
-													function renderAndCache(newXml, timestamp, isPng)
+													if (isPng)
 													{
-														if (isPng)
+														newXml = 'data:image/png;base64,' + Editor.base64Encode (newXml);
+														newXml = AC.extractGraphModelFromPng(newXml);
+													}
+													
+		            								//render diagram
+		            								viewer.setXmlNode(mxUtils.parseXml(newXml).documentElement);
+		            								//Apply aspect (layers) again
+		            								viewer.showLayers(viewer.graph);
+		            								//Update xml (used for server rendering)
+		            								xml = newXml;
+		            								//Save diagram
+		            								AC.saveDiagram(id, name, newXml,
+		            										updateImage, function(resp)
+		            										{
+		            											showError(mxResources.get('confSaveCacheFailed'));
+		            										}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (timestamp? ' - ' + timestamp : ''), false, false);
+												};
+												
+												if (csvFileUrl)
+												{
+													var cachedCsv, curCsv;
+													
+													function checkCsvChange()
+													{
+														if (cachedCsv != null && curCsv != null && cachedCsv != curCsv)
 														{
-															newXml = 'data:image/png;base64,' + Editor.base64Encode (newXml);
-															newXml = AC.extractGraphModelFromPng(newXml);
+															AC.saveDiagram(id, name + '.csv', curCsv,
+		            										function()
+		            										{
+																AC.importCsv(curCsv, function(csvModel, xml)
+																{
+																	renderAndCache(xml);
+																});
+		            										}, function()
+		            										{
+		            											console.log('Cachinng csv file failed durinng saving');
+		            										}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, false);
 														}
-														
-			            								//render diagram
-			            								viewer.setXmlNode(mxUtils.parseXml(newXml).documentElement);
-			            								//Apply aspect (layers) again
-			            								viewer.showLayers(viewer.graph);
-			            								//Update xml (used for server rendering)
-			            								xml = newXml;
-			            								//Save diagram
-			            								AC.saveDiagram(id, name, newXml,
-			            										updateImage, function(resp)
-			            										{
-			            											showError(mxResources.get('confSaveCacheFailed'));
-			            										}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram - ' + timestamp, false, false);
 													};
 													
+													//Fetch csv file and re-generate if changed (Ignore errors and log them only)
+													AP.request(
+													{
+														url: '/download/attachments/' + id + '/' + encodeURIComponent(name + '.csv'),
+														success: function(csv) 
+														{
+															cachedCsv = csv;
+															checkCsvChange();
+														},
+														error: function()
+														{
+															cachedCsv = ""; //Force re-generation
+															checkCsvChange();
+														}
+													});
+													
+													mxUtils.get(csvFileUrl, function(req) 
+													{
+														if (req.getStatus() >= 200 && req.getStatus() <= 299)
+														{
+															curCsv = req.getText();
+															checkCsvChange();
+														}
+														else
+														{
+															console.log('Failed to fetch csv file from ' + csvFileUrl + ' Error: ' + req.getStatus());
+														}
+													}, function()
+													{
+														console.log('Failed to fetch csv file from ' + csvFileUrl);
+													}, false, 25000, function()
+												    {
+														console.log('Failed to fetch csv file (timeout) from ' + csvFileUrl);
+												    });
+												}
+												else if (service != null)
+												{
 													if (service == 'GDrive')
 													{
 														GAC.getFileInfo(sFileId, function(fileInfo)
@@ -1415,6 +1473,7 @@
 				}
 				else
 				{
+					//TODO We cache diagramUrl file now, so handle its change detection and caching if the file doesn't exists
 					if (diagramUrl)
 					{
 						showExtDiagram(diagramName, diagramUrl);				

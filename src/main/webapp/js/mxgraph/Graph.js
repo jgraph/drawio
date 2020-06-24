@@ -702,7 +702,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			
 			return mxGraphHandler.prototype.createPreviewShape.apply(this, arguments);
 		};
-		
+
 		// Handles parts of cells by checking if part=1 is in the style and returning the parent
 		// if the parent is not already in the list of cells. container style is used to disable
 		// step into swimlanes and dropTarget style is used to disable acting as a drop target.
@@ -717,9 +717,11 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 
 		    for (var i = 0; i < cells.length; i++)
 		    {
-		    	// Moves composite parent with exception of selected table rows
-		    	var cell = (!this.graph.isTableRow(cells[i]) || !this.graph.isCellSelected(cells[i])) ?
-		    		this.graph.getCompositeParent(cells[i]) : cells[i];
+		    	// Propagates to composite parents or moves selected table rows
+		    	var cell = (this.graph.isTableRow(initialCell) &&
+		    		this.graph.isTableRow(cells[i]) &&
+		    		this.graph.isCellSelected(cells[i])) ?
+		    		cells[i] : this.graph.getCompositeParent(cells[i]);
 		    	
 		    	if (cell != null && !lookup.get(cell))
 		    	{
@@ -730,14 +732,23 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		
 		    return newCells;
 		};
-		
-		// Handles parts of cells for drag and drop
+
+		// Handles parts and selected rows in tables of cells for drag and drop
 		var graphHandlerStart = this.graphHandler.start;
 		
 		this.graphHandler.start = function(cell, x, y, cells)
 		{
-			cell = this.graph.getCompositeParent(cell);
-			
+			// Propagates to selected table row to start move
+		    if (this.graph.isTableCell(cell))
+		    {
+		    	cell = this.graph.model.getParent(cell);
+		    }
+		    
+		    if (!this.graph.isTableRow(cell) || !this.graph.isCellSelected(cell))
+		    {
+		    	cell = this.graph.getCompositeParent(cell);
+		    }
+
 			graphHandlerStart.apply(this, arguments);
 		};
 		
@@ -5972,7 +5983,36 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return style;
 		};
-	
+			
+		/**
+		 * Removes implicit styles from cell styles so that dark mode works using the
+		 * default values from the stylesheet.
+		 */
+		Graph.prototype.updateCellStyles = function(key, value, cells)
+		{
+			this.model.beginUpdate();
+			try
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
+					{
+						this.setCellStyles(key, null, [cells[i]]);
+						var style = this.getCellStyle(cells[i]);
+						
+						if (style[key] != value)
+						{
+							this.setCellStyles(key, value, [cells[i]]);
+						}
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		};
+
 		/**
 		 * Hook for subclassers.
 		 */
@@ -11320,7 +11360,10 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				for (var i = 0; i < this.moveHandles.length; i++)
 				{
-					this.moveHandles[i].parentNode.removeChild(this.moveHandles[i]);
+					if (this.moveHandles[i] != null && this.moveHandles[i].parentNode != null)
+					{
+						this.moveHandles[i].parentNode.removeChild(this.moveHandles[i]);
+					}
 				}
 				
 				this.moveHandles = null;
@@ -11330,7 +11373,11 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				for (var i = 0; i < this.cornerHandles.length; i++)
 				{
-					this.cornerHandles[i].node.parentNode.removeChild(this.cornerHandles[i].node);
+					if (this.cornerHandles[i] != null && this.cornerHandles[i].node != null &&
+						this.cornerHandles[i].node.parentNode != null)
+					{
+						this.cornerHandles[i].node.parentNode.removeChild(this.cornerHandles[i].node);
+					}
 				}
 				
 				this.cornerHandles = null;
@@ -11338,7 +11385,11 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			if (this.linkHint != null)
 			{
-				this.linkHint.parentNode.removeChild(this.linkHint);
+				if (this.linkHint.parentNode != null)
+				{
+					this.linkHint.parentNode.removeChild(this.linkHint);
+				}
+				
 				this.linkHint = null;
 			}
 

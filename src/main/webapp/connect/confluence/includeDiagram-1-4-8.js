@@ -14,6 +14,7 @@ function includeDiagramMain(confPageId, draftPage)
 	var gAttVer = null;
 	var async = false;
 	var editMode = false;
+	var gCsvFileContent = null;
 	
 	var opts =
 	{
@@ -209,15 +210,12 @@ function includeDiagramMain(confPageId, draftPage)
 		if (activeTab == 'extUrl')
 		{
 			var hasErr = false;
-			var diagramUrl = document.getElementById('diagramUrl');
 			
 			if (!diagramUrl.value)
 			{
 				diagramUrl.style.border = '1px solid red';
 				hasErr = true;
 			}
-			
-			var diagramName = document.getElementById('diagramName');
 			
 			if (!diagramName.value)
 			{
@@ -235,6 +233,37 @@ function includeDiagramMain(confPageId, draftPage)
 				diagramName: diagramName.value,
 				diagramDisplayName: diagramName.value,
 				diagramUrl: diagramUrl.value,
+				includedDiagram: 1
+			};
+			document.getElementById('currentTab').style.display = '';
+			document.getElementById('currentTab').click();
+		}
+		else if (activeTab == 'csvImp') 
+		{
+			var hasErr = false;
+			
+			if (!csvFileUrl.value)
+			{
+				csvFileUrl.style.border = '1px solid red';
+				hasErr = true;
+			}
+			
+			if (!csvDiagName.value)
+			{
+				csvDiagName.style.border = '1px solid red';
+				hasErr = true;
+			}
+			
+			if (hasErr)
+			{
+				return;
+			}
+			
+			theMacroData = {
+				baseUrl: baseUrl,
+				diagramName: csvDiagName.value,
+				diagramDisplayName: csvDiagName.value,
+				csvFileUrl: csvFileUrl.value,
 				includedDiagram: 1
 			};
 			document.getElementById('currentTab').style.display = '';
@@ -280,27 +309,32 @@ function includeDiagramMain(confPageId, draftPage)
 			{
 				spinner.spin(document.getElementById('current'));
 				AP.dialog.getButton('submit').disable();
+				var aspectHash =  null;
 				
-				var layerIds = [], pageId = curViewer.diagrams[curViewer.currentPage].getAttribute('id');
-				
-				var model = curViewer.graph.getModel();
-				var childCount = model.getChildCount(model.root);
-					
-				// Get visible layers
-				for (var i = 0; i < childCount; i++)
+				if (!theMacroData.csvFileUrl)
 				{
-					var layer = model.getChildAt(model.root, i);
+					var layerIds = [], pageId = curViewer.diagrams[curViewer.currentPage].getAttribute('id');
 					
-					if (model.isVisible(layer))
+					var model = curViewer.graph.getModel();
+					var childCount = model.getChildCount(model.root);
+						
+					// Get visible layers
+					for (var i = 0; i < childCount; i++)
 					{
-						layerIds.push(layer.id);
+						var layer = model.getChildAt(model.root, i);
+						
+						if (model.isVisible(layer))
+						{
+							layerIds.push(layer.id);
+						}
 					}
+						
+					var aspect = pageId + ' ' + layerIds.join(' ');
+					aspectHash = sha1(aspect);
+					theMacroData.aspect = aspect;
+					theMacroData.aspectHash = aspectHash;
 				}
-					
-				var aspect = pageId + ' ' + layerIds.join(' ');
-				var aspectHash = sha1(aspect);
-				theMacroData.aspect = aspect;
-				theMacroData.aspectHash = aspectHash;
+				
 				theMacroData.imgPageId = confPageId;
 				
 				var bounds = curViewer.graph.view.graphBounds;
@@ -328,7 +362,7 @@ function includeDiagramMain(confPageId, draftPage)
 						return;
 					}
 					
-					AC.saveDiagram(confPageId, theMacroData.diagramName + '-' + aspectHash + '.png', AC.b64toBlob(imageData, 'image/png'),
+					AC.saveDiagram(confPageId, theMacroData.diagramName + (aspectHash? '-' + aspectHash : '') + '.png', AC.b64toBlob(imageData, 'image/png'),
 							saveMacro, saveError, false, 'image/png', 'draw.io aspect image' + (gAttVer != null? ' - ' + gAttVer : ''), false, draftPage);
 				};
 				
@@ -385,56 +419,65 @@ function includeDiagramMain(confPageId, draftPage)
 		    		}
 				};
 				
-				if (theMacroData.service != null)
+				function saveDiagram()
 				{
-					function doSave()
+					AC.saveDiagram(confPageId, theMacroData.diagramName, gSelFileContent,
+							startSaving, function(resp)
+							{
+								showError('Unexpected error. Cannot cannot save cached file');
+							}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
+				};
+				
+				function doSave()
+				{
+					if (theMacroData.csvFileUrl)
 					{
-						AC.saveDiagram(confPageId, theMacroData.diagramName, gSelFileContent,
-								startSaving, function(resp)
+						AC.saveDiagram(confPageId, theMacroData.diagramName + '.csv', gCsvFileContent,
+								saveDiagram, function(resp)
 								{
 									showError('Unexpected error. Cannot cannot save cached file');
-								}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
-					};
-					
-					if (editMode)
-					{
-						doSave()
+								}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, draftPage);
 					}
 					else
 					{
-						//Confirm filename is unique for new files
-						AC.getPageAttachments(confPageId, function(attachments) 
-						{
-							var fileExists = false;
-							var lc = theMacroData.diagramName.toLowerCase();
-							
-							// Checks if any files will be overwritten
-							for (var i = 0; i < attachments.length && !fileExists; i++)
-							{
-								var an = attachments[i].title.toLowerCase();
-
-								if (an == lc)
-								{
-									fileExists = true;
-								}
-							}
-							
-							if (fileExists)
-							{
-								//Make filename unique
-								theMacroData.diagramName = Date.now() + '-' + theMacroData.diagramName;
-							}
-							
-							doSave();
-						}, function(res)
-						{
-							showError('Unexpected error. Cannot cannot save cached file');
-						});
+						saveDiagram();
 					}
+				};
+				
+				if (editMode)
+				{
+					doSave();
 				}
 				else
 				{
-					startSaving()
+					//Confirm filename is unique for new files
+					AC.getPageAttachments(confPageId, function(attachments) 
+					{
+						var fileExists = false;
+						var lc = theMacroData.diagramName.toLowerCase();
+						
+						// Checks if any files will be overwritten
+						for (var i = 0; i < attachments.length && !fileExists; i++)
+						{
+							var an = attachments[i].title.toLowerCase();
+
+							if (an == lc)
+							{
+								fileExists = true;
+							}
+						}
+						
+						if (fileExists)
+						{
+							//Make filename unique
+							theMacroData.diagramName = Date.now() + '-' + theMacroData.diagramName;
+						}
+						
+						doSave();
+					}, function(res)
+					{
+						showError('Unexpected error. Cannot cannot save cached file');
+					});
 				}
 			}
 			else
@@ -675,26 +718,31 @@ function includeDiagramMain(confPageId, draftPage)
 			
 			if (theMacroData.diagramUrl)
 			{
-				mxUtils.get(theMacroData.diagramUrl, function(req)
+				if (gSelFileContent == null)
 				{
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					processDiagramUrl(div, function(fileContent)
 					{
-						try
-						{
-							showFile(req.getText());
-						}
-						catch(e)
-						{
-							showError('Unsupported file. Please check the specified URL', true);
-							spinner.stop();
-						}
-					}
-					else
+						showFile(fileContent);
+					});
+				}
+				else
+				{
+					showFile(gSelFileContent);
+				}
+			}
+			else if (theMacroData.csvFileUrl)
+			{
+				if (gSelFileContent == null)
+				{
+					processCsvUrl(div, function(fileContent)
 					{
-						showError('Diagram not found or cannot be accessed. Please check the specified URL', true);
-						spinner.stop();
-					}
-				});
+						showFile(fileContent);
+					});
+				}
+				else
+				{
+					showFile(gSelFileContent);
+				}
 			}
 			else if (theMacroData.service != null && gSelFileContent != null)
 			{
@@ -721,6 +769,8 @@ function includeDiagramMain(confPageId, draftPage)
 				});
 			}
 			break;
+		default:
+			gSelFileContent = null;
     	}
 	}
 	
@@ -774,31 +824,6 @@ function includeDiagramMain(confPageId, draftPage)
 		}
 	};
 	
-	function showDiagFromUrl()
-	{
-		var diagramUrl = document.getElementById('diagramUrl');
-		
-		if (!diagramUrl.value)
-		{
-			diagramUrl.style.border = '1px solid red';
-			return;
-		}
-		
-		var extUrlDiagram = document.getElementById('extUrlDiagram');
-		extUrlDiagram.innerHTML = '';
-		var diagramFrame = document.createElement('iframe');
-		diagramFrame.setAttribute('width', '100%');
-		diagramFrame.setAttribute('height', '100%');
-		diagramFrame.style.width = '100%';
-		diagramFrame.style.height = '100%';
-		diagramFrame.setAttribute('frameborder', '0');
-		
-		diagramFrame.setAttribute('src', 'https://www.draw.io/?lightbox=1&toolbar-config=%7B"refreshBtn"%3Atrue%2C"fullscreenBtn"%3Atrue%2C"closeBtn"%3Atrue%7D&layers=1' +
-				'#U' + encodeURIComponent(diagramUrl.value));
-		
-		extUrlDiagram.appendChild(diagramFrame);
-	};
-	
 	//=======Upload==========
 	attEditor = new AttViewerEditor(function(selectedFile, selFileContent, editedFile, width, height, autoSize, isDrawio, aspect, onError)
 	{
@@ -833,14 +858,38 @@ function includeDiagramMain(confPageId, draftPage)
 		if (e.keyCode == 13) doSearch();
 	});
 	
+	function renderDiagram(div, doc, title)
+	{
+		div.innerHTML = '';
+		var container = document.createElement('div');
+		// NOTE: Height must be specified with default value "auto" to force automatic fit in viewer
+		container.style.cssText = 'position:absolute;width:auto;left:0px;right:0px;height:auto;bottom:0px;top:0px;border:1px solid transparent;';
+		div.appendChild(container);
+
+		new GraphViewer(container, doc,
+			{highlight: '#3572b0', border: 8, 'auto-fit': true,
+			resize: false, nav: true, lightbox: false, title: title,
+			'toolbar-nohide': true, 'toolbar-position': 'top', toolbar: 'pages layers',
+		});
+	};
+	
+	
 	document.getElementById('showDiagBtn').addEventListener('click', showDiagFromUrl);
 	
 	function resetBorder()
 	{
 		if (this.value)
 			this.style.border = '';
+		
+		//Reset file content on urrl change
+		if (this.id.indexOf('Url') > 0)
+		{
+			gSelFileContent = null;
+			csvModel = null;
+		}
 	};
 	
+	//TODO Optimize extUrl and Csv code as they are very similar. Also, showFile is similar (conf server code is better)
 	var diagramUrl = document.getElementById('diagramUrl');
 	var diagramName = document.getElementById('diagramName');
 	
@@ -849,6 +898,115 @@ function includeDiagramMain(confPageId, draftPage)
 	diagramUrl.addEventListener('change', resetBorder);
 	diagramName.addEventListener('change', resetBorder);
 	
+	var csvFileUrl = document.getElementById('csvFileUrl');
+	var csvDiagName = document.getElementById('csvDiagName');
+	
+	csvFileUrl.addEventListener('keypress', resetBorder);
+	csvDiagName.addEventListener('keypress', resetBorder);
+	csvFileUrl.addEventListener('change', resetBorder);
+	csvDiagName.addEventListener('change', resetBorder);
+	
+	function processDiagramUrl(div, callback)
+	{
+		spinner.spin(div);
+		
+		mxUtils.get(diagramUrl.value, function(req)
+		{
+			if (req.getStatus() >= 200 && req.getStatus() <= 299)
+			{
+				try
+				{
+					gSelFileContent = req.getText();
+					
+					if (callback)
+					{
+						callback(gSelFileContent);
+					}
+					else
+					{
+						renderDiagram(div, mxUtils.parseXml(gSelFileContent).documentElement, diagramName.value);
+					}
+				}
+				catch(e)
+				{
+					showError('Unsupported file. Please check the specified URL', true);
+					spinner.stop();
+				}
+			}
+			else
+			{
+				showError('Diagram not found or cannot be accessed. Please check the specified URL', true);
+				spinner.stop();
+			}
+		});
+	};
+	
+	function showDiagFromUrl(e)
+	{
+		e.preventDefault();
+		
+		if (!diagramUrl.value)
+		{
+			diagramUrl.style.border = '1px solid red';
+			return;
+		}
+		
+		processDiagramUrl(document.getElementById('extUrlDiagram'));
+	};
+	
+	function processCsvUrl(div, callback)
+	{
+		spinner.spin(div);
+		
+		mxUtils.get(csvFileUrl.value, function(req)
+		{
+			if (req.getStatus() >= 200 && req.getStatus() <= 299)
+			{
+				try
+				{
+					gCsvFileContent = req.getText();
+					
+					AC.importCsv(gCsvFileContent, function(csvModel, xml)
+					{
+						gSelFileContent = xml;
+						
+						if (callback)
+						{
+							callback(gSelFileContent, gCsvFileContent);
+						}
+						else
+						{
+							renderDiagram(div, csvModel, csvDiagName.value);
+						}
+					});
+				}
+				catch(e)
+				{
+					showError('Unsupported format. Please check the specified URL', true);
+					spinner.stop();
+				}
+			}
+			else
+			{
+				showError('CSV file not found or cannot be accessed. Please check the specified URL', true);
+				spinner.stop();
+			}
+		});
+	};
+	
+	document.getElementById('convertBtn').addEventListener('click', function(e)
+	{
+		e.preventDefault();
+		
+		if (!csvFileUrl.value)
+		{
+			csvFileUrl.style.border = '1px solid red';
+			return;
+		}
+
+		processCsvUrl(document.getElementById('csvDiagram'));
+	});
+
 	var tabs = document.getElementsByClassName('tablinks');
 	
 	for (var i = 0; i < tabs.length; i++)
@@ -869,6 +1027,11 @@ function includeDiagramMain(confPageId, draftPage)
 			{
 				diagramUrl.value = macroData.diagramUrl;
 				diagramName.value = macroData.diagramName;
+			} 
+			else if (macroData.csvFileUrl)
+			{
+				csvFileUrl.value = macroData.csvFileUrl;
+				csvDiagName.value = macroData.diagramName;
 			}
 
 			function extractFileContents(resp, isPng)

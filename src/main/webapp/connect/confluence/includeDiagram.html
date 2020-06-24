@@ -104,6 +104,7 @@ body {
 	  <button id="oneDriveTab" class="tablinks" data-tabContetn="oneDrive">OneDrive</button>
 	  <button id="uploadTab" class="tablinks" data-tabContetn="upload">Upload</button>
 	  <button id="extUrlTab" class="tablinks" data-tabContetn="extUrl">From URL</button>
+	  <button id="csvTab" class="tablinks" data-tabContetn="csvImp">CSV Import</button>
 	</div>
 	
 	<!-- Tab content -->
@@ -253,16 +254,42 @@ body {
 		</div>
 	</div>
 	
-	<div id="extUrl" class="tabcontent">
-		<div class="field-group" style="height: 60px">
-			<label for="diagramName" style="display:inline-block;width: 100px">Diagram Name:</label> <input class="text medium-field" id="diagramName" value="" placeholder="Diagram Name" style="width: 50%; height:20px"><br>
-			<label for="diagramUrl" style="display:inline-block;width: 100px">Diagram URL:</label> <input class="text medium-field" id="diagramUrl" value="" placeholder="Diagram URL" style="width: 50%; height:20px">
-			<button class="aui-button aui-button-primary ap-dialog-submit" id="showDiagBtn">Show Diagram</button>
+	<div id="extUrl" class="tabcontent" style="padding: 0;height:100%">
+		<div style="bottom:0px;width:350px;border-right:1px solid #cccccc;position:absolute;top:42px;display:inline-block;">
+			<form class="aui top-label" style="height:100%;top:0px;">
+				<div class="field-group" style="padding-left:15px;">
+					<label for="diagramName">Diagram Name</label> 
+					<input class="text large-field" id="diagramName" value="" placeholder="Diagram Name"><br>
+					<label for="diagramUrl">Diagram URL</label> 
+					<input class="text large-field" id="diagramUrl" value="" placeholder="Diagram URL"><br>
+					<button class="aui-button aui-button-primary" style="margin: 5px;float: right;" id="showDiagBtn">Show Diagram</button>
+				</div>
+				<div class="error" id="errorMsgUD">
+				</div>
+			</form>
 		</div>
-	  	<div id="extUrlDiagram" style="width: calc(100% - 25px); height: calc(100% - 115px)">
-	  	</div>
+		<div id="extUrlDiagram" style="bottom:0px;left:351px;position:absolute;top:42px;right:0px;display:inline-block;text-align: center;">
+			<span style="display:block;text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer" >Diagram Preview</span>
+		</div>
 	</div>
-	
+	<div id="csvImp" class="tabcontent" style="padding: 0;height:100%">
+		<div style="bottom:0px;width:350px;border-right:1px solid #cccccc;position:absolute;top:42px;display:inline-block;">
+			<form class="aui top-label" style="height:100%;top:0px;">
+				<div class="field-group" style="padding-left:15px;">
+					<label for="csvDiagName">Diagram Name</label> 
+					<input class="text large-field" id="csvDiagName" value="" placeholder="Diagram Name"><br>
+					<label for="csvFileUrl">CSV File URL</label> 
+					<input class="text large-field" id="csvFileUrl" value="" placeholder="CSV File URL"><br>
+					<button class="aui-button aui-button-primary" style="margin: 5px;float: right;" id="convertBtn">Generate</button>
+				</div>
+				<div class="error" id="errorMsgUD">
+				</div>
+			</form>
+		</div>
+		<div id="csvDiagram" style="bottom:0px;left:351px;position:absolute;top:42px;right:0px;display:inline-block;text-align: center;">
+			<span style="display:block;text-align:center;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer" >Diagram Preview</span>
+		</div>
+	</div>
 	<div id="errorMsg">
 		 
 	</div>

@@ -178,54 +178,61 @@
 	 */
 	Editor.commonProperties = [{name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1' ||
+        		mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'fillWeight', dispName: 'Fill Weight', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'hachureGap', dispName: 'Hachure Gap', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'hachureAngle', dispName: 'Hachure Angle', type: 'int', defVal: -41, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'curveFitting', dispName: 'Curve Fitting', type: 'float', defVal: 0.95, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'simplification', dispName: 'Simplification', type: 'float', defVal: 0, min: 0, max: 1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'disableMultiStroke', dispName: 'Disable Multi Stroke', type: 'bool', defVal: false, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'disableMultiStrokeFill', dispName: 'Disable Multi Stroke Fill', type: 'bool', defVal: false, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'dashOffset', dispName: 'Dash Offset', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'dashGap', dispName: 'Dash Gap', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
         {name: 'zigzagOffset', dispName: 'ZigZag Offset', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
         }},
-        {name: 'comicStyle', dispName: 'Rough Style', type: 'enum', defVal: 'rough',
-        	enumList: [{val: 'rough', dispName: 'Default'}, {val: 'jiggle', dispName: 'Legacy'}], isVisible: function(state)
-	        {
-	        	return mxUtils.getValue(state.style, 'comic', (urlParams['rough'] == '1') ? '1' : '0') == '1';
-	        }
-        }
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'comic', '0') == '1' ||
+        		mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'sketchStyle', dispName: 'Sketch Style', type: 'enum', defVal: 'rough',
+        	enumList: [{val: 'rough', dispName: 'Rough'}, {val: 'comic', dispName: 'Comic'}],
+        	isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        }},
+        {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false},
 	];
 
 	/**
@@ -541,6 +548,7 @@
 	{
 		var rc = rough.canvas(
 		{
+			// Provides expected function but return value is not used
 			getContext: function()
 			{
 				return c;
@@ -551,8 +559,7 @@
 		{
 			var sets = drawable.sets || [];
 			var o = drawable.options || this.getDefaultOptions();
-			var ctx = this.ctx;
-			
+
 			for (var i = 0; i < sets.length; i++)
 			{
 				var drawing = sets[i];
@@ -560,13 +567,16 @@
 				switch (drawing.type)
 				{
 					case 'path':
-						this._drawToContext(ctx, drawing, o);
+						if (o.stroke != null)
+						{
+							this._drawToContext(c, drawing, o);
+						}
 						break;
 					case 'fillPath':
-						this._drawToContext(ctx, drawing, o);
+						this._drawToContext(c, drawing, o);
 						break;
 					case 'fillSketch':
-						this.fillSketch(ctx, drawing, o);
+						this.fillSketch(c, drawing, o);
 						break;
 				}
 			}
@@ -574,31 +584,28 @@
 	
 		rc.fillSketch = function(ctx, drawing, o)
 		{
-			if (o.filled)
+			var strokeColor = c.state.strokeColor;
+			var strokeWidth = c.state.strokeWidth;
+			var strokeAlpha = c.state.strokeAlpha;
+			var dashed = c.state.dashed;
+			
+			var fweight = o.fillWeight;
+			if (fweight < 0)
 			{
-				var strokeColor = c.state.strokeColor;
-				var strokeWidth = c.state.strokeWidth;
-				var strokeAlpha = c.state.strokeAlpha;
-				var dashed = c.state.dashed;
-				
-				var fweight = o.fillWeight;
-				if (fweight < 0)
-				{
-					fweight = o.strokeWidth / 2;
-				}
-	
-				c.setStrokeAlpha(c.state.fillAlpha);
-				c.setStrokeColor(o.fill || '');
-				c.setStrokeWidth(fweight);
-				c.setDashed(false);
-				
-				this._drawToContext(c, drawing);
-				
-				c.setDashed(dashed);
-				c.setStrokeColor(strokeColor);
-				c.setStrokeWidth(strokeWidth);
-				c.setStrokeAlpha(strokeAlpha);
+				fweight = o.strokeWidth / 2;
 			}
+
+			c.setStrokeAlpha(c.state.fillAlpha);
+			c.setStrokeColor(o.fill || '');
+			c.setStrokeWidth(fweight);
+			c.setDashed(false);
+			
+			this._drawToContext(ctx, drawing, o);
+			
+			c.setDashed(dashed);
+			c.setStrokeWidth(strokeWidth);
+			c.setStrokeColor(strokeColor);
+			c.setStrokeAlpha(strokeAlpha);
 		};
 	
 		rc._drawToContext = function(ctx, drawing, o)
@@ -993,6 +1000,16 @@
 				{
 					this.nextShape.options[key] = style[key];
 				}
+				
+				if (style['stroke'] == null)
+				{
+					delete this.nextShape.options['stroke'];
+				}
+				
+				if (!style.filled)
+				{
+					delete this.nextShape.options['fill'];
+				}
 	
 				this.passThrough = true;
 				this.rc.draw(this.nextShape);
@@ -1054,19 +1071,32 @@
 			 this.canvas.ellipse = this.originalEllipse;
 			 this.canvas.roundrect = this.originalRroundrect;
 		};
-
-		// Overrides to avoid call to rect
+				
+		// Returns a new HandJiggle canvas
+		mxShape.prototype.createRoughCanvas = function(c)
+		{
+			return new RoughCanvas(c, Editor.createRoughCanvas(c), this);	
+		};
+			
+		// Overrides to include sketch style
 		var shapeCreateHandJiggle = mxShape.prototype.createHandJiggle;
-		
 		mxShape.prototype.createHandJiggle = function(c)
 		{
-			if (this.style != null && mxUtils.getValue(this.style, 'comicStyle', 'rough') == 'jiggle')
+			if (!this.outline && c.handHiggle == null && this.style != null &&
+				mxUtils.getValue(this.style, 'sketch', (urlParams['rough'] == '1') ?'1' : '0') != '0')
 			{
-				return shapeCreateHandJiggle.apply(this, arguments);
+				if (mxUtils.getValue(this.style, 'sketchStyle', 'rough') == 'comic')
+				{
+					return this.createComicCanvas(c);
+				}
+				else
+				{
+					return this.createRoughCanvas(c);	
+				}
 			}
 			else
 			{
-				return new RoughCanvas(c, Editor.createRoughCanvas(c), this);
+				return shapeCreateHandJiggle.apply(this, arguments);
 			}
 		};
 	})();
