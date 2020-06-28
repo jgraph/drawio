@@ -4454,9 +4454,12 @@ StyleFormatPanel.prototype.addFill = function(container)
 		mxEvent.consume(evt);
 	});
 	
-	var gradientPanel = this.createCellColorOption(mxResources.get('gradient'), mxConstants.STYLE_GRADIENTCOLOR, '#ffffff', function(color)
+	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
+	var gradientPanel = this.createCellColorOption(mxResources.get('gradient'), mxConstants.STYLE_GRADIENTCOLOR,
+		(defs[mxConstants.STYLE_GRADIENTCOLOR] != null) ? defs[mxConstants.STYLE_GRADIENTCOLOR] : '#ffffff', function(color)
 	{
-		graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
+		// TODO: Check side effects for adding selection cells for selection cell with gradient
+		//graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
 		
 		if (color == null || color == mxConstants.NONE)
 		{

@@ -558,7 +558,7 @@
 		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
 		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
 		                    'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
-		                    'arcSize', 'comic', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
+		                    'arcSize', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
 		                    'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 		
 		editorUi.actions.addAction('copyStyle', function()

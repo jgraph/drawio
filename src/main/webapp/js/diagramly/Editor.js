@@ -1697,6 +1697,16 @@
 					mxscript(config.plugins[i]);
 				}
 			}
+			
+			if(config.maxImageBytes != null) 
+			{
+				EditorUi.prototype.maxImageBytes = config.maxImageBytes;
+			}
+			
+			if(config.maxImageSize != null) 
+			{
+				EditorUi.prototype.maxImageSize = config.maxImageSize;
+			}
 		}
 	};
 

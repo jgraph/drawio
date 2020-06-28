@@ -1025,17 +1025,21 @@
 													{
 														if (cachedCsv != null && curCsv != null && cachedCsv != curCsv)
 														{
-															AC.saveDiagram(id, name + '.csv', curCsv,
-		            										function()
-		            										{
-																AC.importCsv(curCsv, function(csvModel, xml)
-																{
+															AC.importCsv(curCsv, function(csvModel, xml)
+															{
+																AC.saveDiagram(id, name + '.csv', curCsv,
+			            										function()
+			            										{
 																	renderAndCache(xml);
-																});
-		            										}, function()
-		            										{
-		            											console.log('Cachinng csv file failed durinng saving');
-		            										}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, false);
+			            										}, function()
+			            										{
+			            											console.log('Cachinng csv file failed durinng saving');
+			            										}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, false);
+															},
+															function()
+															{
+																console.log('Fetched csv file has invalid format');
+															});
 														}
 													};
 													

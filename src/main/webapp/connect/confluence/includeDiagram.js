@@ -192,7 +192,7 @@ function includeDiagramMain(confPageId, draftPage)
 	function showError(errMsg, nohide)
 	{
 		var errorMsg = document.getElementById('errorMsg');
-		errorMsg.innerHTML = errMsg;
+		errorMsg.innerHTML = AC.htmlEntities(errMsg);
 		errorMsg.className = 'fade';
 		
 		if (!nohide)
@@ -526,7 +526,7 @@ function includeDiagramMain(confPageId, draftPage)
 			msg.style.width = '100%';
 			msg.style.height = '100%';
 			msg.style.textAlign = 'center';
-			msg.innerHTML = emptyMsg;
+			msg.innerHTML = AC.htmlEntities(emptyMsg);
 			
 			div.appendChild(msg);
 		}

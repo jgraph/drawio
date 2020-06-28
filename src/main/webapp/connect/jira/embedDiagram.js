@@ -47,7 +47,7 @@ function embedDiagramMain()
 	function showError(msg)
 	{
 		var errorMsg = document.getElementById("errorMsg");
-       	errorMsg.innerHTML = msg;
+       	errorMsg.innerHTML = AC.htmlEntities(msg);
 		errorMsg.className = "fade";
 		setTimeout(function()
 		{
@@ -301,7 +301,7 @@ function embedDiagramMain()
 	function showElemError(id, errMsg)
 	{
 		AC.$('#' + id).style.border = '1px solid red';
-		AC.$('#' + id + 'Error').innerHTML = errMsg;
+		AC.$('#' + id + 'Error').innerHTML = AC.htmlEntities(errMsg);
 	};
 
 	function showDiagFromUrl(evt, callback)

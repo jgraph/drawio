@@ -11061,12 +11061,14 @@ LucidImporter = {};
 					var item = new Array();
 					var divider = new Array();
 					var currH = th / h;
+					var curY = th;
 					
 					for (var i = 0; i <= p.Attributes; i++)
 					{
 						if (i > 0)
 						{
-							divider[i] = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+							divider[i] = new mxCell('', new mxGeometry(0, curY, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;');
+							curY += 8;
 							divider[i].vertex = true;
 							v.insert(divider[i]);
 						}
@@ -11094,7 +11096,9 @@ LucidImporter = {};
 						
 						var extH = p.ExtraHeightSet && i == 1? (p.ExtraHeight * scale) : 0;
 						
-						item[i] = new mxCell('', new mxGeometry(0, 0, w, Math.round((h - th) * itemH) + extH), 'part=1;html=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+						var curH = Math.round((h - th) * itemH) + extH;
+						item[i] = new mxCell('', new mxGeometry(0, curY, w, curH), 'part=1;html=1;resizeHeight=0;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+						curY += curH;
 						item[i].vertex = true;
 						v.insert(item[i]);
 						item[i].style += st +
@@ -11143,12 +11147,14 @@ LucidImporter = {};
 				
 				var item = new Array();
 				var currH = th / h;
+				var curY = th;
 				
 				for (var i = 0; i < p.Fields; i++)
 				{
 					var itemH = 0;
-					
-					item[i] = new mxCell('', new mxGeometry(0, 0, w, p['Field' + (i + 1) + '_h'] * scale), 'part=1;resizeHeight=0;strokeColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;');
+					var curH = p['Field' + (i + 1) + '_h'] * scale;
+					item[i] = new mxCell('', new mxGeometry(0, curY, w, curH), 'part=1;resizeHeight=0;strokeColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;html=1;');
+					curY += curH;
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +

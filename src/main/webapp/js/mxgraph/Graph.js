@@ -5931,6 +5931,11 @@ if (typeof mxVertexHandler != 'undefined')
 				style += 'rounded=' + this.currentEdgeStyle['rounded'] + ';';
 			}
 
+			if (this.currentEdgeStyle['sketch'] != null)
+			{
+				style += 'sketch=' + this.currentEdgeStyle['sketch'] + ';';
+			}
+
 			if (this.currentEdgeStyle['comic'] != null)
 			{
 				style += 'comic=' + this.currentEdgeStyle['comic'] + ';';

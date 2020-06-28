@@ -27,7 +27,7 @@
 	{
 		document.body.style.backgroundImage = 'none';
 		document.body.innerHTML = '<img src="/mxgraph/images/error.gif" border="0" align="absmiddle"/> ' + 
-			errMsg;
+					AC.htmlEntities(errMsg);
 		AP.resize('100%', '20');
 	};
 	

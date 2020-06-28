@@ -187,7 +187,7 @@
 				td = document.createElement('td');
 				var titleSpan = document.createElement('span');
 				titleSpan.className = "odFileTitle";
-				titleSpan.innerHTML = title;
+				titleSpan.innerHTML = AC.htmlEntities(title);
 				titleSpan.setAttribute('title', tooltip);
 				td.appendChild(titleSpan);
 				row.appendChild(td);

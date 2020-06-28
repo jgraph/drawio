@@ -2031,7 +2031,7 @@ Sidebar.prototype.updateShapes = function(source, targets)
 		var styles = ['shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'align', 'startFill',
 		              'startSize', 'endFill', 'endSize', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor',
 		              'html', 'part', 'noEdgeStyle', 'edgeStyle', 'elbow', 'childLayout', 'recursiveResize',
-		              'container', 'collapsible', 'connectable', 'comic', 'fillWeight', 'hachureGap',
+		              'container', 'collapsible', 'connectable', 'comic', 'sketch', 'fillWeight', 'hachureGap',
 		              'hachureAngle', 'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill',
 		              'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 		

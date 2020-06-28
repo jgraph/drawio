@@ -193,7 +193,7 @@ function includeDiagramMain(confPageId, draftPage)
 	function showError(errMsg, nohide)
 	{
 		var errorMsg = document.getElementById('errorMsg');
-		errorMsg.innerHTML = errMsg;
+		errorMsg.innerHTML = AC.htmlEntities(errMsg);
 		errorMsg.className = 'fade';
 		
 		if (!nohide)
@@ -419,65 +419,73 @@ function includeDiagramMain(confPageId, draftPage)
 		    		}
 				};
 				
-				function saveDiagram()
+				//No caching is needed when referring to another conf diagram
+				if (theMacroData.service != null || theMacroData.csvFileUrl != null || theMacroData.diagramUrl != null)
 				{
-					AC.saveDiagram(confPageId, theMacroData.diagramName, gSelFileContent,
-							startSaving, function(resp)
-							{
-								showError('Unexpected error. Cannot cannot save cached file');
-							}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
-				};
-				
-				function doSave()
-				{
-					if (theMacroData.csvFileUrl)
+					function saveDiagram()
 					{
-						AC.saveDiagram(confPageId, theMacroData.diagramName + '.csv', gCsvFileContent,
-								saveDiagram, function(resp)
+						AC.saveDiagram(confPageId, theMacroData.diagramName, gSelFileContent,
+								startSaving, function(resp)
 								{
 									showError('Unexpected error. Cannot cannot save cached file');
-								}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, draftPage);
+								}, false, 'application/vnd.jgraph.mxfile.cached', 'Embedded draw.io diagram' + (gSelFileModifiedTS != null ? ' - ' + gSelFileModifiedTS : ''), false, draftPage);
+					};
+					
+					function doSave()
+					{
+						if (theMacroData.csvFileUrl)
+						{
+							AC.saveDiagram(confPageId, theMacroData.diagramName + '.csv', gCsvFileContent,
+									saveDiagram, function(resp)
+									{
+										showError('Unexpected error. Cannot cannot save cached file');
+									}, false, 'text/csv', 'Embedded draw.io diagram (CSV)', false, draftPage);
+						}
+						else
+						{
+							saveDiagram();
+						}
+					};
+					
+					if (editMode)
+					{
+						doSave()
 					}
 					else
 					{
-						saveDiagram();
+						//Confirm filename is unique for new files
+						AC.getPageAttachments(confPageId, function(attachments) 
+						{
+							var fileExists = false;
+							var lc = theMacroData.diagramName.toLowerCase();
+							
+							// Checks if any files will be overwritten
+							for (var i = 0; i < attachments.length && !fileExists; i++)
+							{
+								var an = attachments[i].title.toLowerCase();
+
+								if (an == lc)
+								{
+									fileExists = true;
+								}
+							}
+							
+							if (fileExists)
+							{
+								//Make filename unique
+								theMacroData.diagramName = Date.now() + '-' + theMacroData.diagramName;
+							}
+							
+							doSave();
+						}, function(res)
+						{
+							showError('Unexpected error. Cannot cannot save cached file');
+						});
 					}
-				};
-				
-				if (editMode)
-				{
-					doSave();
 				}
 				else
 				{
-					//Confirm filename is unique for new files
-					AC.getPageAttachments(confPageId, function(attachments) 
-					{
-						var fileExists = false;
-						var lc = theMacroData.diagramName.toLowerCase();
-						
-						// Checks if any files will be overwritten
-						for (var i = 0; i < attachments.length && !fileExists; i++)
-						{
-							var an = attachments[i].title.toLowerCase();
-
-							if (an == lc)
-							{
-								fileExists = true;
-							}
-						}
-						
-						if (fileExists)
-						{
-							//Make filename unique
-							theMacroData.diagramName = Date.now() + '-' + theMacroData.diagramName;
-						}
-						
-						doSave();
-					}, function(res)
-					{
-						showError('Unexpected error. Cannot cannot save cached file');
-					});
+					startSaving();
 				}
 			}
 			else
@@ -569,7 +577,7 @@ function includeDiagramMain(confPageId, draftPage)
 			msg.style.width = '100%';
 			msg.style.height = '100%';
 			msg.style.textAlign = 'center';
-			msg.innerHTML = emptyMsg;
+			msg.innerHTML = AC.htmlEntities(emptyMsg);
 			
 			div.appendChild(msg);
 		}
@@ -978,6 +986,11 @@ function includeDiagramMain(confPageId, draftPage)
 						{
 							renderDiagram(div, csvModel, csvDiagName.value);
 						}
+					},
+					function()
+					{
+						showError('Unsupported format. Please check the specified URL', true);
+						spinner.stop();
 					});
 				}
 				catch(e)

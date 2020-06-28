@@ -142,7 +142,7 @@
 						container.style.textAlign = 'center';
 						container.style.marginTop = tbHeight + 'px';
 						container.innerHTML = '<img src="/mxgraph/images/error.gif" border="0" align="absmiddle"/> ' + 
-							errMsg;
+									AC.htmlEntities(errMsg);
 					};
 					
 					function updateTileSize()
