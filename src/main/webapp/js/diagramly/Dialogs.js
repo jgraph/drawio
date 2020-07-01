@@ -2632,8 +2632,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
-	rightHighlight = (rightHighlight != null) ? rightHighlight : ((uiTheme == 'dark') ? 'transparent' : '#e6eff8');
-	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : ((uiTheme == 'dark') ? '1px dotted rgb(235, 242, 249)' : '1px solid #ccd9ea');
+	rightHighlight = (rightHighlight != null) ? rightHighlight : ((uiTheme == 'dark') ? '#a2a2a2' : '#e6eff8');
+	rightHighlightBorder = (rightHighlightBorder != null) ? rightHighlightBorder : ((uiTheme == 'dark') ? '1px dashed #00a8ff' : '1px solid #ccd9ea');
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
@@ -3085,6 +3085,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		elt.className = 'geTemplate';
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
+	
+		if (uiTheme == 'dark')
+		{
+			elt.style.filter = 'invert(100%)';
+		}
 		
 		if (title != null)
 		{

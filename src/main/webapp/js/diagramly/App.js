@@ -4959,7 +4959,10 @@ App.prototype.loadLibraries = function(libs, done)
 									{
 										onerror();
 									}
-								}), onerror, null, true);
+								}), function()
+								{
+									onerror();
+								}, null, true);
 							}
 						}
 						else if (service == 'R')

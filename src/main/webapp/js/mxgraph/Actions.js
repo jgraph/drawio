@@ -653,15 +653,28 @@ Actions.prototype.init = function()
 	{
 		var bounds = (graph.isSelectionEmpty()) ? graph.getGraphBounds() :
 			graph.getBoundingBox(graph.getSelectionCells())
-				
 		var t = graph.view.translate;
 		var s = graph.view.scale;
-		bounds.width /= s;
-		bounds.height /= s;
+		
 		bounds.x = bounds.x / s - t.x;
 		bounds.y = bounds.y / s - t.y;
+		bounds.width /= s;
+		bounds.height /= s;
+
+		if (graph.backgroundImage != null)
+		{
+			bounds.add(new mxRectangle(0, 0, graph.backgroundImage.width, graph.backgroundImage.height));
+		}
 		
-		graph.fitWindow(bounds);
+		if (bounds.width == 0 || bounds.height == 0)
+		{
+			graph.zoomTo(1);
+			ui.resetScrollbars();
+		}
+		else
+		{
+			graph.fitWindow(bounds);
+		}
 	}, null, null, Editor.ctrlKey + '+Shift+H');
 	this.addAction('fitPage', mxUtils.bind(this, function()
 	{

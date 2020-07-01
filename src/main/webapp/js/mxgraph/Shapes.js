@@ -933,14 +933,24 @@
 		 this.canvas.arcTo = this.originalArcTo;
 	};
 	
-	// Installs hand jiggle in all shapes
-	var mxShapePaint0 = mxShape.prototype.paint;
-	mxShape.prototype.defaultJiggle = 1.5;
-	mxShape.prototype.paint = function(c)
+	// Installs hand jiggle for comic and sketch style
+	mxShape.prototype.defaultJiggle = 1.5;	
+
+	var shapeBeforePaint = mxShape.prototype.beforePaint;
+	mxShape.prototype.beforePaint = function(c)
 	{
-		// NOTE: getValue does not return a boolean value so !('0') would return true here and below
-		c.handJiggle = this.createHandJiggle(c);
-		mxShapePaint0.apply(this, arguments);
+		shapeBeforePaint.apply(this, arguments);
+		
+		if (c.handJiggle == null)
+		{
+			c.handJiggle = this.createHandJiggle(c);
+		}
+	};
+	
+	var shapeAfterPaint = mxShape.prototype.afterPaint;
+	mxShape.prototype.afterPaint = function(c)
+	{
+		shapeAfterPaint.apply(this, arguments);
 		
 		if (c.handJiggle != null)
 		{
@@ -958,8 +968,7 @@
 	// Overrides to avoid call to rect
 	mxShape.prototype.createHandJiggle = function(c)
 	{
-		if (!this.outline && c.handHiggle == null && this.style != null &&
-			mxUtils.getValue(this.style, 'comic', '0') != '0')
+		if (!this.outline && this.style != null && mxUtils.getValue(this.style, 'comic', '0') != '0')
 		{
 			return this.createComicCanvas(c);
 		}
@@ -982,7 +991,7 @@
 	var mxRectangleShapePaintBackground0 = mxRectangleShape.prototype.paintBackground;
 	mxRectangleShape.prototype.paintBackground = function(c, x, y, w, h)
 	{
-		if (c.handJiggle == null)
+		if (c.handJiggle == null || c.handJiggle.constructor != HandJiggle)
 		{
 			mxRectangleShapePaintBackground0.apply(this, arguments);
 		}
@@ -2811,14 +2820,21 @@
 			c.setStrokeColor(null);
 		}
 
-		mxRectangleShape.prototype.paintBackground.apply(this, arguments);
-		
 		if (this.style != null)
 		{
-			c.setStrokeColor(this.stroke);
+			var pointerEvents = c.pointerEvents;
+			var events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
+			
+			if (!events && (this.fill == null || this.fill == mxConstants.NONE))
+			{
+				c.pointerEvents = false;
+			}
+
 			c.rect(x, y, w, h);
 			c.fill();
 
+			c.pointerEvents = pointerEvents;
+			c.setStrokeColor(this.stroke);
 			c.begin();
 			c.moveTo(x, y);
 			
@@ -4316,11 +4332,12 @@
 	                                   new mxConnectionConstraint(new mxPoint(0, 1), true), new mxConnectionConstraint(new mxPoint(1, 1), true),
 	                                   new mxConnectionConstraint(new mxPoint(0.5, 0), true), new mxConnectionConstraint(new mxPoint(0.5, 1), true),
 	          	              		   new mxConnectionConstraint(new mxPoint(0, 0.5), true), new mxConnectionConstraint(new mxPoint(1, 0.5))];
-	mxLabel.prototype.constraints = mxRectangleShape.prototype.constraints;
+	PartialRectangleShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxImageShape.prototype.constraints = mxRectangleShape.prototype.constraints;
 	mxSwimlane.prototype.constraints = mxRectangleShape.prototype.constraints;
 	PlusShape.prototype.constraints = mxRectangleShape.prototype.constraints;
-
+	mxLabel.prototype.constraints = mxRectangleShape.prototype.constraints;
+	
 	NoteShape.prototype.getConstraints = function(style, w, h)
 	{
 		var constr = [];

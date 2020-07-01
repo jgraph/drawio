@@ -8568,7 +8568,16 @@
 					}
 					else
 					{
-						cellEditorStartEditing.apply(this, arguments);
+						var style = graph.getCellStyle(cell);
+						
+						if (mxUtils.getValue(style, 'metaEdit', '0') == '1')
+						{
+							ui.showDataDialog(cell);
+						}
+						else
+						{
+							cellEditorStartEditing.apply(this, arguments);
+						}
 					}
 				}
 			}

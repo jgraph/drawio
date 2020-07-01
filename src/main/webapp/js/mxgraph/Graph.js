@@ -250,46 +250,49 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    			}
     					}
 		    		}
-		    		else if (!this.panningHandler.isActive())
+		    		else if (!this.panningHandler.isActive() && !mxEvent.isControlDown(me.getEvent()))
 		    		{
 			   			var handler = this.selectionCellsHandler.getHandler(state.cell);
 
 			   			// Cell handles have precedence over row and col resize
 		    			if (handler == null || handler.getHandleForEvent(me) == null)
 		    			{
-				    		var box = new mxRectangle(me.getGraphX(), me.getGraphY());
+				    		var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
 			    			box.grow(mxEvent.isTouchEvent(me.getEvent()) ?
 			    				mxShape.prototype.svgStrokeTolerance - 1 :
-			    				mxShape.prototype.svgStrokeTolerance / 2);
+			    				(mxShape.prototype.svgStrokeTolerance + 1) / 2);
 			    			
-			    			if (this.isTableCell(state.cell))
+			    			if (this.isTableCell(state.cell) && !this.isCellSelected(state.cell))
 			    			{
 			    				var row = this.model.getParent(state.cell);
 			    				var table = this.model.getParent(row);
 			    				
-			    				if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 1, state.width, 1)) &&
-			    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box, new mxRectangle(
-			    					state.x, state.y + state.height - 1, state.width, 1)) ||
-				    				(mxUtils.intersects(box, new mxRectangle(state.x - 1, state.y, 1, state.height)) &&
-				    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box, new mxRectangle(
-			    					state.x + state.width - 1, state.y, 1, state.height)))
-		    					{
-			    					var wasSelected = this.selectionCellsHandler.isHandled(table);
-			    					this.selectCellForEvent(table, me.getEvent());
-					    			handler = this.selectionCellsHandler.getHandler(table);
-		
-					    			if (handler != null)
-					    			{
-					    				var handle = handler.getHandleForEvent(me);
-			    				
-					    				if (handle != null)
-					    				{
-					    					handler.start(me.getGraphX(), me.getGraphY(), handle);
-					    					handler.blockDelayedSelection = !wasSelected;
-					    					me.consume();
-					    				}
-					    			}
-		    					}
+			    				if (!this.isCellSelected(table))
+			    				{
+				    				if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 2, state.width, 3)) &&
+				    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box, new mxRectangle(
+				    					state.x, state.y + state.height - 2, state.width, 3)) ||
+					    				(mxUtils.intersects(box, new mxRectangle(state.x - 2, state.y, 2, state.height)) &&
+					    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box, new mxRectangle(
+				    					state.x + state.width - 2, state.y, 2, state.height)))
+			    					{
+				    					var wasSelected = this.selectionCellsHandler.isHandled(table);
+				    					this.selectCellForEvent(table, me.getEvent());
+						    			handler = this.selectionCellsHandler.getHandler(table);
+			
+						    			if (handler != null)
+						    			{
+						    				var handle = handler.getHandleForEvent(me);
+				    				
+						    				if (handle != null)
+						    				{
+						    					handler.start(me.getGraphX(), me.getGraphY(), handle);
+						    					handler.blockDelayedSelection = !wasSelected;
+						    					me.consume();
+						    				}
+						    			}
+			    					}
+			    				}
 		    				}
 
 			    			// Hover for swimlane start sizes inside tables
@@ -521,27 +524,30 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    					}
 			    				}
 				    		}
-				    		else
+				    		else if (!mxEvent.isControlDown(me.getEvent()))
 				    		{
-				    			var box = new mxRectangle(me.getGraphX(), me.getGraphY());
+				    			var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
 			    				box.grow(mxShape.prototype.svgStrokeTolerance / 2);
 	
 					    		if (this.isTableCell(state.cell))
 					    		{
 				    				var row = this.model.getParent(state.cell);
 			    					var table = this.model.getParent(row);
-	
-			    					if ((mxUtils.intersects(box, new mxRectangle(state.x - 1, state.y, 1, state.height)) &&
-					    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box,
-					    				new mxRectangle(state.x + state.width - 1, state.y, 1, state.height)))
+			    					
+			    					if (!this.isCellSelected(table))
 			    					{
-					    				cursor ='col-resize';
-			    					}
-			    					else if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 1, state.width, 1)) &&
-				    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box,
-				    					new mxRectangle(state.x, state.y + state.height - 1, state.width, 1)))
-			    					{
-					    				cursor ='row-resize';
+				    					if ((mxUtils.intersects(box, new mxRectangle(state.x - 2, state.y, 2, state.height)) &&
+						    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box,
+						    				new mxRectangle(state.x + state.width - 2, state.y, 2, state.height)))
+				    					{
+						    				cursor ='col-resize';
+				    					}
+				    					else if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 2, state.width, 3)) &&
+					    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box,
+					    					new mxRectangle(state.x, state.y + state.height - 2, state.width, 3)))
+				    					{
+						    				cursor ='row-resize';
+				    					}
 			    					}
 					    		}
 					    		
@@ -718,18 +724,22 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		    for (var i = 0; i < cells.length; i++)
 		    {
 		    	// Propagates to composite parents or moves selected table rows
-		    	var cell = (this.graph.isTableRow(initialCell) &&
+		    	var cell = (this.graph.isTableCell(initialCell) &&
+		    		this.graph.isTableCell(cells[i]) &&
+		    		this.graph.isCellSelected(cells[i])) ?
+		    		this.graph.model.getParent(cells[i]) :
+		    		((this.graph.isTableRow(initialCell) &&
 		    		this.graph.isTableRow(cells[i]) &&
 		    		this.graph.isCellSelected(cells[i])) ?
-		    		cells[i] : this.graph.getCompositeParent(cells[i]);
-		    	
+		    		cells[i] : this.graph.getCompositeParent(cells[i]));
+
 		    	if (cell != null && !lookup.get(cell))
 		    	{
 		    		lookup.put(cell, true);
 		            newCells.push(cell);
 		        }
 		    }
-		
+
 		    return newCells;
 		};
 
@@ -739,16 +749,25 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		this.graphHandler.start = function(cell, x, y, cells)
 		{
 			// Propagates to selected table row to start move
+			var ignoreParent = false;
+			
 		    if (this.graph.isTableCell(cell))
 		    {
-		    	cell = this.graph.model.getParent(cell);
+		    	if (!this.graph.isCellSelected(cell))
+		    	{
+		    		cell = this.graph.model.getParent(cell);
+		    	}
+		    	else
+		    	{
+		    		ignoreParent = true;
+		    	}
 		    }
 		    
-		    if (!this.graph.isTableRow(cell) || !this.graph.isCellSelected(cell))
+		    if (!ignoreParent && (!this.graph.isTableRow(cell) || !this.graph.isCellSelected(cell)))
 		    {
 		    	cell = this.graph.getCompositeParent(cell);
 		    }
-
+		    
 			graphHandlerStart.apply(this, arguments);
 		};
 		
@@ -1806,7 +1825,6 @@ Graph.prototype.init = function(container)
 	 * current state to CSS transform.
 	 */
 	var graphViewValidate = mxGraphView.prototype.validate;
-	
 	mxGraphView.prototype.validate = function(cell)
 	{
 		if (this.graph.useCssTransforms)
@@ -1907,7 +1925,6 @@ Graph.prototype.init = function(container)
 	};
 	
 	var graphViewValidateBackgroundPage = mxGraphView.prototype.validateBackgroundPage;
-	
 	mxGraphView.prototype.validateBackgroundPage = function()
 	{
 		var useCssTranforms = this.graph.useCssTransforms, scale = this.scale, 
@@ -1929,7 +1946,6 @@ Graph.prototype.init = function(container)
 	};
 
 	var graphUpdatePageBreaks = mxGraph.prototype.updatePageBreaks;
-	
 	mxGraph.prototype.updatePageBreaks = function(visible, width, height)
 	{
 		var useCssTranforms = this.useCssTransforms, scale = this.view.scale, 
@@ -1951,7 +1967,6 @@ Graph.prototype.init = function(container)
 			this.useCssTransforms = true;
 		}
 	};
-	
 })();
 
 /**
@@ -4831,6 +4846,17 @@ TableLayout.prototype.isHorizontal = function()
 };
 
 /**
+ * Function: isVertexIgnored
+ * 
+ * Overrides to allow for table rows and cells.
+ */
+TableLayout.prototype.isVertexIgnored = function(vertex)
+{
+	return !this.graph.getModel().isVertex(vertex) ||
+		!this.graph.isCellVisible(vertex);
+};
+
+/**
  * Function: getSize
  * 
  * Returns the total vertical or horizontal size of the given cells.
@@ -5826,6 +5852,14 @@ if (typeof mxVertexHandler != 'undefined')
 			return !mxEvent.isAltDown(evt);
 		};
 		
+		// Ignores all table cells in layouts
+		var graphLayoutIsVertexIgnored = mxGraphLayout.prototype.isVertexIgnored; 
+		mxGraphLayout.prototype.isVertexIgnored = function(vertex)
+		{
+			return graphLayoutIsVertexIgnored.apply(this, arguments) ||
+				this.graph.isTableRow(vertex) || this.graph.isTableCell(vertex);
+		};
+		
 		// Extends connection handler to enable ctrl+drag for cloning source cell
 		// since copyOnConnect is now disabled by default
 		var mxConnectionHandlerCreateTarget = mxConnectionHandler.prototype.isCreateTarget;
@@ -6004,8 +6038,9 @@ if (typeof mxVertexHandler != 'undefined')
 					{
 						this.setCellStyles(key, null, [cells[i]]);
 						var style = this.getCellStyle(cells[i]);
+						var temp = style[key];
 						
-						if (style[key] != value)
+						if (value != ((temp == null) ? mxConstants.NONE : temp))
 						{
 							this.setCellStyles(key, value, [cells[i]]);
 						}
@@ -6343,7 +6378,7 @@ if (typeof mxVertexHandler != 'undefined')
 				}
 			}
 		};
-	
+
 		/**
 		 * Overrides cloning cells in moveCells.
 		 */
@@ -6352,82 +6387,146 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			mapping = (mapping != null) ? mapping : new Object();
 			
-			// Updates source and target table heights and matches
-			// column count for moving rows between tables
-			for (var i = 0; i < cells.length; i++)
+			// Replaces source tables with rows
+			if (this.isTable(target))
 			{
-				if (target != null && this.isTableRow(cells[i]))
+				var newCells = [];
+				
+				for (var i = 0; i < cells.length; i++)
 				{
-					var parent = this.model.getParent(cells[i]);
-					var row = this.getCellGeometry(cells[i]);
-					
-					if (parent != null && row != null &&
-						this.isTable(parent) &&
-						this.isTable(target) &&
-						(clone || parent != target))
+					if (this.isTable(cells[i]))
 					{
-						if (!clone)
+						newCells = newCells.concat(this.model.getChildCells(cells[i], true).reverse());
+					}
+					else
+					{
+						newCells.push(cells[i]);
+					}
+				}
+				
+				cells = newCells;
+			}
+			
+			this.model.beginUpdate();
+			try
+			{
+				// Updates source and target table heights and matches
+				// column count for moving rows between tables
+				var sourceTables = [];
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (target != null && this.isTableRow(cells[i]))
+					{
+						var parent = this.model.getParent(cells[i]);
+						var row = this.getCellGeometry(cells[i]);
+						
+						if (this.isTable(parent))
 						{
-							var table = this.getCellGeometry(parent);
+							sourceTables.push(parent);
+						}
+						
+						if (parent != null && row != null &&
+							this.isTable(parent) &&
+							this.isTable(target) &&
+							(clone || parent != target))
+						{
+							if (!clone)
+							{
+								var table = this.getCellGeometry(parent);
+						
+								if (table != null)
+								{
+									table = table.clone();
+									table.height -= row.height;
+									this.model.setGeometry(parent, table);
+								}
+							}
+	
+							var table = this.getCellGeometry(target);
 					
 							if (table != null)
 							{
 								table = table.clone();
-								table.height -= row.height;
-								this.model.setGeometry(parent, table);
+								table.height += row.height;
+								this.model.setGeometry(target, table);
 							}
-						}
-
-						var table = this.getCellGeometry(target);
-				
-						if (table != null)
-						{
-							table = table.clone();
-							table.height += row.height;
-							this.model.setGeometry(target, table);
-						}
-						
-						// Matches column count
-						var rows = this.model.getChildCells(target, true);
-						
-						if (rows.length > 0)
-						{
-							var sourceCols = this.model.getChildCells(cells[i], true);
-							var cols = this.model.getChildCells(rows[0], true);
-							var count = cols.length - sourceCols.length;
 							
-							if (count > 0)
+							// Matches column count
+							var rows = this.model.getChildCells(target, true);
+							
+							if (rows.length > 0)
 							{
-								for (var j = 0; j < count; j++)
+								var cell = (clone) ? this.cloneCell(cells[i]) : cells[i];
+								
+								var sourceCols = this.model.getChildCells(cell, true);
+								var cols = this.model.getChildCells(rows[0], true);
+								var count = cols.length - sourceCols.length;
+								
+								if (count > 0)
 								{
-									var cell = this.cloneCell(sourceCols[sourceCols.length - 1]);
-									
-									if (cell != null)
+									for (var j = 0; j < count; j++)
 									{
-										cell.value = '';
+										var col = this.cloneCell(sourceCols[sourceCols.length - 1]);
 										
-										this.model.add(cells[i], cell);
+										if (col != null)
+										{
+											col.value = '';
+											
+											this.model.add(cell, col);
+										}
+									}
+								}
+								else if (count < 0)
+								{
+									for (var j = 0; j > count; j--)
+									{
+										this.model.remove(sourceCols[sourceCols.length + j - 1]);
+									}
+								}
+								
+								// Updates column widths
+								sourceCols = this.model.getChildCells(cell, true);
+								
+								for (var j = 0; j < cols.length; j++)
+								{
+									var geo = this.getCellGeometry(cols[j]);
+									var geo2 = this.getCellGeometry(sourceCols[j]);
+									
+									if (geo != null && geo2 != null)
+									{
+										geo2 = geo2.clone();
+										geo2.width = geo.width;
+										
+										this.model.setGeometry(sourceCols[j], geo2);
 									}
 								}
 							}
-							else if (count < 0)
-							{
-								for (var j = 0; j > count; j--)
-								{
-									this.model.remove(sourceCols[sourceCols.length - count - 1]);
-								}
-							}	 
 						}
 					}
 				}
+				
+				var result = graphMoveCells.apply(this, arguments);
+				
+				// Removes empty tables
+				for (var i = 0; i < sourceTables.length; i++)
+				{
+					if (!clone && this.model.contains(sourceTables[i]) &&
+						this.model.getChildCount(sourceTables[i]) == 0)
+					{
+						this.model.remove(sourceTables[i]);	
+					}
+				}
+				
+				if (clone)
+				{
+					this.updateCustomLinks(this.createCellMapping(mapping,
+						this.createCellLookup(cells)), result);
+				}
 			}
-			
-			var result = graphMoveCells.apply(this, arguments);
-			
-			if (clone)
+			finally
 			{
-				this.updateCustomLinks(this.createCellMapping(mapping,
-					this.createCellLookup(cells)), result);
+				this.model.endUpdate();
 			}
 			
 			return result;
@@ -6648,10 +6747,12 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.isValidDropTarget = function(cell, cells, evt)
 		{
 			var style = this.getCurrentCellStyle(cell);
+			var tables = true;
 			var rows = true;
 			
 			for (var i = 0; i < cells.length && rows; i++)
 			{
+				tables = tables && this.isTable(cells[i]);
 				rows = rows && this.isTableRow(cells[i]);
 			}
 			
@@ -6659,7 +6760,7 @@ if (typeof mxVertexHandler != 'undefined')
 				mxUtils.getValue(style, 'dropTarget', '1') != '0' &&
 				(mxGraph.prototype.isValidDropTarget.apply(this, arguments) ||
 				this.isContainer(cell)) && !this.isTableRow(cell) &&
-				(!this.isTable(cell) || rows);
+				(!this.isTable(cell) || rows || tables);
 		};
 	
 		/**
@@ -9998,13 +10099,16 @@ if (typeof mxVertexHandler != 'undefined')
 							var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1, true);
 							shape.isDashed = sel.isDashed;
 							
+							// Workaround for event handling on overlapping cells with tolerance
+							shape.svgStrokeTolerance++;
+							
 							var handle = new mxHandle(colState, 'col-resize', null, shape);
 							handle.tableHandle = true;
 							var dx = 0;
 							
 							handle.shape.node.parentNode.insertBefore(handle.shape.node,
 								handle.shape.node.parentNode.firstChild);
-	
+							
 							handle.redraw = function()
 							{
 								if (this.shape != null && this.state.shape != null)
@@ -10048,8 +10152,8 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 								else if (!self.blockDelayedSelection)
 								{
-									var temp = graph.getCellAt(me.getGraphX(), me.getGraphY()) || tableState.cell; 
-									graph.selectCellForEvent(temp, me.getEvent());
+									var temp = graph.getCellAt(me.getGraphX(), me.getGraphY()) || tableState.cell;
+									graph.graphHandler.selectCellForEvent(temp, me);
 								}
 								
 								dx = 0;
@@ -10073,6 +10177,7 @@ if (typeof mxVertexHandler != 'undefined')
 	
 							var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1);
 							shape.isDashed = sel.isDashed;
+							shape.svgStrokeTolerance++;
 							
 							var handle = new mxHandle(rowState, 'row-resize', null, shape);
 							handle.tableHandle = true;
@@ -10111,7 +10216,7 @@ if (typeof mxVertexHandler != 'undefined')
 								else if (!self.blockDelayedSelection)
 								{
 									var temp = graph.getCellAt(me.getGraphX(), me.getGraphY()) || tableState.cell; 
-									graph.selectCellForEvent(temp, me.getEvent());
+									graph.graphHandler.selectCellForEvent(temp, me);
 								}
 								
 								dy = 0;
@@ -10197,7 +10302,12 @@ if (typeof mxVertexHandler != 'undefined')
 						{
 							this.graph.popupMenuHandler.hideMenu();
 							this.graph.stopEditing(false);
-							this.graph.selectCellForEvent(rowState.cell, evt);
+							
+							if (this.graph.isToggleEvent(evt) ||
+								!this.graph.isCellSelected(rowState.cell))
+							{
+								this.graph.selectCellForEvent(rowState.cell, evt);
+							}
 							
 							if (!mxEvent.isPopupTrigger(evt))
 							{

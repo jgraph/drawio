@@ -4458,9 +4458,6 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var gradientPanel = this.createCellColorOption(mxResources.get('gradient'), mxConstants.STYLE_GRADIENTCOLOR,
 		(defs[mxConstants.STYLE_GRADIENTCOLOR] != null) ? defs[mxConstants.STYLE_GRADIENTCOLOR] : '#ffffff', function(color)
 	{
-		// TODO: Check side effects for adding selection cells for selection cell with gradient
-		//graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
-		
 		if (color == null || color == mxConstants.NONE)
 		{
 			gradientSelect.style.display = 'none';
@@ -4469,6 +4466,9 @@ StyleFormatPanel.prototype.addFill = function(container)
 		{
 			gradientSelect.style.display = '';
 		}
+	}, function(color)
+	{
+		graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
 	});
 
 	var fillKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BACKGROUND : mxConstants.STYLE_FILLCOLOR;

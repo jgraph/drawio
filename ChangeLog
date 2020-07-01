@@ -1,3 +1,14 @@
+01-JUL-2020: 13.3.6
+
+- Fixes transparent background event handling for sketch style
+- Moves row for dragging selected table cell
+- Fixes inconsistent cursors for tables
+- Adds drag and drop for tables
+- Uses mxGraph 4.2.1 beta 2
+- Adds new basic templates
+- Adds rows in ER sidebar
+- Adds edit dialog style
+
 25-JUN-2020: 13.3.5
 
 - Fixes minor bugs

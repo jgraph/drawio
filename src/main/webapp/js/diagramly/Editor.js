@@ -176,7 +176,12 @@
 	/**
 	 * Common properties for all edges.
 	 */
-	Editor.commonProperties = [{name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
+	Editor.commonProperties = [
+        {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false, isVisible: function(state, format)
+        {
+        	return mxUtils.getValue(state.style, 'sketch', '0') != '1';
+        }},
+        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'comic', '0') == '1' ||
         		mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
@@ -231,8 +236,7 @@
         	isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
-        }},
-        {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false},
+        }}
 	];
 
 	/**
@@ -260,6 +264,7 @@
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
+        {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'bendable', dispName: 'Bendable', type: 'bool', defVal: true},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -378,6 +383,7 @@
         	return (state.vertices.length > 0) ? model.isVertex(model.getParent(state.vertices[0])) : false;
         }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
+        {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
         {name: 'movableLabel', dispName: 'Movable Label', type: 'bool', defVal: false, isVisible: function(state, format)
@@ -673,7 +679,7 @@
 			this.originalRect = this.canvas.rect;
 			this.canvas.rect = mxUtils.bind(this, RoughCanvas.prototype.rect);
 	
-			this.originalRroundrect = this.canvas.roundrect;
+			this.originalRoundrect = this.canvas.roundrect;
 			this.canvas.roundrect = mxUtils.bind(this, RoughCanvas.prototype.roundrect);
 			
 			this.originalEllipse = this.canvas.ellipse;
@@ -783,8 +789,8 @@
 			{
 				var bg = (this.shape.state != null) ? this.shape.state.view.graph.defaultPageBackgroundColor : '#ffffff';
 				
-				fillStyle = (style.fill != null && (style.fill.toLowerCase() == bg || gradient != null)) ?
-					'solid' : defs['fillStyle']
+				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
+					style.fill.toLowerCase() == bg.toLowerCase()))) ? 'solid' : defs['fillStyle']
 			}
 			
 			style['fillStyle'] = fillStyle;
@@ -1069,7 +1075,7 @@
 			 this.canvas.end = this.originalEnd;
 			 this.canvas.rect = this.originalRect;
 			 this.canvas.ellipse = this.originalEllipse;
-			 this.canvas.roundrect = this.originalRroundrect;
+			 this.canvas.roundrect = this.originalRoundrect;
 		};
 				
 		// Returns a new HandJiggle canvas
@@ -1082,8 +1088,8 @@
 		var shapeCreateHandJiggle = mxShape.prototype.createHandJiggle;
 		mxShape.prototype.createHandJiggle = function(c)
 		{
-			if (!this.outline && c.handHiggle == null && this.style != null &&
-				mxUtils.getValue(this.style, 'sketch', (urlParams['rough'] == '1') ?'1' : '0') != '0')
+			if (!this.outline && this.style != null && mxUtils.getValue(this.style,
+				'sketch', (urlParams['rough'] == '1') ?'1' : '0') != '0')
 			{
 				if (mxUtils.getValue(this.style, 'sketchStyle', 'rough') == 'comic')
 				{
@@ -1098,6 +1104,53 @@
 			{
 				return shapeCreateHandJiggle.apply(this, arguments);
 			}
+		};
+		
+		// Overrides for event handling on transparent background for sketch style
+		var shapePaint = mxShape.prototype.paint;
+		mxShape.prototype.paint = function(c)
+		{
+			var fillStyle = null;
+			var events = true;
+			
+			if (this.style != null)
+			{
+				events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
+				fillStyle = mxUtils.getValue(this.style, 'fillStyle', 'auto');
+				
+				if (this.state != null && fillStyle == 'auto')
+				{
+					var bg = this.state.view.graph.defaultPageBackgroundColor;
+					
+					if (this.fill != null && (this.gradient != null || (bg != null &&
+						this.fill.toLowerCase() == bg.toLowerCase())))
+					{
+						fillStyle = 'solid';
+					}
+				}
+			}
+			
+			if (events && c.handJiggle != null && c.handJiggle.constructor == RoughCanvas &&
+				!this.outline && (this.fill == null || this.fill == mxConstants.NONE ||
+				fillStyle != 'solid'))
+			{
+				// Save needed for possible transforms applied during paint
+				c.save();
+				var fill = this.fill;
+				var stroke = this.stroke;
+				this.fill = null;
+				this.stroke = null;
+				c.handJiggle.passThrough = true;
+
+				shapePaint.apply(this, arguments);
+
+				c.handJiggle.passThrough = false;
+				this.fill = fill;
+				this.stroke = stroke;
+				c.restore();
+			}
+			
+			shapePaint.apply(this, arguments);
 		};
 	})();
 

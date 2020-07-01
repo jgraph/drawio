@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "964d769779ef417ab05b26ec5b1a38c7"
+    "revision": "5404dc53bac8864ff05b1e520a6aed6a"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "e178b1bd98121a088e43ac8028583d40"
+    "revision": "f401b03f1145a3a76eba114ec7e80b83"
   },
   {
     "url": "js/stencils.min.js",
