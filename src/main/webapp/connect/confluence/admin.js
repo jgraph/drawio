@@ -427,7 +427,7 @@ var GliffyMassImporter = function(logDiv, doneFn)
 		{
 			AP.request({
 				url:  "/download/attachments/" + pageId + "/"
-					+ encodeURIComponent(attName),
+					+ encodeURIComponent(attName.trim()), //Conf removes spaces from attachments file names
 				success: function(resp) 
 				{
 					var blob = new Blob([resp], {type : 'application/json'});

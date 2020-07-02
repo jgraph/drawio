@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "5404dc53bac8864ff05b1e520a6aed6a"
+    "revision": "08f0ac76a3b5bf3aecdbccc500a87612"
   },
   {
     "url": "js/extensions.min.js",

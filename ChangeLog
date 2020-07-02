@@ -1,3 +1,8 @@
+02-JUL-2020: 13.3.7
+
+- Fixes image export with sketch style
+- Uses mxGraph 4.2.1 beta 3
+
 01-JUL-2020: 13.3.6
 
 - Fixes transparent background event handling for sketch style

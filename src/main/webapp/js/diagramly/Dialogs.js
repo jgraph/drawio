@@ -999,11 +999,18 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 						{
 							window.setTimeout(mxUtils.bind(this, function()
 							{
-								if (win != null && win.location.href != null &&
-									win.location.href.substring(0, 8) != value.substring(0, 8))
+								try
 								{
-									win.close();
-									editorUi.handleError({message: mxResources.get('drawingTooLarge')});
+									if (win != null && win.location.href != null &&
+										win.location.href.substring(0, 8) != value.substring(0, 8))
+									{
+										win.close();
+										editorUi.handleError({message: mxResources.get('drawingTooLarge')});
+									}
+								}
+								catch (e)
+								{
+									// ignore
 								}
 							}), timeout || 500);
 						}

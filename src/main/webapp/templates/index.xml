@@ -51,7 +51,7 @@
 <template url="basic/erd.xml" title="entityRelationshipDiagram" libs="general;er"/>
 <template url="basic/sequence.xml" title="Sequence Diagram"/>
 <template url="basic/kanban.xml" title="Simple Kanban Board"/>
-<template url="basic/cross.xml" title="Cross-Functional Swimlane"/>
+<template url="basic/cross.xml" title="Cross-Functional Flowchart"/>
 <template url="business/accd.xml" libs="general"/>
 <template url="business/archimate.xml" libs="general;archimate3"/>
 <template url="business/bpmn.xml" libs="general;bpmn"/>
