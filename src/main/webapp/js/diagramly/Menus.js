@@ -81,7 +81,7 @@
 		editorUi.actions.addAction('new...', function()
 		{
 			var compact = editorUi.isOffline();
-			var dlg = new NewDialog(editorUi, compact);
+			var dlg = new NewDialog(editorUi, compact, !(editorUi.mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window));
 
 			editorUi.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 440, true, true, function(cancel)
 			{
@@ -500,37 +500,6 @@
 		{
 			return autosaveAction.isEnabled() && editorUi.editor.autosave;
 		});
-		
-		var compressedAction = editorUi.actions.addAction('compressed', function()
-		{
-			var file = editorUi.getCurrentFile();
-			
-			if (file != null)
-			{
-				if (file.isCompressed())
-				{
-					file.decompress();
-				}
-				else
-				{
-					file.compress();
-				}
-			}
-		});
-		
-		compressedAction.setToggleAction(true);
-		
-		compressedAction.setSelectedCallback(function()
-		{
-			var file = editorUi.getCurrentFile();
-			
-			return file != null && file.isCompressed();
-		});
-
-		compressedAction.isEnabled = function()
-		{
-			return editorUi.getCurrentFile() != null;
-		}
 		
 		editorUi.actions.addAction('editGeometry...', function()
 		{
@@ -3338,7 +3307,7 @@
 
 			if (urlParams['embed'] != '1')
 			{
-				this.addMenuItems(menu, ['autosave', 'compressed'], parent);
+				this.addMenuItems(menu, ['autosave'], parent);
 			}
 			
 			menu.addSeparator(parent);
@@ -3490,7 +3459,8 @@
 				else
 				{
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-						file != null && file.constructor != LocalFile)
+						file != null && (file.constructor != LocalFile ||
+						file.fileHandle != null))
 					{	
 						menu.addSeparator(parent);
 						var item = this.addMenuItem(menu, 'synchronize', parent);

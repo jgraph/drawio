@@ -750,14 +750,8 @@ EditorUi.initMinimalTheme = function()
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
-				ui.menus.addMenuItems(menu, ['new', 'open', '-'], parent);
-				
-				if (EditorUi.isElectronApp)
-				{
-					ui.menus.addMenuItems(menu, ['synchronize', '-'], parent);
-				}
-				
-				ui.menus.addMenuItems(menu, ['save', 'saveAs', '-'], parent);
+				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'synchronize',
+					'-', 'save', 'saveAs', '-'], parent);
 			}
 			else if (urlParams['embed'] == '1')
 			{

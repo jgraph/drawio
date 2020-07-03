@@ -1953,7 +1953,7 @@ App.prototype.onBeforeUnload = function()
 			// KNOWN: Message is ignored by most browsers
 			if (file.constructor == LocalFile && file.getHash() == '' && !file.isModified() &&
 				urlParams['nowarn'] != '1' && !this.isDiagramEmpty() && urlParams['url'] == null &&
-				!this.editor.isChromelessView())
+				!this.editor.isChromelessView() && file.fileHandle == null)
 			{
 				return mxResources.get('ensureDataSaved');
 			}
@@ -3377,6 +3377,104 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
 };
 
 /**
+ * Loads the given file handle as a local file.
+ */
+App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
+{
+	error = (error != null) ? error : mxUtils.bind(this, function(e)
+	{
+		this.handleError(e);
+	});
+	
+	fileHandle.getFile().then(mxUtils.bind(this, function(file)
+	{
+		var reader = new FileReader();
+				
+		reader.onload = mxUtils.bind(this, function(e)
+		{
+			try
+			{
+				if (success != null)
+				{
+					var data = e.target.result;
+					
+					if (file.type.substring(0, 6) == 'image/')
+					{
+						data = this.extractGraphModelFromPng(data);
+					}
+
+					success(new LocalFile(this, data, file.name, null, fileHandle, file));
+				}
+				else
+				{
+					this.openFile(e.target.result, file.name, file, false, fileHandle);
+				}
+			}
+			catch(e)
+			{
+				error(e);
+			}
+		});
+		
+		reader.onerror = error;
+		
+		if ((file.type.substring(0, 5) === 'image' ||
+			file.type === 'application/pdf') &&
+			file.type.substring(0, 9) !== 'image/svg')
+		{
+			reader.readAsDataURL(file);
+		}
+		else
+		{
+			reader.readAsText(file);
+		}
+	}), error);
+};
+
+/**
+ * Loads the given file handle as a local file.
+ */
+App.prototype.createFileSystemOptions = function(name)
+{
+	var ext = [];
+	
+	for (var i = 0; i < this.editor.diagramFileTypes.length; i++)
+	{
+		ext.push({description: mxResources.get(this.editor.diagramFileTypes[i].description) +
+			' (.' + this.editor.diagramFileTypes[i].extension + ')',
+			extensions: [this.editor.diagramFileTypes[i].extension]});
+	}
+	
+	// TODO: Specify default name via options
+	return {type: 'save-file', accepts: ext, defaultPath: name};
+};
+
+/**
+ * Loads the given file handle as a local file.
+ */
+App.prototype.chooseFileSystemEntries = function(success, error, opts)
+{
+	error = (error != null) ? error : mxUtils.bind(this, function(e)
+	{
+		if (e.name != 'AbortError')
+		{
+			this.handleError(e);
+		}
+	});
+	
+	opts = (opts != null) ? opts : this.createFileSystemOptions();
+
+	// LATER: Specify default name via options
+	window.chooseFileSystemEntries(opts).then(mxUtils.bind(this, function(fileHandle)
+	{
+		fileHandle.getFile().then(mxUtils.bind(this, function(desc)
+		{
+			success(fileHandle, desc);
+		}), error);
+	}), error);
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -3407,6 +3505,22 @@ App.prototype.pickFile = function(mode)
 			{
 				peer.pickFile();
 			}
+			else if (mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window)
+			{
+				window.chooseFileSystemEntries().then(mxUtils.bind(this, function(fileHandle)
+				{
+					if (this.spinner.spin(document.body, mxResources.get('loading')))
+					{
+						this.loadFileSystemEntry(fileHandle);
+					}
+				}), mxUtils.bind(this, function(e)
+				{
+					if (e.name != 'AbortError')
+					{
+						this.handleError(e);
+					}
+				}));
+			}
 			else if (mode == App.MODE_DEVICE && Graph.fileSupport)
 			{
 				if (this.openFileInputElt == null) 
@@ -3420,7 +3534,8 @@ App.prototype.pickFile = function(mode)
 						{
 							this.openFiles(input.files);
 							
-				    		// Resets input to force change event for same file (type reset required for IE)
+				    		// Resets input to force change event for
+							// same file (type reset required for IE)
 							input.type = '';
 							input.type = 'file';
 				    		input.value = '';
@@ -3875,6 +3990,16 @@ App.prototype.saveFile = function(forceDialog, success)
 		{
 			this.save(file.getTitle(), done);
 		}
+		else if (file != null && file.constructor == LocalFile && file.fileHandle != null)
+		{
+			this.chooseFileSystemEntries(mxUtils.bind(this, function(fileHandle, desc)
+			{
+				file.fileHandle = fileHandle;
+				file.title = desc.name;
+				file.desc = desc;
+				this.save(desc.name, done);
+			}), null, this.createFileSystemOptions(file.getTitle()));
+		}
 		else
 		{
 			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
@@ -3921,8 +4046,30 @@ App.prototype.saveFile = function(forceDialog, success)
 						
 						if (prev == null && mode == App.MODE_DEVICE)
 						{
-							this.setMode(App.MODE_DEVICE);
-							this.save(name, done);
+							if (file != null && 'chooseFileSystemEntries' in window)
+							{
+								this.chooseFileSystemEntries(mxUtils.bind(this, function(fileHandle, desc)
+								{
+									file.fileHandle = fileHandle;
+									file.mode = App.MODE_DEVICE;
+									file.title = desc.name;
+									file.desc = desc;
+
+									this.setMode(App.MODE_DEVICE);
+									this.save(desc.name, done);
+								}), mxUtils.bind(this, function(e)
+								{
+									if (e.name != 'AbortError')
+									{
+										this.handleError(e);
+									}
+								}), this.createFileSystemOptions(name));
+							}
+							else
+							{
+								this.setMode(App.MODE_DEVICE);
+								this.save(name, done);
+							}
 						}
 						else if (mode == 'download')
 						{
@@ -4212,6 +4359,26 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 						}
 					}));
 				}
+			}
+			else if (!tempFile && mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window)
+			{
+				complete();
+				
+				this.chooseFileSystemEntries(mxUtils.bind(this, function(fileHandle, desc)
+				{
+					var file = new LocalFile(this, data, desc.name, null, fileHandle, desc);
+					
+					file.saveFile(desc.name, false, mxUtils.bind(this, function()
+					{
+						this.fileCreated(file, libs, replace, done, clibs);
+					}), error, true);
+				}), mxUtils.bind(this, function(e)
+				{
+					if (e.name != 'AbortError')
+					{
+						error(e);
+					}
+				}), this.createFileSystemOptions(title));
 			}
 			else
 			{

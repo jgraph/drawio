@@ -34,7 +34,7 @@
 	Editor.prototype.libraryFileTypes = [{description: 'Library (.drawiolib, .xml)', extensions: ['drawiolib', 'xml']}];
 
 	/**
-	 * Known extensions for own files.
+	 * Additional help text for special file extensions.
 	 */
 	Editor.prototype.fileExtensions = [
 		{ext: 'html', title: 'filetypeHtml'},

@@ -162,17 +162,22 @@
 		  .setIncludeFolders(true)
       
       var view3 = new google.picker.DocsView()
-			.setEnableDrives(true)
-			.setIncludeFolders(true)
+		.setEnableDrives(true)
+		.setIncludeFolders(true)
       
+	var view4 = new google.picker.DocsUploadView()
+		.setIncludeFolders(true);
+  
       var dim = AC.getDocDim();
       
       var builder = new google.picker.PickerBuilder()
 			.addView(view1)
 			.addView(view2)
 			.addView(view3)
-			.setOAuthToken(oauthToken)
+			.addView(view4)
+			.addView(google.picker.ViewId.RECENTLY_PICKED)
 			.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
+			.setOAuthToken(oauthToken)
 			.setCallback(pickerCallback)
 			.setSize(dim.w - 10, dim.h - 10);
 				

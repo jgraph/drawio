@@ -10687,6 +10687,11 @@ var FilePropertiesDialog = function(editorUi)
 			{
 				editorUi.fileNode.setAttribute('scale', Math.max(0, parseInt(zoomInput.value) / 100));
 				editorUi.fileNode.setAttribute('border', Math.max(0, parseInt(borderInput.value)));
+				
+				if (file != null)
+				{
+					file.fileChanged();
+				}
 			}
 			
 			editorUi.hideDialog();
@@ -10730,6 +10735,11 @@ var FilePropertiesDialog = function(editorUi)
 			if (editorUi.fileNode != null)
 			{
 				editorUi.fileNode.setAttribute('compressed', (compressedInput.checked) ? 'true' : 'false');
+				
+				if (file != null)
+				{
+					file.fileChanged();
+				}
 			}
 			
 			editorUi.hideDialog();

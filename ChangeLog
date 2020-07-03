@@ -1,3 +1,7 @@
+03-JUL-2020: 13.3.8
+
+- Adds experimental file system support
+
 02-JUL-2020: 13.3.7
 
 - Fixes image export with sketch style

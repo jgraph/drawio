@@ -164,11 +164,6 @@ DrawioFile.prototype.errorReportsEnabled = false;
 /**
  * Specifies if stats should be sent.
  */
-DrawioFile.prototype.reportEnabled = true;
-
-/**
- * Specifies if stats should be sent.
- */
 DrawioFile.prototype.ageStart = null;
 
 /**
@@ -603,7 +598,6 @@ DrawioFile.prototype.reloadFile = function(success, error)
 		var fn = mxUtils.bind(this, function()
 		{
 			this.stats.fileReloaded++;
-			this.reportEnabled = false;
 			
 			// Restores view state and current page
 			var viewState = this.ui.editor.graph.getViewState();
@@ -841,9 +835,9 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DrawioFile.prototype.updateFileData = function(compressOverride)
+DrawioFile.prototype.updateFileData = function()
 {
-	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, compressOverride != null? !compressOverride : !this.isCompressed()));
+	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, !this.isCompressed()));
 };
 
 /**
@@ -875,42 +869,6 @@ DrawioFile.prototype.isCompressed = function()
 	{
 		return this.isCompressedStorage() && Editor.compressXml;
 	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-DrawioFile.prototype.decompress = function()
-{
-	this.updateFileData(false);
-	
-	if (this.ui.fileNode != null)
-	{
-		this.ui.fileNode.setAttribute('compressed', 'false');
-	}
-	
-	this.fileChanged();
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
-DrawioFile.prototype.compress = function()
-{
-	this.updateFileData(true);
-
-	if (this.ui.fileNode != null)
-	{
-		this.ui.fileNode.setAttribute('compressed', 'true');
-	}
-	
-	this.fileChanged();
 };
 
 /**
@@ -2248,33 +2206,9 @@ DrawioFile.prototype.removeListeners = function()
  */
 DrawioFile.prototype.destroy = function()
 {
-	this.stats.destroyed++;
-	
-//	try
-//	{
-//		if (!this.ui.isOffline() && this.reportEnabled &&
-//			(DrawioFile.SYNC == 'auto' ||
-//			DrawioFile.SYNC == 'manual'))
-//		{
-//			var user = this.getCurrentUser();
-//			var uid = (user != null) ? user.id : 'unknown';
-//		
-//			EditorUi.logEvent({category: DrawioFile.SYNC + '-DESTROY-FILE-' + DrawioFile.SYNC,
-//				action: 'file-' + this.getId() +
-//				'-mode-' + this.getMode() +
-//				'-size-' + this.getSize() +
-//				'-user-' + uid +
-//				((this.sync != null) ? ('-client-' + this.sync.clientId ) : ''),
-//				label: this.stats});
-//		}
-//	}
-//	catch (e)
-//	{
-//		// ignore
-//	}
-
 	this.clearAutosave();
 	this.removeListeners();
+	this.stats.destroyed++;
 
 	if (this.sync != null)
 	{

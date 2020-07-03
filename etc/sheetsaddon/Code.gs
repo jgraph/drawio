@@ -1,8 +1,9 @@
 /**
- * diagrams.net Diagrams Sheets add-on v1.0
- * Copyright (c) 2019, JGraph Ltd
+ * diagrams.net Diagrams Sheets add-on v1.1
+ * Copyright (c) 2020, JGraph Ltd
  */
 var EXPORT_URL = "https://exp.draw.io/ImageExport4/export";
+var DIAGRAMS_URL = "https://app.diagrams.net/";
 var DRAW_URL = "https://www.draw.io/";
 
 /**
@@ -51,15 +52,15 @@ function getOAuthToken() {
 function insertDiagrams()
 {
   var html = HtmlService.createHtmlOutputFromFile('Picker.html')
-      .setWidth(620).setHeight(440)
+      .setWidth(640).setHeight(480)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Select Diagrams:');
+  SpreadsheetApp.getUi().showModalDialog(html, 'Select files');
 }
 
 function refreshSheet()
 {
   var cur = SpreadsheetApp.getActiveSheet();
-  var dummy = SpreadsheetApp.getActive().insertSheet("Working...");
+  var dummy = SpreadsheetApp.getActive().insertSheet('Working...');
   SpreadsheetApp.setActiveSheet(dummy);
   SpreadsheetApp.flush();
   SpreadsheetApp.setActiveSheet(cur, true);
@@ -282,7 +283,7 @@ function createLink(id, page, pageId, scale)
   
   params.push('scale=' + (scale || '1'));
   
-  return DRAW_URL + ((params.length > 0) ? "?" + params.join("&") : "") + "#G" + id;
+  return DIAGRAMS_URL + ((params.length > 0) ? "?" + params.join("&") : "") + "#G" + id;
 }
 
 /**
@@ -290,7 +291,9 @@ function createLink(id, page, pageId, scale)
  */
 function isValidLink(url)
 {
-  return url != null && (url.substring(0, DRAW_URL.length) == DRAW_URL || url.substring(0, 22) == "https://drive.draw.io/");
+  return url != null && (url.substring(0, DRAW_URL.length) == DRAW_URL ||
+  	url.substring(0, DIAGRAMS_URL.length) == DIAGRAMS_URL ||
+  	url.substring(0, 22) == "https://drive.draw.io/");
 }
 
 /**
@@ -449,7 +452,7 @@ function fetchImage(id, page, scale, pageId)
  */
 function newDiagram()
 {
-  openUrl('https://www.draw.io/?mode=google');
+  openUrl('https://app.diagrams.net/?mode=google');
 }
 
 /**

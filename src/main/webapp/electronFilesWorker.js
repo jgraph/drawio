@@ -75,41 +75,41 @@ function saveFile(fileObject, data, origStat, overwrite, defEnc, reqId)
 	
 	function doSaveFile()
 	{
-		if (overwrite)
+		//Copy file to backup file (after conflict and stat is checked)
+		fs.copyFile(fileObject.path, fileObject.bkpPath, COPYFILE_EXCL, (err) => 
 		{
-			writeFile();
-		}
-		else
-		{
-			//TODO Using stat before write is not recommended, we can check the error code from writeFile
-			fs.stat(fileObject.path, function(err, stat)
+			if (!err)
 			{
-				if (isConflict(origStat, stat))
-				{
-	    			postMessage({error: true, msg: 'conflict', e: {isConflicted: true}, reqId: reqId});
-				}
-				else if (err != null && err.code !== 'ENOENT')
-				{
-	    			postMessage({error: true, msg: 'stat failed', e: err, reqId: reqId});
-				}
-				else
-				{
-					writeFile();
-				}
-			});
-		}
+				backupCreated = true;
+			}
+			
+			writeFile();
+		});	
 	};
 	
-	//Copy file to backup file
-	fs.copyFile(fileObject.path, fileObject.bkpPath, COPYFILE_EXCL, (err) => 
+	if (overwrite)
 	{
-		if (!err)
-		{
-			backupCreated = true;
-		}
-		
 		doSaveFile();
-	});	
+	}
+	else
+	{
+		//TODO Using stat before write is not recommended, we can check the error code from writeFile
+		fs.stat(fileObject.path, function(err, stat)
+		{
+			if (isConflict(origStat, stat))
+			{
+    			postMessage({error: true, msg: 'conflict', e: {isConflicted: true}, reqId: reqId});
+			}
+			else if (err != null && err.code !== 'ENOENT')
+			{
+    			postMessage({error: true, msg: 'stat failed', e: err, reqId: reqId});
+			}
+			else
+			{
+				doSaveFile();
+			}
+		});
+	}
 };
 
 //TODO handle reqId better

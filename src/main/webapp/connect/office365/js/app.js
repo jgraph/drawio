@@ -3,6 +3,8 @@
 (function ()
 {
 	RESOURCE_BASE = '/resources/dia';
+	PROXY_URL = '/proxy';
+	
 	var EXPORT_URL = 'https://exp.draw.io/ImageExport4/export';
 	var PIXELS_TO_POINTS = 72 / 96;
 	
