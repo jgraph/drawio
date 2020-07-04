@@ -474,7 +474,6 @@
 										};
 										
 										var commentsWindow = null;
-										var confUser = null;
 										
 										//Comments are only shown in lightbox mode
 										if (lightbox)
@@ -484,36 +483,25 @@
 											EditorUi.prototype.addTrees = function(){};
 									    	EditorUi.prototype.updateActionStates = function(){};
 									    	var editorUi = new EditorUi();
-											
-											editorUi.getCurrentUser = function()
-											{
-												if (confUser == null)
+									    	AC.loadPlugins(editorUi);
+									    	
+									    	//Plugins doesn't have callbacks, so we use this hack. TODO Improve this
+									    	function waitForUser()
+									    	{
+									    		if (editorUi.getCurrentUser().email == null)
+								    			{
+									    			setTimeout(waitForUser, 100);
+								    			}
+									    		else if (openComments) //Open the comments window here when the user is ready
 												{
-													AC.getCurrentUser(function(user)
-													{
-														confUser = new DrawioUser(user.id, user.email, user.displayName, user.pictureUrl);
-														
-														if (openComments) //Open the comments window here when the user is ready
-														{
-															openCommentsFunc();
-														}
-													}, function()
-													{
-														//ignore such that next call we retry
-													});
-													
-													//Return a dummy user until we have the actual user in order for UI to be populated
-													return new DrawioUser(Date.now(), null, mxResources.get('anonymous'));
+													openCommentsFunc();
 												}
-												
-												return confUser;
-											};
-											
-											//Prefetch current user 
-											editorUi.getCurrentUser();
+									    	}
+									    	
+									    	waitForUser();
 										}
 										
-										var openCommentsFunc = function()
+										var openCommentsFunc = function(e)
 										{
 											if (commentsWindow != null)
 											{
@@ -521,10 +509,21 @@
 											}
 											else
 											{
-												var confComments = null;
+												var busyIcon = null;
+												//Show busy icon
+												try
+												{
+													if (e && e.target)
+													{
+														busyIcon = document.createElement('img');
+														busyIcon.src = '/images/spin.gif';
+														e.target.parentNode.appendChild(busyIcon);
+													}
+												} catch(e){}
+												
 												var spaceKey, pageId, pageType, contentVer;
 												
-												function saveComments(comments, success, error)
+												editorUi.saveComments = function(comments, success, error)
 												{
 													AC.saveCustomContent(spaceKey, pageId, pageType, name, displayName, revision,
 			            									contentId, contentVer,
@@ -536,148 +535,39 @@
 			            										contentVer = content.version.number;
 			            										
 			            										success();
-			            									}, error, comments);
-												}
-												
-												editorUi.canComment = function()
-												{
-													return true; //We don't put restrictions on draw.io custom contents, so anyone can edit
+			            									}, error, comments, true);
 												};
 												
-												editorUi.commentsSupported = function()
+												function createCommentsWindow()
 												{
-													return true;
-												};
-												
-												editorUi.commentsRefreshNeeded = function()
-												{
-													return false;
-												};
-
-												editorUi.commentsSaveNeeded = function()
-												{
-													return false;
-												};
-
-												
-												editorUi.canReplyToReplies = function()
-												{
-													return true;
-												};
-												
-												function confCommentToDrawio(cComment, pCommentId)
-												{
-													if (cComment.isDeleted) return null; //skip deleted comments
+													commentsWindow = new CommentsWindow(editorUi, document.body.offsetWidth - 380, 120, 300, 350);
+													commentsWindow.window.setVisible(true);
+													//Lightbox Viewer has 999 zIndex
+													commentsWindow.window.getElement().style.zIndex = 2000;
 													
-													var comment = new DrawioComment(null, cComment.id, cComment.content, 
-															cComment.modifiedDate, cComment.createdDate, cComment.isResolved,
-															new DrawioUser(cComment.user.id, cComment.user.email,
-																	cComment.user.displayName, cComment.user.pictureUrl), pCommentId);
-													
-													for (var i = 0; cComment.replies != null && i < cComment.replies.length; i++)
+													if (busyIcon != null)
 													{
-														comment.addReplyDirect(confCommentToDrawio(cComment.replies[i], cComment.id));
-													}
-													
-													return comment;
-												};
-														
-												editorUi.getComments = function(success, error)
-												{
-													if (confComments == null)
-													{
-														AC.getComments(contentId, function(comments, spaceKey_p, pageId_p, pageType_p, contentVer_p)
-														{
-															spaceKey = spaceKey_p; pageId = pageId_p; pageType = pageType_p; contentVer = contentVer_p;
-															
-															confComments = [];
-															
-															for (var i = 0; i < comments.length; i++)
-															{
-																var comment = confCommentToDrawio(comments[i]);
-																
-																if (comment != null) confComments.push(comment);
-															}
-															
-															success(confComments);
-														}, error);
-													}
-													else
-													{
-														success(confComments);
+														busyIcon.parentNode.removeChild(busyIcon);
+														busyIcon = null;
 													}
 												};
-
-												editorUi.addComment = function(comment, success, error)
-												{
-													var tmpComments = JSON.parse(JSON.stringify(confComments));
-													comment.id = confUser.id + ':' + Date.now();
-													tmpComments.push(comment);
-													
-													saveComments(tmpComments, function()
-													{
-														success(comment.id);
-													}, error);
-												};
-														
-												editorUi.newComment = function(content, user)
-												{
-													return new DrawioComment(null, null, content, Date.now(), Date.now(), false, user); //remove file information
-												};
 												
-												//In Confluence, comments are part of the file (specifically custom contents), so needs to mark as changed with every change
-												DrawioComment.prototype.addReply = function(reply, success, error, doResolve, doReopen)
+												//Get current diagram information which is needed for comments
+												//TODO Viewer should use AC to load diagrams, then this won't be needed
+												AC.getAttachmentInfo(id, name, function(info)
 												{
-													reply.id = confUser.id + ':' + Date.now();
-													this.replies.push(reply);
-													var isResolved = this.isResolved;
-													
-													if (doResolve)
-													{
-														this.isResolved = true;
-													}
-													else if (doReopen)
-													{
-														this.isResolved = false;
-													}
-													
-													var tmpComments = JSON.parse(JSON.stringify(confComments));
-													this.replies.pop(); //Undo in case more changes are done before getting the reply
-													this.isResolved = isResolved;
-													
-													saveComments(tmpComments, function()
-													{
-														success(reply.id);
-													}, error);
-												};
-
-												DrawioComment.prototype.editComment = function(newContent, success, error)
+													AC.curDiagVer = info.version.number;
+													AC.curDiagId = info.id;
+												}, function()
 												{
-													var oldContent = this.content;
-													this.content = newContent;
-													var tmpComments = JSON.parse(JSON.stringify(confComments));
-													this.content = oldContent;
-													
-													saveComments(tmpComments, success, error);
-												};
-
-												DrawioComment.prototype.deleteComment = function(success, error)
-												{
-													var that = this;
-													this.isDeleted = true; //Mark as deleted since searching for this comment in the entire structure is complex. It will be cleaned in next save
-													var tmpComments = JSON.parse(JSON.stringify(confComments));
-													
-													saveComments(tmpComments, success, function(err) 
-													{
-														that.isDeleted = false;
-														error(err);
-													});
-												};
+													AC.curDiagId = false;
+												});
 												
-												commentsWindow = new CommentsWindow(editorUi, document.body.offsetWidth - 380, 120, 300, 350);
-												commentsWindow.window.setVisible(true);
-												//Lightbox Viewer has 999 zIndex
-												commentsWindow.window.getElement().style.zIndex = 2000;
+												editorUi.initComments(contentId, function(spaceKey_p, pageId_p, pageType_p, contentVer_p)
+												{
+													spaceKey = spaceKey_p; pageId = pageId_p; pageType = pageType_p; contentVer = contentVer_p;
+													createCommentsWindow();
+												}, createCommentsWindow);
 											}
 										};
 										
@@ -1200,128 +1090,28 @@
 												}
 											}
 											
-											AC.getComments(contentId, function(comments)
+											//If there are comments, show the comments icon
+											function addCommentsIcon()
 											{
-												var hasUnresolvedComments = false;
-												
-												for (var i = 0; i < comments.length; i++)
+												var commentsIcon = document.createElement('img');
+												commentsIcon.style.cssText = 'position:absolute;bottom: 5px; right: 5px;opacity: 0.25; cursor: pointer';
+												commentsIcon.setAttribute('title', mxResources.get('showComments'));
+												commentsIcon.src = Editor.commentImage;
+												commentsIcon.addEventListener('click', function() 
 												{
-													if (!comments[i].isDeleted && !comments[i].isResolved)
-													{
-														hasUnresolvedComments = true;
-														break;
-													}
-												}
-												
-												//If there are comments, show the comments icon
+													viewer.showLightbox(true);
+												});
+												container.appendChild(commentsIcon);
+											};
+											
+											AC.hasUnresolvedComments(id, contentId, name, function(hasUnresolvedComments)
+											{
 												if (hasUnresolvedComments)
 												{
-													var commentsIcon = document.createElement('img');
-													commentsIcon.style.cssText = 'position:absolute;bottom: 5px; right: 5px;opacity: 0.25; cursor: pointer';
-													commentsIcon.setAttribute('title', mxResources.get('showComments'));
-													commentsIcon.src = Editor.commentImage;
-													commentsIcon.addEventListener('click', function() 
-													{
-														viewer.showLightbox(true);
-													});
-													container.appendChild(commentsIcon);
+													addCommentsIcon();
 												}
-											}, function(){});//Nothing to do in case of an error
+											}, function(){}); //Nothing to do in case of an error
 										}
-										//Confirm that the macro is in sync with the diagram
-										//Sometimes the diagram is saved but the macro is not updated
-										var attInfo = null;
-										var pageInfo = null;
-										
-										function confirmDiagramInSync()
-										{
-											if (attInfo == null || pageInfo == null) 
-												return;
-											
-											var loadedVer = parseInt(revision);
-											
-											//TODO is this condition enough or we need to check timestamps also?
-											if (attInfo.version.number > loadedVer 
-													&& (pageInfo.version.message == null || pageInfo.version.message.indexOf("Reverted") < 0)) 
-											{
-												showDiagram(id, backupId, name, attInfo.version.number + '', links, {dontCheckVer: true}, displayName, contentId, null, null, aspects);
-												//I think updating macro here is too risky since calling confluence.getMacroData returns null
-											}
-										}
-										
-										//This fix contradict with copy/paste workflow where all diagrams have the same name
-										//On copy/paste diagram name must be changed
-										/*if (!retryParams.dontCheckVer && revision != null && revision.length > 0)
-										{
-						                    AP.request({
-						                        type: 'GET',
-						                        url: '/rest/api/content/' + id + '?expand=version',
-						                        contentType: 'application/json;charset=UTF-8',
-						                        success: function (resp) 
-						                        {
-						                        	pageInfo = JSON.parse(resp);
-						                            
-						                        	confirmDiagramInSync();
-						                        },
-						                        error: function (resp) 
-						                        {
-						                            //Ignore
-						                        }
-						                    });
-	
-						                    AP.request({
-						                        type: 'GET',
-						                        url: '/rest/api/content/' + id + '/child/attachment?filename=' + 
-						                        		encodeURIComponent(name) + '&expand=version',
-						                        contentType: 'application/json;charset=UTF-8',
-						                        success: function (resp) 
-						                        {
-						                        	var tmp = JSON.parse(resp);
-						                            
-						                        	if (tmp.results && tmp.results.length == 1)
-						                        	{
-						                        		attInfo = tmp.results[0];
-						                        	}
-						                        	
-						                        	confirmDiagramInSync();
-						                        },
-						                        error: function (resp) 
-						                        {
-						                            //Ignore
-						                        }
-						                    });
-										}*/
-										
-										//Saving the diagram to this page negates page linking feature!
-										//May be we should ask the user first or saving is not needed all together
-										/*if (retryParams.saveIt)
-										{
-								 			//Since attachment wasn't found in this page, it is better to save it to this page
-								 			//First load AC dynamically. Since AC is not needed in the viewer except for this case
-							 				var head = document.getElementsByTagName('head')[0];
-											var script = document.createElement('script');
-											script.setAttribute('data-options', 'resize:false;margin:false');
-											
-											// Main
-											script.onload = function()
-											{
-												//save diagram
-												AC.saveDiagram(retryParams.pageId, name, xml,
-												function()
-												{
-													//nothing!
-												}, 
-												function()
-												{
-													//nothing!
-												}, false, 'application/vnd.jgraph.mxfile', 'Diagram imported by Draw.io', false, false);
-												
-												//TODO save preview png
-												//This requires an editor to do the png export, may be a canvas can be used with supported browsers
-											};
-											script.src = 'connectUtils-1-4-8.js';
-											head.appendChild(script);
-										}*/
 							 		}
 								},
 								error: function (err)

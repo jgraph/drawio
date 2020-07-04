@@ -29,7 +29,7 @@ mxUtils.extend(LocalFile, DrawioFile);
  */
 LocalFile.prototype.isAutosave = function()
 {
-	return this.fileHandle != null;
+	return this.fileHandle != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
 };
 
 /**
@@ -163,12 +163,13 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 		this.updateFileData();
 	}
 	
-	var data = this.getData();
 	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
+	this.setShadowModified(false);
+	var data = this.getData();
 	
 	var done = mxUtils.bind(this, function()
 	{
-		this.setModified(false);
+		this.setModified(this.getShadowModified());
 		this.contentChanged();
 		
 		if (success != null)
@@ -185,7 +186,6 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 			if (!this.savingFile)
 			{
 				this.savingFileTime = new Date();
-				this.setShadowModified(false);
 				this.savingFile = true;
 				
 				var errorWrapper = mxUtils.bind(this, function(e)
@@ -211,7 +211,6 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 								{
 									this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
 									{
-										this.setModified(this.getShadowModified());
 										this.savingFile = false;
 										this.desc = desc;
 										done();
@@ -270,7 +269,7 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 		{
 			doSave(imageData);
 		}), error, (this.ui.getCurrentFile() != this) ?
-			this.getData() : null, p.scale, p.border);
+			data : null, p.scale, p.border);
 	}
 	else
 	{

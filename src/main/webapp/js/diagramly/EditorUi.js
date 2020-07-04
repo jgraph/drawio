@@ -13005,9 +13005,19 @@
 			}
 		});
 		
+		var errWrapper = mxUtils.bind(this, function()
+		{
+	    	window.clearTimeout(timeoutThread);
+			
+			if (acceptResponse)
+			{
+				error.apply(this, arguments);
+			}
+		});
+		
 		msgMarkers = msgMarkers || {};
 		msgMarkers.callbackId = this.remoteInvokeCallbacks.length;
-		this.remoteInvokeCallbacks.push({callback: wrapper, error: error});
+		this.remoteInvokeCallbacks.push({callback: wrapper, error: errWrapper});
 		var msg = JSON.stringify({event: 'remoteInvoke', funtionName: remoteFn, functionArgs: remoteFnArgs, msgMarkers: msgMarkers});
 		
 		if (this.remoteWin != null) //remote invoke is ready
@@ -14032,6 +14042,11 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		mxUtils.write(commentTxtDiv, comment.content || '');
 		cdiv.appendChild(commentTxtDiv);
 		
+		if (comment.isLocked)
+		{
+			cdiv.style.opacity = '0.5';
+		}
+		
 		var actionsDiv = document.createElement('div');
 		actionsDiv.className = 'geCommentActions';
 		var actionsList = document.createElement('ul');
@@ -14133,7 +14148,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			}
 		};
 		
-		if (!readOnly && (level == 0 || canReplyToReplies))
+		if (!readOnly && !comment.isLocked && (level == 0 || canReplyToReplies))
 		{
 			addAction(mxResources.get('reply'), function()
 			{
@@ -14143,7 +14158,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var user = editorUi.getCurrentUser();
 		
-		if (user != null && user.id == comment.user.id && !readOnly)
+		if (user != null && user.id == comment.user.id && !readOnly && !comment.isLocked)
 		{
 			addAction(mxResources.get('edit'), function()
 			{
@@ -14175,25 +14190,44 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				{
 					showBusy(cdiv);
 					
-					comment.deleteComment(function()
+					comment.deleteComment(function(markedOnly)
 					{
-						var replies = collectReplies(comment).replies;
-						
-						for (var i = 0; i < replies.length; i++)
+						if (markedOnly === true)
 						{
-							listDiv.removeChild(replies[i]);
-						}
-						
-						for (var i = 0; i < parentArr.length; i++)
-						{
-							if (parentArr[i] == comment) 
+							var commentTxt = cdiv.querySelector('.geCommentTxt');
+							commentTxt.innerHTML = '';
+							mxUtils.write(commentTxt, mxResources.get('msgDeleted'));
+							
+							var actions = cdiv.querySelectorAll('.geCommentAction');
+							
+							for (var i = 0; i < actions.length; i++)
 							{
-								parentArr.splice(i, 1);
-								break;
+								actions[i].parentNode.removeChild(actions[i]);
 							}
+							
+							showDone(cdiv);
+							cdiv.style.opacity = '0.5';
 						}
-						
-						noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
+						else
+						{
+							var replies = collectReplies(comment).replies;
+							
+							for (var i = 0; i < replies.length; i++)
+							{
+								listDiv.removeChild(replies[i]);
+							}
+							
+							for (var i = 0; i < parentArr.length; i++)
+							{
+								if (parentArr[i] == comment) 
+								{
+									parentArr.splice(i, 1);
+									break;
+								}
+							}
+							
+							noComments.style.display = (listDiv.getElementsByTagName('div').length == 0) ? 'block' : 'none';
+						}
 					}, function(err)
 					{
 						showError(cdiv);
@@ -14204,7 +14238,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 			}, comment.isResolved);
 		}
 		
-		if (!readOnly && level == 0) //Resolve is a top-level action only
+		if (!readOnly && !comment.isLocked && level == 0) //Resolve is a top-level action only
 		{
 			function toggleResolve(evt)
 			{

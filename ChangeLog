@@ -1,3 +1,7 @@
+04-JUL-2020: 13.3.9
+
+- Fixes ignored autosave for native files
+
 03-JUL-2020: 13.3.8
 
 - Adds experimental file system support

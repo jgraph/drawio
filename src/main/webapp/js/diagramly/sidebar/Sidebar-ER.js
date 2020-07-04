@@ -69,12 +69,12 @@
 			}),
 			this.addEntry(dt + 'table row', function()	
 			{	
-	   			var cell = new mxCell(row.value, new mxGeometry(0, 0, 90, row.geometry.height), 'shape=partialRectangle;fillColor=none;align=left;strokeColor=none;spacingLeft=34;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');	
+	   			var cell = new mxCell(row.value, new mxGeometry(0, 0, 90, row.geometry.height), 'shape=partialRectangle;fillColor=none;align=left;verticalAlign=middle;strokeColor=none;spacingLeft=34;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');	
 	   			cell.vertex = true;	
 
 	   			var cell1 = sb.cloneCell(row, '');	
 	   			cell1.connectable = false;	
-	   			cell1.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;stokeWidth=1;dashed=1;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'	
+	   			cell1.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;stokeWidth=1;dashed=1;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'	
 	   			cell1.geometry.width = 30;	
 	   			cell.insert(cell1);	
 

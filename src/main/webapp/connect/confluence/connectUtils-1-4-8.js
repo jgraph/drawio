@@ -223,7 +223,7 @@ AC.initAsync = function(baseUrl, contentId, initMacroData, config, lang)
 	}
 	
 	var ui = 'atlas';
-	var plugins = 'ac148';
+	var plugins = 'ac148;ac148cmnt';
 	
 	try
 	{
@@ -593,12 +593,22 @@ AC.initAsync = function(baseUrl, contentId, initMacroData, config, lang)
 			    			
 			    			timeoutThread = window.setTimeout(timeoutHandler, AC.timeout);
 	
-			    			AC.loadDiagram(pageId, name, revision, function(loadResp)
+			    			AC.loadDiagram(pageId, name, revision, function(loadResp, curPageId, curDiagName)
 			    			{
 					    		window.clearTimeout(timeoutThread);
 					    		
 					    		if (acceptResponse)
 						    	{
+					    			//Get current diagram information which is needed for comments
+					    			AC.getAttachmentInfo(curPageId, curDiagName, function(info)
+					    			{
+					    				AC.curDiagVer = info.version.number;
+					    				AC.curDiagId = info.id;
+					    			}, function()
+					    			{
+					    				AC.curDiagId = false;
+					    			});
+					    			
 				    				xmlReceived = loadResp;
 				    				filename = name;
 									//console.trace('DRAFT: Created', AC.draftPrefix + filename + AC.draftExtension);
@@ -1416,6 +1426,7 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 				}
 				else if (drawMsg.event == 'template')
 				{
+					AC.curDiagId = false; //New diagram, so no diagram id
 					editor.contentWindow.postMessage(JSON.stringify({action: 'spinner',
 						show: true, messageKey: 'inserting'}), '*');
 					
@@ -1919,107 +1930,17 @@ AC.init = function(baseUrl, location, pageId, editor, diagramName, initialXml, d
 	};
 };
 
-AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1, dontCheckVer) {
+AC.loadDiagram = function (pageId, diagramName, revision, success, error, owningPageId, tryRev1, dontCheckVer) 
+{
+	var curDiagName = diagramName;
+	var curPageId = pageId;
 	// TODO: Get binary
-
+	
 	//keeping the block of AP.require to minimize the number of changes!
 	{
-		//Confirm that the macro is in sync with the diagram
-		//Sometimes the diagram is saved but the macro is not updated
-		var attInfo = null;
-		var pageInfo = null;
-		
-		function confirmDiagramInSync()
+		var localSuccess = function(resp)
 		{
-			if (attInfo == null || pageInfo == null) 
-				return;
-			
-			//TODO is this condition enough or we need to check timestamps also?
-			if (attInfo.version.number > revision 
-					&& (pageInfo.version.message == null || pageInfo.version.message.indexOf("Reverted") < 0)) 
-			{
-				AC.loadDiagram(pageId, diagramName, attInfo.version.number, success, error, owningPageId, tryRev1, true);
-				//Update the macro
-				//Custom Content version will be fixed on next save, this will not affect correctness
-				if (!AC.customContentEditMode)
-				{
-					AP.confluence.getMacroData(function (macroData) 
-			    	{
-						if (macroData != null) 
-						{
-							AP.confluence.saveMacro(
-							{
-								diagramName: macroData.diagramName,
-								diagramDisplayName: macroData.diagramDisplayName != null ? macroData.diagramDisplayName : macroData.diagramName,
-								revision: attInfo.version.number,
-								pageId: macroData.pageId,
-								custContentId: macroData.contentId || macroData.custContentId,
-								contentVer: macroData.contentVer,
-								baseUrl: macroData.baseUrl,
-								width: macroData.width,
-								height: macroData.height,
-								tbstyle: macroData.tbstyle,
-								links: macroData.links,
-								simple: macroData.simple != null ? macroData.simple : '0',
-								lbox: macroData.lbox != null ? macroData.lbox : '1',
-								zoom: macroData.zoom != null ? macroData.zoom : '1',
-								pCenter: (macroData.pCenter != null) ? macroData.pCenter : '0',
-								hiResPreview: macroData.hiResPreview,
-								inComment: AC.inComment? '1' : '0'
-							});
-						}
-			    	});
-				}
-			}
-		}
-		
-		//To avoid race we do the version check after loading the diagram in the macro 
-		var localSuccess = function()
-		{
-			success.apply(this, arguments);
-			
-			//This fix contradict with copy/paste workflow where all diagrams have the same name
-			//On copy/paste diagram name must be changed
-			/*if (!dontCheckVer && revision != null)
-			{
-	            AP.request({
-	                type: 'GET',
-	                url: '/rest/api/content/' + pageId + '?expand=version',
-	                contentType: 'application/json;charset=UTF-8',
-	                success: function (resp) 
-	                {
-	                	pageInfo = JSON.parse(resp);
-	                    
-	                	confirmDiagramInSync();
-	                },
-	                error: function (resp) 
-	                {
-	                    //Ignore
-	                }
-	            });
-	
-	            AP.request({
-	                type: 'GET',
-	                url: '/rest/api/content/' + pageId + '/child/attachment?filename=' + 
-	                		encodeURIComponent(diagramName) + '&expand=version',
-	                contentType: 'application/json;charset=UTF-8',
-	                success: function (resp) 
-	                {
-	                	var tmp = JSON.parse(resp);
-	                    
-	                	if (tmp.results && tmp.results.length == 1)
-	                	{
-	                		attInfo = tmp.results[0];
-	                	}
-	                	
-	                	confirmDiagramInSync();
-	                },
-	                error: function (resp) 
-	                {
-	                    //Ignore
-	                }
-	            });
-			}*/
+			success(resp, curPageId, curDiagName);
 		}
 		
 		AP.request({
@@ -2038,6 +1959,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 						error : function(resp) { //If revesion 1 failed, then try the owningPageId
 							if (owningPageId && resp.status == 404)
 							{
+								curPageId = owningPageId;
 								AP.request({
 									url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName)
 										+'?version=' + revision, //this version should exists in the original owning page
@@ -2060,6 +1982,7 @@ AC.loadDiagram = function (pageId, diagramName, revision, success, error, owning
 				}
 				else if (owningPageId && resp.status == 404) //We are at revesion 1, so try the owningPageId directly
 				{
+					curPageId = owningPageId;
 					AP.request({
 						url: '/download/attachments/' + owningPageId + '/' + encodeURIComponent(diagramName),
 						success: localSuccess,
@@ -2175,19 +2098,19 @@ AC.adjustMacroParametersDirect = function(pageId, macroData, originalBody, match
        });
 };
 
-AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments)
+AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments, reportAllErr)
 {
 	//Make sure comments are not lost
 	if (comments == null)
 	{
-		AC.getComments(contentId, function(comments)
+		AC.getOldComments(contentId, function(comments)
 		{
-			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments);
+			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, comments, reportAllErr);
 		}, 
 		//On error, whether the custom content is deleted or corrupted. It is better to proceed with saving and losing the comments than losing the diagram
 		function()
 		{
-			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, []);
+			AC.saveCustomContent(spaceKey, pageId, pageType, diagramName, diagramDisplayName, revision, contentId, contentVer, success, error, [], reportAllErr);
 		});
 		
 		return;
@@ -2235,7 +2158,14 @@ AC.saveCustomContent = function(spaceKey, pageId, pageType, diagramName, diagram
            url:  "/rest/api/content/" + (contentId? contentId : ""),
            contentType: "application/json",
            success: success,
-           error: function(resp) {
+           error: function(resp) 
+           {
+        	   if (reportAllErr)
+    		   {
+        		   error(resp);
+        		   return;
+    		   }
+        	   
                //User can delete a custom content externally and we will get error 403 and message will contain the given id
                //Then save a new one
                var err = JSON.parse(resp.responseText);
@@ -2271,55 +2201,28 @@ AC.saveContentSearchBody = function(contentId, searchBody, success, error)
 {
 	var doSaveSearchBody = function(version)
 	{
-		var obj = {
-		    "value": searchBody
-		};
-		
-		if (version) 
-		{
-			obj["version"] = {
-				    "number": version + 1,
-				    "minorEdit": true
-				  };
-		}
-		else
-		{
-			obj["key"] = "ac:custom-content:search-body";
-		}
-		
-		AP.request({
-			  url: "/rest/api/content/" + contentId + "/property" + (version? "/ac%3Acustom-content%3Asearch-body?expand=version" : ""),
-			  type: version? "PUT" : "POST",
-			  contentType: "application/json",
-			  data: JSON.stringify(obj),
-			  success: success,
-			  error: error
-		});
+		AC.setContentProperty(contentId, 'ac:custom-content:search-body', searchBody, version, success, error);
 	};
 	
-	AP.request({
-		  url: "/rest/api/content/" + contentId + "/property/ac%3Acustom-content%3Asearch-body?expand=version",
-		  type: "GET",
-		  contentType: "application/json",
-		  success: function(resp)
-		  {
-			  resp = JSON.parse(resp);
-              
-			  doSaveSearchBody(resp.version.number);
-		  },
-		  error: function(resp)
-		  {
-			  var err = JSON.parse(resp.responseText);
-			  
-			  //if not found, create one
-			  if (err.statusCode == 404)
-			  {
-				  doSaveSearchBody();
-			  }
-			  else
-				  error();
-		  }
-	});
+	
+	AC.getContentProperty(contentId, 'ac:custom-content:search-body', function(resp)
+    {
+		resp = JSON.parse(resp);
+      
+		doSaveSearchBody(resp.version.number);
+    },
+    function(resp)
+    {
+    	var err = JSON.parse(resp.responseText);
+	  
+    	//if not found, create one
+		if (err.statusCode == 404)
+		{
+			doSaveSearchBody();
+		}
+		else
+			error();
+    });
 };
 
 //TODO We can upload both the diagram and its png in one call if needed?
@@ -2572,7 +2475,515 @@ AC.getCurrentUser = function(callback, error)
 	});
 };
 
-AC.getComments = function(contentId, callback, error)
+AC.RESOLVED_MARKER = '$$RES$$ ';
+AC.REPLY_MARKER = '$$REP$$';
+AC.REPLY_MARKER_END = '$$ ';
+AC.DELETED_MARKER = '$$DELETED$$';
+AC.PREV_VERSIONS_KEY = '$$PREV_VER$$';
+AC.PREV_VERSIONS_START = '{"' + AC.PREV_VERSIONS_KEY + '": [';
+AC.PREV_VERSIONS_END = ']}';
+AC.COMMENTS_INDEX_PROP = 'commentsAttVerIndex';
+
+AC.getPrevVersionsComment = function(attId, attVer, callback, error)
+{
+	AP.request({
+        url : '/rest/api/content/' + attId + 
+        		'/child/comment?limit=200&expand=body.storage&parentVersion=' + attVer,
+        type : 'GET',
+        success : function(comments) 
+        {
+        	comments = JSON.parse(comments).results;
+        	var count = comments.length;
+        	var prevVer = [];
+        	
+        	for (var i = 0; i < comments.length; i++)
+    		{
+        		var decCntn = decodeURIComponent(comments[i].body.storage.value);
+        		
+        		if (decCntn.indexOf(AC.PREV_VERSIONS_START) == 0)
+    			{
+        			count--;
+        			
+        			try
+        			{
+        				prevVer = JSON.parse(decCntn)[AC.PREV_VERSIONS_KEY];
+        			}
+        			catch(e){} //Ignore
+    			}
+    		}
+        	
+        	if (count > 0)
+    		{
+        		prevVer.push(attVer);
+    		}
+        	
+        	callback(prevVer.length == 0? null : AC.PREV_VERSIONS_START + prevVer.join(',') +  AC.PREV_VERSIONS_END);
+        },
+        error : error
+    }); 
+};
+
+//TODO Use of globals is risky and error-prone. Find another way to get attachment id and version? 
+AC.commentsFnWrapper = function(fn, noErrCheck)
+{
+	//Wait for attId and ver to be ready
+	function wrappedFn()
+	{
+		if (AC.curDiagId == false && !noErrCheck)
+		{
+			//Call error (last argument)
+			arguments[arguments.length - 1]();
+		}
+		else if (AC.curDiagId != null)
+		{
+			fn.apply(this, arguments);
+		}
+		else
+		{
+			var fnArgs = arguments;
+			//Wait
+			setTimeout(function()
+			{
+				wrappedFn.apply(this, fnArgs);
+			}, 300);
+		}
+	}
+	
+	return wrappedFn;
+};
+
+AC.getComments = AC.commentsFnWrapper(function(attVer, checkUnresolvedOnly, success, error)
+{
+	function isResolvedComment(atlasComment)
+	{
+		if (atlasComment.children != null)
+		{
+			var lastReply = atlasComment.children.comment.results.pop();
+			
+			if (lastReply != null && decodeURIComponent(lastReply.body.storage.value).indexOf(AC.RESOLVED_MARKER) == 0)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	};
+	
+	var attId = AC.curDiagId;
+	attVer = attVer || AC.curDiagVer;
+	
+	var confComments = [], remaining;
+	
+	if (attId)
+	{
+		AC.getCommentsAttVersIndex(attId, function()
+		{
+			remaining = AC.curCommentIndex.length;
+			doNextChunk();
+			indexIntegrityCheck();
+		}, function()
+		{
+			indexIntegrityCheck(function()
+			{
+				remaining = AC.curCommentIndex.length;
+				doNextChunk();
+			}, error);
+		});
+		
+		function indexIntegrityCheck(callback, error)
+		{
+			if (checkUnresolvedOnly && callback == null) return;
+				
+			AC.getAttVersWithComments(attId, attVer, function(vers, versMap)
+			{
+				var matches = 0;
+				
+				for (var i = 0; i < AC.curCommentIndex.length; i++)
+				{
+					if (versMap[AC.curCommentIndex[i]])
+					{
+						matches++;
+					}
+				}
+    			
+				if (matches != vers.length || AC.curCommentIndex.length != vers.length)
+				{
+					AC.curCommentIndex = vers;
+					AC.setCommentsAttVersIndex(attId, vers);
+				}
+				
+				if (callback)
+				{
+					callback();
+				}
+    		}, 
+    		function()
+    		{
+    			console.log('Error while checking integrity of comments index for ' + attVer); //TODO What to do when integrity call fails?
+    			
+    			if (error)
+    			{
+    				error();
+    			}
+    		});
+		};
+		
+		function doGetComments(ver, callback, error)
+		{
+			AP.request({
+		        url : '/rest/api/content/' + attId + 
+		        		'/child/comment?limit=200&expand=body.storage,version,history,children.comment.body.storage,children.comment.version,children.comment.history' + 
+		        		'&parentVersion=' + ver,
+		        type : 'GET',
+		        success : function(comments) 
+		        {
+		        	//TODO handle paging or 200 comments + 25 replies are enough?
+		        	comments = JSON.parse(comments).results;
+	
+		        	for (var i = 0; i < comments.length; i++)
+	        		{
+		        		if (checkUnresolvedOnly)
+	        			{
+		        			if (!isResolvedComment(comments[i]))
+		        			{
+		            			success(true);
+		            			return;
+		        			}
+	        			}
+		        		else
+		        		{
+			        		comments[i].attVer = ver;
+			        		confComments.push(comments[i]);
+		        		}
+	        		}
+		        	
+		        	callback();
+		        },
+		        error : error
+		    }); 
+		};
+		
+		function doNextChunk()
+		{
+			remaining--;
+			
+			if (remaining < 0)
+			{
+				success(checkUnresolvedOnly? false : confComments, AC.getSiteUrl());
+				return;
+			}
+			
+			doGetComments(AC.curCommentIndex[remaining], doNextChunk, error);
+		}
+	}
+	else
+	{
+		error({message: mxResources.get('saveDiagramFirst', null, 'Save diagram first!')});
+	}
+}, true);
+
+AC.hasUnresolvedComments = function(pageId, contentId, diagramName, callback, error) 
+{
+	AC.getOldComments(contentId, function(comments)
+	{
+		var hasOldComments = false;
+		
+		for (var i = 0; i < comments.length; i++)
+		{
+			if (comments[i].isDeleted) continue;
+			
+			hasOldComments = true;
+			
+			if (!comments[i].isResolved)
+			{
+				callback(true);
+				break;
+			}
+		}
+		
+		if (!hasOldComments)
+		{
+			//Get current diagram information which is needed for comments
+			//This call is needed since we allow calling this from viewer without using AC.loadDiagram
+			//TODO viewer needs to use AC for interaction with Confluence
+			AC.getAttachmentInfo(pageId, diagramName, function(info)
+			{
+				AC.curDiagVer = info.version.number;
+				AC.curDiagId = info.id;
+				
+				AC.getComments(null, true, callback, error);
+			}, 
+			error);
+		}
+	}, 
+	error);
+};
+
+AC.setCommentsAttVersIndex = function(attId, vers) 
+{
+	AC.setContentProperty(attId, AC.COMMENTS_INDEX_PROP, JSON.stringify(vers), AC.curCommentIndexVer, 
+	function(resp)
+	{
+		resp = JSON.parse(resp);
+		AC.curCommentIndexVer = resp.version.number;
+	}, 
+	function(){}); //Ignore errors	
+};
+
+AC.getCommentsAttVersIndex = function(attId, success, error)
+{
+	AC.getContentProperty(attId, AC.COMMENTS_INDEX_PROP, function(resp)
+	{
+		resp = JSON.parse(resp);
+		AC.curCommentIndexVer = resp.version.number;
+		
+		try
+		{
+			AC.curCommentIndex = JSON.parse(resp.value);
+			
+			if (AC.curCommentIndex.length > AC.curDiagVer)
+			{
+				AC.curCommentIndex = []; //The length of the index cannot exceed the number of the versions, so, index is corrupt
+			}
+		}
+		catch(e)
+		{
+			AC.curCommentIndex = [];
+		}
+		
+		success(AC.curCommentIndex);
+	}, function()
+	{
+		AC.curCommentIndex = [];
+		error();
+	});	
+};
+
+AC.getAttVersWithComments = function(attId, attVer, callback, error)
+{
+	var start = 1;
+	var vers = [], versMap = {};
+	
+	function checkChunk(start, end, callback, error)
+	{
+		var doneCount = 0, total = end - start + 1;
+		
+		function checkDone()
+		{
+			doneCount++;
+			
+			if (doneCount == total)
+			{
+				callback();	
+			}
+		}
+		
+		function checkVer(ver)
+		{
+			AP.request({
+		        url : '/rest/api/content/' + attId + 
+		        		'/child/comment?limit=200&parentVersion=' + ver,
+		        type : 'GET',
+		        success : function(comments) 
+		        {
+		        	//TODO handle paging or 200 comments + 25 replies are enough?
+		        	if (JSON.parse(comments).results.length > 0)
+		        	{
+		        		vers.push(ver);
+		        		versMap[ver] = true;
+		        	}
+		        	
+	        		checkDone();
+		        },
+		        error : error
+			});
+		};
+		
+		for (var i = start; i <= end; i++)
+		{
+			checkVer(i);
+		}
+	};
+	
+	function doNextChunk()
+	{
+		if (start > attVer)
+		{
+			callback(vers, versMap);
+			return;
+		}
+		
+		//Check all versions 5 at a time
+		checkChunk(start, Math.min(start + 4, attVer), doNextChunk, error);
+		start += 5;
+	}
+	
+	doNextChunk();
+};
+
+AC.addComment = AC.commentsFnWrapper(function(commentContent, success, error)
+{
+	var attId = AC.curDiagId;
+	
+	if (attId)
+	{
+		AP.request({
+	        url : '/rest/api/content',
+	        type : 'POST',
+	        data: JSON.stringify({
+            	type: 'comment',
+            	container: {
+                    "type": 'attachment',
+                    "id": attId
+                 },
+                 "body": {
+  		           "storage": {
+  		             "value": encodeURIComponent(commentContent),
+  		             "representation": "storage"
+  		           }
+  		         }
+	        }),
+	        success : function(addedComment) 
+	        {
+	        	addedComment = JSON.parse(addedComment);
+	        	success(addedComment.id, addedComment.version.number, AC.curDiagVer);
+	        	
+	        	//Add cur ver to list of versions
+	        	if (AC.curCommentIndex.indexOf(AC.curDiagVer) == -1)
+        		{
+	        		AC.curCommentIndex.push(AC.curDiagVer);
+	        		AC.setCommentsAttVersIndex(attId, AC.curCommentIndex);
+        		}
+	        },
+	        error : error,
+	        contentType: 'application/json'
+	    });
+	}
+	else
+	{
+		error({message: mxResources.get('saveDiagramFirst', null, 'Save diagram first!')});
+	}
+}, true);
+
+AC.addCommentReply = AC.commentsFnWrapper(function(parentId, parentAttVer, replyContent, doResolve, callback, error)
+{
+	var attId = AC.curDiagId;
+	
+	//We cannot add replies to comments that belong to old versions of the attachment, so, as a workaround we add a special regular comment
+	if (parentAttVer != AC.curDiagVer)
+	{
+		AC.addComment(AC.REPLY_MARKER + parentId + AC.REPLY_MARKER_END + (doResolve? AC.RESOLVED_MARKER : '') + replyContent, callback, error);
+	}
+	else
+	{
+		AP.request({
+	        url : '/rest/api/content',
+	        type : 'POST',
+	        data: JSON.stringify({
+	        	"type": 'comment',
+	        	"ancestors": [
+	        	    {
+	        	      "id": parentId
+	        	    }
+	        	],
+	        	"container": {
+	                "type": 'attachment',
+	                "id": attId
+	             },
+	             "body": {
+			           "storage": {
+			             "value": encodeURIComponent((doResolve? AC.RESOLVED_MARKER : '') + replyContent),
+			             "representation": "storage"
+			           }
+			         }
+	        }),
+	        success : function(addedReply) 
+	        {
+	        	addedReply = JSON.parse(addedReply);
+	        	callback(addedReply.id, addedReply.version.number);
+	        },
+	        error : function(xhr) 
+	        {
+	        	if (xhr.responseText.indexOf('messageKey=parent.comment.does.not.exist') > 0)
+	    		{
+	        		error({message: mxResources.get('parentCommentDel', null, 'Parent comment has been deleted. A reply cannot be added.')});
+	    		}
+	        	else 
+	        	{
+	        		error(xhr)
+	        	}
+	        },
+	        contentType: 'application/json'
+		});
+	}
+});
+
+AC.editComment = AC.commentsFnWrapper(function(id, version, newContent, success, error)
+{
+	var attId = AC.curDiagId;
+	
+	AP.request({
+        url : '/rest/api/content/' + id,
+        type : 'PUT',
+        data: JSON.stringify({
+        	"type": 'comment',
+        	"body": {
+		           "storage": {
+		             "value": encodeURIComponent(newContent),
+		             "representation": "storage"
+		           }
+		         },
+		         "container": {
+               "type": 'attachment',
+               "id": attId
+             },
+             "version": {
+ 	            "number": version + 1
+ 	         }
+        }),
+        success : function(editedComment) 
+        {
+        	editedComment = JSON.parse(editedComment);
+        	success(editedComment.version.number);
+        },
+        error : error,
+        contentType: 'application/json'
+    });
+});
+
+AC.deleteComment = function(id, version, hasReplies, success, error)
+{
+	function doDel()
+	{
+		AP.request({
+	        url : '/rest/api/content/' + id,
+	        type : 'DELETE',
+	        success : success,
+	        error : error
+	    });
+	};
+	
+	if (hasReplies)
+	{
+		//Mark as deleted if there is replies
+		AC.editComment(id, version, AC.DELETED_MARKER, function()
+		{
+			success(true);
+		}, error);
+	}
+	else
+	{
+		doDel();
+	}
+};
+
+AC.getOldComments = function(contentId, callback, error)
 {
 	if (contentId)
 	{
@@ -2739,11 +3150,39 @@ AC.getContentProperty = function(contentId, propName, success, error)
 {
 	AP.request({
 		type: 'GET',
-		url: '/rest/api/content/' + contentId + '/property/' + encodeURIComponent(propName),
+		url: '/rest/api/content/' + contentId + '/property/' + encodeURIComponent(propName) + '?expand=version',
 		contentType: 'application/json;charset=UTF-8',
 		success: success,
 		error: error
 	});
+};
+
+AC.setContentProperty = function(contentId, propName, propVal, propVersion, success, error)
+{
+	var obj = {
+		    'value': propVal
+		};
+		
+		if (propVersion) 
+		{
+			obj['version'] = {
+				    'number': propVersion + 1,
+				    'minorEdit': true
+				  };
+		}
+		else
+		{
+			obj['key'] = propName;
+		}
+		
+		AP.request({
+			  url: '/rest/api/content/' + contentId + '/property' + (propVersion? '/' + encodeURIComponent(propName) + '?expand=version' : ''),
+			  type: propVersion? 'PUT' : 'POST',
+			  contentType: 'application/json',
+			  data: JSON.stringify(obj),
+			  success: success,
+			  error: error
+		});
 };
 
 AC.getConfPageEditorVer = function(pageId, callback)
@@ -2909,7 +3348,12 @@ AC.remoteInvokableFns = {
 	getCustomLibraries: {isAsync: true},
 	getFileContent: {isAsync: true},
 	getCurrentUser: {isAsync: true},
+	getOldComments: {isAsync: true},
 	getComments: {isAsync: true},
+	addComment: {isAsync: true},
+	addCommentReply: {isAsync: true},
+	editComment: {isAsync: true},
+	deleteComment: {isAsync: true},
 	userCanEdit: {isAsync: true},
 	getCustomTemplates: {isAsync: true},
 	getPageInfo: {isAsync: true},
@@ -3012,5 +3456,22 @@ AC.handleRemoteInvoke = function(msg)
 	catch(e)
 	{
 		sendResponse(null, mxResources.get('invalidCallErrOccured', [e.message]));
+	}
+};
+
+//Allow loading of plugins (we need it for comments) 
+AC.plugins = [];
+
+window.Draw = new Object();
+window.Draw.loadPlugin = function(callback)
+{
+	AC.plugins.push(callback);
+};
+
+AC.loadPlugins = function(ui)
+{
+	for (var i = 0; i < AC.plugins.length; i++)
+	{
+		AC.plugins[i](ui);
 	}
 };
