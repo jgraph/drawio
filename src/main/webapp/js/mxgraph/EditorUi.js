@@ -14,6 +14,8 @@ EditorUi = function(editor, container, lightbox)
 	
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
+	this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+	this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 
 	// Faster scrollwheel zoom is possible with CSS transforms
 	if (graph.useCssTransforms)
@@ -567,9 +569,9 @@ EditorUi = function(editor, container, lightbox)
 		}
 	
 		// Implements a global current style for edges and vertices that is applied to new cells
-		var insertHandler = function(cells, asText)
+		var insertHandler = function(cells, asText, model)
 		{
-			var model = graph.getModel();
+			model = (model != null) ? model : graph.getModel();
 			
 			model.beginUpdate();
 			try
@@ -667,6 +669,8 @@ EditorUi = function(editor, container, lightbox)
 		{
 			insertHandler(evt.getProperty('cells'), true);
 		});
+		
+		this.insertHandler = insertHandler;
 		
 		graph.connectionHandler.addListener(mxEvent.CONNECT, function(sender, evt)
 		{
@@ -2930,6 +2934,27 @@ EditorUi.prototype.setPageVisible = function(value)
 	}
 	
 	this.fireEvent(new mxEventObject('pageViewChanged'));
+};
+
+/**
+ * Class: ChangeGridColor
+ *
+ * Undoable change to grid color.
+ */
+function ChangeGridColor(ui, color)
+{
+	this.ui = ui;
+	this.color = color;
+};
+
+/**
+ * Executes selection of a new page.
+ */
+ChangeGridColor.prototype.execute = function()
+{
+	var temp = this.ui.editor.graph.view.gridColor;
+	this.ui.setGridColor(this.color);
+	this.color = temp;
 };
 
 /**

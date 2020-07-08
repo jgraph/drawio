@@ -5219,7 +5219,10 @@ LucidImporter = {};
 							dx = (exit.x == entry.x) ? 20 : 0;
 							dy = (exit.y == entry.y) ? 0 : 0;
 							
-							cell.geometry.points = [new mxPoint(exit.x + dx, exit.y + dy), new mxPoint(entry.x + dx, entry.y + dy)];
+							var p1 = new mxPoint(exit.x + dx, exit.y + dy), p2 = new mxPoint(entry.x + dx, entry.y + dy);
+							p1.generated = true;
+							p2.generated = true;
+							cell.geometry.points = [p1, p2];
 							implicitX = (exit.y == entry.y);
 							implicitY = (exit.x == entry.x);
 						}
@@ -5417,32 +5420,7 @@ LucidImporter = {};
 		}
 	};
 
-	var hideObj = function(key, groups, hidden)
-	{
-		if (mxUtils.indexOf(hidden, key) < 0)
-		{
-			hidden.push(key);
-		}
-
-		if (key in groups)
-		{
-			var obj = groups[key];
-			obj.id = key;
-			
-			if (obj.Members != null)
-			{
-				for (var key2 in obj.Members)
-				{
-					hidden = hideObj(key2, groups, hidden);
-				}
-			}
-		
-		}
-		
-		return hidden;
-	};
-	
-	function createGroup(obj, lookup)
+	function createGroup(obj, lookup, edgesGroups)
 	{
 		try
 		{
@@ -5461,10 +5439,14 @@ LucidImporter = {};
 					minY = Math.min(minY, v.geometry.y);
 					maxX = Math.max(maxX, v.geometry.x + v.geometry.width);
 					maxY = Math.max(maxY, v.geometry.y + v.geometry.height);
+					v.parent = group;
+					group.insert(v);
 				}
-				
-				v.parent = group;
-				group.insert(v);
+				else
+				{
+					//Edges are not yet created, so, create a map for them
+					edgesGroups[key] = group;
+				}
 			}
 			
 			group.geometry.x = minX;
@@ -5477,6 +5459,19 @@ LucidImporter = {};
 				var geo = group.children[i].geometry;
 				geo.x -= minX;
 				geo.y -= minY;
+			}
+			
+			if (obj.IsState)
+			{
+				group.lucidLayerInfo = {
+					name: obj.Name,
+					visible: !obj.Hidden,
+					locked: obj.Restrictions.b && obj.Restrictions.p && obj.Restrictions.c
+				};
+			}
+			else if (obj.Hidden)
+			{
+				group.visible = false;
 			}
 			
 			return group;
@@ -5494,34 +5489,9 @@ LucidImporter = {};
 		{
 			var select = [];
 			var lookup = {};
+			var edgesGroups = {};
 			var queue = [];
 
-			//collect IDs that are part of groups and hidden
-			var hidden = [];
-			var i = 0;
-			
-			if (g.Groups != null)
-			{
-				for (var key in g.Groups)
-				{
-					var obj = g.Groups[key];
-					obj.id = key;
-					
-					if (obj.Hidden == true && obj.Members != null)
-					{
-						if (mxUtils.indexOf(hidden, key) < 0)
-						{
-							hidden.push(key);
-						}
-
-						for (var key2 in obj.Members)
-						{
-							hidden = hideObj(key2, g.Groups, hidden);
-						}
-					}
-				}
-			}
-			
 			// Vertices first (populates lookup table for connecting edges)
 			if (g.Blocks != null)
 			{
@@ -5530,25 +5500,22 @@ LucidImporter = {};
 					var obj = g.Blocks[key];
 					obj.id = key;
 					
-					if (mxUtils.indexOf(hidden, key) < 0)
+					var created = false;
+					
+					if (styleMap[obj.Class] != null)
 					{
-						var created = false;
-						
-						if (styleMap[obj.Class] != null)
+						if (styleMap[obj.Class] == 'mxCompositeShape')
 						{
-							if (styleMap[obj.Class] == 'mxCompositeShape')
-							{
-								lookup[obj.id] = addCompositeShape(obj, select, graph);
-								queue.push(obj);
-								created = true;
-							}
-						}
-						
-						if (!created)
-						{
-							lookup[obj.id] = createVertex(obj, graph);
+							lookup[obj.id] = addCompositeShape(obj, select, graph);
 							queue.push(obj);
+							created = true;
 						}
+					}
+					
+					if (!created)
+					{
+						lookup[obj.id] = createVertex(obj, graph);
+						queue.push(obj);
 					}
 				}
 			}
@@ -5584,7 +5551,7 @@ LucidImporter = {};
 					
 					if (obj.IsGroup)
 					{
-						var group = createGroup(obj, lookup);
+						var group = createGroup(obj, lookup, edgesGroups);
 						
 						if (group)
 						{
@@ -5595,7 +5562,7 @@ LucidImporter = {};
 				}
 			}
 			
-			//Create non-hidden groups
+			//Create groups
 			if (g.Groups != null)
 			{
 				try
@@ -5605,15 +5572,12 @@ LucidImporter = {};
 						var obj = g.Groups[key];
 						obj.id = key;
 
-						if (obj.Hidden == 0 && obj.Members != null)
+						var group = createGroup(obj, lookup, edgesGroups);
+						
+						if (group)
 						{
-							var group = createGroup(obj, lookup);
-							
-							if (group)
-							{
-								lookup[obj.id] = group;
-								queue.push(obj);	
-							}
+							lookup[obj.id] = group;
+							queue.push(obj);	
 						}
 					}
 				}
@@ -5627,13 +5591,10 @@ LucidImporter = {};
 			{
 				for (var key in g.Lines)
 				{
-					if (mxUtils.indexOf(hidden, key) < 0)
-					{
-						var obj = g.Lines[key];
-						obj.id = key;
-						
-						queue.push(obj);
-					}
+					var obj = g.Lines[key];
+					obj.id = key;
+					
+					queue.push(obj);
 				}
 			}
 			
@@ -5667,7 +5628,36 @@ LucidImporter = {};
 						Math.round(p.Endpoint2.y * scale)), false);
 				}
 				
-				select.push(graph.addCell(e, null, null, src, trg));
+				var group = edgesGroups[obj.id];
+				
+				function fixPoint(p, pgeo)
+				{
+					if (p != null && !p.generated)
+					{
+						p.x -= pgeo.x;
+						p.y -= pgeo.y;
+					}
+				};
+				
+				if (group != null)
+				{
+					//Correct edge geometry
+					var geo = e.geometry, pgeo = group.geometry;
+					fixPoint(geo.sourcePoint, pgeo);
+					fixPoint(geo.targetPoint, pgeo);
+					fixPoint(geo.offset, pgeo);
+                    var points = geo.points;
+                    
+                    if (points != null) 
+                    {
+                        for (var i = 0; i < points.length; i++) 
+                        {
+                        	fixPoint(points[i], pgeo);
+                        }
+                    }
+				}
+				
+				select.push(graph.addCell(e, group, null, src, trg));
 			};
 			
 			// Inserts cells in ZOrder and connects edges via lookup
@@ -5680,7 +5670,26 @@ LucidImporter = {};
 				{
 					if (v.parent == null)
 					{
-						select.push(graph.addCell(v));
+						if (v.lucidLayerInfo)
+						{
+							var layerCell = new mxCell();
+					        graph.addCell(layerCell, graph.model.root);
+					        
+					        layerCell.setVisible(v.lucidLayerInfo.visible);
+
+					        if (v.lucidLayerInfo.locked)
+					        {
+					            layerCell.setStyle("locked=1;");
+					        }
+					        
+					        layerCell.setValue(v.lucidLayerInfo.name);
+					        delete v.lucidLayerInfo;
+					        graph.addCell(v, layerCell);
+						}
+						else
+						{
+							select.push(graph.addCell(v));
+						}
 					}
 				}
 				else if (obj.IsLine && obj.Action != null && obj.Action.Properties != null)

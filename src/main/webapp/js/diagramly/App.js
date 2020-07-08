@@ -3442,12 +3442,12 @@ App.prototype.createFileSystemOptions = function(name)
 	for (var i = 0; i < this.editor.diagramFileTypes.length; i++)
 	{
 		ext.push({description: mxResources.get(this.editor.diagramFileTypes[i].description) +
-			' (.' + this.editor.diagramFileTypes[i].extension + ')',
+			((mxClient.IS_MAC) ? ' (.' + this.editor.diagramFileTypes[i].extension + ')' : ''),
 			extensions: [this.editor.diagramFileTypes[i].extension]});
 	}
 	
-	// TODO: Specify default name via options
-	return {type: 'save-file', accepts: ext, defaultPath: name};
+	// TODO: Specify default filename
+	return {type: 'save-file', accepts: ext, fileName: name};
 };
 
 /**
@@ -3464,7 +3464,7 @@ App.prototype.chooseFileSystemEntries = function(success, error, opts)
 	});
 	
 	opts = (opts != null) ? opts : this.createFileSystemOptions();
-
+	
 	// LATER: Specify default name via options
 	window.chooseFileSystemEntries(opts).then(mxUtils.bind(this, function(fileHandle)
 	{

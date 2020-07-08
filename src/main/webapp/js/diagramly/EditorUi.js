@@ -4514,7 +4514,7 @@
 				   	{
 				   		this.spinner.stop();
 				   		this.handleError(e);
-				   	}));
+				   	}), null, null, null, null, null, null, null, 5);
 					
 					mxEvent.addListener(this.editor.graph.container, 'click', clickHandler);
 				   	document.body.appendChild(this.exportDialog);

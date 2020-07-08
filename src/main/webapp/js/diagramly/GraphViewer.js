@@ -337,6 +337,15 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					return true;
 				};
 				
+				//Fix graph clipping by avoiding negative negative translation (after resize is finished)
+				var graphFoldCells = this.graph.foldCells;
+				
+				this.graph.foldCells = mxUtils.bind(this, function()
+				{
+					this.cellFolded = true;
+					return graphFoldCells.apply(this.graph, arguments);
+				});
+				
 				this.fireEvent(new mxEventObject('render'));
 			});
 
@@ -550,6 +559,21 @@ GraphViewer.prototype.addSizeHandler = function()
 			else if (this.toolbar != null)
 			{
 				this.toolbar.style.width = Math.max(this.minToolbarWidth, container.offsetWidth) + 'px';
+			}
+
+			//If a cell is folded set the translation zero to avoid -ve translation
+			if (this.cellFolded)
+			{
+				this.cellFolded = false;
+				
+				if (this.center)
+				{
+					this.graph.center();
+				}
+				else
+				{
+					this.graph.view.setTranslate(0, 0);
+				}
 			}
 			
 			updatingOverflow = false;

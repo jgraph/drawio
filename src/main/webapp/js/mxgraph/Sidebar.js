@@ -296,7 +296,12 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				this.graph2.labelsVisible = (showLabel == null || showLabel);
 				var fo = mxClient.NO_FO;
 				mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-				this.graph2.addCells(cells);
+				
+				// Applies current style for preview
+				var temp = this.graph2.cloneCells(cells);
+				this.editorUi.insertHandler(temp, null, this.graph2.model);
+				this.graph2.addCells(temp);
+				
 				mxClient.NO_FO = fo;
 				
 				var bounds = this.graph2.getGraphBounds();

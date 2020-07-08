@@ -1597,6 +1597,21 @@ Graph.prototype.init = function(container)
 	Graph.prototype.currentTranslate = new mxPoint(0, 0);
 	
 	/**
+	 * 
+	 */
+	Graph.prototype.getCells = function(vertices, edges)
+	{
+		vertices = (vertices != null) ? vertices : true;
+		edges = (edges != null) ? edges : true;
+		var model = this.model;
+		
+		return model.filterDescendants(function(cell)
+		{
+			return (vertices && model.isVertex(cell)) || (edges && model.isEdge(cell));
+		}, model.getRoot());
+	};
+
+	/**
 	 * Returns the cell for editing the given cell.
 	 */
 	Graph.prototype.getStartEditingCell = function(cell, trigger)

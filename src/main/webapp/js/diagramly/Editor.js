@@ -40,6 +40,29 @@
 		{ext: 'html', title: 'filetypeHtml'},
 		{ext: 'png', title: 'filetypePng'},
 		{ext: 'svg', title: 'filetypeSvg'}];
+	
+	/**
+	 * 
+	 */
+	Editor.styles = [{},
+		{commonStyle: {fontColor: '#5C5C5C', strokeColor: '#006658', fillColor: '#21C0A5'}},
+		{commonStyle: {fontColor: '#095C86', strokeColor: '#AF45ED', fillColor: '#F694C1'},
+			edgeStyle: {strokeColor: '#60E696'}},
+		{commonStyle: {fontColor: '#46495D', strokeColor: '#788AA3', fillColor: '#B2C9AB'}},
+		{commonStyle:  {fontColor: '#5AA9E6', strokeColor: '#FF6392', fillColor: '#FFE45E'},
+			graph: {background: '#F9F9F9'}},
+		{commonStyle:  {fontColor: '#393C56', strokeColor: '#E07A5F', fillColor: '#F2CC8F'},
+			graph: {background: '#F4F1DE'}},
+		{commonStyle: {fontColor: '#1D3557', strokeColor: '#457B9D', fillColor: '#A8DADC'},
+			graph: {background: '#F1FAEE'}},
+		{commonStyle: {fontColor: '#143642', strokeColor: '#0F8B8D', fillColor: '#FAE5C7'},
+			edgeStyle: {strokeColor: '#A8201A'},
+			graph: {background: '#DAD2D8', gridColor: '#ABA4A9'}},
+		{commonStyle: {fontColor: '#FEFAE0', strokeColor: '#DDA15E', fillColor: '#BC6C25'},
+			graph: {background: '#283618', gridColor: '#48632C'}},
+		{commonStyle:  {fontColor: '#E4FDE1', strokeColor: '#028090', fillColor: '#F45B69'},
+			graph: {background: '#114B5F', gridColor: '#0B3240'}}
+	];
 
 	/**
 	 * Used in the GraphViewer lightbox.
@@ -1613,6 +1636,11 @@
 			if (config.templateFile != null)
 			{
 				EditorUi.templateFile = config.templateFile;
+			}
+			
+			if (config.styles != null)
+			{
+				Editor.styles = config.styles;
 			}
 			
 			if (config.globalVars != null)
@@ -4750,7 +4778,8 @@
 		 */
 		StyleFormatPanel.prototype.addStyles = function(div)
 		{
-			var graph = this.editorUi.editor.graph;
+			var ui = this.editorUi;
+			var graph = ui.editor.graph;
 			var picker = document.createElement('div');
 			picker.style.whiteSpace = 'nowrap';
 			picker.style.paddingLeft = '24px';
@@ -4835,7 +4864,7 @@
 									style = mxUtils.removeStylename(style, stylenames[j]);
 								}
 
-								var defaults = (graph.getModel().isVertex(cells[i])) ? graph.defaultVertexStyle : graph.defaultEdgeStyle;
+								var defaults = (graph.getModel().isVertex(cells[i])) ? ui.initialDefaultVertexStyle : ui.initialdefaultEdgeStyle;
 								
 								if (colorset != null)
 								{
@@ -4926,12 +4955,12 @@
 						}
 						else if (colorset['fill'] == '')
 						{
-							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
+							btn.style.backgroundColor = mxUtils.getValue(ui.initialDefaultVertexStyle,
 								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
-							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
+							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
 								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						
@@ -4941,12 +4970,12 @@
 						}
 						else if (colorset['stroke'] == '')
 						{
-							btn.style.border = '1px solid ' + mxUtils.getValue(graph.defaultVertexStyle, 
+							btn.style.border = '1px solid ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
 								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
-							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
+							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
 									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff'));
 						}
 					}

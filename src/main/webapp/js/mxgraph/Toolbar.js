@@ -183,7 +183,7 @@ Toolbar.prototype.addTableDropDown = function()
 	// KNOWN: All table stuff does not work with undo/redo
 	// KNOWN: Lost focus after click on submenu with text (not icon) in quirks and IE8. This is because the TD seems
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
-	var elt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
+	var menuElt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
 	{
 		var graph = this.editorUi.editor.graph;
 		var cell = graph.getSelectionCell();
@@ -194,7 +194,7 @@ Toolbar.prototype.addTableDropDown = function()
     	}
 		else
     	{
-			elt = menu.addItem('', null, mxUtils.bind(this, function()
+			var elt = menu.addItem('', null, mxUtils.bind(this, function()
 			{
 				try
 				{
@@ -277,17 +277,17 @@ Toolbar.prototype.addTableDropDown = function()
     	}
 	}));
 	
-	elt.style.position = 'relative';
-	elt.style.whiteSpace = 'nowrap';
-	elt.style.overflow = 'hidden';
-	elt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
-	elt.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+	menuElt.style.position = 'relative';
+	menuElt.style.whiteSpace = 'nowrap';
+	menuElt.style.overflow = 'hidden';
+	menuElt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
+	menuElt.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
 
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
 	{
-		elt.getElementsByTagName('img')[0].style.left = '22px';
-		elt.getElementsByTagName('img')[0].style.top = '5px';
+		menuElt.getElementsByTagName('img')[0].style.left = '22px';
+		menuElt.getElementsByTagName('img')[0].style.top = '5px';
 	}
 	
 	// Connects to insert menu enabled state
@@ -295,15 +295,15 @@ Toolbar.prototype.addTableDropDown = function()
 	
 	// Workaround for possible not a function
 	// when extending HTML objects
-	if (menu != null && typeof elt.setEnabled === 'function')
+	if (menu != null && typeof menuElt.setEnabled === 'function')
 	{
 		menu.addListener('stateChanged', function()
 		{
-			elt.setEnabled(menu.enabled);
+			menuElt.setEnabled(menu.enabled);
 		});
 	}
 	
-	return elt;
+	return menuElt;
 };
 
 /**
