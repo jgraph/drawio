@@ -453,7 +453,7 @@ Format.prototype.refresh = function()
 		if (Editor.styles != null)
 		{
 			diagramPanel.style.display = 'none';
-			label.style.width = '106px';
+			label.style.width = (this.showCloseButton) ? '106px' : '50%';
 			label.style.cursor = 'pointer';
 			label.style.backgroundColor = this.inactiveTabBackgroundColor;
 			
@@ -512,7 +512,6 @@ Format.prototype.refresh = function()
 			
 			div.appendChild(label2);
 		}
-		
 	}
 	else if (graph.isEditing())
 	{
@@ -5937,8 +5936,11 @@ DiagramStylePanel.prototype.addView = function(div)
 				change.ignoreImage = true;
 				model.execute(change);
 				
-				model.execute(new ChangeGridColor(ui, (graphStyle != null) ? graphStyle.gridColor ||
-					graph.view.defaultGridColor : graph.view.defaultGridColor));
+				if (graphStyle != null && graphStyle.background != null)
+				{
+					model.execute(new ChangeGridColor(ui, (graphStyle != null) ? graphStyle.gridColor ||
+						graph.view.defaultGridColor : graph.view.defaultGridColor));
+				}
 			}
 			finally
 			{
@@ -5953,8 +5955,12 @@ DiagramStylePanel.prototype.addView = function(div)
 			var prevGrid = graph.view.gridColor;
 
 			graph.background = (graphStyle != null) ? graphStyle.background : null;
-			graph.view.gridColor = (graphStyle != null) ? graphStyle.gridColor ||
-				graph.view.defaultGridColor : graph.view.defaultGridColor;
+			
+			if (graphStyle != null && graphStyle.background != null)
+			{
+				graph.view.gridColor = (graphStyle != null) ? graphStyle.gridColor ||
+					graph.view.defaultGridColor : graph.view.defaultGridColor;
+			}
 			
 			graph.getCellStyle = function(cell)
 			{

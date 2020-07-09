@@ -426,7 +426,7 @@ public class EmbedServlet2 extends HttpServlet
 				+ "var script = document.createElement('script');"
 				+ "script.type = 'text/javascript';" + "script.src = '" + proto
 				+ ((dev != null && dev.equals("1")) ? "test" : "www")
-				+ ".draw.io/js/viewer.min.js';"
+				+ ".draw.io/js/viewer-static.min.js';"
 				+ "t[0].parentNode.appendChild(script);}";
 	}
 

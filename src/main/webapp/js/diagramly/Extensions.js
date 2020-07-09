@@ -5424,10 +5424,15 @@ LucidImporter = {};
 	{
 		try
 		{
+			if (obj.Action != null && obj.Action.Properties != null)
+			{
+				obj = obj.Action.Properties;
+			}
+			
 			var group = new mxCell('', new mxGeometry(), 'group;dropTarget=0;');
 			group.vertex = true;
 			var minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-			var members = obj.Members || obj.Action.Properties.Members;
+			var members = obj.Members;
 				
 			for (var key in members)
 			{

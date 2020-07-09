@@ -63,7 +63,6 @@
 		</concat>
 		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
-		
 		<delete file="${basedir}/.tmp2.js"/>
 		<copy file="${war.dir}/resources/dia.txt" tofile="${basedir}/.tmp2.xml" overwrite="true"/>
 		<replaceregexp file="${basedir}/.tmp2.xml" match="${line.separator}" flags="g" replace="\\\\n"/>
@@ -244,15 +243,16 @@
 			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
     	</concat>
 
+		<!-- Disables eval for JS (uses shapes.min.js) -->
 		<echo file="${basedir}/.tmp3.js">
-			// Disables eval for JS (uses shapes.min.js)
 			mxStencilRegistry.allowEval = false;
 		</echo>
 		
 		<concat destfile="${war.dir}/js/viewer-static.min.js" fixlastline="yes" append="no">
-			<filelist dir="${war.dir}/js" files="viewer.min.js,shapes.min.js"/>
-			<filelist dir="${basedir}" files=".tmp3.js"/>
-    	</concat>
+			<filelist dir="${basedir}" files="base-viewer.min.js"/>
+			<filelist dir="${war.dir}/js" files="shapes.min.js"/>
+				<filelist dir="${basedir}" files=".tmp3.js,.tmp2.min.js"/>
+		</concat>
 
 		<delete file="${war.dir}/js/extensions.min.js"/>
 		<delete file="${basedir}/.tmp0.js"/>

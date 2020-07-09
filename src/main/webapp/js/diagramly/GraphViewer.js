@@ -1342,6 +1342,8 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 			(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)) &&
 			graph.customLinkClicked(href))
 		{
+			// Workaround for text selection in Firefox on Windows
+			mxUtils.clearSelection();
 			mxEvent.consume(evt);
 		}
 	}), mxUtils.bind(this, function(evt)
