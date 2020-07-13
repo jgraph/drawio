@@ -66,6 +66,11 @@ Format.prototype.init = function()
 		this.refresh();
 	}));
 	
+	ui.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
+	{
+		this.refresh();
+	}));
+	
 	editor.addListener('autosaveChanged', mxUtils.bind(this, function()
 	{
 		this.refresh();
@@ -5596,24 +5601,13 @@ DiagramStylePanel.prototype.addView = function(div)
 
 	div.style.whiteSpace = 'normal';
 
-	var cells = graph.getCells();
-	var rounded = true;
-	var sketch = true;
-	var curved = true;
-	
-	for (var i = 0; i < cells.length; i++)
-	{
-		var style = graph.getCurrentCellStyle(cells[i]);
-		
-		sketch = sketch && mxUtils.getValue(style, 'sketch', '0') == '1';
-		rounded = rounded && (!model.isVertex(cells[i]) || mxUtils.getValue(style, 'rounded', '0') == '1');
-		curved = curved && (!model.isEdge(cells[i]) || mxUtils.getValue(style, 'curved', '0') == '1');
-	}
-	
+	var sketch = graph.currentVertexStyle['sketch'] == '1' && graph.currentEdgeStyle['sketch'] == '1';
+	var rounded = graph.currentVertexStyle['rounded'] == '1';
+	var curved = graph.currentEdgeStyle['curved'] == '1';
+
 	var opts = document.createElement('div');
 	opts.style.paddingBottom = '12px';
 	opts.style.marginRight = '16px';
-	
 	
 	var table = document.createElement('table');
 
@@ -5647,7 +5641,6 @@ DiagramStylePanel.prototype.addView = function(div)
 		return sketch;
 	}, function(checked)
 	{
-		graph.updateCellStyles('sketch', (checked) ? '1' : null, graph.getCells());
 		sketch = checked;
 		
 		if (checked)
@@ -5660,6 +5653,8 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentEdgeStyle['sketch'];
 			delete graph.currentVertexStyle['sketch'];
 		}
+		
+		graph.updateCellStyles('sketch', (checked) ? '1' : null, graph.getCells());
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -5671,7 +5666,6 @@ DiagramStylePanel.prototype.addView = function(div)
 		return rounded;
 	}, function(checked)
 	{
-		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getCells(true, false));
 		rounded = checked;
 		
 		if (checked)
@@ -5682,25 +5676,26 @@ DiagramStylePanel.prototype.addView = function(div)
 		{
 			delete graph.currentVertexStyle['rounded'];
 		}
+		
+		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getCells(true, false));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
 	}));
-
+	
+	// Curved
 	left = left.cloneNode(false);
-	right = left.cloneNode(false);
+	right = right.cloneNode(false);
 	row = row.cloneNode(false);
 	row.appendChild(left);
 	row.appendChild(right);
 	tbody.appendChild(row);
-	
-	// Curved
+
 	left.appendChild(this.createOption(mxResources.get('curved'), function()
 	{
 		return curved;
 	}, function(checked)
 	{
-		graph.updateCellStyles('curved', (checked) ? '1' : null, graph.getCells(false, true));
 		curved = checked;
 		
 		if (checked)
@@ -5711,11 +5706,13 @@ DiagramStylePanel.prototype.addView = function(div)
 		{
 			delete graph.currentEdgeStyle['curved'];
 		}
+		
+		graph.updateCellStyles('curved', (checked) ? '1' : null, graph.getCells(false, true));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
 	}));
-	
+
 	opts.appendChild(table);
 	div.appendChild(opts);
 
@@ -5818,11 +5815,23 @@ DiagramStylePanel.prototype.addView = function(div)
 		}
 	});
 	
+	var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
+	{
+		graph.defaultVertexStyle = mxUtils.clone(ui.initialDefaultVertexStyle);
+		graph.defaultEdgeStyle = mxUtils.clone(ui.initialDefaultEdgeStyle);
+		ui.clearDefaultStyle();
+	}));
+	
+	btn.setAttribute('title', mxResources.get('reset'));
+	btn.style.textOverflow = 'ellipsis';
+	btn.style.maxWidth = '90px';
+	right.appendChild(btn);
+	
 	var createPreview = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, container)
 	{
 		// Wrapper needed to catch events
 		var div = document.createElement('div');
-		div.style.cssText = 'position:absolute;display:inline-block;position:relative;width:100%;height:100%;overflow:hidden;pointer-events:none;';
+		div.style.cssText = 'position:absolute;display:inline-block;width:100%;height:100%;overflow:hidden;pointer-events:none;';
 		container.appendChild(div);
 		
 		var graph2 = new Graph(div, null, null, graph.getStylesheet());
@@ -5896,6 +5905,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			applyStyle(commonStyle, graph.defaultEdgeStyle);
 			applyStyle(vertexStyle, graph.defaultVertexStyle);
 			applyStyle(edgeStyle, graph.defaultEdgeStyle);
+			ui.clearDefaultStyle();
 			
 			if (sketch)
 			{
@@ -5929,18 +5939,14 @@ DiagramStylePanel.prototype.addView = function(div)
 			model.beginUpdate();
 			try
 			{
-				ui.clearDefaultStyle();
 				updateCells(defaultStyles, graphStyle);
 				
 				var change = new ChangePageSetup(ui, (graphStyle != null) ? graphStyle.background : null);
 				change.ignoreImage = true;
 				model.execute(change);
-				
-				if (graphStyle != null && graphStyle.background != null)
-				{
-					model.execute(new ChangeGridColor(ui, (graphStyle != null) ? graphStyle.gridColor ||
-						graph.view.defaultGridColor : graph.view.defaultGridColor));
-				}
+					
+				model.execute(new ChangeGridColor(ui, (graphStyle != null && graphStyle.gridColor != null) ?
+						graphStyle.gridColor : graph.view.defaultGridColor));
 			}
 			finally
 			{
@@ -5955,12 +5961,8 @@ DiagramStylePanel.prototype.addView = function(div)
 			var prevGrid = graph.view.gridColor;
 
 			graph.background = (graphStyle != null) ? graphStyle.background : null;
-			
-			if (graphStyle != null && graphStyle.background != null)
-			{
-				graph.view.gridColor = (graphStyle != null) ? graphStyle.gridColor ||
-					graph.view.defaultGridColor : graph.view.defaultGridColor;
-			}
+			graph.view.gridColor = (graphStyle != null && graphStyle.gridColor != null) ?
+				graphStyle.gridColor : graph.view.defaultGridColor;
 			
 			graph.getCellStyle = function(cell)
 			{

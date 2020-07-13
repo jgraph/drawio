@@ -3324,10 +3324,10 @@ LucidImporter = {};
 			'AWSCloudaltAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
 			'RegionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_region;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;dashed=1;fontColor=#0E82B8;fillColor=none',
 			'AvailabilityZoneAWS19_v2' : 'verticalAlign=top;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;fontColor=#0E82B8',
-			'SecuritygroupAWS19_v2' : 'verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#DD3522',
+			'SecuritygroupAWS19_v2' : 'verticalAlign=top;fillColor=none;fillOpacity=100',
 			'AutoScalingAWS19_v2' : 'shape=mxgraph.aws4.groupCenter;grIcon=mxgraph.aws4.group_auto_scaling_group;grStroke=1;verticalAlign=top;fillColor=none;fillOpacity=100;fontColor=#D75F17;spacingTop=25;fillColor=none',
 			'VirtualprivatecloudVPCAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#2C8723;fillColor=none',
-			'PrivateSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;strokeColor=#0E82B8;fontColor=#0E82B8;fillColor=none',
+			'PrivateSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;strokeColor=#0E82B8;fillColor=none',
 			'PublicSubnetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_security_group;grStroke=0;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;strokeColor=#2C8723;fontColor=#2C8723;fillColor=none',
 			'ServercontentsAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_on_premise;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
 			'CorporatedatacenterAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_corporate_data_center;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#5A6C86;fillColor=none',
@@ -3336,7 +3336,7 @@ LucidImporter = {};
 			'SpotFleetAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_spot_fleet;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#D75F17;fillColor=none',
 			'AWSStepFunctionAWS19_v2' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_step_functions_workflow;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fontColor=#CB1261;fillColor=none',
 			'GenericGroup1AWS19_v2' : 'verticalAlign=top;align=center;fillColor=none;fillOpacity=100;dashed=1;dashPattern=5 5;strokeColor=#5A6C86;fontColor=#5A6C86',
-			'GenericGroup2AWS19_v2' : 'verticalAlign=top;align=center;fillOpacity=100;fillColor=#EAECEF',
+			'GenericGroup2AWS19_v2' : 'verticalAlign=top;align=center',
 
 			//Repeated from the above
 			'AWSCloudAWS19' : 'shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud;verticalAlign=top;align=left;spacingLeft=30;fillOpacity=100;fillColor=none',
@@ -4960,15 +4960,27 @@ LucidImporter = {};
 	
 	function getImage(properties, action)
 	{
+		var imgUrl = null;
+		
 		// Converts images
 		if (action.Class == 'ImageSearchBlock2')
 		{
-			return 'image=' + properties.URL + ';';
+			imgUrl = properties.URL;
 		}
 		else if (action.Class == 'UserImage2Block' && properties.ImageFillProps != null &&
 				properties.ImageFillProps.url != null)
 		{
-			return 'image=' + properties.ImageFillProps.url  + ';';
+			imgUrl = properties.ImageFillProps.url;
+		}
+		
+		if (imgUrl != null)
+		{
+			if (LucidImporter.imgSrcMap != null && LucidImporter.imgSrcMap[imgUrl] != null)
+			{
+				imgUrl = LucidImporter.imgSrcMap[imgUrl];
+			}
+			
+			return 'image=' + imgUrl + ';';
 		}
 		
 		return '';
@@ -5746,8 +5758,9 @@ LucidImporter = {};
         return graph;
 	};
 	
-	LucidImporter.importState = function(state)
+	LucidImporter.importState = function(state, imgSrcMap)
 	{
+		LucidImporter.imgSrcMap = imgSrcMap; //Use LucidImporter object to store the map since it is used deep inside
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
 		// Extracts and sorts all pages
@@ -5816,6 +5829,7 @@ LucidImporter = {};
 		}
 		
 		xml.push('</mxfile>');
+		LucidImporter.imgSrcMap = null; //Reset the map so it doesn't affect next calls
 		
 		return xml.join('');
 	};

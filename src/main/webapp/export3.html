@@ -8,16 +8,9 @@
 	</script>
 	<!-- CSS for print output is needed for using current window -->
 	<style type="text/css">
-		@media print {
-		  span.MathJax_SVG svg { shape-rendering: crispEdges; }
-		  table.mxPageSelector { display: none; }
-		  hr.mxPageBreak { display: none; }
-		}
-		@media screen {
-		  table.mxPageSelector { position: fixed; right: 10px; top: 10px;font-family: Arial; font-size:10pt; border: solid 1px darkgray;background: white; border-collapse:collapse; }
-		  table.mxPageSelector td { border: solid 1px gray; padding:4px; }
-		  body.mxPage { background: gray; }
-		}
+	  	span.MathJax_SVG svg { shape-rendering: crispEdges; }
+	  	table.mxPageSelector { display: none; }
+	  	hr.mxPageBreak { display: none; }
 	</style>
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
@@ -389,24 +382,45 @@
 				var model = graph.getModel();
 				codec.decode(xmlDoc.documentElement, model);
 	
-				// Loads background color
-				var bg = (data.bg != null && data.bg.length > 0 && data.format != 'pdf') ?
-					data.bg : xmlDoc.documentElement.getAttribute('background');
-	
-				// Normalizes values for transparent backgrounds
-				if (bg == 'none' || bg == '')
+				var bg;
+				
+				if (data.format == 'pdf')
 				{
-					bg = null;
+					if (data.bg == 'none')
+					{
+						bg = null;	
+					}
+					else
+					{
+						bg = xmlDoc.documentElement.getAttribute('background');
+						
+						if (bg == 'none' || !bg)
+						{
+							bg = '#ffffff';
+						}
+					}
+				}
+				else
+				{
+					// Loads background color
+					bg = (data.bg != null && data.bg.length > 0) ?
+						data.bg : xmlDoc.documentElement.getAttribute('background');
+		
+					// Normalizes values for transparent backgrounds
+					if (bg == 'none' || bg == '')
+					{
+						bg = null;
+					}
+					
+					// Checks if export format supports transparent backgrounds
+					if (bg == null && data.format != 'gif' && data.format != 'png')
+					{
+						bg = '#ffffff';
+					}	
 				}
 				
-				// Checks if export format supports transparent backgrounds
-				if (bg == null && data.format != 'gif' && data.format != 'png')
-				{
-					bg = '#ffffff';
-				}
-	
 				// Sets background color on page
-				if (bg != null && (data.format != 'pdf' || xmlDoc.documentElement.getAttribute('page') != '1'))
+				if (bg != null)
 				{
 					document.body.style.backgroundColor = bg;
 				}

@@ -392,13 +392,16 @@ Actions.prototype.init = function()
 						}
 					}
 					
-					var pt = graph.getFreeInsertPoint();
-            		var linkCell = new mxCell(title, new mxGeometry(pt.x, pt.y, 100, 40),
+            		var linkCell = new mxCell(title, new mxGeometry(0, 0, 100, 40),
 	            	    	'fontColor=#0000EE;fontStyle=4;rounded=1;overflow=hidden;' + ((icon != null) ?
 	            	    	'shape=label;imageWidth=16;imageHeight=16;spacingLeft=26;align=left;image=' + icon :
 	            	    	'spacing=10;'));
             	    linkCell.vertex = true;
 
+            	    var pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([linkCell], true));
+					linkCell.geometry.x = pt.x;
+            	    linkCell.geometry.y = pt.y;
+            	    
             	    graph.setLinkForCell(linkCell, link);
             	    graph.cellSizeUpdated(linkCell, true);
 
@@ -1270,11 +1273,14 @@ Actions.prototype.init = function()
 			        		// Inserts new cell if no cell is selected
 			    			if (cells.length == 0)
 			    			{
-			    				var pt = graph.getFreeInsertPoint();
-			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', pt.x, pt.y, w, h,
-			    						'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
+			    				cells = [graph.insertVertex(graph.getDefaultParent(), null, '', 0, 0, w, h,
+			    					'shape=image;imageAspect=0;aspect=fixed;verticalLabelPosition=bottom;verticalAlign=top;')];
+			    				var pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
+								cells[0].geometry.x = pt.x;
+			            	    cells[0].geometry.y = pt.y;
+			            	    
 			    				select = cells;
-		            	    		graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
+		            	    	graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
 			    			}
 			    			
 			        		graph.setCellStyles(mxConstants.STYLE_IMAGE, (newValue.length > 0) ? newValue : null, cells);

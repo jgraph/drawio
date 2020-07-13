@@ -322,7 +322,7 @@
 					mxEvent.addListener(allPages, 'change', cropEnableFn);
 					mxEvent.addListener(currentPage, 'change', cropEnableFn);
 					mxEvent.addListener(selection, 'change', cropEnableFn);
-					dlgH = 240;
+					dlgH += 60;
 				}
 				else
 				{
@@ -340,20 +340,25 @@
 					}
 				}
 				
-				var includeOption = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+				var isDrawioWeb = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 					editorUi.getServiceName() == 'draw.io';
-				var include = (includeOption) ? editorUi.addCheckbox(div,
-					mxResources.get('includeCopyOfMyDiagram'), true) : null;
+
+				var transparentBkg = null, include = null;
 					
-				if (includeOption)
+				if (isDrawioWeb)
 				{
-					dlgH += 30;
+					include = editorUi.addCheckbox(div,
+							mxResources.get('includeCopyOfMyDiagram'), true);
+					transparentBkg = editorUi.addCheckbox(div,
+							mxResources.get('transparentBackground'), false);
+					
+					dlgH += 60;
 				}
 				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
 					editorUi.downloadFile('pdf', null, null, !selection.checked,
-						noPages? true : !allPages.checked, !crop.checked, null, null,
+						noPages? true : !allPages.checked, !crop.checked, transparentBkg != null && transparentBkg.checked, null,
 						null, grid.checked, include != null && include.checked);
 				}), null, mxResources.get('export'));
 				editorUi.showDialog(dlg.container, 300, dlgH, true, true);
@@ -2626,9 +2631,12 @@
 		
 		var insertVertex = function(value, w, h, style)
 		{
-			var pt = (graph.isMouseInsertPoint()) ? graph.getInsertPoint() : graph.getFreeInsertPoint();
-			var cell = new mxCell(value, new mxGeometry(pt.x, pt.y, w, h), style);
+			var cell = new mxCell(value, new mxGeometry(0, 0, w, h), style);
 			cell.vertex = true;
+
+			var pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([cell], true));
+			cell.geometry.x = pt.x;
+    	    cell.geometry.y = pt.y;
 		
     		graph.getModel().beginUpdate();
     		try

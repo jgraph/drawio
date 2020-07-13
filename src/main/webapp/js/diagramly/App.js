@@ -2916,7 +2916,7 @@ App.prototype.start = function()
 							{
 								this.checkDrafts();
 							}
-							else if (urlParams['splash'] != '0')
+							else if (id != null && id.length > 0)
 							{
 								this.loadFile(id, null, null, mxUtils.bind(this, function()
 								{
@@ -3408,7 +3408,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 				}
 				else
 				{
-					this.openFile(e.target.result, file.name, file, false, fileHandle);
+					this.openFileHandle(e.target.result, file.name, file, false, fileHandle);
 				}
 			}
 			catch(e)

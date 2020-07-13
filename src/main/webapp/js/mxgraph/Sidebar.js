@@ -1970,9 +1970,9 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	this.graph.addCells(cells);
 	var bounds = this.graph.getGraphBounds();
 	var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width,
-			(height - 2 * this.thumbBorder) / bounds.height) * 100) / 100;
+		(height - 2 * this.thumbBorder) / bounds.height) * 100) / 100;
 	this.graph.view.scaleAndTranslate(s, Math.floor((width - bounds.width * s) / 2 / s - bounds.x),
-			Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
+		Math.floor((height - bounds.height * s) / 2 / s - bounds.y));
 	var node = null;
 	
 	// For supporting HTML labels in IE9 standards mode the container is cloned instead

@@ -1092,7 +1092,7 @@
 	
 		var graphConnectVertex = graph.connectVertex;
 		
-		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt)
+		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, targetCell)
 		{
 			var edges = graph.getIncomingEdges(source);
 			
@@ -1118,8 +1118,7 @@
 			}
 			else
 			{
-				return graphConnectVertex.call(this, source, direction,
-					length, evt, forceClone, ignoreCellAt);
+				return graphConnectVertex.apply(this, arguments);
 			}
 		};
 		

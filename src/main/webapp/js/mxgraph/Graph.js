@@ -2752,7 +2752,15 @@ Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)
 /**
  * Adds a connection to the given vertex.
  */
-Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt)
+Graph.prototype.getConnectVertexTargetAt = function(source, x, y, fn)
+{
+	return this.getCellAt(x, y);
+};
+
+/**
+ * Adds a connection to the given vertex.
+ */
+Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, targetCell, forceShift)
 {
 	// Ignores relative edge labels
 	if (source.geometry.relative && this.model.isEdge(source.parent))
@@ -2811,7 +2819,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	
 	// Checks actual end point of edge for target cell
 	var target = (ignoreCellAt || (mxEvent.isControlDown(evt) && !forceClone)) ?
-		null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
+		null : this.getConnectVertexTargetAt(source, dx + pt.x * s, dy + pt.y * s);
 	
 	if (this.model.isAncestor(target, source))
 	{
@@ -2844,7 +2852,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		}
 	}
 	
-	var duplicate = !mxEvent.isShiftDown(evt) || forceClone;
+	var duplicate = ((!mxEvent.isShiftDown(evt) || mxEvent.isControlDown(evt))  && !forceShift) || forceClone;
 	
 	if (duplicate)
 	{
@@ -2895,8 +2903,8 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		if (realTarget == null && duplicate)
 		{
 			// Handles relative children
-			var cellToClone = source;
-			var geo = this.getCellGeometry(source);
+			var cellToClone = (targetCell != null) ? targetCell : source;
+			var geo = this.getCellGeometry(cellToClone);
 			
 			while (geo != null && geo.relative)
 			{
@@ -2916,7 +2924,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 				geo.y = pt.y - geo.height / 2;
 			}
 			
-			if (swimlane)
+			if (swimlane || targetCell != null)
 			{
 				this.addCells([realTarget], target, null, null, null, true);
 				target = null;
@@ -2930,8 +2938,9 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		{
 			layout = this.layoutManager.getLayout(this.model.getParent(source));
 		}
-		
-		var edge = ((mxEvent.isControlDown(evt) && duplicate) || (target == null && layout != null && layout.constructor == mxStackLayout)) ? null :
+
+		var edge = ((mxEvent.isControlDown(evt) && mxEvent.isShiftDown(evt) && duplicate) ||
+			(target == null && layout != null && layout.constructor == mxStackLayout)) ? null :
 			this.insertEdge(this.model.getParent(source), null, '', source, realTarget, this.createCurrentEdgeStyle());
 
 		// Inserts edge before source
@@ -4156,11 +4165,21 @@ HoverIcons.prototype.click = function(state, dir, me)
 	}
 	else if (state != null)
 	{
-		this.graph.selectCellsForConnectVertex(this.graph.connectVertex(
-			state.cell, dir, this.graph.defaultEdgeLength, evt), evt, this);
+		this.execute(state, dir, me);
 	}
 	
 	me.consume();
+};
+
+/**
+ *
+ */
+HoverIcons.prototype.execute = function(state, dir, me)
+{
+	var evt = me.getEvent();
+
+	this.graph.selectCellsForConnectVertex(this.graph.connectVertex(
+		state.cell, dir, this.graph.defaultEdgeLength, evt), evt, this);
 };
 
 /**
@@ -7361,34 +7380,43 @@ if (typeof mxVertexHandler != 'undefined')
 		{
 			if (this.isEnabled())
 			{
-				var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-		
-				// Automatically adds new child cells to edges on double click
-				if (evt != null && !this.model.isVertex(cell))
-				{
-					var state = (this.model.isEdge(cell)) ? this.view.getState(cell) : null;
-					var src = mxEvent.getSource(evt);
-					
-					if ((this.firstClickState == state && this.firstClickSource == src) &&
-						(state == null || (state.text == null || state.text.node == null ||
-						state.text.boundingBox == null || (!mxUtils.contains(state.text.boundingBox,
-						pt.x, pt.y) && !mxUtils.isAncestorNode(state.text.node, mxEvent.getSource(evt))))) &&
-						((state == null && !this.isCellLocked(this.getDefaultParent())) ||
-						(state != null && !this.isCellLocked(state.cell))) &&
-						(state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
-						(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement)))
-					{
-						if (state == null)
-						{
-							state = this.view.getState(this.getCellAt(pt.x, pt.y));
-						}
-						
-						cell = this.addText(pt.x, pt.y, state);
-					}
-				}
-			
+				cell = this.insertTextForEvent(evt, cell);
 				mxGraph.prototype.dblClick.call(this, evt, cell);
 			}
+		};
+
+		/**
+		 * Overrides double click handling to add the tolerance and inserting text.
+		 */
+		Graph.prototype.insertTextForEvent = function(evt, cell)
+		{
+			var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+	
+			// Automatically adds new child cells to edges on double click
+			if (evt != null && !this.model.isVertex(cell))
+			{
+				var state = (this.model.isEdge(cell)) ? this.view.getState(cell) : null;
+				var src = mxEvent.getSource(evt);
+				
+				if ((this.firstClickState == state && this.firstClickSource == src) &&
+					(state == null || (state.text == null || state.text.node == null ||
+					state.text.boundingBox == null || (!mxUtils.contains(state.text.boundingBox,
+					pt.x, pt.y) && !mxUtils.isAncestorNode(state.text.node, mxEvent.getSource(evt))))) &&
+					((state == null && !this.isCellLocked(this.getDefaultParent())) ||
+					(state != null && !this.isCellLocked(state.cell))) &&
+					(state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
+					(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement)))
+				{
+					if (state == null)
+					{
+						state = this.view.getState(this.getCellAt(pt.x, pt.y));
+					}
+					
+					cell = this.addText(pt.x, pt.y, state);
+				}
+			}
+			
+			return cell;
 		};
 		
 		/**

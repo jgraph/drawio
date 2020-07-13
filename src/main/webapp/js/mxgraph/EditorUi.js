@@ -1068,6 +1068,11 @@ EditorUi.prototype.init = function()
 	
 	if (!graph.standalone)
 	{
+		if (urlParams['shape-picker'] != '0')
+		{
+			this.installShapePicker();
+		}
+		
 		// Hides tooltips and connection points when scrolling
 		mxEvent.addListener(graph.container, 'scroll', mxUtils.bind(this, function()
 		{
@@ -1136,6 +1141,224 @@ EditorUi.prototype.init = function()
 		{
 			this.format.init();
 		}
+	}
+};
+
+/**
+ * Returns true if the given event should start editing. This implementation returns true.
+ */
+EditorUi.prototype.installShapePicker = function()
+{
+	var graph = this.editor.graph;
+	var ui = this;
+
+	// Uses this event to process mouseDown to check the selection state before it is changed
+	graph.addListener(mxEvent.FIRE_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
+	{
+		if (evt.getProperty('eventName') == 'mouseDown')
+		{
+			ui.hideShapePicker();
+		}
+	}));
+	
+	graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
+	{
+		ui.hideShapePicker(true);
+	}));
+	
+	graph.getSelectionModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
+	{
+		ui.hideShapePicker(true);
+	}));
+	
+	graph.getModel().addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
+	{
+		ui.hideShapePicker(true);
+	}));
+	
+	// Adds dbl click dialog for inserting shapes
+	var graphDblClick = graph.dblClick;
+	
+	graph.dblClick = function(evt, cell)
+	{
+		if (this.isEnabled())
+		{
+			if (cell == null && ui.sidebar != null && !mxEvent.isShiftDown(evt))
+			{
+				var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+				ui.showShapePicker(pt.x, pt.y);
+			}
+			else
+			{
+				graphDblClick.apply(this, arguments);
+			}
+		}
+	};
+	
+//	if (this.hoverIcons != null)
+//	{
+//		// Adds hover icons handling
+//		var hoverIconsExecute = this.hoverIcons.execute;
+//		
+//		this.hoverIcons.execute = function(state, dir, me)
+//		{
+//			var evt = me.getEvent();
+//			
+//			if (!mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt))
+//			{
+//				var x = me.getGraphX();
+//				var y = me.getGraphY();
+//
+//				var temp = graph.getCompositeParent(state.cell);
+//				var geo = graph.getCellGeometry(temp);
+//				
+//				while (temp != null && graph.model.isVertex(temp) && geo != null && geo.relative)
+//				{
+//					cell = temp;
+//					temp = graph.model.getParent(cell)
+//					geo = graph.getCellGeometry(temp);
+//				}
+//				
+//				ui.showShapePicker(x, y, temp, mxUtils.bind(this, function(cell)
+//				{
+//					graph.selectCellsForConnectVertex(this.graph.connectVertex(
+//						state.cell, dir, graph.defaultEdgeLength, evt, null, null,
+//						cell, cell == null), evt, graph);
+//				}));
+//			}
+//			else
+//			{
+//				hoverIconsExecute.apply(this, arguments);
+//			}
+//		};
+//	}
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
+{
+	var cells = this.getCellsForShapePicker(cell);
+	
+	if (cells != null && cells.length > 0)
+	{
+		var ui = this;
+		var graph = this.editor.graph;
+		var div = document.createElement('div');
+	
+		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
+		div.style.cssText = 'position:absolute;left:' + (x - 70) + 'px;top:' +
+			y + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
+			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
+		graph.container.appendChild(div);
+		
+		var addCell = mxUtils.bind(this, function(cell)
+		{
+			// Wrapper needed to catch events
+			var node = document.createElement('a');
+			node.className = 'geItem';
+			node.style.cssText = 'position:relative;display:inline-block;position:relative;' +
+				'width:30px;height:30px;cursor:pointer;overflow:hidden;padding:3px 0 0 3px;';
+			div.appendChild(node);
+
+			ui.insertHandler([cell], cell.value != '', this.sidebar.graph.model);
+			this.sidebar.createThumb([cell], 25, 25, node, null, true, false, cell.geometry.width, cell.geometry.height);
+
+			mxEvent.addListener(node, 'click', function()
+			{
+				cell.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
+					graph.view.translate.x - cell.geometry.width / 2);
+				cell.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
+					graph.view.translate.y - cell.geometry.height / 2);
+				
+				graph.model.beginUpdate();
+				try
+				{
+					if (callback != null)
+					{
+						callback(cell);
+					}
+					else
+					{
+						graph.addCell(cell);
+					}
+				}
+				finally
+				{
+					graph.model.endUpdate();
+				}
+				
+				if (callback == null)
+				{
+					graph.setSelectionCell(cell);
+					graph.scrollCellToVisible(graph.getSelectionCell());
+					graph.startEditingAtCell(cell);
+				}
+				
+				ui.hideShapePicker();
+			});
+		});
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			addCell(cells[i]);
+		}
+
+		this.shapePickerCallback = callback;
+		this.shapePicker = div;
+	}
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.getCellsForShapePicker = function(cell)
+{
+	var createVertex = mxUtils.bind(this, function(style, w, h, value)
+	{
+		return this.editor.graph.createVertex(null, null, value || '', 0, 0, w || 120, h || 60, style, false);
+	});
+	
+	return [(cell != null) ? this.editor.graph.cloneCell(cell) :
+			createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;', 40, 20, 'Text'),
+		createVertex('whiteSpace=wrap;html=1;'),
+		createVertex('rounded=1;whiteSpace=wrap;html=1;'),
+		createVertex('ellipse;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;'),
+		createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80),
+		createVertex('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;'),
+		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('triangle;whiteSpace=wrap;html=1;', 60, 80),
+		createVertex('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;', 60, 80),
+		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
+		createVertex('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;', 120, 80),
+		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
+		createVertex('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;', 120, 60),
+		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
+		createVertex('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;', 80, 100),
+		createVertex('shape=card;whiteSpace=wrap;html=1;', 80, 100),
+		createVertex('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80),
+		createVertex('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;', 30, 60)];
+};
+
+/**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+EditorUi.prototype.hideShapePicker = function(cancel)
+{
+	if (this.shapePicker != null)
+	{
+		this.shapePicker.parentNode.removeChild(this.shapePicker);
+		this.shapePicker = null;
+				
+		if (!cancel && this.shapePickerCallback != null)
+		{
+			this.shapePickerCallback();
+		}
+		
+		this.shapePickerCallback = null;
 	}
 };
 

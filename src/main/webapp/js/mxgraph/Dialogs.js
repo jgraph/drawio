@@ -1002,7 +1002,7 @@ var ExportDialog = function(editorUi)
 			borderInput.removeAttribute('disabled');
 		}
 		
-		if (imageFormatSelect.value === 'png' || imageFormatSelect.value === 'svg')
+		if (imageFormatSelect.value === 'png' || imageFormatSelect.value === 'svg' || imageFormatSelect.value === 'pdf')
 		{
 			transparentCheckbox.removeAttribute('disabled');
 		}
@@ -1127,7 +1127,7 @@ var ExportDialog = function(editorUi)
 			var bg = graph.background;
 			var dpi = Math.max(1, parseInt(customDpi.value));
 			
-			if ((format == 'svg' || format == 'png') && transparentCheckbox.checked)
+			if ((format == 'svg' || format == 'png' || format == 'pdf') && transparentCheckbox.checked)
 			{
 				bg = null;
 			}

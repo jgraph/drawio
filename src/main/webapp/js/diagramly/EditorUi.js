@@ -1924,7 +1924,7 @@
        	
 		var bg = graph.background;
 		
-		if (format == 'png' && transparent)
+		if ((format == 'png' || format == 'pdf') && transparent)
 		{
 			bg = mxConstants.NONE;
 		}
@@ -8438,6 +8438,11 @@
 		var ui = this;
 		var graph = this.editor.graph;
 		
+		if (uiTheme == 'dark')
+		{
+			graph.view.defaultGridColor = mxGraphView.prototype.defaultDarkGridColor;
+		}
+		
 		// Starts editing PlantUML data
 		graph.cellEditor.editPlantUmlData = function(cell, trigger, data)
 		{
@@ -10221,7 +10226,7 @@
 	/**
 	 * Opens the given files in the editor.
 	 */
-	EditorUi.prototype.openFile = function(data, name, file, temp, fileHandle)
+	EditorUi.prototype.openFileHandle = function(data, name, file, temp, fileHandle)
 	{
 		if (name != null && name.length > 0)
 		{
@@ -10396,7 +10401,7 @@
 					{
 						try
 						{
-							this.openFile(e.target.result, file.name, file, temp);
+							this.openFileHandle(e.target.result, file.name, file, temp);
 						}
 						catch (e)
 						{

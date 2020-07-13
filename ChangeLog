@@ -1,3 +1,8 @@
+10-JUL-2020: 13.4.2
+
+- Adds shape selection on double click
+- Fixes browser storage dialog
+
 09-JUL-2020: 13.4.1
 
 - Disables eval in HTML embed code

@@ -886,7 +886,39 @@ var SplashDialog = function(editorUi)
 		
 		buttons.appendChild(link);
 	}
+	
+	if (isLocalStorage)
+	{
+		var temp = document.createElement('div');
+		temp.style.position = 'absolute';
+		temp.style.cursor = 'pointer';
+		temp.style.fontSize = '12px';
+		temp.style.bottom = '22px';
+		temp.style.left = '0px';
+		temp.style.right = '0px';
+		temp.style.color = 'gray';
+		temp.style.userSelect = 'none';
 		
+		var chk = document.createElement('input');
+		chk.setAttribute('type', 'checkbox');
+		chk.setAttribute('id', 'geDoNotShowAgainCheckbox');
+		chk.style.marginRight = '6px';
+		temp.appendChild(chk);
+		
+		var label = document.createElement('label');
+		label.setAttribute('for', 'geDoNotShowAgainCheckbox');
+		mxUtils.write(label, mxResources.get('doNotShowAgain'));
+		temp.appendChild(label);
+		
+		mxEvent.addListener(chk, 'click', function()
+		{
+			mxSettings.setShowStartScreen(!chk.checked);
+			mxSettings.save();
+		});
+		
+		div.appendChild(temp);
+	}
+	
 	div.appendChild(buttons);
 	this.container = div;
 };

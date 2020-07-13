@@ -43,7 +43,14 @@ if (license != null && xdm_e != null)
 					
 					if (lic != null && lic.atlasCloudLic != null)
 					{
-						licenseValid = true;
+						if (lic.atlasCloudLic != 'blocked')
+						{
+							licenseValid = true;
+						}
+						else
+						{
+							licenseValid = false;
+						}
 					}
 				}
 		    }
