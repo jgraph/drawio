@@ -672,6 +672,7 @@ shape=Hugis
 shapes=Mga hugis
 share=Ibahagi
 shareLink=Link para sa salu-salong pag-edit
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Matalas
 show=Ipakita
 showStartScreen=Ipakita ang Panimulang Tabing

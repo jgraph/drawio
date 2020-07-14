@@ -672,6 +672,7 @@ shape=Форма
 shapes=Форми
 share=Поділитися
 shareLink=Посилання для спільного редагування
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Різке
 show=Показати
 showStartScreen=Показати екран запуску

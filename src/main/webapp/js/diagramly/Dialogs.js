@@ -744,6 +744,7 @@ var SplashDialog = function(editorUi)
 			
 			var link = document.createElement('a');
 			link.style.display = 'inline-block';
+			link.style.color = 'gray';
 			link.style.cursor = 'pointer';
 			link.style.marginTop = '6px';
 			mxUtils.write(link, mxResources.get('signOut'));
@@ -872,6 +873,7 @@ var SplashDialog = function(editorUi)
 		mxUtils.br(buttons);
 		var link = document.createElement('a');
 		link.style.display = 'inline-block';
+		link.style.color = 'gray';
 		link.style.cursor = 'pointer';
 		link.style.marginTop = '8px';
 		mxUtils.write(link, mxResources.get('changeStorage'));
@@ -8763,7 +8765,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	    	
     	if (editorUi.isLocalFileSave())
     	{
-    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true);
+    		editorUi.saveLocalFile(data, filename, 'text/xml', null, null, true, null, 'xml');
     	}
     	else
     	{

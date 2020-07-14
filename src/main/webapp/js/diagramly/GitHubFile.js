@@ -19,6 +19,19 @@ mxUtils.extend(GitHubFile, DrawioFile);
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+GitHubFile.prototype.share = function()
+{
+	this.ui.editor.graph.openLink('https://github.com/' +
+		encodeURIComponent(this.meta.org) + '/' +
+		encodeURIComponent(this.meta.repo) +'/settings/access');
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 GitHubFile.prototype.getId = function()
 {
 	return encodeURIComponent(this.meta.org) + '/' +

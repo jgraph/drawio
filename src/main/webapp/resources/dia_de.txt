@@ -672,6 +672,7 @@ shape=Shape
 shapes=Shapes
 share=Freigeben
 shareLink=Verknüpfung zum gemeinsamen Bearbeiten
+sharingAvailable=Freigabe nur für Google Drive und OneDrive Dateien.
 sharp=Eckig
 show=Anzeigen
 showStartScreen=Startbildschirm anzeigen

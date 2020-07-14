@@ -672,6 +672,7 @@ shape=Tvar
 shapes=Tvary
 share=Sdílet
 shareLink=Odkaz pro sdílenou editaci
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Ostrý
 show=Zobrazit
 showStartScreen=Zobrazit úvodní obrazovku

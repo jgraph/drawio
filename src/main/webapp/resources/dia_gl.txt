@@ -672,6 +672,7 @@ shape=Forma
 shapes=Formas
 share=Compartir
 shareLink=Vencello para compartir edición
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Brusco
 show=Amosar
 showStartScreen=Amosar Pantalla de Inicio

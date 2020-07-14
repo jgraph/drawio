@@ -672,6 +672,7 @@ shape=形状
 shapes=形状
 share=共享
 shareLink=共享编辑的链接
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=锐利
 show=显示
 showStartScreen=显示开始画面

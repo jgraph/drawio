@@ -1195,43 +1195,43 @@ EditorUi.prototype.installShapePicker = function()
 		}
 	};
 	
-//	if (this.hoverIcons != null)
-//	{
-//		// Adds hover icons handling
-//		var hoverIconsExecute = this.hoverIcons.execute;
-//		
-//		this.hoverIcons.execute = function(state, dir, me)
-//		{
-//			var evt = me.getEvent();
-//			
-//			if (!mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt))
-//			{
-//				var x = me.getGraphX();
-//				var y = me.getGraphY();
-//
-//				var temp = graph.getCompositeParent(state.cell);
-//				var geo = graph.getCellGeometry(temp);
-//				
-//				while (temp != null && graph.model.isVertex(temp) && geo != null && geo.relative)
-//				{
-//					cell = temp;
-//					temp = graph.model.getParent(cell)
-//					geo = graph.getCellGeometry(temp);
-//				}
-//				
-//				ui.showShapePicker(x, y, temp, mxUtils.bind(this, function(cell)
-//				{
-//					graph.selectCellsForConnectVertex(this.graph.connectVertex(
-//						state.cell, dir, graph.defaultEdgeLength, evt, null, null,
-//						cell, cell == null), evt, graph);
-//				}));
-//			}
-//			else
-//			{
-//				hoverIconsExecute.apply(this, arguments);
-//			}
-//		};
-//	}
+	if (this.hoverIcons != null)
+	{
+		var hoverIconsExecute = this.hoverIcons.execute;
+		
+		this.hoverIcons.execute = function(state, dir, me)
+		{
+			var evt = me.getEvent();
+			
+			if (!mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt))
+			{
+				this.graph.connectVertex(state.cell, dir, this.graph.defaultEdgeLength, evt, null, null, mxUtils.bind(this, function(x, y, execute)
+				{
+					var temp = graph.getCompositeParent(state.cell);
+					var geo = graph.getCellGeometry(temp);
+					
+					while (temp != null && graph.model.isVertex(temp) && geo != null && geo.relative)
+					{
+						cell = temp;
+						temp = graph.model.getParent(cell)
+						geo = graph.getCellGeometry(temp);
+					}
+					
+					ui.showShapePicker(me.getGraphX(), me.getGraphY(), temp, mxUtils.bind(this, function(cell)
+					{
+						execute(cell);
+					}));
+				}), mxUtils.bind(this, function(result)
+				{
+					this.graph.selectCellsForConnectVertex(result, evt, this);
+				}));
+			}
+			else
+			{
+				hoverIconsExecute.apply(this, arguments);
+			}
+		};
+	}
 };
 
 /**
@@ -1248,8 +1248,8 @@ EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
 		var div = document.createElement('div');
 	
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
-		div.style.cssText = 'position:absolute;left:' + (x - 70) + 'px;top:' +
-			y + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
+		div.style.cssText = 'position:absolute;left:' + (x - 22) + 'px;top:' +
+			(y - 22) + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
 			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
 		graph.container.appendChild(div);
 		
@@ -1307,6 +1307,9 @@ EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
 
 		this.shapePickerCallback = callback;
 		this.shapePicker = div;
+
+		graph.tooltipHandler.hideTooltip();
+		this.hideCurrentMenu();
 	}
 };
 
@@ -1323,24 +1326,20 @@ EditorUi.prototype.getCellsForShapePicker = function(cell)
 	return [(cell != null) ? this.editor.graph.cloneCell(cell) :
 			createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;', 40, 20, 'Text'),
 		createVertex('whiteSpace=wrap;html=1;'),
-		createVertex('rounded=1;whiteSpace=wrap;html=1;'),
 		createVertex('ellipse;whiteSpace=wrap;html=1;', 120, 80),
-		createVertex('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;'),
 		createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80),
 		createVertex('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;'),
-		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;', 120, 80),
-		createVertex('triangle;whiteSpace=wrap;html=1;', 60, 80),
-		createVertex('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;', 60, 80),
-		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
-		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
-		createVertex('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;', 120, 80),
-		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
 		createVertex('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;', 120, 60),
-		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
+		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
+		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
+		createVertex('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;'),
+		createVertex('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;', 120, 80),
 		createVertex('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;', 80, 100),
-		createVertex('shape=card;whiteSpace=wrap;html=1;', 80, 100),
-		createVertex('shape=callout;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80),
-		createVertex('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;', 30, 60)];
+		createVertex('triangle;whiteSpace=wrap;html=1;', 60, 80),
+		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
+		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
+		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;', 60, 80)];
 };
 
 /**

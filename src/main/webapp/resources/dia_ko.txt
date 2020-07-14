@@ -672,6 +672,7 @@ shape=도형
 shapes=도형
 share=공유
 shareLink=편집 공유 링크
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=곧은선
 show=보이기
 showStartScreen=시작 화면 보기

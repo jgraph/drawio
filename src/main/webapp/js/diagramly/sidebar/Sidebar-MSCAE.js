@@ -1391,7 +1391,7 @@
 			this.createVertexTemplateEntry(s + 'AzureFXTEdgeFiler.svg;',
 					r * 0.5, r * 0.5, '', 'AzureFXTEdgeFiler', null, null, this.getTagsForStencil(gn, 'azurefxtedgefiler', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Blog_Storage.svg;',
-					r * 0.5, r * 0.46, '', 'Blog Storage', null, null, this.getTagsForStencil(gn, 'blog storage', dt).join(' ')),
+					r * 0.5, r * 0.46, '', 'Blob Storage', null, null, this.getTagsForStencil(gn, 'blob storage', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Data_Box_Edge_Data_Box_Gateway.svg;',
 					r * 0.5, r * 0.32, '', 'Data Box Edge - Data Box Gateway', null, null, this.getTagsForStencil(gn, 'data box edge data gateway', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Data_Box.svg;',

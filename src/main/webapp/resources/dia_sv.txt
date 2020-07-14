@@ -672,6 +672,7 @@ shape=Form
 shapes=Former
 share=Dela
 shareLink=Länk för delad redigering
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Skarp
 show=Visa
 showStartScreen=Visa hemskärmen

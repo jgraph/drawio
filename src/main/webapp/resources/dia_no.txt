@@ -672,6 +672,7 @@ shape=Form
 shapes=Figurer
 share=Del
 shareLink=Lenke til felles redigering
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Skarp
 show=Vis
 showStartScreen=Vis startvindu

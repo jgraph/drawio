@@ -5137,7 +5137,7 @@ LucidImporter = {};
 					
 					if (p.Shape != 'diagonal')
 					{
-						if (p.ElbowPoints != null)
+						if (p.ElbowPoints != null && p.ElbowPoints.length > 0)
 						{
 							cell.geometry.points = [];
 							
@@ -5200,7 +5200,7 @@ LucidImporter = {};
 						}
 					}
 
-					var waypoints = p.ElbowControlPoints || p.Joints;
+					var waypoints = p.ElbowControlPoints || p.BezierJoints || p.Joints;
 					
 					if (waypoints != null)
 					{
@@ -5208,7 +5208,7 @@ LucidImporter = {};
 						
 						for (var i = 0; i < waypoints.length; i++)
 						{
-							var pt = waypoints[i];
+							var pt = waypoints[i].p ? waypoints[i].p : waypoints[i];
 							
 							cell.geometry.points.push(new mxPoint(
 								Math.round(pt.x * scale + dx),

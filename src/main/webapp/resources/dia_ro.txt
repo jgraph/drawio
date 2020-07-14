@@ -672,6 +672,7 @@ shape=Formă
 shapes=Forme
 share=Distribuie
 shareLink=Link pentru editare în comun
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Ascuţit
 show=Arată
 showStartScreen=Arată ecranul de pornire

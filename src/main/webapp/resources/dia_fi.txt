@@ -672,6 +672,7 @@ shape=Muoto
 shapes=Muodot
 share=Jaa
 shareLink=Linkki jaettuun muokkaukseen
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Terävä
 show=Näytä
 showStartScreen=Näytä aloitusruutu

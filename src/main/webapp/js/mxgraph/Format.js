@@ -2179,7 +2179,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	autosizeBtn.style.cursor = 'pointer';
 	autosizeBtn.style.marginTop = '-3px';
 	autosizeBtn.style.border = '0px';
-	autosizeBtn.style.left = '52px';
+	autosizeBtn.style.left = '42px';
 	mxUtils.setOpacity(autosizeBtn, 50);
 	
 	mxEvent.addListener(autosizeBtn, 'mouseenter', function()
@@ -3098,7 +3098,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		input.style.right = '32px';
 	}
 	
-	input.style.width = '46px';
+	input.style.width = '40px';
 	input.style.height = (mxClient.IS_QUIRKS) ? '21px' : '17px';
 	stylePanel2.appendChild(input);
 	
@@ -4843,14 +4843,14 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	if (!mxClient.IS_QUIRKS)
 	{
 		input.style.position = 'absolute';
-		input.style.right = '32px';
 		input.style.height = '15px';
-		stepper.style.right = '20px';
+		input.style.left = '141px';
+		stepper.style.left = '190px';
 
 		altInput.style.position = 'absolute';
-		altInput.style.right = '32px';
+		altInput.style.left = '141px';
 		altInput.style.height = '15px';
-		altStepper.style.right = '20px';
+		altStepper.style.left = '190px';
 	}
 	else
 	{
@@ -4995,7 +4995,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	
 	var symbol = this.addArrow(pattern, 9);
 	symbol.className = 'geIcon';
-	symbol.style.width = '84px';
+	symbol.style.width = 'auto';
 	
 	var altSymbol = this.addArrow(altPattern, 9);
 	altSymbol.className = 'geIcon';

@@ -672,6 +672,7 @@ shape=Alakzat
 shapes=Alakzatok
 share=Osztás
 shareLink=Link osztása
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Éles
 show=Mutat
 showStartScreen=Indító képernyőt jelenít

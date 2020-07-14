@@ -672,6 +672,7 @@ shape=‫شکل‬
 shapes=‫اشکال‬
 share=‫به اشتراک گذاشتن‬
 shareLink=‫لینک برای ویرایش مشترک‬
+sharingAvailable=X
 sharp=‫تیز‬
 show=‫نشان دادن‬
 showStartScreen=‫نشان دادن صفحه شروع‬

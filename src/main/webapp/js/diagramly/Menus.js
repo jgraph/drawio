@@ -2572,7 +2572,7 @@
 				
 				if (file != null)
 				{
-					editorUi.drive.showPermissions(file.getId());
+					file.share();
 				}
 			}
 			catch (e)
@@ -3479,10 +3479,17 @@
 						}
 					}
 					
-					this.addMenuItems(menu, ['-', 'save', 'saveAs'], parent);
+					this.addMenuItems(menu, ['-', 'save', 'saveAs', '-'], parent);
 					
-					this.addMenuItems(menu, ['-', 'rename'], parent);
-
+					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+						editorUi.getServiceName() == 'draw.io' &&
+						!editorUi.isOfflineApp() && file != null)
+					{
+						this.addMenuItems(menu, ['share', '-'], parent);
+					}
+					
+					this.addMenuItems(menu, ['rename'], parent);
+					
 					if (editorUi.isOfflineApp())
 					{
 						if (navigator.onLine && urlParams['stealth'] != '1')

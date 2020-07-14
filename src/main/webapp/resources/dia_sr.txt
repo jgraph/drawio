@@ -672,6 +672,7 @@ shape=Oblik
 shapes=Oblici
 share=Podeli
 shareLink=Podeli link
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Oštar
 show=Prikaži
 showStartScreen=Show Start Screen

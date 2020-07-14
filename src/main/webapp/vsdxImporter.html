@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>VSDX Importer</title>
+<script type="text/javascript" src="js/app.min.js"></script>
+<script type="text/javascript" src="js/extensions.min.js"></script>
+<script type="text/javascript">
+	const { ipcRenderer } = require('electron');
+	
+	ipcRenderer.on('import', (event, vsdxBuff) => 
+	{
+		EditorUi.prototype.createUi = function(){};
+		EditorUi.prototype.addTrees = function(){};
+		EditorUi.prototype.updateActionStates = function(){};
+	 	var editorUi = new EditorUi();
+	 	var blob =  new Blob([vsdxBuff], {type: 'application/octet-stream'});
+	 	
+	 	editorUi.importVisio(blob, function(xml)
+		{
+	 		ipcRenderer.send('import-success', xml);
+		},
+		function()
+		{
+			ipcRenderer.send('import-error');
+		});
+	});
+</script>
+</head>
+<body>
+</body>
+</html>

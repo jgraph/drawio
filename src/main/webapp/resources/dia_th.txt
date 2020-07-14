@@ -672,6 +672,7 @@ shape=รูปร่าง
 shapes=รูปร่าง
 share=แบ่งปัน
 shareLink=เชื่อมต่อเพื่อการแก้ไขร่วมกัน
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=แหลม
 show=แสดง
 showStartScreen=แสดงหน้าจอเริ่มต้น

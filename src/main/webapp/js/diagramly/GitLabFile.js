@@ -18,6 +18,19 @@ mxUtils.extend(GitLabFile, GitHubFile);
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+GitLabFile.prototype.share = function()
+{
+	this.ui.editor.graph.openLink('https://gitlab.com/' +
+		encodeURIComponent(this.meta.org) + '/' +
+		encodeURIComponent(this.meta.repo) +'/-/project_members');
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 GitLabFile.prototype.getId = function()
 {
 	return this.meta.org + '/' +

@@ -1018,6 +1018,17 @@ DrawioFile.prototype.isTrashed = function()
 DrawioFile.prototype.move = function(folderId, success, error) { };
 
 /**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DrawioFile.prototype.share = function()
+{
+	this.ui.alert(mxResources.get('sharingAvailable'), null, 380);
+};
+
+/**
  * Returns the hash of the file which consists of a prefix for the storage
  * type and the ID of the file.
  */
@@ -1482,8 +1493,8 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			var status = mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) +
 				((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
 			this.ui.editor.setStatus('<div title="'+ status +
-				'" class="geStatusAlert" style="cursor:pointer;overflow:hidden;">' +
-				status + '</div>');
+				'" class="geStatusAlertOrange" style="cursor:pointer;overflow:hidden;">' + status + ' <img src="' +
+				Editor.saveImage + '" align="top" style="width:16px;margin-top:-2px"/></div>');
 			
 			// Installs click handler for saving
 			var links = this.ui.statusContainer.getElementsByTagName('div');
@@ -1946,7 +1957,7 @@ DrawioFile.prototype.fileChanged = function()
 /**
  * Creates a secret and token pair for writing a patch to the cache.
  */
-DrawioFile.prototype.createSecret = function(success, error)
+DrawioFile.prototype.createSecret = function(success)
 {
 	var secret = Editor.guid(32);
 	
@@ -1955,7 +1966,10 @@ DrawioFile.prototype.createSecret = function(success, error)
 		this.sync.createToken(secret, mxUtils.bind(this, function(token)
 		{
 			success(secret, token);
-		}), error);
+		}), mxUtils.bind(this, function()
+		{
+			success(secret);
+		}));
 	}
 	else
 	{

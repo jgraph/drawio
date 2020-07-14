@@ -672,6 +672,7 @@ shape=shape
 shapes=shapes
 share=share
 shareLink=shareLink
+sharingAvailable=sharingAvailable
 sharp=sharp
 show=show
 showStartScreen=showStartScreen

@@ -93,9 +93,19 @@
 	color:#a94442 !important;
 	border-radius:3px;
 }
-.geStatusAlert:hover {
-	background-color:#f1d8d8;
-	border-color:#d6b2b8;
+.geStatusAlertOrange {
+	white-space:nowrap;
+	margin-top:-5px;
+	font-size:12px;
+	padding:4px 6px 4px 6px;
+	background-color:rgb(242, 147, 30);
+	border:rgb(240, 135, 5);
+	color:#000000 !important;
+	border-radius:3px;
+	opacity:0.8;
+}
+.geStatusAlertOrange:hover {
+	opacity:1;
 }
 .geStatusMessage {
 	white-space:nowrap;

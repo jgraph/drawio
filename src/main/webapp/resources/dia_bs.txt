@@ -672,6 +672,7 @@ shape=Oblik
 shapes=Oblici
 share=Podijeli
 shareLink=Link podijeljen za uređivanje
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Oštro
 show=Pokaži
 showStartScreen=Pokaži početni ekran

@@ -672,6 +672,7 @@ shape=Σχήμα
 shapes=Σχήματα
 share=Κοινοποίηση
 shareLink=Σύνδεσμός για κοινή επεξεργασία
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Αιχμή
 show=Προβολή
 showStartScreen=Εμφάνιση Οθόνης Έναρξης

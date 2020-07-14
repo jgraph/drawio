@@ -672,6 +672,7 @@ shape=Hình
 shapes=Hình
 share=Chia sẻ
 shareLink=Đường dẫn chỉnh sửa đã chia sẻ
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Góc
 show=Hiển thị
 showStartScreen=Hiển thị Màn Hình Bắt Đầu

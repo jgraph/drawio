@@ -188,7 +188,7 @@ app.on('ready', e =>
         argv.unshift(null)
     }
 
-	var validFormatRegExp = /^(pdf|svg|png|jpeg|jpg|vsdx)$/;
+	var validFormatRegExp = /^(pdf|svg|png|jpeg|jpg|vsdx|xml)$/;
 	
 	function argsRange(val) 
 	{
@@ -207,7 +207,7 @@ app.on('ready', e =>
 	        .option('-r, --recursive', 'for a folder input, recursively convert all files in sub-folders also')
 	        .option('-o, --output <output file/folder>', 'specify the output file/folder. If omitted, the input file name is used for output with the specified format as extension')
 	        .option('-f, --format <format>',
-			    'if output file name extension is specified, this option is ignored (file type is determined from output extension, possible export formats are pdf, png, jpg, svg, vsdx)',
+			    'if output file name extension is specified, this option is ignored (file type is determined from output extension, possible export formats are pdf, png, jpg, svg, vsdx, and xml)',
 			    validFormatRegExp, 'pdf')
 			.option('-q, --quality <quality>',
 				'output image quality for JPEG (default: 90)', parseInt)
@@ -231,6 +231,8 @@ app.on('ready', e =>
 				'selects a specific page, if not specified and the format is an image, the first page is selected', parseInt)
 			.option('-g, --page-range <from>..<to>',
 				'selects a page range (for PDF format only)', argsRange)
+			.option('-u, --uncompressed',
+				'Uncompressed XML output (for XML format only)')
 	        .parse(argv)
 	}
 	catch(e)
@@ -243,7 +245,10 @@ app.on('ready', e =>
     if (program.export)
 	{
     	var dummyWin = new BrowserWindow({
-			show : false
+			show : false,
+			webPreferences: {
+				nodeIntegration: true
+			}
 		});
     	
     	windowsRegistry.push(dummyWin);
@@ -299,7 +304,7 @@ app.on('ready', e =>
 	    		from = program.pageRage[0] >= 0 ? program.pageRage[0] : null;
 	    		to = program.pageRage[1] >= 0 ? program.pageRage[1] : null;
 			}
-	    	
+
 			var expArgs = {
 				format: format,
 				w: program.width > 0 ? program.width : null,
@@ -311,7 +316,8 @@ app.on('ready', e =>
 				allPages: format == 'pdf' && program.allPages,
 				scale: (program.crop && program.scale == null) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
 				embedXml: program.embedDiagram? '1' : '0',
-				jpegQuality: program.quality
+				jpegQuality: program.quality,
+				uncompressed: program.uncompressed
 			};
 
 			var paths = program.args;
@@ -371,113 +377,138 @@ app.on('ready', e =>
 						{
 							var ext = path.extname(curFile);
 							
-							expArgs.xml = fs.readFileSync(curFile, ext === '.png'? null : 'utf-8');
+							expArgs.xml = fs.readFileSync(curFile, ext === '.png' || ext === '.vsdx' ? null : 'utf-8');
 							
 							if (ext === '.png')
 							{
 								expArgs.xml = Buffer.from(expArgs.xml).toString('base64');
+								startExport();
+							}
+							else if (ext === '.vsdx')
+							{
+								dummyWin.loadURL(`file://${__dirname}/vsdxImporter.html`);
+								
+								const contents = dummyWin.webContents;
+
+								contents.on('did-finish-load', function()
+							    {
+									contents.send('import', expArgs.xml);
+
+									ipcMain.once('import-success', function(evt, xml)
+						    	    {
+										expArgs.xml = xml;
+										startExport();
+						    	    });
+						    	    
+						    	    ipcMain.once('import-error', function()
+						    	    {
+						    	    	console.error('Error: cannot import VSDX file: ' + curFile);
+						    	    	next();
+						    	    });
+							    });
+							}
+							else
+							{
+								startExport();
 							}
 							
-							var mockEvent = {
-								reply: function(msg, data)
+							function next()
+							{
+								fileIndex++;
+								
+								if (fileIndex < files.length)
 								{
-									try
+									processOneFile();
+								}
+								else
+								{
+									cmdQPressed = true;
+									dummyWin.destroy();
+								}
+							};
+							
+							function startExport()
+							{
+								var mockEvent = {
+									reply: function(msg, data)
 									{
-										if (data == null || data.length == 0)
+										try
 										{
-											console.error('Error: Export failed: ' + curFile);
-										}
-										else if (msg == 'export-success')
-										{
-											var outFileName = null;
-											
-											if (outType != null)
+											if (data == null || data.length == 0)
 											{
-												if (outType.isDir)
-												{
-													outFileName = path.join(program.output, path.basename(curFile)) + '.' + format;
-												}
-												else
-												{
-													outFileName = program.output;
-												}
+												console.error('Error: Export failed: ' + curFile);
 											}
-											else if (inStat.isFile())
+											else if (msg == 'export-success')
 											{
-												outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0],
-													path.extname(paths[0]))) + '.' + format;
+												var outFileName = null;
 												
-											}
-											else //dir
-											{
-												outFileName = path.join(path.dirname(curFile), path.basename(curFile,
-													path.extname(curFile))) + '.' + format;
-											}
-											
-											try
-											{
-												var counter = 0;
-												var realFileName = outFileName;
-												
-												if (program.rawArgs.indexOf('-k') > -1 || program.rawArgs.indexOf('--check') > -1)
+												if (outType != null)
 												{
-													while (fs.existsSync(realFileName))
+													if (outType.isDir)
 													{
-														counter++;
-														realFileName = path.join(path.dirname(outFileName), path.basename(outFileName,
-															path.extname(outFileName))) + '-' + counter + path.extname(outFileName);
+														outFileName = path.join(program.output, path.basename(curFile)) + '.' + format;
+													}
+													else
+													{
+														outFileName = program.output;
 													}
 												}
+												else if (inStat.isFile())
+												{
+													outFileName = path.join(path.dirname(paths[0]), path.basename(paths[0],
+														path.extname(paths[0]))) + '.' + format;
+													
+												}
+												else //dir
+												{
+													outFileName = path.join(path.dirname(curFile), path.basename(curFile,
+														path.extname(curFile))) + '.' + format;
+												}
 												
-												fs.writeFileSync(realFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
-												console.log(curFile + ' -> ' + outFileName);
+												try
+												{
+													var counter = 0;
+													var realFileName = outFileName;
+													
+													if (program.rawArgs.indexOf('-k') > -1 || program.rawArgs.indexOf('--check') > -1)
+													{
+														while (fs.existsSync(realFileName))
+														{
+															counter++;
+															realFileName = path.join(path.dirname(outFileName), path.basename(outFileName,
+																path.extname(outFileName))) + '-' + counter + path.extname(outFileName);
+														}
+													}
+													
+													fs.writeFileSync(realFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
+													console.log(curFile + ' -> ' + outFileName);
+												}
+												catch(e)
+												{
+													console.error('Error writing to file: ' + outFileName);
+												}
 											}
-											catch(e)
+											else
 											{
-												console.error('Error writing to file: ' + outFileName);
+												console.error('Error: ' + data + ': ' + curFile);
 											}
+											
+											next();
 										}
-										else
+										finally
 										{
-											console.error('Error: ' + data + ': ' + curFile);
+											mockEvent.finalize();
 										}
-										
-										fileIndex++;
-										
-										if (fileIndex < files.length)
-										{
-											processOneFile();
-										}
-										else
-										{
-											cmdQPressed = true;
-											dummyWin.destroy();
-										}
-									}
-									finally
-									{
-										mockEvent.finalize();
-									}
-						    	}
+							    	}
+								};
+
+								exportDiagram(mockEvent, expArgs, true);
 							};
-					    	
-							exportDiagram(mockEvent, expArgs, true);
 						}
 						catch(e)
 						{
 							console.error('Error reading file: ' + curFile);
-							
-							fileIndex++;
-							
-							if (fileIndex < files.length)
-							{	
-								processOneFile();
-							}
-							else
-							{
-								cmdQPressed = true;
-								dummyWin.destroy();
-							}
+							next();
 						}
 					}
 					
@@ -1092,10 +1123,34 @@ function exportDiagram(event, args, directFinalize)
 
 		contents.on('did-finish-load', function()
 	    {
+			//Set finalize here since it is call in the reply below
+			function finalize()
+			{
+				browser.destroy();
+			};
+			
+			if (directFinalize === true)
+			{
+				event.finalize = finalize;
+			}
+			else
+			{
+				//Destroy the window after response being received by caller
+				ipcMain.once('export-finalize', finalize);
+			}
+
 			ipcMain.once('render-finished', (evt, bounds) =>
 			{
 				//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
-				bounds = JSON.parse(bounds.bounds);
+				try
+				{
+					bounds = JSON.parse(bounds.bounds);
+				}
+				catch(e)
+				{
+					bounds = null;
+				}
+				
 				var pdfOptions = {pageSize: 'A4'};
 				var hasError = false;
 				
@@ -1126,22 +1181,6 @@ function exportDiagram(event, args, directFinalize)
 				}
 				
 				var base64encoded = args.base64 == '1';
-				
-				//Set finalize here since it is call in the reply below
-				function finalize()
-				{
-					browser.destroy();
-				};
-				
-				if (directFinalize === true)
-				{
-					event.finalize = finalize;
-				}
-				else
-				{
-					//Destroy the window after response being received by caller
-					ipcMain.once('export-finalize', finalize);
-				}
 				
 				if (hasError)
 				{
@@ -1212,6 +1251,19 @@ function exportDiagram(event, args, directFinalize)
 				}
 			});
 
+			if (args.format == 'xml')
+			{
+				ipcMain.once('xml-data', (evt, data) =>
+				{
+					event.reply('export-success', data);
+				});
+				
+				ipcMain.once('xml-data-error', () =>
+				{
+					event.reply('export-error');
+				});
+			}
+			
 			contents.send('render', {
 				xml: args.xml,
 				format: args.format,
@@ -1224,7 +1276,8 @@ function exportDiagram(event, args, directFinalize)
 				pageId: args.pageId,
 				allPages: args.allPages,
 				scale: args.scale || 1,
-				extras: args.extras
+				extras: args.extras,
+				uncompressed: args.uncompressed
 			});
 	    });
 	}

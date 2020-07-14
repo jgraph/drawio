@@ -217,15 +217,22 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 									
 									// Shows possible errors but keeps the modified flag as the
 									// file was saved but the cache entry could not be written
-									this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+									if (token != null)
 									{
-										this.contentChanged();
-										
-										if (success != null)
+										this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
 										{
-											success(resp);
-										}
-									}), error, token);
+											this.contentChanged();
+											
+											if (success != null)
+											{
+												success(resp);
+											}
+										}), error, token);
+									}
+									else
+									{
+										success(resp);
+									}
 								}
 								else if (error != null)
 								{
@@ -319,18 +326,6 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 				});
 				
 				doSave(overwrite, revision);				
-			}), mxUtils.bind(this, function(e)
-			{
-				this.savingFile = false;
-				
-				if (error != null)
-				{
-					error(e);
-				}
-				else
-				{
-					throw e;
-				}
 			}));
 		}
 	}
@@ -479,6 +474,17 @@ DriveFile.prototype.move = function(folderId, success, error)
 			success(resp);
 		}
 	}), error);
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+DriveFile.prototype.share = function()
+{
+	this.ui.drive.showPermissions(this.getId());
 };
 
 /**

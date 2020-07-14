@@ -672,6 +672,7 @@ shape=Forma
 shapes=Formes
 share=Comparteix
 shareLink=Enllaç per a l'edició compartida
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Angulós
 show=Mostra
 showStartScreen=Mostra la pantalla d'inici

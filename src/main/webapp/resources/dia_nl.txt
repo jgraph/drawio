@@ -672,6 +672,7 @@ shape=Vorm
 shapes=Vormen
 share=Delen
 shareLink=Link voor gedeeld bewerken
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Rechthoekig
 show=Tonen
 showStartScreen=Startscherm tonen

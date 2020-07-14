@@ -672,6 +672,7 @@ shape=Фигура
 shapes=Фигуры
 share=Общий доступ
 shareLink=Ссылка для совместного редактирования
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Острые углы
 show=Показать
 showStartScreen=Показать начальный экран

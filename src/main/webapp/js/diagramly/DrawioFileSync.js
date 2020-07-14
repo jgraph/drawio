@@ -848,7 +848,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 											}
 											// Retries if cache entry was not yet there
 											else if (cacheReadyRetryCount <= this.maxCacheReadyRetries - 1 &&
-												!failed && req.getStatus() != 401)
+												!failed && req.getStatus() != 401 && req.getStatus() != 503)
 											{
 												cacheReadyRetryCount++;
 												this.file.stats.cacheMiss++;

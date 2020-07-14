@@ -672,6 +672,7 @@ shape=Forme
 shapes=Formes
 share=Partager
 shareLink=Lien pour l'édition partagée
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Dur
 show=Afficher
 showStartScreen=Montrer écran de démarrage

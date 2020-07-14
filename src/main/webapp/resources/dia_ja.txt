@@ -672,6 +672,7 @@ shape=図形
 shapes=図形
 share=共有
 shareLink=共同編集リンク
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=シャープ
 show=表示
 showStartScreen=開始画面を表示します

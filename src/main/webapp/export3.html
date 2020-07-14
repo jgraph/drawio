@@ -108,7 +108,31 @@
 			var xmlDoc = node.ownerDocument;
 			var diagrams = null;
 			var from = 0;
-			
+
+			if (mxIsElectron && data.format == 'xml')
+			{
+				const { ipcRenderer } = require('electron');
+
+				try
+				{
+					var xml = mxUtils.getXml(xmlDoc);
+					EditorUi.prototype.createUi = function(){};
+					EditorUi.prototype.addTrees = function(){};
+					EditorUi.prototype.updateActionStates = function(){};
+				 	var editorUi = new EditorUi();
+					var tmpFile = new LocalFile(editorUi, xml);
+					editorUi.setCurrentFile(tmpFile);
+					editorUi.setFileData(xml);
+					ipcRenderer.send('xml-data', mxUtils.getXml(editorUi.getXmlFileData(null, null, data.uncompressed)));
+				}
+				catch(e)
+				{
+					ipcRenderer.send('xml-data-error');
+				}
+				
+				return;
+			}
+
 			// Handles mxfile
 			if (xmlDoc.documentElement.nodeName == 'mxfile')
 			{

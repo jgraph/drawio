@@ -672,6 +672,7 @@ shape=Kujund
 shapes=Kujundid
 share=Jaga
 shareLink=Link jagatud toimetamiseks
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Terav
 show=Näita
 showStartScreen=Näita algusekraani

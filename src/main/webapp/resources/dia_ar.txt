@@ -672,6 +672,7 @@ shape=‫شكل‬
 shapes=‫الأشكال‬
 share=‫انشر‬
 shareLink=‫رابط للتحرير المنشور‬
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=‫حاد‬
 show=‫إظهار‬
 showStartScreen=Show Start Screen

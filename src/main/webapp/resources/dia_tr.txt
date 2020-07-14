@@ -672,6 +672,7 @@ shape=Şekil
 shapes=Şekiller
 share=Paylaş
 shareLink=Paylaşılan düzenleme linki
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Keskin 
 show=Göster
 showStartScreen=Başlama ekranını göster

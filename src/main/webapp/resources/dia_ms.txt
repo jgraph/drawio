@@ -672,6 +672,7 @@ shape=Bentuk
 shapes=Bentuk-bentuk
 share=Kongsi
 shareLink=Pautan untuk suntingan kongsian
+sharingAvailable=Sharing available for Google Drive and OneDrive files.
 sharp=Tajam
 show=Tunjuk
 showStartScreen=Tunjuk Skrin Mula
