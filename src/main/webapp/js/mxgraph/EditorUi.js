@@ -1197,6 +1197,14 @@ EditorUi.prototype.installShapePicker = function()
 	
 	if (this.hoverIcons != null)
 	{
+		var hoverIconsDrag = this.hoverIcons.drag;
+		
+		this.hoverIcons.drag = function()
+		{
+			ui.hideShapePicker();
+			hoverIconsDrag.apply(this, arguments);
+		};
+		
 		var hoverIconsExecute = this.hoverIcons.execute;
 		
 		this.hoverIcons.execute = function(state, dir, me)
@@ -1237,20 +1245,27 @@ EditorUi.prototype.installShapePicker = function()
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
+EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 {
-	var cells = this.getCellsForShapePicker(cell);
+	var cells = this.getCellsForShapePicker(source);
 	
 	if (cells != null && cells.length > 0)
 	{
 		var ui = this;
 		var graph = this.editor.graph;
 		var div = document.createElement('div');
+		var style = (source != null) ? graph.copyStyle(source) : null;
 	
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
 		div.style.cssText = 'position:absolute;left:' + (x - 22) + 'px;top:' +
 			(y - 22) + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
 			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
+		
+		if (graph.background != null && graph.background != mxConstants.NONE)
+		{
+			div.style.backgroundColor = graph.background;
+		}
+		
 		graph.container.appendChild(div);
 		
 		var addCell = mxUtils.bind(this, function(cell)
@@ -1261,36 +1276,38 @@ EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
 			node.style.cssText = 'position:relative;display:inline-block;position:relative;' +
 				'width:30px;height:30px;cursor:pointer;overflow:hidden;padding:3px 0 0 3px;';
 			div.appendChild(node);
+			
+			if (style != null)
+			{
+				this.sidebar.graph.pasteStyle(style, [cell]);
+			}
 
 			ui.insertHandler([cell], cell.value != '', this.sidebar.graph.model);
 			this.sidebar.createThumb([cell], 25, 25, node, null, true, false, cell.geometry.width, cell.geometry.height);
 
 			mxEvent.addListener(node, 'click', function()
 			{
-				cell.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
-					graph.view.translate.x - cell.geometry.width / 2);
-				cell.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
-					graph.view.translate.y - cell.geometry.height / 2);
-				
-				graph.model.beginUpdate();
-				try
+				if (callback != null)
 				{
-					if (callback != null)
-					{
-						callback(cell);
-					}
-					else
+					callback(cell);
+				}
+				else
+				{
+					cell.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
+						graph.view.translate.x - cell.geometry.width / 2);
+					cell.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
+						graph.view.translate.y - cell.geometry.height / 2);
+					
+					graph.model.beginUpdate();
+					try
 					{
 						graph.addCell(cell);
 					}
-				}
-				finally
-				{
-					graph.model.endUpdate();
-				}
-				
-				if (callback == null)
-				{
+					finally
+					{
+						graph.model.endUpdate();
+					}
+					
 					graph.setSelectionCell(cell);
 					graph.scrollCellToVisible(graph.getSelectionCell());
 					graph.startEditingAtCell(cell);
@@ -1305,11 +1322,12 @@ EditorUi.prototype.showShapePicker = function(x, y, cell, callback)
 			addCell(cells[i]);
 		}
 
-		this.shapePickerCallback = callback;
-		this.shapePicker = div;
-
 		graph.tooltipHandler.hideTooltip();
 		this.hideCurrentMenu();
+		this.hideShapePicker();
+		
+		this.shapePickerCallback = callback;
+		this.shapePicker = div;
 	}
 };
 

@@ -527,75 +527,21 @@
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+M');
 
-		var copiedStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle',
-			 				'align', 'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
-		                    'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
-		                    'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
-		                    'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
-		                    'arcSize', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
-		                    'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
+		var currentStyle = null;
 		
 		editorUi.actions.addAction('copyStyle', function()
 		{
-			var state = graph.view.getState(graph.getSelectionCell());
-			
-			if (graph.isEnabled() && state != null)
+			if (graph.isEnabled() && !graph.isSelectionEmpty())
 			{
-				editorUi.copiedStyle = mxUtils.clone(state.style);
-				
-				// Handles special case for value "none"
-				var cellStyle = graph.getModel().getStyle(state.cell);
-				var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
-				
-				for (var j = 0; j < tokens.length; j++)
-				{
-					var tmp = tokens[j];
-			 		var pos = tmp.indexOf('=');
-			 					 		
-			 		if (pos >= 0)
-			 		{
-			 			var key = tmp.substring(0, pos);
-			 			var value = tmp.substring(pos + 1);
-			 			
-			 			if (editorUi.copiedStyle[key] == null && value == 'none')
-			 			{
-			 				editorUi.copiedStyle[key] = 'none';
-			 			}
-			 		}
-				}
+				currentStyle = graph.copyStyle(graph.getSelectionCell())
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+C');
 
 		editorUi.actions.addAction('pasteStyle', function()
 		{
-			if (graph.isEnabled() && !graph.isSelectionEmpty() && editorUi.copiedStyle != null)
+			if (graph.isEnabled() && !graph.isSelectionEmpty() && currentStyle != null)
 			{
-				graph.getModel().beginUpdate();
-				
-				try
-				{
-					var cells = graph.getSelectionCells();
-					
-					for (var i = 0; i < cells.length; i++)
-					{
-						var state = graph.view.getState(cells[i]);
-						
-						for (var j = 0; j < copiedStyles.length; j++)
-						{
-							var key = copiedStyles[j];
-							var value = editorUi.copiedStyle[key];
-							
-							if (state.style[key] != value)
-							{
-								graph.setCellStyles(key, value, [cells[i]]);
-							}
-						}
-					}
-				}
-				finally
-				{
-					graph.getModel().endUpdate();
-				}
+				graph.pasteStyle(currentStyle, graph.getSelectionCells())
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+V');
 		

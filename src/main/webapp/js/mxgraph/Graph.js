@@ -1189,6 +1189,17 @@ Graph.foreignObjectWarningText = 'Viewer does not support full SVG 1.1';
 Graph.foreignObjectWarningLink = 'https://desk.draw.io/support/solutions/articles/16000042487';
 
 /**
+ * Minimum height for table rows.
+ */
+Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'fontStyle',
+					'align', 'verticalAlign', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor', 'swimlaneFillColor',
+					'textOpacity', 'gradientDirection', 'glass', 'labelBackgroundColor', 'labelBorderColor', 'opacity',
+					'spacing', 'spacingTop', 'spacingLeft', 'spacingBottom', 'spacingRight', 'endFill', 'endArrow',
+					'endSize', 'targetPerimeterSpacing', 'startFill', 'startArrow', 'startSize', 'sourcePerimeterSpacing',
+					'arcSize', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle', 'disableMultiStroke',
+					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
+
+/**
  * Helper function for creating SVG data URI.
  */
 Graph.createSvgImage = function(w, h, data, coordWidth, coordHeight)
@@ -1649,7 +1660,75 @@ Graph.prototype.init = function(container)
 		
 		return cell;
 	};
+		
+	/**
+	 * Returns true if fast zoom preview should be used.
+	 */
+	Graph.prototype.copyStyle = function(cell)
+	{
+		var style = null;
+		
+		if (cell != null)
+		{
+			style = mxUtils.clone(this.getCurrentCellStyle(cell));
+			
+			// Handles special case for value "none"
+			var cellStyle = this.model.getStyle(cell);
+			var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
+			
+			for (var j = 0; j < tokens.length; j++)
+			{
+				var tmp = tokens[j];
+		 		var pos = tmp.indexOf('=');
+		 					 		
+		 		if (pos >= 0)
+		 		{
+		 			var key = tmp.substring(0, pos);
+		 			var value = tmp.substring(pos + 1);
+		 			
+		 			if (style[key] == null && value == mxConstants.NONE)
+		 			{
+		 				style[key] = mxConstants.NONE;
+		 			}
+		 		}
+			}
+		}
+		
+		return style;
+	};
 	
+	/**
+	 * Returns true if fast zoom preview should be used.
+	 */
+	Graph.prototype.pasteStyle = function(style, cells, keys)
+	{
+		keys = (keys != null) ? keys : Graph.pasteStyles;
+		
+		this.model.beginUpdate();
+		try
+		{
+			for (var i = 0; i < cells.length; i++)
+			{
+				var temp = this.getCurrentCellStyle(cells[i]);
+	
+				for (var j = 0; j < keys.length; j++)
+				{
+					var current = temp[keys[j]];
+					var value = style[keys[j]];
+					
+					if (current != value && (current != null || value != mxConstants.NONE))
+					{
+						this.setCellStyles(keys[j], value, [cells[i]]);
+					}
+				}
+			}
+		}
+		finally
+		{
+			this.model.endUpdate();
+		}
+	};
+
 	/**
 	 * Returns true if fast zoom preview should be used.
 	 */
@@ -2810,11 +2889,12 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	}
 	
 	// Checks actual end point of edge for target cell
-	var target = (ignoreCellAt || (mxEvent.isControlDown(evt) && !forceClone)) ?
-		null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
+	var target = (ignoreCellAt) ? null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
+	var keepParent = false;
 	
-	if (this.model.isAncestor(target, source))
+	if (target != null && this.model.isAncestor(target, source))
 	{
+		keepParent = true;
 		target = null;
 	}
 	
@@ -2890,104 +2970,116 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	
 	var execute = mxUtils.bind(this, function(targetCell)
 	{
-		this.model.beginUpdate();
-		try
+		if (createTarget == null || targetCell != null)
 		{
-			if (realTarget == null && duplicate)
+			this.model.beginUpdate();
+			try
 			{
-				// Handles relative children
-				var cellToClone = (targetCell != null) ? targetCell : source;
-				var geo = this.getCellGeometry(cellToClone);
-				
-				while (geo != null && geo.relative)
+				if (realTarget == null && duplicate)
 				{
-					cellToClone = this.getModel().getParent(cellToClone);
-					geo = this.getCellGeometry(cellToClone);
-				}
-				
-				// Handles composite cells for cloning
-				cellToClone = this.getCompositeParent(cellToClone);
-				realTarget = this.duplicateCells([cellToClone], false)[0];
-				
-				var geo = this.getCellGeometry(realTarget);
-				
-				if (geo != null)
-				{
-					geo.x = pt.x - geo.width / 2;
-					geo.y = pt.y - geo.height / 2;
-				}
-				
-				if (swimlane || targetCell != null)
-				{
-					this.addCells([realTarget], target, null, null, null, true);
-					target = null;
-				}
-			}
-			
-			// Never connects children in stack layouts
-			var layout = null;
+					// Handles relative children
+					var cellToClone = (targetCell != null) ? targetCell : source;
+					var geo = this.getCellGeometry(cellToClone);
+					
+					while (geo != null && geo.relative)
+					{
+						cellToClone = this.getModel().getParent(cellToClone);
+						geo = this.getCellGeometry(cellToClone);
+					}
+					
+					// Handles composite cells for cloning
+					cellToClone = this.getCompositeParent(cellToClone);
+					realTarget = (targetCell != null) ? targetCell : this.duplicateCells([cellToClone], false)[0];
+					
+					if (targetCell != null)
+					{
+						this.addCells([realTarget], this.model.getParent(source), null, null, null, true);
+					}
+					
+					var geo = this.getCellGeometry(realTarget);
 	
-			if (this.layoutManager != null)
-			{
-				layout = this.layoutManager.getLayout(this.model.getParent(source));
-			}
-	
-			var edge = ((mxEvent.isControlDown(evt) && mxEvent.isShiftDown(evt) && duplicate) ||
-				(target == null && layout != null && layout.constructor == mxStackLayout)) ? null :
-				this.insertEdge(this.model.getParent(source), null, '', source, realTarget, this.createCurrentEdgeStyle());
-	
-			// Inserts edge before source
-			if (edge != null && this.connectionHandler.insertBeforeSource)
-			{
-				var index = null;
-				var tmp = source;
+					if (geo != null)
+					{
+						geo.x = pt.x - geo.width / 2;
+						geo.y = pt.y - geo.height / 2;
+					}
+
+					if (swimlane)
+					{
+						this.addCells([realTarget], target, null, null, null, true);
+						target = null;
+					}
+					else if (duplicate && target == null && !keepParent)
+					{
+						this.addCells([realTarget], this.getDefaultParent(), null, null, null, true);
+					}
+				}
 				
-				while (tmp.parent != null && tmp.geometry != null &&
-					tmp.geometry.relative && tmp.parent != edge.parent)
-				{
-					tmp = this.model.getParent(tmp);
-				}
-			
-				if (tmp != null && tmp.parent != null && tmp.parent == edge.parent)
-				{
-					var index = tmp.parent.getIndex(tmp);
-					this.model.add(tmp.parent, edge, index);
-				}
-			}
-			
-			// Special case: Click on west icon puts clone before cell
-			if (target == null && realTarget != null && layout != null && source.parent != null &&
-				layout.constructor == mxStackLayout && direction == mxConstants.DIRECTION_WEST)
-			{
-				var index = source.parent.getIndex(source);
-				this.model.add(source.parent, realTarget, index);
-			}
-			
-			if (edge != null)
-			{
-				result.push(edge);
-			}
-			
-			if (target == null && realTarget != null)
-			{
-				result.push(realTarget);
-			}
-			
-			if (realTarget == null && edge != null)
-			{
-				edge.geometry.setTerminalPoint(pt, false);
-			}
-			
-			if (edge != null)
-			{
-				this.fireEvent(new mxEventObject('cellsInserted', 'cells', [edge]));
-			}
-		}
-		finally
-		{
-			this.model.endUpdate();
-		}
+				// Never connects children in stack layouts
+				var layout = null;
 		
+				if (this.layoutManager != null)
+				{
+					layout = this.layoutManager.getLayout(this.model.getParent(source));
+				}
+		
+				var edge = ((mxEvent.isControlDown(evt) && mxEvent.isShiftDown(evt) && duplicate) ||
+					(target == null && layout != null && layout.constructor == mxStackLayout)) ? null :
+					this.insertEdge(this.model.getParent(source), null, '', source, realTarget, this.createCurrentEdgeStyle());
+		
+				// Inserts edge before source
+				if (edge != null && this.connectionHandler.insertBeforeSource)
+				{
+					var index = null;
+					var tmp = source;
+					
+					while (tmp.parent != null && tmp.geometry != null &&
+						tmp.geometry.relative && tmp.parent != edge.parent)
+					{
+						tmp = this.model.getParent(tmp);
+					}
+				
+					if (tmp != null && tmp.parent != null && tmp.parent == edge.parent)
+					{
+						var index = tmp.parent.getIndex(tmp);
+						this.model.add(tmp.parent, edge, index);
+					}
+				}
+				
+				// Special case: Click on west icon puts clone before cell
+				if (target == null && realTarget != null && layout != null && source.parent != null &&
+					layout.constructor == mxStackLayout && direction == mxConstants.DIRECTION_WEST)
+				{
+					var index = source.parent.getIndex(source);
+					this.model.add(source.parent, realTarget, index);
+				}
+				
+				if (edge != null)
+				{
+					result.push(edge);
+				}
+				
+				if (target == null && realTarget != null)
+				{
+					result.push(realTarget);
+				}
+				
+				if (realTarget == null && edge != null)
+				{
+					edge.geometry.setTerminalPoint(pt, false);
+				}
+				
+				if (edge != null)
+				{
+					this.fireEvent(new mxEventObject('cellsInserted', 'cells', [edge]));
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		}
+			
 		if (done != null)
 		{
 			done(result);

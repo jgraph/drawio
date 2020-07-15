@@ -5608,6 +5608,7 @@ DiagramStylePanel.prototype.addView = function(div)
 	var opts = document.createElement('div');
 	opts.style.paddingBottom = '12px';
 	opts.style.marginRight = '16px';
+	div.style.paddingTop = '8px';
 	
 	var table = document.createElement('table');
 
@@ -5878,6 +5879,11 @@ DiagramStylePanel.prototype.addView = function(div)
 			graph2.model.endUpdate();
 		}
 	});
+	
+	// Entries
+	var entries = document.createElement('div');
+	entries.style.position = 'relative';
+	div.appendChild(entries);
 
 	var addEntry = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle)
 	{
@@ -5995,13 +6001,75 @@ DiagramStylePanel.prototype.addView = function(div)
 			graph.refresh();
 		}));
 		
-		div.appendChild(panel);
+		entries.appendChild(panel);
+	});
+		
+	// Maximum palettes to switch the switcher
+	var maxEntries = 10;
+	var pageCount = Math.ceil(Editor.styles.length / maxEntries);
+	this.format.currentStylePage = (this.format.currentStylePage != null) ? this.format.currentStylePage : 0;
+	var dots = [];
+	
+	var addEntries = mxUtils.bind(this, function()
+	{
+		if (dots.length > 0)
+		{
+			dots[this.format.currentStylePage].style.background = '#84d7ff';
+		}
+		
+		for (var i = this.format.currentStylePage * maxEntries;
+			i < Math.min((this.format.currentStylePage + 1) * maxEntries,
+			Editor.styles.length); i++)
+		{
+			var s = Editor.styles[i];
+			addEntry(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph);
+		}
 	});
 	
-	for (var i = 0; i < Editor.styles.length; i++)
+	if (pageCount > 1)
 	{
-		var s = Editor.styles[i];
-		addEntry(s.commonStyle, s.vertexStyle, s.edgeStyle, s.graph);
+		// Selector
+		var switcher = document.createElement('div');
+		switcher.style.whiteSpace = 'nowrap';
+		switcher.style.position = 'relative';
+		switcher.style.textAlign = 'center';
+		switcher.style.paddingTop = '4px';
+		div.style.paddingBottom = '8px';
+		
+		for (var i = 0; i < pageCount; i++)
+		{
+			var dot = document.createElement('div');
+			dot.style.display = 'inline-block';
+			dot.style.width = '6px';
+			dot.style.height = '6px';
+			dot.style.marginLeft = '4px';
+			dot.style.marginRight = '3px';
+			dot.style.borderRadius = '3px';
+			dot.style.cursor = 'pointer';
+			dot.style.background = 'transparent';
+			dot.style.border = '1px solid #b5b6b7';
+			
+			(mxUtils.bind(this, function(index, elt)
+			{
+				mxEvent.addListener(dot, 'click', mxUtils.bind(this, function()
+				{
+					dots[this.format.currentStylePage].style.background = 'transparent';
+					entries.innerHTML = '';
+					this.format.currentStylePage = index;
+					addEntries();
+				}));
+			}))(i, dot);
+			
+			switcher.appendChild(dot);
+			dots.push(dot);
+		}
+		
+		div.appendChild(switcher);
+		addEntries();
+	}
+	else
+	{
+		addEntries();
 	}
 	
 	return div;
