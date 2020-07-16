@@ -1494,7 +1494,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 				((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
 			this.ui.editor.setStatus('<div title="'+ status +
 				'" class="geStatusAlertOrange" style="cursor:pointer;overflow:hidden;">' + status + ' <img src="' +
-				Editor.saveImage + '" align="top" style="width:16px;margin-top:-2px"/></div>');
+				Editor.saveImage + '" align="top" style="width:16px;margin-top:' + ((mxClient.IS_FF) ? -3 : -2) + 'px"/></div>');
 			
 			// Installs click handler for saving
 			var links = this.ui.statusContainer.getElementsByTagName('div');

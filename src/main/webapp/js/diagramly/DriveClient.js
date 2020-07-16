@@ -1656,7 +1656,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 							{
 								file.saveLevel = 9;
 								
-								if (realOverwrite)
+								if (realOverwrite || etag == null)
 								{
 									doExecuteSave(realOverwrite);
 								}

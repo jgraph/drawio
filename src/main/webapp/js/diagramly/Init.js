@@ -19,6 +19,7 @@ window.isSvgBrowser = window.isSvgBrowser || navigator.userAgent == null ||
 // CUSTOM_PARAMETERS - URLs for save and export
 window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || ((/.*\.draw\.io$/.test(window.location.hostname)) ?
 	window.location.protocol + '//' + window.location.hostname : 'https://app.diagrams.net');
+window.DRAWIO_LIGHTBOX_URL = window.DRAWIO_LIGHTBOX_URL || 'https://viewer.diagrams.net';
 window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
 window.PLANT_URL = window.PLANT_URL || 'https://plant-aws.diagrams.net';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || window.DRAWIO_BASE_URL + '/math';
@@ -331,17 +332,23 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealt
 	urlParams['tr'] = '0';
 }
 
+// Disables math in offline mode
+if (urlParams['offline'] == '1' || urlParams['local'] == '1')
+{
+	urlParams['math'] = '0';
+}
+
 // Uses embed mode on embed domain
 if (window.location.hostname == 'embed.diagrams.net')
 {
 	urlParams['embed'] = '1';
 }	
 
-// Disables math in offline mode
-if (urlParams['offline'] == '1' || urlParams['local'] == '1')
+// Uses lightbox mode on viewer domain
+if (window.location.hostname == 'viewer.diagrams.net')
 {
-	urlParams['math'] = '0';
-}
+	urlParams['lightbox'] = '1';
+}	
 
 // Lightbox enables chromeless mode
 if (urlParams['lightbox'] == '1')

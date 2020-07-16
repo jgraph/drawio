@@ -231,6 +231,11 @@
 	Editor.configVersion = null;
 
 	/**
+	 * Default border for image export (to allow for sketch style).
+	 */
+	Editor.defaultBorder = 5;
+
+	/**
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
@@ -3056,7 +3061,7 @@
 				bg = (keepTheme) ? this.graph.defaultPageBackgroundColor : '#ffffff';;
 			}
 			
-			this.convertImages(graph.getSvg(null, null, null, noCrop, null, ignoreSelection,
+			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
 				null, null, null, addShadow, null, keepTheme), mxUtils.bind(this, function(svgRoot)
 			{
 				try
@@ -3077,8 +3082,8 @@
 								scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
 							}
 							
-							w = Math.ceil(scale * w) + 2 * border;
-							h = Math.ceil(scale * h) + 2 * border;
+							w = Math.ceil(scale * w);
+							h = Math.ceil(scale * h);
 							
 							canvas.setAttribute('width', w);
 					   		canvas.setAttribute('height', h);
@@ -3101,13 +3106,13 @@
 						   		{			   		
 									window.setTimeout(function()
 									{
-										ctx.drawImage(img, border / scale, border / scale);
+										ctx.drawImage(img, 0, 0);
 										callback(canvas);
 									}, 0);
 						   		}
 						   		else
 						   		{
-						   			ctx.drawImage(img, border / scale, border / scale);
+						   			ctx.drawImage(img, 0, 0);
 						   			callback(canvas);
 						   		}
 						    };
@@ -3125,8 +3130,8 @@
 				                var b = graph.getGraphBounds();
 								var tx = view.translate.x * curViewScale;
 								var ty = view.translate.y * curViewScale;
-								var x0 = tx + (b.x - tx) / curViewScale;
-								var y0 = ty + (b.y - ty) / curViewScale;
+								var x0 = tx + (b.x - tx) / curViewScale - border;
+								var y0 = ty + (b.y - ty) / curViewScale - border;
 								
 								var background = new Image();
 		

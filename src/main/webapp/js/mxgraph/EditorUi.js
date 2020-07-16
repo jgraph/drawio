@@ -1185,6 +1185,7 @@ EditorUi.prototype.installShapePicker = function()
 		{
 			if (cell == null && ui.sidebar != null && !mxEvent.isShiftDown(evt))
 			{
+				mxEvent.consume(evt);
 				var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 				ui.showShapePicker(pt.x, pt.y);
 			}
@@ -1217,6 +1218,7 @@ EditorUi.prototype.installShapePicker = function()
 				{
 					var temp = graph.getCompositeParent(state.cell);
 					var geo = graph.getCellGeometry(temp);
+					me.consume();
 					
 					while (temp != null && graph.model.isVertex(temp) && geo != null && geo.relative)
 					{

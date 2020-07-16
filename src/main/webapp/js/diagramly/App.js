@@ -1189,10 +1189,7 @@ App.prototype.initializeEmbedMode = function()
 	{
 		if (window.location.hostname == 'app.diagrams.net')
 		{
-			if (window.console != null)
-			{
-				console.warn('[Deprecation] app.diagrams.net will stop working for embed mode. Please use embed.diagrams.net.');
-			}
+			this.showBanner('EmbedDeprecationFooter', 'app.diagrams.net will stop working for embed mode. Please use embed.diagrams.net.');
 		}
 		
 		if (App.embedModePluginsCount > 0 || this.initEmbedDone)
@@ -2758,7 +2755,7 @@ App.prototype.start = function()
 				}
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
-					urlParams['open'] == null && /.*\.draw\.io$/.test(window.location.hostname) &&
+					urlParams['open'] == null && /www\.draw\.io$/.test(window.location.hostname) &&
 					(!this.editor.chromeless || this.editor.editable))
 				{
 					this.showNameChangeBanner();
@@ -3300,7 +3297,7 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 240 : 300,
+		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 320,
 			(serviceCount >= 4) ? 440 : ((this.isOfflineApp()) ? 300 : 320), true, false);
 		dlg.init();
 	}

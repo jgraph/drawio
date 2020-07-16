@@ -13,48 +13,56 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		var csp = 'default-src \'self\'; ' +
 			// storage.googleapis.com is needed for workbox-service-worker
 			'script-src %script-src% \'self\' https://storage.googleapis.com ' +
-				'https://apis.google.com https://*.pusher.com https://code.jquery.com '+
-				'https://www.dropbox.com https://api.trello.com ' +
+				'https://apis.google.com https://*.pusher.com https://code.jquery.com ' +
 				// Scripts in index.html (not checked here)
 				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
 				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\'; ' +
-			'connect-src \'self\' https://*.draw.io https://*.diagrams.net https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
+			'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
 				'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
-				'https://*.dropboxapi.com https://api.trello.com https://*.google.com ' +
-				'https://fonts.gstatic.com https://fonts.googleapis.com; ' +
+				'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 			// font-src about: is required for MathJax HTML-CSS output with STIX
 			'img-src * data:; media-src * data:; font-src * about:; ' +
-			// www.draw.io required for browser data migration to app.diagrams.net
-			'frame-src %frame-src% \'self\' https://www.draw.io https://*.google.com; ' +
+			// www.draw.io required for browser data migration to app.diagrams.net and
+			// viewer.diagrams.net required for iframe embed preview
+			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +
 			'style-src %style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com;'
 
 		var devCsp = csp.
 			// Adds script tags and loads shapes with eval
-			replace(/%script-src%/g, 'https://devhost.jgraph.com \'unsafe-eval\'').
+			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://devhost.jgraph.com \'unsafe-eval\'').
 			// Loads common.css from mxgraph
+			replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 			replace(/%style-src%/g, 'https://devhost.jgraph.com').
 			replace(/%frame-src%/g, '').
 			replace(/  /g, ' ');
 		mxmeta(null, devCsp, 'Content-Security-Policy');
 
-		console.log('Content-Security-Policy')
-		console.log('Development:', devCsp)
-		console.log('app.diagrams.net:',
-			csp.replace(/%script-src%/g, '').
+		if (urlParams['print-csp'] == '1')
+		{
+			console.log('Content-Security-Policy')
+			console.log('Development:', devCsp)
+			console.log('app.diagrams.net:',
+				csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
+				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 				replace(/%frame-src%/g, '').
-				replace(/%style-src%/g, '').
-				replace(/  /g, ' '));
-		console.log('confluence.draw.io:',
-			csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
-				replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
-				replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
-				replace(/  /g, ' '));
-		console.log('jira.draw.io:',
-			csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
-				replace(/%frame-src%/g, '').
-				replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
-				replace(/  /g, ' '));
+					replace(/%style-src%/g, '').
+					replace(/  /g, ' '));
+			console.log('confluence.draw.io:',
+				csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
+					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
+					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
+					replace(/%connect-src%/g, '').
+					replace(/  /g, ' '));
+			console.log('jira.draw.io:',
+				csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
+					replace(/%frame-src%/g, '').
+					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
+					replace(/%connect-src%/g, '').
+					replace(/  /g, ' '));
+			console.log('import.diagrams.net:', 'default-src \'self\'; worker-src blob:; img-src \'self\' blob: data: https://www.lucidchart.com ' +
+					'https://app.lucidchart.com; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com;');
+		}
 	})();
 }
 			

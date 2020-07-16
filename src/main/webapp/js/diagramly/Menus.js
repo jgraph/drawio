@@ -665,17 +665,13 @@
 
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-			{
-				editorUi.openLink('https://www.draw.io/shortcuts.svg');
-			}
-			else if (mxClient.IS_SVG)
+			if (mxClient.IS_SVG && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 			{
 				editorUi.openLink('shortcuts.svg');
 			}
 			else
 			{
-				editorUi.openLink('https://www.draw.io/?lightbox=1#Uhttps%3A%2F%2Fwww.draw.io%2Fshortcuts.svg');
+				editorUi.openLink('https://viewer.diagrams.net/#Uhttps%3A%2F%2Fviewer.diagrams.net%2Fshortcuts.svg');
 			}
 		});
 

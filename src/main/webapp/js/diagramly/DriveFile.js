@@ -229,7 +229,7 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 											}
 										}), error, token);
 									}
-									else
+									else if (success != null)
 									{
 										success(resp);
 									}

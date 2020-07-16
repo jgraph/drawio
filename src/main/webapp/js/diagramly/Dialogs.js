@@ -51,18 +51,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		div.appendChild(help);
 	}
 
-	var demo = document.createElement('div');
-	demo.style.position = 'absolute';
-	demo.style.cursor = 'pointer';
-	demo.style.fontSize = '12px';
-	demo.style.bottom = bottom;
-	demo.style.color = 'gray';
-	demo.style.userSelect = 'none';
-	
-	mxUtils.write(demo, mxResources.get('decideLater'));
-	mxUtils.setPrefixedStyle(demo.style, 'transform', 'translate(-50%,0)');
-	demo.style.left = '50%';
-	
 	this.init = function()
 	{
 		if (mxClient.IS_QUIRKS || document.documentMode == 8)
@@ -70,17 +58,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			demo.style.marginLeft = -Math.round(demo.clientWidth / 2) + 'px';
 		}
 	};
-	
-	div.appendChild(demo);
-	
-	mxEvent.addListener(demo, 'click', function()
-	{
-		editorUi.hideDialog();
-		var prev = Editor.useLocalStorage;
-		editorUi.createFile(editorUi.defaultFilename, null, null, null, null, null, null, true);
-		Editor.useLocalStorage = prev;
-	});
-	
+
 	var buttons = document.createElement('div');
 	
 	if (mxClient.IS_QUIRKS)
@@ -354,7 +332,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	{
 		var showMore = document.createElement('a');
 		showMore.style.color = 'gray';
-		showMore.style.fontSize = '12px';
 		showMore.style.cursor = 'pointer';
 		showMore.style.userSelect = 'none';
 		mxUtils.write(showMore, ((StorageDialog.extended) ? mxResources.get('showLess') : mxResources.get('showMore')) + '...');
@@ -372,23 +349,54 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			mxEvent.consume(evt);
 		});
 	}
+	
+	
+	var demo = document.createElement('div');
+	demo.style.cursor = 'pointer';
+	demo.style.color = 'gray';
+	demo.style.userSelect = 'none';
 
-	p2.appendChild(cb);
-	
-	var span = document.createElement('span');
-	span.style.color = 'gray';
-	span.style.fontSize = '12px';
-	span.style.userSelect = 'none';
-	mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
-	p2.appendChild(span);
-	mxUtils.br(p2);
-	
+	mxUtils.write(demo, mxResources.get('import') + ': ' + mxResources.get('gliffy') + ', ' +
+		mxResources.get('formatVssx') + ', ' + mxResources.get('formatVsdx') + ', ' +
+		mxResources.get('lucidchart') + '...');
+
+	mxEvent.addListener(demo, 'click', function()
+	{
+		if (editorUi.storageFileInputElt == null) 
+		{
+			var input = document.createElement('input');
+			input.setAttribute('type', 'file');
+			
+			mxEvent.addListener(input, 'change', function()
+			{
+				if (input.files != null)
+				{
+					// Using null for position will disable crop of input file
+					editorUi.hideDialog();
+					editorUi.openFiles(input.files, true);
+					
+		    		// Resets input to force change event for same file (type reset required for IE)
+					input.type = '';
+					input.type = 'file';
+		    		input.value = '';
+				}
+			});
+			
+			input.style.display = 'none';
+			document.body.appendChild(input);
+			editorUi.storageFileInputElt = input;
+		}
+		
+		editorUi.storageFileInputElt.click();
+	});
+
+	p2.appendChild(demo);
 	var recent = editorUi.getRecent();
 
 	if (!editorUi.isOfflineApp() && recent != null && recent.length > 0)
 	{
 		var recentSelect = document.createElement('select');
-		recentSelect.style.marginTop = '8px';
+		recentSelect.style.marginTop = '12px';
 		recentSelect.style.maxWidth = '170px';
 
 		var titleOption = document.createElement('option');
@@ -445,57 +453,51 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		
 		var link = document.createElement('a');
 		link.style.cursor = 'pointer';
-		link.style.fontSize = '12px';
 		link.style.color = 'gray';
 		link.style.userSelect = 'none';
 		
-		mxUtils.write(link, mxResources.get('import') + ': ' + mxResources.get('gliffy') + ', ' +
-				mxResources.get('formatVssx') + ', ' + mxResources.get('formatVsdx') + ', ' +
-				mxResources.get('lucidchart') + '...');
-		
+		mxUtils.write(link, mxResources.get('decideLater'));
 		mxEvent.addListener(link, 'click', function()
 		{
-			if (editorUi.storageFileInputElt == null) 
-			{
-				var input = document.createElement('input');
-				input.setAttribute('type', 'file');
-				
-				mxEvent.addListener(input, 'change', function()
-				{
-					if (input.files != null)
-					{
-						// Using null for position will disable crop of input file
-						editorUi.hideDialog();
-						editorUi.openFiles(input.files, true);
-						
-			    		// Resets input to force change event for same file (type reset required for IE)
-						input.type = '';
-						input.type = 'file';
-			    		input.value = '';
-					}
-				});
-				
-				input.style.display = 'none';
-				document.body.appendChild(input);
-				editorUi.storageFileInputElt = input;
-			}
-			
-			editorUi.storageFileInputElt.click();
+			editorUi.hideDialog();
+			var prev = Editor.useLocalStorage;
+			editorUi.createFile(editorUi.defaultFilename, null, null, null, null, null, null, true);
+			Editor.useLocalStorage = prev;
 		});
-		
+
 		temp.appendChild(link);
 		p2.appendChild(temp);
 		buttons.style.paddingBottom = '4px';
 	}
 	
 	buttons.appendChild(p2);
-	
-	mxEvent.addListener(span, 'click', function(evt)
-	{
-		cb.checked = !cb.checked;
-		mxEvent.consume(evt);
-	});
 
+	var temp = document.createElement('div');
+	temp.style.position = 'absolute';
+	temp.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+	temp.style.cursor = 'pointer';
+	temp.style.fontSize = '12px';
+	temp.style.bottom = '27px';
+	temp.style.left = '0px';
+	temp.style.right = '0px';
+	temp.style.color = 'gray';
+	temp.style.userSelect = 'none';
+	
+	cb.setAttribute('id', 'geRememberSettingCheckbox');
+	cb.style.marginRight = '6px';
+	cb.style.cursor = 'inherit';
+	temp.appendChild(cb);
+	
+	var label = document.createElement('label');
+	label.setAttribute('for', 'geRememberSettingCheckbox');
+	mxUtils.write(label, mxResources.get('rememberThisSetting'));
+	label.style.cursor = 'inherit';
+	temp.appendChild(label);
+		
+	mxUtils.setPrefixedStyle(temp.style, 'transform', 'translate(-50%,0)');
+	temp.style.left = '50%';
+	div.appendChild(temp);
+	
 	// Checks if Google Drive is missing after a 5 sec delay
 	if (mxClient.IS_SVG && isLocalStorage && urlParams['gapi'] != '0' &&
 		(document.documentMode == null || document.documentMode >= 10))
@@ -506,7 +508,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			{
 				// To check for Disconnect plugin in chrome use mxClient.IS_GC and check for URL:
 				// chrome-extension://jeoacafpbcihiomhlakheieifhpjdfeo/scripts/vendor/jquery/jquery-2.0.3.min.map
-				p3.style.padding = '8px';
+				p3.style.padding = '7px';
 				p3.style.fontSize = '9pt';
 				p3.style.marginTop = '-14px';
 				p3.innerHTML = '<a style="background-color:#dcdcdc;padding:5px;color:black;text-decoration:none;" ' +
@@ -6499,7 +6501,7 @@ var FindWindow = function(ui, x, y, w, h)
 	mxEvent.addListener(searchInput, 'keyup', function(evt)
 	{
 		// Ctrl or Cmd keys
-		if (evt.keyCode == 91 || evt.keyCode == 17)
+		if (evt.keyCode == 91 || evt.keyCode == 93 || evt.keyCode == 17)
 		{
 			// Workaround for lost focus on show
 			mxEvent.consume(evt);
