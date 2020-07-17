@@ -721,6 +721,7 @@ title=Название
 to=по
 toBack=На задний план
 toFront=На передний план
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Панель инструментов
 tooltips=Подсказки
 top=Сверху

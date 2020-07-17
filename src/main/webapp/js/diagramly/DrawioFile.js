@@ -1516,7 +1516,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 					' (' + mxUtils.htmlEntities(err.message) + ')</div>');
 			}
 			
-			if (EditorUi.enableDrafts && this.getMode() == null)
+			if (EditorUi.enableDrafts && (this.getMode() == null || EditorUi.isElectronApp))
 			{
 				if (this.saveDraftThread != null)
 				{

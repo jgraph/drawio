@@ -721,6 +721,7 @@ title=‫כותרת‬
 to=‫ל‬
 toBack=‫לאחור‬
 toFront=‫לפנים‬
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=‫טיפים‬
 top=‫למעלה‬

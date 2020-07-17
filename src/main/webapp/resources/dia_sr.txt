@@ -721,6 +721,7 @@ title=Title
 to=do
 toBack=Postavi iza
 toFront=Postavi ispred
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Opisi alatki
 top=Vrh

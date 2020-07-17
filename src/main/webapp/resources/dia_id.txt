@@ -721,6 +721,7 @@ title=Judul
 to=ke
 toBack=Ke Belakang
 toFront=Ke Depan
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Tooltip
 top=Atas

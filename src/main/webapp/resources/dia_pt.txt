@@ -721,6 +721,7 @@ title=Título
 to=Para
 toBack=Para trás 
 toFront=Para a frente 
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Dicas de ferramenta
 top=Topo

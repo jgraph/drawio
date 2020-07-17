@@ -721,6 +721,7 @@ title=Titolo
 to=A
 toBack=Porta dietro
 toFront=Porta davanti
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Strumento di informazione
 top=In alto

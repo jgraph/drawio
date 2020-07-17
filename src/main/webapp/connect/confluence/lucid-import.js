@@ -57,9 +57,12 @@ script.onload = function()
 			importBtn.click(function()
 			{
 				$('#loadingImg').show();
+				importBtn.prop('disabled', true); //Disable button to prevent concurrent execution
+				
 				LucidConnMassImporter(response.filesMap, importExtensionId, logDiv, function()
 				{
 					$('#loadingImg').hide();
+					importBtn.prop('disabled', false);
 				})
 			});
 		}	

@@ -721,6 +721,7 @@ title=Otsikko
 to=asti
 toBack=Taakse
 toFront=Eteen
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Työkaluvihjeet
 top=Ylös

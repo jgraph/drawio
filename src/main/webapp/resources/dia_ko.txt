@@ -721,6 +721,7 @@ title=제목
 to=로
 toBack=뒤로
 toFront=앞으로
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=말풍선
 top=위쪽

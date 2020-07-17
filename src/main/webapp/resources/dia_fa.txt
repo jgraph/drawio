@@ -721,6 +721,7 @@ title=‫عنوان‬
 to=‫به‬
 toBack=‫به عقب‬
 toFront=‫به جلو‬
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=‫جعبه نکات‬
 top=‫بالا‬

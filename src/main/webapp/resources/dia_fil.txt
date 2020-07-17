@@ -721,6 +721,7 @@ title=Pamagat
 to=sa
 toBack=Papunta sa likod
 toFront=Papunta sa harap
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Tooltips
 top=Itaas

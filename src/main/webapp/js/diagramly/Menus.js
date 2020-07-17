@@ -483,7 +483,7 @@
 			action.isEnabled = isGraphEnabled;
 		}
 		
-		if (isLocalStorage || mxClient.IS_CHROMEAPP)
+		if (isLocalStorage)
 		{
 			var action = editorUi.actions.addAction('showStartScreen', function()
 			{

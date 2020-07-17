@@ -721,6 +721,7 @@ title=Títol
 to=a
 toBack=Vés enrere
 toFront=Vés endavant
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Barra d'eines
 tooltips=Consells d'eines
 top=Dalt

@@ -2712,17 +2712,6 @@ App.prototype.showAlert = function(message)
  */
 App.prototype.start = function()
 {
-	// Handles all errors
-	var ui = this; 
-	
-	window.onerror = function(message, url, linenumber, colno, err)
-	{
-		EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
-			url, linenumber, colno, err, null, true);
-		ui.handleError({message: message}, mxResources.get('unknownError'),
-			null, null, null, null, true);
-	};
-	
 	if (this.bg != null && this.bg.parentNode != null)
 	{
 		this.bg.parentNode.removeChild(this.bg);
@@ -2733,6 +2722,17 @@ App.prototype.start = function()
 
 	try
 	{
+		// Handles all errors
+		var ui = this;
+		
+		window.onerror = function(message, url, linenumber, colno, err)
+		{
+			EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
+				url, linenumber, colno, err, null, true);
+			ui.handleError({message: message}, mxResources.get('unknownError'),
+				null, null, null, null, true);
+		};
+		
 		// Listens to changes of the hash if not in embed or client mode
 		if (urlParams['client'] != '1' && urlParams['embed'] != '1')
 		{
@@ -2907,9 +2907,9 @@ App.prototype.start = function()
 						{
 							var id = this.getDiagramId();
 							
-							if (EditorUi.enableDrafts && urlParams['mode'] == null &&
-								this.getServiceName() == 'draw.io' &&
-								(id == null || id.length == 0))
+							
+							if (EditorUi.enableDrafts && (urlParams['mode'] == null || EditorUi.isElectronApp) &&
+								this.getServiceName() == 'draw.io' && (id == null || id.length == 0))
 							{
 								this.checkDrafts();
 							}
@@ -2933,6 +2933,10 @@ App.prototype.start = function()
 										}
 									}
 								}));
+							}
+							else if (urlParams['splash'] != '0')
+							{
+								this.loadFile();
 							}
 							else
 							{
@@ -3206,13 +3210,13 @@ App.prototype.checkDrafts = function()
 					}), null, null, null, (drafts.length > 1) ? drafts : null);
 					this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
 					{
-						if (urlParams['splash'] == '0')
+						if (urlParams['splash'] != '0')
 						{
-							this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
+							this.loadFile();
 						}
 						else
 						{
-							this.loadFile();
+							this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
 						}
 					}));
 					dlg.init();
@@ -3252,13 +3256,13 @@ App.prototype.checkDrafts = function()
  */
 App.prototype.showSplash = function(force)
 {
-	var serviceCount = this.getServiceCount(true, true);
+	var serviceCount = this.getServiceCount(true);
 	
 	var showSecondDialog = mxUtils.bind(this, function()
 	{
 		var dlg = new SplashDialog(this);
 		
-		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 260, true, true,
+		this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 230, true, true,
 			mxUtils.bind(this, function(cancel)
 			{
 				// Creates a blank diagram if the dialog is closed
@@ -3273,7 +3277,7 @@ App.prototype.showSplash = function(force)
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
 			!mxClient.IS_ANDROID && !mxClient.IS_IOS &&
-			(this.mode == App.MODE_DEVICE || this.mode == App.MODE_BROWSER))
+			this.mode == App.MODE_DEVICE)
 		{
 			this.showDownloadDesktopBanner();
 		}
@@ -3297,8 +3301,8 @@ App.prototype.showSplash = function(force)
 			showSecondDialog();
 		}), rowLimit);
 		
-		this.showDialog(dlg.container, (rowLimit < 3) ? 260 : 320,
-			(serviceCount >= 4) ? 440 : ((this.isOfflineApp()) ? 300 : 320), true, false);
+		this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
+			((serviceCount > 3) ? 320 : 210), true, false);
 		dlg.init();
 	}
 	else if (urlParams['create'] == null)
@@ -3435,12 +3439,32 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 App.prototype.createFileSystemOptions = function(name)
 {
 	var ext = [];
+	var temp = null;
+		
+	if (name != null)
+	{
+		var idx = name.lastIndexOf('.');
+		
+		if (idx > 0)
+		{
+			temp = name.substring(idx + 1);
+		}
+	}
 	
 	for (var i = 0; i < this.editor.diagramFileTypes.length; i++)
 	{
-		ext.push({description: mxResources.get(this.editor.diagramFileTypes[i].description) +
+		var obj = {description: mxResources.get(this.editor.diagramFileTypes[i].description) +
 			((mxClient.IS_MAC) ? ' (.' + this.editor.diagramFileTypes[i].extension + ')' : ''),
-			extensions: [this.editor.diagramFileTypes[i].extension]});
+			extensions: [this.editor.diagramFileTypes[i].extension]};
+		
+		if (this.editor.diagramFileTypes[i].extension == temp)
+		{
+			ext.splice(0, 0, obj);
+		}
+		else
+		{
+			ext.push(obj);
+		}
 	}
 	
 	// TODO: Specify default filename

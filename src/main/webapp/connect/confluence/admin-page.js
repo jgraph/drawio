@@ -31,10 +31,12 @@ script.onload = function()
 		importBtn.click(function()
 		{
 			$('#busyIcon').show();
+			importBtn.prop('disabled', true); //Disable button to prevent concurrent execution
 			
 			GliffyMassImporter(logDiv, function()
 			{
 				$('#busyIcon').hide();
+				importBtn.prop('disabled', false);
 			});
 		});
 	});

@@ -721,6 +721,7 @@ title=Titel
 to=bis
 toBack=Nach hinten
 toFront=Nach vorne
+tooLargeUseDownload=Zu gross, bitte herunterladen.
 toolbar=Symbolleiste
 tooltips=Tooltips
 top=Oben

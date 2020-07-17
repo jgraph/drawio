@@ -721,6 +721,7 @@ title=Naslov
 to=do
 toBack=Nazad
 toFront=Ispred
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=Opis alatki
 top=Vrh

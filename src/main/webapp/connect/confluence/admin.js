@@ -261,7 +261,9 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 	var start = 0, limit = 100;
 	var regExps = getMacroRegExps(macroName, attParams);
 	
-	
+	var pagesCount = 0, pagesIndex = 0;
+	var pagesList = [], pagesMap = {};
+
 	function searchContentForMacro(onSuccess, onError) 
 	{
 		//keeping the block of AP.require to minimize the number of changes!
@@ -272,14 +274,18 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 		        contentType: 'application/json;charset=UTF-8',
 		        success: function(resp) {
 		        	var resp = JSON.parse(resp);
-		        	
-		        	var list = resp.results.filter(function(p)
+		        	var list = resp.results;
+    				
+		        	//Ensure pages list is unique since search api return duplicates
+    				for (var i = 0; i < list.length; i++)
 					{
-						return p.status != 'trashed'; //remove trashed pages
-					});
-					
-					Array.prototype.push.apply(pagesList, list);
-					pagesCount += list.length;
+    					if (!pagesMap[list[i].id] && list[i].status != 'trashed') //remove duplicates & trashed pages
+						{
+    						pagesList.push(list[i]);
+    						pagesMap[list[i].id] = true;
+    						pagesCount++;
+						}
+					}
 					
 					//Support pageing
 					if (resp._links && resp._links.next) 
@@ -312,9 +318,6 @@ var MassDiagramsProcessor = function(macroName, readableName, attParams, process
 		};
 	};
 
-	var pagesCount = 0, pagesIndex = 0;
-	var pagesList = [];
-	
 	//Process pages one at a time
 	function processPage()
 	{

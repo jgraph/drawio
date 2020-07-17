@@ -721,6 +721,7 @@ title=ชื่อเรื่อง
 to=ไปยัง
 toBack=ไปยังด้านหลัง
 toFront=ไปยังด้านหน้า
+tooLargeUseDownload=Too large, use download instead.
 toolbar=Toolbar
 tooltips=กล่องข้อความช่วยเหลือ
 top=บนสุด

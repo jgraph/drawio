@@ -902,7 +902,7 @@ mxStencilRegistry.allowEval = false;
         var paths = dialog.showOpenDialogSync({
         	defaultPath: lastDir || getDocumentsFolder(),
         	filters: [
-        	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml'] },
+        	    { name: 'draw.io Diagrams', extensions: ['drawio', 'xml', 'png', 'svg', 'html'] },
         	    { name: 'VSDX Documents', extensions: ['vsdx'] },
         	    { name: 'All Files', extensions: ['*'] }
     	    ],
@@ -1355,8 +1355,24 @@ mxStencilRegistry.allowEval = false;
 				var dialog = remote.dialog;
 				const sysPath = require('path')
 				var lastDir = localStorage.getItem('.lastSaveDir');
+				var name = this.getFilename();
+				var ext = null;
 				
-				var path = dialog.showSaveDialogSync({defaultPath: (lastDir || getDocumentsFolder()) + '/' + this.getFilename()});
+				if (name != null)
+				{
+					var idx = name.lastIndexOf('.');
+					
+					if (idx > 0)
+					{
+						ext = name.substring(idx + 1);
+						name = name.substring(0, idx);
+					}
+				}
+				
+				var path = dialog.showSaveDialogSync({
+					defaultPath: (lastDir || getDocumentsFolder()) + '/' + name,
+					filters: this.ui.createFileSystemFilters(ext)
+				});
 	
 		        if (path != null)
 		        {
@@ -1386,16 +1402,24 @@ mxStencilRegistry.allowEval = false;
 		var dialog = remote.dialog;
 		const sysPath = require('path')
 		var lastDir = localStorage.getItem('.lastSaveDir');
+		var name = this.getFilename();
+		var ext = null;
+		
+		if (name == '' && this.fileObject != null && this.fileObject.name != null)
+		{
+			name = this.fileObject.name;
+			var idx = name.lastIndexOf('.');
+			
+			if (idx > 0)
+			{
+				ext = name.substring(idx + 1);
+				name = name.substring(0, idx);
+			}
+		}
 		
 		var path = dialog.showSaveDialogSync({
-			defaultPath: (lastDir || getDocumentsFolder()) + '/' + this.getFilename(),
-			filters: [
-				{ name: 'XML File (.drawio)', extensions: ['drawio'] },
-				{ name: 'Editable Bitmap Image (.png)', extensions: ['png'] },
-				{ name: 'Editable Vector Image (.svg)', extensions: ['svg'] },
-				{ name: 'HTML File (.html)', extensions: ['html'] },
-				{ name: 'XML File (.xml)', extensions: ['xml'] }
-	        ]
+			defaultPath: (lastDir || getDocumentsFolder()) + '/' + name,
+			filters: this.ui.createFileSystemFilters(ext)
 		});
         
         if (path != null)
@@ -1410,6 +1434,35 @@ mxStencilRegistry.allowEval = false;
 		}
 	};
 	
+	/**
+	 * Loads the given file handle as a local file.
+	 */
+	App.prototype.createFileSystemFilters = function(defaultExt)
+	{
+		var ext = [];
+		
+		for (var i = 0; i < this.editor.diagramFileTypes.length; i++)
+		{
+			var obj = {name: mxResources.get(this.editor.diagramFileTypes[i].description) +
+				' (.' + this.editor.diagramFileTypes[i].extension + ')',
+				extensions: [this.editor.diagramFileTypes[i].extension]};
+			
+			if (this.editor.diagramFileTypes[i].extension == defaultExt)
+			{
+				ext.splice(0, 0, obj);
+			}
+			else
+			{
+				ext.push(obj);
+			}
+		}
+		
+		return ext;
+	};
+	
+	/**
+	 * Loads the given file handle as a local file.
+	 */
 	App.prototype.saveFile = function(forceDialog)
 	{
 		var file = this.getCurrentFile();
@@ -1420,6 +1473,11 @@ mxStencilRegistry.allowEval = false;
 			{
 				file.save(true, mxUtils.bind(this, function()
 				{
+					if (EditorUi.enableDrafts)
+					{
+						file.removeDraft();
+					}
+					
 					file.handleFileSuccess(true);
 				}), mxUtils.bind(this, function(err)
 				{
@@ -1430,6 +1488,11 @@ mxStencilRegistry.allowEval = false;
 			{
 				file.saveAs(null, mxUtils.bind(this, function()
 				{
+					if (EditorUi.enableDrafts)
+					{
+						file.removeDraft();
+					}
+					
 					file.handleFileSuccess(true);
 				}), mxUtils.bind(this, function(err)
 				{
@@ -1441,9 +1504,6 @@ mxStencilRegistry.allowEval = false;
 	
 	/**
 	 * Translates this point by the given vector.
-	 * 
-	 * @param {number} dx X-coordinate of the translation.
-	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload, fn)
 	{

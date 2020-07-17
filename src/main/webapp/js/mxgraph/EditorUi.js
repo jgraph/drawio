@@ -1257,10 +1257,13 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 		var graph = this.editor.graph;
 		var div = document.createElement('div');
 		var style = (source != null) ? graph.copyStyle(source) : null;
-	
+		
+		// Do not place entry under pointer for touch devices
+		var off = 4;
+		
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
-		div.style.cssText = 'position:absolute;left:' + (x - 22) + 'px;top:' +
-			(y - 22) + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
+		div.style.cssText = 'position:absolute;left:' + (x - off) + 'px;top:' +
+			(y - off) + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
 			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
 		
 		if (graph.background != null && graph.background != mxConstants.NONE)
@@ -1283,8 +1286,11 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 			{
 				this.sidebar.graph.pasteStyle(style, [cell]);
 			}
-
-			ui.insertHandler([cell], cell.value != '', this.sidebar.graph.model);
+			else
+			{
+				ui.insertHandler([cell], cell.value != '', this.sidebar.graph.model);
+			}
+			
 			this.sidebar.createThumb([cell], 25, 25, node, null, true, false, cell.geometry.width, cell.geometry.height);
 
 			mxEvent.addListener(node, 'click', function()
@@ -2699,7 +2705,8 @@ EditorUi.prototype.isPagesEnabled = function()
  */
 EditorUi.prototype.createTemporaryGraph = function(stylesheet)
 {
-	var graph = new Graph(document.createElement('div'), null, null, stylesheet);
+	var graph = new Graph(document.createElement('div'));
+	graph.stylesheet.styles = mxUtils.clone(stylesheet.styles);
 	graph.resetViewOnRootChange = false;
 	graph.setConnectable(false);
 	graph.gridEnabled = false;
