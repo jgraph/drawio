@@ -1176,6 +1176,14 @@ EditorUi.prototype.installShapePicker = function()
 		ui.hideShapePicker(true);
 	}));
 	
+	// Counts as popup menu
+	var popupMenuHandlerIsMenuShowing = graph.popupMenuHandler.isMenuShowing;
+	 
+	graph.popupMenuHandler.isMenuShowing = function()
+	{
+		return popupMenuHandlerIsMenuShowing.apply(this, arguments) || ui.shapePicker != null;
+	};
+	
 	// Adds dbl click dialog for inserting shapes
 	var graphDblClick = graph.dblClick;
 	
@@ -1259,7 +1267,7 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 		var style = (source != null) ? graph.copyStyle(source) : null;
 		
 		// Do not place entry under pointer for touch devices
-		var off = 4;
+		var off = -4;
 		
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
 		div.style.cssText = 'position:absolute;left:' + (x - off) + 'px;top:' +
@@ -1319,6 +1327,11 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 					graph.setSelectionCell(cell);
 					graph.scrollCellToVisible(graph.getSelectionCell());
 					graph.startEditingAtCell(cell);
+					
+					if (ui.hoverIcons != null)
+					{
+						ui.hoverIcons.update(graph.view.getState(cell));
+					}
 				}
 				
 				ui.hideShapePicker();
@@ -1329,7 +1342,13 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 		{
 			addCell(cells[i]);
 		}
-
+		
+		if (ui.hoverIcons != null)
+		{
+			ui.hoverIcons.reset();
+		}
+		
+		graph.popupMenuHandler.hideMenu();
 		graph.tooltipHandler.hideTooltip();
 		this.hideCurrentMenu();
 		this.hideShapePicker();
@@ -3812,13 +3831,7 @@ EditorUi.prototype.createStatusContainer = function()
 {
 	var container = document.createElement('a');
 	container.className = 'geItem geStatus';
-	
-	if (screen.width < 420)
-	{
-		container.style.maxWidth = Math.max(20, screen.width - 320) + 'px';
-		container.style.overflow = 'hidden';
-	}
-	
+
 	return container;
 };
 

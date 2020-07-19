@@ -5655,7 +5655,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['sketch'];
 		}
 		
-		graph.updateCellStyles('sketch', (checked) ? '1' : null, graph.getCells());
+		graph.updateCellStyles('sketch', (checked) ? '1' : null, graph.getVerticesAndEdges());
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -5678,7 +5678,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['rounded'];
 		}
 		
-		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getCells(true, false));
+		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getVerticesAndEdges(true, false));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -5708,7 +5708,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentEdgeStyle['curved'];
 		}
 		
-		graph.updateCellStyles('curved', (checked) ? '1' : null, graph.getCells(false, true));
+		graph.updateCellStyles('curved', (checked) ? '1' : null, graph.getVerticesAndEdges(false, true));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -5721,7 +5721,7 @@ DiagramStylePanel.prototype.addView = function(div)
 	
 	var updateCells = mxUtils.bind(this, function(styles, graphStyle)
 	{
-		var cells = graph.getCells();
+		var cells = graph.getVerticesAndEdges();
 		
 		model.beginUpdate();
 		try

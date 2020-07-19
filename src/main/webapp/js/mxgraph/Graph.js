@@ -1610,7 +1610,7 @@ Graph.prototype.init = function(container)
 	/**
 	 * 
 	 */
-	Graph.prototype.getCells = function(vertices, edges)
+	Graph.prototype.getVerticesAndEdges = function(vertices, edges)
 	{
 		vertices = (vertices != null) ? vertices : true;
 		edges = (edges != null) ? edges : true;
@@ -2889,7 +2889,9 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	}
 	
 	// Checks actual end point of edge for target cell
-	var target = (ignoreCellAt) ? null : this.getCellAt(dx + pt.x * s, dy + pt.y * s);
+	var rect = (!ignoreCellAt) ? new mxRectangle(dx + pt.x * s, dy + pt.y * s).grow(40) : null;
+	var tempCells = (rect != null) ? this.getCells(0, 0, 0, 0, null, null, rect) : null;
+	var target = (tempCells != null && tempCells.length > 0) ? tempCells[0] : null;
 	var keepParent = false;
 	
 	if (target != null && this.model.isAncestor(target, source))
@@ -3096,7 +3098,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	}
 	else
 	{
-		return execute();
+		return execute(realTarget);
 	}
 };
 

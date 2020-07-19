@@ -31,8 +31,9 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		var devCsp = csp.
 			// Adds script tags and loads shapes with eval
 			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://devhost.jgraph.com \'unsafe-eval\'').
-			// Loads common.css from mxgraph
+			// Adds Trello and Dropbox backend storage
 			replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
+			// Loads common.css from mxgraph
 			replace(/%style-src%/g, 'https://devhost.jgraph.com').
 			replace(/%frame-src%/g, '').
 			replace(/  /g, ' ');
