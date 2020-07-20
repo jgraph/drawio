@@ -22,16 +22,6 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>OpenServlet</display-name>
-    <servlet-name>OpenServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.OpenServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>OpenServlet</servlet-name>
-    <url-pattern>/open</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>ProxyServlet</display-name>
     <servlet-name>ProxyServlet</servlet-name>
     <servlet-class>com.mxgraph.online.ProxyServlet</servlet-class>
