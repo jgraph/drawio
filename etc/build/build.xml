@@ -440,7 +440,11 @@
 		<fileset dir="${war.dir}/WEB-INF/lib" />
 	</path>
 
-	<target name="javac" depends="app" description="Java compilation">
+	<target name="checkGliffy">
+	    <available file="${src.dir}/com/mxgraph/io/gliffy/importer/gliffyTranslation.properties" property="gliffy.present"/>
+	</target>
+
+	<target name="javac" depends="app, checkGliffy" if="gliffy.present" description="Java compilation">
 		<mkdir dir="${javac.dir}"/>
 		<javac includeantruntime="false" srcdir="${src.dir}" excludes="**/EmbedServlet2.java" destdir="${javac.dir}">
 			<classpath refid="javac.class.path" />
