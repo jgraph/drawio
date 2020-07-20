@@ -2717,8 +2717,7 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 		{
 			var geo = this.graph.getCellGeometry(cell);
 			
-			return !this.graph.model.isEdge(cell) &&
-				!this.graph.model.isEdge(parent) &&
+			result = !this.graph.model.isEdge(parent) &&
 				!this.graph.isSiblingSelected(cell) &&
 				(geo == null || geo.relative ||
 				!this.graph.isContainer(parent) ||

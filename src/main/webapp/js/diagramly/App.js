@@ -533,7 +533,7 @@ App.main = function(callback, createUi)
 		EditorUi.logError('Global: ' + ((message != null) ? message : ''),
 			url, linenumber, colno, err, null, true);
 	};
-
+	
 	// Removes info text in embed mode
 	if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
 	{
@@ -554,6 +554,22 @@ App.main = function(callback, createUi)
 	
 	if (window.mxscript != null)
 	{
+		// Checks script content changes to avoid CSP errors in production
+		if (urlParams['dev'] == '1' && CryptoJS != null)
+		{
+			var scripts = document.getElementsByTagName('script');
+			
+			if (scripts != null && scripts.length > 0)
+			{
+				var content = mxUtils.getTextContent(scripts[0]);
+				
+				if (CryptoJS.MD5(content).toString() != '5bf9ec4131db137e247634de78c4ec47')
+				{
+					alert('[Dev] Script change requires update of CSP');
+				}
+			}
+		}
+
 		// Runs as progressive web app if service workers are supported
 		try
 		{
@@ -1131,7 +1147,7 @@ App.loadPlugins = function(plugins, useInclude)
 		{
 			try
 			{
-				var url = App.pluginRegistry[plugins[i]];
+				var url = PLUGINS_BASE_PATH + App.pluginRegistry[plugins[i]];
 				
 				if (url != null)
 				{

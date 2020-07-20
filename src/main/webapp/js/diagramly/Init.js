@@ -12,9 +12,6 @@ window.isLocalStorage = window.isLocalStorage || false;
 // Disables loading settings in configured mode
 window.mxLoadSettings = window.mxLoadSettings || urlParams['configure'] != '1';
 
-// Loading stylesheets in index.html is faster
-mxLoadStylesheets = navigator.appName.toUpperCase() == 'MICROSOFT INTERNET EXPLORER';
-
 // Checks for SVG support
 window.isSvgBrowser = window.isSvgBrowser || navigator.userAgent == null ||
 	navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 9;

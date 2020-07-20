@@ -14,8 +14,10 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			// storage.googleapis.com is needed for workbox-service-worker
 			'script-src %script-src% \'self\' https://storage.googleapis.com ' +
 				'https://apis.google.com https://*.pusher.com https://code.jquery.com ' +
-				// Scripts in index.html (not checked here)
+				// Bootstrap script in index.html (checked for changes in App.main
+				// in dev mode to avoid deployment without updating this SHA)
 				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
+				// App.main script in index.html
 				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\'; ' +
 			'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +

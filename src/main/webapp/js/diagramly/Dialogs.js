@@ -7254,7 +7254,7 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	div.appendChild(inner);
 	refresh();
 
-	var addBtn = mxUtils.button(mxResources.get('add'), addFn != null? function()
+	var addBtn = mxUtils.button(mxResources.get('add') + '...', addFn != null? function()
 	{
 		addFn(function(newPlugin)
 		{
@@ -7268,57 +7268,75 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	}
 	: function()
 	{
-		var tmp = '';
-		var param = urlParams['p'];
-	
-		if (param != null && param.length > 0)
+		var div = document.createElement('div');
+		
+		var title = document.createElement('span');
+		title.style.marginTop = '6px';
+		mxUtils.write(title, mxResources.get('builtinPlugins') + ': ');
+		div.appendChild(title);
+		
+		var pluginsSelect = document.createElement('select');
+		pluginsSelect.style.width = '150px';
+		
+		for (var i = 0; i < App.publicPlugin.length; i++)
 		{
-			var tokens = param.split(';');
-			
-			for (var i = 0; i < tokens.length; i++)
-			{
-				var url = App.pluginRegistry[tokens[i]];
-				
-				if (url != null)
-				{
-					tmp += url + ';';
-				}
-			}
-			
-			if (tmp.charAt(tmp.length - 1) == ';')
-			{
-				tmp = tmp.substring(0, tmp.length - 1);
-			}
+			var option = document.createElement('option');
+			mxUtils.write(option, App.publicPlugin[i]);
+			option.value = App.publicPlugin[i];
+			pluginsSelect.appendChild(option);
 		}
 		
-		var dlg = new FilenameDialog(editorUi, tmp, mxResources.get('add'), function(newValue)
+		div.appendChild(pluginsSelect);
+		mxUtils.br(div);
+		mxUtils.br(div);
+		
+		var customBtn = mxUtils.button(mxResources.get('custom') + '...', function()
 		{
-			if (newValue != null && newValue.length > 0)
+			var dlg = new FilenameDialog(editorUi, '', mxResources.get('add'), function(newValue)
 			{
-				tokens = newValue.split(';');
+				editorUi.hideDialog();
 				
-				for (var i = 0; i < tokens.length; i++)
+				if (newValue != null && newValue.length > 0)
 				{
-					var token = tokens[i];
-					var url = App.pluginRegistry[token];
+					var tokens = newValue.split(';');
 					
-					if (url != null)
+					for (var i = 0; i < tokens.length; i++)
 					{
-						token = url;
+						var token = tokens[i];
+						var url = App.pluginRegistry[token];
+						
+						if (url != null)
+						{
+							token = url;
+						}
+						
+						if (token.length > 0 && mxUtils.indexOf(plugins, token) < 0)
+						{
+							plugins.push(token);
+						}
 					}
 					
-					if (token.length > 0 && mxUtils.indexOf(plugins, token) < 0)
-					{
-						plugins.push(token);
-					}
+					refresh();
 				}
-				
+			}, mxResources.get('enterValue') + ' (' + mxResources.get('url') + ')');
+			
+			editorUi.showDialog(dlg.container, 300, 80, true, true);
+			dlg.init();
+		});
+		
+		customBtn.className = 'geBtn';
+					
+		var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
+		{
+			var token = App.pluginRegistry[pluginsSelect.value];
+			
+			if (mxUtils.indexOf(plugins, token) < 0)
+			{
+				plugins.push(token);
 				refresh();
 			}
-		}, mxResources.get('enterValue') + ' (' + mxResources.get('url') + ')');
-		
+		}), null, null, null, customBtn);
 		editorUi.showDialog(dlg.container, 300, 80, true, true);
-		dlg.init();
 	});
 	
 	addBtn.className = 'geBtn';

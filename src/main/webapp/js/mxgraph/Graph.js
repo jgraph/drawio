@@ -362,13 +362,12 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    		if (Math.abs(start.point.x - me.getGraphX()) > tol ||
 			    			Math.abs(start.point.y - me.getGraphY()) > tol)
 			    		{
-			    			// Lazy selection for edges inside groups
-			    			if (!this.isCellSelected(state.cell))
-			    			{
-			    				this.selectCellForEvent(state.cell, me.getEvent());
-			    			}
-			    			
 			    			var handler = this.selectionCellsHandler.getHandler(state.cell);
+			    			
+			    			if (handler == null && this.model.isEdge(state.cell))
+			    			{
+			    				handler = this.createHandler(state);
+			    			}
 			    			
 			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
 			    			{
@@ -455,13 +454,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 						    					handle = mxEvent.VIRTUAL_HANDLE;
 						    				}
 				    					}
-					    				
+				    					
 				    					handler.start(me.getGraphX(), me.getGraphX(), handle);
-				    					start.state = null;
-				    					start.event = null;
-				    					start.point = null;
-				    					start.handle = null;
-				    					start.selected = false;
 				    					me.consume();
 	
 				    					// Removes preview rectangle in graph handler
@@ -475,6 +469,31 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    							me.consume();
 	    						}
 			    			}
+			    			
+			    			if (handler != null)
+			    			{
+				    			// Lazy selection for edges inside groups
+			    				if (this.selectionCellsHandler.isHandlerActive(handler))
+			    				{
+					    			if (!this.isCellSelected(state.cell))
+					    			{
+					    				this.selectionCellsHandler.handlers.put(state.cell, handler);
+					    				this.selectCellForEvent(state.cell, me.getEvent());
+					    			}
+			    				}
+				    			else if (!this.isCellSelected(state.cell))
+				    			{
+				    				// Destroy temporary handler
+				    				handler.destroy();
+				    			}
+			    			}
+			    
+			    			// Reset start state
+		    				start.selected = false;
+		    				start.handle = null;
+	    					start.state = null;
+		    				start.event = null;
+		    				start.point = null;
 			    		}
 			    	}
 			    	else
@@ -943,69 +962,16 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			return getCursorForCell.apply(this, arguments);
 		};
 		
-		// Changes rubberband selection to be recursive
+		// Changes rubberband selection ignore locked cells
 		this.selectRegion = function(rect, evt)
 		{
-			var cells = this.getAllCells(rect.x, rect.y, rect.width, rect.height);
+			var cells = this.getCells(rect.x, rect.y, rect.width, rect.height, null, null, null, function(state)
+			{
+				return mxUtils.getValue(state.style, 'locked', '0') == '1';
+			});
 			this.selectCellsForEvent(cells, evt);
 			
 			return cells;
-		};
-		
-		// Recursive implementation for rubberband selection
-		this.getAllCells = function(x, y, width, height, parent, result)
-		{
-			result = (result != null) ? result : [];
-			
-			if (width > 0 || height > 0)
-			{
-				var model = this.getModel();
-				var right = x + width;
-				var bottom = y + height;
-	
-				if (parent == null)
-				{
-					parent = this.getCurrentRoot();
-					
-					if (parent == null)
-					{
-						parent = model.getRoot();
-					}
-				}
-				
-				if (parent != null)
-				{
-					var childCount = model.getChildCount(parent);
-					
-					for (var i = 0; i < childCount; i++)
-					{
-						var cell = model.getChildAt(parent, i);
-						var state = this.view.getState(cell);
-						
-						if (state != null && this.isCellVisible(cell) && mxUtils.getValue(state.style, 'locked', '0') != '1')
-						{
-							var deg = mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION) || 0;
-							var box = state;
-							
-							if (deg != 0)
-							{
-								box = mxUtils.getBoundingBox(box, deg);
-							}
-							
-							if ((model.isEdge(cell) || model.isVertex(cell)) &&
-								box.x >= x && box.y + box.height <= bottom &&
-								box.y >= y && box.x + box.width <= right)
-							{
-								result.push(cell);
-							}
-	
-							this.getAllCells(x, y, width, height, cell, result);
-						}
-					}
-				}
-			}
-			
-			return result;
 		};
 
 		// Never removes cells from parents that are being moved
@@ -2891,7 +2857,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	// Checks actual end point of edge for target cell
 	var rect = (!ignoreCellAt) ? new mxRectangle(dx + pt.x * s, dy + pt.y * s).grow(40) : null;
 	var tempCells = (rect != null) ? this.getCells(0, 0, 0, 0, null, null, rect) : null;
-	var target = (tempCells != null && tempCells.length > 0) ? tempCells[0] : null;
+	var target = (tempCells != null && tempCells.length > 0) ? tempCells.reverse()[0] : null;
 	var keepParent = false;
 	
 	if (target != null && this.model.isAncestor(target, source))

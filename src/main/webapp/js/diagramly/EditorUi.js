@@ -7370,20 +7370,6 @@
 						{
 							this.editor.graph.setSelectionCells(
 								this.importXml(xml, dx, dy, crop));
-							
-							if (!this.isOffline() &&
-								(/.*\.diagrams\.net$/.test(window.location.hostname) ||
-								/.*\.appspot\.com$/.test(window.location.hostname) ||
-								/.*\.draw\.io$/.test(window.location.hostname)))
-							{
-								this.showBanner('LucidChartImportSurvey', mxResources.get('notSatisfiedWithImport'),
-									mxUtils.bind(this, function()
-								{
-									var dlg = new FeedbackDialog(this, 'Lucidchart Import Feedback', true, text);
-									this.showDialog(dlg.container, 610, 360, true, false);
-									dlg.init();
-								}));
-							}
 						}), mxUtils.bind(this, function(e)
 						{
 							this.handleError(e);

@@ -1303,34 +1303,36 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 
 			mxEvent.addListener(node, 'click', function()
 			{
+				var clone = graph.cloneCell(cell);
+				
 				if (callback != null)
 				{
-					callback(cell);
+					callback(clone);
 				}
 				else
 				{
-					cell.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
+					clone.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
 						graph.view.translate.x - cell.geometry.width / 2);
-					cell.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
+					clone.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
 						graph.view.translate.y - cell.geometry.height / 2);
 					
 					graph.model.beginUpdate();
 					try
 					{
-						graph.addCell(cell);
+						graph.addCell(clone);
 					}
 					finally
 					{
 						graph.model.endUpdate();
 					}
 					
-					graph.setSelectionCell(cell);
-					graph.scrollCellToVisible(graph.getSelectionCell());
-					graph.startEditingAtCell(cell);
+					graph.setSelectionCell(clone);
+					graph.scrollCellToVisible(clone);
+					graph.startEditingAtCell(clone);
 					
 					if (ui.hoverIcons != null)
 					{
-						ui.hoverIcons.update(graph.view.getState(cell));
+						ui.hoverIcons.update(graph.view.getState(clone));
 					}
 				}
 				
