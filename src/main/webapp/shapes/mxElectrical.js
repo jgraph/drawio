@@ -561,6 +561,7 @@ mxShapeElectricalLogicGate.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.moveTo(w * 0.1, 0);
 			c.arcTo(w * 0.6, h, 0, 0, 1, w * 0.1, h);
 			c.stroke();
+	    break;
 	  case 'or':
 			c.begin();
 			c.moveTo(w * 0.4, 0);
