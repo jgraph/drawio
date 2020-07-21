@@ -95,7 +95,6 @@ mxShapeElectricalStraightBus.prototype.paintVertexShape = function(c, x, y, w, h
 {
 	c.translate(x, y);
 
-	var size = Math.min(w, h); 
 	var x1 = w * 0.2;
 	var y1 = 0;
 	
