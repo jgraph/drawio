@@ -1634,7 +1634,6 @@ mxShapeElectricalMux.prototype.getConstraints = function(style, w, h)
 	var pinRange = (h - 16) / h;
 	var selectorPins = parseInt(mxUtils.getValue(this.style, 'selectorPins', '1'));
 	var operation = mxUtils.getValue(this.style, 'operation', 'mux');
-	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 	
 	var numInputs = 1;
 	var numOutputs = 1;
