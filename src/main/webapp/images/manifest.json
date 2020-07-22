@@ -4,10 +4,10 @@
     "description": "diagrams.net is a completely free diagram editor",
     "icons": [
         {
-            "src": "/images/android-chrome-192x192.png",
-            "sizes": "192x192",
+            "src": "/images/android-chrome-196x196.png",
+            "sizes": "196x196",
             "type": "image/png",
-            "purpose": "any maskable"
+     		"purpose": "any maskable"
         },
         {
             "src": "/images/android-chrome-512x512.png",

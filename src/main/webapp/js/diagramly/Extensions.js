@@ -107,10 +107,10 @@ LucidImporter = {};
 			'RoundedRectangleContainerBlock': 'fillColor=none;container=1;rounded=1;absoluteArcSize=1;arcSize=24',
 			'CircleContainerBlock': 'shape=ellipse;fillColor=none;container=1',
 			'PillContainerBlock': 'arcSize=50;fillColor=none;container=1',
-//			'BraceBlock' NA
-//			'BracketBlock' NA
-//			'BraceBlockRotated' NA
-//			'BracketBlockRotated' NA
+			'BraceBlock': cs,
+			'BracketBlock': cs,
+			'BraceBlockRotated': cs,
+			'BracketBlockRotated': cs,
 //Geometric shapes
 			'IsoscelesTriangleBlock': 'triangle;direction=north;anchorPointDirection=0',
 			'RightTriangleBlock': s + 'basic.orthogonal_triangle',
@@ -4936,6 +4936,10 @@ LucidImporter = {};
 		{
 			return 'dashed=1;dashPattern=10 5 1 5;';
 		}
+		else if (properties.StrokeStyle == 'dashdotdot')
+		{
+			return 'dashed=1;dashPattern=10 5 1 5 1 5;';
+		}
 		else if (properties.StrokeStyle == 'dotdotdot')
 		{
 			return 'dashed=1;dashPattern=1 2;';
@@ -4943,6 +4947,22 @@ LucidImporter = {};
 		else if (properties.StrokeStyle == 'longdash')
 		{
 			return 'dashed=1;dashPattern=16 6;';
+		}
+		else if (properties.StrokeStyle == 'dashlongdash')
+		{
+			return 'dashed=1;dashPattern=10 6 16 6;';
+		}
+		else if (properties.StrokeStyle == 'dashed24')
+		{
+			return 'dashed=1;dashPattern=3 8;';
+		}
+		else if (properties.StrokeStyle == 'dashed32')
+		{
+			return 'dashed=1;dashPattern=6 5;';
+		}
+		else if (properties.StrokeStyle == 'dashed44')
+		{
+			return 'dashed=1;dashPattern=8 8;';
 		}
 		else if (properties.StrokeStyle != null && properties.
 			StrokeStyle.substring(0, 6) == 'dashed')
@@ -11689,6 +11709,36 @@ LucidImporter = {};
 						'verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,' + ((window.btoa) ? btoa(svg) : Base64.encode(svg, true));
 				}
 				catch(e){}
+				break;
+			case 'BraceBlock':
+			case 'BraceBlockRotated':
+				var sideStyle = addAllStyles(v.style, p, a, v, isLastLblHTML);
+				var rotation = getRotation(p, a, v);
+				v.style = 'group;' + rotation;
+				var sideWidth = Math.min((rotation? w : h) * 0.14, 100);
+				var dim = rotation? (w - sideWidth) / 2 : 0;
+				var left = new mxCell('', new mxGeometry(dim, dim, sideWidth, h), 'shape=curlyBracket;rounded=1;' + sideStyle);
+				left.vertex = true;
+				var right = new mxCell('', new mxGeometry(rotation? dim : w - sideWidth, -dim, sideWidth, h), 'shape=curlyBracket;rounded=1;flipH=1;' + sideStyle);
+				right.vertex = true;
+				
+				v.insert(left);
+				v.insert(right);
+				break;
+			case 'BracketBlock':
+			case 'BracketBlockRotated':
+				var sideStyle = addAllStyles(v.style, p, a, v, isLastLblHTML);
+				var rotation = getRotation(p, a, v);
+				v.style = 'group;' + rotation;
+				var sideWidth = Math.min((rotation? w : h) * 0.14, 100);
+				var dim = rotation? (w - sideWidth) / 2 : 0;
+				var left = new mxCell('', new mxGeometry(dim, dim, sideWidth, h), 'shape=curlyBracket;rounded=1;size=0;arcSize=50;' + sideStyle);
+				left.vertex = true;
+				var right = new mxCell('', new mxGeometry(rotation? dim : w - sideWidth, -dim, sideWidth, h), 'shape=curlyBracket;rounded=1;flipH=1;size=0;arcSize=50;' + sideStyle);
+				right.vertex = true;
+				
+				v.insert(left);
+				v.insert(right);
 				break;
 		}
 

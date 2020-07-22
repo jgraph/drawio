@@ -1264,7 +1264,10 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 		var ui = this;
 		var graph = this.editor.graph;
 		var div = document.createElement('div');
-		var style = (source != null) ? graph.copyStyle(source) : null;
+		var sourceState = graph.view.getState(source);
+		var style = (source != null && (sourceState == null ||
+			!graph.isTransparentState(sourceState))) ?
+			graph.copyStyle(source) : null;
 		
 		// Do not place entry under pointer for touch devices
 		var off = -4;
@@ -3446,6 +3449,7 @@ EditorUi.prototype.updateActionStates = function()
 	var graph = this.editor.graph;
 	var selected = !graph.isSelectionEmpty();
 	var vertexSelected = false;
+	var groupSelected = false;
 	var edgeSelected = false;
 
 	var cells = graph.getSelectionCells();
@@ -3464,6 +3468,12 @@ EditorUi.prototype.updateActionStates = function()
     		if (graph.getModel().isVertex(cell))
     		{
     			vertexSelected = true;
+    			
+	    		if (graph.getModel().getChildCount(cell) > 0 ||
+	    			graph.isContainer(cell))
+	    		{
+	    			groupSelected = true;
+	    		}
     		}
     		
     		if (edgeSelected && vertexSelected)
@@ -3496,9 +3506,7 @@ EditorUi.prototype.updateActionStates = function()
    	var oneVertexSelected = vertexSelected && graph.getSelectionCount() == 1;
 	this.actions.get('group').setEnabled(graph.getSelectionCount() > 1 ||
 		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell())));
-	this.actions.get('ungroup').setEnabled(graph.getSelectionCount() == 1 &&
-		(graph.getModel().getChildCount(graph.getSelectionCell()) > 0 ||
-		(oneVertexSelected && graph.isContainer(graph.getSelectionCell()))));
+	this.actions.get('ungroup').setEnabled(groupSelected);
    	this.actions.get('removeFromGroup').setEnabled(oneVertexSelected &&
    		graph.getModel().isVertex(graph.getModel().getParent(graph.getSelectionCell())));
 

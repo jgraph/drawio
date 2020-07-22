@@ -4013,9 +4013,12 @@
 				
 				if (source != chk && source != label)
 				{
-					onclick();
+					if (onclick != null)
+					{
+						onclick();
+					}
+					
 					onclose();
-				
 					mxEvent.consume(e);
 				}
 				else

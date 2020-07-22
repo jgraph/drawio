@@ -284,13 +284,39 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+G');
 	this.addAction('ungroup', function()
 	{
-		if (graph.getSelectionCount() == 1 && graph.getModel().getChildCount(graph.getSelectionCell()) == 0)
+		if (graph.isEnabled() && !graph.isSelectionEmpty())
 		{
-			graph.setCellStyles('container', '0');
-		}
-		else
-		{
-			graph.setSelectionCells(graph.ungroupCells());
+			var cells = graph.getSelectionCells();
+			
+	        graph.model.beginUpdate();
+			try
+			{
+				var temp = graph.ungroupCells();
+				
+				// Unsets container flag for remaining cells
+				if (cells != null)
+				{
+					for (var i = 0; i < cells.length; i++)
+			    	{
+						if (graph.model.contains(cells[i]))
+						{
+							if (graph.model.getChildCount(cells[i]) == 0 &&
+								graph.model.isVertex(cells[i]))
+							{
+								graph.setCellStyles('container', '0', [cells[i]]);
+							}
+							
+							temp.push(cells[i]);
+						}
+			    	}
+				}
+		    }
+			finally
+			{
+				graph.model.endUpdate();
+			}
+	
+			graph.setSelectionCells(temp);
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+U');
 	this.addAction('removeFromGroup', function() { graph.removeCellsFromParent(); });
@@ -309,8 +335,6 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+M');
 	this.addAction('editTooltip...', function()
 	{
-		var graph = ui.editor.graph;
-		
 		if (graph.isEnabled() && !graph.isSelectionEmpty())
 		{
 			var cell = graph.getSelectionCell();
@@ -345,8 +369,6 @@ Actions.prototype.init = function()
 	});
 	this.addAction('editLink...', function()
 	{
-		var graph = ui.editor.graph;
-		
 		if (graph.isEnabled() && !graph.isSelectionEmpty())
 		{
 			var cell = graph.getSelectionCell();
@@ -424,8 +446,6 @@ Actions.prototype.init = function()
 	})).isEnabled = isGraphEnabled;
 	this.addAction('link...', mxUtils.bind(this, function()
 	{
-		var graph = ui.editor.graph;
-		
 		if (graph.isEnabled())
 		{
 			if (graph.cellEditor.isContentEditing())

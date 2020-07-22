@@ -1,3 +1,9 @@
+22-JUL-2020: 13.5.0
+
+- Restores cloning of rows with blue arrows
+- Fixes ungroup for multiple groups
+- Uses mxGraph 4.2.1 beta 7
+
 20-JUL-2020: 13.4.9
 
 - Fixes handling of built-in plugins

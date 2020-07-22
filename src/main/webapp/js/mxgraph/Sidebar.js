@@ -2329,9 +2329,10 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 
 			// Handles special case where target should be ignored for stack layouts
 			var targetParent = graph.model.getParent(source);
+			var ignoreParent = false;
 			var validLayout = true;
 			
-			// Ignores parent if it has a stack layout
+			// Ignores parent if it has a stack layout or if it is a table or row
 			if (graph.layoutManager != null)
 			{
 				var layout = graph.layoutManager.getLayout(targetParent);
@@ -2340,29 +2341,62 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				if (layout != null && layout.constructor == mxStackLayout)
 				{
 					validLayout = false;
-
-					var tmp = graph.view.getState(targetParent);
-					
-					// Offsets by parent position
-					if (tmp != null)
-					{
-						var offset = new mxPoint((tmp.x / graph.view.scale - graph.view.translate.x),
-								(tmp.y / graph.view.scale - graph.view.translate.y));
-						geo.x += offset.x;
-						geo.y += offset.y;
-						var pt = geo.getTerminalPoint(false);
-						
-						if (pt != null)
-						{
-							pt.x += offset.x;
-							pt.y += offset.y;
-						}
-					}
 				}
 			}
 			
-			var dx = geo2.x;
-			var dy = geo2.y;
+			// Checks if another container is at the drop location
+			var dx = 0;
+			var dy = 0;
+			var tmp = graph.view.getState(targetParent);
+			
+			// Offsets by parent position
+			if (tmp != null)
+			{
+				var offset = new mxPoint((tmp.x / graph.view.scale - graph.view.translate.x),
+					(tmp.y / graph.view.scale - graph.view.translate.y));
+				dx = offset.x;
+				dy = offset.y;
+
+				var pt = geo.getTerminalPoint(false);
+				
+				if (pt != null)
+				{
+					pt.x += offset.x;
+					pt.y += offset.y;
+				}
+			}
+			
+			var useParent = !graph.isTableRow(source) && !graph.isTableCell(source) &&
+				(graph.model.isEdge(source) || (sourceGeo != null &&
+				!sourceGeo.relative && validLayout));
+			var tempTarget = graph.getCellAt((geo.x + dx + graph.view.translate.x) * graph.view.scale,
+				(geo.y + dy + graph.view.translate.y) * graph.view.scale);
+			
+			if (tempTarget != null && tempTarget != targetParent &&
+				(graph.isContainer(tempTarget) || graph.isSwimlane(tempTarget)))
+			{
+				tmp = graph.view.getState(tempTarget);
+			
+				// Offsets by new parent position
+				if (tmp != null)
+				{
+					var offset = new mxPoint((tmp.x / graph.view.scale - graph.view.translate.x),
+						(tmp.y / graph.view.scale - graph.view.translate.y));
+					targetParent = tempTarget;
+					
+					geo.x -= offset.x - dx;
+					geo.y -= offset.y - dy;
+					useParent = true;
+				}
+			}
+			else if (!validLayout || graph.isTableRow(source) || graph.isTableCell(source))
+			{
+				geo.x += dx;
+				geo.y += dy;
+			}
+
+			dx = geo2.x;
+			dy = geo2.y;
 			
 			// Ignores geometry of edges
 			if (graph.model.isEdge(targets[dropCellIndex]))
@@ -2371,9 +2405,8 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				dy = 0;
 			}
 			
-			var useParent = graph.model.isEdge(source) || (sourceGeo != null && !sourceGeo.relative && validLayout);
 			targets = graph.importCells(targets, (geo.x - (useParent ? dx : 0)),
-					(geo.y - (useParent ? dy : 0)), (useParent) ? targetParent : null);
+				(geo.y - (useParent ? dy : 0)), (useParent) ? targetParent : null);
 			tmp = targets;
 			
 			if (graph.model.isEdge(source))
