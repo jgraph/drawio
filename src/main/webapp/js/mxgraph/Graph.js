@@ -2814,7 +2814,9 @@ Graph.prototype.isCloneConnectSource = function(source)
  * Adds a connection to the given vertex.
  */
 Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done)
-{
+{	
+	ignoreCellAt = (ignoreCellAt) ? ignoreCellAt : false;
+	
 	// Ignores relative edge labels
 	if (source.geometry.relative && this.model.isEdge(source.parent))
 	{
@@ -2827,8 +2829,6 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		source = source.parent;
 	}
 	
-	ignoreCellAt = (ignoreCellAt) ? ignoreCellAt : false;
-		
 	// Handles clone connect sources
 	var cloneSource = this.isCloneConnectSource(source);
 	var composite = (cloneSource) ? source : this.getCompositeParent(source);
@@ -2888,6 +2888,18 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	{
 		keepParent = true;
 		target = null;
+	}
+	
+	// Checks for swimlane at drop location
+	if (target == null)
+	{
+		var temp = this.getSwimlaneAt(dx + pt.x * s, dy + pt.y * s);
+		
+		if (temp != null)
+		{
+			keepParent = false;
+			target = temp;
+		}
 	}
 	
 	// Checks if target or ancestor is locked
@@ -2996,7 +3008,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 						geo.x = pt.x - geo.width / 2;
 						geo.y = pt.y - geo.height / 2;
 					}
-
+					
 					if (swimlane)
 					{
 						this.addCells([realTarget], target, null, null, null, true);

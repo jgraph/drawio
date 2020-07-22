@@ -2890,6 +2890,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			}
 			else if (currentTargetState != null && activeArrow != null)
 			{
+				if (dragSource.currentHighlight != null && dragSource.currentHighlight.state != null)
+				{
+					dragSource.currentHighlight.hide();
+				}
+				
 				var index = (graph.model.isEdge(currentTargetState.cell) || freeSourceEdge == null) ? firstVertex : freeSourceEdge;
 				var geo = sidebar.getDropAndConnectGeometry(currentTargetState.cell, cells[index], direction, cells);
 				var geo2 = (!graph.model.isEdge(currentTargetState.cell)) ? graph.getCellGeometry(currentTargetState.cell) : null;
