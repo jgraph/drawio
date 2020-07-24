@@ -1,3 +1,9 @@
+24-JUL-2020: 13.5.2
+
+- Fixes auth for OneDrive viewer
+- Fixes viewer links
+- Uses mxGraph 4.2.1 beta 8
+
 22-JUL-2020: 13.5.1
 
 - Removes official Azure icons for licensing reasons

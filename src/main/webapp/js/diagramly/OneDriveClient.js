@@ -32,6 +32,9 @@ OneDriveClient.prototype.clientId = window.DRAWIO_MSGRAPH_CLIENT_ID || ((window.
 
 OneDriveClient.prototype.clientId = window.location.hostname == 'app.diagrams.net' ?
 		'b5ff67d6-3155-4fca-965a-59a3655c4476' : OneDriveClient.prototype.clientId;
+
+OneDriveClient.prototype.clientId = window.location.hostname == 'viewer.diagrams.net' ?
+		'417a451a-a343-4788-b6c1-901e63182565' : OneDriveClient.prototype.clientId;
 /**
  * OAuth 2.0 scopes for installing Drive Apps.
  */

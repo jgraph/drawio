@@ -6,8 +6,6 @@ OneDriveFile = function(ui, data, meta)
 {
 	DrawioFile.call(this, ui, data);
 	
-	console.log('meta', meta);
-	
 	this.meta = meta;
 };
 

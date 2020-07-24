@@ -2715,11 +2715,12 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 		
 		if (immediate)
 		{
-			var geo = this.graph.getCellGeometry(cell);
+			var geo = (this.graph.model.isEdge(cell)) ? null :
+				this.graph.getCellGeometry(cell);
 			
 			result = !this.graph.model.isEdge(parent) &&
 				!this.graph.isSiblingSelected(cell) &&
-				(geo == null || geo.relative ||
+				((geo != null && geo.relative) ||
 				!this.graph.isContainer(parent) ||
 				this.graph.isPart(cell));
 		}

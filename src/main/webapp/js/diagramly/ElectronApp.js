@@ -1,6 +1,7 @@
 window.PLUGINS_BASE_PATH = '.';
 window.TEMPLATE_PATH = 'templates';
 window.DRAW_MATH_URL = 'math';
+window.DRAWIO_BASE_URL = '.'; //Prevent access to online website since it is not allowed
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
 //Disables eval for JS (uses shapes.min.js)
@@ -17,27 +18,35 @@ mxStencilRegistry.allowEval = false;
 	// Disables new window option in edit diagram dialog
 	EditDiagramDialog.showNewWindowOption = false;
 
-	// Redirects printing to iframe to avoid document.write
-	var printDialogCreatePrintPreview = PrintDialog.createPrintPreview; 
+	PrintDialog.previewEnabled = false;
 	
-	PrintDialog.createPrintPreview = function()
+	PrintDialog.electronPrint = function(editorUi, allPages, pagesFrom, pagesTo, 
+			fit, sheetsAcross, sheetsDown, zoom, pageScale, pageFormat)
 	{
-		var iframe = document.createElement('iframe');
-		document.body.appendChild(iframe);
-
-		var result = printDialogCreatePrintPreview.apply(this, arguments);
-		result.wnd = iframe.contentWindow;
-		result.iframe = iframe;
-				
-		// Workaround for lost gradients in print output
-		result.previousGetBaseUrl = mxSvgCanvas2D.prototype.getBaseUrl;
+		var xml = '';
+		var file = editorUi.getCurrentFile();
 		
-		mxSvgCanvas2D.prototype.getBaseUrl = function()
+		if (file)
 		{
-			return '';
-		};
+			file.updateFileData();
+			xml = file.getData();
+		}
 		
-		return result;
+		new mxElectronRequest('export', {
+			print: true,
+			format: 'pdf',
+			xml: xml,
+			from: pagesFrom - 1,
+			to: pagesTo - 1,
+			allPages: allPages,
+			pageWidth: pageFormat.width,
+			pageHeight: pageFormat.height,
+			pageScale: pageScale,
+			fit: fit,
+			sheetsAcross: sheetsAcross,
+			sheetsDown: sheetsDown,
+			scale: zoom
+		}).send(function(){}, function(){});
 	};
 	
 	var oldWindowOpen = window.open;
@@ -133,33 +142,6 @@ mxStencilRegistry.allowEval = false;
 		urlParams['plugins'] = '0';
 		origAppMain.apply(this, arguments);
 	};
-	
-	mxPrintPreview.prototype.addPageBreak = function(doc)
-	{
-		// Do nothing
-	};
-
-	mxPrintPreview.prototype.closeDocument = function()
-	{
-		var doc = this.wnd.document;
-		
-		// Removes all event handlers in the print output
-		mxEvent.release(doc.body);
-	};
-	
-	PrintDialog.printPreview = function(preview)
-	{
-		if (preview.iframe != null)
-		{
-			preview.iframe.contentWindow.print();
-			preview.iframe.parentNode.removeChild(preview.iframe);
-		
-			mxSvgCanvas2D.prototype.getBaseUrl = preview.previousGetBaseUrl;
-			preview.iframe = null;
-		}
-	};
-	
-	PrintDialog.previewEnabled = false;
 	
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()

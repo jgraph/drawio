@@ -1227,14 +1227,31 @@ function exportDiagram(event, args, directFinalize)
 				}
 				else if (args.format == 'pdf')
 				{
-					contents.printToPDF(pdfOptions).then((data) => 
+					if (args.print)
 					{
-						event.reply('export-success', data);
-					})
-					.catch((error) => 
+						pdfOptions.scaleFactor = args.pageScale;
+						pdfOptions.pageSize = {
+							width: args.pageWidth * MICRON_TO_PIXEL,
+							height: (args.pageHeight + 2) * MICRON_TO_PIXEL
+						};
+						 
+						contents.print(pdfOptions, (success, errorType) => 
+						{
+							//Consider all as success
+							event.reply('export-success', {});
+						});
+					}
+					else
 					{
-						event.reply('export-error', error);
-					});
+						contents.printToPDF(pdfOptions).then((data) => 
+						{
+							event.reply('export-success', data);
+						})
+						.catch((error) => 
+						{
+							event.reply('export-error', error);
+						});
+					}
 				}
 				else if (args.format == 'svg')
 				{
@@ -1264,21 +1281,10 @@ function exportDiagram(event, args, directFinalize)
 				});
 			}
 			
-			contents.send('render', {
-				xml: args.xml,
-				format: args.format,
-				w: args.w,
-				h: args.h,
-				border: args.border || 0,
-				bg: args.bg,
-				"from": args["from"],
-				to: args.to,
-				pageId: args.pageId,
-				allPages: args.allPages,
-				scale: args.scale || 1,
-				extras: args.extras,
-				uncompressed: args.uncompressed
-			});
+			args.border = args.border || 0;
+			args.scale = args.scale || 1;
+			
+			contents.send('render', args);
 	    });
 	}
 	catch (e)

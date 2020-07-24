@@ -714,13 +714,16 @@
 	};
 	mxUtils.extend(ParallelogramShape, mxActor);
 	ParallelogramShape.prototype.size = 0.2;
+	ParallelogramShape.prototype.fixedSize = 20;
 	ParallelogramShape.prototype.isRoundable = function()
 	{
 		return true;
 	};
 	ParallelogramShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
-		var dx = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
+
+		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) : w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
 		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
 		this.addPoints(c, [new mxPoint(0, h), new mxPoint(dx, 0), new mxPoint(w, 0), new mxPoint(w - dx, h)],
 				this.isRounded, arcSize, true);
@@ -746,7 +749,7 @@
 		
 		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
 
-		var dx = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) : w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var dx = (fixed) ? Math.max(0, Math.min(w * 0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) : w * Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
 		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
 		this.addPoints(c, [new mxPoint(0, h), new mxPoint(dx, 0), new mxPoint(w - dx, 0), new mxPoint(w, h)],
 				this.isRounded, arcSize, true);
@@ -1232,7 +1235,7 @@
 	HexagonShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
 		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
-		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) :
+		var s = (fixed) ? Math.max(0, Math.min(w * 0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) :
 			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
 		var arcSize = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE, mxConstants.LINE_ARCSIZE) / 2;
 		this.addPoints(c, [new mxPoint(s, 0), new mxPoint(w - s, 0), new mxPoint(w, 0.5 * h), new mxPoint(w - s, h),
@@ -1805,11 +1808,17 @@
 	// Parallelogram Perimeter
 	mxPerimeter.ParallelogramPerimeter = function (bounds, vertex, next, orthogonal)
 	{
-		var size = ParallelogramShape.prototype.size;
+		var fixed = mxUtils.getValue(vertex.style, 'fixedSize', '0') != '0';
+		var size = (fixed) ? ParallelogramShape.prototype.fixedSize : ParallelogramShape.prototype.size;
 		
 		if (vertex != null)
 		{
 			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		if (fixed)
+		{
+			size *= vertex.view.scale;
 		}
 		
 		var x = bounds.x;
@@ -1826,13 +1835,13 @@
 		
 		if (vertical)
 		{
-			var dy = h * Math.max(0, Math.min(1, size));
+			var dy = (fixed) ? Math.max(0, Math.min(h, size)) : h * Math.max(0, Math.min(1, size));
 			points = [new mxPoint(x, y), new mxPoint(x + w, y + dy),
 						new mxPoint(x + w, y + h), new mxPoint(x, y + h - dy), new mxPoint(x, y)];
 		}
 		else
 		{
-			var dx = w * Math.max(0, Math.min(1, size));
+			var dx = (fixed) ? Math.max(0, Math.min(w * 0.5, size)) : w * Math.max(0, Math.min(1, size));
 			points = [new mxPoint(x + dx, y), new mxPoint(x + w, y),
 							new mxPoint(x + w - dx, y + h), new mxPoint(x, y + h), new mxPoint(x + dx, y)];
 		}	
@@ -1870,6 +1879,11 @@
 			size = mxUtils.getValue(vertex.style, 'size', size);
 		}
 		
+		if (fixed)
+		{
+			size *= vertex.view.scale;
+		}
+		
 		var x = bounds.x;
 		var y = bounds.y;
 		var w = bounds.width;
@@ -1878,11 +1892,11 @@
 		var direction = (vertex != null) ? mxUtils.getValue(
 				vertex.style, mxConstants.STYLE_DIRECTION,
 				mxConstants.DIRECTION_EAST) : mxConstants.DIRECTION_EAST;
-		var points;
+		var points = [];
 		
 		if (direction == mxConstants.DIRECTION_EAST)
 		{
-			var dx = (fixed) ? Math.max(0, Math.min(w, size)) : w * Math.max(0, Math.min(1, size));
+			var dx = (fixed) ? Math.max(0, Math.min(w * 0.5, size)) : w * Math.max(0, Math.min(1, size));
 			points = [new mxPoint(x + dx, y), new mxPoint(x + w - dx, y),
 						new mxPoint(x + w, y + h), new mxPoint(x, y + h), new mxPoint(x + dx, y)];
 		}
@@ -2013,6 +2027,11 @@
 		if (vertex != null)
 		{
 			size = mxUtils.getValue(vertex.style, 'size', size);
+		}
+		
+		if (fixed)
+		{
+			size *= vertex.view.scale;
 		}
 		
 		var x = bounds.x;
@@ -3405,7 +3424,7 @@
 			};
 		};
 		
-		function createTrapezoidHandleFunction(max, fixedDefaultValue)
+		function createTrapezoidHandleFunction(max, defaultValue, fixedDefaultValue)
 		{
 			max = (max != null) ? max : 0.5;
 			
@@ -3414,8 +3433,9 @@
 				var handles = [createHandle(state, ['size'], function(bounds)
 				{
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
-					var size = Math.max(0, Math.min(max, parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? 0 : TrapezoidShape.prototype.size))));
-					return new mxPoint(bounds.x + size * bounds.width * 0.75, bounds.y + bounds.height / 4);
+					var size = Math.max(0, parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? fixedDefaultValue : defaultValue)));
+					
+					return new mxPoint(bounds.x + Math.min(bounds.width * 0.75 * max, size * ((fixed) ? 0.75 : bounds.width * 0.75)), bounds.y + bounds.height / 4);
 				}, function(bounds, pt)
 				{
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
@@ -3435,7 +3455,7 @@
 		
 		function createDisplayHandleFunction(defaultValue, allowArcHandle, max, redrawEdges, fixedDefaultValue)
 		{
-			max = (max != null) ? max : 1;
+			max = (max != null) ? max : 0.5;
 			
 			return function(state)
 			{
@@ -3444,7 +3464,7 @@
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
 					var size = parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? fixedDefaultValue : defaultValue));
 	
-					return new mxPoint(bounds.x + Math.max(0, Math.min(bounds.width, size * ((fixed) ? 1 : bounds.width))), bounds.getCenterY());
+					return new mxPoint(bounds.x + Math.max(0, Math.min(bounds.width * 0.5, size * ((fixed) ? 1 : bounds.width))), bounds.getCenterY());
 				}, function(bounds, pt, me)
 				{
 					var fixed = (fixedDefaultValue != null) ? mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0' : null;
@@ -4074,8 +4094,8 @@
 			'cube': createCubeHandleFunction(1, CubeShape.prototype.size, false),
 			'card': createCubeHandleFunction(0.5, CardShape.prototype.size, true),
 			'loopLimit': createCubeHandleFunction(0.5, LoopLimitShape.prototype.size, true),
-			'trapezoid': createTrapezoidHandleFunction(0.5, HexagonShape.prototype.fixedSize),
-			'parallelogram': createTrapezoidHandleFunction(1)
+			'trapezoid': createTrapezoidHandleFunction(0.5, TrapezoidShape.prototype.size, TrapezoidShape.prototype.fixedSize),
+			'parallelogram': createTrapezoidHandleFunction(1, ParallelogramShape.prototype.size, ParallelogramShape.prototype.fixedSize)
 		};
 		
 		// Exposes custom handles

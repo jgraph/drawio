@@ -1589,7 +1589,7 @@ EditorUi.prototype.addTabListeners = function(page, tab)
  * Returns an absolute URL to the given page or null of absolute links
  * to pages are not supported in this file.
  */
-EditorUi.prototype.getLinkForPage = function(page, params)
+EditorUi.prototype.getLinkForPage = function(page, params, lightbox)
 {
 	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
@@ -1606,7 +1606,11 @@ EditorUi.prototype.getLinkForPage = function(page, params)
 				search += '&' + params.join('&');
 			}
 			
-			return window.location.protocol + '//' + window.location.host + '/' + search + '#' + file.getHash();
+			return ((lightbox && urlParams['dev'] != '1') ? EditorUi.lightboxHost :
+				(((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
+				!(/.*\.draw\.io$/.test(window.location.hostname))) ?
+				EditorUi.drawHost : 'https://' + window.location.host))) +
+				'/' + search + '#' + file.getHash();
 		}
 	}
 	
@@ -1671,7 +1675,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 							width: Math.round(bounds.width), height: Math.round(bounds.height), border: 100})));
 					}
 					
-					var dlg = new EmbedDialog(this, this.getLinkForPage(page, params));
+					var dlg = new EmbedDialog(this, this.getLinkForPage(page, params, lightbox));
 					this.showDialog(dlg.container, 440, 240, true, true);
 					dlg.init();
 				}));

@@ -5021,7 +5021,10 @@
 		
 		if (lightbox)
 		{
-			params.push('lightbox=1');
+			if (urlParams['dev'] == '1')
+			{
+				params.push('lightbox=1');
+			}
 
 			if (linkTarget != 'auto')
 			{
@@ -5030,7 +5033,8 @@
 			
 			if (linkColor != null && linkColor != mxConstants.NONE)
 			{
-				params.push('highlight=' + ((linkColor.charAt(0) == '#') ? linkColor.substring(1) : linkColor));
+				params.push('highlight=' + ((linkColor.charAt(0) == '#') ?
+					linkColor.substring(1) : linkColor));
 			}
 			
 			if (editLink != null && editLink.length > 0)
@@ -5063,7 +5067,7 @@
 	 */
 	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params)
 	{
-		params = (params != null) ? params : this.createUrlParameters(linkTarget, linkColor, allPages, false, editLink, layers);
+		params = (params != null) ? params : this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
 		var file = this.getCurrentFile();
 		var addTitle = true;
 		var data = '';
@@ -5094,9 +5098,10 @@
 		{
 			params.push('title=' + encodeURIComponent(file.getTitle()));
 		}
-
-		return ((lightbox) ? EditorUi.lightboxHost : (((mxClient.IS_CHROMEAPP ||
-			EditorUi.isElectronApp || !(/.*\.draw\.io$/.test(window.location.hostname))) ?
+		
+		return ((lightbox && urlParams['dev'] != '1') ? EditorUi.lightboxHost :
+			(((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp ||
+			!(/.*\.draw\.io$/.test(window.location.hostname))) ?
 			EditorUi.drawHost : 'https://' + window.location.host))) + '/' +
 			((params.length > 0) ? '?' + params.join('&') : '') + data;
 	};
