@@ -1,6 +1,9 @@
+24-JUL-2020: 13.5.3
+
+- Fixes print in static viewer
+
 24-JUL-2020: 13.5.2
 
-- Fixes auth for OneDrive viewer
 - Fixes viewer links
 - Uses mxGraph 4.2.1 beta 8
 

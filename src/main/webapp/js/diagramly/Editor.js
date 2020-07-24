@@ -6848,7 +6848,7 @@
 			var ignorePages = !allPagesRadio.checked;
 			var pv = null;
 			
-			if (mxIsElectron)
+			if (typeof mxIsElectron !== 'undefined' && mxIsElectron)
 			{
 				PrintDialog.electronPrint(editorUi, allPagesRadio.checked, pagesFrom, pagesTo, 
 						fitRadio.checked, sheetsAcrossInput.value, sheetsDownInput.value, parseInt(zoomInput.value) / 100, parseInt(pageScaleInput.value) / 100, accessor.get());
