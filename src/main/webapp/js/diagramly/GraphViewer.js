@@ -24,6 +24,11 @@ GraphViewer.prototype.editBlankUrl = 'https://app.diagrams.net/';
 GraphViewer.prototype.imageBaseUrl = 'https://app.diagrams.net/';
 
 /**
+ * Base URL for lightbox window.
+ */
+GraphViewer.prototype.lightboxWindowUrl = 'https://app.diagrams.net/';
+ 
+/**
  * Redirects editing to absolue URLs.
  */
 GraphViewer.prototype.toolbarHeight = (document.compatMode == 'BackCompat') ? 28 : 30;
@@ -1427,17 +1432,17 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 				param.data = encodeURIComponent(this.xml);
 			}
 			
-			var domain = 'app.diagrams.net';
+			var lightboxWindowUrl = this.lightboxWindowUrl;
 			
 			if (urlParams['dev'] == '1')
 			{
 				param.dev = '1';
 				param.drawdev = '1';
-				domain = 'test.draw.io';
+				lightboxWindowUrl = 'https://test.draw.io/';
 			}
 			
-		    this.lightboxWindow = window.open('https://' + domain +
-		    		'/#P' + encodeURIComponent(JSON.stringify(param)));
+		    this.lightboxWindow = window.open(lightboxWindowUrl +
+		    		'#P' + encodeURIComponent(JSON.stringify(param)));
 		}
 	}
 	else
