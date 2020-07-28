@@ -374,6 +374,7 @@
 	};
 
 	mxCellRenderer.registerShape('isoCube', IsoCubeShape);
+
 	
 	// DataStore Shape, supports size style
 	function DataStoreShape()
@@ -493,7 +494,88 @@
 
 	mxCellRenderer.registerShape('note', NoteShape);
 
-	// Note Shape, supports size style
+	// Flexible cube Shape
+	function IsoCubeShape2()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(IsoCubeShape2, mxShape);
+	IsoCubeShape2.prototype.isoAngle = 15;
+	
+	IsoCubeShape2.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
+		var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+
+		c.translate(x,y);
+		
+		c.begin();
+		c.moveTo(w * 0.5, 0);
+		c.lineTo(w, isoH);
+		c.lineTo(w, h - isoH);
+		c.lineTo(w * 0.5, h);
+		c.lineTo(0, h - isoH);
+		c.lineTo(0, isoH);
+		c.close();
+		c.fillAndStroke();
+		
+		c.setShadow(false);
+		
+		c.begin();
+		c.moveTo(0, isoH);
+		c.lineTo(w * 0.5, 2 * isoH);
+		c.lineTo(w, isoH);
+		c.moveTo(w * 0.5, 2 * isoH);
+		c.lineTo(w * 0.5, h);
+		c.stroke();
+	};
+	
+	mxCellRenderer.registerShape('isoCube2', IsoCubeShape2);
+	
+	// Flexible cube Shape
+	function CylinderShape()
+	{
+		mxShape.call(this);
+	};
+	mxUtils.extend(CylinderShape, mxShape);
+	CylinderShape.prototype.size = 15;
+	
+	CylinderShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		var size = Math.max(0, Math.min(h * 0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+
+		c.translate(x,y);
+
+		if (size == 0)
+		{
+			c.rect(0, 0, w, h);
+			c.fillAndStroke();
+		}
+		else
+		{
+			c.begin();
+			c.moveTo(0, size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, 0);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w, size);
+			c.lineTo(w, h - size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, h);
+			c.arcTo(w * 0.5, size, 0, 0, 1, 0, h - size);
+			c.close();
+			c.fillAndStroke();
+			
+			c.setShadow(false);
+			
+			c.begin();
+			c.moveTo(w, size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, 2 * size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, 0, size);
+			c.stroke();
+		}
+	};
+	
+	mxCellRenderer.registerShape('cylinder2', CylinderShape);
+	
+	// Switch Shape, supports size style
 	function SwitchShape()
 	{
 		mxActor.call(this);
@@ -2589,10 +2671,13 @@
 	};
 	mxUtils.extend(DataStorageShape, mxActor);
 	DataStorageShape.prototype.size = 0.1;
+	DataStorageShape.prototype.fixedSize = 20;
 	DataStorageShape.prototype.redrawPath = function(c, x, y, w, h)
 	{
-		var s = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
-
+		var fixed = mxUtils.getValue(this.style, 'fixedSize', '0') != '0';
+		var s = (fixed) ? Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'size', this.fixedSize)))) :
+			w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		
 		c.moveTo(s, 0);
 		c.lineTo(w, 0);
 		c.quadTo(w - s * 2, h / 2, w, h);
@@ -3907,12 +3992,16 @@
 			{
 				return [createHandle(state, ['size'], function(bounds)
 				{
-					var size = Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.state.style, 'size', DataStorageShape.prototype.size))));
+					var fixed = mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0';
+					var size = parseFloat(mxUtils.getValue(this.state.style, 'size', (fixed) ? DataStorageShape.prototype.fixedSize : DataStorageShape.prototype.size));
 
-					return new mxPoint(bounds.x + (1 - size) * bounds.width, bounds.getCenterY());
+					return new mxPoint(bounds.x + bounds.width - size * ((fixed) ? 1 : bounds.width), bounds.getCenterY());
 				}, function(bounds, pt)
 				{
-					this.state.style['size'] = Math.max(0, Math.min(1, (bounds.x + bounds.width - pt.x) / bounds.width));
+					var fixed = mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0';
+					var size = (fixed) ? Math.max(0, Math.min(bounds.width, (bounds.x + bounds.width - pt.x))) : Math.max(0, Math.min(1, (bounds.x + bounds.width - pt.x) / bounds.width));
+					
+					this.state.style['size'] = size;
 				}, false)];
 			},
 			'callout': function(state)
@@ -4074,6 +4163,31 @@
 				{
 					this.state.style['size'] = Math.max(0, Math.min(1, ((pt.y - bounds.y) / bounds.height) * 2));
 				}, false)];
+			},
+			'isoCube2' : function(state)
+			{
+				return [createHandle(state, ['isoAngle'], function(bounds)
+				{
+					var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.state.style, 'isoAngle', IsoCubeShape2.isoAngle)))) * Math.PI / 200 ;
+					var isoH = Math.min(bounds.width * Math.tan(isoAngle), bounds.height * 0.5);
+
+					return new mxPoint(bounds.x, bounds.y + isoH);
+				}, function(bounds, pt)
+				{
+					this.state.style['isoAngle'] = Math.max(0, (pt.y - bounds.y) * 50 / bounds.height);
+				}, true)];
+			},
+			'cylinder2' : function(state)
+			{
+				return [createHandle(state, ['size'], function(bounds)
+				{
+					var size = Math.max(0, Math.min(bounds.height * 0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', CylinderShape.size))));
+
+					return new mxPoint(bounds.x, bounds.y + size);
+				}, function(bounds, pt)
+				{
+					this.state.style['size'] = Math.max(0, pt.y - bounds.y);
+				}, true)];
 			},
 			'offPageConnector': function(state)
 			{
@@ -4318,6 +4432,24 @@
 		return (constr);
 	};
 
+	IsoCubeShape2.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var isoAngle = Math.max(0.01, Math.min(94, parseFloat(mxUtils.getValue(this.style, 'isoAngle', this.isoAngle)))) * Math.PI / 200 ;
+		var isoH = Math.min(w * Math.tan(isoAngle), h * 0.5);
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, isoH));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, w, h - isoH));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - isoH));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, isoH));
+
+		return (constr);
+	}
+	
 	CalloutShape.prototype.getConstraints = function(style, w, h)
 	{
 		var constr = [];

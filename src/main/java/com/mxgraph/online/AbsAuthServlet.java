@@ -132,7 +132,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 			String state = new BigInteger(256, random).toString(32);
 			String key = new BigInteger(256, random).toString(32);
 			tokens.put(key, state);
-			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
+//			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
 			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
@@ -181,7 +181,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 						//Get the cached state based on the cookie key 
 						String cacheKey = cookie.getValue();
 						cookieToken = (String) tokens.get(cacheKey);
-						log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
+//						log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
 						//Delete cookie & cache after being used since it is a single use
 						tokens.remove(cacheKey);
 						response.setHeader("Set-Cookie", STATE_COOKIE + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
@@ -218,10 +218,9 @@ abstract public class AbsAuthServlet extends HttpServlet
 			{
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
-			//TODO after code is propagated, remove the version check
-			else if ("2".equals(version) && (stateToken == null || !stateToken.equals(cookieToken)))
+			else if (stateToken == null || !stateToken.equals(cookieToken))
 			{
-				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
+//				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 			else

@@ -584,6 +584,14 @@
 	/**
 	 * Returns true if offline app, which isn't a defined thing
 	 */
+	EditorUi.prototype.isDesktopApp = function()
+	{
+		return false;
+	};
+
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
 	EditorUi.prototype.isOfflineApp = function()
 	{
 		return urlParams['offline'] == '1';

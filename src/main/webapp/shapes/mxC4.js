@@ -57,8 +57,6 @@ mxShapeC4Person.prototype.paintVertexShape = function(c, x, y, w, h)
 
 };
 
-var cylinderGetCylinderSize = mxCylinder.prototype.getCylinderSize;
-
 mxShapeC4Person.prototype.getLabelMargins = function(rect)
 {
 	var headSize = Math.min(rect.width / 2, rect.height / 3);

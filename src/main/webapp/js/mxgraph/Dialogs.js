@@ -1279,7 +1279,23 @@ var EditDataDialog = function(ui, cell)
 		obj.setAttribute('label', value || '');
 		value = obj;
 	}
-
+	
+	var meta = {};
+	
+	try
+	{
+		var temp = mxUtils.getValue(ui.editor.graph.getCurrentCellStyle(cell), 'metaData', null);
+		
+		if (temp != null)
+		{
+			meta = JSON.parse(temp);
+		}
+	}
+	catch (e)
+	{
+		// ignore
+	}
+	
 	// Creates the dialog contents
 	var form = new mxForm('properties');
 	form.table.style.width = '100%';
@@ -1361,6 +1377,11 @@ var EditDataDialog = function(ui, cell)
 		}
 		
 		addRemoveButton(texts[index], name);
+		
+		if (meta[name] != null && meta[name].editable == false)
+		{
+			texts[index].setAttribute('disabled', 'disabled');
+		}
 	};
 	
 	var temp = [];

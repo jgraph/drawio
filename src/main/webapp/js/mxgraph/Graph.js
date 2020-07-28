@@ -968,7 +968,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			var cells = this.getCells(rect.x, rect.y, rect.width, rect.height, null, null, null, function(state)
 			{
 				return mxUtils.getValue(state.style, 'locked', '0') == '1';
-			});
+			}, true);
+			
 			this.selectCellsForEvent(cells, evt);
 			
 			return cells;
