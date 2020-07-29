@@ -819,6 +819,7 @@ Actions.prototype.init = function()
 	action = this.addAction('tooltips', function()
 	{
 		graph.tooltipHandler.setEnabled(!graph.tooltipHandler.isEnabled());
+		ui.fireEvent(new mxEventObject('tooltipsEnabledChanged'));
 	});
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.tooltipHandler.isEnabled(); });

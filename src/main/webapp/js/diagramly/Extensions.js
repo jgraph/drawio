@@ -5502,11 +5502,14 @@ LucidImporter = {};
 			group.geometry.width = maxX - minX;
 			group.geometry.height = maxY - minY;
 			
-			for (var i = 0; i < group.children.length; i++)
+			if (group.children != null)
 			{
-				var geo = group.children[i].geometry;
-				geo.x -= minX;
-				geo.y -= minY;
+				for (var i = 0; i < group.children.length; i++)
+				{
+					var geo = group.children[i].geometry;
+					geo.x -= minX;
+					geo.y -= minY;
+				}
 			}
 			
 			if (obj.IsState)

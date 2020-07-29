@@ -6848,7 +6848,7 @@
 			var ignorePages = !allPagesRadio.checked;
 			var pv = null;
 			
-			if (editorUi.isDesktopApp())
+			if (EditorUi.isElectronApp)
 			{
 				PrintDialog.electronPrint(editorUi, allPagesRadio.checked, pagesFrom, pagesTo,  fitRadio.checked,
 					sheetsAcrossInput.value, sheetsDownInput.value, parseInt(zoomInput.value) / 100,

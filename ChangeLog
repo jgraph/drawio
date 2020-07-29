@@ -1,3 +1,9 @@
+29-JUL-2020: 13.5.5
+
+- Uses mxGraph 4.2.1 beta 10
+- Enables links in tooltips
+- Adds layout JSON action
+
 28-JUL-2020: 13.5.4
 
 - Adds handle for cube and cylinder shape

@@ -1,4 +1,29 @@
 <templates>
+<clibs name="azure">
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/additional_or_support.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/ai_machine_learning.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/apps_and_system_logos.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/azure.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/azure_additional_or_support.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/buildings.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/databases.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/developer.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/files.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/generic.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/infrastructure.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/integration.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/integration_patterns.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/iot_devices.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/office365.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/others.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/power_bi.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/powerapps_and_flows.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/sap.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/servers.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/users_and_roles.xml</add>
+  <add>Uhttps://jgraph.github.io/drawio-libs/libs/integration/deprecated.xml</add>
+</clibs>
 <clibs name="fortinet">
   <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Buildings.xml</add>
   <add>Uhttps://jgraph.github.io/drawio-libs/libs/fortinet/Fortinet_Cloud.xml</add>
@@ -59,6 +84,13 @@
 <template url="cloud/aws_3d.xml" libs="general;aws3d"/>
 <template url="cloud/azure_1.xml" libs="general;azure;mscae" clibs="azure"/>
 <template url="cloud/azure_2.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_3.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_4.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_5.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_6.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_7.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_8.xml" libs="general;azure;mscae" clibs="azure"/>
+<template url="cloud/azure_9.xml" libs="general;azure;mscae" clibs="azure"/>
 <template url="cloud/gcp_backup_and_archive_api_hosting.xml" libs="gcp2"/>
 <template url="cloud/gcp_big_data_complex_event_processing.xml" libs="gcp2"/>
 <template url="cloud/gcp_dev_test_continuous_delivery_with_spinnaker.xml" libs="gcp2"/>

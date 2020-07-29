@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "a2f43d4f3ac82b3a779766cef0f68598"
+    "revision": "df97bf6b9782ff1350e7801ca14bf16d"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "cdd9b0d0ac21baaeb73cfb502d96bee3"
+    "revision": "94711a4e146fc217df65537e2b43a914"
   },
   {
     "url": "js/stencils.min.js",
@@ -18,7 +18,7 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "433c6c9d719496635315c34d5d8ab387"
+    "revision": "33a522bf405197aa947647cfbac4ae18"
   },
   {
     "url": "js/math-print.js",
@@ -270,7 +270,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_zh.txt",
-    "revision": "32632f015222f50ec3e8e3f5885f1267"
+    "revision": "890faaaf000fa706b251047917fc64f8"
   },
   {
     "url": "resources/dia_bn.txt",

@@ -415,6 +415,7 @@
 			            			// TODO: Add isometric containers  		                          
             			          {title: mxResources.get('aws3d'), id: 'aws3d', image: IMAGE_PATH + '/sidebar-aws3d.png'},
             			          {title: mxResources.get('azure'), id: 'azure', image: IMAGE_PATH + '/sidebar-azure.png'},
+            			          {title: 'Cloud & Enterprise', id: 'mscae', image: IMAGE_PATH + '/sidebar-mscae.png'},
             			          {title: mxResources.get('cisco'), id: 'cisco', image: IMAGE_PATH + '/sidebar-cisco.png'},
             			          {title: 'Cisco19', id: 'cisco19', image: IMAGE_PATH + '/sidebar-cisco19.png'},
             			          {title: 'Cisco Safe', id: 'cisco_safe', image: IMAGE_PATH + '/sidebar-cisco_safe.png'},
@@ -1037,6 +1038,7 @@
 		this.addAWS4Palette();
 		this.addAWS3DPalette();
 		this.addAzurePalette();
+		this.addMSCAEPalette();
 		this.addC4Palette();
 		
 		for (var i = 0; i < cisco.length; i++)

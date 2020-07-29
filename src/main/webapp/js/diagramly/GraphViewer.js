@@ -1376,7 +1376,7 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 			closable = (closable != null) ? closable : true;
 			target = (target != null) ? target : 'blank';
 			
-			var param = {'client': 1, 'lightbox': 1, 'target': target};
+			var param = {'client': 1, 'target': target};
 		    
 			if (editable)
 			{
@@ -1427,17 +1427,14 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 				param.data = encodeURIComponent(this.xml);
 			}
 			
-			var domain = 'app.diagrams.net';
-			
 			if (urlParams['dev'] == '1')
 			{
 				param.dev = '1';
-				param.drawdev = '1';
-				domain = 'test.draw.io';
 			}
 			
-		    this.lightboxWindow = window.open('https://' + domain +
-		    		'/#P' + encodeURIComponent(JSON.stringify(param)));
+		    this.lightboxWindow = window.open(((urlParams['dev'] != '1') ?
+		    	EditorUi.lightboxHost : 'https://test.draw.io') +
+		    	'/#P' + encodeURIComponent(JSON.stringify(param)));
 		}
 	}
 	else

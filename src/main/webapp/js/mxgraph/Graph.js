@@ -931,6 +931,33 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			return me.sourceState;
 		};
 		
+		// Opens links in tooltips in new windows
+		var tooltipHandlerShow = this.tooltipHandler.show;
+		this.tooltipHandler.show = function()
+		{
+			tooltipHandlerShow.apply(this, arguments);
+			
+			if (this.div != null)
+			{
+				var links = this.div.getElementsByTagName('a');
+				
+				for (var i = 0; i < links.length; i++)
+				{
+					if (links[i].getAttribute('href') != null &&
+						links[i].getAttribute('target') == null)
+					{
+						links[i].setAttribute('target', '_blank');
+					}
+				}
+			}
+		};
+		
+		// Redirects tooltips for locked cells
+		this.tooltipHandler.getStateForEvent = function(me)
+		{
+			return me.sourceState;
+		};
+		
 		// Redirects cursor for locked cells
 		var getCursorForMouseEvent = this.getCursorForMouseEvent; 
 		this.getCursorForMouseEvent = function(me)

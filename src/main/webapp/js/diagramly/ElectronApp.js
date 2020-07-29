@@ -283,11 +283,6 @@ mxStencilRegistry.allowEval = false;
 	{
 		require('electron').shell.openExternal(url);
 	};
-	
-	EditorUi.prototype.isDesktopApp = function()
-	{
-		return true;
-	};
 
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;

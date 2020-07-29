@@ -2056,13 +2056,13 @@ EditorUi.prototype.initCanvas = function()
 				if (fadeThread != null)
 				{
 					window.clearTimeout(fadeThread);
-					fadeThead = null;
+					fadeThread = null;
 				}
 				
 				if (fadeThread2 != null)
 				{
 					window.clearTimeout(fadeThread2);
-					fadeThead2 = null;
+					fadeThread2 = null;
 				}
 				
 				fadeThread = window.setTimeout(mxUtils.bind(this, function()
@@ -2083,13 +2083,13 @@ EditorUi.prototype.initCanvas = function()
 				if (fadeThread != null)
 				{
 					window.clearTimeout(fadeThread);
-					fadeThead = null;
+					fadeThread = null;
 				}
 				
 				if (fadeThread2 != null)
 				{
 					window.clearTimeout(fadeThread2);
-					fadeThead2 = null;
+					fadeThread2 = null;
 				}
 				
 				this.chromelessToolbar.style.display = '';

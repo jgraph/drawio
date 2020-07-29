@@ -584,14 +584,6 @@
 	/**
 	 * Returns true if offline app, which isn't a defined thing
 	 */
-	EditorUi.prototype.isDesktopApp = function()
-	{
-		return false;
-	};
-
-	/**
-	 * Returns true if offline app, which isn't a defined thing
-	 */
 	EditorUi.prototype.isOfflineApp = function()
 	{
 		return urlParams['offline'] == '1';
@@ -10846,6 +10838,12 @@
 							this.editor.modified = data.modified;
 						}
 						
+						return;
+					}
+					else if (data.action == 'layout')
+					{
+						this.executeLayoutList(data.layouts)
+
 						return;
 					}
 					else if (data.action == 'prompt')

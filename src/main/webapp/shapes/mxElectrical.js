@@ -95,7 +95,6 @@ mxShapeElectricalStraightBus.prototype.paintVertexShape = function(c, x, y, w, h
 {
 	c.translate(x, y);
 
-	var size = Math.min(w, h); 
 	var x1 = w * 0.2;
 	var y1 = 0;
 	
@@ -561,6 +560,7 @@ mxShapeElectricalLogicGate.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.moveTo(w * 0.1, 0);
 			c.arcTo(w * 0.6, h, 0, 0, 1, w * 0.1, h);
 			c.stroke();
+			//no break operation needed, XOR needs to draw an OR shape too
 	  case 'or':
 			c.begin();
 			c.moveTo(w * 0.4, 0);
@@ -1634,7 +1634,6 @@ mxShapeElectricalMux.prototype.getConstraints = function(style, w, h)
 	var pinRange = (h - 16) / h;
 	var selectorPins = parseInt(mxUtils.getValue(this.style, 'selectorPins', '1'));
 	var operation = mxUtils.getValue(this.style, 'operation', 'mux');
-	var dir = mxUtils.getValue(this.style, 'direction', 'east');
 	
 	var numInputs = 1;
 	var numOutputs = 1;
