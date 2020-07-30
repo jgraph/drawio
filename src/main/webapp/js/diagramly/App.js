@@ -2925,7 +2925,8 @@ App.prototype.start = function()
 							
 							
 							if (EditorUi.enableDrafts && (urlParams['mode'] == null || EditorUi.isElectronApp) &&
-								this.getServiceName() == 'draw.io' && (id == null || id.length == 0))
+								this.getServiceName() == 'draw.io' && (id == null || id.length == 0) &&
+								!this.editor.isChromelessView())
 							{
 								this.checkDrafts();
 							}

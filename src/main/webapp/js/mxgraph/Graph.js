@@ -1213,6 +1213,7 @@ Graph.createSvgImage = function(w, h, data, coordWidth, coordHeight)
  */
 Graph.zapGremlins = function(text)
 {
+	var lastIndex = 0;
 	var checked = [];
 	
 	for (var i = 0; i < text.length; i++)
@@ -1220,14 +1221,20 @@ Graph.zapGremlins = function(text)
 		var code = text.charCodeAt(i);
 		
 		// Removes all control chars except TAB, LF and CR
-		if ((code >= 32 || code == 9 || code == 10 || code == 13) &&
-			code != 0xFFFF && code != 0xFFFE)
+		if (!((code >= 32 || code == 9 || code == 10 || code == 13) &&
+			code != 0xFFFF && code != 0xFFFE))
 		{
-			checked.push(text.charAt(i));
+			checked.push(text.substring(lastIndex, i));
+			lastIndex = i + 1;
 		}
 	}
 	
-	return checked.join('');
+	if (lastIndex > 0 && lastIndex < text.length)
+	{
+		checked.push(text.substring(lastIndex));
+	}
+	
+	return (checked.length == 0) ? text : checked.join('');
 };
 
 /**
