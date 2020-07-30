@@ -1950,9 +1950,10 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
 		'headers': headers,
 		'params': delim + 'Content-Type: application/json\r\n\r\n' + JSON.stringify(metadata) + delim +
 			'Content-Type: ' + ctype + '\r\n' + 'Content-Transfer-Encoding: base64\r\n' + '\r\n' +
-			((data != null) ? (binary) ? data : Base64.encode(data) : '') + close
+			((data != null) ? ((binary) ? data : ((window.btoa && !mxClient.IS_IE && !mxClient.IS_IE11) ?
+				Graph.base64EncodeUnicode(data) : Base64.encode(data))) : '') + close
 	}
-	
+
 	if (!revision)
 	{
 		reqObj.fullUrl += '&newRevision=false';

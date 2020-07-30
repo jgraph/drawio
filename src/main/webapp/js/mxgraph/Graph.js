@@ -1268,6 +1268,26 @@ Graph.bytesToString = function(arr)
 };
 
 /**
+ * Turns the given array into a string.
+ */
+Graph.base64EncodeUnicode = function(str)
+{
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode(parseInt(p1, 16))
+    }));
+};
+
+/**
+ * Turns the given array into a string.
+ */
+Graph.base64DecodeUnicode = function(str)
+{
+    return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''));
+};
+
+/**
  * Returns a base64 encoded version of the compressed outer XML of the given node.
  */
 Graph.compressNode = function(node, checked)
