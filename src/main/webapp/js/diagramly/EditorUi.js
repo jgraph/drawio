@@ -8634,6 +8634,12 @@
 			EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
 		}
 		
+		if (/viewer\.diagrams\.net$/.test(window.location.hostname) ||
+			/embed\.diagrams\.net$/.test(window.location.hostname))
+		{
+			this.editor.editBlankUrl = 'https://app.diagrams.net/';
+		}
+		
 		// Passes current page to editor window
 		var editorGetEditBlankUrl = ui.editor.getEditBlankUrl;
 		

@@ -3740,7 +3740,13 @@ LucidImporter = {};
 //SVG shapes
 			'SVGPathBlock2' : cs,
 //Special cases
-			'PresentationFrameBlock' : cs
+			'PresentationFrameBlock' : cs,
+//Timeline
+//TODO Timeline shapes are postponed, this code is a work-in-progress
+			//'TimelineBlock' : cs,
+			//'TimelineMilestoneBlock' : cs,
+			//'TimelineIntervalBlock' : cs,
+			'MinimalTextBlock' : 'strokeColor=none'
 	};
 	
 	// actual code start
@@ -5143,6 +5149,15 @@ LucidImporter = {};
 				}
 				
 				addCustomData(cell, p, graph);
+				
+				if (p.Title && p.Text)
+				{
+					var geo = cell.geometry;
+					var title = new mxCell(convertText(p.Title), new mxGeometry(0, geo.height,geo.width, 10), 'strokeColor=none;fillColor=none;');
+					title.vertex = true;
+					cell.insert(title);
+					title.style += getLabelStyle(p.Title, isLastLblHTML);
+				}
 				
 				// Edge style
 				if (cell.edge)
@@ -11764,6 +11779,85 @@ LucidImporter = {};
 				side.style += addAllStyles(side.style, p, a, v, isLastLblHTML);
 				
 				v.insert(side);
+				break;
+			case 'TimelineBlock':
+			//TODO Timeline shapes are postponed, this code is a work-in-progress
+				try
+				{
+					var daysMap = {
+						'Sunday': 0,
+						'Monday': 1,
+						'Tuesday': 2,
+						'Wednesday': 3,
+						'Thursday': 4,
+						'Friday': 5,
+						'Saturday': 6
+					};
+					var isLine = p.TimelineType == 'lineTimeline';
+					var startDate = new Date(p.StartDate);
+					var endDate = new Date(p.FinishDate);
+					var startOfWeek = daysMap[p.StartOfWeek];
+					var startOfFiscY = new Date(p.StartOfFiscalYear);
+					var timeUnit = p.TimeUnit;
+					var showStartEnd = p.DisplayStartFinishDates;
+					var showTickLbl = p.DisplayInterimDates;
+					var startTick, inc;
+					
+					switch (timeUnit)
+					{
+						case 'second':
+							startTick = inc = 1000;
+						break;
+						case 'minute':
+							startTick = inc = 1000 * 60;
+						break;
+						case 'hour':
+							startTick = inc = 1000 * 60 * 60;
+						break;
+						case 'day':
+							startTick = inc = 1000 * 60 * 60 * 24;
+						break;
+						case 'week':
+							var dayTillNextWeek = (7 - startDate.getDay() + startOfWeek) % 7;
+							var nextWeek = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + dayTillNextWeek);
+							startTick = nextWeek.getTime() - startDate.getTime();
+							inc = 1000 * 60 * 60 * 24 * 7;
+						break;
+						case 'month':
+							var nextMonth = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 1);
+							startTick = nextMonth.getTime() - startDate.getTime();
+							inc = 1000 * 60 * 60 * 24 * 30;
+						break;
+						case 'quarter':
+							var monthToNextQtr = (12 - startDate.getMonth() + startOfFiscY.getMonth()) % 3;
+							var nextQrt = new Date(startDate.getFullYear(), 
+								startDate.getMonth() + (monthToNextQtr == 0 && startDate.getDate() >= startOfFiscY.getDate()? 3 : monthToNextQtr), startOfFiscY.getDate());
+							startTick = nextQrt.getTime() - startDate.getTime();
+							inc = 1000 * 60 * 60 * 24 * 90;
+						break;
+						case 'year':
+							var nextYear = new Date(startDate.getFullYear() + 1, 0, 1);
+							startTick = nextYear.getTime() - startDate.getTime();
+							inc = 1000 * 60 * 60 * 24 * 365;
+						break;
+					}
+					
+					var diff = endDate.getTime() - startDate.getTime();
+					var afterFirst = diff - startTick;
+					var ticksCount = Math.round(afterFirst / inc);
+					
+					var startX = startTick/diff * w;
+					var dx = inc/diff * w;
+					console.log(startX, dx, ticksCount)
+				}
+				catch(e)
+				{
+					console.log(e); //Ignore
+				}
+				break;
+			case 'TimelineMilestoneBlock':
+				break;
+			case 'TimelineIntervalBlock':
 				break;
 		}
 

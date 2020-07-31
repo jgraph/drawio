@@ -5701,7 +5701,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['rounded'];
 		}
 		
-		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getVerticesAndEdges(true, false));
+		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getVerticesAndEdges(true, true));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -5841,6 +5841,23 @@ DiagramStylePanel.prototype.addView = function(div)
 	
 	var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
 	{
+		var all = graph.getVerticesAndEdges(true, true);
+		
+		if (all.length > 0)
+		{
+			model.beginUpdate();
+			try
+			{
+				graph.updateCellStyles('sketch', null, all);
+				graph.updateCellStyles('rounded', null, all);
+				graph.updateCellStyles('curved', null, graph.getVerticesAndEdges(false, true));
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		}
+		
 		graph.defaultVertexStyle = mxUtils.clone(ui.initialDefaultVertexStyle);
 		graph.defaultEdgeStyle = mxUtils.clone(ui.initialDefaultEdgeStyle);
 		ui.clearDefaultStyle();

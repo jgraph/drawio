@@ -1,3 +1,11 @@
+31-JUL-2020: 13.5.8
+
+- Fixes tooltip for rotation handle
+- Fixes edit as blank in lightbox
+- Lucidchart import improvements
+- Uses mxGraph 4.2.1 beta 12
+- Improves shape picker
+
 30-JUL-2020: 13.5.7
 
 - Faster autosave in Google Drive

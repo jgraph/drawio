@@ -9903,6 +9903,14 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	mxUtils.write(label, (mxResources.get('googleFonts', null, 'Google Fonts')));
 	td.appendChild(label);
 	
+	// Link to Google Fonts
+	if (!mxClient.IS_CHROMEAPP && (!editorUi.isOffline() || EditorUi.isElectronApp))
+	{
+		var link = editorUi.menus.createHelpLink('https://fonts.google.com/');
+		link.getElementsByTagName('img')[0].setAttribute('valign', 'middle');
+		td.appendChild(link);
+	}
+	
 	row.appendChild(td);
 	tbody.appendChild(row);
 	

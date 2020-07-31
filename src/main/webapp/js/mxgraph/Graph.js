@@ -4334,7 +4334,8 @@ HoverIcons.prototype.execute = function(state, dir, me)
 	var evt = me.getEvent();
 
 	this.graph.selectCellsForConnectVertex(this.graph.connectVertex(
-		state.cell, dir, this.graph.defaultEdgeLength, evt), evt, this);
+		state.cell, dir, this.graph.defaultEdgeLength, evt, mxEvent.isControlDown(evt),
+		mxEvent.isControlDown(evt)), evt, this);
 };
 
 /**
@@ -6138,42 +6139,18 @@ if (typeof mxVertexHandler != 'undefined')
 		Graph.prototype.createCurrentEdgeStyle = function()
 		{
 			var style = 'edgeStyle=' + (this.currentEdgeStyle['edgeStyle'] || 'none') + ';';
+			var keys = ['shape', 'curved', 'rounded', 'comic', 'sketch', 'fillWeight', 'hachureGap',
+				'hachureAngle', 'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle',
+				'curveFitting', 'simplification', 'comicStyle', 'jumpStyle', 'jumpSize'];
 			
-			if (this.currentEdgeStyle['shape'] != null)
+			for (var i = 0; i < keys.length; i++)
 			{
-				style += 'shape=' + this.currentEdgeStyle['shape'] + ';';
+				if (this.currentEdgeStyle[keys[i]] != null)
+				{
+					style += keys[i] + '=' + this.currentEdgeStyle[keys[i]] + ';';
+				}
 			}
 			
-			if (this.currentEdgeStyle['curved'] != null)
-			{
-				style += 'curved=' + this.currentEdgeStyle['curved'] + ';';
-			}
-			
-			if (this.currentEdgeStyle['rounded'] != null)
-			{
-				style += 'rounded=' + this.currentEdgeStyle['rounded'] + ';';
-			}
-
-			if (this.currentEdgeStyle['sketch'] != null)
-			{
-				style += 'sketch=' + this.currentEdgeStyle['sketch'] + ';';
-			}
-
-			if (this.currentEdgeStyle['comic'] != null)
-			{
-				style += 'comic=' + this.currentEdgeStyle['comic'] + ';';
-			}
-
-			if (this.currentEdgeStyle['jumpStyle'] != null)
-			{
-				style += 'jumpStyle=' + this.currentEdgeStyle['jumpStyle'] + ';';
-			}
-
-			if (this.currentEdgeStyle['jumpSize'] != null)
-			{
-				style += 'jumpSize=' + this.currentEdgeStyle['jumpSize'] + ';';
-			}
-
 			// Overrides the global default to match the default edge style
 			if (this.currentEdgeStyle['orthogonalLoop'] != null)
 			{

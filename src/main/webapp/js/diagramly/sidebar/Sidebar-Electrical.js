@@ -6,7 +6,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE;
 		var mea = s + '=mxgraph.electrical.abstract.';
 		var mec = 'pointerEvents=1;' + s + '=mxgraph.electrical.capacitors.';
-		var med = 'pointerEvents=1;fillColor=#000000;' + s + '=mxgraph.electrical.diodes.';
+		var med = 'pointerEvents=1;fillColor=strokeColor;' + s + '=mxgraph.electrical.diodes.';
 		var mei = 'pointerEvents=1;' + s + '=mxgraph.electrical.inductors.';
 		var mem = 'pointerEvents=1;' + s + '=mxgraph.electrical.miscellaneous.';
 		var meem = 'pointerEvents=1;' + s + '=mxgraph.electrical.electro-mechanical.';
@@ -605,7 +605,7 @@
 					80, 82, '', 'Thermopile', null, null, this.getTagsForStencil(gnmess, 'thermopile', dtmem).join(' ')),
 			this.createVertexTemplateEntry(mem + 'indicator', 
 					60, 60, '', 'Indicator', null, null, this.getTagsForStencil(gnmess, 'indicator', dtmem).join(' ')),
-			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.surge_protector;', 
+			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=strokeColor;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.surge_protector;', 
 					70, 20, '', 'Surge Protector', null, null, this.getTagsForStencil(gnmess, 'surge protector', dtmem).join(' ')),
 			this.createVertexTemplateEntry(mem + 'surge_protector_2;', 
 					70, 24, '', 'Surge Protector', null, null, this.getTagsForStencil(gnmess, 'surge protector', dtmem).join(' ')),
@@ -623,8 +623,8 @@
 					15, 15, '', 'Circuit Terminal', null, null, this.getTagsForStencil(gnmess, 'circuit terminal', dtmer).join(' ')),
 			this.createEdgeTemplateEntry('endArrow=open;html=1;strokeWidth=1;endFill=0;endSize=20;',
 					100, 0, '', 'M/F Contact', null, this.getTagsForStencil(gnmess, '', 'mf contact').join(' ')),
-			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.mf_contact_2', 
-					100, 10, '', 'MF Contact 2', null, null, this.getTagsForStencil(gnmess, 'mf contact', dtmer).join(' ')),
+			this.createVertexTemplateEntry('verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=strokeColor;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.miscellaneous.mf_contact_2', 
+					100, 10, '', 'M/F Contact 2', null, null, this.getTagsForStencil(gnmess, 'mf contact', dtmer).join(' ')),
 			this.createVertexTemplateEntry(mem + 'terminal_board', 
 					75, 150, '', 'Terminal Board', null, null, this.getTagsForStencil(gnmess, 'terminal board', dtmer).join(' ')),
 			this.createVertexTemplateEntry(mem + 'cable_termination', 
@@ -801,7 +801,7 @@
 					75, 25, '', 'Brake', null, null, this.getTagsForStencil(gnmerm, 'brake', dtmerm).join(' ')),
 			this.createVertexTemplateEntry(merm + 'gearing;pointerEvents=1;', 
 					100, 64, '', 'Gearing', null, null, this.getTagsForStencil(gnmerm, 'gearing', dtmerm).join(' ')),
-			this.createVertexTemplateEntry(merm + 'verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=#000000;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.rot_mech.rotation;', 
+			this.createVertexTemplateEntry(merm + 'verticalLabelPosition=bottom;shadow=0;dashed=0;align=center;fillColor=strokeColor;html=1;verticalAlign=top;strokeWidth=1;shape=mxgraph.electrical.rot_mech.rotation;', 
 					69, 54, '', 'Rotation', null, null, this.getTagsForStencil(gnmerm, 'rotation', dtmerm).join(' ')),
 			this.createVertexTemplateEntry(merm + 'clutch;pointerEvents=1;', 
 					100, 20, '', 'Clutch', null, null, this.getTagsForStencil(gnmerm, 'clutch', dtmerm).join(' ')),

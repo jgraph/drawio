@@ -1238,7 +1238,7 @@ EditorUi.prototype.installShapePicker = function()
 					ui.showShapePicker(me.getGraphX(), me.getGraphY(), temp, mxUtils.bind(this, function(cell)
 					{
 						execute(cell);
-					}));
+					}), dir);
 				}), mxUtils.bind(this, function(result)
 				{
 					this.graph.selectCellsForConnectVertex(result, evt, this);
@@ -1255,7 +1255,7 @@ EditorUi.prototype.installShapePicker = function()
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.showShapePicker = function(x, y, source, callback)
+EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction)
 {
 	var cells = this.getCellsForShapePicker(source);
 	
@@ -1270,12 +1270,31 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback)
 			graph.copyStyle(source) : null;
 		
 		// Do not place entry under pointer for touch devices
-		var off = -4;
-		
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
-		div.style.cssText = 'position:absolute;left:' + (x - off) + 'px;top:' +
-			(y - off) + 'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
+		div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + y +
+			'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
 			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
+		
+		if (direction == mxConstants.DIRECTION_NORTH)
+		{
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-50%,-100%)');
+		}
+		else if (direction == mxConstants.DIRECTION_SOUTH)
+		{
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-50%,0%)');
+		}
+		else if (direction == mxConstants.DIRECTION_WEST)
+		{
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-100%,-50%)');
+		}
+		else if (direction == mxConstants.DIRECTION_EAST)
+		{
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(0%,-50%)');
+		}
+		else
+		{
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-4px,-4px)');
+		}
 		
 		if (graph.background != null && graph.background != mxConstants.NONE)
 		{
