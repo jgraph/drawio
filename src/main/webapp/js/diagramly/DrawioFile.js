@@ -65,9 +65,19 @@ DrawioFile.LAST_WRITE_WINS = true;
 mxUtils.extend(DrawioFile, mxEventSource);
 
 /**
- * Delay for last save in ms.
+ * Specifies the resource key for all changes saved status message.
  */
 DrawioFile.prototype.allChangesSavedKey = 'allChangesSaved';
+
+/**
+ * Specifies the resource key for saving spinner.
+ */
+DrawioFile.prototype.savingSpinnerKey = 'saving';
+
+/**
+ * Specifies the resource key for saving status message.
+ */
+DrawioFile.prototype.savingStatusKey = 'saving';
 
 /**
  * Specifies the delay between the last change and the autosave.
@@ -1832,7 +1842,7 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 		
 	var overwrite = mxUtils.bind(this, function()
 	{
-		if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
+		if (this.ui.spinner.spin(document.body, mxResources.get(this.savingSpinnerKey)))
 		{
 			this.ui.editor.setStatus('');
 			var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
@@ -1849,7 +1859,7 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 			{
 				this.ui.spinner.stop();
 				
-				if (this.ui.spinner.spin(document.body, mxResources.get('saving')))
+				if (this.ui.spinner.spin(document.body, mxResources.get(this.savingSpinnerKey)))
 				{
 					var isRepoFile = (this.constructor == GitHubFile) || (this.constructor == GitLabFile);
 					this.save(true, success, error, null, null, (isRepoFile &&
@@ -1915,7 +1925,11 @@ DrawioFile.prototype.fileChanged = function()
 	
 	if (this.isAutosave())
 	{
-		this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get('saving')) + '...');
+		if (this.savingStatusKey != null)
+		{
+			this.addAllSavedStatus(mxUtils.htmlEntities(mxResources.get(this.savingStatusKey)) + '...');
+		}
+		
 		this.ui.scheduleSanityCheck();
 		
 		if (this.ageStart == null)

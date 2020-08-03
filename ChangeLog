@@ -1,3 +1,8 @@
+03-AUG-2020: 13.5.9
+
+- Adds pinch to zoom on Windows and Android
+- Uses mxGraph 4.2.1 beta 13
+
 31-JUL-2020: 13.5.8
 
 - Fixes tooltip for rotation handle

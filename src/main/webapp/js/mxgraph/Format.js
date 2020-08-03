@@ -5977,10 +5977,12 @@ DiagramStylePanel.prototype.addView = function(div)
 				if (rounded)
 				{
 					graph.currentVertexStyle['rounded'] = '1';
+					graph.currentEdgeStyle['rounded'] = '1';
 				}
 				else
 				{
 					graph.currentVertexStyle['rounded'] = '0';
+					graph.currentEdgeStyle['rounded'] = '1';
 				}
 				
 				if (curved)
@@ -6002,7 +6004,7 @@ DiagramStylePanel.prototype.addView = function(div)
 					model.execute(change);
 						
 					model.execute(new ChangeGridColor(ui, (graphStyle != null && graphStyle.gridColor != null) ?
-							graphStyle.gridColor : graph.view.defaultGridColor));
+						graphStyle.gridColor : graph.view.defaultGridColor));
 				}
 				finally
 				{

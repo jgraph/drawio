@@ -7176,3 +7176,19 @@
 
 	mxCodecRegistry.register(codec);
 })();
+
+// Extends codec for ChangeGridColor
+(function()
+{
+	var codec = new mxObjectCodec(new ChangeGridColor(),  ['ui']);
+	  
+	codec.beforeDecode = function(dec, node, obj)
+	{
+		obj.ui = dec.ui;
+		  
+		return node;
+	};
+
+	mxCodecRegistry.register(codec);
+})();
+

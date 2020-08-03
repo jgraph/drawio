@@ -2672,8 +2672,8 @@ EditorUi.prototype.initCanvas = function()
 			scheduleZoom(0);
 		}
 	});
-
-	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force)
+	
+	mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt, up, force, cx, cy)
 	{
 		if (this.dialogs == null || this.dialogs.length == 0)
 		{
@@ -2701,7 +2701,8 @@ EditorUi.prototype.initCanvas = function()
 					if (source == graph.container)
 					{
 						graph.tooltipHandler.hideTooltip();
-						cursorPosition = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+						cursorPosition = (cx != null && cy!= null) ? new mxPoint(cx, cy) :
+							new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 						graph.lazyZoom(up);
 						mxEvent.consume(evt);
 				
@@ -3248,6 +3249,14 @@ ChangeGridColor.prototype.execute = function()
 	this.ui.setGridColor(this.color);
 	this.color = temp;
 };
+
+// Registers codec for ChangePageSetup
+(function()
+{
+	var codec = new mxObjectCodec(new ChangeGridColor(), ['ui']);
+
+	mxCodecRegistry.register(codec);
+})();
 
 /**
  * Change types
