@@ -12833,7 +12833,7 @@
 		var libsSection = document.createElement('div');
 		libsSection.style.cssText = 'border:1px solid lightGray;overflow: auto;height:300px';
 
-		libsSection.innerHTML = '<div style="text-align:center;padding:8px;"><img src="/images/spin.gif"></div>';
+		libsSection.innerHTML = '<div style="text-align:center;padding:8px;"><img src="' + IMAGE_PATH + '/spin.gif"></div>';
 		
 		var loadedLibs = {};
 		
