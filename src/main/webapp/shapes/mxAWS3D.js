@@ -1555,7 +1555,7 @@ mxUtils.extend(mxShapeAws3dDataServer, mxShape);
 
 mxShapeAws3dDataServer.prototype.cst = {
 		DATA_SERVER : 'mxgraph.aws3d.dataServer',
-		SHADINC_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
