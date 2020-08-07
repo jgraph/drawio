@@ -5002,9 +5002,13 @@ LucidImporter = {};
 		
 		if (imgUrl != null)
 		{
-			if (LucidImporter.imgSrcMap != null && LucidImporter.imgSrcMap[imgUrl] != null)
+			if (LucidImporter.imgSrcRepl != null)
 			{
-				imgUrl = LucidImporter.imgSrcMap[imgUrl];
+				for (var i = 0; i < LucidImporter.imgSrcRepl.length; i++)
+				{
+					var repl = LucidImporter.imgSrcRepl[i];
+					imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
+				}
 			}
 			
 			return 'image=' + imgUrl + ';';
@@ -5080,10 +5084,27 @@ LucidImporter = {};
 					{
 						tmp = 'filename';
 					}
+					else if (tmp == 'pageName')
+					{
+						tmp = 'page';
+					}
+					else if (tmp == 'totalPages')
+					{
+						tmp = 'pagecount';
+					}
+					else if (tmp == 'page')
+					{
+						tmp = 'pagenumber';
+					}
 					else if (tmp.substring(0, 5) == 'date:')
 					{
 						// LATER: Convert more date masks
-						tmp = 'date{' + tmp.substring(5).replace(/MMMM/g, 'mmmm') + '}';
+						tmp = 'date{' + tmp.substring(5).replace(/MMMM/g, 'mmmm').replace(/YYYY/g, 'yyyy') + '}';
+					}
+					else if (tmp.substring(0, 16) == 'lastModifiedTime')
+					{
+						// LATER: Convert more date masks
+						tmp = tmp.replace(/MMMM/g, 'mmmm').replace(/YYYY/g, 'yyyy');
 					}
 					else if (tmp.substring(0, 9) == 'i18nDate:')
 					{
@@ -5807,9 +5828,9 @@ LucidImporter = {};
         return graph;
 	};
 	
-	LucidImporter.importState = function(state, imgSrcMap)
+	LucidImporter.importState = function(state, imgSrcRepl)
 	{
-		LucidImporter.imgSrcMap = imgSrcMap; //Use LucidImporter object to store the map since it is used deep inside
+		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
 		// Extracts and sorts all pages
@@ -5878,7 +5899,7 @@ LucidImporter = {};
 		}
 		
 		xml.push('</mxfile>');
-		LucidImporter.imgSrcMap = null; //Reset the map so it doesn't affect next calls
+		LucidImporter.imgSrcRepl = null; //Reset the map so it doesn't affect next calls
 		
 		return xml.join('');
 	};

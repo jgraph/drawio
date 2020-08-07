@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
+import com.google.appengine.api.utils.SystemProperty;
 
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
@@ -218,7 +219,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 			{
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
-			else if (stateToken == null || !stateToken.equals(cookieToken))
+			//Non GAE runtimes are excluded from state check. TODO Change GAE stub to return null from CacheFactory
+			else if (!"Non".equals(SystemProperty.environment.get()) && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
 //				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

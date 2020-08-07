@@ -1,3 +1,8 @@
+07-AUG-2020: 13.6.1
+
+- Improves Lucidchart importer
+- GAE stub fixes
+
 05-AUG-2020: 13.6.0
 
 - Uses mxGraph 4.2.1 beta 14
