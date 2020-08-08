@@ -120,6 +120,12 @@ abstract public class AbsAuthServlet extends HttpServlet
 		return "";
 	}
 	
+	@SuppressWarnings("unchecked")
+	protected static void putCacheValue(String key, String val)
+	{
+		tokens.put(key, val);
+	}
+	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -132,7 +138,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 		{
 			String state = new BigInteger(256, random).toString(32);
 			String key = new BigInteger(256, random).toString(32);
-			tokens.put(key, state);
+			putCacheValue(key, state);
 //			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME

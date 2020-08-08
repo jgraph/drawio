@@ -676,7 +676,7 @@
 				{
 					var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 					var scale = data.print? data.scale : 1 / graph.pageScale;
-					var autoOrigin = data.fit || false;
+					var autoOrigin = (mxIsElectron && data.fit != null) ? data.fit : false;
 					var border = 0;
 	
 					// Negative coordinates are cropped or shifted if page visible
@@ -691,7 +691,7 @@
 					scale *= printScale;
 					
 					// Starts at first visible page
-					if (autoOrigin)
+					if (!mxIsElectron || autoOrigin)
 					{
 						var layout = graph.getPageLayout();
 						x0 -= layout.x * pf.width;
