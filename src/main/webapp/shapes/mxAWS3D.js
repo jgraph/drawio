@@ -1881,7 +1881,7 @@ mxUtils.extend(mxShapeAws3dInstance, mxShape);
 
 mxShapeAws3dInstance.prototype.cst = {
 		INSTANCE : 'mxgraph.aws3d.instance',
-		SHADIG_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
@@ -2933,7 +2933,7 @@ mxUtils.extend(mxShapeAws3dRdsMaster, mxShape);
 
 mxShapeAws3dRdsMaster.prototype.cst = {
 		RDS_MASTER : 'mxgraph.aws3d.rdsMaster',
-		SHADIG_COLORS : 'shadingCols'
+		SHADING_COLORS : 'shadingCols'
 };
 
 /**
