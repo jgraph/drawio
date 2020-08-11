@@ -15,22 +15,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
-import javax.cache.CacheFactory;
-import javax.cache.CacheManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.appengine.api.memcache.MemcacheService;
-import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 import com.google.appengine.api.utils.SystemProperty;
 
 @SuppressWarnings("serial")
@@ -42,22 +36,16 @@ abstract public class AbsAuthServlet extends HttpServlet
 	public static final int X_WWW_FORM_URLENCODED = 1;
 	public static final int JSON = 2;
 	private static final String STATE_COOKIE = "auth-state";
-	private static final int COOKIE_AGE = 600;
+	protected static final int COOKIE_AGE = 600;
 	
 	public static final SecureRandom random = new SecureRandom();
-	protected static Cache tokens;
+	protected static Cache tokenCache;
 	
 	static
 	{
 		try
 		{
-			CacheFactory cacheFactory = CacheManager.getInstance()
-					.getCacheFactory();
-			Map<Object, Object> properties = new HashMap<>();
-			properties.put(MemcacheService.SetPolicy.ADD_ONLY_IF_NOT_PRESENT,
-					true);
-			properties.put(GCacheFactory.EXPIRATION_DELTA, COOKIE_AGE); //Cache servlet set it to 300 (5 min), all cache instances are the same so 5 will be enforced
-			tokens = cacheFactory.createCache(properties);
+			tokenCache = CacheFacade.createCache();
 		}
 		catch (CacheException e)
 		{
@@ -123,7 +111,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 	@SuppressWarnings("unchecked")
 	protected static void putCacheValue(String key, String val)
 	{
-		tokens.put(key, val);
+		tokenCache.put(key, val);
 	}
 	
 	/**
@@ -187,10 +175,10 @@ abstract public class AbsAuthServlet extends HttpServlet
 					{
 						//Get the cached state based on the cookie key 
 						String cacheKey = cookie.getValue();
-						cookieToken = (String) tokens.get(cacheKey);
+						cookieToken = (String) tokenCache.get(cacheKey);
 //						log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
 						//Delete cookie & cache after being used since it is a single use
-						tokens.remove(cacheKey);
+						tokenCache.remove(cacheKey);
 						response.setHeader("Set-Cookie", STATE_COOKIE + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
 						break;
 					}
