@@ -528,6 +528,21 @@ OneDriveClient.prototype.getLibrary = function(id, success, error)
 };
 
 /**
+ * Workaround for added content to HTML files in Sharepoint.
+ */
+OneDriveClient.prototype.removeExtraHtmlContent = function(data)
+{
+	var idx = data.lastIndexOf('<html><head><META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8"><meta name="Robots" ');
+
+	if (idx > 0)
+	{
+		data = data.substring(0, idx);
+	}
+	
+	return data;
+};
+
+/**
  * Checks if the client is authorized and calls the next step.
  */
 OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asLibrary)
@@ -567,6 +582,11 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    	
 				    	if (acceptResponse)
 				    	{
+				    		if (/\.html$/i.test(meta.name))
+				    		{
+				    			data = this.removeExtraHtmlContent(data);
+				    		}
+				    		
 							var index = (binary) ? data.lastIndexOf(',') : -1;
 							var file = null;
 	

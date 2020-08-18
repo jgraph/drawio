@@ -1031,3 +1031,6 @@ extPlugins=External Plugins
 backupFound=Backup file found
 chromeOnly=This feature only works in Google Chrome
 msgDeleted=This message has been deleted.
+confAErrFetchDrawList=Error fetching diagrams list. Some diagrams are skipped.
+confAErrCheckDrawDiag=Cannot check diagram {1}
+confAErrFetchPageList=Error fetching pages list.

@@ -3320,7 +3320,6 @@ App.prototype.showSplash = function(force)
 		
 		this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
 			((serviceCount > 3) ? 320 : 210), true, false);
-		dlg.init();
 	}
 	else if (urlParams['create'] == null)
 	{

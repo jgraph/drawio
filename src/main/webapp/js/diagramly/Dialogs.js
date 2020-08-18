@@ -13,14 +13,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	div.style.paddingTop = '0px';
 	div.style.paddingBottom = '20px';
 	
-	this.init = function()
-	{
-		if (mxClient.IS_QUIRKS || document.documentMode == 8)
-		{
-			demo.style.marginLeft = -Math.round(demo.clientWidth / 2) + 'px';
-		}
-	};
-
 	var buttons = document.createElement('div');
 	buttons.style.border = '1px solid #d3d3d3';
 	buttons.style.borderWidth = '1px 0px 1px 0px';
@@ -6858,7 +6850,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 									}
 									
 									currentListItem = option;
-									currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#505759' : '#ebf2f9';
+									currentListItem.style.backgroundColor = (uiTheme == 'dark') ? '#000000' : '#ebf2f9';
 									
 									if (evt != null)
 									{

@@ -492,6 +492,8 @@
 					
 					if (data.print)
 					{
+						document.title = data.fileTitle;
+						
 						var gb = graph.getGraphBounds();
 						printScale = data.pageScale;
 				
@@ -499,9 +501,6 @@
 						{
 							printScale = 1;
 						}
-						
-						// Workaround to match available paper size in actual print output
-						printScale *= 0.75;
 						
 						if (data.fit)
 						{
@@ -676,7 +675,7 @@
 				{
 					var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 					var scale = data.print? data.scale : 1 / graph.pageScale;
-					var autoOrigin = (mxIsElectron && data.fit != null) ? data.fit : false;
+					var autoOrigin = (data.print && data.fit != null) ? data.fit : false;
 					var border = 0;
 	
 					// Negative coordinates are cropped or shifted if page visible
@@ -691,7 +690,7 @@
 					scale *= printScale;
 					
 					// Starts at first visible page
-					if (!mxIsElectron || autoOrigin)
+					if (!autoOrigin)
 					{
 						var layout = graph.getPageLayout();
 						x0 -= layout.x * pf.width;

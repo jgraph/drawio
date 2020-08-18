@@ -33,33 +33,11 @@
 			
 			for (var i = 0; i < cells.length; i++)
 			{
-				var style = this.getCurrentCellStyle(cells[i]);
-				
-				if (mxUtils.getValue(style, 'treeFolding', '0') == '1')
+				if (mxUtils.getValue(this.getCurrentCellStyle(cells[i]),
+					'treeFolding', '0') == '1')
 				{
-					this.traverse(cells[i], true, mxUtils.bind(this, function(vertex, edge)
-					{
-						if (edge != null)
-						{
-							tmp.push(edge);
-						}
-						
-						if (vertex != cells[i])
-						{
-							tmp.push(vertex);
-						}
-						
-						// Stop traversal on collapsed vertices
-						return vertex == cells[i] || !this.model.isCollapsed(vertex);
-					}));
-					
-					this.model.setCollapsed(cells[i], collapse);
+					this.foldTreeCell(collapse, cells[i]);
 				}
-			}
-
-			for (var i = 0; i < tmp.length; i++)
-			{
-				this.model.setVisible(tmp[i], !collapse);
 			}
 			
 			cells = newCells;
@@ -72,7 +50,46 @@
 		
 		return cells;
 	};
+	
+	/**
+	 * Implements folding a tree cell.
+	 */
+	Graph.prototype.foldTreeCell = function(collapse, cell)
+	{
+		this.model.beginUpdate();
+		try
+		{
+			var tmp = [];
 
+			this.traverse(cell, true, mxUtils.bind(this, function(vertex, edge)
+			{
+				if (edge != null)
+				{
+					tmp.push(edge);
+				}
+				
+				if (vertex != cell)
+				{
+					tmp.push(vertex);
+				}
+				
+				// Stops traversal on collapsed vertices
+				return vertex == cell || !this.model.isCollapsed(vertex);
+			}));
+					
+			this.model.setCollapsed(cell, collapse);
+
+			for (var i = 0; i < tmp.length; i++)
+			{
+				this.model.setVisible(tmp[i], !collapse);
+			}
+		}
+		finally
+		{
+			this.model.endUpdate();
+		}
+	};
+	
 	/**
 	 * Overrides functionality in editor.
 	 */

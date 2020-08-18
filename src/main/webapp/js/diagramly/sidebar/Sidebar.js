@@ -588,7 +588,7 @@
 				mxEvent.consume(evt);
 			}));
 		};
-	}
+	};
 	
 	/**
 	 * Overridden to use shapetags to improve search results.

@@ -76,6 +76,23 @@ window.mxLanguage = window.mxLanguage || (function()
 				{
 					lang = JSON.parse(value).language || null;
 				}
+				
+				if (!lang && window.mxIsElectron)
+				{
+					lang = require('electron').remote.app.getLocale();
+					
+					if (lang != null)
+			    	{
+			    		var dash = lang.indexOf('-');
+			    		
+			    		if (dash >= 0)
+			    		{
+			    			lang = lang.substring(0, dash);
+			    		}
+			    		
+			    		lang = lang.toLowerCase();
+			    	}
+				}
 			}
 			catch (e)
 			{

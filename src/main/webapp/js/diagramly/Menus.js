@@ -449,7 +449,7 @@
 		{
 			action.label = mxResources.get('refresh');
 		}
-
+		
 		editorUi.actions.addAction('upload...', function()
 		{
 			var file = editorUi.getCurrentFile();
@@ -685,6 +685,16 @@
 		editorUi.actions.addAction('quickStart...', function()
 		{
 			editorUi.openLink('https://www.youtube.com/watch?v=Z0D96ZikMkc');
+		});
+		
+		editorUi.actions.addAction('forkme', function()
+		{
+			editorUi.openLink('https://github.com/jgraph/drawio');
+		}).label = 'Fork me on GitHub...';
+		
+		editorUi.actions.addAction('downloadDesktop...', function()
+		{
+			editorUi.openLink('https://get.draw.io/');
 		});
 		
 		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()
@@ -1213,7 +1223,7 @@
 				}, 0);
 				
 				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
-					'support', '-', 'about'], parent);
+					'support', '-', 'forkme', 'downloadDesktop', '-', 'about'], parent);
 			}
 			
 			if (urlParams['test'] == '1')

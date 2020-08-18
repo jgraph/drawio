@@ -4907,7 +4907,7 @@
 									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
 										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
 								
-									if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)))
+									if (!mxEvent.isAltDown(evt))
 									{
 										if (colorset['fill'] == '')
 										{
@@ -4933,7 +4933,8 @@
 										}
 									}
 									
-									if (!mxEvent.isAltDown(evt) && graph.getModel().isVertex(cells[i]))
+									if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
+										graph.getModel().isVertex(cells[i]))
 									{
 										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
 											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));

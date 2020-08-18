@@ -1,3 +1,8 @@
+18-AUG-2020: 13.6.3
+
+- Handles extra HTML content on Sharepoint
+- Fixes origin after folding in viewer
+
 08-AUG-2020: 13.6.2
 
 - Fixes origin for online PDF export

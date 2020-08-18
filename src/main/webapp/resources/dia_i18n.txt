@@ -1031,3 +1031,6 @@ extPlugins=extPlugins
 backupFound=backupFound
 chromeOnly=chromeOnly
 msgDeleted=msgDeleted
+confAErrFetchDrawList=confAErrFetchDrawList
+confAErrCheckDrawDiag=confAErrCheckDrawDiag
+confAErrFetchPageList=confAErrFetchPageList

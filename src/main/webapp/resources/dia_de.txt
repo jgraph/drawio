@@ -1031,3 +1031,6 @@ extPlugins=External Plugins
 backupFound=Wiederherstellungsdatei gefunden.
 chromeOnly=Dieses Feature ist nur in Google Chrome verfügbar.
 msgDeleted=Diese Nachricht wurde gelöscht.
+confAErrFetchDrawList=Fehler beim Laden der Diagrammliste. Einige Diagramme werden übersprungen.
+confAErrCheckDrawDiag=Diagramm {1} konnte nicht geprüft werden
+confAErrFetchPageList=Fehler beim Laden der Seitenliste.

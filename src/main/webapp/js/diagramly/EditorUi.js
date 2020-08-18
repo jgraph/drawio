@@ -7004,6 +7004,22 @@
 							var w = parseFloat(svgs[0].getAttribute('width'));
 							var h = parseFloat(svgs[0].getAttribute('height'));
 							
+							if (isNaN(w) || isNaN(h))
+							{
+								try
+								{
+									var viewBox = svgs[0].getAttribute('viewBox').split(/\s+/);
+									w = parseFloat(viewBox[2]);
+									h = parseFloat(viewBox[3]);
+								}
+								catch(e)
+								{
+									//Any size such that it shows up
+									w = w || 100;
+									h = h || 100;									
+								}
+							}
+							
 							success(ui.convertDataUri(Editor.createSvgDataUri(svg)), w, h);
 						}
 						else

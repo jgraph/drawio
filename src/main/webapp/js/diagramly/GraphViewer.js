@@ -337,13 +337,14 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					return true;
 				};
 				
-				//Fix graph clipping by avoiding negative negative translation (after resize is finished)
-				var graphFoldCells = this.graph.foldCells;
+				// Updates origin after tree cell folding
+				var graphFoldTreeCell = this.graph.foldTreeCell;
 				
-				this.graph.foldCells = mxUtils.bind(this, function()
+				this.graph.foldTreeCell = mxUtils.bind(this, function()
 				{
-					this.cellFolded = true;
-					return graphFoldCells.apply(this.graph, arguments);
+					this.treeCellFolded = true;
+					
+					return graphFoldTreeCell.apply(this.graph, arguments);
 				});
 				
 				this.fireEvent(new mxEventObject('render'));
@@ -561,19 +562,12 @@ GraphViewer.prototype.addSizeHandler = function()
 				this.toolbar.style.width = Math.max(this.minToolbarWidth, container.offsetWidth) + 'px';
 			}
 
-			//If a cell is folded set the translation zero to avoid -ve translation
-			if (this.cellFolded)
+			// Updates origin after tree cell folding
+			if (this.treeCellFolded)
 			{
-				this.cellFolded = false;
-				
-				if (this.center)
-				{
-					this.graph.center();
-				}
-				else
-				{
-					this.graph.view.setTranslate(0, 0);
-				}
+				this.treeCellFolded = false;
+				this.positionGraph(this.graph.view.translate);
+				this.graph.initialViewState.translate = this.graph.view.translate.clone();
 			}
 			
 			updatingOverflow = false;
@@ -699,8 +693,10 @@ GraphViewer.prototype.addSizeHandler = function()
 		}
 	}
 
-	var positionGraph = mxUtils.bind(this, function()
+	var positionGraph = mxUtils.bind(this, function(origin)
 	{
+		origin = (origin != null) ? origin : new mxPoint();
+		
 		// Allocates maximum width while setting initial view state
 		var prev = container.style.minWidth;
 		
@@ -713,8 +709,8 @@ GraphViewer.prototype.addSizeHandler = function()
 			((container.style.height != '' && this.autoFit) ? container.offsetHeight : undefined);
 		
 		if (container.offsetWidth > 0 && (this.allowZoomIn ||
-			(bounds.width + 2 * this.graph.border > container.offsetWidth ||
-			bounds.height + 2 * this.graph.border > maxHeight)))
+			bounds.width + 2 * this.graph.border > container.offsetWidth ||
+			bounds.height + 2 * this.graph.border > maxHeight))
 		{
 			var maxScale = null;
 
@@ -731,8 +727,8 @@ GraphViewer.prototype.addSizeHandler = function()
 		}
 		else
 		{
-			this.graph.view.setTranslate(Math.floor(this.graph.border - bounds.x / this.graph.view.scale),
-				Math.floor(this.graph.border - bounds.y / this.graph.view.scale));
+			this.graph.view.setTranslate(Math.floor(this.graph.border - bounds.x / this.graph.view.scale) + origin.x,
+				Math.floor(this.graph.border - bounds.y / this.graph.view.scale) + origin.y);
 			lastOffsetWidth = container.offsetWidth;
 		}
 		
@@ -749,11 +745,11 @@ GraphViewer.prototype.addSizeHandler = function()
 	}
 
 	// Installs function on instance
-	this.positionGraph = function()
+	this.positionGraph = function(origin)
 	{
 		bounds = this.graph.getGraphBounds();
 		lastOffsetWidth = null;
-		positionGraph();
+		positionGraph(origin);
 	};
 };
 

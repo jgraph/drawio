@@ -23,13 +23,14 @@ mxStencilRegistry.allowEval = false;
 	PrintDialog.electronPrint = function(editorUi, allPages, pagesFrom, pagesTo, 
 			fit, sheetsAcross, sheetsDown, zoom, pageScale, pageFormat)
 	{
-		var xml = '';
+		var xml = '', title = '';
 		var file = editorUi.getCurrentFile();
 		
 		if (file)
 		{
 			file.updateFileData();
 			xml = file.getData();
+			title = file.title;
 		}
 		
 		new mxElectronRequest('export', {
@@ -45,7 +46,8 @@ mxStencilRegistry.allowEval = false;
 			fit: fit,
 			sheetsAcross: sheetsAcross,
 			sheetsDown: sheetsDown,
-			scale: zoom
+			scale: zoom,
+			fileTitle: title
 		}).send(function(){}, function(){});
 	};
 	
