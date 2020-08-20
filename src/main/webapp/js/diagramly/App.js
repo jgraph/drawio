@@ -1745,7 +1745,7 @@ App.prototype.showNameChangeBanner = function()
  */
 App.prototype.showDownloadDesktopBanner = function()
 {
-	var link = 'https://get.draw.io/';
+	var link = 'https://get.diagrams.net/';
 	
 	if (this.showBanner('DesktopFooter', mxResources.get('downloadDesktop'), mxUtils.bind(this, function()
 		{

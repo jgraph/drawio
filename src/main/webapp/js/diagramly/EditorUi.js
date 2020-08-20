@@ -778,6 +778,122 @@
 	};
 
 	/**
+	 * Adds keyboard shortcuts for page handling.
+	 */
+    var editorUiCreateKeyHandler = EditorUi.prototype.createKeyHandler;
+    EditorUi.prototype.createKeyHandler = function(editor)
+    {
+    	var keyHandler = editorUiCreateKeyHandler.apply(this, arguments);
+    	
+    	if (!this.editor.chromeless || this.editor.editable)
+		{
+	    	var keyHandlerGetFunction = keyHandler.getFunction;
+	    	var graph = this.editor.graph;
+	    	var ui = this;
+	    	
+	    	keyHandler.getFunction = function(evt)
+	    	{
+	    		if (graph.isSelectionEmpty() && ui.pages != null && ui.pages.length > 0)
+	    		{
+	    			var idx = ui.getSelectedPageIndex();
+
+	    			if (mxEvent.isShiftDown(evt))
+	    			{
+		    			if (evt.keyCode == 37)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx > 0)
+			    				{
+		    						ui.movePage(idx, idx - 1);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 38)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx > 0)
+			    				{
+		    						ui.movePage(idx, 0);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 39)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx < ui.pages.length - 1)
+			    				{
+		    						ui.movePage(idx, idx + 1);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 40)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx < ui.pages.length - 1)
+			    				{
+		    						ui.movePage(idx, ui.pages.length - 1);
+		    					}
+		    				};
+		    			}
+	    			}
+	    			else if (mxEvent.isControlDown(evt) || (mxClient.IS_MAC && mxEvent.isMetaDown(evt)))
+					{
+	    				if (evt.keyCode == 37)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx > 0)
+			    				{
+		    						ui.selectNextPage(false);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 38)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx > 0)
+			    				{
+			    					ui.selectPage(ui.pages[0]);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 39)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx < ui.pages.length - 1)
+			    				{
+			    					ui.selectNextPage(true);
+		    					}
+		    				};
+		    			}
+		    			else if (evt.keyCode == 40)
+		    			{
+	    					return function()
+	    					{
+			    				if (idx < ui.pages.length - 1)
+			    				{
+			    					ui.selectPage(ui.pages[ui.pages.length - 1]);
+		    					}
+		    				};
+		    			}
+				
+					}
+	    		}
+	    		
+	    		return keyHandlerGetFunction.apply(this, arguments);
+	    	};
+		}
+    	
+    	return keyHandler;
+    };
+
+	/**
 	 * Extracts the mxfile from the given HTML data from a data transfer event.
 	 */
 	var editorUiExtractGraphModelFromHtml = EditorUi.prototype.extractGraphModelFromHtml;
@@ -4151,7 +4267,9 @@
 		// to avoid the browser to automatically append .xml instead
 		if (mimeType == 'text/xml' &&
 			!/(\.drawio)$/i.test(filename) &&
-			!/(\.xml)$/i.test(filename))
+			!/(\.xml)$/i.test(filename) &&
+			!/(\.svg)$/i.test(filename) &&
+			!/(\.html)$/i.test(filename))
 		{
 			defaultExtension = (defaultExtension != null) ? defaultExtension : 'drawio';
 			filename = filename + '.' + defaultExtension;
@@ -6773,7 +6891,26 @@
 								}
 								else
 								{
-									onerror({});
+									try
+									{
+										if (xhr.responseType == '' || xhr.responseType == 'text')
+										{
+											onerror({message: xhr.responseText});
+										}
+										else
+										{
+											var reader = new FileReader();
+											reader.onload = function() 
+											{
+												onerror({message: JSON.parse(reader.result).Message});
+											}
+											reader.readAsText(xhr.response);
+										}
+									}
+									catch(e)
+									{
+										onerror({});
+									}
 								}
 							}
 						});
@@ -8853,18 +8990,14 @@
 		{
 			// Defines additional hotkeys
 			this.keyHandler.bindAction(70, true, 'find'); // Ctrl+F
-		    this.keyHandler.bindAction(67, true, 'copyStyle', true); // Ctrl+Shift+C
-		    this.keyHandler.bindAction(86, true, 'pasteStyle', true); // Ctrl+Shift+V
-		    this.keyHandler.bindAction(77, true, 'editGeometry', true); // Ctrl+Shift+M
-		    this.keyHandler.bindAction(88, true, 'insertText', true); // Ctrl+Shift+X
-		    this.keyHandler.bindAction(75, true, 'insertRectangle'); // Ctrl+K
-		    this.keyHandler.bindAction(75, true, 'insertEllipse', true); // Ctrl+Shift+K
-			
-		    if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-			{
-		    	this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
-			}
-		    
+			this.keyHandler.bindAction(67, true, 'copyStyle', true); // Ctrl+Shift+C
+			this.keyHandler.bindAction(86, true, 'pasteStyle', true); // Ctrl+Shift+V
+			this.keyHandler.bindAction(77, true, 'editGeometry', true); // Ctrl+Shift+M
+			this.keyHandler.bindAction(88, true, 'insertText', true); // Ctrl+Shift+X
+			this.keyHandler.bindAction(75, true, 'insertRectangle'); // Ctrl+K
+			this.keyHandler.bindAction(75, true, 'insertEllipse', true); // Ctrl+Shift+K
+			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
+
 		    this.installImagePasteHandler();
 		    this.installNativeClipboardHandler();
 		};
@@ -8878,10 +9011,9 @@
 		// Installs drag and drop handler for rich text editor
 		if (Graph.fileSupport)
 		{
-			this.editor.graph.addListener(mxEvent.EDITING_STARTED, mxUtils.bind(this, function(evt)
+			graph.addListener(mxEvent.EDITING_STARTED, mxUtils.bind(this, function(evt)
 			{
 				// Setup the dnd listeners
-				var graph = this.editor.graph;
 				var textElt = graph.cellEditor.text2;
 				var dropElt = null;
 				

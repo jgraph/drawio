@@ -694,7 +694,7 @@
 		
 		editorUi.actions.addAction('downloadDesktop...', function()
 		{
-			editorUi.openLink('https://get.draw.io/');
+			editorUi.openLink('https://get.diagrams.net/');
 		});
 		
 		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()

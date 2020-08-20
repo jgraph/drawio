@@ -1195,7 +1195,12 @@ EditorUi.prototype.installShapePicker = function()
 			{
 				mxEvent.consume(evt);
 				var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-				ui.showShapePicker(pt.x, pt.y);
+				
+				// Asynchronous to avoid direct insert after double tap
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					ui.showShapePicker(pt.x, pt.y);
+				}), 30);
 			}
 			else
 			{
@@ -1293,7 +1298,7 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction)
 		}
 		else
 		{
-			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-4px,-4px)');
+			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-22px,-22px)');
 		}
 		
 		if (graph.background != null && graph.background != mxConstants.NONE)
