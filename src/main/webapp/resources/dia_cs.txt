@@ -221,6 +221,7 @@ editDiagram=Upravit diagram
 editGeometry=Upravit geometrii
 editImage=Upravit obrázek
 editImageUrl=Upravit URL obrázku
+editLayer=Edit Layer
 editLink=Upravit odkaz
 editShape=Upravit tvar
 editStyle=Upravit styl

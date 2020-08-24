@@ -221,6 +221,7 @@ editDiagram=I-edit ang Dayagram
 editGeometry=I-edit ang Geometry
 editImage=I-edit ang imahe
 editImageUrl=I-edit ang URL ng imahe
+editLayer=Edit Layer
 editLink=I-edit ang Link
 editShape=I-edit ang hugis
 editStyle=I-edit ang istilo

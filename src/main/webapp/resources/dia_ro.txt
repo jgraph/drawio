@@ -221,6 +221,7 @@ editDiagram=Editează diagrama
 editGeometry=Editează geometria
 editImage=Editează imaginea
 editImageUrl=Editează URL-ul imaginii.
+editLayer=Edit Layer
 editLink=Editează link
 editShape=Editează forma
 editStyle=Editează stilul

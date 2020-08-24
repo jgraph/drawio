@@ -221,6 +221,7 @@ editDiagram=แก้ไขแผนภาพ
 editGeometry=แก้ไขรูปทรงเรขาคณิต
 editImage=แก้ไขรูปภาพ
 editImageUrl=แก้ไข URL รูปภาพ
+editLayer=Edit Layer
 editLink=แก้ไข Link
 editShape=แก้ไขรูปร่าง
 editStyle=แก้ไขรูปแบบ

@@ -2082,16 +2082,16 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	ldiv.appendChild(removeLink);
 
 	var insertLink = link.cloneNode();
-	insertLink.setAttribute('title', mxUtils.trim(mxResources.get('moveSelectionTo', [''])));
+	insertLink.setAttribute('title', mxUtils.trim(mxResources.get('moveSelectionTo', ['...'])));
 	insertLink.innerHTML = '<div class="geSprite geSprite-insert" style="display:inline-block;"></div>';
 	
 	mxEvent.addListener(insertLink, 'click', function(evt)
 	{
 		if (graph.isEnabled() && !graph.isSelectionEmpty())
 		{
-			editorUi.editor.graph.popupMenuHandler.hideMenu();
+			var offset = mxUtils.getOffset(insertLink);
 			
-			var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
+			editorUi.showPopupMenu(mxUtils.bind(this, function(menu, parent)
 			{
 				for (var i = layerCount - 1; i >= 0; i--)
 				{
@@ -2110,24 +2110,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 						
 					}))(graph.model.getChildAt(graph.model.root, i));
 				}
-			}));
-			menu.div.className += ' geMenubarMenu';
-			menu.smartSeparators = true;
-			menu.showDisabled = true;
-			menu.autoExpand = true;
-			
-			// Disables autoexpand and destroys menu when hidden
-			menu.hideMenu = mxUtils.bind(this, function()
-			{
-				mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
-				menu.destroy();
-			});
-	
-			var offset = mxUtils.getOffset(insertLink);
-			menu.popup(offset.x, offset.y + insertLink.offsetHeight, null, evt);
-			
-			// Allows hiding by clicking on document
-			editorUi.setCurrentMenu(menu);
+			}), offset.x, offset.y + insertLink.offsetHeight, evt);
 		}
 	});
 
@@ -2478,7 +2461,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 					{
 						graph.setDefaultParent(defaultParent);
 						graph.view.setCurrentRoot(null);
-						refresh();
 					}
 				});
 			}
@@ -2508,10 +2490,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	};
 
 	refresh();
-	graph.model.addListener(mxEvent.CHANGE, function()
-	{
-		refresh();
-	});
+	graph.model.addListener(mxEvent.CHANGE, refresh);
+	graph.addListener('defaultParentChanged', refresh);
 
 	graph.selectionModel.addListener(mxEvent.CHANGE, function()
 	{

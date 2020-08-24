@@ -221,6 +221,7 @@ editDiagram=Редактиране на диаграма
 editGeometry=Редактиране на геометрия
 editImage=Редактиране на изображение
 editImageUrl=Редактиране на URL на изображение
+editLayer=Edit Layer
 editLink=Редактиране на линк
 editShape=Редактиране на форма
 editStyle=Редактиране на стил

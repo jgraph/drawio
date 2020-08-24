@@ -8,12 +8,13 @@
 		var gn = 'mxgraph.arrows2';
 		var dt = 'arrow ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('arrows2');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s + 'arrow;dy=0.6;dx=40;notch=0;', 
 					100, 70, '', 'Arrow Right', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'right').join(' ')),
 			this.createVertexTemplateEntry(s + 'arrow;dy=0.6;dx=40;flipH=1;notch=0;', 
-					100, 70, '', 'Arrow Left', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'leftt').join(' ')),
+					100, 70, '', 'Arrow Left', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'left').join(' ')),
 			this.createVertexTemplateEntry(s + 'arrow;dy=0.6;dx=40;direction=north;notch=0;', 
 					70, 100, '', 'Arrow Up', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'up').join(' ')),
 			this.createVertexTemplateEntry(s + 'arrow;dy=0.6;dx=40;direction=south;notch=0;', 
@@ -77,6 +78,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

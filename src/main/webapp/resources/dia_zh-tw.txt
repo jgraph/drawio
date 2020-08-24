@@ -221,6 +221,7 @@ editDiagram=編輯圖表
 editGeometry=編輯幾何圖形
 editImage=編輯圖片
 editImageUrl=編輯圖片超連結
+editLayer=Edit Layer
 editLink=編輯連結
 editShape=編輯圖形
 editStyle=編輯樣式

@@ -2505,6 +2505,15 @@ Graph.prototype.setGridSize = function(value)
 };
 
 /**
+ * Adds event if default parent is changed.
+ */
+Graph.prototype.setDefaultParent = function(cell)
+{
+	this.defaultParent = cell;
+	this.fireEvent(new mxEventObject('defaultParentChanged'));
+};
+
+/**
  * Function: getClickableLinkForCell
  * 
  * Returns the first non-null link for the cell or its ancestors.

@@ -221,6 +221,7 @@ editDiagram=Diagramot szerkeszt
 editGeometry=Geometriát szerkeszt
 editImage=Képet szerkeszt
 editImageUrl=Kép URL-t szerkeszt
+editLayer=Edit Layer
 editLink=Linket szerkeszt
 editShape=Alakzatot szerkeszt
 editStyle=Stílust szerkeszt

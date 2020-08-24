@@ -221,6 +221,7 @@ editDiagram=다이어그램 편집
 editGeometry=도형 구조 편집
 editImage=이미지 편집
 editImageUrl=이미지 URL 편집
+editLayer=Edit Layer
 editLink=링크 편집
 editShape=도형 편집
 editStyle=스타일 편집

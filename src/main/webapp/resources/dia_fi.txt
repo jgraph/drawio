@@ -221,6 +221,7 @@ editDiagram=Muokkaa kaaviota
 editGeometry=Muokkaa geometriaa
 editImage=Muokkaa kuvaa
 editImageUrl=Muokkaa kuvan URL:ia
+editLayer=Edit Layer
 editLink=Muokkaa linkkiä
 editShape=Muokkaa muotoa
 editStyle=Muokkaa tyyliä

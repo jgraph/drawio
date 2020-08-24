@@ -9,6 +9,7 @@
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;shape=';
 		var gn = 'mxgraph.basic';
 		var dt = '';
+		this.setCurrentSearchEntryLibrary('basic');
 		
 		this.addPaletteFunctions('basic', mxResources.get('basic'), false,
 		[
@@ -76,6 +77,8 @@
 			this.createVertexTemplateEntry(s2 + 'arc;startAngle=0.3;endAngle=0.1;', w, h, '', 'Arc', null, null, this.getTagsForStencil(gn, 'arc', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'partConcEllipse;startAngle=0.25;endAngle=0.1;arcWidth=0.5;', w, h, '', 'Partial Concentric Ellipse', null, null, this.getTagsForStencil(gn, 'partConcEllipse', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 })();

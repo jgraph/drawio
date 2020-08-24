@@ -221,6 +221,7 @@ editDiagram=Chỉnh sửa biểu đồ
 editGeometry=Chỉnh sửa hình học
 editImage=Chỉnh sửa ảnh
 editImageUrl=Chỉnh sửa đường dẫn hình ảnh
+editLayer=Edit Layer
 editLink=Chỉnh sửa liên kết
 editShape=Chỉnh sửa hình
 editStyle=Chỉnh sửa phong cách

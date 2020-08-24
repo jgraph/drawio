@@ -4,7 +4,7 @@
 Draw.loadPlugin(function(ui) {
 	
 	var div = document.createElement('div');
-	div.style.background = '#ffffff';
+	div.style.background = (uiTheme == 'dark') ? '#2a2a2a' : '#ffffff';
 	div.style.border = '1px solid gray';
 	div.style.opacity = '0.8';
 	div.style.position = 'absolute';

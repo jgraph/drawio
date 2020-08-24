@@ -52,7 +52,6 @@ EditorUi.initMinimalTheme = function()
            'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
            'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
            // Styling for Minimal
-           '.geToolbarContainer { background:#fff !important; }' +
            'div.geSidebarContainer { background-color: #ffffff; }' +
            'div.geSidebarContainer .geTitle { background-color:#fdfdfd; }' +
            'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
@@ -547,7 +546,7 @@ EditorUi.initMinimalTheme = function()
         
         if (graph.getSelectionCount() == 1)
         {
-            this.addMenuItems(menu, ['editTooltip', '-', 'editStyle', 'editGeometry', '-'], null, evt);
+            this.addMenuItems(menu, ['-', 'editTooltip', 'editGeometry', '-'], null, evt);
 
             if (graph.isCellFoldable(graph.getSelectionCell()))
             {

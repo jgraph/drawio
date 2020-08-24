@@ -2932,6 +2932,32 @@ EditorUi.prototype.open = function()
 };
 
 /**
+ * Shows the given popup menu.
+ */
+EditorUi.prototype.showPopupMenu = function(fn, x, y, evt)
+{
+	this.editor.graph.popupMenuHandler.hideMenu();
+	
+	var menu = new mxPopupMenu(fn);
+	menu.div.className += ' geMenubarMenu';
+	menu.smartSeparators = true;
+	menu.showDisabled = true;
+	menu.autoExpand = true;
+	
+	// Disables autoexpand and destroys menu when hidden
+	menu.hideMenu = mxUtils.bind(this, function()
+	{
+		mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
+		menu.destroy();
+	});
+
+	menu.popup(x, y, null, evt);
+	
+	// Allows hiding by clicking on document
+	this.setCurrentMenu(menu);	
+};
+
+/**
  * Sets the current menu and element.
  */
 EditorUi.prototype.setCurrentMenu = function(menu, elt)

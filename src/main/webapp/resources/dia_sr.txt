@@ -221,6 +221,7 @@ editDiagram=Izmeni dijagram
 editGeometry=Uredi geometriju
 editImage=Uredi sliku
 editImageUrl=Uredi URL slike
+editLayer=Edit Layer
 editLink=Uredi link
 editShape=Uredi oblik
 editStyle=Uredi stil

@@ -221,6 +221,7 @@ editDiagram=editDiagram
 editGeometry=editGeometry
 editImage=editImage
 editImageUrl=editImageUrl
+editLayer=editLayer
 editLink=editLink
 editShape=editShape
 editStyle=editStyle

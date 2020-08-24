@@ -221,6 +221,7 @@ editDiagram=Edit Diagram
 editGeometry=‫تعديل الشكل الهندسي‬
 editImage=‫تعديل الصورة‬
 editImageUrl=‫تعديل رابط الصورة‬
+editLayer=Edit Layer
 editLink=‫تعديل الرابط‬
 editShape=‫تعديل الشكل‬
 editStyle=‫تعديل النمط‬

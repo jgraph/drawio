@@ -314,7 +314,7 @@ app.on('ready', e =>
 				from: from,
 				to: to,
 				allPages: format == 'pdf' && program.allPages,
-				scale: (program.crop && program.scale == null) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
+				scale: (program.crop && (program.scale == null || program.scale == 1)) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
 				embedXml: program.embedDiagram? '1' : '0',
 				jpegQuality: program.quality,
 				uncompressed: program.uncompressed

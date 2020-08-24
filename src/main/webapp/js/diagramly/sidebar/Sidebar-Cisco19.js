@@ -12,18 +12,31 @@
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
 			'pointerEvents=1;shape=mxgraph.cisco19.';
 		
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19LAN Switching');
 		this.addCisco19LANSwitchingPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Routing WAN');
 		this.addCisco19RoutingWANPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Network Management');
 		this.addCisco19NetworkManagementPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Data Center');
 		this.addCisco19DataCenterPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Wireless LAN');
 		this.addCisco19WirelessLANPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Collaboration');
 		this.addCisco19CollaborationPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Security Clouds Connectors');
 		this.addCisco19SecurityCloudsAndConnectorsPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Endpoint Client Device Icons');
 		this.addCisco19EndpointClientDeviceIconsPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19DNA SD Access');
 		this.addCisco19DNASDAccessPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19SD WAN Viptela');
 		this.addCisco19SDWANViptelaPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19ETA Stealthwatch');
 		this.addCisco19StealthwatchPalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19SAFE');
 		this.addCisco19SafePalette(s, s2, s3);
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addCisco19LANSwitchingPalette = function(s, s2, s3)

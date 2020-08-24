@@ -13,6 +13,7 @@
 		var s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;background=gateway;outlineConnect=0;';
 		//default tags
 		var dt = 'bpmn business process model gateway ';
+		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnGateways');
 		
 		this.addPaletteFunctions('bpmnGateways', 'BPMN Gateways', false,
 		[
@@ -102,6 +103,7 @@
 		
 		s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;';
 		var dt = 'bpmn business process model event ';
+		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnEvents');
 		
 		this.addPaletteFunctions('bpmnEvents', 'BPMN Events', false,
 		[
@@ -183,5 +185,7 @@
 
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=terminate;', w, h, '', 'Terminate', null, null, dt + 'terminate')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

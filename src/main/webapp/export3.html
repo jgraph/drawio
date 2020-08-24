@@ -220,6 +220,38 @@
 							try 
 							{
 								const { ipcRenderer } = require('electron');
+								
+								ipcRenderer.on('get-svg-data', (event, arg) => 
+								{
+									graph.mathEnabled = math; //Enable math such that getSvg works as expected
+									// Returns the exported SVG for the given graph (see EditorUi.exportSvg)
+									var bg = graph.background;
+										
+									if (bg == mxConstants.NONE)
+									{
+										bg = null;
+									}
+									
+									var svgRoot = graph.getSvg(bg, 1, 0, false, null, true, null, null, null);
+									
+									if (graph.shadowVisible)
+									{
+										graph.addSvgShadow(svgRoot);
+									}
+									
+									// TODO addFontCss cannot be used as it requires this
+									// Adds CSS
+									//Editor.prototype.addFontCss(svgRoot);
+									
+									if (math)
+									{
+										Editor.prototype.addMathCss(svgRoot);
+									}
+									
+									ipcRenderer.send('svg-data', '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
+											mxUtils.getXml(svgRoot));
+								});
+								
 								//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
 								ipcRenderer.send('render-finished', {bounds: JSON.stringify(bounds)});
 							}
@@ -837,45 +869,16 @@
 			return graph;
 		};
 		
-		/**
-		 * Returns the exported SVG for the given graph (see EditorUi.exportSvg).
-		 */
-		function getSvgData(graph)
-		{
-			var bg = graph.background;
-			
-			if (bg == mxConstants.NONE)
-			{
-				bg = null;
-			}
-			
-			var svgRoot = graph.getSvg(bg, 1, 0, false, null, true, null, null, null);
-			
-			if (graph.shadowVisible)
-			{
-				graph.addSvgShadow(svgRoot);
-			}
-			
-			return '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-				mxUtils.getXml(svgRoot);
-		};
-		
 		//Electron pdf export
 		if (mxIsElectron)
 		{
 			try 
 			{
 				const { ipcRenderer } = require('electron');
-				var graph = null;
 				
 				ipcRenderer.on('render', (event, arg) => 
 				{
-					graph = render(arg);
-				});
-				
-				ipcRenderer.on('get-svg-data', (event, arg) => 
-				{
-					ipcRenderer.send('svg-data', getSvgData(graph));
+					render(arg);
 				});
 			}
 			catch(e)

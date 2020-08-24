@@ -268,6 +268,24 @@
 				elts[i].style.display = vis;
 			}
 		}
+		
+		return elts;
+	};
+	
+	/**
+	 * 
+	 */
+	Sidebar.prototype.getConfigurationById = function(id)
+	{
+		for (var i = 0; i < this.configuration.length; i++)
+		{
+			if (this.configuration[i].id == id)
+			{
+				return this.configuration[i];
+			}
+		}
+		
+		return null;
 	};
 	
 	/**
@@ -275,19 +293,16 @@
 	 */
 	Sidebar.prototype.isEntryVisible = function(key)
 	{
-		for (var i = 0; i < this.configuration.length; i++)
+		var config = this.getConfigurationById(key);
+		
+		if (config != null)
 		{
-			if (this.configuration[i].id == key)
-			{
-				var id = (this.configuration[i].libs != null) ? ((this.configuration[i].prefix || '') + this.configuration[i].libs[0]) : key;
-				var elts = this.palettes[id];
+			var id = (config.libs != null) ? ((config.prefix || '') + config.libs[0]) : key;
+			var elts = this.palettes[id];
 
-				if (elts != null)
-				{
-					return elts[0].style.display != 'none';
-				}
-				
-				break;
+			if (elts != null)
+			{
+				return elts[0].style.display != 'none';
 			}
 		}
 		
@@ -459,7 +474,7 @@
 		if (this.tagIndex != null)
 		{
 			this.addTagIndex(Graph.decompress(this.tagIndex));
-			this.tagIndex = null;
+			this.tagIndex = null;	
 		}
 		
 		this.initPalettes();

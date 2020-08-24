@@ -221,6 +221,7 @@ editDiagram=Muuda diagrammi
 editGeometry=Muuda geomeetriat
 editImage=Muuda pilti
 editImageUrl=Muuda pildi URLi
+editLayer=Edit Layer
 editLink=Muuda linki
 editShape=Muuda kuju
 editStyle=Muuda stiili

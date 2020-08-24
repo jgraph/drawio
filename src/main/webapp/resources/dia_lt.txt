@@ -221,6 +221,7 @@ editDiagram=Redaguoti schemą
 editGeometry=Redaguoti geometriją
 editImage=Redaguoti pavaikslėlį
 editImageUrl=Redaguoti paveikslėlio nuorodą
+editLayer=Edit Layer
 editLink=Redaguoti nuorodą
 editShape=Redaguoti formą
 editStyle=Redaguoti stilių

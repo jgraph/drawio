@@ -221,6 +221,7 @@ editDiagram=Diagrama editatu
 editGeometry=Geometria editatu
 editImage=Irudia editatu
 editImageUrl=Irudiaren URLa editatu
+editLayer=Edit Layer
 editLink=Esteka editatu
 editShape=Forma editatu
 editStyle=Estiloa editatu

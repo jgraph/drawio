@@ -221,6 +221,7 @@ editDiagram=编辑绘图
 editGeometry=编辑几何图形
 editImage=编辑图片
 editImageUrl=编辑图片 URL 地址
+editLayer=Edit Layer
 editLink=编辑链接
 editShape=编辑图形
 editStyle=编辑样式

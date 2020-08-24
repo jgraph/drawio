@@ -221,6 +221,7 @@ editDiagram=Edit Diagram
 editGeometry=Edit Geometri
 editImage=Edit Gambar
 editImageUrl=Edit URL Gambar
+editLayer=Edit Layer
 editLink=Edit Tautan
 editShape=Edit Bentuk
 editStyle=Edit Gaya

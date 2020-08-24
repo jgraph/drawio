@@ -3746,7 +3746,9 @@ LucidImporter = {};
 			//'TimelineBlock' : cs,
 			//'TimelineMilestoneBlock' : cs,
 			//'TimelineIntervalBlock' : cs,
-			'MinimalTextBlock' : 'strokeColor=none'
+			'MinimalTextBlock' : 'strokeColor=none',
+//Freehand			
+			'FreehandBlock' : cs
 	};
 	
 	// actual code start
@@ -4229,7 +4231,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = (noLblStyle? 'overflow=width;html=1;' : 
+		var style = (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=width;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4255,7 +4257,7 @@ LucidImporter = {};
 		}
 		
 		s +=	
-		  (noLblStyle? 'overflow=width;html=1;' : 
+		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=width;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
@@ -4982,12 +4984,12 @@ LucidImporter = {};
 	
 	function getStrokeWidth(properties)
 	{
-		return createStyle(mxConstants.STYLE_STROKEWIDTH, Math.round(parseFloat(properties.LineWidth) * scale), '1');
+		return properties.LineWidth != null? createStyle(mxConstants.STYLE_STROKEWIDTH, Math.round(parseFloat(properties.LineWidth) * scale), '1') : '';
 	}
 	
-	function getImage(properties, action)
+	function getImage(properties, action, url)
 	{
-		var imgUrl = null;
+		var imgUrl = url;
 		
 		// Converts images
 		if (action.Class == 'ImageSearchBlock2')
@@ -5257,7 +5259,8 @@ LucidImporter = {};
 						}
 					}
 
-					var waypoints = p.ElbowControlPoints || p.BezierJoints || p.Joints;
+					var waypoints = p.ElbowControlPoints != null && p.ElbowControlPoints.length > 0? p.ElbowControlPoints : 
+						(p.BezierJoints != null && p.BezierJoints.length > 0? p.BezierJoints : p.Joints);
 					
 					if (waypoints != null)
 					{
@@ -5569,7 +5572,7 @@ LucidImporter = {};
 		}
 	};
 	
-	function importLucidPage(graph, g, dx, dy, crop, noSelection)
+	function importLucidPage(graph, g, noSelection)
 	{
 		graph.getModel().beginUpdate();
 		try
@@ -5790,22 +5793,6 @@ LucidImporter = {};
 				}
 			}
 
-			if (crop && dx != null && dy != null)
-			{
-				if (graph.isGridEnabled())
-				{
-					dx = graph.snap(dx);
-					dy = graph.snap(dy);
-				}
-				
-				var bounds = graph.getBoundingBoxFromGeometry(select, true);
-				
-				if (bounds != null)
-				{
-					graph.moveCells(select, dx - bounds.x, dy - bounds.y);
-				}
-			}
-
 			if (!noSelection)
 				graph.setSelectionCells(select);
 		}
@@ -5827,9 +5814,168 @@ LucidImporter = {};
         graph.getModel().maintainEdgeParent = false;
         return graph;
 	};
+
+	//Code adopted from vsdx importer
+
+	/**
+	 * Holds the NURBS array that is part of the VSDX NURBSTo element, together with some helper functions
+	 */
+    function Nurbs(x1, y1, n1x, n1y, x2, y2, n2x, n2y)
+	{
+        this.nurbsValues = [1, 3, 0, 0, 
+			(x1 + n1x) * 100,
+			100 - (1 - (y1 + n1y)) * 100,
+			0, 1,
+			(x2 + n2x) * 100,
+			100 - (1 - (y2 + n2y)) * 100,
+			0, 1
+		];
+    }
+    /**
+     * @return {number} number of points, not including the last one (which is outside of the nurbs string)
+     */
+    Nurbs.prototype.getSize = function () {
+        return (((this.nurbsValues.length / 4 | 0)) - 1);
+    };
+    /**
+     * @return {number} the i-th X coordinate
+     * @param {number} i
+     */
+    Nurbs.prototype.getX = function (i) {
+        return Math.round(this.nurbsValues[(i + 1) * 4] * 100.0) / 100.0;;
+    };
+    /**
+     * @return {number} the i-th Y coordinate
+     * @param {number} i
+     */
+    Nurbs.prototype.getY = function (i) {
+        return Math.round(this.nurbsValues[(i + 1) * 4 + 1] * 100.0) / 100.0;;
+    };
+
+	//A: 0, B: 1, C: 0, D: 1 
+	function NURBSTo(x, y, w, h, px1, py1, n1x, n1y, px2, py2, n2x, n2y) 
+	{
+        var nurbs = new Nurbs(px1, py1, n1x, n1y, px2, py2, n2x, n2y);
+
+        if (nurbs.getSize() >= 2) 
+		{
+            var x1 = nurbs.getX(0);
+            var y1 = nurbs.getY(0);
+            var x2 = nurbs.getX(1);
+            var y2 = nurbs.getY(1);
+            y = y * 100.0 / h;
+            x = x * 100.0 / w;
+            x = Math.round(x * 100.0) / 100.0;
+            y = Math.round(y * 100.0) / 100.0;
+
+            var cp1 = ([]);
+            var cp2 = ([]);
+            var nut = ([]);
+            var nurbsize = nurbs.getSize();
+            
+			for (var i = 0; i < nurbsize - 1; i = i + 3) 
+			{
+                cp1.push(new mxPoint(nurbs.getX(i), nurbs.getY(i)));
+                cp2.push(new mxPoint(nurbs.getX(i + 1), nurbs.getY(i + 1)));
+                
+				if (i < nurbsize - 2) {
+                    nut.push(new mxPoint(nurbs.getX(i + 2), nurbs.getY(i + 2)));
+                }
+                else {
+                    nut.push(new mxPoint(x, y));
+                }
+            }
+            
+            var result = "";
+            for (var i = 0; i < cp1.length; i++) {
+                result += "<curve x1=\"" + cp1[i].x + "\" y1=\"" + cp1[i].y + "\" x2=\"" + cp2[i].x + "\" y2=\"" + cp2[i].y + "\" x3=\"" + nut[i].x + "\" y3=\"" + nut[i].y + "\"/>";
+            }
+            
+            return result;
+        }
+    };
+
+	function addStencil(id, obj)
+	{
+		try
+		{
+			var stencils = [];
+			var w = obj.BoundingBox.w;
+			var h = obj.BoundingBox.h;
+			
+			for (var i = 0; i < obj.Shapes.length; i++)
+			{
+				var shape = obj.Shapes[i];
+				var fillClr = shape.FillColor;
+				var strokeClr = shape.StrokeColor;
+				var lineW = shape.LineWidth;
+				var points = shape.Points;
+				var lines = shape.Lines;
+				var parts = ["<shape strokewidth=\"inherit\"><foreground>"];
+				parts.push("<path>");
+				var lastP = null;
+				
+				for (var j = 0; j < lines.length; j++)
+				{
+					var line = lines[j];
+					
+					if (lastP != line.p1) //Add move to when last point is different from current first poinnt
+					{
+						var x = points[line.p1].x, y = points[line.p1].y;
+						x = x * 100.0 / w;
+						y = y * 100.0 / h;
+						x = Math.round(x * 100.0) / 100.0;
+						y = Math.round(y * 100.0) / 100.0;
+						parts.push("<move x=\"" + x + "\" y=\"" + y + "\"/>");
+					}
+					
+					if (line.n1 != null) // Curve
+					{
+						var curve =  NURBSTo(points[line.p2].x, points[line.p2].y, w, h, 
+								points[line.p1].x, points[line.p1].y, line.n1.x, line.n1.y, 
+								points[line.p2].x, points[line.p2].y, line.n2.x, line.n2.y);
+						parts.push(curve);
+					}
+					else //line
+					{
+						var x = points[line.p2].x, y = points[line.p2].y;
+						x = x * 100.0 / w;
+						y = y * 100.0 / h;
+						x = Math.round(x * 100.0) / 100.0;
+						y = Math.round(y * 100.0) / 100.0;
+						parts.push("<line x=\"" + x + "\" y=\"" + y + "\"/>");
+					}
+					
+					lastP = line.p2;
+				}
+				
+				parts.push("</path>");
+				parts.push("<fillstroke/>");
+				parts.push("</foreground></shape>");
+				stencils.push({
+					shapeStencil: "stencil(" + Graph.compress(parts.join('')) + ")",
+					FillColor: fillClr,
+					LineColor: strokeClr,
+					LineWidth: lineW,
+				});
+			}
+
+			LucidImporter.stencilsMap[id] = {
+				text: obj.Text,
+				w: w,
+				h: h,
+				stencils: stencils
+			};
+		}
+		catch(e)
+		{
+			console.log('Stencil parsing error:', e);
+		}	
+	};
 	
 	LucidImporter.importState = function(state, imgSrcRepl)
 	{
+		LucidImporter.stencilsMap = {}; //Reset stencils cache
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
@@ -5838,6 +5984,18 @@ LucidImporter = {};
 
 		function addPages(obj)
 		{
+			//Build stencils map 
+			if (obj.Properties)
+			{
+				for (var key in obj.Properties)
+				{
+					if (key.substr(0, 8) == 'Stencil-')
+					{
+						addStencil(key.substr(8), obj.Properties[key]);
+					}
+				}
+			}
+			
 			for (var id in obj.Pages)
 			{
 				pages.push(obj.Pages[id]);
@@ -5891,7 +6049,7 @@ LucidImporter = {};
             }
             
             xml.push(' id="' + i + '"'); //Add page ids in case it is needed in aspects
-			importLucidPage(graph, pages[i], null, null, null, true);
+			importLucidPage(graph, pages[i], true);
             var node = codec.encode(graph.getModel());
             graph.getModel().clear();
 
@@ -11868,8 +12026,8 @@ LucidImporter = {};
 					var ticksCount = Math.round(afterFirst / inc);
 					
 					var startX = startTick/diff * w;
-					var dx = inc/diff * w;
-					console.log(startX, dx, ticksCount)
+					var ldx = inc/diff * w;
+					console.log(startX, ldx, ticksCount)
 				}
 				catch(e)
 				{
@@ -11879,6 +12037,124 @@ LucidImporter = {};
 			case 'TimelineMilestoneBlock':
 				break;
 			case 'TimelineIntervalBlock':
+				break;
+			case 'FreehandBlock':
+				try
+				{
+					var rotation = getRotation(p, a, v);
+					v.style = 'group;' + rotation;
+
+					if (p.Stencil != null)
+					{
+						if (p.Stencil.id == null)
+						{
+							//Add a temporary stencil for embedded ones
+							p.Stencil.id = '$$tmpId$$';
+							addStencil(p.Stencil.id, p.Stencil);
+						}
+						
+						var stencil = LucidImporter.stencilsMap[p.Stencil.id];
+						
+						for (var i = 0; i < stencil.stencils.length; i++)
+						{
+							var shape = stencil.stencils[i];
+							var cell = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=' + shape.shapeStencil + ';');
+							
+							if (shape.FillColor == 'prop')
+							{
+								shape.FillColor = p.FillColor;
+							}
+							
+							if (shape.FillColor == null)
+							{
+								shape.FillColor = '#ffffff00'; //Transparent fillColor
+							}
+							
+							if (shape.LineColor == 'prop')
+							{
+								shape.LineColor = p.LineColor;
+							}
+							
+							if (shape.LineColor == null)
+							{
+								shape.LineColor = '#ffffff00'; //Transparent strokeColor
+							}
+							
+							if (shape.LineWidth == 'prop')
+							{
+								shape.LineWidth = p.LineWidth;
+							}
+							//Add stencil styles
+							cell.style += addAllStyles(cell.style, shape, a, cell, isLastLblHTML);
+							//Add other styles from parent
+							cell.style += addAllStyles(cell.style, p, a, cell, isLastLblHTML);
+							cell.vertex = true;
+							cell.geometry.relative = true;
+							v.insert(cell);
+						}
+						
+						var index = 0;
+						var rotation = p.Rotation;
+						
+						while (p['t' + index])
+						{
+							var lblObj = p['t' + index];
+							var txt = convertText(lblObj);
+							
+							if (txt)
+							{
+								var lbl = new mxCell(txt, new mxGeometry(0, 0, w, h), 'strokeColor=none;fillColor=none;overflow=visible;');
+								p.Rotation = 0; //Disable rotation of the parent since it is captured in the srencil below
+								lbl.style += addAllStyles(lbl.style, p, a, lbl, isLastLblHTML);
+								p.Rotation = rotation;
+								
+								if (stencil.text != null && stencil.text['t' + index] != null)
+								{
+									var gTxtObj = stencil.text['t' + index];
+									gTxtObj.Rotation = rotation + gTxtObj.rotation;
+									lbl.style += addAllStyles(lbl.style, gTxtObj, a, lbl, isLastLblHTML);
+									var lblGeo = lbl.geometry;
+									
+									if (gTxtObj.w)
+									{
+										lblGeo.width *= gTxtObj.w;
+									}									
+									if (gTxtObj.h)
+									{
+										lblGeo.height *= gTxtObj.h;
+									}
+									if (gTxtObj.x)
+									{
+										lblGeo.x = gTxtObj.x / stencil.w;
+									}
+									if (gTxtObj.y)
+									{
+										lblGeo.y = gTxtObj.y / stencil.h;
+									}
+								}
+								
+								lbl.vertex = true;
+								lbl.geometry.relative = true;
+								v.insert(lbl);
+							}
+							
+							index++;						
+						}
+					}
+					
+					if (p.FillColor && p.FillColor.url)
+					{
+						var img = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=image;html=1;');
+						img.style += getImage({}, {}, p.FillColor.url);
+						img.vertex = true;
+						img.geometry.relative = true;
+						v.insert(img);
+					}
+				}
+				catch(e)
+				{
+					console.log('Freehand error', e);
+				}
 				break;
 		}
 

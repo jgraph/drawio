@@ -221,6 +221,7 @@ editDiagram=‫ערוך דיאגרמה‬
 editGeometry=‫ערוך גיאומטריה‬
 editImage=‫ערוך תמונה‬
 editImageUrl=‫ערוך קישור תמונה‬
+editLayer=Edit Layer
 editLink=‫ערוך קישור‬
 editShape=‫ערוך צורה ‬
 editStyle=‫ערוך סגנון‬
