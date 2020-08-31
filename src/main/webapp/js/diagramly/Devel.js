@@ -137,6 +137,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Network.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Office.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-PID.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Rack.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Signs.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sitemap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Sysml.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-ThreatModeling.js');

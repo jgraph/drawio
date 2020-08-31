@@ -6,6 +6,7 @@
 		var dt = 'cumulus';
 		var sb = this;
 		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;fontSize=12;verticalAlign=top;fontColor=#364149;shadow=0;dashed=0;image;image=img/lib/cumulus/';
+		this.setCurrentSearchEntryLibrary('cumulus');
 
 		// Adds Cumulus shapes
 		var gn = ' ';
@@ -132,5 +133,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

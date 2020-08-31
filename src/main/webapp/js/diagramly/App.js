@@ -576,7 +576,9 @@ App.main = function(callback, createUi)
 			if ('serviceWorker' in navigator && (/.*\.diagrams\.net$/.test(window.location.hostname) ||
 				/.*\.draw\.io$/.test(window.location.hostname) || urlParams['offline'] == '1'))
 			{
-				if (urlParams['offline'] == '0' || (urlParams['offline'] != '1' && urlParams['dev'] == '1'))
+				// Removes PWA cache on www.draw.io to force use of new domain
+				if (urlParams['offline'] == '0' || /www\.draw\.io$/.test(window.location.hostname) ||
+					(urlParams['offline'] != '1' && urlParams['dev'] == '1'))
 				{
 					navigator.serviceWorker.getRegistrations().then(function(registrations)
 					{
@@ -3097,6 +3099,13 @@ App.prototype.start = function()
 				else if ((window.location.hash == null || window.location.hash.length <= 1) &&
 					this.drive != null && this.stateArg != null && this.stateArg.action == 'create')
 				{
+					if (window.history && window.history.replaceState)
+					{
+						// Removes state URL parameter without reloading the page
+						window.history.replaceState(null, null, window.location.pathname +
+							this.getSearch(['state']));
+					}
+					
 					this.setMode(App.MODE_GOOGLE);
 					this.actions.get('new').funct();
 				}
@@ -4370,33 +4379,11 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			}
 			else if (mode == App.MODE_BROWSER)
 			{
-				complete();
-				
-				var fn = mxUtils.bind(this, function()
+				StorageFile.insertFile(this, title, data, mxUtils.bind(this, function(file)
 				{
-					var file = new StorageFile(this, data, title);
-					
-					// Inserts data into local storage
-					file.saveFile(title, false, mxUtils.bind(this, function()
-					{
-						this.fileCreated(file, libs, replace, done, clibs);
-					}), error);
-				});
-				
-				if (localStorage.getItem(title) == null)
-				{
-					fn();
-				}
-				else
-				{
-					this.confirm(mxResources.get('replaceIt', [title]), fn, mxUtils.bind(this, function()
-					{
-						if (this.getCurrentFile() == null && this.dialog == null)
-						{
-							this.showSplash();
-						}
-					}));
-				}
+					complete();
+					this.fileCreated(file, libs, replace, done, clibs);
+				}), error);
 			}
 			else if (!tempFile && mode == App.MODE_DEVICE && 'chooseFileSystemEntries' in window)
 			{

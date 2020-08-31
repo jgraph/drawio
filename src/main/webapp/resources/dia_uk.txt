@@ -221,7 +221,6 @@ editDiagram=Змінити діаграму
 editGeometry=Змінити геометрію
 editImage=Змінити зображення
 editImageUrl=Змінити ланку до зображення
-editLayer=Edit Layer
 editLink=Змінити ланку
 editShape=Змінити обрис
 editStyle=Змінити вигляд

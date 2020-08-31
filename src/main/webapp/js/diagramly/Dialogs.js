@@ -1906,7 +1906,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 					
 					if (name.charAt(name.length - 1) == '(')
 					{
-						name = name.substring(0, name.lastIndexOf(' '));
+						name = mxUtils.trim(name.substring(0, name.length - 1));
 					}
 					
 					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 40),

@@ -3,15 +3,25 @@
 	// Adds ArchiMate v3.0 shapes
 	Sidebar.prototype.addArchimate3Palette = function()
 	{
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Application');
 		this.addArchimate3ApplicationPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Business');
 		this.addArchimate3BusinessPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Composite');
 		this.addArchimate3CompositePalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Implementation and Migration');
 		this.addArchimate3ImplementationAndMigrationPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Motivation');
 		this.addArchimate3MotivationPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Physical');
 		this.addArchimate3PhysicalPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Relationships');
 		this.addArchimate3RelationshipsPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Strategy');
 		this.addArchimate3StrategyPalette();
+		this.setCurrentSearchEntryLibrary('archimate3', 'archimate3Technology');
 		this.addArchimate3TechnologyPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addArchimate3ApplicationPalette = function()

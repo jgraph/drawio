@@ -682,7 +682,53 @@
 			}
 		}
 	};
-	
+		
+	/**
+	 * Adds shape search UI.
+	 */
+	Sidebar.prototype.showPopupMenuForEntry = function(elt, libs, evt)
+	{
+		// TODO: Add all setCurrentSearchEntryLibrary
+		if (urlParams['dev'] == '1' && libs != null && libs.length > 0)
+		{
+			var offset = mxUtils.getOffset(elt);
+		
+			this.editorUi.showPopupMenu(mxUtils.bind(this, function(menu, parent)
+			{
+				menu.addItem(mxResources.get('openLibrary'), null, mxUtils.bind(this, function()
+				{
+					for (var i = 0; i < libs.length; i++)
+					{
+						(mxUtils.bind(this, function(lib)
+						{
+							var config = this.getConfigurationById(lib.id);
+							
+							if (config != null)
+							{
+								this.showPalettes(config.prefix || '', config.libs || [config.id], true);
+								var elts = this.showPalette(libs[i].lib || libs[i].id, true);
+								
+								if (elts != null && elts.length > 1 && elts[1].firstChild != null &&
+									(elts[1].firstChild.firstChild == null ||
+									elts[1].firstChild.style.display == 'none'))
+								{
+									elts[0].click();
+								}
+								
+								window.setTimeout(function()
+								{
+									elts[1].scrollIntoView(true);
+								}, 0);
+								
+								mxEvent.consume(evt);
+							}
+						}))(libs[i]);
+					}
+				}));
+			}), offset.x, offset.y + elt.offsetHeight, evt);
+		}
+	};
+
 	/**
 	 * Overrides the sidebar init.
 	 */
@@ -1058,9 +1104,12 @@
 		
 		for (var i = 0; i < cisco.length; i++)
 		{
+			//TODO: does not work
+			//this.setCurrentSearchEntryLibrary('cisco', 'cisco' + cisco[i]);
 			this.addStencilPalette('cisco' + cisco[i], 'Cisco / ' + cisco[i],
 				dir + '/cisco/' + cisco[i].toLowerCase().replace(/ /g, '_') + '.xml',
 				';html=1;pointerEvents=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;', null, null, 1.6);
+			//this.setCurrentSearchEntryLibrary();
 		}
 
 		this.addCisco19Palette();
@@ -1072,6 +1121,8 @@
 		this.addNetworkPalette();
 		this.addOfficePalette();
 		
+		//TODO: does not work
+		//this.setCurrentSearchEntryLibrary('cisco', 'cisco' + cisco[i]);
 		for (var i = 0; i < rack.length; i++)
 		{
 			if (rack[i].toLowerCase() === 'general')
@@ -1093,6 +1144,8 @@
 					';html=1;labelPosition=right;align=left;spacingLeft=15;dashed=0;shadow=0;fillColor=#ffffff;');
 			}
 		}
+		
+		//this.setCurrentSearchEntryLibrary();
 
 		this.addVeeamPalette();
 		this.addVeeam2Palette();
@@ -1315,14 +1368,8 @@
 		this.addThreatModelingPalette();
 		this.addWebIconsPalette();
 		this.addWebLogosPalette();
-				
-		for (var i = 0; i < signs.length; i++)
-		{
-			this.addStencilPalette('signs' + signs[i], 'Signs / ' + signs[i],
-				dir + '/signs/' + signs[i].toLowerCase() + '.xml',
-				';html=1;pointerEvents=1;fillColor=#000000;strokeColor=none;verticalLabelPosition=bottom;verticalAlign=top;align=center;');
-		}
-		
+
+		this.addSignsPalette(signs, dir);
 		// LATER: Check if conflicts with restore libs after loading file
 		this.showEntries();
 	};
@@ -1354,6 +1401,39 @@
 			}), true);
 		};
 	}
+
+	/**
+	 * Extracs icons from the search result.
+	 */
+	Sidebar.prototype.extractIconsFromResponse = function(res, results)
+	{
+		for (var i = 0; i < res.icons.length; i++)
+		{
+			var sizes = res.icons[i].raster_sizes;
+			var index = sizes.length - 1;
+			
+			while (index > 0 && sizes[index].size > 128)
+			{
+				index--;
+			}
+
+			var size = sizes[index].size;
+			var url = sizes[index].formats[0].preview_url;
+
+			if (size != null && url != null)
+			{
+				(mxUtils.bind(this, function(s, u)
+				{
+					results.push(mxUtils.bind(this, function()
+					{
+						return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
+							'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
+							'aspect=fixed;image=' + u, s, s, '');
+					}));
+				}))(size, url);
+			}
+		}
+	};
 	
 	/**
 	 * Adds server icon results to local search results
@@ -1407,33 +1487,7 @@
 										}
 										else
 										{
-											for (var i = 0; i < res.icons.length; i++)
-											{
-												var sizes = res.icons[i].raster_sizes;
-												var index = sizes.length - 1;
-												
-												while (index > 0 && sizes[index].size > 128)
-												{
-													index--;
-												}
-						
-												var size = sizes[index].size;
-												var url = sizes[index].formats[0].preview_url;
-						
-												if (size != null && url != null)
-												{
-													(mxUtils.bind(this, function(s, u)
-													{
-														results.push(mxUtils.bind(this, function()
-														{
-															return this.createVertexTemplate('shape=image;html=1;verticalAlign=top;' +
-																'verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;imageAspect=0;' +
-																'aspect=fixed;image=' + u, s, s, '');
-														}));
-													}))(size, url);
-												}
-											}
-						
+											this.extractIconsFromResponse(res, results);
 											succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
 										}
 									}

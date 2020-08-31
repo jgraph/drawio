@@ -8,6 +8,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=1;align=center;outlineConnect=0;dashed=0;outlineConnect=0;shape=mxgraph.aws3d.';
 		var gn = 'mxgraph.aws3d';
 		var dt = 'aws 3d amazon web service';
+		this.setCurrentSearchEntryLibrary('aws3d');
 
 		this.addPaletteFunctions('aws3d', 'AWS 3D', false,
 		[
@@ -154,6 +155,7 @@
 		 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, 'isometric edge', 'Isometric Edge 1'),
 		 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, 'isometric edge', 'Isometric Edge 2')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-
 })();

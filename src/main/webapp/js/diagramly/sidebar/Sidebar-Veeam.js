@@ -2,16 +2,27 @@
 {
 	Sidebar.prototype.addVeeamPalette = function()
 	{
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamData Center');
 		this.addVeeamDataCenterPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamMisc');
 		this.addVeeamMiscPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamSoftware');
 		this.addVeeamSoftwarePalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamStorage');
 		this.addVeeamStoragePalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamUsersStatus');
 		this.addVeeamUsersStatusPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamVASComponents');
 		this.addVeeamVASComponentsPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamBackup Replication');
 		this.addVeeamBackupReplicationPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamProducts');
 		this.addVeeamProductsPalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeamVMs and Tape');
 		this.addVeeamVMsTapePalette();
+//		this.setCurrentSearchEntryLibrary('veeam', 'veeam3D');
 		this.addVeeam3DPalette();
+//		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addVeeamDataCenterPalette = function()

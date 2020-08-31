@@ -221,7 +221,6 @@ editDiagram=Επεξεργασία διαγράμματος
 editGeometry=Επεξεργασία γεωμετρίας
 editImage=Επεξεργασία εικόνας
 editImageUrl=Επεξεργασία Εικόνας URL
-editLayer=Edit Layer
 editLink=Επεξεργασία συνδέσμου
 editShape=Επεξεργασία σχήματος
 editStyle=Επεξεργασία εμφάνισης

@@ -10,6 +10,7 @@
 		var sb = this;
 		var s = 'html=1;shape=mxgraph.sysml.';
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlModel Elements');
 		
 		var fns = [
 			this.addDataEntry(dt + 'comment', 180, 80, 'Comment',
@@ -108,6 +109,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLBlocksPalette = function(expand)
@@ -117,6 +120,7 @@
 		var sb = this;
 		var s = 'html=1;strokeWidth=1;shape=mxgraph.sysml.';
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlBlocks');
 
 		var fns = 
 		[
@@ -675,6 +679,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLPortsAndFlowsPalette = function(expand)
@@ -684,6 +690,7 @@
 		var sb = this;
 		var s = 'html=1;shape=mxgraph.sysml.';
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlPorts and Flows');
 
 		var fns = [
 			this.addEntry(dt + 'port', function()
@@ -967,6 +974,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+	    
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLConstraintBlocksPalette = function(expand)
@@ -976,6 +985,7 @@
 		var gn = '';
 		var dt = 'sysml constraint block ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlConstraint Blocks');
 
 		var fns = [
 		    this.createVertexTemplateEntry('shape=rect;html=1;overflow=fill;whiteSpace=wrap;', 200, 180, 
@@ -1046,6 +1056,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+	    
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLActivitiesPalette = function(expand)
@@ -1055,6 +1067,7 @@
 		var gn = '';
 		var dt = 'sysml activity ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlActivities');
 		
 		var fns = [
 		    this.createVertexTemplateEntry('shape=rect;html=1;rounded=1;whiteSpace=wrap;align=center;', 
@@ -1303,6 +1316,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLInteractionsPalette = function(expand)
@@ -1312,6 +1327,7 @@
 		var gn = '';
 		var dt = 'sysml interaction ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlInteractions');
 		
 		var fns = [
 		    this.createVertexTemplateEntry(s + 'package;overflow=fill;labelX=95;align=left;spacingLeft=5;verticalAlign=top;spacingTop=-3;', 160, 80, 
@@ -1452,6 +1468,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLStateMachinesPalette = function(expand)
@@ -1461,6 +1479,7 @@
 		var gn = '';
 		var dt = 'sysml state machine ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlState Machines');
 		
 		var fns = [
 			this.addDataEntry(dt + 'choice pseudo state', 150, 100, 'Choice Pseudo State',
@@ -1578,6 +1597,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLUseCasesPalette = function(expand)
@@ -1586,6 +1607,7 @@
 		var gn = '';
 		var dt = 'sysml use case ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlUse Cases');
 		
 		var fns = [
 			this.createVertexTemplateEntry('shape=ellipse;html=1;strokeWidth=3;fontStyle=1;whiteSpace=wrap;align=center;perimeter=ellipsePerimeter;', 
@@ -1633,6 +1655,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLAllocationsPalette = function(expand)
@@ -1642,6 +1666,7 @@
 		var gn = '';
 		var dt = 'sysml allocation ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlAllocations');
 		
 		var fns = [
 		    this.createVertexTemplateEntry('shape=rect;html=1;overflow=fill;html=1;whiteSpace=wrap;align=center;', 120, 60, 
@@ -1724,6 +1749,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLRequirementsPalette = function(expand)
@@ -1732,6 +1759,7 @@
 		var gn = '';
 		var dt = 'sysml requirement ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlRequirements');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s + 'package;overflow=fill;labelX=110;strokeWidth=2;align=center;', 160, 80, 
@@ -2014,6 +2042,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLProfilesPalette = function(expand)
@@ -2022,6 +2052,7 @@
 		var gn = '';
 		var dt = 'sysml profile ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlProfiles');
 		
 		var fns = [
 		    this.createVertexTemplateEntry('shape=rect;html=1;whiteSpace=wrap;align=center;', 
@@ -2078,6 +2109,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addSysMLStereotypesPalette = function(expand)
@@ -2086,6 +2119,7 @@
 		var gn = '';
 		var dt = 'sysml stereotype ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('sysml', 'sysmlStereotypes');
 		
 		var fns = [
 			this.addDataEntry(dt + 'note', 320, 150, 'Stereotype Note',
@@ -2126,6 +2160,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 })();

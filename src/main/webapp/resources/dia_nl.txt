@@ -221,7 +221,6 @@ editDiagram=Diagram bewerken
 editGeometry=Geometrie bewerken
 editImage=Afbeelding bewerken
 editImageUrl=URL bewerken
-editLayer=Edit Layer
 editLink=Link bewerken
 editShape=Vorm bewerken
 editStyle=Stijl bewerken

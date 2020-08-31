@@ -5,6 +5,8 @@
 	
 	Sidebar.prototype.createAdvancedShapes = function()
 	{
+		this.setCurrentSearchEntryLibrary('general', 'advanced');
+		
 		var fns = sidebarCreateAdvancedShapes.apply(this, arguments);
 		
 		// Avoids having to bind all functions to "this"
@@ -82,6 +84,7 @@
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Horizontal Flow Layout', true);
 			})
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

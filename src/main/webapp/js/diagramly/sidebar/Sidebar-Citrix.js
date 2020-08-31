@@ -7,6 +7,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;aspect=fixed;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.';
 		var gn = 'mxgraph.citrix';
 		var dt = '';
+		this.setCurrentSearchEntryLibrary('citrix');
 		
 		this.addPaletteFunctions('citrix', 'Citrix', false,
 		[
@@ -108,5 +109,7 @@
 			this.createVertexTemplateEntry(s + 'xenmobile;fillColor=#CCCCCC;gradientColor=#000000;gradientDirection=south;', w * 140, h * 178, '', 'XenMobile', null, null, this.getTagsForStencil(gn, 'XenMobile', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'xenserver;', w * 153, h * 180, '', 'XenServer', null, null, this.getTagsForStencil(gn, 'XenServer', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

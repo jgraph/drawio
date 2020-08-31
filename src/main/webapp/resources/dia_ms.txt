@@ -221,7 +221,6 @@ editDiagram=Sunting Gambarajah
 editGeometry=Sunting Geometri
 editImage=Sunting Imej
 editImageUrl=Sunting URL Imej
-editLayer=Edit Layer
 editLink=Sunting Pautan
 editShape=Sunting Bentuk
 editStyle=Sunting Gaya

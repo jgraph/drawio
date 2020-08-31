@@ -17,6 +17,7 @@
 		var s = 'html=1;verticalLabelPosition=bottom;align=center;labelBackgroundColor=#ffffff;verticalAlign=top;strokeWidth=2;strokeColor=#0080F0;shadow=0;dashed=0;shape=mxgraph.ios7.icons.'
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		var gn = 'mxgraph.ios7.icons';
+		this.setCurrentSearchEntryLibrary('ios', 'ios7icons');
 		
 		this.addPaletteFunctions('ios7icons', 'iOS Icons', false,
 		[
@@ -131,6 +132,8 @@
 			this.createVertexTemplateEntry(s + 'window;', 100 * sc, 100 * sc, '', 'Window', null, null, this.getTagsForStencil(gn, 'window', dt).join(' '))
 		]);
 		
+		this.setCurrentSearchEntryLibrary();
+		
 		var s = 'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7ui.';
 		var s2 = 'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7ui.';
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios.';		var sm = 'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=2;shape=mxgraph.ios7.misc.';
@@ -139,21 +142,22 @@
 		var dt = 'ios ui ';
 		var gn = 'mxgraph.ios7ui';
 		var gnm = 'mxgraph.ios7.misc';
+		this.setCurrentSearchEntryLibrary('ios', 'ios7ui');
 		
 		var fns =
 		[
 		 	this.createVertexTemplateEntry(
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.iphone;strokeColor=#c0c0c0;', 
-		 			sizeX, sizeY, '', 'iPhone (Portrait)', null, null, this.getTagsForStencil(gn, 'phone', dt + 'portrait').join(' ')),
+		 			sizeX, sizeY, '', 'iPhone (Portrait)', null, null, this.getTagsForStencil(gn, 'phone', dt + 'iphone portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad7inch;strokeColor=#c0c0c0;', 
-		 			sizeX * 1.83, sizeY * 1.3725, '', "iPad (7'')", null, null, this.getTagsForStencil(gn, 'tablet tab 7', dt + 'portrait').join(' ')),
+		 			sizeX * 1.83, sizeY * 1.3725, '', "iPad (7'')", null, null, this.getTagsForStencil(gn, 'tablet tab 7', dt + 'ipad portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad10inch;strokeColor=#c0c0c0;', 
-		 			sizeX * 2.44, sizeY * 1.7325, '', "iPad (10'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'portrait').join(' ')),
+		 			sizeX * 2.44, sizeY * 1.7325, '', "iPad (10'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'ipad portrait').join(' ')),
 		 	this.createVertexTemplateEntry(
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad13inch;strokeColor=#c0c0c0;', 
-		 			sizeX * 2.86, sizeY * 2.0325, '', "iPad (13'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'portrait').join(' ')),
+		 			sizeX * 2.86, sizeY * 2.0325, '', "iPad (13'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'ipad portrait').join(' ')),
 			this.addDataEntry(dt + 'app bar portrait', 175, 15, 'App Bar (portrait)',
 				'zVVdb4IwFP01fZTw6cejoDNLZmLYkj03o0CzQkmpivv1u0BBEIw+zMUmJL3n3tt7e05LkeUlxUbgLN7ygDBkrZHlCc5lPUsKjzCGTJ0GyFoh09ThQ+bLFa9RefUMC5LKexLMOuGA2Z7USA3k8sQUEMsE2loZyHJzKfg3+aSBjBskxgE/gqGDEeA8JoEywJOVKyRFVO5Oozyf7amGs8zFAvwhZczjjIuqihVWA3CIDih03/hSnsIyruqTCEmKq3utILXRDeEJkeIEIUfVcBkxc+q0mNAobtIUhvPajtrUM3MwUeSNE2kNiPSWvv+69gd8NsQI8gX1XcxolILJSFiaIU/lO/0pA+Ylixn+omn0VjlXpt2PaMwOj7garVYXLHZJV5Cq8MEzteBdTJvjTJ/UmdMUox3mHX2EeMWaIAxLeiC9cmNqqIo7TqGRttxkql0oyMMwJ3KgX9vpXZLaA0kNOPJLx9ltb4l6oeJTaVRcaPTPmqnyE0vvlX+Qhs5Aw8UcNejtSynqfV+5lb5ixVj0Q6ZPKrlxU3B77O/4R4LbzgMEB/P8WNbh3bf0Fw=='),
 			this.addDataEntry(dt + 'app bar landscape', 280, 15, 'App Bar (landscape)',
@@ -465,6 +469,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

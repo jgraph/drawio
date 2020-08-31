@@ -7,6 +7,7 @@
 		var s = 'html=1;dashed=0;whitespace=wrap;fillColor=#2875E2;strokeColor=#ffffff;points=[[0.005,0.63,0],[0.1,0.2,0],[0.9,0.2,0],[0.5,0,0],[0.995,0.63,0],[0.72,0.99,0],[0.5,1,0],[0.28,0.99,0]];shape=mxgraph.kubernetes.';
 		var gn = 'mxgraph.kubernetes';
 		var dt = 'kubernetes ';
+		this.setCurrentSearchEntryLibrary('kubernetes');
 		
 		this.addPaletteFunctions('kubernetes', 'Kubernetes', false,
 		[
@@ -50,6 +51,8 @@
 			this.createVertexTemplateEntry(s + 'icon;prIcon=user', w * 0.5, h * 0.48, '', 'User', null, null, this.getTagsForStencil(gn, 'user', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'icon;prIcon=vol', w * 0.5, h * 0.48, '', 'Vol', null, null, this.getTagsForStencil(gn, 'vol', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 };
 		
 })();

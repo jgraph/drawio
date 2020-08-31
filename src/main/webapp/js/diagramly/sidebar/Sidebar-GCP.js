@@ -9,6 +9,7 @@
 		var gn = 'mxgraph.gcp.product_cards';
 		var dt = 'gcp google cloud platform card';
 		var s = 0.3; //scale
+		this.setCurrentSearchEntryLibrary('gcp', 'gcpCards');
 
 		var fns =
 		[
@@ -33,6 +34,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

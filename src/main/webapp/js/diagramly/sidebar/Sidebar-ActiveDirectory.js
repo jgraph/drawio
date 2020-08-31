@@ -6,8 +6,8 @@
 		var dt = 'ibm';
 		var sb = this;
 		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image;image=img/lib/active_directory/';
-		
 		var gn = 'ms active directory ';
+		this.setCurrentSearchEntryLibrary('active_directory');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'active_directory.svg;',
@@ -157,6 +157,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+   		this.setCurrentSearchEntryLibrary();
 	};
-
 })();

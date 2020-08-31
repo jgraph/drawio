@@ -4,11 +4,9 @@
 	{
 		var w = 100;
 		var h = 100;
-		var s = 'html=1;dashed=0;whitespace=wrap;shape=mxgraph.dfd.';
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=mxgraph.dfd.';
-		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=';
-		var gn = 'mxgraph.flowchart';
-		var dt = 'dfd data flow diagram ';
+		var gn = '';
+		var dt = 'threat modeling ';
+		this.setCurrentSearchEntryLibrary('threatModeling');
 		
 		this.addPaletteFunctions('threatModeling', 'Threat Modeling', false,
 		[
@@ -38,5 +36,7 @@
 			this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;direction=north;', w * 1.2, h * 0.8, 'OR', 'OR Gate', null, null, this.getTagsForStencil(gn, 'or gate', dt).join(' ')),
 			this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;', w * 1.2, h * 0.8, 'Leaf', 'Leaf Node', null, null, this.getTagsForStencil(gn, 'leaf node', dt).join(' '))
 		]);
-};
+		
+		this.setCurrentSearchEntryLibrary();
+	};
 })();

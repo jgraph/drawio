@@ -11,6 +11,7 @@
 		var gn = 'mxgraph.cabinets';
 		var dt = 'cabinet ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('cabinets');
 		
 		var fns = 
 		[
@@ -234,6 +235,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

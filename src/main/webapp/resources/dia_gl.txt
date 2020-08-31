@@ -221,7 +221,6 @@ editDiagram=Editar diagrama
 editGeometry=Editar xeometría
 editImage=Editar imaxe
 editImageUrl=Editar URL da imaxe
-editLayer=Edit Layer
 editLink=Editar vencello
 editShape=Editar forma
 editStyle=Editar estilo

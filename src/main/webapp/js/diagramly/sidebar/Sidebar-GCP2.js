@@ -2,38 +2,71 @@
 {
 	Sidebar.prototype.addGCP2Palette = function()
 	{
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Paths');
 		this.addGCP2PathsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Zones');
 		this.addGCP2ZonesPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Service Cards');
 		this.addGCP2ServiceCardsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2User Device Cards');
 		this.addGCP2UserDeviceCardsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Compute');
 		this.addGCP2ComputePalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2API Management');
 		this.addGCP2APIManagementPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Security');
 		this.addGCP2SecurityPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Data Analytics');
 		this.addGCP2DataAnalyticsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Data Transfer');
 		this.addGCP2DataTransferPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Cloud AI');
 		this.addGCP2CloudAIPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Internet of Things');
 		this.addGCP2InternetOfThingsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Databases');
 		this.addGCP2DatabasesPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Storage');
 		this.addGCP2StoragePalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Management Tools');
 		this.addGCP2ManagementToolsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Networking');
 		this.addGCP2NetworkingPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Developer Tools');
 		this.addGCP2DeveloperToolsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Expanded Product Cards');
 		this.addGCP2ExpandedProductCardsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Product Cards');
 		this.addGCP2ProductCardsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2General Icons');
 		this.addGCP2GeneralIconsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons AI Machine Learning');
 		this.addGCP2IconsAIMachineLearningPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Compute');
 		this.addGCP2IconsComputePalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Data Analytics');
 		this.addGCP2IconsDataAnalyticsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Management Tools');
 		this.addGCP2IconsManagementToolsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Networking');
 		this.addGCP2IconsNetworkingPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Developer Tools');
 		this.addGCP2IconsDeveloperToolsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons API Management');
 		this.addGCP2IconsAPIManagementPalette()
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Internet of Things');
 		this.addGCP2IconsInternetOfThingsPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Databases');
 		this.addGCP2IconsDatabasesPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Storage');
 		this.addGCP2IconsStoragePalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Security');
 		this.addGCP2IconsSecurityPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Migration');
 		this.addGCP2IconsMigrationPalette();
+		this.setCurrentSearchEntryLibrary('gcp2', 'gcp2Icons Hybrid and Multi Cloud');
 		this.addGCP2IconsHybridAndMultiCloudPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGCP2PathsPalette = function()
@@ -1374,7 +1407,7 @@
 		var sb = this;
 		var s = 1.5;
 		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
-		var dt = 'gcp google cloud platform icons icon storage';
+		var dt = 'gcp google cloud platform icons icon storage ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
 		
@@ -1403,7 +1436,7 @@
 		var sb = this;
 		var s = 1.5;
 		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
-		var dt = 'gcp google cloud platform icons icon security';
+		var dt = 'gcp google cloud platform icons icon security ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
 		
@@ -1436,7 +1469,7 @@
 		var sb = this;
 		var s = 1.5;
 		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
-		var dt = 'gcp google cloud platform icons icon migration';
+		var dt = 'gcp google cloud platform icons icon migration ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
 		

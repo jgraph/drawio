@@ -64,6 +64,8 @@
 		var gnmetr = 'mxgraph.electrical.transmission';
 		var dtmetr = 'electrical transmission paths bus buses';
 
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\LogicGates');
+		
 		this.addPaletteFunctions('electrical\LogicGates', 'Electrical / Logic Gates', false,
 		[
 			this.createVertexTemplateEntry(mel + 'logic_gate;operation=and;', 100, 60, '', 'AND', null, null, this.getTagsForStencil(gnmel, 'and', dtmel).join(' ')),
@@ -99,6 +101,8 @@
 					'labelNames=a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,a1,b1,c1,d1,e1,f1,g1,h1,i1,j1,k1,l1,m1,n1;', 
 					200, 200, 'IC', 'Quad Flat Package IC', null, null, this.getTagsForStencil(gnmel, 'quad flat package qfp ic integrated circuit', dtmel).join(' '))
 		]);
+
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Resistors');
 
 		this.addPaletteFunctions('electrical\Resistors', 'Electrical / Resistors', false,
 		[
@@ -146,6 +150,8 @@
 					100, 40, '', 'Photoconductive Transducer (Symmetrical)', null, null, this.getTagsForStencil(gnmere, 'symmetrical_photoconductive_transducer', dtmere).join(' '))
 		]);
 		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Capacitors');
+		
 		this.addPaletteFunctions('electrical\Capacitors', 'Electrical / Capacitors', false,
 		[
 			this.createVertexTemplateEntry(mec + 'capacitor_1;', 
@@ -181,6 +187,8 @@
 			this.createVertexTemplateEntry(mec + 'multiple_electrolytic_capacitor_comm_pos;', 
 					100, 130, '', 'Multiple Electrolytic Capacitor (Common Positive)', null, null, this.getTagsForStencil(gnmec, 'multiple_electrolytic_capacitor_comm_pos', dtmec).join(' '))
 		]);
+
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Inductors');
 
 		this.addPaletteFunctions('electrical\Inductors', 'Electrical / Inductors', false,
 		[
@@ -245,6 +253,8 @@
 			this.createVertexTemplateEntry(mei + 'linear_coupler;', 
 					80, 20, '', 'Linear Coupler', null, null, this.getTagsForStencil(gnmei, 'linear coupler', dtmei).join(' '))
 		]);
+
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\SwitchesRelays');
 
 		this.addPaletteFunctions('electrical\SwitchesRelays', 'Electrical / Switches and Relays', false,
 		[
@@ -358,6 +368,8 @@
 					50, 90, '', 'Mercury Switch', null, null, this.getTagsForStencil(gnmeem, 'mercury switch', dtmeem).join(' '))
 		]);
 
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Diodes');
+		
 		this.addPaletteFunctions('electrical\Diodes', 'Electrical / Diodes', false,
 		[
 			this.createVertexTemplateEntry(med + 'diode;', 
@@ -387,6 +399,8 @@
 			this.createVertexTemplateEntry(med + 'transorb_2;', 
 					100, 60, '', 'Transorb 2', null, null, this.getTagsForStencil(gnmed, 'transorb_2', dtmed).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Sources');
 		
 		this.addPaletteFunctions('electrical\Sources', 'Electrical / Sources', false,
 		[
@@ -420,6 +434,8 @@
 					100, 70, '', 'Multicell Battery Tapped', null, null, this.getTagsForStencil(gnmess, 'accumulator multicell battery tapped multi multiple cell', dtmem).join(' '))
 		]);
 		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Transistors');
+		
 		this.addPaletteFunctions('electrical\Transistors', 'Electrical / Transistors', false,
 		[
 			this.createVertexTemplateEntry(met + 'npn_transistor_1;', 
@@ -452,6 +468,8 @@
 					60, 100, '', 'PMOS', null, null, this.getTagsForStencil(gnmet, 'pmos', dtmet).join(' '))
 		]);
 
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Instruments');
+		
 		this.addPaletteFunctions('electrical\Instruments', 'Electrical / Instruments', false,
 		[
 			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;aspect=fixed;fontSize=50;', 
@@ -466,6 +484,8 @@
 					90, 90, 'V', 'Voltmeter', null, null, this.getTagsForStencil(gnmein, 'ampermeter ammeter', dtmein).join(' '))
 		]);
 
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Misc');
+		
 		this.addPaletteFunctions('electrical\Misc', 'Electrical / Misc', false,
 		[
 			this.createVertexTemplateEntry(mer + 'aerial_-_antenna_1;', 
@@ -675,6 +695,8 @@
 					100, 100, '', 'F/M 3 Conductor', null, null, this.getTagsForStencil(gnmess, 'fm 2 conductor', dtmer).join(' '))
 		]);
 		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Audio');
+		
 		this.addPaletteFunctions('electrical\Audio', 'Electrical / Audio', false,
 		[
 			this.createVertexTemplateEntry(mer + 'dipole;pointerEvents=1;', 
@@ -697,6 +719,8 @@
 					47, 60, '', 'Bell', null, null, this.getTagsForStencil(gnmeem, 'bell', dtmeem).join(' '))
 		]);
 		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\PlcLadder');
+		
 		this.addPaletteFunctions('electrical\PlcLadder', 'Electrical / PLC Ladder', false,
 		[
 			this.createVertexTemplateEntry(mep + 'contact;', 
@@ -712,6 +736,8 @@
 			this.createVertexTemplateEntry(mep + 'output_2;', 
 					50, 25, '', 'Output', null, null, this.getTagsForStencil(gnmep, 'output_2', dtmep).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Optical');
 		
 		this.addPaletteFunctions('electrical\Optical', 'Electrical / Optical', false,
 		[
@@ -745,6 +771,8 @@
 					100, 70, '', 'Solar Cell', null, null, this.getTagsForStencil(gnmeoe, 'solar_cell', dtmeoe).join(' '))
 		]);
 
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\VacuumTubes');
+		
 		this.addPaletteFunctions('electrical\VacuumTubes', 'Electrical / Vacuum Tubes', false,
 		[
 			this.createVertexTemplateEntry(metd + 'diode;', 
@@ -762,6 +790,8 @@
 			this.createVertexTemplateEntry(metd + 'photocell;', 
 					70, 87, '', 'Photocell', null, null, this.getTagsForStencil(gnmetd, 'photocell', dtmetd).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Waveforms');
 		
 		this.addPaletteFunctions('electrical\Waveforms', 'Electrical / Waveforms', false,
 		[
@@ -782,6 +812,8 @@
 			this.createVertexTemplateEntry(mew + 'step_2;', 
 					90, 90, '', 'Step', null, null, this.getTagsForStencil(gnmew, 'step_2', dtmew).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\RotMech');
 		
 		this.addPaletteFunctions('electrical\RotMech', 'Electrical / Rotating Equipment & Mechanical Functions', false,
 		[
@@ -824,7 +856,8 @@
 		]);
 		
 		var sb = this;
-		
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Transmission');
+
 		var fns =
 		[
 			this.createVertexTemplateEntry(metr + 'bus_width;pointerEvents=1;', 
@@ -884,6 +917,7 @@
 						content.appendChild(fns[i](content));
 					}
 		}));
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

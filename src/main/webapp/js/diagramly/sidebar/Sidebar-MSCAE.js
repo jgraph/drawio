@@ -8,33 +8,61 @@
 		var sb = this;
 		var s = 'aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/';
 		
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompanies');
 		this.addMSCAECompaniesPalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeEnterpriseFlat');
 		this.addMSCAEEnterpriseFlatPalette(gn, r, sb);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeIntuneFlat');
 		this.addMSCAEIntuneFlatPalette(gn, r, sb);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeOMSFlat');
 		this.addMSCAEOMSFlatPalette(gn, r, sb);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeSystem CenterFlat');
 		this.addMSCAESystemCenterFlatPalette(gn, r, sb);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeAI and ML Service');
 		this.addMSCAEAIandMLServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeAnalytics Service');
 		this.addMSCAEAnalyticsServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompute Service');
 		this.addMSCAEComputeServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompute Service VM');
 		this.addMSCAEComputeServiceVMPalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeContainer Service');
 		this.addMSCAEContainerServiceVMPalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeDatabases Service');
 		this.addMSCAEDatabasesServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeDevOps Service');
 		this.addMSCAEDevOpsServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeGeneral Service');
 		this.addMSCAEGeneralServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeIdentity Service');
 		this.addMSCAEIdentityServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeIntegration Service');
 		this.addMSCAEIntegrationServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeInternet of Things Service');
 		this.addMSCAEInternetOfThingsServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeIntune Service');
 		this.addMSCAEIntuneServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeManagement and Governance Service');
 		this.addMSCAEManagementGovernanceServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeManagement and Governance Service Media');
 		this.addMSCAEManagementGovernanceMediaServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeMigrate Service');
 		this.addMSCAEMigrateServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeMixed Reality Service');
 		this.addMSCAEMixedRealityServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeMobile Service');
 		this.addMSCAEMobileServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeNetworking Service');
 		this.addMSCAENetworkingServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeOther Category Service');
 		this.addMSCAEOtherCategoryServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeSecurity Service');
 		this.addMSCAESecurityServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeStorage Service');
 		this.addMSCAEStorageServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary('mscae', 'mscaeWeb Service');
 		this.addMSCAEWebServicePalette(gn, r, sb, s);
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addMSCAECompaniesPalette = function(gn, r, sb, s)
@@ -636,9 +664,9 @@
 		var fns =
 		[
 			this.createVertexTemplateEntry(s + 'Analysis_Services.svg;',
-					r * 0.5, r * 0.39, '', 'Analysis_Services', null, null, this.getTagsForStencil(gn, 'analysis services', dt).join(' ')),
+					r * 0.5, r * 0.39, '', 'Analysis Services', null, null, this.getTagsForStencil(gn, 'analysis services', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Data_Explorer_Clusters.svg;',
-					r * 0.5, r * 0.5, '', 'Azure_Data_Explorer_Clusters', null, null, this.getTagsForStencil(gn, 'azure data explorer clusters', dt).join(' ')),
+					r * 0.5, r * 0.5, '', 'Azure Data Explorer Clusters', null, null, this.getTagsForStencil(gn, 'azure data explorer clusters', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Databricks.svg;',
 					r * 0.5, r * 0.48, '', 'Databricks', null, null, this.getTagsForStencil(gn, 'azure databricks', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Data_Factory.svg;',

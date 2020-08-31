@@ -3,14 +3,23 @@
 	// Adds mockup shapes
 	Sidebar.prototype.addMockupPalette = function()
 	{
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupButtons');
 		this.addMockupButtonsPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupContainers');
 		this.addMockupContainersPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupForms');
 		this.addMockupFormsPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupGraphics');
 		this.addMockupGraphicsPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupMarkup');
 		this.addMockupMarkupPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupMisc');
 		this.addMockupMiscPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupNavigation');
 		this.addMockupNavigationPalette();
+		this.setCurrentSearchEntryLibrary('mockups', 'mockupText');
 		this.addMockupTextPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addMockupButtonsPalette = function()
@@ -593,13 +602,13 @@
 		this.addPaletteFunctions('mockupMarkup', 'Mockup Markup', false,
 		[
 			this.createVertexTemplateEntry(s + 'markup.curlyBrace;' + skcl9, 
-					100, 20, '', 'Horizontal Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'horizontal').join(' ')),
+					100, 20, '', 'Horizontal Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'horizontal curly brace').join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_LABEL_POSITION + '=right;' + mxConstants.STYLE_ALIGN + '=left;strokeWidth=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.curlyBrace;html=1;shadow=0;dashed=0;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
-					20, 100, '', 'Vertical Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'vertical').join(' ')),
+					20, 100, '', 'Vertical Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'vertical curly brace').join(' ')),
 			this.createVertexTemplateEntry(s + 'markup.line;' + skcl9, 
-					100, 20, '', 'Horizontal Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'horizontal').join(' ')),
+					100, 20, '', 'Horizontal Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'horizontal line').join(' ')),
 			this.createVertexTemplateEntry(s + 'markup.line;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
-					20, 100, '', 'Vertical Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'vertical').join(' ')),
+					20, 100, '', 'Vertical Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'vertical line').join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.scratchOut;shadow=0;dashed=0;html=1;' + skcl9 + 'strokeWidth=4;',
 					200, 100, '', 'Scratch Out', null, null, this.getTagsForStencil(gn, 'scratchOut', dt + 'scratch out').join(' ')),
 			this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.redX;fillColor=#ff0000;html=1;shadow=0;' + skclN, 
@@ -738,23 +747,23 @@
 			this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=,,+,;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 300, 50, 
 				'<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" style="font-size:1em;">' +
 				'<tr height="0%"><td width="25%">Layer 1</td><td width="25%">Layer 2</td><td width="25%" style="color:#008cff;">Layer 3</td><td width="25%">Layer 4</td></tr><tr height="100%"><td/></tr></table>', 
-				'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt).join(' ')),
+				'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt + 'step bar').join(' ')),
 			this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=Layer 1,Layer 2,+Layer 3,Layer 4;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 
-				300, 50, '', 'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt).join(' ')),
+				300, 50, '', 'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt + 'step bar').join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.coverFlow;strokeColor=#999999;',
-				400, 200, '', 'Cover Flow', null, null, this.getTagsForStencil(gn, 'coverFlow', dt).join(' ')),
+				400, 200, '', 'Cover Flow', null, null, this.getTagsForStencil(gn, 'coverFlow', dt + 'cover flow').join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.scrollBar;' + skcl9 + 'barPos=20;fillColor2=#99ddff;strokeColor2=none;',
-				200, 20, '', 'Horizontal Scroll Bar', null, null, this.getTagsForStencil(gn, 'scrollBar', dt).join(' ')),
+				200, 20, '', 'Horizontal Scroll Bar', null, null, this.getTagsForStencil(gn, 'scrollBar', dt + 'scroll bar').join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.scrollBar;' + skcl9 + 'barPos=20;fillColor2=#99ddff;strokeColor2=none;direction=north;',
-				20, 200, '', 'Vertical Scroll Bar', null, null, this.getTagsForStencil(gn, 'scrollBar', dt).join(' ')),
+				20, 200, '', 'Vertical Scroll Bar', null, null, this.getTagsForStencil(gn, 'scrollBar', dt + 'scroll bar').join(' ')),
 			this.createVertexTemplateEntry(s2 + 'navigation.pagination;linkText=;fontSize=17;fontColor=#0000ff;fontStyle=4;',
 				350, 30, '<< Prev 1 2 3 4 5 6 7 8 9 10 Next >>', 'Pagination', null, null, this.getTagsForStencil(gn, 'pagination', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.pageControl;fillColor=#999999;strokeColor=#ddeeff;',
-				100, 30, '', 'Page Control', null, null, this.getTagsForStencil(gn, 'pageControl', dt).join(' ')),
+				100, 30, '', 'Page Control', null, null, this.getTagsForStencil(gn, 'pageControl', dt + 'page control').join(' ')),
 			this.createVertexTemplateEntry(s + 'navigation.mapNavigator;fillColor2=#99ddff;strokeColor2=none;strokeColor3=#ffffff;' + skcl9,
-				60, 100, '', 'Map Navigator', null, null, this.getTagsForStencil(gn, 'mapNavigator', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'misc.loading_circle_1;pointerEvents=1', 90, 90, '', 'Wheel Throbber 1', null, null, this.getTagsForStencil(gn, 'loading_circle_1', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'misc.loading_circle_2;pointerEvents=1', 90, 90, '', 'Wheel Throbber 2', null, null, this.getTagsForStencil(gn, 'loading_circle_2', dt).join(' '))
+				60, 100, '', 'Map Navigator', null, null, this.getTagsForStencil(gn, 'mapNavigator', dt + 'map navigator').join(' ')),
+			this.createVertexTemplateEntry(s + 'misc.loading_circle_1;pointerEvents=1', 90, 90, '', 'Wheel Throbber 1', null, null, this.getTagsForStencil(gn, 'loading_circle_1', dt + 'wheel throbber').join(' ')),
+			this.createVertexTemplateEntry(s + 'misc.loading_circle_2;pointerEvents=1', 90, 90, '', 'Wheel Throbber 2', null, null, this.getTagsForStencil(gn, 'loading_circle_2', dt + 'wheel throbber').join(' '))
 		];	
 			
 		this.addPalette('mockupNavigation', 'Mockup Navigation', false, mxUtils.bind(this, function(content)

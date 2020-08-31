@@ -3,16 +3,27 @@
 	// Adds mockup shapes
 	Sidebar.prototype.addOfficePalette = function()
 	{
+		this.setCurrentSearchEntryLibrary('office', 'officeClouds');
 		this.addOfficeCloudsPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeCommunications');
 		this.addOfficeCommunicationsPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeConcepts');
 		this.addOfficeConceptsPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeDatabases');
 		this.addOfficeDatabasesPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeDevices');
 		this.addOfficeDevicesPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeSecurity');
 		this.addOfficeSecurityPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeServers');
 		this.addOfficeServersPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeServices');
 		this.addOfficeServicesPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeSites');
 		this.addOfficeSitesPalette();
+		this.setCurrentSearchEntryLibrary('office', 'officeUsers');
 		this.addOfficeUsersPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addOfficeCloudsPalette = function()

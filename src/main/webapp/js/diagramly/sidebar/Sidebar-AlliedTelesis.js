@@ -21,6 +21,7 @@
 	{
 		s += 'buildings/';
 		var gn = 'buildings';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisBuildings');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Apartments.svg;',
@@ -46,12 +47,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisComputerTerminalsPalette = function(d, dt, sb, s)
 	{
 		s += 'computer_and_terminals/';
 		var gn = 'computer terminals';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisComputer and Terminals');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'IP_TV.svg;',
@@ -91,12 +95,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisMediaConvertersPalette = function(d, dt, sb, s)
 	{
 		s += 'media_converters/';
 		var gn = 'media converters';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisMedia Converters');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Industrial_Media_Converter.svg;',
@@ -118,12 +125,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisSecurityPalette = function(d, dt, sb, s)
 	{
 		s += 'security/';
 		var gn = 'security';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisSecurity');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'DVS_Surveillance_Monitor.svg;',
@@ -149,12 +159,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisStoragePalette = function(d, dt, sb, s)
 	{
 		s += 'storage/';
 		var gn = 'storage';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisStorage');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Datacenter_Server_Half_Rack_ToR.svg;',
@@ -178,12 +191,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisSwitchPalette = function(d, dt, sb, s)
 	{
 		s += 'switch/';
 		var gn = 'switch';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisSwitch');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Industrial_Ethernet_IE200.svg;',
@@ -227,12 +243,15 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAlliedTelesisWirelessPalette = function(d, dt, sb, s)
 	{
 		s += 'wireless/';
 		var gn = 'wireless';
+		this.setCurrentSearchEntryLibrary('allied_telesis', 'allied_telesisWireless');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Access_Point_Indoor.svg;',
@@ -250,6 +269,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

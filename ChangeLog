@@ -1,3 +1,8 @@
+31-AUG-2020: 13.6.6
+
+- Removes PWA for www.draw.io
+- Improves Gliffy import
+
 24-AUG-2020: 13.6.5
 
 - Corrects classpath for CacheFacade

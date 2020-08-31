@@ -15,6 +15,7 @@
 		var am7 = 'html=1;outlineConnect=0;whiteSpace=wrap;fillColor=#ffe0e0;shape=mxgraph.archimate.';
 		var gn = 'mxgraph.archimate';
 		var dt = 'archimate ';
+		this.setCurrentSearchEntryLibrary('archimate');
 		
 		this.addPaletteFunctions('archimate', mxResources.get('archiMate21'), false,
 		[
@@ -146,6 +147,7 @@
 			this.createVertexTemplateEntry(am3 + 'gap', 
 					w, h, '', 'Gap', null, null, this.getTagsForStencil(gn, '', dt + 'gap').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

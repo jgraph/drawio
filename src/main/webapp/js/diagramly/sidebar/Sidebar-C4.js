@@ -7,6 +7,7 @@
 		var gn = 'mxgraph.c4';
 		var dt = 'c4 ';
 		var pts = 'points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];';
+		this.setCurrentSearchEntryLibrary('c4');
 		
 		this.addPaletteFunctions('c4', 'C4', false,
 		[
@@ -143,5 +144,7 @@
 			   	return sb.createEdgeTemplateFromCells([edge], edge.geometry.width, edge.geometry.height, 'Relationship');
 			})				
 		]);
-};
+		
+		this.setCurrentSearchEntryLibrary();
+	};
 })();

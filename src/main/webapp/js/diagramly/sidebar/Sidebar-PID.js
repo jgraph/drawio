@@ -7,6 +7,7 @@
 		var s2 = 'html=1;outlineConnect=0;align=center;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2";
 		var gn = 'mxgraph.pid2inst';
 		var dt = 'pid process instrumentation engineering instrument engineering ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidInstruments');
 
 		this.addPaletteFunctions('pidInstruments', 'Proc. Eng. / Instruments', false,
 		[
@@ -88,6 +89,8 @@
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;"><tr><td align="center" height="25">TI</td></tr><tr><td align="center" height="25">##</td></tr><tr><td align="center" valign="bottom"></td></tr></table>', 
 					'Indicator (PLC)', null, null, this.getTagsForStencil(gn, 'indicator', dt + 'indicator plc programmable logic control').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addPidValvesPalette = function()
@@ -97,6 +100,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;dashed=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid2valves.";
 		var gn = 'mxgraph.pid2valves';
 		var dt = 'pid process instrumentation engineering ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidValves');
 
 		this.addPaletteFunctions('pidValves', 'Proc. Eng. / Valves', false,
 		[
@@ -147,6 +151,8 @@
 			this.createVertexTemplateEntry(sv + 'threeWay;actuator=man', 100, 120, '', '3 Way Valve (Manual)', null, null, this.getTagsForStencil(gn, 'valve', dt + 'three way manual').join(' ')),
 			this.createVertexTemplateEntry(s + 'autoRecircValve', 100, 60, '', 'Auto Recirculation Valve', null, null, this.getTagsForStencil(gn, 'blockBleedValve', dt + 'auto recirculation').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addPidCompressorsPalette = function()
@@ -154,6 +160,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;outlineConnect=0;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.compressors.";
 		var gn = 'mxgraph.pid.compressors';
 		var dt = 'pid process instrumentation engineering ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidCompressors');
 		
 		this.addPaletteFunctions('pidCompressors', 'Proc. Eng. / Compressors', false,
 		[
@@ -176,6 +183,8 @@
 			this.createVertexTemplateEntry(s + 'reciprocating_compressor_2', 50, 65, '', 'Reciprocating Compressor 2', null, null, this.getTagsForStencil(gn, 'reciprocating_compressor_2', dt + '').join(' ')),
 			this.createVertexTemplateEntry(s + 'rotary_compressor', 42, 91, '', 'Rotary Compressor', null, null, this.getTagsForStencil(gn, 'rotary_compressor', dt + '').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 			
 	Sidebar.prototype.addPidEnginesPalette = function()
@@ -184,6 +193,7 @@
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.engines.";
 		var gn = 'mxgraph.pid.engines';
 		var dt = 'pid process instrumentation engine motor ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidEngines');
 		
 		this.addPaletteFunctions('pidEngines', 'Proc. Eng. / Engines', false,
 		[
@@ -196,6 +206,8 @@
 			this.createVertexTemplateEntry(s + 'generator_(dc);fontSize=45;', 100, 100, 'G', 'Generator (DC)', null, null, this.getTagsForStencil(gn, 'generator_(dc)', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'turbine', 70, 100, '', 'Turbine', null, null, this.getTagsForStencil(gn, 'turbine', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 			
 	Sidebar.prototype.addPidFiltersPalette = function()
@@ -204,6 +216,7 @@
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.filters.";
 		var gn = 'mxgraph.pid.filters';
 		var dt = 'pid process instrumentation filter ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidFilters');
 		
 		this.addPaletteFunctions('pidFilters', 'Proc. Eng. / Filters', false,
 		[
@@ -240,6 +253,8 @@
 			this.createVertexTemplateEntry(sb + 'suction_filter;', 
 					50, 100, '', 'Suction Filter', null, null, this.getTagsForStencil(gn, 'suction_filter', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 			
 	Sidebar.prototype.addPidFlowSensorsPalette = function()
@@ -247,6 +262,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;outlineConnect=0;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.flow_sensors.";
 		var gn = 'mxgraph.pid.flow_sensors';
 		var dt = 'process instrumentation sensor ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidFlow Sensors');
 		
 		this.addPaletteFunctions('pidFlow Sensors', 'Proc. Eng. / Flow Sensors', false,
 		[
@@ -283,6 +299,8 @@
 			this.createVertexTemplateEntry(s + 'weir;', 
 					50, 50, '', 'Weir', null, null, this.getTagsForStencil(gn, 'weir', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 			
 	Sidebar.prototype.addPidPipingPalette = function()
@@ -291,6 +309,7 @@
 		var sb = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.piping.";
 		var gn = 'mxgraph.pid.piping';
 		var dt = 'process instrumentation piping ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidPiping');
 		
 		this.addPaletteFunctions('pidPiping', 'Proc. Eng. / Piping', false,
 		[
@@ -338,6 +357,8 @@
 			this.createVertexTemplateEntry(sb + 'welded_connection;', 50, 20, '', 'Welded Connection', null, null, this.getTagsForStencil(gn, 'welded_connection', dt).join(' ')),
 			this.createVertexTemplateEntry(sb + 'y-type_strainer;pointerEvents=1;', 50, 35, '', 'Y-Type Strainer', null, null, this.getTagsForStencil(gn, 'y-type_strainer', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 			
 	Sidebar.prototype.addPidMiscPalette = function()
@@ -346,6 +367,7 @@
 		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;outlineConnect=0;align=center;dashed=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_SHAPE + "=mxgraph.pid.misc.";
 		var gn = 'mxgraph.pid.misc';
 		var dt = 'process instrumentation ';
+		this.setCurrentSearchEntryLibrary('pid', 'pidMisc');
 		
 		this.addPaletteFunctions('pidMisc', 'Proc. Eng. / Misc', false,
 		[
@@ -518,6 +540,7 @@
 			this.createVertexTemplateEntry(s2 + 'viewing_glass;', 
 					80, 50, '', 'Viewing Glass', null, null, this.getTagsForStencil(gn, 'viewing_glass', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

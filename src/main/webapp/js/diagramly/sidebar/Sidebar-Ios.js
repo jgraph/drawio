@@ -18,6 +18,7 @@
 			var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=top;html=1;shadow=0;dashed=0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=bottom;strokeWidth=1;shape=mxgraph.ios.';
 			var s4 = 'html=1;shadow=0;dashed=0;shape=mxgraph.ios.';
 			var gn = 'mxgraph.ios';
+			this.setCurrentSearchEntryLibrary('ios');
 		
 		var fns =
 		[
@@ -185,6 +186,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

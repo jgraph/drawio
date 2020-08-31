@@ -221,7 +221,6 @@ editDiagram=ダイアログを編集する
 editGeometry=形状を編集する
 editImage=イメージを編集する
 editImageUrl=画像のURLを編集する
-editLayer=Edit Layer
 editLink=リンクを編集
 editShape=シェイプを編集する
 editStyle=フォーマットを編集

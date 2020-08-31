@@ -12,6 +12,7 @@
 		//default tags
 		var dt = 'value stream lean mapping ';
 		var gn = 'mxgraph.lean_mapping';
+		this.setCurrentSearchEntryLibrary('lean_mapping');
 
 		var fns =
 		[
@@ -119,6 +120,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 })();

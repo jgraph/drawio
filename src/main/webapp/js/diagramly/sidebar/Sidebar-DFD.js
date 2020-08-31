@@ -9,6 +9,7 @@
 		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;strokeWidth=2;shape=';
 		var gn = 'mxgraph.flowchart';
 		var dt = 'dfd data flow diagram ';
+		this.setCurrentSearchEntryLibrary('dfd');
 		
 		this.addPaletteFunctions('dfd', 'Data Flow Diagram', false,
 		[
@@ -52,6 +53,6 @@
 
 		 	this.createEdgeTemplateEntry('endArrow=classic;html=1;', w * 0.5, h * 0.5, '', 'Directional Connector', null, dt + 'directional directed')
 		]);
-};
-		
+		this.setCurrentSearchEntryLibrary();
+	};
 })();

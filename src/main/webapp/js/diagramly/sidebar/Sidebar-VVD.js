@@ -12,6 +12,7 @@
 		
 		var w = 50;
 		var h = 50;
+		this.setCurrentSearchEntryLibrary('vvd');
 		
 		var fns =
 		[
@@ -218,5 +219,7 @@
 						content.appendChild(fns[i](content));
 					}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

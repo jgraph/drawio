@@ -86,12 +86,21 @@ Sidebar.prototype.init = function()
 	this.addMiscPalette(false);
 	this.addAdvancedPalette(false);
 	this.addBasicPalette(dir);
+	
+	this.setCurrentSearchEntryLibrary('arrows');
 	this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
+	this.setCurrentSearchEntryLibrary();
+	
 	this.addUmlPalette(false);
 	this.addBpmnPalette(dir, false);
+	
+	this.setCurrentSearchEntryLibrary('flowchart');
 	this.addStencilPalette('flowchart', 'Flowchart', dir + '/flowchart.xml',
 		';whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;strokeWidth=2');
+	this.setCurrentSearchEntryLibrary();
+	
+	this.setCurrentSearchEntryLibrary('clipart');
 	this.addImagePalette('clipart', mxResources.get('clipart'), dir + '/clipart/', '_128x128.png',
 		['Earth_globe', 'Empty_Folder', 'Full_Folder', 'Gear', 'Lock', 'Software', 'Virus', 'Email',
 		 'Database', 'Router_Icon', 'iPad', 'iMac', 'Laptop', 'MacBook', 'Monitor_Tower', 'Printer',
@@ -100,6 +109,7 @@ Sidebar.prototype.init = function()
 		 'Worker1', 'Soldier1', 'Doctor1', 'Tech1', 'Security1', 'Telesales1'], null,
 		 {'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
 		  'Router_Icon': 'router switch'});
+	this.setCurrentSearchEntryLibrary();
 };
 
 /**
@@ -512,64 +522,65 @@ Sidebar.prototype.setCurrentSearchEntryLibrary = function(id, lib)
 Sidebar.prototype.addEntry = function(tags, fn)
 {
 	if (this.taglist != null && tags != null && tags.length > 0)
-	{
+	{					
+		if (this.currentSearchEntryLibrary != null)
+		{				
+			fn.parentLibraries = [this.currentSearchEntryLibrary];
+		}
+		
 		// Replaces special characters
 		var tmp = tags.toLowerCase().replace(/[\/\,\(\)]/g, ' ').split(' ');
+		var tagList = [];
+		var hash = {};
 
-		var doAddEntry = mxUtils.bind(this, function(tag)
-		{
-			if (tag != null && tag.length > 1)
-			{
-				var entry = this.taglist[tag];
-				
-				if (typeof entry !== 'object')
-				{
-					entry = {entries: [], dict: new mxDictionary()};
-					this.taglist[tag] = entry;
-				}
-				
-				// Adds current library to entry
-				if (fn.parentLibraries == null)
-				{
-					fn.parentLibraries = [];
-				}
-
-				var existing = entry.dict.get(fn);
-				
-				if (this.currentSearchEntryLibrary != null)
-				{
-					var tmp = (existing != null) ? existing : fn;
-					
-					if (mxUtils.indexOf(tmp.parentLibraries, this.currentSearchEntryLibrary) < 0)
-					{
-						tmp.parentLibraries.push(this.currentSearchEntryLibrary);
-					}
-				}
-				
-				// Ignores duplicates
-				if (existing == null)
-				{
-					entry.dict.put(fn, fn);
-					entry.entries.push(fn);
-				}
-			}
-		});
-		
+		// Finds unique tags
 		for (var i = 0; i < tmp.length; i++)
 		{
-			doAddEntry(tmp[i]);
+			if (hash[tmp[i]] == null)
+			{
+				hash[tmp[i]] = true;
+				tagList.push(tmp[i]);
+			}
 			
 			// Adds additional entry with removed trailing numbers
 			var normalized = tmp[i].replace(/\.*\d*$/, '');
 			
 			if (normalized != tmp[i])
 			{
-				doAddEntry(normalized);
+				if (hash[normalized] == null)
+				{
+					hash[normalized] = true;
+					tagList.push(normalized);
+				}
 			}
 		}
+
+		for (var i = 0; i < tagList.length; i++)
+		{
+			this.addEntryForTag(tagList[i], fn);
+		}
 	}
-	
+
 	return fn;
+};
+
+/**
+ * Hides the current tooltip.
+ */
+Sidebar.prototype.addEntryForTag = function(tag, fn)
+{
+	if (tag != null && tag.length > 1)
+	{
+		var entry = this.taglist[tag];
+		
+		if (typeof entry !== 'object')
+		{
+			entry = {entries: []};
+			this.taglist[tag] = entry;
+		}
+
+		entry.entries.push(fn);
+	}
 };
 
 /**
@@ -676,6 +687,14 @@ Sidebar.prototype.cloneCell = function(cell, value)
 	}
 	
 	return clone;
+};
+
+/**
+ * Adds shape search UI.
+ */
+Sidebar.prototype.showPopupMenuForEntry = function(elt, libs, evt)
+{												
+	// Hook for subclassers
 };
 
 /**
@@ -876,57 +895,16 @@ Sidebar.prototype.addSearchPalette = function(expand)
 										{
 											hash[elt.innerHTML] = hash[elt.innerHTML].concat(result.parentLibraries);
 										}
-										
-										var libs = hash[elt.innerHTML];
 
-										if (urlParams['dev'] == 1 && libs != null && libs.length > 0)
+										mxEvent.addGestureListeners(elt, null, null, mxUtils.bind(this, function(evt)
 										{
-											// TODO: Move to draw.io, add translations, add all setCurrentSearchEntryLibrary
-											mxEvent.addGestureListeners(elt, null, null, mxUtils.bind(this, function(evt)
+											var libs = hash[elt.innerHTML];
+	
+											if (mxEvent.isPopupTrigger(evt))
 											{
-												if (mxEvent.isRightMouseButton(evt) && libs != null)
-												{
-													var offset = mxUtils.getOffset(elt);
-				
-													this.editorUi.showPopupMenu(mxUtils.bind(this, function(menu, parent)
-													{
-														menu.addItem(mxResources.get('openLibrary'), null, mxUtils.bind(this, function()
-														{
-															for (var i = 0; i < libs.length; i++)
-															{
-																(mxUtils.bind(this, function(lib)
-																{
-																	var config = this.getConfigurationById(lib.id);
-																	
-																	if (config != null)
-																	{
-																		this.showPalettes(config.prefix || '', config.libs || [config.id], true);
-																		var elts = this.showPalette(result.parentLibraries[0].lib ||
-																			result.parentLibraries[0].id, true);
-																		
-																		console.log('here', lib.id, elts);
-																		
-																		if (elts != null && elts.length > 1 && elts[1].firstChild != null &&
-																			(elts[1].firstChild.firstChild == null ||
-																			elts[1].firstChild.style.display == 'none'))
-																		{
-																			elts[0].click();
-																		}
-																		
-																		window.setTimeout(function()
-																		{
-																			elts[1].scrollIntoView(true);
-																		}, 0);
-																		
-																		mxEvent.consume(evt);
-																	}
-																}))(libs[i]);
-															}
-														}));
-													}), offset.x, offset.y + elt.offsetHeight, evt);
-												}
-											}));
-										}
+												this.showPopupMenuForEntry(elt, libs, evt);
+											}
+										}));
 										
 										// Disables the built-in context menu
 										mxEvent.disableContextMenu(elt);
@@ -1071,9 +1049,9 @@ Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, resu
  */
 Sidebar.prototype.addGeneralPalette = function(expand)
 {
-	this.setCurrentSearchEntryLibrary('general', 'general');
 	var lineTags = 'line lines connector connectors connection connections arrow arrows ';
-	
+	this.setCurrentSearchEntryLibrary('general', 'general');
+
 	var fns = [
 	 	this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;', 120, 60, '', 'Rectangle', null, null, 'rect rectangle box'),
 	 	this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Rounded Rectangle', null, null, 'rounded rect rectangle box'),
@@ -1221,7 +1199,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	var sb = this;
 	var lineTags = 'line lines connector connectors connection connections arrow arrows '
 	this.setCurrentSearchEntryLibrary('general', 'misc');
-	
+
 	var fns = [
    	 	this.createVertexTemplateEntry('text;strokeColor=none;fillColor=none;html=1;fontSize=24;fontStyle=1;verticalAlign=middle;align=center;', 100, 40, 'Title', 'Title', null, null, 'text heading title'),
 	 	this.createVertexTemplateEntry('text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;', 100, 80,
@@ -1431,6 +1409,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	
 	// Default tags
 	var dt = 'uml static class ';
+	this.setCurrentSearchEntryLibrary('uml');
 	
 	var fns = [
    		this.createVertexTemplateEntry('html=1;', 110, 50, 'Object', 'Object', null, null, dt + 'object instance'),
@@ -1847,6 +1826,7 @@ Sidebar.prototype.addUmlPalette = function(expand)
 	];
 	
 	this.addPaletteFunctions('uml', mxResources.get('uml'), expand || false, fns);
+	this.setCurrentSearchEntryLibrary();
 };
 
 /**
@@ -1855,8 +1835,8 @@ Sidebar.prototype.addUmlPalette = function(expand)
 Sidebar.prototype.addBpmnPalette = function(dir, expand)
 {
 	// Avoids having to bind all functions to "this"
-	this.setCurrentSearchEntryLibrary('bpmn', 'bpmn');
 	var sb = this;
+	this.setCurrentSearchEntryLibrary('bpmn');
 
 	var fns =
 	[

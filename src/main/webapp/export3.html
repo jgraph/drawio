@@ -5,6 +5,21 @@
 	<script>
 		var isLocalStorage = false;
 		var mxLoadStylesheets = false;
+		
+		function getUrlParam(param)
+		{
+			var result = (new RegExp(param + '=([^&]*)')).exec(window.location.search);
+			
+			if (result != null && result.length > 0)
+			{
+				return decodeURIComponent(result[1].replace(/\+/g, '%20'));
+			}
+			
+			return null;
+		};
+		
+		var remoteMath = getUrlParam('remoteMath') == '1';
+		var fallbackFont = getUrlParam('fallbackFont');
 	</script>
 	<!-- CSS for print output is needed for using current window -->
 	<style type="text/css">
@@ -13,6 +28,7 @@
 	  	hr.mxPageBreak { display: none; }
 	</style>
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
+	<link rel="stylesheet" href="export-fonts.css" charset="UTF-8" type="text/css">
     <script src="js/app.min.js"></script>
 	<script>
 		var mxIsElectron = navigator.userAgent != null &&
@@ -20,7 +36,8 @@
 		var GOOGLE_APPS_MAX_AREA = 25000000;
 		var GOOGLE_SHEET_MAX_AREA = 1048576; //1024x1024
 		
-		Editor.initMath('math/MathJax.js');
+		//TODO Add support for loading math from a local folder
+		Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/MathJax.js');
 	
 		function render(data)
 		{
@@ -856,6 +873,14 @@
 			else
 			{
 				renderPage();
+			}
+			
+			if (fallbackFont)
+			{
+				//Add a fallbackFont font to all labels in case the selected font doesn't support the character
+	            //Some systems doesn't have a good fallback fomt that supports all languages
+	            //Use this with a custom font-face in export-fonts.css file
+	            document.querySelectorAll('foreignObject div').forEach(d => d.style.fontFamily = (d.style.fontFamily || '') + ', ' + fallbackFont);
 			}
 			
 			renderGrid();

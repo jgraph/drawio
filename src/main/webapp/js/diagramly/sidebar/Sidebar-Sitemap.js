@@ -13,6 +13,7 @@
 		var scale = 0.2;
 		var w = 600 * scale;
 		var h = 350 * scale;
+		this.setCurrentSearchEntryLibrary('sitemap');
 		
 		var fns =
 		[
@@ -125,5 +126,7 @@
 						content.appendChild(fns[i](content));
 					}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

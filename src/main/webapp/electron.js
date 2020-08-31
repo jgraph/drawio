@@ -1199,6 +1199,20 @@ function exportDiagram(event, args, directFinalize)
 						browser.capturePage().then(function(img)
 						{
 							//Image is double the given bounds, so resize is needed!
+							var tScale = 1;
+
+							//If user defined width and/or height, enforce it precisely here. Height override width
+							if (args.h)
+							{
+								tScale = args.h / newBounds.height;
+							}
+							else if (args.w)
+							{
+								tScale = args.w / newBounds.width;
+							}
+							
+							newBounds.width *= tScale;
+							newBounds.height *= tScale;
 							img = img.resize(newBounds);
 
 							var data = args.format == 'png'? img.toPNG() : img.toJPEG(args.jpegQuality || 90);

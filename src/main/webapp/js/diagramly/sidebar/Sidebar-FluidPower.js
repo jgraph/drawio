@@ -7,6 +7,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;aspect=fixed;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeColor=#000000;fillColor=#000000;align=center;outlineConnect=0;shape=mxgraph.fluid_power.';
 		var gn = 'mxgraph.fluid_power';
 		var dt = '';
+		this.setCurrentSearchEntryLibrary('fluid_power');
 		
 		this.addPaletteFunctions('fluid_power', 'Fluid Power (ISO 1219)', false,
 		[
@@ -257,5 +258,7 @@
 			this.createVertexTemplateEntry(s + 'x12420;points=[[0.5,0,0],[0,1,0],[1,1,0]]', w * 18.69, h * 28.39, '', 'X12420 Suction cup', null, null, this.getTagsForStencil(gn, 'x12420 suction cup', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'x12430;points=[[0.5,0,0],[0,1,0],[1,1,0]]', w * 18.69, h * 28.39, '', 'X12430 Suction cup with spring loaded stem and non-return valve', null, null, this.getTagsForStencil(gn, 'x12430 suction cup with spring loaded stem and non return valve', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

@@ -2,15 +2,25 @@
 {
 	Sidebar.prototype.addVeeam2Palette = function()
 	{
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Auxiliary');
 		this.addVeeam2AuxiliaryPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Data Center');
 		this.addVeeam2DataCenterPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Features');
 		this.addVeeam2FeaturesPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2General');
 		this.addVeeam2GeneralPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Products and Components');
 		this.addVeeam2ProductsComponentsPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Software');
 		this.addVeeam2SoftwarePalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2States');
 		this.addVeeam2StatesPalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam2Storage');
 		this.addVeeam2StoragePalette();
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam23D');
 		this.addVeeam23DPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addVeeam2AuxiliaryPalette = function()
@@ -661,7 +671,7 @@
 					w * 0.21, h * 0.21, '', 'Instant', null, null, this.getTagsForStencil(gn, 'instant', dt).join(' '))
 		];
 			
-		this.addPalette('veeam2States', 'Veeam2 / States', false, mxUtils.bind(this, function(content)
+		this.addPalette('veeam2States', 'Veeam / States', false, mxUtils.bind(this, function(content)
 				{
 					for (var i = 0; i < fns.length; i++)
 					{
@@ -922,7 +932,7 @@
 					w * 38, h * 31, '', 'Workstation', null, null, this.getTagsForStencil(gn, 'workstation', dt).join(' '))
 		];
 			
-		this.addPalette('veeam23D', 'Veeam2 / 3D', false, mxUtils.bind(this, function(content)
+		this.addPalette('veeam23D', 'Veeam / 3D', false, mxUtils.bind(this, function(content)
 				{
 					for (var i = 0; i < fns.length; i++)
 					{

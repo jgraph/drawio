@@ -28,7 +28,7 @@
 		this.addCisco19SecurityCloudsAndConnectorsPalette(s, s2, s3);
 		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19Endpoint Client Device Icons');
 		this.addCisco19EndpointClientDeviceIconsPalette(s, s2, s3);
-		this.setCurrentSearchEntryLibrary('cisco19DNA SD Access');
+		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19DNA SD Access');
 		this.addCisco19DNASDAccessPalette(s, s2, s3);
 		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19SD WAN Viptela');
 		this.addCisco19SDWANViptelaPalette(s, s2, s3);

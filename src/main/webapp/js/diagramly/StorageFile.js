@@ -110,7 +110,52 @@ StorageFile.prototype.saveAs = function(title, success, error)
 	this.saveFile(title, false, success, error);
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+StorageFile.insertFile = function(ui, title, data, success, error)
+{
+	var createStorageFile = mxUtils.bind(this, function(exists)
+	{
+		var fn = function()
+		{
+			var file = new StorageFile(ui, data, title);
+			
+			// Inserts data into local storage
+			file.saveFile(title, false, function()
+			{
+				success(file);
+			}, error);
+		};
 
+		if (exists)
+		{
+			ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+		}
+		else
+		{
+			fn();
+		}
+	});
+	
+	StorageFile.getFileContent(ui, title, function()
+	{
+		createStorageFile(true);
+	}, function()
+	{
+		createStorageFile(false);
+	});
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.getFileContent = function(ui, title, success, error)
 {
 	ui.getDatabaseItem(title, function(obj)
@@ -130,6 +175,12 @@ StorageFile.getFileContent = function(ui, title, success, error)
 	}), 'files');
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.getFileInfo = function(ui, title, success, error)
 {
 	ui.getDatabaseItem(title, function(obj)
@@ -325,6 +376,12 @@ StorageFile.prototype.destroy = function()
 	}
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.listLocalStorageFiles = function(type)
 {
 	var filesInfo = [];
@@ -354,7 +411,13 @@ StorageFile.listLocalStorageFiles = function(type)
 	
 	return filesInfo;
 };
-	
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.migrate = function(db) 
 {
 	var lsFilesInfo = StorageFile.listLocalStorageFiles();
@@ -375,6 +438,12 @@ StorageFile.migrate = function(db)
 	}
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.listFiles = function(ui, type, success, error)
 {
 	ui.getDatabaseItems(function(filesInfo)
@@ -406,6 +475,12 @@ StorageFile.listFiles = function(ui, type, success, error)
 	}, 'filesInfo');
 };
 
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 StorageFile.deleteFile = function(ui, title, success, error)
 {
 	ui.removeDatabaseItem([title, title], success, function()

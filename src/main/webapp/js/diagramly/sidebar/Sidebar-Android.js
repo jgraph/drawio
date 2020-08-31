@@ -19,6 +19,7 @@
 		var inh = 'strokeColor=inherit;fillColor=inherit;gradientColor=inherit;';
 		//default tags
 		var dt = 'android ';
+		this.setCurrentSearchEntryLibrary('android');
 
 		var fns =
 		[
@@ -564,6 +565,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

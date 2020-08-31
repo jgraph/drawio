@@ -3,15 +3,25 @@
 	// Adds Cisco Safe stencils
 	Sidebar.prototype.addCiscoSafePalette = function()
 	{
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeArchitecture');
 		this.addCiscoSafeArchitecturePalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeBusiness Icons');
 		this.addCiscoSafeBusinessIconsPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeCapability');
 		this.addCiscoSafeCapabilityPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeDesign');
 		this.addCiscoSafeDesignPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeIoT Things Icons');
 		this.addCiscoSafeIoTThingsIconsPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safePeople Places Things Icons');
 		this.addCiscoSafePeoplePlacesThingsIconsPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeSecurity Icons');
 		this.addCiscoSafeSecurityIconsPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeTechnology Icons');
 		this.addCiscoSafeTechnologyIconsPalette();
+		this.setCurrentSearchEntryLibrary('cisco_safe', 'cisco_safeThreat');
 		this.addCiscoSafeThreatPalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addCiscoSafeArchitecturePalette = function()
@@ -1080,7 +1090,7 @@
 		var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
 		'points=[];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
 		var gn = 'mxgraph.cisco_safe.threat';
-		var dt = 'cisco safe threat';
+		var dt = 'cisco safe threat ';
 
 		var sc = 1;
 		var w2 = sc * 50;

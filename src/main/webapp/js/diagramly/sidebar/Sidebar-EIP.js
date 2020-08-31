@@ -9,6 +9,7 @@
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message construction ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessage Construction');
 		
 		var fns = [
 			this.createEdgeTemplateEntry('edgeStyle=none;html=1;strokeColor=#808080;endArrow=block;endSize=10;dashed=0;verticalAlign=bottom;strokeWidth=2;', 
@@ -75,6 +76,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipMessageRoutingPalette = function(expand)
@@ -85,6 +88,7 @@
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message routing ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessage Routing');
 		
 		var fns = [
 		    this.createVertexTemplateEntry(s2 + 'aggregator;', 
@@ -118,6 +122,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipMessageTransformationPalette = function(expand)
@@ -125,6 +131,7 @@
 		var s = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;fillColor=#c0f5a9;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern message transformation ';
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessage Transformation');
 
 		this.addPaletteFunctions('eipMessage Transformation', 'EIP / Message Transformation', false,
 		[
@@ -139,6 +146,8 @@
 		    this.createVertexTemplateEntry(s + 'normalizer;', 
 		    		150, 90, '', 'Normalizer', null, null, this.getTagsForStencil(gn, 'normalizer', dt + '').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipMessagingChannelsPalette = function(expand)
@@ -149,6 +158,7 @@
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging channel message ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessaging Channels');
 		
 		var fns = [
 			this.createEdgeTemplateEntry('edgeStyle=none;html=1;strokeColor=#808080;endArrow=block;endSize=10;dashed=0;verticalAlign=bottom;strokeWidth=2;', 
@@ -178,6 +188,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipMessagingEndpointsPalette = function(expand)
@@ -186,6 +198,7 @@
 		var s2 = 'fillColor=#c0f5a9;' + s;
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging endpoint ';
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessaging Endpoints');
 		
 		this.addPaletteFunctions('eipMessaging Endpoints', 'EIP / Messaging Endpoints', false,
 		[
@@ -208,6 +221,8 @@
 		    this.createVertexTemplateEntry(s2 + 'transactional_client;', 
 		    		150, 90, '', 'Transactional Client', null, null, this.getTagsForStencil(gn, 'transactional_client', dt + '').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipMessagingSystemsPalette = function(expand)
@@ -219,6 +234,7 @@
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern messaging system ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('eip', 'eipMessaging Systems');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s2 + 'content_based_router;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#c0f5a9;', 
@@ -312,6 +328,8 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addEipSystemManagementPalette = function(expand)
@@ -319,6 +337,7 @@
 		var s2 = "strokeWidth=2;outlineConnect=0;dashed=0;align=center;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.eip.";
 		var gn = 'mxgraph.eip';
 		var dt = 'eip enterprise integration pattern system management ';
+		this.setCurrentSearchEntryLibrary('eip', 'eipSystem Management');
 		
 		this.addPaletteFunctions('eipSystem Management', 'EIP / System Management', false,
 		[
@@ -337,6 +356,7 @@
 		    this.createVertexTemplateEntry(s2 + 'wire_tap;fillColor=#c0f5a9', 
 		    		150, 90, '', 'Wire Tap', null, null, this.getTagsForStencil(gn, 'wire_tap', dt + '').join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

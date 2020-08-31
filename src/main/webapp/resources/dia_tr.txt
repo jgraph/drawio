@@ -221,7 +221,6 @@ editDiagram=Diyagramı düzenle
 editGeometry=Geometriyi düzenle
 editImage=Resmi düzenle
 editImageUrl=Resim URL'sini düzenle
-editLayer=Edit Layer
 editLink=Bağlantıyı düzenle
 editShape=Şekli düzenle 
 editStyle=Stili düzenle

@@ -7,6 +7,7 @@
 		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.';
 		var gn = 'mxgraph.azure';
 		var dt = '';
+		this.setCurrentSearchEntryLibrary('azure');
 		
 		this.addPaletteFunctions('azure', mxResources.get('azure'), false,
 		[
@@ -97,5 +98,7 @@
 			this.createVertexTemplateEntry(s + 'worker_role;', w, h * 0.8, '', 'Worker Role', null, null, this.getTagsForStencil(gn, 'worker_role', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'worker_roles;', w * 1.1, h * 0.9, '', 'Worker Roles', null, null, this.getTagsForStencil(gn, 'worker_roles', dt).join(' '))
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 })();

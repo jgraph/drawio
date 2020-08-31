@@ -10,6 +10,7 @@
 		var s4 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;html=1;shape=mxgraph.basic.';
 		var gn = 'mxgraph.infographic';
 		var dt = '';
+		this.setCurrentSearchEntryLibrary('infographic');
 		
 		this.addPaletteFunctions('infographic', 'Infographic', false,
 		[
@@ -1679,6 +1680,8 @@
 			   	return sb.createVertexTemplateFromCells([part1, part2, part3, part4], 310, 310, 'Flower');
 			})		
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 
 })();

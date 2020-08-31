@@ -9,6 +9,7 @@
 		var gn = 'mxgraph.bootstrap';
 		var dt = 'bootstrap ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('bootstrap');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s + 'rrect;rSize=5;strokeColor=#B8DCFE;strokeWidth=1;fillColor=#CCE7FE;fontColor=#004583;whiteSpace=wrap;align=left;verticalAlign=middle;spacingLeft=10;', 
@@ -4798,6 +4799,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

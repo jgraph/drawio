@@ -221,7 +221,6 @@ editDiagram=Edytuj diagram
 editGeometry=Edytuj kształt bryły
 editImage=Edytuj obraz 
 editImageUrl=Edytuj hiperłącze obrazu 
-editLayer=Edit Layer
 editLink=Edytuj hiperłącze
 editShape=Edytuj kształt
 editStyle=Edytuj styl

@@ -9,6 +9,7 @@
 		var gn = 'mxgraph.atlassian';
 		var dt = 'atlassian ';
 		var sb = this;
+		this.setCurrentSearchEntryLibrary('atlassian');
 		
 		var fns = [
 			this.addEntry(dt + 'issue ticket bug jira task feature request', function()
@@ -600,6 +601,7 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
+   		
+		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();
