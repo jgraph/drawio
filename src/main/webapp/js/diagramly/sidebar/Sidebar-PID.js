@@ -24,7 +24,7 @@
 		
 		for (var i = 0; i < pids.length; i++)
 		{
-			if (!pidLibs.includes(pids[i]))
+			if (mxUtils.indexOf(pidLibs, pids[i]) < 0)
 			{
 				this.setCurrentSearchEntryLibrary('pid', 'pid' + pids[i]);
 				this.addStencilPalette('pid' + pids[i], 'Proc. Eng. / ' + pids[i],
