@@ -1494,7 +1494,7 @@
 		var sb = this;
 		var s = 1.5;
 		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
-		var dt = 'gcp google cloud platform icons icon migration';
+		var dt = 'gcp google cloud platform icons icon migration ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
 		

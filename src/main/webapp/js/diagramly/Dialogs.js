@@ -10039,7 +10039,6 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
 	
-		
 	if (!editorUi.isOffline())
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
@@ -10054,6 +10053,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
+		fn();
 	});
 	cancelBtn.className = 'geBtn';
 	

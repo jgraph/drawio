@@ -1,5 +1,37 @@
 (function()
 {
+	Sidebar.prototype.addRackPalette = function(rack, dir)
+	{
+		for (var i = 0; i < rack.length; i++)
+		{
+			if (rack[i].toLowerCase() === 'general')
+			{
+				this.setCurrentSearchEntryLibrary('rack', 'rackGeneral');
+				this.addRackGeneralPalette();
+			}
+			else if (rack[i].toLowerCase() === 'f5')
+			{
+				this.setCurrentSearchEntryLibrary('rack', 'rackF5');
+				this.addRackF5Palette();
+			}
+			else if (rack[i].toLowerCase() === 'dell')
+			{
+				this.setCurrentSearchEntryLibrary('rack', 'rackDell');
+				this.addRackDellPalette();
+			}
+			else
+			{
+				this.setCurrentSearchEntryLibrary('rack', 'rack' + rack[i]);
+				this.addStencilPalette('rack' + rack[i], 'Rack / ' + rack[i],
+					dir + '/rack/' + rack[i].toLowerCase() + '.xml',
+					';html=1;labelPosition=right;align=left;spacingLeft=15;dashed=0;shadow=0;fillColor=#ffffff;',	
+					null, null, null, null, null, 'rack');
+			}
+		}
+		
+		this.setCurrentSearchEntryLibrary();
+	}
+	
 	// Adds Rack shapes
 	Sidebar.prototype.addRackGeneralPalette = function()
 	{
@@ -7,7 +39,7 @@
 		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
-		var dt = 'rack equipment ';
+		var dt = 'rack equipment general ';
 		
 		this.addPaletteFunctions('rackGeneral', 'Rack / General', false,
 		[
@@ -36,6 +68,8 @@
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.switches_1;', 160, 30, '', 'Switches 1', null, null, dt + 'server'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.switches_2;', 160, 30, '', 'Switches 2', null, null, dt + 'server')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addRackF5Palette = function()
@@ -43,7 +77,7 @@
 		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
-		var dt = 'rack equipment ';
+		var dt = 'rack equipment f5 ';
 
 		this.addPaletteFunctions('rackF5', 'Rack / F5', false,
 		[
@@ -73,6 +107,8 @@
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.f5.viprion_4400;', 168, 120, '', 'VIPRION 4400', null, null, dt + 'big ip'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.f5.viprion_4800;', 168, 320, '', 'VIPRION 4800', null, null, dt + 'big ip')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addRackDellPalette = function()
@@ -80,7 +116,7 @@
 		var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
 		
 		//default tags
-		var dt = 'rack equipment ';
+		var dt = 'rack equipment dell ';
 
 		this.addPaletteFunctions('rackDell', 'Rack / Dell', false,
 		[
@@ -117,6 +153,7 @@
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r940;', 162, 45, '', 'PowerEdge R940', null, null, dt + 'poweredge r940'),
 			this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_xr2;', 162, 15, '', 'PowerEdge XR2', null, null, dt + 'poweredge xr2')
 		]);
+		
+		this.setCurrentSearchEntryLibrary();
 	};
-
 })();

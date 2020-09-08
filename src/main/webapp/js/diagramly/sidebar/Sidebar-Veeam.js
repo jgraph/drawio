@@ -20,9 +20,9 @@
 		this.addVeeamProductsPalette();
 //		this.setCurrentSearchEntryLibrary('veeam', 'veeamVMs and Tape');
 		this.addVeeamVMsTapePalette();
-//		this.setCurrentSearchEntryLibrary('veeam', 'veeam3D');
+		this.setCurrentSearchEntryLibrary('veeam2', 'veeam23D');
 		this.addVeeam3DPalette();
-//		this.setCurrentSearchEntryLibrary();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addVeeamDataCenterPalette = function()

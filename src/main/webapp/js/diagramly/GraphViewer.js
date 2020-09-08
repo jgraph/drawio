@@ -1318,10 +1318,15 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
 		if (href == null)
 		{
 			var source = mxEvent.getSource(evt);
-		
-			if (source.nodeName.toLowerCase() == 'a')
+			
+			while (source != graph.container && source != null && href == null)
 			{
-				href = source.getAttribute('href');
+				if (source.nodeName.toLowerCase() == 'a')
+				{
+					href = source.getAttribute('href');
+				}
+				
+				source = source.parentNode;
 			}
 		}
 		

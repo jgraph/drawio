@@ -8,27 +8,41 @@
 		var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;fontColor=#4277BB;labelBackgroundColor=#ffffff;fontSize=12;spacingTop=3;image;image=img/lib/ibm/';
 		
 		// Adds IBM shapes
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmAnalytics');
 		this.addIBMAnalyticsPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmApplications');
 		this.addIBMApplicationsPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmBlockchain');
 		this.addIBMBlockchainPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmData');
 		this.addIBMDataPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmDevOps');
 		this.addIBMDevOpsPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmInfrastructure');
 		this.addIBMInfrastructurePalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmManagement');
 		this.addIBMManagementPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmMiscellaneous');
 		this.addIBMMiscPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmSecurity');
 		this.addIBMSecurityPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmSocial');
 		this.addIBMSocialPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmUsers');
 		this.addIBMUsersPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmVPC');
 		this.addIBMVPCPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmBoxes');
 		this.addIBMBoxesPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary('ibm', 'ibmConnectors');
 		this.addIBMConnectorsPalette(d, dt, sb, s);
+		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addIBMAnalyticsPalette = function(d, dt, sb, s)
 	{
 		s += 'analytics/';
 		var gn = 'analytics ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmAnalytics');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'analytics.svg;',
@@ -50,15 +64,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMApplicationsPalette = function(d, dt, sb, s)
 	{
 		s += 'applications/';
 		var gn = 'applications ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmApplications');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'actionable_insight.svg;',
@@ -110,15 +121,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMBlockchainPalette = function(d, dt, sb, s)
 	{
 		s += 'blockchain/';
 		var gn = 'blockchain';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmBlockchain');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'blockchain.svg;',
@@ -174,15 +182,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMDataPalette = function(d, dt, sb, s)
 	{
 		s += 'data/';
 		var gn = 'data ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmData');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'caches.svg;',
@@ -220,15 +225,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMDevOpsPalette = function(d, dt, sb, s)
 	{
 		s += 'devops/';
 		var gn = 'devops ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmDevOps');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'artifact_management.svg;',
@@ -260,15 +262,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMInfrastructurePalette = function(d, dt, sb, s)
 	{
 		s += 'infrastructure/';
 		var gn = 'infrastructure ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmInfrastructure');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'channels.svg;',
@@ -316,15 +315,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMManagementPalette = function(d, dt, sb, s)
 	{
 		s += 'management/';
 		var gn = 'management ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmManagement');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'alert_notification.svg;',
@@ -366,15 +362,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMMiscPalette = function(d, dt, sb, s)
 	{
 		s += 'miscellaneous/';
 		var gn = 'miscellaneous ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmMiscellaneous');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'bluemix.svg;',
@@ -414,15 +407,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMSecurityPalette = function(d, dt, sb, s)
 	{
 		s += 'security/';
 		var gn = 'security ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmSecurity');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'api_security.svg;',
@@ -462,15 +452,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMSocialPalette = function(d, dt, sb, s)
 	{
 		s += 'social/';
 		var gn = 'social ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmSocial');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'communities.svg;',
@@ -492,15 +479,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMUsersPalette = function(d, dt, sb, s)
 	{
 		s += 'users/';
 		var gn = 'users ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmUsers');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'browser.svg;',
@@ -524,15 +508,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMVPCPalette = function(d, dt, sb, s)
 	{
 		s += 'vpc/';
 		var gn = 'vpc virtual private cloud ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmVPC');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(s + 'Instance.svg;',
@@ -594,15 +575,12 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMBoxesPalette = function(d, dt, sb, s)
 	{
 		s += 'boxes/';
 		var gn = 'boxes box ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmBoxes');
 		
 		var fns = [
 			 this.createVertexTemplateEntry(
@@ -650,14 +628,11 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addIBMConnectorsPalette = function(d, dt, sb, s)
 	{
 		var gn = 'connectors ';
-		this.setCurrentSearchEntryLibrary('ibm', 'ibmConnectors');
 		
 		var fns = [
 		 	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;endArrow=none;endFill=0;', 
@@ -687,8 +662,5 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-   		
-		this.setCurrentSearchEntryLibrary();
 	};
-	
 })();

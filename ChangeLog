@@ -1,3 +1,10 @@
+08-SEP-2020: 13.6.7
+
+- Normalizes spaces in uncompressed XML output
+- Adds context menu for shape search results
+- Minor fixes for custom fonts
+- Uses mxGraph 4.2.1 beta 15
+
 31-AUG-2020: 13.6.6
 
 - Removes PWA for www.draw.io

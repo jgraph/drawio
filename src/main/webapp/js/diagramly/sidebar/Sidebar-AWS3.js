@@ -3,28 +3,51 @@
 	// Adds mockup shapes
 	Sidebar.prototype.addAWS3Palette = function()
 	{
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Analytics');
 		this.addAWS3AnalyticsPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Application Services');
 		this.addAWS3ApplicationServicesPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Artificial Intelligence');
 		this.addAWS3ArtificialIntelligencePalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Business Productivity');
 		this.addAWS3BusinessProductivityPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Compute');
 		this.addAWS3ComputePalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Contact Center');
 		this.addAWS3ContactCenterPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Database');
 		this.addAWS3DatabasePalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Desktop and App Streaming');
 		this.addAWS3DesktopAndAppStreamingPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Developer Tools');
 		this.addAWS3DeveloperToolsPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Game Development');
 		this.addAWS3GameDevelopmentPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3General');
 		this.addAWS3GeneralPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Groups');
 		this.addAWS3GroupsPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Internet of Things');
 		this.addAWS3InternetOfThingsPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Management Tools');
 		this.addAWS3ManagementToolsPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Messaging');
 		this.addAWS3MessagingPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Migration');
 		this.addAWS3MigrationPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Mobile Services');
 		this.addAWS3MobileServicesPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Networking and Content Delivery');
 		this.addAWS3NetworkAndContentDeliveryPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3On Demand Workforce');
 		this.addAWS3OnDemandWorkforcePalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3SDKs');
 		this.addAWS3SDKPalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Security Identity and Compliance');
 		this.addAWS3SecurityIdentityAndCompliancePalette();
+		this.setCurrentSearchEntryLibrary('aws3', 'aws3Storage');
 		this.addAWS3StoragePalette();
+		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3AnalyticsPalette = function()
@@ -34,7 +57,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service analytics';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Analytics');
 		
 		this.addPaletteFunctions('aws3Analytics', 'AWS17 / Analytics', false,
 		[
@@ -83,8 +105,6 @@
 			 this.createVertexTemplateEntry(n + 'dense_storage_node;fillColor=#2E73B8;gradientColor=none;',
 					 s * 37, s * 42, '', 'Dense Storage Node', null, null, this.getTagsForStencil(gn, 'dense storage node', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3ApplicationServicesPalette = function()
@@ -94,7 +114,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service app application services';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Application Services');
 		
 		this.addPaletteFunctions('aws3Application Services', 'AWS17 / Application Services', false,
 		[
@@ -111,8 +130,6 @@
 			 this.createVertexTemplateEntry(n + 'worker;fillColor=#D9A741;gradientColor=none;',
 					 s * 40, s * 42, '', 'Worker', null, null, this.getTagsForStencil(gn, 'worker', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3ArtificialIntelligencePalette = function()
@@ -122,7 +139,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service ai artificial intelligence';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Artificial Intelligence');
 		
 		this.addPaletteFunctions('aws3Artificial Intelligence', 'AWS17 / Artificial Intelligence', false,
 		[
@@ -135,8 +151,6 @@
 			 this.createVertexTemplateEntry(n + 'rekognition;fillColor=#2E73B8;gradientColor=none;',
 					 s * 51, s * 62, '', 'Rekognition', null, null, this.getTagsForStencil(gn, 'rekognition', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3BusinessProductivityPalette = function()
@@ -146,7 +160,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service business productivity';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Business Productivity');
 		
 		this.addPaletteFunctions('aws3Business Productivity', 'AWS17 / Business Productivity', false,
 		[
@@ -157,8 +170,6 @@
 			 this.createVertexTemplateEntry(n + 'workmail;fillColor=#D16A28;gradientColor=#F58435;gradientDirection=north;',
 					 s * 55, s * 63, '', 'WorkMail', null, null, this.getTagsForStencil(gn, 'workmail work mail', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3ComputePalette = function()
@@ -168,7 +179,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service compute';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Compute');
 		
 		this.addPaletteFunctions('aws3Compute', 'AWS17 / Compute', false,
 		[
@@ -267,8 +277,6 @@
 			 this.createVertexTemplateEntry(n + 'x1_instance;fillColor=#F58534;gradientColor=none;',
 					 s * 40, s * 42, '', 'X1 Instance', null, null, this.getTagsForStencil(gn, 'x1 instance', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3ContactCenterPalette = function()
@@ -278,15 +286,12 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service contact center';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Contact Center');
 		
 		this.addPaletteFunctions('aws3Contact Center', 'AWS17 / Contact Center', false,
 		[
 			 this.createVertexTemplateEntry(n + 'connect;fillColor=#759C3E;gradientColor=none;',
 					 s * 60, s * 46, '', 'Connect', null, null, this.getTagsForStencil(gn, 'connect', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3DatabasePalette = function()
@@ -296,7 +301,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service db database';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Database');
 		
 		this.addPaletteFunctions('aws3Database', 'AWS17 / Database', false,
 		[
@@ -363,8 +367,6 @@
 			 this.createVertexTemplateEntry(n + 'database_migration_service;fillColor=#2E73B8;gradientColor=none;',
 					 s * 48, s * 54, '', 'Database Migration Service', null, null, this.getTagsForStencil(gn, 'database migration service', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3DesktopAndAppStreamingPalette = function()
@@ -374,7 +376,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service desktop app streaming application';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Desktop and App Streaming');
 		
 		this.addPaletteFunctions('aws3Desktop and App Streaming', 'AWS17 / Desktop and App Streaming', false,
 		[
@@ -383,8 +384,6 @@
 			 this.createVertexTemplateEntry(n + 'workspaces;fillColor=#D16A28;gradientColor=#F58435;gradientDirection=north;',
 					 s * 55, s * 63, '', 'WorkSpaces', null, null, this.getTagsForStencil(gn, 'workspaces work spaces', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3DeveloperToolsPalette = function()
@@ -394,7 +393,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service dev developer tools';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Developer Tools');
 
 		this.addPaletteFunctions('aws3Developer Tools', 'AWS17 / Developer Tools', false,
 		[
@@ -411,8 +409,6 @@
 			 this.createVertexTemplateEntry(n + 'x_ray;fillColor=#759C3E;gradientColor=none;',
 					 s * 51, s * 57, '', 'X-Ray', null, null, this.getTagsForStencil(gn, 'x ray', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3GameDevelopmentPalette = function()
@@ -422,15 +418,12 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service game development';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Game Development');
 		
 		this.addPaletteFunctions('aws3Game Development', 'AWS17 / Game Development', false,
 		[
 			 this.createVertexTemplateEntry(n + 'gamelift;fillColor=#AD688B;gradientColor=none;',
 					 s * 47, s * 57, '', 'GameLift', null, null, this.getTagsForStencil(gn, 'gamelift game lift', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3GeneralPalette = function()
@@ -440,7 +433,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service general';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3General');
 		
 		this.addPaletteFunctions('aws3General', 'AWS17 / General', false,
 		[
@@ -485,8 +477,6 @@
 			 this.createVertexTemplateEntry(n + 'ssl_padlock;fillColor=#D2D3D3;gradientColor=none;',
 					 s * 42, s * 52, '', 'SSL Padlock', null, null, this.getTagsForStencil(gn, 'ssl padlock', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3GroupsPalette = function()
@@ -496,7 +486,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws group amazon web service group groups';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Groups');
 		
 		this.addPaletteFunctions('aws3Groups', 'AWS17 / Groups', false,
 		[
@@ -572,8 +561,6 @@
 			   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 220, 'Corporate Data Center');
 			 })
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addAWS3InternetOfThingsPalette = function()
@@ -583,7 +570,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service iot internet of things';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Internet of Things');
 		
 		this.addPaletteFunctions('aws3Internet of Things', 'AWS17 / Internet of Things', false,
 		[
@@ -674,8 +660,6 @@
 			 this.createVertexTemplateEntry(n + 'fire_tv_stick;fillColor=#5294CF;gradientColor=none;',
 					 s * 57, s * 22, '', 'Fire TV Stick', null, null, this.getTagsForStencil(gn, 'fire tv stick', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3ManagementToolsPalette = function()
@@ -685,7 +669,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service management tools';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Management Tools');
 		
 		this.addPaletteFunctions('aws3Management Tools', 'AWS17 / Management Tools', false,
 		[
@@ -764,8 +747,6 @@
 			 this.createVertexTemplateEntry(n + 'checklist_security;fillColor=#759C3E;gradientColor=none;',
 					 s * 36, s * 46, '', 'Checklist Security', null, null, this.getTagsForStencil(gn, 'checklist security', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3MessagingPalette = function()
@@ -775,7 +756,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service messaging';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Messaging');
 		
 		this.addPaletteFunctions('aws3Messaging', 'AWS17 / Messaging', false,
 		[
@@ -800,7 +780,6 @@
 			 this.createVertexTemplateEntry(n + 'topic_2;fillColor=#D9A741;gradientColor=none;',
 					 s * 62, s * 39, '', 'Topic', null, null, this.getTagsForStencil(gn, 'topic', dt).join(' '))
 		]);
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3MigrationPalette = function()
@@ -810,7 +789,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service migration';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Migration');
 		
 		this.addPaletteFunctions('aws3Migration', 'AWS17 / Migration', false,
 		[
@@ -829,8 +807,6 @@
 			 this.createVertexTemplateEntry(n + 'migration_hub_2;fillColor=#ABABAB;gradientColor=none;pointerEvents=1',
 					 s * 76, s * 81, '', 'Migration Hub', null, null, this.getTagsForStencil(gn, 'migration hub', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3MobileServicesPalette = function()
@@ -840,7 +816,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service mobile services';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Mobile Services');
 		
 		this.addPaletteFunctions('aws3Mobile Services', 'AWS17 / Mobile Services', false,
 		[
@@ -857,8 +832,6 @@
 			 this.createVertexTemplateEntry(n + 'mobile_hub;fillColor=#AD688A;gradientColor=#F58435;gradientDirection=west;pointerEvents=1',
 					 s * 50, s * 54, '', 'Mobile Hub', null, null, this.getTagsForStencil(gn, 'mobile hub', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3NetworkAndContentDeliveryPalette = function()
@@ -868,7 +841,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service network and content delivery';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Networking and Content Delivery');
 
 		this.addPaletteFunctions('aws3Networking and Content Delivery', 'AWS17 / Network and Content Delivery', false,
 		[
@@ -921,8 +893,6 @@
 			 this.createVertexTemplateEntry(n + 'edge_location;fillColor=#F58536;gradientColor=none;',
 					 s * 39, s * 43, '', 'Edge Location', null, null, this.getTagsForStencil(gn, 'edge location', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3OnDemandWorkforcePalette = function()
@@ -932,7 +902,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service on demand workforce';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3On Demand Workforce');
 		
 		this.addPaletteFunctions('aws3On Demand Workforce', 'AWS17 / On-Demand Workforce', false,
 		[
@@ -947,8 +916,6 @@
 			 this.createVertexTemplateEntry(n + 'assignment_task;fillColor=#ACACAC;gradientColor=none;',
 					 s * 31, s * 42, '', 'Assignment/Task', null, null, this.getTagsForStencil(gn, 'assignment task', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3SDKPalette = function()
@@ -958,7 +925,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service sdk software development kit';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3SDKs');
 		
 		this.addPaletteFunctions('aws3SDKs', 'AWS17 / SDK', false,
 		[
@@ -991,8 +957,6 @@
 			 this.createVertexTemplateEntry(n + 'android;fillColor=#8CC64F;gradientColor=none;',
 					 s * 49, s * 56, '', 'Node.js', null, null, this.getTagsForStencil(gn, 'node js nodejs', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3SecurityIdentityAndCompliancePalette = function()
@@ -1002,7 +966,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service security and identity compliance';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Security Identity and Compliance');
 		
 		this.addPaletteFunctions('aws3Security Identity and Compliance', 'AWS17 / Security Identity and Compliance', false,
 		[
@@ -1057,8 +1020,6 @@
 			 this.createVertexTemplateEntry(n + 'filtering_rule;fillColor=#759C3E;gradientColor=none;',
 					 s * 46, s * 48, '', 'Filtering Rule', null, null, this.getTagsForStencil(gn, 'filtering rule', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addAWS3StoragePalette = function()
@@ -1068,7 +1029,6 @@
 		var gn = 'mxgraph.aws3';
 		var dt = 'aws amazon web service storage';
 		var s = 1.5; //scale
-		this.setCurrentSearchEntryLibrary('aws3', 'aws3Storage');
 		
 		this.addPaletteFunctions('aws3Storage', 'AWS17 / Storage', false,
 		[
@@ -1109,7 +1069,5 @@
 			 this.createVertexTemplateEntry(n + 'volume;fillColor=#E05243;gradientColor=none;',
 					 s * 35, s * 50, '', 'EBS', null, null, this.getTagsForStencil(gn, 'ebs', dt).join(' '))
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 })();

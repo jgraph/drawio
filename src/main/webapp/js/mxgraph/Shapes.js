@@ -532,7 +532,7 @@
 	
 	mxCellRenderer.registerShape('isoCube2', IsoCubeShape2);
 	
-	// Flexible cube Shape
+	// (LEGACY) Flexible cylinder Shape
 	function CylinderShape()
 	{
 		mxShape.call(this);
@@ -574,6 +574,53 @@
 	};
 	
 	mxCellRenderer.registerShape('cylinder2', CylinderShape);
+	
+	// Flexible cylinder3 Shape with offset label
+	function CylinderShape3(bounds, fill, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.bounds = bounds;
+		this.fill = fill;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+	};
+	
+	mxUtils.extend(CylinderShape3, mxCylinder);
+
+	CylinderShape3.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		var size = Math.max(0, Math.min(h * 0.5, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+
+		c.translate(x,y);
+
+		if (size == 0)
+		{
+			c.rect(0, 0, w, h);
+			c.fillAndStroke();
+		}
+		else
+		{
+			c.begin();
+			c.moveTo(0, size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, 0);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w, size);
+			c.lineTo(w, h - size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, h);
+			c.arcTo(w * 0.5, size, 0, 0, 1, 0, h - size);
+			c.close();
+			c.fillAndStroke();
+			
+			c.setShadow(false);
+			
+			c.begin();
+			c.moveTo(w, size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, w * 0.5, 2 * size);
+			c.arcTo(w * 0.5, size, 0, 0, 1, 0, size);
+			c.stroke();
+		}
+	};
+
+	mxCellRenderer.registerShape('cylinder3', CylinderShape3);
 	
 	// Switch Shape, supports size style
 	function SwitchShape()
@@ -784,6 +831,18 @@
 			var size = mxUtils.getValue(this.style, 'size', 0.15) * 2;
 			
 			return new mxRectangle(0, Math.min(this.maxHeight * this.scale, rect.height * size), 0, 0);
+		}
+		
+		return null;
+	};
+
+	CylinderShape3.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var size = mxUtils.getValue(this.style, 'size', 15);
+			
+			return new mxRectangle(0, Math.min(rect.height * this.scale, size * 2 * this.scale), 0, Math.max(0, size * 0.3 * this.scale));
 		}
 		
 		return null;
@@ -3592,6 +3651,22 @@
 			};
 		};
 		
+		function createCylinderHandleFunction(defaultValue)
+		{
+			return function(state)
+			{
+				return [createHandle(state, ['size'], function(bounds)
+						{
+							var size = Math.max(0, Math.min(bounds.height * 0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', defaultValue))));
+	
+							return new mxPoint(bounds.x, bounds.y + size);
+						}, function(bounds, pt)
+						{
+							this.state.style['size'] = Math.max(0, pt.y - bounds.y);
+						}, true)];
+			}
+		};
+		
 		function createArrowHandleFunction(maxSize)
 		{
 			return function(state)
@@ -4177,18 +4252,8 @@
 					this.state.style['isoAngle'] = Math.max(0, (pt.y - bounds.y) * 50 / bounds.height);
 				}, true)];
 			},
-			'cylinder2' : function(state)
-			{
-				return [createHandle(state, ['size'], function(bounds)
-				{
-					var size = Math.max(0, Math.min(bounds.height * 0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', CylinderShape.size))));
-
-					return new mxPoint(bounds.x, bounds.y + size);
-				}, function(bounds, pt)
-				{
-					this.state.style['size'] = Math.max(0, pt.y - bounds.y);
-				}, true)];
-			},
+			'cylinder2' : createCylinderHandleFunction(CylinderShape.prototype.size),
+			'cylinder3' : createCylinderHandleFunction(CylinderShape3.prototype.size),
 			'offPageConnector': function(state)
 			{
 				return [createHandle(state, ['size'], function(bounds)
@@ -4569,6 +4634,34 @@
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, s * 0.5, h - s * 0.5));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - s));
 		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, (h - s) * 0.5));
+		
+		return (constr);
+	};
+	
+	CylinderShape3.prototype.getConstraints = function(style, w, h)
+	{
+		var constr = [];
+		var s = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 0), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0.5), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.5, 1), false));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0.5), false));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, s));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 1), false, null, 0, -s));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 1), false, null, 0, -s));
+		
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, s + (h * 0.5 - s) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, s + (h * 0.5 - s) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(1, 0), false, null, 0, h - s - (h * 0.5 - s) * 0.5));
+		constr.push(new mxConnectionConstraint(new mxPoint(0, 0), false, null, 0, h - s - (h * 0.5 - s) * 0.5));
+
+		constr.push(new mxConnectionConstraint(new mxPoint(0.145, 0), false, null, 0, s * 0.29));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.855, 0), false, null, 0, s * 0.29));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.855, 1), false, null, 0, -s * 0.29));
+		constr.push(new mxConnectionConstraint(new mxPoint(0.145, 1), false, null, 0, -s * 0.29));
 		
 		return (constr);
 	};

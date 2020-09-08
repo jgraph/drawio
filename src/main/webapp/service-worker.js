@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "85e09c30754090f23c40ca6230e0b178"
+    "revision": "e33d2cd0175badb27e15a8ffca9d1d81"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "893339da522233313562df9d1c4dc633"
+    "revision": "86201a81db0f64044e2aa1b96008fb6a"
   },
   {
     "url": "js/stencils.min.js",
@@ -18,7 +18,7 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "61f3aabca704197ff03079b7ac69af35"
+    "revision": "fafef0a25b40d8a14ae6c88f225ce50f"
   },
   {
     "url": "js/math-print.js",
@@ -26,7 +26,7 @@ if (workbox)
   },
   {
     "url": "index.html",
-    "revision": "00d237fa834f4fef1176fe0928576643"
+    "revision": "9583ae237911326eaba0006e795c4b0b"
   },
   {
     "url": "open.html",

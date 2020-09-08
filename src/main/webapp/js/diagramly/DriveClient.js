@@ -1255,22 +1255,23 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 			{
 				EditorUi.logError(e.message, null, null, e);
 				
-				EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
-					new Date().toISOString() + ':' +
-					'\n\nUserAgent=' + navigator.userAgent +
-					'\nAppVersion=' + navigator.appVersion +
-					'\nAppName=' + navigator.appName +
-					'\nPlatform=' + navigator.platform +
-					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
-					'\nMime=' + file.desc.mimeType +
-					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
-					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
-					'\nSaveLevel=' + file.saveLevel +
-					'\nSaveAsPng=' + (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle())) +
-					'\nRetryCount=' + retryCount +
-					'\nError=' + e +
-					'\nMessage=' + e.message +
-					'\n\nStack:\n' + e.stack);
+//				EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
+//					new Date().toISOString() + ':' +
+//					'\n\nUserAgent=' + navigator.userAgent +
+//					'\nAppVersion=' + navigator.appVersion +
+//					'\nAppName=' + navigator.appName +
+//					'\nPlatform=' + navigator.platform +
+//					'\nFile=' + file.desc.id + '.' + file.desc.headRevisionId +
+//					'\nMime=' + file.desc.mimeType +
+//					'\nSize=' + file.getSize() +
+//					'\nUser=' + ((this.user != null) ? this.user.id : 'nouser') +
+//					 	((file.sync != null) ? '-client_' + file.sync.clientId : '-nosync') +
+//					'\nSaveLevel=' + file.saveLevel +
+//					'\nSaveAsPng=' + (this.ui.useCanvasForExport && /(\.png)$/i.test(file.getTitle())) +
+//					'\nRetryCount=' + retryCount +
+//					'\nError=' + e +
+//					'\nMessage=' + e.message +
+//					'\n\nStack:\n' + e.stack);
 			}
 			catch (e)
 			{

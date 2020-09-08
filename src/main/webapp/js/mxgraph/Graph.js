@@ -5,12 +5,12 @@
 // see https://code.google.com/p/google-caja/issues/detail?can=2&q=&colspec=ID%20Type%20Status%20Priority%20Owner%20Summary&groupby=&sort=&id=1296
 if (typeof html4 !== 'undefined')
 {
-	html4.ATTRIBS["a::target"] = 0;
-	html4.ATTRIBS["source::src"] = 0;
-	html4.ATTRIBS["video::src"] = 0;
+	html4.ATTRIBS['a::target'] = 0;
+	html4.ATTRIBS['source::src'] = 0;
+	html4.ATTRIBS['video::src'] = 0;
 	// Would be nice for tooltips but probably a security risk...
-	//html4.ATTRIBS["video::autoplay"] = 0;
-	//html4.ATTRIBS["video::autobuffer"] = 0;
+	//html4.ATTRIBS['video::autoplay'] = 0;
+	//html4.ATTRIBS['video::autobuffer'] = 0;
 }
 
 // Workaround for handling named HTML entities in mxUtils.parseXml
@@ -1383,6 +1383,37 @@ Graph.sanitizeHtml = function(value, editing)
     function idX(id) { return id };
 	
 	return html_sanitize(value, urlX, idX);
+};
+
+/**
+ * Returns the CSS font family from the given computed style.
+ */
+Graph.stripQuotes = function(text)
+{
+	if (text != null)
+	{
+		if (text.charAt(0) == '\'')
+		{
+			text = text.substring(1);
+		}
+		
+		if (text.charAt(text.length - 1) == '\'')
+		{
+			text = text.substring(0, text.length - 1);
+		}
+	
+		if (text.charAt(0) == '"')
+		{
+			text = text.substring(1);
+		}
+		
+		if (text.charAt(text.length - 1) == '"')
+		{
+			text = text.substring(0, text.length - 1);
+		}
+	}
+	
+	return text;
 };
 
 /**
@@ -8571,6 +8602,31 @@ if (typeof mxVertexHandler != 'undefined')
 			else if (document.selection)
 			{
 				node = document.selection.createRange().parentElement();
+			}
+			
+			return node;
+		};
+			
+		/**
+		 * Returns the text editing element.
+		 */
+		Graph.prototype.getSelectedEditingElement = function()
+		{
+			var node = this.getSelectedElement();
+
+			while (node != null && node.nodeType != mxConstants.NODETYPE_ELEMENT)
+			{
+				node = node.parentNode;
+			}
+
+			if (node != null)
+			{
+				// Workaround for commonAncestor on range in IE11 returning parent of common ancestor
+				if (node == this.cellEditor.textarea && this.cellEditor.textarea.children.length == 1 &&
+					this.cellEditor.textarea.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT)
+				{
+					node = this.cellEditor.textarea.firstChild;
+				}
 			}
 			
 			return node;

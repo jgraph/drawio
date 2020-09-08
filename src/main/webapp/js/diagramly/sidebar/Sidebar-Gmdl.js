@@ -1,5 +1,46 @@
 (function()
 {
+	Sidebar.prototype.addGMDLPalette = function()
+	{
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlBottom Navigation');
+		this.addGMDLBottomNavigationPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlBottom Sheets');
+		this.addGMDLBottomSheetsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlButtons');
+		this.addGMDLButtonsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlCards');
+		this.addGMDLCardsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlChips');
+		this.addGMDLChipsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlDialogs');
+		this.addGMDLDialogsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlDividers');
+		this.addGMDLDividersPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlGrid Lists');
+		this.addGMDLGridListsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlIcons');
+		this.addGMDLIconsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlLists');
+		this.addGMDLListsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlMenus');
+		this.addGMDLMenusPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlMisc');
+		this.addGMDLMiscPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlPickers');
+		this.addGMDLPickersPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSelection Controls');
+		this.addGMDLSelectionControlsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSliders');
+		this.addGMDLSlidersPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSteppers');
+		this.addGMDLSteppersPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlTabs');
+		this.addGMDLTabsPalette();
+		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlText Fields');
+		this.addGMDLTextFieldsPalette();
+		this.setCurrentSearchEntryLibrary();
+	}
+	
 	//Adds Google Media Design shapes
 	Sidebar.prototype.addGMDLBottomNavigationPalette = function(expand)
 	{
@@ -10,7 +51,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library bottom navigation ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlBottom Navigation');
 		
 		var fns = [
 			this.addDataEntry(dt + 'bottom navigation', 358, 48, 'Bottom Navigation',
@@ -26,8 +66,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLBottomSheetsPalette = function(expand)
@@ -39,7 +77,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library bottom sheets ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlBottom Sheets');
 
 		var fns = [
 			this.addDataEntry(dt + 'bottom sheet', 358, 320, 'Bottom Sheet',
@@ -65,8 +102,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLButtonsPalette = function(expand)
@@ -78,7 +113,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library button ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlButtons');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s + 'rect;fillColor=#e0e0e0;strokeColor=none;fontStyle=1;shadow=1',
@@ -433,8 +467,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLCardsPalette = function(expand)
@@ -445,7 +477,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library card ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlCards');
 		
 		var fns = [
 			this.addDataEntry(dt + 'card', 342, 356, 'Card',
@@ -519,8 +550,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLChipsPalette = function(expand)
@@ -530,7 +559,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library chip ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlChips');
 		
 		var fns = [
 			this.addDataEntry(dt + 'chip', 170, 32, 'Chip with text and icon',
@@ -559,8 +587,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLDialogsPalette = function(expand)
@@ -570,7 +596,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library dialog ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlDialogs');
 		
 		var fns = [
 			this.addDataEntry(dt + 'dialog persistent footer', 280, 472, 'Dialog with persistent footer button',
@@ -600,8 +625,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLDividersPalette = function(expand)
@@ -611,7 +634,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library divider ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlDividers');
 		
 		var fns = [
 			this.addDataEntry(dt + 'email list full bleed divider', 358, 642, 'Full-bleed dividers',
@@ -633,8 +655,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLGridListsPalette = function(expand)
@@ -644,7 +664,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library grid list ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlDividers');
 		
 		var fns = [
 			this.addDataEntry(dt + 'grid titles', 358, 642, 'Grid titles',
@@ -666,8 +685,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLIconsPalette = function(expand)
@@ -676,7 +693,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library icon ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlIcons');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s2 + 'edit;strokeColor=none;fillColor=#737373;shadow=0;',
@@ -746,8 +762,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLListsPalette = function(expand)
@@ -757,7 +771,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library list ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlLists');
 		
 		var fns = [
 			this.addDataEntry(dt + 'scannable list', 358, 642, 'Scannable list',
@@ -811,8 +824,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLMenusPalette = function(expand)
@@ -822,7 +833,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library menu ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlMenus');
 		
 		var fns = [
 			this.addDataEntry(dt + 'menu simple', 170, 168, 'Menu',
@@ -860,8 +870,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLMiscPalette = function(expand)
@@ -871,7 +879,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library misc ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlMisc');
 		
 		var fns = [
 			this.createVertexTemplateEntry('shape=rect;fillColor=#eeeeee;strokeColor=none;',
@@ -901,8 +908,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLPickersPalette = function(expand)
@@ -912,7 +917,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library picker ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlPickers');
 		
 		var fns = [
 			this.addDataEntry(dt + 'date picker portrait', 328, 484, 'Date picker (portrait)',
@@ -948,8 +952,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLSelectionControlsPalette = function(expand)
@@ -959,7 +961,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library selection control ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSelection Controls');
 		
 		var fns = [
 			this.addEntry(dt + 'checkbox on hover light dark', function()
@@ -1199,8 +1200,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLSlidersPalette = function(expand)
@@ -1210,7 +1209,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library slider ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSliders');
 		
 		var fns = [
 			this.createVertexTemplateEntry(s2 + 'slider2;barPos=0;strokeColor=#bbbbbb;opacity=100;strokeWidth=2;handleSize=10;shadow=0;',
@@ -1278,8 +1276,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLSteppersPalette = function(expand)
@@ -1289,7 +1285,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library tab ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlSteppers');
 		
 		var fns = [
 			this.addDataEntry(dt + 'stepper', 704, 478, 'Stepper',
@@ -1323,8 +1318,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 
 	Sidebar.prototype.addGMDLTabsPalette = function(expand)
@@ -1334,7 +1327,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library tab ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlTabs');
 		
 		var fns = [
 			this.addDataEntry(dt + 'fixed tab bar', 358, 642, 'Fixed tab bar',
@@ -1370,8 +1362,6 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 	
 	Sidebar.prototype.addGMDLTextFieldsPalette = function(expand)
@@ -1381,7 +1371,6 @@
 		var gn = 'mxgraph.gmdl';
 		var dt = 'gmdl google media design library text field ';
 		var sb = this;
-		this.setCurrentSearchEntryLibrary('gmdl', 'gmdlText Fields');
 		
 		var fns = [
 			this.addDataEntry(dt + 'single line text field', 346, 360, 'Single-line text field',
@@ -1559,7 +1548,5 @@
 				content.appendChild(fns[i](content));
 			}
 		}));
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 })();

@@ -3546,15 +3546,27 @@
 		//Replace the default font family menu
 		this.put('fontFamily', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var addItem = mxUtils.bind(this, function(fontname, fontUrl, deletable)
+			var addItem = mxUtils.bind(this, function(fontName, fontUrl, deletable, fontLabel, tooltip)
 			{
 				var graph = this.editorUi.editor.graph;
-				
-				var tr = this.styleChange(menu, fontname, [mxConstants.STYLE_FONTFAMILY], [fontname], null, parent, function()
+
+				var tr = this.styleChange(menu, fontLabel || fontName,
+					(urlParams['ext-fonts'] != '1') ?
+						[mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'] : [mxConstants.STYLE_FONTFAMILY],
+					(urlParams['ext-fonts'] != '1') ?
+						[fontName, (fontUrl != null) ? encodeURIComponent(fontUrl) : null, null] : [fontName],
+					null, parent, function()
 				{
-					document.execCommand('fontname', false, fontname);
-					//Add the font to the file in case it was a previous font from the settings
-					graph.addExtFont(fontname, fontUrl);
+					if (urlParams['ext-fonts'] != '1')
+					{
+						graph.setFont(fontName, fontUrl);
+					}
+					else
+					{
+						document.execCommand('fontname', false, fontName);
+						//Add the font to the file in case it was a previous font from the settings
+						graph.addExtFont(fontName, fontUrl);
+					}
 				}, function()
 				{
 					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
@@ -3569,7 +3581,10 @@
 					});
 					
 					//Add the font to the file in case it was a previous font from the settings
-					graph.addExtFont(fontname, fontUrl);
+					if (urlParams['ext-fonts'] == '1')
+					{
+						graph.addExtFont(fontName, fontUrl);
+					}
 				});
 				
 				if (deletable)
@@ -3582,40 +3597,65 @@
 					
 					mxEvent.addListener(img, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', mxUtils.bind(this, function(evt)
 					{
-						var extFonts = mxUtils.clone(this.editorUi.editor.graph.extFonts);
-						
-						if (extFonts != null && extFonts.length > 0)
+						if (urlParams['ext-fonts'] != '1')
 						{
-							for (var i = 0; i < extFonts.length; i++)
+							delete Graph.recentCustomFonts[fontName.toLowerCase()];
+							
+							for (var i = 0; i < this.customFonts.length; i++)
 							{
-								if (extFonts[i].name == fontname)
+								if (this.customFonts[i].name == fontName &&
+									this.customFonts[i].url == fontUrl)
 								{
-									extFonts.splice(i, 1);
+									this.customFonts.splice(i, 1);
+									editorUi.fireEvent(new mxEventObject('customFontsChanged'));
+									
 									break;
 								}
 							}
 						}
-						
-						var customFonts = mxUtils.clone(this.customFonts);
-						
-						for (var i = 0; i < customFonts.length; i++)
+						else
 						{
-							if (customFonts[i].name == fontname)
+							var extFonts = mxUtils.clone(this.editorUi.editor.graph.extFonts);
+							
+							if (extFonts != null && extFonts.length > 0)
 							{
-								customFonts.splice(i, 1);
-								break;
+								for (var i = 0; i < extFonts.length; i++)
+								{
+									if (extFonts[i].name == fontName)
+									{
+										extFonts.splice(i, 1);
+										break;
+									}
+								}
 							}
+							
+							var customFonts = mxUtils.clone(this.customFonts);
+							
+							for (var i = 0; i < customFonts.length; i++)
+							{
+								if (customFonts[i].name == fontName)
+								{
+									customFonts.splice(i, 1);
+									break;
+								}
+							}
+							
+							var change = new ChangeExtFonts(this.editorUi, extFonts, customFonts);
+							this.editorUi.editor.graph.model.execute(change);
 						}
-						
-						var change = new ChangeExtFonts(this.editorUi, extFonts, customFonts);
-						this.editorUi.editor.graph.model.execute(change);
 						
 						this.editorUi.menubar.hideMenu();
 						mxEvent.consume(evt);
 					}));
 				}
 				
-				tr.firstChild.nextSibling.style.fontFamily = fontname;
+				Graph.addFont(fontName, fontUrl);
+				tr.firstChild.nextSibling.style.fontFamily = fontName;
+				
+				if (tooltip != null)
+				{
+					tr.setAttribute('title', tooltip);
+				}
 			});
 			
 			for (var i = 0; i < this.defaultFonts.length; i++)
@@ -3625,134 +3665,307 @@
 
 			menu.addSeparator(parent);
 			
-			//Load custom fonts already in the Graph
-			var extFonts = this.editorUi.editor.graph.extFonts;
-			
-			//Merge external fonts with custom fonts
-			if (extFonts != null && extFonts.length > 0)
+			if (urlParams['ext-fonts'] != '1')
 			{
-				var custMap = {}, changed = false;
+				// Special entries in the font menu are composed of custom fonts
+				// from the local storage and actual used fonts in the file
+				var duplicates = {};
+				var fontNames = {};
+				var entries = [];
 				
-				for (var i = 0; i < this.customFonts.length; i++)
+				function addEntry(entry)
 				{
-					custMap[this.customFonts[i].name] = true;
-				}
-				
-				for (var i = 0; i < extFonts.length; i++)
-				{
-					if (!custMap[extFonts[i].name])
-					{
-						this.customFonts.push(extFonts[i]);
-						changed = true;
-					}
-				}
-				
-				if (changed)
-				{
-					this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
-				}
-			}
-			
-			if (this.customFonts.length > 0)
-			{
-				for (var i = 0; i < this.customFonts.length; i++)
-				{
-					var name = this.customFonts[i].name, url = this.customFonts[i].url;
-					addItem(name, url, true);
+					var key = encodeURIComponent(entry.name) +
+						((entry.url == null) ? '' :
+						'@' + encodeURIComponent(entry.url));
+					var label = entry.name;
+					var counter = 0;
 					
-					//Load external fonts without saving them to the file
-					this.editorUi.editor.graph.addExtFont(name, url, true);
+					while (fontNames[label.toLowerCase()] != null)
+					{
+						label = entry.name + ' (' + (++counter) + ')';
+					}
+					
+					if (duplicates[key] == null)
+					{
+						entries.push({name: entry.name, url: entry.url,
+							label: label, title: entry.url});
+						fontNames[label.toLowerCase()] = entry;
+						duplicates[key] = entry;
+					}
+				};
+				
+				// Adds custom user defined fonts from local storage
+				for (var i = 0; i < this.customFonts.length; i++)
+				{
+					addEntry(this.customFonts[i], false);
 				}
 				
-				menu.addSeparator(parent);
+				// Adds fonts that were recently used in the editor
+				for (var key in Graph.recentCustomFonts)
+				{
+					addEntry(Graph.recentCustomFonts[key], true);
+				}
+				
+				// Sorts by label
+				entries.sort(function(a, b)
+				{
+					if (a.label < b.label)
+					{
+						return -1;
+					}
+					else if (a.label > b.label)
+					{
+						return 1;
+					}
+					else
+					{
+						return 0;
+					}
+				});
+				
+				if (entries.length > 0)
+				{
+					for (var i = 0; i < entries.length; i++)
+					{
+						addItem(entries[i].name, entries[i].url, true,
+							entries[i].label, entries[i].url);
+					}
+	
+					menu.addSeparator(parent);
+				}
 				
 				menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 				{
-					var change = new ChangeExtFonts(this.editorUi, [], []);
-					this.editorUi.editor.graph.model.execute(change);
+					Graph.recentCustomFonts = {};
+					this.customFonts = [];
+					editorUi.fireEvent(new mxEventObject('customFontsChanged'));
 				}), parent);
 				
 				menu.addSeparator(parent);
+			}
+			else
+			{
+				//Load custom fonts already in the Graph
+				var extFonts = this.editorUi.editor.graph.extFonts;
+				
+				//Merge external fonts with custom fonts
+				if (extFonts != null && extFonts.length > 0)
+				{
+					var custMap = {}, changed = false;
+					
+					for (var i = 0; i < this.customFonts.length; i++)
+					{
+						custMap[this.customFonts[i].name] = true;
+					}
+					
+					for (var i = 0; i < extFonts.length; i++)
+					{
+						if (!custMap[extFonts[i].name])
+						{
+							this.customFonts.push(extFonts[i]);
+							changed = true;
+						}
+					}
+					
+					if (changed)
+					{
+						this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
+					}
+				}
+				
+				if (this.customFonts.length > 0)
+				{
+					for (var i = 0; i < this.customFonts.length; i++)
+					{
+						var name = this.customFonts[i].name, url = this.customFonts[i].url;
+						addItem(name, url, true);
+						
+						//Load external fonts without saving them to the file
+						this.editorUi.editor.graph.addExtFont(name, url, true);
+					}
+					
+					menu.addSeparator(parent);
+					
+					menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
+					{
+						var change = new ChangeExtFonts(this.editorUi, [], []);
+						editorUi.editor.graph.model.execute(change);
+					}), parent);
+					
+					menu.addSeparator(parent);
+				}
 			}
 			
 			menu.addItem(mxResources.get('custom') + '...', null, mxUtils.bind(this, function()
 			{
 				var graph = this.editorUi.editor.graph;
-				var curFontname = mxConstants.DEFAULT_FONTFAMILY;
+				var curFontName = graph.getStylesheet().getDefaultVertexStyle()
+					[mxConstants.STYLE_FONTFAMILY];
 				var curType = 's';
 				var curUrl = null;
-		    	var state = graph.getView().getState(graph.getSelectionCell());
-		    	
-		    	if (state != null)
-		    	{
-		    		curFontname = state.style[mxConstants.STYLE_FONTFAMILY] || curFontname;
-		    		curType = state.style['FType'] || curType;
-		    		
-		    		if (curType == 'w')
-	    			{
-		    			var extFonts = this.editorUi.editor.graph.extFonts;
-		    			var webFont = null;
-		    			
-		    			if (extFonts != null)
-	    				{
-		    				webFont = extFonts.find(function(ef)
-    						{
-		    					return ef.name == curFontname;
-    						});
-		    			}
-		    			
-		    			curUrl = webFont != null? webFont.url : mxResources.get('urlNofFound', null, 'URL not found');
-		    			
-		    			if (curUrl.indexOf(PROXY_URL) == 0)
-	    				{
-		    				curUrl = decodeURIComponent(curUrl.substr((PROXY_URL + '?url=').length));
-	    				}
-	    			}
-		    	}
-		    	
-				var dlg = new FontDialog(this.editorUi, curFontname, curUrl, curType, mxUtils.bind(this, function(fontName, fontUrl, type)
+				
+				// Handles in-place editing custom fonts via font family lookup
+				if (urlParams['ext-fonts'] != '1' && graph.isEditing())
 				{
-					if (fontName != null && fontName.length > 0)
+					var node = graph.getSelectedEditingElement();
+
+					if (node != null)
 					{
-						graph.getModel().beginUpdate();
-						
-						try
+						var css = mxUtils.getCurrentStyle(node);
+
+						if (css != null)
 						{
-							graph.stopEditing(false);
-							graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, fontName);
+							curFontName = Graph.stripQuotes(css.fontFamily);
+							curUrl = Graph.getFontUrl(curFontName, null);
 							
-							if (type != 's')
+							if (curUrl != null)
 							{
-								graph.setCellStyles('FType', type);
-								
-								if (fontUrl.indexOf('http://') == 0)
-								{
-									fontUrl = PROXY_URL + '?url=' + encodeURIComponent(fontUrl);
-								}
-								
-								this.editorUi.editor.graph.addExtFont(fontName, fontUrl);
-							}
-							
-							var addToCustom = true;
-							
-							for (var i = 0; i < this.customFonts.length; i++)
-							{
-								if (this.customFonts[i].name == fontName)
-								{
-									addToCustom = false;
-									break;
-								}
-							}
-							
-							if (addToCustom)
-							{
-								this.customFonts.push({name: fontName, url: fontUrl});
-								this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
+			    				if (Graph.isGoogleFontUrl(curUrl))
+			    				{
+			    					curUrl = null;
+			    					curType = 'g';
+			    				}
+			    				else
+			    				{
+			    					curType = 'w';
+			    				}
 							}
 						}
-						finally
+					}
+				}
+				else
+				{
+			    	var state = graph.getView().getState(graph.getSelectionCell());
+			    	
+			    	if (state != null)
+			    	{
+			    		curFontName = state.style[mxConstants.STYLE_FONTFAMILY] || curFontName;
+			    		
+			    		if (urlParams['ext-fonts'] != '1')
+			    		{
+			    			var temp = state.style['fontSource'];
+			    			
+			    			if (temp != null)
+			    			{
+				    			temp = decodeURIComponent(temp);
+								
+			    				if (Graph.isGoogleFontUrl(temp))
+			    				{
+			    					curType = 'g';
+			    				}
+			    				else
+			    				{
+			    					curType = 'w';
+				    				curUrl = temp;
+			    				}
+			    			}
+			    		}
+			    		else
+			    		{
+			    			curType = state.style['FType'] || curType;
+			    		
+			    			if (curType == 'w')
+			    			{
+				    			var extFonts = this.editorUi.editor.graph.extFonts;
+				    			var webFont = null;
+				    			
+				    			if (extFonts != null)
+			    				{
+				    				webFont = extFonts.find(function(ef)
+		    						{
+				    					return ef.name == curFontName;
+		    						});
+				    			}
+				    			
+				    			// TODO: Resource is not defined
+				    			curUrl = webFont != null? webFont.url : mxResources.get('urlNotFound', null, 'URL not found');
+			    			}
+			    		}
+			    	}
+				}
+		    	
+    			if (curUrl != null && curUrl.substring(0, PROXY_URL.length) == PROXY_URL)
+				{
+    				curUrl = decodeURIComponent(curUrl.substr((PROXY_URL + '?url=').length));
+				}
+		    	
+		    	// Saves the current selection state
+		    	var selState = null;
+		    	
+		    	if (document.activeElement == graph.cellEditor.textarea)
+				{
+					selState = graph.cellEditor.saveSelection();
+				}
+		    	
+				var dlg = new FontDialog(this.editorUi, curFontName, curUrl, curType, mxUtils.bind(this, function(fontName, fontUrl, type)
+				{
+					// Restores the selection state
+					if (selState != null)
+					{
+						graph.cellEditor.restoreSelection(selState);
+						selState = null;
+					}
+					
+					if (fontName != null && fontName.length > 0)
+					{
+						if (urlParams['ext-fonts'] != '1' && graph.isEditing())
 						{
-							graph.getModel().endUpdate();
+							graph.setFont(fontName, fontUrl);
+						}
+						else
+						{
+							graph.getModel().beginUpdate();
+							
+							try
+							{
+								graph.stopEditing(false);
+								
+								if (urlParams['ext-fonts'] != '1')
+								{
+									graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, fontName);
+									graph.setCellStyles('fontSource', (fontUrl != null) ?
+										encodeURIComponent(fontUrl) : null);
+									graph.setCellStyles('FType', null);
+								}
+								else
+								{
+									graph.setCellStyles(mxConstants.STYLE_FONTFAMILY, fontName);
+									
+									if (type != 's')
+									{
+										graph.setCellStyles('FType', type);
+										
+										if (fontUrl.indexOf('http://') == 0)
+										{
+											fontUrl = PROXY_URL + '?url=' + encodeURIComponent(fontUrl);
+										}
+										
+										this.editorUi.editor.graph.addExtFont(fontName, fontUrl);
+									}
+								}
+								
+								var addToCustom = true;
+								
+								for (var i = 0; i < this.customFonts.length; i++)
+								{
+									if (this.customFonts[i].name == fontName)
+									{
+										addToCustom = false;
+										break;
+									}
+								}
+								
+								if (addToCustom)
+								{
+									this.customFonts.push({name: fontName, url: fontUrl});
+									this.editorUi.fireEvent(new mxEventObject('customFontsChanged', 'customFonts', this.customFonts));
+								}
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
 						}
 					}
 				}));

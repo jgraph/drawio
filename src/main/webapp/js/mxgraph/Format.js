@@ -3974,23 +3974,10 @@ TextFormatPanel.prototype.addFont = function(container)
 			
 				window.setTimeout(function()
 				{
-					var selectedElement = graph.getSelectedElement();
-					var node = selectedElement;
-
-					while (node != null && node.nodeType != mxConstants.NODETYPE_ELEMENT)
-					{
-						node = node.parentNode;
-					}
+					var node = graph.getSelectedEditingElement();
 
 					if (node != null)
 					{
-						// Workaround for commonAncestor on range in IE11 returning parent of common ancestor
-						if (node == graph.cellEditor.textarea && graph.cellEditor.textarea.children.length == 1 &&
-							graph.cellEditor.textarea.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT)
-						{
-							node = graph.cellEditor.textarea.firstChild;
-						}
-						
 						function getRelativeLineHeight(fontSize, css, elt)
 						{
 							if (elt.style != null && css != null)
@@ -4210,30 +4197,7 @@ TextFormatPanel.prototype.addFont = function(container)
 							// in the log which seems to be IE8- only / 29.01.15
 							if (fontMenu.firstChild != null)
 							{
-								// Strips leading and trailing quotes
-								var ff = css.fontFamily;
-								
-								if (ff.charAt(0) == '\'')
-								{
-									ff = ff.substring(1);
-								}
-								
-								if (ff.charAt(ff.length - 1) == '\'')
-								{
-									ff = ff.substring(0, ff.length - 1);
-								}
-
-								if (ff.charAt(0) == '"')
-								{
-									ff = ff.substring(1);
-								}
-								
-								if (ff.charAt(ff.length - 1) == '"')
-								{
-									ff = ff.substring(0, ff.length - 1);
-								}
-								
-								fontMenu.firstChild.nodeValue = ff;
+								fontMenu.firstChild.nodeValue = Graph.stripQuotes(css.fontFamily);
 							}
 						}
 					}

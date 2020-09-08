@@ -895,11 +895,11 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 				// Updates autosize after font changes
 				if (keys[i] == mxConstants.STYLE_FONTFAMILY)
 				{
-					for (var i = 0; i < cells.length; i++)
+					for (var j = 0; j < cells.length; j++)
 					{
-						if (graph.model.getChildCount(cells[i]) == 0)
+						if (graph.model.getChildCount(cells[j]) == 0)
 						{
-							graph.autoSizeCell(cells[i], false);
+							graph.autoSizeCell(cells[j], false);
 						}
 					}
 				}

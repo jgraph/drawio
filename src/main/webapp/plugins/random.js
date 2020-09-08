@@ -38,18 +38,15 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.saveFile(null, function()
+						if (counter++ < max && ui.dialog == null)
 						{
-							if (counter++ < max && ui.dialog == null)
-							{
-								console.log('randomLabel', counter);
-								schedule();
-							}
-							else
-							{
-								console.log('randomLabel halted');
-							}
-						});
+							console.log('randomLabel', counter);
+							schedule();
+						}
+						else
+						{
+							console.log('randomLabel halted');
+						}
 					}
 				}, delay * jitter);
 			}
@@ -139,18 +136,15 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.saveFile(null, function()
+						if (counter++ < max && ui.dialog == null)
 						{
-							if (counter++ < max && ui.dialog == null)
-							{
-								console.log('swapChildren', counter);
-								schedule();
-							}
-							else
-							{
-								console.log('swapChildren halted');
-							}
-						});
+							console.log('swapChildren', counter);
+							schedule();
+						}
+						else
+						{
+							console.log('swapChildren halted');
+						}
 					}
 				}, delay * jitter);
 			}
@@ -367,18 +361,15 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.saveFile(null, function()
+						if (counter++ < max && ui.dialog == null)
 						{
-							if (counter++ < max && ui.dialog == null)
-							{
-								console.log('placeChildren', counter);
-								schedule();
-							}
-							else
-							{
-								console.log('placeChildren halted');
-							}
-						});
+							console.log('placeChildren', counter);
+							schedule();
+						}
+						else
+						{
+							console.log('placeChildren halted');
+						}
 					}
 				}, delay * jitter);
 			}
@@ -444,18 +435,15 @@ Draw.loadPlugin(function(ui)
 					}
 					else
 					{
-						ui.saveFile(null, function()
+						if (counter++ < max && ui.dialog == null)
 						{
-							if (counter++ < max && ui.dialog == null)
-							{
-								console.log('reorderChildren', counter);
-								schedule();
-							}
-							else
-							{
-								console.log('reorderChildren halted');
-							}
-						});
+							console.log('reorderChildren', counter);
+							schedule();
+						}
+						else
+						{
+							console.log('reorderChildren halted');
+						}
 					}
 				}, delay * jitter);
 			}

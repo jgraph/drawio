@@ -10,10 +10,18 @@
 		var w = 50;
 		var h = 50;
 
+		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnGateways');
+		this.addBPMNGatewaysPalette(dir, expand, w, h);
+		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnEvents');
+		this.addBPMNEventsPalette(dir, expand, w, h);
+		this.setCurrentSearchEntryLibrary();
+	}
+	
+	Sidebar.prototype.addBPMNGatewaysPalette = function(dir, expand, w, h)
+	{
 		var s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;background=gateway;outlineConnect=0;';
 		//default tags
 		var dt = 'bpmn business process model gateway ';
-		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnGateways');
 		
 		this.addPaletteFunctions('bpmnGateways', 'BPMN Gateways', false,
 		[
@@ -100,10 +108,12 @@
 
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=terminate;', w, h, '', 'Terminate Gateway', null, null, dt + 'terminate')
 		]);
-		
+	}
+	
+	Sidebar.prototype.addBPMNEventsPalette = function(dir, expand, w, h)
+	{
 		s = 'shape=mxgraph.bpmn.shape;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;';
 		var dt = 'bpmn business process model event ';
-		this.setCurrentSearchEntryLibrary('bpmn', 'bpmnEvents');
 		
 		this.addPaletteFunctions('bpmnEvents', 'BPMN Events', false,
 		[
@@ -185,7 +195,5 @@
 
 			this.createVertexTemplateEntry(s + 'outline=end;symbol=terminate;', w, h, '', 'Terminate', null, null, dt + 'terminate')
 		]);
-		
-		this.setCurrentSearchEntryLibrary();
 	};
 })();

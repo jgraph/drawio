@@ -53,6 +53,7 @@
 
 		 	this.createEdgeTemplateEntry('endArrow=classic;html=1;', w * 0.5, h * 0.5, '', 'Directional Connector', null, dt + 'directional directed')
 		]);
+		
 		this.setCurrentSearchEntryLibrary();
 	};
 })();

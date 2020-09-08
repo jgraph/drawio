@@ -4,15 +4,20 @@
  */
 (function()
 {
-	/**
-	 * Enables paste from Lucidchart
-	 */
 	if (typeof html4 !== 'undefined')
 	{
+		/**
+		 * Enables paste from Lucidchart
+		 */
 		html4.ATTRIBS["span::data-lucid-content"] = 0;
 		html4.ATTRIBS["span::data-lucid-type"] = 0;
+		
+		/**
+		 * Enables custom fonts in labels.
+		 */
+		html4.ATTRIBS['font::data-font-src'] = 0;
 	}
-
+	
 	/**
 	 * Specifies the app name. Default is document.title.
 	 */
@@ -1875,8 +1880,11 @@
     	return str.replace(new RegExp("^[\\s\"']+", "g"), "").replace(new RegExp("[\\s\"']+$", "g"), "");
     }
     
-	Editor.GOOGLE_FONTS =  'https://fonts.googleapis.com/css?family=';
-	
+    /**
+     * Prefix for URLs that reference Google fonts.
+     */
+	Editor.GOOGLE_FONTS = 'https://fonts.googleapis.com/css?family=';
+    
 	/**
 	 * Alphabet for global unique IDs.
 	 */
@@ -2892,9 +2900,9 @@
      */
     Editor.prototype.embedExtFonts = function(callback)
     {
-    	var extFonts = this.graph.extFonts; 
+    	var extFonts = this.graph.getCustomFonts();
     	
-		if (extFonts != null && extFonts.length > 0)
+		if (extFonts.length > 0)
 		{
 			var styleCnt = '', waiting = 0;
 			
@@ -2915,7 +2923,7 @@
 			{
 				(mxUtils.bind(this, function(fontName, fontUrl)
 				{
-					if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+					if (Graph.isCssFontUrl(fontUrl))
 					{
 						if (this.cachedGoogleFonts[fontUrl] == null)
 						{
@@ -2943,9 +2951,8 @@
 					else
 					{
 						styleCnt += '@font-face {' +
-				            'font-family: "'+ fontName +'";' + 
-				            'src: url("'+ fontUrl +'");' + 
-				            '}';
+				            'font-family: "' + fontName + '";' + 
+				            'src: url("' + fontUrl + '")}';
 					}
 				}))(extFonts[i].name, extFonts[i].url);
 			}
@@ -5174,6 +5181,166 @@
 			return div;
 		};
 	}
+	
+	/**
+	 * Lookup table for mapping from font URL and name to elements in the DOM.
+	 */
+	Graph.customFontElements = {};
+		
+	/**
+	 * Lookup table for recent custom fonts.
+	 */
+	Graph.recentCustomFonts = {};
+
+	/**
+	 * Returns true if the given font URL references a Google font.
+	 */
+	Graph.isGoogleFontUrl = function(url)
+	{
+		return url.substring(0, Editor.GOOGLE_FONTS.length) == Editor.GOOGLE_FONTS;
+	};
+
+	/**
+	 * Returns true if the given font URL is a CSS file.
+	 */
+	Graph.isCssFontUrl = function(url)
+	{
+		return Graph.isGoogleFontUrl(url);
+	};
+
+	/**
+	 * Creates the DOM node for the custom font.
+	 */
+	Graph.createFontElement = function(name, url)
+	{
+		var elt = null;
+
+		if (Graph.isCssFontUrl(url))
+		{
+			elt = document.createElement('link');
+			elt.setAttribute('rel', 'stylesheet');
+			elt.setAttribute('type', 'text/css');
+			elt.setAttribute('charset', 'UTF-8');
+			elt.setAttribute('href', url);
+		}
+		else
+		{
+			elt = document.createElement('style');
+			mxUtils.write(elt, '@font-face {\n' +	
+				'font-family: "' + name + '";\n' + 	
+				'src: url("' + url + '");\n}');
+		}
+		
+		return elt;
+	};
+	
+	/**
+	 * Adds a font to the document.
+	 */
+	Graph.addFont = function(name, url)
+	{
+		if (name != null && name.length > 0 && url != null && url.length > 0)
+		{
+			var key = name.toLowerCase();
+			
+			// Blocks UI font from being overwritten
+			if (key != 'helvetica' && name != 'arial' && key != 'sans-serif')
+			{
+				var entry = Graph.customFontElements[key];
+				
+				// Replaces element if URL has changed
+				if (entry != null && entry.url != url)
+				{
+					entry.elt.parentNode.removeChild(entry.elt);
+					entry = null;
+				}
+				
+				if (entry == null)
+				{
+					var realUrl = url;
+					
+					// Fixes possible mixed content by using proxy
+					if (url.substring(0, 5) == 'http:')
+					{
+						realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
+					}
+
+					entry = {name: name, url: url, elt: Graph.createFontElement(name, realUrl)};
+					Graph.customFontElements[key] = entry;
+					Graph.recentCustomFonts[key] = entry;
+					var head = document.getElementsByTagName('head')[0];
+					
+					if (head != null)
+					{
+						head.appendChild(entry.elt);
+					}
+				}
+			}
+		}
+		
+		return name;
+	};
+
+	/**
+	 * Returns the URL for the given font name if it exists in the document.
+	 * Otherwise it returns the given URL.
+	 */
+	Graph.getFontUrl = function(name, url)
+	{
+		var font = Graph.customFontElements[name.toLowerCase()];
+		
+		if (font != null)
+		{
+			url = font.url;
+		}
+		
+		return url;
+	};
+	
+	/**
+	 * Processes the fonts in the given element and its descendants.
+	 */
+	Graph.processFontAttributes = function(elt)
+	{
+		var elts = elt.getElementsByTagName('*');
+		
+		for (var i = 0; i < elts.length; i++)
+		{
+			var url = elts[i].getAttribute('data-font-src');
+			
+			if (url != null)
+			{
+				var name = (elts[i].nodeName == 'FONT') ?
+					elts[i].getAttribute('face') :
+					elts[i].style.fontFamily;
+	
+				if (name != null)
+				{
+					Graph.addFont(name, url);
+				}
+			}
+		}		
+	};
+	
+	/**
+	 * Processes the font in the given cell style.
+	 */
+	Graph.processFontStyle = function(style)
+	{
+		var url = mxUtils.getValue(style, 'fontSource', null);
+
+		if (url != null)
+		{
+			var name = mxUtils.getValue(style, mxConstants.STYLE_FONTFAMILY, null);
+			
+			if (name != null)
+			{
+				Graph.addFont(name, decodeURIComponent(url));
+			}
+		}
+		
+		return style;
+	};
 
 	/**
 	 * Changes the default stylename so that it matches the old named style
@@ -5373,6 +5540,100 @@
 	};
 
 	/**
+	 * Adds support for custom fonts in cell styles.
+	 */
+	var graphPostProcessCellStyle = Graph.prototype.postProcessCellStyle;
+	Graph.prototype.postProcessCellStyle = function(style)
+	{
+		return Graph.processFontStyle(style);
+	};
+
+	/**
+	 * Handles custom fonts in labels.
+	 */
+	var mxSvgCanvas2DUpdateTextNodes = mxSvgCanvas2D.prototype.updateTextNodes;
+	mxSvgCanvas2D.prototype.updateTextNodes = function(x, y, w, h, align, valign, wrap, overflow, clip, rotation, g)
+	{
+		mxSvgCanvas2DUpdateTextNodes.apply(this, arguments);
+		Graph.processFontAttributes(g);
+	};
+		
+	/**
+	 * Handles custom fonts in labels.
+	 */
+	var mxTextRedraw = mxText.prototype.redraw;
+	mxText.prototype.redraw = function()
+	{
+		mxTextRedraw.apply(this, arguments);
+		
+		// Handles label rendered without foreign object
+		if (this.node != null && this.node.nodeName == 'DIV')
+		{
+			Graph.processFontAttributes(this.node);
+		}
+	};
+
+	/**
+	 * Returns all custom fonts (old and new).
+	 */
+	Graph.prototype.getCustomFonts = function()
+	{
+		var fonts = this.extFonts;
+		
+		if (fonts != null)
+		{
+			fonts = fonts.slice();
+		}
+		else
+		{
+			fonts = [];
+		}
+		
+		for (var key in Graph.customFontElements)
+		{
+			var font = Graph.customFontElements[key];
+			fonts.push({name: font.name, url: font.url});
+		}
+		
+		return fonts;
+	};
+	
+	/**
+	 * Assigns the given custom font to the selected text.
+	 */
+	Graph.prototype.setFont = function(name, url)
+	{
+		// Adds the font element to the document
+		Graph.addFont(name, url);
+		
+		// Only valid known fonts are allowed as parameters so we set
+		// the real font name and the data-source-face in the element
+		// which is used as the face attribute when editing stops
+		// KNOWN: Undo for the DOM change is not working
+		document.execCommand('fontname', false, name);
+
+		// Finds element with new font name and checks its data-font-src attribute
+		if (url != null)
+		{
+			var fonts = this.cellEditor.textarea.getElementsByTagName('font');
+			
+			// Enforces consistent font naming
+			url = Graph.getFontUrl(name, url);
+			
+			for (var i = 0; i < fonts.length; i++)
+			{
+				if (fonts[i].getAttribute('face') == name)
+				{
+					if (fonts[i].getAttribute('data-font-src') != url)
+					{
+						fonts[i].setAttribute('data-font-src', url);
+					}
+				}
+			}
+		}
+	};
+	
+	/**
 	 * Disables fast zoom with shadow in lightbox for Safari
 	 * to work around blank output on retina screen.
 	 */
@@ -5484,9 +5745,10 @@
 		}
 		
 		var result = graphGetSvg.apply(this, arguments);
+		var extFonts = this.getCustomFonts();
 		
-		// Adds extrnal fonts
-		if (incExtFonts && this.extFonts != null && this.extFonts.length > 0)
+		// Adds external fonts
+		if (incExtFonts && extFonts.length > 0)
 		{
 			var svgDoc = result.ownerDocument;
 			var style = (svgDoc.createElementNS != null) ?
@@ -5496,20 +5758,19 @@
 			var prefix = '';
 			var postfix = '';
 			    	
-			for (var i = 0; i < this.extFonts.length; i++)
+			for (var i = 0; i < extFonts.length; i++)
 			{
-				var fontName = this.extFonts[i].name, fontUrl = this.extFonts[i].url;
+				var fontName = extFonts[i].name, fontUrl = extFonts[i].url;
 				
-				if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+				if (Graph.isCssFontUrl(fontUrl))
 				{
 					prefix += '@import url(' + fontUrl + ');\n';
 				}
 				else
 				{
 					postfix += '@font-face {\n' +
-			            'font-family: "'+ fontName +'";\n' + 
-			            'src: url("'+ fontUrl +'");\n' + 
-			            '}\n';
+			            'font-family: "' + fontName + '";\n' + 
+			            'src: url("' + fontUrl + '");\n}\n';
 				}				
 			}
 			
@@ -5537,10 +5798,6 @@
 		
 		if (this.mathEnabled)
 		{
-			var graph = this;
-			var origin = graph.container.getBoundingClientRect();
-			var y0 = graph.container.scrollTop - origin.y;
-			var x0 = graph.container.scrollLeft - origin.x;
 			var drawText = imgExport.drawText;
 			
 			// Replaces input with rendered markup
@@ -6722,26 +6979,26 @@
 							doc.writeln('</style>');
 						}
 						
-						if (thisGraph.extFonts != null)
+						var extFonts = thisGraph.getCustomFonts();
+						
+						for (var i = 0; i < extFonts.length; i++)
 						{
-							for (var i = 0; i < thisGraph.extFonts.length; i++)
+							var fontName = extFonts[i].name;
+							var fontUrl = extFonts[i].url;
+							
+							if (Graph.isCssFontUrl(fontUrl))
 							{
-								var fontName = thisGraph.extFonts[i].name;
-								var fontUrl = thisGraph.extFonts[i].url;
-								
-								if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
-								{
-							   		doc.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
-								}
-								else
-								{
-							   		doc.writeln('<style type="text/css">');
-							   		doc.writeln('@font-face {\n' +
-								            '\tfont-family: "'+ fontName +'";\n' + 
-								            '\tsrc: url("'+ fontUrl +'");\n' + 
-								            '}');
-							   		doc.writeln('</style>');
-								}
+						   		doc.writeln('<link rel="stylesheet" href="' +
+						   			mxUtils.htmlEntities(fontUrl) +
+						   			'" charset="UTF-8" type="text/css">');
+							}
+							else
+							{
+						   		doc.writeln('<style type="text/css">');
+						   		doc.writeln('@font-face {\n' +
+						   			'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
+						   			'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
+						   		doc.writeln('</style>');
 							}
 						}
 					};
@@ -6756,9 +7013,7 @@
 							var prev = mxClient.NO_FO;
 							mxClient.NO_FO = (this.graph.mathEnabled && !editorUi.editor.useForeignObjectForMath) ?
 								true : editorUi.editor.originalNoForeignObject;
-							
 							var result = printPreviewRenderPage.apply(this, arguments);
-
 							mxClient.NO_FO = prev;
 							
 							if (this.graph.mathEnabled)
@@ -6807,24 +7062,27 @@
 					pv.autoOrigin = autoOrigin;
 					pv.appendGraph(thisGraph, scale, x0, y0, forcePageBreaks, true);
 					
-					if (thisGraph.extFonts != null && pv.wnd != null)
+					var extFonts = thisGraph.getCustomFonts();
+					
+					if (pv.wnd != null)
 					{
-						for (var i = 0; i < thisGraph.extFonts.length; i++)
+						for (var i = 0; i < extFonts.length; i++)
 						{
-							var fontName = thisGraph.extFonts[i].name;
-							var fontUrl = thisGraph.extFonts[i].url;
+							var fontName = extFonts[i].name;
+							var fontUrl = extFonts[i].url;
 							
-							if (fontUrl.indexOf(Editor.GOOGLE_FONTS) == 0)
+							if (Graph.isCssFontUrl(fontUrl))
 							{
-						   		pv.wnd.document.writeln('<link rel="stylesheet" href="' + fontUrl + '" charset="UTF-8" type="text/css">');
+						   		pv.wnd.document.writeln('<link rel="stylesheet" href="' +
+						   			mxUtils.htmlEntities(fontUrl) +
+						   			'" charset="UTF-8" type="text/css">');
 							}
 							else
 							{
 						   		pv.wnd.document.writeln('<style type="text/css">');
 						   		pv.wnd.document.writeln('@font-face {\n' +
-							            '\tfont-family: "'+ fontName +'";\n' + 
-							            '\tsrc: url("'+ fontUrl +'");\n' + 
-							            '}');
+						   			'font-family: "' + mxUtils.htmlEntities(fontName) + '";\n' + 
+						   			'src: url("' + mxUtils.htmlEntities(fontUrl) + '");\n}');
 						   		pv.wnd.document.writeln('</style>');
 							}
 						}

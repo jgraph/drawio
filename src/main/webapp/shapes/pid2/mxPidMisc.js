@@ -61,7 +61,6 @@ mxShapePidFan.prototype.background = function(c, x, y, w, h)
 
 mxShapePidFan.prototype.foreground = function(c, x, y, w, h)
 {
-
 	c.begin();
 	c.moveTo(w * 0.3, h * 0.045);
 	c.lineTo(w * 0.97, h * 0.33);
