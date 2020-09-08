@@ -1,3 +1,7 @@
+08-SEP-2020: 13.6.9
+
+- Fixes inline images in cell styles
+
 08-SEP-2020: 13.6.8
 
 - Fixes use of unsupported function in IE

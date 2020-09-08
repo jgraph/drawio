@@ -5327,15 +5327,18 @@
 	 */
 	Graph.processFontStyle = function(style)
 	{
-		var url = mxUtils.getValue(style, 'fontSource', null);
-
-		if (url != null)
+		if (style != null)
 		{
-			var name = mxUtils.getValue(style, mxConstants.STYLE_FONTFAMILY, null);
-			
-			if (name != null)
+			var url = mxUtils.getValue(style, 'fontSource', null);
+	
+			if (url != null)
 			{
-				Graph.addFont(name, decodeURIComponent(url));
+				var name = mxUtils.getValue(style, mxConstants.STYLE_FONTFAMILY, null);
+				
+				if (name != null)
+				{
+					Graph.addFont(name, decodeURIComponent(url));
+				}
 			}
 		}
 		
@@ -5545,7 +5548,7 @@
 	var graphPostProcessCellStyle = Graph.prototype.postProcessCellStyle;
 	Graph.prototype.postProcessCellStyle = function(style)
 	{
-		return Graph.processFontStyle(style);
+		return Graph.processFontStyle(graphPostProcessCellStyle.apply(this, arguments));
 	};
 
 	/**

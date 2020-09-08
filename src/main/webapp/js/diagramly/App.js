@@ -1492,7 +1492,8 @@ App.prototype.init = function()
 		}
 		
 		// Add to Home Screen dialog for mobile devices
-		if ('serviceWorker' in navigator && (mxClient.IS_ANDROID || mxClient.IS_IOS))
+		if ('serviceWorker' in navigator && !this.editor.isChromelessView() &&
+			(mxClient.IS_ANDROID || mxClient.IS_IOS))
 		{
 			window.addEventListener('beforeinstallprompt', mxUtils.bind(this, function(e)
 			{
