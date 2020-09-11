@@ -4944,9 +4944,11 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindControlKey(35, function() { if (graph.isEnabled()) { graph.foldCells(false); }}); // Ctrl+End
 		keyHandler.bindControlKey(13, function() { ui.ctrlEnter(); }); // Ctrl+Enter
 		keyHandler.bindAction(8, false, 'delete'); // Backspace
-		keyHandler.bindAction(8, true, 'deleteAll'); // Shift+Backspace
+		keyHandler.bindAction(8, true, 'deleteAll'); // Ctrl+Backspace
+		keyHandler.bindAction(8, false, 'deleteLabels', true); // Shift+Backspace
 		keyHandler.bindAction(46, false, 'delete'); // Delete
 		keyHandler.bindAction(46, true, 'deleteAll'); // Ctrl+Delete
+		keyHandler.bindAction(46, false, 'deleteLabels', true); // Shift+Delete
 		keyHandler.bindAction(36, false, 'resetView'); // Home
 		keyHandler.bindAction(72, true, 'fitWindow', true); // Ctrl+Shift+H
 		keyHandler.bindAction(74, true, 'fitPage'); // Ctrl+J

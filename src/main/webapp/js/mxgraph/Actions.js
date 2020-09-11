@@ -213,11 +213,47 @@ Actions.prototype.init = function()
 	
 	this.addAction('delete', function(evt)
 	{
-		deleteCells(evt != null && mxEvent.isShiftDown(evt));
+		deleteCells(evt != null && mxEvent.isControlDown(evt));
 	}, null, null, 'Delete');
 	this.addAction('deleteAll', function()
 	{
-		deleteCells(true);
+		if (!graph.isSelectionEmpty())
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				var cells = graph.getSelectionCells();
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					graph.cellLabelChanged(cells[i], '');
+				}
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+	});
+	this.addAction('deleteLabels', function()
+	{
+		if (!graph.isSelectionEmpty())
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				var cells = graph.getSelectionCells();
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					graph.cellLabelChanged(cells[i], '');
+				}
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
 	}, null, null, Editor.ctrlKey + '+Delete');
 	this.addAction('duplicate', function()
 	{

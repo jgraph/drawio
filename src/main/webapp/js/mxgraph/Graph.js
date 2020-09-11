@@ -2317,7 +2317,13 @@ Graph.prototype.initLayoutManager = function()
 				stackLayout.marginRight = style['marginRight'] || 0;
 				stackLayout.marginTop = style['marginTop'] || 0;
 				stackLayout.marginBottom = style['marginBottom'] || 0;
+				stackLayout.allowGaps = style['allowGaps'] || 0;
 				stackLayout.fill = true;
+				
+				if (stackLayout.allowGaps)
+				{
+					stackLayout.gridSize = parseFloat(mxUtils.getValue(style, 'stackUnitSize', 20));
+				}
 				
 				return stackLayout;
 			}
@@ -10101,19 +10107,20 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					if (style['childLayout'] == 'stackLayout')
 					{
+						var border = parseFloat(mxUtils.getValue(style, 'stackBorder', mxStackLayout.prototype.border));
 						var horizontal = mxUtils.getValue(style, 'horizontalStack', '1') == '1';
+						var start = this.graph.getActualStartSize(parent);
 						geo = geo.clone();
 						
 						if (horizontal)
 						{
-							geo.height = bounds.height;
+							geo.height = bounds.height + start.y + start.height + 2 * border;
 						}
 						else
 						{
-							geo.width = bounds.width;
-							
+							geo.width = bounds.width + start.x + start.width + 2 * border;
 						}
-			
+						
 						this.graph.model.setGeometry(parent, geo);			
 					}
 				}

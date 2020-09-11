@@ -5490,7 +5490,6 @@
 				if (style['childLayout'] == 'rack')
 				{
 					var rackLayout = new mxStackLayout(this.graph, false);
-					
 					var unitSize = 20;
 					
 					if (style['rackUnitSize'] != null)
@@ -5502,13 +5501,14 @@
 						rackLayout.gridSize = (typeof mxRackContainer !== 'undefined') ? mxRackContainer.unitSize : unitSize;
 					}
 					
-					rackLayout.fill = true;
 					rackLayout.marginLeft = style['marginLeft'] || 0;
 					rackLayout.marginRight = style['marginRight'] || 0;
 					rackLayout.marginTop = style['marginTop'] || 0;
 					rackLayout.marginBottom = style['marginBottom'] || 0;
 					rackLayout.allowGaps = style['allowGaps'] || 0;
+					rackLayout.horizontal = mxUtils.getValue(style, 'horizontalRack', '0') == '1';
 					rackLayout.resizeParent = false;
+					rackLayout.fill = true;
 					
 					return rackLayout;
 				}
