@@ -227,7 +227,11 @@ EditorUi.prototype.patchViewState = function(page, diff)
 
 		for (var key in diff)
 		{
-			page.viewState[key] = JSON.parse(diff[key]);
+			try
+			{
+				page.viewState[key] = JSON.parse(diff[key]);
+			}
+			catch(e) {} //Ignore TODO Is this correct, we encountered an undefined value for a key (extFonts)
 		}
 		
 		if (page == this.currentPage)

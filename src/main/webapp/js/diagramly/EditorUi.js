@@ -10810,8 +10810,8 @@
 					}
 					
 					// Creates temporary file for diff sync in embed mode
-					this.setCurrentFile(new LocalFile(this, xml,
-						this.defaultFilename, true));
+					this.setCurrentFile(new EmbedFile(this, xml, {}));
+					this.mode = App.MODE_EMBED;
 					this.setFileData(xml);
 					
 					if (!this.editor.isChromelessView())
@@ -11568,10 +11568,8 @@
 						{
 							var msg = this.createLoadMessage('autosave');
 							msg.xml = data;
-							data = JSON.stringify(msg);
-							
 							var parent = window.opener || window.parent;
-							parent.postMessage(data, '*');
+							parent.postMessage(JSON.stringify(msg), '*');
 						}
 						
 						lastData = data;
@@ -11689,8 +11687,9 @@
 			{
 				if (urlParams['saveAndExit'] != '0')
 				{
-					mxUtils.write(button, mxResources.get('saveAndExit'));
-					button.setAttribute('title', mxResources.get('saveAndExit'));
+					var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
+					mxUtils.write(button, saveAndExitTitle);
+					button.setAttribute('title', saveAndExitTitle);
 					
 					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 					{
@@ -11733,8 +11732,9 @@
 			if (urlParams['noExitBtn'] != '1')
 			{
 				button = document.createElement('a');
-				mxUtils.write(button, mxResources.get('exit'));
-				button.setAttribute('title', mxResources.get('exit'));
+				var exitTitle = urlParams['publishClose'] == '1' ? mxResources.get('close') : mxResources.get('exit');
+				mxUtils.write(button, exitTitle);
+				button.setAttribute('title', exitTitle);
 				button.className = 'geBigButton geBigStandardButton';
 				button.style.marginLeft = '6px';
 				

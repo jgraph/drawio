@@ -4130,7 +4130,7 @@ HoverIcons.prototype.init = function()
 HoverIcons.prototype.isResetEvent = function(evt, allowShift)
 {
 	return mxEvent.isAltDown(evt) || (this.activeArrow == null && mxEvent.isShiftDown(evt)) ||
-		mxEvent.isMetaDown(evt) || (mxEvent.isPopupTrigger(evt) && !mxEvent.isControlDown(evt));
+		(mxEvent.isPopupTrigger(evt) && !this.graph.isCloneEvent(evt));
 };
 
 /**
@@ -4357,8 +4357,8 @@ HoverIcons.prototype.click = function(state, dir, me)
 	var y = me.getGraphY();
 	
 	var tmp = this.getStateAt(state, x, y);
-	
-	if (tmp != null && this.graph.model.isEdge(tmp.cell) && !mxEvent.isControlDown(evt) &&
+
+	if (tmp != null && this.graph.model.isEdge(tmp.cell) && !this.graph.isCloneEvent(evt) &&
 		(tmp.getVisibleTerminalState(true) == state || tmp.getVisibleTerminalState(false) == state))
 	{
 		this.graph.setSelectionCell(tmp.cell);
@@ -4380,8 +4380,8 @@ HoverIcons.prototype.execute = function(state, dir, me)
 	var evt = me.getEvent();
 
 	this.graph.selectCellsForConnectVertex(this.graph.connectVertex(
-		state.cell, dir, this.graph.defaultEdgeLength, evt, mxEvent.isControlDown(evt),
-		mxEvent.isControlDown(evt)), evt, this);
+		state.cell, dir, this.graph.defaultEdgeLength, evt, this.graph.isCloneEvent(evt),
+		this.graph.isCloneEvent(evt)), evt, this);
 };
 
 /**
@@ -6368,12 +6368,17 @@ if (typeof mxVertexHandler != 'undefined')
 					// Merges into unlocked current layer if one layer is pasted
 					if (layers.length == 1 && !this.isCellLocked(this.getDefaultParent()))
 					{
-						cells = this.moveCells(tempModel.getChildren(layers[0]),
-							dx, dy, false, this.getDefaultParent());
+						var children = tempModel.getChildren(layers[0]);
 						
-						// Imported default parent maps to local default parent
-						cellMapping[tempModel.getChildAt(tempModel.root, 0).getId()] =
-							this.getDefaultParent().getId();
+						if (children != null)
+						{
+							cells = this.moveCells(children,
+								dx, dy, false, this.getDefaultParent());
+							
+							// Imported default parent maps to local default parent
+							cellMapping[tempModel.getChildAt(tempModel.root, 0).getId()] =
+								this.getDefaultParent().getId();
+						}
 					}
 					else
 					{

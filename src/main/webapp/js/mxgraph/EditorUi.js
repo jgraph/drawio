@@ -1206,7 +1206,7 @@ EditorUi.prototype.installShapePicker = function()
 		{
 			var evt = me.getEvent();
 			
-			if (!mxEvent.isControlDown(evt) && !mxEvent.isShiftDown(evt))
+			if (!this.graph.isCloneEvent(evt) && !mxEvent.isShiftDown(evt))
 			{
 				this.graph.connectVertex(state.cell, dir, this.graph.defaultEdgeLength, evt, null, null, mxUtils.bind(this, function(x, y, execute)
 				{

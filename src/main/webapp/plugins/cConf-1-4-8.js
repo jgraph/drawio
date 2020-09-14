@@ -45,6 +45,44 @@ Draw.loadPlugin(function(ui)
 		return macroData.diagramDisplayName != null;
 	}
 	
+	function descriptorChangedListener()
+	{
+		var curFile = ui.getCurrentFile();
+		var fileTitle = curFile.getTitle();
+		
+		//Update file name in the UI
+		var tmp = document.createElement('span');
+		mxUtils.write(tmp, mxUtils.htmlEntities(fileTitle));
+		
+		if (ui.embedFilenameSpan != null)
+		{
+			ui.embedFilenameSpan.parentNode.removeChild(ui.embedFilenameSpan);
+		}
+
+		ui.buttonContainer.appendChild(tmp);
+		ui.embedFilenameSpan = tmp;
+		macroData.diagramDisplayName = fileTitle;
+		
+		var vSettings = curFile.desc.viewerSettings;
+		
+		if (vSettings != null)
+		{
+			macroData.tbstyle = vSettings.tbstyle;
+			macroData.links = vSettings.links;
+			macroData.simple = vSettings.simple;
+			macroData.lbox = vSettings.lbox;
+			macroData.zoom = vSettings.zoom;
+			macroData.pCenter = vSettings.pCenter;
+			macroData.aspect =	vSettings.aspect;
+			macroData.hiResPreview = vSettings.hiResPreview;
+			
+			if (ui.format != null)
+			{
+				ui.format.refresh();
+			}
+		}
+	};
+
 	renameAction.funct = function()
 	{
 		var dlg = new FilenameDialog(ui, macroData.diagramDisplayName || "",
@@ -52,20 +90,13 @@ Draw.loadPlugin(function(ui)
 		{
 			if (newName != null && newName.length > 0)
 			{
+				//TODO This is not needed with RT since title is added to desc
 				macroData.diagramDisplayName = newName;
 				var parent = window.opener || window.parent;
 				parent.postMessage(JSON.stringify({event: 'rename', name: newName}), '*'); 
-				//Update file name in the UI
-				var tmp = document.createElement('span');
-				mxUtils.write(tmp, mxUtils.htmlEntities(newName));
 				
-				if (ui.embedFilenameSpan != null)
-				{
-					ui.embedFilenameSpan.parentNode.removeChild(ui.embedFilenameSpan);
-				}
-
-				ui.buttonContainer.appendChild(tmp);
-				ui.embedFilenameSpan = tmp;
+				//Update and sync new name
+				ui.getCurrentFile().rename(newName);
 			}
 		}, mxResources.get('rename'), function(name)
 		{
@@ -100,6 +131,30 @@ Draw.loadPlugin(function(ui)
 		if (eventName == 'export')
 		{
 			msg.macroData = macroData;
+			
+			var desc = ui.getCurrentFile().getDescriptor();
+			
+			//Until app.min.js is propagated, this code is necessary
+			if (desc != null)
+			{
+				if (desc.key == null)
+				{
+					desc.key = Editor.guid(32);
+					desc.channel = Editor.guid(32);
+					desc.etagP = Editor.guid(32);
+					desc.title = macroData.diagramDisplayName;
+				}
+				else if (desc.title)
+				{
+					macroData.diagramDisplayName = desc.title;
+				}
+				
+				msg.desc = desc;
+			}
+			else
+			{
+				msg.desc = {};
+			}
 		}
 
 		return msg;
@@ -604,4 +659,623 @@ Draw.loadPlugin(function(ui)
 			ui.openLink('https://about.draw.io/support/');
 		});
 	});
+
+	//=============Embed File with real-time collab support (based on remote invocation)
+	//Until app.min.js is propagated, this code is necessary
+	if (typeof EmbedFile === 'undefined')
+	{
+		var origInstallMessageHandler = ui.installMessageHandler;
+		
+		ui.installMessageHandler = function()
+		{
+			var parent = window.opener || window.parent;
+			parent.postMessage(JSON.stringify({event: 'disableRT'}), '*');
+			
+			origInstallMessageHandler.apply(this, arguments);
+		}
+		
+		return;	
+	}
+	
+	/**
+	 * Workaround for changing etag after save is higher autosave delay to allow
+	 * for preflight etag update and decrease possible conflicts on file save.
+	 */
+	EmbedFile.prototype.autosaveDelay = 2500;
+
+	/**
+	 * Delay for last save in ms.
+	 */
+	EmbedFile.prototype.saveDelay = 0;
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.isConflict = function(err)
+	{
+		return err != null && err.status == 409;
+	};
+
+	/**
+	 * Returns the current user.
+	 */
+	EmbedFile.prototype.getCurrentUser = function()
+	{
+		return ui.getCurrentUser();
+	};
+
+	/**
+	 * Returns true if an autosave is required at the time of execution.
+	 */
+	EmbedFile.prototype.isAutosave = function()
+	{
+		return this.desc.id != null;
+	};
+
+	/**
+	 * Specifies if the autosave checkbox should be shown in the document
+	 * properties dialog. Default is false.
+	 */
+	EmbedFile.prototype.isAutosaveOptional = function()
+	{
+		return this.desc.id == null;
+	};
+	
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.isRenamable = function()
+	{
+		return this.isEditable() && DrawioFile.prototype.isEditable.apply(this, arguments);
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.save = function(revision, success, error, unloading, overwrite)
+	{
+		this.saveStarted = true;
+		
+		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
+		{
+			this.saveFile(null, revision, success, error, unloading, overwrite);
+			this.saveStarted = false;
+		}), error, unloading, overwrite]);
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.setModified = function(value)
+	{
+		DrawioFile.prototype.setModified.apply(this, arguments);
+		
+		//Set editor modified also to prevent accidental closure or exiting without saving  
+		ui.editor.modified = value;
+	};
+	
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
+	{
+		try
+		{
+			if (!this.isEditable())
+			{
+				if (success != null)
+				{
+					success();
+				}
+			}
+			else if (!this.savingFile)
+			{
+				// Sets shadow modified state during save
+				this.savingFileTime = new Date();
+				this.setShadowModified(false);
+				this.savingFile = true;
+
+				this.createSecret(mxUtils.bind(this, function(secret, token)
+				{
+					var doSave = mxUtils.bind(this, function(realOverwrite, realRevision)
+					{
+						try
+						{
+							var lastDesc = this.desc;
+							var savedData = this.getData();
+							this.desc.secret = secret;
+							this.desc.key = this.desc.key? this.desc.key : Editor.guid(32);
+							this.desc.channel = this.desc.channel? this.desc.channel : Editor.guid(32);
+							this.desc.etagP = this.desc.etagP? this.desc.etagP : Editor.guid(32);
+							this.desc.title = this.desc.title? this.desc.title : macroData.diagramDisplayName;
+							
+							ui.remoteInvoke('saveDraftWithFileDesc', [savedData, this.desc], null, mxUtils.bind(this, function(resp)
+							{
+								try
+								{
+									this.savingFile = false;
+									
+									// Handles special case where resp is false eg
+									// if the old file was converted to realtime
+									if (resp != false)
+									{
+										// Checks for changes during save
+										this.setModified(this.getShadowModified());
+										
+										if (revision)
+										{
+											this.lastAutosaveRevision = new Date().getTime();
+										}
+					
+										// Adaptive autosave delay
+										this.autosaveDelay = Math.min(8000,
+											Math.max(this.saveDelay + 500,
+											EmbedFile.prototype.autosaveDelay));
+										this.desc = resp;
+										
+										// Shows possible errors but keeps the modified flag as the
+										// file was saved but the cache entry could not be written
+										if (token != null)
+										{
+											this.fileSaved(savedData, lastDesc, mxUtils.bind(this, function()
+											{
+												this.contentChanged();
+												
+												if (success != null)
+												{
+													success(resp);
+												}
+											}), error, token);
+										}
+										else
+										{
+											success(resp);
+										}
+									}
+									else if (error != null)
+									{
+										error(resp);
+									}
+								}
+								catch (e)
+								{
+									this.savingFile = false;
+									
+									if (error != null)
+									{
+										error(e);
+									}
+									else
+									{
+										throw e;
+									}
+								}
+							}),
+							mxUtils.bind(this, function(err, desc)
+							{
+								//TODO EMBED desc is null here 
+								try
+								{
+									this.savingFile = false;
+								
+									if (this.isConflict(err))
+									{
+										this.inConflictState = true;
+										
+										if (this.sync != null)
+										{
+											this.savingFile = true;
+											
+											this.sync.fileConflict(desc, mxUtils.bind(this, function()
+											{
+												// Adds random cool-off
+												window.setTimeout(mxUtils.bind(this, function()
+												{
+													this.updateFileData();
+													this.setShadowModified(false);
+													doSave(realOverwrite, true);
+												}), 100 + Math.random() * 500 + (err.isLocked? 500 : 0));
+											}), mxUtils.bind(this, function()
+											{
+												this.savingFile = false;
+												
+												if (error != null)
+												{
+													error();
+												}
+											}));
+										}
+										else if (error != null)
+										{
+											error();
+										}
+									}
+									else if (error != null)
+									{
+										error(err);
+									}
+								}
+								catch (e)
+								{
+									this.savingFile = false;
+									
+									if (error != null)
+									{
+										error(e);
+									}
+									else
+									{
+										throw e;
+									}
+								}
+							}));
+						}
+						catch (e)
+						{
+							this.savingFile = false;
+							
+							if (error != null)
+							{
+								error(e);
+							}
+							else
+							{
+								throw e;
+							}
+						}
+					});
+					
+					doSave(overwrite, revision);				
+				}));
+			}
+		}
+		catch (e)
+		{
+			if (error != null)
+			{
+				error(e);
+			}
+			else
+			{
+				throw e;
+			}
+		}
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.copyFile = function(success, error)
+	{
+		//Download a copy of the file since it is difficult to add a copy to current confluence page
+		this.updateFileData();
+		ui.doSaveLocalFile(this.data, this.getTitle(), 'text/xml');
+		error(); //Since the problem is not fixed //TODO Confirm this is OK??
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.rename = function(title, success, error)
+	{
+		var etag = this.getCurrentEtag();
+		this.desc.title = title;
+		
+		ui.remoteInvoke('setFileDescriptor', [this.desc], null, mxUtils.bind(this, function(desc)
+		{
+			this.desc = desc;
+			this.descriptorChanged();
+			
+			if (this.sync != null)
+			{
+				this.sync.descriptorChanged(etag);
+			}
+			
+			if (success != null)
+			{
+				success(desc);
+			}
+		}), error);
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getTitle = function()
+	{
+		return this.desc.title || macroData.diagramDisplayName;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getHash = function()
+	{
+		return 'E' + this.getId();
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getId = function()
+	{
+		return this.desc.id;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.isSyncSupported = function()
+	{
+		return this.desc.id != null;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.isRevisionHistorySupported = function()
+	{
+		return true;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getLatestVersion = function(success, error)
+	{
+		ui.remoteInvoke('getDraftFileContent', null, null, mxUtils.bind(this, function(data, desc)
+		{
+			success(new EmbedFile(ui, data, desc));
+		}), error);
+	};
+
+	/**
+	 * Gets the channel ID from the given descriptor.
+	 */
+	EmbedFile.prototype.getChannelId = function()
+	{
+		var chan = this.desc.channel;
+		
+		if (chan != null)
+		{
+			chan = 'E-' + this.getId() + '.' + chan;
+		}
+		
+		return chan;
+	};
+
+	/**
+	 * Gets the channel key from the given descriptor.
+	 */
+	EmbedFile.prototype.getChannelKey = function()
+	{
+		return this.desc.key;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getLastModifiedDate = function()
+	{
+		return new Date(this.desc.modifiedDate);
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getDescriptor = function()
+	{
+		return this.desc;
+	};
+
+	/**
+	* Updates the descriptor of this file with the one from the given file.
+	*/
+	EmbedFile.prototype.setDescriptor = function(desc)
+	{
+		this.desc = desc;
+	};
+
+	/**
+	 * Returns the secret from the given descriptor.
+	 */
+	EmbedFile.prototype.getDescriptorSecret = function(desc)
+	{
+		return desc.secret;
+	};
+
+	/**
+	 * Updates the revision ID on the given descriptor.
+	 */
+	EmbedFile.prototype.setDescriptorRevisionId = function(desc, id)
+	{
+		desc.headRevisionId = id;
+	};
+
+	/**
+	 * Returns the revision ID from the given descriptor.
+	 */
+	EmbedFile.prototype.getDescriptorRevisionId = function(desc)
+	{
+		return desc.headRevisionId;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.getDescriptorEtag = function(desc)
+	{
+		return desc.etag;
+	};
+
+	/**
+	 *
+	 */
+	EmbedFile.prototype.setDescriptorEtag = function(desc, etag)
+	{
+		desc.etag = etag;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.patchDescriptor = function(desc, patch)
+	{
+		DrawioFile.prototype.patchDescriptor.apply(this, arguments);
+		
+		desc.headRevisionId = patch.headRevisionId;
+		desc.modifiedDate = patch.modifiedDate;
+	};
+
+	/**
+	 * 
+	 */
+	EmbedFile.prototype.loadDescriptor = function(success, error)
+	{
+		ui.remoteInvoke('getFileDescriptor', null, null, success, error);
+	};
+	
+	var allowAutoSave = true;
+	
+	EmbedFile.prototype.isAutosaveNow = function(success, error)
+	{
+		return allowAutoSave;
+	};
+	
+	//Ensure saving of draft before publishing
+	var origSaveAction = ui.actions.get('save').funct;
+	
+	ui.actions.get('save').funct = function(exit)
+	{
+		var actArgs = arguments;
+		var curFile = ui.getCurrentFile();
+		var desc = curFile.getDescriptor();
+
+		if (exit)
+		{
+			//Prevent stpping the spinner early by creating our own spinner
+			var spinner = new Spinner({
+				lines: 12, // The number of lines to draw
+				length: 24, // The length of each line
+				width: 8, // The line thickness
+				radius: 12, // The radius of the inner circle
+				rotate: 0, // The rotation offset
+				color: '#000', // #rgb or #rrggbb
+				speed: 1.5, // Rounds per second
+				trail: 60, // Afterglow percentage
+				shadow: false, // Whether to render a shadow
+				hwaccel: false, // Whether to use hardware acceleration
+				zIndex: 2e9 // The z-index (defaults to 2000000000)
+			});
+	
+			spinner.spin(document.body);
+			allowAutoSave = false;
+			
+			if (desc != null)
+			{
+				desc.viewerSettings = {
+					tbstyle: macroData.tbstyle,
+					links: macroData.links,
+					simple: macroData.simple,
+					lbox: macroData.lbox,
+					zoom: macroData.zoom,
+					pCenter: macroData.pCenter,
+					aspect:	macroData.aspect,
+					hiResPreview: macroData.hiResPreview
+				};
+			}
+			
+			var etag = curFile.getCurrentEtag();
+		}
+
+		function doActions()
+		{
+			origSaveAction.apply(ui, actArgs);
+			
+			if (exit && curFile.sync != null)
+			{
+				curFile.sync.descriptorChanged(etag);
+			}
+		};
+		
+		function doSave()
+		{
+			if (curFile.saveStarted || curFile.savingFile)
+			{
+				setTimeout(doSave, 100);
+				return;
+			}
+			
+			if (curFile.isModified())
+			{
+				//Save file (draft) first
+				ui.saveFile(null, doActions);
+			}
+			else if (exit) //Save descriptor only to update the viewer settings
+			{
+				ui.remoteInvoke('setFileDescriptor', [desc], null, doActions, doActions);
+			}
+			else
+			{
+				doActions();
+			}
+		};
+		
+		if (desc == null || desc.key == null)
+		{
+			//New files are saved directly and descriptor is added during publishing after creating the custom content
+			doActions();
+		}
+		else
+		{
+			doSave();
+		}
+	};
+	
+	//Add file opening here (or it should be for all in EditorUi?)
+	var origInstallMessageHandler =  ui.installMessageHandler;
+	
+	ui.installMessageHandler = function(callback)
+	{
+		origInstallMessageHandler.call(this, function()
+		{
+			callback.apply(this, arguments);
+			
+			var file = ui.getCurrentFile();
+			
+			file.loadDescriptor(function(desc)
+			{
+				file.desc = desc;
+				ui.fileLoaded(file, true);
+				
+				if (file.desc)
+				{
+					var descChangedNeeded = false;
+					
+					if (file.desc.title && file.desc.title != macroData.diagramDisplayName)
+					{
+						macroData.diagramDisplayName = file.desc.title;
+						descChangedNeeded = true;
+					}
+					
+					if (file.desc.viewerSettings != null)
+					{
+						descChangedNeeded = true;
+					}
+					
+					if (descChangedNeeded)
+					{
+						descriptorChangedListener();
+					}
+				}
+			});
+			
+			file.addListener('descriptorChanged', descriptorChangedListener);
+		});
+	}
+	
+	ui.editor.setModified = function()
+	{
+		//Cancel set modified of the editor and use the file's one
+	};
 });

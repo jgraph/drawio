@@ -230,6 +230,11 @@ App.MODE_BROWSER = 'browser';
 App.MODE_TRELLO = 'trello';
 
 /**
+ * Embed App Mode
+ */
+App.MODE_EMBED = 'embed';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = 'libwls2fa9szdji';
@@ -613,7 +618,7 @@ App.main = function(callback, createUi)
 		
 		// Loads Pusher API
 		if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			DrawioFile.SYNC == 'auto' && urlParams['embed'] != '1' && urlParams['local'] != '1' &&
+			DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
 			(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
 			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 		{
@@ -4696,6 +4701,32 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 				if (success != null)
 				{
 					success();
+				}
+			}
+			else if (id.charAt(0) == 'E') // Embed file
+			{
+				//Currently we only reload current file. Id is not used!
+				var currentFile = this.getCurrentFile();
+				
+				if (currentFile == null)
+				{
+					this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')}, mxResources.get('errorLoadingFile'));
+				}
+				else
+				{
+					this.remoteInvoke('getDraftFileContent', null, null, mxUtils.bind(this, function(data, desc)
+					{
+						this.spinner.stop();
+						this.fileLoaded(new EmbedFile(this, data, desc));
+						
+						if (success != null)
+						{
+							success();
+						}
+					}), mxUtils.bind(this, function()
+					{
+						this.handleError({message: mxResources.get('serviceUnavailableOrBlocked')}, mxResources.get('errorLoadingFile'));
+					}));
 				}
 			}
 			else if (id.charAt(0) == 'U')

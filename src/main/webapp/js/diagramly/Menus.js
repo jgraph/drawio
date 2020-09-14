@@ -1962,16 +1962,18 @@
 				//Add support to saving files if embedded mode is running with files
 				var file = editorUi.getCurrentFile();
 				
-				if (file != null && (file.constructor != LocalFile || file.mode != null))
+				if (file != null && file.constructor != EmbedFile && (file.constructor != LocalFile || file.mode != null))
 				{
 					editorUi.saveFile();
 				}
 			};
 	
-			editorUi.actions.addAction('saveAndExit', function()
+			var saveAndExitAction = editorUi.actions.addAction('saveAndExit', function()
 			{
 				editorUi.actions.get('save').funct(true);
 			});
+			
+			saveAndExitAction.label = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
 			
 			editorUi.actions.addAction('exit', function()
 			{

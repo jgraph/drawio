@@ -136,7 +136,7 @@ html body .geMenubarContainer .geStatus {
 	color: rgb(179, 179, 179);
 }
 .geMenubarContainer .geItem:hover {
-	background-color: rgba(9, 30, 66, 0.48);
+	background-color: rgba(9, 30, 66, 0.48) !important;
 }
 html body .geToolbarContainer .geLabel {
 	margin:0px;

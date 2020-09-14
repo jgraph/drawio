@@ -1,3 +1,9 @@
+14-SEP-2020: 13.7.0
+
+- Adds conf cloud change notifications for collab
+- Adds Cmd+Click for blue arrow on macOS
+- Uses mxGraph 4.2.1 beta 17
+
 11-SEP-2020: 13.6.10
 
 - Adds Shift+Delete/Backsapce to clear labels

@@ -157,6 +157,7 @@ mxscript(drawDevUrl + 'js/diagramly/StorageFile.js');
 mxscript(drawDevUrl + 'js/diagramly/StorageLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/RemoteFile.js');
 mxscript(drawDevUrl + 'js/diagramly/RemoteLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/EmbedFile.js');
 mxscript(drawDevUrl + 'js/diagramly/Dialogs.js');
 mxscript(drawDevUrl + 'js/diagramly/Editor.js');
 mxscript(drawDevUrl + 'js/diagramly/EditorUi.js');

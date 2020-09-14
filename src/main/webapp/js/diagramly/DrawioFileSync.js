@@ -305,6 +305,12 @@ DrawioFileSync.prototype.isConnected = function()
  */
 DrawioFileSync.prototype.updateOnlineState = function()
 {
+	//For RT in embeded mode, we don't need this icon
+	if (urlParams['embedRT'] == '1')
+	{
+		return;
+	}
+	
 	var addClickHandler = mxUtils.bind(this, function(elt)
 	{
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
