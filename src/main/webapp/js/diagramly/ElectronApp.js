@@ -1666,11 +1666,6 @@ mxStencilRegistry.allowEval = false;
 			var range = null;
 			var allPages = null;
 			
-			if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
-			{
-				throw {message: mxResources.get('drawingTooLarge')};
-			}
-			
 			var embed = '0';
 			
 			if (format == 'pdf' && currentPage == false)
@@ -1752,48 +1747,41 @@ mxStencilRegistry.allowEval = false;
 			var w = Math.floor(bounds.width * s / graph.view.scale);
 			var h = Math.floor(bounds.height * s / graph.view.scale);
 			
-			if (data.length <= MAX_REQUEST_SIZE && w * h < MAX_AREA)
+			editorUi.hideDialog();
+			
+			if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
 			{
-				editorUi.hideDialog();
-				
-				if ((format == 'png' || format == 'jpg' || format == 'jpeg') && editorUi.isExportToCanvas())
+				if (format == 'png')
 				{
-					if (format == 'png')
-					{
-						editorUi.exportImage(s, bg == null || bg == 'none', true,
-					   		false, false, b, true, false, null, null, dpi);
-					}
-					else 
-					{
-						editorUi.exportImage(s, false, true,
-							false, false, b, true, false, 'jpeg');
-					}
+					editorUi.exportImage(s, bg == null || bg == 'none', true,
+				   		false, false, b, true, false, null, null, dpi);
 				}
 				else 
 				{
-					var extras = {globalVars: graph.getExportVariables()};
-					
-					editorUi.saveRequest(name, format,
-						function(newTitle, base64)
-						{
-							return new mxElectronRequest('export', {
-								format: format,
-								xml: data,
-								bg: (bg != null) ? bg : mxConstants.NONE,
-								filename: (newTitle != null) ? newTitle : null,
-								w: w,
-								h: h,
-								border: b,
-								base64: (base64 || '0'),
-								extras: JSON.stringify(extras),
-								dpi: dpi > 0? dpi : null
-							}); 
-						});
+					editorUi.exportImage(s, false, true,
+						false, false, b, true, false, 'jpeg');
 				}
 			}
-			else
+			else 
 			{
-				mxUtils.alert(mxResources.get('drawingTooLarge'));
+				var extras = {globalVars: graph.getExportVariables()};
+				
+				editorUi.saveRequest(name, format,
+					function(newTitle, base64)
+					{
+						return new mxElectronRequest('export', {
+							format: format,
+							xml: data,
+							bg: (bg != null) ? bg : mxConstants.NONE,
+							filename: (newTitle != null) ? newTitle : null,
+							w: w,
+							h: h,
+							border: b,
+							base64: (base64 || '0'),
+							extras: JSON.stringify(extras),
+							dpi: dpi > 0? dpi : null
+						}); 
+					});
 			}
 		}
 	};

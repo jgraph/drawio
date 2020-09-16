@@ -29,6 +29,39 @@ let cmdQPressed = false
 let firstWinLoaded = false
 let firstWinFilePath = null
 
+//Read config file
+var queryObj = {
+	'dev': __DEV__ ? 1 : 0,
+	'test': __DEV__ ? 1 : 0,
+	'gapi': 0,
+	'db': 0,
+	'od': 0,
+	'gh': 0,
+	'gl': 0,
+	'tr': 0,
+	'browser': 0,
+	'picker': 0,
+	'mode': 'device',
+	'export': 'https://exp.draw.io/ImageExport4/export'
+};
+
+try
+{
+	if (fs.existsSync(process.cwd() + '/urlParams.json'))
+	{
+		let urlParams = JSON.parse(fs.readFileSync(process.cwd() + '/urlParams.json'));
+		
+		for (var param in urlParams)
+		{
+			queryObj[param] = urlParams[param];
+		}
+	}
+}
+catch(e)
+{
+	console.log('Error in urlParams.json file: ' + e.message);
+}
+
 function createWindow (opt = {})
 {
 	let options = Object.assign(
@@ -57,21 +90,7 @@ function createWindow (opt = {})
 	{
 		pathname: `${__dirname}/index.html`,
 		protocol: 'file:',
-		query:
-		{
-			'dev': __DEV__ ? 1 : 0,
-			'test': __DEV__ ? 1 : 0,
-			'gapi': 0,
-			'db': 0,
-			'od': 0,
-			'gh': 0,
-			'gl': 0,
-			'tr': 0,
-			'browser': 0,
-			'picker': 0,
-			'mode': 'device',
-			'export': 'https://exp.draw.io/ImageExport4/export'
-		},
+		query: queryObj,
 		slashes: true
 	})
 	

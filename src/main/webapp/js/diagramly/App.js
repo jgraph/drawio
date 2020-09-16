@@ -582,7 +582,7 @@ App.main = function(callback, createUi)
 				/.*\.draw\.io$/.test(window.location.hostname) || urlParams['offline'] == '1'))
 			{
 				// Removes PWA cache on www.draw.io to force use of new domain
-				if (urlParams['offline'] == '0' || /www\.draw\.io$/.test(window.location.hostname) ||
+				if (urlParams['offline'] == '0' || /.*\.draw\.io$/.test(window.location.hostname) ||
 					(urlParams['offline'] != '1' && urlParams['dev'] == '1'))
 				{
 					navigator.serviceWorker.getRegistrations().then(function(registrations)
@@ -3301,7 +3301,7 @@ App.prototype.showSplash = function(force)
 				if (cancel && !mxClient.IS_CHROMEAPP)
 				{
 					var prev = Editor.useLocalStorage;
-					this.createFile(this.defaultFilename, null, null, null, null, null, null,
+					this.createFile(this.defaultFilename + (EditorUi.isElectronApp? '.drawio' : ''), null, null, null, null, null, null,
 						urlParams['local'] != '1');
 					Editor.useLocalStorage = prev;
 				}

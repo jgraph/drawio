@@ -4454,6 +4454,12 @@
 					{
 						this.openInNewWindow(data, mimeType, base64Encoded);
 					}
+					else if (mimeType != null && mimeType.substring(0, 9) == 'text/html')
+					{
+						var dlg = new EmbedDialog(this, data);
+						this.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					}
 					else
 					{
 						var win = window.open('about:blank');

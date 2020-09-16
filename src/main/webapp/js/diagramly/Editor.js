@@ -1917,7 +1917,9 @@
 	Editor.prototype.timeout = 25000;
 	
 	/**
-	 * Zoomed mathjax output is causing problems in Safari.
+	 * Mathjax output ignores CSS transforms in Safari (lightbox and normal mode).
+	 * Check the following test case on page 2 before enabling this in production:
+	 * https://devhost.jgraph.com/git/drawio/etc/embed/sf-math-fo-clipping.html?dev=1
 	 */
 	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
 

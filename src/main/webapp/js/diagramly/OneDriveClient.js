@@ -783,9 +783,7 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 				folder = this.getItemURL(folderId, true);
 			}
 			
-			var url = this.baseUrl + folder + '/children/' + encodeURIComponent(filename) + '/content';
-			
-			this.writeFile(url, data, 'PUT', null, mxUtils.bind(this, function(meta)
+			var insertSuccess = mxUtils.bind(this, function(meta)
 			{
 				if (asLibrary)
 				{
@@ -795,7 +793,23 @@ OneDriveClient.prototype.insertFile = function(filename, data, success, error, a
 				{
 					success(new OneDriveFile(this.ui, data, meta));
 				}
-			}), error);
+			});
+
+			var url = this.baseUrl + folder + '/children/' + encodeURIComponent(filename) + '/content';
+			
+			//OneDrive has a limit on PUT API of 4MB, larger files needs to use the upload session method
+			if (data.length >= 4000000 /*4MB*/)
+			{
+				//Create empty file first then upload. TODO Can we get an upload session for non-existing files?
+				this.writeFile(url, '', 'PUT', null, mxUtils.bind(this, function(meta)
+				{
+					this.writeLargeFile(this.getItemURL(meta.id), data, insertSuccess, error);
+				}), error);
+			}
+			else
+			{
+				this.writeFile(url, data, 'PUT', null, insertSuccess, error);
+			}
 		}
 		else
 		{
@@ -869,12 +883,22 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 		
 		var fn = mxUtils.bind(this, function(data)
 		{
-			var url = this.getItemURL(file.getId());
-			
-			this.writeFile(url + '/content/', data, 'PUT', null, mxUtils.bind(this, function(resp)
+			var saveSuccess = mxUtils.bind(this, function(resp)
 			{
 				success(resp, savedData);
-			}), error, etag);
+			});
+
+			var url = this.getItemURL(file.getId());
+			
+			//OneDrive has a limit on PUT API of 4MB, larger files needs to use the upload session method
+			if (data.length >= 4000000 /*4MB*/)
+			{
+				this.writeLargeFile(url, data, saveSuccess, error, etag);
+			}
+			else
+			{
+				this.writeFile(url + '/content/', data, 'PUT', null, saveSuccess, error, etag);
+			}
 		});
 		
 		if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
@@ -898,6 +922,178 @@ OneDriveClient.prototype.saveFile = function(file, success, error, etag)
 	}
 };
 
+OneDriveClient.prototype.writeLargeFile = function(url, data, success, error, etag)
+{
+	try
+	{
+		var chunkSize = 4 * 1024 * 1024; //4MB chunk;
+		
+		if (data != null)
+		{
+			var uploadPart = mxUtils.bind(this, function(uploadUrl, index, retryCount)
+			{
+				try
+				{
+					retryCount = retryCount || 0;
+					var acceptResponse = true;
+					var timeoutThread = null;
+						
+					timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+					{
+						acceptResponse = false;
+						error({code: App.ERROR_TIMEOUT});
+					}), this.ui.timeout);
+	
+					var part = data.substr(index, chunkSize);
+					var req = new mxXmlRequest(uploadUrl, part, 'PUT');
+						
+					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
+					{
+						request.setRequestHeader('Content-Length', part.length);
+						request.setRequestHeader('Content-Range', 'bytes ' + index + '-' + (index + part.length - 1) + '/' + data.length);
+					});
+
+					req.send(mxUtils.bind(this, function(req)
+					{
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+							var status = req.getStatus();
+					    	if (status >= 200 && status <= 299)
+							{
+								var nextByte = index + part.length;
+								
+								if (nextByte == data.length)
+								{
+									success(JSON.parse(req.getText()));
+								}
+								else
+								{
+									uploadPart(uploadUrl, nextByte, retryCount);
+								}
+							}
+							else if (status >= 500 && status <= 599 && retryCount < 2) //Retry on server errors
+							{
+								retryCount++;
+								uploadPart(uploadUrl, index, retryCount);
+							}
+							else
+							{
+								error(this.parseRequestText(req), req);
+							}
+				    	}
+					}), mxUtils.bind(this, function(req)
+					{
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+							error(this.parseRequestText(req));
+				    	}
+					}));
+				}
+				catch (e)
+				{
+					error(e);
+				}
+			});
+			
+			var doExecute = mxUtils.bind(this, function(failOnAuth)
+			{
+				try
+				{
+					var acceptResponse = true;
+					var timeoutThread = null;
+					
+					try
+					{
+						timeoutThread = window.setTimeout(mxUtils.bind(this, function()
+						{
+							acceptResponse = false;
+							error({code: App.ERROR_TIMEOUT});
+						}), this.ui.timeout);
+					}
+					catch (e)
+					{
+						// Ignore window closed
+					}
+					
+					var req = new mxXmlRequest(url + '/createUploadSession', '{}', 'POST');
+					
+					req.setRequestHeaders = mxUtils.bind(this, function(request, params)
+					{
+						request.setRequestHeader('Content-Type', 'application/json');
+						request.setRequestHeader('Authorization', 'Bearer ' + this.token);
+						
+						if (etag != null)
+						{
+							request.setRequestHeader('If-Match', etag);
+						}
+					});
+					
+					req.send(mxUtils.bind(this, function(req)
+					{
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+					    	if (req.getStatus() >= 200 && req.getStatus() <= 299)
+							{
+								var resp = JSON.parse(req.getText());
+					    		uploadPart(resp.uploadUrl, 0);
+							}
+							else if (!failOnAuth && req.getStatus() === 401)
+							{
+								this.authenticate(function()
+								{
+									doExecute(true);
+								}, error, failOnAuth);
+							}
+							else
+							{
+								error(this.parseRequestText(req), req);
+							}
+				    	}
+					}), mxUtils.bind(this, function(req)
+					{
+				    	window.clearTimeout(timeoutThread);
+				    	
+				    	if (acceptResponse)
+				    	{
+							error(this.parseRequestText(req));
+				    	}
+					}));
+				}
+				catch (e)
+				{
+					error(e);
+				}
+			});
+			
+			if (this.token == null || this.tokenExpiresOn - Date.now() < 60000) //60 sec tolerance window
+			{
+				this.authenticate(function()
+				{
+					doExecute(true);
+				}, error);
+			}
+			else
+			{
+				doExecute(false);
+			}
+		}
+		else
+		{
+			error({message: mxResources.get('unknownError')});
+		}
+	}
+	catch (e)
+	{
+		error(e);
+	}
+};
+
 /**
  * Translates this point by the given vector.
  * 
@@ -910,15 +1106,6 @@ OneDriveClient.prototype.writeFile = function(url, data, method, contentType, su
 	{
 		if (url != null && data != null)
 		{
-			//OneDrive has a limit on PUT API of 4MB, larger files needs to use the upload session method
-			if (data.length >= 4000000 /*4MB*/)
-			{
-				error({message: mxResources.get('drawingTooLarge') + ' (' +
-					this.ui.formatFileSize(data.length) + ' / 4 MB)'});
-				
-				return;
-			}
-			
 			var doExecute = mxUtils.bind(this, function(failOnAuth)
 			{
 				try
