@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "13.5.2",
+  "version": "13.7.3",
   "description": "diagrams.net desktop",
   "main": "electron.js",
   "scripts": {
@@ -26,7 +26,7 @@
     "commander": "^6.1.0",
     "electron-log": "^4.2.4",
     "electron-updater": "^4.3.4",
-    "electron-progressbar": "1.1.5",
+    "electron-progressbar": "1.2.0",
     "electron-store": "^6.0.0",
     "compression": "^1.7.4",
     "crc": "^3.8.0"
