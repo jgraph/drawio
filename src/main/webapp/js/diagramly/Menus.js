@@ -1821,7 +1821,7 @@
 			var bounds = graph.getGraphBounds();
 			
 			editorUi.showPublishLinkDialog(mxResources.get('iframe'), null, '100%',
-				(Math.ceil((bounds.y + bounds.height - graph.view.translate.y) / graph.view.scale) + 2),
+				Math.ceil(bounds.height / graph.view.scale) + 2,
 				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))

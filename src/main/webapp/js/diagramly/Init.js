@@ -362,7 +362,7 @@ if (window.location.hostname == 'embed.diagrams.net')
 }	
 
 // Uses lightbox mode on viewer domain
-if (window.location.hostname == 'viewer.diagrams.net')
+if (window.location.hostname == DRAWIO_LIGHTBOX_URL.substring(DRAWIO_LIGHTBOX_URL.indexOf('//') + 2))
 {
 	urlParams['lightbox'] = '1';
 }	

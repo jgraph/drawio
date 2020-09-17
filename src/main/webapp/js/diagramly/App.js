@@ -581,8 +581,8 @@ App.main = function(callback, createUi)
 			if ('serviceWorker' in navigator && (/.*\.diagrams\.net$/.test(window.location.hostname) ||
 				/.*\.draw\.io$/.test(window.location.hostname) || urlParams['offline'] == '1'))
 			{
-				// Removes PWA cache on www.draw.io to force use of new domain
-				if (urlParams['offline'] == '0' || /.*\.draw\.io$/.test(window.location.hostname) ||
+				// Removes PWA cache on www.draw.io to force use of new domain via redirect
+				if (urlParams['offline'] == '0' || /www\.draw\.io$/.test(window.location.hostname) ||
 					(urlParams['offline'] != '1' && urlParams['dev'] == '1'))
 				{
 					navigator.serviceWorker.getRegistrations().then(function(registrations)

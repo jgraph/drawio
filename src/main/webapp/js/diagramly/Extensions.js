@@ -4137,6 +4137,7 @@ LucidImporter = {};
 			if (text.t != null)
 			{
 				var txt = text.t;
+				txt = txt.replace(/\u2028/g, '\n'); //Special unicide line separator
 				var m = text.m;
 				
 				//Convert text object to HTML if needed

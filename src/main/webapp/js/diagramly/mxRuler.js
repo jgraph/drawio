@@ -19,6 +19,10 @@
 
 function mxRuler(editorUi, unit, isVertical, isSecondery) 
 {
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                           		window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+	var cancelAnimationFrame = window.cancelAnimationFrame || window.mozCancelAnimationFrame;
+
 	var RULER_THICKNESS = this.RULER_THICKNESS;
     var ruler = this;
     this.unit = unit;
@@ -244,6 +248,25 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         ctx.fillRect(0, 0, RULER_THICKNESS, RULER_THICKNESS);
     };
     
+	var animationId = -1;
+
+	var listenersDrawRuler = function() 
+	{
+		if (requestAnimationFrame != null)
+		{
+			if (cancelAnimationFrame != null)
+			{
+				cancelAnimationFrame(animationId);	
+			}
+
+			animationId = requestAnimationFrame(drawRuler);
+		}
+		else
+		{
+			drawRuler();
+		}
+	};
+	
 	var sizeListener = function() 
 	{
 	    var div = graph.container;
@@ -256,7 +279,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     		{
 	    		canvas.height = newH;
 	    		container.style.height = newH + 'px';
-	    		drawRuler();
+	    		listenersDrawRuler();
     		}
     	}
 	    else 
@@ -267,19 +290,19 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     		{
 	    		canvas.width = newW;
 	    		container.style.width = newW + 'px';
-	    		drawRuler();
+	    		listenersDrawRuler();
     		}
     	}
     };
 
-    this.drawRuler = drawRuler;
+    this.drawRuler = listenersDrawRuler;
 
 	var efficientSizeListener = debounce(sizeListener, 10);
 	this.sizeListener = efficientSizeListener;
 	
 	this.pageListener = function()
 	{
-		drawRuler();
+		listenersDrawRuler();
 	};
 	
 	var efficientScrollListener = debounce(function()
@@ -289,7 +312,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 		if (ruler.lastScroll != newScroll)
 		{
 			ruler.lastScroll = newScroll;
-			drawRuler();
+			listenersDrawRuler();
 		}
 	}, 10);
 
@@ -308,6 +331,11 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
     function debounce(func, wait, immediate) 
     {
+		if (requestAnimationFrame != null)
+		{
+			return func;
+		}
+		
         var timeout;
         return function() {
             var context = this, args = arguments;

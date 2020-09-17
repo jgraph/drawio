@@ -1,3 +1,9 @@
+17-SEP-2020: 13.7.3
+
+- Moves viewer to viewer.diagrams.net
+- Improves shape picker position
+- Uses mxGraph 4.2.1 beta 17
+
 16-SEP-2020: 13.7.2
 
 - Removes PWA on draw.io domains
