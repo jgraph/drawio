@@ -7455,3 +7455,4 @@
 
 	mxCodecRegistry.register(codec);
 })();
+

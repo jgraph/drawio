@@ -3753,63 +3753,160 @@ LucidImporter = {};
 	
 	// actual code start
 	//TODO This can be optimized more
-	function convertTxt2Html(txt, m)
+	function convertTxt2Html(txt, srcM)
 	{
-		var nlPos = [], p = -1, html = '';
+		var blockStyles = {'a': true, 'il': true, 'ir': true, 'mt': true, 'mb': true, 'p': true, 't': true, 'l': true};
+		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true};
 
-		while ((p = txt.indexOf('\n', p + 1)) > -1)
-		{
-			nlPos.push(p + 1);
-		}
-
-		m.sort(function(a, b)
+		srcM.sort(function(a, b)
 		{
 			return a.s - b.s;
 		});
-
-		var sMap = {}, ends = [];
-
-		for (var i = 0; i < m.length; i++) //TODO Using newlines to mark the end of blocks without end has some issues 
+		
+		var m = srcM.filter(function(m) 
+		{ 
+			return nonBlockStyles[m.n];
+		});
+		
+		var globalStyles = srcM.filter(function(m)
 		{
-			var item = m[i];
-			
-			if (sMap[item.s] == null)
-			{
-				for (var j = 0; j < nlPos.length; j++)
-				{
-					if (nlPos[j] > item.s)
-					{
-						sMap[item.s] = nlPos[j];
-						break;
-					}
-				}
-
-				if (sMap[item.s] == null)
-				{
-					sMap[item.s] = txt.length;
-				}
-			}
-
-			if (item.e == null)
-			{
-				item.e = sMap[item.s];
-			}
-
-			ends.push(item);
-		}
+			return blockStyles[m.n];
+		});
+		
+		var html = '', ends = m.slice();
 
 		ends.sort(function(a, b)
 		{
 			return a.e - b.e;
 		});
 
-		var i = 0, j = 0, curStyles = {}, openTags = [], openTagsCount = [], listActive = false, listType, listItemActive = false;
+		var i = 0, j = 0, k = 0, curStyles = {}, curBlockStyles = {}, openTags = [], openTagsCount = [], 
+			openBlockTags = [], blockActive = false, listActive = false, listType;
 		
-		function startTag(styles, newBlock)
+		function startBlockTag(styles)
 		{
 			var str = '';
-			var tagCount = 0;
 			var t = styles['t'];
+
+			var l = styles['l'] || {};
+			
+			if (t != null && (listActive == false || listActive != t.v || listType != l.v))
+			{
+				if (listActive)
+				{
+					str += endBlockTag(true);
+				}
+				
+				listActive = t.v;
+				listType = l.v;
+				
+				if (t.v == 'ul')
+				{
+					str += '<ul ';
+					openBlockTags.push('ul');
+				}
+				else
+				{
+					str += '<ol ';
+					openBlockTags.push('ol');
+				}
+				
+				str += 'style="margin: 0px; list-style-type:';
+				
+				if (t.v == 'hl')
+				{
+					str += 'upper-roman';
+				}
+				else
+				{
+					switch(l.v)
+					{
+						case 'auto':
+							str += 'disc';
+							break;
+						case 'inv': //Approx
+							str += 'circle';
+							break;
+						case 'disc': 
+							str += 'circle';
+							break;
+						case 'trib': //Approx
+							str += 'square';
+							break;
+						case 'square':
+							str += 'square';
+							break;	
+						case 'dash': //Approx
+							str += 'square';
+							break;	
+						case 'heart': //Approx
+							str += 'disc';
+							break;
+						default:
+							str += 'decimal';					
+					}
+				}
+				
+				str += '">';
+			}
+			else if (t == null)
+			{
+				if (listActive)
+				{
+					str += endBlockTag(true);
+					listActive = false;
+				}
+
+				str += '<div style="';
+				openBlockTags.push('div');
+			}
+
+			if (t != null)
+			{
+				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'left') + '>';
+				openBlockTags.push('li');
+				str += '<span style="';
+				openBlockTags.push('span');
+
+			}
+
+			if (!listActive)
+			{
+				str += 'text-align: ' + (styles['a']? styles['a'].v : 'center') + ';';
+			}
+			
+			if (styles['il'])
+			{
+				str += 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
+			}
+
+			if (styles['ir'])
+			{
+				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
+			}
+
+			if (styles['mt'])
+			{
+				str += 'margin-top: ' + Math.round(styles['mt'].v * scale) + 'px;';
+			}
+
+			if (styles['mb'])
+			{
+				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
+			}
+
+			str += '">'
+
+			return str;
+		};
+
+		
+		function startTag(styles)
+		{
+			if (Object.keys(styles).length == 0) return '';
+			
+			var str = '';
+			var tagCount = 0;
 
 			if (styles['lk'])
 			{
@@ -3823,107 +3920,9 @@ LucidImporter = {};
 				}
 			}
 			
-			if (newBlock)
-			{
-				var l = styles['l'] || {};
-				
-				if (t != null && (listActive == false || listActive != t.v || listType != l.v))
-				{
-					if (listActive)
-					{
-						str += endTag();
-					}
-					
-					listActive = t.v;
-					listType = l.v;
-					
-					if (t.v == 'ul')
-					{
-						str += '<ul ';
-						openTags.push('ul');
-					}
-					else
-					{
-						str += '<ol ';
-						openTags.push('ol');
-					}
-					
-					openTagsCount.push(1);
-					str += 'style="margin: 0px; text-align:' + (styles['a']? styles['a'].v : 'left') + '; list-style-type:';
-					
-					if (t.v == 'hl')
-					{
-						str += 'upper-roman';
-					}
-					else
-					{
-						switch(l.v)
-						{
-							case 'auto':
-								str += 'disc';
-								break;
-							case 'inv': //Approx
-								str += 'circle';
-								break;
-							case 'disc': 
-								str += 'circle';
-								break;
-							case 'trib': //Approx
-								str += 'square';
-								break;
-							case 'square':
-								str += 'square';
-								break;	
-							case 'dash': //Approx
-								str += 'square';
-								break;	
-							case 'heart': //Approx
-								str += 'disc';
-								break;
-							default:
-								str += 'decimal';					
-						}
-					}
-					
-					str += '">';
-				}
-				else if (t == null)
-				{
-					if (listActive)
-					{
-						str += endTag();
-						listActive = false;
-					}
-
-					str += '<div style="';
-					openTags.push('div');
-					tagCount++;
-				}
-			}
-			else
-			{
-				if (listActive && !listItemActive)
-				{
-					str += endTag();
-					listActive = false;
-				}
-				
-				str += '<span style="';
-				openTags.push('span');
-				tagCount++;
-			}
-
-			if (newBlock && t != null)
-			{
-				listItemActive = true;
-				str += '<li>';
-				openTags.push('li');
-				tagCount++;
-				
-				str += '<span style="';
-				openTags.push('span');
-				tagCount++;
-			}
+			str += '<span style="';
+			openTags.push('span');
+			tagCount++;
 
 			if (styles['s'])
 			{
@@ -3961,33 +3960,29 @@ LucidImporter = {};
 				str += 'text-decoration: underline;';
 			}
 
-			if (!listActive)
-			{
-				str += 'text-align: ' + (styles['a']? styles['a'].v : 'center') + ';';
-			}
-			
-			if (styles['il'])
-			{
-				str += 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
-			}
-
-			if (styles['ir'])
-			{
-				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
-			}
-
-			if (styles['mt'])
-			{
-				str += 'margin-top: ' + Math.round(styles['mt'].v * scale) + 'px;';
-			}
-
-			if (styles['mb'])
-			{
-				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
-			}
-
 			str += '">'
 			openTagsCount.push(tagCount);
+
+			return str;
+		};
+
+		function endBlockTag(force)
+		{
+			var str = '';
+			
+			do
+			{
+				var tag = openBlockTags.pop();
+				
+				if (!force && listActive && (tag == 'ul' || tag == 'ol'))
+				{
+					openBlockTags.push(tag);
+					break;
+				}
+				
+				str += '</' + tag + '>';
+			}
+			while(openBlockTags.length > 0);
 
 			return str;
 		};
@@ -3997,9 +3992,9 @@ LucidImporter = {};
 			var str = txt? txt.substring(curS, curE) : '';
 
 			//TODO Check this is always the case. Most of the time this is correct, also, the empty tag should be removed
-			if (str == '\n')
+			if (listActive)
 			{
-				str = '';
+				str = str.trim();
 			}
 			
 			str = str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -4011,68 +4006,108 @@ LucidImporter = {};
 				for (var i = 0; i < count; i++) 
 				{
 					var tag = openTags.pop();
-					
-					if (tag == 'li')
-					{
-						listItemActive = false;
-					}
-					
 					str += '</' + tag + '>';
 				}
 			}
 			while(all && openTags.length > 0);
 
 			return str;
-		}
+		};
 		
-		var curS = 0, curE = 0;
+		var curS = 0, curE = 0, maxE = txt.length, firstBlock = true;
 		
-		while(i >= j && (i < m.length || j < ends.length))
+		while (k < globalStyles.length || firstBlock)
 		{
-			var s = m[i], e = ends[j];
-
-			if (s && e && s.s < e.e) //s can be null when all starts are used, e ends after s BUT sometimes there are errors in the file
+			firstBlock = false;
+			
+			if (k < globalStyles.length)
 			{
-				curS = s.s;
-				var newBlock = false;
-
-				if (curS - curE > 0)
+				var bs = globalStyles[k], curBS = globalStyles[k].s;
+							
+				if (blockActive)
 				{
-					html += startTag(curStyles, newBlock) + endTag(txt, curE, curS); 
+					curBlockStyles = {};
+					html += endTag(txt, maxE, curS, true); //End any open tag
+					curS = maxE;
+					html += endBlockTag(); 
+				}
+		
+				while(bs != null && bs.s == curBS)
+				{
+					curBlockStyles[bs.n] = bs;
+					bs = globalStyles[++k];
 				}
 				
-				while(s != null && s.s == curS)
+				if (bs != null)
 				{
-					//TODO alignment ('a') sometimes introduce unnecessary new lines. Maybe use newline to define block elements
-					if (s.n == 'a' || s.n == 'il' || s.n == 'ir' || s.n == 'mt' || s.n == 'mb' || s.n == 't')
+					maxE = bs.s;
+				}
+				else
+				{
+					maxE = txt.length;
+				}
+				
+				html += startBlockTag(curBlockStyles);
+				
+				if (blockActive)
+				{
+					html += startTag(curStyles);
+				}
+				
+				blockActive = true;
+			}
+			
+			while(i >= j && (i < m.length || j < ends.length))
+			{
+				var s = m[i], e = ends[j];
+	
+				if (s && e && s.s < e.e) //s can be null when all starts are used, e ends after s BUT sometimes there are errors in the file
+				{
+					if (s.s > maxE) break;
+					curS = s.s;
+	
+					if (curS - curE > 0)
 					{
-						newBlock = true;
+						html += endTag(txt, curE, curS); 
 					}
 					
-					curStyles[s.n] = s;
-					s = m[++i];
+					while(s != null && s.s == curS)
+					{
+						curStyles[s.n] = s;
+						s = m[++i];
+					}
+					
+					html += startTag(curStyles);
 				}
-				
-				html += startTag(curStyles, newBlock);
-			}
-			else if (e)
-			{
-				curE = e.e;
-
-				do
+				else if (e)
 				{
-					delete curStyles[e.n];
-					e = ends[++j];
+					if (e.e > maxE) break;
+					curE = e.e;
+	
+					do
+					{
+						delete curStyles[e.n];
+						e = ends[++j];
+					}
+					while(e != null && e.e == curE);
+					
+					html += endTag(txt, curS, curE);
+					curS = curE;
 				}
-				while(e != null && e.e == curE);
-				
-				html += endTag(txt, curS, curE);
-				curS = curE;
+				else
+				{
+					break;
+				}
 			}
 		}
 		
 		html += endTag(null, null, null, true); //End any open tag
-
+		
+		if (blockActive)
+		{
+			html += endBlockTag(true); 
+		}
+					
 		return html;
 	};
 	
@@ -5210,14 +5245,7 @@ LucidImporter = {};
 						}
 						else if (p.Shape == 'elbow')
 						{
-							if (p.Endpoint1.Block != null && p.Endpoint2.Block != null)
-							{
-								cell.style += 'edgeStyle=orthogonalEdgeStyle;';
-							}
-							else
-							{
-								cell.style += 'edgeStyle=elbowEdgeStyle;';
-							}
+							cell.style += 'edgeStyle=orthogonalEdgeStyle;';
 						}
 						else if (p.Endpoint1.Block != null && p.Endpoint2.Block != null)
 						{
@@ -8390,7 +8418,7 @@ LucidImporter = {};
 
 				break;
 			case 'BPMNGateway' :
-				v.style += 'shape=mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;'; 
+				v.style += 'shape=mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;verticalLabelPosition=bottom;verticalAlign=top;'; 
 				
 				switch (p.bpmnGatewayType)
 				{
@@ -8421,7 +8449,8 @@ LucidImporter = {};
 				}
 				
 				v.style += addAllStyles(v.style, p, a, v);
-				
+				v.value = convertText(p.Text);
+				v.style += getLabelStyle(p, isLastLblHTML);
 				break;
 			case 'BPMNData' :
 				v.style += 'shape=note;size=14;'; 
@@ -11313,7 +11342,7 @@ LucidImporter = {};
 					}
 					
 					v.value = convertText(p.Title);
-					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
 						'startSize=' + th + ';' +
 						getLabelStyle(p.Title, isLastLblHTML);
 					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -11391,7 +11420,7 @@ LucidImporter = {};
 				}
 				
 				v.value = convertText(p.Name);
-				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -12164,6 +12193,22 @@ LucidImporter = {};
 			v.style += 'html=1;';
 		}
 		
+		if (p.Title && p.Text)
+		{
+			try
+			{
+				var geo = v.geometry;
+				var title = new mxCell(convertText(p.Title), new mxGeometry(0, geo.height,geo.width, 10), 'strokeColor=none;fillColor=none;');
+				title.vertex = true;
+				v.insert(title);
+				v.style += getLabelStyle(p.Title, isLastLblHTML);
+			}
+			catch(e)
+			{
+				console.log(e);
+			}
+		}
+				
 		handleTextRotation(v, p);
 		
 	    return v;

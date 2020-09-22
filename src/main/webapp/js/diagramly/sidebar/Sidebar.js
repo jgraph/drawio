@@ -360,10 +360,31 @@
 	 */
 	Sidebar.prototype.showEntries = function(stc, remember, force)
 	{
-		this.libs = (stc != null && (force || stc.length > 0)) ? stc : ((urlParams['libs'] != null &&
-			urlParams['libs'].length > 0) ? decodeURIComponent(urlParams['libs']) :
-			((mxSettings != null && mxSettings.settings != null) ? mxSettings.getLibraries() :
-			this.defaultEntries));
+		this.libs = [];
+		
+		if(stc != null && (force || stc.length > 0))
+		{
+			this.libs.push(stc);
+		}
+		else 
+		{
+			if(urlParams['libs'] != null && urlParams['libs'].length > 0) 
+			{
+				this.libs.push(decodeURIComponent(urlParams['libs']));
+			}
+			
+			if(mxSettings != null && mxSettings.settings != null) 
+			{
+				this.libs.push(mxSettings.getLibraries());
+			}
+			else 
+			{
+				this.libs.push(this.defaultEntries);
+			}
+		}
+		
+		this.libs = this.libs.join(';');
+
 		var tmp = this.libs.split(';');
 		
 		// Maps library names via the alias table
