@@ -568,8 +568,9 @@ App.main = function(callback, createUi)
 			{
 				var content = mxUtils.getTextContent(scripts[0]);
 				
-				if (CryptoJS.MD5(content).toString() != '5bf9ec4131db137e247634de78c4ec47')
+				if (CryptoJS.MD5(content).toString() != '9544a60fcc10609bee5e70a56ad52599')
 				{
+					console.log('Updated MD5:', CryptoJS.MD5(content).toString());
 					alert('[Dev] Script change requires update of CSP');
 				}
 			}

@@ -2778,7 +2778,7 @@ Graph.prototype.createLayersDialog = function()
 /**
  * Private helper method.
  */
-Graph.prototype.replacePlaceholders = function(cell, str)
+Graph.prototype.replacePlaceholders = function(cell, str, vars)
 {
 	var result = [];
 	
@@ -2826,6 +2826,11 @@ Graph.prototype.replacePlaceholders = function(cell, str)
 					if (tmp == null)
 					{
 						tmp = this.getGlobalVariable(name);
+					}
+					
+					if (tmp == null && vars != null)
+					{
+						tmp = vars[name];
 					}
 				}
 	

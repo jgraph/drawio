@@ -513,6 +513,11 @@
 		'#\n' +
 		'# styles: -\n' +
 		'#\n' +
+		'## JSON for variables in styles of the form {"name": "value", "name": "value"} where name is a string\n' +
+		'## that will replace a placeholder in a style.\n' +
+		'#\n' +
+		'# vars: -\n' +
+		'#\n' +
 		'## Optional column name that contains a reference to a named label in labels.\n' +
 		'## Default is the current label.\n' +
 		'#\n' +

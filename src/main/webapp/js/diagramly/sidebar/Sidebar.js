@@ -354,43 +354,58 @@
 		
 		return false;
 	};
-	
+
 	/**
 	 * 
 	 */
-	Sidebar.prototype.showEntries = function(stc, remember, force)
+	Sidebar.prototype.showEntries = function(entries, remember, force)
 	{
-		this.libs = [];
+		var all = [];
 		
-		if(stc != null && (force || stc.length > 0))
+		if (remember)
 		{
-			this.libs.push(stc);
+			mxSettings.setLibraries(entries);
+			mxSettings.save();
+		}
+		
+		if (entries != null && (force || entries.length > 0))
+		{
+			all.push(entries);
 		}
 		else 
 		{
-			if(urlParams['libs'] != null && urlParams['libs'].length > 0) 
+			var done = false;
+			
+			if (urlParams['libs'] != null && urlParams['libs'].length > 0) 
 			{
-				this.libs.push(decodeURIComponent(urlParams['libs']));
+				all.push(decodeURIComponent(urlParams['libs']));
+				done = this.editorUi.getServiceName() == 'draw.io';
 			}
 			
-			if(mxSettings != null && mxSettings.settings != null) 
+			// Libs parameter overrides configuration for online app so that
+			// links can be created to show just the specifies libraries
+			if (!done)
 			{
-				this.libs.push(mxSettings.getLibraries());
-			}
-			else 
-			{
-				this.libs.push(this.defaultEntries);
+				if (mxSettings != null && mxSettings.settings != null) 
+				{
+					all.push(mxSettings.getLibraries());
+				}
+				else 
+				{
+					all.push(this.defaultEntries);
+				}
 			}
 		}
 		
-		this.libs = this.libs.join(';');
-
-		var tmp = this.libs.split(';');
+		// Merges array of semicolon separated strings into a single array
+		var temp = all.join(';').split(';');
 		
-		// Maps library names via the alias table
-		for (var i = 0; i < tmp.length; i++)
+		// Resolves aliases and creates lookup
+		var visible = {};
+		
+		for (var i = 0; i < temp.length; i++)
 		{
-			tmp[i] = this.libAliases[tmp[i]] || tmp[i];
+			visible[this.libAliases[temp[i]] || temp[i]] = true; 
 		}
 		
 		for (var i = 0; i < this.configuration.length; i++)
@@ -400,7 +415,7 @@
 			{
 				this.showPalettes(this.configuration[i].prefix || '',
 					this.configuration[i].libs || [this.configuration[i].id],
-					mxUtils.indexOf(tmp, this.configuration[i].id) >= 0);
+					visible[this.configuration[i].id] == true);
 			}
 		}
 		
@@ -423,16 +438,10 @@
 							libs.push(entry.id + '.' + k);
 						}
 						
-						this.showPalettes('', libs, mxUtils.indexOf(tmp, entry.id) >= 0);
+						this.showPalettes('', libs, visible[entry.id]);
 					}
 				}
 			}
-		}
-		
-		if (remember)
-		{
-			mxSettings.setLibraries(stc);
-			mxSettings.save();
 		}
 	};
 

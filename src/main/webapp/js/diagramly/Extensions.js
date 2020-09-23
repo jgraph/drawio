@@ -3746,7 +3746,7 @@ LucidImporter = {};
 			//'TimelineBlock' : cs,
 			//'TimelineMilestoneBlock' : cs,
 			//'TimelineIntervalBlock' : cs,
-			'MinimalTextBlock' : 'strokeColor=none',
+			'MinimalTextBlock' : 'strokeColor=none;fillColor=none',
 //Freehand			
 			'FreehandBlock' : cs
 	};
