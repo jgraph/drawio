@@ -5,7 +5,7 @@
  * No CSS and resources available in embed mode. Parameters and docs:
  * https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-
  */
-GraphViewer = function(container, xmlNode, graphConfig)
+var GraphViewer = function(container, xmlNode, graphConfig)
 {
 	this.init(container, xmlNode, graphConfig);
 };
