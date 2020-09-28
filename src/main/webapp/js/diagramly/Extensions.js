@@ -4167,6 +4167,7 @@ LucidImporter = {};
 		}
 		
 		// TODO: Convert text object to HTML. One case is covered. Is there others?
+		// TODO: HTML text conversion looks stable now, maybe convert all using html?
 		if (text != null)
 		{
 			if (text.t != null)
@@ -4180,7 +4181,7 @@ LucidImporter = {};
 				{
 					for (var i = 0; i < m.length; i++)
 					{
-						if (m[i].s > 0)
+						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length))
 						{
 							isLastLblHTML = true;
 							break;
@@ -4267,7 +4268,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=width;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
+		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=width;html=1;' : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4292,7 +4293,7 @@ LucidImporter = {};
 			s = ';';
 		}
 		
-		s +=	
+		s += 'whiteSpace=wrap;' + 
 		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=width;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			

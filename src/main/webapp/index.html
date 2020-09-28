@@ -283,12 +283,13 @@
 					mxscript('js/PreConfig.js');
 				}
 				
-				mxscript('js/app.min.js');
-				
-				if (!supportedDomain)
+				mxscript('js/app.min.js', function()
 				{
-					mxscript('js/PostConfig.js');
-				}
+					if (!supportedDomain)
+					{
+						mxscript('js/PostConfig.js');
+					}
+				});
 			})();
 		}
 
