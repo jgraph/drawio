@@ -1,3 +1,11 @@
+30-SEP-2020: 13.7.7
+
+- Updates Finnish translations, credit Arttu Ylhävuori, github.com/areee
+- Updates native File API tokens
+- Lucidchart import improvements
+- Fixes gradient issues in FF
+- Uses mxGraph 4.2.1 beta 18
+
 28-SEP-2020: 13.7.6
 
 - Updates Azure icons
