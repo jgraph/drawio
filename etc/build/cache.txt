@@ -51,7 +51,7 @@ images/glyphicons_github.png
 images/hs.png
 
 # Redirect app to app.html which redirects to index.html?offline=1
-# this is required to get the URL parameters into the index page.
+# This is required to get the URL parameters into the index page.
 FALLBACK:
 app app.html
 
