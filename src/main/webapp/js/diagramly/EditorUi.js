@@ -7477,7 +7477,7 @@
 				{
 					if (text.substring(0, 5) == 'data:')
 					{
-						this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
+						this.resizeImage(img, text, text.length, mxUtils.bind(this, function(data2, w2, h2)
 	    				{
 							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
 									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
@@ -8301,14 +8301,14 @@
 						    					{
 									    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
 									    			{
-									    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
+									    				this.resizeImage(img, e.target.result, file.size, mxUtils.bind(this, function(data2, w2, h2)
 									    				{
 										    				barrier(index, mxUtils.bind(this, function()
 												    		{
 										    					// Refuses to insert images above a certain size as they kill the app
 										    					if (data2 != null && data2.length < maxBytes)
 										    					{
-											    					var s = (!resizeImages || !this.isResampleImage(e.target.result, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
+											    					var s = (!resizeImages || !this.isResampleImage(file.size, resampleThreshold)) ? 1 : Math.min(1, Math.min(maxSize / w2, maxSize / h2));
 												    				
 											    					return fn(data2, file.type, x + index * gs, y + index * gs, Math.round(w2 * s), Math.round(h2 * s), file.name);
 										    					}
@@ -8472,23 +8472,23 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.isResampleImage = function(data, thresh)
+	EditorUi.prototype.isResampleImage = function(size, thresh)
 	{
 		thresh = (thresh != null) ? thresh : this.resampleThreshold;
 
-		return data.length > thresh;
+		return size > thresh;
 	};
 	
 	/**
 	 * Resizes the given image if <maxImageBytes> is not null.
 	 */
-	EditorUi.prototype.resizeImage = function(img, data, fn, enabled, maxSize, thresh)
+	EditorUi.prototype.resizeImage = function(img, data, size, fn, enabled, maxSize, thresh)
 	{
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		var w = Math.max(1, img.width);
 		var h = Math.max(1, img.height);
 		
-		if (enabled && this.isResampleImage(data, thresh))
+		if (enabled && this.isResampleImage(size, thresh))
 		{
 			try
 			{
