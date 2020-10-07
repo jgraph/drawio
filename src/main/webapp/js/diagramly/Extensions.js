@@ -70,7 +70,7 @@ LucidImporter = {};
 			'DefaultSquareBlock': '',
 			'DefaultNoteBlock': 'shape=note;size=15',
 			'DefaultNoteBlockV2': 'shape=note;size=15',
-			'HotspotBlock': 'strokeColor=none;opacity=50',
+			'HotspotBlock': 'strokeColor=none;fillColor=none',
 			'ImageSearchBlock2': 'shape=image',
 			'UserImage2Block': 'shape=image',
 //Flowchart
@@ -231,6 +231,7 @@ LucidImporter = {};
 			'UMLPackageBlock': 'shape=folder;tabPosition=left',
 			'UMLConstraintBlock' : cs,
 			'UMLNoteBlock': 'shape=note;size=15',
+			'UMLNoteBlockV2': 'shape=note;size=15',
 			'UMLTextBlock': cs,
 //UML Use Case
 			'UMLActorBlock': 'shape=umlActor;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;whiteSpace=nowrap',
@@ -267,12 +268,19 @@ LucidImporter = {};
 //			'UMLControlBlock'NA
 //UML Component
 			'UMLComponentBlock' : 'shape=component;align=left;spacingLeft=36',
-			'UMLNodeBlock' : 'shape=cube;size=12;flipH=1',
+			'UMLComponentBlockV2' : 'shape=component;align=left;spacingLeft=36',
+			'UMLNodeBlock' : 'shape=cube;size=12;flipH=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=5',
+			'UMLNodeBlockV2' : 'shape=cube;size=12;flipH=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=5',
 			'UMLComponentInterfaceBlock' : 'ellipse',
+			'UMLComponentInterfaceBlockV2' : 'ellipse',
 			'UMLComponentBoxBlock' : cs,
-//			'UMLAssemblyConnectorBlock' NA
-			'UMLProvidedInterfaceBlock' : 'shape=lollipop;direction=south',
+			'UMLComponentBoxBlockV2' : cs,
+			'UMLAssemblyConnectorBlock': cs,
+			'UMLAssemblyConnectorBlockV2': cs,
+			'UMLProvidedInterfaceBlock' : cs,
+			'UMLProvidedInterfaceBlockV2' :cs,
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north',
+			'UMLRequiredInterfaceBlockV2' : 'shape=requires;direction=north',
 			'UMLSwimLaneBlockV2': cs,
 //UML Deployment
 //UML Entity Relationship
@@ -3754,7 +3762,7 @@ LucidImporter = {};
 			'ExtShapeServerBlock': ss + 'citrix.tower_server;verticalLabelPosition=bottom;verticalAlign=top',
 			'ExtShapeCloudBlock': ss + 'citrix.cloud;verticalLabelPosition=bottom;verticalAlign=top',
 			'ExtShapeUserBlock': ss + 'aws3d.end_user;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#073763',
-			'ExtShapeWorkstationLCDBlock': ss + 'veeam.3d.workstation;verticalLabelPosition=bottom;verticalAlign=top'
+			'ExtShapeWorkstationLCDBlock': ss + 'veeam.3d.workstation;verticalLabelPosition=bottom;verticalAlign=top',
 	};
 	
 	// actual code start
@@ -3932,7 +3940,7 @@ LucidImporter = {};
 
 			if (styles['s'])
 			{
-				str += 'font-size:' + Math.round(styles['s'].v * scale) + 'px;';
+				str += 'font-size:' + Math.floor(styles['s'].v * scale) + 'px;';
 			}
 
 			if (styles['c'])
@@ -4424,7 +4432,7 @@ LucidImporter = {};
 					{
 						isV = true;
 						
-						return 'fontSize=' + Math.round(currM.v * scale) + ';';
+						return 'fontSize=' + Math.floor(currM.v * scale) + ';';
 					}
 				}
 				i++;
@@ -5044,7 +5052,11 @@ LucidImporter = {};
 		{
 			imgUrl = properties.ImageFillProps.url;
 		}
-		
+		else if (properties.FillColor && properties.FillColor.url)
+		{
+			imgUrl = properties.FillColor.url;
+		}
+					
 		if (imgUrl != null)
 		{
 			if (LucidImporter.imgSrcRepl != null)
@@ -5144,12 +5156,12 @@ LucidImporter = {};
 					else if (tmp.substring(0, 5) == 'date:')
 					{
 						// LATER: Convert more date masks
-						tmp = 'date{' + tmp.substring(5).replace(/MMMM/g, 'mmmm').replace(/YYYY/g, 'yyyy') + '}';
+						tmp = 'date{' + tmp.substring(5).replace(/MMMM/g, 'mmmm').replace(/MM/g, 'mm').replace(/YYYY/g, 'yyyy') + '}';
 					}
 					else if (tmp.substring(0, 16) == 'lastModifiedTime')
 					{
 						// LATER: Convert more date masks
-						tmp = tmp.replace(/MMMM/g, 'mmmm').replace(/YYYY/g, 'yyyy');
+						tmp = tmp.replace(/MMMM/g, 'mmmm').replace(/MM/g, 'mm').replace(/YYYY/g, 'yyyy');
 					}
 					else if (tmp.substring(0, 9) == 'i18nDate:')
 					{
@@ -5199,6 +5211,11 @@ LucidImporter = {};
 			if (s != null)
 			{
 				cell.style += s + ';';
+			}
+			else if (!cell.edge)
+			{
+				console.log('No mapping found for: ' + a.Class);
+				LucidImporter.hasUnknownShapes = true;
 			}
 			
 			var p = (a.Properties != null) ? a.Properties : a;
@@ -5264,6 +5281,11 @@ LucidImporter = {};
 							}
 						}
 					}
+					
+					if (p.LineJumps || LucidImporter.globalProps.LineJumps)
+					{
+						cell.style += 'jumpStyle=arc;';
+					}
 
 					if (p.Endpoint1.Style != null)
 					{
@@ -5273,6 +5295,8 @@ LucidImporter = {};
 						}
 						else
 						{
+							LucidImporter.hasUnknownShapes = true;
+							
 							if (window.console)
 							{
 								console.log('Unknown endpoint style: ' + p.Endpoint1.Style);
@@ -5288,6 +5312,8 @@ LucidImporter = {};
 						}
 						else
 						{
+							LucidImporter.hasUnknownShapes = true;
+							
 							if (window.console)
 							{
 								console.log('Unknown endpoint style: ' + p.Endpoint2.Style);
@@ -5337,8 +5363,31 @@ LucidImporter = {};
 					}
 					
 					// Anchor points and arrows
-					updateEndpoint(cell, p.Endpoint1, true, implicitY);
-					updateEndpoint(cell, p.Endpoint2, false, implicitY);
+					var p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY);
+					
+					if (source != null && p1 != null)
+					{
+						if (source.stylePoints == null)
+						{
+							source.stylePoints = [];
+						}
+						
+						source.stylePoints.push(p1);
+						LucidImporter.stylePointsSet.add(source);
+					}
+					
+					var p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY);
+					
+					if (target != null && p2 != null)
+					{
+						if (target.stylePoints == null)
+						{
+							target.stylePoints = [];
+						}
+						
+						target.stylePoints.push(p2);
+						LucidImporter.stylePointsSet.add(target);
+					}
 				}
 			}
 		}
@@ -5519,7 +5568,13 @@ LucidImporter = {};
 			{
 				cell.style += ((!ignoreX) ? ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' : '') +
 					((!ignoreY) ? (((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';') : '') +
-					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=1;';
+					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=' + (endpoint.Inside? '0' : '1') + ';';
+				
+				if (endpoint.Inside)
+				{
+					
+					return '[' + endpoint.LinkX + ',' + endpoint.LinkY + ',0]';
+				}
 			}
 		}
 	};
@@ -5829,6 +5884,12 @@ LucidImporter = {};
 				}
 			}
 
+			LucidImporter.stylePointsSet.forEach(function(v)
+			{
+				v.style = 'points=[' + v.stylePoints.join(',') + '];' + v.style;
+				delete v.stylePoints;
+			});
+			
 			if (!noSelection)
 				graph.setSelectionCells(select);
 		}
@@ -6013,6 +6074,9 @@ LucidImporter = {};
 	{
 		LucidImporter.stencilsMap = {}; //Reset stencils cache
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
+		LucidImporter.stylePointsSet = new Set();
+		LucidImporter.globalProps = {};
+		LucidImporter.hasUnknownShapes = false;
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
 		// Extracts and sorts all pages
@@ -6030,6 +6094,8 @@ LucidImporter = {};
 						addStencil(key.substr(8), obj.Properties[key]);
 					}
 				}
+				
+				LucidImporter.globalProps = obj.Properties;
 			}
 			
 			for (var id in obj.Pages)
@@ -8094,7 +8160,31 @@ LucidImporter = {};
 					getLabelStyle(p.Text, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				break;
+			case 'UMLProvidedInterfaceBlock' :
+			case 'UMLProvidedInterfaceBlockV2' :
+				var rotation = getRotation(p, a, v);
+				p.Rotatio = null;
+				var allStyle = addAllStyles(v.style, p, a, v, isLastLblHTML);
+				
+				if (allStyle.indexOf(mxConstants.STYLE_STROKEWIDTH) == -1)
+				{
+					allStyle = mxConstants.STYLE_STROKEWIDTH + '=1;' + allStyle;
+				}
+				
+				v.style = 'group;dropTarget=0;' + rotation;
+				var circleW = w * 0.8;
+				var lineW = w - circleW;
+				var circle = new mxCell('', new mxGeometry(0.2, 0, circleW, h), 'shape=ellipse;' + allStyle);
+				circle.vertex = true;
+				circle.geometry.relative = true;
+				v.insert(circle);
+				var line = new mxCell('', new mxGeometry(0, 0.5, lineW, 1), 'line;' + allStyle);
+				line.geometry.relative = true;
+				line.vertex = true;
+				v.insert(line);
+				break;
 			case 'UMLComponentBoxBlock' :
+			case 'UMLComponentBoxBlockV2':
 				v.value = convertText(p);
 				v.style = 'html=1;dropTarget=0;' + addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
@@ -8103,6 +8193,34 @@ LucidImporter = {};
 				icon.geometry.offset = new mxPoint(-20, 5);
 				icon.vertex = true;
 				v.insert(icon);
+				break;
+			case 'UMLAssemblyConnectorBlock':
+			case 'UMLAssemblyConnectorBlockV2':
+				var rotation = getRotation(p, a, v);
+				p.Rotatio = null;
+				var allStyle = addAllStyles(v.style, p, a, v, isLastLblHTML);
+				
+				if (allStyle.indexOf(mxConstants.STYLE_STROKEWIDTH) == -1)
+				{
+					allStyle = mxConstants.STYLE_STROKEWIDTH + '=1;' + allStyle;
+				}
+				
+				v.style = 'group;dropTarget=0;' + rotation;
+				var line1W = w * 0.225;
+				var line2W = w * 0.1;
+				var circleW = w - line1W - line2W;
+				var circle = new mxCell('', new mxGeometry(0.225, 0, circleW, h), 'shape=providedRequiredInterface;verticalLabelPosition=bottom;' + allStyle);
+				circle.vertex = true;
+				circle.geometry.relative = true;
+				v.insert(circle);
+				var line1 = new mxCell('', new mxGeometry(0, 0.5, line1W, 1), 'line;' + allStyle);
+				line1.geometry.relative = true;
+				line1.vertex = true;
+				v.insert(line1);
+				var line2 = new mxCell('', new mxGeometry(0.9, 0.5, line2W, 1), 'line;' + allStyle);
+				line2.geometry.relative = true;
+				line2.vertex = true;
+				v.insert(line2);
 				break;
 			case 'BPMNActivity' :
 				v.value = convertText(p.Text);
@@ -12132,7 +12250,10 @@ LucidImporter = {};
 							//Add stencil styles
 							cell.style += addAllStyles(cell.style, shape, a, cell, isLastLblHTML);
 							//Add other styles from parent
+							var fc = p.FillColor, lc = p.LineColor, lw = p.LineWidth;
+							p.FillColor = null; p.LineColor = null; p.LineWidth = null;
 							cell.style += addAllStyles(cell.style, p, a, cell, isLastLblHTML);
+							p.FillColor = fc; p.LineColor = lc; p.LineWidth = lw;
 							cell.vertex = true;
 							cell.geometry.relative = true;
 							v.insert(cell);
@@ -12150,13 +12271,16 @@ LucidImporter = {};
 							{
 								var lbl = new mxCell(txt, new mxGeometry(0, 0, w, h), 'strokeColor=none;fillColor=none;overflow=visible;');
 								p.Rotation = 0; //Disable rotation of the parent since it is captured in the srencil below
+								lbl.style += addAllStyles(lbl.style, lblObj, a, lbl, isLastLblHTML);
 								lbl.style += addAllStyles(lbl.style, p, a, lbl, isLastLblHTML);
 								p.Rotation = rotation;
 								
 								if (stencil.text != null && stencil.text['t' + index] != null)
 								{
 									var gTxtObj = stencil.text['t' + index];
-									gTxtObj.Rotation = rotation + gTxtObj.rotation;
+									gTxtObj.Rotation = rotation + (gTxtObj.rotation? gTxtObj.rotation : 0)
+										+ (p['t' + index + '_TRotation']? p['t' + index + '_TRotation'] : 0)
+										+ (p['t' + index + '_TAngle']? p['t' + index + '_TAngle'] : 0);
 									lbl.style += addAllStyles(lbl.style, gTxtObj, a, lbl, isLastLblHTML);
 									var lblGeo = lbl.geometry;
 									
@@ -12175,6 +12299,23 @@ LucidImporter = {};
 									if (gTxtObj.y)
 									{
 										lblGeo.y = gTxtObj.y / stencil.h;
+									}
+									
+									if (gTxtObj.fw)
+									{
+										lblGeo.width *= gTxtObj.fw * scale / w;
+									}
+									if (gTxtObj.fh)
+									{
+										lblGeo.height *= gTxtObj.fh * scale / h;
+									}
+									if (gTxtObj.fx)
+									{
+										lblGeo.x = (gTxtObj.fx > 0? 1 : 0) + gTxtObj.fx * scale / w;
+									}
+									if (gTxtObj.fy)
+									{
+										lblGeo.y = (gTxtObj.fy > 0? 1 : 0) + gTxtObj.fy * scale / h;
 									}
 								}
 								

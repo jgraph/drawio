@@ -75,7 +75,7 @@
 							  'Media Services', 'Migration', 'Mobile Services', 'Network Content Delivery', 'Security Identity Compliance', 'Storage'];
 	
 	Sidebar.prototype.aws4 = ['Arrows', 'General Resources', 'Illustrations', 'Groups', 'Analytics', 'Application Integration', 'AR VR', 'Cost Management', 'Blockchain', 
-							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Customer Enablement', 'Customer Engagement',
+							  'Business Applications', 'EC2 Instance Types', 'Compute', 'Containers', 'Customer Enablement', 'Customer Engagement',
 							  'Database', 'End User Computing', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
 							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Quantum Technologies', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
 

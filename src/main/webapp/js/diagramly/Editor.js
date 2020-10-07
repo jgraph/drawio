@@ -2181,7 +2181,7 @@
 	{
 		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js';
 		Editor.mathJaxQueue = [];
-		
+
 		Editor.doMathJaxRender = function(container)
 		{
 			window.setTimeout(function()
@@ -2289,6 +2289,23 @@
 			script.type = 'text/javascript';
 			script.src = src;
 			tags[0].parentNode.appendChild(script);
+		}
+		
+		// Overrides position relative for block elements to fix
+		// clipping with zoom in Chrome (drawio/issues/1213)
+		try
+		{
+			if (mxClient.IS_GC)
+			{
+				var style = document.createElement('style')
+				style.type = 'text/css';
+				style.innerHTML = 'div.MathJax_SVG_Display { position: static !important; }';
+				document.getElementsByTagName('head')[0].appendChild(style);
+			}
+		}
+		catch (e)
+		{
+	       	// ignore
 		}
 	};
 
@@ -3044,6 +3061,20 @@
 	};
 
 	/**
+	 * Returns the maximum possible scale for the given canvas dimension and scale.
+	 * This will return the given scale or the maximum scale that can be used to
+	 * generate a valid image in the current browser.
+	 * 
+	 * See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas
+	 */
+	Editor.prototype.getMaxCanvasScale = function(w, h, scale)
+	{
+		var max = (mxClient.IS_FF) ? 8192 : 16384;
+
+		return Math.min(scale, Math.min(max / w, max / h));
+	};
+	
+	/**
 	 *
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
@@ -3072,7 +3103,7 @@
 			// Handles special case where background is null but transparent is false
 			if (bg == null && transparentBackground == false)
 			{
-				bg = (keepTheme) ? this.graph.defaultPageBackgroundColor : '#ffffff';;
+				bg = (keepTheme) ? this.graph.defaultPageBackgroundColor : '#ffffff';
 			}
 			
 			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
@@ -3096,6 +3127,7 @@
 								scale = (!limitHeight) ? width / w : Math.min(1, Math.min((width * 3) / (h * 4), width / w));
 							}
 							
+							scale = this.getMaxCanvasScale(w, h, scale);
 							w = Math.ceil(scale * w);
 							h = Math.ceil(scale * h);
 							
@@ -3111,7 +3143,10 @@
 								ctx.fill();
 					   		}
 		
-						    ctx.scale(scale, scale);
+					   		if (scale != 1)
+					   		{
+					   			ctx.scale(scale, scale);
+					   		}
 	
 						    function drawImage()
 						    {

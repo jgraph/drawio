@@ -355,7 +355,7 @@ Toolbar.prototype.setFontSize = function(value)
 	if (this.sizeMenu != null)
 	{
 		this.sizeMenu.innerHTML = '<div style="width:24px;overflow:hidden;display:inline-block;">' +
-			value + '</div>' + this.dropdownImageHtml;
+			mxUtils.htmlEntities(value) + '</div>' + this.dropdownImageHtml;
 	}
 };
 

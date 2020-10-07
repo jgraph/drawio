@@ -1034,3 +1034,4 @@ msgDeleted=This message has been deleted.
 confAErrFetchDrawList=Error fetching diagrams list. Some diagrams are skipped.
 confAErrCheckDrawDiag=Cannot check diagram {1}
 confAErrFetchPageList=Error fetching pages list.
+confADiagImportIncom={1} diagram "{2}" is imported partially and may have missing shapes.

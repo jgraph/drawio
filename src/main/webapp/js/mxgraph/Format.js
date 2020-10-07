@@ -4369,11 +4369,13 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 		
 		var addStyleRule = mxUtils.bind(this, function(rule, key, label)
 		{
-			if (rule.style[key] != '')
+			var value = mxUtils.trim(rule.style[key]);
+			
+			if (value != '' && value.substring(0, 4) != 'url(')
 			{
 				var option = this.createColorOption(label + ' ' + rule.selectorText, function()
 				{
-					return rgb2hex(rule.style[key]);
+					return rgb2hex(value);
 				}, function(color)
 				{
 					rules[ruleIndex].style[key] = color;
@@ -4411,6 +4413,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 		
 		addStyleRule(rule, 'fill', mxResources.get('fill'));
 		addStyleRule(rule, 'stroke', mxResources.get('line'));
+		addStyleRule(rule, 'stop-color', mxResources.get('gradient'));
 	}
 };
 

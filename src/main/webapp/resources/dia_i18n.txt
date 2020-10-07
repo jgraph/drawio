@@ -1034,3 +1034,4 @@ msgDeleted=msgDeleted
 confAErrFetchDrawList=confAErrFetchDrawList
 confAErrCheckDrawDiag=confAErrCheckDrawDiag
 confAErrFetchPageList=confAErrFetchPageList
+confADiagImportIncom=confADiagImportIncom

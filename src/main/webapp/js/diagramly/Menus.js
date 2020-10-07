@@ -1232,6 +1232,19 @@
 				this.addSubmenu('testDevelop', menu, parent);
 			}
 		})));
+
+		// Experimental
+		mxResources.parse('diagramLanguage=Diagram Language');
+		editorUi.actions.addAction('diagramLanguage...', function()
+		{
+			var lang = prompt('Language Code', Graph.diagramLanguage || '');
+			
+			if (lang != null)
+			{
+				Graph.diagramLanguage = (lang.length > 0) ? lang : null;
+				graph.refresh();
+			}
+		});
 		
 		// Only visible in test mode
 		if (urlParams['test'] == '1')
@@ -1536,52 +1549,7 @@
 				mxLog.debug(mxUtils.getXml(root));
 				mxLog.debug('stateCounter', stateCounter);
 			}));
-			
-			editorUi.actions.addAction('testDownloadRtModel...', mxUtils.bind(this, function()
-			{
-				if (editorUi.drive == null)
-				{
-					editorUi.handleError({message: mxResources.get('serviceUnavailableOrBlocked')});
-				}
-				else
-				{
-					editorUi.drive.execute(mxUtils.bind(this, function()
-					{
-						var fileId =prompt('File ID', '');
-						
-						if (fileId != null && fileId.length > 0 &&
-							editorUi.spinner.spin(document.body, mxResources.get('export')))
-						{
-							// LATER: Download full model dump with history
-							var req = new mxXmlRequest('https://www.googleapis.com/drive/v2/files/' +
-									fileId + '/realtime?supportsAllDrives=true', null, 'GET');
-	
-							// Adds auth token
-							req.setRequestHeaders = function(request)
-							{
-								mxXmlRequest.prototype.setRequestHeaders.apply(this, arguments);
-								request.setRequestHeader('authorization', 'Bearer ' + editorUi.drive.token);	
-							};
-							
-							req.send(function(req)
-							{
-								editorUi.spinner.stop();
-								
-								if (req.getStatus() >= 200 && req.getStatus() <= 299)
-								{
-									editorUi.saveLocalFile(req.getText(), 'json-' + fileId +'.txt', 'text/plain');
-								}
-								else
-								{
-									editorUi.handleError({message: mxResources.get('fileNotFound')},
-										mxResources.get('errorLoadingFile'));
-								}
-							});
-						}
-					}));
-				}
-			}));
-	
+
 			editorUi.actions.addAction('testShowConsole', function()
 			{
 				if (!mxLog.isVisible())
@@ -1600,40 +1568,7 @@
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
 					'testCheckFile', 'testDiff', '-', 'testInspect', '-',
-					'testXmlImageExport', '-', 'testDownloadRtModel'], parent);
-
-				menu.addItem(mxResources.get('testImportRtModel') + '...', null, function()
-				{
-					var input = document.createElement('input');
-					input.setAttribute('type', 'file');
-					
-					mxEvent.addListener(input, 'change', mxUtils.bind(this, function()
-					{
-						if (input.files != null)
-						{
-							var reader = new FileReader();
-							
-							reader.onload = mxUtils.bind(this, function(e)
-							{
-								try
-								{
-									editorUi.openLocalFile(mxUtils.getXml(editorUi.drive.convertJsonToXml(
-										JSON.parse(e.target.result).data)), input.files[0].name, true);
-								}
-								catch (err)
-								{
-									editorUi.handleError(err, mxResources.get('errorLoadingFile'));
-								}
-							});
-							
-							reader.readAsText(input.files[0]);
-						}
-					}));
-			
-					input.click();
-				}, parent);
-		
-				this.addMenuItems(menu, ['-', 'testShowConsole'], parent);
+					'testXmlImageExport', '-', 'testShowConsole'], parent);
 			})));
 		}
 
@@ -3285,7 +3220,14 @@
 				this.addMenuItem(menu, 'plugins', parent);
 			}
 
-			this.addMenuItems(menu, ['tags', '-', 'editDiagram', '-', 'configuration'], parent);
+			this.addMenuItems(menu, ['tags', '-', 'editDiagram'], parent);
+	
+			if (Graph.translateDiagram)
+			{
+				this.addMenuItems(menu, ['diagramLanguage']);
+			}
+			
+			this.addMenuItems(menu, ['-', 'configuration'], parent);
 			
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);
