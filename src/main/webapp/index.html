@@ -265,6 +265,14 @@
 			// required in some browsers to make sure mxClient.js (and the files that it
 			// loads asynchronously) are available when the code loaded in Devel.js runs.
 			mxscript(drawDevUrl + 'js/diagramly/Devel.js');
+			
+			// Electron
+			if (mxIsElectron)
+			{
+				mxscript('js/diagramly/DesktopLibrary.js');
+				mxscript('js/diagramly/ElectronApp.js');
+			}
+			
 			mxscript(drawDevUrl + 'js/PostConfig.js');
 		}
 		else
@@ -278,33 +286,49 @@
 					(hostName.substring(hostName.length - 13, hostName.length) === '.diagrams.net');
 					(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
 				
-				if (!supportedDomain)
+				function loadAppJS()
 				{
-					mxscript('js/PreConfig.js');
-				}
-				
-				mxscript('js/app.min.js', function()
-				{
-					if (!supportedDomain)
+					mxscript('js/app.min.js', function()
 					{
-						mxscript('js/PostConfig.js');
-					}
-				});
+						if (!supportedDomain)
+						{
+							mxscript('js/PostConfig.js');
+						}
+						
+						// Electron
+						if (mxIsElectron)
+						{
+							mxscript('js/diagramly/DesktopLibrary.js', function()
+							{
+								mxscript('js/diagramly/ElectronApp.js', function()
+								{
+									mxscript('js/extensions.min.js', function()
+									{
+										mxscript('js/stencils.min.js', function()
+										{
+											mxscript('js/shapes.min.js', function()
+											{
+												mxscript('js/PostConfig.js');
+											});
+										});
+									});
+								});
+							});
+						}
+					});
+				};
+				
+				if (!supportedDomain || mxIsElectron)
+				{
+					mxscript('js/PreConfig.js', loadAppJS);
+				}
+				else
+				{
+					loadAppJS();
+				}
 			})();
 		}
 
-		// Electron
-		if (mxIsElectron)
-		{
-			mxscript('js/PreConfig.js');
-			mxscript('js/diagramly/DesktopLibrary.js');
-			mxscript('js/diagramly/ElectronApp.js');
-			mxscript('js/extensions.min.js');
-			mxscript('js/stencils.min.js');
-			mxscript('js/shapes.min.js');
-			mxscript('js/PostConfig.js');
-		}
-		
 		// Adds basic error handling
 		window.onerror = function()
 		{

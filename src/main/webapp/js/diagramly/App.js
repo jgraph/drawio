@@ -449,10 +449,11 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_DROPBOX || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#D'))
 						{
-							mxscript(App.DROPBOX_URL);
-							
-							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
+							mxscript(App.DROPBOX_URL, function()
+							{
+								// Must load this after the dropbox SDK since they use the same namespace
+								mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
+							});							
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -500,8 +501,10 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_TRELLO || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#T'))
 						{
-							mxscript(App.TRELLO_JQUERY_URL);
-							mxscript(App.TRELLO_URL);
+							mxscript(App.TRELLO_JQUERY_URL, function()
+							{
+								mxscript(App.TRELLO_URL);
+							});
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -569,7 +572,7 @@ App.main = function(callback, createUi)
 			{
 				var content = mxUtils.getTextContent(scripts[0]);
 				
-				if (CryptoJS.MD5(content).toString() != '4e2d494866b7c8a34a6d5be53b969ac5')
+				if (CryptoJS.MD5(content).toString() != '6954d575e382bca7fc2090bf81ad77cf')
 				{
 					console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 					alert('[Dev] Bootstrap script change requires update of CSP');
@@ -609,9 +612,14 @@ App.main = function(callback, createUi)
 				}
 				else
 				{
-					mxscript('js/shapes.min.js');
-					mxscript('js/stencils.min.js');
-					mxscript('js/extensions.min.js');
+					mxscript('js/shapes.min.js', function()
+					{
+						mxscript('js/stencils.min.js', function()
+						{
+							mxscript('js/extensions.min.js');
+						});
+					});
+					
 					mxStencilRegistry.allowEval = false;
 		
 					// Use the window load event to keep the page load performant
