@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Razmak+povlačenje za pan
 paperSize=Veličina papira
 pattern=Obrazac
+parallels=Parallels
 paste=Zalijepi
 pasteHere=Zalijepi ovdje
 pasteSize=Paste Size

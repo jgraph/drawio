@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Espasyo+Hilahin para i-pan
 paperSize=Sukat ng papel
 pattern=Huwaran
+parallels=Parallels
 paste=Idikit
 pasteHere=Idikit dito
 pasteSize=Paste Size

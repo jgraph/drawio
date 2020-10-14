@@ -556,6 +556,7 @@ pan=Viziune panoramică
 panTooltip=Bara spaţiu + trage pentru viziune panoramică
 paperSize=Dimensiuni hârtie
 pattern=Model
+parallels=Parallels
 paste=Lipire
 pasteHere=Lipeşte aici
 pasteSize=Paste Size

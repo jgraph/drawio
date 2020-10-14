@@ -556,6 +556,7 @@ pan=移动画布
 panTooltip=按住空格键并拖拽以移动画布
 paperSize=页面尺寸
 pattern=样式
+parallels=Parallels
 paste=粘贴
 pasteHere=在这粘贴
 pasteSize=粘贴大小

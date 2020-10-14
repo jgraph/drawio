@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=‫מקש רווח + גרירה ל pan‬
 paperSize=‫גודל הנייר‬
 pattern=‫תבנית‬
+parallels=Parallels
 paste=‫הדבק‬
 pasteHere=‫הדבק כאן‬
 pasteSize=Paste Size

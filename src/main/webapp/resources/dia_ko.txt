@@ -556,6 +556,7 @@ pan=화면 이동
 panTooltip=스페이스키 + 드래그하여 화면 이동
 paperSize=용지 크기
 pattern=패턴
+parallels=Parallels
 paste=붙여넣기
 pasteHere=여기에 붙여넣기
 pasteSize=Paste Size

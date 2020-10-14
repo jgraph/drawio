@@ -556,6 +556,7 @@ pan=Kaydır
 panTooltip=Kaydırmak için boşluk tuşu+sürükleme
 paperSize=Kağıt boyutu
 pattern=Desen 
+parallels=Parallels
 paste=Yapıştır
 pasteHere=Buraya yapıştır
 pasteSize=Yapıştırma büyüklüğü

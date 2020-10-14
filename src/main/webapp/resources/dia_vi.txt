@@ -556,6 +556,7 @@ pan=Dịch chuyển
 panTooltip=Giữ Space+Kéo để dịch chuyển
 paperSize=Kích thước giấy
 pattern=Khuôn mẫu
+parallels=Parallels
 paste=Dán
 pasteHere=Dán ở đây
 pasteSize=Paste Size

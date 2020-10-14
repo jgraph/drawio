@@ -1925,8 +1925,9 @@
 	 * Mathjax output ignores CSS transforms in Safari (lightbox and normal mode).
 	 * Check the following test case on page 2 before enabling this in production:
 	 * https://devhost.jgraph.com/git/drawio/etc/embed/sf-math-fo-clipping.html?dev=1
+	 * UPDATE: Fixed via position:static CSS override in initMath.
 	 */
-	Editor.prototype.useForeignObjectForMath = !mxClient.IS_SF;
+	Editor.prototype.useForeignObjectForMath = true;
 
 	/**
 	 * Executes the first step for connecting to Google Drive.
@@ -2292,14 +2293,14 @@
 		}
 		
 		// Overrides position relative for block elements to fix
-		// clipping with zoom in Chrome (drawio/issues/1213)
+		// zoomed math clipping in Webkit (drawio/issues/1213)
 		try
 		{
-			if (mxClient.IS_GC)
+			if (mxClient.IS_GC || mxClient.IS_SF)
 			{
 				var style = document.createElement('style')
 				style.type = 'text/css';
-				style.innerHTML = 'div.MathJax_SVG_Display { position: static !important; }';
+				style.innerHTML = 'div.MathJax_SVG_Display { position: static; }';
 				document.getElementsByTagName('head')[0].appendChild(style);
 			}
 		}
@@ -7006,7 +7007,15 @@
 					pv.writeHead = function(doc)
 					{
 						writeHead.apply(this, arguments);
-						
+												
+						// Fixes clipping for transformed math
+						if (mxClient.IS_GC || mxClient.IS_SF)
+						{
+							doc.writeln('<style type="text/css">');
+							doc.writeln('div.MathJax_SVG_Display { position: static; }');
+							doc.writeln('</style>');
+						}
+
 						// Fixes font weight for PDF export in Chrome
 						if (mxClient.IS_GC)
 						{

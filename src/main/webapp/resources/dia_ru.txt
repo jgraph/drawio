@@ -556,6 +556,7 @@ pan=Панорама
 panTooltip=Удерживайте нажатой клавишу "пробел" и перемещайте курсор для прокрутки диаграммы
 paperSize=Размер бумаги
 pattern=Шаблон
+parallels=Parallels
 paste=Вставить
 pasteHere=Вставить сюда
 pasteSize=Вставить размер

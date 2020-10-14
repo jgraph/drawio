@@ -556,6 +556,7 @@ pan=Panorama
 panTooltip=Spacja+przeciągnij do panoramy
 paperSize=Rozmiar papieru
 pattern=Wzór
+parallels=Parallels
 paste=Wklej
 pasteHere=Wklej tutaj
 pasteSize=Paste Size

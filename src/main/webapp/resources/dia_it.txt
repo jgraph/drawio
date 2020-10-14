@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Premi barra spaziatrice e trascina per visione panoramica
 paperSize=Dimensione della carta
 pattern=Schema
+parallels=Parallels
 paste=Incolla
 pasteHere=Incolla qui
 pasteSize=Paste Size

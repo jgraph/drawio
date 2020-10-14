@@ -1,4 +1,9 @@
-08-OCT_2020: 13.7.9
+14-OCT-2020: 13.8.0
+
+- App Engine configuration changes
+- Uses mxGraph 4.2.1 beta 20
+
+08-OCT-2020: 13.7.9
 
 - Fixes script load order for electron
 

@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Mezerník+přetáhnout do panelu
 paperSize=Rozměry papíru
 pattern=Vzor
+parallels=Parallels
 paste=Vložit
 pasteHere=Vložit sem
 pasteSize=Paste Size

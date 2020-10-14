@@ -556,6 +556,7 @@ pan=Panorámica
 panTooltip=Espacio+Arrastrar para crear panorámica
 paperSize=Tamaño do papel
 pattern=Modelo
+parallels=Parallels
 paste=Colar
 pasteHere=Colar aquí
 pasteSize=Colar tamaño

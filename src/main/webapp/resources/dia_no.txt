@@ -556,6 +556,7 @@ pan=Panorer
 panTooltip=Mellomtast + dra for å panorere
 paperSize=Papirstørrelse
 pattern=Mønster
+parallels=Parallels
 paste=Lim inn
 pasteHere=Lim inn her
 pasteSize=Paste Size

@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Gördítéshez jobb klikk és húz
 paperSize=Oldalméret
 pattern=Minta
+parallels=Parallels
 paste=Beilleszt
 pasteHere=Ide illeszt
 pasteSize=Paste Size

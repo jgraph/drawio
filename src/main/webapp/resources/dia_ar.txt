@@ -556,6 +556,7 @@ pan=‫تحريك‬
 panTooltip=‫اضغط على مسافة ثم اسحب للتحريك‬
 paperSize=‫حجم الصفحة‬
 pattern=‫نموذج‬
+parallels=Parallels
 paste=‫لصق‬
 pasteHere=‫لصق هنا‬
 pasteSize=Paste Size

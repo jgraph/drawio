@@ -556,6 +556,7 @@ pan=Panoroi
 panTooltip=Välilyönti+vedä panoroidaksesi
 paperSize=Paperin koko
 pattern=Kuvio
+parallels=Parallels
 paste=Liitä
 pasteHere=Liitä tähän
 pasteSize=Liitä koko

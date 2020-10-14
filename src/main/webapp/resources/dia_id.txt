@@ -556,6 +556,7 @@ pan=Perlebar
 panTooltip=Spasi+Seret untuk memperlebar
 paperSize=Ukuran Kertas
 pattern=Pola
+parallels=Parallels
 paste=Tempel
 pasteHere=Tempel di sini
 pasteSize=Paste Size

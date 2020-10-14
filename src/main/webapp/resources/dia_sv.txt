@@ -556,6 +556,7 @@ pan=Panorera
 panTooltip=Mellanslag+Dra för panorering
 paperSize=Pappersstorlek
 pattern=Mönster
+parallels=Parallels
 paste=Klistra in
 pasteHere=Klistra in här
 pasteSize=Paste Size

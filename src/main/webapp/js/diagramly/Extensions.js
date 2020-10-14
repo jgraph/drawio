@@ -65,9 +65,10 @@ LucidImporter = {};
 
 	var styleMap = {
 //Standard
-			'DefaultTextBlockNew': 'text;strokeColor=none;fillColor=none',
-			'DefaultTextBlock': 'text;strokeColor=none;fillColor=none',
+			'DefaultTextBlockNew': 'strokeColor=none;fillColor=none',
+			'DefaultTextBlock': 'strokeColor=none;fillColor=none',
 			'DefaultSquareBlock': '',
+			'RectangleBlock': '',
 			'DefaultNoteBlock': 'shape=note;size=15',
 			'DefaultNoteBlockV2': 'shape=note;size=15',
 			'HotspotBlock': 'strokeColor=none;fillColor=none',
@@ -120,8 +121,8 @@ LucidImporter = {};
 			'CrossBlock': 'shape=cross;size=0.6',
 			'CloudBlock': 'ellipse;shape=cloud',
 			'HeartBlock': s + 'basic.heart',
-			'RightArrowBlock': 'shape=singleArrow;arrowWidth=0.5;arrowSize=0.3',
-			'DoubleArrowBlock': 'shape=doubleArrow;arrowWidth=0.5;arrowSize=0.3',
+			'RightArrowBlock': cs,
+			'DoubleArrowBlock': cs,
 			'CalloutBlock': s + 'basic.rectangular_callout',
 			'ShapeCircleBlock': 'ellipse',
 			'ShapePolyStarBlock': s + 'basic.star',
@@ -4282,7 +4283,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=width;html=1;' : 
+		var style = 'whiteSpace=wrap;' + (noLblStyle? 'html=1;' : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4308,7 +4309,7 @@ LucidImporter = {};
 		}
 		
 		s += 'whiteSpace=wrap;' + 
-		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=width;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
+		  (noLblStyle? (hasStyle(style, 'html')? '' : 'html=1;') : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
@@ -4952,7 +4953,14 @@ LucidImporter = {};
 
 	function getColor(color)
 	{
-		return color? color.substring(0, 7) : null;
+		var clr = color? color.substring(0, 7) : null;
+		
+		if (clr && clr.charAt(0) != '#' && clr.charAt(0).toLowerCase() != 'r')
+		{
+			clr = '#' + clr;
+		}
+		
+		return clr;
 	}
 	
 	function getOpacity2(color, style)
@@ -5339,25 +5347,25 @@ LucidImporter = {};
 					}
 					
 					// Inserts implicit or explicit control points for loops
-					var implicitY = false;
+					var implicitY = false, implicitX = false;
 					
-					if (p.ElbowPoints == null && p.Endpoint1.Block != null &&
-						p.Endpoint1.Block == p.Endpoint2.Block)
+					if ((cell.geometry.points == null || cell.geometry.points.length == 0) && 
+						p.Endpoint1.Block != null && p.Endpoint1.Block == p.Endpoint2.Block &&
+						source != null && target != null)
 					{
-						if (p.ElbowControlPoints == null && source != null && target != null)
 						{
 							var exit = new mxPoint(Math.round(source.geometry.x + source.geometry.width * p.Endpoint1.LinkX),
 								Math.round(source.geometry.y + source.geometry.height * p.Endpoint1.LinkY));
 							var entry = new mxPoint(Math.round(target.geometry.x + target.geometry.width * p.Endpoint2.LinkX),
 								Math.round(target.geometry.y + target.geometry.height * p.Endpoint2.LinkY));
-							dx = (exit.x == entry.x) ? 20 : 0;
-							dy = (exit.y == entry.y) ? 0 : 0;
+							dx = (exit.x == entry.x) ? (Math.abs(exit.x - source.geometry.x) < source.geometry.width / 2? -20 : 20) : 0;
+							dy = (exit.y == entry.y) ? (Math.abs(exit.y - source.geometry.y) < source.geometry.height / 2? -20 : 20) : 0;
 							
 							var p1 = new mxPoint(exit.x + dx, exit.y + dy), p2 = new mxPoint(entry.x + dx, entry.y + dy);
 							p1.generated = true;
 							p2.generated = true;
 							cell.geometry.points = [p1, p2];
-							implicitX = (exit.y == entry.y);
+							implicitX = (exit.y == entry.y); //TODO Check these implicit variables effect
 							implicitY = (exit.x == entry.x);
 						}
 					}
@@ -5568,7 +5576,7 @@ LucidImporter = {};
 			{
 				cell.style += ((!ignoreX) ? ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' : '') +
 					((!ignoreY) ? (((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';') : '') +
-					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=' + (endpoint.Inside? '0' : '1') + ';';
+					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=0;'; //perimeter as 0 works with both cases better
 				
 				if (endpoint.Inside)
 				{
@@ -6449,7 +6457,7 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p[mainTxtFld]);
-					v.style += (isLastLblHTML? 'overflow=width;' : 
+					v.style += (isLastLblHTML? '' : 
 							getFontSize(p[mainTxtFld]) +
 							getFontColor(p[mainTxtFld]) + 
 							getFontStyle(p[mainTxtFld]) +
@@ -7430,7 +7438,7 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'overflow=width;html=1;' :
+					tab[i].style += (isLastLblHTML? 'html=1;' :
 									getFontSize(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
@@ -12071,16 +12079,22 @@ LucidImporter = {};
 					{
 						var dd = drawData[i];
 						var path = dd.a;
-						var sw = dd.w == 'prop'? strokeWidth : dd.w;
-						var sc = dd.s == 'prop'? strokeColor : dd.s;
-						var fc = dd.f == 'prop'? fillColor : dd.f;
+						var sw = (dd.w == 'prop' || dd.w == null? strokeWidth : dd.w) / Math.min(w, h) * scale; //TODO Stroke width caclulationn needs review
+						var sc = dd.s == 'prop' || dd.s == null? strokeColor : dd.s;
+						var fc = dd.f == 'prop' || dd.f == null? fillColor : dd.f;
+						
+						if (typeof fc == 'object')
+						{
+							fc = Array.isArray(fc.cs)? fc.cs[0].c : fillColor; //Approximation TODO Handle it
+						}
 						
 						svg += '<path d="' + path + '" fill="' + fc + '" stroke="' + sc + '" stroke-width="' + sw + '"/>';
 					}
 					
 					svg += '</svg>';
+
 					v.style = 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
-						'verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,' + ((window.btoa) ? btoa(svg) : Base64.encode(svg, true));
+						'verticalAlign=top;aspect=fixed;imageAspect=0;image=data:image/svg+xml,' + ((window.btoa) ? btoa(svg) : Base64.encode(svg, true)) + ';';
 				}
 				catch(e){}
 				break;
@@ -12341,7 +12355,19 @@ LucidImporter = {};
 				{
 					console.log('Freehand error', e);
 				}
-				break;
+			break;
+			case 'RightArrowBlock':
+				var arrowSize = p.Head * h / w;
+				v.style = 'shape=singleArrow;arrowWidth=' + (1 - p.Notch * 2) + ';arrowSize=' + arrowSize;
+				v.value = convertText(p);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+			break;
+			case 'DoubleArrowBlock':
+				var arrowSize = p.Head * h / w;
+				v.style = 'shape=doubleArrow;arrowWidth=' + (1 - p.Notch * 2) + ';arrowSize=' + arrowSize;
+				v.value = convertText(p);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+			break;
 		}
 
 		if (v.style && v.style.indexOf('html') < 0)

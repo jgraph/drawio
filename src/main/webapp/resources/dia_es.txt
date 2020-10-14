@@ -556,6 +556,7 @@ pan=Panorámica
 panTooltip=Espacio+Arrastrar para panear
 paperSize=Tamaño del papel
 pattern=Patrón
+parallels=Parallels
 paste=Pegar
 pasteHere=Pegar aquí
 pasteSize=Paste Size

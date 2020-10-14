@@ -572,7 +572,7 @@
 					if (!isNaN(val) && val > 0)
 					{
 					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-					   		editable, embedImages, border, !cropImage, currentPage, linkTarget, keepTheme);
+					   		editable, embedImages, border, !cropImage, false, linkTarget, keepTheme);
 					}
 				}), true, null, 'svg');
 		}));
@@ -1000,10 +1000,8 @@
 		layoutMenu.funct = function(menu, parent)
 		{
 			layoutMenuFunct.apply(this, arguments);
-			
-			menu.addSeparator(parent);
-		
-			menu.addItem(mxResources.get('orgChart') + '...', null, function()
+
+			menu.addItem(mxResources.get('orgChart'), null, function()
 			{
 				var branchOptimizer = null, parentChildSpacingVal = 20, siblingSpacingVal = 20, notExecuted = true;
 				
@@ -1151,6 +1149,22 @@
 				
 				editorUi.showDialog(dlg.container, 355, 125, true, true);
 			}, parent, null, isGraphEnabled());
+						
+			menu.addSeparator(parent);
+		
+			menu.addItem(mxResources.get('parallels'), null, mxUtils.bind(this, function()
+			{
+				// Keeps parallel edges apart
+				var layout = new mxParallelEdgeLayout(graph);
+				layout.checkOverlap = true;
+				layout.spacing = 20;
+				
+	    		editorUi.executeLayout(function()
+	    		{
+	    			layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
+	    				graph.getSelectionCells() : null);
+	    		}, false);
+			}), parent);
 			
 			menu.addSeparator(parent);
 			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');

@@ -556,6 +556,7 @@ pan=Panorama
 panTooltip=Laikykite nuspaudę tarpo klavišą ir judinkite žymeklį, norėdami slinkti per schemą
 paperSize=Popieriaus dydis
 pattern=Šablonas
+parallels=Parallels
 paste=Įklijuoti
 pasteHere=Įklijuoti čia
 pasteSize=Įklijuoti dydį

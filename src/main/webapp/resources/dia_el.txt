@@ -556,6 +556,7 @@ pan=Πανοραμικό
 panTooltip=Κενό+Σύρετε για πανοραμική εμφάνιση
 paperSize=Μέγεθος χαρτιού
 pattern=Μοτίβο
+parallels=Parallels
 paste=Επικόλληση
 pasteHere=Επικόλληση εδώ
 pasteSize=Paste Size

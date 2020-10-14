@@ -556,6 +556,7 @@ pan=Pan
 panTooltip=Space+Drag to pan
 paperSize=Paper Size
 pattern=Pattern
+parallels=Parallels
 paste=Paste
 pasteHere=Paste here
 pasteSize=Paste Size

@@ -556,6 +556,7 @@ pan=画面移動
 panTooltip=スペースキー+ドラッグで写す
 paperSize=用紙サイズ
 pattern=パターン
+parallels=Parallels
 paste=貼り付け
 pasteHere=ここに貼り付け
 pasteSize=Paste Size

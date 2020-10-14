@@ -556,6 +556,7 @@ pan=ดูมุมกว้าง
 panTooltip=สเปซ+ลากเพื่อดูมุมกว้าง
 paperSize=ขนาดกระดาษ
 pattern=รูปแบบ
+parallels=Parallels
 paste=วาง
 pasteHere=วางที่นี่
 pasteSize=Paste Size

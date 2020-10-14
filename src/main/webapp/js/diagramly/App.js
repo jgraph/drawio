@@ -336,10 +336,31 @@ App.publicPlugin = [
 //	'rnd', 'page', 'gd',
 	'tags'
 ];
+
 /**
- * Function: authorize
+ * Loads all given scripts and invokes onload after
+ * all scripts have finished loading.
+ */
+App.loadScripts = function(scripts, onload)
+{
+	var n = scripts.length;
+	
+	for (var i = 0; i < n; i++)
+	{
+		mxscript(scripts[i], function()
+		{
+			if (--n == 0 && onload != null)
+			{
+				onload();
+			}
+		});
+	}
+};
+
+/**
+ * Function: getStoredMode
  * 
- * Authorizes the client, gets the userId and calls <open>.
+ * Returns the current mode.
  */
 App.getStoredMode = function()
 {
@@ -612,14 +633,7 @@ App.main = function(callback, createUi)
 				}
 				else
 				{
-					mxscript('js/shapes.min.js', function()
-					{
-						mxscript('js/stencils.min.js', function()
-						{
-							mxscript('js/extensions.min.js');
-						});
-					});
-					
+					App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js', 'js/extensions.min.js']);
 					mxStencilRegistry.allowEval = false;
 		
 					// Use the window load event to keep the page load performant

@@ -556,6 +556,7 @@ pan=‫حرکت دادن‬
 panTooltip=‫خط فاصله + کشیدن برای حرکت دادن‬
 paperSize=‫اندازه کاغذ‬
 pattern=‫الگو‬
+parallels=Parallels
 paste=‫چسباندن‬
 pasteHere=‫اینجا بچسبانید‬
 pasteSize=Paste Size

@@ -556,6 +556,7 @@ pan=Verschieben
 panTooltip=Leertaste+Ziehen um zu verschieben
 paperSize=Papiergröße
 pattern=Muster
+parallels=Parallelen
 paste=Einfügen
 pasteHere=Hier einfügen
 pasteSize=Grösse einfügen

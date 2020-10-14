@@ -556,6 +556,7 @@ pan=Панорама
 panTooltip=Пробіл+перетягніть у панораму
 paperSize=Розмір паперу
 pattern=Шаблон
+parallels=Parallels
 paste=Вставити
 pasteHere=Вставити тут
 pasteSize=Розмір вставки

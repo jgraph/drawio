@@ -556,6 +556,7 @@ pan=Панорама
 panTooltip=Интервал+Плъзгане за панорама
 paperSize=Размер на хартията
 pattern=Шаблон
+parallels=Parallels
 paste=Поставяне
 pasteHere=Поставяне тук
 pasteSize=Paste Size

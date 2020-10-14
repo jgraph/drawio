@@ -556,6 +556,7 @@ pan=Gerakkan
 panTooltip=Jarak+Seret untuk menggerakkan objek
 paperSize=Saiz Kertas
 pattern=Corak
+parallels=Parallels
 paste=Tampal
 pasteHere=Tampal di sini
 pasteSize=Paste Size

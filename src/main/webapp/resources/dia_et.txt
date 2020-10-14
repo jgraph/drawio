@@ -556,6 +556,7 @@ pan=Panoraam
 panTooltip=Tühik+Lohista liigutamiseks
 paperSize=Paberi suurus
 pattern=Muster
+parallels=Parallels
 paste=Kleebi
 pasteHere=Kleebi siia
 pasteSize=Kleebi mõõdud

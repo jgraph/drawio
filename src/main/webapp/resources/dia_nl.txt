@@ -556,6 +556,7 @@ pan=Zoomen
 panTooltip=Spatie + slepen om te zoomen
 paperSize=Papiergrootte
 pattern=Patroon
+parallels=Parallels
 paste=Plakken
 pasteHere=Hier plakken
 pasteSize=Afmetingen plakken
