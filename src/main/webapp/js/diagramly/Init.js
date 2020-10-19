@@ -122,7 +122,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'et' : 'Eesti',
 	'en' : 'English',
 	'es' : 'Español',
-	'eu' : 'Euskadi',
+	'eu' : 'Euskara',
 	'fil' : 'Filipino',
 	'fr' : 'Français',
 	'gl' : 'Galego',

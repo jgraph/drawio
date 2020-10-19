@@ -4369,11 +4369,13 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 		
 		var addStyleRule = mxUtils.bind(this, function(rule, key, label)
 		{
-			if (rule.style[key] != '')
+			var value = mxUtils.trim(rule.style[key]);
+			
+			if (value != '' && value.substring(0, 4) != 'url(')
 			{
 				var option = this.createColorOption(label + ' ' + rule.selectorText, function()
 				{
-					return rgb2hex(rule.style[key]);
+					return rgb2hex(value);
 				}, function(color)
 				{
 					rules[ruleIndex].style[key] = color;
@@ -4411,6 +4413,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 		
 		addStyleRule(rule, 'fill', mxResources.get('fill'));
 		addStyleRule(rule, 'stroke', mxResources.get('line'));
+		addStyleRule(rule, 'stop-color', mxResources.get('gradient'));
 	}
 };
 
@@ -6045,6 +6048,17 @@ DiagramStylePanel.prototype.addView = function(div)
 		}
 	});
 	
+	var selectPage = mxUtils.bind(this, function(index)
+	{
+		if (index >= 0 && index < pageCount)
+		{
+			dots[this.format.currentStylePage].style.background = 'transparent';
+			entries.innerHTML = '';
+			this.format.currentStylePage = index;
+			addEntries();
+		}
+	});
+	
 	if (pageCount > 1)
 	{
 		// Selector
@@ -6053,6 +6067,8 @@ DiagramStylePanel.prototype.addView = function(div)
 		switcher.style.position = 'relative';
 		switcher.style.textAlign = 'center';
 		switcher.style.paddingTop = '4px';
+		switcher.style.width = '210px';
+		
 		div.style.paddingBottom = '8px';
 		
 		for (var i = 0; i < pageCount; i++)
@@ -6072,10 +6088,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			{
 				mxEvent.addListener(dot, 'click', mxUtils.bind(this, function()
 				{
-					dots[this.format.currentStylePage].style.background = 'transparent';
-					entries.innerHTML = '';
-					this.format.currentStylePage = index;
-					addEntries();
+					selectPage(index);
 				}));
 			}))(i, dot);
 			
@@ -6085,6 +6098,45 @@ DiagramStylePanel.prototype.addView = function(div)
 		
 		div.appendChild(switcher);
 		addEntries();
+		
+		if (pageCount < 15)
+		{
+			var left = document.createElement('div');
+			left.style.cssText = 'position:absolute;left:0px;top:4px;bottom:0px;width:20px;margin:0px;opacity:0.5;' +
+				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
+			
+			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
+			{
+				selectPage(mxUtils.mod(this.format.currentStylePage - 1, pageCount));
+			}));
+			
+			var right = document.createElement('div');
+			right.style.cssText = 'position:absolute;right:2px;top:4px;bottom:0px;width:20px;margin:0px;opacity:0.5;' +
+				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
+			switcher.appendChild(left);
+			switcher.appendChild(right);
+			
+			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
+			{
+				selectPage(mxUtils.mod(this.format.currentStylePage + 1, pageCount));
+			}));
+					
+			// Hover state
+			function addHoverState(elt)
+			{
+				mxEvent.addListener(elt, 'mouseenter', function()
+				{
+					elt.style.opacity = '1';
+				});
+				mxEvent.addListener(elt, 'mouseleave', function()
+				{
+					elt.style.opacity = '0.5';
+				});
+			};
+			
+			addHoverState(left);
+			addHoverState(right);
+		}
 	}
 	else
 	{

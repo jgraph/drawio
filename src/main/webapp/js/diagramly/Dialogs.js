@@ -2867,7 +2867,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			elt.setAttribute('title', tooltip);
 		}
-
+		
 		if (imgUrl != null)
 		{
 			elt.style.backgroundImage = 'url(' + imgUrl + ')';
@@ -2898,7 +2898,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;' + ((uiTheme == 'dark') ? '' : 'background:rgba(255,255,255,0.85);') +
 					'border:inherit;"><tr><td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
 					'border-radius:3px;background:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
-					mxResources.get(title, null, title) + '</span></td></tr></table>';
+					mxUtils.htmlEntities(mxResources.get(title, null, title)) + '</span></td></tr></table>';
 			}
 			
 			var createIt = false;
@@ -2948,7 +2948,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;"><tr>' +
 				'<td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
 				'border-radius:3px;background:#ffffff;overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
-				mxResources.get(title, null, title) + '</span></td></tr></table>';
+				mxUtils.htmlEntities(mxResources.get(title, null, title)) + '</span></td></tr></table>';
 			
 			if (select)
 			{

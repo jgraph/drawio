@@ -17,6 +17,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				// Bootstrap script in index.html (checked for changes in App.main
 				// in dev mode to avoid deployment without updating this SHA)
 				'\'sha256-/fZb/J4FQmI/TwyxqJbvALWSyGVEvnTrlj4ZTzZNKzI=\' ' +
+				// Version 13.7.9
+				'\'sha256-P4E8pNUYsln6/EUZppjCCe8y8lelBYTfsSyLjjFCE5g=\' ' +
 				// Version 13.7.5
 				'\'sha256-+CrvFhadGyk1VjhHM/t3R88LNSEKManW3TGSZi9fmHQ=\' ' +
 				// Versions before 13.7.5

@@ -89,6 +89,12 @@
 				gridColor = extras.grid.color;
 			}
 			
+			if (extras != null && extras.diagramLanguage != null)
+			{
+				Graph.diagramLanguage = extras.diagramLanguage;
+				Graph.translateDiagram = true;
+			}
+			
 			//PNG+XML format
 			if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
 			{

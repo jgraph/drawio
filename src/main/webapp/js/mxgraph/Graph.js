@@ -1153,6 +1153,16 @@ Graph.fileSupport = window.File != null && window.FileReader != null && window.F
 	(window.urlParams == null || urlParams['filesupport'] != '0');
 
 /**
+ * Shortcut for capability check.
+ */
+Graph.translateDiagram = urlParams['translate-diagram'] == '1';
+
+/**
+ * Shortcut for capability check.
+ */
+Graph.diagramLanguage = (urlParams['diagram-language'] != null) ? urlParams['diagram-language'] : mxClient.language;
+
+/**
  * Default size for line jumps.
  */
 Graph.lineJumpsEnabled = true;
@@ -2778,7 +2788,7 @@ Graph.prototype.createLayersDialog = function()
 /**
  * Private helper method.
  */
-Graph.prototype.replacePlaceholders = function(cell, str, vars)
+Graph.prototype.replacePlaceholders = function(cell, str, vars, translate)
 {
 	var result = [];
 	
@@ -2815,8 +2825,16 @@ Graph.prototype.replacePlaceholders = function(cell, str, vars)
 						{
 							if (current.value != null && typeof(current.value) == 'object')
 							{
-								tmp = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
+								if (Graph.translateDiagram && Graph.diagramLanguage != null)
+								{
+									tmp = current.getAttribute(name + '_' + Graph.diagramLanguage);
+								}
+								
+								if (tmp == null)
+								{
+									tmp = (current.hasAttribute(name)) ? ((current.getAttribute(name) != null) ?
 										current.getAttribute(name) : '') : null;
+								}
 							}
 							
 							current = this.model.getParent(current);
@@ -3252,11 +3270,12 @@ Graph.prototype.convertValueToString = function(cell)
 	
 	if (value != null && typeof(value) == 'object')
 	{
+		var result = null;
+		
 		if (this.isReplacePlaceholders(cell) && cell.getAttribute('placeholder') != null)
 		{
 			var name = cell.getAttribute('placeholder');
 			var current = cell;
-			var result = null;
 					
 			while (result == null && current != null)
 			{
@@ -3268,13 +3287,23 @@ Graph.prototype.convertValueToString = function(cell)
 				
 				current = this.model.getParent(current);
 			}
-			
-			return result || '';
 		}
 		else
-		{	
-			return value.getAttribute('label') || '';
+		{
+			var result = null;
+			
+			if (Graph.translateDiagram && Graph.diagramLanguage != null)
+			{
+				result = value.getAttribute('label_' + Graph.diagramLanguage);
+			}
+			
+			if (result == null)
+			{
+				result = value.getAttribute('label') || '';
+			}
 		}
+
+		return result || '';
 	}
 	
 	return mxGraph.prototype.convertValueToString.apply(this, arguments);
@@ -3747,7 +3776,17 @@ Graph.prototype.getTooltipForCell = function(cell)
 	
 	if (mxUtils.isNode(cell.value))
 	{
-		var tmp = cell.value.getAttribute('tooltip');
+		var tmp = null;
+
+		if (Graph.translateDiagram && Graph.diagramLanguage != null)
+		{
+			tmp = cell.value.getAttribute('tooltip_' + Graph.diagramLanguage);
+		}
+		
+		if (tmp == null)
+		{
+			tmp = cell.value.getAttribute('tooltip');
+		}
 		
 		if (tmp != null)
 		{
@@ -7346,7 +7385,17 @@ if (typeof mxVertexHandler != 'undefined')
 					}
 					
 					var tmp = cell.value.cloneNode(true);
-					tmp.setAttribute('label', value);
+					
+					if (Graph.translateDiagram && Graph.diagramLanguage != null &&
+						tmp.hasAttribute('label_' + Graph.diagramLanguage))
+					{
+						tmp.setAttribute('label_' + Graph.diagramLanguage, value);
+					}
+					else
+					{
+						tmp.setAttribute('label', value);
+					}
+					
 					value = tmp;
 				}
 
@@ -7451,7 +7500,15 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.setTooltipForCell = function(cell, link)
 		{
-			this.setAttributeForCell(cell, 'tooltip', link);
+			var key = 'tooltip';
+			
+			if (Graph.translateDiagram && Graph.diagramLanguage != null &&
+				mxUtils.isNode(cell.value) && cell.value.hasAttribute('tooltip_' + Graph.diagramLanguage))
+			{
+				key = 'tooltip_' + Graph.diagramLanguage;
+			}
+			
+			this.setAttributeForCell(cell, key, link);
 		};
 		
 		/**

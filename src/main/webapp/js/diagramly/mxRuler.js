@@ -128,27 +128,26 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         var scale = graph.view.scale;
         var bgPages = graph.view.getBackgroundPageBounds();
         var t = graph.view.translate;
-        var bounds = graph.view.getGraphBounds();
         var hasPageView = graph.pageVisible;
         
         //The beginning of the ruler (zero)
         var rStart = hasPageView? RULER_THICKNESS + (isVertical? bgPages.y -  graph.container.scrollTop : bgPages.x - graph.container.scrollLeft) 
-        		: RULER_THICKNESS + (isVertical? t.y -  graph.container.scrollTop : t.x - graph.container.scrollLeft);
+        		: RULER_THICKNESS + (isVertical? t.y * scale -  graph.container.scrollTop : t.x * scale - graph.container.scrollLeft);
 
         //handle negative pages
         var pageShift = 0;
         
         if (hasPageView)
         {
+			var layout = graph.getPageLayout();
+	
 	        if (isVertical) 
 	        {
-	            var y = ((bounds.y + 1) / scale - t.y); // + 1 is for overcoming rounding error  
-	            pageShift = Math.floor(y / graph.pageFormat.height) * graph.pageFormat.height * scale;
+	            pageShift = layout.y * graph.pageFormat.height;
 	        }
 	        else
 	        {
-	            var x = ((bounds.x + 1) / scale - t.x); // + 1 is for overcoming rounding error
-	            pageShift = Math.floor(x / graph.pageFormat.width) * graph.pageFormat.width * scale;
+	            pageShift = layout.x * graph.pageFormat.width;
 	        }
         }
         
