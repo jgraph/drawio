@@ -21,4 +21,7 @@
   </static-files>
 
   <instance-class>F1</instance-class>
+  <automatic-scaling>
+    <max-idle-instances>1</max-idle-instances>
+  </automatic-scaling>
 </appengine-web-app>

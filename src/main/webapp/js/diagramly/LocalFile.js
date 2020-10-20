@@ -29,7 +29,7 @@ mxUtils.extend(LocalFile, DrawioFile);
  */
 LocalFile.prototype.isAutosave = function()
 {
-	return this.fileHandle != null && DrawioFile.prototype.isAutosave.apply(this, arguments);
+	return this.fileHandle != null && !this.invalidFileHandle && DrawioFile.prototype.isAutosave.apply(this, arguments);
 };
 
 /**
@@ -71,7 +71,7 @@ LocalFile.prototype.getTitle = function()
  */
 LocalFile.prototype.isRenamable = function()
 {
-	return this.fileHandle == null;
+	return true;
 };
 
 /**
@@ -203,6 +203,8 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 				{
 					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
 					{
+						this.invalidFileHandle = null;
+						
 						if (this.desc.lastModified == newDesc.lastModified)
 						{
 							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
@@ -223,7 +225,11 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 							this.inConflictState = true;
 							errorWrapper();
 						}
-					}), errorWrapper);
+					}), mxUtils.bind(this, function(e)
+					{
+						this.invalidFileHandle = true;
+						errorWrapper(e);
+					}));
 				}), errorWrapper);
 			}
 		}

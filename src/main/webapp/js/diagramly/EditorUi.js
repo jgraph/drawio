@@ -1550,10 +1550,13 @@
 		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
 			uncompressed = false;
+			var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
 			
 			// Exports SVG for first page while other page is visible by creating a graph
 			// LATER: Add caching for the graph or SVG while not on first page
-			if (this.pages != null && this.currentPage != this.pages[0])
+			// Dark mode requires a refresh that would destroy all handlers
+			// LATER: Use dark theme here to bypass refresh
+			if (darkTheme || (this.pages != null && this.currentPage != this.pages[0]))
 			{
 				var graphGetGlobalVariable = graph.getGlobalVariable;
 				graph = this.createTemporaryGraph(graph.getStylesheet());
@@ -5965,6 +5968,7 @@
 	EditorUi.prototype.createEmbedImage = function(fit, shadow, retina, lightbox, edit, layers, fn, err)
 	{
 		var bounds = this.editor.graph.getGraphBounds();
+		var page = this.getSelectedPageIndex();
 		
 		function doUpdate(dataUri)
 		{
@@ -5977,6 +5981,7 @@
 				// KNOWN: Message passing does not seem to work in IE11
 				onclick = " onclick=\"(function(img){if(img.wnd!=null&&!img.wnd.closed){img.wnd.focus();}else{var r=function(evt){if(evt.data=='ready'&&evt.source==img.wnd){img.wnd.postMessage(decodeURIComponent(" +
 					"img.getAttribute('src')),'*');window.removeEventListener('message',r);}};window.addEventListener('message',r);img.wnd=window.open('" + EditorUi.lightboxHost + "/?client=1" +
+					((page != null) ? ("&page=" + page) : "") +
 					((edit) ? "&edit=_blank" : "") +
 					((layers) ? '&layers=1' : '') + "');}})(this);\"";
 				css += 'cursor:pointer;';
@@ -6121,6 +6126,8 @@
 			// Adds double click handling
 			if (lightbox)
 			{
+				var page = this.getSelectedPageIndex();
+				
 				// KNOWN: Message passing does not seem to work in IE11
 				var js = "(function(svg){var src=window.event.target||window.event.srcElement;" +
 					// Ignores link events
@@ -6133,6 +6140,7 @@
 					"window.addEventListener('message',r);" +
 					// Opens lightbox window
 					"svg.wnd=window.open('" + EditorUi.lightboxHost + "/?client=1" +
+					((page != null) ? ("&page=" + page) : "") +
 					((edit) ? "&edit=_blank" : "") + ((layers) ? '&layers=1' : '') + "');}}})(this);";
 				svgRoot.setAttribute('onclick', js);
 				css += 'cursor:pointer;';
@@ -10614,7 +10622,8 @@
 			}
 			else
 			{
-				this.fileLoaded(new LocalFile(this, data, name || this.defaultFilename, temp, fileHandle, desc));
+				this.fileLoaded(new LocalFile(this, data, name ||
+					this.defaultFilename, temp, fileHandle, desc));
 			}
 		});
 

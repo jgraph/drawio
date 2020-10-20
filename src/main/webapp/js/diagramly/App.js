@@ -4075,7 +4075,7 @@ App.prototype.saveFile = function(forceDialog, success)
 			}
 		});
 		
-		if (!forceDialog && file.getTitle() != null && this.mode != null)
+		if (!forceDialog && file.getTitle() != null && file.invalidFileHandle == null && this.mode != null)
 		{
 			this.save(file.getTitle(), done);
 		}
@@ -4083,6 +4083,7 @@ App.prototype.saveFile = function(forceDialog, success)
 		{
 			this.chooseFileSystemEntries(mxUtils.bind(this, function(fileHandle, desc)
 			{
+				file.invalidFileHandle = null;
 				file.fileHandle = fileHandle;
 				file.title = desc.name;
 				file.desc = desc;
