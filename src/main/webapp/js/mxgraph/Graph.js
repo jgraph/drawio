@@ -2032,7 +2032,7 @@ Graph.prototype.init = function(container)
 	var graphGetCellsForUngroup = mxGraph.prototype.getCellsForUngroup;
 	Graph.prototype.getCellsForUngroup = function(cells)
 	{
-		cells = graphGetCellsForGroup.apply(this, arguments);
+		cells = graphGetCellsForUngroup.apply(this, arguments);
 		var result = [];
 		
 		// Filters selection cells with the same parent

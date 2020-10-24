@@ -1,3 +1,9 @@
+24-OCT-2020: 13.8.2
+
+- Lucidchart import improvements
+- Fixes ungrouping action
+- Uses mxGraph 4.2.1 beta 22
+
 20-OCT-2020: 13.8.1
 
 - Lucidchart import improvements

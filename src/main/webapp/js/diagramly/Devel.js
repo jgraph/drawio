@@ -16,6 +16,9 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'https://apis.google.com https://*.pusher.com https://code.jquery.com ' +
 				// Bootstrap script in index.html (checked for changes in App.main
 				// in dev mode to avoid deployment without updating this SHA)
+				'\'sha256-1k6pyjDIKgd1KTCRcmDfV6Yc9vgQexHRTiO4zUBoKg8=\' ' +
+				'\'sha256-vS/MxlVD7nbY7AnV+0t1Ap338uF7vrcs7y23KjERhKc=\' ' +
+				// Version 13.8.1
 				'\'sha256-/fZb/J4FQmI/TwyxqJbvALWSyGVEvnTrlj4ZTzZNKzI=\' ' +
 				// Version 13.7.9
 				'\'sha256-P4E8pNUYsln6/EUZppjCCe8y8lelBYTfsSyLjjFCE5g=\' ' +

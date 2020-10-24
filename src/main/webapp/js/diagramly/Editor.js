@@ -2286,10 +2286,12 @@
 		
 		if (tags != null && tags.length > 0)
 		{
-			var script = document.createElement('script');
-			script.type = 'text/javascript';
-			script.src = src;
-			tags[0].parentNode.appendChild(script);
+			var s = document.createElement('script');
+			s.setAttribute('type', 'text/javascript');
+			s.setAttribute('defer', 'true');
+			s.setAttribute('src', src);
+			
+			tags[0].parentNode.appendChild(s);
 		}
 		
 		// Overrides position relative for block elements to fix

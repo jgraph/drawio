@@ -233,6 +233,16 @@
 			// ignored
 		}
 
+		var mxScriptsLoaded = false, mxWinLoaded = false;
+		
+		function checkAllLoaded()
+		{
+			if (mxScriptsLoaded && mxWinLoaded)
+			{
+				App.main();				
+			}
+		};
+		
 		var t0 = new Date();
 
 		// Changes paths for local development environment
@@ -290,6 +300,9 @@
 				{
 					mxscript('js/app.min.js', function()
 					{
+						mxScriptsLoaded = true;
+						checkAllLoaded();
+						
 						if (!supportedDomain)
 						{
 							mxscript('js/PostConfig.js');
@@ -452,7 +465,8 @@ else
 	{
 		window.addEventListener('load', function()
 		{
-			App.main();
+			mxWinLoaded = true;
+			checkAllLoaded();
 		});
 	}
 	else

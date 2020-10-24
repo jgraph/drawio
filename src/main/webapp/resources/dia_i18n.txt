@@ -1036,3 +1036,4 @@ confAErrFetchDrawList=confAErrFetchDrawList
 confAErrCheckDrawDiag=confAErrCheckDrawDiag
 confAErrFetchPageList=confAErrFetchPageList
 confADiagImportIncom=confADiagImportIncom
+invalidSel=invalidSel
