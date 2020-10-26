@@ -200,13 +200,31 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	        
 	        if (isVertical)
 	    	{
-	        	ctx.fillRect(0, RULER_THICKNESS, RULER_THICKNESS, rStart - RULER_THICKNESS);
-		        ctx.fillRect(0, rEnd, RULER_THICKNESS, canvas.height);
+				var oh = rStart - RULER_THICKNESS;
+				
+				if (oh > 0)
+				{
+					ctx.fillRect(0, RULER_THICKNESS, RULER_THICKNESS, oh);
+				}
+
+				if (rEnd < canvas.height)
+				{
+					ctx.fillRect(0, rEnd, RULER_THICKNESS, canvas.height);
+				}
 	    	}
 	        else
 	        {
-		        ctx.fillRect(RULER_THICKNESS, 0, rStart - RULER_THICKNESS, RULER_THICKNESS);
-		        ctx.fillRect(rEnd, 0, canvas.width, RULER_THICKNESS);
+				var ow = rStart - RULER_THICKNESS;
+		        
+				if (ow > 0)
+				{
+					ctx.fillRect(RULER_THICKNESS, 0, ow, RULER_THICKNESS);	
+				}
+		        
+				if (rEnd < canvas.width)
+				{
+					ctx.fillRect(rEnd, 0, canvas.width, RULER_THICKNESS);
+				}
 	        }
         }
         

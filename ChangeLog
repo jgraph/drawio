@@ -1,3 +1,21 @@
+26-OCT_2020: 13.8.3
+
+- Gliffy import improvements
+- Updates Spanish translations
+
+
+24-OCT-2020: 13.8.2
+
+- Lucidchart import improvements
+- Fixes ungrouping action
+- Uses mxGraph 4.2.1 beta 22
+
+20-OCT-2020: 13.8.1
+
+- Lucidchart import improvements
+- Gliffy import improvements
+- Uses mxGraph 4.2.1 beta 21
+
 14-OCT-2020: 13.8.0
 
 - App Engine configuration changes
