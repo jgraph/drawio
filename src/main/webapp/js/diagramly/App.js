@@ -593,7 +593,7 @@ App.main = function(callback, createUi)
 			{
 				var content = mxUtils.getTextContent(scripts[0]);
 				
-				if (CryptoJS.MD5(content).toString() != '6954d575e382bca7fc2090bf81ad77cf')
+				if (CryptoJS.MD5(content).toString() != 'a74b51371929aa44cfc6f8b9c73d1f47')
 				{
 					console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 					alert('[Dev] Bootstrap script change requires update of CSP');
@@ -4075,7 +4075,7 @@ App.prototype.saveFile = function(forceDialog, success)
 			}
 		});
 		
-		if (!forceDialog && file.getTitle() != null && this.mode != null)
+		if (!forceDialog && file.getTitle() != null && file.invalidFileHandle == null && this.mode != null)
 		{
 			this.save(file.getTitle(), done);
 		}
@@ -4083,6 +4083,7 @@ App.prototype.saveFile = function(forceDialog, success)
 		{
 			this.chooseFileSystemEntries(mxUtils.bind(this, function(fileHandle, desc)
 			{
+				file.invalidFileHandle = null;
 				file.fileHandle = fileHandle;
 				file.title = desc.name;
 				file.desc = desc;

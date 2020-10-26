@@ -309,18 +309,28 @@ Actions.prototype.init = function()
 	this.addAction('toBack', function() { graph.orderCells(true); }, null, null, Editor.ctrlKey + '+Shift+B');
 	this.addAction('group', function()
 	{
-		if (graph.getSelectionCount() == 1)
+		if (graph.isEnabled())
 		{
-			graph.setCellStyles('container', '1');
-		}
-		else
-		{
-			graph.setSelectionCell(graph.groupCells(null, 0));
+			var cells = mxUtils.sortCells(graph.getSelectionCells(), true);
+
+			if (cells.length == 1 && !graph.isTable(cells[0]) && !graph.isTableRow(cells[0]))
+			{
+				graph.setCellStyles('container', '1');
+			}
+			else
+			{
+				cells = graph.getCellsForGroup(cells);
+				
+				if (cells.length > 1)
+				{
+					graph.setSelectionCell(graph.groupCells(null, 0, cells));
+				}
+			}
 		}
 	}, null, null, Editor.ctrlKey + '+G');
 	this.addAction('ungroup', function()
 	{
-		if (graph.isEnabled() && !graph.isSelectionEmpty())
+		if (graph.isEnabled())
 		{
 			var cells = graph.getSelectionCells();
 			
@@ -329,7 +339,7 @@ Actions.prototype.init = function()
 			{
 				var temp = graph.ungroupCells();
 				
-				// Unsets container flag for remaining cells
+				// Clears container flag for remaining cells
 				if (cells != null)
 				{
 					for (var i = 0; i < cells.length; i++)
@@ -355,7 +365,30 @@ Actions.prototype.init = function()
 			graph.setSelectionCells(temp);
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+U');
-	this.addAction('removeFromGroup', function() { graph.removeCellsFromParent(); });
+	this.addAction('removeFromGroup', function()
+	{
+		if (graph.isEnabled())
+		{
+			var cells = graph.getSelectionCells();
+			
+			// Removes table rows and cells
+			if (cells != null)
+			{
+				var temp = [];
+				
+				for (var i = 0; i < cells.length; i++)
+		    	{
+					if (!graph.isTableRow(cells[i]) &&
+						!graph.isTableCell(cells[i]))
+					{
+						temp.push(cells[i]);
+					}
+		    	}
+				
+				graph.removeCellsFromParent(temp);
+			}
+		}
+	});
 	// Adds action
 	this.addAction('edit', function()
 	{

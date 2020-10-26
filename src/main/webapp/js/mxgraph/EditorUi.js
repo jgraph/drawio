@@ -516,7 +516,7 @@ EditorUi = function(editor, container, lightbox)
 	
 		// Keys that should be ignored if the cell has a value (known: new default for all cells is html=1 so
 	    // for the html key this effecticely only works for edges inserted via the connection handler)
-		var valueStyles = ['fontFamily', 'fontSize', 'fontColor'];
+		var valueStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor'];
 		
 		// Keys that always update the current edge style regardless of selection
 		var alwaysEdgeStyles = ['edgeStyle', 'startArrow', 'startFill', 'startSize', 'endArrow',
