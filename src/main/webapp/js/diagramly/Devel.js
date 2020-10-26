@@ -14,10 +14,13 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			// storage.googleapis.com is needed for workbox-service-worker
 			'script-src %script-src% \'self\' https://viewer.diagrams.net https://storage.googleapis.com ' +
 				'https://apis.google.com https://*.pusher.com https://code.jquery.com ' +
-				// Bootstrap script in index.html (checked for changes in App.main
-				// in dev mode to avoid deployment without updating this SHA)
+				// Below are the SHAs of the two script blocks in index.html.
+				// These must be updated here and in the CDN after changes.
+				//----------------------------------------------------------//
+				//------------- Bootstrap script in index.html -------------//
+				//----------------------------------------------------------//
+				// Version 13.8.2
 				'\'sha256-1k6pyjDIKgd1KTCRcmDfV6Yc9vgQexHRTiO4zUBoKg8=\' ' +
-				'\'sha256-vS/MxlVD7nbY7AnV+0t1Ap338uF7vrcs7y23KjERhKc=\' ' +
 				// Version 13.8.1
 				'\'sha256-/fZb/J4FQmI/TwyxqJbvALWSyGVEvnTrlj4ZTzZNKzI=\' ' +
 				// Version 13.7.9
@@ -26,10 +29,17 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'\'sha256-+CrvFhadGyk1VjhHM/t3R88LNSEKManW3TGSZi9fmHQ=\' ' +
 				// Versions before 13.7.5
 				'\'sha256-JqdgAC+ydIDMtmQclZEqgbw94J4IeABIfXAxwEJGDJs=\' ' +
-				// App.main script in index.html
+				//---------------------------------------------------------//
+				//------------- App.main script in index.html -------------//
+				//---------------------------------------------------------//
+				// Version 13.8.2
+				'\'sha256-vS/MxlVD7nbY7AnV+0t1Ap338uF7vrcs7y23KjERhKc=\' ' +
+				// Version 13.7.5
 				'\'sha256-dIEi9UhRQPcyoE9/RPfkIPLe2mSS8oQzwabGMLAZzGE=\' ' +
 				// Versions before 13.7.5
-				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\'; ' +
+				'\'sha256-4Dg3/NrB8tLC7TUSCbrtUDWD/J6bSLka01GHn+qtNZ0=\' ' +
+				//---------------------------------------------------------//
+				'; ' +
 			'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
 				'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +

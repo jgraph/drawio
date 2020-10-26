@@ -12398,11 +12398,11 @@ LucidImporter = {};
 	
 	function handleTextRotation(v, p)
 	{
-		if (p.Text_TRotation)
+		if (p.Text_TRotation || p.TextRotation)
 		{
 			try
 			{
-				var deg = mxUtils.toDegree(p.Text_TRotation);
+				var deg = mxUtils.toDegree(p.Text_TRotation) +  mxUtils.toDegree(p.TextRotation);
 				
 				if (deg != 0 && v.value)
 				{
