@@ -1,8 +1,15 @@
-26-OCT_2020: 13.8.3
+27-OCT-2020: 13.8.5
+
+- Fixes possible NPE in Confluence Cloud
+
+27-OCT-2020: 13.8.4
+
+- Performance improvements for Confluence Cloud
+
+26-OCT-2020: 13.8.3
 
 - Gliffy import improvements
 - Updates Spanish translations
-
 
 24-OCT-2020: 13.8.2
 

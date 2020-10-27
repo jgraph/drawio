@@ -6,11 +6,15 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "7ebbf9c7172e768bc0263302beaf6b17"
+    "revision": "da472043dd125d0ea8e13c8e51c406b1"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "b24f190f5b615ac2488ca86208143d59"
+    "revision": "509438d35ee02968e6abd6af13814198"
+  },
+  {
+    "url": "js/stencils.min.js",
+    "revision": "dfd6700d74c9e746589368e903e1c50f"
   },
   {
     "url": "js/shapes.min.js",
@@ -26,7 +30,7 @@ if (workbox)
   },
   {
     "url": "open.html",
-    "revision": "dd24217f6c21207b54475409848f31ff"
+    "revision": "d71816b3b00e769fc6019fcdd6921662"
   },
   {
     "url": "styles/grapheditor.css",
@@ -53,19 +57,87 @@ if (workbox)
     "revision": "d82b9c14d7a069efabef719a8a5f3975"
   },
   {
+    "url": "js/viewer-static.min.js",
+    "revision": "a89ad8c006bc52859fdcfab30c6b0826"
+  },
+  {
+    "url": "plugins/cConf-comments.js",
+    "revision": "dc57594d2cefbe35c15962a3ec356d24"
+  },
+  {
+    "url": "plugins/cConf-1-4-8.js",
+    "revision": "5f51c9102e55474da1f3012c011d6191"
+  },
+  {
+    "url": "connect/confluence/connectUtils-1-4-8.js",
+    "revision": "30dbcb61fbfb2366c243e68a95ed6784"
+  },
+  {
+    "url": "connect/new_common/cac.js",
+    "revision": "659b958b774f9eba916b07325420098b"
+  },
+  {
+    "url": "connect/gdrive_common/gac.js",
+    "revision": "eb7db3700937a2a30d178ab25c9f13ea"
+  },
+  {
+    "url": "connect/onedrive_common/ac.js",
+    "revision": "9cd01be6b3a233401d77595e2c38ce14"
+  },
+  {
+    "url": "connect/confluence/viewer-init.js",
+    "revision": "b398e16456cae37e4925e43c360b9034"
+  },
+  {
+    "url": "connect/confluence/viewer.js",
+    "revision": "62249a2d807bb95cc38d4cc9a56a8902"
+  },
+  {
+    "url": "connect/confluence/viewer-1-4-42.html",
+    "revision": "0e9ad57d31303c201f285b2739f34169"
+  },
+  {
+    "url": "connect/confluence/macroEditor-1-4-8.html",
+    "revision": "689fa63fd3a384662b4199f6e4a5b5c1"
+  },
+  {
+    "url": "connect/confluence/macro-editor.js",
+    "revision": "257473ece79f2f7d822a1698699c5479"
+  },
+  {
     "url": "math/MathJax.js",
     "revision": "b2c103388b71bb3d11cbf9aa45fe9b68"
   },
   {
+    "url": "math/jax/input/TeX/config.js",
+    "revision": "c6de0381e92b311e75264dac618de39d"
+  },
+  {
+    "url": "math/jax/input/MathML/config.js",
+    "revision": "cf85ea4a5bc5ac677243e755a7c31464"
+  },
+  {
+    "url": "math/jax/input/AsciiMath/config.js",
+    "revision": "e9f16b23a8e666d60ab746e001b3b85b"
+  },
+  {
+    "url": "math/jax/output/SVG/config.js",
+    "revision": "2331dfa04ed33a371d8735e1798c4980"
+  },
+  {
+    "url": "math/extensions/tex2jax.js",
+    "revision": "6313aa4e8b7edf452102de2729ec6aed"
+  },
+  {
+    "url": "math/extensions/mml2jax.js",
+    "revision": "835e7b107ce67d0e09a002302b64d979"
+  },
+  {
+    "url": "math/extensions/asciimath2jax.js",
+    "revision": "ba4a24f0884938191d5cc8a719050c08"
+  },
+  {
     "url": "resources/dia.txt",
-    "revision": "b60363a6346142974bfee87b70fdae87"
-  },
-  {
-    "url": "resources/dia_cs.txt",
-    "revision": "a377dcb6d569e1f8813336091b42f878"
-  },
-  {
-    "url": "resources/dia_my.txt",
     "revision": "b60363a6346142974bfee87b70fdae87"
   },
   {
@@ -73,72 +145,28 @@ if (workbox)
     "revision": "0119eaf1146ee2d83ef997aa31c878d7"
   },
   {
-    "url": "resources/dia_ml.txt",
-    "revision": "695140b5ed11d882833a85cb13fba49c"
-  },
-  {
-    "url": "resources/dia_uk.txt",
-    "revision": "b1cb41c5fe2a688aaa5c1cf8b0958b14"
+    "url": "resources/dia_ar.txt",
+    "revision": "78e616502b54b96492a871a38cb4038a"
   },
   {
     "url": "resources/dia_bg.txt",
     "revision": "b93a013a4cd31e248abc433fe42193f0"
   },
   {
-    "url": "resources/dia_ca.txt",
-    "revision": "040564ea4eed721c15dbf3ad28da8d7e"
-  },
-  {
-    "url": "resources/dia_th.txt",
-    "revision": "70d9a5929789e37267c69e13b3f0ea38"
+    "url": "resources/dia_bn.txt",
+    "revision": "29ded70b7f3aea8c90e52a6236da2acd"
   },
   {
     "url": "resources/dia_bs.txt",
     "revision": "418e5f20f68c2a1cd810cfe2d633053d"
   },
   {
-    "url": "resources/dia_id.txt",
-    "revision": "5c1ab50c62be2d29fbad51f97683d331"
+    "url": "resources/dia_ca.txt",
+    "revision": "040564ea4eed721c15dbf3ad28da8d7e"
   },
   {
-    "url": "resources/dia_sk.txt",
-    "revision": "3205440ad12ebb8788f9631395255bcc"
-  },
-  {
-    "url": "resources/dia_ro.txt",
-    "revision": "9225ffae67763e473c9e4ba2da7cec39"
-  },
-  {
-    "url": "resources/dia_gl.txt",
-    "revision": "d06bc0c67db191ff829bd44a7322c8cb"
-  },
-  {
-    "url": "resources/dia_es.txt",
-    "revision": "133752a094857cd6d30b11e2f46523a1"
-  },
-  {
-    "url": "resources/dia_eu.txt",
-    "revision": "8b0d6a63c057e78bc74b7909eb2f4cf5"
-  },
-  {
-    "url": "resources/dia_ko.txt",
-    "revision": "010c06c47c42432945686769dbbecfe5"
-  },
-  {
-    "url": "resources/dia_si.txt",
-    "revision": "b60363a6346142974bfee87b70fdae87"
-  },
-  {
-    "url": "resources/dia_kn.txt",
-    "revision": "7df158a82b5886eee06e13b9c8e91810"
-  },
-  {
-    "url": "resources/dia_hu.txt",
-    "revision": "3ca47dfdbd83fa773e0d42e2cf3c176d"
-  },
-  {
-    "url": "resources/dia_fi.txt",
-    "revision": "197418f7a41eb848862a11ec52f45f14"
+    "url": "resources/dia_cs.txt",
+    "revision": "a377dcb6d569e1f8813336091b42f878"
   },
   {
     "url": "resources/dia_da.txt",
@@ -149,96 +177,84 @@ if (workbox)
     "revision": "ab28f1da640f9581e505184e97b04f9f"
   },
   {
-    "url": "resources/dia_sl.txt",
-    "revision": "ad17cb8844de48c378cd1a0df7e75027"
-  },
-  {
-    "url": "resources/dia_it.txt",
-    "revision": "eef68ada859eb5c34777d0ab06874784"
-  },
-  {
-    "url": "resources/dia_hr.txt",
-    "revision": "df2e4746574a52b96922e9b0f985a16b"
-  },
-  {
-    "url": "resources/dia_he.txt",
-    "revision": "3789abaf661f41c957f0d30d4ec0de5f"
-  },
-  {
-    "url": "resources/dia_pt.txt",
-    "revision": "1dc0aa27ec864a5ff5f36845b3a20c7e"
-  },
-  {
-    "url": "resources/dia_zh-tw.txt",
-    "revision": "7c46d96889942aad148e922d6f2ebc5f"
-  },
-  {
-    "url": "resources/dia_et.txt",
-    "revision": "e7022d05309d441ec5cfcee45f3aec05"
-  },
-  {
-    "url": "resources/dia_ja.txt",
-    "revision": "418193cc8c9bc27e1d96ea90980e0bf4"
-  },
-  {
-    "url": "resources/dia_hi.txt",
-    "revision": "d6f2aa8e0066f013736ba771c1c7d4ef"
+    "url": "resources/dia_el.txt",
+    "revision": "dee88627c709c895bdae7e27656285e0"
   },
   {
     "url": "resources/dia_eo.txt",
     "revision": "c88b89af86ef0fe83adf87d221bac437"
   },
   {
+    "url": "resources/dia_es.txt",
+    "revision": "133752a094857cd6d30b11e2f46523a1"
+  },
+  {
+    "url": "resources/dia_et.txt",
+    "revision": "e7022d05309d441ec5cfcee45f3aec05"
+  },
+  {
+    "url": "resources/dia_eu.txt",
+    "revision": "8b0d6a63c057e78bc74b7909eb2f4cf5"
+  },
+  {
     "url": "resources/dia_fa.txt",
     "revision": "5998916ee3be2945ab6e09720cf804fe"
   },
   {
-    "url": "resources/dia_sw.txt",
-    "revision": "c838acb9d39a20c5da2dc221dea88848"
+    "url": "resources/dia_fi.txt",
+    "revision": "197418f7a41eb848862a11ec52f45f14"
   },
   {
-    "url": "resources/dia_pl.txt",
-    "revision": "529b02863c2baf32df2f443e2de484b2"
-  },
-  {
-    "url": "resources/dia_pt-br.txt",
-    "revision": "c1464bd19ab819f771a0300f01016357"
-  },
-  {
-    "url": "resources/dia_sv.txt",
-    "revision": "dbcb057f8b8f2de8484e8de8776a6117"
-  },
-  {
-    "url": "resources/dia_el.txt",
-    "revision": "dee88627c709c895bdae7e27656285e0"
-  },
-  {
-    "url": "resources/dia_sr.txt",
-    "revision": "8a03f77ea3980c1705552a42e28adc28"
+    "url": "resources/dia_fil.txt",
+    "revision": "f9cb36f205e162d307f4e7a0cdd85f0e"
   },
   {
     "url": "resources/dia_fr.txt",
     "revision": "0013ebca3f76586c36b1d2ef022efcbe"
   },
   {
-    "url": "resources/dia_ru.txt",
-    "revision": "378145660d8a716d118d9d287a37c8b9"
+    "url": "resources/dia_gl.txt",
+    "revision": "d06bc0c67db191ff829bd44a7322c8cb"
   },
   {
     "url": "resources/dia_gu.txt",
     "revision": "641159751b878ebab87c0863a8a3a9de"
   },
   {
-    "url": "resources/dia_ar.txt",
-    "revision": "78e616502b54b96492a871a38cb4038a"
+    "url": "resources/dia_he.txt",
+    "revision": "3789abaf661f41c957f0d30d4ec0de5f"
   },
   {
-    "url": "resources/dia_tr.txt",
-    "revision": "b4959378cd22097c8517a396f7cf7c09"
+    "url": "resources/dia_hi.txt",
+    "revision": "d6f2aa8e0066f013736ba771c1c7d4ef"
   },
   {
-    "url": "resources/dia_te.txt",
-    "revision": "352cb210117dfe48de767c8a2a529afc"
+    "url": "resources/dia_hr.txt",
+    "revision": "df2e4746574a52b96922e9b0f985a16b"
+  },
+  {
+    "url": "resources/dia_hu.txt",
+    "revision": "3ca47dfdbd83fa773e0d42e2cf3c176d"
+  },
+  {
+    "url": "resources/dia_id.txt",
+    "revision": "5c1ab50c62be2d29fbad51f97683d331"
+  },
+  {
+    "url": "resources/dia_it.txt",
+    "revision": "eef68ada859eb5c34777d0ab06874784"
+  },
+  {
+    "url": "resources/dia_ja.txt",
+    "revision": "418193cc8c9bc27e1d96ea90980e0bf4"
+  },
+  {
+    "url": "resources/dia_kn.txt",
+    "revision": "7df158a82b5886eee06e13b9c8e91810"
+  },
+  {
+    "url": "resources/dia_ko.txt",
+    "revision": "010c06c47c42432945686769dbbecfe5"
   },
   {
     "url": "resources/dia_lt.txt",
@@ -249,6 +265,10 @@ if (workbox)
     "revision": "119c7c190c3074eb7b2de9ef2b1e5361"
   },
   {
+    "url": "resources/dia_ml.txt",
+    "revision": "695140b5ed11d882833a85cb13fba49c"
+  },
+  {
     "url": "resources/dia_mr.txt",
     "revision": "d0bf6ec6e000ed566c10086a101e1e4a"
   },
@@ -257,32 +277,92 @@ if (workbox)
     "revision": "862171e716388d4bb76936b221abe1f1"
   },
   {
+    "url": "resources/dia_my.txt",
+    "revision": "b60363a6346142974bfee87b70fdae87"
+  },
+  {
     "url": "resources/dia_nl.txt",
     "revision": "17a3557ebc49ea861f9fa1481598227e"
-  },
-  {
-    "url": "resources/dia_fil.txt",
-    "revision": "f9cb36f205e162d307f4e7a0cdd85f0e"
-  },
-  {
-    "url": "resources/dia_zh.txt",
-    "revision": "ae339945d9d70dc8fbc8aa3371c41fa3"
-  },
-  {
-    "url": "resources/dia_bn.txt",
-    "revision": "29ded70b7f3aea8c90e52a6236da2acd"
   },
   {
     "url": "resources/dia_no.txt",
     "revision": "907c573bff8b2c1e1aeeb962141064f6"
   },
   {
-    "url": "resources/dia_vi.txt",
-    "revision": "2d2e414c14afd8da20f0744ef7a72069"
+    "url": "resources/dia_pl.txt",
+    "revision": "529b02863c2baf32df2f443e2de484b2"
+  },
+  {
+    "url": "resources/dia_pt-br.txt",
+    "revision": "c1464bd19ab819f771a0300f01016357"
+  },
+  {
+    "url": "resources/dia_pt.txt",
+    "revision": "1dc0aa27ec864a5ff5f36845b3a20c7e"
+  },
+  {
+    "url": "resources/dia_ro.txt",
+    "revision": "9225ffae67763e473c9e4ba2da7cec39"
+  },
+  {
+    "url": "resources/dia_ru.txt",
+    "revision": "378145660d8a716d118d9d287a37c8b9"
+  },
+  {
+    "url": "resources/dia_si.txt",
+    "revision": "b60363a6346142974bfee87b70fdae87"
+  },
+  {
+    "url": "resources/dia_sk.txt",
+    "revision": "3205440ad12ebb8788f9631395255bcc"
+  },
+  {
+    "url": "resources/dia_sl.txt",
+    "revision": "ad17cb8844de48c378cd1a0df7e75027"
+  },
+  {
+    "url": "resources/dia_sr.txt",
+    "revision": "8a03f77ea3980c1705552a42e28adc28"
+  },
+  {
+    "url": "resources/dia_sv.txt",
+    "revision": "dbcb057f8b8f2de8484e8de8776a6117"
+  },
+  {
+    "url": "resources/dia_sw.txt",
+    "revision": "c838acb9d39a20c5da2dc221dea88848"
   },
   {
     "url": "resources/dia_ta.txt",
     "revision": "ea8bb796a900a5b1e384ad027257dee6"
+  },
+  {
+    "url": "resources/dia_te.txt",
+    "revision": "352cb210117dfe48de767c8a2a529afc"
+  },
+  {
+    "url": "resources/dia_th.txt",
+    "revision": "70d9a5929789e37267c69e13b3f0ea38"
+  },
+  {
+    "url": "resources/dia_tr.txt",
+    "revision": "b4959378cd22097c8517a396f7cf7c09"
+  },
+  {
+    "url": "resources/dia_uk.txt",
+    "revision": "b1cb41c5fe2a688aaa5c1cf8b0958b14"
+  },
+  {
+    "url": "resources/dia_vi.txt",
+    "revision": "2d2e414c14afd8da20f0744ef7a72069"
+  },
+  {
+    "url": "resources/dia_zh-tw.txt",
+    "revision": "7c46d96889942aad148e922d6f2ebc5f"
+  },
+  {
+    "url": "resources/dia_zh.txt",
+    "revision": "ae339945d9d70dc8fbc8aa3371c41fa3"
   },
   {
     "url": "favicon.ico",
@@ -303,6 +383,14 @@ if (workbox)
   {
     "url": "images/drawlogo-gray.svg",
     "revision": "0aabacbc0873816e1e09e4736ae44c7d"
+  },
+  {
+    "url": "images/drawlogo-text-bottom.svg",
+    "revision": "f6c438823ab31f290940bd4feb8dd9c2"
+  },
+  {
+    "url": "images/logo-flat-small.png",
+    "revision": "4b178e59ff499d6dd1894fc498b59877"
   },
   {
     "url": "images/apple-touch-icon.png",
@@ -423,6 +511,10 @@ if (workbox)
   {
     "url": "images/hs.png",
     "revision": "fefa1a03d92ebad25c88dca94a0b63db"
+  },
+  {
+    "url": "images/aui-wait.gif",
+    "revision": "5a474bcbd8d2f2826f03d10ea44bf60e"
   },
   {
     "url": "mxgraph/css/common.css",

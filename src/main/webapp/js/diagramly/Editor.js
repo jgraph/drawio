@@ -207,6 +207,14 @@
 	 * Specifies if custom properties should be enabled.
 	 */
 	Editor.enableCustomProperties = true;
+	
+	/**
+	 * Specifies if custom properties should be enabled.
+	 */
+	Editor.enableServiceWorker = urlParams['pwa'] != '0' &&
+		'serviceWorker' in navigator && (urlParams['offline'] == '1' ||
+		/.*\.diagrams\.net$/.test(window.location.hostname) ||
+		/.*\.draw\.io$/.test(window.location.hostname));
 
 	/**
 	 * Specifies if XML files should be compressed. Default is true.
@@ -834,7 +842,7 @@
 			}
 			else
 			{
-				style.fill == '';
+				style.fill = '';
 			}
 			
 			// Applies cell style
@@ -2288,7 +2296,6 @@
 		{
 			var s = document.createElement('script');
 			s.setAttribute('type', 'text/javascript');
-			s.setAttribute('defer', 'true');
 			s.setAttribute('src', src);
 			
 			tags[0].parentNode.appendChild(s);

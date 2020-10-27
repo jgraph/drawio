@@ -141,9 +141,9 @@ StorageFile.insertFile = function(ui, title, data, success, error)
 		}
 	});
 	
-	StorageFile.getFileContent(ui, title, function()
+	StorageFile.getFileContent(ui, title, function(data)
 	{
-		createStorageFile(true);
+		createStorageFile(data != null);
 	}, function()
 	{
 		createStorageFile(false);
