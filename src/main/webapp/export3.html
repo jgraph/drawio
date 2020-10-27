@@ -29,7 +29,95 @@
 	</style>
 	<link rel="stylesheet" href="mxgraph/css/common.css" charset="UTF-8" type="text/css">
 	<link rel="stylesheet" href="export-fonts.css" charset="UTF-8" type="text/css">
-    <script src="js/app.min.js"></script>
+	<script src="js/app.min.js"></script>
+	<script>
+		/**
+		 * Synchronously adds scripts to the page.
+		 */
+		function mxscript(src, onLoad, id, dataAppKey, noWrite) {
+			if (onLoad != null || noWrite) {
+				var s = document.createElement('script');
+				s.setAttribute('type', 'text/javascript');
+				s.setAttribute('src', src);
+				var r = false;
+
+				if (id != null) {
+					s.setAttribute('id', id);
+				}
+
+				if (dataAppKey != null) {
+					s.setAttribute('data-app-key', dataAppKey);
+				}
+
+				if (onLoad != null) {
+					s.onload = s.onreadystatechange = function () {
+						if (!r && (!this.readyState || this.readyState == 'complete')) {
+							r = true;
+							onLoad();
+						}
+					};
+				}
+
+				var t = document.getElementsByTagName('script')[0];
+
+				if (t != null) {
+					t.parentNode.insertBefore(s, t);
+				}
+			}
+			else {
+				document.write('<script src="' + src + '"' + ((id != null) ? ' id="' + id + '" ' : '') +
+					((dataAppKey != null) ? ' data-app-key="' + dataAppKey + '" ' : '') + '></scr' + 'ipt>');
+			}
+		};
+		function getAppDataFolder() {
+			try {
+				var fs = require('fs');
+				var appDataDir = require('electron').remote.app.getPath('appData');
+				var drawioDir = appDataDir + '/draw.io';
+
+				if (!fs.existsSync(drawioDir)) //Usually this dir already exists
+				{
+					fs.mkdirSync(drawioDir);
+				}
+
+				return drawioDir;
+			}
+			catch (e) { }
+
+			return '.';
+		};
+		//Load desktop plugins
+		var plugins = JSON.parse(localStorage.getItem(mxSettings.key)).plugins
+		App.initPluginCallback();
+		
+		if (plugins != null && plugins.length > 0) {
+			for (var i = 0; i < plugins.length; i++) {
+				try {
+					if (plugins[i].startsWith('/plugins/')) {
+						plugins[i] = '.' + plugins[i];
+					}
+					//Support old plugins added using file:// workaround
+					else if (!plugins[i].startsWith('file://')) {
+						var fs = require('fs');
+						var sysPath = require('path');
+						var pluginsFile = sysPath.join(getAppDataFolder(), '/plugins', plugins[i]);
+						
+						if (fs.existsSync(pluginsFile)) {
+							plugins[i] = 'file://' + pluginsFile;
+						}
+						else {
+							continue; //skip not found files
+						}
+					}
+
+					mxscript(plugins[i]);
+				}
+				catch (e) {
+					// ignore
+				}
+			}
+		}
+	</script>
 	<script>
 		var mxIsElectron = navigator.userAgent != null &&
 			navigator.userAgent.toLowerCase().indexOf(' electron/') > -1;
