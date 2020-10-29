@@ -2,12 +2,18 @@
  * Copyright (c) 2006-2020, JGraph Ltd
  * Copyright (c) 2006-2020, draw.io AG
  */
-DriveClient = function(editorUi)
+DriveClient = function(editorUi, isExtAuth)
 {
+	if (isExtAuth == null && window.urlParams != null && window.urlParams['extAuth'] == '1')
+	{
+		isExtAuth = true;
+	}
+	
 	mxEventSource.call(this);
 	
 	DrawioClient.call(this, editorUi, 'gDriveAuthInfo');
 
+	this.isExtAuth = isExtAuth;
 	/**
 	 * Holds a reference to the UI. Needed for the sharing client.
 	 */
@@ -18,7 +24,8 @@ DriveClient = function(editorUi)
 	this.mimeType = 'application/vnd.jgraph.mxfile.realtime';
 	
 	// Reading files now possible with no initial click in drive
-	if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1')
+	//TODO In teams we do auth using editor app, we need to support viewer only app also
+	if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1' && urlParams['extAuth'] != '1')
 	{
 		// Uses separate name for the viewer auth tokens
 		this.cookieName = 'gDriveViewerAuthInfo';
@@ -163,6 +170,17 @@ DriveClient.prototype.mimeTypeCheckCoolOff = 60000;
  * Executes the first step for connecting to Google Drive.
  */
 DriveClient.prototype.user = null;
+
+/**
+ * Executes auth in same window (no popups)
+ */
+DriveClient.prototype.sameWinAuthMode = false;
+
+/**
+ * Redirect URL of samw window mode that will get the token
+ */
+DriveClient.prototype.sameWinRedirectUrl = null;
+
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
@@ -526,6 +544,15 @@ DriveClient.prototype.createAuthWin = function(url)
  */
 DriveClient.prototype.authorize = function(immediate, success, error, remember, popup)
 {
+	if (this.isExtAuth && !immediate)
+	{
+		window.parent.driveAuth(mxUtils.bind(this, function(newAuthInfo)
+		{
+			this.updateAuthInfo(newAuthInfo, true, true, success, error);
+		}), error);
+		return;
+	}
+
 	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
 	
 	req.send(mxUtils.bind(this, function(req)
@@ -541,43 +568,43 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 	}), error);
 };
 
+DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUserUpdate, success, error)
+{
+	this.token = newAuthInfo.access_token;
+	newAuthInfo.expires = Date.now() + parseInt(newAuthInfo.expires_in) * 1000;
+	newAuthInfo.remember = remember;
+	
+	this.resetTokenRefresh(newAuthInfo);
+	this.authCalled = true;
+	
+	if (forceUserUpdate || this.user == null)
+	{
+		//IE/Edge security doesn't allow access to newAuthInfo in a callback function (outside this function scope)
+		//So, stringify the object and restore it (parse) in the callback
+		var strAuthInfo = JSON.stringify(newAuthInfo);
+
+		this.updateUser(mxUtils.bind(this, function()
+		{
+			//Restore the auth info object to bypass IE/Edge security
+			var resAuthInfo = JSON.parse(strAuthInfo);
+			//Save user and new token
+			this.setPersistentToken(resAuthInfo, !remember);
+			
+			if (success != null)
+			{
+				success();
+			}											
+		}), error);
+	}
+	else if (success != null)
+	{
+		this.setPersistentToken(newAuthInfo, !remember);
+		success();
+	}
+};
+	
 DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error, remember, popup)
 {
-	var updateAuthInfo = mxUtils.bind(this, function (newAuthInfo, remember, forceUserUpdate)
-	{
-		this.token = newAuthInfo.access_token;
-		newAuthInfo.expires = Date.now() + parseInt(newAuthInfo.expires_in) * 1000;
-		newAuthInfo.remember = remember;
-		
-		this.resetTokenRefresh(newAuthInfo);
-		this.authCalled = true;
-		
-		if (forceUserUpdate || this.user == null)
-		{
-			//IE/Edge security doesn't allow access to newAuthInfo in a callback function (outside this function scope)
-			//So, stringify the object and restore it (parse) in the callback
-			var strAuthInfo = JSON.stringify(newAuthInfo);
-
-			this.updateUser(mxUtils.bind(this, function()
-			{
-				//Restore the auth info object to bypass IE/Edge security
-				var resAuthInfo = JSON.parse(strAuthInfo);
-				//Save user and new token
-				this.setPersistentToken(resAuthInfo, !remember);
-				
-				if (success != null)
-				{
-					success();
-				}											
-			}), error);
-		}
-		else if (success != null)
-		{
-			this.setPersistentToken(newAuthInfo, !remember);
-			success();
-		}
-	});
-	
 	try
 	{
 		// Takes userId from state URL parameter
@@ -637,7 +664,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 						var newAuthInfo = JSON.parse(req.getText());
 						newAuthInfo.refresh_token = authInfo.refresh_token; //Refresh token is not returned in the new auth info
 						
-						updateAuthInfo(newAuthInfo, true); //We set remember to true since we can only have a refresh token if user initially selected remember
+						this.updateAuthInfo(newAuthInfo, true, false, success, error); //We set remember to true since we can only have a refresh token if user initially selected remember
 					}
 					else 
 					{
@@ -661,9 +688,15 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 						'&response_type=code&include_granted_scopes=true' +
 						(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
 						'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
-						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state); //To identify which app/domain is used
+						'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&ver=2&token=' + state + //To identify which app/domain is used
+						(this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : '')); 
 				
-				if (popup == null)
+				if (this.sameWinAuthMode)
+				{
+					window.location.assign(url);
+					popup = null; //Same window doesn't use onGoogleDriveCallback or popups
+				}
+				else if (popup == null)
 				{
 					popup = this.createAuthWin(url);
 				}
@@ -689,7 +722,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 							}
 							else
 							{
-								updateAuthInfo(newAuthInfo, remember, true);
+								this.updateAuthInfo(newAuthInfo, remember, true, success, error);
 							}
 						}
 						catch (e)
@@ -1985,7 +2018,7 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
+DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 {
 	this.filePickerCallback = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
@@ -1996,7 +2029,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 	{
 		if (data.action == google.picker.Action.PICKED)
 		{
-    		this.filePickerCallback(data.docs[0].id);
+    		this.filePickerCallback(data.docs[0].id, data.docs[0]);
 		}
 	});
 	
@@ -2020,6 +2053,11 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 					{
 						mxEvent.removeListener(document, 'click', exit);
 						this[name].setVisible(false);
+						
+						if (cancelFn)
+						{
+							cancelFn();
+						}
 					}
 				});
 				
@@ -2072,14 +2110,30 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 				        .addView(view2)
 				        .addView(view3)
 				        .addView(google.picker.ViewId.RECENTLY_PICKED)
-				        .addView(view4)
-//				        .setOrigin(window.location.protocol + '//' + window.location.host) //TODO Still there is an error in console about incorrect origin!, it also causes the picker to hang (has a blocking empty iframe on top!)
-				        .setCallback(mxUtils.bind(this, function(data)
+				        .addView(view4);
+					
+					if (urlParams['gPickerSize'])
+					{
+						var cSize = urlParams['gPickerSize'].split(',');
+						this[name] = this[name].setSize(cSize[0], cSize[1]);
+					}
+					
+					if (urlParams['topBaseUrl'])
+				    {   
+						this[name] = this[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
+					} 
+				    
+					this[name] = this[name].setCallback(mxUtils.bind(this, function(data)
 				        {
 				        	if (data.action == google.picker.Action.PICKED ||
 				        		data.action == google.picker.Action.CANCEL)
 				        	{
 				        		mxEvent.removeListener(document, 'click', exit);
+
+								if (cancelFn)
+								{
+									cancelFn();
+								}
 				        	}
 			        	
 				        	if (data.action == google.picker.Action.PICKED)
@@ -2180,9 +2234,20 @@ DriveClient.prototype.pickFolder = function(fn, force)
 						        .addView(view2)
 						        .addView(view3)
 						        .addView(google.picker.ViewId.RECENTLY_PICKED)
-						        .setTitle(mxResources.get('pickFolder'))
-//						        .setOrigin(window.location.protocol + '//' + window.location.host) //TODO Still there is an error in console about incorrect origin!, it also causes the picker to hang (has a blocking empty iframe on top!)
-						        .setCallback(mxUtils.bind(this, function(data)
+						        .setTitle(mxResources.get('pickFolder'));
+
+							if (urlParams['gPickerSize'])
+							{
+								var cSize = urlParams['gPickerSize'].split(',');
+								this[name] = this[name].setSize(cSize[0], cSize[1]);
+							}
+
+							if (urlParams['topBaseUrl'])
+						    {   
+								this[name] = this[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
+							} 
+
+					        this[name] = this[name].setCallback(mxUtils.bind(this, function(data)
 						        {
 						        	if (data.action == google.picker.Action.PICKED ||
 						        		data.action == google.picker.Action.CANCEL)
@@ -2311,9 +2376,20 @@ DriveClient.prototype.pickLibrary = function(fn)
 				        .addView(view2)
 				        .addView(view3)
 				        .addView(google.picker.ViewId.RECENTLY_PICKED)
-				        .addView(view4)
-//				        .setOrigin(window.location.protocol + '//' + window.location.host) //TODO Still there is an error in console about incorrect origin!, it also causes the picker to hang (has a blocking empty iframe on top!)
-				        .setCallback(mxUtils.bind(this, function(data)
+				        .addView(view4);
+					
+					if (urlParams['gPickerSize'])
+					{
+						var cSize = urlParams['gPickerSize'].split(',');
+						this.libraryPicker = this.libraryPicker.setSize(cSize[0], cSize[1]);
+					}
+
+					if (urlParams['topBaseUrl'])
+				    {   
+						this.libraryPicker = this.libraryPicker.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
+					}
+					 
+				    this.libraryPicker = this.libraryPicker.setCallback(mxUtils.bind(this, function(data)
 				        {
 					        	if (data.action == google.picker.Action.PICKED ||
 					        		data.action == google.picker.Action.CANCEL)

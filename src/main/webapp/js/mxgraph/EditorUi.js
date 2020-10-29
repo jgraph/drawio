@@ -2139,7 +2139,10 @@ EditorUi.prototype.initCanvas = function()
 				});
 			}
 	
-			this.addChromelessToolbarItems(addButton);
+			if (urlParams['openInSameWin'] != '1')
+			{
+				this.addChromelessToolbarItems(addButton);
+			}
 	
 			if (this.editor.editButtonLink != null || this.editor.editButtonFunc != null)
 			{

@@ -1037,3 +1037,7 @@ confAErrCheckDrawDiag=Diagramm {1} konnte nicht geprüft werden
 confAErrFetchPageList=Fehler beim Laden der Seitenliste.
 confADiagImportIncom={1} diagram "{2}" is imported partially and may have missing shapes.
 invalidSel=Invalid selection
+diagNameEmptyErr=Diagram name cannot be empty
+openDiagram=Open Diagram
+newDiagram=New diagram
+editable=Editable

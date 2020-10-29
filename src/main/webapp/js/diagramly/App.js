@@ -79,6 +79,12 @@ App = function(editor, container, lightbox)
 	// Global helper method to deal with popup blockers
 	window.openWindow = mxUtils.bind(this, function(url, pre, fallback)
 	{
+		if (urlParams['openInSameWin'] == '1')
+		{
+			fallback();
+			return;
+		}
+		
 		var wnd = null;
 		
 		try
@@ -254,6 +260,7 @@ App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
  * But it doesn't work for IE11, so we fallback to the original one
  */
 App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : window.DRAWIO_BASE_URL + '/js/onedrive/OneDrive.js';
+App.ONEDRIVE_INLINE_PICKER_URL = window.DRAWIO_BASE_URL + '/js/onedrive/mxODPicker.js';
 
 /**
  * Trello URL
@@ -498,7 +505,14 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							mxscript(App.ONEDRIVE_URL);
+							if (urlParams['inlinePicker'] == '1')
+							{
+								mxscript(App.ONEDRIVE_INLINE_PICKER_URL);
+							}
+							else
+							{
+								mxscript(App.ONEDRIVE_URL);								
+							}
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -876,7 +890,14 @@ App.main = function(callback, createUi)
 					urlParams['od'] == '1')) && (navigator.userAgent == null ||
 					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 				{
-					mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+					if (urlParams['inlinePicker'] == '1')
+					{
+						mxscript(App.ONEDRIVE_INLINE_PICKER_URL, window.DrawOneDriveClientCallback);
+					}
+					else
+					{
+						mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+					}
 				}
 				// Disables client
 				else if (typeof window.OneDrive === 'undefined')
@@ -4635,6 +4656,11 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
  */
 App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
+	if (urlParams['openInSameWin'] == '1')
+	{
+		sameWindow = true;
+	}
+	
 	this.hideDialog();
 	
 	var fn2 = mxUtils.bind(this, function()
@@ -5802,7 +5828,7 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 	{
 		if (closeFn != null)
 		{
-			closeFn();
+			closeFn(cancel);
 		}
 		
 		if (cancel && this.getCurrentFile() == null && this.dialog == null)

@@ -1,3 +1,8 @@
+28-OCT-2020: 13.8.6
+
+- Performance improvements for Jira Cloud
+- MS teams integration
+
 27-OCT-2020: 13.8.5
 
 - Fixes possible NPE in Confluence Cloud

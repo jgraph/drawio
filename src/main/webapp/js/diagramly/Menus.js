@@ -78,6 +78,14 @@
 			img.src = IMAGE_PATH + '/help.png';
 		}
 		
+		if (urlParams['noFileMenu'] == '1')
+		{
+			this.defaultMenuItems = this.defaultMenuItems.filter(function(m)
+			{
+				return m != 'file';
+			});
+		}
+
 		editorUi.actions.addAction('new...', function()
 		{
 			var compact = editorUi.isOffline();

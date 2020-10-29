@@ -1037,3 +1037,7 @@ confAErrCheckDrawDiag=confAErrCheckDrawDiag
 confAErrFetchPageList=confAErrFetchPageList
 confADiagImportIncom=confADiagImportIncom
 invalidSel=invalidSel
+diagNameEmptyErr=diagNameEmptyErr
+openDiagram=openDiagram
+newDiagram=newDiagram
+editable=editable

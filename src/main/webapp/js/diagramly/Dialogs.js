@@ -8887,12 +8887,18 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 
 	var okBtn = mxUtils.button(okButtonText || mxResources.get('ok'), function()
 	{
-		editorUi.hideDialog();
-		
 		if (okFn != null)
 		{
-			okFn();
+			var okRet = okFn();
+			
+			if (typeof okRet === 'string')
+			{
+				editorUi.showError(mxResources.get('error'), okRet);
+				return;	
+			}
 		}
+		
+		editorUi.hideDialog();
 	});
 	btns.appendChild(okBtn);
 	
@@ -10261,7 +10267,7 @@ AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
 	graph.maxFitScale = null;
 	graph.centerZoom = true;
 	
-	var node = Editor.parseDiagramNode(pageNode); //Handles compressed and non-compressed page node
+	var node = pageNode.nodeName == 'mxGraphModel'? pageNode : Editor.parseDiagramNode(pageNode); //Handles compressed and non-compressed page node
 	
 	if (node != null)
 	{
