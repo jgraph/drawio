@@ -2317,7 +2317,7 @@
 			{
 				if (file.constructor == LocalFile && file.fileHandle != null)
 				{
-					editorUi.chooseFileSystemEntries(mxUtils.bind(editorUi, function(fileHandle, desc)
+					editorUi.showSaveFilePicker(mxUtils.bind(editorUi, function(fileHandle, desc)
 					{
 						file.invalidFileHandle = null;
 						file.fileHandle = fileHandle;

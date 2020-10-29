@@ -4069,10 +4069,15 @@ EditorUi.prototype.showDialog = function(elt, w, h, modal, closable, onClose, no
 /**
  * Displays a print dialog.
  */
-EditorUi.prototype.hideDialog = function(cancel, isEsc)
+EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 {
 	if (this.dialogs != null && this.dialogs.length > 0)
 	{
+		if (matchContainer != null && matchContainer != this.dialog.container.firstChild)
+		{
+			return;
+		}
+		
 		var dlg = this.dialogs.pop();
 		
 		if (dlg.close(cancel, isEsc) == false) 

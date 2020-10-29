@@ -2130,7 +2130,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 				        	{
 				        		mxEvent.removeListener(document, 'click', exit);
 
-								if (cancelFn)
+								if (cancelFn && data.action == google.picker.Action.CANCEL)
 								{
 									cancelFn();
 								}

@@ -8838,7 +8838,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	this.container = table;
 };
 
-var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent, hideCancel, cancelButtonText)
+var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent, hideCancel, cancelButtonText, hideAfterOKFn)
 {
 	var div = document.createElement('div');
 	div.appendChild(content);
@@ -8885,8 +8885,13 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 		btns.appendChild(cancelBtn);
 	}
 
-	var okBtn = mxUtils.button(okButtonText || mxResources.get('ok'), function()
+	var okBtn = mxUtils.button(okButtonText || mxResources.get('ok'), mxUtils.bind(this, function()
 	{
+		if (!hideAfterOKFn)
+		{
+			editorUi.hideDialog(null, null, this.container);
+		}
+		
 		if (okFn != null)
 		{
 			var okRet = okFn();
@@ -8898,8 +8903,11 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 			}
 		}
 		
-		editorUi.hideDialog();
-	});
+		if (hideAfterOKFn)
+		{
+			editorUi.hideDialog(null, null, this.container);
+		}
+	}));
 	btns.appendChild(okBtn);
 	
 	okBtn.className = 'geBtn gePrimaryBtn';

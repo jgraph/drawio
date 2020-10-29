@@ -27,12 +27,12 @@
 	 * Known file types.
 	 */
 	Editor.prototype.diagramFileTypes = [
-		{description: 'diagramXmlDesc', extension: 'drawio'},
-		{description: 'diagramPngDesc', extension: 'png'},
-		{description: 'diagramSvgDesc', extension: 'svg'},
-		{description: 'diagramHtmlDesc', extension: 'html'},
-		{description: 'diagramXmlDesc', extension: 'xml'}];
-	
+		{description: 'diagramXmlDesc', extension: 'drawio', mimeType: 'text/xml'},
+		{description: 'diagramPngDesc', extension: 'png', mimeType: 'image/png'},
+		{description: 'diagramSvgDesc', extension: 'svg', mimeType: 'image/svg'},
+		{description: 'diagramHtmlDesc', extension: 'html', mimeType: 'text/html'},
+		{description: 'diagramXmlDesc', extension: 'xml', mimeType: 'text/xml'}];
+
 	/**
 	 * Known file types.
 	 */
