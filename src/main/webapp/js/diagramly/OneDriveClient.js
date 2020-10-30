@@ -210,7 +210,7 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 		window.parent.oneDriveAuth(mxUtils.bind(this, function(newAuthInfo)
 		{
 			this.updateAuthInfo(newAuthInfo, true, this.endpointHint == null, success, error);
-		}), error);
+		}), error, window.urlParams != null && urlParams['odAuthCancellable'] == '1');
 		return;
 	}
 	
@@ -1338,6 +1338,11 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
  */
 OneDriveClient.prototype.pickFolder = function(fn, direct)
 {
+	var errorFn = mxUtils.bind(this, function(e)
+	{
+		this.ui.showError(mxResources.get('error'), e && e.message? e.message : e);
+	});
+	
 	var odSaveDlg = mxUtils.bind(this, function(direct)
 	{
 		var openSaveDlg = this.inlinePicker? this.createInlinePicker(fn, true) :
@@ -1370,10 +1375,7 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 				{
 					// do nothing
 				}),
-				error: mxUtils.bind(this, function(e)
-				{
-					this.ui.showError(mxResources.get('error'), e);
-				})
+				error: errorFn
 			});
 		});
 		
@@ -1401,7 +1403,7 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 		this.authenticate(mxUtils.bind(this, function()
 		{
 			odSaveDlg(false);
-		}), this.emptyFn);
+		}), errorFn);
 	}
 	else
 	{
@@ -1417,6 +1419,11 @@ OneDriveClient.prototype.pickFile = function(fn)
 	fn = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
 		this.ui.loadFile('W' + encodeURIComponent(id));
+	});
+	
+	var errorFn = mxUtils.bind(this, function(e)
+	{
+		this.ui.showError(mxResources.get('error'), e && e.message? e.message : e);
 	});
 	
 	var odOpenDlg = this.inlinePicker? this.createInlinePicker(fn) :
@@ -1452,10 +1459,7 @@ OneDriveClient.prototype.pickFile = function(fn)
 			{
 				// do nothing
 			}),
-			error: mxUtils.bind(this, function(e)
-			{
-				this.ui.showError(mxResources.get('error'), e);
-			})
+			error: errorFn
 		});
 		
 		if (this.user == null)
@@ -1473,7 +1477,7 @@ OneDriveClient.prototype.pickFile = function(fn)
 				this.ui.hideDialog();
 				odOpenDlg();							
 			})).container, 300, 140, true, true);
-		}), this.emptyFn);
+		}), errorFn);
 	}
 	else
 	{

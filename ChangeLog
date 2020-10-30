@@ -1,3 +1,8 @@
+30-OCT-2020: 13.8.8
+
+- Fixes for teams integration
+- Fixes conf cloud caching issue when 3rd party cookies are disabled
+
 29-OCT-2020: 13.8.7
 
 - Fixes hideDialog order issue on pressing OK

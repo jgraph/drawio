@@ -13,11 +13,10 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.util.HashMap;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
