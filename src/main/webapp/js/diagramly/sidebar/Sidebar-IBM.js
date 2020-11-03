@@ -305,9 +305,7 @@
 			 this.createVertexTemplateEntry(s + 'service_discovery_configuration.svg;',
 					 d, d, '', 'Service Discovery \& Configuration', false, null, this.getTagsForStencil(gn, 'service discovery configuration', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'transformation_connectivity.svg;',
-					 d, d, '', 'Transformation \& Connectivity', false, null, this.getTagsForStencil(gn, 'transformation connectivity', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'BareMetalServer.svg;',
-					 d, d, '', 'Bare Metal Server', false, null, this.getTagsForStencil(gn, 'bare metal server', dt).join(' '))
+					 d, d, '', 'Transformation \& Connectivity', false, null, this.getTagsForStencil(gn, 'transformation connectivity', dt).join(' '))
 		];
 			   	
    		this.addPalette('ibmInfrastructure', 'IBM / Infrastructure', false, mxUtils.bind(this, function(content)
@@ -550,14 +548,14 @@
 					 d, d, '', 'Key', false, null, this.getTagsForStencil(gn, 'key', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'VPNPolicy.svg;',
 					 d, d, '', 'VPN Policy', false, null, this.getTagsForStencil(gn, 'policy', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'TransitGateway.svg;',
-					 d, d, '', 'Transit Gateway', false, null, this.getTagsForStencil(gn, 'transit gateway', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'Router.svg;',
 					 d, d, '', 'Router', false, null, this.getTagsForStencil(gn, 'router', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'Bridge.svg;',
 					 d, d, '', 'Bridge', false, null, this.getTagsForStencil(gn, 'bridge', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'CloudServices.svg;',
 					 d, d, '', 'Cloud Services', false, null, this.getTagsForStencil(gn, 'cloud services', dt).join(' ')),
+			 this.createVertexTemplateEntry(s + 'TransitGateway.svg;',
+					 d, d, '', 'Transit Gateway', false, null, this.getTagsForStencil(gn, 'transit gateway', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'Internet.svg;',
 					 d, d, '', 'Internet', false, null, this.getTagsForStencil(gn, 'internet', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'Enterprise.svg;',
