@@ -7709,7 +7709,22 @@
 		{
 			window.openNew = false;
 			window.openKey = 'import';
+							
+			window.listBrowserFiles = mxUtils.bind(this, function(success, error) 
+			{
+				StorageFile.listFiles(this, 'F', success, error);
+			});
 			
+			window.openBrowserFile = mxUtils.bind(this, function(title, success, error)
+			{
+				StorageFile.getFileContent(this, title, success, error);
+			});
+			
+			window.deleteBrowserFile = mxUtils.bind(this, function(title, success, error)
+			{
+				StorageFile.deleteFile(this, title, success, error);
+			});
+
 			if (!noSplash)
 			{
 				var prevValue = Editor.useLocalStorage;
@@ -7741,7 +7756,8 @@
 			}));
 
 			// Removes openFile if dialog is closed
-			this.showDialog(new OpenDialog(this).container, 360, 220, true, true, function()
+			this.showDialog(new OpenDialog(this).container,  (Editor.useLocalStorage) ? 640 : 360,
+				(Editor.useLocalStorage) ? 480 : 220, true, true, function()
 			{
 				window.openFile = null;
 			});
@@ -7765,8 +7781,10 @@
 			}
 		}
 	};
-	
-	
+
+	/**
+	 * Imports the given zip file.
+	 */
 	EditorUi.prototype.importZipFile = function(file, success, onerror)
 	{
 		var ui = this;

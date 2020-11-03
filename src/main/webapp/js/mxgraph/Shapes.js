@@ -494,6 +494,15 @@
 
 	mxCellRenderer.registerShape('note', NoteShape);
 
+	// Note Shape, supports size style
+	function NoteShape2()
+	{
+		NoteShape.call(this);
+	};
+	mxUtils.extend(NoteShape2, NoteShape);
+	
+	mxCellRenderer.registerShape('note2', NoteShape2);
+
 	// Flexible cube Shape
 	function IsoCubeShape2()
 	{
@@ -669,55 +678,179 @@
 	FolderShape.prototype.tabWidth = 60;
 	FolderShape.prototype.tabHeight = 20;
 	FolderShape.prototype.tabPosition = 'right';
-	FolderShape.prototype.redrawPath = function(path, x, y, w, h, isForeground)
+	FolderShape.prototype.arcSize = 0.1;
+	
+	FolderShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
+		c.translate(x, y);
+		
 		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'tabWidth', this.tabWidth))));
 		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'tabHeight', this.tabHeight))));
 		var tp = mxUtils.getValue(this.style, 'tabPosition', this.tabPosition);
-
-		if (isForeground)
+		var rounded = mxUtils.getValue(this.style, 'rounded', false);
+		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+		
+		if (!absArcSize)
 		{
-			if (tp == 'left')
-			{
-				path.moveTo(0, dy);
-				path.lineTo(dx, dy);
-			}
-			// Right is default
-			else
-			{
-				path.moveTo(w - dx, dy);
-				path.lineTo(w, dy);
-			}
+			arcSize = Math.min(w, h) * arcSize;
+		}
+		
+		arcSize = Math.min(arcSize, w * 0.5, (h - dy) * 0.5);
+		
+		dx = Math.max(dx, arcSize);
+		dx = Math.min(w - arcSize, dx);
 			
-			path.end();
+		if (!rounded)
+		{
+			arcSize = 0;
+		}
+		
+		c.begin();
+		
+		if (tp == 'left')
+		{
+			c.moveTo(Math.max(arcSize, 0), dy);
+			c.lineTo(Math.max(arcSize, 0), 0);
+			c.lineTo(dx, 0);
+			c.lineTo(dx, dy);
+		}
+		// Right is default
+		else
+		{
+			c.moveTo(w - dx, dy);
+			c.lineTo(w - dx, 0);
+			c.lineTo(w - Math.max(arcSize, 0), 0);
+			c.lineTo(w - Math.max(arcSize, 0), dy);
+		}
+		
+		if (rounded)
+		{
+			c.moveTo(0, arcSize + dy);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, arcSize, dy);
+			c.lineTo(w - arcSize, dy);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, w, arcSize + dy);
+			c.lineTo(w, h - arcSize);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, w - arcSize, h);
+			c.lineTo(arcSize, h);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, 0, h - arcSize);
 		}
 		else
 		{
-			if (tp == 'left')
-			{
-				path.moveTo(0, 0);
-				path.lineTo(dx, 0);
-				path.lineTo(dx, dy);
-				path.lineTo(w, dy);
-			}
-			// Right is default
-			else
-			{
-				path.moveTo(0, dy);
-				path.lineTo(w - dx, dy);
-				path.lineTo(w - dx, 0);
-				path.lineTo(w, 0);
-			}
-			
-			path.lineTo(w, h);
-			path.lineTo(0, h);
-			path.lineTo(0, dy);
-			path.close();
-			path.end();
+			c.moveTo(0, dy);
+			c.lineTo(w, dy);
+			c.lineTo(w, h);
+			c.lineTo(0, h);
+		}
+		
+		c.close();
+		c.fillAndStroke();
+		
+		c.setShadow(false);
+
+		var sym = mxUtils.getValue(this.style, 'folderSymbol', null);
+		
+		if (sym == 'triangle')
+		{
+			c.begin();
+			c.moveTo(w - 30, dy + 20);
+			c.lineTo(w - 20, dy + 10);
+			c.lineTo(w - 10, dy + 20);
+			c.close();
+			c.stroke();
 		}
 	};
 
 	mxCellRenderer.registerShape('folder', FolderShape);
+	
+	// Folder Shape, supports tabWidth, tabHeight styles
+	function UMLStateShape()
+	{
+		mxCylinder.call(this);
+	};
+	mxUtils.extend(UMLStateShape, mxCylinder);
+	UMLStateShape.prototype.arcSize = 0.1;
+	
+	UMLStateShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+		
+//		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'tabWidth', this.tabWidth))));
+//		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'tabHeight', this.tabHeight))));
+//		var tp = mxUtils.getValue(this.style, 'tabPosition', this.tabPosition);
+		var rounded = mxUtils.getValue(this.style, 'rounded', false);
+		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+		var connPoint = mxUtils.getValue(this.style, 'umlStateConnection', null);
+		
+		
+		if (!absArcSize)
+		{
+			arcSize = Math.min(w, h) * arcSize;
+		}
+		
+		arcSize = Math.min(arcSize, w * 0.5, h * 0.5);
+		
+		if (!rounded)
+		{
+			arcSize = 0;
+		}
+		
+		var dx = 0;
+		
+		if (connPoint != null)
+		{
+			dx = 10;
+		}
+		
+		c.begin();
+		c.moveTo(dx, arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, dx + arcSize, 0);
+		c.lineTo(w - arcSize, 0);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w, arcSize);
+		c.lineTo(w, h - arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w - arcSize, h);
+		c.lineTo(dx + arcSize, h);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, dx, h - arcSize);
+		c.close();
+		c.fillAndStroke();
+		
+		c.setShadow(false);
+
+		var sym = mxUtils.getValue(this.style, 'umlStateSymbol', null);
+		
+		if (sym == 'collapseState')
+		{
+			c.roundrect(w - 40, h - 20, 10, 10, 3, 3);
+			c.stroke();
+			c.roundrect(w - 20, h - 20, 10, 10, 3, 3);
+			c.stroke();
+			c.begin();
+			c.moveTo(w - 30, h - 15);
+			c.lineTo(w - 20, h - 15);
+			c.stroke();
+		}
+
+		if (connPoint == 'connPointRefEntry')
+		{
+			c.ellipse(0, h * 0.5 - 10, 20, 20);
+			c.fillAndStroke();
+		}
+		else if (connPoint == 'connPointRefExit')
+		{
+			c.ellipse(0, h * 0.5 - 10, 20, 20);
+			c.fillAndStroke();
+			
+			c.begin();
+			c.moveTo(5, h * 0.5 - 5);
+			c.lineTo(15, h * 0.5 + 5);
+			c.moveTo(15, h * 0.5 - 5);
+			c.lineTo(5, h * 0.5 + 5);
+			c.stroke();
+		}
+};
+
+	mxCellRenderer.registerShape('umlState', UMLStateShape);
 
 	// Card shape
 	function CardShape()
@@ -867,6 +1000,77 @@
 			}
 			
 			return new mxRectangle(0, Math.min(rect.height * this.scale, size * 2 * this.scale), 0, Math.max(0, size * 0.3 * this.scale));
+		}
+		
+		return null;
+	};
+
+	FolderShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
+
+			if (mxUtils.getValue(this.style, 'labelInHeader', false))
+			{
+				var sizeX = mxUtils.getValue(this.style, 'tabWidth', 15) * this.scale;
+				var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
+				var rounded = mxUtils.getValue(this.style, 'rounded', false);
+				var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+				var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+				
+				if (!absArcSize)
+				{
+					arcSize = Math.min(rect.width, rect.height) * arcSize;
+				}
+				
+				arcSize = Math.min(arcSize, rect.width * 0.5, (rect.height - sizeY) * 0.5);
+					
+				if (!rounded)
+				{
+					arcSize = 0;
+				}
+	
+				if (mxUtils.getValue(this.style, 'tabPosition', this.tabPosition) == 'left')
+				{
+					return new mxRectangle(arcSize, 0, Math.min(rect.width, rect.width - sizeX), Math.min(rect.height, rect.height - sizeY));
+				}
+				else
+				{
+					return new mxRectangle(Math.min(rect.width, rect.width - sizeX), 0, arcSize, Math.min(rect.height, rect.height - sizeY));
+				}
+			}
+			else
+			{
+				return new mxRectangle(0, Math.min(rect.height, sizeY), 0, 0);
+			}
+		}
+		
+		return null;
+	};
+
+	UMLStateShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var connPoint = mxUtils.getValue(this.style, 'umlStateConnection', null);
+			
+			if (connPoint != null)
+			{
+				return new mxRectangle(10 * this.scale, 0, 0, 0);
+			}
+		}
+		
+		return null;
+	};
+
+	NoteShape2.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var size = mxUtils.getValue(this.style, 'size', 15);
+			
+			return new mxRectangle(0, Math.min(rect.height * this.scale, size * this.scale), 0, Math.max(0, size * this.scale));
 		}
 		
 		return null;
@@ -1251,6 +1455,8 @@
 	};
 	mxUtils.extend(ProcessShape, mxRectangleShape);
 	ProcessShape.prototype.size = 0.1;
+	ProcessShape.prototype.fixedSize = false;
+	
 	ProcessShape.prototype.isHtmlAllowed = function()
 	{
 		return false;
@@ -1285,7 +1491,18 @@
 	};
 	ProcessShape.prototype.paintForeground = function(c, x, y, w, h)
 	{
-		var inset = w * Math.max(0, Math.min(1, parseFloat(mxUtils.getValue(this.style, 'size', this.size))));
+		var isFixedSize = mxUtils.getValue(this.style, 'fixedSize', this.fixedSize);
+		var inset = parseFloat(mxUtils.getValue(this.style, 'size', this.size));
+		
+		if (isFixedSize)
+		{
+			inset = Math.max(0, Math.min(w, inset));
+		}
+		else
+		{
+			inset = w * Math.max(0, Math.min(1, inset));
+		}
+		
 
 		if (this.isRounded)
 		{
@@ -4024,12 +4241,16 @@
 			{
 				var handles = [createHandle(state, ['size'], function(bounds)
 				{
-					var size = Math.max(0, Math.min(0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', ProcessShape.prototype.size))));
-
-					return new mxPoint(bounds.x + bounds.width * size, bounds.y + bounds.height / 4);
+					
+					var fixed = mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0';
+					var size = parseFloat(mxUtils.getValue(this.state.style, 'size', ProcessShape.prototype.size));
+					
+					return (fixed) ? new mxPoint(bounds.x + size, bounds.y + bounds.height / 4) : new mxPoint(bounds.x + bounds.width * size, bounds.y + bounds.height / 4);
 				}, function(bounds, pt)
 				{
-					this.state.style['size'] = Math.max(0, Math.min(0.5, (pt.x - bounds.x) / bounds.width));
+					var fixed = mxUtils.getValue(this.state.style, 'fixedSize', '0') != '0';
+					var size = (fixed) ? Math.max(0, Math.min(bounds.width * 0.5, (pt.x - bounds.x))) : Math.max(0, Math.min(0.5, (pt.x - bounds.x) / bounds.width));
+					this.state.style['size'] = size;
 				}, false)];
 				
 				if (mxUtils.getValue(state.style, mxConstants.STYLE_ROUNDED, false))
@@ -4060,6 +4281,20 @@
 				{
 					var size = Math.max(0, Math.min(bounds.width, Math.min(bounds.height, parseFloat(
 						mxUtils.getValue(this.state.style, 'size', NoteShape.prototype.size)))));
+					
+					return new mxPoint(bounds.x + bounds.width - size, bounds.y + size);
+				}, function(bounds, pt)
+				{
+					this.state.style['size'] = Math.round(Math.max(0, Math.min(Math.min(bounds.width, bounds.x + bounds.width - pt.x),
+							Math.min(bounds.height, pt.y - bounds.y))));
+				})];
+			},
+			'note2': function(state)
+			{
+				return [createHandle(state, ['size'], function(bounds)
+				{
+					var size = Math.max(0, Math.min(bounds.width, Math.min(bounds.height, parseFloat(
+						mxUtils.getValue(this.state.style, 'size', NoteShape2.prototype.size)))));
 					
 					return new mxPoint(bounds.x + bounds.width - size, bounds.y + size);
 				}, function(bounds, pt)

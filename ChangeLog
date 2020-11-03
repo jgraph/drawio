@@ -1,8 +1,30 @@
-26-OCT_2020: 13.8.3
+30-OCT-2020: 13.8.8
+
+- Fixes for teams integration
+- Fixes conf cloud caching issue when 3rd party cookies are disabled
+
+29-OCT-2020: 13.8.7
+
+- Fixes hideDialog order issue on pressing OK
+- Fixes native files in Chrome 86
+
+28-OCT-2020: 13.8.6
+
+- Performance improvements for Jira Cloud
+- MS teams integration
+
+27-OCT-2020: 13.8.5
+
+- Fixes possible NPE in Confluence Cloud
+
+27-OCT-2020: 13.8.4
+
+- Performance improvements for Confluence Cloud
+
+26-OCT-2020: 13.8.3
 
 - Gliffy import improvements
 - Updates Spanish translations
-
 
 24-OCT-2020: 13.8.2
 
