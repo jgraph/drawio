@@ -560,8 +560,6 @@
 					 d, d, '', 'Data Center', false, null, this.getTagsForStencil(gn, 'dat acenter', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'Enterprise2.svg;',
 					 d, d * 0.8, '', 'Enterprise', false, null, this.getTagsForStencil(gn, 'enterprise', dt).join(' ')),
-			 this.createVertexTemplateEntry(s + 'PowerInstance.svg;',
-					 d, d, '', 'Power Instance', false, null, this.getTagsForStencil(gn, 'power instance', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'TransitGateway.svg;',
 					 d, d, '', 'Transit Gateway', false, null, this.getTagsForStencil(gn, 'transit gateway', dt).join(' ')),
 			 this.createVertexTemplateEntry(s + 'BareMetalServer.svg;',
