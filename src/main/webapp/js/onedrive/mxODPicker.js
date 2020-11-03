@@ -1,4 +1,4 @@
-function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback, errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail)
+function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback, errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath)
 {
 	var previewHtml = '';
 	
@@ -751,15 +751,20 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	
 	var cats = _$$('.odCatListTitle');
 
+	function setSelectedCat(cat)
+	{
+		selectedCat.className = selectedCat.className.replace('odCatSelected', '');
+		selectedCat = cat;
+		selectedCat.className += ' odCatSelected';
+	};
+	
 	for (var i = 0; i < cats.length; i++)
 	{
 		cats[i].addEventListener('click', function()
 		{
 			if (requestInProgress) return;
 			
-			selectedCat.className = selectedCat.className.replace('odCatSelected', '');
-			selectedCat = this;
-			selectedCat.className += ' odCatSelected';
+			setSelectedCat(this);
 			
 			switch(this.id)
 			{
@@ -838,5 +843,20 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		return false;
 	};
 	
-	fillFolderFiles();
+	if (initFolderPath != null)
+	{
+		var folderInfo = initFolderPath.pop();
+		
+		if (initFolderPath[0].driveId == 'sharepoint')
+		{
+			setSelectedCat(_$('#odSharepoint'));
+		}
+		
+		breadcrumb = initFolderPath;
+		fillFolderFiles(folderInfo.driveId, folderInfo.folderId, folderInfo.siteId, folderInfo.name);
+	}
+	else
+	{
+		fillFolderFiles();		
+	}
 };

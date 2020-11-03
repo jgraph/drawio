@@ -15,12 +15,12 @@ LucidImporter = {};
 	
 	var arcSize = 6;
 	var edgeStyle = 'html=1;jettySize=18;';
-	var vertexStyle = 'html=1;whiteSpace=wrap;';
+	var vertexStyle = 'html=1;overflow=block;whiteSpace=wrap;';
 	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;';
 	
-	var c = "fillColor=#036897;strokeColor=#ffffff";
-	var s = "shape=mxgraph.";
-	var ss = "strokeColor=none;shape=mxgraph.";
+	var c = 'fillColor=#036897;strokeColor=#ffffff';
+	var s = 'shape=mxgraph.';
+	var ss = 'strokeColor=none;shape=mxgraph.';
 	var ssAzure = 'verticalLabelPosition=bottom;verticalAlign=top;' + ss;
 	var cs = 'mxCompositeShape';
 	var azur19 = 'aspect=fixed;html=1;points=[];align=center;verticalAlign=top;image;image=img/lib/mscae/';
@@ -3883,22 +3883,38 @@ LucidImporter = {};
 				openBlockTags.push('li');
 				str += '<span style="';
 				openBlockTags.push('span');
-
 			}
-
+			
+			var ml = '';
+			var mr = '';
+			
+			
 			if (!listActive)
 			{
-				str += 'text-align: ' + (styles['a']? styles['a'].v : 'center') + ';';
+				var tmp = styles['a']? styles['a'].v : 'center';
+				
+				// Handles overflow text
+				if (tmp == 'center')
+				{
+					ml = 'margin-left: -100%;';
+					mr = 'margin-right: -100%;';
+				}
+				else if (tmp == 'right')
+				{
+					ml = 'margin-left: -100%;';
+				}
+				
+				str += 'text-align: ' + tmp + ';';
 			}
 			
 			if (styles['il'])
 			{
-				str += 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
+				ml = 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
 			}
 
 			if (styles['ir'])
 			{
-				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
+				mr = 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
 			}
 
 			if (styles['mt'])
@@ -3911,7 +3927,7 @@ LucidImporter = {};
 				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
 			}
 
-			str += '">'
+			str += ml + mr + '">';
 
 			return str;
 		};
@@ -4866,7 +4882,7 @@ LucidImporter = {};
 			{
 				if (properties.Rounding > 0)
 				{
-					return 'rounded=1;absoluteArcSize=1;arcSize=' + properties.Rounding * 0.6 + ';';
+					return 'rounded=1;absoluteArcSize=1;arcSize=' + Math.round(properties.Rounding * 0.6) + ';';
 				}
 			}
 //			else if (properties.Rounding == null)

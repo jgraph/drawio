@@ -1,3 +1,8 @@
+03-NOV-2020: 13.8.9
+
+- Adds block overflow cell style
+- Uses mxGraph 4.2.1 beta 23
+
 30-OCT-2020: 13.8.8
 
 - Fixes for teams integration

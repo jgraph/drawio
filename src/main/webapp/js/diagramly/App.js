@@ -3354,6 +3354,12 @@ App.prototype.checkDrafts = function()
  */
 App.prototype.showSplash = function(force)
 {
+	//Splash dialog shouldn't be shownn when running without a file menu
+	if (urlParams['noFileMenu'] == '1')
+	{
+		return;	
+	}
+	
 	var serviceCount = this.getServiceCount(true);
 	
 	var showSecondDialog = mxUtils.bind(this, function()
