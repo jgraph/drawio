@@ -83,14 +83,6 @@ Draw.loadPlugin(function(ui)
 		}
 	};
 
-	ui.menus.get('file').funct = function(menu, parent)
-	{
-		menu.addItem(mxResources.get('licenseRequired'), null, function()
-		{
-    		// do nothing
-   		}, parent, null, false);
-	}
-
 	renameAction.funct = function()
 	{
 		var dlg = new FilenameDialog(ui, macroData.diagramDisplayName || "",

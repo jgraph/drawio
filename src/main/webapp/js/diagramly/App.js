@@ -532,7 +532,7 @@ App.getStoredMode = function()
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
 				if (typeof window.TrelloClient === 'function')
 				{
-					if (urlParams['tr'] != '0' && isSvgBrowser &&
+					if (urlParams['tr'] != '0' && isSvgBrowser && !mxClient.IS_IE11 &&
 							(document.documentMode == null || document.documentMode >= 10))
 					{
 						// Immediately loads client
@@ -913,7 +913,7 @@ App.main = function(callback, createUi)
 				}
 				
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-				if (typeof window.TrelloClient === 'function' &&
+				if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
 					(typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
 					(((urlParams['embed'] != '1' && urlParams['tr'] != '0') || (urlParams['embed'] == '1' &&
 					urlParams['tr'] == '1')) && (navigator.userAgent == null ||

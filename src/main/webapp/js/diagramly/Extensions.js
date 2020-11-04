@@ -3789,6 +3789,41 @@ LucidImporter = {};
 			return blockStyles[m.n];
 		});
 		
+		//Add missing block that defauls to center
+		var newlines = [0], nl = 0;
+		
+		while ((nl = txt.indexOf('\n', nl)) > 0)
+		{
+			nl++;
+			newlines.push(nl);
+		}
+		
+		var expectedS = 0;
+		
+		for (var i = 0; i < globalStyles.length; i++)
+		{
+			if (globalStyles[i].s > newlines[expectedS])
+			{
+				globalStyles.splice(i, 0, {s: newlines[expectedS], n: 'a', v: 'center'});
+			}
+			else
+			{
+				while(i < globalStyles.length && globalStyles[i].s == newlines[expectedS])
+				{
+					i++
+				}
+				
+				i--; //Since loop will increment again
+			}
+			
+			expectedS++;
+		}
+		
+		if (newlines[expectedS] != null)
+		{
+			globalStyles.push({s: newlines[expectedS], n: 'a', v: 'center'});
+		}
+		
 		var html = '', ends = m.slice();
 
 		ends.sort(function(a, b)
@@ -3827,7 +3862,7 @@ LucidImporter = {};
 					openBlockTags.push('ol');
 				}
 				
-				str += 'style="margin: 0px; list-style-type:';
+				str += 'style="margin: 0px; padding: 10px;list-style-position: inside; list-style-type:';
 				
 				if (t.v == 'hl')
 				{
@@ -3879,42 +3914,35 @@ LucidImporter = {};
 
 			if (t != null)
 			{
-				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'left') + '>';
+				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'center') + '">';
 				openBlockTags.push('li');
 				str += '<span style="';
 				openBlockTags.push('span');
 			}
 			
-			var ml = '';
-			var mr = '';
-			
-			
 			if (!listActive)
 			{
 				var tmp = styles['a']? styles['a'].v : 'center';
 				
-				// Handles overflow text
-				if (tmp == 'center')
+				if (tmp == 'left')
 				{
-					ml = 'margin-left: -100%;';
-					mr = 'margin-right: -100%;';
+					tmp = 'flex-start';
 				}
 				else if (tmp == 'right')
 				{
-					ml = 'margin-left: -100%;';
+					tmp = 'flex-end';
 				}
-				
-				str += 'text-align: ' + tmp + ';';
+				str += 'display: flex; justify-content: ' + tmp + ';';
 			}
 			
 			if (styles['il'])
 			{
-				ml = 'margin-left: ' + Math.round(styles['il'].v * scale - (listActive? 21 : 0)) + 'px;';
+				str += 'margin-left: ' + Math.max(0, Math.round(styles['il'].v * scale - (listActive? 28 : 0))) + 'px;';
 			}
 
 			if (styles['ir'])
 			{
-				mr = 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
+				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
 			}
 
 			if (styles['mt'])
@@ -3927,7 +3955,7 @@ LucidImporter = {};
 				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
 			}
 
-			str += ml + mr + '">';
+			str += '">';
 
 			return str;
 		};
@@ -4213,7 +4241,7 @@ LucidImporter = {};
 				{
 					for (var i = 0; i < m.length; i++)
 					{
-						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length))
+						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't')
 						{
 							isLastLblHTML = true;
 							break;
@@ -4300,7 +4328,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = 'whiteSpace=wrap;' + (noLblStyle? 'html=1;' : 
+		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=block;html=1;' : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4326,7 +4354,7 @@ LucidImporter = {};
 		}
 		
 		s += 'whiteSpace=wrap;' + 
-		  (noLblStyle? (hasStyle(style, 'html')? '' : 'html=1;') : 
+		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
@@ -4911,6 +4939,7 @@ LucidImporter = {};
 			{
 				deg += 90;
 				cell.geometry.rotate90();
+				cell.geometry.isRotated = true;
 				h = false;
 			}
 			else if (mxUtils.indexOf(rccw, action.Class) >= 0)
@@ -5386,9 +5415,14 @@ LucidImporter = {};
 							implicitY = (exit.x == entry.x);
 						}
 					}
+
+					// Anchor points and arrows					
+					var p1, p2;
 					
-					// Anchor points and arrows
-					var p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY);
+					if (source == null || !source.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
+					{
+						p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY);
+					}
 					
 					if (source != null && p1 != null)
 					{
@@ -5401,7 +5435,10 @@ LucidImporter = {};
 						LucidImporter.stylePointsSet.add(source);
 					}
 					
-					var p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY);
+					if (target == null || !target.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
+					{
+						p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY);
+					}
 					
 					if (target != null && p2 != null)
 					{
@@ -5726,6 +5763,20 @@ LucidImporter = {};
 						queue.push(obj);
 					}
 				}
+				
+				if (g.Generators != null)
+				{
+					for (var key in g.Generators)
+					{
+						//TODO We don't support any generators currently, so probably we should mark any generator as unknow shape
+						if (g.Generators[key].ClassName == 'OrgChart2018')
+						{
+							LucidImporter.hasUnknownShapes = true;
+							console.log('Lucid diagram has an Org Chart!');
+							//createOrgChart(obj, graph, lookup, queue);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -5745,6 +5796,8 @@ LucidImporter = {};
 					{
 						if (obj.GeneratorData.p.ClassName == 'OrgChart2018')
 						{
+							LucidImporter.hasUnknownShapes = true;
+							console.log('Lucid diagram has an Org Chart!');
 							//createOrgChart(obj, graph, lookup, queue);
 						}
 					}
@@ -6476,7 +6529,7 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p[mainTxtFld]);
-					v.style += (isLastLblHTML? '' : 
+					v.style += (isLastLblHTML? 'overflow=block;' : 
 							getFontSize(p[mainTxtFld]) +
 							getFontColor(p[mainTxtFld]) + 
 							getFontStyle(p[mainTxtFld]) +
@@ -7457,7 +7510,7 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'html=1;' :
+					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;' :
 									getFontSize(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
