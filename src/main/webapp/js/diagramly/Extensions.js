@@ -3923,16 +3923,17 @@ LucidImporter = {};
 			if (!listActive)
 			{
 				var tmp = styles['a']? styles['a'].v : 'center';
+				var jc = tmp;
 				
 				if (tmp == 'left')
 				{
-					tmp = 'flex-start';
+					jc = 'flex-start';
 				}
 				else if (tmp == 'right')
 				{
-					tmp = 'flex-end';
+					jc = 'flex-end';
 				}
-				str += 'display: flex; justify-content: ' + tmp + ';';
+				str += 'display: flex; font-size: 0; line-height: 1; align-items: baseline; justify-content: ' + jc + '; text-align: ' + tmp + ';';
 			}
 			
 			if (styles['il'])
@@ -3956,7 +3957,13 @@ LucidImporter = {};
 			}
 
 			str += '">';
-
+			
+			if (!listActive)
+			{
+				str += '<span>';
+				openBlockTags.push('span');
+			}
+			
 			return str;
 		};
 
@@ -3984,10 +3991,7 @@ LucidImporter = {};
 			openTags.push('span');
 			tagCount++;
 
-			if (styles['s'])
-			{
-				str += 'font-size:' + Math.floor(styles['s'].v * scale) + 'px;';
-			}
+			str += 'font-size:' + (styles['s']? Math.floor(styles['s'].v * scale) : defaultFontSize) + 'px;';
 
 			if (styles['c'])
 			{
@@ -4128,7 +4132,9 @@ LucidImporter = {};
 	
 					if (curS - curE > 0)
 					{
-						html += endTag(txt, curE, curS); 
+						//NOTE: After the fix in end where we add dummy start and end, this shouldn't be called
+						//End any open tag and add remaining text with current style 
+						html += startTag(curStyles) + endTag(txt, curE, curS); 
 					}
 					
 					while(s != null && s.s == curS)
@@ -4153,6 +4159,13 @@ LucidImporter = {};
 					
 					html += endTag(txt, curS, curE);
 					curS = curE;
+					
+					//Next start should be immidiately after this end or we add a dummy one
+					if (openTagsCount.length == 0 && (s == null || s.s != curE))
+					{
+						m.splice(i, 0, {s: curE, n: 'dummy', v: ''});
+						ends.splice(j, 0, {e: s? s.s : maxE, n: 'dummy', v: ''});
+					}
 				}
 				else
 				{
@@ -4328,7 +4341,7 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=block;html=1;' : 
+		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' : 
 				getFontSize(properties) +
 				getFontColor(properties) + 
 				getFontStyle(properties) +
@@ -4354,8 +4367,10 @@ LucidImporter = {};
 		}
 		
 		s += 'whiteSpace=wrap;' + 
-		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;') + (hasStyle(style, 'html')? '' : 'html=1;') : 
-			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +			
+		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;') + 
+			(hasStyle(style, 'html')? '' : 'html=1;') + 'fontSize=' + defaultFontSize + ';' 
+			:
+			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +		
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
 			addStyle(mxConstants.STYLE_ALIGN, style, properties, action, cell) +			
@@ -4363,7 +4378,7 @@ LucidImporter = {};
 			addStyle(mxConstants.STYLE_SPACING_RIGHT, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_TOP, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_BOTTOM, style, properties, action, cell)
-		  ) +			
+		  ) +	
 			addStyle(mxConstants.STYLE_SPACING, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_VERTICAL_ALIGN, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_STROKECOLOR, style, properties, action, cell) +			
@@ -6529,7 +6544,7 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p[mainTxtFld]);
-					v.style += (isLastLblHTML? 'overflow=block;' : 
+					v.style += (isLastLblHTML? 'overflow=block;fontSize=' + defaultFontSize + ';' : 
 							getFontSize(p[mainTxtFld]) +
 							getFontColor(p[mainTxtFld]) + 
 							getFontStyle(p[mainTxtFld]) +
@@ -6576,7 +6591,7 @@ LucidImporter = {};
 					lane[j].value = convertText(p[curLane]);
 					lane[j].style +=
 									addAllStyles(lane[j].style, p, a, lane[j], isLastLblHTML) +
-									(isLastLblHTML? '' : 
+									(isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 									getFontSize(p[curLane]) +
 									getFontColor(p[curLane]) + 
 									getFontStyle(p[curLane]) +
@@ -6676,7 +6691,7 @@ LucidImporter = {};
 					r.value = convertText(p[curRow]);
 					r.style +=
 									addAllStyles(r.style, p, a, r, isLastLblHTML) +
-									(isLastLblHTML? '' : 
+									(isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 									getFontSize(p[curRow]) +
 									getFontColor(p[curRow]) + 
 									getFontStyle(p[curRow]) +
@@ -6714,7 +6729,7 @@ LucidImporter = {};
 					c.value = convertText(p[curCol]);
 					c.style +=
 									addAllStyles(c.style, p, a, c, isLastLblHTML) +
-									(isLastLblHTML? '' : 
+									(isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 									getFontSize(p[curCol]) +
 									getFontColor(p[curCol]) + 
 									getFontStyle(p[curCol]) +
@@ -7510,7 +7525,7 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;' :
+					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' :
 									getFontSize(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
@@ -7787,7 +7802,7 @@ LucidImporter = {};
 			case 'iOSBasicCell' :
 				v.value = convertText(p.text);
 				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;spacing=0;align=left;spacingLeft=' + (p.SeparatorInset * scale) + ';';
-				v.style += (isLastLblHTML? '' : 
+				v.style += (isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text)) +
@@ -7834,7 +7849,7 @@ LucidImporter = {};
 			case 'iOSSubtitleCell' :
 				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=top;spacingLeft=' + (p.SeparatorInset * scale) + ';';
 				v.value = convertText(p.subtext);
-				v.style += (isLastLblHTML? '' : 
+				v.style += (isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 					getFontSize(p.subtext) +
 					getFontColor(p.subtext) + 
 					getFontStyle(p.subtext));
@@ -7844,8 +7859,8 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;' : 
-					getFontSize(p.text) +
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';': 
+					getFontSize(p.text) + 
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -7889,8 +7904,8 @@ LucidImporter = {};
 			case 'iOSRightDetailCell' :
 				v.style += 'shape=partialRectangle;left=0;top=0;right=0;fillColor=#ffffff;strokeColor=#C8C7CC;align=left;spacing=0;verticalAlign=middle;spacingLeft=' + (p.SeparatorInset * scale) + ';';
 				v.value = convertText(p.subtext);
-				v.style += (isLastLblHTML? '' :
-					getFontSize(p.subtext) +
+				v.style += (isLastLblHTML? 'fontSize=' + defaultFontSize + ';' :
+					getFontSize(p.subtext) + 
 					getFontColor(p.subtext) + 
 					getFontStyle(p.subtext));
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -7946,8 +7961,8 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;' :
-					getFontSize(p.text) +
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+					getFontSize(p.text) + 
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -7961,8 +7976,8 @@ LucidImporter = {};
 				text.vertex = true;
 				v.insert(text);
 				text.value = convertText(p.subtext);
-				text.style += (isLastLblHTML? 'html=1;' :
-					getFontSize(p.subtext) +
+				text.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+					getFontSize(p.subtext) + 
 					getFontColor(p.subtext) + 
 					getFontStyle(p.subtext));
 
@@ -7970,8 +7985,8 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;' :
-					getFontSize(p.text) +
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+					getFontSize(p.text) + 
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -8019,7 +8034,7 @@ LucidImporter = {};
 				text1.vertex = true;
 				v.insert(text1);
 				text1.value = convertText(p.text);
-				text1.style += (isLastLblHTML? 'html=1;' :
+				text1.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
 					getFontSize(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
@@ -8028,7 +8043,7 @@ LucidImporter = {};
 				text2.vertex = true;
 				v.insert(text2);
 				text2.value = convertText(p["bottom-text"]);
-				text2.style += (isLastLblHTML? 'html=1;' :
+				text2.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
 					getFontSize(p["bottom-text"]) +
 					getFontColor(p["bottom-text"]) + 
 					getFontStyle(p["bottom-text"]));
@@ -8038,8 +8053,8 @@ LucidImporter = {};
 			case 'iOSTablePlainHeaderFooter' :
 				v.style += 'fillColor=#F7F7F7;strokeColor=none;align=left;spacingLeft=5;spacing=0;';
 				v.value = convertText(p.text);
-				v.style += (isLastLblHTML? '' :
-					getFontSize(p.text) +
+				v.style += (isLastLblHTML? 'fontSize=' + defaultFontSize + ';' :
+					getFontSize(p.text) + 
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -8895,7 +8910,7 @@ LucidImporter = {};
 							cell.value = convertText(cellLbl);
 							cell.style +=
 								addAllStyles(cell.style, p, a, cell, isLastLblHTML) +
-							  (isLastLblHTML? '' : 
+							  (isLastLblHTML? 'fontSize=' + defaultFontSize + ';' : 
 								getFontSize(cellLbl) +
 								getFontColor(cellLbl) + 
 								getFontStyle(cellLbl) +
@@ -10356,7 +10371,6 @@ LucidImporter = {};
 							v.insert(item1);
 							item1.value = convertText(p.PoweredText);
 							item1.style += (isLastLblHTML? '' : 
-								'fontSize=6;' + 
 								getFontColor(p.PoweredText) + 
 								getFontStyle(p.PoweredText) +
 								getTextAlignment(p.PoweredText) + 
@@ -10365,6 +10379,7 @@ LucidImporter = {};
 								getTextBottomSpacing(p.PoweredText) + 
 								getTextGlobalSpacing(p.PoweredText)
 								) +
+								'fontSize=6;' + 
 								getTextVerticalAlignment(p.PoweredText);
 							item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 						}
@@ -10453,7 +10468,7 @@ LucidImporter = {};
 			case 'UI2WindowBlock' :
 				v.value = convertText(p.Title);
 				v.style += 'shape=mxgraph.mockup.containers.window;mainText=;align=center;verticalAlign=top;spacing=5;' +
-					(isLastLblHTML? '' :	
+					(isLastLblHTML? 'fontSize=' + defaultFontSize + ';' :	
 					getFontSize(p.Title) +
 					getFontColor(p.Title) + 
 					getFontStyle(p.Title));

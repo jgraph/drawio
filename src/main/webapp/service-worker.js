@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "ba949a7880b7f0f7dd49a3993e11459d"
+    "revision": "00e7d3bcbea2b3811e7253c2e9c7a7c0"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "ebdcf852f629fdbc947e218b706bde69"
+    "revision": "00af9ac1f18b4323620b8bb9aaf405cd"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "21df05f85415f0010d687c0a8cd07658"
+    "revision": "c50a79694590279c568e710816bdf755"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -82,7 +82,7 @@ if (workbox)
   },
   {
     "url": "connect/jira/editor.js",
-    "revision": "c3281d8afae94bad5b349c5ccb84501f"
+    "revision": "eb91265dea9def43886bd30e223b50d0"
   },
   {
     "url": "connect/jira/fullscreen-viewer-init.js",
