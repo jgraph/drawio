@@ -536,7 +536,7 @@ OneDriveClient.prototype.getItemURL = function(id, relative)
 	{
 		var driveId = idParts[0];
 		var itemId = idParts[1];
-		return (relative? '' : this.baseUrl) + '/drives/' + driveId + '/items/' + itemId;
+		return (relative? '' : this.baseUrl) + '/drives/' + driveId + (itemId == 'root' ? '/root' : '/items/' + itemId);
 	}
 	else
 	{

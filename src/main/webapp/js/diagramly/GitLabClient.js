@@ -744,7 +744,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		dlg.okButton.parentNode.removeChild(dlg.okButton);
 	}
 	
-	var createLink = mxUtils.bind(this, function(label, fn, padding)
+	var createLink = mxUtils.bind(this, function(label, fn, padding, underline)
 	{
 		var link = document.createElement('a');
 		link.setAttribute('title', label);
@@ -752,6 +752,11 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		mxUtils.write(link,  label);
 		mxEvent.addListener(link, 'click', fn);
 
+		if (underline)
+		{
+			link.style.textDecoration = 'underline';
+		}
+		
 		if (padding != null)
 		{
 			var temp = listItem.cloneNode();
@@ -773,7 +778,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		{
 			path = null;
 			selectRepo();
-		})));
+		}), null, true));
 		
 		if (!hideRef)
 		{
@@ -782,7 +787,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 			{
 				path = null;
 				selectRef();
-			})));
+			}), null, true));
 		}
 		
 		if (path != null && path.length > 0)
@@ -798,7 +803,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 					{
 						path = tokens.slice(0, index + 1).join('/');
 						selectFile();
-					})));
+					}), null, true));
 				})(i);
 			}
 		}
@@ -971,7 +976,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		}), error, true);
 	});
 
-	var selectRef = mxUtils.bind(this, function(page)
+	var selectRef = mxUtils.bind(this, function(page, auto)
 	{
 		if (page == null)
 		{
@@ -1027,6 +1032,12 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 			if (branches == null || branches.length == 0)
 			{
 				mxUtils.write(div, mxResources.get('noFiles'));
+			}
+			else if (branches.length == 1 && auto)
+			{
+				ref = branches[0].name;
+				path = '';
+				selectFile();
 			}
 			else
 			{
@@ -1158,15 +1169,18 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 									{
 										org = tokens[0];
 										repo = tokens[1];
-										ref = 'master';
 										path = null;
+										ref = null;
 										
 										if (tokens.length > 2)
 										{
-											path = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+											ref = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+											selectFile();
 										}
-										
-										selectFile();
+										else
+										{
+											selectRef(null, true);
+										}
 									}
 									else
 									{
@@ -1198,10 +1212,9 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 							{
 								org = repository.owner.username;
 								repo = repository.path;
-								ref = repository.default_branch || 'master';
 								path = '';
-		
-								selectFile();
+								
+								selectRef(null, true);
 							})));
 							
 							div.appendChild(temp);
@@ -1225,10 +1238,9 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 									{
 										org = group.full_path;
 										repo = project.path;
-										ref = project.default_branch || 'master';
 										path = '';
-				
-										selectFile();
+	
+										selectRef(null, true);
 									})));
 	
 									div.appendChild(temp);

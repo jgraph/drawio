@@ -3848,7 +3848,7 @@
 							', ' + this.drive.user.email+ ')' : ''));
 					}
 					
-					var id = (fileHash != null) ? fileHash : window.location.hash;
+					var id = (notFoundMessage != null) ? null : ((fileHash != null) ? fileHash : window.location.hash);
 					
 					// #U handles case where we tried to fallback to Google File and
 					// hash property still shows the public URL we tried to load
