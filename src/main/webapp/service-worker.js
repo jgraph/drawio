@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "a87e550a0b63acad9cbce46bf868ac41"
+    "revision": "ab9664745dd6fd0d9995491ae1e85f2f"
   },
   {
     "url": "js/extensions.min.js",
@@ -106,7 +106,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "e8f43aacb75e2c30255d54f1ec6aa329"
+    "revision": "d0962e29c83060e4a28525161d583ee4"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -126,11 +126,11 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "d7fccec24c1f564fe1bf5bcbf90e995c"
+    "revision": "c6956490a00676ee14b35d0bd40bc913"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
-    "revision": "41d092d7582c7f7883ebba7e99cc3b16"
+    "revision": "0e9ad57d31303c201f285b2739f34169"
   },
   {
     "url": "connect/confluence/macroEditor-1-4-8.html",
