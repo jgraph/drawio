@@ -83,6 +83,109 @@ Draw.loadPlugin(function(ui)
 		}
 	};
 
+	var xdm_e = decodeURIComponent(urlParams['site']);
+	var license = urlParams['atlas-lic'];
+	
+	ui.checkConfLicense(license, xdm_e, function(licenseValid)
+	{
+		if (!licenseValid)
+	    {
+			ui.menus.get('file').funct = function(menu, parent)
+			{
+				menu.addItem(mxResources.get('licenseRequired'), null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
+			ui.menus.get('insertAdvanced').funct = function(menu, parent)
+			{
+				menu.addItem(mxResources.get('licenseRequired'), null, function()
+				{
+					// do nothing
+				}, parent, null, false);
+			}
+			
+			if (typeof(MathJax) !== 'undefined')
+			{
+				ui.actions.get('mathematicalTypesetting').funct = function()
+				{
+					ui.alert(mxResources.get('licenseRequired'));
+				};
+			}
+			
+			EditorUi.prototype.insertPage = function(page, index)
+			{
+				this.alert(mxResources.get('licenseRequired'));
+			};
+			
+			Sidebar.prototype.searchEntries = function(searchTerms, count, page, success, error)
+			{
+				success();
+			};
+
+			Sidebar.prototype.insertSearchHint = function(div, searchTerm, count, page, results, len, more, terms)
+			{
+				var link = document.createElement('div');
+				link.className = 'geTitle';
+				link.style.cssText = 'background-color:#ffd350;border-radius:6px;color:black;' +
+					'border:1px solid black !important;text-align:center;white-space:normal;' +
+					'padding:6px 0px 6px 0px !important;margin:4px 4px 8px 2px;font-size:12px;';
+				mxUtils.write(link, mxResources.get('licenseRequired'));
+				div.appendChild(link);
+			};
+
+			ui.actions.addAction('support...', function()
+			{
+				ui.remoteInvoke('getPageInfo', [true], null, function(info)
+				{
+					var url = info.url;
+					
+					if (url != null)
+					{
+						var wikiPos = url.indexOf('/wiki/');
+						
+						if (wikiPos > -1)
+						{
+							url = url.substring(0, wikiPos);
+						}
+						
+						ui.openLink(url + '/wiki/plugins/servlet/ac/com.mxgraph.confluence.plugins.diagramly/support');
+					}
+					else
+					{
+						ui.openLink('https://about.draw.io/support/');
+					}
+				}, function()
+				{
+					ui.openLink('https://about.draw.io/support/');
+				});
+			});
+	
+			DrawioFileSync.prototype.fileChangedNotify = function() 
+			{
+				//Disable RT syncing
+			};
+			
+			ui.importFiles = function() 
+			{
+				//Disable DnD and file import
+				ui.alert(mxResources.get('licenseRequired'));	
+			}
+			
+			//Disable comments
+			ui.getComments = function(success, error)
+			{
+				error({message: mxResources.get('licenseRequired')});
+			}
+			
+			ui.addComment = function(comment, success, error)
+			{
+				error();
+			}
+	    }
+	});
+
 	renameAction.funct = function()
 	{
 		var dlg = new FilenameDialog(ui, macroData.diagramDisplayName || "",
@@ -1150,7 +1253,8 @@ Draw.loadPlugin(function(ui)
 		var actArgs = arguments;
 		var curFile = ui.getCurrentFile();
 		var desc = curFile.getDescriptor();
-
+		var isNewFile = desc == null || desc.key == null;
+		
 		if (exit)
 		{
 			//Prevent stpping the spinner early by creating our own spinner
@@ -1168,7 +1272,11 @@ Draw.loadPlugin(function(ui)
 				zIndex: 2e9 // The z-index (defaults to 2000000000)
 			});
 	
-			spinner.spin(document.body);
+			if (!isNewFile)
+			{
+				spinner.spin(document.body);
+			}
+			
 			allowAutoSave = false;
 			
 			if (desc != null)
@@ -1221,7 +1329,7 @@ Draw.loadPlugin(function(ui)
 			}
 		};
 		
-		if (desc == null || desc.key == null)
+		if (isNewFile)
 		{
 			//New files are saved directly and descriptor is added during publishing after creating the custom content
 			doActions();

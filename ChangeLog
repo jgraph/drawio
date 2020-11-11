@@ -1,3 +1,17 @@
+11-NOV-2020: 13.9.4
+
+- Adds descriptor to JSON load message
+- Uses mxGraph 4.2.3 beta 4
+
+10-NOV-2020: 13.9.3
+
+- Internal release to update conf cloud manifest
+
+04-NOV-2020: 13.9.2
+
+- Improves Lucidchart import
+- Uses mxGraph 4.2.3 beta 3
+
 04-NOV-2020: 13.9.1
 
 - Improves Lucidchart import
@@ -5,12 +19,12 @@
 04-NOV-2020: 13.9.0
 
 - Disables Trello in IE11
-- Uses mxGraph 4.2.1 beta 24
+- Uses mxGraph 4.2.3 beta 2
 
 03-NOV-2020: 13.8.9
 
 - Adds block overflow cell style
-- Uses mxGraph 4.2.1 beta 23
+- Uses mxGraph 4.2.3 beta 1
 
 30-OCT-2020: 13.8.8
 
@@ -24,6 +38,7 @@
 
 28-OCT-2020: 13.8.6
 
+- Uses mxGraph 4.2.2
 - Performance improvements for Jira Cloud
 - MS teams integration
 

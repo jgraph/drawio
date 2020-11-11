@@ -80,7 +80,7 @@ LucidImporter = {};
 			'DecisionBlock': 'rhombus',
 			'TerminatorBlock': 'rounded=1;arcSize=50',
 			'PredefinedProcessBlock': 'shape=process',
-			'DocumentBlock': 'shape=document',
+			'DocumentBlock': 'shape=document;boundedLbl=1',
 			'MultiDocumentBlock': s + 'flowchart.multi-document',
 			'ManualInputBlock': 'shape=manualInput;size=15',
 			'PreparationBlock': 'shape=hexagon;perimeter=hexagonPerimeter2',
@@ -3772,7 +3772,7 @@ LucidImporter = {};
 	function convertTxt2Html(txt, srcM)
 	{
 		var blockStyles = {'a': true, 'il': true, 'ir': true, 'mt': true, 'mb': true, 'p': true, 't': true, 'l': true};
-		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true};
+		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true, 'k': true};
 
 		srcM.sort(function(a, b)
 		{
@@ -3834,7 +3834,7 @@ LucidImporter = {};
 		var i = 0, j = 0, k = 0, curStyles = {}, curBlockStyles = {}, openTags = [], openTagsCount = [], 
 			openBlockTags = [], blockActive = false, listActive = false, listType;
 		
-		function startBlockTag(styles)
+		function startBlockTag(styles, nonBlockStyles)
 		{
 			var str = '';
 			var t = styles['t'];
@@ -3914,7 +3914,25 @@ LucidImporter = {};
 
 			if (t != null)
 			{
-				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'center') + '">';
+				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'center') + ';';
+				
+				if (nonBlockStyles != null && nonBlockStyles['c'])
+				{
+					var v = nonBlockStyles['c'].v;
+					
+					if (v != null)
+					{
+						if (v.charAt(0) != '#')
+						{
+							v = '#' + v;
+						}
+	
+						v = v.substring(0, 7);
+						str += 'color:' + v + ';';
+					}
+				}
+				
+				str += '">';
 				openBlockTags.push('li');
 				str += '<span style="';
 				openBlockTags.push('span');
@@ -3933,7 +3951,8 @@ LucidImporter = {};
 				{
 					jc = 'flex-end';
 				}
-				str += 'display: flex; font-size: 0; line-height: 1; align-items: baseline; justify-content: ' + jc + '; text-align: ' + tmp + ';';
+				
+				str += 'display: flex; justify-content: ' + jc + '; text-align: ' + tmp + '; align-items: baseline; font-size: 0; line-height: 1;';
 			}
 			
 			if (styles['il'])
@@ -4018,12 +4037,24 @@ LucidImporter = {};
 			{
 				str += 'font-style: italic;';
 			}
+			
+			var td = [];
 
 			if (styles['u'] && styles['u'].v)
 			{
-				str += 'text-decoration: underline;';
+				td.push('underline');
 			}
 
+			if (styles['k'] && styles['k'].v)
+			{
+				td.push('line-through');
+			}
+			
+			if (td.length > 0)
+			{
+				str += 'text-decoration: ' + td.join(' ') + ';';
+			}
+			
 			str += '">'
 			openTagsCount.push(tagCount);
 
@@ -4111,7 +4142,7 @@ LucidImporter = {};
 					maxE = txt.length;
 				}
 				
-				html += startBlockTag(curBlockStyles);
+				html += startBlockTag(curBlockStyles, curStyles);
 				
 				if (blockActive)
 				{
@@ -10016,7 +10047,6 @@ LucidImporter = {};
 				v.style += 'strokeColor=none;fillColor=none;';
 				
 		    	var edgeStyle = 'edgeStyle=none;endArrow=none;part=1;';
-		    	edgeStyle.style += addAllStyles(edgeStyle.style, p, a, edgeStyle);
 
 				var fc = getStrokeColor(p, a);
 				
@@ -10061,7 +10091,6 @@ LucidImporter = {};
 				v.style += 'strokeColor=none;fillColor=none;';
 				
 		    	var edgeStyle = 'edgeStyle=none;endArrow=none;part=1;';
-		    	edgeStyle.style += addAllStyles(edgeStyle.style, p, a, edgeStyle);
 
 				var fc = getStrokeColor(p, a);
 				

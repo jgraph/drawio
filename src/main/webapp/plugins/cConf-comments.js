@@ -245,7 +245,7 @@ Draw.loadPlugin(function(ui)
 
 	ui.addComment = function(comment, success, error)
 	{
-		if (commentsVer == null)
+		if (commentsVer == null || !comment.content)
 		{
 			error();
 		}
@@ -288,7 +288,7 @@ Draw.loadPlugin(function(ui)
 	
 	DrawioComment.prototype.addReply = function(reply, success, error, doResolve, doReopen)
 	{
-		if (commentsVer == null)
+		if (commentsVer == null || !reply.content)
 		{
 			error();
 		}

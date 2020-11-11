@@ -307,7 +307,8 @@ App.startTime = new Date();
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js',
 	'ac': '/plugins/connect.js', 'acj': '/plugins/connectJira.js',
-	'ac148': '/plugins/cConf-1-4-8.js', 'ac148cmnt': '/plugins/cConf-comments.js',
+	'ac148': '/plugins/cConf-1-4-8.js', 'ac148cmnt': '/plugins/cConf-comments.js', 
+	'ac148lic': '/plugins/cConf-license.js',
 	'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'electron': 'plugins/electron.js',
@@ -2817,10 +2818,14 @@ App.prototype.start = function()
 		
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
-			EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
-				url, linenumber, colno, err, null, true);
-			ui.handleError({message: message}, mxResources.get('unknownError'),
-				null, null, null, null, true);
+			// Ignores Grammarly error [1344]
+			if (message != 'ResizeObserver loop limit exceeded')
+			{
+				EditorUi.logError('Uncaught: ' + ((message != null) ? message : ''),
+					url, linenumber, colno, err, null, true);
+				ui.handleError({message: message}, mxResources.get('unknownError'),
+					null, null, null, null, true);
+			}
 		};
 		
 		// Listens to changes of the hash if not in embed or client mode
@@ -2885,8 +2890,24 @@ App.prototype.start = function()
 			}));
 		}
 		
+		// Descriptor for CSV import
+		if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['desc'] != null)
+		{
+			try
+			{
+				this.loadDescriptor(JSON.parse(Graph.decompress(urlParams['desc'])),
+					null, mxUtils.bind(this, function(e)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'));
+				}));
+			}
+			catch (e)
+			{
+				this.handleError(e, mxResources.get('errorLoadingFile'));
+			}
+		}
 		// Redirects old url URL parameter to new #U format
-		if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['url'] != null)
+		else if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['url'] != null)
 		{
 			this.loadFile('U' + urlParams['url'], true);
 		}
@@ -4762,18 +4783,10 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 			{
 				this.spinner.stop();
 				
-				try
+				this.alert('[Deprecation] #S is no longer supportd, go to https://www.draw.io/?desc=' + id.substring(1).substring(0, 10) + '...', mxUtils.bind(this, function()
 				{
-					this.loadDescriptor(JSON.parse(Graph.decompress(id.substring(1))),
-						success, mxUtils.bind(this, function(e)
-					{
-						this.handleError(e, mxResources.get('errorLoadingFile'));
-					}));
-				}
-				catch (e)
-				{
-					this.handleError(e, mxResources.get('errorLoadingFile'));
-				}
+					window.location.href = 'https://www.draw.io/?desc=' + id.substring(1);
+				}));
 			}
 			else if (id.charAt(0) == 'R')
 			{

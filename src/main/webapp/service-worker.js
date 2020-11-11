@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "00e7d3bcbea2b3811e7253c2e9c7a7c0"
+    "revision": "a87e550a0b63acad9cbce46bf868ac41"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "00af9ac1f18b4323620b8bb9aaf405cd"
+    "revision": "c2c9c58a0546e7778478a1c776522371"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "c50a79694590279c568e710816bdf755"
+    "revision": "a5ddc3d436695ead0b667108603fe0b8"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -98,15 +98,15 @@ if (workbox)
   },
   {
     "url": "plugins/cConf-comments.js",
-    "revision": "dc57594d2cefbe35c15962a3ec356d24"
+    "revision": "c787357209cff2986dcca567b599e2ef"
   },
   {
     "url": "plugins/cConf-1-4-8.js",
-    "revision": "5f51c9102e55474da1f3012c011d6191"
+    "revision": "d4b6949adc409b03e1d5b59a86097c2c"
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "d54d62f9176629eca20430ebd4971e44"
+    "revision": "e8f43aacb75e2c30255d54f1ec6aa329"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -126,11 +126,11 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "0723f9accfc7b551a4479ad5949f2674"
+    "revision": "d7fccec24c1f564fe1bf5bcbf90e995c"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
-    "revision": "0e9ad57d31303c201f285b2739f34169"
+    "revision": "41d092d7582c7f7883ebba7e99cc3b16"
   },
   {
     "url": "connect/confluence/macroEditor-1-4-8.html",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/macro-editor.js",
-    "revision": "d9cdbf5e25fa38f36673b1f9d508c6f3"
+    "revision": "26a726d518d3927274cfc35eff079e5f"
   },
   {
     "url": "math/MathJax.js",

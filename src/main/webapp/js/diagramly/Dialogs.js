@@ -2764,6 +2764,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var templateXml = null;
 	var selectedElt = null;
 	var templateExtUrl = null;
+	var templateRealUrl = null;
 	var templateInfoObj = null;
 	
 	function create()
@@ -2784,7 +2785,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				editorUi.hideDialog();
 			}
 			
-			callback(templateXml, nameInput.value);
+			callback(templateXml, nameInput.value, templateRealUrl, templateLibs);
 		}
 		else
 		{
@@ -2826,7 +2827,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var w = 140;
 	var h = 140;
 
-	function selectElement(elt, xml, libs, extUrl, infoObj, clibs)
+	function selectElement(elt, xml, libs, extUrl, infoObj, clibs, realUrl)
 	{
 		if (selectedElt != null)
 		{
@@ -2841,6 +2842,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		templateClibs = clibs;
 		selectedElt = elt;
 		templateExtUrl = extUrl;
+		templateRealUrl = realUrl;
 		templateInfoObj = infoObj;
 		
 		selectedElt.style.backgroundColor = rightHighlight;
@@ -2927,7 +2929,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					
 					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						selectElement(elt, req.getText(), libs, null, null, clibs);
+						selectElement(elt, req.getText(), libs, null, null, clibs, realUrl);
 						
 						if (createIt)
 						{
