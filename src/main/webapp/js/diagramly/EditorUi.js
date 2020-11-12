@@ -11639,17 +11639,7 @@
 				}
 			});
 			
-			if (typeof data === 'object')
-			{
-				this.loadDescriptor(data, mxUtils.bind(this, function(e)
-				{
-					doLoad(getData(), evt);
-				}), mxUtils.bind(this, function(e)
-				{
-					this.handleError(e, mxResources.get('errorLoadingFile'));
-				}));
-			}
-			else if (data != null && typeof data.substring === 'function' && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
+			if (data != null && typeof data.substring === 'function' && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
 			{
 				// Checks VND binary magic number in base64
 				var filename = (data.substring(34, 45) == '0M8R4KGxGuE') ? 'raw.vsd' : 'raw.vsdx';
@@ -11682,6 +11672,16 @@
 				}), mxUtils.bind(this, function(e)
 				{
 					this.handleError(e);
+				}));
+			}
+			else if (data != null && typeof data === 'object' && data.format != null && (data.data != null || data.url != null))
+			{
+				this.loadDescriptor(data, mxUtils.bind(this, function(e)
+				{
+					doLoad(getData(), evt);
+				}), mxUtils.bind(this, function(e)
+				{
+					this.handleError(e, mxResources.get('errorLoadingFile'));
 				}));
 			}
 			else

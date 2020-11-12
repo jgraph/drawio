@@ -1,3 +1,11 @@
+12-NOV-2020: 13.9.7
+
+- Allows null in init load message
+
+11-NOV-2020: 13.9.6
+
+- Uses GitHub for help and faq
+
 11-NOV-2020: 13.9.5
 
 - Fixes license check in Confluence Cloud

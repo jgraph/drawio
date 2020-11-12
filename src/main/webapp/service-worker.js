@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "ab9664745dd6fd0d9995491ae1e85f2f"
+    "revision": "50d9a1d155a9976bdb503bb8b0787177"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "c2c9c58a0546e7778478a1c776522371"
+    "revision": "aae98a54f385472d95f5eb30c1bfbe83"
   },
   {
     "url": "js/stencils.min.js",
@@ -34,7 +34,7 @@ if (workbox)
   },
   {
     "url": "styles/grapheditor.css",
-    "revision": "35b5b9d556faa375612c04addcd5819c"
+    "revision": "9f1555fdbfde8e5f789b05b595d6078e"
   },
   {
     "url": "styles/atlas.css",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "a5ddc3d436695ead0b667108603fe0b8"
+    "revision": "f9e30dee44f679ab5b2e4c20b856e165"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -102,11 +102,11 @@ if (workbox)
   },
   {
     "url": "plugins/cConf-1-4-8.js",
-    "revision": "d4b6949adc409b03e1d5b59a86097c2c"
+    "revision": "4b7c6ea1cd878f501963a86b94d599d5"
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "d0962e29c83060e4a28525161d583ee4"
+    "revision": "38448282f113992b1f346eb97ccc3542"
   },
   {
     "url": "connect/new_common/cac.js",

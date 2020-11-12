@@ -394,7 +394,7 @@ div.mxWindow .geButton {
 	padding:6px;
 	margin:6px;
 	color:#a0a0a0;
-	fontSize:13px;
+	font-size:13px;
 }
 .geTitle img {
 	opacity:0.5;
@@ -557,7 +557,7 @@ div.mxWindow .geButton {
 	white-space: nowrap;
 	border-radius:3px;
 	background-color:#0052cc;
-	currsor:pointer;
+	cursor:pointer;
 	transition: background-color 0.1s ease-out;
 	overflow:hidden;
 	text-overflow: ellipsis;

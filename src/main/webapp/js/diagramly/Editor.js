@@ -1673,7 +1673,7 @@
 	
 	/**
 	 * Global configuration of the Editor
-	 * see https://desk.draw.io/solution/articles/16000058316
+	 * see https://www.diagrams.net/doc/faq/configure-diagram-editor
 	 * 
 	 * For defaultVertexStyle, defaultEdgeStyle and defaultLibraries, this must be called before
 	 * mxSettings.load via global config variable window.mxLoadSettings = false.
@@ -3898,7 +3898,7 @@
 	            option.style.paddingTop = '5px';
 	            div.appendChild(option);
 	            
-	            var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000032875');
+	            var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/math-typesetting');
 	            help.style.position = 'relative';
 	            help.style.marginLeft = '6px';
 	            help.style.top = '2px';
@@ -7327,7 +7327,7 @@
 		{
 			var helpBtn = mxUtils.button(mxResources.get('help'), function()
 			{
-				graph.openLink('https://desk.draw.io/support/solutions/articles/16000048947');
+				graph.openLink('https://www.diagrams.net/doc/faq/print-diagram');
 			});
 			
 			helpBtn.className = 'geBtn';

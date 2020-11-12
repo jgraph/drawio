@@ -302,13 +302,12 @@ App.startTime = new Date();
 
 /**
  * Defines plugin IDs for loading via p URL parameter. Update the table at
- * https://desk.draw.io/solution/articles/16000042546
+ * https://www.diagrams.net/doc/faq/supported-url-parameters
  */
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
 	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js',
 	'ac': '/plugins/connect.js', 'acj': '/plugins/connectJira.js',
 	'ac148': '/plugins/cConf-1-4-8.js', 'ac148cmnt': '/plugins/cConf-comments.js', 
-	'ac148lic': '/plugins/cConf-license.js',
 	'voice': '/plugins/voice.js',
 	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
 	'electron': 'plugins/electron.js',

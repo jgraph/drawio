@@ -4526,7 +4526,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
-		editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000080137');
+		editorUi.openLink('https://www.diagrams.net/doc/faq/custom-links');
 	});
 
 	helpBtn.style.verticalAlign = 'middle';
@@ -6005,7 +6005,7 @@ var FindWindow = function(ui, x, y, w, h)
 	mxUtils.write(regexLabel, mxResources.get('regularExpression'));
 	div.appendChild(regexLabel);
 	
-    var help = ui.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000088250');
+    var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/find-shapes');
     help.style.position = 'relative';
     help.style.marginLeft = '6px';
     help.style.top = '-1px';
@@ -7356,10 +7356,9 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	buttons.style.marginTop = '14px';
 	buttons.style.textAlign = 'right';
 
-
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()
 	{
-		editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000056430');
+		editorUi.openLink('https://www.diagrams.net/doc/faq/plugins');
 	});
 
 	helpBtn.className = 'geBtn';
@@ -8731,7 +8730,7 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
 		{
-			editorUi.openLink('https://desk.draw.io/support/solutions/articles/16000052874');
+			editorUi.openLink('https://www.diagrams.net/doc/faq/shape-complex-create-edit');
 		});
 		
 		helpBtn.className = 'geBtn';

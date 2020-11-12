@@ -244,7 +244,7 @@ LucidImporter = {};
 			'UMLOptionLoopBlock' : s + 'sysml.package2;xSize=90;overflow=fill',
 			'UMLAlternativeBlock2' : s + 'sysml.package2;xSize=90;overflow=fill',
 			'UMLStartBlock' : 'ellipse;fillColor=#000000',
-			'UMLStateBlock' : 'rounded=1;arcSize=20',
+			'UMLStateBlock' : cs,
 			'UMLDecisionBlock' : 'shape=rhombus;',
 			'UMLHForkJoinBlock' : 'fillColor=#000000',
 			'UMLVForkJoinBlock' : 'fillColor=#000000',
@@ -284,6 +284,7 @@ LucidImporter = {};
 			'UMLRequiredInterfaceBlock' : 'shape=requires;direction=north',
 			'UMLRequiredInterfaceBlockV2' : 'shape=requires;direction=north',
 			'UMLSwimLaneBlockV2': cs,
+			'UMLSwimLaneBlock': 'swimlane;startSize=25;container=1;collapsible=0;dropTarget=0;fontStyle=0',
 //UML Deployment
 //UML Entity Relationship
 			'UMLEntityBlock' : '',
@@ -3769,7 +3770,7 @@ LucidImporter = {};
 	
 	// actual code start
 	//TODO This can be optimized more
-	function convertTxt2Html(txt, srcM)
+	function convertTxt2Html(txt, srcM, props)
 	{
 		var blockStyles = {'a': true, 'il': true, 'ir': true, 'mt': true, 'mb': true, 'p': true, 't': true, 'l': true};
 		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true, 'k': true};
@@ -3804,7 +3805,7 @@ LucidImporter = {};
 		{
 			if (globalStyles[i].s > newlines[expectedS])
 			{
-				globalStyles.splice(i, 0, {s: newlines[expectedS], n: 'a', v: 'center'});
+				globalStyles.splice(i, 0, {s: newlines[expectedS], n: 'a', v: props.TextAlign || 'center'});
 			}
 			else
 			{
@@ -3821,7 +3822,7 @@ LucidImporter = {};
 		
 		if (newlines[expectedS] != null)
 		{
-			globalStyles.push({s: newlines[expectedS], n: 'a', v: 'center'});
+			globalStyles.push({s: newlines[expectedS], n: 'a', v: props.TextAlign || 'center'});
 		}
 		
 		var html = '', ends = m.slice();
@@ -3914,7 +3915,7 @@ LucidImporter = {};
 
 			if (t != null)
 			{
-				str += '<li style="text-align:' + (styles['a']? styles['a'].v : 'center') + ';';
+				str += '<li style="text-align:' + (styles['a']? styles['a'].v : (props.TextAlign || 'center')) + ';';
 				
 				if (nonBlockStyles != null && nonBlockStyles['c'])
 				{
@@ -3940,7 +3941,7 @@ LucidImporter = {};
 			
 			if (!listActive)
 			{
-				var tmp = styles['a']? styles['a'].v : 'center';
+				var tmp = styles['a']? styles['a'].v : (props.TextAlign || 'center');
 				var jc = tmp;
 				
 				if (tmp == 'left')
@@ -4215,7 +4216,7 @@ LucidImporter = {};
 		return html;
 	};
 	
-	function convertText(props)
+	function convertText(props, forceHTML)
 	{
 		isLastLblHTML = false;
 		var text = (props.Text != null) ? props.Text :
@@ -4292,9 +4293,11 @@ LucidImporter = {};
 						}
 					}
 					
+					isLastLblHTML = isLastLblHTML || forceHTML;
+					
 					if (isLastLblHTML)
 					{
-						return convertTxt2Html(txt, m);
+						return convertTxt2Html(txt, m, props);
 					}
 				}
 				catch(e)
@@ -4383,7 +4386,8 @@ LucidImporter = {};
 				getTextBottomSpacing(properties) 
 			  ) + 
 				getTextGlobalSpacing(properties) +
-				getTextVerticalAlignment(properties);
+				getTextVerticalAlignment(properties) +
+				getTextGlobalAlignment(properties);
 		
 		return style;  
 	}
@@ -4404,12 +4408,13 @@ LucidImporter = {};
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +		
 			addStyle(mxConstants.STYLE_FONTCOLOR, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_FONTSTYLE, style, properties, action, cell) +		
-			addStyle(mxConstants.STYLE_ALIGN, style, properties, action, cell) +			
+			addStyle(mxConstants.STYLE_ALIGN, style, properties, action, cell) +		
 			addStyle(mxConstants.STYLE_SPACING_LEFT, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_RIGHT, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_TOP, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_SPACING_BOTTOM, style, properties, action, cell)
-		  ) +	
+		  ) +
+			addStyle(mxConstants.STYLE_ALIGN + 'Global', style, properties, action, cell) +
 			addStyle(mxConstants.STYLE_SPACING, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_VERTICAL_ALIGN, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_STROKECOLOR, style, properties, action, cell) +			
@@ -4444,6 +4449,9 @@ LucidImporter = {};
 				case mxConstants.STYLE_ALIGN :
 					return getTextAlignment(properties);
 					
+				case mxConstants.STYLE_ALIGN + 'Global':
+					return getTextGlobalAlignment(properties);
+
 				case mxConstants.STYLE_SPACING_LEFT :
 					return getTextLeftSpacing(properties);
 					
@@ -4878,6 +4886,11 @@ LucidImporter = {};
 		}
 		
 		return createStyle(mxConstants.STYLE_VERTICAL_ALIGN, properties.TextVAlign, 'middle');
+	}
+	
+	function getTextGlobalAlignment(properties)
+	{
+		return createStyle(mxConstants.STYLE_ALIGN, properties.TextAlign, 'center');
 	}
 	
 	function getStrokeColor(properties, action)
@@ -5465,7 +5478,7 @@ LucidImporter = {};
 					// Anchor points and arrows					
 					var p1, p2;
 					
-					if (source == null || !source.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
+					if (source == null || !source.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it (The same for flipped shapes)
 					{
 						p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY);
 					}
@@ -5481,7 +5494,7 @@ LucidImporter = {};
 						LucidImporter.stylePointsSet.add(source);
 					}
 					
-					if (target == null || !target.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
+					if (target == null || !target.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it (The same for flipped shapes)
 					{
 						p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY);
 					}
@@ -6772,6 +6785,28 @@ LucidImporter = {};
 									) + 
 									getTextGlobalSpacing(p[curCol]) +
 									getTextVerticalAlignment(p[curCol]);
+				}
+				break;
+			case 'UMLStateBlock' : 
+				if (p.Composite == 0)
+				{
+					v.style = 'rounded=1;arcSize=20';
+					v.value = convertText(p.State, true);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+				}
+				else
+				{
+					v.style = 'swimlane;startSize=25;html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
+								'resizeParent=1;dropTarget=0;rounded=1;arcSize=20;fontStyle=0';
+					v.value = convertText(p.State, true);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+					v.style += getFillColor(p, a).replace('fillColor', 'swimlaneFillColor');
+					
+					var content = new mxCell('', new mxGeometry(0, 0, w, h - 25), 'rounded=1;arcSize=20;strokeColor=none;fillColor=none');
+					content.value = convertText(p.Action, true);
+					content.style += addAllStyles(content.style, p, a, content, isLastLblHTML);
+					content.vertex = true;
+					v.insert(content);
 				}
 				break;
 			case 'AndroidDevice' :
