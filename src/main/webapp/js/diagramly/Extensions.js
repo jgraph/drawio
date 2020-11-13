@@ -5788,6 +5788,8 @@ LucidImporter = {};
 	
 	function importLucidPage(graph, g, noSelection)
 	{
+		LucidImporter.stylePointsSet = new Set();
+		
 		graph.getModel().beginUpdate();
 		try
 		{
@@ -6213,7 +6215,6 @@ LucidImporter = {};
 	{
 		LucidImporter.stencilsMap = {}; //Reset stencils cache
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
-		LucidImporter.stylePointsSet = new Set();
 		LucidImporter.globalProps = {};
 		LucidImporter.hasUnknownShapes = false;
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
@@ -6802,7 +6803,7 @@ LucidImporter = {};
 					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 					v.style += getFillColor(p, a).replace('fillColor', 'swimlaneFillColor');
 					
-					var content = new mxCell('', new mxGeometry(0, 0, w, h - 25), 'rounded=1;arcSize=20;strokeColor=none;fillColor=none');
+					var content = new mxCell('', new mxGeometry(0, 25, w, h - 25), 'rounded=1;arcSize=20;strokeColor=none;fillColor=none');
 					content.value = convertText(p.Action, true);
 					content.style += addAllStyles(content.style, p, a, content, isLastLblHTML);
 					content.vertex = true;

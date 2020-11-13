@@ -1,10 +1,14 @@
+13-NOV-2020: 13.9.8
+
+- Improves Lucidchart import
+
 12-NOV-2020: 13.9.7
 
 - Allows null in init load message
 
 11-NOV-2020: 13.9.6
 
-- Uses GitHub for help and faq
+- Uses GitHub for help and FAQ
 
 11-NOV-2020: 13.9.5
 
