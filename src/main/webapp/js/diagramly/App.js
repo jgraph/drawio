@@ -1930,11 +1930,7 @@ App.prototype.showRatingBanner = function()
 			star4.setAttribute('title', '4 star');
 			star4.setAttribute('style', 'margin-top:-6px;margin-left:3px;cursor:pointer;');
 			star4.setAttribute('src', star);
-			var starLink = document.createElement('a');
-			starLink.setAttribute('href', 'https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews');
-			starLink.setAttribute('target', '_blank');
-			banner.appendChild(starLink);
-			starLink.appendChild(star4);
+			banner.appendChild(star4);
 			
 			this.bannerShowing = true;
 			
@@ -1975,7 +1971,13 @@ App.prototype.showRatingBanner = function()
 				mxEvent.consume(e);
 				onclose();
 			}));
-			
+			mxEvent.addListener(star4, 'click', mxUtils.bind(this, function(e)
+			{
+				mxEvent.consume(e);
+				window.open('https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews');
+				onclose();
+			}));
+
 			var hide = mxUtils.bind(this, function()
 			{
 				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
@@ -3537,14 +3539,16 @@ App.prototype.showSplash = function(force)
 			}), true);
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOfflineApp() &&
-			!mxClient.IS_ANDROID && !mxClient.IS_IOS &&
-			this.mode == App.MODE_DEVICE)
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS)
 		{
-			this.showDownloadDesktopBanner();
-		}
-		else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
-		{
-			this.showRatingBanner();
+			if (this.mode == App.MODE_DEVICE)
+			{
+				this.showDownloadDesktopBanner();
+			}
+			else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
+			{
+				this.showRatingBanner();
+			}
 		}
 	});
 	

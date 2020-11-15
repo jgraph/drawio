@@ -3809,12 +3809,17 @@ LucidImporter = {};
 			}
 			else
 			{
-				while(i < globalStyles.length && globalStyles[i].s == newlines[expectedS])
+				var skip = 0;
+				
+				while(i + skip < globalStyles.length && globalStyles[i + skip].s == newlines[expectedS])
 				{
-					i++
+					skip++;
 				}
 				
-				i--; //Since loop will increment again
+				if (skip > 1)
+				{
+					i += skip - 1; // -1 since loop will increment again
+				}
 			}
 			
 			expectedS++;
