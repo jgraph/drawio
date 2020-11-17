@@ -1327,7 +1327,7 @@
 					r * 0.45, r * 0.5, '', 'Virtual Network Gateways', null, null, this.getTagsForStencil(gn, 'vpn gateway gateways virtual private network', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Virtual_Network.svg;',
 					r * 0.5, r * 0.28, '', 'Virtual Networks', null, null, this.getTagsForStencil(gn, 'virtual network networks', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'aspect=fixed;html=1;perimeter=none;align=center;shadow=0;dashed=0;image;fontSize=12;image=img/lib/mscae/Virtual_WANs.svg;',
+			this.createVertexTemplateEntry(s + 'Virtual_WANs.svg;',
 					r * 0.5, r * 0.5, '', 'Virtual WANs', null, null, this.getTagsForStencil(gn, 'virtual wans wan wide area network networks', dt).join(' '))
 		];
 			

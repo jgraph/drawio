@@ -1584,7 +1584,7 @@ DrawioFile.prototype.addConflictStatus = function(fn, message)
 DrawioFile.prototype.setConflictStatus = function(message)
 {
 	this.ui.editor.setStatus('<div title="'+ message + '" class="geStatusAlert geBlink" style="cursor:pointer;overflow:hidden;">' +
-		message + ' <a href="https://desk.draw.io/support/solutions/articles/16000087947" target="_blank"><img border="0" ' +
+		message + ' <a href="https://www.diagrams.net/doc/faq/synchronize" target="_blank"><img border="0" ' +
 		'style="margin-left:2px;cursor:help;opacity:0.5;width:16px;height:16px;" valign="bottom" src="' + Editor.helpImage +
 		'" style=""/></a></div>');
 };

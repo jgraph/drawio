@@ -298,7 +298,7 @@ DriveClient.prototype.execute = function(fn)
 				
 				this.ui.showError(mxResources.get('error'), msg, mxResources.get('help'), mxUtils.bind(this, function()
 				{
-					this.ui.openLink('https://desk.draw.io/support/solutions/articles/16000074659');
+					this.ui.openLink('https://www.diagrams.net/doc/faq/gsuite-authorisation-troubleshoot');
 				}), null, mxResources.get('ok'));
 			}), remember);
 		}));

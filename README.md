@@ -4,11 +4,9 @@ About
 -----
 [diagrams.net](https://app.diagrams.net), [previously draw.io](https://www.diagrams.net/blog/move-diagrams-net), is an online diagramming web site that delivers the source in this project.
 
-diagrams.net uses the [mxGraph library](https://github.com/jgraph/mxgraph) as the base of the stack, with the [GraphEditor example](https://github.com/jgraph/mxgraph/tree/master/javascript/examples/grapheditor) from mxGraph as the base of the application part. The mxGraph library build used is stored under /etc/mxgraph/mxClient.js.
-
 License
 -------
-diagrams.net is licensed under the Apache v2.
+The source code in this repo is licensed under the Apache v2.
 
 Development
 -----------
