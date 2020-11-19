@@ -1,4 +1,5 @@
 const fs = require('fs')
+const os = require('os');
 const path = require('path')
 const url = require('url')
 const electron = require('electron')
@@ -74,7 +75,8 @@ function createWindow (opt = {})
 			// preload: path.resolve('./preload.js'),
 			nodeIntegration: true,
 			enableRemoteModule: true,
-			nodeIntegrationInWorker: true
+			nodeIntegrationInWorker: true,
+			spellcheck: (os.platform() == "darwin" ? true : false)
 		}
 	}, opt)
 
