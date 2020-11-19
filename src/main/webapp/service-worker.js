@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "afa164e29bb80736c99fd23950f8a47d"
+    "revision": "c041db82ed8abb8847879971aedae3c6"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "f784fd1367da48ff95ea153bd9c8006b"
+    "revision": "4c100ac03de2866a13012d391896fe8c"
   },
   {
     "url": "js/stencils.min.js",
@@ -102,11 +102,11 @@ if (workbox)
   },
   {
     "url": "plugins/cConf-1-4-8.js",
-    "revision": "4b7c6ea1cd878f501963a86b94d599d5"
+    "revision": "b437d1ab44bbe4999b3396abbd6fb7ab"
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "38448282f113992b1f346eb97ccc3542"
+    "revision": "09f7a64cb2e15aa5d10f4ebf8b78fa11"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "c6956490a00676ee14b35d0bd40bc913"
+    "revision": "002ca191edcb0ea140aae6969be98e87"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",

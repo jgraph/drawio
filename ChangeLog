@@ -1,3 +1,9 @@
+18-NOV-2020: 13.10.0
+
+- Internal release for Github actions testing
+- Conf Cloud: Viewer settings direct from the viewer
+- Conf Cloud: Adds custom libraries to more shapes dialog
+
 15-NOV-2020: 13.9.9
 
 - Improves Lucidchart import

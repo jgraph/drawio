@@ -11,6 +11,8 @@ The source code in this repo is licensed under the Apache v2.
 Development
 -----------
 
+Note: We cannot accept non-trivial PRs for legal reasons. We need to retain copyright over the entire codebase.
+
 A development guide is being started on the GitHub project wiki. There is a [draw.io](http://stackoverflow.com/questions/tagged/draw.io) tag on Stack Overflow currently, please make sure any questions adhere to their guidelines for questions.
 
 The [mxGraph documentation](https://jgraph.github.io/mxgraph/) provides a lot of the docs for the bottom part of the stack. There is an [mxgraph tag on SO](http://stackoverflow.com/questions/tagged/mxgraph).
