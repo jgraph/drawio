@@ -3961,15 +3961,10 @@ LucidImporter = {};
 				
 				if (nonBlockStyles != null && nonBlockStyles['c'])
 				{
-					var v = nonBlockStyles['c'].v;
+					var v = rgbToHex(nonBlockStyles['c'].v);
 					
 					if (v != null)
 					{
-						if (v.charAt(0) != '#')
-						{
-							v = '#' + v;
-						}
-	
 						v = v.substring(0, 7);
 						str += 'color:' + v + ';';
 					}
@@ -4057,15 +4052,10 @@ LucidImporter = {};
 
 			if (styles['c'])
 			{
-				var v = styles['c'].v;
+				var v = rgbToHex(styles['c'].v);
 				
 				if (v != null)
 				{
-					if (v.charAt(0) != '#')
-					{
-						v = '#' + v;
-					}
-
 					v = v.substring(0, 7);
 					str += 'color:' + v + ';';
 				}
@@ -4673,14 +4663,7 @@ LucidImporter = {};
 					{
 						isC = true;
 						
-						var currV = currM.v;
-						
-						if (currV.charAt(0) != '#')
-						{
-							currV = '#' + currV;
-						}
-
-						var currV = currV.substring(0, 7);
+						var currV = rgbToHex(currM.v).substring(0, 7);
 
 						return mxConstants.STYLE_FONTCOLOR + '=' + currV + ';';
 					}
@@ -5021,6 +5004,8 @@ LucidImporter = {};
 
 		if (typeof properties.LineColor === 'string')
 		{
+			properties.LineColor = rgbToHex(properties.LineColor);
+			
 			if (properties.LineColor.length > 7)
 			{
 				var sOpac = "0x" + properties.LineColor.substring(properties.LineColor.length - 2, properties.LineColor.length);
@@ -5034,6 +5019,8 @@ LucidImporter = {};
 		
 		if (typeof properties.FillColor === 'string')
 		{
+			properties.FillColor = rgbToHex(properties.FillColor);
+			
 			if (properties.FillColor.length > 7)
 			{
 				var fOpac = "0x" + properties.FillColor.substring(properties.FillColor.length - 2, properties.FillColor.length);
@@ -5144,20 +5131,36 @@ LucidImporter = {};
 		return '';
 	}
 
-	function getColor(color)
+	function rgbToHex(color)
 	{
-		var clr = color? color.substring(0, 7) : null;
-		
-		if (clr && clr.charAt(0) != '#' && clr.charAt(0).toLowerCase() != 'r')
+		if (color)
 		{
-			clr = '#' + clr;
+			if (color.substring(0, 3) == 'rgb')
+			{
+				color = '#' + color.match(/\d+/g).map(function(n)
+				{
+					var s = parseInt(n).toString(16);
+					return (s.length == 1? '0' : '') + s;
+				}).join('');
+			}
+			else if (color.charAt(0) != '#')
+			{
+				color = '#' + color;
+			}
 		}
 		
-		return clr;
+		return color;
+	};
+	
+	function getColor(color)
+	{
+		color = rgbToHex(color);
+		return color? color.substring(0, 7) : null;
 	}
 	
 	function getOpacity2(color, style)
 	{
+		color = rgbToHex(color);
 		return color && color.length > 7? (style + '=' + Math.round(parseInt('0x' + color.substr(7)) / 2.55) + ';') : '';
 	}
 	
@@ -5734,15 +5737,10 @@ LucidImporter = {};
 				}
 				else if (obj.Value.m[i].n == 'c')
 				{
-					var v = obj.Value.m[i].v;
+					var v = rgbToHex(obj.Value.m[i].v);
 					
 					if (v != null)
 					{
-						if (v.charAt(0) != '#')
-						{
-							v = '#' + v;
-						}
-
 						v = v.substring(0, 7);
 					}
 					

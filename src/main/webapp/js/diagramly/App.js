@@ -1974,7 +1974,7 @@ App.prototype.showRatingBanner = function()
 			mxEvent.addListener(star4, 'click', mxUtils.bind(this, function(e)
 			{
 				mxEvent.consume(e);
-				window.open('https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews');
+				window.open('https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=server&tab=reviews');
 				onclose();
 			}));
 

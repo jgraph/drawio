@@ -662,7 +662,14 @@
 		
 		editorUi.actions.addAction('support...', function()
 		{
-			editorUi.openLink('https://github.com/jgraph/drawio/wiki/Getting-Support');
+			if (EditorUi.isElectronApp)
+			{
+				editorUi.openLink('https://github.com/jgraph/drawio-desktop/wiki/Getting-Support');
+			}
+			else
+			{
+				editorUi.openLink('https://github.com/jgraph/drawio/wiki/Getting-Support');
+			}
 		});
 
 		editorUi.actions.addAction('exportOptionsDisabled...', function()
@@ -697,7 +704,14 @@
 		
 		editorUi.actions.addAction('forkme', function()
 		{
-			editorUi.openLink('https://github.com/jgraph/drawio');
+			if (EditorUi.isElectronApp)
+			{
+				editorUi.openLink('https://github.com/jgraph/drawio-desktop');
+			}
+			else
+			{
+				editorUi.openLink('https://github.com/jgraph/drawio');
+			}
 		}).label = 'Fork me on GitHub...';
 		
 		editorUi.actions.addAction('downloadDesktop...', function()
@@ -1243,9 +1257,19 @@
 				{
 					input.focus();
 				}, 0);
-				
-				this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
-					'support', '-', 'forkme', 'downloadDesktop', '-', 'about'], parent);
+
+				if (EditorUi.isElectronApp)
+				{
+					console.log('electron help menu');
+					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
+						'support', '-', 'forkme', '-', 'about'], parent);
+
+				}
+				else
+				{
+					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
+						'support', '-', 'forkme', 'downloadDesktop', '-', 'about'], parent);
+				}
 			}
 			
 			if (urlParams['test'] == '1')
@@ -1790,6 +1814,26 @@
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 							';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
 							allPages, lightbox, editLink, layers, url) + '"></iframe>');
+						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						dlg.init();
+					});
+				}
+			}, true);
+		}));
+
+		editorUi.actions.put('embedNotion', new Action(mxResources.get('notion') + '...', function()
+		{
+			editorUi.showPublishLinkDialog(mxResources.get('notion'), null, null, null,
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height)
+			{
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+					{
+						editorUi.spinner.stop();
+						
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
+							allPages, lightbox, editLink, layers, url, null, null, true));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -2532,7 +2576,7 @@
 
 			if (urlParams['embed'] != '1' && !editorUi.isOffline())
 			{
-				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', 'googleSheets', '-', 'microsoftOffice'], parent);
+				this.addMenuItems(menu, ['-', 'googleDocs', 'googleSlides', 'googleSheets', '-', 'microsoftOffice', '-', 'embedNotion'], parent);
 			}
 		})));
 

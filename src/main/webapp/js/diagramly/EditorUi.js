@@ -5200,7 +5200,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params)
+	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params, useOpenParameter)
 	{
 		params = (params != null) ? params : this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
 		var file = this.getCurrentFile();
@@ -5232,6 +5232,12 @@
 		if (addTitle && file != null && file.getTitle() != null && file.getTitle() != this.defaultFilename)
 		{
 			params.push('title=' + encodeURIComponent(file.getTitle()));
+		}
+
+		if (useOpenParameter && data.length > 1)
+		{
+			params.push('open=' + data.substring(1));
+			data = '';
 		}
 		
 		return ((lightbox && urlParams['dev'] != '1') ? EditorUi.lightboxHost :
@@ -5459,7 +5465,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, showSelectionOption)
+	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
