@@ -3670,7 +3670,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 					{
 						var data = e.target.result;
 						
-						if (file.type.substring(0, 6) == 'image/')
+						if (file.type == 'image/png')
 						{
 							data = this.extractGraphModelFromPng(data);
 						}

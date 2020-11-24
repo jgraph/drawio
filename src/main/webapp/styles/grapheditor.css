@@ -1515,6 +1515,31 @@ table.geProperties tr td {
 {
 	min-height: 184px;
 	white-space: nowrap;
-	overflow-x : auto;
-	overflow-y : hidden;
+}
+
+.geStripedTable
+{
+	border-collapse: collapse;
+ 	width: 100%;
+ 	table-layout: fixed;
+}
+
+.geStripedTable td, .geStripedTable th
+{
+	border: 1px solid #ddd;
+	text-align: left;
+	padding: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.geStripedTable tr:nth-child(odd){background-color: #f2f2f2;}
+
+.geStripedTable tr:hover {background-color: #ddd;}
+
+.geStripedTable th {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #bbb;
 }

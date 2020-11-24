@@ -10567,6 +10567,8 @@
 					
 					if (xml != null)
 					{
+						fileHandle = null;
+						temp = true;
 						data = xml;
 					}
 	    		}
@@ -10655,11 +10657,11 @@
 		if (data != null && data.length > 0)
 		{
 			if (currentFile == null || (!currentFile.isModified() &&
-				(mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)))
+				(mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || fileHandle != null)))
 			{
 				fn();
 			}
-			else if ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) &&
+			else if ((mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || fileHandle != null) &&
 				currentFile != null && currentFile.isModified())
 			{
 				this.confirm(mxResources.get('allChangesLost'), null, fn,
