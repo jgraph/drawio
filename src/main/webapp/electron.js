@@ -851,6 +851,13 @@ autoUpdater.on('update-available', (a, b) =>
 				//On mac, download-progress event is not called, so the indeterminate progress will continue until download is finished
 				log.info('@update-progress@\n', d);
 				
+				var percent = d.percent;
+				
+				if (percent)
+				{
+					percent = Math.round(percent * 100)/100;
+				}
+				
 				if (firstTimeProg)
 				{
 					firstTimeProg = false;
@@ -860,8 +867,8 @@ autoUpdater.on('update-available', (a, b) =>
 						indeterminate: false,
 						title: 'draw.io Update',
 						text: 'Downloading draw.io update...',
-						detail: `${d.percent}% ...`,
-						initialValue: d.percent,
+						detail: `${percent}% ...`,
+						initialValue: percent,
 						browserWindow: {
 							webPreferences: {
 								nodeIntegration: true
@@ -881,12 +888,12 @@ autoUpdater.on('update-available', (a, b) =>
 							})
 							.on('ready', function() {
 								//InitialValue doesn't set the UI! so this is needed to render it correctly
-								progressBar.value = d.percent;
+								progressBar.value = percent;
 							});
 				}
 				else 
 				{
-					progressBar.value = d.percent;
+					progressBar.value = percent;
 				}
 			});
 

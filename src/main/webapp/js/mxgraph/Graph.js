@@ -8620,7 +8620,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.addForeignObjectWarning = function(canvas, root)
 		{
-			if (root.getElementsByTagName('foreignObject').length > 0)
+			if (urlParams['svg-warning'] != '0' && root.getElementsByTagName('foreignObject').length > 0)
 			{
 				var sw = canvas.createElement('switch');
 				var g1 = canvas.createElement('g');

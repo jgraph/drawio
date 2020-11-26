@@ -1,3 +1,11 @@
+26-NOV-2020: 13.10.4
+
+- Adds compare button in revision history dialog
+
+25-NOV-2020: 13.10.3
+
+- Uses mxGraph 4.2.3 beta 5
+
 24-NOV-2020: 13.10.2
 
 - Fixes specific synchronize operations

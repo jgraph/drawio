@@ -856,7 +856,32 @@ Draw.loadPlugin(function(ui)
 	//This code is similar to AC.gotoAnchor but we don't have access to AC here
 	ui.handleCustomLink = function(href)
 	{
-		if (href.substring(0, 23) == 'data:confluence/anchor,')
+		if (href.substring(0, 19) == 'data:confluence/id,')
+		{
+			var id = href.substring(19);
+			
+			var newWin = window.open();
+			
+			if (id)
+			{
+				ui.remoteInvoke('getContentInfo', [id], null, function(info)
+				{
+					ui.remoteInvoke('getBaseUrl', null, null, function(url)
+					{
+						newWin.location = url + info._links.webui;
+					},
+					function(){});
+				}, function()
+				{
+					newWin.document.writeln(mxResources.get('objectNotFound'));
+				});
+			}
+			else
+			{
+				throw new Error('Empty ID');
+			}
+		}
+		else if (href.substring(0, 23) == 'data:confluence/anchor,')
 		{
 			var anchor = href.substring(23);
 			
@@ -901,7 +926,11 @@ Draw.loadPlugin(function(ui)
 	
 	ui.getLinkTitle = function(href)
 	{
-		if (href.substring(0, 23) == 'data:confluence/anchor,')
+		if (href.substring(0, 19) == 'data:confluence/id,')
+		{
+			return mxResources.get('link'); //We only have the id which is not helpful
+		}
+		else if (href.substring(0, 23) == 'data:confluence/anchor,')
 		{
 			return mxResources.get('anchor') + ': ' + href.substring(23);
 		}

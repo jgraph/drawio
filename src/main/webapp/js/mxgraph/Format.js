@@ -59,6 +59,8 @@ Format.prototype.init = function()
 	graph.addListener(mxEvent.EDITING_STARTED, this.update);
 	graph.addListener(mxEvent.EDITING_STOPPED, this.update);
 	graph.getModel().addListener(mxEvent.CHANGE, this.update);
+	graph.getView().addListener('unitChanged', this.update);
+	
 	graph.addListener(mxEvent.ROOT, mxUtils.bind(this, function()
 	{
 		this.refresh();
@@ -6420,16 +6422,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);
-	
-	var unitChangeListener = function(sender, evt)
-	{
-		input.value = fPanel.inUnit(graph.getGridSize()) + ' ' + fPanel.getUnit();
-		fPanel.format.refresh();
-	};
-	
-	graph.view.addListener('unitChanged', unitChangeListener);
-	this.listeners.push({destroy: function() { graph.view.removeListener(unitChangeListener); }});
-	
+
 	if (mxClient.IS_SVG)
 	{
 		input.style.marginTop = '-2px';

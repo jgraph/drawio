@@ -4036,9 +4036,9 @@ LucidImporter = {};
 			{
 				var lk = styles['lk'];
 				
-				if (lk.v != null && lk.v.length > 0 && lk.v[0].tp == 'ext')
+				if (lk.v != null && lk.v.length > 0)
 				{
-					str += '<a href="' + lk.v[0].url + '">';
+					str += '<a href="' + getLink(lk.v[0]) + '">';
 					openTags.push('a');
 					tagCount++;
 				}
@@ -4625,17 +4625,40 @@ LucidImporter = {};
 		return fontFamily && fontFamily != defaultLucidFont ?'fontFamily=' + fontFamily + ';' : '';
 	};
 	
-	function getLink(m)
+	function getLink(lnk)
+	{
+		if (lnk.tp == 'ext')
+		{
+			return lnk.url;
+		}
+		else if (lnk.tp == 'ml')
+		{
+			return 'mailto:' + lnk.eml;
+		}
+		else if (lnk.tp == 'pg')
+		{
+			return 'data:page/id,' + (LucidImporter.pageIdsMap[lnk.id] || 0);
+		}
+		else if (lnk.tp == 'c') //Confluence content
+		{
+			return 'data:confluence/id,' + lnk.ccid;
+		}
+		else
+		{
+			return null;	
+		}
+	};
+	
+	function getLinkFromM(m)
 	{
 		if (m != null)
 		{
 			for (var i = 0; i < m.length; i++)
 			{
-				if (m[i].n = 'lk' && m[i].v != null &&
-					m[i].v.length > 0 &&
-					m[i].v[0].tp == 'ext')
+				if (m[i].n == 'lk' && m[i].v != null &&
+					m[i].v.length > 0)
 				{
-					return m[i].v[0].url;
+					return getLink(m[i].v[0]);
 				}
 			}
 		}
@@ -5244,10 +5267,33 @@ LucidImporter = {};
 	
 	function getImage(properties, action, url)
 	{
-		var imgUrl = url;
+		var imgUrl = url, extraStyles = '';
 		
 		// Converts images
-		if (action.Class == 'ImageSearchBlock2')
+		if (properties.FillColor && properties.FillColor.url)
+		{
+			imgUrl = properties.FillColor.url;
+			//Check if image is cropped, stretched, ...
+			if (properties.FillColor.pos == 'fill')
+			{
+				extraStyles = 'imageAspect=0;';
+			} 
+			else if (typeof properties.FillColor.pos == 'object')
+			{
+				//TODO Support non-destructive cropping
+				/*"pos": {
+		            "pin": {
+		                "x": 0.5765582655826557,
+		                "y": 0.6180376215526864
+		            },
+		            "size": {
+		                "w": 0.7764227642276422,
+		                "h": 1.5284871672246134
+		            }
+            	}*/
+			}
+		}
+		else if (action.Class == 'ImageSearchBlock2')
 		{
 			imgUrl = properties.URL;
 		}
@@ -5255,10 +5301,6 @@ LucidImporter = {};
 				properties.ImageFillProps.url != null)
 		{
 			imgUrl = properties.ImageFillProps.url;
-		}
-		else if (properties.FillColor && properties.FillColor.url)
-		{
-			imgUrl = properties.FillColor.url;
 		}
 					
 		if (imgUrl != null)
@@ -5272,7 +5314,7 @@ LucidImporter = {};
 				}
 			}
 			
-			return 'image=' + imgUrl + ';';
+			return 'image=' + imgUrl + ';' + extraStyles;
 		}
 		
 		return '';
@@ -5281,13 +5323,13 @@ LucidImporter = {};
 	// Adds metadata, link, converts placeholders
 	function addCustomData(cell, p, graph)
 	{
-		if (p.Link != null && p.Link.length > 0 && p.Link[0].tp == 'ext')
+		if (p.Link != null && p.Link.length > 0)
 		{
-			graph.setAttributeForCell(cell, 'link', p.Link[0].url);
+			graph.setAttributeForCell(cell, 'link', getLink(p.Link[0]));
 		}
 		else if (p.Text != null)
 		{
-			var link = getLink(getTextM(p.Text));
+			var link = getLinkFromM(getTextM(p.Text));
 			
 			if (link != null)
 			{
@@ -6120,6 +6162,18 @@ LucidImporter = {};
 				delete v.stylePoints;
 			});
 			
+			//Cleanup added properties
+			try
+			{
+				var allCells = graph.getModel().cells;
+				
+				for (var id in allCells)
+				{
+					var c = allCells[id];
+					delete c.zOrder;
+				}
+			} catch(e){}
+			
 			if (!noSelection)
 				graph.setSelectionCells(select);
 		}
@@ -6305,6 +6359,7 @@ LucidImporter = {};
 		LucidImporter.stencilsMap = {}; //Reset stencils cache
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
 		LucidImporter.globalProps = {};
+		LucidImporter.pageIdsMap = {};
 		LucidImporter.hasUnknownShapes = false;
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
@@ -6329,7 +6384,9 @@ LucidImporter = {};
 			
 			for (var id in obj.Pages)
 			{
-				pages.push(obj.Pages[id]);
+				var pg = obj.Pages[id];
+				pg.id = id;
+				pages.push(pg);
 			}
 			
 			pages.sort(function(a, b)
@@ -6347,6 +6404,11 @@ LucidImporter = {};
 			    	return 0;
 			    }
 			});
+			
+			for (var i = 0; i < pages.length; i++)
+			{
+				LucidImporter.pageIdsMap[pages[i].id] = i;
+			}
 		};
 		
 		if (state.state != null && urlParams['dev'] == '1' && window.console != null)
