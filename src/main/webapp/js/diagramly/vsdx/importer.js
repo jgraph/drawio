@@ -5027,20 +5027,19 @@ var com;
                         return styleMap;
                     };
                     mxVsdxUtils.isInsideTriangle = function (x, y, ax, ay, bx, by, cx, cy) {
-                        bx = bx - ax;
-                        by = by - ay;
-                        cx = cx - ax;
-                        cy = cy - ay;
-                        ax = 0;
-                        ay = 0;
-                        var d = bx * cy - cx * by;
-                        var wa = (x * (by - cy) + y * (cx - bx) + bx * cy - cx * by) / d;
-                        var wb = (x * cy - y * cx) / d;
-                        var wc = (y * bx - x * by) / d;
-                        if (wa > 0 && wa < 1 && wb > 0 && wb < 1 && wc > 0 && wc < 1) {
-                            return true;
-                        }
-                        return false;
+						function sign (p1x, p1y, p2x, p2y, p3x, p3y)
+						{
+						    return (p1x - p3x) * (p2y - p3y) - (p2x - p3x) * (p1y - p3y);
+						}
+
+					    var d1 = sign(x, y, ax, ay, bx, by);
+					    var d2 = sign(x, y, bx, by, cx, cy);
+					    var d3 = sign(x, y, cx, cy, ax, ay);
+					
+					    var has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+					    var has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+					
+					    return !(has_neg && has_pos);
                     };
                     return mxVsdxUtils;
                 }());
@@ -6724,7 +6723,8 @@ var com;
                                 var sweep = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
                                 var sf = (sweep > 0) ? "0" : "1";
                                 var laf = "0";
-                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y) && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) {
+                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) // && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) { //Inside triangle works alone in all test cases so far 
+								{
                                     laf = "1";
                                 }
                                 shape.setLastX(x);

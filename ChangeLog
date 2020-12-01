@@ -1,3 +1,30 @@
+01-DEC-2020: 13.10.5
+
+- Uses mxGraph 4.2.3 beta 6
+- Adds page size export option
+
+26-NOV-2020: 13.10.4
+
+- Adds compare button in revision history dialog
+
+25-NOV-2020: 13.10.3
+
+- Uses mxGraph 4.2.3 beta 5
+
+24-NOV-2020: 13.10.2
+
+- Fixes specific synchronize operations
+
+22-NOV-2020: 13.10.1
+
+- Adds File, Embed, Notion
+
+18-NOV-2020: 13.10.0
+
+- Internal release for Github actions testing
+- Conf Cloud: Viewer settings direct from the viewer
+- Conf Cloud: Adds custom libraries to more shapes dialog
+
 15-NOV-2020: 13.9.9
 
 - Improves Lucidchart import

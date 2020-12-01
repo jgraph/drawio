@@ -172,6 +172,18 @@ if (window.mxLanguages == null)
 	}
 }
 
+// Uses lightbox mode on viewer domain
+if (window.location.hostname == DRAWIO_LIGHTBOX_URL.substring(DRAWIO_LIGHTBOX_URL.indexOf('//') + 2))
+{
+	urlParams['lightbox'] = '1';
+}	
+
+// Lightbox enables chromeless mode
+if (urlParams['lightbox'] == '1')
+{
+	urlParams['chrome'] = '0';
+}
+
 /**
  * Returns the global UI setting before runngin static draw.io code
  */
@@ -180,26 +192,22 @@ window.uiTheme = window.uiTheme || (function()
 	var ui = urlParams['ui'];
 
 	// Known issue: No JSON object at this point in quirks in IE8
-	if (ui == null && typeof JSON !== 'undefined')
+	if (ui == null && isLocalStorage && typeof JSON !== 'undefined' && urlParams['lightbox'] != '1')
 	{
-		// Cannot use mxSettings here
-		if (isLocalStorage) 
+		try
 		{
-			try
+			var value = localStorage.getItem('.drawio-config');
+			
+			if (value != null)
 			{
-				var value = localStorage.getItem('.drawio-config');
-				
-				if (value != null)
-				{
-					ui = JSON.parse(value).ui || null;
-				}
+				ui = JSON.parse(value).ui || null;
 			}
-			catch (e)
-			{
-				// cookies are disabled, attempts to use local storage will cause
-				// a DOM error at a minimum on Chrome
-				isLocalStorage = false;
-			}
+		}
+		catch (e)
+		{
+			// cookies are disabled, attempts to use local storage will cause
+			// a DOM error at a minimum on Chrome
+			isLocalStorage = false;
 		}
 	}
 	
@@ -360,18 +368,6 @@ if (window.location.hostname == 'embed.diagrams.net')
 {
 	urlParams['embed'] = '1';
 }	
-
-// Uses lightbox mode on viewer domain
-if (window.location.hostname == DRAWIO_LIGHTBOX_URL.substring(DRAWIO_LIGHTBOX_URL.indexOf('//') + 2))
-{
-	urlParams['lightbox'] = '1';
-}	
-
-// Lightbox enables chromeless mode
-if (urlParams['lightbox'] == '1')
-{
-	urlParams['chrome'] = '0';
-}
 
 // Fallback for cases where the hash property is not available
 if ((window.location.hash == null || window.location.hash.length <= 1) &&

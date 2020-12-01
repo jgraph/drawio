@@ -1974,7 +1974,7 @@ App.prototype.showRatingBanner = function()
 			mxEvent.addListener(star4, 'click', mxUtils.bind(this, function(e)
 			{
 				mxEvent.consume(e);
-				window.open('https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=cloud&tab=reviews');
+				window.open('https://marketplace.atlassian.com/apps/1210933/draw-io-diagrams-for-confluence?hosting=datacenter&tab=reviews');
 				onclose();
 			}));
 
@@ -3547,7 +3547,7 @@ App.prototype.showSplash = function(force)
 			}
 			else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
 			{
-				this.showRatingBanner();
+				// this.showRatingBanner();
 			}
 		}
 	});
@@ -3670,7 +3670,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
 					{
 						var data = e.target.result;
 						
-						if (file.type.substring(0, 6) == 'image/')
+						if (file.type == 'image/png')
 						{
 							data = this.extractGraphModelFromPng(data);
 						}
