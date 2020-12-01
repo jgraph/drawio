@@ -1,3 +1,8 @@
+01-DEC-2020: 13.10.5
+
+- Uses mxGraph 4.2.3 beta 6
+- Adds page size export option
+
 26-NOV-2020: 13.10.4
 
 - Adds compare button in revision history dialog

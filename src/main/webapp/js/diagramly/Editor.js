@@ -2204,8 +2204,7 @@
 		};
 		
 		var font = (urlParams['math-font'] != null) ?
-			decodeURIComponent(urlParams['math-font']) :
-			'TeX';
+			decodeURIComponent(urlParams['math-font']) : 'TeX';
 		
 		config = (config != null) ? config :
 		{
@@ -2297,8 +2296,8 @@
 		{
 			var s = document.createElement('script');
 			s.setAttribute('type', 'text/javascript');
+			s.setAttribute('async', 'false');
 			s.setAttribute('src', src);
-			
 			tags[0].parentNode.appendChild(s);
 		}
 		
@@ -3090,7 +3089,7 @@
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
 		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
-		keepTheme)
+		keepTheme, exportType)
 	{
 		try
 		{
@@ -3118,7 +3117,8 @@
 			}
 			
 			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
-				null, null, null, addShadow, null, keepTheme), mxUtils.bind(this, function(svgRoot)
+				null, null, null, addShadow, null, keepTheme, exportType),
+				mxUtils.bind(this, function(svgRoot)
 			{
 				try
 				{
@@ -5787,7 +5787,8 @@
 	var graphGetSvg = Graph.prototype.getSvg;
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
-		ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts, keepTheme)
+		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
+		incExtFonts, keepTheme, exportType)
 	{
 		var temp = null;
 		

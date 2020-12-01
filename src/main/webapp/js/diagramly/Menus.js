@@ -567,22 +567,23 @@
 				dlg.init();
 			}
 		}));
-		
+
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 				'https://desk.draw.io/support/solutions/articles/16000067785',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-					editable, embedImages, border, cropImage, currentPage, linkTarget, grid, keepTheme)
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
+					embedImages, border, cropImage, currentPage, linkTarget, grid, keepTheme, exportType)
 				{
 					var val = parseInt(scale);
 					
 					if (!isNaN(val) && val > 0)
 					{
-					   	editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection, addShadow,
-					   		editable, embedImages, border, !cropImage, false, linkTarget, keepTheme);
+						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
+							addShadow, editable, embedImages, border, !cropImage, false,
+							linkTarget, keepTheme, exportType);
 					}
-				}), true, null, 'svg');
+				}), true, null, 'svg', true);
 		}));
 		
 		editorUi.actions.put('exportPng', new Action(mxResources.get('formatPng') + '...', function()
@@ -591,17 +592,18 @@
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://desk.draw.io/support/solutions/articles/16000067785',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-						editable, embedImages, border, cropImage, currentPage, dummy, grid, keepTheme)
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
+						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-						   	editorUi.exportImage(val / 100, transparentBackground, ignoreSelection, addShadow,
-						   		editable, border, !cropImage, currentPage, null, grid, null, keepTheme);
+							editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
+								addShadow, editable, border, !cropImage, currentPage, null, grid,
+								null, keepTheme, exportType);
 						}
-					}), true, true, 'png');
+					}), true, true, 'png', true);
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
@@ -618,17 +620,18 @@
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
 					'https://desk.draw.io/support/solutions/articles/16000067785',
-					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow,
-						editable, embedImages, border, cropImage, currentPage, dummy, grid, keepTheme)
+					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
+						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
 					{
 						var val = parseInt(scale);
 						
 						if (!isNaN(val) && val > 0)
 						{
-							editorUi.exportImage(val / 100, false, ignoreSelection, addShadow,
-								false, border, !cropImage, false, 'jpeg', grid, null, keepTheme);
+							editorUi.exportImage(val / 100, false, ignoreSelection,
+								addShadow, false, border, !cropImage, false, 'jpeg',
+								grid, null, keepTheme, exportType);
 						}
-					}), true, false, 'jpeg');
+					}), true, false, 'jpeg', true);
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
@@ -1008,7 +1011,8 @@
 						}
 					}
 				}
-			});
+			}, null, null, null, null, null, true, null, null,
+				'https://www.diagrams.net/doc/faq/apply-layouts');
 	    	
 	    	dlg.textarea.style.width = '600px';
 	    	dlg.textarea.style.height = '380px';

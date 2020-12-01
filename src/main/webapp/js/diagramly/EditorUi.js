@@ -4826,7 +4826,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme)
+		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme, exportType)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -4849,9 +4849,10 @@
 				
 				// Sets or disables alternate text for foreignObjects. Disabling is needed
 				// because PhantomJS seems to ignore switch statements and paint all text.
-				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
-					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
-					((linkTarget == 'self') ? '_top' : null), null, true, keepTheme);
+				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop,
+					null, ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
+					((linkTarget == 'self') ? '_top' : null), null, true, keepTheme,
+					exportType);
 				
 				if (addShadow)
 				{
@@ -5700,7 +5701,7 @@
 	 * 
 	 */
 	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback,
-		cropOption, defaultInclude, format)
+		cropOption, defaultInclude, format, exportOption)
 	{
 		defaultInclude = (defaultInclude != null) ? defaultInclude : true;
 		
@@ -5733,18 +5734,7 @@
 		borderInput.value = this.lastExportBorder || '0';
 		div.appendChild(borderInput);
 		mxUtils.br(div);
-		
-		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
-		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
-			defaultTransparent, null, null, format != 'jpeg');
-		var keepTheme = null;
-		
-		if (uiTheme == 'dark')
-		{
-			keepTheme = this.addCheckbox(div, mxResources.get('dark'), true); 
-			height += 26;
-		}
-		
+
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'),
 			false, graph.isSelectionEmpty());
 
@@ -5755,7 +5745,39 @@
 		cb6.setAttribute('disabled', 'disabled');
 		cb6.setAttribute('type', 'checkbox');
 
-		if (cropOption)
+		var exportSelect = document.createElement('select');
+		exportSelect.style.marginTop = '16px';
+		exportSelect.style.marginLeft = '8px';
+
+		var sizes = ['selectionOnly', 'diagram', 'page'];
+			
+		for (var i = 0; i < sizes.length; i++)
+		{
+			if (!graph.isSelectionEmpty() || sizes[i] != 'selectionOnly')
+			{
+				var opt = document.createElement('option');
+				mxUtils.write(opt, mxResources.get(sizes[i]));
+				opt.setAttribute('value', sizes[i]);
+				exportSelect.appendChild(opt);
+			}
+		}
+
+		if (exportOption)
+		{
+			mxUtils.write(div, mxResources.get('size') + ':');
+			div.appendChild(exportSelect);
+			mxUtils.br(div);
+			height += 26;
+
+			mxEvent.addListener(exportSelect, 'change', function()
+			{
+				if (exportSelect.value == 'selectionOnly')
+				{
+					selection.checked = true;
+				}
+			});
+		}
+		else if (cropOption)
 		{
 			div.appendChild(cb6);
 			mxUtils.write(div, mxResources.get('crop'));
@@ -5775,11 +5797,45 @@
 				}
 			});
 		}
-		
-		if (!graph.isSelectionEmpty())
+
+		if (graph.isSelectionEmpty())
 		{
+			if (exportOption)
+			{
+				selection.style.display = 'none';
+				selection.nextSibling.style.display = 'none';
+				selection.nextSibling.nextSibling.style.display = 'none';
+				height -= 26;
+			}
+		}
+		else
+		{
+			exportSelect.value = 'diagram';
 			cb6.setAttribute('checked', 'checked');
 			cb6.defaultChecked = true;
+
+			mxEvent.addListener(selection, 'change', function()
+			{
+				if (selection.checked)
+				{
+					exportSelect.value = 'selectionOnly';
+				}
+				else
+				{
+					exportSelect.value = 'diagram';
+				}
+			});
+		}
+				
+		var defaultTransparent = false; /*graph.background == mxConstants.NONE || graph.background == null*/; 
+		var transparent = this.addCheckbox(div, mxResources.get('transparentBackground'),
+			defaultTransparent, null, null, format != 'jpeg');
+		var keepTheme = null;
+		
+		if (uiTheme == 'dark')
+		{
+			keepTheme = this.addCheckbox(div, mxResources.get('dark'), true); 
+			height += 26;
 		}
 		
 		var shadow = this.addCheckbox(div, mxResources.get('shadow'), graph.shadowVisible);
@@ -5880,8 +5936,8 @@
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
-				linkSelect.value, (grid != null) ? grid.checked : null,
-				(keepTheme != null) ? keepTheme.checked : null);
+				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
+				keepTheme.checked : null, exportSelect.value);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -6526,7 +6582,7 @@
 	 *
 	 */
 	EditorUi.prototype.exportImage = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, border, noCrop, currentPage, format, grid, dpi, keepTheme)
+		editable, border, noCrop, currentPage, format, grid, dpi, keepTheme, exportType)
 	{
 		format = (format != null) ? format : 'png';
 		
@@ -6561,8 +6617,8 @@
 			   	{
 			   		this.spinner.stop();
 			   		this.handleError(e);
-			   	}), null, ignoreSelection, scale || 1, transparentBackground,
-			   		addShadow, null, null, border, noCrop, grid, keepTheme);
+				}), null, ignoreSelection, scale || 1, transparentBackground, addShadow,
+					null, null, border, noCrop, grid, keepTheme, exportType);
 			}
 			catch (e)
 			{

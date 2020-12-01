@@ -86,7 +86,7 @@ mxShapeArrows2Arrow.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxShapeArrows2Arrow.prototype.getLabelBounds = function(rect)
 {
-	if (mxUtils.getValue(this.style, "boundedLbl", false))
+	if (mxUtils.getValue(this.style, 'boundedLbl', false))
 	{
 		var w = rect.width;
 		var h = rect.height;
@@ -94,7 +94,7 @@ mxShapeArrows2Arrow.prototype.getLabelBounds = function(rect)
 		var dy, dx;
 		var direction = this.direction || mxConstants.DIRECTION_EAST;
 		
-		if (mxUtils.getValue(this.style, "flipH", false))
+		if (mxUtils.getValue(this.style, 'flipH', false))
 		{
 			if (direction == mxConstants.DIRECTION_WEST)
 				direction = mxConstants.DIRECTION_EAST;
@@ -102,14 +102,13 @@ mxShapeArrows2Arrow.prototype.getLabelBounds = function(rect)
 				direction = mxConstants.DIRECTION_WEST;
 		}
 		
-		if (mxUtils.getValue(this.style, "flipV", false))
+		if (mxUtils.getValue(this.style, 'flipV', false))
 		{
 			if (direction == mxConstants.DIRECTION_NORTH)
 				direction = mxConstants.DIRECTION_SOUTH;
 			else if (direction == mxConstants.DIRECTION_SOUTH)
 				direction = mxConstants.DIRECTION_NORTH;
 		}
-		
 		
 		if (direction == mxConstants.DIRECTION_NORTH
 				|| direction == mxConstants.DIRECTION_SOUTH)
@@ -257,7 +256,7 @@ mxShapeArrows2TwoWayArrow.prototype.paintVertexShape = function(c, x, y, w, h)
 
 mxShapeArrows2TwoWayArrow.prototype.getLabelBounds = function(rect)
 {
-	if (mxUtils.getValue(this.style, "boundedLbl", false))
+	if (mxUtils.getValue(this.style, 'boundedLbl', false))
 	{
 		var w = rect.width;
 		var h = rect.height;

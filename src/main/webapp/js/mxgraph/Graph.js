@@ -8393,7 +8393,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 * @param {number} dy Y-coordinate of the translation.
 		 */
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
-			ignoreSelection, showText, imgExport, linkTarget, hasShadow)
+			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts,
+			keepTheme, exportType)
 		{
 			//Disable Css Transforms if it is used
 			var origUseCssTrans = this.useCssTransforms;
@@ -8413,9 +8414,10 @@ if (typeof mxVertexHandler != 'undefined')
 				ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 				showText = (showText != null) ? showText : true;
 	
-				var bounds = (ignoreSelection || nocrop) ?
+				var bounds = (exportType == 'page') ? this.view.getBackgroundPageBounds() :
+					((ignoreSelection || nocrop || exportType == 'diagram') ?
 					this.getGraphBounds() : this.getBoundingBox(
-					this.getSelectionCells());
+					this.getSelectionCells()));
 	
 				if (bounds == null)
 				{

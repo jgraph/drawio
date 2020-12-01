@@ -3547,7 +3547,7 @@ App.prototype.showSplash = function(force)
 			}
 			else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
 			{
-				this.showRatingBanner();
+				// this.showRatingBanner();
 			}
 		}
 	});
