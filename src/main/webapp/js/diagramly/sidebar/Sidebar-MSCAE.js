@@ -866,7 +866,7 @@
 					r * 0.5, r * 0.5, '', 'Azure DevOps', null, null, this.getTagsForStencil(gn, 'azure devops', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'DevTest_Labs.svg;',
 					r * 0.5, r * 0.5, '', 'Azure DevTest Labs', null, null, this.getTagsForStencil(gn, 'azure devtest labs', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'Azure_Pipelines	.svg;',
+			this.createVertexTemplateEntry(s + 'Azure_Pipelines.svg;',
 					r * 0.5, r * 0.5, '', 'Azure Pipelines', null, null, this.getTagsForStencil(gn, 'azure pipelines', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_Repos.svg;',
 					r * 0.45, r * 0.5, '', 'Azure Repos', null, null, this.getTagsForStencil(gn, 'azure repos', dt).join(' ')),

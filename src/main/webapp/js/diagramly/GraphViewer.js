@@ -3,7 +3,7 @@
  */
 /**
  * No CSS and resources available in embed mode. Parameters and docs:
- * https://desk.draw.io/solution/articles/16000042542-how-to-embed-html-
+ * https://www.diagrams.net/doc/faq/embed-html-options
  */
 GraphViewer = function(container, xmlNode, graphConfig)
 {
@@ -47,6 +47,11 @@ GraphViewer.prototype.toolbarZIndex = 999;
  * If automatic fit should be enabled if zoom is disabled. Default is true.
  */
 GraphViewer.prototype.autoFit = false;
+
+/**
+ * If automatic crop should be enabled when layers are toggled. Default is false.
+ */
+GraphViewer.prototype.autoCrop = false;
 
 /**
  * If the diagram should be centered. Default is false.
@@ -102,6 +107,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.graphConfig = (graphConfig != null) ? graphConfig : {};
 	this.autoFit = (this.graphConfig['auto-fit'] != null) ?
 		this.graphConfig['auto-fit'] : this.autoFit;
+	this.autoCrop = (this.graphConfig['auto-crop'] != null) ?
+		this.graphConfig['auto-crop'] : this.autoCrop;
 	this.allowZoomOut = (this.graphConfig['allow-zoom-out'] != null) ?
 		this.graphConfig['allow-zoom-out'] : this.allowZoomOut;
 	this.allowZoomIn = (this.graphConfig['allow-zoom-in'] != null) ?
@@ -378,8 +385,13 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				{
 					this.addSizeHandler();
 				}
-				
-				this.showLayers(this.graph);
+
+				// Crops to visible layers if no layers toolbar button
+				if (this.showLayers(this.graph) && (!this.layersEnabled || this.autoCrop))
+				{
+					this.crop();
+				}
+
 				this.addClickHandler(this.graph);
 				this.graph.setTooltips(this.graphConfig.tooltips != false);
 				this.graph.initialViewState = {
@@ -829,6 +841,21 @@ GraphViewer.prototype.addSizeHandler = function()
 };
 
 /**
+ * Moves the origin of the graph to the top, right corner.
+ */
+GraphViewer.prototype.crop = function()
+{
+	var graph = this.graph;
+	var bounds = graph.getGraphBounds();
+	var border = graph.border;
+	var s = graph.view.scale;
+	var x0 = (bounds.x != null) ? Math.floor(graph.view.translate.x - bounds.x / s + border) : border;
+	var y0 = (bounds.y != null) ? Math.floor(graph.view.translate.y - bounds.y / s + border) : border;
+
+	graph.view.setTranslate(x0, y0);
+};
+
+/**
  * 
  */
 GraphViewer.prototype.updateContainerWidth = function(container, width)
@@ -857,6 +884,7 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 	var idx = (layers != null) ? layers.split(' ') : [];
 	var layerIds = this.graphConfig.layerIds;
 	var hasLayerIds = layerIds != null && layerIds.length > 0;
+	var result = false;
 	
 	if (idx.length > 0 || hasLayerIds || sourceGraph != null)
 	{
@@ -898,7 +926,11 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 		{
 			model.endUpdate();
 		}
+
+		result = true;
 	}
+
+	return result;
 };
 
 /**
@@ -1199,7 +1231,13 @@ GraphViewer.prototype.addToolbar = function()
 					}
 					else
 					{
-						layersDialog = this.graph.createLayersDialog();
+						layersDialog = this.graph.createLayersDialog(mxUtils.bind(this, function()
+						{
+							if (this.autoCrop)
+							{
+								this.crop();
+							}
+						}));
 						
 						mxEvent.addListener(layersDialog, 'mouseleave', function()
 						{

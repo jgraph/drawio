@@ -2772,7 +2772,7 @@ Graph.prototype.formatDate = function(date, mask, utc)
 /**
  * 
  */
-Graph.prototype.createLayersDialog = function()
+Graph.prototype.createLayersDialog = function(onchange)
 {
 	var div = document.createElement('div');
 	div.style.position = 'absolute';
@@ -2819,6 +2819,11 @@ Graph.prototype.createLayersDialog = function()
 				}
 				
 				model.setVisible(layer, cb.checked);
+
+				if (onchange != null)
+				{
+					onchange(layer);
+				}
 			});
 		})(model.getChildAt(model.root, i)));
 	}

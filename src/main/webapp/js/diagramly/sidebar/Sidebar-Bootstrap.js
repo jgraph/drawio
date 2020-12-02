@@ -2521,7 +2521,7 @@
 			   	item1.vertex = true;
 			   	var item2 = new mxCell('Mark', new mxGeometry(0, 30, 260, 40), s + 'rrect;rSize=5;fillColor=#ffffff;strokeColor=#CED4DA;align=left;spacing=15;fontSize=14;fontColor=#6C767D;');
 			   	item2.vertex = true;
-			   	var item3 = new mxCell('Last name', new mxGeometry(270, 00, 100, 30), 'fillColor=none;strokeColor=none;align=left;fontSize=14;');
+			   	var item3 = new mxCell('Last name', new mxGeometry(270, 0, 100, 30), 'fillColor=none;strokeColor=none;align=left;fontSize=14;');
 			   	item3.vertex = true;
 			   	var item4 = new mxCell('Otto', new mxGeometry(270, 30, 260, 40), s + 'rrect;rSize=5;fillColor=#ffffff;strokeColor=#CED4DA;align=left;spacing=15;fontSize=14;fontColor=#6C767D;');
 			   	item4.vertex = true;

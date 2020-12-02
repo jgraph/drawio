@@ -87,7 +87,7 @@ LucidImporter = {};
 			'PreparationBlock': 'shape=hexagon;perimeter=hexagonPerimeter2',
 			'DataBlock': 'shape=parallelogram;perimeter=parallelogramPerimeter;anchorPointDirection=0',
 			'DataBlockNew': 'shape=parallelogram;perimeter=parallelogramPerimeter;anchorPointDirection=0',
-			'DatabaseBlock': 'shape=cylinder3;size=10;anchorPointDirection=0;boundedLbl=1;',
+			'DatabaseBlock': 'shape=cylinder3;size=4;anchorPointDirection=0;boundedLbl=1;',
 			'DirectAccessStorageBlock': 'shape=cylinder3;direction=south;size=10;anchorPointDirection=0;boundedLbl=1;',
 			'InternalStorageBlock': 'shape=internalStorage;dx=10;dy=10',
 			'PaperTapeBlock': 'shape=tape;size=0.2',
@@ -3810,7 +3810,7 @@ LucidImporter = {};
 	function convertTxt2Html(txt, srcM, props)
 	{
 		var blockStyles = {'a': true, 'il': true, 'ir': true, 'mt': true, 'mb': true, 'p': true, 't': true, 'l': true};
-		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true, 'k': true, 'f': true};
+		var nonBlockStyles = {'lk': true, 's': true, 'c': true, 'b': true, 'fc': true, 'i': true, 'u': true, 'k': true, 'f': true, 'ac': true};
 
 		srcM.sort(function(a, b)
 		{
@@ -3821,6 +3821,12 @@ LucidImporter = {};
 		{ 
 			return nonBlockStyles[m.n];
 		});
+		
+		//To prevent losing begining of a label when first one is not at zero (links case) 
+		if (m[0] && m[0].s != 0)
+		{
+			m.unshift({s: 0, n: 'dummy', v: '', e: m[0].s});
+		}
 		
 		var globalStyles = srcM.filter(function(m)
 		{
@@ -4071,6 +4077,11 @@ LucidImporter = {};
 				str += 'font-style: italic;';
 			}
 			
+			if (styles['ac'] && styles['ac'].v)
+			{
+				str += 'text-transform: uppercase;';
+			}
+			
 			var fontFamily = null;
 			
 			if (styles['f'])
@@ -4167,12 +4178,12 @@ LucidImporter = {};
 			if (k < globalStyles.length)
 			{
 				var bs = globalStyles[k], curBS = globalStyles[k].s;
-							
+
 				if (blockActive)
 				{
 					curBlockStyles = {};
-					html += endTag(txt, maxE, curS, true); //End any open tag
-					curS = maxE;
+					html += endTag(txt, curS, maxE, true); //End any open tag
+					curE = curS = maxE;
 					html += endBlockTag(); 
 				}
 		
@@ -4207,14 +4218,15 @@ LucidImporter = {};
 	
 				if (s && e && s.s < e.e) //s can be null when all starts are used, e ends after s BUT sometimes there are errors in the file
 				{
-					if (s.s > maxE) break;
+					if (s.s >= maxE) break;
 					curS = s.s;
 	
 					if (curS - curE > 0)
 					{
 						//NOTE: After the fix in end where we add dummy start and end, this shouldn't be called
 						//End any open tag and add remaining text with current style 
-						html += startTag(curStyles) + endTag(txt, curE, curS); 
+						html += startTag(curStyles) + endTag(txt, curE, curS);
+						curE = curS;
 					}
 					
 					while(s != null && s.s == curS)
@@ -4334,7 +4346,7 @@ LucidImporter = {};
 				{
 					for (var i = 0; i < m.length; i++)
 					{
-						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't')
+						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't' || m[i].n == 'ac')
 						{
 							isLastLblHTML = true;
 							break;
@@ -5327,7 +5339,8 @@ LucidImporter = {};
 		{
 			graph.setAttributeForCell(cell, 'link', getLink(p.Link[0]));
 		}
-		else if (p.Text != null)
+		//If the text has a link, it will be handled by html labels
+		/*else if (p.Text != null)
 		{
 			var link = getLinkFromM(getTextM(p.Text));
 			
@@ -5335,7 +5348,7 @@ LucidImporter = {};
 			{
 				graph.setAttributeForCell(cell, 'link', link);
 			}
-		}
+		}*/
 		
 		replacePlaceholders(cell, graph);
 		
