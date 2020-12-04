@@ -6583,7 +6583,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
 		searchInput.style.width = '240px';
-		var elt = editorUi.menus.createHelpLink('https://desk.draw.io/support/solutions/articles/16000046966');
+		var elt = editorUi.menus.createHelpLink('https://www.diagrams.net/doc/faq/tags-plugin');
 		elt.firstChild.style.marginBottom = '6px';
 		elt.style.marginLeft = '6px';
 		div.appendChild(elt);

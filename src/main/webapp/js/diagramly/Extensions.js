@@ -298,7 +298,7 @@ LucidImporter = {};
 //BPMN 2.0
 			'BPMNActivity' : cs,
 			'BPMNEvent' : cs,
-			'BPMNChoreography' : cs, //TODO
+//			'BPMNChoreography' : cs, //TODO
 			'BPMNConversation' : cs,
 			'BPMNGateway' : cs,
 			'BPMNData' : cs,
@@ -351,7 +351,7 @@ LucidImporter = {};
 //Value Stream Mapping
 			'VSMKaizenBurstBlock' : s + 'lean_mapping.kaizen_lightening_burst',
 			'VSMOperatorBlock' : s + 'lean_mapping.operator;flipV=1',
-			'VSMTimelineBlock' : cs, //TODO
+//			'VSMTimelineBlock' : cs, //TODO
 			'VSMQualityProblemBlock' : s + 'lean_mapping.quality_problem',
 //Kanban
 			'VSMProductionKanbanSingleBlock' : 'shape=card;size=18;flipH=1;',
@@ -2149,7 +2149,7 @@ LucidImporter = {};
 			'KubeletLabeledKub19' : kupIcon + 'kubelet',
 			'SchedLabeledKub19' : kupIcon + 'sched',
 //Equation
-			'Equation' : cs, //TODO
+//			'Equation' : cs, //TODO
 //Walls
 			'fpWall' : '',
 //Rooms
@@ -2481,34 +2481,34 @@ LucidImporter = {};
 //iPhone Elements
 			'iOS7StatusBariPhone' : s + 'ios7ui.appBar',
 //			'iOS7NavBariPhone' NA
-			'iOS7TabsiPhone' : cs, //TODO
-			'iOS7iPhoneActionSheet' : cs, //TODO
+//			'iOS7TabsiPhone' : cs, //TODO
+//			'iOS7iPhoneActionSheet' : cs, //TODO
 			'iOS7iPhoneKeyboard' : s + 'ios7.misc.keyboard_(letters)',
-			'iOS7TableView' : cs, //TODO
+//			'iOS7TableView' : cs, //TODO
 //iPad Elements
 			'iOS7StatusBariPad' : s + 'ios7ui.appBar',
-			'iOS7NavBariPad' : cs, //TODO
-			'iOS7TabsiPad' : cs, //TODO
-			'iOS7iPadActionSheet' : cs, //TODO
+//			'iOS7NavBariPad' : cs, //TODO
+//			'iOS7TabsiPad' : cs, //TODO
+//			'iOS7iPadActionSheet' : cs, //TODO
 			'iOS7iPadKeyboard' : s + 'ios7.misc.keyboard_(letters)',
 //			'iOS7SplitView'
 //			'iOS7iPadPopover'
 //Common Elements
-			'iOS7AlertDialog' : cs, //TODO
+//			'iOS7AlertDialog' : cs, //TODO
 			'iOS7ProgressBar' : s + 'ios7ui.downloadBar', //TODO
 			'iOS7Slider' : s + 'ios7ui.searchBox', //TODO
 			'iOS7SearchBar' : s + 'ios7ui.searchBox', 
 			'iOS7Button' : '',
 			'iOS7TextField' : '',
 			'iOS7TextView' : '',
-			'iOS7SegmentedControl' : cs, //TODO
+//			'iOS7SegmentedControl' : cs, //TODO
 			'iOS7Toggle' : s + 'ios7ui.onOffButton;buttonState=on;strokeColor=#38D145;strokeColor2=#aaaaaa;fillColor=#38D145;fillColor2=#ffffff', //TODO
 			'iOS7Stepper' : s + 'ios7.misc.adjust;fillColor=#ffffff;gradientColor=none',
 			'iOS7PageControls' : s + 'ios7ui.pageControl;fillColor=#666666;strokeColor=#bbbbbb', //TODO
 			'iOS7Block' : '',
-			'iOS7DatePicker' : cs, //TODO
-			'iOS7TimePicker' : cs, //TODO
-			'iOS7CountdownPicker' : cs, //TODO
+//			'iOS7DatePicker' : cs, //TODO
+//			'iOS7TimePicker' : cs, //TODO
+//			'iOS7CountdownPicker' : cs, //TODO
 //iOS Icons
 			'iOS7IconArrow left' : s + 'ios7.misc.left',
 			'iOS7IconArrow' : s + 'ios7.misc.right',
@@ -2653,7 +2653,7 @@ LucidImporter = {};
 			'UI2AtoZBlock' : cs,
 			'UI2PaginationBlock' : cs,
 			'UI2ContextMenuBlock' : cs,
-			'UI2TreePaneBlock' : cs, //TODO
+//			'UI2TreePaneBlock' : cs, //TODO
 			'UI2PlaybackControlsBlock' : s + 'mockup.misc.playbackControls;fillColor=#ffffff;strokeColor=#999999;fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none',
 			'Image_ui_formatting_toolbar' : s + 'mockup.menus_and_buttons.font_style_selector_2',
 //UI Misc
@@ -2673,11 +2673,11 @@ LucidImporter = {};
 //			'Image_ipad_bar_black' : '',
 //			'Image_ipad_safari_top' NA
 			'Image_ipad_search' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
-			'Image_ipad_alert_dialog' : cs, //TODO
-			'Image_ipad_dialog' : cs, //TODO
+//			'Image_ipad_alert_dialog' : cs, //TODO
+//			'Image_ipad_dialog' : cs, //TODO
 			'Image_ipad_popover' : s + 'ios.iOption;barPos=50;pointerPos=top;buttonText=',
-			'Image_ipad_table' : cs, //TODO
-			'Image_ipad_vtab' : cs, //TODO
+//			'Image_ipad_table' : cs, //TODO
+//			'Image_ipad_vtab' : cs, //TODO
 //iOS 6 iPad Controls
 			'Image_ipad_button_black' : '',
 			'Image_ipad_button_blue' : '',
@@ -2691,9 +2691,9 @@ LucidImporter = {};
 			'Image_ipad_prev_next' : s + 'ios.iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff',
 			'Image_ipad_keyboard_portrait' : s + 'ios.iKeybLett',
 			'Image_ipad_keyboard_landscape' : s + 'ios.iKeybLett',
-			'Image_ipad_large_tabbed_button' : cs, //TODO
-			'Image_ipad_sort_button' : cs, //TODO
-			'Image_ipad_tab_bar' : cs, //TODO
+//			'Image_ipad_large_tabbed_button' : cs, //TODO
+//			'Image_ipad_sort_button' : cs, //TODO
+//			'Image_ipad_tab_bar' : cs, //TODO
 			'Image_ipad_slider' : s + 'ios.iSlider;barPos=20',
 //			'Image_ipad_switch_off'
 //iOS 6 iPad Icons
@@ -2724,17 +2724,17 @@ LucidImporter = {};
 			'Image_iphone_bar_semi_trans_black' : '',
 			'Image_iphone_bar_semi_trans_blue' : '',
 			'Image_iphone_search' : s + 'mockup.forms.searchBox;mainText=;flipH=1',
-			'Image_iphone_table' : cs, //TODO
-			'Image_iphone_table_w_buttons' : cs, //TODO
-			'Image_iphone_table_w_icons' : cs, //TODO
-			'Image_iphone_list' : cs, //TODO
+//			'Image_iphone_table' : cs, //TODO
+//			'Image_iphone_table_w_buttons' : cs, //TODO
+//			'Image_iphone_table_w_icons' : cs, //TODO
+//			'Image_iphone_list' : cs, //TODO
 //			'Image_iphone_safari_top' NA
 //			'Image_iphone_safari_bottom' NA
-			'Image_iphone_gray_grad_list' : '', //TODO
+//			'Image_iphone_gray_grad_list' : '', //TODO
 //			'Image_iphone_alert_bar' NA
 //			'Image_iphone_alert_dialog' : cs, //TODO
-			'Image_iphone_dialog' : cs, //TODO
-			'Image_iphone_scroll_pane' : cs, //TODO
+//			'Image_iphone_dialog' : cs, //TODO
+//			'Image_iphone_scroll_pane' : cs, //TODO
 			'Image_iphone_alpha_list' : s + 'ios.iAlphaList',
 //iOS 6 iPhone Controls
 			'Image_iphone_button_black' : '',
@@ -2757,11 +2757,11 @@ LucidImporter = {};
 			'Image_iphone_keyboard_button_blue' : '',
 			'Image_iphone_keyboard_letters' : s + 'ios.iKeybLett',
 			'Image_iphone_keyboard_landscape' : s + 'ios.iKeybLett',
-			'Image_iphone_large_tabbed_button' : cs, //TODO
-			'Image_iphone_sort_button' : cs, //TODO
-			'Image_iphone_tab_bar' : cs, //TODO
-			'Image_iphone_picker_multi' : cs, //TODO
-			'Image_iphone_picker_web' : cs, //TODO
+//			'Image_iphone_large_tabbed_button' : cs, //TODO
+//			'Image_iphone_sort_button' : cs, //TODO
+//			'Image_iphone_tab_bar' : cs, //TODO
+//			'Image_iphone_picker_multi' : cs, //TODO
+//			'Image_iphone_picker_web' : cs, //TODO
 //iOS 6 iPhone Icons
 			'Image_iphone_add_icon_blue' : s + 'ios.iAddIcon;fillColor=#8BbEff;fillColor2=#135Ec8;strokeColor=#ffffff',
 			'Image_iphone_add_icon_green' : s + 'ios.iAddIcon;fillColor=#7AdF78;fillColor2=#1A9917;strokeColor=#ffffff',
@@ -2775,7 +2775,7 @@ LucidImporter = {};
 			'Image_iphone_pin_green' : s + 'ios.iPin;fillColor2=#00dd00;fillColor3=#004400;strokeColor=#006600',
 			'Image_iphone_pin_red' : s + 'ios.iPin;fillColor2=#dd0000;fillColor3=#440000;strokeColor=#660000',
 			'Image_iphone_radio_off' : 'ellipse', //TODO
-			'Image_iphone_checkbox_off' : '', //TODO
+//			'Image_iphone_checkbox_off' : '', //TODO
 			'Image_iphone_indicator' : 'fillColor=#e8878E;gradientColor=#BD1421;strokeColor=#ffffff',
 			'Image_iphone_thread_count' : '',
 				
@@ -3978,7 +3978,7 @@ LucidImporter = {};
 				
 				str += '">';
 				openBlockTags.push('li');
-				str += '<span style="';
+				str += '<span style="font-size:' + defaultFontSize + 'px;';
 				openBlockTags.push('span');
 			}
 			
@@ -4023,7 +4023,7 @@ LucidImporter = {};
 			
 			if (!listActive)
 			{
-				str += '<span>';
+				str += '<span style="font-size:' + defaultFontSize + 'px;">';
 				openBlockTags.push('span');
 			}
 			
@@ -4270,6 +4270,11 @@ LucidImporter = {};
 		
 		if (blockActive)
 		{
+			if (curE != maxE)
+			{
+				html += txt.substring(curE, maxE);
+			}
+			
 			html += endBlockTag(true); 
 		}
 					
@@ -12829,9 +12834,9 @@ LucidImporter = {};
 		{
 			try
 			{
-				var deg = mxUtils.toDegree(p.Text_TRotation) +  mxUtils.toDegree(p.TextRotation);
+				var deg = mxUtils.toDegree(p.Text_TRotation || 0) +  mxUtils.toDegree(p.TextRotation || 0);
 				
-				if (deg != 0 && v.value)
+				if (!isNaN(deg) && deg != 0 && v.value)
 				{
 					var w = v.geometry.width, h = v.geometry.height;
 					var lblW = w, lblH = h, x = 0, y = 0;

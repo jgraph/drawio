@@ -5478,7 +5478,7 @@
 		div.appendChild(hd);
 		
 		var file = this.getCurrentFile();
-		var helpLink = 'https://desk.draw.io/support/solutions/articles/16000051941';
+		var helpLink = 'https://www.diagrams.net/doc/faq/publish-diagram-as-link';
 		var dy = 0;
 		
 		if (file != null && file.constructor == window.DriveFile && !hideShare)
@@ -8874,7 +8874,7 @@
 		// Sets help link for placeholders
 		if (!this.isOffline() && typeof window.EditDataDialog !== 'undefined')
 		{
-			EditDataDialog.placeholderHelpLink = 'https://desk.draw.io/support/solutions/articles/16000051979';
+			EditDataDialog.placeholderHelpLink = 'https://www.diagrams.net/doc/faq/predefined-placeholders';
 		}
 		
 		if (/viewer\.diagrams\.net$/.test(window.location.hostname) ||

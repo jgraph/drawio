@@ -3474,7 +3474,7 @@
 	 */
 	if (window.ColorDialog)
 	{
-		FilenameDialog.filenameHelpLink = 'https://desk.draw.io/support/solutions/articles/16000091426'; 
+		FilenameDialog.filenameHelpLink = 'https://www.diagrams.net/doc/faq/save-file-formats'; 
 		
 		var colorDialogAddRecentColor = ColorDialog.addRecentColor;
 		

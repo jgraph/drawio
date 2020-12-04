@@ -219,6 +219,9 @@
 			<filelist dir="${basedir}" files="client.min.js,.tmp1.js"/>
     	</concat>
 
+		<loadfile property="version" srcFile="../../VERSION"/>
+		<replace file="${basedir}/base-viewer.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
+		
 		<echo file="${basedir}/.tmp2.js">
 			(function()
 			{
@@ -329,7 +332,6 @@
 			<filelist dir="${basedir}" files="client.min.js,grapheditor.min.js,sidebar.min.js,.tmp1.js"/>
     	</concat>
 
-		<loadfile property="version" srcFile="../../VERSION"/>
 		<replace file="${basedir}/base.min.js" token="@DRAWIO-VERSION@" value="${version}"/>
 		
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/extensions.min.js">

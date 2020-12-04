@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "12f70088274c7451168cab1904110e2c"
+    "revision": "4423072418d2be3161859f77ee27266a"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "d808bed63e2630b8243cca3caada6654"
+    "revision": "6bb7f0ffcbbe1d14c8bc8f1bef625ed8"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "73020845b2ef40e627ff720ba543fb04"
+    "revision": "9184c5546ebadea9c054113d485b7c3e"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
