@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "4423072418d2be3161859f77ee27266a"
+    "revision": "9803e180ddfc40f7f1f91bb4d657bbe7"
   },
   {
     "url": "js/extensions.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "9184c5546ebadea9c054113d485b7c3e"
+    "revision": "8a5e1e79a7ae0c4fcf556579e58f2eb2"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -74,7 +74,7 @@ if (workbox)
   },
   {
     "url": "connect/jira/viewerPanel.js",
-    "revision": "f17df2deede03adcbb80e59484357e77"
+    "revision": "31ef16ae88264cbad165621b561a28bb"
   },
   {
     "url": "connect/jira/spinner.gif",
@@ -106,11 +106,11 @@ if (workbox)
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "3fb28bd008fb1597eb91e029cf37ff94"
+    "revision": "3384f50029ccefcf7636aa842a243367"
   },
   {
     "url": "connect/new_common/cac.js",
-    "revision": "39790dfa1da9ad69fb2878fb940adf31"
+    "revision": "5ceb5c1e81e26f18f6f78e4807920a3d"
   },
   {
     "url": "connect/gdrive_common/gac.js",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "41476faa529e04d39b75bfd3e728c4b2"
+    "revision": "22298c18348bec2adfe15da9908fe2f7"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/includeDiagram-1-4-8.js",
-    "revision": "07de6f401ce7570df84ecbbd31a8eea0"
+    "revision": "0fd311281bfd91c255adff803f1e13c3"
   },
   {
     "url": "connect/confluence/includeDiagram.html",
@@ -150,7 +150,7 @@ if (workbox)
   },
   {
     "url": "math/MathJax.js",
-    "revision": "b2c103388b71bb3d11cbf9aa45fe9b68"
+    "revision": "7943d926bf5d0d6e5e394687640272a6"
   },
   {
     "url": "math/jax/input/TeX/config.js",

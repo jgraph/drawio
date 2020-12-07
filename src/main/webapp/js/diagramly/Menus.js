@@ -571,7 +571,7 @@
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
-				'https://desk.draw.io/support/solutions/articles/16000067785',
+				'https://www.diagrams.net/doc/faq/export-diagram',
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
 					embedImages, border, cropImage, currentPage, linkTarget, grid, keepTheme, exportType)
 				{
@@ -591,7 +591,7 @@
 			if (editorUi.isExportToCanvas())
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://desk.draw.io/support/solutions/articles/16000067785',
+					'https://www.diagrams.net/doc/faq/export-diagram',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
 						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
 					{
@@ -619,7 +619,7 @@
 			if (editorUi.isExportToCanvas())
 			{
 				editorUi.showExportDialog(mxResources.get('image'), false, mxResources.get('export'),
-					'https://desk.draw.io/support/solutions/articles/16000067785',
+					'https://www.diagrams.net/doc/faq/export-diagram',
 					mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
 						embedImages, border, cropImage, currentPage, dummy, grid, keepTheme, exportType)
 					{

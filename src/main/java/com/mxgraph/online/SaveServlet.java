@@ -91,7 +91,6 @@ public class SaveServlet extends HttpServlet
 		if (request.getContentLength() < Constants.MAX_REQUEST_SIZE)
 		{
 			long t0 = System.currentTimeMillis();
-			String mime = request.getParameter("mime");
 			String filename = request.getParameter("filename");
 			byte[] data = null;
 
@@ -116,19 +115,16 @@ public class SaveServlet extends HttpServlet
 				// Decoding is optional (no plain text values allowed here so %3C means encoded)
 				if (xml != null && xml.startsWith("%3C"))
 				{
-					xml = URLDecoder.decode(xml,
-							Utils.CHARSET_FOR_URL_ENCODING);
+					xml = URLDecoder.decode(xml, Utils.CHARSET_FOR_URL_ENCODING);
 				}
 
 				String binary = request.getParameter("binary");
 
-				if (binary != null && binary.equals("1") && xml != null
-						&& (mime != null || filename != null))
+				if (binary != null && binary.equals("1") && xml != null && filename != null)
 				{
 					response.setStatus(HttpServletResponse.SC_OK);
 					response.setContentType("application/octet-stream");
-					filename = validateFilename((filename != null) ?
-						filename : "export.txt");
+					filename = validateFilename(filename);
 					response.setHeader("Content-Disposition",
 						"attachment; filename=\"" + filename +
 						"\"; filename*=UTF-8''" + filename);
@@ -140,16 +136,15 @@ public class SaveServlet extends HttpServlet
 				{
 					data = xml.getBytes(Utils.CHARSET_FOR_URL_ENCODING);
 					String format = request.getParameter("format");
-
-					if (format == null)
-					{
-						format = "xml";
-					}
-
 					response.setStatus(HttpServletResponse.SC_OK);
 
 					if (filename != null)
 					{
+						if (format == null)
+						{
+							format = "xml";
+						}
+	
 						if (filename.length() > 0  &&
 							!filename.toLowerCase().endsWith(".svg") &&
 							!filename.toLowerCase().endsWith(".html") &&
@@ -163,7 +158,9 @@ public class SaveServlet extends HttpServlet
 					}
 					else
 					{
-						filename = "export.txt";
+						filename = validateFilename((format != null) ?
+							"export." + format.toLowerCase() :
+							"export.txt");
 					}
 
 					response.setContentType("application/octet-stream");
