@@ -19,6 +19,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				//----------------------------------------------------------//
 				//------------- Bootstrap script in index.html -------------//
 				//----------------------------------------------------------//
+				// Version 13.11.1
+				'\'sha256-KgVey3Yy0LCtaUZnD77KXAark2kZ3wS5HGa+tyAkR28=\' ' +
 				// Version 13.8.2
 				'\'sha256-1k6pyjDIKgd1KTCRcmDfV6Yc9vgQexHRTiO4zUBoKg8=\' ' +
 				// Version 13.8.1

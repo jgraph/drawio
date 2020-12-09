@@ -140,6 +140,12 @@ public class PropGen
 											}
 											else
 											{
+												// Checks for HTML entities in output
+												if (value.contains("<") || value.contains(">"))
+												{
+													System.out.println("**** WARNING: HTML Entities in " + lang + "/" + key + "=" + value);
+												}
+
 												outputFiles[i].append(key + "=" + value + "\n");
 											}
 										}

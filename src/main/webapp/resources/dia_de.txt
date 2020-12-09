@@ -1106,4 +1106,6 @@ unsupportedFormat=Dateiformat nicht unterstützt
 plsSelectSingleFile=Bitte wählen Sie nur eine Datei aus
 attCorrupt=Anhang "{1}" ist fehlerhaft
 loadAttFailed=Anhang "{1}" konnte nicht geladen werden
-embedDrawDiag=Embed draw.io Diagram
+embedDrawDiag=draw.io Diagramm einbetten
+addDiagram=Add Diagram
+embedDiagram=Embed Diagram

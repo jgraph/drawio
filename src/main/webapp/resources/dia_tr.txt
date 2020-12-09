@@ -1107,3 +1107,5 @@ plsSelectSingleFile=Please select a single file only
 attCorrupt=Attachment file "'{1}" is corrupted
 loadAttFailed=Failed to load attachment "{1}"
 embedDrawDiag=Embed draw.io Diagram
+addDiagram=Add Diagram
+embedDiagram=Embed Diagram

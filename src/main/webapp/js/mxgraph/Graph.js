@@ -3895,7 +3895,8 @@ Graph.prototype.getTooltipForCell = function(cell)
 				
 				if (mxClient.IS_SVG)
 				{
-					tip = '<div style="max-width:360px;">' + tip + '</div>';
+					tip = '<div style="max-width:360px;text-overflow:ellipsis;overflow:hidden;">' +
+						tip + '</div>';
 				}
 			}
 		}

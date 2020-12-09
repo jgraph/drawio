@@ -45,24 +45,30 @@ LucidImporter = {};
 	];
 	
 	var edgeStyleMap = {
-						'None': 'none;',
-						'Arrow': 'block;endFill=1;',
-						'Hollow Arrow': 'block;endFill=0;',
-						'Open Arrow': 'open;',
-						'CFN ERD Zero Or More Arrow': 'ERzeroToMany;startSize=10;',
-						'CFN ERD One Or More Arrow': 'ERoneToMany;startSize=10;',
-						'CFN ERD Many Arrow': 'ERmany;startSize=10;',
-						'CFN ERD Exactly One Arrow': 'ERmandOne;startSize=10;',
-						'CFN ERD Zero Or One Arrow': 'ERzeroToOne;startSize=10;',
-						'CFN ERD One Arrow': 'ERone;startSize=16;',
-						'Generalization': 'block;endFill=0;startSize=12;',
-						'Big Open Arrow': 'open;startSize=10;',
-						'Asynch1': 'openAsync;flipH=1;startSize=10;',
-						'Asynch2': 'openAsync;startSize=10;',
-						'Aggregation': 'diamond;endFill=0;startSize=16;',
-						'Composition': 'diamond;endFill=1;startSize=16;',
-						'BlockEnd': 'none;endFill=1;startSize=16;',
-						'Measure': 'ERone;startSize=10;'
+			'None': 'none;',
+			'Arrow': 'block;xyzFill=1;',
+			'Hollow Arrow': 'block;xyzFill=0;',
+			'Open Arrow': 'open;',
+			'CFN ERD Zero Or More Arrow': 'ERzeroToMany;xyzSize=10;',
+			'CFN ERD One Or More Arrow': 'ERoneToMany;xyzSize=10;',
+			'CFN ERD Many Arrow': 'ERmany;xyzSize=10;',
+			'CFN ERD Exactly One Arrow': 'ERmandOne;xyzSize=10;',
+			'CFN ERD Zero Or One Arrow': 'ERzeroToOne;xyzSize=10;',
+			'CFN ERD One Arrow': 'ERone;xyzSize=16;',
+			'Generalization': 'block;xyzFill=0;xyzSize=12;',
+			'Big Open Arrow': 'open;xyzSize=10;',
+			'Asynch1': 'openAsync;flipV=1;xyzSize=10;',
+			'Asynch2': 'openAsync;xyzSize=10;',
+			'Aggregation': 'diamond;xyzFill=0;xyzSize=16;',
+			'Composition': 'diamond;xyzFill=1;xyzSize=16;',
+			'BlockEnd': 'box;xyzFill=0;xyzSize=16;',
+			'Measure': 'ERone;xyzSize=10;',
+			'CircleOpen': 'oval;xyzFill=0;xyzSize=16;',
+			'CircleClosed': 'oval;xyzFill=1;xyzSize=16;',
+			'BlockEndFill': 'box;xyzFill=1;xyzSize=16;',
+			'Nesting': 'circlePlus;xyzSize=7;xyzFill=0;',
+			'BPMN Conditional': 'diamond;xyzFill=0;',
+			'BPMN Default': 'dash;'
 	};
 
 	var styleMap = {
@@ -3802,7 +3808,11 @@ LucidImporter = {};
 			'ExtShapeServerBlock': ss + 'citrix.tower_server;verticalLabelPosition=bottom;verticalAlign=top',
 			'ExtShapeCloudBlock': ss + 'citrix.cloud;verticalLabelPosition=bottom;verticalAlign=top',
 			'ExtShapeUserBlock': ss + 'aws3d.end_user;verticalLabelPosition=bottom;verticalAlign=top;fillColor=#073763',
-			'ExtShapeWorkstationLCDBlock': ss + 'veeam.3d.workstation;verticalLabelPosition=bottom;verticalAlign=top'
+			'ExtShapeWorkstationLCDBlock': ss + 'veeam.3d.workstation;verticalLabelPosition=bottom;verticalAlign=top',
+//Infographics
+			'InfographicsBlock': cs,
+//Other
+			'FlexiblePolygonBlock': cs
 	};
 	
 	// actual code start
@@ -5553,9 +5563,12 @@ LucidImporter = {};
 
 					if (p.Endpoint1.Style != null)
 					{
-						if (edgeStyleMap[p.Endpoint1.Style] != null)
+						var startStyle = edgeStyleMap[p.Endpoint1.Style];
+						
+						if (startStyle != null)
 						{
-							cell.style += 'startArrow=' + edgeStyleMap[p.Endpoint1.Style] + ';';
+							startStyle = startStyle.replace(/xyz/g, 'start');
+							cell.style += 'startArrow=' + startStyle + ';';
 						}
 						else
 						{
@@ -5570,9 +5583,12 @@ LucidImporter = {};
 					
 					if (p.Endpoint2.Style != null)
 					{
-						if (edgeStyleMap[p.Endpoint2.Style] != null)
+						var endStyle = edgeStyleMap[p.Endpoint2.Style];
+						
+						if (endStyle != null)
 						{
-							cell.style += 'endArrow=' + edgeStyleMap[p.Endpoint2.Style].replace(/startSize/g, 'endSize') + ';';
+							endStyle = endStyle.replace(/xyz/g, 'end');
+							cell.style += 'endArrow=' + endStyle + ';';
 						}
 						else
 						{
@@ -5848,7 +5864,7 @@ LucidImporter = {};
 		}
 	};
 
-	function createGroup(obj, lookup, edgesGroups)
+	function createGroup(obj, lookup, edgesGroups, blocksMap)
 	{
 		try
 		{
@@ -5873,8 +5889,9 @@ LucidImporter = {};
 				{
 					memberCells.push(v);
 				}
-				else
+				else if (blocksMap[key] != null)
 				{
+					memberCells.push(blocksMap[key]);
 					//Edges are not yet created, so, create a map for them
 					edgesGroups[key] = group;
 				}
@@ -5888,15 +5905,50 @@ LucidImporter = {};
 				return (ai != null && bi != null) ? (ai > bi? 1 : (ai < bi? -1 : 0)) : 0; //ZOrder can be negative
 			});
 			
+			function updateMinMax(e, scaleIt)
+			{
+				if (e != null)
+				{
+					if (Array.isArray(e))
+					{
+						for (var i = 0; i < e.length; i++) 
+                        {
+                        	updateMinMax(e[i], scaleIt);
+                        }
+					}
+					else
+					{
+						var s = scaleIt? scale : 1;
+						minX = Math.min(minX, e.x * s);
+						minY = Math.min(minY, e.y * s);
+						maxX = Math.max(maxX, (e.x + (e.width? e.width : 0)) * s);
+						maxY = Math.max(maxY, (e.y + (e.height? e.height : 0)) * s);
+					}
+				}
+			};
+			
+			var index = 0;
+			
 			for (var i = 0; i < memberCells.length; i++)
 			{
 				var v = memberCells[i];
-				minX = Math.min(minX, v.geometry.x);
-				minY = Math.min(minY, v.geometry.y);
-				maxX = Math.max(maxX, v.geometry.x + v.geometry.width);
-				maxY = Math.max(maxY, v.geometry.y + v.geometry.height);
-				v.parent = group;
-				group.insert(v, i);
+				
+				if (v.vertex)
+				{
+					updateMinMax(v.geometry);
+					v.parent = group;
+					group.insert(v, index++);
+				}
+				else
+				{
+					var vProp = v.Action != null && v.Action.Properties? v.Action.Properties : v; 
+					updateMinMax(vProp.Endpoint1, true);
+					updateMinMax(vProp.Endpoint2, true);
+					updateMinMax(vProp.ElbowPoints, true);
+					updateMinMax(vProp.ElbowControlPoints, true);
+					updateMinMax(vProp.BezierJoints, true);
+					updateMinMax(vProp.Joints, true);
+				}
 			}
 			
 			group.geometry.x = minX;
@@ -5945,11 +5997,19 @@ LucidImporter = {};
 			var select = [];
 			var lookup = {};
 			var edgesGroups = {};
+			var blocksMap = {};
 			var queue = [];
 
+			if (g.Lines != null)
+			{
+				blocksMap = g.Lines;
+			}
+			
 			// Vertices first (populates lookup table for connecting edges)
 			if (g.Blocks != null)
 			{
+				Object.assign(blocksMap, g.Blocks);
+				
 				for (var key in g.Blocks)
 				{
 					var obj = g.Blocks[key];
@@ -5993,6 +6053,7 @@ LucidImporter = {};
 				for (var i = 0; i < g.Objects.length; i++)
 				{
 					var obj = g.Objects[i];
+					blocksMap[obj.id] = obj;
 					
 					if (obj.Action != null && styleMap[obj.Action.Class] == 'mxCompositeShape')
 					{
@@ -6022,7 +6083,7 @@ LucidImporter = {};
 					
 					if (obj.IsGroup)
 					{
-						var group = createGroup(obj, lookup, edgesGroups);
+						var group = createGroup(obj, lookup, edgesGroups, blocksMap);
 						
 						if (group)
 						{
@@ -6043,7 +6104,7 @@ LucidImporter = {};
 						var obj = g.Groups[key];
 						obj.id = key;
 
-						var group = createGroup(obj, lookup, edgesGroups);
+						var group = createGroup(obj, lookup, edgesGroups, blocksMap);
 						
 						if (group)
 						{
@@ -6101,29 +6162,37 @@ LucidImporter = {};
 				
 				var group = edgesGroups[obj.id];
 				
-				function fixPoint(p, pgeo)
+				function fixPoint(p, px, py)
 				{
 					if (p != null && !p.generated)
 					{
-						p.x -= pgeo.x;
-						p.y -= pgeo.y;
+						p.x -= px;
+						p.y -= py;
 					}
 				};
 				
 				if (group != null)
 				{
 					//Correct edge geometry
-					var geo = e.geometry, pgeo = group.geometry;
-					fixPoint(geo.sourcePoint, pgeo);
-					fixPoint(geo.targetPoint, pgeo);
-					fixPoint(geo.offset, pgeo);
+					var geo = e.geometry, px = 0, py = 0, prnt = group;
+					
+					while (prnt != null && prnt.geometry != null)
+					{
+						px += prnt.geometry.x;
+						py += prnt.geometry.y;
+						prnt = prnt.parent;
+					}
+					
+					fixPoint(geo.sourcePoint, px, py);
+					fixPoint(geo.targetPoint, px, py);
+					fixPoint(geo.offset, px, py);
                     var points = geo.points;
                     
                     if (points != null) 
                     {
                         for (var i = 0; i < points.length; i++) 
                         {
-                        	fixPoint(points[i], pgeo);
+                        	fixPoint(points[i], px, py);
                         }
                     }
 				}
@@ -6462,6 +6531,32 @@ LucidImporter = {};
             xml.push(' id="' + i + '"'); //Add page ids in case it is needed in aspects
 			importLucidPage(graph, pages[i], true);
             var node = codec.encode(graph.getModel());
+ 			
+			if (pages[i].Properties != null)
+            {
+				if (pages[i].Properties.FillColor)
+				{
+            		node.setAttribute('background', getColor(pages[i].Properties.FillColor));
+				}
+				
+				if (pages[i].Properties.InfiniteCanvas)
+				{
+					node.setAttribute('page', 0);
+				}
+				else if (pages[i].Properties.Size != null)
+				{
+					node.setAttribute('page', 1);
+					node.setAttribute('pageWidth', pages[i].Properties.Size.w * scale);
+					node.setAttribute('pageHeight', pages[i].Properties.Size.h * scale);
+				}
+				
+				if (pages[i].Properties.GridSpacing != null)
+				{
+					node.setAttribute('grid', 1);
+					node.setAttribute('gridSize', pages[i].Properties.GridSpacing * scale);
+				}
+            }
+
             graph.getModel().clear();
 
             xml.push('>' + Graph.compress(mxUtils.getXml(node)) + '</diagram>');
@@ -12799,6 +12894,82 @@ LucidImporter = {};
 				var icon = new mxCell('', new mxGeometry(20, -20, iconW, iconH), iconStyle);
 				icon.vertex = true;
 				v.insert(icon);
+			break;
+			case 'FlexiblePolygonBlock':
+				var parts = ["<shape strokewidth=\"inherit\"><foreground>"];
+				parts.push("<path>");
+				
+				for (var j = 0; j < p.Vertices.length; j++)
+				{
+					var line = p.Vertices[j];
+					
+					if (j == 0)
+					{
+						parts.push("<move x=\"" + (line.x * 100) + "\" y=\"" + (line.y * 100) + "\"/>");
+					}
+					else
+					{
+						parts.push("<line x=\"" + (line.x * 100) + "\" y=\"" + (line.y * 100) + "\"/>");
+					}
+				}
+				
+				parts.push("</path>");
+				parts.push("<fillstroke/>");
+				parts.push("</foreground></shape>");
+				v.style = 'shape=stencil(' + Graph.compress(parts.join('')) + ');';
+				v.value = convertText(p);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+			break;
+			case 'InfographicsBlock':
+				var min = p.ShapeData_1.Value;
+				var max = p.ShapeData_2.Value - min;
+				var val = p.ShapeData_3.Value - min;
+				var thickness = p.ShapeData_4.Value * w / 200; //Percentage of half of width
+				var index = p.InternalStencilId == 'ProgressBar'? 4 : 5;
+				var fillClr = p['ShapeData_' + index].Value;
+				fillClr = fillClr == '=fillColor()'? p.FillColor : fillClr;
+				var bkgClr = p['ShapeData_' + (index + 1)].Value;
+				
+				switch(p.InternalStencilId)
+				{
+					case 'ProgressDonut':
+						v.style = 'shape=mxgraph.basic.donut;dx=' + thickness + ';strokeColor=none;fillColor=' + getColor(bkgClr) + ';' + getOpacity2(bkgClr, 'fillOpacity');
+						v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+						var inner = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=mxgraph.basic.partConcEllipse;startAngle=0;endAngle=' + (val / max) + ';arcWidth=' + (thickness / w * 2) + 
+										';strokeColor=none;fillColor=' + getColor(fillClr) + ';' + getOpacity2(fillClr, 'fillOpacity'));
+						inner.style += addAllStyles(inner.style, p, a, inner, isLastLblHTML);
+						inner.vertex = true;
+						inner.geometry.relative = 1;
+						v.insert(inner);
+					break;
+					case 'ProgressHalfDonut':
+						//as a workaround do it as a circle
+						v.geometry.height *= 2;
+						v.geometry.rotate90(); //TODO fix shape rotation
+						var angle = val / max / 2;
+						v.style = 'shape=mxgraph.basic.partConcEllipse;startAngle=0;endAngle=' + angle + ';arcWidth=' + (thickness * 2 / w) + 
+										';strokeColor=none;fillColor=' + getColor(fillClr) + ';' + getOpacity2(fillClr, 'fillOpacity')
+						
+						p.Rotation -= Math.PI / 2;
+						v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+						var inner = new mxCell('', new mxGeometry(0, 0, v.geometry.width, v.geometry.height), 'shape=mxgraph.basic.partConcEllipse;startAngle=0;endAngle=' + (0.5 - angle) + ';arcWidth=' + (thickness * 2 / w) + 
+										';strokeColor=none;flipH=1;fillColor=' + getColor(bkgClr) + ';' + getOpacity2(bkgClr, 'fillOpacity'));
+						p.Rotation += Math.PI;
+						inner.style += addAllStyles(inner.style, p, a, inner, isLastLblHTML);
+						inner.vertex = true;
+						inner.geometry.relative = 1;
+						v.insert(inner);
+					break;
+					case 'ProgressBar':
+						v.style = 'strokeColor=none;fillColor=' + getColor(bkgClr) + ';' + getOpacity2(bkgClr, 'fillOpacity');
+						v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+						var inner = new mxCell('', new mxGeometry(0, 0, w * val / max, h), 'strokeColor=none;fillColor=' + getColor(fillClr) + ';' + getOpacity2(fillClr, 'fillOpacity'));
+						inner.style += addAllStyles(inner.style, p, a, inner, isLastLblHTML);
+						inner.vertex = true;
+						inner.geometry.relative = 1;
+						v.insert(inner);
+					break;
+				}
 			break;
 		}
 

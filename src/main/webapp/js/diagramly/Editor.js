@@ -2296,7 +2296,6 @@
 		{
 			var s = document.createElement('script');
 			s.setAttribute('type', 'text/javascript');
-			s.setAttribute('defer', 'true');
 			s.setAttribute('src', src);
 			tags[0].parentNode.appendChild(s);
 		}
