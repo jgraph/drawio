@@ -993,7 +993,7 @@ EditorUi.initMinimalTheme = function()
 			if (typeof(MathJax) !== 'undefined')
 			{
 				var item = ui.menus.addMenuItem(menu, 'mathematicalTypesetting', parent);
-				ui.menus.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+				ui.menus.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/math-typesetting');
 			}
 			
             ui.menus.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'pageScale'], parent);

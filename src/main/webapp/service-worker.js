@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "01f1f48c4cf4c6ac0f39d92c1145f746"
+    "revision": "a910759041a203b2a6d19b7bc9da3b09"
   },
   {
     "url": "js/extensions.min.js",
@@ -26,7 +26,7 @@ if (workbox)
   },
   {
     "url": "index.html",
-    "revision": "62fcb9b2a626a88934c598235af1f8bd"
+    "revision": "c540e127498dbd3f828d71b206ffefe2"
   },
   {
     "url": "open.html",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "67c36d0a2a27964396f16835c2eb3c40"
+    "revision": "4bed2100741e0b11e44ac4a87ecf77e8"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "34fbdfdc009a1480ba58ce9ba4b91e4c"
+    "revision": "ddb0a01fe6fcb2c5ff300a12ffbfe709"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
@@ -150,7 +150,7 @@ if (workbox)
   },
   {
     "url": "math/MathJax.js",
-    "revision": "7943d926bf5d0d6e5e394687640272a6"
+    "revision": "b2c103388b71bb3d11cbf9aa45fe9b68"
   },
   {
     "url": "math/jax/input/TeX/config.js",

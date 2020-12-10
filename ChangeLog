@@ -1,3 +1,8 @@
+10-DEC-2020: 14.0.1
+
+- Uses minimal UI on iPad Mini and smaller
+- Adds clear.html for clearing caches
+
 09-DEC-2020: 14.0.0
 
 - Internal refactoring of source code

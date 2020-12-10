@@ -164,7 +164,7 @@
 				<file name="Init.js" />
 			</sources>
 
-			<sources dir="${basedir}/../mxgraph">
+			<sources dir="${war.dir}/mxgraph">
 				<file name="mxClient.js" />
 			</sources>
 			

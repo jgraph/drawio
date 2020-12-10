@@ -1190,7 +1190,7 @@ Graph.foreignObjectWarningText = 'Viewer does not support full SVG 1.1';
 /**
  * Link for foreign object warning.
  */
-Graph.foreignObjectWarningLink = 'https://desk.draw.io/support/solutions/articles/16000042487';
+Graph.foreignObjectWarningLink = 'https://www.diagrams.net/doc/faq/svg-export-text-problems';
 
 /**
  * Minimum height for table rows.

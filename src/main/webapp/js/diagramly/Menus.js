@@ -809,7 +809,7 @@
 						}
 					}
 				}, null, null, null, null, null, true, null, null,
-					'https://desk.draw.io/support/solutions/articles/16000058316',
+					'https://www.diagrams.net/doc/faq/configure-diagram-editor',
 					(EditorUi.isElectronApp) ? null : [[mxResources.get('reset'), function(evt, input)
 					{
 						editorUi.confirm(mxResources.get('areYouSure'), function()
@@ -1657,7 +1657,7 @@
 				{
 					editorUi.spinner.stop();
 					
-					editorUi.showHtmlDialog(mxResources.get('create'), 'https://desk.draw.io/support/solutions/articles/16000042542',
+					editorUi.showHtmlDialog(mxResources.get('create'), 'https://www.diagrams.net/doc/faq/embed-html-options',
 						url, function(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor, fit, allPages, layers, lightbox, editLink)
 					{
 						editorUi.createHtml(publicUrl, zoomEnabled, initialZoom, linkTarget, linkColor,
@@ -1798,7 +1798,7 @@
 					});
 				}
 			}, mxResources.get('formatSvg'), mxResources.get('image'),
-				true, 'https://desk.draw.io/support/solutions/articles/16000042548');
+				true, 'https://www.diagrams.net/doc/faq/embed-svg.html');
 		}));
 		
 		editorUi.actions.put('embedIframe', new Action(mxResources.get('iframe') + '...', function()
@@ -3249,7 +3249,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000042367');
+					this.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/scratchpad');
 				}
 			}
 			
@@ -3281,7 +3281,7 @@
 				
 				if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 				{
-					this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000032875');
+					this.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/math-typesetting');
 				}
 			}
 			
@@ -3429,7 +3429,7 @@
 					
 					if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 					{
-						this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
+						this.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/synchronize');
 					}
 					
 					menu.addSeparator(parent);
@@ -3461,7 +3461,7 @@
 						
 						if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 						{
-							this.addLinkToItem(item, 'https://desk.draw.io/support/solutions/articles/16000087947');
+							this.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/synchronize');
 						}
 					}
 					

@@ -93,7 +93,7 @@
 	/**
 	 * Link for scratchpad help.
 	 */
-	EditorUi.scratchpadHelpLink = 'https://desk.draw.io/support/solutions/articles/16000042367';
+	EditorUi.scratchpadHelpLink = 'https://www.diagrams.net/doc/faq/scratchpad';
 
 	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
@@ -5484,7 +5484,7 @@
 		if (file != null && file.constructor == window.DriveFile && !hideShare)
 		{
 			dy = 80;
-			helpLink = 'https://desk.draw.io/support/solutions/articles/16000039384';
+			helpLink = 'https://www.diagrams.net/doc/faq/google-drive-publicly-publish-diagram';
 			var hintSection = document.createElement('div');
 			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:14px;padding-top:6px;margin-bottom:14px;text-align:center;';
 			
@@ -6469,15 +6469,16 @@
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the SVG of the diagram with embedded XML. If a callback function is
 	 * used, the images are converted to data URIs.
 	 */
-	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection, redirect, embedImages)
+	EditorUi.prototype.getEmbeddedSvg = function(xml, graph, url, noHeader, callback, ignoreSelection,
+		redirect, embedImages, background, scale, border, shadow, keepTheme)
 	{
 		embedImages = (embedImages != null) ? embedImages : true;
-		var bg = graph.background;
+		var bg = (background != null) ? background : graph.background;
 		
 		if (bg == mxConstants.NONE)
 		{
@@ -6486,9 +6487,10 @@
 
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
-		var svgRoot = graph.getSvg(bg, null, null, null, null, ignoreSelection);
+		var svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection,
+			null, null, null, graph.shadowVisible || shadow, null, keepTheme);
 		
-		if (graph.shadowVisible)
+		if (graph.shadowVisible || shadow)
 		{
 			graph.addSvgShadow(svgRoot);
 		}
@@ -11316,7 +11318,8 @@
 							   	    postDataBack(uri);
 								});
 						
-								var pageId = data.pageId || (this.pages != null? this.pages[0].getId() : null);
+								var pageId = data.pageId || (this.pages != null? ((data.currentPage) ?
+									this.currentPage.getId() : this.pages[0].getId()) : null);
 								
 								// LATER: Uses external export if current page (not first page) has mathEnabled
 								if (this.isExportToCanvas())
@@ -11356,7 +11359,7 @@
 										graph.model.setRoot(page.root);
 									}
 	
-									//Set visible layers based on message setting
+									// Set visible layers based on message setting
 									if (data.layerIds != null)
 									{
 										var graphModel = graph.model;
@@ -11373,14 +11376,15 @@
 											graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
 										}
 									}
-									
+
 									this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 								   	{
 										processUri(canvas.toDataURL('image/png'));
-								   	}), null, null, null, mxUtils.bind(this, function()
+								   	}), data.width, null, data.background, mxUtils.bind(this, function()
 									{
 								   		processUri(null);
-									}), null, null, data.scale, null, null, null, graph);
+									}), null, null, data.scale, data.transparent, data.shadow, null,
+										graph, data.border, null, data.grid, data.keepTheme);
 								}
 								else
 								{
@@ -11446,7 +11450,7 @@
 								// Creates a preview with no alt text for unsupported browsers
 					        	mxSvgCanvas2D.prototype.foAltText = null;
 					        	
-					        	var bg = this.editor.graph.background;
+					        	var bg = (data.background != null) ? data.background : this.editor.graph.background;
 					        	
 					        	if (bg == mxConstants.NONE)
 					        	{
@@ -11471,7 +11475,8 @@
 									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
 										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 									{
-										this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null, data.embedImages);
+										this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
+											data.embedImages, bg, data.scale, data.border, data.shadow, data.keepTheme);
 									}
 								}
 								else
@@ -11480,8 +11485,15 @@
 										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
 									{
 										this.editor.graph.setEnabled(false);
-					        			var svgRoot = this.editor.graph.getSvg(bg);
-					        			
+										var svgRoot = this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
+											null, null, null, null, this.editor.graph.shadowVisible || data.shadow,
+											null, data.keepTheme);
+										
+										if (this.editor.graph.shadowVisible || data.shadow)
+										{
+											this.editor.graph.addSvgShadow(svgRoot);
+										}
+
 					        			this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
 										{
 					        				if (data.embedImages || data.embedImages == null)
@@ -13226,7 +13238,7 @@
 			}
 			
 			if (pendingLibs == 0) this.spinner.stop();
-		}), null, null, 'https://desk.draw.io/support/solutions/articles/16000092763');
+		}), null, null, 'https://www.diagrams.net/doc/faq/custom-libraries-confluence-cloud');
 		this.showDialog(dlg.container, 340, 375, true, true, null, null, null, null, true);
 	};
 	
