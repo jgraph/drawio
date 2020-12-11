@@ -21,7 +21,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				//----------------------------------------------------------//
 				// Version 14.0.1
 				'\'sha256-ZMnCMK9Jg5ijd0Viqw4KAFn39HeC1LrVwervb9uC7Mo=\' ' +
-				// Version 13.11.1
+				// Version 14.0.0
 				'\'sha256-KgVey3Yy0LCtaUZnD77KXAark2kZ3wS5HGa+tyAkR28=\' ' +
 				// Version 13.8.2
 				'\'sha256-1k6pyjDIKgd1KTCRcmDfV6Yc9vgQexHRTiO4zUBoKg8=\' ' +
@@ -70,7 +70,6 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		if (urlParams['print-csp'] == '1')
 		{
 			console.log('Content-Security-Policy')
-			console.log('Development:', devCsp)
 			console.log('app.diagrams.net:',
 				csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
 				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
@@ -91,6 +90,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					replace(/  /g, ' '));
 			console.log('import.diagrams.net:', 'default-src \'self\'; worker-src blob:; img-src \'self\' blob: data: https://www.lucidchart.com ' +
 					'https://app.lucidchart.com; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com;');
+			console.log('Development:', devCsp)
 		}
 	})();
 }
