@@ -249,19 +249,19 @@
 			
 			// Used to request draw.io sources in dev mode
 			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
+			var geBasePath = mxDevUrl + '/grapheditor';
+			var mxBasePath = mxDevUrl + '/mxgraph';
 			
 			if (document.location.protocol == 'file:')
 			{
-				mxDevUrl = '..';
 				drawDevUrl = './';
+				geBasePath = '../grapheditor';
+				mxBasePath = './mxgraph';
 				
 				// Forces includes for dev environment in node.js
 				mxForceIncludes = true;
 			}
 
-			var geBasePath = mxDevUrl + '/grapheditor';
-			var mxBasePath = mxDevUrl + '/mxgraph';
-			
 			mxscript(drawDevUrl + 'js/PreConfig.js');
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
 			mxscript(geBasePath + '/Init.js');

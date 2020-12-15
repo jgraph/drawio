@@ -1837,7 +1837,7 @@
 						editorUi.spinner.stop();
 						
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-							allPages, lightbox, editLink, layers, url, null, null, true));
+							allPages, lightbox, editLink, layers, url, null, ['border=0'], true));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});

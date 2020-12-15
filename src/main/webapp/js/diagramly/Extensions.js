@@ -82,6 +82,7 @@ LucidImporter = {};
 			'HotspotBlock': 'strokeColor=none;fillColor=none',
 			'ImageSearchBlock2': 'shape=image',
 			'UserImage2Block': 'shape=image',
+			'ExtShapeBoxBlock': '',
 //Flowchart
 			'ProcessBlock': '',
 			'DecisionBlock': 'rhombus',
@@ -5119,7 +5120,7 @@ LucidImporter = {};
 			
 			// Fixes the case for horizontal swimlanes where we use horizontal=0
 			// and Lucid uses rotation
-			if (deg != 0 && ((action.Class == 'UMLSwimLaneBlockV2') || ((action.Class.indexOf('Rotated') >= 0 || deg == -90 || deg == 270) && (action.Class.indexOf('Pool') >= 0 || action.Class.indexOf('SwimLane') >= 0))))
+			if (deg != 0 && action.Class && ((action.Class == 'UMLSwimLaneBlockV2') || ((action.Class.indexOf('Rotated') >= 0 || deg == -90 || deg == 270) && (action.Class.indexOf('Pool') >= 0 || action.Class.indexOf('SwimLane') >= 0))))
 			{
 				deg += 90;
 				cell.geometry.rotate90();

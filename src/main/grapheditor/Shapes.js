@@ -503,6 +503,18 @@
 	
 	mxCellRenderer.registerShape('note2', NoteShape2);
 
+	NoteShape2.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var size = mxUtils.getValue(this.style, 'size', 15);
+			
+			return new mxRectangle(0, Math.min(rect.height * this.scale, size * this.scale), 0, 0);
+		}
+		
+		return null;
+	};
+
 	// Flexible cube Shape
 	function IsoCubeShape2()
 	{
@@ -747,7 +759,7 @@
 		c.fillAndStroke();
 		
 		c.setShadow(false);
-
+	
 		var sym = mxUtils.getValue(this.style, 'folderSymbol', null);
 		
 		if (sym == 'triangle')
@@ -762,8 +774,52 @@
 	};
 
 	mxCellRenderer.registerShape('folder', FolderShape);
+
+	FolderShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
+
+			if (mxUtils.getValue(this.style, 'labelInHeader', false))
+			{
+				var sizeX = mxUtils.getValue(this.style, 'tabWidth', 15) * this.scale;
+				var sizeY = mxUtils.getValue(this.style, 'tabHeight', 15) * this.scale;
+				var rounded = mxUtils.getValue(this.style, 'rounded', false);
+				var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+				var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+				
+				if (!absArcSize)
+				{
+					arcSize = Math.min(rect.width, rect.height) * arcSize;
+				}
+				
+				arcSize = Math.min(arcSize, rect.width * 0.5, (rect.height - sizeY) * 0.5);
+					
+				if (!rounded)
+				{
+					arcSize = 0;
+				}
+
+				if (mxUtils.getValue(this.style, 'tabPosition', this.tabPosition) == 'left')
+				{
+					return new mxRectangle(arcSize, 0, Math.min(rect.width, rect.width - sizeX), Math.min(rect.height, rect.height - sizeY));
+				}
+				else
+				{
+					return new mxRectangle(Math.min(rect.width, rect.width - sizeX), 0, arcSize, Math.min(rect.height, rect.height - sizeY));
+				}
+			}
+			else
+			{
+				return new mxRectangle(0, Math.min(rect.height, sizeY), 0, 0);
+			}
+		}
+		
+		return null;
+	};
 	
-	// Folder Shape, supports tabWidth, tabHeight styles
+	// UML State Shape, supports tabWidth, tabHeight styles
 	function UMLStateShape()
 	{
 		mxCylinder.call(this);
@@ -775,14 +831,10 @@
 	{
 		c.translate(x, y);
 		
-//		var dx = Math.max(0, Math.min(w, parseFloat(mxUtils.getValue(this.style, 'tabWidth', this.tabWidth))));
-//		var dy = Math.max(0, Math.min(h, parseFloat(mxUtils.getValue(this.style, 'tabHeight', this.tabHeight))));
-//		var tp = mxUtils.getValue(this.style, 'tabPosition', this.tabPosition);
 		var rounded = mxUtils.getValue(this.style, 'rounded', false);
 		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
 		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
 		var connPoint = mxUtils.getValue(this.style, 'umlStateConnection', null);
-		
 		
 		if (!absArcSize)
 		{
@@ -816,7 +868,7 @@
 		c.fillAndStroke();
 		
 		c.setShadow(false);
-
+	
 		var sym = mxUtils.getValue(this.style, 'umlStateSymbol', null);
 		
 		if (sym == 'collapseState')
@@ -830,7 +882,7 @@
 			c.lineTo(w - 20, h - 15);
 			c.stroke();
 		}
-
+	
 		if (connPoint == 'connPointRefEntry')
 		{
 			c.ellipse(0, h * 0.5 - 10, 20, 20);
@@ -848,9 +900,24 @@
 			c.lineTo(5, h * 0.5 + 5);
 			c.stroke();
 		}
-};
+	};
 
 	mxCellRenderer.registerShape('umlState', UMLStateShape);
+
+	UMLStateShape.prototype.getLabelMargins = function(rect)
+	{
+		if (mxUtils.getValue(this.style, 'boundedLbl', false))
+		{
+			var connPoint = mxUtils.getValue(this.style, 'umlStateConnection', null);
+			
+			if (connPoint != null)
+			{
+				return new mxRectangle(10 * this.scale, 0, 0, 0);
+			}
+		}
+		
+		return null;
+	};
 
 	// Card shape
 	function CardShape()
@@ -1489,6 +1556,7 @@
 		
 		return rect;
 	};
+
 	ProcessShape.prototype.paintForeground = function(c, x, y, w, h)
 	{
 		var isFixedSize = mxUtils.getValue(this.style, 'fixedSize', this.fixedSize);
@@ -1502,8 +1570,7 @@
 		{
 			inset = w * Math.max(0, Math.min(1, inset));
 		}
-		
-
+	
 		if (this.isRounded)
 		{
 			var f = mxUtils.getValue(this.style, mxConstants.STYLE_ARCSIZE,
@@ -1876,7 +1943,247 @@
 	// Replaces existing actor shape
 	mxCellRenderer.registerShape('umlActor', UmlActorShape);
 	
-	// UML Boundary Shape
+	////////////// UML Input Pin Shape ///////////////
+	function mxShapeUMLInputPin(bounds, fill, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.bounds = bounds;
+		this.fill = fill;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+		this.dx = 0.5;
+	};
+
+	/**
+	* Extends mxShape.
+	*/
+	mxUtils.extend(mxShapeUMLInputPin, mxActor);
+
+	mxShapeUMLInputPin.prototype.cst = {INPUT_PIN : 'mxgraph.uml.inputPin'};
+
+	mxShapeUMLInputPin.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+	
+		c.begin();
+		c.moveTo(0, 0);
+		c.lineTo(w, 0);
+		c.lineTo(w, h);
+		c.lineTo(0, h);
+		c.close();
+		c.fillAndStroke();
+		
+		c.setShadow(false);
+		
+		c.begin();
+		c.moveTo(w * 0.75, h * 0.5);
+		c.lineTo(w * 0.25, h * 0.5);
+		c.moveTo(w * 0.4, h * 0.4);
+		c.lineTo(w * 0.25, h * 0.5);
+		c.lineTo(w * 0.4, h * 0.6);
+		c.stroke();
+	};
+	
+	mxCellRenderer.registerShape(mxShapeUMLInputPin.prototype.cst.INPUT_PIN, mxShapeUMLInputPin);
+	
+	mxShapeUMLInputPin.prototype.constraints = null;
+
+	////////////// UML Behaviour Shape ///////////////
+	function mxShapeUMLBehaviorAction(bounds, fill, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.bounds = bounds;
+		this.fill = fill;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+		this.dx = 0.5;
+	};
+	
+	mxUtils.extend(mxShapeUMLBehaviorAction, mxActor);
+	
+	mxShapeUMLBehaviorAction.prototype.cst = {BEHAVIOR_ACTION : 'mxgraph.uml.behaviorAction'};
+	
+	/**
+	* Function: paintVertexShape
+	* 
+	* Paints the vertex shape.
+	*/
+	mxShapeUMLBehaviorAction.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+	
+		var rounded = mxUtils.getValue(this.style, 'rounded', false);
+		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+		
+		if (!absArcSize)
+		{
+			arcSize = Math.min(w, h) * arcSize;
+		}
+		
+		arcSize = Math.min(arcSize, w * 0.5, h * 0.5);
+		
+		if (!rounded)
+		{
+			arcSize = 0;
+		}
+		
+		c.begin();
+		
+		if (rounded)
+		{
+			c.moveTo(0, arcSize);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, arcSize, 0);
+			c.lineTo(w - arcSize, 0);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, w, arcSize);
+			c.lineTo(w, h - arcSize);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, w - arcSize, h);
+			c.lineTo(arcSize, h);
+			c.arcTo(arcSize, arcSize, 0, 0, 1, 0, h - arcSize);
+		}
+		else
+		{
+			c.moveTo(0, 0);
+			c.lineTo(w, 0);
+			c.lineTo(w, h);
+			c.lineTo(0, h);
+		}
+		
+		c.close();
+		c.fillAndStroke();
+		
+		c.setShadow(false);
+	
+		if (w >= 60 && h >= 40)
+		{
+			c.begin();
+			c.moveTo(w - 60, h * 0.5 + 20);
+			c.lineTo(w - 60, h * 0.5);
+			c.lineTo(w - 20, h * 0.5);
+			c.lineTo(w - 20, h * 0.5 + 20);
+			c.moveTo(w - 40, h * 0.5 - 20);
+			c.lineTo(w - 40, h * 0.5 + 20);
+			c.stroke();
+		}
+	};
+	
+	mxCellRenderer.registerShape(mxShapeUMLBehaviorAction.prototype.cst.BEHAVIOR_ACTION, mxShapeUMLBehaviorAction);
+	
+	mxShapeUMLBehaviorAction.prototype.constraints = null;
+
+	////////////// UML Action Shape ///////////////
+	function mxShapeUMLAction(bounds, fill, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.bounds = bounds;
+		this.fill = fill;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+		this.dx = 0.5;
+	};
+
+	/**
+	* Extends mxShape.
+	*/
+	mxUtils.extend(mxShapeUMLAction, mxActor);
+
+	mxShapeUMLAction.prototype.cst = {ACTION : 'mxgraph.uml.action'};
+
+	/**
+	* Function: paintVertexShape
+	* 
+	* Paints the vertex shape.
+	*/
+	mxShapeUMLAction.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+
+		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+		
+		if (!absArcSize)
+		{
+			arcSize = Math.min(w, h) * arcSize;
+		}
+		
+		arcSize = Math.min(arcSize, w * 0.5, h * 0.5);
+		
+		c.begin();
+		c.moveTo(0, arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, arcSize, 0);
+		c.lineTo(w - arcSize - 10, 0);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w - 10, arcSize);
+		c.lineTo(w - 10, h - arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w - arcSize - 10, h);
+		c.lineTo(arcSize, h);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, 0, h - arcSize);
+		c.close();
+		c.fillAndStroke();
+		
+		c.rect(w - 10, h * 0.5 - 10, 10, 20);
+		c.fillAndStroke();
+	};
+
+	mxCellRenderer.registerShape(mxShapeUMLAction.prototype.cst.ACTION, mxShapeUMLAction);
+
+	mxShapeUMLAction.prototype.constraints = null;
+
+	////////////// UML Action Parameter Shape ///////////////
+	function mxShapeUMLActionParams(bounds, fill, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.bounds = bounds;
+		this.fill = fill;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+		this.dx = 0.5;
+	};
+
+	mxUtils.extend(mxShapeUMLActionParams, mxActor);
+
+	mxShapeUMLActionParams.prototype.cst = {ACTION_PARAMS : 'mxgraph.uml.actionParams'};
+
+	mxShapeUMLActionParams.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.translate(x, y);
+
+		var absArcSize = mxUtils.getValue(this.style, 'absoluteArcSize', false);
+		var arcSize = parseFloat(mxUtils.getValue(this.style, 'arcSize', this.arcSize));
+		
+		if (!absArcSize)
+		{
+			arcSize = Math.min(w, h) * arcSize;
+		}
+		
+		arcSize = Math.min(arcSize, w * 0.5, h * 0.5);
+		
+		c.begin();
+		c.moveTo(20, arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, 20 + arcSize, 0);
+		c.lineTo(w - arcSize, 0);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w, arcSize);
+		c.lineTo(w, h - arcSize);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, w - arcSize, h);
+		c.lineTo(20 + arcSize, h);
+		c.arcTo(arcSize, arcSize, 0, 0, 1, 20, h - arcSize);
+		c.close();
+		c.fillAndStroke();
+		
+		c.rect(5, h * 0.5 - 17, 20, 34);
+		c.fillAndStroke();
+		
+		c.rect(0, h * 0.5 - 13, 10, 10);
+		c.fillAndStroke();
+		
+		c.rect(0, h * 0.5 + 3, 10, 10);
+		c.fillAndStroke();
+	};
+
+	mxCellRenderer.registerShape(mxShapeUMLActionParams.prototype.cst.ACTION_PARAMS, mxShapeUMLActionParams);
+
+	mxShapeUMLActionParams.prototype.constraints = null;
+
+	////////////// UML Boundary Shape ///////////////
 	function UmlBoundaryShape()
 	{
 		mxShape.call(this);
@@ -4539,7 +4846,7 @@
 		// Exposes custom handles
 		Graph.createHandle = createHandle;
 		Graph.handleFactory = handleFactory;
-		
+
 		var vertexHandlerCreateCustomHandles = mxVertexHandler.prototype.createCustomHandles;
 
 		mxVertexHandler.prototype.createCustomHandles = function()
@@ -4616,7 +4923,22 @@
 		Graph.createHandle = function() {};
 		Graph.handleFactory = {};
 	}
-	 
+	
+	handleFactory['note'] = function(state)
+	{
+		return [createHandle(state, ['size'], function(bounds)
+		{
+			var size = Math.max(0, Math.min(bounds.width, Math.min(bounds.height, parseFloat(
+				mxUtils.getValue(this.state.style, 'size', NoteShape.prototype.size)))));
+			
+			return new mxPoint(bounds.x + bounds.width - size, bounds.y + size);
+		}, function(bounds, pt)
+		{
+			this.state.style['size'] = Math.round(Math.max(0, Math.min(Math.min(bounds.width, bounds.x + bounds.width - pt.x),
+					Math.min(bounds.height, pt.y - bounds.y))));
+		})];
+	};
+
 	 var isoHVector = new mxPoint(1, 0);
 	 var isoVVector = new mxPoint(1, 0);
 		

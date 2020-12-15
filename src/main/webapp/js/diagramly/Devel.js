@@ -19,6 +19,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				//----------------------------------------------------------//
 				//------------- Bootstrap script in index.html -------------//
 				//----------------------------------------------------------//
+				// Version 14.0.2
+				'\'sha256-gCA3yqbX5kV5cXQOyvSd4v54e8cOLCBlaKU4tuhJF3Y=\' ' +
 				// Version 14.0.1
 				'\'sha256-ZMnCMK9Jg5ijd0Viqw4KAFn39HeC1LrVwervb9uC7Mo=\' ' +
 				// Version 14.0.0
@@ -152,6 +154,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Flowchart.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-FluidPower.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-GCP.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-GCP2.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-General.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Gmdl.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-IBM.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Infographic.js');
