@@ -4923,21 +4923,6 @@
 		Graph.createHandle = function() {};
 		Graph.handleFactory = {};
 	}
-	
-	handleFactory['note'] = function(state)
-	{
-		return [createHandle(state, ['size'], function(bounds)
-		{
-			var size = Math.max(0, Math.min(bounds.width, Math.min(bounds.height, parseFloat(
-				mxUtils.getValue(this.state.style, 'size', NoteShape.prototype.size)))));
-			
-			return new mxPoint(bounds.x + bounds.width - size, bounds.y + size);
-		}, function(bounds, pt)
-		{
-			this.state.style['size'] = Math.round(Math.max(0, Math.min(Math.min(bounds.width, bounds.x + bounds.width - pt.x),
-					Math.min(bounds.height, pt.y - bounds.y))));
-		})];
-	};
 
 	 var isoHVector = new mxPoint(1, 0);
 	 var isoVVector = new mxPoint(1, 0);
