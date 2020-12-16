@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "927ac324f9868d3bbc475d518f17ea88"
+    "revision": "41c3655dbde15e85cfd1efd632aded29"
   },
   {
     "url": "js/extensions.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "100851032a654455901b717572cb5759"
+    "revision": "e16f84d4d56106cf9fff7a2e63e6636a"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",

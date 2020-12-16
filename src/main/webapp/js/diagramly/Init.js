@@ -154,6 +154,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 if (typeof window.mxBasePath === 'undefined')
 {
 	window.mxBasePath = 'mxgraph';
+	window.mxImageBasePath = 'mxgraph/images';
 }
 
 if (window.mxLanguages == null)
