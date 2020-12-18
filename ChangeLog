@@ -1,3 +1,12 @@
+18-DEC-2020: 14.1.0
+
+- Fixes multiple Math initialization
+
+17-DEC-2020: 14.0.5
+
+- Fixes ignored hidden toolbar [1627], settings icon
+- Uses combined configuration file for MathJax
+
 16-DEC-2020: 14.0.4
 
 - Fixes images paths

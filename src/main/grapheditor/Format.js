@@ -1412,7 +1412,7 @@ BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, han
 		mxEvent.consume(evt);
 	});
 
-	var input = this.addUnitInput(div, '%', 20, width, update, 10, -15, handler != null);
+	var input = this.addUnitInput(div, '%', 20, width, update, 10, -14, handler != null);
 
 	if (key != null)
 	{
@@ -6427,7 +6427,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	{
 		input.style.marginTop = '-2px';
 		input.style.right = '84px';
-		stepper.style.marginTop = '-16px';
+		stepper.style.marginTop = (mxClient.IS_FF) ? '-16px' : '-18px';
 		stepper.style.right = '72px';
 	
 		var panel = this.createColorOption(mxResources.get('grid'), function()

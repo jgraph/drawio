@@ -28,8 +28,9 @@ LucidImporter = {};
 	var gcpIcon = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=none;shape=mxgraph.gcp2.';
 	var kupIcon = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=none;shape=mxgraph.kubernetes.icon;prIcon=';
 	
-	//Instead of doing a massive code refactoring, this ugly global variable is used
+	//Instead of doing a massive code refactoring, thees ugly global variables are used
 	var isLastLblHTML = false;
+	var gFontFamilyStyle = '';
 	
 	//stencils to rotate counter clockwise 90 degrees
 	var rccw = [
@@ -3816,6 +3817,43 @@ LucidImporter = {};
 			'FlexiblePolygonBlock': cs
 	};
 	
+	function mapFontFamily(fontFamily)
+	{
+		//We support a single font only since we can have one mapping only
+		gFontFamilyStyle = '';
+		
+		try
+		{
+			if (fontFamily)
+			{
+				var mappedFont = null;
+				
+				if (LucidImporter.advImpConfig && LucidImporter.advImpConfig.fontMapping)
+				{
+					mappedFont = LucidImporter.advImpConfig.fontMapping[fontFamily];
+				}
+				
+				if (mappedFont)
+				{
+					for (var key in mappedFont)
+					{
+						gFontFamilyStyle += key + '=' + mappedFont[key] + ';';
+					}
+					
+					return mappedFont['fontFamily']? 'font-family: ' + mappedFont['fontFamily'] : '';
+				}
+				else if (fontFamily != defaultLucidFont)
+				{
+					gFontFamilyStyle = 'fontFamily=' + fontFamily + ';';
+					return 'font-family: ' + fontFamily + ';';
+				}
+			}
+		}
+		catch(e) {}
+		
+		return '';
+	};
+	
 	// actual code start
 	//TODO This can be optimized more
 	function convertTxt2Html(txt, srcM, props)
@@ -4104,10 +4142,7 @@ LucidImporter = {};
 				fontFamily = props.Font;
 			}
 			
-			if (fontFamily && fontFamily != defaultLucidFont)
-			{
-				str += 'font-family: ' + fontFamily + ';';
-			}
+			str += mapFontFamily(fontFamily);
 			
 			var td = [];
 
@@ -4451,7 +4486,10 @@ LucidImporter = {};
 	
 	function getLabelStyle(properties, noLblStyle)
 	{
-		var style = 'whiteSpace=wrap;' + (noLblStyle? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' : 
+		var style = 'whiteSpace=wrap;' + (noLblStyle? 
+				'overflow=block;html=1;fontSize=' + defaultFontSize + ';' +
+				gFontFamilyStyle
+				: 
 				getFontSize(properties) +
 				getFontFamily(properties) +
 				getFontColor(properties) + 
@@ -4465,7 +4503,8 @@ LucidImporter = {};
 				getTextGlobalSpacing(properties) +
 				getTextVerticalAlignment(properties) +
 				getTextGlobalAlignment(properties);
-		
+				
+		gFontFamilyStyle = '';
 		return style;  
 	}
 	
@@ -4480,7 +4519,8 @@ LucidImporter = {};
 		
 		s += 'whiteSpace=wrap;' + 
 		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;') + 
-			(hasStyle(style, 'html')? '' : 'html=1;') + 'fontSize=' + defaultFontSize + ';' 
+			(hasStyle(style, 'html')? '' : 'html=1;') + 'fontSize=' + defaultFontSize + ';' +
+			gFontFamilyStyle
 			:
 			addStyle(mxConstants.STYLE_FONTSIZE, style, properties, action, cell) +	
 			addStyle(mxConstants.STYLE_FONTFAMILY, style, properties, action, cell) +		
@@ -4506,6 +4546,8 @@ LucidImporter = {};
 			addStyle(mxConstants.STYLE_DASHED, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_STROKEWIDTH, style, properties, action, cell) +			
 			addStyle(mxConstants.STYLE_IMAGE, style, properties, action, cell);
+		
+		gFontFamilyStyle = '';
 		return s;
 	}
 	
@@ -4650,7 +4692,8 @@ LucidImporter = {};
 			fontFamily = properties.Font;
 		}
 		
-		return fontFamily && fontFamily != defaultLucidFont ?'fontFamily=' + fontFamily + ';' : '';
+		mapFontFamily(fontFamily);
+		return gFontFamilyStyle;
 	};
 	
 	function getLink(lnk)
@@ -4870,7 +4913,7 @@ LucidImporter = {};
 					{
 						return 'spacingLeft=' + currM.v * 0.6 + ';';
 					}
-					else
+					/*else
 					{
 						var align = getTextAlignment(properties);
 					
@@ -4879,7 +4922,7 @@ LucidImporter = {};
 							// TODO: Fix condition to apply this only when necessary
 							//return 'spacingLeft=' + currM.v * 0.6 + ';';
 						}
-					}
+					}*/
 				}
 					
 				i++;
@@ -5025,8 +5068,6 @@ LucidImporter = {};
 		{
 			return createStyle(mxConstants.STYLE_STROKECOLOR, getColor(properties.LineColor), '#000000');
 		}
-		
-		return '';
 	}
 
 	function getHeaderColor(color)
@@ -5306,10 +5347,10 @@ LucidImporter = {};
 			{
 				extraStyles = 'imageAspect=0;';
 			} 
-			else if (typeof properties.FillColor.pos == 'object')
+			//TODO Support non-destructive cropping
+			/*else if (typeof properties.FillColor.pos == 'object')
 			{
-				//TODO Support non-destructive cropping
-				/*"pos": {
+				"pos": {
 		            "pin": {
 		                "x": 0.5765582655826557,
 		                "y": 0.6180376215526864
@@ -5318,8 +5359,8 @@ LucidImporter = {};
 		                "w": 0.7764227642276422,
 		                "h": 1.5284871672246134
 		            }
-            	}*/
-			}
+            	}
+			}*/
 		}
 		else if (action.Class == 'ImageSearchBlock2')
 		{
@@ -5745,7 +5786,7 @@ LucidImporter = {};
 			while (ta['t' + count] != null)
 			{
 				var tmp = ta['t' + count];
-				e = insertLabel(tmp, e);
+				e = insertLabel(tmp, e, obj);
 				count++;
 			}
 			
@@ -5789,7 +5830,7 @@ LucidImporter = {};
 		}
 		
 		var lab = new mxCell(convertText(textArea), new mxGeometry((!isNaN(x)) ? x : 0, 0, 0, 0),
-			labelStyle + getEdgeLabelStyle(textArea));
+			labelStyle + getEdgeLabelStyle(textArea, obj, isLastLblHTML));
 		lab.geometry.relative = true;
 		lab.vertex = true;
 		e.insert(lab);
@@ -5797,8 +5838,13 @@ LucidImporter = {};
 		return e;
 	};
 	
-	function getEdgeLabelStyle(obj)
+	function getEdgeLabelStyle(obj, pObj, noLblStyle)
 	{
+		if (noLblStyle)
+		{
+			return gFontFamilyStyle;
+		}
+		
 		var size = defaultFontSize;
 		var style = '';
 		
@@ -5824,6 +5870,9 @@ LucidImporter = {};
 					style += 'fontColor=' + v + ';'
 				}
 			}
+			
+			style += getFontFamily(pObj);
+			gFontFamilyStyle = '';
 		}
 		
 		return style + ';fontSize=' + size + ';';
@@ -6442,10 +6491,11 @@ LucidImporter = {};
 		}	
 	};
 	
-	LucidImporter.importState = function(state, imgSrcRepl)
+	LucidImporter.importState = function(state, imgSrcRepl, advImpConfig)
 	{
 		LucidImporter.stencilsMap = {}; //Reset stencils cache
 		LucidImporter.imgSrcRepl = imgSrcRepl; //Use LucidImporter object to store the map since it is used deep inside
+		LucidImporter.advImpConfig = advImpConfig;
 		LucidImporter.globalProps = {};
 		LucidImporter.pageIdsMap = {};
 		LucidImporter.hasUnknownShapes = false;
@@ -6880,9 +6930,12 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p[mainTxtFld]);
-					v.style += (isLastLblHTML? 'overflow=block;fontSize=' + defaultFontSize + ';' : 
+					v.style += (isLastLblHTML? 'overflow=block;fontSize=' + defaultFontSize + ';' +
+							gFontFamilyStyle
+							: 
 							getFontSize(p[mainTxtFld]) +
 							getFontColor(p[mainTxtFld]) + 
+							getFontFamily(p[mainTxtFld]) + 
 							getFontStyle(p[mainTxtFld]) +
 							getTextAlignment(p[mainTxtFld], v) + 
 							getTextLeftSpacing(p[mainTxtFld]) +
@@ -7855,7 +7908,7 @@ LucidImporter = {};
 				
 			case 'iOSNavBar' :
 				v.value = convertText(p.Title);
-				v.style += 'shape=partialRectangle;top=0;right=0;left=0;strokeColor=#979797;';
+				v.style += 'shape=partialRectangle;top=0;right=0;left=0;strokeColor=#979797;'
 					+ getLabelStyle(p.Title, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 
@@ -7896,8 +7949,11 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' :
+					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' +
+									gFontFamilyStyle
+									:
 									getFontSize(p["Tab_" + i]) +
+									getFontFamily(p["Tab_" + i]) +
 									getFontColor(p["Tab_" + i]) + 
 									getFontStyle(p["Tab_" + i]) +
 									getTextAlignment(p["Tab_" + i]) + 
@@ -8230,8 +8286,11 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';': 
-					getFontSize(p.text) + 
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					: 
+					getFontSize(p.text) +
+					getFontFamily(p.text) + 
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -8332,8 +8391,11 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					:
 					getFontSize(p.text) + 
+					getFontFamily(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -8347,8 +8409,11 @@ LucidImporter = {};
 				text.vertex = true;
 				v.insert(text);
 				text.value = convertText(p.subtext);
-				text.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+				text.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					:
 					getFontSize(p.subtext) + 
+					getFontFamily(p.subtext) +
 					getFontColor(p.subtext) + 
 					getFontStyle(p.subtext));
 
@@ -8356,8 +8421,11 @@ LucidImporter = {};
 				subtext.vertex = true;
 				v.insert(subtext);
 				subtext.value = convertText(p.text);
-				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+				subtext.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					:
 					getFontSize(p.text) + 
+					getFontFamily(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -8405,8 +8473,11 @@ LucidImporter = {};
 				text1.vertex = true;
 				v.insert(text1);
 				text1.value = convertText(p.text);
-				text1.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+				text1.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					:
 					getFontSize(p.text) +
+					getFontFamily(p.text) +
 					getFontColor(p.text) + 
 					getFontStyle(p.text));
 
@@ -8414,8 +8485,11 @@ LucidImporter = {};
 				text2.vertex = true;
 				v.insert(text2);
 				text2.value = convertText(p["bottom-text"]);
-				text2.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' :
+				text2.style += (isLastLblHTML? 'html=1;fontSize=' + defaultFontSize + ';' +
+					gFontFamilyStyle
+					:
 					getFontSize(p["bottom-text"]) +
+					getFontFamily(p["bottom-text"]) +
 					getFontColor(p["bottom-text"]) + 
 					getFontStyle(p["bottom-text"]));
 

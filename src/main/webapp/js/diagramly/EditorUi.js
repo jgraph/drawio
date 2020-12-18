@@ -5203,7 +5203,7 @@
 	 */
 	EditorUi.prototype.createLink = function(linkTarget, linkColor, allPages, lightbox, editLink, layers, url, ignoreFile, params, useOpenParameter)
 	{
-		params = (params != null) ? params : this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
+		params = this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers, params);
 		var file = this.getCurrentFile();
 		var addTitle = true;
 		var data = '';

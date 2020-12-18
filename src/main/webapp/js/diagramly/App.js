@@ -567,6 +567,28 @@ App.getStoredMode = function()
 })();
 
 /**
+ * Clears the PWA cache.
+ */
+App.clearServiceWorker = function(success)
+{
+	navigator.serviceWorker.getRegistrations().then(function(registrations)
+	{
+		if (registrations != null && registrations.length > 0)
+		{
+			for (var i = 0; i < registrations.length; i++)
+			{
+				registrations[i].unregister();
+			}
+
+			if (success != null)
+			{
+				success();
+			}
+		}
+	});
+};
+
+/**
  * Program flow starts here.
  * 
  * Optional callback is called with the app instance.
@@ -639,19 +661,11 @@ App.main = function(callback, createUi)
 				if (urlParams['offline'] == '0' || /www\.draw\.io$/.test(window.location.hostname) ||
 					(urlParams['offline'] != '1' && urlParams['dev'] == '1'))
 				{
-					navigator.serviceWorker.getRegistrations().then(function(registrations)
+					App.clearServiceWorker(function()
 					{
-						if (registrations != null && registrations.length > 0)
+						if (urlParams['offline'] == '0')
 						{
-							for (var i = 0; i < registrations.length; i++)
-							{
-								registrations[i].unregister();
-							}
-							
-							if (urlParams['offline'] == '0')
-							{
-								alert('Cache cleared');
-							}
+							alert('Cache cleared');
 						}
 					});
 				}

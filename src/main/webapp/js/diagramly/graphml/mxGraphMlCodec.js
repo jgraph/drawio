@@ -547,6 +547,7 @@ mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
 				}
 			}, portObj);
 		} 
+		/*
 		else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_STYLE].key) 
 		{
 			
@@ -554,7 +555,7 @@ mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
 		else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE].key) 
 		{
 			
-		}
+		}*/
 	}
 	
 	portsMap[name] = portObj;
@@ -1055,14 +1056,14 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 		        			
 		        			if (func)
 	        				{
-				        		var arguments = [val];
+				        		var args = [val];
 				        		
 				        		if (parts[2])
 				        		{
-				        			arguments.push(parts[2].substr(11)); //11 is the length of Parameter=
+				        			args.push(parts[2].substr(11)); //11 is the length of Parameter=
 				        		}
 				        			
-		        				val = func.apply(null, arguments)
+		        				val = func.apply(null, args)
 	        				}
 	        			}
 	        		}
@@ -2618,7 +2619,7 @@ mxGraphMlCodec.prototype.getDirectChildNamedElements = function (parent, name) {
     var result = ([]);
     for (var child = parent.firstChild; child != null; child = child.nextSibling) {
         if ((child != null && (child.nodeType == 1)) && (name == child.nodeName)) {
-            /* add */ (result.push(child) > 0);
+            /* add */ result.push(child);
         }
     }
     ;
@@ -2644,7 +2645,7 @@ mxGraphMlCodec.prototype.getDirectChildElements = function (parent) {
     var result = ([]);
     for (var child = parent.firstChild; child != null; child = child.nextSibling) {
         if (child != null && (child.nodeType == 1)) {
-            /* add */ (result.push(child) > 0);
+            /* add */ result.push(child);
         }
     }
     ;

@@ -2189,132 +2189,129 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		src = (src != null) ? src : DRAW_MATH_URL + '/MathJax.js';
-		Editor.mathJaxQueue = [];
-
-		Editor.doMathJaxRender = function(container)
+		if (typeof(window.MathJax) === 'undefined')
 		{
-			window.setTimeout(function()
-			{
-				if (container.style.visibility != 'hidden')
-				{
-					MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
-				}
-			}, 0);
-		};
-		
-		var font = (urlParams['math-font'] != null) ?
-			decodeURIComponent(urlParams['math-font']) : 'TeX';
-		
-		config = (config != null) ? config :
-		{
-			jax: ['input/TeX', 'input/MathML', 'input/AsciiMath'].concat(
-				[(urlParams['math-output'] == 'html') ?
-					'output/HTML-CSS' : 'output/SVG']),
-			extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
-			TeX: {
-				extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
-			},
-			'HTML-CSS': {
-				availableFonts: [font],
-				imageFont: null
-			},
-			SVG: {
-				font: font,
-				// Needed for client-side export to work
-				useFontCache: false
-			},
-			// Ignores math in in-place editor
-			tex2jax: {
-				ignoreClass: 'mxCellEditor'
-		  	},
-		  	asciimath2jax: {
-				ignoreClass: 'mxCellEditor'
-		  	}
-		};
-
-		// Disables global typesetting and messages on startup, adds queue for
-		// asynchronous rendering while MathJax is loading
-		window.MathJax =
-		{
-			skipStartupTypeset: true,
-			showMathMenu: false,
-			messageStyle: 'none',
-			AuthorInit: function ()
-			{
-				MathJax.Hub.Config(config);
-				
-				MathJax.Hub.Register.StartupHook('Begin', function()	
-				{	
-					for (var i = 0; i < Editor.mathJaxQueue.length; i++)	
-					{	
-						Editor.doMathJaxRender(Editor.mathJaxQueue[i]);	
-					}	
-				});
-		    }
-		};
-
-		// Adds global enqueue method for async rendering
-		Editor.MathJaxRender = function(container)
-		{
-			// Initial rendering when MathJax finished loading
-			if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
-			{
-				Editor.doMathJaxRender(container);
-			}
-			else
-			{
-				Editor.mathJaxQueue.push(container);
-			}
-		};
-
-		// Adds global clear queue method
-		Editor.MathJaxClear = function()
-		{
+			src = ((src != null) ? src : DRAW_MATH_URL + '/MathJax.js') + '?config=TeX-MML-AM_' +
+				((urlParams['math-output'] == 'html') ? 'HTMLorMML' : 'SVG') + '-full';
 			Editor.mathJaxQueue = [];
-		};
-		
-		// Updates math typesetting after changes
-		var editorInit = Editor.prototype.init;
-		
-		Editor.prototype.init = function()
-		{
-			editorInit.apply(this, arguments);
-			
-			this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+
+			Editor.doMathJaxRender = function(container)
 			{
-				if (this.graph.container != null && this.graph.mathEnabled && !this.graph.blockMathRender)
+				window.setTimeout(function()
 				{
-					Editor.MathJaxRender(this.graph.container);
-				}
-			}));
-		};
-		
-		var tags = document.getElementsByTagName('script');
-		
-		if (tags != null && tags.length > 0)
-		{
-			var s = document.createElement('script');
-			s.setAttribute('type', 'text/javascript');
-			s.setAttribute('src', src);
-			tags[0].parentNode.appendChild(s);
-		}
-		
-		// Overrides position relative for block elements to fix
-		// zoomed math clipping in Webkit (drawio/issues/1213)
-		try
-		{
-			if (mxClient.IS_GC || mxClient.IS_SF)
+					if (container.style.visibility != 'hidden')
+					{
+						MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
+					}
+				}, 0);
+			};
+			
+			var font = (urlParams['math-font'] != null) ?
+				decodeURIComponent(urlParams['math-font']) : 'TeX';
+			
+			config = (config != null) ? config :
 			{
-				var style = document.createElement('style')
-				style.type = 'text/css';
-				style.innerHTML = 'div.MathJax_SVG_Display { position: static; }';
-				document.getElementsByTagName('head')[0].appendChild(style);
+				'HTML-CSS': {
+					availableFonts: [font],
+					imageFont: null
+				},
+				SVG: {
+					font: font,
+					// Needed for client-side export to work
+					useFontCache: false
+				},
+				// Ignores math in in-place editor
+				tex2jax: {
+					ignoreClass: 'mxCellEditor'
+				},
+				asciimath2jax: {
+					ignoreClass: 'mxCellEditor'
+				}
+			};
+
+			// Disables global typesetting and messages on startup, adds queue for
+			// asynchronous rendering while MathJax is loading
+			window.MathJax =
+			{
+				skipStartupTypeset: true,
+				showMathMenu: false,
+				messageStyle: 'none',
+				AuthorInit: function ()
+				{
+					MathJax.Hub.Config(config);
+					
+					MathJax.Hub.Register.StartupHook('Begin', function()	
+					{	
+						for (var i = 0; i < Editor.mathJaxQueue.length; i++)	
+						{	
+							Editor.doMathJaxRender(Editor.mathJaxQueue[i]);	
+						}	
+					});
+				}
+			};
+
+			// Adds global enqueue method for async rendering
+			Editor.MathJaxRender = function(container)
+			{
+				// Initial rendering when MathJax finished loading
+				if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+				{
+					Editor.doMathJaxRender(container);
+				}
+				else
+				{
+					Editor.mathJaxQueue.push(container);
+				}
+			};
+
+			// Adds global clear queue method
+			Editor.MathJaxClear = function()
+			{
+				Editor.mathJaxQueue = [];
+			};
+			
+			// Updates math typesetting after changes
+			var editorInit = Editor.prototype.init;
+			
+			Editor.prototype.init = function()
+			{
+				editorInit.apply(this, arguments);
+				
+				this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+				{
+					if (this.graph.container != null && this.graph.mathEnabled && !this.graph.blockMathRender)
+					{
+						Editor.MathJaxRender(this.graph.container);
+					}
+				}));
+			};
+			
+			var tags = document.getElementsByTagName('script');
+			
+			if (tags != null && tags.length > 0)
+			{
+				var s = document.createElement('script');
+				s.setAttribute('type', 'text/javascript');
+				s.setAttribute('src', src);
+				tags[0].parentNode.appendChild(s);
 			}
-		}
-		catch (e)
-		{
-	       	// ignore
+			
+			// Overrides position relative for block elements to fix
+			// zoomed math clipping in Webkit (drawio/issues/1213)
+			try
+			{
+				if (mxClient.IS_GC || mxClient.IS_SF)
+				{
+					var style = document.createElement('style')
+					style.type = 'text/css';
+					style.innerHTML = 'div.MathJax_SVG_Display { position: static; }';
+					document.getElementsByTagName('head')[0].appendChild(style);
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
 		}
 	};
 

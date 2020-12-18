@@ -1109,3 +1109,4 @@ loadAttFailed=loadAttFailed
 embedDrawDiag=embedDrawDiag
 addDiagram=addDiagram
 embedDiagram=embedDiagram
+editOwningPg=editOwningPg

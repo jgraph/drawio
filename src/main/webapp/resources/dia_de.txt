@@ -1109,3 +1109,4 @@ loadAttFailed=Anhang "{1}" konnte nicht geladen werden
 embedDrawDiag=draw.io Diagramm einbetten
 addDiagram=Add Diagram
 embedDiagram=Embed Diagram
+editOwningPg=Original-Seite öffnen

@@ -20,11 +20,11 @@ window.isSvgBrowser = window.isSvgBrowser || navigator.userAgent == null ||
 window.DRAWIO_BASE_URL = window.DRAWIO_BASE_URL || ((/.*\.draw\.io$/.test(window.location.hostname)) || (/.*\.diagrams\.net$/.test(window.location.hostname)) ?
 	window.location.protocol + '//' + window.location.hostname : 'https://app.diagrams.net');
 window.DRAWIO_LIGHTBOX_URL = window.DRAWIO_LIGHTBOX_URL || 'https://viewer.diagrams.net';
-window.EXPORT_URL = window.EXPORT_URL || 'https://exp.draw.io/ImageExport4/export';
+window.EXPORT_URL = window.EXPORT_URL || 'https://convert.diagrams.net/node/export';
 window.PLANT_URL = window.PLANT_URL || 'https://plant-aws.diagrams.net';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || window.DRAWIO_BASE_URL + '/math';
-window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || 'https://convert.draw.io/VsdConverter/api/converter';
-window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || 'https://convert.draw.io/emf2png/convertEMF';
+window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || 'https://convert.diagrams.net/VsdConverter/api/converter';
+window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || 'https://convert.diagrams.net/emf2png/convertEMF';
 window.REALTIME_URL = window.REALTIME_URL || 'cache';
 window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || 'https://gitlab.com';
 window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '5cdc018a32acddf6eba37592d9374945241e644b8368af847422d74c8709bc44';

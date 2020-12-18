@@ -44,7 +44,7 @@
 			this.createVertexTemplateEntry(s2 + 'inventory_box;', w, h * 0.9, '', 'Inventory Box', null, null, this.getTagsForStencil(gn, 'inventory_box', dt).join(' ')),
 			this.createVertexTemplateEntry(s2 + 'push_arrow;', w, h * 0.3,'', 'Push Arrow', null, null, this.getTagsForStencil(gn, 'push_arrow', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'supermarket;', w * 0.6, h,'', 'Supermarket', null, null, this.getTagsForStencil(gn, 'supermarket', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt).join(' ')),
+			this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt + 'circular arrow').join(' ')),
 			this.createVertexTemplateEntry(s + 'fifo_lane;overflow=fill;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;', w, h * 0.5, 
 					'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
 					'<tr><td height="0%">MAX=XX</td></tr>' +
