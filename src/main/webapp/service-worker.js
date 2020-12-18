@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "3378f7a07a2d6f0a98b3568c41607733"
+    "revision": "f4ec81ec1ad9fc8f4ef35f3af7854f9a"
   },
   {
     "url": "js/extensions.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "58cfff390e9283ae22dc1b238b9e70db"
+    "revision": "a2475f420379dca82afebc157a3bf889"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -106,7 +106,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "715b5f869dd391e32d8d8b85deb91a86"
+    "revision": "72420bc09282e2ccd367fd5f6908db26"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/includeDiagram-1-4-8.js",
-    "revision": "471f06461524480973df1afb7fbb59c8"
+    "revision": "ee0d8fcf6e8c3ad95059d8329a7d4980"
   },
   {
     "url": "connect/confluence/includeDiagram.html",

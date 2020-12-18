@@ -2157,7 +2157,7 @@ LucidImporter = {};
 			'KubeletLabeledKub19' : kupIcon + 'kubelet',
 			'SchedLabeledKub19' : kupIcon + 'sched',
 //Equation
-//			'Equation' : cs, //TODO
+			'Equation' : cs,
 //Walls
 			'fpWall' : '',
 //Rooms
@@ -6039,6 +6039,7 @@ LucidImporter = {};
 	
 	function importLucidPage(graph, g, noSelection)
 	{
+		LucidImporter.hasMath = false;
 		LucidImporter.stylePointsSet = new Set();
 		
 		graph.getModel().beginUpdate();
@@ -6607,6 +6608,11 @@ LucidImporter = {};
 					node.setAttribute('gridSize', pages[i].Properties.GridSpacing * scale);
 				}
             }
+			
+			if (LucidImporter.hasMath)
+			{
+				node.setAttribute('math', 1);
+			}
 
             graph.getModel().clear();
 
@@ -10339,6 +10345,10 @@ LucidImporter = {};
 				break;
 				
 			case 'Equation' :
+				LucidImporter.hasMath = true;
+				v.style += 'strokeColor=none;';
+				v.style += addAllStyles(v.style, p, a, v);
+				v.value = '$$' + p.Latex + '$$';
 				break;
 			case 'fpDoor' :
 				v.style += 'shape=mxgraph.floorplan.doorRight;';
