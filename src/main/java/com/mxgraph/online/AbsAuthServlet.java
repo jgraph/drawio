@@ -20,6 +20,8 @@ import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
+import javax.cache.CacheManager;
+import javax.cache.Caching;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -27,6 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.utils.SystemProperty;
+import org.ehcache.config.CacheConfiguration;
+import org.ehcache.config.ResourcePools;
+import org.ehcache.config.builders.CacheConfigurationBuilder;
+import org.ehcache.config.builders.CacheManagerBuilder;
+import org.ehcache.config.builders.ResourcePoolsBuilder;
 
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
@@ -46,7 +53,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 	{
 		try
 		{
-			tokenCache = CacheFacade.createCache();
+			tokenCache = Caching.getCache("drawio-web", String.class, String.class);
 		}
 		catch (CacheException e)
 		{

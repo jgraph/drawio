@@ -3,3 +3,10 @@ build
 classes
 node_modules
 .vscode/settings.json
+
+*.class
+target
+*.DS_Store
+/.metadata
+/.idea
+*.iml
