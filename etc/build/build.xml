@@ -128,7 +128,6 @@
 				<file name="Sidebar-FluidPower.js" />
 				<file name="Sidebar-GCP.js" />
 				<file name="Sidebar-GCP2.js" />
-				<file name="Sidebar-General.js" />
 				<file name="Sidebar-Gmdl.js" />
 				<file name="Sidebar-IBM.js" />
 				<file name="Sidebar-Infographic.js" />
@@ -146,6 +145,7 @@
 				<file name="Sidebar-Sitemap.js" />
 				<file name="Sidebar-Sysml.js" />
 				<file name="Sidebar-ThreatModeling.js" />
+				<file name="Sidebar-UML25.js" />
 				<file name="Sidebar-Veeam.js" />
 				<file name="Sidebar-Veeam2.js" />
 				<file name="Sidebar-VVD.js" />

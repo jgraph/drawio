@@ -79,8 +79,6 @@
 							  'Database', 'End User Computing', 'Developer Tools', 'Game Tech', 'Internet of Things', 'IoT Things', 'IoT Resources', 'Machine Learning', 'Management Governance',
 							  'Media Services', 'Migration Transfer', 'Mobile', 'Network Content Delivery', 'Quantum Technologies', 'Robotics', 'Satellite', 'Security Identity Compliance', 'Storage'];
 
-	Sidebar.prototype.general = ['General', 'Advanced', 'Misc'];
-
 	Sidebar.prototype.office = ['Clouds', 'Communications', 'Concepts', 'Databases', 'Devices', 'Security', 'Servers', 'Services', 'Sites', 'Users'];
 
 	Sidebar.prototype.veeam = ['Data Center', 'Misc', 'Software', 'Storage', 'UsersStatus', 'VASComponents', 'Backup Replication', 'Products', 'VMs and Tape', '2D', '3D'];
@@ -111,10 +109,8 @@
 	/**
 	 *
 	 */
-	Sidebar.prototype.configuration = [
-//									   {id: 'general', libs: ['general', 'misc', 'advanced']}, 
-									   {id: 'general', prefix: 'general', libs: Sidebar.prototype.general},
-									   {id: 'uml'}, {id: 'search'}, {id: 'er'},
+	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']},
+									   {id: 'uml'}, {id: 'uml25'}, {id: 'search'}, {id: 'er'},
 									   {id: 'azure2', prefix: 'azure2', libs: ['AI Machine Learning', 'Analytics', 'App Services', 'Azure Stack', 'Azure VMware Solution', 'Blockchain', 'Compute', 'Containers', 'CXP', 'Databases', 'DevOps', 'General', 'Identity', 'Integration', 'Internet of Things', 'Intune', 'IoT', 'Management Governance', 'Migrate', 'Mixed Reality', 'Monitor', 'Networking', 'Other', 'Preview', 'Security', 'Storage', 'Web']},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
@@ -459,8 +455,7 @@
 		// Defines all entries for the sidebar. This is used in the MoreShapes dialog. Create screenshots using the savesidebar URL parameter and
 		// http://www.alderg.com/merge.html for creating a vertical stack of PNG images if multiple sidebars are part of an entry.
 		this.entries = [{title: mxResources.get('standard'),
-            			entries: [
-            					  {title: mxResources.get('general'), id: 'general', image: IMAGE_PATH + '/sidebar-general.png'},
+            			entries: [{title: mxResources.get('general'), id: 'general', image: IMAGE_PATH + '/sidebar-general.png'},
             			          {title: mxResources.get('basic'), id: 'basic', image: IMAGE_PATH + '/sidebar-basic.png'},
             			          {title: mxResources.get('arrows'), id: 'arrows2', image: IMAGE_PATH + '/sidebar-arrows2.png'},
             			          {title: mxResources.get('clipart'), id: 'clipart', image: IMAGE_PATH + '/sidebar-clipart.png'},
@@ -476,6 +471,7 @@
             			          {title: mxResources.get('ios'), id: 'ios', image: IMAGE_PATH + '/sidebar-ios.png'},
             			          {title: mxResources.get('mockups'), id: 'mockups', image: IMAGE_PATH + '/sidebar-mockups.png'},
             			          {title: 'Sitemap', id: 'sitemap', image: IMAGE_PATH + '/sidebar-sitemap.png'},
+            			          {title: mxResources.get('uml') + ' 2.5', id: 'uml25', image: IMAGE_PATH + '/sidebar-uml25.png'},
             			          {title: mxResources.get('uml'), id: 'uml', image: IMAGE_PATH + '/sidebar-uml.png'}]},
             			{title: mxResources.get('networking'),
             			entries: [{title: 'Allied Telesis', id: 'allied_telesis', image: IMAGE_PATH + '/sidebar-allied_telesis.png'},
@@ -1036,7 +1032,9 @@
 			}
 		}
 		
-		this.addGeneralPalette();
+		this.addGeneralPalette(this.customEntries == null);
+		this.addMiscPalette(false);	
+		this.addAdvancedPalette(false);
 		this.addBasicPalette();
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;',
@@ -1156,6 +1154,7 @@
 		this.addKubernetesPalette();
 		this.addMockupPalette();
 		this.addSitemapPalette();
+		this.addUml25Palette();
 		this.addUmlPalette(false);
 		this.addAlliedTelesisPalette();
 		this.addAWS3Palette();

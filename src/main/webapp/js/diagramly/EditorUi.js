@@ -9916,23 +9916,27 @@
 				this.editor.autosave = mxSettings.getAutosave();
 			}
 			
-			/**
-			 * 
-			 */
 			if (this.sidebar != null)
 			{
-				this.sidebar.showPalette('search', mxSettings.settings.search);
-			}
-			
-			/**
-			 * Shows scratchpad if never shown.
-			 */
-			if ((!this.editor.chromeless || this.editor.editable) &&
-				this.sidebar != null && (mxSettings.settings.isNew ||
-				parseInt(mxSettings.settings.version || 0) <= 8))
-			{
-				this.toggleScratchpad();
-				mxSettings.save();
+				if (urlParams['search-shapes'] != null && this.sidebar.searchShapes != null)
+				{
+					this.sidebar.searchShapes(urlParams['search-shapes']);
+					this.sidebar.showEntries('search');
+				}
+				else
+				{
+					this.sidebar.showPalette('search', mxSettings.settings.search);
+					
+					/**
+					 * Shows scratchpad if never shown.
+					 */
+					if ((!this.editor.chromeless || this.editor.editable) && (mxSettings.settings.isNew ||
+						parseInt(mxSettings.settings.version || 0) <= 8))
+					{
+						this.toggleScratchpad();
+						mxSettings.save();
+					}
+				}
 			}
 
 			// Saves app defaults for UI

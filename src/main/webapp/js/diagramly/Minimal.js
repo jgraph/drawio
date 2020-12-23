@@ -1012,9 +1012,15 @@ EditorUi.initMinimalTheme = function()
 		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
 		this.sidebar = this.createSidebar(div);
      
-		if (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null)
+		if (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null || urlParams['search-shapes'] != null)
 		{
 			toggleShapes(this, true);
+			
+			if (this.sidebar != null && urlParams['search-shapes'] != null && this.sidebar.searchShapes != null)
+			{
+				this.sidebar.searchShapes(urlParams['search-shapes']);
+				this.sidebar.showEntries('search');
+			}
 		}
         
 		if (iw >= 1000)

@@ -16,7 +16,7 @@ LucidImporter = {};
 	
 	var arcSize = 6;
 	var edgeStyle = 'html=1;jettySize=18;';
-	var vertexStyle = 'html=1;overflow=block;whiteSpace=wrap;';
+	var vertexStyle = 'html=1;overflow=block;blockSpacing=1;whiteSpace=wrap;';
 	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;';
 	
 	var c = 'fillColor=#036897;strokeColor=#ffffff';
@@ -97,7 +97,7 @@ LucidImporter = {};
 			'DataBlockNew': 'shape=parallelogram;perimeter=parallelogramPerimeter;anchorPointDirection=0',
 			'DatabaseBlock': 'shape=cylinder3;size=4;anchorPointDirection=0;boundedLbl=1;',
 			'DirectAccessStorageBlock': 'shape=cylinder3;direction=south;size=10;anchorPointDirection=0;boundedLbl=1;',
-			'InternalStorageBlock': 'shape=internalStorage;dx=10;dy=10',
+			'InternalStorageBlock': cs,
 			'PaperTapeBlock': 'shape=tape;size=0.2',
 			'ManualOperationBlockNew': 'shape=trapezoid;perimeter=trapezoidPerimeter;anchorPointDirection=0;flipV=1',
 			'DelayBlock': 'shape=delay',
@@ -4487,7 +4487,7 @@ LucidImporter = {};
 	function getLabelStyle(properties, noLblStyle)
 	{
 		var style = 'whiteSpace=wrap;' + (noLblStyle? 
-				'overflow=block;html=1;fontSize=' + defaultFontSize + ';' +
+				'overflow=block;blockSpacing=1;html=1;fontSize=' + defaultFontSize + ';' +
 				gFontFamilyStyle
 				: 
 				getFontSize(properties) +
@@ -4518,7 +4518,7 @@ LucidImporter = {};
 		}
 		
 		s += 'whiteSpace=wrap;' + 
-		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;') + 
+		  (noLblStyle? (hasStyle(style, 'overflow')? '' : 'overflow=block;blockSpacing=1;') + 
 			(hasStyle(style, 'html')? '' : 'html=1;') + 'fontSize=' + defaultFontSize + ';' +
 			gFontFamilyStyle
 			:
@@ -4911,7 +4911,7 @@ LucidImporter = {};
 				{
 					if (currM.n == 'il')
 					{
-						return 'spacingLeft=' + currM.v * 0.6 + ';';
+						return 'spacingLeft=' + currM.v * scale + ';';
 					}
 					/*else
 					{
@@ -4920,7 +4920,7 @@ LucidImporter = {};
 						if (currM.n == 's' && align != 'align=center;' && align != '')
 						{
 							// TODO: Fix condition to apply this only when necessary
-							//return 'spacingLeft=' + currM.v * 0.6 + ';';
+							//return 'spacingLeft=' + currM.v * scale + ';';
 						}
 					}*/
 				}
@@ -4952,7 +4952,7 @@ LucidImporter = {};
 					{
 						isIR = true;
 						
-						return 'spacingRight=' + currM.v + ';';
+						return 'spacingRight=' + currM.v * scale + ';';
 					}
 				}
 				
@@ -4982,7 +4982,7 @@ LucidImporter = {};
 					if (currM.v != null)
 					{
 						isMT = true;
-						return 'spacingTop=' + currM.v + ';';
+						return 'spacingTop=' + currM.v * scale + ';';
 					}
 				}
 				
@@ -5012,7 +5012,7 @@ LucidImporter = {};
 					if (currM.v != null)
 					{
 						isMB = true;
-						return 'spacingBottom=' + currM.v + ';';
+						return 'spacingBottom=' + currM.v * scale + ';';
 					}
 				}
 				
@@ -6502,6 +6502,11 @@ LucidImporter = {};
 		LucidImporter.hasUnknownShapes = false;
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
 		
+		if (advImpConfig && advImpConfig.transparentEdgeLabels)
+		{
+			labelStyle = labelStyle.replace('labelBackgroundColor=#ffffff;', 'labelBackgroundColor=none;');
+		}
+		
 		// Extracts and sorts all pages
 		var pages = [];
 
@@ -6936,7 +6941,7 @@ LucidImporter = {};
 				if (hasTxt)
 				{
 					v.value = convertText(p[mainTxtFld]);
-					v.style += (isLastLblHTML? 'overflow=block;fontSize=' + defaultFontSize + ';' +
+					v.style += (isLastLblHTML? 'overflow=block;blockSpacing=1;fontSize=' + defaultFontSize + ';' +
 							gFontFamilyStyle
 							: 
 							getFontSize(p[mainTxtFld]) +
@@ -7955,7 +7960,7 @@ LucidImporter = {};
 					v.insert(tab[i]);
 					tab[i].value = convertText(p["Tab_" + i]);
 					
-					tab[i].style += (isLastLblHTML? 'overflow=block;html=1;fontSize=' + defaultFontSize + ';' +
+					tab[i].style += (isLastLblHTML? 'overflow=block;blockSpacing=1;html=1;fontSize=' + defaultFontSize + ';' +
 									gFontFamilyStyle
 									:
 									getFontSize(p["Tab_" + i]) +
@@ -12797,6 +12802,7 @@ LucidImporter = {};
 						{
 							var shape = stencil.stencils[i];
 							var cell = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=' + shape.shapeStencil + ';');
+							var sfc = shape.FillColor, slc = shape.LineColor, slw = shape.LineWidth;
 							
 							if (shape.FillColor == 'prop')
 							{
@@ -12824,6 +12830,8 @@ LucidImporter = {};
 							}
 							//Add stencil styles
 							cell.style += addAllStyles(cell.style, shape, a, cell, isLastLblHTML);
+							// Restore shape properties
+							shape.FillColor = sfc; shape.LineColor = slc; shape.LineWidth = slw;
 							//Add other styles from parent
 							var fc = p.FillColor, lc = p.LineColor, lw = p.LineWidth;
 							p.FillColor = null; p.LineColor = null; p.LineWidth = null;
@@ -13055,6 +13063,52 @@ LucidImporter = {};
 						v.insert(inner);
 					break;
 				}
+			break;
+			case 'InternalStorageBlock': 
+				v.style += 'shape=internalStorage;dx=10;dy=10';
+				
+				//Adjust left and top spacing to handle the shape
+				if (p.Text && p.Text.m)
+				{
+					var m = p.Text.m, isMT = false, isIL = false;
+	
+					for (var i = 0; i < m.length; i++)
+					{
+						var currM = m[i];
+						
+						if (!isMT && currM.n == 'mt')
+						{
+							currM.v = 17 + (currM.v || 0);
+							isMT = true;
+						}
+						else if (!isIL && currM.n == 'il')
+						{
+							currM.v = 17 + (currM.v || 0);
+							isIL = true;
+						}
+					}
+
+					if (!isMT)
+					{
+						m.push({
+							"s": 0,
+                            "n": "mt",
+                            "v": 17
+						});
+					}
+					
+					if (!isIL)
+					{
+						m.push({
+							"s": 0,
+                            "n": "il",
+                            "v": 17
+						});
+					}
+				}
+				
+				v.value = convertText(p);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 			break;
 		}
 

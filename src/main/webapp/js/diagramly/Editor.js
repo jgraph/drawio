@@ -2050,6 +2050,10 @@
 						console.log('ExtFonts format error: ' + e.message);
 					}
 				}
+				else if (this.graph.extFonts != null && this.graph.extFonts.length > 0)
+				{
+					this.graph.extFonts = [];
+				}
 			}
 	
 			// Calls updateGraphComponents
@@ -6605,6 +6609,7 @@
 	mxStencilRegistry.libraries['aws3d'] = [SHAPES_PATH + '/mxAWS3D.js', STENCIL_PATH + '/aws3d.xml'];
 	mxStencilRegistry.libraries['aws4'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
 	mxStencilRegistry.libraries['aws4b'] = [SHAPES_PATH + '/mxAWS4.js', STENCIL_PATH + '/aws4.xml'];
+	mxStencilRegistry.libraries['uml25'] = [SHAPES_PATH + '/mxUML25.js'];
 	mxStencilRegistry.libraries['veeam'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam.xml'];
 	mxStencilRegistry.libraries['veeam2'] = [STENCIL_PATH + '/veeam/2d.xml', STENCIL_PATH + '/veeam/3d.xml', STENCIL_PATH + '/veeam/veeam2.xml'];
 	mxStencilRegistry.libraries['pid2inst'] = [SHAPES_PATH + '/pid2/mxPidInstruments.js'];

@@ -249,14 +249,14 @@
 			
 			// Used to request draw.io sources in dev mode
 			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
-			var geBasePath = mxDevUrl + '/grapheditor';
+			var geBasePath = drawDevUrl + '/js/grapheditor';
 			var mxBasePath = mxDevUrl + '/mxgraph';
 			
 			if (document.location.protocol == 'file:')
 			{
-				drawDevUrl = './';
-				geBasePath = '../grapheditor';
+				geBasePath = './js/grapheditor';
 				mxBasePath = './mxgraph';
+				drawDevUrl = './';
 				
 				// Forces includes for dev environment in node.js
 				mxForceIncludes = true;

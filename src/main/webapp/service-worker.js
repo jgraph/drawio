@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "f4ec81ec1ad9fc8f4ef35f3af7854f9a"
+    "revision": "13cb3976757eeadfcab2af7787f59fdb"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "dfc7176d1d195196c4749612f4a673ab"
+    "revision": "441dda769aa367d7a8e96e2106b914e4"
   },
   {
     "url": "js/stencils.min.js",
@@ -18,7 +18,7 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "fafef0a25b40d8a14ae6c88f225ce50f"
+    "revision": "d4e08647ed1af5535730685f546a454f"
   },
   {
     "url": "js/math-print.js",
@@ -26,7 +26,7 @@ if (workbox)
   },
   {
     "url": "index.html",
-    "revision": "0d230ea924531724d0f5cd5f7c645993"
+    "revision": "8ef6cab30fadfb9eaef35903e8b9a379"
   },
   {
     "url": "open.html",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "a2475f420379dca82afebc157a3bf889"
+    "revision": "17db7a4cb54533296e6b1eaaa3f94ab0"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
