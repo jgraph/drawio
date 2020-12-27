@@ -245,10 +245,10 @@
 		if (urlParams['dev'] == '1')
 		{
 			// Used to request grapheditor/mxgraph sources in dev mode
-			var mxDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main';
+			var mxDevUrl = document.location.protocol + '//localhost:8080/';
 			
 			// Used to request draw.io sources in dev mode
-			var drawDevUrl = document.location.protocol + '//devhost.jgraph.com/drawio/src/main/webapp/';
+			var drawDevUrl = document.location.protocol + '//localhost:8080/';
 			var geBasePath = mxDevUrl + '/grapheditor';
 			var mxBasePath = mxDevUrl + '/mxgraph';
 			
@@ -262,15 +262,15 @@
 				mxForceIncludes = true;
 			}
 
-			mxscript(drawDevUrl + 'js/PreConfig.js');
-			mxscript(drawDevUrl + 'js/diagramly/Init.js');
-			mxscript(geBasePath + '/Init.js');
-			mxscript(mxBasePath + '/mxClient.js');
+			mxscript(mxDevUrl + 'js/PreConfig.js');
+			mxscript(mxDevUrl + 'js/diagramly/Init.js');
+			mxscript(mxDevUrl + 'grapheditor/Init.js');
+			mxscript(mxDevUrl + 'mxgraph/mxClient.js');
 			
 			// Adds all JS code that depends on mxClient. This indirection via Devel.js is
 			// required in some browsers to make sure mxClient.js (and the files that it
 			// loads asynchronously) are available when the code loaded in Devel.js runs.
-			mxscript(drawDevUrl + 'js/diagramly/Devel.js');
+			mxscript(mxDevUrl + 'js/diagramly/Devel.js');
 			
 			// Electron
 			if (mxIsElectron)
@@ -279,7 +279,7 @@
 				mxscript('js/diagramly/ElectronApp.js');
 			}
 			
-			mxscript(drawDevUrl + 'js/PostConfig.js');
+			mxscript(mxDevUrl + 'js/PostConfig.js');
 		}
 		else
 		{
