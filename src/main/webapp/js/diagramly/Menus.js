@@ -600,8 +600,8 @@
 						if (!isNaN(val) && val > 0)
 						{
 							editorUi.exportImage(val / 100, transparentBackground, ignoreSelection,
-								addShadow, editable, border, !cropImage, currentPage, null, grid,
-								null, keepTheme, exportType);
+								addShadow, editable, border, !cropImage, false, null, grid, null,
+								keepTheme, exportType);
 						}
 					}), true, true, 'png', true);
 			}

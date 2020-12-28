@@ -2336,7 +2336,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			var inp = document.createElement('input');
 			inp.setAttribute('type', 'checkbox');
-			inp.setAttribute('title', mxResources.get('hideIt', [child.value || mxResources.get('background')]));
+			inp.setAttribute('title', mxResources.get(graph.model.isVisible(child) ?
+				'hide' : 'show'));
 			inp.style.marginLeft = '4px';
 			inp.style.marginRight = '6px';
 			inp.style.marginTop = '4px';

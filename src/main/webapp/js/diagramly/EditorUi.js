@@ -5868,36 +5868,7 @@
 		}
 		
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
-		var hasPages = this.pages != null && this.pages.length > 1;
-		var allPages = this.addCheckbox(div, (hasPages && format != 'svg') ? mxResources.get('allPages') : '', hasPages, !hasPages, null, format != 'jpeg');
-		allPages.style.marginLeft = '24px';
-		allPages.style.marginBottom = '16px';
-		
-		if (!hasPages || format == 'svg')
-		{
-			allPages.style.display = 'none';
-		}
-		else
-		{
-			height += 26;
-		}
-	
-		mxEvent.addListener(include, 'change', function()
-		{
-			if (include.checked && hasPages)
-			{
-				allPages.removeAttribute('disabled');
-			}
-			else
-			{
-				allPages.setAttribute('disabled', 'disabled');
-			}
-		});
-		
-		if (!defaultInclude || !hasPages)
-		{
-			allPages.setAttribute('disabled', 'disabled');
-		}
+		include.style.marginBottom = '16px';
 		
 		var linkSelect = document.createElement('select');
 		linkSelect.style.maxWidth = '260px';
@@ -5935,7 +5906,7 @@
 			this.lastExportZoom = zoomInput.value;
 			
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
-				include.checked, cb5.checked, borderInput.value, cb6.checked, !allPages.checked,
+				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
 				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
 				keepTheme.checked : null, exportSelect.value);
 		}), null, btnLabel, helpLink);
