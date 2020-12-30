@@ -1110,3 +1110,4 @@ embedDrawDiag=draw.io Diagramm einbetten
 addDiagram=Add Diagram
 embedDiagram=Embed Diagram
 editOwningPg=Original-Seite öffnen
+deepIndexing=Deep Indexing (Index diagrams that aren't used in any page also)

@@ -818,17 +818,12 @@ autoUpdater.on('update-available', (a, b) =>
 			
 			var progressBar = new ProgressBar({
 				title: 'draw.io Update',
-			    text: 'Downloading draw.io update...',
-				browserWindow: {
-					webPreferences: {
-						nodeIntegration: true
-					}
-				}
+			    text: 'Downloading draw.io update...'
 			});
 			
 			function reportUpdateError(e)
 			{
-				progressBar.detail = 'Error occured while fetching updates. ' + e
+				progressBar.detail = 'Error occured while fetching updates. ' + (e && e.message? e.message : e)
 				progressBar._window.setClosable(true);
 			}
 
@@ -868,12 +863,7 @@ autoUpdater.on('update-available', (a, b) =>
 						title: 'draw.io Update',
 						text: 'Downloading draw.io update...',
 						detail: `${percent}% ...`,
-						initialValue: percent,
-						browserWindow: {
-							webPreferences: {
-								nodeIntegration: true
-							}
-						}
+						initialValue: percent
 					});
 				
 					progressBar
