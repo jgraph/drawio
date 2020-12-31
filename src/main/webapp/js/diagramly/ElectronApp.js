@@ -1358,6 +1358,17 @@ mxStencilRegistry.allowEval = false;
 	
 	LocalFile.prototype.saveFile = function(revision, success, error, unloading, overwrite)
 	{
+		//Safeguard in case saveFile is called from online code in the future
+		if (typeof success !== 'function')
+		{
+			if (typeof unloading === 'function')
+			{
+				//Call error
+				unloading({message: 'This is a bug, please report!'}); //Original draw.io function parameters are (title, revision, success, error, useCurrentData)
+			}
+			return;
+		}
+		
 		if (!this.savingFile)
 		{
 			var fn = mxUtils.bind(this, function()

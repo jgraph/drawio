@@ -3826,7 +3826,7 @@ App.prototype.pickFile = function(mode)
 			{
 				peer.pickFile();
 			}
-			else if (mode == App.MODE_DEVICE && 'showOpenFilePicker' in window)
+			else if (mode == App.MODE_DEVICE && 'showOpenFilePicker' in window && !EditorUi.isElectronApp)
 			{
 				window.showOpenFilePicker().then(mxUtils.bind(this, function(fileHandles)
 				{
@@ -4661,7 +4661,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					this.fileCreated(file, libs, replace, done, clibs);
 				}), error);
 			}
-			else if (!tempFile && mode == App.MODE_DEVICE && 'showSaveFilePicker' in window)
+			else if (!tempFile && mode == App.MODE_DEVICE && 'showSaveFilePicker' in window && !EditorUi.isElectronApp)
 			{
 				complete();
 				
