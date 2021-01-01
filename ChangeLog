@@ -1,3 +1,11 @@
+01-JAN-2021: 14.1.7
+
+- Fixes NPE for single point edges
+
+31-DEC-2020: 14.1.6
+
+- Internal release for conf/jira cloud changes
+
 31-DEC-2020: 14.1.5
 
 - Desktop fixes for File API clash

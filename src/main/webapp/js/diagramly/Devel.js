@@ -79,13 +79,13 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, '').
 					replace(/  /g, ' '));
-			console.log('confluence.draw.io:',
+			console.log('ac.draw.io:',
 				csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
 					replace(/  /g, ' '));
-			console.log('jira.draw.io:',
+			console.log('aj.draw.io:',
 				csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').

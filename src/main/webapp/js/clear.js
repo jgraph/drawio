@@ -1,12 +1,17 @@
 try
 {
-	write('Clearing Cache...');
-
 	function write(text)
 	{
 		document.body.appendChild(document.createTextNode(text));
+	};
+
+	function writeln(text)
+	{
+		write(text);
 		document.body.appendChild(document.createElement('br'));
 	};
+	
+	write('Clearing Cache...');
 
 	navigator.serviceWorker.getRegistrations().then(function(registrations)
 	{
@@ -17,12 +22,17 @@ try
 				registrations[i].unregister();
 			}
 
-			write('Done');
+			writeln('Done');
 		}
 		else
 		{
-			write('OK');
+			writeln('OK');
 		}
+		
+		var link = document.createElement('a');
+		link.setAttribute('href', './');
+		link.appendChild(document.createTextNode('Start App'));
+		document.body.appendChild(link);
 	});
 }
 catch (e)
