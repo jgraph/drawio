@@ -4636,6 +4636,15 @@
 				{
 					td.appendChild(createStaticArrList(pName, pValue, prop.subType, prop.subDefVal, prop.size, row, flipBkg));
 				}
+				else if (pType == 'readOnly')
+				{
+					var inp = document.createElement('input');
+					inp.setAttribute('readonly', '');
+					inp.value = pValue;
+					inp.style.width = '96px';
+					inp.style.borderWidth = '0px';
+					td.appendChild(inp);
+				}
 				else
 				{
 					td.innerHTML = pValue;
@@ -4807,6 +4816,23 @@
 			
 			var isOdd = false;
 			var flipBkg = false;
+			
+			var cellId = null;
+			
+			if (state.vertices.length == 1 && state.edges.length == 0)
+			{
+				cellId = state.vertices[0].id;
+			}
+			else if (state.vertices.length == 0 && state.edges.length == 1)
+			{
+				cellId = state.edges[0].id;
+			}
+			
+			//Add it to top (always)
+			if (cellId != null)
+			{
+				grid.appendChild(createPropertyRow('id', mxUtils.htmlEntities(cellId), {dispName: 'ID', type: 'readOnly'}, true, false));
+			}
 			
 			for (var key in properties)
 			{

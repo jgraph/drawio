@@ -9,7 +9,10 @@ OneDriveClient = function(editorUi, isExtAuth, inlinePicker)
 		isExtAuth = true;
 	}
 	
-	if (inlinePicker == null && window.urlParams != null && window.urlParams['inlinePicker'] == '1')
+	if (inlinePicker == null && 
+		((window.urlParams != null && window.urlParams['inlinePicker'] == '1') ||
+		mxClient.IS_ANDROID || mxClient.IS_IOS //Mobile devices doesn't work with OneDrive picker, so, use the inline picker
+		))
 	{
 		inlinePicker = true;
 	}

@@ -505,7 +505,7 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							if (urlParams['inlinePicker'] == '1')
+							if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
 							{
 								mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
 								{
@@ -907,7 +907,7 @@ App.main = function(callback, createUi)
 					urlParams['od'] == '1')) && (navigator.userAgent == null ||
 					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 				{
-					if (urlParams['inlinePicker'] == '1')
+					if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
 					{
 						mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
 						{
