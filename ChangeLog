@@ -1,3 +1,16 @@
+13-JAN-2021: 14.2.2
+
+- Fixes decoding of compressed shape files
+
+13-JAN-2021: 14.2.1
+
+- Fixes UInt8Array call stack size exception
+
+13-JAN-2021: 14.2.0
+
+- Disables Trello by default
+- Updates pako to 2.0.3
+
 09-JAN-2021: 14.1.9
 
 - AWS stencil update

@@ -134,6 +134,7 @@ LucidImporter = {};
 			'RightArrowBlock': cs,
 			'DoubleArrowBlock': cs,
 			'CalloutBlock': s + 'basic.rectangular_callout',
+			'CalloutSquareBlock': cs,
 			'ShapeCircleBlock': 'ellipse',
 			'ShapePolyStarBlock': s + 'basic.star',
 			'ShapeDiamondBlock': 'rhombus',
@@ -306,7 +307,7 @@ LucidImporter = {};
 //BPMN 2.0
 			'BPMNActivity' : cs,
 			'BPMNEvent' : cs,
-//			'BPMNChoreography' : cs, //TODO
+			'BPMNChoreography' : cs,
 			'BPMNConversation' : cs,
 			'BPMNGateway' : cs,
 			'BPMNData' : cs,
@@ -2645,13 +2646,13 @@ LucidImporter = {};
 			'UI2HorizontalRadioBlock' : cs,
 			'UI2ColorPickerBlock' : s + 'mockup.forms.colorPicker;chosenColor=#aaddff',
 			'UI2TextInputBlock' : '',
-			'UI2SelectBlock' : s + 'mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666',
+			'UI2SelectBlock' : cs,
 			'UI2VSliderBlock' : cs,
 			'UI2HSliderBlock' : cs,
 			'UI2DatePickerBlock' : cs,
 			'UI2SearchBlock' : cs,
 			'UI2NumericStepperBlock' : cs,
-			'UI2TableBlock' : cs, //TODO
+			'UI2TableBlock' : cs,
 //UI Menus
 			'UI2ButtonBarBlock' : cs,
 			'UI2VerticalButtonBarBlock' : cs,
@@ -3814,7 +3815,8 @@ LucidImporter = {};
 //Infographics
 			'InfographicsBlock': cs,
 //Other
-			'FlexiblePolygonBlock': cs
+			'FlexiblePolygonBlock': cs,
+			'PersonRoleBlock' : cs
 	};
 	
 	function mapFontFamily(fontFamily)
@@ -6750,6 +6752,19 @@ LucidImporter = {};
 		return false;
 	}
 	
+	function getDarkerClr(clr, perc)
+	{
+		function modComp(comp)
+		{
+			var v = Math.round(parseInt('0x' + comp) * perc).toString(16);
+			return v.length == 1? '0' + v : v;
+		}
+		
+		return '#' + modComp(clr.substr(1, 2)) +
+						 		modComp(clr.substr(3, 2)) +
+								modComp(clr.substr(5, 2));
+	};
+					
 	//composite shapes
 	function addCompositeShape(obj, select, graph)
 	{
@@ -9076,6 +9091,59 @@ LucidImporter = {};
 
 				break;
 			case 'BPMNChoreography' :
+				try
+				{
+					var st = getColor(p.FillColor);
+					var darkerClr = getDarkerClr(st, 0.75);
+					
+					var fz = getFontSize(p.Name).match(/\d+/);
+					var th = Math.max(mxUtils.getSizeForString(p.Name.t, fz? fz[0] : defaultFontSize, null, w - 10).height, 24);
+					st = 'swimlaneFillColor=' + darkerClr + ';'
+					
+					v.value = convertText(p.Name);
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
+						'startSize=' + th + ';spacingLeft=3;spacingRight=3;fontStyle=0;' +
+						getLabelStyle(p.Name, isLastLblHTML);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+					
+					var curY = th;
+					var fz = getFontSize(p.TaskName).match(/\d+/);
+					var curH = p.TaskHeight? p.TaskHeight * scale : Math.max(mxUtils.getSizeForString(p.TaskName.t, fz? fz[0] : defaultFontSize, null, w - 10).height + 15, 24);
+					var task = new mxCell('', new mxGeometry(0, curY, w, curH), 'part=1;html=1;resizeHeight=0;spacingTop=-1;spacingLeft=3;spacingRight=3;');
+					task.value = convertText(p.TaskName);
+					task.vertex = true;
+					v.insert(task);
+					task.style += getLabelStyle(p.TaskName, isLastLblHTML);
+					task.style += addAllStyles(task.style, p, a, task, isLastLblHTML);
+					curY += curH;
+					
+					var item = [];
+					
+					for (var i = 0; i < p.Fields; i++)
+					{
+						var pTxt = p['Participant' + (i + 1)];
+						var fz = getFontSize(pTxt).match(/\d+/);
+						var curH =  Math.max(mxUtils.getSizeForString(pTxt.t, fz? fz[0] : defaultFontSize, null, w - 10).height, 24);
+						item[i] = new mxCell('', new mxGeometry(0, curY, w, curH), 'part=1;html=1;resizeHeight=0;fillColor=none;spacingTop=-1;spacingLeft=3;spacingRight=3;');
+						curY += curH;
+						item[i].vertex = true;
+						v.insert(item[i]);
+						item[i].style += getLabelStyle(pTxt, isLastLblHTML);
+						item[i].style += addAllStyles(item[i].style, p, a, item[i], isLastLblHTML);
+						item[i].value = convertText(pTxt);
+					}
+	/*
+	TODO: Add support for the following
+					"bpmnChoreographyType": 0, //Plus sign
+	                "initiatingMessage": 0, //Envelop before
+	                "responseMessage": 0, //Envelop after
+	*/
+				}
+				catch(e)
+				{
+					//Ignore
+					console.log(e);
+				}
 				break;
 			case 'BPMNConversation' :
 				v.style += 'shape=hexagon;perimeter=hexagonPerimeter2;';
@@ -9421,7 +9489,7 @@ LucidImporter = {};
 				v.insert(text1);
 				text1.value = convertText(p.Title);
 				text1.style += getLabelStyle(p.Title, isLastLblHTML);
-
+				p.Text = null;
 				break;
 				
 			case 'VSMSharedProcessBlock' :
@@ -11028,7 +11096,7 @@ LucidImporter = {};
 				}
 
 				v.style += addAllStyles(v.style, p, a, v);
-
+				p.Text = null;
 				break;
 			case 'UI2AccordionBlock' :
 				
@@ -11605,7 +11673,10 @@ LucidImporter = {};
 				}
 				
 				break;
-				
+			case 'UI2SelectBlock' : 
+				v.style += 'shape=mxgraph.mockup.forms.comboBox;strokeColor=#999999;fillColor=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666';
+				v.value = convertText(p.Selected);
+				break;
 			case 'UI2HSliderBlock' :
 			case 'UI2VSliderBlock' :
 				v.style += 'shape=mxgraph.mockup.forms.horSlider;sliderStyle=basic;handleStyle=handle;';
@@ -11676,8 +11747,103 @@ LucidImporter = {};
 				break;
 				
 			case 'UI2TableBlock' :
-				//TODO Add this (probably a table support in general)
-				LucidImporter.hasUnknownShapes = true;
+				//Create table as HTML one
+				try
+				{
+					var fillClr = getColor(p.FillColor), lineClr = getColor(p.LineColor), header, altRow, borderStyle = '', rowH = 20;
+					v.style = 'html=1;overflow=fill;verticalAlign=top;spacing=0;';
+					var htmlTable = '<table style="width:100%;height:100%;border-collapse: collapse;border: 1px solid ' + lineClr + ';">';
+					var csvLines = p.Data.split('\n');
+					
+					if (!p.AltRow || p.AltRow == 'default')
+					{
+						altRow = getDarkerClr(fillClr, 0.95);
+					}
+					else if (p.AltRow == 'none')
+					{
+						altRow = fillClr;
+					}
+					else
+					{
+						altRow = getColor(p.AltRow);
+					}
+					
+					if (!p.Header || p.Header == 'default')
+					{
+						header = getDarkerClr(fillClr, 0.8);
+					}
+					else if (p.Header == 'none')
+					{
+						header = altRow;
+					}
+					else
+					{
+						header = getColor(p.Header);
+					}
+					
+					if (p.GridLines == 'full')
+					{
+						borderStyle = 'border: 1px solid ' + lineClr;
+						rowH = 19;
+					}
+					else if (p.GridLines == 'row')
+					{
+						borderStyle = 'border-bottom: 1px solid ' + lineClr;
+						rowH = 19;
+					}
+					else if (p.GridLines == 'default' || p.GridLines == 'column')
+					{
+						borderStyle = 'border-right: 1px solid ' + lineClr;
+					}
+					
+					csvLines = csvLines.filter(function(l)
+					{
+						return l;
+					});
+					
+					if (/^\{[^}]*\}$/.test(csvLines[csvLines.length - 1]))
+					{
+						csvLines.pop();
+					}
+					
+					var cols = csvLines[0].split(',').length;
+					
+					var emptyRow = '';
+					
+					for (var j = 0; j < cols - 1; j++)
+					{
+						emptyRow += ' , ';
+					}
+							
+					for (var i = csvLines.length; i < Math.ceil(h / 20); i++)
+					{
+						csvLines.push(emptyRow)
+					}
+					
+					for (var i = 0; i < csvLines.length; i++)
+					{
+						htmlTable += '<tr style="height: ' + rowH + 'px;background:' + (i == 0? header : 
+								(i % 2? fillClr : altRow)) + '">';
+						var els = csvLines[i].split(',');
+						
+						for (var j = 0; j < els.length; j++)
+						{
+							var cellProp = p['Cell_' + i + '_' + j];
+							var txtClr = cellProp && cellProp.m && cellProp.m[0] && cellProp.m[0].n == 'c'?  getColor(cellProp.m[0].v) : lineClr;
+							htmlTable += '<td style="height: ' + rowH + 'px;color:' + txtClr + ';' + borderStyle + '">' + mxUtils.htmlEntities(els[j]) + '</td>';
+						}
+						
+						htmlTable += '</tr>';
+					}
+					
+					htmlTable += '</table>';
+					v.value = htmlTable;
+				}
+				catch(e)
+				{
+					//Ignore
+					console.log(e);
+				}
 				break;
 			case 'UI2ButtonBarBlock' :
 				v.style += addAllStyles(v.style, p, a, v);
@@ -11962,13 +12128,14 @@ LucidImporter = {};
 				v.style += 'shape=mxgraph.mockup.misc.progressBar;fillColor2=#888888;barPos=' + (p.ScrollVal * 100) + ';';
 				
 				break;
-				
+			
+			case 'CalloutSquareBlock':
 			case 'UI2TooltipSquareBlock' :
-				v.value = convertText(p.Tip);
+				v.value = convertText(p.Tip || p.Text);
 				v.style += 'html=1;shape=callout;flipV=1;base=13;size=7;position=0.5;position2=0.66;rounded=1;arcSize=' + (p.RoundCorners) + ';' +
-					getLabelStyle(p.Tip, isLastLblHTML);
+					getLabelStyle(p.Tip || p.Text, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
-				
+				v.geometry.height += 10;
 				break;
 			case 'UI2CalloutBlock' :
 				v.value = convertText(p.Txt);
@@ -13109,6 +13276,37 @@ LucidImporter = {};
 				
 				v.value = convertText(p);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+			break;
+			case 'PersonRoleBlock' :
+				try
+				{
+					var st = getFillColor(p, a);
+					var th = h/2;
+					st = st.replace('fillColor', 'swimlaneFillColor');
+					
+					if (st == '')
+					{
+						st = 'swimlaneFillColor=#ffffff;'
+					}
+				
+					v.value = convertText(p.Role);
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
+						'startSize=' + th + ';spacingLeft=3;spacingRight=3;fontStyle=0;' +
+						getLabelStyle(p.Role, isLastLblHTML);
+					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+					
+					var name = new mxCell('', new mxGeometry(0, h/2, w, h/2), 'part=1;html=1;resizeHeight=0;spacingTop=-1;spacingLeft=3;spacingRight=3;');
+					name.value = convertText(p.Name);
+					name.vertex = true;
+					v.insert(name);
+					name.style += getLabelStyle(p.Name, isLastLblHTML);
+					name.style += addAllStyles(name.style, p, a, name, isLastLblHTML);
+				}
+				catch(e)
+				{
+					//Ignore
+					console.log(e);
+				}
 			break;
 		}
 

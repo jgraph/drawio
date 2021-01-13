@@ -275,12 +275,10 @@ public class Xml2Js
 				result.append("  var t = f[filename.substring(STENCIL_PATH.length + 1)];\n");
 				result.append("  var s = null;\n");
 				result.append("  if (t != null) {\n");
-				result.append("    t = pako.inflateRaw(atob(t));\n");
-				result.append("    s = new Array(t.length);\n");
-				result.append("    for (var i = 0; i < t.length; i++) {\n");
-				result.append("      s[i] = String.fromCharCode(t[i]);\n");
-				result.append("    };\n");
-				result.append("    s = decodeURIComponent(s.join(''));\n");
+				result.append("    t = pako.inflateRaw(Uint8Array.from(atob(t), function (c) {\n");
+				result.append("      return c.charCodeAt(0);\n");
+				result.append("    }), {to: 'string'});\n");
+				result.append("    s = decodeURIComponent(t);\n");
 				result.append("  }\n");
 				result.append("  if (fn != null && s != null) {\n");
 				result.append(

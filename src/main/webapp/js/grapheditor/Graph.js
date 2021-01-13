@@ -78,6 +78,85 @@ if (!Date.now)
 	};
 }
 
+// Polyfill for Uint8Array.from in IE11 used in Graph.decompress
+// See https://stackoverflow.com/questions/36810940/alternative-or-polyfill-for-array-from-on-the-internet-explorer
+if (!Uint8Array.from) {
+  Uint8Array.from = (function () {
+    var toStr = Object.prototype.toString;
+    var isCallable = function (fn) {
+      return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
+    };
+    var toInteger = function (value) {
+      var number = Number(value);
+      if (isNaN(number)) { return 0; }
+      if (number === 0 || !isFinite(number)) { return number; }
+      return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
+    };
+    var maxSafeInteger = Math.pow(2, 53) - 1;
+    var toLength = function (value) {
+      var len = toInteger(value);
+      return Math.min(Math.max(len, 0), maxSafeInteger);
+    };
+
+    // The length property of the from method is 1.
+    return function from(arrayLike/*, mapFn, thisArg */) {
+      // 1. Let C be the this value.
+      var C = this;
+
+      // 2. Let items be ToObject(arrayLike).
+      var items = Object(arrayLike);
+
+      // 3. ReturnIfAbrupt(items).
+      if (arrayLike == null) {
+        throw new TypeError("Array.from requires an array-like object - not null or undefined");
+      }
+
+      // 4. If mapfn is undefined, then let mapping be false.
+      var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
+      var T;
+      if (typeof mapFn !== 'undefined') {
+        // 5. else
+        // 5. a If IsCallable(mapfn) is false, throw a TypeError exception.
+        if (!isCallable(mapFn)) {
+          throw new TypeError('Array.from: when provided, the second argument must be a function');
+        }
+
+        // 5. b. If thisArg was supplied, let T be thisArg; else let T be undefined.
+        if (arguments.length > 2) {
+          T = arguments[2];
+        }
+      }
+
+      // 10. Let lenValue be Get(items, "length").
+      // 11. Let len be ToLength(lenValue).
+      var len = toLength(items.length);
+
+      // 13. If IsConstructor(C) is true, then
+      // 13. a. Let A be the result of calling the [[Construct]] internal method of C with an argument list containing the single item len.
+      // 14. a. Else, Let A be ArrayCreate(len).
+      var A = isCallable(C) ? Object(new C(len)) : new Array(len);
+
+      // 16. Let k be 0.
+      var k = 0;
+      // 17. Repeat, while k < len… (also steps a - h)
+      var kValue;
+      while (k < len) {
+        kValue = items[k];
+        if (mapFn) {
+          A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
+        } else {
+          A[k] = kValue;
+        }
+        k += 1;
+      }
+      // 18. Let putStatus be Put(A, "length", len, true).
+      A.length = len;
+      // 20. Return A.
+      return A;
+    };
+  }());
+}
+
 // Changes default colors
 /**
  * Measurements Units
@@ -1017,16 +1096,14 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		// Unlocks all cells
 		this.isCellLocked = function(cell)
 		{
-			var pState = this.view.getState(cell);
-			
-			while (pState != null)
+			while (cell != null)
 			{
-				if (mxUtils.getValue(pState.style, 'locked', '0') == '1')
+				if (mxUtils.getValue(this.getCurrentCellStyle(cell), 'locked', '0') == '1')
 				{
 					return true;
 				}
 				
-				pState = this.view.getState(this.model.getParent(pState.cell));
+				cell = this.model.getParent(cell);
 			}
 			
 			return false;
@@ -1308,20 +1385,38 @@ Graph.compressNode = function(node, checked)
 };
 
 /**
+ * Returns a string for the given array buffer.
+ */
+Graph.arrayBufferToString = function(buffer)
+{
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    var len = bytes.byteLength;
+
+    for (var i = 0; i < len; i++)
+	{
+        binary += String.fromCharCode(bytes[i]);
+    }
+
+    return binary;
+}
+
+/**
  * Returns a base64 encoded version of the compressed string.
  */
 Graph.compress = function(data, deflate)
 {
+
 	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
 	{
 		return data;
 	}
 	else
 	{
-   		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data), {to: 'string'}) :
-   			pako.deflateRaw(encodeURIComponent(data), {to: 'string'});
+   		var tmp = (deflate) ? pako.deflate(encodeURIComponent(data)) :
+   			pako.deflateRaw(encodeURIComponent(data));
    		
-   		return (window.btoa) ? btoa(tmp) : Base64.encode(tmp, true);
+   		return btoa(Graph.arrayBufferToString(new Uint8Array(tmp)));
 	}
 };
 
@@ -1336,8 +1431,10 @@ Graph.decompress = function(data, inflate, checked)
 	}
 	else
 	{
-		var tmp = (window.atob) ? atob(data) : Base64.decode(data, true);
-		
+		var tmp = Uint8Array.from(atob(data), function (c)
+		{
+		  return c.charCodeAt(0);
+		});
 		var inflated = decodeURIComponent((inflate) ?
 			pako.inflate(tmp, {to: 'string'}) :
 			pako.inflateRaw(tmp, {to: 'string'}));
@@ -1345,7 +1442,7 @@ Graph.decompress = function(data, inflate, checked)
 		return (checked) ? inflated : Graph.zapGremlins(inflated);
 	}
 };
-	
+
 /**
  * Removes formatting from pasted HTML.
  */

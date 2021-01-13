@@ -532,8 +532,8 @@ App.getStoredMode = function()
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
 				if (typeof window.TrelloClient === 'function')
 				{
-					if (urlParams['tr'] != '0' && isSvgBrowser && !mxClient.IS_IE11 &&
-							(document.documentMode == null || document.documentMode >= 10))
+					if (urlParams['tr'] == '1' && isSvgBrowser && !mxClient.IS_IE11 &&
+						(document.documentMode == null || document.documentMode >= 10))
 					{
 						// Immediately loads client
 						if (App.mode == App.MODE_TRELLO || (window.location.hash != null &&
@@ -623,7 +623,7 @@ App.main = function(callback, createUi)
 	if (window.mxscript != null)
 	{
 		// Checks for script content changes to avoid CSP errors in production
-		if (urlParams['dev'] == '1' && CryptoJS != null)
+		if (urlParams['dev'] == '1' && CryptoJS != null && urlParams['mode'] != 'trello')
 		{
 			var scripts = document.getElementsByTagName('script');
 			
@@ -642,9 +642,9 @@ App.main = function(callback, createUi)
 			// Checks main script
 			if (scripts != null && scripts.length > 1)
 			{
-				var content = mxUtils.getTextContent(scripts[1]);
+				var content = mxUtils.getTextContent(scripts[scripts.length - 1]);
 				
-				if (CryptoJS.MD5(content).toString() != 'd41d8cd98f00b204e9800998ecf8427e')
+				if (CryptoJS.MD5(content).toString() != 'd53805dd6f0bbba2da4966491ca0a505')
 				{
 					console.log('Change main script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 					alert('[Dev] Main script change requires update of CSP');
@@ -928,10 +928,9 @@ App.main = function(callback, createUi)
 				
 				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
 				if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
-					(typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
-					(((urlParams['embed'] != '1' && urlParams['tr'] != '0') || (urlParams['embed'] == '1' &&
-					urlParams['tr'] == '1')) && (navigator.userAgent == null ||
-					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+					typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
+					urlParams['tr'] == '1' && (navigator.userAgent == null ||
+					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 				{
 					mxscript(App.TRELLO_JQUERY_URL, function()
 					{
@@ -4690,7 +4689,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 		catch (e)
 		{
 			complete();
-			this.handleError(e);	
+			this.handleError(e);
 		}
 	}
 };
@@ -5098,7 +5097,14 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							return id;
 						};
 						
-						if (!this.fileLoaded(tempFile, true) && !doFallback())
+						if (this.fileLoaded(tempFile, true))
+						{
+							if (success != null)
+							{
+								success();
+							}
+						}
+						else if (!doFallback())
 						{
 							this.handleError({message: mxResources.get('fileNotFound')},
 								mxResources.get('errorLoadingFile'));

@@ -6,10 +6,10 @@
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
 
 	<target name="merge">
-	    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
-	    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
-	    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
-	    	</concat>
+    	<concat destfile="${basedir}/../../build/shapes.js" fixlastline="yes" append="no">
+    		<fileset dir="${war.dir}/shapes" includes="**/*.js"/>
+    		<fileset dir="${war.dir}/stencils" includes="**/*.js"/>
+    	</concat>
     	
 		<java fork="false" classname="Xml2Js" classpath=".">
 			<arg value="../../src/main/webapp/stencils"/>

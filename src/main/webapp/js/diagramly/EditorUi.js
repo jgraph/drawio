@@ -3943,7 +3943,7 @@
 								fn();
 							}
 						}), 480, 150);
-								
+
 						return;
 					}
 				}
@@ -3972,6 +3972,10 @@
 					else if (e.code == App.ERROR_BUSY)
 					{
 						msg = mxUtils.htmlEntities(mxResources.get('busy'));
+					}
+					else if (typeof e === 'string' && e.length > 0)
+					{
+						msg = mxUtils.htmlEntities(e);
 					}
 				}
 			}
@@ -11249,6 +11253,7 @@
 					}
 					else if (data.action == 'export')
 					{
+						
 						if (data.format == 'png' || data.format == 'xmlpng')
 						{
 							if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
@@ -11296,9 +11301,14 @@
 								var pageId = data.pageId || (this.pages != null? ((data.currentPage) ?
 									this.currentPage.getId() : this.pages[0].getId()) : null);
 								
-								// LATER: Uses external export if current page (not first page) has mathEnabled
 								if (this.isExportToCanvas())
 								{
+									// Uses optional XML from incoming message
+									if (data.xml != null && data.xml.length > 0)
+									{
+										this.setFileData(xml);
+									}
+
 									// Exports PNG for first/specific page while other page is visible by creating a graph
 									// LATER: Add caching for the graph or SVG while not on first page
 									if (this.pages != null && this.currentPage.getId() != pageId)

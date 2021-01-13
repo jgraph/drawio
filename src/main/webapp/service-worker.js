@@ -6,15 +6,15 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "7486559820ac12e5a15afd79033ddba2"
+    "revision": "aa6d4bfad2bdb36b02baee0c68e4e093"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "441dda769aa367d7a8e96e2106b914e4"
+    "revision": "a2e5124e7208db3ca97c24d6a8991c99"
   },
   {
     "url": "js/stencils.min.js",
-    "revision": "8b4158df46f6185e638c8221154d4945"
+    "revision": "8acd653d31d1e6e1b4fd49d4efe2469f"
   },
   {
     "url": "js/shapes.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "6c786d6e2dc2ed57641f2ff49b4afede"
+    "revision": "e7cd5ff255f3f27cc662de7a0965aafa"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -130,7 +130,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
-    "revision": "0e9ad57d31303c201f285b2739f34169"
+    "revision": "c154ee66bab65cd0e476c1d64c64cb8d"
   },
   {
     "url": "connect/confluence/macroEditor-1-4-8.html",
