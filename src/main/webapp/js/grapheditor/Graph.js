@@ -1399,7 +1399,18 @@ Graph.arrayBufferToString = function(buffer)
     }
 
     return binary;
-}
+};
+
+/**
+ * Returns an array buffer for the given string.
+ */
+Graph.stringToArrayBuffer = function(data)
+{
+	return Uint8Array.from(data, function (c)
+	{
+	  return c.charCodeAt(0);
+	});
+};
 
 /**
  * Returns a base64 encoded version of the compressed string.
@@ -1431,10 +1442,7 @@ Graph.decompress = function(data, inflate, checked)
 	}
 	else
 	{
-		var tmp = Uint8Array.from(atob(data), function (c)
-		{
-		  return c.charCodeAt(0);
-		});
+		var tmp = Graph.stringToArrayBuffer(atob(data));
 		var inflated = decodeURIComponent((inflate) ?
 			pako.inflate(tmp, {to: 'string'}) :
 			pako.inflateRaw(tmp, {to: 'string'}));

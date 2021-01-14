@@ -1246,7 +1246,7 @@
 		}
 		else
 		{
-			return pako.deflateRaw(data, {to: 'string'});
+			return Graph.arrayBufferToString(pako.deflateRaw(data));
 		}
 	};
 
@@ -1261,7 +1261,7 @@
 		}
 		else
 		{
-			return pako.inflateRaw(data, {to: 'string'});
+			return pako.inflateRaw(Graph.stringToArrayBuffer(atob(data)), {to: 'string'});
 		}
 	};
 
@@ -1585,8 +1585,8 @@
 					if (value.substring(0, idx) == 'mxGraphModel')
 					{
 						// Workaround for Java URL Encoder using + for spaces, which isn't compatible with JS
-						var xmlData = pako.inflateRaw(value.substring(idx + 2),
-							{to: 'string'}).replace(/\+/g,' ');
+						var xmlData = pako.inflateRaw(Graph.stringToArrayBuffer(
+							value.substring(idx + 2)), {to: 'string'}).replace(/\+/g,' ');
 						
 						if (xmlData != null && xmlData.length > 0)
 						{
@@ -1616,6 +1616,7 @@
 		}
 		catch (e)
 		{
+			console.log('here', e);
 			// ignores decoding errors
 		}
 		

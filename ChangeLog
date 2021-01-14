@@ -1,3 +1,7 @@
+14-JAN-2021: 14.2.3
+
+- Fixes pako encoding issues
+
 13-JAN-2021: 14.2.2
 
 - Fixes decoding of compressed shape files

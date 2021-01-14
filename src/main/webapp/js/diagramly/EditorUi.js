@@ -7328,7 +7328,7 @@
 		// TODO: Remove unescape, use btoa for compatibility with graph.compress
 		function compress(s)
 		{
-			return encode64(pako.deflateRaw(s, { to : 'string' }));
+			return encode64(Graph.arrayBufferToString(pako.deflateRaw(s)));
 		};
 
 		var plantUmlServerUrl = (type == 'txt') ? PLANT_URL + '/txt/' :
