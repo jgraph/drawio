@@ -332,7 +332,7 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 			
 			if (index > 0)
 			{
-				var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+				var xml = this.ui.extractGraphModelFromPng(data);
 				
 				if (xml != null && xml.length > 0)
 				{
@@ -839,7 +839,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 										
 										if (index > 0)
 										{
-											var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+											var xml = this.ui.extractGraphModelFromPng(data);
 											
 											if (xml != null && xml.length > 0)
 											{

@@ -152,7 +152,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 	
 							if (index > 0)
 							{
-								var xml = this.ui.extractGraphModelFromPng(data.substring(index + 1));
+								var xml = this.ui.extractGraphModelFromPng(data);
 								
 								if (xml != null && xml.length > 0)
 								{

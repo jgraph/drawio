@@ -3939,7 +3939,7 @@ LucidImporter = {};
 			var str = '';
 			var t = styles['t'];
 
-			var l = styles['l'] || {};
+			var l = styles['l'] || {v: t.v == 'ul'? 'auto' : 'decimal'};
 			
 			if (t != null && (listActive == false || listActive != t.v || listType != l.v))
 			{
@@ -3962,7 +3962,7 @@ LucidImporter = {};
 					openBlockTags.push('ol');
 				}
 				
-				str += 'style="margin: 0px; padding: 10px;list-style-position: inside; list-style-type:';
+				str += 'style="margin: 0px; padding-left: 10px;list-style-position: inside; list-style-type:';
 				
 				if (t.v == 'hl')
 				{
@@ -6948,7 +6948,7 @@ LucidImporter = {};
 			    var isBPMN = cls.indexOf('BPMN') == 0;
 			    var hasTxt = p[mainTxtFld] != null;
 				
-				v.style = (isPool? 'swimlane;startSize=' + mainTxtHeight + ';' : 'fillColor=none;strokeColor=none;pointerEvents=0;') + 
+				v.style = (isPool? 'swimlane;startSize=' + mainTxtHeight + ';' : 'fillColor=none;strokeColor=none;pointerEvents=0;fontStyle=0;') + 
 					'html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
 					'resizeParent=1;dropTarget=0;' + (rotatedSL? 'horizontalStack=0;' : '');
 				v.style += addAllStyles(v.style, p, a, v);
@@ -6976,7 +6976,7 @@ LucidImporter = {};
 				var totalOffset = 0; //relative
 				var lane = new Array();
 
-				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;startSize=' + laneTxtHeight + ';dropTarget=0;rounded=0;' + 
+				var laneStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;fontStyle=0;startSize=' + laneTxtHeight + ';dropTarget=0;rounded=0;' + 
 								(rotatedSL? 'horizontal=0;': '') +
 								(isBPMN? 'swimlaneLine=0;fillColor=none;' : '');
 				p['Rotation'] = 0; //Override rotation such that it doesn't mess with our coordinates
@@ -7083,7 +7083,7 @@ LucidImporter = {};
 				v.insert(cols);
 				var y = 0;
 				
-				var rowStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;horizontal=0;startSize=' + rowStartSize + ';';
+				var rowStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;horizontal=0;fontStyle=0;startSize=' + rowStartSize + ';';
 				
 				for (var j = 0; j < rowsNum; j++)
 				{
@@ -7120,7 +7120,7 @@ LucidImporter = {};
 									getTextVerticalAlignment(p[curRow]);
 				}
 				
-				var colStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;startSize=' + colStartSize + ';';
+				var colStyle = 'swimlane;html=1;whiteSpace=wrap;container=1;connectable=0;collapsible=0;dropTarget=0;fontStyle=0;startSize=' + colStartSize + ';';
 				var x = 0;
 				
 				for (var j = 0; j < colsNum; j++)
@@ -7168,7 +7168,7 @@ LucidImporter = {};
 				else
 				{
 					v.style = 'swimlane;startSize=25;html=1;whiteSpace=wrap;container=1;collapsible=0;childLayout=stackLayout;' +
-								'resizeParent=1;dropTarget=0;rounded=1;arcSize=20;fontStyle=0';
+								'resizeParent=1;dropTarget=0;rounded=1;arcSize=20;fontStyle=0;';
 					v.value = convertText(p.State, true);
 					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 					v.style += getFillColor(p, a).replace('fillColor', 'swimlaneFillColor');
@@ -7182,7 +7182,7 @@ LucidImporter = {};
 				break;
 			case 'GSDFDProcessBlock' : 
 				var startSize = Math.round(p.nameHeight * scale);
-				v.style = 'shape=swimlane;html=1;rounded=1;arcSize=10;collapsible=0;startSize=' + startSize;
+				v.style = 'shape=swimlane;html=1;rounded=1;arcSize=10;collapsible=0;fontStyle=0;startSize=' + startSize;
 				v.value = convertText(p.Number, true);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				v.style += getFillColor(p, a).replace('fillColor', 'swimlaneFillColor');
@@ -12200,7 +12200,7 @@ LucidImporter = {};
 					}
 					
 					v.value = convertText(p.Title);
-					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
+					v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;fontStyle=0;marginBottom=0;' + st +
 						'startSize=' + th + ';' +
 						getLabelStyle(p.Title, isLastLblHTML);
 					v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -12278,7 +12278,7 @@ LucidImporter = {};
 				}
 				
 				v.value = convertText(p.Name);
-				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;' + st +
+				v.style += 'swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;fontStyle=0;marginBottom=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
@@ -12335,7 +12335,7 @@ LucidImporter = {};
 				}
 				
 				v.value = convertText(p.Name);
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name, isLastLblHTML);
 
@@ -12420,7 +12420,7 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name);
 
@@ -12506,7 +12506,7 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name);
 
