@@ -233,6 +233,27 @@ mxShape.prototype.getConstraints = function(style, w, h)
 	return null;
 };
 
+// Override for clipSvg style.
+mxImageShape.prototype.getImageDataUri = function()
+{
+	var src = this.image;
+	
+	if (src.substring(0, 26) == 'data:image/svg+xml;base64,' && this.style != null &&
+		mxUtils.getValue(this.style, 'clipSvg', '0') == '1')
+	{
+		if (this.clippedSvg == null || this.clippedImage != src)
+		{
+			this.clippedSvg = Graph.clipSvgDataUri(src);
+			this.clippedImage = src;
+		}
+		
+		src = this.clippedSvg;
+	}
+
+	return src;
+};
+
+
 /**
  * Constructs a new graph instance. Note that the constructor does not take a
  * container because the graph instance is needed for creating the UI, which
@@ -1498,6 +1519,88 @@ Graph.sanitizeHtml = function(value, editing)
     function idX(id) { return id };
 	
 	return html_sanitize(value, urlX, idX);
+};
+
+/**
+ * Removes all script tags and attributes starting with on.
+ */
+Graph.sanitizeSvg = function(div)
+{
+	// Removes all attributes starting with on
+	var all = div.getElementsByTagName('*');
+	
+	for (var i = 0; i < all.length; i++)
+	{
+		for (var j = 0; j < all[i].attributes.length; j++)
+		{
+			var attr = all[i].attributes[j];
+			
+			if (attr.name.length > 2 && attr.name.toLowerCase().substring(0, 2) == 'on')
+			{
+				all[i].removeAttribute(attr.name);
+			}
+	    }
+	}
+	
+	// Removes all script tags
+	var scripts = div.getElementsByTagName('script');
+	
+	while (scripts.length > 0)
+	{
+		scripts[0].parentNode.removeChild(scripts[0]);
+	}
+};
+
+/**
+ * Updates the viewbox, width and height in the given SVG data URI
+ * and returns the updated data URI with all script tags and event
+ * handlers removed.
+ */
+Graph.clipSvgDataUri = function(dataUri)
+{
+	// LATER Add workaround for non-default NS declarations with empty URI not allowed in IE11
+	if (!mxClient.IS_IE && !mxClient.IS_IE11 && dataUri != null &&
+		dataUri.substring(0, 26) == 'data:image/svg+xml;base64,')
+	{
+		try
+		{
+			var div = document.createElement('div');
+			div.style.position = 'absolute';
+			div.style.visibility = 'hidden';
+			
+			// Adds the text and inserts into DOM for updating of size
+			div.innerHTML = atob(dataUri.substring(26));
+			
+			// Removes all attributes starting with on
+			Graph.sanitizeSvg(div);
+			
+			// Gets the size and removes from DOM
+			var svgs = div.getElementsByTagName('svg');
+			
+			if (svgs.length > 0)
+			{
+				document.body.appendChild(div);
+				var size = svgs[0].getBBox();
+				document.body.removeChild(div);
+			
+				if (size.width > 0 && size.height > 0)
+				{
+					div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
+						' ' + size.y + ' ' + size.width + ' ' + size.height);
+					div.getElementsByTagName('svg')[0].setAttribute('width', size.width);
+					div.getElementsByTagName('svg')[0].setAttribute('height', size.height);
+					
+					dataUri = 'data:image/svg+xml;base64,' + btoa(div.innerHTML);
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+	
+	return dataUri;
 };
 
 /**

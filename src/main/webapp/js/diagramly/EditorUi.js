@@ -8178,7 +8178,7 @@
 						    			if (file.type.substring(0, 9) == 'image/svg')
 						    			{
 						    				// Checks if SVG contains content attribute
-					    					var data = e.target.result;
+					    					var data = Graph.clipSvgDataUri(e.target.result);
 					    					var comma = data.indexOf(',');
 					    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
 					    					var root = mxUtils.parseXml(svgText);
@@ -11378,7 +11378,7 @@
 							       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
 							       		((data.format == 'xmlpng') ? '1' : '0') + 
 							       		(pageId != null? '&pageId=' + pageId : '') +
-							       		(data.layerIds != null? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
+							       		(data.layerIds != null && data.layerIds.length > 0? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
 							       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
 							       		encodeURIComponent(xml));
 	

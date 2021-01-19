@@ -43,7 +43,7 @@ var queryObj = {
 	'browser': 0,
 	'picker': 0,
 	'mode': 'device',
-	'export': 'https://exp.draw.io/ImageExport4/export'
+	'export': 'https://convert.diagrams.net/node/export'
 };
 
 try

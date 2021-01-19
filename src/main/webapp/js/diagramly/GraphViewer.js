@@ -881,7 +881,7 @@ GraphViewer.prototype.updateContainerHeight = function(container, height)
 GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 {
 	var layers = this.graphConfig.layers;
-	var idx = (layers != null) ? layers.split(' ') : [];
+	var idx = (layers != null && layers.length > 0) ? layers.split(' ') : [];
 	var layerIds = this.graphConfig.layerIds;
 	var hasLayerIds = layerIds != null && layerIds.length > 0;
 	var result = false;

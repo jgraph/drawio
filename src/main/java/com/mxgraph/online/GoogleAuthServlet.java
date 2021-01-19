@@ -3,7 +3,18 @@
  */
 package com.mxgraph.online;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 
 @SuppressWarnings("serial")
 public class GoogleAuthServlet extends AbsAuthServlet
@@ -57,6 +68,112 @@ public class GoogleAuthServlet extends AbsAuthServlet
 		cookiePath = "/google";
 	}
 	
+	protected String getTokenFromCookieVal(String tokenCookieVal, HttpServletRequest request)
+	{
+		String userId = request.getParameter("userId");
+		
+		if (tokenCookieVal != null && userId != null)
+		{
+			String[] tokens = tokenCookieVal.split(SEPARATOR);
+			
+			for (int i = 0; i < tokens.length; i++)
+			{
+				if (tokens[i].startsWith(userId + ":"))
+				{
+					return tokens[i].substring(userId.length() + 1);
+				}
+			}
+		}
+
+		return tokenCookieVal;
+	}
+	
+	protected String getRefreshTokenCookie(String refreshToken, String tokenCookieVal, String accessToken) 
+	{
+		HttpURLConnection con = null;
+		String userId = null;
+		
+		try
+		{
+			URL obj = new URL("https://www.googleapis.com/oauth2/v2/userinfo?alt=json");
+			con = (HttpURLConnection) obj.openConnection();
+			con.setRequestProperty("Authorization", "Bearer " + accessToken);
+			con.setRequestProperty("User-Agent", "draw.io");
+			int status = con.getResponseCode();
+			
+			if (status >= 200 && status <= 299)
+			{
+				BufferedReader in = new BufferedReader(
+						new InputStreamReader(con.getInputStream()));
+				String inputLine;
+				StringBuffer strRes = new StringBuffer();
+				
+				while ((inputLine = in.readLine()) != null)
+				{
+					strRes.append(inputLine);
+				}
+				in.close();
+				
+				userId = new Gson().fromJson(strRes.toString(), JsonElement.class).getAsJsonObject().get("id").getAsString();
+			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		if (userId != null)
+		{
+			ArrayList<String> tokens = new ArrayList<>();
+			tokens.add(userId + ":" + refreshToken);
+			
+			if (tokenCookieVal != null)
+			{
+				String[] curTokens = tokenCookieVal.split(SEPARATOR);
+				
+				for (int i = 0; i < curTokens.length; i++)
+				{
+					if (!curTokens[i].startsWith(userId + ":"))
+					{
+						tokens.add(curTokens[i]);
+					}
+				}
+			}
+			
+			return String.join(SEPARATOR, tokens);
+		}
+		
+		return tokenCookieVal; //If we couldn't get the userId, we just return existing tokens such that we don't corrupt them
+	}
+	
+	protected void logout(String tokenCookieName, String tokenCookieVal, HttpServletRequest request, HttpServletResponse response)
+	{
+		String userId = request.getParameter("userId");
+		
+		if (tokenCookieVal != null && userId != null)
+		{
+			ArrayList<String> tokens = new ArrayList<>();
+			String[] curTokens = tokenCookieVal.split(SEPARATOR);
+			
+			for (int i = 0; i < curTokens.length; i++)
+			{
+				if (!curTokens[i].startsWith(userId + ":"))
+				{
+					tokens.add(curTokens[i]);
+				}
+			}
+			
+			if (tokens.size() > 0)
+            {
+                addCookie(tokenCookieName, String.join(SEPARATOR, tokens), TOKEN_COOKIE_AGE, response);
+            }
+            else
+            {
+                deleteCookie(tokenCookieName, response);
+            }
+		}
+	}
+	
 	protected String processAuthResponse(String authRes, boolean jsonResponse)
 	{
 		StringBuffer res = new StringBuffer();
@@ -65,14 +182,14 @@ public class GoogleAuthServlet extends AbsAuthServlet
 		//	also with the redirect (since we had to open google auth in the same window) we lost Office Messaging.
 		//	This is due to using Google own file picker instead of creating our own picker 
 		//	(as we did with OneDrive since its picker only support popup windows which is not supported in Office)
-		//	This is why we load drive.js which define onGDriveCallback and redirects automatically to the page including the picker
+		//	This is why we load driveLoader.js which define onGDriveCallback and redirects automatically to the page including the picker
 		//	For other scenarios, we use another function name (onGoogleDriveCallback)
 		if (!jsonResponse)
 		{
 			res.append("<!DOCTYPE html><html><head>");
-			res.append("<script src=\"/connect/office365/js/drive.js\" type=\"text/javascript\"></script>");
+			res.append("<script src=\"/connect/office365/js/driveLoader.js\" type=\"text/javascript\"></script>");
 			res.append("<script type=\"text/javascript\">");
-			res.append("var authInfo = ");  //The following is a json containing access_token and redresh_token
+			res.append("(function() { var authInfo = ");  //The following is a json containing access_token
 		}
 		
 		res.append(authRes);
@@ -86,10 +203,10 @@ public class GoogleAuthServlet extends AbsAuthServlet
 			res.append("} else {");
 			res.append("	onGDriveCallback(authInfo);");
 			res.append("}");
-			res.append("</script>");
+			res.append("})();</script>");
 			res.append("</head><body></body></html>");
 		}
-		
+
 		return res.toString();
 	}
 }

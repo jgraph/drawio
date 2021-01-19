@@ -3939,7 +3939,7 @@ LucidImporter = {};
 			var str = '';
 			var t = styles['t'];
 
-			var l = styles['l'] || {v: t.v == 'ul'? 'auto' : 'decimal'};
+			var l = styles['l'] || {v: t && t.v == 'ul'? 'auto' : 'decimal'};
 			
 			if (t != null && (listActive == false || listActive != t.v || listType != l.v))
 			{

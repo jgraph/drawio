@@ -472,7 +472,8 @@ function render(data)
 		}
 		
 		//handle layers
-		if (extras != null && (extras.layers != null || extras.layerIds != null))
+		if (extras != null && ((extras.layers != null && extras.layers.length > 0) || 
+							   (extras.layerIds != null && extras.layerIds.length > 0)))
 		{
 			var childCount = model.getChildCount(model.root);
 			

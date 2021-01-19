@@ -1,3 +1,7 @@
+19-JAN-2021: 14.2.5
+
+- Add client-side clipping of SVG
+
 15-JAN-2021: 14.2.4
 
 - Improves Lucidchart import

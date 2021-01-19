@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "74aaeaa945fec606b30675ebcaf45a1a"
+    "revision": "6a0da56e859276fff8a443c0f173cf7d"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "dfaa44a7e26f7ae8005bd93f06c680de"
+    "revision": "9645dc6eea1281f4063180f1850198f1"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "9d65b5ffbb401d5eb70d1596de83bfaa"
+    "revision": "66f1929d62df26763421d0686c573975"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -110,15 +110,15 @@ if (workbox)
   },
   {
     "url": "connect/new_common/cac.js",
-    "revision": "4d1fca3ba65b2c1f10d20682539488cd"
+    "revision": "b1eb16ac1824f26824c748e8b8028e30"
   },
   {
     "url": "connect/gdrive_common/gac.js",
-    "revision": "4b19c3b6ad18439d58cd71050582b9bb"
+    "revision": "faa10d78e18d4958112791ffd98a29cb"
   },
   {
     "url": "connect/onedrive_common/ac.js",
-    "revision": "ce65e4be12972a0ffb3bff7d54282480"
+    "revision": "921bc1adefde437348eb08813b4a9b73"
   },
   {
     "url": "connect/confluence/viewer-init.js",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "b45421970eafa6ea34306b9aaed4b477"
+    "revision": "e5cef7b43700d9b3608eafdcb27dee02"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/includeDiagram-1-4-8.js",
-    "revision": "ee0d8fcf6e8c3ad95059d8329a7d4980"
+    "revision": "17658d24e7f2e37b24f787b06b8d1722"
   },
   {
     "url": "connect/confluence/includeDiagram.html",
@@ -234,7 +234,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_eu.txt",
-    "revision": "5e1bbd8c10178b3394f99cfb2d67a0a5"
+    "revision": "ad9682a81090bf770b48a3295683a343"
   },
   {
     "url": "resources/dia_fa.txt",

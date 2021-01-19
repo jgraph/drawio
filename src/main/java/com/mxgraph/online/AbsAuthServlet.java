@@ -27,17 +27,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.utils.SystemProperty;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 @SuppressWarnings("serial")
 abstract public class AbsAuthServlet extends HttpServlet
 {
 	private static final Logger log = Logger.getLogger(AbsAuthServlet.class.getName());
 	private static final boolean DEBUG = false;
-	private static final String SEPARATOR = "/:::/";
+	protected static final String SEPARATOR = "/:::/";
 	public static final int X_WWW_FORM_URLENCODED = 1;
 	public static final int JSON = 2;
 	private static final String STATE_COOKIE = "auth-state";
-	protected static final int COOKIE_AGE = 600;
+	private static final String TOKEN_COOKIE = "auth-token";
+	protected static final int STATE_COOKIE_AGE = 600; //10 min
+	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
+	
 	
 	public static final SecureRandom random = new SecureRandom();
 	protected static Cache tokenCache;
@@ -115,6 +121,48 @@ abstract public class AbsAuthServlet extends HttpServlet
 		tokenCache.put(key, val);
 	}
 	
+	protected String getCookieValue(String name, HttpServletRequest request)
+	{
+		String val = null;
+		
+		Cookie[] cookies = request.getCookies();
+		
+		if (cookies != null)
+		{
+			for (Cookie cookie : cookies)
+			{
+				if (name.equals(cookie.getName()))
+				{
+					val = cookie.getValue();
+					break;
+				}
+			}
+		}
+		
+		return val;
+	}
+	
+	protected void addCookie(String name, String val, int age, HttpServletResponse response)
+	{
+		response.addHeader("Set-Cookie", name + "=" + val + "; Max-Age=" + age + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none");
+	}
+	
+	protected void deleteCookie(String name, HttpServletResponse response)
+	{
+		response.addHeader("Set-Cookie", name + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
+	}
+	
+	//To support multiple tokens in one cookie
+	protected String getTokenFromCookieVal(String tokenCookieVal, HttpServletRequest request)
+	{
+		return tokenCookieVal;
+	}
+	
+	protected void logout(String tokenCookieName, String tokenCookieVal, HttpServletRequest request, HttpServletResponse response)
+	{
+		deleteCookie(tokenCookieName, response);
+	}
+	
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -131,7 +179,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
-			response.setHeader("Set-Cookie", STATE_COOKIE + "=" + key + "; Max-Age=" + COOKIE_AGE + ";path=" + cookiePath + "; Secure; HttpOnly; SameSite=none"); //10 min to finish auth
+			addCookie(STATE_COOKIE, key, STATE_COOKIE_AGE, response); //10 min to finish auth
 			response.setHeader("Content-Type", "text/plain");
 			OutputStream out = response.getOutputStream();
 			out.write(state.getBytes());
@@ -141,7 +189,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 		}
 		
 		String code = request.getParameter("code");
-		String refreshToken = request.getParameter("refresh_token");
 		String error = request.getParameter("error");
 		HashMap<String, String> stateVars = new HashMap<>();
 		String secret = null, client = null, redirectUri = null, domain = null, stateToken = null, cookieToken = null, version = null, successRedirect = null;
@@ -175,24 +222,16 @@ abstract public class AbsAuthServlet extends HttpServlet
 					successRedirect = null;
 				}
 				
-				Cookie[] cookies = request.getCookies();
+				//Get the cached state based on the cookie key 
+				String cacheKey = getCookieValue(STATE_COOKIE, request);
 				
-				if (cookies != null)
+				if (cacheKey != null)
 				{
-					for (Cookie cookie : cookies)
-					{
-						if (STATE_COOKIE.equals(cookie.getName()))
-						{
-							//Get the cached state based on the cookie key 
-							String cacheKey = cookie.getValue();
-							cookieToken = (String) tokenCache.get(cacheKey);
-							log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
-							//Delete cookie & cache after being used since it is a single use
-							tokenCache.remove(cacheKey);
-							response.setHeader("Set-Cookie", STATE_COOKIE + "= ;path=" + cookiePath + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; Secure; HttpOnly; SameSite=none");
-							break;
-						}
-					}
+					cookieToken = (String) tokenCache.get(cacheKey);
+					log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
+					//Delete cookie & cache after being used since it is a single use
+					tokenCache.remove(cacheKey);
+					deleteCookie(STATE_COOKIE, response);
 				}
 			}
 			catch(Exception e)
@@ -206,7 +245,25 @@ abstract public class AbsAuthServlet extends HttpServlet
 			
 			secret = CONFIG.getClientSecret(client);
 			
-			if (error != null)
+			String tokenCookie = TOKEN_COOKIE + client; //Such that we support multiple client ids
+			
+			//TODO This code should be removed when new code is propagated
+			String refreshToken = request.getParameter("refresh_token"), tokenCookieVal = null;
+			
+			if (refreshToken == null)
+			{
+				tokenCookieVal = getCookieValue(tokenCookie, request);
+				refreshToken = getTokenFromCookieVal(tokenCookieVal, request);
+			}
+			
+			//Logout (delete refresh token)
+			String logoutParam = request.getParameter("doLogout");
+			
+			if ("1".equals(logoutParam))
+			{
+				logout(tokenCookie, tokenCookieVal, request, response);
+			}
+			else if (error != null)
 			{
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 				
@@ -236,6 +293,11 @@ abstract public class AbsAuthServlet extends HttpServlet
 				
 				response.setStatus(authResp.status);
 				
+				if (authResp.refreshToken != null)
+				{
+					addCookie(tokenCookie, getRefreshTokenCookie(authResp.refreshToken, tokenCookieVal, authResp.accessToken), TOKEN_COOKIE_AGE, response);
+				}
+				
 				if (authResp.content != null)
 				{
 					if (successRedirect != null)
@@ -259,10 +321,39 @@ abstract public class AbsAuthServlet extends HttpServlet
 		}
 	}
 
+	protected String getRefreshTokenCookie(String refreshToken, String tokenCookieVal, String accessToken) 
+	{
+		return refreshToken;
+	}
+
+	protected  int getExpiresIn(JsonObject json)
+	{
+		return json.get("expires_in").getAsInt();
+	}
+	
+	protected  String getAccessToken(JsonObject json)
+	{
+		return json.get("access_token").getAsString();
+	}
+	
+	protected  String getRefreshToken(JsonObject json)
+	{
+		try
+		{
+			return json.get("refresh_token").getAsString();
+		}
+		catch(Exception e)
+		{
+			return null;
+		}
+	}
+	
 	class Response
 	{
 		public int status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 		public String content = null;
+		public String refreshToken = null;
+		public String accessToken = null;
 	}
 	
 	private Response contactOAuthServer(String authSrvUrl, String code, String refreshToken, String secret,
@@ -353,14 +444,26 @@ abstract public class AbsAuthServlet extends HttpServlet
 
 			response.status = con.getResponseCode();
 			
+			Gson gson = new Gson();
+		    
+			JsonObject json = gson.fromJson(authRes.toString(), JsonElement.class).getAsJsonObject();
+			String accessToken = getAccessToken(json);
+			int expiresIn = getExpiresIn(json);
+			response.refreshToken = getRefreshToken(json);
+			response.accessToken = accessToken;
+			
+			JsonObject respObj = new JsonObject();
+			respObj.addProperty("access_token", accessToken);
+			respObj.addProperty("expires_in", expiresIn);
+			
 			if (directResp)
 			{
-				response.content = authRes.toString();
+				response.content = respObj.toString();
 			}
 			else
 			{
 				// Writes JavaScript code
-				response.content = processAuthResponse(authRes.toString(), jsonResponse);
+				response.content = processAuthResponse(respObj.toString(), jsonResponse);
 			}
 		}
 		catch(IOException e)
