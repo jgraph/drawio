@@ -624,7 +624,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 		{
 			var authInfo = JSON.parse(this.getPersistentToken(true));
 			
-			if (authInfo.current != null)
+			if (authInfo && authInfo.current != null)
 			{
 				this.userId = authInfo.current.userId;
 			}

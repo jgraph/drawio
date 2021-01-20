@@ -84,6 +84,7 @@ LucidImporter = {};
 			'ImageSearchBlock2': 'shape=image',
 			'UserImage2Block': 'shape=image',
 			'ExtShapeBoxBlock': '',
+			'DefaultStickyNoteBlock': 'shadow=1',
 //Flowchart
 			'ProcessBlock': '',
 			'DecisionBlock': 'rhombus',

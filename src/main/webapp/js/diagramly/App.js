@@ -6899,7 +6899,7 @@ App.prototype.updateUserElement = function()
 
 					if (this.oneDrive != null)
 					{
-						addUser(this.oneDrive.getUser(), IMAGE_PATH + '/onedrive-logo.svg', mxUtils.bind(this, function()
+						addUser(this.oneDrive.getUser(), IMAGE_PATH + '/onedrive-logo.svg', this.oneDrive.noLogout? null : mxUtils.bind(this, function()
 						{
 							var file = this.getCurrentFile();
 

@@ -9,7 +9,7 @@
 
 var _token = null;
 
-window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker)
+window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker, noLogout)
 {
 	if (isExtAuth == null && window.urlParams != null && window.urlParams['extAuth'] == '1')
 	{
@@ -24,10 +24,16 @@ window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker)
 		inlinePicker = true;
 	}
 	
+	if (noLogout == null && window.urlParams != null && window.urlParams['noLogoutOD'] == '1')
+	{
+		noLogout = true;
+	}
+	
 	DrawioClient.call(this, editorUi, isExtAuth? 'oneDriveExtAuthInfo' : 'oneDriveAuthInfo');
 	
 	this.isExtAuth = isExtAuth;
 	this.inlinePicker = inlinePicker;
+	this.noLogout = noLogout;
 	var authInfo = JSON.parse(this.token);
 	
 	if (authInfo != null)

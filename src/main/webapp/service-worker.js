@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "6a0da56e859276fff8a443c0f173cf7d"
+    "revision": "70d8688ff8f38ca1d14b5eef3abe465a"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "9645dc6eea1281f4063180f1850198f1"
+    "revision": "9d2e305bf5eb05accb783c2d8dc826a9"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "66f1929d62df26763421d0686c573975"
+    "revision": "19c2493cfb9df170af11ea62445fa8ea"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -114,11 +114,11 @@ if (workbox)
   },
   {
     "url": "connect/gdrive_common/gac.js",
-    "revision": "faa10d78e18d4958112791ffd98a29cb"
+    "revision": "582003cc53daba7ef313e67bfe309f92"
   },
   {
     "url": "connect/onedrive_common/ac.js",
-    "revision": "921bc1adefde437348eb08813b4a9b73"
+    "revision": "ae7907eb44e764836342bf4341d5ddde"
   },
   {
     "url": "connect/confluence/viewer-init.js",

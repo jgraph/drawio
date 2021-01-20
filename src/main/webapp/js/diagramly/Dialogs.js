@@ -604,7 +604,7 @@ var SplashDialog = function(editorUi)
 				});
 			}
 		}
-		else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null)
+		else if (editorUi.mode == App.MODE_ONEDRIVE && editorUi.oneDrive != null && !editorUi.oneDrive.noLogout)
 		{
 			addLogout(function()
 			{
