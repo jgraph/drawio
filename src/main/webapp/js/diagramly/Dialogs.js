@@ -2872,10 +2872,30 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		if (imgUrl != null)
 		{
-			elt.style.backgroundImage = 'url(' + imgUrl + ')';
-			elt.style.backgroundSize = 'contain';
-			elt.style.backgroundPosition = 'center center';
-			elt.style.backgroundRepeat = 'no-repeat';
+			elt.style.display = 'inline-flex';
+			elt.style.justifyContent = 'center';
+			elt.style.alignItems = 'center';
+			var img = document.createElement('img');
+			img.setAttribute('src', imgUrl);
+			img.setAttribute('alt', tooltip);
+			img.style.maxWidth = w + 'px';
+			img.style.maxHeight = h + 'px';
+			
+			var fallbackImgUrl = imgUrl.replace('.drawio.xml', '').replace('.drawio', '').replace('.xml', '');
+			elt.appendChild(img);
+			
+			img.onerror = function()
+			{
+				if (this.src != fallbackImgUrl)
+				{
+					this.src = fallbackImgUrl;
+				}
+				else
+				{
+					this.src = Editor.errorImage;
+					this.onerror = null;
+				}
+			}
 			
 			mxEvent.addListener(elt, 'click', function(evt)
 			{

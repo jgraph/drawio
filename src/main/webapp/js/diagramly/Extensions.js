@@ -10,7 +10,7 @@ LucidImporter = {};
 	// Global import transformation
 	var defaultFontSize = '11';
 	var defaultLucidFont = 'Liberation Sans';
-	var scale = 0.6;
+	var scale = 0.75;
 	var dx = 0;
 	var dy = 0;
 	
@@ -19,7 +19,7 @@ LucidImporter = {};
 	var vertexStyle = 'html=1;overflow=block;blockSpacing=1;whiteSpace=wrap;';
 	var labelStyle = 'text;html=1;resizable=0;labelBackgroundColor=#ffffff;align=center;verticalAlign=middle;';
 	
-	var c = 'fillColor=#036897;strokeColor=#ffffff';
+	var c = 'verticalLabelPosition=bottom;verticalAlign=top;fillColor=#036897;strokeColor=#ffffff';
 	var s = 'shape=mxgraph.';
 	var ss = 'strokeColor=none;shape=mxgraph.';
 	var ssAzure = 'verticalLabelPosition=bottom;verticalAlign=top;' + ss;
@@ -1366,7 +1366,7 @@ LucidImporter = {};
 //Cisco Basic
 			'Cisco_cisco_androgenous_person' : s + 'cisco.people.androgenous_person;' + c,
 			'Cisco_cisco_atm_switch' : s + 'cisco.switches.atm_switch;' + c,
-			'Cisco_cisco_cloud' : s + 'cisco.storage.cloud;strokeColor=#036897;fillColor=#ffffff',
+			'Cisco_cisco_cloud' : s + 'cisco.storage.cloud;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#036897;fillColor=#ffffff',
 			'Cisco_cisco_fileserver' : s + 'cisco.servers.fileserver;' + c,
 			'Cisco_cisco_firewall' : s + 'cisco.security.firewall;' + c,
 			'Cisco_cisco_generic_building' : s + 'cisco.buildings.generic_building;' + c,
@@ -1460,7 +1460,7 @@ LucidImporter = {};
 			'Cisco_cisco_end_office' : s + 'cisco.buildings.end_office;' + c,
 			'Cisco_cisco_fax' : s + 'cisco.modems_and_phones.fax;' + c,
 			'Cisco_cisco_fc_storage' : s + 'cisco.storage.fc_storage;' + c,
-			'Cisco_cisco_fddi_ring' : s + 'cisco.misc.fddi_ring;strokeColor=#036897;',
+			'Cisco_cisco_fddi_ring' : s + 'cisco.misc.fddi_ring;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#036897;',
 			'Cisco_cisco_fibre_channel_disk_subsystem' : s + 'cisco.storage.fibre_channel_disk_subsystem;' + c,
 			'Cisco_cisco_fibre_channel_fabric_switch' : s + 'cisco.switches.fibre_channel_fabric_switch;' + c,
 			'Cisco_cisco_file_cabinet' : s + 'cisco.storage.file_cabinet;' + c,
@@ -1554,7 +1554,7 @@ LucidImporter = {};
 			'Cisco_cisco_optical_transport' : s + 'cisco.misc.optical_transport;' + c,
 			'Cisco_cisco_pad' : s + 'cisco.misc.pad_2;' + c,
 			'Cisco_cisco_pad_x' : s + 'cisco.misc.pad_1;' + c,
-			'Cisco_cisco_page_icon' : s + 'cisco.misc.page_icon;strokeColor=#036897;',
+			'Cisco_cisco_page_icon' : s + 'cisco.misc.page_icon;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#036897;',
 			'Cisco_cisco_pbx' : s + 'cisco.misc.pbx;' + c,
 			'Cisco_cisco_pbx_switch' : s + 'cisco.switches.pbx_switch;' + c,
 			'Cisco_cisco_pc_adapter_card' : s + 'cisco.computers_and_peripherals.pc_adapter_card;' + c,
@@ -1568,7 +1568,7 @@ LucidImporter = {};
 			'Cisco_cisco_programmable_switch' : s + 'cisco.switches.programmable_switch;' + c,
 			'Cisco_cisco_protocol_translator' : s + 'cisco.misc.protocol_translator;' + c,
 			'Cisco_cisco_pxf' : s + 'cisco.misc.pxf;' + c,
-			'Cisco_cisco_radio_tower' : s + 'cisco.wireless.radio_tower;strokeColor=#036897',
+			'Cisco_cisco_radio_tower' : s + 'cisco.wireless.radio_tower;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#036897',
 			'Cisco_cisco_ratemux' : s + 'cisco.misc.ratemux;' + c,
 			'Cisco_cisco_repeater' : s + 'cisco.misc.repeater;' + c,
 			'Cisco_cisco_RF_modem' : s + 'cisco.modems_and_phones.rf_modem;' + c,
@@ -1621,7 +1621,7 @@ LucidImporter = {};
 			'Cisco_cisco_Telepresence_3200' : s + 'cisco.misc.telepresence;' + c,
 //			'Cisco_cisco_Telepresence_500' NA
 			'Cisco_cisco_terminal' : s + 'cisco.computers_and_peripherals.terminal;' + c,
-			'Cisco_cisco_token' : s + 'cisco.misc.token;strokeColor=#036897',
+			'Cisco_cisco_token' : s + 'cisco.misc.token;verticalLabelPosition=bottom;verticalAlign=top;strokeColor=#036897',
 			'Cisco_cisco_TP_MCU' : s + 'cisco.misc.tp_mcu;' + c,
 			'Cisco_cisco_transpath' : s + 'cisco.misc.transpath;' + c,
 			'Cisco_cisco_truck' : s + 'cisco.misc.truck;' + c,
@@ -5139,7 +5139,7 @@ LucidImporter = {};
 			{
 				if (properties.Rounding > 0)
 				{
-					return 'rounded=1;absoluteArcSize=1;arcSize=' + Math.round(properties.Rounding * 0.6) + ';';
+					return 'rounded=1;absoluteArcSize=1;arcSize=' + Math.round(properties.Rounding * scale) + ';';
 				}
 			}
 //			else if (properties.Rounding == null)
@@ -13354,9 +13354,9 @@ LucidImporter = {};
 					{
 						lblW = h;
 						lblH = w;
-						var diff = Math.abs(h - w) / 2;
-						x = diff / w;
-						y = -diff/ h;
+						var diff = (h - w) / 2;
+						x = -diff / w;
+						y = diff/ h;
 					}
 					
 					deg += mxUtils.toDegree(p.Rotation);
