@@ -263,26 +263,38 @@
 			}
 		}, null, null, 'Alt+Shift+P');
 		
-		ui.actions.addAction('selectDescendants', function()
+		ui.actions.addAction('selectDescendants', function(trigger, evt)
 		{
-			if (graph.isEnabled() && graph.getSelectionCount() == 1)
+			var cell = graph.getSelectionCell();
+			
+			if (graph.isEnabled() && graph.model.isVertex(cell))
 			{
-				var cell = graph.getSelectionCell();
-				// Makes space for new parent
-				var subtree = [];
-				
-				graph.traverse(cell, true, function(vertex, edge)
+				if (evt != null && mxEvent.isAltDown(evt))
 				{
-					if (edge != null)
-					{
-						subtree.push(edge);
-					}
-	
-					subtree.push(vertex);
+					graph.setSelectionCells(graph.model.getEdges(cell,
+						evt == null || !mxEvent.isShiftDown(evt),
+						evt == null || !mxEvent.isControlDown(evt)));
+				}
+				else
+				{
+					var subtree = [];
 					
-					return true;
-				});
+					graph.traverse(cell, true, function(vertex, edge)
+					{
+						if (edge != null)
+						{
+							subtree.push(edge);
+						}
 						
+						if (evt == null || !mxEvent.isShiftDown(evt))
+						{
+							subtree.push(vertex);
+						}
+						
+						return true;
+					});
+				}
+				
 				graph.setSelectionCells(subtree);
 			}
 		}, null, null, 'Alt+Shift+D');

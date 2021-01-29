@@ -1039,9 +1039,9 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 
 	if (action != null && (menu.showDisabled || action.isEnabled()) && action.visible)
 	{
-		var item = menu.addItem(label || action.label, null, function()
+		var item = menu.addItem(label || action.label, null, function(evt)
 		{
-			action.funct(trigger);
+			action.funct(trigger, evt);
 		}, parent, sprite, action.isEnabled());
 		
 		// Adds checkmark image

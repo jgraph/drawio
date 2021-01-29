@@ -3419,15 +3419,15 @@ TextFormatPanel.prototype.addFont = function(container)
 	extraPanel.style.paddingBottom = '4px';
 	
 	// LATER: Fix toggle using '' instead of 'null'
-	var wwCells = graph.filterSelectionCells(function(cell)
+	var wwCells = graph.filterSelectionCells(mxUtils.bind(this, function(cell)
 	{
 		var state = graph.view.getState(cell);
 	
 		return state == null ||
-			ui.format.isAutoSizeState(state) ||
+			this.format.isAutoSizeState(state) ||
 			graph.getModel().isEdge(cell) ||
 			!graph.isCellResizable(cell);
-	});
+	}));
 	
 	var wwOpt = this.createCellOption(mxResources.get('wordWrap'), mxConstants.STYLE_WHITE_SPACE,
 		null, 'wrap', 'null', null, null, true, wwCells);
