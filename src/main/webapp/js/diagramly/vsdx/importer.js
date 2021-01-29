@@ -904,6 +904,14 @@ var com;
                             	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
                         	}
                             
+							// Add Shape properties
+							var props = shape.getProperties();
+							
+							for (var i = 0; i < props.length; i++)
+							{
+								graph.setAttributeForCell(v1, props[i].key, props[i].val);
+							}
+							
                             return v1;
                         }
                         else {
@@ -10677,6 +10685,39 @@ var com;
 
                     	return {extLink: extLink, pageLink: pageLink};
                     };
+
+                    VsdxShape.prototype.getProperties = function () 
+                    {
+						var props = [];
+
+                    	if (this.sections && this.sections['Property'])
+                    	{
+	                    	var rows = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(this.sections['Property'].elem, "Row");
+
+	                    	for (var i = 0; i < rows.length; i++)
+	                    	{
+			                    var row = rows[i];
+                            	var n = row.getAttribute("N");
+                            	
+								var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(row);
+
+                        		for (var j = 0; j < cells.length; j++)
+                    			{
+                            		var cell = cells[j];
+									var cn = cell.getAttribute("N");
+                        			 
+                        			if (cn == 'Value')
+                        			{
+                            			props.push({key: n, val: cell.getAttribute("V")});
+                            			break;
+                        			}
+                        		}
+		                    }
+                    	}
+
+						return props;
+                    };
+
                     /**
                      * Analyzes the shape and returns a string with the style.
                      * @return {*} style read from the shape.

@@ -20,7 +20,7 @@ mxUtils.extend(GitLabFile, GitHubFile);
  */
 GitLabFile.prototype.share = function()
 {
-	this.ui.editor.graph.openLink('https://gitlab.com/' +
+	this.ui.editor.graph.openLink(DRAWIO_GITLAB_URL + '/' +
 		encodeURIComponent(this.meta.org) + '/' +
 		encodeURIComponent(this.meta.repo) +'/-/project_members');
 };

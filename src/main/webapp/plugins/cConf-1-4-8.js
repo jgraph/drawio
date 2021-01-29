@@ -3,6 +3,40 @@
  */
 Draw.loadPlugin(function(ui)
 {
+	// Handle data governess by modifying external services URLs
+	var allowedRegions = {
+		eu: 1,
+		us: 1
+	};
+	
+	if (allowedRegions[urlParams['dataGov']])
+	{
+		var region = urlParams['dataGov'];
+		var urls = {
+			'DRAWIO_LIGHTBOX_URL': 'viewer',
+			'EXPORT_URL': 'export',
+			'PLANT_URL': 'plant',
+			'VSD_CONVERT_URL': 'vsd',
+			'EMF_CONVERT_URL': 'emf',
+			'REALTIME_URL': 'cach',
+			'SAVE_URL': 'save',
+			'OPEN_URL': 'import',
+			'PROXY_URL': 'proxy'
+		};
+		
+		for (var key in urls)
+		{
+			var val = window[key];
+			
+			if (val)
+			{
+				window[key] = '/region-' + urls[key] + '-' + region;
+			}
+		}
+		
+		EditorUi.cacheUrl = window.REALTIME_URL;
+	}
+
 	// Extracts macro data from JSON protocol
 	var macroData = {};
 	

@@ -2124,6 +2124,31 @@ Graph.prototype.init = function(container)
 		
 		return cell;
 	};
+	
+	/**
+	 * Returns the selection cells where the given function returns false.
+	 */
+	Graph.prototype.filterSelectionCells = function(ignoreFn)
+	{
+		var cells = this.getSelectionCells();
+		
+		if (ignoreFn != null)
+		{
+			var temp = [];
+			
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (!ignoreFn(cells[i]))
+				{
+					temp.push(cells[i]);
+				}
+			}
+			
+			cells = temp;
+		}
+		
+		return cells;
+	};
 
 	/**
 	 * Function: repaint

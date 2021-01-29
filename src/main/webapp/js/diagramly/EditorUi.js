@@ -4051,7 +4051,7 @@
 	/**
 	 * Creates a popup banner.
 	 */
-	EditorUi.prototype.showBanner = function(id, label, onclick)
+	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose)
 	{
 		var result = false;
 		
@@ -4076,12 +4076,12 @@
 	
 			var img = document.createElement('img');
 			img.setAttribute('src', Dialog.prototype.closeImage);
-			img.setAttribute('title', mxResources.get('close'));
+			img.setAttribute('title', mxResources.get((doNotShowAgainOnClose) ? 'doNotShowAgain' : 'close'));
 			img.setAttribute('border', '0');
 			img.style.cssText = 'position:absolute;right:10px;top:12px;filter:invert(1);padding:6px;margin:-6px;cursor:default;';
 			banner.appendChild(img);
 			
-			mxUtils.write(banner, label);
+			mxUtils.write(banner, text);
 			document.body.appendChild(banner);
 			this.bannerShowing = true;
 			
@@ -4091,14 +4091,18 @@
 			chk.setAttribute('type', 'checkbox');
 			chk.setAttribute('id', 'geDoNotShowAgainCheckbox');
 			chk.style.marginRight = '6px';
-			div.appendChild(chk);
 			
-			var label = document.createElement('label');
-			label.setAttribute('for', 'geDoNotShowAgainCheckbox');
-			mxUtils.write(label, mxResources.get('doNotShowAgain'));
-			div.appendChild(label);
-			banner.style.paddingBottom = '30px';
-			banner.appendChild(div);
+			if (!doNotShowAgainOnClose)
+			{
+				div.appendChild(chk);
+				
+				var label = document.createElement('label');
+				label.setAttribute('for', 'geDoNotShowAgainCheckbox');
+				mxUtils.write(label, mxResources.get('doNotShowAgain'));
+				div.appendChild(label);
+				banner.style.paddingBottom = '30px';
+				banner.appendChild(div);
+			}
 			
 			var onclose = mxUtils.bind(this, function()
 			{
@@ -4107,7 +4111,7 @@
 					banner.parentNode.removeChild(banner);
 					this.bannerShowing = false;
 					
-					if (chk.checked)
+					if (chk.checked || doNotShowAgainOnClose)
 					{
 						this['hideBanner' + id] = true;
 	
@@ -9301,7 +9305,7 @@
 					
 				    if (evt.dataTransfer.files.length > 0)
 				    {
-				    	if (mxEvent.isControlDown(evt) || (mxClient.IS_MAC && mxEvent.isMetaDown(evt)))
+				    	if (mxEvent.isShiftDown(evt))
 				    	{
 				    		this.openFiles(evt.dataTransfer.files, true);
 				    	}
@@ -9628,7 +9632,7 @@
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				if (restoreFocus && (keyCode == 224 /* FF */ || keyCode == 17 /* Control */ ||
-					keyCode == 91 /* Meta */))
+					keyCode == 91 /* MetaLeft */ || keyCode == 93 /* MetaRight */))
 				{
 					restoreFocus = false;
 					
@@ -14997,6 +15001,7 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 		btns.style.marginTop = '10px';
 		var p2 = document.createElement('p');
 		p2.style.marginTop = '20px';
+		p2.style.marginBottom = '0px';
 		p2.appendChild(cb);
 		var span = document.createElement('span');
 		mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));

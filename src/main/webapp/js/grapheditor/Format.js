@@ -1015,7 +1015,7 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
 /**
  * The string 'null' means use null in values.
  */
-BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, enabledValue, disabledValue, fn, action, stopEditing)
+BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, enabledValue, disabledValue, fn, action, stopEditing, cells)
 {
 	enabledValue = (enabledValue != null) ? ((enabledValue == 'null') ? null : enabledValue) : '1';
 	disabledValue = (disabledValue != null) ? ((disabledValue == 'null') ? null : disabledValue) : '0';
@@ -1026,8 +1026,8 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 	
 	return this.createOption(label, function()
 	{
-		// Seems to be null sometimes, not sure why...
-		var state = graph.view.getState(graph.getSelectionCell());
+		var state = graph.view.getState((cells != null && cells.length > 0) ?
+			cells[0] : graph.getSelectionCell());
 		
 		if (state != null)
 		{
@@ -1051,16 +1051,17 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 			graph.getModel().beginUpdate();
 			try
 			{
+				var temp = (cells != null) ? cells : graph.getSelectionCells();
 				var value = (checked) ? enabledValue : disabledValue;
-				graph.setCellStyles(key, value, graph.getSelectionCells());
-				
+				graph.setCellStyles(key, value, temp);
+
 				if (fn != null)
 				{
-					fn(graph.getSelectionCells(), value);
+					fn(temp, value);
 				}
 				
-				ui.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-					'values', [value], 'cells', graph.getSelectionCells()));
+				ui.fireEvent(new mxEventObject('styleChanged', 'keys',
+					[key], 'values', [value], 'cells', temp));
 			}
 			finally
 			{
@@ -1074,7 +1075,8 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 			this.listener = function()
 			{
 				// Seems to be null sometimes, not sure why...
-				var state = graph.view.getState(graph.getSelectionCell());
+				var state = graph.view.getState((cells != null && cells.length > 0) ?
+					cells[0] : graph.getSelectionCell());
 				
 				if (state != null)
 				{
@@ -3417,11 +3419,22 @@ TextFormatPanel.prototype.addFont = function(container)
 	extraPanel.style.paddingBottom = '4px';
 	
 	// LATER: Fix toggle using '' instead of 'null'
-	var wwOpt = this.createCellOption(mxResources.get('wordWrap'), mxConstants.STYLE_WHITE_SPACE, null, 'wrap', 'null', null, null, true);
+	var wwCells = graph.filterSelectionCells(function(cell)
+	{
+		var state = graph.view.getState(cell);
+	
+		return state == null ||
+			ui.format.isAutoSizeState(state) ||
+			graph.getModel().isEdge(cell) ||
+			!graph.isCellResizable(cell);
+	});
+	
+	var wwOpt = this.createCellOption(mxResources.get('wordWrap'), mxConstants.STYLE_WHITE_SPACE,
+		null, 'wrap', 'null', null, null, true, wwCells);
 	wwOpt.style.fontWeight = 'bold';
 	
 	// Word wrap in edge labels only supported via labelWidth style
-	if (!ss.containsLabel && !ss.autoSize && ss.edges.length == 0)
+	if (wwCells.length > 0)
 	{
 		extraPanel.appendChild(wwOpt);
 	}

@@ -782,6 +782,54 @@
 				// Add help, link button
 				var value = localStorage.getItem('.configuration');
 				
+				var buttons = [[mxResources.get('reset'), function(evt, input)
+				{
+					editorUi.confirm(mxResources.get('areYouSure'), function()
+					{
+						try
+						{
+							localStorage.removeItem('.configuration');
+							localStorage.removeItem('.drawio-config');
+							localStorage.removeItem('.mode');
+							
+							editorUi.hideDialog();
+							editorUi.alert(mxResources.get('restartForChangeRequired'));
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);
+						}
+					});
+				}]];
+				
+				if (!EditorUi.isElectronApp)
+				{
+					buttons.push([mxResources.get('link'), function(evt, input)
+					{
+						if (input.value.length > 0)
+						{
+							try
+							{
+								var obj = JSON.parse(input.value);
+								var url = window.location.protocol + '//' + window.location.host +
+									'/' + editorUi.getSearch() + '#_CONFIG_' +
+									Graph.compress(JSON.stringify(obj));
+								var dlg = new EmbedDialog(editorUi, url);
+								editorUi.showDialog(dlg.container, 440, 240, true);
+								dlg.init();
+							}
+							catch (e)
+							{
+								editorUi.handleError(e);	
+							}
+						}
+						else
+						{
+							editorUi.handleError({message: mxResources.get('invalidInput')});
+						}
+					}])
+				}
+
 		    	var dlg = new TextareaDialog(editorUi, mxResources.get('configuration') + ':',
 		    		(value != null) ? JSON.stringify(JSON.parse(value), null, 2) : '', function(newValue)
 				{
@@ -810,48 +858,7 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://www.diagrams.net/doc/faq/configure-diagram-editor',
-					(EditorUi.isElectronApp) ? null : [[mxResources.get('reset'), function(evt, input)
-					{
-						editorUi.confirm(mxResources.get('areYouSure'), function()
-						{
-							try
-							{
-								localStorage.removeItem('.configuration');
-								localStorage.removeItem('.drawio-config');
-								localStorage.removeItem('.mode');
-								
-								editorUi.hideDialog();
-								editorUi.alert(mxResources.get('restartForChangeRequired'));
-							}
-							catch (e)
-							{
-								editorUi.handleError(e);	
-							}
-						});
-					}], [mxResources.get('link'), function(evt, input)
-					{
-						if (input.value.length > 0)
-						{
-							try
-							{
-								var obj = JSON.parse(input.value);
-								var url = window.location.protocol + '//' + window.location.host +
-									'/' + editorUi.getSearch() + '#_CONFIG_' +
-									Graph.compress(JSON.stringify(obj));
-								var dlg = new EmbedDialog(editorUi, url);
-								editorUi.showDialog(dlg.container, 440, 240, true);
-								dlg.init();
-							}
-							catch (e)
-							{
-								editorUi.handleError(e);	
-							}
-						}
-						else
-						{
-							editorUi.handleError({message: mxResources.get('invalidInput')});
-						}
-					}]]);
+					buttons);
 		    	
 		    	dlg.textarea.style.width = '600px';
 		    	dlg.textarea.style.height = '380px';
