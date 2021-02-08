@@ -5327,7 +5327,7 @@
 	/**
 	 * Adds a font to the document.
 	 */
-	Graph.addFont = function(name, url)
+	Graph.addFont = function(name, url, callback)
 	{
 		if (name != null && name.length > 0 && url != null && url.length > 0)
 		{
@@ -5360,10 +5360,27 @@
 					Graph.recentCustomFonts[key] = entry;
 					var head = document.getElementsByTagName('head')[0];
 					
+					if (callback != null)
+					{
+						if (entry.elt.nodeName.toLowerCase() == 'link')
+						{
+							entry.elt.onload = callback;
+							entry.elt.onerror = callback;
+						}
+						else
+						{
+							callback();
+						}
+					}
+						
 					if (head != null)
 					{
 						head.appendChild(entry.elt);
 					}
+				}
+				else if (callback != null)
+				{
+					callback();
 				}
 			}
 		}

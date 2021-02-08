@@ -397,6 +397,14 @@ function render(data)
 		}
 	};
 	
+	var origAddFont = Graph.addFont;
+	
+	Graph.addFont = function(name, url)
+	{
+		waitCounter++;
+		return origAddFont.call(this, name, url, decrementWaitCounter);	
+	};
+		
 	function renderPage()
 	{
 		// Enables math typesetting

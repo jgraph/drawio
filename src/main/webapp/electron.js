@@ -262,8 +262,10 @@ app.on('ready', e =>
 		return;
 	}
 	
+	var options = program.opts();
+	
     //Start export mode?
-    if (program.export)
+    if (options.export)
 	{
     	var dummyWin = new BrowserWindow({
 			show : false,
@@ -281,11 +283,11 @@ app.on('ready', e =>
 	    	var outType = null;
 	    	
 	    	//Format & Output
-	    	if (program.output)
+	    	if (options.output)
 			{
 	    		try
 	    		{
-	    			var outStat = fs.statSync(program.output);
+	    			var outStat = fs.statSync(options.output);
 	    			
 	    			if (outStat.isDirectory())
 					{
@@ -300,7 +302,7 @@ app.on('ready', e =>
 	    		{
 	    			outType = {isFile: true};
 	    			
-	    			format = path.extname(program.output).substr(1);
+	    			format = path.extname(options.output).substr(1);
 					
 					if (!validFormatRegExp.test(format))
 					{
@@ -311,34 +313,34 @@ app.on('ready', e =>
 	    	
 	    	if (format == null)
 			{
-	    		format = program.format;
+	    		format = options.format;
 			}
 	    	
 	    	var from = null, to = null;
 	    	
-	    	if (program.pageIndex != null && program.pageIndex >= 0)
+	    	if (options.pageIndex != null && options.pageIndex >= 0)
 			{
-	    		from = program.pageIndex;
+	    		from = options.pageIndex;
 			}
-	    	else if (program.pageRage && program.pageRage.length == 2)
+	    	else if (options.pageRage && options.pageRage.length == 2)
 			{
-	    		from = program.pageRage[0] >= 0 ? program.pageRage[0] : null;
-	    		to = program.pageRage[1] >= 0 ? program.pageRage[1] : null;
+	    		from = options.pageRage[0] >= 0 ? options.pageRage[0] : null;
+	    		to = options.pageRage[1] >= 0 ? options.pageRage[1] : null;
 			}
 
 			var expArgs = {
 				format: format,
-				w: program.width > 0 ? program.width : null,
-				h: program.height > 0 ? program.height : null,
-				border: program.border > 0 ? program.border : 0,
-				bg: program.transparent ? 'none' : '#ffffff',
+				w: options.width > 0 ? options.width : null,
+				h: options.height > 0 ? options.height : null,
+				border: options.border > 0 ? options.border : 0,
+				bg: options.transparent ? 'none' : '#ffffff',
 				from: from,
 				to: to,
-				allPages: format == 'pdf' && program.allPages,
-				scale: (program.crop && (program.scale == null || program.scale == 1)) ? 1.00001: (program.scale || 1), //any value other than 1 crops the pdf
-				embedXml: program.embedDiagram? '1' : '0',
-				jpegQuality: program.quality,
-				uncompressed: program.uncompressed
+				allPages: format == 'pdf' && options.allPages,
+				scale: (options.crop && (options.scale == null || options.scale == 1)) ? 1.00001: (options.scale || 1), //any value other than 1 crops the pdf
+				embedXml: options.embedDiagram? '1' : '0',
+				jpegQuality: options.quality,
+				uncompressed: options.uncompressed
 			};
 
 			var paths = program.args;
@@ -383,7 +385,7 @@ app.on('ready', e =>
 				}
 				else if (inStat.isDirectory())
 				{
-					addDirectoryFiles(paths[0], program.recursive);
+					addDirectoryFiles(paths[0], options.recursive);
 				}
 
 				if (files.length > 0)
@@ -467,11 +469,11 @@ app.on('ready', e =>
 												{
 													if (outType.isDir)
 													{
-														outFileName = path.join(program.output, path.basename(curFile)) + '.' + format;
+														outFileName = path.join(options.output, path.basename(curFile)) + '.' + format;
 													}
 													else
 													{
-														outFileName = program.output;
+														outFileName = options.output;
 													}
 												}
 												else if (inStat.isFile())
@@ -615,7 +617,7 @@ app.on('ready', e =>
 		if (loadEvtCount == 2)
 		{
 			//Sending entire program is not allowed in Electron 9 as it is not native JS object
-			win.webContents.send('args-obj', {args: program.args, create: program.create});
+			win.webContents.send('args-obj', {args: program.args, create: options.create});
 		}
 	}
 	

@@ -920,7 +920,7 @@
 			{
 				var menubar = menusCreateMenuBar.apply(this, arguments);
 				
-				if (menubar != null)
+				if (menubar != null && urlParams['noLangIcon'] != '1')
 				{
 					var langMenu = this.get('language');
 					
@@ -3276,6 +3276,12 @@
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
+			if (urlParams['noLangIcon'] == '1')
+			{
+				this.addSubmenu('language', menu, parent);
+				menu.addSeparator(parent);
+			}
+			
 			if (urlParams['embed'] != '1')
 			{
 				this.addSubmenu('theme', menu, parent);

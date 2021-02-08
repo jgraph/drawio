@@ -5697,6 +5697,166 @@ App.prototype.updateButtonContainer = function()
 	}
 };
 
+
+App.prototype.fetchAndShowNotification = function(target)
+{
+	target = target || 'online';
+	
+	mxUtils.get(NOTIFICATIONS_URL + '?target=' + target, mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+		    var notifs = JSON.parse(req.getText());
+			
+			//Process and sort
+			var lsReadFlag = target + 'NotifReadTS';
+			var lastRead = parseInt(localStorage.getItem(lsReadFlag));
+			
+			for (var i = 0; i < notifs.length; i++)
+			{
+				notifs[i].isNew = (!lastRead || notifs[i].timestamp > lastRead);
+			}
+			
+			notifs.sort(function(a, b)
+			{
+				return b.timestamp - a.timestamp;
+			});
+			
+			this.showNotification(notifs, lsReadFlag);
+		}
+	}));
+};
+
+App.prototype.showNotification = function(notifs, lsReadFlag)
+{
+	function shouldAnimate(newNotif)
+	{
+		var countEl = document.querySelector('.geNotification-count');
+		countEl.innerHTML = newNotif;
+		countEl.style.display = newNotif == 0? 'none' : '';
+		var notifBell = document.querySelector('.geNotification-bell');
+		notifBell.style.animation = newNotif == 0? 'none' : '';
+		notifBell.className = 'geNotification-bell' + (newNotif == 0? ' geNotification-bellOff' : '');
+		document.querySelector('.geBell-rad').style.animation = newNotif == 0? 'none' : '';
+	}
+	
+	var markAllAsRead = mxUtils.bind(this, function()
+	{
+		this.notificationWin.style.display = 'none';
+		var unread = this.notificationWin.querySelectorAll('.circle.active');
+		
+		for (var i = 0; i < unread.length; i++)
+		{
+			unread[i].className = 'circle';
+		}
+		
+		if (notifs[0])
+		{
+			localStorage.setItem(lsReadFlag, notifs[0].timestamp);
+		}
+	});
+	
+	if (this.notificationBtn == null)
+	{
+		this.notificationBtn = document.createElement('div');
+		this.notificationBtn.className = 'geNotification-box';
+		this.notificationBtn.innerHTML = '<span class="geNotification-count"></span>' +
+										 '<div class="geNotification-bell">'+
+											'<span class="geBell-top"></span>' + 
+											'<span class="geBell-middle"></span>' +
+											'<span class="geBell-bottom"></span>' +
+											'<span class="geBell-rad"></span>' +
+										 '</div>';
+		//Add as first child such that it is the left-most one
+		this.buttonContainer.insertBefore(this.notificationBtn, this.buttonContainer.firstChild);
+		
+		this.notificationWin = document.createElement('div');
+		this.notificationWin.className = 'geNotifPanel';
+		this.notificationWin.style.display = 'none';
+		document.body.appendChild(this.notificationWin);
+		this.notificationWin.innerHTML ='<div class="header">' + 
+										'    <div class="menu-icon">' + 
+										'        <div class="dash-top"></div>' + 
+										'        <div class="dash-bottom"></div>' + 
+										'        <div class="circle"></div>' + 
+										'    </div>' + 
+										'    <span class="title">' + mxResources.get('notifications') + '</span>' + 
+										'    <span id="geNotifClose" class="closeBtn">x</span>' + 
+										'</div>' + 
+										'<div class="notifications clearfix">' +
+										'	<div id="geNotifList"  style="position: relative"></div>' + 
+										'</div>';
+		
+		mxEvent.addListener(this.notificationBtn, 'click', mxUtils.bind(this, function()
+		{
+			if (this.notificationWin.style.display == 'none')
+			{
+				this.notificationWin.style.display = '';
+				document.querySelector('.notifications').scrollTop = 0;
+				var r = this.notificationBtn.getBoundingClientRect();
+				this.notificationWin.style.top = (r.top + this.notificationBtn.clientHeight) + 'px';
+				this.notificationWin.style.left = (r.right - this.notificationWin.clientWidth) + 'px';
+				shouldAnimate(0); //Stop animation once notifications are open
+			}
+			else
+			{
+				markAllAsRead();
+			}
+		}));
+		
+		mxEvent.addListener(document.getElementById('geNotifClose'), 'click', markAllAsRead);
+	}
+		
+	var newNotif = 0;
+	var notifListEl = document.getElementById('geNotifList');
+	
+	if (notifs.length == 0)
+	{
+		notifListEl.innerHTML = '<div class="line"></div><div class="notification">' +
+								mxUtils.htmlEntities(mxResources.get('none')) + '</div>';
+	}
+	else
+	{
+		notifListEl.innerHTML = '<div class="line"></div>';
+		
+		for (var i = 0; i < notifs.length; i++)
+		{
+			(function(editorUi, notif)
+			{
+				if (notif.isNew)
+				{
+					newNotif++;
+				}
+				
+				var notifEl = document.createElement('div');
+				notifEl.className = 'notification';
+				var ts = new Date(notif.timestamp);
+				var str = editorUi.timeSince(ts);
+		
+				if (str == null)
+				{
+					str = mxResources.get('lessThanAMinute');
+				}
+				
+				notifEl.innerHTML = '<div class="circle' + (notif.isNew? ' active' : '') + '"></div><span class="time">' + 
+										mxUtils.htmlEntities(mxResources.get('timeAgo', [str], '{1} ago')) + '</span>' + 
+										'<p>' + mxUtils.htmlEntities(notif.content) + '</p>';
+				if (notif.link)
+				{
+					mxEvent.addListener(notifEl, 'click', function()
+					{
+						window.open(notif.link, 'notifWin');
+					});
+				}
+				
+				notifListEl.appendChild(notifEl);
+			})(this, notifs[i]);
+		}
+	}
+	
+	shouldAnimate(newNotif);
+};
+
 /**
  * Translates this point by the given vector.
  * 

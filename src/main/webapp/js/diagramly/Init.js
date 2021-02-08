@@ -32,6 +32,7 @@ window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'import';
 window.PROXY_URL = window.PROXY_URL || 'proxy';
 window.DRAWIO_VIEWER_URL = window.DRAWIO_VIEWER_URL || null;
+window.NOTIFICATIONS_URL = window.NOTIFICATIONS_URL || 'https://www.draw.io/notifications';
 
 // Paths and files
 window.SHAPES_PATH = window.SHAPES_PATH || 'shapes';

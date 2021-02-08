@@ -1543,3 +1543,226 @@ table.geProperties tr td {
   padding-bottom: 4px;
   background-color: #bbb;
 }
+
+.geNotification-box {
+  width: 50px;
+  height: 30px;
+  text-align: center;
+  float: left;
+  position: relative;
+  top: 1px;
+  cursor: pointer;
+}
+.geNotification-bell {
+  animation: geBellAnim 1s 1s both;
+  opacity: 0.75;
+}
+.geNotification-bell * {
+  display: block;
+  margin: 0 auto;
+  background-color: #DEEBFF;
+  box-shadow: 0px 0px 10px #DEEBFF;
+}
+
+.geNotification-bellOff * {
+  box-shadow: none !important;
+}
+
+.geBell-top {
+  width: 2px;
+  height: 2px;
+  border-radius: 1px 1px 0 0;
+}
+.geBell-middle {
+  width: 12px;
+  height: 12px;
+  margin-top: -1px;
+  border-radius: 7px 7px 0 0;
+}
+.geBell-bottom {
+  position: relative;
+  z-index: 0;
+  width: 16px;
+  height: 1px;
+}
+.geBell-bottom::before,
+.geBell-bottom::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+}
+.geBell-bottom::before {
+  left: 1px;
+  border-bottom: 4px solid #DEEBFF;
+  border-right: 0 solid transparent;
+  border-left: 4px solid transparent;
+}
+.geBell-bottom::after {
+  right: 1px;
+  border-bottom: 4px solid #DEEBFF;
+  border-right: 4px solid transparent;
+  border-left: 0 solid transparent;
+}
+.geBell-rad {
+  width: 3px;
+  height: 2px;
+  margin-top: 0.5px;
+  border-radius: 0 0 2px 2px;
+  animation: geRadAnim 1s 2s both;
+}
+.geNotification-count {
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  right: 7px;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  font-size: 10px;
+  border-radius: 50%;
+  background-color: #ff4927;
+  color: #DEEBFF;
+  animation: geZoomAnim 1s 1s both;
+}
+@keyframes geBellAnim {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(30deg); }
+  20% { transform: rotate(0); }
+  80% { transform: rotate(0); }
+  90% { transform: rotate(-30deg); }
+  100% { transform: rotate(0); }
+}
+@keyframes geRadAnim {
+  0% { transform: translateX(0); }
+  10% { transform: translateX(5px); }
+  20% { transform: translateX(0); }
+  80% { transform: translateX(0); }
+  90% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+@keyframes geZoomAnim {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+  100% { opacity: 1; }
+}
+
+.geNotifPanel {
+  height: 300px;
+  width: 300px;
+  background: #fff;
+  border-radius: 3px;
+  overflow: hidden;
+  -webkit-box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+          box-shadow: 10px 10px 15px 0 rgba(0, 0, 0, 0.3);
+  -webkit-transition: all .5s ease-in-out;
+  transition: all .5s ease-in-out;
+  position: absolute;
+  right: 100px;
+  top: 42px;
+  z-index: 150;
+}
+.geNotifPanel .header {
+  height: 30px;
+  width: 100%;
+  background: #0049B0;
+  color: #DEEBFF;
+  font-size: 15px;
+}
+.geNotifPanel .header .title {
+  display: block;
+  text-align: center;
+  line-height: 30px;
+  font-weight: 600;
+}
+.geNotifPanel .header .closeBtn {
+  position: absolute;
+  line-height: 30px;
+  cursor: pointer;
+  right: 15px;
+  top: 0;
+}
+.geNotifPanel .notifications {
+  position: relative;
+  height: 270px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.geNotifPanel .notifications .line {
+  position: absolute;
+  top: 0;
+  left: 27px;
+  height: 100%;
+  width: 3px;
+  background: #EBEBEB;
+}
+.geNotifPanel .notifications .notification {
+  position: relative;
+  z-index: 2;
+  margin: 25px 20px 25px 43px;
+}
+.geNotifPanel .notifications .notification:nth-child(n+1) {
+  animation: geHere-am-i 0.5s ease-out 0.4s;
+  animation-fill-mode: both;
+}
+.geNotifPanel .notifications .notification:hover {
+  color: #1B95E0;
+  cursor: pointer;
+}
+.geNotifPanel .notifications .notification .circle {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  position: absolute;
+  height: 11px;
+  width: 11px;
+  background: #fff;
+  border: 2px solid #1B95E0;
+  -webkit-box-shadow: 0 0 0 3px #fff;
+          box-shadow: 0 0 0 3px #fff;
+  border-radius: 6px;
+  top: 0;
+  left: -20px;
+}
+
+.geNotifPanel .notifications .notification .circle.active {
+  background: #1B95E0;
+}
+
+.geNotifPanel .notifications .notification .time {
+  display: block;
+  font-size: 11px;
+  line-height: 11px;
+  margin-bottom: 2px;
+}
+.geNotifPanel .notifications .notification p {
+  font-size: 15px;
+  line-height: 20px;
+  margin: 0;
+}
+.geNotifPanel .notifications .notification p b {
+  font-weight: 600;
+}
+@-webkit-keyframes geHere-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes geHere-am-i {
+  from {
+    -webkit-transform: translate3d(0, 50px, 0);
+            transform: translate3d(0, 50px, 0);
+    opacity: 0;
+  }
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}

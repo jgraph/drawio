@@ -1,3 +1,10 @@
+08-Feb-2021: 14.3.0
+
+- Fixes external fonts in PDF export
+- Fixes drag and drop for shapes with shadow
+- Renames page for import into blank diagram
+- Fixes export triggers autosave in embed mode
+
 29-JAN-2021: 14.2.9
 
 - Fixes NPE in minimal mode

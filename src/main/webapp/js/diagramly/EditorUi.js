@@ -6658,6 +6658,20 @@
 							if (this.currentPage != null)
 							{
 								mapping[diagrams[0].getAttribute('id')] = this.currentPage.getId();
+								
+								// Renames page if diagram has one blank page with default name
+								if (this.pages != null && this.pages.length == 1 &&
+									this.isDiagramEmpty() && this.currentPage.getName() ==
+									mxResources.get('pageWithNumber', [1]))
+								{
+									var name = diagrams[0].getAttribute('name');
+									
+									if (name != null && name != '')
+									{
+										this.editor.graph.model.execute(new RenamePage(
+											this, this.currentPage, name));
+									}
+								}
 							}
 						}
 						else if (diagrams.length > 1)
@@ -11257,7 +11271,6 @@
 					}
 					else if (data.action == 'export')
 					{
-						
 						if (data.format == 'png' || data.format == 'xmlpng')
 						{
 							if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
@@ -11310,7 +11323,9 @@
 									// Uses optional XML from incoming message
 									if (data.xml != null && data.xml.length > 0)
 									{
+										ignoreChange = true;
 										this.setFileData(xml);
+										ignoreChange = false;
 									}
 
 									// Exports PNG for first/specific page while other page is visible by creating a graph
@@ -11410,7 +11425,9 @@
 							// SVG is generated from graph so parse optional XML
 							if (data.xml != null && data.xml.length > 0)
 							{
+								ignoreChange = true;
 								this.setFileData(data.xml);
+								ignoreChange = false;
 							}
 							
 							var msg = this.createLoadMessage('export');
@@ -11542,7 +11559,7 @@
 							{
 								this.buttonContainer.style.paddingRight = '12px';
 								this.buttonContainer.style.paddingTop = '6px';
-								this.buttonContainer.style.right = '25px';
+								this.buttonContainer.style.right = urlParams['noLangIcon'] == '1'? '0' : '25px';
 							}
 							else if (uiTheme != 'min')
 							{
@@ -11637,7 +11654,7 @@
 			{
 				return (urlParams['pages'] != '0' || (this.pages != null && this.pages.length > 1)) ?
 					this.getFileData(true): mxUtils.getXml(this.editor.getGraphXml());
-			});;
+			});
 			
 			var doLoad = mxUtils.bind(this, function(data, evt)
 			{
@@ -11664,7 +11681,7 @@
 					changeListener = mxUtils.bind(this, function(sender, eventObject)
 					{
 						var data = getData();
-
+						
 						if (data != lastData && !ignoreChange)
 						{
 							var msg = this.createLoadMessage('autosave');
