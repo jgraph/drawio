@@ -4400,7 +4400,7 @@ LucidImporter = {};
 				{
 					for (var i = 0; i < m.length; i++)
 					{
-						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't' || m[i].n == 'ac')
+						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't' || m[i].n == 'ac' || m[i].n == 'lk')
 						{
 							isLastLblHTML = true;
 							break;
@@ -4723,23 +4723,6 @@ LucidImporter = {};
 		}
 	};
 	
-	function getLinkFromM(m)
-	{
-		if (m != null)
-		{
-			for (var i = 0; i < m.length; i++)
-			{
-				if (m[i].n == 'lk' && m[i].v != null &&
-					m[i].v.length > 0)
-				{
-					return getLink(m[i].v[0]);
-				}
-			}
-		}
-		
-		return null;
-	}
-
 	function getFontColor(properties)
 	{
 		//adds font color
@@ -5289,44 +5272,44 @@ LucidImporter = {};
 		// Stroke style
 		if (properties.StrokeStyle == 'dotted')
 		{
-			return 'dashed=1;dashPattern=1 4;';
+			return 'dashed=1;fixDash=1;dashPattern=1 4;';
 		}
 		else if (properties.StrokeStyle == 'dashdot')
 		{
-			return 'dashed=1;dashPattern=10 5 1 5;';
+			return 'dashed=1;fixDash=1;dashPattern=10 5 1 5;';
 		}
 		else if (properties.StrokeStyle == 'dashdotdot')
 		{
-			return 'dashed=1;dashPattern=10 5 1 5 1 5;';
+			return 'dashed=1;fixDash=1;dashPattern=10 5 1 5 1 5;';
 		}
 		else if (properties.StrokeStyle == 'dotdotdot')
 		{
-			return 'dashed=1;dashPattern=1 2;';
+			return 'dashed=1;fixDash=1;dashPattern=1 2;';
 		}
 		else if (properties.StrokeStyle == 'longdash')
 		{
-			return 'dashed=1;dashPattern=16 6;';
+			return 'dashed=1;fixDash=1;dashPattern=16 6;';
 		}
 		else if (properties.StrokeStyle == 'dashlongdash')
 		{
-			return 'dashed=1;dashPattern=10 6 16 6;';
+			return 'dashed=1;fixDash=1;dashPattern=10 6 16 6;';
 		}
 		else if (properties.StrokeStyle == 'dashed24')
 		{
-			return 'dashed=1;dashPattern=3 8;';
+			return 'dashed=1;fixDash=1;dashPattern=3 8;';
 		}
 		else if (properties.StrokeStyle == 'dashed32')
 		{
-			return 'dashed=1;dashPattern=6 5;';
+			return 'dashed=1;fixDash=1;dashPattern=6 5;';
 		}
 		else if (properties.StrokeStyle == 'dashed44')
 		{
-			return 'dashed=1;dashPattern=8 8;';
+			return 'dashed=1;fixDash=1;dashPattern=8 8;';
 		}
 		else if (properties.StrokeStyle != null && properties.
 			StrokeStyle.substring(0, 6) == 'dashed')
 		{
-			return 'dashed=1;';
+			return 'dashed=1;fixDash=1;';
 		} 
 		
 		return '';
@@ -5399,16 +5382,6 @@ LucidImporter = {};
 		{
 			graph.setAttributeForCell(cell, 'link', getLink(p.Link[0]));
 		}
-		//If the text has a link, it will be handled by html labels
-		/*else if (p.Text != null)
-		{
-			var link = getLinkFromM(getTextM(p.Text));
-			
-			if (link != null)
-			{
-				graph.setAttributeForCell(cell, 'link', link);
-			}
-		}*/
 		
 		replacePlaceholders(cell, graph);
 		

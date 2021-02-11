@@ -348,7 +348,8 @@ function setCurrentXml(data, filename)
 })();
 
 // Enables offline mode
-if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || urlParams['stealth'] == '1' || urlParams['local'] == '1')
+if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || 
+		urlParams['stealth'] == '1' || urlParams['local'] == '1' || urlParams['lockdown'] == '1')
 {
 	urlParams['picker'] = '0';
 	urlParams['gapi'] = '0';

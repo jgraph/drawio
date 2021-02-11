@@ -1,4 +1,9 @@
-08-Feb-2021: 14.3.0
+11-FEB-2021: 14.3.1
+
+- Adds support for regional direction to back-ends
+- Adds grid option to export dialog
+
+08-FEB-2021: 14.3.0
 
 - Fixes external fonts in PDF export
 - Fixes drag and drop for shapes with shadow

@@ -859,7 +859,7 @@ EditorUi.initMinimalTheme = function()
 				
 				if (ui.isOfflineApp())
 				{
-					if (navigator.onLine && urlParams['stealth'] != '1')
+					if (navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1')
 					{
 						this.addMenuItems(menu, ['upload'], parent);
 					}

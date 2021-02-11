@@ -1123,3 +1123,6 @@ processingDrafts=processingDrafts
 updatingDrafts=updatingDrafts
 updateDrafts=updateDrafts
 notifications=notifications
+drawioImp=drawioImp
+confALibsImp=confALibsImp
+confALibsImpFailed=confALibsImpFailed

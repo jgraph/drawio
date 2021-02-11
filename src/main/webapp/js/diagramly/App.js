@@ -1604,7 +1604,8 @@ App.prototype.init = function()
 				else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
 
 				{
-					this.showNameConfBanner();
+					// just app.diagrams.net users
+					// this.showNameConfBanner();
 				}
 			}));
 		}

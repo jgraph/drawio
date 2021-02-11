@@ -2533,6 +2533,8 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}, 0);
 	};
+	
+	var lastZoomEvent = Date.now();
 
 	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay)
 	{
@@ -2546,6 +2548,14 @@ EditorUi.prototype.initCanvas = function()
 				graph.container.offsetTop + graph.container.clientHeight / 2);
 		}
 		
+		// Ignores events to reduce touch and magic mouse zoom speed
+		if (Date.now() - lastZoomEvent < 15)
+		{
+			return;
+		}
+		
+		lastZoomEvent = Date.now();
+
 		// Switches to 5% zoom steps below 15%
 		if (zoomIn)
 		{

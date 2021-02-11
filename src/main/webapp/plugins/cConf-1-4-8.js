@@ -17,8 +17,6 @@ Draw.loadPlugin(function(ui)
 			'PLANT_URL': 'plant',
 			'VSD_CONVERT_URL': 'vsd',
 			'EMF_CONVERT_URL': 'emf',
-			'REALTIME_URL': 'cache',
-			'SAVE_URL': 'save',
 			'OPEN_URL': 'import'
 		};
 		
@@ -31,8 +29,6 @@ Draw.loadPlugin(function(ui)
 				window[key] = '/region-' + urls[key] + '-' + region;
 			}
 		}
-		
-		EditorUi.cacheUrl = window.REALTIME_URL;
 	}
 
 	// Extracts macro data from JSON protocol

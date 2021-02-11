@@ -953,6 +953,25 @@ var ExportDialog = function(editorUi)
 	tbody.appendChild(row);
 	
 	row = document.createElement('tr');
+	
+	td = document.createElement('td');
+	td.style.fontSize = '10pt';
+	mxUtils.write(td, mxResources.get('grid') + ':');
+	
+	row.appendChild(td);
+	
+	var gridCheckbox = document.createElement('input');
+	gridCheckbox.setAttribute('type', 'checkbox');
+	gridCheckbox.checked = false;
+
+	td = document.createElement('td');
+	td.appendChild(gridCheckbox);
+	
+	row.appendChild(td);
+	
+	tbody.appendChild(row);
+	
+	row = document.createElement('tr');
 
 	td = document.createElement('td');
 	td.style.fontSize = '10pt';
@@ -1009,6 +1028,15 @@ var ExportDialog = function(editorUi)
 		else
 		{
 			transparentCheckbox.setAttribute('disabled', 'disabled');
+		}
+		
+		if (imageFormatSelect.value === 'png' || imageFormatSelect.value === 'jpg' || imageFormatSelect.value === 'pdf')
+		{
+			gridCheckbox.removeAttribute('disabled');
+		}
+		else
+		{
+			gridCheckbox.setAttribute('disabled', 'disabled');
 		}
 		
 		if (imageFormatSelect.value === 'png')
@@ -1137,7 +1165,7 @@ var ExportDialog = function(editorUi)
 			}
 			
 			ExportDialog.lastBorderValue = b;
-			ExportDialog.exportFile(editorUi, name, format, bg, s, b, dpi);
+			ExportDialog.exportFile(editorUi, name, format, bg, s, b, dpi, gridCheckbox.checked);
 		}
 	}));
 	saveBtn.className = 'geBtn gePrimaryBtn';
@@ -1186,7 +1214,7 @@ ExportDialog.showXmlOption = true;
  * parameter and value to be used in the request in the form
  * key=value, where value should be URL encoded.
  */
-ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
+ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi, grid)
 {
 	var graph = editorUi.editor.graph;
 	

@@ -27,7 +27,7 @@
 	/**
 	 * Switch to disable logging for mode and search terms.
 	 */
-	EditorUi.enableLogging = urlParams['stealth'] != '1' &&
+	EditorUi.enableLogging = urlParams['stealth'] != '1' && urlParams['lockdown'] != '1' &&
 		(/.*\.draw\.io$/.test(window.location.hostname) ||
 		/.*\.diagrams\.net$/.test(window.location.hostname)) &&
 		window.location.hostname != 'support.draw.io';
@@ -594,7 +594,7 @@
 	 */
 	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
-		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && urlParams['stealth'] == '1');
+		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && (urlParams['stealth'] == '1' || urlParams['lockdown'] == '1'));
 	};
 
 	/**
@@ -9913,7 +9913,7 @@
 			{
 				if (urlParams['search-shapes'] != null && this.sidebar.searchShapes != null)
 				{
-					this.sidebar.searchShapes(urlParams['search-shapes']);
+					this.sidebar.searchShapes(decodeURIComponent(urlParams['search-shapes']));
 					this.sidebar.showEntries('search');
 				}
 				else
@@ -13012,7 +13012,7 @@
 		ExportDialog.showXmlOption = false;
 		ExportDialog.showGifOption = false;
 		
-		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi)
+		ExportDialog.exportFile = function(editorUi, name, format, bg, s, b, dpi, grid)
 		{
 			var graph = editorUi.editor.graph;
 			
@@ -13042,17 +13042,26 @@
 						if (format == 'png')
 						{
 							editorUi.exportImage(s, bg == null || bg == 'none', true,
-						   		false, false, b, true, false, null, null, dpi);
+						   		false, false, b, true, false, null, grid, dpi);
 						}
 						else 
 						{
 							editorUi.exportImage(s, false, true,
-								false, false, b, true, false, 'jpeg');
+								false, false, b, true, false, 'jpeg', grid);
 						}
 					}
 					else 
 					{
 						var extras = {globalVars: graph.getExportVariables()};
+						
+						if (grid)
+						{
+							extras.grid = {
+								size: graph.gridSize,
+								steps: graph.view.gridSteps,
+								color: graph.view.gridColor
+							};
+						}
 						
 						editorUi.saveRequest(name, format,
 							function(newTitle, base64)

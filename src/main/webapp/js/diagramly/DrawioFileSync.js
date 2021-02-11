@@ -399,7 +399,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		{
 			status = mxResources.get('error') + ': ' + mxResources.get('checksum');
 		}
-		else if (this.ui.isOffline() || !this.isConnected())
+		else if (this.ui.isOffline(true) || !this.isConnected())
 		{
 			status = mxResources.get('offline');
 		}
@@ -410,7 +410,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		
 		this.collaboratorsElement.setAttribute('title', status);
 		this.collaboratorsElement.style.backgroundImage = 'url(' + ((!this.enabled) ? Editor.syncDisabledImage :
-			((!this.ui.isOffline() && this.isConnected() && !this.file.invalidChecksum) ?
+			((!this.ui.isOffline(true) && this.isConnected() && !this.file.invalidChecksum) ?
 			Editor.syncImage : Editor.syncProblemImage)) + ')';
 	}
 };
@@ -730,7 +730,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 		{
 			var secret = this.file.getDescriptorSecret(desc);
 			
-			if (secret == null)
+			if (secret == null || urlParams['lockdown'] == '1')
 			{
 				this.reload(success, error, abort);
 			}
@@ -1139,7 +1139,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 	this.resetUpdateStatusThread();
 	this.catchupRetryCount = 0;
 	
-	if (!this.ui.isOffline() && !this.file.inConflictState && !this.file.redirectDialogShowing)
+	if (!this.ui.isOffline(true) && !this.file.inConflictState && !this.file.redirectDialogShowing)
 	{
 		this.start();
 
@@ -1151,7 +1151,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 			var etag = this.file.getDescriptorRevisionId(lastDesc);
 			var current = this.file.getCurrentRevisionId();
 			
-			if (secret == null)
+			if (secret == null || urlParams['lockdown'] == '1')
 			{
 				this.file.stats.msgSent++;
 				
