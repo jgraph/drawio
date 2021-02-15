@@ -29,10 +29,14 @@ try
 			writeln('OK');
 		}
 		
-		var link = document.createElement('a');
-		link.setAttribute('href', './');
-		link.appendChild(document.createTextNode('Start App'));
-		document.body.appendChild(link);
+		if ((/test\.draw\.io$/.test(window.location.hostname)) ||
+			(/app\.diagrams\.net$/.test(window.location.hostname)))
+		{
+			var link = document.createElement('a');
+			link.setAttribute('href', './');
+			link.appendChild(document.createTextNode('Start App'));
+			document.body.appendChild(link);
+		}
 	});
 }
 catch (e)

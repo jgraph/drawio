@@ -6625,7 +6625,7 @@
 	/**
 	 * Imports the given XML into the existing diagram.
 	 */
-	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling)
+	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage)
 	{
 		dx = (dx != null) ? dx : 0;
 		dy = (dy != null) ? dy : 0;
@@ -6651,7 +6651,7 @@
 					{
 						var diagrams = node.getElementsByTagName('diagram');
 
-						if (diagrams.length == 1)
+						if (diagrams.length == 1 && !addNewPage)
 						{
 							node = Editor.parseDiagramNode(diagrams[0]);
 							
@@ -6674,7 +6674,7 @@
 								}
 							}
 						}
-						else if (diagrams.length > 1)
+						else if (diagrams.length > 0)
 						{
 							var pages = [];
 							var i0 = 0;
@@ -7458,7 +7458,7 @@
 	 * Imports the given XML into the existing diagram.
 	 * TODO: Make this function asynchronous
 	 */
-	EditorUi.prototype.insertTextAt = function(text, dx, dy, html, asImage, crop, resizeImages)
+	EditorUi.prototype.insertTextAt = function(text, dx, dy, html, asImage, crop, resizeImages, addNewPage)
 	{
 		crop = (crop != null) ? crop : true;
 		resizeImages = (resizeImages != null) ? resizeImages : true;
@@ -7494,7 +7494,7 @@
 					
 					if (xml != null && xml.length > 0)
 					{
-						return this.importXml(xml, dx, dy, crop, true);
+						return this.importXml(xml, dx, dy, crop, true, addNewPage);
 					}
 	    		}
 				
@@ -7505,7 +7505,7 @@
 					
 					if (xml != null && xml.length > 0)
 					{
-						return this.importXml(xml, dx, dy, crop, true);
+						return this.importXml(xml, dx, dy, crop, true, addNewPage);
 					}
 				}
 				
@@ -7526,7 +7526,7 @@
 							xml = decodeURIComponent(text.substring(text.indexOf(',') + 1));
 						}
 						
-						var result = this.importXml(xml, dx, dy, crop, true); 
+						var result = this.importXml(xml, dx, dy, crop, true, addNewPage); 
 	
 						if (result.length > 0)
 						{
@@ -7589,7 +7589,7 @@
 			
 				if (this.isCompatibleString(text))
 				{
-					return this.importXml(text, dx, dy, crop);
+					return this.importXml(text, dx, dy, crop, null, addNewPage);
 				}
 				else if (text.length > 0)
 				{
@@ -7598,7 +7598,8 @@
 						this.convertLucidChart(text, mxUtils.bind(this, function(xml)
 						{
 							this.editor.graph.setSelectionCells(
-								this.importXml(xml, dx, dy, crop));
+								this.importXml(xml, dx, dy, crop,
+								null, addNewPage));
 						}), mxUtils.bind(this, function(e)
 						{
 							this.handleError(e);
@@ -7944,12 +7945,13 @@
 	/**
 	 * Imports the given XML into the existing diagram.
 	 */
-	EditorUi.prototype.importFile = function(data, mimeType, dx, dy, w, h, filename, done, file, crop, ignoreEmbeddedXml)
+	EditorUi.prototype.importFile = function(data, mimeType, dx, dy, w, h, filename,
+		done, file, crop, ignoreEmbeddedXml, evt)
 	{
 		crop = (crop != null) ? crop : true;
 		var async = false;
 		var cells = null;
-		
+
 		var handleResult = mxUtils.bind(this, function(xml)
 		{
 			var importedCells = null;
@@ -7960,7 +7962,10 @@
 			}
 			else
 			{
-				importedCells = this.importXml(xml, dx, dy, crop);
+				console.log('here', evt,mxEvent.isControlDown(evt));
+				
+				importedCells = this.importXml(xml, dx, dy, crop, null,
+					(evt != null) ? mxEvent.isControlDown(evt) : null);
 			}
 			
 			if (done != null)
@@ -7979,7 +7984,8 @@
 				
 				if (xml != null && xml.length > 0)
 				{
-					cells = this.importXml(xml, dx, dy, crop);
+					cells = this.importXml(xml, dx, dy, crop, null, (evt != null) ?
+						mxEvent.isControlDown(evt) : null);
 					containsModel = true;
 				}
 			}
@@ -8054,7 +8060,8 @@
 		}
 		else if (!/(\.v(sd|dx))($|\?)/i.test(filename) && !/(\.vs(s|x))($|\?)/i.test(filename))
 		{
-			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true, null, crop);
+			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true,
+				null, crop, null, (evt != null) ? mxEvent.isControlDown(evt) : null);
 		}
 		
 		if (!async && done != null)
@@ -8069,7 +8076,7 @@
 	 * 
 	 */
 	EditorUi.prototype.importFiles = function(files, x, y, maxSize, fn, resultFn, filterFn, barrierFn,
-		resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml)
+		resizeDialog, maxBytes, resampleThreshold, ignoreEmbeddedXml, evt)
 	{
 		maxSize = (maxSize != null) ? maxSize : this.maxImageSize;
 		maxBytes = (maxBytes != null) ? maxBytes : this.maxImageBytes;
@@ -8115,7 +8122,8 @@
 					}
 					else
 					{
-						return this.importFile(data, mimeType, x, y, w, h, filename, done, file, crop, ignoreEmbeddedXml);
+						return this.importFile(data, mimeType, x, y, w, h, filename,
+							done, file, crop, ignoreEmbeddedXml, evt);
 					}
 				}
 				catch (e)
@@ -9331,8 +9339,8 @@
 								y = null;
 							}
 							
-							this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null, null,
-								mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt));
+							this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null,
+								null, mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt), evt);
 				    	}
 		    		}
 				    else
@@ -9404,7 +9412,8 @@
 				    		
 				    		var doInsert = mxUtils.bind(this, function()
 				    		{
-				    			graph.setSelectionCells(this.insertTextAt(html, x, y, true, asImage, null, resizeImages));
+				    			graph.setSelectionCells(this.insertTextAt(html, x, y, true,
+				    				asImage, null, resizeImages, mxEvent.isControlDown(evt)));
 				    		});
 				    		
 				    		if (asImage && html != null && html.length > this.resampleThreshold)
@@ -9449,7 +9458,8 @@
 			    evt.preventDefault();
 			}), false);
 		}
-		
+
+		graph.enableFlowAnimation = true;
 		this.initPages();
 
 		// Embedded mode

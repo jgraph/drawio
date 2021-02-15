@@ -4629,26 +4629,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 					// Creates one picker and reuses it to avoid polluting the DOM
 					if (editorUi.linkPicker == null)
 					{
-						var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-				        		.setParent('root')
-				        		.setIncludeFolders(true)
-				        		.setSelectFolderEnabled(true);
-						var view2 = new google.picker.DocsView()
-							.setIncludeFolders(true)
-				            .setSelectFolderEnabled(true);
-						var view21 = new google.picker.DocsView()
-							.setIncludeFolders(true)
-							.setEnableDrives(true)
-				            .setSelectFolderEnabled(true);
-						var picker = new google.picker.PickerBuilder()
-							.setAppId(editorUi.drive.appId)	
-							.setLocale(mxLanguage)
-							.setOAuthToken(editorUi.drive.token)
-							.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-						    .addView(view)
-							.addView(view2)
-							.addView(view21)
-							.addView(google.picker.ViewId.RECENTLY_PICKED);
+						var picker = editorUi.drive.createLinkPicker();
 
 						editorUi.linkPicker = picker.setCallback(function(data)
 						{

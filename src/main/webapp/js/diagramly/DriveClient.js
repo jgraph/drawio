@@ -2035,6 +2035,46 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+DriveClient.prototype.createLinkPicker = function()
+{
+	var name = 'linkPicker';
+	var picker = pickers[name];
+	
+	if (picker == null || pickers[name + 'Token'] != _token)
+	{
+		pickers[name + 'Token'] = _token;
+
+		var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
+			.setParent('root')
+			.setIncludeFolders(true)
+			.setSelectFolderEnabled(true);
+		var view2 = new google.picker.DocsView()
+			.setIncludeFolders(true)
+			.setSelectFolderEnabled(true);
+		var view21 = new google.picker.DocsView()
+			.setIncludeFolders(true)
+			.setEnableDrives(true)
+			.setSelectFolderEnabled(true);
+		picker = new google.picker.PickerBuilder()
+			.setAppId(this.appId)	
+			.setLocale(mxLanguage)
+			.setOAuthToken(pickers[name + 'Token'])
+			.enableFeature(google.picker.Feature.SUPPORT_DRIVES)
+			.addView(view)
+			.addView(view2)
+			.addView(view21)
+			.addView(google.picker.ViewId.RECENTLY_PICKED);
+	}
+	
+	return picker;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 {
 	this.filePickerCallback = (fn != null) ? fn : mxUtils.bind(this, function(id)

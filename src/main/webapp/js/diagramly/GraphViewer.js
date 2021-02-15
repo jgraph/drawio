@@ -148,6 +148,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 			var render = mxUtils.bind(this, function()
 			{
 				this.graph = new Graph(container);
+				this.graph.enableFlowAnimation = true;
 				this.graph.defaultPageBackgroundColor = 'transparent';
 				this.graph.transparentBackground = false;
 				
@@ -218,7 +219,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					this.editor.defaultGraphOverflow = 'visible';
 				}
 				
-				//Extract graph model from html & svg formats 
+				//Extract graph model from html & svg formats
 				this.xmlNode = this.editor.extractGraphModel(this.xmlNode, true);
 				
 				if (this.xmlNode != xmlNode)
@@ -1827,7 +1828,11 @@ GraphViewer.processElements = function(classname)
 		catch (e)
 		{
 			div.innerHTML = e.message;
-			throw e;
+			
+			if (window.console != null)
+			{
+				console.error(e);
+			}
 		}
 	});
 };

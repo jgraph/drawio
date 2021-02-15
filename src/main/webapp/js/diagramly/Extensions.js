@@ -8,7 +8,7 @@ LucidImporter = {};
 (function()
 {
 	// Global import transformation
-	var defaultFontSize = '11';
+	var defaultFontSize = '13';
 	var defaultLucidFont = 'Liberation Sans';
 	var scale = 0.75;
 	var dx = 0;
@@ -3857,6 +3857,11 @@ LucidImporter = {};
 		return '';
 	};
 	
+	function fix1Digit(num)
+	{
+		return  Math.round(num * 10) / 10;	
+	};
+	
 	// actual code start
 	//TODO This can be optimized more
 	function convertTxt2Html(txt, srcM, props)
@@ -4016,21 +4021,67 @@ LucidImporter = {};
 			if (t != null)
 			{
 				str += '<li style="text-align:' + (styles['a']? styles['a'].v : (props.TextAlign || 'center')) + ';';
+				var color, fontSize;
 				
-				if (nonBlockStyles != null && nonBlockStyles['c'])
+				// Find font size/color
+				if (nonBlockStyles != null)
 				{
-					var v = rgbToHex(nonBlockStyles['c'].v);
-					
-					if (v != null)
+					if (nonBlockStyles['c'])
 					{
-						v = v.substring(0, 7);
-						str += 'color:' + v + ';';
+						color = nonBlockStyles['c'].v;
 					}
+					
+					if (nonBlockStyles['s'])
+					{
+						fontSize = nonBlockStyles['s'].v;
+					}
+				}
+					
+				try
+				{
+					var s = m[i], e = ends[j];
+					var it = i;
+					
+					if (s && e && s.s < e.e) //s can be null when all starts are used, e ends after s BUT sometimes there are errors in the file
+					{
+						var curS = s.s;
+		
+						while(s != null && s.s == curS)
+						{
+							if (s.n == 's')
+							{
+								fontSize = s.v;
+							}
+							else if (s.n == 'c')
+							{
+								color = s.v;
+							}
+							
+							s = m[++it];
+						}
+					}					
+				}
+				catch(e)
+				{
+					console.log(e);
+				}
+				
+				color = rgbToHex(color);
+				
+				if (color != null)
+				{
+					color = color.substring(0, 7);
+					str += 'color:' + color + ';';
+				}
+				
+				if (fontSize != null)
+				{
+					str += 'font-size:' + fix1Digit(fontSize * scale) + 'px;';
 				}
 				
 				str += '">';
 				openBlockTags.push('li');
-				str += '<span style="font-size:' + defaultFontSize + 'px;';
+				str += '<span style="';
 				openBlockTags.push('span');
 			}
 			
@@ -4048,34 +4099,34 @@ LucidImporter = {};
 					jc = 'flex-end';
 				}
 				
-				str += 'display: flex; justify-content: ' + jc + '; text-align: ' + tmp + '; align-items: baseline; font-size: 0; line-height: 1;';
+				str += 'display: flex; justify-content: ' + jc + '; text-align: ' + tmp + '; align-items: baseline; font-size: 0; line-height: 1.25;';
 			}
 			
 			if (styles['il'])
 			{
-				str += 'margin-left: ' + Math.max(0, Math.round(styles['il'].v * scale - (listActive? 28 : 0))) + 'px;';
+				str += 'margin-left: ' + Math.max(0, fix1Digit(styles['il'].v * scale - (listActive? 28 : 0))) + 'px;';
 			}
 
 			if (styles['ir'])
 			{
-				str += 'margin-right: ' + Math.round(styles['ir'].v * scale) + 'px;';
+				str += 'margin-right: ' + fix1Digit(styles['ir'].v * scale) + 'px;';
 			}
 
 			if (styles['mt'])
 			{
-				str += 'margin-top: ' + Math.round(styles['mt'].v * scale) + 'px;';
+				str += 'margin-top: ' + fix1Digit(styles['mt'].v * scale) + 'px;';
 			}
 
 			if (styles['mb'])
 			{
-				str += 'margin-bottom: ' + Math.round(styles['mb'].v * scale) + 'px;';
+				str += 'margin-bottom: ' + fix1Digit(styles['mb'].v * scale) + 'px;';
 			}
 
-			str += '">';
+			str += 'margin-top: -2px;">';
 			
 			if (!listActive)
 			{
-				str += '<span style="font-size:' + defaultFontSize + 'px;">';
+				str += '<span>';// Is this needed?
 				openBlockTags.push('span');
 			}
 			
@@ -4106,7 +4157,7 @@ LucidImporter = {};
 			openTags.push('span');
 			tagCount++;
 
-			str += 'font-size:' + (styles['s']? Math.floor(styles['s'].v * scale) : defaultFontSize) + 'px;';
+			str += 'font-size:' + (styles['s']? fix1Digit(styles['s'].v * scale) : defaultFontSize) + 'px;';
 
 			if (styles['c'])
 			{
@@ -4199,6 +4250,12 @@ LucidImporter = {};
 			if (listActive)
 			{
 				str = str.trim();
+			}
+			
+			//If an endTag is called with no open tags, add a dummy startTag to have a font size
+			if (openTags.length == 0 && str.length > 0)
+			{
+				str = startTag({dummy: 1}) + str;
 			}
 			
 			str = str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -4321,7 +4378,7 @@ LucidImporter = {};
 		{
 			if (curE != maxE)
 			{
-				html += txt.substring(curE, maxE);
+				html += startTag({dummy: 1}) + endTag(txt, curE, maxE);
 			}
 			
 			html += endBlockTag(true); 
@@ -4658,7 +4715,7 @@ LucidImporter = {};
 					{
 						isV = true;
 						
-						return 'fontSize=' + Math.floor(currM.v * scale) + ';';
+						return 'fontSize=' + fix1Digit(currM.v * scale) + ';';
 					}
 				}
 				i++;
@@ -4897,7 +4954,7 @@ LucidImporter = {};
 				{
 					if (currM.n == 'il')
 					{
-						return 'spacingLeft=' + currM.v * scale + ';';
+						return 'spacingLeft=' + fix1Digit(currM.v * scale) + ';';
 					}
 					/*else
 					{
@@ -4938,7 +4995,7 @@ LucidImporter = {};
 					{
 						isIR = true;
 						
-						return 'spacingRight=' + currM.v * scale + ';';
+						return 'spacingRight=' + fix1Digit(currM.v * scale) + ';';
 					}
 				}
 				
@@ -4968,7 +5025,7 @@ LucidImporter = {};
 					if (currM.v != null)
 					{
 						isMT = true;
-						return 'spacingTop=' + currM.v * scale + ';';
+						return 'spacingTop=' + fix1Digit(currM.v * scale) + ';';
 					}
 				}
 				
@@ -4998,7 +5055,7 @@ LucidImporter = {};
 					if (currM.v != null)
 					{
 						isMB = true;
-						return 'spacingBottom=' + currM.v * scale + ';';
+						return 'spacingBottom=' + fix1Digit(currM.v * scale) + ';';
 					}
 				}
 				
@@ -5014,7 +5071,7 @@ LucidImporter = {};
 		//adds global spacing
 		if (typeof properties.InsetMargin === 'number')
 		{
-				return 'spacing=' + Math.max(0, Math.round(parseInt(properties.InsetMargin) * scale)) + ';';
+			return 'spacing=' + Math.max(0, fix1Digit((properties.InsetMargin) * scale)) + ';';
 		}
 	
 		return '';
@@ -5122,7 +5179,7 @@ LucidImporter = {};
 			{
 				if (properties.Rounding > 0)
 				{
-					return 'rounded=1;absoluteArcSize=1;arcSize=' + Math.round(properties.Rounding * scale) + ';';
+					return 'rounded=1;absoluteArcSize=1;arcSize=' + fix1Digit(properties.Rounding * scale) + ';';
 				}
 			}
 //			else if (properties.Rounding == null)
@@ -5317,7 +5374,7 @@ LucidImporter = {};
 	
 	function getStrokeWidth(properties)
 	{
-		return properties.LineWidth != null? createStyle(mxConstants.STYLE_STROKEWIDTH, Math.round(parseFloat(properties.LineWidth) * scale), '1') : '';
+		return properties.LineWidth != null? createStyle(mxConstants.STYLE_STROKEWIDTH, fix1Digit(parseFloat(properties.LineWidth) * scale), '1') : '';
 	}
 	
 	function getImage(properties, action, url)
@@ -5832,7 +5889,7 @@ LucidImporter = {};
 			{
 				if (obj.Value.m[i].n == 's')
 				{
-					size = scale * parseFloat(obj.Value.m[i].v);
+					size = fix1Digit(scale * parseFloat(obj.Value.m[i].v));
 				}
 				else if (obj.Value.m[i].n == 'c')
 				{

@@ -351,7 +351,8 @@
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
         {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
-        {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false}
+        {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false},
+        {name: 'flowAnimation', dispName: 'Flow Animation', type: 'bool', defVal: false}
 	].concat(Editor.commonProperties);
 
 	/**
@@ -1786,6 +1787,17 @@
 			if (config.defaultEdgeStyle != null)
 			{
 				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
+			}
+
+			// Overrides grid steps
+			if (config.gridSteps != null)
+			{
+				var val = parseInt(config.gridSteps);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					mxGraphView.prototype.gridSteps = val;
+				}
 			}
 			
 			if (config.emptyDiagramXml)
@@ -7152,6 +7164,10 @@
 					// Switches stylesheet for print output in dark mode
 					var temp = null;
 					
+					// Disables dashed printing of flowAnimation
+					var enableFlowAnimation = graph.enableFlowAnimation;
+					graph.enableFlowAnimation = false;
+					
 					if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
 					{
 						temp = graph.stylesheet;
@@ -7161,6 +7177,9 @@
 					
 					// Generates the print output
 					pv.open(null, null, forcePageBreaks, true);
+					
+					// Restores flowAnimation
+					graph.enableFlowAnimation = enableFlowAnimation;
 					
 					// Restores the stylesheet
 					if (temp != null)
@@ -7259,7 +7278,7 @@
 
 					if (tempGraph == null)
 					{
-						tempGraph = editorUi.createTemporaryGraph(graph.stylesheet);//getStylesheet());
+						tempGraph = editorUi.createTemporaryGraph(graph.stylesheet);
 
 						// Restores graph settings that are relevant for printing
 						var pageVisible = true;

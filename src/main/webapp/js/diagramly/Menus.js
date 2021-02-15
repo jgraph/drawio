@@ -789,8 +789,12 @@
 						try
 						{
 							localStorage.removeItem('.configuration');
-							localStorage.removeItem('.drawio-config');
-							localStorage.removeItem('.mode');
+							
+							if (mxEvent.isShiftDown(evt))
+							{
+								localStorage.removeItem('.drawio-config');
+								localStorage.removeItem('.mode');
+							}
 							
 							editorUi.hideDialog();
 							editorUi.alert(mxResources.get('restartForChangeRequired'));

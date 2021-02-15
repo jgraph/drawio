@@ -1569,28 +1569,46 @@ Graph.clipSvgDataUri = function(dataUri)
 			div.style.visibility = 'hidden';
 			
 			// Adds the text and inserts into DOM for updating of size
-			div.innerHTML = atob(dataUri.substring(26));
+			var data = decodeURIComponent(escape(atob(dataUri.substring(26))));
+			var idx = data.indexOf('<svg');
 			
-			// Removes all attributes starting with on
-			Graph.sanitizeSvg(div);
-			
-			// Gets the size and removes from DOM
-			var svgs = div.getElementsByTagName('svg');
-			
-			if (svgs.length > 0)
+			if (idx >= 0)
 			{
-				document.body.appendChild(div);
-				var size = svgs[0].getBBox();
-				document.body.removeChild(div);
-			
-				if (size.width > 0 && size.height > 0)
+				// Strips leading XML declaration and doctypes
+				div.innerHTML = data.substring(idx);
+				
+				// Removes all attributes starting with on
+				Graph.sanitizeSvg(div);
+				
+				// Gets the size and removes from DOM
+				var svgs = div.getElementsByTagName('svg');
+
+				if (svgs.length > 0)
 				{
-					div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
-						' ' + size.y + ' ' + size.width + ' ' + size.height);
-					div.getElementsByTagName('svg')[0].setAttribute('width', size.width);
-					div.getElementsByTagName('svg')[0].setAttribute('height', size.height);
+					document.body.appendChild(div);
 					
-					dataUri = 'data:image/svg+xml;base64,' + btoa(div.innerHTML);
+					try
+					{
+						var size = svgs[0].getBBox();
+
+						if (size.width > 0 && size.height > 0)
+						{
+							div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
+								' ' + size.y + ' ' + size.width + ' ' + size.height);
+							div.getElementsByTagName('svg')[0].setAttribute('width', size.width);
+							div.getElementsByTagName('svg')[0].setAttribute('height', size.height);
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+					finally
+					{	
+						document.body.removeChild(div);
+					}
+					
+					dataUri = Editor.createSvgDataUri(mxUtils.getXml(svgs[0]));
 				}
 			}
 		}
@@ -1794,6 +1812,11 @@ Graph.prototype.builtInProperties = ['label', 'tooltip', 'placeholders', 'placeh
 Graph.prototype.standalone = false;
 
 /**
+ * Enables move of bends/segments without selecting.
+ */
+Graph.prototype.enableFlowAnimation = false;
+
+/**
  * Installs child layout styles.
  */
 Graph.prototype.init = function(container)
@@ -1849,6 +1872,16 @@ Graph.prototype.init = function(container)
 		});
 	};
 	
+	// Adds or updates CSS for flowAnimation style
+	this.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+	{
+		if (this.container != null && this.flowAnimationStyle)
+		{
+			var id = this.flowAnimationStyle.getAttribute('id');
+			this.flowAnimationStyle.innerHTML = this.getFlowAnimationStyleCss(id);
+		}
+	}));
+
 	this.initLayoutManager();
 };
 
@@ -4138,6 +4171,44 @@ Graph.prototype.getTooltipForCell = function(cell)
 };
 
 /**
+ * Adds rack child layout style.
+ */
+Graph.prototype.getFlowAnimationStyle = function()
+{
+	var head = document.getElementsByTagName('head')[0];
+	
+	if (head != null && this.flowAnimationStyle == null)
+	{
+		this.flowAnimationStyle = document.createElement('style')
+		this.flowAnimationStyle.setAttribute('id',
+			'geEditorFlowAnimation-' + Editor.guid());
+		this.flowAnimationStyle.type = 'text/css';
+		var id = this.flowAnimationStyle.getAttribute('id');
+		this.flowAnimationStyle.innerHTML = this.getFlowAnimationStyleCss(id);
+
+		head.appendChild(this.flowAnimationStyle);
+	}
+
+	return this.flowAnimationStyle;
+};
+
+/**
+ * Adds rack child layout style.
+ */
+Graph.prototype.getFlowAnimationStyleCss = function(id)
+{
+	return '.' + id + ' {\n' +
+	  'animation: ' + id + ' 0.5s linear;\n' +
+	  'animation-iteration-count: infinite;\n' +
+	'}\n' +
+	'@keyframes ' + id + ' {\n' +
+	  'to {\n' +
+	    'stroke-dashoffset: ' + (this.view.scale * -16) + ';\n' +
+	  '}\n' +
+	'}';
+};
+
+/**
  * Turns the given string into an array.
  */
 Graph.prototype.stringToBytes = function(str)
@@ -5672,7 +5743,40 @@ TableLayout.prototype.execute = function(parent)
 		
 		return state;
 	};
+	
+	/**
+	 * Overrides paint to add flowAnimation style.
+	 */
+	var mxShapePaint = mxShape.prototype.paint;
+	
+	mxShape.prototype.paint = function()
+	{
+		mxShapePaint.apply(this, arguments);
 
+		if (this.state != null && this.node != null &&
+			this.state.view.graph.enableFlowAnimation &&
+			this.state.view.graph.model.isEdge(this.state.cell) &&
+			mxUtils.getValue(this.state.style, 'flowAnimation', '0') == '1')
+		{
+			var paths = this.node.getElementsByTagName('path');
+			
+			if (paths.length > 1)
+			{
+				if (mxUtils.getValue(this.state.style, mxConstants.STYLE_DASHED, '0') != '1')
+				{
+					paths[1].setAttribute('stroke-dasharray', (this.state.view.scale * 8));
+				}
+				
+				var anim = this.state.view.graph.getFlowAnimationStyle();
+				
+				if (anim != null)
+				{
+					paths[1].setAttribute('class', anim.getAttribute('id'));
+				}
+			}
+		}
+	};
+	
 	/**
 	 * Forces repaint if routed points have changed.
 	 */

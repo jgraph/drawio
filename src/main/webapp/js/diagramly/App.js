@@ -652,27 +652,32 @@ App.main = function(callback, createUi)
 			}
 		}
 
-		// Runs as progressive web app if service workers are supported
 		try
 		{
-			if (Editor.enableServiceWorker)
+			// Removes PWA cache on www.draw.io to force use of new domain via redirect
+			if (Editor.enableServiceWorker && (urlParams['offline'] == '0' ||
+				/www\.draw\.io$/.test(window.location.hostname) ||
+				(urlParams['offline'] != '1' && urlParams['dev'] == '1')))
 			{
-				// Removes PWA cache on www.draw.io to force use of new domain via redirect
-				if (urlParams['offline'] == '0' || /www\.draw\.io$/.test(window.location.hostname) ||
-					(urlParams['offline'] != '1' && urlParams['dev'] == '1'))
+				App.clearServiceWorker(function()
 				{
-					App.clearServiceWorker(function()
+					if (urlParams['offline'] == '0')
 					{
-						if (urlParams['offline'] == '0')
-						{
-							alert('Cache cleared');
-						}
-					});
+						alert('Cache cleared');
+					}
+				});
+			}
+			else
+			{
+				// Runs as progressive web app if service workers are supported
+				if (Editor.enableServiceWorker)
+				{
+					navigator.serviceWorker.register('/service-worker.js');
 				}
-				else
+				
+				if (urlParams['offline'] == '1' || urlParams['dev'] != '1')
 				{
 					mxStencilRegistry.allowEval = false;
-					navigator.serviceWorker.register('/service-worker.js');
 					App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js', 'js/extensions.min.js']);
 				}
 			}

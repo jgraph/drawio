@@ -1,3 +1,11 @@
+15-FEB-2021: 14.3.2
+
+- Adds flow animation style
+- Makes grid steps configurable
+- Adds ctrl+drop to insert dropped content as new page
+- Uses app.diagrams.net for editing [DID-1717]
+- Fixes drag and drop for SVG+XML files
+
 11-FEB-2021: 14.3.1
 
 - Adds support for regional direction to back-ends
