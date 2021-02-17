@@ -1162,7 +1162,7 @@ EditorUi.prototype.updateTabContainer = function()
 		var graph = this.editor.graph;
 		var wrapper = document.createElement('div');
 		wrapper.style.position = 'relative';
-		wrapper.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+		wrapper.style.display = 'inline-block';
 		wrapper.style.verticalAlign = 'top';
 		wrapper.style.height = this.tabContainer.style.height;
 		wrapper.style.whiteSpace = 'nowrap';
@@ -1330,7 +1330,7 @@ EditorUi.prototype.isPageInsertTabVisible = function()
 EditorUi.prototype.createTab = function(hoverEnabled)
 {
 	var tab = document.createElement('div');
-	tab.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+	tab.style.display = 'inline-block';
 	tab.style.whiteSpace = 'nowrap';
 	tab.style.boxSizing = 'border-box';
 	tab.style.position = 'relative';

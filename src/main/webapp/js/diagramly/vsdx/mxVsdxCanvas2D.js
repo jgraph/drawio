@@ -699,8 +699,7 @@ mxVsdxCanvas2D.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
  * Function: text
  * 
  * Paints the given text. Possible values for format are empty string for
- * plain text and html for HTML markup. Background and border color as well
- * as clipping is not available in plain text labels for VML. HTML labels
+ * plain text and html for HTML markup. HTML labels
  * are not available as part of shapes with no foreignObject support in SVG
  * (eg. IE9, IE10).
  * 

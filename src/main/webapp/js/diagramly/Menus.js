@@ -954,33 +954,26 @@
 						{
 							elt.style.top = '0px';
 						}
+
+						var icon = document.createElement('div');
+						icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+						icon.style.backgroundPosition = 'center center';
+						icon.style.backgroundRepeat = 'no-repeat';
+						icon.style.backgroundSize = '19px 19px';
+						icon.style.position = 'absolute';
+						icon.style.height = '19px';
+						icon.style.width = '19px';
+						icon.style.marginTop = '2px';
+						icon.style.zIndex = '1';
+						elt.appendChild(icon);
+						mxUtils.setOpacity(elt, 40);
 						
-						if (!mxClient.IS_VML)
+						if (uiTheme == 'atlas' || uiTheme == 'dark')
 						{
-							var icon = document.createElement('div');
-							icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-							icon.style.backgroundPosition = 'center center';
-							icon.style.backgroundRepeat = 'no-repeat';
-							icon.style.backgroundSize = '19px 19px';
-							icon.style.position = 'absolute';
-							icon.style.height = '19px';
-							icon.style.width = '19px';
-							icon.style.marginTop = '2px';
-							icon.style.zIndex = '1';
-							elt.appendChild(icon);
-							mxUtils.setOpacity(elt, 40);
-							
-							if (uiTheme == 'atlas' || uiTheme == 'dark')
-							{
-								elt.style.opacity = '0.85';
-								elt.style.filter = 'invert(100%)';
-							}
+							elt.style.opacity = '0.85';
+							elt.style.filter = 'invert(100%)';
 						}
-						else
-						{
-							elt.innerHTML = '<div class="geIcon geSprite geSprite-globe"/>';
-						}
-						
+
 						document.body.appendChild(elt);
 					}
 				}

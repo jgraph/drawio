@@ -5083,7 +5083,7 @@
 					{
 						if (colorset['gradient'] != null)
 						{
-							if (mxClient.IS_IE && (mxClient.IS_QUIRKS || document.documentMode < 10))
+							if (mxClient.IS_IE && (document.documentMode < 10))
 							{
 						    	btn.style.filter = 'progid:DXImageTransform.Microsoft.Gradient('+
 				                	'StartColorStr=\'' + colorset['fill'] +
@@ -5541,34 +5541,6 @@
 		function setMouseEvent(evt)
 		{
 			mouseEvent = evt;
-			
-			// Workaround for member not found in IE8-
-			try
-			{
-				if (mxClient.IS_QUIRKS || document.documentMode == 7 || document.documentMode == 8)
-				{
-					mouseEvent = document.createEventObject(evt);
-					mouseEvent.type = evt.type;
-					mouseEvent.canBubble = evt.canBubble;
-					mouseEvent.cancelable = evt.cancelable;
-					mouseEvent.view = evt.view;
-					mouseEvent.detail = evt.detail;
-					mouseEvent.screenX = evt.screenX;
-					mouseEvent.screenY = evt.screenY;
-					mouseEvent.clientX = evt.clientX;
-					mouseEvent.clientY = evt.clientY;
-					mouseEvent.ctrlKey = evt.ctrlKey;
-					mouseEvent.altKey = evt.altKey;
-					mouseEvent.shiftKey = evt.shiftKey;
-					mouseEvent.metaKey = evt.metaKey;
-					mouseEvent.button = evt.button;
-					mouseEvent.relatedTarget = evt.relatedTarget;
-				}
-			}
-			catch (e)
-			{
-				// ignores possible event cloning errors
-			}
 		};
 		
 		mxEvent.addListener(this.container, 'mouseenter', setMouseEvent);

@@ -667,19 +667,10 @@ App.main = function(callback, createUi)
 					}
 				});
 			}
-			else
+			else if (Editor.enableServiceWorker)
 			{
 				// Runs as progressive web app if service workers are supported
-				if (Editor.enableServiceWorker)
-				{
-					navigator.serviceWorker.register('/service-worker.js');
-				}
-				
-				if (urlParams['offline'] == '1' || urlParams['dev'] != '1')
-				{
-					mxStencilRegistry.allowEval = false;
-					App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js', 'js/extensions.min.js']);
-				}
+				navigator.serviceWorker.register('/service-worker.js');
 			}
 		}
 		catch (e)
@@ -876,100 +867,113 @@ App.main = function(callback, createUi)
 			}
 			
 			// Main
-			var ui = (createUi != null) ? createUi() : new App(new Editor(
-					urlParams['chrome'] == '0' || uiTheme == 'min',
-					null, null, null, urlParams['chrome'] != '0'));
-			
-			if (window.mxscript != null)
+			function realMain()
 			{
-				// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
-				// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-				if (typeof window.DropboxClient === 'function' &&
-					(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
-					(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
-					(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
-					isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
+				var ui = (createUi != null) ? createUi() : new App(new Editor(
+						urlParams['chrome'] == '0' || uiTheme == 'min',
+						null, null, null, urlParams['chrome'] != '0'));
+				
+				if (window.mxscript != null)
 				{
-					mxscript(App.DROPBOX_URL, function()
+					// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+					// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
+					if (typeof window.DropboxClient === 'function' &&
+						(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
+						(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
+						(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
+						isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
 					{
-						// Must load this after the dropbox SDK since they use the same namespace
-						mxscript(App.DROPINS_URL, function()
+						mxscript(App.DROPBOX_URL, function()
 						{
-							DrawDropboxClientCallback();
-						}, 'dropboxjs', App.DROPBOX_APPKEY);
-					});
-				}
-				// Disables client
-				else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
-				{
-					window.DropboxClient = null;
-				}
+							// Must load this after the dropbox SDK since they use the same namespace
+							mxscript(App.DROPINS_URL, function()
+							{
+								DrawDropboxClientCallback();
+							}, 'dropboxjs', App.DROPBOX_APPKEY);
+						});
+					}
+					// Disables client
+					else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
+					{
+						window.DropboxClient = null;
+					}
+						
+					// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
+					if (typeof window.OneDriveClient === 'function' &&
+						(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
+						(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
+						urlParams['od'] == '1')) && (navigator.userAgent == null ||
+						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+					{
+						if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
+						{
+							mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
+							{
+								window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
+								window.DrawOneDriveClientCallback();
+							});
+						}
+						else
+						{
+							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+						}
+					}
+					// Disables client
+					else if (typeof window.OneDrive === 'undefined')
+					{
+						window.OneDriveClient = null;
+					}
 					
-				// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-				if (typeof window.OneDriveClient === 'function' &&
-					(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
-					(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-					urlParams['od'] == '1')) && (navigator.userAgent == null ||
-					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
-				{
-					if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
+					// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+					if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
+						typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
+						urlParams['tr'] == '1' && (navigator.userAgent == null ||
+						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
 					{
-						mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
+						mxscript(App.TRELLO_JQUERY_URL, function()
 						{
-							window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
-							window.DrawOneDriveClientCallback();
+							// Must load this after the dropbox SDK since they use the same namespace
+							mxscript(App.TRELLO_URL, function()
+							{
+								DrawTrelloClientCallback();
+							});
 						});
 					}
-					else
+					// Disables client
+					else if (typeof window.Trello === 'undefined')
 					{
-						mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+						window.TrelloClient = null;
+					}
+		
+				}
+				
+				if (callback != null)
+				{
+					callback(ui);
+				}
+				
+				/**
+				 * For developers only
+				 */
+				if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
+				{
+					EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
+					
+					if (urlParams['export'] != null)
+					{
+						EditorUi.debug('Export:', EXPORT_URL);
 					}
 				}
-				// Disables client
-				else if (typeof window.OneDrive === 'undefined')
-				{
-					window.OneDriveClient = null;
-				}
-				
-				// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-				if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
-					typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
-					urlParams['tr'] == '1' && (navigator.userAgent == null ||
-					navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
-				{
-					mxscript(App.TRELLO_JQUERY_URL, function()
-					{
-						// Must load this after the dropbox SDK since they use the same namespace
-						mxscript(App.TRELLO_URL, function()
-						{
-							DrawTrelloClientCallback();
-						});
-					});
-				}
-				// Disables client
-				else if (typeof window.Trello === 'undefined')
-				{
-					window.TrelloClient = null;
-				}
-	
-			}
+			};
 			
-			if (callback != null)
+			if (urlParams['dev'] == '1')
 			{
-				callback(ui);
+				realMain();
 			}
-			
-			/**
-			 * For developers only
-			 */
-			if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
+			else
 			{
-				EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
-				
-				if (urlParams['export'] != null)
-				{
-					EditorUi.debug('Export:', EXPORT_URL);
-				}
+				App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js',
+					'js/extensions.min.js'], realMain);
 			}
 		}, function(xhr)
 		{
@@ -1689,11 +1693,6 @@ App.prototype.init = function()
 		{
 			this.appIconClicked(evt);
 		}));
-		
-		if (mxClient.IS_QUIRKS)
-		{
-			this.icon.style.marginTop = '12px';
-		}
 		
 		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
 	}
@@ -2485,11 +2484,6 @@ App.prototype.createBackground = function()
 	
 	mxUtils.setOpacity(bg, 100);
 	
-	if (mxClient.IS_QUIRKS)
-	{
-		new mxDivResizer(bg);
-	}
-
 	return bg;
 };
 
@@ -4361,7 +4355,7 @@ App.prototype.saveFile = function(forceDialog, success)
 							input.value = name.split('.').slice(0, -1).join('.');
 							input.focus();
 							
-							if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+							if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 							{
 								input.select();
 							}

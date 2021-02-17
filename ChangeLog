@@ -1,3 +1,9 @@
+17-FEB-2021: 14.4.0
+
+- Removes VML support
+- Adds Persian language
+- Forces ac.draw.io and aj.draw.io to embed mode
+
 15-FEB-2021: 14.3.2
 
 - Adds flow animation style

@@ -659,11 +659,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 		table2.setAttribute('border', '1');
 		table2.style.borderCollapse = 'collapse';
 		table2.style.borderStyle = 'solid';
-
-		if (!mxClient.IS_QUIRKS)
-		{
-			table2.setAttribute('cellPadding', '8');
-		}
+		table2.setAttribute('cellPadding', '8');
 		
 		for (var i = 0; i < rows; i++)
 		{
@@ -672,11 +668,6 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 			for (var j = 0; j < cols; j++)
 			{
 				var cell = row.insertCell(-1);
-				
-				if (mxClient.IS_QUIRKS)
-				{
-					cell.innerHTML = quirksCellHtml;
-				}
 			}
 		}
 		
@@ -692,11 +683,6 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 			for (var j = 0; j < picker.rows[0].cells.length; j++)
 			{
 				var cell = row.insertCell(-1);
-				
-				if (mxClient.IS_QUIRKS)
-				{
-					cell.innerHTML = quirksCellHtml;
-				}
 			}
 		}
 		
@@ -707,11 +693,6 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 			for (var j = row.cells.length; j < cols; j++)
 			{
 				var cell = row.insertCell(-1);
-				
-				if (mxClient.IS_QUIRKS)
-				{
-					cell.innerHTML = quirksCellHtml;
-				}
 			}
 		}
 	};

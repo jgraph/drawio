@@ -666,13 +666,6 @@
 					status.innerHTML = label;
 					container.appendChild(status);
 					spinner.status = status;
-					
-					// Centers the label in older IE versions
-					if (mxClient.IS_VML && (document.documentMode == null || document.documentMode <= 8))
-					{
-						status.style.left = Math.round(Math.max(0, x - status.offsetWidth / 2)) + 'px';
-						status.style.top = Math.round(Math.max(0, y + 70 - status.offsetHeight / 2)) + 'px';
-					}
 				}
 				
 				// Pause returns a function to resume the spinner
@@ -3116,13 +3109,8 @@
 	    buttons.style.position = 'absolute';
 	    buttons.style.right = '0px';
 	    buttons.style.top = '0px';
-	    buttons.style.padding = '8px'
-	    
-	    // Workaround for CSS error in IE8 (standards and quirks)
-	    if (!mxClient.IS_QUIRKS && document.documentMode != 8)
-	    {
-	    	buttons.style.backgroundColor = 'inherit';
-	    }
+	    buttons.style.padding = '8px'	    
+	    buttons.style.backgroundColor = 'inherit';
 	    
 	    title.style.position = 'relative';
 	    
@@ -3627,7 +3615,7 @@
 
     		if (typeof Toolbar !== 'undefined')
     		{
-    			Toolbar.prototype.unselectedBackground = (mxClient.IS_QUIRKS) ? 'none' : 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
+    			Toolbar.prototype.unselectedBackground = 'linear-gradient(rgb(255, 255, 255) 0px, rgb(242, 242, 242) 100%)';
     			Toolbar.prototype.selectedBackground = 'rgb(242, 242, 242)';
     		}
     		
@@ -4254,7 +4242,7 @@
 		return ((urlParams['save'] != 'remote' && (mxClient.IS_IE ||
 			(typeof window.Blob !== 'undefined' && typeof window.URL !== 'undefined')) &&
 			document.documentMode != 9 && document.documentMode != 8 &&
-			document.documentMode != 7 && !mxClient.IS_QUIRKS) ||
+			document.documentMode != 7) ||
 			this.isOfflineApp() || mxClient.IS_IOS);
 	};
 	
@@ -5630,7 +5618,7 @@
 		{
 			widthInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				widthInput.select();
 			}
@@ -5921,7 +5909,7 @@
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			zoomInput.select();
 		}
@@ -6915,7 +6903,7 @@
 						formData.append('file1', file, filename);
 	
 						var xhr = new XMLHttpRequest();
-						xhr.open('POST', VSD_CONVERT_URL);
+						xhr.open('POST', VSD_CONVERT_URL + (/(\.vss|\.vsx)$/.test(filename)? '?stencil=1' : ''));
 						xhr.responseType = 'blob';
 						this.addRemoteServiceSecurityCheck(xhr);
 						
@@ -9616,20 +9604,8 @@
 						graph.container.appendChild(textInput);
 						restoreFocus = true;
 						
-						// Workaround for selected document content in quirks mode
-						if (mxClient.IS_QUIRKS)
-						{
-							window.setTimeout(function()
-							{
-								textInput.focus();
-								document.execCommand('selectAll', false, null);
-							}, 0);
-						}
-						else
-						{
-							textInput.focus();
-							document.execCommand('selectAll', false, null);
-						}
+						textInput.focus();
+						document.execCommand('selectAll', false, null);
 					}
 				}
 			}
@@ -14172,18 +14148,8 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
 	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
 	
-	if (mxClient.IS_QUIRKS)
-	{
-		ldiv.style.filter = 'none';
-	}
-	
 	var link = document.createElement('a');
 	link.className = 'geButton';
-	
-	if (mxClient.IS_QUIRKS)
-	{
-		link.style.filter = 'none';
-	}
 	
 	function updateNoComments()
 	{
@@ -14949,11 +14915,6 @@ var ConfirmDialog = function(editorUi, message, okFn, cancelFn, okLabel, cancelL
 	p2.style.overflow = 'auto';
 	p2.style.maxHeight = maxHeight + 'px';
 	p2.style.lineHeight = '1.2em';
-	
-	if (mxClient.IS_QUIRKS)
-	{
-		p2.style.height = '60px';
-	}
 	
 	mxUtils.write(p2, message);
 	div.appendChild(p2);

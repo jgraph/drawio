@@ -307,14 +307,11 @@ Draw.loadPlugin(function(ui) {
 				})(i);
 			}
 			
-			if (!mxClient.IS_QUIRKS)
-			{
-				parent.div.style.overflowX = 'hidden';
-				parent.div.style.overflowY = 'auto';
-				parent.div.style.maxHeight = '100%';
-				// Workaround for document scrollbars with 100% max height in Chrome
-				parent.div.style.marginBottom = '-20px';
-			}
+			parent.div.style.overflowX = 'hidden';
+			parent.div.style.overflowY = 'auto';
+			parent.div.style.maxHeight = '100%';
+			// Workaround for document scrollbars with 100% max height in Chrome
+			parent.div.style.marginBottom = '-20px';
 		}
 	})));
 	

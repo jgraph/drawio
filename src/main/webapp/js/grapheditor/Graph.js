@@ -4535,35 +4535,10 @@ HoverIcons.prototype.isResetEvent = function(evt, allowShift)
 HoverIcons.prototype.createArrow = function(img, tooltip)
 {
 	var arrow = null;
-	
-	if (mxClient.IS_IE && !mxClient.IS_SVG)
-	{
-		// Workaround for PNG images in IE6
-		if (mxClient.IS_IE6 && document.compatMode != 'CSS1Compat')
-		{
-			arrow = document.createElement(mxClient.VML_PREFIX + ':image');
-			arrow.setAttribute('src', img.src);
-			arrow.style.borderStyle = 'none';
-		}
-		else
-		{
-			arrow = document.createElement('div');
-			arrow.style.backgroundImage = 'url(' + img.src + ')';
-			arrow.style.backgroundPosition = 'center';
-			arrow.style.backgroundRepeat = 'no-repeat';
-		}
-		
-		arrow.style.width = (img.width + 4) + 'px';
-		arrow.style.height = (img.height + 4) + 'px';
-		arrow.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
-	}
-	else
-	{
-		arrow = mxUtils.createImage(img.src);
-		arrow.style.width = img.width + 'px';
-		arrow.style.height = img.height + 'px';
-		arrow.style.padding = this.tolerance + 'px';
-	}
+	arrow = mxUtils.createImage(img.src);
+	arrow.style.width = img.width + 'px';
+	arrow.style.height = img.height + 'px';
+	arrow.style.padding = this.tolerance + 'px';
 	
 	if (tooltip != null)
 	{
@@ -8033,7 +8008,7 @@ if (typeof mxVertexHandler != 'undefined')
 					pt.x, pt.y) && !mxUtils.isAncestorNode(state.text.node, mxEvent.getSource(evt))))) &&
 					((state == null && !this.isCellLocked(this.getDefaultParent())) ||
 					(state != null && !this.isCellLocked(state.cell))) &&
-					(state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
+					(state != null ||
 					(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement)))
 				{
 					if (state == null)
@@ -9991,13 +9966,8 @@ if (typeof mxVertexHandler != 'undefined')
 			if ((this.graph.getModel().isEdge(parent) && geo != null && geo.relative) ||
 				this.graph.getModel().isEdge(cell))
 			{
-				// Quirks does not support outline at all so use border instead
-				if (mxClient.IS_QUIRKS)
-				{
-					this.textarea.style.border = 'gray dotted 1px';
-				}
 				// IE>8 and FF on Windows uses outline default of none
-				else if (mxClient.IS_IE || mxClient.IS_IE11 || (mxClient.IS_FF && mxClient.IS_WIN))
+				if (mxClient.IS_IE || mxClient.IS_IE11 || (mxClient.IS_FF && mxClient.IS_WIN))
 				{
 					this.textarea.style.outline = 'gray dotted 1px';
 				}
@@ -10005,11 +9975,6 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					this.textarea.style.outline = '';
 				}
-			}
-			else if (mxClient.IS_QUIRKS)
-			{
-				this.textarea.style.outline = 'none';
-				this.textarea.style.border = '';
 			}
 		}
 
@@ -10113,7 +10078,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			// Handles paste from Word, Excel etc by removing styles, classnames and unused nodes
 			// LATER: Fix undo/redo for paste
-			if (!mxClient.IS_QUIRKS && document.documentMode !== 7 && document.documentMode !== 8)
+			if (document.documentMode !== 7 && document.documentMode !== 8)
 			{
 				mxEvent.addListener(this.textarea, 'paste', mxUtils.bind(this, function(evt)
 				{
@@ -10162,7 +10127,7 @@ if (typeof mxVertexHandler != 'undefined')
 					var content = mxUtils.htmlEntities(this.textarea.innerHTML);
 		
 				    // Workaround for trailing line breaks being ignored in the editor
-					if (!mxClient.IS_QUIRKS && document.documentMode != 8)
+					if (document.documentMode != 8)
 					{
 						content = mxUtils.replaceTrailingNewlines(content, '<div><br></div>');
 					}
@@ -10310,14 +10275,7 @@ if (typeof mxVertexHandler != 'undefined')
 					this.textarea.style.left = Math.round(this.bounds.x) + 'px';
 					this.textarea.style.top = Math.round(this.bounds.y) + 'px';
 		
-					if (mxClient.IS_VML)
-					{
-						this.textarea.style.zoom = scale;
-					}
-					else
-					{
-						mxUtils.setPrefixedStyle(this.textarea.style, 'transform', 'scale(' + scale + ',' + scale + ')');	
-					}
+					mxUtils.setPrefixedStyle(this.textarea.style, 'transform', 'scale(' + scale + ',' + scale + ')');	
 				}
 				else
 				{
@@ -11888,8 +11846,7 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var shape = new mxRectangleShape(new mxRectangle(0, 0, 6, 6),
 						'#ffffff', mxConstants.HANDLE_STROKECOLOR);
-					shape.dialect = (this.graph.dialect != mxConstants.DIALECT_SVG) ?
-						mxConstants.DIALECT_VML : mxConstants.DIALECT_SVG;
+					shape.dialect =  mxConstants.DIALECT_SVG;
 					shape.init(this.graph.view.getOverlayPane());
 					this.cornerHandles.push(shape);
 				}

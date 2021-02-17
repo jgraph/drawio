@@ -240,17 +240,6 @@
 			    		graph.setTooltips(false);
 			    	}
 					
-					// Workaround for parent div ignoring child size
-					if (mxClient.IS_VML)
-					{
-						var canvas = graph.view.getCanvas();
-						
-						if (canvas != null && canvas.nodeName == 'DIV')
-						{
-							canvas.style.position = 'relative';
-						}
-					}
-
 					// Loads the stylesheet
 					if (stylesheet != null)
 					{
@@ -307,15 +296,7 @@
 								// Fixes container size for different box models
 								if (mxClient.IS_IE)
 								{
-									if (mxClient.IS_QUIRKS)
-									{
-										var borders = this.getBorderSizes();
-										
-										// max(2, ...) required for native IE8 in quirks mode
-										width += Math.max(2, borders.x + borders.width + 1);
-										height += Math.max(2, borders.y + borders.height + 1);
-									}
-									else if (document.documentMode >= 9)
+									if (document.documentMode >= 9)
 									{
 										width += 3;
 										height += 5;
@@ -654,12 +635,7 @@
 					var bw = 16;
 					var bh = 16;
 					
-					if (mxClient.IS_QUIRKS)
-					{
-						bw -= 1;
-						bh -= 1;
-					}
-					else if (mxClient.IS_TOUCH)
+					if (mxClient.IS_TOUCH)
 					{
 						bw = 24;
 						bh = 24;

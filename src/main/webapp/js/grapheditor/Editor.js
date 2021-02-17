@@ -782,17 +782,6 @@ OpenFile.prototype.cancel = function(cancel)
 function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize, ignoreBgClick)
 {
 	var dx = 0;
-	
-	if (mxClient.IS_VML && (document.documentMode == null || document.documentMode < 8))
-	{
-		// Adds padding as a workaround for box model in older IE versions
-		// This needs to match the total padding of geDialog in CSS
-		dx = 80;
-	}
-	
-	w += dx;
-	h += dx;
-	
 	var w0 = w;
 	var h0 = h;
 	
@@ -809,10 +798,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 	
 	// Keeps window size inside available space
-	if (!mxClient.IS_QUIRKS)
-	{
-		elt.style.maxHeight = '100%';
-	}
+	elt.style.maxHeight = '100%';
 	
 	w = (document.body != null) ? Math.min(w, document.body.scrollWidth - 64) : w;
 	h = Math.min(h, dh - 64);
@@ -833,11 +819,6 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		this.bg.style.zIndex = this.zIndex - 2;
 		
 		mxUtils.setOpacity(this.bg, this.bgOpacity);
-		
-		if (mxClient.IS_QUIRKS)
-		{
-			new mxDivResizer(this.bg);
-		}
 	}
 	
 	var origin = mxUtils.getDocumentScrollOrigin(document);
@@ -2008,7 +1989,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		
 		nameInput.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			nameInput.select();
 		}
@@ -2326,9 +2307,8 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 						this.backgroundPageShape = this.createBackgroundPageShape(bounds);
 						this.backgroundPageShape.scale = 1;
 						
-						// Shadow filter causes problems in outline window in quirks mode. IE8 standards
-						// also has known rendering issues inside mxWindow but not using shadow is worse.
-						this.backgroundPageShape.isShadow = !mxClient.IS_QUIRKS;
+						// IE8 standards has known rendering issues inside mxWindow but not using shadow is worse.
+						this.backgroundPageShape.isShadow = true;
 						this.backgroundPageShape.dialect = mxConstants.DIALECT_STRICTHTML;
 						this.backgroundPageShape.init(graph.container);
 	

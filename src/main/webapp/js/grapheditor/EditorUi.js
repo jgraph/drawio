@@ -1795,7 +1795,7 @@ EditorUi.prototype.initCanvas = function()
                 
                 var st = graph.container.scrollTop;
                 var sl = graph.container.scrollLeft;
-                var sb = (mxClient.IS_QUIRKS || document.documentMode >= 8) ? 20 : 14;
+                var sb = (document.documentMode >= 8) ? 20 : 14;
                 
                 if (document.documentMode == 8 || document.documentMode == 9)
                 {
@@ -1882,11 +1882,8 @@ EditorUi.prototype.initCanvas = function()
 			this.chromelessToolbar.style.padding = '10px 10px 8px 10px';
 			this.chromelessToolbar.style.left = (graph.isViewer()) ? '0' : '50%';
 			
-			if (!mxClient.IS_VML)
-			{
-				mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'borderRadius', '20px');
-				mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transition', 'opacity 600ms ease-in-out');
-			}
+			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'borderRadius', '20px');
+			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transition', 'opacity 600ms ease-in-out');
 			
 			var updateChromelessToolbarPosition = mxUtils.bind(this, function()
 			{
@@ -3635,7 +3632,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		tmp += this.toolbarHeight;
 	}
 	
-	if (tmp > 0 && !mxClient.IS_QUIRKS)
+	if (tmp > 0)
 	{
 		tmp += 1;
 	}

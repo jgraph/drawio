@@ -145,6 +145,7 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'uk' : 'Українська',
 	'he' : 'עברית',
 	'ar' : 'العربية',
+	'fa' : 'فارسی',
 	'th' : 'ไทย',
 	'ko' : '한국어',
 	'ja' : '日本語',
@@ -373,7 +374,9 @@ if (urlParams['offline'] == '1' || urlParams['local'] == '1')
 }
 
 // Uses embed mode on embed domain
-if (window.location.hostname == 'embed.diagrams.net')
+if (window.location.hostname == 'embed.diagrams.net' ||
+	window.location.hostname == 'ac.draw.io' ||
+	window.location.hostname == 'aj.draw.io')
 {
 	urlParams['embed'] = '1';
 }	

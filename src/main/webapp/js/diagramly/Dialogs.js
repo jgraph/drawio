@@ -18,12 +18,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	buttons.style.borderWidth = '1px 0px 1px 0px';
 	buttons.style.padding = '10px 0px 20px 0px';
 	
-	if (mxClient.IS_QUIRKS)
-	{
-		buttons.style.whiteSpace = 'nowrap';
-		buttons.style.cssFloat = 'left';
-	}
-
 	var count = 0;
 	var container = document.createElement('div');
 	container.style.paddingTop = '2px';
@@ -41,7 +35,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		
 		var button = document.createElement('a');
 		button.style.overflow = 'hidden';
-		button.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+		button.style.display = 'inline-block';
 		button.className = 'geBaseButton';
 		button.style.boxSizing = 'border-box';
 		button.style.fontSize = '11px';
@@ -55,13 +49,6 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		button.style.whiteSpace = 'nowrap';
 		button.setAttribute('title', title);
 		
-		// Workaround for quirks is a vertical list (limited to max 2 items)
-		if (mxClient.IS_QUIRKS)
-		{
-			button.style.cssFloat = 'left';
-			button.style.zoom = '1';
-		}
-
 		var label = document.createElement('div');
 		label.style.textOverflow = 'ellipsis';
 		label.style.overflow = 'hidden';
@@ -424,17 +411,6 @@ var SplashDialog = function(editorUi)
 		btn.style.marginBottom = '12px';
 	}
 
-	if (mxClient.IS_QUIRKS)
-	{
-		buttons.style.whiteSpace = 'nowrap';
-		buttons.style.cssFloat = 'left';
-	}
-
-	if (mxClient.IS_QUIRKS)
-	{
-		btn.style.width = '340px';
-	}
-	
 	mxUtils.write(btn, mxResources.get('createNewDiagram'));
 	
 	mxEvent.addListener(btn, 'click', function()
@@ -452,11 +428,6 @@ var SplashDialog = function(editorUi)
 	btn.style.fontSize = '18px';
 	btn.style.padding = '10px';
 	btn.style.width = '340px';
-	
-	if (mxClient.IS_QUIRKS)
-	{
-		btn.style.width = '340px';
-	}
 	
 	mxUtils.write(btn, mxResources.get('openExistingDiagram'));
 	
@@ -712,7 +683,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 				text.value = result;
 				text.focus();
 					
-				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 				{
 					text.select();
 				}
@@ -898,7 +869,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	{
 		text.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			text.select();
 		}
@@ -969,7 +940,7 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	{
 		gadgetInput.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			gadgetInput.select();
 		}
@@ -1190,7 +1161,7 @@ var GoogleSitesDialog = function(editorUi, publicUrl)
 	{
 		gadgetInput.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			gadgetInput.select();
 		}
@@ -2506,7 +2477,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			nameInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				nameInput.select();
 			}
@@ -3409,7 +3380,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	{
 		nameInput.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			nameInput.select();
 		}
@@ -3480,7 +3451,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		logo.style.width = '60px';
 		logo.style.height = '60px';
 		logo.style.paddingBottom = '6px';
-		button.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+		button.style.display = 'inline-block';
 		button.className = 'geBaseButton';
 		button.style.position = 'relative';
 		button.style.margin = '4px';
@@ -3488,13 +3459,6 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		button.style.whiteSpace = 'nowrap';
 		
 		button.appendChild(logo);
-		
-		// Workaround for quirks is a vertical list (limited to max 2 items)
-		if (mxClient.IS_QUIRKS)
-		{
-			button.style.cssFloat = 'left';
-			button.style.zoom = '1';
-		}
 		
 		button.style.color = 'gray';
 		button.style.fontSize = '11px';
@@ -3952,11 +3916,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	inner.style.whiteSpace = 'nowrap';
 	inner.style.textOverflow = 'clip';
 	inner.style.cursor = 'default';
-	
-	if (!mxClient.IS_VML)
-	{
-		inner.style.paddingRight = '20px';
-	}
+	inner.style.paddingRight = '20px';
 	
 	var linkInput = document.createElement('input');
 	linkInput.setAttribute('value', initialValue);
@@ -3967,7 +3927,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	linkInput.setAttribute('autocapitalize', 'off');
 	linkInput.style.marginTop = '6px';
 	var realWidth = (Graph.fileSupport) ? 460 : 340;
-	linkInput.style.width = realWidth + ((mxClient.IS_QUIRKS) ? 20 : -20) + 'px';
+	linkInput.style.width = realWidth - 20 + 'px';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
 	linkInput.style.backgroundPosition = '100% 50%';
@@ -3982,8 +3942,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	cross.style.cursor = 'pointer';
 
 	// Workaround for inline-block not supported in IE
-	cross.style.display = (mxClient.IS_VML) ? 'inline' : 'inline-block';
-	cross.style.top = ((mxClient.IS_VML) ? 0 : 3) + 'px';
+	cross.style.display = 'inline-block';
+	cross.style.top = '3px';
 	
 	// Needed to block event transparency in IE
 	cross.style.background = 'url(\'' + editorUi.editor.transparentImage + '\')';
@@ -4155,7 +4115,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	};
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = (mxClient.IS_QUIRKS) ? '22px' : '14px';
+	btns.style.marginTop = '14px';
 	btns.style.textAlign = 'center';
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
@@ -4321,11 +4281,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	inner.style.whiteSpace = 'nowrap';
 	inner.style.textOverflow = 'clip';
 	inner.style.cursor = 'default';
-	
-	if (!mxClient.IS_VML)
-	{
-		inner.style.paddingRight = '20px';
-	}
+	inner.style.paddingRight = '20px';
 
 	var linkInput = document.createElement('input');
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
@@ -4347,8 +4303,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	cross.style.cursor = 'pointer';
 	
 	// Workaround for inline-block not supported in IE
-	cross.style.display = (mxClient.IS_VML) ? 'inline' : 'inline-block';
-	cross.style.top = ((mxClient.IS_VML) ? 0 : 3) + 'px';
+	cross.style.display = 'inline-block';
+	cross.style.top = '3px';
 	
 	// Needed to block event transparency in IE
 	cross.style.background = 'url(\'' + editorUi.editor.transparentImage + '\')';
@@ -4462,7 +4418,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 		{
 			linkInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				linkInput.select();
 			}
@@ -6400,7 +6356,7 @@ var FindWindow = function(ui, x, y, w, h)
 		{
 			searchInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				searchInput.select();
 			}
@@ -6701,7 +6657,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		{
 			searchInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				searchInput.select();
 			}
@@ -7021,11 +6977,6 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		hd.style.height = '40px';
 		hd.style.right = '0px';
 		
-		if (mxClient.IS_QUIRKS)
-		{
-			hd.style.width = '718px';
-		}
-		
 		var list = document.createElement('div');
 		var preview = document.createElement('div');
 		
@@ -7036,12 +6987,6 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		list.style.bottom = '60px';
 		list.style.overflow = 'auto';
 		
-		if (mxClient.IS_QUIRKS)
-		{
-			list.style.height = '437px';
-			list.style.marginTop = '1px';
-		}
-		
 		preview.style.position = 'absolute';
 		preview.style.left = '202px';
 		preview.style.right = '0px';
@@ -7050,13 +6995,6 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		preview.style.overflow = 'auto';
 		preview.style.borderLeft = '1px solid rgb(211, 211, 211)';
 		preview.style.textAlign = 'center';
-		
-		if (mxClient.IS_QUIRKS)
-		{
-			preview.style.width = parseInt(hd.style.width) - 202 + 'px';
-			preview.style.height = list.style.height;
-			preview.style.marginTop = list.style.marginTop;
-		}
 		
 		var currentListItem = null;
 		var applyFunctions = [];
@@ -7084,12 +7022,6 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		buttons.style.height = '60px';
 		buttons.style.lineHeight = '52px';
 		
-		if (mxClient.IS_QUIRKS)
-		{
-			buttons.style.width = hd.style.width;
-			buttons.style.paddingTop = '12px';
-		}
-
 		var cb = document.createElement('input');
 		cb.setAttribute('type', 'checkbox');
 		
@@ -7111,12 +7043,6 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 				}
 			});
 			
-			if (mxClient.IS_QUIRKS)
-			{
-				span.style.position = 'relative';
-				span.style.top = '-6px';
-			}
-
 			buttons.appendChild(span);
 		}
 		
@@ -7973,7 +7899,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		{
 			nameInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				nameInput.select();
 			}
@@ -8104,7 +8030,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					
 					var wrapper = document.createElement('div');
 					wrapper.setAttribute('draggable', 'true');
-					wrapper.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+					wrapper.style.display = 'inline-block';
 					wrapper.style.position = 'relative';
 					wrapper.style.cursor = 'move';
 					mxUtils.setPrefixedStyle(wrapper.style, 'transition', 'transform .1s ease-in-out');
@@ -8131,7 +8057,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 							editorUi.sidebar.createThumb(cells, ew, eh, wrapper, null, true, false);
 							
 							// Needs inline block on SVG for delete icon to appear on same line
-							wrapper.firstChild.style.display = (mxClient.IS_QUIRKS) ? 'inline' : 'inline-block';
+							wrapper.firstChild.style.display = 'inline-block';
 							wrapper.firstChild.style.cursor = '';
 						}
 					}
@@ -8266,7 +8192,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					var startEditing = function(evt)
 					{
 						// Workaround for various issues in IE
-						if (!mxClient.IS_IOS && !mxClient.IS_QUIRKS && !mxClient.IS_FF &&
+						if (!mxClient.IS_IOS && !mxClient.IS_FF &&
 							(document.documentMode == null || document.documentMode > 9))
 						{
 							if (label.getAttribute('contentEditable') != 'true')
@@ -10164,7 +10090,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 		
 		input.focus();
 		
-		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+		if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 		{
 			input.select();
 		}
@@ -10600,7 +10526,7 @@ var FilePropertiesDialog = function(editorUi)
 		{
 			zoomInput.focus();
 			
-			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+			if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 			{
 				zoomInput.select();
 			}

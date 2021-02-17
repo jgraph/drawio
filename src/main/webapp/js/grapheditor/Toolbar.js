@@ -74,11 +74,11 @@ Toolbar.prototype.init = function()
 	
 	if (EditorUi.compactUi)
 	{
-		viewMenu.style.width = (mxClient.IS_QUIRKS) ? '58px' : '50px';
+		viewMenu.style.width = '50px';
 	}
 	else
 	{
-		viewMenu.style.width = (mxClient.IS_QUIRKS) ? '62px' : '36px';
+		viewMenu.style.width = '36px';
 	}
 	
 	if (sw >= 420)
@@ -281,7 +281,7 @@ Toolbar.prototype.addTableDropDown = function()
 	menuElt.style.whiteSpace = 'nowrap';
 	menuElt.style.overflow = 'hidden';
 	menuElt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
-	menuElt.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+	menuElt.style.width = '30px';
 
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
@@ -319,19 +319,14 @@ Toolbar.prototype.addDropDownArrow = function(menu, sprite, width, atlasWidth, l
 	menu.style.position = 'relative';
 	menu.innerHTML = '<div class="geSprite ' + sprite + '" style="margin-left:' + left + 'px;margin-top:' + top + 'px;"></div>' +
 		this.dropdownImageHtml;
-	menu.style.width = (mxClient.IS_QUIRKS) ? atlasWidth + 'px' : (atlasWidth - atlasDelta) + 'px';
-	
-	if (mxClient.IS_QUIRKS)
-	{
-		menu.style.height = (EditorUi.compactUi) ? '24px' : '26px';
-	}
+	menu.style.width = (atlasWidth - atlasDelta) + 'px';
 	
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
 	{
 		menu.getElementsByTagName('img')[0].style.left = '24px';
 		menu.getElementsByTagName('img')[0].style.top = '5px';
-		menu.style.width = (mxClient.IS_QUIRKS) ? width + 'px' : (width - 10) + 'px';
+		menu.style.width = (width - 10) + 'px';
 	}
 };
 
@@ -385,7 +380,7 @@ Toolbar.prototype.createTextToolbar = function()
 	this.fontMenu.style.position = 'relative';
 	this.fontMenu.style.whiteSpace = 'nowrap';
 	this.fontMenu.style.overflow = 'hidden';
-	this.fontMenu.style.width = (mxClient.IS_QUIRKS) ? '80px' : '60px';
+	this.fontMenu.style.width = '60px';
 	
 	this.setFontName(Menus.prototype.defaultFont);
 	
@@ -402,7 +397,7 @@ Toolbar.prototype.createTextToolbar = function()
 	this.sizeMenu.style.position = 'relative';
 	this.sizeMenu.style.whiteSpace = 'nowrap';
 	this.sizeMenu.style.overflow = 'hidden';
-	this.sizeMenu.style.width = (mxClient.IS_QUIRKS) ? '44px' : '24px';
+	this.sizeMenu.style.width = '24px';
 	
 	this.setFontSize(Menus.prototype.defaultFontSize);
 	
@@ -477,7 +472,7 @@ Toolbar.prototype.createTextToolbar = function()
 	alignMenu.style.whiteSpace = 'nowrap';
 	alignMenu.style.overflow = 'hidden';
 	alignMenu.innerHTML = '<div class="geSprite geSprite-left" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
-	alignMenu.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+	alignMenu.style.width = '30px';
 
 	if (EditorUi.compactUi)
 	{
@@ -516,7 +511,7 @@ Toolbar.prototype.createTextToolbar = function()
 	formatMenu.style.overflow = 'hidden';
 	formatMenu.innerHTML = '<div class="geSprite geSprite-dots" style="margin-left:-2px;"></div>' +
 		this.dropdownImageHtml;
-	formatMenu.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+	formatMenu.style.width = '30px';
 
 	if (EditorUi.compactUi)
 	{
@@ -564,14 +559,14 @@ Toolbar.prototype.createTextToolbar = function()
 	insertMenu.style.position = 'relative';
 	insertMenu.innerHTML = '<div class="geSprite geSprite-plus" style="margin-left:-4px;margin-top:-3px;"></div>' +
 		this.dropdownImageHtml;
-	insertMenu.style.width = (mxClient.IS_QUIRKS) ? '36px' : '16px';
+	insertMenu.style.width = '16px';
 	
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
 	{
 		insertMenu.getElementsByTagName('img')[0].style.left = '24px';
 		insertMenu.getElementsByTagName('img')[0].style.top = '5px';
-		insertMenu.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+		insertMenu.style.width = '30px';
 	}
 	
 	this.addSeparator();
@@ -787,7 +782,7 @@ Toolbar.prototype.createTextToolbar = function()
 	elt.style.whiteSpace = 'nowrap';
 	elt.style.overflow = 'hidden';
 	elt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
-	elt.style.width = (mxClient.IS_QUIRKS) ? '50px' : '30px';
+	elt.style.width = '30px';
 
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)

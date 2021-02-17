@@ -470,7 +470,7 @@ Draw.loadPlugin(function(editorUi)
 			{
 				searchInput.focus();
 				
-				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5 || mxClient.IS_QUIRKS)
+				if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
 				{
 					searchInput.select();
 				}
