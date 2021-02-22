@@ -3028,7 +3028,6 @@ App.prototype.start = function()
 				// ignore
 			}
 			
-			// KNOWN: Does not work in quirks mode
 			mxEvent.addListener(window, 'hashchange', mxUtils.bind(this, function(evt)
 			{
 				try

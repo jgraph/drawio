@@ -3592,14 +3592,13 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 {
 	sizeDidChange = (sizeDidChange != null) ? sizeDidChange : true;
 	
-	var quirks = mxClient.IS_IE && (document.documentMode == null || document.documentMode == 5);
 	var w = this.container.clientWidth;
 	var h = this.container.clientHeight;
 
 	if (this.container == document.body)
 	{
 		w = document.body.clientWidth || document.documentElement.clientWidth;
-		h = (quirks) ? document.body.clientHeight || document.documentElement.clientHeight : document.documentElement.clientHeight;
+		h = document.documentElement.clientHeight;
 	}
 	
 	// Workaround for bug on iOS see
@@ -3669,49 +3668,25 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	{
 		this.tabContainer.style.left = contLeft + 'px';
 	}
+
+	if (this.footerHeight > 0)
+	{
+		this.footerContainer.style.bottom = off + 'px';
+	}
 	
-	if (quirks)
+	this.diagramContainer.style.right = fw + 'px';
+	var th = 0;
+	
+	if (this.tabContainer != null)
 	{
-		this.menubarContainer.style.width = w + 'px';
-		this.toolbarContainer.style.width = this.menubarContainer.style.width;
-		var sidebarHeight = Math.max(0, h - this.footerHeight - this.menubarHeight - this.toolbarHeight);
-		this.sidebarContainer.style.height = (sidebarHeight - sidebarFooterHeight) + 'px';
-		this.formatContainer.style.height = sidebarHeight + 'px';
-		this.diagramContainer.style.width = (this.hsplit.parentNode != null) ? Math.max(0, w - effHsplitPosition - this.splitSize - fw) + 'px' : w + 'px';
-		this.footerContainer.style.width = this.menubarContainer.style.width;
-		var diagramHeight = Math.max(0, h - this.footerHeight - this.menubarHeight - this.toolbarHeight);
-		
-		if (this.tabContainer != null)
-		{
-			this.tabContainer.style.width = this.diagramContainer.style.width;
-			this.tabContainer.style.bottom = (this.footerHeight + off) + 'px';
-			diagramHeight -= this.tabContainer.clientHeight;
-		}
-		
-		this.diagramContainer.style.height = diagramHeight + 'px';
-		this.hsplit.style.height = diagramHeight + 'px';
+		this.tabContainer.style.bottom = (this.footerHeight + off) + 'px';
+		this.tabContainer.style.right = this.diagramContainer.style.right;
+		th = this.tabContainer.clientHeight;
 	}
-	else
-	{
-		if (this.footerHeight > 0)
-		{
-			this.footerContainer.style.bottom = off + 'px';
-		}
-		
-		this.diagramContainer.style.right = fw + 'px';
-		var th = 0;
-		
-		if (this.tabContainer != null)
-		{
-			this.tabContainer.style.bottom = (this.footerHeight + off) + 'px';
-			this.tabContainer.style.right = this.diagramContainer.style.right;
-			th = this.tabContainer.clientHeight;
-		}
-		
-		this.sidebarContainer.style.bottom = (this.footerHeight + sidebarFooterHeight + off) + 'px';
-		this.formatContainer.style.bottom = (this.footerHeight + off) + 'px';
-		this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
-	}
+	
+	this.sidebarContainer.style.bottom = (this.footerHeight + sidebarFooterHeight + off) + 'px';
+	this.formatContainer.style.bottom = (this.footerHeight + off) + 'px';
+	this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
 	
 	if (sizeDidChange)
 	{

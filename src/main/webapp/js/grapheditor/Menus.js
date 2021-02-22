@@ -650,9 +650,6 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 	// Show table size dialog
 	var elt2 = menu.addItem('', null, null, parent, null, null, null, true);
 	
-	// Quirks mode does not add cell padding if cell is empty, needs good old spacer solution
-	var quirksCellHtml = '<img src="' + mxClient.imageBasePath + '/transparent.gif' + '" width="16" height="16"/>';
-
 	function createPicker(rows, cols)
 	{
 		var table2 = document.createElement('table');

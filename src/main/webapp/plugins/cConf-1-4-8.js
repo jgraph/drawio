@@ -58,10 +58,7 @@ Draw.loadPlugin(function(ui)
 				macroData.diagramDisplayName = data.title;
 				
 				//Fetch notifications
-				if (urlParams['dev'] == '1')
-				{
-					ui.fetchAndShowNotification('conf');	
-				}
+				ui.fetchAndShowNotification('conf');	
 			}
 		}
 		catch (e)

@@ -3801,9 +3801,9 @@ LucidImporter = {};
 			'PresentationFrameBlock' : cs,
 //Timeline
 //TODO Timeline shapes are postponed, this code is a work-in-progress
-			//'TimelineBlock' : cs,
-			//'TimelineMilestoneBlock' : cs,
-			//'TimelineIntervalBlock' : cs,
+			'TimelineBlock' : cs,
+			'TimelineMilestoneBlock' : cs,
+			'TimelineIntervalBlock' : cs,
 			'MinimalTextBlock' : 'strokeColor=none;fillColor=none',
 //Freehand			
 			'FreehandBlock' : cs,
@@ -5602,6 +5602,7 @@ LucidImporter = {};
 					{
 						cell.style += 'rounded=0;';
 					}
+					var isCurved = false;
 					
 					if (p.Shape != 'diagonal')
 					{
@@ -5627,6 +5628,7 @@ LucidImporter = {};
 							if (p.Shape == 'curve')
 							{
 								cell.style += 'curved=1;';
+								isCurved = true;
 							}
 						}
 					}
@@ -5677,7 +5679,7 @@ LucidImporter = {};
 					}
 
 					var waypoints = p.ElbowControlPoints != null && p.ElbowControlPoints.length > 0? p.ElbowControlPoints : 
-						(p.BezierJoints != null && p.BezierJoints.length > 0? p.BezierJoints : p.Joints);
+						(isCurved && p.BezierJoints != null && p.BezierJoints.length > 0? p.BezierJoints : p.Joints);
 					
 					if (waypoints != null)
 					{
@@ -6126,6 +6128,7 @@ LucidImporter = {};
 						if (g.Generators[key].ClassName == 'OrgChart2018')
 						{
 							LucidImporter.hasUnknownShapes = true;
+							LucidImporter.hasOrgChart = true;
 							console.log('Lucid diagram has an Org Chart!');
 							//createOrgChart(obj, graph, lookup, queue);
 						}
@@ -6152,6 +6155,7 @@ LucidImporter = {};
 						if (obj.GeneratorData.p.ClassName == 'OrgChart2018')
 						{
 							LucidImporter.hasUnknownShapes = true;
+							LucidImporter.hasOrgChart = true;
 							console.log('Lucid diagram has an Org Chart!');
 							//createOrgChart(obj, graph, lookup, queue);
 						}
@@ -6231,6 +6235,12 @@ LucidImporter = {};
 				var src = (p.Endpoint1.Block != null) ? lookup[p.Endpoint1.Block] : null;
 				var trg = (p.Endpoint2.Block != null) ? lookup[p.Endpoint2.Block] : null;
 				var e = createEdge(obj, graph, src, trg);
+
+				if ((p.Endpoint1 && p.Endpoint1.Line) || (p.Endpoint2 && p.Endpoint2.Line))
+				{
+					console.log('Edge to Edge case');
+					LucidImporter.hasUnknownShapes = true;
+				}
 				
 				if (src == null && p.Endpoint1 != null)
 				{
@@ -12902,7 +12912,7 @@ LucidImporter = {};
 				break;
 			case 'TimelineBlock':
 			//TODO Timeline shapes are postponed, this code is a work-in-progress
-				try
+			/*	try
 				{
 					var daysMap = {
 						'Sunday': 0,
@@ -12974,10 +12984,12 @@ LucidImporter = {};
 				{
 					console.log(e); //Ignore
 				}
-				break;
+				break;*/
 			case 'TimelineMilestoneBlock':
-				break;
+			//	break;
 			case 'TimelineIntervalBlock':
+				LucidImporter.hasTimeLine = true;
+				LucidImporter.hasUnknownShapes = true;
 				break;
 			case 'FreehandBlock':
 				try

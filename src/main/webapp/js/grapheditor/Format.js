@@ -5926,7 +5926,11 @@ DiagramStylePanel.prototype.addView = function(div)
 				graph.refresh();
 			}));
 			
-			this.format.cachedStyleEntries[index] = panel;
+			// Workaround for broken cache in IE11
+			if (!mxClient.IS_IE && !mxClient.IS_IE11)
+			{
+				this.format.cachedStyleEntries[index] = panel;
+			}
 		}
 		
 		entries.appendChild(panel);

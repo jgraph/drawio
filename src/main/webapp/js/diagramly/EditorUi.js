@@ -3131,7 +3131,7 @@
 			
 			mxEvent.addListener(btn, 'click', mxUtils.bind(this, function(evt)
 			{
-				// Workaround for close after any button click in IE8/quirks
+				// Workaround for close after any button click in IE8
 				if (!mxEvent.isConsumed(evt))
 				{
 					var fn = mxUtils.bind(this, function()

@@ -1126,3 +1126,6 @@ notifications=Benachrichtigungen
 drawioImp=draw.io Import
 confALibsImp=Importiere draw.io Bibliotheken
 confALibsImpFailed=Import von {1} Bibliothek(en) fehlgeschlagen
+contributors=Contributors
+drawDiagrams=draw.io Diagrams
+errFileNotFoundOrNoPer=Error: Access Denied. File not found or you do not have permission to access "{1}" on {2}.

@@ -1,4 +1,9 @@
-// urlParams is null when used for embedding
+/**
+ * Copyright (c) 2006-2021, JGraph Ltd
+ * Copyright (c) 2006-2021, draw.io AG
+ */
+
+ // urlParams is null when used for embedding
 window.urlParams = window.urlParams || {};
 
 // Public global variables

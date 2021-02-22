@@ -1126,3 +1126,6 @@ notifications=notifications
 drawioImp=drawioImp
 confALibsImp=confALibsImp
 confALibsImpFailed=confALibsImpFailed
+contributors=contributors
+drawDiagrams=drawDiagrams
+errFileNotFoundOrNoPer=errFileNotFoundOrNoPer

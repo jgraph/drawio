@@ -1071,7 +1071,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;', 30, 60, 'Actor', 'Actor', false, null, 'user person human stickman'),
 	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
 	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
-	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;fixedSize=1;', 100, 80, '', 'Data Storage'),    
+	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;fixedSize=1;', 100, 80, '', 'Data Storage'),
 	 	this.addEntry('curve', mxUtils.bind(this, function()
 	 	{
 			var cell = new mxCell('', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
@@ -2172,6 +2172,28 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	}
 
 	return bounds;
+};
+
+/**
+ * Returns a function that creates a title.
+ */
+Sidebar.prototype.createSection = function(title)
+{
+	return mxUtils.bind(this, function()
+	{
+		var elt = document.createElement('div');
+		elt.setAttribute('title', title);
+		elt.style.textOverflow = 'ellipsis';
+		elt.style.whiteSpace = 'nowrap';
+		elt.style.textAlign = 'center';
+		elt.style.overflow = 'hidden';
+		elt.style.width = '100%';
+		elt.style.padding = '14px 0';
+		
+		mxUtils.write(elt, title);
+		
+		return elt;
+	});
 };
 
 /**
