@@ -5647,51 +5647,57 @@ App.prototype.updateButtonContainer = function()
 		// Share
 		if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io' &&
 			!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			!this.isOfflineApp() && file != null)
+			!this.isOfflineApp())
 		{
-			if (this.shareButton == null)
+			if (file != null)
 			{
-				this.shareButton = document.createElement('div');
-				this.shareButton.className = 'geBtn gePrimaryBtn';
-				this.shareButton.style.display = 'inline-block';
-				this.shareButton.style.backgroundColor = '#F2931E';
-				this.shareButton.style.borderColor = '#F08705';
-				this.shareButton.style.backgroundImage = 'none';
-				this.shareButton.style.padding = '2px 10px 0 10px';
-				this.shareButton.style.marginTop = '-10px';
-				this.shareButton.style.height = '28px';
-				this.shareButton.style.lineHeight = '28px';
-				this.shareButton.style.minWidth = '0px';
-				this.shareButton.style.cssFloat = 'right';
-				this.shareButton.setAttribute('title', mxResources.get('share'));
-				
-				var icon = document.createElement('img');
-				icon.setAttribute('src', this.shareImage);
-				icon.setAttribute('align', 'absmiddle');
-				icon.style.marginRight = '4px';
-				icon.style.marginTop = '-3px';
-				this.shareButton.appendChild(icon);
-				
-				if (uiTheme != 'dark' && uiTheme != 'atlas')
+				if (this.shareButton == null)
 				{
-					this.shareButton.style.color = 'black';
-					icon.style.filter = 'invert(100%)';
+					this.shareButton = document.createElement('div');
+					this.shareButton.className = 'geBtn gePrimaryBtn';
+					this.shareButton.style.display = 'inline-block';
+					this.shareButton.style.backgroundColor = '#F2931E';
+					this.shareButton.style.borderColor = '#F08705';
+					this.shareButton.style.backgroundImage = 'none';
+					this.shareButton.style.padding = '2px 10px 0 10px';
+					this.shareButton.style.marginTop = '-10px';
+					this.shareButton.style.height = '28px';
+					this.shareButton.style.lineHeight = '28px';
+					this.shareButton.style.minWidth = '0px';
+					this.shareButton.style.cssFloat = 'right';
+					this.shareButton.setAttribute('title', mxResources.get('share'));
+					
+					var icon = document.createElement('img');
+					icon.setAttribute('src', this.shareImage);
+					icon.setAttribute('align', 'absmiddle');
+					icon.style.marginRight = '4px';
+					icon.style.marginTop = '-3px';
+					this.shareButton.appendChild(icon);
+					
+					if (uiTheme != 'dark' && uiTheme != 'atlas')
+					{
+						this.shareButton.style.color = 'black';
+						icon.style.filter = 'invert(100%)';
+					}
+					
+					mxUtils.write(this.shareButton, mxResources.get('share'));
+					
+					mxEvent.addListener(this.shareButton, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('share').funct();
+					}));
+					
+					this.buttonContainer.appendChild(this.shareButton);
 				}
-				
-				mxUtils.write(this.shareButton, mxResources.get('share'));
-				
-				mxEvent.addListener(this.shareButton, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('share').funct();
-				}));
-				
-				this.buttonContainer.appendChild(this.shareButton);
 			}
-		}
-		else if (this.shareButton != null)
-		{
-			this.shareButton.parentNode.removeChild(this.shareButton);
-			this.shareButton = null;
+			else if (this.shareButton != null)
+			{
+				this.shareButton.parentNode.removeChild(this.shareButton);
+				this.shareButton = null;
+			}
+			
+			//Fetch notifications
+			this.fetchAndShowNotification(this.mode == 'device' || this.mode == 'google'? this.mode : null);
 		}
 	}
 };
@@ -5759,8 +5765,14 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	{
 		this.notificationBtn = document.createElement('div');
 		this.notificationBtn.className = 'geNotification-box';
+		
+		if (uiTheme == 'min')
+		{
+			this.notificationBtn.style.top = '4px';
+		}
+		
 		this.notificationBtn.innerHTML = '<span class="geNotification-count"></span>' +
-										 '<div class="geNotification-bell">'+
+										 '<div class="geNotification-bell"' + (uiTheme == 'min'? ' style="opacity: 0.5"' : '') + '>'+
 											'<span class="geBell-top"></span>' + 
 											'<span class="geBell-middle"></span>' +
 											'<span class="geBell-bottom"></span>' +

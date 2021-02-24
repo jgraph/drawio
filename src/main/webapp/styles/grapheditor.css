@@ -1550,18 +1550,17 @@ table.geProperties tr td {
   text-align: center;
   float: left;
   position: relative;
-  top: 1px;
+  top: -2px;
   cursor: pointer;
 }
 .geNotification-bell {
   animation: geBellAnim 1s 1s both;
-  opacity: 0.75;
 }
 .geNotification-bell * {
   display: block;
   margin: 0 auto;
-  background-color: #DEEBFF;
-  box-shadow: 0px 0px 10px #DEEBFF;
+  background-color: #656565;
+  box-shadow: 0px 0px 10px #656565;
 }
 
 .geNotification-bellOff * {
@@ -1593,13 +1592,13 @@ table.geProperties tr td {
 }
 .geBell-bottom::before {
   left: 1px;
-  border-bottom: 4px solid #DEEBFF;
+  border-bottom-width: 4px;
   border-right: 0 solid transparent;
   border-left: 4px solid transparent;
 }
 .geBell-bottom::after {
   right: 1px;
-  border-bottom: 4px solid #DEEBFF;
+  border-bottom-width: 4px;
   border-right: 4px solid transparent;
   border-left: 0 solid transparent;
 }
@@ -1621,7 +1620,7 @@ table.geProperties tr td {
   font-size: 10px;
   border-radius: 50%;
   background-color: #ff4927;
-  color: #DEEBFF;
+  color: #FFF;
   animation: geZoomAnim 1s 1s both;
 }
 @keyframes geBellAnim {
@@ -1664,8 +1663,8 @@ table.geProperties tr td {
 .geNotifPanel .header {
   height: 30px;
   width: 100%;
-  background: #0049B0;
-  color: #DEEBFF;
+  background: #cecece;
+  color: #707070;
   font-size: 15px;
 }
 .geNotifPanel .header .title {

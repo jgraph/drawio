@@ -10237,7 +10237,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
  */
 function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 {
-	this.aspect = {pageId : pageId || editorUi.pages[0].getId(), layerIds : layerIds || []};
+	this.aspect = {pageId : pageId || (editorUi.pages? editorUi.pages[0].getId() : null), layerIds : layerIds || []};
 	var div = document.createElement('div');
 	
 	var title = document.createElement('h5');
@@ -10306,13 +10306,20 @@ function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 //Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
 AspectDialog.prototype.init = function()
 {
-	this.ui.getFileData(true); //Force pages to update their nodes
+	var xml = this.ui.getFileData(true); //Force pages to update their nodes
 	
-	for (var i = 0; i < this.ui.pages.length; i++)
+	if (this.ui.pages)
 	{
-		var page = this.ui.updatePageRoot(this.ui.pages[i]);
-
-		this.createPageItem(page.getId(), page.getName(), page.node, page.root);
+		for (var i = 0; i < this.ui.pages.length; i++)
+		{
+			var page = this.ui.updatePageRoot(this.ui.pages[i]);
+	
+			this.createPageItem(page.getId(), page.getName(), page.node);
+		}
+	}
+	else
+	{
+		this.createPageItem('1', 'Page-1', mxUtils.parseXml(xml).documentElement);
 	}
 };
 
@@ -10365,7 +10372,7 @@ AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
 	return graph;
 };
 
-AspectDialog.prototype.createPageItem = function(pageId, pageName, pageNode, pageRoot)
+AspectDialog.prototype.createPageItem = function(pageId, pageName, pageNode)
 {
 	var $listItem = document.createElement('div');
 	$listItem.className = 'geAspectDlgListItem';

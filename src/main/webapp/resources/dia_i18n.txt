@@ -1129,3 +1129,5 @@ confALibsImpFailed=confALibsImpFailed
 contributors=contributors
 drawDiagrams=drawDiagrams
 errFileNotFoundOrNoPer=errFileNotFoundOrNoPer
+confACheckPagesWEmbed=confACheckPagesWEmbed
+confADelBrokenEmbedDiagLnk=confADelBrokenEmbedDiagLnk

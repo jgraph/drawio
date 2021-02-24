@@ -206,3 +206,48 @@ html body .geMenubarContainer .mxDisabled {
 	border-top:1px solid #e5e5e5;
 	color:darkGray;
 }
+
+.geNotification-box {
+  width: 50px;
+  height: 30px;
+  text-align: center;
+  float: left;
+  position: relative;
+  top: 1px !important;
+  cursor: pointer;
+}
+
+.geNotification-bell {
+  animation: geBellAnim 1s 1s both;
+  opacity: 0.75;
+}
+
+.geNotification-bell * {
+  display: block;
+  margin: 0 auto;
+  background-color: #DEEBFF !important;
+  box-shadow: 0px 0px 10px #DEEBFF !important;
+}
+
+.geNotification-count {
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  right: 7px;
+  width: 15px;
+  height: 15px;
+  line-height: 15px;
+  font-size: 10px;
+  border-radius: 50%;
+  background-color: #ff4927;
+  color: #DEEBFF !important;
+  animation: geZoomAnim 1s 1s both;
+}
+
+.geNotifPanel .header {
+  height: 30px;
+  width: 100%;
+  background: #0049B0 !important;
+  color: #DEEBFF !important;
+  font-size: 15px;
+}
