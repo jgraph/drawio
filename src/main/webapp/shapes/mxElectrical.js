@@ -586,7 +586,18 @@ mxShapeElectricalLogicGate.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (negating == '1')
 	{
-		var negSize = Math.min(w * 0.04, h * 0.07);
+		var negSize;
+		
+		if(this.style.negSize)
+		{
+			var tmpSize = parseFloat(mxUtils.getValue(this.style, 'negSize', '0.13'));
+			negSize = Math.min(w * tmpSize * 0.5, h * tmpSize);
+		}
+		else
+		{
+			negSize = Math.min(w * 0.04, h * 0.07);
+		}
+		
 		c.begin();
 		c.ellipse(w * 0.8, h * 0.5 - negSize * 0.5, negSize, negSize);
 		c.fillAndStroke();

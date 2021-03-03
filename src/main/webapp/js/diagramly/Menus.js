@@ -770,6 +770,21 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.findWindow != null && this.findWindow.window.isVisible(); }));
 
+		action = editorUi.actions.addAction('replace...', mxUtils.bind(this, function()
+		{
+			if (this.replaceWindow == null)
+			{
+				this.replaceWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 370, 205, true);
+				this.replaceWindow.window.setVisible(true);
+			}
+			else
+			{
+				this.replaceWindow.window.setVisible(!this.replaceWindow.window.isVisible());
+			}
+		}));
+		action.setToggleAction(true);
+		action.setSelectedCallback(mxUtils.bind(this, function() { return this.replaceWindow != null && this.replaceWindow.window.isVisible(); }));
+		
 		editorUi.actions.put('exportVsdx', new Action(mxResources.get('formatVsdx') + ' (beta)...', function()
 		{
 			editorUi.exportVisio();
@@ -1069,7 +1084,16 @@
 							
 							if (urlParams['dev'] == '1')
 							{
-								mxscript('js/orgchart.min.js', delayed);
+								mxscript('js/orgchart/bridge.min.js', function()
+								{
+									mxscript('js/orgchart/bridge.collections.min.js', function()
+									{
+										mxscript('js/orgchart/OrgChart.Layout.min.js', function()
+										{
+											mxscript('js/orgchart/mxOrgChartLayout.js', delayed);											
+										});		
+									});	
+								});
 							}
 							else
 							{
@@ -3175,9 +3199,18 @@
 				this.addMenuItems(menu, ['copyAsImage']);
 			}
 			
-			this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-', 'find', '-', 'editData', 'editTooltip', '-',
-				 'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
-                 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
+			if (urlParams['replace'] == '1')
+			{
+				this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-', 'find', 'replace', '-', 'editData', 'editTooltip', '-',
+					 'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
+	                 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
+			}
+			else
+			{
+				this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-', 'find', '-', 'editData', 'editTooltip', '-',
+					 'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
+	                 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
+			}
 		})));
 
 		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()

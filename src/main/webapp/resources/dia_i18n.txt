@@ -1131,3 +1131,5 @@ drawDiagrams=drawDiagrams
 errFileNotFoundOrNoPer=errFileNotFoundOrNoPer
 confACheckPagesWEmbed=confACheckPagesWEmbed
 confADelBrokenEmbedDiagLnk=confADelBrokenEmbedDiagLnk
+replaceWith=replaceWith
+replaceAll=replaceAll

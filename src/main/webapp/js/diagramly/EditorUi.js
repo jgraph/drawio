@@ -7145,7 +7145,20 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				mxscript('js/diagramly/Extensions.js', delayed);
+				//Lucid org chart requires orgChart layout, in production, it is part of the extemsions.min.js
+				mxscript('js/diagramly/Extensions.js', function()
+				{
+					mxscript('js/orgchart/bridge.min.js', function()
+					{
+						mxscript('js/orgchart/bridge.collections.min.js', function()
+						{
+							mxscript('js/orgchart/OrgChart.Layout.min.js', function()
+							{
+								mxscript('js/orgchart/mxOrgChartLayout.js', delayed);											
+							});		
+						});	
+					});
+				});
 			}
 			else
 			{

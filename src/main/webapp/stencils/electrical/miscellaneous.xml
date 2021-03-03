@@ -1289,6 +1289,26 @@
         <stroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="100" name="Plug Socket Connection" strokewidth="inherit" w="100">
+    <connections>
+        <constraint name="N" perimeter="0" x="0.5" y="0"/>
+        <constraint name="S" perimeter="0" x="0.5" y="0.5"/>
+    </connections>
+    <foreground>
+        <path>
+            <move x="0" y="50"/>
+            <line x="50" y="0"/>
+            <line x="100" y="50"/>
+        </path>
+        <stroke/>
+        <path>
+            <move x="0" y="100"/>
+            <line x="50" y="50"/>
+            <line x="100" y="100"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="41" name="Sensing Link Squib" strokewidth="inherit" w="131">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>

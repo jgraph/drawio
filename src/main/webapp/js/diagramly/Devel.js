@@ -72,28 +72,47 @@ if (!mxIsElectron && location.protocol !== 'http:')
 
 		if (urlParams['print-csp'] == '1')
 		{
-			console.log('Content-Security-Policy')
-			console.log('app.diagrams.net:',
-				csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
+			console.log('Content-Security-Policy');
+			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
 				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 				replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, '').
-					replace(/  /g, ' '));
-			console.log('ac.draw.io:',
-				csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
+					replace(/  /g, ' ') + ' frame-ancestors \'self\' https://teams.microsoft.com;';
+			console.log('app.diagrams.net:', app_diagrams_net);
+			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
-					replace(/  /g, ' '));
-			console.log('aj.draw.io:',
-				csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
+					replace(/  /g, ' ');
+			console.log('ac.draw.io:', ac_draw_io);
+			var aj_draw_io = csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
-					replace(/  /g, ' '));
+					replace(/  /g, ' ');
+			console.log('aj.draw.io:', aj_draw_io);
 			console.log('import.diagrams.net:', 'default-src \'self\'; worker-src blob:; img-src \'self\' blob: data: https://www.lucidchart.com ' +
 					'https://app.lucidchart.com; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com;');
-			console.log('Development:', devCsp)
+			console.log('Development:', devCsp);
+			
+			console.log('Header Worder:', 'let securityHeaders =', JSON.stringify({
+				online: {
+					"Content-Security-Policy" : app_diagrams_net,
+					"Permissions-Policy" : "microphone=()"
+				},
+				teams: {
+					"Content-Security-Policy" : app_diagrams_net.replace(/ 'sha256-[^']+'/g, ''),
+					"Permissions-Policy" : "microphone=()"
+				},
+				jira: {
+					"Content-Security-Policy" : aj_draw_io,
+					"Permissions-Policy" : "microphone=()"
+				},
+				conf: {
+					"Content-Security-Policy" : ac_draw_io,
+					"Permissions-Policy" : "microphone=()"
+				}
+			}, null, 4));
 		}
 	})();
 }

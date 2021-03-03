@@ -1131,3 +1131,5 @@ drawDiagrams=draw.io Diagrams
 errFileNotFoundOrNoPer=Error: Access Denied. File not found or you do not have permission to access "{1}" on {2}.
 confACheckPagesWEmbed=Checking pages having embedded draw.io diagrams.
 confADelBrokenEmbedDiagLnk=Removing broken embedded diagram links
+replaceWith=Replace with
+replaceAll=Replace All

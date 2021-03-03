@@ -19,14 +19,17 @@
 function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpacing)
 {
 	mxGraphLayout.call(this, graph);
+	this.correctY = false;
 	
 	switch(parseInt(branchOptimizer))
 	{
 		case 0:
 			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_LINEAR;
+			this.correctY = true;
 			break;
 		case 1:
 			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER2;
+			this.correctY = true;
 			break;
 		case 3:
 			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE1;
@@ -45,6 +48,7 @@ function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpa
 			break;
 		default: //and case 2
 			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4;
+			this.correctY = true;
 	}
 	
 	this.parentChildSpacing = parentChildSpacing > 0 ? parentChildSpacing : 20;
@@ -78,7 +82,7 @@ mxOrgChartLayout.prototype.execute = function(parent)
 	this.graph.model.beginUpdate();
 	try
 	{
-		RPOrgChart.main(this.graph, parent, this.branchOptimizer, this.parentChildSpacing, this.siblingSpacing);		
+		RPOrgChart.main(this.graph, parent, this.branchOptimizer, this.parentChildSpacing, this.siblingSpacing, this.correctY);		
 	}
 	finally
 	{
@@ -94,14 +98,24 @@ Bridge.define('RPOrgChart',
 
             }
         },
-        main: function (graph, parent, branchOptimizer, parentChildSpacing, siblingSpacing) {
+        main: function (graph, parent, branchOptimizer, parentChildSpacing, siblingSpacing, correctY) {
             Bridge.Console.log = console.log;
             Bridge.Console.error = console.error;
             Bridge.Console.debug = console.debug;
 
             RPOrgChart.graph = graph;
             RPOrgChart.parent = parent;
+			RPOrgChart.dx = 0;
+			RPOrgChart.dy = 0;
+			
+			if (parent.style == 'group' && parent.geometry)
+			{
+				RPOrgChart.dx = parent.geometry.x;
+				RPOrgChart.dy = parent.geometry.y;
+			}
+			
             RPOrgChart.branchOptimizer = branchOptimizer;
+			RPOrgChart.correctY = correctY;
             RPOrgChart.parentChildSpacing = parseInt(parentChildSpacing);
             RPOrgChart.siblingSpacing = parseInt(siblingSpacing);
             RPOrgChart.buildChart(true);
@@ -405,6 +419,7 @@ Bridge.define('RPOrgChart',
 
 			var graph = RPOrgChart.graph;
             var cells = graph.model.cells;
+			var pointsList = [];
             
             var visitorVertexFunc = function (node) 
             {
@@ -427,6 +442,8 @@ Bridge.define('RPOrgChart',
             
             var visitorEdgeFunc = function (node) 
             {
+				//The algorithm default is 5 px only above the node, this centers it
+				var yCorrection = RPOrgChart.correctY? Math.min(0, -(RPOrgChart.parentChildSpacing / 2) + 5) : 0;
                 // Render connectors
                 if (node.State.Connector != null) {
                 	
@@ -459,6 +476,7 @@ Bridge.define('RPOrgChart',
                     	var edge = node.State.Connector.Segments[ix];
                         var fx = edge.From.X, fy = edge.From.Y, tx = edge.To.X, ty = edge.To.Y;
                         var fp = new mxPoint(fx, fy);
+						pointsList.push(fp);
                         fp.mark = edge.mark;
                         var up = uniquePoints[fx + ',' + fy];
                         
@@ -472,6 +490,7 @@ Bridge.define('RPOrgChart',
                         }
                         
                         var tp = new mxPoint(tx, ty);
+						pointsList.push(tp);
                         tp.mark = edge.mark;
                         var up = uniquePoints[tx + ',' + ty];
                         
@@ -493,6 +512,7 @@ Bridge.define('RPOrgChart',
                         	if (fx == tx && fy <= fy2 && ty >= fy2 && fx2 <= fx && tx2 >= fx) //Ver |_ Hor
                     		{
                         		var ip = new mxPoint(fx, fy2);
+								pointsList.push(ip);
                         		ip.mark = edge.mark | e2.mark;
                         		var up = uniquePoints[fx + ',' + fy2];
                                 
@@ -508,6 +528,7 @@ Bridge.define('RPOrgChart',
                         	else if (fy == ty && fx <= fx2 && tx >= fx2 && fy2 <= fy && ty2 >= fy) //Hor _| Ver
                     		{
                         		var ip = new mxPoint(fx2, fy);
+								pointsList.push(ip);
                         		ip.mark = edge.mark | e2.mark;
                         		var up = uniquePoints[fx2 + ',' + fy]
                                 
@@ -546,6 +567,16 @@ Bridge.define('RPOrgChart',
                     function adjustEdgeGeoAndStyle(edge, edgePoints)
                     {
                         var eGeo = edge.geometry.clone();
+						
+						for (var i = 0; edgePoints && i < edgePoints.length; i++)
+						{
+							if (!edgePoints[i].corrected)
+							{
+								edgePoints[i].y += yCorrection;
+								edgePoints[i].corrected = true
+							}
+						}
+						
                         eGeo.points = edgePoints;
                         graph.model.setGeometry(edge, eGeo);
 
@@ -659,6 +690,13 @@ Bridge.define('RPOrgChart',
 
             diagram.getVisualTree().IterateParentFirst(visitorVertexFunc);
             diagram.getVisualTree().IterateParentFirst(visitorEdgeFunc);
+			
+			//Cleanup
+			for (var i = 0; i < pointsList.length; i++)
+			{
+				delete pointsList[i].mark;
+				delete pointsList[i].corrected;
+			}
         }
 
     }

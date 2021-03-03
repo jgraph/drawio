@@ -6050,31 +6050,50 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 /**
  * 
  */
-var FindWindow = function(ui, x, y, w, h)
+var FindWindow = function(ui, x, y, w, h, withReplace)
 {
 	var action = ui.actions.get('find');
 	var graph = ui.editor.graph;
 	var lastSearch = null;
 	var lastFound = null;
 	var allChecked = false;
-
+	var lblMatch = null;
+	
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
 	div.style.padding = '10px';
 	div.style.height = '100%';
-
+	
+	var txtWidth = withReplace? '330px' : '200px';
 	var searchInput = document.createElement('input');
 	searchInput.setAttribute('placeholder', mxResources.get('find'));
 	searchInput.setAttribute('type', 'text');
 	searchInput.style.marginTop = '4px';
 	searchInput.style.marginBottom = '6px';
-	searchInput.style.width = '200px';
+	searchInput.style.width = txtWidth;
 	searchInput.style.fontSize = '12px';
 	searchInput.style.borderRadius = '4px';
 	searchInput.style.padding = '6px';
 	div.appendChild(searchInput);
 	mxUtils.br(div);
+	
+	var replaceInput;
+	
+	if (withReplace)
+	{
+		replaceInput = document.createElement('input');
+		replaceInput.setAttribute('placeholder', mxResources.get('replaceWith'));
+		replaceInput.setAttribute('type', 'text');
+		replaceInput.style.marginTop = '4px';
+		replaceInput.style.marginBottom = '6px';
+		replaceInput.style.width = txtWidth;
+		replaceInput.style.fontSize = '12px';
+		replaceInput.style.borderRadius = '4px';
+		replaceInput.style.padding = '6px';
+		div.appendChild(replaceInput);
+		mxUtils.br(div);
+	}
 	
 	var regexInput = document.createElement('input');
 	regexInput.setAttribute('id', 'geFindWinRegExChck');
@@ -6134,12 +6153,13 @@ var FindWindow = function(ui, x, y, w, h)
 		return false;
 	};
 	
-	function search(internalCall)
+	function search(internalCall, trySameCell)
 	{
 		var cells = graph.model.getDescendants(graph.model.getRoot());
 		var searchStr = searchInput.value.toLowerCase();
 		var re = (regexInput.checked) ? new RegExp(searchStr) : null;
 		var firstMatch = null;
+		lblMatch = null;
 		
 		if (lastSearch != searchStr)
 		{
@@ -6200,6 +6220,12 @@ var FindWindow = function(ui, x, y, w, h)
 			{
 				var state = graph.view.getState(cells[i]);
 				
+				//Try the same cell with replace to find other occurances
+				if (trySameCell)
+				{
+					active = active || state == lastFound;
+				}
+							
 				if (state != null && state.cell.value != null && (active || firstMatch == null) &&
 					(graph.model.isVertex(state.cell) || graph.model.isEdge(state.cell)))
 				{
@@ -6215,9 +6241,14 @@ var FindWindow = function(ui, x, y, w, h)
 		
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if ((re == null && (label.substring(0, searchStr.length) === searchStr || testMeta(re, state.cell, searchStr))) ||
-						(re != null && (re.test(label) || testMeta(re, state.cell, searchStr))))
+					if ((re == null && (label.substring(0, searchStr.length) === searchStr || (!withReplace && testMeta(re, state.cell, searchStr)))) ||
+						(re != null && (re.test(label) || (!withReplace && testMeta(re, state.cell, searchStr)))))
 					{
+						if (withReplace)
+						{
+							lblMatch = re != null? label.match(re)[0].toLowerCase() : searchStr;	
+						}
+						
 						if (active)
 						{
 							firstMatch = state;
@@ -6284,8 +6315,8 @@ var FindWindow = function(ui, x, y, w, h)
 	
 	resetBtn.setAttribute('title', mxResources.get('reset'));
 	resetBtn.style.marginTop = '6px';
-	resetBtn.style.marginRight = '4px';
-	resetBtn.style.marginLeft = ((w - 20 - 2 * 78) / 2) + 'px'; // 20 are window padding, and 78 is btn width
+	resetBtn.style.marginRight = withReplace? 0 : '4px';
+	resetBtn.style.marginLeft = ((w - 20 - (withReplace? 4 * 82 : 2 * 78)) / 2) + 'px'; // 20 are window padding, and 78/82 is btn width
 	resetBtn.className = 'geBtn';
 	
 	div.appendChild(resetBtn);
@@ -6307,6 +6338,117 @@ var FindWindow = function(ui, x, y, w, h)
 	btn.className = 'geBtn gePrimaryBtn';
 	
 	div.appendChild(btn);
+	
+	if (withReplace)
+	{
+		function replaceInHtml(str, substr, newSubstr)
+		{
+			var origStr = str;
+			substr = mxUtils.htmlEntities(substr);
+			var tagPos = [], p = -1;
+			
+			while((p = str.indexOf('<', p + 1)) > -1)
+			{
+				tagPos.push(p);
+			}
+			
+			var tags = str.match(/<[^>]*>/g);
+			str = str.replace(/<[^>]*>/g, '');
+			var lStr = str.toLowerCase();
+			var replStart = lStr.indexOf(substr);
+			
+			if (replStart < 0)
+			{
+				return origStr;	
+			}
+			
+			var replEnd = replStart + substr.length;
+			var newSubstr = mxUtils.htmlEntities(newSubstr);
+			
+			//Tags within the replaced text is added before it
+			var newStr = str.substr(0, replStart) + newSubstr + str.substr(replEnd);
+			var tagDiff = 0;
+			
+			for (var i = 0; i < tagPos.length; i++)
+			{
+				if (tagPos[i] - tagDiff < replStart)
+				{
+					newStr = newStr.substr(0, tagPos[i]) + tags[i] + newStr.substr(tagPos[i]);
+				}
+				else if (tagPos[i] - tagDiff < replEnd)
+				{
+					var inPos = replStart + tagDiff;
+					newStr = newStr.substr(0, inPos) + tags[i] + newStr.substr(inPos);
+				}
+				else
+				{
+					var inPos = tagPos[i] + (newSubstr.length - substr.length);
+					newStr = newStr.substr(0, inPos) + tags[i] + newStr.substr(inPos);
+				}
+				
+				tagDiff += tags[i].length;
+			}
+			
+			return newStr;
+		};
+		
+		var replaceBtn = mxUtils.button(mxResources.get('replace'), function()
+		{
+			try
+			{
+				if (lblMatch != null && lastFound != null && replaceInput.value)
+				{
+					var cell = lastFound.cell, lbl = graph.getLabel(cell);
+					
+					graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value));
+					searchInput.style.backgroundColor = search(false, true) ? '' : '#ffcfcf';
+				}
+			}
+			catch (e)
+			{
+				ui.handleError(e);	
+			}
+		});
+		
+		replaceBtn.setAttribute('title', mxResources.get('replace'));
+		replaceBtn.style.marginTop = '6px';
+		replaceBtn.className = 'geBtn gePrimaryBtn';
+		
+		div.appendChild(replaceBtn);
+		
+		var replaceAllBtn = mxUtils.button(mxResources.get('replaceAll'), function()
+		{
+			if (replaceInput.value)
+			{
+				graph.getModel().beginUpdate();
+				try
+				{
+					var safeguard = 0;
+					
+					while (search(false, true) && safeguard < 100) //TODO handle the case of replace with itself which cause infinte loop (since we search the same cell again from the beginning)
+					{
+						var cell = lastFound.cell, lbl = graph.getLabel(cell);
+						graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value));
+						safeguard++;
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
+			}
+		});
+		
+		replaceAllBtn.setAttribute('title', mxResources.get('replaceAll'));
+		replaceAllBtn.style.marginTop = '6px';
+		replaceAllBtn.className = 'geBtn gePrimaryBtn';
+		
+		div.appendChild(replaceAllBtn);
+	}
 	
 	mxEvent.addListener(searchInput, 'keyup', function(evt)
 	{

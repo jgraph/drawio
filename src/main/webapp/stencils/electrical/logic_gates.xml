@@ -138,6 +138,66 @@
 			<fillstroke/>
 		</foreground>
 	</shape>
+	<shape aspect="variable" h="94" name="D Type Flip-Flop With Clear 2" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="D" perimeter="0" x="0" y="0.36"/>
+			<constraint name="E" perimeter="0" x="0" y="0.79"/>
+			<constraint name="Q" perimeter="0" x="1" y="0.36"/>
+			<constraint name="Qneg" perimeter="0" x="1" y="0.79"/>
+			<constraint name="clear" perimeter="0" x="0.5" y="0"/>
+		</connections>
+		<background>
+			<save/>
+			<rect h="80" w="60" x="20" y="14"/>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0" y="34"/>
+				<line x="20" y="34"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="0" y="74"/>
+				<line x="20" y="74"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="80" y="34"/>
+				<line x="100" y="34"/>
+			</path>
+			<fillstroke/>
+			<text align="center" str="D" valign="bottom" x="25" y="39"/>
+			<text align="center" str="Q" valign="bottom" x="75" y="39"/>
+			<path>
+				<move x="80" y="74"/>
+				<line x="100" y="74"/>
+			</path>
+			<fillstroke/>
+			<text align="center" str="Q" valign="bottom" x="75" y="79"/>
+			<path>
+				<move x="71" y="69"/>
+				<line x="79" y="69"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="20" y="69"/>
+				<line x="30" y="74"/>
+				<line x="20" y="79"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="50" y="0"/>
+				<line x="50" y="6"/>
+			</path>
+			<fillstroke/>
+			<ellipse h="8" w="8" x="46" y="6"/>
+			<fillstroke/>
+		</foreground>
+	</shape>
 	<shape aspect="variable" h="100" name="D Type RS Flip-Flop" strokewidth="inherit" w="100">
 		<connections>
 			<constraint name="D" perimeter="0" x="0" y="0.3"/>
@@ -217,6 +277,35 @@
 		<foreground>
 			<fillstroke/>
 			<ellipse h="4" w="4" x="80" y="28"/>
+			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="60" name="Inverter 2" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="in" perimeter="0" x="0" y="0.5"/>
+			<constraint name="out" perimeter="0" x="1" y="0.5"/>
+		</connections>
+		<background>
+			<path>
+				<move x="0" y="30"/>
+				<line x="20" y="30"/>
+			</path>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="84" y="30"/>
+				<line x="100" y="30"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="77" y="30"/>
+				<line x="17" y="60"/>
+				<line x="17" y="0"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<ellipse h="8" w="8" x="77" y="26"/>
 			<fillstroke/>
 		</foreground>
 	</shape>
@@ -310,6 +399,74 @@
 			<ellipse h="4" w="4" x="48" y="6"/>
 			<fillstroke/>
 			<text align="center" str="C" valign="bottom" x="50" y="20"/>
+		</foreground>
+	</shape>
+	<shape aspect="variable" h="94" name="JK Flip-Flop With Clear 2" strokewidth="inherit" w="100">
+		<connections>
+			<constraint name="J" perimeter="0" x="0" y="0.36"/>
+			<constraint name="E" perimeter="0" x="0" y="0.575"/>
+			<constraint name="K" perimeter="0" x="0" y="0.79"/>
+			<constraint name="Q" perimeter="0" x="1" y="0.36"/>
+			<constraint name="Qneg" perimeter="0" x="1" y="0.79"/>
+			<constraint name="clear" perimeter="0" x="0.5" y="0"/>
+		</connections>
+		<background>
+			<save/>
+			<rect h="80" w="60" x="20" y="14"/>
+		</background>
+		<foreground>
+			<fillstroke/>
+			<path>
+				<move x="0" y="34"/>
+				<line x="20" y="34"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="0" y="74"/>
+				<line x="20" y="74"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="80" y="34"/>
+				<line x="100" y="34"/>
+			</path>
+			<fillstroke/>
+			<text align="center" str="J" valign="bottom" x="25" y="39"/>
+			<text align="center" str="K" valign="bottom" x="25" y="79"/>
+			<text align="center" str="Q" valign="bottom" x="75" y="39"/>
+			<path>
+				<move x="80" y="74"/>
+				<line x="100" y="74"/>
+			</path>
+			<fillstroke/>
+			<text align="center" str="Q" valign="bottom" x="75" y="79"/>
+			<path>
+				<move x="71" y="69"/>
+				<line x="79" y="69"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="20" y="49"/>
+				<line x="30" y="54"/>
+				<line x="20" y="59"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="0" y="54"/>
+				<line x="20" y="54"/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="50" y="0"/>
+				<line x="50" y="6"/>
+			</path>
+			<fillstroke/>
+			<ellipse h="8" w="8" x="46" y="6"/>
+			<fillstroke/>
+			<text align="center" str="C" valign="bottom" x="50" y="24"/>
 		</foreground>
 	</shape>
 	<shape aspect="variable" h="100" name="JK Flip-Flop With SR" strokewidth="inherit" w="100">
