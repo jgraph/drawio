@@ -6058,6 +6058,8 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	var lastFound = null;
 	var allChecked = false;
 	var lblMatch = null;
+	var lblMatchPos = 0;
+	var marker = 1;
 	
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
@@ -6200,7 +6202,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					graph.model.setRoot(nextPage.root);
 					nextPageIndex = (nextPageIndex + 1) % ui.pages.length;
 				}
-				while(!search(true) && nextPageIndex != currentPageIndex);
+				while(!search(true, trySameCell) && nextPageIndex != currentPageIndex);
 				
 				if (lastFound)
 				{
@@ -6211,7 +6213,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				allChecked = false;
 				graph = ui.editor.graph;
 				
-				return search(true);
+				return search(true, trySameCell);
 			}
 			
 			var i;
@@ -6221,7 +6223,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				var state = graph.view.getState(cells[i]);
 				
 				//Try the same cell with replace to find other occurances
-				if (trySameCell)
+				if (trySameCell && re != null)
 				{
 					active = active || state == lastFound;
 				}
@@ -6240,13 +6242,30 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					}
 		
 					label = mxUtils.trim(label.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
+					var lblPosShift = 0;
+					
+					if (trySameCell && withReplace && re != null && state == lastFound)
+					{
+						label = label.substr(lblMatchPos);
+						lblPosShift = lblMatchPos;
+					}
 					
 					if ((re == null && (label.substring(0, searchStr.length) === searchStr || (!withReplace && testMeta(re, state.cell, searchStr)))) ||
 						(re != null && (re.test(label) || (!withReplace && testMeta(re, state.cell, searchStr)))))
 					{
 						if (withReplace)
 						{
-							lblMatch = re != null? label.match(re)[0].toLowerCase() : searchStr;	
+							if (re != null)
+							{
+								var result = label.match(re);
+								lblMatch = result[0].toLowerCase();
+								lblMatchPos = lblPosShift + result.index + lblMatch.length;
+							}
+							else
+							{
+								lblMatch = searchStr;
+								lblMatchPos = lblMatch.length;
+							} 	
 						}
 						
 						if (active)
@@ -6272,7 +6291,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			{
 				lastFound = null;
 				allChecked = true;
-				return search(true);
+				return search(true, trySameCell);
 			}
 			
 			lastFound = firstMatch;
@@ -6291,7 +6310,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		else if (!internalCall && allPagesInput.checked)
 		{
 			allChecked = true;
-			return search(true);
+			return search(true, trySameCell);
 		}
 		else if (graph.isEnabled())
 		{
@@ -6341,7 +6360,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	
 	if (withReplace)
 	{
-		function replaceInHtml(str, substr, newSubstr)
+		function replaceInHtml(str, substr, newSubstr, startIndex)
 		{
 			var origStr = str;
 			substr = mxUtils.htmlEntities(substr);
@@ -6355,7 +6374,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			var tags = str.match(/<[^>]*>/g);
 			str = str.replace(/<[^>]*>/g, '');
 			var lStr = str.toLowerCase();
-			var replStart = lStr.indexOf(substr);
+			var replStart = lStr.indexOf(substr, startIndex);
 			
 			if (replStart < 0)
 			{
@@ -6400,7 +6419,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					var cell = lastFound.cell, lbl = graph.getLabel(cell);
 					
-					graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value));
+					graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value, lblMatchPos - lblMatch.length));
 					searchInput.style.backgroundColor = search(false, true) ? '' : '#ffcfcf';
 				}
 			}
@@ -6420,15 +6439,25 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			if (replaceInput.value)
 			{
+				allPagesInput.checked = false; //We don't support all pages replace all due to invalid undo behavior (changing the editor page cause undo to split and not applied)
 				graph.getModel().beginUpdate();
 				try
 				{
 					var safeguard = 0;
+					var seen = {};
 					
-					while (search(false, true) && safeguard < 100) //TODO handle the case of replace with itself which cause infinte loop (since we search the same cell again from the beginning)
+					while (search(false, true) && safeguard < 100)
 					{
 						var cell = lastFound.cell, lbl = graph.getLabel(cell);
-						graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value));
+						var oldSeen = seen[cell.id];
+						
+						if (oldSeen && oldSeen.replAllMrk == marker && oldSeen.replAllPos >= lblMatchPos)
+						{
+							break;
+						}
+						
+						seen[cell.id] = {replAllMrk: marker, replAllPos: lblMatchPos};
+						graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value, lblMatchPos - lblMatch.length));
 						safeguard++;
 					}
 				}
@@ -6440,6 +6469,8 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					graph.getModel().endUpdate();
 				}
+				
+				marker++;
 			}
 		});
 		

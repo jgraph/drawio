@@ -1761,11 +1761,11 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml sequence self call recursion delegation activation', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 20, 10, 40), 'html=1;points=[];perimeter=orthogonalPerimeter;');
+	    	var cell = new mxCell('', new mxGeometry(-5, 20, 10, 40), 'html=1;points=[];perimeter=orthogonalPerimeter;');
 	    	cell.vertex = true;
 	
 			var edge = new mxCell('self call', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;entryX=1;entryY=0;');
-			edge.geometry.setTerminalPoint(new mxPoint(5, 0), true);
+			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 			edge.geometry.points = [new mxPoint(30, 0)];
 			edge.geometry.relative = true;
 			edge.edge = true;

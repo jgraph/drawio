@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "76263201ee58f2c47ae2f305712e6c74"
+    "revision": "52a5a4518aff60872a0fba4e6c7b0c0d"
   },
   {
     "url": "js/extensions.min.js",
@@ -18,7 +18,7 @@ if (workbox)
   },
   {
     "url": "js/shapes.min.js",
-    "revision": "bd99a6864e7f02101ee1991b6d5f67bd"
+    "revision": "1f17925ceff0b5fb2994d63c31396bdf"
   },
   {
     "url": "js/math-print.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "10373e4f23ea654a97baa28e45c3c93b"
+    "revision": "e5146b389515b60a9437c08bf810452b"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -126,11 +126,11 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "e0887470c6bc10becc19ac516b49a0d1"
+    "revision": "ff6e8f1baad47211d361e549b812dc39"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
-    "revision": "337086bfe29db854b7e634830b33b202"
+    "revision": "c154ee66bab65cd0e476c1d64c64cb8d"
   },
   {
     "url": "connect/confluence/macroEditor-1-4-8.html",

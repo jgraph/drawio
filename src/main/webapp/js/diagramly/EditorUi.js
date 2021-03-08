@@ -5153,7 +5153,7 @@
 		
 		if (lightbox)
 		{
-			if (urlParams['dev'] == '1')
+			if (EditorUi.lightboxHost != 'https://viewer.diagrams.net' || urlParams['dev'] == '1')
 			{
 				params.push('lightbox=1');
 			}

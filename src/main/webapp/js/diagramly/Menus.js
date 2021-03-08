@@ -766,7 +766,7 @@
 			{
 				this.findWindow.window.setVisible(!this.findWindow.window.isVisible());
 			}
-		}));
+		}), null, null, Editor.ctrlKey + '+F');
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.findWindow != null && this.findWindow.window.isVisible(); }));
 

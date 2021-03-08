@@ -1784,3 +1784,58 @@ mxShapeElectricalBatteryStack.prototype.constraints = [
     new mxConnectionConstraint(new mxPoint(0, 0.5), true),
     new mxConnectionConstraint(new mxPoint(1, 0.5), true)
     ];
+
+//**********************************************************************************************************************************************************
+//DC Source 3 v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalDCSource3_v2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalDCSource3_v2, mxShape);
+
+mxShapeElectricalDCSource3_v2.prototype.cst = {
+		SHAPE_DC_SOURCE_3_V2 : 'mxgraph.electrical.signal_sources.dc_source_3_v2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalDCSource3_v2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	var ss = Math.max(3, Math.min(h, w) * 0.05); // half of symbol size
+	var i = 3; //indent
+	c.ellipse(0, 0, w, h);
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(w * 0.5 - ss, h * 0.05 + i);
+	c.lineTo(w * 0.5 + ss, h * 0.05 + i);
+	c.moveTo(w * 0.5, h * 0.05 - ss + i);
+	c.lineTo(w * 0.5, h * 0.05 + ss + i);
+	c.moveTo(w * 0.5 - ss, h * 0.95 - i);
+	c.lineTo(w * 0.5 + ss, h * 0.95 - i);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalDCSource3_v2.prototype.cst.SHAPE_DC_SOURCE_3_V2, mxShapeElectricalDCSource3_v2);
+
+mxShapeElectricalDCSource3_v2.prototype.constraints = [
+  new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+  new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+  ];

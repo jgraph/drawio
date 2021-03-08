@@ -1133,3 +1133,4 @@ confACheckPagesWEmbed=Checking pages having embedded draw.io diagrams.
 confADelBrokenEmbedDiagLnk=Removing broken embedded diagram links
 replaceWith=Replace with
 replaceAll=Replace All
+confASkipDiagModified=Skipped "{1}" as it is modified after initial import

@@ -217,23 +217,7 @@ Actions.prototype.init = function()
 	}, null, null, 'Delete');
 	this.addAction('deleteAll', function()
 	{
-		if (!graph.isSelectionEmpty())
-		{
-			graph.getModel().beginUpdate();
-			try
-			{
-				var cells = graph.getSelectionCells();
-				
-				for (var i = 0; i < cells.length; i++)
-				{
-					graph.cellLabelChanged(cells[i], '');
-				}
-			}
-			finally
-			{
-				graph.getModel().endUpdate();
-			}
-		}
+		deleteCells(true);
 	});
 	this.addAction('deleteLabels', function()
 	{
