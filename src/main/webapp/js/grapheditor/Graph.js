@@ -3656,6 +3656,19 @@ Graph.prototype.getLinkForCell = function(cell)
 };
 
 /**
+ * Returns the link target for the given cell.
+ */
+Graph.prototype.getLinkTargetForCell = function(cell)
+{
+	if (cell.value != null && typeof(cell.value) == 'object')
+	{
+		return cell.value.getAttribute('linkTarget');
+	}
+	
+	return null;
+};
+
+/**
  * Overrides label orientation for collapsed swimlanes inside stack and
  * for partial rectangles inside tables.
  */
@@ -8198,6 +8211,7 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 			    currentState: null,
 			    currentLink: null,
+				currentTarget: null,
 			    highlight: (highlight != null && highlight != '' && highlight != mxConstants.NONE) ?
 			    	new mxCellHighlight(graph, highlight, 4) : null,
 			    startX: 0,
@@ -8327,8 +8341,10 @@ if (typeof mxVertexHandler != 'undefined')
 				    		
 				    		if (!mxEvent.isConsumed(evt))
 				    		{
-					    		var target = (mxEvent.isMiddleMouseButton(evt)) ? '_blank' :
-					    			((blank) ? graph.linkTarget : '_top');
+					    		var target = (this.currentTarget != null) ?
+									this.currentTarget : ((mxEvent.isMiddleMouseButton(evt)) ? '_blank' :
+					    			((blank) ? graph.linkTarget : '_top'));
+
 					    		graph.openLink(this.currentLink, target);
 					    		me.consume();
 				    		}
@@ -8351,6 +8367,7 @@ if (typeof mxVertexHandler != 'undefined')
 
 			    	if (this.currentLink != null)
 			    	{
+						this.currentTarget = graph.getLinkTargetForCell(state.cell)
 			    		graph.container.style.cursor = 'pointer';
 
 			    		if (this.highlight != null)
@@ -8366,6 +8383,7 @@ if (typeof mxVertexHandler != 'undefined')
 			    		graph.container.style.cursor = cursor;
 			    	}
 			    	
+					this.currentTarget = null;
 			    	this.currentState = null;
 			    	this.currentLink = null;
 			    	
@@ -8897,6 +8915,11 @@ if (typeof mxVertexHandler != 'undefined')
 					return (result != null && !state.view.graph.isCustomLink(result)) ? result : null;
 				};
 				
+				imgExport.getLinkTargetForCellState = function(state, canvas)
+				{
+					return state.view.graph.getLinkTargetForCell(state.cell);
+				};
+				
 				// Implements ignoreSelection flag
 				imgExport.drawCellState = function(state, canvas)
 				{
@@ -8983,22 +9006,25 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			for (var i = 0; i < links.length; i++)
 			{
-				var href = links[i].getAttribute('href');
-				
-				if (href == null)
+				if (links[i].getAttribute('target') == null)
 				{
-					href = links[i].getAttribute('xlink:href');
-				}
-				
-				if (href != null)
-				{
-					if (target != null && /^https?:\/\//.test(href))
+					var href = links[i].getAttribute('href');
+					
+					if (href == null)
 					{
-						links[i].setAttribute('target', target);
+						href = links[i].getAttribute('xlink:href');
 					}
-					else if (removeCustom && this.isCustomLink(href))
+					
+					if (href != null)
 					{
-						links[i].setAttribute('href', 'javascript:void(0);');
+						if (target != null && /^https?:\/\//.test(href))
+						{
+							links[i].setAttribute('target', target);
+						}
+						else if (removeCustom && this.isCustomLink(href))
+						{
+							links[i].setAttribute('href', 'javascript:void(0);');
+						}
 					}
 				}
 			}
