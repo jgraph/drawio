@@ -6,7 +6,7 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "8b8e1de48d7e03db880fdf929fee58e6"
+    "revision": "9f9b552da674a7274fbbb709e65c3c07"
   },
   {
     "url": "js/extensions.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "af5f5edb702fae8959cc44a73821b250"
+    "revision": "527562de0573b0d6817d48652803de21"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -106,7 +106,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "6f288a8f542669491938245db6adf392"
+    "revision": "67f26f64db53bb51dc9e9a41dc103d1f"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "ff6e8f1baad47211d361e549b812dc39"
+    "revision": "36fa96104ff0c8f1e4591b7f8a93ce44"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
@@ -138,11 +138,11 @@ if (workbox)
   },
   {
     "url": "connect/confluence/includeDiagram-1-4-8.js",
-    "revision": "8b81191082e56b2a9134afede269f13d"
+    "revision": "bfbc1d2190a305d243ff079a89fe123f"
   },
   {
     "url": "connect/confluence/includeDiagram.html",
-    "revision": "adc9ff3aab2f3e4195199030fd1c3a85"
+    "revision": "288b6324fe369efe20a5f1a7d65486e9"
   },
   {
     "url": "connect/confluence/macro-editor.js",

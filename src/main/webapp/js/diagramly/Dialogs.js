@@ -4269,7 +4269,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 /**
  * Overrides link dialog to add Google Picker.
  */
-var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
+var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showNewWindowOption, linkTarget)
 {
 	var div = document.createElement('div');
 	mxUtils.write(div, mxResources.get('editLink') + ':');
@@ -4293,7 +4293,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 	linkInput.style.backgroundRepeat = 'no-repeat';
 	linkInput.style.backgroundPosition = '100% 50%';
 	linkInput.style.paddingRight = '14px';
-	
+
 	var cross = document.createElement('div');
 	cross.setAttribute('title', mxResources.get('reset'));
 	cross.style.position = 'relative';
@@ -4329,6 +4329,25 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 
 	var pageSelect = document.createElement('select');
 	pageSelect.style.width = '100%';
+
+	var newWindowCheckbox = document.createElement('input');
+	newWindowCheckbox.setAttribute('type', 'checkbox');
+
+	newWindowCheckbox.style.margin = '0 6p 0 6px';
+
+	if (linkTarget != null)
+	{
+		newWindowCheckbox.setAttribute('checked', 'checked');
+		newWindowCheckbox.defaultChecked = true;
+	}
+	
+	linkTarget = (linkTarget != null) ? linkTarget : '_blank';
+	newWindowCheckbox.setAttribute('title', linkTarget);
+	
+	if (showNewWindowOption)
+	{
+		linkInput.style.width = '340px';
+	}
 	
 	if (showPages && editorUi.pages != null)
 	{
@@ -4347,6 +4366,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 		inner.appendChild(urlRadio);
 		inner.appendChild(linkInput);
 		inner.appendChild(cross);
+		
+		if (showNewWindowOption)
+		{
+			inner.appendChild(newWindowCheckbox);
+			mxUtils.write(inner, mxResources.get('openInNewWindow'));
+		}
+		
 		mxUtils.br(inner);
 		inner.appendChild(pageRadio);
 		
@@ -4403,7 +4429,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages)
 		editorUi.hideDialog();
 		var value = (pageRadio.checked) ? ((pageSelect.value !== 'pageNotFound') ?
 			pageSelect.value : initialValue) : linkInput.value;
-		fn(value, LinkDialog.selectedDocs);
+		fn(value, LinkDialog.selectedDocs, (newWindowCheckbox.checked) ? linkTarget : null);
 	});
 	mainBtn.style.verticalAlign = 'middle';
 	mainBtn.className = 'geBtn gePrimaryBtn';

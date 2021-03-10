@@ -1868,7 +1868,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			this.editorUi.actions.get('editLink').funct();
 		}));
 		
-		btn.setAttribute('title', mxResources.get('editLink'));
+		btn.setAttribute('title', mxResources.get('editLink') + ' (' + this.editorUi.actions.get('editLink').shortcut + ')');
 		btn.style.width = '100px';
 		btn.style.marginLeft = '2px';
 		btn.style.marginBottom = '2px';

@@ -438,11 +438,12 @@ Actions.prototype.init = function()
 			var cell = graph.getSelectionCell();
 			var value = graph.getLinkForCell(cell) || '';
 			
-			ui.showLinkDialog(value, mxResources.get('apply'), function(link)
+			ui.showLinkDialog(value, mxResources.get('apply'), function(link, docs, linkTarget)
 			{
 				link = mxUtils.trim(link);
     			graph.setLinkForCell(cell, (link.length > 0) ? link : null);
-			});
+				graph.setAttributeForCell(cell, 'linkTarget', linkTarget);
+			}, true, graph.getLinkTargetForCell(cell));
 		}
 	}, null, null, 'Alt+Shift+L');
 	this.put('insertImage', new Action(mxResources.get('image') + '...', function()
@@ -457,7 +458,7 @@ Actions.prototype.init = function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
-			ui.showLinkDialog('', mxResources.get('insert'), function(link, docs)
+			ui.showLinkDialog('', mxResources.get('insert'), function(link, docs, linkTarget)
 			{
 				link = mxUtils.trim(link);
 				
@@ -488,6 +489,7 @@ Actions.prototype.init = function()
 					linkCell.geometry.x = pt.x;
             	    linkCell.geometry.y = pt.y;
             	    
+					graph.setAttributeForCell(linkCell, 'linkTarget', linkTarget);
             	    graph.setLinkForCell(linkCell, link);
             	    graph.cellSizeUpdated(linkCell, true);
 
@@ -505,7 +507,7 @@ Actions.prototype.init = function()
             	    graph.setSelectionCell(linkCell);
             	    graph.scrollCellToVisible(graph.getSelectionCell());
 				}
-			});
+			}, true);
 		}
 	})).isEnabled = isGraphEnabled;
 	this.addAction('link...', mxUtils.bind(this, function()

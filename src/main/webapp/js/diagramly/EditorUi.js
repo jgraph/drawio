@@ -12679,9 +12679,9 @@
 	/**
 	 * Overrides link dialog.
 	 */
-	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
+	EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn, showNewWindowOption, linkTarget)
 	{
-		var dlg = new LinkDialog(this, value, btnLabel, fn, true);
+		var dlg = new LinkDialog(this, value, btnLabel, fn, true, showNewWindowOption, linkTarget);
 		this.showDialog(dlg.container, 560, 130, true, true);
 		dlg.init();
 	};

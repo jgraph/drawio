@@ -4130,6 +4130,7 @@ Graph.prototype.getTooltipForCell = function(cell)
 			// Hides links in edit mode
 			if (this.isEnabled())
 			{
+				ignored.push('linkTarget');
 				ignored.push('link');
 			}
 			
