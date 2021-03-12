@@ -6181,7 +6181,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		return false;
 	};
 	
-	function search(internalCall, trySameCell)
+	function search(internalCall, trySameCell, stayOnPage)
 	{
 		var cells = graph.model.getDescendants(graph.model.getRoot());
 		var searchStr = searchInput.value.toLowerCase();
@@ -6228,18 +6228,26 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					graph.model.setRoot(nextPage.root);
 					nextPageIndex = (nextPageIndex + 1) % ui.pages.length;
 				}
-				while(!search(true, trySameCell) && nextPageIndex != currentPageIndex);
+				while(!search(true, trySameCell, stayOnPage) && nextPageIndex != currentPageIndex);
 				
 				if (lastFound)
 				{
 					lastFound = null;
-					ui.selectPage(nextPage);
+					
+					if (!stayOnPage)
+					{
+						ui.selectPage(nextPage);
+					}
+					else
+					{
+						ui.editor.graph.model.execute(new SelectPage(ui, nextPage));
+					}
 				}
 				
 				allChecked = false;
 				graph = ui.editor.graph;
 				
-				return search(true, trySameCell);
+				return search(true, trySameCell, stayOnPage);
 			}
 			
 			var i;
@@ -6317,7 +6325,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			{
 				lastFound = null;
 				allChecked = true;
-				return search(true, trySameCell);
+				return search(true, trySameCell, stayOnPage);
 			}
 			
 			lastFound = firstMatch;
@@ -6336,7 +6344,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		else if (!internalCall && allPagesInput.checked)
 		{
 			allChecked = true;
-			return search(true, trySameCell);
+			return search(true, trySameCell, stayOnPage);
 		}
 		else if (graph.isEnabled())
 		{
@@ -6445,6 +6453,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					var cell = lastFound.cell, lbl = graph.getLabel(cell);
 					
+					// TODO: Check isHtml for cell
 					graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value, lblMatchPos - lblMatch.length));
 					searchInput.style.backgroundColor = search(false, true) ? '' : '#ffcfcf';
 				}
@@ -6465,14 +6474,15 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		{
 			if (replaceInput.value)
 			{
-				allPagesInput.checked = false; //We don't support all pages replace all due to invalid undo behavior (changing the editor page cause undo to split and not applied)
+				var currentPage = ui.currentPage;
+				
 				graph.getModel().beginUpdate();
 				try
 				{
 					var safeguard = 0;
 					var seen = {};
 					
-					while (search(false, true) && safeguard < 100)
+					while (search(false, true, true) && safeguard < 100)
 					{
 						var cell = lastFound.cell, lbl = graph.getLabel(cell);
 						var oldSeen = seen[cell.id];
@@ -6483,8 +6493,15 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 						}
 						
 						seen[cell.id] = {replAllMrk: marker, replAllPos: lblMatchPos};
+						
+						// TODO: Check isHtml for cell
 						graph.model.setValue(cell, replaceInHtml(lbl, lblMatch, replaceInput.value, lblMatchPos - lblMatch.length));
 						safeguard++;
+					}
+					
+					if (currentPage != ui.currentPage)
+					{
+						ui.editor.graph.model.execute(new SelectPage(ui, currentPage));
 					}
 				}
 				catch (e)

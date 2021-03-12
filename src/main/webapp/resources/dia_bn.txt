@@ -1134,3 +1134,5 @@ confADelBrokenEmbedDiagLnk=Removing broken embedded diagram links
 replaceWith=Replace with
 replaceAll=Replace All
 confASkipDiagModified=Skipped "{1}" as it is modified after initial import
+replFind=Replace/Find
+matchesRepl={1} matches replaced

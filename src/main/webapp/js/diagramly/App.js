@@ -304,23 +304,23 @@ App.startTime = new Date();
  * Defines plugin IDs for loading via p URL parameter. Update the table at
  * https://www.diagrams.net/doc/faq/supported-url-parameters
  */
-App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': '/plugins/explore.js',
-	'ex': '/plugins/explore.js', 'p1': '/plugins/p1.js',
-	'ac': '/plugins/connect.js', 'acj': '/plugins/connectJira.js',
-	'ac148': '/plugins/cConf-1-4-8.js', 'ac148cmnt': '/plugins/cConf-comments.js', 
-	'voice': '/plugins/voice.js',
-	'tips': '/plugins/tooltips.js', 'svgdata': '/plugins/svgdata.js',
+App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
+	'ex': 'plugins/explore.js', 'p1': 'plugins/p1.js',
+	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
+	'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
+	'voice': 'plugins/voice.js',
+	'tips': 'plugins/tooltips.js', 'svgdata': 'plugins/svgdata.js',
 	'electron': 'plugins/electron.js',
-	'number': '/plugins/number.js', 'sql': '/plugins/sql.js',
-	'props': '/plugins/props.js', 'text': '/plugins/text.js',
-	'anim': '/plugins/animation.js', 'update': '/plugins/update.js',
-	'trees': '/plugins/trees/trees.js', 'import': '/plugins/import.js',
-	'replay': '/plugins/replay.js', 'anon': '/plugins/anonymize.js',
-	'tr': '/plugins/trello.js', 'f5': '/plugins/rackF5.js',
-	'tickets': '/plugins/tickets.js', 'flow': '/plugins/flow.js',
-	'webcola': '/plugins/webcola/webcola.js', 'rnd': '/plugins/random.js',
-	'page': '/plugins/page.js', 'gd': '/plugins/googledrive.js',
-	'tags': '/plugins/tags.js'};
+	'number': 'plugins/number.js', 'sql': 'plugins/sql.js',
+	'props': 'plugins/props.js', 'text': 'plugins/text.js',
+	'anim': 'plugins/animation.js', 'update': 'plugins/update.js',
+	'trees': 'plugins/trees/trees.js', 'import': 'plugins/import.js',
+	'replay': 'plugins/replay.js', 'anon': 'plugins/anonymize.js',
+	'tr': 'plugins/trello.js', 'f5': 'plugins/rackF5.js',
+	'tickets': 'plugins/tickets.js', 'flow': 'plugins/flow.js',
+	'webcola': 'plugins/webcola/webcola.js', 'rnd': 'plugins/random.js',
+	'page': 'plugins/page.js', 'gd': 'plugins/googledrive.js',
+	'tags': 'plugins/tags.js'};
 
 App.publicPlugin = [
 	'ex',
@@ -6198,10 +6198,14 @@ App.prototype.descriptorChanged = function()
 	}
 	
 	this.updateUi();
-
-	if (this.format != null && this.editor.graph.isSelectionEmpty())
+	
+	// Refresh if editable state has changed
+	if (this.format != null && (file == null ||
+		this.fileEditable != file.isEditable()) &&
+		this.editor.graph.isSelectionEmpty())
 	{
 		this.format.refresh();
+		this.fileEditable = (file != null) ? file.isEditable() : null;
 	}
 };
 

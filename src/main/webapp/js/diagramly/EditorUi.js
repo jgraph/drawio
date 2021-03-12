@@ -2506,6 +2506,7 @@
 	{
 		var oldFile = this.getCurrentFile();
 		this.fileLoadedError = null;
+		this.fileEditable = null;
 		this.setCurrentFile(null);
 		var result = false;
 		this.hideDialog();

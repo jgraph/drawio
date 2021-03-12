@@ -1,3 +1,7 @@
+12-MAR-2021: 14.4.8
+
+- Fixes segment router removing control hints at specific zooms
+
 10-MAR-2021: 14.4.7
 
 - Adds upload option back in embed conf cloud

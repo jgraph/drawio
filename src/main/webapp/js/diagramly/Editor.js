@@ -1444,6 +1444,29 @@
 
 		// Workaround for invalid character error in Safari
 		var f = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);
+		
+		//The new format of embedding diagram XML as embedded file (attachment) is in PDF 1.7
+		if (f.substring(0, 8) == '%PDF-1.7')
+		{
+			var blockStart = f.indexOf('EmbeddedFile'); 
+			
+			if (blockStart > -1)
+			{
+				var streamStart = f.indexOf('stream', blockStart) + 9; //the start of the stream [skipping header check]
+				var fileInfo = f.substring(blockStart, streamStart);
+				
+				if (fileInfo.indexOf('application#2Fvnd.jgraph.mxfile') > 0)
+				{
+					var streamEnd = f.indexOf('endstream', streamStart - 1);
+				
+					return pako.inflateRaw(Graph.stringToArrayBuffer(f.substring(streamStart, streamEnd)), {to: 'string'});
+				}
+			}
+			
+			//Not found
+			return null;
+		}
+		
 		var check = '/Subject (%3Cmxfile';
 		var result = null;
 		var curline = '';

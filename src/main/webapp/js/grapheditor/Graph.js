@@ -1434,6 +1434,36 @@ Graph.stringToArrayBuffer = function(data)
 };
 
 /**
+ * Returns index of a string in an array buffer (UInt8Array)
+ */
+Graph.arrayBufferIndexOfString = function (uint8Array, str, start)
+{
+	var c0 = str.charCodeAt(0), j = 1, p = -1;
+	
+	//Index of first char
+	for (var i = start || 0; i < uint8Array.byteLength; i++)
+	{
+		if (uint8Array[i] == c0)
+		{
+			p = i;
+			break;
+		}
+	}
+	
+	for (var i = p + 1; p > -1 && i < uint8Array.byteLength && i < p + str.length - 1; i++)
+	{
+		if (uint8Array[i] != str.charCodeAt(j))
+		{
+			return Graph.arrayBufferIndexOfString(uint8Array, str, p + 1);
+		}
+		
+		j++;
+	}
+	
+	return j == str.length - 1? p : -1;
+};
+
+/**
  * Returns a base64 encoded version of the compressed string.
  */
 Graph.compress = function(data, deflate)

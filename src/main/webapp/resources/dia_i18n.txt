@@ -1134,3 +1134,5 @@ confADelBrokenEmbedDiagLnk=confADelBrokenEmbedDiagLnk
 replaceWith=replaceWith
 replaceAll=replaceAll
 confASkipDiagModified=confASkipDiagModified
+replFind=replFind
+matchesRepl=matchesRepl
