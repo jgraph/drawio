@@ -196,12 +196,13 @@ function render(data)
 			document.fonts.ready.then(function() 
 			{
 				var doneDiv = document.createElement("div");
+				var pageCount = diagrams != null? diagrams.length : 1;
 				doneDiv.id = 'LoadingComplete';
 				doneDiv.style.display = 'none';
 				doneDiv.setAttribute('bounds', JSON.stringify(bounds));
 				doneDiv.setAttribute('page-id', pageId);
 				doneDiv.setAttribute('scale', expScale);
-				doneDiv.setAttribute('pageCount', diagrams != null? diagrams.length : 1);
+				doneDiv.setAttribute('pageCount', pageCount);
 				document.body.appendChild(doneDiv);
 
 				//Electron pdf export
@@ -243,7 +244,7 @@ function render(data)
 						});
 						
 						//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
-						ipcRenderer.send('render-finished', {bounds: JSON.stringify(bounds)});
+						ipcRenderer.send('render-finished', {bounds: JSON.stringify(bounds), pageCount: pageCount});
 					}
 					catch(e)
 					{

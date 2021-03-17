@@ -1592,7 +1592,8 @@ EditorUi.prototype.updatePasteActionStates = function()
 	var paste = this.actions.get('paste');
 	var pasteHere = this.actions.get('pasteHere');
 	
-	paste.setEnabled(this.editor.graph.cellEditor.isContentEditing() || (!mxClipboard.isEmpty() &&
+	paste.setEnabled(this.editor.graph.cellEditor.isContentEditing() ||
+		(((!mxClient.IS_FF && navigator.clipboard != null) || !mxClipboard.isEmpty()) &&
 		graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent())));
 	pasteHere.setEnabled(paste.isEnabled());
 };

@@ -8760,8 +8760,20 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 			ignoreSelection, showText, imgExport, linkTarget, hasShadow, incExtFonts,
-			keepTheme, exportType)
+			keepTheme, exportType, cells)
 		{
+			var lookup = null;
+			
+			if (cells != null)
+			{
+				lookup = new mxDictionary();
+				
+				for (var i = 0; i < cells.length; i++)
+		    	{
+		    		lookup.put(cells[i], true);
+		        }
+			}
+			
 			//Disable Css Transforms if it is used
 			var origUseCssTrans = this.useCssTransforms;
 			
@@ -8781,9 +8793,9 @@ if (typeof mxVertexHandler != 'undefined')
 				showText = (showText != null) ? showText : true;
 	
 				var bounds = (exportType == 'page') ? this.view.getBackgroundPageBounds() :
-					((ignoreSelection || nocrop || exportType == 'diagram') ?
-					this.getGraphBounds() : this.getBoundingBox(
-					this.getSelectionCells()));
+					(((ignoreSelection && lookup == null) || nocrop ||
+					exportType == 'diagram') ? this.getGraphBounds() :
+					this.getBoundingBox(this.getSelectionCells()));
 	
 				if (bounds == null)
 				{
@@ -8955,17 +8967,20 @@ if (typeof mxVertexHandler != 'undefined')
 				imgExport.drawCellState = function(state, canvas)
 				{
 					var graph = state.view.graph;
-					var selected = graph.isCellSelected(state.cell);
+					var selected = (lookup != null) ? lookup.get(state.cell) :
+						graph.isCellSelected(state.cell);
 					var parent = graph.model.getParent(state.cell);
 					
 					// Checks if parent cell is selected
-					while (!ignoreSelection && !selected && parent != null)
+					while ((!ignoreSelection || lookup != null) &&
+						!selected && parent != null)
 					{
-						selected = graph.isCellSelected(parent);
+						selected = (lookup != null) ? lookup.get(parent) :
+							graph.isCellSelected(parent);
 						parent = graph.model.getParent(parent);
 					}
 					
-					if (ignoreSelection || selected)
+					if ((ignoreSelection && lookup == null) || selected)
 					{
 						imgExportDrawCellState.apply(this, arguments);
 					}

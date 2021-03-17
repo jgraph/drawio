@@ -363,6 +363,23 @@ Format.prototype.clear = function()
  */
 Format.prototype.refresh = function()
 {
+	if (this.pendingRefresh != null)
+	{
+		window.clearTimeout(this.pendingRefresh);
+		this.pendingRefresh = null;
+	}
+
+	this.pendingRefresh = window.setTimeout(mxUtils.bind(this, function()
+	{
+		this.immediateRefresh();
+	}));
+};
+
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
+Format.prototype.immediateRefresh = function()
+{
 	// Performance tweak: No refresh needed if not visible
 	if (this.container.style.width == '0px')
 	{

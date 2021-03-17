@@ -539,9 +539,9 @@ mxStencilRegistry.allowEval = false;
 				{
 			   		try
 			   		{
+		   				editorUi.spinner.stop();
 			   			var img = nativeImage.createFromDataURL(editorUi.createImageDataUri(canvas, null, 'png'));
 			   			clipboard.writeImage(img);
-		   				editorUi.spinner.stop();
 			   		}
 			   		catch (e)
 			   		{
@@ -551,7 +551,7 @@ mxStencilRegistry.allowEval = false;
 				{
 					editorUi.spinner.stop();
 					editorUi.handleError(e);
-			   	}, null, false, 1, true);
+			   	}, null, null, 1, true, null, null, null, 10);
 			}
 		}));
 		
@@ -559,20 +559,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
 		}
-	
-		// Inserts copyAsImage into popup menu
-		editorUi.menus.addPopupMenuEditItems = function(menu, cell, evt)
-		{
-			if (editorUi.editor.graph.isSelectionEmpty())
-			{
-				this.addMenuItems(menu, ['pasteHere'], null, evt);
-			}
-			else
-			{
-				this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', 'copyAsImage', '-', 'duplicate'], null, evt);
-			}
-		};
-		
+
 		function createGraph()
 		{
 			var graph = new Graph();
@@ -1773,7 +1760,8 @@ mxStencilRegistry.allowEval = false;
 	}
 	
 		//Direct export to pdf
-		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, currentPage, scale, border, grid)
+		EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, 
+			currentPage, scale, border, grid, includeXml)
 		{
 			var graph = this.editor.graph;
 			var bounds = graph.getGraphBounds();
@@ -1785,7 +1773,7 @@ mxStencilRegistry.allowEval = false;
 			var range = null;
 			var allPages = null;
 			
-			var embed = '0';
+			var embed = (includeXml) ? '1' : '0';
 			
 			if (format == 'pdf' && currentPage == false)
 			{

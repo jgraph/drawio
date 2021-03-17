@@ -79,9 +79,40 @@ Actions.prototype.init = function()
 	// Edit actions
 	this.addAction('undo', function() { ui.undo(); }, null, 'sprite-undo', Editor.ctrlKey + '+Z');
 	this.addAction('redo', function() { ui.redo(); }, null, 'sprite-redo', (!mxClient.IS_WIN) ? Editor.ctrlKey + '+Shift+Z' : Editor.ctrlKey + '+Y');
-	this.addAction('cut', function() { mxClipboard.cut(graph); }, null, 'sprite-cut', Editor.ctrlKey + '+X');
+	this.addAction('cut', function()
+	{
+		var cells = null;
+		
+		try
+		{
+			cells = ui.copyXml();
+			
+			if (cells != null)
+			{
+				graph.removeCells(cells);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
+		if (cells == null)
+		{
+			mxClipboard.cut(graph);
+		}
+	}, null, 'sprite-cut', Editor.ctrlKey + '+X');
 	this.addAction('copy', function()
 	{
+		try
+		{
+			ui.copyXml();
+		}
+		catch (e)
+		{
+			// ignore
+		}
+		
 		try
 		{
 			mxClipboard.copy(graph);
@@ -93,59 +124,143 @@ Actions.prototype.init = function()
 	}, null, 'sprite-copy', Editor.ctrlKey + '+C');
 	this.addAction('paste', function()
 	{
+		// TODO: PasteHere/cut/delayed image creation/FF missing
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
-			mxClipboard.paste(graph);
+			var done = false;
+		
+			try
+			{
+				if (Editor.enableNativeCipboard)
+				{
+					navigator.clipboard.readText().then(function(xml)
+					{
+						var tmp = decodeURIComponent(xml);
+								
+						if (ui.isCompatibleString(tmp))
+						{
+							xml = tmp;
+						}
+						
+						ui.pasteXml(xml, true);
+					}, function()
+					{
+						mxClipboard.paste(graph);
+					});
+					
+					done = true;
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+		
+			if (!done)
+			{
+				mxClipboard.paste(graph);
+			}
 		}
 	}, false, 'sprite-paste', Editor.ctrlKey + '+V');
 	this.addAction('pasteHere', function(evt)
 	{
-		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+		function pasteCellsHere(cells)
 		{
-			graph.getModel().beginUpdate();
-			try
+			if (cells != null)
 			{
-				var cells = mxClipboard.paste(graph);
+				var includeEdges = true;
 				
-				if (cells != null)
+				for (var i = 0; i < cells.length && includeEdges; i++)
 				{
-					var includeEdges = true;
-					
-					for (var i = 0; i < cells.length && includeEdges; i++)
-					{
-						includeEdges = includeEdges && graph.model.isEdge(cells[i]);
-					}
+					includeEdges = includeEdges && graph.model.isEdge(cells[i]);
+				}
 
-					var t = graph.view.translate;
-					var s = graph.view.scale;
-					var dx = t.x;
-					var dy = t.y;
-					var bb = null;
+				var t = graph.view.translate;
+				var s = graph.view.scale;
+				var dx = t.x;
+				var dy = t.y;
+				var bb = null;
+				
+				if (cells.length == 1 && includeEdges)
+				{
+					var geo = graph.getCellGeometry(cells[0]);
 					
-					if (cells.length == 1 && includeEdges)
+					if (geo != null)
 					{
-						var geo = graph.getCellGeometry(cells[0]);
-						
-						if (geo != null)
-						{
-							bb = geo.getTerminalPoint(true);
-						}
-					}
-
-					bb = (bb != null) ? bb : graph.getBoundingBoxFromGeometry(cells, includeEdges);
-					
-					if (bb != null)
-					{
-						var x = Math.round(graph.snap(graph.popupMenuHandler.triggerX / s - dx));
-						var y = Math.round(graph.snap(graph.popupMenuHandler.triggerY / s - dy));
-						
-						graph.cellsMoved(cells, x - bb.x, y - bb.y);
+						bb = geo.getTerminalPoint(true);
 					}
 				}
+
+				bb = (bb != null) ? bb : graph.getBoundingBoxFromGeometry(cells, includeEdges);
+				
+				if (bb != null)
+				{
+					var x = Math.round(graph.snap(graph.popupMenuHandler.triggerX / s - dx));
+					var y = Math.round(graph.snap(graph.popupMenuHandler.triggerY / s - dy));
+					
+					graph.cellsMoved(cells, x - bb.x, y - bb.y);
+				}
 			}
-			finally
+		};
+		
+		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+		{
+			var done = false;
+		
+			try
 			{
-				graph.getModel().endUpdate();
+				if (Editor.enableNativeCipboard)
+				{
+					navigator.clipboard.readText().then(function(xml)
+					{
+						var tmp = decodeURIComponent(xml);
+								
+						if (ui.isCompatibleString(tmp))
+						{
+							xml = tmp;
+						}
+					
+						graph.getModel().beginUpdate();
+						try
+						{
+							pasteCellsHere(ui.pasteXml(xml, true));
+						}
+						finally
+						{
+							graph.getModel().endUpdate();
+						}
+					}, function(xml)
+					{
+						graph.getModel().beginUpdate();
+						try
+						{
+							pasteCellsHere(mxClipboard.paste(graph));
+						}
+						finally
+						{
+							graph.getModel().endUpdate();
+						}
+					});
+					
+					done = true;
+				}
+			}
+			catch (e)
+			{
+				// ignore
+			}
+			
+			if (!done)
+			{
+				graph.getModel().beginUpdate();
+				try
+				{
+					pasteCellsHere(mxClipboard.paste(graph));
+				}
+				finally
+				{
+					graph.getModel().endUpdate();
+				}
 			}
 		}
 	});

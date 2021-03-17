@@ -13,6 +13,7 @@ const zlib = require('zlib');
 const log = require('electron-log')
 const program = require('commander')
 const {autoUpdater} = require("electron-updater")
+const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
@@ -235,7 +236,7 @@ app.on('ready', e =>
 			.option('-t, --transparent',
 				'set transparent background for PNG')
 			.option('-e, --embed-diagram',
-				'includes a copy of the diagram (for PNG format only)')
+				'includes a copy of the diagram (for PNG and PDF formats only)')
 			.option('-b, --border <border>',
 				'sets the border width around the diagram (default: 0)', parseInt)
 			.option('-s, --scale <scale>',
@@ -1157,6 +1158,44 @@ function exportVsdx(event, args, directFinalize)
     win.webContents.on('did-finish-load', loadFinished);
 };
 
+async function mergePdfs(pdfFiles, xml)
+{
+	//Pass throgh single files
+	if (pdfFiles.length == 1 && xml == null)
+	{
+		return pdfFiles[0];
+	}
+
+	try 
+	{
+		const pdfDoc = await PDFDocument.create();
+		pdfDoc.setCreator('diagrams.net');
+
+		if (xml != null)
+		{	
+			//Embed diagram XML as file attachment
+			await pdfDoc.attach(Buffer.from(xml).toString('base64'), 'diagram.xml', {
+				mimeType: 'application/vnd.jgraph.mxfile',
+				description: 'Diagram Content'
+			  });
+		}
+
+		for (var i = 0; i < pdfFiles.length; i++)
+		{
+			const pdfFile = await PDFDocument.load(pdfFiles[i].buffer);
+			const pages = await pdfDoc.copyPages(pdfFile, pdfFile.getPageIndices());
+			pages.forEach(p => pdfDoc.addPage(p));
+		}
+
+		const pdfBytes = await pdfDoc.save();
+        return Buffer.from(pdfBytes);
+    }
+	catch(e)
+	{
+        throw new Error('Error during PDF combination: ' + e.message);
+    }
+}
+
 //TODO Use canvas to export images if math is not used to speedup export (no capturePage). Requires change to export3.html also
 function exportDiagram(event, args, directFinalize)
 {
@@ -1185,7 +1224,19 @@ function exportDiagram(event, args, directFinalize)
 		browser.loadURL(`file://${__dirname}/export3.html`);
 
 		const contents = browser.webContents;
+		var pageByPage = (args.format == 'pdf' && !args.print), from, pdfs;
 
+		if (pageByPage)
+		{
+			from = args.allPages? 0 : parseInt(args.from || 0);
+			to = args.allPages? 1000 : parseInt(args.to || 1000) + 1; //The 'to' will be corrected later
+			pdfs = [];
+
+			args.from = from;
+			args.to = from;
+			args.allPages = false;
+		}
+			
 		contents.on('did-finish-load', function()
 	    {
 			//Set finalize here since it is call in the reply below
@@ -1204,12 +1255,13 @@ function exportDiagram(event, args, directFinalize)
 				ipcMain.once('export-finalize', finalize);
 			}
 
-			ipcMain.once('render-finished', (evt, bounds) =>
+			function renderingFinishHandler(evt, renderInfo)
 			{
+				var pageCount = renderInfo.pageCount, bounds = null;
 				//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
 				try
 				{
-					bounds = JSON.parse(bounds.bounds);
+					bounds = JSON.parse(renderInfo.bounds);
 				}
 				catch(e)
 				{
@@ -1327,9 +1379,24 @@ function exportDiagram(event, args, directFinalize)
 					}
 					else
 					{
-						contents.printToPDF(pdfOptions).then((data) => 
+						contents.printToPDF(pdfOptions).then(async (data) => 
 						{
-							event.reply('export-success', data);
+							pdfs.push(data);
+							to = to > pageCount? pageCount : to;
+							from++;
+							
+							if (from < to)
+							{
+								args.from = from;
+								args.to = from;
+								ipcMain.once('render-finished', renderingFinishHandler);
+								contents.send('render', args);
+							}
+							else
+							{
+								data = await mergePdfs(pdfs, args.embedXml == '1' ? args.xml : null);
+								event.reply('export-success', data);
+							}
 						})
 						.catch((error) => 
 						{
@@ -1350,7 +1417,9 @@ function exportDiagram(event, args, directFinalize)
 				{
 					event.reply('export-error', 'Error: Unsupported format');
 				}
-			});
+			};
+			
+			ipcMain.once('render-finished', renderingFinishHandler);
 
 			if (args.format == 'xml')
 			{

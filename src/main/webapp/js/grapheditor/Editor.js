@@ -248,6 +248,11 @@ Editor.hintOffset = 20;
  * is true.
  */
 Editor.popupsAllowed = true;
+	
+/**
+ * Specifies if the native clipboard is enabled.
+ */
+Editor.enableNativeCipboard = !mxClient.IS_FF && navigator.clipboard != null;
 
 /**
  * Editor inherits from mxEventSource

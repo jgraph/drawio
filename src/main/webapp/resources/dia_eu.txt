@@ -1133,6 +1133,6 @@ confACheckPagesWEmbed=Bilatzen draw.io diagramak kaptsulatuta dituzten orriak
 confADelBrokenEmbedDiagLnk=kaptsulatutako diagramen esteka apurtuak kentzen
 replaceWith=Ordeztu honekin
 replaceAll=Ordeztu denak
-confASkipDiagModified=Skipped "{1}" as it is modified after initial import
+confASkipDiagModified=Skipped "{1}" as it was modified after initial import
 replFind=Replace/Find
 matchesRepl={1} matches replaced

@@ -353,14 +353,19 @@
 
 				var transparentBkg = null, include = null;
 					
-				if (isDrawioWeb)
+				if (EditorUi.isElectronApp || isDrawioWeb)
 				{
 					include = editorUi.addCheckbox(div,
 							mxResources.get('includeCopyOfMyDiagram'), true);
+					dlgH += 30;
+				}
+				
+				if (isDrawioWeb)
+				{
 					transparentBkg = editorUi.addCheckbox(div,
 							mxResources.get('transparentBackground'), false);
 					
-					dlgH += 60;
+					dlgH += 30;
 				}
 				
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
@@ -641,6 +646,20 @@
 				}), true, true);
 			}
 		}));
+
+		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function()
+		{
+			var graph = editorUi.editor.graph;
+			
+			//if (!graph.isSelectionEmpty())
+			{
+				var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
+				var xml = mxUtils.getXml(graph.encodeCells(cells));
+				editorUi.copyImage(cells, xml, 'png', 2);
+			}
+		}));
+
+		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas();
 		
 		action = editorUi.actions.put('shadowVisible', new Action(mxResources.get('shadow'), function()
 		{
@@ -745,45 +764,39 @@
 		}));
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
-		
-		action = editorUi.actions.addAction('find...', mxUtils.bind(this, function()
+
+		action = editorUi.actions.addAction('findReplace...', mxUtils.bind(this, function()
 		{
-			if (this.findWindow == null)
+			var evtName = (graph.isEnabled()) ? 'findReplace' : 'find';
+			var name = evtName + 'Window';
+			
+			if (this[name] == null)
 			{
-				this.findWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 240, 155);
-				this.findWindow.window.addListener('show', function()
+				this[name] = new FindWindow(editorUi, document.body.offsetWidth - 320,
+					100, (graph.isEnabled()) ? 300 : 240, (graph.isEnabled()) ?
+						288 : 160, graph.isEnabled());
+				this[name].window.addListener('show', function()
 				{
-					editorUi.fireEvent(new mxEventObject('find'));
+					editorUi.fireEvent(new mxEventObject(evtName));
 				});
-				this.findWindow.window.addListener('hide', function()
+				this[name].window.addListener('hide', function()
 				{
-					editorUi.fireEvent(new mxEventObject('find'));
+					editorUi.fireEvent(new mxEventObject(evtName));
 				});
-				this.findWindow.window.setVisible(true);
-				editorUi.fireEvent(new mxEventObject('find'));
+				this[name].window.setVisible(true);
 			}
 			else
 			{
-				this.findWindow.window.setVisible(!this.findWindow.window.isVisible());
+				this[name].window.setVisible(!this[name].window.isVisible());
 			}
 		}), null, null, Editor.ctrlKey + '+F');
 		action.setToggleAction(true);
-		action.setSelectedCallback(mxUtils.bind(this, function() { return this.findWindow != null && this.findWindow.window.isVisible(); }));
-
-		action = editorUi.actions.addAction('replace...', mxUtils.bind(this, function()
+		action.setSelectedCallback(mxUtils.bind(this, function()
 		{
-			if (this.replaceWindow == null)
-			{
-				this.replaceWindow = new FindWindow(editorUi, document.body.offsetWidth - 300, 110, 370, 205, true);
-				this.replaceWindow.window.setVisible(true);
-			}
-			else
-			{
-				this.replaceWindow.window.setVisible(!this.replaceWindow.window.isVisible());
-			}
+			var name = (graph.isEnabled()) ? 'findReplaceWindow' : 'findWindow';
+			
+			return this[name] != null && this[name].window.isVisible();
 		}));
-		action.setToggleAction(true);
-		action.setSelectedCallback(mxUtils.bind(this, function() { return this.replaceWindow != null && this.replaceWindow.window.isVisible(); }));
 		
 		editorUi.actions.put('exportVsdx', new Action(mxResources.get('formatVsdx') + ' (beta)...', function()
 		{
@@ -3189,28 +3202,13 @@
 			}));
 		}
 
-		// Overrides edit menu to add find and editGeometry
+		// Overrides edit menu to add find, copyAsImage editGeometry
 		this.put('edit', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy']);
-			
-			if (EditorUi.isElectronApp)
-			{
-				this.addMenuItems(menu, ['copyAsImage']);
-			}
-			
-			if (urlParams['replace'] == '1')
-			{
-				this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-', 'find', 'replace', '-', 'editData', 'editTooltip', '-',
-					 'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
-	                 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
-			}
-			else
-			{
-				this.addMenuItems(menu, ['paste', 'delete', '-', 'duplicate', '-', 'find', '-', 'editData', 'editTooltip', '-',
-					 'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
-	                 'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
-			}
+			this.addMenuItems(menu, ['undo', 'redo', '-', 'cut', 'copy', 'copyAsImage', 'paste',
+				'delete', '-', 'duplicate', '-', 'findReplace', '-', 'editData', 'editTooltip', '-',
+				'editStyle',  'editGeometry', '-', 'edit', '-', 'editLink', 'openLink', '-',
+                'selectVertices', 'selectEdges', 'selectAll', 'selectNone', '-', 'lockUnlock']);
 		})));
 
 		var action = editorUi.actions.addAction('comments', mxUtils.bind(this, function()

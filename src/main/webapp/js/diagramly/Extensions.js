@@ -2161,10 +2161,10 @@ LucidImporter = {};
 //Equation
 			'Equation' : cs,
 //Walls
-			'fpWall' : '',
+			'fpWall' : cs,
 //Rooms
 //Doors & Windows
-			'fpWindow' : s + 'floorplan.window',
+			'fpWindow' : s + 'floorplan.window;strokeWidth=3',
 			'fpOpening' : 'shape=rect',
 			'fpDoor' : cs,
 			'fpDoubleDoor' : cs,
@@ -5812,7 +5812,12 @@ LucidImporter = {};
     	}
 	    
 	    handleTextRotation(v, p);
-	    
+
+	    if (p.Hidden)
+		{
+			v.visible = false;
+		}
+		
 	    return v;
 	};
 	
@@ -5864,6 +5869,11 @@ LucidImporter = {};
 			{
 				e = insertLabel(ta.Message, e, obj);
 			}
+		}
+		
+		if (obj.Hidden)
+		{
+			e.visible = false;
 		}
 		
 		return e;
@@ -10498,7 +10508,12 @@ LucidImporter = {};
 		    	v.style += addAllStyles(v.style, p, a, v);
 
 				break;
-				
+			case 'fpWall' :
+				v.style += 'labelPosition=center;verticalAlign=bottom;verticalLabelPosition=top;';
+				v.value = convertText(p);
+				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
+				v.style = v.style.replace('rotation=180;', ''); //180 rotation cause the labels to be upside down which doesn't match Lucid 
+			break;
 			case 'fpDoubleDoor' :
 				v.style += 'shape=mxgraph.floorplan.doorDouble;';
 
@@ -13398,6 +13413,11 @@ LucidImporter = {};
 		}
 				
 		handleTextRotation(v, p);
+		
+		if (p.Hidden)
+		{
+			v.visible = false;
+		}
 		
 	    return v;
 	};

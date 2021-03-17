@@ -977,7 +977,7 @@ App.main = function(callback, createUi)
 				}
 			};
 			
-			if (urlParams['dev'] == '1')
+			if (urlParams['dev'] == '1' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
 			{
 				realMain();
 			}
@@ -5763,6 +5763,13 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	function shouldAnimate(newNotif)
 	{
 		var countEl = document.querySelector('.geNotification-count');
+		
+		if (countEl == null)
+		{
+			EditorUi.logError('Error: element (.geNotification-count) is null in showNotification in shouldAnimate', null, 5769);
+			return;
+		}
+		
 		countEl.innerHTML = newNotif;
 		countEl.style.display = newNotif == 0? 'none' : '';
 		var notifBell = document.querySelector('.geNotification-bell');
@@ -5847,7 +5854,11 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	var newNotif = 0;
 	var notifListEl = document.getElementById('geNotifList');
 	
-	if (notifs.length == 0)
+	if (notifListEl == null)
+	{
+		EditorUi.logError('Error: element (geNotifList) is null in showNotification', null, 5859);
+	}
+	else if (notifs.length == 0)
 	{
 		notifListEl.innerHTML = '<div class="line"></div><div class="notification">' +
 								mxUtils.htmlEntities(mxResources.get('none')) + '</div>';

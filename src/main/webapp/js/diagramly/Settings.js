@@ -112,6 +112,12 @@ var mxSettings =
 		// Makes sure to update the latest data from the localStorage
 		mxSettings.load();
 		
+		//If the setting is incorrect, reset it to an empty array
+		if (!Array.isArray(mxSettings.settings.customLibraries))
+		{
+			mxSettings.settings.customLibraries = [];
+		}
+		
 		if (mxUtils.indexOf(mxSettings.settings.customLibraries, id) < 0)
 		{
 			// Makes sure scratchpad is below search in sidebar

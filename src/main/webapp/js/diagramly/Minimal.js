@@ -813,7 +813,7 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addMenuItems(menu, ['comments'], parent);
 			}
 			
-			ui.menus.addMenuItems(menu, ['-', 'find', 'tags'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'findReplace', 'tags'], parent);
 			
 			if (file != null && ui.fileNode != null)
 			{

@@ -3135,7 +3135,7 @@
 	 */
 	Editor.prototype.exportToCanvas = function(callback, width, imageCache, background, error, limitHeight,
 		ignoreSelection, scale, transparentBackground, addShadow, converter, graph, border, noCrop, grid,
-		keepTheme, exportType)
+		keepTheme, exportType, cells)
 	{
 		try
 		{
@@ -3163,7 +3163,7 @@
 			}
 			
 			this.convertImages(graph.getSvg(null, null, border, noCrop, null, ignoreSelection,
-				null, null, null, addShadow, null, keepTheme, exportType),
+				null, null, null, addShadow, null, keepTheme, exportType, cells),
 				mxUtils.bind(this, function(svgRoot)
 			{
 				try
@@ -3213,13 +3213,13 @@
 									window.setTimeout(function()
 									{
 										ctx.drawImage(img, 0, 0);
-										callback(canvas);
+										callback(canvas, svgRoot);
 									}, 0);
 						   		}
 						   		else
 						   		{
 						   			ctx.drawImage(img, 0, 0);
-						   			callback(canvas);
+						   			callback(canvas, svgRoot);
 						   		}
 						    };
 						    
@@ -5849,7 +5849,7 @@
 	
 	Graph.prototype.getSvg = function(background, scale, border, nocrop, crisp,
 		ignoreSelection, showText, imgExport, linkTarget, hasShadow,
-		incExtFonts, keepTheme, exportType)
+		incExtFonts, keepTheme, exportType, cells)
 	{
 		var temp = null;
 		

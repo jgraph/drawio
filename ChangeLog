@@ -1,3 +1,8 @@
+17-MAR-2021: 14.4.9
+
+- Adds copy as image option
+- Makes find and replace dialog the default
+
 12-MAR-2021: 14.4.8
 
 - Fixes segment router removing control hints at specific zooms
