@@ -9975,7 +9975,7 @@
 						
 						// KNOWN: SVG not supported, embedded XML in PNGs removed,
 						// multiple items and delayed content not yet supported
-						var uri = this.createImageDataUri(canvas, (cells.length > 0) ? xml : null, 'png');
+						var uri = this.createImageDataUri(canvas, xml, 'png');
 						
 						if (format == 'png')
 						{
@@ -10008,7 +10008,8 @@
 				{
 					// ignore
 				}), null, null, (scale != null) ? scale : (format == 'png') ? 1 : 4,
-					format != 'png', null, null, null, 10, null, null, false, null, (cells.length > 0) ? cells : null);
+					format != 'png', null, null, null, 10, null, null, false, null,
+					(cells.length > 0) ? cells : null);
 			}
 		}
 		catch (e)

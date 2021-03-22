@@ -647,16 +647,13 @@
 			}
 		}));
 
-		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function()
+		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function(arg, evt)
 		{
+			var asHtml = mxEvent.isShiftDown(evt);
 			var graph = editorUi.editor.graph;
-			
-			//if (!graph.isSelectionEmpty())
-			{
-				var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
-				var xml = mxUtils.getXml(graph.encodeCells(cells));
-				editorUi.copyImage(cells, xml, 'png', 2);
-			}
+			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
+			var xml = mxUtils.getXml((cells.length == 0) ? editorUi.editor.getGraphXml() : graph.encodeCells(cells));
+			editorUi.copyImage(cells, xml, (asHtml) ? null : 'png', (asHtml) ? null : 2);
 		}));
 
 		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas();

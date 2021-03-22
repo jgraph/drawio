@@ -13,6 +13,11 @@ OneDriveFile = function(ui, data, meta)
 mxUtils.extend(OneDriveFile, DrawioFile);
 
 /**
+ * Shorter autosave delay for optimistic sync.
+ */
+OneDriveFile.prototype.autosaveDelay = 300;
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -163,6 +168,15 @@ OneDriveFile.prototype.getTitle = function()
  * @param {number} dy Y-coordinate of the translation.
  */
 OneDriveFile.prototype.isRenamable = function()
+{
+	return true;
+};
+
+/**
+ * Returns true if the notification to update should be sent
+ * together with the save request.
+ */
+OneDriveFile.prototype.isOptimisticSync = function()
 {
 	return true;
 };
@@ -374,7 +388,8 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
 						this.getCurrentEtag() : null;
 					var lastDesc = this.meta;
-					
+					this.fileSaving();
+
 					this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
 					{
 						// Checks for changes during save

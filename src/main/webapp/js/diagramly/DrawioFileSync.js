@@ -216,6 +216,11 @@ DrawioFileSync.prototype.maxCacheReadyRetries = 1;
 DrawioFileSync.prototype.cacheReadyDelay = 700;
 
 /**
+ * Specifies if descriptor change events should be ignored.
+ */
+DrawioFileSync.prototype.maxOptimisticReloadRetries = 6;
+
+/**
  * Inactivity timeout is 30 minutes.
  */
 DrawioFileSync.prototype.inactivityTimeoutSeconds = 1800;
@@ -264,7 +269,7 @@ DrawioFileSync.prototype.start = function()
 			{
 				this.pusher.connect();
 				this.channel = this.pusher.subscribe(this.channelId);
-				EditorUi.debug('Sync.start', [this, 'v' + DrawioFileSync.PROTOCOL]);
+				EditorUi.debug('Sync.start', [this, 'v' + DrawioFileSync.PROTOCOL], 'rev', this.file.getCurrentRevisionId());
 			}
 			catch (e)
 			{
@@ -575,7 +580,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 		if (this.lastMessageModified == null || this.lastMessageModified < mod)
 		{
 			this.lastMessageModified = mod;
-			this.fileChangedNotify();
+			this.fileChangedNotify(data);
 		}
 	}
 };
@@ -593,7 +598,53 @@ DrawioFileSync.prototype.isValidState = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.fileChangedNotify = function()
+DrawioFileSync.prototype.optimisticSync = function(retryCount)
+{
+	if (this.reloadThread == null)
+	{
+		retryCount = (retryCount != null) ? retryCount : 0;
+		
+		if (retryCount < this.maxOptimisticReloadRetries)
+		{
+			this.reloadThread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.file.getLatestVersion(mxUtils.bind(this, function(latestFile)
+				{
+					this.reloadThread = null;
+				
+					if (latestFile != null)
+					{
+						var etag = latestFile.getCurrentRevisionId();
+						var current = this.file.getCurrentRevisionId();
+						
+						// Retries if the file has not changed
+						if (current == etag)
+						{
+							this.optimisticSync(retryCount + 1);
+						}
+						else
+						{
+							this.file.mergeFile(latestFile);
+						}
+					}
+				}), mxUtils.bind(this, function()
+				{
+					this.reloadThread = null;
+				}));
+			}), (retryCount + 1) * this.file.optimisticSyncDelay);
+		}
+		
+		if (urlParams['test'] == '1')
+		{
+			EditorUi.debug('Sync.optimisticSync', [this], 'retryCount', retryCount);
+		}
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DrawioFileSync.prototype.fileChangedNotify = function(data)
 {
 	if (this.isValidState())
 	{
@@ -603,19 +654,26 @@ DrawioFileSync.prototype.fileChangedNotify = function()
 		}
 		else
 		{
-			// It's possible that a request never returns so override
-			// existing requests and abort them when they are active
-			var thread = this.fileChanged(mxUtils.bind(this, function(err)
+			if (data != null && data.type == 'optimistic')
 			{
-				this.updateStatus();
-			}),
-				mxUtils.bind(this, function(err)
+				this.optimisticSync();
+			}
+			else
 			{
-				this.file.handleFileError(err);
-			}), mxUtils.bind(this, function()
-			{
-				return !this.file.savingFile && this.notifyThread != thread;
-			}), true);
+				// It's possible that a request never returns so override
+				// existing requests and abort them when they are active
+				var thread = this.fileChanged(mxUtils.bind(this, function(err)
+				{
+					this.updateStatus();
+				}),
+					mxUtils.bind(this, function(err)
+				{
+					this.file.handleFileError(err);
+				}), mxUtils.bind(this, function()
+				{
+					return !this.file.savingFile && this.notifyThread != thread;
+				}), true);
+			}
 		}
 	}
 };
@@ -1127,6 +1185,20 @@ DrawioFileSync.prototype.createToken = function(secret, success, error)
 			}
 		}
 	}));
+};
+
+/**
+ * Invoked when a save request for a file was sent regardless of the response.
+ */
+DrawioFileSync.prototype.fileSaving = function()
+{
+	var msg = this.objectToString(this.createMessage({m: new Date().getTime(), type: 'optimistic'}));
+
+	// Notify only
+	mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + encodeURIComponent(msg), function()
+	{
+		// Ignore response
+	});
 };
 
 /**

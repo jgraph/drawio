@@ -3426,26 +3426,36 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		
 		if (!mxClient.IS_FF && navigator.clipboard != null && mimeType == 'image/png')
 		{
-			copyBtn = mxUtils.button(mxResources.get('copy'), function()
+			copyBtn = mxUtils.button(mxResources.get('copy'), function(evt)
 			{
-				// Only PNG can be copied to clipboard natively
-				if (mimeType == 'image/png')
+				if (mimeType == 'image/png' && !mxEvent.isShiftDown(evt))
 				{
-					var blob = this.base64ToBlob(temp, 'image/png');
+					var blob = editorUi.base64ToBlob(temp, 'image/png');
 					var cbi = new ClipboardItem({'image/png': blob});
-					navigator.clipboard.write([cbi]);
+					navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
+					{
+						editorUi.alert(mxResources.get('copiedToClipboard'));
+					}))['catch'](mxUtils.bind(this, function(e)
+					{
+						editorUi.handleError(e);
+					}));
 				}
 				else
 				{
 					var html = '<img src="' + 'data:' + mimeType + ';base64,' + temp + '">';
 					var cbi = new ClipboardItem({'text/html':
 						new Blob([html], {type: 'text/html'})});
-					navigator.clipboard.write([cbi]);
+					navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
+					{
+						editorUi.alert(mxResources.get('copiedToClipboard'));
+					}))['catch'](mxUtils.bind(this, function(e)
+					{
+						editorUi.handleError(e);
+					}));
 				}
-				
-				editorUi.alert(mxResources.get('copiedToClipboard'));
 			});
 			
+			copyBtn.style.marginTop = '6px';
 			copyBtn.className = 'geBtn';
 		}
 		
@@ -3760,7 +3770,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		btns.appendChild(helpBtn);
 	}
 	
-	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	var cancelBtn = mxUtils.button(mxResources.get((cancelFn != null) ? 'close' : 'cancel'), function()
 	{
 		if (cancelFn != null)
 		{
@@ -3777,7 +3787,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	
 	cancelBtn.className = 'geBtn';
 	
-	if (editorUi.editor.cancelFirst)
+	if (editorUi.editor.cancelFirst && cancelFn == null)
 	{
 		btns.appendChild(cancelBtn);
 	}
@@ -3818,13 +3828,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		openBtn.className = 'geBtn';
 		btns.appendChild(openBtn);
 	}
-	
-	if (copyBtn != null)
-	{
-		btns.appendChild(copyBtn);
-		mxUtils.br(btns);
-	}
-	
+
 	if (CreateDialog.showDownloadButton)
 	{
 		var downloadButton = mxUtils.button(mxResources.get('download'), function()
@@ -3841,6 +3845,12 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			btns.style.marginTop = '6px';
 		}
 	}
+		
+	if (copyBtn != null)
+	{
+		mxUtils.br(btns);
+		btns.appendChild(copyBtn);
+	}
 	
 	if (/*!mxClient.IS_IOS || */!showButtons)
 	{
@@ -3853,7 +3863,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		btns.appendChild(createBtn);
 	}
 	
-	if (!editorUi.editor.cancelFirst)
+	if (!editorUi.editor.cancelFirst || cancelFn != null)
 	{
 		btns.appendChild(cancelBtn);
 	}

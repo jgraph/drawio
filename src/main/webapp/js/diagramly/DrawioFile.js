@@ -91,6 +91,13 @@ DrawioFile.prototype.autosaveDelay = 1500;
 DrawioFile.prototype.maxAutosaveDelay = 30000;
 
 /**
+ * Specifies the delay for loading the file after an optimistic sync message.
+ * This should be the delay for the file to be saved minus the delay for the
+ * sync message to travel.
+ */
+DrawioFile.prototype.optimisticSyncDelay = 300;
+
+/**
  * Contains the thread for the next autosave.
  */
 DrawioFile.prototype.autosaveThread = null;
@@ -1973,13 +1980,22 @@ DrawioFile.prototype.fileChanged = function()
 };
 
 /**
+ * Returns true if the notification to update should be sent
+ * together with the save request.
+ */
+DrawioFile.prototype.isOptimisticSync = function()
+{
+	return false;
+};
+
+/**
  * Creates a secret and token pair for writing a patch to the cache.
  */
 DrawioFile.prototype.createSecret = function(success)
 {
 	var secret = Editor.guid(32);
 	
-	if (this.sync != null)
+	if (this.sync != null && !this.isOptimisticSync())
 	{
 		this.sync.createToken(secret, mxUtils.bind(this, function(token)
 		{
@@ -1998,6 +2014,22 @@ DrawioFile.prototype.createSecret = function(success)
 /**
  * Invokes sync and updates shadow document.
  */
+DrawioFile.prototype.fileSaving = function()
+{
+	if (this.sync != null && this.isOptimisticSync())
+	{
+		this.sync.fileSaving();
+	}
+	
+	if (urlParams['test'] == '1')
+	{
+		EditorUi.debug('DrawioFile.fileSaving', [this]);
+	}
+};
+
+/**
+ * Invokes sync and updates shadow document.
+ */
 DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, token)
 {
 	this.lastSaved = new Date();
@@ -2009,7 +2041,7 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		this.inConflictState = false;
 		this.invalidChecksum = false;
 
-		if (this.sync == null)
+		if (this.sync == null || this.isOptimisticSync())
 		{
 			this.shadowData = savedData;
 			this.shadowPages = null;
@@ -2057,6 +2089,11 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		{
 			// ignore
 		}
+	}
+	
+	if (urlParams['test'] == '1')
+	{
+		EditorUi.debug('DrawioFile.fileSaved', [this]);
 	}
 };
 

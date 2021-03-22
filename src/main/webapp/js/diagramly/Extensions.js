@@ -329,7 +329,7 @@ LucidImporter = {};
 //Org Chart
 			'OrgBlock' : '',
 //Tables
-			'DefaultTableBlock' : cs, //TODO
+			'DefaultTableBlock' : cs,
 //Value Stream Mapping			
 //Processes
 			'VSMCustomerSupplierBlock' : s + 'lean_mapping.outside_sources',
@@ -5284,6 +5284,19 @@ LucidImporter = {};
 	{
 		if (color)
 		{
+			if (typeof color === 'object')
+			{
+				try
+				{
+					color = color.cs[0].c; //TODO support gradient colors 
+				}
+				catch(e)
+				{
+					console.log(e);
+					color = '#ffffff';
+				}
+			}
+			
 			if (color.substring(0, 3) == 'rgb')
 			{
 				color = '#' + color.match(/\d+/g).map(function(n)
@@ -5888,10 +5901,40 @@ LucidImporter = {};
 			x = (parseFloat(textArea.Text.Location) - 0.5) * 2;
 		}
 		
-		var lab = new mxCell(convertText(textArea), new mxGeometry((!isNaN(x)) ? x : 0, 0, 0, 0),
+		var lblTxt = convertText(textArea);
+		var lab = new mxCell(lblTxt, new mxGeometry((!isNaN(x)) ? x : 0, 0, 0, 0),
 			labelStyle + getEdgeLabelStyle(textArea, obj, isLastLblHTML));
 		lab.geometry.relative = true;
 		lab.vertex = true;
+		
+		if (textArea.Side)
+		{
+			try
+			{
+				if (obj.Action && obj.Action.Properties)
+				{
+					obj = obj.Action.Properties;
+				}
+				
+				var dx = Math.abs(obj.Endpoint1.x - obj.Endpoint2.x);
+				var dy = Math.abs(obj.Endpoint1.y - obj.Endpoint2.y);
+				var strSize = mxUtils.getSizeForString(lblTxt);
+				
+				if (dx == 0 || dx < dy)
+				{
+					lab.geometry.offset = new mxPoint(-textArea.Side * (strSize.width / 2 + 5 + dx), 0);
+				}
+				else
+				{
+					lab.geometry.offset = new mxPoint(0, Math.sign(obj.Endpoint2.x - obj.Endpoint1.x) * textArea.Side * (strSize.height / 2 + 5 + dy));
+				}
+			}
+			catch(e)
+			{
+				console.log(e);
+			}
+		} 
+		
 		e.insert(lab);
 		
 		return e;
@@ -9479,7 +9522,7 @@ LucidImporter = {};
 								
 								for (var l = j + 1; l < j + spans.w; l++)
 								{
-									skipCells[l + ',' + j] = true;
+									skipCells[k + ',' + l] = true;
 								}
 							}
 							
@@ -9498,7 +9541,7 @@ LucidImporter = {};
 
 							var cell = new mxCell('', new mxGeometry(x, y, cw, ch), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;'
 									+ (hideV? 'left=0;right=0;' : '') + (hideH? 'top=0;bottom=0;' : '')
-									+ createStyle(mxConstants.STYLE_FILLCOLOR, getColor(fillClr), getColor(tblFillClr))
+									+ getFillColor({FillColor: fillClr || tblFillClr})
 									+ createStyle(mxConstants.STYLE_STROKECOLOR, getColor(borderClr), getColor(tblLnClr))
 									+ (borderW != null ? createStyle(mxConstants.STYLE_STROKEWIDTH, Math.round(parseFloat(borderW) * scale), '1') : '')
 									+ (lnOp? lnOp : tblLnOp) 
@@ -9530,7 +9573,10 @@ LucidImporter = {};
 						y += h;
 					}
 				}
-				catch(e){}
+				catch(e)
+				{
+					console.log(e);
+				}
 				break;
 			case 'VSMDedicatedProcessBlock' :
 			case 'VSMProductionControlBlock' :
@@ -13536,8 +13582,8 @@ LucidImporter = {};
 			graph.addCell(chartGroup);
 			var fields = props.FieldNames;
 			var layoutSettings = props.LayoutSettings;
-			var cellDefaultStyle = props.BlockItemDefaultStyle;
-			var edgeDefaultStyle = props.EdgeItemDefaultStyle;
+			var cellDefaultStyle = props.BlockItemDefaultStyle || {props: {}};
+			var edgeDefaultStyle = props.EdgeItemDefaultStyle || {props: {}};
 			var parents = {};
 			var idPrefix = (objId || Date.now()) + '_';
 			
@@ -13620,7 +13666,7 @@ LucidImporter = {};
 					if (derivative[i].type == 'ForeignKeyGraph')
 					{
 						dataId = derivative[i].c[0].id;
-						dataId = dataId.substr(0, dataId.indexOf('_'));
+						dataId = dataId.substr(0, dataId.lastIndexOf('_'));
 					}
 					else if (derivative[i].type == 'MappedGraph')
 					{
@@ -13656,10 +13702,25 @@ LucidImporter = {};
 					}
 				}
 				
-				for (var pk in chartDataSrc)
+				var dupMap = {};
+				
+				for (var id in chartDataSrc)
 				{
-					var d = chartDataSrc[pk];
-					createNode(d[primaryKey], d[foreignKey], d);
+					var d = chartDataSrc[id];
+					var pk = d[primaryKey], fk = d[foreignKey];
+					
+					//Special case where these nodes has duplicate id and should be connected somehow!
+					if (pk == fk)
+					{
+						dupMap[pk] = pk + Date.now();
+						pk = dupMap[pk];
+						d[primaryKey] = pk;
+						createNode(pk, fk, d);
+					}
+					else
+					{
+						createNode(pk, dupMap[fk] || fk, d);
+					}
 				}
 			}
 			
@@ -13667,15 +13728,19 @@ LucidImporter = {};
 			{
 				var p = parents[key];
 				
-				if (p)
+				if (p != null)
 				{
 					var src = lookup[idPrefix + p];
 					var trg = lookup[key];
-					var e = new mxCell('', new mxGeometry(0, 0, 100, 100), '');
-					e.geometry.relative = true;
-					e.edge = true;
-					updateCell(e, edgeDefaultStyle.props, graph, null, null, true);
-					graph.addCell(e, chartGroup, null, src, trg);
+					
+					if (src != null && trg != null)
+					{
+						var e = new mxCell('', new mxGeometry(0, 0, 100, 100), '');
+						e.geometry.relative = true;
+						e.edge = true;
+						updateCell(e, edgeDefaultStyle.props, graph, null, null, true);
+						graph.addCell(e, chartGroup, null, src, trg);
+					}
 				}
 			}
 

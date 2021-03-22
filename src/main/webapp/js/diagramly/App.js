@@ -288,6 +288,12 @@ App.PUSHER_CLUSTER = 'eu';
 App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
 
 /**
+ * Socket.io library 
+ */
+App.SOCKET_IO_URL = window.DRAWIO_BASE_URL + '/js/socket.io/socket.io.min.js';
+App.SOCKET_IO_SRV = 'http://localhost:3030';
+
+/**
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
@@ -700,6 +706,11 @@ App.main = function(callback, createUi)
 		{
 			// TODO: Check if async loading is fast enough
 			mxscript(App.PUSHER_URL);
+			
+			if (urlParams['rtCursors'] == '1')
+			{
+				mxscript(App.SOCKET_IO_URL);
+			}
 		}
 		
 		// Loads plugins
@@ -5804,13 +5815,27 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 			this.notificationBtn.style.top = '4px';
 		}
 		
-		this.notificationBtn.innerHTML = '<span class="geNotification-count"></span>' +
-										 '<div class="geNotification-bell"' + (uiTheme == 'min'? ' style="opacity: 0.5"' : '') + '>'+
-											'<span class="geBell-top"></span>' + 
-											'<span class="geBell-middle"></span>' +
-											'<span class="geBell-bottom"></span>' +
-											'<span class="geBell-rad"></span>' +
-										 '</div>';
+		var notifCount = document.createElement('span');
+		notifCount.className = 'geNotification-count';
+		this.notificationBtn.appendChild(notifCount);
+		
+		var notifBell = document.createElement('div');
+		notifBell.className = 'geNotification-bell';
+		notifBell.style.opacity = uiTheme == 'min'? '0.5' : '';
+		var bellPart = document.createElement('span');
+		bellPart.className = 'geBell-top';
+		notifBell.appendChild(bellPart);
+		var bellPart = document.createElement('span');
+		bellPart.className = 'geBell-middle';
+		notifBell.appendChild(bellPart);
+		var bellPart = document.createElement('span');
+		bellPart.className = 'geBell-bottom';
+		notifBell.appendChild(bellPart);
+		var bellPart = document.createElement('span');
+		bellPart.className = 'geBell-rad';
+		notifBell.appendChild(bellPart);
+		this.notificationBtn.appendChild(notifBell);
+		
 		//Add as first child such that it is the left-most one
 		this.buttonContainer.insertBefore(this.notificationBtn, this.buttonContainer.firstChild);
 		
@@ -5818,18 +5843,26 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		this.notificationWin.className = 'geNotifPanel';
 		this.notificationWin.style.display = 'none';
 		document.body.appendChild(this.notificationWin);
-		this.notificationWin.innerHTML ='<div class="header">' + 
-										'    <div class="menu-icon">' + 
-										'        <div class="dash-top"></div>' + 
-										'        <div class="dash-bottom"></div>' + 
-										'        <div class="circle"></div>' + 
-										'    </div>' + 
-										'    <span class="title">' + mxResources.get('notifications') + '</span>' + 
-										'    <span id="geNotifClose" class="closeBtn">x</span>' + 
-										'</div>' + 
-										'<div class="notifications clearfix">' +
-										'	<div id="geNotifList"  style="position: relative"></div>' + 
-										'</div>';
+		
+		var winHeader = document.createElement('div');
+		winHeader.className = 'header';
+		var winTitle = document.createElement('span');
+		winTitle.className = 'title';
+		winTitle.textContent = mxResources.get('notifications');
+		winHeader.appendChild(winTitle);
+		var winClose = document.createElement('span');
+		winClose.className = 'closeBtn';
+		winClose.textContent = 'x';
+		winHeader.appendChild(winClose);
+		this.notificationWin.appendChild(winHeader);
+		
+		var winBody = document.createElement('div');
+		winBody.className = 'notifications clearfix';
+		var notifList = document.createElement('div');
+		notifList.setAttribute('id', 'geNotifList');
+		notifList.style.position = 'relative';
+		winBody.appendChild(notifList);
+		this.notificationWin.appendChild(winBody);
 		
 		mxEvent.addListener(this.notificationBtn, 'click', mxUtils.bind(this, function()
 		{
@@ -5848,7 +5881,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 			}
 		}));
 		
-		mxEvent.addListener(document.getElementById('geNotifClose'), 'click', markAllAsRead);
+		mxEvent.addListener(winClose, 'click', markAllAsRead);
 	}
 		
 	var newNotif = 0;

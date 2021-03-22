@@ -109,6 +109,7 @@ diagramPngDesc=Bewerkbaar bitmap-bestand
 diagramSvgDesc=Bewerkbaar vector-bestand
 didYouMeanToExportToPdf=Wil je exporteren naar PDF?
 draftFound=Een concept van '{1}' is gevonden. Laad het in de editor of negeer het om door te gaan.
+draftRevisionMismatch=There is a newer version of this diagram on a shared draft of this page. Please edit the page and then the diagram to ensure you are working with the latest version.
 selectDraft=Selecteer een concept om door te gaan met bewerken:
 dragAndDropNotSupported=Slepen en plaatsen is niet beschikbaar voor afbeeldingen. Wilt u in plaats daarvan importeren?
 dropboxCharsNotAllowed=De volgende tekens zijn niet toegestaan: \ / : ? * " |

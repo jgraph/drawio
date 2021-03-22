@@ -109,6 +109,7 @@ diagramPngDesc=diagramPngDesc
 diagramSvgDesc=diagramSvgDesc
 didYouMeanToExportToPdf=didYouMeanToExportToPdf
 draftFound=draftFound
+draftRevisionMismatch=draftRevisionMismatch
 selectDraft=selectDraft
 dragAndDropNotSupported=dragAndDropNotSupported
 dropboxCharsNotAllowed=dropboxCharsNotAllowed

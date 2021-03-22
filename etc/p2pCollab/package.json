@@ -1,0 +1,15 @@
+{
+  "name": "p2pcollab",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "socket.io": "^4.0.0"
+  }
+}

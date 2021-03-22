@@ -13,12 +13,6 @@ DriveFile = function(ui, data, desc)
 mxUtils.extend(DriveFile, DrawioFile);
 
 /**
- * Workaround for changing etag after save is higher autosave delay to allow
- * for preflight etag update and decrease possible conflicts on file save.
- */
-//DriveFile.prototype.autosaveDelay = 2500;
-
-/**
  * Delay for last save in ms.
  */
 DriveFile.prototype.saveDelay = 0;
