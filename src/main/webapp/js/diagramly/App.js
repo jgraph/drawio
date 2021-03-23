@@ -5742,31 +5742,65 @@ App.prototype.updateButtonContainer = function()
 
 App.prototype.fetchAndShowNotification = function(target)
 {
-	target = target || 'online';
-	
-	mxUtils.get(NOTIFICATIONS_URL + '?target=' + target, mxUtils.bind(this, function(req)
+	if (this.fetchingNotif)
 	{
-		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		return;	
+	}
+	
+	target = target || 'online';
+	var cachedNotifKey = '.notifCache';
+	var cachedNotif = null;
+	
+	var processNotif = mxUtils.bind(this, function(notifs)
+	{
+		notifs = notifs.filter(function(notif)
 		{
-		    var notifs = JSON.parse(req.getText());
-			
-			//Process and sort
-			var lsReadFlag = target + 'NotifReadTS';
-			var lastRead = parseInt(localStorage.getItem(lsReadFlag));
-			
-			for (var i = 0; i < notifs.length; i++)
-			{
-				notifs[i].isNew = (!lastRead || notifs[i].timestamp > lastRead);
-			}
-			
-			notifs.sort(function(a, b)
-			{
-				return b.timestamp - a.timestamp;
-			});
-			
-			this.showNotification(notifs, lsReadFlag);
+			return !notif.targets || notif.targets.indexOf(target) > -1;
+		});
+		
+		var lsReadFlag = target + 'NotifReadTS';
+		var lastRead = parseInt(localStorage.getItem(lsReadFlag));
+				
+		for (var i = 0; i < notifs.length; i++)
+		{
+			notifs[i].isNew = (!lastRead || notifs[i].timestamp > lastRead);
 		}
-	}));
+		
+		this.showNotification(notifs, lsReadFlag);
+	});
+	
+	try
+	{
+		cachedNotif = JSON.parse(localStorage.getItem(cachedNotifKey));
+	}
+	catch(e) {} //Ignore
+	
+	if (cachedNotif == null || cachedNotif.ts + 24 * 60 * 60 * 1000 < Date.now()) //Cache for one day
+	{
+		this.fetchingNotif = true;
+		//Fetch all notifications and store them, then filter client-side
+		mxUtils.get(NOTIFICATIONS_URL, mxUtils.bind(this, function(req)
+		{
+			if (req.getStatus() >= 200 && req.getStatus() <= 299)
+			{
+			    var notifs = JSON.parse(req.getText());
+				
+				//Process and sort
+				notifs.sort(function(a, b)
+				{
+					return b.timestamp - a.timestamp;
+				});
+
+				localStorage.setItem(cachedNotifKey, JSON.stringify({ts: Date.now(), notifs: notifs}));
+				this.fetchingNotif = false;	
+				processNotif(notifs);
+			}
+		}));
+	}
+	else
+	{
+		processNotif(cachedNotif.notifs);
+	}
 };
 
 App.prototype.showNotification = function(notifs, lsReadFlag)

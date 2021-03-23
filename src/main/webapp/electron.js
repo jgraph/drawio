@@ -77,7 +77,8 @@ function createWindow (opt = {})
 			nodeIntegration: true,
 			enableRemoteModule: true,
 			nodeIntegrationInWorker: true,
-			spellcheck: (os.platform() == "darwin" ? true : false)
+			spellcheck: (os.platform() == "darwin" ? true : false),
+			contextIsolation: false
 		}
 	}, opt)
 
@@ -271,7 +272,8 @@ app.on('ready', e =>
     	var dummyWin = new BrowserWindow({
 			show : false,
 			webPreferences: {
-				nodeIntegration: true
+				nodeIntegration: true,
+				contextIsolation: false
 			}
 		});
     	
@@ -1212,7 +1214,8 @@ function exportDiagram(event, args, directFinalize)
 		browser = new BrowserWindow({
 			webPreferences: {
 				backgroundThrottling: false,
-				nodeIntegration: true
+				nodeIntegration: true,
+				contextIsolation: false
 			},
 			show : false,
 			frame: false,
