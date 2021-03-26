@@ -539,16 +539,6 @@ EditorUi.initMinimalTheme = function()
         menu.smartSeparators = true;
         menuCreatePopupMenu.apply(this, arguments);
 
-        var promptSpacing = mxUtils.bind(this, function(defaultValue, fn)
-        {
-            var dlg = new FilenameDialog(this.editorUi, defaultValue, mxResources.get('apply'), function(newValue)
-            {
-                fn(parseFloat(newValue));
-            }, mxResources.get('spacing'));
-            this.editorUi.showDialog(dlg.container, 300, 80, true, true);
-            dlg.init();
-        });
-        
         if (graph.getSelectionCount() == 1)
         {
             this.addMenuItems(menu, ['editTooltip', '-', 'editGeometry', 'edit', '-'], null, evt);
@@ -578,6 +568,23 @@ EditorUi.initMinimalTheme = function()
             this.addMenuItems(menu, ['-', 'lockUnlock'], null, evt);
         }
     };
+
+	// Adds copy as image after paste for empty selection
+	var menuAddPopupMenuEditItems = Menus.prototype.addPopupMenuEditItems;
+	
+	/**
+	 * Creates the keyboard event handler for the current graph and history.
+	 */
+	Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
+	{
+		menuAddPopupMenuEditItems.apply(this, arguments);
+		
+		if (this.editorUi.editor.graph.isSelectionEmpty())
+		{
+			this.addMenuItems(menu, ['copyAsImage'], null, evt);
+		}
+	};
+
     
     // Overridden to toggle window instead
     EditorUi.prototype.toggleFormatPanel = function(visible)
@@ -642,6 +649,13 @@ EditorUi.initMinimalTheme = function()
         	this.menus.findWindow.window.setVisible(false);
         	this.menus.findWindow.window.destroy();
         	this.menus.findWindow = null;
+        }
+
+        if (this.menus.findReplaceWindow != null)
+        {
+        	this.menus.findReplaceWindow.window.setVisible(false);
+        	this.menus.findReplaceWindow.window.destroy();
+        	this.menus.findReplaceWindow = null;
         }
 
 		editorUiDestroy.apply(this, arguments);
@@ -1505,6 +1519,11 @@ EditorUi.initMinimalTheme = function()
             if (ui.menus.findWindow != null)
             {
             	ui.menus.findWindow.window.fit();
+            }
+
+            if (ui.menus.findReplaceWindow != null)
+            {
+            	ui.menus.findReplaceWindow.window.fit();
             }
 		});
 	};	

@@ -250,9 +250,10 @@ Editor.hintOffset = 20;
 Editor.popupsAllowed = true;
 	
 /**
- * Specifies if the native clipboard is enabled.
+ * Specifies if the native clipboard is enabled. Blocked in iframes for possible sandbox attribute.
+ * LATER: Check if actually blocked.
  */
-Editor.enableNativeCipboard = !mxClient.IS_FF && navigator.clipboard != null;
+Editor.enableNativeCipboard = window == window.top && !mxClient.IS_FF && navigator.clipboard != null;
 
 /**
  * Editor inherits from mxEventSource

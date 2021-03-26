@@ -8963,7 +8963,8 @@
 				}
 				else
 				{
-					ui.menus.addMenuItems(menu, ['delete', '-', 'cut', 'copy', 'copyAsImage', '-', 'duplicate'], null, evt);
+					ui.menus.addMenuItems(menu, ['delete', '-', 'cut', 'copy',
+						'copyAsImage', '-', 'duplicate'], null, evt);
 				}
 			};
 		}
@@ -9961,8 +9962,8 @@
 	/**
 	 * Copies the given cells and XML to the clipboard as an embedded image.
 	 */
-	 EditorUi.prototype.copyImage = function(cells, xml, format, scale)
-	 {
+	EditorUi.prototype.copyImage = function(cells, xml, scale)
+	{
 		try
 		{
 			if (navigator.clipboard != null && this.spinner.spin(document.body, mxResources.get('exporting')))
@@ -9973,42 +9974,26 @@
 					{
 						this.spinner.stop();
 						
-						// KNOWN: SVG not supported, embedded XML in PNGs removed,
-						// multiple items and delayed content not yet supported
-						var uri = this.createImageDataUri(canvas, xml, 'png');
-						
-						if (format == 'png')
+						// KNOWN: SVG and delayed content currently not supported
+						var dataUrl = this.createImageDataUri(canvas, xml, 'png');
+						var w = parseInt(svgRoot.getAttribute('width'));
+						var h = parseInt(svgRoot.getAttribute('height'));
+						this.writeImageToClipboard(dataUrl, w, h, mxUtils.bind(this, function(e)
 						{
-							var blob = this.base64ToBlob(uri.substring(
-								uri.indexOf(',') + 1), 'image/png');
-							var cbi = new ClipboardItem({'image/png': blob});
-							navigator.clipboard.write([cbi])['catch'](mxUtils.bind(this, function(e)
-							{
-								this.handleError(e);
-							}));
-						}
-						else
-						{
-							var w = parseInt(svgRoot.getAttribute('width'));
-							var h = parseInt(svgRoot.getAttribute('height'));
-							var html = '<img src="' + uri + '" width="' + w + '" height="' + h + '">';
-							var cbi = new ClipboardItem({'text/html':
-								new Blob([html], {type: 'text/html'})});
-							navigator.clipboard.write([cbi])['catch'](mxUtils.bind(this, function(e)
-							{
-								this.handleError(e);
-							}));
-						}
+							this.handleError(e);
+						}));
 					}
 					catch (e)
 					{
 						this.handleError(e);
 					}
-				}), null, null, null, mxUtils.bind(this, function()
+				}), null, null, null, mxUtils.bind(this, function(e)
 				{
-					// ignore
-				}), null, null, (scale != null) ? scale : (format == 'png') ? 1 : 4,
-					format != 'png', null, null, null, 10, null, null, false, null,
+					this.spinner.stop();
+					this.handleError(e);
+				}), null, null, (scale != null) ? scale : 4,
+					this.editor.graph.background == mxConstants.NONE,
+					null, null, null, 10, null, null, false, null,
 					(cells.length > 0) ? cells : null);
 			}
 		}
@@ -10016,6 +10001,18 @@
 		{
 			this.handleError(e);
 		}
+	};
+	
+	/**
+	 * Copies the given cells and XML to the clipboard as an embedded image.
+	 */
+	EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, error)
+	{
+		var blob = this.base64ToBlob(dataUrl.substring(dataUrl.indexOf(',') + 1), 'image/png');
+		var html = '<img src="' + dataUrl + '" width="' + w + '" height="' + h + '">';
+		var cbi = new ClipboardItem({'image/png': blob,
+			'text/html': new Blob([html], {type: 'text/html'})});
+		navigator.clipboard.write([cbi])['catch'](error);
 	};
 
 	/**

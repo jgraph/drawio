@@ -647,13 +647,11 @@
 			}
 		}));
 
-		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function(arg, evt)
+		action = editorUi.actions.addAction('copyAsImage', mxUtils.bind(this, function()
 		{
-			var asHtml = mxEvent.isShiftDown(evt);
-			var graph = editorUi.editor.graph;
 			var cells = mxUtils.sortCells(graph.model.getTopmostCells(graph.getSelectionCells()));
 			var xml = mxUtils.getXml((cells.length == 0) ? editorUi.editor.getGraphXml() : graph.encodeCells(cells));
-			editorUi.copyImage(cells, xml, (asHtml) ? null : 'png', (asHtml) ? null : 2);
+			editorUi.copyImage(cells, xml);
 		}));
 
 		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas();
@@ -665,8 +663,6 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return graph.shadowVisible; });
 
-		var showingAbout = false;
-		
 		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function()
 		{
 			if (editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
@@ -769,9 +765,11 @@
 			
 			if (this[name] == null)
 			{
-				this[name] = new FindWindow(editorUi, document.body.offsetWidth - 320,
-					100, (graph.isEnabled()) ? 300 : 240, (graph.isEnabled()) ?
-						288 : 160, graph.isEnabled());
+				var w = (graph.isEnabled()) ? ((uiTheme == 'min') ? 330 : 300) : 240;
+				var h = (graph.isEnabled()) ? ((uiTheme == 'min') ? 304 : 288) : 160;
+				this[name] = new FindWindow(editorUi,
+					document.body.offsetWidth - (w + 20),
+					100, w, h, graph.isEnabled());
 				this[name].window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject(evtName));

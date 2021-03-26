@@ -361,7 +361,7 @@ LucidImporter = {};
 //Value Stream Mapping
 			'VSMKaizenBurstBlock' : s + 'lean_mapping.kaizen_lightening_burst',
 			'VSMOperatorBlock' : s + 'lean_mapping.operator;flipV=1',
-//			'VSMTimelineBlock' : cs, //TODO
+			'VSMTimelineBlock' : cs, //TODO Timeline shape
 			'VSMQualityProblemBlock' : s + 'lean_mapping.quality_problem',
 //Kanban
 			'VSMProductionKanbanSingleBlock' : 'shape=card;size=18;flipH=1;',
@@ -373,7 +373,7 @@ LucidImporter = {};
 //Arrows
 			'VSMShipmentArrow': 'shape=singleArrow;arrowWidth=0.5;arrowSize=0.13',
 			'VSMPushArrow' : s + 'lean_mapping.push_arrow',
-//			'VSMElectronicInformationArrow' : s + 'lean_mapping.electronic_info_flow_edge;', //TODO
+			'VSMElectronicInformationArrow' : cs,
 //EC2
 			'AWSElasticComputeCloudBlock2' : cs,
 //			'AWSElasticComputeCloudBlock2' : ss + 'aws3.ec2;verticalLabelPosition=bottom;align=center;verticalAlign=top',
@@ -5853,7 +5853,7 @@ LucidImporter = {};
 			while (ta['t' + count] != null)
 			{
 				var tmp = ta['t' + count];
-				e = insertLabel(tmp, e, obj);
+				e = insertLabel(tmp, e, obj, source, target);
 				count++;
 			}
 			
@@ -5865,7 +5865,7 @@ LucidImporter = {};
 				
 				if (tmp != null)
 				{
-					e = insertLabel(tmp, e, obj);
+					e = insertLabel(tmp, e, obj, source, target);
 				}
 				
 				count++;
@@ -5873,14 +5873,14 @@ LucidImporter = {};
 
 			if (ta.Text != null)
 			{
-				e = insertLabel(ta.Text, e, obj);
+				e = insertLabel(ta.Text, e, obj, source, target);
 			}
 
 			var ta = (p != null) ? p.TextAreas : obj.TextAreas;
 			
 			if (ta.Message != null)
 			{
-				e = insertLabel(ta.Message, e, obj);
+				e = insertLabel(ta.Message, e, obj, source, target);
 			}
 		}
 		
@@ -5892,7 +5892,7 @@ LucidImporter = {};
 		return e;
 	}
 
-	function insertLabel(textArea, e, obj)
+	function insertLabel(textArea, e, obj, src, trg)
 	{
 		var x = (parseFloat(textArea.Location) - 0.5) * 2;
 		
@@ -5916,8 +5916,23 @@ LucidImporter = {};
 					obj = obj.Action.Properties;
 				}
 				
-				var dx = Math.abs(obj.Endpoint1.x - obj.Endpoint2.x);
-				var dy = Math.abs(obj.Endpoint1.y - obj.Endpoint2.y);
+				var dx, dy;
+
+				//Sometimes x, y info in the Endpoint is incorrect when the edge is connected!
+				if (src != null && trg != null)
+				{
+					var srcGeo = src.geometry, trgGeo = trg.geometry;
+					dx = Math.abs((srcGeo.x + srcGeo.width * obj.Endpoint1.LinkX) - 
+									(trgGeo.x + trgGeo.width * obj.Endpoint2.LinkX));
+					dy = Math.abs((srcGeo.y + srcGeo.height * obj.Endpoint1.LinkY) - 
+									(trgGeo.y + trgGeo.height * obj.Endpoint2.LinkY));
+				}
+				else
+				{
+					dx = Math.abs(obj.Endpoint1.x - obj.Endpoint2.x);
+					dy = Math.abs(obj.Endpoint1.y - obj.Endpoint2.y);
+				}
+				
 				var strSize = mxUtils.getSizeForString(lblTxt);
 				
 				if (dx == 0 || dx < dy)
@@ -6065,7 +6080,7 @@ LucidImporter = {};
 					{
 						for (var i = 0; i < e.length; i++) 
                         {
-                        	updateMinMax(e[i], scaleIt);
+                        	updateMinMax(e[i].p? e[i].p : e[i], scaleIt);
                         }
 					}
 					else
@@ -9739,7 +9754,14 @@ LucidImporter = {};
 				item3.style += addAllStyles(item3.style, p, a, item3, isLastLblHTML);
 				
 				break;
-			case 'VSMTimelineBlock' :
+			case 'VSMElectronicInformationArrow' : 
+				v.style = 'group;';
+				v.value = convertText(p.Title);
+				v.style += getLabelStyle(p.Title, isLastLblHTML);
+				var edge = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=mxgraph.lean_mapping.electronic_info_flow_edge;html=1;entryX=0;entryY=1;exitX=1;exitY=0;');
+				edge.edge = true;
+				edge.geometry.relative = 1;
+				graph.addCell(edge, v, null, v, v);
 				break;
 			case 'AWSRoundedRectangleContainerBlock2' :
 				v.style += 'strokeColor=none;fillColor=none;';
@@ -11844,11 +11866,9 @@ LucidImporter = {};
 				break;
 
 			case 'UI2SearchBlock' :
-				v.style += 'shape=mxgraph.mockup.forms.searchBox;mainText=;flipH=1;align=left;spacingLeft=26;' + 
-					getFontSize(p.Search) +
-					getFontColor(p.Search) + 
-					getFontStyle(p.Search);
 				v.value = convertText(p.Search);
+				v.style += 'shape=mxgraph.mockup.forms.searchBox;mainText=;flipH=1;align=left;spacingLeft=26;' + 
+					getLabelStyle(p.Search, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
@@ -11862,11 +11882,9 @@ LucidImporter = {};
 					fc = 'fillColor=#000000;'
 				}
 				
-				v.style += 'shape=mxgraph.mockup.forms.spinner;spinLayout=right;spinStyle=normal;adjStyle=triangle;mainText=;align=left;spacingLeft=8;' + fc + 
-					getFontSize(p.Number) +
-					getFontColor(p.Number) + 
-					getFontStyle(p.Number);
 				v.value = convertText(p.Number);
+				v.style += 'shape=mxgraph.mockup.forms.spinner;spinLayout=right;spinStyle=normal;adjStyle=triangle;mainText=;align=left;spacingLeft=8;' + fc + 
+					getLabelStyle(p.Number, isLastLblHTML);
 				v.style += addAllStyles(v.style, p, a, v, isLastLblHTML);
 				
 				break;
@@ -12375,9 +12393,7 @@ LucidImporter = {};
 						v.insert(item[i]);
 						item[i].style += st +
 							getOpacity(p, a, item[i]) +
-							getFontSize(p['Text' + (i + 1)]) +
-							getFontColor(p['Text' + (i + 1)]) + 
-							getFontStyle(p['Text' + (i + 1)]);
+							getLabelStyle(p['Text' + (i + 1)], isLastLblHTML);
 						
 						item[i].value = convertText(p['Text' + (i + 1)]);
 					}
@@ -12430,9 +12446,7 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
-						getFontSize(p['Field' + (i + 1)]) +
-						getFontColor(p['Field' + (i + 1)]) + 
-						getFontStyle(p['Field' + (i + 1)]);
+						getLabelStyle(p['Field' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12460,7 +12474,7 @@ LucidImporter = {};
 				}
 				
 				v.value = convertText(p.Name);
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name, isLastLblHTML);
 
@@ -12493,9 +12507,7 @@ LucidImporter = {};
 					key[i].vertex = true;
 					v.insert(key[i]);
 					key[i].style += st +
-						getFontSize(p['Key' + (i + 1)]) +
-						getFontColor(p['Key' + (i + 1)]) + 
-						getFontStyle(p['Key' + (i + 1)]);
+						getLabelStyle(p['Key' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12513,9 +12525,7 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
-						getFontSize(p['Field' + (i + 1)]) +
-						getFontColor(p['Field' + (i + 1)]) + 
-						getFontStyle(p['Field' + (i + 1)]);
+						getLabelStyle(p['Field' + (i + 1)], isLastLblHTML);
 					v.style += addAllStyles(v.style, p, a, v);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
@@ -12545,7 +12555,7 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name);
 
@@ -12579,9 +12589,7 @@ LucidImporter = {};
 					key[i].vertex = true;
 					v.insert(key[i]);
 					key[i].style += st +
-						getFontSize(p['Field' + (i + 1)]) +
-						getFontColor(p['Field' + (i + 1)]) + 
-						getFontStyle(p['Field' + (i + 1)]);
+						getLabelStyle(p['Field' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12600,9 +12608,7 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
-						getFontSize(p['Type' + (i + 1)]) +
-						getFontColor(p['Type' + (i + 1)]) + 
-						getFontStyle(p['Type' + (i + 1)]);
+						getLabelStyle(p['Type' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12631,7 +12637,7 @@ LucidImporter = {};
 					st = 'swimlaneFillColor=#ffffff;'
 				}
 				
-				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fontStyle=0;' + st +
+				v.style += 'swimlane;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=0;marginBottom=0;fontStyle=0;' + st +
 					'startSize=' + th + ';' +
 					getLabelStyle(p.Name);
 
@@ -12672,9 +12678,7 @@ LucidImporter = {};
 					key[i].vertex = true;
 					v.insert(key[i]);
 					key[i].style += st +
-						getFontSize(p['Key' + (i + 1)]) +
-						getFontColor(p['Key' + (i + 1)]) + 
-						getFontStyle(p['Key' + (i + 1)]);
+						getLabelStyle(p['Key' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12693,9 +12697,7 @@ LucidImporter = {};
 					item[i].vertex = true;
 					v.insert(item[i]);
 					item[i].style += st +
-						getFontSize(p['Field' + (i + 1)]) +
-						getFontColor(p['Field' + (i + 1)]) + 
-						getFontStyle(p['Field' + (i + 1)]);
+						getLabelStyle(p['Field' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12714,9 +12716,7 @@ LucidImporter = {};
 					type[i].vertex = true;
 					v.insert(type[i]);
 					type[i].style += st +
-						getFontSize(p['Type' + (i + 1)]) +
-						getFontColor(p['Type' + (i + 1)]) + 
-						getFontStyle(p['Type' + (i + 1)]);
+						getLabelStyle(p['Type' + (i + 1)], isLastLblHTML);
 
 					if (p.AltRows == 1 && (i % 2 != 0))
 					{
@@ -12994,6 +12994,7 @@ LucidImporter = {};
 				
 				v.insert(side);
 				break;
+			case 'VSMTimelineBlock':
 			case 'TimelineBlock':
 			//TODO Timeline shapes are postponed, this code is a work-in-progress
 			/*	try

@@ -203,6 +203,19 @@ Actions.prototype.init = function()
 			}
 		};
 		
+		function fallback()
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				pasteCellsHere(mxClipboard.paste(graph));
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		};
+		
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
 			var done = false;
@@ -229,18 +242,7 @@ Actions.prototype.init = function()
 						{
 							graph.getModel().endUpdate();
 						}
-					}, function(xml)
-					{
-						graph.getModel().beginUpdate();
-						try
-						{
-							pasteCellsHere(mxClipboard.paste(graph));
-						}
-						finally
-						{
-							graph.getModel().endUpdate();
-						}
-					});
+					}, fallback);
 					
 					done = true;
 				}
@@ -252,15 +254,7 @@ Actions.prototype.init = function()
 			
 			if (!done)
 			{
-				graph.getModel().beginUpdate();
-				try
-				{
-					pasteCellsHere(mxClipboard.paste(graph));
-				}
-				finally
-				{
-					graph.getModel().endUpdate();
-				}
+				fallback();
 			}
 		}
 	});

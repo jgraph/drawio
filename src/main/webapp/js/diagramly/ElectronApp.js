@@ -525,40 +525,6 @@ mxStencilRegistry.allowEval = false;
 		// Adds shortcut keys for file operations
 		editorUi.keyHandler.bindAction(78, true, 'new'); // Ctrl+N
 		editorUi.keyHandler.bindAction(79, true, 'open'); // Ctrl+O
-		
-		var copyAsImage = this.actions.addAction('copyAsImage', mxUtils.bind(this, function()
-		{
-			const electron = require('electron');
-			var remote = electron.remote;
-			var clipboard = remote.clipboard;
-			var nativeImage = remote.nativeImage;
-			
-			if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
-			{
-				editorUi.exportToCanvas(function(canvas)
-				{
-			   		try
-			   		{
-		   				editorUi.spinner.stop();
-			   			var img = nativeImage.createFromDataURL(editorUi.createImageDataUri(canvas, null, 'png'));
-			   			clipboard.writeImage(img);
-			   		}
-			   		catch (e)
-			   		{
-			   			editorUi.handleError(e);
-			   		}
-				}, null, null, null, function(e)
-				{
-					editorUi.spinner.stop();
-					editorUi.handleError(e);
-			   	}, null, null, 1, true, null, null, null, 10);
-			}
-		}));
-		
-		copyAsImage.isEnabled = function()
-		{
-			return editorUi.isExportToCanvas() && !editorUi.editor.graph.isSelectionEmpty();
-		}
 
 		function createGraph()
 		{
@@ -1674,8 +1640,26 @@ mxStencilRegistry.allowEval = false;
 			}
 		}
 	};
-	
-	
+		
+	/**
+	 * Copies the given cells and XML to the clipboard as an embedded image.
+	 */
+	EditorUi.prototype.writeImageToClipboard = function(dataUrl, w, h, error)
+	{
+		try
+		{
+			const electron = require('electron');
+			
+			electron.remote.clipboard.write({image: electron.remote.
+				nativeImage.createFromDataURL(dataUrl), html: '<img src="' +
+				dataUrl + '" width="' + w + '" height="' + h + '">'});
+		}
+		catch (e)
+		{
+			error(e);
+		}
+	};
+
 	/**
 	 * Updates action states depending on the selection.
 	 */

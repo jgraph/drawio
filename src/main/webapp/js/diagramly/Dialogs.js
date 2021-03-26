@@ -3428,31 +3428,17 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		{
 			copyBtn = mxUtils.button(mxResources.get('copy'), function(evt)
 			{
-				if (mimeType == 'image/png' && !mxEvent.isShiftDown(evt))
+				var blob = editorUi.base64ToBlob(temp, 'image/png');
+				var html = '<img src="' + 'data:' + mimeType + ';base64,' + temp + '">';
+				var cbi = new ClipboardItem({'image/png': blob,
+					'text/html': new Blob([html], {type: 'text/html'})});
+				navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
 				{
-					var blob = editorUi.base64ToBlob(temp, 'image/png');
-					var cbi = new ClipboardItem({'image/png': blob});
-					navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
-					{
-						editorUi.alert(mxResources.get('copiedToClipboard'));
-					}))['catch'](mxUtils.bind(this, function(e)
-					{
-						editorUi.handleError(e);
-					}));
-				}
-				else
+					editorUi.alert(mxResources.get('copiedToClipboard'));
+				}))['catch'](mxUtils.bind(this, function(e)
 				{
-					var html = '<img src="' + 'data:' + mimeType + ';base64,' + temp + '">';
-					var cbi = new ClipboardItem({'text/html':
-						new Blob([html], {type: 'text/html'})});
-					navigator.clipboard.write([cbi]).then(mxUtils.bind(this, function()
-					{
-						editorUi.alert(mxResources.get('copiedToClipboard'));
-					}))['catch'](mxUtils.bind(this, function(e)
-					{
-						editorUi.handleError(e);
-					}));
-				}
+					editorUi.handleError(e);
+				}));
 			});
 			
 			copyBtn.style.marginTop = '6px';
@@ -6478,6 +6464,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	resetBtn.style.float = 'none';
 	resetBtn.style.width = '120px';
 	resetBtn.style.marginTop = '6px';
+	resetBtn.style.marginLeft = '8px';
 	resetBtn.style.overflow = 'hidden';
 	resetBtn.style.textOverflow = 'ellipsis';
 	resetBtn.className = 'geBtn';
@@ -6505,6 +6492,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 	btn.style.float = 'none';
 	btn.style.width = '120px';
 	btn.style.marginTop = '6px';
+	btn.style.marginLeft = '8px';
 	btn.style.overflow = 'hidden';
 	btn.style.textOverflow = 'ellipsis';
 	btn.className = 'geBtn gePrimaryBtn';
@@ -6601,6 +6589,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		replaceFindBtn.style.float = 'none';
 		replaceFindBtn.style.width = '120px';
 		replaceFindBtn.style.marginTop = '6px';
+		replaceFindBtn.style.marginLeft = '8px';
 		replaceFindBtn.style.overflow = 'hidden';
 		replaceFindBtn.style.textOverflow = 'ellipsis';
 		replaceFindBtn.className = 'geBtn gePrimaryBtn';
@@ -6632,6 +6621,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		replaceBtn.style.float = 'none';
 		replaceBtn.style.width = '120px';
 		replaceBtn.style.marginTop = '6px';
+		replaceBtn.style.marginLeft = '8px';
 		replaceBtn.style.overflow = 'hidden';
 		replaceBtn.style.textOverflow = 'ellipsis';
 		replaceBtn.className = 'geBtn gePrimaryBtn';
@@ -6697,6 +6687,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		replaceAllBtn.style.float = 'none';
 		replaceAllBtn.style.width = '120px';
 		replaceAllBtn.style.marginTop = '6px';
+		replaceAllBtn.style.marginLeft = '8px';
 		replaceAllBtn.style.overflow = 'hidden';
 		replaceAllBtn.style.textOverflow = 'ellipsis';
 		replaceAllBtn.className = 'geBtn gePrimaryBtn';
@@ -6715,6 +6706,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		closeBtn.style.float = 'none';
 		closeBtn.style.width = '120px';
 		closeBtn.style.marginTop = '6px';
+		closeBtn.style.marginLeft = '8px';
 		closeBtn.style.overflow = 'hidden';
 		closeBtn.style.textOverflow = 'ellipsis';
 		closeBtn.className = 'geBtn';

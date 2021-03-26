@@ -4734,7 +4734,7 @@ Graph.handleFactory[mxShapeBasicPolygon.prototype.cst.POLYGON] = function(state)
                     c[index] = [x, y];
                     state.style['polyCoords'] = JSON.stringify(c);
                    
-                }));
+                }, false));
             })(i);
         }
     }
