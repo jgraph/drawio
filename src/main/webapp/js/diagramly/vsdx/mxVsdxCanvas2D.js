@@ -205,10 +205,10 @@ mxVsdxCanvas2D.prototype.createRowRel = function(type, index, x, y, a, b, c , d,
 	row.appendChild(this.createCellElem("X", x, xF));
 	row.appendChild(this.createCellElem("Y", y, yF));
 	
-	if (a != null) row.appendChild(this.createCellElem("A", a, aF));
-	if (b != null) row.appendChild(this.createCellElem("B", b, bF));
-	if (c != null) row.appendChild(this.createCellElem("C", c, cF));
-	if (d != null) row.appendChild(this.createCellElem("D", d, dF));
+	if (a != null && isFinite(a)) row.appendChild(this.createCellElem("A", a, aF));
+	if (b != null && isFinite(b)) row.appendChild(this.createCellElem("B", b, bF));
+	if (c != null && isFinite(c)) row.appendChild(this.createCellElem("C", c, cF));
+	if (d != null && isFinite(d)) row.appendChild(this.createCellElem("D", d, dF));
 	
 	return row;
 };

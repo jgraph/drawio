@@ -124,7 +124,6 @@ Actions.prototype.init = function()
 	}, null, 'sprite-copy', Editor.ctrlKey + '+C');
 	this.addAction('paste', function()
 	{
-		// TODO: PasteHere/cut/delayed image creation/FF missing
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
 			var done = false;
@@ -133,20 +132,25 @@ Actions.prototype.init = function()
 			{
 				if (Editor.enableNativeCipboard)
 				{
-					navigator.clipboard.readText().then(function(xml)
+					ui.readGraphModelFromClipboard(function(xml)
 					{
-						var tmp = decodeURIComponent(xml);
-								
-						if (ui.isCompatibleString(tmp))
+						if (xml != null)
 						{
-							xml = tmp;
+							graph.getModel().beginUpdate();
+							try
+							{
+								ui.pasteXml(xml, true);
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
 						}
-						
-						ui.pasteXml(xml, true);
-					}, function()
-					{
-						mxClipboard.paste(graph);
-					});
+						else
+						{
+							mxClipboard.paste(graph);
+						}
+					})
 					
 					done = true;
 				}
@@ -224,25 +228,25 @@ Actions.prototype.init = function()
 			{
 				if (Editor.enableNativeCipboard)
 				{
-					navigator.clipboard.readText().then(function(xml)
+					ui.readGraphModelFromClipboard(function(xml)
 					{
-						var tmp = decodeURIComponent(xml);
-								
-						if (ui.isCompatibleString(tmp))
+						if (xml != null)
 						{
-							xml = tmp;
+							graph.getModel().beginUpdate();
+							try
+							{
+								pasteCellsHere(ui.pasteXml(xml, true));
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
 						}
-					
-						graph.getModel().beginUpdate();
-						try
+						else
 						{
-							pasteCellsHere(ui.pasteXml(xml, true));
+							fallback();
 						}
-						finally
-						{
-							graph.getModel().endUpdate();
-						}
-					}, fallback);
+					})
 					
 					done = true;
 				}
@@ -718,71 +722,68 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+Shift+Y');
 	this.addAction('formattedText', function()
 	{
-    	var refState = graph.getView().getState(graph.getSelectionCell());
-    	
-    	if (refState != null)
-    	{
-	    	graph.stopEditing();
-    		var value = (refState.style['html'] == '1') ? null : '1';
-			
-			graph.getModel().beginUpdate();
-			try
-			{
-				var cells = graph.getSelectionCells();
-				
-				for (var i = 0; i < cells.length; i++)
-				{
-					state = graph.getView().getState(cells[i]);
-					
-					if (state != null)
-					{
-						var html = mxUtils.getValue(state.style, 'html', '0');
-						
-						if (html == '1' && value == null)
-				    	{
-				    		var label = graph.convertValueToString(state.cell);
-				    		
-				    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
-							{
-								// Removes newlines from HTML and converts breaks to newlines
-								// to match the HTML output in plain text
-								label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
-							}
-				    		
-				    		// Removes HTML tags
-			    			var temp = document.createElement('div');
-			    			temp.innerHTML = graph.sanitizeHtml(label);
-			    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
-			    			
-							graph.cellLabelChanged(state.cell, label);
-							graph.setCellStyles('html', value, [cells[i]]);
-				    	}
-						else if (html == '0' && value == '1')
-				    	{
-				    		// Converts HTML tags to text
-				    		var label = mxUtils.htmlEntities(graph.convertValueToString(state.cell), false);
-				    		
-				    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
-							{
-								// Converts newlines in plain text to breaks in HTML
-								// to match the plain text output
-				    			label = label.replace(/\n/g, '<br/>');
-							}
-				    		
-				    		graph.cellLabelChanged(state.cell, graph.sanitizeHtml(label));
-				    		graph.setCellStyles('html', value, [cells[i]]);
-				    	}
-					}
-				}
+    	graph.stopEditing();
 
-				ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['html'],
-					'values', [(value != null) ? value : '0'], 'cells', cells));
-			}
-			finally
+		var style = graph.getCommonStyle(graph.getSelectionCells());
+		var value = (mxUtils.getValue(style, 'html', '0') == '1') ? null : '1';
+		
+		graph.getModel().beginUpdate();
+		try
+		{
+			var cells = graph.getSelectionCells();
+			
+			for (var i = 0; i < cells.length; i++)
 			{
-				graph.getModel().endUpdate();
+				state = graph.getView().getState(cells[i]);
+				
+				if (state != null)
+				{
+					var html = mxUtils.getValue(state.style, 'html', '0');
+					
+					if (html == '1' && value == null)
+			    	{
+			    		var label = graph.convertValueToString(state.cell);
+			    		
+			    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
+						{
+							// Removes newlines from HTML and converts breaks to newlines
+							// to match the HTML output in plain text
+							label = label.replace(/\n/g, '').replace(/<br\s*.?>/g, '\n');
+						}
+			    		
+			    		// Removes HTML tags
+		    			var temp = document.createElement('div');
+		    			temp.innerHTML = graph.sanitizeHtml(label);
+		    			label = mxUtils.extractTextWithWhitespace(temp.childNodes);
+		    			
+						graph.cellLabelChanged(state.cell, label);
+						graph.setCellStyles('html', value, [cells[i]]);
+			    	}
+					else if (html == '0' && value == '1')
+			    	{
+			    		// Converts HTML tags to text
+			    		var label = mxUtils.htmlEntities(graph.convertValueToString(state.cell), false);
+			    		
+			    		if (mxUtils.getValue(state.style, 'nl2Br', '1') != '0')
+						{
+							// Converts newlines in plain text to breaks in HTML
+							// to match the plain text output
+			    			label = label.replace(/\n/g, '<br/>');
+						}
+			    		
+			    		graph.cellLabelChanged(state.cell, graph.sanitizeHtml(label));
+			    		graph.setCellStyles('html', value, [cells[i]]);
+			    	}
+				}
 			}
-    	}
+
+			ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['html'],
+				'values', [(value != null) ? value : '0'], 'cells', cells));
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
 	});
 	this.addAction('wordWrap', function()
 	{

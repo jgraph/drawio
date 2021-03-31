@@ -4202,6 +4202,247 @@ EditorUi.prototype.extractGraphModelFromHtml = function(data)
 /**
  * Opens the given files in the editor.
  */
+EditorUi.prototype.readGraphModelFromClipboard = function(fn)
+{
+	this.readGraphModelFromClipboardWithType(mxUtils.bind(this, function(xml)
+	{
+		if (xml != null)
+		{
+			fn(xml);
+		}
+		else
+		{
+			this.readGraphModelFromClipboardWithType(mxUtils.bind(this, function(xml)
+			{
+				if (xml != null)
+				{
+					var tmp = decodeURIComponent(xml);
+							
+					if (this.isCompatibleString(tmp))
+					{
+						xml = tmp;
+					}
+				}
+				
+				fn(xml);
+			}), 'text');
+		}
+	}), 'html');
+};
+
+/**
+ * Opens the given files in the editor.
+ */
+EditorUi.prototype.readGraphModelFromClipboardWithType = function(fn, type)
+{
+	navigator.clipboard.read().then(mxUtils.bind(this, function(data)
+	{
+		if (data != null && data.length > 0 && type == 'html' &&
+			mxUtils.indexOf(data[0].types, 'text/html') >= 0)
+		{
+			data[0].getType('text/html').then(mxUtils.bind(this, function(blob)
+			{
+				blob.text().then(mxUtils.bind(this, function(value)
+				{
+					try
+					{
+						var elt = this.parseHtmlData(value);
+						var asHtml = elt.getAttribute('data-type') != 'text/plain';
+						
+						// KNOWN: Paste from IE11 to other browsers on Windows
+						// seems to paste the contents of index.html
+						var xml = (asHtml) ? elt.innerHTML :
+							mxUtils.trim((elt.innerText == null) ?
+							mxUtils.getTextContent(elt) : elt.innerText);
+		
+						// Workaround for junk after XML in VM
+						try
+						{
+							var idx = xml.lastIndexOf('%3E');
+							
+							if (idx >= 0 && idx < xml.length - 3)
+							{
+								xml = xml.substring(0, idx + 3);
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+						
+						// Checks for embedded XML content
+						try
+						{
+							var spans = elt.getElementsByTagName('span');
+							var tmp = (spans != null && spans.length > 0) ? 
+								mxUtils.trim(decodeURIComponent(spans[0].textContent)) :
+								decodeURIComponent(xml);
+									
+							if (this.isCompatibleString(tmp))
+							{
+								xml = tmp;
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+					
+					fn(this.isCompatibleString(xml) ? xml : null);
+				}))['catch'](function(data)
+				{
+					fn(null);
+				});
+			}))['catch'](function(data)
+			{
+				fn(null);
+			});
+		}
+		else if (data != null && data.length > 0 && type == 'text' &&
+				mxUtils.indexOf(data[0].types, 'text/plain') >= 0)
+		{
+			data[0].getType('text/plain').then(function(blob)
+			{
+				blob.text().then(function(value)
+				{
+					fn(value);
+				})['catch'](function()
+				{
+					fn(null);
+				});
+			})['catch'](function()
+			{
+				fn(null);
+			});
+		}
+		else
+		{
+			fn(null);
+		}
+	}))['catch'](function(data)
+	{
+		fn(null);
+	});
+};
+
+/**
+ * Parses the given HTML data and returns a DIV.
+ */
+EditorUi.prototype.parseHtmlData = function(data)
+{
+	var elt = null;
+	
+	if (data != null && data.length > 0)
+	{
+		var hasMeta = data.substring(0, 6) == '<meta ';
+		elt = document.createElement('div');
+		elt.innerHTML = ((hasMeta) ? '<meta charset="utf-8">' : '') +
+			this.editor.graph.sanitizeHtml(data);
+		asHtml = true;
+		
+		// Workaround for innerText not ignoring style elements in Chrome
+		var styles = elt.getElementsByTagName('style');
+		
+		if (styles != null)
+		{
+			while (styles.length > 0)
+			{
+				styles[0].parentNode.removeChild(styles[0]);
+			}
+		}
+		
+		// Special case of link pasting from Chrome
+		if (elt.firstChild != null && elt.firstChild.nodeType == mxConstants.NODETYPE_ELEMENT &&
+			elt.firstChild.nextSibling != null && elt.firstChild.nextSibling.nodeType == mxConstants.NODETYPE_ELEMENT &&
+			elt.firstChild.nodeName == 'META' && elt.firstChild.nextSibling.nodeName == 'A' &&
+			elt.firstChild.nextSibling.nextSibling == null)
+		{
+			var temp = (elt.firstChild.nextSibling.innerText == null) ?
+				mxUtils.getTextContent(elt.firstChild.nextSibling) :
+				elt.firstChild.nextSibling.innerText;
+		
+			if (temp == elt.firstChild.nextSibling.getAttribute('href'))
+			{
+				mxUtils.setTextContent(elt, temp);
+				asHtml = false;
+			}
+		}
+
+		// Extracts single image source address with meta tag in markup
+		var img = (hasMeta && elt.firstChild != null) ? elt.firstChild.nextSibling : elt.firstChild;
+
+		if (img != null && img.nextSibling == null &&
+			img.nodeType == mxConstants.NODETYPE_ELEMENT &&
+			img.nodeName == 'IMG')
+		{
+			var temp = img.getAttribute('src');
+			
+			if (temp != null)
+			{
+				if (temp.substring(0, 22) == 'data:image/png;base64,')
+				{
+					var xml = this.extractGraphModelFromPng(temp);
+					
+					if (xml != null && xml.length > 0)
+					{
+						temp = xml;
+					}
+				}
+
+				mxUtils.setTextContent(elt, temp);
+				asHtml = false;
+			}
+		}
+		else
+		{
+			// Extracts embedded XML or image source address from single PNG image
+			var images = elt.getElementsByTagName('img');
+
+			if (images.length == 1)
+			{
+				var img = images[0];
+				var temp = img.getAttribute('src');
+				
+				if (temp != null && img.parentNode == elt && elt.children.length == 1)
+				{
+					if (temp.substring(0, 22) == 'data:image/png;base64,')
+					{
+						var xml = this.extractGraphModelFromPng(temp);
+						
+						if (xml != null && xml.length > 0)
+						{
+							temp = xml;
+						}
+					}
+					
+					mxUtils.setTextContent(elt, temp);
+					asHtml = false;
+				}
+			}
+		}
+		
+		if (asHtml)
+		{
+			Graph.removePasteFormatting(elt);
+		}
+	}
+	
+	if (!asHtml)
+	{
+		elt.setAttribute('data-type', 'text/plain');
+	}
+
+	return elt;
+};
+
+/**
+ * Opens the given files in the editor.
+ */
 EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 {
 	var result = null;

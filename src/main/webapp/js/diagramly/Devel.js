@@ -263,6 +263,9 @@ mxscript(drawDevUrl + 'js/jszip/jszip.min.js');
 // GraphMl Import
 mxscript(drawDevUrl + 'js/diagramly/graphml/mxGraphMlCodec.js');
 
+// P2P Collab
+mxscript(drawDevUrl + 'js/diagramly/P2PCollab.js');
+
 // Org Chart Layout
 if (urlParams['orgChartDev'] == '1')
 {

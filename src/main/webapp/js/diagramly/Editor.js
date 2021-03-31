@@ -350,9 +350,11 @@
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
         {name: 'cloneable', dispName: 'Cloneable', type: 'bool', defVal: true},
         {name: 'deletable', dispName: 'Deletable', type: 'bool', defVal: true},
-        {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
         {name: 'noJump', dispName: 'No Jumps', type: 'bool', defVal: false},
-        {name: 'flowAnimation', dispName: 'Flow Animation', type: 'bool', defVal: false}
+        {name: 'flowAnimation', dispName: 'Flow Animation', type: 'bool', defVal: false},
+		{name: 'ignoreEdge', dispName: 'Ignore Edge', type: 'bool', defVal: false},
+        {name: 'orthogonalLoop', dispName: 'Loop Routing', type: 'bool', defVal: false},
+		{name: 'orthogonal', dispName: 'Orthogonal', type: 'bool', defVal: false}
 	].concat(Editor.commonProperties);
 
 	/**

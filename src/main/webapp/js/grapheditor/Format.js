@@ -110,7 +110,7 @@ Format.prototype.createSelectionState = function()
 	
 	for (var i = 0; i < cells.length; i++)
 	{
-		this.updateSelectionStateForCell(result, cells[i], cells);
+		this.updateSelectionStateForCell(result, cells[i], cells, i == 0);
 	}
 	
 	return result;
@@ -130,7 +130,7 @@ Format.prototype.initSelectionState = function()
 /**
  * Returns information about the current selection.
  */
-Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
+Format.prototype.updateSelectionStateForCell = function(result, cell, cells, initial)
 {
 	var graph = this.editorUi.editor.graph;
 	
@@ -228,23 +228,7 @@ Format.prototype.updateSelectionStateForCell = function(result, cell, cells)
 		
 		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
 		result.containsImage = result.containsImage || shape == 'image';
-		
-		for (var key in state.style)
-		{
-			var value = state.style[key];
-			
-			if (value != null)
-			{
-				if (result.style[key] == null)
-				{
-					result.style[key] = value;
-				}
-				else if (result.style[key] != value)
-				{
-					result.style[key] = '';
-				}
-			}
-		}
+		graph.mergeStyle(state.style, result.style, initial);
 	}
 };
 
@@ -1023,25 +1007,18 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
  * The string 'null' means use null in values.
  */
 BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, enabledValue, disabledValue, fn, action, stopEditing, cells)
-{
-	enabledValue = (enabledValue != null) ? ((enabledValue == 'null') ? null : enabledValue) : '1';
-	disabledValue = (disabledValue != null) ? ((disabledValue == 'null') ? null : disabledValue) : '0';
-	
+{	
 	var ui = this.editorUi;
 	var editor = ui.editor;
 	var graph = editor.graph;
 	
+	enabledValue = (enabledValue != null) ? ((enabledValue == 'null') ? null : enabledValue) : 1;
+	disabledValue = (disabledValue != null) ? ((disabledValue == 'null') ? null : disabledValue) : 0;
+	style = (cells != null) ? graph.getCommonStyle(cells) : this.format.selectionState.style;
+
 	return this.createOption(label, function()
 	{
-		var state = graph.view.getState((cells != null && cells.length > 0) ?
-			cells[0] : graph.getSelectionCell());
-		
-		if (state != null)
-		{
-			return mxUtils.getValue(state.style, key, defaultValue) != disabledValue;
-		}
-		
-		return null;
+		return mxUtils.getValue(style, key, defaultValue) != disabledValue;
 	}, function(checked)
 	{
 		if (stopEditing)
@@ -1081,14 +1058,7 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 		{
 			this.listener = function()
 			{
-				// Seems to be null sometimes, not sure why...
-				var state = graph.view.getState((cells != null && cells.length > 0) ?
-					cells[0] : graph.getSelectionCell());
-				
-				if (state != null)
-				{
-					apply(mxUtils.getValue(state.style, key, defaultValue) != disabledValue);
-				}
+				apply(mxUtils.getValue(style, key, defaultValue) != disabledValue);
 			};
 			
 			graph.getModel().addListener(mxEvent.CHANGE, this.listener);
@@ -3408,7 +3378,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	}
 	
 	// Delegates switch of style to formattedText action as it also convertes newlines
-	var htmlOpt = this.createCellOption(mxResources.get('formattedText'), 'html', '0',
+	var htmlOpt = this.createCellOption(mxResources.get('formattedText'), 'html', 0,
 		null, null, null, ui.actions.get('formattedText'));
 	htmlOpt.style.fontWeight = 'bold';
 	extraPanel.appendChild(htmlOpt);

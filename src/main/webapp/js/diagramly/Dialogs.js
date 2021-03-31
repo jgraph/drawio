@@ -6350,8 +6350,10 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 						lblPosShift = lblMatchPos;
 					}
 					
-					if ((re == null && (label.substring(0, searchStr.length) === searchStr || (!withReplace && testMeta(re, state.cell, searchStr)))) ||
-						(re != null && (re.test(label) || (!withReplace && testMeta(re, state.cell, searchStr)))))
+					var checkMeta = replaceInput.value == '';
+					
+					if ((re == null && (label.substring(0, searchStr.length) === searchStr || (checkMeta && testMeta(re, state.cell, searchStr)))) ||
+						(re != null && (re.test(label) || (checkMeta && testMeta(re, state.cell, searchStr)))))
 					{
 						if (withReplace)
 						{

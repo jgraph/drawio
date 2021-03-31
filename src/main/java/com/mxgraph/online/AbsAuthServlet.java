@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.memcache.MemcacheServiceException;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -118,7 +119,35 @@ abstract public class AbsAuthServlet extends HttpServlet
 	@SuppressWarnings("unchecked")
 	protected static void putCacheValue(String key, String val)
 	{
-		tokenCache.put(key, val);
+		int trials = 0;
+		boolean done = false;
+		
+		do
+		{
+			//Exponential? back-off
+			if (trials > 0)
+			{
+				try 
+				{
+					Thread.sleep(200 * trials);
+				}
+				catch (InterruptedException e) { }
+			}
+			
+			trials++;
+			
+			try
+			{
+				tokenCache.put(key, val);
+				done = true;
+			}
+			catch(MemcacheServiceException e)
+			{
+				//delay in re-trial is above
+				done = false;
+			}
+		}
+		while(!done && trials < 3);
 	}
 	
 	protected String getCookieValue(String name, HttpServletRequest request)

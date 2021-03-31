@@ -63,18 +63,21 @@
 
 			this.traverse(cell, true, mxUtils.bind(this, function(vertex, edge)
 			{
-				if (edge != null)
+				var treeEdge = edge != null && this.isTreeEdge(edge);
+				
+				if (treeEdge)
 				{
 					tmp.push(edge);
 				}
 				
-				if (vertex != cell)
+				if (vertex != cell && (edge == null || treeEdge))
 				{
 					tmp.push(vertex);
 				}
 				
 				// Stops traversal on collapsed vertices
-				return vertex == cell || !this.model.isCollapsed(vertex);
+				return (edge == null || treeEdge) &&
+					(vertex == cell || !this.model.isCollapsed(vertex));
 			}));
 					
 			this.model.setCollapsed(cell, collapse);
@@ -90,6 +93,41 @@
 		}
 	};
 	
+	/**
+	 * Implements folding a tree cell.
+	 */
+	Graph.prototype.isTreeEdge = function(cell)
+	{
+		return !this.isEdgeIgnored(cell);
+	};
+	
+	/**
+	 * Returns all tree edges for the given cell.
+	 */
+	Graph.prototype.getTreeEdges = function(cell, parent, incoming, outgoing, includeLoops, recurse)
+	{
+		return this.model.filterCells(this.getEdges(cell, parent, incoming, outgoing, includeLoops, recurse), mxUtils.bind(this, function(cell)
+		{
+			return this.isTreeEdge(cell);
+		}));
+	};
+		
+	/**
+	 * Returns all incoming tree edges for the given cell.
+	 */
+	Graph.prototype.getIncomingTreeEdges = function(cell, parent)
+	{
+		return this.getTreeEdges(cell, parent, true, false, false);
+	};
+		
+	/**
+	 * Returns all outgoing tree edges for the given cell.
+	 */
+	Graph.prototype.getOutgoingTreeEdges = function(cell, parent)
+	{
+		return this.getTreeEdges(cell, parent, false, true, false);
+	};
+
 	/**
 	 * Overrides functionality in editor.
 	 */
@@ -174,7 +212,7 @@
 			if (graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var sib = graph.getOutgoingEdges(cell);
+				var sib = graph.getOutgoingTreeEdges(cell);
 				menu.addSeparator();
 				
 				if (sib.length > 0)
@@ -191,7 +229,7 @@
 				{
 					menu.addSeparator();
 					
-					if (graph.getIncomingEdges(cell).length > 0)
+					if (graph.getIncomingTreeEdges(cell).length > 0)
 					{
 						this.addMenuItems(menu, ['selectSiblings', 'selectParent'], null, evt);
 					}
@@ -205,7 +243,7 @@
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var sib = graph.getOutgoingEdges(cell);
+				var sib = graph.getOutgoingTreeEdges(cell);
 				
 				if (sib != null)
 				{
@@ -227,11 +265,11 @@
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 	
 				if (edges != null && edges.length > 0)
 				{
-					var sib = graph.getOutgoingEdges(graph.model.getTerminal(edges[0], true));
+					var sib = graph.getOutgoingTreeEdges(graph.model.getTerminal(edges[0], true));
 					
 					if (sib != null)
 					{
@@ -254,7 +292,7 @@
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{
 				var cell = graph.getSelectionCell();
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 	
 				if (edges != null && edges.length > 0)
 				{
@@ -271,7 +309,7 @@
 			{
 				if (evt != null && mxEvent.isAltDown(evt))
 				{
-					graph.setSelectionCells(graph.model.getEdges(cell,
+					graph.setSelectionCells(graph.model.getTreeEdges(cell,
 						evt == null || !mxEvent.isShiftDown(evt),
 						evt == null || !mxEvent.isControlDown(evt)));
 				}
@@ -281,17 +319,20 @@
 					
 					graph.traverse(cell, true, function(vertex, edge)
 					{
-						if (edge != null)
+						var treeEdge = edge != null && graph.isTreeEdge(edge);
+				
+						if (treeEdge)
 						{
 							subtree.push(edge);
 						}
 						
-						if (evt == null || !mxEvent.isShiftDown(evt))
+						if ((edge == null || treeEdge) &&
+							(evt == null || !mxEvent.isShiftDown(evt)))
 						{
 							subtree.push(vertex);
 						}
 						
-						return true;
+						return edge == null || treeEdge;
 					});
 				}
 				
@@ -339,20 +380,25 @@
 					
 					graph.traverse(target, true, function(vertex, edge)
 					{
-						if (edge != null)
+						var treeEdge = edge != null && graph.isTreeEdge(edge);
+						
+						if (treeEdge)
 						{
 							subtree.push(edge);
 						}
 						
-						subtree.push(vertex);
+						if (edge == null || treeEdge)
+						{
+							subtree.push(vertex);
+						}
 
-						return true;
+						return edge == null || treeEdge;
 					});
 					
 					if (subtree.length > 0)
 					{
 						tmp = tmp.concat(subtree);
-						var edges = graph.getIncomingEdges(cells[i]);
+						var edges = graph.getIncomingTreeEdges(cells[i]);
 						cells = cells.concat(edges);
 					}
 				}
@@ -387,7 +433,7 @@
 				if (state != null && isTreeVertex(state.cell))
 				{
 					// Avoids disconnecting subtree by removing all incoming edges
-					var edges = graph.getIncomingEdges(state.cell);
+					var edges = graph.getIncomingTreeEdges(state.cell);
 					
 					for (var j = 0; j < edges.length; j++)
 					{
@@ -407,8 +453,8 @@
 					{
 						if (isTreeVertex(cells[i]))
 						{
-							var newEdges = graph.getIncomingEdges(result[i]);
-							var edges = graph.getIncomingEdges(cells[i]);
+							var newEdges = graph.getIncomingTreeEdges(result[i]);
+							var edges = graph.getIncomingTreeEdges(cells[i]);
 							
 							if (newEdges.length == 0 && edges.length > 0)
 							{
@@ -456,7 +502,7 @@
 					// Applies distance between previous and current parent for non-sidebar drags
 					if (newSource != null && target != newSource && this.view.getState(cells[0]) != null)
 					{
-						var edges = graph.getIncomingEdges(cells[0]);
+						var edges = graph.getIncomingTreeEdges(cells[0]);
 						
 						if (edges.length > 0)
 						{
@@ -494,7 +540,7 @@
 						}
 						else if (isTreeVertex(cells[i]))
 						{
-							var edges = graph.getIncomingEdges(cells[i]);
+							var edges = graph.getIncomingTreeEdges(cells[i]);
 	
 							if (edges.length > 0)
 							{
@@ -508,7 +554,7 @@
 								}
 								else
 								{
-									var newEdges = graph.getIncomingEdges(result[i]);
+									var newEdges = graph.getIncomingTreeEdges(result[i]);
 									
 									if (newEdges.length == 0)
 									{
@@ -588,7 +634,7 @@
 			
 			if (state != null)
 			{
-				var edges = graph.getIncomingEdges(state.cell);
+				var edges = graph.getIncomingTreeEdges(state.cell);
 				
 				if (edges.length > 0)
 				{
@@ -633,7 +679,7 @@
 			try
 			{
 				var parent = graph.model.getParent(cell);
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 				var clones = graph.cloneCells([edges[0], cell]);
 				graph.model.setTerminal(clones[0], graph.model.getTerminal(edges[0], true), true);
 				var dir = getTreeDirection(cell);
@@ -676,7 +722,7 @@
 							-clones[1].geometry.height - spacing) * s;
 					}
 					
-					var sib = graph.getOutgoingEdges(graph.model.getTerminal(edges[0], true));
+					var sib = graph.getOutgoingTreeEdges(graph.model.getTerminal(edges[0], true));
 					
 					if (sib != null)
 					{
@@ -735,14 +781,19 @@
 										
 										graph.traverse(sibling.cell, true, function(vertex, edge)
 										{
-											if (edge != null)
+											var treeEdge = edge != null && graph.isTreeEdge(edge);
+											
+											if (treeEdge)
 											{
 												subtree.push(edge);
 											}
 		
-											subtree.push(vertex);
+											if (edge == null || treeEdge)
+											{
+												subtree.push(vertex);
+											}
 											
-											return true;
+											return edge == null || treeEdge;
 										});
 										
 										graph.moveCells(subtree, ((after) ? 1 : -1) * dx, ((after) ? 1 : -1) * dy);
@@ -767,7 +818,7 @@
 			try
 			{
 				var dir = getTreeDirection(cell);
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 				var clones = graph.cloneCells([edges[0], cell]);
 				graph.model.setTerminal(edges[0], clones[1], false);
 				graph.model.setTerminal(clones[0], clones[1], true);
@@ -786,14 +837,19 @@
 				
 				graph.traverse(cell, true, function(vertex, edge)
 				{
-					if (edge != null)
+					var treeEdge = edge != null && graph.isTreeEdge(edge);
+				
+					if (treeEdge)
 					{
 						subtree.push(edge);
 					}
 	
-					subtree.push(vertex);
+					if (edge == null || treeEdge)
+					{
+						subtree.push(vertex);
+					}
 					
-					return true;
+					return edge == null || treeEdge;
 				});
 				
 				var dx = cell.geometry.width + level;
@@ -834,7 +890,7 @@
 			try
 			{
 				var parent = graph.model.getParent(cell);
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 				var dir = getTreeDirection(cell);
 				
 				// Handles special case for click on tree root
@@ -882,7 +938,7 @@
 				}
 				
 				// Finds free space
-				var edges = graph.getOutgoingEdges(cell);
+				var edges = graph.getOutgoingTreeEdges(cell);
 				var pgeo = parent.geometry;
 				var targets = [];
 				
@@ -945,7 +1001,7 @@
 		
 		function getOrderedTargets(cell, horizontal, ref)
 		{
-			var sib = graph.getOutgoingEdges(cell);
+			var sib = graph.getOutgoingTreeEdges(cell);
 			var state = graph.view.getState(ref);
 			var targets = [];
 			
@@ -985,7 +1041,7 @@
 			}
 			else if (dir == direction)
 			{
-				var sib = graph.getOutgoingEdges(cell);
+				var sib = graph.getOutgoingTreeEdges(cell);
 				
 				if (sib != null && sib.length > 0)
 				{
@@ -994,7 +1050,7 @@
 			}
 			else
 			{
-				var edges = graph.getIncomingEdges(cell);
+				var edges = graph.getIncomingTreeEdges(cell);
 	
 				if (edges != null && edges.length > 0)
 				{
@@ -1037,7 +1093,7 @@
 				{
 					var cells = null;
 	
-					if (graph.getIncomingEdges(graph.getSelectionCell()).length > 0)
+					if (graph.getIncomingTreeEdges(graph.getSelectionCell()).length > 0)
 					{
 						if (evt.which == 9) // Tab adds child
 						{
@@ -1123,7 +1179,7 @@
 		
 		graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, targetCell)
 		{
-			var edges = graph.getIncomingEdges(source);
+			var edges = graph.getIncomingTreeEdges(source);
 			
 			if (isTreeVertex(source))
 			{
@@ -1161,18 +1217,21 @@
 				// Gets the subtree from cell downwards
 				graph.traverse(initialCell, true, function(vertex, edge)
 				{
+					var treeEdge = edge != null && graph.isTreeEdge(edge);
+					
 					// LATER: Use dictionary to avoid duplicates
-					if (edge != null && mxUtils.indexOf(cells, edge) < 0)
+					if (treeEdge && mxUtils.indexOf(cells, edge) < 0)
 					{
 						cells.push(edge);
 					}
 	
-					if (mxUtils.indexOf(cells, vertex) < 0)
+					if ((edge == null || treeEdge) &&
+						mxUtils.indexOf(cells, vertex) < 0)
 					{
 						cells.push(vertex);
 					}
 					
-					return true;
+					return edge == null || treeEdge;
 				});
 			}
 	
@@ -1186,7 +1245,7 @@
 			vertexHandlerInit.apply(this, arguments);
 			
 			if (((isTreeMoving(this.state.cell) || isTreeVertex(this.state.cell)) &&
-				!hasLayoutParent(this.state.cell)) && this.graph.getOutgoingEdges(
+				!hasLayoutParent(this.state.cell)) && this.graph.getOutgoingTreeEdges(
 				this.state.cell).length > 0)
 			{
 				this.moveHandle = mxUtils.createImage(Editor.moveImage);

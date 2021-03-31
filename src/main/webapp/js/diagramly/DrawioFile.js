@@ -1947,6 +1947,9 @@ DrawioFile.prototype.fileChanged = function()
 			this.ageStart = new Date();
 		}
 		
+		//Send changes immidiately if P2P is enabled
+		this.sendFileChanges();
+		
 		this.autosave(this.autosaveDelay, this.maxAutosaveDelay, mxUtils.bind(this, function(resp)
 		{
 			this.ui.stopSanityCheck();
@@ -2024,6 +2027,30 @@ DrawioFile.prototype.fileSaving = function()
 	if (urlParams['test'] == '1')
 	{
 		EditorUi.debug('DrawioFile.fileSaving', [this]);
+	}
+};
+
+DrawioFile.prototype.sendFileChanges = function()
+{
+	try
+	{
+		if (this.p2pCollab != null && this.sync != null)
+		{
+			//TODO Should we check for modified?
+			this.updateFileData(); //TODO Calling this function ealy could have side effects + overhead of calling it twice (here and in save)
+			this.sync.sendFileChanges(this.ui.getPagesForNode(
+				mxUtils.parseXml(this.getData()).documentElement),
+				this.desc);
+				
+			if (urlParams['test'] == '1')
+			{
+				EditorUi.debug('DrawioFile.sendFileChanges', [this]);
+			}
+		}
+	}
+	catch (e)
+	{
+		console.log(e);
 	}
 };
 

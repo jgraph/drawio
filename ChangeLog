@@ -1,4 +1,13 @@
-26-MAR_2021: 14.5.2
+31-MAR-2021: 14.5.4
+
+- Fixes for vsdx export
+- Adds re-tries on cache write failures
+
+26-MAR-2021: 14.5.3
+
+- Internal release
+
+26-MAR-2021: 14.5.2
 
 - Disables copy as image in iframes
 - Fixes find/replace dialog in minimal theme https://github.com/jgraph/drawio/issues/1896

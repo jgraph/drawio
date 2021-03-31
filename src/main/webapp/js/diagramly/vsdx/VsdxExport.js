@@ -412,8 +412,8 @@ function VsdxExport(editorUi)
 		
 		var hw = bounds.width/2, hh = bounds.height/2;
 		
-		shape.appendChild(createCellElemScaled("PinX", bounds.x + hw, xmlDoc));
-		shape.appendChild(createCellElemScaled("PinY", parentHeight - bounds.y - hh, xmlDoc));
+		shape.appendChild(createCellElemScaled("PinX", bounds.x + hw + (isChild? 0 : vsdxCanvas.shiftX), xmlDoc));
+		shape.appendChild(createCellElemScaled("PinY", parentHeight - bounds.y - hh - (isChild? 0 : vsdxCanvas.shiftY), xmlDoc));
 		shape.appendChild(createCellElemScaled("Width", bounds.width, xmlDoc));
 		shape.appendChild(createCellElemScaled("Height", bounds.height, xmlDoc));
 		shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
@@ -421,11 +421,11 @@ function VsdxExport(editorUi)
 
 		vsdxCanvas.newEdge(shape, state, xmlDoc);
 		
-		var calcVsdxPoint = function(p, noHeight) 
+		var calcVsdxPoint = function(p, noHeight, withoutShift) 
 		{
 			var x = p.x, y = p.y;
-			x = (x * s.scale - bounds.x + s.dx + (isChild? 0 : vsdxCanvas.shiftX)) ;
-			y = ((noHeight? 0 : bounds.height) - y * s.scale + bounds.y - s.dy - (isChild? 0 : vsdxCanvas.shiftY)) ;
+			x = x * s.scale - bounds.x + s.dx + (withoutShift || isChild? 0 : vsdxCanvas.shiftX);
+			y = (noHeight? 0 : bounds.height) - y * s.scale + bounds.y - s.dy - (withoutShift || isChild? 0 : vsdxCanvas.shiftY);
 			return {x: x, y: y};
 		};
 
@@ -481,7 +481,7 @@ function VsdxExport(editorUi)
 
 		for (var i = 0; i < points.length; i++)
 		{
-			var p = calcVsdxPoint(points[i]);
+			var p = calcVsdxPoint(points[i], false, true);
 			geoSec.appendChild(createRow(i==0 ? "MoveTo" : "LineTo", (i + 1), p.x, p.y, xmlDoc));
 		}
 		
@@ -494,16 +494,25 @@ function VsdxExport(editorUi)
 	
 	function convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, parentHeight, parentGeo, isChild)
 	{
-		var geo = cell.geometry;
+		var geo = cell.geometry, origGeo = geo;
 		
 		if (geo != null)
 		{
+		  try
+		  {
 			//fix relative geo coordinates
 			if (geo.relative && parentGeo)
 			{
-				geo = geo.clone();
+				origGeo = geo.clone();
 				geo.x *= parentGeo.width;
 				geo.y *= parentGeo.height;
+				
+				if (cell.vertex && geo.offset != null)
+				{
+					geo.x += geo.offset.x;
+					geo.y += geo.offset.y;
+				}
+				
 				geo.relative = 0;
 			}
 			
@@ -530,7 +539,7 @@ function VsdxExport(editorUi)
 				cell.setGeometry(newGeo);
 				cell.treatAsSingle = true;
 				var subShape = convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, geo.height, geo, true);
-				cell.treatAsSingle = false;
+				delete cell.treatAsSingle;
 				cell.setGeometry(geo);
 				
 				if (subShape != null)
@@ -594,6 +603,11 @@ function VsdxExport(editorUi)
 			{
 				return createEdge(cell, layerIndex, graph, xmlDoc, parentHeight, isChild);
 			}
+		  }
+		  finally
+		  {
+			cell.geometry = origGeo;	
+		  }
 		}
 		else
 		{
@@ -820,7 +834,7 @@ function VsdxExport(editorUi)
 	 * Convert current Editor UI pages into a vdsx file
 	 * @return true if successful, false otherwise 
 	 */
-	this.exportCurrentDiagrams = function ()
+	this.exportCurrentDiagrams = function (currentPageOnly)
 	{
 		try 
 		{
@@ -860,18 +874,8 @@ function VsdxExport(editorUi)
 				
 				if (editorUi.pages != null) 
 				{
-					var selectedCells = editorUi.editor.graph.getSelectionCells();
-					var currentPage = editorUi.currentPage;
-	
-					for (var i=0; i < editorUi.pages.length; i++)
+					function exportPage(page)
 					{
-						var page = editorUi.pages[i];
-						
-						if (editorUi.currentPage != page)
-						{
-							editorUi.selectPage(page, true);
-						}
-						
 						var diagramName = page.getName();
 						var graph = editorUi.editor.graph;
 						
@@ -901,14 +905,36 @@ function VsdxExport(editorUi)
 								graph.refresh();
 							}
 						}
-					}
+					};
 					
-					if (currentPage != editorUi.currentPage)
+					var selectedCells = editorUi.editor.graph.getSelectionCells();
+					var currentPage = editorUi.currentPage;
+					
+					if (currentPageOnly)
 					{
-						editorUi.selectPage(currentPage, true);
+						exportPage(currentPage);
 					}
-					
-					editorUi.editor.graph.setSelectionCells(selectedCells);
+					else
+					{
+						for (var i=0; i < editorUi.pages.length; i++)
+						{
+							var page = editorUi.pages[i];
+							
+							if (editorUi.currentPage != page)
+							{
+								editorUi.selectPage(page, true);
+							}
+							
+							exportPage(page);
+						}
+						
+						if (currentPage != editorUi.currentPage)
+						{
+							editorUi.selectPage(currentPage, true);
+						}
+						
+						editorUi.editor.graph.setSelectionCells(selectedCells);
+					}
 				}
 				else
 				{

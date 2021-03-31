@@ -654,7 +654,8 @@
 			editorUi.copyImage(cells, xml);
 		}));
 
-		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas();
+		// Disabled in Safari as operation is not allowed
+		action.visible = Editor.enableNativeCipboard && editorUi.isExportToCanvas() && !mxClient.IS_SF;
 		
 		action = editorUi.actions.put('shadowVisible', new Action(mxResources.get('shadow'), function()
 		{
@@ -758,18 +759,19 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
 
-		action = editorUi.actions.addAction('findReplace...', mxUtils.bind(this, function()
+		action = editorUi.actions.addAction('findReplace...', mxUtils.bind(this, function(arg1, evt)
 		{
-			var evtName = (graph.isEnabled()) ? 'findReplace' : 'find';
+			var findReplace = graph.isEnabled() && (evt == null || !mxEvent.isShiftDown(evt));
+			var evtName = (findReplace) ? 'findReplace' : 'find';
 			var name = evtName + 'Window';
 			
 			if (this[name] == null)
 			{
-				var w = (graph.isEnabled()) ? ((uiTheme == 'min') ? 330 : 300) : 240;
-				var h = (graph.isEnabled()) ? ((uiTheme == 'min') ? 304 : 288) : 160;
+				var w = (findReplace) ? ((uiTheme == 'min') ? 330 : 300) : 240;
+				var h = (findReplace) ? ((uiTheme == 'min') ? 304 : 288) : 170;
 				this[name] = new FindWindow(editorUi,
 					document.body.offsetWidth - (w + 20),
-					100, w, h, graph.isEnabled());
+					100, w, h, findReplace);
 				this[name].window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject(evtName));
@@ -795,7 +797,32 @@
 		
 		editorUi.actions.put('exportVsdx', new Action(mxResources.get('formatVsdx') + ' (beta)...', function()
 		{
-			editorUi.exportVisio();
+			var noPages = editorUi.pages == null || editorUi.pages.length <= 1;
+			
+			if (noPages)
+			{
+				editorUi.exportVisio();
+			}
+			else
+			{
+				var div = document.createElement('div');
+				div.style.whiteSpace = 'nowrap';
+
+				var hd = document.createElement('h3');
+				mxUtils.write(hd, mxResources.get('formatVsdx'));
+				hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:4px';
+				div.appendChild(hd);
+				
+				var pages = editorUi.addCheckbox(div, mxResources.get('allPages'), !noPages, noPages);
+				pages.style.marginBottom = '16px';
+				
+				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
+				{
+					editorUi.exportVisio(!pages.checked);
+				}), null, mxResources.get('export'));
+				
+				editorUi.showDialog(dlg.container, 300, 110, true, true);
+			}
 		}));
 		
 		if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')

@@ -6,11 +6,11 @@ if (workbox)
 	workbox.precaching.precacheAndRoute([
   {
     "url": "js/app.min.js",
-    "revision": "2dfc36038e638cdb6a1c96b9beb0547d"
+    "revision": "dbf4b2ee92c86893f480ae57ad75bfb1"
   },
   {
     "url": "js/extensions.min.js",
-    "revision": "52001a4f62a2034fd6d6385c10e16da7"
+    "revision": "b37ff8ed5a0096ea8412d2a1c8d7133d"
   },
   {
     "url": "js/stencils.min.js",
@@ -58,7 +58,7 @@ if (workbox)
   },
   {
     "url": "js/viewer-static.min.js",
-    "revision": "d7ec716669228f4e5840b283b876bf25"
+    "revision": "cbeed9063ccd621c2167ac0ccb490518"
   },
   {
     "url": "connect/jira/editor-1-3-3.html",
@@ -74,7 +74,7 @@ if (workbox)
   },
   {
     "url": "connect/jira/viewerPanel.js",
-    "revision": "e855467cfe258b0acdacca54dd71cd69"
+    "revision": "32763e62c3a7498a8ee479fee8a55bb7"
   },
   {
     "url": "connect/jira/spinner.gif",
@@ -94,7 +94,7 @@ if (workbox)
   },
   {
     "url": "plugins/connectJira.js",
-    "revision": "87b1e0ab3d6805952c8ed4e405d04af5"
+    "revision": "4cefa13414e0d406550f3c073923080c"
   },
   {
     "url": "plugins/cConf-comments.js",
@@ -102,11 +102,11 @@ if (workbox)
   },
   {
     "url": "plugins/cConf-1-4-8.js",
-    "revision": "679977b35afbddb2aa4a0a2d1c7946d0"
+    "revision": "159835ebab73810cc3f4fea9d904fab6"
   },
   {
     "url": "connect/confluence/connectUtils-1-4-8.js",
-    "revision": "c1e3dcb6e56d57a8c24cdfcfa7ed7de2"
+    "revision": "9c3226f911b9df4ea6b93e216e24fea9"
   },
   {
     "url": "connect/new_common/cac.js",
@@ -126,7 +126,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/viewer.js",
-    "revision": "36fa96104ff0c8f1e4591b7f8a93ce44"
+    "revision": "2ca0ba975239852bc84df1333f0bf2a1"
   },
   {
     "url": "connect/confluence/viewer-1-4-42.html",
@@ -138,7 +138,7 @@ if (workbox)
   },
   {
     "url": "connect/confluence/includeDiagram-1-4-8.js",
-    "revision": "0fd49c564e14bf1ca7b2e0c6c7a71741"
+    "revision": "259248f0077c6506703d5b4ecaff36dc"
   },
   {
     "url": "connect/confluence/includeDiagram.html",
@@ -322,7 +322,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_nl.txt",
-    "revision": "c93de6c04451b0f260cfec64240452c4"
+    "revision": "50448eea83d396cce9b65831c70cb575"
   },
   {
     "url": "resources/dia_no.txt",
@@ -366,7 +366,7 @@ if (workbox)
   },
   {
     "url": "resources/dia_sv.txt",
-    "revision": "11bf7450046bd598d70666bc0d7e20d8"
+    "revision": "ef083de1f85952ba3ba07878b66e615b"
   },
   {
     "url": "resources/dia_sw.txt",

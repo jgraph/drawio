@@ -1902,6 +1902,38 @@ Graph.prototype.init = function(container)
 		});
 	};
 	
+	// Handles custom links in tooltips
+	if (this.tooltipHandler != null)
+	{
+		var tooltipHandlerInit = this.tooltipHandler.init;
+		
+		this.tooltipHandler.init = function()
+		{
+			tooltipHandlerInit.apply(this, arguments);
+			
+			if (this.div != null)
+			{
+				mxEvent.addListener(this.div, 'click', mxUtils.bind(this, function(evt)
+				{
+					var source = mxEvent.getSource(evt);
+					
+					if (source.nodeName == 'A')
+					{
+						var href = source.getAttribute('href');
+						
+						if (href != null && this.graph.isCustomLink(href) &&
+							(mxEvent.isTouchEvent(evt) || !mxEvent.isPopupTrigger(evt)) &&
+							this.graph.customLinkClicked(href))
+						{
+							mxEvent.consume(evt);
+						}
+					}
+				}));
+			}
+		};
+	}
+
+
 	// Adds or updates CSS for flowAnimation style
 	this.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
 	{
@@ -1953,6 +1985,60 @@ Graph.prototype.init = function(container)
 		{
 			return (vertices && model.isVertex(cell)) || (edges && model.isEdge(cell));
 		}, model.getRoot());
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.getCommonStyle = function(cells)
+	{
+		var style = {};
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			var state = this.view.getState(cells[i]);
+			this.mergeStyle(state.style, style, i == 0);
+		}
+		
+		return style;
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.mergeStyle = function(style, into, initial)
+	{
+		if (style != null)
+		{
+			var keys = {};
+			
+			for (var key in style)
+			{
+				var value = style[key];
+				
+				if (value != null)
+				{
+					keys[key] = true;
+					
+					if (into[key] == null && initial)
+					{
+						into[key] = value;
+					}
+					else if (into[key] != value)
+					{
+						delete into[key];
+					}
+				}
+			}
+			
+			for (var key in into)
+			{
+				if (!keys[key])
+				{
+					delete into[key];
+				}
+			}
+		}
 	};
 
 	/**
@@ -2840,6 +2926,23 @@ Graph.prototype.isTransparentClickEvent = function(evt)
 Graph.prototype.isIgnoreTerminalEvent = function(evt)
 {
 	return mxEvent.isShiftDown(evt) && mxEvent.isControlDown(evt);
+};
+
+/**
+ * Returns true if the given edge should be ignored.
+ */
+Graph.prototype.isEdgeIgnored = function(cell)
+{
+	var result = false;
+	
+	if (cell != null)
+	{
+		var style = this.getCurrentCellStyle(cell);
+
+		result = mxUtils.getValue(style, 'ignoreEdge', '0') == '1';
+	}
+	
+	return result;
 };
 
 /**
@@ -6543,7 +6646,15 @@ if (typeof mxVertexHandler != 'undefined')
 			return graphLayoutIsVertexIgnored.apply(this, arguments) ||
 				this.graph.isTableRow(vertex) || this.graph.isTableCell(vertex);
 		};
-		
+			
+		// Adds support for ignoreEdge style
+		var graphLayoutIsEdgeIgnored = mxGraphLayout.prototype.isEdgeIgnored; 
+		mxGraphLayout.prototype.isEdgeIgnored = function(edge)
+		{
+			return graphLayoutIsEdgeIgnored.apply(this, arguments) ||
+				this.graph.isEdgeIgnored(edge);
+		};
+
 		// Extends connection handler to enable ctrl+drag for cloning source cell
 		// since copyOnConnect is now disabled by default
 		var mxConnectionHandlerCreateTarget = mxConnectionHandler.prototype.isCreateTarget;

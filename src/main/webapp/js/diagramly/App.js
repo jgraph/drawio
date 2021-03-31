@@ -291,6 +291,7 @@ App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
  * Socket.io library 
  */
 App.SOCKET_IO_URL = window.DRAWIO_BASE_URL + '/js/socket.io/socket.io.min.js';
+App.SIMPLE_PEER_URL = window.DRAWIO_BASE_URL + '/js/socket.io/simplepeer9.10.0.min.js';
 App.SOCKET_IO_SRV = 'http://localhost:3030';
 
 /**
@@ -710,6 +711,7 @@ App.main = function(callback, createUi)
 			if (urlParams['rtCursors'] == '1')
 			{
 				mxscript(App.SOCKET_IO_URL);
+				mxscript(App.SIMPLE_PEER_URL);
 			}
 		}
 		

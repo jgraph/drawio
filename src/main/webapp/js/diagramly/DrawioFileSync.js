@@ -758,6 +758,96 @@ DrawioFileSync.prototype.updateDescriptor = function(desc)
 	this.start();
 };
 
+DrawioFileSync.prototype.p2pCatchup = function(data, from, to, id, desc, success, error, abort)
+{
+	if (desc != null && (abort == null || !abort()))
+	{
+		var etag = this.file.getDescriptorRevisionId(desc);
+		var current = this.file.getCurrentRevisionId();
+		
+		if (!this.isValidState())
+		{
+			if (error != null)
+			{
+				error();
+			}
+		}
+		else
+		{
+			var secret = this.file.getDescriptorSecret(desc);
+			
+			if (abort == null || !abort())
+			{
+				this.file.stats.bytesReceived += data.length;	
+				var checksum = null;
+				var temp = [];
+		
+				try
+				{
+					var result = [data];
+					
+					if (result != null && result.length > 0)
+					{
+						for (var i = 0; i < result.length; i++)
+						{
+							var value = this.stringToObject(result[i]);
+							
+							if (value.v > DrawioFileSync.PROTOCOL)
+							{
+								failed = true;
+								temp = [];
+								break;
+							}
+							else if (value.v === DrawioFileSync.PROTOCOL &&
+								value.d != null)
+							{
+								checksum = value.d.checksum;
+								temp.push(value.d.patch);
+							}
+							else
+							{
+								failed = true;
+								temp = [];
+								break;
+							}
+						}
+					}
+				}
+				catch (e)
+				{
+					temp = [];
+					
+					if (window.console != null && urlParams['test'] == '1')
+					{
+						console.log(e);
+					}
+				}
+			
+				try
+				{
+					if (temp.length > 0)
+					{
+						this.file.stats.cacheHits++;
+						this.merge(temp, checksum, desc, success, error, abort);
+					}
+					else
+					{
+						this.file.stats.cacheFail++;
+						this.reload(success, error, abort);
+					}
+				}
+				catch (e)
+				{
+					if (error != null)
+					{
+						error(e);
+					}
+				}
+			}
+		}
+	}
+};
+
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
@@ -1198,6 +1288,34 @@ DrawioFileSync.prototype.fileSaving = function()
 	mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + encodeURIComponent(msg), function()
 	{
 		// Ignore response
+	});
+};
+
+DrawioFileSync.prototype.sendFileChanges = function(pages, lastDesc)
+{
+	// Computes diff and checksum
+	this.lastModified = this.file.getLastModifiedDate();
+	var msg = this.objectToString(this.createMessage({m: this.lastModified.getTime()}));
+	var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
+	var etag = this.file.getDescriptorRevisionId(lastDesc);
+	var current = this.file.getCurrentRevisionId();
+	
+	var shadow = (this.file.shadowPages != null) ?
+			this.file.shadowPages : this.ui.getPagesForNode(
+			mxUtils.parseXml(this.file.shadowData).documentElement)
+	var lastSecret = this.file.getDescriptorSecret(lastDesc);
+	var checksum = this.ui.getHashValueForPages(pages);
+	var diff = this.ui.diffPages(shadow, pages);
+	
+	// Data is stored in cache and message is sent to all listeners
+	var data = this.objectToString(this.createMessage({patch: diff, checksum: checksum}));
+	
+	this.file.p2pCollab.sendMessage('diff', {
+		id: this.channelId,
+		from: etag, to: current,
+		msg: msg, secret: secret,
+		lastSecret: lastSecret,
+		data: data
 	});
 };
 

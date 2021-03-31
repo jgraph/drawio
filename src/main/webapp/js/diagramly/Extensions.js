@@ -6630,8 +6630,11 @@ LucidImporter = {};
 		LucidImporter.hasUnknownShapes = false;
 		LucidImporter.hasOrgChart = false;
 		LucidImporter.hasTimeLine = false;
-		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile>'];
-		
+		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile type="Lucidchart-Import" version="' +
+			EditorUi.VERSION + '" host="' + mxUtils.htmlEntities(window.location.hostname) + 
+			'" agent="' + mxUtils.htmlEntities(navigator.appVersion) + 
+			'" modified="' + mxUtils.htmlEntities(new Date().toISOString()) + '">'];
+
 		if (advImpConfig && advImpConfig.transparentEdgeLabels)
 		{
 			labelStyle = labelStyle.replace('labelBackgroundColor=#ffffff;', 'labelBackgroundColor=none;');
