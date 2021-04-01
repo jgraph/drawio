@@ -141,7 +141,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				tokenCache.put(key, val);
 				done = true;
 			}
-			catch(MemcacheServiceException e)
+			catch(Exception e) //MemcacheServiceException
 			{
 				//delay in re-trial is above
 				done = false;
