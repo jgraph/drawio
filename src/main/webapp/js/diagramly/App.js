@@ -5638,7 +5638,7 @@ App.prototype.updateButtonContainer = function()
 		var file = this.getCurrentFile();
 		
 		// Comments
-		if (this.commentsSupported())
+		if (this.commentsSupported() && urlParams['sketch'] != '1')
 		{
 			if (this.commentButton == null)
 			{
@@ -5848,6 +5848,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		
 		if (uiTheme == 'min')
 		{
+			this.notificationBtn.style.width = '30px';
 			this.notificationBtn.style.top = '4px';
 		}
 		
@@ -7319,7 +7320,18 @@ App.prototype.updateUserElement = function()
 					div.style.background = 'whiteSmoke';
 					div.style.borderTop = '1px solid #e0e0e0';
 					div.style.whiteSpace = 'nowrap';
-					
+										
+					if (urlParams['sketch'] == '1')
+					{
+						var btn = mxUtils.button(mxResources.get('share'), mxUtils.bind(this, function()
+						{
+							this.actions.get('share').funct();
+						}));
+						btn.className = 'geBtn gePrimaryBtn';
+						div.appendChild(btn);
+						this.userPanel.appendChild(div);
+					}
+
 					var btn = mxUtils.button(mxResources.get('close'), mxUtils.bind(this, function()
 					{
 						if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)

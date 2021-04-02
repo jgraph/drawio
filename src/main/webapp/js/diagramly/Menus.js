@@ -2364,7 +2364,8 @@
 			}, parent);
 			
 			if (theme != 'kennedy' && theme != 'atlas' &&
-				theme != 'dark' && theme != 'min')
+				theme != 'dark' && theme != 'min' &&
+				theme != 'sketch')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -2415,6 +2416,18 @@
 			}, parent);
 			
 			if (theme == 'dark')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
+						
+			item = menu.addItem(mxResources.get('sketch'), null, function()
+			{
+				mxSettings.setUi('sketch');
+				mxSettings.save();
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			}, parent);
+			
+			if (theme == 'sketch')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}

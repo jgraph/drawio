@@ -213,6 +213,13 @@ window.uiTheme = window.uiTheme || (function()
 		}
 	}
 	
+	// Redirects sketch UI to min UI with sketch URL parameter
+	if (ui == 'sketch')
+	{
+		urlParams['sketch'] = '1';
+		ui = 'min';
+	}
+	
 	// Uses minimal theme on small screens
 	try
 	{

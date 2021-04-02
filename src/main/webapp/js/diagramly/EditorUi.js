@@ -3645,6 +3645,24 @@
 				Editor.checkmarkImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAMAAACeyVWkAAAARVBMVEUAAACZmZkICAgEBASNjY2Dg4MYGBiTk5N5eXl1dXVmZmZQUFBCQkI3NzceHh4MDAykpKSJiYl+fn5sbGxaWlo/Pz8SEhK96uPlAAAAAXRSTlMAQObYZgAAAE5JREFUGNPFzTcSgDAQQ1HJGUfy/Y9K7V1qeOUfzQifCQZai1XHaz11LFysbDbzgDSSWMZiETz3+b8yNUc/MMsktxuC8XQBSncdLwz+8gCCggGXzBcozAAAAABJRU5ErkJggg==';
 			}
     	}
+
+		// Implements the sketch-min UI
+		if (urlParams['sketch'] == '1')
+		{
+			Graph.prototype.defaultVertexStyle = {'fontFamily': 'Architects Daughter', 'fontSize': '16',
+				'fontSource': 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter',
+				'pointerEvents': '0', 'sketch': '1', 'hachureGap': '4'};
+			
+			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
+				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'endSize': '14',
+				'fontFamily': 'Architects Daughter', 'fontSize': '16',
+				'fontSource': 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter',
+				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch': '1'};
+			
+			mxConnectionHandler.prototype.createTarget = true;
+			Graph.prototype.defaultGridEnabled = false;
+			Graph.prototype.defaultPageVisible = false;
+		}
     };
     
     EditorUi.initTheme();

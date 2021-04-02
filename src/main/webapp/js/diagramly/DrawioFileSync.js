@@ -333,7 +333,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 		}));
 	});
 
-	if (uiTheme == 'min' && this.ui.buttonContainer != null)
+	if (uiTheme == 'min' && this.ui.buttonContainer != null && urlParams['sketch'] != '1')
 	{
 		if (this.collaboratorsElement == null)
 		{
