@@ -27,7 +27,7 @@ function mxRackContainer(bounds, fill, stroke, strokewidth)
  */
 mxUtils.extend(mxRackContainer, mxShape);
 
-mxRackContainer.unitSize = 20;
+mxRackContainer.prototype.unitSize = 20;
 
 mxRackContainer.prototype.cst = 
 {
@@ -48,7 +48,8 @@ mxRackContainer.prototype.customProperties = [
 		{
 			graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
 		}
-	}
+	},
+	{name: 'rackUnitSize', dispName: 'Unit size', type: 'int'}
 ];
 
 /**
@@ -118,24 +119,27 @@ mxRackContainer.prototype.sideText = function(c, w, h, fontSize)
 {
 	var fontColor = mxUtils.getValue(this.style, mxRackContainer.prototype.cst.TEXT_COLOR, '#666666');
 	var displayNumbers = mxUtils.getValue(this.style, mxRackContainer.prototype.cst.NUMBER_DISPLAY, mxRackContainer.prototype.cst.DIR_ASC);
+	var unitSize = parseFloat(mxUtils.getValue(this.style, 'rackUnitSize', mxRackContainer.prototype.unitSize));
+	this.unitSize = unitSize;
+	
 	c.setFontSize(fontSize);
 	c.setFontColor(fontColor);
 
 	// Calculate number of units
-	var units = Math.floor((Math.abs(h) - 42) / mxRackContainer.unitSize);
+	var units = Math.floor((Math.abs(h) - 42) / unitSize);
 
 	for (var i = 0; i < units; i++)
 	{
 		var displayNumber = (displayNumbers === mxRackContainer.prototype.cst.DIR_DESC) ? (i + 1).toString() : (units - i).toString();
-		c.text(-fontSize, 21 + mxRackContainer.unitSize * 0.5 + i * mxRackContainer.unitSize, 0, 0, displayNumber, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		c.text(-fontSize, 21 + unitSize * 0.5 + i * unitSize, 0, 0, displayNumber, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 
 	c.begin();
 
 	for (var i = 0; i < units + 1; i++)
 	{
-		c.moveTo(-2 * fontSize, 21 + i * mxRackContainer.unitSize);
-		c.lineTo(0, 21 + i * mxRackContainer.unitSize);
+		c.moveTo(-2 * fontSize, 21 + i * unitSize);
+		c.lineTo(0, 21 + i * unitSize);
 	};
 
 	c.stroke();

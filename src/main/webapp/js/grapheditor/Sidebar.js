@@ -407,6 +407,8 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 				this.tooltip.style.position = 'absolute';
 				this.tooltip.style.left = left + 'px';
 				this.tooltip.style.top = top + 'px';
+				
+				mxUtils.fit(this.tooltip);
 			});
 
 			if (this.tooltip != null && this.tooltip.style.display != 'none')
@@ -1258,12 +1260,14 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;aspect=fixed;shape=isoRectangle;', 150, 90, '', 'Isometric Square', true, null, 'rectangle rect box iso isometric'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, '', 'Isometric Edge 1'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, '', 'Isometric Edge 2'),
-	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;', 20, 120, '', 'Curly Bracket'),
+	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;', 20, 120, '', 'Left Curly Bracket'),
+		this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;', 20, 120, '', 'Right Curly Bracket'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=2;html=1;', 160, 10, '', 'Horizontal Line'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=2;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=4;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'backbone bus network'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=4;direction=south;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 10, 160, '', 'Vertical Backbone', false, null, 'backbone bus network'),
-	 	this.createVertexTemplateEntry('shape=crossbar;whiteSpace=wrap;html=1;rounded=1;', 120, 20, '', 'Crossbar', false, null, 'crossbar distance measure dimension unit'),
+	 	this.createVertexTemplateEntry('shape=crossbar;whiteSpace=wrap;html=1;rounded=1;', 120, 20, '', 'Horizontal Crossbar', false, null, 'crossbar distance measure dimension unit'),
+		this.createVertexTemplateEntry('shape=crossbar;whiteSpace=wrap;html=1;rounded=1;direction=south;', 20, 120, '', 'Vertical Crossbar', false, null, 'crossbar distance measure dimension unit'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=1;aspect=fixed;image=' + this.gearImage, 52, 61, '', 'Image (Fixed Aspect)', false, null, 'fixed image icon symbol'),
 	 	this.createVertexTemplateEntry('shape=image;html=1;verticalLabelPosition=bottom;verticalAlign=top;imageAspect=0;image=' + this.gearImage, 50, 60, '', 'Image (Variable Aspect)', false, null, 'strechted image icon symbol'),
 	 	this.createVertexTemplateEntry('icon;html=1;image=' + this.gearImage, 60, 60, 'Icon', 'Icon', false, null, 'icon image symbol'),
@@ -1282,7 +1286,10 @@ Sidebar.prototype.addMiscPalette = function(expand)
     		return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Shape Group');
 		}),
 	 	this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;left=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
+		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;top=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
+		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;left=1;top=0;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
+		this.createVertexTemplateEntry('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[[0.5,0.5,0]];fillColor=none;snapToPoint=1;resizable=0;rotatable=0;', 40, 40, '', 'Waypoint'),
 		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
 	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;', 60, 40, '', 'Filled Edge'),
 	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),
@@ -2206,8 +2213,10 @@ Sidebar.prototype.createSection = function(title)
 /**
  * Creates and returns a new palette item for the given image.
  */
-Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height, allowCellsInserted)
+Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height, allowCellsInserted, showTooltip)
 {
+	showTooltip = (showTooltip != null) ? showTooltip : true;
+	
 	var elt = document.createElement('a');
 	elt.className = 'geItem';
 	elt.style.overflow = 'hidden';
@@ -2245,7 +2254,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	}
 	
 	// Shows a tooltip with the rendered cell
-	if (!mxClient.IS_IOS)
+	if (!mxClient.IS_IOS && showTooltip)
 	{
 		mxEvent.addGestureListeners(elt, null, mxUtils.bind(this, function(evt)
 		{
@@ -3630,18 +3639,18 @@ Sidebar.prototype.createVertexTemplateEntry = function(style, width, height, val
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle, allowCellsInserted)
+Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle, allowCellsInserted, showTooltip)
 {
 	var cells = [new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style)];
 	cells[0].vertex = true;
 	
-	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted);
+	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip);
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel, showTitle, allowCellsInserted)
+Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip)
 {
 	var doc = mxUtils.parseXml(Graph.decompress(data));
 	var codec = new mxCodec(doc);
@@ -3651,36 +3660,36 @@ Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, t
 	
 	var cells = this.graph.cloneCells(model.root.getChildAt(0).children);
 
-	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted);
+	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip);
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted)
+Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip)
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
 	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
-	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted);
+	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted, showTooltip);
 };
 
 /**
  * 
  */
-Sidebar.prototype.createEdgeTemplateEntry = function(style, width, height, value, title, showLabel, tags, allowCellsInserted)
+Sidebar.prototype.createEdgeTemplateEntry = function(style, width, height, value, title, showLabel, tags, allowCellsInserted, showTooltip)
 {
 	tags = (tags != null && tags.length > 0) ? tags : title.toLowerCase();
 	
  	return this.addEntry(tags, mxUtils.bind(this, function()
  	{
- 		return this.createEdgeTemplate(style, width, height, value, title, showLabel, allowCellsInserted);
+ 		return this.createEdgeTemplate(style, width, height, value, title, showLabel, allowCellsInserted, showTooltip);
  	}));
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, title, showLabel, allowCellsInserted)
+Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, title, showLabel, allowCellsInserted, showTooltip)
 {
 	var cell = new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style);
 	cell.geometry.setTerminalPoint(new mxPoint(0, height), true);
@@ -3688,15 +3697,15 @@ Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, tit
 	cell.geometry.relative = true;
 	cell.edge = true;
 	
-	return this.createEdgeTemplateFromCells([cell], width, height, title, showLabel, allowCellsInserted);
+	return this.createEdgeTemplateFromCells([cell], width, height, title, showLabel, allowCellsInserted, showTooltip);
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel, allowCellsInserted)
+Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel, allowCellsInserted, showTooltip)
 {	
-	return this.createItem(cells, title, showLabel, true, width, height, allowCellsInserted);
+	return this.createItem(cells, title, showLabel, true, width, height, allowCellsInserted, showTooltip);
 };
 
 /**
@@ -3821,7 +3830,6 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	}));
 	
 	// Prevents focus
-
 	mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
 		mxUtils.bind(this, function(evt)
 	{

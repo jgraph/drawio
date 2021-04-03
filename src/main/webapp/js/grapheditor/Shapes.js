@@ -315,6 +315,30 @@
 	
 	var tan30 = Math.tan(mxUtils.toRadians(30));
 	var tan30Dx = (0.5 - tan30) / 2;
+
+	mxCellRenderer.registerShape('isoRectangle', IsoRectangleShape);
+	
+	// Cube Shape, supports size style
+	function WaypointShape()
+	{
+		mxCylinder.call(this);
+	};
+	mxUtils.extend(WaypointShape, mxCylinder);
+	WaypointShape.prototype.size = 6;
+	
+	WaypointShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		c.setFillColor(this.stroke);
+		var s = Math.max(0, parseFloat(mxUtils.getValue(this.style, 'size', this.size)));
+		c.ellipse(x + (w - s) * 0.5, y + (h - s) * 0.5, s, s);
+		c.fill();
+		
+		c.setFillColor(mxConstants.NONE);
+		c.rect(x, y, w, h);
+		c.fill();
+	};
+
+	mxCellRenderer.registerShape('waypoint', WaypointShape);
 	
 	// Cube Shape, supports size style
 	function IsoRectangleShape()

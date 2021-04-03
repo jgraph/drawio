@@ -113,7 +113,8 @@ EditorUi.initMinimalTheme = function()
 	        var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	        
 	        x = Math.max(0, Math.min(x, iiw - this.table.clientWidth));
-	        y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+	        y = Math.max(0, Math.min(y, ih - this.table.clientHeight -
+				((urlParams['sketch'] == '1') ? 0 : 48)));
 
 	        if (this.getX() != x || this.getY() != y)
 	        {
@@ -145,8 +146,7 @@ EditorUi.initMinimalTheme = function()
 	    if (ui.formatWindow == null)
 	    {
 			ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
-				(urlParams['sketch'] == '1') ? 20 :
-				Math.max(20, ui.diagramContainer.clientWidth - 240 - 12), 56,
+				Math.max(20, ui.diagramContainer.clientWidth - 240 - 8), 60,
 				240, Math.min(566, graph.container.clientHeight - 10), function(container)
 			{
 				var format = ui.createFormat(container);
@@ -178,73 +178,74 @@ EditorUi.initMinimalTheme = function()
 
 	    if (ui.sidebarWindow == null)
 	    {
-	        var w = Math.min(graph.container.clientWidth - 10, 218);
+			var w = Math.min(graph.container.clientWidth - 10, 218);
 	        
-	        ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10, 56,
-	           w - 6, Math.min(650, graph.container.clientHeight - 30),
-	           function(container)
-	        {
-	            var div = document.createElement('div');
-	            div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
-	                'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
-	            div.className = 'geTitle';
-	            div.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
-	            mxUtils.write(div, mxResources.get('moreShapes'));
-	            container.appendChild(div);
-	            
-	            mxEvent.addListener(div, 'click', function()
-	            {
-	                ui.actions.get('shapes').funct();
-	            });
+			ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'),
+				10, (urlParams['sketch'] == '1') ? 15 : 56,
+				w - 6, Math.min(650, graph.container.clientHeight - 30),
+				function(container)
+			{
+				var div = document.createElement('div');
+				div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
+					'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
+				div.className = 'geTitle';
+				div.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
+				mxUtils.write(div, mxResources.get('moreShapes'));
+				container.appendChild(div);
+				
+				mxEvent.addListener(div, 'click', function()
+				{
+					ui.actions.get('shapes').funct();
+				});
 
-	            var menuObj = new Menubar(ui, container);
-	            
-	            function addMenu(id, label)
-	            {
-	                var menu = ui.menus.get(id);
-	                
-	                var elt = menuObj.addMenu(label, mxUtils.bind(this, function()
-	                {
-	                    // Allows extensions of menu.functid
-	                    menu.funct.apply(this, arguments);
-	                }));
-
-	                elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;width:50%;' +
-	                	'height:24px;bottom:0px;text-align:center;cursor:pointer;padding:6px 0 0 0;cusor:pointer;';
-	                elt.className = 'geTitle';
-		            container.appendChild(elt);
-	                
-	                return elt;
-	            }
-	            
+				var menuObj = new Menubar(ui, container);
+				
+				function addMenu(id, label)
+				{
+					var menu = ui.menus.get(id);
+					
+					var elt = menuObj.addMenu(label, mxUtils.bind(this, function()
+					{
+						// Allows extensions of menu.functid
+						menu.funct.apply(this, arguments);
+					}));
+					
+					elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;width:50%;' +
+						'height:24px;bottom:0px;text-align:center;cursor:pointer;padding:6px 0 0 0;cusor:pointer;';
+					elt.className = 'geTitle';
+					container.appendChild(elt);
+					
+					return elt;
+				}
+				
 				if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' || urlParams['libraries'] == '1'))
-	            {
+				{
 					// Defined in native apps together with openLibrary
 					if (ui.actions.get('newLibrary') != null)
 					{
-			            var div = document.createElement('div');
-			            div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
-			                'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
-			            div.className = 'geTitle';
-			            var span = document.createElement('span');
-			            span.style.cssText = 'position:relative;top:6px;';
-			            mxUtils.write(span, mxResources.get('newLibrary'));
-			            div.appendChild(span);
-			            container.appendChild(div);
-			            
-			            mxEvent.addListener(div, 'click', ui.actions.get('newLibrary').funct);
-
-			            var div = document.createElement('div');
-			            div.style.cssText = 'position:absolute;left:50%;width:50%;border-top:1px solid lightgray;' +
-			                'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;border-left: 1px solid lightgray;';
-			            div.className = 'geTitle';
-			            var span = document.createElement('span');
-			            span.style.cssText = 'position:relative;top:6px;';
-			            mxUtils.write(span, mxResources.get('openLibrary'));
-			            div.appendChild(span);
-			            container.appendChild(div);
-			            
-			            mxEvent.addListener(div, 'click', ui.actions.get('openLibrary').funct);
+						var div = document.createElement('div');
+						div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
+							'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
+						div.className = 'geTitle';
+						var span = document.createElement('span');
+						span.style.cssText = 'position:relative;top:6px;';
+						mxUtils.write(span, mxResources.get('newLibrary'));
+						div.appendChild(span);
+						container.appendChild(div);
+						
+						mxEvent.addListener(div, 'click', ui.actions.get('newLibrary').funct);
+						
+						var div = document.createElement('div');
+						div.style.cssText = 'position:absolute;left:50%;width:50%;border-top:1px solid lightgray;' +
+							'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;border-left: 1px solid lightgray;';
+						div.className = 'geTitle';
+						var span = document.createElement('span');
+						span.style.cssText = 'position:relative;top:6px;';
+						mxUtils.write(span, mxResources.get('openLibrary'));
+						div.appendChild(span);
+						container.appendChild(div);
+						
+						mxEvent.addListener(div, 'click', ui.actions.get('openLibrary').funct);
 					}
 					else
 					{
@@ -253,90 +254,91 @@ EditorUi.initMinimalTheme = function()
 						elt.style.paddingRight = '6px';
 						elt.style.paddingLeft = '6px';
 						elt.style.height = '32px';
-			            elt.style.left = '0';
-			            
-			            var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
-			            elt.style.borderLeft = '1px solid lightgray';
+						elt.style.left = '0';
+						
+						var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
+						elt.style.borderLeft = '1px solid lightgray';
 						elt.style.boxSizing = 'border-box';
 						elt.style.paddingRight = '6px';
 						elt.style.paddingLeft = '6px';
 						elt.style.height = '32px';
-			            elt.style.left = '50%';
+						elt.style.left = '50%';
 					}
-	            }
+				}
 				else
 				{
 					div.style.bottom = '0';
 				}
 
-	            container.appendChild(ui.sidebar.container);
-	            container.style.overflow = 'hidden';
-	            
-	            return container;
-	        });
+				container.appendChild(ui.sidebar.container);
+				container.style.overflow = 'hidden';
+				
+				return container;
+			});
 	        
-	        ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
-	        ui.sidebarWindow.window.setVisible(true);
-	        
-	        ui.getLocalData('sidebar', function(value)
-	        {
-	            ui.sidebar.showEntries(value, null, true);
-	        });
-	        
-	        ui.restoreLibraries();
-	    }
-	    else
-	    {
+			ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
+			ui.sidebarWindow.window.setVisible(true);
+			
+			ui.getLocalData('sidebar', function(value)
+			{
+				ui.sidebar.showEntries(value, null, true);
+			});
+			
+			ui.restoreLibraries();
+		}
+		else
+		{
     		ui.sidebarWindow.window.setVisible((visible != null) ?
     			visible : !ui.sidebarWindow.window.isVisible());
-	    }
-        
-        if (ui.sidebarWindow.window.isVisible())
-        {
-            ui.sidebarWindow.window.fit();
-        }
+		}
+		
+		if (ui.sidebarWindow.window.isVisible())
+		{
+			ui.sidebarWindow.window.fit();
+		}
 	};
 	
     // Changes colors for some UI elements
-    var fill = '#29b6f2';
-    var stroke = '#ffffff';
-    
-    Editor.checkmarkImage = Graph.createSvgImage(22, 18, '<path transform="translate(4 0)" d="M7.181,15.007a1,1,0,0,1-.793-0.391L3.222,10.5A1,1,0,1,1,4.808,9.274L7.132,12.3l6.044-8.86A1,1,0,1,1,14.83,4.569l-6.823,10a1,1,0,0,1-.8.437H7.181Z" fill="' + fill + '"/>').src;
-    mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
-    mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
-    mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
-    mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
-    mxOutline.prototype.sizerImage = null;
-    
-    mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
-    mxConstants.EDGE_SELECTION_COLOR = '#C0C0C0';
-    mxConstants.CONNECT_HANDLE_FILLCOLOR = '#cee7ff';
-    
-    mxConstants.DEFAULT_VALID_COLOR = fill;
-    mxConstants.GUIDE_COLOR = '#C0C0C0';
+	var fill = '#29b6f2';
+	var stroke = '#ffffff';
+	
+	Editor.checkmarkImage = Graph.createSvgImage(22, 18, '<path transform="translate(4 0)" d="M7.181,15.007a1,1,0,0,1-.793-0.391L3.222,10.5A1,1,0,1,1,4.808,9.274L7.132,12.3l6.044-8.86A1,1,0,1,1,14.83,4.569l-6.823,10a1,1,0,0,1-.8.437H7.181Z" fill="' + fill + '"/>').src;
+	mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
+	mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
+	mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="#ffffff"/>').src;
+	mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
+	mxOutline.prototype.sizerImage = null;
+	
+	mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
+	mxConstants.EDGE_SELECTION_COLOR = '#C0C0C0';
+	mxConstants.CONNECT_HANDLE_FILLCOLOR = '#cee7ff';
+	
+	mxConstants.DEFAULT_VALID_COLOR = fill;
+	mxConstants.GUIDE_COLOR = '#C0C0C0';
 
-    mxConstants.HIGHLIGHT_STROKEWIDTH = 5;
-    mxConstants.HIGHLIGHT_OPACITY = 35;
-    mxConstants.OUTLINE_COLOR = '#29b6f2';
-    mxConstants.OUTLINE_HANDLE_FILLCOLOR = '#29b6f2';
-    mxConstants.OUTLINE_HANDLE_STROKECOLOR = '#fff';
-    
-    Graph.prototype.svgShadowColor = '#3D4574';
-    Graph.prototype.svgShadowOpacity = '0.4';
-    Graph.prototype.svgShadowSize = '0.6';
-    Graph.prototype.svgShadowBlur = '1.2';
-    
-    Format.prototype.inactiveTabBackgroundColor = '#f0f0f0';
-    mxGraphHandler.prototype.previewColor = '#C0C0C0';
-    mxRubberband.prototype.defaultOpacity = 50;
-    HoverIcons.prototype.inactiveOpacity = 25;
-    Format.prototype.showCloseButton = false;
+	mxConstants.HIGHLIGHT_STROKEWIDTH = 5;
+	mxConstants.HIGHLIGHT_OPACITY = 35;
+	mxConstants.OUTLINE_COLOR = '#29b6f2';
+	mxConstants.OUTLINE_HANDLE_FILLCOLOR = '#29b6f2';
+	mxConstants.OUTLINE_HANDLE_STROKECOLOR = '#fff';
+
+	Graph.prototype.svgShadowColor = '#3D4574';
+	Graph.prototype.svgShadowOpacity = '0.4';
+	Graph.prototype.svgShadowSize = '0.6';
+	Graph.prototype.svgShadowBlur = '1.2';
+
+	Format.prototype.inactiveTabBackgroundColor = '#f0f0f0';
+	mxGraphHandler.prototype.previewColor = '#C0C0C0';
+	mxRubberband.prototype.defaultOpacity = 50;
+	HoverIcons.prototype.inactiveOpacity = 25;
+	Format.prototype.showCloseButton = false;
 	EditorUi.prototype.closableScratchpad = false;
-    EditorUi.prototype.toolbarHeight = (urlParams['sketch'] != '1') ? 46 : -1;
+	EditorUi.prototype.toolbarHeight = (urlParams['sketch'] == '1') ? 1 : 46;
 	EditorUi.prototype.footerHeight = 0;
-	Graph.prototype.editAfterInsert = !mxClient.IS_IOS && !mxClient.IS_ANDROID;
+	Graph.prototype.editAfterInsert = urlParams['sketch'] != '1' &&
+		!mxClient.IS_IOS && !mxClient.IS_ANDROID;
 
-    /**
+	/**
      * Sets the XML node for the current diagram.
      */
     Editor.prototype.isChromelessView = function()
@@ -361,8 +363,8 @@ EditorUi.initMinimalTheme = function()
         {
         	// Makes room for view zoom menu
         	this.tabContainer.style.right = '70px';
-        	this.diagramContainer.style.bottom = (urlParams['sketch'] != '1') ?
-				this.tabContainerHeight + 'px' : '0px';
+        	this.diagramContainer.style.bottom = (urlParams['sketch'] == '1') ?
+				'0px' : this.tabContainerHeight + 'px';
         }
     	
     	editorUiUpdateTabContainer.apply(this, arguments);
@@ -551,7 +553,14 @@ EditorUi.initMinimalTheme = function()
 
         if (graph.getSelectionCount() == 1)
         {
-            this.addMenuItems(menu, ['editTooltip', '-', 'editGeometry', 'edit', '-'], null, evt);
+            this.addMenuItems(menu, ['editTooltip', '-', 'editGeometry'], null, evt);
+
+			if (urlParams['sketch'] == '1')
+			{
+				this.addMenuItems(menu, ['toggleFormat'], null, evt);
+			}
+
+			this.addMenuItems(menu, ['edit', '-'], null, evt);
 
             if (graph.isCellFoldable(graph.getSelectionCell()))
             {
@@ -743,7 +752,21 @@ EditorUi.initMinimalTheme = function()
             ui.showDialog(dlg.container, 620, 420, true, false);
             dlg.init();
         }));
-
+        var action = ui.actions.addAction('fullscreen', function()
+		{
+			if (document.fullscreenElement == null)
+			{
+				document.body.requestFullscreen();
+			}
+			else
+			{
+				document.exitFullscreen();
+			}
+		});
+		action.visible = document.fullscreenEnabled;
+		action.setToggleAction(true);
+		action.setSelectedCallback(function() { return document.fullscreenElement != null; });
+		
         ui.actions.put('toggleShapes', new Action(mxResources.get('shapes') + '...', function()
         {
         	toggleShapes(ui);
@@ -976,7 +999,24 @@ EditorUi.initMinimalTheme = function()
 			
 			insertMenu.funct = function(menu, parent)
 			{
-				insertMenuFunct.apply(this, arguments);
+				if (urlParams['sketch'] == '1')
+				{
+					ui.menus.addMenuItems(menu, ['insertImage', 'insertLink', '-', 'createShape', 'insertFreehand'], parent);
+		
+					if (ui.insertTemplateEnabled && !ui.isOffline())
+					{
+						ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
+					}
+					
+					menu.addSeparator(parent);
+					ui.menus.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
+					ui.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
+				}
+				else
+				{
+					insertMenuFunct.apply(this, arguments);
+				}
+				
 				ui.menus.addSubmenu('table', menu, parent);
 				menu.addSeparator(parent);
 				ui.menus.addMenuItems(menu, ['-', 'toggleShapes'], parent);
@@ -1328,9 +1368,20 @@ EditorUi.initMinimalTheme = function()
         wrapper.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;overflow:hidden;';
         ui.diagramContainer.style.top = (urlParams['sketch'] == '1') ? '0px' : '47px';
 
-        var viewZoomMenu = ui.menus.get('viewZoom');
+        var origViewZoomMenu = ui.menus.get('viewZoom');
         var viewZoomMenuElt = null;
-		
+
+        // Overrides zoom menu to add fullscreen switch
+        var viewZoomMenu = this.menus.put('viewZoom', new Menu(mxUtils.bind(this, function(menu, parent)
+        {
+			origViewZoomMenu.funct(menu, parent);
+
+			if (urlParams['sketch'] == '1')
+			{
+				 ui.menus.addMenuItems(menu, ['-', 'fullscreen'], parent);
+			}
+        })));
+
 		var insertImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==';
 		var shapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+';
 		var formatImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==';
@@ -1340,24 +1391,24 @@ EditorUi.initMinimalTheme = function()
 		
 		if (urlParams['sketch'] == '1')
 		{
-			var elt = addMenu('insert', true, insertImage);
-			elt.style.boxShadow = 'none';
-			elt.style.padding = '0px';
-			elt.style.margin = '0px';
-			
 			var fmt = addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
-	       			mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
-	   				formatImage);
+	       		mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
+	   			formatImage);
 			fmt.style.boxShadow = 'none';
+			fmt.style.opacity = '0.4';
 			fmt.style.padding = '0px';
+			fmt.style.height = '24px';
 			fmt.style.margin = '0px';
+			ui.buttonContainer.appendChild(fmt);
 			
-			elt = createGroup([addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg'), fmt, elt], 60);
+			elt = addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg');
+			elt.style.boxShadow = 'none';
+			elt.style.opacity = '0.4';
 			elt.style.padding = '0px';
+			elt.style.height = '24px';
 			elt.style.margin = '0px';
-			
-			picker.appendChild(elt);
-			
+			ui.buttonContainer.appendChild(elt);
+
 			ui.statusContainer.style.position = '';
 			ui.statusContainer.style.margin = '0 2px 0 4px';
 			ui.statusContainer.style.padding = '6px 0px';
@@ -1368,6 +1419,69 @@ EditorUi.initMinimalTheme = function()
 			ui.buttonContainer.style.position = '';
 			ui.buttonContainer.style.paddingRight = '0px';
 			ui.buttonContainer.style.display = 'inline-block';
+			
+			function addElt(elt, title)
+			{
+				if (title != null)
+				{
+					elt.setAttribute('title', title);
+				}
+				
+				elt.style.cursor = 'default';
+				elt.style.margin = '6px 4px';
+				picker.appendChild(elt);
+				mxUtils.br(picker);
+			};
+			
+			// Append sidebar elements
+			addElt(ui.sidebar.createVertexTemplate('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;', 
+				40, 20, 'Text', '', true, true, null, false), mxResources.get('insertText'));
+			addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;fontFamily=' +
+				Editor.sketchFontFamily + ';fontSource=' + Editor.sketchFontSource + ';fontSize=24;',
+				140, 140, '', '', true, true, null, false), mxResources.get('note'));
+			addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 120, 60,
+				'', '', true, true, null, false), mxResources.get('insertRectangle'));
+			addElt(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 120, 80,
+				'', '', true, true, null, false), mxResources.get('insertEllipse'));
+			addElt(ui.sidebar.createVertexTemplate('rhombus;whiteSpace=wrap;html=1;', 80, 80,
+				'', '', true, true, null, false), mxResources.get('insertRhombus'));
+
+			(function()
+			{
+				var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength - 20, 0),
+					'edgeStyle=none;curved=1;rounded=0;sketch=1;orthogonalLoop=1;jettySize=auto;html=1;sourcePerimeterSpacing=8;endArrow=open;endSize=14;targetPerimeterSpacing=8;fontFamily=' +
+					Editor.sketchFontFamily + ';fontSource=' + Editor.sketchFontSource + ';fontSize=16;');
+				cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
+				cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 0), false);
+				cell.geometry.points = [];
+				cell.geometry.relative = true;
+				cell.edge = true;
+				
+				addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
+					cell.geometry.width, cell.geometry.height,
+					'', false, null, false), mxResources.get('insertLink'));
+		 	})();
+		
+			var elt = addMenu('insert', true, insertImage);
+			elt.style.boxShadow = 'none';
+			elt.style.padding = '0px';
+			elt.style.margin = '6px 4px';
+			
+			addElt(elt, mxResources.get('insert'));
+			
+			ui.getCellsForShapePicker = function(cell)
+			{
+				var createVertex = mxUtils.bind(this, function(style, w, h, value)
+				{
+					return this.editor.graph.createVertex(null, null, value || '', 0, 0, w || 120, h || 60, style, false);
+				});
+				
+				return [createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;', 40, 20, 'Text'),
+					createVertex('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;fontFamily=' +
+					Editor.sketchFontFamily + ';fontSource=' + Editor.sketchFontSource + ';fontSize=24;', 140, 140),
+					createVertex('whiteSpace=wrap;html=1;'), createVertex('ellipse;whiteSpace=wrap;html=1;', 120, 80),
+					createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80)];
+			};
 		}
 		
 		if (viewZoomMenu != null)
@@ -1400,23 +1514,25 @@ EditorUi.initMinimalTheme = function()
 	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
 	
 			if (footer != null)
-			{		
+			{
 				undoElt.style.borderStyle = 'none';
 				undoElt.style.boxShadow = 'none';
 				undoElt.style.opacity = '0.4';
+				undoElt.style.margin = '0px 4px';
 				footer.appendChild(undoElt);
 				
 				redoElt.style.borderStyle = 'none';
 				redoElt.style.boxShadow = 'none';
 				redoElt.style.opacity = '0.4';
+				redoElt.style.margin = '0px 4px';
 				footer.appendChild(redoElt);
 					
 				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction, zoomOutImage);
 				zoomOutElt.style.borderStyle = 'none';
 				zoomOutElt.style.boxShadow = 'none';
 				zoomOutElt.style.borderRadius = '0px';
-				zoomOutElt.style.borderLeft = '1px solid lightGray';
 				zoomOutElt.style.opacity = '0.4';
+				zoomOutElt.style.margin = '0px';
 				footer.appendChild(zoomOutElt);
 
 				elt.style.padding = '6px 0';
@@ -1429,6 +1545,7 @@ EditorUi.initMinimalTheme = function()
 				zoomInElt.style.borderStyle = 'none';
 				zoomInElt.style.boxShadow = 'none';
 				zoomInElt.style.opacity = '0.4';
+				zoomInElt.style.margin = '0px';
 				footer.appendChild(zoomInElt);
 				
 				var pageMenu = this.createPageMenuTab();
@@ -1440,7 +1557,7 @@ EditorUi.initMinimalTheme = function()
 				pageMenu.style.lineHeight = '';
 				pageMenu.style.borderStyle = 'none';
 				pageMenu.style.padding = '3px 0';
-				pageMenu.style.borderLeft = '1px solid lightGray';
+				pageMenu.style.margin = '0px';
 				pageMenu.firstChild.style.height = '100%';
 				pageMenu.firstChild.style.opacity = '0.6';
 				pageMenu.firstChild.style.margin = '0px';
@@ -1454,8 +1571,9 @@ EditorUi.initMinimalTheme = function()
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;background-color:#fff;';
 				wrapper.appendChild(footer);
 				
-				picker.style.cssText = 'position:absolute;left:10px;top:10px;z-index:1;border-radius:4px;' +
-					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;white-space:nowrap;background-color:#fff;';
+				picker.style.cssText = 'position:absolute;left:10px;z-index:1;border-radius:4px;' +
+					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;white-space:nowrap;background-color:#fff;' +
+					'transform:translate(0, -50%);top:50%;';
 				wrapper.appendChild(picker);
 			}
 			else

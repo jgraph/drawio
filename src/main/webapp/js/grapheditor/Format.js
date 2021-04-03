@@ -1014,7 +1014,8 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 	
 	enabledValue = (enabledValue != null) ? ((enabledValue == 'null') ? null : enabledValue) : 1;
 	disabledValue = (disabledValue != null) ? ((disabledValue == 'null') ? null : disabledValue) : 0;
-	style = (cells != null) ? graph.getCommonStyle(cells) : this.format.selectionState.style;
+
+	var style = (cells != null) ? graph.getCommonStyle(cells) : this.format.selectionState.style;
 
 	return this.createOption(label, function()
 	{

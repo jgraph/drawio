@@ -3505,7 +3505,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	
 	var duplicate = (!mxEvent.isShiftDown(evt) || mxEvent.isControlDown(evt)) || forceClone;
 	
-	if (duplicate)
+	if (duplicate && (urlParams['sketch'] != '1' || forceClone))
 	{
 		if (direction == mxConstants.DIRECTION_NORTH)
 		{
@@ -3580,6 +3580,26 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 	
 					if (geo != null)
 					{
+						if (targetCell != null && urlParams['sketch'] == '1')
+						{
+							if (direction == mxConstants.DIRECTION_NORTH)
+							{
+								pt.y -= geo.height / 2;
+							}
+							else if (direction == mxConstants.DIRECTION_SOUTH)
+							{
+								pt.y += geo.height / 2;
+							}
+							else if (direction == mxConstants.DIRECTION_WEST)
+							{
+								pt.x -= geo.width / 2;
+							}
+							else
+							{
+								pt.x += geo.width / 2;
+							}
+						}
+		
 						geo.x = pt.x - geo.width / 2;
 						geo.y = pt.y - geo.height / 2;
 					}

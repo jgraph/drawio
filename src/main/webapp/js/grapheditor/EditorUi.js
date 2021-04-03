@@ -1250,15 +1250,13 @@ EditorUi.prototype.installShapePicker = function()
  */
 EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction)
 {
-	var cells = this.getCellsForShapePicker(source);
+	var div = this.createShapePicker(x, y, source, callback, direction, mxUtils.bind(this, function()
+	{	
+		this.hideShapePicker();
+	}), this.getCellsForShapePicker(source));
 	
-	if (cells != null && cells.length > 0)
+	if (div != null)
 	{
-		var div = this.createShapePicker(x, y, source, callback, direction, mxUtils.bind(this, function()
-		{	
-			this.hideShapePicker();
-		}));
-		
 		if (this.hoverIcons != null)
 		{
 			this.hoverIcons.reset();
@@ -1278,24 +1276,25 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction)
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction, afterClick)
+EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction, afterClick, cells)
 {
-	var cells = this.getCellsForShapePicker(source);
+	var div = null;
 	
 	if (cells != null && cells.length > 0)
 	{
 		var ui = this;
 		var graph = this.editor.graph;
-		var div = document.createElement('div');
+		div = document.createElement('div');
 		var sourceState = graph.view.getState(source);
 		var style = (source != null && (sourceState == null ||
 			!graph.isTransparentState(sourceState))) ?
 			graph.copyStyle(source) : null;
 		
 		// Do not place entry under pointer for touch devices
+		var w = (cells.length < 6) ? cells.length * 35 : 140;
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
 		div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + y +
-			'px;width:140px;border-radius:10px;padding:4px;text-align:center;' +
+			'px;width:' + w + 'px;border-radius:10px;padding:4px;text-align:center;' +
 			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
 		mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-22px,-22px)');
 		
@@ -1315,13 +1314,13 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				'width:30px;height:30px;cursor:pointer;overflow:hidden;padding:3px 0 0 3px;';
 			div.appendChild(node);
 			
-			if (style != null)
+			if (style != null && urlParams['sketch'] != '1')
 			{
 				this.sidebar.graph.pasteStyle(style, [cell]);
 			}
 			else
 			{
-				ui.insertHandler([cell], cell.value != '', this.sidebar.graph.model);
+				ui.insertHandler([cell], cell.value != '' && urlParams['sketch'] != '1', this.sidebar.graph.model);
 			}
 			
 			this.sidebar.createThumb([cell], 25, 25, node, null, true, false, cell.geometry.width, cell.geometry.height);
@@ -1403,7 +1402,7 @@ EditorUi.prototype.getCellsForShapePicker = function(cell)
 		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
 		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
 		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
-		createVertex('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;', 60, 80)];
+		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[[0.5,0.5,0]];fillColor=none;snapToPoint=1;resizable=0;rotatable=0;', 40, 40)];
 };
 
 /**

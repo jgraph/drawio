@@ -186,6 +186,53 @@
 			<fillstroke/>
 		</foreground>
 	</shape>
+	<shape aspect="fixed" h="110" name="NMOS Bulk" strokewidth="inherit" w="70">
+		<connections>
+			<constraint name="NE" perimeter="0" x="1" y="0"/>
+			<constraint name="E" perimeter="0" x="1" y="0.5"/>
+			<constraint name="SE" perimeter="0" x="1" y="1"/>
+			<constraint name="W" perimeter="0" x="0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="0" y="55"/>
+				<line x="41" y="55"/>
+			</path>
+		</background>
+		<foreground>
+			<stroke/>
+			<path>
+				<move x="41" y="35"/>
+				<line x="41" y="75"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="45" y="55"/>
+				<line x="70" y="55"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="70" y="0"/>
+				<line x="70" y="35"/>
+				<line x="45" y="35"/>
+				<line x="45" y="75"/>
+				<line x="70" y="75"/>
+				<line x="70" y="110"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="54" y="70"/>
+				<line x="69" y="75"/>
+				<line x="54" y="80"/>
+				<close/>
+			</path>
+			<fillstroke/>
+		</foreground>
+	</shape>
 	<shape aspect="fixed" h="110" name="NPN Transistor 1" strokewidth="inherit" w="100">
 		<connections>
 			<constraint name="NE" perimeter="0" x="0.7" y="0"/>
@@ -423,6 +470,53 @@
 				<close/>
 			</path>
 			<fillstroke/>
+		</foreground>
+	</shape>
+	<shape aspect="fixed" h="110" name="PMOS Bulk" strokewidth="inherit" w="70">
+		<connections>
+			<constraint name="NE" perimeter="0" x="1" y="0"/>
+			<constraint name="E" perimeter="0" x="1" y="0.5"/>
+			<constraint name="SE" perimeter="0" x="1" y="1"/>
+			<constraint name="W" perimeter="0" x="0" y="0.5"/>
+		</connections>
+		<background>
+			<save/>
+			<path>
+				<move x="0" y="55"/>
+				<line x="41" y="55"/>
+			</path>
+		</background>
+		<foreground>
+			<stroke/>
+			<path>
+				<move x="41" y="35"/>
+				<line x="41" y="75"/>
+			</path>
+			<stroke/>
+			<path>
+				<move x="70" y="0"/>
+				<line x="70" y="35"/>
+				<line x="45" y="35"/>
+				<line x="45" y="75"/>
+				<line x="70" y="75"/>
+				<line x="70" y="110"/>
+			</path>
+			<stroke/>
+			<restore/>
+			<rect/>
+			<stroke/>
+			<path>
+				<move x="61" y="30"/>
+				<line x="46" y="35"/>
+				<line x="61" y="40"/>
+				<close/>
+			</path>
+			<fillstroke/>
+			<path>
+				<move x="45" y="55"/>
+				<line x="70" y="55"/>
+			</path>
+			<stroke/>
 		</foreground>
 	</shape>
 	<shape aspect="fixed" h="110" name="PNP Transistor 1" strokewidth="inherit" w="100">

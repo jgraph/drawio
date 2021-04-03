@@ -114,6 +114,10 @@ mxStencilRegistry.allowEval = false;
 					{
 						plugins[i] = '.' + plugins[i];
 					}
+					else if (plugins[i].startsWith('plugins/'))
+					{
+						plugins[i] = './' + plugins[i];
+					}
 					//Support old plugins added using file:// workaround
 					else if (!plugins[i].startsWith('file://'))
 					{

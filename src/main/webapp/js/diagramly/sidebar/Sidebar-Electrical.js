@@ -464,8 +464,12 @@
 					95, 100, '', 'Dual Gate MOSFET (P)', null, null, this.getTagsForStencil(gnmet, 'dual_gate_mosfet_p', dtmet).join(' ')),
 			this.createVertexTemplateEntry(met + 'nmos;pointerEvents=1;', 
 					60, 100, '', 'NMOS', null, null, this.getTagsForStencil(gnmet, 'nmos', dtmet).join(' ')),
+			this.createVertexTemplateEntry(met + 'nmos_bulk;pointerEvents=1;', 
+					60, 100, '', 'NMOS with Bulk', null, null, this.getTagsForStencil(gnmet, 'nmos bulk', dtmet).join(' ')),
 			this.createVertexTemplateEntry(met + 'pmos;pointerEvents=1;', 
-					60, 100, '', 'PMOS', null, null, this.getTagsForStencil(gnmet, 'pmos', dtmet).join(' '))
+					60, 100, '', 'PMOS', null, null, this.getTagsForStencil(gnmet, 'pmos', dtmet).join(' ')),
+			this.createVertexTemplateEntry(met + 'pmos_bulk;pointerEvents=1;', 
+					60, 100, '', 'PMOS with Bulk', null, null, this.getTagsForStencil(gnmet, 'pmos bulk', dtmet).join(' '))
 		]);
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Instruments');

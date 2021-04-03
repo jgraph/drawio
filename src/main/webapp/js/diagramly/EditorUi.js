@@ -3646,22 +3646,23 @@
 			}
     	}
 
+		Editor.sketchFontFamily = 'Architects Daughter';
+		Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
+
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
-			Graph.prototype.defaultVertexStyle = {'fontFamily': 'Architects Daughter', 'fontSize': '16',
-				'fontSource': 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter',
-				'pointerEvents': '0', 'sketch': '1', 'hachureGap': '4'};
+			Graph.prototype.defaultVertexStyle = {'fontFamily': Editor.sketchFontFamily , 'fontSize': '20',
+				'fontSource': Editor.sketchFontSource, 'pointerEvents': '0', 'sketch': '1', 'hachureGap': '4'};
 			
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'endSize': '14',
-				'fontFamily': 'Architects Daughter', 'fontSize': '16',
-				'fontSource': 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter',
+				'fontFamily': Editor.sketchFontFamily, 'fontSize': '20','fontSource': Editor.sketchFontSource,
 				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch': '1'};
 			
-			mxConnectionHandler.prototype.createTarget = true;
 			Graph.prototype.defaultGridEnabled = false;
 			Graph.prototype.defaultPageVisible = false;
+			Graph.prototype.defaultEdgeLength = 120;
 		}
     };
     

@@ -1366,7 +1366,7 @@
 			mxResources.parse('showBoundingBox=Show bounding box');
 			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
 			mxResources.parse('testCheckFile=Check File');
-			mxResources.parse('testDiff=Diff');
+			mxResources.parse('testDiff=Diff/Sync');
 			mxResources.parse('testInspect=Inspect');
 			mxResources.parse('testShowConsole=Show Console');
 			mxResources.parse('testXmlImageExport=XML Image Export');
@@ -1564,36 +1564,66 @@
 				dlg.init();
 			}));
 	
+			var snapshot = null;
+			
 			editorUi.actions.addAction('testDiff', mxUtils.bind(this, function()
 			{
 				if (editorUi.pages != null)
 				{
-			    	var dlg = new TextareaDialog(editorUi, 'Paste Data:', '',
+					var buttons = [['Snapshot', function(evt, input)
+					{
+						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
+							editorUi.getFileData(true)).documentElement);
+						dlg.textarea.value = 'Snapshot updated ' + new Date().toLocaleString();
+					}], ['Diff', function(evt, input)
+					{
+						try
+						{
+							dlg.textarea.value = JSON.stringify(editorUi.diffPages(
+								snapshot, editorUi.pages), null, 2);
+						}
+						catch (e)
+						{
+							editorUi.handleError(e);
+						}
+					}]];
+					
+			    	var dlg = new TextareaDialog(editorUi, 'Diff/Sync:', '',
 			    		function(newValue)
 					{
-						if (newValue.length > 0)
+						var file = editorUi.getCurrentFile();
+						
+						if (newValue.length > 0 && file != null)
 						{
 							try
 							{
-								console.log(JSON.stringify(editorUi.diffPages(editorUi.pages,
-									editorUi.getPagesForNode(mxUtils.parseXml(newValue).
-									documentElement)), null, 2));
-	
+								var patch = JSON.parse(newValue);
+								file.patch([patch], null, true);
+								editorUi.hideDialog();
 							}
 							catch (e)
 							{
 								editorUi.handleError(e);
-								
-								if (window.console != null)
-								{
-									console.error(e);
-								}
 							}
 						}
-					});
+					}, null, 'Close', null, null, null, true, null, 'Patch', null, buttons);
 			    	
 			    	dlg.textarea.style.width = '600px';
 			    	dlg.textarea.style.height = '380px';
+
+
+					if (snapshot == null)
+					{
+						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
+							editorUi.getFileData(true)).documentElement);
+						dlg.textarea.value = 'Snapshot created ' + new Date().toLocaleString();
+					}
+					else
+					{
+						dlg.textarea.value = JSON.stringify(editorUi.diffPages(
+							snapshot, editorUi.pages), null, 2);
+					}
+					
 					editorUi.showDialog(dlg.container, 620, 460, true, true);
 					dlg.init();
 				}
@@ -2419,17 +2449,20 @@
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
-						
-			item = menu.addItem(mxResources.get('sketch'), null, function()
-			{
-				mxSettings.setUi('sketch');
-				mxSettings.save();
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
-			}, parent);
 			
-			if (theme == 'sketch')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
+			if (urlParams['test'] == '1')
+			{			
+				item = menu.addItem(mxResources.get('sketch'), null, function()
+				{
+					mxSettings.setUi('sketch');
+					mxSettings.save();
+					editorUi.alert(mxResources.get('restartForChangeRequired'));
+				}, parent);
+				
+				if (theme == 'sketch')
+				{
+					menu.addCheckmark(item, Editor.checkmarkImage);
+				}
 			}
 		})));
 

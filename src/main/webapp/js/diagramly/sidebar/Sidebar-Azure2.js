@@ -946,6 +946,8 @@
 					r * 0.14, r * 0.17, '', 'Network Security Groups', null, null, this.getTagsForStencil(gn, 'network security groups', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Network_Watcher.svg;',
 					r * 0.16, r * 0.16, '', 'Network Watcher', null, null, this.getTagsForStencil(gn, 'network watcher', dt).join(' ')),
+			this.createVertexTemplateEntry(s + 'Private_Endpoint.svg;',
+					r * 0.18, r * 0.165, '', 'Private Endpoint', null, null, this.getTagsForStencil(gn, 'private endpoint', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Private_Link.svg;',
 					r * 0.18, r * 0.165, '', 'Private Link', null, null, this.getTagsForStencil(gn, 'private link', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Private_Link_Service.svg;',
