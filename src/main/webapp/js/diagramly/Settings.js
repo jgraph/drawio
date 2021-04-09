@@ -15,7 +15,7 @@ var mxSettings =
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
 	
 	// NOTE: Hardcoded in index.html due to timing of JS loading
-	key: '.drawio-config',
+	key: Editor.settingsKey,
 
 	getLanguage: function()
 	{
@@ -212,7 +212,7 @@ var mxSettings =
 			plugins: [],
 			recentColors: [],
 			formatWidth: mxSettings.defaultFormatWidth,
-			createTarget: false,
+			createTarget: urlParams['sketch'] == '1',
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,

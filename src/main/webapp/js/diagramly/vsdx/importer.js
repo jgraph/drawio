@@ -153,8 +153,8 @@ var com;
                 
                 mxVsdxCodec.incorrectXMLReqExp = [
                 	{
-                		regExp: /(\>[^&<]*)\&([^&<;]*\<)/g,
-                		repl: '$1&amp;$2'
+                		regExp: /\&(?!amp;|lt;|gt;|quot;|#)/g,
+                		repl: '&amp;'
                 	}
                 ];
                 

@@ -330,7 +330,6 @@
         <constraint name="SE" perimeter="0" x="1" y="0.95"/>
     </connections>
     <foreground>
-        <restore/>
         <rect/>
         <stroke/>
         <ellipse h="6" w="6" x="36.75" y="21.25"/>

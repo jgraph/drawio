@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.memcache.MemcacheServiceException;
 import com.google.appengine.api.utils.SystemProperty;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -140,7 +141,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				tokenCache.put(key, val);
 				done = true;
 			}
-			catch(Exception e) //MemcacheServiceException
+			catch(MemcacheServiceException e)
 			{
 				//delay in re-trial is above
 				done = false;

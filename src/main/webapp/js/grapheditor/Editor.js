@@ -244,10 +244,20 @@ Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
 Editor.hintOffset = 20;
 
 /**
+ * Specifies the image URL to be used for the transparent background.
+ */
+Editor.fitWindowBorders = null;
+
+/**
  * Specifies if the diagram should be saved automatically if possible. Default
  * is true.
  */
 Editor.popupsAllowed = true;
+
+/**
+ * Specifies if the html and whiteSpace styles should be removed on inserted cells.
+ */
+Editor.simpleLabels = false;
 	
 /**
  * Specifies if the native clipboard is enabled. Blocked in iframes for possible sandbox attribute.

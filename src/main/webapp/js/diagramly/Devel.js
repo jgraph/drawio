@@ -79,7 +79,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					replace(/%style-src%/g, '').
 					replace(/  /g, ' ') + ' frame-ancestors \'self\' https://teams.microsoft.com;';
 			console.log('app.diagrams.net:', app_diagrams_net);
-			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com').
+			// TODO remove https://ajax.googleapis.com April 2022. It's old jquery domain
+			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com https://cdnjs.cloudflare.com').
 					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
@@ -95,7 +96,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					'https://app.lucidchart.com; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com;');
 			console.log('Development:', devCsp);
 			
-			console.log('Header Worder:', 'let securityHeaders =', JSON.stringify({
+			console.log('Header Worker:', 'let securityHeaders =', JSON.stringify({
 				online: {
 					"Content-Security-Policy" : app_diagrams_net,
 					"Permissions-Policy" : "microphone=()"

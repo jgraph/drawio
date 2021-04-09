@@ -624,7 +624,11 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
 						}
 						else
 						{
-							this.file.mergeFile(latestFile);
+							this.file.mergeFile(latestFile, mxUtils.bind(this, function()
+							{
+								this.lastModified = this.file.getLastModifiedDate();
+								this.updateStatus();
+							}));
 						}
 					}
 				}), mxUtils.bind(this, function()

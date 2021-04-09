@@ -144,17 +144,25 @@ EditorUi = function(editor, container, lightbox)
 		// Keys that should be ignored if the cell has a value (known: new default for all cells is html=1 so
 	    // for the html key this effecticely only works for edges inserted via the connection handler)
 		var valueStyles = ['fontFamily', 'fontSource', 'fontSize', 'fontColor'];
+				
+		for (var i = 0; i < valueStyles.length; i++)
+		{
+			if (mxUtils.indexOf(styles, valueStyles[i]) < 0)
+			{
+				styles.push(valueStyles[i]);
+			}
+		}
 		
 		// Keys that always update the current edge style regardless of selection
 		var alwaysEdgeStyles = ['edgeStyle', 'startArrow', 'startFill', 'startSize', 'endArrow',
 			'endFill', 'endSize'];
 		
 		// Keys that are ignored together (if one appears all are ignored)
-		var keyGroups = [['startArrow', 'startFill', 'startSize', 'sourcePerimeterSpacing',
-						'endArrow', 'endFill', 'endSize', 'targetPerimeterSpacing'],
+		var keyGroups = [['startArrow', 'startFill', 'endArrow', 'endFill'],
+						 ['startSize', 'endSize'],
+						 ['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
 		                 ['strokeColor', 'strokeWidth'],
 		                 ['fillColor', 'gradientColor'],
-		                 valueStyles,
 		                 ['opacity'],
 		                 ['align'],
 		                 ['html']];
@@ -260,6 +268,12 @@ EditorUi = function(editor, container, lightbox)
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
 							}
 						}
+					}
+					
+					if (Editor.simpleLabels)
+					{
+						newStyle = mxUtils.setStyle(mxUtils.setStyle(
+							newStyle, 'html', null), 'whiteSpace', null);
 					}
 					
 					model.setStyle(cell, newStyle);
@@ -1387,22 +1401,26 @@ EditorUi.prototype.getCellsForShapePicker = function(cell)
 	});
 	
 	return [(cell != null) ? this.editor.graph.cloneCell(cell) :
-			createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;', 40, 20, 'Text'),
+			createVertex('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;', 40, 20, 'Text'),
 		createVertex('whiteSpace=wrap;html=1;'),
-		createVertex('ellipse;whiteSpace=wrap;html=1;', 120, 80),
+		createVertex('rounded=1;whiteSpace=wrap;html=1;'),
+		createVertex('ellipse;whiteSpace=wrap;html=1;'),
 		createVertex('rhombus;whiteSpace=wrap;html=1;', 80, 80),
 		createVertex('shape=parallelogram;perimeter=parallelogramPerimeter;whiteSpace=wrap;html=1;fixedSize=1;'),
 		createVertex('shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 60),
 		createVertex('shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
 		createVertex('shape=step;perimeter=stepPerimeter;whiteSpace=wrap;html=1;fixedSize=1;', 120, 80),
 		createVertex('shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;'),
-		createVertex('shape=cube;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;darkOpacity=0.05;darkOpacity2=0.1;', 120, 80),
-		createVertex('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;', 80, 100),
 		createVertex('triangle;whiteSpace=wrap;html=1;', 60, 80),
 		createVertex('shape=document;whiteSpace=wrap;html=1;boundedLbl=1;', 120, 80),
 		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
 		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
-		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[[0.5,0.5,0]];fillColor=none;snapToPoint=1;resizable=0;rotatable=0;', 40, 40)];
+		createVertex('shape=cylinder;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;', 60, 80),
+		createVertex('shape=callout;rounded=1;whiteSpace=wrap;html=1;perimeter=calloutPerimeter;', 120, 80),
+		createVertex('shape=doubleArrow;whiteSpace=wrap;html=1;arrowWidth=0.4;arrowSize=0.3;'),
+		createVertex('shape=singleArrow;whiteSpace=wrap;html=1;arrowWidth=0.4;arrowSize=0.4;', 80, 60),
+		createVertex('shape=singleArrow;whiteSpace=wrap;html=1;arrowWidth=0.4;arrowSize=0.4;flipH=1;', 80, 60),
+		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40)];
 };
 
 /**

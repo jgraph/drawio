@@ -865,10 +865,42 @@ App.main = function(callback, createUi)
 					{
 						EditorUi.debug('Setting configuration', JSON.stringify(value));
 						
+						if (value.merge != null)
+						{
+							var temp = localStorage.getItem(Editor.configurationKey);
+							
+							if (temp != null)
+							{
+								
+								try
+								{
+									var config = JSON.parse(temp);
+									
+									for (var key in value.merge)
+									{
+										config[key] = value.merge[key];
+										
+										console.log('key overridden', key);
+									}
+									
+									value = config;	
+								}
+								catch (e)
+								{
+									window.location.hash = '';
+									alert(e);
+								}								
+							}
+							else
+							{
+								value = value.merge;
+							}
+						}
+						
 						if (confirm(mxResources.get('configLinkWarn')) &&
 							confirm(mxResources.get('configLinkConfirm')))
 						{
-							localStorage.setItem('.configuration', JSON.stringify(value));
+							localStorage.setItem(Editor.configurationKey, JSON.stringify(value));
 							window.location.hash = '';
 							window.location.reload();
 						}
@@ -996,6 +1028,7 @@ App.main = function(callback, createUi)
 			}
 			else
 			{
+				mxStencilRegistry.allowEval = false;
 				App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js',
 					'js/extensions.min.js'], realMain);
 			}
@@ -1063,7 +1096,23 @@ App.main = function(callback, createUi)
 				console.error(e);
 			}
 		}
-		
+
+		// Prefetches default fonts with URLs
+		if (Menus.prototype.defaultFonts != null)
+		{
+			for (var i = 0; i < Menus.prototype.defaultFonts.length; i++)
+			{
+				var value = Menus.prototype.defaultFonts[i];
+				
+				if (typeof value !== 'string' &&
+					value.fontFamily != null &&
+					value.fontUrl != null)
+				{
+					Graph.addFont(value.fontFamily, value.fontUrl);
+				}
+			}
+		}
+	
 		// Adds required resources (disables loading of fallback properties, this can only
 		// be used if we know that all keys are defined in the language specific file)
 		mxResources.loadDefaultBundle = false;
@@ -1131,7 +1180,7 @@ App.main = function(callback, createUi)
 			// Loads configuration from local storage
 			if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
 			{
-				var configData = localStorage.getItem('.configuration');
+				var configData = localStorage.getItem(Editor.configurationKey);
 	
 				if (configData != null)
 				{
@@ -1877,43 +1926,10 @@ App.prototype.showNameConfBanner = function()
  */
 App.prototype.showDownloadDesktopBanner = function()
 {
-	var link = 'https://get.diagrams.net/';
-	
-	if (this.showBanner('DesktopFooter', mxResources.get('downloadDesktop'), mxUtils.bind(this, function()
-		{
-			this.openLink(link);
-		})))
+	this.showBanner('DesktopFooter', mxResources.get('downloadDesktop'), mxUtils.bind(this, function()
 	{
-		// Downloads installer for macOS and Windows
-		mxUtils.get('https://api.github.com/repos/jgraph/drawio-desktop/releases/latest', mxUtils.bind(this, function(req)
-		{
-			try
-			{
-				var rel = JSON.parse(req.getText());
-				
-				if (rel != null)
-				{
-					if (rel.tag_name != null && rel.name != null && rel.html_url != null)
-					{
-						if (mxClient.IS_MAC)
-						{
-							link = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-		        				rel.tag_name + '/draw.io-' + rel.name + '.dmg';
-						}
-						else if (mxClient.IS_WIN)
-						{
-							link = 'https://github.com/jgraph/drawio-desktop/releases/download/' +
-		        				rel.tag_name + '/draw.io-' + rel.name + '-windows-installer.exe';
-						}
-					}
-				}
-			}
-			catch (e)
-			{
-				// ignore
-			}
-		}));
-	}
+		this.openLink('https://get.diagrams.net/');
+	}));
 };
 
 /**
@@ -6288,6 +6304,8 @@ App.prototype.descriptorChanged = function()
 		this.format.refresh();
 		this.fileEditable = (file != null) ? file.isEditable() : null;
 	}
+	
+	this.fireEvent(new mxEventObject('fileDescriptorChanged', 'file', file));
 };
 
 /**
@@ -7327,21 +7345,34 @@ App.prototype.updateUserElement = function()
 						{
 							this.actions.get('share').funct();
 						}));
-						btn.className = 'geBtn gePrimaryBtn';
+						btn.className = 'geBtn';
+						div.appendChild(btn);
+						this.userPanel.appendChild(div);
+				
+						if (this.commentsSupported())
+						{
+							btn = mxUtils.button(mxResources.get('comments'), mxUtils.bind(this, function()
+							{
+								this.actions.get('comments').funct();
+							}));
+							btn.className = 'geBtn';
+							div.appendChild(btn);
+							this.userPanel.appendChild(div);
+						}
+					}
+					else
+					{
+						var btn = mxUtils.button(mxResources.get('close'), mxUtils.bind(this, function()
+						{
+							if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
+							{
+								this.userPanel.parentNode.removeChild(this.userPanel);
+							}
+						}));
+						btn.className = 'geBtn';
 						div.appendChild(btn);
 						this.userPanel.appendChild(div);
 					}
-
-					var btn = mxUtils.button(mxResources.get('close'), mxUtils.bind(this, function()
-					{
-						if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
-						{
-							this.userPanel.parentNode.removeChild(this.userPanel);
-						}
-					}));
-					btn.className = 'geBtn';
-					div.appendChild(btn);
-					this.userPanel.appendChild(div);
 
 					document.body.appendChild(this.userPanel);
 				}

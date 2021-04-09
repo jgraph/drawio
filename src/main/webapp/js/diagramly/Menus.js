@@ -33,11 +33,7 @@
 		
 		mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
 		{
-			if (this.editorUi.menubar != null)
-			{
-				this.editorUi.menubar.hideMenu();
-			}
-			
+			this.editorUi.hideCurrentMenu();
 			this.editorUi.openLink(href);
 			mxEvent.consume(evt);
 		}));
@@ -171,7 +167,22 @@
 		rulerAction.setEnabled(editorUi.canvasSupported && document.documentMode != 9);
 		rulerAction.setToggleAction(true);
 		rulerAction.setSelectedCallback(function() { return editorUi.ruler != null; });
-
+		
+        var fullscreenAction = editorUi.actions.addAction('fullscreen', function()
+		{
+			if (document.fullscreenElement == null)
+			{
+				document.body.requestFullscreen();
+			}
+			else
+			{
+				document.exitFullscreen();
+			}
+		});
+		fullscreenAction.visible = document.fullscreenEnabled;
+		fullscreenAction.setToggleAction(true);
+		fullscreenAction.setSelectedCallback(function() { return document.fullscreenElement != null; });
+		
 		editorUi.actions.addAction('properties...', function()
 		{
 			var dlg = new FilePropertiesDialog(editorUi);
@@ -830,7 +841,7 @@
 			editorUi.actions.addAction('configuration...', function()
 			{
 				// Add help, link button
-				var value = localStorage.getItem('.configuration');
+				var value = localStorage.getItem(Editor.configurationKey);
 				
 				var buttons = [[mxResources.get('reset'), function(evt, input)
 				{
@@ -838,7 +849,7 @@
 					{
 						try
 						{
-							localStorage.removeItem('.configuration');
+							localStorage.removeItem(Editor.configurationKey);
 							
 							if (mxEvent.isShiftDown(evt))
 							{
@@ -895,11 +906,11 @@
 							{
 								var obj = JSON.parse(newValue);
 								
-								localStorage.setItem('.configuration', JSON.stringify(obj));
+								localStorage.setItem(Editor.configurationKey, JSON.stringify(obj));
 							}
 							else
 							{
-								localStorage.removeItem('.configuration');
+								localStorage.removeItem(Editor.configurationKey);
 							}
 
 							editorUi.hideDialog();
@@ -1288,13 +1299,10 @@
 						input.value = '';
 						EditorUi.logEvent({category: 'SEARCH-HELP', action: 'search', label: term});
 						
-						if (this.editorUi.menubar != null)
+						window.setTimeout(mxUtils.bind(this, function()
 						{
-							window.setTimeout(mxUtils.bind(this, function()
-							{
-								this.editorUi.menubar.hideMenu();
-							}), 0);
-						}
+							this.editorUi.hideCurrentMenu();
+						}), 0);
 					}
 	                else if (e.keyCode == 27)
 	                {
@@ -3368,6 +3376,11 @@
 			
 			this.addMenuItems(menu, ['-', 'connectionArrows', 'connectionPoints', '-',
 			                         'resetView', 'zoomIn', 'zoomOut'], parent);
+
+			if (urlParams['sketch'] != '1')
+			{
+				 this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+			}
 		})));
 		
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3788,7 +3801,7 @@
 							this.editorUi.editor.graph.model.execute(change);
 						}
 						
-						this.editorUi.menubar.hideMenu();
+						this.editorUi.hideCurrentMenu();
 						mxEvent.consume(evt);
 					}));
 				}
@@ -3802,9 +3815,22 @@
 				}
 			});
 			
+			var reserved = {};
+
 			for (var i = 0; i < this.defaultFonts.length; i++)
 			{
-				addItem(this.defaultFonts[i]);
+				var value = this.defaultFonts[i];
+				
+				if (typeof value === 'string')
+				{
+					addItem(value);
+				}
+				else if (value.fontFamily != null && value.fontUrl != null)
+				{
+					reserved[encodeURIComponent(value.fontFamily) + '@' +
+						encodeURIComponent(value.fontUrl)] = true;
+					addItem(value.fontFamily, value.fontUrl);
+				}
 			}
 
 			menu.addSeparator(parent);
@@ -3822,33 +3848,37 @@
 					var key = encodeURIComponent(entry.name) +
 						((entry.url == null) ? '' :
 						'@' + encodeURIComponent(entry.url));
-					var label = entry.name;
-					var counter = 0;
-					
-					while (fontNames[label.toLowerCase()] != null)
+						
+					if (!reserved[key])
 					{
-						label = entry.name + ' (' + (++counter) + ')';
-					}
-					
-					if (duplicates[key] == null)
-					{
-						entries.push({name: entry.name, url: entry.url,
-							label: label, title: entry.url});
-						fontNames[label.toLowerCase()] = entry;
-						duplicates[key] = entry;
+						var label = entry.name;
+						var counter = 0;
+						
+						while (fontNames[label.toLowerCase()] != null)
+						{
+							label = entry.name + ' (' + (++counter) + ')';
+						}
+						
+						if (duplicates[key] == null)
+						{
+							entries.push({name: entry.name, url: entry.url,
+								label: label, title: entry.url});
+							fontNames[label.toLowerCase()] = entry;
+							duplicates[key] = entry;
+						}
 					}
 				};
 				
 				// Adds custom user defined fonts from local storage
 				for (var i = 0; i < this.customFonts.length; i++)
 				{
-					addEntry(this.customFonts[i], false);
+					addEntry(this.customFonts[i]);
 				}
 				
 				// Adds fonts that were recently used in the editor
 				for (var key in Graph.recentCustomFonts)
 				{
-					addEntry(Graph.recentCustomFonts[key], true);
+					addEntry(Graph.recentCustomFonts[key]);
 				}
 				
 				// Sorts by label

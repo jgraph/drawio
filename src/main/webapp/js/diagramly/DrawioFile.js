@@ -1203,6 +1203,7 @@ DrawioFile.prototype.loadPatchDescriptor = function(success, error)
 DrawioFile.prototype.patchDescriptor = function(desc, patch)
 {
 	this.setDescriptorEtag(desc, this.getDescriptorEtag(patch));
+	this.descriptorChanged();
 };
 
 /**
@@ -2072,6 +2073,12 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		{
 			this.shadowData = savedData;
 			this.shadowPages = null;
+			
+			if (this.sync != null)
+			{
+				this.sync.lastModified = this.getLastModifiedDate();
+				this.sync.resetUpdateStatusThread();
+			}
 			
 			if (success != null)
 			{

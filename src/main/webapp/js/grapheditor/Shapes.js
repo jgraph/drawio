@@ -329,7 +329,7 @@
 	WaypointShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
 		c.setFillColor(this.stroke);
-		var s = Math.max(0, parseFloat(mxUtils.getValue(this.style, 'size', this.size)));
+		var s = Math.max(0, parseFloat(mxUtils.getValue(this.style, 'size', this.size)) - 2) + 2 * this.strokewidth;
 		c.ellipse(x + (w - s) * 0.5, y + (h - s) * 0.5, s, s);
 		c.fill();
 		
@@ -2200,6 +2200,13 @@
 	};
 
 	mxCellRenderer.registerShape('umlFrame', UmlFrame);
+		
+	mxPerimeter.CenterPerimeter = function (bounds, vertex, next, orthogonal)
+	{
+		return new mxPoint(bounds.getCenterX(), bounds.getCenterY());
+	};
+	
+	mxStyleRegistry.putValue('centerPerimeter', mxPerimeter.CenterPerimeter);
 	
 	mxPerimeter.LifelinePerimeter = function (bounds, vertex, next, orthogonal)
 	{

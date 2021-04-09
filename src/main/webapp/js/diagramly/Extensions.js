@@ -283,8 +283,8 @@ LucidImporter = {};
 //UML Component
 			'UMLComponentBlock' : 'shape=component;align=left;spacingLeft=36',
 			'UMLComponentBlockV2' : 'shape=component;align=left;spacingLeft=36',
-			'UMLNodeBlock' : 'shape=cube;size=12;flipH=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=5',
-			'UMLNodeBlockV2' : 'shape=cube;size=12;flipH=1;verticalAlign=top;align=left;spacingTop=10;spacingLeft=5',
+			'UMLNodeBlock' : 'shape=cube;size=20;flipH=1;verticalAlign=top;spacingTop=22;spacingLeft=5',
+			'UMLNodeBlockV2' : 'shape=cube;size=20;flipH=1;verticalAlign=top;spacingTop=22;spacingLeft=5',
 			'UMLComponentInterfaceBlock' : 'ellipse',
 			'UMLComponentInterfaceBlockV2' : 'ellipse',
 			'UMLComponentBoxBlock' : cs,
@@ -5749,9 +5749,9 @@ LucidImporter = {};
 					// Anchor points and arrows					
 					var p1, p2;
 					
-					if (source == null || !source.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it (The same for flipped shapes)
+					if (source == null || !source.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
 					{
-						p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY);
+						p1 = updateEndpoint(cell, p.Endpoint1, true, implicitY, null, source);
 					}
 					
 					if (source != null && p1 != null)
@@ -5765,9 +5765,9 @@ LucidImporter = {};
 						LucidImporter.stylePointsSet.add(source);
 					}
 					
-					if (target == null || !target.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it (The same for flipped shapes)
+					if (target == null || !target.geometry.isRotated) //TODO Rotate the endpoint instead of ignoring it
 					{
-						p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY);
+						p2 = updateEndpoint(cell, p.Endpoint2, false, implicitY, null, target);
 					}
 					
 					if (target != null && p2 != null)
@@ -5850,16 +5850,21 @@ LucidImporter = {};
 		{
 			var count = 0;
 			
-			while (ta['t' + count] != null)
+			while (ta['t' + count] !== undefined) //Some files has null for some labels 
 			{
 				var tmp = ta['t' + count];
-				e = insertLabel(tmp, e, obj, source, target);
+				
+				if (tmp != null)
+				{
+					e = insertLabel(tmp, e, obj, source, target);
+				}
+				
 				count++;
 			}
 			
 			count = 0;
 			
-			while (ta['m' + count] != null || count < 1)
+			while (ta['m' + count] !== undefined || count < 1)
 			{
 				var tmp = ta['m' + count];
 				
@@ -6010,7 +6015,7 @@ LucidImporter = {};
 		return '';
 	};
 
-	function updateEndpoint(cell, endpoint, source, ignoreX, ignoreY)
+	function updateEndpoint(cell, endpoint, source, ignoreX, ignoreY, endCell)
 	{
 		if (endpoint != null)
 		{
@@ -6018,6 +6023,17 @@ LucidImporter = {};
 			{
 				endpoint.LinkX = Math.round(endpoint.LinkX * 1000) / 1000;
 				endpoint.LinkY = Math.round(endpoint.LinkY * 1000) / 1000;
+				
+				if (endCell.style && endCell.style.indexOf('flipH=1') > -1)
+				{
+					endpoint.LinkX = 1 - endpoint.LinkX;
+				}
+
+				if (endCell.style && endCell.style.indexOf('flipV=1') > -1)
+				{
+					endpoint.LinkY = 1 - endpoint.LinkY;
+				}
+				
 				cell.style += ((!ignoreX) ? ((source) ? 'exitX' : 'entryX') + '=' + endpoint.LinkX + ';' : '') +
 					((!ignoreY) ? (((source) ? 'exitY' : 'entryY') + '=' + endpoint.LinkY + ';') : '') +
 					((source) ? 'exitPerimeter' : 'entryPerimeter') + '=0;'; //perimeter as 0 works with both cases better

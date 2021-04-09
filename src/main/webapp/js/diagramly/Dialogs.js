@@ -6199,7 +6199,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
     
 	var tmp = document.createElement('div');
 	
-	function testMeta(re, cell, search)
+	function testMeta(re, cell, search, checkIndex)
 	{
 		if (typeof cell.value === 'object' && cell.value.attributes != null)
 		{
@@ -6211,7 +6211,8 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					var value = mxUtils.trim(attrs[i].nodeValue.replace(/[\x00-\x1F\x7F-\x9F]|\s+/g, ' ')).toLowerCase();
 					
-					if ((re == null && value.substring(0, search.length) === search) ||
+					if ((re == null && ((checkIndex && value.indexOf(search) >= 0) ||
+						(!checkIndex && value.substring(0, search.length) === search))) ||
 						(re != null && re.test(value)))
 					{
 						return true;
@@ -6351,9 +6352,13 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 					}
 					
 					var checkMeta = replaceInput.value == '';
+					var checkIndex = checkMeta;
 					
-					if ((re == null && (label.substring(0, searchStr.length) === searchStr || (checkMeta && testMeta(re, state.cell, searchStr)))) ||
-						(re != null && (re.test(label) || (checkMeta && testMeta(re, state.cell, searchStr)))))
+					if ((re == null && ((checkIndex && label.indexOf(searchStr) >= 0) ||
+						(!checkIndex && label.substring(0, searchStr.length) === searchStr) ||
+						(checkMeta && testMeta(re, state.cell, searchStr, checkIndex)))) ||
+						(re != null && (re.test(label) || (checkMeta &&
+						testMeta(re, state.cell, searchStr, checkIndex)))))
 					{
 						if (withReplace)
 						{

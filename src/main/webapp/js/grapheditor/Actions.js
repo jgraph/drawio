@@ -872,6 +872,16 @@ Actions.prototype.init = function()
 		}
 		else
 		{
+			var b = Editor.fitWindowBorders;
+			
+			if (b != null)
+			{
+				bounds.x -= b.x;
+				bounds.y -= b.y;
+				bounds.width += b.width + b.x;
+				bounds.height += b.height + b.y;
+			}
+			
 			graph.fitWindow(bounds);
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+H');
@@ -1399,6 +1409,9 @@ Actions.prototype.init = function()
 						{
 							geo = geo.clone();
 							geo.points = null;
+							geo.x = 0;
+							geo.y = 0;
+							geo.offset = null;
 							graph.getModel().setGeometry(cell, geo);
 						}
 					}

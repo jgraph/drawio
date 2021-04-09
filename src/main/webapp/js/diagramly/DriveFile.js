@@ -697,10 +697,10 @@ DriveFile.prototype.loadPatchDescriptor = function(success, error)
  */
 DriveFile.prototype.patchDescriptor = function(desc, patch)
 {
-	DrawioFile.prototype.patchDescriptor.apply(this, arguments);
-	
 	desc.headRevisionId = patch.headRevisionId;
 	desc.modifiedDate = patch.modifiedDate;
+	
+	DrawioFile.prototype.patchDescriptor.apply(this, arguments);
 };
 
 /**

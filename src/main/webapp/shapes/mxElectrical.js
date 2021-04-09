@@ -1839,3 +1839,252 @@ mxShapeElectricalDCSource3_v2.prototype.constraints = [
   new mxConnectionConstraint(new mxPoint(0.5, 0), true),
   new mxConnectionConstraint(new mxPoint(0.5, 1), true)
   ];
+
+//**********************************************************************************************************************************************************
+//Source
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSource(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSource, mxShape);
+
+mxShapeElectricalSource.prototype.cst = {
+		SHAPE_SOURCE : 'mxgraph.electrical.signal_sources.source'
+};
+
+mxShapeElectricalSource.prototype.customProperties = [
+	{name: 'elSourceType', dispName: 'Source Type', type: 'enum', defVal: 'independent',
+		enumList: [{val: 'independent', dispName: 'Independent'}, 
+			       {val: 'dependent', dispName: 'Dependent'}]
+	},
+	{name: 'elSignalType', dispName: 'Signal Type', type: 'enum', defVal: 'ac',
+		enumList: [{val: 'ac', dispName: 'AC'}, 
+	       	   {val: 'none', dispName: 'None'},
+	       	   {val: 'square', dispName: 'Square'},
+	       	   {val: 'triangular', dispName: 'Triangular'},
+	       	   {val: 'sawtooth', dispName: 'Sawtooth'},
+	       	   {val: 'noise', dispName: 'Noise'},
+	       	   {val: 'ideal', dispName: 'Ideal'},
+	       	   {val: 'expSquib', dispName: 'Explosive Squib'},
+	       	   {val: 'pulse', dispName: 'Pulse'},
+	       	   {val: 'invPulse', dispName: 'Inverse Pulse'},
+	       	   {val: 'chopSquare', dispName: 'Chopped Square'},
+	       	   {val: 'stepOn', dispName: 'Step On'},
+	       	   {val: 'stepOff', dispName: 'Step Off'},
+	       	   {val: 'dc1', dispName: 'DC Horizontal'},
+		       {val: 'dc2', dispName: 'DC Vertical'},
+		       {val: 'dc3', dispName: 'DC Plus minus'}]
+	}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSource.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	var sourceType = mxUtils.getValue(this.style, 'elSourceType', 'independent');
+	var signalType = mxUtils.getValue(this.style, 'elSignalType', 'none');
+
+	switch (sourceType)
+	{
+		case "independent" :
+				c.ellipse(0, 0, w, h);
+				c.fillAndStroke();
+			break;
+		case "dependent" :
+				c.begin();
+				c.moveTo(0, h * 0.5);
+				c.lineTo(w * 0.5, 0);
+				c.lineTo(w, h * 0.5);
+				c.lineTo(w * 0.5, h);
+				c.lineTo(0, h * 0.5);
+				c.close();
+				c.fillAndStroke();
+			break;
+	}
+	
+	switch (signalType)
+	{
+		case "ac" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.5);
+				c.quadTo(w * 0.34, h * 0.35, w * 0.4, h * 0.35);
+				c.quadTo(w * 0.46, h * 0.35, w * 0.5, h * 0.5);
+				c.quadTo(w * 0.53, h * 0.65, w * 0.6, h * 0.65);
+				c.quadTo(w * 0.66, h * 0.65, w * 0.7, h * 0.5);
+				c.stroke();
+			break;
+		case "square" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.5);
+				c.lineTo(w * 0.3, h * 0.35);
+				c.lineTo(w * 0.5, h * 0.35);
+				c.lineTo(w * 0.5, h * 0.65);
+				c.lineTo(w * 0.7, h * 0.65);
+				c.lineTo(w * 0.7, h * 0.5);
+				c.stroke();
+			break;
+		case "triangular" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.65);
+				c.lineTo(w * 0.4, h * 0.35);
+				c.lineTo(w * 0.5, h * 0.65);
+				c.lineTo(w * 0.6, h * 0.35);
+				c.lineTo(w * 0.7, h * 0.65);
+				c.stroke();
+			break;
+		case "sawtooth" :
+				c.begin();
+				c.moveTo(w * 0.24, h * 0.65);
+				c.lineTo(w * 0.42, h * 0.35);
+				c.lineTo(w * 0.42, h * 0.65);
+				c.lineTo(w * 0.58, h * 0.35);
+				c.lineTo(w * 0.58, h * 0.65);
+				c.lineTo(w * 0.76, h * 0.35);
+				c.lineTo(w * 0.76, h * 0.65);
+				c.stroke();
+			break;
+		case "noise" :
+				c.begin();
+				c.moveTo(w * 0.5, h * 0.17);
+				c.lineTo(w * 0.5, h * 0.5);
+				c.moveTo(w * 0.18, h * 0.42);
+				c.lineTo(w * 0.5, h * 0.5);
+				c.moveTo(w * 0.32, h * 0.78);
+				c.lineTo(w * 0.5, h * 0.5);
+				c.moveTo(w * 0.82, h * 0.42);
+				c.lineTo(w * 0.5, h * 0.5);
+				c.moveTo(w * 0.68, h * 0.78);
+				c.lineTo(w * 0.5, h * 0.5);
+				c.stroke();
+			break;
+		case "ideal" :
+				c.begin();
+				c.moveTo(0, h * 0.5);
+				c.lineTo(w, h * 0.5);
+				c.stroke();
+			break;
+		case "expSquib" :
+				c.ellipse(0, h * 0.43, w * 0.14, h * 0.14);
+				c.stroke();
+				c.ellipse(w * 0.86, h * 0.43, w * 0.14, h * 0.14);
+				c.stroke();
+				c.begin();
+				c.moveTo(w * 0.83, h * 0.63);
+				c.lineTo(w * 0.73, h * 0.73);
+				c.lineTo(w * 0.27, h * 0.27);
+				c.lineTo(w * 0.17, h * 0.37);
+				c.stroke();
+				c.begin();
+
+				var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
+				c.setFillColor(strokeColor);
+				
+				c.moveTo(w * 0.2, h * 0.25);
+				c.lineTo(w * 0.13, h * 0.4);
+				c.lineTo(w * 0.28, h * 0.33);
+				c.close();
+				c.fillAndStroke();
+			break;
+		case "pulse" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.65);
+				c.lineTo(w * 0.4, h * 0.65);
+				c.lineTo(w * 0.4, h * 0.35);
+				c.lineTo(w * 0.6, h * 0.35);
+				c.lineTo(w * 0.6, h * 0.65);
+				c.lineTo(w * 0.7, h * 0.65);
+				c.stroke();
+			break;
+		case "invPulse" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.35);
+				c.lineTo(w * 0.4, h * 0.35);
+				c.lineTo(w * 0.4, h * 0.65);
+				c.lineTo(w * 0.6, h * 0.65);
+				c.lineTo(w * 0.6, h * 0.35);
+				c.lineTo(w * 0.7, h * 0.35);
+				c.stroke();
+			break;
+		case "chopSquare" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.5);
+				c.lineTo(w * 0.33, h * 0.35);
+				c.lineTo(w * 0.47, h * 0.35);
+				c.lineTo(w * 0.53, h * 0.65);
+				c.lineTo(w * 0.67, h * 0.65);
+				c.lineTo(w * 0.7, h * 0.5);
+				c.stroke();
+			break;
+		case "stepOn" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.65);
+				c.lineTo(w * 0.5, h * 0.65);
+				c.lineTo(w * 0.5, h * 0.35);
+				c.lineTo(w * 0.7, h * 0.35);
+				c.stroke();
+			break;
+		case "stepOff" :
+				c.begin();
+				c.moveTo(w * 0.3, h * 0.35);
+				c.lineTo(w * 0.5, h * 0.35);
+				c.lineTo(w * 0.5, h * 0.65);
+				c.lineTo(w * 0.7, h * 0.65);
+				c.stroke();
+			break;
+		case "dc1" :
+				c.begin();
+				c.moveTo(w * 0.17, h * 0.5);
+				c.lineTo(w * 0.83, h * 0.5);
+				c.moveTo(w * 0.67, h * 0.42);
+				c.lineTo(w * 0.83, h * 0.5);
+				c.lineTo(w * 0.67, h * 0.58);
+				c.stroke();
+			break;
+		case "dc2" :
+				c.begin();
+				c.moveTo(w * 0.5, h * 0.17);
+				c.lineTo(w * 0.5, h * 0.83);
+				c.moveTo(w * 0.42, h * 0.67);
+				c.lineTo(w * 0.5, h * 0.83);
+				c.lineTo(w * 0.58, h * 0.67);
+				c.stroke();
+			break;
+		case "dc3" :
+				var ss = Math.max(3, Math.min(h, w) * 0.05); // half of symbol size
+				var i = 3; //indent
+				
+				if (sourceType == 'dependent')
+				{
+					i += 3;
+				}
+				
+				c.begin();
+				c.moveTo(w * 0.5 - ss, h * 0.05 + i);
+				c.lineTo(w * 0.5 + ss, h * 0.05 + i);
+				c.moveTo(w * 0.5, h * 0.05 - ss + i);
+				c.lineTo(w * 0.5, h * 0.05 + ss + i);
+				c.moveTo(w * 0.5 - ss, h * 0.95 - i);
+				c.lineTo(w * 0.5 + ss, h * 0.95 - i);
+				c.stroke();
+			break;
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSource.prototype.cst.SHAPE_SOURCE, mxShapeElectricalSource);

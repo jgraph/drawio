@@ -2138,6 +2138,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	var panel = this;
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
+	var model = graph.getModel();
 	var rect = this.format.getSelectionState();
 
 	var div = this.createPanel();
@@ -2350,8 +2351,8 @@ ArrangePanel.prototype.addGeometry = function(container)
 	this.addKeyHandler(left, listener);
 	this.addKeyHandler(top, listener);
 
-	graph.getModel().addListener(mxEvent.CHANGE, listener);
-	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
+	model.addListener(mxEvent.CHANGE, listener);
+	this.listeners.push({destroy: function() { model.removeListener(listener); }});
 	listener();
 	
 	leftUpdate = this.addGeometryHandler(left, function(geo, value)
@@ -2383,6 +2384,38 @@ ArrangePanel.prototype.addGeometry = function(container)
 
 	if (rect.movable)
 	{
+		if (rect.edges.length == 0 && rect.vertices.length == 1 &&
+			model.isEdge(model.getParent(rect.vertices[0])))
+		{
+			var geo = graph.getCellGeometry(rect.vertices[0]);
+			
+			if (geo != null && geo.relative)
+			{
+				var btn = mxUtils.button(mxResources.get('center'), mxUtils.bind(this, function(evt)
+				{
+					model.beginUpdate();
+					try
+					{
+						geo = geo.clone();
+						geo.x = 0;
+						geo.y = 0;
+						geo.offset = new mxPoint();
+						model.setGeometry(rect.vertices[0], geo);
+					}
+					finally
+					{
+						model.endUpdate();
+					}
+				}));
+				
+				btn.setAttribute('title', mxResources.get('center'));
+				btn.style.width = '202px';
+				btn.style.position = 'absolute';
+				mxUtils.br(div2);
+				mxUtils.br(div2);
+				div2.appendChild(btn);
+			}
+		}
 		container.appendChild(div2);
 	}
 };
@@ -4706,7 +4739,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	// Stroke width
 	var input = document.createElement('input');
 	input.style.textAlign = 'right';
-	input.style.marginTop = '2px';
+	input.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
 	input.style.width = '41px';
 	input.setAttribute('title', mxResources.get('linewidth'));
 	
@@ -4751,12 +4784,12 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var stepper = this.createStepper(input, update, 1, 9);
 	stepper.style.display = input.style.display;
-	stepper.style.marginTop = '2px';
+	stepper.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
 	stylePanel.appendChild(stepper);
-	
+
 	var altStepper = this.createStepper(altInput, altUpdate, 1, 9);
 	altStepper.style.display = altInput.style.display;
-	altStepper.style.marginTop = '2px';
+	altStepper.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
 	altStylePanel.appendChild(altStepper);
 	
 	input.style.position = 'absolute';

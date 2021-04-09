@@ -3652,17 +3652,24 @@
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
+			Menus.prototype.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
+				'fontUrl': decodeURIComponent(Editor.sketchFontSource)}].
+				concat(Menus.prototype.defaultFonts);
+
 			Graph.prototype.defaultVertexStyle = {'fontFamily': Editor.sketchFontFamily , 'fontSize': '20',
 				'fontSource': Editor.sketchFontSource, 'pointerEvents': '0', 'sketch': '1', 'hachureGap': '4'};
 			
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
-				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'endSize': '14',
+				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
 				'fontFamily': Editor.sketchFontFamily, 'fontSize': '20','fontSource': Editor.sketchFontSource,
 				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch': '1'};
 			
+			Editor.configurationKey = '.sketch-configuration';
+			Editor.settingsKey = '.sketch-config';
 			Graph.prototype.defaultGridEnabled = false;
 			Graph.prototype.defaultPageVisible = false;
 			Graph.prototype.defaultEdgeLength = 120;
+			Editor.fitWindowBorders = new mxRectangle(60, 30, 30, 30);
 		}
     };
     
@@ -9281,7 +9288,8 @@
 
 						this.styleInput.value = style || '';
 						this.styleInput.style.visibility = 'visible';
-					} else
+					}
+					else
 					{
 						this.styleInput.style.visibility = 'hidden';
 					}
@@ -11444,6 +11452,12 @@
 												page = this.updatePageRoot(this.pages[i]);
 												break;
 											}
+										}
+										
+										//If pageId info is incorrect
+										if (page == null)
+										{
+											page = this.currentPage; 
 										}
 								
 										graph.getGlobalVariable = function(name)

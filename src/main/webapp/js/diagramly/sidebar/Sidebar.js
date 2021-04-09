@@ -1404,6 +1404,15 @@
 					
 					graph.addCell(target);
 					graph.getModel().setTerminal(graph.getSelectionCell(), target, false);
+					
+					if (evt == null || !mxEvent.isShiftDown(evt))
+					{
+						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [target]));
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
 				}
 				finally
 				{
