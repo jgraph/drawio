@@ -179,7 +179,7 @@
 				document.exitFullscreen();
 			}
 		});
-		fullscreenAction.visible = document.fullscreenEnabled;
+		fullscreenAction.visible = document.fullscreenEnabled && document.body.requestFullscreen != null;
 		fullscreenAction.setToggleAction(true);
 		fullscreenAction.setSelectedCallback(function() { return document.fullscreenElement != null; });
 		

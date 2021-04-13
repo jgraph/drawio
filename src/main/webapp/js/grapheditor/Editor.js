@@ -458,7 +458,8 @@ Editor.prototype.resetGraph = function()
  */
 Editor.prototype.readGraphState = function(node)
 {
-	this.graph.gridEnabled = node.getAttribute('grid') != '0' && (!this.isChromelessView() || urlParams['grid'] == '1');
+	this.graph.gridEnabled = this.graph.defaultGridEnabled && node.getAttribute('grid') != '0' &&
+		(!this.isChromelessView() || urlParams['grid'] == '1');
 	this.graph.gridSize = parseFloat(node.getAttribute('gridSize')) || mxGraph.prototype.gridSize;
 	this.graph.graphHandler.guidesEnabled = node.getAttribute('guides') != '0';
 	this.graph.setTooltips(node.getAttribute('tooltips') != '0');

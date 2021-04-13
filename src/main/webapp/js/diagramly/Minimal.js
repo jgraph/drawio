@@ -71,6 +71,9 @@ EditorUi.initMinimalTheme = function()
            'html tr.mxPopupMenuItemHover td.mxPopupMenuItem, html tr.mxPopupMenuItemHover td.mxPopupMenuItem span { color: #fff !important; }' +
            'html tr.mxPopupMenuItem, html td.mxPopupMenuItem { transition-property: none !important; }' +
            'html table.mxPopupMenu hr { height: 2px; background-color: rgba(0,0,0,.07); margin: 5px 0; }' +
+           'html body td.mxWindowTitle { padding-right: 14px; }' +
+           'html td.mxWindowTitle div img { padding: 8px 4px; }' +
+           'html td.mxWindowTitle div { top: 0px !important; }' +
            // Fixes checkbox and radio size on iOS
            ((mxClient.IS_IOS) ? 'html input[type=checkbox], html input[type=radio] { height:12px; }' : '') +
 			((urlParams['sketch'] == '1') ? 'html .geStatusAlertOrange, html .geStatusAlert  { margin-top: -2px; }' +
@@ -1142,16 +1145,16 @@ EditorUi.initMinimalTheme = function()
 					
 					if (this.minimized)
 					{
-						this.div.style.width = '80px';
-						this.table.style.width = '80px';
-						this.div.style.left = parseInt(this.div.style.left) + 160 + 'px';
+						this.div.style.width = '90px';
+						this.table.style.width = '90px';
+						this.div.style.left = parseInt(this.div.style.left) + 150 + 'px';
 					}
 					else
 					{
 						
 						this.div.style.width = '240px';
 						this.table.style.width = '240px';
-						this.div.style.left = parseInt(this.div.style.left) - 160 + 'px';
+						this.div.style.left = parseInt(this.div.style.left) - 150 + 'px';
 					}
 					
 					this.fit();
@@ -1436,7 +1439,9 @@ EditorUi.initMinimalTheme = function()
 
         var viewZoomMenu = ui.menus.get('viewZoom');
 
-		var insertImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==';
+		var insertImage = (urlParams['sketch'] != '1') ?
+			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==' :
+			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48Zz48cGF0aCBkPSJNMywxMWg4VjNIM1YxMXogTTUsNWg0djRINVY1eiIvPjxwYXRoIGQ9Ik0xMywzdjhoOFYzSDEzeiBNMTksOWgtNFY1aDRWOXoiLz48cGF0aCBkPSJNMywyMWg4di04SDNWMjF6IE01LDE1aDR2NEg1VjE1eiIvPjxwb2x5Z29uIHBvaW50cz0iMTgsMTMgMTYsMTMgMTYsMTYgMTMsMTYgMTMsMTggMTYsMTggMTYsMjEgMTgsMjEgMTgsMTggMjEsMTggMjEsMTYgMTgsMTYiLz48L2c+PC9nPjwvc3ZnPg==';
 		var shapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+';
 		var formatImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==';
 
@@ -1461,6 +1466,21 @@ EditorUi.initMinimalTheme = function()
 					ui.statusContainer.style.display = 'none';
 				}
 			});
+			
+			var setNotificationTitle = mxUtils.bind(this, function(title)
+			{
+				if (ui.notificationBtn != null)
+				{
+					if (title != null)
+					{
+						ui.notificationBtn.setAttribute('title', title);
+					}
+					else
+					{
+						ui.notificationBtn.removeAttribute('title');
+					}
+				}
+			});
 					
 			// Connects the status bar to the editor status and
 			// moves status to bell icon tooltip for trivial messages
@@ -1474,17 +1494,18 @@ EditorUi.initMinimalTheme = function()
 				{
 					if (ui.statusContainer.firstChild != null)
 					{
-						ui.notificationBtn.setAttribute('title', ui.statusContainer.firstChild.getAttribute('title'));
+						setNotificationTitle(ui.statusContainer.firstChild.getAttribute('title'));
 					}
 					else
 					{
-						ui.notificationBtn.setAttribute('title', ui.editor.getStatus());
+						setNotificationTitle(ui.editor.getStatus());
 					}
 					
 					var file = ui.getCurrentFile();
 					var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
 					
-					if (ui.notificationBtn.getAttribute('title') == mxResources.get(key) + '...')
+					if (ui.notificationBtn != null &&
+						ui.notificationBtn.getAttribute('title') == mxResources.get(key) + '...')
 					{
 						ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
 							mxResources.get(key)) + '...' + '"src="' + IMAGE_PATH + '/spin.gif">';
@@ -1500,7 +1521,7 @@ EditorUi.initMinimalTheme = function()
 				else
 				{
 					ui.statusContainer.style.display = 'inline-block';
-					ui.notificationBtn.removeAttribute('title');
+					setNotificationTitle(null);
 					
 					statusVisible = true;
 				}
@@ -1667,12 +1688,15 @@ EditorUi.initMinimalTheme = function()
 				redoAction.addListener('stateChanged', undoListener);
 				undoListener();
 				
-				fullscreenElt.style.borderStyle = 'none';
-				fullscreenElt.style.boxShadow = 'none';
-				fullscreenElt.style.borderRadius = '0px';
-				fullscreenElt.style.opacity = '0.4';
-				fullscreenElt.style.margin = '0px';
-				footer.appendChild(fullscreenElt);
+				if (fullscreenAction.visible)
+				{
+					fullscreenElt.style.borderStyle = 'none';
+					fullscreenElt.style.boxShadow = 'none';
+					fullscreenElt.style.borderRadius = '0px';
+					fullscreenElt.style.opacity = '0.4';
+					fullscreenElt.style.margin = '0px';
+					footer.appendChild(fullscreenElt);
+				}
 					
 				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction, zoomOutImage);
 				zoomOutElt.style.borderStyle = 'none';
@@ -1744,8 +1768,8 @@ EditorUi.initMinimalTheme = function()
 				wrapper.appendChild(footer);
 				
 				picker.style.cssText = 'position:absolute;left:10px;z-index:1;border-radius:4px;' +
-					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;background-color:#fff;' +
-					'transform:translate(0, -50%);top:50%;';
+					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px 6px 10px 6px;white-space:nowrap;' +
+					'background-color:#fff;transform:translate(0, -50%);top:50%;';
 				wrapper.appendChild(picker);
 				
 				if (urlParams['format-toolbar'] == '1')
