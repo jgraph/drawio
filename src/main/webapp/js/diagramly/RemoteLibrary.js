@@ -3,8 +3,8 @@
  */
 RemoteLibrary = function(ui, data, libObj)
 {
-	RemoteFile.call(this, ui, data, libObj.title);
-	this.libObj = libObj;
+  RemoteFile.call(this, ui, data, libObj.title);
+  this.libObj = libObj;
 };
 
 //Extends mxEventSource
@@ -15,7 +15,7 @@ mxUtils.extend(RemoteLibrary, LocalFile);
  */
 RemoteLibrary.prototype.getHash = function()
 {
-	return 'R' + encodeURIComponent(JSON.stringify([this.libObj.id, this.libObj.title, this.libObj.downloadUrl])); //Using an array to get the same order in all platforms
+  return 'R' + encodeURIComponent(JSON.stringify([this.libObj.id, this.libObj.title, this.libObj.downloadUrl])); //Using an array to get the same order in all platforms
 };
 
 /**
@@ -23,14 +23,14 @@ RemoteLibrary.prototype.getHash = function()
  */
 RemoteLibrary.prototype.isEditable = function()
 {
-	return false;
+  return false;
 };
 /**
  * 
  */
 RemoteLibrary.prototype.isRenamable = function()
 {
-	return false;
+  return false;
 };
 
 /**
@@ -38,7 +38,7 @@ RemoteLibrary.prototype.isRenamable = function()
  */
 RemoteLibrary.prototype.isAutosave = function()
 {
-	return false;
+  return false;
 };
 
 /**
@@ -46,7 +46,7 @@ RemoteLibrary.prototype.isAutosave = function()
  */
 RemoteLibrary.prototype.save = function(revision, success, error)
 {
-	// Do nothing
+  // Do nothing
 };
 
 /**
@@ -54,7 +54,7 @@ RemoteLibrary.prototype.save = function(revision, success, error)
  */
 RemoteLibrary.prototype.saveAs = function(title, success, error)
 {
-	// Do nothing
+  // Do nothing
 };
 
 /**
@@ -62,12 +62,12 @@ RemoteLibrary.prototype.saveAs = function(title, success, error)
  */
 RemoteLibrary.prototype.updateFileData = function()
 {
-	// Do nothing
+  // Do nothing
 };
 
 /**
  */
 RemoteLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

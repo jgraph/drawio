@@ -18,41 +18,41 @@
  */
 function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpacing)
 {
-	mxGraphLayout.call(this, graph);
-	this.correctY = false;
-	
-	switch(parseInt(branchOptimizer))
-	{
-		case 0:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_LINEAR;
-			this.correctY = true;
-			break;
-		case 1:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER2;
-			this.correctY = true;
-			break;
-		case 3:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE1;
-			break;
-		case 4:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE2;
-			break;
-		case 5:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_L;
-			break;
-		case 6:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_R;
-			break;
-		case 7:
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_SMART;
-			break;
-		default: //and case 2
-			this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4;
-			this.correctY = true;
-	}
-	
-	this.parentChildSpacing = parentChildSpacing > 0 ? parentChildSpacing : 20;
-	this.siblingSpacing = siblingSpacing > 0 ? siblingSpacing : 20;
+  mxGraphLayout.call(this, graph);
+  this.correctY = false;
+  
+  switch(parseInt(branchOptimizer))
+  {
+    case 0:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_LINEAR;
+    	this.correctY = true;
+    	break;
+    case 1:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER2;
+    	this.correctY = true;
+    	break;
+    case 3:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE1;
+    	break;
+    case 4:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_FISHBONE2;
+    	break;
+    case 5:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_L;
+    	break;
+    case 6:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_1COLUMN_R;
+    	break;
+    case 7:
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_SMART;
+    	break;
+    default: //and case 2
+    	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4;
+    	this.correctY = true;
+  }
+  
+  this.parentChildSpacing = parentChildSpacing > 0 ? parentChildSpacing : 20;
+  this.siblingSpacing = siblingSpacing > 0 ? siblingSpacing : 20;
 };
 
 /**
@@ -79,15 +79,15 @@ mxOrgChartLayout.prototype.BRANCH_OPT_SMART = 'branchOptimizerSmart';
  */
 mxOrgChartLayout.prototype.execute = function(parent)
 {
-	this.graph.model.beginUpdate();
-	try
-	{
-		RPOrgChart.main(this.graph, parent, this.branchOptimizer, this.parentChildSpacing, this.siblingSpacing, this.correctY);		
-	}
-	finally
-	{
-		this.graph.model.endUpdate();
-	}
+  this.graph.model.beginUpdate();
+  try
+  {
+    RPOrgChart.main(this.graph, parent, this.branchOptimizer, this.parentChildSpacing, this.siblingSpacing, this.correctY);		
+  }
+  finally
+  {
+    this.graph.model.endUpdate();
+  }
 }
 
 Bridge.define('RPOrgChart',
@@ -105,17 +105,17 @@ Bridge.define('RPOrgChart',
 
             RPOrgChart.graph = graph;
             RPOrgChart.parent = parent;
-			RPOrgChart.dx = 0;
-			RPOrgChart.dy = 0;
-			
-			if (parent.style == 'group' && parent.geometry)
-			{
-				RPOrgChart.dx = parent.geometry.x;
-				RPOrgChart.dy = parent.geometry.y;
-			}
-			
+    	RPOrgChart.dx = 0;
+    	RPOrgChart.dy = 0;
+    	
+    	if (parent.style == 'group' && parent.geometry)
+    	{
+    		RPOrgChart.dx = parent.geometry.x;
+    		RPOrgChart.dy = parent.geometry.y;
+    	}
+    	
             RPOrgChart.branchOptimizer = branchOptimizer;
-			RPOrgChart.correctY = correctY;
+    	RPOrgChart.correctY = correctY;
             RPOrgChart.parentChildSpacing = parseInt(parentChildSpacing);
             RPOrgChart.siblingSpacing = parseInt(siblingSpacing);
             RPOrgChart.buildChart(true);
@@ -143,33 +143,33 @@ Bridge.define('RPOrgChart',
 
         generateData: function () 
         {
-        	var dataSource = new OrgChart.Test.TestDataSource();
-        	
+          var dataSource = new OrgChart.Test.TestDataSource();
+          
             var graph = RPOrgChart.graph;
             var cells = graph.getChildVertices(RPOrgChart.parent);
             
             for (var i = 0; i < cells.length; i++)
-        	{
-            	var cell = cells[i];
-            	
-            	if (cell.geometry != null && cell.vertex && cell.parent == RPOrgChart.parent) //Vertices and first level children only
-            	{
-            		// Find cell parent. If it has more than one parent, take first parent (should be an error?)
-            		var parentId = null;
-            		
-            		var incomingEdge = graph.getIncomingEdges(cell)[0];
-            		
-            		if (incomingEdge != null && incomingEdge.source != null)
-           			{
-            			parentId = incomingEdge.source.id;
-           			}
-            		
-            		var item = new OrgChart.Test.TestDataItem();
-            		item.Id = cell.id;
-            		item.ParentId = parentId;
-            		dataSource.Items.add(item.getId(), item);
-            	}
-           	}
+          {
+              var cell = cells[i];
+              
+              if (cell.geometry != null && cell.vertex && cell.parent == RPOrgChart.parent) //Vertices and first level children only
+              {
+                // Find cell parent. If it has more than one parent, take first parent (should be an error?)
+                var parentId = null;
+                
+                var incomingEdge = graph.getIncomingEdges(cell)[0];
+                
+                if (incomingEdge != null && incomingEdge.source != null)
+               	{
+                	parentId = incomingEdge.source.id;
+               	}
+                
+                var item = new OrgChart.Test.TestDataItem();
+                item.Id = cell.id;
+                item.ParentId = parentId;
+                dataSource.Items.add(item.getId(), item);
+              }
+             }
             
             return dataSource;
         },
@@ -398,8 +398,8 @@ Bridge.define('RPOrgChart',
         },
 
         getBoxElementSize: function (boxId) {
-    		var geo = RPOrgChart.graph.model.cells[boxId].geometry;
-    		return new OrgChart.Layout.Size.$ctor1(geo.width, geo.height);
+        var geo = RPOrgChart.graph.model.cells[boxId].geometry;
+        return new OrgChart.Layout.Size.$ctor1(geo.width, geo.height);
         },
 
         positionBoxes: function () {
@@ -415,11 +415,11 @@ Bridge.define('RPOrgChart',
 
             var diagramBoundary = OrgChart.Layout.LayoutAlgorithm.ComputeBranchVisualBoundingRect(diagram.getVisualTree());
 
-			var offsetx = -diagramBoundary.getLeft() + diagramBoundary.getTop();
+    	var offsetx = -diagramBoundary.getLeft() + diagramBoundary.getTop();
 
-			var graph = RPOrgChart.graph;
+    	var graph = RPOrgChart.graph;
             var cells = graph.model.cells;
-			var pointsList = [];
+    	var pointsList = [];
             
             var visitorVertexFunc = function (node) 
             {
@@ -442,105 +442,105 @@ Bridge.define('RPOrgChart',
             
             var visitorEdgeFunc = function (node) 
             {
-				//The algorithm default is 5 px only above the node, this centers it
-				var yCorrection = RPOrgChart.correctY? Math.min(0, -(RPOrgChart.parentChildSpacing / 2) + 5) : 0;
+    		//The algorithm default is 5 px only above the node, this centers it
+    		var yCorrection = RPOrgChart.correctY? Math.min(0, -(RPOrgChart.parentChildSpacing / 2) + 5) : 0;
                 // Render connectors
                 if (node.State.Connector != null) {
-                	
+                  
                     var cell = cells[node.Element.DataId];
                          
-                	var outgoingEdge = graph.getOutgoingEdges(cell);
+                  var outgoingEdge = graph.getOutgoingEdges(cell);
 
-                	var uniquePoints = {};
-                	
-                	//Sort segments points from top to bottom or left to right + add offset
-                	for (var ix = 0; ix < node.State.Connector.Segments.length; ix++) 
+                  var uniquePoints = {};
+                  
+                  //Sort segments points from top to bottom or left to right + add offset
+                  for (var ix = 0; ix < node.State.Connector.Segments.length; ix++) 
                     {
-                		var edge = node.State.Connector.Segments[ix];
-                		edge.mark = 1 << ix; //TODO Support up to 31 segments. In this a limit?
+                    var edge = node.State.Connector.Segments[ix];
+                    edge.mark = 1 << ix; //TODO Support up to 31 segments. In this a limit?
                         edge.From.X += offsetx;
                         edge.To.X += offsetx;
                         var fx = edge.From.X, fy = edge.From.Y, tx = edge.To.X, ty = edge.To.Y;
                         
                         if ((fx == tx && fy > ty) || (fy == ty && fx > tx))
-                    	{
-                        	var tmp = edge.From;
-                        	edge.From = edge.To;
-                        	edge.To = tmp;
-                    	}
+                      {
+                          var tmp = edge.From;
+                          edge.From = edge.To;
+                          edge.To = tmp;
+                      }
                     }
-                	
-                	//Collecting points including intersection of segments
+                  
+                  //Collecting points including intersection of segments
                     for (var ix = 0; ix < node.State.Connector.Segments.length; ix++) 
                     {
-                    	var edge = node.State.Connector.Segments[ix];
+                      var edge = node.State.Connector.Segments[ix];
                         var fx = edge.From.X, fy = edge.From.Y, tx = edge.To.X, ty = edge.To.Y;
                         var fp = new mxPoint(fx, fy);
-						pointsList.push(fp);
+    				pointsList.push(fp);
                         fp.mark = edge.mark;
                         var up = uniquePoints[fx + ',' + fy];
                         
                         if (up != null)
-                    	{
-                        	up.mark |= fp.mark;
-                    	}
+                      {
+                          up.mark |= fp.mark;
+                      }
                         else
                         {
-                        	uniquePoints[fx + ',' + fy] = fp;
+                          uniquePoints[fx + ',' + fy] = fp;
                         }
                         
                         var tp = new mxPoint(tx, ty);
-						pointsList.push(tp);
+    				pointsList.push(tp);
                         tp.mark = edge.mark;
                         var up = uniquePoints[tx + ',' + ty];
                         
                         if (up != null)
-                    	{
-                        	up.mark |= tp.mark;
-                    	}
+                      {
+                          up.mark |= tp.mark;
+                      }
                         else
                         {
-                        	uniquePoints[tx + ',' + ty] = tp; 
+                          uniquePoints[tx + ',' + ty] = tp; 
                         }
                         
                         //Find intersections
                         for (var j = ix + 1; j < node.State.Connector.Segments.length; j++) 
                         {
-                        	var e2 = node.State.Connector.Segments[j];
-                        	var fx2 = e2.From.X, fy2 = e2.From.Y, tx2 = e2.To.X, ty2 = e2.To.Y;
-                        	
-                        	if (fx == tx && fy <= fy2 && ty >= fy2 && fx2 <= fx && tx2 >= fx) //Ver |_ Hor
-                    		{
-                        		var ip = new mxPoint(fx, fy2);
-								pointsList.push(ip);
-                        		ip.mark = edge.mark | e2.mark;
-                        		var up = uniquePoints[fx + ',' + fy2];
+                          var e2 = node.State.Connector.Segments[j];
+                          var fx2 = e2.From.X, fy2 = e2.From.Y, tx2 = e2.To.X, ty2 = e2.To.Y;
+                          
+                          if (fx == tx && fy <= fy2 && ty >= fy2 && fx2 <= fx && tx2 >= fx) //Ver |_ Hor
+                        {
+                            var ip = new mxPoint(fx, fy2);
+    						pointsList.push(ip);
+                            ip.mark = edge.mark | e2.mark;
+                            var up = uniquePoints[fx + ',' + fy2];
                                 
                                 if (up != null)
-                            	{
-                                	up.mark |= ip.mark;
-                            	}
+                              {
+                                  up.mark |= ip.mark;
+                              }
                                 else
                                 {
-                                	uniquePoints[fx + ',' + fy2] = ip;
+                                  uniquePoints[fx + ',' + fy2] = ip;
                                 }
-                    		}
-                        	else if (fy == ty && fx <= fx2 && tx >= fx2 && fy2 <= fy && ty2 >= fy) //Hor _| Ver
-                    		{
-                        		var ip = new mxPoint(fx2, fy);
-								pointsList.push(ip);
-                        		ip.mark = edge.mark | e2.mark;
-                        		var up = uniquePoints[fx2 + ',' + fy]
+                        }
+                          else if (fy == ty && fx <= fx2 && tx >= fx2 && fy2 <= fy && ty2 >= fy) //Hor _| Ver
+                        {
+                            var ip = new mxPoint(fx2, fy);
+    						pointsList.push(ip);
+                            ip.mark = edge.mark | e2.mark;
+                            var up = uniquePoints[fx2 + ',' + fy]
                                 
                                 if (up != null)
-                            	{
-                                	up.mark |= ip.mark;
-                            	}
+                              {
+                                  up.mark |= ip.mark;
+                              }
                                 else
                                 {
-                                	uniquePoints[fx2 + ',' + fy] = ip;
+                                  uniquePoints[fx2 + ',' + fy] = ip;
                                 }
-                    		}
+                        }
                         }
                     }
                     
@@ -548,35 +548,35 @@ Bridge.define('RPOrgChart',
                     var pointsArr = [];
                     
                     for (var k in uniquePoints)
-                	{
-                    	pointsArr.push(uniquePoints[k]);
-                	}
+                  {
+                      pointsArr.push(uniquePoints[k]);
+                  }
                     
                     pointsArr.sort(function(a, b)
-                   	{
-                    	var dy = a.y - b.y;
-                    	
-                    	return dy == 0? a.x - b.x : dy; 
+                     {
+                      var dy = a.y - b.y;
+                      
+                      return dy == 0? a.x - b.x : dy; 
                     });
                     
                     function pointOnCell(geo, p)
                     {
-                    	return p.x >= geo.x && p.x <= geo.x + geo.width && p.y >= geo.y && p.y <= geo.y + geo.height;
+                      return p.x >= geo.x && p.x <= geo.x + geo.width && p.y >= geo.y && p.y <= geo.y + geo.height;
                     };
                     
                     function adjustEdgeGeoAndStyle(edge, edgePoints)
                     {
                         var eGeo = edge.geometry.clone();
-						
-						for (var i = 0; edgePoints && i < edgePoints.length; i++)
-						{
-							if (!edgePoints[i].corrected)
-							{
-								edgePoints[i].y += yCorrection;
-								edgePoints[i].corrected = true
-							}
-						}
-						
+    				
+    				for (var i = 0; edgePoints && i < edgePoints.length; i++)
+    				{
+    					if (!edgePoints[i].corrected)
+    					{
+    						edgePoints[i].y += yCorrection;
+    						edgePoints[i].corrected = true
+    					}
+    				}
+    				
                         eGeo.points = edgePoints;
                         graph.model.setGeometry(edge, eGeo);
 
@@ -593,47 +593,47 @@ Bridge.define('RPOrgChart',
                     
                     //Simple case of a single segment. TODO Handle this case earlier
                     if (pointsArr.length == 2 && outgoingEdge.length == 1)
-                	{
+                  {
                         adjustEdgeGeoAndStyle(outgoingEdge[0], pointsArr);
-                	}
+                  }
                     else
-                	{
+                  {
                         var srcGeo = cell.geometry;
                         var srcP;
                         
                         //Find src starting point //TODO It should be first point always? 
                         for (var i = 0; i < pointsArr.length; i++)
-                    	{
-                        	if (pointOnCell(srcGeo, pointsArr[i]))
-                    		{
-                        		srcP = pointsArr[i];
-                        		break;
-                    		}
-                    	}
+                      {
+                          if (pointOnCell(srcGeo, pointsArr[i]))
+                        {
+                            srcP = pointsArr[i];
+                            break;
+                        }
+                      }
                         
                         var selected;
                         
                         function getNextPoint(lp)
                         {
-                        	for (var i = 0; i < pointsArr.length; i++)
+                          for (var i = 0; i < pointsArr.length; i++)
+                          {
+                            var p = pointsArr[i];
+                            if (selected[p.x + ',' + p.y]) continue;
+                            
+                            if (p.mark & lp.mark)
                         	{
-                        		var p = pointsArr[i];
-                        		if (selected[p.x + ',' + p.y]) continue;
-                        		
-                        		if (p.mark & lp.mark)
-                    			{
-                        			selected[p.x + ',' + p.y] = true;
-                        			return p;
+                            	selected[p.x + ',' + p.y] = true;
+                            	return p;
                                 }
-                        	}
+                          }
                         }
                         
-                    	for (var j = 0; j < outgoingEdge.length; j++)
-                		{
-                    		if (outgoingEdge[j].target != null)
-                			{
-                    			selected = {};
-                    			selected[srcP.x + ',' + srcP.y] = true;
+                      for (var j = 0; j < outgoingEdge.length; j++)
+                    {
+                        if (outgoingEdge[j].target != null)
+                    	{
+                        	selected = {};
+                        	selected[srcP.x + ',' + srcP.y] = true;
                                 var trgGeo = outgoingEdge[j].target.geometry;
                                 
                                 var edgePoints = [srcP];
@@ -641,37 +641,37 @@ Bridge.define('RPOrgChart',
                                 var safeGuard = 0;
                                 //Is BFS better?
                                 while (safeGuard < 1000)
-                            	{
-                                	safeGuard++;
-                                	var np = getNextPoint(lp);
+                              {
+                                  safeGuard++;
+                                  var np = getNextPoint(lp);
 
-                                	//retract, then remove this point
-                                	if (np == null) 
-                            		{
-                                		edgePoints.pop();
-                                		lp = edgePoints[edgePoints.length - 1];
-                            		}
-                                	else 
-                            		{
-                                		edgePoints.push(np);
-                                		lp = np;
-                                		if (pointOnCell(trgGeo, np)) break;
-                            		}
-                            	}
+                                  //retract, then remove this point
+                                  if (np == null) 
+                                {
+                                    edgePoints.pop();
+                                    lp = edgePoints[edgePoints.length - 1];
+                                }
+                                  else 
+                                {
+                                    edgePoints.push(np);
+                                    lp = np;
+                                    if (pointOnCell(trgGeo, np)) break;
+                                }
+                              }
                                 
                                 //Remove retracted points TODO can we do it in a better way?
                                 if (edgePoints.length > 2)
                                 {
-	                                var spX = edgePoints[0].x;
-	                                var lpX = edgePoints[edgePoints.length - 1].x;
-	                                
-	                                for (var i = edgePoints.length - 2; i > 0; i--)
-	                            	{
-	                                	if ((spX > lpX && edgePoints[i].x < lpX) || (spX < lpX && edgePoints[i].x < spX))
-	                            		{
-	                                		edgePoints.splice(i, 1);
-	                            		}
-	                            	}
+                                  var spX = edgePoints[0].x;
+                                  var lpX = edgePoints[edgePoints.length - 1].x;
+                                  
+                                  for (var i = edgePoints.length - 2; i > 0; i--)
+                                {
+                                    if ((spX > lpX && edgePoints[i].x < lpX) || (spX < lpX && edgePoints[i].x < spX))
+                                	{
+                                    	edgePoints.splice(i, 1);
+                                	}
+                                }
                                 }
                                 
                                 var eGeo = outgoingEdge[j].geometry.clone();
@@ -680,9 +680,9 @@ Bridge.define('RPOrgChart',
                                 
                                 //Fix edge points and style
                                 adjustEdgeGeoAndStyle(outgoingEdge[j], edgePoints);
-                			}
-                		}                            
-            		}
+                    	}
+                    }                            
+                }
                 }
 
                 return true;
@@ -690,13 +690,13 @@ Bridge.define('RPOrgChart',
 
             diagram.getVisualTree().IterateParentFirst(visitorVertexFunc);
             diagram.getVisualTree().IterateParentFirst(visitorEdgeFunc);
-			
-			//Cleanup
-			for (var i = 0; i < pointsList.length; i++)
-			{
-				delete pointsList[i].mark;
-				delete pointsList[i].corrected;
-			}
+    	
+    	//Cleanup
+    	for (var i = 0; i < pointsList.length; i++)
+    	{
+    		delete pointsList[i].mark;
+    		delete pointsList[i].corrected;
+    	}
         }
 
     }

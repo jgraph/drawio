@@ -12,9 +12,9 @@
  */
 StorageFile = function(ui, data, title)
 {
-	DrawioFile.call(this, ui, data);
-	
-	this.title = title;
+  DrawioFile.call(this, ui, data);
+  
+  this.title = title;
 };
 
 //Extends mxEventSource
@@ -43,7 +43,7 @@ StorageFile.prototype.type = 'F';
  */
 StorageFile.prototype.getMode = function()
 {
-	return App.MODE_BROWSER;
+  return App.MODE_BROWSER;
 };
 
 /**
@@ -51,7 +51,7 @@ StorageFile.prototype.getMode = function()
  */
 StorageFile.prototype.isAutosaveOptional = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -62,7 +62,7 @@ StorageFile.prototype.isAutosaveOptional = function()
  */
 StorageFile.prototype.getHash = function()
 {
-	return 'L' + encodeURIComponent(this.getTitle());
+  return 'L' + encodeURIComponent(this.getTitle());
 };
 
 /**
@@ -73,7 +73,7 @@ StorageFile.prototype.getHash = function()
  */
 StorageFile.prototype.getTitle = function()
 {
-	return this.title;
+  return this.title;
 };
 
 /**
@@ -84,7 +84,7 @@ StorageFile.prototype.getTitle = function()
  */
 StorageFile.prototype.isRenamable = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -95,7 +95,7 @@ StorageFile.prototype.isRenamable = function()
  */
 StorageFile.prototype.save = function(revision, success, error)
 {
-	this.saveAs(this.getTitle(), success, error);
+  this.saveAs(this.getTitle(), success, error);
 };
 
 /**
@@ -106,8 +106,8 @@ StorageFile.prototype.save = function(revision, success, error)
  */
 StorageFile.prototype.saveAs = function(title, success, error)
 {
-	DrawioFile.prototype.save.apply(this, arguments);
-	this.saveFile(title, false, success, error);
+  DrawioFile.prototype.save.apply(this, arguments);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -118,36 +118,36 @@ StorageFile.prototype.saveAs = function(title, success, error)
  */
 StorageFile.insertFile = function(ui, title, data, success, error)
 {
-	var createStorageFile = mxUtils.bind(this, function(exists)
-	{
-		var fn = function()
-		{
-			var file = new StorageFile(ui, data, title);
-			
-			// Inserts data into local storage
-			file.saveFile(title, false, function()
-			{
-				success(file);
-			}, error);
-		};
+  var createStorageFile = mxUtils.bind(this, function(exists)
+  {
+    var fn = function()
+    {
+    	var file = new StorageFile(ui, data, title);
+    	
+    	// Inserts data into local storage
+    	file.saveFile(title, false, function()
+    	{
+    		success(file);
+    	}, error);
+    };
 
-		if (exists)
-		{
-			ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
-		}
-		else
-		{
-			fn();
-		}
-	});
-	
-	StorageFile.getFileContent(ui, title, function(data)
-	{
-		createStorageFile(data != null);
-	}, function()
-	{
-		createStorageFile(false);
-	});
+    if (exists)
+    {
+    	ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+    }
+    else
+    {
+    	fn();
+    }
+  });
+  
+  StorageFile.getFileContent(ui, title, function(data)
+  {
+    createStorageFile(data != null);
+  }, function()
+  {
+    createStorageFile(false);
+  });
 };
 
 /**
@@ -158,21 +158,21 @@ StorageFile.insertFile = function(ui, title, data, success, error)
  */
 StorageFile.getFileContent = function(ui, title, success, error)
 {
-	ui.getDatabaseItem(title, function(obj)
-	{
-		success(obj != null? obj.data : null);
-	}, 
-	mxUtils.bind(this, function()
-	{
-		if (ui.database == null) //fallback to localstorage
-		{
-			ui.getLocalData(title, success);
-		}
-		else if (error != null)
-		{
-			error();
-		}
-	}), 'files');
+  ui.getDatabaseItem(title, function(obj)
+  {
+    success(obj != null? obj.data : null);
+  }, 
+  mxUtils.bind(this, function()
+  {
+    if (ui.database == null) //fallback to localstorage
+    {
+    	ui.getLocalData(title, success);
+    }
+    else if (error != null)
+    {
+    	error();
+    }
+  }), 'files');
 };
 
 /**
@@ -183,24 +183,24 @@ StorageFile.getFileContent = function(ui, title, success, error)
  */
 StorageFile.getFileInfo = function(ui, title, success, error)
 {
-	ui.getDatabaseItem(title, function(obj)
-	{
-		success(obj);
-	}, 
-	mxUtils.bind(this, function()
-	{
-		if (ui.database == null) //fallback to localstorage
-		{
-			ui.getLocalData(title, function(data)
-			{
-				success(data != null? {title: title} : null);
-			});
-		}
-		else if (error != null)
-		{
-			error();
-		}
-	}), 'filesInfo');
+  ui.getDatabaseItem(title, function(obj)
+  {
+    success(obj);
+  }, 
+  mxUtils.bind(this, function()
+  {
+    if (ui.database == null) //fallback to localstorage
+    {
+    	ui.getLocalData(title, function(data)
+    	{
+    		success(data != null? {title: title} : null);
+    	});
+    }
+    else if (error != null)
+    {
+    	error();
+    }
+  }), 'filesInfo');
 };
 
 /**
@@ -211,86 +211,86 @@ StorageFile.getFileInfo = function(ui, title, success, error)
  */
 StorageFile.prototype.saveFile = function(title, revision, success, error)
 {
-	if (!this.isEditable())
-	{
-		if (success != null)
-		{
-			success();
-		}
-	}
-	else
-	{
-		var fn = mxUtils.bind(this, function()
-		{
-			if (this.isRenamable())
-			{
-				this.title = title;
-			}
-			
-			try
-			{
-				var saveDone = mxUtils.bind(this, function()
-				{
-					this.setModified(false);
-					this.contentChanged();
-					
-					if (success != null)
-					{
-						success();
-					}
-		        });
-				
-				var data = this.getData();
-				
-				this.ui.setDatabaseItem(null, [{
-						title: this.title,
-						size: data.length,
-						lastModified: Date.now(),
-						type: this.type
-					}, {
-						title: this.title,
-						data: data
-					}], saveDone, mxUtils.bind(this, function()
-					{
-						if (this.ui.database == null) //fallback to localstorage
-						{
-							this.ui.setLocalData(this.title, data, saveDone);
-						}
-						else if (error != null)
-						{
-							error();
-						}
-					}), ['filesInfo', 'files']);
-			}
-			catch (e)
-			{
-				if (error != null)
-				{
-					error(e);
-				}
-			}
-		});
-		
-		// Checks for trailing dots
-		if (this.isRenamable() && title.charAt(0) == '.' && error != null)
-		{
-			error({message: mxResources.get('invalidName')});
-		}
-		else
-		{
-			StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
-			{
-				if (!this.isRenamable() || this.getTitle() == title || data == null)
-				{
-					fn();
-				}
-				else
-				{
-					this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
-				}
-			}), error);
-		}
-	}
+  if (!this.isEditable())
+  {
+    if (success != null)
+    {
+    	success();
+    }
+  }
+  else
+  {
+    var fn = mxUtils.bind(this, function()
+    {
+    	if (this.isRenamable())
+    	{
+    		this.title = title;
+    	}
+    	
+    	try
+    	{
+    		var saveDone = mxUtils.bind(this, function()
+    		{
+    			this.setModified(false);
+    			this.contentChanged();
+    			
+    			if (success != null)
+    			{
+    				success();
+    			}
+            });
+    		
+    		var data = this.getData();
+    		
+    		this.ui.setDatabaseItem(null, [{
+    				title: this.title,
+    				size: data.length,
+    				lastModified: Date.now(),
+    				type: this.type
+    			}, {
+    				title: this.title,
+    				data: data
+    			}], saveDone, mxUtils.bind(this, function()
+    			{
+    				if (this.ui.database == null) //fallback to localstorage
+    				{
+    					this.ui.setLocalData(this.title, data, saveDone);
+    				}
+    				else if (error != null)
+    				{
+    					error();
+    				}
+    			}), ['filesInfo', 'files']);
+    	}
+    	catch (e)
+    	{
+    		if (error != null)
+    		{
+    			error(e);
+    		}
+    	}
+    });
+    
+    // Checks for trailing dots
+    if (this.isRenamable() && title.charAt(0) == '.' && error != null)
+    {
+    	error({message: mxResources.get('invalidName')});
+    }
+    else
+    {
+    	StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
+    	{
+    		if (!this.isRenamable() || this.getTitle() == title || data == null)
+    		{
+    			fn();
+    		}
+    		else
+    		{
+    			this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+    		}
+    	}), error);
+    }
+  }
 };
 
 /**
@@ -301,42 +301,42 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
  */
 StorageFile.prototype.rename = function(title, success, error)
 {
-	var oldTitle = this.getTitle();
+  var oldTitle = this.getTitle();
 
-	if (oldTitle != title)
-	{
-		StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
-		{
-			var fn = mxUtils.bind(this, function()
-			{
-				this.title = title;
-				
-				// Updates the data if the extension has changed
-				if (!this.hasSameExtension(oldTitle, title))
-				{
-					this.setData(this.ui.getFileData());
-				}
-				
-				this.saveFile(title, false, mxUtils.bind(this, function()
-				{
-					this.ui.removeLocalData(oldTitle, success);
-				}), error);
-			});
-			
-			if (data != null)
-			{
-				this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
-			}
-			else
-			{
-				fn();
-			}
-		}), error);
-	}
-	else
-	{
-		success();
-	}
+  if (oldTitle != title)
+  {
+    StorageFile.getFileInfo(this.ui, title, mxUtils.bind(this, function(data)
+    {
+    	var fn = mxUtils.bind(this, function()
+    	{
+    		this.title = title;
+    		
+    		// Updates the data if the extension has changed
+    		if (!this.hasSameExtension(oldTitle, title))
+    		{
+    			this.setData(this.ui.getFileData());
+    		}
+    		
+    		this.saveFile(title, false, mxUtils.bind(this, function()
+    		{
+    			this.ui.removeLocalData(oldTitle, success);
+    		}), error);
+    	});
+    	
+    	if (data != null)
+    	{
+    		this.ui.confirm(mxResources.get('replaceIt', [title]), fn, error);
+    	}
+    	else
+    	{
+    		fn();
+    	}
+    }), error);
+  }
+  else
+  {
+    success();
+  }
 };
 
 /**
@@ -345,10 +345,10 @@ StorageFile.prototype.rename = function(title, success, error)
  */
 StorageFile.prototype.open = function()
 {
-	DrawioFile.prototype.open.apply(this, arguments);
+  DrawioFile.prototype.open.apply(this, arguments);
 
-	// Immediately creates the storage entry
-	this.saveFile(this.getTitle());
+  // Immediately creates the storage entry
+  this.saveFile(this.getTitle());
 };
 
 /**
@@ -356,10 +356,10 @@ StorageFile.prototype.open = function()
  */
 StorageFile.prototype.getLatestVersion = function(success, error)
 {
-	StorageFile.getFileContent(this.ui, this.title, mxUtils.bind(this, function(data)
-	{
-		success(new StorageFile(this.ui, data, this.title));
-	}), error);
+  StorageFile.getFileContent(this.ui, this.title, mxUtils.bind(this, function(data)
+  {
+    success(new StorageFile(this.ui, data, this.title));
+  }), error);
 };
 
 /**
@@ -367,13 +367,13 @@ StorageFile.prototype.getLatestVersion = function(success, error)
  */
 StorageFile.prototype.destroy = function()
 {
-	DrawioFile.prototype.destroy.apply(this, arguments);
-	
-	if (this.storageListener != null)
-	{
-		mxEvent.removeListener(window, 'storage', this.storageListener);
-		this.storageListener = null;
-	}
+  DrawioFile.prototype.destroy.apply(this, arguments);
+  
+  if (this.storageListener != null)
+  {
+    mxEvent.removeListener(window, 'storage', this.storageListener);
+    this.storageListener = null;
+  }
 };
 
 /**
@@ -384,32 +384,32 @@ StorageFile.prototype.destroy = function()
  */
 StorageFile.listLocalStorageFiles = function(type)
 {
-	var filesInfo = [];
-	
-	for (var i = 0; i < localStorage.length; i++)
-	{
-		var key = localStorage.key(i);
-		var value = localStorage.getItem(key);
-		
-		if (key.length > 0 && key.charAt(0) != '.' && value.length > 0)
-		{
-			var isFile = (type == null || type == 'F') && (value.substring(0, 8) === '<mxfile ' ||
-						value.substring(0, 5) === '<?xml' || value.substring(0, 12) === '<!--[if IE]>');
-			var isLib = (type == null || type == 'L') && (value.substring(0, 11) === '<mxlibrary>');
+  var filesInfo = [];
+  
+  for (var i = 0; i < localStorage.length; i++)
+  {
+    var key = localStorage.key(i);
+    var value = localStorage.getItem(key);
+    
+    if (key.length > 0 && key.charAt(0) != '.' && value.length > 0)
+    {
+    	var isFile = (type == null || type == 'F') && (value.substring(0, 8) === '<mxfile ' ||
+    				value.substring(0, 5) === '<?xml' || value.substring(0, 12) === '<!--[if IE]>');
+    	var isLib = (type == null || type == 'L') && (value.substring(0, 11) === '<mxlibrary>');
 
-			if (isFile || isLib)
-			{
-				filesInfo.push({
-					title: key,
-					type: isFile? 'F' : 'L',
-					size: value.length,
-					lastModified: Date.now()
-				});
-			}	
-		}
-	}
-	
-	return filesInfo;
+    	if (isFile || isLib)
+    	{
+    		filesInfo.push({
+    			title: key,
+    			type: isFile? 'F' : 'L',
+    			size: value.length,
+    			lastModified: Date.now()
+    		});
+    	}	
+    }
+  }
+  
+  return filesInfo;
 };
 
 /**
@@ -420,22 +420,22 @@ StorageFile.listLocalStorageFiles = function(type)
  */
 StorageFile.migrate = function(db) 
 {
-	var lsFilesInfo = StorageFile.listLocalStorageFiles();
-	lsFilesInfo.push({title: '.scratchpad', type: 'L'}); //Adding scratchpad also since it is a library (storage file)
-	var tx = db.transaction(['files', 'filesInfo'], 'readwrite');
-	var files = tx.objectStore('files');
-	var filesInfo = tx.objectStore('filesInfo');
-	
-	for (var i = 0; i < lsFilesInfo.length; i++)
-	{
-		var lsFileInfo = lsFilesInfo[i];
-		var data = localStorage.getItem(lsFileInfo.title);
-		files.add({
-			title: lsFileInfo.title,
-			data: data
-		});
-		filesInfo.add(lsFileInfo);
-	}
+  var lsFilesInfo = StorageFile.listLocalStorageFiles();
+  lsFilesInfo.push({title: '.scratchpad', type: 'L'}); //Adding scratchpad also since it is a library (storage file)
+  var tx = db.transaction(['files', 'filesInfo'], 'readwrite');
+  var files = tx.objectStore('files');
+  var filesInfo = tx.objectStore('filesInfo');
+  
+  for (var i = 0; i < lsFilesInfo.length; i++)
+  {
+    var lsFileInfo = lsFilesInfo[i];
+    var data = localStorage.getItem(lsFileInfo.title);
+    files.add({
+    	title: lsFileInfo.title,
+    	data: data
+    });
+    filesInfo.add(lsFileInfo);
+  }
 };
 
 /**
@@ -446,33 +446,33 @@ StorageFile.migrate = function(db)
  */
 StorageFile.listFiles = function(ui, type, success, error)
 {
-	ui.getDatabaseItems(function(filesInfo)
-	{
-		var files = [];
-		
-		if (filesInfo != null)
-		{
-			for (var i = 0; i < filesInfo.length; i++)
-			{
-				if (filesInfo[i].title.charAt(0) != '.' && (type == null || filesInfo[i].type == type))
-				{
-					files.push(filesInfo[i]);
-				}
-			}
-		}
-		
-		success(files);
-	}, function()
-	{
-		if (ui.database == null) //fallback to localstorage
-		{
-			success(StorageFile.listLocalStorageFiles(type));
-		}
-		else if (error != null)
-		{
-			error();
-		}
-	}, 'filesInfo');
+  ui.getDatabaseItems(function(filesInfo)
+  {
+    var files = [];
+    
+    if (filesInfo != null)
+    {
+    	for (var i = 0; i < filesInfo.length; i++)
+    	{
+    		if (filesInfo[i].title.charAt(0) != '.' && (type == null || filesInfo[i].type == type))
+    		{
+    			files.push(filesInfo[i]);
+    		}
+    	}
+    }
+    
+    success(files);
+  }, function()
+  {
+    if (ui.database == null) //fallback to localstorage
+    {
+    	success(StorageFile.listLocalStorageFiles(type));
+    }
+    else if (error != null)
+    {
+    	error();
+    }
+  }, 'filesInfo');
 };
 
 /**
@@ -483,16 +483,16 @@ StorageFile.listFiles = function(ui, type, success, error)
  */
 StorageFile.deleteFile = function(ui, title, success, error)
 {
-	ui.removeDatabaseItem([title, title], success, function()
-	{
-		if (ui.database == null) //fallback to localstorage
-		{
-			localStorage.removeItem(title)
-			success();
-		}
-		else if (error != null)
-		{
-			error();
-		}
-	}, ['files', 'filesInfo']);
+  ui.removeDatabaseItem([title, title], success, function()
+  {
+    if (ui.database == null) //fallback to localstorage
+    {
+    	localStorage.removeItem(title)
+    	success();
+    }
+    else if (error != null)
+    {
+    	error();
+    }
+  }, ['files', 'filesInfo']);
 };

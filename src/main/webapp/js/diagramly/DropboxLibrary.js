@@ -4,7 +4,7 @@
  */
 DropboxLibrary = function(ui, data, stat)
 {
-	DropboxFile.call(this, ui, data, stat);
+  DropboxFile.call(this, ui, data, stat);
 };
 
 //Extends mxEventSource
@@ -18,7 +18,7 @@ mxUtils.extend(DropboxLibrary, DropboxFile);
  */
 DropboxLibrary.prototype.isAutosave = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -26,7 +26,7 @@ DropboxLibrary.prototype.isAutosave = function()
  */
 DropboxLibrary.prototype.doSave = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -35,5 +35,5 @@ DropboxLibrary.prototype.doSave = function(title, success, error)
  */
 DropboxLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

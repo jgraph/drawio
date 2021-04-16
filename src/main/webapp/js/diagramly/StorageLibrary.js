@@ -12,7 +12,7 @@
  */
 StorageLibrary = function(ui, data, title)
 {
-	StorageFile.call(this, ui, data, title);
+  StorageFile.call(this, ui, data, title);
 };
 
 //Extends mxEventSource
@@ -31,7 +31,7 @@ StorageLibrary.prototype.type = 'L';
  */
 StorageLibrary.prototype.isAutosave = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -39,7 +39,7 @@ StorageLibrary.prototype.isAutosave = function()
  */
 StorageLibrary.prototype.saveAs = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -50,7 +50,7 @@ StorageLibrary.prototype.saveAs = function(title, success, error)
  */
 StorageLibrary.prototype.getHash = function()
 {
-	return 'L' + encodeURIComponent(this.title);
+  return 'L' + encodeURIComponent(this.title);
 };
 
 /**
@@ -61,7 +61,7 @@ StorageLibrary.prototype.getHash = function()
  */
 StorageLibrary.prototype.getTitle = function()
 {
-	return (this.title == '.scratchpad') ? mxResources.get('scratchpad') : this.title;
+  return (this.title == '.scratchpad') ? mxResources.get('scratchpad') : this.title;
 };
 
 /**
@@ -69,7 +69,7 @@ StorageLibrary.prototype.getTitle = function()
  */
 StorageLibrary.prototype.isRenamable = function(title, success, error)
 {
-	return this.title != '.scratchpad';
+  return this.title != '.scratchpad';
 };
 
 /**
@@ -78,5 +78,5 @@ StorageLibrary.prototype.isRenamable = function(title, success, error)
  */
 StorageLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

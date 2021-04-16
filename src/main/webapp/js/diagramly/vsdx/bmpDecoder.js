@@ -76,8 +76,8 @@ BmpDecoder.prototype.parseBGR = function() {
     
     var canvas = document.createElement("canvas");
     var ctx = canvas.getContext("2d");
-	var imageData = ctx.createImageData(this.width, this.height);
-	this.imageData = imageData;
+  var imageData = ctx.createImageData(this.width, this.height);
+  this.imageData = imageData;
     this.data = imageData.data;
 
     this[bitn]();
@@ -176,7 +176,7 @@ BmpDecoder.prototype.bit15 = function() {
   //FIXED BUG, padding is based on number of bytes not the width
   var dif_w = (this.width * 2) % 4; 
   if (dif_w != 0) {
-	  dif_w = 4 - dif_w;
+    dif_w = 4 - dif_w;
   }
   var _11111 = parseInt("11111", 2),_1_5 = _11111;
   for (var y = this.height - 1; y >= 0; y--) {
@@ -205,7 +205,7 @@ BmpDecoder.prototype.bit16 = function() {
   //FIXED BUG, padding is based on number of bytes not the width
   var dif_w = (this.width * 2) % 4;
   if (dif_w != 0) {
-	  dif_w = 4 - dif_w;
+    dif_w = 4 - dif_w;
   }
   var _11111 = parseInt("11111", 2),_1_5 = _11111;
   var _111111 = parseInt("111111", 2),_1_6 = _111111;
@@ -235,7 +235,7 @@ BmpDecoder.prototype.bit24 = function() {
   //FIXED BUG, padding is based on number of bytes not the width
   var dif_w = ((this.width * 3) % 4);
   if (dif_w != 0) {
-	  dif_w = 4 - dif_w;
+    dif_w = 4 - dif_w;
   }
   for (var y = this.height - 1; y >= 0; y--) {
     for (var x = 0; x < this.width; x++) {

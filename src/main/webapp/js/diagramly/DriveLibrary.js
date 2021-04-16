@@ -4,7 +4,7 @@
  */
 DriveLibrary = function(ui, data, desc)
 {
-	DriveFile.call(this, ui, data, desc);
+  DriveFile.call(this, ui, data, desc);
 };
 
 //Extends mxEventSource
@@ -18,7 +18,7 @@ mxUtils.extend(DriveLibrary, DriveFile);
  */
 DriveLibrary.prototype.isAutosave = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -29,15 +29,15 @@ DriveLibrary.prototype.isAutosave = function()
  */
 DriveLibrary.prototype.save = function(revision, success, error)
 {
-	this.ui.drive.saveFile(this, revision, mxUtils.bind(this, function(resp)
-	{
-		this.desc = resp;
-		
-		if (success != null)
-		{
-			success(resp);
-		}
-	}), error);
+  this.ui.drive.saveFile(this, revision, mxUtils.bind(this, function(resp)
+  {
+    this.desc = resp;
+    
+    if (success != null)
+    {
+    	success(resp);
+    }
+  }), error);
 };
 
 /**
@@ -46,5 +46,5 @@ DriveLibrary.prototype.save = function(revision, success, error)
  */
 DriveLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

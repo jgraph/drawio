@@ -4,7 +4,7 @@
  */
 GitLabLibrary = function(ui, data, meta)
 {
-	GitLabFile.call(this, ui, data, meta);
+  GitLabFile.call(this, ui, data, meta);
 };
 
 //Extends mxEventSource
@@ -15,7 +15,7 @@ mxUtils.extend(GitLabLibrary, GitLabFile);
  */
 GitLabLibrary.prototype.doSave = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -24,5 +24,5 @@ GitLabLibrary.prototype.doSave = function(title, success, error)
  */
 GitLabLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

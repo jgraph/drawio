@@ -4,9 +4,9 @@
  */
 GitLabFile = function(ui, data, meta)
 {
-	GitHubFile.call(this, ui, data, meta);
-	
-	this.peer = this.ui.gitLab;
+  GitHubFile.call(this, ui, data, meta);
+  
+  this.peer = this.ui.gitLab;
 };
 
 //Extends mxEventSource
@@ -20,9 +20,9 @@ mxUtils.extend(GitLabFile, GitHubFile);
  */
 GitLabFile.prototype.share = function()
 {
-	this.ui.editor.graph.openLink(DRAWIO_GITLAB_URL + '/' +
-		encodeURIComponent(this.meta.org) + '/' +
-		encodeURIComponent(this.meta.repo) +'/-/project_members');
+  this.ui.editor.graph.openLink(DRAWIO_GITLAB_URL + '/' +
+    encodeURIComponent(this.meta.org) + '/' +
+    encodeURIComponent(this.meta.repo) +'/-/project_members');
 };
 
 /**
@@ -33,10 +33,10 @@ GitLabFile.prototype.share = function()
  */
 GitLabFile.prototype.getId = function()
 {
-	return this.meta.org + '/' +
-		((this.meta.repo != null) ? encodeURIComponent(this.meta.repo) + '/' +
-		((this.meta.ref != null) ? this.meta.ref +
-		((this.meta.path != null) ? '/' + this.meta.path : '') : '') : '');
+  return this.meta.org + '/' +
+    ((this.meta.repo != null) ? encodeURIComponent(this.meta.repo) + '/' +
+    ((this.meta.ref != null) ? this.meta.ref +
+    ((this.meta.path != null) ? '/' + this.meta.path : '') : '') : '');
 };
 
 /**
@@ -47,7 +47,7 @@ GitLabFile.prototype.getId = function()
  */
 GitLabFile.prototype.getHash = function()
 {
-	return encodeURIComponent('A' + this.getId());
+  return encodeURIComponent('A' + this.getId());
 };
 
 /**
@@ -55,7 +55,7 @@ GitLabFile.prototype.getHash = function()
  */
 GitLabFile.prototype.isConflict = function(err)
 {
-	return err != null && err.status == 400;
+  return err != null && err.status == 400;
 };
 
 /**
@@ -66,7 +66,7 @@ GitLabFile.prototype.isConflict = function(err)
  */
 GitLabFile.prototype.getMode = function()
 {
-	return App.MODE_GITLAB;
+  return App.MODE_GITLAB;
 };
 
 /**
@@ -74,7 +74,7 @@ GitLabFile.prototype.getMode = function()
  */
 GitLabFile.prototype.getDescriptorEtag = function(desc)
 {
-	return desc.last_commit_id;
+  return desc.last_commit_id;
 };
 
 /**
@@ -82,5 +82,5 @@ GitLabFile.prototype.getDescriptorEtag = function(desc)
  */
 GitLabFile.prototype.setDescriptorEtag = function(desc, etag)
 {
-	desc.last_commit_id = etag;
+  desc.last_commit_id = etag;
 };

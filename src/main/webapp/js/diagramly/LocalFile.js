@@ -10,12 +10,12 @@
  */
 LocalFile = function(ui, data, title, temp, fileHandle, desc)
 {
-	DrawioFile.call(this, ui, data);
-	
-	this.title = title;
-	this.mode = (temp) ? null : App.MODE_DEVICE;
-	this.fileHandle = fileHandle;
-	this.desc = desc;
+  DrawioFile.call(this, ui, data);
+  
+  this.title = title;
+  this.mode = (temp) ? null : App.MODE_DEVICE;
+  this.fileHandle = fileHandle;
+  this.desc = desc;
 };
 
 //Extends mxEventSource
@@ -29,7 +29,7 @@ mxUtils.extend(LocalFile, DrawioFile);
  */
 LocalFile.prototype.isAutosave = function()
 {
-	return this.fileHandle != null && !this.invalidFileHandle && DrawioFile.prototype.isAutosave.apply(this, arguments);
+  return this.fileHandle != null && !this.invalidFileHandle && DrawioFile.prototype.isAutosave.apply(this, arguments);
 };
 
 /**
@@ -38,7 +38,7 @@ LocalFile.prototype.isAutosave = function()
  */
 LocalFile.prototype.isAutosaveOptional = function()
 {
-	return this.fileHandle != null;
+  return this.fileHandle != null;
 };
 
 /**
@@ -49,7 +49,7 @@ LocalFile.prototype.isAutosaveOptional = function()
  */
 LocalFile.prototype.getMode = function()
 {
-	return this.mode;
+  return this.mode;
 };
 
 /**
@@ -60,7 +60,7 @@ LocalFile.prototype.getMode = function()
  */
 LocalFile.prototype.getTitle = function()
 {
-	return this.title;
+  return this.title;
 };
 
 /**
@@ -71,7 +71,7 @@ LocalFile.prototype.getTitle = function()
  */
 LocalFile.prototype.isRenamable = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -82,7 +82,7 @@ LocalFile.prototype.isRenamable = function()
  */
 LocalFile.prototype.save = function(revision, success, error)
 {
-	this.saveAs(this.title, success, error);
+  this.saveAs(this.title, success, error);
 };
 
 /**
@@ -93,7 +93,7 @@ LocalFile.prototype.save = function(revision, success, error)
  */
 LocalFile.prototype.saveAs = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -104,7 +104,7 @@ LocalFile.prototype.saveAs = function(title, success, error)
  */
 LocalFile.prototype.saveAs = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -112,7 +112,7 @@ LocalFile.prototype.saveAs = function(title, success, error)
  */
 LocalFile.prototype.getDescriptor = function()
 {
-	return this.desc;
+  return this.desc;
 };
 
 /**
@@ -120,7 +120,7 @@ LocalFile.prototype.getDescriptor = function()
 */
 LocalFile.prototype.setDescriptor = function(desc)
 {
-	this.desc = desc;
+  this.desc = desc;
 };
 
 /**
@@ -131,14 +131,14 @@ LocalFile.prototype.setDescriptor = function(desc)
  */
 LocalFile.prototype.getLatestVersion = function(success, error)
 {
-	if (this.fileHandle == null)
-	{
-		success(null);
-	}
-	else
-	{
-		this.ui.loadFileSystemEntry(this.fileHandle, success, error);
-	}
+  if (this.fileHandle == null)
+  {
+    success(null);
+  }
+  else
+  {
+    this.ui.loadFileSystemEntry(this.fileHandle, success, error);
+  }
 };
 
 /**
@@ -149,139 +149,139 @@ LocalFile.prototype.getLatestVersion = function(success, error)
  */
 LocalFile.prototype.saveFile = function(title, revision, success, error, useCurrentData)
 {
-	if (title != this.title)
-	{
-		this.fileHandle = null;
-		this.desc = null;
-	}
-	
-	this.title = title;
+  if (title != this.title)
+  {
+    this.fileHandle = null;
+    this.desc = null;
+  }
+  
+  this.title = title;
 
-	// Updates data after changing file name
-	if (!useCurrentData)
-	{
-		this.updateFileData();
-	}
-	
-	var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
-	this.setShadowModified(false);
-	var savedData = this.getData();
-	
-	var done = mxUtils.bind(this, function()
-	{
-		this.setModified(this.getShadowModified());
-		this.contentChanged();
-		
-		if (success != null)
-		{
-			success();
-		}
-	});
-	
-	var doSave = mxUtils.bind(this, function(data)
-	{
-		if (this.fileHandle != null)
-		{
-			// Sets shadow modified state during save
-			if (!this.savingFile)
-			{
-				this.savingFileTime = new Date();
-				this.savingFile = true;
-				
-				var errorWrapper = mxUtils.bind(this, function(e)
-				{
-					this.savingFile = false;
-					
-					if (error != null)
-					{
-						// Wraps error object to offer save status option
-						error({error: e});
-					}
-				});
-				
-				this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
-				{
-					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
-					{
-						this.invalidFileHandle = null;
-						
-						if (this.desc.lastModified == newDesc.lastModified)
-						{
-							writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
-							{
-								writable.close().then(mxUtils.bind(this, function()
-								{
-									this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
-									{
-										var lastDesc = this.desc;
-										this.savingFile = false;
-										this.desc = desc;
-										this.fileSaved(savedData, lastDesc, done, errorWrapper);
-									}), errorWrapper);
-								}), errorWrapper);
-							}), errorWrapper);
-						}
-						else
-						{
-							this.inConflictState = true;
-							errorWrapper();
-						}
-					}), mxUtils.bind(this, function(e)
-					{
-						this.invalidFileHandle = true;
-						errorWrapper(e);
-					}));
-				}), errorWrapper);
-			}
-		}
-		else
-		{
-			if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
-			{
-				this.ui.doSaveLocalFile(data, title, (binary) ?
-					'image/png' : 'text/xml', binary);
-			}
-			else
-			{
-				if (data.length < MAX_REQUEST_SIZE)
-				{
-					var dot = title.lastIndexOf('.');
-					var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
-	
-					// Do not update modified flag
-					new mxXmlRequest(SAVE_URL, 'format=' + format +
-						'&xml=' + encodeURIComponent(data) +
-						'&filename=' + encodeURIComponent(title) +
-						((binary) ? '&binary=1' : '')).
-						simulate(document, '_blank');
-				}
-				else
-				{
-					this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-					{
-						mxUtils.popup(data);
-					}));
-				}
-			}
-			
-			done();
-		}
-	});
-	
-	if (binary)
-	{
-		var p = this.ui.getPngFileProperties(this.ui.fileNode);
+  // Updates data after changing file name
+  if (!useCurrentData)
+  {
+    this.updateFileData();
+  }
+  
+  var binary = this.ui.useCanvasForExport && /(\.png)$/i.test(this.getTitle());
+  this.setShadowModified(false);
+  var savedData = this.getData();
+  
+  var done = mxUtils.bind(this, function()
+  {
+    this.setModified(this.getShadowModified());
+    this.contentChanged();
+    
+    if (success != null)
+    {
+    	success();
+    }
+  });
+  
+  var doSave = mxUtils.bind(this, function(data)
+  {
+    if (this.fileHandle != null)
+    {
+    	// Sets shadow modified state during save
+    	if (!this.savingFile)
+    	{
+    		this.savingFileTime = new Date();
+    		this.savingFile = true;
+    		
+    		var errorWrapper = mxUtils.bind(this, function(e)
+    		{
+    			this.savingFile = false;
+    			
+    			if (error != null)
+    			{
+    				// Wraps error object to offer save status option
+    				error({error: e});
+    			}
+    		});
+    		
+    		this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
+    		{
+    			this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
+    			{
+    				this.invalidFileHandle = null;
+    				
+    				if (this.desc.lastModified == newDesc.lastModified)
+    				{
+    					writable.write((binary) ? this.ui.base64ToBlob(data, 'image/png') : data).then(mxUtils.bind(this, function()
+    					{
+    						writable.close().then(mxUtils.bind(this, function()
+    						{
+    							this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
+    							{
+    								var lastDesc = this.desc;
+    								this.savingFile = false;
+    								this.desc = desc;
+    								this.fileSaved(savedData, lastDesc, done, errorWrapper);
+    							}), errorWrapper);
+    						}), errorWrapper);
+    					}), errorWrapper);
+    				}
+    				else
+    				{
+    					this.inConflictState = true;
+    					errorWrapper();
+    				}
+    			}), mxUtils.bind(this, function(e)
+    			{
+    				this.invalidFileHandle = true;
+    				errorWrapper(e);
+    			}));
+    		}), errorWrapper);
+    	}
+    }
+    else
+    {
+    	if (this.ui.isOfflineApp() || this.ui.isLocalFileSave())
+    	{
+    		this.ui.doSaveLocalFile(data, title, (binary) ?
+    			'image/png' : 'text/xml', binary);
+    	}
+    	else
+    	{
+    		if (data.length < MAX_REQUEST_SIZE)
+    		{
+    			var dot = title.lastIndexOf('.');
+    			var format = (dot > 0) ? title.substring(dot + 1) : 'xml';
+  
+    			// Do not update modified flag
+    			new mxXmlRequest(SAVE_URL, 'format=' + format +
+    				'&xml=' + encodeURIComponent(data) +
+    				'&filename=' + encodeURIComponent(title) +
+    				((binary) ? '&binary=1' : '')).
+    				simulate(document, '_blank');
+    		}
+    		else
+    		{
+    			this.ui.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
+    			{
+    				mxUtils.popup(data);
+    			}));
+    		}
+    	}
+    	
+    	done();
+    }
+  });
+  
+  if (binary)
+  {
+    var p = this.ui.getPngFileProperties(this.ui.fileNode);
 
-		this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
-		{
-			doSave(imageData);
-		}), error, (this.ui.getCurrentFile() != this) ?
-			savedData : null, p.scale, p.border);
-	}
-	else
-	{
-		doSave(savedData);
-	}
+    this.ui.getEmbeddedPng(mxUtils.bind(this, function(imageData)
+    {
+    	doSave(imageData);
+    }), error, (this.ui.getCurrentFile() != this) ?
+    	savedData : null, p.scale, p.border);
+  }
+  else
+  {
+    doSave(savedData);
+  }
 };
 
 /**
@@ -292,13 +292,13 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
  */
 LocalFile.prototype.rename = function(title, success, error)
 {
-	this.title = title;
-	this.descriptorChanged();
-	
-	if (success != null)
-	{
-		success();
-	}
+  this.title = title;
+  this.descriptorChanged();
+  
+  if (success != null)
+  {
+    success();
+  }
 };
 
 /**
@@ -307,6 +307,6 @@ LocalFile.prototype.rename = function(title, success, error)
  */
 LocalFile.prototype.open = function()
 {
-	this.ui.setFileData(this.getData());
-	this.installListeners();
+  this.ui.setFileData(this.getData());
+  this.installListeners();
 };

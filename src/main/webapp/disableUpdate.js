@@ -1,6 +1,1 @@
-module.exports = {
-	disableUpdate: function() 
-	{
-		return false;
-	}
-}
+module.exports = { disableUpdate: function() { return false;}}

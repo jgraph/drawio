@@ -3,10 +3,10 @@
  */
 RemoteFile = function(ui, data, title)
 {
-	DrawioFile.call(this, ui, data);
-	
-	this.title = title;
-	this.mode = null;
+  DrawioFile.call(this, ui, data);
+  
+  this.title = title;
+  this.mode = null;
 };
 
 //Extends mxEventSource
@@ -20,7 +20,7 @@ mxUtils.extend(RemoteFile, DrawioFile);
  */
 RemoteFile.prototype.isAutosave = function()
 {
-	return false;
+  return false;
 };
 
 /**
@@ -28,7 +28,7 @@ RemoteFile.prototype.isAutosave = function()
  */
 RemoteFile.prototype.getMode = function()
 {
-	return this.mode;
+  return this.mode;
 };
 
 /**
@@ -36,7 +36,7 @@ RemoteFile.prototype.getMode = function()
  */
 RemoteFile.prototype.getTitle = function()
 {
-	return this.title;
+  return this.title;
 };
 
 /**
@@ -44,13 +44,13 @@ RemoteFile.prototype.getTitle = function()
  */
 RemoteFile.prototype.isRenamable = function()
 {
-	return false;
+  return false;
 };
 
 /**
  */
 RemoteFile.prototype.open = function()
 {
-	this.ui.setFileData(this.getData());
-	this.installListeners();
+  this.ui.setFileData(this.getData());
+  this.installListeners();
 };

@@ -12,17 +12,17 @@
  */
 UrlLibrary = function(ui, data, title)
 {
-	StorageFile.call(this, ui, data, title);
-	
-	var fname = title;
-	var last = fname.lastIndexOf('/');
-		
-	if (last >= 0)
-	{
-		fname = fname.substring(last + 1);
-	}
-	
-	this.fname = fname;
+  StorageFile.call(this, ui, data, title);
+  
+  var fname = title;
+  var last = fname.lastIndexOf('/');
+    
+  if (last >= 0)
+  {
+    fname = fname.substring(last + 1);
+  }
+  
+  this.fname = fname;
 };
 
 //Extends mxEventSource
@@ -36,7 +36,7 @@ mxUtils.extend(UrlLibrary, StorageFile);
  */
 UrlLibrary.prototype.getHash = function()
 {
-	return 'U' + encodeURIComponent(this.title);
+  return 'U' + encodeURIComponent(this.title);
 };
 
 /**
@@ -47,7 +47,7 @@ UrlLibrary.prototype.getHash = function()
  */
 UrlLibrary.prototype.getTitle = function()
 {
-	return this.fname;
+  return this.fname;
 };
 
 /**
@@ -58,7 +58,7 @@ UrlLibrary.prototype.getTitle = function()
  */
 UrlLibrary.prototype.isAutosave = function()
 {
-	return false;
+  return false;
 };
 
 /**
@@ -66,7 +66,7 @@ UrlLibrary.prototype.isAutosave = function()
  */
 UrlLibrary.prototype.isEditable = function(title, success, error)
 {
-	return false;
+  return false;
 };
 
 /**
@@ -74,7 +74,7 @@ UrlLibrary.prototype.isEditable = function(title, success, error)
  */
 UrlLibrary.prototype.saveAs = function(title, success, error)
 {
-	// Cannot be saved
+  // Cannot be saved
 };
 
 /**
@@ -83,5 +83,5 @@ UrlLibrary.prototype.saveAs = function(title, success, error)
  */
 UrlLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

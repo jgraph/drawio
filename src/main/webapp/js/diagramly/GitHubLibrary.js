@@ -4,7 +4,7 @@
  */
 GitHubLibrary = function(ui, data, meta)
 {
-	GitHubFile.call(this, ui, data, meta);
+  GitHubFile.call(this, ui, data, meta);
 };
 
 //Extends mxEventSource
@@ -15,7 +15,7 @@ mxUtils.extend(GitHubLibrary, GitHubFile);
  */
 GitHubLibrary.prototype.doSave = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -24,5 +24,5 @@ GitHubLibrary.prototype.doSave = function(title, success, error)
  */
 GitHubLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

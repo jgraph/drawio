@@ -4,7 +4,7 @@
  */
 OneDriveLibrary = function(ui, data, meta)
 {
-	OneDriveFile.call(this, ui, data, meta);
+  OneDriveFile.call(this, ui, data, meta);
 };
 
 //Extends mxEventSource
@@ -18,7 +18,7 @@ mxUtils.extend(OneDriveLibrary, OneDriveFile);
  */
 OneDriveLibrary.prototype.isAutosave = function()
 {
-	return true;
+  return true;
 };
 
 /**
@@ -29,15 +29,15 @@ OneDriveLibrary.prototype.isAutosave = function()
  */
 OneDriveLibrary.prototype.save = function(revision, success, error)
 {
-	this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(resp)
-	{
-		this.desc = resp;
-		
-		if (success != null)
-		{
-			success(resp);
-		}
-	}), error);
+  this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(resp)
+  {
+    this.desc = resp;
+    
+    if (success != null)
+    {
+    	success(resp);
+    }
+  }), error);
 };
 
 /**
@@ -46,5 +46,5 @@ OneDriveLibrary.prototype.save = function(revision, success, error)
  */
 OneDriveLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };

@@ -10,7 +10,7 @@
  */
 LocalLibrary = function(ui, data, title)
 {
-	LocalFile.call(this, ui, data, title);
+  LocalFile.call(this, ui, data, title);
 };
 
 //Extends mxEventSource
@@ -24,7 +24,7 @@ mxUtils.extend(LocalLibrary, LocalFile);
  */
 LocalLibrary.prototype.getHash = function()
 {
-	return 'F' + this.getTitle();
+  return 'F' + this.getTitle();
 };
 
 /**
@@ -35,7 +35,7 @@ LocalLibrary.prototype.getHash = function()
  */
 LocalLibrary.prototype.isAutosave = function()
 {
-	return false;
+  return false;
 };
 
 /**
@@ -46,7 +46,7 @@ LocalLibrary.prototype.isAutosave = function()
  */
 LocalLibrary.prototype.saveAs = function(title, success, error)
 {
-	this.saveFile(title, false, success, error);
+  this.saveFile(title, false, success, error);
 };
 
 /**
@@ -57,7 +57,7 @@ LocalLibrary.prototype.saveAs = function(title, success, error)
  */
 LocalLibrary.prototype.updateFileData = function()
 {
-	// Do nothing
+  // Do nothing
 };
 
 /**
@@ -66,5 +66,5 @@ LocalLibrary.prototype.updateFileData = function()
  */
 LocalLibrary.prototype.open = function()
 {
-	// Do nothing - this should never be called
+  // Do nothing - this should never be called
 };
