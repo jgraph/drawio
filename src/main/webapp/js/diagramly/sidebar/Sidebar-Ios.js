@@ -8,7 +8,7 @@
     	
     	//default tags
     	var dt = 'ios icon ';
-    
+
     	var sizeX = 200; //reference size for iPhone and all other iOS shapes
     	
     	var sizeY = 2 * sizeX; //change only sizeX, to avoid changing aspect ratio
@@ -19,7 +19,7 @@
     	var s4 = 'html=1;shadow=0;dashed=0;shape=mxgraph.ios.';
     	var gn = 'mxgraph.ios';
     	this.setCurrentSearchEntryLibrary('ios');
-    
+
     var fns =
     [
     	
@@ -50,7 +50,7 @@
     	   	
     		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'App bar (portrait)');
     	}),
-    
+
     	this.addEntry(null, function()
     	{
     	   	var bg = new mxCell('', new mxGeometry(0, 0, 280, 15), s4 + 'iAppBar;strokeWidth=1;');
@@ -90,26 +90,26 @@
     		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Top bar locked');
     	}),
        	
-    	this.createVertexTemplateEntry(s2 + 'iButton;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;whiteSpace=wrap;align=center;', 
+    	this.createVertexTemplateEntry(s2 + 'iButton;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;whiteSpace=wrap;align=center;',
     			sizeX * 0.2175, sizeY * 0.0375, 'Button', 'Button', null, null, null),
-     	this.createVertexTemplateEntry(s2 + 'iButtonBack;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;spacingLeft=10;whiteSpace=wrap;align=center;', 
+     	this.createVertexTemplateEntry(s2 + 'iButtonBack;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;spacingLeft=10;whiteSpace=wrap;align=center;',
      			sizeX * 0.2175, sizeY * 0.0375, 'Button', 'Back button', null, null, null),
-    	this.createVertexTemplateEntry(s2 + 'iButtonFw;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;spacingRight=10;whiteSpace=wrap;align=center;', 
+    	this.createVertexTemplateEntry(s2 + 'iButtonFw;strokeColor=#444444;fontColor=#ffffff;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;spacingRight=10;whiteSpace=wrap;align=center;',
     			sizeX * 0.2175, sizeY * 0.0375, 'Button', 'Forward button', null, null, null),
-    	this.createVertexTemplateEntry(s + 'iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff;align=center;', 
+    	this.createVertexTemplateEntry(s + 'iPrevNext;strokeColor=#444444;fillColor=#dddddd;fillColor2=#3D5565;fillColor3=#ffffff;align=center;',
     			sizeX * 0.2175, sizeY * 0.0375, '', 'Prev/next button', null, null, null),
-    	this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;buttonText=;fontSize=8;whiteSpace=wrap;align=left;', 
+    	this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;buttonText=;fontSize=8;whiteSpace=wrap;align=left;',
     			sizeX * 0.2175, sizeY * 0.0375, 'Default text', 'Text input', null, null, null),
     	this.addDataEntry(null, 165, 50, 'Radio Buttons',
     		'7VbbbsIwDP2avqI2AcTrgI2XTZu2/UAgpo2WNlWSMdjXz0kMu0AlNLa9jEiV6nNsyz6nkZrxSb2eWdFWN0aCzvhlxifWGJ/e6vUEtM5YrmTGpxljOT4Zu+pgi8jmrbDQ+GMKWCpYCf0MCUmA8xtNQOVrHGtaZHzsKiHNCwY5BlK4CiQFyLQhv16XYZeeMq5nLSxwiLF9UK+B4yHPW/MEE6ONjd35MB5klkrrD/gyHsSxn1S4zZZrTAOhKSyerVMruAeX2ue0ClgP6045IkRazMDU4O0GU16U9BVlDAeprAJVVlQ2oO7Cpbjclb6Liy+k72Gt+Z7Wt61XpkGs2FN9Kyi2UK1LG+OiYq6BJP8imIwHcaFV2SCmYRnUd61YqKa8jtGUhULTeLJkROEhQ7SYg74zTsUZ+dQmNcZBYLUQ+voLXyspw3C7hAsaZEfQKI+mpa/hKMfYYceogPXIrQ2JvI0/OHrIz9Pt7HfbuX+JznZ+z85i+EduDrrd5Ke72Y/n37vJRn92O4fdfvbPt/OH/OwXv+Mmhu+/QJH79If0Bg=='),
     	this.addDataEntry(null, 165, 50, 'Checkboxes',
     		'7ZZbT8IwFMc/zV7J1gLBRxnKCyZG/AJlPWyN3bq0RYef3tOLeGEQEoUXbbKk55rT/29NmtC87uaatdWd4iATepPQXCtlw67ucpAyIangCZ0lhKT4JeT2QDTz0bRlGhp7SgEJBc9MbiB4gsPYrYyOytY41ixL6NRUjKsXNFI0ODMV8GhgpHX5dVe6swyEMgOtocAhpnopXl2Mujyr1RPkSirtu9OxXxhZCyk/+dd+oR/7cYGneY81qgHXFIqNNuIZHsCE9m6MeBrQFrqDinhXlGMOqgart5jyIritYsZ4FMoqEGUVy0ZByZSZYJe70g99cRMl7peb7sm9BGtFU6IzO5/y6b6+3C/0MynKBn0S1q7EtKzAeRbemhFXqBob+0yi2cdPshXIe2WEFcr100G5qYMhCiYX3+K14NwddJdwHQfZBeIoj6qNP89JdEk/3VhABpHsNgJ5tz/R72P/c/TDI+jPeOn+0R9Cn40vRH50hDz9PfJFBcXTSnX7wK/8+vPAyeRil318BPnw/7Jfnv0wOw95ND8eaz725S33Bg=='),
     	   	
-    	this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;', 
+    	this.createVertexTemplateEntry(s2 + 'iComboBox;spacingTop=2;spacingLeft=2;align=left;strokeColor=#444444;fontColor=#666666;buttonText=;fontSize=8;fillColor=#dddddd;fillColor2=#3D5565;',
     			sizeX * 0.29, sizeY * 0.0375, 'Option 1', 'Combobox', null, null, null),
-    	this.createVertexTemplateEntry(s2 + 'iOnOffButton;mainText=;strokeColor=#444444;fontSize=9;fontColor=#ffffff;spacingRight=14;buttonState=on', sizeX * 0.2175, sizeY * 0.0375, 
+    	this.createVertexTemplateEntry(s2 + 'iOnOffButton;mainText=;strokeColor=#444444;fontSize=9;fontColor=#ffffff;spacingRight=14;buttonState=on', sizeX * 0.2175, sizeY * 0.0375,
     			'ON', 'On-off button', null, null, null),
-    	this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;align=left;buttonText=;fontSize=8', sizeX * 0.2175, sizeY * 0.0375, 
+    	this.createVertexTemplateEntry(s2 + 'iTextInput;strokeColor=#444444;align=left;buttonText=;fontSize=8', sizeX * 0.2175, sizeY * 0.0375,
     			'********', 'Password field', null, null, null),
     	this.addDataEntry(null, 150, 100, 'Alert Box',
     		'rVVNb6MwEP01PjaycdI2x02629NKq+awZwsGbNXYyHYb6K/fMTgNCLJKP5CQmDdf9nszgvB93T460cjftgBN+E/C987aMHzV7R60JhlVBeEPJMsoviT7dcHLei9thAMTrknIhoRXoV9gQH5ocAGhAnzuVBOUNWgFaBG8JRlnlPDdkpN6yK0p8EMrA0NdHzqd6spQ4+0eGGZ7KQp7RKMvJbyEIhnoaWJ83VaRkpWyflUKk3dPT5DjhXbuoN5iwH0MDs4+w95q6/oWvOgf9JRK6xG+3t6xbczAooVCZkY+tuXsNvpsI3IVulg7nqS0k7CyfxKezrBF8yhVgAOmRuCIZ0ZMaFUZNHPsBJi/Sxwjr9Be1KmHkkiPYGsIrsOQoyqCTBGbQUsqQVXylEYTKPwAVO+5Z9nxIym/PAV8NgWHWEQqU8V2omnAoEbfJikqKiOzYzYZ/w/rSzQ78Jj5N/HDruU5+xzP2WbAHGgR1CtM6n+F+/WM+91LCHGvvott56a7w+djfIn32Yqd9+D6Fcs3OQCbr9iSqF+RMCXQVZKqmxQYCXy/pC/9oL6p/x+rTDg3v1nTSfOb09ycStiy9BBmA/J+jaWZQfP8RxjCxz+Mfw=='),
@@ -186,8 +186,8 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
 })();

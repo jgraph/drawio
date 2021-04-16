@@ -7,7 +7,7 @@
     var r = 400;
     var sb = this;
     var s = 'aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/';
-    
+
     this.setCurrentSearchEntryLibrary('azure2', 'azure2AI Machine Learning');
     this.addAzure2AIMachineLearningPalette(gn, r, sb, s + 'ai_machine_learning/');
     this.setCurrentSearchEntryLibrary('azure2', 'azure2Analytics');
@@ -68,7 +68,7 @@
   Sidebar.prototype.addAzure2AIMachineLearningPalette = function(gn, r, sb, s)
   {
     var dt = 'azure ai machine learning artificial intelligence ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Bot_Services.svg;',
@@ -89,7 +89,7 @@
   Sidebar.prototype.addAzure2AnalyticsPalette = function(gn, r, sb, s)
   {
     var dt = 'azure analytics ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Analysis_Services.svg;',
@@ -122,7 +122,7 @@
   Sidebar.prototype.addAzure2AppServicesPalette = function(gn, r, sb, s)
   {
     var dt = 'azure app services ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'API_Management_Services.svg;',
@@ -157,7 +157,7 @@
   Sidebar.prototype.addAzure2AzureStackPalette = function(gn, r, sb, s)
   {
     var dt = 'azure stack ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Stack.svg;',
@@ -190,7 +190,7 @@
   Sidebar.prototype.addAzure2AzureVMwareSolutionPalette = function(gn, r, sb, s)
   {
     var dt = 'azure vmware solution ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'AVS.svg;',
@@ -209,7 +209,7 @@
   Sidebar.prototype.addAzure2BlockchainPalette = function(gn, r, sb, s)
   {
     var dt = 'azure blockchain ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'ABS_Member.svg;',
@@ -236,7 +236,7 @@
   Sidebar.prototype.addAzure2ComputePalette = function(gn, r, sb, s)
   {
     var dt = 'azure compute ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'App_Services.svg;',
@@ -301,7 +301,7 @@
   Sidebar.prototype.addAzure2ContainersPalette = function(gn, r, sb, s)
   {
     var dt = 'azure containers ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'App_Services.svg;',
@@ -330,7 +330,7 @@
   Sidebar.prototype.addAzure2CXPPalette = function(gn, r, sb, s)
   {
     var dt = 'azure cxp ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Elixir.svg;',
@@ -351,7 +351,7 @@
   Sidebar.prototype.addAzure2DatabasesPalette = function(gn, r, sb, s)
   {
     var dt = 'azure database db ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Cosmos_DB.svg;',
@@ -408,7 +408,7 @@
   Sidebar.prototype.addAzure2DevOpsPalette = function(gn, r, sb, s)
   {
     var dt = 'azure devops ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Application_Insights.svg;',
@@ -433,7 +433,7 @@
   Sidebar.prototype.addAzure2GeneralPalette = function(gn, r, sb, s)
   {
     var dt = 'azure general ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'All_Resources.svg;',
@@ -630,7 +630,7 @@
   Sidebar.prototype.addAzure2IdentityPalette = function(gn, r, sb, s)
   {
     var dt = 'azure identity ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Active_Directory_Connect_Health.svg;',
@@ -665,7 +665,7 @@
   Sidebar.prototype.addAzure2IntegrationPalette = function(gn, r, sb, s)
   {
     var dt = 'azure integration ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'API_Management_Services.svg;',
@@ -702,7 +702,7 @@
   Sidebar.prototype.addAzure2InternetOfThingsPalette = function(gn, r, sb, s)
   {
     var dt = 'azure iot internet of things ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Digital_Twins.svg;',
@@ -721,7 +721,7 @@
   Sidebar.prototype.addAzure2IntunePalette = function(gn, r, sb, s)
   {
     var dt = 'azure intune ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_AD_Roles_and_Administrators.svg;',
@@ -746,7 +746,7 @@
   Sidebar.prototype.addAzure2IOTPalette = function(gn, r, sb, s)
   {
     var dt = 'azure iot internet of things ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Maps_Accounts.svg;',
@@ -785,7 +785,7 @@
   Sidebar.prototype.addAzure2ManagementGovernancePalette = function(gn, r, sb, s)
   {
     var dt = 'azure management governance ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Activity_Log.svg;',
@@ -850,7 +850,7 @@
   Sidebar.prototype.addAzure2MigratePalette = function(gn, r, sb, s)
   {
     var dt = 'azure migrate ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Migrate.svg;',
@@ -875,7 +875,7 @@
   Sidebar.prototype.addAzure2MixedRealityPalette = function(gn, r, sb, s)
   {
     var dt = 'azure mixed reality ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Remote_Rendering.svg;',
@@ -894,7 +894,7 @@
   Sidebar.prototype.addAzure2MonitorPalette = function(gn, r, sb, s)
   {
     var dt = 'azure monitor ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'SAP_Azure_Monitor.svg;',
@@ -913,7 +913,7 @@
   Sidebar.prototype.addAzure2NetworkingPalette = function(gn, r, sb, s)
   {
     var dt = 'azure network networking ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Application_Gateways.svg;',
@@ -992,7 +992,7 @@
   Sidebar.prototype.addAzure2OtherPalette = function(gn, r, sb, s)
   {
     var dt = 'azure other ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Detonation.svg;',
@@ -1021,7 +1021,7 @@
   Sidebar.prototype.addAzure2PreviewPalette = function(gn, r, sb, s)
   {
     var dt = 'azure preview ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Cloud_Shell.svg;',
@@ -1056,7 +1056,7 @@
   Sidebar.prototype.addAzure2SecurityPalette = function(gn, r, sb, s)
   {
     var dt = 'azure security ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Application_Security_Groups.svg;',
@@ -1087,7 +1087,7 @@
   Sidebar.prototype.addAzure2StoragePalette = function(gn, r, sb, s)
   {
     var dt = 'azure storage ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_HCP_Cache.svg;',
@@ -1134,7 +1134,7 @@
   Sidebar.prototype.addAzure2WebPalette = function(gn, r, sb, s)
   {
     var dt = 'azure web ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Media_Service.svg;',

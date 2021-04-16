@@ -8,7 +8,7 @@
     var gn = 'mxgraph.citrix';
     var dt = '';
     this.setCurrentSearchEntryLibrary('citrix');
-    
+
     this.addPaletteFunctions('citrix', 'Citrix', false,
     [
     	this.createVertexTemplateEntry(s + '1u_2u_server;', w * 200, h * 78.2, '', '1U 2U Server', null, null, this.getTagsForStencil(gn, '1U 2U Server', dt).join(' ')),
@@ -109,7 +109,7 @@
     	this.createVertexTemplateEntry(s + 'xenmobile;fillColor=#CCCCCC;gradientColor=#000000;gradientDirection=south;', w * 140, h * 178, '', 'XenMobile', null, null, this.getTagsForStencil(gn, 'XenMobile', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'xenserver;', w * 153, h * 180, '', 'XenServer', null, null, this.getTagsForStencil(gn, 'XenServer', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

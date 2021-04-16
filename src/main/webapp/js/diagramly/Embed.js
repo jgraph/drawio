@@ -35,7 +35,7 @@
   var originalNoFo = mxClient.NO_FO;
   var mathJaxLoading = (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined');
   var mathJaxQueue = [];
-  
+
   function loadMathJax()
   {
     // Uses existing configuration if MathJax already in page
@@ -74,7 +74,7 @@
     	document.getElementsByTagName('head')[0].appendChild(script);
     }
   };
-  
+
   function addMathJaxGraph(graph)
   {
     // Initial rendering when MathJax finished loading
@@ -86,7 +86,7 @@
     {
     	mathJaxQueue.push(graph.container);
     }
-    
+
     // Rendering math again on repaint
     graph.addListener(mxEvent.SIZE, function(sender, evt)
     {
@@ -96,7 +96,7 @@
     	}
     });
   };
-  
+
   // Handles relative images
   mxGraph.prototype.getImageFromBundles = function(key)
   {
@@ -114,10 +114,10 @@
     	
     	return key;
     }
-    
+
     return null;
   };
-  
+
   if (stencils != null)
   {
     for (var i = 0; i < stencils.length; i++)
@@ -126,7 +126,7 @@
     	mxStencilRegistry.parseStencilSet(xmlDoc.documentElement);
     }
   }
-  
+
   // Panning for touch devices
   if (mxClient.IS_TOUCH)
   {
@@ -135,7 +135,7 @@
     	return true;
     };
   }
-  
+
   (function()
   {
     function initGraph(container)
@@ -380,9 +380,9 @@
     					        	{
     					          		this.clear();
     					        	}
-    					        
+    					
     				        		this.currentState = tmp;
-    					        
+    					
     					        	if (this.currentState != null)
     					        	{
     					          		this.activate(this.currentState);
@@ -395,7 +395,7 @@
     				    	var tmp = this.currentLink;
     				    	this.clear();
     				    	
-    				    	if (tmp != null) 
+    				    	if (tmp != null)
     				    	{
     				    		if (tmp.charAt(0) == '#')
     				    		{
@@ -507,7 +507,7 @@
     					    		var newDocument = mxUtils.parseXml(data);
     					    		
     					    		// LATER: Add support for .png (with XML) files
-    					    		// Adds support for HTML 
+    					    		// Adds support for HTML
     					    		if (newDocument != null && newDocument.documentElement.nodeName == 'html')
     					    		{
     					    			var divs = newDocument.documentElement.getElementsByTagName('div');
@@ -597,7 +597,7 @@
     							graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url) + ': ' + mxUtils.htmlEntities(e.message);
     						}
     				    });
-    				    
+    				
     				    xhr.onerror = function()
     				    {
     				    	graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
@@ -672,7 +672,7 @@
     				tbody.appendChild(tr);
     				table.appendChild(tbody);
     				btn.appendChild(table);
-    
+
     				mxEvent.addListener(btn, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', function(evt)
     				{
     					mxEvent.consume(evt);
@@ -815,7 +815,7 @@
     	
     	return graph;
     };
-    
+
     if (typeof(mxClientOnLoad) == 'function')
     {
     	mxClientOnLoad(stylesheet, initGraph);

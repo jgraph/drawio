@@ -5,7 +5,7 @@
 EmbedFile = function(ui, data, desc)
 {
   DrawioFile.call(this, ui, data);
-  
+
   this.desc = desc || {};
   this.mode = App.MODE_EMBED;
 };

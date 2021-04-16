@@ -2,13 +2,13 @@
 {
   // Adds containers
   var sidebarCreateAdvancedShapes = Sidebar.prototype.createAdvancedShapes;
-  
+
   Sidebar.prototype.createAdvancedShapes = function()
   {
     this.setCurrentSearchEntryLibrary('general', 'advanced');
-    
+
     var fns = sidebarCreateAdvancedShapes.apply(this, arguments);
-    
+
     // Avoids having to bind all functions to "this"
     var sb = this;
 
@@ -16,40 +16,40 @@
     var flow = new mxCell('Vertical Flow Layout', new mxGeometry(0, 0, 270, 280),
     		'swimlane;html=1;startSize=20;horizontal=1;childLayout=flowLayout;flowOrientation=north;resizable=0;interRankCellSpacing=50;containerType=tree;');
     flow.vertex = true;
-    
+
     var flow1 = new mxCell('Start', new mxGeometry(20, 20, 100, 40), 'whiteSpace=wrap;html=1;');
     flow1.vertex = true;
     flow.insert(flow1);
-    
+
     var flow2 = new mxCell('Task', new mxGeometry(20, 20, 100, 40), 'whiteSpace=wrap;html=1;');
     flow2.vertex = true;
     flow.insert(flow2);
-    
+
     var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'html=1;curved=1;');
     edge.geometry.relative = true;
     edge.edge = true;
     flow1.insertEdge(edge, true);
     flow2.insertEdge(edge, false);
     flow.insert(edge);
-    
+
     var flow3 = new mxCell('Task', new mxGeometry(20, 20, 100, 40), 'whiteSpace=wrap;html=1;');
     flow3.vertex = true;
     flow.insert(flow3);
-    
+
     edge = edge.clone();
     flow1.insertEdge(edge, true);
     flow3.insertEdge(edge, false);
     flow.insert(edge);
-    
+
     var flow4 = new mxCell('End', new mxGeometry(20, 20, 100, 40), 'whiteSpace=wrap;html=1;');
     flow4.vertex = true;
     flow.insert(flow4);
-    
+
     edge = edge.clone();
     flow2.insertEdge(edge, true);
     flow4.insertEdge(edge, false);
     flow.insert(edge);
-    
+
     edge = edge.clone();
     flow3.insertEdge(edge, true);
     flow4.insertEdge(edge, false);
@@ -84,7 +84,7 @@
     		return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Horizontal Flow Layout', true);
     	})
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
 
     return fns;

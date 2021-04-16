@@ -11,7 +11,7 @@ RemoteLibrary = function(ui, data, libObj)
 mxUtils.extend(RemoteLibrary, LocalFile);
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.getHash = function()
 {
@@ -19,14 +19,14 @@ RemoteLibrary.prototype.getHash = function()
 };
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.isEditable = function()
 {
   return false;
 };
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.isRenamable = function()
 {
@@ -34,7 +34,7 @@ RemoteLibrary.prototype.isRenamable = function()
 };
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.isAutosave = function()
 {
@@ -42,7 +42,7 @@ RemoteLibrary.prototype.isAutosave = function()
 };
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.save = function(revision, success, error)
 {
@@ -50,7 +50,7 @@ RemoteLibrary.prototype.save = function(revision, success, error)
 };
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.saveAs = function(title, success, error)
 {
@@ -58,7 +58,7 @@ RemoteLibrary.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * 
+ *
  */
 RemoteLibrary.prototype.updateFileData = function()
 {

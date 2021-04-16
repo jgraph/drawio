@@ -5,7 +5,7 @@
 DropboxClient = function(editorUi)
 {
   DrawioClient.call(this, editorUi, 'dbauth');
-  
+
   this.client = new Dropbox({clientId: App.DROPBOX_APPKEY});
   this.client.setAccessToken(this.token);
 };
@@ -42,7 +42,7 @@ DropboxClient.prototype.logout = function()
   this.clearPersistentToken();
   this.setUser(null);
   this.token = null;
-  
+
   this.client.authTokenRevoke().then(mxUtils.bind(this, function()
   {
     this.client.setAccessToken(null);
@@ -55,18 +55,18 @@ DropboxClient.prototype.logout = function()
 DropboxClient.prototype.updateUser = function(success, error, failOnAuth)
 {
   var acceptResponse = true;
-  
+
   var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
   {
     acceptResponse = false;
     error({code: App.ERROR_TIMEOUT});
   }), this.ui.timeout);
-  
+
   var promise = this.client.usersGetCurrentAccount();
   promise.then(mxUtils.bind(this, function(response)
   {
         window.clearTimeout(timeoutThread);
-        
+
         if (acceptResponse)
         {
     	this.setUser(new DrawioUser(response.account_id,
@@ -78,7 +78,7 @@ DropboxClient.prototype.updateUser = function(success, error, failOnAuth)
   promise['catch'](mxUtils.bind(this, function(err)
   {
         window.clearTimeout(timeoutThread);
-        
+
         if (acceptResponse)
         {
     	if (err != null && err.status === 401 && !failOnAuth)
@@ -180,7 +180,7 @@ DropboxClient.prototype.authenticate = function(success, error)
     		}
     	}));
     });
-    
+
     auth();
   }
   else
@@ -197,13 +197,13 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
   var doExecute = mxUtils.bind(this, function(failOnAuth)
   {
     var acceptResponse = true;
-    
+
     var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
     {
     	acceptResponse = false;
     	error({code: App.ERROR_TIMEOUT, retry: fn});
     }), this.ui.timeout);
-    
+
     promise.then(mxUtils.bind(this, function(response)
     {
         	window.clearTimeout(timeoutThread);
@@ -251,7 +251,7 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
         	}
     }));
   });
-  
+
   var fn = mxUtils.bind(this, function(failOnAuth)
   {
     if (this.user == null)
@@ -303,10 +303,10 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
     {
     	var tokens = path.split('/');
     	var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
-  
+
     	this.ui.convertFile(path, name, null, this.extension, success, error);
     });
-    
+
     if (this.token != null)
     {
     	fn();
@@ -319,7 +319,7 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
   else
   {
     var arg = {path: '/' + path};
-    
+
     if (urlParams['rev'] != null)
     {
     	arg.rev = urlParams['rev'];
@@ -354,7 +354,7 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -363,27 +363,27 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
   var doExecute = mxUtils.bind(this, function(failOnAuth)
   {
     var acceptResponse = true;
-    
+
     var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
     {
     	acceptResponse = false;
     	error({code: App.ERROR_TIMEOUT});
     }), this.ui.timeout);
-    
+
     // Workaround for Uncaught DOMException in filesDownload is to
     // get the metadata to handle the file not found case
     var checkPromise = this.client.filesGetMetadata({path: '/' + arg.path.substring(1), include_deleted: false});
-    
+
     checkPromise.then(mxUtils.bind(this, function(response)
     {
         	// ignore
     }));
-    
+
     // Workaround for IE8/9 support with catch function
     checkPromise['catch'](function(err)
     {
         	window.clearTimeout(timeoutThread);
-    	    
+    	
         	if (acceptResponse && err != null && err.status == 409)
         	{
         		acceptResponse = false;
@@ -394,11 +394,11 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
     // Download file in parallel
     // LATER: Report Uncaught DOMException with path/not_found in filesDownload
     var promise = this.client.filesDownload(arg);
-    
+
     promise.then(mxUtils.bind(this, function(response)
     {
         	window.clearTimeout(timeoutThread);
-    	    
+    	
         	if (acceptResponse)
         	{
         		acceptResponse = false;
@@ -431,11 +431,11 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
     promise['catch'](mxUtils.bind(this, function(err)
     {
         	window.clearTimeout(timeoutThread);
-    	    
+    	
         	if (acceptResponse)
         	{
         		acceptResponse = false;
-  
+
         		if (err != null && (err.status == 500 || err.status == 400 ||
         			err.status == 401))
     	    	{
@@ -467,7 +467,7 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
         	}
     }));
   });
-  
+
   var fn = mxUtils.bind(this, function(failOnAuth)
   {
     if (this.user == null)
@@ -498,14 +498,14 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 DropboxClient.prototype.checkExists = function(filename, fn, noConfirm)
 {
   var promise = this.client.filesGetMetadata({path: '/' + filename.toLowerCase(), include_deleted: false});
-  
+
   this.executePromise(promise, mxUtils.bind(this, function(response)
   {
     if (noConfirm)
@@ -530,7 +530,7 @@ DropboxClient.prototype.checkExists = function(filename, fn, noConfirm)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -553,7 +553,7 @@ DropboxClient.prototype.renameFile = function(file, filename, success, error)
     		filename = path.substring(0, idx + 1) + filename;
     	}
     }
-    
+
     if (file != null && filename != null && file.stat.path_lower.substring(1) !== filename.toLowerCase())
     {
     	// Checks if file exists
@@ -596,7 +596,7 @@ DropboxClient.prototype.renameFile = function(file, filename, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -607,14 +607,14 @@ DropboxClient.prototype.insertLibrary = function(filename, data, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 DropboxClient.prototype.insertFile = function(filename, data, success, error, asLibrary)
 {
   asLibrary = (asLibrary != null) ? asLibrary : false;
-  
+
   this.checkExists(filename, mxUtils.bind(this, function(checked)
   {
     if (checked)
@@ -640,7 +640,7 @@ DropboxClient.prototype.insertFile = function(filename, data, success, error, as
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -658,7 +658,7 @@ DropboxClient.prototype.saveFile = function(filename, data, success, error, fold
   else
   {
     folder = (folder != null) ? folder : '';
-    
+
     // Mute switch is ignored
     var promise = this.client.filesUpload({path: '/' + folder + filename,
     	mode: {'.tag': 'overwrite'}, mute: true,
@@ -669,7 +669,7 @@ DropboxClient.prototype.saveFile = function(filename, data, success, error, fold
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -696,7 +696,7 @@ DropboxClient.prototype.pickLibrary = function(fn)
     		});
     		
     		var tmp = files[0].link.indexOf(this.appPath);
-  
+
     		if (tmp > 0)
     		{
     			// Checks if file is in app folder by loading file from there and comparing the ID
@@ -734,7 +734,7 @@ DropboxClient.prototype.pickLibrary = function(fn)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -766,7 +766,7 @@ DropboxClient.prototype.createLibrary = function(file, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -778,7 +778,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
     {
     	this.ui.loadFile((path != null) ? 'D' + encodeURIComponent(path) : file.getHash(), null, file);
     });
-    
+
     // Authentication will be carried out on open to make sure the
     // autosave does not show an auth dialog. Showing it here will
     // block the second dialog (the file picker) so it's too early.
@@ -879,14 +879,14 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 DropboxClient.prototype.createFile = function(file, success, error)
 {
   var binary = /(\.png)$/i.test(file.name);
-  
+
   this.ui.editor.loadUrl(file.link, mxUtils.bind(this, function(data)
     {
     if (data != null && data.length > 0)

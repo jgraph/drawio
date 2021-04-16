@@ -24,7 +24,7 @@
     this.addVeeam3DPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addVeeamDataCenterPalette = function()
   {
     var sn = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.2d.';
@@ -37,10 +37,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.data_center';
     var dt = 'veeam vmware virtual machine data center';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s3 + 'hyper_v_vmware_host;',
@@ -127,10 +127,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.misc';
     var dt = 'veeam vmware virtual machine misc miscellaneous';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'alarm;',
@@ -212,10 +212,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.software';
     var dt = 'veeam vmware virtual machine software';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
@@ -301,10 +301,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.storage';
     var dt = 'veeam vmware virtual machine storage';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'backup_repository;',
@@ -382,10 +382,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.storage';
     var dt = 'veeam vmware virtual machine users status';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'user;',
@@ -453,10 +453,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.vascomponent';
     var dt = 'veeam vmware virtual machine vas availability suite component';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s3 + 'database_server;',
@@ -532,10 +532,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.backup_replication';
     var dt = 'veeam vmware virtual machine backup replication';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s2 + 'built_in_wan_acceleration;',
@@ -631,10 +631,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.products';
     var dt = 'veeam vmware virtual machine products';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#07B152;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam.veeam_logo;',
@@ -688,10 +688,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.vmstape';
     var dt = 'veeam vmware virtual machine vm tape';
-    
+
     var w = 4.0;
     var h = 4.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'virtual_machine;',
@@ -759,10 +759,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.3d';
     var dt = 'veeam 3d vmware virtual machine ';
-    
+
     var w = 2.0;
     var h = 2.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(sn + '1ftvm;',

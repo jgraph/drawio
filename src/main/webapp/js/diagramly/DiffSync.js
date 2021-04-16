@@ -47,7 +47,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
   var removed = {};
   var lookup = {};
   var moved = {};
-  
+
     if (resolver != null && resolver[EditorUi.DIFF_UPDATE] != null)
   {
       for (var id in resolver[EditorUi.DIFF_UPDATE])
@@ -71,7 +71,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     	inserted[diff[EditorUi.DIFF_INSERT][i].previous] = diff[EditorUi.DIFF_INSERT][i];
     }
   }
-  
+
   if (diff[EditorUi.DIFF_UPDATE] != null)
   {
     for (var id in diff[EditorUi.DIFF_UPDATE])
@@ -84,12 +84,12 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     	}
     }
   }
-  
+
   // Restores existing order and creates lookup
     if (pages != null)
     {
     var prev = '';
-    
+
     for (var i = 0; i < pages.length; i++)
     {
     	var pageId = pages[i].getId();
@@ -106,14 +106,14 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     	prev = pageId;
     }
     }
-    
+
     // FIXME: Workaround for possible duplicate pages
     var added = {};
-  
+
   var addPage = mxUtils.bind(this, function(page)
   {
     var id = (page != null) ? page.getId() : '';
-    
+
     if (page != null && !added[id])
     {
     	added[id] = true;
@@ -149,31 +149,31 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     		}
     	}
     }
-    
+
     var mov = moved[id];
-    
+
     if (mov != null)
     {
     	delete moved[id];
     	addPage(lookup[mov]);
     }
-    
+
     var ins = inserted[id];
-    
+
     if (ins != null)
     {
     	delete inserted[id];
     	insertPage(ins);
     }
   });
-  
+
   var insertPage = mxUtils.bind(this, function(ins)
   {
     var diagram = mxUtils.parseXml(ins.data).documentElement;
     var newPage = new DiagramPage(diagram);
     this.updatePageRoot(newPage);
-    var page = lookup[newPage.getId()]; 
-    
+    var page = lookup[newPage.getId()];
+
     if (page == null)
     {
     	addPage(newPage);
@@ -193,7 +193,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     	}
     }
   });
-  
+
   addPage();
 
   // Handles orphaned moved pages
@@ -202,7 +202,7 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
     addPage(lookup[moved[id]]);
     delete moved[id];
   }
-  
+
   // Handles orphaned inserted pages
   for (var id in inserted)
   {
@@ -233,7 +233,7 @@ EditorUi.prototype.patchViewState = function(page, diff)
     	}
     	catch(e) {} //Ignore TODO Is this correct, we encountered an undefined value for a key (extFonts)
     }
-    
+
     if (page == this.currentPage)
     {
     	this.editor.graph.setViewState(page.viewState, true);
@@ -247,20 +247,20 @@ EditorUi.prototype.patchViewState = function(page, diff)
 EditorUi.prototype.createParentLookup = function(model, diff)
 {
   var parentLookup = {};
-  
+
   function getLookup(id)
   {
     var result = parentLookup[id];
-    
+
     if (result == null)
     {
     	result = {inserted: [], moved: {}};
     	parentLookup[id] = result;
     }
-    
+
     return result;
   };
-  
+
   if (diff[EditorUi.DIFF_INSERT] != null)
   {
     for (var i = 0; i < diff[EditorUi.DIFF_INSERT].length; i++)
@@ -271,7 +271,7 @@ EditorUi.prototype.createParentLookup = function(model, diff)
     	getLookup(par).inserted[prev] = temp;
     }
   }
-  
+
   if (diff[EditorUi.DIFF_UPDATE] != null)
   {
     for (var id in diff[EditorUi.DIFF_UPDATE])
@@ -294,7 +294,7 @@ EditorUi.prototype.createParentLookup = function(model, diff)
     				{
     					par = parent.getId();
     				}
-    			} 
+    			}
     		}
     		
     		if (par != null)
@@ -304,7 +304,7 @@ EditorUi.prototype.createParentLookup = function(model, diff)
     	}
     }
   }
-  
+
   return parentLookup;
 };
 
@@ -323,7 +323,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
     var prev = model.updateEdgeParent;
     var dict = new mxDictionary();
     var pendingUpdates = [];
-    
+
     model.updateEdgeParent = function(edge, root)
     {
     	if (!dict.get(edge) && updateEdgeParents)
@@ -337,12 +337,12 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
     var temp = parentLookup[''];
     var cellDiff = (temp != null && temp.inserted != null) ? temp.inserted[''] : null;
     var root = null;
-    
+
     if (cellDiff != null)
     {
     	root = this.getCellForJson(cellDiff);
     }
-    
+
     // Handles cells becoming root (very unlikely but possible)
     if (root == null)
     {
@@ -353,7 +353,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
     		root = model.getCell(id);
     	}
     }
-    
+
     if (root != null)
     {
     	model.setRoot(root);
@@ -376,11 +376,11 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
     		}
     	}
     }
-    
+
     // Updates cell states and terminals
     if (diff[EditorUi.DIFF_UPDATE] != null)
     {
-    	var res = (resolver != null && resolver.cells != null) ? 
+    	var res = (resolver != null && resolver.cells != null) ?
     		resolver.cells[EditorUi.DIFF_UPDATE] : null;
     	
     	for (var id in diff[EditorUi.DIFF_UPDATE])
@@ -409,7 +409,7 @@ EditorUi.prototype.patchPage = function(page, diff, resolver, updateEdgeParents)
 
     // Delayed update of edge parents
     model.updateEdgeParent = prev;
-    
+
     if (updateEdgeParents && pendingUpdates.length > 0)
     {
     	for (var i = 0; i < pendingUpdates.length; i++)
@@ -438,11 +438,11 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
     var inserted = (temp != null && temp.inserted != null) ? temp.inserted : {};
     var moved = (temp != null && temp.moved != null) ? temp.moved : {};
     var index = 0;
-    
+
     // Restores existing order
     var childCount = model.getChildCount(cell);
     var prev = '';
-    
+
     for (var i = 0; i < childCount; i++)
     {
     	var cellId = model.getChildAt(cell, i).getId();
@@ -458,7 +458,7 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
     	
     	prev = cellId;
     }
-    
+
     var addCell = mxUtils.bind(this, function(child, insert)
     {
     	var id = (child != null) ? child.getId() : '';
@@ -480,7 +480,7 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
     		{
     			model.add(cell, child, index);
     		}
-  
+
     		this.patchCellRecursive(page, model,
     			child, parentLookup, diff);
     		index++;
@@ -488,10 +488,10 @@ EditorUi.prototype.patchCellRecursive = function(page, model, cell, parentLookup
     	
     	return id;
     });
-    
+
     // Uses stack to avoid recursion for children
     var children = [null];
-    
+
     while (children.length > 0)
     {
     	var entry = children.shift();
@@ -563,7 +563,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
     		model.setValue(cell, mxUtils.parseXml(diff.xmlValue).documentElement);
     	}
     }
-    
+
     // Last write wins for style
     if ((resolve == null || resolve.style == null) && diff.style != null)
     {
@@ -591,29 +591,29 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
     	// Changes edge state in-place
     	cell.edge = diff.edge == 1;
     }
-    
+
     if (diff.connectable != null)
     {
     	// Changes connectable state in-place
     	cell.connectable = diff.connectable == 1;
     }
-    
+
     if (diff.geometry != null)
     {
     	model.setGeometry(cell, this.codec.decode(mxUtils.parseXml(
     		diff.geometry).documentElement));
     }
-    
+
     if (diff.source != null)
     {
     	model.setTerminal(cell, model.getCell(diff.source), true);
     }
-    
+
     if (diff.target != null)
     {
     	model.setTerminal(cell, model.getCell(diff.target), false);
     }
-    
+
     for (var key in diff)
     {
     	if (!this.cellProperties[key])
@@ -632,7 +632,7 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 EditorUi.prototype.getPagesForNode = function(node, nodeName)
 {
   var tmp = this.editor.extractGraphModel(node, true, true);
-  
+
   if (tmp != null)
   {
     node = tmp;
@@ -640,7 +640,7 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 
   var diagrams = node.getElementsByTagName(nodeName || 'diagram');
   var pages = [];
-  
+
   if (diagrams.length > 0)
   {
     for (var i = 0; i < diagrams.length; i++)
@@ -658,7 +658,7 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
     mxUtils.setTextContent(page.node, Graph.compressNode(node, true));
     pages.push(page);
   }
-  
+
   return pages;
 };
 
@@ -674,7 +674,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
   var lookup = {};
   var diff = {};
   var prev = null;
-  
+
   for (var i = 0; i < newPages.length; i++)
   {
     lookup[newPages[i].getId()] = {page: newPages[i], prev: prev};
@@ -682,12 +682,12 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
   }
 
   prev = null;
-  
+
   for (var i = 0; i < oldPages.length; i++)
   {
     var id = oldPages[i].getId();
     var newPage = lookup[id];
-    
+
     if (newPage == null)
     {
     	removed.push(id);
@@ -733,7 +733,7 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
     delete lookup[oldPages[i].getId()];
     prev = oldPages[i];
   }
-  
+
   for (var id in lookup)
   {
     var newPage = lookup[id];
@@ -741,17 +741,17 @@ EditorUi.prototype.diffPages = function(oldPages, newPages)
     	previous: (newPage.prev != null) ?
     	newPage.prev.getId() : ''});
   }
-  
+
   if (Object.keys(diff).length > 0)
   {
     result[EditorUi.DIFF_UPDATE] = diff;
   }
-  
+
   if (removed.length > 0)
   {
     result[EditorUi.DIFF_REMOVE] = removed;
   }
-  
+
   if (inserted.length > 0)
   {
     result[EditorUi.DIFF_INSERT] = inserted;
@@ -767,17 +767,17 @@ EditorUi.prototype.createCellLookup = function(cell, prev, lookup)
 {
   lookup = (lookup != null) ? lookup : {};
   lookup[cell.getId()] = {cell: cell, prev: prev};
-  
+
   var childCount = cell.getChildCount();
   prev = null;
-  
+
   for (var i = 0; i < childCount; i++)
   {
     var child = cell.getChildAt(i);
     this.createCellLookup(child, prev, lookup);
     prev = child;
   }
-  
+
   return lookup;
 };
 
@@ -789,7 +789,7 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
   diff = (diff != null) ? diff : {};
   var newCell = lookup[cell.getId()];
   delete lookup[cell.getId()];
-  
+
   if (newCell == null)
   {
     removed.push(cell.getId());
@@ -797,7 +797,7 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
   else
   {
     var temp = this.diffCell(cell, newCell.cell);
-    
+
     if (temp.parent != null ||
     	(((newCell.prev != null) ? prev == null : prev != null) ||
     	(prev != null && newCell.prev != null &&
@@ -805,7 +805,7 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
     {
     	temp.previous = (newCell.prev != null) ? newCell.prev.getId() : '';
     }
-    
+
     if (Object.keys(temp).length > 0)
     {
     	diff[cell.getId()] = temp;
@@ -814,14 +814,14 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 
   var childCount = cell.getChildCount();
   prev = null;
-  
+
   for (var i = 0; i < childCount; i++)
   {
     var child = cell.getChildAt(i);
     this.diffCellRecursive(child, prev, lookup, diff, removed);
     prev = child;
   }
-  
+
   return diff;
 };
 
@@ -850,12 +850,12 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
   {
     result[EditorUi.DIFF_UPDATE] = diff;
   }
-  
+
   if (removed.length > 0)
   {
     result[EditorUi.DIFF_REMOVE] = removed;
   }
-  
+
   if (inserted.length > 0)
   {
     result[EditorUi.DIFF_INSERT] = inserted;
@@ -872,7 +872,7 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
   var source = oldPage.viewState;
   var target = newPage.viewState;
   var result = {};
-  
+
   if (newPage == this.currentPage)
   {
     target = this.editor.graph.getViewState();
@@ -893,7 +893,7 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
     	}
     }
   }
-  
+
   return result;
 };
 
@@ -905,12 +905,12 @@ EditorUi.prototype.getCellForJson = function(json)
   var geometry = (json.geometry != null) ? this.codec.decode(
     mxUtils.parseXml(json.geometry).documentElement) : null;
   var value = json.value;
-  
+
   if (json.xmlValue != null)
   {
     value = mxUtils.parseXml(json.xmlValue).documentElement;
   }
-  
+
   var cell = new mxCell(value, geometry, json.style);
   cell.connectable = json.connectable != 0;
   cell.collapsed = json.collapsed == 1;
@@ -918,7 +918,7 @@ EditorUi.prototype.getCellForJson = function(json)
   cell.vertex = json.vertex == 1;
   cell.edge = json.edge == 1;
   cell.id = json.id;
-  
+
   for (var key in json)
   {
     if (!this.cellProperties[key])
@@ -936,7 +936,7 @@ EditorUi.prototype.getCellForJson = function(json)
 EditorUi.prototype.getJsonForCell = function(cell, previous)
 {
   var result = {id: cell.getId()};
-  
+
   if (cell.vertex)
   {
     result.vertex = 1;
@@ -1004,7 +1004,7 @@ EditorUi.prototype.getJsonForCell = function(cell, previous)
     	result.value = cell.value;
     }
   }
-  
+
   for (var key in cell)
   {
     if (!this.cellProperties[key] &&
@@ -1028,7 +1028,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
   {
     diff.vertex = (newCell.vertex) ? 1 : 0;
   }
-  
+
   if (oldCell.edge != newCell.edge)
   {
     diff.edge = (newCell.edge) ? 1 : 0;
@@ -1038,34 +1038,34 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
   {
     diff.connectable = (newCell.connectable) ? 1 : 0;
   }
-  
+
   if (((oldCell.parent != null) ? newCell.parent == null : newCell.parent != null) ||
     (oldCell.parent != null && newCell.parent != null &&
     oldCell.parent.getId() != newCell.parent.getId()))
   {
     diff.parent = (newCell.parent != null) ? newCell.parent.getId() : '';
   }
-  
+
   if (((oldCell.source != null) ? newCell.source == null : newCell.source != null) ||
     (oldCell.source != null && newCell.source != null &&
     oldCell.source.getId() != newCell.source.getId()))
   {
     diff.source = (newCell.source != null) ? newCell.source.getId() : '';
   }
-  
+
   if (((oldCell.target != null) ? newCell.target == null : newCell.target != null) ||
     (oldCell.target != null && newCell.target != null &&
     oldCell.target.getId() != newCell.target.getId()))
   {
     diff.target = (newCell.target != null) ? newCell.target.getId() : '';
   }
-  
+
   function isNode(value)
   {
     return value != null && typeof value === 'object' && typeof value.nodeType === 'number' &&
     	typeof value.nodeName === 'string' && typeof value.getAttribute === 'function';
   };
-  
+
   if (isNode(oldCell.value) && isNode(newCell.value))
   {
     if (!oldCell.value.isEqualNode(newCell.value))
@@ -1084,18 +1084,18 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
     	diff.value = (newCell.value != null) ? newCell.value : null;
     }
   }
-  
+
   if (oldCell.style != newCell.style)
   {
     // LATER: Split into keys and do fine-grained diff
     diff.style = newCell.style;
   }
-  
+
   if (oldCell.visible != newCell.visible)
   {
     diff.visible = (newCell.visible) ? 1 : 0;
   }
-  
+
   if (oldCell.collapsed != newCell.collapsed)
   {
     diff.collapsed = (newCell.collapsed) ? 1 : 0;
@@ -1105,13 +1105,13 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
   if (!this.isObjectEqual(oldCell.geometry, newCell.geometry, new mxGeometry()))
   {
     var node = this.codec.encode(newCell.geometry);
-    
+
     if (node != null)
     {
     	diff.geometry = mxUtils.getXml(node);
     }
   }
-  
+
   // Compares all keys from oldCell to newCell and uses null in the diff
   // to force the attribute to be removed in the receiving client
   for (var key in oldCell)
@@ -1122,7 +1122,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
     	diff[key] = (newCell[key] === undefined) ? null : newCell[key];
     }
   }
-  
+
   // Compares the remaining keys in newCell with oldCell
   for (var key in newCell)
   {
@@ -1133,7 +1133,7 @@ EditorUi.prototype.diffCell = function(oldCell, newCell)
     	diff[key] = (newCell[key] === undefined) ? null : newCell[key];
     }
   }
-  
+
   return diff;
 };
 
@@ -1158,7 +1158,7 @@ EditorUi.prototype.isObjectEqual = function(source, target, proto)
     };
 
     //console.log('eq', JSON.stringify(source, replacer), JSON.stringify(target, replacer));
-    
+
     return JSON.stringify(source, replacer) == JSON.stringify(target, replacer);
   }
 };

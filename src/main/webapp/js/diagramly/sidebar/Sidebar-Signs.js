@@ -13,5 +13,5 @@
 
     this.setCurrentSearchEntryLibrary();
   };
-  
+
 })();

@@ -8,23 +8,23 @@
    * Defines resources.
    */
   EditorUi.prototype.altShiftActions[68] = 'selectDescendants'; // Alt+Shift+D
-  
+
   /**
    * Overrides folding based on treeFolding style.
    */
   var graphFoldCells = Graph.prototype.foldCells;
-  
+
   Graph.prototype.foldCells = function(collapse, recurse, cells, checkFoldable, evt)
   {
     recurse = (recurse != null) ? recurse : false;
-    
+
     if (cells == null)
     {
     	cells = this.getFoldableCells(this.getSelectionCells(), collapse);
     }
 
     this.stopEditing();
-    
+
     this.model.beginUpdate();
     try
     {
@@ -47,10 +47,10 @@
     {
     	this.model.endUpdate();
     }
-    
+
     return cells;
   };
-  
+
   /**
    * Implements folding a tree cell.
    */
@@ -89,16 +89,16 @@
     	this.model.endUpdate();
     }
   };
-  
+
   /**
    * Overrides functionality in editor.
    */
   var editorUiInit = EditorUi.prototype.init;
-  
+
   EditorUi.prototype.init = function()
   {
     editorUiInit.apply(this, arguments);
-    
+
     if (!this.editor.isChromelessView() || this.editor.editable)
     {
     	this.addTrees();
@@ -112,7 +112,7 @@
     var model = graph.getModel();
     var spacing = 10;
     var level = 40;
-  
+
     function isTreeVertex(cell)
     {
     	return model.isVertex(cell) && hasTreeParent(cell);
@@ -125,13 +125,13 @@
     	if (cell != null)
     	{
     		var style = graph.getCurrentCellStyle(cell);
-  
+
     		result = style['treeMoving'] == '1';
     	}
     	
     	return result;
     };
-  
+
     function hasTreeParent(cell)
     {
     	var result = false;
@@ -141,13 +141,13 @@
     		var parent = model.getParent(cell);
     		var pstate = graph.view.getState(parent);
     		var style = (pstate != null) ? pstate.style : graph.getCellStyle(parent);
-  
+
     		result = style['containerType'] == 'tree';
     	}
     	
     	return result;
     };
-  
+
     function hasLayoutParent(cell)
     {
     	var result = false;
@@ -165,7 +165,7 @@
     	
     	return result;
     };
-    
+
     var uiCreatePopupMenu = ui.menus.createPopupMenu;
     ui.menus.createPopupMenu = function(menu, cell, evt)
     {
@@ -198,7 +198,7 @@
     		}
     	}
     };
-    
+
     // Adds actions
     ui.actions.addAction('selectChildren', function()
     {
@@ -220,7 +220,7 @@
     		}
     	}
     }, null, null, 'Alt+Shift+X');
-    
+
     // Adds actions
     ui.actions.addAction('selectSiblings', function()
     {
@@ -228,7 +228,7 @@
     	{
     		var cell = graph.getSelectionCell();
     		var edges = graph.getIncomingEdges(cell);
-  
+
     		if (edges != null && edges.length > 0)
     		{
     			var sib = graph.getOutgoingEdges(graph.model.getTerminal(edges[0], true));
@@ -247,7 +247,7 @@
     		}
     	}
     }, null, null, 'Alt+Shift+S');
-    
+
     // Adds actions
     ui.actions.addAction('selectParent', function()
     {
@@ -255,14 +255,14 @@
     	{
     		var cell = graph.getSelectionCell();
     		var edges = graph.getIncomingEdges(cell);
-  
+
     		if (edges != null && edges.length > 0)
     		{
     			graph.setSelectionCell(graph.model.getTerminal(edges[0], true));
     		}
     	}
     }, null, null, 'Alt+Shift+P');
-    
+
     ui.actions.addAction('selectDescendants', function(trigger, evt)
     {
     	var cell = graph.getSelectionCell();
@@ -303,7 +303,7 @@
      * Overriddes
      */
     var graphRemoveCells = graph.removeCells;
-    
+
     graph.removeCells = function(cells, includeEdges)
     {
     	includeEdges = (includeEdges != null) ? includeEdges : true;
@@ -312,7 +312,7 @@
     	{
     		cells = this.getDeletableCells(this.getSelectionCells());
     	}
-  
+
     	// Adds all edges to the cells
     	if (includeEdges)
     	{
@@ -366,14 +366,14 @@
     	
     	return graphRemoveCells.apply(this, arguments);
     };
-  
+
     ui.hoverIcons.getStateAt = function(state, x, y)
     {
     	return (isTreeVertex(state.cell)) ? null : this.graph.view.getState(this.graph.getCellAt(x, y));
     };
-    
+
     var graphDuplicateCells = graph.duplicateCells;
-    
+
     graph.duplicateCells = function(cells, append)
     {
     	cells = (cells != null) ? cells : this.getSelectionCells();
@@ -400,7 +400,7 @@
     	try
     	{
     		var result = graphDuplicateCells.call(this, cells, append);
-  
+
     		if (result.length == cells.length)
     		{
     			for (var i = 0; i < cells.length; i++)
@@ -427,9 +427,9 @@
     	
     	return result;
     };
-  
+
     var graphMoveCells = graph.moveCells;
-    
+
     graph.moveCells = function(cells, dx, dy, clone, target, evt, mapping)
     {
     	var result = null;
@@ -452,7 +452,7 @@
     					break;
     				}
     			}
-  
+
     			// Applies distance between previous and current parent for non-sidebar drags
     			if (newSource != null && target != newSource && this.view.getState(cells[0]) != null)
     			{
@@ -495,7 +495,7 @@
     				else if (isTreeVertex(cells[i]))
     				{
     					var edges = graph.getIncomingEdges(cells[i]);
-  
+
     					if (edges.length > 0)
     					{
     						if (!clone)
@@ -535,7 +535,7 @@
     	
     	return result;
     };
-    
+
     // Connects all dangling edges from the sidebar (by
     // default only first dangling edge gets connected)
     if (ui.sidebar != null)
@@ -578,7 +578,7 @@
     		return result;
     	};
     }
-  
+
     /**
      * Checks source point of incoming edge relative to target terminal.
      */
@@ -615,7 +615,7 @@
     						else if (pt.x > state.getCenterX())
     						{
     							return mxConstants.DIRECTION_WEST;
-    						} 
+    						}
     					}
     				}
     			}
@@ -624,7 +624,7 @@
     	
     	return mxConstants.DIRECTION_EAST;
     };
-    
+
     function addSibling(cell, after)
     {
     	after = (after != null) ? after : true;
@@ -739,7 +739,7 @@
     									{
     										subtree.push(edge);
     									}
-    
+
     									subtree.push(vertex);
     									
     									return true;
@@ -760,7 +760,7 @@
     		graph.model.endUpdate();
     	}
     };
-  
+
     function addParent(cell)
     {
     	graph.model.beginUpdate();
@@ -772,7 +772,7 @@
     		graph.model.setTerminal(edges[0], clones[1], false);
     		graph.model.setTerminal(clones[0], clones[1], true);
     		graph.model.setTerminal(clones[0], cell, false);
-  
+
     		// Makes space for new parent
     		var parent = graph.model.getParent(cell);
     		var pgeo = parent.geometry;
@@ -790,7 +790,7 @@
     			{
     				subtree.push(edge);
     			}
-  
+
     			subtree.push(vertex);
     			
     			return true;
@@ -819,7 +819,7 @@
     		}
     		
     		graph.moveCells(subtree, dx, dy);
-  
+
     		return graph.addCells(clones, parent);
     	}
     	finally
@@ -827,7 +827,7 @@
     		graph.model.endUpdate();
     	}
     };
-  
+
     function addChild(cell, direction)
     {
     	graph.model.beginUpdate();
@@ -891,7 +891,7 @@
     		{
     			pgeo = new mxRectangle();
     		}
-  
+
     		for (var i = 0; i < edges.length; i++)
     		{
     			var target = graph.model.getTerminal(edges[i], false);
@@ -910,14 +910,14 @@
     		{
     			clones[1].geometry.x = (bbox == null) ? cell.geometry.x + (cell.geometry.width -
     				clones[1].geometry.width) / 2 : (bbox.x + bbox.width) / s - tr.x -
-    				pgeo.x + spacing; 
+    				pgeo.x + spacing;
     			clones[1].geometry.y += clones[1].geometry.height - pgeo.y + level;
     		}
     		else if (dir == mxConstants.DIRECTION_NORTH)
     		{
     			clones[1].geometry.x = (bbox == null) ? cell.geometry.x + (cell.geometry.width -
     				clones[1].geometry.width) / 2 : (bbox.x + bbox.width) / s - tr.x + -
-    				pgeo.x + spacing; 
+    				pgeo.x + spacing;
     			clones[1].geometry.y -= clones[1].geometry.height + pgeo.y + level;
     		}
     		else if (dir == mxConstants.DIRECTION_WEST)
@@ -925,7 +925,7 @@
     			clones[1].geometry.x -= clones[1].geometry.width + pgeo.x + level;
     			clones[1].geometry.y = (bbox == null) ? cell.geometry.y + (cell.geometry.height -
     				clones[1].geometry.height) / 2 : (bbox.y + bbox.height) / s - tr.y + -
-    				pgeo.y + spacing; 
+    				pgeo.y + spacing;
     		}
     		else
     		{
@@ -934,7 +934,7 @@
     				clones[1].geometry.height) / 2 : (bbox.y + bbox.height) / s - tr.y + -
     				pgeo.y + spacing;
     		}
-  
+
     		return graph.addCells(clones, parent);
     	}
     	finally
@@ -942,7 +942,7 @@
     		graph.model.endUpdate();
     	}
     };
-    
+
     function getOrderedTargets(cell, horizontal, ref)
     {
     	var sib = graph.getOutgoingEdges(cell);
@@ -972,7 +972,7 @@
     	
     	return targets;
     };
-    
+
     function selectCell(cell, direction)
     {
     	var dir = getTreeDirection(cell);
@@ -995,7 +995,7 @@
     	else
     	{
     		var edges = graph.getIncomingEdges(cell);
-  
+
     		if (edges != null && edges.length > 0)
     		{
     			var targets = getOrderedTargets(graph.model.getTerminal(edges[0], true), h2, cell);
@@ -1018,15 +1018,15 @@
     		}	
     	}
     };
-  
+
     // Overrides keyboard shortcuts inside tree containers
     var altShiftActions = {88: ui.actions.get('selectChildren'), // Alt+Shift+X
     		84: ui.actions.get('selectSubtree'), // Alt+Shift+T
     		80: ui.actions.get('selectParent'), // Alt+Shift+P
     		83: ui.actions.get('selectSiblings')} // Alt+Shift+S
-  
+
     var editorUiOnKeyDown = ui.onKeyDown;
-    
+
     ui.onKeyDown = function(evt)
     {
     	try
@@ -1036,7 +1036,7 @@
     			graph.getSelectionCount() == 1)
     		{
     			var cells = null;
-  
+
     			if (graph.getIncomingEdges(graph.getSelectionCell()).length > 0)
     			{
     				if (evt.which == 9) // Tab adds child
@@ -1075,7 +1075,7 @@
     				if (mxEvent.isAltDown(evt) && mxEvent.isShiftDown(evt))
     				{
     					var action = altShiftActions[evt.keyCode];
-  
+
     					if (action != null)
     					{
     						action.funct(evt);
@@ -1118,9 +1118,9 @@
     		editorUiOnKeyDown.apply(this, arguments);
     	}
     };
-  
+
     var graphConnectVertex = graph.connectVertex;
-    
+
     graph.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, targetCell)
     {
     	var edges = graph.getIncomingEdges(source);
@@ -1150,7 +1150,7 @@
     		return graphConnectVertex.apply(this, arguments);
     	}
     };
-    
+
     graph.getSubtree = function(initialCell)
     {
     	var cells = [initialCell];
@@ -1166,7 +1166,7 @@
     			{
     				cells.push(edge);
     			}
-  
+
     			if (mxUtils.indexOf(cells, vertex) < 0)
     			{
     				cells.push(vertex);
@@ -1175,12 +1175,12 @@
     			return true;
     		});
     	}
-  
+
     	return cells;
     };
-    
+
     var vertexHandlerInit = mxVertexHandler.prototype.init;
-    
+
     mxVertexHandler.prototype.init = function()
     {
     	vertexHandlerInit.apply(this, arguments);
@@ -1225,7 +1225,7 @@
     			((this.state.height < 40) ? 10 : 0) + 2 + 'px';
     	}
     };
-    
+
     var vertexHandlerSetHandlesVisible = mxVertexHandler.prototype.setHandlesVisible;
 
     mxVertexHandler.prototype.setHandlesVisible = function(visible)
@@ -1237,7 +1237,7 @@
     		this.moveHandle.style.display = (visible) ? '' : 'none';
     	}
     };
-    
+
     var vertexHandlerDestroy = mxVertexHandler.prototype.destroy;
 
     mxVertexHandler.prototype.destroy = function(sender, me)
@@ -1281,13 +1281,13 @@
     	    	var cell3 = new mxCell('Child', new mxGeometry(140, 140, 120, 40),
     	    		'whiteSpace=wrap;html=1;treeFolding=1;treeMoving=1;' + treeEdgeStyle);
     	    	cell3.vertex = true;
-  
+
     	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0),
     	    		'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
     				'startArrow=none;endArrow=none;rounded=0;');
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell2.insertEdge(edge, true);
     			cell3.insertEdge(edge, false);
     			
@@ -1318,7 +1318,7 @@
     				'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, true);
     			cell2.insertEdge(edge, false);
     			
@@ -1332,7 +1332,7 @@
     				'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge2.geometry.relative = true;
     			edge2.edge = true;
-  
+
     			cell.insertEdge(edge2, true);
     			cell3.insertEdge(edge2, false);
     	    	
@@ -1340,12 +1340,12 @@
     		    	'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
         			'strokeWidth=1;autosize=1;spacing=4;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
     	    	cell4.vertex = true;
-  
+
     	    	var edge3 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
     				'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge3.geometry.relative = true;
     			edge3.edge = true;
-    
+
     			cell.insertEdge(edge3, true);
     			cell4.insertEdge(edge3, false);
     			
@@ -1354,12 +1354,12 @@
     	    		'fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
     	    		'snapToPoint=1;autosize=1;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
     	    	cell5.vertex = true;
-  
+
     	    	var edge4 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
     				'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge4.geometry.relative = true;
     			edge4.edge = true;
-  
+
     			cell.insertEdge(edge4, true);
     			cell5.insertEdge(edge4, false);
     		    	
@@ -1393,13 +1393,13 @@
     	    		'fillColor=none;align=center;verticalAlign=bottom;routingCenterY=0.5;' +
     	    		'snapToPoint=1;recursiveResize=0;autosize=1;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
     	    	cell.vertex = true;
-  
+
     	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
     				'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, false);
     			
     			return sb.createVertexTemplateFromCells([cell, edge], cell.geometry.width,
@@ -1411,13 +1411,13 @@
     	    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
     	    		'strokeWidth=1;autosize=1;spacing=4;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
     	    	cell.vertex = true;
-  
+
     	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
     	    		'startArrow=none;endArrow=none;segment=10;curved=1;');
     			edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, false);
     			
     			return sb.createVertexTemplateFromCells([cell, edge], cell.geometry.width,
@@ -1437,26 +1437,26 @@
     	    	var cell2 = new mxCell('Division', new mxGeometry(20, 140, 100, 60),
     	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;' + treeEdgeStyle);
     	    	cell2.vertex = true;
-  
+
     	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0),
     	    		'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
     				'startArrow=none;endArrow=none;rounded=0;');
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, true);
     			cell2.insertEdge(edge, false);
     	    	
     	    	var cell3 = new mxCell('Division', new mxGeometry(160, 140, 100, 60),
     	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;' + treeEdgeStyle);
     	    	cell3.vertex = true;
-  
+
     	    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0),
     	    		'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
     				'startArrow=none;endArrow=none;rounded=0;');
     			edge2.geometry.relative = true;
     			edge2.edge = true;
-  
+
     			cell.insertEdge(edge2, true);
     			cell3.insertEdge(edge2, false);
     			
@@ -1491,7 +1491,7 @@
     	    	edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, false);
     		    	
     			return sb.createVertexTemplateFromCells([cell, edge], cell.geometry.width,
@@ -1502,25 +1502,25 @@
     	    	var cell = new mxCell('Sub Section', new mxGeometry(0, 0, 100, 60),
     	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;');
     	    	cell.vertex = true;
-  
+
     	    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
     				'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
     			edge.geometry.setTerminalPoint(new mxPoint(110, -40), true);
     			edge.geometry.relative = true;
     			edge.edge = true;
-  
+
     			cell.insertEdge(edge, false);
-  
+
     	    	var cell2 = new mxCell('Sub Section', new mxGeometry(120, 0, 100, 60),
     	    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;');
     	    	cell2.vertex = true;
-  
+
     	    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
     				'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
     			edge2.geometry.setTerminalPoint(new mxPoint(110, -40), true);
     			edge2.geometry.relative = true;
     			edge2.edge = true;
-  
+
     			cell2.insertEdge(edge2, false);
     								
     		    	return sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections');

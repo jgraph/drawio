@@ -11,9 +11,9 @@ var mxSettings =
    * Defines current version of settings.
    */
   currentVersion: 18,
-  
+
   defaultFormatWidth: (screen.width < 600) ? '0' : '240',
-  
+
   // NOTE: Hardcoded in index.html due to timing of JS loading
   key: '.drawio-config',
 
@@ -88,7 +88,7 @@ var mxSettings =
   {
     //Convert from old format to the new one
     var custFonts = mxSettings.settings.customFonts || [];
-    
+
     for (var i = 0 ; i < custFonts.length; i++)
     {
     	if (typeof custFonts[i] === 'string')
@@ -96,7 +96,7 @@ var mxSettings =
     		custFonts[i] = {name: custFonts[i], url: null};
     	}
     }
-    
+
     return custFonts;
   },
   getLibraries: function()
@@ -111,13 +111,13 @@ var mxSettings =
   {
     // Makes sure to update the latest data from the localStorage
     mxSettings.load();
-    
+
     //If the setting is incorrect, reset it to an empty array
     if (!Array.isArray(mxSettings.settings.customLibraries))
     {
     	mxSettings.settings.customLibraries = [];
     }
-    
+
     if (mxUtils.indexOf(mxSettings.settings.customLibraries, id) < 0)
     {
     	// Makes sure scratchpad is below search in sidebar
@@ -130,7 +130,7 @@ var mxSettings =
     		mxSettings.settings.customLibraries.push(id);
     	}
     }
-    
+
     mxSettings.save();
   },
   removeCustomLibrary: function(id)
@@ -202,7 +202,7 @@ var mxSettings =
   },
   init: function()
   {
-    mxSettings.settings = 
+    mxSettings.settings =
     {
     	language: '',
     	configVersion: Editor.configVersion,
@@ -351,7 +351,7 @@ var mxSettings =
     	}
     }
   },
-  clear: function() 
+  clear: function()
   {
     if (isLocalStorage)
     {
@@ -362,7 +362,7 @@ var mxSettings =
 
 /**
  * Variable: mxLoadSettings
- * 
+ *
  * Optional global config variable to toggle loading the settings. Default is true.
  *
  * (code)

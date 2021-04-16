@@ -20,28 +20,28 @@ mxUtils.extend(mxAsyncCanvas, mxAbstractCanvas2D);
 
 /**
  * Variable: htmlCanvas
- * 
+ *
  * The canvas instance this object is obtaining async resources for
  */
 mxAsyncCanvas.prototype.htmlCanvas = null;
 
 /**
  * Variable: canvasIndex
- * 
+ *
  * The current index into the canvas sub-canvas array being processed
  */
 mxAsyncCanvas.prototype.canvasIndex = 0;
 
 /**
  * Variable: ctx
- * 
+ *
  * Holds the current canvas context
  */
 mxAsyncCanvas.prototype.waitCounter = 0;
 
 /**
  * Variable: ctx
- * 
+ *
  * Holds the current canvas context
  */
 mxAsyncCanvas.prototype.onComplete = null;
@@ -50,11 +50,11 @@ mxAsyncCanvas.prototype.incWaitCounter = function()
 {
   this.waitCounter++;
 };
-  
+
 mxAsyncCanvas.prototype.decWaitCounter = function()
 {
   this.waitCounter--;
-  
+
   if (this.waitCounter == 0 && this.onComplete != null)
   {
     this.onComplete();
@@ -65,17 +65,17 @@ mxAsyncCanvas.prototype.decWaitCounter = function()
 mxAsyncCanvas.prototype.updateFont = function()
 {
   var style = '';
-  
+
   if ((this.state.fontStyle & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
   {
     style += 'bold ';
   }
-  
+
   if ((this.state.fontStyle & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC)
   {
     style += 'italic ';
   }
-  
+
   this.ctx.font = style + this.state.fontSize + 'px ' + this.state.fontFamily;
 };
 
@@ -99,7 +99,7 @@ mxAsyncCanvas.prototype.setFontBackgroundColor = function(value)
   {
     value = null;
   }
-  
+
   this.state.fontBackgroundColor = value;
 };
 
@@ -109,7 +109,7 @@ mxAsyncCanvas.prototype.setFontBorderColor = function(value)
   {
     value = null;
   }
-  
+
   this.state.fontBorderColor = value;
 };
 
@@ -141,7 +141,7 @@ mxAsyncCanvas.prototype.rewriteImageSource = function(src)
   {
     src = '/proxy?url=' + encodeURIComponent(src);
   }
-  
+
   return src;
 };
 
@@ -149,16 +149,16 @@ mxAsyncCanvas.prototype.image = function(x, y, w, h, src, aspect, flipH, flipV)
 {
   src = this.rewriteImageSource(src);
   var image = this.htmlCanvas.images[src];
-  
+
   if (image == null)
   {
     var image = new Image();
-    
+
     image.onload = mxUtils.bind(this, function()
     {
     	this.decWaitCounter();
     });
-    
+
     image.onerror = mxUtils.bind(this, function()
     {
     	this.decWaitCounter();
@@ -176,7 +176,7 @@ mxAsyncCanvas.prototype.fill = function() {};
 mxAsyncCanvas.prototype.stroke = function() {};
 
 mxAsyncCanvas.prototype.fillAndStroke = function() {};
-  
+
 mxAsyncCanvas.prototype.text = function(x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
 {
   if (str == null || str.length == 0)
@@ -190,7 +190,7 @@ mxAsyncCanvas.prototype.text = function(x, y, w, h, str, align, valign, wrap, fo
   {
     this.incWaitCounter();
     var canvasIndex = this.canvasIndex++;
-    
+
       html2canvas(str,
       {
           onrendered: mxUtils.bind(this, function(canvas)

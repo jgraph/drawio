@@ -1,13 +1,13 @@
 function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback, errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath)
 {
   var previewHtml = '';
-  
+
   if (previewFn == null)
   {
     previewFn = renderFile;
     previewHtml = '<div style="text-align: center;" class="odPreview"></div>';
   }
-  
+
   if (getRecentList == null)
   {
     getRecentList = function()
@@ -23,7 +23,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	return list;
     }
   }
-  
+
   if (addToRecent == null)
   {
     addToRecent = function(file)
@@ -34,28 +34,28 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	}
     	
     	var recentList = getRecentList() || {};
-      
+
         delete file['@microsoft.graph.downloadUrl'];
         recentList[file.id] = file;
     	localStorage.setItem('mxODPickerRecentList', JSON.stringify(recentList));
     }
   }
-  
+
   function _$(selector, elem)
   {
     elem = elem || document;
     return elem.querySelector(selector);
   };
-  
+
   function _$$(selector, elem)
   {
     elem = elem || document;
     return elem.querySelectorAll(selector);
   };
-  
-  var html = 
+
+  var html =
     	'<div class="odCatsList">' +
-    		'<div class="odCatsListLbl">OneDrive</div>' + 
+    		'<div class="odCatsListLbl">OneDrive</div>' +
     		'<div id="odFiles" class="odCatListTitle odCatSelected">' + mxResources.get('files') + '</div>' +
     		'<div id="odRecent" class="odCatListTitle">' + mxResources.get('recent') + '</div>' +
     		'<div id="odShared" class="odCatListTitle">' + mxResources.get('shared') + '</div>' +
@@ -73,151 +73,151 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxResources.get('back') + '</div>' : '') +
     	(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxResources.get(foldersOnly? 'save' : 'open') + '</button>' : '');
     	
-  var css = 
+  var css =
     '.odCatsList {' +
-    '	box-sizing: border-box;' + 
-    '	position:absolute;' + 
-    '	top:0px;' + 
-    '	bottom:50%;' + 
-    '	width:30%;' + 
-    '	border: 1px solid #CCCCCC;' + 
-    '	border-bottom:none;' + 
-    '	background-color: #FFFFFF;' + 
-    '	display: inline-block;' + 
-    '	overflow-x: hidden;' + 
-    '	overflow-y: auto;' + 
-    '}' + 
-    '.odCatsListLbl {' + 
-    '	height: 17px;' + 
-    '	color: #6D6D6D;' + 
-    '	font-size: 14px;' + 
-    '	font-weight: bold;' + 
-    '	line-height: 17px;' + 
-    '	margin: 10px 0 3px 5px;' + 
-    '}' + 
-    '.odFilesSec {' + 
-    '	box-sizing: border-box;' + 
-    '	position:absolute;' + 
-    '	left:30%;' + 
-    '	top:0px;' + 
-    '	bottom:50%;' + 
-    '	width: 70%;' + 
-    '	border: 1px solid #CCCCCC;' + 
-    '	border-left:none;' + 
-    '	border-bottom:none;' + 
-    '	background-color: #FFFFFF;' + 
-    '	display: inline-block;' + 
-    '	overflow: hidden;' + 
-    '}' + 
-    '.odFilesBreadcrumb {' + 
-    '	box-sizing: border-box;' + 
-    '	position:absolute;' + 
-    '	min-height: 32px;' + 
-    '	left:0px;' + 
-    '	right:20px;' + 
-    '	text-overflow:ellipsis;' + 
-    '	overflow:hidden;' + 
-    '	font-size: 13px;' + 
-    '	color: #6D6D6D;' + 
-    '	padding: 5px;' + 
-    '}' + 
-    '.odRefreshButton {' + 
-    '	box-sizing: border-box;' + 
-    '	position:absolute;' + 
-    '	right:0px;' + 
-    '	top:0px;' + 
-    '	padding: 4px;' + 
-    '	margin: 1px;' + 
-    '	height:24px;' + 
-    '	cursor:default;' + 
-    '}' + 
-    '.odRefreshButton>img {' + 
-    '	opacity:0.5;' + 
-    '}' + 
-    '.odRefreshButton:hover {' + 
-    '	background-color:#ddd;' + 
-    '	border-radius:50%;' + 
-    '}' + 
-    '.odRefreshButton:active {' + 
-    '	opacity:0.7;' + 
-    '}' + 
-    '.odFilesList {' + 
-    '	box-sizing: border-box;' + 
-    '	position:absolute;' + 
-    '	top:32px;' + 
-    '	bottom:0px;' + 
-    '	width: 100%;' + 
-    '	overflow-x: hidden;' + 
-    '	overflow-y: auto;' + 
-    '}' + 
-    '.odFileImg {' + 
-    '	padding-left: 5px;' + 
-    '	padding-right: 5px;' + 
-    '}' + 
-    '.odFileTitle {' + 
-    '	font-weight: normal;' + 
-    '	color: #666666 !important;' + 
-    '}' + 
-    '.odFileListGrid {' + 
-    '	width: 100%;' + 
-    '	white-space: nowrap;' + 
-    '	font-size: 13px;' + 
-    '    box-sizing: border-box;' + 
-    '    border-spacing: 0;' + 
-    '}' + 
-    '.odOddRow {' + 
-    '	background-color: #eeeeee;' + 
-    '}' + 
-    '.odEvenRow {' + 
-    '	background-color: #FFFFFF;' + 
-    '}' + 
-    '.odRowSelected {' + 
-    '	background-color: #cadfff;' + 
-    '}' + 
-    '.odCatListTitle {' + 
-    '	box-sizing: border-box;' + 
-    '	height: 17px;' + 
-    '	color: #666666;' + 
-    '	font-size: 14px;' + 
-    '	line-height: 17px;' + 
-    '	margin: 5px 0 5px 0px;' + 
-    '    padding-left: 10px;' + 
-    '}' + 
-    '.odCatSelected {' + 
-    '	font-weight: bold;' + 
-    '	background-color: #cadfff;' + 
-    '}' + 
-    '.odEmptyFolder {' + 
-    '	height: 17px;' + 
-    '	color: #6D6D6D;' + 
-    '	font-size: 14px;' + 
-    '	font-weight: bold;' + 
-    '	line-height: 17px;' + 
-    '	margin: 10px 0 3px 5px;' + 
-    '	width: 100%;' + 
-    '    text-align: center;' + 
-    '}' + 
-    '.odBCFolder {' + 
-    '	cursor: pointer;' + 
-    '	color: #0432ff;' + 
+    '	box-sizing: border-box;' +
+    '	position:absolute;' +
+    '	top:0px;' +
+    '	bottom:50%;' +
+    '	width:30%;' +
+    '	border: 1px solid #CCCCCC;' +
+    '	border-bottom:none;' +
+    '	background-color: #FFFFFF;' +
+    '	display: inline-block;' +
+    '	overflow-x: hidden;' +
+    '	overflow-y: auto;' +
     '}' +
-    '.odPreviewStatus {' + 
-    '	position:absolute;' + 
-    '	text-align:center;' + 
-    '	width:100%;' + 
-    '	top:50%;' + 
-    '	transform: translateY(-50%);' + 
-    '	font-size:13px;' + 
-    '	opacity:0.5;' + 
-    '}' + 
-    '.odPreview {' + 
-    '    position:absolute;' + 
-    '	 overflow:hidden;' + 
-    '	 border: 1px solid #CCCCCC;' + 
-    '    bottom:0px;' + 
-    '    top: 50%;' + 
-    '    left:0px;' + 
-    '    right:0px;' + 
+    '.odCatsListLbl {' +
+    '	height: 17px;' +
+    '	color: #6D6D6D;' +
+    '	font-size: 14px;' +
+    '	font-weight: bold;' +
+    '	line-height: 17px;' +
+    '	margin: 10px 0 3px 5px;' +
+    '}' +
+    '.odFilesSec {' +
+    '	box-sizing: border-box;' +
+    '	position:absolute;' +
+    '	left:30%;' +
+    '	top:0px;' +
+    '	bottom:50%;' +
+    '	width: 70%;' +
+    '	border: 1px solid #CCCCCC;' +
+    '	border-left:none;' +
+    '	border-bottom:none;' +
+    '	background-color: #FFFFFF;' +
+    '	display: inline-block;' +
+    '	overflow: hidden;' +
+    '}' +
+    '.odFilesBreadcrumb {' +
+    '	box-sizing: border-box;' +
+    '	position:absolute;' +
+    '	min-height: 32px;' +
+    '	left:0px;' +
+    '	right:20px;' +
+    '	text-overflow:ellipsis;' +
+    '	overflow:hidden;' +
+    '	font-size: 13px;' +
+    '	color: #6D6D6D;' +
+    '	padding: 5px;' +
+    '}' +
+    '.odRefreshButton {' +
+    '	box-sizing: border-box;' +
+    '	position:absolute;' +
+    '	right:0px;' +
+    '	top:0px;' +
+    '	padding: 4px;' +
+    '	margin: 1px;' +
+    '	height:24px;' +
+    '	cursor:default;' +
+    '}' +
+    '.odRefreshButton>img {' +
+    '	opacity:0.5;' +
+    '}' +
+    '.odRefreshButton:hover {' +
+    '	background-color:#ddd;' +
+    '	border-radius:50%;' +
+    '}' +
+    '.odRefreshButton:active {' +
+    '	opacity:0.7;' +
+    '}' +
+    '.odFilesList {' +
+    '	box-sizing: border-box;' +
+    '	position:absolute;' +
+    '	top:32px;' +
+    '	bottom:0px;' +
+    '	width: 100%;' +
+    '	overflow-x: hidden;' +
+    '	overflow-y: auto;' +
+    '}' +
+    '.odFileImg {' +
+    '	padding-left: 5px;' +
+    '	padding-right: 5px;' +
+    '}' +
+    '.odFileTitle {' +
+    '	font-weight: normal;' +
+    '	color: #666666 !important;' +
+    '}' +
+    '.odFileListGrid {' +
+    '	width: 100%;' +
+    '	white-space: nowrap;' +
+    '	font-size: 13px;' +
+    '    box-sizing: border-box;' +
+    '    border-spacing: 0;' +
+    '}' +
+    '.odOddRow {' +
+    '	background-color: #eeeeee;' +
+    '}' +
+    '.odEvenRow {' +
+    '	background-color: #FFFFFF;' +
+    '}' +
+    '.odRowSelected {' +
+    '	background-color: #cadfff;' +
+    '}' +
+    '.odCatListTitle {' +
+    '	box-sizing: border-box;' +
+    '	height: 17px;' +
+    '	color: #666666;' +
+    '	font-size: 14px;' +
+    '	line-height: 17px;' +
+    '	margin: 5px 0 5px 0px;' +
+    '    padding-left: 10px;' +
+    '}' +
+    '.odCatSelected {' +
+    '	font-weight: bold;' +
+    '	background-color: #cadfff;' +
+    '}' +
+    '.odEmptyFolder {' +
+    '	height: 17px;' +
+    '	color: #6D6D6D;' +
+    '	font-size: 14px;' +
+    '	font-weight: bold;' +
+    '	line-height: 17px;' +
+    '	margin: 10px 0 3px 5px;' +
+    '	width: 100%;' +
+    '    text-align: center;' +
+    '}' +
+    '.odBCFolder {' +
+    '	cursor: pointer;' +
+    '	color: #0432ff;' +
+    '}' +
+    '.odPreviewStatus {' +
+    '	position:absolute;' +
+    '	text-align:center;' +
+    '	width:100%;' +
+    '	top:50%;' +
+    '	transform: translateY(-50%);' +
+    '	font-size:13px;' +
+    '	opacity:0.5;' +
+    '}' +
+    '.odPreview {' +
+    '    position:absolute;' +
+    '	 overflow:hidden;' +
+    '	 border: 1px solid #CCCCCC;' +
+    '    bottom:0px;' +
+    '    top: 50%;' +
+    '    left:0px;' +
+    '    right:0px;' +
     '}' +
     '.odLinkBtn {' +
     '   position: absolute;' +
@@ -261,7 +261,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
   var breadcrumb = [];
     var lastFolderArgs = null;
   var loadingPreviewFile = null;
-    
+
   function getDrawioFileDoc(file, success, error)
   {
     if (file['@microsoft.graph.downloadUrl'] == null)
@@ -280,19 +280,19 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     		return;
     	}
     }
-    
+
     var req = new XMLHttpRequest();
     //TODO find another way to disable caching (adding a parameter breaks the url)
     req.open('GET', file['@microsoft.graph.downloadUrl']);
     var isPng = file.file.mimeType == 'image/png';
-    
+
     req.onreadystatechange = function()
     {
     	if (this.readyState == 4)
     	{
     		if (this.status >= 200 && this.status <= 299)
     		{
-    			try 
+    			try
     			{
     				var cnt = req.responseText;
     				
@@ -303,7 +303,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     				}
     				
     				var doc = mxUtils.parseXml(cnt);
-  
+
     				if (editor.extractGraphModel(doc.documentElement) != null)
     				{
     					success(doc);
@@ -316,12 +316,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     		error();
     	}
     };
-    
+
     if (isPng && req.overrideMimeType)
     {
     	req.overrideMimeType('text/plain; charset=x-user-defined');
     }
-    
+
     req.send();
   };
 
@@ -332,12 +332,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	pickedFileCallback(selectedFile, img);	
     	addToRecent(selectedFile);
     }
-    
+
     if (withThumbnail && curViewer != null)
     {
     	editor.exportToCanvas(function(canvas)
     	{
-    		submit(EditorUi.prototype.createImageDataUri(canvas, null, 'png')); 
+    		submit(EditorUi.prototype.createImageDataUri(canvas, null, 'png'));
     	}, 400, null, null, function(err)
     	{
     		//TODO handle errors
@@ -349,16 +349,16 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	submit();
     }
   };
-  
+
   function renderFile(file)
   {
     if (prevDiv == null)
     {
     	return;	
     }
-    
+
     prevDiv.innerHTML = '';
-    
+
     function showRenderMsg(msg)
     {
     	var status = document.createElement('div');
@@ -367,15 +367,15 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	prevDiv.appendChild(status);
     	spinner.stop();
     };
-    
-    if (file == null || file.folder) 
+
+    if (file == null || file.folder)
     {
     	showRenderMsg(mxResources.get('noPreview'));
     	return;
     }
-    
+
     spinner.spin(prevDiv);
-    
+
     try
     {
     	// Workaround for parentReference access
@@ -397,7 +397,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     		curViewer = AspectDialog.prototype.createViewer(prevDiv, diagrams.length == 0? doc.documentElement : diagrams[0]);
 
     		spinner.stop();
-    	}, 
+    	},
     	function() //If the file is not a draw.io diagram
     	{
     		selectedFile = null;
@@ -411,12 +411,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     }
   };
 
-  
-  function renderBreadcrumb() 
+
+  function renderBreadcrumb()
   {
     var bcDiv = _$('.odFilesBreadcrumb');
     bcDiv.innerHTML = '';
-    
+
     for (var i = 0; i < breadcrumb.length - 1; i++)
     {
     	var folder = document.createElement('span');
@@ -438,7 +438,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	sep.innerHTML = ' &gt; ';
     	bcDiv.appendChild(sep);
     }
-    
+
     if (breadcrumb[breadcrumb.length - 1] != null)
     {
     	var curr = document.createElement('span');
@@ -447,11 +447,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	bcDiv.appendChild(curr);
     }
   };
-  
+
   function openFile()
   {
     if (selectedFile == null || requestInProgress) return;
-    
+
     if (selectedDriveId == 'sharepoint')
     {
     	fillFolderFiles('site', null, selectedFile.id, selectedFile.displayName);
@@ -467,7 +467,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	var folderDI = (selectedFile.parentReference? selectedFile.parentReference.driveId : null) || selectedDriveId;
     	var id = selectedFile.id;
     	
-    	if (isFolder) 
+    	if (isFolder)
     	{
     		fillFolderFiles(folderDI, id, null, selectedFile.name);
     	}
@@ -477,11 +477,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	}
     }
   };
-  
+
   function fillFolderFiles(driveId, folderId, siteId, folderName, searchTxt)
   {
     if (requestInProgress) return;
-    
+
         _$('.odCatsList').style.display = 'block';
         _$('.odFilesSec').style.display = 'block';
        // _$('#signOutLnk').style.display = '';
@@ -496,7 +496,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     var acceptRequest = true;
     var isSharepointSites = 0;
     lastFolderArgs = arguments;
-  
+
     function renderList(potintialDrawioFiles)
     {
     	spinner.stop();
@@ -605,7 +605,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	renderBreadcrumb();
     	requestInProgress = false;
     };
-    
+
     var timeoutThread = setTimeout(function()
     {
     	acceptRequest = false;
@@ -613,25 +613,25 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	spinner.stop();
     	errorFn(mxResources.get('timeout'));
     }, 20000); //20 sec timeout
-    
+
     var filesList = _$('.odFilesList');
         filesList.innerHTML = '';
         spinner.spin(filesList);
-        
+
         var url;
-        
+
         switch(driveId)
         {
           case 'recent':
             breadcrumb = [{name: mxResources.get('recent', null, 'Recent'), driveId: driveId}];
             var recentList = getRecentList() || {};
             var list = [];
-            
+
             for (var id in recentList)
         	{
             	list.push(recentList[id]);
         	}
-            
+
             clearTimeout(timeoutThread);
             renderList(list);
             return;
@@ -668,16 +668,16 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
             {
             	breadcrumb.push({name: folderName, driveId: driveId, folderId: folderId});
             }
-            
+
             url = (driveId?  '/drives/' + driveId : '/me/drive') + (folderId? '/items/' + folderId : '/root') + '/children';
         }
-        
+
         if (!isSharepointSites)
         {
           url += (url.indexOf('?') > 0 ? '&' : '?') + 'select=id,name,description,parentReference,file,createdBy,lastModifiedBy,lastModifiedDateTime,size,folder,remoteItem,@microsoft.graph.downloadUrl';
         }
-        
-    getODFilesList(url, function(resp) 
+
+    getODFilesList(url, function(resp)
     {
     	if (!acceptRequest) return;
     	clearTimeout(timeoutThread);
@@ -691,7 +691,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     		var file = list[i];
     		var mimeType = file.file? file.file.mimeType : null;
     		
-    		if (file.folder || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png' 
+    		if (file.folder || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png'
     			|| /\.svg$/.test(file.name) || /\.html$/.test(file.name) || /\.xml$/.test(file.name) || /\.png$/.test(file.name)
     			|| /\.drawio$/.test(file.name))
     		{
@@ -700,7 +700,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	}
     	
     	renderList(potintialDrawioFiles);
-    }, 
+    },
     function(err)
     {
     	if (!acceptRequest) return;
@@ -721,34 +721,34 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	spinner.stop();
     });
   };
-  
+
   this.getSelectedItem = function()
   {
     if (selectedFile != null)
     {
     	addToRecent(selectedFile);	
     }
-    
+
     return selectedFile;
   }
-  
+
   //Code execution starts here
   if (_$('#mxODPickerCss') == null)
   {
     var head = document.head || document.getElementsByTagName('head')[0],
     style = document.createElement('style');
-  
+
     head.appendChild(style);
     style.type = 'text/css';
     style.id = 'mxODPickerCss';
     style.appendChild(document.createTextNode(css));
   }
-  
+
   container.innerHTML = html;
 
   var prevDiv = _$('.odPreview');
   var selectedCat = _$('#odFiles');
-  
+
   var cats = _$$('.odCatListTitle');
 
   function setSelectedCat(cat)
@@ -757,7 +757,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     selectedCat = cat;
     selectedCat.className += ' odCatSelected';
   };
-  
+
   for (var i = 0; i < cats.length; i++)
   {
     cats[i].addEventListener('click', function()
@@ -783,27 +783,27 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	}
     });
   }
-  
+
   //Search (Currently API doesn't work)
   var delayTimer = null;
-  
+
   function doSearch(searchStr)
   {
     if (requestInProgress) return;
     delayTimer = null;
     fillFolderFiles('search', null, null, null, searchStr)
   };
-  
+
   //Use keyup to detect delete and backspace
   _$('#odSearchBox').addEventListener('keyup', function(evt)
   {
     var searchInput = this;
-    
+
     if (delayTimer != null)
     {
     	clearTimeout(delayTimer);
     }
-    
+
     if (evt.keyCode == 13)
     {
     	doSearch(searchInput.value);
@@ -816,7 +816,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	}, 500);
     }
   });
-  
+
   function refreshFolder()
   {
     if (lastFolderArgs != null)
@@ -825,33 +825,33 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
     	fillFolderFiles.apply(this, lastFolderArgs);
     }
   };
-  
+
   _$('#refreshOD').addEventListener('click', refreshFolder);
-  
+
   if (backFn)
   {
     _$('#odBackBtn').addEventListener('click', backFn);
   }
-  
+
   if (withSubmitBtn)
   {
     _$('#odSubmitBtn').addEventListener('click', doSubmit);
   }
-  
+
   document.body.onselectstart = function()
   {
     return false;
   };
-  
+
   if (initFolderPath != null)
   {
     var folderInfo = initFolderPath.pop();
-    
+
     if (initFolderPath[0].driveId == 'sharepoint')
     {
     	setSelectedCat(_$('#odSharepoint'));
     }
-    
+
     breadcrumb = initFolderPath;
     fillFolderFiles(folderInfo.driveId, folderInfo.folderId, folderInfo.siteId, folderInfo.name);
   }

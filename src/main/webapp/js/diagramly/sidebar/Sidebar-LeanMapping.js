@@ -8,7 +8,7 @@
     var s = mxConstants.STYLE_STROKEWIDTH + '=2;html=1;shape=mxgraph.lean_mapping.';
     var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=2;shape=mxgraph.lean_mapping.';
     var sb = this;
-    
+
     //default tags
     var dt = 'value stream lean mapping ';
     var gn = 'mxgraph.lean_mapping';
@@ -20,7 +20,7 @@
     	this.addDataEntry(dt + 'data box', 60, 100, 'Data Box',
     		'1ZVfT8MgFMU/Da9LB7Pude10LxofNPFxuRZWiLQQirP10wstczbd4p9osz00uT2XA/f8HgCRtKhXBjS/VZRJRK4QSY1StquKOmVSIhwJisgSYRy5D+HrI91p2400GFba7xhwZ9iCfGGd0gmVbWQQKmvUM3sU1HInYEQSbgs36HLqyoqD9uuKOvcZJpJBuS5Aa1HmEwoW1k+q7lvCicxYVh+dupXCyCumCmZN45a8hilcN+6CRZyJnO9cURCh6oT8w7pn4IqA4TASMkDiLQ87Op/RuATu5GSjSnsv3rw490w0ZC7+DdvYAMyHFRnIhRR56WkJSv0eP8aCf4UF/wGV2UEqd6dMpemnHwHSxQBSAjbjZwBpNh6keABpsQUhzwBSPB6ky6/v5RODM/83OO53/yC2vd57+Q4='),
        	
-    	this.createVertexTemplateEntry(s + 'outside_sources;whiteSpace=wrap;align=center;', w, h * 0.7, 
+    	this.createVertexTemplateEntry(s + 'outside_sources;whiteSpace=wrap;align=center;', w, h * 0.7,
     			'<table cellpadding="5" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
     			'<tr><td height="50%"></td></tr>' +
     			'<tr><td align="center" height="50%">XYZ Corp</td></tr></table>',
@@ -37,7 +37,7 @@
        		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Dedicated Process');
     	}),
        	
-    	this.createVertexTemplateEntry(s + 'manufacturing_process_shared;spacingTop=-5;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;', w, h * 0.7, 
+    	this.createVertexTemplateEntry(s + 'manufacturing_process_shared;spacingTop=-5;align=center;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;', w, h * 0.7,
     			'Process',
     			'Shared Process', null, null, this.getTagsForStencil(gn, 'manufacturing_process_shared', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'work_cell;pointerEvents=1;', w * 0.7, h * 0.6, '', 'Workcell', null, null, this.getTagsForStencil(gn, 'work_cell', dt).join(' ')),
@@ -45,7 +45,7 @@
     	this.createVertexTemplateEntry(s2 + 'push_arrow;', w, h * 0.3,'', 'Push Arrow', null, null, this.getTagsForStencil(gn, 'push_arrow', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'supermarket;', w * 0.6, h,'', 'Supermarket', null, null, this.getTagsForStencil(gn, 'supermarket', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'physical_pull;pointerEvents=1;', w, h,'', 'Material Pull', null, null, this.getTagsForStencil(gn, 'physical_pull', dt + 'circular arrow').join(' ')),
-    	this.createVertexTemplateEntry(s + 'fifo_lane;overflow=fill;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;', w, h * 0.5, 
+    	this.createVertexTemplateEntry(s + 'fifo_lane;overflow=fill;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;', w, h * 0.5,
     			'<table cellpadding="0" cellspacing="0" style="font-size:1em;width:100%;height:100%;">' +
     			'<tr><td height="0%">MAX=XX</td></tr>' +
     			'<tr><td align="center" height="100%"></td></tr></table>',
@@ -86,13 +86,13 @@
     	this.createVertexTemplateEntry(s + 'quality_problem;fontSize=24;fontStyle=1;whiteSpace=wrap;align=center;', 80, 100, 'Q', 'Quality Problem', null, null, this.getTagsForStencil(gn, 'quality_problem', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'verbal;pointerEvents=1;', 50, 100, '', 'Verbal Information', null, null, this.getTagsForStencil(gn, 'verbal', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'fifo_sequence_flow;pointerEvents=1;fontStyle=0;fontSize=20;align=center;', w, h * 0.5, 'FIFO', 'FIFO Sequence', null, null, this.getTagsForStencil(gn, 'fifo_sequence_flow', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'production_kanban;overflow=fill;', w, h, 
+    	this.createVertexTemplateEntry(s + 'production_kanban;overflow=fill;', w, h,
     			'<p style="font-size:2em;margin-right:35px;margin-top:13px;text-align:right">P</p>',
     			'Production Kanban', null, null, this.getTagsForStencil(gn, 'production_kanban', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'withdrawal_kanban;overflow=fill;', w, h, 
+    	this.createVertexTemplateEntry(s + 'withdrawal_kanban;overflow=fill;', w, h,
     			'<p style="font-size:2em;margin-right:35px;margin-top:13px;text-align:right">W</p>',
     			'Withdrawal Kanban', null, null, this.getTagsForStencil(gn, 'withdrawal_kanban', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'signal_kanban;overflow=fill;', w, h * 0.9, 
+    	this.createVertexTemplateEntry(s + 'signal_kanban;overflow=fill;', w, h * 0.9,
     			'<p style="font-size:2em;margin-right:35px;margin-top:4px;text-align:right">S</p>',
     			'Signal Kanban', null, null, this.getTagsForStencil(gn, 'signal_kanban', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'sequenced_pull_ball;', w * 0.6, h * 0.6, '', 'Sequenced Pull Ball', null, null, this.getTagsForStencil(gn, 'sequenced_pull_ball', dt).join(' ')),
@@ -101,7 +101,7 @@
     	this.createVertexTemplateEntry(s2 + 'warehouse;', w, h * 0.6, '', 'Warehouse', null, null, this.getTagsForStencil(gn, 'warehouse', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'timeline2;dx1=0;dy1=1;dx2=30;dy2=0;dx3=160;dy3=1;dx4=230;dy4=0;dx5=310;dy5=1;dy6=0;', w * 4, h * 0.4, '', 'Timeline', null, null, this.getTagsForStencil(gn, 'timeline', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'crossDock;', w, h * 0.8, '', 'Cross-Dock', null, null, this.getTagsForStencil(gn, 'crossDock', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'orders;overflow=fill;', w, h * 0.6, 
+    	this.createVertexTemplateEntry(s + 'orders;overflow=fill;', w, h * 0.6,
     			'<table cellpadding="0" cellspacing="0" style="font-size:1.5em;width:100%;height:100%;">' +
     			'<tr><td height="65%"></td></tr>' +
     			'<tr><td align="center" height="35%">IN</td></tr></table>',
@@ -112,7 +112,7 @@
         this.createEdgeTemplateEntry('shape=mxgraph.lean_mapping.manual_info_flow_edge;html=1;', 100, 100, 'Daily', 'Manual Information', null, this.getTagsForStencil(gn, 'manual_info_flow_edge', dt).join(' ')),
         this.createEdgeTemplateEntry('shape=mxgraph.lean_mapping.electronic_info_flow_edge;html=1;', 100, 100, 'Monthly', 'Electronic Information', null, this.getTagsForStencil(gn, 'electronic_info_flow_edge', dt).join(' '))
     ];
-    
+
     this.addPalette('lean_mapping', 'Value Stream Mapping', false, mxUtils.bind(this, function(content)
     {
     	for (var i = 0; i < fns.length; i++)
@@ -120,8 +120,8 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
 })();

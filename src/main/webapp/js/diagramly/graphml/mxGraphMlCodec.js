@@ -12,21 +12,21 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
   try
   {
     var doc = mxUtils.parseXml(xml);
-    
+
     var graphs = this.getDirectChildNamedElements(doc.documentElement, mxGraphMlConstants.GRAPH);
-    
+
     this.initializeKeys(doc.documentElement);
-    
+
     var mxFile = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
     for (var i = 0; i < graphs.length; i++)
     {
     	var pageElement = graphs[i];
-  
+
     	var graph = this.createMxGraph();
     	var model = graph.getModel();
     	
           model.beginUpdate();
-          try 
+          try
           {
             this.nodesMap = {};
         	this.edges = [];
@@ -38,7 +38,7 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
         		var edges = edgesObj.edges;
         		var parent = edgesObj.parent;
         		var dx = edgesObj.dx, dy = edgesObj.dy;
-    
+
     	    	for (var j = 0; j < edges.length; j++)
     	    	{
     	    		this.importEdge(edges[j], graph, parent, dx, dy);
@@ -54,14 +54,14 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
           {
             model.endUpdate();
           }
-        
+
         //update edges' labels to convert their labels relative coordinate to ours
           model.beginUpdate();
-          try 
+          try
           {
             var cells = graph.getModel().cells;
             var tr = graph.view.translate;
-            
+
             for (var id in cells)
         	{
             	var edge = cells[id];
@@ -84,7 +84,7 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
             			var dist = geo.y;
             			var dx = pe.x - p0.x
             			var dy = pe.y - p0.y
-     
+
             			var x = p0.x + ratio * dx;
             			var y = p0.y + ratio * dy;
             			
@@ -111,12 +111,12 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
           {
             model.endUpdate();
           }
-        
+
           mxFile += this.processPage(graph, i+1);
     }
-  
+
     mxFile += "</mxfile>";
-    
+
     if (callback)
     {
     	callback(mxFile);
@@ -124,7 +124,7 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
   }
     catch(e)
     {
-      if (onError) 
+      if (onError)
       {
         onError(e);
       }
@@ -134,39 +134,39 @@ mxGraphMlCodec.prototype.decode = function (xml, callback, onError)
 mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
 {
   var keys = this.getDirectChildNamedElements(graphmlElement, mxGraphMlConstants.KEY);
-  
+
   this.nodesKeys = {};
   this.edgesKeys = {};
   this.portsKeys = {};
   this.sharedData = {};
-  
-  this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY] = {}; 
+
+  this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY] = {};
   this.nodesKeys[mxGraphMlConstants.USER_TAGS] = {};
   this.nodesKeys[mxGraphMlConstants.NODE_STYLE] = {};
   this.nodesKeys[mxGraphMlConstants.NODE_LABELS] = {};
   this.nodesKeys[mxGraphMlConstants.NODE_GRAPHICS] = {};
   this.edgesKeys[mxGraphMlConstants.EDGE_GEOMETRY] = {};
-  this.edgesKeys[mxGraphMlConstants.EDGE_STYLE] = {}; 
-  this.edgesKeys[mxGraphMlConstants.EDGE_LABELS] = {}; 
+  this.edgesKeys[mxGraphMlConstants.EDGE_STYLE] = {};
+  this.edgesKeys[mxGraphMlConstants.EDGE_LABELS] = {};
   this.portsKeys[mxGraphMlConstants.PORT_LOCATION_PARAMETER] = {};
   this.portsKeys[mxGraphMlConstants.PORT_STYLE] = {};
   this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE] = {};
-  
+
   var sharedDataId;
-  
+
   for (var i = 0; i < keys.length; i++)
   {
     var keyObj = this.dataElem2Obj(keys[i]);
-  
+
     var id = keyObj[mxGraphMlConstants.ID];
     var _for = keyObj[mxGraphMlConstants.KEY_FOR];
     var attName = keyObj[mxGraphMlConstants.KEY_NAME];
     var yType = keyObj[mxGraphMlConstants.KEY_YTYPE];
-    
+
     if (attName == mxGraphMlConstants.SHARED_DATA) sharedDataId = id;
-    
+
     attName = attName? attName : yType
-    
+
     //TODO handle the defaults inside these keys
     switch (_for)
     {
@@ -187,13 +187,13 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
     	break;
     }
   }
-  
+
   var data = this.getDirectChildNamedElements(graphmlElement, mxGraphMlConstants.DATA);
-  
+
   for (var i = 0; i < data.length; i++)
   {
     var key = data[i].getAttribute(mxGraphMlConstants.KEY);
-    
+
     if (key == sharedDataId)
     {
     	var sharedData = this.getDirectChildNamedElements(data[i], mxGraphMlConstants.Y_SHARED_DATA);
@@ -227,12 +227,12 @@ mxGraphMlCodec.prototype.initializeKeys = function (graphmlElement)
   }
 };
 
-mxGraphMlCodec.prototype.parseAttributes = function (elem, obj) 
+mxGraphMlCodec.prototype.parseAttributes = function (elem, obj)
 {
   var atts = elem.attributes;
   if (atts)
   {
-    
+
     for (var i = 0; i < atts.length; i++)
     {
     	var val = atts[i].nodeValue;
@@ -267,19 +267,19 @@ mxGraphMlCodec.prototype.parseAttributes = function (elem, obj)
   }
 };
 
-mxGraphMlCodec.prototype.dataElem2Obj = function (elem) 
+mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 {
   var ref = this.getDirectFirstChildNamedElements(elem, mxGraphMlConstants.GRAPHML_REFERENCE)
     			|| elem.getAttribute(mxGraphMlConstants.REFID);
   var refKey = null;
   var origElem = elem;
   var obj = {};
-  
-  if (ref) 
+
+  if (ref)
   {
     var key = (typeof ref === "string")? ref : ref.getAttribute(mxGraphMlConstants.RESOURCE_KEY);
     var cachedObj = this.cachedRefObj[key];
-    
+
     //already cached
     if (cachedObj)
     {
@@ -287,7 +287,7 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
     	this.parseAttributes(elem, cachedObj);
     	return cachedObj;
     }
-    
+
     elem = this.sharedData[key];
     refKey = key;
   }
@@ -297,14 +297,14 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
 
   for (var i = 0; i < elem.childNodes.length; i++)
   {
-    var child = elem.childNodes[i]; 
-    
+    var child = elem.childNodes[i];
+
     if (child.nodeType == 1)
     {
     	var attName = child.nodeName;
     	
     	//Special types of node (x:List and x:Static)
-    	if (attName == mxGraphMlConstants.X_LIST) 
+    	if (attName == mxGraphMlConstants.X_LIST)
     	{
     		var arr = [];
     		var arrayElem = this.getDirectChildElements(child);
@@ -346,24 +346,24 @@ mxGraphMlCodec.prototype.dataElem2Obj = function (elem)
     			obj[attName] = this.dataElem2Obj(child);
     		}
     	}
-    } 
+    }
     else if ((child.nodeType == 3 || child.nodeType == 4) && child.textContent.trim())
     {
     	obj["#text"] = child.textContent;
     }
   }
-  
+
   //cache referenced objects
   if (refKey)
   {
     var tmpObj = {};
     //parse all attributes before following the reference
     this.parseAttributes(origElem, tmpObj);
-    tmpObj[this.sharedData[refKey].nodeName] = obj; 
+    tmpObj[this.sharedData[refKey].nodeName] = obj;
     this.cachedRefObj[refKey] = tmpObj;
     return tmpObj;
   }
-  
+
   return obj;
 };
 
@@ -374,7 +374,7 @@ mxGraphMlCodec.prototype.mapArray = function(arr, mapping, map)
   {
     if (arr[k].name)
     {
-    	obj[arr[k].name] = arr[k].value || arr[k]; 
+    	obj[arr[k].name] = arr[k].value || arr[k];
     }
   }
   this.mapObject(obj, mapping, map);
@@ -391,25 +391,25 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
     	map[key] = mapping.defaults[key];
     }
   }
-  
+
   for (var key in mapping)
   {
     var parts = key.split('.');
-    
+
     var val = obj;
-    
+
     for (var i = 0; i < parts.length; i++)
     {
     	if (!val) break;
     	
     	val = val[parts[i]];
     }
-    
+
     if (val == null && obj) //some vals doesn't need to be split
     {
     	val = obj[key];
     }
-    
+
     if (val != null)
     {
     	var mappingObj = mapping[key];
@@ -472,7 +472,7 @@ mxGraphMlCodec.prototype.mapObject = function (obj, mapping, map)
     	{
     		this.mapArray(val, mappingObj, map);
     	}
-    	else if (val.name != null && val.value != null) //this is the case when a single y:Property is used 
+    	else if (val.name != null && val.value != null) //this is the case when a single y:Property is used
     	{
     		this.mapArray([val], mappingObj, map);
     	}
@@ -505,7 +505,7 @@ mxGraphMlCodec.prototype.importGraph = function (pageElement, graph, parent)
   {
     dx += p.geometry.x;
     dy += p.geometry.y;
-    
+
     p = p.parent;
   }
 
@@ -513,13 +513,13 @@ mxGraphMlCodec.prototype.importGraph = function (pageElement, graph, parent)
   {
     this.importNode(nodes[i], graph, parent, dx, dy);
   }
-  
+
   this.edges.push({
     edges: this.getDirectChildNamedElements(pageElement, mxGraphMlConstants.EDGE),
     parent: parent,
     dx: dx,
     dy: dy
-  });  
+  });
 };
 
 //FIXME port 0.5, 0.5 push the edge to the other side (bpmn example)
@@ -527,17 +527,17 @@ mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
 {
   var name = portElement.getAttribute(mxGraphMlConstants.PORT_NAME);
   var portObj = {};
-  
+
   var data = this.getDirectChildNamedElements(portElement, mxGraphMlConstants.DATA);
-  
+
   for (var i = 0; i < data.length; i++)
   {
     var d = data[i];
     var key = d.getAttribute(mxGraphMlConstants.KEY);
-    
+
     var dataObj = this.dataElem2Obj(d);
 //    console.log(dataObj);
-    if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_LOCATION_PARAMETER].key) 
+    if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_LOCATION_PARAMETER].key)
     {
     	this.mapObject(dataObj, {
     		"y:FreeNodePortLocationModelParameter.Ratio": function(val, map)
@@ -546,18 +546,18 @@ mxGraphMlCodec.prototype.importPort = function (portElement, portsMap)
     			map["pos"] = {x: parts[0], y: parts[1]};
     		}
     	}, portObj);
-    } 
+    }
     /*
-    else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_STYLE].key) 
+    else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_STYLE].key)
     {
     	
     }
-    else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE].key) 
+    else if (dataObj.key == this.portsKeys[mxGraphMlConstants.PORT_VIEW_STATE].key)
     {
     	
     }*/
   }
-  
+
   portsMap[name] = portObj;
 };
 
@@ -565,13 +565,13 @@ mxGraphMlCodec.prototype.styleMap2Str = function (styleMap)
 {
   var semi = "";
   var str = "";
-  
+
   for (var key in styleMap)
   {
     str += semi + key + "=" + styleMap[key];
     semi = ";";
   }
-  
+
   return str;
 };
 
@@ -580,7 +580,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
   var data = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.DATA);
   var v;
   var id = nodeElement.getAttribute(mxGraphMlConstants.ID);
-  
+
   var node = new mxCell();
   node.vertex = true;
   node.geometry = new mxGeometry(0,0,30,30); //some node has no geometry, this is the default
@@ -593,36 +593,36 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
   var mlUserTags = null;
   var lblObj = null;
   var lbls = null;
-  
+
   for (var i = 0; i < data.length; i++)
   {
     var d = data[i];
     var dataObj = this.dataElem2Obj(d);
-    
+
     if (dataObj.key)
     {
-    	if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key) 
+    	if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_GEOMETRY].key)
     	{
     		this.addNodeGeo(node, dataObj, dx, dy);
-    	} 
-    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.USER_TAGS].key) 
+    	}
+    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.USER_TAGS].key)
     	{
     		mlUserTags = dataObj;
     	}
-    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key) 
+    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_STYLE].key)
     	{
   //  		console.log(JSON.stringify(dataObj));
     		mlStyleObj = dataObj;
     		if (dataObj["yjs:StringTemplateNodeStyle"])
     		{
     			mlTemplate = dataObj["yjs:StringTemplateNodeStyle"]["#text"];
-    		} 
+    		}
     		else
     		{
     			this.addNodeStyle(node, dataObj, style);
     		}
     	}
-    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key) 
+    	else if (dataObj.key == this.nodesKeys[mxGraphMlConstants.NODE_LABELS].key)
     	{
     		lblObj = dataObj;
     	}
@@ -635,7 +635,7 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
     			
     			//Special case when a node has multiple graphics
     			//TODO support the open/closed states
-    			if (key == "y:ProxyAutoBoundsNode") 
+    			if (key == "y:ProxyAutoBoundsNode")
     			{
     				var realizers = dataObj[key]["y:Realizers"];
     				if (realizers)
@@ -674,20 +674,20 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
     	}
     }
   }
-  
+
   var ports = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.PORT);
   var portsMap = {};
-  
+
   for (var i = 0; i < ports.length; i++)
   {
     this.importPort(ports[i], portsMap);
   }
-  
+
   if (mlTemplate)
   {
     this.handleTemplates(mlTemplate, mlUserTags, node, style);
   }
-  
+
   this.handleFixedRatio(node, style);
 
   //handle special compound shapes
@@ -698,15 +698,15 @@ mxGraphMlCodec.prototype.importNode = function (nodeElement, graph, parent, dx, 
   {
     style["strokeColor"] = "none";
   }
-  
+
   node.style = this.styleMap2Str(style);
-  
+
   var subGraphs = this.getDirectChildNamedElements(nodeElement, mxGraphMlConstants.GRAPH);
-  
+
   for (var i = 0; i < subGraphs.length; i++)
   {
     this.importGraph(subGraphs[i], graph, node, portsMap);
-  }  
+  }
 
   //handle labels after node geometry is determined. It is also the last such that labels are on top
   if (lblObj)
@@ -721,7 +721,7 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
   var dashStyleFn = function(val, map)
   {
     if (val == "line") return;
-    
+
     map["dashed"] = 1;
     //map["fixDash"] = 1;
     var pattern = null;
@@ -748,19 +748,19 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
     	default:
     		pattern = val.replace(/0/g, '1');
     }
-    
+
     if (pattern)
     {
     	//Some patterns in graphML has only one number
-    	if (pattern.indexOf(" ") < 0) 
+    	if (pattern.indexOf(" ") < 0)
     	{
     		pattern = pattern + " " + pattern;
     	}
     	map["dashPattern"] = pattern;
     }
   };
-  
-  var styleCommonMap = 
+
+  var styleCommonMap =
   {
     "shape": {key: "shape", mod: "shape"},
     "y:Shape.type": {key: "shape", mod: "shape"},
@@ -813,52 +813,52 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
     "fillColor": "#CCCCCC",
     "strokeColor": "#6881B3"
   };
-  
+
   var bpmnActivityStyle = mxUtils.clone(styleCommonMap);
   bpmnActivityStyle["defaults"] = {
     "shape": "ext;rounded=1",
     "fillColor": "#FFFFFF",
     "strokeColor": "#000090"
   };
-  
+
   var bpmnGatewayStyle = mxUtils.clone(styleCommonMap);
   bpmnGatewayStyle["defaults"] = {
     "shape": "rhombus;fillColor=#FFFFFF;strokeColor=#FFCD28"
   };
-  
+
   var bpmnConversationStyle = mxUtils.clone(styleCommonMap);
   bpmnConversationStyle["defaults"] = {
     "shape": "hexagon",
     "strokeColor": "#007000"
   };
-  
+
   var bpmnEventStyle = mxUtils.clone(styleCommonMap);
   bpmnEventStyle["defaults"] = {
     "shape": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=general",
     "outline": "standard"
   };
   bpmnEventStyle["characteristic"] = {key: "outline", mod: "bpmnOutline"};
-  
+
   var bpmnDataObjectStyle = mxUtils.clone(styleCommonMap);
   bpmnDataObjectStyle["defaults"] = {
     "shape": "js:bpmnDataObject"
   };
-  
+
   var bpmnDataStoreStyle = mxUtils.clone(styleCommonMap);
   bpmnDataStoreStyle["defaults"] = {
     "shape": "datastore"
   };
-  
+
   var bpmnGroupNodeStyle = mxUtils.clone(styleCommonMap);
   bpmnGroupNodeStyle["defaults"] = {
     "shape": "swimlane;swimlaneLine=0;startSize=20;dashed=1;dashPattern=3 1 1 1;collapsible=0;rounded=1"
   };
-  
+
   var bpmnChoreographyNodeStyle = mxUtils.clone(styleCommonMap);
   bpmnChoreographyNodeStyle["defaults"] = {
     "shape": "js:BpmnChoreography"//"swimlane;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;startSize=20;rounded=1;collapsible=0"
   };
-  
+
   //approximation to GraphML shapes TODO improve them
   var bevelNodeStyle = mxUtils.clone(styleCommonMap);
   bevelNodeStyle["defaults"] = {
@@ -871,7 +871,7 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
   bevelNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
   bevelNodeStyle["color"] = {key:"fillColor", mod:"color", addGradient: "north"};
   bevelNodeStyle["color.yjs:Color.value"] = bevelNodeStyle["color"];
-  
+
   var shinyPlateNodeStyle = mxUtils.clone(styleCommonMap);
   shinyPlateNodeStyle["defaults"] = {
     "rounded": "1",
@@ -882,7 +882,7 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
     //,"rotation": -90 //TODO requires rotation!
   };
   shinyPlateNodeStyle["drawShadow"] = {key:"shadow", mod:"bool"};
-  
+
   var demoGroupStyle = mxUtils.clone(styleCommonMap);
   demoGroupStyle["defaults"] = {
     "shape": "swimlane",
@@ -894,7 +894,7 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
   demoGroupStyle["borderColor"] = {key:"strokeColor", mod:"color"};
   demoGroupStyle["folderFrontColor"] = {key:"fillColor", mod:"color"}; //TODO fillColor always match strokeColor!
 //    	demoGroupStyle["folderBackColor"] = {key:"fillColor", mod:"color"}; //??
-  
+
   var collapsibleNodeStyle = mxUtils.clone(styleCommonMap);
   collapsibleNodeStyle["defaults"] = {
     "shape": "swimlane",
@@ -907,22 +907,22 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
     "labelInsetsColor": {key:"fillColor", mod:"color"},
     "labelInsetsColor.yjs:Color.value": {key:"fillColor", mod:"color"}
   };
-  
+
   var tableStyle = mxUtils.clone(styleCommonMap);
   tableStyle["defaults"] = {
     "shape": "js:table"
   };
-  
+
   var imageNodeStyle = mxUtils.clone(styleCommonMap);
   imageNodeStyle["defaults"] = {
     "shape": "image"
   };
-  
+
   imageNodeStyle["image"] = function(val, map)
   {
-    map["image"] = val; 
+    map["image"] = val;
   };
-  
+
   var svgNodeStyle = mxUtils.clone(styleCommonMap);
   svgNodeStyle["defaults"] = {
     "shape": "image"
@@ -933,15 +933,15 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
 //  y:SVGModel.svgBoundsPolicy ??
   svgNodeStyle["y:SVGModel.y:SVGContent.y:Resource.#text"] = function(val, map)
   {
-    map["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(val) : Base64.encode(val)); 
+    map["image"] = "data:image/svg+xml," + ((window.btoa) ? btoa(val) : Base64.encode(val));
   };
-  
+
   var groupNodeStyle = mxUtils.clone(styleCommonMap);
   groupNodeStyle["defaults"] = {
     "shape": "swimlane",
     "startSize": 20
   };
-  
+
   groupNodeStyle["y:Shape.type"] = function(val, map)
   {
     if (val == "roundrectangle")
@@ -950,7 +950,7 @@ mxGraphMlCodec.prototype.addNodeStyle = function (node, dataObj, style)
     	map['arcSize'] = 5;
     }
   };
-  
+
   var tableNodeStyle = mxUtils.clone(styleCommonMap);
   tableNodeStyle["defaults"] = {
     "shape": "js:table2"
@@ -1012,14 +1012,14 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
     var h = node.geometry.height;
     var header = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 '+ w + ' ' + h +'"><g>';
     var footer = '</g></svg>';
-    
+
     //TODO optimize this! probably only the text before defs has bindings
     var matches = null;
     var bindingPairs = [];
     //find template bindings
     var tempBindRegEx = /\{TemplateBinding\s+([^}]+)\}/g;
-    
-    while ((matches = tempBindRegEx.exec(template)) != null) 
+
+    while ((matches = tempBindRegEx.exec(template)) != null)
     {
           var replacement = "";
           switch (matches[1])
@@ -1031,21 +1031,21 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
             	replacement = h;
         	break;
           }
-          
+
           bindingPairs.push({match: matches[0], repl: replacement});
     }
-    
+
     if (userTags && userTags["y:Json"])
     {
     	var json = JSON.parse(userTags["y:Json"]["#text"]);
     	//find user tags bindings
     	var userTagBindRegEx = /\{Binding\s+([^}]+)\}/g;
     	
-    	while ((matches = userTagBindRegEx.exec(template)) != null) 
+    	while ((matches = userTagBindRegEx.exec(template)) != null)
     	{
             var parts = matches[1].split(',');
             var val = json[parts[0]];
-            
+
             if (val)
             {
             	if (parts.length > 1)
@@ -1077,13 +1077,13 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
     {
     	template = template.replace(bindingPairs[i].match, bindingPairs[i].repl);		
     }
-    
+
     bindingPairs = [];
     //Fix text elements (TODO can it be merged with the previous step?)
     var txtRegEx = /\<text.+data-content="([^"]+).+\<\/text\>/g;
-    while ((matches = txtRegEx.exec(template)) != null) 
+    while ((matches = txtRegEx.exec(template)) != null)
     {
-    	var val = matches[0].substr(0, matches[0].length - 7) + matches[1] + "</text>"; //7 is the length of </text> 
+    	var val = matches[0].substr(0, matches[0].length - 7) + matches[1] + "</text>"; //7 is the length of </text>
     	bindingPairs.push({match: matches[0], repl: val});
     }
 
@@ -1101,7 +1101,7 @@ mxGraphMlCodec.prototype.handleTemplates = function (template, userTags, node, s
 mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyleObj, lbls)
 {
   var shape = styleMap["shape"];
-  
+
   if (shape && shape.indexOf("js:") == 0)
   {
     switch(shape)
@@ -1316,7 +1316,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     				"tableBackgroundFill.yjs:SolidColorFill.color.yjs:Color.value": {key: "swimlaneFillColor", mod: "color"},
     				"tableBackgroundStroke.yjs:Stroke":{
     					"fill": {key: "strokeColor", mod: "color"},
-    					"thickness": "strokeWidth" 
+    					"thickness": "strokeWidth"
     				}
     			},
     			"backgroundStyle.yjs:ShapeNodeStyle.fill": {key: "fillColor", mod: "color"},
@@ -1341,11 +1341,11 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     				xShift.x = parseFloat(insets[0]);
     				//x += xShift.x;						
     				styleMap["horizontal"] = "0";
-    			} 
+    			}
     			else if (insets[1] != "0")
     			{
     				styleMap["startSize"] = insets[1];
-    				yShift = parseFloat(insets[1]); 
+    				yShift = parseFloat(insets[1]);
     				y += yShift;
     			}
     		}
@@ -1540,7 +1540,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     		styleMap["startSize"] = th? th : tw;
     		//Assumptions: There is always rows and cols in every table
     		//Also all tables seems to be not rotated
-    		try 
+    		try
     		{
     			var rows = mlStyleObj["y:TableNode"]["y:Table"]["y:Rows"]["y:Row"];
     			var cols = mlStyleObj["y:TableNode"]["y:Table"]["y:Columns"]["y:Column"];
@@ -1557,7 +1557,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     			for (var i = 0; i < rows.length; i++)
     			{
     				if (rows[i]["y:Insets"])
-    					rowStartSize = Math.max(rowStartSize, 
+    					rowStartSize = Math.max(rowStartSize,
     							parseFloat(rows[i]["y:Insets"]["left"]) + parseFloat(rows[i]["y:Insets"]["right"]));
     			}
     			
@@ -1565,7 +1565,7 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     			for (var i = 0; i < cols.length; i++)
     			{
     				if (cols[i]["y:Insets"])
-    					colStartSize = Math.max(colStartSize, 
+    					colStartSize = Math.max(colStartSize,
     							parseFloat(cols[i]["y:Insets"]["top"]) + parseFloat(cols[i]["y:Insets"]["bottom"]));
     			}
     			
@@ -1587,9 +1587,9 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     	break;
     	case "js:relationship_big_entity":
     		styleMap['shape'] = "swimlane;startSize=30;rounded=1;arcSize=5;collapsible=0";
-    		var fill = mlStyleObj["y:GenericNode"]["y:Fill"]; 
+    		var fill = mlStyleObj["y:GenericNode"]["y:Fill"];
     		
-    		if (fill) 
+    		if (fill)
     		{
     			styleMap['fillColor'] = fill["color2"];
     			styleMap['swimlaneFillColor'] = fill["color"];
@@ -1606,19 +1606,19 @@ mxGraphMlCodec.prototype.handleCompoundShape = function (node, styleMap, mlStyle
     		}
     	break;
     }
-    
-    if (shape.indexOf("Shadow") > 0) 
+
+    if (shape.indexOf("Shadow") > 0)
     {
     	styleMap["shadow"] = "1";
     }
   }
 };
 
-mxGraphMlCodec.prototype.addTbl2Rows = function(node, rows, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap) 
+mxGraphMlCodec.prototype.addTbl2Rows = function(node, rows, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap)
 {
-  var y = th + colStartSize; 
+  var y = th + colStartSize;
   var isBPMN = tmpMap["isHorz"] != null;
-  
+
   for (var i = 0; i < rows.length; i++)
   {
     var odd = i & 1;
@@ -1630,38 +1630,38 @@ mxGraphMlCodec.prototype.addTbl2Rows = function(node, rows, th, tw, rowStartSize
     	"fillColor": tmpMap["secColor"] || "none",
     	"swimlaneLine": (isBPMN? "0" : "1")
     };
-    
+
     if (parseFloat(rowStyle["startSize"]) == 0)
     {
     	rowStyle["fillColor"] = "none";
     	rowStyle["swimlaneLine"] = "0";
     }
-    
+
     if (atts4Rows)
     {
     	var fillColor = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
     	rowStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
     	rowStyle["fillColor"] = fillColor? fillColor : rowStyle["swimlaneFillColor"];
     }
-    
+
     var height = parseFloat(rows[i]["height"]);
     var dh = (isBPMN && i == 0)? colStartSize : 0 ;
     cell.geometry = new mxGeometry(tw, y - dh, node.geometry.width - tw, height + dh);
     y += height;
-    
+
 //    if (lblObj)
 //    	this.addLabels(cell, lblObj, rowStyle)
-    
+
     cell.style = this.styleMap2Str(rowStyle);
     node.insert(cell);
-  }  
+  }
 };
 
-mxGraphMlCodec.prototype.addTbl2Cols = function(node, cols, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap) 
+mxGraphMlCodec.prototype.addTbl2Cols = function(node, cols, th, tw, rowStartSize, colStartSize, atts4Rows, tmpMap)
 {
   var x = rowStartSize + tw;
   var isBPMN = tmpMap["isHorz"] != null;
-  
+
   for (var i = 0; i < cols.length; i++)
   {
     var odd = i & 1;
@@ -1673,27 +1673,27 @@ mxGraphMlCodec.prototype.addTbl2Cols = function(node, cols, th, tw, rowStartSize
     	"fillColor": tmpMap["secColor"] || "none",
     	"swimlaneLine": (isBPMN? "0" : "1")
     };
-    
+
     if (parseFloat(colStyle["startSize"]) == 0)
     {
     	colStyle["fillColor"] = "none";
     }
-    
+
     if (!atts4Rows)
     {
     	var fillColor = odd? tmpMap["headerColorAlt"] : tmpMap["headerColor"];
     	colStyle["swimlaneFillColor"] = odd? tmpMap["laneColorAlt"] : tmpMap["laneColor"];
     	colStyle["fillColor"] = fillColor? fillColor : colStyle["swimlaneFillColor"];
     }
-    
+
     var width = parseFloat(cols[i]["width"]);
     var dw = (isBPMN && i == 0)? rowStartSize : 0 ;
     cell.geometry = new mxGeometry(x - dw, th, width + dw, node.geometry.height - th);
     x += width;
-    
+
 //    if (lblObj)
 //    	this.addLabels(cell, lblObj, rowStyle)
-    
+
     cell.style = this.styleMap2Str(colStyle);
     node.insert(cell);
   }
@@ -1705,10 +1705,10 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
   cell.vertex = true;
   var rowStyle = mxUtils.clone(defRowStyle);
   this.mapObject(row, rowMapping, rowStyle);
-  
+
   if (odd)
   {
-    if (rowStyle["oddFill"]) 
+    if (rowStyle["oddFill"])
     	rowStyle["fillColor"] = rowStyle["oddFill"];
 
     if (rowStyle["oddLaneFill"])
@@ -1716,24 +1716,24 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
   }
   else
   {
-    if (rowStyle["evenFill"]) 
+    if (rowStyle["evenFill"])
     	rowStyle["fillColor"] = rowStyle["evenFill"];
-    
+
     if (rowStyle["evenLaneFill"])
     	rowStyle["swimlaneFillColor"] = rowStyle["evenLaneFill"];
   }
-  
+
   var height = parseFloat(rowStyle["height"]);
   cell.geometry = new mxGeometry(xShift.lx, y, parent.geometry.width - xShift.lx, height);
 
   var lblObj = row["Labels"];
-  
+
   if (lblObj)
     this.addLabels(cell, lblObj, rowStyle)
-  
+
   cell.style = this.styleMap2Str(rowStyle);
   parent.insert(cell);
-  
+
   var subRow = row["y:Row"];
 
   xShift.lx = 0;
@@ -1742,20 +1742,20 @@ mxGraphMlCodec.prototype.addRow = function(row, parent, odd, y, xShift, rowMappi
     xShift.lx = parseFloat(rowStyle["startSize"]);
     xShift.x += xShift.lx;
   }
-  
+
   var initX = xShift.x, maxX = xShift.x, initLx = xShift.lx;
   var subY = 0;
   if (subRow)
   {
     if (!(subRow instanceof Array))
     	subRow = [subRow];
-    
+
     for (var i = 0; i < subRow.length; i++)
     {
     	xShift.x = initX;
     	xShift.lx = initLx;
     	subY = this.addRow(subRow[i], cell, (i & 1), subY, xShift, rowMapping, defRowStyle);
-    	maxX = Math.max(xShift.x, maxX) 
+    	maxX = Math.max(xShift.x, maxX)
     }
   }
   xShift.x = maxX;
@@ -1772,20 +1772,20 @@ mxGraphMlCodec.prototype.addColumn = function(column, parent, odd, x, yShift, co
   cell.vertex = true;
   var colStyle = mxUtils.clone(defColStyle);
   this.mapObject(column, colMapping, colStyle);
-  
+
   if (odd)
   {
-    if (colStyle["oddFill"]) 
+    if (colStyle["oddFill"])
     	colStyle["fillColor"] = colStyle["oddFill"];
-    
+
     if (colStyle["oddLaneFill"])
     	colStyle["swimlaneFillColor"] = colStyle["oddLaneFill"];
   }
   else
   {
-    if (colStyle["evenFill"]) 
+    if (colStyle["evenFill"])
     	colStyle["fillColor"] = colStyle["evenFill"];
-    
+
     if (colStyle["evenLaneFill"])
     	colStyle["swimlaneFillColor"] = colStyle["evenLaneFill"];
   }
@@ -1794,21 +1794,21 @@ mxGraphMlCodec.prototype.addColumn = function(column, parent, odd, x, yShift, co
   cell.geometry = new mxGeometry(x, yShift, width, parent.geometry.height - yShift);
 
   var lblObj = column["Labels"];
-  
+
   if (lblObj)
     this.addLabels(cell, lblObj, colStyle)
 
   cell.style = this.styleMap2Str(colStyle);
   parent.insert(cell);
-  
+
   var subCol = column["y:Column"];
-  
+
   var subX = 0;
   if (subCol)
   {
     if (!(subCol instanceof Array))
     	subCol = [subCol];
-    
+
     for (var i = 0; i < subCol.length; i++)
     {
     	subX = this.addColumn(subCol[i], cell, (i & 1), subX, yShift, colMapping, defColStyle);
@@ -1824,10 +1824,10 @@ mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
 {
   var shape = styleMap["shape"];
   var geo = node.geometry;
-  
+
   if (shape && geo)
   {
-    if (shape.indexOf(";aspect=fixed") > 0) 
+    if (shape.indexOf(";aspect=fixed") > 0)
     {
     	
     	var min = Math.min(geo.height, geo.width);
@@ -1853,7 +1853,7 @@ mxGraphMlCodec.prototype.handleFixedRatio = function (node, styleMap)
   }
 };
 
-mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy) 
+mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy)
 {
   var geoRect = geoObj[mxGraphMlConstants.RECT];
 
@@ -1872,7 +1872,7 @@ mxGraphMlCodec.prototype.addNodeGeo = function (node, geoObj, dx, dy)
     w = geoObj[mxGraphMlConstants.WIDTH_L] || w;
     h = geoObj[mxGraphMlConstants.HEIGHT_L] || h;
   }
-  
+
   var geo = node.geometry;
   geo.x = parseFloat(x) - dx;
   geo.y = parseFloat(y) - dy;
@@ -1890,31 +1890,31 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
   var trgId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET);
   var srcPortId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_SOURCE_PORT);
   var trgPortId = edgeElement.getAttribute(mxGraphMlConstants.EDGE_TARGET_PORT);
-  
+
   var src = this.nodesMap[srcId];
   var trg = this.nodesMap[trgId];
-  
+
   var edge = graph.insertEdge(parent, null, "", src.node, trg.node, "graphMLId=" + id);
   var style = {graphMlID: id};
-  
+
   for (var i = 0; i < data.length; i++)
   {
     var d = data[i];
     var dataObj = this.dataElem2Obj(d);
-    var desktopEdgeObj = dataObj["y:PolyLineEdge"] || dataObj["y:GenericEdge"] || 
-    					dataObj["y:ArcEdge"] || dataObj["y:BezierEdge"] || 
+    var desktopEdgeObj = dataObj["y:PolyLineEdge"] || dataObj["y:GenericEdge"] ||
+    					dataObj["y:ArcEdge"] || dataObj["y:BezierEdge"] ||
     					dataObj["y:QuadCurveEdge"] || dataObj["y:SplineEdge"];
-    
-    if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_GEOMETRY].key) 
+
+    if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_GEOMETRY].key)
     {
     	this.addEdgeGeo(edge, dataObj, dx, dy);
-    } 
-    else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_STYLE].key) 
+    }
+    else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_STYLE].key)
     {
 //    	console.log(dataObj);
     	this.addEdgeStyle(edge, dataObj, style);
     }
-    else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_LABELS].key) 
+    else if (dataObj.key == this.edgesKeys[mxGraphMlConstants.EDGE_LABELS].key)
     {
     	this.addLabels(edge, dataObj, style, graph);
     }
@@ -1935,12 +1935,12 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
     	}
     }
   }
-  
+
   //handle simple ports (exit/entry[X/Y])
   if (src.ports && srcPortId)
   {
     var srcPort = src.ports[srcPortId];
-    
+
     if (srcPort.pos)
     {
     	style["exitX"] = srcPort.pos.x;
@@ -1951,7 +1951,7 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
   if (trg.ports && trgPortId)
   {
     var trgPort = trg.ports[trgPortId];
-    
+
     if (trgPort.pos)
     {
     	style["entryX"] = trgPort.pos.x;
@@ -1964,14 +1964,14 @@ mxGraphMlCodec.prototype.importEdge = function (edgeElement, graph, parent, dx, 
   return edge;
 };
 
-mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy) 
+mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy)
 {
   var list = geoObj[mxGraphMlConstants.Y_BEND];
-  
+
   if (list)
   {
     var points = [];
-    
+
     for (var i = 0; i < list.length; i++) {
     	var pointStr = list[i][mxGraphMlConstants.LOCATION];
     	
@@ -1980,19 +1980,19 @@ mxGraphMlCodec.prototype.addEdgeGeo = function (edge, geoObj, dx, dy)
     		points.push(new mxPoint(parseFloat(xy[0]) - dx, parseFloat(xy[1]) - dy));
     	}
     }
-    
+
     edge.geometry.points = points;
   }
 };
 
-mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy) 
+mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy)
 {
   var absPoints = [];
   if (pathObj)
   {
     var srcX = parseFloat(pathObj.sx), srcY = parseFloat(pathObj.sy),
     		trgX = parseFloat(pathObj.tx), trgY = parseFloat(pathObj.ty);
-    
+
     var srcGeo = edge.source.geometry;
     if (srcX != 0 || srcY != 0)
     {
@@ -2000,7 +2000,7 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy)
     	style["exitY"] = (srcY + srcGeo.height/2) / srcGeo.height;
     	absPoints.push(new mxPoint(srcGeo.x + style["exitX"] * srcGeo.width - dx, srcGeo.y + style["exitY"] * srcGeo.height - dy));
     }
-    else 
+    else
     {
     	absPoints.push(new mxPoint(srcGeo.x + srcGeo.width/2 - dx, srcGeo.y + srcGeo.height/2 - dy));
     }
@@ -2013,23 +2013,23 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy)
     	style["entryY"] = (trgY + trgGeo.height/2) / trgGeo.height;
     	endP = new mxPoint(trgGeo.x + style["entryX"] * trgGeo.width - dx, trgGeo.y + style["entryY"] * trgGeo.height - dy);
     }
-    else 
+    else
     {
     	endP = new mxPoint(trgGeo.x + trgGeo.width/2 - dx, trgGeo.y + trgGeo.height/2 - dy);
     }
 
     var list = pathObj["y:Point"];
-    
+
     if (list)
     {
-    	if (!(list instanceof Array)) 
+    	if (!(list instanceof Array))
     	{
     		list = [list];
     	}
     	
     	var points = [];
     	
-    	for (var i = 0; i < list.length; i++) 
+    	for (var i = 0; i < list.length; i++)
     	{
     		var p = new mxPoint(parseFloat(list[i].x) - dx, parseFloat(list[i].y) - dy)
     		points.push(p);
@@ -2038,14 +2038,14 @@ mxGraphMlCodec.prototype.addEdgePath = function (edge, pathObj, style, dx, dy)
     	
     	edge.geometry.points = points;
     }
-    
+
     absPoints.push(endP);
   }
   return absPoints;
 };
 
 //TODO improve similarity handling
-mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap) 
+mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 {
   var dashStyleFn = function(val, map)
   {
@@ -2069,25 +2069,25 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     	default:
     		pattern = val.replace(/0/g, '1');
     }
-    
+
     if (pattern)
     {
     	//Some patterns in graphML has only one number
-    	if (pattern.indexOf(" ") < 0) 
+    	if (pattern.indexOf(" ") < 0)
     	{
     		pattern = pattern + " " + pattern;
     	}
     	map["dashPattern"] = pattern;
     }
   };
-  
+
   var desktopLineStyleFn = function(val, map)
   {
     if (val != "line")
     	map["dashed"] = 1;
-    
+
     var pattern = null;
-    
+
     switch(val)
     {
     	case "dashed":
@@ -2100,20 +2100,20 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     		pattern = "3 2 1 2";
     	break;	
     }
-    
+
     if (pattern)
     	map["dashPattern"] = pattern;
   };
-  
+
   // can be mapping to WHITE => empty, BLACK => filled
   var endArrowFill = function(val, map)
   {
-    map["endFill"] = (val == 'WHITE' || val.indexOf("white_") == 0 || val.indexOf("transparent_") == 0)? "0" : "1"; 
+    map["endFill"] = (val == 'WHITE' || val.indexOf("white_") == 0 || val.indexOf("transparent_") == 0)? "0" : "1";
   };
   // can be mapping to WHITE => empty, BLACK => filled
   var startArrowFill = function(val, map)
   {
-    map["startFill"] = (val == 'WHITE' || val.indexOf("white_") == 0 || val.indexOf("transparent_") == 0)? "0" : "1"; 
+    map["startFill"] = (val == 'WHITE' || val.indexOf("white_") == 0 || val.indexOf("transparent_") == 0)? "0" : "1";
   };
 
   var startArrow = function(val, map)
@@ -2121,15 +2121,15 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     map["startArrow"] = mxGraphMlArrowsMap[val] || "classic";
     startArrowFill(val, map);
   };
-  
+
   var endArrow = function(val, map)
   {
     map["endArrow"] = mxGraphMlArrowsMap[val] || "classic";
     endArrowFill(val, map);
   }
-  
+
   var desktopEdge = {
-    "defaults" : 
+    "defaults" :
     {
     	"rounded": 0,
     	"endArrow": "none"
@@ -2148,20 +2148,20 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     	"smoothed": {key: "rounded", mod: "bool"}
     }
   };
-  
+
   var arcEdgeStyle = mxUtils.clone(desktopEdge);
   arcEdgeStyle["defaults"]["curved"] = "1";
-  
+
   this.mapObject(styleObj, {
     "yjs:PolylineEdgeStyle": {
-    	"defaults" : 
+    	"defaults" :
     	{
     		"endArrow": "none",
     		"rounded": 0
     	},
     	"smoothingLength": function(val, map)
     	{
-    		map["rounded"] = (val && parseFloat(val) > 0)? "1" : "0"; 
+    		map["rounded"] = (val && parseFloat(val) > 0)? "1" : "0";
     	},
     	"stroke": {key: "strokeColor", mod: "color"},
     	"stroke.yjs:Stroke":
@@ -2176,7 +2176,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     	},
     	"targetArrow": {key: "endArrow", mod: "arrow"},
     	"targetArrow.yjs:Arrow": {
-    		"defaults" : 
+    		"defaults" :
     		{
     			"endArrow": "classic",
     			"endFill": "1",
@@ -2190,7 +2190,7 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
     	},
     	"sourceArrow": {key: "startArrow", mod: "arrow"},
     	"sourceArrow.yjs:Arrow": {
-    		"defaults" : 
+    		"defaults" :
     		{
     			"startArrow": "classic",
     			"startFill": "1",
@@ -2215,22 +2215,22 @@ mxGraphMlCodec.prototype.addEdgeStyle = function (edge, styleObj, styleMap)
 
 //TODO label offset
 //TODO labels object is over swim lanes collapse button
-mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, absPoints) 
+mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, absPoints)
 {
   var lastChildIndex = node.getChildCount();
   var lblList = lblObj[mxGraphMlConstants.Y_LABEL] || lblObj;
-  
+
   var lblTxts = [];
   var lblStyles = [];
   var lblLayouts = [];
-  
+
   if (lblList)
   {
-    if (!(lblList instanceof Array)) 
+    if (!(lblList instanceof Array))
     {
     	lblList = [lblList];
     }
-    
+
     for (var i = 0; i < lblList.length; i++)
     {
     	var lbl = lblList[i];
@@ -2244,7 +2244,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     	var layout = lbl[mxGraphMlConstants.LAYOUTPARAMETER] || lbl || {};
     	
     	//style
-    	var fontStyleFn = function(val, map) 
+    	var fontStyleFn = function(val, map)
     	{
     		if (val)
     		{
@@ -2268,7 +2268,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     		map["fontStyle"] = style;
     	};
 
-    	var underlineStyleFn = function(val, map) 
+    	var underlineStyleFn = function(val, map)
     	{
     		var style = map["fontStyle"] || 0;
     		
@@ -2291,13 +2291,13 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     				"textSize": "fontSize",
     				"horizontalTextAlignment": "align",
     				"verticalTextAlignment": "verticalAlign",
-    				"wrapping": function(val, map) 
+    				"wrapping": function(val, map)
     				{
     					//TODO mxGraph has a single type of wrapping only
     					if (val)
     						map["whiteSpace"] = "wrap";
     				},
-    				"font.yjs:Font": 
+    				"font.yjs:Font":
     					{
     						"fontFamily": "fontFamily",
     						"fontSize": "fontSize",
@@ -2333,7 +2333,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     	}
     }
   }
-  
+
   //TODO Use the style map with defaults to change the style
   for (var i = 0; i < lblTxts.length; i++)
   {
@@ -2506,7 +2506,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     		//TODO this is an approximation, it needs to take into consideration the segment direction and label size
     		if (side)
     		{
-    			switch(side) 
+    			switch(side)
     			{
     				case "RightOfEdge":
     					lGeo.y = -15;
@@ -2528,12 +2528,12 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     		if (lblLayouts[i]["width"]) lGeo.width = parseFloat(lblLayouts[i]["width"]);
     		if (lblLayouts[i]["height"]) lGeo.height = parseFloat(lblLayouts[i]["height"]);
 
-    		if (node.edge) 
+    		if (node.edge)
     		{
     			lGeo.relative = true;
     			lGeo.x = 0;
     			lGeo.y = 0;
-    			var dx = node.source.geometry.getCenterX() - node.target.geometry.getCenterX(); 
+    			var dx = node.source.geometry.getCenterX() - node.target.geometry.getCenterX();
     			var dy = node.source.geometry.getCenterY() - node.target.geometry.getCenterY();
     			
     			if (graph && absPoints && lblLayouts[i]["y:ModelParameter"] && lblLayouts[i]["y:ModelParameter"]["y:SmartEdgeLabelModelParameter"])
@@ -2552,7 +2552,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     					//TODO FIXME this case is still incorrect
     					lGeo.offset = new mxPoint(Math.abs(ratio) < 1? eState.segments[0] * ratio : ratio, sign * distance);
     				}
-    				else 
+    				else
     				{
     					if (segment == -1) segment = 0;
     					//get the edge cell state to get the segments
@@ -2567,7 +2567,7 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     					lGeo.y = ((position == "center"? 0 : distance) + lGeo.height/2 * sign * (Math.abs(dx) > Math.abs(dy)? 1 : -1)) * sign;
     				}
     			}
-    			else if (!isNaN(lblX) && !isNaN(lblY)) 
+    			else if (!isNaN(lblX) && !isNaN(lblY))
     			{
     				lGeo.offset = new mxPoint(lblX + dx/2 + (dx > 0? -lGeo.width : lGeo.width), lblY);
     			}
@@ -2579,9 +2579,9 @@ mxGraphMlCodec.prototype.addLabels = function (node, lblObj, nodeStyle, graph, a
     		}
     	}
     	
-    	if (lblStyles[i]["rotation"]) 
+    	if (lblStyles[i]["rotation"])
     	{
-    		//TODO fix label coordinates after rotation 
+    		//TODO fix label coordinates after rotation
     		//console.log(lGeo, lblStyles[i]["rotation"]);
     		if (lblStyles[i]["rotation"] == 270)
     		{
@@ -2600,7 +2600,7 @@ mxGraphMlCodec.prototype.processPage = function (graph, pageIndex)
     var node = codec.encode(graph.getModel());
     node.setAttribute("style", "default-style2");
     var modelString = mxUtils.getXml(node);
-    
+
     var output = "<diagram name=\"Page " + pageIndex + "\">";
     output += Graph.compress(modelString);
     output += "</diagram>";
@@ -2724,7 +2724,7 @@ var mxGraphMlArrowsMap =
   "short": "classicThin",
   "convex": "", //FIXME not a match
   "cross": "cross"
-  
+
 };
 
 var mxGraphMlShapesMap =
@@ -2794,7 +2794,7 @@ var mxGraphMlShapesMap =
   "annotation": "mxgraph.flowchart.annotation_1", //TODO not similar!
   "usermessage": "mxgraph.arrows2.arrow;dy=0;dx=10;notch=0", //TODO requires rotation!
   "networkmessage": "mxgraph.arrows2.arrow;dy=0;dx=0;notch=10",
-  //The same like above but with "com.yworks.flowchart." prefex. TODO should we just remove the prefex? 
+  //The same like above but with "com.yworks.flowchart." prefex. TODO should we just remove the prefex?
   "com.yworks.flowchart.start1": "mxgraph.flowchart.start_1",
   "com.yworks.flowchart.start2": "mxgraph.flowchart.start_2;aspect=fixed",
   "com.yworks.flowchart.terminator": "mxgraph.flowchart.terminator",
@@ -2837,12 +2837,12 @@ var mxGraphMlShapesMap =
   "sub_process": "ext;rounded=1",
   "call_activity": "ext;rounded=1;strokeWidth=3",
   //TODO two colors for stroke!
-  "exclusive_with_marker": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw",  
-  "event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=boundInt;symbol=multiple", 
+  "exclusive_with_marker": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=exclusiveGw",
+  "event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=boundInt;symbol=multiple",
   "parallel": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=parallelGw",
   "inclusive": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=end;symbol=general",
   "complex": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=none;symbol=complexGw",
-  "exclusive_event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=multiple", 
+  "exclusive_event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=multiple",
   "parallel_event_based": "mxgraph.bpmn.shape;perimeter=rhombusPerimeter;background=gateway;outline=standard;symbol=parallelMultiple",
   //hexagon
   "calling_global_conversation": "hexagon;strokeWidth=4",
@@ -2859,7 +2859,7 @@ var mxGraphMlShapesMap =
   "multiple": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=multiple",
   "parallel_multiple": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=parallelMultiple",
   "terminate": "mxgraph.bpmn.shape;perimeter=ellipsePerimeter;symbol=terminate",
-  
+
 //  "com.yworks.bpmn.pool
   "com.yworks.bpmn.activity.withshadow": "js:bpmnActivityShadow",
   "com.yworks.bpmn.activity": "js:bpmnActivity",
@@ -2952,7 +2952,7 @@ var mxGraphMlShapesMap =
 
   //special edges
   "com.yworks.edge.framed": "link",
-  
+
   //Male/Female icons (FIXME Not similar and unsafe as it refers to remote resources)
   "usericon_female1.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
   "usericon_female2.svg": "image;image=https://cdn1.iconfinder.com/data/icons/user-pictures/100/female1-128.png",
@@ -2975,7 +2975,7 @@ var mxGraphMlConstants =
   KEY_NAME: "attr.name",
 
   KEY_TYPE: "attr.type",
-  
+
   KEY_YTYPE: "yfiles.type",
 
   GRAPH: "graph",
@@ -3063,67 +3063,67 @@ var mxGraphMlConstants =
   PROPERTIES: "properties",
 
   SOURCETARGET: "SourceTarget",
-    
+
   RECT: "y:RectD",
-  
+
   NODE_LABELS: "NodeLabels",
-  
+
   NODE_LABEL: "y:NodeLabel",
-  
+
   NODE_GEOMETRY: "NodeGeometry",
-  
+
   USER_TAGS: "UserTags",
 
   NODE_STYLE: "NodeStyle",
-  
+
   NODE_GRAPHICS: "nodegraphics",
-  
+
   NODE_VIEW_STATE: "NodeViewState",
-  
+
   EDGE_LABELS: "EdgeLabels",
-  
+
   EDGE_GEOMETRY: "EdgeGeometry",
-  
+
   EDGE_STYLE: "EdgeStyle",
-  
+
   EDGE_VIEW_STATE: "EdgeViewState",
-  
+
   PORT_LOCATION_PARAMETER: "PortLocationParameter",
-  
+
   PORT_STYLE: "PortStyle",
-  
+
   PORT_VIEW_STATE: "PortViewState",
-  
+
   SHARED_DATA: "SharedData",
-  
+
   Y_SHARED_DATA: "y:SharedData",
-  
+
   X_KEY: "x:Key",
-  
+
   GRAPHML_REFERENCE: "y:GraphMLReference",
-  
+
   RESOURCE_KEY: "ResourceKey",
-  
+
   Y_RESOURCES: "y:Resources",
-  
+
   Y_RESOURCE: "y:Resource",
-  
+
   REFID: "refid",
-    
+
   X_LIST: "x:List",
-  
+
   X_STATIC: "x:Static",
-  
+
   Y_BEND: "y:Bend",
-  
+
   LOCATION: "Location",
-  
+
   Y_LABEL: "y:Label",
-  
+
   LAYOUTPARAMETER: "LayoutParameter",
-  
+
   YJS_DEFAULTLABELSTYLE: "yjs:DefaultLabelStyle",
-  
+
   MEMBER: "Member"
 };
 

@@ -6,7 +6,7 @@
     var dt = 'ibm ';
     var sb = this;
     var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;fontColor=#4277BB;labelBackgroundColor=#ffffff;fontSize=12;spacingTop=3;image;image=img/lib/ibm/';
-    
+
     // Adds IBM shapes
     this.setCurrentSearchEntryLibrary('ibm', 'ibmAnalytics');
     this.addIBMAnalyticsPalette(d, dt, sb, s);
@@ -43,7 +43,7 @@
   {
     s += 'analytics/';
     var gn = 'analytics ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'analytics.svg;',
     			 d, d, '', 'Analytics', false, null, this.getTagsForStencil(gn, '', dt).join(' ')),
@@ -65,12 +65,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMApplicationsPalette = function(d, dt, sb, s)
   {
     s += 'applications/';
     var gn = 'applications ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'actionable_insight.svg;',
     			 d, d, '', 'Actionable Insight', false, null, this.getTagsForStencil(gn, 'actionable insight', dt).join(' ')),
@@ -122,12 +122,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMBlockchainPalette = function(d, dt, sb, s)
   {
     s += 'blockchain/';
     var gn = 'blockchain';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'blockchain.svg;',
     			 d, d, '', 'Blockchain', false, null, this.getTagsForStencil(gn, '', dt).join(' ')),
@@ -183,12 +183,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMDataPalette = function(d, dt, sb, s)
   {
     s += 'data/';
     var gn = 'data ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'caches.svg;',
     			 d, d, '', 'Caches', false, null, this.getTagsForStencil(gn, 'caches', dt).join(' ')),
@@ -226,12 +226,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMDevOpsPalette = function(d, dt, sb, s)
   {
     s += 'devops/';
     var gn = 'devops ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'artifact_management.svg;',
     			 d, d, '', 'Artifact Management', false, null, this.getTagsForStencil(gn, 'artifact management', dt).join(' ')),
@@ -263,12 +263,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMInfrastructurePalette = function(d, dt, sb, s)
   {
     s += 'infrastructure/';
     var gn = 'infrastructure ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'channels.svg;',
     			 d, d, '', 'Channels', false, null, this.getTagsForStencil(gn, 'channels', dt).join(' ')),
@@ -316,12 +316,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMManagementPalette = function(d, dt, sb, s)
   {
     s += 'management/';
     var gn = 'management ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'alert_notification.svg;',
     			 d, d, '', 'Alert Notification', false, null, this.getTagsForStencil(gn, 'alert notification', dt).join(' ')),
@@ -363,12 +363,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMMiscPalette = function(d, dt, sb, s)
   {
     s += 'miscellaneous/';
     var gn = 'miscellaneous ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'bluemix.svg;',
     			 d, d, '', 'Bluemix', false, null, this.getTagsForStencil(gn, 'bluemix', dt).join(' ')),
@@ -408,12 +408,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMSecurityPalette = function(d, dt, sb, s)
   {
     s += 'security/';
     var gn = 'security ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'api_security.svg;',
     			 d, d, '', 'API Security', false, null, this.getTagsForStencil(gn, 'api security', dt).join(' ')),
@@ -453,12 +453,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMSocialPalette = function(d, dt, sb, s)
   {
     s += 'social/';
     var gn = 'social ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'communities.svg;',
     			 d, d, '', 'Communities', false, null, this.getTagsForStencil(gn, 'communities', dt).join(' ')),
@@ -480,12 +480,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMUsersPalette = function(d, dt, sb, s)
   {
     s += 'users/';
     var gn = 'users ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'browser.svg;',
     			 d, d, '', 'Browser', false, null, this.getTagsForStencil(gn, 'browser', dt).join(' ')),
@@ -509,12 +509,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMVPCPalette = function(d, dt, sb, s)
   {
     s += 'vpc/';
     var gn = 'vpc virtual private cloud ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'Instance.svg;',
     			 d, d, '', 'Instance', false, null, this.getTagsForStencil(gn, 'instance', dt).join(' ')),
@@ -576,12 +576,12 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMBoxesPalette = function(d, dt, sb, s)
   {
     s += 'boxes/';
     var gn = 'boxes box ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(
     			 'shape=mxgraph.ibm.box;prType=cloud;fontStyle=0;verticalAlign=top;align=left;spacingLeft=32;spacingTop=4;fillColor=none;rounded=0;whiteSpace=wrap;html=1;strokeColor=#4376BB;strokeWidth=3;dashed=0;container=1;spacing=-4;collapsible=0;expand=0;recursiveResize=0;',
@@ -629,29 +629,29 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addIBMConnectorsPalette = function(d, dt, sb, s)
   {
     var gn = 'connectors ';
-    
+
     var fns = [
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;endArrow=none;endFill=0;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;endArrow=none;endFill=0;',
     			 d, d, '', 'Connector', null, dt + 'connector'),
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;',
     			 d, d, '', 'Connector (Single Arrow)', null, dt + 'connector single arrow'),
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;',
     			 d, d, '', 'Connector (Double Arrow)', null, dt + 'connector double arrow'),
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;endArrow=none;endFill=0;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;endArrow=none;endFill=0;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;',
     			 d, d, '', 'Dashed Connector', null, dt + 'dashed connector'),
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=none;startFill=0;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;',
     			 d, d, '', 'Dashed Connector (Single Arrow)', null, dt + 'dashed connector single arrow'),
-     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;dashed=1;fontSize=14;',
     			 d, d, '', 'Dashed Connector (Double Arrow)', null, dt + 'dashed connector double arrow'),
-     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;endArrow=none;endFill=0;', 
+     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;endArrow=none;endFill=0;',
     			 d, d, '', 'Elbow Connector', null, dt + 'elbow connector'),
-     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;',
     			 d, d, '', 'Elbow Connector (Single Arrow)', null, dt + 'elbow connector single arrow'),
-     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;', 
+     	 this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;rounded=0;elbow=vertical;html=1;labelBackgroundColor=#ffffff;startArrow=classic;startFill=1;startSize=6;endArrow=classic;endFill=1;endSize=6;jettySize=auto;orthogonalLoop=1;strokeWidth=1;fontSize=14;',
      			 d, d, '', 'Elbow Connector (Double Arrow)', null, dt + 'elbow connector double arrow')
     ];
     	   	

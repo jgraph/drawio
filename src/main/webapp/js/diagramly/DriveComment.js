@@ -10,16 +10,16 @@ mxUtils.extend(DriveComment, DrawioComment);
 DriveComment.prototype.addReply = function(reply, success, error, doResolve, doReopen)
 {
   var body = {'content': reply.content};
-  
-  if (doResolve) 
+
+  if (doResolve)
   {
     body.verb = 'resolve';
-  } 
-  else if (doReopen) 
+  }
+  else if (doReopen)
   {
     body.verb = 'reopen';
   }
-  
+
   this.file.ui.drive.executeRequest(
     {
     	url: '/files/' + this.file.getId() + '/comments/' + this.id + '/replies',
@@ -36,16 +36,16 @@ DriveComment.prototype.editComment = function(newContent, success, error)
 {
   this.content = newContent;
   var body = {'content': newContent};
-   
+
   this.file.ui.drive.executeRequest(
     this.pCommentId?
     {
-    	url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id, 
+    	url: '/files/' + this.file.getId() + '/comments/' + this.pCommentId + '/replies/' + this.id,
     	params: body,
     	method: 'PATCH'
     } :
     {
-    	url: '/files/' + this.file.getId() + '/comments/' + this.id, 
+    	url: '/files/' + this.file.getId() + '/comments/' + this.id,
     	params: body,
     	method: 'PATCH'
     },

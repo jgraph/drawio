@@ -40,19 +40,19 @@
     			null, null, null, null, null, 'rack');
     	}
     }
-    
+
     this.setCurrentSearchEntryLibrary();
   }
-  
+
   // Adds Rack shapes
   Sidebar.prototype.addRackGeneralPalette = function()
   {
     var s = 'strokeColor=#666666;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;';
     var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
-    
+
     //default tags
     var dt = 'rack equipment general ';
-    
+
     this.addPaletteFunctions('rackGeneral', 'Rack / General', false,
     [
     	this.createVertexTemplateEntry(s + 'shape=mxgraph.rackGeneral.container;fillColor2=#f4f4f4;container=1;collapsible=0;childLayout=rack;allowGaps=1;marginLeft=9;marginRight=9;marginTop=21;marginBottom=22;textColor=#666666;numDisp=off;', 180, 228.6, '', 'Rack Cabinet', null, null, dt + 'cabinet'),
@@ -80,14 +80,14 @@
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.switches_1;', 160, 30, '', 'Switches 1', null, null, dt + 'server'),
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.general.switches_2;', 160, 30, '', 'Switches 2', null, null, dt + 'server')
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addRackF5Palette = function()
   {
     var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
-    
+
     //default tags
     var dt = 'rack equipment f5 ';
 
@@ -119,14 +119,14 @@
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.f5.viprion_4400;', 168, 120, '', 'VIPRION 4400', null, null, dt + 'big ip'),
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.f5.viprion_4800;', 168, 320, '', 'VIPRION 4800', null, null, dt + 'big ip')
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addRackDellPalette = function()
   {
     var sr = 'strokeColor=#666666;html=1;labelPosition=right;align=left;spacingLeft=15;shadow=0;dashed=0;outlineConnect=0;';
-    
+
     //default tags
     var dt = 'rack equipment dell ';
 
@@ -165,17 +165,17 @@
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_r940;', 162, 45, '', 'PowerEdge R940', null, null, dt + 'poweredge r940'),
     	this.createVertexTemplateEntry(sr + 'shape=mxgraph.rack.dell.poweredge_xr2;', 162, 15, '', 'PowerEdge XR2', null, null, dt + 'poweredge xr2')
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
     Sidebar.prototype.addRackHPEArubaGatewaysControllersPalette = function()
     {
         var s = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;shape=mxgraph.rack.hpe_aruba.gateways_controllers.';
-        
+
         //default tags
         var dt = 'rack equipment hpe hp aruba hewlett packard enterprise gateway controller ';
-        
+
         this.addPaletteFunctions('rackHPE Aruba Gateways Controllers', 'Rack / HPE Aruba / Gateways and Controllers', false,
         [
             this.createVertexTemplateEntry(s + 'aruba_7010_mobility_controller_front;', 142, 15, '', 'Aruba 7010 Mobility Controller (front)', null, null, dt + '7010 mobility front'),
@@ -208,14 +208,14 @@
             this.createVertexTemplateEntry(s + 'aruba_mobility_master_5k_rear;', 142, 15, '', 'Aruba Mobility Master 5k (rear)', null, null, dt + 'mobility master 5k rear')
         ]);
     };
-    
+
     Sidebar.prototype.addRackHPEArubaSecurityPalette = function()
     {
         var s = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;shape=mxgraph.rack.hpe_aruba.security.';
-        
+
         //default tags
         var dt = 'rack equipment hpe hp hewlett packard enterprise aruba security clearpass ';
-        
+
         this.addPaletteFunctions('rackHPE Aruba Security', 'Rack / HPE Aruba / Security', false,
         [
             this.createVertexTemplateEntry(s + 'aruba_clearpass_c1000_front;', 142, 15, '', 'Aruba ClearPass C1000 (front)', null, null, dt + 'c1000 front'),
@@ -227,14 +227,14 @@
             this.createVertexTemplateEntry(s + 'direct_qsfp;', 11, 5.7, '', 'Direct QSFP', null, null, dt + 'direct qsfp')
         ]);
     };
-    
+
     Sidebar.prototype.addRackHPEArubaSwitchesPalette = function()
     {
         var s = 'html=1;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;shadow=0;dashed=0;shape=mxgraph.rack.hpe_aruba.switches.';
-        
+
         //default tags
         var dt = 'rack equipment hpe hp hewlett packard enterprise aruba ';
-        
+
         this.addPaletteFunctions('rackHPE Aruba Switches', 'Rack / HPE Aruba / Switches', false,
         [
             this.createVertexTemplateEntry(s + 'direct_qsfp;', 11, 5.7, '', 'Direct QSFP', null, null, dt + 'direct qsfp'),
@@ -426,5 +426,5 @@
             this.createVertexTemplateEntry(s + 'rom68a_aruba_2930m_24p_poe_class_6_switch_rear;', 142, 15, '', 'ROM68A Aruba 2930M-24p PoE class 6 switch (rear)', null, null, dt + 'rom68a 2930m 24p poe class switch rear')
         ]);
     };
-      
+
 })();

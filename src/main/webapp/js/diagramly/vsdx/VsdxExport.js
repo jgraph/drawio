@@ -4,9 +4,9 @@
 function VsdxExport(editorUi)
 {
   var that = this;
-  
+
   var vsdxCanvas = new mxVsdxCanvas2D();
-  
+
   var idsMap = {};
   var idsCounter = 1;
   /**
@@ -29,10 +29,10 @@ function VsdxExport(editorUi)
     	"visio/masters/masters.xml" : "<?xml version='1.0' encoding='utf-8' ?><Masters xmlns='http://schemas.microsoft.com/office/visio/2012/main' xmlns:r='http://schemas.openxmlformats.org/officeDocument/2006/relationships' xml:space='preserve'><Master ID='4' NameU='Dynamic connector' IsCustomNameU='1' Name='Dynamic connector' IsCustomName='1' Prompt='This connector automatically routes between the shapes it connects.' IconSize='1' AlignName='2' MatchByName='1' IconUpdate='0' UniqueID='{002A9108-0000-0000-8E40-00608CF305B2}' BaseID='{F7290A45-E3AD-11D2-AE4F-006008C9F5A9}' PatternFlags='0' Hidden='0' MasterType='0'><PageSheet LineStyle='0' FillStyle='0' TextStyle='0'><Cell N='PageWidth' V='3'/><Cell N='PageHeight' V='3'/><Cell N='ShdwOffsetX' V='0.125'/><Cell N='ShdwOffsetY' V='-0.125'/><Cell N='PageScale' V='1' U='IN_F'/><Cell N='DrawingScale' V='1' U='IN_F'/><Cell N='DrawingSizeType' V='4'/><Cell N='DrawingScaleType' V='0'/><Cell N='InhibitSnap' V='0'/><Cell N='PageLockReplace' V='0' U='BOOL'/><Cell N='PageLockDuplicate' V='0' U='BOOL'/><Cell N='UIVisibility' V='0'/><Cell N='ShdwType' V='0'/><Cell N='ShdwObliqueAngle' V='0'/><Cell N='ShdwScaleFactor' V='1'/><Cell N='DrawingResizeType' V='0'/><Section N='Layer'><Row IX='0'><Cell N='Name' V='Connector'/><Cell N='Color' V='255'/><Cell N='Status' V='0'/><Cell N='Visible' V='1'/><Cell N='Print' V='1'/><Cell N='Active' V='0'/><Cell N='Lock' V='0'/><Cell N='Snap' V='1'/><Cell N='Glue' V='1'/><Cell N='NameUniv' V='Connector'/><Cell N='ColorTrans' V='0'/></Row></Section></PageSheet><Rel r:id='rId1'/></Master></Masters>",
     	"visio/masters/master1.xml" : "<?xml version='1.0' encoding='utf-8' ?><MasterContents xmlns='http://schemas.microsoft.com/office/visio/2012/main' xmlns:r='http://schemas.openxmlformats.org/officeDocument/2006/relationships' xml:space='preserve'><Shapes><Shape ID='5' OriginalID='0' Type='Shape' LineStyle='7' FillStyle='7' TextStyle='7'><Cell N='PinX' V='1.5' F='GUARD((BeginX+EndX)/2)'/><Cell N='PinY' V='1.5' F='GUARD((BeginY+EndY)/2)'/><Cell N='Width' V='1' F='GUARD(EndX-BeginX)'/><Cell N='Height' V='-1' F='GUARD(EndY-BeginY)'/><Cell N='LocPinX' V='0.5' F='GUARD(Width*0.5)'/><Cell N='LocPinY' V='-0.5' F='GUARD(Height*0.5)'/><Cell N='Angle' V='0' F='GUARD(0DA)'/><Cell N='FlipX' V='0' F='GUARD(FALSE)'/><Cell N='FlipY' V='0' F='GUARD(FALSE)'/><Cell N='ResizeMode' V='0'/><Cell N='BeginX' V='1'/><Cell N='BeginY' V='2'/><Cell N='EndX' V='2'/><Cell N='EndY' V='1'/><Cell N='TxtPinX' V='0' F='SETATREF(Controls.TextPosition)'/><Cell N='TxtPinY' V='-1' F='SETATREF(Controls.TextPosition.Y)'/><Cell N='TxtWidth' V='0.5555555555555556' F='MAX(TEXTWIDTH(TheText),5*Char.Size)'/><Cell N='TxtHeight' V='0.2444444444444444' F='TEXTHEIGHT(TheText,TxtWidth)'/><Cell N='TxtLocPinX' V='0.2777777777777778' F='TxtWidth*0.5'/><Cell N='TxtLocPinY' V='0.1222222222222222' F='TxtHeight*0.5'/><Cell N='TxtAngle' V='0'/><Cell N='LockHeight' V='1'/><Cell N='LockCalcWH' V='1'/><Cell N='HelpTopic' V='Vis_SE.chm!#20000'/><Cell N='Copyright' V='Copyright 2001 Microsoft Corporation.  All rights reserved.'/><Cell N='NoAlignBox' V='1'/><Cell N='DynFeedback' V='2'/><Cell N='GlueType' V='2'/><Cell N='ObjType' V='2'/><Cell N='NoLiveDynamics' V='1'/><Cell N='ShapeSplittable' V='1'/><Cell N='LayerMember' V='0'/><Section N='Control'><Row N='TextPosition'><Cell N='X' V='0'/><Cell N='Y' V='-1'/><Cell N='XDyn' V='0' F='Controls.TextPosition'/><Cell N='YDyn' V='-1' F='Controls.TextPosition.Y'/><Cell N='XCon' V='5' F='IF(OR(STRSAME(SHAPETEXT(TheText),\"\"),HideText),5,0)'/><Cell N='YCon' V='0'/><Cell N='CanGlue' V='0'/><Cell N='Prompt' V='Reposition Text'/></Row></Section><Section N='Geometry' IX='0'><Cell N='NoFill' V='1'/><Cell N='NoLine' V='0'/><Cell N='NoShow' V='0'/><Cell N='NoSnap' V='0'/><Cell N='NoQuickDrag' V='0'/><Row T='MoveTo' IX='1'><Cell N='X' V='0'/><Cell N='Y' V='0'/></Row><Row T='LineTo' IX='2'><Cell N='X' V='0'/><Cell N='Y' V='-1'/></Row></Section></Shape></Shapes></MasterContents>"
     };
-      
-    for (var id in files) 
+
+    for (var id in files)
     {
-    	if (pageCount > 1 && id == that.CONTENT_TYPES_XML) 
+    	if (pageCount > 1 && id == that.CONTENT_TYPES_XML)
     	{
     		//Add the remaining pages
     		var doc = mxUtils.parseXml(files[id]);
@@ -40,7 +40,7 @@ function VsdxExport(editorUi)
     		
     		var children = root.children;
     		var page1 = null;
-    
+
     		for (var i = 0; i < children.length; i++)
     		{
     			var child = children[i];
@@ -59,13 +59,13 @@ function VsdxExport(editorUi)
     	    	
         	writeXmlDoc2Zip(zip, id, doc, true);
         }
-        else 
+        else
         {
     	    zip.file(id, files[id]);
         }
       }
   };
-  
+
   function createElt(doc, ns, name)
   {
     return (doc.createElementNS != null) ? doc.createElementNS(ns, name) : doc.createElement(name);
@@ -74,7 +74,7 @@ function VsdxExport(editorUi)
   function getCellVsdxId(cellId)
   {
     var vsdxId = idsMap[cellId];
-    
+
     if (vsdxId == null)
     {
     	vsdxId = idsCounter++;
@@ -82,11 +82,11 @@ function VsdxExport(editorUi)
     }
     return vsdxId;
   };
-  
-  function getGraphAttributes(graph) 
+
+  function getGraphAttributes(graph)
   {
     var attr = {};
-    
+
     try
     {
     	//This doesn't work when pageView is off
@@ -113,12 +113,12 @@ function VsdxExport(editorUi)
     	var availableWidth = graph.pageFormat.width;
     	var availableHeight = graph.pageFormat.height;
 
-    	if (x0 < 0) 
+    	if (x0 < 0)
     	{
     		x0 += Math.ceil((tr.x - bounds.x / sc) / availableWidth) * availableWidth;
     	}
 
-    	if (y0 < 0) 
+    	if (y0 < 0)
     	{
     		y0 += Math.ceil((tr.y - bounds.y / sc) / availableHeight) * availableHeight;
     	}
@@ -154,13 +154,13 @@ function VsdxExport(editorUi)
     var cell = createElt(xmlDoc, that.XMLNS, "Cell");
     cell.setAttribute("N", name);
     cell.setAttribute("V", val);
-    
+
     if (formula) cell.setAttribute("F", formula);
-    
+
     return cell;
   };
 
-  function createRow(type, index, x, y, xmlDoc) 
+  function createRow(type, index, x, y, xmlDoc)
   {
     var row = createElt(xmlDoc, that.XMLNS, "Row");
     row.setAttribute("T", type);
@@ -173,7 +173,7 @@ function VsdxExport(editorUi)
   function applyMxCellStyle(state, shape, xmlDoc)
   {
     var fillClr = state.style[mxConstants.STYLE_FILLCOLOR];
-    
+
     if (!fillClr || fillClr == "none")
     {
     	shape.appendChild(createCellElem("FillPattern", 0, xmlDoc));
@@ -210,7 +210,7 @@ function VsdxExport(editorUi)
     }
 
     var strokeClr = state.style[mxConstants.STYLE_STROKECOLOR];
-    
+
     if (!strokeClr || strokeClr == "none")
     	shape.appendChild(createCellElem("LinePattern", 0, xmlDoc));
     else
@@ -218,12 +218,12 @@ function VsdxExport(editorUi)
 
     var strokeW = state.style[mxConstants.STYLE_STROKEWIDTH];
     if (strokeW) shape.appendChild(createCellElemScaled("LineWeight", strokeW, xmlDoc));
-    
-    
+
+
     var opacity = state.style[mxConstants.STYLE_OPACITY];
-    var fillOpaq; 
+    var fillOpaq;
     var strkOpaq; 	
-    
+
     if (opacity)
     {
     	fillOpaq = opacity;
@@ -237,10 +237,10 @@ function VsdxExport(editorUi)
     	
     if (fillOpaq) shape.appendChild(createCellElem("FillForegndTrans", 1 - parseInt(fillOpaq)/100.0, xmlDoc));
     if (strkOpaq) shape.appendChild(createCellElem("LineColorTrans", 1 - parseInt(strkOpaq)/100.0, xmlDoc));
-    
+
     var isDashed = state.style[mxConstants.STYLE_DASHED];
-    
-    if (isDashed == 1) 
+
+    if (isDashed == 1)
     {
     	var dashPatrn = state.style[mxConstants.STYLE_DASH_PATTERN];
     	var pattern = 9
@@ -248,25 +248,25 @@ function VsdxExport(editorUi)
     	if (dashPatrn)
     	{
     		//We only support the patterns of draw.io UI
-    		switch(dashPatrn) 
+    		switch(dashPatrn)
     		{
     			case "1 1":
-    				pattern = 10; 
+    				pattern = 10;
     			break;
     			case "1 2":
-    				pattern = 3; 
+    				pattern = 3;
     			break;
     			case "1 4":
-    				pattern = 17; 
+    				pattern = 17;
     			break;
-    		} 
+    		}
     	}
     	
     	shape.appendChild(createCellElem("LinePattern", pattern, xmlDoc));
     }
-    
+
     var hasShadow = state.style[mxConstants.STYLE_SHADOW];
-    
+
     if (hasShadow == 1)
     {
     	shape.appendChild(createCellElem("ShdwPattern", 1, xmlDoc));
@@ -279,9 +279,9 @@ function VsdxExport(editorUi)
     	shape.appendChild(createCellElem("ShapeShdwBlur", '0.05555555555555555', xmlDoc));
     	shape.appendChild(createCellElem("ShapeShdwShow", 2, xmlDoc));
     }
-    
+
     //Probably we don't need margins as the canvas get the modified position?
-  /*  
+  /*
     var topMargin = state.style[mxConstants.STYLE_SPACING_TOP];
     if (topMargin) shape.appendChild(createCellElemScaled("TopMargin", parseFloat(topMargin) * 2 + 2.8 , xmlDoc));
 
@@ -337,15 +337,15 @@ function VsdxExport(editorUi)
   function createShape(id, geo, layerIndex, xmlDoc, parentHeight, isChild)
   {
     var shape = createElt(xmlDoc, that.XMLNS, "Shape");
-    
+
     shape.setAttribute("ID", id);
     shape.setAttribute("NameU", "Shape" + id);
     shape.setAttribute("LineStyle", "0");
     shape.setAttribute("FillStyle", "0");
     shape.setAttribute("TextStyle", "0");
-    
+
     var hw = geo.width/2, hh = geo.height/2;
-    
+
     shape.appendChild(createCellElemScaled("PinX", geo.x + hw + (isChild? 0 : vsdxCanvas.shiftX), xmlDoc));
     shape.appendChild(createCellElemScaled("PinY", parentHeight - geo.y - hh - (isChild? 0 : vsdxCanvas.shiftY), xmlDoc));
     shape.appendChild(createCellElemScaled("Width", geo.width, xmlDoc));
@@ -353,7 +353,7 @@ function VsdxExport(editorUi)
     shape.appendChild(createCellElemScaled("LocPinX", hw, xmlDoc));
     shape.appendChild(createCellElemScaled("LocPinY", hh, xmlDoc));
     shape.appendChild(createCellElem("LayerMember", layerIndex + "", xmlDoc));
-    
+
     return shape;
   };
 
@@ -368,11 +368,11 @@ function VsdxExport(editorUi)
     else
     	return 1;
   };
-  
+
   function getArrowSize(size)
   {
     if (size == null) return 2;
-    
+
     if (size <=2)
     	return 0;
     else if (size <= 3)
@@ -392,12 +392,12 @@ function VsdxExport(editorUi)
   function createEdge(cell, layerIndex, graph, xmlDoc, parentHeight, isChild)
   {
     var state = graph.view.getState(cell, true);
-    
+
     if (state == null || state.absolutePoints == null || state.cellBounds == null)
     {
     	return null;
     }
-    
+
     var shape = createElt(xmlDoc, that.XMLNS, "Shape");
     var vsdxId = getCellVsdxId(cell.id);
     shape.setAttribute("ID", vsdxId);
@@ -409,9 +409,9 @@ function VsdxExport(editorUi)
     var s = vsdxCanvas.state;
     var points = state.absolutePoints;
     var bounds = state.cellBounds;
-    
+
     var hw = bounds.width/2, hh = bounds.height/2;
-    
+
     shape.appendChild(createCellElemScaled("PinX", bounds.x + hw, xmlDoc));
     shape.appendChild(createCellElemScaled("PinY", parentHeight - bounds.y - hh, xmlDoc));
     shape.appendChild(createCellElemScaled("Width", bounds.width, xmlDoc));
@@ -420,8 +420,8 @@ function VsdxExport(editorUi)
     shape.appendChild(createCellElemScaled("LocPinY", hh, xmlDoc));
 
     vsdxCanvas.newEdge(shape, state, xmlDoc);
-    
-    var calcVsdxPoint = function(p, noHeight) 
+
+    var calcVsdxPoint = function(p, noHeight)
     {
     	var x = p.x, y = p.y;
     	x = (x * s.scale - bounds.x + s.dx + (isChild? 0 : vsdxCanvas.shiftX)) ;
@@ -430,14 +430,14 @@ function VsdxExport(editorUi)
     };
 
     var p0 = calcVsdxPoint(points[0], true);
-    
-    //Formula is used to make the edge dynamic 
+
+    //Formula is used to make the edge dynamic
     shape.appendChild(createCellElemScaled("BeginX", bounds.x + p0.x, xmlDoc, "_WALKGLUE(BegTrigger,EndTrigger,WalkPreference)"));
     shape.appendChild(createCellElemScaled("BeginY", parentHeight - bounds.y + p0.y, xmlDoc, "_WALKGLUE(BegTrigger,EndTrigger,WalkPreference)"));
 
     var pe = calcVsdxPoint(points[points.length - 1], true);
-    
-    //Formula is used to make the edge dynamic 
+
+    //Formula is used to make the edge dynamic
     shape.appendChild(createCellElemScaled("EndX", bounds.x + pe.x, xmlDoc, "_WALKGLUE(EndTrigger,BegTrigger,WalkPreference)"));
     shape.appendChild(createCellElemScaled("EndY", parentHeight - bounds.y + pe.y, xmlDoc, "_WALKGLUE(EndTrigger,BegTrigger,WalkPreference)"));
 
@@ -448,24 +448,24 @@ function VsdxExport(editorUi)
     shape.appendChild(createCellElem("LayerMember", layerIndex + "", xmlDoc));
 
     applyMxCellStyle(state, shape, xmlDoc);
-    
+
     //Edge special styles
     var startFill =  state.style[mxConstants.STYLE_STARTFILL];
     var startArrow = state.style[mxConstants.STYLE_STARTARROW];
     var startSize =  state.style[mxConstants.STYLE_STARTSIZE];
-    
+
     var type = getArrowType(startArrow, startFill);
     shape.appendChild(createCellElem("BeginArrow", type, xmlDoc));
     shape.appendChild(createCellElem("BeginArrowSize", getArrowSize(startSize), xmlDoc));
-    
+
     var endFill =  state.style[mxConstants.STYLE_ENDFILL];
     var endArrow = state.style[mxConstants.STYLE_ENDARROW];
     var endSize =  state.style[mxConstants.STYLE_ENDSIZE];
-    
+
     var type = getArrowType(endArrow, endFill);
     shape.appendChild(createCellElem("EndArrow", type, xmlDoc));
     shape.appendChild(createCellElem("EndArrowSize", getArrowSize(endSize), xmlDoc));
-    
+
     //Draw text first to have its shape cell elements before visio geo.
     if (state.text != null && state.text.checkBounds())
     {
@@ -473,9 +473,9 @@ function VsdxExport(editorUi)
     	state.text.paint(vsdxCanvas);
     	vsdxCanvas.restore();
     }
-    
+
     var geoSec = createElt(xmlDoc, that.XMLNS, "Section");
-    
+
     geoSec.setAttribute("N", "Geometry");
     geoSec.setAttribute("IX", "0");
 
@@ -484,18 +484,18 @@ function VsdxExport(editorUi)
     	var p = calcVsdxPoint(points[i]);
     	geoSec.appendChild(createRow(i==0 ? "MoveTo" : "LineTo", (i + 1), p.x, p.y, xmlDoc));
     }
-    
+
     geoSec.appendChild(createCellElem("NoFill", "1", xmlDoc));
     geoSec.appendChild(createCellElem("NoLine", "0", xmlDoc));
     shape.appendChild(geoSec);
-    
+
     return shape;
   };
-  
+
   function convertMxCell2Shape(cell, layerIndex, graph, xmlDoc, parentHeight, parentGeo, isChild)
   {
     var geo = cell.geometry;
-    
+
     if (geo != null)
     {
     	//fix relative geo coordinates
@@ -509,7 +509,7 @@ function VsdxExport(editorUi)
     	
     	var vsdxId = getCellVsdxId(cell.id);
     	
-    	if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group 
+    	if (!cell.treatAsSingle && cell.getChildCount() > 0) //Group
     	{
     		//Create group shape as an empty shape with no geo
     		var shape = createShape(vsdxId + "10000", geo, layerIndex, xmlDoc, parentHeight, isChild);
@@ -522,7 +522,7 @@ function VsdxExport(editorUi)
     		vsdxCanvas.save();
     		vsdxCanvas.translate(-geo.x, -geo.y);
 
-    		//Draw the actual group shape as a child (so change its geo coord to 0,0). 
+    		//Draw the actual group shape as a child (so change its geo coord to 0,0).
     		//	In mxGraph group shape can have styles and stencil
     		var newGeo = geo.clone();
     		newGeo.x = 0;
@@ -553,14 +553,14 @@ function VsdxExport(editorUi)
     		
     		shape.appendChild(gShapes);
     		
-    		//restore the canvas to before group translation 
+    		//restore the canvas to before group translation
     		vsdxCanvas.restore();
     		
     		return shape;
     	}
     	else if (cell.vertex)
     	{
-  
+
     		var shape = createShape(vsdxId, geo, layerIndex, xmlDoc, parentHeight, isChild);
     		
     		var state = graph.view.getState(cell, true);
@@ -601,47 +601,47 @@ function VsdxExport(editorUi)
     }
   };
 
-  
+
   function convertMxModel2Page(graph, modelAttrib)
   {
         var xmlDoc = mxUtils.createXmlDocument();
 
         var root = createElt(xmlDoc, that.XMLNS, "PageContents");
-        
+
         root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', that.XMLNS);
         root.setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:r", that.XMLNS_R);
-        
+
         var shapes = createElt(xmlDoc, that.XMLNS, "Shapes");
         root.appendChild(shapes);
 
         var model = graph.model;
-        
+
     var t = graph.view.translate;
     var s = graph.view.scale;
     var bounds = graph.getGraphBounds();
 
     vsdxCanvas.shiftX = 0; vsdxCanvas.shiftY = 0;
     //-ve pages
-    if (bounds.x / s < t.x || bounds.y / s < t.y) 
+    if (bounds.x / s < t.x || bounds.y / s < t.y)
     {
     	vsdxCanvas.shiftX = Math.ceil((t.x - bounds.x / s) / graph.pageFormat.width) * graph.pageFormat.width;
     	vsdxCanvas.shiftY = Math.ceil((t.y - bounds.y / s) / graph.pageFormat.height) * graph.pageFormat.height;
     }
-    
+
     vsdxCanvas.save();
     vsdxCanvas.translate(-t.x, -t.y);
     vsdxCanvas.scale(1 / s);
     vsdxCanvas.newPage();
-    
+
     var layers = graph.model.getChildCells(graph.model.root);
     var layerIdsMaps = {};
-    
+
     for (var k = 0; k < layers.length; k++)
     {
     	layerIdsMaps[layers[k].id] = k;
     }
-    
-    for (var id in model.cells) 
+
+    for (var id in model.cells)
     {
     	var cell = model.cells[id];
     	//top-most cells
@@ -655,12 +655,12 @@ function VsdxExport(editorUi)
     			shapes.appendChild(shape);
     	}
     }
-    
+
         var connects = createElt(xmlDoc, that.XMLNS, "Connects");
         root.appendChild(connects);
 
         //Second pass to add edges (connections)
-    for (var id in model.cells) 
+    for (var id in model.cells)
     {
     	var cell = model.cells[id];
 
@@ -697,20 +697,20 @@ function VsdxExport(editorUi)
   {
     zip.file(name, (noHeader? "" : "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>") + mxUtils.getXml(xmlDoc, '\n'));
   };
-  
-  function addPagesXML(zip, pages, pageLayers, modelsAttr) 
+
+  function addPagesXML(zip, pages, pageLayers, modelsAttr)
   {
     var pagesXmlDoc = mxUtils.createXmlDocument();
     var pagesRelsXmlDoc = mxUtils.createXmlDocument();
-  
+
     var pagesRoot = createElt(pagesXmlDoc, that.XMLNS, "Pages");
     pagesRoot.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', that.XMLNS);
     pagesRoot.setAttributeNS('http://www.w3.org/2000/xmlns/', "xmlns:r", that.XMLNS_R);
 
     var pagesRelsRoot = createElt(pagesRelsXmlDoc, that.RELS_XMLNS, "Relationships");
-    
+
     var i = 1;
-    for (var name in pages) 
+    for (var name in pages)
     {
     	var pageName = "page" + i + ".xml";
     	
@@ -718,7 +718,7 @@ function VsdxExport(editorUi)
     	pageE.setAttribute("ID", i-1);
     	pageE.setAttribute("NameU", name);
     	pageE.setAttribute("Name", name);
-    
+
     	var pageSheet = createElt(pagesXmlDoc, that.XMLNS, "PageSheet");
     	var modelAttr = modelsAttr[name];
     	
@@ -726,7 +726,7 @@ function VsdxExport(editorUi)
     	pageSheet.appendChild(createCellElemScaled("PageHeight", modelAttr['pageHeight'], pagesXmlDoc));
     	pageSheet.appendChild(createCellElem("PageScale", modelAttr['pageScale'], pagesXmlDoc));
     	pageSheet.appendChild(createCellElem("DrawingScale", 1, pagesXmlDoc));
-    
+
     	var relE = createElt(pagesXmlDoc, that.XMLNS,"Rel");
     	relE.setAttributeNS(that.XMLNS_R, "r:id", "rId" + i);
 
@@ -740,7 +740,7 @@ function VsdxExport(editorUi)
     	{
     		var layerRow = createElt(pagesXmlDoc, that.XMLNS, "Row");
     		layerRow.setAttribute("IX", k + "");
-  
+
     		layerSec.appendChild(layerRow)
     		
     		layerRow.appendChild(createCellElem("Name", layers[k].name, pagesXmlDoc));
@@ -775,7 +775,7 @@ function VsdxExport(editorUi)
     	writeXmlDoc2Zip(zip, that.VISIO_PAGES + pageName, xmlDoc);
     	i++;
     }
-    
+
     pagesXmlDoc.appendChild(pagesRoot);
     pagesRelsXmlDoc.appendChild(pagesRelsRoot);
     writeXmlDoc2Zip(zip, that.VISIO_PAGES + "pages.xml", pagesXmlDoc);
@@ -796,7 +796,7 @@ function VsdxExport(editorUi)
         relationship.setAttribute("Id", "rId1");
         relationship.setAttribute("Target", "../masters/master1.xml");
         relationships.appendChild(relationship);
-    
+
     var imgs = vsdxCanvas.images;
 
     //create rels of image files
@@ -808,7 +808,7 @@ function VsdxExport(editorUi)
               relationship.setAttribute("Type", that.XMLNS_R + "/image");
               relationship.setAttribute("Id", "rId" + (i+2));
               relationship.setAttribute("Target", "../media/" + imgs[i]);
-              
+
               relationships.appendChild(relationship);
     	}
       }
@@ -816,18 +816,18 @@ function VsdxExport(editorUi)
       writeXmlDoc2Zip(zip, fId, pageRelDoc);
   };
   /**
-   * 
+   *
    * Convert current Editor UI pages into a vdsx file
-   * @return true if successful, false otherwise 
+   * @return true if successful, false otherwise
    */
   this.exportCurrentDiagrams = function ()
   {
-    try 
+    try
     {
     	if (editorUi.spinner.spin(document.body, mxResources.get('exporting')))
     	{
     		var zip = new JSZip();
-    	    
+    	
     		//init class global variables
     		vsdxCanvas.init(zip);
     		idsMap = {};
@@ -852,17 +852,17 @@ function VsdxExport(editorUi)
     					pageLayers[diagramName].push({
     						name: layers[k].value || 'Background',
     						visible: layers[k].visible,
-    						locked: layers[k].style && layers[k].style.indexOf('locked=1') >= 0 
+    						locked: layers[k].style && layers[k].style.indexOf('locked=1') >= 0
     					});
     				}
     			}
     		};
     		
-    		if (editorUi.pages != null) 
+    		if (editorUi.pages != null)
     		{
     			var selectedCells = editorUi.editor.graph.getSelectionCells();
     			var currentPage = editorUi.currentPage;
-  
+
     			for (var i=0; i < editorUi.pages.length; i++)
     			{
     				var page = editorUi.pages[i];
@@ -925,10 +925,10 @@ function VsdxExport(editorUi)
     		
     		addPagesXML(zip, pages, pageLayers, modelsAttr);
 
-    		var createZipFile = function() 
+    		var createZipFile = function()
     		{
     			zip.generateAsync({type:"base64"}).then(
-    				function(content) 
+    				function(content)
     				{
     					editorUi.spinner.stop();
     					var basename = editorUi.getBaseFilename();
@@ -951,13 +951,13 @@ function VsdxExport(editorUi)
     	
     	return true;
     }
-    catch(e) 
+    catch(e)
     {
     	console.log(e);
     	editorUi.spinner.stop();
     	return false;
     }
-  };  
+  };
 }
 
 VsdxExport.prototype.CONVERSION_FACTOR = 40 * 2.54; //screenCoordinatesPerCm (40) x CENTIMETERS_PER_INCHES (2.54)

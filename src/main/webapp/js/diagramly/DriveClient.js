@@ -16,9 +16,9 @@ window.DriveClient = function(editorUi, isExtAuth)
   {
     isExtAuth = true;
   }
-  
+
   mxEventSource.call(this);
-  
+
   DrawioClient.call(this, editorUi, 'gDriveAuthInfo');
 
   this.isExtAuth = isExtAuth;
@@ -26,11 +26,11 @@ window.DriveClient = function(editorUi, isExtAuth)
    * Holds a reference to the UI. Needed for the sharing client.
    */
   this.ui = editorUi;
-  
+
   // New mime type for XML files
   this.xmlMimeType = 'application/vnd.jgraph.mxfile';
   this.mimeType = 'application/vnd.jgraph.mxfile.realtime';
-  
+
   // Reading files now possible with no initial click in drive
   //TODO In teams we do auth using editor app, we need to support viewer only app also
   if (this.ui.editor.chromeless && !this.ui.editor.editable && urlParams['rt'] != '1' && urlParams['extAuth'] != '1')
@@ -38,7 +38,7 @@ window.DriveClient = function(editorUi, isExtAuth)
     // Uses separate name for the viewer auth tokens
     this.cookieName = 'gDriveViewerAuthInfo';
     this.token = this.getPersistentToken();
-    
+
     this.appId = window.DRAWIO_GOOGLE_VIEWER_APP_ID || '850530949725';
     this.clientId = window.DRAWIO_GOOGLE_VIEWER_CLIENT_ID || '850530949725.apps.googleusercontent.com';
     this.scopes = ['https://www.googleapis.com/auth/drive.readonly',
@@ -49,12 +49,12 @@ window.DriveClient = function(editorUi, isExtAuth)
     this.appId = window.DRAWIO_GOOGLE_APP_ID || '671128082532';
     this.clientId = window.DRAWIO_GOOGLE_CLIENT_ID || '671128082532-jhphbq6d0e1gnsus9mn7vf8a6fjn10mp.apps.googleusercontent.com';
   }
-  
+
   this.mimeTypes = this.xmlMimeType + ',application/mxe,application/mxr,' +
     'application/vnd.jgraph.mxfile.realtime,application/vnd.jgraph.mxfile.rtlegacy';
-  
+
   var authInfo = JSON.parse(this.token);
-  
+
   if (authInfo != null && authInfo.current != null)
   {
     this.userId = authInfo.current.userId;
@@ -86,7 +86,7 @@ DriveClient.prototype.allFields = 'kind,id,parents,headRevisionId,etag,title,mim
 
 /**
  * Fields required for catchin up.
- * 
+ *
  * TODO: Limit to etag and ekey property only
  */
 DriveClient.prototype.catchupFields = 'etag,headRevisionId,modifiedDate,properties(key,value)';
@@ -187,11 +187,11 @@ DriveClient.prototype.sameWinRedirectUrl = null;
 DriveClient.prototype.setUser = function(user)
 {
   this.user = user;
-  
+
   if (this.user == null)
   {
     this.userId = null;
-    
+
     if (this.tokenRefreshThread != null)
     {
     	window.clearTimeout(this.tokenRefreshThread);
@@ -202,14 +202,14 @@ DriveClient.prototype.setUser = function(user)
   {
     this.userId = user.id;
   }
-  
+
   this.fireEvent(new mxEventObject('userChanged'));
 };
 
 DriveClient.prototype.setUserId = function(userId)
 {
   this.userId = userId;
-  
+
   if (this.user != null && this.user.id != this.userId)
   {
     this.user = null;
@@ -228,7 +228,7 @@ DriveClient.prototype.getUsersList = function()
   var users = [];
   var authInfo = JSON.parse(this.getPersistentToken(true));
   var curUserId = null;
-  
+
   if (authInfo != null)
   {
     if (authInfo.current != null)
@@ -238,7 +238,7 @@ DriveClient.prototype.getUsersList = function()
     	users[0].isCurrent = true;
     	
     }
-    
+
     for (var id in authInfo)
     {
     	if (id == 'current' || id == curUserId) continue;
@@ -304,7 +304,7 @@ DriveClient.prototype.execute = function(fn)
     	}), remember);
     }));
   });
-  
+
   // First immediate authorize attempt
   this.authorize(true, fn, fallback);
 };
@@ -319,20 +319,20 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
     var acceptResponse = true;
     var timeoutThread = null;
     var retryCount = 0;
-    
+
     // Cancels any pending requests
     if (this.requestThread != null)
     {
     	window.clearTimeout(this.requestThread);
     }
-    
+
     var fn = mxUtils.bind(this, function()
     {
     	try
     	{
     		this.requestThread = null;
     		this.currentRequest = reqObj;
-    
+
     		if (timeoutThread != null)
     		{
     			window.clearTimeout(timeoutThread);
@@ -352,8 +352,8 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
     		var isJSON = false;
     		
     		if (typeof reqObj.params === 'string')
-    		{ 
-    			params = reqObj.params; 
+    		{
+    			params = reqObj.params;
     		}
     		else if (reqObj.params != null)
     		{
@@ -405,7 +405,7 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
     					{
     						resp = JSON.parse(req.getText());
     					}
-    					catch(e) 
+    					catch(e)
     					{
     						resp = null;
     					}
@@ -422,7 +422,7 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
     						// Errors for put request are in data instead of errors
     						var data = (resp != null && resp.error != null) ? ((resp.error.data != null) ?
     							resp.error.data : resp.error.errors) : null;
-    						var reason = (data != null && data.length > 0) ? data[0].reason : null; 
+    						var reason = (data != null && data.length > 0) ? data[0].reason : null;
     						
     						// Handles special error for saving old file where mime was changed to new
     						// LATER: Check if 403 is never auth error, for now we check the message for a specific
@@ -496,7 +496,7 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
     		}
     	}
     });
-    
+
     // Must get token before first request in this case
     if (_token == null || !this.authCalled)
     {
@@ -531,13 +531,13 @@ DriveClient.prototype.createAuthWin = function(url)
 
   var left = screenX + Math.max(outerWidth - width, 0) / 2;
   var top = screenY + Math.max(outerHeight - height, 0) / 2;
-  
+
   var features = ['width=' + width, 'height=' + height,
                   'top=' + top, 'left=' + left,
                   'status=no', 'resizable=yes',
                   'toolbar=no', 'menubar=no',
                   'scrollbars=yes'];
-  return window.open(url? url : 'about:blank', 'gdauth', features.join(','));  
+  return window.open(url? url : 'about:blank', 'gdauth', features.join(','));
 };
 
 /**
@@ -555,7 +555,7 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
   }
 
   var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
-  
+
   req.send(mxUtils.bind(this, function(req)
   {
     if (req.getStatus() >= 200 && req.getStatus() <= 299)
@@ -575,10 +575,10 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
   delete newAuthInfo.access_token; //Don't store access token
   newAuthInfo.expires = Date.now() + parseInt(newAuthInfo.expires_in) * 1000;
   newAuthInfo.remember = remember;
-  
+
   this.resetTokenRefresh(newAuthInfo);
   this.authCalled = true;
-  
+
   if (forceUserUpdate || this.user == null)
   {
     //IE/Edge security doesn't allow access to newAuthInfo in a callback function (outside this function scope)
@@ -604,7 +604,7 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
     success();
   }
 };
-  
+
 DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error, remember, popup)
 {
   try
@@ -619,7 +619,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
     		this.user = null;
     	}
     }
-    
+
     if (this.userId == null)
     {
     	var authInfo = JSON.parse(this.getPersistentToken(true));
@@ -629,7 +629,7 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
     		this.userId = authInfo.current.userId;
     	}
     }
-    
+
     // Immediate only possible with a refresh token (there is a userId)
     if (immediate && this.userId == null)
     {
@@ -655,10 +655,10 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
     				var newAuthInfo = JSON.parse(req.getText());
     				this.updateAuthInfo(newAuthInfo, true, false, success, error); //We set remember to true since we can only have a refresh token if user initially selected remember
     			}
-    			else 
+    			else
     			{
     				//When the request fails (e.g, Hibernate on Windows), the status is 0, this doesn't mean the token is invalid
-    				if (req.getStatus() != 0) 
+    				if (req.getStatus() != 0)
     				{
     					this.logout();
     				}
@@ -673,12 +673,12 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
     	else
     	{
     		var url = 'https://accounts.google.com/o/oauth2/v2/auth?client_id=' + this.clientId +
-    				'&redirect_uri=' + encodeURIComponent(this.redirectUri) + 
+    				'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
     				'&response_type=code&include_granted_scopes=true' +
     				(remember? '&access_type=offline&prompt=consent%20select_account' : '') + //Ask for consent again to get a new refresh token
     				'&scope=' + encodeURIComponent(this.scopes.join(' ')) +
     				'&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state + //To identify which app/domain is used
-    				(this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : '')); 
+    				(this.sameWinRedirectUrl? '&redirect=' + this.sameWinRedirectUrl : ''));
     		
     		if (this.sameWinAuthMode)
     		{
@@ -764,7 +764,7 @@ DriveClient.prototype.resetTokenRefresh = function(resp)
   {
     this.tokenRefreshInterval = parseInt(resp.expires_in) * 1000;
     this.lastTokenRefresh = new Date().getTime();
-    
+
     this.tokenRefreshThread = window.setTimeout(mxUtils.bind(this, function()
     {
     	this.authorize(true, mxUtils.bind(this, function()
@@ -814,11 +814,11 @@ DriveClient.prototype.updateUser = function(success, error)
   {
     var url = 'https://www.googleapis.com/oauth2/v2/userinfo?alt=json';
     var headers = {'Authorization': 'Bearer ' + _token};
-    
+
     this.ui.editor.loadUrl(url, mxUtils.bind(this, function(data)
     {
         var info = JSON.parse(data);
-        
+
         // Requests more information about the user (email address is sometimes not in info)
         this.executeRequest({url: '/about'}, mxUtils.bind(this, function(resp)
         {
@@ -835,7 +835,7 @@ DriveClient.prototype.updateUser = function(success, error)
         	
         	this.setUser(new DrawioUser(info.id, email, name, pic, info.locale));
         	this.userId = info.id;
-  
+
         	if (success != null)
     		{
     			success();
@@ -858,7 +858,7 @@ DriveClient.prototype.updateUser = function(success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -877,7 +877,7 @@ DriveClient.prototype.copyFile = function(id, title, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -892,7 +892,7 @@ DriveClient.prototype.renameFile = function(id, title, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -907,7 +907,7 @@ DriveClient.prototype.moveFile = function(id, folderId, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -946,7 +946,7 @@ DriveClient.prototype.getCustomProperty = function(desc, key)
 {
   var props = desc.properties;
   var result = null;
-  
+
   if (props != null)
   {
     for (var i = 0; i < props.length; i++)
@@ -959,7 +959,7 @@ DriveClient.prototype.getCustomProperty = function(desc, key)
     	}
     }
   }
-  
+
   return result;
 };
 
@@ -972,7 +972,7 @@ DriveClient.prototype.getFile = function(id, success, error, readXml, readLibrar
 {
   readXml = (readXml != null) ? readXml : false;
   readLibrary = (readLibrary != null) ? readLibrary : false;
-  
+
   if (urlParams['rev'] != null)
   {
     this.executeRequest({
@@ -1064,7 +1064,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
   {
     var headers = {'Authorization': 'Bearer ' + _token};
     var url = resp.downloadUrl;
-    
+
     // Download URL is null if no option to download for viewers
     if (url == null)
     {
@@ -1255,7 +1255,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -1265,7 +1265,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
   {
     var retryCount = 0;
     file.saveLevel = 1;
-    
+
     var error = mxUtils.bind(this, function(e)
     {
     	if (errFn != null)
@@ -1284,7 +1284,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     		{
     			var err = 'sl_' + file.saveLevel + '-error_' +
     				(file.getErrorMessage(e) || 'unknown');
-  
+
     			if (e != null && e.error != null && e.error.code != null)
     			{
     				err += '-code_' + e.error.code;
@@ -1307,11 +1307,11 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     		// ignore
     	}
     });
-    
+
     var criticalError = mxUtils.bind(this, function(e)
     {
     	error(e);
-  
+
     	try
     	{
     		EditorUi.logError(e.message, null, null, e);
@@ -1396,13 +1396,13 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     				{
     					properties = [];
     				}
-    
+
     				// Channel ID appended to file ID for comms
     				if (file.getChannelId() == null)
     				{
     					properties.push({'key': 'channel', 'value': Editor.guid(32)});
     				}
-    
+
     				// Key for encryption of comms
     				if (file.getChannelKey() == null)
     				{
@@ -1435,7 +1435,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     					};
     				}
     			}
-    
+
     			var savedData = file.getData();
     			
     			// Updates saveDelay on drive file
@@ -1628,7 +1628,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     											// Workaround for correct etag and Google always returns 412 conflict error (stale etag)
     											this.executeRequest({
     												url: '/files/' + file.getId() + '?supportsAllDrives=true&fields=' + this.catchupFields
-    											}, 
+    											},
     											mxUtils.bind(this, function(resp)
     											{
     												file.saveLevel = 7;
@@ -1780,7 +1780,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     								}
     							}), mxUtils.bind(this, function(err)
     							{
-    								// Simulated 
+    								// Simulated
     								window.clearTimeout(timeoutThread);
     								
     								if (acceptResponse)
@@ -1810,16 +1810,16 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     				
     							    var ctx = canvas.getContext('2d');
     							    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    							    
+    							
     							    var temp = canvas.toDataURL();
     							    temp = temp.substring(temp.indexOf(',') + 1).replace(/\+/g, '-').replace(/\//g, '_');
-    							    
+    							
     							    meta.thumbnail =
     								{
     									'image': temp,
     									'mimeType': 'image/png'
     								};
-    							    
+    							
     							    executeSave(false);
     					    	}
     					    	catch (e)
@@ -1847,7 +1847,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
     					criticalError(e);
     				}
     			});
-    
+
     			if (saveAsPng)
     			{
     				var p = this.ui.getPngFileProperties(this.ui.fileNode);
@@ -1943,25 +1943,25 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 DriveClient.prototype.insertFile = function(title, data, folderId, success, error, mimeType, binary)
 {
   mimeType = (mimeType != null) ? mimeType : this.xmlMimeType;
-  
+
   var metadata =
   {
     'mimeType': mimeType,
     'title': title
   };
-  
+
   if (folderId != null)
   {
     metadata.parents = [{'kind': 'drive#fileLink', 'id': folderId}];
   }
-  
+
   // NOTE: Cannot create thumbnail on insert since no ui has no current file
   this.executeRequest(this.createUploadRequest(null, metadata, data, false, binary), mxUtils.bind(this, function(resp)
   {
@@ -1985,7 +1985,7 @@ DriveClient.prototype.insertFile = function(title, data, folderId, success, erro
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -1996,15 +1996,15 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
   var delim = '\r\n--' + bd + '\r\n';
   var close = '\r\n--' + bd + '--';
   var ctype = 'application/octect-stream';
-  
+
   var headers = {'Content-Type' : 'multipart/mixed; boundary="' + bd + '"'};
-  
+
   if (etag != null)
   {
     headers['If-Match'] = etag;
   }
 
-  var reqObj = 
+  var reqObj =
   {
     'fullUrl': 'https://content.googleapis.com/upload/drive/v2/files' + (id != null ? '/' + id : '') +
     	'?uploadType=multipart&supportsAllDrives=true&enforceSingleParent=true&fields=' + this.allFields,
@@ -2020,18 +2020,18 @@ DriveClient.prototype.createUploadRequest = function(id, metadata, data, revisio
   {
     reqObj.fullUrl += '&newRevision=false';
   }
-  
+
   if (pinned)
   {
     reqObj.fullUrl += '&pinned=true';
   }
-  
+
   return reqObj;
 };
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2039,7 +2039,7 @@ DriveClient.prototype.createLinkPicker = function()
 {
   var name = 'linkPicker';
   var picker = pickers[name];
-  
+
   if (picker == null || pickers[name + 'Token'] != _token)
   {
     pickers[name + 'Token'] = _token;
@@ -2065,13 +2065,13 @@ DriveClient.prototype.createLinkPicker = function()
     	.addView(view21)
     	.addView(google.picker.ViewId.RECENTLY_PICKED);
   }
-  
+
   return picker;
 };
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2081,7 +2081,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
   {
     this.ui.loadFile('G' + id);
   });
-  
+
   this.filePicked = mxUtils.bind(this, function(data)
   {
     if (data.action == google.picker.Action.PICKED)
@@ -2089,7 +2089,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
         this.filePickerCallback(data.docs[0].id, data.docs[0]);
     }
   });
-  
+
   if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
   {
     this.execute(mxUtils.bind(this, function()
@@ -2128,7 +2128,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
   //  			}
     			
     			pickers[name + 'Token'] = _token;
-  
+
     			// Pseudo-hierarchical directory view, see
     			// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
     			var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
@@ -2144,7 +2144,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
     			
     			var view4 = new google.picker.DocsUploadView()
     				.setIncludeFolders(true);
-  
+
     			if (!acceptAllFiles)
     			{
     				view.setMimeTypes(this.mimeTypes);
@@ -2176,10 +2176,10 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
     			}
     			
     			if (urlParams['topBaseUrl'])
-    		    {   
+    		    {
     				pickers[name] = pickers[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
-    			} 
-    		    
+    			}
+    		
     			pickers[name] = pickers[name].setCallback(mxUtils.bind(this, function(data)
     		        {
     		        	if (data.action == google.picker.Action.PICKED ||
@@ -2199,7 +2199,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
     		    		}
     		        })).build();
     		}
-  
+
     		mxEvent.addListener(document, 'click', exit);
     		pickers[name].setVisible(true);
     	}
@@ -2214,7 +2214,7 @@ DriveClient.prototype.pickFile = function(fn, acceptAllFiles, cancelFn)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2235,7 +2235,7 @@ DriveClient.prototype.pickFolder = function(fn, force)
     			try
     			{
     				this.ui.spinner.stop();
-    
+
     				// Reuses picker as long as token doesn't change.
     				var name = 'folderPicker';
     				
@@ -2300,9 +2300,9 @@ DriveClient.prototype.pickFolder = function(fn, force)
     					}
 
     					if (urlParams['topBaseUrl'])
-    				    {   
+    				    {
     						pickers[name] = pickers[name].setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
-    					} 
+    					}
 
     			        pickers[name] = pickers[name].setCallback(mxUtils.bind(this, function(data)
     				        {
@@ -2332,7 +2332,7 @@ DriveClient.prototype.pickFolder = function(fn, force)
     	this.ui.handleError(e);
     }
   });
-  
+
   if (force)
   {
     showPicker();
@@ -2352,14 +2352,14 @@ DriveClient.prototype.pickFolder = function(fn, force)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 DriveClient.prototype.pickLibrary = function(fn)
 {
   this.filePickerCallback = fn;
-  
+
   this.filePicked = mxUtils.bind(this, function(data)
   {
     if (data.action == google.picker.Action.PICKED)
@@ -2371,7 +2371,7 @@ DriveClient.prototype.pickLibrary = function(fn)
         this.ui.showSplash();
     }
   });
-  
+
   if (this.ui.spinner.spin(document.body, mxResources.get('authorizing')))
   {
     this.execute(mxUtils.bind(this, function()
@@ -2404,7 +2404,7 @@ DriveClient.prototype.pickLibrary = function(fn)
   //  			}
     			
     			pickers.libraryPickerToken = _token;
-  
+
     			// Pseudo-hierarchical directory view, see
     			// https://groups.google.com/forum/#!topic/google-picker-api/FSFcuJe7icQ
     			var view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
@@ -2442,10 +2442,10 @@ DriveClient.prototype.pickLibrary = function(fn)
     			}
 
     			if (urlParams['topBaseUrl'])
-    		    {   
+    		    {
     				pickers.libraryPicker = pickers.libraryPicker.setOrigin(decodeURIComponent(urlParams['topBaseUrl']));
     			}
-    			 
+    			
     		    pickers.libraryPicker = pickers.libraryPicker.setCallback(mxUtils.bind(this, function(data)
     		        {
     			        	if (data.action == google.picker.Action.PICKED ||
@@ -2475,7 +2475,7 @@ DriveClient.prototype.pickLibrary = function(fn)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2490,7 +2490,7 @@ DriveClient.prototype.showPermissions = function(id)
     this.ui.showDialog(dlg.container, 360, 190, true, true);
     dlg.init();
   });
-  
+
   if (this.sharingFailed)
   {
     fallback();
@@ -2515,7 +2515,7 @@ DriveClient.prototype.showPermissions = function(id)
     				this.sharingObserver.disconnect();
     				this.sharingObserver = null;
     			}
-  
+
     			// Tries again even if observer was still around as the user may have
     			// closed the dialog while waiting. TODO: Find condition to disconnect
     			// observer when dialog is closed (use removedNodes?).
@@ -2528,7 +2528,7 @@ DriveClient.prototype.showPermissions = function(id)
     					for (var j = 0; j < mutations[i].addedNodes.length; j++)
     					{
     						var child = mutations[i].addedNodes[j];
-  
+
     						if (child.nodeName == 'BUTTON' && child.getAttribute('name') == 'ok' &&
     			        		child.parentNode != null && child.parentNode.parentNode != null &&
     			        		child.parentNode.parentNode.getAttribute('role') == 'dialog')
@@ -2568,31 +2568,31 @@ DriveClient.prototype.clearPersistentToken = function()
 {
   //Since we have multiple accounts now, full deletion is not possible
   var authInfo = JSON.parse(this.getPersistentToken(true)) || {};
-  
+
   //Delete current user info
   delete authInfo.current;
   delete authInfo[this.userId];
-  
+
   //Set the next user as current
   for (var id in authInfo)
   {
     authInfo.current = {userId: id, expires: 0}; //An expired token
     break;
   }
-  
+
   DrawioClient.prototype.setPersistentToken.call(this, JSON.stringify(authInfo));
 };
 
 DriveClient.prototype.setPersistentToken = function(userAuthInfo, sessionOnly)
 {
   var authInfo = JSON.parse(this.getPersistentToken(true)) || {};
-  
+
   userAuthInfo.userId = this.userId;
   authInfo.current = userAuthInfo;
   authInfo[this.userId] = {
     user: this.user
   };
-  
+
   DrawioClient.prototype.setPersistentToken.call(this, JSON.stringify(authInfo), sessionOnly);
 };
 

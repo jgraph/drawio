@@ -16,7 +16,7 @@ App = function(editor, container, lightbox)
   EditorUi.call(this, editor, container, (lightbox != null) ? lightbox :
     (urlParams['lightbox'] == '1' || (uiTheme == 'min' &&
     urlParams['chrome'] != '0')));
-  
+
   // Logs unloading of window with modifications for Google Drive file
   if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
   {
@@ -56,7 +56,7 @@ App = function(editor, container, lightbox)
   this.editor.addListener('autosaveChanged', mxUtils.bind(this, function()
   {
     var file = this.getCurrentFile();
-    
+
     if (file != null)
     {
     	EditorUi.logEvent({category: ((this.editor.autosave) ? 'ON' : 'OFF') +
@@ -64,7 +64,7 @@ App = function(editor, container, lightbox)
     		label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
     }
   }));
-  
+
   // Pre-fetches images
   if (mxClient.IS_SVG)
   {
@@ -75,7 +75,7 @@ App = function(editor, container, lightbox)
     var img = new Image();
     img.src = mxGraph.prototype.warningImage.src;
   }
-  
+
   // Global helper method to deal with popup blockers
   window.openWindow = mxUtils.bind(this, function(url, pre, fallback)
   {
@@ -84,9 +84,9 @@ App = function(editor, container, lightbox)
     	fallback();
     	return;
     }
-    
+
     var wnd = null;
-    
+
     try
     {
     	wnd = window.open(url);
@@ -95,7 +95,7 @@ App = function(editor, container, lightbox)
     {
     	// ignore
     }
-    
+
     if (wnd == null || wnd === undefined)
     {
     	this.showDialog(new PopupDialog(this, url, pre, fallback).container, 320, 140, true, true);
@@ -118,7 +118,7 @@ App = function(editor, container, lightbox)
     {
     	window.openFile.cancel(true);
     }
-    
+
     this.handleError(message);
   });
 
@@ -127,7 +127,7 @@ App = function(editor, container, lightbox)
   {
     this.addFileDropHandler([document]);
   }
-  
+
   // Process the queue for waiting plugins
   if (App.DrawPlugins != null)
   {
@@ -150,7 +150,7 @@ App = function(editor, container, lightbox)
     		this.initializeEmbedMode();
     	}
     }
-    
+
     // Installs global callback for plugins
     window.Draw.loadPlugin = mxUtils.bind(this, function(callback)
     {
@@ -164,7 +164,7 @@ App = function(editor, container, lightbox)
     		this.initializeEmbedMode();
     	}
     });
-    
+
     //Set a timeout in case a plugin doesn't load quickly or doesn't load at all
     setTimeout(mxUtils.bind(this, function()
     {
@@ -288,7 +288,7 @@ App.PUSHER_CLUSTER = 'eu';
 App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
 
 /**
- * Socket.io library 
+ * Socket.io library
  */
 App.SOCKET_IO_URL = window.DRAWIO_BASE_URL + '/js/socket.io/socket.io.min.js';
 App.SOCKET_IO_SRV = 'http://localhost:3030';
@@ -297,11 +297,11 @@ App.SOCKET_IO_SRV = 'http://localhost:3030';
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
  * of the realtime files, but after Dec 11 it's read-only and hence no longer needed.
  */
-App.GOOGLE_APIS = 'drive-share'; 
+App.GOOGLE_APIS = 'drive-share';
 
 /**
  * Function: authorize
- * 
+ *
  * Authorizes the client, gets the userId and calls <open>.
  */
 App.startTime = new Date();
@@ -313,7 +313,7 @@ App.startTime = new Date();
 App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
   'ex': 'plugins/explore.js', 'p1': 'plugins/p1.js',
   'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
-  'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
+  'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js',
   'voice': 'plugins/voice.js',
   'tips': 'plugins/tooltips.js', 'svgdata': 'plugins/svgdata.js',
   'electron': 'plugins/electron.js',
@@ -357,7 +357,7 @@ App.publicPlugin = [
 App.loadScripts = function(scripts, onload)
 {
   var n = scripts.length;
-  
+
   for (var i = 0; i < n; i++)
   {
     mxscript(scripts[i], function()
@@ -372,22 +372,22 @@ App.loadScripts = function(scripts, onload)
 
 /**
  * Function: getStoredMode
- * 
+ *
  * Returns the current mode.
  */
 App.getStoredMode = function()
 {
   var mode = null;
-  
+
   if (mode == null && isLocalStorage)
   {
     mode = localStorage.getItem('.mode');
   }
-  
+
   if (mode == null && typeof(Storage) != 'undefined')
   {
     var cookies = document.cookie.split(";");
-    
+
     for (var i = 0; i < cookies.length; i++)
     {
     	// Removes spaces around cookie
@@ -399,7 +399,7 @@ App.getStoredMode = function()
     		break;
     	}
     }
-    
+
     if (mode != null && isLocalStorage)
     {
     	// Moves to local storage
@@ -409,7 +409,7 @@ App.getStoredMode = function()
     	localStorage.setItem('.mode', mode);
     }
   }
-  
+
   return mode;
 };
 
@@ -436,7 +436,7 @@ App.getStoredMode = function()
     	// Stored mode overrides preferred mode
     	App.mode = App.getStoredMode();
     }
-    
+
     /**
      * Lazy loading backends.
      */
@@ -471,7 +471,7 @@ App.getStoredMode = function()
     				window.DriveClient = null;
     			}
     		}
-  
+
     		// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
     		// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
     		if (typeof window.DropboxClient === 'function')
@@ -515,7 +515,7 @@ App.getStoredMode = function()
     					{
     						mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
     						{
-    							window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
+    							window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used
     						});
     					}
     					else
@@ -596,7 +596,7 @@ App.clearServiceWorker = function(success)
 
 /**
  * Program flow starts here.
- * 
+ *
  * Optional callback is called with the app instance.
  */
 App.main = function(callback, createUi)
@@ -615,28 +615,28 @@ App.main = function(callback, createUi)
     /aj\.draw\.io$/.test(window.location.hostname)))
   {
     document.body.innerHTML = '<div style="margin-top:10%;text-align:center;">Stand-alone mode not allowed for this domain.</div>';
-    
+
     return;
   }
-  
+
   // Removes info text in embed mode
   if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
   {
     var geInfo = document.getElementById('geInfo');
-    
+
     if (geInfo != null)
     {
     	geInfo.parentNode.removeChild(geInfo);
     }
   }
-  
+
   // Redirects to the latest AWS icons
   if (document.referrer != null && urlParams['libs'] == 'aws3' &&
     document.referrer.substring(0, 42) == 'https://aws.amazon.com/architecture/icons/')
   {
     urlParams['libs'] = 'aws4';
   }
-  
+
   if (window.mxscript != null)
   {
     // Checks for script content changes to avoid CSP errors in production
@@ -697,7 +697,7 @@ App.main = function(callback, createUi)
     		console.error(e);
     	}
     }
-    
+
     // Loads Pusher API
     if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
     	DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
@@ -712,7 +712,7 @@ App.main = function(callback, createUi)
     		mxscript(App.SOCKET_IO_URL);
     	}
     }
-    
+
     // Loads plugins
     if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
     {
@@ -750,7 +750,7 @@ App.main = function(callback, createUi)
     	
     	if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
     	{
-    		// Loading plugins inside the asynchronous block below stops the page from loading so a 
+    		// Loading plugins inside the asynchronous block below stops the page from loading so a
     		// hardcoded message for the warning dialog is used since the resources are loadd below
     		var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
     		var tmp = window.location.protocol + '//' + window.location.host;
@@ -791,7 +791,7 @@ App.main = function(callback, createUi)
     		}
     	}
     }
-    
+
     // Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
     // Special case: Cannot load in asynchronous code below
     if (typeof window.DriveClient === 'function' &&
@@ -807,7 +807,7 @@ App.main = function(callback, createUi)
     	window.DriveClient = null;
     }
   }
-  
+
   /**
    * Asynchronous MathJax extension.
    */
@@ -931,7 +931,7 @@ App.main = function(callback, createUi)
     				{
     					mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
     					{
-    						window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
+    						window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used
     						window.DrawOneDriveClientCallback();
     					});
     				}
@@ -966,7 +966,7 @@ App.main = function(callback, createUi)
     			{
     				window.TrelloClient = null;
     			}
-    
+
     		}
     		
     		if (callback != null)
@@ -1061,7 +1061,7 @@ App.main = function(callback, createUi)
     		console.error(e);
     	}
     }
-    
+
     // Adds required resources (disables loading of fallback properties, this can only
     // be used if we know that all keys are defined in the language specific file)
     mxResources.loadDefaultBundle = false;
@@ -1073,7 +1073,7 @@ App.main = function(callback, createUi)
   if (urlParams['configure'] == '1')
   {
     var op = window.opener || window.parent;
-    
+
     var configHandler = function(evt)
     {
     	if (evt.source == op)
@@ -1099,7 +1099,7 @@ App.main = function(callback, createUi)
     		}
     	}
     };
-    
+
     // Receives XML message from opener and puts it into the graph
     mxEvent.addListener(window, 'message', configHandler);
     op.postMessage(JSON.stringify({event: 'configure'}), '*');
@@ -1125,12 +1125,12 @@ App.main = function(callback, createUi)
     			}
     		}
     	}
-  
+
     	// Loads configuration from local storage
     	if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
     	{
     		var configData = localStorage.getItem('.configuration');
-  
+
     		if (configData != null)
     		{
     			try
@@ -1154,7 +1154,7 @@ App.main = function(callback, createUi)
     		}
     	}
     }
-    
+
     doMain();
   }
 };
@@ -1168,7 +1168,7 @@ mxUtils.extend(App, EditorUi);
 App.prototype.defaultUserPicture = 'https://lh3.googleusercontent.com/-HIzvXUy6QUY/AAAAAAAAAAI/AAAAAAAAAAA/giuR7PQyjEk/photo.jpg?sz=64';
 
 /**
- * 
+ *
  */
 App.prototype.shareImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2RpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDowOTgwMTE3NDA3MjA2ODExODhDNkFGMDBEQkQ0RTgwOSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDoxMjU2NzdEMTcwRDIxMUUxQjc0MDkxRDhCNUQzOEFGRCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDoxMjU2NzdEMDcwRDIxMUUxQjc0MDkxRDhCNUQzOEFGRCIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IFdpbmRvd3MiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDowNjgwMTE3NDA3MjA2ODExODcxRkM4MUY1OTFDMjQ5OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDowNzgwMTE3NDA3MjA2ODExODhDNkFGMDBEQkQ0RTgwOSIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PrM/fs0AAADgSURBVHjaYmDAA/7//88MwgzkAKDGFiD+BsQ/QWxSNaf9RwN37twpI8WAS+gGfP78+RpQSoRYA36iG/D379+vQClNdLVMOMz4gi7w79+/n0CKg1gD9qELvH379hzIHGK9oA508ieY8//8+fO5rq4uFCilRKwL1JmYmNhhHEZGRiZ+fn6Q2meEbDYG4u3/cYCfP38uA7kOm0ZOIJ7zn0jw48ePPiDFhmzArv8kgi9fvuwB+w5qwH9ykjswbFSZyM4sEMDPBDTlL5BxkFSd7969OwZ2BZKYGhDzkmjOJ4AAAwBhpRqGnEFb8QAAAABJRU5ErkJggg==';
 
@@ -1212,7 +1212,7 @@ App.prototype.compactMode = false;
  *
  */
 App.prototype.fullscreenMode = false;
-  
+
 /**
  * Overriden UI settings depending on mode.
  */
@@ -1234,7 +1234,7 @@ App.initPluginCallback = function()
   {
     // Workaround for need to load plugins now but wait for UI instance
     App.DrawPlugins = [];
-    
+
     // Global entry point for plugins is Draw.loadPlugin. This is the only
     // long-term supported solution for access to the EditorUi instance.
     window.Draw = new Object();
@@ -1246,7 +1246,7 @@ App.initPluginCallback = function()
 };
 
 /**
- * 
+ *
  */
 App.pluginsLoaded = {};
 App.embedModePluginsCount = 0;
@@ -1324,7 +1324,7 @@ App.prototype.initializeEmbedMode = function()
     {
     	this.showBanner('EmbedDeprecationFooter', 'app.diagrams.net will stop working for embed mode. Please use embed.diagrams.net.');
     }
-    
+
     if (App.embedModePluginsCount > 0 || this.initEmbedDone)
     {
     	return; //Wait for plugins to load, or this is a duplicate call due to timeout
@@ -1333,7 +1333,7 @@ App.prototype.initializeEmbedMode = function()
     {
     	this.initEmbedDone = true;
     }
-    
+
     EditorUi.prototype.initializeEmbedMode.apply(this, arguments);
   }
 };
@@ -1356,7 +1356,7 @@ App.prototype.initializeViewerMode = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -1371,7 +1371,7 @@ App.prototype.init = function()
 
   /**
    * Holds the listener for description changes.
-   */  
+   */
   this.descriptorChangedListener = mxUtils.bind(this, this.descriptorChanged);
 
   /**
@@ -1381,7 +1381,7 @@ App.prototype.init = function()
     	mxClient.IS_IE11 || mxClient.IS_EDGE) &&
     	(urlParams['gh'] != '0' && (urlParams['embed'] != '1' ||
     	urlParams['gh'] == '1')) ? new GitHubClient(this) : null;
-  
+
   if (this.gitHub != null)
   {
     this.gitHub.addListener('userChanged', mxUtils.bind(this, function()
@@ -1390,7 +1390,7 @@ App.prototype.init = function()
     	this.restoreLibraries();
     }))
   }
-  
+
   /**
    * Creates gitlab client.
    */
@@ -1532,7 +1532,7 @@ App.prototype.init = function()
     		window.DrawGapiClientCallback = initDriveClient;
     	}
     });
-    
+
     initDriveClient();
   }
 
@@ -1605,7 +1605,7 @@ App.prototype.init = function()
     {
     	this.mode = App.mode;
     }
-    
+
     // Add to Home Screen dialog for mobile devices
     if ('serviceWorker' in navigator && !this.editor.isChromelessView() &&
     	(mxClient.IS_ANDROID || mxClient.IS_IOS))
@@ -1618,7 +1618,7 @@ App.prototype.init = function()
     		});
     	}));
     }
-    
+
     if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
     	!mxClient.IS_ANDROID && !mxClient.IS_IOS && urlParams['open'] == null &&
     	(!this.editor.chromeless || this.editor.editable))
@@ -1640,7 +1640,7 @@ App.prototype.init = function()
     		}
     	}));
     }
-    
+
     if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' && DrawioFile.SYNC == 'auto' &&
     	urlParams['local'] != '1' && urlParams['stealth'] != '1' && !this.isOffline() &&
     	(!this.editor.chromeless || this.editor.editable))
@@ -1693,7 +1693,7 @@ App.prototype.init = function()
     this.buttonContainer.style.paddingRight = '48px';
     this.buttonContainer.style.position = 'absolute';
     this.buttonContainer.style.right = '0px';
-    
+
     this.menubar.container.appendChild(this.buttonContainer);
   }
 
@@ -1704,21 +1704,21 @@ App.prototype.init = function()
     	this.toggleElement.click();
     	this.toggleElement.style.display = 'none';
     }
-    
+
     this.icon = document.createElement('img');
     this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
     this.icon.setAttribute('title', mxResources.get('draw.io'));
     this.icon.style.padding = '6px';
     this.icon.style.cursor = 'pointer';
-    
+
     mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function(evt)
     {
     	this.appIconClicked(evt);
     }));
-    
+
     this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
   }
-  
+
   if (this.editor.graph.isViewer())
   {
     this.initializeViewerMode();
@@ -1786,7 +1786,7 @@ App.prototype.sanityCheck = function()
     EditorUi.logEvent(evt);
 
     var msg = mxResources.get('ensureDataSaved');
-    
+
     if (file.lastSaved != null)
     {
     	var str = this.timeSince(file.lastSaved);
@@ -1798,7 +1798,7 @@ App.prototype.sanityCheck = function()
 
     	msg = mxResources.get('lastSaved', [str]);
     }
-    
+
     // Resets possible stale state
     this.spinner.stop();
 
@@ -1844,7 +1844,7 @@ App.prototype.getPusher = function()
     	encrypted: true
     });
   }
-  
+
   return this.pusher;
 };
 
@@ -1876,7 +1876,7 @@ App.prototype.showNameConfBanner = function()
 App.prototype.showDownloadDesktopBanner = function()
 {
   var link = 'https://get.diagrams.net/';
-  
+
   if (this.showBanner('DesktopFooter', mxResources.get('downloadDesktop'), mxUtils.bind(this, function()
     {
     	this.openLink(link);
@@ -1930,7 +1930,7 @@ App.prototype.showRatingBanner = function()
     	mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
     	mxUtils.setPrefixedStyle(banner.style, 'transition', 'all 1s ease');
     	banner.className = 'geBtn gePrimaryBtn';
-  
+
     	var img = document.createElement('img');
     	img.setAttribute('src', Dialog.prototype.closeImage);
     	img.setAttribute('title', mxResources.get('close'));
@@ -1955,7 +1955,7 @@ App.prototype.showRatingBanner = function()
 
     	mxUtils.write(banner, 'Please rate us');
     	document.body.appendChild(banner);
-  
+
     	var star1 = document.createElement('img');
     	star1.setAttribute('border', '0');
     	star1.setAttribute('align', 'absmiddle');
@@ -2054,20 +2054,20 @@ App.prototype.showRatingBanner = function()
 };
 
 /**
- * 
+ *
  */
 App.prototype.checkLicense = function()
 {
   var driveUser = this.drive.getUser();
   var email = ((urlParams['dev'] == '1') ? urlParams['lic'] : null) ||
     ((driveUser != null) ? driveUser.email : null);
-  
+
   if (!this.isOffline() && !this.editor.chromeless && email != null)
   {
     // Anonymises the local part of the email address
     var at = email.lastIndexOf('@');
     var domain = email;
-    
+
     if (at >= 0)
     {
     	domain = email.substring(at + 1);
@@ -2075,7 +2075,7 @@ App.prototype.checkLicense = function()
     }
 
     // Timestamp is workaround for cached response in certain environments
-    mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) + 
+    mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) +
     		'&lc=' + encodeURIComponent(driveUser.locale) + '&ts=' + new Date().getTime(),
     	mxUtils.bind(this, function(req)
     	{
@@ -2116,12 +2116,12 @@ App.prototype.handleLicense = function(lic, domain)
 };
 
 /**
- * 
+ *
  */
 App.prototype.getEditBlankXml = function()
 {
   var file = this.getCurrentFile();
-  
+
   if (file != null && this.editor.isChromelessView() && this.editor.graph.isLightboxView())
   {
     return file.getData();
@@ -2150,7 +2150,7 @@ App.prototype.addRecent = function(entry)
   if (isLocalStorage && localStorage != null)
   {
     var recent = this.getRecent();
-    
+
     if (recent == null)
     {
     	recent = [];
@@ -2165,7 +2165,7 @@ App.prototype.addRecent = function(entry)
     		}
     	}
     }
-    
+
     if (recent != null)
     {
     	recent.unshift(entry);
@@ -2195,7 +2195,7 @@ App.prototype.getRecent = function()
     {
     	// ignore
     }
-    
+
     return null;
   }
 };
@@ -2230,7 +2230,7 @@ App.prototype.onBeforeUnload = function()
   else
   {
     var file = this.getCurrentFile();
-    
+
     if (file != null)
     {
     	// KNOWN: Message is ignored by most browsers
@@ -2254,7 +2254,7 @@ App.prototype.onBeforeUnload = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2264,18 +2264,18 @@ App.prototype.updateDocumentTitle = function()
   {
     var title = this.editor.appName;
     var file = this.getCurrentFile();
-    
+
     if (this.isOfflineApp())
     {
     	title += ' app';
     }
-    
+
     if (file != null)
     {
     	var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
     	title = filename + ' - ' + title;
     }
-    
+
     if (document.title != title)
     {
     	document.title = title;
@@ -2292,17 +2292,17 @@ App.prototype.updateDocumentTitle = function()
 App.prototype.getThumbnail = function(width, fn)
 {
   var result = false;
-  
+
   try
   {
     var acceptResponse = true;
-    
+
     var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
     {
     	acceptResponse = false;
     	fn(null);
     }), this.timeout);
-    
+
     var success = mxUtils.bind(this, function(canvas)
     {
     	window.clearTimeout(timeoutThread);
@@ -2312,14 +2312,14 @@ App.prototype.getThumbnail = function(width, fn)
     		fn(canvas);
     	}
     });
-    
+
     if (this.thumbImageCache == null)
     {
     	this.thumbImageCache = new Object();
     }
-    
+
     var graph = this.editor.graph;
-    
+
     // Exports PNG for first page while other page is visible by creating a graph
     // LATER: Add caching for the graph or SVG while not on first page
     // To avoid refresh during save dark theme uses separate graph instance
@@ -2355,7 +2355,7 @@ App.prototype.getThumbnail = function(width, fn)
     	document.body.appendChild(graph.container);
     	graph.model.setRoot(page.root);
     }
-    
+
     // Uses client-side canvas export
     if (mxClient.IS_CHROMEAPP || this.useCanvasForExport)
     {
@@ -2411,7 +2411,7 @@ App.prototype.getThumbnail = function(width, fn)
     	{
     		bg = '#ffffff';
     	}
-  
+
     	// Paints background
     	ctx.save();
     	ctx.fillStyle = bg;
@@ -2448,9 +2448,9 @@ App.prototype.getThumbnail = function(width, fn)
     	{
     		// No text output for thumbnails
     	};
-  
+
     	imgExport.drawState(graph.getView().getState(graph.model.root), asynCanvas);
-  
+
     	asynCanvas.finish(mxUtils.bind(this, function()
     	{
     		try
@@ -2477,25 +2477,25 @@ App.prototype.getThumbnail = function(width, fn)
   catch (e)
   {
     result = false;
-    
+
     // Removes temporary graph from DOM
         if (graph != null && graph != this.editor.graph && graph.container.parentNode != null)
     {
     	graph.container.parentNode.removeChild(graph.container);
     }
   }
-  
+
   if (!result)
   {
     window.clearTimeout(timeoutThread);
   }
-  
+
   return result;
 };
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2508,26 +2508,26 @@ App.prototype.createBackground = function()
   bg.style.top = '0px';
   bg.style.bottom = '0px';
   bg.style.right = '0px';
-  
+
   mxUtils.setOpacity(bg, 100);
-  
+
   return bg;
 };
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 (function()
 {
   var editorUiSetMode = EditorUi.prototype.setMode;
-  
+
   App.prototype.setMode = function(mode, remember)
   {
     editorUiSetMode.apply(this, arguments);
-    
+
     // Note: UseLocalStorage affects the file dialogs
     // and should not be modified if mode is undefined
     if (this.mode != null)
@@ -2561,7 +2561,7 @@ App.prototype.createBackground = function()
     		this.appIcon.style.cursor = (mode == App.MODE_DEVICE) ? 'pointer' : 'default';
     	}
     }
-    
+
     if (remember)
     {
     	try
@@ -2587,7 +2587,7 @@ App.prototype.createBackground = function()
 
 /**
  * Function: authorize
- * 
+ *
  * Authorizes the client, gets the userId and calls <open>.
  */
 App.prototype.appIconClicked = function(evt)
@@ -2600,7 +2600,7 @@ App.prototype.appIconClicked = function(evt)
   {
     var file = this.getCurrentFile();
     var mode = (file != null) ? file.getMode() : null;
-    
+
     if (mode == App.MODE_GOOGLE)
     {
     	if (file != null && file.desc != null && file.desc.parents != null &&
@@ -2686,13 +2686,13 @@ App.prototype.appIconClicked = function(evt)
     	this.openLink('https://get.draw.io/');
     }
   }
-  
+
   mxEvent.consume(evt);
 };
 
 /**
  * Function: authorize
- * 
+ *
  * Authorizes the client, gets the userId and calls <open>.
  */
 App.prototype.clearMode = function()
@@ -2711,31 +2711,31 @@ App.prototype.clearMode = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.getDiagramId = function()
 {
   var id = window.location.hash;
-  
+
   // Strips the hash sign
   if (id != null && id.length > 0)
   {
     id = id.substring(1);
   }
-  
+
   // Workaround for Trello client appending data after hash
   if (id != null && id.length > 1 && id.charAt(0) == 'T')
   {
     var idx = id.indexOf('#');
-    
+
     if (idx > 0)
     {
     	id = id.substring(0, idx);
     }
   }
-  
+
   return id;
 };
 
@@ -2819,7 +2819,7 @@ App.prototype.loadGapi = function(then)
 
 /**
  * Main function. Program starts here.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -2879,7 +2879,7 @@ App.prototype.load = function()
   else
   {
     this.restoreLibraries();
-    
+
     if (urlParams['gapi'] == '1')
     {
     	this.loadGapi(function() {});
@@ -2911,7 +2911,7 @@ App.prototype.showRefreshDialog = function(title, message)
     	this.editor.graph.setEnabled(false);
     	window.location.reload();
     }), null, null, null, null, null, 340, 180);
-    
+
     // Adds important notice to dialog
     if (this.dialog != null && this.dialog.container != null)
     {
@@ -2938,14 +2938,14 @@ App.prototype.showAlert = function(message)
   {
     var div = document.createElement('div');
     div.className = 'geAlert';
-    div.style.zIndex = 2e9; 
+    div.style.zIndex = 2e9;
     div.style.left = '50%';
     div.style.top = '-100%';
     mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-50%,0%)');
     mxUtils.setPrefixedStyle(div.style, 'transition', 'all 1s ease');
-    
+
     div.innerHTML = message;
-    
+
     var close = document.createElement('a');
     close.className = 'geAlertLink';
     close.style.textAlign = 'right';
@@ -2954,7 +2954,7 @@ App.prototype.showAlert = function(message)
     close.setAttribute('title', mxResources.get('close'));
     close.innerHTML = mxResources.get('close');
     div.appendChild(close);
-    
+
     mxEvent.addListener(close, 'click', function(evt)
     {
     	if (div.parentNode != null)
@@ -2963,15 +2963,15 @@ App.prototype.showAlert = function(message)
     		mxEvent.consume(evt);
     	}
     });
-    
+
     document.body.appendChild(div);
-    
+
     // Delayed to get smoother animation after DOM rendering
     window.setTimeout(function()
     {
     	div.style.top = '30px';
     }, 10);
-    
+
     // Fades out the alert after 15 secs
     window.setTimeout(function()
     {
@@ -2991,7 +2991,7 @@ App.prototype.showAlert = function(message)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -3001,7 +3001,7 @@ App.prototype.start = function()
   {
     this.bg.parentNode.removeChild(this.bg);
   }
-  
+
   this.restoreLibraries();
   this.spinner.stop();
 
@@ -3009,7 +3009,7 @@ App.prototype.start = function()
   {
     // Handles all errors
     var ui = this;
-    
+
     window.onerror = function(message, url, linenumber, colno, err)
     {
     	// Ignores Grammarly error [1344]
@@ -3021,7 +3021,7 @@ App.prototype.start = function()
     			null, null, null, null, true);
     	}
     };
-    
+
     // Listens to changes of the hash if not in embed or client mode
     if (urlParams['client'] != '1' && urlParams['embed'] != '1')
     {
@@ -3034,7 +3034,7 @@ App.prototype.start = function()
     			{
     				var file = this.getCurrentFile();
     				EditorUi.debug('storage event', evt, file);
-  
+
     				if (file != null && evt.key == '.draft-alive-check' && evt.newValue != null && file.draftId != null)
     				{
     					this.draftAliveCheck = evt.newValue;
@@ -3082,7 +3082,7 @@ App.prototype.start = function()
     		}
     	}));
     }
-    
+
     // Descriptor for CSV import
     if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['desc'] != null)
     {
@@ -3251,7 +3251,7 @@ App.prototype.start = function()
     			}
     		}
     	});
-  
+
     	var value = decodeURIComponent(urlParams['create'] || '');
     	
     	if ((window.location.hash == null || window.location.hash.length <= 1) &&
@@ -3265,11 +3265,11 @@ App.prototype.start = function()
     				window.location.search = this.getSearch(['create', 'title']);
     			};
     		});
-  
+
     		var showCreateDialog = mxUtils.bind(this, function(xml)
     		{
     			this.spinner.stop();
-  
+
     			// Resets mode for dialog - local file is only for preview
     			if (urlParams['splash'] != '0')
     			{
@@ -3278,7 +3278,7 @@ App.prototype.start = function()
     				this.editor.graph.setEnabled(false);
     				this.mode = urlParams['mode'];
     				var title = urlParams['title'];
-    
+
     				if (title != null)
     				{
     					title = decodeURIComponent(title);
@@ -3460,7 +3460,7 @@ App.prototype.checkDrafts = function()
     // Triggers storage event for other windows to mark active drafts
     var guid = Editor.guid();
     localStorage.setItem('.draft-alive-check', guid);
-    
+
     window.setTimeout(mxUtils.bind(this, function()
     {
     	localStorage.removeItem('.draft-alive-check');
@@ -3572,7 +3572,7 @@ App.prototype.checkDrafts = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -3583,13 +3583,13 @@ App.prototype.showSplash = function(force)
   {
     return;	
   }
-  
+
   var serviceCount = this.getServiceCount(true);
-  
+
   var showSecondDialog = mxUtils.bind(this, function()
   {
     var dlg = new SplashDialog(this);
-    
+
     this.showDialog(dlg.container, 340, (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp) ? 200 : 230, true, true,
     	mxUtils.bind(this, function(cancel)
     	{
@@ -3603,7 +3603,7 @@ App.prototype.showSplash = function(force)
     		}
     	}), true);
   });
-  
+
   if (this.editor.isChromelessView())
   {
     this.handleError({message: mxResources.get('noFileSelected')},
@@ -3615,13 +3615,13 @@ App.prototype.showSplash = function(force)
   else if (!mxClient.IS_CHROMEAPP && (this.mode == null || force))
   {
     var rowLimit = (serviceCount == 4) ? 2 : 3;
-    
+
     var dlg = new StorageDialog(this, mxUtils.bind(this, function()
     {
     	this.hideDialog();
     	showSecondDialog();
     }), rowLimit);
-    
+
     this.showDialog(dlg.container, (rowLimit < 3) ? 200 : 300,
     	((serviceCount > 3) ? 320 : 210), true, false);
   }
@@ -3633,7 +3633,7 @@ App.prototype.showSplash = function(force)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -3641,7 +3641,7 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
 {
   var img = null;
   var langMenu = this.menus.get('language');
-  
+
   if (langMenu != null)
   {
     img = document.createElement('div');
@@ -3651,7 +3651,7 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
     img.style.cursor = 'pointer';
     img.style.bottom = '20px';
     img.style.right = '20px';
-    
+
     if (addLabel)
     {
     	img.style.direction = 'rtl';
@@ -3668,7 +3668,7 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
     	mxUtils.write(label, mxResources.get('language'));
     	img.appendChild(label);
     }
-    
+
     mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
     {
     	this.editor.graph.popupMenuHandler.hideMenu();
@@ -3684,17 +3684,17 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
     		mxPopupMenu.prototype.hideMenu.apply(menu, arguments);
     		menu.destroy();
     	});
-  
+
     	var offset = mxUtils.getOffset(img);
     	menu.popup(offset.x, offset.y + img.offsetHeight, null, evt);
     	
     	// Allows hiding by clicking on document
     	this.setCurrentMenu(menu);
     }));
-  
+
     elt.appendChild(img);
   }
-  
+
   return img;
 };
 
@@ -3707,7 +3707,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
   {
     this.handleError(e);
   });
-  
+
   try
   {
     fileHandle.getFile().then(mxUtils.bind(this, function(file)
@@ -3726,7 +3726,7 @@ App.prototype.loadFileSystemEntry = function(fileHandle, success, error)
     				{
     					data = this.extractGraphModelFromPng(data);
     				}
-  
+
     				success(new LocalFile(this, data, file.name, null, fileHandle, file));
     			}
     			else
@@ -3767,24 +3767,24 @@ App.prototype.createFileSystemOptions = function(name)
 {
   var ext = [];
   var temp = null;
-    
+
   if (name != null)
   {
     var idx = name.lastIndexOf('.');
-    
+
     if (idx > 0)
     {
     	temp = name.substring(idx + 1);
     }
   }
-  
+
   for (var i = 0; i < this.editor.diagramFileTypes.length; i++)
   {
     var obj = {description: mxResources.get(this.editor.diagramFileTypes[i].description) +
     	((mxClient.IS_MAC) ? ' (.' + this.editor.diagramFileTypes[i].extension + ')' : ''),
     	accept: {}};
     obj.accept[this.editor.diagramFileTypes[i].mimeType] = ['.' + this.editor.diagramFileTypes[i].extension];
-    
+
     if (this.editor.diagramFileTypes[i].extension == temp)
     {
     	ext.splice(0, 0, obj);
@@ -3801,7 +3801,7 @@ App.prototype.createFileSystemOptions = function(name)
     	}
     }
   }
-  
+
   // TODO: Specify default filename
   return {types: ext, fileName: name};
 };
@@ -3818,9 +3818,9 @@ App.prototype.showSaveFilePicker = function(success, error, opts)
     	this.handleError(e);
     }
   });
-  
+
   opts = (opts != null) ? opts : this.createFileSystemOptions();
-  
+
   window.showSaveFilePicker(opts).then(mxUtils.bind(this, function(fileHandle)
   {
     if (fileHandle != null)
@@ -3835,7 +3835,7 @@ App.prototype.showSaveFilePicker = function(success, error, opts)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -3844,7 +3844,7 @@ App.prototype.pickFile = function(mode)
   try
   {
     mode = (mode != null) ? mode : this.mode;
-    
+
     if (mode == App.MODE_GOOGLE)
     {
     	if (this.drive != null && typeof(google) != 'undefined' && typeof(google.picker) != 'undefined')
@@ -3883,7 +3883,7 @@ App.prototype.pickFile = function(mode)
     	}
     	else if (mode == App.MODE_DEVICE && Graph.fileSupport)
     	{
-    		if (this.openFileInputElt == null) 
+    		if (this.openFileInputElt == null)
     		{
     			var input = document.createElement('input');
     			input.setAttribute('type', 'file');
@@ -3916,7 +3916,7 @@ App.prototype.pickFile = function(mode)
     		window.baseUrl = this.getUrl();
     		window.openKey = 'open';
     		
-    		window.listBrowserFiles = mxUtils.bind(this, function(success, error) 
+    		window.listBrowserFiles = mxUtils.bind(this, function(success, error)
     		{
     			StorageFile.listFiles(this, 'F', success, error);
     		});
@@ -3959,7 +3959,7 @@ App.prototype.pickFile = function(mode)
     		{
     			Editor.useLocalStorage = prevValue;
     			dlgClose.apply(dlg, arguments);
-    
+
     			if (this.getCurrentFile() == null)
     			{
     				this.showSplash();
@@ -3976,14 +3976,14 @@ App.prototype.pickFile = function(mode)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.pickLibrary = function(mode)
 {
   mode = (mode != null) ? mode : this.mode;
-  
+
   if (mode == App.MODE_GOOGLE || mode == App.MODE_DROPBOX || mode == App.MODE_ONEDRIVE ||
     mode == App.MODE_GITHUB || mode == App.MODE_GITLAB || mode == App.MODE_TRELLO)
   {
@@ -3993,7 +3993,7 @@ App.prototype.pickLibrary = function(mode)
     	((mode == App.MODE_GITLAB) ? this.gitLab :
     	((mode == App.MODE_TRELLO) ? this.trello :
     	this.dropbox))));
-    
+
     if (peer != null)
     {
     	peer.pickLibrary(mxUtils.bind(this, function(id, optionalFile)
@@ -4036,7 +4036,7 @@ App.prototype.pickLibrary = function(mode)
   }
   else if (mode == App.MODE_DEVICE && Graph.fileSupport)
   {
-    if (this.libFileInputElt == null) 
+    if (this.libFileInputElt == null)
     {
     	var input = document.createElement('input');
     	input.setAttribute('type', 'file');
@@ -4062,7 +4062,7 @@ App.prototype.pickLibrary = function(mode)
     							this.handleError(e, mxResources.get('errorLoadingFile'));
     						}
     					});
-  
+
     					reader.readAsText(file);
     				}))(input.files[i]);
     			}
@@ -4078,38 +4078,38 @@ App.prototype.pickLibrary = function(mode)
     	document.body.appendChild(input);
     	this.libFileInputElt = input;
     }
-    
+
     this.libFileInputElt.click();
   }
   else
   {
     window.openNew = false;
     window.openKey = 'open';
-    
-    window.listBrowserFiles = mxUtils.bind(this, function(success, error) 
+
+    window.listBrowserFiles = mxUtils.bind(this, function(success, error)
     {
     	StorageFile.listFiles(this, 'L', success, error);
     });
-    
+
     window.openBrowserFile = mxUtils.bind(this, function(title, success, error)
     {
     	StorageFile.getFileContent(this, title, success, error);
     });
-    
+
     window.deleteBrowserFile = mxUtils.bind(this, function(title, success, error)
     {
     	StorageFile.deleteFile(this, title, success, error);
     });
-    
+
     var prevValue = Editor.useLocalStorage;
     Editor.useLocalStorage = mode == App.MODE_BROWSER;
-    
+
     // Closes dialog after open
     window.openFile = new OpenFile(mxUtils.bind(this, function(cancel)
     {
     	this.hideDialog(cancel);
     }));
-    
+
     window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
     {
     	try
@@ -4135,7 +4135,7 @@ App.prototype.pickLibrary = function(mode)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -4147,7 +4147,7 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
     noSpin = (noSpin != null) ? noSpin : false;
     noReload = (noReload != null) ? noReload : false;
     var xml = this.createLibraryDataFromImages(images);
-    
+
     var error = mxUtils.bind(this, function(resp)
     {
     	this.spinner.stop();
@@ -4159,13 +4159,13 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
     	
     	this.handleError(resp, (resp != null) ? mxResources.get('errorSavingFile') : null);
     });
-  
+
     // Handles special case for local libraries
     if (file == null && mode == App.MODE_DEVICE)
     {
     	file = new LocalLibrary(this, xml, name);
     }
-    
+
     if (file == null)
     {
     	this.pickFolder(mode, mxUtils.bind(this, function(folderId)
@@ -4288,12 +4288,12 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
     				mxSettings.removeCustomLibrary(oldHash);
     				mxSettings.addCustomLibrary(file.getHash());
     			}
-  
+
     			// Workaround for library files changing hash so
     			// the old library cannot be removed from the
     			// sidebar using the updated file in libraryLoaded
     			this.removeLibrarySidebar(oldHash);
-  
+
     			doSave();
     		}), error)
     	}
@@ -4315,7 +4315,7 @@ App.prototype.saveLibrary = function(name, images, file, mode, noSpin, noReload,
 App.prototype.saveFile = function(forceDialog, success)
 {
   var file = this.getCurrentFile();
-  
+
   if (file != null)
   {
     // FIXME: Invoke for local files
@@ -4345,7 +4345,7 @@ App.prototype.saveFile = function(forceDialog, success)
     		success();
     	}
     });
-    
+
     if (!forceDialog && file.getTitle() != null && file.invalidFileHandle == null && this.mode != null)
     {
     	this.save(file.getTitle(), done);
@@ -4477,7 +4477,7 @@ App.prototype.saveFile = function(forceDialog, success)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -4485,7 +4485,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 {
   var base64 = false;
   var realUrl = url;
-  
+
   if (!this.editor.isCorsEnabledForUrl(realUrl))
   {
     // Always uses base64 response to check magic numbers for file type
@@ -4495,7 +4495,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
   }
 
   var filterFn = (templateFilename != null) ? templateFilename : url;
-  
+
   this.editor.loadUrl(realUrl, mxUtils.bind(this, function(responseData)
   {
     try
@@ -4567,7 +4567,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -4596,7 +4596,7 @@ App.prototype.getPeerForMode = function(mode)
   else if (mode == App.MODE_TRELLO)
   {
     return this.trello;
-  } 
+  }
   else
   {
     return null;
@@ -4605,7 +4605,7 @@ App.prototype.getPeerForMode = function(mode)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -4616,12 +4616,12 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
   if (title != null && this.spinner.spin(document.body, mxResources.get('inserting')))
   {
     data = (data != null) ? data : this.emptyDiagramXml;
-    
+
     var complete = mxUtils.bind(this, function()
     {
     	this.spinner.stop();
     });
-    
+
     var error = mxUtils.bind(this, function(resp)
     {
     	complete();
@@ -4635,7 +4635,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
     		this.handleError(resp);
     	}
     });
-    
+
     try
     {
     	if (mode == App.MODE_GOOGLE && this.drive != null)
@@ -4644,7 +4644,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
     		{
     			folderId = this.stateArg.folderId;
     		}
-  
+
     		this.drive.insertFile(title, data, folderId, mxUtils.bind(this, function(file)
     		{
     			complete();
@@ -4735,14 +4735,14 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 {
   var url = window.location.pathname;
-  
+
   if (libs != null && libs.length > 0)
   {
     url += '?libs=' + libs;
@@ -4752,7 +4752,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
   {
     url += '?clibs=' + clibs;
   }
-  
+
   url = this.getUrl(url);
 
   // Always opens a new tab for local files to avoid losing changes
@@ -4771,7 +4771,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
     var redirect = window.location.protocol + '//' + window.location.hostname + url;
     var node = dataNode;
     var graph = null;
-    
+
     // Handles special case where SVG files need a rendered graph to be saved
     if (dataNode != null && /\.svg$/i.test(file.getTitle()))
     {
@@ -4779,7 +4779,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
     	document.body.appendChild(graph.container);
     	node = this.decodeNodeIntoGraph(node, graph);
     }
-    
+
     file.setData(this.createFileData(dataNode, graph, file, redirect));
 
     if (graph != null)
@@ -4791,7 +4791,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
     {
     	this.spinner.stop();
     });
-    
+
     var fn = mxUtils.bind(this, function()
     {
     	complete();
@@ -4876,7 +4876,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
     		fn2();
     	}
     });
-    
+
     // Updates data in memory for local files
     if (file.constructor == LocalFile)
     {
@@ -4898,7 +4898,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -4908,9 +4908,9 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
   {
     sameWindow = true;
   }
-  
+
   this.hideDialog();
-  
+
   var fn2 = mxUtils.bind(this, function()
   {
     if (id == null || id.length == 0)
@@ -5268,9 +5268,9 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
     	}
     }
   });
-  
+
   var currentFile = this.getCurrentFile();
-  
+
   var fn = mxUtils.bind(this, function()
   {
     if (force || currentFile == null || !currentFile.isModified())
@@ -5288,7 +5288,7 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
     	}), fn2, mxResources.get('cancel'), mxResources.get('discardChanges'));
     }
   });
-  
+
   if (id == null || id.length == 0)
   {
     fn();
@@ -5306,19 +5306,19 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.getLibraryStorageHint = function(file)
 {
   var tip = file.getTitle();
-  
+
   if (file.constructor != LocalLibrary)
   {
     tip += '\n' + file.getHash();
   }
-  
+
   if (file.constructor == DriveLibrary)
   {
     tip += ' (' + mxResources.get('googleDrive') + ')';
@@ -5373,7 +5373,7 @@ App.prototype.loadLibraries = function(libs, done)
     {
     	this.pendingLibraries = new Object();
     }
-    
+
     // Ignores this library next time
     var ignore = mxUtils.bind(this, function(id, keep)
     {
@@ -5410,7 +5410,7 @@ App.prototype.loadLibraries = function(libs, done)
     		}
     	}
     });
-    
+
     if (libs != null)
     {
     	for (var i = 0; i < libs.length; i++)
@@ -5509,8 +5509,8 @@ App.prototype.loadLibraries = function(libs, done)
     					{
     						libDesc = JSON.parse(libDesc);
     						var libObj = {
-    							id: libDesc[0], 
-    	               			title: libDesc[1], 
+    							id: libDesc[0],
+    	               			title: libDesc[1],
     	               			downloadUrl: libDesc[2]
     						}
     						
@@ -5625,7 +5625,7 @@ App.prototype.loadLibraries = function(libs, done)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -5634,7 +5634,7 @@ App.prototype.updateButtonContainer = function()
   if (this.buttonContainer != null)
   {
     var file = this.getCurrentFile();
-    
+
     // Comments
     if (this.commentsSupported())
     {
@@ -5680,7 +5680,7 @@ App.prototype.updateButtonContainer = function()
     	this.commentButton.parentNode.removeChild(this.commentButton);
     	this.commentButton = null;
     }
-    
+
     // Share
     if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io' &&
     	!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
@@ -5746,18 +5746,18 @@ App.prototype.fetchAndShowNotification = function(target)
   {
     return;	
   }
-  
+
   target = target || 'online';
   var cachedNotifKey = '.notifCache';
   var cachedNotif = null;
-  
+
   var processNotif = mxUtils.bind(this, function(notifs)
   {
     notifs = notifs.filter(function(notif)
     {
     	return !notif.targets || notif.targets.indexOf(target) > -1;
     });
-    
+
     var lsReadFlag = target + 'NotifReadTS';
     var lastRead = parseInt(localStorage.getItem(lsReadFlag));
     		
@@ -5765,16 +5765,16 @@ App.prototype.fetchAndShowNotification = function(target)
     {
     	notifs[i].isNew = (!lastRead || notifs[i].timestamp > lastRead);
     }
-    
+
     this.showNotification(notifs, lsReadFlag);
   });
-  
+
   try
   {
     cachedNotif = JSON.parse(localStorage.getItem(cachedNotifKey));
   }
   catch(e) {} //Ignore
-  
+
   if (cachedNotif == null || cachedNotif.ts + 24 * 60 * 60 * 1000 < Date.now()) //Cache for one day
   {
     this.fetchingNotif = true;
@@ -5808,13 +5808,13 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
   function shouldAnimate(newNotif)
   {
     var countEl = document.querySelector('.geNotification-count');
-    
+
     if (countEl == null)
     {
     	EditorUi.logError('Error: element (.geNotification-count) is null in showNotification in shouldAnimate', null, 5769);
     	return;
     }
-    
+
     countEl.innerHTML = newNotif;
     countEl.style.display = newNotif == 0? 'none' : '';
     var notifBell = document.querySelector('.geNotification-bell');
@@ -5822,37 +5822,37 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     notifBell.className = 'geNotification-bell' + (newNotif == 0? ' geNotification-bellOff' : '');
     document.querySelector('.geBell-rad').style.animation = newNotif == 0? 'none' : '';
   }
-  
+
   var markAllAsRead = mxUtils.bind(this, function()
   {
     this.notificationWin.style.display = 'none';
     var unread = this.notificationWin.querySelectorAll('.circle.active');
-    
+
     for (var i = 0; i < unread.length; i++)
     {
     	unread[i].className = 'circle';
     }
-    
+
     if (notifs[0])
     {
     	localStorage.setItem(lsReadFlag, notifs[0].timestamp);
     }
   });
-  
+
   if (this.notificationBtn == null)
   {
     this.notificationBtn = document.createElement('div');
     this.notificationBtn.className = 'geNotification-box';
-    
+
     if (uiTheme == 'min')
     {
     	this.notificationBtn.style.top = '4px';
     }
-    
+
     var notifCount = document.createElement('span');
     notifCount.className = 'geNotification-count';
     this.notificationBtn.appendChild(notifCount);
-    
+
     var notifBell = document.createElement('div');
     notifBell.className = 'geNotification-bell';
     notifBell.style.opacity = uiTheme == 'min'? '0.5' : '';
@@ -5869,15 +5869,15 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     bellPart.className = 'geBell-rad';
     notifBell.appendChild(bellPart);
     this.notificationBtn.appendChild(notifBell);
-    
+
     //Add as first child such that it is the left-most one
     this.buttonContainer.insertBefore(this.notificationBtn, this.buttonContainer.firstChild);
-    
+
     this.notificationWin = document.createElement('div');
     this.notificationWin.className = 'geNotifPanel';
     this.notificationWin.style.display = 'none';
     document.body.appendChild(this.notificationWin);
-    
+
     var winHeader = document.createElement('div');
     winHeader.className = 'header';
     var winTitle = document.createElement('span');
@@ -5889,7 +5889,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     winClose.textContent = 'x';
     winHeader.appendChild(winClose);
     this.notificationWin.appendChild(winHeader);
-    
+
     var winBody = document.createElement('div');
     winBody.className = 'notifications clearfix';
     var notifList = document.createElement('div');
@@ -5897,7 +5897,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     notifList.style.position = 'relative';
     winBody.appendChild(notifList);
     this.notificationWin.appendChild(winBody);
-    
+
     mxEvent.addListener(this.notificationBtn, 'click', mxUtils.bind(this, function()
     {
     	if (this.notificationWin.style.display == 'none')
@@ -5914,13 +5914,13 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     		markAllAsRead();
     	}
     }));
-    
+
     mxEvent.addListener(winClose, 'click', markAllAsRead);
   }
-    
+
   var newNotif = 0;
   var notifListEl = document.getElementById('geNotifList');
-  
+
   if (notifListEl == null)
   {
     EditorUi.logError('Error: element (geNotifList) is null in showNotification', null, 5859);
@@ -5933,7 +5933,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
   else
   {
     notifListEl.innerHTML = '<div class="line"></div>';
-    
+
     for (var i = 0; i < notifs.length; i++)
     {
     	(function(editorUi, notif)
@@ -5947,14 +5947,14 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     		notifEl.className = 'notification';
     		var ts = new Date(notif.timestamp);
     		var str = editorUi.timeSince(ts);
-    
+
     		if (str == null)
     		{
     			str = mxResources.get('lessThanAMinute');
     		}
     		
-    		notifEl.innerHTML = '<div class="circle' + (notif.isNew? ' active' : '') + '"></div><span class="time">' + 
-    								mxUtils.htmlEntities(mxResources.get('timeAgo', [str], '{1} ago')) + '</span>' + 
+    		notifEl.innerHTML = '<div class="circle' + (notif.isNew? ' active' : '') + '"></div><span class="time">' +
+    								mxUtils.htmlEntities(mxResources.get('timeAgo', [str], '{1} ago')) + '</span>' +
     								'<p>' + mxUtils.htmlEntities(notif.content) + '</p>';
     		if (notif.link)
     		{
@@ -5968,29 +5968,29 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
     	})(this, notifs[i]);
     }
   }
-  
+
   shouldAnimate(newNotif);
 };
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.save = function(name, done)
 {
   var file = this.getCurrentFile();
-  
+
   if (file != null && this.spinner.spin(document.body, mxResources.get('saving')))
   {
     this.editor.setStatus('');
-    
+
     if (this.editor.graph.isEditing())
     {
     	this.editor.graph.stopEditing();
     }
-    
+
     var success = mxUtils.bind(this, function()
     {
     	file.handleFileSuccess(true);
@@ -6000,7 +6000,7 @@ App.prototype.save = function(name, done)
     		done();
     	}
     });
-    
+
     var error = mxUtils.bind(this, function(err)
     {
     	if (file.isModified())
@@ -6013,7 +6013,7 @@ App.prototype.save = function(name, done)
     	
     	file.handleFileError(err, true);
     });
-    
+
     try
     {
     	if (name == file.getTitle())
@@ -6041,7 +6041,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 {
   enabled = (enabled != null) ? enabled : true;
   var resume = this.spinner.pause();
-  
+
   if (enabled && mode == App.MODE_GOOGLE && this.drive != null)
   {
     // Shows a save dialog
@@ -6107,7 +6107,7 @@ App.prototype.pickFolder = function(mode, fn, enabled, direct, force)
 };
 
 /**
- * 
+ *
  */
 App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mode, folderId)
 {
@@ -6215,7 +6215,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
     {
     	localStorage.setItem(filename, data);
     });
-    
+
     if (localStorage.getItem(filename) == null)
     {
     	fn();
@@ -6229,14 +6229,14 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
 App.prototype.descriptorChanged = function()
 {
   var file = this.getCurrentFile();
-  
+
   if (file != null)
   {
     if (this.fname != null)
@@ -6247,17 +6247,17 @@ App.prototype.descriptorChanged = function()
     	mxUtils.write(this.fname, filename);
     	this.fname.setAttribute('title', filename + ' - ' + mxResources.get('rename'));
     }
-    
+
     var graph = this.editor.graph;
     var editable = file.isEditable() && !file.invalidChecksum;
-    
+
     if (graph.isEnabled() && !editable)
     {
     	graph.reset();
     }
-    
+
     graph.setEnabled(editable);
-    
+
     // Ignores title and hash for revisions
     if (urlParams['rev'] == null)
     {
@@ -6274,9 +6274,9 @@ App.prototype.descriptorChanged = function()
     	}
     }
   }
-  
+
   this.updateUi();
-  
+
   // Refresh if editable state has changed
   if (this.format != null && (file == null ||
     this.fileEditable != file.isEditable()) &&
@@ -6293,7 +6293,7 @@ App.prototype.descriptorChanged = function()
 App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 {
   var resume = this.spinner.pause();
-  
+
   this.showDialog(new AuthDialog(this, peer, showRememberOption, mxUtils.bind(this, function(remember)
   {
     try
@@ -6317,7 +6317,7 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
     {
     	closeFn(cancel);
     }
-    
+
     if (cancel && this.getCurrentFile() == null && this.dialog == null)
     {
     	this.showSplash();
@@ -6333,32 +6333,32 @@ App.prototype.showAuthDialog = function(peer, showRememberOption, fn, closeFn)
 App.prototype.convertFile = function(url, filename, mimeType, extension, success, error, executeRequest, headers)
 {
   var name = filename;
-  
+
   // SVG file extensions are valid and needed for image import
   if (!/\.svg$/i.test(name))
   {
     name = name.substring(0, filename.lastIndexOf('.')) + extension;
   }
-  
+
   var gitHubUrl = false;
-  
+
   if (this.gitHub != null && url.substring(0, this.gitHub.baseUrl.length) == this.gitHub.baseUrl)
   {
     gitHubUrl = true;
   }
-  
+
   // Workaround for wrong binary response with VSD(X) & VDX files
   if (/\.v(dx|sdx?)$/i.test(filename) && Graph.fileSupport && new XMLHttpRequest().upload &&
     typeof new XMLHttpRequest().responseType === 'string')
   {
     var req = new XMLHttpRequest();
     req.open('GET', url, true);
-    
+
     if (!gitHubUrl)
     {
     	req.responseType = 'blob';
     }
-    
+
     if (headers)
     {
     	for (var key in headers)
@@ -6366,7 +6366,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
     		req.setRequestHeader(key, headers[key]);
     	}
     }
-    
+
     req.onload = mxUtils.bind(this, function()
     {
     	if (req.status >= 200 && req.status <= 299)
@@ -6459,7 +6459,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
     var binary = /\.png$/i.test(filename) || /\.jpe?g$/i.test(filename) ||
      	/\.pdf$/i.test(filename) || (mimeType != null &&
      	mimeType.substring(0, 6) == 'image/');
-    
+
     // NOTE: Cannot force non-binary request via loadUrl so needs separate
     // code as decoding twice on content with binary data did not work
     if (gitHubUrl)
@@ -6524,7 +6524,7 @@ App.prototype.convertFile = function(url, filename, mimeType, extension, success
 
 /**
  * Adds the listener for automatically saving the diagram for local changes.
- */ 
+ */
 App.prototype.updateHeader = function()
 {
   if (this.menubar != null)
@@ -6537,19 +6537,19 @@ App.prototype.updateHeader = function()
     this.appIcon.style.margin = '14px 0px 8px 16px';
     this.appIcon.style.opacity = '0.85';
     this.appIcon.style.borderRadius = '3px';
-    
+
     if (uiTheme != 'dark')
     {
     	this.appIcon.style.backgroundColor = '#f08705';
     }
-    
+
     mxEvent.disableContextMenu(this.appIcon);
-    
+
     mxEvent.addListener(this.appIcon, 'click', mxUtils.bind(this, function(evt)
     {
     	this.appIconClicked(evt);
     }));
-    
+
     // LATER: Use Alpha image loader in IE6
     // NOTE: This uses the diagram bit of the old logo as it looks better in this case
     //this.appIcon.style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src=' + IMAGE_PATH + '/logo-white.png,sizingMethod=\'scale\')';
@@ -6560,9 +6560,9 @@ App.prototype.updateHeader = function()
     this.appIcon.style.backgroundPosition = 'center center';
     this.appIcon.style.backgroundSize = '100% 100%';
     this.appIcon.style.backgroundRepeat = 'no-repeat';
-    
+
     mxUtils.setPrefixedStyle(this.appIcon.style, 'transition', 'all 125ms linear');
-  
+
     mxEvent.addListener(this.appIcon, 'mouseover', mxUtils.bind(this, function()
     {
     	var file = this.getCurrentFile();
@@ -6603,18 +6603,18 @@ App.prototype.updateHeader = function()
     		}
     	}
     }));
-    
+
     mxEvent.addListener(this.appIcon, 'mouseout', mxUtils.bind(this, function()
     {
     	this.appIcon.style.backgroundImage = logo;
     	this.appIcon.style.backgroundSize = '90% 90%';
     }));
-    
+
     if (urlParams['embed'] != '1')
     {
     	this.menubarContainer.appendChild(this.appIcon);
     }
-  
+
     this.fnameWrapper = document.createElement('div');
     this.fnameWrapper.style.position = 'absolute';
     this.fnameWrapper.style.right = '120px';
@@ -6624,7 +6624,7 @@ App.prototype.updateHeader = function()
     this.fnameWrapper.style.display = 'none';
     this.fnameWrapper.style.overflow = 'hidden';
     this.fnameWrapper.style.textOverflow = 'ellipsis';
-    
+
     this.fname = document.createElement('a');
     this.fname.setAttribute('title', mxResources.get('rename'));
     this.fname.className = 'geItem';
@@ -6632,14 +6632,14 @@ App.prototype.updateHeader = function()
     this.fname.style.display = 'inline';
     this.fname.style.fontSize = '18px';
     this.fname.style.whiteSpace = 'nowrap';
-    
+
     // Prevents focus
         mxEvent.addListener(this.fname, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
           mxUtils.bind(this, function(evt)
         {
     	evt.preventDefault();
     }));
-    
+
     mxEvent.addListener(this.fname, 'click', mxUtils.bind(this, function(evt)
     {
     	var file = this.getCurrentFile();
@@ -6656,20 +6656,20 @@ App.prototype.updateHeader = function()
     	
     	mxEvent.consume(evt);
     }));
-    
+
     this.fnameWrapper.appendChild(this.fname);
-    
+
     if (urlParams['embed'] != '1')
     {
     	this.menubarContainer.appendChild(this.fnameWrapper);
-    
+
     	this.menubar.container.style.position = 'absolute';
     	this.menubar.container.style.paddingLeft = '59px';
     	this.toolbar.container.style.paddingLeft = '16px';
     	this.menubar.container.style.boxSizing = 'border-box';
     	this.menubar.container.style.top = '34px';
     }
-    
+
     /**
      * Adds format panel toggle.
      */
@@ -6687,19 +6687,19 @@ App.prototype.updateHeader = function()
     this.toggleFormatElement.style.backgroundPosition = '50% 50%';
     this.toggleFormatElement.style.backgroundRepeat = 'no-repeat';
     this.toolbarContainer.appendChild(this.toggleFormatElement);
-    
+
     if (uiTheme == 'dark')
     {
     	this.toggleFormatElement.style.filter = 'invert(100%)';
     }
-    
+
     // Prevents focus
       mxEvent.addListener(this.toggleFormatElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
           mxUtils.bind(this, function(evt)
       {
     	evt.preventDefault();
     }));
-    
+
     mxEvent.addListener(this.toggleFormatElement, 'click', mxUtils.bind(this, function(evt)
     {
     	this.actions.get('formatPanel').funct();
@@ -6717,7 +6717,7 @@ App.prototype.updateHeader = function()
     		this.toggleFormatElement.style.backgroundImage = 'url(\'' + this.formatHideImage + '\')';
     	}
     });
-    
+
     this.addListener('formatWidthChanged', toggleFormatPanel);
     toggleFormatPanel();
 
@@ -6736,28 +6736,28 @@ App.prototype.updateHeader = function()
     this.fullscreenElement.style.backgroundRepeat = 'no-repeat';
     this.fullscreenElement.style.backgroundImage = 'url(\'' + this.fullscreenImage + '\')';
     this.toolbarContainer.appendChild(this.fullscreenElement);
-    
+
     // Prevents focus
     mxEvent.addListener(this.fullscreenElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
           mxUtils.bind(this, function(evt)
       {
     	evt.preventDefault();
     }));
-    
+
     // Some style changes in Atlas theme
     if (uiTheme == 'atlas')
     {
     	mxUtils.setOpacity(this.toggleFormatElement, 70);
     	mxUtils.setOpacity(this.fullscreenElement, 70);
     }
-    
+
     var initialPosition = this.hsplitPosition;
 
     if (uiTheme == 'dark')
     {
     	this.fullscreenElement.style.filter = 'invert(100%)';
     }
-    
+
     mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
     {
     	var visible = this.fullscreenMode;
@@ -6812,14 +6812,14 @@ App.prototype.updateHeader = function()
         {
     		evt.preventDefault();
     	}));
-  
+
     	// Toggles compact mode
     	mxEvent.addListener(this.toggleElement, 'click', mxUtils.bind(this, function(evt)
     	{
     		this.toggleCompactMode();
     		mxEvent.consume(evt);
     	}));
-    
+
     	if (uiTheme != 'atlas')
     	{
     		this.toolbarContainer.appendChild(this.toggleElement);
@@ -6843,7 +6843,7 @@ App.prototype.updateHeader = function()
 App.prototype.toggleCompactMode = function(visible)
 {
   visible = (visible != null) ? visible : this.compactMode;
-  
+
   if (visible)
   {
     this.menubar.container.style.position = 'absolute';
@@ -6876,7 +6876,7 @@ App.prototype.toggleCompactMode = function(visible)
     this.refresh();
     this.toggleElement.style.backgroundImage = 'url(\'' + this.chevronDownImage + '\')';
   }
-  
+
   this.compactMode = !visible;
 };
 
@@ -7004,9 +7004,9 @@ App.prototype.updateUserElement = function()
     						var tr = document.createElement('tr');
     						tr.style.cssText = user.isCurrent? '' : 'background-color: whitesmoke; cursor: pointer';
     						tr.setAttribute('title', 'User ID: ' + user.id);
-    						tr.innerHTML = '<td valign="middle" style="height: 59px;width: 66px;' + 
+    						tr.innerHTML = '<td valign="middle" style="height: 59px;width: 66px;' +
     							(user.isCurrent? '' : 'border-top: 1px solid rgb(224, 224, 224);') + '">' +
-    							'<img width="50" height="50" style="margin: 4px 8px 0 8px;border-radius:50%;" src="' + 
+    							'<img width="50" height="50" style="margin: 4px 8px 0 8px;border-radius:50%;" src="' +
     							((user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture) + '"/>' +
     							'</td><td valign="middle" style="white-space:nowrap;' +
     							((user.pictureUrl != null) ? 'padding-top:4px;' : '') +
@@ -7343,9 +7343,9 @@ App.prototype.updateUserElement = function()
     		}
     	}));
     }
-    
+
     var user = null;
-    
+
     if (this.drive != null && this.drive.getUser() != null)
     {
     	user = this.drive.getUser();
@@ -7367,7 +7367,7 @@ App.prototype.updateUserElement = function()
     	user = this.gitLab.getUser();
     }
     //TODO Trello no user issue
-    
+
     if (user != null)
     {
     	this.userElement.innerHTML = '';
@@ -7389,7 +7389,7 @@ App.prototype.updateUserElement = function()
 App.prototype.getCurrentUser = function()
 {
   var user = null;
-  
+
   if (this.drive != null && this.drive.getUser() != null)
   {
     user = this.drive.getUser();
@@ -7407,17 +7407,17 @@ App.prototype.getCurrentUser = function()
     user = this.gitHub.getUser();
   }
   //TODO Trello no user issue
-  
+
   return user;
 }
 /**
  * Override depends on mxSettings which is not defined in the minified viewer.
  */
-var editorResetGraph = Editor.prototype.resetGraph;  
+var editorResetGraph = Editor.prototype.resetGraph;
 Editor.prototype.resetGraph = function()
 {
   editorResetGraph.apply(this, arguments);
-  
+
   // Overrides default with persisted value
   this.graph.pageFormat = mxSettings.getPageFormat();
 };

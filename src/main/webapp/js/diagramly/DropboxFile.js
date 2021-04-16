@@ -5,7 +5,7 @@
 DropboxFile = function(ui, data, stat)
 {
   DrawioFile.call(this, ui, data);
-  
+
   this.stat = stat;
 };
 
@@ -14,7 +14,7 @@ mxUtils.extend(DropboxFile, DrawioFile);
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -25,7 +25,7 @@ DropboxFile.prototype.getId = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -36,7 +36,7 @@ DropboxFile.prototype.getHash = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -55,7 +55,7 @@ DropboxFile.prototype.isAutosaveOptional = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -66,7 +66,7 @@ DropboxFile.prototype.getTitle = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -97,7 +97,7 @@ DropboxFile.prototype.isRevisionHistorySupported = function()
 DropboxFile.prototype.getRevisions = function(success, error)
 {
   var promise = this.ui.dropbox.client.filesListRevisions({path: this.stat.path_lower, limit: 100});
-  
+
   promise.then(mxUtils.bind(this, function(resp)
   {
     try
@@ -129,7 +129,7 @@ DropboxFile.prototype.getRevisions = function(success, error)
     	error(e);
     }
   }));
-  
+
   // Workaround for IE8/9 support with catch function
   promise['catch'](function(err)
   {
@@ -155,7 +155,7 @@ DropboxFile.prototype.updateDescriptor = function(newFile)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -166,7 +166,7 @@ DropboxFile.prototype.save = function(revision, success, error, unloading, overw
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -177,7 +177,7 @@ DropboxFile.prototype.saveAs = function(title, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -186,7 +186,7 @@ DropboxFile.prototype.doSave = function(title, revision, success, error, unloadi
   // Forces update of data for new extensions
   var prev = this.stat.name;
   this.stat.name = title;
-  
+
   DrawioFile.prototype.save.apply(this, [null, mxUtils.bind(this, function()
   {
     this.stat.name = prev;
@@ -196,7 +196,7 @@ DropboxFile.prototype.doSave = function(title, revision, success, error, unloadi
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -284,7 +284,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
     		error();
     	}
     });
-    
+
     if (this.getTitle() == title)
     {
     	fn(true);
@@ -302,7 +302,7 @@ DropboxFile.prototype.saveFile = function(title, revision, success, error)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */

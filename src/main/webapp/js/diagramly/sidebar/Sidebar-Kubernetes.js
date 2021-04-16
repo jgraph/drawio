@@ -8,7 +8,7 @@
     var gn = 'mxgraph.kubernetes';
     var dt = 'kubernetes ';
     this.setCurrentSearchEntryLibrary('kubernetes');
-    
+
     this.addPaletteFunctions('kubernetes', 'Kubernetes', false,
     [
     	this.createVertexTemplateEntry(s + 'icon;prIcon=api', w * 0.5, h * 0.48, '', 'API', null, null, this.getTagsForStencil(gn, 'api application programming interface', dt).join(' ')),
@@ -51,8 +51,8 @@
     	this.createVertexTemplateEntry(s + 'icon;prIcon=user', w * 0.5, h * 0.48, '', 'User', null, null, this.getTagsForStencil(gn, 'user', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'icon;prIcon=vol', w * 0.5, h * 0.48, '', 'Vol', null, null, this.getTagsForStencil(gn, 'vol', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
 };
-    
+
 })();

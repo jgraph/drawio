@@ -42,7 +42,7 @@ DrawioClient.prototype.getUser = function()
 };
 
 /**
- * 
+ *
  */
 DrawioClient.prototype.clearPersistentToken = function()
 {
@@ -65,28 +65,28 @@ DrawioClient.prototype.clearPersistentToken = function()
 DrawioClient.prototype.getPersistentToken = function(trySessionStorage)
 {
   var token = null;
-  
+
   if (isLocalStorage)
   {
     token = localStorage.getItem('.' + this.cookieName);
-    
+
     if (token == null && trySessionStorage)
     {
     	token = sessionStorage.getItem('.' + this.cookieName);
     }
   }
-  
+
   if (token == null && typeof(Storage) != 'undefined')
   {
     var cookies = document.cookie;
     var name = this.cookieName + '=';
     var start = cookies.indexOf(name);
-  
+
     if (start >= 0)
     {
     	start += name.length;
     	var end = cookies.indexOf(';', start);
-        
+
     	if (end < 0)
     	{
     		end = cookies.length;
@@ -95,7 +95,7 @@ DrawioClient.prototype.getPersistentToken = function(trySessionStorage)
     	{
     		postCookie = cookies.substring(end);
         }
-  
+
     	var value = cookies.substring(start, end);
     	token = (value.length > 0) ? value : null;
     	
@@ -109,7 +109,7 @@ DrawioClient.prototype.getPersistentToken = function(trySessionStorage)
     	}
     }
   }
-  
+
   return token;
 };
 
@@ -128,7 +128,7 @@ DrawioClient.prototype.setPersistentToken = function(token, sessionOnly)
     		{
     			sessionStorage.setItem('.' + this.cookieName, token);
     		}
-    		else 
+    		else
     		{
     			localStorage.setItem('.' + this.cookieName, token);
     		}
@@ -138,12 +138,12 @@ DrawioClient.prototype.setPersistentToken = function(token, sessionOnly)
     		var expiration = new Date();
     		expiration.setYear(expiration.getFullYear() + 10);
     		var cookie = this.cookieName + '=' + token + '; path=/' + (sessionOnly? '' : '; expires=' + expiration.toUTCString());
-    
+
     		if (document.location.protocol.toLowerCase() == 'https')
     		{
     			cookie = cookie + ';secure';
     		}
-    
+
     		document.cookie = cookie;
     	}
     }

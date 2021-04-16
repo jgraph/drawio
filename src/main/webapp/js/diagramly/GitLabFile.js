@@ -5,7 +5,7 @@
 GitLabFile = function(ui, data, meta)
 {
   GitHubFile.call(this, ui, data, meta);
-  
+
   this.peer = this.ui.gitLab;
 };
 
@@ -14,7 +14,7 @@ mxUtils.extend(GitLabFile, GitHubFile);
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -27,7 +27,7 @@ GitLabFile.prototype.share = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -41,7 +41,7 @@ GitLabFile.prototype.getId = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -60,7 +60,7 @@ GitLabFile.prototype.isConflict = function(err)
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */

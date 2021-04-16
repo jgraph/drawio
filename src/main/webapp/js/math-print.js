@@ -1,5 +1,5 @@
 (function() {
-  
+
   var font = (window.opener.urlParams['math-font'] != null) ?
     decodeURIComponent(window.opener.urlParams['math-font']) : 'TeX';
 
@@ -32,16 +32,16 @@
     	});
     }
   };
-  
+
   var s = document.createElement('script');
   s.setAttribute('type', 'text/javascript');
   s.setAttribute('src', window.opener.DRAW_MATH_URL + '/MathJax.js');
-  
+
   // Waits for the Math to be rendered and then calls window.print
   if (window.IMMEDIATE_PRINT)
     {
     var r = false;
-    
+
     s.onload = s.onreadystatechange = function()
     {
     	if (!r && (!this.readyState || this.readyState == 'complete'))
@@ -53,7 +53,7 @@
     	}
     };
     }
-  
+
   var t = document.getElementsByTagName('script')[0];
     	  	
     if (t != null)

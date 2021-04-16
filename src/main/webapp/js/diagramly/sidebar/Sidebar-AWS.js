@@ -39,14 +39,14 @@
     this.addAWSGroupPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addAWSAnalyticsPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.analytics';
     var dt = 'aws group amazon web service analytics';
-    
+
     this.addPaletteFunctions('aws2Analytics', 'AWS / Analytics', false,
     [
      this.createVertexTemplateEntry(s + 'analytics.data_pipeline;strokeColor=none;',
@@ -84,14 +84,14 @@
     		 60, 66, '', 'QuickSight', null, null, this.getTagsForStencil(gn, 'quicksight', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSApplicationServicesPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.applicationServices';
     var dt = 'aws group amazon web service application services';
-    
+
     this.addPaletteFunctions('aws2Application Services', 'AWS / Application Services', false,
     [
      this.createVertexTemplateEntry(s + 'app_services.api_gateway;strokeColor=none;',
@@ -122,7 +122,7 @@
     		 53, 56, '', 'SWF Worker', null, null, this.getTagsForStencil(gn, 'swf worker', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSComputePalette = function()
   {
     var sb = this;
@@ -168,14 +168,14 @@
     		 59, 72, '', 'Lambda', null, null, this.getTagsForStencil(gn, 'lambda', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSDatabasePalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.database';
     var dt = 'aws group amazon web service database';
-    
+
     this.addPaletteFunctions('aws2Database', 'AWS / Database', false,
     [
      this.createVertexTemplateEntry(s + 'database.database_migration_service;strokeColor=none;',
@@ -238,14 +238,14 @@
     		 49, 55, '', 'Redshift Dense Storage Node', null, null, this.getTagsForStencil(gn, 'redshift dense storage node', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSDeveloperToolsPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.developerTools';
     var dt = 'aws group amazon web service developer tools';
-    
+
     this.addPaletteFunctions('aws2Developer Tools', 'AWS / Developer Tools', false,
     [
      this.createVertexTemplateEntry(s + 'developer_tools.code_commit;strokeColor=none;',
@@ -256,14 +256,14 @@
     		 60, 72, '', 'Code Pipeline', null, null, this.getTagsForStencil(gn, 'code pipeline', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSEnterpriseApplicationsPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.enterpriseApplications';
     var dt = 'aws group amazon web service enterprise applications';
-    
+
     this.addPaletteFunctions('aws2Enterprise Applications', 'AWS / Enterprise Applications', false,
     [
      this.createVertexTemplateEntry(s + 'enterprise_applications.workdocs;strokeColor=none;',
@@ -274,28 +274,28 @@
     		 74, 85, '', 'WorkSpaces', null, null, this.getTagsForStencil(gn, 'workspaces', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSGameDevelopmentPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.gameDevelopment';
     var dt = 'aws amazon web service game development';
-    
+
     this.addPaletteFunctions('aws2Game Development', 'AWS / Game Development', false,
     [
      this.createVertexTemplateEntry(s + 'game_development.gamelift;strokeColor=none;',
     		 62, 75, '', 'GameLift', null, null, this.getTagsForStencil(gn, 'game lift', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSGeneralPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.general';
     var dt = 'aws amazon web service general';
-    
+
     this.addPaletteFunctions('aws2General', 'AWS / General', false,
     [
      this.createVertexTemplateEntry(s + 'non-service_specific.client;strokeColor=none;',
@@ -330,14 +330,14 @@
     		 70, 46, '', 'Virtual Private Cloud', null, null, this.getTagsForStencil(gn, 'vpc virtual private cloud', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSInternetOfThingsPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.internet_of_things.";
     var gn = 'mxgraph.aws.internetOfThings';
     var dt = 'aws group amazon web service internet of things iot';
-    
+
     this.addPaletteFunctions('aws2Internet of Things', 'AWS / Internet of Things', false,
     [
      this.createVertexTemplateEntry(s + 'action;strokeColor=none;',
@@ -410,14 +410,14 @@
     		 71, 71, '', 'Windfarm', null, null, this.getTagsForStencil(gn, 'windfarm', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSManagementToolsPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.managementTools';
     var dt = 'aws group amazon web service management tools';
-    
+
     this.addPaletteFunctions('aws2Management Tools', 'AWS / Management Tools', false,
     [
      this.createVertexTemplateEntry(s + 'deployment_and_management.cloudformation;strokeColor=none;',
@@ -458,14 +458,14 @@
     		 60, 72, '', 'Trusted Advisor', null, null, this.getTagsForStencil(gn, 'trusted advisor', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSMobileServicesPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.mobileServices';
     var dt = 'aws group amazon web service mobile services';
-    
+
     this.addPaletteFunctions('aws2Mobile Services', 'AWS / Mobile Services', false,
     [
      this.createVertexTemplateEntry(s + 'mobile_services.aws_mobile_hub;strokeColor=none;',
@@ -486,14 +486,14 @@
     		 90, 56, '', 'SNS Topic', null, null, this.getTagsForStencil(gn, 'sns topic', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSNetworkingPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.networking';
     var dt = 'aws group amazon web service networking';
-    
+
     this.addPaletteFunctions('aws2Networking', 'AWS / Networking', false,
     [
      this.createVertexTemplateEntry(s + 'compute_and_networking.aws_direct_connect;strokeColor=none;',
@@ -526,14 +526,14 @@
     		 61, 64, '', 'VPCNAT Gateway', null, null, this.getTagsForStencil(gn, 'vpc virtual private cloud vpcnat gateway', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSOnDemandWorkforcePalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.on-demand_workforce';
     var dt = 'aws group amazon web service on demand workforce';
-    
+
     this.addPaletteFunctions('aws2On-Demand Workforce', 'AWS / On-Demand Workforce', false,
     [
      this.createVertexTemplateEntry(s + 'on-demand_workforce.mechanical_turk;strokeColor=none;',
@@ -548,14 +548,14 @@
     		 59, 57, '', 'Mechanical Turk Workers', null, null, this.getTagsForStencil(gn, 'mechanical turk workers', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSSDKPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.sdks';
     var dt = 'aws group amazon web service sdk softvare development kit';
-    
+
     this.addPaletteFunctions('aws2SDKs', 'AWS / SDKs', false,
     [
      this.createVertexTemplateEntry(s + 'sdks.android;strokeColor=none;',
@@ -588,14 +588,14 @@
     		 62, 72, '', 'Xamarin', null, null, this.getTagsForStencil(gn, 'xamarin', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSSecurityAndIdentityPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.securityAndIdentity';
     var dt = 'aws group amazon web service security identity';
-    
+
     this.addPaletteFunctions('aws2Security and Identity', 'AWS / Security and Identity', false,
     [
      this.createVertexTemplateEntry(s + 'security_and_identity.acm;strokeColor=none;',
@@ -636,14 +636,14 @@
     		 68, 82, '', 'WebApp Firewall', null, null, this.getTagsForStencil(gn, 'webapp firewall', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSStorageAndContentDeliveryPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws2.";
     var gn = 'mxgraph.aws.storageAndContentDelivery';
     var dt = 'aws group amazon web service storage content delivery';
-    
+
     this.addPaletteFunctions('aws2Storage and Content Delivery', 'AWS / Storage and Content Delivery', false,
     [
      this.createVertexTemplateEntry(s + 'storage_and_content_delivery.cloudfront;strokeColor=none;',
@@ -690,19 +690,19 @@
     		 46, 66, '', 'Volume', null, null, this.getTagsForStencil(gn, 'volume', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addAWSGroupPalette = function()
   {
     var sb = this;
     var s = 'dashed=0;html=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws.groups.";
     var gn = 'mxgraph.aws.groups';
     var dt = 'aws group amazon web service ';
-    
+
     this.addPaletteFunctions('aws2Groups', 'AWS / Groups', false,
     [
-    	this.createVertexTemplateEntry(s + 'auto_scaling_group;fillColor=none;gradientColor=none;', 
+    	this.createVertexTemplateEntry(s + 'auto_scaling_group;fillColor=none;gradientColor=none;',
     			200, 200, '', 'Auto Scaling Group', null, null, this.getTagsForStencil(gn, 'auto_scaling_group', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'availability_zone;strokeColor=#f69721;fillColor=none;gradientColor=none;', 
+    	this.createVertexTemplateEntry(s + 'availability_zone;strokeColor=#f69721;fillColor=none;gradientColor=none;',
     			200, 200, '', 'Availability Zone', null, null, this.getTagsForStencil(gn, 'availability_zone', dt).join(' ')),
     			
     	this.addEntry(dt + 'cloud', function()
@@ -711,7 +711,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(10, 0, 70, 40), s + 'aws_cloud_icon;strokeColor=none;fillColor=#F69721;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 230, 'AWS Cloud');
     	}),
     							
@@ -721,7 +721,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(20, 0, 30, 40), s + 'corporate_data_center_icon;strokeColor=none;fillColor=#6D6F70;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 220, 'Corporate Data Center');
     	}),
     											
@@ -731,7 +731,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(20, 0, 40, 40), s + 'rrect;strokeColor=none;fillColor=#F69721;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 220, 'EC2 Instance Contents');
     	}),
     													
@@ -741,7 +741,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(20, 0, 43, 40), s + 'ec2_spot_instance;strokeColor=none;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 230, 'EC2 Spot Fleet');
     	}),
 
@@ -751,15 +751,15 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(20, 0, 40, 40), s + 'elastic_beanstalk_container_icon;strokeColor=none;fillColor=#2A6A35;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 220, 'Elastic Beanstalk Container');
     	}),
     															
-    	this.createVertexTemplateEntry(s + 'region;fillColor=none;gradientColor=none;', 
+    	this.createVertexTemplateEntry(s + 'region;fillColor=none;gradientColor=none;',
     			200, 200, '', 'Region', null, null, this.getTagsForStencil(gn, 'region', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'rrect;fillColor=none;gradientColor=none;', 
+    	this.createVertexTemplateEntry(s + 'rrect;fillColor=none;gradientColor=none;',
     			200, 200, '', 'Security Group', null, null, this.getTagsForStencil(gn, 'security', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'rrect;fillColor=#F2F2F2;gradientColor=none;', 
+    	this.createVertexTemplateEntry(s + 'rrect;fillColor=#F2F2F2;gradientColor=none;',
     			200, 200, '', 'Server Contents', null, null, this.getTagsForStencil(gn, 'server content', dt).join(' ')),
 
     	this.addEntry(dt + 'virtual private cloud', function()
@@ -768,7 +768,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(10, 0, 70, 40), s + 'virtual_private_cloud_icon;strokeColor=none;fillColor=#282560;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 230, 'Virtual Private Cloud');
     	}),
     								
@@ -778,7 +778,7 @@
     		bg1.vertex = true;
     		var bg2 = new mxCell('', new mxGeometry(20, 0, 40, 40), s + 'vpc_subnet_icon;strokeColor=none;fillColor=#282560;gradientColor=none;');
     		bg2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([bg1, bg2], 200, 230, 'VPC Subnet');
     	})
     ]);

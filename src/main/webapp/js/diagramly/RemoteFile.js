@@ -4,7 +4,7 @@
 RemoteFile = function(ui, data, title)
 {
   DrawioFile.call(this, ui, data);
-  
+
   this.title = title;
   this.mode = null;
 };
@@ -14,7 +14,7 @@ mxUtils.extend(RemoteFile, DrawioFile);
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -24,7 +24,7 @@ RemoteFile.prototype.isAutosave = function()
 };
 
 /**
- * 
+ *
  */
 RemoteFile.prototype.getMode = function()
 {
@@ -32,7 +32,7 @@ RemoteFile.prototype.getMode = function()
 };
 
 /**
- * 
+ *
  */
 RemoteFile.prototype.getTitle = function()
 {
@@ -40,7 +40,7 @@ RemoteFile.prototype.getTitle = function()
 };
 
 /**
- * 
+ *
  */
 RemoteFile.prototype.isRenamable = function()
 {

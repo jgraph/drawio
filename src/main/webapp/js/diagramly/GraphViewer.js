@@ -136,7 +136,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
   {
     this.minHeight += this.toolbarHeight;
   }
-  
+
   if (xmlNode != null)
   {
     this.xmlDocument = xmlNode.ownerDocument;
@@ -198,7 +198,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
     				return true;
     			};
     		}
-    
+
     		// Adds lightbox and link handling for shapes
     		if (this.lightboxClickEnabled)
     		{
@@ -235,7 +235,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
     		{
     			return self.getImageUrl(key);
     		};
-    
+
     		if (mxClient.IS_SVG)
     		{
     			// LATER: Add shadow for labels in graph.container (eg. math, NO_FO), scaling
@@ -332,7 +332,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
     		// LATER: Add event for setGraphXml
     		this.addListener('xmlNodeChanged', update);
     		update();
-  
+
     		// Passes current page via urlParams global variable
     		// to let the parser know which page we're using
     		urlParams['page'] = self.currentPage;
@@ -355,7 +355,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
     		{
     			this.graph.getModel().endUpdate();
     		}
-    
+
     		// Adds left-button panning only if scrollbars are visible
     		if (!this.responsive)
     		{
@@ -372,7 +372,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
     		}
     		
     		this.graph.setPanning(false);
-    
+
     		if (this.graphConfig.toolbar != null)
     		{
     			this.addToolbar();
@@ -464,23 +464,23 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.getObservableParent = function(container)
 {
   var node = container.parentNode;
-  
+
   while (node != document.body && node.parentNode != null &&
     mxUtils.getCurrentStyle(node).display !== 'none')
   {
     node = node.parentNode;
   }
-  
+
   return node;
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.getImageUrl = function(url)
 {
@@ -491,31 +491,31 @@ GraphViewer.prototype.getImageUrl = function(url)
     {
     	url = url.substring(1, url.length);
     }
-    
+
     url = this.imageBaseUrl + url;
   }
-  
+
   return url;
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.setXmlNode = function(xmlNode)
 {
-  //Extract graph model from html & svg formats 
+  //Extract graph model from html & svg formats
   xmlNode = this.editor.extractGraphModel(xmlNode, true);
 
   this.xmlDocument = xmlNode.ownerDocument;
   this.xml = mxUtils.getXml(xmlNode);
   this.xmlNode = xmlNode;
-  
+
   this.updateGraphXml(xmlNode);
   this.fireEvent(new mxEventObject('xmlNodeChanged'));
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.setFileNode = function(xmlNode)
 {
@@ -525,12 +525,12 @@ GraphViewer.prototype.setFileNode = function(xmlNode)
     this.xml = mxUtils.getXml(xmlNode);
     this.xmlNode = xmlNode;
   }
-  
+
   this.setGraphXml(xmlNode);
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.updateGraphXml = function(xmlNode)
 {
@@ -539,7 +539,7 @@ GraphViewer.prototype.updateGraphXml = function(xmlNode)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.setGraphXml = function(xmlNode)
 {
@@ -565,7 +565,7 @@ GraphViewer.prototype.setGraphXml = function(xmlNode)
     	
     	this.positionGraph();
     }
-    
+
     this.graph.initialViewState = {
     	translate: this.graph.view.translate.clone(),
     	scale: this.graph.view.scale
@@ -574,7 +574,7 @@ GraphViewer.prototype.setGraphXml = function(xmlNode)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.addSizeHandler = function()
 {
@@ -590,7 +590,7 @@ GraphViewer.prototype.addSizeHandler = function()
   {
     container.style.overflow = 'visible';
   }
-  
+
   var updateOverflow = mxUtils.bind(this, function()
   {
     if (!updatingOverflow)
@@ -665,12 +665,12 @@ GraphViewer.prototype.addSizeHandler = function()
   var lastOffsetWidth = null;
   var cachedOffsetWidth = null;
   this.handlingResize = false;
-  
+
   // Installs function on instance
   this.fitGraph = mxUtils.bind(this, function(maxScale)
   {
     var cachedOffsetWidth = container.offsetWidth;
-    
+
     if (cachedOffsetWidth != lastOffsetWidth && !this.handlingResize)
     {
     	this.handlingResize = true;
@@ -727,7 +727,7 @@ GraphViewer.prototype.addSizeHandler = function()
     	new ResizeSensor(this.graph.container, updateOverflow);
     }
   }
-  
+
   if (this.graphConfig.resize || ((this.zoomEnabled || !this.autoFit) && this.graphConfig.resize != false))
   {
     this.graph.minimumContainerSize = new mxRectangle(0, 0, this.minWidth, this.minHeight);
@@ -740,7 +740,7 @@ GraphViewer.prototype.addSizeHandler = function()
     {
     	this.updateContainerWidth(container, bounds.width + 2 * this.graph.border);
     }
-    
+
     if (this.graphConfig.resize != false || container.style.height == '')
     {
     	this.updateContainerHeight(container, Math.max(this.minHeight, bounds.height + 2 * this.graph.border + 1));
@@ -785,15 +785,15 @@ GraphViewer.prototype.addSizeHandler = function()
   {
     // Allocates maximum width while setting initial view state
     var prev = container.style.minWidth;
-    
+
     if (this.widthIsEmpty)
     {
     	container.style.minWidth = '100%';
     }
-    
+
     var maxHeight = (this.graphConfig['max-height'] != null) ? this.graphConfig['max-height'] :
     	((container.style.height != '' && this.autoFit) ? container.offsetHeight : undefined);
-    
+
     if (container.offsetWidth > 0 && origin == null && this.allowZoomOut && (this.allowZoomIn ||
     	bounds.width + 2 * this.graph.border > container.offsetWidth ||
     	bounds.height + 2 * this.graph.border > maxHeight))
@@ -814,12 +814,12 @@ GraphViewer.prototype.addSizeHandler = function()
     else
     {
     	origin = (origin != null) ? origin : new mxPoint();
-    
+
     	this.graph.view.setTranslate(Math.floor(this.graph.border - bounds.x / this.graph.view.scale) + origin.x,
     		Math.floor(this.graph.border - bounds.y / this.graph.view.scale) + origin.y);
     	lastOffsetWidth = container.offsetWidth;
     }
-    
+
     container.style.minWidth = prev
   });
 
@@ -857,7 +857,7 @@ GraphViewer.prototype.crop = function()
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.updateContainerWidth = function(container, width)
 {
@@ -865,7 +865,7 @@ GraphViewer.prototype.updateContainerWidth = function(container, width)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.updateContainerHeight = function(container, height)
 {
@@ -877,7 +877,7 @@ GraphViewer.prototype.updateContainerHeight = function(container, height)
 };
 
 /**
- * Shows the 
+ * Shows the
  */
 GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 {
@@ -886,13 +886,13 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
   var layerIds = this.graphConfig.layerIds;
   var hasLayerIds = layerIds != null && layerIds.length > 0;
   var result = false;
-  
+
   if (idx.length > 0 || hasLayerIds || sourceGraph != null)
   {
     var source = (sourceGraph != null) ? sourceGraph.getModel() : null;
     var model = graph.getModel();
     model.beginUpdate();
-    
+
     try
     {
     	var childCount = model.getChildCount(model.root);
@@ -935,13 +935,13 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.prototype.addToolbar = function()
 {
   var container = this.graph.container;
   var initialCursor = this.graph.container.style.cursor;
-  
+
   if (this.graphConfig['toolbar-position'] == 'bottom')
   {
     container.style.marginBottom = this.toolbarHeight + 'px';
@@ -962,16 +962,16 @@ GraphViewer.prototype.addToolbar = function()
   toolbar.style.backgroundColor = '#eee';
   toolbar.style.height = this.toolbarHeight + 'px';
   this.toolbar = toolbar;
-  
+
   if (this.graphConfig['toolbar-position'] == 'inline')
   {
     mxUtils.setPrefixedStyle(toolbar.style, 'transition', 'opacity 100ms ease-in-out');
     mxUtils.setOpacity(toolbar, 30);
-    
+
     // Changes toolbar opacity on hover
     var fadeThread = null;
     var fadeThread2 = null;
-    
+
     var fadeOut = mxUtils.bind(this, function(delay)
     {
     	if (fadeThread != null)
@@ -998,7 +998,7 @@ GraphViewer.prototype.addToolbar = function()
     		}), 100);
     	}), delay || 200);
     });
-    
+
     var fadeIn = mxUtils.bind(this, function(opacity)
     {
     	if (fadeThread != null)
@@ -1016,7 +1016,7 @@ GraphViewer.prototype.addToolbar = function()
     	toolbar.style.display = '';
     	mxUtils.setOpacity(toolbar, opacity || 30);
     });
-    
+
     mxEvent.addListener(this.graph.container, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', mxUtils.bind(this, function(evt)
     {
     	if (!mxEvent.isTouchEvent(evt))
@@ -1025,12 +1025,12 @@ GraphViewer.prototype.addToolbar = function()
     		fadeOut();
     	}
     }));
-    
+
     mxEvent.addListener(toolbar, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', function(evt)
     {
     	mxEvent.consume(evt);
     });
-    
+
     mxEvent.addListener(toolbar, 'mouseenter', mxUtils.bind(this, function(evt)
     {
     	fadeIn(100);
@@ -1049,7 +1049,7 @@ GraphViewer.prototype.addToolbar = function()
     		fadeIn(30);
     	}
     }));
-    
+
     // Shows/hides toolbar for touch devices
     var graph = this.graph;
     var tol = graph.getTolerance();
@@ -1090,10 +1090,10 @@ GraphViewer.prototype.addToolbar = function()
         }
     });
   }
-  
+
   var tokens = this.toolbarItems;
   var buttonCount = 0;
-  
+
   function addButton(fn, imgSrc, tip, enabled)
   {
     var a = document.createElement('div');
@@ -1105,12 +1105,12 @@ GraphViewer.prototype.addToolbar = function()
     {
     	a.setAttribute('title', tip);
     }
-    
+
     a.style.display = 'inline-block';
     var img = document.createElement('img');
     img.setAttribute('border', '0');
     img.setAttribute('src', imgSrc);
-    
+
     if (enabled == null || enabled)
     {
     	mxEvent.addListener(a, 'mouseenter', function()
@@ -1130,23 +1130,23 @@ GraphViewer.prototype.addToolbar = function()
     {
     	mxUtils.setOpacity(a, 30);
     }
-    
+
     a.appendChild(img);
     toolbar.appendChild(a);
-    
+
     buttonCount++;
-    
+
     return a;
   };
 
   var layersDialog = null;
   var layersDialogEntered = false;
   var pageInfo = null;
-  
+
   for (var i = 0; i < tokens.length; i++)
   {
     var token = tokens[i];
-    
+
     if (token == 'pages')
     {
     	pageInfo = container.ownerDocument.createElement('div');
@@ -1285,12 +1285,12 @@ GraphViewer.prototype.addToolbar = function()
     	}
     }
   }
-  
+
   if (this.graph.minimumContainerSize != null)
   {
     this.graph.minimumContainerSize.width = buttonCount * 34;
   }
-  
+
   if (this.graphConfig.title != null)
   {
     var filename = container.ownerDocument.createElement('div');
@@ -1299,14 +1299,14 @@ GraphViewer.prototype.addToolbar = function()
     filename.setAttribute('title', this.graphConfig.title);
     mxUtils.write(filename, this.graphConfig.title);
     mxUtils.setOpacity(filename, 70);
-    
+
     toolbar.appendChild(filename);
     this.filename = filename;
   }
-  
+
   this.minToolbarWidth = buttonCount * 34;
   var prevBorder = container.style.border;
-  
+
   var enter = mxUtils.bind(this, function()
   {
     toolbar.style.width = (this.graphConfig['toolbar-position'] == 'inline') ? 'auto' :
@@ -1316,7 +1316,7 @@ GraphViewer.prototype.addToolbar = function()
     if (this.graphConfig['toolbar-nohide'] != true)
     {
     	var r = container.getBoundingClientRect();
-  
+
     	// Workaround for position:relative set in ResizeSensor
     	var origin = mxUtils.getScrollOrigin(document.body)
     	var b = (document.body.style.position === 'relative') ? document.body.getBoundingClientRect() :
@@ -1393,7 +1393,7 @@ GraphViewer.prototype.addToolbar = function()
     	container.appendChild(toolbar);
     }
   });
-  
+
   if (this.graphConfig['toolbar-nohide'] != true)
   {
     mxEvent.addListener(container, 'mouseenter', enter);
@@ -1402,7 +1402,7 @@ GraphViewer.prototype.addToolbar = function()
   {
     enter();
   }
-  
+
   if (this.responsive && typeof ResizeObserver !== 'undefined')
   {
     new ResizeObserver(function()
@@ -1438,7 +1438,7 @@ GraphViewer.prototype.addClickHandler = function(graph, ui)
     		source = source.parentNode;
     	}
     }
-    
+
     if (ui != null)
     {
     	if (href == null || graph.isCustomLink(href))
@@ -1495,12 +1495,12 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
     	target = (target != null) ? target : 'blank';
     	
     	var param = {'client': 1, 'target': target};
-        
+
     	if (editable)
     	{
     		param.edit = this.graphConfig.edit || '_blank';
     	}
-        
+
     	if (closable)
     	{
         		param.close = 1;
@@ -1573,20 +1573,20 @@ GraphViewer.prototype.showLocalLightbox = function()
   backdrop.style.zIndex = this.lightboxZIndex;
   backdrop.style.backgroundColor = '#000000';
   mxUtils.setOpacity(backdrop, 70);
-  
+
   document.body.appendChild(backdrop);
-  
+
   var closeImg = document.createElement('img');
   closeImg.setAttribute('border', '0');
   closeImg.setAttribute('src', Editor.closeImage);
   closeImg.style.cssText = 'position:fixed;top:32px;right:32px;';
   closeImg.style.cursor = 'pointer';
-  
+
   mxEvent.addListener(closeImg, 'click', function()
   {
     ui.destroy();
   });
-  
+
   // LATER: Make possible to assign after instance was created
   urlParams['pages'] = '1';
   urlParams['page'] = this.currentPage;
@@ -1602,26 +1602,26 @@ GraphViewer.prototype.showLocalLightbox = function()
     Editor.prototype.editButtonLink = this.graphConfig.edit;
     Editor.prototype.editButtonFunc = this.graphConfig.editFunc;
   }
-  
+
   EditorUi.prototype.updateActionStates = function() {};
   EditorUi.prototype.addBeforeUnloadListener = function() {};
   EditorUi.prototype.addChromelessClickHandler = function() {};
-  
+
   // Workaround for lost reference with same ID is to change
   // ID which must be done before calling EditorUi constructor
   var previousShadowId = Graph.prototype.shadowId;
   Graph.prototype.shadowId = 'lightboxDropShadow';
-  
+
   var ui = new EditorUi(new Editor(true), document.createElement('div'), true);
   ui.editor.editBlankUrl = this.editBlankUrl;
-  
+
   // Overrides instance variable and restores prototype state
   ui.editor.graph.shadowId = 'lightboxDropShadow';
   Graph.prototype.shadowId = previousShadowId;
 
   // Disables refresh
   ui.refresh = function() {};
-  
+
   // Handles escape keystroke
   var keydownHandler = mxUtils.bind(this, function(evt)
   {
@@ -1639,14 +1639,14 @@ GraphViewer.prototype.showLocalLightbox = function()
     document.body.removeChild(closeImg);
     document.body.style.overflow = 'auto';
     GraphViewer.resizeSensorEnabled = true;
-    
+
     destroy.apply(this, arguments);
   };
-  
+
   var graph = ui.editor.graph;
   var lightbox = graph.container;
   lightbox.style.overflow = 'hidden';
-  
+
   if (this.lightboxChrome)
   {
     lightbox.style.border = '1px solid #c0c0c0';
@@ -1660,30 +1660,30 @@ GraphViewer.prototype.showLocalLightbox = function()
     backdrop.style.display = 'none';
     closeImg.style.display = 'none';
   }
-  
+
   // Handles relative images
   var self = this;
-  
+
   graph.getImageFromBundles = function(key)
   {
     return self.getImageUrl(key);
   };
-  
+
   // Handles relative images in print output and temporary graphs
   var uiCreateTemporaryGraph = ui.createTemporaryGraph;
-  
+
   ui.createTemporaryGraph = function()
   {
     var graph = uiCreateTemporaryGraph.apply(this, arguments);
-    
+
     graph.getImageFromBundles = function(key)
     {
     	return self.getImageUrl(key);
     };
-    
+
     return graph;
   };
-  
+
   if (this.graphConfig.move)
   {
     graph.isMoveCellsEvent = function(evt)
@@ -1691,10 +1691,10 @@ GraphViewer.prototype.showLocalLightbox = function()
     	return true;
     };
   }
-  
+
   mxUtils.setPrefixedStyle(lightbox.style, 'border-radius', '4px');
   lightbox.style.position = 'fixed';
-  
+
   GraphViewer.resizeSensorEnabled = false;
   document.body.style.overflow = 'hidden';
 
@@ -1704,7 +1704,7 @@ GraphViewer.prototype.showLocalLightbox = function()
     mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(90deg)');
     mxUtils.setPrefixedStyle(lightbox.style, 'transition', 'all .25s ease-in-out');
   }
-  
+
   this.addClickHandler(graph, ui);
 
   window.setTimeout(mxUtils.bind(this, function()
@@ -1716,25 +1716,25 @@ GraphViewer.prototype.showLocalLightbox = function()
 
     document.body.appendChild(lightbox);
     document.body.appendChild(closeImg);
-    
+
     ui.setFileData(this.xml);
 
     mxUtils.setPrefixedStyle(lightbox.style, 'transform', 'rotateY(0deg)');
     ui.chromelessToolbar.style.bottom = 60 + 'px';
     ui.chromelessToolbar.style.zIndex = this.lightboxZIndex;
-    
+
     // Workaround for clipping in IE11-
     document.body.appendChild(ui.chromelessToolbar);
-  
+
     ui.getEditBlankXml = mxUtils.bind(this, function()
     {
     	return this.xml;
     });
-  
+
     ui.lightboxFit();
     ui.chromelessResize();
     this.showLayers(graph, this.graph);
-    
+
     // Click on backdrop closes lightbox
     mxEvent.addListener(backdrop, 'click', function()
     {
@@ -1748,12 +1748,12 @@ GraphViewer.prototype.showLocalLightbox = function()
 GraphViewer.prototype.updateTitle = function(title)
 {
   title = title || '';
-  
+
   if (this.showTitleAsTooltip && this.graph != null && this.graph.container != null)
   {
     this.graph.container.setAttribute('title', title);
     }
-  
+
   if (this.filename != null)
   {
     this.filename.innerHTML = '';
@@ -1763,7 +1763,7 @@ GraphViewer.prototype.updateTitle = function(title)
 };
 
 /**
- * 
+ *
  */
 GraphViewer.processElements = function(classname)
 {
@@ -1794,22 +1794,22 @@ GraphViewer.getElementsByClassName = function(classname)
   if (document.getElementsByClassName)
   {
     var divs = document.getElementsByClassName(classname);
-    
+
     // Workaround for changing divs while processing
     var result = [];
-    
+
     for (var i = 0; i < divs.length; i++)
     {
     	result.push(divs[i]);
     }
-    
+
     return result;
   }
   else
   {
     var tmp = document.getElementsByTagName('*');
     var divs = [];
-  
+
     for (var i = 0; i < tmp.length; i++)
     {
     	var cls = tmp[i].className;
@@ -1835,11 +1835,11 @@ GraphViewer.getElementsByClassName = function(classname)
 GraphViewer.createViewerForElement = function(element, callback)
 {
   var data = element.getAttribute('data-mxgraph');
-  
+
   if (data != null)
   {
     var config = JSON.parse(data);
-    
+
     var createViewer = function(xml)
     {
     	var xmlDoc = mxUtils.parseXml(xml);
@@ -1966,12 +1966,12 @@ GraphViewer.getUrl = function(url, onload, onerror)
     var xhr = (navigator.userAgent != null && navigator.userAgent.indexOf('MSIE 9') > 0) ?
     	new XDomainRequest() : new XMLHttpRequest();
     xhr.open('GET', url);
-    
+
       xhr.onload = function()
       {
         onload((xhr.getText != null) ? xhr.getText() : xhr.responseText);
     };
-    
+
       xhr.onerror = onerror;
       xhr.send();
   }
@@ -2013,7 +2013,7 @@ GraphViewer.useResizeSensor = true;
      * @constructor
      */
     var ResizeSensor = function(element, fn) {
-      
+
       var callback = function()
       {
         if (GraphViewer.resizeSensorEnabled)
@@ -2021,7 +2021,7 @@ GraphViewer.useResizeSensor = true;
         	fn();
         }
       };
-      
+
         /**
          *
          * @constructor

@@ -2,7 +2,7 @@
  * Copyright (c) 2017, CTI LOGIC
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
@@ -11,13 +11,13 @@
  *
  * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY 
- * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
  * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-function mxRuler(editorUi, unit, isVertical, isSecondery) 
+function mxRuler(editorUi, unit, isVertical, isSecondery)
 {
   var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                                window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -46,32 +46,32 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     container.style.position = 'absolute';
     container.style.background = style.bkgClr;
     container.style[isVertical? 'borderRight' : 'borderBottom'] = '0.5px solid ' + style.strokeClr;
-  container.style.borderLeft = '0.5px solid ' + style.strokeClr;  
+  container.style.borderLeft = '0.5px solid ' + style.strokeClr;
 
     document.body.appendChild(container);
   mxEvent.disableContextMenu(container);
-  
+
   function resizeRulerContainer()
   {
     var diagCont = editorUi.diagramContainer;
-    
+
       container.style.top = (diagCont.offsetTop - RULER_THICKNESS) + 'px';
       container.style.left = (diagCont.offsetLeft - RULER_THICKNESS) + 'px';
       container.style.width = ((isVertical? 0 : diagCont.offsetWidth) + RULER_THICKNESS) + 'px';
       container.style.height = ((isVertical? diagCont.offsetHeight : 0) + RULER_THICKNESS) + 'px';
   };
-    
+
   this.editorUiRefresh = editorUi.refresh;
-  
+
   editorUi.refresh = function(minor)
   {
     ruler.editorUiRefresh.apply(editorUi, arguments);
-    
+
     resizeRulerContainer();
   };
 
   resizeRulerContainer();
-      
+
     var canvas = document.createElement('canvas');
     //initial sizing which is corrected by the graph size event
     canvas.width = container.offsetWidth;
@@ -87,7 +87,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     this.container = container;
     this.canvas = canvas;
 
-    var drawLine = function (x1, y1, x2, y2, text) 
+    var drawLine = function (x1, y1, x2, y2, text)
     {
         //remove all fractions
         x1 = Math.round(x1); y1 = Math.round(y1); x2 = Math.round(x2); y2 = Math.round(y2);
@@ -96,10 +96,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         ctx.moveTo(x1 + 0.5, y1 + 0.5);
         ctx.lineTo(x2 + 0.5, y2 + 0.5);
         ctx.stroke();
-        
-        if (text) 
+
+        if (text)
         {
-            if (isVertical) 
+            if (isVertical)
             {
                 ctx.save();
                 ctx.translate(x1, y1);
@@ -113,35 +113,35 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
             }
         }
     };
-    
-    var drawRuler = function() 
+
+    var drawRuler = function()
     {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
         ctx.beginPath();
         ctx.lineWidth = 0.7;
         ctx.strokeStyle = style.strokeClr;
         ctx.setLineDash([]);
         ctx.font = '9px Arial';
         ctx.textAlign = 'center';
-        
+
         var scale = graph.view.scale;
         var bgPages = graph.view.getBackgroundPageBounds();
         var t = graph.view.translate;
         var hasPageView = graph.pageVisible;
-        
+
         //The beginning of the ruler (zero)
-        var rStart = hasPageView? RULER_THICKNESS + (isVertical? bgPages.y -  graph.container.scrollTop : bgPages.x - graph.container.scrollLeft) 
+        var rStart = hasPageView? RULER_THICKNESS + (isVertical? bgPages.y -  graph.container.scrollTop : bgPages.x - graph.container.scrollLeft)
             : RULER_THICKNESS + (isVertical? t.y * scale -  graph.container.scrollTop : t.x * scale - graph.container.scrollLeft);
 
         //handle negative pages
         var pageShift = 0;
-        
+
         if (hasPageView)
         {
     	var layout = graph.getPageLayout();
-  
-          if (isVertical) 
+
+          if (isVertical)
           {
               pageShift = layout.y * graph.pageFormat.height;
           }
@@ -150,10 +150,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
               pageShift = layout.x * graph.pageFormat.width;
           }
         }
-        
+
         var tickStep, tickSize, len;
 
-        switch(ruler.unit) 
+        switch(ruler.unit)
         {
             case mxConstants.POINTS:
                 len = 10;
@@ -170,7 +170,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
                     len = 8;
                 else
                     len = 16;
-                
+
                 tickStep = mxConstants.PIXELS_PER_INCH / len;
                 tickSize = [5,3,5,3,7,3,5,3,7,3,5,3,7,3,5,3];
                 break;
@@ -178,7 +178,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
         //Handle step size and change it with large/small scale
         var step = tickStep;
-        
+
         if (scale >= 2)
       {
           step = tickStep / (Math.floor(scale / 2) * 2);
@@ -189,7 +189,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
       }
 
         var lastTick = null;
-        
+
         //End of the ruler (pages end)
         var rEnd = hasPageView? Math.min(rStart + (isVertical? bgPages.height: bgPages.width), isVertical? canvas.height : canvas.width) : (isVertical? canvas.height : canvas.width);
 
@@ -197,7 +197,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         {
           //Clear the outside page part with a different color
           ctx.fillStyle = style.outBkgClr;
-          
+
           if (isVertical)
         {
     		var oh = rStart - RULER_THICKNESS;
@@ -215,40 +215,40 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
           else
           {
     		var ow = rStart - RULER_THICKNESS;
-            
+
     		if (ow > 0)
     		{
     			ctx.fillRect(RULER_THICKNESS, 0, ow, RULER_THICKNESS);	
     		}
-            
+
     		if (rEnd < canvas.width)
     		{
     			ctx.fillRect(rEnd, 0, canvas.width, RULER_THICKNESS);
     		}
           }
         }
-        
+
         //Draw ticks
         ctx.fillStyle = style.fontClr;
-        
-        for (var i = hasPageView? rStart : rStart % (step * scale); i <= rEnd; i += step * scale) 
+
+        for (var i = hasPageView? rStart : rStart % (step * scale); i <= rEnd; i += step * scale)
         {
            var current = Math.round((i - rStart) / scale / step);
-          
+
            if (i < RULER_THICKNESS || current == lastTick) //Prevent wasting time in drawing non-visible/duplicate lines
             {
                 continue;
             }
-             
+
              lastTick = current;
              var text = null;
-             
-             if (current % len == 0) 
+
+             if (current % len == 0)
              {
                  text = ruler.formatText(pageShift + current * step) + '';
              }
-             
-           if (isVertical) 
+
+           if (isVertical)
              {
                  drawLine(RULER_THICKNESS - tickSize[Math.abs(current) % len], i, RULER_THICKNESS, i, text);
              }
@@ -257,17 +257,17 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
                  drawLine(i, RULER_THICKNESS - tickSize[Math.abs(current) % len], i, RULER_THICKNESS, text);
              }
         }
-        
+
         //Draw corner rect
         ctx.lineWidth = 1;
         drawLine(isVertical? 0 : RULER_THICKNESS, isVertical? RULER_THICKNESS : 0, RULER_THICKNESS, RULER_THICKNESS);
         ctx.fillStyle = style.cornerClr;
         ctx.fillRect(0, 0, RULER_THICKNESS, RULER_THICKNESS);
     };
-    
+
   var animationId = -1;
 
-  var listenersDrawRuler = function() 
+  var listenersDrawRuler = function()
   {
     if (requestAnimationFrame != null)
     {
@@ -283,15 +283,15 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	drawRuler();
     }
   };
-  
-  var sizeListener = function() 
+
+  var sizeListener = function()
   {
       var div = graph.container;
-      
+
       if (isVertical)
       {
         var newH = div.offsetHeight + RULER_THICKNESS;
-        
+
         if (canvas.height != newH)
         {
         	canvas.height = newH;
@@ -299,10 +299,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
         	listenersDrawRuler();
         }
       }
-      else 
+      else
       {
         var newW = div.offsetWidth + RULER_THICKNESS;
-        
+
         if (canvas.width != newW)
         {
         	canvas.width = newW;
@@ -316,16 +316,16 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
   var efficientSizeListener = debounce(sizeListener, 10);
   this.sizeListener = efficientSizeListener;
-  
+
   this.pageListener = function()
   {
     listenersDrawRuler();
   };
-  
+
   var efficientScrollListener = debounce(function()
   {
     var newScroll = isVertical? graph.container.scrollTop : graph.container.scrollLeft;
-    
+
     if (ruler.lastScroll != newScroll)
     {
     	ruler.lastScroll = newScroll;
@@ -338,7 +338,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     {
       ruler.setUnit(evt.getProperty('unit'));
     };
-  
+
     graph.addListener(mxEvent.SIZE, efficientSizeListener);
     graph.container.addEventListener('scroll', efficientScrollListener);
     graph.view.addListener('unitChanged', this.unitListener);
@@ -346,13 +346,13 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     editorUi.addListener('pageScaleChanged', this.pageListener);
     editorUi.addListener('pageFormatChanged', this.pageListener);
 
-    function debounce(func, wait, immediate) 
+    function debounce(func, wait, immediate)
     {
     if (requestAnimationFrame != null)
     {
     	return func;
     }
-    
+
         var timeout;
         return function() {
             var context = this, args = arguments;
@@ -366,21 +366,21 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
             if (callNow) func.apply(context, args);
         };
     };
-    
+
     this.setStyle = function(newStyle)
     {
       style = newStyle;
       container.style.background = style.bkgClr;
       drawRuler();
     }
-    
+
     // Showing guides on cell move
     this.origGuideMove = mxGuide.prototype.move;
-  
+
   mxGuide.prototype.move = function (bounds, delta, gridEnabled, clone)
   {
     var ret = null;
-    
+
     // LATER: Fix repaint for width and height < 5
     if ((isVertical && bounds.height > 4) || (!isVertical && bounds.width > 4))
     {
@@ -399,14 +399,14 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	}
     	
     	ret = ruler.origGuideMove.apply(this, arguments);
-  
+
     	try
     	{
     		var x1, y1, imgData1, x2, y2, imgData2, x3, y3, imgData3;
     		ctx.lineWidth = 0.5;
             ctx.strokeStyle = style.guideClr;
             ctx.setLineDash([2]);
-    
+
             if (isVertical)
     		{
     			y1 = bounds.y + ret.y + RULER_THICKNESS - this.graph.container.scrollTop;
@@ -446,7 +446,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     		
     		if (ruler.guidePart == null || ruler.guidePart.x1 != x1 || ruler.guidePart.y1 != y1)
     		{
-    			ruler.guidePart = { 
+    			ruler.guidePart = {
     				imgData1: imgData1,
     				x1: x1,
     				y1: y1,
@@ -468,16 +468,16 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     {
     	ret = ruler.origGuideMove.apply(this, arguments);
     }
-    
+
     return ret;
   }
-  
+
   this.origGuideDestroy = mxGuide.prototype.destroy;
-  
+
   mxGuide.prototype.destroy = function()
   {
     var ret = ruler.origGuideDestroy.apply(this, arguments);
-    
+
     if (ruler.guidePart != null)
     {
     	try
@@ -492,7 +492,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     		// ignore
     	}
     }
-    
+
     return ret;
   };
 };
@@ -500,15 +500,15 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 mxRuler.prototype.RULER_THICKNESS = 14;
 mxRuler.prototype.unit = mxConstants.POINTS;
 
-mxRuler.prototype.setUnit = function(unit) 
+mxRuler.prototype.setUnit = function(unit)
 {
     this.unit = unit;
     this.drawRuler();
 };
 
-mxRuler.prototype.formatText = function(pixels) 
+mxRuler.prototype.formatText = function(pixels)
 {
-    switch(this.unit) 
+    switch(this.unit)
     {
         case mxConstants.POINTS:
             return Math.round(pixels);
@@ -519,7 +519,7 @@ mxRuler.prototype.formatText = function(pixels)
     }
 };
 
-mxRuler.prototype.destroy = function() 
+mxRuler.prototype.destroy = function()
 {
   this.ui.refresh = this.editorUiRefresh;
   mxGuide.prototype.move = this.origGuideMove;
@@ -530,7 +530,7 @@ mxRuler.prototype.destroy = function()
     this.ui.removeListener('pageViewChanged', this.pageListener);
     this.ui.removeListener('pageScaleChanged', this.pageListener);
     this.ui.removeListener('pageFormatChanged', this.pageListener);
-    
+
     if (this.container != null)
     {
       this.container.parentNode.removeChild(this.container);
@@ -551,7 +551,7 @@ function mxDualRuler(editorUi, unit)
   this.ui = editorUi;
   this.origGuideMove = mxGuide.prototype.move;
   this.origGuideDestroy = mxGuide.prototype.destroy;
-  
+
   this.vRuler = new mxRuler(editorUi, unit, true);
   this.hRuler = new mxRuler(editorUi, unit, false, true);
 
@@ -602,15 +602,15 @@ function mxDualRuler(editorUi, unit)
     	}
     }));
   });
-  
+
   installMenu(this.hRuler.container);
   installMenu(this.vRuler.container);
-  
+
   this.vRuler.drawRuler();
   this.hRuler.drawRuler();
 };
 
-mxDualRuler.prototype.setUnit = function(unit) 
+mxDualRuler.prototype.setUnit = function(unit)
 {
   this.vRuler.setUnit(unit);
   this.hRuler.setUnit(unit);
@@ -622,7 +622,7 @@ mxDualRuler.prototype.setStyle = function(newStyle)
   this.hRuler.setStyle(newStyle);
 }
 
-mxDualRuler.prototype.destroy = function() 
+mxDualRuler.prototype.destroy = function()
 {
   this.vRuler.destroy();
   this.hRuler.destroy();

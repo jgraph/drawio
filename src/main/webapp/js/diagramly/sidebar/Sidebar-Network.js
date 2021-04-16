@@ -11,7 +11,7 @@
     var gn = 'mxgraph.networks';
     var dt = 'computer network ';
     this.setCurrentSearchEntryLibrary('network');
-    
+
     this.addPaletteFunctions('network', 'Network', false,
     [
     	this.addDataEntry(dt + 'ring bus', 100, 100, 'Ring Bus',
@@ -78,7 +78,7 @@
     	this.createVertexTemplateEntry(s0 + s + 'wireless_hub;', 100, 85, '', 'Wireless Hub', null, null, this.getTagsForStencil(gn, 'wireless_hub', dt).join(' ')),
     	this.createVertexTemplateEntry(s0 + s + 'wireless_modem;', 100, 85, '', 'Wireless Modem', null, null, this.getTagsForStencil(gn, 'wireless_modem', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

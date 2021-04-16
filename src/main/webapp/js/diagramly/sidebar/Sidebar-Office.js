@@ -25,7 +25,7 @@
     this.addOfficeUsersPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addOfficeCloudsPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;outlineConnect=0;verticalAlign=top;align=center;shape=mxgraph.office.clouds.';
@@ -35,10 +35,10 @@
     var sb = this;
     var gn = 'mxgraph.office.clouds';
     var dt = 'office cloud ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'azure;',
@@ -87,10 +87,10 @@
     var sb = this;
     var gn = 'mxgraph.office.communications';
     var dt = 'office communication ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + '3rd_party_call_center_solution;',
@@ -253,10 +253,10 @@
     var sb = this;
     var gn = 'mxgraph.office.concepts';
     var dt = 'office concept ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'address_book;',
@@ -559,10 +559,10 @@
     var sb = this;
     var gn = 'mxgraph.office.databases';
     var dt = 'office database db ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'address_book_store;',
@@ -665,7 +665,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeDevicesPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.devices.';
@@ -675,10 +675,10 @@
     var sb = this;
     var gn = 'mxgraph.office.devices';
     var dt = 'office device ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'bluetooth;',
@@ -791,7 +791,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeSecurityPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.security.';
@@ -801,10 +801,10 @@
     var sb = this;
     var gn = 'mxgraph.office.security';
     var dt = 'office security ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'active_directory;',
@@ -921,7 +921,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeServersPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.servers.';
@@ -931,10 +931,10 @@
     var sb = this;
     var gn = 'mxgraph.office.servers';
     var dt = 'office server ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + '3rd_party_mail_server;',
@@ -1141,7 +1141,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeServicesPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.services.';
@@ -1151,10 +1151,10 @@
     var sb = this;
     var gn = 'mxgraph.office.services';
     var dt = 'office service ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + '3rd_party_service;',
@@ -1219,7 +1219,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeSitesPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.sites.';
@@ -1229,10 +1229,10 @@
     var sb = this;
     var gn = 'mxgraph.office.sites';
     var dt = 'office site ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'access_services;',
@@ -1289,7 +1289,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addOfficeUsersPalette = function()
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#505050;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.';
@@ -1299,10 +1299,10 @@
     var sb = this;
     var gn = 'mxgraph.office.users';
     var dt = 'office user ';
-    
+
     var w = 1.0;
     var h = 1.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'administrator;',

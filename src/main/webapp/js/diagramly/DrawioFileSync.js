@@ -1,7 +1,7 @@
 /**
  * Copyright (c) 2006-2018, JGraph Ltd
  * Copyright (c) 2006-2018, Gaudenz Alder
- * 
+ *
  * Realtime collaboration for any file.
  */
 DrawioFileSync = function(file)
@@ -23,9 +23,9 @@ DrawioFileSync = function(file)
     	this.fileChangedNotify();
     }
   });
-    
+
   mxEvent.addListener(window, 'online', this.onlineListener);
-  
+
     // Listens to visible state changes
   this.visibleListener = mxUtils.bind(this, function()
   {
@@ -41,9 +41,9 @@ DrawioFileSync = function(file)
     	this.start();
     }
   });
-    
+
   mxEvent.addListener(document, 'visibilitychange', this.visibleListener);
-  
+
     // Listens to visible state changes
   this.activityListener = mxUtils.bind(this, function(evt)
   {
@@ -54,7 +54,7 @@ DrawioFileSync = function(file)
   mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
   mxEvent.addListener(document, 'keypress', this.activityListener);
   mxEvent.addListener(window, 'focus', this.activityListener);
-  
+
   if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
   {
     mxEvent.addListener(document, 'touchstart', this.activityListener);
@@ -76,7 +76,7 @@ DrawioFileSync = function(file)
   {
     this.updateOnlineState();
     this.updateStatus();
-    
+
     if (this.isConnected())
     {
     	if (!this.announced)
@@ -103,7 +103,7 @@ DrawioFileSync = function(file)
     	}
     }
   });
-  
+
   // Listens to messages
   this.changeListener = mxUtils.bind(this, function(data)
   {
@@ -239,17 +239,17 @@ DrawioFileSync.prototype.start = function()
   {
     this.channelId = this.file.getChannelId();
   }
-  
+
   if (this.key == null)
   {
     this.key = this.file.getChannelKey();
   }
-  
+
   if (this.pusher == null && this.channelId != null &&
-    document.visibilityState != 'hidden') 
+    document.visibilityState != 'hidden')
   {
     this.pusher = this.ui.getPusher();
-    
+
     if (this.pusher != null)
     {
     	try
@@ -315,7 +315,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
   {
     return;
   }
-  
+
   var addClickHandler = mxUtils.bind(this, function(elt)
   {
     mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
@@ -345,7 +345,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
           elt.style.backgroundSize = '24px 24px';
           elt.style.height = '24px';
           elt.style.width = '24px';
-          
+
           addClickHandler(elt);
           this.ui.buttonContainer.appendChild(elt);
           this.collaboratorsElement = elt;
@@ -373,7 +373,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
     	elt.style.width = '16px';
     	elt.style.height = '16px';
         mxUtils.setOpacity(elt, 60);
-        
+
     	if (uiTheme == 'dark')
     	{
     		elt.style.filter = 'invert(100%)';
@@ -391,11 +391,11 @@ DrawioFileSync.prototype.updateOnlineState = function()
     	this.collaboratorsElement = elt;
     }
   }
-  
+
   if (this.collaboratorsElement != null)
   {
     var status = '';
-    
+
     if (!this.enabled)
     {
     	status = mxResources.get('disconnected');
@@ -412,7 +412,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
     {
     	status = mxResources.get('online');
     }
-    
+
     this.collaboratorsElement.setAttribute('title', status);
     this.collaboratorsElement.style.backgroundImage = 'url(' + ((!this.enabled) ? Editor.syncDisabledImage :
     	((!this.ui.isOffline(true) && this.isConnected() && !this.file.invalidChecksum) ?
@@ -432,7 +432,7 @@ DrawioFileSync.prototype.updateStatus = function()
   {
     this.stop();
   }
-  
+
   if (!this.file.isModified() && !this.file.inConflictState &&
     this.file.autosaveThread == null && !this.file.savingFile &&
     !this.file.redirectDialogShowing)
@@ -519,7 +519,7 @@ DrawioFileSync.prototype.resetUpdateStatusThread = function()
   {
     window.clearInterval(this.updateStatusThread);
   }
-  
+
   if (this.channel != null)
   {
     this.updateStatusThread = window.setInterval(mxUtils.bind(this, function()
@@ -538,7 +538,7 @@ DrawioFileSync.prototype.installListeners = function()
   {
     this.pusher.connection.bind('state_change', this.connectionListener);
   }
-    
+
   if (this.channel != null)
     {
       this.channel.bind('changed', this.changeListener);
@@ -563,7 +563,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
     {
     	this.file.stats.joined++;
     }
-    
+
     if (data.name != null)
     {
     	this.lastMessage = mxResources.get((data.a == 'join') ?
@@ -575,7 +575,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
   else if (data.m != null)
   {
     var mod = new Date(data.m);
-    
+
     // Ignores obsolete messages
     if (this.lastMessageModified == null || this.lastMessageModified < mod)
     {
@@ -603,7 +603,7 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
   if (this.reloadThread == null)
   {
     retryCount = (retryCount != null) ? retryCount : 0;
-    
+
     if (retryCount < this.maxOptimisticReloadRetries)
     {
     	this.reloadThread = window.setTimeout(mxUtils.bind(this, function()
@@ -633,7 +633,7 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
     		}));
     	}), (retryCount + 1) * this.file.optimisticSyncDelay);
     }
-    
+
     if (urlParams['test'] == '1')
     {
     	EditorUi.debug('Sync.optimisticSync', [this], 'retryCount', retryCount);
@@ -716,9 +716,9 @@ DrawioFileSync.prototype.fileChanged = function(success, error, abort, lazy)
     	}
     }
   }), (lazy) ? this.cacheReadyDelay : 0);
-  
+
   this.notifyThread = thread;
-  
+
   return thread;
 };
 
@@ -767,7 +767,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
   {
     var etag = this.file.getDescriptorRevisionId(desc);
     var current = this.file.getCurrentRevisionId();
-    
+
     if (current == etag)
     {
     	this.file.patchDescriptor(this.file.getDescriptor(), desc);
@@ -827,7 +827,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
     						acceptResponse = false;
     						this.reload(success, error, abort);
     					}), this.ui.timeout);
-  
+
     					mxUtils.get(EditorUi.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
     						'&from=' + encodeURIComponent(current) + '&to=' + encodeURIComponent(etag) +
     						((secret != null) ? '&secret=' + encodeURIComponent(secret) : ''),
@@ -955,7 +955,7 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow)
     this.lastModified = this.file.getLastModifiedDate();
     this.updateStatus();
     this.start();
-    
+
     if (success != null)
     {
     	success();
@@ -1056,7 +1056,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
     this.file.inConflictState = false;
     this.file.patchDescriptor(this.file.getDescriptor(), desc);
     this.file.backupPatch = null;
-    
+
     if (success != null)
     {
     	success();
@@ -1067,12 +1067,12 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
     this.file.inConflictState = true;
     this.file.invalidChecksum = true;
     this.file.descriptorChanged();
-    
+
     if (error != null)
     {
     	error(e);
     }
-    
+
     try
     {
     	if (this.file.errorReportsEnabled)
@@ -1109,7 +1109,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 DrawioFileSync.prototype.descriptorChanged = function(etag)
 {
   this.lastModified = this.file.getLastModifiedDate();
-  
+
   if (this.channelId != null)
   {
     var msg = this.objectToString(this.createMessage({a: 'desc',
@@ -1123,7 +1123,7 @@ DrawioFileSync.prototype.descriptorChanged = function(etag)
     this.file.stats.bytesSent += data.length;
     this.file.stats.msgSent++;
   }
-  
+
   this.updateStatus();
 };
 
@@ -1133,12 +1133,12 @@ DrawioFileSync.prototype.descriptorChanged = function(etag)
 DrawioFileSync.prototype.objectToString = function(obj)
 {
   var data = Graph.compress(JSON.stringify(obj));
-  
+
   if (this.key != null && typeof CryptoJS !== 'undefined')
   {
     data = CryptoJS.AES.encrypt(data, this.key).toString();
   }
-  
+
   return data;
 };
 
@@ -1151,7 +1151,7 @@ DrawioFileSync.prototype.stringToObject = function(data)
   {
     data = CryptoJS.AES.decrypt(data, this.key).toString(CryptoJS.enc.Utf8);
   }
-  
+
   return JSON.parse(Graph.decompress(data));
 };
 
@@ -1167,12 +1167,12 @@ DrawioFileSync.prototype.createToken = function(secret, success, error)
     acceptResponse = false;
     error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
   }), this.ui.timeout);
-  
+
   mxUtils.get(EditorUi.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
     '&secret=' + encodeURIComponent(secret), mxUtils.bind(this, function(req)
   {
     window.clearTimeout(timeoutThread);
-    
+
     if (acceptResponse)
     {
     	if (req.getStatus() >= 200 && req.getStatus() <= 299)
@@ -1210,7 +1210,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
   this.lastModified = this.file.getLastModifiedDate();
   this.resetUpdateStatusThread();
   this.catchupRetryCount = 0;
-  
+
   if (!this.ui.isOffline(true) && !this.file.inConflictState && !this.file.redirectDialogShowing)
   {
     this.start();
@@ -1318,7 +1318,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 //    	}
     }
   }
-  
+
   // Ignores cache response as clients
   // load file if cache entry failed
   this.file.shadowPages = pages;
@@ -1330,13 +1330,13 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 DrawioFileSync.prototype.getIdParameters = function()
 {
   var result = 'id=' + this.channelId;
-  
+
   if (this.pusher != null && this.pusher.connection != null &&
     this.pusher.connection.socket_id != null)
   {
     result += '&sid=' + this.pusher.connection.socket_id;
   }
-  
+
   return result;
 };
 
@@ -1354,11 +1354,11 @@ DrawioFileSync.prototype.createMessage = function(data)
 DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 {
   this.catchupRetryCount++;
-  
+
   if (this.catchupRetryCount < this.maxCatchupRetries)
   {
     this.file.stats.conflicts++;
-    
+
     if (desc != null)
     {
     	this.catchup(desc, success, error);
@@ -1372,7 +1372,7 @@ DrawioFileSync.prototype.fileConflict = function(desc, success, error)
   {
     this.file.stats.timeouts++;
     this.catchupRetryCount = 0;
-    
+
     if (error != null)
     {
     	error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
@@ -1388,14 +1388,14 @@ DrawioFileSync.prototype.stop = function()
   if (this.pusher != null)
   {
     EditorUi.debug('Sync.stop', [this]);
-  
+
     if (this.pusher.connection != null)
     {
     	this.pusher.connection.unbind('state_change', this.connectionListener);
     	this.pusher.connection.unbind('error', this.pusherErrorListener);
     }
-  
-    if (this.channel != null) 
+
+    if (this.channel != null)
     {
     	this.channel.unbind('changed', this.changeListener);
     	
@@ -1403,11 +1403,11 @@ DrawioFileSync.prototype.stop = function()
     	// this.pusher.unsubscribe(this.channelId);
     	this.channel = null;
     }
-    
+
     this.pusher.disconnect();
     this.pusher = null;
   }
-  
+
   this.updateOnlineState();
   this.updateStatus();
 };
@@ -1421,19 +1421,19 @@ DrawioFileSync.prototype.destroy = function()
   {
     var user = this.file.getCurrentUser();
     var leave = {a: 'leave'};
-    
+
     if (user != null)
     {
     	leave.name = encodeURIComponent(user.displayName);
     	leave.uid = user.id;
     }
-    
+
     mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
     	'&msg=' + encodeURIComponent(this.objectToString(
     	this.createMessage(leave))));
     this.file.stats.msgSent++;
   }
-  
+
   this.stop();
 
   if (this.updateStatusThread != null)
@@ -1441,7 +1441,7 @@ DrawioFileSync.prototype.destroy = function()
     window.clearInterval(this.updateStatusThread);
     this.updateStatusThread = null;
   }
-  
+
   if (this.onlineListener != null)
   {
     mxEvent.removeListener(window, 'online', this.onlineListener);
@@ -1459,16 +1459,16 @@ DrawioFileSync.prototype.destroy = function()
     mxEvent.removeListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.activityListener);
     mxEvent.removeListener(document, 'keypress', this.activityListener);
     mxEvent.removeListener(window, 'focus', this.activityListener);
-    
+
     if (!mxClient.IS_POINTER && mxClient.IS_TOUCH)
     {
     	mxEvent.removeListener(document, 'touchstart', this.activityListener);
     	mxEvent.removeListener(document, 'touchmove', this.activityListener);	
     }
-    
+
     this.activityListener = null;
   }
-  
+
   if (this.collaboratorsElement != null)
   {
     this.collaboratorsElement.parentNode.removeChild(this.collaboratorsElement);

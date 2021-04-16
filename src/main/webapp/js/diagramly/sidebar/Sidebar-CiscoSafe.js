@@ -23,10 +23,10 @@
     this.addCiscoSafeThreatPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addCiscoSafeArchitecturePalette = function()
   {
-    var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+    var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' +
      'points=[[0.085,0.085,0],[0.915,0.085,0],[0.915,0.915,0],[0.085,0.915,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
     var gn = 'mxgraph.cisco_safe.architecture';
     var dt = 'cisco safe architecture';
@@ -179,7 +179,7 @@
     			 w, w, '', 'Wireless LAN Controller', null, null, this.getTagsForStencil(gn, 'wireless lan controller', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeBusinessIconsPalette = function()
   {
     var w = 50;
@@ -252,11 +252,11 @@
     			 w, h * 0.97, '', '', null, null, this.getTagsForStencil(gn, '', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeCapabilityPalette = function()
   {
     var ptss = 'points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];';
-    var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+    var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' +
     	ptss + 'pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
     var n3 = 'fillColor=#6ABD46;' + n2;
     var n4 = 'fillColor=#999999;' + n2;
@@ -265,7 +265,7 @@
     var dt = 'cisco safe capability';
 
     var w = 43;
-    
+
     this.addPaletteFunctions('cisco_safeCapability', 'Cisco Safe / Capability', false,
     [
        	 this.createVertexTemplateEntry(n2 + 'compositeIcon;bgIcon=ellipse;resIcon=' + gn + '.access_control_using_trustsec;',
@@ -446,13 +446,13 @@
     			 w, w, '', 'Standardized System Images', null, null, this.getTagsForStencil(gn, 'standardized_system_images', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeDesignPalette = function()
   {
-    var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;' + 
+    var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;' +
     	'points=[[0,0.5,0],[0.125,0.25,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[0.875,0.25,0],[1,0.5,0],[0.875,0.75,0],[0.75,1,0],[0.5,1,0],[0.125,0.75,0]];shape=mxgraph.cisco_safe.design.';
     var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;pointerEvents=1;shape=mxgraph.cisco_safe.design.';
-    var n = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+    var n = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' +
     'points=[[0,0.5,0],[0.125,0.25,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[0.875,0.25,0],[1,0.5,0],[0.875,0.75,0],[0.75,1,0],[0.5,1,0],[0.125,0.75,0]];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
     var gn = 'mxgraph.cisco_safe.design';
     var dt = 'cisco safe design';
@@ -473,11 +473,11 @@
        		w, w * 0.9, '', 'ACI Leaf Switch', null, null, this.getTagsForStencil(gn, 'aci leaf switch', dt).join(' ')),
        	this.createVertexTemplateEntry(n + 'compositeIcon;bgIcon=' + gn + '.blank_device;resIcon=' + gn + '.aci_spine_switch;',
        		w, w * 0.9, '', 'ACI Spine Switch', null, null, this.getTagsForStencil(gn, 'aci spine switch', dt).join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'actor_1;', 
+    	this.createVertexTemplateEntry(s2 + 'actor_1;',
     		w * 0.47, w, '', 'Actor (female)', null, null, this.getTagsForStencil(gn, 'actor female', dt).join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'actor_2;', 
+    	this.createVertexTemplateEntry(s2 + 'actor_2;',
     		w * 0.38, w, '', 'Actor (male)', null, null, this.getTagsForStencil(gn, 'actuator', dt).join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'actuator;', 
+    	this.createVertexTemplateEntry(s2 + 'actuator;',
     		w, w * 0.9, '', 'Actuator', null, null, this.getTagsForStencil(gn, 'actuator', dt).join(' ')),
        	this.createVertexTemplateEntry(n + 'compositeIcon;bgIcon=' + gn + '.blank_device;resIcon=' + gn + '.adaptive_security_appliance;',
     		w, w * 0.9, '', 'Adaptive Security Appliance', null, null, this.getTagsForStencil(gn, 'adaptive security appliance', dt).join(' ')),
@@ -489,7 +489,7 @@
        		w, w * 0.9, '', 'Blade Server', null, null, this.getTagsForStencil(gn, 'blade server', dt).join(' ')),
        	this.createVertexTemplateEntry(n + 'compositeIcon;bgIcon=' + gn + '.blank_device;resIcon=' + gn + '.blade_server_2;',
        		w, w * 0.9, '', 'Blade Server', null, null, this.getTagsForStencil(gn, 'blade server', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'blank_device;', 
+    	this.createVertexTemplateEntry(s + 'blank_device;',
     		w, w * 0.9, '', 'Blank Device', null, null, this.getTagsForStencil(gn, 'blank device', dt).join(' ')),
        	this.createVertexTemplateEntry(n + 'compositeIcon;bgIcon=' + gn + '.blank_device;resIcon=' + gn + '.blank_service;',
     		w, w * 0.9, '', 'Blank Service', null, null, this.getTagsForStencil(gn, 'blank service', dt).join(' ')),
@@ -697,7 +697,7 @@
        		w, w * 0.9, '', 'Wireless LAN Controller', null, null, this.getTagsForStencil(gn, 'wlan wireless lan controller', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeIoTThingsIconsPalette = function()
   {
     var w = 50;
@@ -809,7 +809,7 @@
     			 w * 0.43, h, '', '', null, null, this.getTagsForStencil(gn, '', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafePeoplePlacesThingsIconsPalette = function()
   {
     var w = 50;
@@ -820,7 +820,7 @@
 
     var sc = 1;
     var w2 = sc * 50;
-    
+
     this.addPaletteFunctions('cisco_safePeople Places Things Icons', 'Cisco Safe / People, Places, Things Icons', false,
     [
        	 this.createVertexTemplateEntry(s + 'icon1;',
@@ -847,7 +847,7 @@
     			 w * 0.95, h, '', '', null, null, this.getTagsForStencil(gn, '', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeSecurityIconsPalette = function()
   {
     var w = 50;
@@ -858,7 +858,7 @@
 
     var sc = 1;
     var w2 = sc * 50;
-    
+
     this.addPaletteFunctions('cisco_safeSecurity Icons', 'Cisco Safe / Security Icons', false,
     [
        	 this.createVertexTemplateEntry(s + 'ngips;',
@@ -1007,7 +1007,7 @@
     			 w, h * 0.66, '', '', null, null, this.getTagsForStencil(gn, '', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeTechnologyIconsPalette = function()
   {
     var w = 50;
@@ -1018,7 +1018,7 @@
 
     var sc = 1;
     var w2 = sc * 50;
-    
+
     this.addPaletteFunctions('cisco_safeTechnology Icons', 'Cisco Safe / Technology Icons', false,
     [
        	 this.createVertexTemplateEntry(s + 'icon1;',
@@ -1081,20 +1081,20 @@
     			 w, h, '', '', null, null, this.getTagsForStencil(gn, '', dt).join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addCiscoSafeThreatPalette = function()
   {
     var w = 50;
     var h = 50;
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.threat.';
-    var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+    var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' +
     'points=[];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
     var gn = 'mxgraph.cisco_safe.threat';
     var dt = 'cisco safe threat ';
 
     var sc = 1;
     var w2 = sc * 50;
-    
+
     this.addPaletteFunctions('cisco_safeThreat', 'Cisco Safe / Threat', false,
     [
        	 this.createVertexTemplateEntry(n2 + 'compositeIcon;bgIcon=threat1;resIcon=' + gn + '.threat_a1;',

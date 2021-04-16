@@ -10,7 +10,7 @@
     var dt = 'atlassian ';
     var sb = this;
     this.setCurrentSearchEntryLibrary('atlassian');
-    
+
     var fns = [
     	this.addEntry(dt + 'issue ticket bug jira task feature request', function()
        	{
@@ -23,7 +23,7 @@
     	   	bg.insert(label1);
        		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Issue');
     	}),
-    			 
+    			
     	 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Atlassian_Logo.svg;',
     			 66, 66, '', 'Atlassian', null, null, this.getTagsForStencil(gn, 'atlassian logo', dt).join(' ')),
     	 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Bamboo_Logo.svg;',
@@ -58,15 +58,15 @@
     			 69, 57, '', 'Stride', null, null, this.getTagsForStencil(gn, 'stride logo atlassian', dt).join(' ')),
     	 this.createVertexTemplateEntry('image;image=img/lib/atlassian/Trello_Logo.svg;',
     			 70, 70, '', 'Trello', null, null, this.getTagsForStencil(gn, 'trello logo', dt).join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#6554C0;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=46;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#6554C0;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=46;fontStyle=1;html=1',
     			96, 96, 'MM', 'Avatar (Large)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=25;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=25;fontStyle=1;html=1',
     			48, 48, 'MM', 'Avatar (Main)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#36B37E;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=17;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#36B37E;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=17;fontStyle=1;html=1',
     			32, 32, 'MM', 'Avatar (Normal)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#FFAB00;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#FFAB00;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1',
     			24, 24, 'MM', 'Avatar (Small)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#FF5630;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#FF5630;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1',
     			16, 16, 'M', 'Avatar (Tiny)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'avatar').join(' ')),
     	this.addEntry(dt + 'avatar available', function()
        	{
@@ -101,23 +101,23 @@
     	   	bg.insert(button1);
        		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Avatar (Do not disturb)');
     	}),
-    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=14;fontStyle=1;html=1',
     			40, 40, '&lt;/&gt;', 'Container Avatar (Large)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar large').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=1;html=1',
     			32, 32, '&lt;/&gt;', 'Container Avatar (Medium)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar medium').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1', 
+    	this.createVertexTemplateEntry('rounded=1;arcSize=5;fillColor=#0065FF;strokeColor=none;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;html=1',
     			24, 24, '&lt;/&gt;', 'Container Avatar (Small)', null, null, this.getTagsForStencil(gn, 'avatar', dt + 'container avatar small').join(' ')),
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#0065FF;strokeColor=none;html=1', 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#0065FF;strokeColor=none;html=1',
     			10, 10, '', 'Dot Badge', null, null, this.getTagsForStencil(gn, '', dt + 'dot badge').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;fillColor=#0065FF;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;arcSize=50', 
+    	this.createVertexTemplateEntry('rounded=1;fillColor=#0065FF;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;arcSize=50',
     			40, 25, '13', 'Bold Badge', null, null, this.getTagsForStencil(gn, '', dt + 'bold badge').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;fillColor=#E3FCEF;strokeColor=none;html=1;fontColor=#016745;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;arcSize=50', 
+    	this.createVertexTemplateEntry('rounded=1;fillColor=#E3FCEF;strokeColor=none;html=1;fontColor=#016745;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=0;arcSize=50',
     			40, 25, '+1', 'Subtle Badge', null, null, this.getTagsForStencil(gn, '', dt + 'subtle badge').join(' ')),
     	this.addEntry(dt + 'banner', function()
        	{
     	   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'rounded=0;fillColor=#FFAB00;strokeColor=none;html=1');
     	   	bg.vertex = true;
-    	   	var icon1 = new mxCell('<b>More information?</b> See the <u>recovery process documentation</u>.', 
+    	   	var icon1 = new mxCell('<b>More information?</b> See the <u>recovery process documentation</u>.',
     	   			new mxGeometry(0.15, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#172B4C;strokeColor=none;fontColor=#172B4C;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
     	   	icon1.geometry.relative = true;
     	   	icon1.geometry.offset = new mxPoint(0, -10);
@@ -129,7 +129,7 @@
        	{
     	   	var bg = new mxCell('', new mxGeometry(0, 0, 625, 50), 'rounded=0;fillColor=#DE350A;strokeColor=none;html=1');
     	   	bg.vertex = true;
-    	   	var icon1 = new mxCell('A database error has occurred. Please reload the page.', 
+    	   	var icon1 = new mxCell('A database error has occurred. Please reload the page.',
     	   			new mxGeometry(0.15, 0.5, 20, 20), 'shape=mxgraph.azure.azure_alert;fillColor=#ffffff;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
     	   	icon1.geometry.relative = true;
     	   	icon1.geometry.offset = new mxPoint(0, -10);
@@ -137,7 +137,7 @@
     	   	bg.insert(icon1);
        		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Banner');
     	}),
-    	this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0', 
+    	this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#596780;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=12;fontStyle=0',
     			360, 25, 'Atlassian / Atlassian Connect / atlassian-connect-js-extra', 'Breadcrumb', null, null, this.getTagsForStencil(gn, '', dt + 'breadcrumb').join(' ')),
     	this.addEntry(dt + 'button primary', function()
        	{
@@ -187,11 +187,11 @@
     	   	icon1.vertex = true;
        		return sb.createVertexTemplateFromCells([bg, icon1], 100, 33, 'Button (Link)');
     	}),
-    	this.createVertexTemplateEntry('rounded=1;fillColor=#0057D8;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
+    	this.createVertexTemplateEntry('rounded=1;fillColor=#0057D8;strokeColor=none;html=1;fontColor=#ffffff;align=center;verticalAlign=middle;fontStyle=0;fontSize=12',
     			86, 33, 'Primary', 'Button (Primary)', null, null, this.getTagsForStencil(gn, '', dt + 'button primary').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
+    	this.createVertexTemplateEntry('rounded=1;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;align=center;verticalAlign=middle;fontStyle=0;fontSize=12',
     			86, 33, 'Standard', 'Button (Standard)', null, null, this.getTagsForStencil(gn, '', dt + 'button standard').join(' ')),
-    	this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=center;verticalAlign=middle;fontStyle=0;fontSize=12', 
+    	this.createVertexTemplateEntry('fillColor=none;strokeColor=none;html=1;fontColor=#0057D8;align=center;verticalAlign=middle;fontStyle=0;fontSize=12',
     			86, 33, 'Link button', 'Button (Link)', null, null, this.getTagsForStencil(gn, '', dt + 'button link').join(' ')),
     	this.addEntry(dt + 'dropdown button', function()
        	{
@@ -214,7 +214,7 @@
        	{
     	   	var bg = new mxCell('Icon and label', new mxGeometry(0, 0, 120, 33), 'rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
     	   	bg.vertex = true;
-    	   	var icon1 = new mxCell('', 
+    	   	var icon1 = new mxCell('',
     	   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
     	   	icon1.geometry.relative = true;
     	   	icon1.geometry.offset = new mxPoint(10, -6);
@@ -226,7 +226,7 @@
        	{
     	   	var bg = new mxCell('', new mxGeometry(0, 0, 32, 33), 'rounded=1;align=left;fillColor=#F1F2F4;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
     	   	bg.vertex = true;
-    	   	var icon1 = new mxCell('', 
+    	   	var icon1 = new mxCell('',
     	   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
     	   	icon1.geometry.relative = true;
     	   	icon1.geometry.offset = new mxPoint(10, -6);
@@ -238,7 +238,7 @@
        	{
     	   	var bg = new mxCell('Subtle', new mxGeometry(0, 0, 80, 33), 'rounded=1;align=left;fillColor=none;strokeColor=none;html=1;fontColor=#596780;fontSize=12;spacingLeft=26;');
     	   	bg.vertex = true;
-    	   	var icon1 = new mxCell('', 
+    	   	var icon1 = new mxCell('',
     	   			new mxGeometry(0, 0.5, 12, 12), 'shape=mxgraph.mscae.intune.subscription_portal;fillColor=#596780;strokeColor=none;fontColor=#ffffff;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;html=1;spacingLeft=5');
     	   	icon1.geometry.relative = true;
     	   	icon1.geometry.offset = new mxPoint(10, -6);
@@ -274,9 +274,9 @@
     	this.addDataEntry(dt + 'button grouped group responsive', 551, 104, 'Button (grouped, responsive)',
     		'7Vnfj6IwEP5reLwNbYXFx9PTvZdLLrmHeyYySrOFmrbu6v3110JB2S4urj9wjSaYzpRph+9rZ4bikXG2fhLxMv3FE2AemXhkLDhXZStbj4ExD/s08cgPD2NfXx6etvSiotdfxgJy1cUAlwYvMVtBqSkVUm2YVUgl+DP8pYlKtQJ5ZCTTOOGvWvC1kMQyhcQKMaOLXLdnenoQWpGqjG2tlmbIbL0wj/uQ8dnzavkgBMy0qyPxh/4z3ciMM6eMjTnjonCBTNEUTwdmjMKXnZ558at7Ki+rxwKhYN0KTaGyuDwBz0CJjb7l1Q5i4CElfH4KdJFaM0JKXSxLeVGbboHWDYv1+7gTB/fvUhrsLow+g7karZTiuUMBz1UlYyvvAB8Mw8eovs/6+5a6nOdwEGvaB5B60p8V3Mb1TlziD7kM91ApgMWKvkBj+GP4HbTy6yuu/zJwmBZ8lSc1lzcH//AU8NsZfnOqJ8b+uslsZcHncwnKoav2qxODgcPgmGeZeeBLB0iD1y3v0abBzpKJzrdkvkXnWDPhPZu2sYsD3+EXofA82fXxnl1Pu3PD68quUf/77GaCcgu1rUE52LNnjw3K1dgnDcrDDovFkqwN6VKCGzJr0pqMWJrq5dIF72g/3rbs2FiROPi/A3/YDnTXHYX8r4QS7gsl9JVQIn2hdD9UaOckCi9XBqH7KcOJkyW6smMG5J4z3FglpO8b4ACHk54Zvp16CLknG4cnsTfIH5PEyjV8fRVRl5f564Gpt5LIfde+Zph6q4ncV9ZJQs1ep1JqjZmDFEFzp9nXgWOH4ulTMfmDfFBbNvPB8UXXYBA2WCeRW4P5wTu8H068Frcf78rgvPtt7z8='),
     	
-    	this.createVertexTemplateEntry(s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10', 
+    	this.createVertexTemplateEntry(s + 'checkbox_2;fillColor=#0057D8;strokeColor=none;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10',
     			12, 12, 'Text', 'Checkbox (on)', null, null, this.getTagsForStencil(gn, '', dt + 'checkbox on').join(' ')),
-    	this.createVertexTemplateEntry('rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0', 
+    	this.createVertexTemplateEntry('rounded=1;fillColor=#F0F2F5;strokeColor=#D8DCE3;align=left;verticalAlign=middle;fontStyle=0;fontSize=12;labelPosition=right;verticalLabelPosition=middle;spacingLeft=10;html=1;shadow=0;dashed=0',
     			12, 12, 'Text', 'Checkbox (off)', null, null, this.getTagsForStencil(gn, '', dt + 'checkbox on').join(' ')),
     	this.addDataEntry(dt + 'checkbox group', 150, 173, 'Checkbox group',
     		'7VfdbpswFH4abisDIWGXLYTepNKkPsDk2AewYmxkOy3Z08+ASTOcTu2yRqtUJCSfX3O+7/iHIM6a7l7htn6QFHgQr4M4U1KacdR0GXAeRIjRIM6DKEL2DaLiFWs4WFGLFQjzloBoDHjCfA+j5hE4EAPUaoksSwA9umhz4M6lZJxnkktlRSGF1d5po+QOZspSCvPIfvZRYTjJLk0vY84qYcccSuPMU4YgipNvy1WK3PeBMtC9WuOgcgXeg2zAqIN1eWbU1M4jcZlqYFXtwhw2COtRro6hL4jZgQPtPICxB+Batwq0lh5sSu4FBeqKPwXRVlugIioSD0lrydM8W8c+Pmh4fBh7rBjB/NapG0Yphxn8aEaPhe+O4y3w71Izw2QfqEakjgk3M/sxsW4xYaLaDPPnYZ+7Ng13heoaU/ns5qRY1wMEFxE7BbgkB0eFE09pj3zWJ90lrC881jPctntiYfB5fwMWg6Xt/Zuu6jeDG2w41pphcUNqILut7H5EftcglKzy9E/r73M0zD/vhSS5Wi8kXi8UHJt+7poZ+OqG/6Ab0uvtDEuvGzZSVFaz5Zjsvs6EK58JIbreRrDyqL+l9H2Mv2sFl8NzQjaxGIH6W7oXH07RxMnCX47LM9ezOL6ck/TMQS2IvWdfcqf1L6mfhwMXsJotk4+jxIovvzOD7be/nV8='),
@@ -304,7 +304,7 @@
     		'vVZNb+MgEP01PtYiEMfJsXE2vXSlSpV2z8gmMSo2FpDG2V+/g8FJ/JHWVbZrKREzMAO892ZEQJKiflK0yn/KjImA/AhIoqQ0blTUCRMiwIhnAdkEGCP4BXh7Y3bWzKKKKlaaKQHYBbxTcWDO86K4VNyc3IQ2J+EndlyIRAqpwCxlCd61Nkq+sZ4zNwVcYzOD4U6W5pX/sQlmZ9tnRGBTwfcljAXbGT/dJgswiVaLeIn8AZkyrL55ycblb/jEZMGMggugI89M7lfEPlPO+D73YR4cRLWz9+fQC2Qw8KiNI0gGCD7L4wA8JQ9lxjKPC1Wph2Vlr30FLFx713wDdGFmnqwet9suxG7Rb39RbD0VTXm5f24w3RA0BBY1Xx//O3A+eTgjF/EZ7CS6H/b5APYB5jqnlR0W9d7WV0iVkkeNQ/Cr6tEaFq7sNLNqDJeNUVtjHiJnwP8mClduGWmW4UUzY404JDEYpTRp7gU9WhA9fvFmjeLEZuGKpYZLy4CWBwvZehIL5EMWUDhCwwgLMw+hYoIa/s46241R43d8kRwOglHdTe13f4i7CeRup5kZMHs+9iSyo+lka8MqwPGYc8NeoRKs7wj0d6vmUo43WRsWVo/HOY7wAo67BnVlnF0qrKUdim5LCy4sMr+YymhJez1xPrU2x8WiXRoULqI7pdMN+KKQ4n+io4e2pFshkW8Q0uJzIV331pxm0MudSDKq84ti+q3FCKo1p2WY5ix9G23erVz6wrqj77YBq24NkuUk3pb3d+H42/Gs/zOW5zdBi2U8rZl+/SUB5uWd57R8/Qz8Cw=='),
     	this.addDataEntry(dt + 'inline message', 150, 180, 'Inline message',
     		'7VfbTuMwEP2avFa5kLY80paiXcFqBVrxiNxk2nhx7GA7tPD1O3bc9OKAQC2IlaiUynPx2D5zZpwEybhcXUhSFVciBxYk50EylkLoZlSuxsBYEIc0D5JJEMchPkE8fcEaWWtYEQlcv2VC3Ex4JKyGRnOWZaAU6hg8gnElVcVoRjQVXDXeSj8x5z2njI0FExJFLjhqR0pLcQ97yrng+oY+m1lRtJZdGCMTRhccxwzm2pnXEYI4SU/7g2HotgpSw+rF41qVO+sFiBK0fEKXp8aauCBLmuvCTUidrgC6KFwUh1pIVCMv2kgbLHHg4OyGNvGg/fnj+sxDsNAlcyCoguRiiUKIQk5UAbkT0FIZ/3K1MFTpEc2IUpTwXlZAdj8Tq7vYwLaVDYQtDNPBZPhaSnaczc9PhcEb08/OnLqkec5gL4XhXorNZhiZAfstFDXMQaVs4G0DXu7Z28CqIhnli0u7/iQ6KO/rCS6Io0G/gwaxz4K17hAWnHgsGAs+R4Fn8M2FL8CFYfppXEg9LoxIORPimwdfgAdR9HlNoe8TgepZnd2DNpGzTNRc//eXbZR0lNZH3bYDD9JfsERFrUAquwfrPgMDqTkALoePhIcalJE0lmH4V1DeOwrucUc1vI67K7Yj4N5xvbUYHxv3oYe7B5/XqJ5rCc3/HWF4Ur9LTafDkW08b+lS0SAenYwP6S5vbW/bfXmnIaWHpM1NaF9OX0vjB2XxtCOLfWawmOFgYQZXNdO0YrDToBofjN66Baa5JVG4O7yFTQmSWouSWICZOT7lj1TbsNyIfKdsbVVuNUc8SZhDBTxH8HGMeUTARC0327IFrjXaVa97N+t9Gx6hd9ZSqf9Qi+YQ9p7Mh9uq5nx/qpzY3bpF3VJbUDRR12iEwngdsqIEkuOcUkh4cZW9ipOIQ25fFGy7l5nrSolfaXP78yoNLZPpeXSetpZbx8Kdl5KO22SrRpYFJvYGC8WsvcTa9+omDjeqa0fp2H9xOEJxxR3FdNJRTVH6/vsdxc0Xu7XtfND/Aw=='),
-    
+
     	this.addEntry(dt + 'inline message subtitle', function()
        	{
     	   	var icon1 = new mxCell('i', new mxGeometry(0, 0, 20, 20), 'shape=ellipse;fillColor=#403294;strokeColor=none;fontSize=14;fontStyle=1;align=center;fontColor=#ffffff');
@@ -500,7 +500,7 @@
     	   	item1.vertex = true;
     	   	var item2 = new mxCell('', new mxGeometry(0, 25, 290, 33), 'rounded=1;arcSize=9;fillColor=#ffffff;align=left;spacingLeft=5;strokeColor=#4C9AFF;html=1;strokeWidth=2;fontSize=12');
     	   	item2.vertex = true;
-    	   	var item3 = new mxCell('<b>Not great</b><div>The best password is hard to guess. Try again.</div>', new mxGeometry(300, 0, 180, 80), 
+    	   	var item3 = new mxCell('<b>Not great</b><div>The best password is hard to guess. Try again.</div>', new mxGeometry(300, 0, 180, 80),
     	   			'html=1;rounded=1;strokeColor=#DFE1E5;fontSize=12;align=left;shadow=1;arcSize=1;whiteSpace=wrap;verticalAlign=top;spacingLeft=15;spacingRight=15;spacingTop=10');
     	   	item3.vertex = true;
        		return sb.createVertexTemplateFromCells([item1, item2, item3], 480, 80, 'Text field with tooltip');
@@ -601,7 +601,7 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-       
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

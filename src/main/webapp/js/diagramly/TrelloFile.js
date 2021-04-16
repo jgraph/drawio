@@ -5,7 +5,7 @@
 TrelloFile = function(ui, data, meta)
 {
   DrawioFile.call(this, ui, data);
-  
+
   this.meta = meta;
   this.saveNeededCounter = 0;
 };
@@ -14,7 +14,7 @@ TrelloFile = function(ui, data, meta)
 mxUtils.extend(TrelloFile, DrawioFile);
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.getHash = function()
 {
@@ -22,7 +22,7 @@ TrelloFile.prototype.getHash = function()
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.getMode = function()
 {
@@ -38,7 +38,7 @@ TrelloFile.prototype.isAutosave = function()
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.getTitle = function()
 {
@@ -46,7 +46,7 @@ TrelloFile.prototype.getTitle = function()
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.isRenamable = function()
 {
@@ -62,7 +62,7 @@ TrelloFile.prototype.getSize = function()
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.save = function(revision, success, error)
 {
@@ -70,7 +70,7 @@ TrelloFile.prototype.save = function(revision, success, error)
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.saveAs = function(title, success, error)
 {
@@ -78,14 +78,14 @@ TrelloFile.prototype.saveAs = function(title, success, error)
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.doSave = function(title, success, error)
 {
   // Forces update of data for new extensions
   var prev = this.meta.name;
   this.meta.name = title;
-  
+
   DrawioFile.prototype.save.apply(this, [null, mxUtils.bind(this, function()
   {
     this.meta.name = prev;
@@ -94,7 +94,7 @@ TrelloFile.prototype.doSave = function(title, success, error)
 };
 
 /**
- * 
+ *
  */
 TrelloFile.prototype.saveFile = function(title, revision, success, error)
 {
@@ -111,7 +111,7 @@ TrelloFile.prototype.saveFile = function(title, revision, success, error)
     this.savingFileTime = new Date();
     this.setShadowModified(false);
     this.savingFile = true;
-    
+
     if (this.getTitle() == title)
     {
     	this.ui.trello.saveFile(this, mxUtils.bind(this, function(meta)

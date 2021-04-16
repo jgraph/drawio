@@ -34,8 +34,8 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-    
+
     this.setCurrentSearchEntryLibrary();
   };
-  
+
 })();

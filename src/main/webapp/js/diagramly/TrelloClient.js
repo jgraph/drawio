@@ -38,7 +38,7 @@ TrelloClient.prototype.authenticate = function(fn, error, force)
   {
     this.logout();
   }
-  
+
   var callback = mxUtils.bind(this, function(remember, success)
   {
     Trello.authorize(
@@ -74,8 +74,8 @@ TrelloClient.prototype.authenticate = function(fn, error, force)
     	}
     });
   });
-  
-  if (this.isAuthorized()) 
+
+  if (this.isAuthorized())
   {
     callback(true);
   }
@@ -86,7 +86,7 @@ TrelloClient.prototype.authenticate = function(fn, error, force)
 }
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.getLibrary = function(id, success, error)
 {
@@ -94,28 +94,28 @@ TrelloClient.prototype.getLibrary = function(id, success, error)
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLibrary)
 {
-  //In getFile only, we 
+  //In getFile only, we
   asLibrary = (asLibrary != null) ? asLibrary : false;
 
   var callback = mxUtils.bind(this, function()
   {
     var ids = id.split(this.SEPARATOR);
     var acceptResponse = true;
-    
+
     var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
     {
     	acceptResponse = false;
     	error({code: App.ERROR_TIMEOUT, retry: callback})
     }), this.ui.timeout);
-    
-    Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta) 
-    { 
+
+    Trello.cards.get(ids[0] + '/attachments/' + ids[1], mxUtils.bind(this, function(meta)
+    {
     	window.clearTimeout(timeoutThread);
-        
+
         	if (acceptResponse)
         	{
     		var binary = /\.png$/i.test(meta.name);
@@ -149,7 +149,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
     			    		meta.compoundId = id;
     			    		
     					var index = (binary) ? data.lastIndexOf(',') : -1;
-  
+
     					if (index > 0)
     					{
     						var xml = this.ui.extractGraphModelFromPng(data);
@@ -195,7 +195,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
     }), mxUtils.bind(this, function(err)
     {
     	window.clearTimeout(timeoutThread);
-        
+
         	if (acceptResponse)
         	{
         		if (err != null && err.status == 401)
@@ -209,12 +209,12 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
         	}
     }));
   });
-  
+
   this.authenticate(callback, error);
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.insertLibrary = function(filename, data, success, error, cardId)
 {
@@ -222,12 +222,12 @@ TrelloClient.prototype.insertLibrary = function(filename, data, success, error, 
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.insertFile = function(filename, data, success, error, asLibrary, cardId)
 {
   asLibrary = (asLibrary != null) ? asLibrary : false;
-  
+
   var callback = mxUtils.bind(this, function()
   {
     var fn = mxUtils.bind(this, function(fileData)
@@ -257,12 +257,12 @@ TrelloClient.prototype.insertFile = function(filename, data, success, error, asL
     	fn(data);
     }
   });
-  
+
   this.authenticate(callback, error);
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.saveFile = function(file, success, error)
 {
@@ -291,7 +291,7 @@ TrelloClient.prototype.saveFile = function(file, success, error)
     	}));
     }, error);
   });
-  
+
   var callback = mxUtils.bind(this, function()
   {
     if (this.ui.useCanvasForExport && /(\.png)$/i.test(file.meta.name))
@@ -306,12 +306,12 @@ TrelloClient.prototype.saveFile = function(file, success, error)
     	fn(file.getData());
     }
   });
-  
+
   this.authenticate(callback, error);
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.writeFile = function(filename, data, cardId, success, error)
 {
@@ -324,7 +324,7 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
     	
     	return;
     }
-    
+
     var fn = mxUtils.bind(this, function()
     {
       var acceptResponse = true;
@@ -343,8 +343,8 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
 
       var request = new XMLHttpRequest();
       request.responseType = 'json';
-      
-      request.onreadystatechange = mxUtils.bind(this, function() 
+
+      request.onreadystatechange = mxUtils.bind(this, function()
       {
         if (request.readyState === 4)
         {
@@ -369,11 +369,11 @@ TrelloClient.prototype.writeFile = function(filename, data, cardId, success, err
         	}
         }
       });
-      
+
       request.open('POST', this.baseUrl + 'cards/' + cardId + '/attachments');
       request.send(formData);
     });
-    
+
     this.authenticate(fn, error);
   }
   else
@@ -391,7 +391,7 @@ TrelloClient.prototype.pickLibrary = function(fn)
 };
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.pickFolder = function(fn)
 {
@@ -427,14 +427,14 @@ TrelloClient.prototype.pickFile = function(fn, returnObject)
 
 
 /**
- * 
+ *
  */
 TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 {
   var cardId = null;
   var filter = '@me';
   var linkCounter = 0;
-  
+
   var content = document.createElement('div');
   content.style.whiteSpace = 'nowrap';
   content.style.overflow = 'hidden';
@@ -453,9 +453,9 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 
   var dlg = new CustomDialog(this.ui, content);
   this.ui.showDialog(dlg.container, 340, 270, true, true);
-  
+
   dlg.okButton.parentNode.removeChild(dlg.okButton);
-  
+
   var createLink = mxUtils.bind(this, function(label, fn, preview)
   {
     linkCounter++;
@@ -466,7 +466,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     	((uiTheme == 'dark') ? '' : '#fff'));
     var link = document.createElement('a');
     link.style.cursor = 'pointer';
-    
+
     if (preview != null)
     {
     	var img = document.createElement('img');
@@ -476,15 +476,15 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     	img.style= "border: 1px solid black;margin:5px;vertical-align:middle"
     	link.appendChild(img);
     }
-    
+
     mxUtils.write(link,  label);
     mxEvent.addListener(link, 'click', fn);
-    
+
     div.appendChild(link);
-    
+
     return div;
   });
-  
+
   var error = mxUtils.bind(this, function(err)
   {
     this.ui.handleError(err, null, mxUtils.bind(this, function()
@@ -499,7 +499,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     linkCounter = 0;
     div.innerHTML = '';
     this.ui.spinner.spin(div, mxResources.get('loading'));
-    
+
     var callback = mxUtils.bind(this, function()
     {
     	Trello.cards.get(cardId + '/attachments', {fields: 'id,name,previews'}, mxUtils.bind(this, function(data)
@@ -511,7 +511,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     			selectCard();
     		})));
     		mxUtils.br(div);
-  
+
     		if (files == null || files.length == 0)
     		{
     			mxUtils.write(div, mxResources.get('noFiles'));
@@ -548,10 +548,10 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
         	}	
     	}));
     });
-    
+
     callback();
   });
-  
+
   // Adds paging for cards (files limited to 1000 by API)
   var pageSize = 100;
   var nextPageDiv = null;
@@ -565,27 +565,27 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     	div.innerHTML = '';
     	page = 1;
     }
-    
+
     this.ui.spinner.spin(div, mxResources.get('loading'));
-    
+
     if (nextPageDiv != null && nextPageDiv.parentNode != null)
     {
     	nextPageDiv.parentNode.removeChild(nextPageDiv);
     }
-    
+
     nextPageDiv = document.createElement('a');
     nextPageDiv.style.display = 'block';
     nextPageDiv.style.cursor = 'pointer';
     mxUtils.write(nextPageDiv, mxResources.get('more') + '...');
-    
+
     var nextPage = mxUtils.bind(this, function()
     {
     	mxEvent.removeListener(div, 'scroll', scrollFn);
     	selectCard(page + 1);
     });
-    
+
     mxEvent.addListener(nextPageDiv, 'click', nextPage);
-    
+
     var callback = mxUtils.bind(this, function()
     {
     	Trello.get('search', {
@@ -642,7 +642,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
     					})));
     				}))(cards[i]);
     			}
-  
+
     			if (cards.length == pageSize)
     			{
     				div.appendChild(nextPageDiv);
@@ -671,10 +671,10 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
         	}	
     	}));
     });
-    
+
     callback();
   });
-  
+
   selectCard();
 };
 
@@ -692,13 +692,13 @@ TrelloClient.prototype.isAuthorized = function()
   {
     // ignores access denied
   }
-  
+
   return false;
 };
 
 
 /**
- * Logout and deauthorize the user. 
+ * Logout and deauthorize the user.
  */
 TrelloClient.prototype.logout = function()
 {

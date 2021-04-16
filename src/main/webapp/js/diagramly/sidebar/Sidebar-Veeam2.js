@@ -22,17 +22,17 @@
     this.addVeeam23DPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addVeeam2AuxiliaryPalette = function()
   {
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vmware virtual machine auxiliary';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#13B24B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.veeam_logo;',
@@ -51,21 +51,21 @@
     			w * 1.5, h * 1.1, '', 'Frame (grey 2)', null, null, this.getTagsForStencil(gn, 'grey frame', dt).join(' ')),
     	this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#00B336;strokeWidth=2;',
     			w * 1.5, h * 1.1, '', 'Frame (topaz)', null, null, this.getTagsForStencil(gn, 'topaz frame', dt).join(' ')),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=block;startFill=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=block;startFill=1;', w, 0,
      			'',	'Connector (topaz)', null, dt + 'connector topaz'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=block;startFill=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=block;startFill=1;', w, 0,
      			'',	'Connector (grey 3)', null, dt + 'connector grey'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#D9D9D9;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=oval;endFill=1;startArrow=oval;startFill=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#D9D9D9;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=oval;endFill=1;startArrow=oval;startFill=1;', w, 0,
      			'',	'Connector (grey 2)', null, dt + 'connector grey'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=oval;endFill=1;startArrow=oval;startFill=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=oval;endFill=1;startArrow=oval;startFill=1;', w, 0,
      			'',	'Connector #2 (topaz)', null, dt + 'connector topaz'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=none;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=none;', w, 0,
      			'',	'Arrow (grey 3)', null, dt + 'arrow grey'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=none;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=block;endFill=1;startArrow=none;', w, 0,
      			'',	'Arrow (topaz)', null, dt + 'arrow topaz'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=none;endFill=0;startArrow=none;dashed=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#00B336;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=none;endFill=0;startArrow=none;dashed=1;', w, 0,
      			'',	'Dotted line (topaz)', null, dt + 'dotted line topaz'),
-     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=none;endFill=0;startArrow=none;dashed=1;', w, 0, 
+     	this.createEdgeTemplateEntry('edgeStyle=none;rounded=0;html=1;entryX=0;entryY=0.5;jettySize=auto;orthogonalLoop=1;strokeColor=#404040;strokeWidth=2;fontColor=#000000;jumpStyle=none;endArrow=none;endFill=0;startArrow=none;dashed=1;', w, 0,
      			'',	'Dotted line (grey 3)', null, dt + 'dotted line grey'),
     	this.createVertexTemplateEntry('ellipse;whiteSpace=wrap;html=1;aspect=fixed;strokeWidth=2;fontFamily=Tahoma;spacingBottom=4;spacingRight=2;strokeColor=#d3d3d3;',
     			w * 0.2, h * 0.2, '1', 'Number one', null, null, this.getTagsForStencil(gn, 'number one', dt).join(' ')),
@@ -100,15 +100,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine data center';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'datacenter;',
@@ -206,15 +206,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine features';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#13B24B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.veeam_logo;',
@@ -272,15 +272,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine general';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'enterprise_business;',
@@ -388,15 +388,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine products and components';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry('pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#13B24B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.veeam_logo;',
@@ -524,15 +524,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine software';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s2 + 'antivirus;',
@@ -626,15 +626,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine states';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s2 + 'turn_on_off;',
@@ -684,15 +684,15 @@
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#005F4B;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#DF8C42;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.veeam2.';
-    
+
     // Space savers
     var sb = this;
     var gn = 'mxgraph.veeam2';
     var dt = 'veeam vm vmware virtual machine storage';
-    
+
     var w = 100;
     var h = 100;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'object_storage;',
@@ -792,10 +792,10 @@
     var sb = this;
     var gn = 'mxgraph.veeam.3d';
     var dt = 'veeam 3d vmware virtual machine ';
-    
+
     var w = 2.0;
     var h = 2.0;
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(sn + '1ftvm;',

@@ -21,7 +21,7 @@
     this.addMockupTextPalette();
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addMockupButtonsPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -36,7 +36,7 @@
     var sb = this;
     var gn = 'mxgraph.mockup.buttons';
     var dt = 'mockup button ';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s2 + 'buttons.button;' + skcl6 + 'fontColor=#ffffff;mainText=;buttonStyle=round;fontSize=17;fontStyle=1;fillColor=#008cff;whiteSpace=wrap;',
@@ -122,7 +122,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMockupContainersPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -135,7 +135,7 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-    
+
     var gn = 'mxgraph.mockup.containers';
     var dt = 'mockup container ';
 
@@ -228,7 +228,7 @@
     	   	bg2.geometry.relative = true;
     	   	bg2.geometry.offset = new mxPoint(0, 25);
     	   	bg.insert(bg2);
-  
+
        		return sb.createVertexTemplateFromCells([bg], 400, 200, 'Horizontal Tab Bar');
     	}),										
     								
@@ -265,7 +265,7 @@
     	this.addDataEntry(dt + 'dialog box', 250, 160, 'Dialog Box',
     		'zZZRb5swEMc/jR+LwC5pX9dk68NWtVIq7dmDA6wajGwnIf30O8AECFClyx5KFMn3x3c+3+9sQdg6rx41L7MnFYMk7Dtha62UbUd5tQYpCfVFTNiGUOrjn9AfC2+D5q1fcg2FvcSBtg57LnfQKluVAyoxJHwnLaErQlngE/aQgzE8hYFiobJeG8DYo3QBjNXqDX6L2GYoBDjPZDxWBzRqp5ibDGJncCnSAscRpgsahczmsvcq65B5ldbl8XIVve1KL1KF5aIAbTytIcJdPuiteAcXsV19raTSTTps1Tz4JkHHJd0FCO7Q3oO2IuLym8vNqhLVQyYsbEse1fMOmFDtKaQcREyap84Bp4kifa0dN4yi4qqMkaFaJNVIDtMjIAarjzjl4CpZ0wpbmn4GIs06t5UTuWmF9OTbg8eBYz/fB2zSB08dbv9VWGT7tTCfQ1uCu9wOXU4SEtsz+9VYm/sP6GowuPBw4xfRpf9GlzlNg+RW7GEU/xritxPiU8QODTqK0sBcOX3/Puqrwv/IE6BB9QpVwBj6RRVj8xUbOxzdLeeFrT2s50w56WfL6dZ/UQLTOi1+Q8PR8jfB2RlUSWLATnictnERonCC6PnnFz6HH12yk8aJbuvfTON85qK95uBVZ41zHAUYtFEw20fh/+mj7u7u+oix6/sIzf4Dop0+/L74Cw==')
     ];
-  
+
     this.addPalette('mockupContainers', 'Mockup Containers', false, mxUtils.bind(this, function(content)
     		{
     			for (var i = 0; i < fns.length; i++)
@@ -274,7 +274,7 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMockupFormsPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -287,18 +287,18 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-    
+
     var gn = 'mxgraph.mockup.forms';
     var dt = 'mockup form ';
 
     var fns =
     [
-    	this.createVertexTemplateEntry(s2 + 'forms.rrect;rSize=0;fillColor=#eeeeee;strokeColor=#999999;gradientColor=#cccccc;align=left;spacingLeft=4;fontSize=17;fontColor=#666666;labelPosition=right;', 15, 15, 
+    	this.createVertexTemplateEntry(s2 + 'forms.rrect;rSize=0;fillColor=#eeeeee;strokeColor=#999999;gradientColor=#cccccc;align=left;spacingLeft=4;fontSize=17;fontColor=#666666;labelPosition=right;', 15, 15,
     			'Option 1', 'Checkbox', null, null, this.getTagsForStencil(gn, 'checkbox', dt).join(' ')),
     	this.addDataEntry(dt + 'checkbox checkboxes', 150, 120, 'Checkboxes',
     		'7VZNb8IwDP01uValKV9XYOOyadN22DmkbhuRNlUSoOzXL00yvtZOSGgMabOEFD/32Yn9GorwtKjnklT5o0iAI3yH8FQKod2qqKfAOYpCliA8Q1EUmh+K7juiPRsNKyKh1OcQIkdYE74ChzhA6S33gNJSLOGNJTo3QA/hicpJIjbGCY2TEJVD4h3CWVaaNTXlQRog1wXfs6omZVFnzXGDQtDlqgpSIQsVSAnUbHgiX9k7+GSu8FRwIe1O8NiaiaSM8wM8tdawga6kYmt4AbXP448IUkPd2SYL+R7NQRSg5dY8svHHbp7ou1aGObAs/6T5/oZEOSDbcfddNwvf+PYh4C9DeKo0E6XBerczjpOmg7Vvx2QSJ8yUPohRawdb45A2hVRFKCuzB+vN4qacKLWv3ht6/yDRwJrBOVkAfxaK2Y7hmXTDOW/qUfvUPWHkCFvnDYO+84800SKJ/uWKiLsVcUMv6F9XBL6mJPrdksC/IwmaA10uRH2iCtncvWTBO1RCrLWpJLbWrpLdcC9VSRiOqP2vuJpKBtdUyaBbJfH/xXErF8f4ByVh3P3no40dfV1+AA=='),
     	
-    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#eeeeee;strokeColor=#999999;gradientColor=#cccccc;html=1;align=left;spacingLeft=4;fontSize=17;fontColor=#666666;labelPosition=right;shadow=0;', 15, 15, 
+    	this.createVertexTemplateEntry('shape=ellipse;fillColor=#eeeeee;strokeColor=#999999;gradientColor=#cccccc;html=1;align=left;spacingLeft=4;fontSize=17;fontColor=#666666;labelPosition=right;shadow=0;', 15, 15,
     			'Setting 1', 'Radiobutton', null, null, this.getTagsForStencil(gn, 'radiobutton radio button', dt).join(' ')),
     	this.addDataEntry(dt + 'radiobutton radio button group', 150, 120, 'Radiobutton Group',
     		'7ZbJboMwEIafhmtEcMhyTdrm0kpVc+jZhQlYMRjZztan72A7C4Eg1LQ5ZSQkzwwztv/PLB6ZZbu5pEX6JmLgHnn2yEwKoe0o282Acy/wWeyRJy8IfLy84OVKtm+yfkEl5LpLQWALNpSvwUZsQOk9dwGlpVjBJ4t1ioG+R6YqpbHYouOjE1OVQuwcylmS4zjC6UFiINUZP1UVZctsl5Tb7WUiWq2L3lLITPWkhAgXPJUL9g2umZ14JriQZiVkYgwzS8b5WXxprKyGaC0V28AHqFMft0WQGnZXZTIhp9EcRAZa7vGWrdt2eUdopfRTYEl6KHP6+lTZQHKsPamOAyd8MwRSg7AArVmeYLBf5+F0xB6sUHAh2oU0YKxVTKQRM9ThLBcZq+I7oOWwLEGpgka4wlfjPQ3KmUWu3UL6I+ef9RwawzinX8DfhWKaibKhtGp2wxQ0Y3IFY1uwt96oF1q/ArGBYXg7wkELwoZH6oGwG0JyT4ZhC0NyG0NqrInhwFgzw6Pef8jQ98eReVfejeHwngyHHb5nNXAXsI5IqrBykUOVRSepwlapSPW413Sa1GWa3K7SqOWkDx5vq9+e9Mk/nnR0T3+FJlf5afwB'),
@@ -307,13 +307,13 @@
     	this.createVertexTemplateEntry(s2 + 'forms.comboBox;' + skcl9 + mxConstants.STYLE_FILLCOLOR + '=#ddeeff;align=left;fillColor2=#aaddff;mainText=;fontColor=#666666;fontSize=17;spacingLeft=3;',
     								150, 30, 'Option 1', 'Combo Box', null, null, this.getTagsForStencil(gn, 'comboBox', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'forms.spinner;' + skcl9 + 'spinLayout=right;spinStyle=normal;adjStyle=triangle;fillColor=#aaddff;fontSize=17;fontColor=#666666;mainText=;html=1;overflow=fill;',
-    								150, 60, 
+    								150, 60,
     								'<table cellpadding="0" cellspacing="0" style="width:100%;height:100%;">' +
     								'<tr>' +
     								'<td style="width:85%">100</td>' +
     								'<td style="width:15%"></td>' +
     								'</tr>' +
-    								'</table>', 
+    								'</table>',
     								'Spinner', null, null, this.getTagsForStencil(gn, 'spinner', dt).join(' ')),
     								
     	this.addEntry(dt + 'menu bar', function()
@@ -348,7 +348,7 @@
     								30, 150, '', 'Vertical Slider', null, null, this.getTagsForStencil(gn, 'horSlider', dt + 'vertical').join(' ')),
     	this.addDataEntry(dt + 'list box', 150, 200, 'List Box',
     		'7ZZdS8MwFIZ/TW9HlmzO3W7qEBQEBa9De9oG06YkUTd/vadJ3FprZX7MOVigkPMmJx/vEw6N2LxYLjSv8muVgIzYecTmWinre8VyDlJGlIgkYmcRpQS/iF70jA7dKKm4htJuk0B9whOXj+AVLxi7kkEwVqsHuBeJzVEYRmxmcp6oZwwIBgk3OSQh4FJkJfZj3B40Crkt5Carqpcslll93UGh4ofHapAqXZiB1hDjgWf6VrxAWMxvPFdSaXcSNnUNR1IhZUNPXUM9XAa0hWWvIU4KbixAFWD1Cqc8hwvWM8beNJKDyPKQRkkQufFCts7d+IudYPHHdrOO3XfCotGH4LkqbUMn5DR2ntd6WGA4+YSNBoOzmlfaihb9Hi0WNA2SW/EErfV/QnDUIXhpoUBluB+IvIzz2usuhzavE9caO0lIa/im4rEosysXnY3/HBT9KqiwxY0SuDMlqzbvtwyVpgZsB+z6YFuxHvex3lORPLL2WHbB+qSPNfs/xfnXsL+r0UkC4Gp0u/qXqoRDfSOTXbyRSd8bGR3rwR5ZT3+BNYabn24/vflP/go='),
-  
+
     	this.createVertexTemplateEntry(s2 + 'forms.pwField;' + skcl9 + 'mainText=;align=left;fontColor=#666666;fontSize=17;spacingLeft=3;', 150, 30, '********', 'Password Field', null, null, this.getTagsForStencil(gn, 'pwField', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'forms.splitter;' + skcl9, 350, 10, '', 'Horizontal Splitter', null, null, this.getTagsForStencil(gn, 'splitter', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'forms.splitter;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 10, 350, '', 'Vertical Splitter', null, null, this.getTagsForStencil(gn, 'splitter', dt).join(' ')),
@@ -378,7 +378,7 @@
     	this.addDataEntry(dt + 'calendar date', 400, 300, 'Email',
     		'7VhLU9swEP41vmacOLyOJQEu9FLa6VnI61igF3qQ0F/fXcmGdJzMtAOmh8QzcbyrfX6fV05cVAu1uXHMtl9NDbKoropq4YwJ+UptFiBlMStFXVTLYjYr8VPMrvesTtNqaZkDHf7GYZYdnpmMkDXXzqis9OFFdkofnHmEn6IOLSqmRXXpW1abNQolCjXzLdSdwKRYabzmWAI4VLRByTcvSyHVZkUtT5Thj9FOGuOUnzDNW+O2IjixagN5WcaFXn3L4nKGqsbosDCSzLG+6jQdqO/aARdgsxeSpOrwuAGjILgXNFl37eHqSUatbKHLSV7nWcd8llevnm/44kUH8W64qwHcD6bVxbx8yHjw/4W9c8AJ6kZIuYVrkw7UuzvxC7ok+7Dvk0totli7TdKyIk3qZMv1Ih3vpG3zJ2VbLFZj0Tgf0HgX7x8IwYMcnJce7gEDYxFwMiDgxgEE7PU4Pu8bn/1cjjZNpwMyv5uDHqSz4VY2FvZnA+wbhzgeH0gfPlE7SB1tos4HrC4WBz1R0/Lznk0XA/CPE/QhE7SLxNFGaFoOaLw89CGaf95zaTo9TtFIU7SDxfGmaPh+4dY4UGRifaTvOnWNxIpAyTBFMcO4JTfaI/QQIq2yWljhBU+/8EuQorPyyDDFIKWIXhkSAyibYgrNRS3qqCl0pJNk95ifrEOfmyTFVppRGimeIpvg1Q9aBy1USk4mIgvPqGQqZ3+KwuOXNkhgJCPYgOMisCCMppRSMsVNnzcbYxt9NSmdsMmRTiz1rbAL0yOA5QSqZ5lTsRioXuFiqrsHT1A2B9ZBC7oGl7BMymcjo8WCIJWecCvBexI53tJvFCRQIp6auBKMzDSVn281VERHZVxtONgAMTOWcDWcM+DJg0crahayd0LAOiNqulEzW5mJVBiP0rKMIQVpGiSX5Bo8uGynjMwFswy9SBD7Vx6jmhzkpkDbgeBMfulCBGNRu25FgDsMQ5nXWPQH7fpnw6fuvNy1X/T/yv9hwyjodWP/rjOt/fEq9Dc=')
     ];			
-    
+
     this.addPalette('mockupForms', 'Mockup Forms', false, mxUtils.bind(this, function(content)
     {
     	for (var i = 0; i < fns.length; i++)
@@ -387,7 +387,7 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addMockupGraphicsPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -400,7 +400,7 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-  
+
     var gn = 'mxgraph.mockup.graphics';
     var dt = 'mockup graphics ';
 
@@ -415,11 +415,11 @@
     	this.createVertexTemplateEntry(s + 'graphics.pieChart;' +  mxConstants.STYLE_STROKECOLOR + '=#008cff;parts=10,20,35;partColors=#e0e0e0,#d0d0d0,#c0c0c0,#b0b0b0,#a0a0a0;strokeWidth=2;',
     			200, 200, '', 'Pie Chart', null, null, this.getTagsForStencil(gn, 'pieChart', dt).join(' ')),
     	
-    	this.createVertexTemplateEntry(s + 'graphics.simpleIcon;strokeColor=#999999;', 
+    	this.createVertexTemplateEntry(s + 'graphics.simpleIcon;strokeColor=#999999;',
     			50, 50, '', 'Icon Placeholder', null, null, this.getTagsForStencil(gn, 'simpleIcon', dt + 'icon placeholder').join(' ')),
     	this.addDataEntry(dt + 'icon grid placeholder', 200, 200, 'Icon Grid',
     		'7ZdRa8MgEMc/ja8licu6Pm7pVgYb7G3PNrFRqjWobdNvv4vadYUVRpv5ZCDg/e9OzvuRCyJcyX6hScfeVUMFws8IV1op61eyr6gQqMh4g/AcFUUGLypeLnhz5806ounG/iWh8Ak7IrbUK14w9iCCsKPa8pqIN7Kk4kMZbrnagGuprFUS4SfDSKP2oGRgNMQw2gSDCN4OoTVUQzUIzEo44jyH5XHbxxBjVTfsZbVa00/eWBbiYPduqET27dCliVT1ettNnMFrMzFcdoK+1kNNIb1SQmlXPJ65BzwrLsQPfeUe0MP5oRjaX+yhk0IDF1RJavUBQvahTPCWvs0Zo7xl9lwjxtvtd+YJCCwCk9/54MTnej4hYVr6jAi47hKum3HlRxAReJWJ1/W8DtE/r/uEa7RpGJ/eNNEbbzjGx/eQ8N08K2P+22aJ19jDMia+PEv8Rh+X/wgQzNO13fnObvVf'),
-  
+
     	this.createVertexTemplateEntry(s + 'graphics.bubbleChart;' + skclN + 'strokeColor2=none;strokeColor3=#666666;fillColor2=#008cff;fillColor3=#dddddd;',
     								400, 200, '', 'Bubble Chart', null, null, this.getTagsForStencil(gn, 'bubbleChart', dt + 'bubble chart').join(' ')),
     	this.addDataEntry(dt + 'gauge', 100, 100, 'Gauge',
@@ -574,7 +574,7 @@
     		
     	this.createVertexTemplateEntry(s + 'misc.map;', 250, 250, '', 'Map', null, null, this.getTagsForStencil(gn, 'map', dt).join(' '))
     ];
-    
+
     this.addPalette('mockupGraphics', 'Mockup Graphics', false, mxUtils.bind(this, function(content)
     {
     	for (var i = 0; i < fns.length; i++)
@@ -583,7 +583,7 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addMockupMarkupPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -595,27 +595,27 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-  
+
     var gn = 'mxgraph.mockup.markup';
     var dt = '';
-    
+
     this.addPaletteFunctions('mockupMarkup', 'Mockup Markup', false,
     [
-    	this.createVertexTemplateEntry(s + 'markup.curlyBrace;' + skcl9, 
+    	this.createVertexTemplateEntry(s + 'markup.curlyBrace;' + skcl9,
     			100, 20, '', 'Horizontal Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'horizontal curly brace').join(' ')),
-    	this.createVertexTemplateEntry(mxConstants.STYLE_LABEL_POSITION + '=right;' + mxConstants.STYLE_ALIGN + '=left;strokeWidth=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.curlyBrace;html=1;shadow=0;dashed=0;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
+    	this.createVertexTemplateEntry(mxConstants.STYLE_LABEL_POSITION + '=right;' + mxConstants.STYLE_ALIGN + '=left;strokeWidth=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.curlyBrace;html=1;shadow=0;dashed=0;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';',
     			20, 100, '', 'Vertical Curly Brace', null, null, this.getTagsForStencil(gn, 'curlyBrace', dt + 'vertical curly brace').join(' ')),
-    	this.createVertexTemplateEntry(s + 'markup.line;' + skcl9, 
+    	this.createVertexTemplateEntry(s + 'markup.line;' + skcl9,
     			100, 20, '', 'Horizontal Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'horizontal line').join(' ')),
-    	this.createVertexTemplateEntry(s + 'markup.line;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';', 
+    	this.createVertexTemplateEntry(s + 'markup.line;' + skcl9 + mxConstants.STYLE_DIRECTION + '=' + mxConstants.DIRECTION_NORTH + ';',
     			20, 100, '', 'Vertical Line', null, null, this.getTagsForStencil(gn, 'line', dt + 'vertical line').join(' ')),
     	this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.scratchOut;shadow=0;dashed=0;html=1;' + skcl9 + 'strokeWidth=4;',
     			200, 100, '', 'Scratch Out', null, null, this.getTagsForStencil(gn, 'scratchOut', dt + 'scratch out').join(' ')),
-    	this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.redX;fillColor=#ff0000;html=1;shadow=0;' + skclN, 
+    	this.createVertexTemplateEntry(mxConstants.STYLE_SHAPE + '=mxgraph.mockup.markup.redX;fillColor=#ff0000;html=1;shadow=0;' + skclN,
     			200, 100, '', 'Red X', null, null, this.getTagsForStencil(gn, 'redX', dt + 'red').join(' '))
     ]);
   };
-  
+
   Sidebar.prototype.addMockupMiscPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -628,46 +628,46 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-  
+
     var gn = 'mxgraph.mockup.misc';
     var dt = 'mockup ';
     var miscCommon = skcl9 + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=2;html=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.';
 
     var fns =
     [
-    	this.createVertexTemplateEntry(s + 'misc.help_icon;', 
+    	this.createVertexTemplateEntry(s + 'misc.help_icon;',
     			32, 32, '', 'Help Icon', null, null, this.getTagsForStencil(gn, 'help_icon', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'misc.playbackControls;' + skcl9 + 'fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none;',
     			250, 30, '', 'Playback Controls', null, null, this.getTagsForStencil(gn, 'playbackControls', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'misc.progressBar;fillColor=#cccccc;' + skclN + 'fillColor2=#99ddff;barPos=80;', 200, 20, '', 'Progress Bar', null, null, this.getTagsForStencil(gn, 'progress bar', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'misc.shoppingCart;' + skcl9, 
+    	this.createVertexTemplateEntry(s + 'misc.shoppingCart;' + skcl9,
     			50, 50, '', 'Shopping Cart', null, null, this.getTagsForStencil(gn, 'shopping cart', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'misc.rating;' + skcl9 + mxConstants.STYLE_FILLCOLOR + '=#ffff00;emptyFillColor=#ffffff;grade=4;ratingScale=5;ratingStyle=star;',
     			225, 30, '', 'Rating', null, null, this.getTagsForStencil(gn, 'rating', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'misc.mail2;' + skcl9, 100, 60, '', 'Mail', null, null, this.getTagsForStencil(gn, 'mail', dt).join(' ')),
-    	this.createVertexTemplateEntry(s + 'misc.volumeSlider;barPos=80;fillColor=#cccccc;' + skcl9 + 'fillColor2=#ddeeff;', 
+    	this.createVertexTemplateEntry(s + 'misc.volumeSlider;barPos=80;fillColor=#cccccc;' + skcl9 + 'fillColor2=#ddeeff;',
     			250, 30, '', 'Volume Slider', null, null, this.getTagsForStencil(gn, 'volume slider', dt).join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.editIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.editIcon;',
     			50, 50, '', 'Edit Icon', null, null, this.getTagsForStencil(gn, 'editIcon', dt + 'edit icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.printIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.printIcon;',
     			50, 50, '', 'Print Icon', null, null, this.getTagsForStencil(gn, 'printIcon', dt + 'print icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.shareIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.shareIcon;',
     			50, 50, '', 'Share Icon', null, null, this.getTagsForStencil(gn, 'shareIcon', dt + 'share icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.trashcanIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.trashcanIcon;',
     			50, 50, '', 'Trashcan Icon', null, null, this.getTagsForStencil(gn, 'trashcanIcon', dt + 'trashcan icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.copyrightIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.copyrightIcon;',
     			25, 25, '', 'Copyright', null, null, this.getTagsForStencil(gn, 'copyrightIcon', dt + 'copyright icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.registeredIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.registeredIcon;',
     			25, 25, '', 'Registered', null, null, this.getTagsForStencil(gn, 'registeredIcon', dt + 'registered icon').join(' ')),
-    	this.createVertexTemplateEntry(miscCommon + 'misc.volumeIcon;', 
+    	this.createVertexTemplateEntry(miscCommon + 'misc.volumeIcon;',
     			25, 25, '', 'Volume', null, null, this.getTagsForStencil(gn, 'volumeIcon', dt + 'volume icon').join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=down;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=10;spacingTop=0;spacingRight=0;spacing=0;' + skcl9, 
+    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=down;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=10;spacingTop=0;spacingRight=0;spacing=0;' + skcl9,
     			350, 30, '1', 'Horizontal Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=up;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=0;spacingTop=10;spacingRight=0;spacing=0;' + skcl9, 
+    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=up;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=0;spacingTop=10;spacingRight=0;spacing=0;' + skcl9,
     			350, 30, '1', 'Horizontal Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=down;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=10;spacingTop=0;spacingRight=0;rotation=-90;spacing=0;' + skcl9, 
+    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=down;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=10;spacingTop=0;spacingRight=0;rotation=-90;spacing=0;' + skcl9,
     			350, 30, '1', 'Vertical Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=up;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=0;spacingTop=10;spacingRight=0;rotation=-90;spacing=0;' + skcl9, 
+    	this.createVertexTemplateEntry(s2 + 'misc.ruler2;dx=100;rulerOrient=up;unitSize=10;fontColor=#999999;spacingLeft=96;align=left;verticalAlign=middle;spacingBottom=0;spacingTop=10;spacingRight=0;rotation=-90;spacing=0;' + skcl9,
     			350, 30, '1', 'Vertical Ruler', null, null, this.getTagsForStencil(gn, 'ruler', dt + 'horizontal').join(' ')),
     			
     	this.addEntry(dt + 'revision table', function()
@@ -713,7 +713,7 @@
     	this.createVertexTemplateEntry(s3 + 'misc.pin;fillColor2=#ffa500;fillColor3=#885000;strokeColor=#997000;',
     								10, 25, '', 'Pin', null, null, this.getTagsForStencil(gn, 'pin', dt).join(' '))
     ];
-    
+
     this.addPalette('mockupMisc', 'Mockup Misc', false, mxUtils.bind(this, function(content)
     {
     	for (var i = 0; i < fns.length; i++)
@@ -734,7 +734,7 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-  
+
     var gn = 'mxgraph.mockup.navigation';
     var dt = 'mockup navigation ';
     var miscCommon = skcl9 + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=2;html=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.';
@@ -744,11 +744,11 @@
     	this.addDataEntry(dt + 'breadcrumb', 300, 30, 'Breadcrumb',
     		'7VaxboMwEP0ar8jYlGQObbK0U4fOFhhsxWBknIT063uAC40CUoeAGGIJyXfnO87v+VlGNMrrg2Gl+NAJV4i+IRoZrW03y+uIK4UIlgmir4gQDB8i+4mo30ZxyQwv7H8SSJdwZurEO887u3IDLleqslflIpU1+si/ZGIFOHxEd5Vgib6AgcFIWCV44gymZFbAPIY+oBzdCZurIatsSuZ11uzby3V8PJVewc4yY1bqwmNFLHSTlerCfsrvZrW/cXakVRODjmjYjt91rtPmF25X3FheTyLTuhwsB65zbs0VllzcBiEaduBhwWUmXBZ1PlZ1dtZnDjDDxCE9jjq9Qx2RMLN946sBnQT3oLN2PBj0+hbwPxyQmTgIJk8+WRkJi518l7C9J2EuIbw8hTDOgR8sp4RwUgl0ZSwsrQR/5D6aSwqbpxTGSejP/QJS2E5KIVgZC2NSwHgbp+lMLIxcSA+SApjDg7eN3byHfwA='),
 
-    	this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=,,+,;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 300, 50, 
+    	this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=,,+,;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 300, 50,
     		'<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%" style="font-size:1em;">' +
-    		'<tr height="0%"><td width="25%">Layer 1</td><td width="25%">Layer 2</td><td width="25%" style="color:#008cff;">Layer 3</td><td width="25%">Layer 4</td></tr><tr height="100%"><td/></tr></table>', 
+    		'<tr height="0%"><td width="25%">Layer 1</td><td width="25%">Layer 2</td><td width="25%" style="color:#008cff;">Layer 3</td><td width="25%">Layer 4</td></tr><tr height="100%"><td/></tr></table>',
     		'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt + 'step bar').join(' ')),
-    	this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=Layer 1,Layer 2,+Layer 3,Layer 4;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;', 
+    	this.createVertexTemplateEntry(s2 + 'navigation.stepBar;strokeColor=#c4c4c4;textColor=#666666;textColor2=#008cff;mainText=Layer 1,Layer 2,+Layer 3,Layer 4;textSize=17;fillColor=#666666;overflow=fill;fontSize=17;fontColor=#666666;',
     		300, 50, '', 'Step Bar', null, null, this.getTagsForStencil(gn, 'stepBar', dt + 'step bar').join(' ')),
     	this.createVertexTemplateEntry(s + 'navigation.coverFlow;strokeColor=#999999;',
     		400, 200, '', 'Cover Flow', null, null, this.getTagsForStencil(gn, 'coverFlow', dt + 'cover flow').join(' ')),
@@ -774,7 +774,7 @@
     	}
     }));
   };
-  
+
   Sidebar.prototype.addMockupTextPalette = function()
   {
     var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;align=center;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.mockup.";
@@ -787,7 +787,7 @@
     var skcl9 = mxConstants.STYLE_STROKECOLOR + '=#999999;';
     var skclN = mxConstants.STYLE_STROKECOLOR + '=none;';
     var sb = this;
-  
+
     var gn = 'mxgraph.mockup.text';
     var dt = 'mockup text ';
     var miscCommon = skcl9 + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;shadow=0;dashed=0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeWidth=2;html=1;' + mxConstants.STYLE_SHAPE + '=mxgraph.mockup.';
@@ -795,7 +795,7 @@
 
     var fns =
     [
-    	this.createVertexTemplateEntry('shape=rectangle;strokeColor=none;fillColor=none;linkText=;fontSize=17;fontColor=#0000ff;fontStyle=4;html=1;align=center;', 
+    	this.createVertexTemplateEntry('shape=rectangle;strokeColor=none;fillColor=none;linkText=;fontSize=17;fontColor=#0000ff;fontStyle=4;html=1;align=center;',
     			150, 30, 'Link', 'Link', null, null, this.getTagsForStencil(gn, 'link', dt).join(' ')),
     			
     	this.addEntry(dt + 'horizontal button bar', function()
@@ -836,13 +836,13 @@
     			150, 50, 'fG2yQ23', 'Captcha', null, null, this.getTagsForStencil(gn, 'captcha', dt).join(' ')),
     	this.createVertexTemplateEntry(s2 + 'text.alphanumeric;linkText=;html=1;fontStyle=4;fontSize=17;fontColor=#0000ff;',
     			450, 50, '0-9 A B C D E F G H I J K L M N O P Q R S T U V X Y Z', 'Alphanumeric', null, null, this.getTagsForStencil(gn, 'alphanumeric', dt).join(' ')),
-    	this.createVertexTemplateEntry('text;spacingTop=-5;whiteSpace=wrap;html=1;align=left;fontSize=12;fontFamily=Helvetica;fillColor=none;strokeColor=none;', 
+    	this.createVertexTemplateEntry('text;spacingTop=-5;whiteSpace=wrap;html=1;align=left;fontSize=12;fontFamily=Helvetica;fillColor=none;strokeColor=none;',
     			250, 470, loremText, 'Paragraph of Text', null, null, this.getTagsForStencil(gn, 'peragraph of text', dt).join(' ')),
     	
     	this.addEntry(dt + 'table', function()
     	{
     	    var classCell = new mxCell('<table cellpadding="4" cellspacing="0" border="1" style="font-size:1em;width:100%;height:100%;"><tr><th>Header 1</th><th>Header 2</th></tr>' +
-    	    		'<tr><td>row 1, cell 1</td><td>row 1, cell 2</td></tr><tr><td>row 2, cell 1</td>' + 
+    	    		'<tr><td>row 1, cell 1</td><td>row 1, cell 2</td></tr><tr><td>row 2, cell 1</td>' +
     	    		'<td>row 2, cell 2</td></tr></table> ', new mxGeometry(0, 0, 180, 80),
     				'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1');
         	classCell.vertex = true;
@@ -859,5 +859,5 @@
     	}
     }));
   };
-  
+
 })();

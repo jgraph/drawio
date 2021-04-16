@@ -7,7 +7,7 @@
     var r = 100;
     var sb = this;
     var s = 'aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/';
-    
+
     this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompanies');
     this.addMSCAECompaniesPalette(gn, r, sb, s);
     this.setCurrentSearchEntryLibrary('mscae', 'mscaeEnterpriseFlat');
@@ -68,7 +68,7 @@
   Sidebar.prototype.addMSCAECompaniesPalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise company companies';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Cache_Redis_Product.svg;',
@@ -113,7 +113,7 @@
     var s = 'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#00188D;shape=mxgraph.';
     var s2 = 'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.';
     var dt = 'ms microsoft cloud enterprise flat';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(
@@ -423,7 +423,7 @@
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.';
     var dt = 'ms microsoft cloud enterprise intune';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'account_portal',
@@ -526,12 +526,12 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEOMSFlatPalette = function(gn, r, sb)
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.oms.';
     var dt = 'ms microsoft cloud enterprise oms';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'alerts',
@@ -584,13 +584,13 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAESystemCenterFlatPalette = function(gn, r, sb)
   {
     var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.system_center.';
     var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.';
     var dt = 'ms microsoft cloud enterprise system center';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'admin_console',
@@ -623,11 +623,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEAIandMLServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise ai ml service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Batch_AI.svg;',
@@ -656,11 +656,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEAnalyticsServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise analytics service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Analysis_Services.svg;',
@@ -695,11 +695,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEComputeServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise compute service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Batch_Accounts.svg;',
@@ -734,11 +734,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEComputeServiceVMPalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise compute service vm virtual machine';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Virtual_Machines_Availability_Set.svg;',
@@ -771,11 +771,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEContainerServiceVMPalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise container service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Container_Instances.svg;',
@@ -794,11 +794,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEDatabasesServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise database databases db service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Cache_for_Redis.svg;',
@@ -849,11 +849,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEDevOpsServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise devops service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Application_Insights.svg;',
@@ -882,11 +882,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEGeneralServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise general service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Grid3x3.svg;',
@@ -949,11 +949,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEIdentityServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise identity service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Access_Review.svg;',
@@ -992,11 +992,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEIntegrationServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise integration service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'API_Management.svg;',
@@ -1045,11 +1045,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEInternetOfThingsServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise iot internet of things';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Digital_Twins.svg;',
@@ -1082,11 +1082,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEIntuneServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise intune service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Client_Apps.svg;',
@@ -1125,11 +1125,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEManagementGovernanceServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise management and governance service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Log.svg;',
@@ -1178,11 +1178,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEManagementGovernanceMediaServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise management and governance service media';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Media_Player.svg;',
@@ -1203,11 +1203,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEMigrateServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise migrate service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Database_Migration_Services.svg;',
@@ -1226,11 +1226,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEMixedRealityServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise mixed reality service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Spatial_Anchor.svg;',
@@ -1245,11 +1245,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEMobileServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise mobile service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'App_Service_Mobile_App.svg;',
@@ -1268,11 +1268,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAENetworkingServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise networking service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Application_Gateway.svg;',
@@ -1339,11 +1339,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEOtherCategoryServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise other category service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'CloudSimple_Nodes.svg;',
@@ -1380,11 +1380,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAESecurityServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise security service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Azure_Sentinel.svg;',
@@ -1403,11 +1403,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEStorageServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise storage service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Archive_Storage.svg;',
@@ -1456,11 +1456,11 @@
     			}
     }));
   };
-  
+
   Sidebar.prototype.addMSCAEWebServicePalette = function(gn, r, sb, s)
   {
     var dt = 'ms microsoft cloud enterprise web service';
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'Connection.svg;',

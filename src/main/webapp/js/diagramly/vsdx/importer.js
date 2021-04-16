@@ -20,7 +20,7 @@ var com;
                     this.RESPONSE_DIAGRAM_START = "";
                     this.RESPONSE_DIAGRAM_END = "</diagram>";
                     this.RESPONSE_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><mxfile>";
-                    
+
                     /**
                      * Stores the vertexes imported.
                      */
@@ -37,7 +37,7 @@ var com;
                      * Stores the parents of the shapes imported.
                      */
                     this.parentsMap = ({});
-                    
+
                     this.layersMap = ({});
                     /**
                      * Set to true if you want to display spline debug data
@@ -56,14 +56,14 @@ var com;
 
                     return mxVsdxCodec.vsdxPlaceholder;
                 };
-                
+
                 mxVsdxCodec.parsererrorNS_$LI$ = function ()
                 {
                 if (mxVsdxCodec.parsererrorNS == null)
                 {
                 	mxVsdxCodec.parsererrorNS = "";
                 	
-                	if (window.DOMParser) 
+                	if (window.DOMParser)
                 	{
                 		var parser = new DOMParser();
                 		
@@ -80,13 +80,13 @@ var com;
 
                 return mxVsdxCodec.parsererrorNS;
                 };
-                
-                mxVsdxCodec.parseXml = function (xml) 
+
+                mxVsdxCodec.parseXml = function (xml)
                 {
                   try
                   {
                     var doc = mxUtils.parseXml(xml);
-                    
+
                     if (doc.getElementsByTagNameNS(mxVsdxCodec.parsererrorNS, 'parsererror').length > 0)
                     {
                     	return null;
@@ -96,20 +96,20 @@ var com;
                     	return doc;
                 	}
                   }
-                  catch (e) 
+                  catch (e)
                   {
                     //IE11 throw an exception on XML syntax error
-                    return null; 
+                    return null;
                   }
                 };
-                
+
                 //TODO Optimize this function
-                mxVsdxCodec.decodeUTF16LE = function ( binaryStr ) 
+                mxVsdxCodec.decodeUTF16LE = function ( binaryStr )
                 {
                     var cp = "";
-                    for( var i = 0; i < binaryStr.length; i+=2) 
+                    for( var i = 0; i < binaryStr.length; i+=2)
                     {
-                        cp += String.fromCharCode( 
+                        cp += String.fromCharCode(
                              binaryStr.charCodeAt(i) |
                             ( binaryStr.charCodeAt(i+1) << 8 )
                         );
@@ -117,8 +117,8 @@ var com;
 
                     return cp ;
                 }
-                
-                mxVsdxCodec.prototype.scaleGraph = function(graph, scale) 
+
+                mxVsdxCodec.prototype.scaleGraph = function(graph, scale)
                 {
                     if (scale !== 1) {
                         var model = graph.getModel();
@@ -150,14 +150,14 @@ var com;
                         }
                     }
                 };
-                
+
                 mxVsdxCodec.incorrectXMLReqExp = [
                   {
                     regExp: /(\>[^&<]*)\&([^&<;]*\<)/g,
                     repl: '$1&amp;$2'
                   }
                 ];
-                
+
                 /**
                  * Parses the input VSDX format and uses the information to populate
                  * the specified graph.
@@ -176,7 +176,7 @@ var com;
                     var docData = ({});
                     var mediaData = ({});
 
-                    var allDone = function () 
+                    var allDone = function ()
                     {
                       var path = mxVsdxCodec.vsdxPlaceholder + "/document.xml";
                       var rootDoc = (function (m, k) { return m[k] ? m[k] : null; })(docData, path);
@@ -202,7 +202,7 @@ var com;
                               {
                                   var page_1 = entry.getValue();
                                   //As per many requests, include all pages in the output
-                                  //if (!page_1.isBackground()) 
+                                  //if (!page_1.isBackground())
                                   {
                                       var graph_1 = this_1.createMxGraph();
                                       graph_1.getModel().beginUpdate();
@@ -216,7 +216,7 @@ var com;
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_START); })(xmlBuilder);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(_this.processPage(graph_1, page_1)); })(xmlBuilder);
                                         /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_DIAGRAM_END); })(xmlBuilder);
-                                        
+
                                         if (index121 < array122.length - 1)
                                     	{
         	                            	_loop_1(index121 + 1, remaining);
@@ -230,7 +230,7 @@ var com;
                               }
                           };
                           var this_1 = _this;
-                          
+
                           if (array122.length > 0)
                           {
                             _loop_1(0, remaining);
@@ -240,14 +240,14 @@ var com;
                             remaining();
                           }
                       }
-                      
+
                       function remaining()
                       {
                         /* append */ (function (sb) { return sb.str = sb.str.concat(_this.RESPONSE_END); })(xmlBuilder);
                         var dateAfter = new Date();
                            //console.log("File processed in " + (dateAfter - dateBefore) + "ms");
                         //console.log(xmlBuilder.str);
-                        if (callback) 
+                        if (callback)
                         {
                          	callback(xmlBuilder.str);
                         }
@@ -257,10 +257,10 @@ var com;
                     var dateBefore = new Date();
                     var filesCount = 0;
                     var processedFiles = 0;
-                    
-                    var doneCheck = function() 
+
+                    var doneCheck = function()
                     {
-                        if (processedFiles == filesCount) 
+                        if (processedFiles == filesCount)
                         {
                         	var dateAfter = new Date();
                              //console.log(processedFiles + " File extracted in " + (dateAfter - dateBefore) + "ms");
@@ -272,7 +272,7 @@ var com;
                         	{
                         		console.log(e);
                         		
-                        		if (onerror != null) 
+                        		if (onerror != null)
                         		{
                         			onerror();
                         		}
@@ -284,9 +284,9 @@ var com;
 
                         }
                     };
-                    
-                    JSZip.loadAsync(file)                                   
-                    .then(function(zip) 
+
+                    JSZip.loadAsync(file)
+                    .then(function(zip)
                     {
                       if (Object.keys(zip.files).length == 0)
                       {
@@ -299,16 +299,16 @@ var com;
                       {
                           var dateAfter = new Date();
                            //console.log(" (loaded in " + (dateAfter - dateBefore) + "ms)");
-                           
-                          zip.forEach(function (relativePath, zipEntry) 
-                          {  
+
+                          zip.forEach(function (relativePath, zipEntry)
+                          {
             				var filename = zipEntry.name;
                             var name = filename.toLowerCase();
             				var nameLen = name.length;
                               if (name.indexOf('.xml') == nameLen - 4 || name.indexOf('.rels') == nameLen - 5) //xml files
                               {
                                 filesCount++;
-                                zipEntry.async("string").then(function (str) 
+                                zipEntry.async("string").then(function (str)
                               	{
                                 	if (!(str.length === 0)) {
                 						//UTF-8 BOM causes exception while parsing, so remove it
@@ -317,10 +317,10 @@ var com;
                                           {
                                               str = str.substring(1);
                                           }
-                                          
+
                                           var doc = mxVsdxCodec.parseXml(str);
-                                          
-                                          if (doc == null) 
+
+                                          if (doc == null)
                                           {
                                             if (str.charCodeAt(1) === 0 && str.charCodeAt(3) === 0 && str.charCodeAt(5) === 0)
                                             {
@@ -338,9 +338,9 @@ var com;
                                             	
                                             	doc = mxVsdxCodec.parseXml(str);
                                             }
-                                            //TODO add any other non-standard encoding that may be needed 
+                                            //TODO add any other non-standard encoding that may be needed
                                           }
-                                          
+
                                           if (doc != null)
                                           {
                                             doc.vsdxFileName = filename;
@@ -348,14 +348,14 @@ var com;
                                           }
                                       }
             	                    	processedFiles++;
-    
+
             	                    	doneCheck();
                                	});
                               }
                               else if (name.indexOf(mxVsdxCodec.vsdxPlaceholder + "/media") === 0)//binary files
                                {
                                 filesCount++;
-                                if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".emf")) 
+                                if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".emf"))
                                 {
                                 	var emfDone = function()
                                 	{
@@ -364,7 +364,7 @@ var com;
             	                    	doneCheck();
                                 	}
                                 	
-                                	if (JSZip.support.blob && window.EMF_CONVERT_URL) 
+                                	if (JSZip.support.blob && window.EMF_CONVERT_URL)
                                 	{
                                 		zipEntry.async("blob").then(function (emfBlob)
     	           	                  	{
@@ -388,8 +388,8 @@ var com;
                             							try
                             							{
                             								var reader = new FileReader();
-                            								reader.readAsDataURL(xhr.response); 
-                            								reader.onloadend = function() 
+                            								reader.readAsDataURL(xhr.response);
+                            								reader.onloadend = function()
                             								{
                             									var dataPos = reader.result.indexOf(',') + 1;
                             								    mediaData[filename] = reader.result.substr(dataPos);
@@ -418,9 +418,9 @@ var com;
                                 	}
                                 }
                                 else if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
-                                	if (JSZip.support.uint8array) 
+                                	if (JSZip.support.uint8array)
                                 	{
-    	                            	zipEntry.async("uint8array").then(function (bmpData) 
+    	                            	zipEntry.async("uint8array").then(function (bmpData)
     	           	                  	{
     	                            		var bitmap = new BmpDecoder(bmpData);
     	                            		
@@ -431,7 +431,7 @@ var com;
     	                            		ctx.putImageData(bitmap.imageData, 0, 0);
     	                            		var jpgData = c.toDataURL("image/jpeg");
                                               /* put */ (mediaData[filename] = jpgData.substr(23)); //23 is the length of "data:image/jpeg;base64,"
-  
+
     	        	                    	processedFiles++;
     	        	                    	doneCheck();
     	           	                   	});
@@ -439,14 +439,14 @@ var com;
                                 }
                                 else
                                 {
-                                	zipEntry.async("base64").then(function (base64Str) 
+                                	zipEntry.async("base64").then(function (base64Str)
                	                  	{
   //                                      if ((function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(name, ".bmp")) {
-  //                                          try 
+  //                                          try
   //                                          {
   //      	                            		//convert BMP files to PNG
   //  	                                    	var bmpImg = new Image();
-  //  	                                        
+  //  	
   //  	                                        bmpImg.onload = function() {
   //  	                                            var c = document.createElement("canvas");
   //  	                                            c.width = bmpImg.width;
@@ -454,18 +454,18 @@ var com;
   //  	                                            var ctx = c.getContext("2d");
   //  	                                            ctx.drawImage(bmpImg, 0, 0);
   //  	                                            var jpgData = c.toDataURL("image/jpeg");
-  //  	                                            
+  //  	
   //  	                                            /* put */ (mediaData[filename] = jpgData.substr(23)); //23 is the length of "data:image/jpeg;base64,"
-  //  	                                            
+  //  	
   //  	                                            processedFiles++;
   //  	                                            doneCheck();
   //  	                                        };
-  //  
+  //
   //  	                                        bmpImg.src = "data:image/bmp;base64," + base64Str;
   //                                          }
   //                                          catch (e) {} //conversion failed. Nothing can be done!
   //                                      }
-  //                                      else 
+  //                                      else
   //                                      {
     	                                    /* put */ (mediaData[filename] = base64Str);
     	                                	
@@ -483,7 +483,7 @@ var com;
                         {
                         	onerror(e);
                         }
-                    });                    
+                    });
                 };
                 mxVsdxCodec.prototype.createMxGraph = function () {
                     var graph = new Graph();
@@ -499,7 +499,7 @@ var com;
                     var node = codec.encode(graph.getModel());
                     node.setAttribute("style", "default-style2");
                     var modelString = mxUtils.getXml(node);
-                    
+
                     var output = "";
                     if (page != null) {
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
@@ -507,7 +507,7 @@ var com;
                         var pageName_1 = mxUtils.htmlEntities(page.getPageName()) + (page.isBackground()? ' (Background)' : '');
                         output += '<diagram name="' + pageName_1 + '" id="' + pageName_1.replace(/\s/g, '_') + '">';
                     }
-                    
+
                     output += Graph.compress(modelString);
                     return output;
                 };
@@ -617,23 +617,23 @@ var com;
                  * @param {*} parent The parent of the elements to be imported.
                  * @return {number}
                  */
-                mxVsdxCodec.prototype.importPage = function (page, graph, parent, noSanitize) 
+                mxVsdxCodec.prototype.importPage = function (page, graph, parent, noSanitize)
                 {
                   //BackPages can include another backPage, so it is recursive
                   var backPage = page.getBackPage();
-                    
-                  if (backPage != null) 
+
+                  if (backPage != null)
                     {
                         graph.getModel().setValue(graph.getDefaultParent(), page.getPageName());
                         var backCell = new mxCell(backPage.getPageName());
                         graph.addCell(backCell, graph.getModel().getRoot(), 0, null, null);
                         this.importPage(backPage, graph, graph.getDefaultParent());
                     }
-                  
+
                   //TODO KNOWN ISSUE: VSDX layers are virtual grouping where parts of a group can be members of a layers while the remaining group members belong to another layer
                   //  				This cannot be done in draw.io currently
                   //  				Also, layers should NOT affect cells order. So, as a best effort solution, layers should be orders such that the cells order is maintained
-                  
+
                   //add page layers
                   var layers = page.getLayers();
                   this.layersMap[0] = graph.getDefaultParent();
@@ -743,7 +743,7 @@ var com;
 
                     return pageHeight;
                 };
-                
+
                 /**
                  * This function is for doing any async processing needed after importing a page
                  */
@@ -754,7 +754,7 @@ var com;
                     var me = this;
                     var toCropImgs = [];
                     var shapes = page.getShapes().entries || [];
-                    
+
                     for (var i = 0; i < shapes.length; i++)
                 	{
                     	var shape = shapes[i].value || {};
@@ -764,7 +764,7 @@ var com;
                     		toCropImgs.push(shape);
                     	}
                 	}
-                    
+
                     if (toCropImgs.length > 0)
                     {
                     	function cropImage(index, callback)
@@ -789,14 +789,14 @@ var com;
                                   if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                                       return m.entries[i].value;
                                   } return null; })(me.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(page.Id, shape.Id));
-                              
+
                     		var img = new Image();
                     		
                     		img.onload = function()
                     		{
                     			var data = imgInfo.iData;
                                     var type = imgInfo.iType;
-                                    
+
                     			try
                     			{
                                         //TODO There is still some minor inaccuracy in width/height
@@ -815,7 +815,7 @@ var com;
                                       data = jpgData.substr(23); //23 is the length of "data:image/jpeg;base64,"
                                         type = 'jpg';
                     			}
-                    			catch(e) 
+                    			catch(e)
                     			{
                     				console.log(e);
                     			}
@@ -846,7 +846,7 @@ var com;
                         callback();
                   }
                 };
-                
+
                 /**
                  * Adds a vertex to the graph if 'shape' is a vertex or add the shape to edgeShapeMap if it is an edge.
                  * This method doesn't import sub-shapes of 'shape'.
@@ -892,9 +892,9 @@ var com;
                                     m.entries[i].value = v;
                                     return;
                                 } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexShapeMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, id), shape);
-                            
+
                             var lnkObj = shape.getHyperlink();
-                            
+
                             if (lnkObj.extLink)
                             {
                               graph.setLinkForCell(v1, lnkObj.extLink);
@@ -903,7 +903,7 @@ var com;
                           {
                               graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
                           }
-                            
+
     					// Add Shape properties
     					var props = shape.getProperties();
     					
@@ -1048,14 +1048,14 @@ var com;
                         }
                         ;
                     }
-                    
+
                     /* put */ (function (m, k, v) { if (m.entries == null)
                     m.entries = []; for (var i = 0; i < m.entries.length; i++)
                     if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                         m.entries[i].value = v;
                         return;
                     } m.entries.push({ key: k, value: v, getKey: function () { return this.key; }, getValue: function () { return this.value; } }); })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, shape.getId()), group);
-                    
+
                     return group;
                 };
                 mxVsdxCodec.rotatedEdgePoint = function (pt, rotation, cx, cy) {
@@ -1122,26 +1122,26 @@ var com;
                     }
                     return null;
                 };
-                
-                
-                mxVsdxCodec.calculateAbsolutePoint = function (cell) 
+
+
+                mxVsdxCodec.calculateAbsolutePoint = function (cell)
                 {
                     var x = 0, y = 0;
                     while (cell != null)
                     {
                         var geo = cell.geometry;
 
-                        if (geo != null) 
+                        if (geo != null)
                         {
                             x += geo.x;
-                            y += geo.y;                
+                            y += geo.y;
                         }
                         cell = cell.parent;
                     }
 
                     return new mxPoint(x, y);
                 }
-                
+
 
                 /**
                  * Adds a connected edge to the graph.
@@ -1186,9 +1186,9 @@ var com;
                         if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                             return m.entries[i].value;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, sourceSheet)) : null;
-                    
+
                     var removeFirstPt = true;
-                    if (source == null) 
+                    if (source == null)
                     {
                         source = graph.insertVertex(parent, null, null, Math.floor(Math.round(beginXY.x * 100) / 100), Math.floor(Math.round(beginXY.y * 100) / 100), 0, 0);
                     }
@@ -1208,7 +1208,7 @@ var com;
                   {
                       removeFirstPt = false;
                   }
-                    
+
                     var toConstraint = null;
                     var toSheet = connect.getTargetToSheet();
                     var target = toSheet != null ? (function (m, k) { if (m.entries == null)
@@ -1216,9 +1216,9 @@ var com;
                         if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                             return m.entries[i].value;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, toSheet)) : null;
-                    
+
                     var removeLastPt = true;
-                    if (target == null) 
+                    if (target == null)
                     {
                         target = graph.insertVertex(parent, null, null, Math.floor(Math.round(endXY.x * 100) / 100), Math.floor(Math.round(endXY.y * 100) / 100), 0, 0);
                     }
@@ -1234,11 +1234,11 @@ var com;
                                         / trgGeo.height);
                         //TODO toConstraint rotation support
                 }
-                    else 
+                    else
                     {
                       removeLastPt = false;
                     }
-                    
+
                     var styleMap = edgeShape.getStyleFromEdgeShape(parentHeight);
                     var edge;
                     var rotation = edgeShape.getRotation();
@@ -1258,19 +1258,19 @@ var com;
                         edge = graph.insertEdge(parent, null, edgeShape.getTextLabel(), source, target, com.mxgraph.io.vsdx.mxVsdxUtils.getStyleString(styleMap, "="));
                         var lblOffset = edgeShape.getLblEdgeOffset(graph.getView(), points);
                         edge.getGeometry().offset = (lblOffset);
-                        
+
                         //add entry/exit points when edge, src, and trg are not rotated
                         if (fromConstraint != null)
                 	{
                 		graph.setConnectionConstraint(edge, source, true,
                 				new mxConnectionConstraint(fromConstraint, false));
                 	}
-                        
+
                         if (removeFirstPt)
                       {
                           points.shift();
                       }
-                        
+
                 	if (toConstraint != null)
                 	{
                 		graph.setConnectionConstraint(edge, target, false,
@@ -1283,20 +1283,20 @@ var com;
                         }
                     }
                     var edgeGeometry = graph.getModel().getGeometry(edge);
-                    
+
                     //when source.parent != target.parent the front end will change the edge parent to parent 1 but waypoints are not corrected
                     if (source.parent != target.parent && parent != null && parent.id != 1 && source.parent.id == 1)
                   {
                       var accX = 0;
                       var accY = 0;
-                      
+
                       var prnt = parent;
-                      
-                      do 
+
+                      do
                       {
                           var prntGeo = prnt.geometry;
-                          
-                            if (prntGeo != null) 
+
+                            if (prntGeo != null)
                             {
                               accX += prntGeo.x;
                               accY += prntGeo.y;
@@ -1304,16 +1304,16 @@ var com;
                             prnt = prnt.parent;
                       }
                       while(prnt != null);
-                      
+
                       edge.parent = source.parent;
-                      
+
                       for (var i = 0; i < points.length; i++)
                     {
                         points[i].x += accX;
                         points[i].y += accY;
                     }
                   }
-                    
+
                     edgeGeometry.points = (points);
                     if (styleMap.hasOwnProperty("curved") && (function (o1, o2) { if (o1 && o1.equals) {
                         return o1.equals(o2);
@@ -1447,10 +1447,10 @@ var com;
                             model.remove(removeChild);
                         }
                     }
-                    
+
                     //Check for -ve width/height cells and correct it
                     var geo = cell.geometry;
-                    
+
                     if (geo != null)
                   {
                       if (geo.height < 0)
@@ -1467,7 +1467,7 @@ var com;
                         cell.style += ';flipH=1;';
                     }
                   }
-                    
+
                     if (childCount > 0) {
                         childCount = model.getChildCount(cell);
                     }
@@ -1506,7 +1506,7 @@ var com;
                 mxVssxCodec.prototype.decodeVssx = function (file, callback, charset, onerror) {
                   var _this = this;
                     var library = { str: "<mxlibrary>[", toString: function () { return this.str; } };
-                    this.decodeVsdx(file, function(shapesInPages) 
+                    this.decodeVsdx(file, function(shapesInPages)
                 {
                         /* append */ (function (sb) { return sb.str = sb.str.concat(shapesInPages); })(library);
                         var masterShapes = _this.vsdxModel.getMasterShapes();
@@ -1522,36 +1522,36 @@ var com;
                                     var master = array129[index128];
                                     {
                                         var shapeGraph = this_1.createMxGraph();
-                                        
+
                                         var scale = 1;
-                                        
+
                                         if (master.pageSheet != null)
                                       {
                                            var dScaleV = 1, pScaleV = 1;
                                            var dScale = master.pageSheet["DrawingScale"];
-                                             
-                                           if (dScale != null) 
+
+                                           if (dScale != null)
                                              {
                                              dScaleV = parseFloat(dScale.getAttribute("V")) || 1;
                                              }
-                                             
+
                                            var pScale = master.pageSheet["PageScale"];
-                                             
-                                           if (pScale != null) 
+
+                                           if (pScale != null)
                                              {
                                              pScaleV = parseFloat(pScale.getAttribute("V")) || 1;
                                              }
-                                           
+
                                            scale = pScaleV / dScaleV;
                                       }
 
                                         var hasCells = false;
-                                        
+
                                         for (var chI = 0; master.firstLevelShapes != null && chI < master.firstLevelShapes.length; chI++)
                                         {
                                           var shapeElem = master.firstLevelShapes[chI].getShape();
                                           var shape = new com.mxgraph.io.vsdx.VsdxShape(page, shapeElem, !page.isEdge(shapeElem), masterShapes, null, this_1.vsdxModel);
-  
+
                                           var cell = null;
                                           if (shape.isVertex()) {
                                               /* clear */ this_1.edgeShapeMap.entries = [];
@@ -1576,11 +1576,11 @@ var com;
                                           else {
                                               cell = this_1.addUnconnectedEdge(shapeGraph, null, shape, 1169);
                                           }
-                                          
+
                                           hasCells |= (cell != null);
                                         }
-                                        
-                                        if (hasCells) 
+
+                                        if (hasCells)
                                         {
                                           this_1.scaleGraph(shapeGraph, scale);
                                           var size = this_1.normalizeGraph(shapeGraph);
@@ -1624,7 +1624,7 @@ var com;
                         }
                         catch(e)
                         {
-                        	if (onerror != null) 
+                        	if (onerror != null)
                         	{
                         		onerror(e);
                         	}
@@ -1657,8 +1657,8 @@ var com;
                     }
                     return geo;
                 };
-                
-                mxVssxCodec.prototype.normalizeGraph = function (graph) 
+
+                mxVssxCodec.prototype.normalizeGraph = function (graph)
                 {
                   //Find minX/Y, maxX/Y
                   var minX, minY, maxX, maxY;
@@ -1680,12 +1680,12 @@ var com;
                     	}
                     }
                   };
-                  
+
                   for (var id in graph.model.cells)
                 {
                     var cell = graph.model.cells[id];
                     var geo = cell.geometry;
-                    
+
                     if (geo != null && cell.parent.id == 1)
                     {
                     	if (cell.vertex)
@@ -1697,36 +1697,36 @@ var com;
                     		getDimMinMax(geo.sourcePoint);
     					    getDimMinMax(geo.targetPoint);
     					    var points = geo.points;
-    					    
-    					    for (var i = 0; points != null && i < points.length; i++) 
+    					
+    					    for (var i = 0; points != null && i < points.length; i++)
     						{
-    					        getDimMinMax(points[i]);   
+    					        getDimMinMax(points[i]);
     					    }
                 		}
                     }
                 }
-                  
+
                   //Remove minX, minY from all geo and fix edges also
                   var srcP = {x: minX, y: minY};
-                  
+
                   for (var id in graph.model.cells)
                 {
                     var cell = graph.model.cells[id];
                     var geo = cell.geometry;
-                    
+
                     if (geo != null && cell.parent.id == 1)
                     {
                     	geo.x -= minX;
                     	geo.y -= minY;
-                  
+
                     	if (cell.isEdge())
                 		{
                             this.transPoint(geo.sourcePoint, srcP);
                     		this.transPoint(geo.targetPoint, srcP);
                             this.transPoint(geo.offset, srcP);
                             var points = geo.points;
-                            
-                              for (var i = 0; points != null && i < points.length; i++) 
+
+                              for (var i = 0; points != null && i < points.length; i++)
                               {
                                   this.transPoint(points[i], srcP);
                               }
@@ -1736,7 +1736,7 @@ var com;
 
                   return {width: maxX - minX, height: maxY - minY}
                 };
-                
+
                 mxVssxCodec.prototype.transPoint = function (p, srcP) {
                     if (p != null) {
                         p.x = (p.x - srcP.x);
@@ -1895,7 +1895,7 @@ var com;
                             try {
                                 if (val != null && !(val.length === 0)) {
                                     var fVal = parseFloat(val);
-                                    
+
                                     if (isFinite(fVal))
                                       return fVal;
                                 }
@@ -2628,11 +2628,11 @@ var com;
                         var _loop_1 = function (index124) {
                             var row = this_1.rows[index124];
                             {
-                                /* append */ 
-                              (function (sb) 
+                                /* append */
+                              (function (sb)
                                 {
                                 //Some files has null rows
-                                  return sb.str = sb.str.concat(row != null? row.handle(p, shape) : ''); 
+                                  return sb.str = sb.str.concat(row != null? row.handle(p, shape) : '');
                                 })(geomElemParsed);
                             }
                         };
@@ -2661,7 +2661,7 @@ var com;
                           //Some files has null rows
                           var r1i = r1 != null? r1.getIndex() : 0;
                           var r2i = r2 != null? r2.getIndex() : 0;
-                          
+
                             return r1i - r2i;
                         };
                         return mxVsdxGeometry$0;
@@ -2742,16 +2742,16 @@ var com;
                     mxVsdxGeometryList.prototype.hasGeom = function () {
                         return !(this.geomList.length == 0);
                     };
-                    
+
                     mxVsdxGeometryList.prototype.getGeoCount = function () {
                       var count = 0;
-                    
-                    for (var i = 0; i < this.geomList.length; i++) 
+
+                    for (var i = 0; i < this.geomList.length; i++)
                     {
-                    	if (!this.geomList[i].isNoShow()) 
+                    	if (!this.geomList[i].isNoShow())
                     		count++;
                     }
-                    
+
                     return count;
                   };
                     /*private*/ mxVsdxGeometryList.prototype.rotatedPoint = function (pt, cos, sin) {
@@ -2830,12 +2830,12 @@ var com;
                     /*private*/ mxVsdxGeometryList.prototype.processGeo = function (shape, p, parsedGeom, lastGeoStyle, withFill) {
                       var rounding = shape.getRounding();
                       var roundingStr = '';
-                        
+
                         if (rounding > 0)
                       {
                           roundingStr = ' rounded="1" arcSize="' + (rounding * com.mxgraph.io.vsdx.mxVsdxUtils.conversionFactor) + '" ';
                       }
-                        
+
                         var _loop_2 = function (index130) {
                             var geo = this_2.geomList[index130];
                             {
@@ -2984,13 +2984,13 @@ var com;
                                     }
                                     ;
                                 }
-                            } 
+                            }
                             else if (child.nodeType == 1 && child.nodeName == "PageSheet")
                           {
                               this.pageSheet = {};
                               var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(child, "Cell");
-                                
-                              for (var i = 0; i < cells.length; i++) 
+
+                              for (var i = 0; i < cells.length; i++)
                                 {
                                     this.pageSheet[cells[i].getAttribute("N")] = cells[i];
                                 }
@@ -3007,13 +3007,13 @@ var com;
                      * @param {*} shapeElem
                      * @param {com.mxgraph.io.vsdx.mxVsdxModel} model
                      */
-                    mxVsdxMaster.prototype.processMasterShape = function (shapeElem, model, internal) 
+                    mxVsdxMaster.prototype.processMasterShape = function (shapeElem, model, internal)
                     {
-                      if (!internal) 
+                      if (!internal)
                     {
                         this.firstLevelShapes = [];
                     }
-                      
+
                         var shapeChild = shapeElem.firstChild;
                         while ((shapeChild != null)) {
                             if ((shapeChild != null && (shapeChild.nodeType == 1)) && (function (o1, o2) { if (o1 && o1.equals) {
@@ -3035,36 +3035,36 @@ var com;
                                         var masterShape = new com.mxgraph.io.vsdx.Shape(shape, model);
                                         this.masterShape = (this.masterShape == null) ? masterShape : this.masterShape;
                                         /* put */ (this.childShapes[shapeId] = masterShape);
-                                        
-                                        if (!internal) 
+
+                                        if (!internal)
                                     {
                                         this.firstLevelShapes.push(masterShape);
                                     }
-                                        
+
                                         this.processMasterShape(shape, model, true);
                                     }
                                     shapesChild = shapesChild.nextSibling;
                                 }
                                 ;
                             }
-                            else if (shapeChild != null && shapeChild.nodeType == 1 && shapeChild.nodeName == "Connects") 
+                            else if (shapeChild != null && shapeChild.nodeType == 1 && shapeChild.nodeName == "Connects")
                             {
                               this.connects = {};
                                 var connectsChild = shapeChild.firstChild;
-                                
-                                while (connectsChild != null) 
+
+                                while (connectsChild != null)
                                 {
-                                    if (connectsChild != null && connectsChild.nodeType == 1 && connectsChild.nodeName == "Connect") 
+                                    if (connectsChild != null && connectsChild.nodeType == 1 && connectsChild.nodeName == "Connect")
                                     {
                                         var connectElem = connectsChild;
                                         var connect = new com.mxgraph.io.vsdx.mxVsdxConnect(connectElem);
                                         this.connects[connect.getFromSheet()] = connect;
                                     }
-                                    
+
                                     connectsChild = connectsChild.nextSibling;
                                 }
                             }
-                            
+
                             shapeChild = shapeChild.nextSibling;
                         }
                         ;
@@ -3497,22 +3497,22 @@ var com;
                                     /* put */ (this.cellElements[n] = cellElem);
                                 }
                             }
-                            
+
                             var sections = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(pageSheet, "Section");
-                            for (var i134 = 0; i134 < sections.length; i134++) 
+                            for (var i134 = 0; i134 < sections.length; i134++)
                             {
                               var secElem = sections[i134];
                               var n = secElem.getAttribute("N");
-                              
+
                               if (n == "Layer")
                             {
                                  var layers = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(secElem, "Row");
-                                 
+
                                  for (var i135 = 0; i135 < layers.length; i135++)
                             	 {
                                 	 var layerAtts = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(layers[i135], "Cell");
                                 	 var layerObj = {};
-                                	 
+                                	
                                 	 for (var i136 = 0; i136 < layerAtts.length; i136++)
                                 	 {
                                 		 layerObj[layerAtts[i136].getAttribute("N")] = layerAtts[i136].getAttribute("V");
@@ -4450,21 +4450,21 @@ var com;
                             }
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        
+
                         //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
-                        if (retColor != null && (styleVariation & 8) > 0) 
+                        if (retColor != null && (styleVariation & 8) > 0)
                         {
                           var bkgHSLClr = this.getStyleColor(8).toHsl();
                           var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                           var lineHSLClr = lineClr.toHsl();
                             var fillHSLClr = retColor.toHsl();
-                            
-                            
-                            if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) >= 0.1666) 
+
+
+                            if (Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum()) >= 0.1666)
                             {
                               //nothing
                             }
-                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            else if (bkgHSLClr.getLum() <= 0.7292)
                             {
                               retColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
@@ -4549,20 +4549,20 @@ var com;
                             lineClr = this.getStyleColor(lineColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        
+
                         //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
-                        if ((styleVariation & 4) > 0) 
+                        if ((styleVariation & 4) > 0)
                         {
                           var bkgHSLClr = this.getStyleColor(8).toHsl();
                           var fillColor = this.getFillColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var fillHSLClr = fillColor.toHsl();
                             var lineHSLClr = lineClr.toHsl();
-                            
-                            if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) >= 0.1666) 
+
+                            if (Math.abs(bkgHSLClr.getLum() - lineHSLClr.getLum()) >= 0.1666)
                             {
                               //nothing
                             }
-                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            else if (bkgHSLClr.getLum() <= 0.7292)
                             {
                               lineClr = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
@@ -4702,9 +4702,9 @@ var com;
                             txtColor = this.getStyleColor(fontColorStyle);
                         }
                         var styleVariation = quickStyleVals.getQuickStyleVariation();
-                        
+
                         //TODO This is the best efforts of interpreting the documentation and also this article https://visualsignals.typepad.co.uk/vislog/2013/05/visio-2013-themes-in-the-shapesheet-part-2.html
-                        if ((styleVariation & 2) > 0) 
+                        if ((styleVariation & 2) > 0)
                         {
                           var bkgHSLClr = this.getStyleColor(8).toHsl();
                           var txtHSLClr = txtColor.toHsl();
@@ -4712,12 +4712,12 @@ var com;
                             var fillHSLClr = fillColor.toHsl();
                             var lineClr = this.getLineColor$com_mxgraph_io_vsdx_theme_QuickStyleVals(quickStyleVals);
                             var lineHSLClr = lineClr.toHsl();
-                            
-                            if (Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum()) >= 0.1666) 
+
+                            if (Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum()) >= 0.1666)
                             {
                               //nothing
                             }
-                            else if (bkgHSLClr.getLum() <= 0.7292) 
+                            else if (bkgHSLClr.getLum() <= 0.7292)
                             {
                               txtColor = new com.mxgraph.io.vsdx.theme.Color(255, 255, 255);
                             }
@@ -4727,7 +4727,7 @@ var com;
                               var fillDiff = Math.abs(bkgHSLClr.getLum() - fillHSLClr.getLum());
                               var txtDiff = Math.abs(bkgHSLClr.getLum() - txtHSLClr.getLum());
                               var max = Math.max(lineDiff, fillDiff, txtDiff);
-                              
+
                               if (max == lineDiff)
                             {
                                 txtColor = lineClr;
@@ -4738,7 +4738,7 @@ var com;
                             }
                           }
                         }
-                        
+
                         return txtColor;
                     };
                     mxVsdxTheme.prototype.getFontColor = function (quickStyleVals, fontColors) {
@@ -5343,7 +5343,7 @@ var com;
                           g = g.length == 1 ? '0' + g : g;
                           var b = this.blue.toString(16);
                           b = b.length == 1 ? '0' + b : b;
-                          
+
                             return "#" + r + g + b;
                         };
                         Color.prototype.getGradientClr = function () {
@@ -6731,7 +6731,7 @@ var com;
                                 var sweep = (x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1);
                                 var sf = (sweep > 0) ? "0" : "1";
                                 var laf = "0";
-                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) // && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) { //Inside triangle works alone in all test cases so far 
+                                if (com.mxgraph.io.vsdx.mxVsdxUtils.isInsideTriangle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) // && this.isReflexAngle(p0x, p0y, p1x, p1y, p2x, p2y, p3x, p3y)) { //Inside triangle works alone in all test cases so far
     						{
                                     laf = "1";
                                 }
@@ -8802,16 +8802,16 @@ var com;
                     function Shape(shape, model) {
                       //BUG in JSweet, fields default values and explicit assignments are not the same (defaults are before super() and assignments are after)!
                       var _this = this;
-                      
+
                         _this.text = null;
                         _this.fields = null;
                         _this.geom = null;
                         _this.imageData = null;
                         _this.theme = null;
                         _this.quickStyleVals = null;
-                        
+
                         _this = _super.call(this, shape, model) || this;
-                        
+
                         /**
                          * List of paragraphs in this shape
                          */
@@ -8856,12 +8856,12 @@ var com;
                          * Last fld IX referenced in the Text Element.
                          */
                         _this.fld = "0";
-                        
+
                         _this.width = _this.getScreenNumericalValue$org_w3c_dom_Element$double(/* get */ (function (m, k) { return m[k] ? m[k] : null; })(_this.cellElements, com.mxgraph.io.vsdx.mxVsdxConstants.WIDTH), 0);
                         _this.height = _this.getScreenNumericalValue$org_w3c_dom_Element$double(/* get */ (function (m, k) { return m[k] ? m[k] : null; })(_this.cellElements, com.mxgraph.io.vsdx.mxVsdxConstants.HEIGHT), 0);
                         return _this;
                     }
-                    Shape.UNICODE_LINE_SEP_$LI$ = function () 
+                    Shape.UNICODE_LINE_SEP_$LI$ = function ()
                     {
                       if (Shape.UNICODE_LINE_SEP == null)
                     {
@@ -8911,59 +8911,59 @@ var com;
                         }
                         else {
                             return o1 === o2;
-                        } })(childName, "ForeignData")) 
+                        } })(childName, "ForeignData"))
                         {
                           function getForeignRel(elem, filename)
                           {
                             var fdChild = elem.firstChild;
-                                
-                                while (fdChild != null) 
+
+                                while (fdChild != null)
                                 {
-                                    if (fdChild.nodeType == 1) 
+                                    if (fdChild.nodeType == 1)
                                     {
                                         var fdElem = fdChild;
                                         var grandchildName = fdElem.nodeName;
-                                        
-                                        if (grandchildName.toLowerCase() == "rel") 
+
+                                        if (grandchildName.toLowerCase() == "rel")
                                         {
                                             var rid = fdElem.getAttribute("r:id");
-                                            
-                                            if (rid != null && !(rid.length === 0)) 
+
+                                            if (rid != null && !(rid.length === 0))
                                             {
                                                 var index = filename.lastIndexOf('/');
                                                 var pre = "";
                                                 var post = "";
-                                                
-                                                try 
+
+                                                try
                                                 {
                                                     pre = filename.substring(0, index);
                                                     post = filename.substring(index, filename.length);
                                                 }
-                                                catch (e) 
+                                                catch (e)
                                                 {
                                                     return;
                                                 }
-                                                
+
                                                 var relElem = model.getRelationship(rid, pre + "/_rels" + post + ".rels");
-                                                
-                                                if (relElem != null) 
+
+                                                if (relElem != null)
                                                 {
                                                     var target = relElem.getAttribute("Target") || "";
                                                     var type = relElem.getAttribute("Type");
                                                     index = target.lastIndexOf('/');
-                                                    
-                                                    try 
+
+                                                    try
                                                     {
                                                         target = target.substring(index + 1, target.length);
                                                     }
-                                                    catch (e) 
+                                                    catch (e)
                                                     {
                                                         return;
                                                     }
-                                                    
+
                                                     return {type: type, target: target};
                                                 }
-                                                
+
                                                 return;
                                             }
                                         }
@@ -8971,7 +8971,7 @@ var com;
                                     fdChild = fdChild.nextSibling;
                                 }
                             }
-                            
+
                             var filename = elem.ownerDocument.vsdxFileName; //was getDocumentURI()
                             var iType = elem.getAttribute("ForeignType");
                             var compression = elem.getAttribute("CompressionType") || "";
@@ -9013,22 +9013,22 @@ var com;
                                 if (typeTarget.type.indexOf('/oleObject') > 0)
                                 {
                                     var relElem = model.getRelationship("rId1", "visio/embeddings/_rels/" + typeTarget.target + ".rels");
-                                    
-                                    if (relElem != null) 
+
+                                    if (relElem != null)
                                     {
                                         var target = relElem.getAttribute("Target");
                                         var type = relElem.getAttribute("Type");
-                                        
-                                        try 
+
+                                        try
                                         {
                                             var index = target.lastIndexOf('/');
                                             target = target.substring(index + 1, target.length);
                                         }
-                                        catch (e) 
+                                        catch (e)
                                         {
                                             return;
                                         }
-                                        
+
                                         compression = "png";
                                         typeTarget = {type: type, target: target};
                                     }
@@ -9049,7 +9049,7 @@ var com;
 
                             var type = typeTarget.type, target = typeTarget.target;
 
-                            if (type != null && (function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(type, "image")) 
+                            if (type != null && (function (str, searchString) { var pos = str.length - searchString.length; var lastIndex = str.indexOf(searchString, pos); return lastIndex !== -1 && lastIndex === pos; })(type, "image"))
                             {
                                 this.imageData = ({});
                                 var iData = model.getMedia(com.mxgraph.io.mxVsdxCodec.vsdxPlaceholder + "/media/" + target);
@@ -9238,29 +9238,29 @@ var com;
                     Shape.prototype.hasGeomList = function () {
                         return this.geomList != null && this.geomList.hasGeom();
                     };
-                    
+
                     /**
                      * Check if the paragraph is a list and return the list with its style
                      * @param {string} pp Reference to a Para element
                      * @return {string} the opening tag of the list with style or null if no list is found
                      */
-                    Shape.prototype.getPPList = function (pp) 
+                    Shape.prototype.getPPList = function (pp)
                     {
                       var ul = null;
-                      
-                        if (pp != '') 
+
+                        if (pp != '')
                         {
                             var bullet = this.getBullet(pp);
-                            
-                            if (bullet != '0') 
+
+                            if (bullet != '0')
                             {
                               ul = '<ul style="margin: 0;list-style-type: ' + (bullet == '4'? 'square' : 'disc') + '">';
                             }
                         }
-                        
+
                         return ul;
                     };
-                    
+
                     /**
                      * Returns the paragraph formated according the properties in the last
                      * Para element referenced.
@@ -9685,7 +9685,7 @@ var com;
                         _this.parentHeight = 0;
 
                         _this = _super.call(this, shape, model) || this;
-                        
+
                         /**
                          * Whether or not to assume HTML labels
                          */
@@ -9707,8 +9707,8 @@ var com;
                          */
                         _this.vertex = true;
                         _this.childShapes = ({});
-                        
-                        
+
+
                         var masterId = _this.getMasterId();
                         var masterShapeLocal = _this.getShapeMasterId();
                         if (masterId != null) {
@@ -9779,13 +9779,13 @@ var com;
                         _this.vertex = vertex || (_this.childShapes != null && !(function (m) { if (m.entries == null)
                             m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1));
                         _this.layerMember = _this.getValue(_this.getCellElement$java_lang_String("LayerMember"));
-                        
+
                         //We don't have a cell belongs to multiple layers
                         if (_this.layerMember && _this.layerMember.indexOf('0;') == 0)
                       {
                            _this.layerMember =  _this.layerMember.substr(2);
                       }
-                        
+
                         return _this;
                     }
                     VsdxShape.__static_initialize = function () { if (!VsdxShape.__static_initialized) {
@@ -10248,35 +10248,35 @@ var com;
                       var ret = "";
                         var first = true;
                         var ulMode = false;
-                        var ulModeFirst = false; 
-                        
-                      function processLblTxt(text) 
+                        var ulModeFirst = false;
+
+                      function processLblTxt(text)
                         {
                             text = com.mxgraph.io.vsdx.mxVsdxUtils.htmlEntities(text);
-                            
+
                             if (ulModeFirst)
                           {
                               text = '<li>' + text;
                               ulModeFirst = false;
                           }
-                            
+
                             if (ulMode)
                           {
                             var entries = text.split('\n');
-                                
-                                if (!entries[entries.length - 1]) 
+
+                                if (!entries[entries.length - 1])
                                 {
                                   entries.pop();
-                                  ulModeFirst = true; 
+                                  ulModeFirst = true;
                                 }
-                                
+
                                 text = entries.join('</li><li>');
                           }
                             else
                           {
                               text = text.replace(new RegExp('\n', 'g'), '<br/>').replace(new RegExp(com.mxgraph.io.vsdx.Shape.UNICODE_LINE_SEP, 'g'), '<br/>');
                           }
-                            
+
                             return this.getTextCharFormated(text);
                         };
 
@@ -10306,7 +10306,7 @@ var com;
                                 }
                                 else {
                                     return o1 === o2;
-                                } })(node.nodeName, "pp")) 
+                                } })(node.nodeName, "pp"))
                                 {
                                     var elem = node;
                                     this.pp = this.getIndex(elem);
@@ -10316,23 +10316,23 @@ var com;
                                       //TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
                                       ret += '</li></ul>';
                                   }
-                                    
-                                    if (first) 
+
+                                    if (first)
                                     {
                                         first = false;
                                     }
-                                    else 
+                                    else
                                     {
                                         ret += "</p>";
                                     }
-                                    
+
                                     var para = "<p>";
                                     ret += this.getTextParagraphFormated(para);
-                                    
+
                                     var ul = this.getPPList(this.pp);
-                                    
+
                                     ulMode = ul != null;
-                                    ulModeFirst = ulMode; 
+                                    ulModeFirst = ulMode;
                                     ret += ulMode? ul : '';
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -10364,19 +10364,19 @@ var com;
                                 }
                             }
                         }
-                        
+
                         if (ulMode)
                       {
                           //TODO closing li is wrongly placed after font (and other tags (e.g, b, i))
                           ret += '</li></ul>';
                       }
-                        
+
                         var end = first ? "" : "</p>";
                         ret += end;
                         com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "div");
                         return ret;
                     };
-                    
+
                     /**
                      * Checks if a nameU is for big connectors.
                      * @param {string} nameU NameU attribute.
@@ -10671,22 +10671,22 @@ var com;
                         }
                         return hor;
                     };
-                    
+
                     /**
                      * Get hyperlink address or subaddress
                      */
-                    VsdxShape.prototype.getHyperlink = function () 
+                    VsdxShape.prototype.getHyperlink = function ()
                     {
                       var addressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('Address', null, 'Hyperlink');
                       var extLink = this.getValue(addressElem, '');
-                      
+
                       var subAddressElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String('SubAddress', null, 'Hyperlink');
                       var pageLink = this.getValue(subAddressElem, '');
 
                       return {extLink: extLink, pageLink: pageLink};
                     };
 
-                    VsdxShape.prototype.getProperties = function () 
+                    VsdxShape.prototype.getProperties = function ()
                     {
     				var props = [];
 
@@ -10698,14 +10698,14 @@ var com;
                         {
     	                    var row = rows[i];
                               var n = row.getAttribute("N");
-                              
+
     						var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(row);
 
                             for (var j = 0; j < cells.length; j++)
                         	{
                                 var cell = cells[j];
     							var cn = cell.getAttribute("N");
-                            	 
+                            	
                             	if (cn == 'Value')
                             	{
                                 	props.push({key: n, val: cell.getAttribute("V")});
@@ -10783,13 +10783,13 @@ var com;
                         })(/* get */ (function (m, k) { return m[k] ? m[k] : null; })(form, mxConstants.STYLE_SHAPE), "image;"))) {
                             /* put */ (this.styleMap[mxConstants.STYLE_WHITE_SPACE] = "wrap");
                         }
-                        
+
                         //this.styleMap.putAll(form);
                         for (var key in form)
                       {
                           this.styleMap[key] = form[key];
                       }
-                        
+
                         if (this.isDashed()) {
                             /* put */ (this.styleMap[mxConstants.STYLE_DASHED] = "1");
                             var dashPattern = this.getDashPattern();
@@ -11369,20 +11369,20 @@ var com;
                                     /* put */ (result["aspect"] = "fixed");
                                     var iType = (function (m, k) { return m[k] ? m[k] : null; })(imageData, "iType");
                                     var iData = (function (m, k) { return m[k] ? m[k] : null; })(imageData, "iData");
-                                    
+
                                     var imgOffsetX = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgOffsetX'), "0"));
                                     var imgOffsetY = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgOffsetY'), "0"));
                                     var imgWidth = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgWidth'), "0"));
                                     var imgHeight = parseFloat(this.getValue(this.getCellElement$java_lang_String('ImgHeight'), "0"));
                                     var width = parseFloat(this.getValue(this.getCellElement$java_lang_String('Width'), "0"));
                                     var height = parseFloat(this.getValue(this.getCellElement$java_lang_String('Height'), "0"));
-                                    
+
                                     if (imgOffsetX != 0 || imgOffsetY != 0)
                                   {
                                       this.toBeCroppedImg = {
-                                    	imgOffsetX: imgOffsetX, 
-                                    	imgOffsetY: imgOffsetY, 
-                                    	imgWidth: imgWidth, 
+                                    	imgOffsetX: imgOffsetX,
+                                    	imgOffsetY: imgOffsetY,
+                                    	imgWidth: imgWidth,
                                     	imgHeight: imgHeight,
                                     	width: width,
                                     	height: height,
@@ -11394,7 +11394,7 @@ var com;
                                     {
                                       /* put */ (result["image"] = "data:image/" + iType + "," + iData);
                                     }
-                                    
+
                                     return result;
                                 }
                                 var parsedGeom = this.parseGeom();
@@ -11407,7 +11407,7 @@ var com;
                                     this.styleDebug("No geom found");
                                     return result;
                                 }
-                                
+
                                 var enc = Graph.compress(parsedGeom);
                                 /* put */ (result[mxConstants.STYLE_SHAPE] = "stencil(" + enc + ")");
                             }
@@ -11613,26 +11613,26 @@ var com;
                         }
                         return false;
                     };
-                    
+
                     VsdxShape.prototype.isVerticalLabel = function ()
                     {
                       var txtDir = this.getAttribute('TextDirection', 'V', '');
-                      
+
                       if (!txtDir && this.masterShape != null)
                     {
                         txtDir = this.masterShape.getAttribute('TextDirection', 'V', '');
                     }
-                      
+
                       return txtDir == '1';
                     };
-                    
-                    VsdxShape.prototype.isRotatedLabel = function () 
+
+                    VsdxShape.prototype.isRotatedLabel = function ()
                     {
-                      if (this.isVerticalLabel()) 
+                      if (this.isVerticalLabel())
                       {
                         return true;
                       }
-                        
+
                         var txtAngleValue = this.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.TXT_ANGLE, "V", "");
                         if (this.masterShape != null) {
                             if ((function (o1, o2) { if (o1 && o1.equals) {
@@ -11866,7 +11866,7 @@ var com;
                             return o1 === o2;
                         } })(lbkgnd, "")) {
                           var isFullyTransparent = this.getValue(this.getCellElement$java_lang_String('TextBkgndTrans'), '0') == '1';
-                          
+
                           if (!isFullyTransparent)
                           {
                             /* put */ (this.styleMap[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR] = lbkgnd);
@@ -11970,13 +11970,13 @@ var com;
                                 (styleMap["whiteSpace"] = "wrap");
                             /* remove */ delete styleMap["shape"];
                             /* remove */ delete styleMap["image"];
-                            
+
                             if (this.isVerticalLabel())
                           {
                               txtAngleV += Math.PI + 0.01; //TODO Added 0.01 since we don't override the parent rotation if labRot is zero. Why?
                               styleMap['horizontal'] = '0';
                           }
-                            
+
                             var rotation = this.getRotation();
                             if (txtAngleV !== 0) {
                                 var labRot = 360 - (function (x) { return x * 180 / Math.PI; })(txtAngleV);
@@ -12047,7 +12047,7 @@ var com;
                  * Number of d.p. to round non-integers to
                  */
                 VsdxShape.maxDp = 2;
-                //TODO FIXME In online, matching fails which gives better results! 
+                //TODO FIXME In online, matching fails which gives better results!
                 VsdxShape.USE_SHAPE_MATCH = false;
                 VsdxShape.stencilTemplate = "<shape h=\"htemplate\" w=\"wtemplate\" aspect=\"variable\" strokewidth=\"inherit\"><connections></connections><background></background><foreground></foreground></shape>";
                 vsdx.VsdxShape = VsdxShape;
@@ -12547,7 +12547,7 @@ com.mxgraph.io.mxVsdxCodec.parsererrorNS_$LI$();
 EditorUi.prototype.doImportVisio = function(file, done, onerror, filename)
 {
   filename = filename || file.name;
-  
+
   if (filename != null && /(\.vs(x|sx?))($|\?)/i.test(filename))
   {
     new com.mxgraph.io.mxVssxCodec(this).decodeVssx(file, done, null, onerror);

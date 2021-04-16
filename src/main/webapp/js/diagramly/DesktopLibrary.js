@@ -12,7 +12,7 @@ DesktopLibrary = function(ui, data, fileObj)
 mxUtils.extend(DesktopLibrary, LocalLibrary);
 
 /**
- * 
+ *
  */
 DesktopLibrary.prototype.getHash = function()
 {
@@ -20,7 +20,7 @@ DesktopLibrary.prototype.getHash = function()
 };
 
 /**
- * 
+ *
  */
 DesktopLibrary.prototype.save = function(revision, success, error)
 {

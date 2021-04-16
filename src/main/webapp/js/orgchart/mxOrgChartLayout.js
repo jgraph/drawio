@@ -3,24 +3,24 @@
  */
 /**
  * Class: mxOrgChartLayout
- * 
+ *
  * Extends <mxGraphLayout> to implement organization chart layout algorithm.
  * The vertices need to be connected for this layout to work, vertices
  * with no connections are ignored.
- * 
+ *
  * Example:
- * 
+ *
  * (code)
  * var layout = new mxOrgChartLayout(graph);
  * layout.execute(graph.getDefaultParent());
  * (end)
- * 
+ *
  */
 function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpacing)
 {
   mxGraphLayout.call(this, graph);
   this.correctY = false;
-  
+
   switch(parseInt(branchOptimizer))
   {
     case 0:
@@ -50,7 +50,7 @@ function mxOrgChartLayout(graph, branchOptimizer, parentChildSpacing, siblingSpa
     	this.branchOptimizer = mxOrgChartLayout.prototype.BRANCH_OPT_HANGER4;
     	this.correctY = true;
   }
-  
+
   this.parentChildSpacing = parentChildSpacing > 0 ? parentChildSpacing : 20;
   this.siblingSpacing = siblingSpacing > 0 ? siblingSpacing : 20;
 };
@@ -73,7 +73,7 @@ mxOrgChartLayout.prototype.BRANCH_OPT_SMART = 'branchOptimizerSmart';
 
 /**
  * Function: execute
- * 
+ *
  * Implements <mxGraphLayout.execute>. This operates on all children of the
  * given parent.
  */
@@ -141,36 +141,36 @@ Bridge.define('RPOrgChart',
             }
         },
 
-        generateData: function () 
+        generateData: function ()
         {
           var dataSource = new OrgChart.Test.TestDataSource();
-          
+
             var graph = RPOrgChart.graph;
             var cells = graph.getChildVertices(RPOrgChart.parent);
-            
+
             for (var i = 0; i < cells.length; i++)
           {
               var cell = cells[i];
-              
+
               if (cell.geometry != null && cell.vertex && cell.parent == RPOrgChart.parent) //Vertices and first level children only
               {
                 // Find cell parent. If it has more than one parent, take first parent (should be an error?)
                 var parentId = null;
-                
+
                 var incomingEdge = graph.getIncomingEdges(cell)[0];
-                
+
                 if (incomingEdge != null && incomingEdge.source != null)
                	{
                 	parentId = incomingEdge.source.id;
                	}
-                
+
                 var item = new OrgChart.Test.TestDataItem();
                 item.Id = cell.id;
                 item.ParentId = parentId;
                 dataSource.Items.add(item.getId(), item);
               }
              }
-            
+
             return dataSource;
         },
 
@@ -293,7 +293,7 @@ Bridge.define('RPOrgChart',
                 RPOrgChart.renderBoxes();
             }
         },
-        
+
         renderBoxes: function () {
             var visitorFunc = function (node) {
                 var box = node.Element;
@@ -322,15 +322,15 @@ Bridge.define('RPOrgChart',
         branchOptimizerAllLinear: function(node) {
             return node.getIsAssistantRoot() ? null : "linear";
         },
-        
+
         branchOptimizerAllHanger2: function(node) {
             return node.getIsAssistantRoot() ? null : "hanger2";
         },
-        
+
         branchOptimizerAllHanger4: function(node) {
             return node.getIsAssistantRoot() ? null : "hanger4";
         },
-        
+
         branchOptimizerAllFishbone1: function(node) {
             return node.getIsAssistantRoot() ? null : "fishbone1";
         },
@@ -420,8 +420,8 @@ Bridge.define('RPOrgChart',
     	var graph = RPOrgChart.graph;
             var cells = graph.model.cells;
     	var pointsList = [];
-            
-            var visitorVertexFunc = function (node) 
+
+            var visitorVertexFunc = function (node)
             {
                 if (node.State.IsHidden) {
                     return false;
@@ -436,32 +436,32 @@ Bridge.define('RPOrgChart',
                     geo.y = node.State.TopLeft.Y;
                     graph.model.setGeometry(cell, geo);
                 }
-                
+
                 return true;
             }
-            
-            var visitorEdgeFunc = function (node) 
+
+            var visitorEdgeFunc = function (node)
             {
     		//The algorithm default is 5 px only above the node, this centers it
     		var yCorrection = RPOrgChart.correctY? Math.min(0, -(RPOrgChart.parentChildSpacing / 2) + 5) : 0;
                 // Render connectors
                 if (node.State.Connector != null) {
-                  
+
                     var cell = cells[node.Element.DataId];
-                         
+
                   var outgoingEdge = graph.getOutgoingEdges(cell);
 
                   var uniquePoints = {};
-                  
+
                   //Sort segments points from top to bottom or left to right + add offset
-                  for (var ix = 0; ix < node.State.Connector.Segments.length; ix++) 
+                  for (var ix = 0; ix < node.State.Connector.Segments.length; ix++)
                     {
                     var edge = node.State.Connector.Segments[ix];
                     edge.mark = 1 << ix; //TODO Support up to 31 segments. In this a limit?
                         edge.From.X += offsetx;
                         edge.To.X += offsetx;
                         var fx = edge.From.X, fy = edge.From.Y, tx = edge.To.X, ty = edge.To.Y;
-                        
+
                         if ((fx == tx && fy > ty) || (fy == ty && fx > tx))
                       {
                           var tmp = edge.From;
@@ -469,9 +469,9 @@ Bridge.define('RPOrgChart',
                           edge.To = tmp;
                       }
                     }
-                  
+
                   //Collecting points including intersection of segments
-                    for (var ix = 0; ix < node.State.Connector.Segments.length; ix++) 
+                    for (var ix = 0; ix < node.State.Connector.Segments.length; ix++)
                     {
                       var edge = node.State.Connector.Segments[ix];
                         var fx = edge.From.X, fy = edge.From.Y, tx = edge.To.X, ty = edge.To.Y;
@@ -479,7 +479,7 @@ Bridge.define('RPOrgChart',
     				pointsList.push(fp);
                         fp.mark = edge.mark;
                         var up = uniquePoints[fx + ',' + fy];
-                        
+
                         if (up != null)
                       {
                           up.mark |= fp.mark;
@@ -488,34 +488,34 @@ Bridge.define('RPOrgChart',
                         {
                           uniquePoints[fx + ',' + fy] = fp;
                         }
-                        
+
                         var tp = new mxPoint(tx, ty);
     				pointsList.push(tp);
                         tp.mark = edge.mark;
                         var up = uniquePoints[tx + ',' + ty];
-                        
+
                         if (up != null)
                       {
                           up.mark |= tp.mark;
                       }
                         else
                         {
-                          uniquePoints[tx + ',' + ty] = tp; 
+                          uniquePoints[tx + ',' + ty] = tp;
                         }
-                        
+
                         //Find intersections
-                        for (var j = ix + 1; j < node.State.Connector.Segments.length; j++) 
+                        for (var j = ix + 1; j < node.State.Connector.Segments.length; j++)
                         {
                           var e2 = node.State.Connector.Segments[j];
                           var fx2 = e2.From.X, fy2 = e2.From.Y, tx2 = e2.To.X, ty2 = e2.To.Y;
-                          
+
                           if (fx == tx && fy <= fy2 && ty >= fy2 && fx2 <= fx && tx2 >= fx) //Ver |_ Hor
                         {
                             var ip = new mxPoint(fx, fy2);
     						pointsList.push(ip);
                             ip.mark = edge.mark | e2.mark;
                             var up = uniquePoints[fx + ',' + fy2];
-                                
+
                                 if (up != null)
                               {
                                   up.mark |= ip.mark;
@@ -531,7 +531,7 @@ Bridge.define('RPOrgChart',
     						pointsList.push(ip);
                             ip.mark = edge.mark | e2.mark;
                             var up = uniquePoints[fx2 + ',' + fy]
-                                
+
                                 if (up != null)
                               {
                                   up.mark |= ip.mark;
@@ -543,27 +543,27 @@ Bridge.define('RPOrgChart',
                         }
                         }
                     }
-                    
+
                     //Sort points on y then x
                     var pointsArr = [];
-                    
+
                     for (var k in uniquePoints)
                   {
                       pointsArr.push(uniquePoints[k]);
                   }
-                    
+
                     pointsArr.sort(function(a, b)
                      {
                       var dy = a.y - b.y;
-                      
-                      return dy == 0? a.x - b.x : dy; 
+
+                      return dy == 0? a.x - b.x : dy;
                     });
-                    
+
                     function pointOnCell(geo, p)
                     {
                       return p.x >= geo.x && p.x <= geo.x + geo.width && p.y >= geo.y && p.y <= geo.y + geo.height;
                     };
-                    
+
                     function adjustEdgeGeoAndStyle(edge, edgePoints)
                     {
                         var eGeo = edge.geometry.clone();
@@ -588,9 +588,9 @@ Bridge.define('RPOrgChart',
                         //Set type orthogonal
                         graph.setCellStyles('edgeStyle', 'orthogonalEdgeStyle', [edge]);
                     };
-                    
+
                     var outgoingEdge = graph.getOutgoingEdges(cell);
-                    
+
                     //Simple case of a single segment. TODO Handle this case earlier
                     if (pointsArr.length == 2 && outgoingEdge.length == 1)
                   {
@@ -600,8 +600,8 @@ Bridge.define('RPOrgChart',
                   {
                         var srcGeo = cell.geometry;
                         var srcP;
-                        
-                        //Find src starting point //TODO It should be first point always? 
+
+                        //Find src starting point //TODO It should be first point always?
                         for (var i = 0; i < pointsArr.length; i++)
                       {
                           if (pointOnCell(srcGeo, pointsArr[i]))
@@ -610,16 +610,16 @@ Bridge.define('RPOrgChart',
                             break;
                         }
                       }
-                        
+
                         var selected;
-                        
+
                         function getNextPoint(lp)
                         {
                           for (var i = 0; i < pointsArr.length; i++)
                           {
                             var p = pointsArr[i];
                             if (selected[p.x + ',' + p.y]) continue;
-                            
+
                             if (p.mark & lp.mark)
                         	{
                             	selected[p.x + ',' + p.y] = true;
@@ -627,7 +627,7 @@ Bridge.define('RPOrgChart',
                                 }
                           }
                         }
-                        
+
                       for (var j = 0; j < outgoingEdge.length; j++)
                     {
                         if (outgoingEdge[j].target != null)
@@ -635,7 +635,7 @@ Bridge.define('RPOrgChart',
                         	selected = {};
                         	selected[srcP.x + ',' + srcP.y] = true;
                                 var trgGeo = outgoingEdge[j].target.geometry;
-                                
+
                                 var edgePoints = [srcP];
                                 var lp = srcP;
                                 var safeGuard = 0;
@@ -646,25 +646,25 @@ Bridge.define('RPOrgChart',
                                   var np = getNextPoint(lp);
 
                                   //retract, then remove this point
-                                  if (np == null) 
+                                  if (np == null)
                                 {
                                     edgePoints.pop();
                                     lp = edgePoints[edgePoints.length - 1];
                                 }
-                                  else 
+                                  else
                                 {
                                     edgePoints.push(np);
                                     lp = np;
                                     if (pointOnCell(trgGeo, np)) break;
                                 }
                               }
-                                
+
                                 //Remove retracted points TODO can we do it in a better way?
                                 if (edgePoints.length > 2)
                                 {
                                   var spX = edgePoints[0].x;
                                   var lpX = edgePoints[edgePoints.length - 1].x;
-                                  
+
                                   for (var i = edgePoints.length - 2; i > 0; i--)
                                 {
                                     if ((spX > lpX && edgePoints[i].x < lpX) || (spX < lpX && edgePoints[i].x < spX))
@@ -673,15 +673,15 @@ Bridge.define('RPOrgChart',
                                 	}
                                 }
                                 }
-                                
+
                                 var eGeo = outgoingEdge[j].geometry.clone();
                                 eGeo.points = edgePoints;
                                 RPOrgChart.graph.model.setGeometry(outgoingEdge[j], eGeo);
-                                
+
                                 //Fix edge points and style
                                 adjustEdgeGeoAndStyle(outgoingEdge[j], edgePoints);
                     	}
-                    }                            
+                    }
                 }
                 }
 

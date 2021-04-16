@@ -58,15 +58,15 @@ window.DRAWIO_CONFIG = window.DRAWIO_CONFIG || null;
 // save a GET request. This requires that all resources be present in
 // the special bundle.
 window.mxLoadResources = window.mxLoadResources || false;
-window.mxLanguage = window.mxLanguage || (function() 
+window.mxLanguage = window.mxLanguage || (function()
 {
   var lang = urlParams['lang'];
-  
+
   // Known issue: No JSON object at this point in quirks in IE8
   if (lang == null && typeof(JSON) != 'undefined')
   {
     // Cannot use mxSettings here
-    if (isLocalStorage) 
+    if (isLocalStorage)
     {
     	try
     	{
@@ -102,7 +102,7 @@ window.mxLanguage = window.mxLanguage || (function()
     	}
     }
   }
-  
+
   return lang;
 })();
 
@@ -161,7 +161,7 @@ if (typeof window.mxBasePath === 'undefined')
 if (window.mxLanguages == null)
 {
   window.mxLanguages = [];
-  
+
   // Populates the list of supported special language bundles
   for (var lang in mxLanguageMap)
   {
@@ -178,7 +178,7 @@ if (window.mxLanguages == null)
 if (window.location.hostname == DRAWIO_LIGHTBOX_URL.substring(DRAWIO_LIGHTBOX_URL.indexOf('//') + 2))
 {
   urlParams['lightbox'] = '1';
-}  
+}
 
 // Lightbox enables chromeless mode
 if (urlParams['lightbox'] == '1')
@@ -189,7 +189,7 @@ if (urlParams['lightbox'] == '1')
 /**
  * Returns the global UI setting before running static draw.io code
  */
-window.uiTheme = window.uiTheme || (function() 
+window.uiTheme = window.uiTheme || (function()
 {
   var ui = urlParams['ui'];
 
@@ -212,7 +212,7 @@ window.uiTheme = window.uiTheme || (function()
     	isLocalStorage = false;
     }
   }
-  
+
   // Uses minimal theme on small screens
   try
   {
@@ -230,7 +230,7 @@ window.uiTheme = window.uiTheme || (function()
   {
     // ignore
   }
-  
+
   return ui;
 })();
 
@@ -248,13 +248,13 @@ function setCurrentXml(data, filename)
 /**
  * Overrides splash URL parameter via local storage
  */
-(function() 
+(function()
 {
   // Known issue: No JSON object at this point in quirks in IE8
   if (typeof JSON !== 'undefined')
   {
     // Cannot use mxSettings here
-    if (isLocalStorage) 
+    if (isLocalStorage)
     {
     	try
     	{
@@ -278,19 +278,19 @@ function setCurrentXml(data, filename)
     	}
     }
   }
-  
+
   // Customizes export URL
   var ex = urlParams['export'];
 
   if (ex != null)
   {
     ex = decodeURIComponent(ex);
-    
+
     if (ex.substring(0, 7) != 'http://' &&  ex.substring(0, 8) != 'https://')
     {
     	ex = 'http://' + ex;
     }
-    
+
     EXPORT_URL = ex;
   }
 
@@ -300,15 +300,15 @@ function setCurrentXml(data, filename)
   if (glUrl != null)
   {
     glUrl = decodeURIComponent(glUrl);
-    
+
     if (glUrl.substring(0, 7) != 'http://' &&  glUrl.substring(0, 8) != 'https://')
     {
     	glUrl = 'http://' + glUrl;
     }
-    
+
     DRAWIO_GITLAB_URL = glUrl;
   }
-  
+
   var glId = urlParams['gitlab-id'];
 
   if (glId != null)
@@ -321,13 +321,13 @@ function setCurrentXml(data, filename)
 
   //Adds hard-coded logging domain for draw.io domains
   var host = window.location.host;
-  
+
   if (host != 'test.draw.io')
   {
     var searchString = 'diagrams.net';
     var position = host.length - searchString.length;
     var lastIndex = host.lastIndexOf(searchString, position);
-    
+
     if (lastIndex !== -1 && lastIndex === position)
     {
     	window.DRAWIO_LOG_URL = 'https://log.diagrams.net';
@@ -348,7 +348,7 @@ function setCurrentXml(data, filename)
 })();
 
 // Enables offline mode
-if (urlParams['offline'] == '1' || urlParams['demo'] == '1' || 
+if (urlParams['offline'] == '1' || urlParams['demo'] == '1' ||
     urlParams['stealth'] == '1' || urlParams['local'] == '1' || urlParams['lockdown'] == '1')
 {
   urlParams['picker'] = '0';
@@ -370,7 +370,7 @@ if (urlParams['mode'] == 'trello')
 if (window.location.hostname == 'embed.diagrams.net')
 {
   urlParams['embed'] = '1';
-}  
+}
 
 // Fallback for cases where the hash property is not available
 if ((window.location.hash == null || window.location.hash.length <= 1) &&

@@ -8,7 +8,7 @@
     var s = 'aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;spacingTop=3;image;image=img/lib/active_directory/';
     var gn = 'ms active directory ';
     this.setCurrentSearchEntryLibrary('active_directory');
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'active_directory.svg;',
     			 d, d * 0.85, '', 'Active Directory', false, null, this.getTagsForStencil(gn, 'active directory', dt).join(' ')),
@@ -157,7 +157,7 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-       
+
        this.setCurrentSearchEntryLibrary();
   };
 })();

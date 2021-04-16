@@ -13,15 +13,15 @@
 UrlLibrary = function(ui, data, title)
 {
   StorageFile.call(this, ui, data, title);
-  
+
   var fname = title;
   var last = fname.lastIndexOf('/');
-    
+
   if (last >= 0)
   {
     fname = fname.substring(last + 1);
   }
-  
+
   this.fname = fname;
 };
 
@@ -30,7 +30,7 @@ mxUtils.extend(UrlLibrary, StorageFile);
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -41,7 +41,7 @@ UrlLibrary.prototype.getHash = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
@@ -52,7 +52,7 @@ UrlLibrary.prototype.getTitle = function()
 
 /**
  * Translates this point by the given vector.
- * 
+ *
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */

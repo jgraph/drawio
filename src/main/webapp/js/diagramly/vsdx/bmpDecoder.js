@@ -22,29 +22,29 @@ BmpDecoder.prototype.parseHeader = function() {
   this.pos += 4;
   this.reserved = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.offset = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.offset = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.headerSize = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.headerSize = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
   this.width = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.height = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.height = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.planes = (b[this.pos+1] << 8) | b[this.pos]; 
+  this.planes = (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 2;
-  this.bitPP = (b[this.pos+1] << 8) | b[this.pos]; 
+  this.bitPP = (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 2;
-  this.compress = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.compress = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.rawSize = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.rawSize = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.hr = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.hr = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.vr = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.vr = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.colors = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.colors = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
-  this.importantColors = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos]; 
+  this.importantColors = (b[this.pos+3] << 24) | (b[this.pos+2] << 16) | (b[this.pos+1] << 8) | b[this.pos];
   this.pos += 4;
 
   if(this.bitPP === 16 && this.is_with_alpha){
@@ -55,9 +55,9 @@ BmpDecoder.prototype.parseHeader = function() {
     this.palette = new Array(len);
     for (var i = 0; i < len; i++) {
       var blue = this.buffer[this.pos++];
-      var green = this.buffer[this.pos++]; 
-      var red = this.buffer[this.pos++]; 
-      var quad = this.buffer[this.pos++]; 
+      var green = this.buffer[this.pos++];
+      var red = this.buffer[this.pos++];
+      var quad = this.buffer[this.pos++];
       this.palette[i] = {
         red: red,
         green: green,
@@ -73,7 +73,7 @@ BmpDecoder.prototype.parseBGR = function() {
   this.pos = this.offset;
   try {
     var bitn = "bit" + this.bitPP;
-    
+
     var canvas = document.createElement("canvas");
     var ctx = canvas.getContext("2d");
   var imageData = ctx.createImageData(this.width, this.height);
@@ -174,7 +174,7 @@ BmpDecoder.prototype.bit8 = function() {
 //Currently not used!
 BmpDecoder.prototype.bit15 = function() {
   //FIXED BUG, padding is based on number of bytes not the width
-  var dif_w = (this.width * 2) % 4; 
+  var dif_w = (this.width * 2) % 4;
   if (dif_w != 0) {
     dif_w = 4 - dif_w;
   }
@@ -255,7 +255,7 @@ BmpDecoder.prototype.bit24 = function() {
 };
 
 /**
- * add 32bit decode func 
+ * add 32bit decode func
  * @author soubok
  */
 BmpDecoder.prototype.bit32 = function() {

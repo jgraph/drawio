@@ -8,7 +8,7 @@
     var gn = 'mxgraph.azure';
     var dt = '';
     this.setCurrentSearchEntryLibrary('azure');
-    
+
     this.addPaletteFunctions('azure', mxResources.get('azure'), false,
     [
     	this.createVertexTemplateEntry(s + 'access_control;', w, h, '', 'Access Control', null, null, this.getTagsForStencil(gn, 'access_control', dt).join(' ')),
@@ -98,7 +98,7 @@
     	this.createVertexTemplateEntry(s + 'worker_role;', w, h * 0.8, '', 'Worker Role', null, null, this.getTagsForStencil(gn, 'worker_role', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'worker_roles;', w * 1.1, h * 0.9, '', 'Worker Roles', null, null, this.getTagsForStencil(gn, 'worker_roles', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

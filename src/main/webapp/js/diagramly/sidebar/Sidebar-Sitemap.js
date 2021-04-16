@@ -9,12 +9,12 @@
     var sb = this;
     var gn = 'mxgraph.sitemap';
     var dt = '';
-    
+
     var scale = 0.2;
     var w = 600 * scale;
     var h = 350 * scale;
     this.setCurrentSearchEntryLibrary('sitemap');
-    
+
     var fns =
     [
     	this.createVertexTemplateEntry(s + 'page;',
@@ -126,7 +126,7 @@
     				content.appendChild(fns[i](content));
     			}
     }));
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

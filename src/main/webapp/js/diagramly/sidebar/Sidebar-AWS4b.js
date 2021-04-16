@@ -70,30 +70,30 @@
     this.addAWS4bStoragePalette(w, h, w2, n, n2, gn, sb);
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   Sidebar.prototype.addAWS4bArrowsPalette = function(gn, sb)
   {
     var dt = 'aws amazon web service arrows arrow ';
-    
+
     this.addPaletteFunctions('aws4bArrows', 'AWS18 / Arrows', false,
     [
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=block;startFill=1;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=block;startFill=1;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Default (left)', null, this.getTagsForStencil(gn, '', dt + 'default left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=none;endFill=1;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Default (left)', null, this.getTagsForStencil(gn, '', dt + 'default left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=block;startFill=1;endFill=1;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=block;elbow=vertical;startArrow=block;startFill=1;endFill=1;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Default (double)', null, this.getTagsForStencil(gn, '', dt + 'default double').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=openThin;startFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=openThin;startFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (thin, left)', null, this.getTagsForStencil(gn, '', dt + 'open thin left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=openThin;elbow=vertical;startArrow=none;endFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=openThin;elbow=vertical;startArrow=none;endFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (thin, left)', null, this.getTagsForStencil(gn, '', dt + 'open thin left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=openThin;elbow=vertical;startArrow=openThin;startFill=0;endFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=openThin;elbow=vertical;startArrow=openThin;startFill=0;endFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (thin, double)', null, this.getTagsForStencil(gn, '', dt + 'open thin double').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=open;startFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=none;elbow=vertical;startArrow=open;startFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (left)', null, this.getTagsForStencil(gn, '', dt + 'open left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;elbow=vertical;startArrow=none;endFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;elbow=vertical;startArrow=none;endFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (left)', null, this.getTagsForStencil(gn, '', dt + 'open left').join(' ')),
-    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;elbow=vertical;startArrow=open;startFill=0;endFill=0;strokeColor=#545B64;rounded=0;', 
+    	this.createEdgeTemplateEntry('edgeStyle=orthogonalEdgeStyle;html=1;endArrow=open;elbow=vertical;startArrow=open;startFill=0;endFill=0;strokeColor=#545B64;rounded=0;',
     			100, 0, '', 'Open (double)', null, this.getTagsForStencil(gn, '', dt + 'open double').join(' '))
     ]);
   };
@@ -101,7 +101,7 @@
   Sidebar.prototype.addAWS4bGeneralResourcesPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service general resources ';
-    
+
     this.addPaletteFunctions('aws4bGeneral Resources', 'AWS18 / General Resources', false,
     [
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.aws_cloud;',
@@ -148,7 +148,7 @@
   Sidebar.prototype.addAWS4bIllustrationsPalette = function(n3, gn, sb)
   {
     var dt = 'aws amazon web service illustrations ';
-    
+
     this.addPaletteFunctions('aws4bIllustrations', 'AWS18 / Illustrations', false,
     [
     	 this.createVertexTemplateEntry(n3 + 'illustration_users;pointerEvents=1',
@@ -167,7 +167,7 @@
   Sidebar.prototype.addAWS4bGroupsLightPalette = function(n4, gn, sb)
   {
     var dt = 'aws amazon web service groups group light ';
-    
+
     this.addPaletteFunctions('aws4bGroups Light', 'AWS18 / Groups (light)', false,
     [
     	 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_aws_cloud;strokeColor=#AAB7B8;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#AAB7B8;dashed=0;',
@@ -200,7 +200,7 @@
   Sidebar.prototype.addAWS4bGroupsDarkPalette = function(n4, gn, sb)
   {
     var dt = 'aws amazon web service groups group dark ';
-    
+
     this.addPaletteFunctions('aws4bGroups Dark', 'AWS18 / Groups (dark)', false,
     [
     	 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_aws_cloud;strokeColor=#858B94;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#858B94;dashed=0;',
@@ -233,7 +233,7 @@
   Sidebar.prototype.addAWS4bAnalyticsPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service analytics ';
-    
+
     this.addPaletteFunctions('aws4bAnalytics', 'AWS18 / Analytics', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.athena;',
@@ -262,7 +262,7 @@
     			 w, h + 10, 'AWS Data Pipeline', null, null, null, this.getTagsForStencil(gn, 'data pipeline', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.glue;',
     			 w, h, 'AWS Glue', null, null, null, this.getTagsForStencil(gn, 'glue', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.search_documents;',
     			 w2, w2, 'Search\ndocuments', null, null, null, this.getTagsForStencil(gn, 'search documents', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.cluster;',
@@ -287,7 +287,7 @@
   Sidebar.prototype.addAWS4bApplicationIntegrationPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service application integration ';
-    
+
     this.addPaletteFunctions('aws4bApplication Integration', 'AWS18 / Application Integration', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.step_functions;',
@@ -300,7 +300,7 @@
     			 w, h, 'Amazon SQS', null, null, null, this.getTagsForStencil(gn, 'sqs', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.appsync;',
     			 w, h, 'AWS AppSync', null, null, null, this.getTagsForStencil(gn, 'appsync', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.email_notification;',
     			 w2, w2, 'Email\nnotification', null, null, null, this.getTagsForStencil(gn, 'email notification', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.http_notification;',
@@ -317,7 +317,7 @@
   Sidebar.prototype.addAWS4bARVRPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service ar vr augmented virtual reality';
-    
+
     this.addPaletteFunctions('aws4bAR VR', 'AWS18 / AR & VR', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.sumerian;',
@@ -328,7 +328,7 @@
   Sidebar.prototype.addAWS4bCostManagementPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service cost management ';
-    
+
     this.addPaletteFunctions('aws4bCost Management', 'AWS18 / Cost Management', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.cost_explorer;',
@@ -345,7 +345,7 @@
   Sidebar.prototype.addAWS4bBusinessProductivityPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service business productivity ';
-    
+
     this.addPaletteFunctions('aws4bBusiness Productivity', 'AWS18 / Business Productivity', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.alexa_for_business;',
@@ -356,7 +356,7 @@
   Sidebar.prototype.addAWS4bComputePalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service compute ';
-    
+
     this.addPaletteFunctions('aws4bCompute', 'AWS18 / Compute', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.ec2;',
@@ -389,7 +389,7 @@
     			 w, h + 10, 'Network Load Balancer', null, null, null, this.getTagsForStencil(gn, 'network load balancer', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.vmware_cloud_on_aws;',
     			 w, h + 10, 'VMware Cloud on AWS', null, null, null, this.getTagsForStencil(gn, 'vmware cloud on', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.ami;',
     			 w2, w2, 'AMI', null, null, null, this.getTagsForStencil(gn, 'ami', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.auto_scaling;',
@@ -432,7 +432,7 @@
   Sidebar.prototype.addAWS4bCustomerEngagementPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service customer engagement ';
-    
+
     this.addPaletteFunctions('aws4bCustomer Engagement', 'AWS18 / Customer Engagement', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.connect;',
@@ -441,7 +441,7 @@
     			 w, h + 10, 'Amazon Pinpoint', null, null, null, this.getTagsForStencil(gn, 'pinpoint', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.simple_email_service;',
     			 w, h + 10, 'Amazon Simple Email Service', null, null, null, this.getTagsForStencil(gn, 'simple email service', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.email;',
     			 w2, w2, 'Email', null, null, null, this.getTagsForStencil(gn, 'email', dt).join(' '))
     ]);
@@ -450,7 +450,7 @@
   Sidebar.prototype.addAWS4bDatabasePalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service db database ';
-    
+
     this.addPaletteFunctions('aws4bDatabase', 'AWS18 / Database', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.aurora;',
@@ -471,7 +471,7 @@
     			 w, h + 10, 'Amazon Redshift', null, null, null, this.getTagsForStencil(gn, 'redshift', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.database_migration_service;',
     			 w, h + 20, 'AWS Database Migration Service', null, null, null, this.getTagsForStencil(gn, 'db database migration service', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.attribute;',
     			 w2, w2, 'Attribute', null, null, null, this.getTagsForStencil(gn, 'attribute', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.attributes;',
@@ -524,7 +524,7 @@
   Sidebar.prototype.addAWS4bDesktopAppStreamingPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service db database ';
-    
+
     this.addPaletteFunctions('aws4bDesktop App Streaming', 'AWS18 / Desktop & App Streaming', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.appstream_20;',
@@ -535,7 +535,7 @@
   Sidebar.prototype.addAWS4bDeveloperToolsPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service dev developer tools ';
-    
+
     this.addPaletteFunctions('aws4bDeveloper Tools', 'AWS18 / Developer Tools', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.codestar;',
@@ -562,7 +562,7 @@
   Sidebar.prototype.addAWS4bGameDevelopmentPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service game development ';
-    
+
     this.addPaletteFunctions('aws4bGame Development', 'AWS18 / Game Development', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.gamelift;',
@@ -573,7 +573,7 @@
   Sidebar.prototype.addAWS4bInternetOfThingsPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service internet of things iot ';
-    
+
     this.addPaletteFunctions('aws4bInternet of Things', 'AWS18 / Internet of Things', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.iot_core;',
@@ -598,7 +598,7 @@
   Sidebar.prototype.addAWS4bIOTThingsPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service internet of things iot ';
-    
+
     this.addPaletteFunctions('aws4bIoT Things', 'AWS18 / IoT Things', false,
     [
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.bank;',
@@ -641,7 +641,7 @@
   Sidebar.prototype.addAWS4bIOTResourcesPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service internet of things iot resources ';
-    
+
     this.addPaletteFunctions('aws4bIoT Resources', 'AWS18 / IoT Resources', false,
     [
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.action;',
@@ -698,7 +698,7 @@
   Sidebar.prototype.addAWS4bMachineLearningPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service machine learning ';
-    
+
     this.addPaletteFunctions('aws4bMachine Learning', 'AWS18 / Machine Learning', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.sagemaker;',
@@ -729,7 +729,7 @@
   Sidebar.prototype.addAWS4bManagementToolsPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service management tools ';
-    
+
     this.addPaletteFunctions('aws4bManagement Tools', 'AWS18 / Management Tools', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.cloudwatch;',
@@ -760,7 +760,7 @@
     			 w, h + 10, 'AWS Trusted Advisor', null, null, null, this.getTagsForStencil(gn, 'trusted advisor', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.marketplace;',
     			 w, h + 10, 'AWS Marketplace', null, null, null, this.getTagsForStencil(gn, 'marketplace', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.alarm;',
     			 w2, w2, 'Alarm', null, null, null, this.getTagsForStencil(gn, 'alarm', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.event_event_based;',
@@ -825,7 +825,7 @@
   Sidebar.prototype.addAWS4bMediaServicesPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service media services ';
-    
+
     this.addPaletteFunctions('aws4bMedia Services', 'AWS18 / Media Services', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.elastic_transcoder;',
@@ -848,7 +848,7 @@
   Sidebar.prototype.addAWS4bMigrationPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service migration ';
-    
+
     this.addPaletteFunctions('aws4bMigration', 'AWS18 / Migration', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.migration_hub;',
@@ -871,7 +871,7 @@
   Sidebar.prototype.addAWS4bMobileServicesPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service mobile services ';
-    
+
     this.addPaletteFunctions('aws4bMobile Services', 'AWS18 / Mobile Services', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.appsync;',
@@ -890,7 +890,7 @@
   Sidebar.prototype.addAWS4bNetworkContentDeliveryPalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service netowrk content delivery ';
-    
+
     this.addPaletteFunctions('aws4bNetwork Content Delivery', 'AWS18 / Network & Content Delivery', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.vpc;',
@@ -905,7 +905,7 @@
     			 w, h + 10, 'Amazon Route 53', null, null, null, this.getTagsForStencil(gn, 'route 53', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.direct_connect;',
     			 w, h + 10, 'AWS Direct Connect', null, null, null, this.getTagsForStencil(gn, 'direct connect', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.customer_gateway;',
     			 w2, w2, 'Customer\ngateway', null, null, null, this.getTagsForStencil(gn, 'customer gateway', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.elastic_network_adapter;',
@@ -946,7 +946,7 @@
   Sidebar.prototype.addAWS4bSecurityIdentityCompliancePalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service security identity compliance ';
-    
+
     this.addPaletteFunctions('aws4bSecurity Identity Compliance', 'AWS18 / Security, Identity & Compliance', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.identity_and_access_management;',
@@ -977,7 +977,7 @@
     			 w, h + 10, 'AWS Single Sign-On', null, null, null, this.getTagsForStencil(gn, 'single sign on', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.waf;',
     			 w, h, 'AWS WAF', null, null, null, this.getTagsForStencil(gn, 'waf', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.addon;',
     			 w2, w2, 'Add-on', null, null, null, this.getTagsForStencil(gn, 'addon add on', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.sts;',
@@ -1010,7 +1010,7 @@
   Sidebar.prototype.addAWS4bStoragePalette = function(w, h, w2, n, n2, gn, sb)
   {
     var dt = 'aws amazon web service storage ';
-    
+
     this.addPaletteFunctions('aws4bStorage', 'AWS18 / Storage', false,
     [
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.s3;',
@@ -1029,7 +1029,7 @@
     			 w, h + 10, 'AWS Snowmobile', null, null, null, this.getTagsForStencil(gn, 'snowmobile', dt).join(' ')),
     	 this.createVertexTemplateEntry(n + 'productIcon;prIcon=' + gn + '.storage_gateway;',
     			 w, h + 10, 'AWS Storage Gateway', null, null, null, this.getTagsForStencil(gn, 'storage gateway', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.bucket;',
     			 w2, w2, 'Bucket', null, null, null, this.getTagsForStencil(gn, 'bucket', dt).join(' ')),
     	 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.snapshot;',

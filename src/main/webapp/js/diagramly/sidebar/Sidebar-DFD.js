@@ -10,7 +10,7 @@
     var gn = 'mxgraph.flowchart';
     var dt = 'dfd data flow diagram ';
     this.setCurrentSearchEntryLibrary('dfd');
-    
+
     this.addPaletteFunctions('dfd', 'Data Flow Diagram', false,
     [
     	this.createVertexTemplateEntry(s + 'start', w * 0.8, h * 0.3, '', 'Start / End', null, null, this.getTagsForStencil(gn, 'start end', dt).join(' ')),
@@ -48,12 +48,12 @@
     		
        		return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'External Entity');
     	}),
-        
+
     	this.createVertexTemplateEntry(s + 'loop', w * 0.8, h * 0.3, '', 'Loop', null, null, this.getTagsForStencil(gn, 'loop', dt).join(' ')),
 
      	this.createEdgeTemplateEntry('endArrow=classic;html=1;', w * 0.5, h * 0.5, '', 'Directional Connector', null, dt + 'directional directed')
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

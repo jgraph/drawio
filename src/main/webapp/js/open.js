@@ -2,13 +2,13 @@
 function handleSubmit()
 {
   var form = window.openForm || document.getElementById('openForm');
-  
+
   if (window.parent.openNew && window.parent.baseUrl != null)
   {
     window.parent.openFile.setConsumer(null);
     window.parent.open(window.parent.baseUrl);
   }
-  
+
   // NOTE: File is loaded via JS injection into the iframe, which in turn sets the
   // file contents in the parent window. The new window asks its opener if any file
   // contents are available or waits for the contents to become available.
@@ -26,7 +26,7 @@ function fileChanged()
   var supportedText = document.getElementById('openSupported');
   var form = window.openForm || document.getElementById('openForm');
   var openButton = document.getElementById('openButton');
-  
+
   if (form.upfile.value.length > 0)
   {
     openButton.removeAttribute('disabled');
@@ -152,7 +152,7 @@ function main()
     							}
     						};
     					})(fileInfo.title));
-    
+
     					window.parent.mxEvent.addListener(link, 'click', (function(k)
     					{
     						return function()

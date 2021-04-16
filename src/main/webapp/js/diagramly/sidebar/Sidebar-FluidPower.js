@@ -8,7 +8,7 @@
     var gn = 'mxgraph.fluid_power';
     var dt = '';
     this.setCurrentSearchEntryLibrary('fluid_power');
-    
+
     this.addPaletteFunctions('fluid_power', 'Fluid Power (ISO 1219)', false,
     [
     	this.createVertexTemplateEntry(s + 'x10010;points=[[0,0.68,0],[0.78,0,0],[1,0.51,0],[1,0.84,0]]', w * 20.95, h * 14.24, '', 'X10010 Control mechanism with detachable grip and detent', null, null, this.getTagsForStencil(gn, 'x10010 control mechanism with detachable grip and detent', dt).join(' ')),
@@ -258,7 +258,7 @@
     	this.createVertexTemplateEntry(s + 'x12420;points=[[0.5,0,0],[0,1,0],[1,1,0]]', w * 18.69, h * 28.39, '', 'X12420 Suction cup', null, null, this.getTagsForStencil(gn, 'x12420 suction cup', dt).join(' ')),
     	this.createVertexTemplateEntry(s + 'x12430;points=[[0.5,0,0],[0,1,0],[1,1,0]]', w * 18.69, h * 28.39, '', 'X12430 Suction cup with spring loaded stem and non-return valve', null, null, this.getTagsForStencil(gn, 'x12430 suction cup with spring loaded stem and non return valve', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

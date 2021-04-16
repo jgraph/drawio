@@ -10,7 +10,7 @@
 
     // Adds Cumulus shapes
     var gn = ' ';
-    
+
     var fns = [
     	 this.createVertexTemplateEntry(s + 'switch_bare_metal_empty.svg;',
     			 sc * 48, sc * 12, '', 'Switch - Bare Metal (empty)', false, null, this.getTagsForStencil(gn, 'switch bare metal empty', dt).join(' ')),
@@ -20,7 +20,7 @@
     			 sc * 48, sc * 12, '', 'Switch - Out of Band', false, null, this.getTagsForStencil(gn, 'switch_out_of_band', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'switch_voyager.svg;',
     			 sc * 48, sc * 12, '', 'Switch Voyager', false, null, this.getTagsForStencil(gn, 'switch voyager', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(s + 'cumulus_linux_icon.svg;',
     			 sc * 48, sc * 48, '', 'Linux Icon', false, null, this.getTagsForStencil(gn, 'cumulus linux icon', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'cumulus_netq_icon.svg;',
@@ -34,7 +34,7 @@
     			 sc * 48, sc * 57, '', 'Rack Out of Band', false, null, this.getTagsForStencil(gn, 'rack out of band', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'rack_voyager.svg;',
     			 sc * 48, sc * 57, '', 'Rack Voyager', false, null, this.getTagsForStencil(gn, 'rack voyager', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry(s + 'server_bare_metal.svg;',
     			 sc * 48, sc * 10, '', 'Server - Bare Metal', false, null, this.getTagsForStencil(gn, 'server bare metal', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'chassis_bare_metal_empty.svg;',
@@ -43,7 +43,7 @@
     			 sc * 53, sc * 36, '', 'Chassis - Cumulus Linux', false, null, this.getTagsForStencil(gn, 'chassis linux', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'netq_chassis.svg;',
     			 sc * 53, sc * 36, '', 'NetQ Chassis', false, null, this.getTagsForStencil(gn, 'netq chassis', dt).join(' ')),
-    			 
+    			
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;', sc * 50, sc * 50, '', 'Unspecified', null, dt + 'unspecified'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#EB4770;', sc * 50, sc * 50, '', '1G', null, dt + '1g'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#FB9F41;', sc * 50, sc * 50, '', '10G', null, dt + '10g'),
@@ -51,7 +51,7 @@
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#83CA73;', sc * 50, sc * 50, '', '40G', null, dt + '40g'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#2EAB6D;', sc * 50, sc * 50, '', '100G', null, dt + '100g'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#4EFDC0;', sc * 50, sc * 50, '', 'OOB / RMP', null, dt + 'oob rmp'),
-    	 
+    	
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#EB4770;dashed=1;dashPattern=5 5;', sc * 50, sc * 50, '', 'Virtual', null, dt + 'virtual'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#FB9F41;dashed=1;dashPattern=5 5;', sc * 50, sc * 50, '', 'Virtual', null, dt + 'virtual'),
     	 this.createEdgeTemplateEntry('endArrow=block;html=1;startArrow=block;startFill=1;endFill=1;strokeColor=#FCC548;dashed=1;dashPattern=5 5;', sc * 50, sc * 50, '', 'Virtual', null, dt + 'virtual'),
@@ -71,14 +71,14 @@
     			 sc * 137, sc * 49, 'Internet', 'Internet', true, null, this.getTagsForStencil(gn, 'internet', dt).join(' ')),
     	 this.createVertexTemplateEntry(s + 'container.svg;',
     			 sc * 45, sc * 40, '', 'Container', true, null, this.getTagsForStencil(gn, 'container', dt).join(' ')),
-    			 
+    			
       	 this.addEntry(dt + 'pbr switch', function()
        	 {
     	    var cell1 = new mxCell('swp51', new mxGeometry(0, 0, sc * 30, sc * 12), 'rounded=0;whiteSpace=wrap;html=1;fillColor=#FB9F41;strokeColor=none;fontColor=#FFFFFF;');
     	    cell1.vertex = true;
     	    var cell2 = new mxCell('PBR', new mxGeometry(sc * 30, 0, sc * 30, sc * 12), 'text;verticalAlign=middle;align=center;fontColor=#FB9F41;fontStyle=1');
     	    cell2.vertex = true;
-    	    
+    	
     	   	return sb.createVertexTemplateFromCells([cell1, cell2], sc * 60, sc * 12, 'Package Diagram');
        	 }),				
 
@@ -89,7 +89,7 @@
 
     	 this.createVertexTemplateEntry(s + 'limed_spruce.svg;',
     			 sc * 150, sc * 34, '', 'Limed Spruce', false, null, this.getTagsForStencil(gn, 'limed spruce', dt).join(' ')),
-    			 
+    			
     	 this.createVertexTemplateEntry('fillColor=#36424A;strokeColor=none;',
     			 sc * 25, sc * 25, '', 'Limited Spruce', true, null, this.getTagsForStencil(gn, 'color limited spruce', dt).join(' ')),
     	 this.createVertexTemplateEntry('fillColor=#515D68;strokeColor=none;',
@@ -133,7 +133,7 @@
     		content.appendChild(fns[i](content));
     	}
     }));
-       
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

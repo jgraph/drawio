@@ -10,7 +10,7 @@ try
     write(text);
     document.body.appendChild(document.createElement('br'));
   };
-  
+
   write('Clearing Cache...');
 
   navigator.serviceWorker.getRegistrations().then(function(registrations)
@@ -28,7 +28,7 @@ try
     {
     	writeln('OK');
     }
-    
+
     if ((/test\.draw\.io$/.test(window.location.hostname)) ||
     	(/app\.diagrams\.net$/.test(window.location.hostname)))
     {

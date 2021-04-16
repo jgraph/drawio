@@ -10,7 +10,7 @@
     var w = 0.2;
     var h = 0.2;
     this.setCurrentSearchEntryLibrary('webicons', 'webicons');
-    
+
     this.addPaletteFunctions('webicons', 'Web Icons', false,
     [
      this.createVertexTemplateEntry(s + 'adfty;fillColor=#66E8F3;gradientColor=#1C7CBA',
@@ -366,7 +366,7 @@
     ]);
     this.setCurrentSearchEntryLibrary();
   };
-  
+
   // Adds Web Icons shapes
   Sidebar.prototype.addWebLogosPalette = function()
   {
@@ -377,7 +377,7 @@
     var w = 0.2;
     var h = 0.2;
     this.setCurrentSearchEntryLibrary('webicons', 'weblogos');
-    
+
     this.addPaletteFunctions('weblogos', 'Web Logos', false,
     [
      this.createVertexTemplateEntry(s + 'adfty;fillColor=#66E8F3;gradientColor=#1C7CBA',
@@ -761,7 +761,7 @@
      this.createVertexTemplateEntry(s + 'youtube_2;fillColor=#FF2626;gradientColor=#B5171F',
     		 w * 232, h * 163, '', 'Youtube', null, null, this.getTagsForStencil(gn, 'youtube', dt).join(' '))
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 })();

@@ -9,35 +9,35 @@ Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/MathJax.j
 function render(data)
 {
   var autoScale = false;
-  
+
   if (data.scale == 'auto')
   {
     autoScale = true;
     data.scale = 1;
   }
-  
+
   document.body.innerHTML = '';
   var container = document.createElement('div');
   container.id = 'graph';
   container.style.width = '100%';
   container.style.height = '100%';
   document.body.appendChild(container);
-  
+
   var graph = new Graph(container);
   data.border = parseInt(data.border) || 0;
   data.w = parseFloat(data.w) || 0;
   data.h = parseFloat(data.h) || 0;
   data.scale = parseFloat(data.scale) || 1;
-  
+
   var extras = null;
-  
+
   try
   {
     extras = JSON.parse(data.extras);
-  } 
+  }
   catch (e)
   {
-    try 
+    try
     {
     	extras = JSON.parse(decodeURIComponent(data.extras));
     }
@@ -48,32 +48,32 @@ function render(data)
   }
 
   var gridColor = null;
-  
+
   if (extras != null && extras.grid != null)
   {
     graph.gridSize = extras.grid.size;
     graph.view.gridSteps = extras.grid.steps;
     gridColor = extras.grid.color;
   }
-  
+
   if (extras != null && extras.diagramLanguage != null)
   {
     Graph.diagramLanguage = extras.diagramLanguage;
     Graph.translateDiagram = true;
   }
-  
+
   //PNG+XML format
   if (data.xml.substring(0, 5) == 'iVBOR' || (extras != null && extras.isPng))
   {
     data.xml = Editor.extractGraphModelFromPng('data:image/png;base64,' + data.xml);
   }
-  
+
   //IE11 sends incorrect xml
   if (data.xml.substring(0, 11) == '<#document>')
   {
     data.xml = data.xml.substring(11, data.xml.length - 12);
   }
-  
+
   // Parses XML
   var doc = mxUtils.parseXml(data.xml);
   var node = Editor.extractGraphModel(doc.documentElement, true);
@@ -81,7 +81,7 @@ function render(data)
   if (node == null)
   {
     //Electron pdf export
-    try 
+    try
     {
     	const { ipcRenderer } = require('electron');
     	
@@ -91,10 +91,10 @@ function render(data)
     {
     	console.log(e);
     }
-    
+
     return graph;
   }
-  
+
   var xmlDoc = node.ownerDocument;
   var diagrams = null;
   var from = 0;
@@ -119,7 +119,7 @@ function render(data)
     {
     	ipcRenderer.send('xml-data-error');
     }
-    
+
     return;
   }
 
@@ -128,7 +128,7 @@ function render(data)
   {
     diagrams = xmlDoc.documentElement.getElementsByTagName('diagram');
   }
-  
+
   //Add global variables to graph
   if (extras != null && extras.globalVars != null)
   {
@@ -139,28 +139,28 @@ function render(data)
    * Disables custom links on shapes.
    */
   var graphGetLinkForCell = graph.getLinkForCell;
-  
+
   graph.getLinkForCell = function(cell)
   {
     var link = graphGetLinkForCell.apply(this, arguments);
-    
+
     if (link != null && this.isCustomLink(link))
     {
     	link = null;
     }
-    
+
     return link;
   };
-  
+
   /**
    * Disables custom links in labels.
    */
   var cellRendererRedrawLabelShape = graph.cellRenderer.redrawLabelShape;
-  
+
   graph.cellRenderer.redrawLabelShape = function(shape)
   {
     cellRendererRedrawLabelShape.apply(this, arguments);
-    
+
     if (shape.node != null)
     {
     	var links = shape.node.getElementsByTagName('a');
@@ -176,7 +176,7 @@ function render(data)
     	}	
     }
   };
-  
+
   var preview = null;
   var waitCounter = 1;
   var bounds;
@@ -185,7 +185,7 @@ function render(data)
   // Waits for all images to finish loading
   var cache = new Object();
   var math = false;
-  
+
   // Decrements waitCounter and invokes callback when finished
   function decrementWaitCounter()
   {
@@ -193,7 +193,7 @@ function render(data)
     {
     	//Note: This code targets Chrome as it is the browser used by export server
     	//Ensure that all fonts has been loaded, this promise is never rejected
-    	document.fonts.ready.then(function() 
+    	document.fonts.ready.then(function()
     	{
     		var doneDiv = document.createElement("div");
     		var pageCount = diagrams != null? diagrams.length : 1;
@@ -208,11 +208,11 @@ function render(data)
     		//Electron pdf export
     		if (mxIsElectron)
     		{
-    			try 
+    			try
     			{
     				const { ipcRenderer } = require('electron');
     				
-    				ipcRenderer.on('get-svg-data', (event, arg) => 
+    				ipcRenderer.on('get-svg-data', (event, arg) =>
     				{
     					graph.mathEnabled = math; //Enable math such that getSvg works as expected
     					// Returns the exported SVG for the given graph (see EditorUi.exportSvg)
@@ -254,7 +254,7 @@ function render(data)
     	});
     }
   };
-  
+
   function waitForImages(tagName, attributeName)
   {
     var imgs = document.body.getElementsByTagName(tagName);
@@ -278,15 +278,15 @@ function render(data)
     	}
     }
   };
-  
+
   // Waits for MathJax.Hub to become available to register
   // wait counter callback asynchronously after math render
   var editorDoMathJaxRender = Editor.doMathJaxRender;
-  
+
   Editor.doMathJaxRender = function(container)
   {
     editorDoMathJaxRender.apply(this, arguments);
-    
+
     window.setTimeout(function()
     {
     	window.MathJax.Hub.Queue(function ()
@@ -295,7 +295,7 @@ function render(data)
     	});
     }, 0);
   };
-  
+
   // Adds async MathJax rendering task
   function renderMath(elt)
   {
@@ -321,7 +321,7 @@ function render(data)
     	//ignore and return!
     	return;
     }
-    
+
     waitCounter += extFonts.length;
 
     //Note: This code targets Chrome as it is the browser used by export server
@@ -371,10 +371,10 @@ function render(data)
     var gridImage = btoa(unescape(encodeURIComponent(view.createSvgGrid(gridColor))));
     gridImage = 'url(' + 'data:image/svg+xml;base64,' + gridImage + ')';
     var phase = graph.gridSize * view.gridSteps * view.scale;
-    
+
     var x0 = 0;
     var y0 = 0;
-    
+
     if (view.backgroundPageShape != null)
     {
     	var bds = view.getBackgroundPageBounds();
@@ -382,13 +382,13 @@ function render(data)
     	x0 = 1 + bds.x;
     	y0 = 1 + bds.y;
     }
-    
+
     // Computes the offset to maintain origin for grid
     var position = -Math.round(phase - mxUtils.mod(view.translate.x * view.scale - x0, phase)) + 'px ' +
     	-Math.round(phase - mxUtils.mod(view.translate.y * view.scale - y0, phase)) + 'px';
-    
+
     var pages = document.querySelectorAll('[id^=mxPage]');
-    
+
     var cssTxt = 'margin: 0;padding: 0;background-image: ' + gridImage + ';background-position: ' + position;
     document.body.style.cssText = cssTxt;
 
@@ -397,32 +397,32 @@ function render(data)
     	pages[i].style.cssText = cssTxt;
     }
   };
-  
+
   var origAddFont = Graph.addFont;
-  
+
   Graph.addFont = function(name, url)
   {
     waitCounter++;
     return origAddFont.call(this, name, url, decrementWaitCounter);	
   };
-    
+
   function renderPage()
   {
     // Enables math typesetting
     math |= xmlDoc.documentElement.getAttribute('math') == '1';
-    
+
     //Load external fonts
     var extFonts = xmlDoc.documentElement.getAttribute('extFonts');
-    
+
     if (extFonts)
     {
     	loadExtFonts(extFonts);
     }
-    
+
     // Configure graph
     graph.foldingEnabled = false;
     graph.setEnabled(false);
-    
+
     // Sets background image
     var bgImg = xmlDoc.documentElement.getAttribute('backgroundImage');
 
@@ -431,14 +431,14 @@ function render(data)
     	bgImg = JSON.parse(bgImg);
     	graph.setBackgroundImage(new mxImage(bgImg.src, bgImg.width, bgImg.height));
     }
-    
+
     // Parses XML into graph
     var codec = new mxCodec(xmlDoc);
     var model = graph.getModel();
     codec.decode(xmlDoc.documentElement, model);
 
     var bg;
-    
+
     if (data.format == 'pdf')
     {
     	if (data.bg == 'none')
@@ -473,15 +473,15 @@ function render(data)
     		bg = '#ffffff';
     	}	
     }
-    
+
     // Sets background color on page
     if (bg != null)
     {
     	document.body.style.backgroundColor = bg;
     }
-    
+
     //handle layers
-    if (extras != null && ((extras.layers != null && extras.layers.length > 0) || 
+    if (extras != null && ((extras.layers != null && extras.layers.length > 0) ||
     					   (extras.layerIds != null && extras.layerIds.length > 0)))
     {
     	var childCount = model.getChildCount(model.root);
@@ -512,10 +512,10 @@ function render(data)
     		}
     	}
     }
-    
+
     // Sets initial value for PDF page background
     graph.pdfPageVisible = false;
-    
+
     // Handles PDF output where the output should match the page format if the page is visible
     if (data.print || (data.format == 'pdf' && xmlDoc.documentElement.getAttribute('page') == '1' && data.w == 0 && data.h == 0 && data.scale == 1))
     {
@@ -528,7 +528,7 @@ function render(data)
     		
     		var gb = graph.getGraphBounds();
     		printScale = data.pageScale;
-    
+
     		if (isNaN(printScale))
     		{
     			printScale = 1;
@@ -669,7 +669,7 @@ function render(data)
     			//The image cannot exceed 25 MP to be included in Google Apps
     			if (b.width * s * b.height * s > GOOGLE_APPS_MAX_AREA)
     			{
-    				//Subtracting 0.01 to prevent any other rounding that can make slightly over 25 MP 
+    				//Subtracting 0.01 to prevent any other rounding that can make slightly over 25 MP
     				s = Math.sqrt(GOOGLE_APPS_MAX_AREA / (b.width * b.height)) - 0.01;
     			}
     		}
@@ -695,13 +695,13 @@ function render(data)
     		graph.view.setTranslate(Math.floor(-dx), Math.floor(-dy));
     	}
     }
-    
+
     // Gets the diagram bounds and sets the document size
     bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
     bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
     bounds.height = Math.ceil(bounds.height + data.border);
     expScale = graph.view.scale || 1;
-    
+
     // Converts the graph to a vertical sequence of pages for PDF export
     if (graph.pdfPageVisible)
     {
@@ -714,7 +714,7 @@ function render(data)
     	var gb = graph.getGraphBounds();
     	var x0 = 0;
     	var y0 = 0;
-  
+
     	// Applies print scale
     	pf = mxRectangle.fromRectangle(pf);
     	pf.width = Math.ceil(pf.width * printScale) + 1; //The 1 extra pixels to prevent cutting the cells on the right edge of the page
@@ -742,7 +742,7 @@ function render(data)
     	else
     	{
     		preview.backgroundColor = bg;
-    		preview.autoOrigin = autoOrigin; 
+    		preview.autoOrigin = autoOrigin;
     		preview.appendGraph(graph, scale, x0, y0);
     	}
     	// Adds shadow
@@ -782,11 +782,11 @@ function render(data)
     	document.body.style.height = Math.ceil(bounds.y + bounds.height) + 'px';
     }
   }
-  
+
   if (diagrams != null && diagrams.length > 0)
   {
     var to = diagrams.length - 1;
-    
+
     //Parameters to and all pages should not be sent with formats other than PDF with page view enabled
     if (!data.allPages)
     {
@@ -810,12 +810,12 @@ function render(data)
     		to = isNaN(to)? from : Math.max(from, Math.min(to, diagrams.length - 1));
     	}
     }
-    
+
     /**
      * Implements %page% and %pagenumber% placeholders
      */
     var graphGetGlobalVariable = graph.getGlobalVariable;
-    
+
     graph.getGlobalVariable = function(name)
     {
     	if (name == 'page')
@@ -831,7 +831,7 @@ function render(data)
     	return graphGetGlobalVariable.apply(this, arguments);
     };
     	
-    for (var i = from; i <= to; i++) 
+    for (var i = from; i <= to; i++)
     {
     	if (diagrams[i] != null)
     	{
@@ -857,7 +857,7 @@ function render(data)
   {
     renderPage();
   }
-  
+
   if (fallbackFont)
   {
     //Add a fallbackFont font to all labels in case the selected font doesn't support the character
@@ -865,7 +865,7 @@ function render(data)
     //Use this with a custom font-face in export-fonts.css file
     document.querySelectorAll('foreignObject div').forEach(d => d.style.fontFamily = (d.style.fontFamily || '') + ', ' + fallbackFont);
   }
-  
+
   renderGrid();
   // Includes images in SVG and HTML labels
   waitForImages('image', 'xlink:href');
@@ -873,18 +873,18 @@ function render(data)
   renderMath(document.body);
   // Immediate return if not waiting for any content
   decrementWaitCounter();
-  
+
   return graph;
 };
 
 //Electron pdf export
 if (mxIsElectron)
 {
-  try 
+  try
   {
     const { ipcRenderer } = require('electron');
-    
-    ipcRenderer.on('render', (event, arg) => 
+
+    ipcRenderer.on('render', (event, arg) =>
     {
     	render(arg);
     });

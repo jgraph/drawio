@@ -10,7 +10,7 @@
     var gn = 'mxgraph.basic';
     var dt = '';
     this.setCurrentSearchEntryLibrary('basic');
-    
+
     this.addPaletteFunctions('basic', mxResources.get('basic'), false,
     [
     	this.createVertexTemplateEntry(s2 + 'rect;fillColor2=none;strokeWidth=1;size=20;indent=5;', w * 1.2, h * 0.6, '', 'Partial Rectangle'),
@@ -79,7 +79,7 @@
      	this.createVertexTemplateEntry('shape=message;html=1;whiteSpace=wrap;html=1;outlineConnect=0;', 60, 40, '', 'Message', null, null, 'message mail'),
       	this.createVertexTemplateEntry('shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;lid=0;', 60, 80, '', 'Cylinder Stack', null, null, 'cylinder data database stack tube')
     ]);
-    
+
     this.setCurrentSearchEntryLibrary();
   };
 
