@@ -196,6 +196,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Veeam2.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-VVD.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-WebIcons.js');
+mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-My.js');
 
 mxscript(drawDevUrl + 'js/diagramly/util/mxJsCanvas.js');
 mxscript(drawDevUrl + 'js/diagramly/util/mxAsyncCanvas.js');

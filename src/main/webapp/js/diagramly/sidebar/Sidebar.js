@@ -1031,179 +1031,184 @@
 				}
 			}
 		}
-		
-		this.addGeneralPalette(this.customEntries == null);
-		this.addMiscPalette(false);	
-		this.addAdvancedPalette(false);
-		this.addBasicPalette();
-		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
-				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;',
-				null, null, null, null, null, 'arrows');
-		this.addArrows2Palette();
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'computer');
-		this.addImagePalette('computer', 'Clipart / Computer', imgDir
-				+ '/lib/clip_art/computers/', '_128x128.png', ['Antivirus',
-				'Data_Filtering', 'Database', 'Database_Add', 'Database_Minus',
-				'Database_Move_Stack', 'Database_Remove', 'Fujitsu_Tablet',
-				'Harddrive', 'IBM_Tablet', 'iMac', 'iPad', 'Laptop', 'MacBook',
-				'Mainframe', 'Monitor', 'Monitor_Tower',
-				'Monitor_Tower_Behind', 'Netbook', 'Network', 'Network_2',
-				'Printer', 'Printer_Commercial', 'Secure_System', 'Server',
-				'Server_Rack', 'Server_Rack_Empty', 'Server_Rack_Partial',
-				'Server_Tower', 'Software', 'Stylus', 'Touch', 'USB_Hub',
-				'Virtual_Application', 'Virtual_Machine', 'Virus',
-				'Workstation' ], [ 'Antivirus', 'Data Filtering', 'Database',
-	            'Database Add', 'Database Minus', 'Database Move Stack',
-	            'Database Remove', 'Fujitsu Tablet', 'Harddrive', 'IBMTablet',
-	            'iMac', 'iPad', 'Laptop', 'MacBook', 'Mainframe', 'Monitor',
-	            'Monitor Tower', 'Monitor Tower Behind', 'Netbook', 'Network',
-	            'Network 2', 'Printer', 'Printer Commercial', 'Secure System',
-	            'Server', 'Server Rack', 'Server Rack Empty', 'Server Rack Partial',
-	            'Server Tower', 'Software', 'Stylus', 'Touch', 'USB Hub',
-	            'Virtual Application', 'Virtual Machine', 'Virus', 'Workstation']);
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'finance');		
-		this.addImagePalette('finance', 'Clipart / Finance', imgDir
-				+ '/lib/clip_art/finance/', '_128x128.png', [ 'Arrow_Down',
-				'Arrow_Up', 'Coins', 'Credit_Card', 'Dollar', 'Graph',
-				'Pie_Chart', 'Piggy_Bank', 'Safe', 'Shopping_Cart',
-				'Stock_Down', 'Stock_Up'], ['Arrow_Down', 'Arrow Up',
-	            'Coins', 'Credit Card', 'Dollar', 'Graph', 'Pie Chart',
-	            'Piggy Bank', 'Safe', 'Shopping Basket', 'Stock Down', 'Stock Up']);
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'clipart');		
-		this.addImagePalette('clipart', 'Clipart / Various', imgDir
-				+ '/lib/clip_art/general/', '_128x128.png', [ 'Battery_0',
-				'Battery_100', 'Battery_50', 'Battery_75', 'Battery_allstates',
-				'Bluetooth', 'Earth_globe', 'Empty_Folder', 'Full_Folder',
-				'Gear', 'Keys', 'Lock', 'Mouse_Pointer', 'Plug', 'Ships_Wheel',
-				'Star', 'Tire' ], [ 'Battery 0%', 'Battery 100%', 'Battery 50%',
-	            'Battery 75%', 'Battery', 'Bluetooth', 'Globe',
-	            'Empty Folder', 'Full Folder', 'Gear', 'Keys', 'Lock', 'Mousepointer',
-	            'Plug', 'Ships Wheel', 'Star', 'Tire']);
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'networking');
-		this.addImagePalette('networking', 'Clipart / Networking', imgDir
-				+ '/lib/clip_art/networking/', '_128x128.png', ['Bridge',
-				'Certificate', 'Certificate_Off', 'Cloud', 'Cloud_Computer',
-				'Cloud_Computer_Private', 'Cloud_Rack', 'Cloud_Rack_Private',
-				'Cloud_Server', 'Cloud_Server_Private', 'Cloud_Storage',
-				'Concentrator', 'Email', 'Firewall_02', 'Firewall',
-				'Firewall-page1', 'Ip_Camera', 'Modem',
-				'power_distribution_unit', 'Print_Server',
-				'Print_Server_Wireless', 'Repeater', 'Router', 'Router_Icon',
-				'Switch', 'UPS', 'Wireless_Router', 'Wireless_Router_N'],
-				['Bridge', 'Certificate', 'Certificate Off', 'Cloud', 'Cloud Computer',
-				'Cloud Computer Private', 'Cloud Rack', 'Cloud Rack Private',
-				'Cloud Server', 'Cloud Server Private', 'Cloud Storage',
-				'Concentrator', 'Email', 'Firewall 1', 'Firewall 2',
-				'Firewall', 'Camera', 'Modem',
-				'Power Distribution Unit', 'Print Server',
-				'Print Server Wireless', 'Repeater', 'Router', 'Router Icon',
-				'Switch', 'UPS', 'Wireless Router', 'Wireless Router N'],
-				 {'Wireless_Router': 'wireless router switch wap wifi access point wlan',
-				  'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
-				  'Router': 'router switch',
-				  'Router_Icon': 'router switch'});
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'people');
-		this.addImagePalette('people', 'Clipart / People', imgDir
-				+ '/lib/clip_art/people/', '_128x128.png', ['Suit_Man',
-				'Suit_Man_Black', 'Suit_Man_Blue', 'Suit_Man_Green',
-				'Suit_Man_Green_Black', 'Suit_Woman', 'Suit_Woman_Black',
-				'Suit_Woman_Blue', 'Suit_Woman_Green',
-				'Suit_Woman_Green_Black', 'Construction_Worker_Man',
-				'Construction_Worker_Man_Black', 'Construction_Worker_Woman',
-				'Construction_Worker_Woman_Black', 'Doctor_Man',
-				'Doctor_Man_Black', 'Doctor_Woman', 'Doctor_Woman_Black',
-				'Farmer_Man', 'Farmer_Man_Black', 'Farmer_Woman',
-				'Farmer_Woman_Black', 'Nurse_Man', 'Nurse_Man_Black',
-				'Nurse_Woman',
-				'Nurse_Woman_Black',
-				'Military_Officer', 'Military_Officer_Black',
-				'Military_Officer_Woman', 'Military_Officer_Woman_Black',
-				'Pilot_Man', 'Pilot_Man_Black', 'Pilot_Woman',
-				'Pilot_Woman_Black', 'Scientist_Man', 'Scientist_Man_Black',
-				'Scientist_Woman', 'Scientist_Woman_Black', 'Security_Man',
-				'Security_Man_Black', 'Security_Woman', 'Security_Woman_Black',
-				'Tech_Man', 'Tech_Man_Black',
-				'Telesales_Man', 'Telesales_Man_Black', 'Telesales_Woman',
-				'Telesales_Woman_Black', 'Waiter', 'Waiter_Black',
-				'Waiter_Woman', 'Waiter_Woman_Black', 'Worker_Black',
-				'Worker_Man', 'Worker_Woman', 'Worker_Woman_Black']);
-		
-		this.setCurrentSearchEntryLibrary('clipart', 'telco');
-		this.addImagePalette('telco', 'Clipart / Telecommunication', imgDir
-				+ '/lib/clip_art/telecommunication/', '_128x128.png', [
-				'BlackBerry', 'Cellphone', 'HTC_smartphone', 'iPhone',
-				'Palm_Treo', 'Signal_tower_off', 'Signal_tower_on' ],
-				['BlackBerry', 'Cellphone', 'HTC smartphone', 'iPhone',
-				  'Palm Treo', 'Signaltower off', 'Signaltower on']);
-		this.setCurrentSearchEntryLibrary();
 
-		this.addFlowchartPalette();
-		this.addActiveDirectoryPalette();
-		this.addAndroidPalette();
-		this.addAtlassianPalette();
-		this.addBootstrapPalette();
-		this.addDFDPalette();
-		this.addErPalette();
-		this.addIos7Palette();
-		this.addIosPalette();
-		this.addKubernetesPalette();
-		this.addMockupPalette();
-		this.addSitemapPalette();
-		this.addUml25Palette();
-		this.addUmlPalette(false);
-		this.addAlliedTelesisPalette();
-		this.addAWS3Palette();
-		this.addAWS4bPalette();
-		this.addAWS4Palette();
-		this.addAWS3DPalette();
-		this.addAzurePalette();
-		this.addAzure2Palette();
-		this.addMSCAEPalette();
-		this.addC4Palette();
-		this.addCiscoPalette(cisco, dir);
-		this.addCisco19Palette();
-		this.addCiscoSafePalette();
-		this.addCumulusPalette();
-		this.addCitrixPalette();
-		this.addGCP2Palette();
-		this.addIBMPalette();
-		this.addNetworkPalette();
-		this.addOfficePalette();
-		this.addRackPalette(rack, dir);
-		this.addVeeamPalette();
-		this.addVeeam2Palette();
-		this.addVVDPalette();
-		this.addArchimate3Palette();
-		this.addArchiMatePalette();
-		this.addBpmnPalette(dir, false);
-		this.addSysMLPalette(sysml, dir);
-		this.addLeanMappingPalette();
-		this.addCabinetsPalette();
-		this.addInfographicPalette();
-		this.addEipPalette();
-		this.addElectricalPalette();
-		this.addFloorplanPalette();
-		this.addFluidPowerPalette();
-		this.addGMDLPalette();
-		this.addPidPalette(pids, dir);
-		this.addThreatModelingPalette();
-		this.addWebIconsPalette();
-		this.addWebLogosPalette();
-		this.addSignsPalette(signs, dir);
+		// this.addGeneralPalette(this.customEntries == null);
+		// this.addMiscPalette(false);
+		// this.addAdvancedPalette(false);
+		// this.addBasicPalette();
+		// this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
+		// 		';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;',
+		// 		null, null, null, null, null, 'arrows');
+		// this.addArrows2Palette();
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'computer');
+		// this.addImagePalette('computer', 'Clipart / Computer', imgDir
+		// 		+ '/lib/clip_art/computers/', '_128x128.png', ['Antivirus',
+		// 		'Data_Filtering', 'Database', 'Database_Add', 'Database_Minus',
+		// 		'Database_Move_Stack', 'Database_Remove', 'Fujitsu_Tablet',
+		// 		'Harddrive', 'IBM_Tablet', 'iMac', 'iPad', 'Laptop', 'MacBook',
+		// 		'Mainframe', 'Monitor', 'Monitor_Tower',
+		// 		'Monitor_Tower_Behind', 'Netbook', 'Network', 'Network_2',
+		// 		'Printer', 'Printer_Commercial', 'Secure_System', 'Server',
+		// 		'Server_Rack', 'Server_Rack_Empty', 'Server_Rack_Partial',
+		// 		'Server_Tower', 'Software', 'Stylus', 'Touch', 'USB_Hub',
+		// 		'Virtual_Application', 'Virtual_Machine', 'Virus',
+		// 		'Workstation' ], [ 'Antivirus', 'Data Filtering', 'Database',
+	  //           'Database Add', 'Database Minus', 'Database Move Stack',
+	  //           'Database Remove', 'Fujitsu Tablet', 'Harddrive', 'IBMTablet',
+	  //           'iMac', 'iPad', 'Laptop', 'MacBook', 'Mainframe', 'Monitor',
+	  //           'Monitor Tower', 'Monitor Tower Behind', 'Netbook', 'Network',
+	  //           'Network 2', 'Printer', 'Printer Commercial', 'Secure System',
+	  //           'Server', 'Server Rack', 'Server Rack Empty', 'Server Rack Partial',
+	  //           'Server Tower', 'Software', 'Stylus', 'Touch', 'USB Hub',
+	  //           'Virtual Application', 'Virtual Machine', 'Virus', 'Workstation']);
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'finance');
+		// this.addImagePalette('finance', 'Clipart / Finance', imgDir
+		// 		+ '/lib/clip_art/finance/', '_128x128.png', [ 'Arrow_Down',
+		// 		'Arrow_Up', 'Coins', 'Credit_Card', 'Dollar', 'Graph',
+		// 		'Pie_Chart', 'Piggy_Bank', 'Safe', 'Shopping_Cart',
+		// 		'Stock_Down', 'Stock_Up'], ['Arrow_Down', 'Arrow Up',
+	  //           'Coins', 'Credit Card', 'Dollar', 'Graph', 'Pie Chart',
+	  //           'Piggy Bank', 'Safe', 'Shopping Basket', 'Stock Down', 'Stock Up']);
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'clipart');
+		// this.addImagePalette('clipart', 'Clipart / Various', imgDir
+		// 		+ '/lib/clip_art/general/', '_128x128.png', [ 'Battery_0',
+		// 		'Battery_100', 'Battery_50', 'Battery_75', 'Battery_allstates',
+		// 		'Bluetooth', 'Earth_globe', 'Empty_Folder', 'Full_Folder',
+		// 		'Gear', 'Keys', 'Lock', 'Mouse_Pointer', 'Plug', 'Ships_Wheel',
+		// 		'Star', 'Tire' ], [ 'Battery 0%', 'Battery 100%', 'Battery 50%',
+	  //           'Battery 75%', 'Battery', 'Bluetooth', 'Globe',
+	  //           'Empty Folder', 'Full Folder', 'Gear', 'Keys', 'Lock', 'Mousepointer',
+	  //           'Plug', 'Ships Wheel', 'Star', 'Tire']);
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'networking');
+		// this.addImagePalette('networking', 'Clipart / Networking', imgDir
+		// 		+ '/lib/clip_art/networking/', '_128x128.png', ['Bridge',
+		// 		'Certificate', 'Certificate_Off', 'Cloud', 'Cloud_Computer',
+		// 		'Cloud_Computer_Private', 'Cloud_Rack', 'Cloud_Rack_Private',
+		// 		'Cloud_Server', 'Cloud_Server_Private', 'Cloud_Storage',
+		// 		'Concentrator', 'Email', 'Firewall_02', 'Firewall',
+		// 		'Firewall-page1', 'Ip_Camera', 'Modem',
+		// 		'power_distribution_unit', 'Print_Server',
+		// 		'Print_Server_Wireless', 'Repeater', 'Router', 'Router_Icon',
+		// 		'Switch', 'UPS', 'Wireless_Router', 'Wireless_Router_N'],
+		// 		['Bridge', 'Certificate', 'Certificate Off', 'Cloud', 'Cloud Computer',
+		// 		'Cloud Computer Private', 'Cloud Rack', 'Cloud Rack Private',
+		// 		'Cloud Server', 'Cloud Server Private', 'Cloud Storage',
+		// 		'Concentrator', 'Email', 'Firewall 1', 'Firewall 2',
+		// 		'Firewall', 'Camera', 'Modem',
+		// 		'Power Distribution Unit', 'Print Server',
+		// 		'Print Server Wireless', 'Repeater', 'Router', 'Router Icon',
+		// 		'Switch', 'UPS', 'Wireless Router', 'Wireless Router N'],
+		// 		 {'Wireless_Router': 'wireless router switch wap wifi access point wlan',
+		// 		  'Wireless_Router_N': 'wireless router switch wap wifi access point wlan',
+		// 		  'Router': 'router switch',
+		// 		  'Router_Icon': 'router switch'});
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'people');
+		// this.addImagePalette('people', 'Clipart / People', imgDir
+		// 		+ '/lib/clip_art/people/', '_128x128.png', ['Suit_Man',
+		// 		'Suit_Man_Black', 'Suit_Man_Blue', 'Suit_Man_Green',
+		// 		'Suit_Man_Green_Black', 'Suit_Woman', 'Suit_Woman_Black',
+		// 		'Suit_Woman_Blue', 'Suit_Woman_Green',
+		// 		'Suit_Woman_Green_Black', 'Construction_Worker_Man',
+		// 		'Construction_Worker_Man_Black', 'Construction_Worker_Woman',
+		// 		'Construction_Worker_Woman_Black', 'Doctor_Man',
+		// 		'Doctor_Man_Black', 'Doctor_Woman', 'Doctor_Woman_Black',
+		// 		'Farmer_Man', 'Farmer_Man_Black', 'Farmer_Woman',
+		// 		'Farmer_Woman_Black', 'Nurse_Man', 'Nurse_Man_Black',
+		// 		'Nurse_Woman',
+		// 		'Nurse_Woman_Black',
+		// 		'Military_Officer', 'Military_Officer_Black',
+		// 		'Military_Officer_Woman', 'Military_Officer_Woman_Black',
+		// 		'Pilot_Man', 'Pilot_Man_Black', 'Pilot_Woman',
+		// 		'Pilot_Woman_Black', 'Scientist_Man', 'Scientist_Man_Black',
+		// 		'Scientist_Woman', 'Scientist_Woman_Black', 'Security_Man',
+		// 		'Security_Man_Black', 'Security_Woman', 'Security_Woman_Black',
+		// 		'Tech_Man', 'Tech_Man_Black',
+		// 		'Telesales_Man', 'Telesales_Man_Black', 'Telesales_Woman',
+		// 		'Telesales_Woman_Black', 'Waiter', 'Waiter_Black',
+		// 		'Waiter_Woman', 'Waiter_Woman_Black', 'Worker_Black',
+		// 		'Worker_Man', 'Worker_Woman', 'Worker_Woman_Black']);
+		//
+		// this.setCurrentSearchEntryLibrary('clipart', 'telco');
+		// this.addImagePalette('telco', 'Clipart / Telecommunication', imgDir
+		// 		+ '/lib/clip_art/telecommunication/', '_128x128.png', [
+		// 		'BlackBerry', 'Cellphone', 'HTC_smartphone', 'iPhone',
+		// 		'Palm_Treo', 'Signal_tower_off', 'Signal_tower_on' ],
+		// 		['BlackBerry', 'Cellphone', 'HTC smartphone', 'iPhone',
+		// 		  'Palm Treo', 'Signaltower off', 'Signaltower on']);
+		// this.setCurrentSearchEntryLibrary();
+
+		// this.addFlowchartPalette();
+		// this.addActiveDirectoryPalette();
+		// this.addAndroidPalette();
+		// this.addAtlassianPalette();
+		// this.addBootstrapPalette();
+		// this.addDFDPalette();
+		// this.addErPalette();
+		// this.addIos7Palette();
+		// this.addIosPalette();
+		// this.addKubernetesPalette();
+		// this.addMockupPalette();
+		// this.addSitemapPalette();
+		// this.addUml25Palette();
+		// this.addUmlPalette(false);
+		// this.addAlliedTelesisPalette();
+		// this.addAWS3Palette();
+		// this.addAWS4bPalette();
+		// this.addAWS4Palette();
+		// this.addAWS3DPalette();
+		// this.addAzurePalette();
+		// this.addAzure2Palette();
+		// this.addMSCAEPalette();
+		// this.addC4Palette();
+		// this.addCiscoPalette(cisco, dir);
+		// this.addCisco19Palette();
+		// this.addCiscoSafePalette();
+		// this.addCumulusPalette();
+		// this.addCitrixPalette();
+		// this.addGCP2Palette();
+		// this.addIBMPalette();
+		// this.addNetworkPalette();
+		// this.addOfficePalette();
+		// this.addRackPalette(rack, dir);
+		// this.addVeeamPalette();
+		// this.addVeeam2Palette();
+		// this.addVVDPalette();
+		// this.addArchimate3Palette();
+		// this.addArchiMatePalette();
+		// this.addBpmnPalette(dir, false);
+		// this.addSysMLPalette(sysml, dir);
+		// this.addLeanMappingPalette();
+		// this.addCabinetsPalette();
+		// this.addInfographicPalette();
+		// this.addEipPalette();
+		// this.addElectricalPalette();
+		// this.addFloorplanPalette();
+		// this.addFluidPowerPalette();
+		// this.addGMDLPalette();
+		// this.addPidPalette(pids, dir);
+		// this.addThreatModelingPalette();
+		// this.addWebIconsPalette();
+		// this.addWebLogosPalette();
+		// this.addSignsPalette(signs, dir);
+
+    // <---> Finally, my changes
+  	this.addMyPalette();
+    // </--> Finally, my changes
+
 		// LATER: Check if conflicts with restore libs after loading file
 		this.showEntries();
-		
+
 		if (this.createdSearchIndex != null)
 		{
 			console.log('searchFileData', Graph.compress(JSON.stringify(this.createdSearchIndex)));
 		}
 	};
-	
+
 	/**
 	 * Overridden to manually create search index for stencil files which are not pre-loaded
 	 * and no entries are created programmatically.
