@@ -451,7 +451,6 @@ mxStencilRegistry.allowEval = false;
 						    					else
 						    					{
 						    						asImage = true;
-						    						data = btoa(data);
 						    					}
 					    					}
 						    			}
@@ -477,13 +476,8 @@ mxStencilRegistry.allowEval = false;
 											};
 											
 											var format = path.substring(path.lastIndexOf('.') + 1);
-											
-											if (format == 'svg')
-											{
-												format = 'svg+xml';
-											}
-											
-											img.src = 'data:image/' + format + ';base64,' + data;
+											img.src = (format == 'svg') ? Editor.createSvgDataUri(data) :
+												'data:image/' + format + ';base64,' + data;
 										}
 										else
 										{

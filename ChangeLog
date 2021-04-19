@@ -1,3 +1,11 @@
+19-APR-2021: 14.6.2
+
+- Fixes private Gitlab instance URL parsing
+
+15-APR-2021: 14.6.1
+
+- Improvements to sketch theme
+
 13-APR-2021: 14.6.0
 
 - Updates to workbox 6.1.2

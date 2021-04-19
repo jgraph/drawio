@@ -9,14 +9,27 @@
 		/**
 		 * Enables paste from Lucidchart
 		 */
-		html4.ATTRIBS["span::data-lucid-content"] = 0;
-		html4.ATTRIBS["span::data-lucid-type"] = 0;
+		html4.ATTRIBS['span::data-lucid-content'] = 0;
+		html4.ATTRIBS['span::data-lucid-type'] = 0;
 		
 		/**
 		 * Enables custom fonts in labels.
 		 */
 		html4.ATTRIBS['font::data-font-src'] = 0;
 	}
+			
+	/**
+	 * Dynamic change of dark mode for minimal and sketch theme.
+	 */
+	Editor.darkMode = false;
+	
+	/**
+	 * Dynamic change of dark mode.
+	 */
+	Editor.isDarkMode = function(value)
+	{
+		return Editor.darkMode || uiTheme == 'dark';
+	};
 	
 	/**
 	 * Specifies the app name. Default is document.title.
@@ -5143,12 +5156,12 @@
 						else if (colorset['fill'] == '')
 						{
 							btn.style.backgroundColor = mxUtils.getValue(ui.initialDefaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (uiTheme == 'dark') ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
 						}
 						
 						if (colorset['stroke'] == mxConstants.NONE)
@@ -5158,12 +5171,12 @@
 						else if (colorset['stroke'] == '')
 						{
 							btn.style.border = '1px solid ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
-								mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
 							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
-									mxConstants.STYLE_STROKECOLOR, (uiTheme != 'dark') ?'#2a2a2a' : '#ffffff'));
+									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff'));
 						}
 					}
 					else
@@ -5193,7 +5206,7 @@
 
 			if (this.format.currentScheme == null)
 			{
-				setScheme((uiTheme == 'dark') ? 1 : 0);
+				setScheme((Editor.isDarkMode()) ? 1 : 0);
 			}
 			else
 			{

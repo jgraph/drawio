@@ -17,6 +17,7 @@ function mxFreehand(graph)
 	var lastPart;
 	var closedPath = false; 
 	var autoClose = true;
+	var autoInsert = false;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
 	var stopClickEnabled = true
@@ -31,6 +32,11 @@ function mxFreehand(graph)
 		autoClose = isAutoClose;
 	};
 
+	this.setAutoInsert = function(value)//TODO add auto closed settings
+	{
+		autoInsert = value;
+	};
+	
 	this.setStopClickEnabled = function(enabled)
 	{
 		stopClickEnabled = enabled;
@@ -79,9 +85,14 @@ function mxFreehand(graph)
 	        partPathes.push(path);
 	        path = null;
 	        
-			if (doStop)
+			if (doStop || autoInsert)
 			{
 				this.stopDrawing();
+			}
+			
+			if (autoInsert)
+			{
+				this.startDrawing();
 			}
 			
 	        mxEvent.consume(e);
@@ -198,6 +209,10 @@ function mxFreehand(graph)
         setEnabled(false);
 	};
 	
+	// Used to retrieve default styles
+	var edge = new mxCell();
+	edge.edge = true;
+	
 	mxEvent.addGestureListeners(svgElement, function (e) 
 	{
 		if (!enabled)
@@ -205,12 +220,14 @@ function mxFreehand(graph)
 			return;
 		}
 		
+		var defaultStyle = graph.getCurrentCellStyle(edge);
 		var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
 		strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
 	    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-	    path.setAttribute("fill", "none");
-	    path.setAttribute("stroke", graph.currentVertexStyle[mxConstants.STYLE_STROKECOLOR] || "#000");
-	    path.setAttribute("stroke-width", strokeWidth);
+	    path.setAttribute('fill', 'none');
+	    path.setAttribute('stroke', mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
+			mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000')));
+	    path.setAttribute('stroke-width', strokeWidth);
 	    
 	    if (graph.currentVertexStyle[mxConstants.STYLE_DASHED] == '1')
 	    {
@@ -226,10 +243,10 @@ function mxFreehand(graph)
 	    buffer = [];
 	    var pt = getMousePosition(e);
 	    appendToBuffer(pt);
-	    strPath = "M" + pt.x + " " + pt.y;
+	    strPath = 'M' + pt.x + ' ' + pt.y;
 	    drawPoints.push(pt);
 	    lastPart = [];
-	    path.setAttribute("d", strPath);
+	    path.setAttribute('d', strPath);
 	    svgElement.appendChild(path);
 	    mxEvent.consume(e);
 	}, function (e) 
@@ -293,22 +310,22 @@ function mxFreehand(graph)
 	    if (pt) 
 	    {
 	        // Get the smoothed part of the path that will not change
-	        strPath += " L" + pt.x + " " + pt.y;
+	        strPath += ' L' + pt.x + ' ' + pt.y;
 	        drawPoints.push(pt);
 	        // Get the last part of the path (close to the current mouse position)
 	        // This part will change if the mouse moves again
-	        var tmpPath = "";
+	        var tmpPath = '';
 	        lastPart = [];
 	        
 	        for (var offset = 2; offset < buffer.length; offset += 2) 
 	        {
 	            pt = getAveragePoint(offset);
-	            tmpPath += " L" + pt.x + " " + pt.y;
+	            tmpPath += ' L' + pt.x + ' ' + pt.y;
 	            lastPart.push(pt);
 	        }
 
 	        // Set the complete current path coordinates
-	        path.setAttribute("d", strPath + tmpPath);
+	        path.setAttribute('d', strPath + tmpPath);
 	    }
 	};
 };

@@ -3629,10 +3629,10 @@
     		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
 			Dialog.backdropColor = '#2a2a2a';
+			Format.inactiveTabBackgroundColor = 'black';
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultPageBorderColor = '#505759';
-			Format.prototype.inactiveTabBackgroundColor = 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
 			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
 			mxGraphHandler.prototype.previewColor = '#cccccc';
@@ -5855,7 +5855,7 @@
 			defaultTransparent, null, null, format != 'jpeg');
 		var keepTheme = null;
 		
-		if (uiTheme == 'dark')
+		if (Editor.isDarkMode())
 		{
 			keepTheme = this.addCheckbox(div, mxResources.get('dark'), true); 
 			height += 26;
@@ -6840,13 +6840,14 @@
 						
 						if (action.open != null && action.open.substring(0, 13) == 'data:page/id,')
 						{
-							var newId = mapping[action.open.substring(action.open.indexOf(',') + 1)];
+							var oldId = action.open.substring(action.open.indexOf(',') + 1);
+							var newId = mapping[oldId];
 							
 							if (newId != null)
 							{
 								action.open = 'data:page/id,' + newId;
 							}
-							else
+							else if (this.getPageById(oldId) == null)
 							{
 								delete action.open;
 							}
@@ -9930,11 +9931,11 @@
 			/**
 			 * Persists default grid color.
 			 */
-			this.editor.graph.view.gridColor = mxSettings.getGridColor(uiTheme == 'dark');
+			this.editor.graph.view.gridColor = mxSettings.getGridColor(Editor.isDarkMode());
 			
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
-				mxSettings.setGridColor(this.editor.graph.view.gridColor, uiTheme == 'dark');
+				mxSettings.setGridColor(this.editor.graph.view.gridColor, Editor.isDarkMode());
 				mxSettings.save();
 			}));
 

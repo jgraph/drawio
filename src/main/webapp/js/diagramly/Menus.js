@@ -2392,12 +2392,11 @@
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var theme = mxSettings.getUi();
+			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
 
 			var item = menu.addItem(mxResources.get('automatic'), null, function()
 			{
 				mxSettings.setUi('');
-				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
@@ -2410,10 +2409,9 @@
 
 			menu.addSeparator(parent);
 			
-			item = menu.addItem(mxResources.get('kennedy'), null, function()
+			item = menu.addItem(mxResources.get('default'), null, function()
 			{
 				mxSettings.setUi('kennedy');
-				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 
@@ -2425,7 +2423,6 @@
 			item = menu.addItem(mxResources.get('minimal'), null, function()
 			{
 				mxSettings.setUi('min');
-				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
@@ -2437,7 +2434,6 @@
 			item = menu.addItem(mxResources.get('atlas'), null, function()
 			{
 				mxSettings.setUi('atlas');
-				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
@@ -2449,7 +2445,6 @@
 			item = menu.addItem(mxResources.get('dark'), null, function()
 			{
 				mxSettings.setUi('dark');
-				mxSettings.save();
 				editorUi.alert(mxResources.get('restartForChangeRequired'));
 			}, parent);
 			
@@ -2458,19 +2453,17 @@
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 			
-			if (urlParams['test'] == '1')
-			{			
-				item = menu.addItem(mxResources.get('sketch'), null, function()
-				{
-					mxSettings.setUi('sketch');
-					mxSettings.save();
-					editorUi.alert(mxResources.get('restartForChangeRequired'));
-				}, parent);
-				
-				if (theme == 'sketch')
-				{
-					menu.addCheckmark(item, Editor.checkmarkImage);
-				}
+			menu.addSeparator(parent);
+			
+			item = menu.addItem(mxResources.get('sketch'), null, function()
+			{
+				mxSettings.setUi('sketch');
+				editorUi.alert(mxResources.get('restartForChangeRequired'));
+			}, parent);
+			
+			if (theme == 'sketch')
+			{
+				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 		})));
 

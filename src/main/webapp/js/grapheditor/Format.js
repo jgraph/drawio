@@ -8,6 +8,11 @@ Format = function(editorUi, container)
 };
 
 /**
+ * Background color for inactive tabs.
+ */
+Format.inactiveTabBackgroundColor = '#f1f3f4';
+
+/**
  * Returns information about the current selection.
  */
 Format.prototype.labelIndex = 0;
@@ -26,11 +31,6 @@ Format.prototype.currentIndex = 0;
  * Returns information about the current selection.
  */
 Format.prototype.showCloseButton = true;
-
-/**
- * Background color for inactive tabs.
- */
-Format.prototype.inactiveTabBackgroundColor = '#f1f3f4';
 
 /**
  * Background color for inactive tabs.
@@ -426,7 +426,7 @@ Format.prototype.immediateRefresh = function()
 				
 				if (currentLabel != null)
 				{
-					currentLabel.style.backgroundColor = this.inactiveTabBackgroundColor;
+					currentLabel.style.backgroundColor = Format.inactiveTabBackgroundColor;
 					currentLabel.style.borderBottomWidth = '1px';
 				}
 
@@ -481,12 +481,12 @@ Format.prototype.immediateRefresh = function()
 			diagramPanel.style.display = 'none';
 			label.style.width = (this.showCloseButton) ? '106px' : '50%';
 			label.style.cursor = 'pointer';
-			label.style.backgroundColor = this.inactiveTabBackgroundColor;
+			label.style.backgroundColor = Format.inactiveTabBackgroundColor;
 			
 			var label2 = label.cloneNode(false);
 			label2.style.borderLeftWidth = '1px';
 			label2.style.borderRightWidth = '1px';
-			label2.style.backgroundColor = this.inactiveTabBackgroundColor;
+			label2.style.backgroundColor = Format.inactiveTabBackgroundColor;
 			
 			addClickHandler(label, diagramPanel, idx++);
 			
@@ -509,7 +509,7 @@ Format.prototype.immediateRefresh = function()
 			label2.style.borderLeftWidth = '1px';
 			label2.style.borderRightWidth = '1px';
 			label2.style.borderBottomWidth = '1px';
-			label2.style.backgroundColor = this.inactiveTabBackgroundColor;
+			label2.style.backgroundColor = Format.inactiveTabBackgroundColor;
 			label2.style.position = 'absolute';
 			label2.style.right = '0px';
 			label2.style.top = '0px';
@@ -547,7 +547,7 @@ Format.prototype.immediateRefresh = function()
 	}
 	else
 	{
-		label.style.backgroundColor = this.inactiveTabBackgroundColor;
+		label.style.backgroundColor = Format.inactiveTabBackgroundColor;
 		label.style.borderLeftWidth = '1px';
 		label.style.cursor = 'pointer';
 		label.style.width = (containsLabel) ? '50%' : '33.3%';
@@ -555,8 +555,8 @@ Format.prototype.immediateRefresh = function()
 		var label3 = label2.cloneNode(false);
 
 		// Workaround for ignored background in IE
-		label2.style.backgroundColor = this.inactiveTabBackgroundColor;
-		label3.style.backgroundColor = this.inactiveTabBackgroundColor;
+		label2.style.backgroundColor = Format.inactiveTabBackgroundColor;
+		label3.style.backgroundColor = Format.inactiveTabBackgroundColor;
 		
 		// Style
 		if (containsLabel)
@@ -3390,15 +3390,16 @@ TextFormatPanel.prototype.addFont = function(container)
 	extraPanel.style.paddingTop = '2px';
 	extraPanel.style.paddingBottom = '4px';
 	
-	// LATER: Fix toggle using '' instead of 'null'
 	var wwCells = graph.filterSelectionCells(mxUtils.bind(this, function(cell)
 	{
 		var state = graph.view.getState(cell);
-	
+		
 		return state == null ||
 			this.format.isAutoSizeState(state) ||
 			graph.getModel().isEdge(cell) ||
-			!graph.isCellResizable(cell);
+			(!graph.isTableRow(cell) &&
+			!graph.isTableCell(cell) &&
+			!graph.isCellResizable(cell));
 	}));
 	
 	var wwOpt = this.createCellOption(mxResources.get('wordWrap'), mxConstants.STYLE_WHITE_SPACE,

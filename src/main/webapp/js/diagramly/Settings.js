@@ -31,7 +31,23 @@ var mxSettings =
 	},
 	setUi: function(ui)
 	{
-		mxSettings.settings.ui = ui;
+		// Writes to main configuration
+		var value = localStorage.getItem('.drawio-config');
+		
+		if (value == null)
+		{
+			value = mxSettings.getDefaults();
+		}
+		else
+		{
+			value = JSON.parse(value);
+		}
+		
+		value.ui = ui;
+		
+		delete value.isNew;
+		value.version = mxSettings.currentVersion;
+		localStorage.setItem('.drawio-config', JSON.stringify(value));
 	},
 	getShowStartScreen: function()
 	{
@@ -200,10 +216,9 @@ var mxSettings =
 	{
 		mxSettings.settings.isRulerOn = value;
 	},
-	init: function()
+	getDefaults: function()
 	{
-		mxSettings.settings = 
-		{
+		return {
 			language: '',
 			configVersion: Editor.configVersion,
 			customFonts: [],
@@ -227,6 +242,10 @@ var mxSettings =
 			unit: mxConstants.POINTS,
 			isRulerOn: false
 		};
+	},
+	init: function()
+	{
+		mxSettings.settings = mxSettings.getDefaults();
 	},
 	save: function()
 	{
