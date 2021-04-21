@@ -295,6 +295,15 @@ EditorUi.initMinimalTheme = function()
 			}), 0);
 		}
 	};
+	
+	/**
+	 * Links to dark.css
+	 */
+	var darkStyle = document.createElement('link');
+	darkStyle.setAttribute('rel', 'stylesheet');
+	darkStyle.setAttribute('href', STYLE_PATH + '/dark.css');
+	darkStyle.setAttribute('charset', 'UTF-8');
+	darkStyle.setAttribute('type', 'text/css');
 
 	/**
 	 * Dynamic change of dark mode.
@@ -303,32 +312,47 @@ EditorUi.initMinimalTheme = function()
 	{
 		if (Editor.darkMode != value)
 		{
-			Editor.darkMode = value;
-			
-			// Changes dark mode in minimal/sketch
-			if (styleElt != null)
-			{
-				styleElt.innerHTML = Editor.createMinimalCss();
-			}
-			
 			var graph = this.editor.graph;
+			Editor.darkMode = value;
 
-			this.setGridColor(Editor.isDarkMode() ? mxGraphView.prototype.defaultDarkGridColor :
-				mxGraphView.prototype.defaultGridColor);
+			// Sets instance vars and graph stylesheet
+			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
+			this.setGridColor(Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor);
 			graph.defaultPageBackgroundColor = Editor.isDarkMode() ? '#2a2a2a' : '#ffffff';
 			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#505759' : '#ffffff';
 			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
+			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			graph.loadStylesheet();
 
 			// Sets global vars
 			Dialog.backdropColor = Editor.isDarkMode() ? '#2a2a2a' : 'white';
-			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? 'black' : '#cccccc';
+			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
+			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? '#2a2a2a' : 'white';
 			Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? 'black' : '#f0f0f0';
+			mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
+			Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+				Editor.darkHelpImage : Editor.lightHelpImage;
+			Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+				Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
+			document.body.style.backgroundColor = Editor.isDarkMode() ?
+				'#2a2a2a' : '#ffffff';
+
+			// Updates CSS
+			styleElt.innerHTML = Editor.createMinimalCss();
 			
-	//			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
-	//			mxGraphHandler.prototype.previewColor = '#cccccc';
-	//			StyleFormatPanel.prototype.defaultStrokeColor = '#cccccc';
-	//			mxConstants.DROP_TARGET_COLOR = '#00ff00';
+			// Adds or removes link to CSS
+			if (Editor.darkMode)
+			{
+				if (darkStyle.parentNode == null)
+				{
+					var head = document.getElementsByTagName('head')[0];
+					head.appendChild(darkStyle);
+				}
+			}
+			else if (darkStyle.parentNode != null)
+			{
+				darkStyle.parentNode.removeChild(darkStyle);
+			}
 		}
 	};
 
@@ -339,34 +363,9 @@ EditorUi.initMinimalTheme = function()
 	{
 		return '* { -webkit-font-smoothing: antialiased; }' +
 			(Editor.isDarkMode() ?
-			'html body .geDiagramContainer, html body div.geMenubarContainer, html body td.mxPopupMenuIcon, html body .geFormatContainer, html body div.geMenubarContainer .geStatus:hover' +
-			'{ background-color:#2a2a2a; }' +
-			'html body .geToolbarContainer a.geMenuItem { filter: invert(1); }' +
-			'.gePropHeader, .gePropRow, .gePropRowDark, .gePropRowCell, .gePropRow>.gePropRowCell, .gePropRowAlt>.gePropRowCell, .gePropRowDark>.gePropRowCell, .gePropRowDarkAlt>.gePropRowCell' +
-			'{ background:#2a2a2a !important; border-color:#2a2a2a !important; color:#cccccc !important; font-weight:normal !important; }' +
-			'html body .geBtn:hover { background:#000000 !important; }' +
-			'html body tr.mxPopupMenuItem { color:#cccccc; }' +
-			'html body tr.mxPopupMenuItemHover { background: #000000; color: #cccccc; }' +
-			'html body .geSidebarContainer .geTitle:hover, html body .geSidebarContainer .geItem:hover,' +
-			'html body .geMenubarContainer .geItem:hover, html body .geBaseButton:hover,' +
-			'html .geSidebarContainer button:hover { background: #000000; }' +
-			'html body .geToolbarContainer .geSeparator { background-color: #505759; }' +
-			'html body .geHsplit, html body .geVsplit, html body table.mxPopupMenu hr { border-color: #505759; background-color: #2a2a2a;}' +
-			'html body .geToolbarContainer .geButton:hover, html body .geToolbarContainer .geButton:active,' +
-			'html body .geToolbarContainer .geLabel:hover, html body .geToolbarContainer .geLabel:active,' +
-			'html body .geHsplit:hover, html body .geVsplit:hover, html .geSidebarContainer button:active { background-color: #000; }' +
-			'html body .geToolbar { border-color:#505759; box-shadow:none; }' +
-			'html body .geDialog, html body div.mxWindow { background:#2a2a2a; border-color:#c0c0c0; box-shadow:none; color:#cccccc; }' +
-			'html body div.mxRubberband { border:1px dashed #ffffff !important; background:#505759 !important; }' +
-			'html body.geEditor div.mxPopupMenu { border:3px solid #505759; background:#2a2a2a; box-shadow:none; }' +
-			'html body, html body .geFooterContainer, html body #geFooterItem1, html body textarea,' +
-			'html body .mxWindowTitle, html body .geDialogTitle, html body .geDialogFooter, select,' +
-			'html .geEditor div.mxTooltip, html .geHint { background: #2a2a2a; color: #cccccc; }' +
-			'html body .geToolbarContainer, html body .geSidebar, html body .geSidebarContainer .geTitle, html body input,' +
-			'html body textarea, html body button, html body .geColorBtn, html body .geBaseButton, html body .geSidebarTooltip,' +
-			'html body .geBaseButton, html .geSidebarContainer button {' +
-			'background: #2a2a2a; box-shadow: none !important; border: 1px solid #c0c0c0; color:#cccccc; }' +
-			'html body .geToolbarContainer { border: 1px solid #c0c0c0 !important; }' : '') +
+			'html body .geToolbarContainer .geMenuItem, html body .geToolbarContainer .geToolbarButton { filter: invert(1); }' +
+			'html > body > div > .geToolbarContainer { border: 1px solid #c0c0c0 !important; box-shadow: none !important; }' +
+			'' : '') +
 			// End of dark mode styles
 			'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
 			'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
@@ -631,21 +630,29 @@ EditorUi.initMinimalTheme = function()
 	};
 	
 	// Fixes sidebar tooltips (previews)
-	Sidebar.prototype.getTooltipOffset = function()
+	var sidebarGetTooltipOffset = Sidebar.prototype.getTooltipOffset;
+	
+	Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	{
-		if (urlParams['sketch'] == '1')
+		if (this.editorUi.sidebarWindow == null ||
+			mxUtils.isAncestorNode(this.editorUi.picker, elt))
 		{
 			var off = mxUtils.getOffset(this.editorUi.picker);
-			off.x += this.editorUi.picker.clientWidth;
+			
+			off.x += this.editorUi.picker.offsetWidth + 4;
+			off.y += elt.offsetTop - bounds.height / 2 + 16;
 			
 			return off;
 		}
 		else
 		{
+			var result = sidebarGetTooltipOffset.apply(this, arguments);
 			var off = mxUtils.getOffset(this.editorUi.sidebarWindow.window.div);
-			off.y += 40;
+			
+			result.x += off.x - 16;
+			result.y += off.y;
 	        
-			return off;
+			return result;
 		}
 	};
     
@@ -871,7 +878,8 @@ EditorUi.initMinimalTheme = function()
 			'moreShapes' : 'shapes') + '...', function()
         {
         	toggleShapes(ui);
-        }));
+        }, null, null, Editor.ctrlKey + '+Shift+K'));
+
         var action = ui.actions.put('toggleFormat', new Action(mxResources.get('format') + '...', function()
         {
         	toggleFormat(ui);
@@ -1234,6 +1242,11 @@ EditorUi.initMinimalTheme = function()
 		if (urlParams['sketch'] == '1')
 		{
 			this.toggleScratchpad();
+			
+			this.editor.graph.isZoomWheelEvent = function(evt)
+			{
+				return !mxEvent.isAltDown(evt) && (!mxEvent.isControlDown(evt) || mxClient.IS_MAC);
+			};
 		}
 
 		if ((urlParams['sketch'] != '1' && iw >= 1000) || urlParams['clibs'] != null ||
@@ -1247,7 +1260,10 @@ EditorUi.initMinimalTheme = function()
 				this.sidebar.showEntries('search');
 			}
 		}
-	        
+
+		// Overrides insert ellipse shortcut
+		this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
+
 		if (urlParams['sketch'] == '1' || iw >= 1000)
 		{
 			toggleFormat(this, true);
@@ -1388,7 +1404,7 @@ EditorUi.initMinimalTheme = function()
     		{
     			evt.preventDefault();
     		}));
-            
+
             mxEvent.addListener(btn, 'click', function(evt)
             {
             	if (btn.getAttribute('disabled') != 'disabled')
@@ -1581,6 +1597,42 @@ EditorUi.initMinimalTheme = function()
 			if (graph.freehand != null)
 			{
 				graph.freehand.setAutoInsert(true);
+				graph.freehand.setAutoScroll(true);
+				graph.freehand.setOpenFill(true);
+				
+				var freehandCreateStyle = graph.freehand.createStyle;
+				
+				graph.freehand.createStyle = function(stencil)
+				{
+					return freehandCreateStyle.apply(this, arguments) + 'sketch=0;';
+				};
+				
+				if (Graph.touchStyle)
+				{
+					graph.panningHandler.isPanningTrigger = function(me)
+					{
+						var evt = me.getEvent();
+						
+					 	return (me.getState() == null && (!mxEvent.isMouseEvent(evt) &&
+							!graph.freehand.isDrawing())) ||
+					 		(mxEvent.isPopupTrigger(evt) && (me.getState() == null ||
+					 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
+					};
+				}		
+
+				// Hides hover icons if freehand is active
+				if (ui.hoverIcons != null)
+				{
+					var hoverIconsUpdate = ui.hoverIcons.update;
+					
+					ui.hoverIcons.update = function()
+					{
+						if (!graph.freehand.isDrawing())
+						{
+							hoverIconsUpdate.apply(this, arguments);
+						}
+					};
+				}
 			}
 			
 			picker.className = 'geToolbarContainer';
@@ -1704,14 +1756,16 @@ EditorUi.initMinimalTheme = function()
 				
 				// Append sidebar elements
 				addElt(ui.sidebar.createVertexTemplate('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;', 
-					40, 20, 'Text', '', true, true, null, true), mxResources.get('text'));
+					40, 20, 'Text', mxResources.get('text'), true, true, null, true), mxResources.get('text') +
+					' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 				addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;' +
 					'fillStyle=solid;direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;fontSize=24;jiggle=2;pointerEvents=1;',
-					140, 160, '', '', true, true, null, true), mxResources.get('note'));
+					140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
 				addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
-					'', '', true, true, null, true), mxResources.get('rectangle'));
+					'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
+					' (' +  Editor.ctrlKey + '+K' + ')');
 				addElt(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100,
-					'', '', true, true, null, true), mxResources.get('ellipse'));
+					'', mxResources.get('ellipse'), true, true, null, true), mxResources.get('ellipse'));
 				
 				(function()
 				{
@@ -1726,7 +1780,8 @@ EditorUi.initMinimalTheme = function()
 					
 					addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 						cell.geometry.width, cell.geometry.height,
-						'', false, null, true), mxResources.get('line'));
+						mxResources.get('line'), false, null, true),
+						mxResources.get('line'));
 						
 					cell = cell.clone();
 					cell.style += 'shape=flexArrow;rounded=1;startSize=8;endSize=8;';
@@ -1735,8 +1790,8 @@ EditorUi.initMinimalTheme = function()
 					cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);
 	
 					var elt = addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
-						cell.geometry.width, 40, '', false, null, true),
-						mxResources.get('arrow'));
+						cell.geometry.width, 40, mxResources.get('arrow'),
+						false, null, true), mxResources.get('arrow'));
 					elt.style.borderBottom = '1px solid lightgray';
 					elt.style.paddingBottom = '14px';
 					elt.style.marginBottom = '14px';
@@ -1754,7 +1809,8 @@ EditorUi.initMinimalTheme = function()
 					'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHJlY3QgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0Ii8+PHBhdGggZD0iTTQuNSw4YzEuMDQsMCwyLjM0LTEuNSw0LjI1LTEuNWMxLjUyLDAsMi43NSwxLjIzLDIuNzUsMi43NWMwLDIuMDQtMS45OSwzLjE1LTMuOTEsNC4yMkM1LjQyLDE0LjY3LDQsMTUuNTcsNCwxNyBjMCwxLjEsMC45LDIsMiwydjJjLTIuMjEsMC00LTEuNzktNC00YzAtMi43MSwyLjU2LTQuMTQsNC42Mi01LjI4YzEuNDItMC43OSwyLjg4LTEuNiwyLjg4LTIuNDdjMC0wLjQxLTAuMzQtMC43NS0wLjc1LTAuNzUgQzcuNSw4LjUsNi4yNSwxMCw0LjUsMTBDMy4xMiwxMCwyLDguODgsMiw3LjVDMiw1LjQ1LDQuMTcsMi44Myw1LDJsMS40MSwxLjQxQzUuNDEsNC40Miw0LDYuNDMsNCw3LjVDNCw3Ljc4LDQuMjIsOCw0LjUsOHogTTgsMjEgbDMuNzUsMGw4LjA2LTguMDZsLTMuNzUtMy43NUw4LDE3LjI1TDgsMjF6IE0xMCwxOC4wOGw2LjA2LTYuMDZsMC45MiwwLjkyTDEwLjkyLDE5TDEwLDE5TDEwLDE4LjA4eiBNMjAuMzcsNi4yOSBjLTAuMzktMC4zOS0xLjAyLTAuMzktMS40MSwwbC0xLjgzLDEuODNsMy43NSwzLjc1bDEuODMtMS44M2MwLjM5LTAuMzksMC4zOS0xLjAyLDAtMS40MUwyMC4zNyw2LjI5eiIvPjwvc3ZnPg==');
 				addAction(ui.actions.get('insertTemplate'), mxResources.get('template'),
 					'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDExaC0ydjNIOHYyaDN2M2gydi0zaDN2LTJoLTN6bTEtOUg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS44OSAyIDEuOTkgMkgxOGMxLjEgMCAyLS45IDItMlY4bC02LTZ6bTQgMThINlY0aDd2NWg1djExeiIvPjwvc3ZnPg==');
-				addAction(ui.actions.get('toggleShapes'), mxResources.get('shapes'), insertImage);
+				var toggleShapesAction = ui.actions.get('toggleShapes');
+				addAction(toggleShapesAction, mxResources.get('shapes') + ' (' + toggleShapesAction.shortcut + ')', insertImage);
 			});
 			
 			initPicker();
@@ -1763,8 +1819,8 @@ EditorUi.initMinimalTheme = function()
 			{
 				if (this.sidebar != null)
 				{
-					this.sidebar.graph.stylesheet.styles = mxUtils.clone(graph.stylesheet.styles);
-					this.sidebar.dragPreviewBorder = Editor.isDarkMode() ? '1px dashed #cccccc' : '1px dashed black';
+					this.sidebar.graph.stylesheet.styles =
+						mxUtils.clone(graph.stylesheet.styles);
 					this.sidebar.container.innerHTML = '';
 					this.sidebar.palettes = new Object();
 					this.sidebar.init();
@@ -1773,6 +1829,16 @@ EditorUi.initMinimalTheme = function()
 					{
 						this.scratchpad = null;
 						this.toggleScratchpad();
+						
+						// Refreshes outline window
+						var wnd = ui.actions.outlineWindow;
+						
+						if (wnd != null)
+			            {
+							wnd.outline.outline.stylesheet.styles =
+								mxUtils.clone(graph.stylesheet.styles);
+							ui.actions.outlineWindow.update();
+			            }
 					}
 				}
 				
@@ -1791,6 +1857,23 @@ EditorUi.initMinimalTheme = function()
 
 		if (viewZoomMenu != null)
 		{
+			var fitFunction = function()
+	        {
+	            graph.popupMenuHandler.hideMenu();
+	
+	        	var scale = graph.view.scale;
+	            var tx = graph.view.translate.x;
+	            var ty = graph.view.translate.y;
+	
+	        	ui.actions.get('resetView').funct();
+	        	
+	            // Toggle scale if nothing has changed
+	            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
+	            {
+	            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
+	            }
+	        };
+
         	var zoomInAction = ui.actions.get('zoomIn');
 			var zoomInImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHptMi41LTRoLTJ2Mkg5di0ySDdWOWgyVjdoMXYyaDJ2MXoiLz48L3N2Zz4=';
 			var zoomOutAction = ui.actions.get('zoomOut');
@@ -1809,23 +1892,6 @@ EditorUi.initMinimalTheme = function()
 	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
 			var fitElt = addMenuItem('', fitFunction, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction, fullscreenImage);
 			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, fullscreenImage);
-
-			var fitFunction = function()
-	        {
-	            graph.popupMenuHandler.hideMenu();
-	
-	        	var scale = graph.view.scale;
-	            var tx = graph.view.translate.x;
-	            var ty = graph.view.translate.y;
-	
-	        	ui.actions.get('resetView').funct();
-	        	
-	            // Toggle scale if nothing has changed
-	            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
-	            {
-	            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
-	            }
-	        };
 
 			if (footer != null)
 			{
@@ -1852,13 +1918,13 @@ EditorUi.initMinimalTheme = function()
 					footer.appendChild(fullscreenElt);
 				}
 					
-				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)', zoomOutAction, zoomOutImage);
+				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, zoomOutImage);
 				zoomOutElt.style.opacity = '0.4';
 				footer.appendChild(zoomOutElt);
 
 				var elt = document.createElement('div');
 				elt.innerHTML = '100%';
-				elt.setAttribute('title', mxResources.get('zoom') + ' (Alt+Mousewheel)');
+				elt.setAttribute('title', mxResources.get('fitWindow') + '/' + mxResources.get('resetView'));
 				elt.style.display = 'inline-block';
 				elt.style.cursor = 'pointer';
 				elt.style.textAlign = 'center';
@@ -1874,11 +1940,11 @@ EditorUi.initMinimalTheme = function()
 				
 				mxEvent.addListener(elt, 'click', fitFunction);
 
-				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)', zoomInAction, zoomInImage);
+				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, zoomInImage);
 				zoomInElt.style.opacity = '0.4';
 				footer.appendChild(zoomInElt);
 				
-				var pageMenu = this.createPageMenuTab();
+				var pageMenu = this.createPageMenuTab(false);
 				pageMenu.style.display = 'none';
 				pageMenu.style.position = '';
 				pageMenu.style.marginLeft = '';
@@ -1889,6 +1955,9 @@ EditorUi.initMinimalTheme = function()
 				pageMenu.style.borderStyle = 'none';
 				pageMenu.style.padding = '3px 0';
 				pageMenu.style.margin = '0px';
+				pageMenu.style.background = '';
+				pageMenu.style.border = '';
+				pageMenu.style.boxShadow = 'none';
 				pageMenu.style.verticalAlign = 'top';
 				pageMenu.firstChild.style.height = '100%';
 				pageMenu.firstChild.style.opacity = '0.6';

@@ -4,7 +4,7 @@ window.DRAW_MATH_URL = 'math';
 window.DRAWIO_BASE_URL = '.'; //Prevent access to online website since it is not allowed
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 
-//Disables eval for JS (uses shapes.min.js)
+//Disables eval for JS (uses shapes-14-6-5.min.js)
 mxStencilRegistry.allowEval = false;
 
 (function()

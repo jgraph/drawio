@@ -1980,6 +1980,9 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 			}
 		});
 	}
+	
+	this.outline = outline;
+	this.update = update;
 };
 
 /**

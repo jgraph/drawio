@@ -4390,33 +4390,33 @@ LucidImporter = {};
 	function convertText(props, forceHTML)
 	{
 		isLastLblHTML = false;
-		var text = (props.Text != null) ? props.Text :
-			((props.Value != null) ? props.Value :
-			props.Lane_0);
+		var text = (props.Text != null && props.Text.t) ? props.Text :
+			((props.Value != null && props.Value.t) ? props.Value :
+			((props.Lane_0 != null && props.Lane_0.t) ? props.Lane_0 : null));
 		var text2 = null;
 		
 		if (text == null && props.State != null)
 		{
-			if (props.State.t != null)
+			if (props.State.t)
 			{
 				text = props.State;
 			}
 		}
 		else if (text == null && props.Note != null)
 		{
-			if (props.Note.t != null)
+			if (props.Note.t)
 			{
 				text = props.Note;
 			}
 		}
 		else if (text == null && props.Title != null)
 		{
-			if (props.Title.t != null)
+			if (props.Title.t)
 			{
 				text = props.Title;
 			}
 		}
-		else if (props.t != null)
+		else if (props.t)
 		{
 			text = props;
 		}
@@ -4427,7 +4427,7 @@ LucidImporter = {};
 			{
 				if (props.TextAreas.Text.Value != null)
 				{
-					if (props.TextAreas.Text.Value.t != null)
+					if (props.TextAreas.Text.Value.t)
 					{
 						text = props.TextAreas.Text.Value;
 					}
@@ -4436,7 +4436,7 @@ LucidImporter = {};
 		}
 		else if (text == null && props.t0 != null)
 		{
-			if (props.t0.t != null)
+			if (props.t0.t)
 			{
 				text = props.t0;
 			}
@@ -5609,7 +5609,7 @@ LucidImporter = {};
 				
 				addCustomData(cell, p, graph);
 				
-				if (p.Title && p.Text && a.Class.substr(0, 8) != 'ExtShape')
+				if (p.Title && p.Title.t && p.Text && p.Text.t && a.Class.substr(0, 8) != 'ExtShape')
 				{
 					var geo = cell.geometry;
 					var title = new mxCell(convertText(p.Title), new mxGeometry(0, geo.height,geo.width, 10), 'strokeColor=none;fillColor=none;');
@@ -13462,7 +13462,7 @@ LucidImporter = {};
 			v.style += 'html=1;';
 		}
 		
-		if (p.Title && p.Text)
+		if (p.Title && p.Title.t && p.Text && p.Text.t)
 		{
 			try
 			{

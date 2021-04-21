@@ -16,7 +16,7 @@
 			<arg value="../../src/main/webapp/js/stencils.min.js"/>
 		</java>
 		
-		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes.min.js">
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${war.dir}/js/shapes-14-6-5.min.js">
 			<sources dir="${basedir}/../../build">
 				<file name="shapes.js" />
 			</sources>
@@ -251,7 +251,7 @@
 			<filelist dir="${basedir}" files="base-viewer.min.js,.tmp2.min.js"/>
     	</concat>
 
-		<!-- Disables eval for JS (uses shapes.min.js) and registers PWA -->
+		<!-- Disables eval for JS (uses shapes-14-6-5.min.js) and registers PWA -->
 		<echo file="${basedir}/.tmp3.js">
 			mxStencilRegistry.allowEval = false;
 			
@@ -276,7 +276,7 @@
 		
 		<concat destfile="${war.dir}/js/viewer-static.min.js" fixlastline="yes" append="no">
 			<filelist dir="${basedir}" files="base-viewer.min.js"/>
-			<filelist dir="${war.dir}/js" files="shapes.min.js"/>
+			<filelist dir="${war.dir}/js" files="shapes-14-6-5.min.js"/>
 			<filelist dir="${basedir}" files=".tmp3.js,.tmp2.min.js"/>
 		</concat>
 

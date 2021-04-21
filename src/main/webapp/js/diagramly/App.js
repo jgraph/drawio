@@ -650,7 +650,7 @@ App.main = function(callback, createUi)
 			{
 				var content = mxUtils.getTextContent(scripts[0]);
 				
-				if (CryptoJS.MD5(content).toString() != 'f13d3aba97e718436f2562cef8787e06')
+				if (CryptoJS.MD5(content).toString() != 'b02227617087e21bd49f2faa15164112')
 				{
 					console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 					alert('[Dev] Bootstrap script change requires update of CSP');
@@ -1029,7 +1029,7 @@ App.main = function(callback, createUi)
 			else
 			{
 				mxStencilRegistry.allowEval = false;
-				App.loadScripts(['js/shapes.min.js', 'js/stencils.min.js',
+				App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
 					'js/extensions.min.js'], realMain);
 			}
 		}, function(xhr)
@@ -1058,6 +1058,9 @@ App.main = function(callback, createUi)
 		{
 			if (mxSettings.settings != null)
 			{
+				document.body.style.backgroundColor = (uiTheme == 'dark' ||
+					mxSettings.settings.darkMode) ? '#2a2a2a' : '#ffffff';
+				
 				if (mxSettings.settings.autosaveDelay != null)
 				{
 					var val = parseInt(mxSettings.settings.autosaveDelay);
@@ -7335,7 +7338,7 @@ App.prototype.updateUserElement = function()
 					var div = document.createElement('div');
 					div.style.textAlign = 'center';
 					div.style.padding = '12px';
-					div.style.background = 'whiteSmoke';
+					div.style.background = Editor.isDarkMode() ? '' : 'whiteSmoke';
 					div.style.borderTop = '1px solid #e0e0e0';
 					div.style.whiteSpace = 'nowrap';
 										

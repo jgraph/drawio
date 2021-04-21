@@ -6386,7 +6386,7 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 			{
 				ui.fireEvent(new mxEventObject('gridEnabledChanged'));
 			}
-		}, '#e0e0e0',
+		}, Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor,
 		{
 			install: function(apply)
 			{

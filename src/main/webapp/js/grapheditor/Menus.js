@@ -215,6 +215,39 @@ Menus.prototype.init = function()
 		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true); }, parent);
 		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false); }, parent);
 	})));
+	this.put('line', new Menu(mxUtils.bind(this, function(menu, parent)
+	{
+		var state = graph.view.getState(graph.getSelectionCell());
+		
+		if (state != null)
+		{
+			var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE);
+		
+			if (shape != 'arrow')
+			{
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], [null, null, null], 'geIcon geSprite geSprite-straight', parent, true).setAttribute('title', mxResources.get('straight'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['orthogonalEdgeStyle', null, null], 'geIcon geSprite geSprite-orthogonal', parent, true).setAttribute('title', mxResources.get('orthogonal'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['elbowEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['elbowEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['isometricEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['isometricEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
+		
+				if (shape == 'connector')
+				{
+					this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['orthogonalEdgeStyle', '1', null], 'geIcon geSprite geSprite-curved', parent, true).setAttribute('title', mxResources.get('curved'));
+				}
+				
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['entityRelationEdgeStyle', null, null], 'geIcon geSprite geSprite-entity', parent, true).setAttribute('title', mxResources.get('entityRelation'));
+			}
+			
+			menu.addSeparator(parent);
+
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], [null, null, null, null], 'geIcon geSprite geSprite-connection', parent, true, null, true).setAttribute('title', mxResources.get('line'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['link', null, null, null], 'geIcon geSprite geSprite-linkedge', parent, true, null, true).setAttribute('title', mxResources.get('link'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', parent, true, null, true).setAttribute('title', mxResources.get('arrow'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', parent, true, null, true).setAttribute('title', mxResources.get('simpleArrow'));
+		}
+	})));
 	this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		var promptSpacing = mxUtils.bind(this, function(defaultValue, fn)
@@ -770,7 +803,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
  */
 Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, parent, reset)
 {
-	return menu.addItem(label, null, mxUtils.bind(this, function()
+	return this.showIconOnly(menu.addItem(label, null, mxUtils.bind(this, function()
 	{
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
@@ -816,17 +849,35 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 		{
 			graph.getModel().endUpdate();
 		}
-	}), parent, sprite);
+	}), parent, sprite));
 };
 
 /**
  * Adds a style change item to the given menu.
  */
-Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn, post)
+Menus.prototype.showIconOnly = function(elt)
+{
+	var td = elt.getElementsByTagName('td');
+	
+	for (i = 0; i < td.length; i++)
+	{
+		if (td[i].getAttribute('class') == 'mxPopupMenuItem')
+		{
+			td[i].style.display = 'none';
+		}
+	}
+	
+	return elt;
+};
+
+/**
+ * Adds a style change item to the given menu.
+ */
+Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent, fn, post, iconOnly)
 {
 	var apply = this.createStyleChangeFunction(keys, values);
 	
-	return menu.addItem(label, null, mxUtils.bind(this, function()
+	var elt = menu.addItem(label, null, mxUtils.bind(this, function()
 	{
 		var graph = this.editorUi.editor.graph;
 		
@@ -839,6 +890,13 @@ Menus.prototype.styleChange = function(menu, label, keys, values, sprite, parent
 			apply(post);
 		}
 	}), parent, sprite);
+	
+	if (iconOnly)
+	{
+		this.showIconOnly(elt);
+	}
+	
+	return elt;
 };
 
 /**
@@ -855,6 +913,7 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 		try
 		{
 			var cells = graph.getSelectionCells();
+			var autoSizeCells = false;
 			
 			for (var i = 0; i < keys.length; i++)
 			{
@@ -871,14 +930,20 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 				}
 				
 				// Updates autosize after font changes
-				if (keys[i] == mxConstants.STYLE_FONTFAMILY)
+				if (keys[i] == mxConstants.STYLE_FONTFAMILY ||
+					keys[i] == 'fontSource')
 				{
-					for (var j = 0; j < cells.length; j++)
+					autoSizeCells = true;
+				}
+			}
+			
+			if (autoSizeCells)
+			{
+				for (var j = 0; j < cells.length; j++)
+				{
+					if (graph.model.getChildCount(cells[j]) == 0)
 					{
-						if (graph.model.getChildCount(cells[j]) == 0)
-						{
-							graph.autoSizeCell(cells[j], false);
-						}
+						graph.autoSizeCell(cells[j], false);
 					}
 				}
 			}
@@ -1161,6 +1226,12 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 	if (state != null)
 	{
 		var hasWaypoints = false;
+		
+		if (graph.getSelectionCount() == 1 && graph.getModel().isEdge(cell))
+		{
+			menu.addSeparator();
+			this.addSubmenu('line', menu);
+		}
 
 		if (graph.getModel().isEdge(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_EDGE, null) != 'entityRelationEdgeStyle' &&
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) != 'arrow')

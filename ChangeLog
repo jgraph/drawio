@@ -1,3 +1,15 @@
+21-APR-2021: 14.6.5
+
+- Versions shapes minified JS
+
+21-APR-2021: 14.6.4
+
+- Restores BPMN 2.0 shapes
+
+19-APR-2021: 14.6.3
+
+- Fixes for dark mode and sketch theme
+
 19-APR-2021: 14.6.2
 
 - Fixes private Gitlab instance URL parsing

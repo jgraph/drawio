@@ -17,20 +17,7 @@
 		 */
 		html4.ATTRIBS['font::data-font-src'] = 0;
 	}
-			
-	/**
-	 * Dynamic change of dark mode for minimal and sketch theme.
-	 */
-	Editor.darkMode = false;
-	
-	/**
-	 * Dynamic change of dark mode.
-	 */
-	Editor.isDarkMode = function(value)
-	{
-		return Editor.darkMode || uiTheme == 'dark';
-	};
-	
+
 	/**
 	 * Specifies the app name. Default is document.title.
 	 */
@@ -591,10 +578,14 @@
 		'## An optional placeholders can be set to target to use data from the target instead.\n' +
 		'## In addition to label, an optional fromlabel and tolabel can be used to name the column\n' +
 		'## that contains the text for the label in the edges source or target (invert ignored).\n' +
-		'## The label is concatenated in the form fromlabel + label + tolabel if all are defined.\n' +
+		'## In addition to those, an optional source and targetlabel can be used to specify a label\n' +
+		'## that contains placeholders referencing the respective columns in the source or target row.\n' +
+		'## The label is created in the form fromlabel + sourcelabel + label + tolabel + targetlabel.\n' +
 		'## Additional labels can be added by using an optional labels array with entries of the\n' +
 		'## form {"label": string, "x": number, "y": number, "dx": number, "dy": number} where\n' +
 		'## x is from -1 to 1 along the edge, y is orthogonal, and dx/dy are offsets in pixels.\n' +
+		'## An optional placeholders with the string value "source" or "target" can be specified\n' +
+		'## to replace placeholders in the additional label with data from the source or target.\n' +
 		'## The target column may contain a comma-separated list of values.\n' +
 		'## Multiple connect entries are allowed.\n' +
 		'#\n' +
@@ -1671,7 +1662,6 @@
 		}
 		catch (e)
 		{
-			console.log('here', e);
 			// ignores decoding errors
 		}
 		
@@ -4211,8 +4201,8 @@
 			{fill: '#0050ef', stroke: '#001DBC', font: '#ffffff'}, {fill: '#6a00ff', stroke: '#3700CC', font: '#ffffff'},
 			//{fill: '#aa00ff', stroke: '#7700CC', font: '#ffffff'},
 			{fill: '#d80073', stroke: '#A50040', font: '#ffffff'}, {fill: '#a20025', stroke: '#6F0000', font: '#ffffff'}],
-			[{fill: '#e51400', stroke: '#B20000', font: '#ffffff'}, {fill: '#fa6800', stroke: '#C73500', font: '#ffffff'},
-			{fill: '#f0a30a', stroke: '#BD7000', font: '#ffffff'}, {fill: '#e3c800', stroke: '#B09500', font: '#ffffff'},
+			[{fill: '#e51400', stroke: '#B20000', font: '#ffffff'}, {fill: '#fa6800', stroke: '#C73500', font: '#000000'},
+			{fill: '#f0a30a', stroke: '#BD7000', font: '#000000'}, {fill: '#e3c800', stroke: '#B09500', font: '#000000'},
 			{fill: '#6d8764', stroke: '#3A5431', font: '#ffffff'}, {fill: '#647687', stroke: '#314354', font: '#ffffff'},
 			{fill: '#76608a', stroke: '#432D57', font: '#ffffff'}, {fill: '#a0522d', stroke: '#6D1F00', font: '#ffffff'}],
 			[{fill: '', stroke: ''}, {fill: mxConstants.NONE, stroke: ''},
@@ -5135,6 +5125,8 @@
 					
 					if (colorset != null)
 					{
+						var b = (urlParams['sketch'] == '1') ? '2px solid' : '1px solid';
+						
 						if (colorset['gradient'] != null)
 						{
 							if (mxClient.IS_IE && (document.documentMode < 10))
@@ -5166,16 +5158,16 @@
 						
 						if (colorset['stroke'] == mxConstants.NONE)
 						{
-							btn.style.border = '1px solid transparent';
+							btn.style.border = b + ' transparent';
 						}
 						else if (colorset['stroke'] == '')
 						{
-							btn.style.border = '1px solid ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
+							btn.style.border = b + ' ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
 								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
 						}
 						else
 						{
-							btn.style.border = '1px solid ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
+							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
 									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff'));
 						}
 					}
@@ -5187,6 +5179,8 @@
 						btn.style.backgroundColor = bg;
 						btn.style.border = '1px solid ' + bd;
 					}
+					
+					btn.style.borderRadius = '0';
 					
 					picker.appendChild(btn);
 				});
@@ -5206,7 +5200,7 @@
 
 			if (this.format.currentScheme == null)
 			{
-				setScheme((Editor.isDarkMode()) ? 1 : 0);
+				setScheme(Editor.isDarkMode() ? 1 : (urlParams['sketch'] == '1' ? 5 : 0));
 			}
 			else
 			{
@@ -6658,7 +6652,8 @@
 	
 	mxStencilRegistry.libraries['arrows2'] = [SHAPES_PATH + '/mxArrows.js'];
 	mxStencilRegistry.libraries['atlassian'] = [STENCIL_PATH + '/atlassian.xml', SHAPES_PATH + '/mxAtlassian.js'];
-	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/bpmn/mxBpmnShape2.js', STENCIL_PATH + '/bpmn.xml'];
+	mxStencilRegistry.libraries['bpmn'] = [SHAPES_PATH + '/mxBasic.js', STENCIL_PATH + '/bpmn.xml', SHAPES_PATH + '/bpmn/mxBpmnShape.js'];
+	mxStencilRegistry.libraries['bpmn2'] = [SHAPES_PATH + '/mxBasic.js', STENCIL_PATH + '/bpmn.xml', SHAPES_PATH + '/bpmn/mxBpmnShape.js'];
 	mxStencilRegistry.libraries['c4'] = [SHAPES_PATH + '/mxC4.js'];
 	mxStencilRegistry.libraries['cisco19'] = [SHAPES_PATH + '/mxCisco19.js', STENCIL_PATH + '/cisco19.xml'];
 	mxStencilRegistry.libraries['cisco_safe'] = [SHAPES_PATH + '/mxCiscoSafe.js', STENCIL_PATH + '/cisco_safe/architecture.xml', STENCIL_PATH + '/cisco_safe/business_icons.xml', STENCIL_PATH + '/cisco_safe/capability.xml', STENCIL_PATH + '/cisco_safe/design.xml', STENCIL_PATH + '/cisco_safe/iot_things_icons.xml', STENCIL_PATH + '/cisco_safe/people_places_things_icons.xml', STENCIL_PATH + '/cisco_safe/security_icons.xml', STENCIL_PATH + '/cisco_safe/technology_icons.xml', STENCIL_PATH + '/cisco_safe/threat.xml'];

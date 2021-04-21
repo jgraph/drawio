@@ -17,6 +17,9 @@ html body .geTabContainer {
 	border-top:1px solid #505759;
 	background-color:#2a2a2a;
 }
+html body .geDragPreview {
+	border: 1px dashed #cccccc;
+}
 html body .geMenubarContainer .geItem:active, html .geSidebarContainer button:active {
 	opacity: 0.7;
 }

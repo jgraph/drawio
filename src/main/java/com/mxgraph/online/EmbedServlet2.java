@@ -271,7 +271,7 @@ public class EmbedServlet2 extends HttpServlet
 				{
 					if (names[i].equals("*"))
 					{
-						js.append(readXmlFile("/js/shapes.min.js", false));
+						js.append(readXmlFile("/js/shapes-14-6-5.min.js", false));
 						result.append(
 								"'" + readXmlFile("/stencils.xml", true) + "'");
 					}

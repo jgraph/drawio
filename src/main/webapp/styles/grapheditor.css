@@ -23,6 +23,9 @@
 	color: black;
 	padding:6px;
 }
+.geDragPreview {
+	border: 1px dashed black;
+}
 .geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel {
 	cursor:pointer !important;
 }

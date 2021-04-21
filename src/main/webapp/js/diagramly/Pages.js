@@ -1370,9 +1370,9 @@ EditorUi.prototype.createTab = function(hoverEnabled)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createControlTab = function(paddingTop, html)
+EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
 {
-	var tab = this.createTab(true);
+	var tab = this.createTab((hoverEnabled != null) ? hoverEnabled : true);
 	tab.style.lineHeight = this.tabContainerHeight + 'px';
 	tab.style.paddingTop = paddingTop + 'px';
 	tab.style.cursor = 'pointer';
@@ -1390,9 +1390,11 @@ EditorUi.prototype.createControlTab = function(paddingTop, html)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createPageMenuTab = function()
+EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
 {
-	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" style="display:inline-block;margin-top:5px;width:21px;height:21px;"></div>');
+	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" ' +
+		'style="display:inline-block;margin-top:5px;width:21px;height:21px;"></div>',
+		hoverEnabled);
 	tab.setAttribute('title', mxResources.get('pages'));
 	tab.style.position = 'absolute';
 	tab.style.marginLeft = '0px';

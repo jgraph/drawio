@@ -17,9 +17,7 @@
 	/**
 	 * Overrides default grid color for dark mode
 	 */
-	mxGraphView.prototype.defaultDarkGridColor = '#6e6e6e';
-	
-	if (uiTheme == 'dark')
+	if (Editor.isDarkMode())
 	{
 		mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultDarkGridColor;
 	}
@@ -605,6 +603,7 @@
 	 */
 	EditorUi.prototype.createSpinner = function(x, y, size)
 	{
+		var autoPosition = (x == null || y == null);
 		size = (size != null) ? size : 24;
 
 		var spinner = new Spinner({
@@ -613,7 +612,7 @@
 			width: Math.round(size / 3), // The line thickness
 			radius: Math.round(size / 2), // The radius of the inner circle
 			rotate: 0, // The rotation offset
-			color: (uiTheme == 'dark') ? '#c0c0c0' : '#000', // #rgb or #rrggbb
+			color: (Editor.isDarkMode()) ? '#c0c0c0' : '#000', // #rgb or #rrggbb
 			speed: 1.5, // Rounds per second
 			trail: 60, // Afterglow percentage
 			shadow: false, // Whether to render a shadow
@@ -635,6 +634,12 @@
 				
 				if (label != null)
 				{
+					if (autoPosition)
+					{
+						y = Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight || 0) / 2;
+						x = document.body.clientWidth / 2 - 2;
+					}
+
 					var status = document.createElement('div');
 					status.style.position = 'absolute';
 					status.style.whiteSpace = 'nowrap';
@@ -652,7 +657,7 @@
 					mxUtils.setPrefixedStyle(status.style, 'borderRadius', '6px');
 					mxUtils.setPrefixedStyle(status.style, 'transform', 'translate(-50%,-50%)');
 
-					if (uiTheme != 'dark')
+					if (!Editor.isDarkMode())
 					{
 						mxUtils.setPrefixedStyle(status.style, 'boxShadow', '2px 2px 3px 0px #ddd');
 					}
@@ -3624,7 +3629,7 @@
     		EditorUi.prototype.menubarHeight = 41;
     		EditorUi.prototype.toolbarHeight = 38;
     	}
-    	else if (uiTheme == 'dark')
+    	else if (Editor.isDarkMode())
     	{
     		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
@@ -3634,16 +3639,9 @@
 			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
 			Graph.prototype.defaultPageBorderColor = '#505759';
 			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
-			Sidebar.prototype.dragPreviewBorder = '1px dashed #cccccc';
 			mxGraphHandler.prototype.previewColor = '#cccccc';
 			StyleFormatPanel.prototype.defaultStrokeColor = '#cccccc';
 			mxConstants.DROP_TARGET_COLOR = '#00ff00';
-			
-			if (mxClient.IS_SVG)
-			{
-				Editor.helpImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAP1BMVEUAAAD///////////////////////////////////////////////////////////////////////////////9Du/pqAAAAFXRSTlMAT30qCJRBboyDZyCgRzUUdF46MJlgXETgAAAAeklEQVQY022O2w4DIQhEQUURda/9/28tUO2+7CQS5sgQ4F1RapX78YUwRqQjTU8ILqQfKerTKTvACJ4nLX3krt+8aS82oI8aQC4KavRgtvEW/mDvsICgA03PSGRr79MqX1YPNIxzjyqtw8ZnnRo4t5a5undtJYRywau+ds4Cyza3E6YAAAAASUVORK5CYII=';
-				Editor.checkmarkImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAMAAACeyVWkAAAARVBMVEUAAACZmZkICAgEBASNjY2Dg4MYGBiTk5N5eXl1dXVmZmZQUFBCQkI3NzceHh4MDAykpKSJiYl+fn5sbGxaWlo/Pz8SEhK96uPlAAAAAXRSTlMAQObYZgAAAE5JREFUGNPFzTcSgDAQQ1HJGUfy/Y9K7V1qeOUfzQifCQZai1XHaz11LFysbDbzgDSSWMZiETz3+b8yNUc/MMsktxuC8XQBSncdLwz+8gCCggGXzBcozAAAAABJRU5ErkJggg==';
-			}
     	}
 
 		Editor.sketchFontFamily = 'Architects Daughter';
@@ -3653,7 +3651,9 @@
 		if (urlParams['sketch'] == '1')
 		{
 			Menus.prototype.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
-				'fontUrl': decodeURIComponent(Editor.sketchFontSource)}].
+				'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
+				{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
+				{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
 				concat(Menus.prototype.defaultFonts);
 
 			Graph.prototype.defaultVertexStyle = {'fontFamily': Editor.sketchFontFamily , 'fontSize': '20',
@@ -8718,7 +8718,7 @@
 		var ui = this;
 		var graph = this.editor.graph;
 		
-		if (uiTheme == 'dark')
+		if (Editor.isDarkMode())
 		{
 			graph.view.defaultGridColor = mxGraphView.prototype.defaultDarkGridColor;
 		}
@@ -9125,11 +9125,8 @@
 		    this.installNativeClipboardHandler();
 		};
 
-		var y = Math.max(document.body.clientHeight || 0, document.documentElement.clientHeight || 0) / 2;
-		var x = document.body.clientWidth / 2 - 2;
-	
-		// Holds the x-coordinate of the point
-		this.spinner = this.createSpinner(x, y, 24);
+		// Creates the spinner
+		this.spinner = this.createSpinner(null, null, 24);
 		
 		// Installs drag and drop handler for rich text editor
 		if (Graph.fileSupport)
@@ -10018,6 +10015,7 @@
 					this.spinner.stop();
 					this.handleError(e);
 				}), null, null, (scale != null) ? scale : 4,
+					this.editor.graph.background == null ||
 					this.editor.graph.background == mxConstants.NONE,
 					null, null, null, 10, null, null, false, null,
 					(cells.length > 0) ? cells : null);
@@ -12487,11 +12485,23 @@
 				    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
 				    							}
 				    							
+				    							if (edge.sourcelabel != null)
+				    							{
+				    								label = graph.replacePlaceholders(dataCell,
+														edge.sourcelabel, vars) + (label || '');
+				    							}
+							
 				    							if (edge.tolabel != null)
 				    							{
 				    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
 				    							}
-				    							
+				    											    							
+				    							if (edge.targetlabel != null)
+				    							{
+				    								label = (label || '') + graph.replacePlaceholders(
+														ref, edge.targetlabel, vars);
+				    							}
+							
 				    							var placeholders = ((edge.placeholders == 'target') ==
 				    								!edge.invert) ? ref : realCell;
 				    							var style = (edge.style != null) ?
@@ -12515,6 +12525,14 @@
 				    									el.vertex = true;
 				    									el.connectable = false;
 				    									el.geometry.relative = true;
+									
+														if (def.placeholders != null)
+														{
+															el.value = graph.replacePlaceholders(
+																((def.placeholders == 'target') ==
+							    								!edge.invert) ? ref : realCell,
+															el.value, vars)
+														}
 				    									
 				    									if (def.dx != null || def.dy != null)
 				    									{
@@ -12522,7 +12540,7 @@
 				    											(def.dx != null) ? def.dx : 0,
 				    											(def.dy != null) ? def.dy : 0);
 				    									}
-				    									
+									
 				    									edgeCell.insert(el);
 				    								}
 				    							}
@@ -14435,7 +14453,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		cdiv.setAttribute('data-commentId', comment.id);
 		cdiv.style.marginLeft = (level * 20 + 5) + 'px';
 
-		if (comment.isResolved && uiTheme != 'dark')
+		if (comment.isResolved && !Editor.isDarkMode())
 		{
 			cdiv.style.backgroundColor = 'ghostWhite';
 		}
@@ -14678,7 +14696,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
 					var actionsDisplay = comment.isResolved? 'none' : '';
 					var replies = collectReplies(comment).replies;
-					var color = (uiTheme == 'dark') ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
+					var color = (Editor.isDarkMode()) ? 'transparent' : (comment.isResolved? 'ghostWhite' : 'white');
 					
 					for (var i = 0; i < replies.length; i++)
 					{
@@ -14797,7 +14815,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	resolvedLink.setAttribute('title', mxResources.get('showResolved'));
 	var resolvedChecked = false;
 	
-	if (uiTheme == 'dark')
+	if (Editor.isDarkMode())
 	{
 		resolvedLink.style.filter = 'invert(100%)';
 	}
@@ -14821,7 +14839,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		refreshLink.innerHTML = '<img src="' + IMAGE_PATH + '/update16.png" style="width: 16px; padding: 2px;">';
 		refreshLink.setAttribute('title', mxResources.get('refresh'));
 	
-		if (uiTheme == 'dark')
+		if (Editor.isDarkMode())
 		{
 			refreshLink.style.filter = 'invert(100%)';
 		}
@@ -14843,7 +14861,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		saveLink.innerHTML = '<img src="' + IMAGE_PATH + '/save.png" style="width: 20px; padding: 2px;">';
 		saveLink.setAttribute('title', mxResources.get('save'));
 	
-		if (uiTheme == 'dark')
+		if (Editor.isDarkMode())
 		{
 			saveLink.style.filter = 'invert(100%)';
 		}
