@@ -493,7 +493,7 @@ Editor.prototype.readGraphState = function(node)
 {
 	var grid = node.getAttribute('grid');
 	
-	if (grid == '')
+	if (grid == null || grid == '')
 	{
 		grid = this.graph.defaultGridEnabled ? '1' : '0';
 	}
@@ -2482,6 +2482,7 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 			graph.view.backgroundPageShape.node.style.backgroundPosition = position;
 			graph.view.backgroundPageShape.node.style.backgroundImage = image;
 			graph.view.backgroundPageShape.node.style.backgroundColor = color;
+			graph.view.backgroundPageShape.node.style.borderColor = graph.defaultPageBorderColor;
 			graph.container.className = 'geDiagramContainer geDiagramBackdrop';
 			canvas.style.backgroundImage = 'none';
 			canvas.style.backgroundColor = '';

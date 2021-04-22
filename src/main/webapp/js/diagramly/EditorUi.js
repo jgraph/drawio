@@ -3657,12 +3657,14 @@
 				concat(Menus.prototype.defaultFonts);
 
 			Graph.prototype.defaultVertexStyle = {'fontFamily': Editor.sketchFontFamily , 'fontSize': '20',
-				'fontSource': Editor.sketchFontSource, 'pointerEvents': '0', 'sketch': '1', 'hachureGap': '4'};
+				'fontSource': Editor.sketchFontSource, 'pointerEvents': '0', 'sketch':
+				urlParams['rough'] == '0' ? '0' : '1', 'hachureGap': '4'};
 			
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
 				'fontFamily': Editor.sketchFontFamily, 'fontSize': '20','fontSource': Editor.sketchFontSource,
-				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch': '1'};
+				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch':
+				urlParams['rough'] == '0' ? '0' : '1'};
 			
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';
@@ -10017,7 +10019,7 @@
 				}), null, null, (scale != null) ? scale : 4,
 					this.editor.graph.background == null ||
 					this.editor.graph.background == mxConstants.NONE,
-					null, null, null, 10, null, null, false, null,
+					null, null, null, 10, null, null, true, null,
 					(cells.length > 0) ? cells : null);
 			}
 		}

@@ -363,10 +363,19 @@ EditorUi.initMinimalTheme = function()
 	{
 		return '* { -webkit-font-smoothing: antialiased; }' +
 			(Editor.isDarkMode() ?
-			'html body .geToolbarContainer .geMenuItem, html body .geToolbarContainer .geToolbarButton { filter: invert(1); }' +
+			'html body .geToolbarContainer .geMenuItem, html body .geToolbarContainer .geToolbarButton, ' +
+			'html body .geMenubarContainer .geMenuItem .geMenuItem, html body .geMenubarContainer a.geMenuItem,' +
+			'html body .geMenubarContainer .geToolbarButton { filter: invert(1); }' +
+			'html body .geMenubarContainer .geMenuItem .geMenuItem, html body .geMenubarContainer a.geMenuItem { color: #353535; }' +
 			'html > body > div > .geToolbarContainer { border: 1px solid #c0c0c0 !important; box-shadow: none !important; }' +
-			'' : '') +
+			'html > body.geEditor > div > a.geItem { background-color: #2a2a2a; color: #cccccc; border-color: #505759; }' +
+			'html body .geTabContainer, html body .geTabContainer div, html body .geMenubarContainer { border-color: #505759 !important; }'
+			:
+			'html body.geEditor .geTabContainer div { border-color: #e5e5e5 !important; }'
+			) +
 			// End of dark mode styles
+			'html > body > div > a.geItem { background-color: #ffffff; color: #707070; border-top: 1px solid lightgray; border-left: 1px solid lightgray; }' +
+			'html body .geMenubarContainer { border-bottom:1px solid lightgray;background-color:#ffffff; }' +
 			'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
 			'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
 			'table.mxWindow * :not(svg *) { font-size:13px; }' +
@@ -401,7 +410,8 @@ EditorUi.initMinimalTheme = function()
 			'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
 			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
 			// Styling for Minimal
-			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
+			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; }' +
+			'.geToolbarContainer, .geTabContainer { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
 			'div.geSidebarContainer { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + '; }' +
 			'div.geSidebarContainer .geTitle { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fdfdfd') + '; }' +
 			'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
@@ -411,8 +421,8 @@ EditorUi.initMinimalTheme = function()
 			'div.mxWindow * { font-family: inherit !important; }' +
 			// Minimal Style UI
 			'html div.geVerticalHandle { position:absolute;bottom:0px;left:50%;cursor:row-resize;width:11px;height:11px;background:white;margin-bottom:-6px; margin-left:-6px; border: none; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
-			'html div.geInactivePage { background: rgb(249, 249, 249) !important; color: #A0A0A0 !important; } ' +
-			'html div.geActivePage { background: white !important;color: #353535 !important; } ' +
+			'html div.geInactivePage { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : 'rgb(249, 249, 249)') + ' !important; color: #A0A0A0 !important; } ' +
+			'html div.geActivePage { background:  ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important;  ' + (Editor.isDarkMode() ? '' : 'color: #353535 !important; } ') +
 			'html div.mxRubberband { border:1px solid; border-color: #29b6f2 !important; background:rgba(41,182,242,0.4) !important; } ' +
 			'html body div.mxPopupMenu { border-radius:5px; border:1px solid #c0c0c0; padding:5px 0 5px 0; box-shadow: 0px 4px 17px -4px rgba(96,96,96,1); } ' +
 			'html table.mxPopupMenu td.mxPopupMenuItem { color: ' + (Editor.isDarkMode() ? '#cccccc' : '#353535') + '; font-size: 14px; padding-top: 4px; padding-bottom: 4px; }' +
@@ -1311,6 +1321,7 @@ EditorUi.initMinimalTheme = function()
 		ui.defaultLibraryName = mxResources.get('untitledLibrary');
 
 		var menubar = document.createElement('div');
+		menubar.className = 'geMenubarContainer';
 		var before = null;
 		var menuObj = new Menubar(ui, menubar);
 
@@ -1570,9 +1581,9 @@ EditorUi.initMinimalTheme = function()
 		ui.menubarContainer = ui.buttonContainer;
 
         ui.tabContainer = document.createElement('div');
+		ui.tabContainer.className = 'geTabContainer';
         ui.tabContainer.style.cssText = 'position:absolute;left:0px;right:0px;bottom:0px;height:30px;white-space:nowrap;' +
-            'border-bottom:1px solid lightgray;background-color:#ffffff;border-top:1px solid lightgray;margin-bottom:-2px;' +
-            'visibility:hidden;';
+            'margin-bottom:-2px;visibility:hidden;';
 
         var previousParent = ui.diagramContainer.parentNode;
 
@@ -1591,7 +1602,38 @@ EditorUi.initMinimalTheme = function()
 		var footer = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var picker = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var toolbar = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
-		
+			
+		ui.addListener('darkModeChanged', mxUtils.bind(this, function()
+		{
+			if (this.sidebar != null)
+			{
+				this.sidebar.graph.stylesheet.styles =
+					mxUtils.clone(graph.stylesheet.styles);
+				this.sidebar.container.innerHTML = '';
+				this.sidebar.palettes = new Object();
+				this.sidebar.init();
+	
+				if (urlParams['sketch'] == '1')
+				{
+					this.scratchpad = null;
+					this.toggleScratchpad();
+					
+					// Refreshes outline window
+					var wnd = ui.actions.outlineWindow;
+					
+					if (wnd != null)
+		            {
+						wnd.outline.outline.stylesheet.styles =
+							mxUtils.clone(graph.stylesheet.styles);
+						ui.actions.outlineWindow.update();
+		            }
+				}
+			}
+			
+			graph.refresh();
+			graph.view.validateBackground()
+		}));
+
 		if (urlParams['sketch'] == '1')
 		{
 			if (graph.freehand != null)
@@ -1817,32 +1859,6 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.addListener('darkModeChanged', mxUtils.bind(this, function()
 			{
-				if (this.sidebar != null)
-				{
-					this.sidebar.graph.stylesheet.styles =
-						mxUtils.clone(graph.stylesheet.styles);
-					this.sidebar.container.innerHTML = '';
-					this.sidebar.palettes = new Object();
-					this.sidebar.init();
-		
-					if (urlParams['sketch'] == '1')
-					{
-						this.scratchpad = null;
-						this.toggleScratchpad();
-						
-						// Refreshes outline window
-						var wnd = ui.actions.outlineWindow;
-						
-						if (wnd != null)
-			            {
-							wnd.outline.outline.stylesheet.styles =
-								mxUtils.clone(graph.stylesheet.styles);
-							ui.actions.outlineWindow.update();
-			            }
-					}
-				}
-				
-				graph.refresh();
 				initPicker();
 			}));
 		}
@@ -2006,7 +2022,8 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;border-bottom:1px solid lightgray;background-color:#ffffff;text-align:left;white-space:nowrap;';
+				menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;' +
+					'text-align:left;white-space:nowrap;';
 				this.tabContainer.style.right = '70px';
 				var elt = menuObj.addMenu('100%', viewZoomMenu.funct);
 				elt.setAttribute('title', mxResources.get('zoom') + ' (Alt+Mousewheel)');
@@ -2014,18 +2031,13 @@ EditorUi.initMinimalTheme = function()
 	        	elt.style.paddingRight = '10px';
 				elt.style.textDecoration = 'none';
 				elt.style.textDecoration = 'none';
-	
 				elt.style.overflow = 'hidden';
 				elt.style.visibility = 'hidden';
 				elt.style.textAlign = 'center';
 				elt.style.cursor = 'pointer';
-				elt.style.backgroundColor = '#ffffff';
-				elt.style.borderTop = '1px solid lightgray';
-				elt.style.borderLeft = '1px solid lightgray';
 				elt.style.height = (parseInt(ui.tabContainerHeight) - 1) + 'px';
 				elt.style.lineHeight = (parseInt(ui.tabContainerHeight) + 1) + 'px';
 				elt.style.position = 'absolute';
-				elt.style.color = '#707070';
 				elt.style.display = 'block';
 				elt.style.fontSize = '12px';
 				elt.style.width = '59px';
@@ -2130,6 +2142,24 @@ EditorUi.initMinimalTheme = function()
 						60);
 			        }
 		        }
+				
+				var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
+					Editor.isDarkMode() ? lightImage : darkImage);
+				toggleDarkElt.style.opacity = '0.4';
+
+				ui.addListener('darkModeChanged', mxUtils.bind(this, function()
+				{
+					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
+				}));
+				
+				if (ui.statusContainer != null && urlParams['sketch'] != '1')
+	            {
+	            	menubar.insertBefore(toggleDarkElt, ui.statusContainer);
+	            }
+	            else
+	            {
+	            	menubar.appendChild(toggleDarkElt);
+	            }
 			}
 	        
 	        var langMenu = ui.menus.get('language');

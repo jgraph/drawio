@@ -4827,7 +4827,9 @@ EditorUi.prototype.altShiftActions = {67: 'clearWaypoints', // Alt+Shift+C
   80: 'connectionPoints', // Alt+Shift+P
   84: 'editTooltip', // Alt+Shift+T
   86: 'pasteSize', // Alt+Shift+V
-  88: 'copySize' // Alt+Shift+X
+  88: 'copySize', // Alt+Shift+X
+  66: 'copyData', // Alt+Shift+B
+  69: 'pasteData' // Alt+Shift+E
 };
 
 /**

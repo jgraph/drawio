@@ -213,6 +213,12 @@ window.uiTheme = window.uiTheme || (function()
 		}
 	}
 	
+	//Use Sketch theme for MS Teams (and any future extAuth) by default
+	if (ui == null && urlParams['extAuth'] == '1')
+	{
+		ui = 'sketch';
+	}
+	
 	// Redirects sketch UI to min UI with sketch URL parameter
 	if (ui == 'sketch')
 	{

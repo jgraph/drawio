@@ -1763,7 +1763,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		var btn = mxUtils.button(mxResources.get('copySize'), function(evt)
 		{
-			ui.actions.get('copySize').funct();
+			ui.actions.get('copySize').funct(evt);
 		});
 		
 		btn.setAttribute('title', mxResources.get('copySize') + ' (' +
@@ -1778,11 +1778,52 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		{
 			var btn2 = mxUtils.button(mxResources.get('pasteSize'), function(evt)
 			{
-				ui.actions.get('pasteSize').funct();
+				ui.actions.get('pasteSize').funct(evt);
 			});
 			
 			btn2.setAttribute('title', mxResources.get('pasteSize') + ' (' +
 				this.editorUi.actions.get('pasteSize').shortcut + ')');
+			
+			div.appendChild(btn2);
+			count++;
+			
+			btn.style.width = '100px';
+			btn.style.marginBottom = '2px';
+			btn2.style.width = '100px';
+			btn2.style.marginBottom = '2px';
+		}
+	}
+	
+	if (graph.getSelectionCount() > 0)
+	{
+		if (count > 0)
+		{
+			mxUtils.br(div);
+			count = 0;
+		}
+		
+		var btn = mxUtils.button(mxResources.get('copyData'), function(evt)
+		{
+			ui.actions.get('copyData').funct(evt);
+		});
+		
+		btn.setAttribute('title', mxResources.get('copyData') + ' (' +
+				this.editorUi.actions.get('copyData').shortcut + ')');
+		btn.style.width = '202px';
+		btn.style.marginBottom = '2px';
+
+		div.appendChild(btn);
+		count++;
+		
+		if (ui.copiedValue != null)
+		{
+			var btn2 = mxUtils.button(mxResources.get('pasteData'), function(evt)
+			{
+				ui.actions.get('pasteData').funct(evt);
+			});
+			
+			btn2.setAttribute('title', mxResources.get('pasteData') + ' (' +
+				this.editorUi.actions.get('pasteData').shortcut + ')');
 			
 			div.appendChild(btn2);
 			count++;

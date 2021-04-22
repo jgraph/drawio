@@ -1214,6 +1214,7 @@
 		var shapePaint = mxShape.prototype.paint;
 		mxShape.prototype.paint = function(c)
 		{
+			var addTolerance = c.addTolerance;
 			var fillStyle = null;
 			var events = true;
 			
@@ -1234,9 +1235,7 @@
 				}
 			}
 			
-			if (events && c.handJiggle != null && c.handJiggle.constructor == RoughCanvas &&
-				!this.outline && (this.fill == null || this.fill == mxConstants.NONE ||
-				fillStyle != 'solid'))
+			if (events && c.handJiggle != null && c.handJiggle.constructor == RoughCanvas && !this.outline)
 			{
 				// Save needed for possible transforms applied during paint
 				c.save();
@@ -1244,17 +1243,57 @@
 				var stroke = this.stroke;
 				this.fill = null;
 				this.stroke = null;
+				
+				// Ignores color changes during paint
+				var setStrokeColor = c.setStrokeColor;
+				
+				c.setStrokeColor = function()
+				{
+					// ignore
+				};
+		
+				var setFillColor = c.setFillColor;
+				
+				c.setFillColor = function()
+				{
+					// ignore
+				};
+				
 				c.handJiggle.passThrough = true;
 
 				shapePaint.apply(this, arguments);
 
 				c.handJiggle.passThrough = false;
-				this.fill = fill;
+				c.setFillColor = setFillColor;
+				c.setStrokeColor = setStrokeColor;
 				this.stroke = stroke;
+				this.fill = fill;
 				c.restore();
+				
+				c.addTolerance = function()
+				{
+					// ignore	
+				};
 			}
 			
 			shapePaint.apply(this, arguments);
+			c.addTolerance = addTolerance;
+		};
+		
+		// Overrides glass effect to disable sketch style
+		var shapePaintGlassEffect = mxShape.prototype.paintGlassEffect;
+		mxShape.prototype.paintGlassEffect = function(c, x, y, w, h, arc)
+		{
+			if (c.handJiggle != null && c.handJiggle.constructor == RoughCanvas)
+			{
+				c.handJiggle.passThrough = true;
+				shapePaintGlassEffect.apply(this, arguments);
+				c.handJiggle.passThrough = false;
+			}
+			else
+			{
+				shapePaintGlassEffect.apply(this, arguments);
+			}
 		};
 	})();
 
@@ -5877,10 +5916,13 @@
 		incExtFonts, keepTheme, exportType, cells)
 	{
 		var temp = null;
+		var tempBg = null;
 		
 		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
+			tempBg = this.defaultPageBackgroundColor;
+			this.defaultPageBackgroundColor = this.defaultThemeName == 'darkTheme' ? '#ffffff' : '#2a2a2a';
 			this.stylesheet = this.getDefaultStylesheet();
 			// LATER: Fix math export in dark mode by fetching text nodes before
 			// calling refresh and changing the font color in-place
@@ -5923,6 +5965,7 @@
 		
 		if (temp != null)
 		{
+			this.defaultPageBackgroundColor = tempBg;
 			this.stylesheet = temp;
 			this.refresh();
 		}

@@ -263,7 +263,7 @@ Actions.prototype.init = function()
 		}
 	});
 	
-	this.addAction('copySize', function(evt)
+	this.addAction('copySize', function()
 	{
 		var cell = graph.getSelectionCell();
 		
@@ -278,7 +278,7 @@ Actions.prototype.init = function()
 		}
 	}, null, null, 'Alt+Shift+X');
 
-	this.addAction('pasteSize', function(evt)
+	this.addAction('pasteSize', function()
 	{
 		if (graph.isEnabled() && !graph.isSelectionEmpty() && ui.copiedSize != null)
 		{
@@ -311,6 +311,72 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null, 'Alt+Shift+V');
+		
+	this.addAction('copyData', function()
+	{
+		var cell = graph.getSelectionCell() || graph.getModel().getRoot();
+		
+		if (graph.isEnabled() && cell != null)
+		{
+			var value = cell.cloneValue();
+			
+			if (value != null && !isNaN(value.nodeType))
+			{
+				ui.copiedValue = value;
+			}
+		}
+	}, null, null, 'Alt+Shift+B');
+
+	this.addAction('pasteData', function(evt)
+	{
+		var model = graph.getModel();
+		
+		function applyValue(cell, value)
+		{
+			var old = model.getValue(cell);
+			value = cell.cloneValue(value);
+			value.removeAttribute('placeholders');
+			
+			// Carries over placeholders and label properties
+			if (old != null && !isNaN(old.nodeType))
+			{
+				value.setAttribute('placeholders', old.getAttribute('placeholders'));
+			}
+			
+			if (evt == null || (!mxEvent.isMetaDown(evt) && !mxEvent.isControlDown(evt)))
+			{
+				value.setAttribute('label', graph.convertValueToString(cell));
+			}
+			
+			model.setValue(cell, value);
+		};
+		
+		if (graph.isEnabled() && !graph.isSelectionEmpty() && ui.copiedValue != null)
+		{
+			model.beginUpdate();
+			
+			try
+			{
+				var cells = graph.getSelectionCells();
+				
+				if (cells.length == 0)
+				{
+					applyValue(model.getRoot(), ui.copiedValue);
+				}
+				else
+				{
+					for (var i = 0; i < cells.length; i++)
+					{
+						applyValue(cells[i], ui.copiedValue);
+					}
+				}
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		}
+	}, null, null, 'Alt+Shift+E');
 	
 	function deleteCells(includeEdges)
 	{
