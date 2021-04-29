@@ -103,7 +103,6 @@ public class GitHubServlet extends HttpServlet
 		if (client != null && code != null)
 		{
 			String secret = client.equals("23bc97120b9035515661") ? DEV_CLIENT_SECRET : CLIENT_SECRET; 
-
 			String url = "https://github12.com/login/oauth/access_token";
 			URL obj = new URL(url);
 			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
