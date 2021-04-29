@@ -55,7 +55,7 @@ public class GitHubServlet extends HttpServlet
 	}
 
 	/**
-	 * Loads the key.
+	 * Loads the key..
 	 */
 	protected void updateKeys()
 	{
