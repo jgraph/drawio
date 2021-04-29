@@ -44,6 +44,8 @@ public class GitHubAuthServlet extends AbsAuthServlet
 				throw new RuntimeException("Client IDs path invalid");
 			}
 			
+			CONFIG = new Config(clientIds, clientSerets);
+
 			try
 			{
 				CONFIG.AUTH_SERVICE_URL = Utils
@@ -56,7 +58,6 @@ public class GitHubAuthServlet extends AbsAuthServlet
 				CONFIG.AUTH_SERVICE_URL = "https://github.com/login/oauth/access_token";
 			}
 			
-			CONFIG = new Config(clientIds, clientSerets);
 			CONFIG.REDIRECT_PATH = "/github";
 		}
 		
