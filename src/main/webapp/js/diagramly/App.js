@@ -879,8 +879,6 @@ App.main = function(callback, createUi)
 									for (var key in value.merge)
 									{
 										config[key] = value.merge[key];
-										
-										console.log('key overridden', key);
 									}
 									
 									value = config;	

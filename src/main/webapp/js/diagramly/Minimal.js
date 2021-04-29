@@ -389,6 +389,7 @@ EditorUi.initMinimalTheme = function()
 			'html body .geToolbarButton { opacity: 0.3; }' +
 			'html body .geToolbarButton:active { opacity: 0.15; }' +
 			'html body .geStatus:active { opacity: 0.5; }' +
+			'html body .geMenubarContainer .geStatus { margin-top: 0px !important; }' +
 			'html table.mxPopupMenu tr.mxPopupMenuItemHover:active { opacity: 0.7; }' +
 			'html body .geDialog input, html body .geToolbarContainer input, html body .mxWindow input {padding: 2px; display: inline-block; }' +
 			'div.geDialog { border-radius: 5px; }' +
@@ -862,10 +863,14 @@ EditorUi.initMinimalTheme = function()
 		ui.actions.get('forkme').visible = urlParams['sketch'] != '1';
 		ui.actions.get('downloadDesktop').visible = urlParams['sketch'] != '1';
 
-        ui.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function()
+        var toggleDarkModeAction = ui.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function()
         {
             ui.setDarkMode(!Editor.darkMode);
         }));
+
+		toggleDarkModeAction.setToggleAction(true);
+		toggleDarkModeAction.setSelectedCallback(function() { return Editor.isDarkMode(); });
+		
         ui.actions.put('importCsv', new Action(mxResources.get('csv') + '...', function()
         {
             graph.popupMenuHandler.hideMenu();
@@ -1113,7 +1118,11 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addSubmenu('units', menu, parent);
 			
-			if (urlParams['sketch'] != '1')
+			if (urlParams['sketch'] == '1')
+			{
+				ui.menus.addMenuItems(menu, ['-', 'configuration', '-', 'showStartScreen'], parent);
+			}
+			else
 			{
 				menu.addSeparator(parent);
 				ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler'], parent);
@@ -1129,7 +1138,7 @@ EditorUi.initMinimalTheme = function()
 				}
 	
 				menu.addSeparator(parent);
-	        	ui.menus.addMenuItem(menu, 'drawConfig', parent);
+	        	ui.menus.addMenuItem(menu, 'configuration', parent);
 			}
 			
 			// Adds trailing separator in case new plugin entries are added
@@ -1209,6 +1218,11 @@ EditorUi.initMinimalTheme = function()
 			}
 			
             ui.menus.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'pageScale'], parent);
+
+			if (urlParams['sketch'] != '1')
+			{
+            	ui.menus.addMenuItems(menu, ['-', 'fullscreen', 'toggleDarkMode'], parent);
+			}
         })));
 	};
 	
@@ -2132,34 +2146,36 @@ EditorUi.initMinimalTheme = function()
 		        {
 			        createGroup([undoElt, redoElt], 60);
 		
-			        if (iw >= 480)
+			        if (iw >= 520)
 			        {
 				        createGroup([fitElt,
-				        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)',
-							zoomInAction, zoomInImage) : null,
-				        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)',
-							zoomOutAction, zoomOutImage) : null],
-						60);
+					        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)',
+								zoomInAction, zoomInImage) : null,
+					        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)',
+								zoomOutAction, zoomOutImage) : null], 60);
+						
+				        if (iw >= 720)
+				        {
+							var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
+								Editor.isDarkMode() ? lightImage : darkImage);
+							toggleDarkElt.style.opacity = '0.4';
+			
+							ui.addListener('darkModeChanged', mxUtils.bind(this, function()
+							{
+								toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
+							}));
+							
+							if (ui.statusContainer != null && urlParams['sketch'] != '1')
+				            {
+				            	menubar.insertBefore(toggleDarkElt, ui.statusContainer);
+				            }
+				            else
+				            {
+				            	menubar.appendChild(toggleDarkElt);
+				            }
+						}
 			        }
 		        }
-				
-				var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
-					Editor.isDarkMode() ? lightImage : darkImage);
-				toggleDarkElt.style.opacity = '0.4';
-
-				ui.addListener('darkModeChanged', mxUtils.bind(this, function()
-				{
-					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
-				}));
-				
-				if (ui.statusContainer != null && urlParams['sketch'] != '1')
-	            {
-	            	menubar.insertBefore(toggleDarkElt, ui.statusContainer);
-	            }
-	            else
-	            {
-	            	menubar.appendChild(toggleDarkElt);
-	            }
 			}
 	        
 	        var langMenu = ui.menus.get('language');

@@ -72,13 +72,13 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>GitHubServlet</display-name>
-    <servlet-name>GitHubServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.GitHubServlet</servlet-class>
+    <display-name>GitHubAuthServlet</display-name>
+    <servlet-name>GitHubAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.GitHubAuthServlet</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>GitHubServlet</servlet-name>
-    <url-pattern>/github</url-pattern>
+    <servlet-name>GitHubAuthServlet</servlet-name>
+    <url-pattern>/github2</url-pattern>
   </servlet-mapping>
   <servlet>
     <description/>
@@ -142,6 +142,16 @@
   <servlet-mapping>
     <servlet-name>ExportProxyServlet</servlet-name>
     <url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>GitlabAuthServlet</display-name>
+    <servlet-name>GitlabAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.GitlabAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>GitlabAuthServlet</servlet-name>
+    <url-pattern>/gitlab</url-pattern>
   </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>

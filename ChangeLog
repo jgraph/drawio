@@ -1,3 +1,11 @@
+29-APR-2021: 14.6.8
+
+- Refactors GitHub paths
+
+28-APR-2021: 14.6.7
+
+- Switches to server flow for GitHub and Gitlab auth
+
 22-APR-2021: 14.6.6
 
 - Adds dark mode for minimal theme

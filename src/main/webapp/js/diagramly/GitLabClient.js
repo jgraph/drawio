@@ -2,7 +2,13 @@
  * Copyright (c) 2006-2020, JGraph Ltd
  * Copyright (c) 2006-2020, draw.io AG
  */
-GitLabClient = function(editorUi)
+//Add a closure to hide the class private variables without changing the code a lot
+(function()
+{
+
+var _token = null;
+
+window.GitLabClient = function(editorUi)
 {
 	GitHubClient.call(this, editorUi, 'gitlabauth');
 };
@@ -26,7 +32,7 @@ GitLabClient.prototype.scope = 'api%20read_repository%20write_repository';
 GitLabClient.prototype.baseUrl = DRAWIO_GITLAB_URL + '/api/v4';
 
 /**
- * Maximum file size of the GitHub REST API.
+ * Maximum file size of the GitLab REST API.
  */
 GitLabClient.prototype.maxFileSize = 10000000 /*10MB*/;
 
@@ -35,10 +41,29 @@ GitLabClient.prototype.maxFileSize = 10000000 /*10MB*/;
  */
 GitLabClient.prototype.authToken = 'Bearer';
 
+GitLabClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/gitlab';
+
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
 GitLabClient.prototype.authenticate = function(success, error)
+{
+	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
+	
+	req.send(mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			this.authenticateStep2(req.getText(), success, error);
+		}
+		else if (error != null)
+		{
+			error(req);
+		}
+	}), error);
+};
+
+GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 {
 	if (window.onGitLabCallback == null)
 	{
@@ -46,68 +71,107 @@ GitLabClient.prototype.authenticate = function(success, error)
 		{
 			var acceptAuthResponse = true;
 			
-			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
+			var authRemembered = this.getPersistentToken(true);
+			
+			if (authRemembered != null)
 			{
-				var state = '123';
-				var href = window.location.href.split('?');
-				var dir = href[0].substring(0, href[0].lastIndexOf('/'));
-
-				var redirectUri = encodeURIComponent(dir + '/gitlab.html');
-				var win = window.open(DRAWIO_GITLAB_URL + '/oauth/authorize?client_id=' +
-					this.clientId + '&scope=' + this.scope + '&redirect_uri=' + redirectUri +
-					'&response_type=token&state=' + state, 'gitlabauth');
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); //To identify which app/domain is used
 				
-				if (win != null)
+				req.send(mxUtils.bind(this, function(req)
 				{
-					window.onGitLabCallback = mxUtils.bind(this, function(code, authWindow)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						if (acceptAuthResponse)
-						{
-							window.onGitLabCallback = null;
-							acceptAuthResponse = false;
-							
-							if (code == null)
-							{
-								error({message: mxResources.get('accessDenied'), retry: auth});
-							}
-							else
-							{
-								if (authSuccess != null)
-								{
-									authSuccess();
-								}
-								
-								this.token = code;
-								this.setUser(null);
-								
-								if (remember)
-								{
-									this.setPersistentToken(this.token);
-								}
-								
-								success();
-							}
-						}
-						else if (authWindow != null)
-						{
-							authWindow.close();
-						}
-					});
-				}
-				else
-				{
-					error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
-				}
+						_token = JSON.parse(req.getText()).access_token;
+						this.setToken(_token);
+						this.setUser(null);
+						success();
+					}
+					else 
+					{
+						this.clearPersistentToken();
+						this.setUser(null);
+						_token = null;
+						this.setToken(null);
 
-			}), mxUtils.bind(this, function()
+						if (req.getStatus() == 401) // (Unauthorized) [e.g, invalid refresh token]
+						{
+							auth();
+						}
+						else
+						{
+							error({message: mxResources.get('accessDenied'), retry: auth});
+						}
+					}
+				}), error);
+			}
+			else
 			{
-				if (acceptAuthResponse)
+				this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 				{
-					window.onGitLabCallback = null;
-					acceptAuthResponse = false;
-					error({message: mxResources.get('accessDenied'), retry: auth});
-				}
-			}));
+					var win = window.open(DRAWIO_GITLAB_URL + '/oauth/authorize?client_id=' +
+						this.clientId + '&scope=' + this.scope + 
+						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
+						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
+							'&domain=' + window.location.hostname + '&token=' + state) , 'gitlabauth'); 
+					
+					if (win != null)
+					{
+						window.onGitLabCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						{
+							if (acceptAuthResponse)
+							{
+								window.onGitLabCallback = null;
+								acceptAuthResponse = false;
+								
+								if (newAuthInfo == null)
+								{
+									error({message: mxResources.get('accessDenied'), retry: auth});
+								}
+								else
+								{
+									if (authSuccess != null)
+									{
+										authSuccess();
+									}
+									
+									_token = newAuthInfo.access_token;
+									this.setToken(_token);
+									this.setUser(null);
+									
+									if (remember)
+									{
+										this.setPersistentToken('remembered');
+									}
+									
+									success();
+									
+									if (authWindow != null)
+									{
+										authWindow.close();
+									}
+								}
+							}
+							else if (authWindow != null)
+							{
+								authWindow.close();
+							}
+						});
+					}
+					else
+					{
+						error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
+					}
+	
+				}), mxUtils.bind(this, function()
+				{
+					if (acceptAuthResponse)
+					{
+						window.onGitLabCallback = null;
+						acceptAuthResponse = false;
+						error({message: mxResources.get('accessDenied'), retry: auth});
+					}
+				}));
+			}
 		});
 		
 		auth();
@@ -133,7 +197,7 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 		}), this.ui.timeout);
 		
-		var temp = this.authToken + ' ' + this.token;
+		var temp = this.authToken + ' ' + _token;
 		
 		req.setRequestHeaders = function(request, params)
 		{
@@ -234,7 +298,7 @@ GitLabClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 		}
 	});
 
-	if (this.token == null)
+	if (_token == null)
 	{
 		this.authenticate(function()
 		{
@@ -330,7 +394,7 @@ GitLabClient.prototype.getFile = function(path, success, error, asLibrary, check
 			/\.pdf$/i.test(path) || (!this.ui.useCanvasForExport && binary)))
 		{
 			// Should never be null
-			if (this.token != null)
+			if (_token != null)
 			{
 				// Adds random parameter to bypass cache
 				var rnd = '&t=' + new Date().getTime();
@@ -1269,7 +1333,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		}));
 	});
 
-	if (!this.token)
+	if (!_token)
 	{
 		this.authenticate(mxUtils.bind(this, function()
 		{
@@ -1294,7 +1358,12 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
  */
 GitLabClient.prototype.logout = function()
 {
+	//Send to server to clear refresh token cookie
+	this.ui.editor.loadUrl(this.redirectUri + '?doLogout=1&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname));
 	this.clearPersistentToken();
 	this.setUser(null);
-	this.token = null;
+	_token = null;
+	this.setToken(null);
 };
+
+})();

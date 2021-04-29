@@ -42,7 +42,7 @@
 			this.createVertexTemplateEntry(s1 + 'bpmnTransferType=output;', 40, 60, '', 'Data Output', null, null, dt + 'data output'),
 			this.createVertexTemplateEntry(s1 + 'bpmnTransferType=output;isCollection=1;', 40, 60, '', 'Data Output Collection', null, null, dt + 'data output collection'),
 			this.createVertexTemplateEntry('shape=datastore;whiteSpace=wrap;html=1;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;', 100, 100, '', 'Data Store', null, null, dt + 'data store'),
-			this.createVertexTemplateEntry('rounded=1;dashed=1;dashPattern=5 2 1 2;labelPosition=center;verticalLabelPosition=top;align=right;verticalAlign=bottom;fontSize=8;', 140, 80, '', 'Data Object', null, null, dt + 'data object'),
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;dashed=1;dashPattern=5 2 1 2;labelPosition=center;verticalLabelPosition=top;align=right;verticalAlign=bottom;fontSize=8;', 140, 80, '', 'Data Object', null, null, dt + 'data object'),
 			this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 80, 30, 'Text', 'Text Annotation', null, null, dt + 'text annotation label'),
 			this.createVertexTemplateEntry(s2 + 'horizontal=0;swimlaneLine=0;fillColor=none;', 440, 100, '', 'Horizontal Lane', null, null, dt + 'horizontal lane'),
 			this.createVertexTemplateEntry(s2 + 'horizontal=1;swimlaneLine=0;fillColor=none;', 440, 100, '', 'Vertical Lane', null, null, dt + 'vertical lane'),
@@ -68,7 +68,7 @@
 			this.addDataEntry('container swimlane pool vertical', 380, 480, 'Vertical Pool 2',
 				'xZTPbsIwDMafJvf86dDOlI0LSEg8QUQtEi1pUBJGy9PPbdJ1G1TqhXGoZH/219g/RSGitM3ay5PaugoMEW9ElN65mCLblGAM4VRXRKwI5xQ/wt8nqqyv0pP0UMc5Bp4Mn9KcISk750wSQ2xNFsNFWyNrzJYqWpxyxTA8KG2qjWzduTsrRHn4GLKlh6CvsBsGYX+krWxQpaiizcc9FjDnnaCc11dXR2lyxyjsuyPy3/Lg4CM0k8v3Ut58Dc5C9C22XHQVVeoQrwkQVaCPKtuKQZQhCcdv78gSg4zzPlpxg3bTEeSUzcR7Q2bWyvz+ytmQr8NPAow/ikAxRYA/kQAr/hPByxQC8cxLsHggAkzH56uv/XrdvgA='),
 			this.createVertexTemplateEntry('swimlane;startSize=20;', 120, 320, 'Lane', 'Vertical Swimlane', null, null, 'swimlane lane pool'),
-			this.createVertexTemplateEntry('rounded=1;arcSize=10;dashed=1;strokeColor=#000000;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;',
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;arcSize=10;dashed=1;strokeColor=#000000;fillColor=none;gradientColor=none;dashPattern=8 3 1 3;strokeWidth=2;',
 				200, 200, '', 'Group', null, null, this.getTagsForStencil('bpmn', 'group', 'bpmn business process model ').join(' ')),
 				
 			this.createEdgeTemplateEntry(s5 + 'none;startArrow=none;', ew, eh, '', 'Association', null, dt + 'association'),
@@ -129,10 +129,11 @@
 	Sidebar.prototype.addBPMN2TasksPalette = function(gn, r, sb)
 	{
 		var dt = 'bpmn business process model notation task ';
-		var s1 = 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=abstract;';
-		var s2 = 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=';
-		var s3 = 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=abstract;bpmnShapeType=subprocess;isLoopSub=1;outline=';
-		var s4 = 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;bpmnShapeType=call;';
+		var pts = 'points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];';
+		var s1 = pts + 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=abstract;';
+		var s2 = pts + 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=';
+		var s3 = pts + 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;taskMarker=abstract;bpmnShapeType=subprocess;isLoopSub=1;outline=';
+		var s4 = pts + 'shape=mxgraph.bpmn.task;rectStyle=rounded;size=10;bpmnShapeType=call;';
 		var w = 50;
 		var h = 50;
 		
@@ -180,7 +181,7 @@
 			this.createVertexTemplateEntry(s3 + 'eventInt;symbol=escalation;', 120, 80, '', 'Escalation-Event Sub-Process, Interrupting, Collapsed', null, null, dt + 'interrupting escalation event sub process collapsed'),
 			this.createVertexTemplateEntry(s3 + 'eventInt;symbol=error;', 120, 80, '', 'Error-Event Sub-Process, Interrupting, Collapsed', null, null, dt + 'interrupting error event sub process collapsed'),
 			this.createVertexTemplateEntry(s3 + 'eventInt;symbol=compensation;', 120, 80, '', 'Compensation-Event Sub-Process, Interrupting, Collapsed', null, null, dt + 'interrupting compensation event sub process collapsed'),
-			this.createVertexTemplateEntry('shape=mxgraph.bpmn.task;arcSize=10;taskMarker=abstract;outline=none;symbol=general;bpmnShapeType=subprocess;isLoopSub=0;verticalAlign=top;align=left;spacingLeft=5;', 180, 100, '', 'Event Sub-Process, Expanded', null, null, dt + 'event sub process expanded'),
+			this.createVertexTemplateEntry('points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];shape=mxgraph.bpmn.task;arcSize=10;taskMarker=abstract;outline=none;symbol=general;bpmnShapeType=subprocess;isLoopSub=0;verticalAlign=top;align=left;spacingLeft=5;', 180, 100, '', 'Event Sub-Process, Expanded', null, null, dt + 'event sub process expanded'),
 
 			this.createVertexTemplateEntry(s4, 120, 80, '', 'Call Activity', null, null, dt + 'call activity'),
 			this.createVertexTemplateEntry(s4 + 'taskMarker=user;', 120, 80, '', 'User Call Activity', null, null, dt + 'user call activity'),
@@ -214,7 +215,7 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'points=[];html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
@@ -883,7 +884,7 @@
 	Sidebar.prototype.addBPMN2EventsPalette = function(gn, r, sb)
 	{
 		var dt = 'bpmn business process model notation event ';
-		var s = 'shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=';
+		var s = 'points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];shape=mxgraph.bpmn.event;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=ellipsePerimeter;outlineConnect=0;aspect=fixed;outline=';
 		var w = 50;
 		var h = 50;
 		
@@ -960,7 +961,7 @@
 	Sidebar.prototype.addBPMN2GatewaysPalette = function(gn, r, sb)
 	{
 		var dt = 'bpmn business process model notation gateway ';
-		var s2 = 'shape=mxgraph.bpmn.gateway2;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;outlineConnect=0;outline=';
+		var s2 = 'points=[[0.25,0.25,0],[0.5,0,0],[0.75,0.25,0],[1,0.5,0],[0.75,0.75,0],[0.5,1,0],[0.25,0.75,0],[0,0.5,0]];shape=mxgraph.bpmn.gateway2;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;align=center;perimeter=rhombusPerimeter;outlineConnect=0;outline=';
 		var w = 50;
 		var h = 50;
 		

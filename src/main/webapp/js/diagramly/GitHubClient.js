@@ -2,7 +2,13 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-GitHubClient = function(editorUi, authName)
+//Add a closure to hide the class private variables without changing the code a lot
+(function ()
+{
+
+var _token = null;
+
+window.GitHubClient = function(editorUi, authName)
 {
 	DrawioClient.call(this, editorUi, authName || 'ghauth');
 };
@@ -15,7 +21,7 @@ mxUtils.extend(GitHubClient, DrawioClient);
  * LATER: If thumbnails are disabled, make sure to replace the
  * existing thumbnail with the placeholder only once.
  */
-GitHubClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ? '23bc97120b9035515661' : '89c9e4624ca416554489';
+GitHubClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ? '23bc97120b9035515661' : window.DRAWIO_GITHUB_ID;
 
 /**
  * OAuth scope.
@@ -30,7 +36,11 @@ GitHubClient.prototype.extension = '.drawio';
 /**
  * Base URL for API calls.
  */
-GitHubClient.prototype.baseUrl = 'https://api.github.com';
+GitHubClient.prototype.baseUrl = DRAWIO_GITHUB_API_URL;
+
+GitHubClient.prototype.baseHostUrl = DRAWIO_GITHUB_URL;
+
+GitHubClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/github2';
 
 /**
  * Maximum file size of the GitHub REST API.
@@ -41,6 +51,11 @@ GitHubClient.prototype.maxFileSize = 1000000 /*1MB*/;
  * Name for the auth token header.
  */
 GitHubClient.prototype.authToken = 'token';
+
+GitHubClient.prototype.setToken = function(token)
+{
+	_token = token;	
+};
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
@@ -56,7 +71,7 @@ GitHubClient.prototype.updateUser = function(success, error, failOnAuth)
 	}), this.ui.timeout);
 	
 	var userReq = new mxXmlRequest(this.baseUrl + '/user', null, 'GET');
-	var temp = this.authToken + ' ' + this.token;
+	var temp = this.authToken + ' ' +  _token;
 	
 	userReq.setRequestHeaders = function(request, params)
 	{
@@ -111,90 +126,73 @@ GitHubClient.prototype.createUser = function(userInfo)
  */
 GitHubClient.prototype.authenticate = function(success, error)
 {
+	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
+	
+	req.send(mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			this.authenticateStep2(req.getText(), success, error);
+		}
+		else if (error != null)
+		{
+			error(req);
+		}
+	}), error);
+};
+
+GitHubClient.prototype.authenticateStep2 = function(state, success, error)
+{
 	if (window.onGitHubCallback == null)
 	{
 		var auth = mxUtils.bind(this, function()
 		{
 			var acceptAuthResponse = true;
 			
+			//NOTE: GitHub doesn't provide a refresh token, so we had to authorize always
 			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 			{
-				var win = window.open('https://github.com/login/oauth/authorize?client_id=' +
-					this.clientId + '&scope=' + this.scope, 'ghauth');
+				var win = window.open(this.baseHostUrl + '/login/oauth/authorize?client_id=' +
+					this.clientId + '&scope=' + this.scope + 
+					'&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
+						'&domain=' + window.location.hostname + '&token=' + state), 'ghauth');
 				
 				if (win != null)
 				{
-					window.onGitHubCallback = mxUtils.bind(this, function(code, authWindow)
+					window.onGitHubCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
 					{
 						if (acceptAuthResponse)
 						{
 							window.onGitHubCallback = null;
 							acceptAuthResponse = false;
 							
-							if (code == null)
+							if (newAuthInfo == null)
 							{
 								error({message: mxResources.get('accessDenied'), retry: auth});
 							}
 							else
 							{
-								// Gets token for code via servlet
-								var fn = mxUtils.bind(this, function()
+								if (authSuccess != null)
 								{
-									var acceptResponse = true;
-									
-									var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
-									{
-										acceptResponse = false;
-										error({code: App.ERROR_TIMEOUT, retry: fn});
-									}), this.ui.timeout);
-									
-									mxUtils.get('/github?client_id=' + this.clientId + '&code=' + code, mxUtils.bind(this, function(authReq)
-									{
-										window.clearTimeout(timeoutThread);
-										
-										if (acceptResponse)
-										{
-											try
-											{
-												if (authReq.getStatus() < 200 || authReq.getStatus() >= 300)
-												{
-													error({message: mxResources.get('cannotLogin')});
-												}
-												else
-												{
-													if (authSuccess != null)
-													{
-														authSuccess();
-													}
-													
-													var res = authReq.getText();
-													this.token = res.substring(res.indexOf('=') + 1, res.indexOf('&'));
-													this.setUser(null);
-													
-													if (remember)
-													{
-														this.setPersistentToken(this.token);
-													}
-													
-													success();
-												}
-											}
-											catch (e)
-											{
-												error(e);
-											}
-											finally
-											{
-												if (authWindow != null)
-												{
-													authWindow.close();
-												}
-											}
-										}
-									}));
-								});
-	
-								fn();
+									authSuccess();
+								}
+								
+								_token = newAuthInfo.access_token;
+								this.setUser(null);
+								
+								//NOTE: GitHub doesn't provide a refresh token, so we had to authorize always
+								//This is to clear current saved token and for the future if they decided to support it
+								if (remember)
+								{
+									this.setPersistentToken('remembered');
+								}
+								
+								success();
+								
+								if (authWindow != null)
+								{
+									authWindow.close();
+								}
 							}
 						}
 						else if (authWindow != null)
@@ -263,7 +261,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 			error({code: App.ERROR_TIMEOUT, retry: fn});
 		}), this.ui.timeout);
 		
-		var temp = this.authToken + ' ' + this.token;
+		var temp = this.authToken + ' ' + _token;
 		
 		req.setRequestHeaders = function(request, params)
 		{
@@ -361,7 +359,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 		}
 	});
 
-	if (this.token == null)
+	if (_token == null)
 	{
 		this.authenticate(function()
 		{
@@ -424,11 +422,11 @@ GitHubClient.prototype.getFile = function(path, success, error, asLibrary, check
 		/\.pdf$/i.test(path) || (!this.ui.useCanvasForExport && binary)))
 	{
 		// Should never be null
-		if (this.token != null)
+		if (_token != null)
 		{
 			var url = this.baseUrl + '/repos/' + org + '/' + repo +
 				'/contents/' + path + '?ref=' + ref;
-			var headers = {'Authorization': 'token ' + this.token};
+			var headers = {'Authorization': 'token ' + _token};
 			tokens = path.split('/');
 			var name = (tokens.length > 0) ? tokens[tokens.length - 1] : path;
 			this.ui.convertFile(url, name, null, this.extension, success, error, null, headers);
@@ -639,7 +637,7 @@ GitHubClient.prototype.writeFile = function(org, repo, ref, path, message, data,
 		{
 			if (err.code == 404)
 			{
-				err.helpLink = 'https://github.com/settings/connections/applications/' + this.clientId;
+				err.helpLink = this.baseHostUrl + '/settings/connections/applications/' + this.clientId;
 				err.code = null;
 			}
 			
@@ -1317,7 +1315,11 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
  */
 GitHubClient.prototype.logout = function()
 {
+	//NOTE: GitHub doesn't provide a refresh token, so no need to clear the token cookie
+	//this.ui.editor.loadUrl(this.redirectUri + '?doLogout=1&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname));
 	this.clearPersistentToken();
 	this.setUser(null);
-	this.token = null;
+	_token = null;
 };
+
+})();

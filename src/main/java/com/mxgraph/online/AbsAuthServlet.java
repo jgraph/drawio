@@ -63,6 +63,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 	
 	protected int postType = X_WWW_FORM_URLENCODED; 
 	protected String cookiePath = "/";
+	protected boolean withRedirectUrl = true;
+	protected boolean withAcceptJsonHeader = false;
 	
 	static public class Config 
 	{
@@ -357,7 +359,14 @@ abstract public class AbsAuthServlet extends HttpServlet
 
 	protected  int getExpiresIn(JsonObject json)
 	{
-		return json.get("expires_in").getAsInt();
+		try
+		{
+			return json.get("expires_in").getAsInt();
+		}
+		catch(Exception e)
+		{
+			return -1;
+		}
 	}
 	
 	protected  String getAccessToken(JsonObject json)
@@ -404,11 +413,21 @@ abstract public class AbsAuthServlet extends HttpServlet
 			if (postType == X_WWW_FORM_URLENCODED)
 			{
 				con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-
+				
+				if (withAcceptJsonHeader)
+				{
+					con.setRequestProperty("Accept", "application/json");
+				}
+				
 				urlParameters.append("client_id=");
 				urlParameters.append(client);
-				urlParameters.append("&redirect_uri=");
-				urlParameters.append(redirectUri);
+				
+				if (withRedirectUrl)
+				{
+					urlParameters.append("&redirect_uri=");
+					urlParameters.append(redirectUri);
+				}
+				
 				urlParameters.append("&client_secret=");
 				urlParameters.append(secret);
 			
@@ -483,7 +502,11 @@ abstract public class AbsAuthServlet extends HttpServlet
 			
 			JsonObject respObj = new JsonObject();
 			respObj.addProperty("access_token", accessToken);
-			respObj.addProperty("expires_in", expiresIn);
+			
+			if (expiresIn > -1)
+			{
+				respObj.addProperty("expires_in", expiresIn);
+			}
 			
 			if (directResp)
 			{
