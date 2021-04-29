@@ -58,7 +58,7 @@ public class GitHubAuthServlet extends AbsAuthServlet
 				CONFIG.AUTH_SERVICE_URL = "https://github.com/login/oauth/access_token";
 			}
 			
-			CONFIG.REDIRECT_PATH = "/github";
+			CONFIG.REDIRECT_PATH = "/github2";
 		}
 		
 		return CONFIG;

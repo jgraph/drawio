@@ -44,6 +44,8 @@ public class GitlabAuthServlet extends AbsAuthServlet
 				throw new RuntimeException("Client IDs path invalid");
 			}
 			
+			CONFIG = new Config(clientIds, clientSerets);
+
 			try
 			{
 				CONFIG.AUTH_SERVICE_URL = Utils
@@ -56,7 +58,6 @@ public class GitlabAuthServlet extends AbsAuthServlet
 				CONFIG.AUTH_SERVICE_URL = "https://gitlab.com/oauth/token";
 			}
 			
-			CONFIG = new Config(clientIds, clientSerets);
 			CONFIG.REDIRECT_PATH = "/gitlab";
 		}
 		
