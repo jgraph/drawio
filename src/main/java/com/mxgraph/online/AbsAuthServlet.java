@@ -64,6 +64,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 	protected int postType = X_WWW_FORM_URLENCODED; 
 	protected String cookiePath = "/";
 	protected boolean withRedirectUrl = true;
+	protected boolean withRedirectUrlInRefresh = true;
 	protected boolean withAcceptJsonHeader = false;
 	
 	static public class Config 
@@ -421,24 +422,29 @@ abstract public class AbsAuthServlet extends HttpServlet
 				
 				urlParameters.append("client_id=");
 				urlParameters.append(client);
-				
-				if (withRedirectUrl)
-				{
-					urlParameters.append("&redirect_uri=");
-					urlParameters.append(redirectUri);
-				}
-				
 				urlParameters.append("&client_secret=");
 				urlParameters.append(secret);
 			
 				if (code != null)
 				{
+					if (withRedirectUrl)
+					{
+						urlParameters.append("&redirect_uri=");
+						urlParameters.append(redirectUri);
+					}
+
 					urlParameters.append("&code=");
 					urlParameters.append(code);
 					urlParameters.append("&grant_type=authorization_code");
 				}
 				else
 				{
+					if (withRedirectUrlInRefresh)
+					{
+						urlParameters.append("&redirect_uri=");
+						urlParameters.append(redirectUri);
+					}
+					
 					urlParameters.append("&refresh_token=");
 					urlParameters.append(refreshToken);
 					urlParameters.append("&grant_type=refresh_token");

@@ -2,12 +2,17 @@
  * Copyright (c) 2006-2017, JGraph Ltd
  * Copyright (c) 2006-2017, Gaudenz Alder
  */
-DropboxClient = function(editorUi)
+//Add a closure to hide the class private variables without changing the code a lot
+(function()
+{
+
+var _token = null;
+
+window.DropboxClient = function(editorUi)
 {
 	DrawioClient.call(this, editorUi, 'dbauth');
 	
-	this.client = new Dropbox({clientId: App.DROPBOX_APPKEY});
-	this.client.setAccessToken(this.token);
+	this.client = new Dropbox({clientId: this.clientId});
 };
 
 // Extends DrawioClient
@@ -34,14 +39,20 @@ DropboxClient.prototype.writingFile = false;
  */
 DropboxClient.prototype.maxRetries = 4;
 
+DropboxClient.prototype.clientId = window.DRAWIO_DROPBOX_ID;
+
+DropboxClient.prototype.redirectUri = window.location.protocol + '//' + window.location.host + '/dropbox';
+
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
 DropboxClient.prototype.logout = function()
 {
+	//Send to server to clear refresh token cookie
+	this.ui.editor.loadUrl(this.redirectUri + '?doLogout=1&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname));
 	this.clearPersistentToken();
 	this.setUser(null);
-	this.token = null;
+	_token = null;
 	
 	this.client.authTokenRevoke().then(mxUtils.bind(this, function()
 	{
@@ -85,6 +96,7 @@ DropboxClient.prototype.updateUser = function(success, error, failOnAuth)
 			{
 				this.setUser(null);
 				this.client.setAccessToken(null);
+				_token = null;
 				
 				this.authenticate(mxUtils.bind(this, function()
 				{
@@ -104,81 +116,138 @@ DropboxClient.prototype.updateUser = function(success, error, failOnAuth)
  */
 DropboxClient.prototype.authenticate = function(success, error)
 {
+	var req = new mxXmlRequest(this.redirectUri + '?getState=1', null, 'GET');
+	
+	req.send(mxUtils.bind(this, function(req)
+	{
+		if (req.getStatus() >= 200 && req.getStatus() <= 299)
+		{
+			this.authenticateStep2(req.getText(), success, error);
+		}
+		else if (error != null)
+		{
+			error(req);
+		}
+	}), error);
+};
+
+DropboxClient.prototype.authenticateStep2 = function(state, success, error)
+{
 	if (window.onDropboxCallback == null)
 	{
 		var auth = mxUtils.bind(this, function()
 		{
 			var acceptAuthResponse = true;
+
+			var authRemembered = this.getPersistentToken(true);
 			
-			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
+			if (authRemembered != null)
 			{
-				var win = window.open(this.client.getAuthenticationUrl('https://' +
-					window.location.host + '/dropbox.html'), 'dbauth');
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); //To identify which app/domain is used
 				
-				if (win != null)
+				req.send(mxUtils.bind(this, function(req)
 				{
-					window.onDropboxCallback = mxUtils.bind(this, function(token, authWindow)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						if (acceptAuthResponse)
+						_token = JSON.parse(req.getText()).access_token;
+						this.client.setAccessToken(_token);
+						this.setUser(null);
+						success();
+					}
+					else 
+					{
+						this.clearPersistentToken();
+						this.setUser(null);
+						_token = null;
+						this.client.setAccessToken(null);
+
+						if (req.getStatus() == 401) // (Unauthorized) [e.g, invalid refresh token]
 						{
-							window.onDropboxCallback = null;
-							acceptAuthResponse = false;
-							
-							try
-							{
-								if (token == null)
-								{
-									error({message: mxResources.get('accessDenied'), retry: auth});
-								}
-								else
-								{
-									if (authSuccess != null)
-									{
-										authSuccess();
-									}
-									
-									this.client.setAccessToken(token);
-									this.setUser(null);
-									
-									if (remember)
-									{
-										this.setPersistentToken(token);
-									}
-									
-									success();
-								}
-							}
-							catch (e)
-							{
-								error(e);
-							}
-							finally
-							{
-								if (authWindow != null)
-								{
-									authWindow.close();
-								}
-							}
+							auth();
 						}
-						else if (authWindow != null)
+						else
 						{
-							authWindow.close();
+							error({message: mxResources.get('accessDenied'), retry: auth});
 						}
-					});
-				}
-				else
-				{
-					error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
-				}
-			}), mxUtils.bind(this, function()
+					}
+				}), error);
+			}
+			else
 			{
-				if (acceptAuthResponse)
+				this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 				{
-					window.onDropboxCallback = null;
-					acceptAuthResponse = false;
-					error({message: mxResources.get('accessDenied'), retry: auth});
-				}
-			}));
+					var win = window.open('https://www.dropbox.com/oauth2/authorize?client_id=' +
+						this.clientId + (remember? '&token_access_type=offline' : '') +
+						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
+						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
+							'&domain=' + window.location.hostname + '&token=' + state), 'dbauth');
+					
+					if (win != null)
+					{
+						window.onDropboxCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						{
+							if (acceptAuthResponse)
+							{
+								window.onDropboxCallback = null;
+								acceptAuthResponse = false;
+								
+								try
+								{
+									if (newAuthInfo == null)
+									{
+										error({message: mxResources.get('accessDenied'), retry: auth});
+									}
+									else
+									{
+										if (authSuccess != null)
+										{
+											authSuccess();
+										}
+										
+										_token = newAuthInfo.access_token;
+										this.client.setAccessToken(_token);
+										this.setUser(null);
+										
+										if (remember)
+										{
+											this.setPersistentToken('remembered');
+										}
+										
+										success();
+									}
+								}
+								catch (e)
+								{
+									error(e);
+								}
+								finally
+								{
+									if (authWindow != null)
+									{
+										authWindow.close();
+									}
+								}
+							}
+							else if (authWindow != null)
+							{
+								authWindow.close();
+							}
+						});
+					}
+					else
+					{
+						error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
+					}
+				}), mxUtils.bind(this, function()
+				{
+					if (acceptAuthResponse)
+					{
+						window.onDropboxCallback = null;
+						acceptAuthResponse = false;
+						error({message: mxResources.get('accessDenied'), retry: auth});
+					}
+				}));
+			}
 		});
 		
 		auth();
@@ -192,7 +261,7 @@ DropboxClient.prototype.authenticate = function(success, error)
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-DropboxClient.prototype.executePromise = function(promise, success, error)
+DropboxClient.prototype.executePromise = function(promiseFn, success, error)
 {
 	var doExecute = mxUtils.bind(this, function(failOnAuth)
 	{
@@ -203,6 +272,9 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
 			acceptResponse = false;
 			error({code: App.ERROR_TIMEOUT, retry: fn});
 		}), this.ui.timeout);
+		
+		//Dropbox client start executing the promise once created so auth fails, so we send a function instead to delay promise creation
+		var promise = promiseFn();
 		
 		promise.then(mxUtils.bind(this, function(response)
 		{
@@ -225,6 +297,7 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
 			    	{
 					this.setUser(null);
 					this.client.setAccessToken(null);
+					_token = null;
 					
 					if (!failOnAuth)
 					{
@@ -267,7 +340,7 @@ DropboxClient.prototype.executePromise = function(promise, success, error)
 		}
 	});
 
-	if (this.client.getAccessToken() === null)
+	if (_token == null)
 	{
 		this.authenticate(function()
 		{
@@ -307,7 +380,7 @@ DropboxClient.prototype.getFile = function(path, success, error, asLibrary)
 			this.ui.convertFile(path, name, null, this.extension, success, error);
 		});
 		
-		if (this.token != null)
+		if (_token != null)
 		{
 			fn();
 		}
@@ -441,6 +514,7 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
 			    	{
 					this.client.setAccessToken(null);
 					this.setUser(null);
+					_token = null;
 					
 					if (!failOnAuth)
 					{
@@ -483,7 +557,7 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
 		}
 	});
 
-	if (this.client.getAccessToken() === null)
+	if (_token == null)
 	{
 		this.authenticate(function()
 		{
@@ -504,9 +578,12 @@ DropboxClient.prototype.readFile = function(arg, success, error, binary)
  */
 DropboxClient.prototype.checkExists = function(filename, fn, noConfirm)
 {
-	var promise = this.client.filesGetMetadata({path: '/' + filename.toLowerCase(), include_deleted: false});
+	var promiseFn = mxUtils.bind(this, function()
+	{
+		return this.client.filesGetMetadata({path: '/' + filename.toLowerCase(), include_deleted: false});
+	});
 	
-	this.executePromise(promise, mxUtils.bind(this, function(response)
+	this.executePromise(promiseFn, mxUtils.bind(this, function(response)
 	{
 		if (noConfirm)
 		{
@@ -563,8 +640,12 @@ DropboxClient.prototype.renameFile = function(file, filename, success, error)
 				{
 					var thenHandler = mxUtils.bind(this, function(deleteResponse)
 					{
-						var move = this.client.filesMove({from_path: file.stat.path_display, to_path: '/' +
-							filename, autorename: false});
+						var move = mxUtils.bind(this, function()
+						{
+							return this.client.filesMove({from_path: file.stat.path_display, to_path: '/' +
+								filename, autorename: false});	
+						});
+						
 						this.executePromise(move, success, error);
 					});
 					
@@ -576,8 +657,12 @@ DropboxClient.prototype.renameFile = function(file, filename, success, error)
 					else
 					{
 						// Deletes file first to avoid conflict in filesMove (non-atomic)
-						var promise = this.client.filesDelete({path: '/' + filename.toLowerCase()});
-						this.executePromise(promise, thenHandler, error);
+						var promiseFn = mxUtils.bind(this, function()
+						{
+							return this.client.filesDelete({path: '/' + filename.toLowerCase()});
+						});
+						
+						this.executePromise(promiseFn, thenHandler, error);
 					}
 				}
 				else
@@ -660,10 +745,14 @@ DropboxClient.prototype.saveFile = function(filename, data, success, error, fold
 		folder = (folder != null) ? folder : '';
 		
 		// Mute switch is ignored
-		var promise = this.client.filesUpload({path: '/' + folder + filename,
-			mode: {'.tag': 'overwrite'}, mute: true,
-			contents: new Blob([data], {type: 'text/plain'})});
-		this.executePromise(promise, success, error);
+		var promiseFn = mxUtils.bind(this, function()
+		{
+			return this.client.filesUpload({path: '/' + folder + filename,
+				mode: {'.tag': 'overwrite'}, mute: true,
+				contents: new Blob([data], {type: 'text/plain'})});
+		});
+		
+		this.executePromise(promiseFn, success, error);
 	}
 };
 
@@ -921,3 +1010,5 @@ DropboxClient.prototype.createFile = function(file, success, error)
 		}
     }), error, binary);
 };
+
+})();

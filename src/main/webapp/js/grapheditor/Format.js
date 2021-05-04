@@ -1863,7 +1863,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		btn = mxUtils.button(mxResources.get('clearWaypoints'), mxUtils.bind(this, function(evt)
 		{
-			this.editorUi.actions.get('clearWaypoints').funct();
+			this.editorUi.actions.get('clearWaypoints').funct(evt);
 		}));
 		
 		btn.setAttribute('title', mxResources.get('clearWaypoints') + ' (' + this.editorUi.actions.get('clearWaypoints').shortcut + ')');
@@ -3833,7 +3833,9 @@ TextFormatPanel.prototype.addFont = function(container)
 	
 	function setSelected(elt, selected)
 	{
-		elt.style.backgroundImage = (selected) ? 'linear-gradient(#c5ecff 0px,#87d4fb 100%)' : '';
+		elt.style.backgroundImage = (selected) ? (Editor.isDarkMode() ?
+			'linear-gradient(rgb(0 161 241) 0px, rgb(0, 97, 146) 100%)':
+			'linear-gradient(#c5ecff 0px,#87d4fb 100%)') : '';
 	};
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)

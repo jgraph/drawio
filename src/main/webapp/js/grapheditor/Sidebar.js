@@ -1039,6 +1039,11 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 {
 	var lineTags = 'line lines connector connectors connection connections arrow arrows ';
 	this.setCurrentSearchEntryLibrary('general', 'general');
+	var sb = this;
+
+	// Reusable cells
+	var field = new mxCell('List Item', new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+	field.vertex = true;
 
 	var fns = [
 	 	this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;', 120, 60, '', 'Rectangle', null, null, 'rect rectangle box'),
@@ -1072,7 +1077,26 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;', 60, 80, '', 'Or', null, null, 'logic or'),
 	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
 	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;fixedSize=1;', 100, 80, '', 'Data Storage'),
-	 	this.addEntry('curve', mxUtils.bind(this, function()
+		this.createVertexTemplateEntry('swimlane;startSize=0;', 200, 200, '', 'Container', null, null, 'container swimlane lane pool group'),
+		this.createVertexTemplateEntry('swimlane;', 200, 200, 'Vertical Container', 'Container', null, null, 'container swimlane lane pool group'),
+		this.createVertexTemplateEntry('swimlane;horizontal=0;', 200, 200, 'Horizontal Container', 'Horizontal Container', null, null, 'container swimlane lane pool group'),
+		this.addEntry('list group erd table', function()
+		{
+			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
+		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;' +
+		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
+			cell.vertex = true;
+			cell.insert(sb.cloneCell(field, 'Item 1'));
+			cell.insert(sb.cloneCell(field, 'Item 2'));
+			cell.insert(sb.cloneCell(field, 'Item 3'));
+			
+			return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'List');
+		}),
+		this.addEntry('list item entry value group erd table', function()
+		{
+			return sb.createVertexTemplateFromCells([sb.cloneCell(field, 'List Item')], field.geometry.width, field.geometry.height, 'List Item');
+		}),
+		this.addEntry('curve', mxUtils.bind(this, function()
 	 	{
 			var cell = new mxCell('', new mxGeometry(0, 0, 50, 50), 'curved=1;endArrow=classic;html=1;');
 			cell.geometry.setTerminalPoint(new mxPoint(0, 50), true);
@@ -1131,7 +1155,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 		})),
 		this.addEntry(lineTags + 'edge title multiplicity', mxUtils.bind(this, function()
 		{
-			var edge = new mxCell('Label', new mxGeometry(0, 0, 0, 0), 'endArrow=classic;html=1;');
+			var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=classic;html=1;');
 			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 			edge.geometry.setTerminalPoint(new mxPoint(160, 0), false);
 			edge.geometry.relative = true;
@@ -1922,13 +1946,7 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	var fo = mxClient.NO_FO;
 	mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
 	this.graph.view.scaleAndTranslate(1, 0, 0);
-	
-	// Applies default styles for thumbs
-	var temp = this.graph.cloneCells(cells);
-	this.editorUi.insertHandler(temp, null, this.graph.model,
-		Graph.prototype.defaultVertexStyle,
-		Graph.prototype.defaultEdgeStyle);
-	this.graph.addCells(temp);
+	this.graph.addCells(cells);
 
 	var bounds = this.graph.getGraphBounds();
 	var s = Math.floor(Math.min((width - 2 * this.thumbBorder) / bounds.width,
@@ -2032,6 +2050,13 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	{
 		mxEvent.consume(evt);
 	});
+	
+	// Applies default styles
+	cells = this.graph.cloneCells(cells);
+	this.editorUi.insertHandler(cells, null, this.graph.model,
+		Graph.prototype.defaultVertexStyle,
+		Graph.prototype.defaultEdgeStyle,
+		true, true);
 
 	this.createThumb(cells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);

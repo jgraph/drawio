@@ -1872,6 +1872,17 @@
 				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
 			}
 
+			// Overrides zoom factor
+			if (config.zoomFactor != null)
+			{
+				var val = parseFloat(config.zoomFactor);
+				
+				if (!isNaN(val) && val > 1)
+				{
+					Graph.prototype.zoomFactor = val;
+				}
+			}
+
 			// Overrides grid steps
 			if (config.gridSteps != null)
 			{

@@ -215,19 +215,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'points=[];html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;part=1;taskMarker=abstract;');
+			    		'shape=mxgraph.bpmn.task;part=1;taskMarker=abstract;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -243,19 +243,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopStandard=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopStandard=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -271,19 +271,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopMultiSeq=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopMultiSeq=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -299,19 +299,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopMultiParallel=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopMultiParallel=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -327,19 +327,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -355,19 +355,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopStandard=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopStandard=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -383,19 +383,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopMultiSeq=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopMultiSeq=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -411,19 +411,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopMultiParallel=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;taskMarker=abstract;part=1;isLoopSub=1;isLoopMultiParallel=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -439,19 +439,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 400, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 400, 160), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;verticalAlign=top;align=left;spacingLeft=5;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;verticalAlign=top;align=left;spacingLeft=5;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 400, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -467,19 +467,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -495,19 +495,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopStandard=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopStandard=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -523,19 +523,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopMultiSeq=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopMultiSeq=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -551,19 +551,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopMultiParallel=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopMultiParallel=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -579,19 +579,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -607,19 +607,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopStandard=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopStandard=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -635,19 +635,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopMultiSeq=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopMultiSeq=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);
@@ -663,19 +663,19 @@
 		    	
 			    var cell1 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;bottomRightStyle=square;bottomLeftStyle=square;part=1;');
 			    cell1.vertex = true;
 		    	bg.insert(cell1);
 
 			    var cell2 = new mxCell('', 
 			    		new mxGeometry(0, 0, 120, 60), 
-			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopMultiParallel=1;');
+			    		'shape=mxgraph.bpmn.task;arcSize=0;part=1;taskMarker=abstract;isLoopSub=1;isLoopMultiParallel=1;connectable=0;');
 			    cell2.vertex = true;
 		    	bg.insert(cell2);
 
 			    var cell3 = new mxCell('', 
 			    		new mxGeometry(0, 1, 20, 20), 
-			    		'html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
+			    		'connectable=0;html=1;shape=mxgraph.basic.rect;size=10;rectStyle=rounded;topRightStyle=square;topLeftStyle=square;fillColor=#C0C0C0;part=1;');
 			    cell3.vertex = true;
 			    cell3.geometry.relative = false;
 		    	bg.insert(cell3);

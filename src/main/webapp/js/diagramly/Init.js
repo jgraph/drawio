@@ -30,6 +30,7 @@ window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || 'c9b9d3fcdce2dec7abe3ab21ad
 window.DRAWIO_GITHUB_URL = window.DRAWIO_GITHUB_URL || 'https://github.com';
 window.DRAWIO_GITHUB_API_URL = window.DRAWIO_GITHUB_API_URL || 'https://api.github.com';
 window.DRAWIO_GITHUB_ID = window.DRAWIO_GITHUB_ID || '4f88e2ec436d76c2ee6e';
+window.DRAWIO_DROPBOX_ID = window.DRAWIO_DROPBOX_ID || 'libwls2fa9szdji';
 window.SAVE_URL = window.SAVE_URL || 'save';
 window.OPEN_URL = window.OPEN_URL || 'import';
 window.PROXY_URL = window.PROXY_URL || 'proxy';

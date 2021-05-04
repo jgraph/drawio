@@ -109,7 +109,8 @@
 					var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
 					graph.setSelectionCells(editorUi.importXml(xml,
 						Math.max(insertPoint.x, 20),
-						Math.max(insertPoint.y, 20), true));
+						Math.max(insertPoint.y, 20),
+						true, null, null, true));
 					graph.scrollCellToVisible(graph.getSelectionCell());
 				}
 			}, null, null, null, null, null, null, null, null, null, null,

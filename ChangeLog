@@ -1,3 +1,22 @@
+04-MAY-2021: 14.6.10
+
+- Adds zoomFactor config option
+- Fixes links on custom shapes in Lucid import
+- Adds ctrl/cmd+dblclick to change cell ID
+- Adds containers to general sidebar
+- Fixes pointer events for text shapes
+- Fixes selected style in dark mode
+- Moves Dropbox auth from implicit grant to server-side flow
+- Adds XML option to import menu in minimal and sketch theme
+- Adds Shift+Click on clear waypoints button to clear fixed anchor points
+- Fixes overridden default font in sidebar thumbnails
+- Fixes ignored default styles for shapes dialog and inserted templates
+- Fixes NPE for sketch UI in embed mode
+- Adds enabledChanged event to graph
+- Separates clear waypoints and clear anchor points
+- Disables file API in Opera
+- Fixes anchor points behavior for Choreography shapes in BPMN
+
 29-APR-2021: 14.6.9
 
 - Corrects GitHub app ID

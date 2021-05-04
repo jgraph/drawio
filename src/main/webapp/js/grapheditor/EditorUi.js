@@ -185,12 +185,24 @@ EditorUi = function(editor, container, lightbox)
 		}
 		
 		// Implements a global current style for edges and vertices that is applied to new cells
-		var insertHandler = function(cells, asText, model, vertexStyle, edgeStyle)
+		var insertHandler = function(cells, asText, model, vertexStyle, edgeStyle, applyAll, recurse)
 		{
 			vertexStyle = (vertexStyle != null) ? vertexStyle : graph.currentVertexStyle;
 			edgeStyle = (edgeStyle != null) ? edgeStyle : graph.currentEdgeStyle;
 			
 			model = (model != null) ? model : graph.getModel();
+			
+			if (recurse)
+			{
+				var temp = [];
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					temp = temp.concat(model.getDescendants(cells[i]));
+				}
+				
+				cells = temp;				
+			}
 			
 			model.beginUpdate();
 			try
@@ -263,7 +275,7 @@ EditorUi = function(editor, container, lightbox)
 						if (styleValue != null && (key != 'shape' || edge))
 						{
 							// Special case: Connect styles are not applied here but in the connection handler
-							if (!edge || mxUtils.indexOf(connectStyles, key) < 0)
+							if (!edge || applyAll || mxUtils.indexOf(connectStyles, key) < 0)
 							{
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
 							}

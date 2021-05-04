@@ -1452,10 +1452,10 @@ Actions.prototype.init = function()
 			rmWaypointAction.handler.removePoint(rmWaypointAction.handler.state, rmWaypointAction.index);
 		}
 	});
-	this.addAction('clearWaypoints', function()
+	this.addAction('clearWaypoints', function(evt)
 	{
 		var cells = graph.getSelectionCells();
-		
+
 		if (cells != null)
 		{
 			cells = graph.addAllEdges(cells);
@@ -1471,7 +1471,15 @@ Actions.prototype.init = function()
 					{
 						var geo = graph.getCellGeometry(cell);
 			
-						if (geo != null)
+						// Resets fixed connection point
+						if (mxEvent.isShiftDown(evt))
+						{
+							graph.setCellStyles(mxConstants.STYLE_EXIT_X, null, [cell]);
+							graph.setCellStyles(mxConstants.STYLE_EXIT_Y, null, [cell]);
+							graph.setCellStyles(mxConstants.STYLE_ENTRY_X, null, [cell]);
+							graph.setCellStyles(mxConstants.STYLE_ENTRY_Y, null, [cell]);
+						}
+						else if (geo != null)
 						{
 							geo = geo.clone();
 							geo.points = null;

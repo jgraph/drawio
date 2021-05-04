@@ -13479,6 +13479,7 @@ LucidImporter = {};
 		}
 				
 		handleTextRotation(v, p);
+		addCustomData(v, p, graph);
 		
 		if (p.Hidden)
 		{

@@ -243,7 +243,7 @@ App.MODE_EMBED = 'embed';
 /**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
-App.DROPBOX_APPKEY = 'libwls2fa9szdji';
+App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;
 
 /**
  * Sets URL to load the Dropbox SDK from
@@ -3883,7 +3883,7 @@ App.prototype.pickFile = function(mode)
 			{
 				peer.pickFile();
 			}
-			else if (mode == App.MODE_DEVICE && 'showOpenFilePicker' in window && !EditorUi.isElectronApp)
+			else if (mode == App.MODE_DEVICE && EditorUi.nativeFileSupport)
 			{
 				window.showOpenFilePicker().then(mxUtils.bind(this, function(fileHandles)
 				{
@@ -4426,7 +4426,7 @@ App.prototype.saveFile = function(forceDialog, success)
 						
 						if (prev == null && mode == App.MODE_DEVICE)
 						{
-							if (file != null && 'showSaveFilePicker' in window)
+							if (file != null && EditorUi.nativeFileSupport)
 							{
 								this.showSaveFilePicker(mxUtils.bind(this, function(fileHandle, desc)
 								{
@@ -4718,7 +4718,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					this.fileCreated(file, libs, replace, done, clibs);
 				}), error);
 			}
-			else if (!tempFile && mode == App.MODE_DEVICE && 'showSaveFilePicker' in window && !EditorUi.isElectronApp)
+			else if (!tempFile && mode == App.MODE_DEVICE && EditorUi.nativeFileSupport)
 			{
 				complete();
 				

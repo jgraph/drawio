@@ -153,6 +153,16 @@
     <servlet-name>GitlabAuthServlet</servlet-name>
     <url-pattern>/gitlab</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <description/>
+    <display-name>DropboxAuthServlet</display-name>
+    <servlet-name>DropboxAuthServlet</servlet-name>
+    <servlet-class>com.mxgraph.online.DropboxAuthServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DropboxAuthServlet</servlet-name>
+    <url-pattern>/dropbox</url-pattern>
+  </servlet-mapping>
   <mime-mapping>
     <extension>css</extension>
     <mime-type>text/css</mime-type>

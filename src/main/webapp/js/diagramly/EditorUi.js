@@ -83,6 +83,12 @@
 		window.process.versions != null && window.process.versions['electron'] != null;
 	
 	/**
+	 * Shortcut for capability check.
+	 */
+	EditorUi.nativeFileSupport = !mxClient.IS_OP && !EditorUi.isElectronApp &&
+		'showSaveFilePicker' in window && 'showOpenFilePicker' in window;
+
+	/**
 	 * Specifies if drafts should be saved in IndexedDB.
 	 */
 	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
@@ -6642,7 +6648,7 @@
 	/**
 	 * Imports the given XML into the existing diagram.
 	 */
-	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage)
+	EditorUi.prototype.importXml = function(xml, dx, dy, crop, noErrorHandling, addNewPage, applyDefaultStyles)
 	{
 		dx = (dx != null) ? dx : 0;
 		dy = (dy != null) ? dy : 0;
@@ -6741,6 +6747,14 @@
 								this.updatePageLinksForCell(mapping, cells[i]);
 							}
 						}
+					}
+					
+					if (applyDefaultStyles)
+					{
+						this.insertHandler(cells, null, null,
+							Graph.prototype.defaultVertexStyle,
+							Graph.prototype.defaultEdgeStyle,
+							true, true);
 					}
 				}
 				finally

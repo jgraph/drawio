@@ -419,7 +419,7 @@ EditorUi.initMinimalTheme = function()
 			'td.mxWindowTitle { height: 22px !important; background: none !important; font-size: 13px !important; text-align:center !important; border-bottom:1px solid lightgray; }' +
 			'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
 			'div.mxWindow { border-radius:5px; box-shadow: 0px 0px 2px #C0C0C0 !important;}' +
-			'div.mxWindow * { font-family: inherit !important; }' +
+			'div.mxWindow *:not(svg *) { font-family: inherit !important; }' +
 			// Minimal Style UI
 			'html div.geVerticalHandle { position:absolute;bottom:0px;left:50%;cursor:row-resize;width:11px;height:11px;background:white;margin-bottom:-6px; margin-left:-6px; border: none; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
 			'html div.geInactivePage { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : 'rgb(249, 249, 249)') + ' !important; color: #A0A0A0 !important; } ' +
@@ -1102,7 +1102,17 @@ EditorUi.initMinimalTheme = function()
 		{
 			ui.menus.addInsertTableCellItem(menu, parent);
 		})));
-
+		
+		// Adds XML option to import menu
+		var importMenu = this.get('importFrom');
+		
+		this.put('importFrom', new Menu(mxUtils.bind(this, function(menu, parent)
+        {
+			importMenu.funct(menu, parent);
+			
+			this.addMenuItems(menu, ['editDiagram'], parent);
+		})));
+		
         // Extras menu is labelled preferences but keeps ID for extensions
         this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
         {
@@ -1467,6 +1477,7 @@ EditorUi.initMinimalTheme = function()
                 };
                 
                 action.addListener('stateChanged', updateState);
+				graph.addListener('enabledChanged', updateState);
                 updateState();
             }
            
@@ -1729,48 +1740,51 @@ EditorUi.initMinimalTheme = function()
 					
 			// Connects the status bar to the editor status and
 			// moves status to bell icon tooltip for trivial messages
-			ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
+			if (urlParams['embed'] != '1')
 			{
-				ui.setStatusText(ui.editor.getStatus());
-	
-				if (ui.statusContainer.children.length == 0 ||
-					(ui.statusContainer.children.length == 1 &&
-					ui.statusContainer.firstChild.getAttribute('class') == null))
+				ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
 				{
-					if (ui.statusContainer.firstChild != null)
+					ui.setStatusText(ui.editor.getStatus());
+		
+					if (ui.statusContainer.children.length == 0 ||
+						(ui.statusContainer.children.length == 1 &&
+						ui.statusContainer.firstChild.getAttribute('class') == null))
 					{
-						setNotificationTitle(ui.statusContainer.firstChild.getAttribute('title'));
+						if (ui.statusContainer.firstChild != null)
+						{
+							setNotificationTitle(ui.statusContainer.firstChild.getAttribute('title'));
+						}
+						else
+						{
+							setNotificationTitle(ui.editor.getStatus());
+						}
+						
+						var file = ui.getCurrentFile();
+						var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
+						
+						if (ui.notificationBtn != null &&
+							ui.notificationBtn.getAttribute('title') == mxResources.get(key) + '...')
+						{
+							ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
+								mxResources.get(key)) + '...' + '"src="' + IMAGE_PATH + '/spin.gif">';
+							ui.statusContainer.style.display = 'inline-block';
+							statusVisible = true;
+						}
+						else
+						{	
+							ui.statusContainer.style.display = 'none';
+							statusVisible = false;
+						}
 					}
 					else
 					{
-						setNotificationTitle(ui.editor.getStatus());
-					}
-					
-					var file = ui.getCurrentFile();
-					var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
-					
-					if (ui.notificationBtn != null &&
-						ui.notificationBtn.getAttribute('title') == mxResources.get(key) + '...')
-					{
-						ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
-							mxResources.get(key)) + '...' + '"src="' + IMAGE_PATH + '/spin.gif">';
 						ui.statusContainer.style.display = 'inline-block';
+						setNotificationTitle(null);
+						
 						statusVisible = true;
 					}
-					else
-					{	
-						ui.statusContainer.style.display = 'none';
-						statusVisible = false;
-					}
-				}
-				else
-				{
-					ui.statusContainer.style.display = 'inline-block';
-					setNotificationTitle(null);
-					
-					statusVisible = true;
-				}
-			}));
+				}));
+			}
 			
 			elt = addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg');
 			elt.style.boxShadow = 'none';
@@ -1863,10 +1877,10 @@ EditorUi.initMinimalTheme = function()
 				
 				addAction(ui.actions.get('insertFreehand'), mxResources.get('freehand'),
 					'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHJlY3QgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0Ii8+PHBhdGggZD0iTTQuNSw4YzEuMDQsMCwyLjM0LTEuNSw0LjI1LTEuNWMxLjUyLDAsMi43NSwxLjIzLDIuNzUsMi43NWMwLDIuMDQtMS45OSwzLjE1LTMuOTEsNC4yMkM1LjQyLDE0LjY3LDQsMTUuNTcsNCwxNyBjMCwxLjEsMC45LDIsMiwydjJjLTIuMjEsMC00LTEuNzktNC00YzAtMi43MSwyLjU2LTQuMTQsNC42Mi01LjI4YzEuNDItMC43OSwyLjg4LTEuNiwyLjg4LTIuNDdjMC0wLjQxLTAuMzQtMC43NS0wLjc1LTAuNzUgQzcuNSw4LjUsNi4yNSwxMCw0LjUsMTBDMy4xMiwxMCwyLDguODgsMiw3LjVDMiw1LjQ1LDQuMTcsMi44Myw1LDJsMS40MSwxLjQxQzUuNDEsNC40Miw0LDYuNDMsNCw3LjVDNCw3Ljc4LDQuMjIsOCw0LjUsOHogTTgsMjEgbDMuNzUsMGw4LjA2LTguMDZsLTMuNzUtMy43NUw4LDE3LjI1TDgsMjF6IE0xMCwxOC4wOGw2LjA2LTYuMDZsMC45MiwwLjkyTDEwLjkyLDE5TDEwLDE5TDEwLDE4LjA4eiBNMjAuMzcsNi4yOSBjLTAuMzktMC4zOS0xLjAyLTAuMzktMS40MSwwbC0xLjgzLDEuODNsMy43NSwzLjc1bDEuODMtMS44M2MwLjM5LTAuMzksMC4zOS0xLjAyLDAtMS40MUwyMC4zNyw2LjI5eiIvPjwvc3ZnPg==');
-				addAction(ui.actions.get('insertTemplate'), mxResources.get('template'),
-					'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDExaC0ydjNIOHYyaDN2M2gydi0zaDN2LTJoLTN6bTEtOUg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS44OSAyIDEuOTkgMkgxOGMxLjEgMCAyLS45IDItMlY4bC02LTZ6bTQgMThINlY0aDd2NWg1djExeiIvPjwvc3ZnPg==');
 				var toggleShapesAction = ui.actions.get('toggleShapes');
 				addAction(toggleShapesAction, mxResources.get('shapes') + ' (' + toggleShapesAction.shortcut + ')', insertImage);
+				addAction(ui.actions.get('insertTemplate'), mxResources.get('template'),
+					'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDExaC0ydjNIOHYyaDN2M2gydi0zaDN2LTJoLTN6bTEtOUg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS44OSAyIDEuOTkgMkgxOGMxLjEgMCAyLS45IDItMlY4bC02LTZ6bTQgMThINlY0aDd2NWg1djExeiIvPjwvc3ZnPg==');
 			});
 			
 			initPicker();
