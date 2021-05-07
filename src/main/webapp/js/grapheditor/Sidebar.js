@@ -2056,7 +2056,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	this.editorUi.insertHandler(cells, null, this.graph.model,
 		Graph.prototype.defaultVertexStyle,
 		Graph.prototype.defaultEdgeStyle,
-		true, true);
+		false, false);
 
 	this.createThumb(cells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);

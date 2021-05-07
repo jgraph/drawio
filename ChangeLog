@@ -1,3 +1,13 @@
+07-MAY-2021: 14.6.11
+
+- Fixes Dropbox client in dev mode
+- Adds iconsearch CF worker
+- Updates Gliffy translations for BPMN 2.0
+- Removes JSON2 usage. Required for IE7- which doesn't work since VML support removed.
+- Reverts parameters for sidebar so default style is not applied.
+- Adds gitflow examples
+- Additional Spanish translations
+
 04-MAY-2021: 14.6.10
 
 - Adds zoomFactor config option

@@ -120,7 +120,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		}
 	})();
 }
-			
+
 mxscript(drawDevUrl + 'js/cryptojs/aes.min.js');
 mxscript(drawDevUrl + 'js/spin/spin.min.js');
 mxscript(drawDevUrl + 'js/deflate/pako.min.js');
