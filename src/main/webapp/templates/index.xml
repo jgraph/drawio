@@ -161,6 +161,9 @@
 <template url="software/database_3.xml" libs="general;uml"/>
 <template url="software/eip.xml" libs="general;eip"/>
 <template url="software/entity_relationship.xml" libs="general;uml;er"/>
+<template url="software/git_flow_1.xml" libs="general"/>
+<template url="software/git_flow_2.xml" libs="general"/>
+<template url="software/git_flow_3.xml" libs="general"/>
 <template url="tables/authority_matrix.xml" libs="general"/>
 <template url="tables/gantt_1.xml" libs="general"/>
 <template url="tables/gantt_2.xml" libs="general"/>

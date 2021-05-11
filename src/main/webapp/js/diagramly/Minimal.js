@@ -1279,7 +1279,8 @@ EditorUi.initMinimalTheme = function()
 			
 			this.editor.graph.isZoomWheelEvent = function(evt)
 			{
-				return !mxEvent.isAltDown(evt) && (!mxEvent.isControlDown(evt) || mxClient.IS_MAC);
+				return !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
+					(!mxEvent.isControlDown(evt) || mxClient.IS_MAC);
 			};
 		}
 

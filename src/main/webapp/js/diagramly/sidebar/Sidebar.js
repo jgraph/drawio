@@ -1292,12 +1292,6 @@
 			this.searchFileData = null;
 		}
 		
-		// Logs search terms for improving search results
-		if (!this.editorUi.isOffline() && page == 0)
-		{
-			EditorUi.logEvent({category: 'Shape', action: 'search', label: searchTerms});
-		}
-		
 		if (ICONSEARCH_PATH != null)
 		{
 			success = mxUtils.bind(this, function(results, len, more, terms)

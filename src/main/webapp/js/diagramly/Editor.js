@@ -1215,27 +1215,14 @@
 		mxShape.prototype.paint = function(c)
 		{
 			var addTolerance = c.addTolerance;
-			var fillStyle = null;
 			var events = true;
 			
 			if (this.style != null)
 			{
 				events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';
-				fillStyle = mxUtils.getValue(this.style, 'fillStyle', 'auto');
-				
-				if (this.state != null && fillStyle == 'auto')
-				{
-					var bg = this.state.view.graph.defaultPageBackgroundColor;
-					
-					if (this.fill != null && (this.gradient != null || (bg != null &&
-						this.fill.toLowerCase() == bg.toLowerCase())))
-					{
-						fillStyle = 'solid';
-					}
-				}
 			}
 			
-			if (events && c.handJiggle != null && c.handJiggle.constructor == RoughCanvas && !this.outline)
+			if (c.handJiggle != null && c.handJiggle.constructor == RoughCanvas && !this.outline)
 			{
 				// Save needed for possible transforms applied during paint
 				c.save();
@@ -1243,6 +1230,8 @@
 				var stroke = this.stroke;
 				this.fill = null;
 				this.stroke = null;
+				
+				var configurePointerEvents = this.configurePointerEvents;
 				
 				// Ignores color changes during paint
 				var setStrokeColor = c.setStrokeColor;
@@ -1259,6 +1248,15 @@
 					// ignore
 				};
 				
+				// Adds stroke tolerance for plain rendering if filled
+				if (!events && fill != null)
+				{
+					this.configurePointerEvents = function()
+					{
+						// ignore
+					};
+				}
+				
 				c.handJiggle.passThrough = true;
 
 				shapePaint.apply(this, arguments);
@@ -1266,20 +1264,25 @@
 				c.handJiggle.passThrough = false;
 				c.setFillColor = setFillColor;
 				c.setStrokeColor = setStrokeColor;
+				this.configurePointerEvents = configurePointerEvents;
 				this.stroke = stroke;
 				this.fill = fill;
 				c.restore();
 				
-				c.addTolerance = function()
+				// Bypasses stroke tolerance for sketched rendering if filled
+				if (events && fill != null)
 				{
-					// ignore	
-				};
+					c.addTolerance = function()
+					{
+						// ignore	
+					};
+				}
 			}
 			
 			shapePaint.apply(this, arguments);
 			c.addTolerance = addTolerance;
 		};
-		
+
 		// Overrides glass effect to disable sketch style
 		var shapePaintGlassEffect = mxShape.prototype.paintGlassEffect;
 		mxShape.prototype.paintGlassEffect = function(c, x, y, w, h, arc)

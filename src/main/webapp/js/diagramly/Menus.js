@@ -870,7 +870,7 @@
 				
 				if (!EditorUi.isElectronApp)
 				{
-					buttons.push([mxResources.get('link'), function(evt, input)
+					buttons.push([mxResources.get('share'), function(evt, input)
 					{
 						if (input.value.length > 0)
 						{

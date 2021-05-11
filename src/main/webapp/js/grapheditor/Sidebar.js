@@ -1083,7 +1083,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 		this.addEntry('list group erd table', function()
 		{
 			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
-		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;' +
+		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;' +
 		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 			cell.vertex = true;
 			cell.insert(sb.cloneCell(field, 'Item 1'));
@@ -2056,7 +2056,8 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	this.editorUi.insertHandler(cells, null, this.graph.model,
 		Graph.prototype.defaultVertexStyle,
 		Graph.prototype.defaultEdgeStyle,
-		true, true);
+		urlParams['sketch'] == '1',
+		urlParams['sketch'] == '1');
 
 	this.createThumb(cells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);

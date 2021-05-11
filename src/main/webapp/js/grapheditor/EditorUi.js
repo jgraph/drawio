@@ -3444,18 +3444,22 @@ EditorUi.prototype.setFoldingEnabled = function(value)
 /**
  * Loads the stylesheet for this graph.
  */
-EditorUi.prototype.setPageFormat = function(value)
+EditorUi.prototype.setPageFormat = function(value, ignorePageVisible)
 {
+	ignorePageVisible = (ignorePageVisible != null) ? ignorePageVisible : urlParams['sketch'] == '1';
 	this.editor.graph.pageFormat = value;
 	
-	if (!this.editor.graph.pageVisible)
+	if (!ignorePageVisible)
 	{
-		this.actions.get('pageView').funct();
-	}
-	else
-	{
-		this.editor.graph.view.validateBackground();
-		this.editor.graph.sizeDidChange();
+		if (!this.editor.graph.pageVisible)
+		{
+			this.actions.get('pageView').funct();
+		}
+		else
+		{
+			this.editor.graph.view.validateBackground();
+			this.editor.graph.sizeDidChange();
+		}
 	}
 
 	this.fireEvent(new mxEventObject('pageFormatChanged'));
