@@ -1466,12 +1466,12 @@
 		else
 		{
 			var events = true;
-			
+
 			if (this.style != null)
 			{
 				events = mxUtils.getValue(this.style, mxConstants.STYLE_POINTER_EVENTS, '1') == '1';		
 			}
-			
+
 			if (events || (this.fill != null && this.fill != mxConstants.NONE) ||
 				(this.stroke != null && this.stroke != mxConstants.NONE))
 			{
@@ -1479,13 +1479,13 @@
 				{
 					c.pointerEvents = false;
 				}
-				
+
 				c.begin();
-				
+
 				if (this.isRounded)
 				{
 					var r = 0;
-					
+
 					if (mxUtils.getValue(this.style, mxConstants.STYLE_ABSOLUTE_ARCSIZE, 0) == '1')
 					{
 						r = Math.min(w / 2, Math.min(h / 2, mxUtils.getValue(this.style,
@@ -1497,7 +1497,7 @@
 							mxConstants.RECTANGLE_ROUNDING_FACTOR * 100) / 100;
 						r = Math.min(w * f, h * f);
 					}
-					
+
 					c.moveTo(x + r, y);
 					c.lineTo(x + w - r, y);
 					c.quadTo(x + w, y, x + w, y + r);
@@ -1516,28 +1516,15 @@
 					c.lineTo(x, y + h);
 					c.lineTo(x, y);
 				}
-				
+
 				// LATER: Check if close is needed here
 				c.close();
 				c.end();
-				
+
 				c.fillAndStroke();
 			}			
 		}
 	};
-
-	/**
-	 * Disables glass effect with hand jiggle.
-	 */
-	var mxRectangleShapePaintForeground0 = mxRectangleShape.prototype.paintForeground;
-	mxRectangleShape.prototype.paintForeground = function(c, x, y, w, h)
-	{
-		if (c.handJiggle == null)
-		{
-			mxRectangleShapePaintForeground0.apply(this, arguments);
-		}
-	};
-
 	// End of hand jiggle integration
 	
 	// Process Shape

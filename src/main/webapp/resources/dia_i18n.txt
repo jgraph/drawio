@@ -1139,3 +1139,4 @@ replaceAll=replaceAll
 confASkipDiagModified=confASkipDiagModified
 replFind=replFind
 matchesRepl=matchesRepl
+draftErrDataLoss=draftErrDataLoss

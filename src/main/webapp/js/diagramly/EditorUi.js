@@ -3656,21 +3656,28 @@
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
-			Menus.prototype.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
-				'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
-				{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
-				{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
-				concat(Menus.prototype.defaultFonts);
-
-			Graph.prototype.defaultVertexStyle = {'fontFamily': Editor.sketchFontFamily , 'fontSize': '20',
-				'fontSource': Editor.sketchFontSource, 'pointerEvents': '0', 'sketch':
-				urlParams['rough'] == '0' ? '0' : '1', 'hachureGap': '4'};
-			
+			Graph.prototype.defaultVertexStyle = {'pointerEvents': '0', 'hachureGap': '4'};
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
-				'fontFamily': Editor.sketchFontFamily, 'fontSize': '20','fontSource': Editor.sketchFontSource,
-				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8', 'sketch':
-				urlParams['rough'] == '0' ? '0' : '1'};
+				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8'};
+				
+			if (urlParams['rough'] != '0')
+			{
+				Graph.prototype.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
+				Graph.prototype.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
+				Graph.prototype.defaultVertexStyle['fontSize'] = '20';
+				Graph.prototype.defaultVertexStyle['sketch'] = '1';
+				Graph.prototype.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
+				Graph.prototype.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
+				Graph.prototype.defaultEdgeStyle['fontSize'] = '20';
+				Graph.prototype.defaultEdgeStyle['sketch'] = '1';
+				
+				Menus.prototype.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
+					'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
+					{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
+					{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
+					concat(Menus.prototype.defaultFonts);
+			}
 			
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';

@@ -1,3 +1,29 @@
+13-MAY-2021: 14.6.13
+
+- Updates to latest Azure stencils
+- [conf cloud] Improves error handling around draft load failing
+- [conf cloud] Fixes lib import without config space
+
+11-MAY-2021: 14.6.12
+
+- Fixes sidebar preview for sketch theme
+- Disables handwritten fonts in sketch theme with rough=0
+- Fixes inconsistent pointer event handling
+- Fixes ignored comic style for rectangle shape
+- Adds modifier keys for wheel scrolling in sketch theme
+- Disables page view after page format change with sketch theme
+- Updates ar and ru translations
+
+07-MAY-2021: 14.6.11
+
+- Fixes Dropbox client in dev mode
+- Adds iconsearch CF worker
+- Updates Gliffy translations for BPMN 2.0
+- Removes JSON2 usage. Required for IE7- which doesn't work since VML support removed.
+- Reverts parameters for sidebar so default style is not applied.
+- Adds gitflow examples
+- Additional Spanish translations
+
 04-MAY-2021: 14.6.10
 
 - Adds zoomFactor config option

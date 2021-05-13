@@ -487,7 +487,7 @@ App.getStoredMode = function()
 							mxscript(App.DROPBOX_URL, function()
 							{
 								// Must load this after the dropbox SDK since they use the same namespace
-								mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY);
+								mxscript(App.DROPINS_URL, null, 'dropboxjs', App.DROPBOX_APPKEY, true);
 							});							
 						}
 						else if (urlParams['chrome'] == '0')
@@ -563,12 +563,6 @@ App.getStoredMode = function()
 					}
 				}
 			}
-			
-			// Loads JSON for older browsers
-			if (typeof(JSON) == 'undefined')
-			{
-				mxscript('js/json/json2.min.js');
-			}
 		}
 	}
 })();
@@ -641,7 +635,7 @@ App.main = function(callback, createUi)
 	if (window.mxscript != null)
 	{
 		// Checks for script content changes to avoid CSP errors in production
-		if (urlParams['dev'] == '1' && CryptoJS != null && urlParams['mode'] != 'trello')
+		if (urlParams['dev'] == '1' && CryptoJS != null && App.mode != App.MODE_DROPBOX && App.mode != App.MODE_TRELLO)
 		{
 			var scripts = document.getElementsByTagName('script');
 			
