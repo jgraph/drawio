@@ -1149,6 +1149,23 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 	var selectRepo = mxUtils.bind(this, function(page)
 	{
 		this.ui.spinner.stop();
+
+		var spinner = this.ui.spinner;
+		var inFlightRequests = 0;
+
+		var spinnerRequestStarted = function()
+		{
+			inFlightRequests += 1;
+			spinner.spin(div, mxResources.get('loading'));
+		}
+
+		var spinnerRequestFinished = function()
+		{
+			inFlightRequests -= 1;
+			if (inFlightRequests === 0) {
+				spinner.stop();
+			}
+		}
 		
 		if (page == null)
 		{
@@ -1181,25 +1198,25 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 
 		var listGroups = mxUtils.bind(this, function(callback)
 		{
-			this.ui.spinner.spin(div, mxResources.get('loading'));
+			spinnerRequestStarted();
 			var req = new mxXmlRequest(this.baseUrl + '/groups?per_page=100', null, 'GET');
 			
 			this.executeRequest(req, mxUtils.bind(this, function(req)
 			{
-				this.ui.spinner.stop();
 				callback(JSON.parse(req.getText()));
+				spinnerRequestFinished();
 			}), error);
 		});
 
 		var listProjects = mxUtils.bind(this, function(group, callback)
 		{
-			this.ui.spinner.spin(div, mxResources.get('loading'));
+			spinnerRequestStarted();
 			var req = new mxXmlRequest(this.baseUrl + '/groups/' + group.id + '/projects?per_page=100', null, 'GET');
 			
 			this.executeRequest(req, mxUtils.bind(this, function(req)
 			{
-				this.ui.spinner.stop();
 				callback(group, JSON.parse(req.getText()));
+				spinnerRequestFinished();
 			}), error);
 		});
 		
@@ -1207,11 +1224,11 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		{
 			var req = new mxXmlRequest(this.baseUrl + '/users/' + this.user.id + '/projects?per_page=' +
 				pageSize + '&page=' + page, null, 'GET');
-			this.ui.spinner.spin(div, mxResources.get('loading'));
+			spinnerRequestStarted();
 			
 			this.executeRequest(req, mxUtils.bind(this, function(req)
 			{
-				this.ui.spinner.stop();
+				spinnerRequestFinished();
 				var repos = JSON.parse(req.getText());
 
 				if ((repos == null || repos.length == 0) && (groups == null || groups.length == 0))
