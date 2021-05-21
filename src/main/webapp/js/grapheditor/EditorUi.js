@@ -163,8 +163,8 @@ EditorUi = function(editor, container, lightbox)
 						 ['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
 		                 ['strokeColor', 'strokeWidth'],
 		                 ['fillColor', 'gradientColor'],
+		                 ['align', 'verticalAlign'],
 		                 ['opacity'],
-		                 ['align'],
 		                 ['html']];
 		
 		// Adds all keys used above to the styles array

@@ -1902,21 +1902,28 @@ EditorUi.initMinimalTheme = function()
 
 		if (viewZoomMenu != null)
 		{
-			var fitFunction = function()
+			var fitFunction = function(evt)
 	        {
 	            graph.popupMenuHandler.hideMenu();
-	
-	        	var scale = graph.view.scale;
-	            var tx = graph.view.translate.x;
-	            var ty = graph.view.translate.y;
-	
-	        	ui.actions.get('resetView').funct();
-	        	
-	            // Toggle scale if nothing has changed
-	            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
-	            {
-	            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
-	            }
+
+				if (mxEvent.isAltDown(evt))
+				{
+					ui.actions.get('customZoom').funct();
+				}
+				else
+				{
+		        	var scale = graph.view.scale;
+		            var tx = graph.view.translate.x;
+		            var ty = graph.view.translate.y;
+		
+		        	ui.actions.get('resetView').funct();
+		        	
+		            // Toggle scale if nothing has changed
+		            if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
+		            {
+		            	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
+		            }
+				}
 	        };
 
         	var zoomInAction = ui.actions.get('zoomIn');
