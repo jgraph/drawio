@@ -664,7 +664,7 @@
 				return c;
 			}
 		});
-	
+		
 		rc.draw = function(drawable)
 		{
 			var sets = drawable.sets || [];
@@ -844,7 +844,7 @@
 				}
 			}
 
-			var style = {strokeWidth: this.canvas.state.strokeWidth, seed: seed};
+			var style = {strokeWidth: this.canvas.state.strokeWidth, seed: seed, preserveVertices: true};
 			var defs = this.rc.getDefaultOptions();
 			
 			if (stroke)

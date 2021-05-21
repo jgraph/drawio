@@ -1,3 +1,15 @@
+20-MAY-2021: 14.7.0
+
+- Updates RoughJS to 4.4.1 with preserveVertices option
+- Sets template backgrounds to transparent, except where it is set to an explicit non-white color
+- Adds support for Lucidchart OrgBlock
+- [conf cloud] Adds support for attached images in label (in page Ids import)
+- Fixes NPE in Lucidchart import
+- Fixes default user picture
+- [conf cloud] Removes draft check error of zero byte files
+- Updates Mermaid to 8.10.1
+- Updates es translations
+
 13-MAY-2021: 14.6.13
 
 - Updates to latest Azure stencils

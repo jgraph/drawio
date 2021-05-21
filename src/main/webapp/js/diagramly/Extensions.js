@@ -327,7 +327,7 @@ LucidImporter = {};
 			'GSDFDDataStoreBlock' : cs,
 			'GSDFDDataStoreBlock2' : 'shape=partialRectangle;right=0',
 //Org Chart
-			'OrgBlock' : '',
+			'OrgBlock' : cs,
 //Tables
 			'DefaultTableBlock' : cs,
 //Value Stream Mapping			
@@ -3820,6 +3820,20 @@ LucidImporter = {};
 			'PersonRoleBlock' : cs
 	};
 	
+	function mapImgUrl(imgUrl)
+	{
+		if (imgUrl && LucidImporter.imgSrcRepl != null)
+		{
+			for (var i = 0; i < LucidImporter.imgSrcRepl.length; i++)
+			{
+				var repl = LucidImporter.imgSrcRepl[i];
+				imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
+			}
+		}
+	
+		return imgUrl;
+	};
+	
 	function mapFontFamily(fontFamily)
 	{
 		//We support a single font only since we can have one mapping only
@@ -5444,16 +5458,7 @@ LucidImporter = {};
 					
 		if (imgUrl != null)
 		{
-			if (LucidImporter.imgSrcRepl != null)
-			{
-				for (var i = 0; i < LucidImporter.imgSrcRepl.length; i++)
-				{
-					var repl = LucidImporter.imgSrcRepl[i];
-					imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
-				}
-			}
-			
-			return 'image=' + imgUrl + ';' + extraStyles;
+			return 'image=' + mapImgUrl(imgUrl) + ';' + extraStyles;
 		}
 		
 		return '';
@@ -6024,12 +6029,12 @@ LucidImporter = {};
 				endpoint.LinkX = Math.round(endpoint.LinkX * 1000) / 1000;
 				endpoint.LinkY = Math.round(endpoint.LinkY * 1000) / 1000;
 				
-				if (endCell.style && endCell.style.indexOf('flipH=1') > -1)
+				if (endCell != null && endCell.style && endCell.style.indexOf('flipH=1') > -1)
 				{
 					endpoint.LinkX = 1 - endpoint.LinkX;
 				}
 
-				if (endCell.style && endCell.style.indexOf('flipV=1') > -1)
+				if (endCell != null && endCell.style && endCell.style.indexOf('flipV=1') > -1)
 				{
 					endpoint.LinkY = 1 - endpoint.LinkY;
 				}
@@ -9468,7 +9473,27 @@ LucidImporter = {};
 				item1.style += addAllStyles(item1.style, p, a, item1, isLastLblHTML);
 
 				break;
+			case 'OrgBlock' :
+				var lbls = '';
 				
+				for (var key in p.Active)
+				{
+					if (key == 'Photo' || !p.Active[key]) continue;
+					
+					lbls += convertText(p[key], true);
+				}
+				
+				if (p.Active.Photo)
+				{
+					var imgSize = w * 0.4;
+					v.style += 'spacingLeft=' + imgSize + ';imageWidth=' + (imgSize - 4) + ';imageHeight=' + (imgSize - 4) + 
+						';imageAlign=left;imageVerticalAlign=top;image=' + mapImgUrl(p.Photo);
+				}
+				
+				v.value = lbls;
+				v.style += addAllStyles(v.style, p, a, v, true);
+
+				break;				
 			case 'DefaultTableBlock' :
 				try
 				{

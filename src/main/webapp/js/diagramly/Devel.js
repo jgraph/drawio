@@ -84,7 +84,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			console.log('app.diagrams.net:', app_diagrams_net);
 			// TODO remove https://ajax.googleapis.com April 2022. It's old jquery domain
 			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com https://cdnjs.cloudflare.com').
-					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com').
+					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
 					replace(/  /g, ' ');
@@ -96,7 +96,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					replace(/  /g, ' ');
 			console.log('aj.draw.io:', aj_draw_io);
 			console.log('import.diagrams.net:', 'default-src \'self\'; worker-src blob:; img-src \'self\' blob: data: https://www.lucidchart.com ' +
-					'https://app.lucidchart.com; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com;');
+					'https://app.lucidchart.com https://lucid.app; style-src \'self\' \'unsafe-inline\'; frame-src https://www.lucidchart.com https://app.lucidchart.com https://lucid.app;');
 			console.log('Development:', devCsp);
 			
 			console.log('Header Worker:', 'let securityHeaders =', JSON.stringify({

@@ -63,9 +63,6 @@ function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var myString = "Whatever";
-var myStringArray = Array.from(myString);
-
 var rough = function () {
   "use strict";
 
@@ -442,10 +439,10 @@ var rough = function () {
                 _c2 = Math.ceil(_i5) - 1,
                 _l2 = _t7 - _c2 * o,
                 _u = (_h2[0][0] + _h2[1][0]) / 2 - o / 4,
-                _f = Math.min(_h2[0][1], _h2[1][1]);
+                _p = Math.min(_h2[0][1], _h2[1][1]);
 
             for (var _t8 = 0; _t8 < _c2; _t8++) {
-              var _e11 = _f + _l2 + _t8 * o,
+              var _e11 = _p + _l2 + _t8 * o,
                   _h3 = this.helper.randOffsetWithRange(_u - r, _u + r, s),
                   _i6 = this.helper.randOffsetWithRange(_e11 - r, _e11 + r, s),
                   _c3 = this.helper.ellipse(_h3, _i6, a, a, s);
@@ -469,14 +466,14 @@ var rough = function () {
     return u;
   }();
 
-  var f = /*#__PURE__*/function () {
-    function f(t) {
-      _classCallCheck(this, f);
+  var p = /*#__PURE__*/function () {
+    function p(t) {
+      _classCallCheck(this, p);
 
       this.helper = t;
     }
 
-    _createClass(f, [{
+    _createClass(p, [{
       key: "fillPolygon",
       value: function fillPolygon(t, e) {
         var s = h(t, e);
@@ -514,17 +511,17 @@ var rough = function () {
       }
     }]);
 
-    return f;
+    return p;
   }();
 
-  var p = /*#__PURE__*/function () {
-    function p(t) {
-      _classCallCheck(this, p);
+  var f = /*#__PURE__*/function () {
+    function f(t) {
+      _classCallCheck(this, f);
 
       this.helper = t;
     }
 
-    _createClass(p, [{
+    _createClass(f, [{
       key: "fillPolygon",
       value: function fillPolygon(t, e) {
         var s = e.hachureGap < 0 ? 4 * e.strokeWidth : e.hachureGap,
@@ -565,7 +562,7 @@ var rough = function () {
       }
     }]);
 
-    return p;
+    return f;
   }();
 
   var d = {};
@@ -627,7 +624,7 @@ var rough = function () {
           if (!t.match(/^(([-+]?[0-9]+(\.[0-9]*)?|[-+]?\.[0-9]+)([eE][-+]?[0-9]+)?)/)) return [];
           e[e.length] = {
             type: 1,
-            text: "" + parseFloat(RegExp.$1)
+            text: "".concat(parseFloat(RegExp.$1))
           }, t = t.substr(RegExp.$1.length);
         }
       }
@@ -931,13 +928,13 @@ var rough = function () {
               "Q" === s || "T" === s ? (_r7 = n + (n - h), _c5 = o + (o - i)) : (_r7 = n, _c5 = o);
 
               var _u3 = n + 2 * (_r7 - n) / 3,
-                  _f2 = o + 2 * (_c5 - o) / 3,
-                  _p = _t17 + 2 * (_r7 - _t17) / 3,
+                  _p2 = o + 2 * (_c5 - o) / 3,
+                  _f = _t17 + 2 * (_r7 - _t17) / 3,
                   _d2 = _a6 + 2 * (_c5 - _a6) / 3;
 
               e.push({
                 key: "C",
-                data: [_u3, _f2, _p, _d2, _t17, _a6]
+                data: [_u3, _p2, _f, _d2, _t17, _a6]
               }), h = _r7, i = _c5, n = _t17, o = _a6;
               break;
             }
@@ -951,12 +948,12 @@ var rough = function () {
                   _r8 = _l13[3],
                   _c6 = n + 2 * (_t18 - n) / 3,
                   _u4 = o + 2 * (_s6 - o) / 3,
-                  _f3 = _a7 + 2 * (_t18 - _a7) / 3,
-                  _p2 = _r8 + 2 * (_s6 - _r8) / 3;
+                  _p3 = _a7 + 2 * (_t18 - _a7) / 3,
+                  _f2 = _r8 + 2 * (_s6 - _r8) / 3;
 
               e.push({
                 key: "C",
-                data: [_c6, _u4, _f3, _p2, _a7, _r8]
+                data: [_c6, _u4, _p3, _f2, _a7, _r8]
               }), h = _t18, i = _s6, n = _a7, o = _r8;
               break;
             }
@@ -1010,8 +1007,8 @@ var rough = function () {
   function P(t, e, s, n, o, a, r, h, i, c) {
     var l = (u = r, Math.PI * u / 180);
     var u;
-    var f = [],
-        p = 0,
+    var p = [],
+        f = 0,
         d = 0,
         g = 0,
         M = 0;
@@ -1019,7 +1016,7 @@ var rough = function () {
     if (c) {
       var _c8 = _slicedToArray(c, 4);
 
-      p = _c8[0];
+      f = _c8[0];
       d = _c8[1];
       g = _c8[2];
       M = _c8[3];
@@ -1035,27 +1032,27 @@ var rough = function () {
 
       _u5 > 1 && (_u5 = Math.sqrt(_u5), o *= _u5, a *= _u5);
 
-      var _f4 = o * o,
+      var _p4 = o * o,
           _k = a * a,
-          _b = _f4 * _k - _f4 * _c9 * _c9 - _k * _r10 * _r10,
-          _y = _f4 * _c9 * _c9 + _k * _r10 * _r10,
+          _b = _p4 * _k - _p4 * _c9 * _c9 - _k * _r10 * _r10,
+          _y = _p4 * _c9 * _c9 + _k * _r10 * _r10,
           _m = (h === i ? -1 : 1) * Math.sqrt(Math.abs(_b / _y));
 
-      g = _m * o * _c9 / a + (t + s) / 2, M = _m * -a * _r10 / o + (e + n) / 2, p = Math.asin(parseFloat(((e - M) / a).toFixed(9))), d = Math.asin(parseFloat(((n - M) / a).toFixed(9))), t < g && (p = Math.PI - p), s < g && (d = Math.PI - d), p < 0 && (p = 2 * Math.PI + p), d < 0 && (d = 2 * Math.PI + d), i && p > d && (p -= 2 * Math.PI), !i && d > p && (d -= 2 * Math.PI);
+      g = _m * o * _c9 / a + (t + s) / 2, M = _m * -a * _r10 / o + (e + n) / 2, f = Math.asin(parseFloat(((e - M) / a).toFixed(9))), d = Math.asin(parseFloat(((n - M) / a).toFixed(9))), t < g && (f = Math.PI - f), s < g && (d = Math.PI - d), f < 0 && (f = 2 * Math.PI + f), d < 0 && (d = 2 * Math.PI + d), i && f > d && (f -= 2 * Math.PI), !i && d > f && (d -= 2 * Math.PI);
     }
 
-    var k = d - p;
+    var k = d - f;
 
     if (Math.abs(k) > 120 * Math.PI / 180) {
       var _t20 = d,
           _e15 = s,
           _h14 = n;
-      d = i && d > p ? p + 120 * Math.PI / 180 * 1 : p + 120 * Math.PI / 180 * -1, f = P(s = g + o * Math.cos(d), n = M + a * Math.sin(d), _e15, _h14, o, a, r, 0, i, [d, _t20, g, M]);
+      d = i && d > f ? f + 120 * Math.PI / 180 * 1 : f + 120 * Math.PI / 180 * -1, p = P(s = g + o * Math.cos(d), n = M + a * Math.sin(d), _e15, _h14, o, a, r, 0, i, [d, _t20, g, M]);
     }
 
-    k = d - p;
-    var b = Math.cos(p),
-        y = Math.sin(p),
+    k = d - f;
+    var b = Math.cos(f),
+        y = Math.sin(f),
         m = Math.cos(d),
         x = Math.sin(d),
         v = Math.tan(k / 4),
@@ -1065,15 +1062,15 @@ var rough = function () {
         T = [t + O * y, e - S * b],
         I = [s + O * x, n - S * m],
         A = [s, n];
-    if (T[0] = 2 * L[0] - T[0], T[1] = 2 * L[1] - T[1], c) return [T, I, A].concat(f);
+    if (T[0] = 2 * L[0] - T[0], T[1] = 2 * L[1] - T[1], c) return [T, I, A].concat(p);
     {
-      f = [T, I, A].concat(f);
+      p = [T, I, A].concat(p);
       var _t21 = [];
 
-      for (var _e16 = 0; _e16 < f.length; _e16 += 3) {
-        var _s8 = w(f[_e16][0], f[_e16][1], l),
-            _n7 = w(f[_e16 + 1][0], f[_e16 + 1][1], l),
-            _o4 = w(f[_e16 + 2][0], f[_e16 + 2][1], l);
+      for (var _e16 = 0; _e16 < p.length; _e16 += 3) {
+        var _s8 = w(p[_e16][0], p[_e16][1], l),
+            _n7 = w(p[_e16 + 1][0], p[_e16 + 1][1], l),
+            _o4 = w(p[_e16 + 2][0], p[_e16 + 2][1], l);
 
         _t21.push([_s8[0], _s8[1], _n7[0], _n7[1], _o4[0], _o4[1]]);
       }
@@ -1196,39 +1193,39 @@ var rough = function () {
     var c = t,
         l = e;
     var u = Math.abs(s / 2),
-        f = Math.abs(n / 2);
-    u += W(.01 * u, i), f += W(.01 * f, i);
-    var p = o,
+        p = Math.abs(n / 2);
+    u += W(.01 * u, i), p += W(.01 * p, i);
+    var f = o,
         d = a;
 
-    for (; p < 0;) {
-      p += 2 * Math.PI, d += 2 * Math.PI;
+    for (; f < 0;) {
+      f += 2 * Math.PI, d += 2 * Math.PI;
     }
 
-    d - p > 2 * Math.PI && (p = 0, d = 2 * Math.PI);
+    d - f > 2 * Math.PI && (f = 0, d = 2 * Math.PI);
     var g = 2 * Math.PI / i.curveStepCount,
-        M = Math.min(g / 2, (d - p) / 2),
-        k = F(M, c, l, u, f, p, d, 1, i);
+        M = Math.min(g / 2, (d - f) / 2),
+        k = F(M, c, l, u, p, f, d, 1, i);
 
     if (!i.disableMultiStroke) {
-      var _t22 = F(M, c, l, u, f, p, d, 1.5, i);
+      var _t22 = F(M, c, l, u, p, f, d, 1.5, i);
 
       k.push.apply(k, _toConsumableArray(_t22));
     }
 
-    return r && (h ? k.push.apply(k, _toConsumableArray(z(c, l, c + u * Math.cos(p), l + f * Math.sin(p), i)).concat(_toConsumableArray(z(c, l, c + u * Math.cos(d), l + f * Math.sin(d), i)))) : k.push({
+    return r && (h ? k.push.apply(k, _toConsumableArray(z(c, l, c + u * Math.cos(f), l + p * Math.sin(f), i)).concat(_toConsumableArray(z(c, l, c + u * Math.cos(d), l + p * Math.sin(d), i)))) : k.push({
       op: "lineTo",
       data: [c, l]
     }, {
       op: "lineTo",
-      data: [c + u * Math.cos(p), l + f * Math.sin(p)]
+      data: [c + u * Math.cos(f), l + p * Math.sin(f)]
     })), {
       type: "path",
       ops: k
     };
   }
 
-  function _(t, e) {
+  function D(t, e) {
     var s = [];
 
     if (t.length) {
@@ -1256,7 +1253,7 @@ var rough = function () {
     };
   }
 
-  function C(t, e) {
+  function _(t, e) {
     return function (t, e) {
       var s = t.fillStyle || "hachure";
       if (!d[s]) switch (s) {
@@ -1273,11 +1270,11 @@ var rough = function () {
           break;
 
         case "dashed":
-          d[s] || (d[s] = new f(e));
+          d[s] || (d[s] = new p(e));
           break;
 
         case "zigzag-line":
-          d[s] || (d[s] = new p(e));
+          d[s] || (d[s] = new f(e));
           break;
 
         case "hachure":
@@ -1288,13 +1285,13 @@ var rough = function () {
     }(e, x).fillPolygon(t, e);
   }
 
-  function D(t) {
+  function C(t) {
     return t.randomizer || (t.randomizer = new g(t.seed || 0)), t.randomizer.next();
   }
 
   function E(t, e, s) {
     var n = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 1;
-    return s.roughness * n * (D(s) * (e - t) + t);
+    return s.roughness * n * (C(s) * (e - t) + t);
   }
 
   function W(t, e) {
@@ -1319,10 +1316,10 @@ var rough = function () {
     var l = o.maxRandomnessOffset || 0;
     l * l * 100 > h && (l = i / 10);
     var u = l / 2,
-        f = .2 + .2 * D(o);
-    var p = o.bowing * o.maxRandomnessOffset * (n - e) / 200,
+        p = .2 + .2 * C(o);
+    var f = o.bowing * o.maxRandomnessOffset * (n - e) / 200,
         d = o.bowing * o.maxRandomnessOffset * (t - s) / 200;
-    p = W(p, o, c), d = W(d, o, c);
+    f = W(f, o, c), d = W(d, o, c);
 
     var g = [],
         M = function M() {
@@ -1330,20 +1327,21 @@ var rough = function () {
     },
         k = function k() {
       return W(l, o, c);
-    };
+    },
+        b = o.preserveVertices;
 
     return a && (r ? g.push({
       op: "move",
-      data: [t + M(), e + M()]
+      data: [t + (b ? 0 : M()), e + (b ? 0 : M())]
     }) : g.push({
       op: "move",
-      data: [t + W(l, o, c), e + W(l, o, c)]
+      data: [t + (b ? 0 : W(l, o, c)), e + (b ? 0 : W(l, o, c))]
     })), r ? g.push({
       op: "bcurveTo",
-      data: [p + t + (s - t) * f + M(), d + e + (n - e) * f + M(), p + t + 2 * (s - t) * f + M(), d + e + 2 * (n - e) * f + M(), s + M(), n + M()]
+      data: [f + t + (s - t) * p + M(), d + e + (n - e) * p + M(), f + t + 2 * (s - t) * p + M(), d + e + 2 * (n - e) * p + M(), s + (b ? 0 : M()), n + (b ? 0 : M())]
     }) : g.push({
       op: "bcurveTo",
-      data: [p + t + (s - t) * f + k(), d + e + (n - e) * f + k(), p + t + 2 * (s - t) * f + k(), d + e + 2 * (n - e) * f + k(), s + k(), n + k()]
+      data: [f + t + (s - t) * p + k(), d + e + (n - e) * p + k(), f + t + 2 * (s - t) * p + k(), d + e + 2 * (n - e) * p + k(), s + (b ? 0 : k()), n + (b ? 0 : k())]
     }), g;
   }
 
@@ -1423,48 +1421,49 @@ var rough = function () {
     return l.push([e + n * Math.cos(r), s + o * Math.sin(r)]), l.push([e + n * Math.cos(r), s + o * Math.sin(r)]), G(l, null, i);
   }
 
-  function j(t, e, s, n, o, a, r, h) {
+  function V(t, e, s, n, o, a, r, h) {
     var i = [],
         c = [h.maxRandomnessOffset || 1, (h.maxRandomnessOffset || 1) + .3];
     var l = [0, 0];
-    var u = h.disableMultiStroke ? 1 : 2;
+    var u = h.disableMultiStroke ? 1 : 2,
+        p = h.preserveVertices;
 
-    for (var _f5 = 0; _f5 < u; _f5++) {
-      0 === _f5 ? i.push({
+    for (var _f3 = 0; _f3 < u; _f3++) {
+      0 === _f3 ? i.push({
         op: "move",
         data: [r[0], r[1]]
       }) : i.push({
         op: "move",
-        data: [r[0] + W(c[0], h), r[1] + W(c[0], h)]
-      }), l = [o + W(c[_f5], h), a + W(c[_f5], h)], i.push({
+        data: [r[0] + (p ? 0 : W(c[0], h)), r[1] + (p ? 0 : W(c[0], h))]
+      }), l = p ? [o, a] : [o + W(c[_f3], h), a + W(c[_f3], h)], i.push({
         op: "bcurveTo",
-        data: [t + W(c[_f5], h), e + W(c[_f5], h), s + W(c[_f5], h), n + W(c[_f5], h), l[0], l[1]]
+        data: [t + W(c[_f3], h), e + W(c[_f3], h), s + W(c[_f3], h), n + W(c[_f3], h), l[0], l[1]]
       });
     }
 
     return i;
   }
 
-  function N(t) {
+  function j(t) {
     return _toConsumableArray(t);
   }
 
-  function Z(t, e) {
+  function N(t, e) {
     return Math.pow(t[0] - e[0], 2) + Math.pow(t[1] - e[1], 2);
   }
 
-  function Q(t, e, s) {
-    var n = Z(e, s);
-    if (0 === n) return Z(t, e);
+  function Z(t, e, s) {
+    var n = N(e, s);
+    if (0 === n) return N(t, e);
     var o = ((t[0] - e[0]) * (s[0] - e[0]) + (t[1] - e[1]) * (s[1] - e[1])) / n;
-    return o = Math.max(0, Math.min(1, o)), Z(t, H(e, s, o));
+    return o = Math.max(0, Math.min(1, o)), N(t, Q(e, s, o));
   }
 
-  function H(t, e, s) {
+  function Q(t, e, s) {
     return [t[0] + (e[0] - t[0]) * s, t[1] + (e[1] - t[1]) * s];
   }
 
-  function V(t, e, s, n) {
+  function H(t, e, s, n) {
     var o = n || [];
 
     if (function (t, e) {
@@ -1484,7 +1483,7 @@ var rough = function () {
       var _s10 = t[e + 0];
 
       if (o.length) {
-        (a = o[o.length - 1], r = _s10, Math.sqrt(Z(a, r))) > 1 && o.push(_s10);
+        (a = o[o.length - 1], r = _s10, Math.sqrt(N(a, r))) > 1 && o.push(_s10);
       } else o.push(_s10);
 
       o.push(t[e + 3]);
@@ -1494,14 +1493,14 @@ var rough = function () {
           _r13 = t[e + 1],
           _h15 = t[e + 2],
           _i9 = t[e + 3],
-          _c10 = H(_a13, _r13, _n10),
-          _l14 = H(_r13, _h15, _n10),
-          _u6 = H(_h15, _i9, _n10),
-          _f6 = H(_c10, _l14, _n10),
-          _p3 = H(_l14, _u6, _n10),
-          _d3 = H(_f6, _p3, _n10);
+          _c10 = Q(_a13, _r13, _n10),
+          _l14 = Q(_r13, _h15, _n10),
+          _u6 = Q(_h15, _i9, _n10),
+          _p5 = Q(_c10, _l14, _n10),
+          _f4 = Q(_l14, _u6, _n10),
+          _d3 = Q(_p5, _f4, _n10);
 
-      V([_a13, _c10, _f6, _d3], 0, s, o), V([_d3, _p3, _u6, _i9], 0, s, o);
+      H([_a13, _c10, _p5, _d3], 0, s, o), H([_d3, _f4, _u6, _i9], 0, s, o);
     }
 
     var a, r;
@@ -1520,7 +1519,7 @@ var rough = function () {
         c = 1;
 
     for (var _n11 = e + 1; _n11 < s - 1; ++_n11) {
-      var _e19 = Q(t[_n11], r, h);
+      var _e19 = Z(t[_n11], r, h);
 
       _e19 > i && (i = _e19, c = _n11);
     }
@@ -1535,7 +1534,7 @@ var rough = function () {
         o = (t.length - 1) / 3;
 
     for (var _s11 = 0; _s11 < o; _s11++) {
-      V(t, 3 * _s11, e, n);
+      H(t, 3 * _s11, e, n);
     }
 
     return s && s > 0 ? X(n, 0, n.length, s) : n;
@@ -1566,7 +1565,8 @@ var rough = function () {
         seed: 0,
         combineNestedSvgPaths: !1,
         disableMultiStroke: !1,
-        disableMultiStrokeFill: !1
+        disableMultiStrokeFill: !1,
+        preserveVertices: !1
       }, this.config = t || {}, this.config.options && (this.defaultOptions = this._o(this.config.options));
     }
 
@@ -1600,7 +1600,7 @@ var rough = function () {
 
         if (a.fill) {
           var _o9 = [[t, e], [t + s, e], [t + s, e + n], [t, e + n]];
-          "solid" === a.fillStyle ? r.push(_(_o9, a)) : r.push(C(_o9, a));
+          "solid" === a.fillStyle ? r.push(D(_o9, a)) : r.push(_(_o9, a));
         }
 
         return a.stroke !== K && r.push(h), this._d("rectangle", r, a);
@@ -1616,7 +1616,7 @@ var rough = function () {
         if (a.fill) if ("solid" === a.fillStyle) {
           var _s12 = I(t, e, a, h).opset;
           _s12.type = "fillPath", r.push(_s12);
-        } else r.push(C(i.estimatedPoints, a));
+        } else r.push(_(i.estimatedPoints, a));
         return a.stroke !== K && r.push(i.opset), this._d("ellipse", r, a);
       }
     }, {
@@ -1653,21 +1653,21 @@ var rough = function () {
               l = Math.abs(n / 2);
           c += W(.01 * c, r), l += W(.01 * l, r);
           var u = o,
-              f = a;
+              p = a;
 
           for (; u < 0;) {
-            u += 2 * Math.PI, f += 2 * Math.PI;
+            u += 2 * Math.PI, p += 2 * Math.PI;
           }
 
-          f - u > 2 * Math.PI && (u = 0, f = 2 * Math.PI);
-          var p = (f - u) / r.curveStepCount,
+          p - u > 2 * Math.PI && (u = 0, p = 2 * Math.PI);
+          var f = (p - u) / r.curveStepCount,
               d = [];
 
-          for (var _t25 = u; _t25 <= f; _t25 += p) {
+          for (var _t25 = u; _t25 <= p; _t25 += f) {
             d.push([h + c * Math.cos(_t25), i + l * Math.sin(_t25)]);
           }
 
-          return d.push([h + c * Math.cos(f), i + l * Math.sin(f)]), d.push([h, i]), C(d, r);
+          return d.push([h + c * Math.cos(p), i + l * Math.sin(p)]), d.push([h, i]), _(d, r);
         }(t, e, s, n, o, a, i));
         return i.stroke !== K && c.push(l), this._d("arc", c, i);
       }
@@ -1684,7 +1684,7 @@ var rough = function () {
             var s = t.length;
             if (s < 3) throw new Error("A curve must have at least three points.");
             var n = [];
-            if (3 === s) n.push(N(t[0]), N(t[1]), N(t[2]), N(t[2]));else {
+            if (3 === s) n.push(j(t[0]), j(t[1]), j(t[2]), j(t[2]));else {
               var _s13 = [];
 
               _s13.push(t[0], t[0]);
@@ -1696,7 +1696,7 @@ var rough = function () {
               var _o10 = [],
                   _a14 = 1 - e;
 
-              n.push(N(_s13[0]));
+              n.push(j(_s13[0]));
 
               for (var _t26 = 1; _t26 + 2 < _s13.length; _t26++) {
                 var _e22 = _s13[_t26];
@@ -1706,7 +1706,7 @@ var rough = function () {
             return n;
           }(t), 10, (1 + s.roughness) / 2);
 
-          "solid" === s.fillStyle ? n.push(_(_e20, s)) : n.push(C(_e20, s));
+          "solid" === s.fillStyle ? n.push(D(_e20, s)) : n.push(_(_e20, s));
         }
 
         return s.stroke !== K && n.push(o), this._d("curve", n, s);
@@ -1718,7 +1718,7 @@ var rough = function () {
             n = [],
             o = O(t, !0, s);
 
-        return s.fill && ("solid" === s.fillStyle ? n.push(_(t, s)) : n.push(C(t, s))), s.stroke !== K && n.push(o), this._d("polygon", n, s);
+        return s.fill && ("solid" === s.fillStyle ? n.push(D(t, s)) : n.push(_(t, s))), s.stroke !== K && n.push(o), this._d("polygon", n, s);
       }
     }, {
       key: "path",
@@ -1804,9 +1804,9 @@ var rough = function () {
           var _t30 = [];
           h.forEach(function (e) {
             return _t30.push.apply(_t30, _toConsumableArray(e));
-          }), "solid" === s.fillStyle ? n.push(_(_t30, s)) : n.push(C(_t30, s));
+          }), "solid" === s.fillStyle ? n.push(D(_t30, s)) : n.push(_(_t30, s));
         } else h.forEach(function (t) {
-          "solid" === s.fillStyle ? n.push(_(t, s)) : n.push(C(t, s));
+          "solid" === s.fillStyle ? n.push(D(t, s)) : n.push(_(t, s));
         });
         return a && (r ? h.forEach(function (t) {
           n.push(O(t, !1, s));
@@ -1829,11 +1829,12 @@ var rough = function () {
                 case "M":
                   {
                     var _ret2 = function () {
-                      var t = 1 * (e.maxRandomnessOffset || 0);
+                      var t = 1 * (e.maxRandomnessOffset || 0),
+                          s = e.preserveVertices;
                       n.push({
                         op: "move",
-                        data: _r15.map(function (s) {
-                          return s + W(t, e);
+                        data: _r15.map(function (n) {
+                          return n + (s ? 0 : W(t, e));
                         })
                       }), a = [_r15[0], _r15[1]], o = [_r15[0], _r15[1]];
                       return "break";
@@ -1856,7 +1857,7 @@ var rough = function () {
                         _i11 = _r16[4],
                         _c11 = _r16[5];
 
-                    n.push.apply(n, _toConsumableArray(j(_t32, _s14, _o12, _h16, _i11, _c11, a, e))), a = [_i11, _c11];
+                    n.push.apply(n, _toConsumableArray(V(_t32, _s14, _o12, _h16, _i11, _c11, a, e))), a = [_i11, _c11];
                     break;
                   }
 
@@ -1878,28 +1879,31 @@ var rough = function () {
       }
     }, {
       key: "opsToPath",
-      value: function opsToPath(t) {
-        var e = "";
+      value: function opsToPath(t, e) {
+        var s = "";
 
         var _iterator7 = _createForOfIteratorHelper(t.ops),
             _step7;
 
         try {
           for (_iterator7.s(); !(_step7 = _iterator7.n()).done;) {
-            var _s15 = _step7.value;
-            var _t33 = _s15.data;
+            var _n12 = _step7.value;
 
-            switch (_s15.op) {
+            var _t33 = "number" == typeof e && e >= 0 ? _n12.data.map(function (t) {
+              return +t.toFixed(e);
+            }) : _n12.data;
+
+            switch (_n12.op) {
               case "move":
-                e += "M".concat(_t33[0], " ").concat(_t33[1], " ");
+                s += "M".concat(_t33[0], " ").concat(_t33[1], " ");
                 break;
 
               case "bcurveTo":
-                e += "C".concat(_t33[0], " ").concat(_t33[1], ", ").concat(_t33[2], " ").concat(_t33[3], ", ").concat(_t33[4], " ").concat(_t33[5], " ");
+                s += "C".concat(_t33[0], " ").concat(_t33[1], ", ").concat(_t33[2], " ").concat(_t33[3], ", ").concat(_t33[4], " ").concat(_t33[5], " ");
                 break;
 
               case "lineTo":
-                e += "L".concat(_t33[0], " ").concat(_t33[1], " ");
+                s += "L".concat(_t33[0], " ").concat(_t33[1], " ");
             }
           }
         } catch (err) {
@@ -1908,7 +1912,7 @@ var rough = function () {
           _iterator7.f();
         }
 
-        return e.trim();
+        return s.trim();
       }
     }, {
       key: "toPaths",
@@ -2040,10 +2044,10 @@ var rough = function () {
 
         try {
           for (_iterator10.s(); !(_step10 = _iterator10.n()).done;) {
-            var _s16 = _step10.value;
-            var _e27 = _s16.data;
+            var _s15 = _step10.value;
+            var _e27 = _s15.data;
 
-            switch (_s16.op) {
+            switch (_s15.op) {
               case "move":
                 t.moveTo(_e27[0], _e27[1]);
                 break;
@@ -2150,27 +2154,28 @@ var rough = function () {
         var e = t.sets || [],
             s = t.options || this.getDefaultOptions(),
             n = this.svg.ownerDocument || window.document,
-            o = n.createElementNS(tt, "g");
+            o = n.createElementNS(tt, "g"),
+            a = t.options.fixedDecimalPlaceDigits;
 
         var _iterator11 = _createForOfIteratorHelper(e),
             _step11;
 
         try {
           for (_iterator11.s(); !(_step11 = _iterator11.n()).done;) {
-            var _a16 = _step11.value;
+            var _r17 = _step11.value;
             var _e28 = null;
 
-            switch (_a16.type) {
+            switch (_r17.type) {
               case "path":
-                _e28 = n.createElementNS(tt, "path"), _e28.setAttribute("d", this.opsToPath(_a16)), _e28.setAttribute("stroke", s.stroke), _e28.setAttribute("stroke-width", s.strokeWidth + ""), _e28.setAttribute("fill", "none"), s.strokeLineDash && _e28.setAttribute("stroke-dasharray", s.strokeLineDash.join(" ").trim()), s.strokeLineDashOffset && _e28.setAttribute("stroke-dashoffset", "" + s.strokeLineDashOffset);
+                _e28 = n.createElementNS(tt, "path"), _e28.setAttribute("d", this.opsToPath(_r17, a)), _e28.setAttribute("stroke", s.stroke), _e28.setAttribute("stroke-width", s.strokeWidth + ""), _e28.setAttribute("fill", "none"), s.strokeLineDash && _e28.setAttribute("stroke-dasharray", s.strokeLineDash.join(" ").trim()), s.strokeLineDashOffset && _e28.setAttribute("stroke-dashoffset", "".concat(s.strokeLineDashOffset));
                 break;
 
               case "fillPath":
-                _e28 = n.createElementNS(tt, "path"), _e28.setAttribute("d", this.opsToPath(_a16)), _e28.setAttribute("stroke", "none"), _e28.setAttribute("stroke-width", "0"), _e28.setAttribute("fill", s.fill || ""), "curve" !== t.shape && "polygon" !== t.shape || _e28.setAttribute("fill-rule", "evenodd");
+                _e28 = n.createElementNS(tt, "path"), _e28.setAttribute("d", this.opsToPath(_r17, a)), _e28.setAttribute("stroke", "none"), _e28.setAttribute("stroke-width", "0"), _e28.setAttribute("fill", s.fill || ""), "curve" !== t.shape && "polygon" !== t.shape || _e28.setAttribute("fill-rule", "evenodd");
                 break;
 
               case "fillSketch":
-                _e28 = this.fillSketch(n, _a16, s);
+                _e28 = this.fillSketch(n, _r17, s);
             }
 
             _e28 && o.appendChild(_e28);
@@ -2189,7 +2194,7 @@ var rough = function () {
         var n = s.fillWeight;
         n < 0 && (n = s.strokeWidth / 2);
         var o = t.createElementNS(tt, "path");
-        return o.setAttribute("d", this.opsToPath(e)), o.setAttribute("stroke", s.fill || ""), o.setAttribute("stroke-width", n + ""), o.setAttribute("fill", "none"), s.fillLineDash && o.setAttribute("stroke-dasharray", s.fillLineDash.join(" ").trim()), s.fillLineDashOffset && o.setAttribute("stroke-dashoffset", "" + s.fillLineDashOffset), o;
+        return o.setAttribute("d", this.opsToPath(e, s.fixedDecimalPlaceDigits)), o.setAttribute("stroke", s.fill || ""), o.setAttribute("stroke-width", n + ""), o.setAttribute("fill", "none"), s.fillLineDash && o.setAttribute("stroke-dasharray", s.fillLineDash.join(" ").trim()), s.fillLineDashOffset && o.setAttribute("stroke-dashoffset", "".concat(s.fillLineDashOffset)), o;
       }
     }, {
       key: "getDefaultOptions",
@@ -2198,8 +2203,8 @@ var rough = function () {
       }
     }, {
       key: "opsToPath",
-      value: function opsToPath(t) {
-        return this.gen.opsToPath(t);
+      value: function opsToPath(t, e) {
+        return this.gen.opsToPath(t, e);
       }
     }, {
       key: "line",

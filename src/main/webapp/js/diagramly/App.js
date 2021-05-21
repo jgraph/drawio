@@ -1211,7 +1211,7 @@ mxUtils.extend(App, EditorUi);
 /**
  * Executes the first step for connecting to Google Drive.
  */
-App.prototype.defaultUserPicture = 'https://lh3.googleusercontent.com/-HIzvXUy6QUY/AAAAAAAAAAI/AAAAAAAAAAA/giuR7PQyjEk/photo.jpg?sz=64';
+App.prototype.defaultUserPicture = IMAGE_PATH + '/default-user.jpg';
 
 /**
  * 
