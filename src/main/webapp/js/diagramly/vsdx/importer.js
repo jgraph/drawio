@@ -1188,7 +1188,8 @@ var com;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, sourceSheet)) : null;
                     
                     var removeFirstPt = true;
-                    if (source == null) 
+					//Treat source with zero height/width as null since constraint calc will be invalid
+                    if (source == null || source.geometry.width == 0 || source.geometry.height == 0) 
                     {
                         source = graph.insertVertex(parent, null, null, Math.floor(Math.round(beginXY.x * 100) / 100), Math.floor(Math.round(beginXY.y * 100) / 100), 0, 0);
                     }
@@ -1218,7 +1219,8 @@ var com;
                         } return null; })(this.vertexMap, new com.mxgraph.io.vsdx.ShapePageId(pageId, toSheet)) : null;
                     
                     var removeLastPt = true;
-                    if (target == null) 
+					//Treat target with zero height/width as null since constraint calc will be invalid
+                    if (target == null || target.geometry.width == 0 || target.geometry.height == 0) 
                     {
                         target = graph.insertVertex(parent, null, null, Math.floor(Math.round(endXY.x * 100) / 100), Math.floor(Math.round(endXY.y * 100) / 100), 0, 0);
                     }

@@ -71,6 +71,7 @@ public class ProxyServlet extends HttpServlet
 			// build the UML source from the compressed request parameter
 			String ref = request.getHeader("referer");
 			String ua = request.getHeader("User-Agent");
+			String auth = request.getHeader("Authorization");
 			String dom = getCorsDomain(ref, ua);
 
 			try(OutputStream out = response.getOutputStream())
@@ -87,6 +88,12 @@ public class ProxyServlet extends HttpServlet
 
 				// Workaround for 451 response from Iconfinder CDN
 				connection.setRequestProperty("User-Agent", "draw.io");
+				
+				//Forward auth header
+				if (auth  !=  null)
+				{
+					connection.setRequestProperty("Authorization", auth);
+				}
 
 				if (dom != null && dom.length() > 0)
 				{

@@ -1,3 +1,8 @@
+25-MAY-2021: 14.7.1
+
+- [conf cloud] Adds sketch macro
+- Fixes edges with zero height/width src/trg cell in vsdx import
+
 20-MAY-2021: 14.7.0
 
 - Updates RoughJS to 4.4.1 with preserveVertices option

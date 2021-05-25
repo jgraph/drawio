@@ -568,7 +568,7 @@ EditorUi.initMinimalTheme = function()
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'relative';
-			div.style.marginTop = '8px';
+			div.style.marginTop = '6px';
 			div.style.marginRight = '4px';
 			
 			var button = document.createElement('a');
@@ -578,9 +578,10 @@ EditorUi.initMinimalTheme = function()
 			
 			if (urlParams['noSaveBtn'] == '1')
 			{
-				mxUtils.write(button, mxResources.get('saveAndExit'));
-				button.setAttribute('title', mxResources.get('saveAndExit'));
-				
+				var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
+				mxUtils.write(button, saveAndExitTitle);
+				button.setAttribute('title', saveAndExitTitle);
+					
 				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
 				{
 					this.actions.get('saveAndExit').funct();
@@ -621,8 +622,9 @@ EditorUi.initMinimalTheme = function()
 			if (urlParams['noExitBtn'] != '1')
 			{
 				button = document.createElement('a');
-				mxUtils.write(button, mxResources.get('exit'));
-				button.setAttribute('title', mxResources.get('exit'));
+				var exitTitle = urlParams['publishClose'] == '1' ? mxResources.get('close') : mxResources.get('exit');
+				mxUtils.write(button, exitTitle);
+				button.setAttribute('title', exitTitle);
 				button.className = 'geMenuItem';
 				button.style.marginLeft = '6px';
 				button.style.padding = '6px';
@@ -935,9 +937,13 @@ EditorUi.initMinimalTheme = function()
 			}
 			else if (urlParams['embed'] == '1')
 			{
-				ui.menus.addMenuItems(menu, ['-', 'save'], parent);
-
-				if (urlParams['saveAndExit'] == '1')
+				if (urlParams['noSaveBtn'] != '1')
+				{
+					ui.menus.addMenuItems(menu, ['-', 'save'], parent);
+				}
+				
+				if (urlParams['saveAndExit'] == '1' || 
+					(urlParams['noSaveBtn'] == '1' && urlParams['saveAndExit'] != '0'))
 				{
 					ui.menus.addMenuItems(menu, ['saveAndExit'], parent);
 				}

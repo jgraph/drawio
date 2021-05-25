@@ -11014,7 +11014,7 @@
 		{
 			if (urlParams['spin'] != '1' || this.spinner.spin(document.body, mxResources.get('loading')))
 			{
-				this.installMessageHandler(mxUtils.bind(this, function(xml, evt, modified)
+				this.installMessageHandler(mxUtils.bind(this, function(xml, evt, modified, convertToSketch)
 				{
 					this.spinner.stop();
 					this.addEmbedButtons();
@@ -11029,6 +11029,34 @@
 					this.setCurrentFile(new EmbedFile(this, xml, {}));
 					this.mode = App.MODE_EMBED;
 					this.setFileData(xml);
+					
+					if (convertToSketch)
+					{
+						try
+						{
+							//Disable grid and page view
+							var graph = this.editor.graph;
+							graph.setGridEnabled(false);
+							graph.pageVisible = false;
+							var cells = graph.model.cells;
+							
+							//Add sketch style and font to all cells
+							for (var id in cells)
+							{
+								var cell = cells[id];
+								
+								if (cell != null && cell.style != null)
+								{
+									cell.style += ';sketch=1;' + (cell.style.indexOf('fontFamily=') == -1 || cell.style.indexOf('fontFamily=Helvetica;') > -1? 
+											'fontFamily=Architects Daughter;fontSource=https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter;' : '');
+								}
+							}
+						}
+						catch(e)
+						{
+							console.log(e); //Ignore
+						}
+					}
 					
 					if (!this.editor.isChromelessView())
 					{
@@ -11187,6 +11215,8 @@
 
 			if (urlParams['proto'] == 'json')
 			{
+				var convertToSketch = false;
+				
 				try
 				{
 					data = JSON.parse(data);
@@ -11311,7 +11341,7 @@
 							}
 							else
 							{
-								fn(xml, evt, xml != this.emptyDiagramXml);
+								fn(xml, evt, xml != this.emptyDiagramXml, data.toSketch);
 								
 								// Workaround for status updated before modified applied
 								if (!this.editor.modified)
@@ -11664,6 +11694,7 @@
 					}
 					else if (data.action == 'load')
 					{
+						convertToSketch = data.toSketch;
 						autosave = data.autosave == 1;
 						this.hideDialog();
 						
@@ -11798,7 +11829,7 @@
 				ignoreChange = true;
 				try
 				{
-					fn(data, evt);
+					fn(data, evt, null, convertToSketch);
 				}
 				catch (e)
 				{
