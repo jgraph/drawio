@@ -56,7 +56,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'https://dl.dropboxusercontent.com ' +
 				'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 			// font-src about: is required for MathJax HTML-CSS output with STIX
-			'img-src * data:; media-src * data:; font-src * about:; ' +
+			'img-src * data: blob:; media-src * data:; font-src * about:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net and
 			// viewer.diagrams.net required for iframe embed preview
 			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +
@@ -92,7 +92,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			var aj_draw_io = csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
-					replace(/%connect-src%/g, '').
+					replace(/%connect-src%/g, 'https://api.atlassian.com').
 					replace(/  /g, ' ');
 			console.log('aj.draw.io:', aj_draw_io);
 			console.log('import.diagrams.net:', 'default-src \'self\'; worker-src blob:; img-src \'self\' blob: data: https://www.lucidchart.com ' +
