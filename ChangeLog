@@ -1,3 +1,15 @@
+29-MAY-2021: 14.7.3
+
+- Updates layer dot after model changes
+- Adds 4 spaces for shift+tab while editing labels
+- Adds shift+tab to insert tab
+- Fixes for sketch and dark theme
+- Adds support for additional OrgChart type in Lucidchart import
+- Adds dot to layer for selected cells [2027]
+- Fixes issues with live preview [2257]
+- Fixes rounding errors in segment connector [2257]
+- Updates ja translations
+
 26-MAY-2021: 14.7.2
 
 - [conf cloud] Enables sketch macro

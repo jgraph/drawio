@@ -14331,13 +14331,13 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 	var div = document.createElement('div');
 	div.className = 'geCommentsWin';
-	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	div.style.background = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div');
 	listDiv.className = 'geCommentsList';
-	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	listDiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 	listDiv.style.bottom = (parseInt(tbarHeight) + 7) + 'px';
 	div.appendChild(listDiv);
 	
@@ -14352,7 +14352,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	ldiv.className = 'geToolbarContainer geCommentsToolbar';
 	ldiv.style.height = tbarHeight;
 	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
-	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	ldiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 	
 	var link = document.createElement('a');
 	link.className = 'geButton';

@@ -1461,19 +1461,46 @@ EditorUi.prototype.onKeyDown = function(evt)
 {
 	var graph = this.editor.graph;
 	
-	// Tab selects next cell
-	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt) &&
-		(!graph.isEditing() || !mxEvent.isShiftDown(evt)))
+	// Tab selects next cell, shift+tab while editing inserts tab
+	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
 	{
-		if (graph.isEditing())
+		if (graph.isEditing() && mxEvent.isShiftDown(evt))
 		{
-			graph.stopEditing(false);
+			try
+			{
+				var editor = graph.cellEditor.textarea;
+		        var doc = editor.ownerDocument.defaultView;
+		        var sel = doc.getSelection();
+		        var range = sel.getRangeAt(0);
+
+				// LATER: Fix normalized tab after editing plain text labels
+				var tabNode = document.createElement('span');
+				tabNode.style.whiteSpace = 'pre';
+				tabNode.appendChild(document.createTextNode('\t'));
+				range.insertNode(tabNode);
+		        range.setStartAfter(tabNode);
+		        range.setEndAfter(tabNode); 
+		        sel.removeAllRanges();
+		        sel.addRange(range);
+			}
+			catch (e)
+			{
+				// ignore
+				console.error(e);
+			}
 		}
 		else
 		{
-			graph.selectCell(!mxEvent.isShiftDown(evt));
+			if (graph.isEditing())
+			{
+				graph.stopEditing(false);
+			}
+			else
+			{
+				graph.selectCell(!mxEvent.isShiftDown(evt));
+			}
 		}
-		
+			
 		mxEvent.consume(evt);
 	}
 };

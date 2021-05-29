@@ -323,6 +323,21 @@ EditorUi.initMinimalTheme = function()
 			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
 			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			graph.loadStylesheet();
+			
+			// Destroys windows with code for dark mode
+		    if (this.actions.layersWindow != null)
+		    {
+		    	this.actions.layersWindow.window.setVisible(false);
+		    	this.actions.layersWindow.destroy();
+		    	this.actions.layersWindow = null;
+		    }
+
+			if (this.menus.commentsWindow != null)
+			{
+		    	this.menus.commentsWindow.window.setVisible(false);
+				this.menus.commentsWindow.destroy();
+				this.menus.commentsWindow = null;
+			}
 
 			// Sets global vars
 			Dialog.backdropColor = Editor.isDarkMode() ? '#2a2a2a' : 'white';
@@ -411,8 +426,8 @@ EditorUi.initMinimalTheme = function()
 			'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
 			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
 			// Styling for Minimal
-			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; }' +
-			'.geToolbarContainer, .geTabContainer { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
+			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
+			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + '; }' +
 			'div.geSidebarContainer { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + '; }' +
 			'div.geSidebarContainer .geTitle { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fdfdfd') + '; }' +
 			'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
@@ -783,7 +798,7 @@ EditorUi.initMinimalTheme = function()
         if (this.actions.layersWindow != null)
         {
         	this.actions.layersWindow.window.setVisible(false);
-        	this.actions.layersWindow.window.destroy();
+        	this.actions.layersWindow.destroy();
         	this.actions.layersWindow = null;
         }
 
@@ -1272,7 +1287,8 @@ EditorUi.initMinimalTheme = function()
 	EditorUi.prototype.init = function()
 	{
 		editorUiInit.apply(this, arguments);
-		this.doSetDarkMode(mxSettings.settings.darkMode);
+		this.doSetDarkMode((urlParams['dark'] != null) ?
+			urlParams['dark'] == 1 : mxSettings.settings.darkMode);
 		
 		var div = document.createElement('div');
 		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
@@ -2043,18 +2059,18 @@ EditorUi.initMinimalTheme = function()
 				ui.tabContainer.style.visibility = 'hidden';
 				menubar.style.cssText = 'position:absolute;right:20px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px 0px 6px 6px;border-bottom:1px solid lightgray;' +
-					'text-align:right;white-space:nowrap;background-color:#fff;overflow:hidden;';
+					'text-align:right;white-space:nowrap;overflow:hidden;';
 				toolbar.style.cssText = 'position:absolute;left:10px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;border-bottom:1px solid lightgray;' +
-					'text-align:right;white-space:nowrap;background-color:#fff;overflow:hidden;';
+					'text-align:right;white-space:nowrap;overflow:hidden;';
 				footer.style.cssText = 'position:absolute;right:20px;bottom:20px;height:28px;z-index:1;border-radius:4px;' +
-					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;background-color:#fff;';
+					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;';
 				wrapper.appendChild(toolbar);
 				wrapper.appendChild(footer);
 				
 				picker.style.cssText = 'position:absolute;left:10px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px 6px 10px 6px;white-space:nowrap;' +
-					'background-color:#fff;transform:translate(0, -50%);top:50%;';
+					'transform:translate(0, -50%);top:50%;';
 				wrapper.appendChild(picker);
 				
 				if (urlParams['format-toolbar'] == '1')

@@ -2021,7 +2021,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	var div = document.createElement('div');
 	div.style.userSelect = 'none';
-	div.style.background = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	div.style.background = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 	div.style.border = '1px solid whiteSmoke';
 	div.style.height = '100%';
 	div.style.marginBottom = '10px';
@@ -2030,7 +2030,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var tbarHeight = (!EditorUi.compactUi) ? '30px' : '26px';
 	
 	var listDiv = document.createElement('div')
-	listDiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? '#dcdcdc' : Dialog.backdropColor;
+	listDiv.style.backgroundColor = (!Editor.isDarkMode()) ? '#dcdcdc' : Dialog.backdropColor;
 	listDiv.style.position = 'absolute';
 	listDiv.style.overflow = 'auto';
 	listDiv.style.left = '0px';
@@ -2069,7 +2069,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	ldiv.style.height = tbarHeight;
 	ldiv.style.overflow = 'hidden';
 	ldiv.style.padding = (!EditorUi.compactUi) ? '1px' : '4px 0px 3px 0px';
-	ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+	ldiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 	ldiv.style.borderWidth = '1px 0px 0px 0px';
 	ldiv.style.borderColor = '#c3c3c3';
 	ldiv.style.borderStyle = 'solid';
@@ -2262,24 +2262,50 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	}
 	
 	ldiv.appendChild(addLink);
-	div.appendChild(ldiv);	
+	div.appendChild(ldiv);
+	
+	var layerDivs = new mxDictionary();
+	
+	var dot = document.createElement('span');
+	dot.innerHTML = '&#8226;';
+	dot.style.position = 'absolute';
+	dot.style.fontWeight = 'bold';
+	dot.style.fontSize = '16pt';
+	dot.style.right = '6px';
+	dot.style.top = '5px';
+	
+	function updateLayerDot()
+	{
+		var div = layerDivs.get(graph.getLayerForCells(graph.getSelectionCells()));
+		
+		if (div != null)
+		{
+			div.appendChild(dot);
+		}
+		else if (dot.parentNode != null)
+		{
+			dot.parentNode.removeChild(dot);
+		}
+	};
 	
 	function refresh()
 	{
 		layerCount = graph.model.getChildCount(graph.model.root)
 		listDiv.innerHTML = '';
-
+		layerDivs.clear();
+		
 		function addLayer(index, label, child, defaultParent)
 		{
 			var ldiv = document.createElement('div');
 			ldiv.className = 'geToolbarContainer';
+			layerDivs.put(child, ldiv);
 
 			ldiv.style.overflow = 'hidden';
 			ldiv.style.position = 'relative';
 			ldiv.style.padding = '4px';
 			ldiv.style.height = '22px';
 			ldiv.style.display = 'block';
-			ldiv.style.backgroundColor = (Dialog.backdropColor == 'white') ? 'whiteSmoke' : Dialog.backdropColor;
+			ldiv.style.backgroundColor = (!Editor.isDarkMode()) ? 'whiteSmoke' : Dialog.backdropColor;
 			ldiv.style.borderWidth = '0px 0px 1px 0px';
 			ldiv.style.borderColor = '#c3c3c3';
 			ldiv.style.borderStyle = 'solid';
@@ -2492,7 +2518,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			if (graph.getDefaultParent() == child)
 			{
-				ldiv.style.background =  (Dialog.backdropColor == 'white') ? '#e6eff8' : '#505759';
+				ldiv.style.background = (!Editor.isDarkMode()) ? '#e6eff8' : '#505759';
 				ldiv.style.fontWeight = (graph.isEnabled()) ? 'bold' : '';
 				selectionLayer = child;
 			}
@@ -2530,12 +2556,14 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		{
 			insertLink.className = 'geButton mxDisabled';
 		}
+		
+		updateLayerDot();
 	};
 
 	refresh();
 	graph.model.addListener(mxEvent.CHANGE, refresh);
 	graph.addListener('defaultParentChanged', refresh);
-
+	
 	graph.selectionModel.addListener(mxEvent.CHANGE, function()
 	{
 		if (graph.isSelectionEmpty())
@@ -2546,6 +2574,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		{
 			insertLink.className = 'geButton';
 		}
+		
+		updateLayerDot();
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);

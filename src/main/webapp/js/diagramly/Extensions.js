@@ -13629,7 +13629,7 @@ LucidImporter = {};
 			var fields = props.FieldNames;
 			var layoutSettings = props.LayoutSettings;
 			var cellDefaultStyle = props.BlockItemDefaultStyle || {props: {}};
-			var edgeDefaultStyle = props.EdgeItemDefaultStyle || {props: {}};
+			var edgeDefaultStyle = props.EdgeItemDefaultStyle;
 			var parents = {};
 			var idPrefix = (objId || Date.now()) + '_';
 			
@@ -13706,19 +13706,34 @@ LucidImporter = {};
 			else
 			{
 				var dataId, derivative = props.ContractMap.derivative;
-				
-				for (var i = 0; i < derivative.length; i++)
+
+	 			if (derivative == null)
 				{
-					if (derivative[i].type == 'ForeignKeyGraph')
+					//We don't have enough samples of this format, TODO improve this
+					var people = props.ContractMap.c.People;
+					dataId = people.id;
+					dataId = dataId.substr(0, dataId.lastIndexOf('_'));
+					
+					for (var j = 0; j < fields.length; j++)
 					{
-						dataId = derivative[i].c[0].id;
-						dataId = dataId.substr(0, dataId.lastIndexOf('_'));
+						fields[j] = people.f[fields[j]] || fields[j];
 					}
-					else if (derivative[i].type == 'MappedGraph')
+				}
+				else
+				{
+					for (var i = 0; i < derivative.length; i++)
 					{
-						for (var j = 0; j < fields.length; j++)
+						if (derivative[i].type == 'ForeignKeyGraph')
 						{
-							fields[j] = derivative[i].nfs[fields[j]] || fields[j];
+							dataId = derivative[i].c[0].id;
+							dataId = dataId.substr(0, dataId.lastIndexOf('_'));
+						}
+						else if (derivative[i].type == 'MappedGraph')
+						{
+							for (var j = 0; j < fields.length; j++)
+							{
+								fields[j] = derivative[i].nfs[fields[j]] || fields[j];
+							}
 						}
 					}
 				}
@@ -13784,7 +13799,12 @@ LucidImporter = {};
 						var e = new mxCell('', new mxGeometry(0, 0, 100, 100), '');
 						e.geometry.relative = true;
 						e.edge = true;
-						updateCell(e, edgeDefaultStyle.props, graph, null, null, true);
+						
+						if (edgeDefaultStyle != null && edgeDefaultStyle.props != null)
+						{
+							updateCell(e, edgeDefaultStyle.props, graph, null, null, true);
+						}
+						
 						graph.addCell(e, chartGroup, null, src, trg);
 					}
 				}

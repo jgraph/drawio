@@ -3177,6 +3177,35 @@ Graph.prototype.formatDate = function(date, mask, utc)
 /**
  * 
  */
+Graph.prototype.getLayerForCells = function(cells)
+{
+	var result = null;
+	
+	if (cells.length > 0)
+	{
+		result = cells[0];
+		
+		while (!this.model.isLayer(result))
+		{
+			result = this.model.getParent(result);
+		}
+		
+		for (var i = 1; i < cells.length; i++)
+		{
+			if (!this.model.isAncestor(result, cells[i]))
+			{
+				result = null;
+				break;
+			}
+		}
+	}
+		
+	return result;
+};
+
+/**
+ * 
+ */
 Graph.prototype.createLayersDialog = function(onchange)
 {
 	var div = document.createElement('div');
