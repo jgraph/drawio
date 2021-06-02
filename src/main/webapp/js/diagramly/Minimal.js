@@ -1686,10 +1686,6 @@ EditorUi.initMinimalTheme = function()
 		{
 			if (graph.freehand != null)
 			{
-				graph.freehand.setAutoInsert(true);
-				graph.freehand.setAutoScroll(true);
-				graph.freehand.setOpenFill(true);
-				
 				var freehandCreateStyle = graph.freehand.createStyle;
 				
 				graph.freehand.createStyle = function(stencil)
@@ -1851,9 +1847,11 @@ EditorUi.initMinimalTheme = function()
 				addElt(ui.sidebar.createVertexTemplate('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;', 
 					40, 20, 'Text', mxResources.get('text'), true, true, null, true), mxResources.get('text') +
 					' (' +  Editor.ctrlKey + '+Shift+X' + ')');
-				addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;' +
-					'fillStyle=solid;direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;fontSize=24;jiggle=2;pointerEvents=1;',
-					140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
+				addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
+					'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
+					'direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;' +
+					'fontSize=24;jiggle=2;pointerEvents=1;', 140, 160, '', mxResources.get('note'), true, true,
+					null, true), mxResources.get('note'));
 				addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
 					'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
 					' (' +  Editor.ctrlKey + '+K' + ')');

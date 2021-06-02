@@ -8,6 +8,12 @@ function mxFreehand(graph)
 		return;
 	}
 	
+	// Stops drawing on escape
+	graph.addListener(mxEvent.ESCAPE, mxUtils.bind(this, function()
+	{
+		this.stopDrawing();
+	}));
+	
 	//Code inspired by https://stackoverflow.com/questions/40324313/svg-smooth-freehand-drawing
 	var bufferSize = mxFreehand.prototype.NORMAL_SMOOTHING;
 	var path = null;
@@ -17,9 +23,9 @@ function mxFreehand(graph)
 	var lastPart;
 	var closedPath = false; 
 	var autoClose = true;
-	var autoInsert = false;
-	var autoScroll = false;
-	var openFill = false;
+	var autoInsert = true;
+	var autoScroll = true;
+	var openFill = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
 	var stopClickEnabled = true

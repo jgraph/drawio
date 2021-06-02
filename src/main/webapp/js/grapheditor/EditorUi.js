@@ -1462,9 +1462,9 @@ EditorUi.prototype.onKeyDown = function(evt)
 	var graph = this.editor.graph;
 	
 	// Tab selects next cell, shift+tab while editing inserts tab
-	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isAltDown(evt))
+	if (evt.which == 9 && graph.isEnabled())
 	{
-		if (graph.isEditing() && mxEvent.isShiftDown(evt))
+		if (graph.isEditing() && mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt))
 		{
 			try
 			{
@@ -1486,8 +1486,9 @@ EditorUi.prototype.onKeyDown = function(evt)
 			catch (e)
 			{
 				// ignore
-				console.error(e);
 			}
+			
+			mxEvent.consume(evt);
 		}
 		else
 		{
@@ -1495,13 +1496,13 @@ EditorUi.prototype.onKeyDown = function(evt)
 			{
 				graph.stopEditing(false);
 			}
-			else
+			else if (mxEvent.isAltDown(evt))
 			{
 				graph.selectCell(!mxEvent.isShiftDown(evt));
 			}
-		}
 			
-		mxEvent.consume(evt);
+			mxEvent.consume(evt);
+		}
 	}
 };
 

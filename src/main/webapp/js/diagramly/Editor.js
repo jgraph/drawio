@@ -5496,8 +5496,16 @@
 					callback();
 				}
 			}
+			else if (callback != null)
+			{
+				callback();
+			}
 		}
-		
+		else if (callback != null)
+		{
+			callback();
+		}
+				
 		return name;
 	};
 

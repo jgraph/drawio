@@ -1140,3 +1140,4 @@ confASkipDiagModified=Skipped "{1}" as it was modified after initial import
 replFind=Replace/Find
 matchesRepl={1} matches replaced
 draftErrDataLoss=An error occurred while reading the draft file. The diagram cannot be edited now to prevent any possible data loss. Please try again later or contact support.
+ibm=IBM

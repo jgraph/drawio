@@ -1,3 +1,12 @@
+02-JUN-2021: 14.7.4
+
+- Sets fonts color for note shape in sketch theme
+- Consistent freehand defaults for all themes
+- Escape stops freehand drawing
+- Fixes timeout error when UI fonts are overwritten in PDF export
+- Fixes overridden indent keystroke, uses alt+tab for tab
+- Fixes tab to stop editing
+
 29-MAY-2021: 14.7.3
 
 - Updates layer dot after model changes

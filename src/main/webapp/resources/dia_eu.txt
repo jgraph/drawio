@@ -1140,3 +1140,4 @@ confASkipDiagModified="{1}" saltatu da hasierako inportazioaren ondoren aldatu z
 replFind=ordeztu/bilatu
 matchesRepl={1} bat egite ordeztu dira
 draftErrDataLoss=An error occurred while reading the draft file. The diagram cannot be edited now to prevent any possible data loss. Please try again later or contact support.
+ibm=IBM
