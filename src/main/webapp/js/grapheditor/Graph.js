@@ -718,6 +718,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		});
 	}
 	
+	this.cellRenderer.minSvgStrokeWidth = 0.1;
+	
 	// HTML entities are displayed as plain text in wrapped plain text labels
 	this.cellRenderer.getLabelValue = function(state)
 	{
@@ -9354,7 +9356,7 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return canvas;
 		};
-		
+
 		/**
 		 * Returns the first ancestor of the current selection with the given name.
 		 */
@@ -10122,6 +10124,62 @@ if (typeof mxVertexHandler != 'undefined')
 			return this.graph.getParentByName(
 				this.graph.getSelectedElement(),
 				'TABLE', this.textarea) != null;
+		};
+		
+		/**
+		 * Returns true if text is selected.
+		 */
+		mxCellEditor.prototype.isTextSelected = function()
+		{
+		    var txt = '';
+
+		    if (window.getSelection)
+			{
+		        txt = window.getSelection();
+		    } 
+			else if (document.getSelection)
+			{
+		        txt = document.getSelection();
+		    }
+			else if (document.selection)
+			{
+		        txt = document.selection.createRange().text;
+		    }
+
+			return txt != '';
+		};
+
+		/**
+		 * Inserts a tab at the cursor position.
+		 */
+		mxCellEditor.prototype.insertTab = function(spaces)
+		{
+			var editor = this.textarea;
+	        var doc = editor.ownerDocument.defaultView;
+	        var sel = doc.getSelection();
+	        var range = sel.getRangeAt(0);
+			var str = '\t';
+			
+			if (spaces != null)
+			{
+				str = '';
+				
+				while (spaces > 0)
+				{
+					str += '\xa0';
+					spaces--;
+				}
+			}
+
+			// LATER: Fix normalized tab after editing plain text labels
+			var tabNode = document.createElement('span');
+			tabNode.style.whiteSpace = 'pre';
+			tabNode.appendChild(document.createTextNode(str));
+			range.insertNode(tabNode);
+	        range.setStartAfter(tabNode);
+	        range.setEndAfter(tabNode); 
+	        sel.removeAllRanges();
+	        sel.addRange(range);
 		};
 		
 		/**

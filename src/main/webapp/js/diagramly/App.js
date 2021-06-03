@@ -79,7 +79,7 @@ App = function(editor, container, lightbox)
 	// Global helper method to deal with popup blockers
 	window.openWindow = mxUtils.bind(this, function(url, pre, fallback)
 	{
-		if (urlParams['openInSameWin'] == '1')
+		if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 		{
 			fallback();
 			return;
@@ -4917,7 +4917,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
  */
 App.prototype.loadFile = function(id, sameWindow, file, success, force)
 {
-	if (urlParams['openInSameWin'] == '1')
+	if (urlParams['openInSameWin'] == '1' || navigator.standalone)
 	{
 		sameWindow = true;
 	}

@@ -1889,6 +1889,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	mxEvent.addListener(window, 'resize', resizeListener);
 	
 	var outline = editorUi.createOutline(this.window);
+	outline.border = 0;
 
 	this.destroy = function()
 	{
@@ -1936,7 +1937,8 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		g.pageFormat = graph.pageFormat;
 		g.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
 		g.pageVisible = graph.pageVisible;
-
+		g.cellRenderer.minSvgStrokeWidth = 0.2;
+		
 		var current = mxUtils.getCurrentStyle(graph.container);
 		div.style.backgroundColor = current.backgroundColor;
 		
@@ -2267,6 +2269,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var layerDivs = new mxDictionary();
 	
 	var dot = document.createElement('span');
+	dot.setAttribute('title', mxResources.get('selectionOnly'));
 	dot.innerHTML = '&#8226;';
 	dot.style.position = 'absolute';
 	dot.style.fontWeight = 'bold';

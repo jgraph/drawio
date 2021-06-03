@@ -1768,3 +1768,55 @@ table.geProperties tr td {
     opacity: 1;
   }
 }
+
+.geTempTree {
+  margin: 0;
+  padding: 0;
+}
+
+.geTempTree, .geTempTreeActive, .geTempTreeNested {
+  list-style-type: none;
+  transition: all 0.5s;
+}
+
+.geTempTreeCaret {
+  cursor: pointer;
+  user-select: none;
+  padding: 6px;
+  width: 100%;
+  transition: all 0.5s;
+}
+
+.geTempTreeCaret::before {
+  content: "\25B6";
+  color: black;
+  display: inline-block;
+  font-size: 10px;
+  margin-right: 6px;
+}
+
+.geTempTreeCaret-down::before {
+  transform: rotate(90deg);  
+}
+
+.geTempTreeNested {
+  height: 0;
+  opacity: 0;
+}
+
+.geTempTreeActive {
+  height: 100%;
+  opacity: 1;
+}
+
+.geTempTreeActive, .geTempTreeNested {
+  padding-left: 15px;
+}
+
+.geTempTreeActive > li, .geTempTreeNested > li {
+  padding: 3px;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.5s;
+}

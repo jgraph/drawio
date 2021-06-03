@@ -1005,7 +1005,7 @@ Dialog.backdropColor = 'white';
 /**
  * 
  */
-Dialog.prototype.zIndex = mxPopupMenu.prototype.zIndex - 1;
+Dialog.prototype.zIndex = mxPopupMenu.prototype.zIndex - 2;
 
 /**
  * 

@@ -6,17 +6,24 @@
 <script type="text/javascript" src="js/app.min.js"></script>
 <script type="text/javascript" src="js/extensions.min.js"></script>
 <script type="text/javascript">
+  function doImport(vsdxBuff, callback, error, file)
+  {
+	EditorUi.prototype.createUi = function(){};
+	EditorUi.prototype.addTrees = function(){};
+	EditorUi.prototype.updateActionStates = function(){};
+ 	var editorUi = new EditorUi();
+ 	var blob = file? file : new Blob([vsdxBuff], {type: 'application/octet-stream'});
+
+ 	editorUi.importVisio(blob, callback, error, file? file.name : null);		
+  };
+
+  try
+  {
 	const { ipcRenderer } = require('electron');
 	
 	ipcRenderer.on('import', (event, vsdxBuff) => 
 	{
-		EditorUi.prototype.createUi = function(){};
-		EditorUi.prototype.addTrees = function(){};
-		EditorUi.prototype.updateActionStates = function(){};
-	 	var editorUi = new EditorUi();
-	 	var blob =  new Blob([vsdxBuff], {type: 'application/octet-stream'});
-	 	
-	 	editorUi.importVisio(blob, function(xml)
+	 	doImport(vsdxBuff, function(xml)
 		{
 	 		ipcRenderer.send('import-success', xml);
 		},
@@ -25,8 +32,38 @@
 			ipcRenderer.send('import-error');
 		});
 	});
+  }
+  catch(e) {} //Ignore
 </script>
 </head>
 <body>
+	<input type="file" id="fileUpload">
+	<script type="text/javascript">
+		document.getElementById('fileUpload').addEventListener('change', function()
+		{
+			const curFiles = this.files;
+
+			if(curFiles.length > 0) 
+			{
+				function createDoneDiv(msg)
+				{
+					var doneDiv = document.createElement('div');
+					doneDiv.id = 'doneDiv';
+					doneDiv.innerHTML = msg;
+					document.body.appendChild(doneDiv);
+				};
+				
+				doImport(null, function(xml)
+				{
+					window.importResXML = xml;
+					createDoneDiv('success');
+				}, function(err)
+				{
+					console.log(err)
+					createDoneDiv('error');
+				}, curFiles[0]);
+			}
+		});
+	</script>
 </body>
 </html>

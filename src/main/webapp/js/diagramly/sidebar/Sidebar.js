@@ -1289,7 +1289,7 @@
 		if (this.searchIndexData != null)
 		{
 			this.addSearchIndex(JSON.parse(Graph.decompress(this.searchIndexData)));
-			this.searchFileData = null;
+			this.searchIndexData = null;
 		}
 		
 		if (ICONSEARCH_PATH != null)

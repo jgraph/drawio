@@ -2376,6 +2376,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	templateFile = (templateFile != null) ? templateFile : EditorUi.templateFile;
 	
 	var outer = document.createElement('div');
+	outer.style.userSelect = 'none';
 	outer.style.height = '100%';
 	
 	var header = document.createElement('div');
@@ -2740,7 +2741,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	
 	function create()
 	{
-		if (templateExtUrl)
+		if (templateExtUrl && openExtDocCallback != null)
 		{
 			if (!showName)
 			{
@@ -2791,10 +2792,91 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	div.style.margin = '6px 0 0 -1px';
 	div.style.padding = '6px';
 	div.style.overflow = 'auto';
+
+	mxEvent.addListener(div, 'dragstart', function(evt)
+	{
+		mxEvent.consume(evt);
+	});
 	
+	var searchBox = document.createElement('div');
+	searchBox.style.cssText = 'position:absolute;left:30px;width:128px;top:' + divTop + 'px;height:22px;margin-top: 6px;white-space: nowrap';
+	var searchInput = document.createElement('input');
+	searchInput.style.cssText = 'width:105px;height:16px;border:1px solid #d3d3d3;padding: 3px 20px 3px 3px;font-size: 12px';
+	searchInput.setAttribute('placeholder', mxResources.get('search'));
+	searchInput.setAttribute('type', 'text');
+	searchBox.appendChild(searchInput);
+	
+	var cross = document.createElement('img');
+	var searchImg = typeof Sidebar != 'undefined'? Sidebar.prototype.searchImage : IMAGE_PATH + '/search.png';
+	cross.setAttribute('src', searchImg);
+	cross.setAttribute('title', mxResources.get('search'));
+	cross.style.position = 'relative';
+	cross.style.left = '-18px';
+	cross.style.top = '1px';
+	// Needed to block event transparency in IE
+	cross.style.background = 'url(\'' + editorUi.editor.transparentImage + '\')';
+	searchBox.appendChild(cross);
+	
+	mxEvent.addListener(cross, 'click', function()
+	{
+		if (cross.getAttribute('src') == Dialog.prototype.closeImage)
+		{
+			cross.setAttribute('src', searchImg);
+			cross.setAttribute('title', mxResources.get('search'));
+			searchInput.value = '';
+			resetTemplates();
+		}
+
+		searchInput.focus();
+	});
+	
+	mxEvent.addListener(searchInput, 'keydown', mxUtils.bind(this, function(evt)
+	{
+		if (evt.keyCode == 13 /* Enter */)
+		{
+			filterTemplates();
+			mxEvent.consume(evt);
+		}
+	}));
+	
+	mxEvent.addListener(searchInput, 'keyup', mxUtils.bind(this, function(evt)
+	{
+		if (searchInput.value == '')
+		{
+			cross.setAttribute('src', searchImg);
+			cross.setAttribute('title', mxResources.get('search'));
+		}
+		else
+		{
+			cross.setAttribute('src', Dialog.prototype.closeImage);
+			cross.setAttribute('title', mxResources.get('reset'));
+		}
+	}));
+
+	divTop += 23;
+
 	var list = document.createElement('div');
 	list.style.cssText = 'position:absolute;left:30px;width:128px;top:' + divTop + 'px;bottom:68px;margin-top:6px;overflow:auto;border:1px solid #d3d3d3;';
 	
+	var currentElt = null;
+	
+	mxEvent.addListener(div, 'scroll', function()
+	{
+		editorUi.sidebar.hideTooltip();
+		currentElt = null;
+	});
+	
+	mxEvent.addListener(div, 'mouseleave', function(evt)
+	{
+		if (evt.toElement != null && editorUi.sidebar.tooltip != null &&
+			editorUi.sidebar.tooltip != evt.toElement &&
+			!editorUi.sidebar.tooltip.contains(evt.toElement))
+		{
+			editorUi.sidebar.hideTooltip();
+			currentElt = null;
+		}
+	});
+			
 	var w = 140;
 	var h = 140;
 
@@ -2819,6 +2901,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		selectedElt.style.backgroundColor = rightHighlight;
 		selectedElt.style.border = rightHighlightBorder;
 	};
+	
+	var thread = null;
 
 	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs)
 	{
@@ -2826,6 +2910,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		elt.className = 'geTemplate';
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
+		var xmlData = null;
 	
 		if (Editor.isDarkMode())
 		{
@@ -2840,6 +2925,158 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			elt.setAttribute('title', tooltip);
 		}
+		
+		function loadXmlData(url, callback)
+		{
+			if (xmlData == null)
+			{
+				var realUrl = url;
+				loading = true;
+		
+				if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
+				{
+					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
+				}
+				else
+				{
+					realUrl = TEMPLATE_PATH + '/' + realUrl;
+				}
+				
+				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+				{
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					{
+						xmlData = req.getText();
+						callback(xmlData);
+					}
+					else
+					{
+						callback(xmlData);	
+					}				
+				}));
+			}
+			else
+			{
+				callback(xmlData);
+			}
+		}
+		
+		// Shows a tooltip with the rendered template
+		var loading = false;
+		
+		function showTooltip(xml, x, y)
+		{
+			// Checks if dialog still visible
+			if (document.body.contains(elt))
+			{
+				var doc = mxUtils.parseXml(xml);
+				var tempNode = Editor.parseDiagramNode(doc.documentElement);
+				var codec = new mxCodec(tempNode.ownerDocument);
+				var model = new mxGraphModel();
+				codec.decode(tempNode, model);
+				var cells = model.root.getChildAt(0).children;
+				
+				var ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+				var wh = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+				
+				// TODO: Use maxscreensize
+				editorUi.sidebar.createTooltip(elt, cells, Math.min(ww - 80, 1000), Math.min(wh - 80, 800),
+					(title != null) ? mxResources.get(title, null, title) : null,
+					true, new mxPoint(x, y), true, function()
+					{
+						selectElement(elt, null, null, url, infoObj, clibs);
+					});
+			}
+		};
+
+		function startTimer(evt, delay)
+		{
+			if (currentElt != elt && thread != null)
+			{
+				window.clearTimeout(thread);
+				loading = false;
+				thread = null;
+			}
+			
+			if (thread == null && currentElt != elt && !loading)
+			{
+				thread = window.setTimeout(function()
+				{
+					if (currentElt == elt)
+					{
+						if (url == null)
+						{
+							hideTooltip();
+						}
+						else
+						{
+							editorUi.sidebar.currentElt = elt;
+							loading = true;
+							
+							loadXmlData(url, function(xml)
+							{
+								if (loading && currentElt == elt)
+								{
+									showTooltip(xml, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+									editorUi.sidebar.currentElt = elt;
+								}
+								
+								loading = false;
+								thread = null;
+							});
+						}
+					}
+				}, delay);
+				
+				editorUi.sidebar.currentElt = elt;
+				currentElt = elt;
+			}
+		};
+	
+		function hideTooltip()
+		{
+			if (currentElt == elt)
+			{
+				editorUi.sidebar.hideTooltip();
+				
+				if (thread != null)
+				{
+					window.clearTimeout(thread);
+					loading = false;
+					thread = null;
+				}
+			}
+		};
+
+		mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
+		{
+			hideTooltip();
+			
+			if (editorUi.sidebar.currentElt != elt)
+			{
+				currentElt = null;
+				startTimer(evt, 600);
+				mxEvent.consume(evt);
+			}
+		}), mxUtils.bind(this, function(evt)
+		{
+			startTimer(evt, 600);
+		}), mxUtils.bind(this, function(evt)
+		{
+			currentElt = null;
+			hideTooltip();
+		}));
+			
+		mxEvent.addListener(elt, 'mouseleave', function(evt)
+		{
+			if (evt.toElement != null && editorUi.sidebar.tooltip != null &&
+				editorUi.sidebar.tooltip != evt.toElement &&
+				!editorUi.sidebar.tooltip.contains(evt.toElement))
+			{
+				editorUi.sidebar.hideTooltip();
+				currentElt = null;
+			}
+		});
 		
 		if (imgUrl != null)
 		{
@@ -2866,16 +3103,18 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					this.src = Editor.errorImage;
 					this.onerror = null;
 				}
-			}
+			};
 			
-			mxEvent.addListener(elt, 'click', function(evt)
+			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				selectElement(elt, null, null, url, infoObj, clibs);
-			});
+				mxEvent.consume(evt);
+			}), null, null);
 			
 			mxEvent.addListener(elt, 'dblclick', function(evt)
 			{
 				create();
+				mxEvent.consume(evt);
 			});
 		}
 		else if (!noImg && url != null && url.length > 0)
@@ -2894,46 +3133,39 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					mxUtils.htmlEntities(mxResources.get(title, null, title)) + '</span></td></tr></table>';
 			}
 			
-			var createIt = false;
-			
-			mxEvent.addListener(elt, 'click', function(evt)
+			function activate(doCreate)
 			{
 				createButton.setAttribute('disabled', 'disabled');
 				elt.style.backgroundColor = 'transparent';
 				elt.style.border = '1px solid transparent';
-				var realUrl = url;
-				
-				if (/^https?:\/\//.test(realUrl) && !editorUi.editor.isCorsEnabledForUrl(realUrl))
-				{
-					realUrl = PROXY_URL + '?url=' + encodeURIComponent(realUrl);
-				}
-				else
-				{
-					realUrl = TEMPLATE_PATH + '/' + realUrl;
-				}
-				
 				spinner.spin(div);
 				
-				mxUtils.get(realUrl, mxUtils.bind(this, function(req)
+				loadXmlData(url, function(xml)
 				{
 					spinner.stop();
 					
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					if (xml != null)
 					{
-						selectElement(elt, req.getText(), libs, null, null, clibs, realUrl);
+						selectElement(elt, xml, libs, null, null, clibs, realUrl);
 						
-						if (createIt)
+						if (doCreate)
 						{
 							create();
 						}
 					}
-				}));
-			});
+				});
+			};
+			
+			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
+			{
+				activate();
+				mxEvent.consume(evt);
+			}), null, null);
 			
 			mxEvent.addListener(elt, 'dblclick', function(evt)
 			{
-				// Asynchronous double click handling after loading template
-				createIt = true;
+				activate(true);
+				mxEvent.consume(evt);
 			});
 		}
 		else
@@ -2947,6 +3179,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				selectElement(elt);
 			}
+			
+			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
+			{
+				selectElement(elt, null, null, url, infoObj);
+				mxEvent.consume(evt);
+			}), null, null);
 			
 			if (onClick != null)
 			{
@@ -2962,6 +3200,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				mxEvent.addListener(elt, 'dblclick', function(evt)
 				{
 					create();
+					mxEvent.consume(evt);
 				});
 			}
 		}
@@ -2970,12 +3209,116 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		return elt;
 	};
 
-	var categories = {}, customCats = {};
+	var categories = {}, subCategories = {}, customCats = {};
 	var customCatCount = 0, firstInitUi = true;
-	
+	var currentEntry = null, lastEntry = null;
+
 	// Adds local basic templates
 	categories['basic'] = [{title: 'blankDiagram', select: true}];
 	var templates = categories['basic'];
+	
+	function resetTemplates()
+	{
+		if (lastEntry != null)
+		{
+			lastEntry.click();
+			lastEntry = null;
+		}
+	};
+	
+	function filterTemplates()
+	{
+		var searchTerms = searchInput.value;
+		
+		if (searchTerms == '')
+		{
+			resetTemplates();
+			return;
+		}
+		
+		if (NewDialog.tagsList[templateFile] == null)
+		{
+			var tagsList = {};
+			
+			for (var cat in categories)
+			{
+				var templateList = categories[cat];
+				
+				for (var i = 0; i < templateList.length; i++)
+				{
+					var temp = templateList[i];
+					
+					if (temp.tags != null)
+					{
+						var tags = temp.tags.toLowerCase().split(';');
+						
+						for (var j = 0; j < tags.length; j++)
+						{
+							if (tagsList[tags[j]] == null)
+							{
+								tagsList[tags[j]] = [];
+							}
+							
+							tagsList[tags[j]].push(temp);
+						}
+					}
+				}				
+			}
+			
+			NewDialog.tagsList[templateFile] = tagsList;
+		}
+
+		var tmp = searchTerms.toLowerCase().split(' ');
+		tagsList = NewDialog.tagsList[templateFile];
+		var results = [], resMap = {}, index = 0;
+		
+		for (var i = 0; i < tmp.length; i++)
+		{
+			if (tmp[i].length > 0)
+			{
+				var list = tagsList[tmp[i]];
+				var tmpResMap = {};
+				results = [];
+				
+				if (list != null)
+				{
+					for (var j = 0; j < list.length; j++)
+					{
+						var temp = list[j];
+						
+						//ANDing terms
+						if ((index == 0) == (resMap[temp.url] == null))
+						{
+							tmpResMap[temp.url] = true;
+							results.push(temp);
+						}
+					}
+				}
+				
+				resMap = tmpResMap;
+				index++;
+			}
+		}
+		
+		div.scrollTop = 0;
+		div.innerHTML = '';
+		i0 = 0;
+		var msgDiv = document.createElement('div');
+		msgDiv.style.cssText = 'border: 1px solid #D3D3D3; padding: 6px; background: #F5F5F5;';
+		mxUtils.write(msgDiv, mxResources.get(results.length == 0 ? 'noResultsFor' : 'resultsFor', [searchTerms]));
+		div.appendChild(msgDiv);
+
+		if (currentEntry != null && lastEntry == null)
+		{
+			currentEntry.style.backgroundColor = '';
+			lastEntry = currentEntry;
+			currentEntry = msgDiv; //To prevebt NPE later
+		}
+
+		templates = results;
+		oldTemplates = null;
+		addTemplates();
+	};
 	
 	function initUi()
 	{
@@ -2992,8 +3335,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 			});
 		}
-		
-		var currentEntry = null;
 		
 		if (customCatCount > 0)
 		{
@@ -3053,11 +3394,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			list.appendChild(title);
 		}
 		
-		for (var cat in categories)
+		function getEntryTitle(cat, templateList)
 		{
-			var entry = document.createElement('div');
 			var label = mxResources.get(cat);
-			var templateList = categories[cat];
 			
 			if (label == null)
 			{
@@ -3069,9 +3408,92 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				label = label.substring(0, 18) + '&hellip;';
 			}
 			
-			entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;';
-			entry.setAttribute('title', label + ' (' + templateList.length + ')');
-			mxUtils.write(entry, entry.getAttribute('title'));
+			return label + ' (' + templateList.length + ')';
+		};
+		
+		function addEntryHandler(cat, entry, subCat)
+		{
+			mxEvent.addListener(entry, 'click', function()
+			{
+				if (currentEntry != entry)
+				{
+					currentEntry.style.backgroundColor = '';
+					currentEntry = entry;
+					currentEntry.style.backgroundColor = leftHighlight;
+					
+					div.scrollTop = 0;
+					div.innerHTML = '';
+					i0 = 0;
+					
+					templates = subCat? subCategories[cat][subCat] : categories[cat];
+					oldTemplates = null;
+					addTemplates();
+				}				
+			});
+		};
+			
+		for (var cat in categories)
+		{
+			var subCats = subCategories[cat];
+			var entry = document.createElement(subCats? 'ul' : 'div');
+			var clickElem = entry;
+			var templateList = categories[cat];
+			var entryTitle = getEntryTitle(cat, templateList);
+			
+			if (subCats != null)
+			{
+				var entryLi = document.createElement('li');
+				var entryDiv = document.createElement('div');
+				entryDiv.className = 'geTempTreeCaret';
+				entryDiv.setAttribute('title', entryTitle);
+				mxUtils.write(entryDiv, entryTitle);
+				clickElem = entryDiv;
+				entryLi.appendChild(entryDiv);
+				//We support one level deep only
+				var subUl = document.createElement('ul');
+				subUl.className = 'geTempTreeNested';
+				subUl.style.visibility = 'hidden';
+				
+				for (var subCat in subCats)
+				{
+					var subLi = document.createElement('li');
+					var subTitle = getEntryTitle(subCat, subCats[subCat]);
+					subLi.setAttribute('title', subTitle);
+					mxUtils.write(subLi, subTitle);
+					addEntryHandler(cat, subLi, subCat);
+					subUl.appendChild(subLi);
+				}
+				
+				entryLi.appendChild(subUl);
+				entry.className = 'geTempTree';
+				entry.appendChild(entryLi);
+				
+				(function(subUl2, entryDiv2)
+				{
+					mxEvent.addListener(entryDiv2, 'click', function()
+					{
+						subUl2.style.visibility = 'visible';
+						subUl2.classList.toggle('geTempTreeActive');
+						
+						if (subUl2.classList.toggle('geTempTreeNested'))
+						{
+							//Must hide sub elements to allow click on elements above it
+							setTimeout(function()
+							{
+								subUl2.style.visibility = 'hidden';
+							}, 550);
+						}
+						
+	    				entryDiv2.classList.toggle('geTempTreeCaret-down');
+					});
+				})(subUl, entryDiv);
+			}
+			else
+			{
+				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;transition: all 0.5s;';
+				entry.setAttribute('title', entryTitle);
+				mxUtils.write(entry, entryTitle);
+			}
 			
 			if (itemPadding != null)
 			{
@@ -3087,26 +3509,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				templates = templateList;
 			}
 			
-			(function(cat2, entry2)
-			{
-				mxEvent.addListener(entry, 'click', function()
-				{
-					if (currentEntry != entry2)
-					{
-						currentEntry.style.backgroundColor = '';
-						currentEntry = entry2;
-						currentEntry.style.backgroundColor = leftHighlight;
-						
-						div.scrollTop = 0;
-						div.innerHTML = '';
-						i0 = 0;
-						
-						templates = categories[cat2];
-						oldTemplates = null;
-						addTemplates();
-					}
-				});
-			})(cat, entry);
+			addEntryHandler(cat, clickElem);
 		}
 		
 		addTemplates();
@@ -3114,6 +3517,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	if (!compact)
 	{
+		outer.appendChild(searchBox);
 		outer.appendChild(list);
 		outer.appendChild(div);
 		var indexLoaded = false;
@@ -3163,11 +3567,22 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 								if (url != null)
 								{
 									var category = node.getAttribute('section');
+									var subCategory = node.getAttribute('subsection');
 									
 									if (category == null)
 									{
 										var slash = url.indexOf('/');
 										category = url.substring(0, slash);
+										
+										if (subCategory == null)
+										{
+											var nextSlash = url.indexOf('/', slash + 1);
+											
+											if (nextSlash > -1)
+											{
+												subCategory = url.substring(slash + 1, nextSlash);
+											}
+										}
 									}
 									
 									var list = categories[category];
@@ -3185,9 +3600,31 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 										tempLibs = clibs[tempLibs];
 									}
 									
-									list.push({url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-										title: node.getAttribute('title'), tooltip: node.getAttribute('url'),
-										preview: node.getAttribute('preview'), clibs: tempLibs});
+									var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+										title: node.getAttribute('title'), tooltip: node.getAttribute('name') || node.getAttribute('url'),
+										preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
+									list.push(tempObj);
+										
+									if (subCategory != null)
+									{
+										var subCats = subCategories[category];
+										
+										if (subCats == null)
+										{
+											subCats = {};
+											subCategories[category] = subCats;
+										}
+										
+										var subCatList = subCats[subCategory];
+										
+										if (subCatList == null)
+										{
+											subCatList = [];
+											subCats[subCategory] = subCatList;
+										}
+										
+										subCatList.push(tempObj);
+									}
 								}
 							}
 						}
@@ -3195,7 +3632,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						node = node.nextSibling;
 					}
 					
-					spinner.stop();
+				
+				spinner.stop();
 					initUi();
 				}
 			});
@@ -3213,7 +3651,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				origCustomCatCount = count;
 
 				loadDrawioTemplates();
-			}, 
+			},
+			
 			loadDrawioTemplates); //In case of an error, just load draw.io templates only
 		}
 		else
@@ -3339,6 +3778,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	this.container = outer;
 };
 
+NewDialog.tagsList = {};
 /**
  * Constructs a dialog for creating new files from a template URL.
  * Also used for dialog choosing where to save or export resources

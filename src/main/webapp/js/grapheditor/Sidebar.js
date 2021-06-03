@@ -10,6 +10,7 @@ function Sidebar(editorUi, container)
 	this.container = container;
 	this.palettes = new Object();
 	this.taglist = new Object();
+	this.lastCreated = 0;
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
     this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
@@ -22,6 +23,7 @@ function Sidebar(editorUi, container)
 	this.pointerUpHandler = mxUtils.bind(this, function()
 	{
 		this.showTooltips = true;
+		this.hideTooltip();
 	});
 
 	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', this.pointerUpHandler);
@@ -36,19 +38,22 @@ function Sidebar(editorUi, container)
 	
 	this.pointerMoveHandler = mxUtils.bind(this, function(evt)
 	{
-		var src = mxEvent.getSource(evt);
-		
-		while (src != null)
+		if (Date.now() - this.lastCreated > 300)
 		{
-			if (src == this.currentElt)
+			var src = mxEvent.getSource(evt);
+			
+			while (src != null)
 			{
-				return;
+				if (src == this.currentElt)
+				{
+					return;
+				}
+				
+				src = src.parentNode;
 			}
 			
-			src = src.parentNode;
+			this.hideTooltip();
 		}
-		
-		this.hideTooltip();
 	});
 
 	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointermove' : 'mousemove', this.pointerMoveHandler);
@@ -238,6 +243,11 @@ Sidebar.prototype.defaultImageWidth = 80;
 Sidebar.prototype.defaultImageHeight = 80;
 
 /**
+ * Specifies the height for clipart images. Default is 80.
+ */
+Sidebar.prototype.tooltipMouseDown = null;
+
+/**
  * Adds all palettes to the sidebar.
  */
 Sidebar.prototype.getTooltipOffset = function(elt, bounds)
@@ -251,6 +261,197 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	return new mxPoint(this.container.offsetWidth + this.editorUi.splitSize + 10 + this.editorUi.container.offsetLeft,
 		Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
 			this.container.offsetTop + elt.offsetTop - this.container.scrollTop - height / 2 + 16))));
+};
+
+/**
+ * Adds all palettes to the sidebar.
+ */
+Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown)
+{
+	this.tooltipMouseDown = mouseDown;
+	
+	// Lazy creation of the DOM nodes and graph instance
+	if (this.tooltip == null)
+	{
+		this.tooltip = document.createElement('div');
+		this.tooltip.className = 'geSidebarTooltip';
+		this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
+		document.body.appendChild(this.tooltip);
+			
+		// Blocks links in previews
+		this.tooltip.addEventListener('mouseup', mxUtils.bind(this, function(evt)
+		{
+			this.hideTooltip();
+			mxEvent.consume(evt);
+		}), true);
+		
+		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt)
+		{
+			this.hideTooltip();
+		}), this.tooltip);
+		
+		this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
+		this.graph2.resetViewOnRootChange = false;
+		this.graph2.foldingEnabled = false;
+		this.graph2.gridEnabled = false;
+		this.graph2.autoScroll = false;
+		this.graph2.setTooltips(false);
+		this.graph2.setConnectable(false);
+		this.graph2.setEnabled(false);
+		
+		mxEvent.addGestureListeners(this.tooltip, mxUtils.bind(this, function()
+		{
+			if (this.tooltipMouseDown != null)
+			{
+				this.tooltipMouseDown();
+			}
+		}));
+		
+		if (!mxClient.IS_SVG)
+		{
+			this.graph2.view.canvas.style.position = 'relative';
+		}
+	}
+	
+	this.graph2.model.clear();
+	this.graph2.view.setTranslate(this.tooltipBorder, this.tooltipBorder);
+
+	if (!maxSize && (w > this.maxTooltipWidth || h > this.maxTooltipHeight))
+	{
+		this.graph2.view.scale = Math.round(Math.min(this.maxTooltipWidth / w, this.maxTooltipHeight / h) * 100) / 100;
+	}
+	else
+	{
+		this.graph2.view.scale = 1;
+	}
+	
+	this.tooltip.style.display = 'block';
+	this.graph2.labelsVisible = (showLabel == null || showLabel);
+	var fo = mxClient.NO_FO;
+	mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
+	
+	// Applies current style for preview
+	var temp = this.graph2.cloneCells(cells);
+	this.editorUi.insertHandler(temp, null, this.graph2.model);
+	this.graph2.addCells(temp);
+	
+	mxClient.NO_FO = fo;
+	
+	var bounds = this.graph2.getGraphBounds();
+	
+	// Maximum size applied with transform for faster repaint
+	if (maxSize && bounds.width > w || bounds.height > h)
+	{
+		var s = Math.round(Math.min(w / bounds.width, h / bounds.height) * 100) / 100;
+		
+		if (!mxClient.NO_FO)
+		{
+			this.graph2.view.getDrawPane().ownerSVGElement.style.transform = 'scale(' + s + ')';
+			this.graph2.view.getDrawPane().ownerSVGElement.style.transformOrigin = '0 0';
+			bounds.width *= s;
+			bounds.height *= s;
+		}
+		else
+		{
+			this.graph2.view.setScale(Math.round(Math.min(this.maxTooltipWidth / bounds.width, this.maxTooltipHeight / bounds.height) * 100) / 100);
+			bounds = this.graph2.getGraphBounds();
+		}
+	}
+	else if (!mxClient.NO_FO)
+	{
+		this.graph2.view.getDrawPane().ownerSVGElement.style.transform = '';
+	}
+	
+	var width = bounds.width + 2 * this.tooltipBorder + 4;
+	var height = bounds.height + 2 * this.tooltipBorder;
+	
+	this.tooltip.style.overflow = 'visible';
+	this.tooltip.style.width = width + 'px';
+	var w2 = width;
+	
+	// Adds title for entry
+	if (this.tooltipTitles && title != null && title.length > 0)
+	{
+		if (this.tooltipTitle == null)
+		{
+			this.tooltipTitle = document.createElement('div');
+			this.tooltipTitle.style.borderTop = '1px solid gray';
+			this.tooltipTitle.style.textAlign = 'center';
+			this.tooltipTitle.style.width = '100%';
+			this.tooltipTitle.style.overflow = 'hidden';
+			this.tooltipTitle.style.position = 'absolute';
+			this.tooltipTitle.style.paddingTop = '6px';
+			this.tooltipTitle.style.bottom = '6px';
+
+			this.tooltip.appendChild(this.tooltipTitle);
+		}
+		else
+		{
+			this.tooltipTitle.innerHTML = '';
+		}
+		
+		this.tooltipTitle.style.display = '';
+		mxUtils.write(this.tooltipTitle, title);
+		
+		// Allows for wider labels
+		w2 = Math.min(this.maxTooltipWidth, Math.max(width, this.tooltipTitle.scrollWidth + 4));
+		var ddy = this.tooltipTitle.offsetHeight + 10;
+		height += ddy;
+		
+		if (mxClient.IS_SVG)
+		{
+			this.tooltipTitle.style.marginTop = (2 - ddy) + 'px';
+		}
+		else
+		{
+			height -= 6;
+			this.tooltipTitle.style.top = (height - ddy) + 'px';	
+		}
+	}
+	else if (this.tooltipTitle != null && this.tooltipTitle.parentNode != null)
+	{
+		this.tooltipTitle.style.display = 'none';
+	}
+
+	// Updates width if label is wider
+	if (w2 > width)
+	{
+		this.tooltip.style.width = w2 + 'px';
+	}
+	
+	this.tooltip.style.height = height + 'px';
+	var x0 = -Math.round(bounds.x - this.tooltipBorder) +
+		((w2 > width) ? (w2 - width) / 2 : 0);
+	var y0 = -Math.round(bounds.y - this.tooltipBorder);
+	off = (off != null) ? off : this.getTooltipOffset(elt, bounds);
+	var left = off.x;
+	var top = off.y;
+	
+	if (mxClient.IS_SVG)
+	{
+		if (x0 != 0 || y0 != 0)
+		{
+			this.graph2.view.canvas.setAttribute('transform', 'translate(' + x0 + ',' + y0 + ')');
+		}
+		else
+		{
+			this.graph2.view.canvas.removeAttribute('transform');
+		}
+	}
+	else
+	{
+		this.graph2.view.drawPane.style.left = x0 + 'px';
+		this.graph2.view.drawPane.style.top = y0 + 'px';
+	}
+	
+	// Workaround for ignored position CSS style in IE9
+	// (changes to relative without the following line)
+	this.tooltip.style.position = 'absolute';
+	this.tooltip.style.left = left + 'px';
+	this.tooltip.style.top = top + 'px';
+	
+	mxUtils.fit(this.tooltip);
+	this.lastCreated = Date.now();
 };
 
 /**
@@ -270,143 +471,7 @@ Sidebar.prototype.showTooltip = function(elt, cells, w, h, title, showLabel)
 			
 			var show = mxUtils.bind(this, function()
 			{
-				// Lazy creation of the DOM nodes and graph instance
-				if (this.tooltip == null)
-				{
-					this.tooltip = document.createElement('div');
-					this.tooltip.className = 'geSidebarTooltip';
-					this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
-					document.body.appendChild(this.tooltip);
-					
-					this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
-					this.graph2.resetViewOnRootChange = false;
-					this.graph2.foldingEnabled = false;
-					this.graph2.gridEnabled = false;
-					this.graph2.autoScroll = false;
-					this.graph2.setTooltips(false);
-					this.graph2.setConnectable(false);
-					this.graph2.setEnabled(false);
-					
-					if (!mxClient.IS_SVG)
-					{
-						this.graph2.view.canvas.style.position = 'relative';
-					}
-				}
-				
-				this.graph2.model.clear();
-				this.graph2.view.setTranslate(this.tooltipBorder, this.tooltipBorder);
-
-				if (w > this.maxTooltipWidth || h > this.maxTooltipHeight)
-				{
-					this.graph2.view.scale = Math.round(Math.min(this.maxTooltipWidth / w, this.maxTooltipHeight / h) * 100) / 100;
-				}
-				else
-				{
-					this.graph2.view.scale = 1;
-				}
-				
-				this.tooltip.style.display = 'block';
-				this.graph2.labelsVisible = (showLabel == null || showLabel);
-				var fo = mxClient.NO_FO;
-				mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-				
-				// Applies current style for preview
-				var temp = this.graph2.cloneCells(cells);
-				this.editorUi.insertHandler(temp, null, this.graph2.model);
-				this.graph2.addCells(temp);
-				
-				mxClient.NO_FO = fo;
-				
-				var bounds = this.graph2.getGraphBounds();
-				var width = bounds.width + 2 * this.tooltipBorder + 4;
-				var height = bounds.height + 2 * this.tooltipBorder;
-				
-				this.tooltip.style.overflow = 'visible';
-				this.tooltip.style.width = width + 'px';
-				var w2 = width;
-				
-				// Adds title for entry
-				if (this.tooltipTitles && title != null && title.length > 0)
-				{
-					if (this.tooltipTitle == null)
-					{
-						this.tooltipTitle = document.createElement('div');
-						this.tooltipTitle.style.borderTop = '1px solid gray';
-						this.tooltipTitle.style.textAlign = 'center';
-						this.tooltipTitle.style.width = '100%';
-						this.tooltipTitle.style.overflow = 'hidden';
-						this.tooltipTitle.style.position = 'absolute';
-						this.tooltipTitle.style.paddingTop = '6px';
-						this.tooltipTitle.style.bottom = '6px';
-
-						this.tooltip.appendChild(this.tooltipTitle);
-					}
-					else
-					{
-						this.tooltipTitle.innerHTML = '';
-					}
-					
-					this.tooltipTitle.style.display = '';
-					mxUtils.write(this.tooltipTitle, title);
-					
-					// Allows for wider labels
-					w2 = Math.min(this.maxTooltipWidth, Math.max(width, this.tooltipTitle.scrollWidth + 4));
-					var ddy = this.tooltipTitle.offsetHeight + 10;
-					height += ddy;
-					
-					if (mxClient.IS_SVG)
-					{
-						this.tooltipTitle.style.marginTop = (2 - ddy) + 'px';
-					}
-					else
-					{
-						height -= 6;
-						this.tooltipTitle.style.top = (height - ddy) + 'px';	
-					}
-				}
-				else if (this.tooltipTitle != null && this.tooltipTitle.parentNode != null)
-				{
-					this.tooltipTitle.style.display = 'none';
-				}
-
-				// Updates width if label is wider
-				if (w2 > width)
-				{
-					this.tooltip.style.width = w2 + 'px';
-				}
-				
-				this.tooltip.style.height = height + 'px';
-				var x0 = -Math.round(bounds.x - this.tooltipBorder) +
-					((w2 > width) ? (w2 - width) / 2 : 0);
-				var y0 = -Math.round(bounds.y - this.tooltipBorder);
-				var off = this.getTooltipOffset(elt, bounds);
-				var left = off.x;
-				var top = off.y;
-				
-				if (mxClient.IS_SVG)
-				{
-					if (x0 != 0 || y0 != 0)
-					{
-						this.graph2.view.canvas.setAttribute('transform', 'translate(' + x0 + ',' + y0 + ')');
-					}
-					else
-					{
-						this.graph2.view.canvas.removeAttribute('transform');
-					}
-				}
-				else
-				{
-					this.graph2.view.drawPane.style.left = x0 + 'px';
-					this.graph2.view.drawPane.style.top = y0 + 'px';
-				}
-				
-				// Workaround for ignored position CSS style in IE9
-				// (changes to relative without the following line)
-				this.tooltip.style.position = 'absolute';
-				this.tooltip.style.left = left + 'px';
-				this.tooltip.style.top = top + 'px';
-				
-				mxUtils.fit(this.tooltip);
+				this.createTooltip(elt, cells, w, h, title, showLabel);
 			});
 
 			if (this.tooltip != null && this.tooltip.style.display != 'none')
@@ -439,6 +504,8 @@ Sidebar.prototype.hideTooltip = function()
 		this.tooltip.style.display = 'none';
 		this.currentElt = null;
 	}
+	
+	this.tooltipMouseDown = null;
 };
 
 /**
@@ -1311,7 +1378,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;top=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;left=1;top=0;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
-		this.createVertexTemplateEntry('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40, '', 'Waypoint'),
+		this.createVertexTemplateEntry('shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40, '', 'Waypoint'),
 		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
 	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;', 60, 40, '', 'Filled Edge'),
 	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),

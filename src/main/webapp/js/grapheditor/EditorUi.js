@@ -1461,48 +1461,51 @@ EditorUi.prototype.onKeyDown = function(evt)
 {
 	var graph = this.editor.graph;
 	
-	// Tab selects next cell, shift+tab while editing inserts tab
-	if (evt.which == 9 && graph.isEnabled())
+	// Alt+tab for task switcher in Windows, ctrl+tab for tab control in Chrome
+	if (evt.which == 9 && graph.isEnabled() && !mxEvent.isControlDown(evt))
 	{
-		if (graph.isEditing() && mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt))
+		if (graph.isEditing())
 		{
-			try
-			{
-				var editor = graph.cellEditor.textarea;
-		        var doc = editor.ownerDocument.defaultView;
-		        var sel = doc.getSelection();
-		        var range = sel.getRangeAt(0);
-
-				// LATER: Fix normalized tab after editing plain text labels
-				var tabNode = document.createElement('span');
-				tabNode.style.whiteSpace = 'pre';
-				tabNode.appendChild(document.createTextNode('\t'));
-				range.insertNode(tabNode);
-		        range.setStartAfter(tabNode);
-		        range.setEndAfter(tabNode); 
-		        sel.removeAllRanges();
-		        sel.addRange(range);
-			}
-			catch (e)
-			{
-				// ignore
-			}
-			
-			mxEvent.consume(evt);
-		}
-		else
-		{
-			if (graph.isEditing())
+			if (mxEvent.isAltDown(evt))
 			{
 				graph.stopEditing(false);
 			}
-			else if (mxEvent.isAltDown(evt))
+			else
 			{
-				graph.selectCell(!mxEvent.isShiftDown(evt));
+				try
+				{
+					if (graph.cellEditor.isContentEditing() && graph.cellEditor.isTextSelected())
+					{
+						// (Shift+)tab indents/outdents with text selection
+						document.execCommand(mxEvent.isShiftDown(evt) ? 'outdent' : 'indent', false, null);
+					}
+					// Shift+tab applies value with cursor
+					else if (mxEvent.isShiftDown(evt))
+					{
+						graph.stopEditing(false);
+					}
+					else
+					{
+						// Inserts tab character
+						graph.cellEditor.insertTab(!graph.cellEditor.isContentEditing() ? 4 : null);
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
 			}
-			
-			mxEvent.consume(evt);
 		}
+		else if (mxEvent.isAltDown(evt))
+		{
+			graph.selectParentCell();
+		}
+		else
+		{
+			graph.selectCell(!mxEvent.isShiftDown(evt));
+		}
+			
+		mxEvent.consume(evt);
 	}
 };
 
@@ -2219,7 +2222,7 @@ EditorUi.prototype.initCanvas = function()
 				});
 			}
 	
-			if (urlParams['openInSameWin'] != '1')
+			if (urlParams['openInSameWin'] != '1' || navigator.standalone)
 			{
 				this.addChromelessToolbarItems(addButton);
 			}
@@ -3816,7 +3819,7 @@ EditorUi.prototype.createDivs = function()
 	this.footerContainer.style.left = '0px';
 	this.footerContainer.style.right = '0px';
 	this.footerContainer.style.bottom = '0px';
-	this.footerContainer.style.zIndex = mxPopupMenu.prototype.zIndex - 2;
+	this.footerContainer.style.zIndex = mxPopupMenu.prototype.zIndex - 3;
 	this.hsplit.style.width = this.splitSize + 'px';
 	this.sidebarFooterContainer = this.createSidebarFooterContainer();
 	
@@ -5098,34 +5101,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 				}
 			}
 			
-			if (evt.keyCode == 9 && mxEvent.isAltDown(evt))
-			{
-				if (graph.cellEditor.isContentEditing())
-			    {
-					// Alt+Shift+Tab while editing
-					return function()
-					{
-						document.execCommand('outdent', false, null);
-					};
-				}
-				else if (mxEvent.isShiftDown(evt))
-				{
-					// Alt+Shift+Tab
-					return function()
-					{
-						graph.selectParentCell();
-					};
-				}
-				else
-				{
-					// Alt+Tab
-					return function()
-					{
-						graph.selectChildCell();
-					};
-				}
-			}
-			else if (directions[evt.keyCode] != null && !graph.isSelectionEmpty())
+			if (directions[evt.keyCode] != null && !graph.isSelectionEmpty())
 			{
 				// On macOS, Control+Cursor is used by Expose so allow for Alt+Control to resize
 				if (!this.isControlDown(evt) && mxEvent.isShiftDown(evt) && mxEvent.isAltDown(evt))
@@ -5289,7 +5265,6 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(85, true, 'ungroup', true); // Ctrl+Shift+U
 		keyHandler.bindAction(190, true, 'superscript'); // Ctrl+.
 		keyHandler.bindAction(188, true, 'subscript'); // Ctrl+,
-		keyHandler.bindAction(9, false, 'indent', true); // Shift+Tab,
 		keyHandler.bindKey(13, function() { if (graph.isEnabled()) { graph.startEditingAtCell(); }}); // Enter
 		keyHandler.bindKey(113, function() { if (graph.isEnabled()) { graph.startEditingAtCell(); }}); // F2
 	}

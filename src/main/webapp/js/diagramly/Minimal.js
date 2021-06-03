@@ -392,6 +392,7 @@ EditorUi.initMinimalTheme = function()
 			'html > body > div > a.geItem { background-color: #ffffff; color: #707070; border-top: 1px solid lightgray; border-left: 1px solid lightgray; }' +
 			'html body .geMenubarContainer { border-bottom:1px solid lightgray;background-color:#ffffff; }' +
 			'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
+			'html body .mxWindowTitle > div > img { padding: 4px; }' +
 			'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
 			'table.mxWindow * :not(svg *) { font-size:13px; }' +
 			'html body div.diagramContainer button, html body button.geBtn { font-size:14px; font-weight:700; border-radius: 5px; }' +
@@ -1352,9 +1353,12 @@ EditorUi.initMinimalTheme = function()
 					this.fit();
 				};
 				
-				mxEvent.addListener(this.formatWindow.window.title, 'dblclick', mxUtils.bind(this, function()
+				mxEvent.addListener(this.formatWindow.window.title, 'dblclick', mxUtils.bind(this, function(evt)
 				{
-					this.formatWindow.window.toggleMinimized();
+					if (mxEvent.getSource(evt) == this.formatWindow.window.title)
+					{
+						this.formatWindow.window.toggleMinimized();
+					}
 				}));
 				
 				this.formatWindow.window.toggleMinimized();
@@ -1984,12 +1988,12 @@ EditorUi.initMinimalTheme = function()
 				redoAction.addListener('stateChanged', undoListener);
 				undoListener();
 				
-				if (fullscreenAction.visible)
-				{
-					fullscreenElt.style.opacity = '0.4';
-					footer.appendChild(fullscreenElt);
-				}
-					
+				var outlineAction = ui.actions.get('outline');
+				var outlineImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0yMC41IDNsLS4xNi4wM0wxNSA1LjEgOSAzIDMuMzYgNC45Yy0uMjEuMDctLjM2LjI1LS4zNi40OFYyMC41YzAgLjI4LjIyLjUuNS41bC4xNi0uMDNMOSAxOC45bDYgMi4xIDUuNjQtMS45Yy4yMS0uMDcuMzYtLjI1LjM2LS40OFYzLjVjMC0uMjgtLjIyLS41LS41LS41ek0xNSAxOWwtNi0yLjExVjVsNiAyLjExVjE5eiIvPjwvc3ZnPg==';
+				var outlineElt = addMenuItem('', outlineAction.funct, null, mxResources.get('outline'), outlineAction, outlineImage);
+				outlineElt.style.opacity = '0.4';
+				footer.appendChild(outlineElt);
+	
 				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, zoomOutImage);
 				zoomOutElt.style.opacity = '0.4';
 				footer.appendChild(zoomOutElt);
@@ -2015,6 +2019,22 @@ EditorUi.initMinimalTheme = function()
 				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, zoomInImage);
 				zoomInElt.style.opacity = '0.4';
 				footer.appendChild(zoomInElt);
+
+				var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
+					Editor.isDarkMode() ? lightImage : darkImage);
+				toggleDarkElt.style.opacity = '0.4';
+				footer.appendChild(toggleDarkElt);
+				
+				ui.addListener('darkModeChanged', mxUtils.bind(this, function()
+				{
+					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
+				}));
+									
+				if (fullscreenAction.visible)
+				{
+					fullscreenElt.style.opacity = '0.4';
+					footer.appendChild(fullscreenElt);
+				}
 				
 				var pageMenu = this.createPageMenuTab(false);
 				pageMenu.style.display = 'none';
@@ -2036,16 +2056,6 @@ EditorUi.initMinimalTheme = function()
 				pageMenu.firstChild.style.margin = '0px';
 				footer.appendChild(pageMenu);
 				
-				var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
-					Editor.isDarkMode() ? lightImage : darkImage);
-				toggleDarkElt.style.opacity = '0.4';
-				footer.appendChild(toggleDarkElt);
-				
-				ui.addListener('darkModeChanged', mxUtils.bind(this, function()
-				{
-					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
-				}));
-
 				// Page menu only visible for multiple pages
 				ui.addListener('fileDescriptorChanged', function()
 				{
@@ -2169,7 +2179,11 @@ EditorUi.initMinimalTheme = function()
 	        	addMenu('diagram');
 	        }
 
-			if (urlParams['sketch'] != '1')
+			if (urlParams['sketch'] == '1')
+			{
+				toolbar.style.left = (picker.offsetTop - picker.offsetHeight / 2 < 58) ? '70px' : '10px';
+			}
+			else
 			{
 		        createGroup([((small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg') : null),
 		        	addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null, mxResources.get('shapes'), ui.actions.get('image'),

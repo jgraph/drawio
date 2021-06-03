@@ -4795,8 +4795,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	function update(evt)
 	{
 		// Maximum stroke width is 999
-		var value = parseInt(input.value);
-		value = Math.min(999, Math.max(1, (isNaN(value)) ? 1 : value));
+		var value = parseFloat(input.value);
+		value = Math.min(999, Math.max(0, (isNaN(value)) ? 1 : value));
 		
 		if (value != mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1))
 		{
@@ -4812,8 +4812,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	function altUpdate(evt)
 	{
 		// Maximum stroke width is 999
-		var value = parseInt(altInput.value);
-		value = Math.min(999, Math.max(1, (isNaN(value)) ? 1 : value));
+		var value = parseFloat(altInput.value);
+		value = Math.min(999, Math.max(0, (isNaN(value)) ? 1 : value));
 		
 		if (value != mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1))
 		{
@@ -5104,13 +5104,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		if (force || document.activeElement != input)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1));
 			input.value = (isNaN(tmp)) ? '' : tmp + ' pt';
 		}
 		
 		if (force || document.activeElement != altInput)
 		{
-			var tmp = parseInt(mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1));
+			var tmp = parseFloat(mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1));
 			altInput.value = (isNaN(tmp)) ? '' : tmp + ' pt';
 		}
 		

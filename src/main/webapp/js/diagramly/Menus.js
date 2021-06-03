@@ -1713,7 +1713,7 @@
 					mxLog.window.fit();
 				}
 				
-				mxLog.window.div.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
+				mxLog.window.div.style.zIndex = mxPopupMenu.prototype.zIndex - 2;
 			});
 			
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)

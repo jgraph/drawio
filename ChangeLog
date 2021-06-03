@@ -1,3 +1,20 @@
+03-JUN-2021: 14.7.5
+
+- Removes padding in outline
+- Enables decimal stokewidths
+- Fixes delayed preview issue
+- Adds outline option in sketch theme
+- Hides tooltip on scroll wheel events
+- Shift+tab stops editing with no selection
+- Fixes inconsistent mouse down handling for template preview
+- Fixes inconsistent gesture start for blank template entry
+- Fixes minor style issues for sketch theme
+- Adds previews for templates
+- Fixes picker toolbar overlap on small screens for sketch theme
+- Adds padding for window controls in sketch and minimal theme
+- Uses tab key to insert tabs in labels
+- Handles tab key based on text selection while editing
+
 02-JUN-2021: 14.7.4
 
 - Sets fonts color for note shape in sketch theme
