@@ -277,14 +277,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.tooltip.className = 'geSidebarTooltip';
 		this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
 		document.body.appendChild(this.tooltip);
-			
-		// Blocks links in previews
-		this.tooltip.addEventListener('mouseup', mxUtils.bind(this, function(evt)
-		{
-			this.hideTooltip();
-			mxEvent.consume(evt);
-		}), true);
-		
+
 		mxEvent.addMouseWheelListener(mxUtils.bind(this, function(evt)
 		{
 			this.hideTooltip();
@@ -299,12 +292,19 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.graph2.setConnectable(false);
 		this.graph2.setEnabled(false);
 		
-		mxEvent.addGestureListeners(this.tooltip, mxUtils.bind(this, function()
+		mxEvent.addGestureListeners(this.tooltip, mxUtils.bind(this, function(evt)
 		{
 			if (this.tooltipMouseDown != null)
 			{
 				this.tooltipMouseDown();
 			}
+			
+			this.hideTooltip();
+			mxEvent.consume(evt);
+		}), null, mxUtils.bind(this, function(evt)
+		{
+			this.hideTooltip();
+			mxEvent.consume(evt);
 		}));
 		
 		if (!mxClient.IS_SVG)

@@ -6,7 +6,7 @@
 <script type="text/javascript" src="js/app.min.js"></script>
 <script type="text/javascript" src="js/extensions.min.js"></script>
 <script type="text/javascript">
-  function doImport(vsdxBuff, callback, error, file)
+  function doImport(vsdxBuff, callback, error, file, customParam)
   {
 	EditorUi.prototype.createUi = function(){};
 	EditorUi.prototype.addTrees = function(){};
@@ -14,7 +14,7 @@
  	var editorUi = new EditorUi();
  	var blob = file? file : new Blob([vsdxBuff], {type: 'application/octet-stream'});
 
- 	editorUi.importVisio(blob, callback, error, file? file.name : null);		
+ 	editorUi.importVisio(blob, callback, error, file? file.name : null, customParam);		
   };
 
   try
@@ -61,7 +61,7 @@
 				{
 					console.log(err)
 					createDoneDiv('error');
-				}, curFiles[0]);
+				}, curFiles[0], window.customParam);
 			}
 		});
 	</script>

@@ -6900,7 +6900,7 @@
 	/**
 	 * Imports the given Visio file
 	 */
-	EditorUi.prototype.importVisio = function(file, done, onerror, filename)
+	EditorUi.prototype.importVisio = function(file, done, onerror, filename, customParam)
 	{
 		//A reduced version of this code is used in conf/jira plugins, review that code whenever this function is changed
 		filename = (filename != null) ? filename : file.name; 
@@ -6957,6 +6957,11 @@
 						xhr.open('POST', VSD_CONVERT_URL + (/(\.vss|\.vsx)$/.test(filename)? '?stencil=1' : ''));
 						xhr.responseType = 'blob';
 						this.addRemoteServiceSecurityCheck(xhr);
+						
+						if (customParam != null)
+						{
+							xhr.setRequestHeader('x-convert-custom', customParam);
+						}
 						
 						xhr.onreadystatechange = mxUtils.bind(this, function()
 						{

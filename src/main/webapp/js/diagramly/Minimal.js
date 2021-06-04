@@ -1968,11 +1968,19 @@ EditorUi.initMinimalTheme = function()
 	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
 			var fitElt = addMenuItem('', fitFunction, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction, fullscreenImage);
 			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, fullscreenImage);
+			var deleteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==';
 
 			if (footer != null)
 			{
-				toolbar.appendChild(undoElt);
-				toolbar.appendChild(redoElt);
+				var deleteAction = ui.actions.get('delete');
+				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, deleteImage);
+				deleteElt.style.opacity = '0.1';
+	        	toolbar.appendChild(deleteElt);
+
+				deleteAction.addListener('stateChanged', function()
+				{
+					deleteElt.style.opacity = (deleteAction.enabled) ? '0.4' : '0.1';
+				});
 				
 				var undoListener = function()
 				{
@@ -1983,7 +1991,10 @@ EditorUi.initMinimalTheme = function()
 					undoElt.style.opacity = (undoAction.enabled) ? '0.4' : '0.1';
 					redoElt.style.opacity = (redoAction.enabled) ? '0.4' : '0.1';
 				};
-								
+				
+				toolbar.appendChild(undoElt);
+				toolbar.appendChild(redoElt);
+				
 				undoAction.addListener('stateChanged', undoListener);
 				redoAction.addListener('stateChanged', undoListener);
 				undoListener();
@@ -2194,9 +2205,9 @@ EditorUi.initMinimalTheme = function()
 	   				(small) ? 60 : null);
 			
 		        var elt = addMenu('insert', true, (small) ? insertImage : null);
-	        	createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct, null, mxResources.get('delete'), ui.actions.get('delete'),
-		        	(small) ? 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==' : null)],
-	   				(small) ? 60 : null);
+	        	createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct,
+					null, mxResources.get('delete'), ui.actions.get('delete'),
+		        	(small) ? deleteImage : null)], (small) ? 60 : null);
 	
 		        if (iw >= 411)
 		        {

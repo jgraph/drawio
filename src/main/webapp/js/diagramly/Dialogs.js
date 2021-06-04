@@ -2869,8 +2869,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	mxEvent.addListener(div, 'mouseleave', function(evt)
 	{
 		if (evt.toElement != null && editorUi.sidebar.tooltip != null &&
-			editorUi.sidebar.tooltip != evt.toElement &&
-			!editorUi.sidebar.tooltip.contains(evt.toElement))
+			!mxUtils.isAncestorNode(editorUi.sidebar.tooltip, evt.toElement))
+
 		{
 			editorUi.sidebar.hideTooltip();
 			currentElt = null;
@@ -2967,7 +2967,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		function showTooltip(xml, x, y)
 		{
 			// Checks if dialog still visible
-			if (document.body.contains(elt))
+			if (xml != null && mxUtils.isAncestorNode(document.body, elt))
 			{
 				var doc = mxUtils.parseXml(xml);
 				var tempNode = Editor.parseDiagramNode(doc.documentElement);
@@ -2985,6 +2985,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					true, new mxPoint(x, y), true, function()
 					{
 						selectElement(elt, null, null, url, infoObj, clibs);
+						hideTooltip();
 					});
 			}
 		};
@@ -3050,14 +3051,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 		mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 		{
-			hideTooltip();
-			
 			if (editorUi.sidebar.currentElt != elt)
 			{
 				currentElt = null;
 				startTimer(evt, 600);
 				mxEvent.consume(evt);
 			}
+			
+			hideTooltip();
 		}), mxUtils.bind(this, function(evt)
 		{
 			startTimer(evt, 600);
@@ -3108,6 +3109,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				selectElement(elt, null, null, url, infoObj, clibs);
+				hideTooltip();
 				mxEvent.consume(evt);
 			}), null, null);
 			
@@ -3159,6 +3161,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				activate();
+				hideTooltip();
 				mxEvent.consume(evt);
 			}), null, null);
 			
@@ -3183,6 +3186,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				selectElement(elt, null, null, url, infoObj);
+				hideTooltip();
 				mxEvent.consume(evt);
 			}), null, null);
 			
