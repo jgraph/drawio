@@ -234,6 +234,10 @@
 						this.addMenuItems(menu, ['selectSiblings', 'selectParent'], null, evt);
 					}
 				}
+				else if (graph.model.getEdgeCount(cell) > 0)
+				{
+					this.addMenuItems(menu, ['selectConnections'], null, evt);
+				}
 			}
 		};
 		
@@ -339,7 +343,7 @@
 				graph.setSelectionCells(subtree);
 			}
 		}, null, null, 'Alt+Shift+D');
-			
+		
 		/**
 		 * Overriddes
 		 */
@@ -1330,7 +1334,7 @@
 				this.addEntry('tree container', function()
 				{
 					var cell = new mxCell('Tree Container', new mxGeometry(0, 0, 400, 320),
-						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;');
+						'swimlane;startSize=20;horizontal=1;containerType=tree;');
 					cell.vertex = true;
 					
 			    	var cell2 = new mxCell('Parent', new mxGeometry(140, 60, 120, 40),
@@ -1360,7 +1364,7 @@
 				this.addEntry('tree mindmap mindmaps central idea branch topic', function()
 				{
 					var mindmap = new mxCell('Mindmap', new mxGeometry(0, 0, 420, 126),
-						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;');
+						'swimlane;startSize=20;horizontal=1;containerType=tree;');
 					mindmap.vertex = true;
 					
 					var cell = new mxCell('Central Idea', new mxGeometry(160, 60, 100, 40),
@@ -1485,7 +1489,7 @@
 				this.addEntry('tree orgchart organization division', function()
 				{
 					var orgchart = new mxCell('Orgchart', new mxGeometry(0, 0, 280, 220),
-						'swimlane;html=1;startSize=20;horizontal=1;containerType=tree;' + treeEdgeStyle);
+						'swimlane;startSize=20;horizontal=1;containerType=tree;' + treeEdgeStyle);
 					orgchart.vertex = true;
 				
 			    	var cell = new mxCell('Organization', new mxGeometry(80, 40, 120, 60),

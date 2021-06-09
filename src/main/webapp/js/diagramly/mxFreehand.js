@@ -209,16 +209,16 @@ function mxFreehand(graph)
                 try
 				{
                 	cell = graph.addCell(cell);
+	                
+	                graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+	                graph.fireEvent(new mxEventObject('freehandInserted', 'cell', cell));
 				}
                 finally
 				{
                 	graph.model.endUpdate();
 				}
-                
-                graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
-                graph.fireEvent(new mxEventObject('freehandInserted', 'cell', cell));
-                //While mouse is down, we cannot select!
-                setTimeout(function(){graph.setSelectionCells([cell]); }, 10);
+				
+				graph.setSelectionCells([cell]);
 	        }
 
 	        for (var i = 0; i < partPathes.length; i++)

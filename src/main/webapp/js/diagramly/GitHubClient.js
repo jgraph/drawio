@@ -1003,7 +1003,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 							{
 								var temp = listItem.cloneNode();
 								temp.style.backgroundColor = (gray) ?
-									((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+									((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 								gray = !gray;
 
 								var typeImg = document.createElement('img');
@@ -1132,7 +1132,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					{
 						var temp = listItem.cloneNode();
 						temp.style.backgroundColor = (idx % 2 == 0) ?
-							((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+							((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 						
 						temp.appendChild(createLink(branch.name, mxUtils.bind(this, function()
 						{
@@ -1274,7 +1274,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 					{
 						var temp = listItem.cloneNode();
 						temp.style.backgroundColor = (idx % 2 == 0) ?
-							((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+							((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 						
 						temp.appendChild(createLink(repository.full_name, mxUtils.bind(this, function()
 						{

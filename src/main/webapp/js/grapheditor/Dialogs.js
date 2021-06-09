@@ -1870,7 +1870,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 		
 		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
 
 		if (this.getX() != x || this.getY() != y)
 		{
@@ -1889,7 +1889,6 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	mxEvent.addListener(window, 'resize', resizeListener);
 	
 	var outline = editorUi.createOutline(this.window);
-	outline.border = 0;
 
 	this.destroy = function()
 	{
@@ -1908,40 +1907,43 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 	{
 		this.window.fit();
 		outline.suspended = false;
-		outline.outline.refresh();
+		outline.outline.view.revalidate();
 		outline.update();
 	}));
 	
 	this.window.addListener(mxEvent.HIDE, mxUtils.bind(this, function()
 	{
 		outline.suspended = true;
+		outline.outline.view.clear();
 	}));
 	
 	this.window.addListener(mxEvent.NORMALIZE, mxUtils.bind(this, function()
 	{
 		outline.suspended = false;
+		outline.outline.view.revalidate();
 		outline.update();
 	}));
 			
 	this.window.addListener(mxEvent.MINIMIZE, mxUtils.bind(this, function()
 	{
 		outline.suspended = true;
+		outline.outline.view.clear();
 	}));
 
 	var outlineCreateGraph = outline.createGraph;
 	outline.createGraph = function(container)
 	{
 		var g = outlineCreateGraph.apply(this, arguments);
+		g.cellRenderer.minSvgStrokeWidth = 0.5;
 		g.gridEnabled = false;
 		g.pageScale = graph.pageScale;
 		g.pageFormat = graph.pageFormat;
-		g.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
+		g.background = (graph.background == null || graph.background == mxConstants.NONE) ?
+			graph.defaultPageBackgroundColor : graph.background;
 		g.pageVisible = graph.pageVisible;
-		g.cellRenderer.minSvgStrokeWidth = 0.2;
-		
-		var current = mxUtils.getCurrentStyle(graph.container);
-		div.style.backgroundColor = current.backgroundColor;
-		
+		g.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
+		g.defaultPageBorderColor = graph.defaultPageBorderColor;
+
 		return g;
 	};
 	
@@ -1950,10 +1952,10 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 		outline.outline.pageScale = graph.pageScale;
 		outline.outline.pageFormat = graph.pageFormat;
 		outline.outline.pageVisible = graph.pageVisible;
-		outline.outline.background = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;;
-		
-		var current = mxUtils.getCurrentStyle(graph.container);
-		div.style.backgroundColor = current.backgroundColor;
+		outline.outline.background = (graph.background == null || graph.background == mxConstants.NONE) ?
+			graph.defaultPageBackgroundColor : graph.background;;
+		outline.outline.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
+		outline.outline.defaultPageBorderColor = graph.defaultPageBorderColor;
 
 		if (graph.view.backgroundPageShape != null && outline.outline.view.backgroundPageShape != null)
 		{
@@ -2608,7 +2610,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 		
 		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
 
 		if (this.getX() != x || this.getY() != y)
 		{

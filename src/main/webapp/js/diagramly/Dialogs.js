@@ -2795,7 +2795,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	mxEvent.addListener(div, 'dragstart', function(evt)
 	{
-		mxEvent.consume(evt);
+		if (!mxEvent.isTouchEvent(evt))
+		{
+			mxEvent.consume(evt);
+		}
 	});
 	
 	var searchBox = document.createElement('div');
@@ -2962,6 +2965,9 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		
 		// Shows a tooltip with the rendered template
+		var wasSelected = false;
+		var wasVisible = false;
+		var startEvtTime = 0;
 		var loading = false;
 		
 		function showTooltip(xml, x, y)
@@ -2984,8 +2990,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					(title != null) ? mxResources.get(title, null, title) : null,
 					true, new mxPoint(x, y), true, function()
 					{
+						wasVisible = editorUi.sidebar.tooltip != null &&
+							editorUi.sidebar.tooltip.style.display != 'none';
 						selectElement(elt, null, null, url, infoObj, clibs);
-						hideTooltip();
+						currentElt = null;
 					});
 			}
 		};
@@ -3047,27 +3055,56 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					thread = null;
 				}
 			}
+			
+			currentElt = null;
 		};
-
+		
 		mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 		{
+			wasVisible = editorUi.sidebar.tooltip != null &&
+				editorUi.sidebar.tooltip.style.display != 'none';
+			wasSelected = selectedElt == elt;
+			startEvtTime = Date.now();
+			hideTooltip();
+			
+			if (!wasVisible)
+			{
+				editorUi.sidebar.currentElt = null;
+			}
+			
 			if (editorUi.sidebar.currentElt != elt)
 			{
 				currentElt = null;
-				startTimer(evt, 600);
-				mxEvent.consume(evt);
+				startTimer(evt, 300);
 			}
-			
-			hideTooltip();
-		}), mxUtils.bind(this, function(evt)
-		{
-			startTimer(evt, 600);
 		}), mxUtils.bind(this, function(evt)
 		{
 			currentElt = null;
-			hideTooltip();
-		}));
+			startTimer(evt, 800);
+		}), mxUtils.bind(this, function(evt)
+		{
+			currentElt = null;
 			
+			// Immediate on start on selected with no tooltip
+			if (wasSelected && !wasVisible &&
+				(editorUi.sidebar.currentElt != elt ||
+				editorUi.sidebar.tooltip == null ||
+				editorUi.sidebar.tooltip.style.display == 'none'))
+			{
+				startTimer(evt, 0);
+				mxEvent.consume(evt);
+			}
+			else if (Date.now() - startEvtTime > 300 || wasVisible)
+			{
+				hideTooltip();
+			}
+			else if (!wasVisible && !mxEvent.isTouchEvent(evt))
+			{
+				currentElt = null;
+				startTimer(evt, 800);
+			}
+		}));
+
 		mxEvent.addListener(elt, 'mouseleave', function(evt)
 		{
 			if (evt.toElement != null && editorUi.sidebar.tooltip != null &&
@@ -3109,7 +3146,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				selectElement(elt, null, null, url, infoObj, clibs);
-				hideTooltip();
 				mxEvent.consume(evt);
 			}), null, null);
 			
@@ -3161,8 +3197,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				activate();
-				hideTooltip();
-				mxEvent.consume(evt);
 			}), null, null);
 			
 			mxEvent.addListener(elt, 'dblclick', function(evt)
@@ -3186,8 +3220,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
 			{
 				selectElement(elt, null, null, url, infoObj);
-				hideTooltip();
-				mxEvent.consume(evt);
 			}), null, null);
 			
 			if (onClick != null)
@@ -7251,7 +7283,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 		
 		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
 
 		if (this.getX() != x || this.getY() != y)
 		{
@@ -7352,7 +7384,7 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 		
 		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
 
 		if (this.getX() != x || this.getY() != y)
 		{
@@ -7542,7 +7574,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
 		
 		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
+		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
 
 		if (this.getX() != x || this.getY() != y)
 		{

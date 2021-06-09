@@ -3951,17 +3951,32 @@ App.prototype.pickFile = function(mode)
 				// Installs local handler for opened files in same window
 				window.openFile.setConsumer(mxUtils.bind(this, function(xml, filename)
 				{
-					// Replaces PNG with XML extension
-					var dot = !this.useCanvasForExport && filename.substring(filename.length - 4) == '.png';
-					
-					if (dot)
+					var doOpenFile = mxUtils.bind(this, function()
 					{
-						filename = filename.substring(0, filename.length - 4) + '.drawio';
-					}
+						// Replaces PNG with XML extension
+						var dot = !this.useCanvasForExport && filename.substring(filename.length - 4) == '.png';
+						
+						if (dot)
+						{
+							filename = filename.substring(0, filename.length - 4) + '.drawio';
+						}
+		
+						this.fileLoaded((mode == App.MODE_BROWSER) ?
+							new StorageFile(this, xml, filename) :
+							new LocalFile(this, xml, filename));
+					});
 					
-					this.fileLoaded((mode == App.MODE_BROWSER) ?
-						new StorageFile(this, xml, filename) :
-						new LocalFile(this, xml, filename));
+					var currentFile = this.getCurrentFile();
+					
+					if (currentFile == null || !currentFile.isModified())
+					{
+						doOpenFile();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doOpenFile,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
 				}));
 				
 				// Extends dialog close to show splash screen
@@ -5724,7 +5739,7 @@ App.prototype.updateButtonContainer = function()
 					icon.style.marginTop = '-3px';
 					this.shareButton.appendChild(icon);
 					
-					if (uiTheme != 'dark' && uiTheme != 'atlas')
+					if (!Editor.isDarkMode() && uiTheme != 'atlas')
 					{
 						this.shareButton.style.color = 'black';
 						icon.style.filter = 'invert(100%)';
@@ -5748,6 +5763,10 @@ App.prototype.updateButtonContainer = function()
 			
 			//Fetch notifications
 			this.fetchAndShowNotification(this.mode == 'device' || this.mode == 'google'? this.mode : null);
+		}
+		else if (urlParams['notif'] != null) //Notif for embed mode
+		{
+			this.fetchAndShowNotification(urlParams['notif']);
 		}
 	}
 };

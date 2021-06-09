@@ -1,3 +1,25 @@
+09-JUN-2021: 14.7.7
+
+- Fixes event handling for template previews
+- Adds modified check for open browser file in standalone mode
+- Adds select edges option in context menu
+- Adds delay for double tap edit trigger before context menu
+- Hides template preview when dialog is closed
+- Adds padding for touch events on window controls
+- Fixes status bar partially visible behind buttons
+- Fixes fit icon in minimal theme
+- Fixes window position constraints in sketch theme
+- Fixes ghost cells after resume in outline
+- Fixes event timing after freehand insert
+- Fixes initial stroke width and folding for outline
+- Adds context menu options for sketch theme on touch devices
+- Reduces use of formatted text in swimlane titles
+- Fixes background page and dark mode toggle in outline
+- Fixes zOrder after dialog click in sketch theme
+- Fixes order of graph relative to dialogs
+- Fixes in-place editor width after markup toggle
+- Fixes panning with freehand on touch in minimal theme
+
 04-JUN-2021: 14.7.6
 
 - Adds delete button in sketch theme

@@ -89,6 +89,8 @@
 
 			editorUi.showDialog(dlg.container, (compact) ? 350 : 620, (compact) ? 70 : 440, true, true, function(cancel)
 			{
+				editorUi.sidebar.hideTooltip();
+				
 				if (cancel && editorUi.getCurrentFile() == null)
 				{
 					editorUi.showSplash();
@@ -116,7 +118,10 @@
 			}, null, null, null, null, null, null, null, null, null, null,
 				false, mxResources.get('insert'));
 
-			editorUi.showDialog(dlg.container, 620, 440, true, true);
+			editorUi.showDialog(dlg.container, 620, 440, true, true, function()
+			{
+				editorUi.sidebar.hideTooltip();
+			});
 		})).isEnabled = isGraphEnabled;
 		
 		var pointAction = editorUi.actions.addAction('points', function()
@@ -2695,7 +2700,7 @@
 			}
 		})));
 
-		var addInsertItem = function(menu, parent, title, method)
+		editorUi.addInsertItem = function(menu, parent, title, method)
 		{
 			if (method != 'plantUml' || (EditorUi.enablePlantUml && !editorUi.isOffline()))
 			{
@@ -2794,7 +2799,7 @@
 			}
 		})).isEnabled = isGraphEnabled;
 		
-		var addInsertMenuItems = mxUtils.bind(this, function(menu, parent, methods)
+		editorUi.addInsertMenuItems = mxUtils.bind(this, function(menu, parent, methods)
 		{
 			for (var i = 0; i < methods.length; i++)
 			{
@@ -2804,7 +2809,7 @@
 				}
 				else
 				{
-					addInsertItem(menu, parent, mxResources.get(methods[i]) + '...', methods[i]);
+					editorUi.addInsertItem(menu, parent, mxResources.get(methods[i]) + '...', methods[i]);
 				}
 			}
 		});
@@ -2827,13 +2832,13 @@
 
 		this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			addInsertMenuItems(menu, parent, ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree',
+			editorUi.addInsertMenuItems(menu, parent, ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree',
 				'verticalTree', 'radialTree', '-', 'organic', 'circle']);
 		})));
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
+			editorUi.addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{

@@ -33,6 +33,36 @@ Actions.prototype.init = function()
 		
 		ui.openFile();
 	});
+	this.addAction('smartFit', function()
+	{
+		graph.popupMenuHandler.hideMenu();
+
+		var scale = graph.view.scale;
+        var tx = graph.view.translate.x;
+        var ty = graph.view.translate.y;
+
+    	ui.actions.get('resetView').funct();
+    	
+        // Toggle scale if nothing has changed
+        if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
+        {
+        	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
+        }
+	});
+	this.addAction('keyPressEnter', function()
+	{
+		if (graph.isEnabled())
+		{
+			if (graph.isSelectionEmpty())
+			{
+				ui.actions.get('smartFit').funct();
+			}
+			else
+			{
+				graph.startEditingAtCell();
+			}
+		}
+	});
 	this.addAction('import...', function()
 	{
 		window.openNew = false;
@@ -434,6 +464,15 @@ Actions.prototype.init = function()
 	{
 		graph.turnShapes(graph.getSelectionCells(), (evt != null) ? mxEvent.isShiftDown(evt) : false);
 	}, null, null, Editor.ctrlKey + '+R'));
+	this.put('selectConnections', new Action(mxResources.get('selectEdges'), function(evt)
+	{
+		var cell = graph.getSelectionCell();
+		
+		if (graph.isEnabled() && cell != null)
+		{
+			graph.addSelectionCells(graph.getEdges(cell));
+		}
+	}));
 	this.addAction('selectVertices', function() { graph.selectVertices(null, true); }, null, null, Editor.ctrlKey + '+Shift+I');
 	this.addAction('selectEdges', function() { graph.selectEdges(); }, null, null, Editor.ctrlKey + '+Shift+E');
 	this.addAction('selectAll', function() { graph.selectAll(null, true); }, null, null, Editor.ctrlKey + '+A');
@@ -891,7 +930,7 @@ Actions.prototype.init = function()
 	{
 		graph.zoomTo(1);
 		ui.resetScrollbars();
-	}, null, null, 'Home');
+	}, null, null, 'Enter/Home');
 	this.addAction('zoomIn', function(evt)
 	{
 		if (graph.isFastZoomEnabled())

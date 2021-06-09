@@ -11385,6 +11385,8 @@
 	
 						this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
 						{
+							this.sidebar.hideTooltip();
+							
 							if (cancel)
 							{
 								this.actions.get('exit').funct();

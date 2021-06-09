@@ -26,7 +26,7 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	var RULER_THICKNESS = this.RULER_THICKNESS;
     var ruler = this;
     this.unit = unit;
-    var style = window.uiTheme != 'dark'? {
+    var style = (!Editor.isDarkMode()) ? {
     	bkgClr: '#ffffff',
     	outBkgClr: '#e8e9ed',
     	cornerClr: '#fbfbfb',
@@ -41,15 +41,10 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	fontClr: '#BBBBBB',
     	guideClr: '#0088cf'
     };
+
     //create the container
     var container = document.createElement('div');
     container.style.position = 'absolute';
-    container.style.background = style.bkgClr;
-    container.style[isVertical? 'borderRight' : 'borderBottom'] = '0.5px solid ' + style.strokeClr;
-	container.style.borderLeft = '0.5px solid ' + style.strokeClr;	
-
-    document.body.appendChild(container);
-	mxEvent.disableContextMenu(container);
 	
 	function resizeRulerContainer()
 	{
@@ -61,6 +56,35 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	    container.style.height = ((isVertical? diagCont.offsetHeight : 0) + RULER_THICKNESS) + 'px';
 	};
     
+	// Hook for dark mode changes
+	this.updateStyle = mxUtils.bind(this, function()
+	{
+		style = (!Editor.isDarkMode()) ? {
+	    	bkgClr: '#ffffff',
+	    	outBkgClr: '#e8e9ed',
+	    	cornerClr: '#fbfbfb',
+	    	strokeClr: '#dadce0',
+	    	fontClr: '#BBBBBB',
+	    	guideClr: '#0000BB'
+	    } : {
+	    	bkgClr: '#202020',
+	    	outBkgClr: '#2a2a2a',
+	    	cornerClr: '#2a2a2a',
+	    	strokeClr: '#505759',
+	    	fontClr: '#BBBBBB',
+	    	guideClr: '#0088cf'
+	    };
+
+	    container.style.background = style.bkgClr;
+	    container.style[isVertical? 'borderRight' : 'borderBottom'] = '0.5px solid ' + style.strokeClr;
+		container.style.borderLeft = '0.5px solid ' + style.strokeClr;
+	});
+	
+	this.updateStyle();
+
+    document.body.appendChild(container);
+	mxEvent.disableContextMenu(container);
+
 	this.editorUiRefresh = editorUi.refresh;
 	
 	editorUi.refresh = function(minor)
@@ -606,6 +630,14 @@ function mxDualRuler(editorUi, unit)
 	installMenu(this.hRuler.container);
 	installMenu(this.vRuler.container);
 	
+	this.vRuler.drawRuler();
+	this.hRuler.drawRuler();
+};
+
+mxDualRuler.prototype.updateStyle = function()
+{
+	this.vRuler.updateStyle();
+	this.hRuler.updateStyle();
 	this.vRuler.drawRuler();
 	this.hRuler.drawRuler();
 };

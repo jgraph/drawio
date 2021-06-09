@@ -462,8 +462,8 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 		var div = document.createElement('div');
 		div.style = 'width:100%;text-overflow:ellipsis;overflow:hidden;vertical-align:middle;' +
 			'padding:2px 0 2px 0;background:' + (linkCounter % 2 == 0?
-			((uiTheme == 'dark') ? '#000' : '#eee') :
-			((uiTheme == 'dark') ? '' : '#fff'));
+			((Editor.isDarkMode()) ? '#000' : '#eee') :
+			((Editor.isDarkMode()) ? '' : '#fff'));
 		var link = document.createElement('a');
 		link.style.cursor = 'pointer';
 		

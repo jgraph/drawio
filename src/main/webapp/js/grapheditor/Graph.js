@@ -5366,9 +5366,9 @@ Graph.prototype.createTable = function(rowCount, colCount, w, h, title, startSiz
 	w = (w != null) ? w : 60;
 	h = (h != null) ? h : 40;
 	startSize = (startSize != null) ? startSize : 30;
-	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;html=1;whiteSpace=wrap;startSize=' +
+	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;startSize=' +
 		((title != null) ? startSize : '0') + ';container=1;collapsible=0;childLayout=tableLayout;';
-	rowStyle = (rowStyle != null) ? rowStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;collapsible=0;dropTarget=0;' +
+	rowStyle = (rowStyle != null) ? rowStyle : 'shape=partialRectangle;collapsible=0;dropTarget=0;' +
     	'pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;';
 	cellStyle = (cellStyle != null) ? cellStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;' +
 		'overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;';
@@ -5420,7 +5420,7 @@ Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, 
 	h = (h != null) ? h : 120;
 	startSize = (startSize != null) ? startSize : 40;
 	
-	var s = 'html=1;whiteSpace=wrap;collapsible=0;recursiveResize=0;expand=0;pointerEvents=0;';
+	var s = 'collapsible=0;recursiveResize=0;expand=0;pointerEvents=0;';
 	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;childLayout=tableLayout;' +
 			'rowLines=0;columnLines=0;startSize=' + startSize + ';' + s;
 	rowStyle = (rowStyle != null) ? rowStyle : 'swimlane;horizontal=0;points=[[0,0.5],[1,0.5]];' +
@@ -10102,7 +10102,21 @@ if (typeof mxVertexHandler != 'undefined')
 					(this.popupMenuHandler.popupTrigger || (!menuShowing && !mxEvent.isMouseEvent(me.getEvent()) &&
 					((selectionEmpty && me.getCell() == null && this.isSelectionEmpty()) ||
 					(cellSelected && this.isCellSelected(me.getCell())))));
-				mxPopupMenuHandler.prototype.mouseUp.apply(this.popupMenuHandler, arguments);
+
+				// Delays popup menu to allow for double tap to start editing
+				var popup = (!cellSelected) ? null : mxUtils.bind(this, function()
+				{
+					window.setTimeout(mxUtils.bind(this, function(cell)
+					{
+						if (!this.isEditing())
+						{
+							var origin = mxUtils.getScrollOrigin();
+							this.popupMenuHandler.popup(me.getX() + origin.x + 1, me.getY() + origin.y + 1, cell, me.getEvent());
+						}
+					}), 500);
+				});
+
+				mxPopupMenuHandler.prototype.mouseUp.apply(this.popupMenuHandler, [sender, me, popup]);
 			});
 		};
 		
@@ -10541,6 +10555,7 @@ if (typeof mxVertexHandler != 'undefined')
 					this.textarea.style.fontStyle = '';
 					this.textarea.style.fontFamily = mxConstants.DEFAULT_FONTFAMILY;
 					this.textarea.style.textAlign = 'left';
+					this.textarea.style.width = '';
 					
 					// Adds padding to make cursor visible with borders
 					this.textarea.style.padding = '2px';
