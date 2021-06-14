@@ -11381,9 +11381,9 @@
 							{
 								customTempCallback({}, 0); //ignore error by sending empty templates
 							});
-						}) : null);
+						}) : null, data.withoutType == 1);
 	
-						this.showDialog(dlg.container, 620, 440, true, false, mxUtils.bind(this, function(cancel)
+						this.showDialog(dlg.container, 620, 460, true, false, mxUtils.bind(this, function(cancel)
 						{
 							this.sidebar.hideTooltip();
 							

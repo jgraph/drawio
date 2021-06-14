@@ -2111,18 +2111,18 @@ EditorUi.initMinimalTheme = function()
 				ui.tabContainer.style.visibility = 'hidden';
 				menubar.style.cssText = 'position:absolute;right:12px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px 0px 6px 6px;border-bottom:1px solid lightgray;' +
-					'text-align:right;white-space:nowrap;overflow:hidden;';
+					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
 				toolbar.style.cssText = 'position:absolute;left:10px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;border-bottom:1px solid lightgray;' +
-					'text-align:right;white-space:nowrap;overflow:hidden;';
+					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
 				footer.style.cssText = 'position:absolute;right:12px;bottom:12px;height:28px;z-index:1;border-radius:4px;' +
-					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;';
+					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;user-select:none;';
 				wrapper.appendChild(toolbar);
 				wrapper.appendChild(footer);
 				
 				picker.style.cssText = 'position:absolute;left:10px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px 6px 10px 6px;white-space:nowrap;' +
-					'transform:translate(0, -50%);top:50%;';
+					'transform:translate(0, -50%);top:50%;user-select:none;';
 				wrapper.appendChild(picker);
 				
 				if (urlParams['format-toolbar'] == '1')

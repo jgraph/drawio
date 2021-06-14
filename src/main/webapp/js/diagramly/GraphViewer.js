@@ -59,6 +59,11 @@ GraphViewer.prototype.autoCrop = false;
 GraphViewer.prototype.center = false;
 
 /**
+ * Force centering of the diagram. Default is false.
+ */
+GraphViewer.prototype.forceCenter = false;
+
+/**
  * Specifies if zooming in for auto fit is allowed. Default is false.
  */
 GraphViewer.prototype.allowZoomIn = false;
@@ -113,8 +118,10 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig['allow-zoom-out'] : this.allowZoomOut;
 	this.allowZoomIn = (this.graphConfig['allow-zoom-in'] != null) ?
 		this.graphConfig['allow-zoom-in'] : this.allowZoomIn;
+	this.forceCenter = (this.graphConfig['forceCenter'] != null) ?
+		this.graphConfig['forceCenter'] : this.forceCenter;
 	this.center = (this.graphConfig['center'] != null) ?
-		this.graphConfig['center'] : this.center;
+		this.graphConfig['center'] : (this.center || this.forceCenter);
 	this.checkVisibleState = (this.graphConfig['check-visible-state'] != null) ?
 		this.graphConfig['check-visible-state'] : this.checkVisibleState;
 	this.toolbarItems = (this.graphConfig.toolbar != null) ?
@@ -388,7 +395,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				}
 
 				// Crops to visible layers if no layers toolbar button
-				if (this.showLayers(this.graph) && (!this.layersEnabled || this.autoCrop))
+				if (this.showLayers(this.graph) && !this.forceCenter && (!this.layersEnabled || this.autoCrop))
 				{
 					this.crop();
 				}
@@ -869,7 +876,7 @@ GraphViewer.prototype.updateContainerWidth = function(container, width)
  */
 GraphViewer.prototype.updateContainerHeight = function(container, height)
 {
-	if (this.zoomEnabled || !this.autoFit || document.compatMode == 'BackCompat' ||
+	if (this.forceCenter || this.zoomEnabled || !this.autoFit || document.compatMode == 'BackCompat' ||
 		document.documentMode == 8)
 	{
 		container.style.height = height + 'px';
@@ -897,29 +904,53 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 		{
 			var childCount = model.getChildCount(model.root);
 			
-			// Hides all layers
-			for (var i = 0; i < childCount; i++)
-			{
-				model.setVisible(model.getChildAt(model.root, i),
-					(sourceGraph != null) ? source.isVisible(source.getChildAt(source.root, i)) : false);
-			}
-			
 			// Shows specified layers (eg. 0 1 3)
 			if (source == null)
 			{
+				var layersFound = false, visibleLayers = {};
+				
 				if (hasLayerIds)
 				{
 					for (var i = 0; i < layerIds.length; i++)
 					{
-						model.setVisible(model.getCell(layerIds[i]), true);
+						var layer = model.getCell(layerIds[i]);
+						
+						if (layer != null)
+						{
+							layersFound = true;
+							visibleLayers[layer.id] = true;
+						}
 					}
 				}
 				else
 				{
 					for (var i = 0; i < idx.length; i++)
 					{
-						model.setVisible(model.getChildAt(model.root, parseInt(idx[i])), true);
+						var layer = model.getChildAt(model.root, parseInt(idx[i]));
+
+						if (layer != null)
+						{
+							layersFound = true;
+							visibleLayers[layer.id] = true;
+						}
 					}
+				}
+				
+				//To prevent hiding all layers, only apply if the specified layers are found
+				//This prevents incorrect settings from showing an empty viewer
+				for (var i = 0; layersFound && i < childCount; i++)
+				{
+					var layer = model.getChildAt(model.root, i);
+					model.setVisible(layer, visibleLayers[layer.id] || false);
+				}
+			}
+			else
+			{
+				// Match visible layers in source graph
+				for (var i = 0; i < childCount; i++)
+				{
+					model.setVisible(model.getChildAt(model.root, i),
+						source.isVisible(source.getChildAt(source.root, i)));
 				}
 			}
 		}

@@ -275,6 +275,9 @@
 	background: #eee;
 	border-radius:2px;
 }
+.geActiveButton:active {
+	opacity: 0.3;
+}
 .geToolbarButton {
 	opacity: 0.6;
 }
@@ -840,8 +843,8 @@ table.geProperties tr td {
 }
 /* Templates dialog css */
 .geTemplateDlg {
-	width: 987px;
-	height: 712px;
+	width: 100%;
+	height: 100%;
 }
 .geTemplateDlg ::-webkit-scrollbar {
     width:12px;
@@ -1780,6 +1783,7 @@ table.geProperties tr td {
 }
 
 .geTempTreeCaret {
+  box-sizing: border-box;
   cursor: pointer;
   user-select: none;
   padding: 6px;
@@ -1814,6 +1818,7 @@ table.geProperties tr td {
 }
 
 .geTempTreeActive > li, .geTempTreeNested > li {
+  box-sizing: border-box;
   padding: 3px;
   width: 100%;
   cursor: pointer;

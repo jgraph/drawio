@@ -2174,7 +2174,7 @@ Graph.prototype.init = function(container)
 	Graph.prototype.isCssTransformsSupported = function()
 	{
 		return this.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO &&
-			(!this.lightbox || !mxClient.IS_SF);
+			(!this.lightbox || !mxClient.IS_SF || mxClient.IS_IOS);
 	};
 
 	/**
@@ -8620,7 +8620,7 @@ if (typeof mxVertexHandler != 'undefined')
 			    	{
 			    		linkNode = linkNode.parentNode;
 			    	}
-			    	
+
 			    	// Ignores clicks on links and collapse/expand icon
 			    	if (linkNode == null &&
 			    		(((Math.abs(this.scrollLeft - graph.container.scrollLeft) < tol &&

@@ -1,3 +1,16 @@
+14-JUN-2021: 14.7.8
+
+- [conf cloud] Adds custom templates to sketch macro add template dialog
+- [conf cloud] Fixes minor issues with templates dialog
+- Prevents showing an empty viewer when configured layers are incorrect
+- [conf cloud] Fixes template/new dialog bugs and added no file type option
+- [conf cloud] Fixes Link dialog attachment links
+- [conf cloud] Fixes centering with hidden toolbar or simple viewer
+- Adds preview button in templates dialog
+- Adds pinch to zoom CSS preview for iOS (beta)
+- Prevents scrollbars on PDF and Image Export
+- [conf cloud] Fixes settings dialog hidden buttons with certain diagram height
+
 09-JUN-2021: 14.7.7
 
 - Fixes event handling for template previews

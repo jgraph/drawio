@@ -22,23 +22,30 @@ function Sidebar(editorUi, container)
 	
 	this.pointerUpHandler = mxUtils.bind(this, function()
 	{
-		this.showTooltips = true;
-		this.hideTooltip();
+		if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
+		{
+			this.showTooltips = true;
+			this.hideTooltip();
+		}
 	});
 
 	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerup' : 'mouseup', this.pointerUpHandler);
 
 	this.pointerDownHandler = mxUtils.bind(this, function()
 	{
-		this.showTooltips = false;
-		this.hideTooltip();
+		if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
+		{
+			this.showTooltips = false;
+			this.hideTooltip();
+		}
 	});
 	
 	mxEvent.addListener(document, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown', this.pointerDownHandler);
 	
 	this.pointerMoveHandler = mxUtils.bind(this, function(evt)
 	{
-		if (Date.now() - this.lastCreated > 300)
+		if (Date.now() - this.lastCreated > 300 && (this.tooltipCloseImage == null ||
+			this.tooltipCloseImage.style.display == 'none'))
 		{
 			var src = mxEvent.getSource(evt);
 			
@@ -266,7 +273,7 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 /**
  * Adds all palettes to the sidebar.
  */
-Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown)
+Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown, closable)
 {
 	this.tooltipMouseDown = mouseDown;
 	
@@ -275,6 +282,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	{
 		this.tooltip = document.createElement('div');
 		this.tooltip.className = 'geSidebarTooltip';
+		this.tooltip.style.userSelect = 'none';
 		this.tooltip.style.zIndex = mxPopupMenu.prototype.zIndex - 1;
 		document.body.appendChild(this.tooltip);
 
@@ -290,7 +298,14 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		this.graph2.autoScroll = false;
 		this.graph2.setTooltips(false);
 		this.graph2.setConnectable(false);
+		this.graph2.setPanning(false);
 		this.graph2.setEnabled(false);
+		
+		// Blocks all links
+		this.graph2.openLink = mxUtils.bind(this, function()
+		{
+			this.hideTooltip();
+		});
 		
 		mxEvent.addGestureListeners(this.tooltip, mxUtils.bind(this, function(evt)
 		{
@@ -301,20 +316,40 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 			
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				this.hideTooltip();
+				if (this.tooltipCloseImage == null || this.tooltipCloseImage.style.display == 'none')
+				{
+					this.hideTooltip();
+				}
 			}), 0);
 		}), null, mxUtils.bind(this, function(evt)
 		{
 			this.hideTooltip();
-			mxEvent.consume(evt);
 		}));
 		
 		if (!mxClient.IS_SVG)
 		{
 			this.graph2.view.canvas.style.position = 'relative';
 		}
+
+		var close = document.createElement('img');
+		close.setAttribute('src', Dialog.prototype.closeImage);
+		close.setAttribute('title', mxResources.get('close'));
+		close.style.position = 'absolute';
+		close.style.cursor = 'default';
+		close.style.padding = '8px';
+		close.style.right = '2px';
+		close.style.top = '2px';
+		this.tooltip.appendChild(close);
+		this.tooltipCloseImage = close;
+		
+		mxEvent.addListener(close, 'click', mxUtils.bind(this, function(evt)
+		{
+			this.hideTooltip();
+			mxEvent.consume(evt);
+		}));
 	}
 	
+	this.tooltipCloseImage.style.display = (closable) ? '' : 'none';
 	this.graph2.model.clear();
 	this.graph2.view.setTranslate(this.tooltipBorder, this.tooltipBorder);
 
