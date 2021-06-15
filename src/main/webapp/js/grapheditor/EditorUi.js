@@ -2631,8 +2631,8 @@ EditorUi.prototype.initCanvas = function()
 				graph.container.offsetTop + graph.container.clientHeight / 2);
 		}
 		
-		// Ignores events to reduce touch and magic mouse zoom speed
-		if (Date.now() - lastZoomEvent < 15)
+		// Ignores events to reduce touchpad and magic mouse zoom speed
+		if (!mxClient.IS_IOS && Date.now() - lastZoomEvent < 15)
 		{
 			return;
 		}

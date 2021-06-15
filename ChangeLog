@@ -1,3 +1,8 @@
+15-JUN-2021: 14.7.9
+
+- Adds minimize to shape picker in sketch theme
+- Fixes unicode char to HTML entity on some JVMs from Gliffy
+
 14-JUN-2021: 14.7.8
 
 - [conf cloud] Adds custom templates to sketch macro add template dialog

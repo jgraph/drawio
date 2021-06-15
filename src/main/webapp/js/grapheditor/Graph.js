@@ -2162,7 +2162,7 @@ Graph.prototype.init = function(container)
 	Graph.prototype.isFastZoomEnabled = function()
 	{
 		return urlParams['zoom'] != 'nocss' && !mxClient.NO_FO && !mxClient.IS_EDGE &&
-			!this.useCssTransforms && this.isCssTransformsSupported();
+			!this.useCssTransforms && (this.isCssTransformsSupported() || mxClient.IS_IOS);
 	};
 
 	/**
@@ -2174,7 +2174,7 @@ Graph.prototype.init = function(container)
 	Graph.prototype.isCssTransformsSupported = function()
 	{
 		return this.dialect == mxConstants.DIALECT_SVG && !mxClient.NO_FO &&
-			(!this.lightbox || !mxClient.IS_SF || mxClient.IS_IOS);
+			(!this.lightbox || !mxClient.IS_SF);
 	};
 
 	/**

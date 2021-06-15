@@ -2488,10 +2488,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 		}
 		
-		mxEvent.addGestureListeners(div.parentNode.parentNode, mxUtils.bind(this, function(evt)
+		if (div.parentNode != null && div.parentNode.parentNode != null)
 		{
-			editorUi.sidebar.hideTooltip();
-		}), null, null);
+			mxEvent.addGestureListeners(div.parentNode.parentNode, mxUtils.bind(this, function(evt)
+			{
+				editorUi.sidebar.hideTooltip();
+			}), null, null);
+		}
 	};
 	
 	// Adds filetype dropdown
