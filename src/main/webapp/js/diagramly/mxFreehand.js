@@ -197,28 +197,31 @@ function mxFreehand(graph)
 		        }
 		        
 		        drawShape += '</foreground></shape>';
-		        
-                var style = this.createStyle('stencil(' + Graph.compress(drawShape) + ')');
-                var s = graph.view.scale;
-            	var tr = graph.view.translate;
-            	
-                var cell = new mxCell('', new mxGeometry(minX / s - tr.x, minY / s - tr.y, w / s, h / s), style);
-                cell.vertex = 1;
-                
-                graph.model.beginUpdate();
-                try
+
+				if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 				{
-                	cell = graph.addCell(cell);
+	                var style = this.createStyle('stencil(' + Graph.compress(drawShape) + ')');
+	                var s = graph.view.scale;
+	            	var tr = graph.view.translate;
+	            	
+	                var cell = new mxCell('', new mxGeometry(minX / s - tr.x, minY / s - tr.y, w / s, h / s), style);
+	                cell.vertex = 1;
 	                
-	                graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
-	                graph.fireEvent(new mxEventObject('freehandInserted', 'cell', cell));
+	                graph.model.beginUpdate();
+	                try
+					{
+	                	cell = graph.addCell(cell);
+		                
+		                graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+		                graph.fireEvent(new mxEventObject('freehandInserted', 'cell', cell));
+					}
+	                finally
+					{
+	                	graph.model.endUpdate();
+					}
+					
+					graph.setSelectionCells([cell]);
 				}
-                finally
-				{
-                	graph.model.endUpdate();
-				}
-				
-				graph.setSelectionCells([cell]);
 	        }
 
 	        for (var i = 0; i < partPathes.length; i++)
@@ -260,47 +263,50 @@ function mxFreehand(graph)
 	{
 	    mouseDown: mxUtils.bind(this, function(sender, me)
 	    {
-			var e = me.getEvent();
-			
-			if (!enabled || mxEvent.isPopupTrigger(e) || mxEvent.isMultiTouchEvent(e))
-			{
-				return;
-			}
-			
-			var defaultStyle = graph.getCurrentCellStyle(edge);
-			var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
-			strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
-		    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-		    path.setAttribute('fill', 'none');
-		    path.setAttribute('stroke', mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
-				mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000')));
-		    path.setAttribute('stroke-width', strokeWidth);
-		    
-		    if (graph.currentVertexStyle[mxConstants.STYLE_DASHED] == '1')
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		    {
-		    	var dashPattern = graph.currentVertexStyle[mxConstants.STYLE_DASH_PATTERN] || '3 3';
-		    	
-		    	dashPattern = dashPattern.split(' ').map(function(p)
+				var e = me.getEvent();
+				
+				if (!enabled || mxEvent.isPopupTrigger(e) || mxEvent.isMultiTouchEvent(e))
 				{
-		    		return parseFloat(p) * strokeWidth;
-				}).join(' ');
-		    	path.setAttribute('stroke-dasharray', dashPattern);
-		    }
-		    
-		    buffer = [];
-		    var pt = getMousePosition(e);
-		    appendToBuffer(pt);
-		    strPath = 'M' + pt.x + ' ' + pt.y;
-		    drawPoints.push(pt);
-		    lastPart = [];
-		    path.setAttribute('d', strPath);
-		    svgElement.appendChild(path);
-
-			me.consume();
+					return;
+				}
+				
+				var defaultStyle = graph.getCurrentCellStyle(edge);
+				var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
+				strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
+			    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			    path.setAttribute('fill', 'none');
+			    path.setAttribute('stroke', mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
+					mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000')));
+			    path.setAttribute('stroke-width', strokeWidth);
+			    
+			    if (graph.currentVertexStyle[mxConstants.STYLE_DASHED] == '1')
+			    {
+			    	var dashPattern = graph.currentVertexStyle[mxConstants.STYLE_DASH_PATTERN] || '3 3';
+			    	
+			    	dashPattern = dashPattern.split(' ').map(function(p)
+					{
+			    		return parseFloat(p) * strokeWidth;
+					}).join(' ');
+			    	path.setAttribute('stroke-dasharray', dashPattern);
+			    }
+			    
+			    buffer = [];
+			    var pt = getMousePosition(e);
+			    appendToBuffer(pt);
+			    strPath = 'M' + pt.x + ' ' + pt.y;
+			    drawPoints.push(pt);
+			    lastPart = [];
+			    path.setAttribute('d', strPath);
+			    svgElement.appendChild(path);
+	
+				me.consume();
+			}
 	    }),
 	    mouseMove: mxUtils.bind(this, function(sender, me)
 	    {
-		    if (path) 
+		    if (path && graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		    {
 	    		var e = me.getEvent();
 				var pt = getMousePosition(e);
@@ -318,7 +324,7 @@ function mxFreehand(graph)
 	    }),
 	    mouseUp: mxUtils.bind(this, function(sender, me)
 	    {
-			if (path) 
+			if (path && graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent())) 
 			{
 				endPath(me.getEvent());
 				me.consume();

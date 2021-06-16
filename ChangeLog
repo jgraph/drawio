@@ -1,3 +1,8 @@
+16-JUN-2021: 14.7.10
+
+- [jira cloud] Adds support for uploading zipped format diagrams
+- Fixes ignored locked layers, hover icons, shape picker clipping
+
 15-JUN-2021: 14.7.9
 
 - Adds minimize to shape picker in sketch theme

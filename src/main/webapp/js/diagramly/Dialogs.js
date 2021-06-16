@@ -7257,6 +7257,7 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 	var propertyName = 'tags';
 
 	var div = document.createElement('div');
+	div.style.textAlign = 'center';
 	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
 	div.style.height = '100%';
@@ -7267,33 +7268,23 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 		{
 			graph.freehand.stopDrawing();
 		}
-		
-		graph.freehand.startDrawing();
+		else
+		{
+			graph.freehand.startDrawing();
+		}
 	});
 	
 	startBtn.setAttribute('title', mxResources.get('startDrawing'));
-	startBtn.style.marginTop = '8px';
-	startBtn.style.marginRight = '4px';
-	startBtn.style.width = '160px';
+	startBtn.style.marginTop = '10px';
+	startBtn.style.width = '90%';
+	startBtn.style.boxSizing = 'border-box';
 	startBtn.style.overflow = 'hidden';
 	startBtn.style.textOverflow = 'ellipsis';
 	startBtn.style.textAlign = 'center';
 	startBtn.className = 'geBtn gePrimaryBtn';
 	
 	div.appendChild(startBtn);
-	
-	var stopBtn = startBtn.cloneNode(false);
-	mxUtils.write(stopBtn, mxResources.get('stopDrawing'));
-	stopBtn.setAttribute('title', mxResources.get('stopDrawing'));
-	stopBtn.style.marginTop = '4px';
-	
-	mxEvent.addListener(stopBtn, 'click', function()
-	{
-		graph.freehand.stopDrawing();
-	});
-	
-	div.appendChild(stopBtn);
-	
+
 	this.window = new mxWindow(mxResources.get('freehand'), div, x, y, w, h, true, true);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
@@ -7302,7 +7293,10 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 	
 	graph.addListener('freehandStateChanged', mxUtils.bind(this, function()
 	{
-		stopBtn.className = 'geBtn' + (graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
+		startBtn.innerHTML = '';
+		mxUtils.write(startBtn, mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
+		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
+		startBtn.className = 'geBtn' + (!graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
 	}));
 	
 	this.window.addListener('show', mxUtils.bind(this, function()

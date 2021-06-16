@@ -689,6 +689,14 @@ EditorUi = function(editor, container, lightbox)
 			if (evt.getProperty('terminalInserted'))
 			{
 				cells.push(evt.getProperty('terminal'));
+
+				window.setTimeout(function()
+				{
+					if (ui.hoverIcons != null)
+					{
+						ui.hoverIcons.update(graph.view.getState(cells[cells.length - 1]));
+					}
+				}, 0);
 			}
 			
 			insertHandler(cells);
@@ -1201,7 +1209,8 @@ EditorUi.prototype.installShapePicker = function()
 	{
 		if (this.isEnabled())
 		{
-			if (cell == null && ui.sidebar != null && !mxEvent.isShiftDown(evt))
+			if (cell == null && ui.sidebar != null && !mxEvent.isShiftDown(evt) &&
+				!graph.isCellLocked(graph.getDefaultParent()))
 			{
 				mxEvent.consume(evt);
 				var pt = mxUtils.convertPoint(this.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
@@ -1256,6 +1265,11 @@ EditorUi.prototype.installShapePicker = function()
 						ui.showShapePicker(me.getGraphX(), me.getGraphY(), temp, mxUtils.bind(this, function(cell)
 						{
 							execute(cell);
+							
+							if (ui.hoverIcons != null)
+							{
+								ui.hoverIcons.update(graph.view.getState(cell));
+							}
 						}), dir);
 					}), 30);
 				}), mxUtils.bind(this, function(result)
@@ -1321,7 +1335,8 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		div.className = 'geToolbarContainer geSidebarContainer geSidebar';
 		div.style.cssText = 'position:absolute;left:' + x + 'px;top:' + y +
 			'px;width:' + w + 'px;border-radius:10px;padding:4px;text-align:center;' +
-			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;';
+			'box-shadow:0px 0px 3px 1px #d1d1d1;padding: 6px 0 8px 0;' +
+			'z-index: ' + mxPopupMenu.prototype.zIndex + 1 + ';';
 		mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-22px,-22px)');
 		
 		if (graph.background != null && graph.background != mxConstants.NONE)
@@ -1396,6 +1411,22 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		for (var i = 0; i < cells.length; i++)
 		{
 			addCell(cells[i]);
+		}
+		
+		var b = graph.container.scrollTop + graph.container.offsetHeight;
+		var dy = div.offsetTop + div.clientHeight - b;
+		
+		if (dy > 0)
+		{
+			div.style.top = Math.max(graph.container.scrollTop + 22, y - dy) + 'px';
+		}
+		
+		var r = graph.container.scrollLeft + graph.container.offsetWidth;
+		var dx = div.offsetLeft + div.clientWidth - r;
+		
+		if (dx > 0)
+		{
+			div.style.left = Math.max(graph.container.scrollLeft + 22, x - dx) + 'px';
 		}
 	}
 	

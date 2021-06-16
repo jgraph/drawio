@@ -102,28 +102,31 @@
 
 		editorUi.actions.put('insertTemplate', new Action(mxResources.get('template') + '...', function()
 		{
-			var dlg = new NewDialog(editorUi, null, false, function(xml)
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-				editorUi.hideDialog();
-				
-				if (xml != null)
+				var dlg = new NewDialog(editorUi, null, false, function(xml)
 				{
-					var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
-					graph.setSelectionCells(editorUi.importXml(xml,
-						Math.max(insertPoint.x, 20),
-						Math.max(insertPoint.y, 20),
-						true, null, null, true));
-					graph.scrollCellToVisible(graph.getSelectionCell());
-				}
-			}, null, null, null, null, null, null, null, null, null, null,
-				false, mxResources.get('insert'));
-
-			editorUi.showDialog(dlg.container, 620, 460, true, true, function()
-			{
-				editorUi.sidebar.hideTooltip();
-			});
-			
-			dlg.init();
+					editorUi.hideDialog();
+					
+					if (xml != null)
+					{
+						var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
+						graph.setSelectionCells(editorUi.importXml(xml,
+							Math.max(insertPoint.x, 20),
+							Math.max(insertPoint.y, 20),
+							true, null, null, true));
+						graph.scrollCellToVisible(graph.getSelectionCell());
+					}
+				}, null, null, null, null, null, null, null, null, null, null,
+					false, mxResources.get('insert'));
+	
+				editorUi.showDialog(dlg.container, 620, 460, true, true, function()
+				{
+					editorUi.sidebar.hideTooltip();
+				});
+				
+				dlg.init();
+			}
 		})).isEnabled = isGraphEnabled;
 		
 		var pointAction = editorUi.actions.addAction('points', function()
@@ -206,7 +209,7 @@
 				{
 					if (this.freehandWindow == null)
 					{
-						this.freehandWindow = new FreehandWindow(editorUi, document.body.offsetWidth - 420, 102, 176, 104);
+						this.freehandWindow = new FreehandWindow(editorUi, document.body.offsetWidth - 420, 102, 176, 84);
 					}
 					
 					if (graph.freehand.isDrawing())

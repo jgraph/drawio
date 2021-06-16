@@ -2840,7 +2840,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	
 	dragSource.mouseDown = function(evt)
 	{
-		if (!mxEvent.isPopupTrigger(evt) && !mxEvent.isMultiTouchEvent(evt))
+		if (!mxEvent.isPopupTrigger(evt) && !mxEvent.isMultiTouchEvent(evt) &&
+			!graph.isCellLocked(graph.getDefaultParent()))
 		{
 			graph.stopEditing();
 			mouseDown.apply(this, arguments);
@@ -3412,6 +3413,11 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 					target = null;
 				}
 			}
+		}
+		
+		if (graph.isCellLocked(target))
+		{
+			target = null;
 		}
 		
 		return target;
