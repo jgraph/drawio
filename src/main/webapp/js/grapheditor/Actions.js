@@ -507,8 +507,22 @@ Actions.prototype.init = function()
 	this.addAction('expand', function() { graph.foldCells(false); }, null, null, Editor.ctrlKey + '+End');
 	
 	// Arrange actions
-	this.addAction('toFront', function() { graph.orderCells(false); }, null, null, Editor.ctrlKey + '+Shift+F');
-	this.addAction('toBack', function() { graph.orderCells(true); }, null, null, Editor.ctrlKey + '+Shift+B');
+	this.addAction('toFront', function()
+	{
+		graph.orderCells(false);
+	}, null, null, Editor.ctrlKey + '+Shift+F');
+	this.addAction('toBack', function()
+	{
+		graph.orderCells(true);
+	}, null, null, Editor.ctrlKey + '+Shift+B');
+	this.addAction('bringForward', function(evt)
+	{
+		graph.orderCells(false, null, true);
+	});
+	this.addAction('sendBackward', function(evt)
+	{
+		graph.orderCells(true, null, true);
+	});
 	this.addAction('group', function()
 	{
 		if (graph.isEnabled())

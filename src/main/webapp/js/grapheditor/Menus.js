@@ -463,7 +463,7 @@ Menus.prototype.init = function()
 	})));
 	this.put('arrange', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ['toFront', 'toBack', '-'], parent);
+		this.addMenuItems(menu, ['toFront', 'toBack', 'bringForward', 'sendBackward', '-'], parent);
 		this.addSubmenu('direction', menu, parent);
 		this.addMenuItems(menu, ['turn', '-'], parent);
 		this.addSubmenu('align', menu, parent);
@@ -1200,6 +1200,11 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 	if (!graph.isSelectionEmpty())
 	{
 		this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
+		
+		if (graph.getSelectionCount() == 1)
+		{
+			this.addMenuItems(menu, ['bringForward', 'sendBackward'], null, evt);
+		}
 	}	
 
 	if (graph.getSelectionCount() > 1)	

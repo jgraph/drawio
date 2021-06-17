@@ -1686,6 +1686,7 @@ ArrangePanel.prototype.addTable = function(div)
 ArrangePanel.prototype.addLayerOps = function(div)
 {
 	var ui = this.editorUi;
+	var graph = ui.editor.graph;
 	
 	var btn = mxUtils.button(mxResources.get('toFront'), function(evt)
 	{
@@ -1705,6 +1706,30 @@ ArrangePanel.prototype.addLayerOps = function(div)
 	btn.setAttribute('title', mxResources.get('toBack') + ' (' + this.editorUi.actions.get('toBack').shortcut + ')');
 	btn.style.width = '100px';
 	div.appendChild(btn);
+	
+	if (graph.getSelectionCount() == 1)
+	{
+		mxUtils.br(div);
+		
+		var btn = mxUtils.button(mxResources.get('bringForward'), function(evt)
+		{
+			ui.actions.get('bringForward').funct();
+		})
+		
+		btn.setAttribute('title', mxResources.get('bringForward'));
+		btn.style.width = '100px';
+		btn.style.marginRight = '2px';
+		div.appendChild(btn);
+		
+		var btn = mxUtils.button(mxResources.get('sendBackward'), function(evt)
+		{
+			ui.actions.get('sendBackward').funct();
+		})
+		
+		btn.setAttribute('title', mxResources.get('sendBackward'));
+		btn.style.width = '100px';
+		div.appendChild(btn);
+	}
 	
 	return div;
 };

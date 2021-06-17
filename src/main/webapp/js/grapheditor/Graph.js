@@ -2252,6 +2252,23 @@ Graph.prototype.init = function(container)
 			!this.isCellCollapsed(state.cell) && mxUtils.getValue(state.style, 'recursiveResize', '1') == '1' &&
 			mxUtils.getValue(state.style, 'childLayout', null) == null;
 	}
+	
+	/**
+	 * Returns the first parent with an absolute or no geometry.
+	 */
+	Graph.prototype.getAbsoluteParent = function(cell)
+	{
+		var result = cell;
+		var geo = this.getCellGeometry(result);
+		
+		while (geo != null && geo.relative)
+		{
+			result = this.getModel().getParent(result);
+			geo = this.getCellGeometry(cellToClone);
+		}
+		
+		return result;
+	};
 		
 	/**
 	 * Returns the first parent that is not a part.
@@ -3419,7 +3436,8 @@ Graph.prototype.isCloneConnectSource = function(source)
 };
 
 /**
- * Adds a connection to the given vertex.
+ * Adds a connection to the given vertex or clones the vertex in special layout
+ * containers without creating a connection.
  */
 Graph.prototype.connectVertex = function(source, direction, length, evt, forceClone, ignoreCellAt, createTarget, done)
 {	
@@ -3486,56 +3504,43 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		pt.y += source.parent.geometry.y;
 	}
 	
-	// Checks actual end point of edge for target cell
-	var rect = (!ignoreCellAt) ? new mxRectangle(dx + pt.x * s, dy + pt.y * s).grow(40) : null;
-	var tempCells = (rect != null) ? this.getCells(0, 0, 0, 0, null, null, rect) : null;
-	var target = (tempCells != null && tempCells.length > 0) ? tempCells.reverse()[0] : null;
-	var keepParent = false;
+	// Checks end point for target cell and container
+	var rect = (!ignoreCellAt) ? new mxRectangle(dx + pt.x * s, dy + pt.y * s).grow(40 * s) : null;
+	var tempCells = (rect != null) ? this.getCells(0, 0, 0, 0, null, null, rect, null, true) : null;
+	var sourceState = this.view.getState(source);
+	var container = null;
+	var target = null;
 	
-	if (target != null && this.model.isAncestor(target, source))
+	if (tempCells != null)
 	{
-		keepParent = true;
-		target = null;
-	}
-	
-	// Checks for swimlane at drop location
-	if (target == null)
-	{
-		var temp = this.getSwimlaneAt(dx + pt.x * s, dy + pt.y * s);
+		tempCells = tempCells.reverse();
 		
-		if (temp != null)
+		for (var i = 0; i < tempCells.length; i++)
 		{
-			keepParent = false;
-			target = temp;
+			if (!this.isCellLocked(tempCells[i]) && !this.model.isEdge(tempCells[i]) && tempCells[i] != source)
+			{
+				// Direct parent overrides all possible containers
+				if (!this.model.isAncestor(source, tempCells[i]) && this.isContainer(tempCells[i]) &&
+					(container == null || tempCells[i] == this.model.getParent(source)))
+				{
+					container = tempCells[i];
+				}
+				// Containers are used as target cells but swimlanes are used as parents
+				else if (target == null && this.isCellConnectable(tempCells[i]) &&
+					!this.model.isAncestor(tempCells[i], source) &&
+					!this.isSwimlane(tempCells[i]))
+				{
+					var targetState = this.view.getState(tempCells[i]);
+					
+					if (sourceState != null && targetState != null && !mxUtils.intersects(sourceState, targetState))
+					{
+						target = tempCells[i];
+					}
+				}
+			}
 		}
 	}
-	
-	// Checks if target or ancestor is locked
-	var temp = target;
-	
-	while (temp != null)
-	{
-		if (this.isCellLocked(temp))
-		{
-			target = null;
-			break;
-		}
-		
-		temp = this.model.getParent(temp);
-	}
-	
-	// Checks if source and target intersect
-	if (target != null)
-	{
-		var sourceState = this.view.getState(source);
-		var targetState = this.view.getState(target);
-		
-		if (sourceState != null && targetState != null && mxUtils.intersects(sourceState, targetState))
-		{
-			target = null;
-		}
-	}
-	
+
 	var duplicate = (!mxEvent.isShiftDown(evt) || mxEvent.isControlDown(evt)) || forceClone;
 	
 	if (duplicate && (urlParams['sketch'] != '1' || forceClone))
@@ -3558,29 +3563,10 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		}
 	}
 
-	// Uses connectable parent vertex if one exists
-	// TODO: Fix using target as parent for swimlane
-	if (target != null && !this.isCellConnectable(target) && !this.isSwimlane(target))
-	{
-		var parent = this.getModel().getParent(target);
-		
-		if (this.getModel().isVertex(parent) && this.isCellConnectable(parent))
-		{
-			target = parent;
-		}
-	}
-	
-	if (target == source || this.model.isEdge(target) ||
-		!this.isCellConnectable(target) &&
-		!this.isSwimlane(target))
-	{
-		target = null;
-	}
-	
 	var result = [];
-	var swimlane = target != null && this.isSwimlane(target);
-	var realTarget = (!swimlane) ? target : null;
-
+	var realTarget = target;
+	target = container;
+	
 	var execute = mxUtils.bind(this, function(targetCell)
 	{
 		if (createTarget == null || targetCell != null || (target == null && cloneSource))
@@ -3590,17 +3576,8 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 			{
 				if (realTarget == null && duplicate)
 				{
-					// Handles relative children
-					var cellToClone = (targetCell != null) ? targetCell : source;
-					var geo = this.getCellGeometry(cellToClone);
-					
-					while (geo != null && geo.relative)
-					{
-						cellToClone = this.getModel().getParent(cellToClone);
-						geo = this.getCellGeometry(cellToClone);
-					}
-					
-					// Handles composite cells for cloning
+					// Handles relative and composite cells
+					var cellToClone = this.getAbsoluteParent((targetCell != null) ? targetCell : source);
 					cellToClone =  (cloneSource) ? source : this.getCompositeParent(cellToClone);
 					realTarget = (targetCell != null) ? targetCell : this.duplicateCells([cellToClone], false)[0];
 					
@@ -3637,12 +3614,12 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 						geo.y = pt.y - geo.height / 2;
 					}
 					
-					if (swimlane)
+					if (container != null)
 					{
-						this.addCells([realTarget], target, null, null, null, true);
+						this.addCells([realTarget], container, null, null, null, true);
 						target = null;
 					}
-					else if (duplicate && target == null && !keepParent && !cloneSource)
+					else if (duplicate && !cloneSource)
 					{
 						this.addCells([realTarget], this.getDefaultParent(), null, null, null, true);
 					}
@@ -11641,9 +11618,9 @@ if (typeof mxVertexHandler != 'undefined')
 		HoverIcons.prototype.secondaryHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-secondary.png', 17, 17) :
 			Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
 		HoverIcons.prototype.fixedHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-fixed.png', 17, 17) :
-			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><path d="m 7 7 L 11 11 M 7 11 L 11 7" stroke="#fff"/>');
+			Graph.createSvgImage(22, 22, '<circle cx="11" cy="11" r="6" stroke="#fff" fill="#01bd22" stroke-width="1"/><path d="m 8 8 L 14 14M 8 14 L 14 8" stroke="#fff"/>');
 		HoverIcons.prototype.terminalHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-terminal.png', 17, 17) :
-			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><circle cx="9" cy="9" r="2" stroke="#fff" fill="transparent"/>');
+			Graph.createSvgImage(22, 22, '<circle cx="11" cy="11" r="6" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><circle cx="11" cy="11" r="3" stroke="#fff" fill="transparent"/>');
 		HoverIcons.prototype.rotationHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-rotate.png', 16, 16) :
 			Graph.createSvgImage(16, 16, '<path stroke="' + HoverIcons.prototype.arrowFill +
 				'" fill="' + HoverIcons.prototype.arrowFill +

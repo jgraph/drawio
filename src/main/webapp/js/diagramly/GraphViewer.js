@@ -1413,7 +1413,7 @@ GraphViewer.prototype.addToolbar = function()
 				hideToolbar();
 			});
 			
-			mxEvent.addListener(document, 'mouseleave', function(evt)
+			mxEvent.addListener(document.body, 'mouseleave', function(evt)
 			{
 				hideToolbar();
 			});

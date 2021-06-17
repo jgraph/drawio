@@ -1,3 +1,8 @@
+17-JUN-2021: 14.8.0
+
+- Adds bringForward and sendBackward actions
+- Fixes GraphViewer toolbar and border hiding in FF
+
 16-JUN-2021: 14.7.10
 
 - [jira cloud] Adds support for uploading zipped format diagrams
@@ -13,7 +18,7 @@
 - [conf cloud] Adds custom templates to sketch macro add template dialog
 - [conf cloud] Fixes minor issues with templates dialog
 - Prevents showing an empty viewer when configured layers are incorrect
-- [conf cloud] Fixes template/new dialog bugs and added no file type option
+- [conf cloud] Fixes template and new dialog bugs and added no file type option
 - [conf cloud] Fixes Link dialog attachment links
 - [conf cloud] Fixes centering with hidden toolbar or simple viewer
 - Adds preview button in templates dialog
