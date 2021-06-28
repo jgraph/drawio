@@ -3113,22 +3113,25 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			!this.isDropStyleTargetIgnored(state) && ((graph.model.isVertex(state.cell) && firstVertex != null) ||
 			(graph.model.isEdge(state.cell) && graph.model.isEdge(cells[0]))))
 		{
-			currentStyleTarget = state;
-			var tmp = (graph.model.isEdge(state.cell)) ? graph.view.getPoint(state) :
-				new mxPoint(state.getCenterX(), state.getCenterY());
-			tmp = new mxRectangle(tmp.x - this.refreshTarget.width / 2, tmp.y - this.refreshTarget.height / 2,
-				this.refreshTarget.width, this.refreshTarget.height);
-			
-			styleTarget.style.left = Math.floor(tmp.x) + 'px';
-			styleTarget.style.top = Math.floor(tmp.y) + 'px';
-			
-			if (styleTargetParent == null)
+			if (graph.isCellEditable(state.cell))
 			{
-				graph.container.appendChild(styleTarget);
-				styleTargetParent = styleTarget.parentNode;
+				currentStyleTarget = state;
+				var tmp = (graph.model.isEdge(state.cell)) ? graph.view.getPoint(state) :
+					new mxPoint(state.getCenterX(), state.getCenterY());
+				tmp = new mxRectangle(tmp.x - this.refreshTarget.width / 2, tmp.y - this.refreshTarget.height / 2,
+					this.refreshTarget.width, this.refreshTarget.height);
+				
+				styleTarget.style.left = Math.floor(tmp.x) + 'px';
+				styleTarget.style.top = Math.floor(tmp.y) + 'px';
+				
+				if (styleTargetParent == null)
+				{
+					graph.container.appendChild(styleTarget);
+					styleTargetParent = styleTarget.parentNode;
+				}
+				
+				checkArrow(x, y, tmp, styleTarget);
 			}
-			
-			checkArrow(x, y, tmp, styleTarget);
 		}
 		// Does not reset on ignored edges
 		else if (currentStyleTarget == null || !mxUtils.contains(currentStyleTarget, x, y) ||
@@ -3487,8 +3490,9 @@ Sidebar.prototype.itemClicked = function(cells, ds, evt, elt)
 	// Shift+Click updates shape
 	else if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())
 	{
-		this.updateShapes(cells[0], graph.getSelectionCells());
-		graph.scrollCellToVisible(graph.getSelectionCell());
+		var temp = graph.getEditableCells(graph.getSelectionCells());
+		this.updateShapes(cells[0], temp);
+		graph.scrollCellToVisible(temp);
 	}
 	else
 	{

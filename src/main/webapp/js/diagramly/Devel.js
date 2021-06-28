@@ -84,13 +84,13 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			console.log('app.diagrams.net:', app_diagrams_net);
 			// TODO remove https://ajax.googleapis.com April 2022. It's old jquery domain
 			var ac_draw_io = csp.replace(/%script-src%/g, 'https://aui-cdn.atlassian.com https://connect-cdn.atl-paas.net https://ajax.googleapis.com https://cdnjs.cloudflare.com').
-					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app').
+					replace(/%frame-src%/g, 'https://www.lucidchart.com https://app.lucidchart.com https://lucid.app blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, '').
 					replace(/  /g, ' ');
 			console.log('ac.draw.io:', ac_draw_io);
 			var aj_draw_io = csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
-					replace(/%frame-src%/g, '').
+					replace(/%frame-src%/g, 'blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
 					replace(/%connect-src%/g, 'https://api.atlassian.com').
 					replace(/  /g, ' ');

@@ -4364,9 +4364,9 @@
 		StyleFormatPanel.prototype.init = function()
 		{
 			// TODO: Update sstate in Format
-			var sstate = this.format.createSelectionState();
+			var sstate = this.format.getSelectionState();
 
-			if (sstate.style.shape != 'image' && !sstate.containsLabel)
+			if (sstate.style.shape != 'image' && !sstate.containsLabel && sstate.cells.length > 0)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
@@ -4403,6 +4403,7 @@
 		
 		StyleFormatPanel.prototype.addStyleOps = function(div)
 		{
+			var ss = this.format.getSelectionState();
 			var graph = this.editorUi.editor.graph;
 			
 			var btn = mxUtils.button(mxResources.get('copyStyle'), mxUtils.bind(this, function(evt)
@@ -4417,16 +4418,24 @@
 			
 			div.appendChild(btn);
 			
-			var btn = mxUtils.button(mxResources.get('pasteStyle'), mxUtils.bind(this, function(evt)
+			if (ss.cells.length > 0)
 			{
-				this.editorUi.actions.get('pasteStyle').funct();
-			}));
+				var btn = mxUtils.button(mxResources.get('pasteStyle'), mxUtils.bind(this, function(evt)
+				{
+					this.editorUi.actions.get('pasteStyle').funct();
+				}));
+				
+				btn.setAttribute('title', mxResources.get('pasteStyle') + ' (' + this.editorUi.actions.get('pasteStyle').shortcut + ')');
+				btn.style.marginBottom = '2px';
+				btn.style.width = '100px';
+				
+				div.appendChild(btn);
+			}
+			else
+			{
+				btn.style.width = '202px';
+			}
 			
-			btn.setAttribute('title', mxResources.get('pasteStyle') + ' (' + this.editorUi.actions.get('pasteStyle').shortcut + ')');
-			btn.style.marginBottom = '2px';
-			btn.style.width = '100px';
-			
-			div.appendChild(btn);
 			mxUtils.br(div);
 			
 			return styleFormatPanelAddStyleOps.apply(this, arguments);
@@ -5090,12 +5099,12 @@
 			{
 				var addButton = mxUtils.bind(this, function(colorset)
 				{
-					var btn = mxUtils.button('', function(evt)
+					var btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 					{
 						graph.getModel().beginUpdate();
 						try
 						{
-							var cells = graph.getSelectionCells();
+							var cells = this.format.getSelectionState().cells;
 							
 							for (var i = 0; i < cells.length; i++)
 							{
@@ -5169,7 +5178,7 @@
 						{
 							graph.getModel().endUpdate();
 						}
-					})
+					}));
 	
 					btn.className = 'geStyleButton';
 					btn.style.width = '36px';
@@ -5317,7 +5326,7 @@
 			var ss = this.format.getSelectionState();
 			var btn = null;
 			
-			if (this.editorUi.editor.graph.getSelectionCount() == 1)
+			if (ss.cells.length == 1)
 			{
 				btn = mxUtils.button(mxResources.get('editStyle'), mxUtils.bind(this, function(evt)
 				{
@@ -5332,9 +5341,9 @@
 			}
 			
 			var graph = this.editorUi.editor.graph;
-			var state = graph.view.getState(graph.getSelectionCell());
+			var state = (ss.cells.length == 1) ? graph.view.getState(ss.cells[0]) : null;
 			
-			if (graph.getSelectionCount() == 1 && state != null && state.shape != null && state.shape.stencil != null)
+			if (state != null && state.shape != null && state.shape.stencil != null)
 			{
 				var btn2 = mxUtils.button(mxResources.get('editShape'), mxUtils.bind(this, function(evt)
 				{
@@ -5357,7 +5366,7 @@
 				
 				div.appendChild(btn2);
 			}
-			else if (ss.image)
+			else if (ss.image && ss.cells.length > 0)
 			{
 				var btn2 = mxUtils.button(mxResources.get('editImage'), mxUtils.bind(this, function(evt)
 				{

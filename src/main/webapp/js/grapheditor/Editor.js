@@ -837,9 +837,10 @@ OpenFile.prototype.cancel = function(cancel)
  */
 function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transparent, onResize, ignoreBgClick)
 {
-	var dx = 0;
+	var dx = transparent? 57 : 0;
 	var w0 = w;
 	var h0 = h;
+	var padding = transparent? 0 : 64; //No padding needed for transparent dialogs
 	
 	var ds = mxUtils.getDocumentSize();
 	
@@ -850,14 +851,14 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	}
 	
 	var dh = ds.height;
-	var left = Math.max(1, Math.round((ds.width - w - 64) / 2));
+	var left = Math.max(1, Math.round((ds.width - w - padding) / 2));
 	var top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 	
 	// Keeps window size inside available space
 	elt.style.maxHeight = '100%';
 	
-	w = (document.body != null) ? Math.min(w, document.body.scrollWidth - 64) : w;
-	h = Math.min(h, dh - 64);
+	w = (document.body != null) ? Math.min(w, document.body.scrollWidth - padding) : w;
+	h = Math.min(h, dh - padding);
 	
 	// Increments zIndex to put subdialogs and background over existing dialogs and background
 	if (editorUi.dialogs.length > 0)
@@ -903,7 +904,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	document.body.appendChild(div);
 	
 	// Adds vertical scrollbars if needed
-	if (!noScroll && elt.clientHeight > div.clientHeight - 64)
+	if (!noScroll && elt.clientHeight > div.clientHeight - padding)
 	{
 		elt.style.overflowY = 'auto';
 	}
@@ -962,10 +963,10 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		dh = ds.height;
 		this.bg.style.height = dh + 'px';
 		
-		left = Math.max(1, Math.round((ds.width - w - 64) / 2));
+		left = Math.max(1, Math.round((ds.width - w - padding) / 2));
 		top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
-		w = (document.body != null) ? Math.min(w0, document.body.scrollWidth - 64) : w0;
-		h = Math.min(h0, dh - 64);
+		w = (document.body != null) ? Math.min(w0, document.body.scrollWidth - padding) : w0;
+		h = Math.min(h0, dh - padding);
 		
 		var pos = this.getPosition(left, top, w, h);
 		left = pos.x;
@@ -977,7 +978,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		div.style.height = h + 'px';
 		
 		// Adds vertical scrollbars if needed
-		if (!noScroll && elt.clientHeight > div.clientHeight - 64)
+		if (!noScroll && elt.clientHeight > div.clientHeight - padding)
 		{
 			elt.style.overflowY = 'auto';
 		}

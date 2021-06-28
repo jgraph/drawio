@@ -32,10 +32,12 @@
 	<target name="app" depends="merge">
 		<delete file="${basedir}/.tmp0.js"/>
 		<echo file="${basedir}/.tmp0.js">
-			window.STENCIL_PATH = window.STENCIL_PATH || 'https://viewer.diagrams.net/stencils';
+			window.PROXY_URL = window.PROXY_URL || 'https://viewer.diagrams.net/proxy';
 			window.SHAPES_PATH = window.SHAPES_PATH || 'https://viewer.diagrams.net/shapes';
-			window.mxBasePath = window.mxBasePath || 'https://viewer.diagrams.net/mxgraph/';
+			window.STENCIL_PATH = window.STENCIL_PATH || 'https://viewer.diagrams.net/stencils';
+			window.GRAPH_IMAGE_PATH  = window.GRAPH_IMAGE_PATH || 'https://viewer.diagrams.net/img';
 			window.mxImageBasePath = window.mxImageBasePath || 'https://viewer.diagrams.net/mxgraph/images';
+			window.mxBasePath = window.mxBasePath || 'https://viewer.diagrams.net/mxgraph/';
 			window.mxLoadStylesheets = window.mxLoadStylesheets || false;
 		</echo>
 

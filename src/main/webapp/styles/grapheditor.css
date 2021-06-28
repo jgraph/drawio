@@ -506,7 +506,6 @@ div.mxWindow .geButton {
 .geTransDialog {
 	position:absolute;
 	overflow:hidden;
-	padding:30px;
 	z-index: 2;
 }
 .geDialogClose {
@@ -930,7 +929,7 @@ table.geProperties tr td {
 	line-height: 17px;
 	padding-top: 11px;
 }
-.geTempDlgCreateBtn {
+.geTempDlgCreateBtn, .geTempDlgOpenBtn {
 	display: inline-block;
 	width: 67px;
     border-radius: 3px;
@@ -939,6 +938,7 @@ table.geProperties tr td {
     text-align: center;
     color: #fff;
     cursor: pointer;
+    margin-left: 5px;
 }
 .geTempDlgCancelBtn {
 	display: inline-block;
@@ -948,24 +948,24 @@ table.geProperties tr td {
     color: #3D72AD;
     cursor: pointer;
 }
-.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active, .geTempDlgShowAllBtn:active {
+.geTempDlgCancelBtn:active, .geTempDlgCreateBtn:active, 
+.geTempDlgOpenBtn:active, .geTempDlgShowAllBtn:active {
 	transform: translateY(2px);
 }
-.geTempDlgCreateBtnDisabled {
+.geTempDlgBtnDisabled {
     background-color: #9fbddd;
 }
-.geTempDlgCreateBtnDisabled:active {
+.geTempDlgBtnDisabled:active {
     transform: translateY(0px);
 }
 
-.geTempDlgCreateBtnBusy {
+.geTempDlgBtnBusy {
 	background-image: url(/images/aui-wait.gif);
     background-repeat: no-repeat;
     background-position: 62px 7px;
 }
 
-
-.geTempDlgNewDiagramlbl {
+.geTempDlgBack {
 	height: 17px;
 	color: #333333;
 	font-family: Helvetica;
@@ -1111,9 +1111,9 @@ table.geProperties tr td {
 	box-sizing: border-box;
 	border: 1px solid #CCCCCC;
 	border-radius: 3px;
-	background-color: #555555;
+	background-color: #FFFFFF;
+	color: #333333;
 	display: inline-block;
-	color: #FFFFFF;
 	font-family: Helvetica;
 	font-size: 14px;
 	line-height: 17px;
@@ -1122,8 +1122,8 @@ table.geProperties tr td {
 	cursor: pointer;
 }
 .geTempDlgRadioBtnActive {
-	background-color: #FFFFFF;
-	color: #333333;
+	background-color: #555555;
+	color: #FFFFFF;
 }
 .geTempDlgRadioBtnLarge {
 	height: 27px;
@@ -1317,6 +1317,14 @@ table.geProperties tr td {
     margin: 0 10px 0 10px;
     height: 27px;
     font-size: 14px;
+}
+
+.geTempDlgErrMsg {
+	display: none;
+	color: red;
+    position: absolute;
+    width: 100%;
+    text-align: center;
 }
 /* Comments CSS */
 .geCommentsWin {
@@ -1793,7 +1801,6 @@ table.geProperties tr td {
 
 .geTempTreeCaret::before {
   content: "\25B6";
-  color: black;
   display: inline-block;
   font-size: 10px;
   margin-right: 6px;

@@ -316,7 +316,7 @@ Actions.prototype.init = function()
 			
 			try
 			{
-				var cells = graph.getSelectionCells();
+				var cells = graph.getResizableCells(graph.getSelectionCells());
 				
 				for (var i = 0; i < cells.length; i++)
 				{
@@ -387,7 +387,7 @@ Actions.prototype.init = function()
 			
 			try
 			{
-				var cells = graph.getSelectionCells();
+				var cells = graph.getEditableCells(graph.getSelectionCells());
 				
 				if (cells.length == 0)
 				{
@@ -462,7 +462,8 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+D');
 	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function(evt)
 	{
-		graph.turnShapes(graph.getSelectionCells(), (evt != null) ? mxEvent.isShiftDown(evt) : false);
+		graph.turnShapes(graph.getResizableCells(graph.getSelectionCells()),
+			(evt != null) ? mxEvent.isShiftDown(evt) : false);
 	}, null, null, Editor.ctrlKey + '+R'));
 	this.put('selectConnections', new Action(mxResources.get('selectEdges'), function(evt)
 	{
@@ -484,13 +485,15 @@ Actions.prototype.init = function()
 			graph.getModel().beginUpdate();
 			try
 			{
-				var defaultValue = graph.isCellMovable(graph.getSelectionCell()) ? 1 : 0;
-				graph.toggleCellStyles(mxConstants.STYLE_MOVABLE, defaultValue);
-				graph.toggleCellStyles(mxConstants.STYLE_RESIZABLE, defaultValue);
-				graph.toggleCellStyles(mxConstants.STYLE_ROTATABLE, defaultValue);
-				graph.toggleCellStyles(mxConstants.STYLE_DELETABLE, defaultValue);
-				graph.toggleCellStyles(mxConstants.STYLE_EDITABLE, defaultValue);
-				graph.toggleCellStyles('connectable', defaultValue);
+				var cells = graph.getSelectionCells();
+				var style = graph.getCurrentCellStyle(graph.getSelectionCell());
+				var value = (mxUtils.getValue(style, mxConstants.STYLE_EDITABLE, 1)) == 1 ? 0 : 1;
+				graph.setCellStyles(mxConstants.STYLE_MOVABLE, value, cells);
+				graph.setCellStyles(mxConstants.STYLE_RESIZABLE, value, cells);
+				graph.setCellStyles(mxConstants.STYLE_ROTATABLE, value, cells);
+				graph.setCellStyles(mxConstants.STYLE_DELETABLE, value, cells);
+				graph.setCellStyles(mxConstants.STYLE_EDITABLE, value, cells);
+				graph.setCellStyles('connectable', value, cells);
 			}
 			finally
 			{
@@ -548,7 +551,7 @@ Actions.prototype.init = function()
 	{
 		if (graph.isEnabled())
 		{
-			var cells = graph.getSelectionCells();
+			var cells = graph.getEditableCells(graph.getSelectionCells());
 			
 	        graph.model.beginUpdate();
 			try
@@ -578,7 +581,10 @@ Actions.prototype.init = function()
 				graph.model.endUpdate();
 			}
 	
-			graph.setSelectionCells(temp);
+			if (temp.length > 0)
+			{
+				graph.setSelectionCells(temp);
+			}
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+U');
 	this.addAction('removeFromGroup', function()
@@ -620,9 +626,10 @@ Actions.prototype.init = function()
 	}, null, null, Editor.ctrlKey + '+M');
 	this.addAction('editTooltip...', function()
 	{
-		if (graph.isEnabled() && !graph.isSelectionEmpty())
+		var cell = graph.getSelectionCell();
+		
+		if (graph.isEnabled() && cell != null && graph.isCellEditable(cell))
 		{
-			var cell = graph.getSelectionCell();
 			var tooltip = '';
 			
 			if (mxUtils.isNode(cell.value))
@@ -665,9 +672,10 @@ Actions.prototype.init = function()
 	});
 	this.addAction('editLink...', function()
 	{
-		if (graph.isEnabled() && !graph.isSelectionEmpty())
+		var cell = graph.getSelectionCell();
+		
+		if (graph.isEnabled() && cell != null && graph.isCellEditable(cell))
 		{
-			var cell = graph.getSelectionCell();
 			var value = graph.getLinkForCell(cell) || '';
 			
 			ui.showLinkDialog(value, mxResources.get('apply'), function(link, docs, linkTarget)
@@ -849,7 +857,7 @@ Actions.prototype.init = function()
 		graph.getModel().beginUpdate();
 		try
 		{
-			var cells = graph.getSelectionCells();
+			var cells = graph.getEditableCells(graph.getSelectionCells());
 			
 			for (var i = 0; i < cells.length; i++)
 			{
@@ -1228,13 +1236,13 @@ Actions.prototype.init = function()
 				graph.getModel().beginUpdate();
 				try
 				{
-					var cells = graph.getSelectionCells();
+					var cells = graph.getEditableCells(graph.getSelectionCells());
 					graph.toggleCellStyleFlags(mxConstants.STYLE_FONTSTYLE, style, cells);
 					
 					// Removes bold and italic tags and CSS styles inside labels
 					if ((style & mxConstants.FONT_BOLD) == mxConstants.FONT_BOLD)
 					{
-						graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+						graph.updateLabelElements(cells, function(elt)
 						{
 							elt.style.fontWeight = null;
 							
@@ -1246,7 +1254,7 @@ Actions.prototype.init = function()
 					}
 					else if ((style & mxConstants.FONT_ITALIC) == mxConstants.FONT_ITALIC)
 					{
-						graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+						graph.updateLabelElements(cells, function(elt)
 						{
 							elt.style.fontStyle = null;
 							
@@ -1258,7 +1266,7 @@ Actions.prototype.init = function()
 					}
 					else if ((style & mxConstants.FONT_UNDERLINE) == mxConstants.FONT_UNDERLINE)
 					{
-						graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+						graph.updateLabelElements(cells, function(elt)
 						{
 							elt.style.textDecoration = null;
 							
@@ -1428,7 +1436,7 @@ Actions.prototype.init = function()
 	});
 	this.addAction('editStyle...', mxUtils.bind(this, function()
 	{
-		var cells = graph.getSelectionCells();
+		var cells = graph.getEditableCells(graph.getSelectionCells());
 		
 		if (cells != null && cells.length > 0)
 		{
@@ -1511,7 +1519,7 @@ Actions.prototype.init = function()
 
 		if (cells != null)
 		{
-			cells = graph.addAllEdges(cells);
+			cells = graph.getEditableCells(graph.addAllEdges(cells));
 			
 			graph.getModel().beginUpdate();
 			try

@@ -327,9 +327,16 @@ EditorUi.initMinimalTheme = function()
 			// Destroys windows with code for dark mode
 		    if (this.actions.layersWindow != null)
 		    {
+				var wasVisible = this.actions.layersWindow.window.isVisible();
+			
 		    	this.actions.layersWindow.window.setVisible(false);
 		    	this.actions.layersWindow.destroy();
 		    	this.actions.layersWindow = null;
+
+				if (wasVisible)
+				{
+					window.setTimeout(this.actions.get('layers').funct, 0);
+				}
 		    }
 
 			if (this.menus.commentsWindow != null)
@@ -337,12 +344,6 @@ EditorUi.initMinimalTheme = function()
 		    	this.menus.commentsWindow.window.setVisible(false);
 				this.menus.commentsWindow.destroy();
 				this.menus.commentsWindow = null;
-			}
-			
-			if (this.actions.outlineWindow != null)
-        	{
-				this.actions.outlineWindow.outline.update();
-				this.actions.outlineWindow.outline.outline.view.revalidate();
 			}
 			
 			if (this.ruler != null)
@@ -728,6 +729,8 @@ EditorUi.initMinimalTheme = function()
 					{
 						this.addMenuItems(menu, ['edit'], null, evt);
 					}
+					
+					this.addMenuItems(menu, ['-', 'lockUnlock'], null, evt);
 				}
 				else
 				{
@@ -1716,9 +1719,7 @@ EditorUi.initMinimalTheme = function()
 					
 					if (wnd != null)
 		            {
-						wnd.outline.outline.stylesheet.styles =
-							mxUtils.clone(graph.stylesheet.styles);
-						ui.actions.outlineWindow.update();
+						//ui.actions.outlineWindow.update(true);
 		            }
 				}
 			}

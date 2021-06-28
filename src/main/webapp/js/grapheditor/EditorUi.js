@@ -3605,10 +3605,11 @@ EditorUi.prototype.addUndoListener = function()
 EditorUi.prototype.updateActionStates = function()
 {
 	var graph = this.editor.graph;
-	var selected = !graph.isSelectionEmpty();
 	var vertexSelected = false;
 	var groupSelected = false;
 	var edgeSelected = false;
+	var selected = false;
+	var editable = [];
 
 	var cells = graph.getSelectionCells();
 	
@@ -3617,26 +3618,27 @@ EditorUi.prototype.updateActionStates = function()
     	for (var i = 0; i < cells.length; i++)
     	{
     		var cell = cells[i];
-    		
-    		if (graph.getModel().isEdge(cell))
-    		{
-    			edgeSelected = true;
-    		}
-    		
-    		if (graph.getModel().isVertex(cell))
-    		{
-    			vertexSelected = true;
-    			
-	    		if (graph.getModel().getChildCount(cell) > 0 ||
-	    			graph.isContainer(cell))
-	    		{
-	    			groupSelected = true;
-	    		}
-    		}
-    		
-    		if (edgeSelected && vertexSelected)
+
+			if (graph.isCellEditable(cell))
 			{
-				break;
+				editable.push(cell);
+				selected = true;
+					
+	    		if (graph.getModel().isEdge(cell))
+	    		{
+	    			edgeSelected = true;
+	    		}
+	    		
+	    		if (graph.getModel().isVertex(cell))
+	    		{
+	    			vertexSelected = true;
+	    			
+		    		if (graph.getModel().getChildCount(cell) > 0 ||
+		    			graph.isContainer(cell))
+		    		{
+		    			groupSelected = true;
+		    		}
+	    		}
 			}
 		}
 	}
@@ -3644,7 +3646,7 @@ EditorUi.prototype.updateActionStates = function()
 	// Updates action states
 	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
-	               'edit', 'toFront', 'toBack', 'lockUnlock', 'solid', 'dashed', 'pasteSize',
+	               'edit', 'toFront', 'toBack', 'solid', 'dashed', 'pasteSize',
 	               'dotted', 'fillColor', 'gradientColor', 'shadow', 'fontColor',
 	               'formattedText', 'rounded', 'toggleRounded', 'sharp', 'strokeColor'];
 	
@@ -3652,13 +3654,14 @@ EditorUi.prototype.updateActionStates = function()
 	{
 		this.actions.get(actions[i]).setEnabled(selected);
 	}
-	
+
+	this.actions.get('lockUnlock').setEnabled(!graph.isSelectionEmpty());	
 	this.actions.get('setAsDefaultStyle').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('clearWaypoints').setEnabled(!graph.isSelectionEmpty());
+	this.actions.get('clearWaypoints').setEnabled(selected);
 	this.actions.get('copySize').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('bringForward').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('sendBackward').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('turn').setEnabled(!graph.isSelectionEmpty());
+	this.actions.get('bringForward').setEnabled(editable.length == 1);
+	this.actions.get('sendBackward').setEnabled(editable.length == 1);
+	this.actions.get('turn').setEnabled(graph.getResizableCells(graph.getSelectionCells()).length > 0);
 	this.actions.get('curved').setEnabled(edgeSelected);
 	this.actions.get('rotation').setEnabled(vertexSelected);
 	this.actions.get('wordWrap').setEnabled(vertexSelected);
@@ -3668,7 +3671,7 @@ EditorUi.prototype.updateActionStates = function()
 		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell())));
 	this.actions.get('ungroup').setEnabled(groupSelected);
    	this.actions.get('removeFromGroup').setEnabled(oneVertexSelected &&
-   		graph.getModel().isVertex(graph.getModel().getParent(graph.getSelectionCell())));
+   		graph.getModel().isVertex(graph.getModel().getParent(editable[0])));
 
 	// Updates menu states
    	var state = graph.view.getState(graph.getSelectionCell());
@@ -3678,10 +3681,10 @@ EditorUi.prototype.updateActionStates = function()
     this.actions.get('home').setEnabled(graph.view.currentRoot != null);
     this.actions.get('exitGroup').setEnabled(graph.view.currentRoot != null);
     this.actions.get('enterGroup').setEnabled(graph.getSelectionCount() == 1 && graph.isValidRoot(graph.getSelectionCell()));
-    var foldable = graph.getSelectionCount() == 1 && graph.isCellFoldable(graph.getSelectionCell());
+    var foldable = graph.getSelectionCount() == 1 && graph.isCellFoldable(graph.getSelectionCell()); // TODO
     this.actions.get('expand').setEnabled(foldable);
     this.actions.get('collapse').setEnabled(foldable);
-    this.actions.get('editLink').setEnabled(graph.getSelectionCount() == 1);
+    this.actions.get('editLink').setEnabled(editable.length == 1);
     this.actions.get('openLink').setEnabled(graph.getSelectionCount() == 1 &&
     	graph.getLinkForCell(graph.getSelectionCell()) != null);
     this.actions.get('guides').setEnabled(graph.isEnabled());
@@ -4885,18 +4888,12 @@ EditorUi.prototype.confirm = function(msg, okFn, cancelFn)
 EditorUi.prototype.createOutline = function(wnd)
 {
 	var outline = new mxOutline(this.editor.graph);
-	outline.border = 0;
 
 	mxEvent.addListener(window, 'resize', function()
 	{
-		outline.update();
+		outline.update(false);
 	});
 	
-	this.addListener('pageFormatChanged', function()
-	{
-		outline.update();
-	});
-
 	return outline;
 };
 

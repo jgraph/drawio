@@ -939,6 +939,17 @@ DriveClient.prototype.loadDescriptor = function(id, success, error, fields)
 	}, success, error);
 };
 
+DriveClient.prototype.listFiles = function(searchStr, afterDate, mineOnly, success, error)
+{
+	this.executeRequest({
+		url: '/files?supportsAllDrives=true&includeItemsFromAllDrives=true&q=' + encodeURIComponent('(mimeType contains \'' + this.xmlMimeType + '\') ' +
+		(searchStr? ' and (title contains \'' + searchStr + '\')' : '') +
+		(afterDate? ' and (modifiedDate > \'' + afterDate.toISOString() + '\')' : '') +
+		(mineOnly? ' and (\'me\' in owners)' : '')) +
+		'&orderBy=modifiedDate desc,title'
+	}, success, error);
+};
+
 /**
  * Gets the channel ID from the given descriptor.
  */

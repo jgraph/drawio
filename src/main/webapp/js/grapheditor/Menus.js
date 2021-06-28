@@ -912,7 +912,7 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 		graph.getModel().beginUpdate();
 		try
 		{
-			var cells = graph.getSelectionCells();
+			var cells = graph.getEditableCells(graph.getSelectionCells());
 			var autoSizeCells = false;
 			
 			for (var i = 0; i < keys.length; i++)
@@ -1197,7 +1197,7 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 {
 	var graph = this.editorUi.editor.graph;
 	
-	if (!graph.isSelectionEmpty())
+	if (graph.getEditableCells(graph.getSelectionCells()).length > 0)
 	{
 		this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
 		
@@ -1212,7 +1212,8 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 		this.addMenuItems(menu, ['-', 'group'], null, evt);
 	}
 	else if (graph.getSelectionCount() == 1 && !graph.getModel().isEdge(cell) &&
-		!graph.isSwimlane(cell) && graph.getModel().getChildCount(cell) > 0)
+		!graph.isSwimlane(cell) && graph.getModel().getChildCount(cell) > 0 &&
+		graph.isCellEditable(cell))
 	{
 		this.addMenuItems(menu, ['-', 'ungroup'], null, evt);
 	}
@@ -1272,7 +1273,7 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			this.addMenuItems(menu, ['-', 'clearWaypoints'], null, evt);
 		}
 	
-		if (graph.getSelectionCount() == 1)
+		if (graph.getSelectionCount() == 1 && graph.isCellEditable(graph.getSelectionCell()))
 		{
 			this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], null, evt);
 	

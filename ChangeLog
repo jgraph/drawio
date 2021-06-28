@@ -1,3 +1,20 @@
+25-JUN-2021: 14.8.2
+
+- [conf cloud] Adds lightbox to simple viewer
+- [conf+jira cloud] Fixes export downloads https://github.com/jgraph/drawio/issues/2107
+- [conf cloud] Updates self import to support data:confluence/id and links
+
+24-JUN-2021: 14.8.1
+
+- Clones existing SVG for outline rendering
+- Fixes possible ignored gesture end in outline
+- Fixes unconnected edges z-index order in vsdx import
+- Fixes line jump handling in vsdx import
+- Improves locking https://github.com/jgraph/drawio/issues/2069
+- Fixes action states and cursors for locked cells
+- Fixes selection in locked layers
+- Updates French translations
+
 17-JUN-2021: 14.8.0
 
 - Adds bringForward and sendBackward actions

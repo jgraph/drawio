@@ -107,10 +107,17 @@ Format.prototype.createSelectionState = function()
 {
 	var cells = this.editorUi.editor.graph.getSelectionCells();
 	var result = this.initSelectionState();
+	var initial = true;
 	
 	for (var i = 0; i < cells.length; i++)
 	{
-		this.updateSelectionStateForCell(result, cells[i], cells, i == 0);
+		var style = this.editorUi.editor.graph.getCurrentCellStyle(cells[i]);
+	
+		if (mxUtils.getValue(style, mxConstants.STYLE_EDITABLE, '1') != '0')
+		{
+			this.updateSelectionStateForCell(result, cells[i], cells, initial);
+			initial = false;
+		}
 	}
 	
 	return result;
@@ -121,9 +128,9 @@ Format.prototype.createSelectionState = function()
  */
 Format.prototype.initSelectionState = function()
 {
-	return {vertices: [], edges: [], x: null, y: null, width: null, height: null, style: {},
-		containsImage: false, containsLabel: false, fill: true, glass: true, rounded: true,
-		autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
+	return {vertices: [], edges: [], cells: [], x: null, y: null, width: null, height: null,
+		style: {}, containsImage: false, containsLabel: false, fill: true, glass: true,
+		rounded: true, autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
 		table: false, cell: false, row: false, movable: true, rotatable: true, stroke: true};
 };
 
@@ -133,6 +140,7 @@ Format.prototype.initSelectionState = function()
 Format.prototype.updateSelectionStateForCell = function(result, cell, cells, initial)
 {
 	var graph = this.editorUi.editor.graph;
+	result.cells.push(cell);
 	
 	if (graph.getModel().isVertex(cell))
 	{
@@ -401,11 +409,12 @@ Format.prototype.immediateRefresh = function()
 		evt.preventDefault();
 	}));
 
-	var containsLabel = this.getSelectionState().containsLabel;
+	var ss = this.getSelectionState();
+	var containsLabel = ss.containsLabel;
 	var currentLabel = null;
 	var currentPanel = null;
 	
-	var addClickHandler = mxUtils.bind(this, function(elt, panel, index)
+	var addClickHandler = mxUtils.bind(this, function(elt, panel, index, lastEntry)
 	{
 		var clickHandler = mxUtils.bind(this, function(evt)
 		{
@@ -456,8 +465,9 @@ Format.prototype.immediateRefresh = function()
 			evt.preventDefault();
 		}));
 		
-		if (index == ((containsLabel) ? this.labelIndex : ((graph.isSelectionEmpty()) ?
-			this.diagramIndex : this.currentIndex)))
+		if ((lastEntry && currentLabel == null) ||
+			(index == ((containsLabel) ? this.labelIndex : ((graph.isSelectionEmpty()) ?
+			this.diagramIndex : this.currentIndex))))
 		{
 			// Invokes handler directly as a workaround for no click on DIV in KHTML.
 			clickHandler();
@@ -550,7 +560,7 @@ Format.prototype.immediateRefresh = function()
 		label.style.backgroundColor = Format.inactiveTabBackgroundColor;
 		label.style.borderLeftWidth = '1px';
 		label.style.cursor = 'pointer';
-		label.style.width = (containsLabel) ? '50%' : '33.3%';
+		label.style.width = (containsLabel || ss.cells.length == 0) ? '50%' : '33.3%';
 		var label2 = label.cloneNode(false);
 		var label3 = label2.cloneNode(false);
 
@@ -595,8 +605,16 @@ Format.prototype.immediateRefresh = function()
 		this.panels.push(new ArrangePanel(this, ui, arrangePanel));
 		this.container.appendChild(arrangePanel);
 		
-		addClickHandler(label2, textPanel, idx++);
-		addClickHandler(label3, arrangePanel, idx++);
+		if (ss.cells.length > 0)
+		{
+			addClickHandler(label2, textPanel, idx++);
+		}
+		else
+		{
+			label2.style.display = 'none';
+		}
+		
+		addClickHandler(label3, arrangePanel, idx++, true);
 	}
 };
 
@@ -615,41 +633,6 @@ BaseFormatPanel = function(format, editorUi, container)
  * 
  */
 BaseFormatPanel.prototype.buttonBackgroundColor = 'white';
-
-/**
- * Adds the given color option.
- */
-BaseFormatPanel.prototype.getSelectionState = function()
-{
-	var graph = this.editorUi.editor.graph;
-	var cells = graph.getSelectionCells();
-	var shape = null;
-
-	for (var i = 0; i < cells.length; i++)
-	{
-		var state = graph.view.getState(cells[i]);
-		
-		if (state != null)
-		{
-			var tmp = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
-			
-			if (tmp != null)
-			{
-				if (shape == null)
-				{
-					shape = tmp;
-				}
-				else if (shape != tmp)
-				{
-					return null;
-				}
-			}
-			
-		}
-	}
-	
-	return shape;
-};
 
 /**
  * Install input handler.
@@ -711,13 +694,13 @@ BaseFormatPanel.prototype.installInputHandler = function(input, key, defaultValu
 			graph.getModel().beginUpdate();
 			try
 			{
-				var cells = graph.getSelectionCells();
+				var cells = this.format.getSelectionState().cells;
 				graph.setCellStyles(key, value, cells);
 
 				// Handles special case for fontSize where HTML labels are parsed and updated
 				if (key == mxConstants.STYLE_FONTSIZE)
 				{
-					graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+					graph.updateLabelElements(cells, function(elt)
 					{
 						elt.style.fontSize = value + 'px';
 						elt.removeAttribute('size');
@@ -1011,11 +994,12 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 	var ui = this.editorUi;
 	var editor = ui.editor;
 	var graph = editor.graph;
+	var self = this;
 	
 	enabledValue = (enabledValue != null) ? ((enabledValue == 'null') ? null : enabledValue) : 1;
 	disabledValue = (disabledValue != null) ? ((disabledValue == 'null') ? null : disabledValue) : 0;
 
-	var style = (cells != null) ? graph.getCommonStyle(cells) : this.format.selectionState.style;
+	var style = (cells != null) ? graph.getCommonStyle(cells) : this.format.getSelectionState().style;
 
 	return this.createOption(label, function()
 	{
@@ -1036,7 +1020,7 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 			graph.getModel().beginUpdate();
 			try
 			{
-				var temp = (cells != null) ? cells : graph.getSelectionCells();
+				var temp = (cells != null) ? cells : self.format.getSelectionState().cells;
 				var value = (checked) ? enabledValue : disabledValue;
 				graph.setCellStyles(key, value, temp);
 
@@ -1206,11 +1190,12 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 	var ui = this.editorUi;
 	var editor = ui.editor;
 	var graph = editor.graph;
+	var self = this;
 	
 	return this.createColorOption(label, function()
 	{
 		// Seems to be null sometimes, not sure why...
-		var state = graph.view.getState(graph.getSelectionCell());
+		var state = graph.view.getState(self.format.getSelectionState().cells[0]);
 		
 		if (state != null)
 		{
@@ -1223,7 +1208,8 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 		graph.getModel().beginUpdate();
 		try
 		{
-			graph.setCellStyles(colorKey, color, graph.getSelectionCells());
+			var cells = self.format.getSelectionState().cells;
+			graph.setCellStyles(colorKey, color, cells);
 
 			if (setStyleFn != null)
 			{
@@ -1231,7 +1217,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 			}
 			
 			ui.fireEvent(new mxEventObject('styleChanged', 'keys', [colorKey],
-				'values', [color], 'cells', graph.getSelectionCells()));
+				'values', [color], 'cells', cells));
 		}
 		finally
 		{
@@ -1244,7 +1230,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 			this.listener = function()
 			{
 				// Seems to be null sometimes, not sure why...
-				var state = graph.view.getState(graph.getSelectionCell());
+				var state = graph.view.getState(self.format.getSelectionState().cells[0]);
 				
 				if (state != null)
 				{
@@ -1365,7 +1351,7 @@ BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, han
 		{
 			var value = parseInt(input.value);
 			value = Math.min(100, Math.max(0, (isNaN(value)) ? 100 : value));
-			var state = graph.view.getState(graph.getSelectionCell());
+			var state = graph.view.getState(this.format.getSelectionState().cells[0]);
 			
 			if (state != null && value != mxUtils.getValue(state.style, key, 100))
 			{
@@ -1375,9 +1361,10 @@ BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, han
 					value = null;
 				}
 				
-				graph.setCellStyles(key, value, graph.getSelectionCells());
+				var cells = this.format.getSelectionState().cells;
+				graph.setCellStyles(key, value, cells);
 				this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', [key],
-					'values', [value], 'cells', graph.getSelectionCells()));
+					'values', [value], 'cells', cells));
 			}
 	
 			input.value = ((value != null) ? value : '100') + ' %';
@@ -1528,34 +1515,37 @@ ArrangePanel.prototype.init = function()
 	var graph = this.editorUi.editor.graph;
 	var ss = this.format.getSelectionState();
 
-	this.container.appendChild(this.addLayerOps(this.createPanel()));
-	// Special case that adds two panels
-	this.addGeometry(this.container);
-	this.addEdgeGeometry(this.container);
-
-	if (!ss.containsLabel || ss.edges.length == 0)
+	if (ss.cells.length > 0)
 	{
-		this.container.appendChild(this.addAngle(this.createPanel()));
-	}
+		this.container.appendChild(this.addLayerOps(this.createPanel()));
+		// Special case that adds two panels
+		this.addGeometry(this.container);
+		this.addEdgeGeometry(this.container);
 	
-	if (!ss.containsLabel && ss.edges.length == 0 &&
-		ss.style.shape != 'rectangle' &&
-		ss.style.shape != 'label')
-	{
-		this.container.appendChild(this.addFlip(this.createPanel()));
-	}
-	
-	if (ss.vertices.length > 1)
-	{
-		this.container.appendChild(this.addAlign(this.createPanel()));
-		this.container.appendChild(this.addDistribute(this.createPanel()));
-	}
-	
-	if (graph.isTable(ss.vertices[0]) ||
-		graph.isTableRow(ss.vertices[0]) ||
-		graph.isTableCell(ss.vertices[0]))
-	{
-		this.container.appendChild(this.addTable(this.createPanel()));
+		if (!ss.containsLabel || ss.edges.length == 0)
+		{
+			this.container.appendChild(this.addAngle(this.createPanel()));
+		}
+		
+		if (!ss.containsLabel && ss.edges.length == 0 &&
+			ss.style.shape != 'rectangle' &&
+			ss.style.shape != 'label')
+		{
+			this.container.appendChild(this.addFlip(this.createPanel()));
+		}
+		
+		if (ss.vertices.length > 1)
+		{
+			this.container.appendChild(this.addAlign(this.createPanel()));
+			this.container.appendChild(this.addDistribute(this.createPanel()));
+		}
+		
+		if (graph.isTable(ss.vertices[0]) ||
+			graph.isTableRow(ss.vertices[0]) ||
+			graph.isTableCell(ss.vertices[0]))
+		{
+			this.container.appendChild(this.addTable(this.createPanel()));
+		}
 	}
 	
 	this.container.appendChild(this.addGroupOps(this.createPanel()));
@@ -1741,8 +1731,8 @@ ArrangePanel.prototype.addGroupOps = function(div)
 {
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
-	var cell = graph.getSelectionCell();
 	var ss = this.format.getSelectionState();
+	var cell = ss.cells[0];
 	var count = 0;
 	var btn = null;
 	
@@ -1762,7 +1752,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		div.appendChild(btn);
 		count++;
 	}
-	else if (graph.getSelectionCount() == 1 && !graph.getModel().isEdge(cell) && !graph.isSwimlane(cell) &&
+	else if (ss.cells.length == 1 && !graph.getModel().isEdge(cell) && !graph.isSwimlane(cell) &&
 		!graph.isTable(cell) && !ss.row && !ss.cell && graph.getModel().getChildCount(cell) > 0)
 	{
 		btn = mxUtils.button(mxResources.get('ungroup'), function(evt)
@@ -1778,7 +1768,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count++;
 	}
 	
-	if (ss.vertices.length > 0)
+	if (graph.getModel().isVertex(graph.getSelectionCell()))
 	{
 		if (count > 0)
 		{
@@ -1799,7 +1789,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		div.appendChild(btn);
 		count++;
 		
-		if (ui.copiedSize != null)
+		if (ui.copiedSize != null && ss.vertices.length > 0)
 		{
 			var btn2 = mxUtils.button(mxResources.get('pasteSize'), function(evt)
 			{
@@ -1840,7 +1830,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		div.appendChild(btn);
 		count++;
 		
-		if (ui.copiedValue != null)
+		if (ui.copiedValue != null && ss.cells.length > 0)
 		{
 			var btn2 = mxUtils.button(mxResources.get('pasteData'), function(evt)
 			{
@@ -1860,7 +1850,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		}
 	}
 	
-	if (graph.getSelectionCount() == 1 && graph.getModel().isVertex(cell) && !ss.row &&
+	if (ss.cells.length == 1 && graph.getModel().isVertex(cell) && !ss.row &&
 		!ss.cell && graph.getModel().isVertex(graph.getModel().getParent(cell)))
 	{
 		if (count > 0)
@@ -1879,7 +1869,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		div.appendChild(btn);
 		count++;
 	}
-	else if (graph.getSelectionCount() > 0)
+	else if (ss.cells.length > 0)
 	{
 		if (count > 0)
 		{
@@ -1899,7 +1889,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count++;
 	}
 	
-	if (graph.getSelectionCount() == 1)
+	if (ss.cells.length == 1)
 	{
 		if (count > 0)
 		{
@@ -2511,7 +2501,7 @@ ArrangePanel.prototype.addGeometryHandler = function(input, fn)
 				graph.getModel().beginUpdate();
 				try
 				{
-					var cells = graph.getSelectionCells();
+					var cells = panel.format.getSelectionState().cells;
 					
 					for (var i = 0; i < cells.length; i++)
 					{
@@ -2567,6 +2557,7 @@ ArrangePanel.prototype.addEdgeGeometryHandler = function(input, fn)
     var ui = this.editorUi;
     var graph = ui.editor.graph;
     var initialValue = null;
+	var panel = this;
 
     function update(evt)
     {
@@ -2583,7 +2574,7 @@ ArrangePanel.prototype.addEdgeGeometryHandler = function(input, fn)
                 graph.getModel().beginUpdate();
                 try
                 {
-                    var cells = graph.getSelectionCells();
+                    var cells = panel.format.getSelectionState().cells;
 
                     for (var i = 0; i < cells.length; i++)
                     {
@@ -2632,7 +2623,6 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
 	var rect = this.format.getSelectionState();
-	
 	var div = this.createPanel();
 	
 	var span = document.createElement('div');
@@ -2652,7 +2642,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.br(div);
 	this.addKeyHandler(width, listener);
 	
-	function widthUpdate(evt)
+	var widthUpdate = mxUtils.bind(this, function(evt)
 	{
 		// Maximum stroke width is 999
 		var value = parseInt(width.value);
@@ -2660,14 +2650,15 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 		
 		if (value != mxUtils.getValue(rect.style, 'width', mxCellRenderer.defaultShapes['flexArrow'].prototype.defaultWidth))
 		{
-			graph.setCellStyles('width', value, graph.getSelectionCells());
+			var cells = this.format.getSelectionState().cells;
+			graph.setCellStyles('width', value, cells);
 			ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['width'],
-					'values', [value], 'cells', graph.getSelectionCells()));
+					'values', [value], 'cells', cells));
 		}
 
 		width.value = value + ' pt';
 		mxEvent.consume(evt);
-	};
+	});
 
 	mxEvent.addListener(width, 'blur', widthUpdate);
 	mxEvent.addListener(width, 'change', widthUpdate);
@@ -2731,7 +2722,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
 		rect = this.format.getSelectionState();
-		var cell = graph.getSelectionCell();
+		var cell = rect.cells[0];
 		
 		if (rect.style.shape == 'link' || rect.style.shape == 'flexArrow')
 		{
@@ -2749,7 +2740,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 			div.style.display = 'none';
 		}
 
-		if (graph.getSelectionCount() == 1 && graph.model.isEdge(cell))
+		if (rect.cells.length == 1 && graph.model.isEdge(cell))
 		{
 			var geo = graph.model.getGeometry(cell);
 			
@@ -3129,10 +3120,10 @@ TextFormatPanel.prototype.addFont = function(container)
 				
 				if (vals != null)
 				{
-					graph.setCellStyles(mxConstants.STYLE_LABEL_POSITION, vals[0], graph.getSelectionCells());
-					graph.setCellStyles(mxConstants.STYLE_VERTICAL_LABEL_POSITION, vals[1], graph.getSelectionCells());
-					graph.setCellStyles(mxConstants.STYLE_ALIGN, vals[2], graph.getSelectionCells());
-					graph.setCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, vals[3], graph.getSelectionCells());
+					graph.setCellStyles(mxConstants.STYLE_LABEL_POSITION, vals[0], ss.cells);
+					graph.setCellStyles(mxConstants.STYLE_VERTICAL_LABEL_POSITION, vals[1], ss.cells);
+					graph.setCellStyles(mxConstants.STYLE_ALIGN, vals[2], ss.cells);
+					graph.setCellStyles(mxConstants.STYLE_VERTICAL_ALIGN, vals[3], ss.cells);
 				}
 			}
 			finally
@@ -3149,7 +3140,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		
 		mxEvent.addListener(dirSelect, 'change', function(evt)
 		{
-			graph.setCellStyles(mxConstants.STYLE_TEXT_DIRECTION, dirSet[dirSelect.value], graph.getSelectionCells());
+			graph.setCellStyles(mxConstants.STYLE_TEXT_DIRECTION, dirSet[dirSelect.value], ss.cells);
 			mxEvent.consume(evt);
 		});
 	}
@@ -3329,7 +3320,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		destroy: function() { bgColorApply = null; }
 	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, '#ffffff', null, function(color)
 	{
-		graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+		graph.updateLabelElements(ss.cells, function(elt)
 		{
 			elt.style.backgroundColor = null;
 		});
@@ -3425,16 +3416,16 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		if (color == mxConstants.NONE)
 		{
-			graph.setCellStyles(mxConstants.STYLE_NOLABEL, '1', graph.getSelectionCells());
+			graph.setCellStyles(mxConstants.STYLE_NOLABEL, '1', ss.cells);
 		}
 		else
 		{
-			graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, graph.getSelectionCells());
+			graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, ss.cells);
 		}
 		
-		graph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, color, graph.getSelectionCells());
+		graph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, color, ss.cells);
 
-		graph.updateLabelElements(graph.getSelectionCells(), function(elt)
+		graph.updateLabelElements(ss.cells, function(elt)
 		{
 			elt.removeAttribute('color');
 			elt.style.color = null;
@@ -4283,7 +4274,7 @@ StyleFormatPanel.prototype.init = function()
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
 	
-	if (!ss.containsLabel)
+	if (!ss.containsLabel && ss.cells.length > 0)
 	{
 		if (ss.containsImage && ss.vertices.length == 1 && ss.style.shape == 'image' &&
 			ss.style.image != null && ss.style.image.substring(0, 19) == 'data:image/svg+xml;')
@@ -4422,7 +4413,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 					
 					graph.setCellStyles(mxConstants.STYLE_IMAGE, 'data:image/svg+xml,' +
 						((window.btoa) ? btoa(xml) : Base64.encode(xml, true)),
-						graph.getSelectionCells());
+						this.format.getSelectionState().cells);
 				}, '#ffffff',
 				{
 					install: function(apply)
@@ -4456,7 +4447,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 	var ss = this.format.getSelectionState();
 	var btn = null;
 	
-	if (this.editorUi.editor.graph.getSelectionCount() == 1)
+	if (ss.cells.length == 1)
 	{
 		btn = mxUtils.button(mxResources.get('editStyle'), mxUtils.bind(this, function(evt)
 		{
@@ -4470,7 +4461,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		div.appendChild(btn);
 	}
 	
-	if (ss.image)
+	if (ss.image && ss.cells.length > 0)
 	{
 		var btn2 = mxUtils.button(mxResources.get('editImage'), mxUtils.bind(this, function(evt)
 		{
@@ -4550,7 +4541,7 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
 	var fillPanel = this.createCellColorOption(label, fillKey, (defs[fillKey] != null) ? defs[fillKey] : '#ffffff', null, mxUtils.bind(this, function(color)
 	{
-		graph.updateCellStyles(fillKey, color, graph.getSelectionCells());
+		graph.updateCellStyles(fillKey, color, ss.cells);
 	}));
 	fillPanel.style.fontWeight = 'bold';
 
@@ -4617,13 +4608,13 @@ StyleFormatPanel.prototype.addFill = function(container)
 
 	mxEvent.addListener(gradientSelect, 'change', function(evt)
 	{
-		graph.setCellStyles(mxConstants.STYLE_GRADIENT_DIRECTION, gradientSelect.value, graph.getSelectionCells());
+		graph.setCellStyles(mxConstants.STYLE_GRADIENT_DIRECTION, gradientSelect.value, ss.cells);
 		mxEvent.consume(evt);
 	});
 	
 	mxEvent.addListener(fillStyleSelect, 'change', function(evt)
 	{
-		graph.setCellStyles('fillStyle', fillStyleSelect.value, graph.getSelectionCells());
+		graph.setCellStyles('fillStyle', fillStyleSelect.value, ss.cells);
 		mxEvent.consume(evt);
 	});
 	
@@ -4715,11 +4706,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			
 			for (var i = 0; i < keys.length; i++)
 			{
-				graph.setCellStyles(keys[i], values[i], graph.getSelectionCells());
+				graph.setCellStyles(keys[i], values[i], ss.cells);
 			}
 			
 			ui.fireEvent(new mxEventObject('styleChanged', 'keys', keys,
-				'values', values, 'cells', graph.getSelectionCells()));
+				'values', values, 'cells', ss.cells));
 		}
 		finally
 		{
@@ -4741,7 +4732,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
 	var lineColor = this.createCellColorOption(label, strokeKey, (defs[strokeKey] != null) ? defs[strokeKey] : '#000000', null, mxUtils.bind(this, function(color)
 	{
-		graph.updateCellStyles(strokeKey, color, graph.getSelectionCells());
+		graph.updateCellStyles(strokeKey, color, ss.cells);
 	}));
 	
 	lineColor.appendChild(styleSelect);
@@ -4825,9 +4816,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		
 		if (value != mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1))
 		{
-			graph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, value, graph.getSelectionCells());
+			graph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, value, ss.cells);
 			ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_STROKEWIDTH],
-					'values', [value], 'cells', graph.getSelectionCells()));
+					'values', [value], 'cells', ss.cells));
 		}
 
 		input.value = value + ' pt';
@@ -4842,9 +4833,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		
 		if (value != mxUtils.getValue(ss.style, mxConstants.STYLE_STROKEWIDTH, 1))
 		{
-			graph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, value, graph.getSelectionCells());
+			graph.setCellStyles(mxConstants.STYLE_STROKEWIDTH, value, ss.cells);
 			ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_STROKEWIDTH],
-					'values', [value], 'cells', graph.getSelectionCells()));
+					'values', [value], 'cells', ss.cells));
 		}
 
 		altInput.value = value + ' pt';
@@ -5111,13 +5102,12 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		perimeterUpdate.apply(this, arguments);
 	});
 
-	if (ss.edges.length == graph.getSelectionCount())
+	if (ss.edges.length == ss.cells.length)
 	{
 		container.appendChild(stylePanel2);
-		
 		container.appendChild(arrowPanel);
 	}
-	else if (ss.vertices.length == graph.getSelectionCount())
+	else if (ss.vertices.length == ss.cells.length)
 	{
 		container.appendChild(perimeterPanel);
 	}
@@ -5233,7 +5223,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			}
 		}
 		
-		if (ss.edges.length == graph.getSelectionCount())
+		if (ss.edges.length == ss.cells.length)
 		{
 			altStylePanel.style.display = '';
 			stylePanel.style.display = 'none';
@@ -5397,9 +5387,9 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 			graph.getModel().beginUpdate();
 			try
 			{
-				graph.setCellStyles('jumpStyle', styleSelect.value, graph.getSelectionCells());
+				graph.setCellStyles('jumpStyle', styleSelect.value, ss.cells);
 				ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['jumpStyle'],
-					'values', [styleSelect.value], 'cells', graph.getSelectionCells()));
+					'values', [styleSelect.value], 'cells', ss.cells));
 			}
 			finally
 			{

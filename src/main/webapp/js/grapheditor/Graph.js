@@ -602,7 +602,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    		// Updates cursor for unselected edges under the mouse
 				    	var state = me.getState();
 				    	
-				    	if (state != null)
+				    	if (state != null && this.isCellEditable(state.cell))
 				    	{
 				    		var cursor = null;
 				    		
@@ -2487,44 +2487,8 @@ Graph.prototype.init = function(container)
 				// Applies workarounds only if translate has changed
 				if (prev != g.getAttribute('transform'))
 				{
-					try
-					{
-						// Applies transform to labels outside of the SVG DOM
-						// Excluded via isCssTransformsSupported
-	//					if (mxClient.NO_FO)
-	//					{
-	//						var transform = 'scale(' + this.currentScale + ')' + 'translate(' +
-	//							this.currentTranslate.x + 'px,' + this.currentTranslate.y + 'px)';
-	//							
-	//						this.view.states.visit(mxUtils.bind(this, function(cell, state)
-	//						{
-	//							if (state.text != null && state.text.node != null)
-	//							{
-	//								// Stores initial CSS transform that is used for the label alignment
-	//								if (state.text.originalTransform == null)
-	//								{
-	//									state.text.originalTransform = state.text.node.style.transform;
-	//								}
-	//								
-	//								state.text.node.style.transform = transform + state.text.originalTransform;
-	//							}
-	//						}));
-	//					}
-						// Workaround for https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/4320441/
-						if (mxClient.IS_EDGE)
-						{
-							// Recommended workaround is to do this on all
-							// foreignObjects, but this seems to be faster
-							var val = g.style.display;
-							g.style.display = 'none';
-							g.getBBox();
-							g.style.display = val;
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
+					this.fireEvent(new mxEventObject('cssTransformChanged'),
+						'transform', g.getAttribute('transform'));
 				}
 			}
 		}
@@ -4161,7 +4125,9 @@ Graph.prototype.isCellFoldable = function(cell)
 {
 	var style = this.getCurrentCellStyle(cell);
 	
-	return this.foldingEnabled && (style['treeFolding'] == '1' ||
+	return this.foldingEnabled && mxUtils.getValue(style,
+		mxConstants.STYLE_RESIZABLE, '1') != '0' &&
+		(style['treeFolding'] == '1' ||
 		(!this.isCellLocked(cell) &&
 		((this.isContainer(cell) && style['collapsible'] != '0') ||
 		(!this.isContainer(cell) && style['collapsible'] == '1'))));
