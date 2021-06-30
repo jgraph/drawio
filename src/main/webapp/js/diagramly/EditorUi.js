@@ -4234,10 +4234,7 @@
 	 */
 	EditorUi.prototype.isExportToCanvas = function()
 	{
-		return this.editor.isExportToCanvas() &&
-			(this.getServiceName() != 'draw.io' ||
-			/.*\.draw\.io$/.test(window.location.hostname) ||
-			/.*\.diagrams\.net$/.test(window.location.hostname));
+		return this.editor.isExportToCanvas();
 	};
 
 	/**
@@ -4602,11 +4599,22 @@
 	var editoUiAddChromelessToolbarItems = EditorUi.prototype.addChromelessToolbarItems;
 
 	/**
+	 * Image export in viewer is only allowed for same domain or hosted environments but
+	 * but disabled to avoid cross domain image export in canvas which isn't allowed.
+	 */
+	EditorUi.prototype.isChromelessImageExportEnabled = function()
+	{
+		return this.getServiceName() != 'draw.io' ||
+			/.*\.draw\.io$/.test(window.location.hostname) ||
+			/.*\.diagrams\.net$/.test(window.location.hostname);
+	};
+	
+	/**
 	 * Creates a temporary graph instance for rendering off-screen content.
 	 */
 	EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 	{
-		if (this.isExportToCanvas())
+		if (this.isExportToCanvas() && this.isChromelessImageExportEnabled())
 		{
 			this.exportDialog = null;
 			
@@ -11334,6 +11342,45 @@
 						var enableSearchDocs = data.enableSearch == 1;
 						var enableCustomTemp = data.enableCustomTemp == 1;
 						
+						if (urlParams['newTempDlg'] == '1' && !data.templatesOnly && data.callback != null)
+						{
+							var user = this.getCurrentUser();
+							
+							var tempDlg = new TemplatesDialog(this, function(xml, filename, itemInfo)
+							{
+								xml = xml || this.emptyDiagramXml;
+								
+								parent.postMessage(JSON.stringify({event: 'template', xml: xml,
+									blank: xml == this.emptyDiagramXml, name: filename,
+									tempUrl: itemInfo.url, libs: itemInfo.libs, 
+									builtIn: itemInfo.info != null && itemInfo.info.custContentId != null,
+									message: data}), '*');
+							}, mxUtils.bind(this, function()
+							{
+								this.actions.get('exit').funct();
+							}), null, null, user != null? user.id : null, 
+							enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback, error, username) 
+							{
+								this.remoteInvoke('getRecentDiagrams', [username], null, recentReadyCallback, error);
+							}) : null, enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback, error, username) 
+							{
+								this.remoteInvoke('searchDiagrams', [searchStr, username], null, searchReadyCallback, error);
+							}) : null, mxUtils.bind(this, function(obj, callback, error) 
+							{
+								this.remoteInvoke('getFileContent', [obj.url], null, callback, error);
+							}), null, enableCustomTemp? mxUtils.bind(this, function(customTempCallback) 
+							{
+								this.remoteInvoke('getCustomTemplates', null, null, customTempCallback, function()
+								{
+									customTempCallback({}, 0); //ignore error by sending empty templates
+								});
+							}) : null, false, false, true, true);
+							
+							this.showDialog(tempDlg.container, window.innerWidth, window.innerHeight, true, false, null, false, true);
+
+							return;
+						}
+						
 						var dlg = new NewDialog(this, false, data.templatesOnly? false : data.callback != null,
 							mxUtils.bind(this, function(xml, name, url, libs)
 						{
@@ -11360,14 +11407,14 @@
 						}), null, null, null, null, null, null, null, 
 						enableRecentDocs? mxUtils.bind(this, function(recentReadyCallback) 
 						{
-							this.remoteInvoke('getRecentDiagrams', null, null, recentReadyCallback, function()
+							this.remoteInvoke('getRecentDiagrams', [null], null, recentReadyCallback, function()
 							{
 								recentReadyCallback(null, 'Network Error!');
 							});
 						}) : null, 
 						enableSearchDocs?  mxUtils.bind(this, function(searchStr, searchReadyCallback) 
 						{
-							this.remoteInvoke('searchDiagrams', [searchStr], null, searchReadyCallback, function()
+							this.remoteInvoke('searchDiagrams', [searchStr, null], null, searchReadyCallback, function()
 							{
 								searchReadyCallback(null, 'Network Error!');
 							});

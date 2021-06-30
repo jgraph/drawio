@@ -1326,6 +1326,14 @@ table.geProperties tr td {
     width: 100%;
     text-align: center;
 }
+
+.geTempDlgImportCat {
+	font-weight: bold;
+    background: #f9f9f9;
+    padding: 5px 0px;
+    padding: 10px;
+    margin: 10px 10px 0px 0px;
+}
 /* Comments CSS */
 .geCommentsWin {
 	user-select: none;

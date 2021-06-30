@@ -91,7 +91,7 @@
 				function driveObjToTempDlg(item)
 				{
 					return {id: item.id, isExt: true, url: item.downloadUrl, title: item.title, imgUrl: item.thumbnailLink,
-							changedBy: item.lastModifyingUserName, lastModifiedOn: new Date(item.modifiedDate)}
+							changedBy: item.lastModifyingUserName, lastModifiedOn: item.modifiedDate}
 				};
 				
 				var tempDlg = new TemplatesDialog(editorUi, function(templateXml, title, infoObj)
@@ -3515,7 +3515,7 @@
 					function driveObjToTempDlg(item)
 					{
 						return {id: item.id, isExt: true, url: item.downloadUrl, title: item.title, imgUrl: item.thumbnailLink,
-								changedBy: item.lastModifyingUserName, lastModifiedOn: new Date(item.modifiedDate)}
+								changedBy: item.lastModifyingUserName, lastModifiedOn: item.modifiedDate}
 					};
 					
 					var tempDlg = new TemplatesDialog(editorUi, function(xml){console.log(arguments)}, null,
@@ -3554,7 +3554,10 @@
 						{
 							callback(file.data);
 						}, error);
-					}, null, null, true, false);
+					}, null, function(callback)
+					{
+						callback({'Test': []}, 1);
+					}, true, false);
 					
 					editorUi.showDialog(tempDlg.container, window.innerWidth, window.innerHeight, true, false, null, false, true);
 				});

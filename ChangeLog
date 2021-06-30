@@ -1,3 +1,10 @@
+30-JUN-2021: 14.8.3
+
+- [conf cloud] Fixes save settings with current viewer status
+- Adds function for image export in viewer
+- Fixes possible NPE https://github.com/jgraph/drawio/issues/2115
+
+
 25-JUN-2021: 14.8.2
 
 - [conf cloud] Adds lightbox to simple viewer

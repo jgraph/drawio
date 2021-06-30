@@ -4398,7 +4398,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 				var option = this.createColorOption(label + ' ' + rule.selectorText, function()
 				{
 					return rgb2hex(value);
-				}, function(color)
+				}, mxUtils.bind(this, function(color)
 				{
 					rules[ruleIndex].style[key] = color;
 					var cssTxt = '';
@@ -4414,7 +4414,7 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 					graph.setCellStyles(mxConstants.STYLE_IMAGE, 'data:image/svg+xml,' +
 						((window.btoa) ? btoa(xml) : Base64.encode(xml, true)),
 						this.format.getSelectionState().cells);
-				}, '#ffffff',
+				}), '#ffffff',
 				{
 					install: function(apply)
 					{

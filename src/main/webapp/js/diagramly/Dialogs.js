@@ -3246,6 +3246,36 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 		var tmp = searchTerms.toLowerCase().split(' ');
 		tagsList = NewDialog.tagsList[templateFile];
+		
+		if (customCatCount > 0 && tagsList.__tagsList__ == null)
+		{
+			for (var cat in customCats)
+			{
+				var templateList = customCats[cat];
+				
+				for (var i = 0; i < templateList.length; i++)
+				{
+					var temp = templateList[i];
+					var tags = temp.title.split(' ');
+					tags.push(cat);
+					
+					for (var j = 0; j < tags.length; j++)
+					{
+						var tag = tags[j].toLowerCase();
+						
+						if (tagsList[tag] == null)
+						{
+							tagsList[tag] = [];
+						}
+						
+						tagsList[tag].push(temp);
+					}
+				}				
+			}
+			
+			tagsList.__tagsList__ = true;
+		}
+		
 		var results = [], resMap = {}, index = 0;
 		
 		for (var i = 0; i < tmp.length; i++)
@@ -9822,7 +9852,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 //TODO Many of the code is the same as NewDialog. Needs merging
 var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		templateFile, newDiagramCatsFile, username, recentDocsCallback, searchDocsCallback,
-		loadExtDoc, linkToDiagramCallback, customTempCallback, withOpen, withLink, withoutType)
+		loadExtDoc, linkToDiagramCallback, customTempCallback, withOpen, withLink, withoutType, noDlgHide)
 {
 	var dialogSkeleton = 
 	'<div class="geTempDlgHeader">' + 
@@ -9891,7 +9921,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	var showingAll = false;
 	var isGetAll = true;
 	var showAsList = false;
-	var curDiagList = [];
+	var curDiagList = [], curSearchImportCats = null;
 	var lastSearchStr, lastGetAll;
 	var categorySelected = true;
 	var inTempScreen = false;
@@ -10000,7 +10030,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		if (radioClick(this, 'geTempDlgListBtnImg', 'list', 'tilesBtn', 'geTempDlgTilesBtnImg', 'tiles', false))
 		{
 			showAsList = true;
-			fillDiagramsList(curDiagList, false, showAsList);
+			fillDiagramsList(curDiagList, false, showAsList, curSearchImportCats);
 		}
 	});
 	
@@ -10009,7 +10039,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		if (radioClick(this, 'geTempDlgTilesBtnImg', 'tiles', 'listBtn', 'geTempDlgListBtnImg', 'list', false))
 		{
 			showAsList = false;
-			fillDiagramsList(curDiagList, false, showAsList);
+			fillDiagramsList(curDiagList, false, showAsList, curSearchImportCats);
 		}
 	});
 	
@@ -10062,6 +10092,8 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				var doc = mxUtils.parseXml(xml);
 				var tempNode = Editor.extractGraphModel(doc.documentElement, true);
 
+				if (tempNode == null) return; //Not a diagram file
+				
 				if (tempNode.nodeName == 'mxfile')
 				{
 					var tempNode = Editor.parseDiagramNode(tempNode.getElementsByTagName('diagram')[0]);
@@ -10210,7 +10242,11 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			
 			function doSubmit(xml, filename)
 			{
-				editorUi.hideDialog(true);
+				if (!noDlgHide)
+				{
+					editorUi.hideDialog(true);
+				}
+				
 				callback(xml, filename, itemInfo, openDiagram);
 			};
 			
@@ -10261,7 +10297,15 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 						mxResources.get('ok'), startSubmit, nameTitle, function(name)
 						{
 							//TODO validate?
-							return name != null && name.length > 0;
+							var valid = name != null && name.length > 0;
+							
+							if (valid && noDlgHide)
+							{
+								startSubmit(name);
+								return false; //prevent closing
+							}
+							
+							return valid;
 						}, null, null, null, cancelSubmit, withoutType? null : []);
 						
 				editorUi.showDialog(nameDlg.container, 350, 80, true, true);
@@ -10272,7 +10316,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	
 	function toggleButtons(isTemplate)
 	{
-		createBtn.innerHTML = mxUtils.htmlEntities(mxResources.get(isTemplate? 'create' : 'copy'));
+		createBtn.innerHTML = mxUtils.htmlEntities(mxResources.get(inTempScreen || isTemplate? 'create' : 'copy'));
 		
 		var opemDisplay = isTemplate? 'none' : '';
 		
@@ -10289,16 +10333,21 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		}
 	};
 	
-	function fillDiagramsList(diagrams, isTemplate, asList)
+	function fillDiagramsList(diagrams, isTemplate, asList, searchImportCats, internalCall)
 	{
 		function setSubmitBtnLbl() 
 		{
 			toggleButtons(isTemplate);
 		};
 		
-		diagramsTiles.innerHTML = '';
-		swapActiveItem();
-		curDiagList = diagrams;
+		if (!internalCall)
+		{
+			diagramsTiles.innerHTML = '';
+			swapActiveItem();
+			curDiagList = diagrams;
+			curSearchImportCats = searchImportCats;
+		}
+		
 		var grid = null;
 		
 		if (asList)
@@ -10338,7 +10387,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			
 			if (diagrams[i].lastModifiedOn)
 			{
-				var str = editorUi.timeSince(diagrams[i].lastModifiedOn);
+				var str = editorUi.timeSince(new Date(diagrams[i].lastModifiedOn));
 		
 				if (str == null)
 				{
@@ -10368,7 +10417,12 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				prevImg.src = "/images/icon-search.svg";
 				prevImg.className = "geTempDlgDiagramListPreviewBtn";
 				prevImg.setAttribute('title', mxResources.get("preview"));
-				td.appendChild(prevImg);
+				
+				if (!internalCall)
+				{
+					td.appendChild(prevImg);
+				}
+				
 				var titleSpan = document.createElement('span');
 				titleSpan.className = "geTempDlgDiagramTitle";
 				titleSpan.innerHTML = title;
@@ -10424,7 +10478,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				var img = document.createElement('img');
 				img.style.display = "none";
 				
-				(function(img2, imgDiv2)
+				(function(img2, imgDiv2, fallbackImgUrl)
 				{
 					img.onload = function() 
 					{
@@ -10434,9 +10488,16 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 					
 					img.onerror = function()
 					{
-						imgDiv2.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgError";
-					}
-				})(img, imgDiv);
+						if (this.src != fallbackImgUrl)
+						{
+							this.src = fallbackImgUrl;
+						}
+						else
+						{
+							imgDiv2.className = "geTempDlgDiagramTileImg geTempDlgDiagramTileImgError";
+						}
+					}	
+				})(img, imgDiv, imgUrl? imgUrl.replace('.drawio.xml', '').replace('.drawio', '').replace('.xml', '') : '');
 				
 				img.src = imgUrl;
 				imgDiv.appendChild(img);
@@ -10451,7 +10512,11 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				prevImg.src = "/images/icon-search.svg";
 				prevImg.className = "geTempDlgDiagramPreviewBtn";
 				prevImg.setAttribute('title', mxResources.get("preview"));
-				tile.appendChild(prevImg);
+					
+				if (!internalCall)
+				{
+					tile.appendChild(prevImg);
+				}
 				
 				(function(diagram2, tile2, prevImg2)
 				{
@@ -10473,6 +10538,20 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				})(diagrams[i], tile, prevImg);
 				
 				diagramsTiles.appendChild(tile);
+			}
+		}
+						
+		for (var cat in searchImportCats)
+		{
+			var catList = searchImportCats[cat];
+			
+			if (catList.length > 0)
+			{
+				var header = document.createElement('div');
+				header.className = 'geTempDlgImportCat';
+				header.innerHTML = mxResources.get(cat, null, cat);
+				diagramsTiles.appendChild(header);
+				fillDiagramsList(catList, isTemplate, asList, null, true);
 			}
 		}
 	};
@@ -10567,7 +10646,22 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			searchInout.style.display = '';
 			searchInout.value = '';
 			lastSearchStr = null;
-			list.querySelector('.geTemplateCatLink').click();
+			
+			function openFirstCat()
+			{
+				var firstCat = list.querySelector('.geTemplateDrawioCatLink');
+				
+				if (firstCat != null)
+				{
+					firstCat.click();
+				}
+				else
+				{
+					setTimeout(openFirstCat, 200);
+				}
+			};
+			
+			openFirstCat();
 		});
 		
 		showAllBtn.style.display = newDiagramCats.length <= oneRowCount ? "none" : "";
@@ -10593,7 +10687,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		showingAll = !showingAll;
 	});
 	
-	function fillTemplatesList(categories)
+	function fillTemplatesList(categories, customCats, customCatCount)
 	{
 		var list = dlgDiv.querySelector(".geTemplatesList");
 		
@@ -10618,7 +10712,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			return {lbl: label + ' (' + templateList.length + ')', fullLbl: fullLbl, lblOnly: lblOnly};
 		};
 		
-		function addEntryHandler(cat, label, entry, subCat)
+		function addEntryHandler(cat, label, entry, subCat, isCustom)
 		{
 			mxEvent.addListener(entry, 'click', function()
 			{
@@ -10648,10 +10742,37 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 
 					diagramsListTitle.innerHTML = label;
 					diagramsListBtns.style.display = 'none';
-					fillDiagramsList(subCat? subCategories[cat][subCat] : categories[cat], true);
+					fillDiagramsList(isCustom ? customCats[cat] : 
+							(subCat? subCategories[cat][subCat] : categories[cat]), isCustom ? false : true);
 				}
 			});
 		};
+		
+		if (customCatCount > 0)
+		{
+			var titleCss = 'font-weight: bold;background: #f9f9f9;padding: 5px 0 5px 0;text-align: center;margin-top: 10px;';
+			var title = document.createElement('div');
+			title.style.cssText = titleCss;
+			mxUtils.write(title, mxResources.get('custom'));
+			list.appendChild(title);
+			
+			for (var cat in customCats)
+			{
+				var entry = document.createElement('div');
+				var templateList = customCats[cat];
+				var lbls = getEntryTitle(cat, templateList);
+				entry.className = 'geTemplateCatLink';
+				entry.setAttribute('title', lbls.fullLbl);
+				entry.innerHTML = lbls.lbl;
+				list.appendChild(entry);
+				addEntryHandler(cat, lbls.lblOnly, entry, null, true);
+			}
+			
+			title = document.createElement('div');
+			title.style.cssText = titleCss;
+			mxUtils.write(title, 'draw.io');
+			list.appendChild(title);
+		}
 		
 		for (var cat in categories)
 		{
@@ -10665,7 +10786,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			{
 				var entryLi = document.createElement('li');
 				var entryDiv = document.createElement('div');
-				entryDiv.className = 'geTempTreeCaret geTemplateCatLink';
+				entryDiv.className = 'geTempTreeCaret geTemplateCatLink geTemplateDrawioCatLink';
 				entryDiv.style.padding = '0';
 				entryDiv.setAttribute('title', lbls.fullLbl);
 				entryDiv.innerHTML = lbls.lbl;
@@ -10727,7 +10848,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			}
 			else
 			{
-				entry.className = 'geTemplateCatLink';
+				entry.className = 'geTemplateCatLink geTemplateDrawioCatLink';
 				entry.setAttribute('title', lbls.fullLbl);
 				entry.innerHTML = lbls.lbl;
 			}
@@ -10738,116 +10859,133 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	};
 	
 	var indexLoaded = false, indexLoaded2 = false;
-	var categories = {}, subCategories = {};
+	var categories = {}, subCategories = {}, customCats = {};
 	var newDiagramCats = [];
-	var categoryCount = 1;
+	var categoryCount = 1, customCatCount = 0;
 	
-	mxUtils.get(templateFile, function(req)
+	function loadDrawioTemplates()
 	{
-		// Workaround for index loaded 3 times in iOS offline mode
-		if (!indexLoaded)
+		mxUtils.get(templateFile, function(req)
 		{
-			indexLoaded = true;
-			var tmpDoc = req.getXml();
-			var node = tmpDoc.documentElement.firstChild;
-			var clibs = {};
-
-			while (node != null)
+			// Workaround for index loaded 3 times in iOS offline mode
+			if (!indexLoaded)
 			{
-				if (typeof(node.getAttribute) !== 'undefined')
+				indexLoaded = true;
+				var tmpDoc = req.getXml();
+				var node = tmpDoc.documentElement.firstChild;
+				var clibs = {};
+	
+				while (node != null)
 				{
-					if (node.nodeName == 'clibs')
+					if (typeof(node.getAttribute) !== 'undefined')
 					{
-						var name = node.getAttribute('name');
-						var adds = node.getElementsByTagName('add');
-						var temp = [];
-						
-						for (var i = 0; i < adds.length; i++)
+						if (node.nodeName == 'clibs')
 						{
-							temp.push(encodeURIComponent(mxUtils.getTextContent(adds[i])));
-						}
-						
-						if (name != null && temp.length > 0)
-						{
-							clibs[name] = temp.join(';');
-						}
-					}
-					else
-					{
-						var url = node.getAttribute('url');
-						
-						if (url != null)
-						{
-							var category = node.getAttribute('section');
-							var subCategory = node.getAttribute('subsection');
+							var name = node.getAttribute('name');
+							var adds = node.getElementsByTagName('add');
+							var temp = [];
 							
-							if (category == null)
+							for (var i = 0; i < adds.length; i++)
 							{
-								var slash = url.indexOf('/');
-								category = url.substring(0, slash);
+								temp.push(encodeURIComponent(mxUtils.getTextContent(adds[i])));
+							}
+							
+							if (name != null && temp.length > 0)
+							{
+								clibs[name] = temp.join(';');
+							}
+						}
+						else
+						{
+							var url = node.getAttribute('url');
+							
+							if (url != null)
+							{
+								var category = node.getAttribute('section');
+								var subCategory = node.getAttribute('subsection');
 								
-								if (subCategory == null)
+								if (category == null)
 								{
-									var nextSlash = url.indexOf('/', slash + 1);
+									var slash = url.indexOf('/');
+									category = url.substring(0, slash);
 									
-									if (nextSlash > -1)
+									if (subCategory == null)
 									{
-										subCategory = url.substring(slash + 1, nextSlash);
+										var nextSlash = url.indexOf('/', slash + 1);
+										
+										if (nextSlash > -1)
+										{
+											subCategory = url.substring(slash + 1, nextSlash);
+										}
 									}
 								}
-							}
-							
-							var list = categories[category];
-							
-							if (list == null)
-							{
-								categoryCount++;
-								list = [];
-								categories[category] = list;
-							}
-							
-							var tempLibs = node.getAttribute('clibs');
-							
-							if (clibs[tempLibs] != null)
-							{
-								tempLibs = clibs[tempLibs];
-							}
-							
-							var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
-								title: node.getAttribute('title') || node.getAttribute('name'), 
-								preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
-							list.push(tempObj);
 								
-							if (subCategory != null)
-							{
-								var subCats = subCategories[category];
+								var list = categories[category];
 								
-								if (subCats == null)
+								if (list == null)
 								{
-									subCats = {};
-									subCategories[category] = subCats;
+									categoryCount++;
+									list = [];
+									categories[category] = list;
 								}
 								
-								var subCatList = subCats[subCategory];
+								var tempLibs = node.getAttribute('clibs');
 								
-								if (subCatList == null)
+								if (clibs[tempLibs] != null)
 								{
-									subCatList = [];
-									subCats[subCategory] = subCatList;
+									tempLibs = clibs[tempLibs];
 								}
 								
-								subCatList.push(tempObj);
+								var tempObj = {url: node.getAttribute('url'), libs: node.getAttribute('libs'),
+									title: node.getAttribute('title') || node.getAttribute('name'), 
+									preview: node.getAttribute('preview'), clibs: tempLibs, tags: node.getAttribute('tags')};
+								list.push(tempObj);
+									
+								if (subCategory != null)
+								{
+									var subCats = subCategories[category];
+									
+									if (subCats == null)
+									{
+										subCats = {};
+										subCategories[category] = subCats;
+									}
+									
+									var subCatList = subCats[subCategory];
+									
+									if (subCatList == null)
+									{
+										subCatList = [];
+										subCats[subCategory] = subCatList;
+									}
+									
+									subCatList.push(tempObj);
+								}
 							}
 						}
 					}
+					
+					node = node.nextSibling;
 				}
 				
-				node = node.nextSibling;
+				fillTemplatesList(categories, customCats, customCatCount);
 			}
-			
-			fillTemplatesList(categories);
-		}
-	});
+		});
+	};
+	
+	if (customTempCallback != null)
+	{
+		customTempCallback(function(cats, count)
+		{
+			customCats = cats;
+			customCatCount = count;
+			loadDrawioTemplates();
+		}, loadDrawioTemplates); //In case of an error, just load draw.io templates only
+	}
+	else
+	{
+		loadDrawioTemplates();
+	}
 	
 	mxUtils.get(newDiagramCatsFile, function(req)
 	{
@@ -10878,7 +11016,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		}
 	});
 	
-	var extDiagramsCallback = function(list, errorMsg)
+	var extDiagramsCallback = function(list, errorMsg, searchImportCats)
 	{
 		diagramsListBtns.style.display = '';
 		spinner.stop();
@@ -10895,13 +11033,24 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		{
 			diagramsTiles.innerHTML = errorMsg;
 		}
-		else if (list.length == 0)
-		{
-			diagramsTiles.innerHTML = mxUtils.htmlEntities(mxResources.get('noDiagrams'));
-		}
 		else
 		{
-			fillDiagramsList(list, false, showAsList);
+			searchImportCats = searchImportCats || {};
+			var importListsCount = 0;
+				
+			for (var cat in searchImportCats)
+			{
+				importListsCount += searchImportCats[cat].length;
+			}
+				
+			if (list.length == 0 && importListsCount == 0)
+			{
+				diagramsTiles.innerHTML = mxUtils.htmlEntities(mxResources.get('noDiagrams'));
+			}
+			else
+			{
+				fillDiagramsList(list, false, showAsList, importListsCount == 0? null : searchImportCats);
+			}
 		}
 	};
 	
@@ -10979,6 +11128,36 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 
 		var tmp = searchTerms.toLowerCase().split(' ');
 		tagsList = TemplatesDialog.tagsList[templateFile];
+		
+		if (customCatCount > 0 && tagsList.__tagsList__ == null)
+		{
+			for (var cat in customCats)
+			{
+				var templateList = customCats[cat];
+				
+				for (var i = 0; i < templateList.length; i++)
+				{
+					var temp = templateList[i];
+					var tags = temp.title.split(' ');
+					tags.push(cat);
+					
+					for (var j = 0; j < tags.length; j++)
+					{
+						var tag = tags[j].toLowerCase();
+						
+						if (tagsList[tag] == null)
+						{
+							tagsList[tag] = [];
+						}
+						
+						tagsList[tag].push(temp);
+					}
+				}
+			}
+			
+			tagsList.__tagsList__ = true;
+		}
+		
 		var results = [], resMap = {}, index = 0;
 		
 		for (var i = 0; i < tmp.length; i++)
@@ -11113,7 +11292,10 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			cancelCallback();
 		}
 		
-		editorUi.hideDialog(true);
+		if (!noDlgHide)
+		{
+			editorUi.hideDialog(true);
+		}
 	});
 };
 
