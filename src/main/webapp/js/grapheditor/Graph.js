@@ -8184,7 +8184,9 @@ if (typeof mxVertexHandler != 'undefined')
 			// Disables dragging edge labels out of edges
 			for (var i = 0; i < cells.length; i++)
 			{
-				if (this.model.isEdge(this.model.getParent(cells[i])))
+				var parent = this.model.getParent(cells[i]);
+				
+				if (this.model.isEdge(parent) && mxUtils.indexOf(cells, parent) < 0)
 				{
 					return null;
 				}

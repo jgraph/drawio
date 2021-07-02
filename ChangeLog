@@ -1,3 +1,8 @@
+02-JUL-2021: 14.8.4
+
+- Fixes drag and drop for edge labels with selected parents
+- [conf cloud] Fixes recent and search in embed diagrams
+
 30-JUN-2021: 14.8.3
 
 - [conf cloud] Fixes save settings with current viewer status

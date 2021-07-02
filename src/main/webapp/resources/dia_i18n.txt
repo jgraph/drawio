@@ -1149,3 +1149,5 @@ changedBy=changedBy
 lastModifiedOn=lastModifiedOn
 searchResults=searchResults
 showAllTemps=showAllTemps
+notionToken=notionToken
+selectDB=selectDB
