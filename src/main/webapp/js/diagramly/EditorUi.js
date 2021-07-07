@@ -12964,6 +12964,11 @@
 			serviceCount++
 		}
 		
+		if (this.notion != null)
+		{
+			serviceCount++
+		}
+		
 		if (allowBrowser && isLocalStorage && urlParams['browser'] == '1')
 		{
 			serviceCount++

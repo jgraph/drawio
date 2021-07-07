@@ -2407,6 +2407,15 @@
 				}, parent);
 			}
 
+			if (editorUi.notion != null)
+			{
+				menu.addSeparator(parent);
+				menu.addItem(mxResources.get('notion') + '...', null, function()
+				{
+					pickFileFromService(editorUi.notion);
+				}, parent);
+			}
+
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -3020,6 +3029,15 @@
 				}, parent);
 			}
 
+			if (editorUi.notion != null)
+			{
+				menu.addSeparator(parent);
+				menu.addItem(mxResources.get('notion') + '...', null, function()
+				{
+					editorUi.pickFile(App.MODE_NOTION);
+				}, parent);
+			}
+
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -3151,6 +3169,15 @@
 					}, parent);
 				}
 				
+				if (editorUi.notion != null)
+				{
+					menu.addSeparator(parent);
+					menu.addItem(mxResources.get('notion') + '...', null, function()
+					{
+						editorUi.showLibraryDialog(null, null, null, null, App.MODE_NOTION);
+					}, parent);
+				}
+
 				if (editorUi.trello != null)
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -3253,6 +3280,15 @@
 					}, parent);
 				}
 				
+				if (editorUi.notion != null)
+				{
+					menu.addSeparator(parent);
+					menu.addItem(mxResources.get('notion') + '...', null, function()
+					{
+						editorUi.pickLibrary(App.MODE_NOTION);
+					}, parent);
+				}
+
 				if (editorUi.trello != null)
 				{
 					menu.addItem(mxResources.get('trello') + '...', null, function()

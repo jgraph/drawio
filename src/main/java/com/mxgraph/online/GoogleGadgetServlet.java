@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
+
 /**
  * Servlet implementation class OpenServlet
  */
@@ -51,21 +53,21 @@ public class GoogleGadgetServlet extends HttpServlet
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		String diagram = request.getParameter("diagram");
-		String type = request.getParameter("type");
-		String title = request.getParameter("title");
-		String edit = request.getParameter("edit");
-		String embed = request.getParameter("embed");
-		String b = request.getParameter("border");
-		String zoom = request.getParameter("zoom");
-		String pan = request.getParameter("pan");
-		String fit = request.getParameter("fit");
-		String resize = request.getParameter("resize");
-		String height = request.getParameter("height");
-		String math = request.getParameter("math");
-		String x0 = request.getParameter("x0");
-		String y0 = request.getParameter("y0");
-		String s = request.getParameter("s");
+		String diagram = escapeHtml4(request.getParameter("diagram"));
+		String type = escapeHtml4(request.getParameter("type"));
+		String title = escapeHtml4(request.getParameter("title"));
+		String edit = escapeHtml4(request.getParameter("edit"));
+		String embed = escapeHtml4(request.getParameter("embed"));
+		String b = escapeHtml4(request.getParameter("border"));
+		String zoom = escapeHtml4(request.getParameter("zoom"));
+		String pan = escapeHtml4(request.getParameter("pan"));
+		String fit = escapeHtml4(request.getParameter("fit"));
+		String resize = escapeHtml4(request.getParameter("resize"));
+		String height = escapeHtml4(request.getParameter("height"));
+		String math = escapeHtml4(request.getParameter("math"));
+		String x0 = escapeHtml4(request.getParameter("x0"));
+		String y0 = escapeHtml4(request.getParameter("y0"));
+		String s = escapeHtml4(request.getParameter("s"));
 		boolean showEmbed = (embed != null) ? embed.equals("1") : true;
 		
 		if (diagram == null)

@@ -18,7 +18,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	buttons.style.borderWidth = '1px 0px 1px 0px';
 	buttons.style.padding = '10px 0px 20px 0px';
 	
-	var count = 0;
+	var count = 0, totalBtns = 0;
 	var container = document.createElement('div');
 	container.style.paddingTop = '2px';
 	buttons.appendChild(container);
@@ -27,10 +27,12 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	
 	function addLogo(img, title, mode, clientName, labels, clientFn)
 	{
+		totalBtns++;
+		
 		if (++count > rowLimit)
 		{
 			mxUtils.br(container);
-			count = 0;
+			count = 1;
 		}
 		
 		var button = document.createElement('a');
@@ -233,6 +235,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		{
 			addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
 		}
+		
+		if (totalBtns < 6 && editorUi.notion != null)
+		{
+			addLogo(IMAGE_PATH + '/notion-logo.svg', mxResources.get('notion'), App.MODE_NOTION, 'notion');
+		}
 	};
 	
 	div.appendChild(buttons);
@@ -336,6 +343,11 @@ var SplashDialog = function(editorUi)
 	{
 		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
 		service = mxResources.get('gitlab');
+	}
+	else if (editorUi.mode == App.MODE_NOTION)
+	{
+		logo.src = IMAGE_PATH + '/notion-logo.svg';
+		service = mxResources.get('notion');
 	}
 	else if (editorUi.mode == App.MODE_BROWSER)
 	{
@@ -459,6 +471,10 @@ var SplashDialog = function(editorUi)
 	else if (editorUi.mode == App.MODE_GITLAB)
 	{
 		storage = mxResources.get('gitlab');
+	}
+	else if (editorUi.mode == App.MODE_NOTION)
+	{
+		storage = mxResources.get('notion');
 	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
@@ -596,6 +612,13 @@ var SplashDialog = function(editorUi)
 			{
 				editorUi.gitLab.logout();
 				editorUi.openLink(DRAWIO_GITLAB_URL + '/users/sign_out');
+			});
+		}
+		else if (editorUi.mode == App.MODE_NOTION && editorUi.notion != null)
+		{
+			addLogout(function()
+			{
+				editorUi.notion.logout();
 			});
 		}
 		else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
@@ -2416,6 +2439,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	{
 		logo.src = IMAGE_PATH + '/gitlab-logo.svg';
 	}
+	else if (editorUi.mode == App.MODE_NOTION)
+	{
+		logo.src = IMAGE_PATH + '/notion-logo.svg';
+	}
 	else if (editorUi.mode == App.MODE_TRELLO)
 	{
 		logo.src = IMAGE_PATH + '/trello-logo.svg';
@@ -2461,6 +2488,10 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	else if (editorUi.mode == App.MODE_GITLAB && editorUi.gitLab != null)
 	{
 		ext = editorUi.gitLab.extension;
+	}
+	else if (editorUi.mode == App.MODE_NOTION && editorUi.notion != null)
+	{
+		ext = editorUi.notion.extension;
 	}
 	else if (editorUi.mode == App.MODE_TRELLO && editorUi.trello != null)
 	{
@@ -4084,6 +4115,16 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			addLogo(IMAGE_PATH + '/gitlab-logo.svg', mxResources.get('gitlab'), App.MODE_GITLAB, 'gitLab');
 		}
 
+		if (editorUi.notion != null)
+		{
+			var notionOption = document.createElement('option');
+			notionOption.setAttribute('value', App.MODE_NOTION);
+			mxUtils.write(notionOption, mxResources.get('notion'));
+			serviceSelect.appendChild(notionOption);
+
+			addLogo(IMAGE_PATH + '/notion-logo.svg', mxResources.get('notion'), App.MODE_NOTION, 'notion');
+		}
+		
 		if (typeof window.TrelloClient === 'function')
 		{
 			var trelloOption = document.createElement('option');
@@ -4152,6 +4193,10 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 				else if (newMode == App.MODE_GITLAB)
 				{
 					ext = editorUi.gitLab.extension;
+				}
+				else if (newMode == App.MODE_NOTION)
+				{
+					ext = editorUi.notion.extension;
 				}
 				else if (newMode == App.MODE_TRELLO)
 				{
@@ -5187,6 +5232,8 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 			});
 		});
 	}
+
+	//TODO should Notion support this?
 	//TODO should Trello support this?
 	
 	mxEvent.addListener(linkInput, 'keypress', function(e)
@@ -7621,6 +7668,12 @@ var AuthDialog = function(editorUi, peer, showRememberOption, fn)
 	{
 		service = mxResources.get('gitlab');
 		img.src = IMAGE_PATH + '/gitlab-logo.svg';
+		img.style.width = '32px';
+	}
+	else if (peer == editorUi.notion)
+	{
+		service = mxResources.get('notion');
+		img.src = IMAGE_PATH + '/notion-logo-white.svg';
 		img.style.width = '32px';
 	}
 	else if (peer == editorUi.trello)
@@ -11347,6 +11400,11 @@ var BtnDialog = function(editorUi, peer, btnLbl, fn)
 	{
 		service = mxResources.get('gitlab');
 		img.src = IMAGE_PATH + '/gitlab-logo.svg';
+	}
+	else if (peer == editorUi.notion)
+	{
+		service = mxResources.get('notion');
+		img.src = IMAGE_PATH + '/notion-logo.svg';
 	}
 	else if (peer == editorUi.trello)
 	{

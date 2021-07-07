@@ -1151,3 +1151,4 @@ searchResults=Bilatu emaitzak
 showAllTemps=Erakutsi txantiloi guztiak
 notionToken=Notion Token
 selectDB=Select Database
+noDBs=No Databases

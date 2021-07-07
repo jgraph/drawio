@@ -246,6 +246,9 @@ mxscript(drawDevUrl + 'js/diagramly/TrelloClient.js');
 mxscript(drawDevUrl + 'js/diagramly/GitLabFile.js');
 mxscript(drawDevUrl + 'js/diagramly/GitLabLibrary.js');
 mxscript(drawDevUrl + 'js/diagramly/GitLabClient.js');
+mxscript(drawDevUrl + 'js/diagramly/NotionFile.js');
+mxscript(drawDevUrl + 'js/diagramly/NotionLibrary.js');
+mxscript(drawDevUrl + 'js/diagramly/NotionClient.js');
 
 mxscript(drawDevUrl + 'js/diagramly/App.js');
 mxscript(drawDevUrl + 'js/diagramly/Menus.js');

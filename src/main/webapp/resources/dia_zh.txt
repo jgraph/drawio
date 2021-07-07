@@ -1151,3 +1151,4 @@ searchResults=Search Results
 showAllTemps=Show all templates
 notionToken=Notion Token
 selectDB=Select Database
+noDBs=No Databases
