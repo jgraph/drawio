@@ -1,3 +1,9 @@
+12-JUL-2021: 14.8.6
+
+- Disables pointerEvents style for images https://github.com/jgraph/drawio/issues/2121
+- [jira cloud] Disables Confluence embed option due to changes in auth token valdation
+- Improvements to Lucidchart import
+
 07-JUL-2021: 14.8.5
 
 - Fixes XSS attack on GoogleGadgetServlet. Thanks to Alfred Berg for report.
