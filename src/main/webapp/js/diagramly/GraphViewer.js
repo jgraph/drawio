@@ -54,6 +54,14 @@ GraphViewer.prototype.autoFit = false;
 GraphViewer.prototype.autoCrop = false;
 
 /**
+ * Specifies if the graph should be moved if a layer is made visible that
+ * extends the graph beyong the top left corner. Default is true. Is this is
+ * false then the viewport of the viewer will include all cells in all layers
+ * regardless of their initial visible state.
+ */
+GraphViewer.prototype.autoOrigin = true;
+
+/**
  * If the diagram should be centered. Default is false.
  */
 GraphViewer.prototype.center = false;
@@ -114,6 +122,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig['auto-fit'] : this.autoFit;
 	this.autoCrop = (this.graphConfig['auto-crop'] != null) ?
 		this.graphConfig['auto-crop'] : this.autoCrop;
+	this.autoOrigin = (this.graphConfig['auto-origin'] != null) ?
+		this.graphConfig['auto-origin'] : this.autoOrigin;
 	this.allowZoomOut = (this.graphConfig['allow-zoom-out'] != null) ?
 		this.graphConfig['allow-zoom-out'] : this.allowZoomOut;
 	this.allowZoomIn = (this.graphConfig['allow-zoom-in'] != null) ?
@@ -138,7 +148,8 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		!this.zoomEnabled && !mxClient.NO_FO && !mxClient.IS_SF;
 	this.pageId = this.graphConfig.pageId;
 	this.editor = null;
-
+	var self = this;
+				
 	if (this.graphConfig['toolbar-position'] == 'inline')
 	{
 		this.minHeight += this.toolbarHeight;
@@ -343,6 +354,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				// Passes current page via urlParams global variable
 				// to let the parser know which page we're using
 				urlParams['page'] = self.currentPage;
+				var visible = null;
 
 				this.graph.getModel().beginUpdate();
 				try
@@ -352,6 +364,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					
 					this.editor.setGraphXml(this.xmlNode);
 					this.graph.view.scale = this.graphConfig.zoom || 1;
+					visible = this.setLayersVisible();
 					
 					if (!this.responsive)
 					{
@@ -407,7 +420,10 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 					scale: this.graph.view.scale
 				};
 				
-				var self = this;
+				if (visible != null)
+				{
+					this.setLayersVisible(visible);
+				}
 				
 				this.graph.customLinkClicked = function(href)
 				{
@@ -548,15 +564,58 @@ GraphViewer.prototype.updateGraphXml = function(xmlNode)
 /**
  * 
  */
+GraphViewer.prototype.setLayersVisible = function(visible)
+{
+	var allVisible = true;
+	
+	if (!this.autoOrigin)
+	{
+		var result = [];
+		var model = this.graph.getModel();
+		
+		model.beginUpdate();
+		try
+		{
+			for (var i = 0; i < model.getChildCount(model.root); i++)
+			{
+				var layer = model.getChildAt(model.root, i);
+				allVisible = allVisible && model.isVisible(layer);
+				result.push(model.isVisible(layer));
+				model.setVisible(layer, (visible != null) ? visible[i] : true);
+			}
+		}
+		finally
+		{
+			model.endUpdate();
+		}
+	}
+	
+	return (allVisible) ? null : result;
+};
+
+/**
+ * 
+ */
 GraphViewer.prototype.setGraphXml = function(xmlNode)
 {
 	if (this.graph != null)
 	{
 		this.graph.view.translate = new mxPoint();
 		this.graph.view.scale = 1;
-		this.graph.getModel().clear();
-		this.editor.setGraphXml(xmlNode);
-
+		var visible = null;
+		
+		this.graph.getModel().beginUpdate();
+		try
+		{
+			this.graph.getModel().clear();
+			this.editor.setGraphXml(xmlNode);
+			visible = this.setLayersVisible(true);
+		}
+		finally
+		{
+			this.graph.getModel().endUpdate();
+		}
+	
 		if (!this.responsive)
 		{				
 			// Restores initial CSS state
@@ -577,6 +636,11 @@ GraphViewer.prototype.setGraphXml = function(xmlNode)
 			translate: this.graph.view.translate.clone(),
 			scale: this.graph.view.scale
 		};
+				
+		if (visible)
+		{
+			this.setLayersVisible(visible);
+		}
 	}
 };
 
@@ -1261,6 +1325,35 @@ GraphViewer.prototype.addToolbar = function()
 							{
 								this.crop();
 							}
+							else if (this.autoOrigin)
+							{
+								var bounds = this.graph.getGraphBounds();
+								var v = this.graph.view;
+	
+								if (bounds.x < 0 || bounds.y < 0)
+								{
+									this.crop();
+									this.graph.originalViewState = this.graph.initialViewState;
+
+									this.graph.initialViewState = {
+										translate: v.translate.clone(),
+										scale: v.scale
+									};
+								}
+								else if (this.graph.originalViewState != null &&
+									bounds.x / v.scale + this.graph.originalViewState.translate.x - v.translate.x > 0 &&
+									bounds.y / v.scale + this.graph.originalViewState.translate.y - v.translate.y > 0)
+								{
+									v.setTranslate(this.graph.originalViewState.translate.x,
+										this.graph.originalViewState.translate.y);
+									this.graph.originalViewState = null;
+									
+									this.graph.initialViewState = {
+										translate: v.translate.clone(),
+										scale: v.scale
+									};
+								}
+							}
 						}));
 						
 						mxEvent.addListener(layersDialog, 'mouseleave', function()
@@ -1280,8 +1373,8 @@ GraphViewer.prototype.addToolbar = function()
 						layersDialog.style.zIndex = this.toolbarZIndex + 1;
 						mxUtils.setOpacity(layersDialog, 80);
 						var origin = mxUtils.getDocumentScrollOrigin(document);
-						layersDialog.style.left = origin.x + r.left + 'px';
-						layersDialog.style.top = origin.y + r.bottom + 'px';
+						layersDialog.style.left = origin.x + r.left - 1 + 'px';
+						layersDialog.style.top = origin.y + r.bottom - 2 + 'px';
 						
 						document.body.appendChild(layersDialog);
 					}
@@ -1311,7 +1404,7 @@ GraphViewer.prototype.addToolbar = function()
 			
 			if (def != null)
 			{
-				addButton((def.enabled == null || def.enabled) ? def.handler : function() {},
+				def.elem = addButton((def.enabled == null || def.enabled) ? def.handler : function() {},
 					def.image, def.title, def.enabled);
 			}
 		}
@@ -1443,6 +1536,22 @@ GraphViewer.prototype.addToolbar = function()
 				enter();
 			}
 		}).observe(container)
+	}
+};
+
+GraphViewer.prototype.disableButton = function(token)
+{
+	var def = this.graphConfig['toolbar-buttons'][token];
+			
+	if (def != null)
+	{
+		mxUtils.setOpacity(def.elem, 30);
+		mxEvent.removeListener(def.elem, 'click', def.handler);
+		//Workaround to stop highlighting the disabled button
+		mxEvent.addListener(def.elem, 'mouseenter', function()
+		{
+			def.elem.style.backgroundColor = '#eee';
+		});
 	}
 };
 

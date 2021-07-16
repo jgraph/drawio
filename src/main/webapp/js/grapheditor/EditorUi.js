@@ -2284,7 +2284,7 @@ EditorUi.prototype.initCanvas = function()
 				for (var i = 0; i < this.lightboxToolbarActions.length; i++)
 				{
 					var lbAction = this.lightboxToolbarActions[i];
-					addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
+					lbAction.elem = addButton(lbAction.fn, lbAction.icon, lbAction.tooltip);
 				}
 			}
 

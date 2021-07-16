@@ -376,6 +376,22 @@ if (urlParams['offline'] == '1' || urlParams['demo'] == '1' ||
 	urlParams['gl'] = '0';
 	urlParams['tr'] = '0';
 }
+// Do not insert code between above and below blocks
+// se mode. Ensure this comes after the block above. 
+if (window.location.hostname == 'se.diagrams.net')
+{
+	urlParams['db'] = '0';
+	urlParams['od'] = '0';
+	urlParams['gh'] = '0';
+	urlParams['gl'] = '0';
+	urlParams['tr'] = '0';
+	urlParams['plugins'] = '0';
+	urlParams['mode'] = 'google';
+	urlParams['lockdown'] = '1'; // Do not want to apply lockdown true to above block
+
+	window.DRAWIO_GOOGLE_APP_ID = window.DRAWIO_GOOGLE_APP_ID || '184079235871';
+	window.DRAWIO_GOOGLE_CLIENT_ID = window.DRAWIO_GOOGLE_CLIENT_ID || '184079235871-pjf5nn0lff27lk8qf0770gmffiv9gt61.apps.googleusercontent.com';
+}
 
 // Disables Trello client by default
 if (urlParams['mode'] == 'trello')
@@ -387,7 +403,9 @@ if (urlParams['mode'] == 'trello')
 if (window.location.hostname == 'embed.diagrams.net')
 {
 	urlParams['embed'] = '1';
-}	
+}
+
+
 
 // Fallback for cases where the hash property is not available
 if ((window.location.hash == null || window.location.hash.length <= 1) &&
