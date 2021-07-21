@@ -2296,7 +2296,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 			
 			if (constrainCheckbox.checked)
 			{
-				geo.height = Math.round((geo.height  * value * 100) / geo.width) / 100;
+				geo.height = Math.round((geo.height * value * 100) / geo.width) / 100;
 			}
 			
 			geo.width = value;

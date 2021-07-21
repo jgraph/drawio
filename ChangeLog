@@ -1,3 +1,8 @@
+21-JUL-2021: 14.9.1
+
+- [conf cloud] Fixes pending updates of embedded macros
+- Fixes autosize for wrapped text, ignored aspect
+
 16-JUL-2021: 14.9.0
 
 - Adds support for se.diagrams.net domain
