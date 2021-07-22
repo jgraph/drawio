@@ -596,6 +596,7 @@ properties=Eigenschappen
 publish=Publiceren
 quickStart=Introductievideo
 rack=Rek
+radial=Radial
 radialTree=Radiale boom
 readOnly=Alleen-lezen
 reconnecting=Opnieuw verbinden

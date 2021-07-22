@@ -350,6 +350,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 		catch (Exception e) 
 		{
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			log.log(Level.SEVERE, "AUTH-SERVLET: [" + request.getRemoteAddr()+ "] ERROR: " + e.getMessage());
 		}
 	}
 
@@ -565,6 +566,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 				e.printStackTrace();
 				System.err.println(details);
+				log.log(Level.SEVERE, "AUTH-SERVLET: [" + authSrvUrl+ "] ERROR: " + e.getMessage() + " -> " + details.toString());
 			}
 			
 			if (DEBUG)

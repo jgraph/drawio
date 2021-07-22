@@ -596,6 +596,7 @@ properties=Właściwości
 publish=Publikuj
 quickStart=Szybki start (wideo)
 rack=Szafa serwerowa
+radial=Radial
 radialTree=Drzewo radialne
 readOnly=Tylko do odczytu
 reconnecting=Łączę ponownie

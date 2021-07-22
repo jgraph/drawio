@@ -596,6 +596,7 @@ properties=Propietateak
 publish=Argitaratu
 quickStart=Abio bizkorreko bideoa
 rack=Armairua
+radial=Radial
 radialTree=Zuhaitz radiala
 readOnly=Irakurtzeko soilik
 reconnecting=Berriro konektatzen

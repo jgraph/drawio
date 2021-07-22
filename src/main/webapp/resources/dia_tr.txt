@@ -596,6 +596,7 @@ properties=Özellikler
 publish=Yayınla
 quickStart=Hızlı başlama video
 rack=Mikroişlemci şasisi
+radial=Radial
 radialTree=Dairesel ağaç
 readOnly=Salt okunur
 reconnecting=Yeniden bağlanıyor

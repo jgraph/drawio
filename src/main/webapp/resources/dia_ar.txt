@@ -596,6 +596,7 @@ properties=‫خواص‬
 publish=Publish
 quickStart=‫دليل البدء فيديو‬
 rack=Rack
+radial=Radial
 radialTree=‫شجرة شعاعية‬
 readOnly=‫قراءة فقط‬
 reconnecting=‫إعادة الإتصال‬

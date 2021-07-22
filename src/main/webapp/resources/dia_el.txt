@@ -596,6 +596,7 @@ properties=Ιδιότητες
 publish=Δημοσίευση
 quickStart=Γρήγορη εκκίνηση βίντεο
 rack=Ράφι
+radial=Radial
 radialTree=Ακτινικό Δέντρο
 readOnly=Ανάγνωση μόνο
 reconnecting=Επανασύνδεση

@@ -596,6 +596,7 @@ properties=Eigenschaften
 publish=Veröffentlichen
 quickStart=Erste Schritte Video
 rack=Rack
+radial=Radial
 radialTree=Radialer Baum
 readOnly=Nur Lesen
 reconnecting=Verbindungswiederherstellung

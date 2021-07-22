@@ -596,6 +596,7 @@ properties=‫خواص‬
 publish=‫انتشار‬
 quickStart=‫ویدئوی شروع سریع‬
 rack=‫ردیف‬
+radial=Radial
 radialTree=‫درخت شعاعی‬
 readOnly=‫فقط خواندنی‬
 reconnecting=‫اتصال مجدد‬

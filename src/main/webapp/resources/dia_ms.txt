@@ -596,6 +596,7 @@ properties=Sifat-sifat
 publish=Terbit
 quickStart=Mulakan Pantas Video
 rack=Rak
+radial=Radial
 radialTree=Pohon Radial
 readOnly=Baca sahaja
 reconnecting=Sambung semula

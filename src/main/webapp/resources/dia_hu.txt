@@ -596,6 +596,7 @@ properties=Tulajdonságok
 publish=Közzétesz
 quickStart=Gyors indítás videó
 rack=Rack
+radial=Radial
 radialTree=Radiális fa
 readOnly=Csak olvasható
 reconnecting=Újracsatlakoztatás

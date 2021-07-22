@@ -596,6 +596,7 @@ properties=Ominaisuudet
 publish=Julkaise
 quickStart=Pika-aloitusvideo
 rack=Teline
+radial=Radial
 radialTree=Säteittäinen puu
 readOnly=Vain luku
 reconnecting=Yhdistetään uudelleen

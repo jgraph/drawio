@@ -596,6 +596,7 @@ properties=Властивості
 publish=Оприлюднити
 quickStart=Швидко розпочати видиво
 rack=Стійки
+radial=Radial
 radialTree=Дерево по колу
 readOnly=Лише для читання
 reconnecting=Повторне підключення

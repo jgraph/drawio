@@ -596,6 +596,7 @@ properties=属性
 publish=发布
 quickStart=快速入门视频
 rack=机架
+radial=Radial
 radialTree=径向树
 readOnly=只读
 reconnecting=重新连接

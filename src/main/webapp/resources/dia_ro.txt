@@ -596,6 +596,7 @@ properties=Caracteristici
 publish=Publică
 quickStart=Introducere rapidă video
 rack=Rack
+radial=Radial
 radialTree=Arbore radial
 readOnly=Doar pentru citit
 reconnecting=Reconectare

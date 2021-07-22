@@ -596,6 +596,7 @@ properties=Properti
 publish=Publikasikan
 quickStart=Mulai Cepat Video
 rack=Rak
+radial=Radial
 radialTree=Pohon Radial
 readOnly=Baca saja
 reconnecting=Menghubungkan ulang

@@ -596,6 +596,7 @@ properties=Mga katangian
 publish=Ilathala
 quickStart=Agarang pag-andar ng video
 rack=Salansanan
+radial=Radial
 radialTree=Istrukturang Pabilog
 readOnly=Pagbasa lang
 reconnecting=Muling kumukonekta

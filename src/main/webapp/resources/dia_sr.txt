@@ -596,6 +596,7 @@ properties=Osobine
 publish=Publish
 quickStart=Quick Start Video
 rack=Rack
+radial=Radial
 radialTree=Radijalno drvo
 readOnly=Samo čitanje
 reconnecting=Rekonekcija

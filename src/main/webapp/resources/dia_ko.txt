@@ -596,6 +596,7 @@ properties=속성
 publish=게재
 quickStart=빠른 시작 비디오
 rack=랙
+radial=Radial
 radialTree=방사형 트리
 readOnly=읽기 전용
 reconnecting=다시 연결중

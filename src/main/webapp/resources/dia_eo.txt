@@ -596,6 +596,7 @@ properties=Ecoj
 publish=Publish
 quickStart=Quick Start Video
 rack=Rack
+radial=Radial
 radialTree=Radial Tree
 readOnly=Read-only
 reconnecting=Reconnecting

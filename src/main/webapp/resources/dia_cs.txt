@@ -596,6 +596,7 @@ properties=Vlastnosti
 publish=Zveřejnit
 quickStart=Rychle spustit video
 rack=Rozvaděč
+radial=Radial
 radialTree=Radiální strom
 readOnly=Jen pro čtení
 reconnecting=Připojuje se znovu

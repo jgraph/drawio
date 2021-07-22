@@ -596,6 +596,7 @@ properties=Egenskaper
 publish=Publiser
 quickStart=Hurtigstartsvideo
 rack=Reol
+radial=Radial
 radialTree=Radialt tre
 readOnly=Skrivebeskyttet
 reconnecting=Kobler til på nytt

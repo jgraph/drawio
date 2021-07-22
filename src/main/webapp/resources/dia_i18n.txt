@@ -596,6 +596,7 @@ properties=properties
 publish=publish
 quickStart=quickStart
 rack=rack
+radial=radial
 radialTree=radialTree
 readOnly=readOnly
 reconnecting=reconnecting

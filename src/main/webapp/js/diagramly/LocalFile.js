@@ -199,6 +199,9 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 					}
 				});
 				
+				// Saves a copy as a draft while saving
+				this.saveDraft();
+				
 				this.fileHandle.createWritable().then(mxUtils.bind(this, function(writable)
 				{
 					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
@@ -213,10 +216,20 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 								{
 									this.fileHandle.getFile().then(mxUtils.bind(this, function(desc)
 									{
-										var lastDesc = this.desc;
-										this.savingFile = false;
-										this.desc = desc;
-										this.fileSaved(savedData, lastDesc, done, errorWrapper);
+										try
+										{
+											var lastDesc = this.desc;
+											this.savingFile = false;
+											this.desc = desc;
+											this.fileSaved(savedData, lastDesc, done, errorWrapper);
+											
+											// Deletes draft after saving
+											this.removeDraft();
+										}
+										catch (e)
+										{
+											errorWrapper(e);
+										}
 									}), errorWrapper);
 								}), errorWrapper);
 							}), errorWrapper);

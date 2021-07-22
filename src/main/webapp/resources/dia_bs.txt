@@ -596,6 +596,7 @@ properties=Karakteristike
 publish=Objavi
 quickStart=Započni kratki video
 rack=Postolje
+radial=Radial
 radialTree=Radijalno drvo
 readOnly=Samo za pregled
 reconnecting=Ponovno povezivanje

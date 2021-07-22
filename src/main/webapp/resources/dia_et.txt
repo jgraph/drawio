@@ -596,6 +596,7 @@ properties=Omadused
 publish=Avalda
 quickStart=Video kiirkäivitus
 rack=Raam
+radial=Radial
 radialTree=Radiaalpuu
 readOnly=Ainult lugemiseks
 reconnecting=Taasühendamine

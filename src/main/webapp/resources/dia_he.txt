@@ -596,6 +596,7 @@ properties=‫מאפיינים‬
 publish=‫פרסם‬
 quickStart=‫התחלה מהירה סרטון‬
 rack=‫מדף‬
+radial=Radial
 radialTree=‫עץ רדיאלי‬
 readOnly=‫קריאה בלבד‬
 reconnecting=‫מתחבר מחדש‬

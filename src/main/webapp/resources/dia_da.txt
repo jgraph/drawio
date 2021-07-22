@@ -596,6 +596,7 @@ properties=Egenskaber
 publish=Udgiv
 quickStart=Quick Start Video
 rack=Stativ
+radial=Radial
 radialTree=Radialt træ
 readOnly=Skrivebeskyttet
 reconnecting=Gentilslutter

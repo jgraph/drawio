@@ -596,6 +596,7 @@ properties=Свойства
 publish=Опубликовать
 quickStart=Видео-знакомство (англ.)
 rack=Стойки и оборудование
+radial=Radial
 radialTree=Радиальное дерево
 readOnly=Только для чтения
 reconnecting=Восстановление соединения

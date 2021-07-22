@@ -1451,8 +1451,6 @@ DrawioFile.prototype.saveDraft = function()
 	}
 	catch (e)
 	{
-		console.error(e);
-		
 		// Removes any stored draft
 		this.removeDraft();
 	}

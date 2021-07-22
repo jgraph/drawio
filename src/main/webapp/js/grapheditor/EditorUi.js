@@ -162,7 +162,7 @@ EditorUi = function(editor, container, lightbox)
 						 ['startSize', 'endSize'],
 						 ['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
 		                 ['strokeColor', 'strokeWidth'],
-		                 ['fillColor', 'gradientColor'],
+		                 ['fillColor', 'gradientColor', 'gradientDirection'],
 		                 ['align', 'verticalAlign'],
 		                 ['opacity'],
 		                 ['html']];

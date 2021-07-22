@@ -596,6 +596,7 @@ properties=Propietats
 publish=Publica
 quickStart=Vídeo d'inici ràpid
 rack=Rack
+radial=Radial
 radialTree=Arbre radial
 readOnly=Només lectura
 reconnecting=Reconnectant

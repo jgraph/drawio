@@ -596,6 +596,7 @@ properties=屬性
 publish=發佈
 quickStart=快速入門教程
 rack=機架
+radial=Radial
 radialTree=徑向圖
 readOnly=唯讀
 reconnecting=正在重新連線

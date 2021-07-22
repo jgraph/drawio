@@ -596,6 +596,7 @@ properties=属性
 publish=発行
 quickStart=クイックスタートビデオ
 rack=ラック
+radial=Radial
 radialTree=放射状ツリー
 readOnly=読み取り専用
 reconnecting=再接続中

@@ -596,6 +596,7 @@ properties=Thuộc tính
 publish=Xuất bản
 quickStart=Bắt đầu nhanh video
 rack=Giá đỡ
+radial=Radial
 radialTree=Cây hướng tâm
 readOnly=Chỉ đọc
 reconnecting=Đang kết nối lại

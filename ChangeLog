@@ -1,3 +1,11 @@
+22-JUL-2021: 14.9.2
+
+- [conf cloud] Fixes scroll bars with hidden toolbar
+- [conf cloud] Fixes incorrect height of simple viewer
+- Adds DRAWIO_LIGHTBOX_URL https://github.com/jgraph/drawio/issues/2149
+- Creates draft while saving local file to fix possible data loss
+- Adds support for radial gradients https://github.com/jgraph/drawio/issues/1472
+
 21-JUL-2021: 14.9.1
 
 - [conf cloud] Fixes pending updates of embedded macros

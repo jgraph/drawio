@@ -596,6 +596,7 @@ properties=คุณสมบัติ
 publish=เผยแพร่
 quickStart=เล่นวีดีโอแบบด่วน
 rack=ดึง
+radial=Radial
 radialTree=กลุ่มเส้นรัศมี
 readOnly=อ่านเท่านั้น 
 reconnecting=เชื่อมต่ออีกครั้ง

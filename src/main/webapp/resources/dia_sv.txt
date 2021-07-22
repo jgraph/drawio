@@ -596,6 +596,7 @@ properties=Egenskaper
 publish=Publicera
 quickStart=Snabbstartsvideo
 rack=Rackkabinett
+radial=Radial
 radialTree=Radial träd
 readOnly=Skrivskyddad
 reconnecting=Återansluter
