@@ -102,6 +102,7 @@ compressed=‫مضغوط‬
 commitMessage=‫أكد علي تسجيل الرسالة‬
 configLinkWarn=‫هذة الوصلة تقوم بتغيرات علي draw.io . اضغط علي موافق لو كنت تثق فيمن ارسله اليك‬
 configLinkConfirm=‫اضغك علي موافق لتعدل و تعيد تشغيل draw.io‬
+container=Container
 csv=‫ملف قيم منفصلة بفاصلة‬
 dark=‫غامق‬
 diagramXmlDesc=‫ملف xml‬

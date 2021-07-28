@@ -4469,6 +4469,12 @@ LucidImporter = {};
 				//Convert text object to HTML if needed
 				try
 				{
+					//If there are 3+ consecutive spaces, most probably it's spaces to create a new line
+					if (/   /.test(txt))
+					{
+						LucidImporter.hasUnknownShapes = true;
+					}
+					
 					for (var i = 0; i < m.length; i++)
 					{
 						if (m[i].s > 0 || (m[i].e != null && m[i].e < txt.length) || m[i].n == 't' || m[i].n == 'ac' || m[i].n == 'lk')

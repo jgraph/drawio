@@ -102,6 +102,7 @@ compressed=Suspaustas
 commitMessage=Įsitraukti pranešimą
 configLinkWarn=Ši nuoroda sukonfigūruoja draw.io. Spustelėkite Gerai tik tada, jei pasitikite tuo, kas jums ją davė!
 configLinkConfirm=Spustelėkite Gerai, kad sukonfigūruotumėte ir paleistumėte draw.io iš naujo.
+container=Container
 csv=CSV
 dark=Tamsi
 diagramXmlDesc=XML failas

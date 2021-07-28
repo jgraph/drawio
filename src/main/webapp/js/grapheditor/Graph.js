@@ -5314,7 +5314,7 @@ Graph.prototype.createTable = function(rowCount, colCount, w, h, title, startSiz
 	rowStyle = (rowStyle != null) ? rowStyle : 'shape=partialRectangle;collapsible=0;dropTarget=0;' +
     	'pointerEvents=0;fillColor=none;top=0;left=0;bottom=0;right=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;';
 	cellStyle = (cellStyle != null) ? cellStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;' +
-		'overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;';
+		'overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;';
 	
 	return this.createParent(this.createVertex(null, null, (title != null) ? title : '',
 		0, 0, colCount * w, rowCount * h + ((title != null) ? startSize : 0), tableStyle),
@@ -5357,21 +5357,24 @@ Graph.prototype.setTableValues = function(table, values, rowValues)
 /**
  * 
  */
-Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, h, startSize, tableStyle, rowStyle, firstCellStyle, cellStyle)
+Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, h, title, tableStyle, rowStyle, firstCellStyle, cellStyle)
 {
 	w = (w != null) ? w : 120;
 	h = (h != null) ? h : 120;
-	startSize = (startSize != null) ? startSize : 40;
+	var startSize = (title == null) ? 0 : 40;
 	
 	var s = 'collapsible=0;recursiveResize=0;expand=0;pointerEvents=0;';
 	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;childLayout=tableLayout;' +
-			'rowLines=0;columnLines=0;startSize=' + startSize + ';' + s;
+		'rowLines=0;columnLines=0;startSize=' + startSize + ';' +
+		((title == null) ? 'fillColor=none;' : '') + s;
+		
 	rowStyle = (rowStyle != null) ? rowStyle : 'swimlane;horizontal=0;points=[[0,0.5],[1,0.5]];' +
 		'portConstraint=eastwest;startSize=' + startSize + ';' + s;
 	firstCellStyle = (firstCellStyle != null) ? firstCellStyle : 'swimlane;connectable=0;startSize=40;' + s;
-	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;connectable=0;startSize=0;' + s;
+	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;connectable=0;startSize=' +
+		((title == null) ? '40' : '0') + ';' + s;
 	
-	var table = this.createVertex(null, null, '', 0, 0,
+	var table = this.createVertex(null, null, (title != null) ? title : '', 0, 0,
 		colCount * w, rowCount * h, tableStyle);
 	var t = mxUtils.getValue(this.getCellStyle(table), mxConstants.STYLE_STARTSIZE,
 		mxConstants.DEFAULT_STARTSIZE);
@@ -6159,6 +6162,14 @@ TableLayout.prototype.execute = function(parent)
 								c.lineTo(p0.x - n.y * f, p0.y + n.x * f);
 								c.lineTo(p1.x - n.y * f, p1.y + n.x * f);
 								c.lineTo(p1.x, p1.y);
+							}
+							else if (style == 'line')
+							{
+								c.moveTo(p0.x + n.y * f, p0.y - n.x * f);
+								c.lineTo(p0.x - n.y * f, p0.y + n.x * f);
+								c.moveTo(p1.x - n.y * f, p1.y + n.x * f);
+								c.lineTo(p1.x + n.y * f, p1.y - n.x * f);
+								c.moveTo(p1.x, p1.y);
 							}
 							else if (style == 'arc')
 							{
@@ -9066,15 +9077,16 @@ if (typeof mxVertexHandler != 'undefined')
 				svgCanvas.foOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.textOffset = (crisp) ? -0.5 : 0;
 				svgCanvas.imageOffset = (crisp) ? -0.5 : 0;
-				svgCanvas.translate(Math.floor((border / scale - bounds.x) / vs),
-					Math.floor((border / scale - bounds.y) / vs));
+				svgCanvas.translate(Math.floor(border / scale - bounds.x / vs),
+					Math.floor(border / scale - bounds.y / vs));
 				
 				// Convert HTML entities
 				var htmlConverter = document.createElement('div');
 				
 				// Adds simple text fallback for viewers with no support for foreignObjects
 				var getAlternateText = svgCanvas.getAlternateText;
-				svgCanvas.getAlternateText = function(fo, x, y, w, h, str, align, valign, wrap, format, overflow, clip, rotation)
+				svgCanvas.getAlternateText = function(fo, x, y, w, h, str,
+					align, valign, wrap, format, overflow, clip, rotation)
 				{
 					// Assumes a max character width of 0.5em
 					if (str != null && this.state.fontSize > 0)

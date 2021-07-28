@@ -102,6 +102,7 @@ compressed=Trinkotua
 commitMessage=Bidali mezua
 configLinkWarn=Esteka honek draw.io konfuguratzen du. Egin klik bakarrik eman dizunaz fidatzen bazara!.
 configLinkConfirm=OK sakatu draw.io konfiguratu eta berrabiatzeko
+container=Container
 csv=CSV
 dark=Iluna
 diagramXmlDesc=XML fitxategia

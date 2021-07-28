@@ -102,6 +102,7 @@ compressed=Sıkıştırılmış
 commitMessage=Mesaj oluştur
 configLinkWarn=This link configures draw.io. Only click OK if you trust whoever gave you it!
 configLinkConfirm=draw.io'yu yapılandırıp yeniden başlatmak için Tamam'ı tıklayınız
+container=Container
 csv=CSV
 dark=Koyu
 diagramXmlDesc=XML Dosyası

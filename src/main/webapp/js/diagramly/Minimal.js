@@ -721,6 +721,11 @@ EditorUi.initMinimalTheme = function()
 		{
 			if (graph.isEnabled())
 			{
+				if (graph.getSelectionCount() == 1)
+	        	{
+					this.addMenuItems(menu, ['editTooltip'], null, evt);
+				}
+				
 				menu.addSeparator();
 				
 				if (graph.getSelectionCount() == 1)
@@ -1914,9 +1919,9 @@ EditorUi.initMinimalTheme = function()
 						' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 					addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 						'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
-						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;sketch=1;shadow=1;size=20;' +
-						'fontSize=24;jiggle=2;pointerEvents=1;', 140, 160, '', mxResources.get('note'), true, true,
-						null, true), mxResources.get('note'));
+						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;fontSize=24;' +
+						'pointerEvents=1;' + ((urlParams['rough'] != '0') ? 'sketch=1;jiggle=2;' : ''),
+						140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
 					addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
 						'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
 						' (' +  Editor.ctrlKey + '+K' + ')');
@@ -1926,8 +1931,9 @@ EditorUi.initMinimalTheme = function()
 					(function()
 					{
 						var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength, 0),
-							'edgeStyle=none;curved=1;rounded=0;sketch=1;orthogonalLoop=1;jettySize=auto;html=1;' +
-							'endArrow=open;sourcePerimeterSpacing=8;targetPerimeterSpacing=8;fontSize=16;');
+							'edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;' +
+							'endArrow=open;sourcePerimeterSpacing=8;targetPerimeterSpacing=8;fontSize=16;' +
+							((urlParams['rough'] != '0') ? 'sketch=1;' : ''));
 						cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 0), false);
 						cell.geometry.points = [];

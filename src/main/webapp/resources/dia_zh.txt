@@ -102,6 +102,7 @@ compressed=已压缩
 commitMessage=提交信息
 configLinkWarn=该链接将配置 draw.io. 仅当您信任提供给你链接的人时点击确定.
 configLinkConfirm=点击确定配置并重启 draw.io
+container=Container
 csv=CSV
 dark=Dark
 diagramXmlDesc=XML 文件

@@ -102,6 +102,7 @@ compressed=Comprimit
 commitMessage=Missatge de la comissió
 configLinkWarn=L'enllaç configura el draw.io. Feu clic a "D'acord" només si confieu en la persona que us l'ha enviat.
 configLinkConfirm=Feu clic a "D'acord" per configurar i reiniciar el draw.io.
+container=Container
 csv=CSV
 dark=Fosc
 diagramXmlDesc=Fitxer XML

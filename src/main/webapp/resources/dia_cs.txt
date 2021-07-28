@@ -102,6 +102,7 @@ compressed=Komprimováno
 commitMessage=Zpráva u commitu
 configLinkWarn=Tento odkaz nastaví draw.io. Na OK klikněte pouze pokud věříte jeho původu!
 configLinkConfirm=Pokud chcete nastavit a restartovat draw.io, klikněte na OK.
+container=Container
 csv=CSV
 dark=Tmavé
 diagramXmlDesc=XML soubor

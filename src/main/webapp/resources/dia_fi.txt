@@ -102,6 +102,7 @@ compressed=Pakattu
 commitMessage=Lähetä viesti
 configLinkWarn=Tämä linkki määrittää draw.io:n. Napsauta OK vain, jos luotat siihen tahoon, joka antoi sen sinulle!
 configLinkConfirm=Määritä ja käynnistä draw.io uudelleen napsauttamalla OK.
+container=Container
 csv=CSV
 dark=Tumma
 diagramXmlDesc=XML-tiedosto

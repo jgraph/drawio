@@ -102,6 +102,7 @@ compressed=Comprimido
 commitMessage=Enviar mensaxe
 configLinkWarn=Este vencello configura draw.io. Simplemente preme OK se confías na persoa que cho enviou!
 configLinkConfirm=Preme OK para configurar e reiniciar draw.io
+container=Container
 csv=Valores separados por vírgulas (CSV) 
 dark=Escuro 
 diagramXmlDesc=Arquivo XML

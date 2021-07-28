@@ -102,6 +102,7 @@ compressed=Pakitud
 commitMessage=Kinnita sõnum
 configLinkWarn=See link seadistab draw.io. Vali OK vaid juhul kui usaldad isikut, kes sulle selle saatis !!
 configLinkConfirm=Vali OK et draw.io seadistada ja uuesti laadida.
+container=Container
 csv=CSV
 dark=Tume
 diagramXmlDesc=XML File

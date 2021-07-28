@@ -1,3 +1,18 @@
+28-JUL-2021: 14.9.3
+
+- Fixes pointer events for table cells in sketch theme
+- Adds title and container option for insert table drop down
+- Fixes possible cropping in SVG export https://github.com/jgraph/drawio/issues/1216
+- Fixes e.data.indexOf is not a function in OneDrive client
+- Adds edit tooltip in context menu for sketch mode
+- Adds dash line jump style https://github.com/jgraph/drawio/issues/1852
+- Fixes rough URL parameter, possible missing sidebar preview
+- [conf cloud] Fixes multiple embedded diagrams with the same name editing issue
+- Disables plugins action for plugins=0 https://github.com/jgraph/drawio/issues/2148
+- [conf cloud] Adds a fallback for AP is undefined error
+- Updates it tranlsations. Thanks to Vincenzo Reale
+- Updates el tranlsations. Thanks to Io Papadimitriou
+
 22-JUL-2021: 14.9.2
 
 - [conf cloud] Fixes scroll bars with hidden toolbar

@@ -102,6 +102,7 @@ compressed=Kompresovano
 commitMessage=Posveti poruku
 configLinkWarn= 
 configLinkConfirm=Click OK to configure and restart draw.io.
+container=Container
 csv=CSV
 dark=Dark
 diagramXmlDesc=XML File

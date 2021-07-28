@@ -102,6 +102,7 @@ compressed=Komprimerad
 commitMessage=Commit-meddelande
 configLinkWarn=Länken konfigurerar draw.io. Klicka bara OK om du litar på den du fick den av!
 configLinkConfirm=Klicka OK för att konfigurera och starta om draw.io
+container=Container
 csv=CSV
 dark=Mörkt
 diagramXmlDesc=XML-fil

@@ -102,6 +102,7 @@ compressed=Сжато
 commitMessage=Сообщение при коммите
 configLinkWarn=Эта ссылка настраивает draw.io. Нажмите ОК только, если Вы доверяете тому, кто её Вам дал!
 configLinkConfirm=Нажмите ОК, чтобы настроить и перезапустить draw.io.
+container=Container
 csv=CSV
 dark=Тёмная
 diagramXmlDesc=XML файл

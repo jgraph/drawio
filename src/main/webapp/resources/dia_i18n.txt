@@ -102,6 +102,7 @@ compressed=compressed
 commitMessage=commitMessage
 configLinkWarn=configLinkWarn
 configLinkConfirm=configLinkConfirm
+container=container
 csv=csv
 dark=dark
 diagramXmlDesc=diagramXmlDesc
