@@ -714,9 +714,10 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 			    	{
 			    		error(this.parseRequestText(req));
 			    	}
-				}), binary || (meta.file != null && meta.file.mimeType != null &&
-					(meta.file.mimeType.substring(0, 6) == 'image/' ||
-					meta.file.mimeType == 'application/pdf')));
+				}), ((meta.file != null && meta.file.mimeType != null &&
+						meta.file.mimeType.substring(0, 6) == 'image/' &&
+						meta.file.mimeType.substring(0, 9) != 'image/svg')) || /\.png$/i.test(meta.name) ||
+					/\.jpe?g$/i.test(meta.name) || /\.pdf$/i.test(meta.name));
 			}
 		}
 		else
