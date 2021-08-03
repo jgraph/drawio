@@ -31,219 +31,10 @@ Draw.loadPlugin(function(editorUi)
 		
 		editorUi.menus.addMenuItems(menu, ['-', 'animation'], parent);
 	};
-	
-	// For animation and fading
-	function getNodesForCells(graph, cells)
-	{
-		var nodes = [];
-		
-		for (var i = 0; i < cells.length; i++)
-		{
-			var state = graph.view.getState(cells[i]);
-			
-			if (state != null)
-			{
-				var shapes = graph.cellRenderer.getShapesForState(state);
-				
-				for (var j = 0; j < shapes.length; j++)
-				{
-					if (shapes[j] != null && shapes[j].node != null)
-					{
-						nodes.push(shapes[j].node);
-					}
-				}
-				
-				// Adds folding icon
-				if (state.control != null && state.control.node != null)
-				{
-					nodes.push(state.control.node);
-				}
-			}
-		}
-		
-		return nodes;
-	};
-	
-	function fadeIn(nodes)
-	{
-		if (nodes != null)
-		{
-			for (var i = 0; i < nodes.length; i++)
-			{
-				mxUtils.setPrefixedStyle(nodes[i].style, 'transition', null);
-				nodes[i].style.opacity = '0';
-			}
-			
-			window.setTimeout(function()
-			{
-				for (var i = 0; i < nodes.length; i++)
-				{
-					mxUtils.setPrefixedStyle(nodes[i].style, 'transition', 'all 1s ease-in-out');
-					nodes[i].style.opacity = '1';
-				}
-			}, 0);
-		}
-	};
-	
-	function fadeOut(nodes)
-	{
-		if (nodes != null)
-		{
-			for (var i = 0; i < nodes.length; i++)
-			{
-				mxUtils.setPrefixedStyle(nodes[i].style, 'transition', null);
-				nodes[i].style.opacity = '1';
-			}
-			
-			window.setTimeout(function()
-			{
-				for (var i = 0; i < nodes.length; i++)
-				{
-					mxUtils.setPrefixedStyle(nodes[i].style, 'transition', 'all 1s ease-in-out');
-					nodes[i].style.opacity = '0';
-				}
-			}, 0);
-		}
-	};
-	
-	function createEdgeAnimation(state)
-	{
-		var pts = state.absolutePoints.slice();
-		var segs = state.segments;
-		var total = state.length;
-		var n = pts.length;
-
-		return {
-			execute: function(step, steps)
-			{
-				if (state.shape != null)
-				{
-					var pts2 = [pts[0]];
-					var dist = total * step / steps;
-					
-					for (var i = 1; i < n; i++)
-					{
-						if (dist <= segs[i - 1])
-						{
-							pts2.push(new mxPoint(pts[i - 1].x + (pts[i].x - pts[i - 1].x) * dist / segs[i - 1],
-								pts[i - 1].y + (pts[i].y - pts[i - 1].y) * dist / segs[i - 1]));
-							
-							break;
-						}
-						else
-						{
-							dist -= segs[i - 1];
-							pts2.push(pts[i]);
-						}
-					}
-					
-					state.shape.points = pts2;
-					state.shape.redraw();
-				}
-			},
-			stop: function()
-			{
-				if (state.shape != null)
-				{
-					state.shape.points = pts;
-					state.shape.redraw();
-				}
-			}
-		};
-	};
-	
-	function createVertexAnimation(state)
-	{
-		var bds = new mxRectangle.fromRectangle(state.shape.bounds);
-		var ttr = null;
-		
-		if (state.text != null && state.text.node != null && state.text.node.firstChild != null)
-		{
-			ttr = state.text.node.firstChild.getAttribute('transform');
-		}
-		
-		return {
-			execute: function(step, steps)
-			{
-				if (state.shape != null)
-				{
-					var f = step / steps;
-					state.shape.bounds = new mxRectangle(bds.x, bds.y, bds.width * f, bds.height);
-					state.shape.redraw();
-					
-					// Text is animated using CSS3 transitions
-					if (ttr != null)
-					{
-						state.text.node.firstChild.setAttribute('transform', ttr + ' scale(' + f + ',1)');
-					}
-				}
-			},
-			stop: function()
-			{
-				if (state.shape != null)
-				{
-					state.shape.bounds = bds;
-					state.shape.redraw();
-					
-					if (ttr != null)
-					{
-						state.text.node.firstChild.setAttribute('transform', ttr);
-					}
-				}
-			}
-		};
-	};
 
 	function animateCells(graph, cells, steps, delay)
 	{
-		steps = (steps != null) ? steps : 30;
-		delay = (delay != null) ? delay : 30;
-		
-		var animations = [];
-		
-		for (var i = 0; i < cells.length; i++)
-		{
-			var state = graph.view.getState(cells[i]);
-
-			if (state != null && state.shape != null && graph.model.isEdge(state.cell) &&
-				state.absolutePoints != null && state.absolutePoints.length > 1)
-			{
-				animations.push(createEdgeAnimation(state));
-			}
-			else if (state != null && graph.model.isVertex(state.cell) &&
-					state.shape != null && state.shape.bounds != null)
-			{
-				animations.push(createVertexAnimation(state));
-				// TODO: include descendants
-			}
-		}
-		
-		var step = 0;
-		
-		function animate()
-		{
-			if (step == steps)
-			{
-				window.clearInterval(thread);
-				
-				for (var i = 0; i < animations.length; i++)
-				{
-					animations[i].stop();
-				}
-			}
-			else
-			{
-				for (var i = 0; i < animations.length; i++)
-				{
-					animations[i].execute(step, steps);
-				}
-				
-				step++;							
-			}
-		}
-		
-		var thread = window.setInterval(animate, delay);
-		animate();
+		graph.executeAnimations(graph.createWipeAnimations(cells, true), null, steps, delay);
 	};
 	
 	function mapCell(cell, clone, mapping)
@@ -329,7 +120,7 @@ Draw.loadPlugin(function(editorUi)
 										
 										if (tokens.length > 2 && tokens[2] == 'fade')
 										{
-											fadeIn(getNodesForCells(graph, [cell]));
+											Graph.fadeNodes(graph.getNodesForCells([cell]), 0, 1);
 										}
 										else
 										{
@@ -340,12 +131,12 @@ Draw.loadPlugin(function(editorUi)
 									{
 					                    if (graph.model.isEdge(cell))
 					                    {
-					                      toggleFlowAnim(graph, [cell], tokens[2]);
+					                      	toggleFlowAnim(graph, [cell], tokens[2]);
 					                    }
 									}
 									else if (tokens[0] == 'hide')
 									{
-										fadeOut(getNodesForCells(graph, [cell]));
+										graph.fadeNodes(graph.getNodesForCells([cell]), false);
 									}
 								}
 								else
@@ -597,7 +388,7 @@ Draw.loadPlugin(function(editorUi)
   {
     graph.setCellStyles('opacity', '100', cell);
     graph.setCellStyles('noLabel', null, [cell]);
-		nodes = getNodesForCells(graph, [cell]);
+		nodes = graph.getNodesForCells([cell]);
 		if (nodes != null)
     {
 			for (var i = 0; i < nodes.length; i++)

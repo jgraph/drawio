@@ -1152,5 +1152,5 @@ lastModifiedOn=Azken aldaketaren data:
 searchResults=Bilatu emaitzak
 showAllTemps=Erakutsi txantiloi guztiak
 notionToken=Notion Token
-selectDB=Select Database
+selectDB=Hautatu datubasea
 noDBs=No Databases

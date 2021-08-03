@@ -1,3 +1,18 @@
+03-JUL-2021: 14.9.4
+
+- Executes actions in sequence, adds animation custom actions https://github.com/jgraph/drawio/issues/1861
+- Fixes update of cell IDs in style actions
+- Adds stopping for custom action sequences
+- Fixes naming for parallel animations
+- [conf cloud] Adds timeout config
+- Updates it tranlsations. Thanks to Vincenzo Reale
+- Fixes cloning for actions, final animation state
+- [jira cloud] Adds back Confluence embed using new API
+- Fixes update of custom actions for copy, duplicate and recursion
+- Hides tooltip if mouse enters link hint
+- Fixes loading SVG from OneDrive https://github.com/jgraph/drawio/issues/2161
+- Adds data extraction to props plugin
+
 28-JUL-2021: 14.9.3
 
 - Fixes pointer events for table cells in sketch theme

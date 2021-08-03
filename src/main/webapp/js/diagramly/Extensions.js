@@ -3893,7 +3893,7 @@ LucidImporter = {};
 			return nonBlockStyles[m.n];
 		});
 		
-		//To prevent losing begining of a label when first one is not at zero (links case) 
+		//To prevent losing beginning of a label when first one is not at zero (links case) 
 		if (m[0] && m[0].s != 0)
 		{
 			m.unshift({s: 0, n: 'dummy', v: '', e: m[0].s});

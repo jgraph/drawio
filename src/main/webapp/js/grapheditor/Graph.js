@@ -1471,7 +1471,6 @@ Graph.arrayBufferIndexOfString = function (uint8Array, str, start)
  */
 Graph.compress = function(data, deflate)
 {
-
 	if (data == null || data.length == 0 || typeof(pako) === 'undefined')
 	{
 		return data;
@@ -1503,6 +1502,55 @@ Graph.decompress = function(data, inflate, checked)
 
 		return (checked) ? inflated : Graph.zapGremlins(inflated);
 	}
+};
+
+/**
+ * Fades the given nodes in or out.
+ */
+Graph.fadeNodes = function(nodes, start, end, done, delay)
+{
+	delay = (delay != null) ? delay : 1000;
+	Graph.setTransitionForNodes(nodes, null);
+	Graph.setOpacityForNodes(nodes, start);
+
+	window.setTimeout(function()
+	{
+		Graph.setTransitionForNodes(nodes,
+			'all ' + delay + 'ms ease-in-out');
+		Graph.setOpacityForNodes(nodes, end);
+
+		window.setTimeout(function()
+		{
+			Graph.setTransitionForNodes(nodes, null);
+
+			if (done != null)
+			{
+				done();
+			}
+		}, delay);
+	}, 0);
+};
+
+/**
+ * Sets the transition for the given nodes.
+ */
+Graph.setTransitionForNodes = function(nodes, transition)
+{
+	 for (var i = 0; i < nodes.length; i++)
+	 {
+		mxUtils.setPrefixedStyle(nodes[i].style, 'transition', transition);
+	 }
+};
+
+/**
+ * Sets the opacity for the given nodes.
+ */
+Graph.setOpacityForNodes = function(nodes, opacity)
+{
+	 for (var i = 0; i < nodes.length; i++)
+	 {
+		nodes[i].style.opacity = opacity;
+	 }
 };
 
 /**
@@ -2802,6 +2850,236 @@ Graph.prototype.initLayoutManager = function()
 	};
 };
 
+/**
+ * Returns the DOM nodes for the given cells.
+ */
+Graph.prototype.getNodesForCells = function(cells)
+{
+	var nodes = [];
+	
+	for (var i = 0; i < cells.length; i++)
+	{
+		var state = this.view.getState(cells[i]);
+		
+		if (state != null)
+		{
+			var shapes = this.cellRenderer.getShapesForState(state);
+			
+			for (var j = 0; j < shapes.length; j++)
+			{
+				if (shapes[j] != null && shapes[j].node != null)
+				{
+					nodes.push(shapes[j].node);
+				}
+			}
+			
+			// Adds folding icon
+			if (state.control != null && state.control.node != null)
+			{
+				nodes.push(state.control.node);
+			}
+		}
+	}
+	
+	return nodes;
+};
+
+/**
+ * Creates animations for the given cells.
+ */
+ Graph.prototype.createWipeAnimations = function(cells, wipeIn)
+ {
+	var animations = [];
+	
+	for (var i = 0; i < cells.length; i++)
+	{
+		var state = this.view.getState(cells[i]);
+
+		if (state != null && state.shape != null)
+		{
+			// TODO: include descendants
+			if (this.model.isEdge(state.cell) &&
+				state.absolutePoints != null &&
+				state.absolutePoints.length > 1)
+			{
+				animations.push(this.createEdgeWipeAnimation(state, wipeIn));
+			}
+			else if (this.model.isVertex(state.cell) &&
+				state.shape.bounds != null)
+			{
+				animations.push(this.createVertexWipeAnimation(state, wipeIn));
+			}
+		}
+	}
+
+	return animations;
+};
+
+/**
+ * Creates an object to show the given edge cell state.
+ */
+Graph.prototype.createEdgeWipeAnimation = function(state, wipeIn)
+{
+	var pts = state.absolutePoints.slice();
+	var segs = state.segments;
+	var total = state.length;
+	var n = pts.length;
+ 
+	return {
+		execute: mxUtils.bind(this, function(step, steps)
+		{
+			if (state.shape != null)
+			{
+				var pts2 = [pts[0]];
+				var f = step / steps;
+
+				if (!wipeIn)
+				{
+					f = 1 - f;
+				}
+
+				var dist = total * f;
+
+				for (var i = 1; i < n; i++)
+				{
+					if (dist <= segs[i - 1])
+					{
+						pts2.push(new mxPoint(pts[i - 1].x + (pts[i].x - pts[i - 1].x) * dist / segs[i - 1],
+							pts[i - 1].y + (pts[i].y - pts[i - 1].y) * dist / segs[i - 1]));
+						 
+						break;
+					}
+					else
+					{
+						dist -= segs[i - 1];
+						pts2.push(pts[i]);
+					}
+				}
+			
+				state.shape.points = pts2;
+				state.shape.redraw();
+
+				if (step == 0)
+				{
+					Graph.setOpacityForNodes(this.getNodesForCells([state.cell]), 1);
+				}
+
+				if (state.text != null && state.text.node != null)
+				{
+					state.text.node.style.opacity = f;
+				}
+			}
+		}),
+		stop: mxUtils.bind(this, function()
+		{
+			if (state.shape != null)
+			{
+				state.shape.points = pts;
+				state.shape.redraw();
+
+				if (state.text != null && state.text.node != null)
+				{
+					state.text.node.style.opacity = ''
+				}
+
+				Graph.setOpacityForNodes(this.getNodesForCells([state.cell]), (wipeIn) ? 1 : 0);
+			}
+		})
+	};
+};
+  
+ /**
+  * Creates an object to show the given vertex cell state.
+  */
+Graph.prototype.createVertexWipeAnimation = function(state, wipeIn)
+{
+	var bds = new mxRectangle.fromRectangle(state.shape.bounds);
+
+	return {
+		execute: mxUtils.bind(this, function(step, steps)
+		{
+			if (state.shape != null)
+			{
+				var f = step / steps;
+
+				if (!wipeIn)
+				{
+					f = 1 - f;
+				}
+
+				state.shape.bounds = new mxRectangle(bds.x, bds.y, bds.width * f, bds.height);
+				state.shape.redraw();
+
+				if (step == 0)
+				{
+					Graph.setOpacityForNodes(this.getNodesForCells([state.cell]), 1);
+				}
+
+				if (state.text != null && state.text.node != null)
+				{
+					state.text.node.style.opacity = f;
+				}
+			}
+		}),
+		stop: mxUtils.bind(this, function()
+		{
+			if (state.shape != null)
+			{
+				state.shape.bounds = bds;
+				state.shape.redraw();
+			
+				if (state.text != null && state.text.node != null)
+				{
+					state.text.node.style.opacity = ''
+				}
+
+				Graph.setOpacityForNodes(this.getNodesForCells([state.cell]), (wipeIn) ? 1 : 0);
+			}
+		})
+	};
+};
+
+/**
+ * Runs the animations for the given cells.
+ */
+ Graph.prototype.executeAnimations = function(animations, done, steps, delay)
+ {
+	steps = (steps != null) ? steps : 30;
+	delay = (delay != null) ? delay : 30;
+	var thread = null;
+	var step = 0;
+	
+	var animate = mxUtils.bind(this, function()
+	{
+		if (step == steps || this.stoppingCustomActions)
+		{
+			window.clearInterval(thread);
+			
+			for (var i = 0; i < animations.length; i++)
+			{
+				animations[i].stop();
+			}
+
+			if (done != null)
+			{
+				done();
+			}
+		}
+		else
+		{
+			for (var i = 0; i < animations.length; i++)
+			{
+				animations[i].execute(step, steps);
+			}
+		}
+
+		step++;
+	});
+	
+	thread = window.setInterval(animate, delay);
+	animate();
+};
+ 
 /**
  * Returns the size of the page format scaled with the page size.
  */
@@ -7490,15 +7768,18 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
-		 * Updates cells IDs for custom links in the given cells.
+		 * Updates cells IDs for custom links in the given cells using an
+		 * optional graph to avoid changing the undo history.
 		 */
-		Graph.prototype.updateCustomLinks = function(mapping, cells)
+		Graph.prototype.updateCustomLinks = function(mapping, cells, graph)
 		{
+			graph = (graph != null) ? graph : new Graph();
+
 			for (var i = 0; i < cells.length; i++)
 			{
 				if (cells[i] != null)
 				{
-					this.updateCustomLinksForCell(mapping, cells[i]);
+					graph.updateCustomLinksForCell(mapping, cells[i], graph);
 				}
 			}
 		};
@@ -7508,9 +7789,24 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.updateCustomLinksForCell = function(mapping, cell)
 		{
-			// Hook for subclassers
+			this.doUpdateCustomLinksForCell(mapping, cell);
+			var childCount = this.model.getChildCount(cell);
+				
+			for (var i = 0; i < childCount; i++)
+			{
+				this.updateCustomLinksForCell(mapping,
+					this.model.getChildAt(cell, i));
+			}
 		};
-		
+				
+		/**
+		 * Updates cell IDs in custom links on the given cell and its label.
+		 */
+		 Graph.prototype.doUpdateCustomLinksForCell = function(mapping, cell)
+		 {
+			 // Hook for subclassers
+		 };
+		 
 		/**
 		 * Overrides method to provide connection constraints for shapes.
 		 */
@@ -8691,7 +8987,10 @@ if (typeof mxVertexHandler != 'undefined')
 			model.beginUpdate();
 			try
 			{
-				var clones = this.cloneCells(cells, false, null, true);
+
+				var cloneMap = new Object();
+				var lookup = this.createCellLookup(cells);
+				var clones = this.cloneCells(cells, false, cloneMap, true);
 				
 				for (var i = 0; i < cells.length; i++)
 				{
@@ -8724,6 +9023,9 @@ if (typeof mxVertexHandler != 'undefined')
 						}
 					}
 				}
+
+				// Updates custom links after inserting into the model for cells to have new IDs
+				this.updateCustomLinks(this.createCellMapping(cloneMap, lookup), clones, this);
 			}
 			finally
 			{
@@ -12289,6 +12591,11 @@ if (typeof mxVertexHandler != 'undefined')
 						this.linkHint.style.filter = '';
 						
 						this.graph.container.appendChild(this.linkHint);
+
+						mxEvent.addListener(this.linkHint, 'mouseenter', mxUtils.bind(this, function()
+						{
+							this.graph.tooltipHandler.hide();
+						}));
 					}
 	
 					this.linkHint.innerHTML = '';
