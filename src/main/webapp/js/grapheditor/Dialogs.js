@@ -31,7 +31,6 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 	
 	var input = document.createElement('input');
 	input.style.marginBottom = '10px';
-	input.style.width = '216px';
 	
 	// Required for picker to render in IE
 	if (mxClient.IS_IE)
@@ -39,7 +38,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		input.style.marginTop = '10px';
 		document.body.appendChild(input);
 	}
-	
+
 	var applyFunction = (apply != null) ? apply : this.createApplyFunction();
 	
 	function doApply()
@@ -94,7 +93,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		return table;
 	};
 	
-	function addPresets(presets, rowLength, defaultColor, addResetOption)
+	var addPresets = mxUtils.bind(this, function(presets, rowLength, defaultColor, addResetOption)
 	{
 		rowLength = (rowLength != null) ? rowLength : 12;
 		var table = document.createElement('table');
@@ -113,7 +112,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 			
 			for (var i = 0; i < rowLength; i++)
 			{
-				(function(clr)
+				(mxUtils.bind(this, function(clr)
 				{
 					var td = document.createElement('td');
 					td.style.border = '1px solid black';
@@ -133,6 +132,12 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 					else
 					{
 						td.style.backgroundColor = '#' + clr;
+						var name = this.colorNames[clr.toUpperCase()];
+
+						if (name != null)
+						{
+							td.setAttribute('title', name);
+						}
 					}
 					
 					tr.appendChild(td);
@@ -156,7 +161,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 						
 						mxEvent.addListener(td, 'dblclick', doApply);
 					}
-				})(presets[row * rowLength + i]);
+				}))(presets[row * rowLength + i]);
 			}
 			
 			tbody.appendChild(tr);
@@ -187,9 +192,46 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		center.appendChild(table);
 		
 		return table;
-	};
+	});
 
 	div.appendChild(input);
+
+	if (!mxClient.IS_IE && !mxClient.IS_IE11)
+	{
+		input.style.width = '176px';
+
+		var clrInput = document.createElement('input');
+		clrInput.setAttribute('type', 'color');
+		clrInput.style.visibility = 'hidden';
+		clrInput.style.width = '0px';
+		clrInput.style.border = 'none';
+		clrInput.style.marginLeft = '10px';
+		div.appendChild(clrInput);
+
+		div.appendChild(mxUtils.button('...', function()
+		{
+			// LATER: Check if clrInput is expanded
+			if (document.activeElement == clrInput)
+			{
+				input.focus();
+			}
+			else
+			{
+				clrInput.value = '#' + input.value;
+				clrInput.click();
+			}
+		}));
+
+		mxEvent.addListener(clrInput, 'input', function()
+		{
+			picker.fromString(clrInput.value.substring(1));
+		});
+	}
+	else
+	{
+		input.style.width = '216px';
+	}
+
 	mxUtils.br(div);
 	
 	// Adds recent colors
@@ -273,6 +315,11 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
  * Creates function to apply value
  */
 ColorDialog.prototype.presetColors = ['E6D0DE', 'CDA2BE', 'B5739D', 'E1D5E7', 'C3ABD0', 'A680B8', 'D4E1F5', 'A9C4EB', '7EA6E0', 'D5E8D4', '9AC7BF', '67AB9F', 'D5E8D4', 'B9E0A5', '97D077', 'FFF2CC', 'FFE599', 'FFD966', 'FFF4C3', 'FFCE9F', 'FFB570', 'F8CECC', 'F19C99', 'EA6B66']; 
+
+/**
+ * Creates function to apply value
+ */
+ ColorDialog.prototype.colorNames = {};
 
 /**
  * Creates function to apply value
@@ -1450,7 +1497,7 @@ var EditDataDialog = function(ui, cell)
 		
 		mxEvent.addListener(text, 'dblclick', function(evt)
 		{
-			if (mxEvent.isControlDown(evt) || mxEvent.isMetaDown(evt))
+			if (mxEvent.isShiftDown(evt))
 			{
 				var dlg = new FilenameDialog(ui, id, mxResources.get('apply'), mxUtils.bind(this, function(value)
 				{
@@ -1474,6 +1521,8 @@ var EditDataDialog = function(ui, cell)
 				dlg.init();
 			}
 		});
+
+		text.setAttribute('title', 'Shift+Double Click to Edit ID');
 	}
 	
 	for (var i = 0; i < temp.length; i++)

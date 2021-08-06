@@ -65,29 +65,7 @@ Draw.loadPlugin(function(ui) {
 
 	function extractData(evt)
 	{
-		var cells = graph.getSelectionCells();
-		var result = [];
-
-		for (var i = 0; i < cells.length; i++)
-		{
-			var attrs = (cells[i].value != null) ? cells[i].value.attributes : null;
-			var row = {};
-			row.id = cells[i].id;
-
-			if (attrs != null)
-			{
-				for (var j = 0; j < attrs.length; j++)
-				{
-					row[attrs[j].nodeName] = attrs[j].nodeValue;
-				}
-			}
-			else
-			{
-				row.label = graph.convertValueToString(cells[i]);
-			}
-
-			result.push(row);
-		}
+		var result = graph.getDataForCells(graph.getSelectionCells());
 
 		if (mxEvent.isShiftDown(evt))
 		{

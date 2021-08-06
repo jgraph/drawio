@@ -721,20 +721,10 @@ EditorUi.initMinimalTheme = function()
 		{
 			if (graph.isEnabled())
 			{
-				if (graph.getSelectionCount() == 1)
-	        	{
-					this.addMenuItems(menu, ['editTooltip'], null, evt);
-				}
-				
 				menu.addSeparator();
 				
 				if (graph.getSelectionCount() == 1)
 	        	{
-					if (evt != null && mxEvent.isTouchEvent(evt))
-					{
-						this.addMenuItems(menu, ['edit'], null, evt);
-					}
-					
 					this.addMenuItems(menu, ['-', 'lockUnlock'], null, evt);
 				}
 				else
@@ -747,8 +737,6 @@ EditorUi.initMinimalTheme = function()
 		{
 			if (graph.getSelectionCount() == 1)
 			{
-				this.addMenuItems(menu, ['editTooltip', '-', 'editGeometry', 'edit'], null, evt);
-	
 				if (graph.isCellFoldable(graph.getSelectionCell()))
 				{
 					this.addMenuItems(menu, (graph.isCellCollapsed(cell)) ? ['expand'] : ['collapse'], null, evt);
@@ -976,6 +964,32 @@ EditorUi.initMinimalTheme = function()
             ui.showDialog(dlg.container, 620, 420, true, false);
             dlg.init();
         }));
+
+		// Adds submenu for edit items
+		var addPopupMenuCellEditItems = this.addPopupMenuCellEditItems;
+
+		this.put('editCell', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			var graph = this.editorUi.editor.graph;
+			var cell = graph.getSelectionCell();
+			addPopupMenuCellEditItems.call(this, menu, cell, null, parent);
+
+			this.addMenuItems(menu, ['editTooltip'], parent);
+
+			if (graph.model.isVertex(cell))
+			{
+				this.addMenuItems(menu, ['editGeometry'], parent);
+			}
+
+			this.addMenuItems(menu, ['-', 'edit'], parent);
+		})));
+
+		this.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
+		{
+			// LATER: Pass-through for evt from context menu to submenu item
+			menu.addSeparator();
+			this.addSubmenu('editCell', menu, parent, mxResources.get('edit'));
+		};
 
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {

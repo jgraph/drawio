@@ -2851,6 +2851,37 @@ Graph.prototype.initLayoutManager = function()
 };
 
 /**
+ * Returns the metadata of the given cells as a JSON object.
+ */
+Graph.prototype.getDataForCells = function(cells)
+{
+	var result = [];
+
+	for (var i = 0; i < cells.length; i++)
+	{
+		var attrs = (cells[i].value != null) ? cells[i].value.attributes : null;
+		var row = {};
+		row.id = cells[i].id;
+
+		if (attrs != null)
+		{
+			for (var j = 0; j < attrs.length; j++)
+			{
+				row[attrs[j].nodeName] = attrs[j].nodeValue;
+			}
+		}
+		else
+		{
+			row.label = this.convertValueToString(cells[i]);
+		}
+
+		result.push(row);
+	}
+
+	return result;
+};
+
+/**
  * Returns the DOM nodes for the given cells.
  */
 Graph.prototype.getNodesForCells = function(cells)
@@ -9280,6 +9311,30 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		/**
+		 * Parses the given background image.
+		 */
+		Graph.prototype.parseBackgroundImage = function(json)
+		{
+			var result = null;
+
+			if (json != null && json.length > 0)
+			{
+				var obj = JSON.parse(json);
+				result = new mxImage(obj.src, obj.width, obj.height)
+			}
+
+			return result;
+		};
+		
+		/**
+		 * Parses the given background image.
+		 */
+		Graph.prototype.getBackgroundImageObject = function(obj)
+		{
+			return obj;
+		};
+
+		/**
 		 * Translates this point by the given vector.
 		 * 
 		 * @param {number} dx X-coordinate of the translation.
@@ -9323,14 +9378,22 @@ if (typeof mxVertexHandler != 'undefined')
 					(((ignoreSelection && lookup == null) || nocrop ||
 					exportType == 'diagram') ? this.getGraphBounds() :
 					this.getBoundingBox(this.getSelectionCells()));
+				var vs = this.view.scale;
+				
+				if (exportType == 'diagram' && this.backgroundImage != null)
+				{
+					 bounds.add(new mxRectangle(
+						this.view.translate.x * vs,
+						this.view.translate.y * vs,
+					 	this.backgroundImage.width * vs,
+					 	this.backgroundImage.height * vs));
+				}
 	
 				if (bounds == null)
 				{
 					throw Error(mxResources.get('drawingEmpty'));
 				}
 	
-				var vs = this.view.scale;
-				
 				// Prepares SVG document that holds the output
 				var svgDoc = mxUtils.createXmlDocument();
 				var root = (svgDoc.createElementNS != null) ?

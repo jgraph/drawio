@@ -1274,7 +1274,6 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 {
 	var graph = this.editorUi.editor.graph;
-	cell = graph.getSelectionCell();
 	var state = graph.view.getState(cell);
 	menu.addSeparator();
 	
@@ -1322,20 +1321,30 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			this.addMenuItems(menu, ['-', 'clearWaypoints'], null, evt);
 		}
 	
-		if (graph.getSelectionCount() == 1 && graph.isCellEditable(graph.getSelectionCell()))
+		if (graph.getSelectionCount() == 1 && graph.isCellEditable(cell))
 		{
-			this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], null, evt);
-	
-			// Shows edit image action if there is an image in the style
-			if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
-			{
-				menu.addSeparator();
-				this.addMenuItem(menu, 'image', null, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
-			}
+			this.addPopupMenuCellEditItems(menu, cell, evt);
 		}
 	}
 };
 
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
+Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
+{
+	var graph = this.editorUi.editor.graph;
+	var state = graph.view.getState(cell);
+	this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], parent, evt);
+	
+	// Shows edit image action if there is an image in the style
+	if (this.editorUi.editor.graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
+	{
+		menu.addSeparator();
+		this.addMenuItem(menu, 'image', parent, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
+	}
+};
+ 
 /**
  * Creates the keyboard event handler for the current graph and history.
  */

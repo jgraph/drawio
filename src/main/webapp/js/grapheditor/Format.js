@@ -1088,12 +1088,25 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	{
 		if (!applying)
 		{
+			var defaultValue = (defaultColor == 'null') ? null : defaultColor;
+
 			applying = true;
-			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultColor;
+			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultValue;
 			btn.innerHTML = '<div style="width:' +
 				'36px;height:12px;margin:3px;border:1px solid black;background-color:' +
 				mxUtils.htmlEntities((color != null && color != mxConstants.NONE) ?
-				color : defaultColor) + ';"></div>';
+				color : defaultValue) + ';"></div>';
+
+			if (color != null && color != mxConstants.NONE && color.length > 1)
+			{
+				var clr = (color.charAt(0) == '#') ? color.substring(1) : color;
+				var name = ColorDialog.prototype.colorNames[clr];
+
+				if (name != null)
+				{
+					btn.setAttribute('title', name);
+				}
+			}
 			
 			if (color != null && color != mxConstants.NONE)
 			{
@@ -1112,7 +1125,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 			if (callbackFn != null)
 			{
-				callbackFn(color);
+				callbackFn(color == 'null' ? null : color);
 			}
 
 			if (!disableUpdate)
@@ -1122,7 +1135,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				// Checks if the color value needs to be updated in the model
 				if (forceUpdate || hideCheckbox || getColorFn() != value)
 				{
-					setColorFn(value);
+					setColorFn(value == 'null' ? null : value);
 				}
 			}
 			
@@ -1819,11 +1832,26 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		var btn = mxUtils.button(mxResources.get('copyData'), function(evt)
 		{
-			ui.actions.get('copyData').funct(evt);
+			if (mxEvent.isShiftDown(evt))
+			{
+				var result = graph.getDataForCells(graph.getSelectionCells());
+
+				var dlg = new EmbedDialog(ui, JSON.stringify(result, null, 2), null, null, function()
+				{
+					console.log(result);
+				}, mxResources.get('copyData'), null, 'Console', 'data.json');
+				ui.showDialog(dlg.container, 440, 240, true, true);
+				dlg.init();
+			}
+			else
+			{
+				ui.actions.get('copyData').funct(evt);
+			}
 		});
 		
 		btn.setAttribute('title', mxResources.get('copyData') + ' (' +
-				this.editorUi.actions.get('copyData').shortcut + ')');
+			this.editorUi.actions.get('copyData').shortcut + ')' +
+			' Shift+Click to Extract Data');
 		btn.style.width = '202px';
 		btn.style.marginBottom = '2px';
 
@@ -3318,7 +3346,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		install: function(apply) { bgColorApply = apply; },
 		destroy: function() { bgColorApply = null; }
-	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, '#ffffff', null, function(color)
+	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'null', null, function(color)
 	{
 		graph.updateLabelElements(ss.cells, function(elt)
 		{

@@ -472,6 +472,8 @@
 				 w * 261, h * 354, '', 'draw.io', null, null, this.getTagsForStencil(gn, 'diagrams.net drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'drawio3;fillColor=#1A5BA3;fontSize=15;fontColor=#1A5BA3;fontStyle=1',
 				 w * 261, h * 261, 'diagrams.<font color="#f08707">net</font>', 'diagrams.net', null, null, this.getTagsForStencil(gn, 'diagrams.net drawio draw io draw.io', dt).join(' ')),
+		 this.createVertexTemplateEntry(s + 'drawio4;fillColor=#1A5BA3;fontSize=15;fontColor=#1A5BA3;fontStyle=1',
+				w * 261, h * 261, 'diagrams.<font color="#f08707">net</font>', 'diagrams.net', null, null, this.getTagsForStencil(gn, 'diagrams.net drawio draw io draw.io', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dribbble;fillColor=#EB548D',
 				 w * 337, h * 336, '', 'Dribbble', null, null, this.getTagsForStencil(gn, 'dribbble', dt).join(' ')),
 		 this.createVertexTemplateEntry(s + 'dropbox;fillColor=#0287EA',

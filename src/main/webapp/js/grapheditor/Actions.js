@@ -116,10 +116,10 @@ Actions.prototype.init = function()
 		try
 		{
 			cells = ui.copyXml();
-			
+
 			if (cells != null)
 			{
-				graph.removeCells(cells);
+				graph.removeCells(cells, false);
 			}
 		}
 		catch (e)
@@ -357,8 +357,10 @@ Actions.prototype.init = function()
 		}
 	}, null, null, 'Alt+Shift+B');
 
-	this.addAction('pasteData', function(evt)
+	this.addAction('pasteData', function(evt, trigger)
 	{
+		// Context menu click uses trigger, toolbar menu click uses evt
+		var evt = (trigger != null) ? trigger : evt;
 		var model = graph.getModel();
 		
 		function applyValue(cell, value)
@@ -373,7 +375,7 @@ Actions.prototype.init = function()
 				value.setAttribute('placeholders', old.getAttribute('placeholders'));
 			}
 			
-			if (evt == null || (!mxEvent.isMetaDown(evt) && !mxEvent.isControlDown(evt)))
+			if (evt == null || !mxEvent.isShiftDown(evt))
 			{
 				value.setAttribute('label', graph.convertValueToString(cell));
 			}
@@ -419,16 +421,8 @@ Actions.prototype.init = function()
 			graph.setSelectionCells(select);
 		}
 	};
-	
-	this.addAction('delete', function(evt)
-	{
-		deleteCells(evt != null && mxEvent.isControlDown(evt));
-	}, null, null, 'Delete');
-	this.addAction('deleteAll', function()
-	{
-		deleteCells(true);
-	});
-	this.addAction('deleteLabels', function()
+
+	function deleteLabels()
 	{
 		if (!graph.isSelectionEmpty())
 		{
@@ -447,6 +441,30 @@ Actions.prototype.init = function()
 				graph.getModel().endUpdate();
 			}
 		}
+	};
+	
+	this.addAction('delete', function(evt, trigger)
+	{
+		// Context menu click uses trigger, toolbar menu click uses evt
+		var evt = (trigger != null) ? trigger : evt;
+
+		if (evt != null && mxEvent.isShiftDown(evt))
+		{
+			deleteLabels();
+		}
+		else
+		{
+			deleteCells(evt != null && (mxEvent.isControlDown(evt) ||
+				mxEvent.isMetaDown(evt) || mxEvent.isAltDown(evt)));
+		}
+	}, null, null, 'Delete');
+	this.addAction('deleteAll', function()
+	{
+		deleteCells(true);
+	});
+	this.addAction('deleteLabels', function()
+	{
+		deleteLabels();
 	}, null, null, Editor.ctrlKey + '+Delete');
 	this.addAction('duplicate', function()
 	{
@@ -460,8 +478,11 @@ Actions.prototype.init = function()
 			ui.handleError(e);
 		}
 	}, null, null, Editor.ctrlKey + '+D');
-	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function(evt)
+	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function(evt, trigger)
 	{
+		// Context menu click uses trigger, toolbar menu click uses evt
+		var evt = (trigger != null) ? trigger : evt;
+
 		graph.turnShapes(graph.getResizableCells(graph.getSelectionCells()),
 			(evt != null) ? mxEvent.isShiftDown(evt) : false);
 	}, null, null, Editor.ctrlKey + '+R'));
@@ -1500,8 +1521,10 @@ Actions.prototype.init = function()
 			rmWaypointAction.handler.removePoint(rmWaypointAction.handler.state, rmWaypointAction.index);
 		}
 	});
-	this.addAction('clearWaypoints', function(evt)
+	this.addAction('clearWaypoints', function(evt, trigger)
 	{
+		// Context menu click uses trigger, toolbar menu click uses evt
+		var evt = (trigger != null) ? trigger : evt;
 		var cells = graph.getSelectionCells();
 
 		if (cells != null)

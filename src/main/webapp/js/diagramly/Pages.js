@@ -315,6 +315,55 @@ EditorUi.prototype.getPageById = function(id)
 };
 
 /**
+ * Returns the background image for the given page link.
+ */
+EditorUi.prototype.createImageForPageLink = function(src)
+{
+	var comma = src.indexOf(',');
+	var result = null;
+		
+	if (comma > 0)
+	{
+		var page = this.getPageById(src.substring(comma + 1));
+
+		if (page != null)
+		{
+			var svgRoot = this.getSvgForPage(page);
+
+			result = new mxImage(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
+				parseInt(svgRoot.getAttribute('width')),
+				parseInt(svgRoot.getAttribute('height')));
+			result.originalSrc = src;
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.getSvgForPage = function(page)
+{
+	var graphGetGlobalVariable = this.editor.graph.getGlobalVariable;
+	var graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+
+	graph.getGlobalVariable = function(name)
+	{
+		return graphGetGlobalVariable.apply(this, arguments);
+	};
+
+	document.body.appendChild(graph.container);
+
+	this.updatePageRoot(page);
+	graph.model.setRoot(page.root);
+	var svgRoot = graph.getSvg();
+	document.body.removeChild(graph.container);
+
+	return svgRoot;
+};
+ 
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.initPages = function()
@@ -498,8 +547,7 @@ Graph.prototype.createViewState = function(node)
 	var pw = parseFloat(node.getAttribute('pageWidth'));
 	var ph = parseFloat(node.getAttribute('pageHeight'));
 	var bg = node.getAttribute('background');
-	var temp = node.getAttribute('backgroundImage');
-	var bgImg = (temp != null && temp.length > 0) ? JSON.parse(temp) : null;
+	var bgImg = this.parseBackgroundImage(node.getAttribute('backgroundImage'));
 	var extFonts = node.getAttribute('extFonts');
 	
 	if (extFonts)
@@ -517,7 +565,7 @@ Graph.prototype.createViewState = function(node)
 			console.log('ExtFonts format error: ' + e.message);
 		}
 	}
-	
+
 	return {
 		gridEnabled: node.getAttribute('grid') != '0',
 		//gridColor: node.getAttribute('gridColor') || mxSettings.getGridColor(uiTheme == 'dark'),
@@ -527,7 +575,7 @@ Graph.prototype.createViewState = function(node)
 		shadowVisible: node.getAttribute('shadow') == '1',
 		pageVisible: (this.isLightboxView()) ? false : ((pv != null) ? (pv != '0') : this.defaultPageVisible),
 		background: (bg != null && bg.length > 0) ? bg : null,
-		backgroundImage: (bgImg != null) ? new mxImage(bgImg.src, bgImg.width, bgImg.height) : null,
+		backgroundImage: bgImg,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
 		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat()),
 		tooltips: node.getAttribute('tooltips') != '0',
@@ -577,9 +625,11 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 		node.setAttribute('background', vs.background);
 	}
 
-	if (vs != null && vs.backgroundImage != null)
+	var bgImg = this.getBackgroundImageObject(vs.backgroundImage);
+
+	if (bgImg != null)
 	{
-		node.setAttribute('backgroundImage', JSON.stringify(vs.backgroundImage));
+		node.setAttribute('backgroundImage', JSON.stringify(bgImg));
 	}
 
 	node.setAttribute('math', (vs != null && vs.mathEnabled) ? '1' : '0');
@@ -647,7 +697,6 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.scrollbars = state.scrollbars;
 		this.pageVisible = !this.isViewer() && state.pageVisible;
 		this.background = state.background;
-		this.backgroundImage = state.backgroundImage;
 		this.pageScale = state.pageScale;
 		this.pageFormat = state.pageFormat;
 		this.view.currentRoot = state.currentRoot;
@@ -655,7 +704,8 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.connectionArrowsEnabled = state.arrows;
 		this.setTooltips(state.tooltips);
 		this.setConnectable(state.connect);
-		
+		this.setBackgroundImage(state.backgroundImage);
+
 		var oldExtFonts = this.extFonts;
 		this.extFonts = state.extFonts || [];
 

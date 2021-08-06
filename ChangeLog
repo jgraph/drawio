@@ -1,3 +1,17 @@
+06-JUL-2021: 14.9.5
+
+- Adds shift/alt to extract data on copy data button
+- Adds barrier for parallel async custom actions
+- Adds background page support
+- Fixes ignored background image size for image export
+- Adds colorNames and titles for color schemes
+- Adds edit geometry in sketch theme context menu
+- Fixes inconsistent cut and delete actions https://github.com/jgraph/drawio/issues/1978
+- Uses shift+click to paste data with label
+- Adds edit submenu in min and sketch themes
+- Adds popup for additonal color models https://github.com/jgraph/drawio/issues/2150
+- Handles page links in background image dialog
+
 03-JUL-2021: 14.9.4
 
 - Executes actions in sequence, adds animation custom actions https://github.com/jgraph/drawio/issues/1861

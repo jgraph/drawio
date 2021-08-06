@@ -3824,10 +3824,23 @@ LucidImporter = {};
 	{
 		if (imgUrl && LucidImporter.imgSrcRepl != null)
 		{
-			for (var i = 0; i < LucidImporter.imgSrcRepl.length; i++)
+			var attMap = LucidImporter.imgSrcRepl.attMap;
+					
+			if (attMap[imgUrl])
 			{
-				var repl = LucidImporter.imgSrcRepl[i];
-				imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
+				imgUrl = attMap[imgUrl];
+			}
+			else
+			{
+				var imgRepl = LucidImporter.imgSrcRepl.imgRepl;
+				
+				for (var i = 0; i < imgRepl.length; i++)
+				{
+					var repl = imgRepl[i];
+					imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
+				}
+				
+				LucidImporter.hasExtImgs = true;
 			}
 		}
 	
@@ -6657,6 +6670,7 @@ LucidImporter = {};
 		LucidImporter.hasUnknownShapes = false;
 		LucidImporter.hasOrgChart = false;
 		LucidImporter.hasTimeLine = false;
+		LucidImporter.hasExtImgs = false;
 		var xml = ['<?xml version=\"1.0\" encoding=\"UTF-8\"?>', '<mxfile type="Lucidchart-Import" version="' +
 			EditorUi.VERSION + '" host="' + mxUtils.htmlEntities(window.location.hostname) + 
 			'" agent="' + mxUtils.htmlEntities(navigator.appVersion) + 
@@ -13692,17 +13706,8 @@ LucidImporter = {};
 				
 				var size = mxUtils.getSizeForString(lbl);
 				//TODO Is image always in Image/018__ImageUrl__?
-				var imgUrl = dObj['Image'] || dObj['018__ImageUrl__'] || defImg;
-				
-				if (LucidImporter.imgSrcRepl != null)
-				{
-					for (var i = 0; i < LucidImporter.imgSrcRepl.length; i++)
-					{
-						var repl = LucidImporter.imgSrcRepl[i];
-						imgUrl = imgUrl.replace(repl.searchVal, repl.replVal);
-					}
-				}
-				
+				var imgUrl = mapImgUrl(dObj['Image'] || dObj['018__ImageUrl__']) || defImg;
+								
 				var cell = new mxCell(lbl, new mxGeometry(0, 0, size.width + marginW, size.height + marginH), 
 									cellStyle + (hasImage? imgUrl : ''));
 			    cell.vertex = true;

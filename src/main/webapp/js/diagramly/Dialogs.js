@@ -649,7 +649,7 @@ var SplashDialog = function(editorUi)
 /**
  * Constructs a new embed dialog
  */
-var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title, tweet)
+var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, title, tweet, previewTitle, filename)
 {
 	tweet = (tweet != null) ? tweet : 'Check out the diagram I made using @drawio';
 	var div = document.createElement('div');
@@ -734,7 +734,8 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 	if (EmbedDialog.showPreviewOption && (!mxClient.IS_CHROMEAPP || validUrl) && !navigator.standalone && (validUrl ||
 		(mxClient.IS_SVG && (document.documentMode == null || document.documentMode > 9))))
 	{
-		previewBtn = mxUtils.button(mxResources.get((result.length < maxSize) ? 'preview' : 'openInNewWindow'), function()
+		previewBtn = mxUtils.button((previewTitle != null) ? previewTitle :
+			mxResources.get((result.length < maxSize) ? 'preview' : 'openInNewWindow'), function()
 		{
 			var value = (result.length < maxSize) ? text.value : result;
 			
@@ -804,7 +805,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		var downloadBtn = mxUtils.button(mxResources.get('download'), function()
 		{
 			editorUi.hideDialog();
-			editorUi.saveData('embed.txt', 'txt', result, 'text/plain');
+			editorUi.saveData((filename != null) ? filename : 'embed.txt', 'txt', result, 'text/plain');
 		});
 		
 		downloadBtn.className = 'geBtn';
@@ -1528,7 +1529,8 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	urlInput.style.marginTop = '4px';
 	urlInput.style.marginBottom = '4px';
 	urlInput.style.width = '350px';
-	urlInput.value = (img != null) ? img.src : '';
+	urlInput.value = (img != null) ? ((img.originalSrc != null) ?
+		img.originalSrc : img.src) : '';
 	
 	var resetting = false;
 	var ignoreEvt = false;
@@ -1542,26 +1544,36 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 				
 			if (!resetting && urlInput.value != '' && !editorUi.isOffline())
 			{
-				editorUi.loadImage(urlInput.value, function(img)
+				if (urlInput.value.substring(0, 13) == 'data:page/id,')
 				{
-					widthInput.value = img.width;
-					heightInput.value = img.height;
-					
 					if (done != null)
 					{
 						done(urlInput.value);
 					}
-				}, function()
+				}
+				else
 				{
-					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
-					widthInput.value = '';
-					heightInput.value = '';
-					
-					if (done != null)
+					editorUi.loadImage(urlInput.value, function(img)
 					{
-						done(null);
-					}
-				});
+						widthInput.value = img.width;
+						heightInput.value = img.height;
+						
+						if (done != null)
+						{
+							done(urlInput.value);
+						}
+					}, function()
+					{
+						editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+						widthInput.value = '';
+						heightInput.value = '';
+						
+						if (done != null)
+						{
+							done(null);
+						}
+					});
+				}
 			}
 			else
 			{
@@ -5793,6 +5805,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	});
 	restoreBtn.className = 'geBtn';
 	restoreBtn.setAttribute('disabled', 'disabled');
+	restoreBtn.setAttribute('title', 'Shift+Click for Diff');
 	
 	var pageSelect = document.createElement('select');
 	pageSelect.setAttribute('disabled', 'disabled');

@@ -3423,7 +3423,14 @@ ChangePageSetup.prototype.execute = function()
 	{
 		this.image = this.previousImage;
 		var tmp = graph.backgroundImage;
-		this.ui.setBackgroundImage(this.previousImage);
+		var img = this.previousImage;
+
+		if (img != null && img.src != null && img.src.substring(0, 13) == 'data:page/id,')
+		{
+			img = this.ui.createImageForPageLink(img.src);
+		}
+
+		this.ui.setBackgroundImage(img);
 		this.previousImage = tmp;
 	}
 	

@@ -95,7 +95,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			var aj_draw_io = csp.replace(/%script-src%/g, 'https://connect-cdn.atl-paas.net').
 					replace(/%frame-src%/g, 'blob:').
 					replace(/%style-src%/g, 'https://aui-cdn.atlassian.com https://*.atlassian.net').
-					replace(/%connect-src%/g, 'https://api.atlassian.com').
+					replace(/%connect-src%/g, 'https://api.atlassian.com https://api.media.atlassian.com').
 					replace(/  /g, ' ');
 			console.log('aj.draw.io:', aj_draw_io);
 

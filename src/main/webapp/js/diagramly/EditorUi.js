@@ -8932,6 +8932,49 @@
 			return done;
 		};
 
+		// Parses background page references
+		var graphParseBackgroundImage = graph.parseBackgroundImage;
+		
+		graph.parseBackgroundImage = function(json)
+		{
+			var result = graphParseBackgroundImage.apply(this, arguments);
+
+			if (result != null && result.src != null && result.src.substring(0, 13) == 'data:page/id,')
+			{
+				result = ui.createImageForPageLink(result.src);
+			}
+
+			return result;
+		};
+
+		// Updates background page SVG
+		var graphSetBackgroundImage = graph.setBackgroundImage;
+		
+		graph.setBackgroundImage = function(img)
+		{
+			if (img != null && img.originalSrc != null)
+			{
+				img = ui.createImageForPageLink(img.originalSrc);
+			}
+
+			graphSetBackgroundImage.apply(this, arguments);
+		};
+
+		// Restores background page references in output data
+		var graphGetBackgroundImageObject = graph.getBackgroundImageObject;
+		
+		graph.getBackgroundImageObject = function(obj)
+		{
+			var result = graphGetBackgroundImageObject.apply(this, arguments);
+
+			if (result != null && result.originalSrc != null)
+			{
+				result = {src: result.originalSrc, width: result.width, height: result.height};
+			}
+
+			return result;
+		};
+
 		// Extends clear default style to clear persisted settings
 		var clearDefaultStyle = this.clearDefaultStyle;
 		

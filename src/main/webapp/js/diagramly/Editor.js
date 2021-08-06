@@ -1775,6 +1775,7 @@
 			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
 			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
 			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
+			ColorDialog.prototype.colorNames = config.colorNames || ColorDialog.prototype.colorNames;
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
 			DrawioFile.prototype.autosaveDelay = config.autosaveDelay || DrawioFile.prototype.autosaveDelay;
@@ -2125,8 +2126,7 @@
 				
 				if (bgImg != null)
 				{
-					bgImg = JSON.parse(bgImg);
-					this.graph.setBackgroundImage(new mxImage(bgImg.src, bgImg.width, bgImg.height));
+					this.graph.setBackgroundImage(this.graph.parseBackgroundImage(bgImg));
 				}
 				else
 				{
@@ -2197,11 +2197,13 @@
 		{
 			node.setAttribute('style', this.graph.currentStyle);
 		}
+
+		var bgImg = this.graph.getBackgroundImageObject(this.graph.backgroundImage);
 		
 		// Adds the background image
-		if (this.graph.backgroundImage != null)
+		if (bgImg != null)
 		{
-			node.setAttribute('backgroundImage', JSON.stringify(this.graph.backgroundImage));
+			node.setAttribute('backgroundImage', JSON.stringify(bgImg));
 		}
 		
 		node.setAttribute('math', (this.graph.mathEnabled) ? '1' : '0');
@@ -5241,6 +5243,11 @@
 						btn.style.backgroundColor = bg;
 						btn.style.border = '1px solid ' + bd;
 					}
+
+					if (colorset['title'] != null)
+					{
+						btn.setAttribute('title', colorset['title']);
+					}
 					
 					btn.style.borderRadius = '0';
 					
@@ -6144,6 +6151,7 @@
 		{
 			this.executingCustomActions = true;
 			var updatingModel = false;
+			var waitCounter = 0;
 			var index = 0;
 
 			var beginUpdate = mxUtils.bind(this, function()
@@ -6164,6 +6172,19 @@
 				}
 			});
 
+			var waitAndExecute = mxUtils.bind(this, function()
+			{
+				if (waitCounter > 0)
+				{
+					waitCounter--;
+				}
+
+				if (waitCounter == 0)
+				{
+					executeNextAction()
+				}
+			});
+
 			var executeNextAction = mxUtils.bind(this, function()
 			{
 				if (index < actions.length)
@@ -6171,7 +6192,6 @@
 					var stop = this.stoppingCustomActions;
 					var action = actions[index++];
 					var animations = [];
-					var async = false;
 
 					// Executes open actions before starting transaction
 					if (action.open != null)
@@ -6197,13 +6217,13 @@
 						{
 							this.pendingExecuteNextAction = null;
 							this.pendingWaitThread = null;
-							executeNextAction();
+							waitAndExecute();
 						});
 
+						waitCounter++;
 						this.pendingWaitThread = window.setTimeout(this.pendingExecuteNextAction,
 							(action.wait != '') ? parseInt(action.wait) : 1000);
 						endUpdate();
-						async = true;
 					}
 
 					if (action.opacity != null && action.opacity.value != null)
@@ -6215,18 +6235,20 @@
 
 					if (action.fadeIn != null)
 					{
+						waitCounter++;
 						Graph.fadeNodes(this.getNodesForCells(
 							this.getCellsForAction(action.fadeIn, true)),
-							0, 1, executeNextAction, (stop) ? 0 : action.fadeIn.delay);
-						async = true;
+							0, 1, waitAndExecute, (stop) ?
+							0 : action.fadeIn.delay);
 					}
 
 					if (action.fadeOut != null)
 					{
+						waitCounter++;
 						Graph.fadeNodes(this.getNodesForCells(
 							this.getCellsForAction(action.fadeOut, true)),
-							1, 0, executeNextAction, (stop) ? 0 : action.fadeOut.delay);
-						async = true;
+							1, 0, waitAndExecute, (stop) ?
+							0 : action.fadeOut.delay);
 					}
 
 					if (action.wipeIn != null)
@@ -6291,7 +6313,8 @@
 					{
 						cells = this.getCellsForAction(action.highlight);
 						this.highlightCells(cells, action.highlight.color,
-							action.highlight.duration, action.highlight.opacity);
+							action.highlight.duration,
+							action.highlight.opacity);
 					}
 
 					if (action.scroll != null)
@@ -6311,13 +6334,13 @@
 
 					if (animations.length > 0)
 					{
-						this.executeAnimations(animations, executeNextAction,
+						waitCounter++;
+						this.executeAnimations(animations, waitAndExecute,
 							(stop) ? 1 : action.steps,
 							(stop) ? 0 : action.delay);
-						async = true;
 					}
 
-					if (!async)
+					if (waitCounter == 0)
 					{
 						executeNextAction();
 					}
@@ -6433,7 +6456,8 @@
 
 			for (var name in action)
 			{
-				this.updateCustomLinkAction(mapping, action[name]);	
+				this.updateCustomLinkAction(mapping, action[name], 'cells');
+				this.updateCustomLinkAction(mapping, action[name], 'excludeCells');
 			}
 		}
 	};
@@ -6441,21 +6465,21 @@
 	/**
 	 * Updates cell IDs in the given custom link action.
 	 */
-	Graph.prototype.updateCustomLinkAction = function(mapping, action)
+	Graph.prototype.updateCustomLinkAction = function(mapping, action, name)
 	{
-		if (action != null && action.cells != null)
+		if (action != null && action[name] != null)
 		{
 			var result = [];
 			
-			for (var i = 0; i < action.cells.length; i++)
+			for (var i = 0; i < action[name].length; i++)
 			{
-				if (action.cells[i] == '*')
+				if (action[name][i] == '*')
 				{
-					result.push(action.cells[i]);
+					result.push(action[name][i]);
 				}
 				else
 				{
-					var temp = mapping[action.cells[i]];
+					var temp = mapping[action[name][i]];
 					
 					if (temp != null)
 					{
@@ -6466,12 +6490,12 @@
 					}
 					else
 					{
-						result.push(action.cells[i]);
+						result.push(action[name][i]);
 					}
 				}
 			}
 			
-			action.cells = result;
+			action[name] = result;
 		}
 	};
 	
@@ -6481,9 +6505,27 @@
 	 */
 	Graph.prototype.getCellsForAction = function(action, includeLayers)
 	{
-		return this.getCellsById(action.cells).concat(
+		var result = this.getCellsById(action.cells).concat(
 			this.getCellsForTags(action.tags,
 				null, null, includeLayers));
+
+		// Removes excluded cells
+		if (action.excludeCells != null)
+		{
+			var temp = [];
+
+			for (var i = 0; i < result.length; i++)
+			{
+				if (action.excludeCells.indexOf(result[i].id) < 0)
+				{
+					temp.push(result[i]);
+				}
+			}
+
+			result = temp;
+		}
+
+		return result;
 	};
 	
 	/**
@@ -6500,7 +6542,7 @@
 			{
 				if (ids[i] == '*')
 				{
-					var parent = this.getDefaultParent();
+					var parent = this.model.getRoot();
 					
 					result = result.concat(this.model.filterDescendants(function(cell)
 					{
@@ -7682,7 +7724,14 @@
                 
                 if (!this.ignoreImage)
                 {
-                    this.page.viewState.backgroundImage = this.image;
+					var img = this.image;
+
+					if (img != null && img.src != null && img.src.substring(0, 13) == 'data:page/id,')
+					{
+						img = this.ui.createImageForPageLink(img.src);
+					}
+
+                    this.page.viewState.backgroundImage = img;
                 }
 
                 if (this.format != null)
