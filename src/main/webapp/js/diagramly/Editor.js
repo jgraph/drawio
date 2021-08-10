@@ -5234,6 +5234,11 @@
 							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
 									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff'));
 						}
+
+						if (colorset['title'] != null)
+						{
+							btn.setAttribute('title', colorset['title']);
+						}
 					}
 					else
 					{
@@ -5244,11 +5249,6 @@
 						btn.style.border = '1px solid ' + bd;
 					}
 
-					if (colorset['title'] != null)
-					{
-						btn.setAttribute('title', colorset['title']);
-					}
-					
 					btn.style.borderRadius = '0';
 					
 					picker.appendChild(btn);

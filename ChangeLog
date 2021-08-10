@@ -1,4 +1,10 @@
-06-JUL-2021: 14.9.5
+10-AUG-2021: 14.9.6
+
+- [jira cloud] Adds Metrics publish API to log app load time or failure
+- [conf cloud] Adds Metrics publish API to log app load time or failure
+- Fixes possible NPE in StyleFormatPanel (colorset.title)
+
+06-AUG-2021: 14.9.5
 
 - Adds shift/alt to extract data on copy data button
 - Adds barrier for parallel async custom actions
@@ -12,7 +18,7 @@
 - Adds popup for additonal color models https://github.com/jgraph/drawio/issues/2150
 - Handles page links in background image dialog
 
-03-JUL-2021: 14.9.4
+03-AUG-2021: 14.9.4
 
 - Executes actions in sequence, adds animation custom actions https://github.com/jgraph/drawio/issues/1861
 - Fixes update of cell IDs in style actions
