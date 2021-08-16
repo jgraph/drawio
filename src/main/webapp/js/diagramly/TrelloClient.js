@@ -116,9 +116,12 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 		{ 
 			window.clearTimeout(timeoutThread);
 	    	
-		    	if (acceptResponse)
-		    	{
+		    if (acceptResponse)
+		    {
 				var binary = /\.png$/i.test(meta.name);
+				var headers = {
+					Authorization: 'OAuth oauth_consumer_key="' + Trello.key() + '", oauth_token="' + Trello.token() + '"'
+				};
 				
 				// TODO Trello doesn't allow CORS requests to load attachments. Confirm that
 				// and make sure that only a proxy technique can work!
@@ -127,7 +130,7 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 					(!this.ui.useCanvasForExport && binary))
 				{
 					this.ui.convertFile(PROXY_URL + '?url=' + encodeURIComponent(meta.url), meta.name, meta.mimeType,
-						this.extension, success, error);
+						this.extension, success, error, null, headers);
 				}
 				else
 				{
@@ -143,10 +146,10 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 					{
 						window.clearTimeout(timeoutThread);
 				    	
-					    	if (acceptResponse)
-					    	{
-					    		//keep our id which includes the cardId
-					    		meta.compoundId = id;
+					    if (acceptResponse)
+					   	{
+					    	//keep our id which includes the cardId
+					    	meta.compoundId = id;
 					    		
 							var index = (binary) ? data.lastIndexOf(',') : -1;
 	
@@ -172,8 +175,8 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 							{
 								success(new TrelloFile(this.ui, data, meta));
 							}
-					    	}
-			    		}), mxUtils.bind(this, function(err, req)
+					    }
+			    	}), mxUtils.bind(this, function(err, req)
 					{
 						window.clearTimeout(timeoutThread);
 					    	
@@ -189,9 +192,9 @@ TrelloClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 				    		}
 				    	}
 					}), binary || (meta.mimeType != null &&
-						meta.mimeType.substring(0, 6) == 'image/'));
+						meta.mimeType.substring(0, 6) == 'image/'), null, null, null, headers);
 				}
-		    	}
+		    }
 		}), mxUtils.bind(this, function(err)
 		{
 			window.clearTimeout(timeoutThread);

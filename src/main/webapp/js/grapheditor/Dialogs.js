@@ -129,7 +129,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 					{
 						td.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
 					}
-					else
+					else if (clr != null)
 					{
 						td.style.backgroundColor = '#' + clr;
 						var name = this.colorNames[clr.toUpperCase()];

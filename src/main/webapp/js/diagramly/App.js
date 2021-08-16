@@ -275,7 +275,7 @@ App.TRELLO_URL = 'https://api.trello.com/1/client.js';
 /**
  * Trello JQuery dependency
  */
-App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-1.7.1.min.js';
+App.TRELLO_JQUERY_URL = 'https://code.jquery.com/jquery-3.3.1.min.js';
 
 /**
  * Specifies the key for the pusher project.

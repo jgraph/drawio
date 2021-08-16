@@ -1,3 +1,9 @@
+16-AUG-2021: 14.9.7
+
+- Prevents NPE in style format dialog
+- Fixes new attachment download auth errors in Trello power up
+- [conf cloud] Fixes an error when checkName api returns 404 when list of attachments are requested
+
 10-AUG-2021: 14.9.6
 
 - [jira cloud] Adds Metrics publish API to log app load time or failure
