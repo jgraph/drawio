@@ -75,34 +75,11 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 			
 			if (authRemembered != null)
 			{
-				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); //To identify which app/domain is used
+				_token = authRemembered;
+				this.setToken(_token);
+				this.setUser(null);
 				
-				req.send(mxUtils.bind(this, function(req)
-				{
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
-					{
-						_token = JSON.parse(req.getText()).access_token;
-						this.setToken(_token);
-						this.setUser(null);
-						success();
-					}
-					else 
-					{
-						this.clearPersistentToken();
-						this.setUser(null);
-						_token = null;
-						this.setToken(null);
-
-						if (req.getStatus() == 401) // (Unauthorized) [e.g, invalid refresh token]
-						{
-							auth();
-						}
-						else
-						{
-							error({message: mxResources.get('accessDenied'), retry: auth});
-						}
-					}
-				}), error);
+				success();
 			}
 			else
 			{
@@ -111,19 +88,19 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 					var win = window.open(DRAWIO_GITLAB_URL + '/oauth/authorize?client_id=' +
 						this.clientId + '&scope=' + this.scope + 
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
-						'&response_type=code&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
+						'&response_type=token&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
 							'&domain=' + window.location.hostname + '&token=' + state) , 'gitlabauth'); 
 					
 					if (win != null)
 					{
-						window.onGitLabCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						window.onGitLabCallback = mxUtils.bind(this, function(newAuthCode, authWindow)
 						{
 							if (acceptAuthResponse)
 							{
 								window.onGitLabCallback = null;
 								acceptAuthResponse = false;
 								
-								if (newAuthInfo == null)
+								if (newAuthCode == null)
 								{
 									error({message: mxResources.get('accessDenied'), retry: auth});
 								}
@@ -134,13 +111,13 @@ GitLabClient.prototype.authenticateStep2 = function(state, success, error)
 										authSuccess();
 									}
 									
-									_token = newAuthInfo.access_token;
+									_token = newAuthCode;
 									this.setToken(_token);
 									this.setUser(null);
 									
 									if (remember)
 									{
-										this.setPersistentToken('remembered');
+										this.setPersistentToken(_token);
 									}
 									
 									success();
