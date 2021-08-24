@@ -5653,7 +5653,7 @@ LucidImporter = {};
 					{
 						cell.style += 'rounded=0;';
 					}
-					var isCurved = false;
+					var isCurved = p.Shape == 'curve';
 					
 					if (p.Shape != 'diagonal')
 					{
@@ -5676,10 +5676,9 @@ LucidImporter = {};
 						{
 							cell.style += 'edgeStyle=orthogonalEdgeStyle;';
 	
-							if (p.Shape == 'curve')
+							if (isCurved)
 							{
 								cell.style += 'curved=1;';
-								isCurved = true;
 							}
 						}
 					}
@@ -5743,6 +5742,12 @@ LucidImporter = {};
 							cell.geometry.points.push(new mxPoint(
 								Math.round(pt.x * scale + dx),
 								Math.round(pt.y * scale + dy)));
+						}
+						
+						if (waypoints == p.BezierJoints)
+						{
+							console.log('Curved edge case');
+							LucidImporter.hasUnknownShapes = true;
 						}
 					}
 					

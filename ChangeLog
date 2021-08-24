@@ -1,3 +1,14 @@
+24-AUG-2021: 14.9.9
+
+- Updates AWS stencils to latest set
+- Reports curved edges as not fully supported in Lucidchart import
+- Updates ru translations. Thanks to Ash Ed.
+
+18-AUG-2021: 14.9.8
+
+- Fixes preview domain in trello powerup
+- [conf cloud] Undo check name fix to consider 404 error as success
+
 16-AUG-2021: 14.9.7
 
 - Prevents NPE in style format dialog
@@ -31,7 +42,7 @@
 - Adds stopping for custom action sequences
 - Fixes naming for parallel animations
 - [conf cloud] Adds timeout config
-- Updates it tranlsations. Thanks to Vincenzo Reale
+- Updates it translations. Thanks to Vincenzo Reale
 - Fixes cloning for actions, final animation state
 - [jira cloud] Adds back Confluence embed using new API
 - Fixes update of custom actions for copy, duplicate and recursion
