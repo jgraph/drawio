@@ -566,6 +566,7 @@
     <connections>
         <constraint name="in" perimeter="0" x="0" y="0.5"/>
         <constraint name="out" perimeter="0" x="1" y="0.5"/>
+        <constraint name="pot" perimeter="0" x="0.3" y="1"/>
     </connections>
     <background>
         <rect h="20" w="64" x="18" y="20"/>

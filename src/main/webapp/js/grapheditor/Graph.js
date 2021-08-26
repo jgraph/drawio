@@ -1734,6 +1734,14 @@ Graph.stripQuotes = function(text)
 };
 
 /**
+ * Returns true if the given string is a page link.
+ */
+Graph.isPageLink = function(text)
+{
+	 return text != null && text.substring(0, 13) == 'data:page/id,';
+};
+
+/**
  * Returns true if the given string is a link.
  * 
  * See https://stackoverflow.com/questions/5717093/check-if-a-javascript-string-is-a-url
@@ -7855,7 +7863,7 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					try
 					{
-						var c = JSON.parse(constraints);
+						var c = JSON.parse(constgeraints);
 						
 						for (var i = 0; i < c.length; i++)
 						{
@@ -9383,8 +9391,8 @@ if (typeof mxVertexHandler != 'undefined')
 				if (exportType == 'diagram' && this.backgroundImage != null)
 				{
 					 bounds.add(new mxRectangle(
-						this.view.translate.x * vs,
-						this.view.translate.y * vs,
+						(this.view.translate.x + this.backgroundImage.x) * vs,
+						(this.view.translate.y + this.backgroundImage.x) * vs,
 					 	this.backgroundImage.width * vs,
 					 	this.backgroundImage.height * vs));
 				}
@@ -9524,12 +9532,14 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var s2 = vs / scale;
 					var tr = this.view.translate;
-					var tmp = new mxRectangle(tr.x * s2, tr.y * s2, bgImg.width * s2, bgImg.height * s2);
+					var tmp = new mxRectangle((bgImg.x + tr.x) * s2, (bgImg.x + tr.y) * s2,
+						bgImg.width * s2, bgImg.height * s2);
 					
 					// Checks if visible
 					if (mxUtils.intersects(bounds, tmp))
 					{
-						svgCanvas.image(tr.x, tr.y, bgImg.width, bgImg.height, bgImg.src, true);
+						svgCanvas.image(bgImg.x + tr.x, bgImg.x + tr.y,
+							bgImg.width, bgImg.height, bgImg.src, true);
 					}
 				}
 				

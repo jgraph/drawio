@@ -7726,9 +7726,9 @@
                 {
 					var img = this.image;
 
-					if (img != null && img.src != null && img.src.substring(0, 13) == 'data:page/id,')
+					if (img != null && img.src != null && Graph.isPageLink(img.src))
 					{
-						img = this.ui.createImageForPageLink(img.src);
+						img = {originalSrc: img.src};
 					}
 
                     this.page.viewState.backgroundImage = img;

@@ -1,3 +1,9 @@
+26-AUG-2021: 15.0.0
+
+- Adds file properties dialog to sketch mode
+- Adds Shift+Click for color button
+- Adds ability to include page(s) as background to other pages on diagrams 
+
 24-AUG-2021: 14.9.9
 
 - Updates AWS stencils to latest set

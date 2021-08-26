@@ -1528,13 +1528,20 @@ var PageSetupDialog = function(editorUi)
 	
 	var backgroundInput = document.createElement('input');
 	backgroundInput.setAttribute('type', 'text');
+
 	var backgroundButton = document.createElement('button');
-	
-	backgroundButton.style.width = '18px';
-	backgroundButton.style.height = '18px';
+	backgroundButton.style.width = '22px';
+	backgroundButton.style.height = '22px';
+	backgroundButton.style.cursor = 'pointer';
 	backgroundButton.style.marginRight = '20px';
 	backgroundButton.style.backgroundPosition = 'center center';
 	backgroundButton.style.backgroundRepeat = 'no-repeat';
+
+	if (mxClient.IS_FF)
+	{
+		backgroundButton.style.position = 'relative';
+		backgroundButton.style.top = '-6px';
+	}
 	
 	var newBackgroundColor = graph.background;
 	
@@ -1594,30 +1601,46 @@ var PageSetupDialog = function(editorUi)
 	row.appendChild(td);
 	td = document.createElement('td');
 	
-	var changeImageLink = document.createElement('a');
-	changeImageLink.style.textDecoration = 'underline';
-	changeImageLink.style.cursor = 'pointer';
-	changeImageLink.style.color = '#a0a0a0';
+	var changeImageLink = document.createElement('button');
+	changeImageLink.className = 'geBtn';
+	changeImageLink.style.margin = '0px';
+	mxUtils.write(changeImageLink, mxResources.get('change') + '...');
+
+	var imgPreview = document.createElement('img');
+	imgPreview.setAttribute('valign', 'middle');
+	imgPreview.style.verticalAlign = 'middle';
+	imgPreview.style.border = '1px solid lightGray';
+	imgPreview.style.borderRadius = '4px';
+	imgPreview.style.marginRight = '14px';
+	imgPreview.style.maxWidth = '100px';
+	imgPreview.style.cursor = 'pointer';
+	imgPreview.style.height = '60px';
+	imgPreview.style.padding = '4px';
 	
 	var newBackgroundImage = graph.backgroundImage;
 	
 	function updateBackgroundImage()
 	{
-		if (newBackgroundImage == null)
+		var img = newBackgroundImage;
+
+		if (img != null && Graph.isPageLink(img.src))
 		{
-			changeImageLink.removeAttribute('title');
-			changeImageLink.style.fontSize = '';
-			changeImageLink.innerHTML = mxUtils.htmlEntities(mxResources.get('change')) + '...';
+			img = editorUi.createImageForPageLink(img.src);
+		}
+		
+		if (img != null && img.src != null)
+		{
+			imgPreview.setAttribute('src', img.src);
+			imgPreview.style.display = '';
 		}
 		else
 		{
-			changeImageLink.setAttribute('title', newBackgroundImage.src);
-			changeImageLink.style.fontSize = '11px';
-			changeImageLink.innerHTML = mxUtils.htmlEntities(newBackgroundImage.src.substring(0, 42)) + '...';
+			imgPreview.removeAttribute('src');
+			imgPreview.style.display = 'none';
 		}
 	};
-	
-	mxEvent.addListener(changeImageLink, 'click', function(evt)
+
+	var changeImage = function(evt)
 	{
 		editorUi.showBackgroundImageDialog(function(image, failed)
 		{
@@ -1629,10 +1652,13 @@ var PageSetupDialog = function(editorUi)
 		}, newBackgroundImage);
 		
 		mxEvent.consume(evt);
-	});
+	};
+	
+	mxEvent.addListener(changeImageLink, 'click', changeImage);
+	mxEvent.addListener(imgPreview, 'click', changeImage);
 	
 	updateBackgroundImage();
-
+	td.appendChild(imgPreview);
 	td.appendChild(changeImageLink);
 	
 	row.appendChild(td);
@@ -1968,7 +1994,7 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	{
 		return currentPageFormat;
 	}, widthInput: widthInput,
-	heightInput: heightInput};
+		heightInput: heightInput};
 };
 
 /**

@@ -427,7 +427,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.graph.customLinkClicked = function(href)
 				{
-					if (href.substring(0, 13) == 'data:page/id,')
+					if (Graph.isPageLink(href))
 					{
 						var comma = href.indexOf(',');
 						

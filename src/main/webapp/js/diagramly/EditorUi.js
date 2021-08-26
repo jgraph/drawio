@@ -6855,7 +6855,7 @@
 	 */
 	EditorUi.prototype.updatePageLink = function(mapping, href)
 	{
-		if (href.substring(0, 13) == 'data:page/id,')
+		if (Graph.isPageLink(href))
 		{
 			var newId = mapping[href.substring(href.indexOf(',') + 1)];
 			href = (newId != null) ? 'data:page/id,' + newId : null;
@@ -6872,7 +6872,7 @@
 					{
 						var action = link.actions[i];
 						
-						if (action.open != null && action.open.substring(0, 13) == 'data:page/id,')
+						if (action.open != null && Graph.isPageLink(action.open))
 						{
 							var oldId = action.open.substring(action.open.indexOf(',') + 1);
 							var newId = mapping[oldId];
@@ -8939,9 +8939,9 @@
 		{
 			var result = graphParseBackgroundImage.apply(this, arguments);
 
-			if (result != null && result.src != null && result.src.substring(0, 13) == 'data:page/id,')
+			if (result != null && result.src != null && Graph.isPageLink(result.src))
 			{
-				result = ui.createImageForPageLink(result.src);
+				result = {originalSrc: result.src};
 			}
 
 			return result;
@@ -9866,7 +9866,7 @@
 	{
 		var title = Graph.prototype.getLinkTitle.apply(this, arguments);
 
-		if (href.substring(0, 13) == 'data:page/id,')
+		if (Graph.isPageLink(href))
 		{
 			var comma = href.indexOf(',');
 	
@@ -9897,7 +9897,7 @@
 	 */
 	EditorUi.prototype.handleCustomLink = function(href)
 	{
-		if (href.substring(0, 13) == 'data:page/id,')
+		if (Graph.isPageLink(href))
 		{
 			var comma = href.indexOf(',');
 			var page = this.getPageById(href.substring(comma + 1));

@@ -204,6 +204,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		clrInput.setAttribute('type', 'color');
 		clrInput.style.visibility = 'hidden';
 		clrInput.style.width = '0px';
+		clrInput.style.height = '0px';
 		clrInput.style.border = 'none';
 		clrInput.style.marginLeft = '10px';
 		div.appendChild(clrInput);
@@ -2426,7 +2427,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 					right.style.textAlign = 'right';
 					right.style.whiteSpace = 'nowrap';
 					right.style.position = 'absolute';
-					right.style.right = '6px';
+					right.style.right = '16px';
 					right.style.top = '6px';
 		
 					// Poor man's change layer order

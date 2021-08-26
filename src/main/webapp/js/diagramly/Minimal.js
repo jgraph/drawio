@@ -1308,7 +1308,23 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addLinkToItem(item, 'https://www.diagrams.net/doc/faq/math-typesetting');
 			}
 			
-            ui.menus.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-', 'pageScale'], parent);
+            ui.menus.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
+
+			var file = ui.getCurrentFile();
+
+			if (file != null && ui.fileNode != null)
+			{
+				var filename = (file.getTitle() != null) ?
+					file.getTitle() : ui.defaultFilename;
+				
+				if (!/(\.html)$/i.test(filename) &&
+					!/(\.svg)$/i.test(filename))
+				{
+					this.addMenuItems(menu, ['properties'], parent);
+				}
+			}
+			
+            ui.menus.addMenuItems(menu, ['pageScale'], parent);
 
 			if (urlParams['sketch'] != '1')
 			{
@@ -1316,7 +1332,7 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				ui.menus.addMenuItems(menu, ['-', 'layers'], parent);
+				ui.menus.addMenuItems(menu, ['pageSetup', '-', 'layers'], parent);
 			}
         })));
 	};

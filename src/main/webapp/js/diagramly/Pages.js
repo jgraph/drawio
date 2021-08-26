@@ -326,15 +326,16 @@ EditorUi.prototype.createImageForPageLink = function(src)
 	{
 		var page = this.getPageById(src.substring(comma + 1));
 
-		if (page != null)
+		if (page != null && page != this.currentPage)
 		{
-			var svgRoot = this.getSvgForPage(page);
-
-			result = new mxImage(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
-				parseInt(svgRoot.getAttribute('width')),
-				parseInt(svgRoot.getAttribute('height')));
+			result = this.getImageForPage(page);
 			result.originalSrc = src;
 		}
+	}
+
+	if (result == null)
+	{
+		result = {originalSrc: src};
 	}
 
 	return result;
@@ -343,7 +344,7 @@ EditorUi.prototype.createImageForPageLink = function(src)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.getSvgForPage = function(page)
+EditorUi.prototype.getImageForPage = function(page)
 {
 	var graphGetGlobalVariable = this.editor.graph.getGlobalVariable;
 	var graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
@@ -358,9 +359,11 @@ EditorUi.prototype.getSvgForPage = function(page)
 	this.updatePageRoot(page);
 	graph.model.setRoot(page.root);
 	var svgRoot = graph.getSvg();
+	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);
 
-	return svgRoot;
+	return new mxImage(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
+		bounds.width, bounds.height, bounds.x, bounds.y);
 };
  
 /**
@@ -1470,6 +1473,11 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
 					{
 						this.selectPage(this.pages[index]);
 					}), parent);
+
+					var id = this.pages[index].getId();
+					item.setAttribute('title', this.pages[index].getName() +
+						((id != null) ? ' (' + id + ')' : '') +
+						' [' + (index + 1)+ ']');
 					
 					// Adds checkmark to current page
 					if (this.pages[index] == this.currentPage)

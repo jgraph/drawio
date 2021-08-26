@@ -583,7 +583,6 @@ Draw.loadPlugin(function(ui)
 		anchorRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
 		anchorRadio.setAttribute('value', 'url');
 		anchorRadio.setAttribute('type', 'radio');
-		anchorRadio.setAttribute('name', 'current-linkdialog');
 		
 		var anchorSelect = document.createElement('select');
 		anchorSelect.style.marginTop = '6px';

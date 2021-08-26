@@ -1520,60 +1520,87 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	mxUtils.write(h3, mxResources.get('backgroundImage'));
 	h3.style.marginTop = '0px';
 	div.appendChild(h3);
-	
-	mxUtils.write(div, mxResources.get('image') + ' ' + mxResources.get('url') + ':');
-	mxUtils.br(div);
-	
+
+	var isPageLink = img != null && img.originalSrc != null;
+	var pageFound = false;
+
+	var urlRadio = document.createElement('input');
+	urlRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	urlRadio.setAttribute('value', 'url');
+	urlRadio.setAttribute('type', 'radio');
+	urlRadio.setAttribute('name', 'geBackgroundImageDialogOption');
+
+	var pageRadio = document.createElement('input');
+	pageRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+	pageRadio.setAttribute('value', 'url');
+	pageRadio.setAttribute('type', 'radio');
+	pageRadio.setAttribute('name', 'geBackgroundImageDialogOption');
+
 	var urlInput = document.createElement('input');
 	urlInput.setAttribute('type', 'text');
-	urlInput.style.marginTop = '4px';
-	urlInput.style.marginBottom = '4px';
-	urlInput.style.width = '350px';
-	urlInput.value = (img != null) ? ((img.originalSrc != null) ?
-		img.originalSrc : img.src) : '';
+	urlInput.style.marginBottom = '8px';
+	urlInput.style.width = '320px';
+	urlInput.value = (isPageLink || img == null) ? '' : img.src;
 	
+	var pageSelect = document.createElement('select');
+	pageSelect.style.width = '320px';
+
+	for (var i = 0; i < editorUi.pages.length; i++)
+	{
+		var pageOption = document.createElement('option');
+		mxUtils.write(pageOption, editorUi.pages[i].getName() ||
+			mxResources.get('pageWithNumber', [i + 1]));
+		pageOption.setAttribute('value', 'data:page/id,' +
+			editorUi.pages[i].getId());
+		
+		if (img != null && img.originalSrc == pageOption.getAttribute('value'))
+		{
+			pageOption.setAttribute('selected', 'selected');
+			pageFound = true;
+		}
+
+		pageSelect.appendChild(pageOption);
+	}
+
 	var resetting = false;
 	var ignoreEvt = false;
 	
 	var urlChanged = function(evt, done)
 	{
 		// Skips blur event if called from apply button
-		if (evt == null || !ignoreEvt)
+		if (!resetting && (evt == null || !ignoreEvt))
 		{
-			urlInput.value = mxUtils.trim(urlInput.value);
-				
-			if (!resetting && urlInput.value != '' && !editorUi.isOffline())
+			if (pageRadio.checked)
 			{
-				if (urlInput.value.substring(0, 13) == 'data:page/id,')
+				if (done != null)
 				{
+					done(pageSelect.value);
+				}
+			}
+			else if (urlInput.value != '' && !editorUi.isOffline())
+			{
+				urlInput.value = mxUtils.trim(urlInput.value);
+
+				editorUi.loadImage(urlInput.value, function(img)
+				{
+					widthInput.value = img.width;
+					heightInput.value = img.height;
+					
 					if (done != null)
 					{
 						done(urlInput.value);
 					}
-				}
-				else
+				}, function()
 				{
-					editorUi.loadImage(urlInput.value, function(img)
+					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
+					widthInput.value = '';
+					heightInput.value = '';
+					
+					if (done != null)
 					{
-						widthInput.value = img.width;
-						heightInput.value = img.height;
-						
-						if (done != null)
-						{
-							done(urlInput.value);
-						}
-					}, function()
-					{
-						editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
-						widthInput.value = '';
-						heightInput.value = '';
-						
-						if (done != null)
-						{
-							done(null);
-						}
-					});
-				}
+						done(null);
+					}
+				});
 			}
 			else
 			{
@@ -1587,11 +1614,32 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 			}
 		}
 	};
-	
+
 	this.init = function()
 	{
-		urlInput.focus();
+		if (isPageLink)
+		{
+			pageSelect.focus();
+		}
+		else
+		{
+			urlInput.focus();
+		}
+
+		mxEvent.addListener(pageSelect, 'focus', function()
+		{
+			urlRadio.removeAttribute('checked');
+			pageRadio.setAttribute('checked', 'checked');
+			pageRadio.checked = true;
+		});
 		
+		mxEvent.addListener(urlInput, 'focus', function()
+		{
+			pageRadio.removeAttribute('checked');
+			urlRadio.setAttribute('checked', 'checked');
+			urlRadio.checked = true;
+		});
+
 		// Installs drag and drop handler for local images and links
 		if (Graph.fileSupport)
 		{
@@ -1673,18 +1721,21 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		}
 	};
 
+	div.appendChild(urlRadio);
 	div.appendChild(urlInput);
 	mxUtils.br(div);
-	mxUtils.br(div);
-	
-	mxUtils.write(div, mxResources.get('width') + ':');
+
+	var span = document.createElement('span');
+	span.style.marginLeft = '30px';
+	mxUtils.write(span, mxResources.get('width') + ':');
+	div.appendChild(span);
 	
 	var widthInput = document.createElement('input');
 	widthInput.setAttribute('type', 'text');
 	widthInput.style.width = '60px';
-	widthInput.style.marginLeft = '4px';
+	widthInput.style.marginLeft = '8px';
 	widthInput.style.marginRight = '16px';
-	widthInput.value = (img != null) ? img.width : '';
+	widthInput.value = (img != null && !isPageLink) ? img.width : '';
 	
 	div.appendChild(widthInput);
 	
@@ -1693,27 +1744,12 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	var heightInput = document.createElement('input');
 	heightInput.setAttribute('type', 'text');
 	heightInput.style.width = '60px';
-	heightInput.style.marginLeft = '4px';
+	heightInput.style.marginLeft = '8px';
 	heightInput.style.marginRight = '16px';
-	heightInput.value = (img != null) ? img.height : '';
+	heightInput.value = (img != null && !isPageLink) ? img.height : '';
 	
 	div.appendChild(heightInput);
-	
-	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
-	{
-		urlInput.value = '';
-		widthInput.value = '';
-		heightInput.value = '';
-		resetting = false;
-	});
-	mxEvent.addGestureListeners(resetBtn, function()
-	{
-		// Blocks processing a image URL while clicking reset
-		resetting = true;
-	});
-	resetBtn.className = 'geBtn';
-	resetBtn.width = '100';
-	div.appendChild(resetBtn);
+	mxUtils.br(div);
 	mxUtils.br(div);
 
 	mxEvent.addListener(urlInput, 'change', urlChanged);
@@ -1737,10 +1773,60 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
         urlInput.focus();
 	};
 
+	div.appendChild(pageRadio);
+	div.appendChild(pageSelect);
+	mxUtils.br(div);
+
+	if (isPageLink)
+	{
+		pageRadio.setAttribute('checked', 'checked');
+		pageRadio.checked = true;
+	}
+	else
+	{
+		urlRadio.setAttribute('checked', 'checked');
+		urlRadio.checked = true;
+	}
+
+	if (!pageFound && pageRadio.checked)
+	{
+		var notFoundOption = document.createElement('option');
+		mxUtils.write(notFoundOption, mxResources.get('pageNotFound'));
+		notFoundOption.setAttribute('disabled', 'disabled');
+		notFoundOption.setAttribute('selected', 'selected');
+		notFoundOption.setAttribute('value', 'pageNotFound');
+		pageSelect.appendChild(notFoundOption);
+		
+		mxEvent.addListener(pageSelect, 'change', function()
+		{
+			if (notFoundOption.parentNode != null && !notFoundOption.selected)
+			{
+				notFoundOption.parentNode.removeChild(notFoundOption);
+			}
+		});
+	}
+
 	var btns = document.createElement('div');
-	btns.style.marginTop = '40px';
+	btns.style.marginTop = '30px';
 	btns.style.textAlign = 'right';
 	
+	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
+	{
+		urlInput.value = '';
+		widthInput.value = '';
+		heightInput.value = '';
+		urlRadio.checked = true;
+		resetting = false;
+	});
+	mxEvent.addGestureListeners(resetBtn, function()
+	{
+		// Blocks processing a image URL while clicking reset
+		resetting = true;
+	});
+	resetBtn.className = 'geBtn';
+	resetBtn.width = '100';
+	btns.appendChild(resetBtn);
+
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		resetting = true;
@@ -1760,8 +1846,9 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		
 		urlChanged(null, function(url)
 		{
-			applyFn((url != '' && url != null) ? new mxImage(urlInput.value,
-				widthInput.value, heightInput.value) : null, url == null);
+			applyFn((url != '' && url != null) ? new mxImage(url,
+				widthInput.value, heightInput.value) : null,
+				url == null);
 		});
 	});
 	
@@ -4860,13 +4947,13 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	urlRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
 	urlRadio.setAttribute('value', 'url');
 	urlRadio.setAttribute('type', 'radio');
-	urlRadio.setAttribute('name', 'current-linkdialog');
+	urlRadio.setAttribute('name', 'geLinkDialogOption');
 
 	var pageRadio = document.createElement('input');
 	pageRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
 	pageRadio.setAttribute('value', 'url');
 	pageRadio.setAttribute('type', 'radio');
-	pageRadio.setAttribute('name', 'current-linkdialog');
+	pageRadio.setAttribute('name', 'geLinkDialogOption');
 
 	var pageSelect = document.createElement('select');
 	pageSelect.style.width = '100%';
@@ -4892,7 +4979,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	
 	if (showPages && editorUi.pages != null)
 	{
-		if (initialValue != null && initialValue.substring(0, 13) == 'data:page/id,')
+		if (initialValue != null && Graph.isPageLink(initialValue))
 		{
 			pageRadio.setAttribute('checked', 'checked');
 			pageRadio.defaultChecked = true;

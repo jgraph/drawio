@@ -1080,6 +1080,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	mxUtils.write(span, label);
 	div.appendChild(span);
 	
+	var title = 'Shift+Click for Color Picker';
 	var value = getColorFn();
 	var applying = false;
 	var btn = null;
@@ -1099,13 +1100,9 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 			if (color != null && color != mxConstants.NONE && color.length > 1)
 			{
-				var clr = (color.charAt(0) == '#') ? color.substring(1) : color;
+				var clr = (color.charAt(0) == '#') ? color.substring(1).toUpperCase() : color;
 				var name = ColorDialog.prototype.colorNames[clr];
-
-				if (name != null)
-				{
-					btn.setAttribute('title', name);
-				}
+				btn.setAttribute('title', (name != null) ? name + ' (' + title + ')' : title);
 			}
 			
 			if (color != null && color != mxConstants.NONE)
@@ -1142,13 +1139,35 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 			applying = false;
 		}
 	};
+	
+	var clrInput = document.createElement('input');
+	clrInput.setAttribute('type', 'color');
+	clrInput.style.visibility = 'hidden';
+	clrInput.style.width = '0px';
+	clrInput.style.height = '0px';
+	clrInput.style.border = 'none';
+	div.appendChild(clrInput);
 
 	btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 	{
-		this.editorUi.pickColor(value, function(color)
+		if (mxEvent.isShiftDown(evt) && !mxClient.IS_IE && !mxClient.IS_IE11)
 		{
-			apply(color, null, true);
-		});
+			clrInput.value = value;
+			clrInput.click();
+
+			mxEvent.addListener(clrInput, 'input', function()
+			{
+				apply(clrInput.value, null, true);
+			});
+		}
+		else
+		{
+			this.editorUi.pickColor(value, function(color)
+			{
+				apply(color, null, true);
+			});
+		}
+
 		mxEvent.consume(evt);
 	}));
 	
@@ -1159,6 +1178,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	btn.className = 'geColorBtn';
 	btn.style.display = (cb.checked || hideCheckbox) ? '' : 'none';
 	div.appendChild(btn);
+
+	var clr = (value != null && value.charAt(0) == '#') ? value.substring(1).toUpperCase() : value;
+	var name = ColorDialog.prototype.colorNames[clr];
+	btn.setAttribute('title', (name != null) ? name + ' (' + title + ')' : title);
 
 	mxEvent.addListener(div, 'click', function(evt)
 	{
@@ -6281,7 +6304,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 		
 		if (this.showBackgroundImageOption)
 		{
-			var btn = mxUtils.button(mxResources.get('image'), function(evt)
+			var btn = mxUtils.button(mxResources.get('change') + '...', function(evt)
 			{
 				ui.showBackgroundImageDialog(null, ui.editor.graph.backgroundImage);
 				mxEvent.consume(evt);
@@ -6293,7 +6316,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 			btn.style.paddingBottom = (document.documentMode == 11 || mxClient.IS_MT) ? '0px' : '2px';
 			btn.style.height = '22px';
 			btn.style.right = '72px';
-			btn.style.width = '56px';
+			btn.style.width = '60px';
 		
 			bg.appendChild(btn);
 		}
