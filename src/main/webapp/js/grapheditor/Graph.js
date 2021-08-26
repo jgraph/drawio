@@ -9392,7 +9392,7 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					 bounds.add(new mxRectangle(
 						(this.view.translate.x + this.backgroundImage.x) * vs,
-						(this.view.translate.y + this.backgroundImage.x) * vs,
+						(this.view.translate.y + this.backgroundImage.y) * vs,
 					 	this.backgroundImage.width * vs,
 					 	this.backgroundImage.height * vs));
 				}
@@ -9532,13 +9532,13 @@ if (typeof mxVertexHandler != 'undefined')
 				{
 					var s2 = vs / scale;
 					var tr = this.view.translate;
-					var tmp = new mxRectangle((bgImg.x + tr.x) * s2, (bgImg.x + tr.y) * s2,
+					var tmp = new mxRectangle((bgImg.x + tr.x) * s2, (bgImg.y + tr.y) * s2,
 						bgImg.width * s2, bgImg.height * s2);
 					
 					// Checks if visible
 					if (mxUtils.intersects(bounds, tmp))
 					{
-						svgCanvas.image(bgImg.x + tr.x, bgImg.x + tr.y,
+						svgCanvas.image(bgImg.x + tr.x, bgImg.y + tr.y,
 							bgImg.width, bgImg.height, bgImg.src, true);
 					}
 				}

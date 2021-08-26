@@ -9999,14 +9999,15 @@
 			/**
 			 * Persists default page format.
 			 */
-			this.editor.graph.pageFormat = mxSettings.getPageFormat();
-			
+			this.editor.graph.pageFormat = (this.editor.graph.defaultPageFormat != null) ?
+				this.editor.graph.defaultPageFormat : mxSettings.getPageFormat();
+
 			this.addListener('pageFormatChanged', mxUtils.bind(this, function(sender, evt)
 			{
 				mxSettings.setPageFormat(this.editor.graph.pageFormat);
 				mxSettings.save();
 			}));
-			
+
 			/**
 			 * Persists default grid color.
 			 */

@@ -1897,10 +1897,17 @@
 					mxGraphView.prototype.gridSteps = val;
 				}
 			}
-			
-			if (config.emptyDiagramXml)
+
+			if (config.pageFormat != null)
 			{
-				EditorUi.prototype.emptyDiagramXml = config.emptyDiagramXml;
+				var w = parseInt(config.pageFormat.width);
+				var h = parseInt(config.pageFormat.height);
+
+				if (!isNaN(w) && w > 0 && !isNaN(h) && h > 0)
+				{
+					mxGraph.prototype.defaultPageFormat = new mxRectangle(0, 0, w, h);
+					mxGraph.prototype.pageFormat = mxGraph.prototype.defaultPageFormat;
+				}
 			}
 			
 			if (config.thumbWidth)

@@ -7556,7 +7556,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 	if (!editorUi.isOffline() || mxClient.IS_CHROMEAPP)
 	{
 		searchInput.style.width = '240px';
-		var elt = editorUi.menus.createHelpLink('https://www.diagrams.net/doc/faq/tags-plugin');
+		var elt = editorUi.menus.createHelpLink('https://www.diagrams.net/doc/faq/tags');
 		elt.firstChild.style.marginBottom = '6px';
 		elt.style.marginLeft = '6px';
 		div.appendChild(elt);

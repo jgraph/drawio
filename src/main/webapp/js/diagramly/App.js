@@ -7583,5 +7583,8 @@ Editor.prototype.resetGraph = function()
 	editorResetGraph.apply(this, arguments);
 	
 	// Overrides default with persisted value
-	this.graph.pageFormat = mxSettings.getPageFormat();
+	if (this.graph.defaultPageFormat == null)
+	{
+		this.graph.pageFormat = mxSettings.getPageFormat();
+	}
 };

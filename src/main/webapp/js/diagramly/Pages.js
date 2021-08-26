@@ -767,7 +767,8 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.gridEnabled = this.defaultGridEnabled;
 		this.gridSize = mxGraph.prototype.gridSize;
 		this.pageScale = mxGraph.prototype.pageScale;
-		this.pageFormat = (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat());
+		this.pageFormat = (typeof mxSettings === 'undefined' || this.defaultPageFormat != null) ?
+			mxGraph.prototype.pageFormat : mxSettings.getPageFormat();
 		this.pageVisible = this.defaultPageVisible;
 		this.background = null;
 		this.backgroundImage = null;
