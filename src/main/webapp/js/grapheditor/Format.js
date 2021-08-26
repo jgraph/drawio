@@ -1098,7 +1098,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				mxUtils.htmlEntities((color != null && color != mxConstants.NONE) ?
 				color : defaultValue) + ';"></div>';
 
-			if (color != null && color != mxConstants.NONE && color.length > 1)
+			if (color != null && color != mxConstants.NONE && color.length > 1 && typeof color === 'string')
 			{
 				var clr = (color.charAt(0) == '#') ? color.substring(1).toUpperCase() : color;
 				var name = ColorDialog.prototype.colorNames[clr];

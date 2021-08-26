@@ -1,3 +1,15 @@
+26-AUG-2021: 15.0.2
+
+- Fixes special cases for default page format https://github.com/jgraph/drawio/issues/2202
+- Adds type check to avoid charAt is not a function in format panel color
+- [teams] Fixes auth error and upgraded manifest and JS sdk
+- [teams] disable EditorUi.nativeFileSupport in teams
+
+26-AUG-2021: 15.0.1
+
+- Adds configuration for page format https://github.com/jgraph/drawio/issues/2202
+- Fixes background page image offset
+
 26-AUG-2021: 15.0.0
 
 - Adds file properties dialog to sketch mode

@@ -86,6 +86,7 @@
 	 * Shortcut for capability check.
 	 */
 	EditorUi.nativeFileSupport = !mxClient.IS_OP && !EditorUi.isElectronApp &&
+		urlParams['extAuth'] != '1' &&
 		'showSaveFilePicker' in window && 'showOpenFilePicker' in window;
 
 	/**

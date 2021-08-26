@@ -2111,6 +2111,7 @@
 			}
 		});
 		
+		action.label = mxResources.get('searchShapes');
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return editorUi.sidebar.isEntryVisible('search'); });
 		

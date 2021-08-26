@@ -580,7 +580,9 @@ Graph.prototype.createViewState = function(node)
 		background: (bg != null && bg.length > 0) ? bg : null,
 		backgroundImage: bgImg,
 		pageScale: (!isNaN(ps)) ? ps : mxGraph.prototype.pageScale,
-		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) : (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat()),
+		pageFormat: (!isNaN(pw) && !isNaN(ph)) ? new mxRectangle(0, 0, pw, ph) :
+			((typeof mxSettings === 'undefined' || this.defaultPageFormat != null) ?
+				mxGraph.prototype.pageFormat : mxSettings.getPageFormat()),
 		tooltips: node.getAttribute('tooltips') != '0',
 		connect: node.getAttribute('connect') != '0',
 		arrows: node.getAttribute('arrows') != '0',
@@ -615,7 +617,9 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 
 	node.setAttribute('pageScale', (vs != null && vs.pageScale != null) ? vs.pageScale : mxGraph.prototype.pageScale);
 	
-	var pf = (vs != null) ? vs.pageFormat : (typeof mxSettings === 'undefined'? mxGraph.prototype.pageFormat : mxSettings.getPageFormat());
+	var pf = (vs != null) ? vs.pageFormat : (typeof mxSettings === 'undefined' ||
+		this.defaultPageFormat != null) ? mxGraph.prototype.pageFormat :
+			mxSettings.getPageFormat();
 	
 	if (pf != null)
 	{
