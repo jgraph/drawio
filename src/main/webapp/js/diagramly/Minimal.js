@@ -1748,18 +1748,11 @@ EditorUi.initMinimalTheme = function()
 				{
 					this.scratchpad = null;
 					this.toggleScratchpad();
-					
-					// Refreshes outline window
-					var wnd = ui.actions.outlineWindow;
-					
-					if (wnd != null)
-		            {
-						//ui.actions.outlineWindow.update(true);
-		            }
 				}
 			}
-			
+
 			graph.refresh();
+			graph.refreshBackgroundImage();
 			graph.view.validateBackground()
 		}));
 

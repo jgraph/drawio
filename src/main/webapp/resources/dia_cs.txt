@@ -1154,3 +1154,4 @@ showAllTemps=Zobrazit všechny šablony
 notionToken=Token pojmu
 selectDB=Vybrat databázi
 noDBs=Žádné databáze
+diagramEdited={1} diagram "{2}" edited

@@ -1154,3 +1154,4 @@ showAllTemps=Προβολή όλων των προτύπων
 notionToken=Notion Token
 selectDB=Επιλογή Βάσης Δεδομένων
 noDBs=Δεν υπάρχουν Βάσεις Δεδομένων
+diagramEdited={1} diagram "{2}" edited

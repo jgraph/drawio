@@ -8961,6 +8961,46 @@
 			graphSetBackgroundImage.apply(this, arguments);
 		};
 
+		// Updates background to update placeholders for page title
+		this.editor.addListener('pageRenamed', mxUtils.bind(this, function()
+		{
+			graph.refreshBackgroundImage();
+		}));
+
+		// Updates background to update placeholders for page number
+		this.editor.addListener('pageMoved', mxUtils.bind(this, function()
+		{
+			graph.refreshBackgroundImage();
+		}));
+
+		// Updates background image after remote changes to the referenced page
+		this.editor.addListener('pagesPatched', mxUtils.bind(this, function(sender, evt)
+		{
+			var ref = (graph.backgroundImage != null) ? graph.backgroundImage.originalSrc : null;
+
+			if (ref != null)
+			{
+				var comma = ref.indexOf(',');
+				
+				if (comma > 0)
+				{
+					var id = ref.substring(comma + 1);
+					var patches = evt.getProperty('patches');
+
+					for (var i = 0; i < patches.length; i++)
+					{
+						if (patches[i][EditorUi.DIFF_UPDATE][id] != null)
+						{
+							graph.refreshBackgroundImage();
+							graph.view.validateBackgroundImage();
+
+							break;
+						}
+					}
+				}
+			}
+		}));
+
 		// Restores background page references in output data
 		var graphGetBackgroundImageObject = graph.getBackgroundImageObject;
 		
@@ -13627,7 +13667,7 @@
 		}
 		catch(e)
 		{
-			sendResponse(null, 'Invalid Call: An error occured, ' + e.message);
+			sendResponse(null, 'Invalid Call: An error occurred, ' + e.message);
 		}
 	};
 	

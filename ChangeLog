@@ -1,3 +1,10 @@
+27-AUG-2021: 15.0.3
+
+- Fixes missing background images in thumbnails
+- [conf cloud] Adds page edit comment when a diagram is saved from direct edit
+- Fixes issue with application of constraints
+- Updates background image after relevant events
+
 26-AUG-2021: 15.0.2
 
 - Fixes special cases for default page format https://github.com/jgraph/drawio/issues/2202

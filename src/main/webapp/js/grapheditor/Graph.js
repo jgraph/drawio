@@ -7863,7 +7863,7 @@ if (typeof mxVertexHandler != 'undefined')
 					
 					try
 					{
-						var c = JSON.parse(constgeraints);
+						var c = JSON.parse(constraints);
 						
 						for (var i = 0; i < c.length; i++)
 						{

@@ -1154,3 +1154,4 @@ showAllTemps=Показать все шаблоны
 notionToken=Notion токен
 selectDB=Выберите базу данных
 noDBs=Нет баз данных
+diagramEdited={1} diagram "{2}" edited

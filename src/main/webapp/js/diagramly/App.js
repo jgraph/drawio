@@ -2357,7 +2357,8 @@ App.prototype.getThumbnail = function(width, fn)
 		}
 		
 		var graph = this.editor.graph;
-		
+		var bgImg = graph.backgroundImage;
+
 		// Exports PNG for first page while other page is visible by creating a graph
 		// LATER: Add caching for the graph or SVG while not on first page
 		// To avoid refresh during save dark theme uses separate graph instance
@@ -2368,7 +2369,17 @@ App.prototype.getThumbnail = function(width, fn)
 			var graphGetGlobalVariable = graph.getGlobalVariable;
 			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());
 			var page = this.pages[0];
-			
+
+			if (page.viewState != null && page.viewState != null)
+			{
+				bgImg = page.viewState.backgroundImage;
+				graph.backgroundImage = bgImg;
+			}
+			else if (this.currentPage == this.pages[0])
+			{
+				graph.backgroundImage = bgImg;
+			}
+
 			// Avoids override of stylesheet in getSvg for dark mode
 			if (darkTheme)
 			{
@@ -2417,7 +2428,8 @@ App.prototype.getThumbnail = function(width, fn)
 		   	{
 		   		// Continues with null in error case
 		   		success();
-		   	}, null, null, null, null, null, null, graph);
+		   	}, null, null, null, null, null, null, graph, null, null, null,
+			   null, 'diagram', null);
 		   	
 		   	result = true;
 		}
@@ -2425,8 +2437,18 @@ App.prototype.getThumbnail = function(width, fn)
 		{
 			var canvas = document.createElement('canvas');
 			var bounds = graph.getGraphBounds();
+			var t = graph.view.translate;
+			var s = graph.view.scale;
+
+			if (bgImg != null)
+			{
+				bounds.add(new mxRectangle(
+					(t.x + bgImg.x) * s, (t.y + bgImg.y) * s,
+					bgImg.width * s, bgImg.height * s));
+			}
+
 			var scale = width / bounds.width;
-			
+
 			// Limits scale to 1 or 2 * width / height
 			scale = Math.min(1, Math.min((width * 3) / (bounds.height * 4), scale));
 			
@@ -2456,6 +2478,16 @@ App.prototype.getThumbnail = function(width, fn)
 			ctx.fillRect(x0, y0, Math.ceil(bounds.width + 4), Math.ceil(bounds.height + 4));
 			ctx.restore();
 			
+			// Paints background image
+			if (bgImg != null)
+			{
+				var img = new Image();
+				img.src = bgImg.src;
+
+				ctx.drawImage(img, bgImg.x * scale, bgImg.y * scale,
+					bgImg.width * scale, bgImg.height * scale);
+			}
+			
 			var htmlCanvas = new mxJsCanvas(canvas);
 			
 			// NOTE: htmlCanvas passed into async canvas is only used for image
@@ -2469,7 +2501,7 @@ App.prototype.getThumbnail = function(width, fn)
 			
 			// Render graph
 			var imgExport = new mxImageExport();
-			
+
 			imgExport.drawShape = function(state, canvas)
 			{
 				if (state.shape instanceof mxShape && state.shape.checkBounds())

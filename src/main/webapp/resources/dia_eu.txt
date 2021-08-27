@@ -1154,3 +1154,4 @@ showAllTemps=Erakutsi txantiloi guztiak
 notionToken=Notion Token
 selectDB=Hautatu datubasea
 noDBs=No Databases
+diagramEdited={1} diagram "{2}" edited

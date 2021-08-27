@@ -1154,3 +1154,4 @@ showAllTemps=Show all templates
 notionToken=Notion Token
 selectDB=Select Database
 noDBs=No Databases
+diagramEdited={1} diagram "{2}" edited

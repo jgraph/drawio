@@ -1154,3 +1154,4 @@ showAllTemps=Mostra tutti i modelli
 notionToken=Token di Notion
 selectDB=Seleziona database
 noDBs=Nessun database
+diagramEdited={1} diagram "{2}" edited

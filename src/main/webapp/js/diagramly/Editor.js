@@ -6112,6 +6112,18 @@
 			}
 		}
 	};
+
+					
+	/**
+	 * Updates the SVG for the background image if it references another page.
+	 */
+	Graph.prototype.refreshBackgroundImage = function()
+	{
+		if (this.backgroundImage != null && this.backgroundImage.originalSrc != null)
+		{
+			this.setBackgroundImage(this.backgroundImage);
+		}
+	};
 	
 	/**
 	 * Sets default style (used in editor.get/setGraphXml below)

@@ -793,6 +793,7 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable)
 		}
 		
 		this.ui.updateTabContainer();
+		this.ui.editor.fireEvent(new mxEventObject('pagesPatched', 'patches', patches));
 	}
 };
 

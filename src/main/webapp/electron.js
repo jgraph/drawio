@@ -864,7 +864,7 @@ autoUpdater.on('update-available', (a, b) =>
 			
 			function reportUpdateError(e)
 			{
-				progressBar.detail = 'Error occured while fetching updates. ' + (e && e.message? e.message : e)
+				progressBar.detail = 'Error occurred while fetching updates. ' + (e && e.message? e.message : e)
 				progressBar._window.setClosable(true);
 			}
 
