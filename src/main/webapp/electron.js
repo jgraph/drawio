@@ -325,10 +325,10 @@ app.on('ready', e =>
 			{
 	    		from = options.pageIndex;
 			}
-	    	else if (options.pageRage && options.pageRage.length == 2)
+	    	else if (options.pageRange && options.pageRange.length == 2)
 			{
-	    		from = options.pageRage[0] >= 0 ? options.pageRage[0] : null;
-	    		to = options.pageRage[1] >= 0 ? options.pageRage[1] : null;
+	    		from = options.pageRange[0] >= 0 ? options.pageRange[0] : null;
+	    		to = options.pageRange[1] >= 0 ? options.pageRange[1] : null;
 			}
 
 			var expArgs = {
