@@ -324,6 +324,7 @@ app.on('ready', e =>
 	    	if (options.pageIndex != null && options.pageIndex >= 0)
 			{
 	    		from = options.pageIndex;
+			to = from;
 			}
 	    	else if (options.pageRage && options.pageRage.length == 2)
 			{
