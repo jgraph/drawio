@@ -1197,14 +1197,14 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, uncompressed)
+	EditorUi.prototype.getXmlFileData = function(ignoreSelection, currentPage, uncompressed, resolveReferences)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
 		uncompressed = (uncompressed != null) ? uncompressed : !Editor.compressXml;
 		
 		// Generats graph model XML node for single page export
-		var node = this.editor.getGraphXml(ignoreSelection);
+		var node = this.editor.getGraphXml(ignoreSelection, resolveReferences);
 		
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
@@ -1259,22 +1259,53 @@
 				// Restores order of pages
 				for (var i = 0; i < this.pages.length; i++)
 				{
-					if (this.currentPage != this.pages[i])
+					var page = this.pages[i];
+					var currNode = page.node;
+
+					if (page != this.currentPage)
 					{
-						if (this.pages[i].needsUpdate)
+						if (page.needsUpdate)
 						{
 							var enc = new mxCodec(mxUtils.createXmlDocument());
-							var temp = enc.encode(new mxGraphModel(this.pages[i].root));
-							this.editor.graph.saveViewState(this.pages[i].viewState, temp);
-							EditorUi.removeChildNodes(this.pages[i].node);
-							mxUtils.setTextContent(this.pages[i].node, Graph.compressNode(temp));
+							var temp = enc.encode(new mxGraphModel(page.root));
+							this.editor.graph.saveViewState(page.viewState,
+								temp, null, resolveReferences);
+							EditorUi.removeChildNodes(page.node);
+							mxUtils.setTextContent(page.node, Graph.compressNode(temp));
 
 							// Marks the page as up-to-date
-							delete this.pages[i].needsUpdate;
+							delete page.needsUpdate;
+						}
+						else if (resolveReferences)
+						{
+							// Checks for unresolved background page references
+							if (page.viewState == null)
+							{
+								var modelNode = this.editor.extractGraphModel(page.node);
+								page.viewState = this.editor.graph.createViewState(modelNode)
+							}
+
+							if (page.viewState.backgroundImage != null &&
+								Graph.isPageLink(page.viewState.backgroundImage.originalSrc) &&
+								page.viewState.backgroundImage.src == null)
+							{
+								page.viewState.backgroundImage = this.createImageForPageLink(page.viewState.backgroundImage.originalSrc);
+							}
+
+							if (page.viewState.backgroundImage != null &&
+								page.viewState.backgroundImage.originalSrc != null)
+							{
+								var enc = new mxCodec(mxUtils.createXmlDocument());
+								var temp = enc.encode(new mxGraphModel(page.root));
+								this.editor.graph.saveViewState(page.viewState,
+									temp, null, resolveReferences);
+								currNode = currNode.cloneNode(false);
+								mxUtils.setTextContent(node, Graph.compressNode(temp));
+							}
 						}
 					}
 					
-					appendPage(this.pages[i].node);
+					appendPage(currNode);
 				}
 			}
 		}
@@ -1544,8 +1575,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback, ignoreSelection,
-		currentPage, node, compact, file, uncompressed)
+	EditorUi.prototype.getFileData = function(forceXml, forceSvg, forceHtml, embeddedCallback,
+		ignoreSelection, currentPage, node, compact, file, uncompressed, resolveReferences)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		currentPage = (currentPage != null) ? currentPage : false;
@@ -1585,8 +1616,9 @@
 				graph.model.setRoot(page.root);
 			}
 		}
-		
-		node = (node != null) ? node : this.getXmlFileData(ignoreSelection, currentPage, uncompressed);
+
+		node = (node != null) ? node : this.getXmlFileData(ignoreSelection,
+			currentPage, uncompressed, resolveReferences);
 		file = (file != null) ? file : this.getCurrentFile();
 
 		var result = this.createFileData(node, graph, file, window.location.href,
@@ -1857,8 +1889,12 @@
 		var basename = (file != null && file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 		
 		if (/(\.xml)$/i.test(basename) || /(\.html)$/i.test(basename) ||
-			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename) ||
-			/(\.drawio)$/i.test(basename))
+			/(\.svg)$/i.test(basename) || /(\.png)$/i.test(basename))
+		{
+			basename = basename.substring(0, basename.lastIndexOf('.'));
+		}
+		
+		if (/(\.drawio)$/i.test(basename))
 		{
 			basename = basename.substring(0, basename.lastIndexOf('.'));
 		}
@@ -1886,7 +1922,8 @@
 		{
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : this.editor.graph.isSelectionEmpty();
 			var basename = this.getBaseFilename(!currentPage);
-			var filename = basename + '.' + format;
+			var filename = basename + ((format == 'xml' || (format == 'pdf' &&
+				includeXml)) ? '.drawio' : '') + '.' + format;
 			
 			if (format == 'xml')
 			{
@@ -2006,8 +2043,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent,
-		currentPage, scale, border, grid, includeXml)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
+		base64, transparent, currentPage, scale, border, grid, includeXml)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -2015,7 +2052,9 @@
 		// Exports only current page for images that does not contain file data, but for
 		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
 		// the from/to URL parameters to specify the page to be exported.
-		var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
+		var data = this.getFileData(true, null, null, null, ignoreSelection,
+			currentPage == false ? false : format != 'xmlpng', null, null,
+			null, null, format == 'pdf');
 		var range = '';
 		var allPages = '';
 		
@@ -4272,8 +4311,10 @@
 	EditorUi.prototype.saveCanvas = function(canvas, xml, format, ignorePageName, dpi)
 	{
 		var ext = ((format == 'jpeg') ? 'jpg' : format);
-		var filename = this.getBaseFilename(ignorePageName) + '.' + ext;
+		var filename = this.getBaseFilename(ignorePageName) +
+			((xml != null) ? '.drawio' : '') + '.' + ext;
    	    var data = this.createImageDataUri(canvas, xml, format, dpi);
+
    	    this.saveData(filename, ext, data.substring(data.lastIndexOf(',') + 1), 'image/' + format, true);
 	};
 	
@@ -4909,7 +4950,7 @@
 					this.editor.graph.addSvgShadow(svgRoot);
 				}
 				
-				var filename = this.getBaseFilename() + '.svg';
+				var filename = this.getBaseFilename() + ((editable) ? '.drawio' : '') + '.svg';
 	
 				var doSave = mxUtils.bind(this, function(svgRoot)
 				{
@@ -5725,7 +5766,8 @@
 		
 		var selection = this.addCheckbox(div, mxResources.get('selectionOnly'), false,
 			this.editor.graph.isSelectionEmpty());
-		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), true);
+		var include = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
+			Editor.defaultIncludeDiagram);
 		
 		var graph = this.editor.graph;
 		var transparent = (hideInclude) ? null : this.addCheckbox(div, mxResources.get('transparentBackground'),
@@ -5753,7 +5795,7 @@
 	EditorUi.prototype.showExportDialog = function(title, embedOption, btnLabel, helpLink, callback,
 		cropOption, defaultInclude, format, exportOption)
 	{
-		defaultInclude = (defaultInclude != null) ? defaultInclude : true;
+		defaultInclude = (defaultInclude != null) ? defaultInclude : Editor.defaultIncludeDiagram;
 		
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
@@ -9004,13 +9046,13 @@
 		// Restores background page references in output data
 		var graphGetBackgroundImageObject = graph.getBackgroundImageObject;
 		
-		graph.getBackgroundImageObject = function(obj)
+		graph.getBackgroundImageObject = function(obj, resolveReferences)
 		{
 			var result = graphGetBackgroundImageObject.apply(this, arguments);
 
-			if (result != null && result.originalSrc != null)
+			if (result != null && result.originalSrc != null && !resolveReferences)
 			{
-				result = {src: result.originalSrc, width: result.width, height: result.height};
+				result = {src: result.originalSrc};
 			}
 
 			return result;

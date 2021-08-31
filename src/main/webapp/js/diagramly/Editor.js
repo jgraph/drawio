@@ -224,6 +224,12 @@
 	Editor.enableCustomProperties = true;
 	
 	/**
+	 * Sets the default value for including a copy of the diagram.
+	 * Default is true.
+	 */
+	 Editor.defaultIncludeDiagram = true;
+
+	/**
 	 * Specifies if custom properties should be enabled.
 	 */
 	Editor.enableServiceWorker = urlParams['pwa'] != '0' &&
@@ -1800,6 +1806,11 @@
 				Editor.compressXml = config.compressXml;
 			}
 			
+			if (config.includeDiagram != null)
+			{
+				Editor.defaultIncludeDiagram = config.includeDiagram;
+			}
+			
 			if (config.simpleLabels != null)
 			{
 				Editor.simpleLabels = config.simpleLabels;
@@ -2194,7 +2205,7 @@
 	 * Adds persistent style to file
 	 */
 	var editorGetGraphXml = Editor.prototype.getGraphXml;	
-	Editor.prototype.getGraphXml = function(ignoreSelection)
+	Editor.prototype.getGraphXml = function(ignoreSelection, resolveReferences)
 	{
 		ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 		var node = editorGetGraphXml.apply(this, arguments);
@@ -2205,7 +2216,9 @@
 			node.setAttribute('style', this.graph.currentStyle);
 		}
 
-		var bgImg = this.graph.getBackgroundImageObject(this.graph.backgroundImage);
+		var bgImg = this.graph.getBackgroundImageObject(
+			this.graph.backgroundImage,
+			resolveReferences);
 		
 		// Adds the background image
 		if (bgImg != null)

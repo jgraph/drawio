@@ -910,7 +910,7 @@ EditorUi.initMinimalTheme = function()
 		ui.actions.get('forkme').visible = urlParams['sketch'] != '1';
 		ui.actions.get('downloadDesktop').visible = urlParams['sketch'] != '1';
 
-        var toggleDarkModeAction = ui.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function()
+        var toggleDarkModeAction = ui.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function(e)
         {
             ui.setDarkMode(!Editor.darkMode);
         }));
@@ -1887,7 +1887,19 @@ EditorUi.initMinimalTheme = function()
 			elt.style.padding = '6px';
 			elt.style.margin = '0px';
 			toolbar.appendChild(elt);
-			
+
+			mxEvent.disableContextMenu(elt);
+
+			mxEvent.addGestureListeners(elt, mxUtils.bind(this, function(evt)
+			{
+				if (mxEvent.isShiftDown(evt) || mxEvent.isAltDown(evt) ||
+					mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt) ||
+					mxEvent.isPopupTrigger(evt))
+				{
+					this.appIconClicked(evt);
+				}
+			}), null, null);
+
 			ui.statusContainer.style.position = '';
 			ui.statusContainer.style.display = 'none';
 			ui.statusContainer.style.margin = '0px';
@@ -1977,7 +1989,7 @@ EditorUi.initMinimalTheme = function()
 						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 							cell.geometry.width, 40, mxResources.get('arrow'),
 							false, null, true), mxResources.get('arrow'));
-						elt.style.borderBottom = '1px solid lightgray';
+						elt.style.borderBottom = '1px solid ' + (Editor.isDarkMode() ? '#505050' : 'lightgray');
 						elt.style.paddingBottom = '14px';
 						elt.style.marginBottom = '14px';
 				 	})();
@@ -2306,10 +2318,11 @@ EditorUi.initMinimalTheme = function()
         	before = menubar.firstChild;
 	        iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	        var small = iw < 1000 || urlParams['sketch'] == '1';
+			var appElt = null;
 	 
 	        if (!small)
 	        {
-	        	addMenu('diagram');
+	        	appElt = addMenu('diagram');
 	        }
 
 			if (urlParams['sketch'] == '1')
@@ -2318,9 +2331,15 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-		        createGroup([((small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg') : null),
-		        	addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null, mxResources.get('shapes'), ui.actions.get('image'),
-	        		(small) ? shapesImage : null),
+				var temp = (small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg') : null;
+
+				if (temp != null)
+				{
+					appElt = temp;
+				}
+
+		        createGroup([appElt, addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null,
+					mxResources.get('shapes'), ui.actions.get('image'), (small) ? shapesImage : null),
 	       			addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
 	       			mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
 	   				(small) ? formatImage : null)],
@@ -2365,6 +2384,21 @@ EditorUi.initMinimalTheme = function()
 						}
 			        }
 		        }
+			}
+			
+			if (appElt != null)
+			{
+				mxEvent.disableContextMenu(appElt);
+
+				mxEvent.addGestureListeners(appElt, mxUtils.bind(this, function(evt)
+				{
+					if (mxEvent.isShiftDown(evt) || mxEvent.isAltDown(evt) ||
+						mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt) ||
+						mxEvent.isPopupTrigger(evt))
+					{
+						ui.appIconClicked(evt);
+					}
+				}), null, null);
 			}
 	        
 	        var langMenu = ui.menus.get('language');

@@ -363,7 +363,8 @@
 								var result = '<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=5,IE=9" ><![endif]-->\n' +
 									'<!DOCTYPE html>\n<html>\n<head>\n<title>' + mxUtils.htmlEntities(basename) + '</title>\n' +
 									'<meta charset="utf-8"/>\n</head>\n<body>' + html + '\n' + scriptTag + '\n</body>\n</html>';
-								editorUi.saveData(basename + '.html', 'html', result, 'text/html');
+								editorUi.saveData(basename + ((basename.substring(basename.lenth - 7) ==
+									'.drawio') ? '' : '.drawio') + '.html', 'html', result, 'text/html');
 							}));
 					});
 				});
@@ -443,8 +444,8 @@
 					
 				if (EditorUi.isElectronApp || isDrawioWeb)
 				{
-					include = editorUi.addCheckbox(div,
-							mxResources.get('includeCopyOfMyDiagram'), true);
+					include = editorUi.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
+						Editor.defaultIncludeDiagram);
 					dlgH += 30;
 				}
 				
@@ -696,7 +697,7 @@
 								addShadow, editable, border, !cropImage, false, null, grid, null,
 								keepTheme, exportType);
 						}
-					}), true, true, 'png', true);
+					}), true, Editor.defaultIncludeDiagram, 'png', true);
 			}
 			else if (!editorUi.isOffline() && (!mxClient.IS_IOS || !navigator.standalone))
 			{
@@ -2608,7 +2609,7 @@
 						
 						return false;
 					}, null, null, null, null, editorUi.editor.fileExtensions);
-					this.editorUi.showDialog(dlg.container, 340, 90, true, true);
+					this.editorUi.showDialog(dlg.container, 340, 96, true, true);
 					dlg.init();
 				}
 			}

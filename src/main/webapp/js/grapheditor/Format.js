@@ -1080,7 +1080,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	mxUtils.write(span, label);
 	div.appendChild(span);
 	
-	var title = 'Shift+Click for Color Picker';
+	var title = 'Shift+Click for Color Dropper';
 	var value = getColorFn();
 	var applying = false;
 	var btn = null;

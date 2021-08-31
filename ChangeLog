@@ -1,3 +1,12 @@
+31-AUG-2021: 15.0.4
+
+- Fixes offset for background pages
+- Fixes dash color for sketch theme in dark mode
+- Adds .drawio.xyz extension to embedded files
+- Adds includeDiagram config option
+- Adds app icon click handler, removes debug output
+- Adds support for background pages in PDF export
+
 27-AUG-2021: 15.0.3
 
 - Fixes missing background images in thumbnails

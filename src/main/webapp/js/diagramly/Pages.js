@@ -598,7 +598,7 @@ Graph.prototype.createViewState = function(node)
 /**
  * Writes the graph properties from the realtime model to the given mxGraphModel node.
  */
-Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
+Graph.prototype.saveViewState = function(vs, node, ignoreTransient, resolveReferences)
 {
 	if (!ignoreTransient)
 	{
@@ -632,7 +632,7 @@ Graph.prototype.saveViewState = function(vs, node, ignoreTransient)
 		node.setAttribute('background', vs.background);
 	}
 
-	var bgImg = this.getBackgroundImageObject(vs.backgroundImage);
+	var bgImg = this.getBackgroundImageObject(vs.backgroundImage, resolveReferences);
 
 	if (bgImg != null)
 	{

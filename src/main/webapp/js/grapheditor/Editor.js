@@ -2032,14 +2032,17 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	
 	var table = document.createElement('table');
 	var tbody = document.createElement('tbody');
-	table.style.marginTop = '8px';
+	table.style.position = 'absolute';
+	table.style.top = '30px';
+	table.style.left = '20px';
 	
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
 	td.style.whiteSpace = 'nowrap';
+	td.style.maxWidth = '100px';
+	td.style.textOverflow = 'ellipsis';
 	td.style.fontSize = '10pt';
-	td.style.width = (hints) ? '80px' : '120px';
 	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
 	
 	row.appendChild(td);
@@ -2148,18 +2151,36 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 		tbody.appendChild(row);
 		
 		if (hints != null)
-		{
+		{	
+			td.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
+
 			if (editorUi.editor.diagramFileTypes != null)
 			{
-				var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
-				typeSelect.style.marginLeft = '6px';
-				typeSelect.style.width = '74px';
-				
-				td.appendChild(typeSelect);
-				nameInput.style.width = (w != null) ? (w - 40) + 'px' : '140px';
-			}
+				row = document.createElement('tr');
+		
+				td = document.createElement('td');
+				td.style.whiteSpace = 'nowrap';
+				td.style.maxWidth = '100px';
+				td.style.textOverflow = 'ellipsis';
+				td.style.fontSize = '10pt';
+				mxUtils.write(td, mxResources.get('type') + ':');
+				row.appendChild(td);
 
-			td.appendChild(FilenameDialog.createTypeHint(editorUi, nameInput, hints));
+				td = document.createElement('td');
+				td.style.whiteSpace = 'nowrap';
+				row.appendChild(td);
+
+				var typeSelect = FilenameDialog.createFileTypes(editorUi,
+					nameInput, editorUi.editor.diagramFileTypes);
+				typeSelect.style.marginLeft = '4px';
+				typeSelect.style.width = '198px';
+
+				td.appendChild(typeSelect);
+				nameInput.style.width = (w != null) ? (w - 40) + 'px' : '190px';
+
+				row.appendChild(td);
+				tbody.appendChild(row);
+			}
 		}
 	}
 	
@@ -2176,7 +2197,7 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	row = document.createElement('tr');
 	td = document.createElement('td');
 	td.colSpan = 2;
-	td.style.paddingTop = '20px';
+	td.style.paddingTop = (hints != null) ? '12px' : '20px';
 	td.style.whiteSpace = 'nowrap';
 	td.setAttribute('align', 'right');
 	
@@ -2240,7 +2261,13 @@ FilenameDialog.filenameHelpLink = null;
 FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 {
 	var hint = document.createElement('img');
-	hint.style.cssText = 'vertical-align:top;height:16px;width:16px;margin-left:4px;background-repeat:no-repeat;background-position:center bottom;cursor:pointer;';
+	hint.style.backgroundPosition = 'center bottom';
+	hint.style.backgroundRepeat = 'no-repeat';
+	hint.style.margin = '2px 0 0 4px';
+	hint.style.verticalAlign = 'top';
+	hint.style.cursor = 'pointer';
+	hint.style.height = '16px';
+	hint.style.width = '16px';
 	mxUtils.setOpacity(hint, 70);
 	
 	var nameChanged = function()
@@ -2253,7 +2280,6 @@ FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 			if (hints[i].ext.length > 0 && nameInput.value.toLowerCase().substring(
 				nameInput.value.length - hints[i].ext.length - 1) == '.' + hints[i].ext)
 			{
-				hint.setAttribute('src',  mxClient.imageBasePath + '/warning.png');
 				hint.setAttribute('title', mxResources.get(hints[i].title));
 				break;
 			}
@@ -2292,7 +2318,7 @@ FilenameDialog.createTypeHint = function(ui, nameInput, hints)
 FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 {
 	var typeSelect = document.createElement('select');
-	
+
 	for (var i = 0; i < types.length; i++)
 	{
 		var typeOption = document.createElement('option');
@@ -2305,11 +2331,16 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	mxEvent.addListener(typeSelect, 'change', function(evt)
 	{
 		var ext = types[typeSelect.value].extension;
-		var idx = nameInput.value.lastIndexOf('.');
+		var idx2 = nameInput.value.lastIndexOf('.drawio.');
+		var idx = (idx2 > 0) ? idx2 : nameInput.value.lastIndexOf('.');
+
+		if (ext != 'drawio')
+		{
+			ext = 'drawio.' + ext;
+		}
 		
 		if (idx > 0)
 		{
-			var ext = types[typeSelect.value].extension;
 			nameInput.value = nameInput.value.substring(0, idx + 1) + ext;
 		}
 		else
@@ -2331,21 +2362,26 @@ FilenameDialog.createFileTypes = function(editorUi, nameInput, types)
 	
 	var nameInputChanged = function(evt)
 	{
-		var idx = nameInput.value.lastIndexOf('.');
+		var name = nameInput.value.toLowerCase();
 		var active = 0;
 		
 		// Finds current extension
-		if (idx > 0)
+		for (var i = 0; i < types.length; i++)
 		{
-			var ext = nameInput.value.toLowerCase().substring(idx + 1);
-			
-			for (var i = 0; i < types.length; i++)
+			var ext = types[i].extension;
+			var subExt = null;
+
+			if (ext != 'drawio')
 			{
-				if (ext == types[i].extension)
-				{
-					active = i;
-					break;
-				}
+				subExt = ext;
+				ext = '.drawio.' + ext;
+			}
+
+			if (name.substring(name.length - ext.length - 1) == '.' + ext ||
+				(subExt != null && name.substring(name.length - subExt.length - 1) == '.' + subExt))
+			{
+				active = i;
+				break;
 			}
 		}
 		

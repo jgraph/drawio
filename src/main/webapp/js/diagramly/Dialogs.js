@@ -4921,6 +4921,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	linkInput.style.backgroundRepeat = 'no-repeat';
 	linkInput.style.backgroundPosition = '100% 50%';
 	linkInput.style.paddingRight = '14px';
+	linkInput.style.marginBottom = '4px';
 
 	var cross = document.createElement('div');
 	cross.setAttribute('title', mxResources.get('reset'));
@@ -5151,7 +5152,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	};
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '20px';
+	btns.style.marginTop = '18px';
 	btns.style.textAlign = 'center';
 	
 	var helpBtn = mxUtils.button(mxResources.get('help'), function()

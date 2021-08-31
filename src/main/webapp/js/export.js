@@ -429,7 +429,8 @@ function render(data)
 		if (bgImg != null)
 		{
 			bgImg = JSON.parse(bgImg);
-			graph.setBackgroundImage(new mxImage(bgImg.src, bgImg.width, bgImg.height));
+			graph.setBackgroundImage(new mxImage(bgImg.src, bgImg.width,
+				bgImg.height, bgImg.x, bgImg.y));
 		}
 		
 		// Parses XML into graph
@@ -745,6 +746,7 @@ function render(data)
 				preview.autoOrigin = autoOrigin; 
 				preview.appendGraph(graph, scale, x0, y0);
 			}
+
 			// Adds shadow
 			// NOTE: Shadow rasterizes output
 			/*if (mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
@@ -768,6 +770,18 @@ function render(data)
 		}
 		else
 		{
+			var bgImg = graph.backgroundImage;
+
+			if (bgImg != null)
+			{
+				var t = graph.view.translate;
+				var s = graph.view.scale;
+
+				bounds.add(new mxRectangle(
+					(t.x + bgImg.x) * s, (t.y + bgImg.y) * s,
+					bgImg.width * s, bgImg.height * s));
+			}
+
 			// Adds shadow
 			// NOTE: PDF shadow rasterizes output so it's disabled
 			if (data.format != 'pdf' && mxClient.IS_SVG && xmlDoc.documentElement.getAttribute('shadow') == '1')
@@ -781,7 +795,7 @@ function render(data)
 			document.body.style.width = Math.ceil(bounds.x + bounds.width) + 'px';
 			document.body.style.height = Math.ceil(bounds.y + bounds.height) + 'px';
 		}
-	}
+	};
 	
 	if (diagrams != null && diagrams.length > 0)
 	{
