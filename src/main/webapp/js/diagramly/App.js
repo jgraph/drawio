@@ -2092,29 +2092,26 @@ App.prototype.showRatingBanner = function()
 };
 
 /**
- * 
+ * Checks license in the case of Google Drive storage.
+ * IMPORTANT: Do not change this function without consulting 
+ * the privacy lead. No personal information must be sent.
  */
 App.prototype.checkLicense = function()
 {
 	var driveUser = this.drive.getUser();
-	var email = ((urlParams['dev'] == '1') ? urlParams['lic'] : null) ||
-		((driveUser != null) ? driveUser.email : null);
+	var email = (driveUser != null) ? driveUser.email : null;
 	
-	if (!this.isOffline() && !this.editor.chromeless && email != null)
+	if (!this.isOffline() && !this.editor.chromeless && email != null && driveUser.id != null)
 	{
-		// Anonymises the local part of the email address
+		// Only the domain and hashed user ID are transmitted. This code was reviewed and deemed
+		// compliant by dbenson 2021-09-01.
 		var at = email.lastIndexOf('@');
-		var domain = email;
+		var domain = (at >= 0) ? email.substring(at + 1) : '';
+		var userId = Editor.crc32(driveUser.id);
 		
-		if (at >= 0)
-		{
-			domain = email.substring(at + 1);
-			email = Editor.crc32(email.substring(0, at)) + '@' + domain;
-		}
-
 		// Timestamp is workaround for cached response in certain environments
-		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&email=' + encodeURIComponent(email) + 
-				'&lc=' + encodeURIComponent(driveUser.locale) + '&ts=' + new Date().getTime(),
+		mxUtils.post('/license', 'domain=' + encodeURIComponent(domain) + '&id=' + encodeURIComponent(userId) + 
+				'&ts=' + new Date().getTime(),
 			mxUtils.bind(this, function(req)
 			{
 				try

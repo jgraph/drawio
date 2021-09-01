@@ -1179,7 +1179,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	btn.style.display = (cb.checked || hideCheckbox) ? '' : 'none';
 	div.appendChild(btn);
 
-	var clr = (value != null && value.charAt(0) == '#') ? value.substring(1).toUpperCase() : value;
+	var clr = (value != null && typeof value === 'string' && value.charAt(0) == '#') ? value.substring(1).toUpperCase() : value;
 	var name = ColorDialog.prototype.colorNames[clr];
 	btn.setAttribute('title', (name != null) ? name + ' (' + title + ')' : title);
 

@@ -317,7 +317,7 @@ EditorUi.prototype.getPageById = function(id)
 /**
  * Returns the background image for the given page link.
  */
-EditorUi.prototype.createImageForPageLink = function(src)
+EditorUi.prototype.createImageForPageLink = function(src, sourcePage)
 {
 	var comma = src.indexOf(',');
 	var result = null;
@@ -326,7 +326,7 @@ EditorUi.prototype.createImageForPageLink = function(src)
 	{
 		var page = this.getPageById(src.substring(comma + 1));
 
-		if (page != null && page != this.currentPage)
+		if (page != null && page != sourcePage)
 		{
 			result = this.getImageForPage(page);
 			result.originalSrc = src;

@@ -1625,7 +1625,7 @@ var PageSetupDialog = function(editorUi)
 
 		if (img != null && Graph.isPageLink(img.src))
 		{
-			img = editorUi.createImageForPageLink(img.src);
+			img = editorUi.createImageForPageLink(img.src, null);
 		}
 		
 		if (img != null && img.src != null)

@@ -1270,28 +1270,32 @@
 							var temp = enc.encode(new mxGraphModel(page.root));
 							this.editor.graph.saveViewState(page.viewState,
 								temp, null, resolveReferences);
-							EditorUi.removeChildNodes(page.node);
-							mxUtils.setTextContent(page.node, Graph.compressNode(temp));
+							EditorUi.removeChildNodes(currNode);
+							mxUtils.setTextContent(currNode, Graph.compressNode(temp));
 
 							// Marks the page as up-to-date
 							delete page.needsUpdate;
 						}
 						else if (resolveReferences)
 						{
-							// Checks for unresolved background page references
-							if (page.viewState == null)
+							this.updatePageRoot(page);
+
+							// Forces update of background page image in offscreen page
+							if (page.viewState.backgroundImage != null)
 							{
-								var modelNode = this.editor.extractGraphModel(page.node);
-								page.viewState = this.editor.graph.createViewState(modelNode)
+								if (page.viewState.backgroundImage.originalSrc != null)
+								{
+									page.viewState.backgroundImage = this.createImageForPageLink(
+										page.viewState.backgroundImage.originalSrc, page);
+								}
+								else if (Graph.isPageLink(page.viewState.backgroundImage.src))
+								{
+									page.viewState.backgroundImage = this.createImageForPageLink(
+										page.viewState.backgroundImage.src, page);
+								}
 							}
 
-							if (page.viewState.backgroundImage != null &&
-								Graph.isPageLink(page.viewState.backgroundImage.originalSrc) &&
-								page.viewState.backgroundImage.src == null)
-							{
-								page.viewState.backgroundImage = this.createImageForPageLink(page.viewState.backgroundImage.originalSrc);
-							}
-
+							// Updates the page node
 							if (page.viewState.backgroundImage != null &&
 								page.viewState.backgroundImage.originalSrc != null)
 							{
@@ -1300,7 +1304,7 @@
 								this.editor.graph.saveViewState(page.viewState,
 									temp, null, resolveReferences);
 								currNode = currNode.cloneNode(false);
-								mxUtils.setTextContent(node, Graph.compressNode(temp));
+								mxUtils.setTextContent(currNode, Graph.compressNode(temp));
 							}
 						}
 					}
@@ -1585,9 +1589,9 @@
 		// Forces compression of embedded XML
 		if (forceSvg || (!forceXml && file != null && /(\.svg)$/i.test(file.getTitle())))
 		{
-			uncompressed = false;
 			var darkTheme = graph.themes != null && graph.defaultThemeName == 'darkTheme';
-			
+			uncompressed = false;
+
 			// Exports SVG for first page while other page is visible by creating a graph
 			// LATER: Add caching for the graph or SVG while not on first page
 			// Dark mode requires a refresh that would destroy all handlers
@@ -1916,7 +1920,7 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage,
-		pageVisible, transparent, scale, border, grid, includeXml)
+		pageVisible, transparent, scale, border, grid, includeXml, pageRange)
 	{
 		try
 		{
@@ -2019,7 +2023,7 @@
 						}
 						
 						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
-							transparent, currentPage, scale, border, grid, includeXml);
+							transparent, currentPage, scale, border, grid, includeXml, pageRange);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -2044,7 +2048,7 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
-		base64, transparent, currentPage, scale, border, grid, includeXml)
+		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -2054,10 +2058,10 @@
 		// the from/to URL parameters to specify the page to be exported.
 		var data = this.getFileData(true, null, null, null, ignoreSelection,
 			currentPage == false ? false : format != 'xmlpng', null, null,
-			null, null, format == 'pdf');
+			null, false, format == 'pdf');
 		var range = '';
 		var allPages = '';
-		
+
 		if (bounds.width * bounds.height > MAX_AREA || data.length > MAX_REQUEST_SIZE)
 		{
 			throw {message: mxResources.get('drawingTooLarge')};
@@ -2065,9 +2069,16 @@
 		
 		var embed = (includeXml) ? '1' : '0';
        	
-		if (format == 'pdf' && currentPage == false)
+		if (format == 'pdf')
 		{
-			allPages = '&allPages=1';
+			if (pageRange != null)
+			{
+				allPages = '&from=' + pageRange.from + '&to=' + pageRange.to;
+			}
+			else if (currentPage == false)
+			{
+				allPages = '&allPages=1';
+			}
 		}
 		
        	if (format == 'xmlpng')
@@ -8997,7 +9008,7 @@
 		{
 			if (img != null && img.originalSrc != null)
 			{
-				img = ui.createImageForPageLink(img.originalSrc);
+				img = ui.createImageForPageLink(img.originalSrc, ui.currentPage);
 			}
 
 			graphSetBackgroundImage.apply(this, arguments);

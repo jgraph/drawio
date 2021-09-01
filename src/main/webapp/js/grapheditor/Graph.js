@@ -4726,9 +4726,13 @@ Graph.prototype.zapGremlins = function(text)
  */
 HoverIcons = function(graph)
 {
+	mxEventSource.call(this);
 	this.graph = graph;
 	this.init();
 };
+
+// Extends mxEventSource
+mxUtils.extend(HoverIcons, mxEventSource);
 
 /**
  * Up arrow.
@@ -4827,10 +4831,10 @@ HoverIcons.prototype.tolerance = (mxClient.IS_TOUCH) ? 6 : 0;
  */
 HoverIcons.prototype.init = function()
 {
-	this.arrowUp = this.createArrow(this.triangleUp, mxResources.get('plusTooltip'));
-	this.arrowRight = this.createArrow(this.triangleRight, mxResources.get('plusTooltip'));
-	this.arrowDown = this.createArrow(this.triangleDown, mxResources.get('plusTooltip'));
-	this.arrowLeft = this.createArrow(this.triangleLeft, mxResources.get('plusTooltip'));
+	this.arrowUp = this.createArrow(this.triangleUp, mxResources.get('plusTooltip'), mxConstants.DIRECTION_NORTH);
+	this.arrowRight = this.createArrow(this.triangleRight, mxResources.get('plusTooltip'), mxConstants.DIRECTION_EAST);
+	this.arrowDown = this.createArrow(this.triangleDown, mxResources.get('plusTooltip'), mxConstants.DIRECTION_SOUTH);
+	this.arrowLeft = this.createArrow(this.triangleLeft, mxResources.get('plusTooltip'), mxConstants.DIRECTION_WEST);
 
 	this.elts = [this.arrowUp, this.arrowRight, this.arrowDown, this.arrowLeft];
 
@@ -4997,7 +5001,7 @@ HoverIcons.prototype.isResetEvent = function(evt, allowShift)
 /**
  * 
  */
-HoverIcons.prototype.createArrow = function(img, tooltip)
+HoverIcons.prototype.createArrow = function(img, tooltip, direction)
 {
 	var arrow = null;
 	arrow = mxUtils.createImage(img.src);
@@ -5042,11 +5046,20 @@ HoverIcons.prototype.createArrow = function(img, tooltip)
 			this.graph.connectionHandler.constraintHandler.reset();
 			mxUtils.setOpacity(arrow, 100);
 			this.activeArrow = arrow;
+
+			this.fireEvent(new mxEventObject('focus', 'arrow', arrow,
+				'direction', direction, 'event', evt));
 		}
 	}));
 	
 	mxEvent.addListener(arrow, 'mouseleave', mxUtils.bind(this, function(evt)
 	{
+		if (mxEvent.isMouseEvent(evt))
+		{
+			this.fireEvent(new mxEventObject('blur', 'arrow', arrow,
+				'direction', direction, 'event', evt));
+		}
+
 		// Workaround for IE11 firing this event on touch
 		if (!this.graph.isMouseDown)
 		{
@@ -5237,6 +5250,8 @@ HoverIcons.prototype.reset = function(clearTimeout)
 	this.activeArrow = null;
 	this.removeNodes();
 	this.bbox = null;
+
+	this.fireEvent(new mxEventObject('reset'));
 };
 
 /**
@@ -9034,32 +9049,40 @@ if (typeof mxVertexHandler != 'undefined')
 				for (var i = 0; i < cells.length; i++)
 				{
 					var parent = model.getParent(cells[i]);
-					var child = this.moveCells([clones[i]], s, s, false)[0];
-					select.push(child);
-					
-					if (append)
+
+					if (parent != null)
 					{
-						model.add(parent, clones[i]);
+						var child = this.moveCells([clones[i]], s, s, false)[0];
+						select.push(child);
+						
+						if (append)
+						{
+							model.add(parent, clones[i]);
+						}
+						else
+						{
+							// Maintains child index by inserting after clone in parent
+							var index = parent.getIndex(cells[i]);
+							model.add(parent, clones[i], index + 1);
+						}
+						
+						// Extends tables	
+						if (this.isTable(parent))
+						{
+							var row = this.getCellGeometry(clones[i]);
+							var table = this.getCellGeometry(parent);
+							
+							if (row != null && table != null)
+							{
+								table = table.clone();
+								table.height += row.height;
+								model.setGeometry(parent, table);
+							}
+						}
 					}
 					else
 					{
-						// Maintains child index by inserting after clone in parent
-						var index = parent.getIndex(cells[i]);
-						model.add(parent, clones[i], index + 1);
-					}
-					
-					// Extends tables	
-					if (this.isTable(parent))
-					{
-						var row = this.getCellGeometry(clones[i]);
-						var table = this.getCellGeometry(parent);
-						
-						if (row != null && table != null)
-						{
-							table = table.clone();
-							table.height += row.height;
-							model.setGeometry(parent, table);
-						}
+						select.push(clones[i]);
 					}
 				}
 
