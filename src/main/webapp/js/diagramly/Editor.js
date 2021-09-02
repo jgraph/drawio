@@ -1887,6 +1887,12 @@
 				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
 			}
 
+			// Overrides mouse wheel function
+			if (config.zoomWheel != null)
+			{
+				Graph.zoomWheel = config.zoomWheel;
+			}
+
 			// Overrides zoom factor
 			if (config.zoomFactor != null)
 			{

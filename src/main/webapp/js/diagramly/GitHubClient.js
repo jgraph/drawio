@@ -819,7 +819,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
 	}));
-	this.ui.showDialog(dlg.container, 420, 360, true, true);
+	this.ui.showDialog(dlg.container, 420, 370, true, true);
 	
 	if (showFiles)
 	{

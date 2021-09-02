@@ -1274,6 +1274,11 @@ Graph.lineJumpsEnabled = true;
 Graph.defaultJumpSize = 6;
 
 /**
+ * Specifies if the mouse wheel is used for zoom without any modifiers.
+ */
+Graph.zoomWheel = false;
+
+/**
  * Minimum width for table columns.
  */
 Graph.minTableColumnWidth = 20;
@@ -3207,7 +3212,9 @@ Graph.prototype.isReplacePlaceholders = function(cell)
  */
 Graph.prototype.isZoomWheelEvent = function(evt)
 {
-	return mxEvent.isAltDown(evt) || mxEvent.isControlDown(evt);
+	return (Graph.zoomWheel && !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
+		(!mxEvent.isControlDown(evt) || mxClient.IS_MAC)) ||
+		(!Graph.zoomWheel && (mxEvent.isAltDown(evt) || mxEvent.isControlDown(evt)));
 };
 
 /**

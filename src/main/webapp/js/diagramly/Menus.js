@@ -330,7 +330,7 @@
 					!selection.checked, noPages || !pages.checked);
 			}), null, mxResources.get('export'));
 			
-			editorUi.showDialog(dlg.container, 300, 180, true, true);
+			editorUi.showDialog(dlg.container, 300, 200, true, true);
 		}));
 		
 		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
@@ -406,7 +406,7 @@
 					}
 				};
 				
-				var dlgH = 180;
+				var dlgH = 200;
 				var pageCount = 1;
 				var currentPage = null;
 				
@@ -501,7 +501,7 @@
 					editorUi.getServiceName() == 'draw.io';
 
 				var transparentBkg = null, include = null;
-					
+				
 				if (EditorUi.isElectronApp || isDrawioWeb)
 				{
 					include = editorUi.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'),
@@ -519,12 +519,17 @@
 
 				var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 				{
-					var from = parseInt(pagesFromInput.value);
-					var to = parseInt(pagesToInput.value);
-					var pageRange = (!allPages.checked &&
-						(from != currentPage || to != currentPage)) ?
-						{from: Math.max(0, Math.min(pageCount - 1, from - 1)),
-						to: Math.max(0, Math.min(pageCount - 1, to - 1))} : null;
+					var pageRange = null;
+
+					if (!noPages)
+					{
+						var from = parseInt(pagesFromInput.value);
+						var to = parseInt(pagesToInput.value);
+						pageRange = (!allPages.checked &&
+							(from != currentPage || to != currentPage)) ?
+							{from: Math.max(0, Math.min(pageCount - 1, from - 1)),
+							to: Math.max(0, Math.min(pageCount - 1, to - 1))} : null;
+					}
 					
 					editorUi.downloadFile('pdf', null, null, !selection.checked,
 						noPages? true : !allPages.checked && pageRange == null,
@@ -978,7 +983,7 @@
 					editorUi.exportVisio(!pages.checked);
 				}), null, mxResources.get('export'));
 				
-				editorUi.showDialog(dlg.container, 300, 110, true, true);
+				editorUi.showDialog(dlg.container, 300, 130, true, true);
 			}
 		}));
 		
@@ -1393,7 +1398,7 @@
 					doLayout();
 				});
 				
-				editorUi.showDialog(dlg.container, 355, 125, true, true);
+				editorUi.showDialog(dlg.container, 355, 140, true, true);
 			}, parent, null, isGraphEnabled());
 						
 			menu.addSeparator(parent);

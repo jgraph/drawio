@@ -455,7 +455,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 	content.appendChild(div);
 
 	var dlg = new CustomDialog(this.ui, content);
-	this.ui.showDialog(dlg.container, 340, 270, true, true);
+	this.ui.showDialog(dlg.container, 340, 290, true, true);
 	
 	dlg.okButton.parentNode.removeChild(dlg.okButton);
 	

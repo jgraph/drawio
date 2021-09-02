@@ -1545,21 +1545,36 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	var pageSelect = document.createElement('select');
 	pageSelect.style.width = '320px';
 
-	for (var i = 0; i < editorUi.pages.length; i++)
+	if (editorUi.pages != null)
 	{
-		var pageOption = document.createElement('option');
-		mxUtils.write(pageOption, editorUi.pages[i].getName() ||
-			mxResources.get('pageWithNumber', [i + 1]));
-		pageOption.setAttribute('value', 'data:page/id,' +
-			editorUi.pages[i].getId());
-		
-		if (img != null && img.originalSrc == pageOption.getAttribute('value'))
+		for (var i = 0; i < editorUi.pages.length; i++)
 		{
-			pageOption.setAttribute('selected', 'selected');
-			pageFound = true;
-		}
+			var pageOption = document.createElement('option');
+			mxUtils.write(pageOption, editorUi.pages[i].getName() ||
+				mxResources.get('pageWithNumber', [i + 1]));
+			pageOption.setAttribute('value', 'data:page/id,' +
+				editorUi.pages[i].getId());
 
-		pageSelect.appendChild(pageOption);
+			if (editorUi.pages[i] == editorUi.currentPage)
+			{
+				pageOption.setAttribute('disabled', 'disabled');			
+			}
+			
+			if (img != null && img.originalSrc == pageOption.getAttribute('value'))
+			{
+				pageOption.setAttribute('selected', 'selected');
+				pageFound = true;
+			}
+
+			pageSelect.appendChild(pageOption);
+		}
+	}
+
+	if (isPageLink || editorUi.pages == null || editorUi.pages.length == 1)
+	{
+		urlRadio.style.display = 'none';
+		pageRadio.style.display = 'none';
+		pageSelect.style.display = 'none';
 	}
 
 	var resetting = false;
@@ -8408,7 +8423,7 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 				refresh();
 			}
 		}), null, null, null, customBtn);
-		editorUi.showDialog(dlg.container, 300, 80, true, true);
+		editorUi.showDialog(dlg.container, 300, 100, true, true);
 	});
 	
 	addBtn.className = 'geBtn';
@@ -9923,7 +9938,7 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 	div.appendChild(content);
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '16px';
+	btns.style.marginTop = '30px';
 	btns.style.textAlign = 'center';
 	
 	if (buttonsContent != null)

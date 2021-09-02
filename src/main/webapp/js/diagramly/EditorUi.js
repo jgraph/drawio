@@ -3707,6 +3707,7 @@
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
+			Graph.zoomWheel = true;
 			Graph.prototype.defaultVertexStyle = {'pointerEvents': '0', 'hachureGap': '4'};
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
@@ -4014,7 +4015,7 @@
 							{
 								this.loadFile(window.location.hash.substr(1), true);
 							}));
-							this.showDialog(dlg.container, 300, 75, true, true);
+							this.showDialog(dlg.container, 300, 100, true, true);
 						}), mxResources.get('cancel'), mxUtils.bind(this, function()
 						{
 							this.hideDialog();
@@ -5561,7 +5562,7 @@
 				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, lightbox.checked,
 				editSection.getLink());
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, 384, true, true);
+		this.showDialog(dlg.container, 340, 380, true, true);
 		copyRadio.focus();
 	};
 	
@@ -5718,7 +5719,7 @@
 				layers.checked, (widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null);
 		}), null, mxResources.get('create'), helpLink);
-		this.showDialog(dlg.container, 340, 254 + dy, true, true);
+		this.showDialog(dlg.container, 340, 260 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -5811,7 +5812,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg') ? 196 : 300;
+		var height = (format == 'jpeg') ? 200 : 280;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -6089,7 +6090,7 @@
 			fn(fit.checked, shadow.checked, image.checked, lightbox.checked,
 				editSection.getLink(), layers.checked);
 		}), null, mxResources.get('embed'), helpLink);
-		this.showDialog(dlg.container, 280, 280, true, true);
+		this.showDialog(dlg.container, 280, 290, true, true);
 	};
 
 	/**
@@ -13542,7 +13543,7 @@
 			
 			if (pendingLibs == 0) this.spinner.stop();
 		}), null, null, 'https://www.diagrams.net/doc/faq/custom-libraries-confluence-cloud');
-		this.showDialog(dlg.container, 340, 375, true, true, null, null, null, null, true);
+		this.showDialog(dlg.container, 340, 390, true, true, null, null, null, null, true);
 	};
 	
 	//Remote invokation, currently limited to functions in EditorUi (and its sub objects) for security reasons

@@ -1,3 +1,9 @@
+02-SEP-2021: 15.0.6
+
+- Fixes NPE for PDF export with single page https://github.com/jgraph/drawio/issues/2221
+- Fixes padding for buttons in CustomDialog
+- Adds zoomWheel config option https://github.com/jgraph/drawio-desktop/issues/175
+
 01-SEP-2021: 15.0.5
 
 - Adds hover handler for blue arrows

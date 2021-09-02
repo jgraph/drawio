@@ -493,7 +493,7 @@ NotionClient.prototype.showNotionDialog = function(showFiles, fn)
 	{
 		fn(itemId);
 	}));
-	this.ui.showDialog(dlg.container, 420, 360, true, true);
+	this.ui.showDialog(dlg.container, 420, 380, true, true);
 	
 	if (showFiles)
 	{

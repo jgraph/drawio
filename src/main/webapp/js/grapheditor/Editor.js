@@ -2039,10 +2039,11 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
-	td.style.whiteSpace = 'nowrap';
-	td.style.maxWidth = '100px';
 	td.style.textOverflow = 'ellipsis';
+	td.style.textAlign = 'right';
+	td.style.maxWidth = '100px';
 	td.style.fontSize = '10pt';
+	td.style.width = '84px';
 	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
 	
 	row.appendChild(td);
@@ -2159,10 +2160,11 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 				row = document.createElement('tr');
 		
 				td = document.createElement('td');
-				td.style.whiteSpace = 'nowrap';
-				td.style.maxWidth = '100px';
 				td.style.textOverflow = 'ellipsis';
+				td.style.textAlign = 'right';
+				td.style.maxWidth = '100px';
 				td.style.fontSize = '10pt';
+				td.style.width = '84px';
 				mxUtils.write(td, mxResources.get('type') + ':');
 				row.appendChild(td);
 

@@ -1378,12 +1378,6 @@ EditorUi.initMinimalTheme = function()
 		if (urlParams['sketch'] == '1')
 		{
 			this.toggleScratchpad();
-			
-			this.editor.graph.isZoomWheelEvent = function(evt)
-			{
-				return !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
-					(!mxEvent.isControlDown(evt) || mxClient.IS_MAC);
-			};
 		}
 
 		if ((urlParams['sketch'] != '1' && iw >= 1000) || urlParams['clibs'] != null ||

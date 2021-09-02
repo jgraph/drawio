@@ -1311,7 +1311,7 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
 			return mxResources.get('invalidSel', null, 'Invalid selection');
 		}), null, mxResources.get(foldersOnly? 'save' :'open'), null, null, null, null, true);
 		
-		this.ui.showDialog(dlg.container, 550, 485, true, true);
+		this.ui.showDialog(dlg.container, 550, 500, true, true);
 		
 		odPicker = new mxODPicker(div, null, mxUtils.bind(this, function(url, success, error)
 		{

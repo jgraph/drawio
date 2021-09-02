@@ -722,7 +722,7 @@ mxStencilRegistry.allowEval = false;
 				{
 	        		callback(App.pluginRegistry[pluginsSelect.value]);
 				}));
-				editorUi.showDialog(dlg.container, 300, 110, true, true);
+				editorUi.showDialog(dlg.container, 300, 120, true, true);
 			},
 			function(plugin)
 			{
