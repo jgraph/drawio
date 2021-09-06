@@ -319,16 +319,12 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.selectPageById = function(id)
 				{
-					var found = false;
-					
-					for (var i = 0; i < this.diagrams.length; i++)
+					var index = this.getIndexById(id);
+					var found = index >= 0;
+
+					if (found)
 					{
-						if (this.diagrams[i].getAttribute('id') == id)
-						{
-							this.selectPage(i);
-							found = true;
-							break;
-						}
+						this.selectPage(index);
 					}
 					
 					return found;
@@ -346,7 +342,57 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 						lastXmlNode = this.xmlNode;
 					}
 				});
-				
+
+				// Replaces background page reference with SVG
+				var graphSetBackgroundImage = this.graph.setBackgroundImage;
+		
+				this.graph.setBackgroundImage = function(img)
+				{
+					if (img != null && Graph.isPageLink(img.src))
+					{
+						var src = img.src;
+						var comma = src.indexOf(',');
+							
+						if (comma > 0)
+						{
+							var index = self.getIndexById(src.substring(comma + 1));
+					
+							if (index >= 0)
+							{
+								img = self.getImageForGraphModel(
+									Editor.parseDiagramNode(
+									self.diagrams[index]));
+								img.originalSrc = src;
+							}
+						}
+					}
+
+					graphSetBackgroundImage.apply(this, arguments);
+				};
+
+				// Overrides graph bounds to include background pages
+				var graphGetGraphBounds = this.graph.getGraphBounds;
+		
+				this.graph.getGraphBounds = function(img)
+				{
+					var bounds = graphGetGraphBounds.apply(this, arguments);
+					var img = this.backgroundImage;
+
+					// Check img.originalSrc to ignore background
+					// images but not background pages
+					if (img != null)
+					{
+						var t = this.view.translate;
+						var s = this.view.scale;
+		
+						bounds.add(new mxRectangle(
+							(t.x + img.x) * s, (t.y + img.y) * s,
+							img.width * s, img.height * s));
+					}
+
+					return bounds;
+				};
+
 				// LATER: Add event for setGraphXml
 				this.addListener('xmlNodeChanged', update);
 				update();
@@ -519,6 +565,65 @@ GraphViewer.prototype.getImageUrl = function(url)
 	}
 	
 	return url;
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.getImageForGraphModel = function(node)
+{
+	var graphGetGlobalVariable = this.graph.getGlobalVariable;
+	var graph = Graph.createOffscreenGraph(this.graph.getStylesheet());
+	// var index = this.getPageIndex((sourcePage != null) ?
+	// 	sourcePage : this.currentPage);
+
+	graph.getGlobalVariable = function(name)
+	{
+		// if (name == 'pagenumber')
+		// {
+		// 	return index + 1;
+		// }
+		// else if (name == 'page' && sourcePage != null)
+		// {
+		// 	return sourcePage.getName();
+		// }
+		// else
+		{
+			return graphGetGlobalVariable.apply(this, arguments);
+		}
+	};
+
+	document.body.appendChild(graph.container);
+
+	var codec = new mxCodec(node.ownerDocument);
+	var root = codec.decode(node).root;
+	graph.model.setRoot(root);
+	
+	var svgRoot = graph.getSvg();
+	var bounds = graph.getGraphBounds();
+	document.body.removeChild(graph.container);
+
+	return new mxImage(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
+		bounds.width, bounds.height, bounds.x, bounds.y);
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.getIndexById = function(id)
+{
+	if (this.diagrams != null)
+	{
+		for (var i = 0; i < this.diagrams.length; i++)
+		{
+			if (this.diagrams[i].getAttribute('id') == id)
+			{
+				return i;
+			}
+		}
+	}
+
+	return -1;
 };
 
 /**

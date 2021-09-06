@@ -17,6 +17,31 @@ EditorUi = function(editor, container, lightbox)
 	this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
 	this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 
+	if (lightbox)
+	{
+		// Overrides graph bounds to include background pages
+		var graphGetGraphBounds = graph.getGraphBounds;
+
+		graph.getGraphBounds = function(img)
+		{
+			var bounds = graphGetGraphBounds.apply(this, arguments);
+			var img = this.backgroundImage;
+
+			if (img != null)
+			{
+				var t = this.view.translate;
+				var s = this.view.scale;
+
+				bounds.add(new mxRectangle(
+					(t.x + img.x) * s, (t.y + img.y) * s,
+					img.width * s, img.height * s));
+			}
+	
+			return bounds;
+		};
+	}
+
+
 	// Faster scrollwheel zoom is possible with CSS transforms
 	if (graph.useCssTransforms)
 	{
@@ -1281,50 +1306,68 @@ EditorUi.prototype.installShapePicker = function()
 			}
 		};
 
+		var thread = null;
+
 		this.hoverIcons.addListener('focus', mxUtils.bind(this, function(sender, evt)
 		{
-			var arrow = evt.getProperty('arrow');
-			var dir = evt.getProperty('direction');
-			var mouseEvent = evt.getProperty('event');
-
-			var rect = arrow.getBoundingClientRect();
-			var offset = mxUtils.getOffset(graph.container);
-			var x = graph.container.scrollLeft + rect.x - offset.x;
-			var y = graph.container.scrollTop + rect.y - offset.y;
-
-			var temp = graph.getCompositeParent((this.hoverIcons.currentState != null) ?
-				this.hoverIcons.currentState.cell : null);
-			var div = ui.showShapePicker(x, y, temp, mxUtils.bind(this, function(cell)
+			if (thread != null)
 			{
-				if (cell != null)
+				window.clearTimeout(thread);
+			}
+
+			thread = window.setTimeout(mxUtils.bind(this, function()
+			{
+				var arrow = evt.getProperty('arrow');
+				var dir = evt.getProperty('direction');
+				var mouseEvent = evt.getProperty('event');
+
+				var rect = arrow.getBoundingClientRect();
+				var offset = mxUtils.getOffset(graph.container);
+				var x = graph.container.scrollLeft + rect.x - offset.x;
+				var y = graph.container.scrollTop + rect.y - offset.y;
+
+				var temp = graph.getCompositeParent((this.hoverIcons.currentState != null) ?
+					this.hoverIcons.currentState.cell : null);
+				var div = ui.showShapePicker(x, y, temp, mxUtils.bind(this, function(cell)
 				{
-					graph.connectVertex(temp, dir, graph.defaultEdgeLength, mouseEvent, true, true, function(x, y, execute)
+					if (cell != null)
 					{
-						execute(cell);
-							
-						if (ui.hoverIcons != null)
+						graph.connectVertex(temp, dir, graph.defaultEdgeLength, mouseEvent, true, true, function(x, y, execute)
 						{
-							ui.hoverIcons.update(graph.view.getState(cell));
-						}
-					}, function(cells)
-					{
-						graph.selectCellsForConnectVertex(cells);
-					}, mouseEvent, this.hoverIcons);
-				}
-			}), dir, true);
+							execute(cell);
+								
+							if (ui.hoverIcons != null)
+							{
+								ui.hoverIcons.update(graph.view.getState(cell));
+							}
+						}, function(cells)
+						{
+							graph.selectCellsForConnectVertex(cells);
+						}, mouseEvent, this.hoverIcons);
+					}
+				}), dir, true);
 
-			this.centerShapePicker(div, rect, x, y, dir);
-			mxUtils.setOpacity(div, 30);
+				this.centerShapePicker(div, rect, x, y, dir);
+				mxUtils.setOpacity(div, 30);
 
-			mxEvent.addListener(div, 'mouseenter', function()
+				mxEvent.addListener(div, 'mouseenter', function()
+				{
+					mxUtils.setOpacity(div, 100);
+				});
+
+				mxEvent.addListener(div, 'mouseleave', function()
+				{
+					ui.hideShapePicker();
+				});
+			}), 500);
+		}));
+
+		this.hoverIcons.addListener('blur', mxUtils.bind(this, function(sender, evt)
+		{
+			if (thread != null)
 			{
-				mxUtils.setOpacity(div, 100);
-			});
-
-			mxEvent.addListener(div, 'mouseleave', function()
-			{
-				ui.hideShapePicker();
-			});
+				window.clearTimeout(thread);
+			}
 		}));
 	}
 };
@@ -2151,7 +2194,7 @@ EditorUi.prototype.initCanvas = function()
 				pageInfo.style.display = 'inline-block';
 				pageInfo.style.verticalAlign = 'top';
 				pageInfo.style.fontFamily = 'Helvetica,Arial';
-				pageInfo.style.marginTop = '8px';
+				pageInfo.style.marginTop = '10px';
 				pageInfo.style.fontSize = '14px';
 				pageInfo.style.color = '#ffffff';
 				this.chromelessToolbar.appendChild(pageInfo);
@@ -2407,7 +2450,6 @@ EditorUi.prototype.initCanvas = function()
 			
 			if ((toolbarConfig.closeBtn && window.self === window.top) ||
 				(graph.lightbox && (urlParams['close'] == '1' || this.container != document.body)))
-			
 			{
 				addButton(mxUtils.bind(this, function(evt)
 				{
@@ -2934,23 +2976,7 @@ EditorUi.prototype.isPagesEnabled = function()
  */
 EditorUi.prototype.createTemporaryGraph = function(stylesheet)
 {
-	var graph = new Graph(document.createElement('div'));
-	graph.stylesheet.styles = mxUtils.clone(stylesheet.styles);
-	graph.resetViewOnRootChange = false;
-	graph.setConnectable(false);
-	graph.gridEnabled = false;
-	graph.autoScroll = false;
-	graph.setTooltips(false);
-	graph.setEnabled(false);
-
-	// Container must be in the DOM for correct HTML rendering
-	graph.container.style.visibility = 'hidden';
-	graph.container.style.position = 'absolute';
-	graph.container.style.overflow = 'hidden';
-	graph.container.style.height = '1px';
-	graph.container.style.width = '1px';
-	
-	return graph;
+	return Graph.createOffscreenGraph(stylesheet);
 };
 
 /**

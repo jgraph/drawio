@@ -617,6 +617,7 @@ removeFormat=書式をクリア
 removeFromGroup=グループから削除
 removeIt={1}  を削除。
 removeWaypoint=途中点を削除
+removeUnusedTags=Remove unused tags
 rename=名前を変更
 renamed=名前が変更されました
 renameIt={1}  の名前を変更する。

@@ -617,6 +617,7 @@ removeFormat=Fjern formatering
 removeFromGroup=Fjern fra gruppe
 removeIt=Fjern {1}
 removeWaypoint=Fjern støttepunkt
+removeUnusedTags=Remove unused tags
 rename=Endre navn
 renamed=Endret navn
 renameIt=Endre navn {1}

@@ -617,6 +617,7 @@ removeFormat=Limpar formatação
 removeFromGroup=Remover do Grupo 
 removeIt=Remover {1}
 removeWaypoint=Remover ponto de notificação
+removeUnusedTags=Remove unused tags
 rename=Renomear
 renamed=Renomeado
 renameIt=Renomear {1}

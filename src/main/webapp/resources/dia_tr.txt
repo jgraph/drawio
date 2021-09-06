@@ -617,6 +617,7 @@ removeFormat=Biçimi temizle
 removeFromGroup=Gruptan çıkart
 removeIt={1} Sil
 removeWaypoint=Ara noktayı sil
+removeUnusedTags=Remove unused tags
 rename=Yeniden isimlendir
 renamed=Yeniden isimlendirildi
 renameIt={1} Yeniden isimlendir

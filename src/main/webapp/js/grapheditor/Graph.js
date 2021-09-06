@@ -1310,6 +1310,30 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 
 /**
+ * Creates a temporary graph instance for rendering off-screen content.
+ */
+Graph.createOffscreenGraph = function(stylesheet)
+{
+	var graph = new Graph(document.createElement('div'));
+	graph.stylesheet.styles = mxUtils.clone(stylesheet.styles);
+	graph.resetViewOnRootChange = false;
+	graph.setConnectable(false);
+	graph.gridEnabled = false;
+	graph.autoScroll = false;
+	graph.setTooltips(false);
+	graph.setEnabled(false);
+
+	// Container must be in the DOM for correct HTML rendering
+	graph.container.style.visibility = 'hidden';
+	graph.container.style.position = 'absolute';
+	graph.container.style.overflow = 'hidden';
+	graph.container.style.height = '1px';
+	graph.container.style.width = '1px';
+
+	return graph;
+};
+ 
+/**
  * Helper function for creating SVG data URI.
  */
 Graph.createSvgImage = function(w, h, data, coordWidth, coordHeight)
@@ -1736,6 +1760,25 @@ Graph.stripQuotes = function(text)
 	}
 	
 	return text;
+};
+
+/**
+ * Create remove icon. 
+ */
+Graph.createRemoveIcon = function(title, onclick)
+{
+	var removeLink = document.createElement('img');
+	removeLink.setAttribute('src', Dialog.prototype.clearImage);
+	removeLink.setAttribute('title', title);
+	removeLink.setAttribute('width', '13');
+	removeLink.setAttribute('height', '10');
+	removeLink.style.marginLeft = '4px';
+	removeLink.style.marginBottom = '-1px';
+	removeLink.style.cursor = 'pointer';
+
+	mxEvent.addListener(removeLink, 'click', onclick);
+
+	return removeLink;
 };
 
 /**
@@ -8835,7 +8878,7 @@ if (typeof mxVertexHandler != 'undefined')
 			    {
 			    	var tmp = me.sourceState;
 			    	
-			    	// Gets topmost intersecting cell with link
+			    	// Gets first intersecting ancestor with link
 			    	if (tmp == null || graph.getLinkForCell(tmp.cell) == null)
 			    	{
 			    		var cell = graph.getCellAt(me.getGraphX(), me.getGraphY(), null, null, null, function(state, x, y)
@@ -8843,9 +8886,9 @@ if (typeof mxVertexHandler != 'undefined')
 			    			return graph.getLinkForCell(state.cell) == null;
 	    				});
 			    		
-			    		tmp = graph.view.getState(cell);
+			    		tmp = (tmp != null && !graph.model.isAncestor(cell, tmp.cell)) ? null : graph.view.getState(cell);
 			    	}
-			    	
+
 			      	if (tmp != this.currentState)
 			      	{
 			        	if (this.currentState != null)
@@ -11881,7 +11924,7 @@ if (typeof mxVertexHandler != 'undefined')
 					var s = this.state.view.scale;
 					var unit = this.state.view.unit;
 					this.hint.innerHTML = formatHintText(this.roundLength(this.bounds.width / s), unit) + ' x ' + 
-											formatHintText(this.roundLength(this.bounds.height / s), unit);
+						formatHintText(this.roundLength(this.bounds.height / s), unit);
 				}
 				
 				var rot = (this.currentAlpha != null) ? this.currentAlpha : this.state.style[mxConstants.STYLE_ROTATION] || '0';
@@ -12726,17 +12769,8 @@ if (typeof mxVertexHandler != 'undefined')
 								mxEvent.consume(evt);
 							}));
 							
-							var removeLink = document.createElement('img');
-							removeLink.setAttribute('src', Dialog.prototype.clearImage);
-							removeLink.setAttribute('title', mxResources.get('removeIt', [mxResources.get('link')]));
-							removeLink.setAttribute('width', '13');
-							removeLink.setAttribute('height', '10');
-							removeLink.style.marginLeft = '4px';
-							removeLink.style.marginBottom = '-1px';
-							removeLink.style.cursor = 'pointer';
-							this.linkHint.appendChild(removeLink);
-							
-							mxEvent.addListener(removeLink, 'click', mxUtils.bind(this, function(evt)
+							this.linkHint.appendChildGraph.createRemoveIcon(mxResources.get('removeIt',
+								[mxResources.get('link')]), mxUtils.bind(this, function(evt)
 							{
 								this.graph.setLinkForCell(this.state.cell, null);
 								mxEvent.consume(evt);

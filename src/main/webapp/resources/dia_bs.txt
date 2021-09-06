@@ -617,6 +617,7 @@ removeFormat=Očisti formatiranje
 removeFromGroup=Ukloni iz grupe
 removeIt=Ukoni {1}
 removeWaypoint=Ukloni međutačku
+removeUnusedTags=Remove unused tags
 rename=Preimenuj
 renamed=Preimenovano
 renameIt=Preimenuj {1}

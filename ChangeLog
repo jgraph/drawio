@@ -1,3 +1,16 @@
+06-SEP-2021: 15.1.0
+
+- Fixes link handling in viewer https://github.com/jgraph/drawio/issues/2220
+- Improvements to tags dialog https://github.com/jgraph/drawio/issues/2208
+- Fixes missing background page dropdown
+- Removes link if graph disabled or no cells selected
+- Highlights selection cells in disabled graphs
+- Fixes placeholders in PDF export
+- Fixes background pages and clipping https://github.com/jgraph/drawio/issues/2223
+- Adds tags custom action
+- Adds checks for valid tags
+- Fixes ignored background image bounds in lightbox
+
 02-SEP-2021: 15.0.6
 
 - Fixes NPE for PDF export with single page https://github.com/jgraph/drawio/issues/2221

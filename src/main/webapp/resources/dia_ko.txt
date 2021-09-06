@@ -617,6 +617,7 @@ removeFormat=서식 제거
 removeFromGroup=그룹에서 제거
 removeIt={1} 제거
 removeWaypoint=중간점 제거
+removeUnusedTags=Remove unused tags
 rename=이름 바꾸기
 renamed=이름 변경됨
 renameIt={1} 이름 바꾸기

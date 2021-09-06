@@ -617,6 +617,7 @@ removeFormat=‫إزالة التنسيق‬
 removeFromGroup=‫إزالة من مجموعة‬
 removeIt=‫إزالة {1}‬
 removeWaypoint=‫إزالة نقطة المسار‬
+removeUnusedTags=Remove unused tags
 rename=‫إعادة تسمية‬
 renamed=‫تمت إعادة التسمية‬
 renameIt=‫إعادة تسمية {1}‬

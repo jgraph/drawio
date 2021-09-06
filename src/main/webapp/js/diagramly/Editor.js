@@ -186,7 +186,7 @@
 	/**
 	 * Only needed in browsers with SVG support for export via lightbox toolbar. 
 	 */
-	Editor.cameraLargeImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KTMInWQAAA/BJREFUWAnFl0uIjWEYx885buPSuGwmSYwtwsY1ikKSNYNclmQnadgrZSPlsnBLSlaGBdNYKY0Vdi4L4zYzIqxGxmXG//d+7//0+uY7nWMiT/2/53mf+3v7vnNKpf9M5UbrDw8Pj4m+wzmeT1FBUS6Xf+YNox6reMONukijMXUTM3NmI75PyXcJPwRWg5kS7xysDLNmfEUxpx2rceNE50IlYjyRklcLf0prY+x4BTqfmx3ZUHQaO9ISGngYq38V/1EH+ECPa+QaK1u1kVBQirDMChiS3CTeIkwWvghtwhKBpZ8g1CO2B99FynVU/KowSRgQ3mlrBsVZ1awmQlS0SGbfXglfBPbdRGMm5O8RXg2P835pDCvzWjghTHETcLpZLHwS8kTCtBEK1SN83Egam8YxyVZqc+Do5qkwS+gT9grNwkUBG6cbsG/gs3BTuC/0ChCxq4QtwgzBMdwUZBPyN4Ftfi4sYPZHktbOSRlIuutRP5jYj0ueZp88xyYcS/zZoiLyQT1IA/cTj7eSlwnrhI+JnkQbCwo2Sx/2M7VJt17wdhVtgxvrpoFnAuSAbJQ97biZAlKxBfD9wgOhV+BgIR/AZtJ4kwD5PGSj7OmmekjWEy0oAQHAS3+KpBpzXqYK3UItopHpSRMno2N+cm7gDYnfRCcr3QBqriMHLJDkeyhFfiG5aVbK+8rhtP9M6QcIEJHX5Fp9NMAyQlYiu+OOJNlODCIXyka/P23bncTdiC7OydC1+v1Bsb+5r84DK8S3Rdmf5cRUFW3bXtWUSt1Rdk6G4SyJV2o1YId+vNUxr+x5yCJiapFtcxQzLjrxboGcMxvFJwEOKnLwjIbkx/sdSmeSaUY++SwTAxV+4DJT7RVwkbk46gNCsifIItuy0e9PF33Cb4homhN5YRyzL5q5V2VNkv98kqgoGTo3YF9CnMM5Y5rItFfvBSi9JulVXOgI+VwIntkt+SaZ6weQfcovJf7zpTfl86P/wAF7Fz18NeKwmvAWCaX0Z/uMHQr42ZxvR/Rxcw5xM+9J/CJq8w2gduDhmDgso/QrBH47dEXQ1IqczyHpIOfIRtnTtV7SwO1oKXKkU3fbToFGSDHtMWcaH1WBuVYnDbRFi99iqSMySdzxXckrazUh23KBVYGIcfNBkTxca0e4ATJ0KukGYVBgr/MnlhPOtQq/ksUfCbzh+EFCjtnCUoHfjhA/OsiTv2HcEvJMELp0VakZDliTmriTdPivxU4VmEhtPrGV+KJhO7ZKt0doFZh1fgZSBWIW2AGEHwg3BUWOnKtH+suqdw07tYMfglCrWPD5mw9qVYuniaXkT0OtWaSuo5LJTY1RBf+roF9X5+y/5qU+DAAAAABJRU5ErkJggg==';
+	Editor.cameraLargeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMzZweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMzZweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE0LjEyIDRsMS44MyAySDIwdjEySDRWNmg0LjA1bDEuODMtMmg0LjI0TTE1IDJIOUw3LjE3IDRINGMtMS4xIDAtMiAuOS0yIDJ2MTJjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY2YzAtMS4xLS45LTItMi0yaC0zLjE3TDE1IDJ6bS0zIDdjMS42NSAwIDMgMS4zNSAzIDNzLTEuMzUgMy0zIDMtMy0xLjM1LTMtMyAxLjM1LTMgMy0zbTAtMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTIuMjQtNS01LTV6Ii8+PC9zdmc+';
 	
 	/**
 	 * Broken image symbol for offline SVG.
@@ -5670,6 +5670,11 @@
 	 * Enables move of bends/segments without selecting.
 	 */
 	Graph.prototype.edgeMode = urlParams['edge'] != 'move';
+			
+	/**
+	 * Enables move of bends/segments without selecting.
+	 */
+	 Graph.prototype.hiddenTags = null;
 		
 	/**
 	 * Adds rack child layout style.
@@ -5679,6 +5684,9 @@
 	Graph.prototype.init = function()
 	{
 		graphInit.apply(this, arguments);
+
+		// Array of hidden tags used in isCellVisible override
+		this.hiddenTags = [];
 
 		//TODO initialize Freehand in the correct location!
 		if (window.mxFreehand)
@@ -6370,6 +6378,33 @@
 						this.scrollCellToVisible(cells[0]);
 					}
 
+					if (action.tags != null)
+					{
+						var hidden = [];
+						
+						if (action.tags.hidden != null)
+						{
+							hidden = hidden.concat(action.tags.hidden);
+						}
+
+						if (action.tags.visible != null)
+						{
+							var all = this.getAllTags();
+
+							for (var i = 0; i < all.length; i++)
+							{
+								if (mxUtils.indexOf(action.tags.visible, all[i]) < 0 &&
+									mxUtils.indexOf(hidden, all[i]) < 0)
+								{
+									hidden.push(all[i]);
+								}
+							}
+						}
+
+						this.hiddenTags = hidden;
+						this.refresh();
+					}
+
 					if (animations.length > 0)
 					{
 						waitCounter++;
@@ -6603,17 +6638,60 @@
 	};
 
 	/**
+	 * Adds support for custom fonts in cell styles.
+	 */
+	var graphIsCellVisible = Graph.prototype.isCellVisible;
+	Graph.prototype.isCellVisible = function(cell)
+	{
+		return graphIsCellVisible.apply(this, arguments) &&
+			!this.isAllTagsHidden(this.getTagsForCell(cell));
+	};
+  
+	/**
 	 * Returns the cells in the model (or given array) that have all of the
 	 * given tags in their tags property.
 	 */
-	Graph.prototype.getCellsForTags = function(tagList, cells, propertyName, includeLayers)
+	Graph.prototype.isAllTagsHidden = function(tags)
+	{
+		if (tags == null || tags.length == 0 ||
+			this.hiddenTags.length == 0)
+		{
+			return false;
+		}
+		else
+		{
+			var tmp = tags.toLowerCase().split(' ');
+
+			if (tmp.length > this.hiddenTags.length)
+			{
+				return false;
+			}
+			else
+			{
+				for (var i = 0; i < tmp.length; i++)
+				{
+					if (mxUtils.indexOf(this.hiddenTags, tmp[i]) < 0)
+					{
+						return false;
+					}
+				}
+				
+				return true;
+			}
+		}
+	};
+
+	/**
+	 * Returns the cells in the model (or given array) that have all of the
+	 * given tags in their tags property.
+	 */
+	Graph.prototype.getCellsForTags = function(tagList, cells, includeLayers, checkVisible)
 	{
 		var result = [];
 		
 		if (tagList != null)
 		{
 			cells = (cells != null) ? cells : this.model.getDescendants(this.model.getRoot());
-			propertyName = (propertyName != null) ? propertyName : 'tags';
 			
 			var tagCount = 0;
 			var lookup = {};
@@ -6632,8 +6710,7 @@
 				if ((includeLayers && this.model.getParent(cells[i]) == this.model.root) ||
 					this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
-					var tags = (cells[i].value != null && typeof(cells[i].value) == 'object') ?
-						mxUtils.trim(cells[i].value.getAttribute(propertyName) || '') : '';
+					var tags = this.getTagsForCell(cells[i]);
 					var match = false;
 	
 					if (tags.length > 0)
@@ -6655,12 +6732,8 @@
 							match = matchCount == tagCount;
 						}
 					}
-					else
-					{
-						match = tagList.length == 0;
-					}
 					
-					if (match)
+					if (match && (!checkVisible || this.isCellVisible(cells[i])))
 					{
 						result.push(cells[i]);
 					}
@@ -6670,7 +6743,179 @@
 		
 		return result;
 	};
-	
+	/**
+	 * Returns all tags in the diagram.
+	 */
+	Graph.prototype.getAllTags = function()
+	{
+		return this.getTagsForCells(
+			this.model.getDescendants(
+				this.model.getRoot()));
+		
+	};
+
+	/**
+	 * Returns the common tags for the given cells as a array.
+	 */
+	Graph.prototype.getCommonTagsForCells = function(cells)
+	{
+		var commonTokens = null;
+		var validTags = [];
+		 
+		for (var i = 0; i < cells.length; i++)
+		{
+			var tags = this.getTagsForCell(cells[i]);
+			validTags = [];
+ 
+			if (tags.length > 0)
+			{
+				var tokens = tags.toLowerCase().split(' ');
+				var temp = {};
+				 
+				for (var j = 0; j < tokens.length; j++)
+				{
+					if (commonTokens == null || commonTokens[tokens[j]] != null)
+					{
+						temp[tokens[j]] = true;
+						validTags.push(tokens[j]);
+					}
+				}
+				 
+				commonTokens = temp;
+			}
+			else
+			{
+				return [];
+			}
+		}
+	 
+		return validTags;
+	};
+ 
+	/**
+	 * Returns all tags for the given cells as an array.
+	 */
+	Graph.prototype.getTagsForCells = function(cells)
+	{
+		var tokens = [];
+		var temp = {};
+		
+		for (var i = 0; i < cells.length; i++)
+		{
+			var tags = this.getTagsForCell(cells[i]);
+
+			if (tags.length > 0)
+			{
+				var t = tags.toLowerCase().split(' ');
+				
+				for (var j = 0; j < t.length; j++)
+				{
+					if (temp[t[j]] == null)
+					{
+						temp[t[j]] = true;
+						tokens.push(t[j]);
+					}
+				}
+			}
+		}
+		
+		return tokens;
+	};
+
+	/**
+	 * Returns the tags for the given cell as a string.
+	 */
+	Graph.prototype.getTagsForCell = function(cell)
+	{
+		return this.getAttributeForCell(cell, 'tags', '');
+	};
+
+	/**
+	 * Adds the given array of tags to the given array cells.
+	 */
+	Graph.prototype.addTagsForCells = function(cells, tagList)
+	{
+		if (cells.length > 0 && tagList.length > 0)
+		{
+			this.model.beginUpdate();
+			
+			try
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					var temp = this.getTagsForCell(cells[i]);
+					var tags = temp.toLowerCase().split(' ');
+					var changed = false;
+		
+					for (var j = 0; j < tagList.length; j++)
+					{
+						var tag = mxUtils.trim(tagList[j]);
+
+						if (tag != '' && mxUtils.indexOf(tags, tag) < 0)
+						{
+							temp = (temp.length > 0) ? temp + ' ' + tag : tag;
+							changed = true;
+						}
+					}
+					
+					if (changed)
+					{
+						this.setAttributeForCell(cells[i], 'tags', temp);
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		}
+	};
+
+	/**
+	 * Removes the given array of tags from the given array cells.
+	 */
+	Graph.prototype.removeTagsForCells = function(cells, tagList)
+	{
+		if (cells.length > 0 && tagList.length > 0)
+		{
+			this.model.beginUpdate();
+			
+			try
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					var tags = this.getTagsForCell(cells[i]);
+					
+					if (tags.length > 0)
+					{
+						var tokens = tags.split(' ');
+						var changed = false;
+						
+						for (var j = 0; j < tagList.length; j++)
+						{
+							var idx = mxUtils.indexOf(tokens, tagList[j]);
+							
+							if (idx >= 0)
+							{
+								tokens.splice(idx, 1);
+								changed = true;
+							}
+						}
+
+						if (changed)
+						{
+							this.setAttributeForCell(cells[i], 'tags', tokens.join(' '));
+						}
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		}
+	};
+ 
 	/**
 	 * Shows or hides the given cells.
 	 */

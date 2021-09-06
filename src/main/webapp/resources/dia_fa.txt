@@ -617,6 +617,7 @@ removeFormat=‫قالب بندی را پاک کن‬
 removeFromGroup=‫حذف از گروه‬
 removeIt=‫حذف {1}‬
 removeWaypoint=‫نقطه مسیر را پاک کن‬
+removeUnusedTags=Remove unused tags
 rename=‫تغییر نام‬
 renamed=‫نام تغییر یافت‬
 renameIt=‫تغییر نام {1}‬

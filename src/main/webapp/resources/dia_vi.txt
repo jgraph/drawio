@@ -617,6 +617,7 @@ removeFormat=Xóa định dạng
 removeFromGroup=Loại bỏ khỏi nhóm
 removeIt=Loại bỏ {1}
 removeWaypoint=Loại bỏ điểm tham chiếu
+removeUnusedTags=Remove unused tags
 rename=Đổi tên
 renamed=Đã đổi tên
 renameIt=Đổi tên {1}

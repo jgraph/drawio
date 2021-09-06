@@ -617,6 +617,7 @@ removeFormat=清除格式
 removeFromGroup=移出组合
 removeIt=删除 {1}
 removeWaypoint=删除航点
+removeUnusedTags=Remove unused tags
 rename=重命名
 renamed=已重命名
 renameIt=重命名 {1}

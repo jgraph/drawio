@@ -907,6 +907,7 @@ EditorUi.initMinimalTheme = function()
         ui.actions.get('createShape').label = mxResources.get('shape') + '...';
         ui.actions.get('outline').label = mxResources.get('outline') + '...';
         ui.actions.get('layers').label = mxResources.get('layers') + '...';
+        ui.actions.get('tags').label = mxResources.get('tags') + '...';
 		ui.actions.get('forkme').visible = urlParams['sketch'] != '1';
 		ui.actions.get('downloadDesktop').visible = urlParams['sketch'] != '1';
 
@@ -1332,7 +1333,7 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				ui.menus.addMenuItems(menu, ['pageSetup', '-', 'layers'], parent);
+				ui.menus.addMenuItems(menu, ['pageSetup', '-', 'layers', 'tags'], parent);
 			}
         })));
 	};

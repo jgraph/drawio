@@ -617,6 +617,7 @@ removeFormat=Formázás törlése
 removeFromGroup=Eltávolítás a csoportból
 removeIt={1}-t eltávolít
 removeWaypoint=Útpontot eltávolít
+removeUnusedTags=Remove unused tags
 rename=Átnevez
 renamed=Átnevezve
 renameIt={1}-t átnevez

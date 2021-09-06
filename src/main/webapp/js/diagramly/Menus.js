@@ -897,11 +897,11 @@
 			editorUi.openLink('https://get.diagrams.net/');
 		});
 		
-		action = editorUi.actions.addAction('tags...', mxUtils.bind(this, function()
+		action = editorUi.actions.addAction('tags', mxUtils.bind(this, function()
 		{
 			if (this.tagsWindow == null)
 			{
-				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 380, 230, 300, 120);
+				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 240, 270);
 				this.tagsWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
@@ -3525,6 +3525,8 @@
 		viewPanelsMenu.funct = function(menu, parent)
 		{
 			viewPanelsFunct.apply(this, arguments);
+
+			editorUi.menus.addMenuItems(menu, ['tags'], parent);
 			
 			if (editorUi.commentsSupported())
 			{
@@ -3613,7 +3615,7 @@
 				this.addMenuItem(menu, 'plugins', parent);
 			}
 
-			this.addMenuItems(menu, ['tags', '-', 'editDiagram'], parent);
+			this.addMenuItems(menu, ['-', 'editDiagram'], parent);
 	
 			if (Graph.translateDiagram)
 			{
