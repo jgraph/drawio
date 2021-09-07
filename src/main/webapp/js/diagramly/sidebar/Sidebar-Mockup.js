@@ -637,7 +637,7 @@
 		[
 			this.createVertexTemplateEntry(s + 'misc.help_icon;', 
 					32, 32, '', 'Help Icon', null, null, this.getTagsForStencil(gn, 'help_icon', dt).join(' ')),
-			this.createVertexTemplateEntry(s + 'misc.playbackControls;' + skcl9 + 'fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none;',
+			this.createVertexTemplateEntry(s + 'misc.playbackControls;sketch=0;' + skcl9 + 'fillColor2=#99ddff;strokeColor2=none;fillColor3=#ffffff;strokeColor3=none;',
 					250, 30, '', 'Playback Controls', null, null, this.getTagsForStencil(gn, 'playbackControls', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'misc.progressBar;fillColor=#cccccc;' + skclN + 'fillColor2=#99ddff;barPos=80;', 200, 20, '', 'Progress Bar', null, null, this.getTagsForStencil(gn, 'progress bar', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'misc.shoppingCart;' + skcl9, 

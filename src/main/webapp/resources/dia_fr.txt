@@ -617,7 +617,6 @@ removeFormat=Effacer la mise en forme
 removeFromGroup=Retirer du groupe
 removeIt=Retirer {1}
 removeWaypoint=Effacer le repère
-removeUnusedTags=Remove unused tags
 rename=Renommer
 renamed=Renommé
 renameIt=Renommer {1}

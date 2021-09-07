@@ -279,12 +279,12 @@ Draw.loadPlugin(function(editorUi)
 		
 		refreshUi();
 
-		graph.selectionModel.addListener(mxEvent.EVENT_CHANGE, function(sender, evt)
+		graph.selectionModel.addListener(mxEvent.CHANGE, function(sender, evt)
 		{
 			refreshUi();
 		});
 		
-		graph.model.addListener(mxEvent.EVENT_CHANGE, function(sender, evt)
+		graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
 		{
 			refreshUi();
 		});

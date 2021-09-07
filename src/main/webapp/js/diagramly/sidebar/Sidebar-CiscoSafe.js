@@ -26,7 +26,7 @@
 	
 	Sidebar.prototype.addCiscoSafeArchitecturePalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#6ABD46;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#6ABD46;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
 	 	'points=[[0.085,0.085,0],[0.915,0.085,0],[0.915,0.915,0],[0.085,0.915,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
 		var gn = 'mxgraph.cisco_safe.architecture';
 		var dt = 'cisco safe architecture';
@@ -184,7 +184,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.business_icons.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.business_icons.';
 		var gn = 'mxgraph.cisco_safe.business_icons';
 		var dt = 'cisco safe business';
 
@@ -256,7 +256,7 @@
 	Sidebar.prototype.addCiscoSafeCapabilityPalette = function()
 	{
 		var ptss = 'points=[[0.145,0.145,0],[0.5,0,0],[0.855,0.145,0],[1,0.5,0],[0.855,0.855,0],[0.5,1,0],[0.145,0.855,0],[0,0.5,0]];';
-		var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
 			ptss + 'pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
 		var n3 = 'fillColor=#6ABD46;' + n2;
 		var n4 = 'fillColor=#999999;' + n2;
@@ -449,10 +449,10 @@
 	
 	Sidebar.prototype.addCiscoSafeDesignPalette = function()
 	{
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;' + 
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;' + 
 			'points=[[0,0.5,0],[0.125,0.25,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[0.875,0.25,0],[1,0.5,0],[0.875,0.75,0],[0.75,1,0],[0.5,1,0],[0.125,0.75,0]];shape=mxgraph.cisco_safe.design.';
-		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;pointerEvents=1;shape=mxgraph.cisco_safe.design.';
-		var n = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#A153A0;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		var s2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#A153A0;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;pointerEvents=1;shape=mxgraph.cisco_safe.design.';
+		var n = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#A153A0;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
 		'points=[[0,0.5,0],[0.125,0.25,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[0.875,0.25,0],[1,0.5,0],[0.875,0.75,0],[0.75,1,0],[0.5,1,0],[0.125,0.75,0]];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
 		var gn = 'mxgraph.cisco_safe.design';
 		var dt = 'cisco safe design';
@@ -702,7 +702,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.iot_things_icons.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.iot_things_icons.';
 		var gn = 'mxgraph.cisco_safe.iot_things_icons';
 		var dt = 'cisco safe iot things icons internet';
 
@@ -814,7 +814,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.people_places_things_icons.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.people_places_things_icons.';
 		var gn = 'mxgraph.cisco_safe.people_places_things_icons';
 		var dt = 'cisco safe people places things';
 
@@ -852,7 +852,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.security_icons.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.security_icons.';
 		var gn = 'mxgraph.cisco_safe.security_icons';
 		var dt = 'cisco safe security';
 
@@ -1012,7 +1012,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.technology_icons.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#282828;strokeColor=none;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.technology_icons.';
 		var gn = 'mxgraph.cisco_safe.technology_icons';
 		var dt = 'cisco safe technology';
 
@@ -1086,8 +1086,7 @@
 	{
 		var w = 50;
 		var h = 50;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;pointerEvents=1;align=center;shape=mxgraph.cisco_safe.threat.';
-		var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;fillColor=#F06650;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
+		var n2 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;fillColor=#F06650;strokeColor=#ffffff;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;align=center;' + 
 		'points=[];pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.cisco_safe.";
 		var gn = 'mxgraph.cisco_safe.threat';
 		var dt = 'cisco safe threat ';

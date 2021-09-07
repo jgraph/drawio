@@ -397,12 +397,14 @@ EditorUi.initMinimalTheme = function()
 			'html body .geToolbarContainer .geMenuItem, html body .geToolbarContainer .geToolbarButton, ' +
 			'html body .geMenubarContainer .geMenuItem .geMenuItem, html body .geMenubarContainer a.geMenuItem,' +
 			'html body .geMenubarContainer .geToolbarButton { filter: invert(1); }' +
+			'html body div.geToolbarContainer a.geInverted { filter: none; }' +
 			'html body .geMenubarContainer .geMenuItem .geMenuItem, html body .geMenubarContainer a.geMenuItem { color: #353535; }' +
 			'html > body > div > .geToolbarContainer { border: 1px solid #c0c0c0 !important; box-shadow: none !important; }' +
 			'html > body.geEditor > div > a.geItem { background-color: #2a2a2a; color: #cccccc; border-color: #505759; }' +
 			'html body .geTabContainer, html body .geTabContainer div, html body .geMenubarContainer { border-color: #505759 !important; }'
 			:
 			// Non-dark mode styles
+			'html body div.geToolbarContainer a.geInverted { filter: invert(1); }' +
 			'html body.geEditor .geTabContainer div { border-color: #e5e5e5 !important; }'
 			) +
 			// End of custom styles
@@ -2122,6 +2124,24 @@ EditorUi.initMinimalTheme = function()
 				undoAction.addListener('stateChanged', undoListener);
 				redoAction.addListener('stateChanged', undoListener);
 				undoListener();
+
+				if (urlParams['layers'] != null)
+				{
+					var layersAction = ui.actions.get('layers');
+					var layersElt = addMenuItem('', layersAction.funct, null, mxResources.get('layers'), layersAction, Editor.layersLargeImage);
+					layersElt.className += ' geInverted';
+					layersElt.style.opacity = '0.4';
+					footer.appendChild(layersElt);
+				}
+				
+				if (urlParams['tags'] != null)
+				{
+					var tagsAction = ui.actions.get('tags');
+					var tagsElt = addMenuItem('', tagsAction.funct, null, mxResources.get('tags'), tagsAction, Editor.tagsLargeImage);
+					tagsElt.className += ' geInverted';
+					tagsElt.style.opacity = '0.4';
+					footer.appendChild(tagsElt);
+				}
 				
 				var outlineAction = ui.actions.get('outline');
 				var outlineImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0yMC41IDNsLS4xNi4wM0wxNSA1LjEgOSAzIDMuMzYgNC45Yy0uMjEuMDctLjM2LjI1LS4zNi40OFYyMC41YzAgLjI4LjIyLjUuNS41bC4xNi0uMDNMOSAxOC45bDYgMi4xIDUuNjQtMS45Yy4yMS0uMDcuMzYtLjI1LjM2LS40OFYzLjVjMC0uMjgtLjIyLS41LS41LS41ek0xNSAxOWwtNi0yLjExVjVsNiAyLjExVjE5eiIvPjwvc3ZnPg==';

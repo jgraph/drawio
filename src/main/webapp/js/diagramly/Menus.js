@@ -901,7 +901,7 @@
 		{
 			if (this.tagsWindow == null)
 			{
-				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 240, 270);
+				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 250, 270);
 				this.tagsWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));

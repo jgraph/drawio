@@ -617,7 +617,6 @@ removeFormat=Formatierung entfernen
 removeFromGroup=Aus Gruppe entfernen
 removeIt={1} entfernen
 removeWaypoint=Wegpunkt entfernen
-removeUnusedTags=Ungenutzte Tags entfernen
 rename=Umbenennen
 renamed=Umbenannt
 renameIt={1} umbenennen

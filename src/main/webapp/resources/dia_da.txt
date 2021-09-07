@@ -617,7 +617,6 @@ removeFormat=Ryd formatering
 removeFromGroup=Fjern fra gruppe
 removeIt=Fjern {1}
 removeWaypoint=Fjern støttepunkt
-removeUnusedTags=Remove unused tags
 rename=Omdøb
 renamed=Omdøbt
 renameIt=Omdøb {1}

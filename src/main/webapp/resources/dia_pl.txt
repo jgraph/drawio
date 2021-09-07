@@ -617,7 +617,6 @@ removeFormat=Wyczyść formatowanie
 removeFromGroup=Usuń z grupy
 removeIt=Usuń {1}
 removeWaypoint=Usuń punkt trasy
-removeUnusedTags=Remove unused tags
 rename=Zmień nazwę 
 renamed=Nazwa zmieniona 
 renameIt=Zmień nazwę {1}

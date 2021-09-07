@@ -3,13 +3,13 @@
 	// Adds Cisco Safe stencils
 	Sidebar.prototype.addCisco19Palette = function()
 	{
-		var sc = "points=[[0.015,0.015,0],[0.985,0.015,0],[0.985,0.985,0],[0.015,0.985,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];";
+		var sc = "sketch=0;points=[[0.015,0.015,0],[0.985,0.015,0],[0.985,0.985,0],[0.015,0.985,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];";
 		var s = sc + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
 			'pointerEvents=1;shape=mxgraph.cisco19.';
-		var s2 = "points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.8555,0],[0.145,0.855,0]];" + 
+		var s2 = "sketch=0;points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0],[0.145,0.145,0],[0.8555,0.145,0],[0.855,0.8555,0],[0.145,0.855,0]];" + 
 			mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
 			'pointerEvents=1;shape=mxgraph.cisco19.';
-		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
+		var s3 = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;aspect=fixed;align=center;' + 
 			'pointerEvents=1;shape=mxgraph.cisco19.';
 		
 		this.setCurrentSearchEntryLibrary('cisco19', 'cisco19LAN Switching');

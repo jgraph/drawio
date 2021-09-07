@@ -2375,7 +2375,7 @@ EditorUi.prototype.initCanvas = function()
 	
 				model.addListener(mxEvent.CHANGE, function()
 				{
-					 layersButton.style.display = (model.getChildCount(model.root) > 1) ? '' : 'none';
+					layersButton.style.display = (model.getChildCount(model.root) > 1) ? '' : 'none';
 				});
 			}
 	

@@ -617,7 +617,6 @@ removeFormat=ล้างรูปแบบ
 removeFromGroup=ลบออกจากกลุ่ม
 removeIt=ลบ{1}
 removeWaypoint=ลบการกำหนดเส้นทาง
-removeUnusedTags=Remove unused tags
 rename=เปลี่ยนชื่อใหม่
 renamed=ได้เปลี่ยนชื่อแล้ว
 renameIt=เปลี่ยนชื่อ{1}

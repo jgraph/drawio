@@ -164,12 +164,12 @@ Draw.loadPlugin(function(ui) {
 
 	if (!ui.editor.isChromelessView())
 	{
-		graph.selectionModel.addListener(mxEvent.EVENT_CHANGE, function(sender, evt)
+		graph.selectionModel.addListener(mxEvent.CHANGE, function(sender, evt)
 		{
 			cellClicked(graph.getSelectionCell());
 		});
 		
-		graph.model.addListener(mxEvent.EVENT_CHANGE, function(sender, evt)
+		graph.model.addListener(mxEvent.CHANGE, function(sender, evt)
 		{
 			cellClicked(graph.getSelectionCell());
 		});

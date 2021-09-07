@@ -617,7 +617,6 @@ removeFormat=Poista muotoilu
 removeFromGroup=Poista ryhmityksestä
 removeIt=Poista {1}
 removeWaypoint=Poista reittipiste
-removeUnusedTags=Remove unused tags
 rename=Nimeä uudelleen
 renamed=Nimetty uudelleen
 renameIt=Nimeä uudelleen {1}

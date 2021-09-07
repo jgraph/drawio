@@ -617,7 +617,6 @@ removeFormat=Rensa formatering
 removeFromGroup=Ta bort från grupp
 removeIt=Ta bort {1}
 removeWaypoint=Ta bort brytpunkt
-removeUnusedTags=Remove unused tags
 rename=Byt namn
 renamed=Namnändrad
 renameIt=Byt namn {1}

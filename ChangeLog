@@ -1,3 +1,15 @@
+07-SEP-2021: 15.1.1
+
+- Uses SVG for large toolbar icons
+- Adds createTagsDialog and double click handler
+- Uses dbl click for selection or highlight
+- Adds tags URL parameter for lightbox (beta)
+- Disables sketch style for specific shapes by default
+- Adds support for tags in lightbox
+- [o365] Updates Office.ui.messageParent with targetOrigin
+- Fixes possible duplicate cells, event names
+- Fixes tags in custom actions https://github.com/jgraph/drawio/issues/2228
+
 06-SEP-2021: 15.1.0
 
 - Fixes link handling in viewer https://github.com/jgraph/drawio/issues/2220

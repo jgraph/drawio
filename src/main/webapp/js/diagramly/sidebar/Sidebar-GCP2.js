@@ -96,7 +96,7 @@
 	Sidebar.prototype.addGCP2ZonesPalette = function()
 	{
 		var sb = this;
-		var s = 'points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[1,1,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=none;gradientColor=none;shadow=0;dashed=0;fontSize=12;fontColor=#9E9E9E;align=left;verticalAlign=top;spacing=10;spacingTop=-4;';
+		var s = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[1,1,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];rounded=1;absoluteArcSize=1;arcSize=2;html=1;strokeColor=none;gradientColor=none;shadow=0;dashed=0;fontSize=12;fontColor=#9E9E9E;align=left;verticalAlign=top;spacing=10;spacingTop=-4;';
 		var dt = 'gcp google cloud platform zone ';
 		var gn = 'mxgraph.gcp2.zones';
 		var fns = [];
@@ -319,7 +319,7 @@
 	{
 		var sb = this;
 		var s = 1;
-		var n = 'html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
+		var n = 'sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=mxgraph.gcp2.';
 		var dt = 'gcp google cloud platform general icons icon ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -363,9 +363,9 @@
 		    		s * 100, s * 100, null, 'Clock', null, null, this.getTagsForStencil(gn, '', dt + 'clock').join(' ')),
 		    this.createVertexTemplateEntry(n + 'check', 
 		    		s * 100, s * 80, null, 'Check', null, null, this.getTagsForStencil(gn, '', dt + 'check').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#F4AF20;shape=mxgraph.gcp2.check', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#F4AF20;shape=mxgraph.gcp2.check', 
 		    		s * 100, s * 80, null, 'Check (yellow)', null, null, this.getTagsForStencil(gn, '', dt + 'check').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.check', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.check', 
 		    		s * 100, s * 80, null, 'Check (green)', null, null, this.getTagsForStencil(gn, '', dt + 'check').join(' ')),
 		    this.createVertexTemplateEntry(n + 'lock', 
 		    		s * 78, s * 100, null, 'Lock', null, null, this.getTagsForStencil(gn, '', dt + 'lock').join(' ')),
@@ -383,7 +383,7 @@
 		    		s * 99, s * 100, null, 'Big Query', null, null, this.getTagsForStencil(gn, '', dt + 'big query').join(' ')),
 		    this.createVertexTemplateEntry(n + 'search', 
 		    		s * 99, s * 100, null, 'Search', null, null, this.getTagsForStencil(gn, '', dt + 'search').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.search', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.search', 
 		    		s * 99, s * 100, null, 'Search (green)', null, null, this.getTagsForStencil(gn, '', dt + 'search').join(' ')),
 		    this.createVertexTemplateEntry(n + 'solution', 
 		    		s * 99, s * 100, null, 'Solution', null, null, this.getTagsForStencil(gn, '', dt + 'solution').join(' ')),
@@ -517,7 +517,7 @@
 		    		s * 93, s * 100, null, 'Memory Card', null, null, this.getTagsForStencil(gn, '', dt + 'memory card').join(' ')),
 		    this.createVertexTemplateEntry(n + 'admin_connected', 
 		    		s * 100, s * 100, null, 'Admin Connected', null, null, this.getTagsForStencil(gn, '', dt + 'admin connected').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=ellipse', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#3B8DF1;shape=ellipse', 
 		    		s * 100, s * 100, null, 'Images Service', null, null, this.getTagsForStencil(gn, '', dt + 'images service').join(' ')),
 		    this.createVertexTemplateEntry(n + 'task_queues_2', 
 		    		s * 100, s * 61, null, 'Task Queues', null, null, this.getTagsForStencil(gn, '', dt + 'task queues').join(' ')),
@@ -543,13 +543,13 @@
 		    		s * 80, s * 100, null, 'Node', null, null, this.getTagsForStencil(gn, '', dt + 'node').join(' ')),
 		    this.createVertexTemplateEntry(n + 'service', 
 		    		s * 70, s * 100, null, 'Service', null, null, this.getTagsForStencil(gn, '', dt + 'service').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.external_data_center', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.external_data_center', 
 		    		s * 77, s * 100, null, 'External Data Center', null, null, this.getTagsForStencil(gn, '', dt + 'external data center').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.external_data_resource', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.external_data_resource', 
 		    		s * 79, s * 100, null, 'External Data Resource', null, null, this.getTagsForStencil(gn, '', dt + 'external data resource').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.legacy_cloud', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.legacy_cloud', 
 		    		s * 100, s * 69, null, 'Legacy Cloud', null, null, this.getTagsForStencil(gn, '', dt + 'legacy cloud').join(' ')),
-		    this.createVertexTemplateEntry('html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.legacy_cloud_2', 
+		    this.createVertexTemplateEntry('sketch=0;html=1;aspect=fixed;strokeColor=none;shadow=0;align=center;verticalAlign=top;fillColor=#2D9C5E;shape=mxgraph.gcp2.legacy_cloud_2', 
 		    		s * 100, s * 69, null, 'Legacy Cloud', null, null, this.getTagsForStencil(gn, '', dt + 'legacy cloud').join(' ')),
 		    this.createVertexTemplateEntry(n + 'mem_instances', 
 		    		s * 100, s * 87, null, 'Mem Instances', null, null, this.getTagsForStencil(gn, '', dt + 'mem instances').join(' '))
@@ -1003,7 +1003,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon ai machine learning ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1068,7 +1068,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon compute ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1107,7 +1107,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon data analytics ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1150,7 +1150,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon management tools ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1201,7 +1201,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon networking ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1258,7 +1258,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon developer tools ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1311,7 +1311,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon api application programming interface management';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1346,7 +1346,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon internet of things iot ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1371,7 +1371,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon databases db ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1406,7 +1406,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon storage ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1435,7 +1435,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon security ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1468,7 +1468,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon migration ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1493,7 +1493,7 @@
 	{
 		var sb = this;
 		var s = 1.5;
-		var n = 'html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var n = 'sketch=0;html=1;fillColor=#5184F3;strokeColor=none;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;align=center;spacingTop=-6;fontSize=11;fontStyle=1;fontColor=#999999;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var dt = 'gcp google cloud platform icons icon migration ';
 		var gn = 'mxgraph.gcp2';
 		var fns = [];
@@ -1519,7 +1519,7 @@
 	Sidebar.prototype.addGCP2CardSet = function(label, icon, w1, w2, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.hexIcon;prIcon=';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -1572,7 +1572,7 @@
 	Sidebar.prototype.addGCP2ProductCardSet = function(label, icon, scaleX, scaleY, w1, w2, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -1626,7 +1626,7 @@
 	Sidebar.prototype.addGCP2ServiceCard = function(label, icon, w, h, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -1649,7 +1649,7 @@
 	Sidebar.prototype.addGCP2ExpandedProductCardSet = function(label, icon, w, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#5184F3;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -1689,7 +1689,7 @@
 	Sidebar.prototype.addGCP2ExpandedMachineCard = function(label, mainIcon, aspectX, aspectY, capacityLabel, machineNum1, machineIcon, machineNum2, storageIcon, storageNum, additionalModifierIcon, w, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 
@@ -1720,14 +1720,14 @@
 		    	bg.insert(machineCell);
 			    
 			    var machineNum1Cell = new mxCell(machineNum1, 
-			    		new mxGeometry(0, 0, 18, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+			    		new mxGeometry(0, 0, 18, 18), 'sketch=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 			    machineNum1Cell.geometry.relative = true;
 			    machineNum1Cell.geometry.offset = new mxPoint(24, 69);
 			    machineNum1Cell.vertex = true;
 		    	bg.insert(machineNum1Cell);
 			    
 			    var machineNum2Cell = new mxCell(machineNum2, 
-			    		new mxGeometry(0, 0, 18, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+			    		new mxGeometry(0, 0, 18, 18), 'sketch=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 			    machineNum2Cell.geometry.relative = true;
 			    machineNum2Cell.geometry.offset = new mxPoint(50, 69);
 			    machineNum2Cell.vertex = true;
@@ -1741,7 +1741,7 @@
 		    	bg.insert(storageCell);
 			    
 			    var storageNumCell = new mxCell(storageNum, 
-			    		new mxGeometry(0, 0, 18, 18), 'rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+			    		new mxGeometry(0, 0, 18, 18), 'sketch=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 			    storageNumCell.geometry.relative = true;
 			    storageNumCell.geometry.offset = new mxPoint(88, 69);
 			    storageNumCell.vertex = true;
@@ -1785,14 +1785,14 @@
 			    	bg.insert(machineCell);
 				    
 				    var machineNum1Cell = new mxCell(machineNum1, 
-				    		new mxGeometry(0, 0, 18, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 18, 18), 'sketch=0;connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    machineNum1Cell.geometry.relative = true;
 				    machineNum1Cell.geometry.offset = new mxPoint(24, 69);
 				    machineNum1Cell.vertex = true;
 			    	bg.insert(machineNum1Cell);
 				    
 				    var machineNum2Cell = new mxCell(machineNum2, 
-				    		new mxGeometry(0, 0, 18, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 18, 18), 'sketch=0;connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    machineNum2Cell.geometry.relative = true;
 				    machineNum2Cell.geometry.offset = new mxPoint(50, 69);
 				    machineNum2Cell.vertex = true;
@@ -1806,7 +1806,7 @@
 			    	bg.insert(storageCell);
 				    
 				    var storageNumCell = new mxCell('123', 
-				    		new mxGeometry(0, 0, 25, 18), 'connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
+				    		new mxGeometry(0, 0, 25, 18), 'sketch=0;connectable=0;rounded=1;arcSize=50;part=1;fillColor=#3B8CF0;strokeColor=none;html=1;fontColor=#ffffff;spacingTop=-2;');
 				    storageNumCell.geometry.relative = true;
 				    storageNumCell.geometry.offset = new mxPoint(81, 69);
 				    storageNumCell.vertex = true;
@@ -1827,7 +1827,7 @@
 	Sidebar.prototype.addGCP2UserDeviceCard = function(label, icon, scaleX, scaleY, h1, dt, fns)
 	{
 		var sb = this;
-		var s = 'dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
+		var s = 'sketch=0;dashed=0;connectable=0;html=1;fillColor=#757575;strokeColor=none;' + mxConstants.STYLE_SHAPE + '=mxgraph.gcp2.';
 		var label1 = label.replace('\n', ' ');
 		var label1 = label1.replace('- ', '-');
 

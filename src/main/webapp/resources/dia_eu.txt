@@ -617,7 +617,6 @@ removeFormat=Garbitu formatua
 removeFromGroup=Taldetik kendu
 removeIt={1} kendu
 removeWaypoint=Kendu koordenatua
-removeUnusedTags=Remove unused tags
 rename=Aldatu izena
 renamed=Izena aldatuta
 renameIt=Izena aldatu {1}-ri

@@ -83,7 +83,7 @@ public class MSGraphAuthServlet extends AbsAuthServlet
 			res.append("	{");
 			res.append("		var authInfoStr = JSON.stringify(authInfo);");
 			res.append("		localStorage.setItem('.oneDriveAuthInfo', '{}');"); //setting this storage item means we have a refresh token
-			res.append("		Office.onReady(function () { Office.context.ui.messageParent(authInfoStr);});");
+			res.append("		Office.onReady(function () { Office.context.ui.messageParent(authInfoStr, { targetOrigin: '*' });});"); //TODO Use specific domain (more secure)
 			res.append("	};");
 			res.append("	script.src = 'https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js';");
 			res.append("	head.appendChild(script);");

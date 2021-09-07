@@ -3,7 +3,7 @@
 	// Adds Sitemap shapes
 	Sidebar.prototype.addSitemapPalette = function()
 	{
-		var s = 'html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=middle;verticalAlign=top;align=center;fontSize=12;outlineConnect=0;spacingTop=-6;fontColor=#FFFFFF;shape=mxgraph.sitemap.';
+		var s = 'html=1;strokeColor=none;fillColor=#0079D6;labelPosition=center;verticalLabelPosition=middle;verticalAlign=top;align=center;fontSize=12;outlineConnect=0;spacingTop=-6;fontColor=#FFFFFF;sketch=0;shape=mxgraph.sitemap.';
 
 		// Space savers
 		var sb = this;

@@ -617,7 +617,6 @@ removeFormat=Esborra el format
 removeFromGroup=Suprimeix del grup
 removeIt=Suprimeix {1}
 removeWaypoint=Suprimeix la coordenada
-removeUnusedTags=Remove unused tags
 rename=Canvia el nom
 renamed=Nom canviat
 renameIt=Canvia el nom a {1}

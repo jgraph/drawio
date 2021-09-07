@@ -142,18 +142,18 @@
 					
 			this.addEntry(dt + 'button group horizontal', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 180, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 180, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 60, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('Left', new mxGeometry(0, 0, 60, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Middle', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button2 = new mxCell('Middle', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(60, 0);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Right', new mxGeometry(1, 0, 60, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button3 = new mxCell('Right', new mxGeometry(1, 0, 60, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(-60, 0);
 			   	button3.vertex = true;
@@ -164,46 +164,46 @@
 		    
 			this.addEntry(dt + 'button group horizontal', function()
 	   		{
-			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 120, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 120, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg1.vertex = true;
-			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg1.insert(button1);
-			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(30, 0);
 			   	button2.vertex = true;
 			   	bg1.insert(button2);
-			   	var button3 = new mxCell('3', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button3 = new mxCell('3', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(60, 0);
 			   	button3.vertex = true;
 			   	bg1.insert(button3);
-			   	var button4 = new mxCell('4', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button4 = new mxCell('4', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(-30, 0);
 			   	button4.vertex = true;
 			   	bg1.insert(button4);
 				
-			   	var bg2 = new mxCell('', new mxGeometry(130, 0, 90, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg2 = new mxCell('', new mxGeometry(130, 0, 90, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg2.vertex = true;
-			   	var button1 = new mxCell('5', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('5', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg2.insert(button1);
-			   	var button2 = new mxCell('6', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button2 = new mxCell('6', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(30, 0);
 			   	button2.vertex = true;
 			   	bg2.insert(button2);
-			   	var button3 = new mxCell('7', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button3 = new mxCell('7', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(-30, 0);
 			   	button3.vertex = true;
 			   	bg2.insert(button3);
 				
-			   	var bg3 = new mxCell('8', new mxGeometry(230, 0, 30, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg3 = new mxCell('8', new mxGeometry(230, 0, 30, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg3.vertex = true;
 			   	
 		   		return sb.createVertexTemplateFromCells([bg1, bg2, bg3], 260, 30, 'Button group, horizontal');
@@ -211,31 +211,31 @@
 				    
 			this.addEntry(dt + 'button group horizontal', function()
 	   		{
-			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 120, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 120, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg1.vertex = true;
-			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg1.insert(button1);
-			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(30, 0);
 			   	button2.vertex = true;
 			   	bg1.insert(button2);
-			   	var button3 = new mxCell('3', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button3 = new mxCell('3', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(60, 0);
 			   	button3.vertex = true;
 			   	bg1.insert(button3);
-			   	var button4 = new mxCell('4', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button4 = new mxCell('4', new mxGeometry(1, 0, 30, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(-30, 0);
 			   	button4.vertex = true;
 			   	bg1.insert(button4);
 				
-			   	var bg2 = new mxCell('Input Group Example', new mxGeometry(130, 0, 200, 30), s + 'rrect;rSize=5;strokeColor=#CED4DA;html=1;whiteSpace=wrap;fillColor=#FFFFFF;fontColor=#7D868C;align=left;spacingLeft=40;');
+			   	var bg2 = new mxCell('Input Group Example', new mxGeometry(130, 0, 200, 30), s + 'rrect;rSize=5;strokeColor=#CED4DA;html=1;whiteSpace=wrap;fillColor=#FFFFFF;fontColor=#7D868C;align=left;spacingLeft=40;sketch=0;');
 			   	bg2.vertex = true;
-			   	var button1 = new mxCell('@', new mxGeometry(0, 0, 30, 30), s + 'leftButton;strokeColor=inherit;gradientColor=inherit;fontColor=inherit;fillColor=#E9ECEF;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('@', new mxGeometry(0, 0, 30, 30), s + 'leftButton;strokeColor=inherit;gradientColor=inherit;fontColor=inherit;fillColor=#E9ECEF;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg2.insert(button1);
@@ -245,23 +245,23 @@
 				    
 			this.addEntry(dt + 'button group horizontal', function()
 	   		{
-			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg1 = new mxCell('', new mxGeometry(0, 0, 150, 30), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg1.vertex = true;
-			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button1 = new mxCell('1', new mxGeometry(0, 0, 30, 30), inh + s + 'leftButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg1.insert(button1);
-			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;');
+			   	var button2 = new mxCell('2', new mxGeometry(0, 0, 30, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeHeight=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(30, 0);
 			   	button2.vertex = true;
 			   	bg1.insert(button2);
-			   	var button4 = new mxCell('Dropdown', new mxGeometry(1, 0, 90, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;align=left;spacing=10;');
+			   	var button4 = new mxCell('Dropdown', new mxGeometry(1, 0, 90, 30), inh + s + 'rightButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeHeight=1;align=left;spacing=10;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(-90, 0);
 			   	button4.vertex = true;
 			   	bg1.insert(button4);
-			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(-17, -2.5);
 			   	marker1.vertex = true;
@@ -272,33 +272,33 @@
 						    
 			this.addEntry(dt + 'button group vertical', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 60, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 60, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(0, 30);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(0, 60);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(0, 90);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button5 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button5 = new mxCell('Button', new mxGeometry(0, 0, 60, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button5.geometry.relative = true;
 			   	button5.geometry.offset = new mxPoint(0, 120);
 			   	button5.vertex = true;
 			   	bg.insert(button5);
-			   	var button6 = new mxCell('Button', new mxGeometry(0, 1, 60, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;');
+			   	var button6 = new mxCell('Button', new mxGeometry(0, 1, 60, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;sketch=0;');
 			   	button6.geometry.relative = true;
 			   	button6.geometry.offset = new mxPoint(0, -30);
 			   	button6.vertex = true;
@@ -309,33 +309,33 @@
 		    
 			this.addEntry(dt + 'button group vertical', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 90, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 90, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(0, 30);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(0, 60);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(0, 90);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button5 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button5 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button5.geometry.relative = true;
 			   	button5.geometry.offset = new mxPoint(0, 120);
 			   	button5.vertex = true;
 			   	bg.insert(button5);
-			   	var button6 = new mxCell('Button', new mxGeometry(0, 1, 90, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;');
+			   	var button6 = new mxCell('Button', new mxGeometry(0, 1, 90, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;sketch=0;');
 			   	button6.geometry.relative = true;
 			   	button6.geometry.offset = new mxPoint(0, -30);
 			   	button6.vertex = true;
@@ -346,43 +346,43 @@
 				    
 			this.addEntry(dt + 'button group vertical', function()
 	   		{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 90, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 90, 180), s + 'rrect;rSize=5;strokeColor=none;html=1;whiteSpace=wrap;fillColor=#6C767D;fontColor=#ffffff;sketch=0;');
 			   	bg.vertex = true;
-			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button1 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + s + 'topButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button1.geometry.relative = true;
 			   	button1.vertex = true;
 			   	bg.insert(button1);
-			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button2 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button2.geometry.relative = true;
 			   	button2.geometry.offset = new mxPoint(0, 30);
 			   	button2.vertex = true;
 			   	bg.insert(button2);
-			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button3 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button3.geometry.relative = true;
 			   	button3.geometry.offset = new mxPoint(0, 60);
 			   	button3.vertex = true;
 			   	bg.insert(button3);
-			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;');
+			   	var button4 = new mxCell('Button', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;sketch=0;');
 			   	button4.geometry.relative = true;
 			   	button4.geometry.offset = new mxPoint(0, 90);
 			   	button4.vertex = true;
 			   	bg.insert(button4);
-			   	var button5 = new mxCell('Dropdown', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;align=left;spacing=10;');
+			   	var button5 = new mxCell('Dropdown', new mxGeometry(0, 0, 90, 30), inh + 'html=1;shadow=0;dashed=0;perimeter=none;whiteSpace=wrap;resizeWidth=1;align=left;spacing=10;sketch=0;');
 			   	button5.geometry.relative = true;
 			   	button5.geometry.offset = new mxPoint(0, 120);
 			   	button5.vertex = true;
 			   	bg.insert(button5);
-			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(-17, -2.5);
 			   	marker1.vertex = true;
 			   	button5.insert(marker1);
-			   	var button6 = new mxCell('Dropdown', new mxGeometry(0, 1, 90, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;align=left;spacing=10;');
+			   	var button6 = new mxCell('Dropdown', new mxGeometry(0, 1, 90, 30), inh + s + 'bottomButton;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;resizeHeight=0;align=left;spacing=10;sketch=0;');
 			   	button6.geometry.relative = true;
 			   	button6.geometry.offset = new mxPoint(0, -30);
 			   	button6.vertex = true;
 			   	bg.insert(button6);
-			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;');
+			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#ffffff;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker2.geometry.relative = true;
 			   	marker2.geometry.offset = new mxPoint(-17, -2.5);
 			   	marker2.vertex = true;
@@ -1566,7 +1566,7 @@
 			   			'Warning', 
 			   			new mxGeometry(0, 0, 90, 40), s + 'rrect;rSize=5;strokeColor=none;strokeWidth=1;fillColor=#FFBC26;fontColor=#000000;whiteSpace=wrap;align=left;verticalAlign=middle;fontStyle=0;fontSize=14;spacingLeft=10;');
 			   	bg.vertex = true;
-			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#000000;strokeColor=none;perimeter=none;');
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#000000;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(-17, -2.5);
 			   	marker1.vertex = true;
@@ -1824,7 +1824,7 @@
 			   	item1.geometry.offset = new mxPoint(0, 10);
 			   	item1.vertex = true;
 			   	bg.insert(item1);
-			   	var item2 = new mxCell('Active link', new mxGeometry(0, 0, 170, 30), 'fillColor=#0085FC;strokeColor=none;fontColor=#ffffff;align=left;spacing=20;fontSize=14;');
+			   	var item2 = new mxCell('Active link', new mxGeometry(0, 0, 170, 30), 'fillColor=#0085FC;strokeColor=none;fontColor=#ffffff;align=left;spacing=20;fontSize=14;sketch=0;');
 			   	item2.geometry.relative = true;
 			   	item2.geometry.offset = new mxPoint(0, 40);
 			   	item2.vertex = true;
@@ -2218,11 +2218,11 @@
 	   		{
 			   	var item1 = new mxCell(
 			   			'Default checkbox', 
-			   			new mxGeometry(0, 0, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=1;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(0, 0, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=1;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell(
 			   			'Disabled checkbox', 
-			   			new mxGeometry(0, 20, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;fontColor=#6C767D;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(0, 20, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;fontColor=#6C767D;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item2.vertex = true;
 				
 		   		return sb.createVertexTemplateFromCells([item1, item2], 150, 30, 'Stacked checkboxes');
@@ -2232,15 +2232,15 @@
 	   		{
 			   	var item1 = new mxCell(
 			   			'Default radio', 
-			   			new mxGeometry(0, 0, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=1;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(0, 0, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=1;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell(
 			   			'Second default radio', 
-			   			new mxGeometry(0, 20, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(0, 20, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item2.vertex = true;
 			   	var item3 = new mxCell(
 			   			'Disabled radio', 
-			   			new mxGeometry(0, 40, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;fontColor=#6C767D;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(0, 40, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;fontColor=#6C767D;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item3.vertex = true;
 				
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 150, 50, 'Stacked radio buttons');
@@ -2282,10 +2282,10 @@
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 150, 10, 'Inline radio buttons');
 			}),
 						    
-			this.createVertexTemplateEntry(s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;', 
+			this.createVertexTemplateEntry(s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;', 
 					10, 10, '', 'Checkbox without label', null, null, this.getTagsForStencil(gn, 'checkbox without label', dt + 'checkbox without no label').join(' ')),
 					
-			this.createVertexTemplateEntry(s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;', 
+			this.createVertexTemplateEntry(s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;', 
 					10, 10, '', 'Radio button without label', null, null, this.getTagsForStencil(gn, 'radio button without label', dt + 'radio button without no label').join(' ')),
 					
 			this.addEntry(dt + 'form groups', function()
@@ -2377,23 +2377,23 @@
 			   	item5.vertex = true;
 			   	var item6 = new mxCell(
 			   			'First radio', 
-			   			new mxGeometry(200, 90, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=1;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(200, 90, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=1;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item6.vertex = true;
 			   	var item7 = new mxCell(
 			   			'Second radio', 
-			   			new mxGeometry(200, 110, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=0;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(200, 110, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=0;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item7.vertex = true;
 			   	var item8 = new mxCell(
 			   			'Third disabled radio', 
-			   			new mxGeometry(200, 130, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#D2D2D2;checked=0;spacing=5;fontColor=#7D868C;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(200, 130, 10, 10), s + 'radioButton2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#D2D2D2;checked=0;spacing=5;fontColor=#7D868C;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item8.vertex = true;
 			   	var item9 = new mxCell('Checkbox', new mxGeometry(0, 160, 200, 30), 'fillColor=none;strokeColor=none;align=left;fontSize=14;fontColor=#212529;');
 			   	item9.vertex = true;
 			   	var item10 = new mxCell(
 			   			'Example checkbox', 
-			   			new mxGeometry(200, 170, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=1;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;');
+			   			new mxGeometry(200, 170, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#666666;checked=1;spacing=5;fontColor=#212529;checkedFill=#0085FC;checkedStroke=#ffffff;sketch=0;');
 			   	item10.vertex = true;
-			   	var item11 = new mxCell('Sign in', new mxGeometry(0, 200, 70, 40), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;align=center;fontSize=14;fontColor=#FFFFFF;');
+			   	var item11 = new mxCell('Sign in', new mxGeometry(0, 200, 70, 40), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;align=center;fontSize=14;fontColor=#FFFFFF;sketch=0;');
 			   	item11.vertex = true;
 			   	
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11], 800, 200, 'Horizontal form');
@@ -2443,12 +2443,12 @@
 	   		{
 			   	var item1 = new mxCell('Choose...', new mxGeometry(0, 0, 100, 30), s + 'rrect;rSize=5;fillColor=#ffffff;strokeColor=#999999;align=left;spacing=15;fontSize=14;fontColor=#6C767D;');
 			   	item1.vertex = true;
-			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 7, 3), 'shape=triangle;direction=south;fillColor=#343A40;strokeColor=none;perimeter=none;');
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 7, 3), 'shape=triangle;direction=south;fillColor=#343A40;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(-17, 1);
 			   	marker1.vertex = true;
 			   	item1.insert(marker1);
-			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 7, 3), 'shape=triangle;direction=north;fillColor=#343A40;strokeColor=none;perimeter=none;');
+			   	var marker2 = new mxCell('', new mxGeometry(1, 0.5, 7, 3), 'shape=triangle;direction=north;fillColor=#343A40;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker2.geometry.relative = true;
 			   	marker2.geometry.offset = new mxPoint(-17, -4);
 			   	marker2.vertex = true;
@@ -2458,7 +2458,7 @@
 			   			'Remember my preference', 
 			   			new mxGeometry(110, 10, 10, 10), s + 'checkbox2;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;gradientColor=#DEDEDE;fillColor=#EDEDED;strokeColor=#A6A6A6;checked=0;spacing=5;checkedFill=#0085FC;checkedStroke=#ffffff;');
 			   	item2.vertex = true;
-			   	var item3 = new mxCell('Submit', new mxGeometry(280, 0, 60, 30), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;align=center;spacing=15;fontSize=14;fontColor=#ffffff;');
+			   	var item3 = new mxCell('Submit', new mxGeometry(280, 0, 60, 30), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;align=center;spacing=15;fontSize=14;fontColor=#ffffff;sketch=0;');
 			   	item3.vertex = true;
 			   	
 			   	return sb.createVertexTemplateFromCells([item1, item2, item3], 340, 30, 'Inline form');
@@ -2490,7 +2490,7 @@
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3], 460, 40, 'Help text');
 			}),
 						    
-			this.addEntry(dt + 'disabled forms', function()
+			this.addEntry(dt + 'help text', function()
 	   		{
 			   	var item1 = new mxCell('Disabled input', new mxGeometry(0, 0, 100, 30), 'fillColor=none;strokeColor=none;align=left;fontSize=14;');
 			   	item1.vertex = true;
@@ -2569,10 +2569,10 @@
 		   		return sb.createVertexTemplateFromCells([item1, item2, item3, item4, item5, item6, item8, item9, item10, item11, item12, item13, item14, item15], 800, 240, 'Help text');
 			}),
 						    
-			this.createVertexTemplateEntry(s + 'switch;strokeColor=#ADB6BD;strokeWidth=1;fillColor=#ffffff;fontColor=#212529;onStrokeColor=#ffffff;onFillColor=#0085FC;align=left;verticalAlign=middle;spacingLeft=10;labelPosition=right;verticalLabelPosition=middle;buttonState=0;', 
-					20, 10, 'Toggle this switch element', null, null, this.getTagsForStencil(gn, 'switch', dt + 'switch').join(' ')),
-			this.createVertexTemplateEntry(s + 'switch;strokeColor=#ADB6BD;strokeWidth=1;fillColor=#E9ECEF;fontColor=#7D868C;onStrokeColor=#ffffff;onFillColor=#0085FC;align=left;verticalAlign=middle;spacingLeft=10;labelPosition=right;verticalLabelPosition=middle;buttonState=0;', 
-					20, 10, 'Disabled switch element', null, null, this.getTagsForStencil(gn, 'switch', dt + 'switch').join(' ')),
+			this.createVertexTemplateEntry(s + 'switch;strokeColor=#ADB6BD;strokeWidth=1;fillColor=#ffffff;fontColor=#212529;onStrokeColor=#ffffff;onFillColor=#0085FC;align=left;verticalAlign=middle;spacingLeft=10;labelPosition=right;verticalLabelPosition=middle;buttonState=0;sketch=0;', 
+					20, 10, 'Toggle this switch element', 'Switch', null, null, this.getTagsForStencil(gn, 'switch', dt + 'switch').join(' ')),
+			this.createVertexTemplateEntry(s + 'switch;strokeColor=#ADB6BD;strokeWidth=1;fillColor=#E9ECEF;fontColor=#7D868C;onStrokeColor=#ffffff;onFillColor=#0085FC;align=left;verticalAlign=middle;spacingLeft=10;labelPosition=right;verticalLabelPosition=middle;buttonState=0;sketch=0;', 
+					20, 10, 'Disabled switch element', 'Switch', null, null, this.getTagsForStencil(gn, 'switch', dt + 'switch').join(' ')),
 					
 			this.addEntry(dt + 'select menu', function()
 	   		{
@@ -3793,11 +3793,11 @@
 					
 			this.addEntry(dt + 'navigation pills with dropdown', function()
 	   		{
-			   	var item1 = new mxCell('Active', new mxGeometry(0, 0, 70, 40), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;fontSize=14;fontColor=#ffffff;');
+			   	var item1 = new mxCell('Active', new mxGeometry(0, 0, 70, 40), s + 'rrect;rSize=5;fillColor=#0085FC;strokeColor=none;fontSize=14;fontColor=#ffffff;sketch=0;');
 			   	item1.vertex = true;
 			   	var item2 = new mxCell('Dropdown', new mxGeometry(80, 0, 100, 40), 'strokeColor=none;fillColor=none;rSize=5;perimeter=none;whiteSpace=wrap;resizeWidth=1;align=center;spacing=20;fontSize=14;fontColor=#0085FC;spacingRight=10;');
 			   	item2.vertex = true;
-			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#0085FC;strokeColor=none;perimeter=none;');
+			   	var marker1 = new mxCell('', new mxGeometry(1, 0.5, 10, 5), 'shape=triangle;direction=south;fillColor=#0085FC;strokeColor=none;perimeter=none;sketch=0;');
 			   	marker1.geometry.relative = true;
 			   	marker1.geometry.offset = new mxPoint(-17, -2.5);
 			   	marker1.vertex = true;
@@ -3906,7 +3906,7 @@
 	   		{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 800, 60), 'html=1;shadow=0;dashed=0;fillColor=#F8F9FA;strokeColor=none;fontSize=16;fontColor=#181819;align=left;spacing=2;spacingLeft=55;');
 			   	bg.vertex = true;
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 40), s + 'logo;fillColor=#54407A;strokeColor=none;');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 40), s + 'logo;fillColor=#54407A;strokeColor=none;sketch=0;');
 			   	item1.geometry.relative = true;
 			   	item1.geometry.offset = new mxPoint(10, 10);
 			   	item1.vertex = true;
@@ -3919,7 +3919,7 @@
 	   		{
 			   	var bg = new mxCell('Bootstrap', new mxGeometry(0, 0, 800, 60), 'html=1;shadow=0;dashed=0;fillColor=#F8F9FA;strokeColor=none;fontSize=16;fontColor=#181819;align=left;spacing=2;spacingLeft=55;');
 			   	bg.vertex = true;
-			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 40), s + 'logo;fillColor=#54407A;strokeColor=none;');
+			   	var item1 = new mxCell('', new mxGeometry(0, 0, 40, 40), s + 'logo;fillColor=#54407A;strokeColor=none;sketch=0;');
 			   	item1.geometry.relative = true;
 			   	item1.geometry.offset = new mxPoint(10, 10);
 			   	item1.vertex = true;

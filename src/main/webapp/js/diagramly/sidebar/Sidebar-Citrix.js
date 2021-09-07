@@ -4,7 +4,7 @@
 	{
 		var w = 0.5;
 		var h = 0.5;
-		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;aspect=fixed;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.';
+		var s = mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;sketch=0;aspect=fixed;html=1;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;strokeColor=none;align=center;outlineConnect=0;shape=mxgraph.citrix.';
 		var gn = 'mxgraph.citrix';
 		var dt = '';
 		this.setCurrentSearchEntryLibrary('citrix');

@@ -4662,12 +4662,529 @@
 			/.*\.draw\.io$/.test(window.location.hostname) ||
 			/.*\.diagrams\.net$/.test(window.location.hostname);
 	};
+
+	/**
+	 * Creates and returns a dialog for tags and a refresh function.
+	 */
+	EditorUi.prototype.createTagsDialog = function(isEnabled, invert)
+	{
+		var graph = this.editor.graph;
+		var editorUi = this;
+		var allTags = graph.hiddenTags.slice();
+		
+		var div = document.createElement('div');
+		div.style.userSelect = 'none';
+		div.style.overflow = 'hidden';
+		div.style.padding = '10px';
+		div.style.height = '100%';
+		
+		var tagCloud = document.createElement('div');
+		tagCloud.style.boxSizing = 'border-box';
+		tagCloud.style.borderRadius = '4px';
+		tagCloud.style.userSelect = 'none';
+		tagCloud.style.overflow = 'auto';
+		tagCloud.style.position = 'absolute';
+		tagCloud.style.left = '10px';
+		tagCloud.style.right = '10px';
+		tagCloud.style.top = '10px';
+		tagCloud.style.border = (graph.isEnabled()) ? '1px solid #808080' : 'none';
+		tagCloud.style.bottom = (graph.isEnabled()) ? '48px' : '10px';
+	
+		div.appendChild(tagCloud);
+
+		function removeInvisibleSelectionCells()
+		{
+			var cells = graph.getSelectionCells();
+			var visible = [];
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (graph.isCellVisible(cells[i]))
+				{
+					visible.push(cells[i]);	
+				}
+			}
+
+			graph.setSelectionCells(visible);
+		};
+
+		function setAllVisible(visible)
+		{
+			if (visible)
+			{
+				graph.hiddenTags = [];
+			}
+			else
+			{
+				graph.hiddenTags = allTags.slice();
+			}
+
+			removeInvisibleSelectionCells();
+			graph.refresh();
+		};
+
+		var resetBtn = mxUtils.button(mxResources.get('reset'), function(evt)
+		{
+			graph.hiddenTags = [];
+
+			if (!mxEvent.isShiftDown(evt))
+			{
+				allTags = graph.hiddenTags.slice();
+			}
+
+			removeInvisibleSelectionCells();
+			graph.refresh();
+		});
+		
+		resetBtn.setAttribute('title', mxResources.get('add'));
+		resetBtn.className = 'geBtn';
+		resetBtn.style.marginRight = '4px';
+		resetBtn.marginTop = '8px';
+
+		var addBtn = mxUtils.button(mxResources.get('add'), function()
+		{
+			if (graph.isEnabled())
+			{
+				var dlg = new FilenameDialog(editorUi, '', mxResources.get('add'), function(newValue)
+				{
+					editorUi.hideDialog();
+					
+					if (newValue != null && newValue.length > 0)
+					{
+						var temp = newValue.split(' ');
+						var tags = [];
+	
+						for (var i = 0; i < temp.length; i++)
+						{
+							var token = mxUtils.trim(temp[i]);
+	
+							if (token != '' && mxUtils.indexOf(
+								allTags, token) < 0)
+							{
+								tags.push(token);
+							}
+						}
+	
+						if (tags.length > 0)
+						{
+							if (graph.isSelectionEmpty())
+							{
+								allTags = allTags.concat(tags);
+								refreshUi();
+							}
+							else
+							{
+								graph.addTagsForCells(graph.getSelectionCells(), tags);
+							}
+						}
+					}
+				}, mxResources.get('enterValue') + ' (' + mxResources.get('tags') + ')');
+	
+				editorUi.showDialog(dlg.container, 300, 80, true, true);
+				dlg.init();
+			}
+		});
+		
+		addBtn.setAttribute('title', mxResources.get('add'));
+		addBtn.className = 'geBtn';
+		addBtn.marginTop = '4px';
+	
+		graph.addListener(mxEvent.ROOT, function()
+		{
+			allTags = graph.hiddenTags.slice();
+		});
+	
+		function refreshTags(tags, selected)
+		{
+			tagCloud.innerHTML = '';
+	
+			if (tags.length > 0)
+			{
+				var table = document.createElement('table');
+				table.setAttribute('cellpadding', '2');
+				table.style.boxSizing = 'border-box';
+				table.style.tableLayout = 'fixed';
+				table.style.width = '100%';
+	
+				var tbody = document.createElement('tbody');
+
+				if (tags != null && tags.length > 0)
+				{
+					for (var i = 0; i < tags.length; i++)
+					{
+						(function(tag)
+						{
+							function setTagVisible()
+							{
+								var temp = allTags.slice();
+								var index = mxUtils.indexOf(temp, tag);
+								temp.splice(index, 1);
+								graph.hiddenTags = temp;
+								removeInvisibleSelectionCells();
+								graph.refresh();
+							};
+
+							function selectCells()
+							{
+								var cells = graph.getCellsForTags(
+									[tag], null, null, true);
+
+								if (graph.isEnabled())
+								{
+									graph.setSelectionCells(cells);
+								}
+								else
+								{
+									graph.highlightCells(cells);
+								}
+							};
+
+							var visible = mxUtils.indexOf(graph.hiddenTags, tag) < 0;
+							var row = document.createElement('tr');
+							var td = document.createElement('td');
+							td.style.align = 'center';
+							td.style.width = '16px';
+
+							var img = document.createElement('img');
+							img.setAttribute('src', visible ? Editor.visibleImage : Editor.hiddenImage);
+							img.setAttribute('title', mxResources.get(visible ? 'hideIt' : 'show', [tag]));
+							mxUtils.setOpacity(img, visible ? 75 : 25);
+							img.style.verticalAlign = 'middle';
+							img.style.cursor = 'pointer';
+							img.style.width = '16px';
+							
+							if (invert || Editor.isDarkMode())
+							{
+								img.style.filter = 'invert(100%)';
+							}
+							
+							td.appendChild(img);
+
+							mxEvent.addListener(img, 'click', function(evt)
+							{
+								var idx = mxUtils.indexOf(graph.hiddenTags, tag);
+
+								if (mxEvent.isShiftDown(evt))
+								{
+									setAllVisible(mxUtils.indexOf(graph.hiddenTags, tag) >= 0);
+								}
+								else
+								{
+									if (idx < 0)
+									{
+										graph.hiddenTags.push(tag);
+									}
+									else if (idx >= 0)
+									{
+										graph.hiddenTags.splice(idx, 1);
+									}
+
+									removeInvisibleSelectionCells();
+									graph.refresh();
+								}
+
+								mxEvent.consume(evt);
+							});
+							
+							mxEvent.addListener(img, 'dblclick', function(evt)
+							{
+								if (!mxEvent.isShiftDown(evt))
+								{
+									if (!visible && graph.hiddenTags.length > 0)
+									{
+										setAllVisible(true);
+									}
+									else
+									{
+										setTagVisible();
+									}
+								}
+
+								mxEvent.consume(evt);
+							});
+
+							row.appendChild(td);
+
+							td = document.createElement('td');
+							td.style.overflow = 'hidden';
+							td.style.whiteSpace = 'nowrap';
+							td.style.textOverflow = 'ellipsis';
+							td.style.verticalAlign = 'middle';
+	
+							a = document.createElement('a');
+							mxUtils.write(a, tag);
+							a.setAttribute('title', tag);
+							a.style.textOverflow = 'ellipsis';
+							a.style.position = 'relative';
+							a.style.cursor = 'pointer';
+							td.appendChild(a);
+	
+							mxEvent.addListener(a, 'click', (function(evt)
+							{
+								if (mxEvent.isShiftDown(evt))
+								{
+									selectCells();	
+								}
+								else
+								{
+									if (visible && graph.hiddenTags.length > 0)
+									{
+										setAllVisible(true);
+									}
+									else
+									{
+										setTagVisible();
+									}
+								}
+
+								mxEvent.consume(evt);
+							}));
+
+							mxEvent.addListener(a, 'dblclick', function(evt)
+							{
+								selectCells();
+								mxEvent.consume(evt);
+							});
+							
+							row.appendChild(td);
+
+							if (graph.isEnabled())
+							{
+								td = document.createElement('td');
+								td.style.verticalAlign = 'middle';
+								td.style.textAlign = 'center';
+								td.style.width = '18px';
+	
+								if (selected == null)
+								{
+									td.style.align = 'center';
+									td.style.width = '16px';
+		
+									var img = document.createElement('img');
+									img.setAttribute('src', Editor.clearImage);
+									img.setAttribute('title', mxResources.get('delete'));
+									mxUtils.setOpacity(img, visible ? 75 : 25);
+									img.style.verticalAlign = 'middle';
+									img.style.cursor = 'pointer';
+									img.style.width = '16px';
+
+									if (invert || Editor.isDarkMode())
+									{
+										img.style.filter = 'invert(100%)';
+									}
+
+									mxEvent.addListener(img, 'click', function(evt)
+									{
+										var idx = mxUtils.indexOf(allTags, tag);
+
+										if (idx >= 0)
+										{
+											allTags.splice(idx, 1);
+										}
+
+										graph.removeTagsForCells(
+											graph.model.getDescendants(
+											graph.model.getRoot()), [tag]);
+										graph.refresh();
+
+										mxEvent.consume(evt);
+									});
+
+									td.appendChild(img);
+								}
+								else
+								{
+									var cb2 = document.createElement('input');
+									cb2.setAttribute('type', 'checkbox');
+									cb2.style.margin = '0px';
+		
+									cb2.defaultChecked = (selected != null &&
+										mxUtils.indexOf(selected, tag) >= 0);
+									cb2.checked = cb2.defaultChecked;
+									cb2.style.background = 'transparent';
+									cb2.setAttribute('title', mxResources.get(cb2.defaultChecked ?
+										'removeIt' : 'add', [tag]));
+		
+									mxEvent.addListener(cb2, 'change', function(evt)
+									{
+										if (cb2.checked)
+										{
+											graph.addTagsForCells(graph.getSelectionCells(), [tag]);
+										}
+										else
+										{
+											graph.removeTagsForCells(graph.getSelectionCells(), [tag]);
+										}
+									
+										mxEvent.consume(evt);
+									});
+		
+									td.appendChild(cb2);
+								}
+
+								row.appendChild(td);
+							}
+	
+							tbody.appendChild(row);
+						})(tags[i]);
+					}
+				}
+	
+				table.appendChild(tbody);
+				tagCloud.appendChild(table);
+			}
+		};
+	
+		var refreshUi = mxUtils.bind(this, function(sender, evt)
+		{
+			if (isEnabled())
+			{
+				var tags = graph.getAllTags();
+	
+				for (var i = 0; i < tags.length; i++)
+				{
+					if (mxUtils.indexOf(allTags, tags[i]) < 0)
+					{
+						allTags.push(tags[i]);
+					}
+				}
+	
+				allTags.sort();
+	
+				if (graph.isSelectionEmpty())
+				{
+					refreshTags(allTags);
+				}
+				else
+				{
+					refreshTags(allTags, graph.getCommonTagsForCells(
+						graph.getSelectionCells()));
+				}
+			}
+		});
+	
+		graph.selectionModel.addListener(mxEvent.CHANGE, refreshUi);
+		graph.model.addListener(mxEvent.CHANGE, refreshUi);
+		graph.addListener(mxEvent.REFRESH, refreshUi);
+	
+		var footer = document.createElement('div');
+		footer.style.boxSizing = 'border-box';
+		footer.style.whiteSpace = 'nowrap';
+		footer.style.position = 'absolute';
+		footer.style.overflow = 'hidden';
+		footer.style.bottom = '0px';
+		footer.style.height = '42px';
+		footer.style.right = '10px';
+		footer.style.left = '10px';
+	
+		// TODO: Write help topic and add link
+		/*
+		var helpBtn = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink('');
+		});
+	
+		helpBtn.className = 'geBtn';
+		helpBtn.style.marginRight = '4px';
+		
+		if (editorUi.isOffline() && !mxClient.IS_CHROMEAPP)
+		{
+			helpBtn.style.display = 'none';
+		}
+		
+		footer.appendChild(helpBtn);*/
+	
+		if (graph.isEnabled())
+		{
+			footer.appendChild(resetBtn);
+			footer.appendChild(addBtn);
+			div.appendChild(footer);
+		}
+
+		return {div: div, refresh: refreshUi};
+	};
 	
 	/**
 	 * Creates a temporary graph instance for rendering off-screen content.
 	 */
 	EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 	{
+		if (urlParams['tags'] != null)
+		{
+			this.tagsComponent = null;
+			this.tagsDialog = null;
+					
+			var tagsButton = addButton(mxUtils.bind(this, function(evt)
+			{
+				if (this.tagsComponent == null)
+				{
+					this.tagsComponent = this.createTagsDialog(mxUtils.bind(this, function()
+					{
+						return this.tagsDialog != null;
+					}), true);
+
+					this.tagsComponent.div.getElementsByTagName('div')[0].style.position = '';
+					this.tagsComponent.div.className = 'geScrollable';
+					this.tagsComponent.div.style.maxHeight = '160px';
+					this.tagsComponent.div.style.maxWidth = '160px';
+					this.tagsComponent.div.style.padding = '8px';
+					this.tagsComponent.div.style.overflow = 'auto';
+					this.tagsComponent.div.style.height = 'auto';
+				}
+
+				if (this.tagsDialog != null)
+				{
+					this.tagsDialog.parentNode.removeChild(this.tagsDialog);
+					this.tagsDialog = null;
+				}
+				else
+				{
+					this.tagsDialog = this.tagsComponent.div;
+
+					mxEvent.addListener(this.tagsDialog, 'mouseleave', mxUtils.bind(this, function()
+					{
+						if (this.tagsDialog != null)
+						{
+							this.tagsDialog.parentNode.removeChild(this.tagsDialog);
+							this.tagsDialog = null;
+						}
+					}));
+					
+					var r = tagsButton.getBoundingClientRect();
+					
+					mxUtils.setPrefixedStyle(this.tagsDialog.style, 'borderRadius', '5px');
+					this.tagsDialog.style.position = 'fixed';
+					this.tagsDialog.style.fontFamily = 'Helvetica,Arial';
+					this.tagsDialog.style.backgroundColor = '#000000';
+					this.tagsDialog.style.color = '#ffffff';
+					mxUtils.setOpacity(this.tagsDialog, 70);
+					this.tagsDialog.style.left = r.left + 'px';
+					this.tagsDialog.style.bottom = parseInt(this.chromelessToolbar.style.bottom) +
+						this.chromelessToolbar.offsetHeight + 4 + 'px';
+					
+					// Puts the dialog on top of the container z-index
+					var style = mxUtils.getCurrentStyle(this.editor.graph.container);
+					this.tagsDialog.style.zIndex = style.zIndex;
+					
+					document.body.appendChild(this.tagsDialog);
+					this.tagsComponent.refresh();
+				}
+				
+				mxEvent.consume(evt);
+			}), Editor.tagsLargeImage, mxResources.get('tags'));
+
+			// Shows/hides tags button depending on content
+			var model = this.editor.graph.getModel();
+
+			model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
+			{
+				var tags = this.editor.graph.getAllTags();
+				tagsButton.style.display = (tags.length > 0) ? '' : 'none';
+			}));
+
+			editoUiAddChromelessToolbarItems.apply(this, arguments);
+		}
+
 		if (this.isExportToCanvas() && this.isChromelessImageExportEnabled())
 		{
 			this.exportDialog = null;
@@ -4768,8 +5285,6 @@
 				mxEvent.consume(evt);
 			}), Editor.cameraLargeImage, mxResources.get('export'));
 		}
-
-		editoUiAddChromelessToolbarItems.apply(this, arguments);
 	};
 
 

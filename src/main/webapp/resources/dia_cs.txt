@@ -617,7 +617,6 @@ removeFormat=Vymazat formátování
 removeFromGroup=Odstranit ze skupiny
 removeIt=Odstranit {1}
 removeWaypoint=Odebrat průchozí bod
-removeUnusedTags=Remove unused tags
 rename=Přejmenovat
 renamed=Přejmenováno
 renameIt=Přejmenovat {1}

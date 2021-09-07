@@ -617,7 +617,6 @@ removeFormat=Очистить форматирование
 removeFromGroup=Удалить из группы
 removeIt=Удалить {1}
 removeWaypoint=Удалить опорную точку
-removeUnusedTags=Remove unused tags
 rename=Переименовать
 renamed=Переименовано
 renameIt=Переименовать {1}

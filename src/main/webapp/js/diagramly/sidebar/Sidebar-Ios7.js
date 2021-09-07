@@ -159,9 +159,9 @@
 		 			'html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;shadow=0;dashed=0;strokeWidth=1;shape=mxgraph.ios7.misc.ipad13inch;strokeColor=#c0c0c0;', 
 		 			sizeX * 2.86, sizeY * 2.0325, '', "iPad (13'')", null, null, this.getTagsForStencil(gn, 'tablet tab 10', dt + 'ipad portrait').join(' ')),
 			this.addDataEntry(dt + 'app bar portrait', 175, 15, 'App Bar (portrait)',
-				'zVVdb4IwFP01fZTw6cejoDNLZmLYkj03o0CzQkmpivv1u0BBEIw+zMUmJL3n3tt7e05LkeUlxUbgLN7ygDBkrZHlCc5lPUsKjzCGTJ0GyFoh09ThQ+bLFa9RefUMC5LKexLMOuGA2Z7USA3k8sQUEMsE2loZyHJzKfg3+aSBjBskxgE/gqGDEeA8JoEywJOVKyRFVO5Oozyf7amGs8zFAvwhZczjjIuqihVWA3CIDih03/hSnsIyruqTCEmKq3utILXRDeEJkeIEIUfVcBkxc+q0mNAobtIUhvPajtrUM3MwUeSNE2kNiPSWvv+69gd8NsQI8gX1XcxolILJSFiaIU/lO/0pA+Ylixn+omn0VjlXpt2PaMwOj7garVYXLHZJV5Cq8MEzteBdTJvjTJ/UmdMUox3mHX2EeMWaIAxLeiC9cmNqqIo7TqGRttxkql0oyMMwJ3KgX9vpXZLaA0kNOPJLx9ltb4l6oeJTaVRcaPTPmqnyE0vvlX+Qhs5Aw8UcNejtSynqfV+5lb5ixVj0Q6ZPKrlxU3B77O/4R4LbzgMEB/P8WNbh3bf0Fw=='),
+				'7ZZbi6MwFMc/jY8jXufy2NoLCzswdBf2OejRhIlGYuzY/fR7orGtl9I+TAcWRqjk/M+J/1x+plp+lDdbSUr6KhLglr+2/EgKobpW3kTAueU5LLH8leV5Dv4sb3Mh67ZZpyQSCnVLB6/rsCe8hk7phEoduBGoynFYK9fyl5WS4h3+sETRXqEkER8YOBgkpKKQmAAzpX5C3mR6djYT1VPNbFKWSyIxnzLOI8GFbF38tL1Qx+qE4ej7XCEK0I97BxVT82xKYlpL2JIShQCFUrBCgVzvsWNlilJRqA3JGT+gsJAxZQpizHrOitQZxXJT9EvUMtZDpUqVmA/9Bd5wyfRNF1R2JkTGgZSssmORt4m4aks3aWeBzYFJ6C3HNuyvNvH02Myqg1TQXNy5VjLbtgWRg5Lo43yY5dcVT2HXjQJDKyMajVRdnB27njjAhkFhHgt/gkW02O1+rHcTOvptljhtnBjhLCsw5JCq4byf9SaWJGZF9rNNrrxgWNGHZ1SQ9jqSN2LiHKEek87ht+jJ+L+5uYkTb56Tg3n/bcPDGTehM4ON2XMJnCi2h4HdHEvG8U0v4cnu4dEe8SfStAI1oe840puADCZAunj8LMLw7fUakiMGvwn7NMKaEWFfTJyxf/Cdgf2dCAwnBL48W716/UCU3bwvnIg7syruy7Dk8RvYOwDrXsU1mPtf/SRcg/AOuGJ4+mjsys+/Kf8B'),
 			this.addDataEntry(dt + 'app bar landscape', 280, 15, 'App Bar (landscape)',
-				'zZVdb4IwFIZ/TS81UMDppaIzS2Zi2JJdN6NAs0JJqYr79TvQovJh9MbFJiScj/ac87wlIMdPy7UkebIRIeXIWSHHl0Io/ZaWPuUcYYuFyFkijC14EH69ErXrqJUTSTN1zwasN+wJ31Ht0Y5CHblxJCqFtpY2chaFkuKHfrFQJY0nIaE4gGGBEZIioaExIJJXJ6RlXE03ZqJ42bExyfMFkRCPGOe+4ELWVZyoXuCH7JBB900sExkcszB9UqloeXXW2mUGXVORUiWPkHIwDVfzTjUPK6EsTpptnvaRQtvxaeuZHLwYeMMgnR5Ifx4Eb6ugx7MBI+k31F8QzuIMTE6jyoxEpj7Yb5UwrSjm5Jtl8XsdXGK3ndGYFxxJvU5adSheQjcuU+FT5ObAu0jjYdJHc+fGhugFeW8IvKEmKSeK7Wmr3JAapuJWMGjkVG40GXcUFFFUUNXT79TpXZK6PUltuPJzz9tubonaUfGpNCo7Gv2zZqb8CLfLP0hDr6fhbIoa7+2PUuq5r3yVgaFiz9opkyeV3L4puOs9TnD3EYKDef5Z6vTLf+kf'),
+				'7ZZbi6MwFMc/jY8jGuts57F3FnZg6C7sc9CjCRNNiLHT7qffExPb2gvtw3RhYYRKzi3/JOfXYJDMqu1KU8VeZQ4iSBZBMtNSGjeqtjMQIiARz4NkHhAS4S8gyyvRuItGimqozT0FxBVsqGjBeZyjMTvhHcxUuKx5HCTTxmj5Dr95bljvYTSXH2hEaOS0YZB7AyPKzlBtS7u7kMvmW8tDqtSUaowXXIiZFFJ3KknRPejH7Jzj6vtYLWuw072DyZifm9GMtRpWVKFjhA4leW1ALzZY2PikQtZmSSsuduiY6IxxAxlGSTSnbckw3Sf9lK3O7FKZMQrjaTLBFx6ZfdmEJiylLAVQxZswk1UXyJoudVk4CRwORFIyPZXhf6wIsWvzpw7awPZq5zqXb9sKZAVGo0704Y/fdm/suhsx4Cjly1Lno42zy33pgQMceBQuY5GcYTGbrNffF+szOvo2a9w2bowKXtZoCijMcN9j20RFM16XP7rgnIyGGb15RAXtnj15J0wcI9Rj4hR+yZ6M/5ubuzghlznZ+f9/6Hk44ia9hI3vuQZBDd/AQO4SS17xzR7hQe7pOTzhTxZFA+aMvv1K7wJydAZkjNfPJE3fXm8hecLgF2GfRtj2hLB/TJyXfyJD+QcRmJ4R+DIOeu/tC1G7fV+5Edf+VOKXYcrzF7APADa+iesofRyuo0fgiubho9GlH39T/gU='),
 			
 			this.createVertexTemplateEntry(
 					s + 'slider;barPos=20;strokeColor=#0080f0;strokeColor2=#a0a0a0;', 
@@ -170,7 +170,7 @@
 					s2 + 'downloadBar;verticalAlign=middle;fontSize=8;buttonText=;barPos=30;fillColor=#aaaaaa;strokeColor=#0080f0;align=center;', 
 					sizeX * 0.75, sizeY * 0.075, 'Downloading 2 of 6\n\n', 'Download bar', null, null, this.getTagsForStencil(gn, 'downloadBar', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'adjust;gradientColor=none;', 
+					sm + 'adjust;gradientColor=none;sketch=0;', 
 					sizeX * 0.4, sizeY * 0.05, '', 'Adjust', null, null, this.getTagsForStencil(gn, 'adjust', dt + '').join(' ')),
 					
 			this.addEntry(dt + 'horizontal button bar', function()
@@ -194,9 +194,9 @@
 			}),				
 				
 			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
-				'7ZRNb8IwDIZ/Ta6oTcZ6HmWDy6RJHHaOiEujpU2VBCj79XM+ClTAhrbrIlWKX8dO/LxSCSubfmF4V79qAYqwZ8JKo7WLu6YvQSlCMykImxNKM/wIfbmRzUM267iB1t1TQGPBjqstRCUK1h1UEmrX4LPmOWEz64z+gHcpXI0K9UrNhd5jkGEguK1BpAAzne/Q9Bs/3URqW2zlxIKCtZtx48/3vi8NpQfcToOGbeeF31r5CUmNF5daaRMexaqwMFNJpc50GhbqeKmQCGHItbrFZrM0LhgH/U1kQUq8FqAbcOaAR/Zpbn/icRrLapCbOpXRImrcxnhzLD0ZgJvkwXU/2IUfqwDswpUBr/HJMYY06phZEit9QjLCiPoq8s5pil94I5X3ZQlqB06uOSY6MBKngrOeBrxTy4FEfi9m+iPm4hvKBhR3cgej9n9B/3ATffbkD/4b8EsD0g1vWrYeZj9uPVToqrLgLgw7vuuahxiefpXx+Pmf9As='),
+				'7VXLbtswEPwaXQ2ZiuOzH7FzCVAgh54JaSUSoUyBXDlKv767JBVbsd0GKdBDUQESlrNP7gygrNi0w97JTj3ZCkxWPGTFxlmL0WqHDRiTiVxXWbHNhMjpzcTuhncevHknHRzwMwkiJhyl6SEiEfD4ZhKgsKWxtvOsWHt09gW+6woVIYIRJSv7SoecDpX0Cqp0IE/HFdqh4dvNtPXLXs88GChxLR3HD1xXhNQ3MhcBo7LbJZte/4CExsYba6wLQxV1eMhTa2POcBEewqlppWkJo+9gD8CFXgBLlUZUslS9g73sCLgjoLP6gOAejpToU1BtD7iTrTY84cqVSiNdwNOOtrJvFIWnoGfbu5IHVogd+RfFij60ef5wgJ811jYGZKf9rLRtcJQ+hO7q2ILMSZOFWH9sE7cStpbIA4cw3BRAgBL7e7AtoKM++WtikSPuFzFNgaZWSRnLiEkfz8176klOZCRFXVdXcaGu50D/hcZGsTh2TkkdiZsoIIG8j6uiOO1pLj5y+AjmCKhLyYSD03QrOKvpgHX3OG5i/mXR/AU9fIp/8Vv+l7+g34GRqI8wKf8nmri7qYl8xYH/lfGvKSN1+MbboJBhWnrMsHXtAS+U9D7XNXHR8fSrjOHnf9Kf'),
 			this.addDataEntry(dt + 'select bar', sizeX * 0.825, sizeY * 0.0675, 'Select Bar',
-				'7ZVNb8IwDIZ/Ta4oTddxHmXAZRISh50j6tJoaVMlAcp+/ZyPAlWHhrYdiVQpfh078fMeStK87paat9WbKkCS9JWkuVbKhl3d5SAlYVQUJJ0Txih+hC1uZBOfpS3X0Nh7ClgoOHC5h6AEwdiTjEJla3zWPCHpzFitPuBdFLZChTml4oU6YkAxKLipoIgBZlrXoe52brqJUGa6FxMDErZ2xrU737m+zJeecJt5jbmd7yA+Iarh4lxJpf2j0tIvzJRCyiud+YU6XloIhNDnGtVgs1kcF7SF7iYyL0VeS1A1WH3CI8c4tzvxnIWyCsSuimVsGjRuQrw7l14MwE304Hs/0pEfGw9s5EqPV7vkEEMcdcgsiqW6IBlgRH0TeCc0xgteC+l8WYE8gBVbjokWtMCp4KqnBufUqieR3IuZ/Yg5o7cpa5DcigMM2v8F/dNN9PTFHXwY8EsD4g1rJRoHsxu27itUWRqwI8PO77rLw2zk4ZobCw/z/tm8hP6DexhefnTh+PV/8As='),
+				'7ZZLb5wwEMc/DdcVmJCc95HdXCJFyqFnCwZsxWBkDxvST9/xg+xSsupWqXpogwSy//OyZ34HknzbjgfDe/GoK1BJfp/kW6M1hlU7bkGphKWySvJdwlhKb8L2F6yZt6Y9N9DhNQEsBBy5GiAoQbD4pqIgsKVj7bIk31g0+gW+yQoFKcwpglf6lTYpbSpuBVRxQ5beZWjHxt1uJbW9G+TKgoISN9w4/9HlZT70jZaF15hb+QzyO0Q1FN5qpY0/VF77hyy1VOpMZ/4hnYpWkpow2TrdgUv0AliKeETBSzEYOPCehBsSei07BHN/pEAbnWrd4Z63UrkTrk0pJNIFLPVox4dGkHt0etaDKd2BBWJP9iJf04c67z7Owa4arRsFvJd2VerWG0rrXfd1KEHLWZGCbX4uE7riuxaHBwZhvAiAl+L0D6BbQEN10tc4RedxW4QwAZJKRTLugsZt2DfvoSecaBGJ+piufEHXsx//grEJFuOM86FOg5sREEXXjw+hOPUpW8zwAdQRUJbcDRyMpFvBWU4DjruHqRPZOTTZ70DzF3i4av7sl/Mv0svjN6A4yiPM0n+GiZuLTKRr5/hFxr9GRqzw5LpBLuM89RSh69oCLkh6P9dVcBULuJ64Rfii6n+hKkv/AFa0Pf2BBffzH7Qf'),
 					
 			this.addEntry(dt + 'labels', function()
 			{
@@ -219,7 +219,7 @@
 			   	var part1 = new mxCell('', new mxGeometry(0, 0, 164, 20), s2 + 'marginRect;rx=3;ry=3;rectMargin=5;strokeColor=none;');
 			   	part1.vertex = true;
 			   	bg.insert(part1);
-			   	var icon1 = new mxCell('Search', new mxGeometry(0.5, 0.5, 6, 6), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#e0e0e0;fillColor=none;fontColor=#e0e0e0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;fontSize=6;fontStyle=0;spacingTop=2;');
+			   	var icon1 = new mxCell('Search', new mxGeometry(0.5, 0.5, 6, 6), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#e0e0e0;fillColor=none;fontColor=#e0e0e0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;fontSize=6;fontStyle=0;spacingTop=2;sketch=0;');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(-17, -3);
 			   	icon1.vertex = true;
@@ -235,7 +235,7 @@
 			   	var part1 = new mxCell('', new mxGeometry(0, 0, 164, 20), s2 + 'marginRect;rx=3;ry=3;rectMargin=5;fillColor=#E4E4E4;strokeColor=none;');
 			   	part1.vertex = true;
 			   	bg.insert(part1);
-			   	var icon1 = new mxCell('Search', new mxGeometry(0.5, 0.5, 6, 6), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#878789;fillColor=none;fontColor=#878789;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;fontSize=6;fontStyle=0;spacingTop=2;');
+			   	var icon1 = new mxCell('Search', new mxGeometry(0.5, 0.5, 6, 6), 'shape=mxgraph.ios7.icons.looking_glass;strokeColor=#878789;fillColor=none;fontColor=#878789;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;fontSize=6;fontStyle=0;spacingTop=2;sketch=0;');
 			   	icon1.geometry.relative = true;
 			   	icon1.geometry.offset = new mxPoint(-17, -3);
 			   	icon1.vertex = true;
@@ -257,9 +257,9 @@
 			this.addDataEntry(dt + 'cell list', 164, 60, 'Cell List',
 				'7Vddb4IwFP01PGr4dnucuvniErMt2XMnBZoVStpOZb9+F1pRQCPqfJImJL3nfrXn9D5gOJNkM+Moi19ZgKnhPBvOhDMm1S7ZTDClhm2SwHCmhm2b8Bn2yxGvVXrNDHGcyi4JtkpYIfqDFaIAIXOqARGjrNhyvISSYyE5+8YTRhkHMGUp+MYhoXQLGbYTlgvwiKOAwFEa4VAyYGuwTTD0CTCXeHP0FiWkrzDDLMGS5xCyJoGMdYTvqrQYkyjWab66vYmEsqMqdccJbDQthylyWhTN0RcodRFPLJXv5LcIs0xt7/FmlgtwjgVEferbWYAgSqIU9hSHZfUMLUkafbAMMHsHzEv31OvKq30Zr/pVmRxTJMkK1+pfQ7Z7JtnJJipmZ0iYGA0TIpZDrk7Z4B/I9csFHlpUXDBBJGF7lBZMkSWi84Y7IUFQtK0k2HbYJjxpvApsqqy1edP8uW3hH8vVVTTnsGj1hFyP/9BT9p6kXltQ61xBdfsFI3CqqvfA8mrdB169AgtDgWXrQVSX6PRGvH4grx/Ihn55vcy/6uX3M31ad+++Z3rUz/StZtq9xUw/9DN9WvfRXc00mLv/FhW+/1vzBw=='),
 			this.addDataEntry(dt + 'message', 164, 35, 'Message',
-				'1VbbbqMwEP0aHhdxyaX72KSbaKWuFO3uSx+98QBuDYNsp0n263cMJikQWqQ2K9URhDme8WXO8YAXL/PDWrEy+4EcpBd/8+KlQjT1U35YgpReFAjuxXdeFAV0edFqoDeseoOSKSjMmICoDnhmcgc1UgPaHKUDdMZK+6hgS0MutFH4BEuUqAgssKC+RSKkbCAvipOqEZ4qxgUtpeNOQ3Lckx2Q4VYAysBhcBcV5LawBszBqCO57AU3mfOYTeqwDESaubB4WmNM13Z6Cj3nhB5cWi6nKO6laAMGFEFr2jXowYTRMKLUMDJnQTBfrW4sjoX5Jf7aERqz5WYb4UyKtCBMQlLRUrKtKNLfWBIWnoH7qvuOkreQ7A/IDWphBNpIVedpYVMvtkzed/pzwbnd08nh1k156hhFXfQ2dUGfuQZTIJkRz9Aa/hKdboYNCpo4Ctx6HP/HltWEY5JoMD0tnBY5Sh6TnjzsYm4n00Fd5IfUnndfoJ77udBbv2GirRNie1a1C9w51t+krlFJl+selR3VOfX8dIRM+kL8WrV3iqAd8EIS06sp4kt4fU1Me5r4TubjTtt1pGjvjK4C9nRPFFVIPqgWyupg2e3UgDHkznulIZy/UmVaZSX6wCN/qVq/l2HHaHgNSmc9Sh9wR8BTgZZEy++eFQa445Zj6tPfA2h6V3B2dD5n8stdWVrU9/3/xf1sFPc3gf19Uu4/4jiTef4Aq91ffp/9Aw=='),
+				'7ZfbjpswEIafhssiAiHZXuawiSptpajtzV66MIAbgy3b5NCn7xhMskDYRNqm1aolwmF+j+1h5sMIJ1jkh7UkIvvMY2BO8OgEC8m5rq/ywwIYc3yPxk6wdHzfw9PxVwO9o6rXE0RCoW8Z4NcDdoSVUCu1oPSRWUFlRJhLCRFOOVda8i0sOOMSxYIX2DdPKGON5PhBUh2op5LEFEPpuOOUMd+j7RljCzrK0BihkZEoKyWsiUBhjILgtNAgH3c4i7IjEl7oFckpO6Iwk1FGNcamMOwlKdMM3a3TV17KyMSeaS2wPwxm2GAyTGMclJtynjIggio34nnVEanKdZXUS+Bla5HQn3eXoT/NIr6JzeYTpIbDYE0qyRZkDTwHLXEdb09jnVmPybgelgHFpWoxCGuNqNpOT0PPFcYLW+TLBQ96Bd+AuRPfW2MNQQ2WH6ehQsGNBHjedLV6aOenMVtu5kCdMJoWqDFIKsgEiWiRfuPCcmGFp6p7icmbM/Id2IYrqik3I2Wdp7lJPY0Ie+r05zSOzT2dHGZ2yVPHCUTvPYJ4E3j+dfC8PneNJoERTXfQmv4SjHaFjUkZuth4LL3HltUM50miQPdIPgV5E9zjHtwmmNk4HKQ6P6Rm73UpV1M3pypyG47alCOrk+q4QJ5l9ip4DeNdUnsgdp4Zy/4XW5Bx/zH6WB3vfi99C8LtAS+ADu/G84fR/YkOe0R/QvNHqUwcKTctwbOAPbaJxHdtPMg6ZnXwBd7Zf29Bc9rblkfTV3b41pbu/9OsXnvPv5VPy+PoHkBOekA+8xKFbcENgobOPcHKxZbMmKcu/j2DwrzF5Gh9zuiKUgijuq77p8id3ETug2d+/8n9C+T+jq0UzfNnVO3+8ivrFw=='),
 			this.addDataEntry(dt + 'message', 164, 100, 'Message',
-				'7Zbfb9sgEMf/Gj8uwjg/2sckTdqHVZqaSntm5myzYmMBbpL99TsM+VUnm9el0h6GFAu+3AF393FwlMzLzb1mdfGoOMgoWUTJXCtlfa/czEHKiBLBo+QuopTgL6LLC7NxO0tqpqGyfRyod3hlsgGveMHYrQyCKVjtuhpSXHJmrFYvMFdSaRQrVeHcLBNS7qSIJlnbUM814wKP8sYcl+RqjWOCg3AC0BY2F6NopRDCPagSrN6iyVpwWwSL8dC7FSDyYudGfPiEGS/ke99DUrAT8nI+R0knRytmG82ZO0GMIUxjNz99vJg6jMyljkmRVzhMMSzAdMxc0CJlchomSsG5bPOpKrsSP5zvKAyP0nvbtj612OW7Zqmo8mdVo5agoMHg6l9D9uK+VaDvrYLXNEhmxSucrH+uMmGLL0rgzgcTlWUGbKd0+5P0quawU80HcEGUrIooepNctXu6SkIaJctOVQtbypA1X4DjPJ6gzZkpgIfBDoZyk7vXfSCUmTRigOWXqun7Zi0mi/FifsSShMz2JGlyIOFz63UXT7pwkba9hQZrMlsXwsIKVbfYGmP4SJBuSZcj+pcchfOMvMM2uI9O/a8C2agLmcDxsyg9YyrDR6oabcAL3xvjTpi7qJBFCASiSS1bRVSNBYM9q/CRiUqYAjvfNLCXjBk7+KcwJeMbslw6XYr6Iez5G2StA+3XvNIurvur5gTXT5d4DVZPAaqYXp3h4EAGSYDg+N+RnKF6Z/deqgPHQ/IBHI87HD8B46gstWjvv34XnvbR/r/v/qiiN1eoKA4PH5Pe/Phb8yc='),
+				'7VffT9swEP5r8rjKcfoDHtvSwMOQJkDas5dcYg8njmyHlv31O8cuNISyiIHENCI1sj/f+c6+73OdKFlXu3PNGn6pcpBRsomStVbK+la1W4OUESUij5KziFKCv4imR0bjbpQ0TENtxzhQ73DHZAse8YCx9zIAhrPGNTVkOOXKWK1uYa2k0gjWqsaxVSGk3EMRTYruQbzULBeYyhNznDJXW+wT17kFm3HsxNjhLOOthnPWIDBFoFGitqA3dziLCR6Fqm3KKiHvEVjqjAuLuRlM+4y1JUfzYHStWp253Lm1DY7PkiW+cDPcyxmYSalUKYE1wkwyVXUDmelM08KHwGYvyIyunoYRv1wQ6nIL+wnawu5oTTooFOQcVAVWYxyyFbnlwWI+9W4cBIYKIPHFJMx4oHzwfSwxNkKVn694Mqj4NbOtzpnLIMYlLGM3vrw8SgRcmSMCk6KssZtB7bfCLVpkTC7DQCXyXEJ/j2ahe0CW0+4Zw6w9exqWibq8UY4jCQIaDM7+Pexe/M9zahSH6Gs55DENkllxB735n+NVCPHN7dmBiSoKA3ZAvIdMRnFxOuDiBbhFVKyOKHqTUnUxHQ8hi5J0wEluK7mveUefHgsOj5mcGQ75/swJVK52pTt6J0KZRSsmSF6p2rGn3GaxmW/WB0qQUNiROlg88vhr53UWL4bSIN3zlPJYk9XWUecaUTfZVjtqvyQD8h/L4JQMVUD/UgUhn5l3uA/us77/m0hkNpSIwP6NqLxCVIGvDIthwAM/W+MyLN2qUEkQ9IMmjewQUbcWXEWtwlchamE4Nn5oYLcFM3byoURG5ickTR0uRXMRYv5BcNbJ5GW10aHYHi4tPbF9Oaa2YHUVSBXTTwX2FBgcyCQJFD78ZyLPaHJv91pNBhVOyTuocD5Q4RWwHJFUi+7mNO6qpP1qP29KH4Gg731TCnw8eQM+Yvfxk9CbH34x/gY='),
 
 			this.addEntry(dt + 'alert', function()
 			{
@@ -278,37 +278,37 @@
 				'5ZZNb9pAEIZ/jY+JjN0SroHW6aVSpVTqeeUde0dZ71rr4cP99Z3FAwFiNyhtDlVB4J3vwc+L5CRfNbuHoFrz1WuwSf45yVfBexpOzW4F1iZZijrJPyVZlvInyYqJ6GwfTVsVwNE1BdlQsFF2DYPnnk2NyvqaD4RkYUjpqLeS0hnVxmOAkocsg187DbHhjK2Ogn+Clbc+sMd5x5nLCq09uJIsL+b8XrC/Dkojr3qRzgO037Kdxhyruk7OWnXmOKnyjgrVoO3Z8QXsBghLJYFH/BlXXIh5Mnx4sV9ZrB37Sl4AOLg01FgZtIEQm9l7ySHfsndrkOCxVWVsvWVocVc20dUyS6zvMX3fSO4vt4PdJKO9SwA9gG+AQs8pW9RkJEM4pgawNlJ2Jz7VDXZ9LH0mzgeBPi6A/BUBwI7ixah4cZ6wQuj42Ps1f/sqKiNONfEe8CpOH4MOIBrkY0MoUUP8TQZLExNLQu8OYVJPcDups/0SI7wuITWotYVzAdz9RgCvSvUgx1OoNxFzgI7b/xA+swlpXMU+exv7XHwBrCLcwFn/MUHIiG8eXUTZy/QLCfmq6oBeCOi42FWa+vBSUwfas3eBPPIvT+eLtCjeCjkfZfwnPPuzghO68xG42d+Be/MudD9O083+V7pSkN7KzflnabP5/PAxpJ8+m/wC'),
 
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.bluetooth;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.bluetooth;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Bluetooth', null, null, this.getTagsForStencil(gn, 'bluetooth', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.broadcast;fillColor=#4CDA64;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.broadcast;fillColor=#4CDA64;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Broadcast', null, null, this.getTagsForStencil(gn, 'broadcast', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.link;fillColor=#4CDA64;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.link;fillColor=#4CDA64;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Link', null, null, this.getTagsForStencil(gn, 'link', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.night;fillColor=#5855D6;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.night;fillColor=#5855D6;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Night', null, null, this.getTagsForStencil(gn, 'night', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.notification;fillColor=#FF3B2F;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.notification;fillColor=#FF3B2F;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Notification', null, null, this.getTagsForStencil(gn, 'notification', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.settings;fillColor=#8F8E94;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.settings;fillColor=#8F8E94;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Settings', null, null, this.getTagsForStencil(gn, 'settings', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.switch;fillColor=#8F8E94;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.switch;fillColor=#8F8E94;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Switch', null, null, this.getTagsForStencil(gn, 'switch', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.text_size;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.text_size;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Text Size', null, null, this.getTagsForStencil(gn, 'text size', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.travel;fillColor=#FF9501;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.travel;fillColor=#FF9501;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'Travel', null, null, this.getTagsForStencil(gn, 'travel', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.vpn;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.vpn;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'VPN', null, null, this.getTagsForStencil(gn, 'vpn virtual private network', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.wifi;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;',
+		   			'html=1;strokeWidth=1;shadow=0;dashed=0;shape=mxgraph.ios7.misc.wifi;fillColor=#007AFF;strokeColor=none;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;verticalLabelPosition=bottom;verticalAlign=top;align=center;sketch=0;',
 					15, 15, '', 'WiFi', null, null, this.getTagsForStencil(gn, 'wifi', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 		   			s2 + 'url;fillColor=#e0e0e0;strokeColor=#c0c0c0;buttonText=;strokeColor2=#222222;fontColor=#222222;fontSize=8;spacingTop=2;align=center;',
@@ -331,37 +331,37 @@
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Action Dialog');
 			}),
 
-			this.createVertexTemplateEntry(s3 + 'iKeybLett;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybLett;sketch=0;', 
 					sizeX * 0.87, sizeY * 0.25, '', 'iPhone Keyboard (letters)', null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybNumb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybNumb;sketch=0;', 
 					sizeX * 0.87, sizeY * 0.25, '', 'iPhone Keyboard (numbers)', null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybSymb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybSymb;sketch=0;', 
 					sizeX * 0.87, sizeY * 0.25, '', 'iPhone Keyboard (symbols)', null, null, this.getTagsForStencil(gnm, 'keyboard symbols', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybLett;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybLett;sketch=0;', 
 					sizeX * 1.66, sizeY * 0.36, '', "iPad 7''Keyboard (letters)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybNumb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybNumb;sketch=0;', 
 					sizeX * 1.66, sizeY * 0.36, '', "iPad 7'' Keyboard (numbers)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybSymb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybSymb;sketch=0;', 
 					sizeX * 1.66, sizeY * 0.36, '', "iPad 7'' Keyboard (symbols)", null, null, this.getTagsForStencil(gnm, 'keyboard symbols', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybLett;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybLett;sketch=0;', 
 					sizeX * 2.21, sizeY * 0.48, '', "iPad 10''Keyboard (letters)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybNumb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybNumb;sketch=0;', 
 					sizeX * 2.21, sizeY * 0.48, '', "iPad 10'' Keyboard (numbers)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybSymb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybSymb;sketch=0;', 
 					sizeX * 2.21, sizeY * 0.48, '', "iPad 10'' Keyboard (symbols)", null, null, this.getTagsForStencil(gnm, 'keyboard symbols', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybLett;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybLett;sketch=0;', 
 					sizeX * 2.53, sizeY * 0.55, '', "iPad 13''Keyboard (letters)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybNumb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybNumb;sketch=0;', 
 					sizeX * 2.53, sizeY * 0.55, '', "iPad 13'' Keyboard (numbers)", null, null, this.getTagsForStencil(gnm, 'keyboard letters', dt + '').join(' ')),
-			this.createVertexTemplateEntry(s3 + 'iKeybSymb;', 
+			this.createVertexTemplateEntry(s3 + 'iKeybSymb;sketch=0;', 
 					sizeX * 2.53, sizeY * 0.55, '', "iPad 13'' Keyboard (symbols)", null, null, this.getTagsForStencil(gnm, 'keyboard symbols', dt + '').join(' ')),
-		   	this.createVertexTemplateEntry(sm + 'call_pad;', 
+		   	this.createVertexTemplateEntry(sm + 'call_pad;sketch=0;', 
 		   			sizeX * 0.7, sizeY * 0.4, '', 'Call Pad', null, null, this.getTagsForStencil(gnm, 'call_pad', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'number_pad;strokeWidth=1;', 
 					sizeX * 0.7, sizeY * 0.4, '', 'Number Pad', null, null, this.getTagsForStencil(gnm, 'number_pad', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'keyboard_(letters);', 
+					sm + 'keyboard_(letters);sketch=0;', 
 					sizeX * 0.875, sizeY * 0.3, '', 'Keyboard', null, null, this.getTagsForStencil(gnm, 'keyboard_(letters)', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'scroll_(horizontal);fillColor=#a0a0a0;', 
@@ -370,16 +370,16 @@
 					sm + 'scroll_(vertical);fillColor=#a0a0a0;', 
 					sizeX * 0.03, sizeY * 0.2, '', 'Scroll (Vertical)', null, null, this.getTagsForStencil(gnm, 'scroll_(vertical)', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'add;fillColor=#00dd00;strokeColor=#ffffff;', 
+					sm + 'add;fillColor=#00dd00;strokeColor=#ffffff;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Add', null, null, this.getTagsForStencil(gnm, 'add', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'delete;fillColor=#ff0000;strokeColor=#ffffff;', 
+					sm + 'delete;fillColor=#ff0000;strokeColor=#ffffff;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Delete', null, null, this.getTagsForStencil(gnm, 'delete', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'select;fillColor=#0080f0;strokeColor=#ffffff;', 
+					sm + 'select;fillColor=#0080f0;strokeColor=#ffffff;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Select', null, null, this.getTagsForStencil(gnm, 'select', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'remove;fillColor=#0080f0;strokeColor=#ffffff;', 
+					sm + 'remove;fillColor=#0080f0;strokeColor=#ffffff;sketch=0;', 
 					sizeX * 0.08, sizeY * 0.03, '', 'Remove', null, null, this.getTagsForStencil(gnm, 'remove', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'check;strokeColor=#0080f0;', 
@@ -400,10 +400,10 @@
 					sm + 'right;strokeColor=#0080f0;', 
 					sizeX * 0.03, sizeY * 0.03, '', 'Right', null, null, this.getTagsForStencil(gnm, 'right', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'increase;strokeColor=#0080f0;', 
+					sm + 'increase;strokeColor=#0080f0;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Increase', null, null, this.getTagsForStencil(gnm, 'increase', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'info;strokeColor=#0080f0;', 
+					sm + 'info;strokeColor=#0080f0;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Info', null, null, this.getTagsForStencil(gnm, 'info', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'more_2;strokeColor=#a0a0a0;', 
@@ -412,13 +412,13 @@
 					sm + 'more;strokeColor=#a0a0a0;', 
 					sizeX * 0.025, sizeY * 0.02, '', 'More', null, null, this.getTagsForStencil(gnm, 'more', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'options;fillColor=#222222;', 
+					sm + 'options;fillColor=#222222;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.015, '', 'Options', null, null, this.getTagsForStencil(gnm, 'options', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'pause;strokeColor=#0080f0;', 
+					sm + 'pause;strokeColor=#0080f0;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Pause', null, null, this.getTagsForStencil(gnm, 'pause', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'star;fillColor=#0080f0;strokeColor=none;', 
+					sm + 'star;fillColor=#0080f0;strokeColor=none;sketch=0;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Star', null, null, this.getTagsForStencil(gnm, 'star', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'contacts_bar;strokeColor=#0080F0;fillColor=#e0e0e0', 
@@ -448,10 +448,10 @@
 					sm + 'circle;strokeColor=#222222;fillColor=none;', 
 					sizeX * 0.06, sizeY * 0.03, '', 'Circle', null, null, this.getTagsForStencil(gnm, 'circle', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					s + 'pageControl;fillColor=#222222;strokeColor=#aaaaaa;', 
+					s + 'pageControl;fillColor=#222222;strokeColor=#aaaaaa;sketch=0;', 
 					sizeX * 0.25, sizeY * 0.0125, '', 'Page control', null, null, this.getTagsForStencil(gn, 'pageControl', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
-					sm + 'current_location;strokeColor=#ffffff;fillColor=#0080F0', 
+					sm + 'current_location;strokeColor=#ffffff;fillColor=#0080F0;sketch=0;', 
 					sizeX * 0.3, sizeY * 0.15, '', 'Current Location', null, null, this.getTagsForStencil(gnm, 'current_location', dt + '').join(' ')),
 			this.createVertexTemplateEntry(
 					sm + 'expand;fillColor=#c0c0c0;', 

@@ -617,7 +617,6 @@ removeFormat=Hapus Format
 removeFromGroup=Hapus dari Grup
 removeIt=Hapus {1}
 removeWaypoint=Hapus Waypoint
-removeUnusedTags=Remove unused tags
 rename=Namai Ulang
 renamed=Dinamai Ulang
 renameIt=Namai Ulang {1}

@@ -617,7 +617,6 @@ removeFormat=‫נקה עיצוב ‬
 removeFromGroup=‫הסר מקבוצה‬
 removeIt=‫הסר {1}‬
 removeWaypoint=‫הסר נקודת ציון‬
-removeUnusedTags=Remove unused tags
 rename=‫שנה שם‬
 renamed=‫השם שונה‬
 renameIt=‫שנה שם {1}‬

@@ -54,9 +54,9 @@
 		
 		var fns = [
 			this.addDataEntry(dt + 'bottom navigation', 358, 48, 'Bottom Navigation',
-				'7VbbToNAEP0aHtss0Gp9tPXyosaoP7AtA2xcGLKMtfXr3WWH2go1jZcHjRCSndkzlz1zIATxrFhdGlnl15iADuLzIJ4ZRPKrYjUDrYNIqCSIz4IoEvYJoos9u2GzKyppoKRDAiIfsJT6CbzHO2paa3Ykss7BwUUQT6VWWWnXC5sfjHWkWNK9enHYMLJ2ncvKGQYW5LaV1jPUaJpccdpcDkYGH6HdKbEEH5vgM1fixsAQrPYernHxyS4BCyCztpBnlVDuEfF44sNyUFnOYSP2ydrb2Sb0jSq7YLb6mYs7zN2BY6X+mMCcCu242qKqWGVu/sOsSPTQcJIOdRPh7n3UuTH0gR1/aiH1Kc+NsHIpKrlQZXYFKXFb22N0tpZz0LdYK1K4M+824dU7wByJsOhTCBebMqApx74H183Z4OjQcUf94+YAMQzHPmbdOtje0gO/DztyaH0GtCS1hJ36fRrhFm5R2c429Qeh2Ck/aNtpU2Ca1kAdkW1OcpDuRh3dXcglGkXwReXlIE3PKyvE8cnR9EDdbcC/Qnfj79Ld52QXTn5IdqMfkN24I7sbq5f5+muaK32O/4/dJ0Q3+XsfO2u+/fp4+Paf0Ss='),
+				'7VfbctowEP0aP8IIG6f0kUvgJclk2v6AkNeWJrLlkQSBfn1XlgymNh06mTw0DQwe7X3Zs8eGKFmWh42mNX9UGcgouY+SpVbK+lN5WIKUUUxEFiWrKI4JfqJ4fcU6aaykphoqe0tA7AP2VO7Aa7zC2KMMiowaDs6dRMmCSlFUeGaYHzQqclXZ7+Kn853EKBtOaydoYNaZhZRLJZVuciV583JuVqsXaC2VqsDHZuo1VDIvYBl3aVHglPGdhg2tUTFFRa2Ea+B+j32YEOFaWdNSyCMq5ppxYbEJg99mRXcF7/Srdpq5Jrm1NdrTZI4XnJG7OAczLpQqJNBamDFTZWNgpnFd574EHi+KpPGiUyaMFbSFw1VoGlXAZQOqBKsxL3kVmeXeI0lnPoyDwNReOQ06arxcnELPQOMhYD2Me9LD/RuwZpZ/hJ/bUgZIWqDLQ+G2d1yUmRzrkKQH/Iy49zXg3cyHnN38BKNyHrbOqtqlqCkTVfEAue0g3y6hkyXdgnxWRlihLra1Tfjwm8NWWYswD+x3KLYIDn41ve6H62Y1uusuK/mwyxoPL2sIIONJ6mOOrSLInW0O96KLZW51GiS1Yg8X9Yc2PLTw7GZ6rj+akIvyo7adNoXKcwO2R5HTN7mJNdMea9Z0rzRO9Y284UD1wO2SkC9f7xY3subk/E+wJv1kTYckf0mayeydSDN9B9KkPdI84bZvj29jTOVzfD5o/jvKzD7egwbF809+7979R/AL'),
 			this.addDataEntry(dt + 'bottom navigation', 358, 48, 'Bottom Navigation',
-				'7Zbfb5swEMf/Gh4TGRxY9rikW19aqdL2PjlwgFXDIXPNj/31s7FJ84Oo6UqeOiQk39d3PvvuE4eAL6vtvRZN+YgZqIB/D/hSI5IbVdslKBVETGYBvwuiiJk3iH5cmA27WdYIDTVdExC5gLVQL+AUJ7S0U17IRFuCdWcBXwgli9qMU7M+aCPkWNNP+cf6hpGx21I01tCQkp2WSi1Roe7W4ox9+ZosrBtpfIZ+psYaXGyGG5/Jbww0wfbi4TrJn+wesALSO+OykRmVzoPHcxdWgixKHzbzmmidXexDX0tlBr5aw5Xj76xcSZWyRTqoUbUtbOOnRZWp6VpmgL+j85rl3XOpZrb+Q862cDIV6ptvGGFjl2hEKuviAXLy2zrsn7WVWIF6wlaSxKNG9ws+nDiskAirITR8soV36NJ57Zfdzd0kMQpahXbGTK5uezTcdh/ApmHsYna94O0DLvzv4giLMHGaBiVIruEo/xArfgtPKM3O9vknITtKPzmhDfO8BTpjbX+Qq/CbneH3+NLK9GMMVt0Sn4nAeCzk+PxN5MLZOXI9hmMj1+calbl45Ctvhfj8qWi71X2XRG/Dl9wOvvkJe+wG7CUjs7eBVSMK+I/fCPjN/+3v9mZ3X/xx/oz5+hHu3A+/0f8C')
+				'7VfLbuIwFP2aLEF5kAyz5FHYtFKlmf3IJDexhZMb2eY1Xz927JQAQW2ndAVIRL7H9xXfcwjxolm5XwpS0xfMgHvRkxfNBKKyq3I/A8690GeZF829MPT11wsXV3aDZteviYBKfSQgtAFbwjdgEQtIdeAOyIikYNx9L5oSzopKr1OdH4QGcqzUL/bX+AahtiUltTEEpMpsM85nyFE0uSLf//EzmRo3JXAN7U6FFdjYDHeuklyDSqkzKEnpRsCS1BoYaaBGZhp42uo+pHMyrSxIyfhBAxORUqZ0E1LfzZxsCtrpFzciNU1SpWq9H0cTfdFnZC7GQQ4LxIIDqZkcplg2G6lsXBe5LaGXJ0XicNop444VhIL91dE0kJvLErAEJXRef8cyRa1HFI9tGAWmU1tw5DAirV28hR4HrRdu1v1zjz45d6pKbkbcmXC5Lwxth0WZ8eGWZYB/wsuJ583n2sTNYfc5m4NjKeETRzeFtUlRk5RVxTPkqjPyln3G5mQF/BUlUwxPaNomfD5zWKFSer49xHbFps7BctJiv00380GiETSIMoRL7oS0YT9pXYA/DGIbc2gBZ3dY7X6TTkgdJBYTwIliWzip38d018KrOdNj/UHgn5QfnGkF81yCulDK2418SDyjC/G8bCRLv6agsklxT/qJH4Ix+ojG7womGF0KphXRrQXT1rqpYuIbP25WiOu70srjWdMnnSR8XzrJ90lnfKYc/xuUk9xYOTtY1aSAh3juXjzj//uj9m3Pnfjr6tHm8dXZunffrP8B')
    		];
 		  
 		this.addPalette('gmdlBottom Navigation', 'GMDL / Bottom Navigation', expand || false, mxUtils.bind(this, function(content)
@@ -172,9 +172,9 @@
 			
 			this.addEntry(dt + 'floating action button', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), 'shape=ellipse;fillColor=#FF4081;strokeColor=none;shadow=1;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), 'shape=ellipse;fillColor=#FF4081;strokeColor=none;shadow=1;aspect=fixed;sketch=0');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(20, 20, 16, 16), s2 + 'plus;strokeColor=#ffffff;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(20, 20, 16, 16), s2 + 'plus;strokeColor=#ffffff;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -184,7 +184,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'edit;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'edit;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -193,7 +193,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'star;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'star;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -202,7 +202,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'heart;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'heart;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -211,7 +211,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'reply;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'reply;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -220,7 +220,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 20, 24, 16), s2 + 'users;strokeColor=#ffffff;fillColor=#737373;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 20, 24, 16), s2 + 'users;strokeColor=#ffffff;fillColor=#737373;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -229,7 +229,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'gps;strokeColor=#737373;fillColor=#737373;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'gps;strokeColor=#737373;fillColor=#737373;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -238,7 +238,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'share2;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'share2;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -247,7 +247,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'navigate;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'navigate;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -256,7 +256,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'chat;strokeColor=#737373;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'chat;strokeColor=#737373;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -265,7 +265,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(22, 18, 12, 20), s2 + 'voice;strokeColor=#737373;fillColor=#737373;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(22, 18, 12, 20), s2 + 'voice;strokeColor=#737373;fillColor=#737373;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -274,7 +274,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(20, 16, 16, 24), s2 + 'google;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(20, 16, 16, 24), s2 + 'google;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -283,7 +283,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 20, 24, 16), s2 + 'video;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(16, 20, 24, 16), s2 + 'video;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -292,7 +292,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 17, 24, 22), s2 + 'gallery;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(16, 17, 24, 22), s2 + 'gallery;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -301,7 +301,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 17, 24, 22), s2 + 'birthday;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(16, 17, 24, 22), s2 + 'birthday;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -310,7 +310,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 20, 24, 16), s2 + 'cloud;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(16, 20, 24, 16), s2 + 'cloud;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -319,7 +319,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(20, 20, 16, 16), s2 + 'x;strokeColor=#737373;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(20, 20, 16, 16), s2 + 'x;strokeColor=#737373;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -328,7 +328,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(22, 18, 12, 20), s2 + 'bookmark;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(22, 18, 12, 20), s2 + 'bookmark;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -337,7 +337,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'calendar;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'calendar;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -346,7 +346,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(17, 20, 22, 16), s2 + 'attractions;strokeColor=#ffffff;fillColor=#737373;strokeWidth=1;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(17, 20, 22, 16), s2 + 'attractions;strokeColor=#ffffff;fillColor=#737373;strokeWidth=1;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -355,7 +355,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(20, 18, 16, 20), s2 + 'dining;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(20, 18, 16, 20), s2 + 'dining;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -364,7 +364,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'education;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'education;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -373,7 +373,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'family;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'family;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -382,7 +382,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'health;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 19, 20, 18), s2 + 'health;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -391,7 +391,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'office;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'office;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -400,7 +400,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'promotions;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'promotions;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -409,7 +409,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'radio;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'radio;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -418,7 +418,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'recipes;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'recipes;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -427,7 +427,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'sports;strokeColor=none;fillColor=#737373;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'sports;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -436,7 +436,7 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 56, 56), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'travel;strokeColor=none;fillColor=#737373;direction=south;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(18, 18, 20, 20), s2 + 'travel;strokeColor=none;fillColor=#737373;direction=south;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 56, 56, 'Floating Action Button');
@@ -445,19 +445,19 @@
 			{
 				var bg1 = new mxCell('', new mxGeometry(0, 0, 40, 40), fac);
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(12, 12, 16, 16), s2 + 'plus;strokeColor=#737373;strokeWidth=2;shadow=0;');
+				var part1 = new mxCell('', new mxGeometry(12, 12, 16, 16), s2 + 'plus;strokeColor=#737373;strokeWidth=2;shadow=0;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 			   	return sb.createVertexTemplateFromCells([bg1], 40, 40, 'Floating Action Button (Mini)');
 			}),
 			this.addDataEntry(dt + 'toolbar',  358, 64, 'Toolbar',
-				'3ZXRboMgFIafhssaBLtut7Vbr5bsbtekHoUMxCDr7NsPhdpaa2bSZlmmMYHD+TmH7zcB0VQ1W8Mq/qozkIg+I5oara0fqSYFKRHBIkN0gwjB7kPkZWI17lZxxQyUdo6AeMGeyU/wER+o7UGGQM1Z1Q4N7NyW61xImWqpTbdK8+5x8doa/QHHlVKXTrMuDBOuk4toqAnGQjPZdxcKTW9BK7Dm4FK+RGa5z6DLRy/jIAoeZA+Jj7Haz4teeqLgBgHEdSj0ZygZqzm06didh1vlttrELYUASzVF62lUqExGO6bAsBGjc3oXVFfd2yvew6HJXHjkOrwgwBFZes3hGAjzM7okGcONA3ADklmxh0H9a8RDC29auM76+ouYDMovnoY76DyvwY4c6w8yy8TkzibuRQZ66j//Zfv+v3vLO7tXMCmhLf4n/FvNMBCPDTxCuNlAPDQwjm930E1Pt5ZPP7/UvgE='),
+				'7ZbLbsIwEEW/JstGjkP6WBZaWFWq1EXXVjKJrdpxZBsK/fqOY/MIDxUJVm1BRPadmdxx5gglySdqOTOs4y+6Apnkz0k+MVq7sFLLCUiZUCKqJH9KKCX4S+j0RDTro6RjBlp3TgENBQsm5xCUIFi3klGwnHV+aaDEW45rIeVES236aF73H9StM/oD1pFWt1gzbgwT2Mmeaj/AlRz3GW44K/ncwIx1KIxQ6LRoHZjnBRZa1Ig31a2bMiXkCoVHU3LhsBuLjT6xecMxPSa96bkpfbfcuQ7jRf6IFzy+v/gEmzZaNxJYJ2xaatUHStunTutggcuBSUHH+zbiy5tQ31t8gmAcLE9OoZfiCGagFTiDPuRTVI6HjLy4D2UcBFoF8XYUNGbDvtmUbmeKizjW4yPOfx5xxSyHKj5r7pSMs1mPXi0bT2jaqEqmJVNg2MHEd1nYY+Su/24q3uOh6S4K5M+gQI+jEAtISotQs1oLcb/DCh0dopJFfAxI5sQCBv7H+IktvPpnvPW/yejA/uZheAdd1xbcAX+bg5yF5OjKSC5EBfrUf9A/jBfA+PtZLK7MYsOkBG/+T+PVabw7A0dyiON6pBfjSIY4ZtnlPOJ2+7YX0ndfBr8B'),
 			this.addDataEntry(dt + 'floating action button', 50, 156, 'Floating action buttons',
-				'3ZZPb4MgGMY/Dcc2iH/mrtO1pyW77UwmChkWg6zVbz8Uamu1m5m2h5KYwCMv8P54IAA3yqutxAV9EwnhwH0FbiSFUKaWVxHhHCDIEuDGACGoP4A2V/467V9YYEl2akoAMgF7zL+JUYxQqppboaS4aKo6kBWlrr2USoovEgkupNZ3YteIKeP8KAHkxk7sxl7TmeJEHLTo6EYmccL00i5i7SKIVKS6mkgr2Sy2ROREyVp3sQGhCTiwRFGjeCZzSAnLqOpruDTtrBvnxEhXLKZxZO7fyBJcUtJ0hzo5qnJu0z+izKus2fF1lid8/SmKegBVEwzaMiTb6Sbiw2aMpnJEv3KEa9+E1BftM7IOGpJ1AqNJwrFie9Kbfgy3XcG7YHph3fSroDf7KuwPINK0JGqwW10akzbQezDPW1Y+vNsR8Bc+AoVsTDAN8lz7e/PtH97O/s+3t39wK/tvNh4MnTvY39Jx4NDxfjDcm6M2x/FPCzu+Grvx07b839rBfGuP4FvK2v3baglr6+bppWS6nz+kfgA='),
+				'7VdNj9owEP01OS5ynI/S4y7ZcKpUqYeercSJrXViyzYs9Nd3HJuPELalAqpKJRLRzJsZj+N5PEiULLrNUhPFvsiaiih5jZKFltJ6q9ssqBARRryOkiLCGMEnwuUH0XiIIkU07e0lBdgXrIlYUY94wNitCIBhRDkTCrkyYL0Yq+UbXUghNeC97B3YcCF2UISTIi6SInXJjNTyHcAYnFaTmsPWTmrNG7UVAx+Bw0jFVpouiYr8Ckry3lL9uoZCE5Ia2duSdFxsAXjWFeOWVhDFqCCrlkF6SPomV7py22fWKohnyTPc4DzczSWYWStlKyhR3Mwq2Q2BygypZeNbgDlqkuGX0zb8h2uC3d7CkVJt6ebDsQxQmMmSyo5aDX1QKJj7gndeW+aR1M8RMcqh7xgjxvvtfp3DxMEIQz9PgOT3BKiJYbTeTcd2IgxzR4xu0zr+ztquFnCCajuhCPAhH64pT/a4r/genhj/n6zAv2QFmmW+ZHviH/EkxlOexLnHNBXE8jUdtT9HnrCDr+6ID+2f8lH3p/l4Adk0htoJ9/aPcREd04ce/cN6FCafob8mT9mN5UlpR+nLKPOQpmOCpNdL0/x+0vT5/tKU30uayjJF8/ghTX8oTWHWMZqqUZZPmbbDrlGjTzdWo825f0rNcD1k5+hbd53snCHDrWRn/Lt4C9kB9/D259OPXw5/Ag=='),
 			this.addDataEntry(dt + 'related actions', 200, 40, 'Related actions',
-				'3VbRboMgFP0aHtsgWtu9zm19WrK3PZNxFTIsBlhr/34o1NbqMpO1zTaNyb2He4R77nkAxVlZrzWt+LNiIFH8iOJMK2V9VNYZSIkIFgzFD4gQ7D5Enr5YjdpVXFENGzuFQDxhS+UHeMQDxu5lAAynVRM6oqiMi+6N1eodMiWVdvhGbRowF1IeIETivH2aYk6Z2jkwckmhKRPuaGfccAjQFuovG2mh0MUaVAlW713JTjDLfUXie8UcRMFtH6PG50XHPKrigiDMuEjx9yIxajg05di1w20pQ8MH8cq6aGY8L0om50y9DVQ8lexMymX7dozX0DCZKhwZFy4Q8HzhKfuz/ETYKBkKG6Ue0yCpFVvobT+mdjjBixLuYN32s2Vv99mq/wOV5wbsYFhdG5Pml/x5kwfCCg9Gcy3PLy7seVNpoMwR3DRv6P3k595Pr+f9u+t7P/0v3o/S25l/eWnzj9p+XNfO8ZM0S3+1v1cX97dLj5cjX356d/oE'),
+				'7VdNb6MwEP01HIvAEJI9tmmT00or7WHPFh6wVYOR7aTJ/vodY+eDhGqrbrKK1BCBPG/mZYzn6UlE2bzZLDXt+HfFQEbZS5TNtVLWr5rNHKSMSCJYlD1HhCR4R2TxTjbts0lHNbT2IwTiCWsqV+ARDxi7lQEwnHZuiUTRGVw9GavVK8yVVBrxVrUOrISUOygiWdVfrphTpt4QTDGoNWUCt3bCNa9gS45xggGnJV9pWNIOgRyBTonWgn5ZI9GEokq1dkEbIbcIPOqSCwslZknyTFc1x/JQ9FOtdOm2z63tMD/JHvGB5+EersDEtVK1BNoJE5eq6ROl6UsXlW+By0GTCXk6bSN+uybE7S0cKWgLm3fH0kNhJktQDViNfZI3wSz3FbmfXMJBYKchRo2P6z3zMGNchDGPjzz7+8gZNRzYbh62kWF8Oyk0m9opNq4bJmOmyjNNHAvgRBjT/rdn/AovTL6mDMi4DAIhiSeesj2Jj2SS5ucySQuPaZDUijUM2o9pJ+zghzviQ/uH6aD7w2z4B6qqDNgz6e1f40NqzO8GdFMGFAiz5Exo1/KjyYX9yHQaKEMCavPuS59UR/7vvlRcz5e+Xd+Xirsv3aIvpcX/M6bppY1p1JLGVXJwo6+ngOKmvWd2ce/B8PDB58uPvwf/AA=='),
 			this.addDataEntry(dt + 'floating action button', 50, 456, 'Floating action buttons',
-				'5ZZNj4MgEIZ/DcdtEPp1ru32tMne9mzCKGSxGKCt/vtFQVtXu9tkN16UmDAvM8PwMAcQjfPyqJOCvykGEtEDorFWyvpZXsYgJSJYMET3iBDsfkReH6xGzSouEg0n+0wA8QGXRJ7BK14wtpJBYInhULtjRHfc5q7GfeSmhidF7ZKXWV3+IsuZXJwN6HrNavUJsZLKWfuTOjnHXSqkbCVE6BbXwydi6hqyulxMuOK/xYYyQVsoHx61kcI5j6BysLpyLiFg6wOuglnulaVngzmIjNu+lhhvZ12eG0U3CSDHodLZQa2ChSdjvJwr42g9HeTVXCF39CaAvJ4rZEqmg7z5HXIL0wWKwsCTCNPmmwBh1cIYQluth9Ba7S/Qtv/cmeWAqQO4aUa38hGORZ7Ftfmx4/Bi1eu5zr7DF43gazUNMrHiAr3tx5iGCt6VcIV127/0O7412wQqTQ3YwZV0xxi7JWfenofe/f71+AU=')
+				'7ZdRb9owEMc/TR6HjEOA1wKFp0mT9rBnK7nEVp04sh0a9ul3jp3QFLp1WoVUFiIi3//ufGf7J0uJ4m3ZHjSr+VeVgYzixyjeaqWsH5XtFqSMKBFZFO8iSgn+I7p/wzvvvKRmGir7ngTqE45MNuAVLxh7kkHImOHgwkkUb7gtscfdHIeGs9qFlG3h2p8VZSZnjQHtfFarJ9gqqdDaVarCwE0upOyliMZr4h4/Uaaew6w4Vyaw+Ve55glsyvsmWMobDQdWo7BAoVaisqAfj5hoQlCuKrtnpZAnFB50yoWFFL2U7FhTcNv16YK+q0anbiHc2hr9SfyAL9wx93IBZlYoVUhgtTCzVJWdIzVd6D73JXA4KpLQzesy4qcrQl1vYdNBW2jfPLhOCqd2AFWC1ViHhIS1T3gWmeVeWfiTJhwE1h1rzHi7GOY5M4GDgMV1ROIJkU+NyClY5GbELCZi7oGY+fJ2yCQTMveAzMDCDZBZTsjcAzIxvR0yqz8j06OBiaI28E4g8u43AfGXQJz6o71EIFleItBr/4LA+oNvjfaCEMRh1T2D50dYFv0/D3/129uAzJLRfTDYL2CYX4Gh1zRIZsURRuWvERI6+Oa2+Fz+y/g26s1+ApXnBuwFYMMyrjGH5vkD3oe//L7/BQ==')
    		];
 		  
 		this.addPalette('gmdlButtons', 'GMDL / Buttons', expand || false, mxUtils.bind(this, function(content)
@@ -695,63 +695,63 @@
 		var sb = this;
 		
 		var fns = [
-			this.createVertexTemplateEntry(s2 + 'edit;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'edit;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Edit', null, null, this.getTagsForStencil(gn, 'edit', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'star;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'star;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Star', null, null, this.getTagsForStencil(gn, 'star', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'heart;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'heart;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 18, '', 'Heart', null, null, this.getTagsForStencil(gn, 'heart', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'reply;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'reply;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 18, '', 'Reply', null, null, this.getTagsForStencil(gn, 'reply', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'users;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'users;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					24, 16, '', 'Users', null, null, this.getTagsForStencil(gn, 'users', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'gps;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;',
+			this.createVertexTemplateEntry(s2 + 'gps;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;sketch=0;',
 					20, 20, '', 'GPS', null, null, this.getTagsForStencil(gn, 'gps', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'share2;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'share2;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Share', null, null, this.getTagsForStencil(gn, 'share', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'navigate;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'navigate;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Navigate', null, null, this.getTagsForStencil(gn, 'navigate', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'chat;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'chat;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Chat', null, null, this.getTagsForStencil(gn, 'chat', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'voice;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;',
+			this.createVertexTemplateEntry(s2 + 'voice;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;sketch=0;',
 					12, 20, '', 'Voice', null, null, this.getTagsForStencil(gn, 'voice', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'google;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'google;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					16, 24, '', 'Google', null, null, this.getTagsForStencil(gn, 'google', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'video;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'video;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					24, 16, '', 'Video', null, null, this.getTagsForStencil(gn, 'video', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'gallery;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'gallery;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					24, 22, '', 'Gallery', null, null, this.getTagsForStencil(gn, 'gallery', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'birthday;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'birthday;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					24, 22, '', 'Birthday', null, null, this.getTagsForStencil(gn, 'birthday', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'cloud;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'cloud;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					24, 16, '', 'Cloud', null, null, this.getTagsForStencil(gn, 'cloud', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'x;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;',
+			this.createVertexTemplateEntry(s2 + 'x;strokeColor=#737373;fillColor=#737373;shadow=0;strokeWidth=2;sketch=0;',
 					16, 16, '', 'X', null, null, this.getTagsForStencil(gn, 'x', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'bookmark;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'bookmark;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					12, 20, '', 'Bookmark', null, null, this.getTagsForStencil(gn, 'bookmark', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'calendar;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'calendar;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Calendar', null, null, this.getTagsForStencil(gn, 'calendar', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'attractions;strokeColor=#ffffff;fillColor=#737373;shadow=0;strokeWidth=1;',
+			this.createVertexTemplateEntry(s2 + 'attractions;strokeColor=#ffffff;fillColor=#737373;shadow=0;strokeWidth=1;sketch=0;',
 					22, 18, '', 'Attraction', null, null, this.getTagsForStencil(gn, 'attraction', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'dining;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'dining;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					18, 20, '', 'Dining', null, null, this.getTagsForStencil(gn, 'dining', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'education;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'education;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Education', null, null, this.getTagsForStencil(gn, 'education', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'family;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'family;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Family', null, null, this.getTagsForStencil(gn, 'family', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'health;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'health;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 18, '', 'Health', null, null, this.getTagsForStencil(gn, 'health', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'office;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'office;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Office', null, null, this.getTagsForStencil(gn, 'office', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'promotions;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'promotions;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Promotion', null, null, this.getTagsForStencil(gn, 'promotion', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'radio;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'radio;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Radio', null, null, this.getTagsForStencil(gn, 'radio', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'recipes;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'recipes;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Recipe', null, null, this.getTagsForStencil(gn, 'recipe', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'sports;strokeColor=none;fillColor=#737373;shadow=0;',
+			this.createVertexTemplateEntry(s2 + 'sports;strokeColor=none;fillColor=#737373;shadow=0;sketch=0;',
 					20, 20, '', 'Sports', null, null, this.getTagsForStencil(gn, 'sports', dt).join(' ')),
-			this.createVertexTemplateEntry(s2 + 'travel;strokeColor=none;fillColor=#737373;shadow=0;direction=south;',
+			this.createVertexTemplateEntry(s2 + 'travel;strokeColor=none;fillColor=#737373;shadow=0;direction=south;sketch=0;',
 					20, 20, '', 'Travel', null, null, this.getTagsForStencil(gn, 'travel', dt).join(' '))
    		];
 		  
@@ -965,229 +965,229 @@
 		var fns = [
 			this.addEntry(dt + 'checkbox on hover light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#009587;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#009587;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (on, hover))');
 			}),
 			this.addEntry(dt + 'checkbox on focused pressed light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#009587;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#009587;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (on, focused or pressed))');
 			}),
 			this.addEntry(dt + 'checkbox on disabled light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#B0B0B0;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#B0B0B0;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (on, disabled, light))');
 			}),
 			this.addEntry(dt + 'checkbox on disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#B0B0B0;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#B0B0B0;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (on, disabled, focused, light))');
 			}),
 			this.addEntry(dt + 'checkbox off hover light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (off, hover, light))');
 			}),
 			this.addEntry(dt + 'checkbox off focused pressed light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (off, focused or pressed, light))');
 			}),
 			this.addEntry(dt + 'checkbox off disabled light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (off, disabled, light))');
 			}),
 			this.addEntry(dt + 'checkbox off disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (off, disabled, focused, light))');
 			}),
 			this.addEntry(dt + 'checkbox on disabled dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#676767;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#676767;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (on, disabled, dark))');
 			}),
 			this.addEntry(dt + 'checkbox on disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#676767;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=none;fillColor=#676767;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (on, disabled, focused, dark))');
 			}),
 			this.addEntry(dt + 'checkbox off hover dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#ffffff;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#ffffff;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (off, hover, dark))');
 			}),
 			this.addEntry(dt + 'checkbox off focused pressed dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#ffffff;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#ffffff;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (off, focused or pressed, dark))');
 			}),
 			this.addEntry(dt + 'checkbox off disabled dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Checkbox (off, disabled, dark))');
 			}),
 			this.addEntry(dt + 'checkbox off disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'checkbox;strokeColor=#666666;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Checkbox (off, disabled, focused, dark))');
 			}),
 			this.addEntry(dt + 'radio button on hover light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#009587;fillColor=#009587;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#009587;fillColor=#009587;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (on, hover))');
 			}),
 			this.addEntry(dt + 'radio button on focused pressed light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#009587;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#009587;fillColor=#009587;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#009587;fillColor=#009587;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (on, focused or pressed))');
 			}),
 			this.addEntry(dt + 'radio button on disabled light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=#B0B0B0;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=#B0B0B0;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (on, disabled, light))');
 			}),
 			this.addEntry(dt + 'radio button on disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=#B0B0B0;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=#B0B0B0;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (on, disabled, focused, light))');
 			}),
 			this.addEntry(dt + 'radio button off hover light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (off, hover, light))');
 			}),
 			this.addEntry(dt + 'radio button off focused pressed light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (off, focused or pressed, light))');
 			}),
 			this.addEntry(dt + 'radio button off disabled light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (off, disabled, light))');
 			}),
 			this.addEntry(dt + 'radio button off disabled focused light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#B0B0B0;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (off, disabled, focused, light))');
 			}),
 			this.addEntry(dt + 'radio button on disabled dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#676767;fillColor=#676767;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#676767;fillColor=#676767;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (on, disabled, dark))');
 			}),
 			this.addEntry(dt + 'radio button on disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#B0B0B0;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#676767;fillColor=#676767;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#676767;fillColor=#676767;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (on, disabled, focused, dark))');
 			}),
 			this.addEntry(dt + 'radio button off hover dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#ffffff;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#ffffff;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (off, hover, dark))');
 			}),
 			this.addEntry(dt + 'radio button off focused pressed dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#ffffff;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#ffffff;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (off, focused or pressed, dark))');
 			}),
 			this.addEntry(dt + 'radio button off disabled dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;aspect=fixed;sketch=0;');
 				bg1.vertex = true;
 				return sb.createVertexTemplateFromCells([bg1], 16, 16, 'Radio button (off, disabled, dark))');
 			}),
 			this.addEntry(dt + 'radio button off disabled focused dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 48, 48), 'shape=ellipse;labelPosition=right;align=left;strokeColor=none;fillColor=#666666;opacity=10;sketch=0;');
 				bg1.vertex = true;
-				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;');
+				var part1 = new mxCell('', new mxGeometry(16, 16, 16, 16), s2 + 'radiobutton;strokeColor=#666666;fillColor=none;strokeWidth=2;sketch=0;');
 				part1.vertex = true;
 				bg1.insert(part1);
 				return sb.createVertexTemplateFromCells([bg1], 48, 48, 'Radio button (off, disabled, focused, dark))');
 			}),
 			this.addEntry(dt + 'switch on light', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=on;strokeColor=none;fillColor=#0E9D57;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=on;strokeColor=none;fillColor=#0E9D57;sketch=0;');
 				bg1.vertex = true;
 			   	return sb.createVertexTemplateFromCells([bg1], 36, 20, 'Switch (on, light)');
 			}),
 			this.addEntry(dt + 'switch on dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=on;strokeColor=none;fillColor=#80CBC4;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=on;strokeColor=none;fillColor=#80CBC4;sketch=0;');
 				bg1.vertex = true;
 			   	return sb.createVertexTemplateFromCells([bg1], 36, 20, 'Switch (on, dark)');
 			}),
 			this.addEntry(dt + 'switch off light dark', function()
 			{
-				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=off;strokeColor=none;fillColor=#0E9D57;');
+				var bg1 = new mxCell('', new mxGeometry(0, 0, 36, 20), s2 + 'switch;aspect=fixed;switchState=off;strokeColor=none;fillColor=#0E9D57;sketch=0;');
 				bg1.vertex = true;
 			   	return sb.createVertexTemplateFromCells([bg1], 36, 20, 'Switch (off)');
 			})

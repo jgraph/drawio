@@ -6,7 +6,7 @@
 		var gn = 'mxgraph.mscae';
 		var r = 100;
 		var sb = this;
-		var s = 'aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/';
+		var s = 'sketch=0;aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/mscae/';
 		
 		this.setCurrentSearchEntryLibrary('mscae', 'mscaeCompanies');
 		this.addMSCAECompaniesPalette(gn, r, sb, s);
@@ -77,7 +77,7 @@
 					r * 0.5, r * 0.48, '', 'Databricks', null, null, this.getTagsForStencil(gn, 'azure databricks', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'HDInsight.svg;',
 					r * 0.5, r * 0.48, '', 'HDInsight', null, null, this.getTagsForStencil(gn, 'azure hdinsight', dt).join(' ')),
-			this.createVertexTemplateEntry('shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.hockeyapp;fillColor=#0079D6;pointerEvents=1;',
+			this.createVertexTemplateEntry('sketch=0;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.hockeyapp;fillColor=#0079D6;pointerEvents=1;',
 					r * 0.5, r * 0.38, '', 'HockeyApp', null, null, this.getTagsForStencil(gn, 'azure hockey app hockeyapp', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'OpenShift.svg;',	
 					r * 0.5, r * 0.46, '', 'OpenShift', null, null, this.getTagsForStencil(gn, 'azure open shift openshift', dt).join(' ')),
@@ -110,8 +110,8 @@
 
 	Sidebar.prototype.addMSCAEEnterpriseFlatPalette = function(gn, r, sb)
 	{
-		var s = 'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#00188D;shape=mxgraph.';
-		var s2 = 'aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.';
+		var s = 'sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#00188D;shape=mxgraph.';
+		var s2 = 'sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.';
 		var dt = 'ms microsoft cloud enterprise flat';
 		
 		var fns =
@@ -420,8 +420,8 @@
 
 	Sidebar.prototype.addMSCAEIntuneFlatPalette = function(gn, r, sb)
 	{
-		var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.';
-		var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.';
+		var s = 'sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.intune.';
+		var s2 = 'sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.';
 		var dt = 'ms microsoft cloud enterprise intune';
 		
 		var fns =
@@ -529,7 +529,7 @@
 	
 	Sidebar.prototype.addMSCAEOMSFlatPalette = function(gn, r, sb)
 	{
-		var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.oms.';
+		var s = 'sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#505050;shape=mxgraph.mscae.oms.';
 		var dt = 'ms microsoft cloud enterprise oms';
 		
 		var fns =
@@ -587,8 +587,8 @@
 	
 	Sidebar.prototype.addMSCAESystemCenterFlatPalette = function(gn, r, sb)
 	{
-		var s = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.system_center.';
-		var s2 = 'pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.';
+		var s = 'sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.system_center.';
+		var s2 = 'sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;fillColor=#515151;shape=mxgraph.mscae.';
 		var dt = 'ms microsoft cloud enterprise system center';
 		
 		var fns =
@@ -972,7 +972,7 @@
 					r * 0.5, r * 0.5, '', 'Azure AD Identity Protection', null, null, this.getTagsForStencil(gn, 'azure ad identity protection', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Azure_AD_Privileged_Identity_Management.svg;',
 					r * 0.5, r * 0.5, '', 'Azure AD Privileged Identity Management', null, null, this.getTagsForStencil(gn, 'azure ad privileged identity management', dt).join(' ')),
-			this.createVertexTemplateEntry('aspect=fixed;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.azure_rights_management_rms;fillColor=#58B4D9;',
+			this.createVertexTemplateEntry('sketch=0;aspect=fixed;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;align=center;shape=mxgraph.mscae.cloud.azure_rights_management_rms;fillColor=#58B4D9;',
 					r * 0.42, r * 0.5, '', 'Azure Information Protection', null, null, this.getTagsForStencil(gn, 'azure information protection', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Security_Center.svg;',
 					r * 0.36, r * 0.5, '', 'Conditional Access', null, null, this.getTagsForStencil(gn, 'conditional access security center', dt).join(' ')),

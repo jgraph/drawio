@@ -617,7 +617,6 @@ removeFormat=Anulează formatarea
 removeFromGroup=Șterge din grup
 removeIt=Șterge {1}
 removeWaypoint=Șterge reper
-removeUnusedTags=Remove unused tags
 rename=Redenumeşte
 renamed=Redenumit
 renameIt=Redenumeşte {1}

@@ -617,7 +617,6 @@ removeFormat=Alisin ang pagkaka-ayos
 removeFromGroup=Tanggalin mula sa grupo
 removeIt=Tanggalin {1}
 removeWaypoint=Tanggalin ang Waypoint
-removeUnusedTags=Remove unused tags
 rename=Palitan ang Pangalan
 renamed=Napalitan ang Pangalan
 renameIt=Palitan ang Pangalan {1}

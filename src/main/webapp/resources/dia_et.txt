@@ -617,7 +617,6 @@ removeFormat=Tühjenda formaat
 removeFromGroup=Eemalda rühmast
 removeIt=Eemalda {1}
 removeWaypoint=Eemalda kontrollpunkt
-removeUnusedTags=Remove unused tags
 rename=Muuda nime
 renamed=Nimi muudetud
 renameIt=Muuda nime {1}

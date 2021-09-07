@@ -617,7 +617,6 @@ removeFormat=Opmaak wissen
 removeFromGroup=Uit groep verwijderen
 removeIt={1} verwijderen
 removeWaypoint=Tussenpunt verwijderen
-removeUnusedTags=Remove unused tags
 rename=Hernoemen
 renamed=Hernoemd
 renameIt={1} hernoemen

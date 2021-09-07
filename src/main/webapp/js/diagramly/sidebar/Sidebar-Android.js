@@ -114,7 +114,7 @@
 			   	var anchor1 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor1.vertex = true;
 			   	button1.insert(anchor1);
-			   	var radio1 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;');
+			   	var radio1 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
 			   	radio1.vertex = true;
 			   	anchor1.insert(radio1);
 			   	var button2 = new mxCell('Option 2', new mxGeometry(0, 12.5, 165, 12.5), inh + 'shape=transparent;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -123,7 +123,7 @@
 			   	var anchor2 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor2.vertex = true;
 			   	button2.insert(anchor2);
-			   	var radio2 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;');
+			   	var radio2 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
 			   	radio2.vertex = true;
 			   	anchor2.insert(radio2);
 			   	var button3 = new mxCell('Option 3', new mxGeometry(0, 25, 165, 12.5), inh + 'shape=transparent;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -132,7 +132,7 @@
 			   	var anchor3 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor3.vertex = true;
 			   	button3.insert(anchor3);
-			   	var radio3 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), 'shape=ellipse;strokeColor=inherit;resizable=0;fillColor=#33b5e5;html=1;');
+			   	var radio3 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), 'shape=ellipse;strokeColor=inherit;resizable=0;fillColor=#33b5e5;html=1;sketch=0;');
 			   	radio3.vertex = true;
 			   	anchor3.insert(radio3);
 			   	var button4 = new mxCell('Option 4', new mxGeometry(0, 37.5, 165, 12.5), inh + 'shape=transparent;align=left;spacingLeft=10;fontSize=8;fontColor=#33b5e5;');
@@ -141,23 +141,23 @@
 			   	var anchor4 = new mxCell('', new mxGeometry(0, 6, 0, 0), inh + 'shape=transparent;');
 			   	anchor4.vertex = true;
 			   	button4.insert(anchor4);
-			   	var radio4 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;');
+			   	var radio4 = new mxCell('', new mxGeometry(2.5, -2.5, 5, 5), inh + 'shape=ellipse;resizable=0;html=1;sketch=0;');
 			   	radio4.vertex = true;
 			   	anchor4.insert(radio4);
 	
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Radiobuttons');
 			}),
 						
-			this.createVertexTemplateEntry(s2 + 'contact_badge_focused;', 40, 40, '', 'Contact Badge Focused', null, null, dt + 'contact badge focused'),
-			this.createVertexTemplateEntry(s2 + 'contact_badge_focused;', 60, 60, '', 'Contact Badge Focused', null, null, dt + 'contact badge focused'),
-			this.createVertexTemplateEntry(s2 + 'contact_badge_normal;', 40, 40, '', 'Contact Badge Normal', null, null, dt + 'contact badge normal'),
-			this.createVertexTemplateEntry(s2 + 'contact_badge_normal;', 60, 60, '', 'Contact Badge Normal', null, null, dt + 'contact badge normal'),
-			this.createVertexTemplateEntry(s2 + 'contact_badge_pressed;', 40, 40, '', 'Contact Badge Pressed', null, null, dt + 'contact badge pressed'),
-			this.createVertexTemplateEntry(s2 + 'contact_badge_pressed;', 60, 60, '', 'Contact Badge Pressed', null, null, dt + 'contact badge pressed'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_focused;sketch=0;', 40, 40, '', 'Contact Badge Focused', null, null, dt + 'contact badge focused'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_focused;sketch=0;', 60, 60, '', 'Contact Badge Focused', null, null, dt + 'contact badge focused'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_normal;sketch=0;', 40, 40, '', 'Contact Badge Normal', null, null, dt + 'contact badge normal'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_normal;sketch=0;', 60, 60, '', 'Contact Badge Normal', null, null, dt + 'contact badge normal'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_pressed;sketch=0;', 40, 40, '', 'Contact Badge Pressed', null, null, dt + 'contact badge pressed'),
+			this.createVertexTemplateEntry(s2 + 'contact_badge_pressed;sketch=0;', 60, 60, '', 'Contact Badge Pressed', null, null, dt + 'contact badge pressed'),
 
 			this.addEntry(dt + 'contextual action bar dark portrait', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 185, 30), s + 'contextual_action_bar;fillColor=#002E3E;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 185, 30), s + 'contextual_action_bar;fillColor=#002E3E;sketch=0;');
 			   	bg.vertex = true;
 			   	var text1 = new mxCell('Action', new mxGeometry(40, 0, 100, 30), 'shape=transparent;align=left;fontStyle=1;fontColor=#ffffff;');
 			   	text1.vertex = true;
@@ -179,7 +179,7 @@
 
 			this.addEntry(dt + 'contextual action bar landscape dark', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 320, 30), s + 'contextual_action_bar_landscape;fillColor=#002E3E;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 320, 30), s + 'contextual_action_bar_landscape;fillColor=#002E3E;sketch=0;');
 			   	bg.vertex = true;
 			   	var text1 = new mxCell('Action', new mxGeometry(40, 0, 100, 30), 'shape=transparent;align=left;fontStyle=1;fontColor=#ffffff;');
 			   	text1.vertex = true;
@@ -259,7 +259,7 @@
 					149, 5, '', 'Indeterminate Progress Bar', null, null, dt + 'indeterminate progress bar'),
 			this.createVertexTemplateEntry(s2 + 'indeterminateSpinner;', 
 					50, 50, '', 'Indeterminate Spinner', null, null, dt + 'indeterminate spinner'),
-			this.createVertexTemplateEntry(s2 + 'keyboard;', 
+			this.createVertexTemplateEntry(s2 + 'keyboard;sketch=0;', 
 					185, 100, '', 'Keyboard', null, null, dt + 'keyboard'),
 					
 			this.addEntry(dt + 'menu bar', function()
@@ -302,25 +302,25 @@
 	   			return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Menu bar');
 			}),				
 				
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_1;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_1;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar portrait horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_1_landscape;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_1_landscape;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					320, 30, '', 'Navigation Bar Landscape', null, null, dt + 'navigation bar landscape horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_1_vertical;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_1_vertical;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					30, 320, '', 'Navigation Bar Vertical', null, null, dt + 'navigation bar vertical'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_2;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_2;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_3;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_3;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar portrait horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_3_landscape;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_3_landscape;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					320, 30, '', 'Navigation Bar Landscape', null, null, dt + 'navigation bar landscape horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_4;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_4;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_5;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_5;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar horizontal'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_5_vertical;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_5_vertical;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					30, 320, '', 'Navigation Bar Vertical', null, null, dt + 'navigation bar vertical'),
-			this.createVertexTemplateEntry(s6 + 'navigation_bar_6;fillColor=#1A1A1A;strokeColor=#999999;', 
+			this.createVertexTemplateEntry(s6 + 'navigation_bar_6;fillColor=#1A1A1A;strokeColor=#999999;sketch=0;', 
 					185, 30, '', 'Navigation Bar', null, null, dt + 'navigation bar horizontal'),
 			this.createVertexTemplateEntry(s2 + 'progressBar;strokeColor=#33b5e5;dx1=0.8;dx2=0.6;strokeWidth=2;', 
 					185, 5, '', 'Progress Bar', null, null, dt + 'progress bar'),
@@ -338,7 +338,7 @@
 					
 			this.addEntry(dt + 'quick contact', function()
 			{
-			   	var bg = new mxCell('', new mxGeometry(0, 0, 150, 165), s + 'quick_contact;');
+			   	var bg = new mxCell('', new mxGeometry(0, 0, 150, 165), s + 'quick_contact;sketch=0;');
 			   	bg.vertex = true;
 			   	var text1 = new mxCell('Name', new mxGeometry(0, 65, 150, 18), s + 'anchor;rSize=0;fontStyle=1;fontColor=#FFFFFF;');
 			   	text1.vertex = true;
@@ -501,17 +501,17 @@
 	   			return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Split Action Bar Landscape (Bright)');
 			}),
 
-			this.createVertexTemplateEntry(s + 'statusBar;align=center;fillColor=#000000;strokeColor=#ffffff;fontColor=#ffffff;fontSize=10;', 
+			this.createVertexTemplateEntry(s + 'statusBar;align=center;fillColor=#000000;strokeColor=#ffffff;fontColor=#ffffff;fontSize=10;sketch=0;', 
 					sizeX * 0.87, sizeY * 0.0375, '', 'Status bar (portrait)', null, null, dt + 'status bar portrait'),
-			this.createVertexTemplateEntry(s + 'statusBar;align=center;fillColor=#000000;strokeColor=#ffffff;fontColor=#ffffff;fontSize=10;', 
+			this.createVertexTemplateEntry(s + 'statusBar;align=center;fillColor=#000000;strokeColor=#ffffff;fontColor=#ffffff;fontSize=10;sketch=0;', 
 					sizeX * 1.517, sizeY * 0.0375, '', 'Status bar (landscape)', null, null, dt + 'status bar landscape'),
-			this.createVertexTemplateEntry(s2 + 'switch_off;fillColor=#666666;', 
+			this.createVertexTemplateEntry(s2 + 'switch_off;fillColor=#666666;sketch=0;', 
 					80, 20, '', 'Switch Off', null, null, dt + 'switch off'),
-			this.createVertexTemplateEntry(s2 + 'switch_off;fillColor=#E6E6E6;', 
+			this.createVertexTemplateEntry(s2 + 'switch_off;fillColor=#E6E6E6;sketch=0;', 
 					80, 20, '', 'Switch Off', null, null, dt + 'switch off'),
-			this.createVertexTemplateEntry(s2 + 'switch_on;fillColor=#666666;', 
+			this.createVertexTemplateEntry(s2 + 'switch_on;fillColor=#666666;sketch=0;', 
 					80, 20, '', 'Switch On', null, null, dt + 'switch on'),
-			this.createVertexTemplateEntry(s2 + 'switch_on;fillColor=#E6E6E6;', 
+			this.createVertexTemplateEntry(s2 + 'switch_on;fillColor=#E6E6E6;sketch=0;', 
 					80, 20, '', 'Switch On', null, null, dt + 'switch on'),
 			this.addDataEntry(dt + 'tab tabulator bar dark', 185, 30, 'Tab Bar Dark',
 				'3ZZfb8IgEMA/Da8NhdY/r+02n/bkkj1jQSGjxVCc7T79KMVpp81qnG6RhIS744D7cVwAOM2rmSZr/qwokwA/ApxqpUw7yquUSQkQFBTgB4AQtB2gpx5r6KxwTTQrzBAH1Dq8E7lhraZVlKaWXlEard7Yq6CGW0UIcMJNLv2w5ISqrRWgFSgpOaNesJZ1s0JerZroAlJQrQQNtGaZPVqi5+KD+blLIWWqpNJuRxy51qzhtt5ZClVYh8SfmGnDqt6oncqHPGMqZ0bXdsrWR9HMmMStG2dixb0bbmlBUrby6st1z9AOPMbTSPER0heysIrw2mRJkfEGVLJUhZn7bUIvH+BdujaUJPqRZDQK0JVYRj0s/yZLv2PtZi2E02mW9WXtNe6gOuJ/m1uJ/2PRwHgRs/iiohGdxlz7SxgPZnw54lFP4uO7KiLeYYqCm+bvuAdudI9wQzwJxjfFOxlQHjwgKdzr7D7ZQwBUNC9fqMLqS7VpTv87UMJdytWdmnb4QYDHeND5eKy4/845W+e39wk='),
@@ -532,9 +532,9 @@
 					20, 30, '', 'Text Insertion Point', null, null, dt + 'textfield insertion point'),
 			this.createVertexTemplateEntry(s2 + 'textSelHandles;fillColor=#33b5e5;strokeColor=#0099cc;', 
 					sizeX * 0.8, sizeY * 0.1, '', 'Text Selection Handles', null, null, dt + 'text selection handle'),
-			this.createVertexTemplateEntry(s2 + 'time_picker;', 
+			this.createVertexTemplateEntry(s2 + 'time_picker;sketch=0;', 
 					150, 230, '', 'Time Picker (Bright)', null, null, dt + 'time picker bright'),
-			this.createVertexTemplateEntry(s2 + 'time_picker_dark;', 
+			this.createVertexTemplateEntry(s2 + 'time_picker_dark;sketch=0;', 
 					150, 230, '', 'Time Picker (Dark)', null, null, dt + 'time picker dark'),
 			this.createVertexTemplateEntry(s3 + 'rect;fillColor=#33b5e5;', 
 					50, 50, '', 'Color', null, null, dt + 'color'),

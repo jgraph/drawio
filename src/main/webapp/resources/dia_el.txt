@@ -617,7 +617,6 @@ removeFormat=Καθαρισμός μορφοποίησης
 removeFromGroup=Αφαίρεση από ομάδα
 removeIt=Αφαίρεση {1}
 removeWaypoint=Αφαίρεση σημείου αναφοράς
-removeUnusedTags=Remove unused tags
 rename=Μετονομασία
 renamed=Μετονομάσθηκε
 renameIt=Μετονομασία {1}

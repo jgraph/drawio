@@ -617,7 +617,6 @@ removeFormat=Kosongkan Format
 removeFromGroup=Buang daripada Kumpulan
 removeIt=Buang {1}
 removeWaypoint=Buang Titik Arah
-removeUnusedTags=Remove unused tags
 rename=Namakan semula
 renamed=Telah dinamakan semula
 renameIt=Namakan semula {1}
