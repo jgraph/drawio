@@ -9402,6 +9402,12 @@ LucidImporter = {};
 				switch (p.bpmnDataType)
 				{
 					case 0:
+						v.value = convertText(p.Text);
+						
+						if (p.Text && !p.Text.t)
+						{
+							p.Text.t = ' '; //Such that Title is catched and added later!
+						}
 						break;
 					case 1:
 						var item1 = new mxCell('', new mxGeometry(0.5, 1, 12, 10), 'shape=parallelMarker;part=1;');
@@ -13528,7 +13534,8 @@ LucidImporter = {};
 			try
 			{
 				var geo = v.geometry;
-				var title = new mxCell(convertText(p.Title), new mxGeometry(0, geo.height,geo.width, 10), 'strokeColor=none;fillColor=none;');
+				var title = new mxCell(convertText(p.Title), new mxGeometry(0, geo.height + 4,geo.width, 10), 
+								'strokeColor=none;fillColor=none;whiteSpace=wrap;verticalAlign=top;labelPosition=center;verticalLabelPosition=top;align=center;');
 				title.vertex = true;
 				v.insert(title);
 				v.style += getLabelStyle(p.Title, isLastLblHTML);

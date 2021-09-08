@@ -4736,7 +4736,7 @@
 			graph.refresh();
 		});
 		
-		resetBtn.setAttribute('title', mxResources.get('add'));
+		resetBtn.setAttribute('title', mxResources.get('reset'));
 		resetBtn.className = 'geBtn';
 		resetBtn.style.marginRight = '4px';
 		resetBtn.marginTop = '8px';
