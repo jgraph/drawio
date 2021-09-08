@@ -4910,19 +4910,21 @@
 							td.style.whiteSpace = 'nowrap';
 							td.style.textOverflow = 'ellipsis';
 							td.style.verticalAlign = 'middle';
+							td.style.cursor = 'pointer';
+							td.setAttribute('title', tag);
 	
 							a = document.createElement('a');
 							mxUtils.write(a, tag);
-							a.setAttribute('title', tag);
 							a.style.textOverflow = 'ellipsis';
 							a.style.position = 'relative';
-							a.style.cursor = 'pointer';
+							mxUtils.setOpacity(a, visible ? 100 : 40);
 							td.appendChild(a);
 	
-							mxEvent.addListener(a, 'click', (function(evt)
+							mxEvent.addListener(td, 'click', (function(evt)
 							{
 								if (mxEvent.isShiftDown(evt))
 								{
+									setAllVisible(true);
 									selectCells();	
 								}
 								else
@@ -4940,8 +4942,9 @@
 								mxEvent.consume(evt);
 							}));
 
-							mxEvent.addListener(a, 'dblclick', function(evt)
+							mxEvent.addListener(td, 'dblclick', function(evt)
 							{
+								setAllVisible(true);
 								selectCells();
 								mxEvent.consume(evt);
 							});
@@ -4962,7 +4965,7 @@
 		
 									var img = document.createElement('img');
 									img.setAttribute('src', Editor.clearImage);
-									img.setAttribute('title', mxResources.get('delete'));
+									img.setAttribute('title', mxResources.get('removeIt', [tag]));
 									mxUtils.setOpacity(img, visible ? 75 : 25);
 									img.style.verticalAlign = 'middle';
 									img.style.cursor = 'pointer';
@@ -5002,7 +5005,8 @@
 										mxUtils.indexOf(selected, tag) >= 0);
 									cb2.checked = cb2.defaultChecked;
 									cb2.style.background = 'transparent';
-									cb2.setAttribute('title', mxResources.get(cb2.defaultChecked ?
+									cb2.setAttribute('title', mxResources.get(
+										cb2.defaultChecked ?
 										'removeIt' : 'add', [tag]));
 		
 									mxEvent.addListener(cb2, 'change', function(evt)
@@ -5126,8 +5130,8 @@
 					this.tagsComponent.div.getElementsByTagName('div')[0].style.position = '';
 					this.tagsComponent.div.className = 'geScrollable';
 					this.tagsComponent.div.style.maxHeight = '160px';
-					this.tagsComponent.div.style.maxWidth = '160px';
-					this.tagsComponent.div.style.padding = '8px';
+					this.tagsComponent.div.style.maxWidth = '120px';
+					this.tagsComponent.div.style.padding = '4px';
 					this.tagsComponent.div.style.overflow = 'auto';
 					this.tagsComponent.div.style.height = 'auto';
 				}
@@ -5825,7 +5829,7 @@
 		var file = this.getCurrentFile();
 		var addTitle = true;
 		var data = '';
-		
+
 		if (url != null)
 		{
 			data = '#U' + encodeURIComponent(url);
@@ -6200,9 +6204,13 @@
 		
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		layers.style.marginLeft = edit.style.marginLeft;
-		layers.style.marginBottom = '16px';
 		layers.style.marginTop = '8px';
-		
+				
+		var tags = this.addCheckbox(div, mxResources.get('tags'), true);
+		tags.style.marginLeft = edit.style.marginLeft;
+		tags.style.marginBottom = '16px';
+		tags.style.marginTop = '16px';
+
 		mxEvent.addListener(lightbox, 'change', function()
 		{
 			if (lightbox.checked)
@@ -6232,9 +6240,9 @@
 				(allPages == null) ? true : allPages.checked,
 				lightbox.checked, editSection.getLink(),
 				layers.checked, (widthInput != null) ? widthInput.value : null,
-				(heightInput != null) ? heightInput.value : null);
+				(heightInput != null) ? heightInput.value : null, tags.checked);
 		}), null, mxResources.get('create'), helpLink);
-		this.showDialog(dlg.container, 340, 260 + dy, true, true);
+		this.showDialog(dlg.container, 340, 300 + dy, true, true);
 		
 		if (widthInput != null)
 		{
@@ -6516,7 +6524,7 @@
 			div.appendChild(linkSelect);
 			mxUtils.br(div);
 			mxUtils.br(div);
-			height += 26;
+			height += 40;
 		}
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
@@ -9558,7 +9566,8 @@
 
 					for (var i = 0; i < patches.length; i++)
 					{
-						if (patches[i][EditorUi.DIFF_UPDATE][id] != null)
+						if (patches[i][EditorUi.DIFF_UPDATE] != null &&
+							patches[i][EditorUi.DIFF_UPDATE][id] != null)
 						{
 							graph.refreshBackgroundImage();
 							graph.view.validateBackgroundImage();

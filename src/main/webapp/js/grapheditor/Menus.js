@@ -850,9 +850,9 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 /**
  * Adds a style change item to the given menu.
  */
-Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, parent, reset)
+Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, parent, reset, image)
 {
-	return this.showIconOnly(menu.addItem(label, null, mxUtils.bind(this, function()
+	return this.showIconOnly(menu.addItem(label, image, mxUtils.bind(this, function()
 	{
 		var graph = this.editorUi.editor.graph;
 		graph.stopEditing(false);
@@ -891,7 +891,8 @@ Menus.prototype.edgeStyleChange = function(menu, label, keys, values, sprite, pa
 				}
 			}
 			
-			this.editorUi.fireEvent(new mxEventObject('styleChanged', 'keys', keys,
+			this.editorUi.fireEvent(new mxEventObject(
+				'styleChanged', 'keys', keys,
 				'values', values, 'cells', edges));
 		}
 		finally
@@ -1296,14 +1297,21 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			if (handler instanceof mxEdgeHandler && handler.bends != null && handler.bends.length > 2)
 			{
 				var index = handler.getHandleForEvent(graph.updateMouseEvent(new mxMouseEvent(evt)));
-				
-				// Configures removeWaypoint action before execution
-				// Using trigger parameter is cleaner but have to find waypoint here anyway.
-				var rmWaypointAction = this.editorUi.actions.get('removeWaypoint');
-				rmWaypointAction.handler = handler;
-				rmWaypointAction.index = index;
 
-				isWaypoint = index > 0 && index < handler.bends.length - 1;
+				// Ignores ghosted and virtual waypoints
+				if (index > 0 && index < handler.bends.length - 1 &&
+					(handler.bends[index] == null ||
+					handler.bends[index].node == null ||
+					handler.bends[index].node.style.opacity == ''))
+				{
+					// Configures removeWaypoint action before execution
+					// Using trigger parameter is cleaner but have to find waypoint here anyway.
+					var rmWaypointAction = this.editorUi.actions.get('removeWaypoint');
+					rmWaypointAction.handler = handler;
+					rmWaypointAction.index = index;
+
+					isWaypoint = true;
+				}
 			}
 			
 			menu.addSeparator();

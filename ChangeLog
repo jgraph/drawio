@@ -1,3 +1,17 @@
+08-SEP-2021: 15.1.2
+
+- Adds tags option for export to lightbox
+- Adds SVG icons for some markers
+- Ignores ghosted waypoints in context menu
+- Fixes edge context menu on some devices https://github.com/jgraph/drawio/issues/DID-3284
+- Adds tags in view menu
+- Makes tags case-sensitive
+- Moves tag click handler to table cell
+- Moves tag double click handler to table cell
+- Shows all tags after double click or shift click
+- Fixes initial dialog size
+- Fixes scrollbar in dialog
+
 07-SEP-2021: 15.1.1
 
 - Uses SVG for large toolbar icons

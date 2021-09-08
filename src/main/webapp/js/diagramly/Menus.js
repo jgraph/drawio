@@ -336,10 +336,17 @@
 		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
 		{
 			editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-				function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 			{
-				var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
-					linkColor, allPages, lightbox, editLink, layers, null, true));
+				var params = [];
+
+				if (tags)
+				{
+					params.push('tags={}');
+				}
+
+				var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
+					allPages, lightbox, editLink, layers, null, true, params));
 				editorUi.showDialog(dlg.container, 440, 240, true, true);
 				dlg.init();
 			});
@@ -901,7 +908,7 @@
 		{
 			if (this.tagsWindow == null)
 			{
-				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 250, 270);
+				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 220, 220);
 				this.tagsWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
@@ -2059,17 +2066,23 @@
 			
 			editorUi.showPublishLinkDialog(mxResources.get('iframe'), null, '100%',
 				Math.ceil(bounds.height / graph.view.scale) + 2,
-				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
 					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 					{
 						editorUi.spinner.stop();
+						var params = [];
+
+						if (tags)
+						{
+							params.push('tags={}');
+						}
 						
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 							';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
-							allPages, lightbox, editLink, layers, url) + '"></iframe>');
+							allPages, lightbox, editLink, layers, url, null, params) + '"></iframe>');
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -2080,16 +2093,22 @@
 		editorUi.actions.put('embedNotion', new Action(mxResources.get('notion') + '...', function()
 		{
 			editorUi.showPublishLinkDialog(mxResources.get('notion'), null, null, null,
-				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
 					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 					{
 						editorUi.spinner.stop();
-						
+						var params = ['border=0'];
+
+						if (tags)
+						{
+							params.push('tags={}');
+						}
+
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-							allPages, lightbox, editLink, layers, url, null, ['border=0'], true));
+							allPages, lightbox, editLink, layers, url, null, params, true));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -2100,15 +2119,23 @@
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()
 		{
 			editorUi.showPublishLinkDialog(null, null, null, null,
-				function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 			{
 				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
 				{
 					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
 					{
 						editorUi.spinner.stop();
-						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget,
-							linkColor, allPages, lightbox, editLink, layers, url));
+						
+						var params = [];
+
+						if (tags)
+						{
+							params.push('tags={}');
+						}
+
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
+							allPages, lightbox, editLink, layers, url, null, params));
 						editorUi.showDialog(dlg.container, 440, 240, true, true);
 						dlg.init();
 					});
@@ -3538,7 +3565,7 @@
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
-				concat(['outline', 'layers']).concat((editorUi.commentsSupported()) ?
+				concat(['outline', 'layers', 'tags']).concat((editorUi.commentsSupported()) ?
 				['comments', '-'] : ['-']));
 			
 			this.addMenuItems(menu, ['-', 'search'], parent);

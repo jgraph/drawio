@@ -6679,7 +6679,7 @@
 		}
 		else
 		{
-			var tmp = tags.toLowerCase().split(' ');
+			var tmp = tags.split(' ');
 
 			if (tmp.length > this.hiddenTags.length)
 			{
@@ -6719,7 +6719,7 @@
 			{
 				if (tagList[i].length > 0)
 				{
-					lookup[tagList[i].toLowerCase()] = true;
+					lookup[tagList[i]] = true;
 					tagCount++;
 				}
 			}
@@ -6734,7 +6734,7 @@
 	
 					if (tags.length > 0)
 					{
-						var tmp = tags.toLowerCase().split(' ');
+						var tmp = tags.split(' ');
 						
 						if (tmp.length >= tagList.length)
 						{
@@ -6788,7 +6788,7 @@
  
 			if (tags.length > 0)
 			{
-				var tokens = tags.toLowerCase().split(' ');
+				var tokens = tags.split(' ');
 				var temp = {};
 				 
 				for (var j = 0; j < tokens.length; j++)
@@ -6825,7 +6825,7 @@
 
 			if (tags.length > 0)
 			{
-				var t = tags.toLowerCase().split(' ');
+				var t = tags.split(' ');
 				
 				for (var j = 0; j < t.length; j++)
 				{
@@ -6863,7 +6863,7 @@
 				for (var i = 0; i < cells.length; i++)
 				{
 					var temp = this.getTagsForCell(cells[i]);
-					var tags = temp.toLowerCase().split(' ');
+					var tags = temp.split(' ');
 					var changed = false;
 		
 					for (var j = 0; j < tagList.length; j++)

@@ -10502,21 +10502,23 @@ if (typeof mxVertexHandler != 'undefined')
 			// selecting parent for selected children in groups before this check can be made.
 			this.popupMenuHandler.mouseUp = mxUtils.bind(this, function(sender, me)
 			{
+				var isMouseEvent = mxEvent.isMouseEvent(me.getEvent());
 				this.popupMenuHandler.popupTrigger = !this.isEditing() && this.isEnabled() &&
 					(me.getState() == null || !me.isSource(me.getState().control)) &&
-					(this.popupMenuHandler.popupTrigger || (!menuShowing && !mxEvent.isMouseEvent(me.getEvent()) &&
+					(this.popupMenuHandler.popupTrigger || (!menuShowing && !isMouseEvent &&
 					((selectionEmpty && me.getCell() == null && this.isSelectionEmpty()) ||
 					(cellSelected && this.isCellSelected(me.getCell())))));
 
 				// Delays popup menu to allow for double tap to start editing
-				var popup = (!cellSelected) ? null : mxUtils.bind(this, function()
+				var popup = (!cellSelected || isMouseEvent) ? null : mxUtils.bind(this, function(cell)
 				{
-					window.setTimeout(mxUtils.bind(this, function(cell)
+					window.setTimeout(mxUtils.bind(this, function()
 					{
 						if (!this.isEditing())
 						{
 							var origin = mxUtils.getScrollOrigin();
-							this.popupMenuHandler.popup(me.getX() + origin.x + 1, me.getY() + origin.y + 1, cell, me.getEvent());
+							this.popupMenuHandler.popup(me.getX() + origin.x + 1,
+								me.getY() + origin.y + 1, cell, me.getEvent());
 						}
 					}), 500);
 				});
