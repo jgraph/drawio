@@ -26,7 +26,7 @@ GraphViewer.prototype.imageBaseUrl = 'https://viewer.diagrams.net/';
 /**
  * Redirects editing to absolue URLs.
  */
-GraphViewer.prototype.toolbarHeight = (document.compatMode == 'BackCompat') ? 28 : 30;
+GraphViewer.prototype.toolbarHeight = (document.compatMode == 'BackCompat') ? 24 : 26;
 
 /**
  * Redirects editing to absolue URLs.
@@ -138,6 +138,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 		this.graphConfig.toolbar.split(' ') : [];
 	this.zoomEnabled = mxUtils.indexOf(this.toolbarItems, 'zoom') >= 0;
 	this.layersEnabled = mxUtils.indexOf(this.toolbarItems, 'layers') >= 0;
+	this.tagsEnabled = mxUtils.indexOf(this.toolbarItems, 'tags') >= 0;
 	this.lightboxEnabled = mxUtils.indexOf(this.toolbarItems, 'lightbox') >= 0;
 	this.lightboxClickEnabled = this.graphConfig.lightbox != false;
 	this.initialWidth = (container != null) ? container.style.width : null;
@@ -1340,7 +1341,8 @@ GraphViewer.prototype.addToolbar = function()
 	};
 
 	var layersDialog = null;
-	var layersDialogEntered = false;
+	var tagsComponent = null;
+	var tagsDialog = null;
 	var pageInfo = null;
 	
 	for (var i = 0; i < tokens.length; i++)
@@ -1350,8 +1352,8 @@ GraphViewer.prototype.addToolbar = function()
 		if (token == 'pages')
 		{
 			pageInfo = container.ownerDocument.createElement('div');
-			pageInfo.style.cssText = 'display:inline-block;position:relative;padding:3px 4px 0 4px;' +
-				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;top:4px;cursor:default;'
+			pageInfo.style.cssText = 'display:inline-block;position:relative;top:5px;padding:0 4px 0 4px;' +
+				'vertical-align:top;font-family:Helvetica,Arial;font-size:12px;;cursor:default;'
 			mxUtils.setOpacity(pageInfo, 70);
 			
 			var prevButton = addButton(mxUtils.bind(this, function()
@@ -1473,7 +1475,7 @@ GraphViewer.prototype.addToolbar = function()
 						layersDialog.style.padding = '2px 0px 2px 0px';
 						layersDialog.style.border = '1px solid #d0d0d0';
 						layersDialog.style.backgroundColor = '#eee';
-						layersDialog.style.fontFamily = 'Helvetica Neue,Helvetica,Arial Unicode MS,Arial';
+						layersDialog.style.fontFamily = Editor.defaultHtmlFont;
 						layersDialog.style.fontSize = '11px';
 						layersDialog.style.zIndex = this.toolbarZIndex + 1;
 						mxUtils.setOpacity(layersDialog, 80);
@@ -1491,6 +1493,67 @@ GraphViewer.prototype.addToolbar = function()
 				});
 				
 				layersButton.style.display = (model.getChildCount(model.root) > 1) ? 'inline-block' : 'none';
+			}
+		}
+		else if (token == 'tags')
+		{
+			if (this.tagsEnabled)
+			{
+				var tagsButton = addButton(mxUtils.bind(this, function(evt)
+				{
+					if (tagsComponent == null)
+					{
+						tagsComponent = this.graph.createTagsDialog(mxUtils.bind(this, function()
+						{
+							return true;
+						}));
+
+						tagsComponent.div.getElementsByTagName('div')[0].style.position = '';
+						tagsComponent.div.style.maxHeight = '160px';
+						tagsComponent.div.style.maxWidth = '120px';
+						tagsComponent.div.style.padding = '2px';
+						tagsComponent.div.style.overflow = 'auto';
+						tagsComponent.div.style.height = 'auto';
+						tagsComponent.div.style.position = 'fixed';
+						tagsComponent.div.style.fontFamily = Editor.defaultHtmlFont;
+						tagsComponent.div.style.fontSize = '11px';
+						tagsComponent.div.style.backgroundColor = '#eee';
+						tagsComponent.div.style.color = '#000';
+						tagsComponent.div.style.border = '1px solid #d0d0d0';
+						tagsComponent.div.style.zIndex = this.toolbarZIndex + 1;
+						mxUtils.setOpacity(tagsComponent.div, 80);
+					}
+
+					if (tagsDialog != null)
+					{
+						tagsDialog.parentNode.removeChild(tagsDialog);
+						tagsDialog = null;
+					}
+					else
+					{
+						tagsDialog = tagsComponent.div;
+						
+						mxEvent.addListener(tagsDialog, 'mouseleave', function()
+						{
+							tagsDialog.parentNode.removeChild(tagsDialog);
+							tagsDialog = null;
+						});
+						
+						var r = tagsButton.getBoundingClientRect();
+						var origin = mxUtils.getDocumentScrollOrigin(document);
+						tagsDialog.style.left = origin.x + r.left - 1 + 'px';
+						tagsDialog.style.top = origin.y + r.bottom - 2 + 'px';
+						document.body.appendChild(tagsDialog);
+						tagsComponent.refresh();
+					}
+				}), Editor.tagsImage, mxResources.get('tags') || 'Tags');
+
+				model.addListener(mxEvent.CHANGE, function()
+				{
+					tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
+				});
+				
+				tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
 			}
 		}
 		else if (token == 'lightbox')
@@ -1748,14 +1811,19 @@ GraphViewer.prototype.showLightbox = function(editable, closable, target)
 		    
 			if (closable)
 			{
-		    		param.close = 1;
+		    	param.close = 1;
 			}
 
 			if (this.layersEnabled)
 			{
-		    		param.layers = 1;
+		    	param.layers = 1;
 			}
 			
+			if (this.tagsEnabled)
+			{
+		    	param.tags = {};
+			}
+
 			if (this.graphConfig != null && this.graphConfig.nav != false)
 			{
 				param.nav = 1;
@@ -1840,6 +1908,11 @@ GraphViewer.prototype.showLocalLightbox = function()
 														? this.graphConfig.layerIds.join(' ') : null;
 	urlParams['nav'] = (this.graphConfig.nav != false) ? '1' : '0';
 	urlParams['layers'] = (this.layersEnabled) ? '1' : '0';
+
+	if (this.tagsEnabled)
+	{
+		urlParams['tags'] = '{}';
+	}
 
 	// PostMessage not working and Permission denied for opened access in IE9-
 	if (document.documentMode == null || document.documentMode >= 10)

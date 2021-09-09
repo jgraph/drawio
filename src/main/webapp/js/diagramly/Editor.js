@@ -106,7 +106,7 @@
 	/**
 	 * Used in the GraphViewer lightbox.
 	 */
-	Editor.closeImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/delete.png' : 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAMAAADzN3VRAAAApVBMVEUAAAD////k5OT///8AAAB1dXXMzMz9/f39/f37+/v5+fn+/v7///9iYmJaWlqFhYWnp6ejo6OHh4f////////////////7+/v5+fnx8fH///8AAAD///8bGxv7+/v5+fkoKCghISFDQ0MYGBjh4eHY2Njb29tQUFBvb29HR0c/Pz82NjYrKyu/v78SEhLu7u7s7OzV1dVVVVU7OzsVFRXAv78QEBBzqehMAAAAG3RSTlMAA/7p/vz5xZlrTiPL/v78+/v7+OXd2TYQDs8L70ZbAAABKUlEQVQoz3VS13LCMBBUXHChd8iukDslQChJ/v/TchaG4cXS+OSb1c7trU7V60OpdRz2ZtNZL4zXNlcN8BEtSG6+NxIXkeRPoBuQ1cjvZ31/VJFB10ISli6diYfH8iYO3WUNCcNlB0gTrXOtkxTo0O1aKKiBBMhhv2MNBQKoiA5wxlZo0JDzD3AYKbWacyj3fs01wxey0pyEP+R8pWKWXoqtIZ0DDg5pbki9krEKOa6LVDQsdoXEsi46Zqh69KFz7B1u7Hb2yDV8firXDKBlZ4UFiswKGRhXTS93/ECK7yxnJ3+S3y/ThpO+cfSD017nqa18aasabU0/t7d+tk0/1oMEJ1NaD67iwdF68OabFSLn+eHb0+vjy+uk8br9fdrftH0O2menfd7+AQfYM/lNjoDHAAAAAElFTkSuQmCC';
+	Editor.closeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjZweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjZweCI+PGVsbGlwc2UgY3g9IjEyIiBjeT0iMTIiIHJ4PSI5IiByeT0iOSIgc3Ryb2tlPSJub25lIiBmaWxsPSIjMDAwIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0LjU5IDhMMTIgMTAuNTkgOS40MSA4IDggOS40MSAxMC41OSAxMiA4IDE0LjU5IDkuNDEgMTYgMTIgMTMuNDEgMTQuNTkgMTYgMTYgMTQuNTkgMTMuNDEgMTIgMTYgOS40MSAxNC41OSA4ek0xMiAyQzYuNDcgMiAyIDYuNDcgMiAxMnM0LjQ3IDEwIDEwIDEwIDEwLTQuNDcgMTAtMTBTMTcuNTMgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggOHoiLz48L3N2Zz4=';
 
 	/**
 	 * 
@@ -169,44 +169,34 @@
 	Editor.facebookImage = IMAGE_PATH + '/facebook.png';
 
 	/**
-	 * Blank 1x1 pixel transparent PNG image.
+	 *
 	 */
 	Editor.blankImage = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==';
 
 	/**
-	 * Blank 1x1 pixel transparent PNG image.
+	 *
 	 */
 	Editor.hiResImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA+CAMAAACLMWy1AAAAh1BMVEUAAABMTExERERBQUFBQUFFRUVAQEBCQkJAQEA6OjpDQ0NKSkpBQUFBQUFERERERERBQUFCQkJCQkJCQkJJSUlBQUFCQkJDQ0NDQ0NCQkJDQ0NBQUFBQUFCQkJBQUFCQkJCQkJDQ0NCQkJHR0dBQUFCQkJCQkJAQEBCQkJDQ0NAQEBERERCQkIk1hS2AAAAKnRSTlMAAjj96BL7PgQFRwfu3TYazKuVjRXl1V1DPCn1uLGjnWNVIgy9hU40eGqPkM38AAACG0lEQVRYw+2X63KbMBCFzwZblgGDceN74muatpLe//m6MHV3gHGFAv2RjM94MAbxzdnVsQbBDKwH8AH8MDAyafzjqYeyOG04XE7RS8nIRDXg6BlT+rA0nmtAPh+NQRDxIASIMG44rAMrGunBgHwy3uUldxggIStGKp2f+DQc2O4h4eQsX3O2IFB/oEbsjOKbStnjAEA+zJ0ylZTbgvoDn8xNyn6Dbj5Kd4GsNpABa6duQPfSdEj88TgMAhKuCWjAkgmFXPLnsD0pWd3OFGdrMugQII/eOMPEiGOzqPMIeWrcSoMCg71W1pXBPvCP+gS/OdXqQ3uW23+93XGWLl/OaBb805bNcBPoEIcVJsnHzcxpZH86u5KZ9gDby5dQCcnKqdbke4ItI4Tzd7IW9hZQt4EO6GG9b9sYuuK9Wwn8TIr2xKbF2+3Nhr+qxChJ/AI6pIfCu4z4Zowp4ZUNihz79vewzctnHDwTvQO/hCdFBzrUGDOPn2Y/F8YKT4oOATLvlhOznzmBSdFBJWtc58y7r+UVFOCQczy3wpN6pegDqHtsCPTGvH9JuTO0Dyg8icldYPk+RB6g8Aofj4m2EKBvtTmUPD9xDd1pPcSReV2U5iD/ik2yrngtvvqBfPzOvKiDTKTsCdoHZJ7pLLffgTwlJ5vJdtJV2/jiAYaLvLGhMAEDO5QcDg2M/jOw/8Zn+K3ZwJvHT7ZffgC/NvA3zcybTeIfE4EAAAAASUVORK5CYII=' : IMAGE_PATH + '/img-hi-res.png';
 
 	/**
-	 * Blank 1x1 pixel transparent PNG image.
+	 *
 	 */
 	Editor.loResImage = (mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAAA+CAMAAACLMWy1AAAAS1BMVEVAQEAAAAA1NTVBQUFDQ0NDQ0NFRUVERERBQUFBQUFBQUFAQEBBQUFBQUFCQkJCQkJCQkJBQUFCQkJDQ0NDQ0NCQkJCQkJCQkJGRkb5/XqTAAAAGXRSTlP+AAWODlASCsesX+Lc2LyWe3pwa1tCPjohjSJfoAAAAI1JREFUWMPt1MkKhTAMRuG0anvneXr/J71nUypKcdqI/N8yhLMKMZE1CahnClDQzMPB44ED3EgeCubgDWnWQMHpwTtKwTe+UHD4sJ94wbUEHHFGhILlYDeSnsQeabeCgsPBgB0MOZZ9oGA5GJFiJSfUULAfjLjARrhCwX7wh2YCDwVbwZkUBKqFFJRN+wOcwSgR2sREcgAAAABJRU5ErkJggg==' : IMAGE_PATH + '/img-lo-res.png';
 
 	/**
-	 * Only needed in browsers with SVG support for export via lightbox toolbar. 
+	 *
 	 */
 	Editor.cameraLargeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMzZweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMzZweCIgZmlsbD0iI0ZGRkZGRiI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE0LjEyIDRsMS44MyAySDIwdjEySDRWNmg0LjA1bDEuODMtMmg0LjI0TTE1IDJIOUw3LjE3IDRINGMtMS4xIDAtMiAuOS0yIDJ2MTJjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY2YzAtMS4xLS45LTItMi0yaC0zLjE3TDE1IDJ6bS0zIDdjMS42NSAwIDMgMS4zNSAzIDNzLTEuMzUgMy0zIDMtMy0xLjM1LTMtMyAxLjM1LTMgMy0zbTAtMmMtMi43NiAwLTUgMi4yNC01IDVzMi4yNCA1IDUgNSA1LTIuMjQgNS01LTIuMjQtNS01LTV6Ii8+PC9zdmc+';
 	
 	/**
-	 * Only needed in browsers with SVG support for export via lightbox toolbar. 
+	 *
 	 */
 	Editor.tagsLargeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjM2cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjM2cHgiIGZpbGw9IiNGRkZGRkYiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48Zz48cGF0aCBkPSJNMjEuNDEsMTEuNDFsLTguODMtOC44M0MxMi4yMSwyLjIxLDExLjcsMiwxMS4xNywySDRDMi45LDIsMiwyLjksMiw0djcuMTdjMCwwLjUzLDAuMjEsMS4wNCwwLjU5LDEuNDFsOC44Myw4LjgzIGMwLjc4LDAuNzgsMi4wNSwwLjc4LDIuODMsMGw3LjE3LTcuMTdDMjIuMiwxMy40NiwyMi4yLDEyLjIsMjEuNDEsMTEuNDF6IE0xMi44MywyMEw0LDExLjE3VjRoNy4xN0wyMCwxMi44M0wxMi44MywyMHoiLz48Y2lyY2xlIGN4PSI2LjUiIGN5PSI2LjUiIHI9IjEuNSIvPjwvZz48L2c+PC9zdmc+';
-	
+		
 	/**
-	 * 
+	 *
 	 */
-	Editor.visibleImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEyIDZjMy43OSAwIDcuMTcgMi4xMyA4LjgyIDUuNUMxOS4xNyAxNC44NyAxNS43OSAxNyAxMiAxN3MtNy4xNy0yLjEzLTguODItNS41QzQuODMgOC4xMyA4LjIxIDYgMTIgNm0wLTJDNyA0IDIuNzMgNy4xMSAxIDExLjUgMi43MyAxNS44OSA3IDE5IDEyIDE5czkuMjctMy4xMSAxMS03LjVDMjEuMjcgNy4xMSAxNyA0IDEyIDR6bTAgNWMxLjM4IDAgMi41IDEuMTIgMi41IDIuNVMxMy4zOCAxNCAxMiAxNHMtMi41LTEuMTItMi41LTIuNVMxMC42MiA5IDEyIDltMC0yYy0yLjQ4IDAtNC41IDIuMDItNC41IDQuNVM5LjUyIDE2IDEyIDE2czQuNS0yLjAyIDQuNS00LjVTMTQuNDggNyAxMiA3eiIvPjwvc3ZnPg==';
-	
-	/**
-	 * 
-	 */
-	Editor.hiddenImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6bTAgMGgyNHYyNEgwVjB6bTAgMGgyNHYyNEgwVjB6bTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEyIDZjMy43OSAwIDcuMTcgMi4xMyA4LjgyIDUuNS0uNTkgMS4yMi0xLjQyIDIuMjctMi40MSAzLjEybDEuNDEgMS40MWMxLjM5LTEuMjMgMi40OS0yLjc3IDMuMTgtNC41M0MyMS4yNyA3LjExIDE3IDQgMTIgNGMtMS4yNyAwLTIuNDkuMi0zLjY0LjU3bDEuNjUgMS42NUMxMC42NiA2LjA5IDExLjMyIDYgMTIgNnptLTEuMDcgMS4xNEwxMyA5LjIxYy41Ny4yNSAxLjAzLjcxIDEuMjggMS4yOGwyLjA3IDIuMDdjLjA4LS4zNC4xNC0uNy4xNC0xLjA3QzE2LjUgOS4wMSAxNC40OCA3IDEyIDdjLS4zNyAwLS43Mi4wNS0xLjA3LjE0ek0yLjAxIDMuODdsMi42OCAyLjY4QzMuMDYgNy44MyAxLjc3IDkuNTMgMSAxMS41IDIuNzMgMTUuODkgNyAxOSAxMiAxOWMxLjUyIDAgMi45OC0uMjkgNC4zMi0uODJsMy40MiAzLjQyIDEuNDEtMS40MUwzLjQyIDIuNDUgMi4wMSAzLjg3em03LjUgNy41bDIuNjEgMi42MWMtLjA0LjAxLS4wOC4wMi0uMTIuMDItMS4zOCAwLTIuNS0xLjEyLTIuNS0yLjUgMC0uMDUuMDEtLjA4LjAxLS4xM3ptLTMuNC0zLjRsMS43NSAxLjc1Yy0uMjMuNTUtLjM2IDEuMTUtLjM2IDEuNzggMCAyLjQ4IDIuMDIgNC41IDQuNSA0LjUuNjMgMCAxLjIzLS4xMyAxLjc3LS4zNmwuOTguOThjLS44OC4yNC0xLjguMzgtMi43NS4zOC0zLjc5IDAtNy4xNy0yLjEzLTguODItNS41LjctMS40MyAxLjcyLTIuNjEgMi45My0zLjUzeiIvPjwvc3ZnPg==';
-
-	/**
-	 * 
-	 */
-	Editor.clearImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMThweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTE5IDYuNDFMMTcuNTkgNSAxMiAxMC41OSA2LjQxIDUgNSA2LjQxIDEwLjU5IDEyIDUgMTcuNTkgNi40MSAxOSAxMiAxMy40MSAxNy41OSAxOSAxOSAxNy41OSAxMy40MSAxMiAxOSA2LjQxeiIvPjwvc3ZnPg==';
+	Editor.tagsImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjE4cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjE4cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48Zz48cGF0aCBkPSJNMjEuNDEsMTEuNDFsLTguODMtOC44M0MxMi4yMSwyLjIxLDExLjcsMiwxMS4xNywySDRDMi45LDIsMiwyLjksMiw0djcuMTdjMCwwLjUzLDAuMjEsMS4wNCwwLjU5LDEuNDFsOC44Myw4LjgzIGMwLjc4LDAuNzgsMi4wNSwwLjc4LDIuODMsMGw3LjE3LTcuMTdDMjIuMiwxMy40NiwyMi4yLDEyLjIsMjEuNDEsMTEuNDF6IE0xMi44MywyMEw0LDExLjE3VjRoNy4xN0wyMCwxMi44M0wxMi44MywyMHoiLz48Y2lyY2xlIGN4PSI2LjUiIGN5PSI2LjUiIHI9IjEuNSIvPjwvZz48L2c+PC9zdmc+';
 
 	/**
 	 * Broken image symbol for offline SVG.
@@ -5846,6 +5836,397 @@
 		}
 	};
 
+	Graph.prototype.createTagsDialog = function(isEnabled, invert, addFn)
+	{
+		var graph = this;
+		var allTags = graph.hiddenTags.slice();
+		
+		var div = document.createElement('div');
+		div.style.userSelect = 'none';
+		div.style.overflow = 'hidden';
+		div.style.padding = '10px';
+		div.style.height = '100%';
+		
+		var tagCloud = document.createElement('div');
+		tagCloud.style.boxSizing = 'border-box';
+		tagCloud.style.borderRadius = '4px';
+		tagCloud.style.userSelect = 'none';
+		tagCloud.style.overflow = 'auto';
+		tagCloud.style.position = 'absolute';
+		tagCloud.style.left = '10px';
+		tagCloud.style.right = '10px';
+		tagCloud.style.top = '10px';
+		tagCloud.style.border = (graph.isEnabled()) ? '1px solid #808080' : 'none';
+		tagCloud.style.bottom = (graph.isEnabled()) ? '48px' : '10px';
+	
+		div.appendChild(tagCloud);
+
+		function removeInvisibleSelectionCells()
+		{
+			var cells = graph.getSelectionCells();
+			var visible = [];
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				if (graph.isCellVisible(cells[i]))
+				{
+					visible.push(cells[i]);	
+				}
+			}
+
+			graph.setSelectionCells(visible);
+		};
+
+		function setAllVisible(visible)
+		{
+			if (visible)
+			{
+				graph.hiddenTags = [];
+			}
+			else
+			{
+				graph.hiddenTags = allTags.slice();
+			}
+
+			removeInvisibleSelectionCells();
+			graph.refresh();
+		};
+
+		var resetBtn = mxUtils.button(mxResources.get('reset'), function(evt)
+		{
+			graph.hiddenTags = [];
+
+			if (!mxEvent.isShiftDown(evt))
+			{
+				allTags = graph.hiddenTags.slice();
+			}
+
+			removeInvisibleSelectionCells();
+			graph.refresh();
+		});
+		
+		resetBtn.setAttribute('title', mxResources.get('reset'));
+		resetBtn.className = 'geBtn';
+		resetBtn.style.margin = '0 4px 0 0';
+
+		var addBtn = mxUtils.button(mxResources.get('add'), function()
+		{
+			if (addFn != null)
+			{
+				// Takes all tags and callback to update all tags
+				addFn(allTags, function(newAllTags)
+				{
+					allTags = newAllTags;
+					refreshUi();
+				});
+			}
+		});
+		addBtn.setAttribute('title', mxResources.get('add'));
+		addBtn.className = 'geBtn';
+		addBtn.style.margin = '0';
+	
+		graph.addListener(mxEvent.ROOT, function()
+		{
+			allTags = graph.hiddenTags.slice();
+		});
+	
+		function refreshTags(tags, selected)
+		{
+			tagCloud.innerHTML = '';
+	
+			if (tags.length > 0)
+			{
+				var table = document.createElement('table');
+				table.setAttribute('cellpadding', '2');
+				table.style.boxSizing = 'border-box';
+				table.style.tableLayout = 'fixed';
+				table.style.width = '100%';
+	
+				var tbody = document.createElement('tbody');
+
+				if (tags != null && tags.length > 0)
+				{
+					for (var i = 0; i < tags.length; i++)
+					{
+						(function(tag)
+						{
+							function setTagVisible()
+							{
+								var temp = allTags.slice();
+								var index = mxUtils.indexOf(temp, tag);
+								temp.splice(index, 1);
+								graph.hiddenTags = temp;
+								removeInvisibleSelectionCells();
+								graph.refresh();
+							};
+
+							function selectCells()
+							{
+								var cells = graph.getCellsForTags(
+									[tag], null, null, true);
+
+								if (graph.isEnabled())
+								{
+									graph.setSelectionCells(cells);
+								}
+								else
+								{
+									graph.highlightCells(cells);
+								}
+							};
+
+							var visible = mxUtils.indexOf(graph.hiddenTags, tag) < 0;
+							var row = document.createElement('tr');
+							var td = document.createElement('td');
+							td.style.align = 'center';
+							td.style.width = '16px';
+
+							var img = document.createElement('img');
+							img.setAttribute('src', visible ? Editor.visibleImage : Editor.hiddenImage);
+							img.setAttribute('title', mxResources.get(visible ? 'hideIt' : 'show', [tag]));
+							mxUtils.setOpacity(img, visible ? 75 : 25);
+							img.style.verticalAlign = 'middle';
+							img.style.cursor = 'pointer';
+							img.style.width = '16px';
+							
+							if (invert || Editor.isDarkMode())
+							{
+								img.style.filter = 'invert(100%)';
+							}
+							
+							td.appendChild(img);
+
+							mxEvent.addListener(img, 'click', function(evt)
+							{
+								var idx = mxUtils.indexOf(graph.hiddenTags, tag);
+
+								if (mxEvent.isShiftDown(evt))
+								{
+									setAllVisible(mxUtils.indexOf(graph.hiddenTags, tag) >= 0);
+								}
+								else
+								{
+									if (idx < 0)
+									{
+										graph.hiddenTags.push(tag);
+									}
+									else if (idx >= 0)
+									{
+										graph.hiddenTags.splice(idx, 1);
+									}
+
+									removeInvisibleSelectionCells();
+									graph.refresh();
+								}
+
+								mxEvent.consume(evt);
+							});
+							
+							mxEvent.addListener(img, 'dblclick', function(evt)
+							{
+								if (!mxEvent.isShiftDown(evt))
+								{
+									if (!visible && graph.hiddenTags.length > 0)
+									{
+										setAllVisible(true);
+									}
+									else
+									{
+										setTagVisible();
+									}
+								}
+
+								mxEvent.consume(evt);
+							});
+
+							row.appendChild(td);
+
+							td = document.createElement('td');
+							td.style.overflow = 'hidden';
+							td.style.whiteSpace = 'nowrap';
+							td.style.textOverflow = 'ellipsis';
+							td.style.verticalAlign = 'middle';
+							td.style.cursor = 'pointer';
+							td.setAttribute('title', tag);
+	
+							a = document.createElement('a');
+							mxUtils.write(a, tag);
+							a.style.textOverflow = 'ellipsis';
+							a.style.position = 'relative';
+							mxUtils.setOpacity(a, visible ? 100 : 40);
+							td.appendChild(a);
+	
+							mxEvent.addListener(td, 'click', (function(evt)
+							{
+								if (mxEvent.isShiftDown(evt))
+								{
+									setAllVisible(true);
+									selectCells();	
+								}
+								else
+								{
+									if (visible && graph.hiddenTags.length > 0)
+									{
+										setAllVisible(true);
+									}
+									else
+									{
+										setTagVisible();
+									}
+								}
+
+								mxEvent.consume(evt);
+							}));
+
+							mxEvent.addListener(td, 'dblclick', function(evt)
+							{
+								setAllVisible(true);
+								selectCells();
+								mxEvent.consume(evt);
+							});
+							
+							row.appendChild(td);
+
+							if (graph.isEnabled())
+							{
+								td = document.createElement('td');
+								td.style.verticalAlign = 'middle';
+								td.style.textAlign = 'center';
+								td.style.width = '18px';
+	
+								if (selected == null)
+								{
+									td.style.align = 'center';
+									td.style.width = '16px';
+		
+									var img = document.createElement('img');
+									img.setAttribute('src', Editor.crossImage);
+									img.setAttribute('title', mxResources.get('removeIt', [tag]));
+									mxUtils.setOpacity(img, visible ? 75 : 25);
+									img.style.verticalAlign = 'middle';
+									img.style.cursor = 'pointer';
+									img.style.width = '16px';
+
+									if (invert || Editor.isDarkMode())
+									{
+										img.style.filter = 'invert(100%)';
+									}
+
+									mxEvent.addListener(img, 'click', function(evt)
+									{
+										var idx = mxUtils.indexOf(allTags, tag);
+
+										if (idx >= 0)
+										{
+											allTags.splice(idx, 1);
+										}
+
+										graph.removeTagsForCells(
+											graph.model.getDescendants(
+											graph.model.getRoot()), [tag]);
+										graph.refresh();
+
+										mxEvent.consume(evt);
+									});
+
+									td.appendChild(img);
+								}
+								else
+								{
+									var cb2 = document.createElement('input');
+									cb2.setAttribute('type', 'checkbox');
+									cb2.style.margin = '0px';
+		
+									cb2.defaultChecked = (selected != null &&
+										mxUtils.indexOf(selected, tag) >= 0);
+									cb2.checked = cb2.defaultChecked;
+									cb2.style.background = 'transparent';
+									cb2.setAttribute('title', mxResources.get(
+										cb2.defaultChecked ?
+										'removeIt' : 'add', [tag]));
+		
+									mxEvent.addListener(cb2, 'change', function(evt)
+									{
+										if (cb2.checked)
+										{
+											graph.addTagsForCells(graph.getSelectionCells(), [tag]);
+										}
+										else
+										{
+											graph.removeTagsForCells(graph.getSelectionCells(), [tag]);
+										}
+									
+										mxEvent.consume(evt);
+									});
+		
+									td.appendChild(cb2);
+								}
+
+								row.appendChild(td);
+							}
+	
+							tbody.appendChild(row);
+						})(tags[i]);
+					}
+				}
+	
+				table.appendChild(tbody);
+				tagCloud.appendChild(table);
+			}
+		};
+	
+		var refreshUi = mxUtils.bind(this, function(sender, evt)
+		{
+			if (isEnabled())
+			{
+				var tags = graph.getAllTags();
+	
+				for (var i = 0; i < tags.length; i++)
+				{
+					if (mxUtils.indexOf(allTags, tags[i]) < 0)
+					{
+						allTags.push(tags[i]);
+					}
+				}
+	
+				allTags.sort();
+	
+				if (graph.isSelectionEmpty())
+				{
+					refreshTags(allTags);
+				}
+				else
+				{
+					refreshTags(allTags, graph.getCommonTagsForCells(
+						graph.getSelectionCells()));
+				}
+			}
+		});
+	
+		graph.selectionModel.addListener(mxEvent.CHANGE, refreshUi);
+		graph.model.addListener(mxEvent.CHANGE, refreshUi);
+		graph.addListener(mxEvent.REFRESH, refreshUi);
+	
+		var footer = document.createElement('div');
+		footer.style.boxSizing = 'border-box';
+		footer.style.whiteSpace = 'nowrap';
+		footer.style.position = 'absolute';
+		footer.style.overflow = 'hidden';
+		footer.style.bottom = '0px';
+		footer.style.height = '42px';
+		footer.style.right = '10px';
+		footer.style.left = '10px';
+
+		if (graph.isEnabled())
+		{
+			footer.appendChild(resetBtn);
+			footer.appendChild(addBtn);
+			div.appendChild(footer);
+		}
+
+		return {div: div, refresh: refreshUi};
+	};
+	
 	/**
 	 * Returns all custom fonts (old and new).
 	 */

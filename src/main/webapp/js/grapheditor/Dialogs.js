@@ -2069,7 +2069,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	link.className = 'geButton';
 	
 	var removeLink = link.cloneNode();
-	removeLink.innerHTML = '<div class="geSprite geSprite-delete" style="display:inline-block;"></div>';
+	removeLink.innerHTML = '<img width="22" border="0" src="' + Editor.trashImage +
+		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
 
 	mxEvent.addListener(removeLink, 'click', function(evt)
 	{
@@ -2114,7 +2115,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	var insertLink = link.cloneNode();
 	insertLink.setAttribute('title', mxUtils.trim(mxResources.get('moveSelectionTo', ['...'])));
-	insertLink.innerHTML = '<div class="geSprite geSprite-insert" style="display:inline-block;"></div>';
+	insertLink.innerHTML = '<img width="22" border="0" src="' + Editor.verticalDotsImage +
+		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
 	
 	mxEvent.addListener(insertLink, 'click', function(evt)
 	{
@@ -2149,7 +2151,9 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	
 	var dataLink = link.cloneNode();
 	dataLink.innerHTML = '<div class="geSprite geSprite-dots" style="display:inline-block;"></div>';
-	dataLink.setAttribute('title', mxResources.get('rename'));
+	dataLink.innerHTML = '<img width="22" border="0" src="' + Editor.editImage +
+		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+	dataLink.setAttribute('title', mxResources.get('editData'));
 
 	mxEvent.addListener(dataLink, 'click', function(evt)
 	{
@@ -2186,8 +2190,9 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	};
 	
 	var duplicateLink = link.cloneNode();
-	duplicateLink.innerHTML = '<div class="geSprite geSprite-duplicate" style="display:inline-block;"></div>';
-	
+	duplicateLink.innerHTML = '<img width="22" border="0" src="' + Editor.duplicateImage +
+		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+
 	mxEvent.addListener(duplicateLink, 'click', function(evt)
 	{
 		if (graph.isEnabled())
@@ -2222,7 +2227,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	ldiv.appendChild(duplicateLink);
 
 	var addLink = link.cloneNode();
-	addLink.innerHTML = '<div class="geSprite geSprite-plus" style="display:inline-block;"></div>';
+	addLink.innerHTML = '<img width="22" border="0" src="' + Editor.addImage +
+		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
 	addLink.setAttribute('title', mxResources.get('addLayer'));
 	
 	mxEvent.addListener(addLink, 'click', function(evt)
@@ -2261,8 +2267,8 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	dot.style.position = 'absolute';
 	dot.style.fontWeight = 'bold';
 	dot.style.fontSize = '16pt';
-	dot.style.right = '6px';
-	dot.style.top = '5px';
+	dot.style.right = '2px';
+	dot.style.top = '2px';
 	
 	function updateLayerDot()
 	{
@@ -2341,22 +2347,67 @@ var LayersWindow = function(editorUi, x, y, w, h)
 				evt.preventDefault();
 			});
 
+			var inp = document.createElement('img');
+			inp.setAttribute('draggable', 'false');
+			inp.setAttribute('align', 'top');
+			inp.setAttribute('border', '0');
+			inp.style.width = '16px';
+			inp.style.padding = '0px 6px 0 4px';
+			inp.style.marginTop = '2px';
+			inp.style.cursor = 'pointer';
+			inp.setAttribute('title', mxResources.get(
+				graph.model.isVisible(child) ?
+				'hide' : 'show'));
+
+			if (graph.model.isVisible(child))
+			{
+				inp.setAttribute('src', Editor.visibleImage);
+				mxUtils.setOpacity(ldiv, 75);
+			}
+			else
+			{
+				inp.setAttribute('src', Editor.hiddenImage);
+				mxUtils.setOpacity(ldiv, 25);
+			}
+
+			if (Editor.isDarkMode())
+			{
+				inp.style.filter = 'invert(100%)';
+			}
+
+			left.appendChild(inp);
+			
+			mxEvent.addListener(inp, 'click', function(evt)
+			{
+				graph.model.setVisible(child, !graph.model.isVisible(child));
+				mxEvent.consume(evt);
+			});
+
 			var btn = document.createElement('img');
 			btn.setAttribute('draggable', 'false');
 			btn.setAttribute('align', 'top');
 			btn.setAttribute('border', '0');
-			btn.style.padding = '4px';
+			btn.style.width = '16px';
+			btn.style.padding = '0px 6px 0 0';
+			btn.style.marginTop = '2px';
 			btn.setAttribute('title', mxResources.get('lockUnlock'));
 
 			var style = graph.getCurrentCellStyle(child);
 
 			if (mxUtils.getValue(style, 'locked', '0') == '1')
 			{
-				btn.setAttribute('src', Dialog.prototype.lockedImage);
+				btn.setAttribute('src', Editor.lockedImage);
+				mxUtils.setOpacity(btn, 75);
 			}
 			else
 			{
-				btn.setAttribute('src', Dialog.prototype.unlockedImage);
+				btn.setAttribute('src', Editor.unlockedImage);
+				mxUtils.setOpacity(btn, 25);
+			}
+
+			if (Editor.isDarkMode())
+			{
+				btn.style.filter = 'invert(100%)';
 			}
 			
 			if (graph.isEnabled())
@@ -2392,28 +2443,18 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 			left.appendChild(btn);
 
-			var inp = document.createElement('input');
-			inp.setAttribute('type', 'checkbox');
-			inp.setAttribute('title', mxResources.get(graph.model.isVisible(child) ?
-				'hide' : 'show'));
-			inp.style.marginLeft = '4px';
-			inp.style.marginRight = '6px';
-			inp.style.marginTop = '4px';
-			left.appendChild(inp);
-			
-			if (graph.model.isVisible(child))
-			{
-				inp.setAttribute('checked', 'checked');
-				inp.defaultChecked = true;
-			}
+			var span = document.createElement('span');
+			mxUtils.write(span, label);
+			span.style.display = 'block';
+			span.style.whiteSpace = 'nowrap';
+			span.style.overflow = 'hidden';
+			span.style.textOverflow = 'ellipsis';
+			span.style.position = 'absolute';
+			span.style.left = '52px';
+			span.style.right = '8px';
+			span.style.top = '8px';
 
-			mxEvent.addListener(inp, 'click', function(evt)
-			{
-				graph.model.setVisible(child, !graph.model.isVisible(child));
-				mxEvent.consume(evt);
-			});
-
-			mxUtils.write(left, label);
+			left.appendChild(span);
 			ldiv.appendChild(left);
 			
 			if (graph.isEnabled())
@@ -2545,7 +2586,6 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		var label = graph.convertValueToString(selectionLayer) || mxResources.get('background');
 		removeLink.setAttribute('title', mxResources.get('removeIt', [label]));
 		duplicateLink.setAttribute('title', mxResources.get('duplicateIt', [label]));
-		dataLink.setAttribute('title', mxResources.get('editData'));
 
 		if (graph.isSelectionEmpty())
 		{
@@ -2574,7 +2614,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	});
 
 	this.window = new mxWindow(mxResources.get('layers'), div, x, y, w, h, true, true);
-	this.window.minimumSize = new mxRectangle(0, 0, 120, 120);
+	this.window.minimumSize = new mxRectangle(0, 0, 150, 120);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);

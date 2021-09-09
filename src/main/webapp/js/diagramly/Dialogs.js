@@ -7549,23 +7549,61 @@ var FreehandWindow = function(editorUi, x, y, w, h)
  */
 var TagsWindow = function(editorUi, x, y, w, h)
 {
-	var tagsComponent = editorUi.createTagsDialog(mxUtils.bind(this, function()
+	var graph = editorUi.editor.graph;
+
+	var tagsComponent = editorUi.editor.graph.createTagsDialog(mxUtils.bind(this, function()
 	{
 		return this.window.isVisible();
-	}));
+	}), null, function(allTags, updateFn)
+	{
+		if (graph.isEnabled())
+		{
+			var dlg = new FilenameDialog(editorUi, '', mxResources.get('add'), function(newValue)
+			{
+				editorUi.hideDialog();
+				
+				if (newValue != null && newValue.length > 0)
+				{
+					var temp = newValue.split(' ');
+					var tags = [];
+
+					for (var i = 0; i < temp.length; i++)
+					{
+						var token = mxUtils.trim(temp[i]);
+
+						if (token != '' && mxUtils.indexOf(
+							allTags, token) < 0)
+						{
+							tags.push(token);
+						}
+					}
+
+					if (tags.length > 0)
+					{
+						if (graph.isSelectionEmpty())
+						{
+							updateFn(allTags.concat(tags));
+						}
+						else
+						{
+							graph.addTagsForCells(graph.getSelectionCells(), tags);
+						}
+					}
+				}
+			}, mxResources.get('enterValue') + ' (' + mxResources.get('tags') + ')');
+
+			editorUi.showDialog(dlg.container, 300, 80, true, true);
+			dlg.init();
+		}
+	});
 
 	var div = tagsComponent.div;
-
 	this.window = new mxWindow(mxResources.get('tags'), div, x, y, w, h, true, true);
+	this.window.minimumSize = new mxRectangle(0, 0, 212, 120);
 	this.window.destroyOnClose = false;
 	this.window.setMaximizable(false);
 	this.window.setResizable(true);
 	this.window.setClosable(true);
-
-	this.window.contentWrapper.style.height = '100%';
-	this.window.table.style.minWidth = '220px';
-	this.window.div.style.minHeight = this.window.table.style.minHeight;
-	this.window.div.style.minWidth = this.window.table.style.minWidth;
 
 	this.window.addListener('show', mxUtils.bind(this, function()
 	{

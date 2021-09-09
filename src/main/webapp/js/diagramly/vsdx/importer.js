@@ -275,7 +275,7 @@ var com;
 		                    		
 		                    		if (onerror != null) 
 		                    		{
-		                    			onerror();
+		                    			onerror(e);
 		                    		}
 		                    		else
 		                    		{
@@ -910,7 +910,14 @@ var com;
 							
 							for (var i = 0; i < props.length; i++)
 							{
-								graph.setAttributeForCell(v1, props[i].key, props[i].val);
+								try
+								{
+									graph.setAttributeForCell(v1, props[i].key, props[i].val);	
+								}
+								catch(e)
+								{
+									console.log('Attribute: "', props[i].key, '" with value "', props[i].val, '" not allowed in HTML');
+								}
 							}
 							
                             return v1;

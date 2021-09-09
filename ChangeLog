@@ -1,3 +1,11 @@
+09-SEP-2021: 15.1.4
+
+- Fixes spacing and sizes in tags dialog
+- Adds tags to viewer, SVG icons to layers dialog
+- [vsdx import] Fixes invalid attribute error when input data is not suitable for html
+- Fixes text overflow in dialogs
+- Uses static viewer with no dynamic loading
+
 08-SEP-2021: 15.1.3
 
 - Internal release

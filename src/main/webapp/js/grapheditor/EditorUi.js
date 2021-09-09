@@ -2193,7 +2193,7 @@ EditorUi.prototype.initCanvas = function()
 				var pageInfo = document.createElement('div');
 				pageInfo.style.display = 'inline-block';
 				pageInfo.style.verticalAlign = 'top';
-				pageInfo.style.fontFamily = 'Helvetica,Arial';
+				pageInfo.style.fontFamily = Editor.defaultHtmlFont;
 				pageInfo.style.marginTop = '10px';
 				pageInfo.style.fontSize = '14px';
 				pageInfo.style.color = '#ffffff';
@@ -2350,7 +2350,7 @@ EditorUi.prototype.initCanvas = function()
 						
 						mxUtils.setPrefixedStyle(this.layersDialog.style, 'borderRadius', '5px');
 						this.layersDialog.style.position = 'fixed';
-						this.layersDialog.style.fontFamily = 'Helvetica,Arial';
+						this.layersDialog.style.fontFamily = Editor.defaultHtmlFont;
 						this.layersDialog.style.backgroundColor = '#000000';
 						this.layersDialog.style.width = '160px';
 						this.layersDialog.style.padding = '4px 2px 4px 2px';
@@ -2365,6 +2365,7 @@ EditorUi.prototype.initCanvas = function()
 						this.layersDialog.style.zIndex = style.zIndex;
 						
 						document.body.appendChild(this.layersDialog);
+						this.editor.fireEvent(new mxEventObject('layersDialogShown'));
 					}
 					
 					mxEvent.consume(evt);
