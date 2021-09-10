@@ -2869,6 +2869,17 @@ var com;
                             this.closePath(parsedGeom, lastGeoStyle);
                         }
                         /* append */ (function (sb) { return sb.str = sb.str.concat("</foreground></shape>"); })(parsedGeom);
+						
+						//If the geomertry has no move, it will cause errors in SVG. So, ignore this shape 
+						//A path with no move in the beginning is invalid
+						//https://www.w3.org/TR/SVG11/paths.html#PathDataMovetoCommands
+						//https://stackoverflow.com/questions/56275231/do-all-svg-paths-have-to-start-with-a-move
+						//TODO Find a faster technique, then enable this
+						/*if (parsedGeom.str.indexOf('<move') < 0)
+						{
+							return '';
+						}*/
+						
                         return parsedGeom.str;
                     };
                     /*private*/ mxVsdxGeometryList.prototype.processGeo = function (shape, p, parsedGeom, lastGeoStyle, withFill) {

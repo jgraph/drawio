@@ -1331,7 +1331,12 @@ EditorUi.initMinimalTheme = function()
 
 			if (urlParams['sketch'] != '1')
 			{
-            	ui.menus.addMenuItems(menu, ['-', 'fullscreen', 'toggleDarkMode'], parent);
+            	ui.menus.addMenuItems(menu, ['-', 'fullscreen'], parent);
+
+				if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
+				{
+					ui.menus.addMenuItems(menu, ['toggleDarkMode'], parent);
+				}
 			}
 			else
 			{
@@ -1371,7 +1376,8 @@ EditorUi.initMinimalTheme = function()
 	{
 		editorUiInit.apply(this, arguments);
 		this.doSetDarkMode((urlParams['dark'] != null) ?
-			urlParams['dark'] == 1 : mxSettings.settings.darkMode);
+			urlParams['dark'] == 1 && !mxClient.IS_IE &&
+			!mxClient.IS_IE11 : mxSettings.settings.darkMode);
 		
 		var div = document.createElement('div');
 		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
@@ -1720,13 +1726,7 @@ EditorUi.initMinimalTheme = function()
         ui.diagramContainer.style.top = (urlParams['sketch'] == '1') ? '0px' : '47px';
 
         var viewZoomMenu = ui.menus.get('viewZoom');
-
-		var plusImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg=='; 
-		var insertImage = (urlParams['sketch'] != '1') ? plusImage :
-			'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48Zz48cGF0aCBkPSJNMywxMWg4VjNIM1YxMXogTTUsNWg0djRINVY1eiIvPjxwYXRoIGQ9Ik0xMywzdjhoOFYzSDEzeiBNMTksOWgtNFY1aDRWOXoiLz48cGF0aCBkPSJNMywyMWg4di04SDNWMjF6IE01LDE1aDR2NEg1VjE1eiIvPjxwb2x5Z29uIHBvaW50cz0iMTgsMTMgMTYsMTMgMTYsMTYgMTMsMTYgMTMsMTggMTYsMTggMTYsMjEgMTgsMjEgMTgsMTggMjEsMTggMjEsMTYgMTgsMTYiLz48L2c+PC9nPjwvc3ZnPg==';
-		var shapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTMgMTN2OGg4di04aC04ek0zIDIxaDh2LThIM3Y4ek0zIDN2OGg4VjNIM3ptMTMuNjYtMS4zMUwxMSA3LjM0IDE2LjY2IDEzbDUuNjYtNS42Ni01LjY2LTUuNjV6Ii8+PC9zdmc+';
-		var formatImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==';
-
+		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;
 		var footer = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var picker = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var toolbar = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
@@ -1878,7 +1878,7 @@ EditorUi.initMinimalTheme = function()
 				}));
 			}
 			
-			elt = addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg');
+			elt = addMenu('diagram', null, Editor.drawLogoImage);
 			elt.style.boxShadow = 'none';
 			elt.style.opacity = '0.4';
 			elt.style.padding = '6px';
@@ -1999,12 +1999,10 @@ EditorUi.initMinimalTheme = function()
 						return addElt(elt, null, 'pointer');
 					};
 					
-					addAction(ui.actions.get('insertFreehand'), mxResources.get('freehand'),
-						'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHJlY3QgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0Ii8+PHBhdGggZD0iTTQuNSw4YzEuMDQsMCwyLjM0LTEuNSw0LjI1LTEuNWMxLjUyLDAsMi43NSwxLjIzLDIuNzUsMi43NWMwLDIuMDQtMS45OSwzLjE1LTMuOTEsNC4yMkM1LjQyLDE0LjY3LDQsMTUuNTcsNCwxNyBjMCwxLjEsMC45LDIsMiwydjJjLTIuMjEsMC00LTEuNzktNC00YzAtMi43MSwyLjU2LTQuMTQsNC42Mi01LjI4YzEuNDItMC43OSwyLjg4LTEuNiwyLjg4LTIuNDdjMC0wLjQxLTAuMzQtMC43NS0wLjc1LTAuNzUgQzcuNSw4LjUsNi4yNSwxMCw0LjUsMTBDMy4xMiwxMCwyLDguODgsMiw3LjVDMiw1LjQ1LDQuMTcsMi44Myw1LDJsMS40MSwxLjQxQzUuNDEsNC40Miw0LDYuNDMsNCw3LjVDNCw3Ljc4LDQuMjIsOCw0LjUsOHogTTgsMjEgbDMuNzUsMGw4LjA2LTguMDZsLTMuNzUtMy43NUw4LDE3LjI1TDgsMjF6IE0xMCwxOC4wOGw2LjA2LTYuMDZsMC45MiwwLjkyTDEwLjkyLDE5TDEwLDE5TDEwLDE4LjA4eiBNMjAuMzcsNi4yOSBjLTAuMzktMC4zOS0xLjAyLTAuMzktMS40MSwwbC0xLjgzLDEuODNsMy43NSwzLjc1bDEuODMtMS44M2MwLjM5LTAuMzksMC4zOS0xLjAyLDAtMS40MUwyMC4zNyw2LjI5eiIvPjwvc3ZnPg==');
+					addAction(ui.actions.get('insertFreehand'), mxResources.get('freehand'), Editor.freehandImage);
 					var toggleShapesAction = ui.actions.get('toggleShapes');
 					addAction(toggleShapesAction, mxResources.get('shapes') + ' (' + toggleShapesAction.shortcut + ')', insertImage);
-					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'),
-						'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTEzIDExaC0ydjNIOHYyaDN2M2gydi0zaDN2LTJoLTN6bTEtOUg2Yy0xLjEgMC0yIC45LTIgMnYxNmMwIDEuMS44OSAyIDEuOTkgMkgxOGMxLjEgMCAyLS45IDItMlY4bC02LTZ6bTQgMThINlY0aDd2NWg1djExeiIvPjwvc3ZnPg==');
+					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.templateImage);
 				}
 
 				picker.appendChild(foldImg);
@@ -2036,7 +2034,7 @@ EditorUi.initMinimalTheme = function()
 					picker.style.padding = '0px';
 					picker.style.height = '24px';
 					foldImg.style.height = '24px';
-					foldImg.style.backgroundImage = 'url(' + plusImage + ')';
+					foldImg.style.backgroundImage = 'url(' + Editor.plusImage + ')';
 					foldImg.setAttribute('title', mxResources.get('insert'));
 					foldImg.style.width = '24px';
 					collapsed = true;
@@ -2076,30 +2074,21 @@ EditorUi.initMinimalTheme = function()
 	        };
 
         	var zoomInAction = ui.actions.get('zoomIn');
-			var zoomInImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHptMi41LTRoLTJ2Mkg5di0ySDdWOWgyVjdoMXYyaDJ2MXoiLz48L3N2Zz4=';
 			var zoomOutAction = ui.actions.get('zoomOut');
-			var zoomOutImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTUuNSAxNGgtLjc5bC0uMjgtLjI3QzE1LjQxIDEyLjU5IDE2IDExLjExIDE2IDkuNSAxNiA1LjkxIDEzLjA5IDMgOS41IDNTMyA1LjkxIDMgOS41IDUuOTEgMTYgOS41IDE2YzEuNjEgMCAzLjA5LS41OSA0LjIzLTEuNTdsLjI3LjI4di43OWw1IDQuOTlMMjAuNDkgMTlsLTQuOTktNXptLTYgMEM3LjAxIDE0IDUgMTEuOTkgNSA5LjVTNy4wMSA1IDkuNSA1IDE0IDcuMDEgMTQgOS41IDExLjk5IDE0IDkuNSAxNHpNNyA5aDV2MUg3eiIvPjwvc3ZnPg==';        	
 			var resetViewAction = ui.actions.get('resetView');
 			var fullscreenAction = ui.actions.get('fullscreen');
-			var fitImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48cGF0aCBkPSJNNiwxNmgxMlY4SDZWMTZ6IE04LDEwaDh2NEg4VjEweiBNNCwxNUgydjNjMCwxLjEsMC45LDIsMiwyaDN2LTJINFYxNXogTTQsNmgzVjRINEMyLjksNCwyLDQuOSwyLDZ2M2gyVjZ6IE0yMCw0aC0zdjJoM3YzIGgyVjZDMjIsNC45LDIxLjEsNCwyMCw0eiBNMjAsMThoLTN2MmgzYzEuMSwwLDItMC45LDItMnYtM2gtMlYxOHoiLz48L2c+PC9zdmc+';
-			var fullscreenImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyA1djRoMlY1aDRWM0g1Yy0xLjEgMC0yIC45LTIgMnptMiAxMEgzdjRjMCAxLjEuOSAyIDIgMmg0di0ySDV2LTR6bTE0IDRoLTR2Mmg0YzEuMSAwIDItLjkgMi0ydi00aC0ydjR6bTAtMTZoLTR2Mmg0djRoMlY1YzAtMS4xLS45LTItMi0yeiIvPjwvc3ZnPg==';
 			var toggleDarkAction = ui.actions.get('toggleDarkMode'); 
-			var darkImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxyZWN0IGZpbGw9Im5vbmUiIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIvPjxwYXRoIGQ9Ik05LjM3LDUuNTFDOS4xOSw2LjE1LDkuMSw2LjgyLDkuMSw3LjVjMCw0LjA4LDMuMzIsNy40LDcuNCw3LjRjMC42OCwwLDEuMzUtMC4wOSwxLjk5LTAuMjdDMTcuNDUsMTcuMTksMTQuOTMsMTksMTIsMTkgYy0zLjg2LDAtNy0zLjE0LTctN0M1LDkuMDcsNi44MSw2LjU1LDkuMzcsNS41MXogTTEyLDNjLTQuOTcsMC05LDQuMDMtOSw5czQuMDMsOSw5LDlzOS00LjAzLDktOWMwLTAuNDYtMC4wNC0wLjkyLTAuMS0xLjM2IGMtMC45OCwxLjM3LTIuNTgsMi4yNi00LjQsMi4yNmMtMi45OCwwLTUuNC0yLjQyLTUuNC01LjRjMC0xLjgxLDAuODktMy40MiwyLjI2LTQuNEMxMi45MiwzLjA0LDEyLjQ2LDMsMTIsM0wxMiwzeiIvPjwvc3ZnPg==';
-			var lightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxyZWN0IGZpbGw9Im5vbmUiIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIvPjxwYXRoIGQ9Ik0xMiw5YzEuNjUsMCwzLDEuMzUsMywzcy0xLjM1LDMtMywzcy0zLTEuMzUtMy0zUzEwLjM1LDksMTIsOSBNMTIsN2MtMi43NiwwLTUsMi4yNC01LDVzMi4yNCw1LDUsNXM1LTIuMjQsNS01IFMxNC43Niw3LDEyLDdMMTIsN3ogTTIsMTNsMiwwYzAuNTUsMCwxLTAuNDUsMS0xcy0wLjQ1LTEtMS0xbC0yLDBjLTAuNTUsMC0xLDAuNDUtMSwxUzEuNDUsMTMsMiwxM3ogTTIwLDEzbDIsMGMwLjU1LDAsMS0wLjQ1LDEtMSBzLTAuNDUtMS0xLTFsLTIsMGMtMC41NSwwLTEsMC40NS0xLDFTMTkuNDUsMTMsMjAsMTN6IE0xMSwydjJjMCwwLjU1LDAuNDUsMSwxLDFzMS0wLjQ1LDEtMVYyYzAtMC41NS0wLjQ1LTEtMS0xUzExLDEuNDUsMTEsMnogTTExLDIwdjJjMCwwLjU1LDAuNDUsMSwxLDFzMS0wLjQ1LDEtMXYtMmMwLTAuNTUtMC40NS0xLTEtMUMxMS40NSwxOSwxMSwxOS40NSwxMSwyMHogTTUuOTksNC41OGMtMC4zOS0wLjM5LTEuMDMtMC4zOS0xLjQxLDAgYy0wLjM5LDAuMzktMC4zOSwxLjAzLDAsMS40MWwxLjA2LDEuMDZjMC4zOSwwLjM5LDEuMDMsMC4zOSwxLjQxLDBzMC4zOS0xLjAzLDAtMS40MUw1Ljk5LDQuNTh6IE0xOC4zNiwxNi45NSBjLTAuMzktMC4zOS0xLjAzLTAuMzktMS40MSwwYy0wLjM5LDAuMzktMC4zOSwxLjAzLDAsMS40MWwxLjA2LDEuMDZjMC4zOSwwLjM5LDEuMDMsMC4zOSwxLjQxLDBjMC4zOS0wLjM5LDAuMzktMS4wMywwLTEuNDEgTDE4LjM2LDE2Ljk1eiBNMTkuNDIsNS45OWMwLjM5LTAuMzksMC4zOS0xLjAzLDAtMS40MWMtMC4zOS0wLjM5LTEuMDMtMC4zOS0xLjQxLDBsLTEuMDYsMS4wNmMtMC4zOSwwLjM5LTAuMzksMS4wMywwLDEuNDEgczEuMDMsMC4zOSwxLjQxLDBMMTkuNDIsNS45OXogTTcuMDUsMTguMzZjMC4zOS0wLjM5LDAuMzktMS4wMywwLTEuNDFjLTAuMzktMC4zOS0xLjAzLTAuMzktMS40MSwwbC0xLjA2LDEuMDYgYy0wLjM5LDAuMzktMC4zOSwxLjAzLDAsMS40MXMxLjAzLDAuMzksMS40MSwwTDcuMDUsMTguMzZ6Ii8+PC9zdmc+';
         	var undoAction = ui.actions.get('undo');
         	var redoAction = ui.actions.get('redo');        	
-	        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction,
-	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIuNSA4Yy0yLjY1IDAtNS4wNS45OS02LjkgMi42TDIgN3Y5aDlsLTMuNjItMy42MmMxLjM5LTEuMTYgMy4xNi0xLjg4IDUuMTItMS44OCAzLjU0IDAgNi41NSAyLjMxIDcuNiA1LjVsMi4zNy0uNzhDMjEuMDggMTEuMDMgMTcuMTUgOCAxMi41IDh6Ii8+PC9zdmc+');
-	        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction,
-	       		'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTguNCAxMC42QzE2LjU1IDguOTkgMTQuMTUgOCAxMS41IDhjLTQuNjUgMC04LjU4IDMuMDMtOS45NiA3LjIyTDMuOSAxNmMxLjA1LTMuMTkgNC4wNS01LjUgNy42LTUuNSAxLjk1IDAgMy43My43MiA1LjEyIDEuODhMMTMgMTZoOVY3bC0zLjYgMy42eiIvPjwvc3ZnPg==');
-			var fitElt = addMenuItem('', fitFunction, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction, fitImage);
-			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, fullscreenImage);
-			var deleteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNNiAxOWMwIDEuMS45IDIgMiAyaDhjMS4xIDAgMi0uOSAyLTJWN0g2djEyek0xOSA0aC0zLjVsLTEtMWgtNWwtMSAxSDV2MmgxNFY0eiIvPjwvc3ZnPg==';
+	        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction, Editor.undoImage);
+	        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction, Editor.redoImage);
+			var fitElt = addMenuItem('', fitFunction, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction, Editor.zoomFitImage);
+			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, Editor.fullscreenImage);
 
 			if (footer != null)
 			{
 				var deleteAction = ui.actions.get('delete');
-				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, deleteImage);
+				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, Editor.trashImage);
 				deleteElt.style.opacity = '0.1';
 	        	toolbar.appendChild(deleteElt);
 
@@ -2128,8 +2117,7 @@ EditorUi.initMinimalTheme = function()
 				if (urlParams['layers'] != null)
 				{
 					var layersAction = ui.actions.get('layers');
-					var layersElt = addMenuItem('', layersAction.funct, null, mxResources.get('layers'), layersAction, Editor.layersLargeImage);
-					layersElt.className += ' geInverted';
+					var layersElt = addMenuItem('', layersAction.funct, null, mxResources.get('layers'), layersAction, Editor.layersImage);
 					layersElt.style.opacity = '0.4';
 					footer.appendChild(layersElt);
 				}
@@ -2137,19 +2125,18 @@ EditorUi.initMinimalTheme = function()
 				if (urlParams['tags'] != null)
 				{
 					var tagsAction = ui.actions.get('tags');
-					var tagsElt = addMenuItem('', tagsAction.funct, null, mxResources.get('tags'), tagsAction, Editor.tagsLargeImage);
-					tagsElt.className += ' geInverted';
+					var tagsElt = addMenuItem('', tagsAction.funct, null, mxResources.get('tags'), tagsAction, Editor.tagsImage);
 					tagsElt.style.opacity = '0.4';
 					footer.appendChild(tagsElt);
 				}
 				
 				var outlineAction = ui.actions.get('outline');
-				var outlineImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgweiIgZmlsbD0ibm9uZSIvPjxwYXRoIGQ9Ik0yMC41IDNsLS4xNi4wM0wxNSA1LjEgOSAzIDMuMzYgNC45Yy0uMjEuMDctLjM2LjI1LS4zNi40OFYyMC41YzAgLjI4LjIyLjUuNS41bC4xNi0uMDNMOSAxOC45bDYgMi4xIDUuNjQtMS45Yy4yMS0uMDcuMzYtLjI1LjM2LS40OFYzLjVjMC0uMjgtLjIyLS41LS41LS41ek0xNSAxOWwtNi0yLjExVjVsNiAyLjExVjE5eiIvPjwvc3ZnPg==';
-				var outlineElt = addMenuItem('', outlineAction.funct, null, mxResources.get('outline'), outlineAction, outlineImage);
+				var outlineElt = addMenuItem('', outlineAction.funct, null, mxResources.get('outline'), outlineAction, Editor.outlineImage);
 				outlineElt.style.opacity = '0.4';
 				footer.appendChild(outlineElt);
 	
-				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, zoomOutImage);
+				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') +
+					' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, Editor.zoomOutImage);
 				zoomOutElt.style.opacity = '0.4';
 				footer.appendChild(zoomOutElt);
 
@@ -2171,18 +2158,23 @@ EditorUi.initMinimalTheme = function()
 				
 				mxEvent.addListener(elt, 'click', fitFunction);
 
-				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, zoomInImage);
+				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') +
+					' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, Editor.zoomInImage);
 				zoomInElt.style.opacity = '0.4';
 				footer.appendChild(zoomInElt);
 
 				var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
-					Editor.isDarkMode() ? lightImage : darkImage);
+					Editor.isDarkMode() ? Editor.lightImage : Editor.darkImage);
 				toggleDarkElt.style.opacity = '0.4';
-				footer.appendChild(toggleDarkElt);
+
+				if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
+				{
+					footer.appendChild(toggleDarkElt);
+				}
 				
 				ui.addListener('darkModeChanged', mxUtils.bind(this, function()
 				{
-					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
+					toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? Editor.lightImage : Editor.darkImage) + ')';
 				}));
 									
 				if (fullscreenAction.visible)
@@ -2346,7 +2338,7 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				var temp = (small) ? addMenu('diagram', null, IMAGE_PATH + '/drawlogo.svg') : null;
+				var temp = (small) ? addMenu('diagram', null, Editor.drawLogoImage) : null;
 
 				if (temp != null)
 				{
@@ -2354,16 +2346,16 @@ EditorUi.initMinimalTheme = function()
 				}
 
 		        createGroup([appElt, addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null,
-					mxResources.get('shapes'), ui.actions.get('image'), (small) ? shapesImage : null),
+					mxResources.get('shapes'), ui.actions.get('image'), (small) ? Editor.shapesImage : null),
 	       			addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
 	       			mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
-	   				(small) ? formatImage : null)],
+	   				(small) ? Editor.formatImage : null)],
 	   				(small) ? 60 : null);
 			
 		        var elt = addMenu('insert', true, (small) ? insertImage : null);
 	        	createGroup([elt, addMenuItem(mxResources.get('delete'), ui.actions.get('delete').funct,
 					null, mxResources.get('delete'), ui.actions.get('delete'),
-		        	(small) ? deleteImage : null)], (small) ? 60 : null);
+		        	(small) ? Editor.trashImage : null)], (small) ? 60 : null);
 	
 		        if (iw >= 411)
 		        {
@@ -2373,19 +2365,19 @@ EditorUi.initMinimalTheme = function()
 			        {
 				        createGroup([fitElt,
 					        (iw >= 640) ? addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') + ' (' + Editor.ctrlKey + ' +)',
-								zoomInAction, zoomInImage) : null,
+								zoomInAction, Editor.zoomInImage) : null,
 					        (iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)',
-								zoomOutAction, zoomOutImage) : null], 60);
-						
-				        if (iw >= 720)
+								zoomOutAction, Editor.zoomOutImage) : null], 60);
+
+						if (iw >= 720 && (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11)))
 				        {
 							var toggleDarkElt = addMenuItem('', toggleDarkAction.funct, null, mxResources.get('dark'), toggleDarkAction,
-								Editor.isDarkMode() ? lightImage : darkImage);
+								Editor.isDarkMode() ? Editor.lightImage : Editor.darkImage);
 							toggleDarkElt.style.opacity = '0.4';
 			
 							ui.addListener('darkModeChanged', mxUtils.bind(this, function()
 							{
-								toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? lightImage : darkImage) + ')';
+								toggleDarkElt.style.backgroundImage = 'url(' + (Editor.isDarkMode() ? Editor.lightImage : Editor.darkImage) + ')';
 							}));
 							
 							if (ui.statusContainer != null && urlParams['sketch'] != '1')

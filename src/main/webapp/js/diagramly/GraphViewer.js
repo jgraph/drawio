@@ -1311,7 +1311,8 @@ GraphViewer.prototype.addToolbar = function()
 		var img = document.createElement('img');
 		img.setAttribute('border', '0');
 		img.setAttribute('src', imgSrc);
-		
+		img.style.width = '18px';
+
 		if (enabled == null || enabled)
 		{
 			mxEvent.addListener(a, 'mouseenter', function()
@@ -1563,7 +1564,7 @@ GraphViewer.prototype.addToolbar = function()
 				addButton(mxUtils.bind(this, function()
 				{
 					this.showLightbox();
-				}), Editor.maximizeImage, (mxResources.get('show') || 'Show'));
+				}), Editor.fullscreenImage, (mxResources.get('fullscreen') || 'Fullscreen'));
 			}
 		}
 		else if (this.graphConfig['toolbar-buttons'] != null)
@@ -1891,7 +1892,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 	
 	var closeImg = document.createElement('img');
 	closeImg.setAttribute('border', '0');
-	closeImg.setAttribute('src', Editor.closeImage);
+	closeImg.setAttribute('src', Editor.closeBlackImage);
 	closeImg.style.cssText = 'position:fixed;top:32px;right:32px;';
 	closeImg.style.cursor = 'pointer';
 	
@@ -2425,7 +2426,7 @@ GraphViewer.useResizeSensor = true;
             reset();
             var dirty = false;
 
-            var dirtyChecking = function() {
+            var dirtyChecking = function(){
                 if (!element.resizedAttached) return;
 
                 if (dirty) {

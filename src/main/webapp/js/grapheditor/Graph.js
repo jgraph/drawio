@@ -10700,7 +10700,36 @@ if (typeof mxVertexHandler != 'undefined')
 				// ignore
 			}
 		};
-	
+
+		/**
+		 * Handles special color values.
+		 */
+		var mxCellRendererPostConfigureShape = mxCellRenderer.prototype.postConfigureShape;
+		mxCellRenderer.prototype.postConfigureShape = function(state)
+		{
+			this.resolveColor(state, 'laneFill', mxConstants.STYLE_SWIMLANE_FILLCOLOR);
+			this.resolveColor(state, 'background', mxConstants.STYLE_LABEL_BACKGROUNDCOLOR);
+			
+			mxCellRendererPostConfigureShape.apply(this, arguments);
+		};
+
+		/**
+		 * Adds default background color handling for text and lanes.
+		 */
+		var mxCellRendererResolveColor = mxCellRenderer.prototype.resolveColor;
+		mxCellRenderer.prototype.resolveColor = function(state, field, key)
+		{
+			var shape = (key == mxConstants.STYLE_LABEL_BACKGROUNDCOLOR ? state.text :
+				(key == mxConstants.STYLE_SWIMLANE_FILLCOLOR ? state.shape : null));
+			
+			if (shape != null && shape[field] == 'default')
+			{
+				shape[field] = state.view.graph.defaultPageBackgroundColor;
+			}
+
+			mxCellRendererResolveColor.apply(this, arguments);
+		};
+
 		/**
 		 * Handling of special nl2Br style for not converting newlines to breaks in HTML labels.
 		 * NOTE: Since it's easier to set this when the label is created we assume that it does

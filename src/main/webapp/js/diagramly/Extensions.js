@@ -6111,8 +6111,8 @@ LucidImporter = {};
 			
 			memberCells.sort(function(a, b)
 			{
-				var ai = a.zOrder;
-				var bi = b.zOrder;
+				var ai = a.zOrder || a.ZOrder; // for edges we need ZOrder since they aren't created yet
+				var bi = b.zOrder || b.ZOrder;
 				
 				return (ai != null && bi != null) ? (ai > bi? 1 : (ai < bi? -1 : 0)) : 0; //ZOrder can be negative
 			});
@@ -13250,11 +13250,11 @@ LucidImporter = {};
 									
 									if (gTxtObj.w)
 									{
-										lblGeo.width *= gTxtObj.w;
+										lblGeo.width *= (gTxtObj.w / stencil.w);
 									}									
 									if (gTxtObj.h)
 									{
-										lblGeo.height *= gTxtObj.h;
+										lblGeo.height *= (gTxtObj.h / stencil.h);
 									}
 									if (gTxtObj.x)
 									{

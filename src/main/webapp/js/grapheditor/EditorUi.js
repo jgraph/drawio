@@ -2121,9 +2121,17 @@ EditorUi.prototype.initCanvas = function()
 			this.chromelessToolbar.style.overflow = 'hidden';
 			this.chromelessToolbar.style.boxSizing = 'border-box';
 			this.chromelessToolbar.style.whiteSpace = 'nowrap';
-			this.chromelessToolbar.style.backgroundColor = '#000000';
 			this.chromelessToolbar.style.padding = '10px 10px 8px 10px';
 			this.chromelessToolbar.style.left = (graph.isViewer()) ? '0' : '50%';
+
+			if (!mxClient.IS_IE && !mxClient.IS_IE11)
+			{
+				this.chromelessToolbar.style.backgroundColor = '#000000';
+			}
+			else
+			{
+				this.chromelessToolbar.style.backgroundColor = '#C0C0C0';
+			}
 			
 			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'borderRadius', '20px');
 			mxUtils.setPrefixedStyle(this.chromelessToolbar.style, 'transition', 'opacity 600ms ease-in-out');
@@ -2166,6 +2174,8 @@ EditorUi.prototype.initCanvas = function()
 				var img = document.createElement('img');
 				img.setAttribute('border', '0');
 				img.setAttribute('src', imgSrc);
+				img.style.width = '36px';
+				img.style.filter = 'invert(100%)';
 				
 				a.appendChild(img);
 				this.chromelessToolbar.appendChild(a);
@@ -2179,7 +2189,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					window.location.href = toolbarConfig.backBtn.url;
 					mxEvent.consume(evt);
-				}), Editor.backLargeImage, mxResources.get('back', null, 'Back'));
+				}), Editor.backImage, mxResources.get('back', null, 'Back'));
 			}
 			
 			if (this.isPagesEnabled())
@@ -2188,7 +2198,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					this.actions.get('previousPage').funct();
 					mxEvent.consume(evt);
-				}), Editor.previousLargeImage, mxResources.get('previousPage'));
+				}), Editor.previousImage, mxResources.get('previousPage'));
 				
 				var pageInfo = document.createElement('div');
 				pageInfo.style.display = 'inline-block';
@@ -2196,14 +2206,23 @@ EditorUi.prototype.initCanvas = function()
 				pageInfo.style.fontFamily = Editor.defaultHtmlFont;
 				pageInfo.style.marginTop = '10px';
 				pageInfo.style.fontSize = '14px';
-				pageInfo.style.color = '#ffffff';
+
+				if (!mxClient.IS_IE && !mxClient.IS_IE11)
+				{
+					pageInfo.style.color = '#ffffff';
+				}
+				else
+				{
+					pageInfo.style.color = '#000000';
+				}
+
 				this.chromelessToolbar.appendChild(pageInfo);
 				
 				var nextButton = addButton(mxUtils.bind(this, function(evt)
 				{
 					this.actions.get('nextPage').funct();
 					mxEvent.consume(evt);
-				}), Editor.nextLargeImage, mxResources.get('nextPage'));
+				}), Editor.nextImage, mxResources.get('nextPage'));
 				
 				var updatePageInfo = mxUtils.bind(this, function()
 				{
@@ -2245,13 +2264,13 @@ EditorUi.prototype.initCanvas = function()
 			{
 				this.actions.get('zoomOut').funct();
 				mxEvent.consume(evt);
-			}), Editor.zoomOutLargeImage, mxResources.get('zoomOut') + ' (Alt+Mousewheel)');
+			}), Editor.zoomOutImage, mxResources.get('zoomOut') + ' (Alt+Mousewheel)');
 			
 			addButton(mxUtils.bind(this, function(evt)
 			{
 				this.actions.get('zoomIn').funct();
 				mxEvent.consume(evt);
-			}), Editor.zoomInLargeImage, mxResources.get('zoomIn') + ' (Alt+Mousewheel)');
+			}), Editor.zoomInImage, mxResources.get('zoomIn') + ' (Alt+Mousewheel)');
 			
 			addButton(mxUtils.bind(this, function(evt)
 			{
@@ -2274,7 +2293,7 @@ EditorUi.prototype.initCanvas = function()
 				}
 				
 				mxEvent.consume(evt);
-			}), Editor.actualSizeLargeImage, mxResources.get('fit'));
+			}), Editor.zoomFitImage, mxResources.get('fit'));
 	
 			// Changes toolbar opacity on hover
 			var fadeThread = null;
@@ -2369,7 +2388,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.layersLargeImage, mxResources.get('layers'));
+				}), Editor.layersImage, mxResources.get('layers'));
 				
 				// Shows/hides layers button depending on content
 				var model = graph.getModel();
@@ -2403,7 +2422,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.editLargeImage, mxResources.get('edit'));
+				}), Editor.editImage, mxResources.get('edit'));
 			}
 			
 			if (this.lightboxToolbarActions != null)
@@ -2429,7 +2448,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.refreshLargeImage, mxResources.get('refresh', null, 'Refresh'));
+				}), Editor.refreshImage, mxResources.get('refresh', null, 'Refresh'));
 			}
 
 			if (toolbarConfig.fullscreenBtn != null && window.self !== window.top)
@@ -2446,7 +2465,7 @@ EditorUi.prototype.initCanvas = function()
 					}
 					
 					mxEvent.consume(evt);
-				}), Editor.fullscreenLargeImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
+				}), Editor.fullscreenImage, mxResources.get('openInNewWindow', null, 'Open in New Window'));
 			}
 			
 			if ((toolbarConfig.closeBtn && window.self === window.top) ||
@@ -2463,7 +2482,7 @@ EditorUi.prototype.initCanvas = function()
 						this.destroy();
 						mxEvent.consume(evt);
 					}
-				}), Editor.closeLargeImage, mxResources.get('close') + ' (Escape)');
+				}), Editor.closeImage, mxResources.get('close') + ' (Escape)');
 			}
 	
 			// Initial state invisible
@@ -2961,7 +2980,7 @@ EditorUi.prototype.addChromelessToolbarItems = function(addButton)
 	{
 		this.actions.get('print').funct();
 		mxEvent.consume(evt);
-	}), Editor.printLargeImage, mxResources.get('print'));	
+	}), Editor.printImage, mxResources.get('print'));	
 };
 
 /**

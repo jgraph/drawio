@@ -3179,13 +3179,21 @@
 	    
 	    var btnWidth = 18;
 		var btn = document.createElement('img');
-		btn.setAttribute('src', Dialog.prototype.closeImage);
+		btn.setAttribute('src', Editor.crossImage);
 		btn.setAttribute('title', mxResources.get('close'));
 		btn.setAttribute('valign', 'absmiddle');
 		btn.setAttribute('border', '0');
+		btn.style.position = 'relative';
+		btn.style.top = '2px';
+		btn.style.width = '14px';
 		btn.style.cursor = 'pointer';
 		btn.style.margin = '0 3px';
 		
+		if (Editor.isDarkMode())
+		{
+			btn.style.filter = 'invert(100%)';
+		}
+
 		var saveBtn = null;
 		
 	    if (file.title != '.scratchpad' || this.closableScratchpad)
@@ -3260,7 +3268,7 @@
 				else if (saveBtn == null)
 				{
 					saveBtn = btn.cloneNode(false);
-					saveBtn.setAttribute('src', IMAGE_PATH + '/download.png');
+					saveBtn.setAttribute('src', Editor.saveImage);
 					saveBtn.setAttribute('title', mxResources.get('save'));
 					buttons.insertBefore(saveBtn, buttons.firstChild);
 					
@@ -3592,7 +3600,7 @@
 			{
 				var link = document.createElement('span');
 				link.setAttribute('title', mxResources.get('help'));
-				link.style.cssText = 'color:#a3a3a3;text-decoration:none;margin-right:2px;';
+				link.style.cssText = 'color:#a3a3a3;text-decoration:none;margin-right:2px;cursor:pointer;';
 				mxUtils.write(link, '?');
 				
 				mxEvent.addGestureListeners(link, mxUtils.bind(this, function(evt)
@@ -4692,9 +4700,18 @@
 					this.tagsComponent.div.style.height = 'auto';
 					this.tagsComponent.div.style.position = 'fixed';
 					this.tagsComponent.div.style.fontFamily = Editor.defaultHtmlFont;
-					this.tagsComponent.div.style.backgroundColor = '#000000';
-					this.tagsComponent.div.style.color = '#ffffff';
-					mxUtils.setOpacity(this.tagsComponent.div, 70);
+
+					if (!mxClient.IS_IE && !mxClient.IS_IE11)
+					{
+						this.tagsComponent.div.style.backgroundColor = '#000000';
+						this.tagsComponent.div.style.color = '#ffffff';
+						mxUtils.setOpacity(this.tagsComponent.div, 70);
+					}
+					else
+					{
+						this.tagsComponent.div.style.backgroundColor = '#C0C0C0';
+						this.tagsComponent.div.style.color = '#000000';
+					}
 				}
 
 				if (this.tagsDialog != null)
@@ -4730,7 +4747,7 @@
 				}
 				
 				mxEvent.consume(evt);
-			}), Editor.tagsLargeImage, mxResources.get('tags'));
+			}), Editor.tagsImage, mxResources.get('tags'));
 
 			// Shows/hides tags button depending on content
 			var model = this.editor.graph.getModel();
@@ -4821,7 +4838,7 @@
 					mxUtils.setPrefixedStyle(this.exportDialog.style, 'borderRadius', '5px');
 					this.exportDialog.style.position = 'fixed';
 					this.exportDialog.style.textAlign = 'center';
-					this.exportDialog.style.fontFamily = 'Helvetica,Arial';
+					this.exportDialog.style.fontFamily = Editor.defaultHtmlFont;
 					this.exportDialog.style.backgroundColor = '#000000';
 					this.exportDialog.style.width = '50px';
 					this.exportDialog.style.height = '50px';
@@ -4890,7 +4907,7 @@
 				}
 				
 				mxEvent.consume(evt);
-			}), Editor.cameraLargeImage, mxResources.get('export'));
+			}), Editor.cameraImage, mxResources.get('export'));
 		}
 	};
 
@@ -5690,7 +5707,7 @@
 				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, tags.checked,
 				lightbox.checked, editSection.getLink());
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, 420, true, true);
+		this.showDialog(dlg.container, 340, 430, true, true);
 		copyRadio.focus();
 	};
 	
@@ -5808,7 +5825,7 @@
 		{
 			edit.style.marginLeft = lightbox.style.marginLeft;
 			lightbox.style.display = 'none';
-			dy -= 30;
+			dy -= 20;
 		}
 		
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
@@ -5944,7 +5961,7 @@
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
 		var graph = this.editor.graph;
-		var height = (format == 'jpeg') ? 200 : 280;
+		var height = (format == 'jpeg') ? 220 : 300;
 		
 		var hd = document.createElement('h3');
 		mxUtils.write(hd, title);
@@ -6019,7 +6036,7 @@
 			mxUtils.write(div, mxResources.get('crop'));
 			mxUtils.br(div);
 			
-			height += 26;
+			height += 30;
 			
 			mxEvent.addListener(selection, 'change', function()
 			{
@@ -6041,7 +6058,7 @@
 				selection.style.display = 'none';
 				selection.nextSibling.style.display = 'none';
 				selection.nextSibling.nextSibling.style.display = 'none';
-				height -= 26;
+				height -= 30;
 			}
 		}
 		else
@@ -6092,7 +6109,7 @@
 			mxUtils.write(div, mxResources.get('embedImages'));
 			mxUtils.br(div);
 			
-			height += 26;
+			height += 30;
 		}
 		
 		var grid = null;
@@ -6100,7 +6117,7 @@
 		if (format == 'png' || format == 'jpeg')
 		{
 			grid = this.addCheckbox(div, mxResources.get('grid'), false, this.isOffline() || !this.canvasSupported, false, true); 
-			height += 26;
+			height += 30;
 		}
 		
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
@@ -6133,7 +6150,7 @@
 			div.appendChild(linkSelect);
 			mxUtils.br(div);
 			mxUtils.br(div);
-			height += 40;
+			height += 50;
 		}
 
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
@@ -6222,7 +6239,7 @@
 			fn(fit.checked, shadow.checked, image.checked, lightbox.checked,
 				editSection.getLink(), layers.checked);
 		}), null, mxResources.get('embed'), helpLink);
-		this.showDialog(dlg.container, 280, 290, true, true);
+		this.showDialog(dlg.container, 280, 300, true, true);
 	};
 
 	/**

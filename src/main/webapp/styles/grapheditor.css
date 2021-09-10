@@ -1,5 +1,5 @@
 .geEditor {
-	font-family:Helvetica,Arial,sans-serif;
+	font-family:-apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 	font-size:14px;
 	border:none;
 	margin:0px;
@@ -751,7 +751,7 @@ html table.mxPopupMenu {
 }
 html td.mxPopupMenuItem {
 	padding:7px 30px 7px 30px;
-	font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
+	font-family:-apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
 	font-size:10pt;
 }
 html td.mxPopupMenuIcon {
@@ -786,7 +786,7 @@ table.mxPopupMenu tr {
 	font-size:4pt;
 }
 html td.mxWindowTitle {
-	font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;
+	font-family:-apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, ui-sans-serif, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
  	text-align:left;
  	font-size:12px;
  	color:rgb(112, 112, 112);

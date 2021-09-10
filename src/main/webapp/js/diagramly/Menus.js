@@ -908,7 +908,7 @@
 		{
 			if (this.tagsWindow == null)
 			{
-				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 212, 220);
+				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 212, 200);
 				this.tagsWindow.window.addListener('show', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
@@ -2636,15 +2636,18 @@
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 			
-			item = menu.addItem(mxResources.get('dark'), null, function()
+			if (theme == 'dark' || (!mxClient.IS_IE && !mxClient.IS_IE11))
 			{
-				mxSettings.setUi('dark');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
-			}, parent);
-			
-			if (theme == 'dark')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
+				item = menu.addItem(mxResources.get('dark'), null, function()
+				{
+					mxSettings.setUi('dark');
+					editorUi.alert(mxResources.get('restartForChangeRequired'));
+				}, parent);
+				
+				if (theme == 'dark')
+				{
+					menu.addCheckmark(item, Editor.checkmarkImage);
+				}
 			}
 			
 			menu.addSeparator(parent);

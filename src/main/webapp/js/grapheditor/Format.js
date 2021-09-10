@@ -1165,7 +1165,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				// Checks if the color value needs to be updated in the model
 				if (forceUpdate || hideCheckbox || getColorFn() != value)
 				{
-					setColorFn(value == 'null' ? null : value);
+					setColorFn(value == 'null' ? null : value, value);
 				}
 			}
 			
@@ -1272,12 +1272,38 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 		}
 		
 		return null;
-	}, function(color)
+	}, function(color, realValue)
 	{
 		graph.getModel().beginUpdate();
 		try
 		{
 			var cells = self.format.getSelectionState().cells;
+
+			// Handles special case for label background color in edges and vertices
+			// where the default color is non-null for edges but null for vertices
+			if (colorKey == mxConstants.STYLE_LABEL_BACKGROUNDCOLOR && realValue == 'null')
+			{
+				var vertices = [];
+				var edges = [];
+
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (graph.model.isEdge(cells[i]))
+					{
+						edges.push(cells[i]);
+					}
+					else
+					{
+						vertices.push(cells[i]);
+					}
+
+					graph.setCellStyles(colorKey, 'default', vertices);
+				}
+
+				// Continues with edges after update of vertices
+				cells = edges;
+			}
+
 			graph.setCellStyles(colorKey, color, cells);
 
 			if (setStyleFn != null)
@@ -4731,7 +4757,7 @@ StyleFormatPanel.prototype.getCustomColors = function()
 	
 	if (ss.style.shape == 'swimlane' || ss.style.shape == 'table')
 	{
-		result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: '#ffffff'});
+		result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: 'default'});
 	}
 	
 	return result;

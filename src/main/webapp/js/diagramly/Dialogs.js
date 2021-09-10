@@ -8977,6 +8977,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					wrapper.setAttribute('draggable', 'true');
 					wrapper.style.display = 'inline-block';
 					wrapper.style.position = 'relative';
+					wrapper.style.padding = '0 12px';
 					wrapper.style.cursor = 'move';
 					mxUtils.setPrefixedStyle(wrapper.style, 'transition', 'transform .1s ease-in-out');
 					
@@ -9008,7 +9009,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					}
 					
 					var rem = document.createElement('img');
-					rem.setAttribute('src', Editor.closeImage);
+					rem.setAttribute('src', Editor.closeBlackImage);
 					rem.setAttribute('border', '0');
 					rem.setAttribute('title', mxResources.get('delete'));
 					rem.setAttribute('align', 'top');

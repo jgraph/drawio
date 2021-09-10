@@ -1,3 +1,16 @@
+10-SEP-2021: 15.2.0
+
+- Consolidates icons
+- Fixes scrollbars in dialog for iOS
+- Fixes CSS selector for chromeless toolbar controls
+- Fixes default label background color for vertices https://github.com/jgraph/drawio/issues/2238
+- Adds default, fixes lane color in dark mode https://github.com/jgraph/drawio/issues/2239
+- Uses OS font for application user interface https://github.com/jgraph/drawio-desktop/issues/514
+- Enables tags in all viewers, removes unused images
+- Disables dark mode in IE
+- [lucid import] Fixes issues with group ordering and freehand stencils
+- Removes double click handling in tags dialog
+
 09-SEP-2021: 15.1.4
 
 - Fixes spacing and sizes in tags dialog
@@ -15,7 +28,7 @@
 - Adds tags option for export to lightbox
 - Adds SVG icons for some markers
 - Ignores ghosted waypoints in context menu
-- Fixes edge context menu on some devices https://github.com/jgraph/drawio/issues/DID-3284
+- Fixes edge context menu on some devices DID-3284
 - Adds tags in view menu
 - Makes tags case-sensitive
 - Moves tag click handler to table cell
