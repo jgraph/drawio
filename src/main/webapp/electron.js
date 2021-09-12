@@ -17,6 +17,7 @@ const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
+require('@electron/remote/main').initialize();
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
 						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox
@@ -78,7 +79,8 @@ function createWindow (opt = {})
 			enableRemoteModule: true,
 			nodeIntegrationInWorker: true,
 			spellcheck: (os.platform() == "darwin" ? true : false),
-			contextIsolation: false
+			contextIsolation: false,
+			nativeWindowOpen: true
 		}
 	}, opt)
 
@@ -273,7 +275,8 @@ app.on('ready', e =>
 			show : false,
 			webPreferences: {
 				nodeIntegration: true,
-				contextIsolation: false
+				contextIsolation: false,
+				nativeWindowOpen: true
 			}
 		});
     	
@@ -1215,7 +1218,8 @@ function exportDiagram(event, args, directFinalize)
 			webPreferences: {
 				backgroundThrottling: false,
 				nodeIntegration: true,
-				contextIsolation: false
+				contextIsolation: false,
+				nativeWindowOpen: true
 			},
 			show : false,
 			frame: false,

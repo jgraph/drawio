@@ -4705,11 +4705,12 @@
 					{
 						this.tagsComponent.div.style.backgroundColor = '#000000';
 						this.tagsComponent.div.style.color = '#ffffff';
-						mxUtils.setOpacity(this.tagsComponent.div, 70);
+						mxUtils.setOpacity(this.tagsComponent.div, 80);
 					}
 					else
 					{
-						this.tagsComponent.div.style.backgroundColor = '#C0C0C0';
+						this.tagsComponent.div.style.backgroundColor = '#ffffff';
+						this.tagsComponent.div.style.border = '2px solid black';
 						this.tagsComponent.div.style.color = '#000000';
 					}
 				}

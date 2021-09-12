@@ -1,3 +1,11 @@
+12-SEP-2021: 15.2.1
+
+- Uses icon to toggle layer visibility
+- Hides tooltip when entering chromeless toolbar
+- Handles default color in dialogs
+- Improves handling of default colors for dark mode
+- Fixes inconsistent modifier keys for connections
+
 10-SEP-2021: 15.2.0
 
 - Consolidates icons

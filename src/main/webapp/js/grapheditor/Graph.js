@@ -3255,8 +3255,8 @@ Graph.prototype.isReplacePlaceholders = function(cell)
  */
 Graph.prototype.isZoomWheelEvent = function(evt)
 {
-	return (Graph.zoomWheel && !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) && !mxEvent.isAltDown(evt) &&
-		(!mxEvent.isControlDown(evt) || mxClient.IS_MAC)) ||
+	return (Graph.zoomWheel && !mxEvent.isShiftDown(evt) && !mxEvent.isMetaDown(evt) &&
+		!mxEvent.isAltDown(evt) && (!mxEvent.isControlDown(evt) || mxClient.IS_MAC)) ||
 		(!Graph.zoomWheel && (mxEvent.isAltDown(evt) || mxEvent.isControlDown(evt)));
 };
 
@@ -3281,8 +3281,8 @@ Graph.prototype.isTransparentClickEvent = function(evt)
  */
 Graph.prototype.isIgnoreTerminalEvent = function(evt)
 {
-	return mxEvent.isShiftDown(evt) && (mxEvent.isControlDown(evt) ||
-		(mxClient.IS_MAC && mxEvent.isMetaDown(evt)));
+	return mxEvent.isAltDown(evt) && !mxEvent.isShiftDown(evt) &&
+		!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt);
 };
 
 /**
@@ -3556,7 +3556,7 @@ Graph.prototype.getLayerForCells = function(cells)
 /**
  * 
  */
-Graph.prototype.createLayersDialog = function(onchange)
+Graph.prototype.createLayersDialog = function(onchange, inverted)
 {
 	var div = document.createElement('div');
 	div.style.position = 'absolute';
@@ -3568,47 +3568,64 @@ Graph.prototype.createLayersDialog = function(onchange)
 	{
 		(mxUtils.bind(this, function(layer)
 		{
+			var title = this.convertValueToString(layer) ||
+				(mxResources.get('background') || 'Background');
+
 			var span = document.createElement('div');
 			span.style.overflow = 'hidden';
 			span.style.textOverflow = 'ellipsis';
 			span.style.padding = '2px';
 			span.style.whiteSpace = 'nowrap';
+			span.style.cursor = 'pointer';
+			span.setAttribute('title', mxResources.get(
+				model.isVisible(layer) ?
+				'hideIt' : 'show', [title]));
 
-			var cb = document.createElement('input');
-			cb.style.display = 'inline-block';
-			cb.setAttribute('type', 'checkbox');
-			
-			if (model.isVisible(layer))
+			var inp = document.createElement('img');
+			inp.setAttribute('draggable', 'false');
+			inp.setAttribute('align', 'absmiddle');
+			inp.setAttribute('border', '0');
+			inp.style.position = 'relative';
+			inp.style.width = '16px';
+			inp.style.padding = '0px 6px 0 4px';
+
+			if (inverted)
 			{
-				cb.setAttribute('checked', 'checked');
-				cb.defaultChecked = true;
+				inp.style.filter = 'invert(100%)';
+				inp.style.top = '-2px';
 			}
+
+			span.appendChild(inp);
 			
-			span.appendChild(cb);
-			
-			var title = this.convertValueToString(layer) || (mxResources.get('background') || 'Background');
-			span.setAttribute('title', title);
 			mxUtils.write(span, title);
 			div.appendChild(span);
-			
-			mxEvent.addListener(cb, 'click', function()
+
+			function update()
 			{
-				if (cb.getAttribute('checked') != null)
+				if (model.isVisible(layer))
 				{
-					cb.removeAttribute('checked');
+					inp.setAttribute('src', Editor.visibleImage);
+					mxUtils.setOpacity(span, 75);
 				}
 				else
 				{
-					cb.setAttribute('checked', 'checked');
+					inp.setAttribute('src', Editor.hiddenImage);
+					mxUtils.setOpacity(span, 25);
 				}
-				
-				model.setVisible(layer, cb.checked);
+			};
+			
+			mxEvent.addListener(span, 'click', function()
+			{
+				model.setVisible(layer, !model.isVisible(layer));
+				update();
 
 				if (onchange != null)
 				{
 					onchange(layer);
 				}
 			});
+
+			update();
 		})(model.getChildAt(model.root, i)));
 	}
 	
@@ -10707,27 +10724,29 @@ if (typeof mxVertexHandler != 'undefined')
 		var mxCellRendererPostConfigureShape = mxCellRenderer.prototype.postConfigureShape;
 		mxCellRenderer.prototype.postConfigureShape = function(state)
 		{
-			this.resolveColor(state, 'laneFill', mxConstants.STYLE_SWIMLANE_FILLCOLOR);
-			this.resolveColor(state, 'background', mxConstants.STYLE_LABEL_BACKGROUNDCOLOR);
-			
+			var fg = Editor.isDarkMode() ? '#ffffff' : '#000000';
+			var bg = state.view.graph.defaultPageBackgroundColor;
+
+			this.resolveDefaultColor(state, 'fill', state.shape, bg);
+			this.resolveDefaultColor(state, 'stroke', state.shape, fg);
+			this.resolveDefaultColor(state, 'laneFill', state.shape, bg);
+			this.resolveDefaultColor(state, 'imageBackground', state.shape, bg);
+			this.resolveDefaultColor(state, 'imageBorder', state.shape, fg);
+			this.resolveDefaultColor(state, 'background', state.text, bg);
+			this.resolveDefaultColor(state, 'color', state.text, fg);
+
 			mxCellRendererPostConfigureShape.apply(this, arguments);
 		};
 
 		/**
 		 * Adds default background color handling for text and lanes.
 		 */
-		var mxCellRendererResolveColor = mxCellRenderer.prototype.resolveColor;
-		mxCellRenderer.prototype.resolveColor = function(state, field, key)
+		mxCellRenderer.prototype.resolveDefaultColor = function(state, field, shape, defaultValue)
 		{
-			var shape = (key == mxConstants.STYLE_LABEL_BACKGROUNDCOLOR ? state.text :
-				(key == mxConstants.STYLE_SWIMLANE_FILLCOLOR ? state.shape : null));
-			
 			if (shape != null && shape[field] == 'default')
 			{
-				shape[field] = state.view.graph.defaultPageBackgroundColor;
+				shape[field] = defaultValue;
 			}
-
-			mxCellRendererResolveColor.apply(this, arguments);
 		};
 
 		/**

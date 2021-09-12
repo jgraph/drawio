@@ -239,7 +239,7 @@ mxStencilRegistry.allowEval = false;
 		//On windows, misconfigured Documents folder cause an exception
 		try
 		{
-			return require('electron').remote.app.getPath('documents');
+			return require('@electron/remote').app.getPath('documents');
 		}
 		catch(e) {}
 		
@@ -251,7 +251,7 @@ mxStencilRegistry.allowEval = false;
 		try
 		{
 			var fs = require('fs');
-			var appDataDir = require('electron').remote.app.getPath('appData');
+			var appDataDir = require('@electron/remote').app.getPath('appData');
         	var drawioDir = appDataDir + '/draw.io';
         	
         	if (!fs.existsSync(drawioDir)) //Usually this dir already exists
@@ -329,8 +329,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			if (editorUi.getCurrentFile() != null)
 			{
-				const electron = require('electron');
-				var remote = electron.remote;
+				var remote = require('@electron/remote');
 				var dialog = remote.dialog;
 				const sysPath = require('path')
 				var lastDir = localStorage.getItem('.lastImpDir');
@@ -545,8 +544,7 @@ mxStencilRegistry.allowEval = false;
 				{
 					var tmpGraph = createGraph();
 					tmpGraph.importCells(cells, 0, 0, tmpGraph.getDefaultParent());
-					const electron = require('electron');
-					var remote = electron.remote;
+					var remote = require('@electron/remote');
 					var clipboard = remote.clipboard;
 					var codec = new mxCodec();
 		            var node = codec.encode(tmpGraph.getModel());
@@ -564,8 +562,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			try
 			{
-				const electron = require('electron');
-				var remote = electron.remote;
+				var remote = require('@electron/remote');
 				var clipboard = remote.clipboard;
 				var modelString = clipboard.readText(); 
 				
@@ -664,8 +661,7 @@ mxStencilRegistry.allowEval = false;
 				
 				var extPluginsBtn = mxUtils.button(mxResources.get('selectFile') + '...', function()
 				{
-					const electron = require('electron');
-					var remote = electron.remote;
+					var remote = require('@electron/remote');
 					var dialog = remote.dialog;
 					const sysPath = require('path');
 					var lastDir = localStorage.getItem('.lastPluginDir');
@@ -936,8 +932,7 @@ mxStencilRegistry.allowEval = false;
 	// Uses local picker
 	App.prototype.chooseFileEntry = function(fn)
 	{
-		const electron = require('electron');
-		var remote = electron.remote;
+		var remote = require('@electron/remote');
 		var dialog = remote.dialog;
 		const sysPath = require('path')
 		var lastDir = localStorage.getItem('.lastOpenDir');
@@ -1404,8 +1399,7 @@ mxStencilRegistry.allowEval = false;
 			
 			if (this.fileObject == null)
 			{
-				const electron = require('electron');
-				var remote = electron.remote;
+				var remote = require('@electron/remote');
 				var dialog = remote.dialog;
 				const sysPath = require('path')
 				var lastDir = localStorage.getItem('.lastSaveDir');
@@ -1451,8 +1445,7 @@ mxStencilRegistry.allowEval = false;
 
 	LocalFile.prototype.saveAs = function(title, success, error)
 	{
-		const electron = require('electron');
-		var remote = electron.remote;
+		var remote = require('@electron/remote');
 		var dialog = remote.dialog;
 		const sysPath = require('path')
 		var lastDir = localStorage.getItem('.lastSaveDir');
@@ -1646,9 +1639,9 @@ mxStencilRegistry.allowEval = false;
 	{
 		try
 		{
-			const electron = require('electron');
+			const remote = require('@electron/remote');
 			
-			electron.remote.clipboard.write({image: electron.remote.
+			remote.clipboard.write({image: remote.
 				nativeImage.createFromDataURL(dataUrl), html: '<img src="' +
 				dataUrl + '" width="' + w + '" height="' + h + '">'});
 		}
@@ -1877,8 +1870,7 @@ mxStencilRegistry.allowEval = false;
 	
 	EditorUi.prototype.saveData = function(filename, format, data, mimeType, base64Encoded)
 	{
-		const electron = require('electron');
-		var remote = electron.remote;
+		var remote = require('@electron/remote');
 		var dialog = remote.dialog;
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
 		const sysPath = require('path')

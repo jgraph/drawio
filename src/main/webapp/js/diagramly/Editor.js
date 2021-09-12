@@ -506,7 +506,8 @@
         	var fillColor = mxUtils.getValue(state.style, mxConstants.STYLE_FILLCOLOR, null);
         	
         	return format.editorUi.editor.graph.isSwimlane(state.vertices[0]) ||
-        		fillColor == null || fillColor == mxConstants.NONE;
+        		fillColor == null || fillColor == mxConstants.NONE ||
+				state.style['pointerEvents'] != null;
         }},
         {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)
         {
@@ -2503,6 +2504,12 @@
 			return true;
 		}
 		
+		// Does not use proxy for same domain
+		if (url.substring(0, window.location.origin.length) == window.location.origin)
+		{
+			return true;
+		}
+
 		// Blocked by CSP in production but allowed for hosted deployment
 		if (urlParams['cors'] != null && this.corsRegExp == null)
 		{

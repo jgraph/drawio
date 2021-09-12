@@ -1091,7 +1091,8 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 /**
  * Adds the given color option.
  */
-BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setColorFn, defaultColor, listener, callbackFn, hideCheckbox)
+BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setColorFn,
+	defaultColor, listener, callbackFn, hideCheckbox, defaultColorValue)
 {
 	var div = document.createElement('div');
 	div.style.padding = '6px 0px 1px 0px';
@@ -1126,10 +1127,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 			applying = true;
 			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultValue;
-			btn.innerHTML = '<div style="width:' +
-				'36px;height:12px;margin:3px;border:1px solid black;background-color:' +
-				mxUtils.htmlEntities((color != null && color != mxConstants.NONE) ?
-				color : defaultValue) + ';"></div>';
+			var tempColor = (color != null && color != mxConstants.NONE) ? color : defaultValue;
+			btn.innerHTML = '<div style="width:36px;height:12px;margin:3px;border:1px solid black;' +
+				'background-color:' + mxUtils.htmlEntities((tempColor == 'default') ?
+				defaultColorValue : tempColor) + ';"></div>';
 
 			if (color != null && color != mxConstants.NONE && color.length > 1 && typeof color === 'string')
 			{
@@ -1183,9 +1184,16 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 
 	btn = mxUtils.button('', mxUtils.bind(this, function(evt)
 	{
+		var color = value;
+
+		if (color == 'default')
+		{
+			color = defaultColorValue;
+		}
+		
 		if (mxEvent.isShiftDown(evt) && !mxClient.IS_IE && !mxClient.IS_IE11)
 		{
-			clrInput.value = value;
+			clrInput.value = color;
 			clrInput.click();
 
 			mxEvent.addListener(clrInput, 'input', function()
@@ -1195,10 +1203,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		}
 		else
 		{
-			this.editorUi.pickColor(value, function(color)
+			this.editorUi.pickColor(color, function(newColor)
 			{
-				apply(color, null, true);
-			});
+				apply(newColor, null, true);
+			}, defaultColorValue);
 		}
 
 		mxEvent.consume(evt);
@@ -1254,7 +1262,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 /**
  * 
  */
-BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defaultColor, callbackFn, setStyleFn)
+BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defaultColor, callbackFn, setStyleFn, defaultColorValue)
 {
 	var ui = this.editorUi;
 	var editor = ui.editor;
@@ -1278,32 +1286,6 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 		try
 		{
 			var cells = self.format.getSelectionState().cells;
-
-			// Handles special case for label background color in edges and vertices
-			// where the default color is non-null for edges but null for vertices
-			if (colorKey == mxConstants.STYLE_LABEL_BACKGROUNDCOLOR && realValue == 'null')
-			{
-				var vertices = [];
-				var edges = [];
-
-				for (var i = 0; i < cells.length; i++)
-				{
-					if (graph.model.isEdge(cells[i]))
-					{
-						edges.push(cells[i]);
-					}
-					else
-					{
-						vertices.push(cells[i]);
-					}
-
-					graph.setCellStyles(colorKey, 'default', vertices);
-				}
-
-				// Continues with edges after update of vertices
-				cells = edges;
-			}
-
 			graph.setCellStyles(colorKey, color, cells);
 
 			if (setStyleFn != null)
@@ -1339,7 +1321,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 		{
 			graph.getModel().removeListener(this.listener);
 		}
-	}, callbackFn);
+	}, callbackFn, null, defaultColorValue);
 };
 
 /**
@@ -3428,13 +3410,13 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		install: function(apply) { bgColorApply = apply; },
 		destroy: function() { bgColorApply = null; }
-	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'null', null, function(color)
+	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', null, function(color)
 	{
 		graph.updateLabelElements(ss.cells, function(elt)
 		{
 			elt.style.backgroundColor = null;
 		});
-	});
+	}, graph.defaultPageBackgroundColor);
 	bgPanel.style.fontWeight = 'bold';
 
 	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'), mxConstants.STYLE_LABEL_BORDERCOLOR, '#000000');
@@ -3509,8 +3491,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		install: function(apply) { fontColorApply = apply; },
 		destroy: function() { fontColorApply = null; }
-	}, null, true) : this.createCellColorOption(mxResources.get('fontColor'), mxConstants.STYLE_FONTCOLOR,
-		(defs[mxConstants.STYLE_FONTCOLOR] != null) ? defs[mxConstants.STYLE_FONTCOLOR] : '#000000', function(color)
+	}, null, true) : this.createCellColorOption(mxResources.get('fontColor'),
+		mxConstants.STYLE_FONTCOLOR, 'default', function(color)
 	{
 		if (color == mxConstants.NONE)
 		{
@@ -3533,14 +3515,14 @@ TextFormatPanel.prototype.addFont = function(container)
 			graph.setCellStyles(mxConstants.STYLE_NOLABEL, null, ss.cells);
 		}
 		
-		graph.updateCellStyles(mxConstants.STYLE_FONTCOLOR, color, ss.cells);
+		graph.setCellStyles(mxConstants.STYLE_FONTCOLOR, color, ss.cells);
 
 		graph.updateLabelElements(ss.cells, function(elt)
 		{
 			elt.removeAttribute('color');
 			elt.style.color = null;
 		});
-	});
+	}, Editor.isDarkMode() ? '#ffffff' : '#000000');
 	panel.style.fontWeight = 'bold';
 	
 	colorPanel.appendChild(panel);
@@ -4648,13 +4630,12 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var fillKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BACKGROUND : mxConstants.STYLE_FILLCOLOR;
 	var label = (ss.style.shape == 'image') ? mxResources.get('background') : mxResources.get('fill');
 	
-	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
-	var fillPanel = this.createCellColorOption(label, fillKey, (defs[fillKey] != null) ? defs[fillKey] : '#ffffff', null, mxUtils.bind(this, function(color)
+	var fillPanel = this.createCellColorOption(label, fillKey, 'default', null, mxUtils.bind(this, function(color)
 	{
-		graph.updateCellStyles(fillKey, color, ss.cells);
-	}));
-	fillPanel.style.fontWeight = 'bold';
+		graph.setCellStyles(fillKey, color, ss.cells);
+	}), graph.defaultPageBackgroundColor);
 
+	fillPanel.style.fontWeight = 'bold';
 	var tmpColor = mxUtils.getValue(ss.style, fillKey, null);
 	gradientPanel.style.display = (tmpColor != null && tmpColor != mxConstants.NONE &&
 		ss.fill && ss.style.shape != 'image') ? '' : 'none';
@@ -4844,11 +4825,10 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var strokeKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BORDER : mxConstants.STYLE_STROKECOLOR;
 	var label = (ss.style.shape == 'image') ? mxResources.get('border') : mxResources.get('line');
 	
-	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
-	var lineColor = this.createCellColorOption(label, strokeKey, (defs[strokeKey] != null) ? defs[strokeKey] : '#000000', null, mxUtils.bind(this, function(color)
+	var lineColor = this.createCellColorOption(label, strokeKey, 'default', null, mxUtils.bind(this, function(color)
 	{
-		graph.updateCellStyles(strokeKey, color, ss.cells);
-	}));
+		graph.setCellStyles(strokeKey, color, ss.cells);
+	}), Editor.isDarkMode() ? '#ffffff' : '#000000');
 	
 	lineColor.appendChild(styleSelect);
 	colorPanel.appendChild(lineColor);
