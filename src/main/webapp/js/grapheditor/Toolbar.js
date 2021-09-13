@@ -26,13 +26,12 @@ function Toolbar(editorUi, container)
 /**
  * Image for the dropdown arrow.
  */
-Toolbar.prototype.dropdownImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/dropdown.gif' : 'data:image/gif;base64,R0lGODlhDQANAIABAHt7e////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCREM1NkJFMjE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCREM1NkJFMzE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQzOUMzMjZCMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQzOUMzMjZDMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhGMj6nL3QAjVHIu6azbvPtWAAA7';
+Toolbar.prototype.dropDownImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/dropdown.gif' : 'data:image/gif;base64,R0lGODlhDQANAIABAHt7e////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCREM1NkJFMjE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCREM1NkJFMzE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQzOUMzMjZCMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQzOUMzMjZDMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhGMj6nL3QAjVHIu6azbvPtWAAA7';
 
 /**
  * Image element for the dropdown arrow.
  */
-Toolbar.prototype.dropdownImageHtml = '<img border="0" style="position:absolute;right:4px;top:' +
-	((!EditorUi.compactUi) ? 8 : 6) + 'px;" src="' + Toolbar.prototype.dropdownImage + '" valign="middle"/>';
+Toolbar.prototype.dropDownImageHtml = '<img border="0" src="' + Toolbar.prototype.dropDownImage + '" valign="middle"/>';
 
 /**
  * Defines the background for selected buttons.
@@ -92,8 +91,8 @@ Toolbar.prototype.init = function()
 	// Updates the label if the scale changes
 	this.updateZoom = mxUtils.bind(this, function()
 	{
-		viewMenu.innerHTML = Math.round(this.editorUi.editor.graph.view.scale * 100) + '%' +
-			this.dropdownImageHtml;
+		viewMenu.innerHTML = Math.round(this.editorUi.editor.graph.view.scale * 100) + '%';
+		this.appendDropDownImageHtml(viewMenu);
 		
 		if (EditorUi.compactUi)
 		{
@@ -171,6 +170,21 @@ Toolbar.prototype.init = function()
 	var insertMenu = this.addMenu('', mxResources.get('insert') + ' (' + mxResources.get('doubleClickTooltip') + ')', true, 'insert', null, true);
 	this.addDropDownArrow(insertMenu, 'geSprite-plus', 38, 48, -4, -3, 36, -8);
 	this.addTableDropDown();
+};
+
+/**
+ * Adds the toolbar elements.
+ */
+Toolbar.prototype.appendDropDownImageHtml = function(elt)
+{
+	elt.innerHTML += this.dropDownImageHtml;
+	
+	var imgs = elt.getElementsByTagName('img');
+	var img = imgs[imgs.length - 1];
+	
+	img.style.position = 'absolute';
+	img.style.right = '4px';
+	img.style.top = (!EditorUi.compactUi ? 8 : 6) + 'px';
 };
 
 /**
@@ -280,8 +294,12 @@ Toolbar.prototype.addTableDropDown = function()
 	menuElt.style.position = 'relative';
 	menuElt.style.whiteSpace = 'nowrap';
 	menuElt.style.overflow = 'hidden';
-	menuElt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
 	menuElt.style.width = '30px';
+	menuElt.innerHTML = '<div class="geSprite geSprite-table"></div>';
+	this.appendDropDownImageHtml(menuElt);
+	
+	var div = menuElt.getElementsByTagName('div')[0];
+	div.style.marginLeft = '-2px';
 
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
@@ -317,10 +335,15 @@ Toolbar.prototype.addDropDownArrow = function(menu, sprite, width, atlasWidth, l
 	menu.style.whiteSpace = 'nowrap';
 	menu.style.overflow = 'hidden';
 	menu.style.position = 'relative';
-	menu.innerHTML = '<div class="geSprite ' + sprite + '" style="margin-left:' + left + 'px;margin-top:' + top + 'px;"></div>' +
-		this.dropdownImageHtml;
 	menu.style.width = (atlasWidth - atlasDelta) + 'px';
 	
+	menu.innerHTML = '<div class="geSprite ' + sprite + '"></div>';
+	this.appendDropDownImageHtml(menu);
+	
+	var div = menu.getElementsByTagName('div')[0];
+	div.style.marginLeft = left + 'px';
+	div.style.marginTop = top + 'px';
+
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
 	{
@@ -338,7 +361,8 @@ Toolbar.prototype.setFontName = function(value)
 	if (this.fontMenu != null)
 	{
 		this.fontMenu.innerHTML = '<div style="width:60px;overflow:hidden;display:inline-block;">' +
-			mxUtils.htmlEntities(value) + '</div>' + this.dropdownImageHtml;
+			mxUtils.htmlEntities(value) + '</div>';
+		this.appendDropDownImageHtml(this.fontMenu);
 	}
 };
 
@@ -350,7 +374,8 @@ Toolbar.prototype.setFontSize = function(value)
 	if (this.sizeMenu != null)
 	{
 		this.sizeMenu.innerHTML = '<div style="width:24px;overflow:hidden;display:inline-block;">' +
-			mxUtils.htmlEntities(value) + '</div>' + this.dropdownImageHtml;
+			mxUtils.htmlEntities(value) + '</div>';
+		this.appendDropDownImageHtml(this.sizeMenu);
 	}
 };
 
@@ -365,7 +390,8 @@ Toolbar.prototype.createTextToolbar = function()
 	styleElt.style.position = 'relative';
 	styleElt.style.whiteSpace = 'nowrap';
 	styleElt.style.overflow = 'hidden';
-	styleElt.innerHTML = mxResources.get('style') + this.dropdownImageHtml;
+	styleElt.innerHTML = mxResources.get('style');
+	this.appendDropDownImageHtml(styleElt);
 	
 	if (EditorUi.compactUi)
 	{
@@ -471,8 +497,9 @@ Toolbar.prototype.createTextToolbar = function()
 	alignMenu.style.position = 'relative';
 	alignMenu.style.whiteSpace = 'nowrap';
 	alignMenu.style.overflow = 'hidden';
-	alignMenu.innerHTML = '<div class="geSprite geSprite-left" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
 	alignMenu.style.width = '30px';
+	alignMenu.innerHTML = '<div class="geSprite geSprite-left" style="margin-left:-2px;"></div>';
+	this.appendDropDownImageHtml(alignMenu);
 
 	if (EditorUi.compactUi)
 	{
@@ -509,9 +536,9 @@ Toolbar.prototype.createTextToolbar = function()
 	formatMenu.style.position = 'relative';
 	formatMenu.style.whiteSpace = 'nowrap';
 	formatMenu.style.overflow = 'hidden';
-	formatMenu.innerHTML = '<div class="geSprite geSprite-dots" style="margin-left:-2px;"></div>' +
-		this.dropdownImageHtml;
 	formatMenu.style.width = '30px';
+	formatMenu.innerHTML = '<div class="geSprite geSprite-dots" style="margin-left:-2px;"></div>';
+	this.appendDropDownImageHtml(formatMenu);
 
 	if (EditorUi.compactUi)
 	{
@@ -557,9 +584,9 @@ Toolbar.prototype.createTextToolbar = function()
 	insertMenu.style.whiteSpace = 'nowrap';
 	insertMenu.style.overflow = 'hidden';
 	insertMenu.style.position = 'relative';
-	insertMenu.innerHTML = '<div class="geSprite geSprite-plus" style="margin-left:-4px;margin-top:-3px;"></div>' +
-		this.dropdownImageHtml;
 	insertMenu.style.width = '16px';
+	insertMenu.innerHTML = '<div class="geSprite geSprite-plus" style="margin-left:-4px;margin-top:-3px;"></div>';
+	this.appendDropDownImageHtml(insertMenu);
 	
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)
@@ -781,8 +808,9 @@ Toolbar.prototype.createTextToolbar = function()
 	elt.style.position = 'relative';
 	elt.style.whiteSpace = 'nowrap';
 	elt.style.overflow = 'hidden';
-	elt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>' + this.dropdownImageHtml;
 	elt.style.width = '30px';
+	elt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>';
+	this.appendDropDownImageHtml(elt);
 
 	// Fix for item size in kennedy theme
 	if (EditorUi.compactUi)

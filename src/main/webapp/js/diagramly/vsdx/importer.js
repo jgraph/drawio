@@ -60,24 +60,26 @@ var com;
                 
                 mxVsdxCodec.parsererrorNS_$LI$ = function ()
                 {
-            		if (mxVsdxCodec.parsererrorNS == null)
-            		{
-            			mxVsdxCodec.parsererrorNS = "";
-            			
-            			if (window.DOMParser) 
-            			{
-	            			var parser = new DOMParser();
-	            			
-	            			try
-	            			{
-	            				mxVsdxCodec.parsererrorNS = parser.parseFromString('<', 'text/xml').getElementsByTagName("parsererror")[0].namespaceURI;
-	            			}
-	            			catch(e)
-	            			{
-	            				//ignore! IE11 throw an exception on XML syntax error
-	            			}
-            			}
-        			}
+					mxVsdxCodec.parsererrorNS = mxConstants.NS_XHTML;
+	
+//            		if (mxVsdxCodec.parsererrorNS == null)
+//            		{
+//            			mxVsdxCodec.parsererrorNS = "";
+//            			
+//            			if (window.DOMParser) 
+//            			{
+//	            			var parser = new DOMParser();
+//	            			
+//	            			try
+//	            			{
+//	            				mxVsdxCodec.parsererrorNS = parser.parseFromString('<', 'text/xml').getElementsByTagName("parsererror")[0].namespaceURI;
+//	            			}
+//	            			catch(e)
+//	            			{
+//	            				//ignore! IE11 throw an exception on XML syntax error
+//	            			}
+//            			}
+//        			}
 
             		return mxVsdxCodec.parsererrorNS;
                 };

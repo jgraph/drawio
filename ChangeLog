@@ -1,3 +1,9 @@
+13-SEP-2021: 15.2.2
+
+- Fixes possible NPE due to getAllTags scope
+- Fixes drop target detection with live preview and guides
+- Adds safe-style-src URL parameter
+
 12-SEP-2021: 15.2.1
 
 - Uses icon to toggle layer visibility

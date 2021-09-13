@@ -1549,10 +1549,10 @@ GraphViewer.prototype.addToolbar = function()
 					}
 				}), Editor.tagsImage, mxResources.get('tags') || 'Tags');
 
-				model.addListener(mxEvent.CHANGE, function()
+				model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function()
 				{
 					tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
-				});
+				}));
 				
 				tagsButton.style.display = (this.graph.getAllTags().length > 0) ? 'inline-block' : 'none';
 			}

@@ -1485,14 +1485,18 @@ EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
  */
 EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
 {
-	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots" ' +
-		'style="display:inline-block;margin-top:5px;width:21px;height:21px;"></div>',
-		hoverEnabled);
+	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots"></div>', hoverEnabled);
 	tab.setAttribute('title', mxResources.get('pages'));
 	tab.style.position = 'absolute';
 	tab.style.marginLeft = '0px';
 	tab.style.top = '0px';
 	tab.style.left = '1px';
+	
+	var div = tab.getElementsByTagName('div')[0];
+	div.style.display = 'inline-block';
+	div.style.marginTop = '5px';
+	div.style.width = '21px';
+	div.style.height = '21px';
 	
 	mxEvent.addListener(tab, 'click', mxUtils.bind(this, function(evt)
 	{
@@ -1587,7 +1591,7 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
  */
 EditorUi.prototype.createPageInsertTab = function()
 {
-	var tab = this.createControlTab(4, '<div class="geSprite geSprite-plus" style="display:inline-block;width:21px;height:21px;"></div>');
+	var tab = this.createControlTab(4, '<div class="geSprite geSprite-plus"></div>');
 	tab.setAttribute('title', mxResources.get('insertPage'));
 	var graph = this.editor.graph;
 	
@@ -1596,6 +1600,11 @@ EditorUi.prototype.createPageInsertTab = function()
 		this.insertPage();
 		mxEvent.consume(evt);
 	}));
+	
+	var div = tab.getElementsByTagName('div')[0];
+	div.style.display = 'inline-block';
+	div.style.width = '21px';
+	div.style.height = '21px';
 	
 	return tab;
 };

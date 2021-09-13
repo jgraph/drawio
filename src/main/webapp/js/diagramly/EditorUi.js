@@ -3834,7 +3834,11 @@
 		elt2.style.fontWeight = 'bold';
 		elt2.style.height = '100%';
 		elt2.style.paddingTop = '9px';
-		elt2.innerHTML = '<span style="font-size:18px;margin-right:5px;">+</span>';
+		elt2.innerHTML = '<span>+</span>';
+		
+		var span = elt2.getElementsByTagName('span')[0];
+		span.style.fontSize = '18px';
+		span.style.marginRight = '5px';
 
 		mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
 

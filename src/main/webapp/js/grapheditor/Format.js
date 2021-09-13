@@ -1128,9 +1128,14 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 			applying = true;
 			color = (/(^#?[a-zA-Z0-9]*$)/.test(color)) ? color : defaultValue;
 			var tempColor = (color != null && color != mxConstants.NONE) ? color : defaultValue;
-			btn.innerHTML = '<div style="width:36px;height:12px;margin:3px;border:1px solid black;' +
-				'background-color:' + mxUtils.htmlEntities((tempColor == 'default') ?
-				defaultColorValue : tempColor) + ';"></div>';
+
+			var div = document.createElement('div');
+			div.style.width = '36px';
+			div.style.height = '12px';
+			div.style.margin = '3px';
+			div.style.border = '1px solid black';
+			div.style.backgroundColor = (tempColor == 'default') ? defaultColorValue : tempColor;
+			btn.appendChild(div);
 
 			if (color != null && color != mxConstants.NONE && color.length > 1 && typeof color === 'string')
 			{

@@ -13,40 +13,61 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		var hashes = 'default-src \'self\'; ' +
 			// storage.googleapis.com is needed for workbox-service-worker
 			'script-src %script-src% \'self\' https://viewer.diagrams.net https://storage.googleapis.com ' +
-				'https://apis.google.com https://*.pusher.com ' +
-				// Below are the SHAs of the two script blocks in index.html.
-				// These must be updated here and in the CDN after changes.
-				//----------------------------------------------------------//
-				//------------- Bootstrap script in index.html -------------//
-				//----------------------------------------------------------//
-				// Version 14.6.5
-				'\'sha256-5DtSB5mj34lxcEf+HFWbBLEF49xxJaKnWGDWa/utwQA=\' ' +
-				// Version 14.1.1
-				'\'sha256-8HtpzsH4zj5+RKfTWMxPmWJKBu0OYbn+WuPrLbVky+g=\' ' +
-				//---------------------------------------------------------//
-				//------------- App.main script in index.html -------------//
-				//---------------------------------------------------------//
-				// Version 13.8.2
-				'\'sha256-vS/MxlVD7nbY7AnV+0t1Ap338uF7vrcs7y23KjERhKc=\' ' +
-				//---------------------------------------------------------//
-				'; '
+			'https://apis.google.com https://*.pusher.com ' +
+			// Below are the SHAs of the two script blocks in index.html.
+			// These must be updated here and in the CDN after changes.
+			//----------------------------------------------------------//
+			//------------- Bootstrap script in index.html -------------//
+			//----------------------------------------------------------//
+			// Version 14.6.5
+			'\'sha256-5DtSB5mj34lxcEf+HFWbBLEF49xxJaKnWGDWa/utwQA=\' ' +
+			// Version 14.1.1
+			'\'sha256-8HtpzsH4zj5+RKfTWMxPmWJKBu0OYbn+WuPrLbVky+g=\' ' +
+			//---------------------------------------------------------//
+			//------------- App.main script in index.html -------------//
+			//---------------------------------------------------------//
+			// Version 13.8.2
+			'\'sha256-vS/MxlVD7nbY7AnV+0t1Ap338uF7vrcs7y23KjERhKc=\' ' +
+			//---------------------------------------------------------//
+			'; ';
 
-			directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
-				'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
-				'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
-				'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
-				'https://dl.dropboxusercontent.com ' +
-				'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
+		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
+			'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
+			'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
+			'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
+			'https://dl.dropboxusercontent.com ' +
+			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 			// font-src about: is required for MathJax HTML-CSS output with STIX
 			'img-src * data: blob:; media-src * data:; font-src * about:; ' +
 			// www.draw.io required for browser data migration to app.diagrams.net and
 			// viewer.diagrams.net required for iframe embed preview
 			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +
-			'style-src %style-src% \'self\' \'unsafe-inline\' https://fonts.googleapis.com; ' +
-			'object-src \'none\';'
+			'style-src %style-src% \'self\'  https://fonts.googleapis.com ' +
+			// Replaces unsafe-inline style-src with hashes with safe-style-src URL parameter
+			((urlParams['safe-style-src'] == '1') ?
+				'\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
+				'\'sha256-lIHBKgPqa9U8e3ua/XSSKGgh1MUj3WcSc2oMCCp4TA8=\' ' + // Minimal.js
+				'\'sha256-C8wuxb8BaPzZC+AckdhJOzzm7RDSsDwIEsWQvyWGr9M=\' ' + // Minimal.js
+				'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js
+				'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js
+				'\'sha256-3hENQqEWUBxdkmJp2kQ2+G0F8NVGzFAVkW5vWDo7ONk=\' ' + // MathJax.js
+				'\'sha256-Z4u/cxrZPHjN20CIXZHTKr+VlqVxrWG8cbbeC2zmPqI=\' ' + // MathJax.js
+				'\'sha256-LDMABiyg2T48kuAV9ouqNCSEqf2OkUdlZK9D9CeZHBs=\' ' + // MathJax.js
+				'\'sha256-XQfwbaSNgLzro3IzkwT0uZLAiBvZzajo0QZx7oW158E=\' ' + // MathJax.js
+				'\'sha256-++XCePvZXKdegIqkwtbudr16Jx87KFh4t/t7UxsbHpw=\' ' + // MathJax.js
+				'\'sha256-v9NOL6IswMbY7zpRZjxkYujhuGRVvZtp1c1MfdnToB4=\' ' + // MathJax.js
+				'\'sha256-5xtuTr9UuyJoTQ76CNLzvSJjS7onwfq73B2rLWCl3aE=\' ' + // MathJax.js
+				'\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\' ' + // spin.min.js
+				'\'sha256-nzHi23DROym7G011m6y0DyDd9mvQL2hSJ0Gy3g2T/5Q=\' ' + // dropins.js
+				'\'sha256-76P1PZLzT12kfw2hkrLn5vu/cWZgcOYuSYU3RT3rXKA=\' ' + // gapi
+				'\'sha256-TH1YO7Owtg52rPfkQs+Us6yN6exn7w99CdIBBm9BmMQ=\' ' + // EditorUi.js/setStatusText
+				'\'sha256-BVDQBydLCxJaNBx7XQ39NlAWOXvekR4XonponQy0Kqs=\' ' + // EditorUi.js/setStatusText
+				'\'unsafe-hashes\'' // Required for style attributes
+			: '\'unsafe-inline\' ') +
+			'; ' + // end of style-src
+			'object-src \'none\';';
 			
-			csp = hashes + directives;
-
+		var csp = hashes + directives;
 		var devCsp = csp.
 			// Adds script tags and loads shapes with eval
 			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://code.jquery.com https://devhost.jgraph.com \'unsafe-eval\'').
