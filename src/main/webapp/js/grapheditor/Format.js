@@ -1358,8 +1358,12 @@ BaseFormatPanel.prototype.addArrow = function(elt, height)
 	
 	arrow.style.height = height + 'px';
 	arrow.style.borderLeft = '1px solid #a0a0a0';
-	arrow.innerHTML = '<img border="0" src="' + ((mxClient.IS_SVG) ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAHBJREFUeNpidHB2ZyAGsACxDRBPIKCuA6TwCBB/h2rABu4A8SYmKCcXiP/iUFgAxL9gCi8A8SwsirZCMQMTkmANEH9E4v+CmsaArvAdyNFI/FlQ92EoBIE+qCRIUz168DBgsU4OqhinQpgHMABAgAEALY4XLIsJ20oAAAAASUVORK5CYII=' :
-		IMAGE_PATH + '/dropdown.png') + '" style="margin-bottom:4px;">';
+	arrow.innerHTML = Toolbar.prototype.dropDownImageHtml;
+
+	var img = arrow.getElementsByTagName('img')[0];
+	img.style.position = 'relative';
+	img.style.left = '2px';
+	img.style.top = '-4px';
 	mxUtils.setOpacity(arrow, 70);
 	
 	var symbol = elt.getElementsByTagName('div')[0];

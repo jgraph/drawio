@@ -31,6 +31,28 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			//---------------------------------------------------------//
 			'; ';
 
+		var styleHashes = '\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
+			'\'sha256-lIHBKgPqa9U8e3ua/XSSKGgh1MUj3WcSc2oMCCp4TA8=\' ' + // Minimal.js
+			'\'sha256-C8wuxb8BaPzZC+AckdhJOzzm7RDSsDwIEsWQvyWGr9M=\' ' + // Minimal.js
+			'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js
+			'\'sha256-7kY8ozVqKLIIBwZ24dhdmZkM26PsOlZmEi72RhmZKoM=\' ' + // mxTooltipHandler.js
+			'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js
+			'\'sha256-3hENQqEWUBxdkmJp2kQ2+G0F8NVGzFAVkW5vWDo7ONk=\' ' + // MathJax.js
+			'\'sha256-Z4u/cxrZPHjN20CIXZHTKr+VlqVxrWG8cbbeC2zmPqI=\' ' + // MathJax.js
+			'\'sha256-LDMABiyg2T48kuAV9ouqNCSEqf2OkUdlZK9D9CeZHBs=\' ' + // MathJax.js
+			'\'sha256-XQfwbaSNgLzro3IzkwT0uZLAiBvZzajo0QZx7oW158E=\' ' + // MathJax.js
+			'\'sha256-++XCePvZXKdegIqkwtbudr16Jx87KFh4t/t7UxsbHpw=\' ' + // MathJax.js
+			'\'sha256-v9NOL6IswMbY7zpRZjxkYujhuGRVvZtp1c1MfdnToB4=\' ' + // MathJax.js
+			'\'sha256-5xtuTr9UuyJoTQ76CNLzvSJjS7onwfq73B2rLWCl3aE=\' ' + // MathJax.js
+			'\'sha256-W21B506Ri8aGW3T87iawssPz71NvvbYZfBfzDbBSArU=\' ' + // MathJax.js
+			'\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\' ' + // spin.min.js
+			'\'sha256-nzHi23DROym7G011m6y0DyDd9mvQL2hSJ0Gy3g2T/5Q=\' ' + // dropins.js
+			'\'sha256-76P1PZLzT12kfw2hkrLn5vu/cWZgcOYuSYU3RT3rXKA=\' ' + // gapi
+			'\'sha256-TH1YO7Owtg52rPfkQs+Us6yN6exn7w99CdIBBm9BmMQ=\' ' + // EditorUi.js/setStatusText
+			'\'sha256-BVDQBydLCxJaNBx7XQ39NlAWOXvekR4XonponQy0Kqs=\' ' + // EditorUi.js/setStatusText
+			'\'sha256-XyWdorjjG7PV/C1qMStgkyz6U9OMPCvOiMJneepjceA=\' ' + // EditorUi.js/setStatusText
+			'\'unsafe-hashes\'; '; // Required for hashes for style attribute
+		
 		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
 			'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 			'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
@@ -44,27 +66,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'frame-src %frame-src% \'self\' https://viewer.diagrams.net https://www.draw.io https://*.google.com; ' +
 			'style-src %style-src% \'self\'  https://fonts.googleapis.com ' +
 			// Replaces unsafe-inline style-src with hashes with safe-style-src URL parameter
-			((urlParams['safe-style-src'] == '1') ?
-				'\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
-				'\'sha256-lIHBKgPqa9U8e3ua/XSSKGgh1MUj3WcSc2oMCCp4TA8=\' ' + // Minimal.js
-				'\'sha256-C8wuxb8BaPzZC+AckdhJOzzm7RDSsDwIEsWQvyWGr9M=\' ' + // Minimal.js
-				'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js
-				'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js
-				'\'sha256-3hENQqEWUBxdkmJp2kQ2+G0F8NVGzFAVkW5vWDo7ONk=\' ' + // MathJax.js
-				'\'sha256-Z4u/cxrZPHjN20CIXZHTKr+VlqVxrWG8cbbeC2zmPqI=\' ' + // MathJax.js
-				'\'sha256-LDMABiyg2T48kuAV9ouqNCSEqf2OkUdlZK9D9CeZHBs=\' ' + // MathJax.js
-				'\'sha256-XQfwbaSNgLzro3IzkwT0uZLAiBvZzajo0QZx7oW158E=\' ' + // MathJax.js
-				'\'sha256-++XCePvZXKdegIqkwtbudr16Jx87KFh4t/t7UxsbHpw=\' ' + // MathJax.js
-				'\'sha256-v9NOL6IswMbY7zpRZjxkYujhuGRVvZtp1c1MfdnToB4=\' ' + // MathJax.js
-				'\'sha256-5xtuTr9UuyJoTQ76CNLzvSJjS7onwfq73B2rLWCl3aE=\' ' + // MathJax.js
-				'\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\' ' + // spin.min.js
-				'\'sha256-nzHi23DROym7G011m6y0DyDd9mvQL2hSJ0Gy3g2T/5Q=\' ' + // dropins.js
-				'\'sha256-76P1PZLzT12kfw2hkrLn5vu/cWZgcOYuSYU3RT3rXKA=\' ' + // gapi
-				'\'sha256-TH1YO7Owtg52rPfkQs+Us6yN6exn7w99CdIBBm9BmMQ=\' ' + // EditorUi.js/setStatusText
-				'\'sha256-BVDQBydLCxJaNBx7XQ39NlAWOXvekR4XonponQy0Kqs=\' ' + // EditorUi.js/setStatusText
-				'\'unsafe-hashes\'' // Required for style attributes
-			: '\'unsafe-inline\' ') +
-			'; ' + // end of style-src
+			((urlParams['safe-style-src'] == '1') ? styleHashes : '\'unsafe-inline\'; ') +
 			'object-src \'none\';';
 			
 		var csp = hashes + directives;
@@ -77,6 +79,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			replace(/%style-src%/g, 'https://devhost.jgraph.com').
 			replace(/%frame-src%/g, '').
 			replace(/  /g, ' ');
+
 		mxmeta(null, devCsp, 'Content-Security-Policy');
 
 		if (urlParams['print-csp'] == '1')
@@ -89,20 +92,19 @@ if (!mxIsElectron && location.protocol !== 'http:')
 					replace(/  /g, ' ') + ' frame-ancestors \'self\' https://teams.microsoft.com;';
 			console.log('app.diagrams.net:', app_diagrams_net);
 
-				se_diagrams_net = hashes.
-				replace(/%script-src%/g, '') +
+			var se_diagrams_net = hashes.replace(/%script-src%/g, '') +
 				'connect-src \'self\' https://*.diagrams.net ' +
 				'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 				'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
-			'img-src * data: blob:; media-src * data:; font-src * about:; ' +
-			'frame-src \'self\' https://viewer.diagrams.net https://*.google.com; ' +
-			'style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com;' +
-			'object-src \'none\';' +
-			'form-action \'none\';' +
-			'base-uri \'none\';' +
-			'child-src \'none\';' +
-			'frame-src \'none\';' +
-			'worker-src https://se.diagrams.net/service-worker.js;'
+				'img-src * data: blob:; media-src * data:; font-src * about:; ' +
+				'frame-src \'self\' https://viewer.diagrams.net https://*.google.com; ' +
+				'style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; ' +
+				'object-src \'none\';' +
+				'form-action \'none\';' +
+				'base-uri \'none\';' +
+				'child-src \'none\';' +
+				'frame-src \'none\';' +
+				'worker-src https://se.diagrams.net/service-worker.js;'
 			console.log('se.diagrams.net:', se_diagrams_net);
 
 			// TODO remove https://ajax.googleapis.com April 2022. It's old jquery domain
