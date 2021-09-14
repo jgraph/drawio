@@ -32,10 +32,10 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'; ';
 
 		var styleHashes = '\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
-			'\'sha256-lIHBKgPqa9U8e3ua/XSSKGgh1MUj3WcSc2oMCCp4TA8=\' ' + // Minimal.js
-			'\'sha256-C8wuxb8BaPzZC+AckdhJOzzm7RDSsDwIEsWQvyWGr9M=\' ' + // Minimal.js
-			'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js
+			'\'sha256-Zgs8E4y6/1ZPUNwCar2OPticxk02Qlb+ky2zxyN772k=\' ' + // Minimal.js/Light
+			'\'sha256-NryHJ98pEOOFw9ZzA0Lltx+TKVhrJlQQzOqHjE0q8H8=\' ' + // Minimal.js/Dark
 			'\'sha256-7kY8ozVqKLIIBwZ24dhdmZkM26PsOlZmEi72RhmZKoM=\' ' + // mxTooltipHandler.js
+			'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js/mathJaxWebkitCss
 			'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js
 			'\'sha256-3hENQqEWUBxdkmJp2kQ2+G0F8NVGzFAVkW5vWDo7ONk=\' ' + // MathJax.js
 			'\'sha256-Z4u/cxrZPHjN20CIXZHTKr+VlqVxrWG8cbbeC2zmPqI=\' ' + // MathJax.js
@@ -48,9 +48,6 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\' ' + // spin.min.js
 			'\'sha256-nzHi23DROym7G011m6y0DyDd9mvQL2hSJ0Gy3g2T/5Q=\' ' + // dropins.js
 			'\'sha256-76P1PZLzT12kfw2hkrLn5vu/cWZgcOYuSYU3RT3rXKA=\' ' + // gapi
-			'\'sha256-TH1YO7Owtg52rPfkQs+Us6yN6exn7w99CdIBBm9BmMQ=\' ' + // EditorUi.js/setStatusText
-			'\'sha256-BVDQBydLCxJaNBx7XQ39NlAWOXvekR4XonponQy0Kqs=\' ' + // EditorUi.js/setStatusText
-			'\'sha256-XyWdorjjG7PV/C1qMStgkyz6U9OMPCvOiMJneepjceA=\' ' + // EditorUi.js/setStatusText
 			'\'unsafe-hashes\'; '; // Required for hashes for style attribute
 		
 		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
@@ -98,7 +95,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 				'img-src * data: blob:; media-src * data:; font-src * about:; ' +
 				'frame-src \'self\' https://viewer.diagrams.net https://*.google.com; ' +
-				'style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; ' +
+				'style-src \'self\' https://fonts.googleapis.com ' + styleHashes + ' ' +
 				'object-src \'none\';' +
 				'form-action \'none\';' +
 				'base-uri \'none\';' +

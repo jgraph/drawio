@@ -101,6 +101,11 @@
 	EditorUi.scratchpadHelpLink = 'https://www.diagrams.net/doc/faq/scratchpad';
 
 	/**
+	 * Disables web fonts if unsafe-inline style-src is not allowed.
+	 */
+	 FontDialog.enableWebFonts = urlParams['safe-style-src'] != '1';
+
+	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {
@@ -2651,7 +2656,7 @@
 				// Realtime files have a valid status message
 				if (!file.isEditable())
 				{
-					this.editor.setStatus('<span class="geStatusAlert" style="margin-left:8px;">' +
+					this.editor.setStatus('<span class="geStatusAlert">' +
 						mxUtils.htmlEntities(mxResources.get('readOnly')) + '</span>');
 				}
 				// Handles modified state after error of loading new file

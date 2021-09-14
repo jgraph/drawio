@@ -11584,7 +11584,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.style.whiteSpace = 'nowrap';
 	td.style.fontSize = '10pt';
 	td.style.fontWeight = 'bold';
-	
+
 	var webFontRadio = document.createElement('input');
 	webFontRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
 	webFontRadio.setAttribute('value', 'webfonts');
@@ -11599,7 +11599,11 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.appendChild(label);
 	
 	row.appendChild(td);
-	tbody.appendChild(row);
+
+	if (FontDialog.enableWebFonts)
+	{
+		tbody.appendChild(row);
+	}
 	
 	row = document.createElement('tr');
 	
@@ -11616,7 +11620,14 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	if (curType == 'w')
 	{
-		webFontInput.setAttribute('value', curFontname);
+		if (FontDialog.enableWebFonts)
+		{
+			webFontInput.setAttribute('value', curFontname);
+		}
+		else
+		{
+			sysFontInput.setAttribute('value', curFontname);
+		}
 	}
 	
 	webFontInput.style.marginLeft = '4px';
@@ -11626,7 +11637,11 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td = document.createElement('td');
 	td.appendChild(webFontInput);
 	row.appendChild(td);
-	tbody.appendChild(row);
+
+	if (FontDialog.enableWebFonts)
+	{
+		tbody.appendChild(row);
+	}
 	
 	row = document.createElement('tr');
 	
@@ -11648,7 +11663,11 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td = document.createElement('td');
 	td.appendChild(webFontUrlInput);
 	row.appendChild(td);
-	tbody.appendChild(row);
+
+	if (FontDialog.enableWebFonts)
+	{
+		tbody.appendChild(row);
+	}
 	
 	this.init = function()
 	{
@@ -11658,7 +11677,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 		{
 			input = googleFontInput;
 		}
-		else if (curType == 'w')
+		else if (curType == 'w' && FontDialog.enableWebFonts)
 		{
 			input = webFontInput;
 		}
@@ -11877,6 +11896,11 @@ function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 	div.appendChild(btns);
 	this.container = div;
 };
+
+/**
+ * Specifies if web fonts are enabled.
+ */
+FontDialog.enableWebFonts = true;
 
 //Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
 AspectDialog.prototype.init = function()

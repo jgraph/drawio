@@ -460,33 +460,35 @@ DrawioFileSync.prototype.updateStatus = function()
 
 			var label = mxResources.get('lastChange', [str]);
 			
-			this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(label) +
-				'" style="display:inline-block;">' + mxUtils.htmlEntities(label)  + '</div>' +
-				((msg != null) ? ' <span style="opacity:0;" title="' + mxUtils.htmlEntities(msg) +
-				'">(' + mxUtils.htmlEntities(msg) + ')</span>' : '') +
-				(this.file.isEditable() ? '' : '<div class="geStatusAlert" style="margin-left:8px;display:inline-block;">' +
-					mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>') +
-				(this.isConnected() ? '' : '<div class="geStatusAlert geBlink" style="margin-left:8px;display:inline-block;">' +
-					mxUtils.htmlEntities(mxResources.get('disconnected')) + '</div>'));
+			this.ui.editor.setStatus('<div title="'+ mxUtils.htmlEntities(label) + '">' + mxUtils.htmlEntities(label) + '</div>' +
+				(this.file.isEditable() ? '' : '<div class="geStatusAlert">' + mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>') +
+				(this.isConnected() ? '' : '<div class="geStatusAlert">' + mxUtils.htmlEntities(mxResources.get('disconnected')) + '</div>') +
+				((msg != null) ? ' <span title="' + mxUtils.htmlEntities(msg) + '">(' + mxUtils.htmlEntities(msg) + ')</span>' : ''));
 			var links = this.ui.statusContainer.getElementsByTagName('div');
 			
 			if (links.length > 0 && history)
 			{
-				links[0].style.cursor = 'pointer';
-				links[0].style.textDecoration = 'underline';
-				
-				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
+				links[0].style.display = 'inline-block';
+
+				if (history)
 				{
-					this.ui.actions.get('revisionHistory').funct();
-				}));
+					links[0].style.cursor = 'pointer';
+					links[0].style.textDecoration = 'underline';
+					
+					mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
+					{
+						this.ui.actions.get('revisionHistory').funct();
+					}));
+				}
 			}
-			
+
 			// Fades in/out last message
 			var spans = this.ui.statusContainer.getElementsByTagName('span');
 			
 			if (spans.length > 0)
 			{
 				var temp = spans[0];
+				temp.style.opacity = '0';
 				mxUtils.setPrefixedStyle(temp.style, 'transition', 'all 0.2s ease');
 				
 				window.setTimeout(mxUtils.bind(this, function()

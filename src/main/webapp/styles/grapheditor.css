@@ -86,21 +86,28 @@
 	filter:alpha(opacity=80);
 	font-size:9pt;
 }
-.geStatusAlert {
+.geStatus > * {
+	overflow:hidden;
 	white-space:nowrap;
-	margin-top:-5px;
+	vertical-align:middle;
+	display:inline-block;
 	font-size:12px;
-	padding:4px 6px 4px 6px;
+	margin-right:8px;
+}
+.geStatus img {
+	max-width:16px;
+	margin-top:-1px;
+	vertical-align:top;
+}
+.geStatusAlert {
+	padding:4px 8px;
 	background-color:#f2dede;
 	border:1px solid #ebccd1;
 	color:#a94442 !important;
 	border-radius:3px;
 }
 .geStatusAlertOrange {
-	white-space:nowrap;
-	margin-top:-5px;
-	font-size:12px;
-	padding:4px 6px 4px 6px;
+	padding:4px 8px;
 	background-color:rgb(242, 147, 30);
 	border:rgb(240, 135, 5);
 	color:#000000 !important;
@@ -111,8 +118,6 @@
 	opacity:1;
 }
 .geStatusMessage {
-	white-space:nowrap;
-	margin-top:-5px;
 	padding:4px 6px 4px 6px;
 	font-size:12px;
 	background: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
@@ -289,7 +294,8 @@
 }
 .geMenubar a.geStatus {
 	color:#888888;
-	padding-left:12px;
+	padding-top:3px;
+	padding-left:8px;
 	display:inline-block;
 	cursor:default !important;
 }

@@ -4367,7 +4367,7 @@
 						}
 					}
 				}));
-				this.editorUi.showDialog(dlg.container, 380, 250, true, true);
+				this.editorUi.showDialog(dlg.container, 380, FontDialog.enableWebFonts ? 250 : 180, true, true);
 				dlg.init();
 			}), parent, null, true);
 		})));

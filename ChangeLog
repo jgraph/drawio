@@ -1,3 +1,11 @@
+14-SEP-2021: 15.2.6
+
+- Fixes SVG export in IE, adds more status hashes
+- Removes inline styles for status messages
+- Adds FontDialog.enableWebFonts switch
+- Removes unsafe-inline style-src for se CSP outputs
+- [electron] Fixes issue using old remote in Init.js (disabled localStorage)
+
 13-SEP-2021: 15.2.5
 
 - Uses DOM API for SVG gradients

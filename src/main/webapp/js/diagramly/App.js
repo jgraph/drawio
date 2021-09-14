@@ -1735,8 +1735,7 @@ App.prototype.init = function()
 					
 					var status = mxUtils.htmlEntities(mxResources.get('timeout'));
 					this.editor.setStatus('<div title="'+ status +
-						'" class="geStatusAlert" style="overflow:hidden;">' + status +
-						'</div>');
+						'" class="geStatusAlert">' + status + '</div>');
 				}
 				
 				EditorUi.logEvent({category: 'TIMEOUT-CACHE-CHECK', action: 'timeout', label: 408});
@@ -5347,7 +5346,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							// Shows a warning if a copy was opened which happens
 							// eg. for .png files in IE as they cannot be written
 							var status = mxResources.get('copyCreated');
-							this.editor.setStatus('<div title="'+ status + '" class="geStatusAlert" style="overflow:hidden;">' + status + '</div>');
+							this.editor.setStatus('<div title="'+ status +
+								'" class="geStatusAlert">' + status + '</div>');
 						}
 						
 						if (success != null)
@@ -6261,7 +6261,7 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 			{
 				// TODO: Add callback with url param for clickable status message
 				// "File exported. Click here to open folder."
-//				this.editor.setStatus('<div class="geStatusMessage" style="cursor:pointer;">' +
+//				this.editor.setStatus('<div class="geStatusMessage">' +
 //					mxResources.get('saved') + '</div>');
 //				
 //				// Installs click handler for opening
@@ -6271,6 +6271,8 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 //					
 //					if (links.length > 0)
 //					{
+//						links[0].style.cursor = 'pointer';
+//
 //						mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
 //						{
 //							if (resp != null && resp.id != null)
