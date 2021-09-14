@@ -11900,7 +11900,7 @@ function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 /**
  * Specifies if web fonts are enabled.
  */
-FontDialog.enableWebFonts = true;
+FontDialog.enableWebFonts = urlParams['safe-style-src'] != '1';;
 
 //Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
 AspectDialog.prototype.init = function()

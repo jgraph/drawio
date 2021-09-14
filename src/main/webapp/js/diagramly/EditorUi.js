@@ -101,11 +101,6 @@
 	EditorUi.scratchpadHelpLink = 'https://www.diagrams.net/doc/faq/scratchpad';
 
 	/**
-	 * Disables web fonts if unsafe-inline style-src is not allowed.
-	 */
-	 FontDialog.enableWebFonts = urlParams['safe-style-src'] != '1';
-
-	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {

@@ -1,3 +1,7 @@
+14-SEP-2021: 15.2.7
+
+- Fixes possible use of undefined FontDialog
+
 14-SEP-2021: 15.2.6
 
 - Fixes SVG export in IE, adds more status hashes
