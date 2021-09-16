@@ -612,8 +612,10 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 /**
  * Adds a menu item to insert a table.
  */
-Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
+Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOptions)
 {
+	showOptions = (showOptions != null) ? showOptions : true;
+
 	insertFn = (insertFn != null) ? insertFn : mxUtils.bind(this, function(evt, rows, cols)
 	{
 		var graph = this.editorUi.editor.graph;
@@ -734,14 +736,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 	var titleOption = document.createElement('input');
 	titleOption.setAttribute('id', 'geTitleOption');
 	titleOption.setAttribute('type', 'checkbox');
-	elt2.firstChild.appendChild(titleOption);
-	
-	var lbl = document.createElement('label');
-	mxUtils.write(lbl, mxResources.get('title'));
-	lbl.setAttribute('for', 'geTitleOption');
-	elt2.firstChild.appendChild(lbl);
-	
-	mxEvent.addGestureListeners(lbl, null, null, mxUtils.bind(this, function(e)
+
+	var titleLbl = document.createElement('label');
+	mxUtils.write(titleLbl, mxResources.get('title'));
+	titleLbl.setAttribute('for', 'geTitleOption');
+
+	mxEvent.addGestureListeners(titleLbl, null, null, mxUtils.bind(this, function(e)
 	{
 		mxEvent.consume(e);
 	}));
@@ -751,19 +751,15 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 		mxEvent.consume(e);
 	}));
 	
-	mxUtils.br(elt2.firstChild);
-	
 	var containerOption = document.createElement('input');
 	containerOption.setAttribute('id', 'geContainerOption');
 	containerOption.setAttribute('type', 'checkbox');
-	elt2.firstChild.appendChild(containerOption);
 	
-	var lbl = document.createElement('label');
-	mxUtils.write(lbl, mxResources.get('container'));
-	lbl.setAttribute('for', 'geContainerOption');
-	elt2.firstChild.appendChild(lbl);
-	
-	mxEvent.addGestureListeners(lbl, null, null, mxUtils.bind(this, function(e)
+	var containerLbl = document.createElement('label');
+	mxUtils.write(containerLbl, mxResources.get('container'));
+	containerLbl.setAttribute('for', 'geContainerOption');
+
+	mxEvent.addGestureListeners(containerLbl, null, null, mxUtils.bind(this, function(e)
 	{
 		mxEvent.consume(e);
 	}));
@@ -773,8 +769,16 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent)
 		mxEvent.consume(e);
 	}));
 	
-	mxUtils.br(elt2.firstChild);
-	mxUtils.br(elt2.firstChild);
+	if (showOptions)
+	{
+		elt2.firstChild.appendChild(titleOption);
+		elt2.firstChild.appendChild(titleLbl);
+		mxUtils.br(elt2.firstChild);
+		elt2.firstChild.appendChild(containerOption);
+		elt2.firstChild.appendChild(containerLbl);
+		mxUtils.br(elt2.firstChild);
+		mxUtils.br(elt2.firstChild);
+	}
 	
 	var picker = createPicker(5, 5);
 	elt2.firstChild.appendChild(picker);

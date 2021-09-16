@@ -1,3 +1,20 @@
+16-SEP-2021: 15.2.9
+
+- Fixes OneDrive inline picker script not loaded
+
+16-SEP-2021: 15.2.8
+
+- Moves enableWebFonts switch to Editor
+- Fixes inconsistent naming for shadowOptionEnabled
+- Adds more label flexibility to C4 Database shape
+- Uses SVG for spinner in sketch and min theme
+- Hides title and container option for HTML table
+- Adds colspan in test mode
+- Fixes duplicate rounded style for flexArrow
+- [gliffy import] Fixes svg image clipping (#DID-1443 and #DID-3137)
+- Adds comment for embedded SVG files
+- Using OneDrive inline picker by default
+
 14-SEP-2021: 15.2.7
 
 - Fixes possible use of undefined FontDialog

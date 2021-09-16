@@ -96,8 +96,7 @@
 }
 .geStatus img {
 	max-width:16px;
-	margin-top:-1px;
-	vertical-align:top;
+	vertical-align:bottom;
 }
 .geStatusAlert {
 	padding:4px 8px;

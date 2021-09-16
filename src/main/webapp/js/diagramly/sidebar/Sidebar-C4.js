@@ -120,9 +120,10 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Database');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'Technology');
 		        bg.setAttribute('c4Description', 'Description');
-		    	bg.setAttribute('label', '%c4Type%<div>[Container:&nbsp;%c4Technology%]</div><br><div>%c4Description%</div>');
+		    	bg.setAttribute('label', '%c4Type%<div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div>%c4Description%</div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Database');
 			}),				

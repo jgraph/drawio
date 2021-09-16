@@ -187,16 +187,23 @@
 				'rowLines', '1') != '0';
 			var columnLines = mxUtils.getValue(this.state.style,
 				'columnLines', '1') != '0';
+			var geo = graph.getCellGeometry(rows[0]);
+			var rowData = [{y: (geo != null) ? geo.y + geo.height : 0,
+				cells: graph.model.getChildCells(rows[0], true)}];
 			
 			// Paints row lines
 			if (rowLines)
 			{
 				for (var i = 1; i < rows.length; i++)
 				{
-					var geo = graph.getCellGeometry(rows[i]);
-					
+					geo = graph.getCellGeometry(rows[i]);
+					var data = {y: 0, cells: graph.model.getChildCells(rows[i], true)};
+					rowData.push(data);
+
 					if (geo != null)
 					{
+						data.y = geo.y + geo.height;
+
 						c.begin();
 						c.moveTo(x + start.x, y + geo.y);
 						c.lineTo(x + w - start.width, y + geo.y);
@@ -213,12 +220,37 @@
 				// Paints column lines
 				for (var i = 1; i < cols.length; i++)
 				{
-					var geo = graph.getCellGeometry(cols[i]);
+					geo = graph.getCellGeometry(cols[i]);
 					
 					if (geo != null)
 					{
 						c.begin();
 						c.moveTo(x + geo.x + start.x, y + start.y);
+						var th = 0;
+
+						for (var j = 0; j < rowData.length; j++)
+						{
+							var data = rowData[j];
+
+							if (data != null)
+							{
+								if (graph.model.isVisible(data.cells[i]))
+								{
+									th = data.y;
+								}
+								else
+								{
+									if (th > 0)
+									{
+										c.lineTo(x + geo.x + start.x, y + th - start.height);
+									}
+
+									c.moveTo(x + geo.x + start.x, y + data.y);
+									th = 0;
+								}
+							}
+						}
+
 						c.lineTo(x + geo.x + start.x, y + h - start.height);
 						c.end();
 						c.stroke();

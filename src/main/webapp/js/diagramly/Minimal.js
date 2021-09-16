@@ -1855,11 +1855,11 @@ EditorUi.initMinimalTheme = function()
 						var file = ui.getCurrentFile();
 						var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
 						
-						if (ui.notificationBtn != null &&
-							ui.notificationBtn.getAttribute('title') == mxResources.get(key) + '...')
+						if (ui.notificationBtn != null && ui.notificationBtn.getAttribute('title') ==
+							mxResources.get(key) + '...')
 						{
 							ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
-								mxResources.get(key)) + '...' + '"src="' + IMAGE_PATH + '/spin.gif">';
+								mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '">';
 							ui.statusContainer.style.display = 'inline-block';
 							statusVisible = true;
 						}
@@ -1963,10 +1963,11 @@ EditorUi.initMinimalTheme = function()
 					
 					(function()
 					{
-						var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength, 0),
-							'edgeStyle=none;curved=1;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;' +
+						var edgeStyle = 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;' +
 							'endArrow=open;sourcePerimeterSpacing=8;targetPerimeterSpacing=8;fontSize=16;' +
-							((urlParams['rough'] != '0') ? 'sketch=1;' : ''));
+							((urlParams['rough'] != '0') ? 'sketch=1;' : '');
+						var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength, 0),
+							edgeStyle + 'curved=1;rounded=0;');
 						cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 0), false);
 						cell.geometry.points = [];
@@ -1979,7 +1980,7 @@ EditorUi.initMinimalTheme = function()
 							mxResources.get('line'));
 							
 						cell = cell.clone();
-						cell.style += 'shape=flexArrow;rounded=1;startSize=8;endSize=8;';
+						cell.style = edgeStyle + 'shape=flexArrow;rounded=1;startSize=8;endSize=8;';
 						cell.geometry.width = graph.defaultEdgeLength + 20;
 						cell.geometry.setTerminalPoint(new mxPoint(0, 20), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);

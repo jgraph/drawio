@@ -16,12 +16,9 @@ window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker, noLogout)
 		isExtAuth = true;
 	}
 	
-	if (inlinePicker == null && 
-		((window.urlParams != null && window.urlParams['inlinePicker'] == '1') ||
-		mxClient.IS_ANDROID || mxClient.IS_IOS //Mobile devices doesn't work with OneDrive picker, so, use the inline picker
-		))
+	if (inlinePicker == null) //Use inline picker as default
 	{
-		inlinePicker = true;
+		inlinePicker = (window.urlParams != null && window.urlParams['inlinePicker'] == '0')? false : true;
 	}
 	
 	if (noLogout == null && window.urlParams != null && window.urlParams['noLogoutOD'] == '1')

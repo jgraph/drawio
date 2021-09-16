@@ -11600,7 +11600,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	
 	row.appendChild(td);
 
-	if (FontDialog.enableWebFonts)
+	if (Editor.enableWebFonts)
 	{
 		tbody.appendChild(row);
 	}
@@ -11620,7 +11620,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 
 	if (curType == 'w')
 	{
-		if (FontDialog.enableWebFonts)
+		if (Editor.enableWebFonts)
 		{
 			webFontInput.setAttribute('value', curFontname);
 		}
@@ -11638,7 +11638,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.appendChild(webFontInput);
 	row.appendChild(td);
 
-	if (FontDialog.enableWebFonts)
+	if (Editor.enableWebFonts)
 	{
 		tbody.appendChild(row);
 	}
@@ -11664,7 +11664,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 	td.appendChild(webFontUrlInput);
 	row.appendChild(td);
 
-	if (FontDialog.enableWebFonts)
+	if (Editor.enableWebFonts)
 	{
 		tbody.appendChild(row);
 	}
@@ -11677,7 +11677,7 @@ var FontDialog = function(editorUi, curFontname, curUrl, curType, fn)
 		{
 			input = googleFontInput;
 		}
-		else if (curType == 'w' && FontDialog.enableWebFonts)
+		else if (curType == 'w' && Editor.enableWebFonts)
 		{
 			input = webFontInput;
 		}
@@ -11896,11 +11896,6 @@ function AspectDialog(editorUi, pageId, layerIds, okFn, cancelFn)
 	div.appendChild(btns);
 	this.container = div;
 };
-
-/**
- * Specifies if web fonts are enabled.
- */
-FontDialog.enableWebFonts = urlParams['safe-style-src'] != '1';;
 
 //Drawing the graph with dialog not visible doesn't get dimensions right. It has to be visible!
 AspectDialog.prototype.init = function()

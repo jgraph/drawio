@@ -431,6 +431,10 @@
 				<file name="DriveComment.js" />
 			</sources>
 			
+			<sources dir="${war.dir}/js/onedrive">
+				<file name="mxODPicker.js" />
+			</sources>
+			
 			<sources dir="${war.dir}/js/diagramly">
 				<file name="App.js" />
 				<file name="Menus.js" />

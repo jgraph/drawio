@@ -265,7 +265,6 @@ App.DROPINS_URL = 'https://www.dropbox.com/static/api/2/dropins.js';
  * But it doesn't work for IE11, so we fallback to the original one
  */
 App.ONEDRIVE_URL = mxClient.IS_IE11? 'https://js.live.net/v7.2/OneDrive.js' : window.DRAWIO_BASE_URL + '/js/onedrive/OneDrive.js';
-App.ONEDRIVE_INLINE_PICKER_URL = window.DRAWIO_BASE_URL + '/js/onedrive/mxODPicker.js';
 
 /**
  * Trello URL
@@ -517,16 +516,13 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
+							if (urlParams['inlinePicker'] == '0')
 							{
-								mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
-								{
-									window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
-								});
+								mxscript(App.ONEDRIVE_URL);
 							}
 							else
 							{
-								mxscript(App.ONEDRIVE_URL);
+								window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
 							}
 						}
 						else if (urlParams['chrome'] == '0')
@@ -958,17 +954,14 @@ App.main = function(callback, createUi)
 						urlParams['od'] == '1')) && (navigator.userAgent == null ||
 						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 					{
-						if (urlParams['inlinePicker'] == '1' || mxClient.IS_ANDROID || mxClient.IS_IOS)
+						if (urlParams['inlinePicker'] == '0')
 						{
-							mxscript(App.ONEDRIVE_INLINE_PICKER_URL, function()
-							{
-								window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
-								window.DrawOneDriveClientCallback();
-							});
+							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
 						}
 						else
 						{
-							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+							window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
+							window.DrawOneDriveClientCallback();
 						}
 					}
 					// Disables client

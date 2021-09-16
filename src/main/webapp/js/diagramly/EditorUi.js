@@ -86,8 +86,8 @@
 	 * Shortcut for capability check.
 	 */
 	EditorUi.nativeFileSupport = !mxClient.IS_OP && !EditorUi.isElectronApp &&
-		urlParams['extAuth'] != '1' &&
-		'showSaveFilePicker' in window && 'showOpenFilePicker' in window;
+		urlParams['extAuth'] != '1' && 'showSaveFilePicker' in window &&
+		'showOpenFilePicker' in window;
 
 	/**
 	 * Specifies if drafts should be saved in IndexedDB.
@@ -1931,7 +1931,7 @@
 			
 			if (format == 'xml')
 			{
-		    	var data = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+		    	var data = Graph.xmlDeclaration +'\n' +
 		    		this.getFileData(true, null, null, null, ignoreSelection, currentPage,
 		    			null, null, null, uncompressed);
 		    	
@@ -1984,9 +1984,7 @@
 					{
 						this.spinner.stop();
 						
-						saveSvg('<?xml version="1.0" encoding="UTF-8"?>\n' +
-							'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-							mxUtils.getXml(svgRoot2));
+						saveSvg(Graph.xmlDeclaration + '\n' + Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot2));
 					})));
 		    	}
 		    	else
@@ -5118,9 +5116,8 @@
 							currentPage, null, null, null, false));
 					}
 					
-					var svg = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-						'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-						mxUtils.getXml(svgRoot);
+					var svg = Graph.xmlDeclaration + '\n' + ((editable) ? Graph.svgFileComment + '\n' : '') +
+						Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot);
 				
 		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
 		    		{
@@ -6742,6 +6739,9 @@
 //			svgRoot.setAttribute('onclick', 'window.location.href=\'' + redirect + '\';'); 
 //		}
 
+		var result = ((!noHeader) ? Graph.xmlDeclaration + '\n' + Graph.svgFileComment +
+			'\n' + Graph.svgDoctype + '\n' : '') + mxUtils.getXml(svgRoot);
+
 		if (callback != null)
 		{
 			this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
@@ -6750,24 +6750,18 @@
 				{
 					this.editor.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
 					{
-						callback(((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
-							'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
-							mxUtils.getXml(svgRoot));
+						callback(result);
 					}));
 				}
 				else
 				{
-					callback(((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
-						'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
-						mxUtils.getXml(svgRoot));
+					callback(result);
 				}
 			}));
 		}
 		else
 		{
-			return ((!noHeader) ? '<?xml version="1.0" encoding="UTF-8"?>\n' +
-				'<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' : '') +
-				mxUtils.getXml(svgRoot);
+			return result;
 		}
 	};
 	
