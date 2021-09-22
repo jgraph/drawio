@@ -573,27 +573,8 @@ GraphViewer.prototype.getImageUrl = function(url)
  */
 GraphViewer.prototype.getImageForGraphModel = function(node)
 {
-	var graphGetGlobalVariable = this.graph.getGlobalVariable;
 	var graph = Graph.createOffscreenGraph(this.graph.getStylesheet());
-	// var index = this.getPageIndex((sourcePage != null) ?
-	// 	sourcePage : this.currentPage);
-
-	graph.getGlobalVariable = function(name)
-	{
-		// if (name == 'pagenumber')
-		// {
-		// 	return index + 1;
-		// }
-		// else if (name == 'page' && sourcePage != null)
-		// {
-		// 	return sourcePage.getName();
-		// }
-		// else
-		{
-			return graphGetGlobalVariable.apply(this, arguments);
-		}
-	};
-
+	graph.getGlobalVariable = this.graph.getGlobalVariable;
 	document.body.appendChild(graph.container);
 
 	var codec = new mxCodec(node.ownerDocument);
@@ -1993,14 +1974,18 @@ GraphViewer.prototype.showLocalLightbox = function()
 	
 	ui.createTemporaryGraph = function()
 	{
-		var graph = uiCreateTemporaryGraph.apply(this, arguments);
+		var newGraph = uiCreateTemporaryGraph.apply(this, arguments);
 		
-		graph.getImageFromBundles = function(key)
+		newGraph.getImageFromBundles = function(key)
 		{
 			return self.getImageUrl(key);
 		};
-		
-		return graph;
+
+		// newGraph.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
+		// newGraph.defaultPageBorderColor = graph.defaultPageBorderColor;
+		// newGraph.defaultThemeName = graph.defaultThemeName;
+			
+		return newGraph;
 	};
 	
 	if (this.graphConfig.move)

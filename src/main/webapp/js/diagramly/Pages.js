@@ -325,7 +325,7 @@ EditorUi.prototype.getPageById = function(id)
 /**
  * Returns the background image for the given page link.
  */
-EditorUi.prototype.createImageForPageLink = function(src, sourcePage)
+EditorUi.prototype.createImageForPageLink = function(src, sourcePage, sourceGraph)
 {
 	var comma = src.indexOf(',');
 	var result = null;
@@ -336,7 +336,7 @@ EditorUi.prototype.createImageForPageLink = function(src, sourcePage)
 
 		if (page != null && page != sourcePage)
 		{
-			result = this.getImageForPage(page, sourcePage);
+			result = this.getImageForPage(page, sourcePage, sourceGraph);
 			result.originalSrc = src;
 		}
 	}
@@ -352,10 +352,11 @@ EditorUi.prototype.createImageForPageLink = function(src, sourcePage)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.getImageForPage = function(page, sourcePage)
+EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 {
-	var graphGetGlobalVariable = this.editor.graph.getGlobalVariable;
-	var graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+	sourceGraph = (sourceGraph != null) ? sourceGraph : this.editor.graph;
+	var graphGetGlobalVariable = sourceGraph.getGlobalVariable;
+	var graph = this.createTemporaryGraph(sourceGraph.getStylesheet());
 	var index = this.getPageIndex((sourcePage != null) ?
 		sourcePage : this.currentPage);
 
@@ -379,7 +380,8 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage)
 
 	this.updatePageRoot(page);
 	graph.model.setRoot(page.root);
-	var svgRoot = graph.getSvg();
+	var svgRoot = graph.getSvg(null, null, null, null, null,
+		null, null, null, null, null, null, true);
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);
 

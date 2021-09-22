@@ -2356,17 +2356,19 @@ App.prototype.getThumbnail = function(width, fn)
 		if (this.pages != null && (darkTheme || this.currentPage != this.pages[0]))
 		{
 			var graphGetGlobalVariable = graph.getGlobalVariable;
-			graph = this.createTemporaryGraph((darkTheme) ? graph.getDefaultStylesheet() : graph.getStylesheet());
+			graph = this.createTemporaryGraph((darkTheme) ?
+				graph.getDefaultStylesheet() : graph.getStylesheet());
+			graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
 			var page = this.pages[0];
 
-			if (page.viewState != null && page.viewState != null)
+			if (this.currentPage == page)
+			{
+				graph.setBackgroundImage(bgImg);
+			}
+			else if (page.viewState != null && page.viewState != null)
 			{
 				bgImg = page.viewState.backgroundImage;
-				graph.backgroundImage = bgImg;
-			}
-			else if (this.currentPage == this.pages[0])
-			{
-				graph.backgroundImage = bgImg;
+				graph.setBackgroundImage(bgImg);
 			}
 
 			// Avoids override of stylesheet in getSvg for dark mode

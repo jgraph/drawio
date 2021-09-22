@@ -472,8 +472,7 @@ EditorUi.initMinimalTheme = function()
 			'html td.mxWindowTitle div { top: 0px !important; }' +
 			// Fixes checkbox and radio size on iOS
 			((mxClient.IS_IOS) ? 'html input[type=checkbox], html input[type=radio] { height:12px; }' : '') +
-			((urlParams['sketch'] == '1') ? 'html .geStatusAlertOrange, html .geStatusAlert  { margin-top: -2px; }' +
-				'a.geStatus > div { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }' : '');
+			((urlParams['sketch'] == '1') ? 'a.geStatus > div { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }' : '');
 	};
 	
 	var styleElt = document.createElement('style')
@@ -1750,7 +1749,6 @@ EditorUi.initMinimalTheme = function()
 			}
 
 			graph.refresh();
-			graph.refreshBackgroundImage();
 			graph.view.validateBackground()
 		}));
 
@@ -1879,7 +1877,7 @@ EditorUi.initMinimalTheme = function()
 				}));
 			}
 			
-			elt = addMenu('diagram', null, Editor.drawLogoImage);
+			elt = addMenu('diagram', null, Editor.menuImage);
 			elt.style.boxShadow = 'none';
 			elt.style.opacity = '0.4';
 			elt.style.padding = '6px';

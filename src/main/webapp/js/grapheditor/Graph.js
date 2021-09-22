@@ -2386,7 +2386,7 @@ Graph.prototype.init = function(container)
 		while (geo != null && geo.relative)
 		{
 			result = this.getModel().getParent(result);
-			geo = this.getCellGeometry(cellToClone);
+			geo = this.getCellGeometry(result);
 		}
 		
 		return result;

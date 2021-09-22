@@ -1599,9 +1599,20 @@
 			if (darkTheme || (this.pages != null && this.currentPage != this.pages[0]))
 			{
 				var graphGetGlobalVariable = graph.getGlobalVariable;
-				graph = this.createTemporaryGraph(graph.getStylesheet());
+				graph = this.createTemporaryGraph(darkTheme ?
+						graph.getDefaultStylesheet() : graph.getStylesheet());
+				graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
 				var page = this.pages[0];
-		
+
+				if (this.currentPage == page)
+				{
+					graph.setBackgroundImage(this.editor.graph.backgroundImage);	
+				}
+				else if (page.viewState != null && page.viewState != null)
+				{
+					graph.setBackgroundImage(page.viewState.backgroundImage);
+				}
+
 				graph.getGlobalVariable = function(name)
 				{
 					if (name == 'page')
@@ -6571,7 +6582,6 @@
 		return node;
 	};
 	
-		
 	/**
 	 * 
 	 */
@@ -6620,7 +6630,8 @@
 			// Exports PNG for given optional data
 			if (optionalData != null && optionalData.length > 0)
 			{
-				graph = this.createTemporaryGraph(this.editor.graph.getStylesheet());
+				graph = this.createTemporaryGraph((darkTheme) ?
+					graph.getDefaultStylesheet() : graph.getStylesheet());
 				document.body.appendChild(graph.container);
 				this.decodeNodeIntoGraph(this.editor.extractGraphModel(
 					mxUtils.parseXml(optionalData).documentElement, true), graph);
@@ -6629,9 +6640,20 @@
 			// Exports PNG for first page while other page is showing
 			else if (darkTheme || (this.pages != null && this.currentPage != this.pages[0]))
 			{
-				graph = this.createTemporaryGraph(graph.getStylesheet());
+				graph = this.createTemporaryGraph((darkTheme) ?
+					graph.getDefaultStylesheet() : graph.getStylesheet());
 				var graphGetGlobalVariable = graph.getGlobalVariable;
+				graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
 				var page = this.pages[0];
+
+				if (this.currentPage == page)
+				{
+					graph.setBackgroundImage(this.editor.graph.backgroundImage);	
+				}
+				else if (page.viewState != null && page.viewState != null)
+				{
+					graph.setBackgroundImage(page.viewState.backgroundImage);
+				}
 		
 				graph.getGlobalVariable = function(name)
 				{
@@ -6685,7 +6707,8 @@
 	   			{
 	   				error(e);
 	   			}
-		   	}), null, null, scale, null, graph.shadowVisible, null, graph, border);
+		   	}), null, null, scale, null, graph.shadowVisible, null,
+				graph, border, null, null, null, 'diagram', null);
 		}
 		catch (e)
 		{
@@ -6713,8 +6736,8 @@
 
 		// Sets or disables alternate text for foreignObjects. Disabling is needed
 		// because PhantomJS seems to ignore switch statements and paint all text.
-		var svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection,
-			null, null, null, graph.shadowVisible || shadow, null, keepTheme);
+		var svgRoot = graph.getSvg(bg, scale, border, null, null, ignoreSelection, null,
+			null, null, graph.shadowVisible || shadow, null, keepTheme, 'diagram');
 		
 		if (graph.shadowVisible || shadow)
 		{
@@ -9157,7 +9180,7 @@
 		{
 			if (img != null && img.originalSrc != null)
 			{
-				img = ui.createImageForPageLink(img.originalSrc, ui.currentPage);
+				img = ui.createImageForPageLink(img.originalSrc, ui.currentPage, this);
 			}
 
 			graphSetBackgroundImage.apply(this, arguments);

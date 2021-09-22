@@ -56,22 +56,22 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	var html = 
 			'<div class="odCatsList">' +
 				'<div class="odCatsListLbl">OneDrive</div>' + 
-				'<div id="odFiles" class="odCatListTitle odCatSelected">' + mxResources.get('files') + '</div>' +
-				'<div id="odRecent" class="odCatListTitle">' + mxResources.get('recent') + '</div>' +
-				'<div id="odShared" class="odCatListTitle">' + mxResources.get('shared') + '</div>' +
-				'<div id="odSharepoint" class="odCatListTitle">' + mxResources.get('sharepoint') + '</div>' +
+				'<div id="odFiles" class="odCatListTitle odCatSelected">' + mxUtils.htmlEntities(mxResources.get('files')) + '</div>' +
+				'<div id="odRecent" class="odCatListTitle">' + mxUtils.htmlEntities(mxResources.get('recent')) + '</div>' +
+				'<div id="odShared" class="odCatListTitle">' + mxUtils.htmlEntities(mxResources.get('shared')) + '</div>' +
+				'<div id="odSharepoint" class="odCatListTitle">' + mxUtils.htmlEntities(mxResources.get('sharepoint')) + '</div>' +
 			'</div>' +
 			'<div class="odFilesSec">' +
-				'<div class="searchBar" style="display:none"><input type="search" id="odSearchBox" placeholder="' + mxResources.get('search') + '"></div>' +
+				'<div class="searchBar" style="display:none"><input type="search" id="odSearchBox" placeholder="' + mxUtils.htmlEntities(mxResources.get('search')) + '"></div>' +
 				'<div class="odFilesBreadcrumb"></div>' +
 				'<div id="refreshOD" class="odRefreshButton">' +
-					'<img src="/images/update32.png" width="16" height="16" title="' + mxResources.get('refresh') + 'Refresh" border="0"/>' +
+					'<img src="/images/update32.png" width="16" height="16" title="' + mxUtils.htmlEntities(mxResources.get('refresh')) + 'Refresh" border="0"/>' +
 				'</div>' +
 				'<div class="odFilesList"></div>' +
 			'</div>' +
 			previewHtml +
-			(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxResources.get('back') + '</div>' : '') +
-			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxResources.get(foldersOnly? 'save' : 'open') + '</button>' : '');
+			(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxUtils.htmlEntities(mxResources.get('back')) + '</div>' : '') +
+			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxUtils.htmlEntities(mxResources.get(foldersOnly? 'save' : 'open')) + '</button>' : '');
 			
 	var css = 
 		'.odCatsList {' +
@@ -82,7 +82,6 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	width:30%;' + 
 		'	border: 1px solid #CCCCCC;' + 
 		'	border-bottom:none;' + 
-		'	background-color: #FFFFFF;' + 
 		'	display: inline-block;' + 
 		'	overflow-x: hidden;' + 
 		'	overflow-y: auto;' + 
@@ -105,7 +104,6 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	border: 1px solid #CCCCCC;' + 
 		'	border-left:none;' + 
 		'	border-bottom:none;' + 
-		'	background-color: #FFFFFF;' + 
 		'	display: inline-block;' + 
 		'	overflow: hidden;' + 
 		'}' + 
@@ -155,6 +153,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	padding-right: 5px;' + 
 		'}' + 
 		'.odFileTitle {' + 
+		'	cursor: default;' + 
 		'	font-weight: normal;' + 
 		'	color: #666666 !important;' + 
 		'}' + 
@@ -166,10 +165,10 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'    border-spacing: 0;' + 
 		'}' + 
 		'.odOddRow {' + 
-		'	background-color: #eeeeee;' + 
+		(Editor.isDarkMode() ? '' : '	background-color: #eeeeee;') + 
 		'}' + 
 		'.odEvenRow {' + 
-		'	background-color: #FFFFFF;' + 
+		(Editor.isDarkMode() ? '' : '	background-color: #FFFFFF;') + 
 		'}' + 
 		'.odRowSelected {' + 
 		'	background-color: #cadfff;' + 
@@ -177,6 +176,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'.odCatListTitle {' + 
 		'	box-sizing: border-box;' + 
 		'	height: 17px;' + 
+		'	cursor: default;' + 
 		'	color: #666666;' + 
 		'	font-size: 14px;' + 
 		'	line-height: 17px;' + 
@@ -298,15 +298,17 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 						
 						if (isPng)
 						{
-							cnt = 'data:image/png;base64,' + Editor.base64Encode (cnt);
+							cnt = 'data:image/png;base64,' + Editor.base64Encode(cnt);
 							cnt = Editor.extractGraphModelFromPng(cnt);
 						}
 						
 						var doc = mxUtils.parseXml(cnt);
-	
-						if (editor.extractGraphModel(doc.documentElement) != null)
+						var node = Editor.extractGraphModel(doc.documentElement);
+
+						if (node != null)
 						{
-							success(doc);
+							success(node.ownerDocument);
+							
 							return;
 						}
 					}
@@ -357,6 +359,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			return;	
 		}
 		
+		prevDiv.style.background = 'transparent';
 		prevDiv.innerHTML = '';
 		
 		function showRenderMsg(msg)
@@ -394,7 +397,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				}
 
 				var diagrams = doc.getElementsByTagName('diagram');
-				curViewer = AspectDialog.prototype.createViewer(prevDiv, diagrams.length == 0? doc.documentElement : diagrams[0]);
+				curViewer = AspectDialog.prototype.createViewer(prevDiv,
+						diagrams.length == 0? doc.documentElement : diagrams[0],
+						null, 'transparent');
 
 				spinner.stop();
 			}, 
@@ -520,15 +525,6 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				var tooltip = mxUtils.htmlEntities(item.description || title);
 				var titleLimit = Math.round(container.clientWidth * 0.7 / 10);
 						
-				if (title != null && title.length > titleLimit)
-				{
-					title = mxUtils.htmlEntities(title.substring(0, titleLimit)) + '&hellip;';
-				}
-				else
-				{
-					title = mxUtils.htmlEntities(title);
-				}
-				
 				if (isSharepointSites)
 				{
 					item.folder = true;
@@ -555,7 +551,8 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				td = document.createElement('td');
 				var titleSpan = document.createElement('span');
 				titleSpan.className = "odFileTitle";
-				titleSpan.innerHTML = title;
+				titleSpan.innerHTML = (title != null && title.length > titleLimit)?
+						mxUtils.htmlEntities(title.substring(0, titleLimit)) + '&hellip;' : mxUtils.htmlEntities(title);
 				titleSpan.setAttribute('title', tooltip);
 				td.appendChild(titleSpan);
 				row.appendChild(td);
@@ -762,6 +759,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	{
 		cats[i].addEventListener('click', function()
 		{
+			loadingPreviewFile = null;
+			selectedFile = null;
+
 			if (requestInProgress) return;
 			
 			setSelectedCat(this);

@@ -11917,7 +11917,7 @@ AspectDialog.prototype.init = function()
 	}
 };
 
-AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
+AspectDialog.prototype.createViewer = function(container, pageNode, layerId, defaultBackground)
 {
 	mxEvent.disableContextMenu(container);
 	container.style.userSelect = 'none';
@@ -11938,7 +11938,7 @@ AspectDialog.prototype.createViewer = function(container, pageNode, layerId)
 		
 		if (bg == null || bg == '' || bg == mxConstants.NONE)
 		{
-			bg = '#ffffff';
+			bg = (defaultBackground != null) ? defaultBackground : '#ffffff';
 		}
 		
 		container.style.backgroundColor = bg;

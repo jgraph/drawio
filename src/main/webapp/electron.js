@@ -17,7 +17,8 @@ const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
-require('@electron/remote/main').initialize();
+const remoteMain = require("@electron/remote/main")
+remoteMain.initialize()
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
 						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox
@@ -76,7 +77,6 @@ function createWindow (opt = {})
 		webPreferences: {
 			// preload: path.resolve('./preload.js'),
 			nodeIntegration: true,
-			enableRemoteModule: true,
 			nodeIntegrationInWorker: true,
 			spellcheck: (os.platform() == "darwin" ? true : false),
 			contextIsolation: false,
@@ -85,6 +85,7 @@ function createWindow (opt = {})
 	}, opt)
 
 	let mainWindow = new BrowserWindow(options)
+	remoteMain.enable(mainWindow.webContents)
 	windowsRegistry.push(mainWindow)
 
 	if (__DEV__) 

@@ -1,3 +1,13 @@
+22-SEP-2021: 15.3.0
+
+- Fixes handling folder error while loading preview
+- Fixes svg/png with dark theme, background pages
+- Escapes HTML entities in file titles
+- Escaped innerHTML when mxResources is used in ODPicker
+- Fixes cellToClone is not defined
+- Adds electrical shapes
+- Updates pt-br translation. Thanks to Marcelo Filho.
+
 16-SEP-2021: 15.2.9
 
 - Fixes OneDrive inline picker script not loaded

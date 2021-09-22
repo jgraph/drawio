@@ -1496,11 +1496,19 @@ OneDriveClient.prototype.pickFile = function(fn)
 	{
 		this.authenticate(mxUtils.bind(this, function()
 		{
-			this.ui.showDialog(new BtnDialog(this.ui, this, mxResources.get('open'), mxUtils.bind(this, function()
+			if (this.inlinePicker)
 			{
 				this.ui.hideDialog();
-				odOpenDlg();							
-			})).container, 300, 140, true, true);
+				odOpenDlg();
+			}
+			else
+			{
+				this.ui.showDialog(new BtnDialog(this.ui, this, mxResources.get('open'), mxUtils.bind(this, function()
+				{
+					this.ui.hideDialog();
+					odOpenDlg();							
+				})).container, 300, 140, true, true);
+			}
 		}), errorFn);
 	}
 	else

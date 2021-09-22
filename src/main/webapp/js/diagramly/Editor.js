@@ -6385,7 +6385,8 @@
 		{
 			temp = this.stylesheet;
 			tempBg = this.defaultPageBackgroundColor;
-			this.defaultPageBackgroundColor = this.defaultThemeName == 'darkTheme' ? '#ffffff' : '#2a2a2a';
+			this.defaultPageBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
+				'#ffffff' : '#2a2a2a';
 			this.stylesheet = this.getDefaultStylesheet();
 			// LATER: Fix math export in dark mode by fetching text nodes before
 			// calling refresh and changing the font color in-place
@@ -6531,7 +6532,16 @@
 		}
 	};
 
-					
+	/**
+	 * Updates the SVG for the background image if it references another page.
+	 */
+	var graphRefresh = Graph.prototype.refresh;
+	Graph.prototype.refresh = function()
+	{
+		graphRefresh.apply(this, arguments);
+		this.refreshBackgroundImage();
+	};
+				 
 	/**
 	 * Updates the SVG for the background image if it references another page.
 	 */
