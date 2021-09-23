@@ -589,24 +589,172 @@ Menus.prototype.addMenu = function(name, popupMenu, parent)
 Menus.prototype.addInsertTableCellItem = function(menu, parent)
 {
 	var graph = this.editorUi.editor.graph;
-	
-	this.addInsertTableItem(menu, mxUtils.bind(this, function(evt, rows, cols, title, container)
+	var cell = graph.getSelectionCell();
+	var style = graph.getCurrentCellStyle(cell);
+
+	var isStack = style['childLayout'] == 'stackLayout';
+	var showCols = true;
+	var showRows = true;
+
+	if (isStack)
 	{
-		var table = (container || mxEvent.isControlDown(evt) || mxEvent.isMetaDown(evt)) ?
-			graph.createCrossFunctionalSwimlane(rows, cols, null, null,
-				(title || mxEvent.isShiftDown(evt)) ? 'Cross-Functional Flowchart' : null) :
-			graph.createTable(rows, cols, null, null,
-				(title || mxEvent.isShiftDown(evt)) ? 'Table' : null);
-		var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
-			graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([table], true));
-		var select = graph.importCells([table], pt.x, pt.y);
-		
-		if (select != null && select.length > 0)
+		showRows = style['horizontalStack'] == '0';
+		showCols = !showRows;
+	}
+
+	if (parent != null || (!isStack && !graph.isTableCell(cell)) &&
+		!graph.isTableRow(cell) && !graph.isTable(cell))
+	{
+		this.addInsertTableItem(menu, mxUtils.bind(this, function(evt, rows, cols, title, container)
 		{
-			graph.scrollCellToVisible(select[0]);
-			graph.setSelectionCells(select);
+			var table = (container || mxEvent.isControlDown(evt) || mxEvent.isMetaDown(evt)) ?
+				graph.createCrossFunctionalSwimlane(rows, cols, null, null,
+					(title || mxEvent.isShiftDown(evt)) ? 'Cross-Functional Flowchart' : null) :
+				graph.createTable(rows, cols, null, null,
+					(title || mxEvent.isShiftDown(evt)) ? 'Table' : null);
+			var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
+				graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([table], true));
+			var select = graph.importCells([table], pt.x, pt.y);
+			graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
+			
+			if (select != null && select.length > 0)
+			{
+				graph.scrollCellToVisible(select[0]);
+				graph.setSelectionCells(select);
+			}
+		}), parent);
+	}
+	else
+	{
+		if (showCols)
+		{
+			var elt = menu.addItem(mxResources.get('insertColumnBefore'), null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(cell, true);
+					}
+					else
+					{
+						graph.insertTableColumn(cell, true);
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertcolumnbefore');
+			elt.setAttribute('title', mxResources.get('insertColumnBefore'));
+			
+			elt = menu.addItem(mxResources.get('insertColumnAfter'), null, mxUtils.bind(this, function()
+			{	
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(cell, false);
+					}
+					else
+					{
+						graph.insertTableColumn(cell, false);
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertcolumnafter');
+			elt.setAttribute('title', mxResources.get('insertColumnAfter'));
+
+			elt = menu.addItem(mxResources.get('deleteColumn'), null, mxUtils.bind(this, function()
+			{
+				if (cell != null)
+				{
+					try
+					{
+						if (isStack)
+						{
+							graph.deleteLane(cell);
+						}
+						else
+						{
+							graph.deleteTableColumn(cell);
+						}
+					}
+					catch (e)
+					{
+						this.editorUi.handleError(e);
+					}
+				}
+			}), null, 'geIcon geSprite geSprite-deletecolumn');
+			elt.setAttribute('title', mxResources.get('deleteColumn'));
 		}
-	}), parent);
+		
+		if (showRows)
+		{
+			elt = menu.addItem(mxResources.get('insertRowBefore'), null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(cell, true);
+					}
+					else
+					{
+						graph.insertTableRow(cell, true);
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertrowbefore');
+			elt.setAttribute('title', mxResources.get('insertRowBefore'));
+
+			elt = menu.addItem(mxResources.get('insertRowAfter'), null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(cell, false);
+					}
+					else
+					{
+						graph.insertTableRow(cell, false);
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-insertrowafter');
+			elt.setAttribute('title', mxResources.get('insertRowAfter'));
+
+			elt = menu.addItem(mxResources.get('deleteRow'), null, mxUtils.bind(this, function()
+			{
+				try
+				{
+					if (isStack)
+					{
+						graph.deleteLane(cell);
+					}
+					else
+					{
+						graph.deleteTableRow(cell);
+					}
+				}
+				catch (e)
+				{
+					this.editorUi.handleError(e);
+				}
+			}), null, 'geIcon geSprite geSprite-deleterow');
+			elt.setAttribute('title', mxResources.get('deleteRow'));
+		}
+	}
 };	
 
 /**
@@ -683,7 +831,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 		return html.join('');
 	};
 	
-	// Show table size dialog
+	if (parent == null)
+	{
+		menu.div.className += ' geToolbarMenu';
+		menu.labels = false;
+	}
+
 	var elt2 = menu.addItem('', null, null, parent, null, null, null, true);
 	elt2.firstChild.style.fontSize = Menus.prototype.defaultFontSize + 'px';
 	

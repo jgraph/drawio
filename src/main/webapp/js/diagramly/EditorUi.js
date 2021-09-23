@@ -3734,7 +3734,7 @@
 			{
 				Graph.prototype.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
 				Graph.prototype.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
-				Graph.prototype.defaultVertexStyle['fontSize'] = '20';
+				Graph.prototype.defaultVertexStyle['fontSize'] = '18';
 				Graph.prototype.defaultVertexStyle['sketch'] = '1';
 				Graph.prototype.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
 				Graph.prototype.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;

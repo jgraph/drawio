@@ -2002,6 +2002,14 @@ EditorUi.initMinimalTheme = function()
 					addAction(ui.actions.get('insertFreehand'), mxResources.get('freehand'), Editor.freehandImage);
 					var toggleShapesAction = ui.actions.get('toggleShapes');
 					addAction(toggleShapesAction, mxResources.get('shapes') + ' (' + toggleShapesAction.shortcut + ')', insertImage);
+
+					elt = addMenu('table', null, Editor.tableImage);
+					elt.style.boxShadow = 'none';
+					elt.style.padding = '6px';
+					elt.style.margin = '0px';
+					elt.style.width = '37px';
+					addElt(elt, null, 'pointer');
+
 					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.templateImage);
 				}
 

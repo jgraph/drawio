@@ -169,6 +169,7 @@ Toolbar.prototype.init = function()
 	this.addSeparator();
 	var insertMenu = this.addMenu('', mxResources.get('insert') + ' (' + mxResources.get('doubleClickTooltip') + ')', true, 'insert', null, true);
 	this.addDropDownArrow(insertMenu, 'geSprite-plus', 38, 48, -4, -3, 36, -8);
+	this.addSeparator();
 	this.addTableDropDown();
 };
 
@@ -192,103 +193,12 @@ Toolbar.prototype.appendDropDownImageHtml = function(elt)
  */
 Toolbar.prototype.addTableDropDown = function()
 {
-	this.addSeparator();
-	
 	// KNOWN: All table stuff does not work with undo/redo
 	// KNOWN: Lost focus after click on submenu with text (not icon) in quirks and IE8. This is because the TD seems
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
 	var menuElt = this.addMenuFunction('geIcon geSprite geSprite-table', mxResources.get('table'), false, mxUtils.bind(this, function(menu)
 	{
-		var graph = this.editorUi.editor.graph;
-		var cell = graph.getSelectionCell();
-
-		if (!graph.isTableCell(cell) && !graph.isTableRow(cell) && !graph.isTable(cell))
-		{
-			this.editorUi.menus.addInsertTableCellItem(menu);
-    	}
-		else
-    	{
-			var elt = menu.addItem('', null, mxUtils.bind(this, function()
-			{
-				try
-				{
-					graph.insertTableColumn(cell, true);
-				}
-				catch (e)
-				{
-					this.editorUi.handleError(e);
-				}
-			}), null, 'geIcon geSprite geSprite-insertcolumnbefore');
-			elt.setAttribute('title', mxResources.get('insertColumnBefore'));
-			
-			elt = menu.addItem('', null, mxUtils.bind(this, function()
-			{	
-				try
-				{
-					graph.insertTableColumn(cell, false);
-				}
-				catch (e)
-				{
-					this.editorUi.handleError(e);
-				}
-			}), null, 'geIcon geSprite geSprite-insertcolumnafter');
-			elt.setAttribute('title', mxResources.get('insertColumnAfter'));
-
-			elt = menu.addItem('Delete column', null, mxUtils.bind(this, function()
-			{
-				if (cell != null)
-				{
-					try
-					{
-						graph.deleteTableColumn(cell);
-					}
-					catch (e)
-					{
-						this.editorUi.handleError(e);
-					}
-				}
-			}), null, 'geIcon geSprite geSprite-deletecolumn');
-			elt.setAttribute('title', mxResources.get('deleteColumn'));
-			
-			elt = menu.addItem('', null, mxUtils.bind(this, function()
-			{
-				try
-				{
-					graph.insertTableRow(cell, true);
-				}
-				catch (e)
-				{
-					this.editorUi.handleError(e);
-				}
-			}), null, 'geIcon geSprite geSprite-insertrowbefore');
-			elt.setAttribute('title', mxResources.get('insertRowBefore'));
-
-			elt = menu.addItem('', null, mxUtils.bind(this, function()
-			{
-				try
-				{
-					graph.insertTableRow(cell, false);
-				}
-				catch (e)
-				{
-					this.editorUi.handleError(e);
-				}
-			}), null, 'geIcon geSprite geSprite-insertrowafter');
-			elt.setAttribute('title', mxResources.get('insertRowAfter'));
-
-			elt = menu.addItem('', null, mxUtils.bind(this, function()
-			{
-				try
-				{
-					graph.deleteTableRow(cell);
-				}
-				catch (e)
-				{
-					this.editorUi.handleError(e);
-				}
-			}), null, 'geIcon geSprite geSprite-deleterow');
-			elt.setAttribute('title', mxResources.get('deleteRow'));
-    	}
+		this.editorUi.menus.addInsertTableCellItem(menu);
 	}));
 	
 	menuElt.style.position = 'relative';

@@ -1,3 +1,13 @@
+23-SEP-2021: 15.3.1
+
+- Improves extra pages in PDF export
+- Self-host JQuery for Trello and removing its CDN from CSP header
+- Adds table controls for stacks https://github.com/jgraph/drawio/issues/2260
+- Fixes inconsistent event handling with no stroke
+- Fixes default font size and vertical alignment
+- Adds insert table option in sketch toolbar
+- Fixes shift+drag for column handle in table https://github.com/jgraph/drawio/issues/2262
+
 22-SEP-2021: 15.3.0
 
 - Fixes handling folder error while loading preview

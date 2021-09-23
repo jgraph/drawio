@@ -5947,8 +5947,8 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 			if (geo != null)
 			{
 				geo = geo.clone();
-				var g = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
-				g.width += dx;
+				geo.alternateBounds.width += dx;
+				geo.width += dx;
 				model.setGeometry(cell, geo);
 			}
 			
@@ -5961,19 +5961,19 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 				if (geo != null)
 				{
 					geo = geo.clone();
-					var g = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
-					g.x += dx;
+					geo.x += dx;
 					
 					if (!extend)
 					{
-						g.width -= dx;
+						geo.alternateBounds.width -= dx;
+						geo.width -= dx;
 					}
 					
 					model.setGeometry(cell, geo);
 				}
 			}
 		}
-		
+
 		if (lastColumn || extend)
 		{
 			// Updates width of table
@@ -5982,8 +5982,7 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 			if (tgeo != null)
 			{
 				tgeo = tgeo.clone();
-				var g = (tgeo.alternateBounds != null) ? tgeo.alternateBounds : geo;
-				g.width += dx;
+				tgeo.width += dx;
 				model.setGeometry(table, tgeo);
 			}
 		}
@@ -10087,6 +10086,87 @@ if (typeof mxVertexHandler != 'undefined')
 				model.endUpdate();
 			}
 		};
+
+		/**
+		 * Inserts a row in the table for the given cell.
+		 */
+		Graph.prototype.deleteLane = function(cell)
+		{
+			var model = this.getModel();
+			model.beginUpdate();
+			
+			try
+			{
+				var pool = null;
+				var lane = cell;
+				var style = this.getCurrentCellStyle(lane);
+
+				if (style['childLayout'] == 'stackLayout')
+				{
+					pool = lane;
+				}
+				else
+				{
+					pool = model.getParent(lane);
+				}
+
+				var lanes = model.getChildCells(pool, true);
+
+				if (lanes.length == 0)
+				{
+					model.remove(pool);
+				}
+				else
+				{
+					if (pool == lane)
+					{
+						lane = lanes[lanes.length - 1];
+					}
+
+					model.remove(lane);
+				}
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		};
+
+		/**
+		 * Inserts a row in the table for the given cell.
+		 */
+		Graph.prototype.insertLane = function(cell, before)
+		{
+			var model = this.getModel();
+			model.beginUpdate();
+			
+			try
+			{
+				var pool = null;
+				var lane = cell;
+				var style = this.getCurrentCellStyle(lane);
+
+				if (style['childLayout'] == 'stackLayout')
+				{
+					pool = lane;
+					var lanes = model.getChildCells(pool, true);
+					lane = lanes[(before) ? 0 : lanes.length - 1];
+				}
+				else
+				{
+					pool = model.getParent(lane);
+				}
+
+				var index = pool.getIndex(lane);
+				lane = model.cloneCell(lane, false);
+				lane.value = null;
+				model.add(pool, lane, index + ((before) ? 0 : 1));
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		};
 		
 		/**
 		 * Inserts a row in the table for the given cell.
@@ -11722,11 +11802,9 @@ if (typeof mxVertexHandler != 'undefined')
 									pt.x - bounds.x - g.width);
 								shiftPressed = mxEvent.isShiftDown(me.getEvent());
 								
-								if (ngeo != null && ng != null && !shiftPressed)
+								if (ng != null && !shiftPressed)
 								{
-									dx = Math.min(colState.x / graph.view.scale -
-										g.width - Graph.minTableColumnWidth + ngeo.x +
-										graph.view.translate.x + ng.width, dx);
+									dx = Math.min(dx, ng.width - Graph.minTableColumnWidth);
 								}
 							};
 							

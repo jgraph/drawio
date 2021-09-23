@@ -69,7 +69,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		var csp = hashes + directives;
 		var devCsp = csp.
 			// Adds script tags and loads shapes with eval
-			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://code.jquery.com https://devhost.jgraph.com \'unsafe-eval\'').
+			replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://devhost.jgraph.com \'unsafe-eval\'').
 			// Adds Trello and Dropbox backend storage
 			replace(/%connect-src%/g, 'https://*.dropboxapi.com https://trello.com https://api.trello.com').
 			// Loads common.css from mxgraph
@@ -82,7 +82,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		if (urlParams['print-csp'] == '1')
 		{
 			console.log('Content-Security-Policy');
-			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com https://code.jquery.com').
+			var app_diagrams_net = csp.replace(/%script-src%/g, 'https://www.dropbox.com https://api.trello.com').
 				replace(/%connect-src%/g, 'https://*.dropboxapi.com https://api.trello.com').
 				replace(/%frame-src%/g, '').
 					replace(/%style-src%/g, '').

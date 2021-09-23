@@ -1145,8 +1145,14 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	this.setCurrentSearchEntryLibrary('general', 'general');
 	var sb = this;
 
+	var temp = parseInt(this.editorUi.editor.graph.defaultVertexStyle['fontSize']);
+	var fontSize = !isNaN(temp) ? 'fontSize=' + Math.min(16, temp) + ';' : '';
+
 	// Reusable cells
-	var field = new mxCell('List Item', new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+	var field = new mxCell('List Item', new mxGeometry(0, 0, 80, 30),
+		'text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;' +
+		'spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];' +
+		'portConstraint=eastwest;rotatable=0;' + fontSize);
 	field.vertex = true;
 
 	var fns = [
@@ -1186,8 +1192,8 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 		this.createVertexTemplateEntry('swimlane;horizontal=0;', 200, 200, 'Horizontal Container', 'Horizontal Container', null, null, 'container swimlane lane pool group'),
 		this.addEntry('list group erd table', function()
 		{
-			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
-		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;' +
+			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 120),
+		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;' +
 		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
 			cell.vertex = true;
 			cell.insert(sb.cloneCell(field, 'Item 1'));

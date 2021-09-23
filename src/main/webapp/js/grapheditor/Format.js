@@ -1656,7 +1656,8 @@ ArrangePanel.prototype.init = function()
 			this.container.appendChild(this.addDistribute(this.createPanel()));
 		}
 		
-		if (graph.isTable(ss.vertices[0]) ||
+		if (ss.style['childLayout'] == 'stackLayout' ||
+			graph.isTable(ss.vertices[0]) ||
 			graph.isTableRow(ss.vertices[0]) ||
 			graph.isTableCell(ss.vertices[0]))
 		{
@@ -1706,82 +1707,148 @@ ArrangePanel.prototype.addTable = function(div)
 	panel.style.borderWidth = '0px';
 	panel.className = 'geToolbarContainer';
 
-	var btns = [
-        ui.toolbar.addButton('geSprite-insertcolumnbefore', mxResources.get('insertColumnBefore'),
- 		mxUtils.bind(this, function()
-		{
-			try
+	var isStack = ss.style['childLayout'] == 'stackLayout';
+	var showCols = true;
+	var showRows = true;
+
+	if (isStack)
+	{
+		showRows = ss.style['horizontalStack'] == '0';
+		showCols = !showRows;
+	}
+
+	var btns = [];
+
+	if (showCols)
+	{
+		btns = btns.concat([
+			ui.toolbar.addButton('geSprite-insertcolumnbefore', mxResources.get('insertColumnBefore'),
+			 mxUtils.bind(this, function()
 			{
-				graph.insertTableColumn(ss.vertices[0], true);
-			}
-			catch (e)
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(ss.vertices[0], true);
+					}
+					else
+					{
+						graph.insertTableColumn(ss.vertices[0], true);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel),
+			ui.toolbar.addButton('geSprite-insertcolumnafter', mxResources.get('insertColumnAfter'),
+			mxUtils.bind(this, function()
 			{
-				ui.handleError(e);
-			}
-		}), panel),
-		ui.toolbar.addButton('geSprite-insertcolumnafter', mxResources.get('insertColumnAfter'),
-		mxUtils.bind(this, function()
-		{
-			try
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(ss.vertices[0], false);
+					}
+					else
+					{
+						graph.insertTableColumn(ss.vertices[0], false);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel),
+			ui.toolbar.addButton('geSprite-deletecolumn', mxResources.get('deleteColumn'),
+			mxUtils.bind(this, function()
 			{
-				graph.insertTableColumn(ss.vertices[0], false);
-			}
-			catch (e)
+				try
+				{
+					if (isStack)
+					{
+						graph.deleteLane(ss.vertices[0]);
+					}
+					else
+					{
+						graph.deleteTableColumn(ss.vertices[0]);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel)]);
+	}
+
+	if (showRows)
+	{
+		btns = btns.concat([ui.toolbar.addButton('geSprite-insertrowbefore', mxResources.get('insertRowBefore'),
+			mxUtils.bind(this, function()
 			{
-				ui.handleError(e);
-			}
-		}), panel),
-		ui.toolbar.addButton('geSprite-deletecolumn', mxResources.get('deleteColumn'),
-		mxUtils.bind(this, function()
-		{
-			try
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(ss.vertices[0], true);
+					}
+					else
+					{
+						graph.insertTableRow(ss.vertices[0], true);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel),
+			ui.toolbar.addButton('geSprite-insertrowafter', mxResources.get('insertRowAfter'),
+			mxUtils.bind(this, function()
 			{
-				graph.deleteTableColumn(ss.vertices[0]);
-			}
-			catch (e)
+				try
+				{
+					if (isStack)
+					{
+						graph.insertLane(ss.vertices[0], false);
+					}
+					else
+					{
+						graph.insertTableRow(ss.vertices[0], false);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel),
+			ui.toolbar.addButton('geSprite-deleterow', mxResources.get('deleteRow'),
+			mxUtils.bind(this, function()
 			{
-				ui.handleError(e);
-			}
-		}), panel),
-		ui.toolbar.addButton('geSprite-insertrowbefore', mxResources.get('insertRowBefore'),
-		mxUtils.bind(this, function()
-		{
-			try
-			{
-				graph.insertTableRow(ss.vertices[0], true);
-			}
-			catch (e)
-			{
-				ui.handleError(e);
-			}
-		}), panel),
-		ui.toolbar.addButton('geSprite-insertrowafter', mxResources.get('insertRowAfter'),
-		mxUtils.bind(this, function()
-		{
-			try
-			{
-				graph.insertTableRow(ss.vertices[0], false);
-			}
-			catch (e)
-			{
-				ui.handleError(e);
-			}
-		}), panel),
-		ui.toolbar.addButton('geSprite-deleterow', mxResources.get('deleteRow'),
-		mxUtils.bind(this, function()
-		{
-			try
-			{
-				graph.deleteTableRow(ss.vertices[0]);
-			}
-			catch (e)
-			{
-				ui.handleError(e);
-			}
-		}), panel)];
+				try
+				{
+					if (isStack)
+					{
+						graph.deleteLane(ss.vertices[0]);
+					}
+					else
+					{
+						graph.deleteTableRow(ss.vertices[0]);
+					}
+				}
+				catch (e)
+				{
+					ui.handleError(e);
+				}
+			}), panel)]);
+	}
+	
 	this.styleButtons(btns);
 	div.appendChild(panel);
-	btns[2].style.marginRight = '9px';
+
+	if (btns.length > 3)
+	{
+		btns[2].style.marginRight = '6px';
+	}
 	
 	return div;
 };
