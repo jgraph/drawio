@@ -1,3 +1,8 @@
+24-SEP-2021: 15.3.2
+
+- Fixes NPE in ODPicker
+- Fixes NPE in notifications
+
 23-SEP-2021: 15.3.1
 
 - Improves extra pages in PDF export

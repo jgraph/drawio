@@ -420,6 +420,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	function renderBreadcrumb() 
 	{
 		var bcDiv = _$('.odFilesBreadcrumb');
+		
+		if (bcDiv == null) return;
+		
 		bcDiv.innerHTML = '';
 		
 		for (var i = 0; i < breadcrumb.length - 1; i++)
@@ -502,7 +505,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		var isSharepointSites = 0;
 		lastFolderArgs = arguments;
 	
-		function renderList(potintialDrawioFiles)
+		function renderList(potentialDrawioFiles)
 		{
 			spinner.stop();
 			
@@ -512,9 +515,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			var count = 0;
 			
 			//TODO support paging
-			for (var i = 0; i < potintialDrawioFiles.length; i++)
+			for (var i = 0; potentialDrawioFiles!= null && i < potentialDrawioFiles.length; i++)
 			{
-				var item = potintialDrawioFiles[i];
+				var item = potentialDrawioFiles[i];
 				
 				if (isSharepointSites == 1 && item.webUrl && !(item.webUrl.indexOf('sharepoint.com/sites/') > 0 || item.webUrl.indexOf('sharepoint.com/') < 0))
 				{
@@ -679,9 +682,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			if (!acceptRequest) return;
 			clearTimeout(timeoutThread);
 			
-			var list = resp.value;
+			var list = resp.value || [];
 
-			var potintialDrawioFiles = isSharepointSites? list : [];
+			var potentialDrawioFiles = isSharepointSites? list : [];
 			
 			for (var i = 0; !isSharepointSites && i < list.length; i++)
 			{
@@ -692,11 +695,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 					|| /\.svg$/.test(file.name) || /\.html$/.test(file.name) || /\.xml$/.test(file.name) || /\.png$/.test(file.name)
 					|| /\.drawio$/.test(file.name))
 				{
-					potintialDrawioFiles.push(file);
+					potentialDrawioFiles.push(file);
 				}
 			}
 			
-			renderList(potintialDrawioFiles);
+			renderList(potentialDrawioFiles);
 		}, 
 		function(err)
 		{

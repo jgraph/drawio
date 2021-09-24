@@ -6457,12 +6457,9 @@ DiagramFormatPanel.prototype.addView = function(div)
 				mxEvent.consume(evt);
 			})
 		
-			btn.style.position = 'absolute';
 			btn.className = 'geColorBtn';
-			btn.style.marginTop = '-4px';
-			btn.style.paddingBottom = (document.documentMode == 11 || mxClient.IS_MT) ? '0px' : '2px';
-			btn.style.height = '22px';
-			btn.style.right = '72px';
+			btn.style.height = '19px';
+			btn.style.left = '6px';
 			btn.style.width = '60px';
 		
 			bg.appendChild(btn);

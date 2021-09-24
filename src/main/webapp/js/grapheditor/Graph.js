@@ -5947,8 +5947,13 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 			if (geo != null)
 			{
 				geo = geo.clone();
-				geo.alternateBounds.width += dx;
 				geo.width += dx;
+
+				if (geo.alternateBounds != null)
+				{
+					geo.alternateBounds.width += dx;
+				}
+				
 				model.setGeometry(cell, geo);
 			}
 			
@@ -5965,8 +5970,12 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 					
 					if (!extend)
 					{
-						geo.alternateBounds.width -= dx;
 						geo.width -= dx;
+
+						if (geo.alternateBounds != null)
+						{
+							geo.alternateBounds.width -= dx;
+						}
 					}
 					
 					model.setGeometry(cell, geo);

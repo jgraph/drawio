@@ -5923,7 +5923,6 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		
 		if (countEl == null)
 		{
-			EditorUi.logError('Error: element (.geNotification-count) is null in showNotification in shouldAnimate', null, 5769);
 			return;
 		}
 		
@@ -6036,7 +6035,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	
 	if (notifListEl == null)
 	{
-		EditorUi.logError('Error: element (geNotifList) is null in showNotification', null, 5859);
+		return; //This shouldn't happen and no meaning of continuing
 	}
 	else if (notifs.length == 0)
 	{
