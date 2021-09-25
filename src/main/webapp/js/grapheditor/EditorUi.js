@@ -1359,7 +1359,7 @@ EditorUi.prototype.installShapePicker = function()
 				{
 					ui.hideShapePicker();
 				});
-			}), 500);
+			}), Editor.shapePickerHoverDelay);
 		}));
 
 		this.hoverIcons.addListener('blur', mxUtils.bind(this, function(sender, evt)

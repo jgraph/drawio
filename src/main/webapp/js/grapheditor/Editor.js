@@ -188,6 +188,11 @@ Editor.ctrlKey = (mxClient.IS_MAC) ? 'Cmd' : 'Ctrl';
 Editor.hintOffset = 20;
 
 /**
+ * Delay in ms to show shape picker on hover over blue arrows.
+ */
+Editor.shapePickerHoverDelay = 300;
+
+/**
  * Specifies the image URL to be used for the transparent background.
  */
 Editor.fitWindowBorders = null;
@@ -842,6 +847,9 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	{
 		elt.style.overflowY = 'auto';
 	}
+	
+	//Prevent horizontal scrollbar
+	elt.style.overflowX = 'hidden';
 	
 	if (closable)
 	{

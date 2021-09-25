@@ -1,3 +1,16 @@
+25-SEP-2021: 15.3.3
+
+- Fixes update of zoom label
+- Invokes cellsInserted for table rows and cells
+- Fixes user panel styles
+- Uses Alt+Wheel for zoom in sketch theme
+- Fixes update of background page image
+- Adds sketch toggle, moves options to context menu
+- Fixes zIndex for user panel over format window
+- Fixes for Teams app
+- Uses sketch theme on small screens
+- Fixes encoding of tags URL parameter
+
 24-SEP-2021: 15.3.2
 
 - Fixes NPE in ODPicker

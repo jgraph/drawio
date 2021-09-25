@@ -2164,10 +2164,9 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	// Applies default styles
 	cells = this.graph.cloneCells(cells);
 	this.editorUi.insertHandler(cells, null, this.graph.model,
-		Graph.prototype.defaultVertexStyle,
-		Graph.prototype.defaultEdgeStyle,
-		urlParams['sketch'] == '1',
-		urlParams['sketch'] == '1');
+		Graph.prototype.defaultVertexStyle, Graph.prototype.defaultEdgeStyle,
+		urlParams['sketch'] == '1' && Editor.sketchMode,
+		urlParams['sketch'] == '1' && Editor.sketchMode);
 
 	this.createThumb(cells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);

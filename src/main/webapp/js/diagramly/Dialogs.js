@@ -2505,6 +2505,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		leftHighlight, rightHighlight, rightHighlightBorder, itemPadding, templateFile,
 		recentDocsCallback, searchDocsCallback, openExtDocCallback, showImport, createButtonLabel, customTempCallback, withoutType)
 {
+	var ww = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	var smallScreen = ww < 500;
 	showName = (showName != null) ? showName : true;
 	createOnly = (createOnly != null) ? createOnly : false;
 	leftHighlight = (leftHighlight != null) ? leftHighlight : '#ebf2f9';
@@ -2570,15 +2572,15 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		logo.src = IMAGE_PATH + '/osa_drive-harddisk.png';
 	}
 
-	if (!compact && showName)
+	if (!compact && !smallScreen && showName)
 	{
 		header.appendChild(logo);
 	}
 	
 	if (showName)
 	{
-		mxUtils.write(header, ((editorUi.mode == null || editorUi.mode == App.MODE_GOOGLE ||
-				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename')) + ':');
+		mxUtils.write(header, (smallScreen? mxResources.get('name') : ((editorUi.mode == null || editorUi.mode == App.MODE_GOOGLE ||
+				editorUi.mode == App.MODE_BROWSER) ? mxResources.get('diagramName') : mxResources.get('filename'))) + ':');
 	}
 	
 	var ext = '.drawio';
@@ -2615,7 +2617,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	var nameInput = document.createElement('input');
 	nameInput.setAttribute('value', editorUi.defaultFilename + ext);
 	nameInput.style.marginLeft = '10px';
-	nameInput.style.width = (compact) ? '144px' : '244px';
+	nameInput.style.width = (compact || smallScreen) ? '144px' : '244px';
 	
 	this.init = function()
 	{
@@ -2649,7 +2651,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 		if (withoutType)
 		{
-			nameInput.style.width = (compact) ? '350px' : '450px';
+			nameInput.style.width = (compact || smallScreen) ? '350px' : '450px';
 		}
 		else
 		{
@@ -2657,7 +2659,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
 				typeSelect.style.marginLeft = '6px';
-				typeSelect.style.width = (compact) ? '80px' : '180px';
+				typeSelect.style.width = (compact || smallScreen) ? '80px' : '180px';
 				header.appendChild(typeSelect);
 			}
 			
@@ -3860,7 +3862,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		btns.appendChild(cancelBtn);
 	}
 
-	if (!compact && urlParams['embed'] != '1' && !createOnly)
+	if (!compact && urlParams['embed'] != '1' && !createOnly && 
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS)
 	{
 		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
 		{

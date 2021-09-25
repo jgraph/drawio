@@ -6014,6 +6014,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			}
 		}
 		
+		// FIXME: Reset for sketch mode
 		graph.defaultVertexStyle = mxUtils.clone(ui.initialDefaultVertexStyle);
 		graph.defaultEdgeStyle = mxUtils.clone(ui.initialDefaultEdgeStyle);
 		ui.clearDefaultStyle();

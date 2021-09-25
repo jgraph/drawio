@@ -223,13 +223,6 @@ window.uiTheme = window.uiTheme || (function()
 		ui = 'sketch';
 	}
 	
-	// Redirects sketch UI to min UI with sketch URL parameter
-	if (ui == 'sketch')
-	{
-		urlParams['sketch'] = '1';
-		ui = 'min';
-	}
-	
 	// Uses minimal theme on small screens
 	try
 	{
@@ -239,7 +232,12 @@ window.uiTheme = window.uiTheme || (function()
 
 	        if (iw <= 768)
 	        {
-	        	ui = 'min';
+				if (urlParams['pages'] == null)
+				{
+					urlParams['pages'] = '1';
+				}
+
+				ui = 'sketch';
 	        }
 		}
 	}
@@ -247,7 +245,14 @@ window.uiTheme = window.uiTheme || (function()
 	{
 		// ignore
 	}
-	
+
+	// Redirects sketch UI to min UI with sketch URL parameter
+	if (ui == 'sketch')
+	{
+		urlParams['sketch'] = '1';
+		ui = 'min';
+	}
+		
 	return ui;
 })();
 

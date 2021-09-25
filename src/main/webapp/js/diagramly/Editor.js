@@ -6550,6 +6550,7 @@
 		if (this.backgroundImage != null && this.backgroundImage.originalSrc != null)
 		{
 			this.setBackgroundImage(this.backgroundImage);
+			this.view.validateBackgroundImage();
 		}
 	};
 	

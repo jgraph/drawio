@@ -3724,30 +3724,11 @@
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
-			Graph.zoomWheel = true;
 			Graph.prototype.defaultVertexStyle = {'pointerEvents': '0', 'hachureGap': '4'};
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
 				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8'};
-				
-			if (urlParams['rough'] != '0')
-			{
-				Graph.prototype.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
-				Graph.prototype.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
-				Graph.prototype.defaultVertexStyle['fontSize'] = '18';
-				Graph.prototype.defaultVertexStyle['sketch'] = '1';
-				Graph.prototype.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
-				Graph.prototype.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
-				Graph.prototype.defaultEdgeStyle['fontSize'] = '20';
-				Graph.prototype.defaultEdgeStyle['sketch'] = '1';
-				
-				Menus.prototype.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
-					'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
-					{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
-					{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
-					concat(Menus.prototype.defaultFonts);
-			}
-			
+
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';
 			Graph.prototype.defaultGridEnabled = false;
@@ -8973,7 +8954,11 @@
 	EditorUi.prototype.init = function()
 	{
 		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
-		
+
+		this.doSetSketchMode((mxSettings.settings.sketchMode != null) ?
+			mxSettings.settings.sketchMode : urlParams['sketch'] == '1' &&
+			urlParams['rough'] != '0');
+
 		// Must be set before UI is created in superclass
 		if (typeof window.mxSettings !== 'undefined')
 		{
@@ -9218,7 +9203,6 @@
 							patches[i][EditorUi.DIFF_UPDATE][id] != null)
 						{
 							graph.refreshBackgroundImage();
-							graph.view.validateBackgroundImage();
 
 							break;
 						}
@@ -10127,6 +10111,72 @@
 	};
 
 	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.setSketchMode = function(value)
+	{
+		if (this.spinner.spin(document.body, mxResources.get('working') + '...'))
+		{
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				 this.spinner.stop();
+				 this.doSetSketchMode(value);
+				 
+				 // Persist setting
+				 mxSettings.settings.sketchMode = value;
+				 mxSettings.save();
+					 
+				 this.fireEvent(new mxEventObject('sketchModeChanged'));
+			}), 0);
+		}
+	};
+  
+	/**
+	 * Dynamic change of dark mode.
+	 */
+	EditorUi.prototype.doSetSketchMode = function(value)
+	{
+		if (Editor.sketchMode != value)
+		{
+			var graph = this.editor.graph;
+			Editor.sketchMode = value;
+
+			this.menus.defaultFonts = Menus.prototype.defaultFonts;
+			
+			if (value)
+			{
+				graph.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
+				graph.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
+				graph.defaultVertexStyle['fontSize'] = '18';
+				graph.defaultVertexStyle['sketch'] = '1';
+				graph.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
+				graph.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
+				graph.defaultEdgeStyle['fontSize'] = '20';
+				graph.defaultEdgeStyle['sketch'] = '1';
+				
+				this.menus.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
+					'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
+					{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
+					{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
+					concat(this.menus.defaultFonts);
+			}
+			else
+			{
+				graph.defaultVertexStyle = {'pointerEvents': '0', 'hachureGap': '4'};
+				graph.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
+					'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
+					'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8'};
+			}
+
+			Graph.prototype.defaultVertexStyle = graph.defaultVertexStyle;
+			Graph.prototype.defaultEdgeStyle = graph.defaultEdgeStyle;
+			this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+			this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
+			this.clearDefaultStyle();
+		}
+	};
+
+	/**
 	 * 
 	 */
 	EditorUi.prototype.getLinkTitle = function(href)
@@ -10367,7 +10417,7 @@
 				}), null, null, (scale != null) ? scale : 4,
 					this.editor.graph.background == null ||
 					this.editor.graph.background == mxConstants.NONE,
-					null, null, null, 10, null, null, true, null,
+					null, null, null, 10, null, null, false, null,
 					(cells.length > 0) ? cells : null);
 			}
 		}

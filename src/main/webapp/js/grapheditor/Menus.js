@@ -615,7 +615,8 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 			var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
 				graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([table], true));
 			var select = graph.importCells([table], pt.x, pt.y);
-			graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
+			graph.fireEvent(new mxEventObject('cellsInserted', 'cells',
+				graph.model.getDescendants(select[0])));
 			
 			if (select != null && select.length > 0)
 			{

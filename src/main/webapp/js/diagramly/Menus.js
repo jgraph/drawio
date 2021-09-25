@@ -342,7 +342,7 @@
 
 				if (tags)
 				{
-					params.push('tags={}');
+					params.push('tags=%7B%7D');
 				}
 
 				var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
@@ -2077,7 +2077,7 @@
 
 						if (tags)
 						{
-							params.push('tags={}');
+							params.push('tags=%7B%7D');
 						}
 						
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
@@ -2104,7 +2104,7 @@
 
 						if (tags)
 						{
-							params.push('tags={}');
+							params.push('tags=%7B%7D');
 						}
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
@@ -2131,7 +2131,7 @@
 
 						if (tags)
 						{
-							params.push('tags={}');
+							params.push('tags=%7B%7D');
 						}
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,

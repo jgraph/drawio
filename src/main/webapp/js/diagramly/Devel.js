@@ -53,7 +53,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
 			'https://*.googleapis.com wss://*.pusher.com https://*.pusher.com ' +
 			'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
-			'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com ' +
+			'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com https://api.onedrive.com ' +
 			'https://dl.dropboxusercontent.com ' +
 			'https://*.google.com https://fonts.gstatic.com https://fonts.googleapis.com; ' +
 			// font-src about: is required for MathJax HTML-CSS output with STIX

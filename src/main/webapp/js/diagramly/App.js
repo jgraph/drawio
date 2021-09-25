@@ -1692,7 +1692,7 @@ App.prototype.init = function()
 				var file = this.getCurrentFile();
 				var mode = (file != null) ? file.getMode() : null;
 				
-				if (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER)
+				if (urlParams['extAuth'] != '1' && (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER))
 				{
 					this.showDownloadDesktopBanner();
 				}
@@ -7054,7 +7054,7 @@ App.prototype.updateUserElement = function()
 	    	{
 				evt.preventDefault();
 			}));
-			
+
 			mxEvent.addListener(this.userElement, 'click', mxUtils.bind(this, function(evt)
 			{
 				if (this.userPanel == null)
@@ -7062,10 +7062,13 @@ App.prototype.updateUserElement = function()
 					var div = document.createElement('div');
 					div.className = 'geDialog';
 					div.style.position = 'absolute';
-					div.style.top = (this.userElement.clientTop + this.userElement.clientHeight + 6) + 'px';
+					div.style.top = (this.userElement.clientTop +
+						this.userElement.clientHeight + 6) + 'px';
+					div.style.zIndex = 5;
 					div.style.right = '36px';
 					div.style.padding = '0px';
 					div.style.cursor = 'default';
+					div.style.minWidth = '300px';
 					
 					this.userPanel = div;
 				}
@@ -7132,22 +7135,58 @@ App.prototype.updateUserElement = function()
 							var createUserRow = mxUtils.bind(this, function (user)
 							{
 								var tr = document.createElement('tr');
-								tr.style.cssText = user.isCurrent? '' : 'background-color: whitesmoke; cursor: pointer';
 								tr.setAttribute('title', 'User ID: ' + user.id);
-								tr.innerHTML = '<td valign="middle" style="height: 59px;width: 66px;' + 
-									(user.isCurrent? '' : 'border-top: 1px solid rgb(224, 224, 224);') + '">' +
-									'<img width="50" height="50" style="margin: 4px 8px 0 8px;border-radius:50%;" src="' + 
-									((user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture) + '"/>' +
-									'</td><td valign="middle" style="white-space:nowrap;' +
-									((user.pictureUrl != null) ? 'padding-top:4px;' : '') +
-									(user.isCurrent? '' : 'border-top: 1px solid rgb(224, 224, 224);') +
-									'">' + mxUtils.htmlEntities(user.displayName) + '<br>' +
-									'<small style="color:gray;">' + mxUtils.htmlEntities(user.email) +
-									'</small><div style="margin-top:4px;"><i>' +
-									mxResources.get('googleDrive') + '</i></div>';
-								
+
+								var td = document.createElement('td');
+								td.setAttribute('valig', 'middle');
+								td.style.height = '59px';
+								td.style.width = '66px';
+
+								var img = document.createElement('img');
+								img.setAttribute('width', '50');
+								img.setAttribute('height', '50');
+								img.setAttribute('border', '0');
+								img.setAttribute('src', (user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture);
+								img.style.borderRadius = '50%';
+								img.style.margin = '4px 8px 0 8px';
+								td.appendChild(img);
+								tr.appendChild(td);
+	
+								var td = document.createElement('td');
+								td.setAttribute('valign', 'middle');
+								td.style.whiteSpace = 'nowrap';
+								td.style.paddingTop = '4px';
+								td.style.maxWidth = '0';
+								td.style.overflow = 'hidden';
+								td.style.textOverflow = 'ellipsis';
+								mxUtils.write(td, user.displayName +
+									((user.isCurrent && driveUsers.length > 1) ?
+									' (' + mxResources.get('default') + ')' : ''));
+	
+								if (user.email != null)
+								{
+									mxUtils.br(td);
+	
+									var small = document.createElement('small');
+									small.style.color = 'gray';
+									mxUtils.write(small, user.email);
+									td.appendChild(small);
+								}
+	
+								var div = document.createElement('div');
+								div.style.marginTop = '4px';
+
+								var i = document.createElement('i');
+								mxUtils.write(i, mxResources.get('googleDrive'));
+								div.appendChild(i);
+								td.appendChild(div);
+								tr.appendChild(td);
+
 								if (!user.isCurrent)
 								{
+									tr.style.cursor = 'pointer';
+									tr.style.opacity = '0.3';
+
 									mxEvent.addListener(tr, 'click', mxUtils.bind(this, function(evt)
 									{
 										closeFile(mxUtils.bind(this, function()
@@ -7176,7 +7215,10 @@ App.prototype.updateUserElement = function()
 							connected = true;
 							
 							var driveUserTable = document.createElement('table');
-							driveUserTable.style.cssText ='font-size:10pt;padding: 20px 0 0 0;min-width: 300px;border-spacing: 0;';
+							driveUserTable.style.borderSpacing = '0';
+							driveUserTable.style.fontSize = '10pt';
+							driveUserTable.style.width = '100%';
+							driveUserTable.style.padding = '10px';
 
 							for (var i = 0; i < driveUsers.length; i++)
 							{
@@ -7187,7 +7229,7 @@ App.prototype.updateUserElement = function()
 							
 							var div = document.createElement('div');
 							div.style.textAlign = 'left';
-							div.style.padding = '8px';
+							div.style.padding = '10px';
 							div.style.whiteSpace = 'nowrap';
 							div.style.borderTop = '1px solid rgb(224, 224, 224)';
 
@@ -7249,19 +7291,69 @@ App.prototype.updateUserElement = function()
 							
 							connected = true;
 							var userTable = document.createElement('table');
-							userTable.style.cssText = 'font-size:10pt;padding:' + (connected? '10' : '20') + 'px 20px 10px 10px;';
-							
-							userTable.innerHTML += '<tr><td valign="top">' +
-								((logo != null) ? '<img style="margin-right:6px;" src="' + logo + '" width="40" height="40"/></td>' : '') +
-								'<td valign="middle" style="white-space:nowrap;">' + mxUtils.htmlEntities(user.displayName) +
-								((user.email != null) ? '<br><small style="color:gray;">' + mxUtils.htmlEntities(user.email) + '</small>' : '') +
-								((label != null) ? '<div style="margin-top:4px;"><i>' + mxUtils.htmlEntities(label) + '</i></div>' : '') +
-								'</td></tr>';
-							
+							userTable.style.borderSpacing = '0';
+							userTable.style.fontSize = '10pt';
+							userTable.style.width = '100%';
+							userTable.style.padding = '10px';
+
+							var tbody = document.createElement('tbody');
+							var row = document.createElement('tr');
+							var td = document.createElement('td');
+							td.setAttribute('valig', 'top');
+							td.style.width = '40px';
+
+							if (logo != null)
+							{
+								var img = document.createElement('img');
+								img.setAttribute('width', '40');
+								img.setAttribute('height', '40');
+								img.setAttribute('border', '0');
+								img.setAttribute('src', logo);
+								img.style.marginRight = '6px';
+
+								td.appendChild(img);
+							}
+
+							row.appendChild(td);
+
+							var td = document.createElement('td');
+							td.setAttribute('valign', 'middle');
+							td.style.whiteSpace = 'nowrap';
+							td.style.maxWidth = '0';
+							td.style.overflow = 'hidden';
+							td.style.textOverflow = 'ellipsis';
+
+							mxUtils.write(td, user.displayName);
+
+							if (user.email != null)
+							{
+								mxUtils.br(td);
+
+								var small = document.createElement('small');
+								small.style.color = 'gray';
+								mxUtils.write(small, user.email);
+								td.appendChild(small);
+							}
+
+							if (label != null)
+							{
+								var div = document.createElement('div');
+								div.style.marginTop = '4px';
+
+								var i = document.createElement('i');
+								mxUtils.write(i, label);
+								div.appendChild(i);
+								td.appendChild(div);
+							}
+
+							row.appendChild(td);
+							tbody.appendChild(row);
+							userTable.appendChild(tbody);
+
 							this.userPanel.appendChild(userTable);
 							var div = document.createElement('div');
 							div.style.textAlign = 'center';
-							div.style.paddingBottom = '12px';
+							div.style.padding = '10px';
 							div.style.whiteSpace = 'nowrap';
 							
 							if (logout != null)
@@ -7466,7 +7558,7 @@ App.prototype.updateUserElement = function()
 					{
 						var div = document.createElement('div');
 						div.style.textAlign = 'center';
-						div.style.padding = '20px 20px 10px 10px';
+						div.style.padding = '10px';
 						div.innerHTML = mxResources.get('notConnected');
 						
 						this.userPanel.appendChild(div);
@@ -7474,7 +7566,7 @@ App.prototype.updateUserElement = function()
 					
 					var div = document.createElement('div');
 					div.style.textAlign = 'center';
-					div.style.padding = '12px';
+					div.style.padding = '10px';
 					div.style.background = Editor.isDarkMode() ? '' : 'whiteSmoke';
 					div.style.borderTop = '1px solid #e0e0e0';
 					div.style.whiteSpace = 'nowrap';
