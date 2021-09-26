@@ -1673,7 +1673,9 @@ PageSetupDialog.addPageFormatPanel = function(div, namePostfix, pageFormat, page
 	
 	var paperSizeSelect = document.createElement('select');
 	paperSizeSelect.style.marginBottom = '8px';
-	paperSizeSelect.style.width = '202px';
+	paperSizeSelect.style.borderRadius = '4px';
+	paperSizeSelect.style.border = '1px solid rgb(160, 160, 160)';
+	paperSizeSelect.style.width = '206px';
 
 	var formatDiv = document.createElement('div');
 	formatDiv.style.marginLeft = '4px';

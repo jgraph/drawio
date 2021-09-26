@@ -825,7 +825,7 @@ BaseFormatPanel.prototype.createPanel = function()
 {
 	var div = document.createElement('div');
 	div.className = 'geFormatSection';
-	div.style.padding = '12px 0px 12px 18px';
+	div.style.padding = '12px 0px 12px 14px';
 	
 	return div;
 };
@@ -852,11 +852,11 @@ BaseFormatPanel.prototype.createTitle = function(title)
 BaseFormatPanel.prototype.createStepper = function(input, update, step, height, disableFocus, defaultValue, isFloat)
 {
 	step = (step != null) ? step : 1;
-	height = (height != null) ? height : 8;
+	height = (height != null) ? height : 9;
 	
 	if (mxClient.IS_MT || document.documentMode >= 8)
 	{
-		height = height + 1;
+		//height = height + 1;
 	} 
 	
 	var stepper = document.createElement('div');
@@ -965,7 +965,7 @@ BaseFormatPanel.prototype.createStepper = function(input, update, step, height, 
 BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setCheckedFn, listener, fn)
 {
 	var div = document.createElement('div');
-	div.style.padding = '6px 0px 1px 0px';
+	div.style.padding = '3px 0px 3px 0px';
 	div.style.whiteSpace = 'nowrap';
 	div.style.overflow = 'hidden';
 	div.style.width = '200px';
@@ -973,10 +973,12 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
 	
 	var cb = document.createElement('input');
 	cb.setAttribute('type', 'checkbox');
-	cb.style.margin = '0px 6px 0px 0px';
+	cb.style.margin = '1px 6px 0px 0px';
+	cb.style.verticalAlign = 'top';
 	div.appendChild(cb);
 
 	var span = document.createElement('span');
+	span.style.verticalAlign = 'top';
 	mxUtils.write(span, label);
 	div.appendChild(span);
 
@@ -1125,7 +1127,7 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	defaultColor, listener, callbackFn, hideCheckbox, defaultColorValue)
 {
 	var div = document.createElement('div');
-	div.style.padding = '6px 0px 1px 0px';
+	div.style.padding = '3px 0px 3px 0px';
 	div.style.whiteSpace = 'nowrap';
 	div.style.overflow = 'hidden';
 	div.style.width = '200px';
@@ -1133,7 +1135,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	
 	var cb = document.createElement('input');
 	cb.setAttribute('type', 'checkbox');
-	cb.style.margin = '0px 6px 0px 0px';
+	cb.style.margin = '1px 6px 0px 0px';
+	cb.style.verticalAlign = 'top';
 	
 	if (!hideCheckbox)
 	{
@@ -1141,9 +1144,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	}
 
 	var span = document.createElement('span');
+	span.style.verticalAlign = 'top';
 	mxUtils.write(span, label);
 	div.appendChild(span);
-	
+
 	var title = 'Shift+Click for Color Dropper';
 	var value = getColorFn();
 	var applying = false;
@@ -1248,8 +1252,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	}));
 	
 	btn.style.position = 'absolute';
-	btn.style.marginTop = '-4px';
-	btn.style.right = '20px';
+	btn.style.marginTop = '-3px';
+	btn.style.left = '178px';
 	btn.style.height = '22px';
 	btn.className = 'geColorBtn';
 	btn.style.display = (cb.checked || hideCheckbox) ? '' : 'none';
@@ -1368,8 +1372,8 @@ BaseFormatPanel.prototype.addArrow = function(elt, height)
 	
 	var arrow = document.createElement('div');
 	arrow.style.display = 'inline-block';
-	arrow.style.padding = '6px';
 	arrow.style.paddingRight = '4px';
+	arrow.style.padding = '6px';
 	
 	var m = (10 - height);
 	
@@ -1392,8 +1396,8 @@ BaseFormatPanel.prototype.addArrow = function(elt, height)
 
 	var img = arrow.getElementsByTagName('img')[0];
 	img.style.position = 'relative';
-	img.style.left = '2px';
-	img.style.top = '-4px';
+	img.style.left = '1px';
+	img.style.top = (mxClient.IS_FF) ? '0px' : '-4px';
 	mxUtils.setOpacity(arrow, 70);
 	
 	var symbol = elt.getElementsByTagName('div')[0];
@@ -1433,6 +1437,11 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 	input.style.marginTop = '-2px';
 	input.style.right = (right + 12) + 'px';
 	input.style.width = width + 'px';
+	input.style.height = '21px';
+	input.style.border = '1px solid rgb(160, 160, 160)';
+	input.style.borderRadius = '4px';
+	input.style.boxSizing = 'border-box';
+
 	container.appendChild(input);
 	
 	var stepper = this.createStepper(input, update, step, null, disableFocus, null, isFloat);
@@ -1448,7 +1457,7 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
  */
 BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, handler, init)
 {
-	width = (width != null) ? width : 44;
+	width = (width != null) ? width : 52;
 	
 	var graph = this.editorUi.editor.graph;
 	var div = this.createPanel();
@@ -1489,7 +1498,7 @@ BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, han
 		mxEvent.consume(evt);
 	});
 
-	var input = this.addUnitInput(div, '%', 20, width, update, 10, -14, handler != null);
+	var input = this.addUnitInput(div, '%', 16, width, update, 10, -15, handler != null);
 
 	if (key != null)
 	{
@@ -1674,7 +1683,7 @@ ArrangePanel.prototype.init = function()
 		span.style.width = '100%';
 		span.style.marginTop = '0px';
 		span.style.fontWeight = 'bold';
-		span.style.padding = '10px 0 0 18px';
+		span.style.padding = '10px 0 0 14px';
 		mxUtils.write(span, mxResources.get('style'));
 		this.container.appendChild(span);
 			
@@ -1867,7 +1876,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('toFront') + ' (' + this.editorUi.actions.get('toFront').shortcut + ')');
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	btn.style.marginRight = '2px';
 	div.appendChild(btn);
 	
@@ -1877,7 +1886,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('toBack') + ' (' + this.editorUi.actions.get('toBack').shortcut + ')');
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	div.appendChild(btn);
 	
 	if (graph.getSelectionCount() == 1)
@@ -1890,7 +1899,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 		})
 		
 		btn.setAttribute('title', mxResources.get('bringForward'));
-		btn.style.width = '100px';
+		btn.style.width = '104px';
 		btn.style.marginRight = '2px';
 		div.appendChild(btn);
 		
@@ -1900,7 +1909,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 		})
 		
 		btn.setAttribute('title', mxResources.get('sendBackward'));
-		btn.style.width = '100px';
+		btn.style.width = '104px';
 		div.appendChild(btn);
 	}
 	
@@ -1930,7 +1939,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		})
 		
 		btn.setAttribute('title', mxResources.get('group') + ' (' + this.editorUi.actions.get('group').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 		count++;
@@ -1945,7 +1954,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		btn.setAttribute('title', mxResources.get('ungroup') + ' (' +
 			this.editorUi.actions.get('ungroup').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 		count++;
@@ -1966,7 +1975,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		btn.setAttribute('title', mxResources.get('copySize') + ' (' +
 			this.editorUi.actions.get('copySize').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 
 		div.appendChild(btn);
@@ -1985,9 +1994,9 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			div.appendChild(btn2);
 			count++;
 			
-			btn.style.width = '100px';
+			btn.style.width = '104px';
 			btn.style.marginBottom = '2px';
-			btn2.style.width = '100px';
+			btn2.style.width = '104px';
 			btn2.style.marginBottom = '2px';
 		}
 	}
@@ -2022,7 +2031,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		btn.setAttribute('title', mxResources.get('copyData') + ' (' +
 			this.editorUi.actions.get('copyData').shortcut + ')' +
 			' Shift+Click to Extract Data');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 
 		div.appendChild(btn);
@@ -2041,9 +2050,9 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			div.appendChild(btn2);
 			count++;
 			
-			btn.style.width = '100px';
+			btn.style.width = '104px';
 			btn.style.marginBottom = '2px';
-			btn2.style.width = '100px';
+			btn2.style.width = '104px';
 			btn2.style.marginBottom = '2px';
 		}
 	}
@@ -2062,7 +2071,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		})
 		
 		btn.setAttribute('title', mxResources.get('removeFromGroup'));
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 		count++;
@@ -2080,7 +2089,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		}));
 		
 		btn.setAttribute('title', mxResources.get('clearWaypoints') + ' (' + this.editorUi.actions.get('clearWaypoints').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 
@@ -2100,7 +2109,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		}));
 		
 		btn.setAttribute('title', mxResources.get('editData') + ' (' + this.editorUi.actions.get('editData').shortcut + ')');
-		btn.style.width = '100px';
+		btn.style.width = '104px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
 		count++;
@@ -2111,7 +2120,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		}));
 		
 		btn.setAttribute('title', mxResources.get('editLink') + ' (' + this.editorUi.actions.get('editLink').shortcut + ')');
-		btn.style.width = '100px';
+		btn.style.width = '104px';
 		btn.style.marginLeft = '2px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);
@@ -2157,7 +2166,7 @@ ArrangePanel.prototype.addAlign = function(div)
 		function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, stylePanel);
 	
 	this.styleButtons([left, center, right, top, middle, bottom]);
-	right.style.marginRight = '6px';
+	right.style.marginRight = '8px';
 	div.appendChild(stylePanel);
 	
 	return div;
@@ -2187,7 +2196,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('horizontal'));
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	btn.style.marginRight = '2px';
 	div.appendChild(btn);
 	
@@ -2197,7 +2206,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('vertical'));
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	div.appendChild(btn);
 	
 	return div;
@@ -2222,7 +2231,7 @@ ArrangePanel.prototype.addDistribute = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('horizontal'));
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	btn.style.marginRight = '2px';
 	div.appendChild(btn);
 	
@@ -2232,7 +2241,7 @@ ArrangePanel.prototype.addDistribute = function(div)
 	})
 	
 	btn.setAttribute('title', mxResources.get('vertical'));
-	btn.style.width = '100px';
+	btn.style.width = '104px';
 	div.appendChild(btn);
 	
 	return div;
@@ -2265,7 +2274,7 @@ ArrangePanel.prototype.addAngle = function(div)
 		mxUtils.write(span, mxResources.get('angle'));
 		div.appendChild(span);
 		
-		input = this.addUnitInput(div, '°', 20, 44, function()
+		input = this.addUnitInput(div, '°', 16, 52, function()
 		{
 			update.apply(this, arguments);
 		});
@@ -2297,7 +2306,7 @@ ArrangePanel.prototype.addAngle = function(div)
 		})
 		
 		btn.setAttribute('title', label + ' (' + this.editorUi.actions.get('turn').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		div.appendChild(btn);
 		
 		if (input != null)
@@ -2407,11 +2416,11 @@ ArrangePanel.prototype.addGeometry = function(container)
 	div.appendChild(span);
 
 	var widthUpdate, heightUpdate, leftUpdate, topUpdate;
-	var width = this.addUnitInput(div, this.getUnit(), 84, 44, function()
+	var width = this.addUnitInput(div, this.getUnit(), 87, 52, function()
 	{
 		widthUpdate.apply(this, arguments);
 	}, this.getUnitStep(), null, null, this.isFloatUnit());
-	var height = this.addUnitInput(div, this.getUnit(), 20, 44, function()
+	var height = this.addUnitInput(div, this.getUnit(), 16, 52, function()
 	{
 		heightUpdate.apply(this, arguments);
 	}, this.getUnitStep(), null, null, this.isFloatUnit());
@@ -2450,10 +2459,10 @@ ArrangePanel.prototype.addGeometry = function(container)
 	}
 	else
 	{
-		this.addLabel(div, mxResources.get('width'), 84);
+		this.addLabel(div, mxResources.get('width'), 87);
 	}
 	
-	this.addLabel(div, mxResources.get('height'), 20);
+	this.addLabel(div, mxResources.get('height'), 16);
 	mxUtils.br(div);
 
 	var wrapper = document.createElement('div');
@@ -2543,19 +2552,19 @@ ArrangePanel.prototype.addGeometry = function(container)
 	mxUtils.write(span, mxResources.get('position'));
 	div2.appendChild(span);
 	
-	var left = this.addUnitInput(div2, this.getUnit(), 84, 44, function()
+	var left = this.addUnitInput(div2, this.getUnit(), 87, 52, function()
 	{
 		leftUpdate.apply(this, arguments);
 	}, this.getUnitStep(), null, null, this.isFloatUnit());
-	var top = this.addUnitInput(div2, this.getUnit(), 20, 44, function()
+	var top = this.addUnitInput(div2, this.getUnit(), 16, 52, function()
 	{
 		topUpdate.apply(this, arguments);
 	}, this.getUnitStep(), null, null, this.isFloatUnit());
 
 	mxUtils.br(div2);
 
-	this.addLabel(div2, mxResources.get('left'), 84);
-	this.addLabel(div2, mxResources.get('top'), 20);
+	this.addLabel(div2, mxResources.get('left'), 87);
+	this.addLabel(div2, mxResources.get('top'), 16);
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
@@ -2663,7 +2672,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 				}));
 				
 				btn.setAttribute('title', mxResources.get('center'));
-				btn.style.width = '202px';
+				btn.style.width = '210px';
 				btn.style.position = 'absolute';
 				mxUtils.br(div2);
 				mxUtils.br(div2);
@@ -2832,7 +2841,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	div.appendChild(span);
 
 	var widthUpdate, xtUpdate, ytUpdate, xsUpdate, ysUpdate;
-	var width = this.addUnitInput(div, 'pt', 20, 44, function()
+	var width = this.addUnitInput(div, 'pt', 12, 44, function()
 	{
 		widthUpdate.apply(this, arguments);
 	});
@@ -2874,18 +2883,18 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.write(span, 'Start');
 	divs.appendChild(span);
 
-	var xs = this.addUnitInput(divs, 'pt', 84, 44, function()
+	var xs = this.addUnitInput(divs, 'pt', 87, 52, function()
 	{
 		xsUpdate.apply(this, arguments);
 	});
-	var ys = this.addUnitInput(divs, 'pt', 20, 44, function()
+	var ys = this.addUnitInput(divs, 'pt', 16, 52, function()
 	{
 		ysUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(divs);
-	this.addLabel(divs, mxResources.get('left'), 84);
-	this.addLabel(divs, mxResources.get('top'), 20);
+	this.addLabel(divs, mxResources.get('left'), 87);
+	this.addLabel(divs, mxResources.get('top'), 16);
 	container.appendChild(divs);
 	this.addKeyHandler(xs, listener);
 	this.addKeyHandler(ys, listener);
@@ -2901,18 +2910,18 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	mxUtils.write(span, 'End');
 	divt.appendChild(span);
 
-	var xt = this.addUnitInput(divt, 'pt', 84, 44, function()
+	var xt = this.addUnitInput(divt, 'pt', 87, 52, function()
 	{
 		xtUpdate.apply(this, arguments);
 	});
-	var yt = this.addUnitInput(divt, 'pt', 20, 44, function()
+	var yt = this.addUnitInput(divt, 'pt', 16, 52, function()
 	{
 		ytUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(divt);
-	this.addLabel(divt, mxResources.get('left'), 84);
-	this.addLabel(divt, mxResources.get('top'), 20);
+	this.addLabel(divt, mxResources.get('left'), 87);
+	this.addLabel(divt, mxResources.get('top'), 16);
 	container.appendChild(divt);
 	this.addKeyHandler(xt, listener);
 	this.addKeyHandler(yt, listener);
@@ -3025,7 +3034,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	var ss = this.format.getSelectionState();
 	
 	var title = this.createTitle(mxResources.get('font'));
-	title.style.paddingLeft = '18px';
+	title.style.paddingLeft = '14px';
 	title.style.paddingTop = '10px';
 	title.style.paddingBottom = '6px';
 	container.appendChild(title);
@@ -3049,7 +3058,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		cssMenu.style.overflow = 'hidden';
 		cssMenu.style.margin = '0px';
 		this.addArrow(cssMenu);
-		cssMenu.style.width = '192px';
+		cssMenu.style.width = '200px';
 		cssMenu.style.height = '15px';
 		
 		var arrow = cssMenu.getElementsByTagName('div')[0];
@@ -3073,7 +3082,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	fontMenu.style.margin = '0px';
 	
 	this.addArrow(fontMenu);
-	fontMenu.style.width = '192px';
+	fontMenu.style.width = '200px';
 	fontMenu.style.height = '15px';
 	
 	var stylePanel2 = stylePanel.cloneNode(false);
@@ -3187,7 +3196,7 @@ TextFormatPanel.prototype.addFont = function(container)
 			{
 				document.execCommand('superscript', false, null);
 			}, stylePanel3)]);
-		sub.style.marginLeft = '9px';
+		sub.style.marginLeft = '10px';
 		
 		var tmp = stylePanel3.cloneNode(false);
 		tmp.style.paddingTop = '4px';
@@ -3222,7 +3231,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					graph.cellEditor.toggleViewMode();
 				}, tmp)];
 		this.styleButtons(btns);
-		btns[btns.length - 2].style.marginLeft = '9px';
+		btns[btns.length - 2].style.marginLeft = '10px';
 		
 		container.appendChild(tmp);
 	}
@@ -3244,8 +3253,10 @@ TextFormatPanel.prototype.addFont = function(container)
 	// Adds label position options
 	var positionSelect = document.createElement('select');
 	positionSelect.style.position = 'absolute';
-	positionSelect.style.right = '20px';
+	positionSelect.style.right = '16px';
 	positionSelect.style.width = '97px';
+	positionSelect.style.border = '1px solid rgb(160, 160, 160)';
+	positionSelect.style.borderRadius = '4px';
 	positionSelect.style.marginTop = '-2px';
 	
 	var directions = ['topLeft', 'top', 'topRight', 'left', 'center', 'right', 'bottomLeft', 'bottom', 'bottomRight'];
@@ -3284,8 +3295,10 @@ TextFormatPanel.prototype.addFont = function(container)
 	// handle multiple different styles for current selection
 	var dirSelect = document.createElement('select');
 	dirSelect.style.position = 'absolute';
-	dirSelect.style.right = '20px';
+	dirSelect.style.border = '1px solid rgb(160, 160, 160)';
+	dirSelect.style.right = '16px';
 	dirSelect.style.width = '97px';
+	dirSelect.style.borderRadius = '4px';
 	dirSelect.style.marginTop = '-2px';
 
 	// NOTE: For automatic we use the value null since automatic
@@ -3343,16 +3356,17 @@ TextFormatPanel.prototype.addFont = function(container)
 		});
 	}
 
-	// Font size
+	// Fontsize
 	var input = document.createElement('input');
+	input.style.position = 'absolute';
+	input.style.border = '1px solid rgb(160, 160, 160)';
 	input.style.textAlign = 'right';
 	input.style.marginTop = '4px';
-	
-	input.style.position = 'absolute';
-	input.style.right = '32px';
-	
-	input.style.width = '40px';
-	input.style.height = '17px';
+	input.style.left = '156px';
+	input.style.width = '52px';
+	input.style.borderRadius = '4px';
+	input.style.height = '23px';
+	input.style.boxSizing = 'border-box';
 	stylePanel2.appendChild(input);
 	
 	// Workaround for font size 4 if no text is selected is update font size below
@@ -3493,7 +3507,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	var stepper = this.createStepper(input, inputUpdate, 1, 10, true, Menus.prototype.defaultFontSize);
 	stepper.style.display = input.style.display;
 	stepper.style.marginTop = '4px';
-	stepper.style.right = '20px';
+	stepper.style.left = '208px';
 	
 	stylePanel2.appendChild(stepper);
 	
@@ -3687,38 +3701,38 @@ TextFormatPanel.prototype.addFont = function(container)
 	spacingPanel.appendChild(span);
 
 	var topUpdate, globalUpdate, leftUpdate, bottomUpdate, rightUpdate;
-	var topSpacing = this.addUnitInput(spacingPanel, 'pt', 91, 44, function()
+	var topSpacing = this.addUnitInput(spacingPanel, 'pt', 87, 52, function()
 	{
 		topUpdate.apply(this, arguments);
 	});
-	var globalSpacing = this.addUnitInput(spacingPanel, 'pt', 20, 44, function()
+	var globalSpacing = this.addUnitInput(spacingPanel, 'pt', 16, 52, function()
 	{
 		globalUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(spacingPanel);
-	this.addLabel(spacingPanel, mxResources.get('top'), 91);
-	this.addLabel(spacingPanel, mxResources.get('global'), 20);
+	this.addLabel(spacingPanel, mxResources.get('top'), 87);
+	this.addLabel(spacingPanel, mxResources.get('global'), 16);
 	mxUtils.br(spacingPanel);
 	mxUtils.br(spacingPanel);
 
-	var leftSpacing = this.addUnitInput(spacingPanel, 'pt', 162, 44, function()
+	var leftSpacing = this.addUnitInput(spacingPanel, 'pt', 158, 52, function()
 	{
 		leftUpdate.apply(this, arguments);
 	});
-	var bottomSpacing = this.addUnitInput(spacingPanel, 'pt', 91, 44, function()
+	var bottomSpacing = this.addUnitInput(spacingPanel, 'pt', 87, 52, function()
 	{
 		bottomUpdate.apply(this, arguments);
 	});
-	var rightSpacing = this.addUnitInput(spacingPanel, 'pt', 20, 44, function()
+	var rightSpacing = this.addUnitInput(spacingPanel, 'pt', 16, 52, function()
 	{
 		rightUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(spacingPanel);
-	this.addLabel(spacingPanel, mxResources.get('left'), 162);
-	this.addLabel(spacingPanel, mxResources.get('bottom'), 91);
-	this.addLabel(spacingPanel, mxResources.get('right'), 20);
+	this.addLabel(spacingPanel, mxResources.get('left'), 158);
+	this.addLabel(spacingPanel, mxResources.get('bottom'), 87);
+	this.addLabel(spacingPanel, mxResources.get('right'), 16);
 	
 	if (!graph.cellEditor.isContentEditing())
 	{
@@ -3912,7 +3926,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 				}), tablePanel)];
 		this.styleButtons(btns);
-		btns[2].style.marginRight = '9px';
+		btns[2].style.marginRight = '10px';
 		
 		var wrapper3 = this.createPanel();
 		wrapper3.style.paddingTop = '10px';
@@ -4037,7 +4051,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					}
 				}, tablePanel2)];
 		this.styleButtons(btns);
-		btns[2].style.marginRight = '9px';
+		btns[2].style.marginRight = '10px';
 		
 		wrapper3.appendChild(tablePanel2);
 		container.appendChild(wrapper3);
@@ -4487,7 +4501,7 @@ StyleFormatPanel.prototype.init = function()
 	
 		this.container.appendChild(this.addStroke(this.createPanel()));
 		this.container.appendChild(this.addLineJumps(this.createPanel()));
-		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY, 41);
+		var opacityPanel = this.createRelativeOption(mxResources.get('opacity'), mxConstants.STYLE_OPACITY);
 		opacityPanel.style.paddingTop = '8px';
 		opacityPanel.style.paddingBottom = '8px';
 		this.container.appendChild(opacityPanel);
@@ -4653,7 +4667,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		}));
 		
 		btn.setAttribute('title', mxResources.get('editStyle') + ' (' + this.editorUi.actions.get('editStyle').shortcut + ')');
-		btn.style.width = '202px';
+		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		
 		div.appendChild(btn);
@@ -4671,12 +4685,12 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 		
 		if (btn == null)
 		{
-			btn2.style.width = '202px';
+			btn2.style.width = '210px';
 		}
 		else
 		{
-			btn.style.width = '100px';
-			btn2.style.width = '100px';
+			btn.style.width = '104px';
+			btn2.style.width = '104px';
 			btn2.style.marginLeft = '2px';
 		}
 		
@@ -4700,9 +4714,14 @@ StyleFormatPanel.prototype.addFill = function(container)
 	// Adds gradient direction option
 	var gradientSelect = document.createElement('select');
 	gradientSelect.style.position = 'absolute';
-	gradientSelect.style.marginTop = '-2px';
-	gradientSelect.style.right = '72px';
+	gradientSelect.style.left = '106px';
 	gradientSelect.style.width = '70px';
+	gradientSelect.style.height = '22px';
+	gradientSelect.style.padding = '0px';
+	gradientSelect.style.marginTop = '-3px';
+	gradientSelect.style.borderRadius = '4px';
+	gradientSelect.style.border = '1px solid rgb(160, 160, 160)';
+	gradientSelect.style.boxSizing = 'border-box';
 	
 	var fillStyleSelect = gradientSelect.cloneNode(false);
 	
@@ -4874,9 +4893,14 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	// Adds gradient direction option
 	var styleSelect = document.createElement('select');
 	styleSelect.style.position = 'absolute';
-	styleSelect.style.marginTop = '-2px';
-	styleSelect.style.right = '72px';
+	styleSelect.style.height = '22px';
+	styleSelect.style.padding = '0px';
+	styleSelect.style.marginTop = '-3px';
+	styleSelect.style.boxSizing = 'border-box';
+	styleSelect.style.right = '68px';
 	styleSelect.style.width = '80px';
+	styleSelect.style.border = '1px solid rgb(160, 160, 160)';
+	styleSelect.style.borderRadius = '4px';
 
 	var styles = ['sharp', 'rounded', 'curved'];
 
@@ -4944,8 +4968,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	stylePanel.style.fontWeight = 'normal';
 	stylePanel.style.whiteSpace = 'nowrap';
 	stylePanel.style.position = 'relative';
-	stylePanel.style.paddingLeft = '16px'
+	stylePanel.style.paddingLeft = '0px';
 	stylePanel.style.marginBottom = '2px';
+	stylePanel.style.overflow = 'hidden';
 	stylePanel.style.marginTop = '2px';
 	stylePanel.className = 'geToolbarContainer';
 
@@ -4999,9 +5024,15 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	// Stroke width
 	var input = document.createElement('input');
+	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
-	input.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
-	input.style.width = '41px';
+	input.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
+	input.style.width = '46px';
+	input.style.height = '21px';
+	input.style.left = '152px';
+	input.style.border = '1px solid rgb(160, 160, 160)';
+	input.style.borderRadius = '4px';
+	input.style.boxSizing = 'border-box';
 	input.setAttribute('title', mxResources.get('linewidth'));
 	
 	stylePanel.appendChild(input);
@@ -5045,23 +5076,16 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var stepper = this.createStepper(input, update, 1, 9);
 	stepper.style.display = input.style.display;
-	stepper.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
+	stepper.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
+	stepper.style.left = '198px';
 	stylePanel.appendChild(stepper);
 
 	var altStepper = this.createStepper(altInput, altUpdate, 1, 9);
 	altStepper.style.display = altInput.style.display;
-	altStepper.style.marginTop = (uiTheme == 'min') ? '0px' : '2px';
-	altStylePanel.appendChild(altStepper);
-	
-	input.style.position = 'absolute';
-	input.style.height = '15px';
-	input.style.left = '141px';
-	stepper.style.left = '190px';
-
+	altStepper.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
 	altInput.style.position = 'absolute';
-	altInput.style.left = '141px';
-	altInput.style.height = '15px';
-	altStepper.style.left = '190px';
+	altStepper.style.left = '198px';
+	altStylePanel.appendChild(altStepper);
 	
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);
@@ -5189,8 +5213,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		}
 	}));
 
-	this.addArrow(edgeShape, 8);
-	this.addArrow(edgeStyle);
+	var elt = this.addArrow(edgeShape, 8);
+	elt.nextSibling.style.position = 'relative';
+	elt.nextSibling.style.top = '-2px';
+	elt = this.addArrow(edgeStyle, 10);
+	elt.nextSibling.style.position = 'relative';
+	elt.nextSibling.style.top = '-3px';
+	edgeStyle.getElementsByTagName('img')[0].style.top = '-1px';
 	this.addArrow(lineStart);
 	this.addArrow(lineEnd);
 	
@@ -5206,19 +5235,23 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	solid.style.width = '85px';
 	solid.style.height = '1px';
 	solid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
-	solid.style.marginBottom = '9px';
+	solid.style.marginBottom = '7px';
 	symbol.appendChild(solid);
 	
 	var altSolid = document.createElement('div');
 	altSolid.style.width = '23px';
 	altSolid.style.height = '1px';
 	altSolid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
-	altSolid.style.marginBottom = '9px';
+	altSolid.style.marginBottom = '7px';
 	altSymbol.appendChild(altSolid);
 
 	pattern.style.height = '15px';
+	pattern.style.marginLeft = '16px';
 	altPattern.style.height = '15px';
+	altPattern.style.marginLeft = '3px';
+	edgeShape.style.marginLeft = '10px';
 	edgeShape.style.height = '15px';
+	edgeStyle.style.marginLeft = '10px';
 	edgeStyle.style.height = '17px';
 	lineStart.style.marginLeft = '3px';
 	lineStart.style.height = '17px';
@@ -5230,13 +5263,12 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	container.appendChild(stylePanel);
 
 	var arrowPanel = stylePanel.cloneNode(false);
-	arrowPanel.style.paddingBottom = '6px';
-	arrowPanel.style.paddingTop = '4px';
+	arrowPanel.style.padding = '5px 4px 6px 0px';
 	arrowPanel.style.fontWeight = 'normal';
 	
 	var span = document.createElement('div');
 	span.style.position = 'absolute';
-	span.style.marginLeft = '3px';
+	span.style.marginLeft = '0px';
 	span.style.marginBottom = '12px';
 	span.style.marginTop = '2px';
 	span.style.fontWeight = 'normal';
@@ -5246,11 +5278,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	arrowPanel.appendChild(span);
 	
 	var endSpacingUpdate, endSizeUpdate;
-	var endSpacing = this.addUnitInput(arrowPanel, 'pt', 74, 33, function()
+	var endSpacing = this.addUnitInput(arrowPanel, 'pt', 76, 42, function()
 	{
 		endSpacingUpdate.apply(this, arguments);
 	});
-	var endSize = this.addUnitInput(arrowPanel, 'pt', 20, 33, function()
+	var endSize = this.addUnitInput(arrowPanel, 'pt', 16, 42, function()
 	{
 		endSizeUpdate.apply(this, arguments);
 	});
@@ -5266,18 +5298,18 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	arrowPanel.appendChild(span);
 	
 	var startSpacingUpdate, startSizeUpdate;
-	var startSpacing = this.addUnitInput(arrowPanel, 'pt', 74, 33, function()
+	var startSpacing = this.addUnitInput(arrowPanel, 'pt', 76, 42, function()
 	{
 		startSpacingUpdate.apply(this, arguments);
 	});
-	var startSize = this.addUnitInput(arrowPanel, 'pt', 20, 33, function()
+	var startSize = this.addUnitInput(arrowPanel, 'pt', 16, 42, function()
 	{
 		startSizeUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(arrowPanel);
-	this.addLabel(arrowPanel, mxResources.get('spacing'), 74, 50);
-	this.addLabel(arrowPanel, mxResources.get('size'), 20, 50);
+	this.addLabel(arrowPanel, mxResources.get('spacing'), 76, 52);
+	this.addLabel(arrowPanel, mxResources.get('size'), 16, 52);
 	mxUtils.br(arrowPanel);
 	
 	var perimeterPanel = colorPanel.cloneNode(false);
@@ -5300,7 +5332,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	perimeterPanel.appendChild(span);
 	
 	var perimeterUpdate;
-	var perimeterSpacing = this.addUnitInput(perimeterPanel, 'pt', 20, 41, function()
+	var perimeterSpacing = this.addUnitInput(perimeterPanel, 'pt', 16, 52, function()
 	{
 		perimeterUpdate.apply(this, arguments);
 	});
@@ -5313,6 +5345,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	else if (ss.vertices.length == ss.cells.length)
 	{
 		container.appendChild(perimeterPanel);
+		stepper.style.left = '198px';
+		input.style.left = '152px';
 	}
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)
@@ -5436,7 +5470,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			altStylePanel.style.display = 'none';
 			stylePanel.style.display = '';
 		}
-		
+
+		if (Graph.lineJumpsEnabled && ss.edges.length > 0 &&
+			ss.vertices.length == 0 && ss.lineJumps)
+		{
+			container.style.borderBottomStyle = 'none';
+		}
+
 		function updateArrow(marker, fill, elt, prefix)
 		{
 			var markerDiv = elt.getElementsByTagName('div')[0];
@@ -5444,17 +5484,24 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			if (markerDiv != null)
 			{
 				markerDiv.className = ui.getCssClassForMarker(prefix, ss.style.shape, marker, fill);
-				
+				markerDiv.nextSibling.style.marginLeft = '1px';
+				markerDiv.nextSibling.style.paddingRight = '5px';
+
 				if (markerDiv.className == 'geSprite geSprite-noarrow')
 				{
 					markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
 					markerDiv.style.backgroundImage = 'none';
 					markerDiv.style.verticalAlign = 'top';
-					markerDiv.style.marginTop = '5px';
+					markerDiv.style.marginTop = '4px';
 					markerDiv.style.fontSize = '10px';
 					markerDiv.style.filter = 'none';
 					markerDiv.style.color = this.defaultStrokeColor;
 					markerDiv.nextSibling.style.marginTop = '0px';
+				}
+				else
+				{
+					markerDiv.nextSibling.style.position = 'relative';
+					markerDiv.nextSibling.style.top = '-2px';
 				}
 			}
 			
@@ -5555,7 +5602,7 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 	if (Graph.lineJumpsEnabled && ss.edges.length > 0 &&
 		ss.vertices.length == 0 && ss.lineJumps)
 	{
-		container.style.padding = '8px 0px 24px 18px';
+		container.style.padding = '2px 0px 24px 14px';
 		
 		var ui = this.editorUi;
 		var editor = ui.editor;
@@ -5563,17 +5610,23 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 		
 		var span = document.createElement('div');
 		span.style.position = 'absolute';
-		span.style.fontWeight = 'bold';
-		span.style.width = '80px';
+		span.style.maxWidth = '82px';
+		span.style.overflow = 'hidden';
+		span.style.textOverflow = 'ellipsis';
 		
 		mxUtils.write(span, mxResources.get('lineJumps'));
 		container.appendChild(span);
 		
 		var styleSelect = document.createElement('select');
 		styleSelect.style.position = 'absolute';
+		styleSelect.style.height = '21px';
+		styleSelect.style.padding = '0px';
 		styleSelect.style.marginTop = '-2px';
+		styleSelect.style.boxSizing = 'border-box';
 		styleSelect.style.right = '76px';
-		styleSelect.style.width = '62px';
+		styleSelect.style.width = '54px';
+		styleSelect.style.border = '1px solid rgb(160, 160, 160)';
+		styleSelect.style.borderRadius = '4px';
 
 		var styles = ['none', 'arc', 'gap', 'sharp', 'line'];
 
@@ -5612,7 +5665,7 @@ StyleFormatPanel.prototype.addLineJumps = function(container)
 		
 		var jumpSizeUpdate;
 		
-		var jumpSize = this.addUnitInput(container, 'pt', 22, 33, function()
+		var jumpSize = this.addUnitInput(container, 'pt', 16, 42, function()
 		{
 			jumpSizeUpdate.apply(this, arguments);
 		});
@@ -5656,8 +5709,8 @@ StyleFormatPanel.prototype.addEffects = function(div)
 	var graph = editor.graph;
 	var ss = this.format.getSelectionState();
 	
-	div.style.paddingTop = '0px';
-	div.style.paddingBottom = '2px';
+	div.style.paddingTop = '4px';
+	div.style.paddingBottom = '0px';
 
 	var table = document.createElement('table');
 
@@ -5744,7 +5797,7 @@ StyleFormatPanel.prototype.addStyleOps = function(div)
 	}));
 	
 	btn.setAttribute('title', mxResources.get('setAsDefaultStyle') + ' (' + this.editorUi.actions.get('setAsDefaultStyle').shortcut + ')');
-	btn.style.width = '202px';
+	btn.style.width = '210px';
 	div.appendChild(btn);
 
 	return div;
@@ -6452,16 +6505,29 @@ DiagramFormatPanel.prototype.addView = function(div)
 		
 		if (this.showBackgroundImageOption)
 		{
-			var btn = mxUtils.button(mxResources.get('change') + '...', function(evt)
+			var label = bg.getElementsByTagName('span')[0];
+			label.style.display = 'inline-block';
+			label.style.textOverflow = 'ellipsis';
+			label.style.overflow = 'hidden';
+			label.style.maxWidth = '68px';
+
+			if (mxClient.IS_FF)
+			{
+				label.style.marginTop = '1px';
+			}
+
+			var btn = mxUtils.button(mxResources.get('change'), function(evt)
 			{
 				ui.showBackgroundImageDialog(null, ui.editor.graph.backgroundImage);
 				mxEvent.consume(evt);
 			})
 		
 			btn.className = 'geColorBtn';
-			btn.style.height = '19px';
-			btn.style.left = '6px';
-			btn.style.width = '60px';
+			btn.style.position = 'absolute';
+			btn.style.marginTop = '-3px';
+			btn.style.height = '22px';
+			btn.style.left = '118px';
+			btn.style.width = '56px';
 		
 			bg.appendChild(btn);
 		}
@@ -6573,7 +6639,12 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	var input = document.createElement('input');
 	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
-	input.style.width = '38px';
+	input.style.width = '48px';
+	input.style.marginTop = '-2px';
+	input.style.height = '21px';
+	input.style.border = '1px solid rgb(160, 160, 160)';
+	input.style.borderRadius = '4px';
+	input.style.boxSizing = 'border-box';
 	input.value = this.inUnit(graph.getGridSize()) + ' ' + this.getUnit(); 
 	
 	var stepper = this.createStepper(input, update, this.getUnitStep(), null, null, null, this.isFloatUnit());
@@ -6612,104 +6683,57 @@ DiagramFormatPanel.prototype.addGridOption = function(container)
 	mxEvent.addListener(input, 'blur', update);
 	mxEvent.addListener(input, 'change', update);
 
-	if (mxClient.IS_SVG)
+	input.style.right = '78px';
+	stepper.style.marginTop = '-17px';
+	stepper.style.right = '66px';
+
+	var panel = this.createColorOption(mxResources.get('grid'), function()
 	{
-		input.style.marginTop = '-2px';
-		input.style.right = '84px';
-		stepper.style.marginTop = (mxClient.IS_FF) ? '-16px' : '-18px';
-		stepper.style.right = '72px';
-	
-		var panel = this.createColorOption(mxResources.get('grid'), function()
-		{
-			var color = graph.view.gridColor;
+		var color = graph.view.gridColor;
 
-			return (graph.isGridEnabled()) ? color : null;
-		}, function(color)
-		{
-			var enabled = graph.isGridEnabled();
-			
-			if (color == mxConstants.NONE)
-			{
-				graph.setGridEnabled(false);
-			}
-			else
-			{
-				graph.setGridEnabled(true);
-				ui.setGridColor(color);
-			}
-
-			input.style.display = (graph.isGridEnabled()) ? '' : 'none';
-			stepper.style.display = input.style.display;
-			
-			if (enabled != graph.isGridEnabled())
-			{
-				ui.fireEvent(new mxEventObject('gridEnabledChanged'));
-			}
-		}, Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor,
-		{
-			install: function(apply)
-			{
-				this.listener = function()
-				{
-					apply((graph.isGridEnabled()) ? graph.view.gridColor : null);
-				};
-				
-				ui.addListener('gridColorChanged', this.listener);
-				ui.addListener('gridEnabledChanged', this.listener);
-			},
-			destroy: function()
-			{
-				ui.removeListener(this.listener);
-			}
-		});
-
-		panel.appendChild(input);
-		panel.appendChild(stepper);
-		container.appendChild(panel);
-	}
-	else
+		return (graph.isGridEnabled()) ? color : null;
+	}, function(color)
 	{
-		input.style.marginTop = '2px';
-		input.style.right = '32px';
-		stepper.style.marginTop = '2px';
-		stepper.style.right = '20px';
+		var enabled = graph.isGridEnabled();
 		
-		container.appendChild(input);
-		container.appendChild(stepper);
+		if (color == mxConstants.NONE)
+		{
+			graph.setGridEnabled(false);
+		}
+		else
+		{
+			graph.setGridEnabled(true);
+			ui.setGridColor(color);
+		}
+
+		input.style.display = (graph.isGridEnabled()) ? '' : 'none';
+		stepper.style.display = input.style.display;
 		
-		container.appendChild(this.createOption(mxResources.get('grid'), function()
+		if (enabled != graph.isGridEnabled())
 		{
-			return graph.isGridEnabled();
-		}, function(checked)
-		{
-			graph.setGridEnabled(checked);
-			
-			if (graph.isGridEnabled())
-			{
-				graph.view.gridColor = '#e0e0e0';
-			}
-			
 			ui.fireEvent(new mxEventObject('gridEnabledChanged'));
-		},
+		}
+	}, Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor,
+	{
+		install: function(apply)
 		{
-			install: function(apply)
+			this.listener = function()
 			{
-				this.listener = function()
-				{
-					input.style.display = (graph.isGridEnabled()) ? '' : 'none';
-					stepper.style.display = input.style.display;
-					
-					apply(graph.isGridEnabled());
-				};
-				
-				ui.addListener('gridEnabledChanged', this.listener);
-			},
-			destroy: function()
-			{
-				ui.removeListener(this.listener);
-			}
-		}));
-	}
+				apply((graph.isGridEnabled()) ? graph.view.gridColor : null);
+			};
+			
+			ui.addListener('gridColorChanged', this.listener);
+			ui.addListener('gridEnabledChanged', this.listener);
+		},
+		destroy: function()
+		{
+			ui.removeListener(this.listener);
+		}
+	});
+
+	panel.appendChild(input);
+	panel.appendChild(stepper);
+	container.appendChild(panel);
 };
 
 /**
@@ -6785,7 +6809,7 @@ DiagramFormatPanel.prototype.addStyleOps = function(div)
 	}));
 	
 	btn.setAttribute('title', mxResources.get('editData') + ' (' + this.editorUi.actions.get('editData').shortcut + ')');
-	btn.style.width = '202px';
+	btn.style.width = '210px';
 	btn.style.marginBottom = '2px';
 	div.appendChild(btn);
 
@@ -6797,7 +6821,7 @@ DiagramFormatPanel.prototype.addStyleOps = function(div)
 	}));
 	
 	btn.setAttribute('title', mxResources.get('clearDefaultStyle') + ' (' + this.editorUi.actions.get('clearDefaultStyle').shortcut + ')');
-	btn.style.width = '202px';
+	btn.style.width = '210px';
 	div.appendChild(btn);
 
 	return div;

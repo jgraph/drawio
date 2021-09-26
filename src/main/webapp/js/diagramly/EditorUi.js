@@ -8955,13 +8955,13 @@
 	{
 		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
 
-		this.doSetSketchMode((mxSettings.settings.sketchMode != null) ?
-			mxSettings.settings.sketchMode : urlParams['sketch'] == '1' &&
-			urlParams['rough'] != '0');
-
 		// Must be set before UI is created in superclass
 		if (typeof window.mxSettings !== 'undefined')
 		{
+			this.doSetSketchMode((mxSettings.settings.sketchMode != null &&
+				urlParams['rough'] == null) ? mxSettings.settings.sketchMode :
+				urlParams['sketch'] == '1' && urlParams['rough'] != '0');
+
 			this.formatWidth = mxSettings.getFormatWidth();
 		}
 		

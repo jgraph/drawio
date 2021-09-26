@@ -797,6 +797,9 @@ html td.mxWindowTitle {
  	color:rgb(112, 112, 112);
  	padding:4px;
 }
+table.geProperties {
+	table-layout:fixed;
+}
 table.geProperties tr td {
 	height:21px;
 }
@@ -824,7 +827,10 @@ table.geProperties tr td {
 }
 .gePropRowCell {
     border-left: 1px solid #f3f3f3;
-    width: 50%;
+	white-space:nowrap;
+	text-overflow:ellipsis;
+	overflow:hidden;
+    max-width: 50%;
 }
 .gePropRow>.gePropRowCell {
     background: #fff;

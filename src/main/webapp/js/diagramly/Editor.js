@@ -4465,7 +4465,7 @@
 			
 			btn.setAttribute('title', mxResources.get('copyStyle') + ' (' + this.editorUi.actions.get('copyStyle').shortcut + ')');
 			btn.style.marginBottom = '2px';
-			btn.style.width = '100px';
+			btn.style.width = '104px';
 			btn.style.marginRight = '2px';
 			
 			div.appendChild(btn);
@@ -4479,13 +4479,13 @@
 				
 				btn.setAttribute('title', mxResources.get('pasteStyle') + ' (' + this.editorUi.actions.get('pasteStyle').shortcut + ')');
 				btn.style.marginBottom = '2px';
-				btn.style.width = '100px';
+				btn.style.width = '104px';
 				
 				div.appendChild(btn);
 			}
 			else
 			{
-				btn.style.width = '202px';
+				btn.style.width = '210px';
 			}
 			
 			mxUtils.br(div);
@@ -4741,7 +4741,9 @@
 				
 				var td = document.createElement('td');
 				td.className = 'gePropRowCell';
-				td.innerHTML = mxUtils.htmlEntities(mxResources.get(pDiplayName, null, pDiplayName));
+				var label = mxResources.get(pDiplayName, null, pDiplayName);
+				mxUtils.write(td, label);
+				td.setAttribute('title', label);
 				
 				if (rightAlig)
 				{
@@ -4770,7 +4772,7 @@
 						
 						if (op.val == pValue)
 						{
-							td.innerHTML = mxUtils.htmlEntities(mxResources.get(op.dispName, null, op.dispName));
+							mxUtils.write(td, mxResources.get(op.dispName, null, op.dispName));
 							break;
 						}
 					}
@@ -4785,7 +4787,7 @@
 							var op = pEnumList[i];
 							var opElem = document.createElement('option');
 							opElem.value = mxUtils.htmlEntities(op.val);
-							opElem.innerHTML = mxUtils.htmlEntities(mxResources.get(op.dispName, null, op.dispName));
+							mxUtils.write(opElem, mxResources.get(op.dispName, null, op.dispName));
 							select.appendChild(opElem);
 						}
 						
@@ -4941,6 +4943,7 @@
 			th.className = 'gePropHeaderCell';
 			var collapseImg = document.createElement('img');
 			collapseImg.src = Sidebar.prototype.expandedImage;
+			collapseImg.style.verticalAlign = 'middle';
 			th.appendChild(collapseImg);
 			mxUtils.write(th, mxResources.get('property'));
 			hrow.style.cursor = 'pointer';
@@ -5391,7 +5394,7 @@
 				}));
 				
 				btn.setAttribute('title', mxResources.get('editStyle') + ' (' + this.editorUi.actions.get('editStyle').shortcut + ')');
-				btn.style.width = '202px';
+				btn.style.width = '210px';
 				btn.style.marginBottom = '2px';
 				
 				div.appendChild(btn);
@@ -5412,12 +5415,12 @@
 				
 				if (btn == null)
 				{
-					btn2.style.width = '202px';
+					btn2.style.width = '210px';
 				}
 				else
 				{
-					btn.style.width = '100px';
-					btn2.style.width = '100px';
+					btn.style.width = '104px';
+					btn2.style.width = '104px';
 					btn2.style.marginLeft = '2px';
 				}
 				
@@ -5439,8 +5442,8 @@
 				}
 				else
 				{
-					btn.style.width = '100px';
-					btn2.style.width = '100px';
+					btn.style.width = '104px';
+					btn2.style.width = '104px';
 					btn2.style.marginLeft = '2px';
 				}
 				

@@ -1,3 +1,8 @@
+26-SEP-2021: 15.3.4
+
+- Moves sketch option to preferences menu
+- Fixes mxSetting NPE
+
 25-SEP-2021: 15.3.3
 
 - Fixes update of zoom label

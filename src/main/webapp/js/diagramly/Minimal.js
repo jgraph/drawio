@@ -761,19 +761,12 @@ EditorUi.initMinimalTheme = function()
 
 		if (graph.isEnabled() && graph.isSelectionEmpty())
 		{
-			menu.addSeparator();
-
-			if (urlParams['sketch'] == '1')
-			{
-				this.addMenuItems(menu, ['toggleSketchMode']);
-			}
+			this.addMenuItems(menu, ['-', 'fullscreen']);
 
 			if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
 			{
 				this.addMenuItems(menu, ['toggleDarkMode']);
 			}
-
-			this.addMenuItems(menu, ['-', 'fullscreen']);
 		}
 	};
 
@@ -1255,6 +1248,11 @@ EditorUi.initMinimalTheme = function()
 			ui.menus.addSubmenu('units', menu, parent);
 			menu.addSeparator(parent);
 			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand'], parent);
+
+			if (urlParams['sketch'] == '1')
+			{
+				this.addMenuItems(menu, ['toggleSketchMode'], parent);
+			}
 
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
