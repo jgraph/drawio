@@ -198,7 +198,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 
 	if (!mxClient.IS_IE && !mxClient.IS_IE11)
 	{
-		input.style.width = '176px';
+		input.style.width = '182px';
 
 		var clrInput = document.createElement('input');
 		clrInput.setAttribute('type', 'color');
@@ -206,7 +206,8 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		clrInput.style.width = '0px';
 		clrInput.style.height = '0px';
 		clrInput.style.border = 'none';
-		clrInput.style.marginLeft = '10px';
+		clrInput.style.marginLeft = '2px';
+		div.style.whiteSpace = 'nowrap';
 		div.appendChild(clrInput);
 
 		div.appendChild(mxUtils.button('...', function()
@@ -1533,7 +1534,13 @@ var EditDataDialog = function(ui, cell)
 	}
 	
 	var top = document.createElement('div');
-	top.style.cssText = 'position:absolute;left:30px;right:30px;overflow-y:auto;top:30px;bottom:80px;';
+	top.style.position = 'absolute';
+	top.style.top = '30px';
+	top.style.left = '30px';
+	top.style.right = '30px';
+	top.style.bottom = '80px';
+	top.style.overflowY = 'auto';
+	
 	top.appendChild(form.table);
 
 	var newProp = document.createElement('div');
@@ -2068,9 +2075,19 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	var link = document.createElement('a');
 	link.className = 'geButton';
 	
-	var removeLink = link.cloneNode();
-	removeLink.innerHTML = '<img width="22" border="0" src="' + Editor.trashImage +
-		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+	var removeLink = link.cloneNode(false);
+	var img = document.createElement('img');
+	img.setAttribute('border', '0');
+	img.setAttribute('width', '22');
+	img.setAttribute('src', Editor.trashImage);
+	img.style.opacity = '0.9';
+
+	if (Editor.isDarkMode())
+	{
+		img.style.filter = 'invert(100%)';
+	}
+
+	removeLink.appendChild(img);
 
 	mxEvent.addListener(removeLink, 'click', function(evt)
 	{
@@ -2115,9 +2132,11 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	var insertLink = link.cloneNode();
 	insertLink.setAttribute('title', mxUtils.trim(mxResources.get('moveSelectionTo', ['...'])));
-	insertLink.innerHTML = '<img width="22" border="0" src="' + Editor.verticalDotsImage +
-		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
-	
+
+	img = img.cloneNode(false);
+	img.setAttribute('src', Editor.verticalDotsImage);
+	insertLink.appendChild(img);
+
 	mxEvent.addListener(insertLink, 'click', function(evt)
 	{
 		if (graph.isEnabled() && !graph.isSelectionEmpty())
@@ -2149,11 +2168,12 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	ldiv.appendChild(insertLink);
 	
-	var dataLink = link.cloneNode();
-	dataLink.innerHTML = '<div class="geSprite geSprite-dots" style="display:inline-block;"></div>';
-	dataLink.innerHTML = '<img width="22" border="0" src="' + Editor.editImage +
-		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+	var dataLink = link.cloneNode(false);
 	dataLink.setAttribute('title', mxResources.get('editData'));
+
+	img = img.cloneNode(false);
+	img.setAttribute('src', Editor.editImage);
+	dataLink.appendChild(img);
 
 	mxEvent.addListener(dataLink, 'click', function(evt)
 	{
@@ -2189,9 +2209,12 @@ var LayersWindow = function(editorUi, x, y, w, h)
 		}
 	};
 	
-	var duplicateLink = link.cloneNode();
-	duplicateLink.innerHTML = '<img width="22" border="0" src="' + Editor.duplicateImage +
-		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+	var duplicateLink = link.cloneNode(false);
+	duplicateLink.setAttribute('title', mxResources.get('duplicate'));
+
+	img = img.cloneNode(false);
+	img.setAttribute('src', Editor.duplicateImage);
+	duplicateLink.appendChild(img);
 
 	mxEvent.addListener(duplicateLink, 'click', function(evt)
 	{
@@ -2226,10 +2249,12 @@ var LayersWindow = function(editorUi, x, y, w, h)
 
 	ldiv.appendChild(duplicateLink);
 
-	var addLink = link.cloneNode();
-	addLink.innerHTML = '<img width="22" border="0" src="' + Editor.addImage +
-		'" style="opacity:0.9;' + (Editor.isDarkMode() ? 'filter:invert(100%);' : '') + '"/>';
+	var addLink = link.cloneNode(false);
 	addLink.setAttribute('title', mxResources.get('addLayer'));
+
+	img = img.cloneNode(false);
+	img.setAttribute('src', Editor.addImage);
+	addLink.appendChild(img);
 	
 	mxEvent.addListener(addLink, 'click', function(evt)
 	{

@@ -414,6 +414,7 @@ if (window.location.hostname == 'embed.diagrams.net')
 if (/((iPhone|iPod|iPad).*AppleWebKit(?!.*Version)|; wv)/i.test(navigator.userAgent))
 {
 	urlParams['gapi'] = '0';
+	urlParams['noDevice'] = '1';
 }
 
 // Fallback for cases where the hash property is not available

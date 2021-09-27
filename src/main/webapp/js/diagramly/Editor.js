@@ -5110,6 +5110,7 @@
 			switcher.style.whiteSpace = 'nowrap';
 			switcher.style.position = 'relative';
 			switcher.style.textAlign = 'center';
+			switcher.style.width = '210px';
 			
 			var dots = [];
 			
@@ -5438,7 +5439,7 @@
 				
 				if (btn == null)
 				{
-					btn2.style.width = '202px';
+					btn2.style.width = '210px';
 				}
 				else
 				{

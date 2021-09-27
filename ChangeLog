@@ -1,3 +1,9 @@
+27-SEP-2021: 15.3.5
+
+- Fixes inconsistent styling in format panel
+- Fixes scrollbar dependency for some format options
+- Fixes NPE of localStorage.setItem
+
 26-SEP-2021: 15.3.4
 
 - Moves sketch option to preferences menu

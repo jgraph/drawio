@@ -2549,11 +2549,14 @@
 				}, parent);
 			}
 
-			menu.addItem(mxResources.get('device') + '...', null, function()
+			if (urlParams['noDevice'] != '1')
 			{
-				editorUi.importLocalFile(true);
-			}, parent);
-
+				menu.addItem(mxResources.get('device') + '...', null, function()
+				{
+					editorUi.importLocalFile(true);
+				}, parent);
+			}
+			
 			if (!editorUi.isOffline())
 			{
 				menu.addSeparator(parent);
@@ -3175,6 +3178,7 @@
 			}
 			
 			//if (!mxClient.IS_IOS)
+			if (urlParams['noDevice'] != '1')
 			{
 				menu.addItem(mxResources.get('device') + '...', null, function()
 				{
@@ -3315,6 +3319,7 @@
 				}
 				
 				//if (!mxClient.IS_IOS)
+				if (urlParams['noDevice'] != '1')
 				{
 					menu.addItem(mxResources.get('device') + '...', null, function()
 					{
@@ -3426,6 +3431,7 @@
 				}
 				
 				//if (!mxClient.IS_IOS)
+				if (urlParams['noDevice'] != '1')
 				{
 					menu.addItem(mxResources.get('device') + '...', null, function()
 					{

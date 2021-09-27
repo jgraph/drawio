@@ -967,6 +967,7 @@ BaseFormatPanel.prototype.createOption = function(label, isCheckedFn, setChecked
 	var div = document.createElement('div');
 	div.style.padding = '3px 0px 3px 0px';
 	div.style.whiteSpace = 'nowrap';
+	div.style.textOverflow = 'ellipsis';
 	div.style.overflow = 'hidden';
 	div.style.width = '200px';
 	div.style.height = '18px';
@@ -1392,7 +1393,12 @@ BaseFormatPanel.prototype.addArrow = function(elt, height)
 	
 	arrow.style.height = height + 'px';
 	arrow.style.borderLeft = '1px solid #a0a0a0';
-	arrow.innerHTML = Toolbar.prototype.dropDownImageHtml;
+
+	var img = document.createElement('img');
+	img.setAttribute('border', '0');
+	img.setAttribute('valign', 'middle');
+	img.setAttribute('src', Toolbar.prototype.dropDownImage);
+	arrow.appendChild(img);
 
 	var img = arrow.getElementsByTagName('img')[0];
 	img.style.position = 'relative';
@@ -1435,7 +1441,7 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
 	input.style.marginTop = '-2px';
-	input.style.right = (right + 12) + 'px';
+	input.style.left = (228 - right - width) + 'px';
 	input.style.width = width + 'px';
 	input.style.height = '21px';
 	input.style.border = '1px solid rgb(160, 160, 160)';
@@ -1446,7 +1452,7 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 	
 	var stepper = this.createStepper(input, update, step, null, disableFocus, null, isFloat);
 	stepper.style.marginTop = (marginTop - 2) + 'px';
-	stepper.style.right = right + 'px';
+	stepper.style.left = (228 - right) + 'px';
 	container.appendChild(stepper);
 
 	return input;
@@ -1553,7 +1559,7 @@ BaseFormatPanel.prototype.addLabel = function(div, title, right, width)
 	var label = document.createElement('div');
 	mxUtils.write(label, title);
 	label.style.position = 'absolute';
-	label.style.right = right + 'px';
+	label.style.left = (240 - right - width) + 'px';
 	label.style.width = width + 'px';
 	label.style.marginTop = '6px';
 	label.style.textAlign = 'center';
@@ -1599,6 +1605,7 @@ BaseFormatPanel.prototype.styleButtons = function(elts)
 		elts[i].style.paddingTop = '3px';
 		elts[i].style.paddingRight = '1px';
 		elts[i].style.margin = '1px';
+		elts[i].style.marginRight = '2px';
 		elts[i].style.width = '24px';
 		elts[i].style.height = '20px';
 		elts[i].className += ' geColorBtn';
@@ -1714,6 +1721,7 @@ ArrangePanel.prototype.addTable = function(div)
 	panel.style.position = 'relative';
 	panel.style.paddingLeft = '0px';
 	panel.style.borderWidth = '0px';
+	panel.style.width = '220px';
 	panel.className = 'geToolbarContainer';
 
 	var isStack = ss.style['childLayout'] == 'stackLayout';
@@ -1856,7 +1864,7 @@ ArrangePanel.prototype.addTable = function(div)
 
 	if (btns.length > 3)
 	{
-		btns[2].style.marginRight = '6px';
+		btns[2].style.marginRight = '10px';
 	}
 	
 	return div;
@@ -1901,6 +1909,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 		btn.setAttribute('title', mxResources.get('bringForward'));
 		btn.style.width = '104px';
 		btn.style.marginRight = '2px';
+		btn.style.marginTop = '2px';
 		div.appendChild(btn);
 		
 		var btn = mxUtils.button(mxResources.get('sendBackward'), function(evt)
@@ -1910,6 +1919,7 @@ ArrangePanel.prototype.addLayerOps = function(div)
 		
 		btn.setAttribute('title', mxResources.get('sendBackward'));
 		btn.style.width = '104px';
+		btn.style.marginTop = '2px';
 		div.appendChild(btn);
 	}
 	
@@ -2147,8 +2157,10 @@ ArrangePanel.prototype.addAlign = function(div)
 	
 	var stylePanel = document.createElement('div');
 	stylePanel.style.position = 'relative';
+	stylePanel.style.whiteSpace = 'nowrap';
 	stylePanel.style.paddingLeft = '0px';
 	stylePanel.style.borderWidth = '0px';
+	stylePanel.style.width = '220px';
 	stylePanel.className = 'geToolbarContainer';
 	
 	var left = this.editorUi.toolbar.addButton('geSprite-alignleft', mxResources.get('left'),
@@ -2166,7 +2178,7 @@ ArrangePanel.prototype.addAlign = function(div)
 		function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, stylePanel);
 	
 	this.styleButtons([left, center, right, top, middle, bottom]);
-	right.style.marginRight = '8px';
+	right.style.marginRight = '10px';
 	div.appendChild(stylePanel);
 	
 	return div;
@@ -2472,7 +2484,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	wrapper.style.textAlign = 'right';
 	var opt = this.createCellOption(mxResources.get('constrainProportions'),
 		mxConstants.STYLE_ASPECT, null, 'fixed', 'null');
-	opt.style.width = '100%';
+	opt.style.width = '210px';
 	wrapper.appendChild(opt);
 		
 	if (!rect.cell && !rect.row)
@@ -2879,8 +2891,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	span.style.position = 'absolute';
 	span.style.width = '70px';
 	span.style.marginTop = '0px';
-	span.style.fontWeight = 'bold';
-	mxUtils.write(span, 'Start');
+	mxUtils.write(span, mxResources.get('linestart'));
 	divs.appendChild(span);
 
 	var xs = this.addUnitInput(divs, 'pt', 87, 52, function()
@@ -2906,8 +2917,7 @@ ArrangePanel.prototype.addEdgeGeometry = function(container)
 	span.style.position = 'absolute';
 	span.style.width = '70px';
 	span.style.marginTop = '0px';
-	span.style.fontWeight = 'bold';
-	mxUtils.write(span, 'End');
+	mxUtils.write(span, mxResources.get('lineend'));
 	divt.appendChild(span);
 
 	var xt = this.addUnitInput(divt, 'pt', 87, 52, function()
@@ -3231,14 +3241,14 @@ TextFormatPanel.prototype.addFont = function(container)
 					graph.cellEditor.toggleViewMode();
 				}, tmp)];
 		this.styleButtons(btns);
-		btns[btns.length - 2].style.marginLeft = '10px';
+		btns[btns.length - 2].style.marginLeft = '12px';
 		
 		container.appendChild(tmp);
 	}
 	else
 	{
-		fontStyleItems[2].style.marginRight = '9px';
-		right.style.marginRight = '9px';
+		fontStyleItems[2].style.marginRight = '12px';
+		right.style.marginRight = '12px';
 	}
 	
 	// Label position
@@ -3253,8 +3263,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	// Adds label position options
 	var positionSelect = document.createElement('select');
 	positionSelect.style.position = 'absolute';
-	positionSelect.style.right = '16px';
-	positionSelect.style.width = '97px';
+	positionSelect.style.left = '126px';
+	positionSelect.style.width = '98px';
 	positionSelect.style.border = '1px solid rgb(160, 160, 160)';
 	positionSelect.style.borderRadius = '4px';
 	positionSelect.style.marginTop = '-2px';
@@ -3296,8 +3306,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	var dirSelect = document.createElement('select');
 	dirSelect.style.position = 'absolute';
 	dirSelect.style.border = '1px solid rgb(160, 160, 160)';
-	dirSelect.style.right = '16px';
-	dirSelect.style.width = '97px';
+	dirSelect.style.left = '126px';
+	dirSelect.style.width = '98px';
 	dirSelect.style.borderRadius = '4px';
 	dirSelect.style.marginTop = '-2px';
 
@@ -3362,7 +3372,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	input.style.border = '1px solid rgb(160, 160, 160)';
 	input.style.textAlign = 'right';
 	input.style.marginTop = '4px';
-	input.style.left = '156px';
+	input.style.left = '162px';
 	input.style.width = '52px';
 	input.style.borderRadius = '4px';
 	input.style.height = '23px';
@@ -3507,7 +3517,7 @@ TextFormatPanel.prototype.addFont = function(container)
 	var stepper = this.createStepper(input, inputUpdate, 1, 10, true, Menus.prototype.defaultFontSize);
 	stepper.style.display = input.style.display;
 	stepper.style.marginTop = '4px';
-	stepper.style.left = '208px';
+	stepper.style.left = '214px';
 	
 	stylePanel2.appendChild(stepper);
 	
@@ -4714,7 +4724,7 @@ StyleFormatPanel.prototype.addFill = function(container)
 	// Adds gradient direction option
 	var gradientSelect = document.createElement('select');
 	gradientSelect.style.position = 'absolute';
-	gradientSelect.style.left = '106px';
+	gradientSelect.style.left = '104px';
 	gradientSelect.style.width = '70px';
 	gradientSelect.style.height = '22px';
 	gradientSelect.style.padding = '0px';
@@ -4897,7 +4907,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	styleSelect.style.padding = '0px';
 	styleSelect.style.marginTop = '-3px';
 	styleSelect.style.boxSizing = 'border-box';
-	styleSelect.style.right = '68px';
+	styleSelect.style.left = '94px';
 	styleSelect.style.width = '80px';
 	styleSelect.style.border = '1px solid rgb(160, 160, 160)';
 	styleSelect.style.borderRadius = '4px';
@@ -4972,6 +4982,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	stylePanel.style.marginBottom = '2px';
 	stylePanel.style.overflow = 'hidden';
 	stylePanel.style.marginTop = '2px';
+	stylePanel.style.width = '220px';
 	stylePanel.className = 'geToolbarContainer';
 
 	var addItem = mxUtils.bind(this, function(menu, width, cssName, keys, values)
@@ -5027,9 +5038,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
 	input.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
-	input.style.width = '46px';
+	input.style.width = '52px';
 	input.style.height = '21px';
-	input.style.left = '152px';
+	input.style.left = '146px';
 	input.style.border = '1px solid rgb(160, 160, 160)';
 	input.style.borderRadius = '4px';
 	input.style.boxSizing = 'border-box';
@@ -5119,7 +5130,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
-			item.firstChild.firstChild.innerHTML = '<font style="font-size:10px;">' + mxUtils.htmlEntities(mxResources.get('none')) + '</font>';
+
+			var font = document.createElement('font');
+			font.style.fontSize = '10px';
+			mxUtils.write(font, mxResources.get('none'));
+			item.firstChild.firstChild.appendChild(font);
 
 			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
 			{
@@ -5169,7 +5184,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
-			item.firstChild.firstChild.innerHTML = '<font style="font-size:10px;">' + mxUtils.htmlEntities(mxResources.get('none')) + '</font>';
+
+			var font = document.createElement('font');
+			font.style.fontSize = '10px';
+			mxUtils.write(font, mxResources.get('none'));
+			item.firstChild.firstChild.appendChild(font);
 			
 			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
 			{
@@ -5232,7 +5251,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	altSymbol.style.width = '22px';
 	
 	var solid = document.createElement('div');
-	solid.style.width = '85px';
+	solid.style.width = '84px';
 	solid.style.height = '1px';
 	solid.style.borderBottom = '1px solid ' + this.defaultStrokeColor;
 	solid.style.marginBottom = '7px';
@@ -5278,11 +5297,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	arrowPanel.appendChild(span);
 	
 	var endSpacingUpdate, endSizeUpdate;
-	var endSpacing = this.addUnitInput(arrowPanel, 'pt', 76, 42, function()
+	var endSpacing = this.addUnitInput(arrowPanel, 'pt', 98, 52, function()
 	{
 		endSpacingUpdate.apply(this, arguments);
 	});
-	var endSize = this.addUnitInput(arrowPanel, 'pt', 16, 42, function()
+	var endSize = this.addUnitInput(arrowPanel, 'pt', 30, 52, function()
 	{
 		endSizeUpdate.apply(this, arguments);
 	});
@@ -5298,18 +5317,18 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	arrowPanel.appendChild(span);
 	
 	var startSpacingUpdate, startSizeUpdate;
-	var startSpacing = this.addUnitInput(arrowPanel, 'pt', 76, 42, function()
+	var startSpacing = this.addUnitInput(arrowPanel, 'pt', 98, 52, function()
 	{
 		startSpacingUpdate.apply(this, arguments);
 	});
-	var startSize = this.addUnitInput(arrowPanel, 'pt', 16, 42, function()
+	var startSize = this.addUnitInput(arrowPanel, 'pt', 30, 52, function()
 	{
 		startSizeUpdate.apply(this, arguments);
 	});
 
 	mxUtils.br(arrowPanel);
-	this.addLabel(arrowPanel, mxResources.get('spacing'), 76, 52);
-	this.addLabel(arrowPanel, mxResources.get('size'), 16, 52);
+	this.addLabel(arrowPanel, mxResources.get('spacing'), 98, 52);
+	this.addLabel(arrowPanel, mxResources.get('size'), 30, 52);
 	mxUtils.br(arrowPanel);
 	
 	var perimeterPanel = colorPanel.cloneNode(false);
@@ -5332,7 +5351,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	perimeterPanel.appendChild(span);
 	
 	var perimeterUpdate;
-	var perimeterSpacing = this.addUnitInput(perimeterPanel, 'pt', 16, 52, function()
+	var perimeterSpacing = this.addUnitInput(perimeterPanel, 'pt', 30, 52, function()
 	{
 		perimeterUpdate.apply(this, arguments);
 	});
@@ -5345,8 +5364,6 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	else if (ss.vertices.length == ss.cells.length)
 	{
 		container.appendChild(perimeterPanel);
-		stepper.style.left = '198px';
-		input.style.left = '152px';
 	}
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)
@@ -5714,9 +5731,9 @@ StyleFormatPanel.prototype.addEffects = function(div)
 
 	var table = document.createElement('table');
 
-	table.style.width = '100%';
+	table.style.width = '210px';
 	table.style.fontWeight = 'bold';
-	table.style.paddingRight = '20px';
+	table.style.tableLayout = 'fixed';
 	var tbody = document.createElement('tbody');
 	var row = document.createElement('tr');
 	row.style.padding = '0px';
@@ -5849,7 +5866,7 @@ DiagramStylePanel.prototype.addView = function(div)
 	
 	var table = document.createElement('table');
 
-	table.style.width = '100%';
+	table.style.width = '210px';
 	table.style.fontWeight = 'bold';
 	
 	var tbody = document.createElement('tbody');
@@ -6148,8 +6165,15 @@ DiagramStylePanel.prototype.addView = function(div)
 		if (panel == null)
 		{
 			panel = document.createElement('div');
-			panel.style.cssText = 'display:inline-block;position:relative;width:96px;height:90px;' +
-				'cursor:pointer;border:1px solid gray;margin:2px;overflow:hidden;';
+			panel.style.display = 'inline-block';
+			panel.style.position = 'relative';
+			panel.style.width = '96px';
+			panel.style.height = '90px';
+			panel.style.cursor = 'pointer';
+			panel.style.border = '1px solid gray';
+			panel.style.borderRadius = '8px';
+			panel.style.margin = '2px';
+			panel.style.overflow = 'hidden';
 	
 			if (graphStyle != null && graphStyle.background != null)
 			{
@@ -6349,19 +6373,37 @@ DiagramStylePanel.prototype.addView = function(div)
 		if (pageCount < 15)
 		{
 			var left = document.createElement('div');
-			left.style.cssText = 'position:absolute;left:0px;top:4px;bottom:0px;width:20px;margin:0px;opacity:0.5;' +
-				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
+			left.style.position = 'absolute';
+			left.style.left = '0px';
+			left.style.top = '0px';
+			left.style.bottom = '0px';
+			left.style.width = '24px';
+			left.style.height = '24px';
+			left.style.margin = '0px';
+			left.style.cursor = 'pointer';
+			left.style.opacity = '0.5';
+			left.style.backgroundRepeat = 'no-repeat';
+			left.style.backgroundPosition = 'center center';
+			left.style.backgroundSize = '24px 24px';
+			left.style.backgroundImage = 'url(' + Editor.previousImage + ')';
+			
+			if (Editor.isDarkMode())
+			{
+				left.style.filter = 'invert(100%)';
+			}
+			
+			var right = left.cloneNode(false);
+			right.style.backgroundImage = 'url(' + Editor.nextImage + ')';
+			right.style.left = '';
+			right.style.right = '2px';
+
+			switcher.appendChild(left);
+			switcher.appendChild(right);
 			
 			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
 			{
 				selectPage(mxUtils.mod(this.format.currentStylePage - 1, pageCount));
 			}));
-			
-			var right = document.createElement('div');
-			right.style.cssText = 'position:absolute;right:2px;top:4px;bottom:0px;width:20px;margin:0px;opacity:0.5;' +
-				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
-			switcher.appendChild(left);
-			switcher.appendChild(right);
 			
 			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
 			{

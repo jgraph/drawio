@@ -29,11 +29,6 @@ function Toolbar(editorUi, container)
 Toolbar.prototype.dropDownImage = (!mxClient.IS_SVG) ? IMAGE_PATH + '/dropdown.gif' : 'data:image/gif;base64,R0lGODlhDQANAIABAHt7e////yH/C1hNUCBEYXRhWE1QPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS4wLWMwNjAgNjEuMTM0Nzc3LCAyMDEwLzAyLzEyLTE3OjMyOjAwICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdFJlZj0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlUmVmIyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDpCREM1NkJFMjE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDpCREM1NkJFMzE0NEMxMUU1ODk1Q0M5MjQ0MTA4QjNDMSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkQzOUMzMjZCMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOkQzOUMzMjZDMTQ0QjExRTU4OTVDQzkyNDQxMDhCM0MxIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+Af/+/fz7+vn49/b19PPy8fDv7u3s6+rp6Ofm5eTj4uHg397d3Nva2djX1tXU09LR0M/OzczLysnIx8bFxMPCwcC/vr28u7q5uLe2tbSzsrGwr66trKuqqainpqWko6KhoJ+enZybmpmYl5aVlJOSkZCPjo2Mi4qJiIeGhYSDgoGAf359fHt6eXh3dnV0c3JxcG9ubWxramloZ2ZlZGNiYWBfXl1cW1pZWFdWVVRTUlFQT05NTEtKSUhHRkVEQ0JBQD8+PTw7Ojk4NzY1NDMyMTAvLi0sKyopKCcmJSQjIiEgHx4dHBsaGRgXFhUUExIREA8ODQwLCgkIBwYFBAMCAQAAIfkEAQAAAQAsAAAAAA0ADQAAAhGMj6nL3QAjVHIu6azbvPtWAAA7';
 
 /**
- * Image element for the dropdown arrow.
- */
-Toolbar.prototype.dropDownImageHtml = '<img border="0" src="' + Toolbar.prototype.dropDownImage + '" valign="middle"/>';
-
-/**
  * Defines the background for selected buttons.
  */
 Toolbar.prototype.selectedBackground = '#d0d0d0';
@@ -178,11 +173,12 @@ Toolbar.prototype.init = function()
  */
 Toolbar.prototype.appendDropDownImageHtml = function(elt)
 {
-	elt.innerHTML += this.dropDownImageHtml;
-	
-	var imgs = elt.getElementsByTagName('img');
-	var img = imgs[imgs.length - 1];
-	
+	var img = document.createElement('img');
+	img.setAttribute('border', '0');
+	img.setAttribute('valign', 'middle');
+	img.setAttribute('src', Toolbar.prototype.dropDownImage);
+	elt.appendChild(img);
+
 	img.style.position = 'absolute';
 	img.style.right = '4px';
 	img.style.top = (!EditorUi.compactUi ? 8 : 6) + 'px';
@@ -206,6 +202,7 @@ Toolbar.prototype.addTableDropDown = function()
 	menuElt.style.overflow = 'hidden';
 	menuElt.style.width = '30px';
 	menuElt.innerHTML = '<div class="geSprite geSprite-table"></div>';
+
 	this.appendDropDownImageHtml(menuElt);
 	
 	var div = menuElt.getElementsByTagName('div')[0];
@@ -270,8 +267,15 @@ Toolbar.prototype.setFontName = function(value)
 {
 	if (this.fontMenu != null)
 	{
-		this.fontMenu.innerHTML = '<div style="width:60px;overflow:hidden;display:inline-block;">' +
-			mxUtils.htmlEntities(value) + '</div>';
+		this.fontMenu.innerHTML = '';
+		var div = document.createElement('div');
+		div.style.display = 'inline-block';
+		div.style.overflow = 'hidden';
+		div.style.textOverflow = 'ellipsis';
+		div.style.maxWidth = '66px';
+		mxUtils.write(div, value);
+		this.fontMenu.appendChild(div);
+
 		this.appendDropDownImageHtml(this.fontMenu);
 	}
 };
@@ -283,8 +287,15 @@ Toolbar.prototype.setFontSize = function(value)
 {
 	if (this.sizeMenu != null)
 	{
-		this.sizeMenu.innerHTML = '<div style="width:24px;overflow:hidden;display:inline-block;">' +
-			mxUtils.htmlEntities(value) + '</div>';
+		this.sizeMenu.innerHTML = '';
+		var div = document.createElement('div');
+		div.style.display = 'inline-block';
+		div.style.overflow = 'hidden';
+		div.style.textOverflow = 'ellipsis';
+		div.style.maxWidth = '24px';
+		mxUtils.write(div, value);
+		this.sizeMenu.appendChild(div);
+		
 		this.appendDropDownImageHtml(this.sizeMenu);
 	}
 };
@@ -316,7 +327,7 @@ Toolbar.prototype.createTextToolbar = function()
 	this.fontMenu.style.position = 'relative';
 	this.fontMenu.style.whiteSpace = 'nowrap';
 	this.fontMenu.style.overflow = 'hidden';
-	this.fontMenu.style.width = '60px';
+	this.fontMenu.style.width = '68px';
 	
 	this.setFontName(Menus.prototype.defaultFont);
 	
@@ -408,7 +419,13 @@ Toolbar.prototype.createTextToolbar = function()
 	alignMenu.style.whiteSpace = 'nowrap';
 	alignMenu.style.overflow = 'hidden';
 	alignMenu.style.width = '30px';
-	alignMenu.innerHTML = '<div class="geSprite geSprite-left" style="margin-left:-2px;"></div>';
+	alignMenu.innerHTML = '';
+
+	var div = document.createElement('div');
+	div.className = 'geSprite geSprite-left';
+	div.style.marginLeft = '-2px';
+	alignMenu.appendChild(div);
+
 	this.appendDropDownImageHtml(alignMenu);
 
 	if (EditorUi.compactUi)
@@ -447,7 +464,13 @@ Toolbar.prototype.createTextToolbar = function()
 	formatMenu.style.whiteSpace = 'nowrap';
 	formatMenu.style.overflow = 'hidden';
 	formatMenu.style.width = '30px';
-	formatMenu.innerHTML = '<div class="geSprite geSprite-dots" style="margin-left:-2px;"></div>';
+	formatMenu.innerHTML = '';
+	
+	var div = document.createElement('div');
+	div.className = 'geSprite geSprite-dots';
+	div.style.marginLeft = '-2px';
+	formatMenu.appendChild(div);
+
 	this.appendDropDownImageHtml(formatMenu);
 
 	if (EditorUi.compactUi)
@@ -495,7 +518,14 @@ Toolbar.prototype.createTextToolbar = function()
 	insertMenu.style.overflow = 'hidden';
 	insertMenu.style.position = 'relative';
 	insertMenu.style.width = '16px';
-	insertMenu.innerHTML = '<div class="geSprite geSprite-plus" style="margin-left:-4px;margin-top:-3px;"></div>';
+	insertMenu.innerHTML = '';
+
+	var div = document.createElement('div');
+	div.className = 'geSprite geSprite-plus';
+	div.style.marginLeft = '-4px';
+	div.style.marginTop = '-3px';
+	insertMenu.appendChild(div);
+
 	this.appendDropDownImageHtml(insertMenu);
 	
 	// Fix for item size in kennedy theme
@@ -719,7 +749,13 @@ Toolbar.prototype.createTextToolbar = function()
 	elt.style.whiteSpace = 'nowrap';
 	elt.style.overflow = 'hidden';
 	elt.style.width = '30px';
-	elt.innerHTML = '<div class="geSprite geSprite-table" style="margin-left:-2px;"></div>';
+	elt.innerHTML = '';
+
+	var div = document.createElement('div');
+	div.className = 'geSprite geSprite-table';
+	div.style.marginLeft = '-2px';
+	elt.appendChild(div);
+
 	this.appendDropDownImageHtml(elt);
 
 	// Fix for item size in kennedy theme

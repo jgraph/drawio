@@ -214,7 +214,10 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			addLogo(IMAGE_PATH + '/onedrive-logo.svg', mxResources.get('oneDrive'), App.MODE_ONEDRIVE, 'oneDrive');
 		}
 	
-		addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);
+		if (urlParams['noDevice'] != '1')
+		{
+			addLogo(IMAGE_PATH + '/osa_drive-harddisk.png', mxResources.get('device'), App.MODE_DEVICE);			
+		}
 		
 		if (isLocalStorage && (urlParams['browser'] == '1' || urlParams['offline'] == '1'))
 		{
@@ -3940,6 +3943,7 @@ NewDialog.tagsList = {};
 var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLabel, overrideExtension, allowBrowser,
 	allowTab, helpLink, showDeviceButton, rowLimit, data, mimeType, base64Encoded, hints, hideDialog)
 {
+	showDeviceButton = urlParams['noDevice'] == '1'? false : showDeviceButton;
 	overrideExtension = (overrideExtension != null) ? overrideExtension : true;
 	allowBrowser = (allowBrowser != null) ? allowBrowser : true;
 	rowLimit = (rowLimit != null) ? rowLimit : 4;
@@ -4254,7 +4258,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	}
 	
 	if (!Editor.useLocalStorage || urlParams['storage'] == 'device' ||
-		(editorUi.getCurrentFile() != null/* && !mxClient.IS_IOS*/))
+		(editorUi.getCurrentFile() != null/* && !mxClient.IS_IOS*/ && urlParams['noDevice'] != '1'))
 	{
 		var deviceOption = document.createElement('option');
 		deviceOption.setAttribute('value', App.MODE_DEVICE);
@@ -4484,7 +4488,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 /**
  * 
  */
-CreateDialog.showDownloadButton = true;
+CreateDialog.showDownloadButton = urlParams['noDevice'] != '1';
 
 /**
  * Constructs a new popup dialog.

@@ -5903,7 +5903,11 @@ App.prototype.fetchAndShowNotification = function(target)
 					return b.timestamp - a.timestamp;
 				});
 
-				localStorage.setItem(cachedNotifKey, JSON.stringify({ts: Date.now(), notifs: notifs}));
+				if (isLocalStorage)
+				{
+					localStorage.setItem(cachedNotifKey, JSON.stringify({ts: Date.now(), notifs: notifs}));
+				}
+				
 				this.fetchingNotif = false;	
 				processNotif(notifs);
 			}
@@ -5944,7 +5948,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 			unread[i].className = 'circle';
 		}
 		
-		if (notifs[0])
+		if (isLocalStorage && notifs[0])
 		{
 			localStorage.setItem(lsReadFlag, notifs[0].timestamp);
 		}
