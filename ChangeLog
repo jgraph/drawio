@@ -1,3 +1,10 @@
+28-SEP-2021: 15.3.7
+
+- Ignores floating terminal points for snapping
+- Improved lollipop notation https://github.com/jgraph/drawio/issues/2270
+- Fixes for sketch toggle
+- Fixes sketch mode used in non-sketch themes
+
 28-SEP-2021: 15.3.6
 
 - Replaces cssText with DOM API
