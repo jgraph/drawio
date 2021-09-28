@@ -1,3 +1,9 @@
+28-SEP-2021: 15.3.6
+
+- Replaces cssText with DOM API
+- Replaces cssText and innerHTML with DOM API
+-[conf cloud] Fixes duplicate name of copied diagrams
+
 27-SEP-2021: 15.3.5
 
 - Fixes inconsistent styling in format panel

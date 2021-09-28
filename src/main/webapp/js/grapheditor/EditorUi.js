@@ -320,6 +320,8 @@ EditorUi = function(editor, container, lightbox)
 			{
 				model.endUpdate();
 			}
+
+			return cells;
 		};
 	
 		graph.addListener('cellsInserted', function(sender, evt)

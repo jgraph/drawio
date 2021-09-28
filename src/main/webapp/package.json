@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "15.2.7",
+  "version": "15.3.6",
   "description": "diagrams.net desktop",
   "main": "electron.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/jgraph/drawio",
   "dependencies": {
     "@electron/remote": "^2.0.1",
-    "commander": "^8.1.0",
+    "commander": "^8.2.0",
     "compression": "^1.7.4",
     "crc": "^3.8.0",
     "electron-log": "^4.4.1",
@@ -34,6 +34,6 @@
     "pdf-lib": "^1.16.0"
   },
   "devDependencies": {
-    "electron": "^14.0.0"
+    "electron": "^14.0.1"
   }
 }

@@ -5842,7 +5842,10 @@ App.prototype.updateButtonContainer = function()
 			}
 			
 			//Fetch notifications
-			this.fetchAndShowNotification(this.mode == 'device' || this.mode == 'google'? this.mode : null);
+			if (urlParams['extAuth'] != '1') //Disable notification with external auth (e.g, Teams app)
+			{
+				this.fetchAndShowNotification(this.mode == 'device' || this.mode == 'google'? this.mode : null);
+			}
 		}
 		else if (urlParams['notif'] != null) //Notif for embed mode
 		{

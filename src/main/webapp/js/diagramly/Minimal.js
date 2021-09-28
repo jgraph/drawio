@@ -1933,36 +1933,33 @@ EditorUi.initMinimalTheme = function()
 						
 						return elt;
 					};
-					
+
 					// Append sidebar elements
 					addElt(ui.sidebar.createVertexTemplate('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;', 
-						40, 20, 'Text', mxResources.get('text'), true, true, null, true), mxResources.get('text') +
+						40, 20, 'Text', mxResources.get('text'), true, true, null, true, true), mxResources.get('text') +
 						' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 					addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 						'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
 						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;fontSize=20;' +
 						'pointerEvents=1;' + ((urlParams['rough'] != '0' && Editor.sketchMode) ? 'sketch=1;jiggle=2;' : ''),
-						140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
+						140, 160, '', mxResources.get('note'), true, true, null, true, true), mxResources.get('note'));
 					addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
-						'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
+						'', mxResources.get('rectangle'), true, true, null, true, true), mxResources.get('rectangle') +
 						' (' +  Editor.ctrlKey + '+K' + ')');
 					addElt(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100,
-						'', mxResources.get('ellipse'), true, true, null, true), mxResources.get('ellipse'));
+						'', mxResources.get('ellipse'), true, true, null, true, true), mxResources.get('ellipse'));
 					
 					(function()
 					{
-						var edgeStyle = 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;' +
-							'endArrow=open;sourcePerimeterSpacing=8;targetPerimeterSpacing=8;fontSize=16;' +
-							((urlParams['rough'] != '0') ? 'sketch=1;' : '');
-						var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength, 0),
-							edgeStyle + 'curved=1;rounded=0;');
+						var edgeStyle = 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;';
+						var cell = new mxCell('', new mxGeometry(0, 0, graph.defaultEdgeLength, 0), edgeStyle);
 						cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 0), false);
 						cell.geometry.points = [];
 						cell.geometry.relative = true;
 						cell.edge = true;
 						
-						addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
+						addElt(ui.sidebar.createEdgeTemplateFromCells(ui.sidebar.applyStyles([cell]),
 							cell.geometry.width, cell.geometry.height,
 							mxResources.get('line'), false, null, true),
 							mxResources.get('line'));
@@ -1973,7 +1970,7 @@ EditorUi.initMinimalTheme = function()
 						cell.geometry.setTerminalPoint(new mxPoint(0, 20), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);
 		
-						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
+						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells(ui.sidebar.applyStyles([cell]),
 							cell.geometry.width, 40, mxResources.get('arrow'),
 							false, null, true), mxResources.get('arrow'));
 						elt.style.borderBottom = '1px solid ' + (Editor.isDarkMode() ? '#505050' : 'lightgray');
