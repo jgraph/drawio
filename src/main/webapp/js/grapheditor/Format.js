@@ -5175,6 +5175,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			{
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW], [mxConstants.ARROW_BLOCK], 'geIcon geSprite geSprite-startblocktrans', null, false).setAttribute('title', mxResources.get('block'));
 			}
+
+			menu.div.style.width = '40px';
 		}
 	}));
 
@@ -5229,6 +5231,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			{
 				this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW], [mxConstants.ARROW_BLOCK], 'geIcon geSprite geSprite-endblocktrans', null, false).setAttribute('title', mxResources.get('block'));
 			}
+
+			menu.div.style.width = '40px';
 		}
 	}));
 

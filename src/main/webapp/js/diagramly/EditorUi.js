@@ -10141,20 +10141,23 @@
 	{
 		if (Editor.sketchMode != value)
 		{
-			this.menus.defaultFonts = Menus.prototype.defaultFonts;
 			var graph = this.editor.graph;
 			Editor.sketchMode = value;
+
+			this.menus.defaultFonts = Menus.prototype.defaultFonts;
+			graph.defaultVertexStyle = {'pointerEvents': '0', 'fontSize': '20'};
+			graph.defaultEdgeStyle = {'fontSize': '16', 'edgeStyle': 'none', 'rounded': '0',
+				'curved': '1', 'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open',
+				'endSize': '14', 'startSize': '14'};
 
 			if (value)
 			{
 				graph.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
 				graph.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
-				graph.defaultVertexStyle['fontSize'] = '18';
 				graph.defaultVertexStyle['hachureGap'] = '4';
 				graph.defaultVertexStyle['sketch'] = '1';
 				graph.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
 				graph.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
-				graph.defaultEdgeStyle['fontSize'] = '18';
 				graph.defaultEdgeStyle['sketch'] = '1';
 				graph.defaultEdgeStyle['hachureGap'] = '4';
 				graph.defaultEdgeStyle['sourcePerimeterSpacing'] = '8';
@@ -10165,12 +10168,6 @@
 					{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
 					{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
 					concat(this.menus.defaultFonts);
-			}
-			else
-			{
-				graph.defaultVertexStyle = {'pointerEvents': '0'};
-				graph.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1', 'jettySize': 'auto',
-					'orthogonalLoop': '1', 'endSize': '14', 'startSize': '14', 'endArrow': 'open'};
 			}
 
 			Graph.prototype.defaultVertexStyle = graph.defaultVertexStyle;

@@ -1920,6 +1920,10 @@
 				{
 					Graph.prototype.zoomFactor = val;
 				}
+				else
+				{
+					EditorUi.debug('Invalid zoomFactor: value must be float > 1');
+				}
 			}
 
 			// Overrides grid steps
@@ -1930,6 +1934,10 @@
 				if (!isNaN(val) && val > 0)
 				{
 					mxGraphView.prototype.gridSteps = val;
+				}
+				else
+				{
+					EditorUi.debug('Invalid gridSteps: value must be int > 0');
 				}
 			}
 
@@ -1942,6 +1950,10 @@
 				{
 					mxGraph.prototype.defaultPageFormat = new mxRectangle(0, 0, w, h);
 					mxGraph.prototype.pageFormat = mxGraph.prototype.defaultPageFormat;
+				}
+				else
+				{
+					EditorUi.debug('Invalid pageFormat: value must be {width: int, height: int}');
 				}
 			}
 			
@@ -1967,7 +1979,14 @@
 			
 			if (config.fontCss)
 			{
-				Editor.configureFontCss(config.fontCss);
+				if (typeof config.fontCss === 'string')
+				{
+					Editor.configureFontCss(config.fontCss);
+				}
+				else
+				{
+					EditorUi.debug('Invalid fontCss: value must be string');
+				}
 			}
 			
 			if (config.autosaveDelay != null)
@@ -1980,7 +1999,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid autosaveDelay: ' + config.autosaveDelay);
+					EditorUi.debug('Invalid autosaveDelay: value must be int > 0');
 				}
 			}
 			

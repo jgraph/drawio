@@ -1,3 +1,11 @@
+29-SEP-2021: 15.3.8
+
+- Fixes width for list dropdown on the arrow heads
+- Switches search to use www.diagrams.net
+- Improves error handling of invalid config values
+- Fixes text inconsistencies in sketch mode
+- Adds dark mode and fullscreen to preferences menu
+
 28-SEP-2021: 15.3.7
 
 - Ignores floating terminal points for snapping

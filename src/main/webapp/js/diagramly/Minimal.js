@@ -1009,12 +1009,8 @@ EditorUi.initMinimalTheme = function()
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
         {
 			var file = ui.getCurrentFile();
-			
-			if (urlParams['sketch'] != '1')
-			{
-	        	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
-				menu.addSeparator(parent);
-			}
+        	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
+			menu.addSeparator(parent);
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
@@ -1089,7 +1085,15 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addMenuItems(menu, ['-', 'findReplace', 'layers', 'tags'], parent);
 
-			if (urlParams['sketch'] != '1' && file != null && ui.fileNode != null)
+			ui.menus.addMenuItems(menu, ['-', 'pageSetup', 'pageScale'], parent);
+
+			// Cannot use print in standalone mode on iOS as we cannot open new windows
+			if (!mxClient.IS_IOS || !navigator.standalone)
+			{
+				ui.menus.addMenuItems(menu, ['print'], parent);
+			}
+
+			if (file != null && ui.fileNode != null)
 			{
 				var filename = (file.getTitle() != null) ?
 					file.getTitle() : ui.defaultFilename;
@@ -1099,36 +1103,6 @@ EditorUi.initMinimalTheme = function()
 				{
 					this.addMenuItems(menu, ['-', 'properties']);
 				}
-			}
-
-			ui.menus.addMenuItems(menu, ['-', 'pageSetup', 'pageScale'], parent);
-
-			// Cannot use print in standalone mode on iOS as we cannot open new windows
-			if (!mxClient.IS_IOS || !navigator.standalone)
-			{
-				ui.menus.addMenuItems(menu, ['print'], parent);
-			}
-						
-			if (urlParams['sketch'] == '1')
-			{
-				menu.addSeparator(parent);
-				ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
-
-				var file = ui.getCurrentFile();
-
-				if (file != null && ui.fileNode != null)
-				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : ui.defaultFilename;
-					
-					if (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename))
-					{
-						this.addMenuItems(menu, ['properties'], parent);
-					}
-				}
-
-				menu.addSeparator(parent);
 			}
 
 			menu.addSeparator(parent);
@@ -1247,12 +1221,14 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addSubmenu('units', menu, parent);
 			menu.addSeparator(parent);
-			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand'], parent);
+			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand', '-'], parent);
 
 			if (urlParams['sketch'] == '1')
 			{
 				this.addMenuItems(menu, ['toggleSketchMode'], parent);
 			}
+
+			this.addMenuItems(menu, ['toggleDarkMode'], parent);
 
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
@@ -1266,6 +1242,8 @@ EditorUi.initMinimalTheme = function()
 			{
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
+
+			this.addMenuItems(menu, ['-', 'fullscreen'], parent);
 
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);
@@ -1824,6 +1802,8 @@ EditorUi.initMinimalTheme = function()
 			// moves status to bell icon tooltip for trivial messages
 			if (urlParams['embed'] != '1')
 			{
+				menubar.style.visibility = (menubar.clientWidth < 14) ? 'hidden' : '';
+
 				ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
 				{
 					ui.setStatusText(ui.editor.getStatus());
@@ -1832,27 +1812,21 @@ EditorUi.initMinimalTheme = function()
 						(ui.statusContainer.children.length == 1 &&
 						ui.statusContainer.firstChild.getAttribute('class') == null))
 					{
-						if (ui.statusContainer.firstChild != null)
-						{
-							setNotificationTitle(ui.statusContainer.firstChild.getAttribute('title'));
-						}
-						else
-						{
-							setNotificationTitle(ui.editor.getStatus());
-						}
-						
+						var title = (ui.statusContainer.firstChild != null) ?
+							ui.statusContainer.firstChild.getAttribute('title') :
+							ui.editor.getStatus();
+						setNotificationTitle(title);
 						var file = ui.getCurrentFile();
 						var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
 						
-						if (ui.notificationBtn != null && ui.notificationBtn.getAttribute('title') ==
-							mxResources.get(key) + '...')
+						if (title == mxResources.get(key) + '...')
 						{
 							ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
 								mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '">';
 							ui.statusContainer.style.display = 'inline-block';
 							statusVisible = true;
 						}
-						else
+						else if (ui.buttonContainer.clientWidth > 6)
 						{	
 							ui.statusContainer.style.display = 'none';
 							statusVisible = false;
@@ -1865,6 +1839,8 @@ EditorUi.initMinimalTheme = function()
 						
 						statusVisible = true;
 					}
+
+					menubar.style.visibility = (menubar.clientWidth > 12) ? '' : 'hidden';
 				}));
 			}
 			
@@ -1935,13 +1911,12 @@ EditorUi.initMinimalTheme = function()
 					};
 
 					// Append sidebar elements
-					addElt(ui.sidebar.createVertexTemplate('text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;', 
-						40, 20, 'Text', mxResources.get('text'), true, true, null, true, true), mxResources.get('text') +
+					addElt(ui.sidebar.createVertexTemplate('text;strokeColor=none;fillColor=none;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 
+						60, 30, 'Text', mxResources.get('text'), true, true, null, true, true, true), mxResources.get('text') +
 						' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 					addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 						'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
-						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;fontSize=20;' +
-						'pointerEvents=1;' + ((urlParams['rough'] != '0' && Editor.sketchMode) ? 'sketch=1;jiggle=2;' : ''),
+						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
 						140, 160, '', mxResources.get('note'), true, true, null, true, true), mxResources.get('note'));
 					addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
 						'', mxResources.get('rectangle'), true, true, null, true, true), mxResources.get('rectangle') +

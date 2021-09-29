@@ -4499,6 +4499,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 	
 	var div = document.createElement('div');
 	div.style.textAlign = 'left';
+	div.style.height = '100%';
 	
 	mxUtils.write(div, mxResources.get('fileOpenLocation'));
 	mxUtils.br(div);
