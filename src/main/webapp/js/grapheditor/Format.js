@@ -47,6 +47,8 @@ Format.ERzeroToOneMarkerImage = Graph.createSvgImage(20, 22, '<path transform="t
 Format.ERzeroToManyMarkerImage = Graph.createSvgImage(20, 22, '<path transform="translate(4,2)" stroke-width="2" d="M 8 8 A 5 5 0 0 1 13 3 A 5 5 0 0 1 18 8 A 5 5 0 0 1 13 13 A 5 5 0 0 1 8 8 Z M 0 8 L 8 8 M 18 8 L 24 8 M 0 3 L 8 8 L 0 13" stroke="#404040" fill="transparent"/>', 32, 20);
 Format.EROneMarkerImage = Graph.createSvgImage(20, 22, '<path transform="translate(4,2)" stroke-width="2" d="M 5 2 L 5 14 M 0 8 L 24 8" stroke="#404040" fill="transparent"/>', 32, 20);
 Format.baseDashMarkerImage = Graph.createSvgImage(20, 22, '<path transform="translate(4,2)" stroke-width="2" d="M 0 2 L 0 14 M 0 8 L 24 8" stroke="#404040" fill="transparent"/>', 32, 20);
+Format.doubleBlockMarkerImage = Graph.createSvgImage(20, 22, '<path transform="translate(4,2)" stroke-width="2" d="M 0 8 L 8 2 L 8 14 Z M 8 8 L 16 2 L 16 14 Z M 16 8 L 24 8" stroke="#404040" fill="transparent"/>', 32, 20);
+Format.doubleBlockFilledMarkerImage = Graph.createSvgImage(20, 22, '<path transform="translate(4,2)" stroke-width="2" d="M 0 8 L 8 2 L 8 14 Z M 8 8 L 16 2 L 16 14 Z M 16 8 L 24 8" stroke="#404040" fill="#404040"/>', 32, 20);
 
 /**
  * Adds a style change item to the given menu.
@@ -3241,7 +3243,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					graph.cellEditor.toggleViewMode();
 				}, tmp)];
 		this.styleButtons(btns);
-		btns[btns.length - 2].style.marginLeft = '12px';
+		btns[btns.length - 2].style.marginLeft = '10px';
 		
 		container.appendChild(tmp);
 	}
@@ -3372,8 +3374,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	input.style.border = '1px solid rgb(160, 160, 160)';
 	input.style.textAlign = 'right';
 	input.style.marginTop = '4px';
-	input.style.left = '162px';
-	input.style.width = '52px';
+	input.style.left = '161px';
+	input.style.width = '53px';
 	input.style.borderRadius = '4px';
 	input.style.height = '23px';
 	input.style.boxSizing = 'border-box';
@@ -4888,7 +4890,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var graph = ui.editor.graph;
 	var ss = this.format.getSelectionState();
 	
-	container.style.paddingTop = '4px';
+	container.style.paddingTop = '6px';
 	container.style.paddingBottom = '4px';
 	container.style.whiteSpace = 'normal';
 	
@@ -5037,7 +5039,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var input = document.createElement('input');
 	input.style.position = 'absolute';
 	input.style.textAlign = 'right';
-	input.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
+	input.style.marginTop = '2px';
 	input.style.width = '52px';
 	input.style.height = '21px';
 	input.style.left = '146px';
@@ -5087,13 +5089,13 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var stepper = this.createStepper(input, update, 1, 9);
 	stepper.style.display = input.style.display;
-	stepper.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
+	stepper.style.marginTop = '2px';
 	stepper.style.left = '198px';
 	stylePanel.appendChild(stepper);
 
 	var altStepper = this.createStepper(altInput, altUpdate, 1, 9);
 	altStepper.style.display = altInput.style.display;
-	altStepper.style.marginTop = (uiTheme == 'min' || urlParams['sketch'] == '1') ? '0px' : '2px';
+	altStepper.style.marginTop = '2px';
 	altInput.style.position = 'absolute';
 	altStepper.style.left = '198px';
 	altStylePanel.appendChild(altStepper);
@@ -5170,6 +5172,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], ['ERoneToMany', 0], null, null, false, Format.ERoneToManyMarkerImage.src));
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], ['ERzeroToOne', 0], null, null, false, Format.ERzeroToOneMarkerImage.src));
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], ['ERzeroToMany', 1], null, null, false, Format.ERzeroToManyMarkerImage.src));
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], ['doubleBlock', 0], null, null, false, Format.doubleBlockMarkerImage.src));
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], ['doubleBlock', 1], null, null, false, Format.doubleBlockFilledMarkerImage.src));
 			}
 			else
 			{
@@ -5226,6 +5230,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], ['ERoneToMany', 0], null, null, false, Format.ERoneToManyMarkerImage.src), 'scaleX(-1)');
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], ['ERzeroToOne', 0], null, null, false, Format.ERzeroToOneMarkerImage.src), 'scaleX(-1)');
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], ['ERzeroToMany', 0], null, null, false, Format.ERzeroToManyMarkerImage.src), 'scaleX(-1)');
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], ['doubleBlock', 0], null, null, false, Format.doubleBlockMarkerImage.src), 'scaleX(-1)');
+				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], ['doubleBlock', 1], null, null, false, Format.doubleBlockFilledMarkerImage.src), 'scaleX(-1)');
 			}
 			else
 			{

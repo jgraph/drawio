@@ -231,7 +231,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 			{
 				var saveDone = mxUtils.bind(this, function()
 				{
-					this.setModified(false);
+					this.setModified(this.getShadowModified());
 					this.contentChanged();
 					
 					if (success != null)
@@ -240,6 +240,7 @@ StorageFile.prototype.saveFile = function(title, revision, success, error)
 					}
 		        });
 				
+				this.setShadowModified(false);
 				var data = this.getData();
 				
 				this.ui.setDatabaseItem(null, [{

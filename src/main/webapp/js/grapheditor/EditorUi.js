@@ -291,7 +291,7 @@ EditorUi = function(editor, container, lightbox)
 					var edge = model.isEdge(cell);
 					var current = (edge) ? edgeStyle : vertexStyle;
 					var newStyle = model.getStyle(cell);
-					
+
 					for (var j = 0; j < appliedStyles.length; j++)
 					{
 						var key = appliedStyles[j];
@@ -326,7 +326,7 @@ EditorUi = function(editor, container, lightbox)
 	
 		graph.addListener('cellsInserted', function(sender, evt)
 		{
-			insertHandler(evt.getProperty('cells'));
+			insertHandler(evt.getProperty('cells'), null, null, null, null, true, true);
 		});
 		
 		graph.addListener('textInserted', function(sender, evt)
@@ -728,7 +728,7 @@ EditorUi = function(editor, container, lightbox)
 			
 			insertHandler(cells);
 		});
-	
+
 		this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
 		{
 			// Checks if edges and/or vertices were modified
@@ -763,7 +763,7 @@ EditorUi = function(editor, container, lightbox)
 				var common = mxUtils.indexOf(valueStyles, keys[i]) >= 0;
 				
 				// Ignores transparent stroke colors
-				if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
+				if (keys[i] != 'strokeColor' || values[i] != null && values[i] != 'none')
 				{
 					// Special case: Edge style and shape
 					if (mxUtils.indexOf(connectStyles, keys[i]) >= 0)
@@ -820,7 +820,7 @@ EditorUi = function(editor, container, lightbox)
 					}
 				}
 			}
-			
+
 			if (this.toolbar != null)
 			{
 				this.toolbar.setFontName(graph.currentVertexStyle['fontFamily'] || Menus.prototype.defaultFont);

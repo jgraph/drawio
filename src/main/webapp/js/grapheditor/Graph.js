@@ -1098,12 +1098,24 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		// Changes rubberband selection ignore locked cells
 		this.selectRegion = function(rect, evt)
 		{
-			var cells = this.getCells(rect.x, rect.y, rect.width, rect.height, null, null, null, function(state)
+			var isect = (mxEvent.isAltDown(evt)) ? rect : null;
+
+			var cells = this.getCells(rect.x, rect.y, rect.width, rect.height, null, null, isect, function(state)
 			{
 				return mxUtils.getValue(state.style, 'locked', '0') == '1';
 			}, true);
-			
-			this.selectCellsForEvent(cells, evt);
+
+			if (this.isToggleEvent(evt))
+			{
+				for (var i = 0; i < cells.length; i++)
+				{
+					this.selectCellForEvent(cells[i], evt);
+				}
+			}
+			else
+			{
+				this.selectCellsForEvent(cells, evt);
+			}
 			
 			return cells;
 		};
@@ -12262,7 +12274,9 @@ if (typeof mxVertexHandler != 'undefined')
 		
 		if (mxClient.IS_SVG)
 		{
-			mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + HoverIcons.prototype.arrowFill + '"/>');
+			mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5,
+				'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke-width="2" style="stroke-opacity:0.4" stroke="#ffffff"/>' +
+				'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + HoverIcons.prototype.arrowFill + '"/>');
 		}
 		
 		mxVertexHandler.TABLE_HANDLE_COLOR = '#fca000';
@@ -12399,7 +12413,8 @@ if (typeof mxVertexHandler != 'undefined')
 		mxRubberband.prototype.isSpaceEvent = function(me)
 		{
 			return this.graph.isEnabled() && !this.graph.isCellLocked(this.graph.getDefaultParent()) &&
-				mxEvent.isControlDown(me.getEvent()) && mxEvent.isShiftDown(me.getEvent());
+				mxEvent.isControlDown(me.getEvent()) && mxEvent.isShiftDown(me.getEvent()) &&
+				mxEvent.isAltDown(me.getEvent());
 		};
 
 		// Cancelled state
@@ -12463,14 +12478,7 @@ if (typeof mxVertexHandler != 'undefined')
 				
 				if (execute)
 				{
-					if (mxEvent.isAltDown(me.getEvent()) && this.graph.isToggleEvent(me.getEvent()))
-					{
-						var rect = new mxRectangle(this.x, this.y, this.width, this.height);
-						var cells = this.graph.getCells(rect.x, rect.y, rect.width, rect.height);
-						
-						this.graph.removeSelectionCells(cells);
-					}
-					else if (this.isSpaceEvent(me))
+					if (this.isSpaceEvent(me))
 					{
 						this.graph.model.beginUpdate();
 						try

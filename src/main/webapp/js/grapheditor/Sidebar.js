@@ -369,7 +369,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	
 	// Applies current style for preview
 	var temp = this.graph2.cloneCells(cells);
-	this.editorUi.insertHandler(temp, null, this.graph2.model);
+	this.editorUi.insertHandler(temp, null, this.graph2.model, null, null, true);
 	this.graph2.addCells(temp);
 	
 	mxClient.NO_FO = fo;
@@ -1160,7 +1160,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('rounded=1;whiteSpace=wrap;html=1;', 120, 60, '', 'Rounded Rectangle', null, null, 'rounded rect rectangle box'),
 	 	// Explicit strokecolor/fillcolor=none is a workaround to maintain transparent background regardless of current style
 	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;',
- 			40, 20, 'Text', 'Text', null, null, 'text textbox textarea label'),
+ 			60, 30, 'Text', 'Text', null, null, 'text textbox textarea label'),
 	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;', 190, 120,
 			'<h1>Heading</h1><p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>',
 			'Textbox', null, null, 'text textbox textarea'),
@@ -2162,13 +2162,13 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	});
 	
 	// Applies default styles
+	var originalCells = cells;
 	cells = this.graph.cloneCells(cells);
-	this.editorUi.insertHandler(cells, null, this.graph.model,
+	this.editorUi.insertHandler(originalCells, null, this.graph.model,
 		Graph.prototype.defaultVertexStyle, Graph.prototype.defaultEdgeStyle,
-		urlParams['sketch'] == '1' && Editor.sketchMode,
-		urlParams['sketch'] == '1' && Editor.sketchMode);
+		true, true);
 
-	this.createThumb(cells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
+	this.createThumb(originalCells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);
 	
 	if (cells.length > 1 || cells[0].vertex)
@@ -3586,24 +3586,11 @@ Sidebar.prototype.createVertexTemplateEntry = function(style, width, height, val
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.applyStyles = function(cells)
-{
-	return this.editorUi.insertHandler(cells, null, this.graph.model);
-};
-
-/**
- * Creates a drop handler for inserting the given cells.
- */
-Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle, allowCellsInserted, showTooltip, applyStyles)
+Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle, allowCellsInserted, showTooltip)
 {
 	var cells = [new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style)];
 	cells[0].vertex = true;
 
-	if (applyStyles)
-	{
-		this.applyStyles(cells);
-	}
-	
 	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip);
 };
 

@@ -389,6 +389,16 @@ Editor.prototype.createGraph = function(themes, model)
 	var graph = new Graph(null, model, null, null, themes);
 	graph.transparentBackground = false;
 	
+	// Disables CSS transforms in Safari in chromeless mode
+	var graphIsCssTransformsSupported = graph.isCssTransformsSupported;
+	var self = this;
+
+	graph.isCssTransformsSupported = function()
+	{
+		return graphIsCssTransformsSupported.apply(this, arguments) &&
+			(!self.chromeless || !mxClient.IS_SF);
+	};
+
 	// Opens all links in a new window while editing
 	if (!this.chromeless)
 	{

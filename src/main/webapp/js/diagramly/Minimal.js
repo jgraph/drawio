@@ -243,7 +243,9 @@ EditorUi.initMinimalTheme = function()
 	mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
 	mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
 	mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
-	mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5, '<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
+	mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5,
+		'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke-width="2" style="stroke-opacity:0.4" stroke="#ffffff"/>' +
+		'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
 	mxOutline.prototype.sizerImage = null;
 	
 	mxConstants.VERTEX_SELECTION_COLOR = '#C0C0C0';
@@ -392,7 +394,6 @@ EditorUi.initMinimalTheme = function()
 			'html body td.mxWindowTitle > div > img { padding: 8px 4px; }' +
 			// Dark mode styles
 			(Editor.isDarkMode() ?
-			
 			'html body td.mxWindowTitle > div > img { margin: -4px; }' +
 			'html body .geToolbarContainer .geMenuItem, html body .geToolbarContainer .geToolbarButton, ' +
 			'html body .geMenubarContainer .geMenuItem .geMenuItem, html body .geMenubarContainer a.geMenuItem,' +
@@ -442,6 +443,8 @@ EditorUi.initMinimalTheme = function()
 			'html body button.gePrimaryBtn:hover { background: #29b6f2; border: none; }' +
 			'.geBtn button { min-width:72px !important; }' +
 			'div.geToolbarContainer a.geButton { margin:0px; padding: 0 2px 4px 2px; } ' +
+			'html body div.geToolbarContainer a.geColorBtn { margin: 2px; } ' +
+			'html body .mxWindow td.mxWindowPane input, html body .mxWindow td.mxWindowPane select, html body .mxWindow td.mxWindowPane textarea, html body .mxWindow td.mxWindowPane radio { padding: 0px; box-sizing: border-box; }' +
 			'.geDialog, .mxWindow td.mxWindowPane *, div.geSprite, td.mxWindowTitle, .geDiagramContainer { box-sizing:content-box; }' +
 			'.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
 			'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
@@ -932,6 +935,14 @@ EditorUi.initMinimalTheme = function()
 
 		toggleSketchModeAction.setToggleAction(true);
 		toggleSketchModeAction.setSelectedCallback(function() { return Editor.sketchMode; });
+				
+        var togglePagesAction = ui.actions.put('togglePagesVisible', new Action(mxResources.get('pages'), function(e)
+        {
+            ui.setPagesVisible(!Editor.pagesVisible);
+        }));
+
+		togglePagesAction.setToggleAction(true);
+		togglePagesAction.setSelectedCallback(function() { return Editor.pagesVisible; });
 		
         ui.actions.put('importCsv', new Action(mxResources.get('csv') + '...', function()
         {
@@ -1233,6 +1244,11 @@ EditorUi.initMinimalTheme = function()
 			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 			{
 				ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
+			}
+
+			if (urlParams['sketch'] == '1')
+			{
+				this.addMenuItems(menu, ['togglePagesVisible'], parent);
 			}
 
 			menu.addSeparator(parent);
@@ -1912,17 +1928,17 @@ EditorUi.initMinimalTheme = function()
 
 					// Append sidebar elements
 					addElt(ui.sidebar.createVertexTemplate('text;strokeColor=none;fillColor=none;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 
-						60, 30, 'Text', mxResources.get('text'), true, true, null, true, true, true), mxResources.get('text') +
+						60, 30, 'Text', mxResources.get('text'), true, true, null, true, true), mxResources.get('text') +
 						' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 					addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 						'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
 						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
-						140, 160, '', mxResources.get('note'), true, true, null, true, true), mxResources.get('note'));
+						140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
 					addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
-						'', mxResources.get('rectangle'), true, true, null, true, true), mxResources.get('rectangle') +
+						'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
 						' (' +  Editor.ctrlKey + '+K' + ')');
 					addElt(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100,
-						'', mxResources.get('ellipse'), true, true, null, true, true), mxResources.get('ellipse'));
+						'', mxResources.get('ellipse'), true, true, null, true), mxResources.get('ellipse'));
 					
 					(function()
 					{
@@ -1934,7 +1950,7 @@ EditorUi.initMinimalTheme = function()
 						cell.geometry.relative = true;
 						cell.edge = true;
 						
-						addElt(ui.sidebar.createEdgeTemplateFromCells(ui.sidebar.applyStyles([cell]),
+						addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 							cell.geometry.width, cell.geometry.height,
 							mxResources.get('line'), false, null, true),
 							mxResources.get('line'));
@@ -1945,7 +1961,7 @@ EditorUi.initMinimalTheme = function()
 						cell.geometry.setTerminalPoint(new mxPoint(0, 20), true);
 						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);
 		
-						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells(ui.sidebar.applyStyles([cell]),
+						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 							cell.geometry.width, 40, mxResources.get('arrow'),
 							false, null, true), mxResources.get('arrow'));
 						elt.style.borderBottom = '1px solid ' + (Editor.isDarkMode() ? '#505050' : 'lightgray');
@@ -2147,14 +2163,18 @@ EditorUi.initMinimalTheme = function()
 				pageMenu.firstChild.style.opacity = '0.6';
 				pageMenu.firstChild.style.margin = '0px';
 				footer.appendChild(pageMenu);
-				
-				// Page menu only visible for multiple pages
-				ui.addListener('fileDescriptorChanged', function()
+
+				function pagesVisibleChanged()
 				{
 					pageMenu.style.display = (urlParams['pages'] == '1' ||
-						(ui.pages != null && ui.pages.length > 1 )) ?
-						'inline-block' : 'none';
-				});
+						(ui.pages != null && ui.pages.length > 1 ) ||
+						Editor.pagesVisible) ? 'inline-block' : 'none';
+				};
+
+				// Page menu only visible for multiple pages
+				ui.addListener('fileDescriptorChanged', pagesVisibleChanged);
+				ui.addListener('pagesVisibleChanged', pagesVisibleChanged);
+				pagesVisibleChanged();
 				
 				ui.tabContainer.style.visibility = 'hidden';
 				menubar.style.cssText = 'position:absolute;right:12px;top:10px;height:30px;z-index:1;border-radius:4px;' +

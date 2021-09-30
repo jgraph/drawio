@@ -6624,8 +6624,8 @@ LucidImporter = {};
 					if (line.n1 != null) // Curve
 					{
 						var curve =  NURBSTo(points[line.p2].x, points[line.p2].y, w, h, 
-								points[line.p1].x, points[line.p1].y, line.n1.x, line.n1.y, 
-								points[line.p2].x, points[line.p2].y, line.n2.x, line.n2.y);
+								points[line.p1].x / w, points[line.p1].y / h, line.n1.x / w, line.n1.y / h, 
+								points[line.p2].x / w, points[line.p2].y / h, line.n2.x / w, line.n2.y / h);
 						parts.push(curve);
 					}
 					else //line
@@ -6656,6 +6656,8 @@ LucidImporter = {};
 				text: obj.Text,
 				w: w,
 				h: h,
+				x: obj.BoundingBox.x,
+				y: obj.BoundingBox.y,
 				stencils: stencils
 			};
 		}
@@ -13178,11 +13180,12 @@ LucidImporter = {};
 						}
 						
 						var stencil = LucidImporter.stencilsMap[p.Stencil.id];
+						var cx = -stencil.x / stencil.w, cy = -stencil.y / stencil.h;
 						
 						for (var i = 0; i < stencil.stencils.length; i++)
 						{
 							var shape = stencil.stencils[i];
-							var cell = new mxCell('', new mxGeometry(0, 0, w, h), 'shape=' + shape.shapeStencil + ';');
+							var cell = new mxCell('', new mxGeometry(cx, cy, w, h), 'shape=' + shape.shapeStencil + ';');
 							var sfc = shape.FillColor, slc = shape.LineColor, slw = shape.LineWidth;
 							
 							if (shape.FillColor == 'prop')

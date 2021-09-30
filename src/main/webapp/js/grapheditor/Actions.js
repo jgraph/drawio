@@ -841,7 +841,7 @@ Actions.prototype.init = function()
 					
 					if (graph.getModel().getChildCount(cell) > 0)
 					{
-						graph.updateGroupBounds([cell], 20);
+						graph.updateGroupBounds([cell], 0, true);
 					}
 					else
 					{
