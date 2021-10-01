@@ -1172,6 +1172,8 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 			div.style.margin = '3px';
 			div.style.border = '1px solid black';
 			div.style.backgroundColor = (tempColor == 'default') ? defaultColorValue : tempColor;
+
+			btn.innerHTML = '';
 			btn.appendChild(div);
 
 			if (color != null && color != mxConstants.NONE && color.length > 1 && typeof color === 'string')
@@ -3129,18 +3131,30 @@ TextFormatPanel.prototype.addFont = function(container)
 		function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_LEFT],
+				'cells', ss.cells));
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_LEFT])), stylePanel3);
 	var center = this.editorUi.toolbar.addButton('geSprite-center', mxResources.get('center'),
 		(graph.cellEditor.isContentEditing()) ?
 		function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_CENTER],
+				'cells', ss.cells));
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_CENTER])), stylePanel3);
 	var right = this.editorUi.toolbar.addButton('geSprite-right', mxResources.get('right'),
 		(graph.cellEditor.isContentEditing()) ?
 		function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_RIGHT],
+				'cells', ss.cells));
 		} : callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_ALIGN], [mxConstants.ALIGN_RIGHT])), stylePanel3);
 
 	this.styleButtons([left, center, right]);
@@ -3164,11 +3178,14 @@ TextFormatPanel.prototype.addFont = function(container)
 	}
 	
 	var top = this.editorUi.toolbar.addButton('geSprite-top', mxResources.get('top'),
-		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_TOP])), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN],
+			[mxConstants.ALIGN_TOP])), stylePanel3);
 	var middle = this.editorUi.toolbar.addButton('geSprite-middle', mxResources.get('middle'),
-		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_MIDDLE])), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN],
+			[mxConstants.ALIGN_MIDDLE])), stylePanel3);
 	var bottom = this.editorUi.toolbar.addButton('geSprite-bottom', mxResources.get('bottom'),
-		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN], [mxConstants.ALIGN_BOTTOM])), stylePanel3);
+		callFn(this.editorUi.menus.createStyleChangeFunction([mxConstants.STYLE_VERTICAL_ALIGN],
+			[mxConstants.ALIGN_BOTTOM])), stylePanel3);
 	
 	this.styleButtons([top, middle, bottom]);
 	
@@ -3424,6 +3441,10 @@ TextFormatPanel.prototype.addFont = function(container)
 						}
 					}
 				}
+
+				ui.fireEvent(new mxEventObject('styleChanged',
+					'keys', [mxConstants.STYLE_FONTSIZE],
+					'values', [fontSize], 'cells', ss.cells));
 			};
 			
 			// Wraps text node or mixed selection with leading text in a font element
@@ -3538,6 +3559,9 @@ TextFormatPanel.prototype.addFont = function(container)
 	}, function(color)
 	{
 		document.execCommand('backcolor', false, (color != mxConstants.NONE) ? color : 'transparent');
+		ui.fireEvent(new mxEventObject('styleChanged',
+			'keys', [mxConstants.STYLE_LABEL_BACKGROUNDCOLOR],
+			'values', [color], 'cells', ss.cells));
 	}, '#ffffff',
 	{
 		install: function(apply) { bgColorApply = apply; },
@@ -3579,6 +3603,9 @@ TextFormatPanel.prototype.addFont = function(container)
 
 			document.execCommand('forecolor', false, (color != mxConstants.NONE) ?
 				color : 'transparent');
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_FONTCOLOR],
+				'values', [color], 'cells', ss.cells));
 
 			// Finds the new or changed font element
 			var newFonts = graph.cellEditor.textarea.getElementsByTagName('font');
@@ -3618,6 +3645,9 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			document.execCommand('forecolor', false, (color != mxConstants.NONE) ?
 				color : 'transparent');
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_FONTCOLOR],
+				'values', [color], 'cells', ss.cells));
 		}
 	}, (defs[mxConstants.STYLE_FONTCOLOR] != null) ? defs[mxConstants.STYLE_FONTCOLOR] : '#000000',
 	{
@@ -3789,7 +3819,7 @@ TextFormatPanel.prototype.addFont = function(container)
 			if (node != null && graph.cellEditor.textarea != null && node != graph.cellEditor.textarea &&
 				graph.cellEditor.textarea.contains(node))
 			{
-				node.style.lineHeight = value + '%';
+				node.style.lineHeight = value / 100;
 			}
 			
 			input.value = value + ' %';
@@ -4400,16 +4430,24 @@ TextFormatPanel.prototype.addFont = function(container)
 							
 							// Converts rgb(r,g,b) values
 							var color = css.color.replace(
-								    /\brgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g,
-								    function($0, $1, $2, $3) {
-								        return "#" + ("0"+Number($1).toString(16)).substr(-2) + ("0"+Number($2).toString(16)).substr(-2) + ("0"+Number($3).toString(16)).substr(-2);
+									/\brgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/g,
+									function($0, $1, $2, $3, $4)
+									{
+										return '#' + ('0' + Number($1).toString(16)).substr(-2) +
+											('0' + Number($2).toString(16)).substr(-2) +
+											('0' + Number($3).toString(16)).substr(-2) + (($4 != null) ?
+											('0' + Number($4).toString(16)).substr(-2) : '');
 								    });
 							var color2 = css.backgroundColor.replace(
-								    /\brgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/g,
-								    function($0, $1, $2, $3) {
-								        return "#" + ("0"+Number($1).toString(16)).substr(-2) + ("0"+Number($2).toString(16)).substr(-2) + ("0"+Number($3).toString(16)).substr(-2);
-								    });
-							
+								/\brgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/g,
+								function($0, $1, $2, $3, $4)
+								{
+									return '#' + ('0' + Number($1).toString(16)).substr(-2) +
+										('0' + Number($2).toString(16)).substr(-2) +
+										('0' + Number($3).toString(16)).substr(-2) + (($4 != null) ?
+										('0' + Number($4).toString(16)).substr(-2) : '');
+								});
+
 							// Updates the color picker for the current font
 							if (fontColorApply != null)
 							{

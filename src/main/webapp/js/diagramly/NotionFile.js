@@ -56,6 +56,14 @@ NotionFile.prototype.getTitle = function()
 /**
  * 
  */
+NotionFile.prototype.getNameField = function()
+{
+	return this.meta.nameField;
+};
+
+/**
+ * 
+ */
 NotionFile.prototype.isRenamable = function()
 {
 	return false;

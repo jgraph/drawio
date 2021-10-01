@@ -1826,6 +1826,7 @@ EditorUi.initMinimalTheme = function()
 		
 					if (ui.statusContainer.children.length == 0 ||
 						(ui.statusContainer.children.length == 1 &&
+						typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
 						ui.statusContainer.firstChild.getAttribute('class') == null))
 					{
 						var title = (ui.statusContainer.firstChild != null) ?

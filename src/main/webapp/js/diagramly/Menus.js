@@ -3935,7 +3935,7 @@
 		{
 			var addItem = mxUtils.bind(this, function(fontName, fontUrl, deletable, fontLabel, tooltip)
 			{
-				var graph = this.editorUi.editor.graph;
+				var graph = editorUi.editor.graph;
 
 				var tr = this.styleChange(menu, fontLabel || fontName,
 					(urlParams['ext-fonts'] != '1') ?
@@ -3954,6 +3954,13 @@
 						//Add the font to the file in case it was a previous font from the settings
 						graph.addExtFont(fontName, fontUrl);
 					}
+					
+					editorUi.fireEvent(new mxEventObject('styleChanged',
+						'keys', (urlParams['ext-fonts'] != '1') ?
+							[mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'] : [mxConstants.STYLE_FONTFAMILY],
+						'values', (urlParams['ext-fonts'] != '1') ?
+							[fontName, (fontUrl != null) ? encodeURIComponent(fontUrl) : null, null] : [fontName],
+						'cells', [graph.cellEditor.getEditingCell()]));
 				}, function()
 				{
 					graph.updateLabelElements(graph.getSelectionCells(), function(elt)

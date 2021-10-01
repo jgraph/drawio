@@ -305,7 +305,8 @@ Toolbar.prototype.setFontSize = function(value)
  */
 Toolbar.prototype.createTextToolbar = function()
 {
-	var graph = this.editorUi.editor.graph;
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
 
 	var styleElt = this.addMenu('', mxResources.get('style'), true, 'formatBlock');
 	styleElt.style.position = 'relative';
@@ -356,11 +357,11 @@ Toolbar.prototype.createTextToolbar = function()
 	}
 	
 	var elts = this.addItems(['-', 'undo', 'redo','-', 'bold', 'italic', 'underline']);
-	elts[1].setAttribute('title', mxResources.get('undo') + ' (' + this.editorUi.actions.get('undo').shortcut + ')');
-	elts[2].setAttribute('title', mxResources.get('redo') + ' (' + this.editorUi.actions.get('redo').shortcut + ')');
-	elts[4].setAttribute('title', mxResources.get('bold') + ' (' + this.editorUi.actions.get('bold').shortcut + ')');
-	elts[5].setAttribute('title', mxResources.get('italic') + ' (' + this.editorUi.actions.get('italic').shortcut + ')');
-	elts[6].setAttribute('title', mxResources.get('underline') + ' (' + this.editorUi.actions.get('underline').shortcut + ')');
+	elts[1].setAttribute('title', mxResources.get('undo') + ' (' + ui.actions.get('undo').shortcut + ')');
+	elts[2].setAttribute('title', mxResources.get('redo') + ' (' + ui.actions.get('redo').shortcut + ')');
+	elts[4].setAttribute('title', mxResources.get('bold') + ' (' + ui.actions.get('bold').shortcut + ')');
+	elts[5].setAttribute('title', mxResources.get('italic') + ' (' + ui.actions.get('italic').shortcut + ')');
+	elts[6].setAttribute('title', mxResources.get('underline') + ' (' + ui.actions.get('underline').shortcut + ')');
 
 	// KNOWN: Lost focus after click on submenu with text (not icon) in quirks and IE8. This is because the TD seems
 	// to catch the focus on click in these browsers. NOTE: Workaround in mxPopupMenu for icon items (without text).
@@ -369,18 +370,30 @@ Toolbar.prototype.createTextToolbar = function()
 		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_LEFT, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_LEFT],
+				'cells', [graph.cellEditor.getEditingCell()]));
 		}), null, 'geIcon geSprite geSprite-left');
 		elt.setAttribute('title', mxResources.get('left'));
 
 		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_CENTER, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_CENTER],
+				'cells', [graph.cellEditor.getEditingCell()]));
 		}), null, 'geIcon geSprite geSprite-center');
 		elt.setAttribute('title', mxResources.get('center'));
 
 		elt = menu.addItem('', null, mxUtils.bind(this, function(evt)
 		{
 			graph.cellEditor.alignText(mxConstants.ALIGN_RIGHT, evt);
+			ui.fireEvent(new mxEventObject('styleChanged',
+				'keys', [mxConstants.STYLE_ALIGN],
+				'values', [mxConstants.ALIGN_RIGHT],
+				'cells', [graph.cellEditor.getEditingCell()]));
 		}), null, 'geIcon geSprite geSprite-right');
 		elt.setAttribute('title', mxResources.get('right'));
 

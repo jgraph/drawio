@@ -22,13 +22,32 @@ mxUtils.extend(NotionClient, DrawioClient);
  */
 NotionClient.prototype.extension = '.drawio';
 
+NotionClient.prototype.xmlField = 'draw.io XML';
+
 /**
  * 
  */
-NotionClient.prototype.baseUrl = window.NOTION_API_URL || ((window.location.hostname == 'test.draw.io') ?
-						'https://notion.jgraph.workers.dev/api' : '/notion-api');
+NotionClient.prototype.baseUrl = window.NOTION_API_URL || 'https://app.diagrams.net/notion-api';
 
-NotionClient.prototype.getTitle = function (obj)
+
+NotionClient.prototype.getTitle = function (props)
+{
+	var obj, key;
+	
+	for (var field in props)
+	{
+		if (props[field].type == 'title')
+		{
+			key = field;
+			obj = props[field];
+			break;
+		}
+	}
+	
+	return {title: this.getTitleVal(obj), key: key};
+};
+
+NotionClient.prototype.getTitleVal = function (obj)
 {
 	if (typeof obj.title === 'string')
 	{
@@ -203,15 +222,15 @@ NotionClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 	{
 		try
 		{
-			var xmlParts = fileInfo.properties.xml.rich_text, xml = '';
-			var fileName = this.getTitle(fileInfo.properties.Name);
+			var xmlParts = fileInfo.properties[this.xmlField].rich_text, xml = '';
+			var fileNameObj = this.getTitle(fileInfo.properties);
 			
 			for (var i = 0; i < xmlParts.length; i++)
 			{
 				xml += xmlParts[i].text.content;
 			}
 			
-			var meta = {id: id, name: fileName};
+			var meta = {id: id, name: fileNameObj.title, nameField: fileNameObj.key};
 			
 			if (asLibrary)
 			{
@@ -239,53 +258,86 @@ NotionClient.prototype.getFile = function(id, success, error, denyConvert, asLib
 /**
  * 
  */
-NotionClient.prototype.insertLibrary = function(filename, data, success, error, folderId)
+NotionClient.prototype.insertLibrary = function(filename, data, success, error, folderObj)
 {
-	this.insertFile(filename, data, success, error, true, folderId);
+	this.insertFile(filename, data, success, error, true, folderObj);
 };
 
 /**
  * 
  */
-NotionClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderId)
+NotionClient.prototype.insertFile = function(filename, data, success, error, asLibrary, folderObj)
 {
 	asLibrary = (asLibrary != null) ? asLibrary : false;
+	var folderId, nameField;
 	
-	this.checkExists(folderId, filename, true, mxUtils.bind(this, function(checked, currentId)
+	var startSave = mxUtils.bind(this, function()
 	{
-		if (checked)
+		this.checkExists(folderId, filename, nameField, true, mxUtils.bind(this, function(checked, currentId)
 		{
-			this.writeFile(currentId? '/v1/pages/' + encodeURIComponent(currentId) : '/v1/pages', 
-					currentId? null : folderId, filename, data, currentId? 'PATCH' : 'POST',
-					mxUtils.bind(this, function(fileInfo)
+			if (checked)
 			{
-				var meta = {id: fileInfo.id, name: this.getTitle(fileInfo.properties.Name)};
+				this.writeFile(currentId? '/v1/pages/' + encodeURIComponent(currentId) : '/v1/pages', 
+						currentId? null : folderId, filename, nameField, data, currentId? 'PATCH' : 'POST',
+						mxUtils.bind(this, function(fileInfo)
+				{
+					var fileNameObj = this.getTitle(fileInfo.properties);
+					var meta = {id: fileInfo.id, name: fileNameObj.title, nameField: fileNameObj.key};
+				
+					if (asLibrary)
+					{
+						success(new NotionLibrary(this.ui, data, meta));
+					}
+					else
+					{
+						success(new NotionFile(this.ui, data, meta));
+					}
+				}), error);
+			}
+			else
+			{
+				error();
+			}
+		}));
+	});
+	
+	if (typeof folderObj === 'object')
+	{
+		nameField = this.getTitle(folderObj.schema.properties).key;
+		folderId = folderObj.id;
+		
+		if (!folderObj.drawioReady)
+		{
+			folderObj.schema.properties[this.xmlField] = {
+				name: this.xmlField,
+				type: 'rich_text',
+				rich_text: {}
+			};
 			
-				if (asLibrary)
-				{
-					success(new NotionLibrary(this.ui, data, meta));
-				}
-				else
-				{
-					success(new NotionFile(this.ui, data, meta));
-				}
-			}), error);
+			this.executeRequest('/v1/databases/' + encodeURIComponent(folderObj.id), JSON.stringify({
+			    title: folderObj.schema.title,
+		        properties: folderObj.schema.properties
+			}), 'PATCH', startSave, error);
 		}
 		else
 		{
-			error();
+			startSave();
 		}
-	}))
+	}
+	else
+	{
+		error(); //This shouldn't happen!
+	}
 };
 
 /**
  * 
  */
-NotionClient.prototype.checkExists = function(parentId, filename, askReplace, fn)
+NotionClient.prototype.checkExists = function(parentId, filename, nameField, askReplace, fn)
 {
 	this.executeRequest('/v1/databases/' + encodeURIComponent(parentId) + '/query', JSON.stringify({
 		filter: {
-	        property: 'Name',
+	        property: nameField,
 			text: {
 			    equals: filename
 			}
@@ -335,8 +387,8 @@ NotionClient.prototype.saveFile = function(file, success, error)
 	{
 		var data = file.getData();
 		
-		this.writeFile('/v1/pages/' + file.getId(), null, file.getTitle(), data, 
-				'PATCH', mxUtils.bind(this, function(resp)
+		this.writeFile('/v1/pages/' + file.getId(), null, file.getTitle(), file.getNameField(),
+				data, 'PATCH', mxUtils.bind(this, function(resp)
 				{
 					success(resp, data);
 				}), error);
@@ -350,7 +402,7 @@ NotionClient.prototype.saveFile = function(file, success, error)
 /**
  * 
  */
-NotionClient.prototype.writeFile = function(url, folderId, filename, data, method, success, error)
+NotionClient.prototype.writeFile = function(url, folderId, filename, nameField, data, method, success, error)
 {
 	try
 	{
@@ -378,20 +430,21 @@ NotionClient.prototype.writeFile = function(url, folderId, filename, data, metho
 			}
 			
 			var reqBody = {
-				properties: {
-					Name: {
-	                	title: [{
-							text: {
-								content: filename
-							}
-	                    }]
-	                },
-					xml: {
-	                    rich_text: richTxt
-	                }
-	  			}
+				properties: {}
 			};
 			
+			reqBody.properties[nameField] = {
+            	title: [{
+					text: {
+						content: filename
+					}
+                }]
+            };
+
+			reqBody.properties[this.xmlField] = {
+            	rich_text: richTxt
+            };
+
 			if (folderId)
 			{
 				reqBody['parent'] = { database_id: folderId };
@@ -649,7 +702,7 @@ NotionClient.prototype.showNotionDialog = function(showFiles, fn)
 						typeImg.width = 20;
 						temp.appendChild(typeImg);
 						
-						temp.appendChild(createLink(this.getTitle(file.properties.Name), mxUtils.bind(this, function()
+						temp.appendChild(createLink(this.getTitle(file.properties).title, mxUtils.bind(this, function()
 						{
 							this.ui.hideDialog();
 							fn(file.id);
@@ -726,19 +779,22 @@ NotionClient.prototype.showNotionDialog = function(showFiles, fn)
 			{
 				for (var i = 0; i < dbs.length; i++)
 				{
-					if (!dbs[i].properties.Name || dbs[i].properties.Name.type != 'title' 
-							|| !dbs[i].properties.xml || dbs[i].properties.xml.type != 'rich_text') continue;
+					var drawioReady = dbs[i].properties[this.xmlField] && 
+								dbs[i].properties[this.xmlField].type == 'rich_text';
+								
+					//Filter DBs when opening a file
+					if (showFiles && !drawioReady) continue;
 					
-					(mxUtils.bind(this, function(db, idx)
+					(mxUtils.bind(this, function(db, idx, drawioReady)
 					{
 						var temp = listItem.cloneNode();
 						temp.style.backgroundColor = (idx % 2 == 0) ?
 							((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 						
-						temp.appendChild(createLink(this.getTitle(db), mxUtils.bind(this, function()
+						temp.appendChild(createLink(this.getTitleVal(db), mxUtils.bind(this, function()
 						{
 							itemId = db.id;
-							itemName = this.getTitle(db);
+							itemName = this.getTitleVal(db);
 	
 							if (showFiles)
 							{
@@ -747,12 +803,12 @@ NotionClient.prototype.showNotionDialog = function(showFiles, fn)
 							else
 							{
 								this.ui.hideDialog();
-								fn(itemId);
+								fn({id: itemId, drawioReady: drawioReady, schema: db});
 							}
 						})));
 						
 						div.appendChild(temp);
-					}))(dbs[i], i);
+					}))(dbs[i], i, drawioReady);
 					
 					count++;
 				}

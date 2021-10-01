@@ -1,3 +1,11 @@
+01-OCT-2021: 15.4.1
+
+- [gliffy] Hides shapes fully in -ve coord
+- Fixes lineheight and regex https://github.com/jgraph/drawio/issues/2280, adds rowspan
+- Fixes possible getAttribute is not a function
+- Fixes update of current style for label editing https://github.com/jgraph/drawio-desktop/issues/727
+- Fixes update of color button, handling of rgba
+
 30-SEP-2021: 15.4.0
 
 - Adds pages switch for sketch mode

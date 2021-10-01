@@ -1941,7 +1941,7 @@ Graph.prototype.connectionArrowsEnabled = true;
 /**
  * Specifies the regular expression for matching placeholders.
  */
-Graph.prototype.placeholderPattern = new RegExp('%(date\{.*\}|[^%^\{^\}]+)%', 'g');
+Graph.prototype.placeholderPattern = new RegExp('%(date\{.*\}|[^%^\{^\}^ ^"^ \'^=^;]+)%', 'g');
 
 /**
  * Specifies the regular expression for matching placeholders.
@@ -6114,7 +6114,7 @@ TableLayout.prototype.getRowLayout = function(row, width)
  * 
  * Places the cells at the given positions in the given row.
  */
-TableLayout.prototype.layoutRow = function(row, positions, height, tw)
+TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells)
 {
 	var model = this.graph.getModel();
 	var cells = model.getChildCells(row, true);
@@ -6171,25 +6171,46 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw)
 		}
 
 		// Handles colspan
-		if (last != null && last.geo != null)
+		var visible = true;
+
+		if (last != null && last.geo != null &&
+			last.colspan != null && last.colspan > 1)
 		{
-			if (last.colspan > 1)
-			{
-				last.colspan--;
-				last.geo.width += cell.width;
-				model.setVisible(cells[i], false);
-			}
-			else
-			{
-				model.setVisible(cells[i], true);
-			}
+			last.geo.width += (cell.alternateBounds != null) ?
+				cell.alternateBounds.width : cell.width;
+			visible = false;
+			last.colspan--;
 		}
-		
-		if (last == null || last.colspan <= 1)
+
+		var upper = lastCells[i];
+
+		if (upper != null && upper.geo != null &&
+			upper.rowspan != null && upper.rowspan > 1)
 		{
-			var style = this.graph.getCurrentCellStyle(cells[i], true);
-			last = {colspan: (style != null) ? parseInt(style['colspan'] || 1) : 1,
-				style: style, cell: cells[i], geo: cell};
+			upper.geo.height += (cell.alternateBounds != null) ?
+				cell.alternateBounds.height : cell.height;
+			visible = false;
+			upper.rowspan--;
+		}
+
+		model.setVisible(cells[i], visible);
+
+		var style = this.graph.getCurrentCellStyle(cells[i], true);
+		var temp = {style: style, cell: cells[i], geo: cell};
+
+		if (style != null)
+		{
+			if (last == null || last.colspan < 1)
+			{
+				temp.colspan = parseInt(style['colspan'] || 0);
+				last = temp;
+			}
+
+			if (upper == null || upper.rowspan < 1)
+			{
+				temp.rowspan = parseInt(style['rowspan'] || 0);
+				lastCells[i] = temp;
+			}
 		}
 	}
 	
@@ -6240,6 +6261,7 @@ TableLayout.prototype.execute = function(parent)
 				}
 
 				var pos = (resizeLast) ? null : this.getRowLayout(rows[0], tw);
+				var lastCells = [];
 				var y = offset.y;
 			
 				// Updates row geometries
@@ -6268,7 +6290,7 @@ TableLayout.prototype.execute = function(parent)
 					}
 					
 					// Updates cell geometries
-					sw = Math.max(sw, this.layoutRow(rows[i], pos, row.height, tw));
+					sw = Math.max(sw, this.layoutRow(rows[i], pos, row.height, tw, lastCells));
 				}
 				
 				if (fixedRows && th < sh)

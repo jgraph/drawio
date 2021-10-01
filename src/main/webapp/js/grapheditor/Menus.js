@@ -43,7 +43,8 @@ Menus.prototype.defaultFonts = ['Helvetica', 'Verdana', 'Times New Roman', 'Gara
  */
 Menus.prototype.init = function()
 {
-	var graph = this.editorUi.editor.graph;
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
 	var isGraphEnabled = mxUtils.bind(graph, graph.isEnabled);
 
 	this.customFonts = [];
@@ -51,11 +52,16 @@ Menus.prototype.init = function()
 
 	this.put('fontFamily', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		var addItem = mxUtils.bind(this, function(fontname)
+		var addItem = mxUtils.bind(this, function(fontFamily)
 		{
-			var tr = this.styleChange(menu, fontname, [mxConstants.STYLE_FONTFAMILY], [fontname], null, parent, function()
+			var tr = this.styleChange(menu, fontFamily, [mxConstants.STYLE_FONTFAMILY],
+				[fontFamily], null, parent, function()
 			{
-				document.execCommand('fontname', false, fontname);
+				document.execCommand('fontname', false, fontFamily);
+				ui.fireEvent(new mxEventObject('styleChanged',
+					'keys', [mxConstants.STYLE_FONTFAMILY],
+					'values', [fontFamily],
+					'cells', [graph.cellEditor.getEditingCell()]));
 			}, function()
 			{
 				graph.updateLabelElements(graph.getSelectionCells(), function(elt)
@@ -69,7 +75,8 @@ Menus.prototype.init = function()
 					}
 				});
 			});
-			tr.firstChild.nextSibling.style.fontFamily = fontname;
+
+			tr.firstChild.nextSibling.style.fontFamily = fontFamily;
 		});
 		
 		for (var i = 0; i < this.defaultFonts.length; i++)
@@ -136,32 +143,52 @@ Menus.prototype.init = function()
 	this.put('fontSize', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		var sizes = [6, 8, 9, 10, 11, 12, 14, 18, 24, 36, 48, 72];
-		
-		var addItem = mxUtils.bind(this, function(fontsize)
+
+		if (mxUtils.indexOf(sizes, this.defaultFontSize) < 0)
 		{
-			this.styleChange(menu, fontsize, [mxConstants.STYLE_FONTSIZE], [fontsize], null, parent, function()
+			sizes.push(this.defaultFontSize);
+			sizes.sort(function(a, b)
 			{
-				if (graph.cellEditor.textarea != null)
+				return a - b;
+			});
+		}
+
+		var setFontSize = mxUtils.bind(this, function(fontSize)
+		{
+			if (graph.cellEditor.textarea != null)
+			{
+				// Creates an element with arbitrary size 3
+				document.execCommand('fontSize', false, '3');
+				
+				// Changes the css font size of the first font element inside the in-place editor with size 3
+				// hopefully the above element that we've just created. LATER: Check for new element using
+				// previous result of getElementsByTagName (see other actions)
+				var elts = graph.cellEditor.textarea.getElementsByTagName('font');
+				
+				for (var i = 0; i < elts.length; i++)
 				{
-					// Creates an element with arbitrary size 3
-					document.execCommand('fontSize', false, '3');
-					
-					// Changes the css font size of the first font element inside the in-place editor with size 3
-					// hopefully the above element that we've just created. LATER: Check for new element using
-					// previous result of getElementsByTagName (see other actions)
-					var elts = graph.cellEditor.textarea.getElementsByTagName('font');
-					
-					for (var i = 0; i < elts.length; i++)
+					if (elts[i].getAttribute('size') == '3')
 					{
-						if (elts[i].getAttribute('size') == '3')
-						{
-							elts[i].removeAttribute('size');
-							elts[i].style.fontSize = fontsize + 'px';
-							
-							break;
-						}
+						elts[i].removeAttribute('size');
+						elts[i].style.fontSize = fontSize + 'px';
+						
+						break;
 					}
 				}
+
+				ui.fireEvent(new mxEventObject('styleChanged',
+					'keys', [mxConstants.STYLE_FONTSIZE],
+					'values', [fontSize],
+					'cells', [graph.cellEditor.getEditingCell()]));
+			}
+		});
+		
+		var addItem = mxUtils.bind(this, function(fontSize)
+		{
+			this.styleChange(menu, fontSize, [mxConstants.STYLE_FONTSIZE],
+				[fontSize], null, parent, function()
+			{
+				setFontSize(fontSize);
 			});
 		});
 		
@@ -174,12 +201,21 @@ Menus.prototype.init = function()
 		
 		if (this.customFontSizes.length > 0)
 		{
+			var counter = 0;
+
 			for (var i = 0; i < this.customFontSizes.length; i++)
 			{
-				addItem(this.customFontSizes[i]);
+				if (mxUtils.indexOf(sizes, this.customFontSizes[i]) < 0)
+				{
+					addItem(this.customFontSizes[i]);
+					counter++;
+				}
 			}
 			
-			menu.addSeparator(parent);
+			if (counter > 0)
+			{
+				menu.addSeparator(parent);
+			}
 			
 			menu.addItem(mxResources.get('reset'), null, mxUtils.bind(this, function()
 			{
@@ -188,11 +224,31 @@ Menus.prototype.init = function()
 			
 			menu.addSeparator(parent);
 		}
+
+		var selState = null;
 		
-		this.promptChange(menu, mxResources.get('custom') + '...', '(pt)', '12', mxConstants.STYLE_FONTSIZE, parent, true, mxUtils.bind(this, function(newValue)
+		this.promptChange(menu, mxResources.get('custom') + '...',
+			'(' + mxResources.get('points') + ')', this.defaultFontSize,
+			mxConstants.STYLE_FONTSIZE, parent, true,
+			mxUtils.bind(this, function(newValue)
 		{
-			this.customFontSizes.push(newValue);
-		}));
+			if (selState != null && graph.cellEditor.textarea != null)
+			{
+				graph.cellEditor.textarea.focus();
+				graph.cellEditor.restoreSelection(selState);
+			}
+
+			if (newValue != null && newValue.length > 0)
+			{
+				this.customFontSizes.push(newValue);
+				setFontSize(newValue);
+			}
+		}), null, function()
+		{
+			selState = graph.cellEditor.saveSelection();
+
+			return false;
+		});
 	})));
 	this.put('direction', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -1174,7 +1230,7 @@ Menus.prototype.createStyleChangeFunction = function(keys, values)
 /**
  * Adds a style change item with a prompt to the given menu.
  */
-Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, parent, enabled, fn, sprite)
+Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, parent, enabled, fn, sprite, beforeFn)
 {
 	return menu.addItem(label, null, mxUtils.bind(this, function()
 	{
@@ -1186,20 +1242,25 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
     	{
     		value = state.style[key] || value;
     	}
+
+		var doStopEditing = (beforeFn != null) ? beforeFn() : true;
     	
 		var dlg = new FilenameDialog(this.editorUi, value, mxResources.get('apply'), mxUtils.bind(this, function(newValue)
 		{
 			if (newValue != null && newValue.length > 0)
 			{
-				graph.getModel().beginUpdate();
-				try
+				if (doStopEditing)
 				{
-					graph.stopEditing(false);
-					graph.setCellStyles(key, newValue);
-				}
-				finally
-				{
-					graph.getModel().endUpdate();
+					graph.getModel().beginUpdate();
+					try
+					{
+						graph.stopEditing(false);
+						graph.setCellStyles(key, newValue);
+					}
+					finally
+					{
+						graph.getModel().endUpdate();
+					}
 				}
 				
 				if (fn != null)
@@ -1207,7 +1268,14 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 					fn(newValue);
 				}
 			}
-		}), mxResources.get('enterValue') + ((hint.length > 0) ? (' ' + hint) : ''));
+		}), mxResources.get('enterValue') + ((hint.length > 0) ? (' ' + hint) : ''),
+			null, null, null, null, function()
+		{
+			if (fn != null && beforeFn != null)
+			{
+				fn(null);
+			}
+		});
 		this.editorUi.showDialog(dlg.container, 300, 80, true, true);
 		dlg.init();
 	}), parent, sprite, enabled);
@@ -1218,7 +1286,8 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
  */
 Menus.prototype.pickColor = function(key, cmd, defaultValue)
 {
-	var graph = this.editorUi.editor.graph;
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
 	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
 			Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
@@ -1231,6 +1300,20 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		{
 			graph.cellEditor.restoreSelection(selState);
 			document.execCommand(cmd, false, (color != mxConstants.NONE) ? color : 'transparent');
+
+			var cmdMapping = {
+				'forecolor': mxConstants.STYLE_FONTCOLOR,
+				'backcolor': mxConstants.STYLE_LABEL_BACKGROUNDCOLOR
+			};
+
+			var style = cmdMapping[cmd];
+
+			if (style != null)
+			{
+				ui.fireEvent(new mxEventObject('styleChanged',
+					'keys', [style], 'values', [color],
+					'cells', [graph.cellEditor.getEditingCell()]));
+			}
 		}), function()
 		{
 			graph.cellEditor.restoreSelection(selState);

@@ -394,6 +394,13 @@
     		return urlParams['test'] == '1' && state.vertices.length == 1 &&
 				state.edges.length == 0 && graph.isTableCell(state.vertices[0]);
         }},
+        {name: 'rowspan', dispName: 'Rowspan', type: 'int', min: 1, defVal: 1, isVisible: function(state, format)
+        {
+        	var graph = format.editorUi.editor.graph;
+        	
+    		return urlParams['test'] == '1' && state.vertices.length == 1 &&
+				state.edges.length == 0 && graph.isTableCell(state.vertices[0]);
+        }},
         {type: 'separator'},
         {name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', getDefaultValue: function(state, format)
         {
