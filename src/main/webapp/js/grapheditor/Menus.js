@@ -648,18 +648,25 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 	var cell = graph.getSelectionCell();
 	var style = graph.getCurrentCellStyle(cell);
 
-	var isStack = style['childLayout'] == 'stackLayout';
-	var showCols = true;
-	var showRows = true;
+	var isTable = graph.isTable(cell) ||
+		graph.isTableRow(cell) ||
+		graph.isTableCell(cell);
+	var isStack = graph.isStack(cell) ||
+		graph.isStackChild(cell);
+
+	var showCols = isTable;
+	var showRows = isTable;
 
 	if (isStack)
 	{
+		var style = (graph.isStack(cell)) ? style :
+			graph.getCellStyle(graph.model.getParent(cell));
+
 		showRows = style['horizontalStack'] == '0';
 		showCols = !showRows;
 	}
 
-	if (parent != null || (!isStack && !graph.isTableCell(cell)) &&
-		!graph.isTableRow(cell) && !graph.isTable(cell))
+	if (parent != null || (!isTable && !isStack))
 	{
 		this.addInsertTableItem(menu, mxUtils.bind(this, function(evt, rows, cols, title, container)
 		{

@@ -1484,6 +1484,8 @@ Draw.loadPlugin(function(ui)
 										
 										if (this.sync != null)
 										{
+											//Reduce number of retials since we already retry in AC.saveDraftWithFileDesc
+											this.sync.maxCatchupRetries = 2;
 											this.savingFile = true;
 											
 											this.sync.fileConflict(desc, mxUtils.bind(this, function()

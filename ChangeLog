@@ -1,3 +1,14 @@
+05-OCT-2021: 15.4.2
+
+- [conf/jira cloud] Changes theme to Kennedy
+- Adds grid URL parameter https://github.com/jgraph/drawio/issues/1882
+- Adds table actions for child cells in stacks
+- Fixes PDF export with background page in dark mode
+- Adds preview for moved cells with arrow key https://github.com/jgraph/drawio/issues/1146
+- [conf cloud] Adds embed from GitHub
+- Improves CSV import for groups, values and sizing
+- Fixes ignored zoom for arrows keys
+
 01-OCT-2021: 15.4.1
 
 - [gliffy] Hides shapes fully in -ve coord

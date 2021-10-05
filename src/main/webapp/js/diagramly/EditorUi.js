@@ -3731,8 +3731,8 @@
 
 			Editor.configurationKey = '.sketch-configuration';
 			Editor.settingsKey = '.sketch-config';
-			Graph.prototype.defaultGridEnabled = false;
-			Graph.prototype.defaultPageVisible = false;
+			Graph.prototype.defaultGridEnabled = urlParams['grid'] == '1';
+			Graph.prototype.defaultPageVisible = urlParams['pv'] == '1';
 			Graph.prototype.defaultEdgeLength = 120;
 			Editor.fitWindowBorders = new mxRectangle(60, 30, 30, 30);
 		}
@@ -9225,6 +9225,13 @@
 			{
 				result = {src: result.originalSrc};
 			}
+			else if (resolveReferences && this.themes != null && this.defaultThemeName == 'darkTheme')
+			{
+				var temp = this.stylesheet;
+				this.stylesheet = this.getDefaultStylesheet();
+				result = ui.createImageForPageLink(result.originalSrc);
+				this.stylesheet = temp;
+			}
 
 			return result;
 		};
@@ -12167,18 +12174,6 @@
 							var tmp = document.createElement('span');
 							mxUtils.write(tmp, data.title);
 							
-							if (uiTheme == 'atlas')
-							{
-								this.buttonContainer.style.paddingRight = '12px';
-								this.buttonContainer.style.paddingTop = '6px';
-								this.buttonContainer.style.right = urlParams['noLangIcon'] == '1'? '0' : '25px';
-							}
-							else if (uiTheme != 'min')
-							{
-								this.buttonContainer.style.paddingRight = '38px';
-								this.buttonContainer.style.paddingTop = '6px';
-							}
-	
 							if (this.embedFilenameSpan != null)
 							{
 								this.embedFilenameSpan.parentNode.removeChild(this.embedFilenameSpan);
@@ -12415,7 +12410,7 @@
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'absolute';
-			div.style.paddingTop = (uiTheme == 'atlas') ? '2px' : '0px';
+			div.style.paddingTop = (uiTheme == 'atlas' || urlParams['atlas'] == '1') ? '2px' : '0px';
 			div.style.paddingLeft = '8px';
 			div.style.paddingBottom = '2px';
 
@@ -12491,7 +12486,7 @@
 			
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);
-			div.style.right = (uiTheme != 'atlas') ? '52px' : '42px';
+			div.style.right = (uiTheme == 'atlas' || urlParams['atlas'] == '1') ? '42px' : '52px';
 		}
 	};
 
@@ -12552,6 +12547,7 @@
 		{
     		var lines = text.split('\n');
     		var allCells = [];
+			var parents = [];
     		var cells = [];
     		var dups = {};
     		
@@ -12567,7 +12563,7 @@
         		var stylename = null;
         		var labelname = null;
         		var labels = null;
-        		var parentstyle = null;
+        		var parentstyle = 'whiteSpace=wrap;html=1;';
         		var identity = null;
         		var parent = null;
         		var namespace = '';
@@ -12855,15 +12851,21 @@
 
 						if (exists)
 						{
-							graph.model.setGeometry(cell, newCell.geometry);
+							graph.model.setValue(cell, newCell.value);
 							graph.model.setStyle(cell, newCell.style);
-							
+
 							if (mxUtils.indexOf(cells, cell) < 0)
 							{
 								cells.push(cell);
 							}
+
+							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
 						}
-						
+						else
+						{
+							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [newCell]));
+						}
+
 						cell = newCell;
     					
 						if (!exists)
@@ -12882,38 +12884,48 @@
 							graph.setAttributeForCell(cell, link, null);
 						}
 						
-						// Sets the size
-						graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+						// Sets the geometry
 						var size = this.editor.graph.getPreferredSizeForCell(cell);
-						
+						var parent = (parentIndex != null) ? graph.model.getCell(
+							namespace + values[parentIndex]) : null;
+
 						if (cell.vertex)
 						{
+							var originX = (parent != null) ? 0 : x0;
+							var originY = (parent != null) ? 0 : y0;
+
 							if (left != null && cell.getAttribute(left) != null)
 							{
-								cell.geometry.x = x0 + parseFloat(cell.getAttribute(left));
+								cell.geometry.x = originX + parseFloat(cell.getAttribute(left));
 							}
 
 							if (top != null && cell.getAttribute(top) != null)
 							{
-								cell.geometry.y = y0 + parseFloat(cell.getAttribute(top));
+								cell.geometry.y = originY + parseFloat(cell.getAttribute(top));
 							}
-							
-							if (width.charAt(0) == '@' && cell.getAttribute(width.substring(1)) != null)
+
+							var widthValue = (width.charAt(0) == '@') ? cell.getAttribute(width.substring(1)) : null;
+
+							if (widthValue != null && widthValue != 'auto')
 							{
 								cell.geometry.width = parseFloat(cell.getAttribute(width.substring(1)));
 							}
 							else
 							{
-								cell.geometry.width = (width == 'auto') ? size.width + padding : parseFloat(width);
+								cell.geometry.width = (width == 'auto' || widthValue == 'auto') ?
+									size.width + padding : parseFloat(width);
 							}
 
-							if (height.charAt(0) == '@' && cell.getAttribute(height.substring(1)) != null)
+							var heightValue = (height.charAt(0) == '@') ? cell.getAttribute(height.substring(1)) : null;
+
+							if (heightValue != null && heightValue != 'auto')
 							{
-								cell.geometry.height = parseFloat(cell.getAttribute(height.substring(1)));
+								cell.geometry.height = parseFloat(heightValue);
 							}
 							else
 							{
-								cell.geometry.height = (height == 'auto') ? size.height + padding : parseFloat(height);
+								cell.geometry.height = (height == 'auto' || heightValue == 'auto') ?
+									size.height + padding : parseFloat(height);
 							}
 							
 							y += cell.geometry.height + nodespacing;
@@ -12921,14 +12933,13 @@
 						
 						if (!exists)
 						{
-	    					var parent = (parentIndex != null) ? graph.model.getCell(
-	    						namespace + values[parentIndex]) : null;
 							allCells.push(cell);
 	    					
 	    					if (parent != null)
 	    					{
 	    						parent.style = graph.replacePlaceholders(parent, parentstyle, vars);
 	    						graph.addCell(cell, parent);
+								parents.push(parent);
 	    					}
 	    					else
 	    					{
@@ -12945,6 +12956,19 @@
 							dups[id].push(cell);
 						}
 	    			}
+
+					// Process parents for autosize
+					for (var i = 0; i < parents.length; i++)
+					{
+						var widthValue = (width.charAt(0) == '@') ? parents[i].getAttribute(width.substring(1)) : null;
+						var heightValue = (height.charAt(0) == '@') ? parents[i].getAttribute(height.substring(1)) : null;
+
+						if ((width == 'auto' || widthValue == 'auto') &&
+							(height == 'auto' || heightValue == 'auto'))
+						{
+							graph.updateGroupBounds([parents[i]], padding, true);
+						}
+					}
 
 					var roots = cells.slice();
 					var select = cells.slice();

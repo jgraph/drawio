@@ -1675,14 +1675,8 @@ ArrangePanel.prototype.init = function()
 			this.container.appendChild(this.addAlign(this.createPanel()));
 			this.container.appendChild(this.addDistribute(this.createPanel()));
 		}
-		
-		if (ss.style['childLayout'] == 'stackLayout' ||
-			graph.isTable(ss.vertices[0]) ||
-			graph.isTableRow(ss.vertices[0]) ||
-			graph.isTableCell(ss.vertices[0]))
-		{
-			this.container.appendChild(this.addTable(this.createPanel()));
-		}
+
+		this.container.appendChild(this.addTable(this.createPanel()));
 	}
 	
 	this.container.appendChild(this.addGroupOps(this.createPanel()));
@@ -1728,13 +1722,21 @@ ArrangePanel.prototype.addTable = function(div)
 	panel.style.width = '220px';
 	panel.className = 'geToolbarContainer';
 
-	var isStack = ss.style['childLayout'] == 'stackLayout';
-	var showCols = true;
-	var showRows = true;
+	var isTable = graph.isTable(ss.vertices[0]) ||
+		graph.isTableRow(ss.vertices[0]) ||
+		graph.isTableCell(ss.vertices[0]);
+	var isStack = graph.isStack(ss.vertices[0]) ||
+		graph.isStackChild(ss.vertices[0]);
+
+	var showCols = isTable;
+	var showRows = isTable;
 
 	if (isStack)
 	{
-		showRows = ss.style['horizontalStack'] == '0';
+		var style = (graph.isStack(ss.vertices[0])) ? ss.style :
+			graph.getCellStyle(graph.model.getParent(ss.vertices[0]));
+
+		showRows = style['horizontalStack'] == '0';
 		showCols = !showRows;
 	}
 
@@ -1744,7 +1746,7 @@ ArrangePanel.prototype.addTable = function(div)
 	{
 		btns = btns.concat([
 			ui.toolbar.addButton('geSprite-insertcolumnbefore', mxResources.get('insertColumnBefore'),
-			 mxUtils.bind(this, function()
+			mxUtils.bind(this, function()
 			{
 				try
 				{
@@ -1862,13 +1864,16 @@ ArrangePanel.prototype.addTable = function(div)
 				}
 			}), panel)]);
 	}
-	
-	this.styleButtons(btns);
-	div.appendChild(panel);
 
-	if (btns.length > 3)
+	if (btns.length > 0)
 	{
-		btns[2].style.marginRight = '10px';
+		this.styleButtons(btns);
+		div.appendChild(panel);
+
+		if (btns.length > 3)
+		{
+			btns[2].style.marginRight = '10px';
+		}
 	}
 	
 	return div;

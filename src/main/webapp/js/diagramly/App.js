@@ -1760,7 +1760,7 @@ App.prototype.init = function()
 		this.menubar.container.appendChild(this.buttonContainer);
 	}
 
-	if (uiTheme == 'atlas' && this.menubar != null)
+	if ((uiTheme == 'atlas' || urlParams['atlas'] == '1') && this.menubar != null)
 	{
 		if (this.toggleElement != null)
 		{
@@ -1771,7 +1771,7 @@ App.prototype.init = function()
 		this.icon = document.createElement('img');
 		this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
 		this.icon.setAttribute('title', mxResources.get('draw.io'));
-		this.icon.style.padding = '6px';
+		this.icon.style.padding = urlParams['atlas'] == '1'? '7px' : '6px';
 		this.icon.style.cursor = 'pointer';
 		
 		mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function(evt)
@@ -5743,6 +5743,21 @@ App.prototype.updateButtonContainer = function()
 	{
 		var file = this.getCurrentFile();
 		
+		if (urlParams['embed'] == '1')
+		{
+			if (uiTheme == 'atlas' || urlParams['atlas'] == '1')
+			{
+				this.buttonContainer.style.paddingRight = '12px';
+				this.buttonContainer.style.paddingTop = '6px';
+				this.buttonContainer.style.right = urlParams['noLangIcon'] == '1'? '0' : '25px';
+			}
+			else if (uiTheme != 'min')
+			{
+				this.buttonContainer.style.paddingRight = '38px';
+				this.buttonContainer.style.paddingTop = '6px';
+			}
+		}
+		
 		// Comments
 		if (this.commentsSupported() && urlParams['sketch'] != '1')
 		{
@@ -5764,6 +5779,10 @@ App.prototype.updateButtonContainer = function()
 				else if (uiTheme == 'min')
 				{
 					this.commentButton.style.marginTop = '1px';
+				}
+				else if (urlParams['atlas'] == '1')
+				{
+					this.commentButton.style.marginTop = '-2px';
 				}
 				else
 				{
@@ -5966,6 +5985,10 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		{
 			this.notificationBtn.style.width = '30px';
 			this.notificationBtn.style.top = '4px';
+		}
+		else if (urlParams['atlas'] == '1')
+		{
+			this.notificationBtn.style.top = '2px';
 		}
 		
 		var notifCount = document.createElement('span');

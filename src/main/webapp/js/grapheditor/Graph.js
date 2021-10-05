@@ -1886,7 +1886,7 @@ Graph.prototype.defaultPageVisible = true;
 /**
  * Specifies if the page should be visible for new files. Default is true.
  */
-Graph.prototype.defaultGridEnabled = true;
+Graph.prototype.defaultGridEnabled = urlParams['grid'] != '0';
 
 /**
  * Specifies if the app should run in chromeless mode. Default is false.
@@ -5852,6 +5852,24 @@ Graph.prototype.isTable = function(cell)
 	var style = this.getCellStyle(cell);
 	
 	return style != null && style['childLayout'] == 'tableLayout';
+};
+
+/**
+ * Returns true if the given cell is a table.
+ */
+Graph.prototype.isStack = function(cell)
+{
+	var style = this.getCellStyle(cell);
+	 
+	return style != null && style['childLayout'] == 'stackLayout';
+};
+
+/**
+ * Returns true if the given cell is a table row.
+ */
+Graph.prototype.isStackChild = function(cell)
+{
+	return this.model.isVertex(cell) && this.isStack(this.model.getParent(cell));
 };
 
 /**
