@@ -5893,7 +5893,7 @@ App.prototype.fetchAndShowNotification = function(target)
 		});
 		
 		var lsReadFlag = target + 'NotifReadTS';
-		var lastRead = parseInt(localStorage.getItem(lsReadFlag));
+		var lastRead = (localStorage != null) ? parseInt(localStorage.getItem(lsReadFlag)) : true;
 				
 		for (var i = 0; i < notifs.length; i++)
 		{
@@ -5905,7 +5905,10 @@ App.prototype.fetchAndShowNotification = function(target)
 	
 	try
 	{
-		cachedNotif = JSON.parse(localStorage.getItem(cachedNotifKey));
+		if (localStorage != null)
+		{
+			cachedNotif = JSON.parse(localStorage.getItem(cachedNotifKey));
+		}
 	}
 	catch(e) {} //Ignore
 	

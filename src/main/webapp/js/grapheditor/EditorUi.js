@@ -5184,57 +5184,60 @@ EditorUi.prototype.createKeyHandler = function(editor)
 				{
 					var handler = graph.graphHandler;
 
-					if (handler.first == null)
+					if (handler != null)
 					{
-						handler.start(graph.getSelectionCell(),
-							0, 0, graph.getSelectionCells());
-					}
+						if (handler.first == null)
+						{
+							handler.start(graph.getSelectionCell(),
+								0, 0, graph.getSelectionCells());
+						}
 
-					if (handler.first != null)
-					{
-						var dx = 0;
-						var dy = 0;
+						if (handler.first != null)
+						{
+							var dx = 0;
+							var dy = 0;
+							
+							if (keyCode == 37)
+							{
+								dx = -stepSize;
+							}
+							else if (keyCode == 38)
+							{
+								dy = -stepSize;
+							}
+							else if (keyCode == 39)
+							{
+								dx = stepSize;
+							}
+							else if (keyCode == 40)
+							{
+								dy = stepSize;
+							}
+
+							handler.currentDx += dx * scale;
+							handler.currentDy += dy * scale;
+							handler.checkPreview();
+							handler.updatePreview();
+						}
+
+						// Groups move steps in undoable change
+						if (thread != null)
+						{
+							window.clearTimeout(thread);
+						}
 						
-						if (keyCode == 37)
+						thread = window.setTimeout(function()
 						{
-							dx = -stepSize;
-						}
-						else if (keyCode == 38)
-						{
-							dy = -stepSize;
-						}
-						else if (keyCode == 39)
-						{
-							dx = stepSize;
-						}
-						else if (keyCode == 40)
-						{
-							dy = stepSize;
-						}
-
-						handler.currentDx += dx * scale;
-						handler.currentDy += dy * scale;
-						handler.checkPreview();
-						handler.updatePreview();
+							if (handler.first != null)
+							{
+								var dx = handler.roundLength(handler.currentDx / scale);
+								var dy = handler.roundLength(handler.currentDy / scale);
+								handler.moveCells(handler.cells, dx, dy);
+								handler.reset();
+							}
+						}, 400);
 					}
 				}
-			
-				// Groups move steps in undoable change
-				if (thread != null)
-				{
-					window.clearTimeout(thread);
-				}
-				
-				thread = window.setTimeout(function()
-				{
-					if (handler.first != null)
-					{
-						var dx = handler.roundLength(handler.currentDx / scale);
-						var dy = handler.roundLength(handler.currentDy / scale);
-						handler.moveCells(handler.cells, dx, dy);
-						handler.reset();
-					}
-				}, 400);
 			}
 		}
 	};

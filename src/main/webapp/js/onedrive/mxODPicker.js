@@ -284,7 +284,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		var req = new XMLHttpRequest();
 		//TODO find another way to disable caching (adding a parameter breaks the url)
 		req.open('GET', file['@microsoft.graph.downloadUrl']);
-		var isPng = file.file.mimeType == 'image/png';
+		var isPng = file.file? (file.file.mimeType == 'image/png') : false;
 		
 		req.onreadystatechange = function()
 		{
