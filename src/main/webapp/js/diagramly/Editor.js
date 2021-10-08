@@ -3236,7 +3236,8 @@
 			if (defs.length == 0)
 			{
 				defsElt = (svgDoc.createElementNS != null) ?
-					svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') : svgDoc.createElement('defs');
+					svgDoc.createElementNS(mxConstants.NS_SVG, 'defs') :
+					svgDoc.createElement('defs');
 				
 				if (svgRoot.firstChild != null)
 				{
@@ -3253,7 +3254,8 @@
 			}
 
 			var style = (svgDoc.createElementNS != null) ?
-				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+				svgDoc.createElementNS(mxConstants.NS_SVG, 'style') :
+				svgDoc.createElement('style');
 			style.setAttribute('type', 'text/css');
 			mxUtils.setTextContent(style, fontCss);
 			defsElt.appendChild(style);

@@ -12068,7 +12068,7 @@ var FilePropertiesDialog = function(editorUi)
 	
 	var file = editorUi.getCurrentFile();
 	var filename = (file != null && file.getTitle() != null) ?
-		file.getTitle() : this.editorUi.defaultFilename;
+		file.getTitle() : editorUi.defaultFilename;
 	var isPng = /(\.png)$/i.test(filename);
 	var apply = null;
 

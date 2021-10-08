@@ -939,7 +939,9 @@ EditorUi = function(editor, container, lightbox)
 			var cells = evt.getProperty('cells');
 			var parent = evt.getProperty('parent');
 			
-			if (graph.getModel().isLayer(parent) && !graph.isCellVisible(parent) && cells != null && cells.length > 0)
+			if (parent != null && graph.getModel().isLayer(parent) &&
+				!graph.isCellVisible(parent) && cells != null &&
+				cells.length > 0)
 			{
 				graph.getModel().setVisible(parent, true);
 			}

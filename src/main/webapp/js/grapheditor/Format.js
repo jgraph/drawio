@@ -2037,8 +2037,9 @@ ArrangePanel.prototype.addGroupOps = function(div)
 				var dlg = new EmbedDialog(ui, JSON.stringify(result, null, 2), null, null, function()
 				{
 					console.log(result);
+					ui.alert('Written to Console (Dev Tools)');
 				}, mxResources.get('copyData'), null, 'Console', 'data.json');
-				ui.showDialog(dlg.container, 440, 240, true, true);
+				ui.showDialog(dlg.container, 450, 240, true, true);
 				dlg.init();
 			}
 			else
@@ -2371,6 +2372,8 @@ BaseFormatPanel.prototype.getUnit = function()
 			return '"';
 		case mxConstants.MILLIMETERS:
 			return 'mm';
+		case mxConstants.METERS:
+			return 'm';
 	}
 };
 
@@ -2391,6 +2394,8 @@ BaseFormatPanel.prototype.fromUnit = function(value)
 			return value * mxConstants.PIXELS_PER_INCH;
 		case mxConstants.MILLIMETERS:
 			return value * mxConstants.PIXELS_PER_MM;
+		case mxConstants.METERS:
+			return value * mxConstants.PIXELS_PER_MM * 1000;
 	}
 };
 
@@ -2411,6 +2416,8 @@ BaseFormatPanel.prototype.getUnitStep = function()
 			return 0.1;
 		case mxConstants.MILLIMETERS:
 			return 0.5;
+		case mxConstants.METERS:
+			return 0.001;
 	}
 };
 

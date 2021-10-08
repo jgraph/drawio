@@ -164,6 +164,7 @@ if (!Uint8Array.from) {
 mxConstants.POINTS = 1;
 mxConstants.MILLIMETERS = 2;
 mxConstants.INCHES = 3;
+mxConstants.METERS = 4;
 /**
  * This ratio is with page scale 1
  */
@@ -6200,6 +6201,7 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells
 			last.colspan--;
 		}
 
+		// Handles rowspan
 		var upper = lastCells[i];
 
 		if (upper != null && upper.geo != null &&
@@ -9262,6 +9264,7 @@ if (typeof mxVertexHandler != 'undefined')
 
 				// Updates custom links after inserting into the model for cells to have new IDs
 				this.updateCustomLinks(this.createCellMapping(cloneMap, lookup), clones, this);
+				this.fireEvent(new mxEventObject(mxEvent.CELLS_ADDED, 'cells', clones));
 			}
 			finally
 			{
@@ -11502,6 +11505,8 @@ if (typeof mxVertexHandler != 'undefined')
 		            return pixels;
 		        case mxConstants.MILLIMETERS:
 		            return (pixels / mxConstants.PIXELS_PER_MM).toFixed(1);
+				case mxConstants.METERS:
+            		return (pixels / (mxConstants.PIXELS_PER_MM * 1000)).toFixed(4);
 		        case mxConstants.INCHES:
 		            return (pixels / mxConstants.PIXELS_PER_INCH).toFixed(2);
 		    }

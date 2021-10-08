@@ -219,9 +219,17 @@
 		mmAction.setToggleAction(true);
 		mmAction.setSelectedCallback(function() { return editorUi.editor.graph.view.unit == mxConstants.MILLIMETERS; });
 
+		var meterAction = editorUi.actions.addAction('meters', function()
+		{
+			editorUi.editor.graph.view.setUnit(mxConstants.METERS);
+		});
+		
+		meterAction.setToggleAction(true);
+		meterAction.setSelectedCallback(function() { return editorUi.editor.graph.view.unit == mxConstants.METERS; });
+
 		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['points', /*'inches',*/ 'millimeters'], parent);
+			this.addMenuItems(menu, ['points', 'inches', 'millimeters', 'meters'], parent);
 		})));
 		
 		var rulerAction = editorUi.actions.addAction('ruler', function()
@@ -746,8 +754,9 @@
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
 				'https://www.diagrams.net/doc/faq/export-diagram',
-				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection, addShadow, editable,
-					embedImages, border, cropImage, currentPage, linkTarget, grid, keepTheme, exportType)
+				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
+					addShadow, editable, embedImages, border, cropImage, currentPage,
+					linkTarget, grid, keepTheme, exportType, embedFonts)
 				{
 					var val = parseInt(scale);
 					
@@ -755,7 +764,7 @@
 					{
 						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
 							addShadow, editable, embedImages, border, !cropImage, false,
-							linkTarget, keepTheme, exportType);
+							linkTarget, keepTheme, exportType, embedFonts);
 					}
 				}), true, null, 'svg', true);
 		}));

@@ -1,3 +1,20 @@
+08-OCT-2021: 15.5.0
+
+- Adds inches and meters as units
+- Fixes date formatted labels on vsdx import
+- Fixes possible NPE in Gitlab client
+- Fires CELLS_ADDED for duplicating cells https://github.com/jgraph/drawio/issues/2298
+- Adds embed fonts option in SVG export
+- Fixes fonts for embedded SVG files with callback
+- Ports resource generation to JS (Node)
+- Fixes clipping for longer button labels
+- Fixes possible clipping in download PDF dialog
+- FIxes pointer events with no fill color in sketch
+- Adds numbered property, fixed for sketch theme
+- Fixes math output in JSON protocol export
+- i18n update Lambda function
+- Adds i18n resources as a submodule in internal repo
+
 05-OCT-2021: 15.4.3
 
 - Tides NPEs from logging

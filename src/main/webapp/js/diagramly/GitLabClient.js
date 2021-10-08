@@ -1226,145 +1226,153 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		
 		listGroups(mxUtils.bind(this, function(groups)
 		{
-			spinnerRequestStarted();
-			var req = new mxXmlRequest(this.baseUrl + '/users/' + this.user.id + '/projects?per_page=' +
-				pageSize + '&page=' + page, null, 'GET');
-			
-			this.executeRequest(req, mxUtils.bind(this, function(req)
+			if (this.user == null)
 			{
-				var repos = JSON.parse(req.getText());
+				mxUtils.write(div, mxResources.get('loggedOut'));
+			}
+			else
+			{
+				spinnerRequestStarted();
+				var req = new mxXmlRequest(this.baseUrl + '/users/' + this.user.id + '/projects?per_page=' +
+					pageSize + '&page=' + page, null, 'GET');
+				
+				this.executeRequest(req, mxUtils.bind(this, function(req)
+				{
+					var repos = JSON.parse(req.getText());
 
-				if ((repos == null || repos.length == 0) && (groups == null || groups.length == 0))
-				{
-					mxUtils.write(div, mxResources.get('noFiles'));
-				}
-				else
-				{
-					if (page == 1)
+					if ((repos == null || repos.length == 0) && (groups == null || groups.length == 0))
 					{
-						div.appendChild(createLink(mxResources.get('enterValue') + '...', mxUtils.bind(this, function()
-						{
-							if (inFlightRequests === 0)
-							{
-								var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
-								{
-									if (value != null)
-									{
-										var tokens = value.split('/');
-										
-										if (tokens.length > 1)
-										{
-											org = tokens[0];
-											repo = tokens[1];
-											path = null;
-											ref = null;
-											
-											if (tokens.length > 2)
-											{
-												ref = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
-												selectFile();
-											}
-											else
-											{
-												selectRef(null, true);
-											}
-										}
-										else
-										{
-											this.ui.spinner.stop();
-											this.ui.handleError({message: mxResources.get('invalidName')});
-										}
-									}
-								}), mxResources.get('enterValue'));
-								this.ui.showDialog(dlg.container, 300, 80, true, false);
-								dlg.init();
-							}
-						})));
-						
-						mxUtils.br(div);
-						mxUtils.br(div);
+						spinnerRequestFinished();
+						mxUtils.write(div, mxResources.get('noFiles'));
 					}
-					
-					var gray = true;
-					
-					for (var i = 0; i < repos.length; i++)
+					else
 					{
-						(mxUtils.bind(this, function(repository)
+						if (page == 1)
 						{
-							var temp = listItem.cloneNode();
-							temp.style.backgroundColor = (gray) ?
-								((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
-							gray = !gray;
-							
-							temp.appendChild(createLink(repository.name_with_namespace, mxUtils.bind(this, function()
+							div.appendChild(createLink(mxResources.get('enterValue') + '...', mxUtils.bind(this, function()
 							{
 								if (inFlightRequests === 0)
 								{
-									org = repository.owner.username;
-									repo = repository.path;
-									path = '';
-									
-									selectRef(null, true);
+									var dlg = new FilenameDialog(this.ui, 'org/repo/ref', mxResources.get('ok'), mxUtils.bind(this, function(value)
+									{
+										if (value != null)
+										{
+											var tokens = value.split('/');
+											
+											if (tokens.length > 1)
+											{
+												org = tokens[0];
+												repo = tokens[1];
+												path = null;
+												ref = null;
+												
+												if (tokens.length > 2)
+												{
+													ref = encodeURIComponent(tokens.slice(2, tokens.length).join('/'));
+													selectFile();
+												}
+												else
+												{
+													selectRef(null, true);
+												}
+											}
+											else
+											{
+												this.ui.spinner.stop();
+												this.ui.handleError({message: mxResources.get('invalidName')});
+											}
+										}
+									}), mxResources.get('enterValue'));
+									this.ui.showDialog(dlg.container, 300, 80, true, false);
+									dlg.init();
 								}
 							})));
 							
-							div.appendChild(temp);
-						}))(repos[i]);
-					}
-
-					for (var i = 0; i < groups.length; i++)
-					{
-						spinnerRequestStarted();
+							mxUtils.br(div);
+							mxUtils.br(div);
+						}
 						
-						listProjects(groups[i], (mxUtils.bind(this, function(group, projects)
+						var gray = true;
+						
+						for (var i = 0; i < repos.length; i++)
 						{
-							spinnerRequestFinished();
-							
-							for (var j = 0; j < projects.length; j++)
+							(mxUtils.bind(this, function(repository)
 							{
 								var temp = listItem.cloneNode();
 								temp.style.backgroundColor = (gray) ?
-									((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+									((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 								gray = !gray;
 								
-								(mxUtils.bind(this, function(project)
+								temp.appendChild(createLink(repository.name_with_namespace, mxUtils.bind(this, function()
 								{
-									temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+									if (inFlightRequests === 0)
 									{
-										if (inFlightRequests === 0)
-										{
-											org = group.full_path;
-											repo = project.path;
-											path = '';
-		
-											selectRef(null, true);
-										}
-									})));
-	
-									div.appendChild(temp);
-								}))(projects[j]);
-							}
-						})));
-					}
-					
-					spinnerRequestFinished();
-				}
-
-				if (repos.length == pageSize)
-				{
-					div.appendChild(nextPageDiv);
-					
-					scrollFn = function()
-					{
-						if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
-						{
-							nextPage();
+										org = repository.owner.username;
+										repo = repository.path;
+										path = '';
+										
+										selectRef(null, true);
+									}
+								})));
+								
+								div.appendChild(temp);
+							}))(repos[i]);
 						}
-					};
-					
-					mxEvent.addListener(div, 'scroll', scrollFn);
-				}
-			}), error);
+
+						for (var i = 0; i < groups.length; i++)
+						{
+							spinnerRequestStarted();
+							
+							listProjects(groups[i], (mxUtils.bind(this, function(group, projects)
+							{
+								spinnerRequestFinished();
+								
+								for (var j = 0; j < projects.length; j++)
+								{
+									var temp = listItem.cloneNode();
+									temp.style.backgroundColor = (gray) ?
+										((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+									gray = !gray;
+									
+									(mxUtils.bind(this, function(project)
+									{
+										temp.appendChild(createLink(project.name_with_namespace, mxUtils.bind(this, function()
+										{
+											if (inFlightRequests === 0)
+											{
+												org = group.full_path;
+												repo = project.path;
+												path = '';
+			
+												selectRef(null, true);
+											}
+										})));
+		
+										div.appendChild(temp);
+									}))(projects[j]);
+								}
+							})));
+						}
+						
+						spinnerRequestFinished();
+					}
+
+					if (repos.length == pageSize)
+					{
+						div.appendChild(nextPageDiv);
+						
+						scrollFn = function()
+						{
+							if (div.scrollTop >= div.scrollHeight - div.offsetHeight)
+							{
+								nextPage();
+							}
+						};
+						
+						mxEvent.addListener(div, 'scroll', scrollFn);
+					}
+				}), error);
+			}
 		}));
 	});
 
@@ -1372,7 +1380,10 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 	{
 		this.authenticate(mxUtils.bind(this, function()
 		{
-			this.updateUser(function() { selectRepo(); }, error, true);
+			this.updateUser(function()
+			{
+				selectRepo();
+			}, error, true);
 		}), error);
 	}
 	else if (!this.user)

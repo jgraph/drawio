@@ -4610,7 +4610,7 @@
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
 		var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 270) : 160;
-		this.showDialog(dlg.container, 400, height, true, true);
+		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
 	};
 	
@@ -5022,7 +5022,7 @@
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
 		
 		var height = (this.isServices(count)) ? ((count > 4) ? 390 : 270) : 160;
-		this.showDialog(dlg.container, 380, height, true, true);
+		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
 	};
 
@@ -5063,7 +5063,8 @@
 	 *
 	 */
 	EditorUi.prototype.exportSvg = function(scale, transparentBackground, ignoreSelection, addShadow,
-		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme, exportType)
+		editable, embedImages, border, noCrop, currentPage, linkTarget, keepTheme, exportType,
+		embedFonts, saveFn)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('export')))
 		{
@@ -5097,20 +5098,9 @@
 				}
 				
 				var filename = this.getBaseFilename() + ((editable) ? '.drawio' : '') + '.svg';
-	
-				var doSave = mxUtils.bind(this, function(svgRoot)
+
+				saveFn = (saveFn != null) ? saveFn : mxUtils.bind(this, function(svg)
 				{
-					this.spinner.stop();
-					
-					if (editable)
-					{
-						svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
-							currentPage, null, null, null, false));
-					}
-					
-					var svg = Graph.xmlDeclaration + '\n' + ((editable) ? Graph.svgFileComment + '\n' : '') +
-						Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot);
-				
 		    		if (this.isLocalFileSave() || svg.length <= MAX_REQUEST_SIZE)
 		    		{
 		    			this.saveData(filename, 'svg', svg, 'image/svg+xml');
@@ -5123,28 +5113,53 @@
 		    			}));
 		    		}
 				});
+	
+				var doSave = mxUtils.bind(this, function(svgRoot)
+				{
+					this.spinner.stop();
+					
+					if (editable)
+					{
+						svgRoot.setAttribute('content', this.getFileData(true, null, null, null, ignoreSelection,
+							currentPage, null, null, null, false));
+					}
+
+					saveFn(Graph.xmlDeclaration + '\n' + ((editable) ? Graph.svgFileComment + '\n' : '') +
+						Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot));
+				});
 
 				// Adds CSS
-				this.editor.addFontCss(svgRoot);
-				
 				if (this.editor.graph.mathEnabled)
 				{
 					this.editor.addMathCss(svgRoot);
 				}
-				
-				if (embedImages)
+
+				var done = mxUtils.bind(this, function(svgRoot)
 				{
-					// Caches images
-					if (this.thumbImageCache == null)
+					if (embedImages)
 					{
-						this.thumbImageCache = new Object();
+						// Caches images
+						if (this.thumbImageCache == null)
+						{
+							this.thumbImageCache = new Object();
+						}
+						
+						this.editor.convertImages(svgRoot, doSave, this.thumbImageCache);
 					}
-					
-					this.editor.convertImages(svgRoot, doSave, this.thumbImageCache);
+					else
+					{
+						doSave(svgRoot);
+					}
+				});
+
+				if (embedFonts)
+				{
+					this.embedFonts(svgRoot, done);
 				}
 				else
 				{
-					doSave(svgRoot);
+					this.editor.addFontCss(svgRoot);
+					done(svgRoot);
 				}
 			}
 			catch (e)
@@ -5154,10 +5169,13 @@
 		}
 	};
 	
+	/**
+	 * 
+	 */
 	EditorUi.prototype.addRadiobox = function(div, radioGroupName, label, checked, disabled, disableNewline, visible)
 	{
 		return this.addCheckbox(div, label, checked, disabled, disableNewline, visible, true, radioGroupName);
-	}
+	};
 	
 	/**
 	 * 
@@ -6092,6 +6110,11 @@
 		cb5.style.marginRight = '8px';
 		cb5.setAttribute('type', 'checkbox');
 		
+		var cb6 = document.createElement('input');
+		cb6.style.marginTop = '16px';
+		cb6.style.marginRight = '8px';
+		cb6.setAttribute('type', 'checkbox');
+		
 		if (this.isOffline() || !this.canvasSupported)
 		{
 			cb5.setAttribute('disabled', 'disabled');
@@ -6102,8 +6125,12 @@
 			div.appendChild(cb5);
 			mxUtils.write(div, mxResources.get('embedImages'));
 			mxUtils.br(div);
+
+			div.appendChild(cb6);
+			mxUtils.write(div, mxResources.get('embedFonts'));
+			mxUtils.br(div);
 			
-			height += 30;
+			height += 60;
 		}
 		
 		var grid = null;
@@ -6155,7 +6182,7 @@
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
 				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
-				keepTheme.checked : null, exportSelect.value);
+				keepTheme.checked : null, exportSelect.value, cb6.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -6743,8 +6770,24 @@
 //			svgRoot.setAttribute('onclick', 'window.location.href=\'' + redirect + '\';'); 
 //		}
 
-		var result = ((!noHeader) ? Graph.xmlDeclaration + '\n' + Graph.svgFileComment +
-			'\n' + Graph.svgDoctype + '\n' : '') + mxUtils.getXml(svgRoot);
+		var done = mxUtils.bind(this, function(svgRoot)
+		{
+			var result = ((!noHeader) ? Graph.xmlDeclaration + '\n' + Graph.svgFileComment +
+				'\n' + Graph.svgDoctype + '\n' : '') + mxUtils.getXml(svgRoot);
+
+			if (callback != null)
+			{
+				callback(result);
+			}
+
+			return result;
+		});
+
+		// Adds CSS
+		if (graph.mathEnabled)
+		{
+			this.editor.addMathCss(svgRoot);
+		}
 
 		if (callback != null)
 		{
@@ -6754,18 +6797,18 @@
 				{
 					this.editor.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
 					{
-						callback(result);
+						done(svgRoot);
 					}));
 				}
 				else
 				{
-					callback(result);
+					done(svgRoot);
 				}
 			}));
 		}
 		else
 		{
-			return result;
+			return done(svgRoot);
 		}
 	};
 	
@@ -9214,23 +9257,28 @@
 			}
 		}));
 
-		// Restores background page references in output data
+		// Restores background page reference in output data or
+		// replaces dark mode page image with normal mode image
 		var graphGetBackgroundImageObject = graph.getBackgroundImageObject;
 		
 		graph.getBackgroundImageObject = function(obj, resolveReferences)
 		{
 			var result = graphGetBackgroundImageObject.apply(this, arguments);
 
-			if (result != null && result.originalSrc != null && !resolveReferences)
+			if (result != null && result.originalSrc != null)
 			{
-				result = {src: result.originalSrc};
-			}
-			else if (resolveReferences && this.themes != null && this.defaultThemeName == 'darkTheme')
-			{
-				var temp = this.stylesheet;
-				this.stylesheet = this.getDefaultStylesheet();
-				result = ui.createImageForPageLink(result.originalSrc);
-				this.stylesheet = temp;
+				if (!resolveReferences)
+				{
+					result = {src: result.originalSrc};
+				}
+				else if (resolveReferences && this.themes != null &&
+					this.defaultThemeName == 'darkTheme')
+				{
+					var temp = this.stylesheet;
+					this.stylesheet = this.getDefaultStylesheet();
+					result = ui.createImageForPageLink(result.originalSrc);
+					this.stylesheet = temp;
+				}
 			}
 
 			return result;
@@ -11932,81 +11980,100 @@
 								
 								if (this.isExportToCanvas())
 								{
+									var graphReady = mxUtils.bind(this, function()
+									{
+										// Exports PNG for first/specific page while other page is visible by creating a graph
+										// LATER: Add caching for the graph or SVG while not on first page
+										if (this.pages != null && this.currentPage.getId() != pageId)
+										{
+											var graphGetGlobalVariable = graph.getGlobalVariable;
+											graph = this.createTemporaryGraph(graph.getStylesheet());
+											var page;
+											
+											for (var i = 0; i < this.pages.length; i++)
+											{
+												if (this.pages[i].getId() == pageId)
+												{
+													page = this.updatePageRoot(this.pages[i]);
+													break;
+												}
+											}
+											
+											//If pageId info is incorrect
+											if (page == null)
+											{
+												page = this.currentPage; 
+											}
+									
+											graph.getGlobalVariable = function(name)
+											{
+												if (name == 'page')
+												{
+													return page.getName();
+												}
+												else if (name == 'pagenumber')
+												{
+													return 1;
+												}
+												
+												return graphGetGlobalVariable.apply(this, arguments);
+											};
+									
+											document.body.appendChild(graph.container);
+											graph.model.setRoot(page.root);
+										}
+		
+										// Set visible layers based on message setting
+										if (data.layerIds != null)
+										{
+											var graphModel = graph.model;
+											var layers = graphModel.getChildCells(graphModel.getRoot());
+											var layerIdsMap = {};
+											
+											for (var i = 0; i < data.layerIds.length; i++)
+											{
+												layerIdsMap[data.layerIds[i]] = true;
+											}
+		
+											for (var i = 0; i < layers.length; i++)
+											{
+												graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
+											}
+										}
+
+										this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
+										{
+											processUri(canvas.toDataURL('image/png'));
+										}), data.width, null, data.background, mxUtils.bind(this, function()
+										{
+											processUri(null);
+										}), null, null, data.scale, data.transparent, data.shadow, null,
+											graph, data.border, null, data.grid, data.keepTheme);
+									});
+
 									// Uses optional XML from incoming message
 									if (data.xml != null && data.xml.length > 0)
 									{
 										ignoreChange = true;
 										this.setFileData(xml);
 										ignoreChange = false;
-									}
 
-									// Exports PNG for first/specific page while other page is visible by creating a graph
-									// LATER: Add caching for the graph or SVG while not on first page
-									if (this.pages != null && this.currentPage.getId() != pageId)
-									{
-										var graphGetGlobalVariable = graph.getGlobalVariable;
-										graph = this.createTemporaryGraph(graph.getStylesheet());
-										var page;
-										
-										for (var i = 0; i < this.pages.length; i++)
+										if (this.editor.graph.mathEnabled)
 										{
-											if (this.pages[i].getId() == pageId)
+											window.setTimeout(function()
 											{
-												page = this.updatePageRoot(this.pages[i]);
-												break;
-											}
+												window.MathJax.Hub.Queue(graphReady);
+											}, 0);
 										}
-										
-										//If pageId info is incorrect
-										if (page == null)
+										else
 										{
-											page = this.currentPage; 
-										}
-								
-										graph.getGlobalVariable = function(name)
-										{
-											if (name == 'page')
-											{
-												return page.getName();
-											}
-											else if (name == 'pagenumber')
-											{
-												return 1;
-											}
-											
-											return graphGetGlobalVariable.apply(this, arguments);
-										};
-								
-										document.body.appendChild(graph.container);
-										graph.model.setRoot(page.root);
-									}
-	
-									// Set visible layers based on message setting
-									if (data.layerIds != null)
-									{
-										var graphModel = graph.model;
-										var layers = graphModel.getChildCells(graphModel.getRoot());
-										var layerIdsMap = {};
-										
-										for (var i = 0; i < data.layerIds.length; i++)
-										{
-											layerIdsMap[data.layerIds[i]] = true;
-										}
-	
-										for (var i = 0; i < layers.length; i++)
-										{
-											graphModel.setVisible(layers[i], layerIdsMap[layers[i].id] || false);
+											graphReady();
 										}
 									}
-
-									this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
-								   	{
-										processUri(canvas.toDataURL('image/png'));
-								   	}), data.width, null, data.background, mxUtils.bind(this, function()
+									else
 									{
-								   		processUri(null);
-									}), null, null, data.scale, data.transparent, data.shadow, null,
-										graph, data.border, null, data.grid, data.keepTheme);
+										graphReady();
+									}
 								}
 								else
 								{
@@ -12015,7 +12082,8 @@
 							       	var req = new mxXmlRequest(EXPORT_URL, 'format=png&embedXml=' +
 							       		((data.format == 'xmlpng') ? '1' : '0') + 
 							       		(pageId != null? '&pageId=' + pageId : '') +
-							       		(data.layerIds != null && data.layerIds.length > 0? '&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
+							       		(data.layerIds != null && data.layerIds.length > 0?
+										'&extras=' + encodeURIComponent(JSON.stringify({layerIds: data.layerIds})) : '') +
 							       		(data.scale != null? '&scale=' + data.scale : '') +'&base64=1&xml=' +
 							       		encodeURIComponent(xml));
 	
@@ -12040,107 +12108,126 @@
 						}
 						else
 						{
+							var graphReady = mxUtils.bind(this, function()
+							{
+								var msg = this.createLoadMessage('export');
+								
+								// Attaches incoming message
+								msg.message = data;
+								
+								// Forces new HTML format if pages exists
+								if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
+									(this.pages != null && this.pages.length > 1))))
+								{
+									var node = this.getXmlFileData();
+									msg.xml = mxUtils.getXml(node);
+									msg.data = this.getFileData(null, null, true, null, null, null, node);
+									msg.format = data.format;
+								}
+								else if (data.format == 'html')
+								{
+									var xml = this.editor.getGraphXml();
+									msg.data = this.getHtml(xml, this.editor.graph);
+									msg.xml = mxUtils.getXml(xml);
+									msg.format = data.format;
+								}
+								else
+								{
+									// Creates a preview with no alt text for unsupported browsers
+									mxSvgCanvas2D.prototype.foAltText = null;
+									
+									var bg = (data.background != null) ? data.background : this.editor.graph.background;
+									
+									if (bg == mxConstants.NONE)
+									{
+										bg = null;
+									}
+		
+									msg.xml = this.getFileData(true, null, null, null, null,
+										null, null, null, null, false);
+									msg.format = 'svg';
+									
+									var postResult = mxUtils.bind(this, function(svg)
+									{
+										this.editor.graph.setEnabled(true);
+										this.spinner.stop();
+									
+										msg.data = Editor.createSvgDataUri(svg);
+										parent.postMessage(JSON.stringify(msg), '*');
+									});
+									
+									if (data.format == 'xmlsvg')
+									{
+										if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
+											(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+										{
+											this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
+												data.embedImages, bg, data.scale, data.border, data.shadow, data.keepTheme);
+										}
+									}
+									else
+									{
+										if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
+											(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
+										{
+											this.editor.graph.setEnabled(false);
+											var svgRoot = this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
+												null, null, null, null, this.editor.graph.shadowVisible || data.shadow,
+												null, data.keepTheme);
+											
+											if (this.editor.graph.shadowVisible || data.shadow)
+											{
+												this.editor.graph.addSvgShadow(svgRoot);
+											}
+
+											this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
+											{
+												if (data.embedImages || data.embedImages == null)
+												{
+													this.editor.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
+													{
+														postResult(mxUtils.getXml(svgRoot));
+													}));
+												}
+												else
+												{
+													postResult(mxUtils.getXml(svgRoot));
+												}
+											}));
+										}
+									}
+									
+									return;
+								}
+		
+								parent.postMessage(JSON.stringify(msg), '*');
+							});
+
 							// SVG is generated from graph so parse optional XML
 							if (data.xml != null && data.xml.length > 0)
 							{
 								ignoreChange = true;
 								this.setFileData(data.xml);
 								ignoreChange = false;
-							}
-							
-							var msg = this.createLoadMessage('export');
-							
-							// Attaches incoming message
-							msg.message = data;
-							
-							// Forces new HTML format if pages exists
-							if (data.format == 'html2' || (data.format == 'html' && (urlParams['pages'] != '0' ||
-								(this.pages != null && this.pages.length > 1))))
-							{
-								var node = this.getXmlFileData();
-								msg.xml = mxUtils.getXml(node);
-								msg.data = this.getFileData(null, null, true, null, null, null, node);
-								msg.format = data.format;
-							}
-							else if (data.format == 'html')
-							{
-								var xml = this.editor.getGraphXml();
-								msg.data = this.getHtml(xml, this.editor.graph);
-								msg.xml = mxUtils.getXml(xml);
-								msg.format = data.format;
+
+								if (this.editor.graph.mathEnabled)
+								{
+									window.setTimeout(function()
+									{
+										window.MathJax.Hub.Queue(graphReady);
+									}, 0);
+								}
+								else
+								{
+									graphReady();
+								}
 							}
 							else
 							{
-								// Creates a preview with no alt text for unsupported browsers
-					        	mxSvgCanvas2D.prototype.foAltText = null;
-					        	
-					        	var bg = (data.background != null) ? data.background : this.editor.graph.background;
-					        	
-					        	if (bg == mxConstants.NONE)
-					        	{
-					        		bg = null;
-					        	}
-	
-								msg.xml = this.getFileData(true, null, null, null, null,
-									null, null, null, null, false);
-								msg.format = 'svg';
-								
-								var postResult = mxUtils.bind(this, function(svg)
-								{
-									this.editor.graph.setEnabled(true);
-									this.spinner.stop();
-								
-									msg.data = Editor.createSvgDataUri(svg);
-									parent.postMessage(JSON.stringify(msg), '*');
-								});
-								
-								if (data.format == 'xmlsvg')
-								{
-									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
-										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
-									{
-										this.getEmbeddedSvg(msg.xml, this.editor.graph, null, true, postResult, null, null,
-											data.embedImages, bg, data.scale, data.border, data.shadow, data.keepTheme);
-									}
-								}
-								else
-					        	{
-									if ((data.spin == null && data.spinKey == null) || this.spinner.spin(document.body,
-										(data.spinKey != null) ? mxResources.get(data.spinKey) : data.spin))
-									{
-										this.editor.graph.setEnabled(false);
-										var svgRoot = this.editor.graph.getSvg(bg, data.scale, data.border, null, null,
-											null, null, null, null, this.editor.graph.shadowVisible || data.shadow,
-											null, data.keepTheme);
-										
-										if (this.editor.graph.shadowVisible || data.shadow)
-										{
-											this.editor.graph.addSvgShadow(svgRoot);
-										}
-
-					        			this.embedFonts(svgRoot, mxUtils.bind(this, function(svgRoot)
-										{
-					        				if (data.embedImages || data.embedImages == null)
-					        				{
-												this.editor.convertImages(svgRoot, mxUtils.bind(this, function(svgRoot)
-							        			{
-													postResult(mxUtils.getXml(svgRoot));
-							        			}));
-					        				}
-					        				else
-					        				{
-					        					postResult(mxUtils.getXml(svgRoot));
-					        				}
-										}));
-									}
-					        	}
-								
-								return;
+								graphReady();
 							}
-	
-							parent.postMessage(JSON.stringify(msg), '*');
 						}
-						
+
 						return;
 					}
 					else if (data.action == 'load')

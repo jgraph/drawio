@@ -9204,16 +9204,43 @@ var com;
                                         }
                                         if (!(value.length === 0)) {
                                             try {
-                                                if ((function (str, searchString, position) {
-                                                    if (position === void 0) { position = 0; }
-                                                    return str.substr(position, searchString.length) === searchString;
-                                                })(format, "{{")) {
+                                            	//Date can be in string date format or a number
+                                            	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
+
+												if (format == 'c')
+												{
+													if (date.getHours() + date.getMinutes() + date.getSeconds() + date.getMilliseconds() == 0)
+													{
+														format = 'm/d/yyyy';
+													}
+													else
+													{
+														format = 'm/d/yyyy h:MM:ss tt';															
+													}
+												}
+												else if (format == 'ddddd')
+												{
+													format = 'm/d/yyyy';
+												}
+												else if (format == 'dddddd')
+												{
+													format = 'dddd, mmmm dd, yyyy';
+												}
+												else if (format == 'C')
+												{
+													format = 'dddd, mmmm dd, yyyy h:MM:ss tt';
+												}
+												else if (format == 'T')
+												{
+													format = 'h:MM:ss tt';
+												}
+												else
+												{
                                                 	//Our date format function swaps M/m meaning
-                                                	format = format.replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
-                                                	//Date can be in string date format or a number
-                                                	var date = isNaN(value)? new Date(value) : new Date(Shape.VSDX_START_TIME + Math.floor((parseFloat(value) * 24 * 60 * 60 * 1000)));
-                                                	value = Graph.prototype.formatDate(date, /* replaceAll */ format.replace(new RegExp("\\{|\\}", 'g'), ""));
+                                                	format = format.replace(/am\/pm/g, 'tt').replace(/m/g, '@').replace(/M/g, 'm').replace(/@/g, 'M');
                                                 }
+
+                                               	value = Graph.prototype.formatDate(date, /* replaceAll */ 'UTC:' + format.replace(new RegExp("\\{|\\}", 'g'), ""));
                                             }
                                             catch (e) {
                                             }
@@ -9704,7 +9731,7 @@ var com;
                     };
                     return Shape;
                 }(com.mxgraph.io.vsdx.Style));
-                Shape.VSDX_START_TIME = -2209168800000;
+                Shape.VSDX_START_TIME = new Date('1899-12-30T00:00:00Z').getTime();
                 vsdx.Shape = Shape;
                 Shape["__class"] = "com.mxgraph.io.vsdx.Shape";
             })(vsdx = io.vsdx || (io.vsdx = {}));
