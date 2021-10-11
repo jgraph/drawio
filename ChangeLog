@@ -1,3 +1,10 @@
+11-OCT_2021: 15.5.1
+
+- Adds embedInline URL parameter
+- Uses system dark mode for default
+- Fixes library depends on current edge style https://github.com/jgraph/drawio/issues/2308
+- Fixes handling of inlineFullscreen iframe
+
 08-OCT-2021: 15.5.0
 
 - Adds inches and meters as units

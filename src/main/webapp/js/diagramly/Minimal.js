@@ -11,7 +11,16 @@ EditorUi.initMinimalTheme = function()
 		return;
 	}
 	
-    var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	var iw = 0;
+
+	try
+	{
+		iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+	}
+	catch (e)
+	{
+		// ignore
+	}
 
 	/**
 	 * 
@@ -290,9 +299,12 @@ EditorUi.initMinimalTheme = function()
 				this.doSetDarkMode(value);
 				
 				// Persist setting
-				mxSettings.settings.darkMode = value;
-				mxSettings.save();
-					
+				if (urlParams['dark'] == null)
+				{
+					mxSettings.settings.darkMode = value;
+					mxSettings.save();
+				}
+
 				this.fireEvent(new mxEventObject('darkModeChanged'));
 			}), 0);
 		}
@@ -320,10 +332,13 @@ EditorUi.initMinimalTheme = function()
 			// Sets instance vars and graph stylesheet
 			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
 			this.setGridColor(Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor);
-			graph.defaultPageBackgroundColor = Editor.isDarkMode() ? '#2a2a2a' : '#ffffff';
 			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#505759' : '#ffffff';
 			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
 			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
+			graph.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
+				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
+			document.body.style.backgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
+				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
 			graph.loadStylesheet();
 			
 			// Destroys windows with code for dark mode
@@ -354,18 +369,16 @@ EditorUi.initMinimalTheme = function()
 			}
 
 			// Sets global vars
-			Dialog.backdropColor = Editor.isDarkMode() ? '#2a2a2a' : 'white';
+			Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
-			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? '#2a2a2a' : 'white';
+			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 			Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? 'black' : '#f0f0f0';
 			mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
 			Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
 				Editor.darkHelpImage : Editor.lightHelpImage;
 			Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
 				Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
-			document.body.style.backgroundColor = Editor.isDarkMode() ?
-				'#2a2a2a' : '#ffffff';
-
+			
 			// Updates CSS
 			styleElt.innerHTML = Editor.createMinimalCss();
 			
@@ -431,7 +444,7 @@ EditorUi.initMinimalTheme = function()
 			'html body .geDialog input, html body .geToolbarContainer input, html body .mxWindow input {padding: 2px; display: inline-block; }' +
 			'html body .mxWindow input[type="checkbox"] {padding: 0px; }' +
 			'div.geDialog { border-radius: 5px; }' +
-			'html body div.geDialog button.geBigButton { color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; border: none !important; }' +
+			'html body div.geDialog button.geBigButton { color: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important; border: none !important; }' +
 			'.mxWindow button, .geDialog select, .mxWindow select { display:inline-block; }' +
 			'html body .mxWindow .geColorBtn, html body .geDialog .geColorBtn { background: none; }' +
 			'html body div.diagramContainer button, html body .mxWindow button, html body .geDialog button { min-width: 0px; border-radius: 5px; color: ' + (Editor.isDarkMode() ? '#cccccc' : '#353535') + ' !important; border-style: solid; border-width: 1px; border-color: rgb(216, 216, 216); }' +
@@ -451,19 +464,19 @@ EditorUi.initMinimalTheme = function()
 			'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
 			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
 			// Styling for Minimal
-			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
-			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + '; }' +
-			'div.geSidebarContainer { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + '; }' +
-			'div.geSidebarContainer .geTitle { background-color: ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fdfdfd') + '; }' +
+			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important; }' +
+			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
+			'div.geSidebarContainer { background-color: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
+			'div.geSidebarContainer .geTitle { background-color: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fdfdfd') + '; }' +
 			'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
 			'td.mxWindowTitle { height: 22px !important; background: none !important; font-size: 13px !important; text-align:center !important; border-bottom:1px solid lightgray; }' +
-			'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important; }' +
+			'div.mxWindow, div.mxWindowTitle { background-image: none !important; background-color:' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important; }' +
 			'div.mxWindow { border-radius:5px; box-shadow: 0px 0px 2px #C0C0C0 !important;}' +
 			'div.mxWindow *:not(svg *) { font-family: inherit !important; }' +
 			// Minimal Style UI
 			'html div.geVerticalHandle { position:absolute;bottom:0px;left:50%;cursor:row-resize;width:11px;height:11px;background:white;margin-bottom:-6px; margin-left:-6px; border: none; border-radius: 6px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
-			'html div.geInactivePage { background: ' + (Editor.isDarkMode() ? '#2a2a2a' : 'rgb(249, 249, 249)') + ' !important; color: #A0A0A0 !important; } ' +
-			'html div.geActivePage { background:  ' + (Editor.isDarkMode() ? '#2a2a2a' : '#fff') + ' !important;  ' + (Editor.isDarkMode() ? '' : 'color: #353535 !important; } ') +
+			'html div.geInactivePage { background: ' + (Editor.isDarkMode() ? Editor.darkColor : 'rgb(249, 249, 249)') + ' !important; color: #A0A0A0 !important; } ' +
+			'html div.geActivePage { background:  ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important;  ' + (Editor.isDarkMode() ? '' : 'color: #353535 !important; } ') +
 			'html div.mxRubberband { border:1px solid; border-color: #29b6f2 !important; background:rgba(41,182,242,0.4) !important; } ' +
 			'html body div.mxPopupMenu { border-radius:5px; border:1px solid #c0c0c0; padding:5px 0 5px 0; box-shadow: 0px 4px 17px -4px rgba(96,96,96,1); } ' +
 			'html table.mxPopupMenu td.mxPopupMenuItem { color: ' + (Editor.isDarkMode() ? '#cccccc' : '#353535') + '; font-size: 14px; padding-top: 4px; padding-bottom: 4px; }' +
@@ -604,10 +617,10 @@ EditorUi.initMinimalTheme = function()
 			this.buttonContainer.style.paddingTop = '4px';
 		}
     };
-    
+
 	EditorUi.prototype.addEmbedButtons = function()
 	{
-		if (this.buttonContainer != null)
+		if (this.buttonContainer != null && urlParams['embedInline'] != '1')
 		{
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
@@ -622,16 +635,19 @@ EditorUi.initMinimalTheme = function()
 			
 			if (urlParams['noSaveBtn'] == '1')
 			{
-				var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
-				mxUtils.write(button, saveAndExitTitle);
-				button.setAttribute('title', saveAndExitTitle);
-					
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+				if (urlParams['saveAndExit'] != '0')
 				{
-					this.actions.get('saveAndExit').funct();
-				}));
-				
-				div.appendChild(button);
+					var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
+					mxUtils.write(button, saveAndExitTitle);
+					button.setAttribute('title', saveAndExitTitle);
+						
+					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
+					{
+						this.actions.get('saveAndExit').funct();
+					}));
+					
+					div.appendChild(button);
+				}
 			}
 			else
 			{
@@ -683,6 +699,8 @@ EditorUi.initMinimalTheme = function()
 			
 			this.buttonContainer.appendChild(div);
 			this.buttonContainer.style.top = '6px';
+
+			this.editor.fireEvent(new mxEventObject('statusChanged'));
 		}
 	};
 	
@@ -761,12 +779,13 @@ EditorUi.initMinimalTheme = function()
 				this.addMenuItems(menu, ['-', 'lockUnlock'], null, evt);
 			}
 		}
-
+		
 		if (graph.isEnabled() && graph.isSelectionEmpty())
 		{
 			this.addMenuItems(menu, ['-', 'fullscreen']);
 
-			if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
+			if (urlParams['embedInline'] != '1' && (Editor.isDarkMode() ||
+				(!mxClient.IS_IE && !mxClient.IS_IE11)))
 			{
 				this.addMenuItems(menu, ['toggleDarkMode']);
 			}
@@ -911,7 +930,7 @@ EditorUi.initMinimalTheme = function()
 		
         var ui = this.editorUi;
         var graph = ui.editor.graph;
-        
+
         ui.actions.get('editDiagram').label = mxResources.get('formatXml') + '...';
         ui.actions.get('createShape').label = mxResources.get('shape') + '...';
         ui.actions.get('outline').label = mxResources.get('outline') + '...';
@@ -1030,13 +1049,15 @@ EditorUi.initMinimalTheme = function()
 			}
 			else if (urlParams['embed'] == '1')
 			{
-				if (urlParams['noSaveBtn'] != '1')
+				if (urlParams['noSaveBtn'] != '1' &&
+					urlParams['embedInline'] != '1')
 				{
 					ui.menus.addMenuItems(menu, ['-', 'save'], parent);
 				}
 				
 				if (urlParams['saveAndExit'] == '1' || 
-					(urlParams['noSaveBtn'] == '1' && urlParams['saveAndExit'] != '0'))
+					(urlParams['noSaveBtn'] == '1' &&
+					urlParams['saveAndExit'] != '0'))
 				{
 					ui.menus.addMenuItems(menu, ['saveAndExit'], parent);
 				}
@@ -1104,7 +1125,7 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addMenuItems(menu, ['print'], parent);
 			}
 
-			if (file != null && ui.fileNode != null)
+			if (file != null && ui.fileNode != null && urlParams['embedInline'] != '1')
 			{
 				var filename = (file.getTitle() != null) ?
 					file.getTitle() : ui.defaultFilename;
@@ -1121,7 +1142,10 @@ EditorUi.initMinimalTheme = function()
 
             if (urlParams['embed'] == '1')
 			{
-				ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
+				if (urlParams['noExitBtn'] != '1')
+				{
+					ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
+				}
 			}
 			else
 			{
@@ -1234,21 +1258,24 @@ EditorUi.initMinimalTheme = function()
 			menu.addSeparator(parent);
 			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand', '-'], parent);
 
-			if (urlParams['sketch'] == '1')
+			if (urlParams['embedInline'] != '1')
 			{
-				this.addMenuItems(menu, ['toggleSketchMode'], parent);
-			}
+				if (urlParams['sketch'] == '1')
+				{
+					this.addMenuItems(menu, ['toggleSketchMode'], parent);
+				}
 
-			this.addMenuItems(menu, ['toggleDarkMode'], parent);
+				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 
-			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
-			{
-				ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
-			}
+				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
+				{
+					ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
+				}
 
-			if (urlParams['sketch'] == '1')
-			{
-				this.addMenuItems(menu, ['togglePagesVisible'], parent);
+				if (urlParams['sketch'] == '1')
+				{
+					this.addMenuItems(menu, ['togglePagesVisible'], parent);
+				}
 			}
 
 			menu.addSeparator(parent);
@@ -1357,10 +1384,16 @@ EditorUi.initMinimalTheme = function()
 	EditorUi.prototype.init = function()
 	{
 		editorUiInit.apply(this, arguments);
-		this.doSetDarkMode((urlParams['dark'] != null) ?
-			urlParams['dark'] == 1 && !mxClient.IS_IE &&
-			!mxClient.IS_IE11 : mxSettings.settings.darkMode);
-		
+
+		if (urlParams['embedInline'] != '1')
+		{
+			this.doSetDarkMode((urlParams['dark'] != null) ?
+				urlParams['dark'] == 1 && !mxClient.IS_IE &&
+				!mxClient.IS_IE11 : ((mxSettings.settings.darkMode != null) ?
+				mxSettings.settings.darkMode : (window.matchMedia &&
+					window.matchMedia('(prefers-color-scheme: dark)').matches)));
+		}
+
 		var div = document.createElement('div');
 		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
 		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
@@ -1731,11 +1764,126 @@ EditorUi.initMinimalTheme = function()
 			}
 
 			graph.refresh();
-			graph.view.validateBackground()
+			graph.view.validateBackground();
 		});
 			
 		ui.addListener('darkModeChanged', refreshSidebar);
 		ui.addListener('sketchModeChanged', refreshSidebar);
+
+		var inlineSizeChanged = mxUtils.bind(this, function()
+		{
+			if (Editor.inlineFullscreen)
+			{
+				toolbar.style.left = '10px';
+				toolbar.style.top = '10px';
+				
+				picker.style.left = '10px';
+				picker.style.top = '60px';
+
+				footer.style.top = '10px';
+				footer.style.right = '12px';
+				footer.style.left = '';
+
+				ui.diagramContainer.setAttribute('data-bounds', ui.diagramContainer.style.top + ' ' +
+					ui.diagramContainer.style.left + ' ' + ui.diagramContainer.style.width + ' ' +
+					ui.diagramContainer.style.height);
+
+				ui.diagramContainer.style.top = '0px';
+				ui.diagramContainer.style.left = '0px';
+				ui.diagramContainer.style.bottom = '0px';
+				ui.diagramContainer.style.right = '0px';
+				ui.diagramContainer.style.width = '';
+				ui.diagramContainer.style.height = '';
+			}
+			else
+			{
+				var bounds = ui.diagramContainer.getAttribute('data-bounds');
+
+				if (bounds != null)
+				{
+					ui.diagramContainer.style.background = 'transparent';
+					ui.diagramContainer.removeAttribute('data-bounds');
+					var gb = graph.getGraphBounds();
+					var tokens = bounds.split(' ');
+
+					ui.diagramContainer.style.top = tokens[0];
+					ui.diagramContainer.style.left = tokens[1];
+					ui.diagramContainer.style.width = (gb.width + 50) + 'px';
+					ui.diagramContainer.style.height = (gb.height + 46) + 'px';
+					ui.diagramContainer.style.bottom = '';
+					ui.diagramContainer.style.right = '';
+
+					var parent = window.opener || window.parent;
+					parent.postMessage(JSON.stringify({
+						event: 'resize',
+						rect: ui.diagramContainer.getBoundingClientRect()
+					}), '*');
+					ui.refresh();
+				}
+
+				toolbar.style.left = ui.diagramContainer.offsetLeft + 'px';
+				toolbar.style.top = (ui.diagramContainer.offsetTop -
+					toolbar.offsetHeight - 4) + 'px';
+				
+				picker.style.display = '';
+				picker.style.left = (ui.diagramContainer.offsetLeft -
+					picker.offsetWidth - 4) + 'px';
+				picker.style.top = ui.diagramContainer.offsetTop + 'px';
+
+				footer.style.left = (ui.diagramContainer.offsetLeft +
+					ui.diagramContainer.offsetWidth -
+					footer.offsetWidth) + 'px';
+				footer.style.top = toolbar.style.top;
+				footer.style.right = '';
+
+				ui.bottomResizer.style.left = (ui.diagramContainer.offsetLeft +
+					(ui.diagramContainer.offsetWidth -
+					ui.bottomResizer.offsetWidth) / 2) + 'px';
+				ui.bottomResizer.style.top = (ui.diagramContainer.offsetTop +
+					ui.diagramContainer.offsetHeight -
+					ui.bottomResizer.offsetHeight / 2 - 1) + 'px';
+
+				ui.rightResizer.style.left = (ui.diagramContainer.offsetLeft +
+					ui.diagramContainer.offsetWidth -
+					ui.rightResizer.offsetWidth / 2 - 1) + 'px';
+				ui.rightResizer.style.top = (ui.diagramContainer.offsetTop +
+					(ui.diagramContainer.offsetHeight -
+					ui.bottomResizer.offsetHeight) / 2) + 'px';
+			}
+
+			ui.bottomResizer.style.visibility = (Editor.inlineFullscreen) ? 'hidden' : '';
+			ui.rightResizer.style.visibility = ui.bottomResizer.style.visibility;
+			menubar.style.display = 'none';
+			toolbar.style.visibility = '';
+			footer.style.visibility = '';
+		});
+
+		var editInlineStart = mxUtils.bind(this, function()
+		{
+			this.diagramContainer.style.background = (Editor.inlineFullscreen) ?
+				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff') : 'transparent';
+			inlineSizeChanged();
+		});
+
+		ui.addListener('inlineFullscreenChanged', editInlineStart);
+		ui.addListener('editInlineStart', editInlineStart);
+
+		if (urlParams['embedInline'] == '1')
+		{
+			ui.addListener('darkModeChanged', editInlineStart);
+		}
+
+		ui.addListener('editInlineStop', mxUtils.bind(this, function(evt)
+		{
+			ui.diagramContainer.style.width = '10px';
+			ui.diagramContainer.style.height = '10px';
+			ui.diagramContainer.style.border = '';
+			ui.bottomResizer.style.visibility = 'hidden';
+			ui.rightResizer.style.visibility = 'hidden';
+			toolbar.style.visibility = 'hidden';
+			footer.style.visibility = 'hidden';
+			picker.style.display = 'none';
+		}));
 
 		// Stops panning while freehand is active
 		if (Graph.touchStyle)
@@ -1858,6 +2006,13 @@ EditorUi.initMinimalTheme = function()
 					}
 
 					menubar.style.visibility = (menubar.clientWidth > 12) ? '' : 'hidden';
+				}));
+			}
+			else
+			{
+				ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
+				{
+					menubar.style.visibility = (menubar.clientWidth > 16) ? '' : 'hidden';
 				}));
 			}
 			
@@ -1994,7 +2149,10 @@ EditorUi.initMinimalTheme = function()
 					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.templateImage);
 				}
 
-				picker.appendChild(foldImg);
+				if (urlParams['embedInline'] != '1')
+				{
+					picker.appendChild(foldImg);
+				}
 			});
 			
 			mxEvent.addListener(foldImg, 'click', mxUtils.bind(this, function()
@@ -2069,9 +2227,11 @@ EditorUi.initMinimalTheme = function()
         	var redoAction = ui.actions.get('redo');        	
 	        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction, Editor.undoImage);
 	        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction, Editor.redoImage);
+			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, Editor.fullscreenImage);
 
 			if (footer != null)
 			{
+				fullscreenElt.parentNode.removeChild(fullscreenElt);
 				var deleteAction = ui.actions.get('delete');
 				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, Editor.trashImage);
 				deleteElt.style.opacity = '0.1';
@@ -2145,6 +2305,11 @@ EditorUi.initMinimalTheme = function()
 					' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, Editor.zoomInImage);
 				footer.appendChild(zoomInElt);
 
+				if (urlParams['embedInline'] == '1')
+				{
+					footer.appendChild(fullscreenElt);
+				}
+
 				var pageMenu = this.createPageMenuTab(false);
 				pageMenu.style.display = 'none';
 				pageMenu.style.position = '';
@@ -2206,7 +2371,6 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, Editor.fullscreenImage);
 				var fitElt = addMenuItem('', fitFunction, true, mxResources.get('fit') + ' (' + Editor.ctrlKey + '+H)', resetViewAction, Editor.zoomFitImage);
 				
 				menubar.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;height:30px;padding:8px;' +
@@ -2279,37 +2443,40 @@ EditorUi.initMinimalTheme = function()
         
         function refreshMenu()
         {
-        	// Removes all existing menu items
-        	var node = menubar.firstChild;
-        	
-        	while (node != null)
-        	{
-        		var temp = node.nextSibling;
-        		
-        		if (node.className == 'geMenuItem' || node.className == 'geItem')
-        		{
-        			node.parentNode.removeChild(node);
-        		}
-        		
-        		node = temp;
-        	}
-        	
-        	before = menubar.firstChild;
-	        iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	        var small = iw < 1000 || urlParams['sketch'] == '1';
-			var appElt = null;
-	 
-	        if (!small)
-	        {
-	        	appElt = addMenu('diagram');
-	        }
-
 			if (urlParams['sketch'] == '1')
 			{
-				toolbar.style.left = (picker.offsetTop - picker.offsetHeight / 2 < 58) ? '70px' : '10px';
+				if (urlParams['embedInline'] != '1')
+				{
+					toolbar.style.left = (picker.offsetTop - picker.offsetHeight / 2 < 58) ? '70px' : '10px';
+				}
 			}
 			else
 			{
+				// Removes all existing menu items
+				var node = menubar.firstChild;
+				
+				while (node != null)
+				{
+					var temp = node.nextSibling;
+					
+					if (node.className == 'geMenuItem' || node.className == 'geItem')
+					{
+						node.parentNode.removeChild(node);
+					}
+					
+					node = temp;
+				}
+				
+				before = menubar.firstChild;
+				iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+				var small = iw < 1000 || urlParams['sketch'] == '1';
+				var appElt = null;
+		
+				if (!small)
+				{
+					appElt = addMenu('diagram');
+				}
+
 				var temp = (small) ? addMenu('diagram', null, Editor.drawLogoImage) : null;
 
 				if (temp != null)
@@ -2440,6 +2607,112 @@ EditorUi.initMinimalTheme = function()
             	ui.menus.findReplaceWindow.window.fit();
             }
 		});
+
+		if (urlParams['embedInline'] == '1')
+		{
+			document.body.style.cursor = 'text';
+			picker.style.transform = '';
+
+			mxEvent.addGestureListeners(ui.diagramContainer.parentNode, function(evt)
+			{
+				if (mxEvent.getSource(evt) ==
+					ui.diagramContainer.parentNode)
+				{
+					ui.sendEmbeddedSvgExport();
+				}
+			});
+
+			var div = document.createElement('div');
+			div.style.position = 'absolute';
+			div.style.width = '10px';
+			div.style.height = '10px';
+			div.style.borderRadius = '5px';
+			div.style.border = '1px solid gray';
+			div.style.background = '#ffffff';
+			div.style.cursor = 'row-resize';
+			ui.diagramContainer.parentNode.appendChild(div);
+			ui.bottomResizer = div;
+
+			var x0 = null;
+			var y0 = null;
+			var w0 = null;
+			var h0 = null;
+
+			mxEvent.addGestureListeners(div, function(evt)
+			{
+				h0 = parseInt(ui.diagramContainer.style.height);
+				y0 = mxEvent.getClientY(evt);
+				graph.popupMenuHandler.hideMenu();
+				mxEvent.consume(evt);
+			});
+
+			div = div.cloneNode(false);
+			div.style.cursor = 'col-resize';
+			ui.diagramContainer.parentNode.appendChild(div);
+			ui.rightResizer = div;
+
+			mxEvent.addGestureListeners(div, function(evt)
+			{
+				w0 = parseInt(ui.diagramContainer.style.width);
+				x0 = mxEvent.getClientX(evt);
+				graph.popupMenuHandler.hideMenu();
+				mxEvent.consume(evt);
+			});
+
+			mxEvent.addGestureListeners(document.body, null, function(evt)
+			{
+				var changed = false;
+
+				if (x0 != null)
+				{
+					ui.diagramContainer.style.width = Math.max(20,
+						w0 + mxEvent.getClientX(evt) - x0) + 'px';
+					changed = true;
+				}
+
+				if (y0 != null)
+				{
+					ui.diagramContainer.style.height = Math.max(20,
+						h0 + mxEvent.getClientY(evt) - y0) + 'px';
+					changed = true;
+				}
+
+				if (changed)
+				{
+					var parent = window.opener || window.parent;
+					parent.postMessage(JSON.stringify({
+						event: 'resize',
+						fullscreen: Editor.inlineFullscreen,
+						rect: ui.diagramContainer.getBoundingClientRect()
+					}), '*');
+					ui.fireEvent(new mxEventObject('editInlineStart'));
+					ui.refresh();
+				}
+			}, function(evt)
+			{
+				if (x0 != null || y0 != null)
+				{
+					mxEvent.consume(evt);
+				}
+
+				x0 = null;
+				y0 = null;
+			});
+
+			graph.defaultPageBackgroundColor = 'transparent';
+			this.diagramContainer.style.borderRadius = '4px';
+			document.body.style.backgroundColor = 'transparent';
+			ui.bottomResizer.style.visibility = 'hidden';
+			ui.rightResizer.style.visibility = 'hidden';
+			toolbar.style.visibility = 'hidden';
+			footer.style.visibility = 'hidden';
+			picker.style.display = 'none';
+		}
+		
+		if (urlParams['prefetchFonts'] == '1')
+		{
+			ui.editor.loadFonts();
+		}
 	};	
 };
 

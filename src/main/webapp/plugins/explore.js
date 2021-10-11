@@ -32,8 +32,8 @@ Draw.loadPlugin(function(ui)
 		var container = document.createElement('div');
 		container.style.position = 'absolute';
 		container.style.display = 'block';
-		container.style.background = (uiTheme == 'dark') ?
-			'#2a2a2a' : '#ffffff';
+		container.style.background = (Editor.isDarkMode()) ?
+			Editor.darkColor : '#ffffff';
 		container.style.width = '100%';
 		container.style.height = '100%';
 		container.style.left = '0px';

@@ -35,8 +35,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
     	guideClr: '#0000BB'
     } : {
     	bkgClr: '#202020',
-    	outBkgClr: '#2a2a2a',
-    	cornerClr: '#2a2a2a',
+    	outBkgClr: Editor.darkColor,
+    	cornerClr: Editor.darkColor,
     	strokeClr: '#505759',
     	fontClr: '#BBBBBB',
     	guideClr: '#0088cf'
@@ -68,8 +68,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	    	guideClr: '#0000BB'
 	    } : {
 	    	bkgClr: '#202020',
-	    	outBkgClr: '#2a2a2a',
-	    	cornerClr: '#2a2a2a',
+	    	outBkgClr: Editor.darkColor,
+	    	cornerClr: Editor.darkColor,
 	    	strokeClr: '#505759',
 	    	fontClr: '#BBBBBB',
 	    	guideClr: '#0088cf'

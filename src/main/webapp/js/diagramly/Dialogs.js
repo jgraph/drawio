@@ -9076,7 +9076,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					label.style.bottom = '-18px';
 					label.style.left = '10px';
 					label.style.right = '10px';
-					label.style.backgroundColor = Editor.isDarkMode() ? '#2a2a2a' : '#ffffff';
+					label.style.backgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
 					label.style.overflow = 'hidden';
 					label.style.textAlign = 'center';
 					

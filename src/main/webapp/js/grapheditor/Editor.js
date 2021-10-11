@@ -217,7 +217,17 @@ Editor.enableNativeCipboard = window == window.top && !mxClient.IS_FF && navigat
 /**
  * Dynamic change of dark mode for minimal and sketch theme.
  */
+Editor.sketchMode = false;
+
+/**
+ * Dynamic change of dark mode for minimal and sketch theme.
+ */
 Editor.darkMode = false;
+
+/**
+ * Dynamic change of dark mode for minimal and sketch theme.
+ */
+Editor.darkColor = '#2a2a2a';
 
 /**
  * Dynamic change of dark mode.

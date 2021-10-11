@@ -1281,7 +1281,7 @@ EditorUi.prototype.updateTabContainer = function()
 				if (this.pages[index] == this.currentPage)
 				{
 					tab.className = 'geActivePage';
-					tab.style.backgroundColor = Editor.isDarkMode() ? '#2a2a2a' : '#fff';
+					tab.style.backgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#fff';
 				}
 				else
 				{

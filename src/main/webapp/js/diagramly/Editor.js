@@ -922,7 +922,8 @@
 			
 			if (fillStyle == 'auto')
 			{
-				var bg = (this.shape.state != null) ? this.shape.state.view.graph.defaultPageBackgroundColor : '#ffffff';
+				var bg = (this.shape.state != null && this.shape.state.view.graph.defaultPageBackgroundColor != 'transparent') ?
+					this.shape.state.view.graph.defaultPageBackgroundColor : (Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
 				
 				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
 					style.fill.toLowerCase() == bg.toLowerCase()))) ? 'solid' : defs['fillStyle']
@@ -1224,7 +1225,8 @@
 		mxShape.prototype.createHandJiggle = function(c)
 		{
 			if (!this.outline && this.style != null && mxUtils.getValue(this.style,
-				'sketch', (urlParams['rough'] == '1') ?'1' : '0') != '0')
+					'sketch', /*(urlParams['sketch'] != '1' && urlParams['rough'] == '1') ?
+						'1' : */'0') != '0')
 			{
 				if (mxUtils.getValue(this.style, 'sketchStyle', 'rough') == 'comic')
 				{
@@ -3118,10 +3120,14 @@
         	this.embedCssFonts(this.fontCss, mxUtils.bind(this, function(resolvedFontCss)
 			{
         		this.resolvedFontCss = resolvedFontCss;
-        		then();
+
+				if (then != null)
+				{
+        			then();
+				}
 			}));
         }
-        else
+        else if (then != null)
         {
             then();
         }
@@ -5294,12 +5300,12 @@
 						else if (colorset['fill'] == '')
 						{
 							btn.style.backgroundColor = mxUtils.getValue(ui.initialDefaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						else
 						{
 							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						
 						if (colorset['stroke'] == mxConstants.NONE)
@@ -5309,12 +5315,12 @@
 						else if (colorset['stroke'] == '')
 						{
 							btn.style.border = b + ' ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
-								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff');
+								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						else
 						{
 							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
-									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ?'#2a2a2a' : '#ffffff'));
+									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff'));
 						}
 
 						if (colorset['title'] != null)
@@ -6418,7 +6424,7 @@
 			temp = this.stylesheet;
 			tempBg = this.defaultPageBackgroundColor;
 			this.defaultPageBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
-				'#ffffff' : '#2a2a2a';
+				'#ffffff' : Editor.darkColor;
 			this.stylesheet = this.getDefaultStylesheet();
 			// LATER: Fix math export in dark mode by fetching text nodes before
 			// calling refresh and changing the font color in-place

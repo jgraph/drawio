@@ -3707,12 +3707,12 @@
     	{
     		mxClient.link('stylesheet', STYLE_PATH + '/dark.css');
 
-			Dialog.backdropColor = '#2a2a2a';
+			Dialog.backdropColor = Editor.darkColor;
 			Format.inactiveTabBackgroundColor = 'black';
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
-			Graph.prototype.defaultPageBackgroundColor = '#2a2a2a';
+			Graph.prototype.defaultPageBackgroundColor = Editor.darkColor;
 			Graph.prototype.defaultPageBorderColor = '#505759';
-			BaseFormatPanel.prototype.buttonBackgroundColor = '#2a2a2a';
+			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.darkColor;
 			mxGraphHandler.prototype.previewColor = '#cccccc';
 			StyleFormatPanel.prototype.defaultStrokeColor = '#cccccc';
 			mxConstants.DROP_TARGET_COLOR = '#00ff00';
@@ -9001,7 +9001,7 @@
 		// Must be set before UI is created in superclass
 		if (this.isSettingsEnabled())
 		{
-			if (urlParams['sketch'] == '1')
+			if (urlParams['sketch'] == '1' && urlParams['embedInline'] != '1')
 			{
 				this.doSetSketchMode((mxSettings.settings.sketchMode != null &&
 					urlParams['rough'] == null) ? mxSettings.settings.sketchMode :
@@ -10177,14 +10177,17 @@
 		{
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				 this.spinner.stop();
-				 this.doSetSketchMode(value);
+				this.spinner.stop();
+				this.doSetSketchMode(value);
 				 
-				 // Persist setting
-				 mxSettings.settings.sketchMode = value;
-				 mxSettings.save();
+				// Persist setting
+				if (urlParams['rough'] == null)
+				{
+					mxSettings.settings.sketchMode = value;
+					mxSettings.save();
+				}
 					 
-				 this.fireEvent(new mxEventObject('sketchModeChanged'));
+				this.fireEvent(new mxEventObject('sketchModeChanged'));
 			}), 0);
 		}
 	};
@@ -10205,7 +10208,32 @@
 			this.fireEvent(new mxEventObject('pagesVisibleChanged'));
 		}
 	};
-   
+     
+	/**
+	 * Dynamic change of dark mode.
+	 */
+	EditorUi.prototype.setInlineFullscreen = function(value)
+	{
+		if (Editor.inlineFullscreen != value)
+		{
+			Editor.inlineFullscreen = value;
+			this.fireEvent(new mxEventObject('inlineFullscreenChanged'));
+
+			var parent = window.opener || window.parent;
+			parent.postMessage(JSON.stringify({
+				event: 'resize',
+				fullscreen: Editor.inlineFullscreen,
+				rect: this.diagramContainer.getBoundingClientRect()
+			}), '*');
+
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.refresh();
+				this.actions.get('resetView').funct();
+			}), 10);
+		}
+	};
+
 	/**
 	 * Dynamic change of dark mode.
 	 */
@@ -10217,11 +10245,11 @@
 			Editor.sketchMode = value;
 
 			this.menus.defaultFonts = Menus.prototype.defaultFonts;
-			this.menus.defaultFontSize = 20;
-			graph.defaultVertexStyle = {'pointerEvents': '0', 'fontSize': '20'};
-			graph.defaultEdgeStyle = {'fontSize': '16', 'edgeStyle': 'none', 'rounded': '0',
-				'curved': '1', 'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open',
-				'endSize': '14', 'startSize': '14'};
+			this.menus.defaultFontSize = (value) ? 20 : 16;
+			graph.defaultVertexStyle = {'pointerEvents': '0', 'fontSize': this.menus.defaultFontSize};
+			graph.defaultEdgeStyle = {'fontSize': this.menus.defaultFontSize - 4, 'edgeStyle': 'none',
+				'rounded': '0', 'curved': '1', 'jettySize': 'auto', 'orthogonalLoop': '1',
+				'endArrow': 'open',	'endSize': '14', 'startSize': '14'};
 
 			if (value)
 			{
@@ -10249,7 +10277,6 @@
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			Graph.prototype.defaultVertexStyle = graph.defaultVertexStyle;
 			Graph.prototype.defaultEdgeStyle = graph.defaultEdgeStyle;
-
 			this.clearDefaultStyle();
 		}
 	};
@@ -11472,11 +11499,18 @@
 		{
 			if (urlParams['spin'] != '1' || this.spinner.spin(document.body, mxResources.get('loading')))
 			{
+				var initialized = false;
+
 				this.installMessageHandler(mxUtils.bind(this, function(xml, evt, modified, convertToSketch)
 				{
-					this.spinner.stop();
-					this.addEmbedButtons();
-					this.setGraphEnabled(true);
+					if (!initialized)
+					{
+						initialized = true;
+						
+						this.spinner.stop();
+						this.addEmbedButtons();
+						this.setGraphEnabled(true);
+					}
 					
 					if (xml == null || xml.length == 0)
 					{
@@ -11488,6 +11522,7 @@
 					this.mode = App.MODE_EMBED;
 					this.setFileData(xml);
 					
+					// TODO: Check if cellsInserted should be fired instead here
 					if (convertToSketch)
 					{
 						try
@@ -11598,6 +11633,33 @@
 	/**
 	 * Adds the buttons for embedded mode.
 	 */
+	EditorUi.prototype.sendEmbeddedSvgExport = function()
+	{
+		this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
+			null, null, null, null, false),
+			this.editor.graph, null, true, mxUtils.bind(this, function(svg)
+		{
+			this.editor.modified = false;
+			var parent = window.opener || window.parent;
+			parent.postMessage(JSON.stringify({
+				event: 'export',
+				data: Editor.createSvgDataUri(svg)
+			}), '*');
+		}), null, null, true, null, 1, 8);
+
+		this.diagramContainer.removeAttribute('data-bounds');
+		Editor.inlineFullscreen = false;
+		this.editor.graph.model.clear();
+		this.editor.undoManager.clear();
+		this.setBackgroundImage(null);
+		this.editor.modified = false;
+
+		this.fireEvent(new mxEventObject('editInlineStop'));
+	};
+	
+	/**
+	 * Adds the buttons for embedded mode.
+	 */
 	EditorUi.prototype.installMessageHandler = function(fn)
 	{
 		var changeListener = null;
@@ -11630,6 +11692,7 @@
 			}
 			
 			var data = evt.data;
+			var afterLoad = null;
 			
 			var extractDiagramXml = mxUtils.bind(this, function(data)
 			{
@@ -12250,6 +12313,51 @@
 						{
 							urlParams['noSaveBtn'] = data.noSaveBtn;
 						}
+
+						if (data.rough != null)
+						{
+							var initial = Editor.sketchMode; 
+							this.doSetSketchMode(data.rough);
+
+							if (initial != Editor.sketchMode)
+							{
+								this.fireEvent(new mxEventObject('sketchModeChanged'));
+							}
+						}
+
+						if (data.dark != null)
+						{
+							var initial = Editor.darkMode; 
+							this.doSetDarkMode(data.dark);
+
+							if (initial != Editor.darkMode)
+							{
+								this.fireEvent(new mxEventObject('darkModeChanged'));
+							}
+						}
+
+						if (data.rect != null)
+						{
+							this.diagramContainer.style.border = '2px solid #295fcc';
+							this.diagramContainer.style.top = data.rect.top + 'px';
+							this.diagramContainer.style.left = data.rect.left + 'px';
+							this.diagramContainer.style.height = data.rect.height + 'px';
+							this.diagramContainer.style.width = data.rect.width + 'px';
+							this.diagramContainer.style.bottom = '';
+							this.diagramContainer.style.right = '';
+
+							afterLoad = mxUtils.bind(this, function()
+							{
+								var graph = this.editor.graph;
+								var prev = graph.maxFitScale;
+								graph.maxFitScale = 1;
+								graph.fit(20);
+								graph.maxFitScale = prev;
+								graph.container.scrollTop -= 20;
+								graph.container.scrollLeft -= 20;
+								this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
+							});
+						}
 						
 						if (data.noExitBtn != null && urlParams['noExitBtn'] == null)
 						{
@@ -12413,6 +12521,11 @@
 					
 					parent.postMessage(JSON.stringify(resp), '*');
 				}
+
+				if (afterLoad != null)
+				{
+					afterLoad();
+				}
 			});
 			
 			if (data != null && typeof data.substring === 'function' && data.substring(0, 34) == 'data:application/vnd.visio;base64,')
@@ -12492,7 +12605,7 @@
 	 */
 	EditorUi.prototype.addEmbedButtons = function()
 	{
-		if (this.menubar != null)
+		if (this.menubar != null && urlParams['embedInline'] != '1')
 		{
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
@@ -12504,7 +12617,7 @@
 			var button = document.createElement('button');
 			button.className = 'geBigButton';
 			var lastBtn = button;
-			
+
 			if (urlParams['noSaveBtn'] == '1')
 			{
 				if (urlParams['saveAndExit'] != '0')

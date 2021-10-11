@@ -297,7 +297,7 @@ EditorUi = function(editor, container, lightbox)
 						var key = appliedStyles[j];
 						var styleValue = current[key];
 	
-						if (styleValue != null && (key != 'shape' || edge))
+						if (styleValue != null && key != 'edgeStyle' && (key != 'shape' || edge))
 						{
 							// Special case: Connect styles are not applied here but in the connection handler
 							if (!edge || applyAll || mxUtils.indexOf(connectStyles, key) < 0)
@@ -3939,8 +3939,6 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	
 	var diagContOffset = this.getDiagramContainerOffset();
 	var contLeft = (this.hsplit.parentNode != null) ? (effHsplitPosition + this.splitSize) : 0;
-	this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
-	this.diagramContainer.style.top = (tmp + diagContOffset.y) + 'px';
 	this.footerContainer.style.height = this.footerHeight + 'px';
 	this.hsplit.style.top = this.sidebarContainer.style.top;
 	this.hsplit.style.bottom = (this.footerHeight + off) + 'px';
@@ -3957,7 +3955,6 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		this.footerContainer.style.bottom = off + 'px';
 	}
 	
-	this.diagramContainer.style.right = fw + 'px';
 	var th = 0;
 	
 	if (this.tabContainer != null)
@@ -3969,8 +3966,15 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	
 	this.sidebarContainer.style.bottom = (this.footerHeight + sidebarFooterHeight + off) + 'px';
 	this.formatContainer.style.bottom = (this.footerHeight + off) + 'px';
-	this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
-	
+
+	if (urlParams['embedInline'] != '1')
+	{
+		this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
+		this.diagramContainer.style.top = (tmp + diagContOffset.y) + 'px';
+		this.diagramContainer.style.right = fw + 'px';
+		this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
+	}
+
 	if (sizeDidChange)
 	{
 		this.editor.graph.sizeDidChange();

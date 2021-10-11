@@ -1049,7 +1049,7 @@ App.main = function(callback, createUi)
 			if (mxSettings.settings != null)
 			{
 				document.body.style.backgroundColor = (uiTheme == 'dark' ||
-					mxSettings.settings.darkMode) ? '#2a2a2a' : '#ffffff';
+					mxSettings.settings.darkMode) ? Editor.darkColor : '#ffffff';
 				
 				if (mxSettings.settings.autosaveDelay != null)
 				{

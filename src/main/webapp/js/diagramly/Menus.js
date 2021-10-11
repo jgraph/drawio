@@ -255,18 +255,31 @@
 		
         var fullscreenAction = editorUi.actions.addAction('fullscreen', function()
 		{
-			if (document.fullscreenElement == null)
+			if (urlParams['embedInline'] == '1')
 			{
-				document.body.requestFullscreen();
+				editorUi.setInlineFullscreen(!Editor.inlineFullscreen);
 			}
 			else
 			{
-				document.exitFullscreen();
+				if (document.fullscreenElement == null)
+				{
+					document.body.requestFullscreen();
+				}
+				else
+				{
+					document.exitFullscreen();
+				}
 			}
 		});
-		fullscreenAction.visible = document.fullscreenEnabled && document.body.requestFullscreen != null;
+		fullscreenAction.visible = urlParams['embedInline'] == '1' ||
+			(document.fullscreenEnabled && document.body.requestFullscreen != null);
 		fullscreenAction.setToggleAction(true);
-		fullscreenAction.setSelectedCallback(function() { return document.fullscreenElement != null; });
+		fullscreenAction.setSelectedCallback(function()
+		{
+			return urlParams['embedInline'] == '1' ? 
+				Editor.inlineFullscreen :
+				document.fullscreenElement != null;
+		});
 		
 		editorUi.actions.addAction('properties...', function()
 		{
@@ -2278,23 +2291,30 @@
 			
 			editorUi.actions.addAction('exit', function()
 			{
-				var fn = function()
+				if (urlParams['embedInline'] == '1')
 				{
-					editorUi.editor.modified = false;
-					var msg = (urlParams['proto'] == 'json') ? JSON.stringify({event: 'exit',
-						modified: editorUi.editor.modified}) : '';
-					var parent = window.opener || window.parent;
-					parent.postMessage(msg, '*');
-				}
-				
-				if (!editorUi.editor.modified)
-				{
-					fn();
+					editorUi.sendEmbeddedSvgExport();
 				}
 				else
 				{
-					editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
-						mxResources.get('cancel'), mxResources.get('discardChanges'));
+					var fn = function()
+					{
+						editorUi.editor.modified = false;
+						var msg = (urlParams['proto'] == 'json') ? JSON.stringify({event: 'exit',
+							modified: editorUi.editor.modified}) : '';
+						var parent = window.opener || window.parent;
+						parent.postMessage(msg, '*');
+					}
+					
+					if (!editorUi.editor.modified)
+					{
+						fn();
+					}
+					else
+					{
+						editorUi.confirm(mxResources.get('allChangesLost'), null, fn,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
 				}
 			});
 		}
@@ -3752,20 +3772,23 @@
 				
 				this.addMenuItems(menu, ['-', 'pageSetup', 'print', '-', 'rename'], parent);
 				
-				if (urlParams['noSaveBtn'] == '1')
+				if (urlParams['embedInline'] != '1')
 				{
-					if (urlParams['saveAndExit'] != '0')
+					if (urlParams['noSaveBtn'] == '1')
 					{
-						this.addMenuItems(menu, ['saveAndExit'], parent);
+						if (urlParams['saveAndExit'] != '0')
+						{
+							this.addMenuItems(menu, ['saveAndExit'], parent);
+						}
 					}
-				}
-				else
-				{
-					this.addMenuItems(menu, ['save'], parent);
-					
-					if (urlParams['saveAndExit'] == '1')
+					else
 					{
-						this.addMenuItems(menu, ['saveAndExit'], parent);
+						this.addMenuItems(menu, ['save'], parent);
+						
+						if (urlParams['saveAndExit'] == '1')
+						{
+							this.addMenuItems(menu, ['saveAndExit'], parent);
+						}
 					}
 				}
 				
@@ -3871,7 +3894,7 @@
 					this.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 				}
 				
-				if (file != null && editorUi.fileNode != null)
+				if (file != null && editorUi.fileNode != null && urlParams['embedInline'] != '1')
 				{
 					var filename = (file.getTitle() != null) ?
 						file.getTitle() : editorUi.defaultFilename;

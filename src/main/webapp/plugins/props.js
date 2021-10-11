@@ -4,7 +4,7 @@
 Draw.loadPlugin(function(ui) {
 	
 	var div = document.createElement('div');
-	div.style.background = Editor.isDarkMode() ? '#2a2a2a' : '#ffffff';
+	div.style.background = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
 	div.style.border = '1px solid gray';
 	div.style.opacity = '0.8';
 	div.style.padding = '10px';
