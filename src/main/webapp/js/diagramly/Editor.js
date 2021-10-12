@@ -253,6 +253,11 @@
 	Editor.enableShadowOption = !mxClient.IS_SF;
 
 	/**
+	 * Disables the export URL function.
+	 */
+	Editor.enableExportUrl = true;
+
+	/**
 	 * Specifies if XML files should be compressed. Default is true.
 	 */
 	Editor.compressXml = true;
@@ -1912,6 +1917,18 @@
 			if (config.defaultEdgeStyle != null)
 			{
 				Graph.prototype.defaultEdgeStyle = config.defaultEdgeStyle;
+			}
+
+			// Overrides default page visible
+			if (config.defaultPageVisible != null)
+			{
+				Graph.prototype.defaultPageVisible = config.defaultPageVisible;
+			}
+
+			// Overrides default grid enabled
+			if (config.defaultGridEnabled != null)
+			{
+				Graph.prototype.defaultGridEnabled = config.defaultGridEnabled;
 			}
 
 			// Overrides mouse wheel function
@@ -5209,23 +5226,30 @@
 								
 								if (colorset != null)
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
-										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
-								
-									if (!mxEvent.isAltDown(evt))
+									if (!mxEvent.isShiftDown(evt))
 									{
 										if (colorset['fill'] == '')
 										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,null);
+											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, null);
 										}
 										else
 										{
 											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
 												mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
 										}
+
+										style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
+											mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+									
+										if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
+											graph.getModel().isVertex(cells[i]))
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
+												mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
+										}
 									}
 									
-									if (!mxEvent.isShiftDown(evt))
+									if (!mxEvent.isAltDown(evt))
 									{
 										if (colorset['stroke'] == '')
 										{
@@ -5236,13 +5260,6 @@
 											style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
 												mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
 										}
-									}
-									
-									if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
-										graph.getModel().isVertex(cells[i]))
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
-											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
 									}
 								}
 								else

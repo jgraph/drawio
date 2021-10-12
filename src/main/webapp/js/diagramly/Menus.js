@@ -354,24 +354,27 @@
 			editorUi.showDialog(dlg.container, 300, 200, true, true);
 		}));
 		
-		editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
+		if (Editor.enableExportUrl)
 		{
-			editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
+			editorUi.actions.put('exportUrl', new Action(mxResources.get('url') + '...', function()
 			{
-				var params = [];
-
-				if (tags)
+				editorUi.showPublishLinkDialog(mxResources.get('url'), true, null, null,
+					function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 				{
-					params.push('tags=%7B%7D');
-				}
+					var params = [];
 
-				var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
-					allPages, lightbox, editLink, layers, null, true, params));
-				editorUi.showDialog(dlg.container, 440, 240, true, true);
-				dlg.init();
-			});
-		}));
+					if (tags)
+					{
+						params.push('tags=%7B%7D');
+					}
+
+					var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
+						allPages, lightbox, editLink, layers, null, true, params));
+					editorUi.showDialog(dlg.container, 440, 240, true, true);
+					dlg.init();
+				});
+			}));
+		}
 		
 		editorUi.actions.put('exportHtml', new Action(mxResources.get('formatHtmlEmbedded') + '...', function()
 		{

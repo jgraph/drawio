@@ -4896,8 +4896,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 	mxEvent.addListener(fillStyleSelect, 'change', function(evt)
 	{
 		graph.setCellStyles('fillStyle', fillStyleSelect.value, ss.cells);
-		ui.fireEvent(new mxEventObject('styleChanged', 'keys', [mxConstants.STYLE_GRADIENT_DIRECTION],
-			'values', [gradientSelect.value], 'cells', ss.cells));
+		ui.fireEvent(new mxEventObject('styleChanged', 'keys', ['fillStyle'],
+			'values', [fillStyleSelect.value], 'cells', ss.cells));
 		mxEvent.consume(evt);
 	});
 	

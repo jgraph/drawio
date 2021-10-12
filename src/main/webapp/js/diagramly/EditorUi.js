@@ -11635,9 +11635,16 @@
 	 */
 	EditorUi.prototype.sendEmbeddedSvgExport = function()
 	{
+		var graph = this.editor.graph;
+
+		if (graph.isEditing())
+		{
+			graph.stopEditing(!graph.isInvokesStopCellEditing());
+		}
+
 		this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
-			null, null, null, null, false),
-			this.editor.graph, null, true, mxUtils.bind(this, function(svg)
+			null, null, null, null, false), graph, null, true,
+			mxUtils.bind(this, function(svg)
 		{
 			this.editor.modified = false;
 			var parent = window.opener || window.parent;
@@ -11649,7 +11656,7 @@
 
 		this.diagramContainer.removeAttribute('data-bounds');
 		Editor.inlineFullscreen = false;
-		this.editor.graph.model.clear();
+		graph.model.clear();
 		this.editor.undoManager.clear();
 		this.setBackgroundImage(null);
 		this.editor.modified = false;

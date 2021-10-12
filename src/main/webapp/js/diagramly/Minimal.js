@@ -1258,13 +1258,13 @@ EditorUi.initMinimalTheme = function()
 			menu.addSeparator(parent);
 			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand', '-'], parent);
 
+			if (urlParams['sketch'] == '1')
+			{
+				this.addMenuItems(menu, ['toggleSketchMode'], parent);
+			}
+
 			if (urlParams['embedInline'] != '1')
 			{
-				if (urlParams['sketch'] == '1')
-				{
-					this.addMenuItems(menu, ['toggleSketchMode'], parent);
-				}
-
 				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 
 				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
@@ -1860,6 +1860,8 @@ EditorUi.initMinimalTheme = function()
 
 		var editInlineStart = mxUtils.bind(this, function()
 		{
+			fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
+				Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
 			this.diagramContainer.style.background = (Editor.inlineFullscreen) ?
 				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff') : 'transparent';
 			inlineSizeChanged();

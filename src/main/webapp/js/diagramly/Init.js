@@ -195,6 +195,7 @@ if (urlParams['embedInline'] == '1')
 {
 	urlParams['embed'] = '1';
 	urlParams['ui'] = 'sketch';
+	urlParams['plugins'] = '0';
 	urlParams['proto'] = 'json';
 	urlParams['prefetchFonts'] = '1';
 }

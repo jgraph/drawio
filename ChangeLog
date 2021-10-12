@@ -1,4 +1,15 @@
-11-OCT_2021: 15.5.1
+12-OCT-2021: 15.5.2
+
+- Disables plugins, shows sketch for inline embed
+- Adds fullscreenExitImage
+- Adds Editor.enableExportUrl
+- Updates current style for fillStyle change
+- Uses shift+click for stroke, alt+click for fill
+- Fixes logic for alt and shift click
+- Adds defaultGridEnabled/-PageVisible config [2306]
+- Stops editing on exit inline embed mode
+
+11-OCT-2021: 15.5.1
 
 - Adds embedInline URL parameter
 - Uses system dark mode for default
