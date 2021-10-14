@@ -2,12 +2,11 @@ cff-version: 1.2.0
 message: "To cite drawio or www.diagrams.net in publications please use:"
 type: software
 license: Apache-2.0
-abstract: "ABSTRACT_HERE"
+abstract: "diagrams.net, previously draw.io, is an online diagramming web site that delivers the source in this project."
 authors:
-- family-names: "YOUR_NAME_HERE"
-  given-names: "YOUR_NAME_HERE"
-  orcid: "https://orcid.org/0000-0000-0000-0000"
-title: "drawio"
+- name: "JGraph"
+  website: "http://www.diagrams.net"
+title: "diagrams.net, draw.io"
 version: 15.5.2
 date-released: 2021-10-14
 repository-code: "https://github.com/jgraph/drawio"
