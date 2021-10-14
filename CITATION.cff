@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "To cite drawio or www.diagrams.net in publications please use:"
+type: software
+license: Apache-2.0
+abstract: "ABSTRACT_HERE"
+authors:
+- family-names: "YOUR_NAME_HERE"
+  given-names: "YOUR_NAME_HERE"
+  orcid: "https://orcid.org/0000-0000-0000-0000"
+title: "drawio"
+version: 15.5.2
+date-released: 2021-10-14
+repository-code: "https://github.com/jgraph/drawio"
+url: "https://www.diagrams.net/"
