@@ -1,3 +1,18 @@
+15-OCT-2021: 15.5.4
+
+- Fixes NPE in TableShape.paintForeground
+
+15-OCT-2021: 15.5.3
+
+- Fixes background clipping, in-place bounds changes
+- Fixes clipping in EmbedDialog
+- Updates C4 shapes
+- Fixes new page defaults, adds stepper shift+click
+- Fixes possible getAttribute is not a function
+- Fixes export to GitLab https://github.com/jgraph/drawio/issues/1784
+- Removes save and import servlet
+- Fixes ignored edge source for metadata [DID-3512]
+
 12-OCT-2021: 15.5.2
 
 - Disables plugins, shows sketch for inline embed
@@ -6,7 +21,7 @@
 - Updates current style for fillStyle change
 - Uses shift+click for stroke, alt+click for fill
 - Fixes logic for alt and shift click
-- Adds defaultGridEnabled/-PageVisible config [2306]
+- Adds defaultGridEnabled/-PageVisible config https://github.com/jgraph/drawio/issues/2306
 - Stops editing on exit inline embed mode
 
 11-OCT-2021: 15.5.1
@@ -27,7 +42,7 @@
 - Ports resource generation to JS (Node)
 - Fixes clipping for longer button labels
 - Fixes possible clipping in download PDF dialog
-- FIxes pointer events with no fill color in sketch
+- Fixes pointer events with no fill color in sketch
 - Adds numbered property, fixed for sketch theme
 - Fixes math output in JSON protocol export
 - i18n update Lambda function

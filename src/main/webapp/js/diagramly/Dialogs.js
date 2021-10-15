@@ -9479,7 +9479,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						var dlg = new EmbedDialog(editorUi, window.location.protocol + '//' +
 							window.location.host + '/' + search, null, null, null, null,
 							'Check out the library I made using @drawio');
-						editorUi.showDialog(dlg.container, 440, 240, true);
+						editorUi.showDialog(dlg.container, 450, 240, true);
 						dlg.init();
 					}
 					else if (file.constructor == DriveLibrary)

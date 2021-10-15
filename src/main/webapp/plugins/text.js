@@ -11,7 +11,7 @@ Draw.loadPlugin(function(ui)
 	{
 		var dlg = new EmbedDialog(ui, ui.editor.graph.getIndexableText(),
 			null, null, null, 'Extracted Text:');
-		ui.showDialog(dlg.container, 440, 240, true, true);
+		ui.showDialog(dlg.container, 450, 240, true, true);
 		dlg.init();
 	});
 	

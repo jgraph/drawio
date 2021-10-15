@@ -17,30 +17,27 @@ EditorUi = function(editor, container, lightbox)
 	this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
 	this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 
-	if (lightbox)
+	// Overrides graph bounds to include background pages
+	var graphGetGraphBounds = graph.getGraphBounds;
+
+	graph.getGraphBounds = function(img)
 	{
-		// Overrides graph bounds to include background pages
-		var graphGetGraphBounds = graph.getGraphBounds;
+		var bounds = graphGetGraphBounds.apply(this, arguments);
+		var img = this.backgroundImage;
 
-		graph.getGraphBounds = function(img)
+		if (img != null)
 		{
-			var bounds = graphGetGraphBounds.apply(this, arguments);
-			var img = this.backgroundImage;
+			var t = this.view.translate;
+			var s = this.view.scale;
 
-			if (img != null)
-			{
-				var t = this.view.translate;
-				var s = this.view.scale;
+			bounds = mxRectangle.fromRectangle(bounds);
+			bounds.add(new mxRectangle(
+				(t.x + img.x) * s, (t.y + img.y) * s,
+				img.width * s, img.height * s));
+		}
 
-				bounds.add(new mxRectangle(
-					(t.x + img.x) * s, (t.y + img.y) * s,
-					img.width * s, img.height * s));
-			}
-	
-			return bounds;
-		};
-	}
-
+		return bounds;
+	};
 
 	// Faster scrollwheel zoom is possible with CSS transforms
 	if (graph.useCssTransforms)
@@ -3502,6 +3499,7 @@ EditorUi.prototype.setPageVisible = function(value)
 		graph.container.scrollTop = graph.view.translate.y * graph.view.scale - ty;
 	}
 	
+	graph.defaultPageVisible = value;
 	this.fireEvent(new mxEventObject('pageViewChanged'));
 };
 

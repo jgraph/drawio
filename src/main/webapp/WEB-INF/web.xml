@@ -8,20 +8,6 @@
   </welcome-file-list>
   <servlet>
     <description/>
-    <display-name>SaveServlet</display-name>
-    <servlet-name>SaveServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.SaveServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>SaveServlet</servlet-name>
-    <url-pattern>/SaveServlet</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>SaveServlet</servlet-name>
-    <url-pattern>/save</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>ProxyServlet</display-name>
     <servlet-name>ProxyServlet</servlet-name>
     <servlet-class>com.mxgraph.online.ProxyServlet</servlet-class>

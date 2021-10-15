@@ -574,7 +574,10 @@ GitLabClient.prototype.insertFile = function(filename, data, success, error, asL
 							try
 							{
 								var msg = JSON.parse(req.getText());
-								success(this.createGitLabFile(org, repo, ref, msg.content, asLibrary, refPos));
+
+								success(this.createGitLabFile(org, repo, ref,
+									(msg.content != null) ? msg.content : msg,
+									asLibrary, refPos));
 							}
 							catch (e)
 							{

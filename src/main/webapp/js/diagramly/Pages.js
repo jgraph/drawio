@@ -815,7 +815,7 @@ Graph.prototype.setViewState = function(state, removeOldExtFonts)
 		this.setConnectable(true);
 		this.lastPasteXml = null;
 		this.pasteCounter = 0;
-		this.mathEnabled = false;
+		this.mathEnabled = this.defaultMathEnabled;
 		this.connectionArrowsEnabled = true;
 		this.hiddenTags = [];
 		this.extFonts = [];
@@ -1792,7 +1792,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 					}
 					
 					var dlg = new EmbedDialog(this, this.getLinkForPage(page, params, lightbox));
-					this.showDialog(dlg.container, 440, 240, true, true);
+					this.showDialog(dlg.container, 450, 240, true, true);
 					dlg.init();
 				}));
 			}));

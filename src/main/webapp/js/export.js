@@ -580,7 +580,7 @@ function render(data)
 			{
 				var size = this.getPageSize();
 				var bounds = this.getGraphBounds();
-				
+
 				if (bounds.width == 0 || bounds.height == 0)
 				{
 					return new mxRectangle(0, 0, 1, 1);

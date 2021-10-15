@@ -155,7 +155,7 @@ Draw.loadPlugin(function(ui) {
 						var dlg = new EmbedDialog(ui, 'https://www.draw.io/?p=replay&lightbox=1&replay-delay=' +
 							parseFloat(newValue) + '&replay-data=' + Graph.compress('<recording>' +
 							tmp.join('') + '</recording>'));
-						ui.showDialog(dlg.container, 440, 240, true, true);
+						ui.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					}
 				}, 'Delay');

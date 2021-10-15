@@ -370,7 +370,7 @@
 
 					var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
 						allPages, lightbox, editLink, layers, null, true, params));
-					editorUi.showDialog(dlg.container, 440, 240, true, true);
+					editorUi.showDialog(dlg.container, 450, 240, true, true);
 					dlg.init();
 				});
 			}));
@@ -1063,7 +1063,7 @@
 									'/' + editorUi.getSearch() + '#_CONFIG_' +
 									Graph.compress(JSON.stringify(obj));
 								var dlg = new EmbedDialog(editorUi, url);
-								editorUi.showDialog(dlg.container, 440, 240, true);
+								editorUi.showDialog(dlg.container, 450, 240, true);
 								dlg.init();
 							}
 							catch (e)
@@ -2009,7 +2009,7 @@
 										editorUi.handleError({message: mxResources.get('errorUpdatingPreview')});
 									}
 								});
-								editorUi.showDialog(dlg.container, 440, 240, true, true);
+								editorUi.showDialog(dlg.container, 450, 240, true, true);
 								dlg.init();
 							}));
 					});
@@ -2031,7 +2031,7 @@
 					{
 						var dlg = new EmbedDialog(editorUi, '<img src="' + ((current.constructor != DriveFile) ?
 							url : 'https://drive.google.com/uc?id=' + current.getId()) + '"/>');
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					}
 					else
@@ -2052,7 +2052,7 @@
 					{
 						editorUi.spinner.stop();
 						var dlg = new EmbedDialog(editorUi, result);
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					}, function(err)
 					{
@@ -2074,7 +2074,7 @@
 						editorUi.spinner.stop();
 						
 						var dlg = new EmbedDialog(editorUi, result);
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					}, function(err)
 					{
@@ -2109,7 +2109,7 @@
 						var dlg = new EmbedDialog(editorUi, '<iframe frameborder="0" style="width:' + width +
 							';height:' + height + ';" src="' + editorUi.createLink(linkTarget, linkColor,
 							allPages, lightbox, editLink, layers, url, null, params) + '"></iframe>');
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					});
 				}
@@ -2135,7 +2135,7 @@
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
 							allPages, lightbox, editLink, layers, url, null, params, true));
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					});
 				}
@@ -2162,7 +2162,7 @@
 
 						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
 							allPages, lightbox, editLink, layers, url, null, params));
-						editorUi.showDialog(dlg.container, 440, 240, true, true);
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					});
 				}

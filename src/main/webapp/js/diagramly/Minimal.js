@@ -1272,7 +1272,7 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
 				}
 
-				if (urlParams['sketch'] == '1')
+				if (urlParams['sketch'] == '1' && urlParams['pages'] == null)
 				{
 					this.addMenuItems(menu, ['togglePagesVisible'], parent);
 				}
@@ -1979,7 +1979,8 @@ EditorUi.initMinimalTheme = function()
 						typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
 						ui.statusContainer.firstChild.getAttribute('class') == null))
 					{
-						var title = (ui.statusContainer.firstChild != null) ?
+						var title = (ui.statusContainer.firstChild != null &&
+							typeof ui.statusContainer.firstChild.getAttribute === 'function') ?
 							ui.statusContainer.firstChild.getAttribute('title') :
 							ui.editor.getStatus();
 						setNotificationTitle(title);
@@ -2334,8 +2335,8 @@ EditorUi.initMinimalTheme = function()
 
 				function pagesVisibleChanged()
 				{
-					pageMenu.style.display = (urlParams['pages'] == '1' ||
-						(ui.pages != null && ui.pages.length > 1 ) ||
+					pageMenu.style.display = ui.pages != null &&
+						(urlParams['pages'] == '1' || ui.pages.length > 1 ||
 						Editor.pagesVisible) ? 'inline-block' : 'none';
 				};
 

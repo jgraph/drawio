@@ -997,7 +997,10 @@ Actions.prototype.init = function()
 
 		if (graph.backgroundImage != null)
 		{
-			bounds.add(new mxRectangle(0, 0, graph.backgroundImage.width, graph.backgroundImage.height));
+			bounds = mxRectangle.fromRectangle(bounds);
+			bounds.add(new mxRectangle(0, 0,
+				graph.backgroundImage.width,
+				graph.backgroundImage.height));
 		}
 		
 		if (bounds.width == 0 || bounds.height == 0)
@@ -1122,6 +1125,7 @@ Actions.prototype.init = function()
 	action = this.addAction('grid', function()
 	{
 		graph.setGridEnabled(!graph.isGridEnabled());
+		graph.defaultGridEnabled = graph.isGridEnabled();
 		ui.fireEvent(new mxEventObject('gridEnabledChanged'));
 	}, null, null, Editor.ctrlKey + '+Shift+G');
 	action.setToggleAction(true);

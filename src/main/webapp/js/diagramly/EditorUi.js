@@ -577,6 +577,7 @@
 		this.editor.graph.mathEnabled = value;
 		this.editor.updateGraphComponents();
 		this.editor.graph.refresh();
+		this.editor.graph.defaultMathEnabled = value;
 		
 		this.fireEvent(new mxEventObject('mathEnabledChanged'));
 	};
@@ -4563,7 +4564,7 @@
 					else if (mimeType != null && mimeType.substring(0, 9) == 'text/html')
 					{
 						var dlg = new EmbedDialog(this, data);
-						this.showDialog(dlg.container, 440, 240, true, true);
+						this.showDialog(dlg.container, 450, 240, true, true);
 						dlg.init();
 					}
 					else
@@ -5596,7 +5597,7 @@
 		var s2 = (fetchParam.length > 0) ? (((urlParams['dev'] == '1') ?
 			'https://test.draw.io/embed2.js?dev=1' : EditorUi.lightboxHost + '/embed2.js?')) + fetchParam :
 			(((urlParams['dev'] == '1') ? 'https://test.draw.io/js/viewer-static.min.js' :
-			window.VIEWER_URL ? window.VIEWER_URL : EditorUi.lightboxHost + '/js/viewer-static.min.js'));
+			window.DRAWIO_VIEWER_URL ? window.DRAWIO_VIEWER_URL : EditorUi.lightboxHost + '/js/viewer-static.min.js'));
 		var src = '<script type="text/javascript" src="' + s2 + '"></script>';
 		
 		fn(value, src);
@@ -13194,9 +13195,6 @@
 		    					
 		    					if (tmp != null)
 		    					{
-		    						// Removes attribute
-			    					graph.setAttributeForCell(dataCell, edge.from, null);
-			    					
 			    					if (tmp != '')
 			    					{
 			    						var refs = tmp.split(',');

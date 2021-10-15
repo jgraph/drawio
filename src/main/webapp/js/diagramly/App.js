@@ -2433,6 +2433,7 @@ App.prototype.getThumbnail = function(width, fn)
 
 			if (bgImg != null)
 			{
+				bounds = mxRectangle.fromRectangle(bounds);
 				bounds.add(new mxRectangle(
 					(t.x + bgImg.x) * s, (t.y + bgImg.y) * s,
 					bgImg.width * s, bgImg.height * s));
@@ -5946,6 +5947,17 @@ App.prototype.fetchAndShowNotification = function(target)
 
 App.prototype.showNotification = function(notifs, lsReadFlag)
 {
+	if (notifs.length == 0)
+	{
+		if (this.notificationBtn != null)
+		{
+			this.notificationBtn.style.display = 'none';
+			this.editor.fireEvent(new mxEventObject('statusChanged'));
+		}
+		
+		return;
+	}
+	
 	function shouldAnimate(newNotif)
 	{
 		var countEl = document.querySelector('.geNotification-count');
@@ -6062,6 +6074,10 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		
 		mxEvent.addListener(winClose, 'click', markAllAsRead);
 	}
+	else
+	{
+		this.notificationBtn.style.display = ''; //In case it was hidden
+	}
 		
 	var newNotif = 0;
 	var notifListEl = document.getElementById('geNotifList');
@@ -6069,11 +6085,6 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	if (notifListEl == null)
 	{
 		return; //This shouldn't happen and no meaning of continuing
-	}
-	else if (notifs.length == 0)
-	{
-		notifListEl.innerHTML = '<div class="line"></div><div class="notification">' +
-								mxUtils.htmlEntities(mxResources.get('none')) + '</div>';
 	}
 	else
 	{
@@ -6340,6 +6351,21 @@ App.prototype.exportFile = function(data, filename, mimeType, base64Encoded, mod
 		{
 			// Must insert file as library to force the file to be written
 			this.gitHub.insertFile(filename, data, mxUtils.bind(this, function()
+			{
+				this.spinner.stop();
+			}), mxUtils.bind(this, function(resp)
+			{
+				this.spinner.stop();
+				this.handleError(resp);
+			}), true, folderId, base64Encoded);
+		}
+	}
+	else if (mode == App.MODE_GITLAB)
+	{
+		if (this.gitHub != null && this.spinner.spin(document.body, mxResources.get('saving')))
+		{
+			// Must insert file as library to force the file to be written
+			this.gitLab.insertFile(filename, data, mxUtils.bind(this, function()
 			{
 				this.spinner.stop();
 			}), mxUtils.bind(this, function(resp)

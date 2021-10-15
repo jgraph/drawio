@@ -6189,17 +6189,7 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells
 			model.setGeometry(cells[i], cell);
 		}
 
-		// Handles colspan
 		var visible = true;
-
-		if (last != null && last.geo != null &&
-			last.colspan != null && last.colspan > 1)
-		{
-			last.geo.width += (cell.alternateBounds != null) ?
-				cell.alternateBounds.width : cell.width;
-			visible = false;
-			last.colspan--;
-		}
 
 		// Handles rowspan
 		var upper = lastCells[i];
@@ -6211,6 +6201,16 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells
 				cell.alternateBounds.height : cell.height;
 			visible = false;
 			upper.rowspan--;
+		}
+
+		// Handles colspan
+		if (last != null && last.geo != null &&
+			last.colspan != null && last.colspan > 1)
+		{
+			last.geo.width += (cell.alternateBounds != null) ?
+				cell.alternateBounds.width : cell.width;
+			visible = false;
+			last.colspan--;
 		}
 
 		model.setVisible(cells[i], visible);
@@ -6230,6 +6230,10 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells
 			{
 				temp.rowspan = parseInt(style['rowspan'] || 0);
 				lastCells[i] = temp;
+			}
+			else if (upper != null)
+			{
+				temp.colspan = parseInt(upper.style['colspan'] || 0);
 			}
 		}
 	}
@@ -9590,7 +9594,8 @@ if (typeof mxVertexHandler != 'undefined')
 				
 				if (exportType == 'diagram' && this.backgroundImage != null)
 				{
-					 bounds.add(new mxRectangle(
+					bounds = mxRectangle.fromRectangle(bounds);
+					bounds.add(new mxRectangle(
 						(this.view.translate.x + this.backgroundImage.x) * vs,
 						(this.view.translate.y + this.backgroundImage.y) * vs,
 					 	this.backgroundImage.width * vs,

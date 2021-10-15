@@ -5192,14 +5192,17 @@
 			
 			var setScheme = mxUtils.bind(this, function(index)
 			{
-				if (this.format.currentScheme != null)
+				if (dots[index] != null)
 				{
-					dots[this.format.currentScheme].style.background = 'transparent';
+					if (this.format.currentScheme != null && dots[this.format.currentScheme] != null)
+					{
+						dots[this.format.currentScheme].style.background = 'transparent';
+					}
+					
+					this.format.currentScheme = index;
+					updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
+					dots[this.format.currentScheme].style.background = '#84d7ff';
 				}
-				
-				this.format.currentScheme = index;
-				updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
-				dots[this.format.currentScheme].style.background = '#84d7ff';
 			});
 			
 			var updateScheme = mxUtils.bind(this, function(colorsets)
@@ -5744,7 +5747,7 @@
 	 * Properties for the SVG shadow effect.
 	 */
 	Graph.prototype.svgShadowSize = '3';
-		
+
 	/**
 	 * Enables move of bends/segments without selecting.
 	 */
@@ -5753,8 +5756,13 @@
 	/**
 	 * Enables move of bends/segments without selecting.
 	 */
-	 Graph.prototype.hiddenTags = null;
-		
+	Graph.prototype.hiddenTags = null;
+	
+	/**
+	 * Enables move of bends/segments without selecting.
+	 */
+	Graph.prototype.defaultMathEnabled = false;
+	
 	/**
 	 * Adds rack child layout style.
 	 */
