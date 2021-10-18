@@ -8167,11 +8167,11 @@ if (typeof mxVertexHandler != 'undefined')
 				rows = rows && this.isTableRow(cells[i]);
 			}
 			
-			return (mxUtils.getValue(style, 'part', '0') != '1' || this.isContainer(cell)) &&
+			return ((mxUtils.getValue(style, 'part', '0') != '1' || this.isContainer(cell)) &&
 				mxUtils.getValue(style, 'dropTarget', '1') != '0' &&
 				(mxGraph.prototype.isValidDropTarget.apply(this, arguments) ||
 				this.isContainer(cell)) && !this.isTableRow(cell) &&
-				(!this.isTable(cell) || rows || tables);
+				(!this.isTable(cell) || rows || tables)) && !this.isCellLocked(cell);
 		};
 	
 		/**

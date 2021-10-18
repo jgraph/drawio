@@ -1,3 +1,8 @@
+18-OCT_2021: 15.5.5
+
+- Adds support for "primary key (PK)" SQL syntax #DID-3505
+- Fixes crop to selection in export https://github.com/jgraph/drawio/issues/2324
+
 15-OCT-2021: 15.5.4
 
 - Fixes NPE in TableShape.paintForeground

@@ -252,31 +252,27 @@
 						for (var j = 0; j < rowData.length; j++)
 						{
 							var data = rowData[j];
+							var colspan = (i == 1) ? parseInt(graph.getCurrentCellStyle(
+								data.cells[i - 1])['colspan'] || 1) :
+									rowData[j].colspans[i - 1];
 
-							if (data != null)
+							data.colspans[i] = colspan - 1;
+
+							if (data.colspans[i] < 1)
 							{
-								var colspan = (i == 1) ? parseInt(graph.getCurrentCellStyle(
-									data.cells[i - 1])['colspan'] || 1) :
-										rowData[j].colspans[i - 1];
-
-								data.colspans[i] = colspan - 1;
-
-								if (data.colspans[i] < 1)
+								data.colspans[i] = parseInt(graph.getCurrentCellStyle(
+									data.cells[i])['colspan'] || 1);
+								th = data.y;
+							}
+							else
+							{
+								if (th > 0)
 								{
-									data.colspans[i] = parseInt(graph.getCurrentCellStyle(
-										data.cells[i])['colspan'] || 1);
-									th = data.y;
+									c.lineTo(x + geo.x + start.x, y + th - start.height);
 								}
-								else
-								{
-									if (th > 0)
-									{
-										c.lineTo(x + geo.x + start.x, y + th - start.height);
-									}
 
-									c.moveTo(x + geo.x + start.x, y + data.y);
-									th = 0;
-								}
+								c.moveTo(x + geo.x + start.x, y + data.y);
+								th = 0;
 							}
 						}
 

@@ -6111,10 +6111,10 @@
 		cb5.style.marginRight = '8px';
 		cb5.setAttribute('type', 'checkbox');
 		
-		var cb6 = document.createElement('input');
-		cb6.style.marginTop = '16px';
-		cb6.style.marginRight = '8px';
-		cb6.setAttribute('type', 'checkbox');
+		var cb7 = document.createElement('input');
+		cb7.style.marginTop = '16px';
+		cb7.style.marginRight = '8px';
+		cb7.setAttribute('type', 'checkbox');
 		
 		if (this.isOffline() || !this.canvasSupported)
 		{
@@ -6127,7 +6127,7 @@
 			mxUtils.write(div, mxResources.get('embedImages'));
 			mxUtils.br(div);
 
-			div.appendChild(cb6);
+			div.appendChild(cb7);
 			mxUtils.write(div, mxResources.get('embedFonts'));
 			mxUtils.br(div);
 			
@@ -6183,7 +6183,7 @@
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
 				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
-				keepTheme.checked : null, exportSelect.value, cb6.checked);
+				keepTheme.checked : null, exportSelect.value, cb7.checked);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();

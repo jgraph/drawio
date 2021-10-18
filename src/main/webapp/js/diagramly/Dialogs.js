@@ -2003,10 +2003,33 @@ var ParseDialog = function(editorUi, title, defaultType)
 		else if (type == 'table')
 		{
 			var tableCell = null;
-			var rows = null;
 			var cells = [];
 			var dx = 0;
+			var pkMap = {};
 
+			//First pass to find primary keys
+			for (var i = 0; i < lines.length; i++)
+			{
+				var line = mxUtils.trim(lines[i]);
+				
+				if (line.substring(0, 11).toLowerCase() == 'primary key')
+				{
+					var pk = line.match(/\((.+)\)/);
+					
+					if (pk && pk[1])
+					{
+						pkMap[pk[1]] = true;						
+					}
+					
+					lines.splice(i, 1);
+				}
+				else if (line.toLowerCase().indexOf('primary key') > 0)
+				{
+					pkMap[line.split(' ')[0]] = true;
+					lines[i] = mxUtils.trim(line.replace(/primary key/i, ''));
+				}
+			}
+			
 			for (var i = 0; i < lines.length; i++)
 			{
 				var tmp = mxUtils.trim(lines[i]);
@@ -2040,38 +2063,33 @@ var ParseDialog = function(editorUi, title, defaultType)
 				else if (tmp != '(' && tableCell != null)
 				{
 					var name = tmp.substring(0, (tmp.charAt(tmp.length - 1) == ',') ? tmp.length - 1 : tmp.length);
+				
+					var pk = pkMap[name.split(' ')[0]];
+					var rowCell = new mxCell('', new mxGeometry(0, 0, 160, 30),
+						'shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;' +
+						'points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=' +
+						(pk ? '1' : '0') + ';');
+					rowCell.vertex = true;
 					
-					if (name.substring(0, 11).toLowerCase() != 'primary key')
-					{
-						var pk = name.toLowerCase().indexOf('primary key');
-						name = name.replace(/primary key/i, '');
-						
-						var rowCell = new mxCell('', new mxGeometry(0, 0, 160, 30),
-							'shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;' +
-							'points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=' +
-							((pk > 0) ? '1' : '0') + ';');
-						rowCell.vertex = true;
-						
-						var left = new mxCell((pk > 0) ? 'PK' : '', new mxGeometry(0, 0, 30, 30),
-							'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;' + ((pk > 0) ? 'fontStyle=1;' : ''));
-						left.vertex = true;
-						rowCell.insert(left);
-						
-						var right = new mxCell(name, new mxGeometry(30, 0, 130, 30),
-							'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;' + ((pk > 0) ? 'fontStyle=5;' : ''));
-						right.vertex = true;
-						rowCell.insert(right);
-						
-			   			var size = editorUi.editor.graph.getPreferredSizeForCell(right);
-			   			
-			   			if (size != null && tableCell.geometry.width < size.width + 30)
-			   			{
-			   				tableCell.geometry.width = Math.min(320, Math.max(tableCell.geometry.width, size.width + 30));
-			   			}
-			   			
-			   			tableCell.insert(rowCell);
-			   			tableCell.geometry.height += 30;
-					}
+					var left = new mxCell(pk ? 'PK' : '', new mxGeometry(0, 0, 30, 30),
+						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;' + (pk ? 'fontStyle=1;' : ''));
+					left.vertex = true;
+					rowCell.insert(left);
+					
+					var right = new mxCell(name, new mxGeometry(30, 0, 130, 30),
+						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;' + (pk ? 'fontStyle=5;' : ''));
+					right.vertex = true;
+					rowCell.insert(right);
+					
+		   			var size = editorUi.editor.graph.getPreferredSizeForCell(right);
+		   			
+		   			if (size != null && tableCell.geometry.width < size.width + 30)
+		   			{
+		   				tableCell.geometry.width = Math.min(320, Math.max(tableCell.geometry.width, size.width + 30));
+		   			}
+		   			
+		   			tableCell.insert(rowCell, pk? 0 : null);
+		   			tableCell.geometry.height += 30;
 				}
 			}
 			
