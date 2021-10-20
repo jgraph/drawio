@@ -1903,6 +1903,11 @@ Graph.prototype.defaultPageBackgroundColor = '#ffffff';
 /**
  * 
  */
+Graph.prototype.defaultForegroundColor = '#000000';
+
+/**
+ * 
+ */
 Graph.prototype.defaultPageBorderColor = '#ffffff';
 
 /**
@@ -10920,13 +10925,14 @@ if (typeof mxVertexHandler != 'undefined')
 		var mxCellRendererPostConfigureShape = mxCellRenderer.prototype.postConfigureShape;
 		mxCellRenderer.prototype.postConfigureShape = function(state)
 		{
-			var fg = Editor.isDarkMode() ? '#ffffff' : '#000000';
 			var bg = state.view.graph.defaultPageBackgroundColor;
+			var fg = state.view.graph.defaultForegroundColor;
 
 			this.resolveDefaultColor(state, 'fill', state.shape, bg);
 			this.resolveDefaultColor(state, 'stroke', state.shape, fg);
 			this.resolveDefaultColor(state, 'laneFill', state.shape, bg);
 			this.resolveDefaultColor(state, 'imageBackground', state.shape, bg);
+			this.resolveDefaultColor(state, 'labelBackgroundColor', state.shape, bg);
 			this.resolveDefaultColor(state, 'imageBorder', state.shape, fg);
 			this.resolveDefaultColor(state, 'background', state.text, bg);
 			this.resolveDefaultColor(state, 'color', state.text, fg);

@@ -1981,11 +1981,7 @@ GraphViewer.prototype.showLocalLightbox = function()
 		{
 			return self.getImageUrl(key);
 		};
-
-		// newGraph.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
-		// newGraph.defaultPageBorderColor = graph.defaultPageBorderColor;
-		// newGraph.defaultThemeName = graph.defaultThemeName;
-			
+	
 		return newGraph;
 	};
 	

@@ -516,7 +516,7 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							if (urlParams['inlinePicker'] == '0')
+							if (!Editor.oneDriveInlinePicker)
 							{
 								mxscript(App.ONEDRIVE_URL);
 							}
@@ -954,7 +954,7 @@ App.main = function(callback, createUi)
 						urlParams['od'] == '1')) && (navigator.userAgent == null ||
 						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 					{
-						if (urlParams['inlinePicker'] == '0')
+						if (!Editor.oneDriveInlinePicker)
 						{
 							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
 						}

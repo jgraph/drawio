@@ -461,6 +461,16 @@
 	 * Restores app defaults for UI
 	 */
 	EditorUi.prototype.closableScratchpad = true;
+	
+	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.embedExportBorder = 8;
+	
+	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.embedExportBackground = null;
 
 	/**
 	 * Capability check for canvas export
@@ -9002,7 +9012,7 @@
 		// Must be set before UI is created in superclass
 		if (this.isSettingsEnabled())
 		{
-			if (urlParams['sketch'] == '1' && urlParams['embedInline'] != '1')
+			if (urlParams['sketch'] == '1')
 			{
 				this.doSetSketchMode((mxSettings.settings.sketchMode != null &&
 					urlParams['rough'] == null) ? mxSettings.settings.sketchMode :
@@ -11653,7 +11663,8 @@
 				event: 'export',
 				data: Editor.createSvgDataUri(svg)
 			}), '*');
-		}), null, null, true, null, 1, 8);
+		}), null, null, true, this.embedExportBackground,
+			1, this.embedExportBorder);
 
 		this.diagramContainer.removeAttribute('data-bounds');
 		Editor.inlineFullscreen = false;
@@ -12344,6 +12355,18 @@
 							}
 						}
 
+						if (data.border != null)
+						{
+							this.embedExportBorder = data.border;
+						}
+
+						var border = this.embedExportBorder;
+
+						if (data.background != null)
+						{
+							this.embedExportBackground = data.background;
+						}
+
 						if (data.rect != null)
 						{
 							this.diagramContainer.style.border = '2px solid #295fcc';
@@ -12358,11 +12381,11 @@
 							{
 								var graph = this.editor.graph;
 								var prev = graph.maxFitScale;
-								graph.maxFitScale = 1;
-								graph.fit(20);
+								graph.maxFitScale = data.maxFitScale;
+								graph.fit(2 * border);
 								graph.maxFitScale = prev;
-								graph.container.scrollTop -= 20;
-								graph.container.scrollLeft -= 20;
+								graph.container.scrollTop -= 2 * border;
+								graph.container.scrollLeft -= 2 * border;
 								this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
 							});
 						}

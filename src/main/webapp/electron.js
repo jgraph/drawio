@@ -682,11 +682,11 @@ app.on('ready', e =>
 	    submenu: [
 	      {
 	        label: 'Website',
-	        click() { shell.openExternal('https://about.draw.io'); }
+	        click() { shell.openExternal('https://www.diagrams.net'); }
 	      },
 	      {
 	        label: 'Support',
-	        click() { shell.openExternal('https://about.draw.io/support'); }
+	        click() { shell.openExternal('https://github.com/jgraph/drawio-desktop/issues'); }
 		  },
 		  checkForUpdates,
 	      {
@@ -714,11 +714,11 @@ app.on('ready', e =>
 	      submenu: [
 	        {
 	          label: 'About ' + app.name,
-	          click() { shell.openExternal('https://about.draw.io'); }
+	          click() { shell.openExternal('https://www.diagrams.net'); }
 	        },
 	        {
 	          label: 'Support',
-	          click() { shell.openExternal('https://about.draw.io/support'); }
+	          click() { shell.openExternal('https://github.com/jgraph/drawio-desktop/issues'); }
 			},
 			checkForUpdates,
 			{ type: 'separator' },

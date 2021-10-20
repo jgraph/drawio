@@ -1,6 +1,9 @@
 html body .geDiagramContainer, html body div.geMenubarContainer, html body td.mxPopupMenuIcon, html body .geFormatContainer, html body div.geMenubarContainer .geStatus:hover {
 	background-color:#2a2a2a;
 }
+html body .mxCellEditor {
+	color: #f0f0f0;
+}
 html body.geEditor div.mxPopupMenu {
 	border:3px solid #505759;
 	background:#2a2a2a;

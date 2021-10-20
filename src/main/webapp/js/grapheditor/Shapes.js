@@ -212,19 +212,22 @@
 						c.moveTo(x + start.x, y + geo.y);
 						var tw = 0;
 
-						if (graph.model.isVisible(data.cells[i]))
+						for (j = 0; j < data.cells.length; j++)
 						{
-							tw = data.x;
-						}
-						else
-						{
-							if (tw > 0)
+							if (graph.model.isVisible(data.cells[j]))
 							{
-								c.lineTo(x + tw - start.width, y + geo.y);
+								tw = data.x;
 							}
+							else
+							{
+								if (tw > 0)
+								{
+									c.lineTo(x + tw - start.width, y + geo.y);
+								}
 
-							c.moveTo(x + geo.x + geo.width + start.x, y + geo.y);
-							tw = 0;
+								c.moveTo(x + geo.x + geo.width + start.x, y + geo.y);
+								tw = 0;
+							}
 						}
 
 						c.lineTo(x + w - start.width, y + geo.y);
@@ -234,11 +237,11 @@
 				}
 			}
 			
+			// Paints column lines
 			if (columnLines)
 			{
 				var cols = rowData[0].cells;
 				
-				// Paints column lines
 				for (var i = 1; i < cols.length; i++)
 				{
 					geo = graph.getCellGeometry(cols[i]);

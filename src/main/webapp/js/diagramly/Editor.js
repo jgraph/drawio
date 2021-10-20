@@ -263,6 +263,11 @@
 	Editor.compressXml = true;
 
 	/**
+	 * Specifies if XML files should be compressed. Default is true.
+	 */
+	Editor.oneDriveInlinePicker = (window.urlParams != null && window.urlParams['inlinePicker'] == '0') ? false : true;
+
+	/**
 	 * Specifies global variables.
 	 */
 	Editor.globalVars = null;
@@ -1846,6 +1851,23 @@
 			if (config.simpleLabels != null)
 			{
 				Editor.simpleLabels = config.simpleLabels;
+			}
+
+			if (config.oneDriveInlinePicker != null)
+			{
+				Editor.oneDriveInlinePicker = config.oneDriveInlinePicker;
+			}
+
+			if (config.darkColor != null)
+			{
+				Editor.darkColor = config.darkColor;
+			}
+
+			if (config.settingsName != null)
+			{
+				Editor.configurationKey = '.' + config.settingsName + '-configuration';
+				Editor.settingsKey = '.' + config.settingsName + '-config';
+				mxSettings.key = Editor.settingsKey;
 			}
 			
 			if (config.customFonts)
@@ -6442,14 +6464,18 @@
 		incExtFonts, keepTheme, exportType, cells)
 	{
 		var temp = null;
+		var tempFg = null;
 		var tempBg = null;
 		
 		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
+			tempFg = this.defaultForegroundColor;
 			tempBg = this.defaultPageBackgroundColor;
 			this.defaultPageBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
 				'#ffffff' : Editor.darkColor;
+			this.defaultForegroundColor = (this.defaultThemeName == 'darkTheme') ?
+				'#000000' : '#f0f0f0';
 			this.stylesheet = this.getDefaultStylesheet();
 			// LATER: Fix math export in dark mode by fetching text nodes before
 			// calling refresh and changing the font color in-place
@@ -6493,6 +6519,7 @@
 		if (temp != null)
 		{
 			this.defaultPageBackgroundColor = tempBg;
+			this.defaultForegroundColor = tempFg;
 			this.stylesheet = temp;
 			this.refresh();
 		}

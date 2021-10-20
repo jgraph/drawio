@@ -13,6 +13,7 @@ function Sidebar(editorUi, container)
 	this.lastCreated = 0;
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
+	this.graph.defaultForegroundColor = editorUi.editor.graph.defaultForegroundColor;
     this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
 	this.graph.cellRenderer.antiAlias = this.thumbAntiAlias;
 	this.graph.container.style.visibility = 'hidden';
@@ -292,6 +293,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		}), this.tooltip);
 		
 		this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
+		this.graph2.defaultForegroundColor = this.editorUi.editor.graph.defaultForegroundColor;
 		this.graph2.resetViewOnRootChange = false;
 		this.graph2.foldingEnabled = false;
 		this.graph2.gridEnabled = false;

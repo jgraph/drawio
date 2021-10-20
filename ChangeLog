@@ -1,3 +1,20 @@
+20-OCT-2021: 15.5.7
+
+- Fixes rendering of row lines https://github.com/jgraph/drawio/issues/2332
+- Fixes hardcoded dark mode colors
+- Adds oneDriveInlinePicker switch https://github.com/jgraph/drawio/issues/2330
+- Adds settingsName config
+- Fixes color override for non-formatted text
+- Changes for conf server to use sketch mode
+- Fixes in-place editor default color
+- Adds Graph.defaultForegroundColor
+- Fixes background page default foreground
+
+19-OCT-2021: 15.5.6
+
+- [conf Cloud] Adds Config JSON Schema validation and error check in viewer
+- Minor fix for inline embed mode
+
 18-OCT_2021: 15.5.5
 
 - Adds support for "primary key (PK)" SQL syntax #DID-3505

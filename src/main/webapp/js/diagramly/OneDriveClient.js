@@ -18,7 +18,7 @@ window.OneDriveClient = function(editorUi, isExtAuth, inlinePicker, noLogout)
 	
 	if (inlinePicker == null) //Use inline picker as default
 	{
-		inlinePicker = (window.urlParams != null && window.urlParams['inlinePicker'] == '0')? false : true;
+		inlinePicker = window.Editor != null? Editor.oneDriveInlinePicker : true;
 	}
 	
 	if (noLogout == null && window.urlParams != null && window.urlParams['noLogoutOD'] == '1')

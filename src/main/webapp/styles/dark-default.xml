@@ -6,21 +6,21 @@
 		<add as="fontFamily" value="Helvetica"/>
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
-		<add as="fillColor" value="#2a2a2a"/>
-		<add as="strokeColor" value="#f0f0f0"/>
-		<add as="fontColor" value="#f0f0f0"/>
+		<add as="fillColor" value="default"/>
+		<add as="strokeColor" value="default"/>
+		<add as="fontColor" value="default"/>
 	</add>
 	<add as="defaultEdge">
 		<add as="shape" value="connector"/>
-		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="endArrow" value="classic"/>
 		<add as="fontSize" value="11"/>
 		<add as="fontFamily" value="Helvetica"/>
 		<add as="align" value="center"/>
 		<add as="verticalAlign" value="middle"/>
 		<add as="rounded" value="1"/>
-		<add as="strokeColor" value="#f0f0f0"/>
-		<add as="fontColor" value="#f0f0f0"/>
+		<add as="strokeColor" value="default"/>
+		<add as="fontColor" value="default"/>
 	</add>
 	<add as="text">
 		<add as="fillColor" value="none"/>
@@ -30,7 +30,7 @@
 		<add as="verticalAlign" value="top"/>
 	</add>
 	<add as="edgeLabel" extend="text">
-		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="fontSize" value="11"/>
 	</add>
 	<add as="label">
@@ -49,7 +49,7 @@
 		<add as="verticalLabelPosition" value="bottom"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="spacingTop" value="4"/>
-		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="spacing" value="0"/>
 		<add as="spacingLeft" value="0"/>
 		<add as="spacingTop" value="6"/>
