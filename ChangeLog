@@ -1,3 +1,10 @@
+21-OCT-2021: 15.5.8
+
+- Fixes NPE in OneDrive inline picker
+- [conf cloud] Fixes JSON validation CSP no-eval restriction
+- Improves error handling for inline embed mode
+- Fixes ignored configured styles in sketch mode
+
 20-OCT-2021: 15.5.7
 
 - Fixes rendering of row lines https://github.com/jgraph/drawio/issues/2332

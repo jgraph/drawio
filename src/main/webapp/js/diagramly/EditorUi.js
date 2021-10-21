@@ -10255,25 +10255,45 @@
 			var graph = this.editor.graph;
 			Editor.sketchMode = value;
 
+			function setStyle(style, key, value)
+			{
+				if (style[key] == null)
+				{
+					style[key] = value;
+				}
+			};
+
 			this.menus.defaultFonts = Menus.prototype.defaultFonts;
 			this.menus.defaultFontSize = (value) ? 20 : 16;
-			graph.defaultVertexStyle = {'pointerEvents': '0', 'fontSize': this.menus.defaultFontSize};
-			graph.defaultEdgeStyle = {'fontSize': this.menus.defaultFontSize - 4, 'edgeStyle': 'none',
-				'rounded': '0', 'curved': '1', 'jettySize': 'auto', 'orthogonalLoop': '1',
-				'endArrow': 'open',	'endSize': '14', 'startSize': '14'};
 
+			graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
+			setStyle(graph.defaultVertexStyle, 'pointerEvents', '0');
+			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);
+
+			graph.defaultEdgeStyle = mxUtils.clone(Graph.prototype.defaultEdgeStyle);
+			setStyle(graph.defaultEdgeStyle, 'fontSize', this.menus.defaultFontSize - 4);
+			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
+			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
+			setStyle(graph.defaultEdgeStyle, 'curved', '1');
+			setStyle(graph.defaultEdgeStyle, 'jettySize', 'auto');
+			setStyle(graph.defaultEdgeStyle, 'orthogonalLoop', '1');
+			setStyle(graph.defaultEdgeStyle, 'endArrow', 'open');
+			setStyle(graph.defaultEdgeStyle, 'endSize', '14');
+			setStyle(graph.defaultEdgeStyle, 'startSize', '14');
+			
 			if (value)
 			{
-				graph.defaultVertexStyle['fontFamily'] = Editor.sketchFontFamily;
-				graph.defaultVertexStyle['fontSource'] = Editor.sketchFontSource;
-				graph.defaultVertexStyle['hachureGap'] = '4';
-				graph.defaultVertexStyle['sketch'] = '1';
-				graph.defaultEdgeStyle['fontFamily'] = Editor.sketchFontFamily;
-				graph.defaultEdgeStyle['fontSource'] = Editor.sketchFontSource;
-				graph.defaultEdgeStyle['sketch'] = '1';
-				graph.defaultEdgeStyle['hachureGap'] = '4';
-				graph.defaultEdgeStyle['sourcePerimeterSpacing'] = '8';
-				graph.defaultEdgeStyle['targetPerimeterSpacing'] = '8';
+				setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
+				setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
+				setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
+				setStyle(graph.defaultVertexStyle, 'sketch', '1');
+
+				setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
+				setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
+				setStyle(graph.defaultEdgeStyle, 'sketch', '1');
+				setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
+				setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
+				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
 				
 				this.menus.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
 						'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
@@ -10286,8 +10306,6 @@
 			this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
-			Graph.prototype.defaultVertexStyle = graph.defaultVertexStyle;
-			Graph.prototype.defaultEdgeStyle = graph.defaultEdgeStyle;
 			this.clearDefaultStyle();
 		}
 	};
@@ -11653,18 +11671,25 @@
 			graph.stopEditing(!graph.isInvokesStopCellEditing());
 		}
 
-		this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
-			null, null, null, null, false), graph, null, true,
-			mxUtils.bind(this, function(svg)
+		var parent = window.opener || window.parent;
+
+		if (!this.editor.modified)
 		{
-			this.editor.modified = false;
-			var parent = window.opener || window.parent;
-			parent.postMessage(JSON.stringify({
-				event: 'export',
-				data: Editor.createSvgDataUri(svg)
-			}), '*');
-		}), null, null, true, this.embedExportBackground,
-			1, this.embedExportBorder);
+			parent.postMessage(JSON.stringify({event: 'exit'}), '*');
+		}
+		else
+		{
+			this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
+				null, null, null, null, false), graph, null, true,
+				mxUtils.bind(this, function(svg)
+			{
+				parent.postMessage(JSON.stringify({
+					event: 'export',
+					data: Editor.createSvgDataUri(svg)
+				}), '*');
+			}), null, null, true, this.embedExportBackground,
+				1, this.embedExportBorder);
+		}
 
 		this.diagramContainer.removeAttribute('data-bounds');
 		Editor.inlineFullscreen = false;

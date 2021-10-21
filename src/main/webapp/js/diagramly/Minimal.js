@@ -1883,21 +1883,25 @@ EditorUi.initMinimalTheme = function()
 			footer.style.visibility = '';
 		});
 
-		var editInlineStart = mxUtils.bind(this, function()
+		var inlineFullscreenChanged = mxUtils.bind(this, function()
 		{
 			fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
 				Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
 			this.diagramContainer.style.background = (Editor.inlineFullscreen) ?
 				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff') : 'transparent';
 			inlineSizeChanged();
+		});
 
+		var editInlineStart = mxUtils.bind(this, function()
+		{
+			inlineFullscreenChanged();
 			toggleFormat(ui, true);
 			ui.initFormatWindow();
 			var r  = this.diagramContainer.getBoundingClientRect();
 			this.formatWindow.window.setLocation(r.x + r.width + 4, r.y);
 		});
 
-		ui.addListener('inlineFullscreenChanged', editInlineStart);
+		ui.addListener('inlineFullscreenChanged', inlineFullscreenChanged);
 		ui.addListener('editInlineStart', editInlineStart);
 
 		if (urlParams['embedInline'] == '1')

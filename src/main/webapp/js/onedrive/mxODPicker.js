@@ -72,7 +72,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			previewHtml +
 			(backFn? '<div id="odBackBtn" class="odLinkBtn">&lt; ' + mxUtils.htmlEntities(mxResources.get('back')) + '</div>' : '') +
 			(withSubmitBtn? '<button id="odSubmitBtn" class="odSubmitBtn">' + mxUtils.htmlEntities(mxResources.get(foldersOnly? 'save' : 'open')) + '</button>' : '');
-			
+	
+	var isDarkMode = window.Editor != null && Editor.isDarkMode != null && Editor.isDarkMode();
+	
 	var css = 
 		'.odCatsList {' +
 		'	box-sizing: border-box;' + 
@@ -165,10 +167,10 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'    border-spacing: 0;' + 
 		'}' + 
 		'.odOddRow {' + 
-		(Editor.isDarkMode() ? '' : '	background-color: #eeeeee;') + 
+		(isDarkMode ? '' : '	background-color: #eeeeee;') + 
 		'}' + 
 		'.odEvenRow {' + 
-		(Editor.isDarkMode() ? '' : '	background-color: #FFFFFF;') + 
+		(isDarkMode ? '' : '	background-color: #FFFFFF;') + 
 		'}' + 
 		'.odRowSelected {' + 
 		'	background-color: #cadfff;' + 

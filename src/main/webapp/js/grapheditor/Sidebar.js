@@ -2167,7 +2167,8 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	var originalCells = cells;
 	cells = this.graph.cloneCells(cells);
 	this.editorUi.insertHandler(originalCells, null, this.graph.model,
-		Graph.prototype.defaultVertexStyle, Graph.prototype.defaultEdgeStyle,
+		this.editorUi.editor.graph.defaultVertexStyle,
+		this.editorUi.editor.graph.defaultEdgeStyle,
 		true, true);
 
 	this.createThumb(originalCells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
