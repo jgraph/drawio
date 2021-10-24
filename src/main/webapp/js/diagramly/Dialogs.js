@@ -3884,7 +3884,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	}
 
 	if (!compact && urlParams['embed'] != '1' && !createOnly && 
-			!mxClient.IS_ANDROID && !mxClient.IS_IOS)
+			!mxClient.IS_ANDROID && !mxClient.IS_IOS && urlParams['noDevice'] != '1')
 	{
 		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
 		{
@@ -4024,7 +4024,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 	var copyBtn = null;
 	
 	// Disables SVG preview if SVG is not supported in browser
-	if (data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
+	if (urlParams['noDevice'] != '1' && data != null && mimeType != null && (mimeType.substring(0, 6) == 'image/' &&
 		(mimeType.substring(0, 9) != 'image/svg' || mxClient.IS_SVG)))
 	{
 		nameInput.style.width = '160px';

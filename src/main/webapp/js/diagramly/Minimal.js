@@ -1070,7 +1070,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				ui.menus.addMenuItems(menu, ['save', 'synchronize', '-'], parent);
 			}
-			else
+			else if (urlParams['noFileMenu'] != '1')
 			{
 	        	ui.menus.addMenuItems(menu, ['new'], parent);
 				ui.menus.addSubmenu('openFrom', menu, parent);
@@ -1106,7 +1106,7 @@ EditorUi.initMinimalTheme = function()
             {
             	ui.menus.addMenuItems(menu, ['import'], parent);
             }
-            else
+            else if (urlParams['noFileMenu'] != '1')
             {
             	ui.menus.addSubmenu('importFrom', menu, parent);
             }
@@ -1126,7 +1126,7 @@ EditorUi.initMinimalTheme = function()
 			ui.menus.addMenuItems(menu, ['-', 'pageSetup', 'pageScale'], parent);
 
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
-			if (!mxClient.IS_IOS || !navigator.standalone)
+			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
 			{
 				ui.menus.addMenuItems(menu, ['print'], parent);
 			}
@@ -1153,7 +1153,7 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
 				}
 			}
-			else
+			else if (urlParams['noFileMenu'] != '1')
 			{
 				ui.menus.addMenuItems(menu, ['-', 'close']);
 			}
@@ -1213,12 +1213,11 @@ EditorUi.initMinimalTheme = function()
 	            ui.menus.addMenuItems(menu, ['publishLink'], parent);
     		}
     		
-    		if(ui.mode != App.MODE_ATLAS) 
+    		if (ui.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1')
     		{
     			menu.addSeparator(parent);
     			ui.menus.addSubmenu('embed', menu, parent);
     		}
-
         })));
 
         var langMenu = this.get('language');
@@ -1254,7 +1253,7 @@ EditorUi.initMinimalTheme = function()
         // Extras menu is labelled preferences but keeps ID for extensions
         this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			if (urlParams['embed'] != '1')
+			if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1')
 			{
 				ui.menus.addSubmenu('theme', menu, parent);
 			}

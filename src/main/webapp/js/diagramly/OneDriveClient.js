@@ -171,7 +171,7 @@ OneDriveClient.prototype.updateUser = function(success, error, failOnAuth)
 			else
 			{
 				var data = JSON.parse(req.getText());
-				this.setUser(new DrawioUser(data.id, null, data.displayName));
+				this.setUser(new DrawioUser(data.id, data.mail, data.displayName));
 				success();
 			}
 		}
@@ -721,8 +721,8 @@ OneDriveClient.prototype.getFile = function(id, success, error, denyConvert, asL
 		{
 			if (this.isExtAuth)
 			{
-				error({message: mxResources.get('fileNotFoundOrDenied') +
-							(this.user != null ? ' (' + this.user.displayName + ')' : '')});
+				error({message: mxResources.get('fileNotFoundOrDenied'),
+						ownerEmail: window.urlParams != null? urlParams['ownerEml'] : null});
 			}
 			else
 			{
@@ -1296,8 +1296,6 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
 	{
 		var odPicker = null;
 		var div = document.createElement('div');
-		div.style.width = '550px';
-		div.style.height = '435px';
 		div.style.position = 'relative';
 		
 		var dlg = new CustomDialog(this.ui, div, mxUtils.bind(this, function()
@@ -1324,6 +1322,9 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
 		}), null, mxResources.get(foldersOnly? 'save' :'open'), null, null, null, null, true);
 		
 		this.ui.showDialog(dlg.container, 550, 500, true, true);
+		//Set width/height of the picker container
+		div.style.width = dlg.container.parentNode.style.width;
+		div.style.height = (parseInt(dlg.container.parentNode.style.height) - 60) + 'px';
 		
 		odPicker = new mxODPicker(div, null, mxUtils.bind(this, function(url, success, error)
 		{

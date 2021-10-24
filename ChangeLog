@@ -1,3 +1,7 @@
+22-OCT-2021: 15.5.9
+
+- Fixes stroke and font color in dark mode https://github.com/jgraph/drawio/issues/2338]
+
 21-OCT-2021: 15.5.8
 
 - Fixes NPE in OneDrive inline picker

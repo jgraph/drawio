@@ -3722,6 +3722,7 @@
 			Format.inactiveTabBackgroundColor = 'black';
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
 			Graph.prototype.defaultPageBackgroundColor = Editor.darkColor;
+			Graph.prototype.defaultForegroundColor = '#f0f0f0';
 			Graph.prototype.defaultPageBorderColor = '#505759';
 			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.darkColor;
 			mxGraphHandler.prototype.previewColor = '#cccccc';
@@ -4085,6 +4086,17 @@
 				fn3 = mxUtils.bind(this, function()
 				{
 					return this.editor.graph.openLink(e.helpLink);
+				});
+			}
+			else if (e != null && e.ownerEmail != null)
+			{
+				btn3 = mxResources.get('contactOwner');
+				
+				msg += mxUtils.htmlEntities(' (' + btn3 + ': ' + e.ownerEmail + ')');
+				
+				fn3 = mxUtils.bind(this, function()
+				{
+					return this.openLink('mailto:' + mxUtils.htmlEntities(e.ownerEmail));
 				});
 			}
 	
@@ -12035,6 +12047,10 @@
 						}
 	
 						return;
+					}
+					else if (data.action == 'exit')
+					{
+						this.actions.get('exit').funct();
 					}
 					else if (data.action == 'export')
 					{

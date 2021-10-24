@@ -275,10 +275,17 @@ function mxFreehand(graph)
 				var defaultStyle = graph.getCurrentCellStyle(edge);
 				var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
 				strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
+				var strokeColor = mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
+					mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000'))
+
+				if (strokeColor == 'default')
+				{
+					strokeColor = graph.defaultForegroundColor;
+				}
+
 			    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 			    path.setAttribute('fill', 'none');
-			    path.setAttribute('stroke', mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
-					mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000')));
+			    path.setAttribute('stroke', strokeColor);
 			    path.setAttribute('stroke-width', strokeWidth);
 			    
 			    if (graph.currentVertexStyle[mxConstants.STYLE_DASHED] == '1')

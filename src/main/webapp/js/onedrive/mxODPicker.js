@@ -151,13 +151,18 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	overflow-y: auto;' + 
 		'}' + 
 		'.odFileImg {' + 
+		'	width: 24px;' + 
 		'	padding-left: 5px;' + 
 		'	padding-right: 5px;' + 
 		'}' + 
 		'.odFileTitle {' + 
 		'	cursor: default;' + 
 		'	font-weight: normal;' + 
-		'	color: #666666 !important;' + 
+		'	color: #666666 !important;' +
+		'	width: calc(100% - 20px);' +
+	    '	white-space: nowrap;' +
+	    '	overflow: hidden;' +
+    	'	text-overflow: ellipsis;' +
 		'}' + 
 		'.odFileListGrid {' + 
 		'	width: 100%;' + 
@@ -528,7 +533,6 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				
 				var title = item.displayName || item.name;
 				var tooltip = mxUtils.htmlEntities(item.description || title);
-				var titleLimit = Math.round(container.clientWidth * 0.7 / 10);
 						
 				if (isSharepointSites)
 				{
@@ -545,21 +549,19 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				var row = document.createElement('tr');
 				row.className = (count++) % 2? 'odOddRow' : 'odEvenRow';
 				var td = document.createElement('td');
-				td.style.width = "24px";
+				td.style.width = '36px';
 				var typeImg = document.createElement('img');
 				typeImg.src = '/images/'  + (isFolder? 'folder.png' : 'file.png');
 				typeImg.className = 'odFileImg';
-				typeImg.width = 24;
 				td.appendChild(typeImg);
 				
 				row.appendChild(td);
 				td = document.createElement('td');
-				var titleSpan = document.createElement('span');
-				titleSpan.className = "odFileTitle";
-				titleSpan.innerHTML = (title != null && title.length > titleLimit)?
-						mxUtils.htmlEntities(title.substring(0, titleLimit)) + '&hellip;' : mxUtils.htmlEntities(title);
-				titleSpan.setAttribute('title', tooltip);
-				td.appendChild(titleSpan);
+				var titleDiv = document.createElement('div');
+				titleDiv.className = "odFileTitle";
+				titleDiv.innerHTML = mxUtils.htmlEntities(title);
+				titleDiv.setAttribute('title', tooltip);
+				td.appendChild(titleDiv);
 				row.appendChild(td);
 				grid.appendChild(row);
 				

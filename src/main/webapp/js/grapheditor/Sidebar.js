@@ -2166,12 +2166,11 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	// Applies default styles
 	var originalCells = cells;
 	cells = this.graph.cloneCells(cells);
-	this.editorUi.insertHandler(originalCells, null, this.graph.model,
-		this.editorUi.editor.graph.defaultVertexStyle,
-		this.editorUi.editor.graph.defaultEdgeStyle,
-		true, true);
+	this.editorUi.insertHandler(originalCells, null,
+		this.graph.model, null, null, true, true);
 
-	this.createThumb(originalCells, this.thumbWidth, this.thumbHeight, elt, title, showLabel, showTitle, width, height);
+	this.createThumb(originalCells, this.thumbWidth, this.thumbHeight,
+		elt, title, showLabel, showTitle, width, height);
 	var bounds = new mxRectangle(0, 0, width, height);
 	
 	if (cells.length > 1 || cells[0].vertex)

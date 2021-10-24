@@ -202,7 +202,7 @@ Editor.fitWindowBorders = null;
  * Specifies if the diagram should be saved automatically if possible. Default
  * is true.
  */
-Editor.popupsAllowed = true;
+Editor.popupsAllowed = window.urlParams != null? urlParams['noDevice'] != '1' : true;
 
 /**
  * Specifies if the html and whiteSpace styles should be removed on inserted cells.
