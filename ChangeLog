@@ -1,3 +1,11 @@
+26-OCT-2021: 15.6.0
+
+- First release of Notion Chrome extension
+- Add trigger of release on push of VERSION to release branch
+- Adds embed viewport
+- [conf cloud] Stops unnecessary viewer refreshes
+- Keeps windows inside embed viewport
+
 22-OCT-2021: 15.5.9
 
 - Fixes stroke and font color in dark mode https://github.com/jgraph/drawio/issues/2338]

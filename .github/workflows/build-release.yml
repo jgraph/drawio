@@ -1,0 +1,40 @@
+name: Build & Release
+
+on:
+  push:
+    paths:
+      - VERSION
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/release'
+    steps:
+    - name: Checkout reposistory
+      uses: actions/checkout@v2
+      with:
+        ref: 'release'
+    - name: Get Submodule
+      run: |
+        git submodule init
+        git config submodule.src/main/webapp/resources.url  https://${{secrets.I18N_USERNAME}}:${{secrets.I18N_ACCESS_KEY}}@github.com/jgraph/drawio-i18n.git
+        git submodule update --init --recursive
+    - name: Installing Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+    - name: Build
+      run: |
+        cd etc/build
+        npm install workbox-cli --global
+        ln -s `which workbox` /usr/local/bin/workbox
+        ant
+    - name: Tag and Push
+      run: |
+        export VERSION=`cat VERSION`
+        git config user.name github-actions
+        git config user.email github-actions@github.com
+        git commit -a -m "Ready for $VERSION"
+        git push
+        git tag "diagramly-${VERSION//\./_}"
+        git push origin "diagramly-${VERSION//\./_}"

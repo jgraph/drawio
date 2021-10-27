@@ -934,10 +934,11 @@
 			if (this.tagsWindow == null)
 			{
 				this.tagsWindow = new TagsWindow(editorUi, document.body.offsetWidth - 400, 60, 212, 200);
-				this.tagsWindow.window.addListener('show', function()
+				this.tagsWindow.window.addListener('show', mxUtils.bind(this, function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
-				});
+					this.tagsWindow.window.fit();
+				}));
 				this.tagsWindow.window.addListener('hide', function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));

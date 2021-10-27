@@ -1162,3 +1162,5 @@ owner=owner
 repository=repository
 branch=branch
 meters=meters
+teamsNoEditingMsg=teamsNoEditingMsg
+contactOwner=contactOwner

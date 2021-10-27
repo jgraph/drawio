@@ -1467,6 +1467,30 @@ EditorUi.initMinimalTheme = function()
 			}
 		}
 
+		// Overrides mxWindow.fit to allow for embedViewport
+		var ui = this;
+
+		mxWindow.prototype.fit = function()
+		{
+			if (!Editor.inlineFullscreen && ui.embedViewport != null)
+			{
+				var left = parseInt(this.div.offsetLeft);
+				var width = parseInt(this.div.offsetWidth);
+				var right = ui.embedViewport.x + ui.embedViewport.width;
+				this.div.style.left = Math.max(ui.embedViewport.x, Math.min(left, right - width)) + 'px';
+				
+				var top = parseInt(this.div.offsetTop);
+				var height = parseInt(this.div.offsetHeight);
+				var bottom = ui.embedViewport.y + ui.embedViewport.height;
+				
+				this.div.style.top = Math.max(ui.embedViewport.y, Math.min(top, bottom - height)) + 'px';
+			}
+			else
+			{
+				mxUtils.fit(this.div);
+			}
+		};
+
 		// Overrides insert ellipse shortcut
 		this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
 

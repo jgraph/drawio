@@ -802,10 +802,11 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var h0 = h;
 	var padding = transparent? 0 : 64; //No padding needed for transparent dialogs
 	
-	var ds = mxUtils.getDocumentSize();
+	var ds = (!Editor.inlineFullscreen && editorUi.embedViewport != null) ?
+		mxUtils.clone(editorUi.embedViewport) : mxUtils.getDocumentSize();
 	
 	// Workaround for print dialog offset in viewer lightbox
-	if (window.innerHeight != null)
+	if (editorUi.embedViewport == null && window.innerHeight != null)
 	{
 		ds.height = window.innerHeight;
 	}
@@ -844,6 +845,13 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	left += origin.x;
 	top += origin.y;
 
+	if (!Editor.inlineFullscreen && editorUi.embedViewport != null)
+	{
+		this.bg.style.height = mxUtils.getDocumentSize().height + 'px';
+		top += editorUi.embedViewport.y;
+		left += editorUi.embedViewport.x;
+	}
+	
 	if (modal)
 	{
 		document.body.appendChild(this.bg);
@@ -853,7 +861,7 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var pos = this.getPosition(left, top, w, h);
 	left = pos.x;
 	top = pos.y;
-	
+
 	div.style.width = w + 'px';
 	div.style.height = h + 'px';
 	div.style.left = left + 'px';
@@ -926,6 +934,11 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 		dh = ds.height;
 		this.bg.style.height = dh + 'px';
 		
+		if (!Editor.inlineFullscreen && editorUi.embedViewport != null)
+		{
+			this.bg.style.height = mxUtils.getDocumentSize().height + 'px';
+		}
+
 		left = Math.max(1, Math.round((ds.width - w - padding) / 2));
 		top = Math.max(1, Math.round((dh - h - editorUi.footerHeight) / 3));
 		w = (document.body != null) ? Math.min(w0, document.body.scrollWidth - padding) : w0;

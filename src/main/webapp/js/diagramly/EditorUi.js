@@ -12051,6 +12051,17 @@
 					else if (data.action == 'exit')
 					{
 						this.actions.get('exit').funct();
+
+						return;
+					}
+					else if (data.action == 'viewport')
+					{
+						if (data.viewport != null)
+						{
+							this.embedViewport = data.viewport;
+						}
+
+						return;
 					}
 					else if (data.action == 'export')
 					{
@@ -12401,15 +12412,20 @@
 							this.embedExportBorder = data.border;
 						}
 
-						var border = this.embedExportBorder;
-
 						if (data.background != null)
 						{
 							this.embedExportBackground = data.background;
 						}
 
+						if (data.viewport != null)
+						{
+							this.embedViewport = data.viewport;
+						}
+
 						if (data.rect != null)
 						{
+							var border = this.embedExportBorder;
+	
 							this.diagramContainer.style.border = '2px solid #295fcc';
 							this.diagramContainer.style.top = data.rect.top + 'px';
 							this.diagramContainer.style.left = data.rect.left + 'px';

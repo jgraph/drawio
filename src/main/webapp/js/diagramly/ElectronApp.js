@@ -843,6 +843,13 @@ mxStencilRegistry.allowEval = false;
 	
 	EditorUi.prototype.fileLoaded = function(file)
 	{
+		var fs = require('fs');
+		var oldFile = this.getCurrentFile();
+		
+		if (oldFile != null && oldFile.fileObject != null)
+		{
+			fs.unwatchFile(oldFile.fileObject.path);
+		}
 		
 		if (file != null)
 		{
@@ -875,6 +882,43 @@ mxStencilRegistry.allowEval = false;
 				
 				this.addRecent({id: file.fileObject.path, title: title});
 			}
+			
+			fs.watchFile(file.fileObject.path, mxUtils.bind(this, function(curr, prev) 
+			{
+				//File is changed (not just accessed)
+				if (curr.mtimeMs != prev.mtimeMs)
+				{
+					//Ignore our own changes
+					if (file.unwatchedSaves || (file.state != null && file.stat.mtimeMs == curr.mtimeMs))
+					{
+						file.unwatchedSaves = false;
+						return;
+					}
+					
+					file.inConflictState = true;
+					
+					this.showError(mxResources.get('externalChanges'),
+						mxResources.get('fileChangedSyncDialog'),
+						mxResources.get('synchronize'), mxUtils.bind(this, function()
+						{
+							if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
+							{
+								file.synchronizeFile(mxUtils.bind(this, function()
+								{
+									this.spinner.stop();
+								}), mxUtils.bind(this, function(err)
+								{
+									file.handleFileError(err, true);
+								}));
+							}
+						}), null, null, null,
+						mxResources.get('cancel'), mxUtils.bind(this, function()
+						{
+							this.hideDialog();
+							file.handleFileError(null, false);
+						}), 340, 150);
+				}
+			}));
 		}
 		
 		origFileLoaded.apply(this, arguments);
@@ -1341,6 +1385,8 @@ mxStencilRegistry.allowEval = false;
 					{
 						this.fileObject.bkpPath = getBkpFilePath(this.fileObject.path);
 					}
+					
+					this.unwatchedSaves = true; //Multiple saves doesn't call watch the same number, so use a boolean and check for changes
 					
 					App.filesWorkerReq({
 						action: 'saveFile',
