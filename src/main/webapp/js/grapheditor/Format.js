@@ -5912,6 +5912,12 @@ DiagramStylePanel.prototype.init = function()
 	var editor = ui.editor;
 	var graph = editor.graph;
 
+	this.darkModeChangedListener = mxUtils.bind(this, function()
+	{
+		this.format.cachedStyleEntries = [];
+	});
+
+	ui.addListener('darkModeChanged', this.darkModeChangedListener);
 	this.container.appendChild(this.addView(this.createPanel()));
 };
 
@@ -6171,10 +6177,16 @@ DiagramStylePanel.prototype.addView = function(div)
 	{
 		// Wrapper needed to catch events
 		var div = document.createElement('div');
-		div.style.cssText = 'position:absolute;display:inline-block;width:100%;height:100%;overflow:hidden;pointer-events:none;';
+		div.style.position = 'absolute';
+		div.style.display = 'inline-block';
+		div.style.overflow = 'hidden';
+		div.style.pointerEvents = 'none';
+		div.style.width = '100%';
+		div.style.height = '100%';
 		container.appendChild(div);
 		
 		var graph2 = new Graph(div, null, null, graph.getStylesheet());
+		graph2.defaultForegroundColor = graph.defaultForegroundColor;
 		graph2.resetViewOnRootChange = false;
 		graph2.foldingEnabled = false;
 		graph2.gridEnabled = false;
@@ -6507,6 +6519,20 @@ DiagramStylePanel.prototype.addView = function(div)
 	return div;
 };
 
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
+ DiagramStylePanel.prototype.destroy = function()
+ {
+	 BaseFormatPanel.prototype.destroy.apply(this, arguments);
+	 
+	 if (this.darkModeChangedListener)
+	 {
+		 this.editorUi.removeListener(this.darkModeChangedListener);
+		 this.darkModeChangedListener = null;
+	 }
+ };
+ 
 /**
  * Adds the label menu items to the given menu and parent.
  */

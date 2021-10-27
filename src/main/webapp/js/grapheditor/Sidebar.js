@@ -274,8 +274,9 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 /**
  * Adds all palettes to the sidebar.
  */
-Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown, closable)
+Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, off, maxSize, mouseDown, closable, applyAllStyles)
 {
+	applyAllStyles = (applyAllStyles != null) ? applyAllStyles : true;
 	this.tooltipMouseDown = mouseDown;
 	
 	// Lazy creation of the DOM nodes and graph instance
@@ -371,7 +372,10 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	
 	// Applies current style for preview
 	var temp = this.graph2.cloneCells(cells);
-	this.editorUi.insertHandler(temp, null, this.graph2.model, null, null, true);
+	this.editorUi.insertHandler(temp, null, this.graph2.model,
+		(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
+		(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
+		applyAllStyles, true);
 	this.graph2.addCells(temp);
 	
 	mxClient.NO_FO = fo;

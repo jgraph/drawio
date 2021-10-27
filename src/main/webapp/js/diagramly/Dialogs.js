@@ -3165,7 +3165,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						wasVisible = editorUi.sidebar.tooltip != null &&
 							editorUi.sidebar.tooltip.style.display != 'none';
 						selectElement(elt, null, null, url, infoObj, clibs);
-					}, true);
+					}, true, false);
 			}
 		};
 

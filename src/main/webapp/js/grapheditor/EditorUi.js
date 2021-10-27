@@ -87,6 +87,9 @@ EditorUi = function(editor, container, lightbox)
 			'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
 			'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
 			'simplification', 'sketchStyle'];
+		// Styles to be ignored if applyAll is false
+		var ignoredEdgeStyles = ['curved', 'sourcePerimeterSpacing', 'targetPerimeterSpacing',
+			'startArrow', 'startFill', 'startSize', 'endArrow', 'endFill', 'endSize'];
 		
 		// Note: Everything that is not in styles is ignored (styles is augmented below)
 		this.setDefaultStyle = function(cell)
@@ -211,6 +214,7 @@ EditorUi = function(editor, container, lightbox)
 		{
 			vertexStyle = (vertexStyle != null) ? vertexStyle : graph.currentVertexStyle;
 			edgeStyle = (edgeStyle != null) ? edgeStyle : graph.currentEdgeStyle;
+			applyAll = (applyAll != null) ? applyAll : true;
 			
 			model = (model != null) ? model : graph.getModel();
 			
@@ -297,7 +301,7 @@ EditorUi = function(editor, container, lightbox)
 						if (styleValue != null && key != 'edgeStyle' && (key != 'shape' || edge))
 						{
 							// Special case: Connect styles are not applied here but in the connection handler
-							if (!edge || applyAll || mxUtils.indexOf(connectStyles, key) < 0)
+							if (!edge || applyAll || mxUtils.indexOf(ignoredEdgeStyles, key) < 0)
 							{
 								newStyle = mxUtils.setStyle(newStyle, key, styleValue);
 							}

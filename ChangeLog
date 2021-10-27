@@ -1,3 +1,14 @@
+27-OCT-2021: 15.6.1
+
+- Handles of dark mode change for diagram styles
+- Uses waypoint shapes, removes hardcoded colors
+- Ignores some edge styles when inserting templates
+- [jira cloud] Hide draw.io button when no diagrams are in the issue
+- Uses default not current style for import
+- [conf cloud] Log viewer xml errors
+- Fixes OneDrive inlinePicker config error
+- [conf cloud] Added simpleViewer global config
+
 26-OCT-2021: 15.6.0
 
 - First release of Notion Chrome extension

@@ -7043,9 +7043,9 @@
 					if (applyDefaultStyles)
 					{
 						this.insertHandler(cells, null, null,
-							Graph.prototype.defaultVertexStyle,
-							Graph.prototype.defaultEdgeStyle,
-							true, true);
+							graph.defaultVertexStyle,
+							graph.defaultEdgeStyle,
+							false, true);
 					}
 				}
 				finally

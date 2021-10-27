@@ -282,7 +282,7 @@ feedbackSent=Feedback erfolgreich versendet.
 floorplans=Grundriss
 file=Datei
 fileChangedOverwriteDialog=Die Datei wurde geändert. Möchten Sie die Datei speichern und die Änderungen überschreiben?
-fileChangedSyncDialog=Die Datei wurde geändert. Möchten Sie die Änderungen synchronisieren?
+fileChangedSyncDialog= Die Datei wurde geändert. Klicken Sie auf "Ja", um die Änderungen zusammenzuführen, oder auf "Nein", um sie zu überschreiben. 
 fileChangedSync=Die Datei wurde geändert. Hier klicken um zu synchronisieren.
 overwrite=Überschreiben
 synchronize=Synchronisieren

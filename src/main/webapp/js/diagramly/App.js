@@ -516,14 +516,8 @@ App.getStoredMode = function()
 						if (App.mode == App.MODE_ONEDRIVE || (window.location.hash != null &&
 							window.location.hash.substring(0, 2) == '#W'))
 						{
-							if (!Editor.oneDriveInlinePicker)
-							{
-								mxscript(App.ONEDRIVE_URL);
-							}
-							else
-							{
-								window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
-							}
+							//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
+							mxscript(App.ONEDRIVE_URL);
 						}
 						else if (urlParams['chrome'] == '0')
 						{
@@ -954,15 +948,8 @@ App.main = function(callback, createUi)
 						urlParams['od'] == '1')) && (navigator.userAgent == null ||
 						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
 					{
-						if (!Editor.oneDriveInlinePicker)
-						{
-							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
-						}
-						else
-						{
-							window.OneDrive = {}; //Needed to allow code that check its existance to work BUT it's not used 
-							window.DrawOneDriveClientCallback();
-						}
+						//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
+						mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
 					}
 					// Disables client
 					else if (typeof window.OneDrive === 'undefined')
