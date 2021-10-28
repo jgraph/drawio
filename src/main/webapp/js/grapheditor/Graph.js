@@ -1730,14 +1730,50 @@ Graph.clipSvgDataUri = function(dataUri)
 					
 					try
 					{
+						var fx = 1;
+						var fy = 1;
+						var w = svgs[0].getAttribute('width');
+						var h = svgs[0].getAttribute('height');
+						
+						if (w != null && w.charAt(w.length - 1) != '%')
+						{
+							w = parseFloat(w);
+						}
+						else
+						{
+							w = NaN;
+						}
+						
+						if (h != null && h.charAt(h.length - 1) != '%')
+						{
+							h = parseFloat(h);
+						}
+						else
+						{
+							h = NaN;
+						}
+						
+						var vb = svgs[0].getAttribute('viewBox');
+						
+						if (vb != null && !isNaN(w) && !isNaN(h))
+						{
+							var tokens = vb.split(' ');
+
+							if (vb.length >= 4)
+							{
+								fx = parseFloat(tokens[2]) / w;
+								fy = parseFloat(tokens[3]) / h;
+							}
+						}
+
 						var size = svgs[0].getBBox();
 
 						if (size.width > 0 && size.height > 0)
 						{
 							div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
 								' ' + size.y + ' ' + size.width + ' ' + size.height);
-							div.getElementsByTagName('svg')[0].setAttribute('width', size.width);
-							div.getElementsByTagName('svg')[0].setAttribute('height', size.height);
+							div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
+							div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
 						}
 					}
 					catch (e)
@@ -7779,11 +7815,63 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 
 		/**
+		 * Swaps UML Lifelines.
+		 */
+		Graph.prototype.swapUmlLifelines = function(cells, target)
+		{
+			var result = false;
+
+			if (target != null && cells.length == 1)
+			{
+				var targetState = this.view.getState(target);
+				var sourceState = this.view.getState(cells[0]);
+
+				if (targetState != null && sourceState != null &&
+					targetState.style['shape'] == 'umlLifeline' &&
+					sourceState.style['shape'] == 'umlLifeline')
+				{
+					var g1 = this.getCellGeometry(target);
+					var g2 = this.getCellGeometry(cells[0]);
+
+					if (g1 != null && g2 != null)
+					{
+						var ng1 = g1.clone();
+						var ng2 = g2.clone();
+						ng2.x = ng1.x;
+						ng2.y = ng1.y;
+						ng1.x = g2.x;
+						ng1.y = g2.y;
+
+						this.model.beginUpdate();
+						try
+						{
+							this.model.setGeometry(target, ng1);
+							this.model.setGeometry(cells[0], ng2);
+						}
+						finally
+						{
+							this.model.endUpdate();
+						}
+
+						result = true;
+					}
+				}
+			}
+
+			return result;
+		};
+
+		/**
 		 * Overrides cloning cells in moveCells.
 		 */
 		var graphMoveCells = Graph.prototype.moveCells;
 		Graph.prototype.moveCells = function(cells, dx, dy, clone, target, evt, mapping)
 		{
+			if (!clone && this.swapUmlLifelines(cells, target))
+			{
+				return cells;
+			}
+			
 			mapping = (mapping != null) ? mapping : new Object();
 			
 			// Replaces source tables with rows

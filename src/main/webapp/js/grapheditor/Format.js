@@ -5998,14 +5998,16 @@ DiagramStylePanel.prototype.addView = function(div)
 		
 		if (checked)
 		{
+			graph.currentEdgeStyle['rounded'] = '1';
 			graph.currentVertexStyle['rounded'] = '1';
 		}
 		else
 		{
+			delete graph.currentEdgeStyle['rounded'];
 			delete graph.currentVertexStyle['rounded'];
 		}
 		
-		graph.updateCellStyles('rounded', (checked) ? '1' : null, graph.getVerticesAndEdges(true, true));
+		graph.updateCellStyles('rounded', (checked) ? '1' : '0', graph.getVerticesAndEdges());
 	}, null, function(div)
 	{
 		div.style.width = 'auto';

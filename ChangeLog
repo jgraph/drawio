@@ -1,3 +1,15 @@
+28-OCT-2021: 15.6.2
+
+- Fixes bounding box scale for SVG clipping https://github.com/jgraph/drawio/issues/2257
+- Uses default style for thumbnails
+- Improves handling for background colors in Notion
+- Fixes remove rounded diagram style for line https://github.com/jgraph/drawio/issues/2066
+- Adds sidebarTitles, sidebarTitleSize config https://github.com/jgraph/drawio/issues/1893
+- Adds drag and drop to swap UML lifelines https://github.com/jgraph/drawio/issues/982
+- Adds exit point for inline embed protocol
+- Hides dragHandle while editing diagram
+- Fixes inline embed resize moves format panel
+
 27-OCT-2021: 15.6.1
 
 - Handles of dark mode change for diagram styles
@@ -19,7 +31,7 @@
 
 22-OCT-2021: 15.5.9
 
-- Fixes stroke and font color in dark mode https://github.com/jgraph/drawio/issues/2338]
+- Fixes stroke and font color in dark mode https://github.com/jgraph/drawio/issues/2338
 
 21-OCT-2021: 15.5.8
 

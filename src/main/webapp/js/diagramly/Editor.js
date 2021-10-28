@@ -2019,10 +2019,34 @@
 			{
 				EditorUi.prototype.emptyLibraryXml = config.emptyLibraryXml;
 			}
+
+			if (config.emptyDiagramXml)
+			{
+				EditorUi.prototype.emptyDiagramXml = config.emptyDiagramXml;
+			}
 			
 			if (config.sidebarWidth)
 			{
 				EditorUi.prototype.hsplitPosition = config.sidebarWidth;
+			}
+			
+			if (config.sidebarTitles)
+			{
+				Sidebar.prototype.sidebarTitles = config.sidebarTitles;
+			}
+			
+			if (config.sidebarTitleSize)
+			{
+				var val = parseInt(config.sidebarTitleSize);
+				
+				if (!isNaN(val) && val > 0)
+				{
+					Sidebar.prototype.sidebarTitleSize = val;
+				}
+				else
+				{
+					EditorUi.debug('Invalid sidebarTitleSize: value must be int > 0');
+				}
 			}
 			
 			if (config.fontCss)

@@ -2144,17 +2144,17 @@ EditorUi.initMinimalTheme = function()
 
 					// Append sidebar elements
 					addElt(ui.sidebar.createVertexTemplate('text;strokeColor=none;fillColor=none;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 
-						60, 30, 'Text', mxResources.get('text'), true, true, null, true, true), mxResources.get('text') +
+						60, 30, 'Text', mxResources.get('text'), true, false, null, true, true), mxResources.get('text') +
 						' (' +  Editor.ctrlKey + '+Shift+X' + ')');
 					addElt(ui.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 						'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
 						'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
-						140, 160, '', mxResources.get('note'), true, true, null, true), mxResources.get('note'));
+						140, 160, '', mxResources.get('note'), true, false, null, true), mxResources.get('note'));
 					addElt(ui.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80,
-						'', mxResources.get('rectangle'), true, true, null, true), mxResources.get('rectangle') +
+						'', mxResources.get('rectangle'), true, false, null, true), mxResources.get('rectangle') +
 						' (' +  Editor.ctrlKey + '+K' + ')');
 					addElt(ui.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100,
-						'', mxResources.get('ellipse'), true, true, null, true), mxResources.get('ellipse'));
+						'', mxResources.get('ellipse'), true, false, null, true), mxResources.get('ellipse'));
 					
 					(function()
 					{
@@ -2168,7 +2168,7 @@ EditorUi.initMinimalTheme = function()
 						
 						addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 							cell.geometry.width, cell.geometry.height,
-							mxResources.get('line'), false, null, true),
+							mxResources.get('line'), true, null, true, false),
 							mxResources.get('line'));
 							
 						cell = cell.clone();
@@ -2179,7 +2179,7 @@ EditorUi.initMinimalTheme = function()
 		
 						var elt = addElt(ui.sidebar.createEdgeTemplateFromCells([cell],
 							cell.geometry.width, 40, mxResources.get('arrow'),
-							false, null, true), mxResources.get('arrow'));
+							true, null, true, false), mxResources.get('arrow'));
 						elt.style.borderBottom = '1px solid ' + (Editor.isDarkMode() ? '#505050' : 'lightgray');
 						elt.style.paddingBottom = '14px';
 						elt.style.marginBottom = '14px';
@@ -2680,6 +2680,7 @@ EditorUi.initMinimalTheme = function()
 				if (mxEvent.getSource(evt) ==
 					ui.diagramContainer.parentNode)
 				{
+					ui.embedExitPoint = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 					ui.sendEmbeddedSvgExport();
 				}
 			});
@@ -2747,7 +2748,7 @@ EditorUi.initMinimalTheme = function()
 						fullscreen: Editor.inlineFullscreen,
 						rect: ui.diagramContainer.getBoundingClientRect()
 					}), '*');
-					ui.fireEvent(new mxEventObject('editInlineStart'));
+					inlineSizeChanged();
 					ui.refresh();
 				}
 			}, function(evt)

@@ -11687,20 +11687,27 @@
 
 		if (!this.editor.modified)
 		{
-			parent.postMessage(JSON.stringify({event: 'exit'}), '*');
+			parent.postMessage(JSON.stringify({event: 'exit',
+				point: this.embedExitPoint}), '*');
 		}
 		else
 		{
+			var bg = graph.background;
+		
+			if (bg == null || bg == mxConstants.NONE)
+			{
+				bg = this.embedExportBackground;
+			}
+
 			this.getEmbeddedSvg(this.getFileData(true, null, null, null, null,
 				null, null, null, null, false), graph, null, true,
 				mxUtils.bind(this, function(svg)
 			{
 				parent.postMessage(JSON.stringify({
-					event: 'export',
+					event: 'export', point: this.embedExitPoint,
 					data: Editor.createSvgDataUri(svg)
 				}), '*');
-			}), null, null, true, this.embedExportBackground,
-				1, this.embedExportBorder);
+			}), null, null, true, bg, 1, this.embedExportBorder);
 		}
 
 		this.diagramContainer.removeAttribute('data-bounds');
@@ -12421,6 +12428,8 @@
 						{
 							this.embedViewport = data.viewport;
 						}
+
+						this.embedExitPoint = null;
 
 						if (data.rect != null)
 						{
