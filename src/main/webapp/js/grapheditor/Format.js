@@ -6188,7 +6188,11 @@ DiagramStylePanel.prototype.addView = function(div)
 		container.appendChild(div);
 		
 		var graph2 = new Graph(div, null, null, graph.getStylesheet());
-		graph2.defaultForegroundColor = graph.defaultForegroundColor;
+		
+		graph2.defaultPageBackgroundColor =
+			graph.defaultPageBackgroundColor;
+		graph2.defaultForegroundColor =
+			graph.defaultForegroundColor;
 		graph2.resetViewOnRootChange = false;
 		graph2.foldingEnabled = false;
 		graph2.gridEnabled = false;

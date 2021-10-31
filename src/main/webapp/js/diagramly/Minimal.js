@@ -1274,7 +1274,10 @@ EditorUi.initMinimalTheme = function()
 
 			if (urlParams['embedInline'] != '1')
 			{
-				this.addMenuItems(menu, ['toggleDarkMode'], parent);
+				if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
+				{
+					this.addMenuItems(menu, ['toggleDarkMode'], parent);
+				}
 
 				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 				{
@@ -1798,6 +1801,8 @@ EditorUi.initMinimalTheme = function()
 			{
 				this.sidebar.graph.stylesheet.styles =
 					mxUtils.clone(graph.stylesheet.styles);
+				this.sidebar.graph.defaultPageBackgroundColor =
+					graph.defaultPageBackgroundColor;
 				this.sidebar.graph.defaultForegroundColor =
 					graph.defaultForegroundColor;
 				this.sidebar.container.innerHTML = '';
@@ -2762,7 +2767,6 @@ EditorUi.initMinimalTheme = function()
 				y0 = null;
 			});
 
-			graph.defaultPageBackgroundColor = 'transparent';
 			this.diagramContainer.style.borderRadius = '4px';
 			document.body.style.backgroundColor = 'transparent';
 			ui.bottomResizer.style.visibility = 'hidden';

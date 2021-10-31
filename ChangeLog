@@ -1,3 +1,10 @@
+31-OCT-2021: 15.6.3
+
+- Hides dragHandle while editing diagram
+- Fixes inline embed resize moves format panel
+- Fixes handling of default colors in SVG output
+- Notion extension improvements
+
 28-OCT-2021: 15.6.2
 
 - Fixes bounding box scale for SVG clipping https://github.com/jgraph/drawio/issues/2257

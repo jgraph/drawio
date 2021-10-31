@@ -9678,6 +9678,7 @@ if (typeof mxVertexHandler != 'undefined')
 				crisp = (crisp != null) ? crisp : true;
 				ignoreSelection = (ignoreSelection != null) ? ignoreSelection : true;
 				showText = (showText != null) ? showText : true;
+				hasShadow = (hasShadow != null) ? hasShadow : false;
 	
 				var bounds = (exportType == 'page') ? this.view.getBackgroundPageBounds() :
 					(((ignoreSelection && lookup == null) || nocrop ||
@@ -9727,10 +9728,12 @@ if (typeof mxVertexHandler != 'undefined')
 					// KNOWN: Ignored in IE9-11, adds namespace for each image element instead. No workaround.
 					root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', mxConstants.NS_XLINK);
 				}
-				
+
 				var s = scale / vs;
-				var w = Math.max(1, Math.ceil(bounds.width * s) + 2 * border) + ((hasShadow) ? 5 : 0);
-				var h = Math.max(1, Math.ceil(bounds.height * s) + 2 * border) + ((hasShadow) ? 5 : 0);
+				var w = Math.max(1, Math.ceil(bounds.width * s) + 2 * border) +
+					((hasShadow && border == 0) ? 5 : 0);
+				var h = Math.max(1, Math.ceil(bounds.height * s) + 2 * border) +
+					((hasShadow && border == 0) ? 5 : 0);
 				
 				root.setAttribute('version', '1.1');
 				root.setAttribute('width', w + 'px');
@@ -11013,17 +11016,18 @@ if (typeof mxVertexHandler != 'undefined')
 		var mxCellRendererPostConfigureShape = mxCellRenderer.prototype.postConfigureShape;
 		mxCellRenderer.prototype.postConfigureShape = function(state)
 		{
-			var bg = state.view.graph.defaultPageBackgroundColor;
-			var fg = state.view.graph.defaultForegroundColor;
+			// Uses rgba to distinguish from user-defined values in output
+			var bg = mxUtils.hex2rgba(state.view.graph.defaultPageBackgroundColor);
+			var fg = mxUtils.hex2rgba(state.view.graph.defaultForegroundColor);
 
 			this.resolveDefaultColor(state, 'fill', state.shape, bg);
+			this.resolveDefaultColor(state, 'color', state.text, fg);
+			this.resolveDefaultColor(state, 'border', state.text, fg);
 			this.resolveDefaultColor(state, 'stroke', state.shape, fg);
 			this.resolveDefaultColor(state, 'laneFill', state.shape, bg);
-			this.resolveDefaultColor(state, 'imageBackground', state.shape, bg);
-			this.resolveDefaultColor(state, 'labelBackgroundColor', state.shape, bg);
-			this.resolveDefaultColor(state, 'imageBorder', state.shape, fg);
 			this.resolveDefaultColor(state, 'background', state.text, bg);
-			this.resolveDefaultColor(state, 'color', state.text, fg);
+			this.resolveDefaultColor(state, 'imageBorder', state.shape, fg);
+			this.resolveDefaultColor(state, 'imageBackground', state.shape, bg);
 
 			mxCellRendererPostConfigureShape.apply(this, arguments);
 		};
@@ -11033,7 +11037,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		mxCellRenderer.prototype.resolveDefaultColor = function(state, field, shape, defaultValue)
 		{
-			if (shape != null && shape[field] == 'default')
+			if (shape != null && shape[field] == 'default' && defaultValue != null)
 			{
 				shape[field] = defaultValue;
 			}

@@ -1419,7 +1419,12 @@ App.prototype.init = function()
 		{
 			this.updateUserElement();
 			this.restoreLibraries();
-		}))
+
+			this.showBanner('GithubFooter', 'Click to install GitHub app', mxUtils.bind(this, function()
+			{
+				this.openLink('https://github.com/apps/draw-io-app');
+			}));
+		}));
 	}
 	
 	/**

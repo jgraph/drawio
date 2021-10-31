@@ -932,11 +932,13 @@
 			
 			if (fillStyle == 'auto')
 			{
-				var bg = (this.shape.state != null && this.shape.state.view.graph.defaultPageBackgroundColor != 'transparent') ?
-					this.shape.state.view.graph.defaultPageBackgroundColor : (Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
+				var bg = mxUtils.hex2rgba((this.shape.state != null &&
+					this.shape.state.view.graph.defaultPageBackgroundColor != 'transparent') ?
+					this.shape.state.view.graph.defaultPageBackgroundColor :
+					(Editor.isDarkMode() ? Editor.darkColor : '#ffffff'));
 				
 				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
-					style.fill.toLowerCase() == bg.toLowerCase()))) ? 'solid' : defs['fillStyle']
+					style.fill == bg))) ? 'solid' : defs['fillStyle'];
 			}
 			
 			style['fillStyle'] = fillStyle;
@@ -7522,9 +7524,10 @@
 	/**
 	 * Adds a shadow filter to the given svg root.
 	 */
-	Graph.prototype.addSvgShadow = function(svgRoot, group, createOnly)
+	Graph.prototype.addSvgShadow = function(svgRoot, group, createOnly, extend)
 	{
 		createOnly = (createOnly != null) ? createOnly : false;
+		extend = (extend != null) ? extend : true;
 		
 		var svgDoc = svgRoot.ownerDocument;
 		
@@ -7601,7 +7604,7 @@
 			{
 				group.setAttribute('filter', 'url(#' + this.shadowId + ')');
 				
-				if (!isNaN(parseInt(svgRoot.getAttribute('width'))))
+				if (!isNaN(parseInt(svgRoot.getAttribute('width'))) && extend)
 				{
 					svgRoot.setAttribute('width', parseInt(svgRoot.getAttribute('width')) + 6);
 					svgRoot.setAttribute('height', parseInt(svgRoot.getAttribute('height')) + 6);

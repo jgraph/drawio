@@ -6758,6 +6758,8 @@
 		redirect, embedImages, background, scale, border, shadow, keepTheme)
 	{
 		embedImages = (embedImages != null) ? embedImages : true;
+		border = (border != null) ? border : 0;
+
 		var bg = (background != null) ? background : graph.background;
 		
 		if (bg == mxConstants.NONE)
@@ -6772,7 +6774,7 @@
 		
 		if (graph.shadowVisible || shadow)
 		{
-			graph.addSvgShadow(svgRoot);
+			graph.addSvgShadow(svgRoot, null, null, border == 0);
 		}
 
 		if (xml != null)
@@ -11674,7 +11676,7 @@
 	/**
 	 * Adds the buttons for embedded mode.
 	 */
-	EditorUi.prototype.sendEmbeddedSvgExport = function()
+	EditorUi.prototype.sendEmbeddedSvgExport = function(noExit)
 	{
 		var graph = this.editor.graph;
 
@@ -11687,8 +11689,11 @@
 
 		if (!this.editor.modified)
 		{
-			parent.postMessage(JSON.stringify({event: 'exit',
-				point: this.embedExitPoint}), '*');
+			if (!noExit)
+			{
+				parent.postMessage(JSON.stringify({event: 'exit',
+					point: this.embedExitPoint}), '*');
+			}
 		}
 		else
 		{
@@ -11705,19 +11710,23 @@
 			{
 				parent.postMessage(JSON.stringify({
 					event: 'export', point: this.embedExitPoint,
+					exit: (noExit != null) ? !noExit : true,
 					data: Editor.createSvgDataUri(svg)
 				}), '*');
 			}), null, null, true, bg, 1, this.embedExportBorder);
 		}
 
-		this.diagramContainer.removeAttribute('data-bounds');
-		Editor.inlineFullscreen = false;
-		graph.model.clear();
-		this.editor.undoManager.clear();
-		this.setBackgroundImage(null);
-		this.editor.modified = false;
+		if (!noExit)
+		{
+			this.diagramContainer.removeAttribute('data-bounds');
+			Editor.inlineFullscreen = false;
+			graph.model.clear();
+			this.editor.undoManager.clear();
+			this.setBackgroundImage(null);
+			this.editor.modified = false;
 
-		this.fireEvent(new mxEventObject('editInlineStop'));
+			this.fireEvent(new mxEventObject('editInlineStop'));
+		}
 	};
 	
 	/**
@@ -12067,6 +12076,12 @@
 						{
 							this.embedViewport = data.viewport;
 						}
+
+						return;
+					}
+					else if (data.action == 'snapshot')
+					{
+						this.sendEmbeddedSvgExport(true);
 
 						return;
 					}
