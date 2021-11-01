@@ -246,6 +246,11 @@ App.MODE_NOTION = 'notion';
 App.MODE_EMBED = 'embed';
 
 /**
+ * Atlas App Mode
+ */
+App.MODE_ATLAS = 'atlas';
+
+/**
  * Sets the delay for autosave in milliseconds. Default is 2000.
  */
 App.DROPBOX_APPKEY = window.DRAWIO_DROPBOX_ID;

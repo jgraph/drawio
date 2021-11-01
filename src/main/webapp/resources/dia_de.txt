@@ -1164,3 +1164,4 @@ branch=Branch
 meters=Meter
 teamsNoEditingMsg=Editor functionality is only available in Desktop environment (in MS Teams App or a web browser)
 contactOwner=Contact Owner
+viewerOnlyMsg=You cannot edit the diagrams in the mobile platform, please use the desktop client or a web browser.

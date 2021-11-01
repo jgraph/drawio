@@ -3590,7 +3590,8 @@ TextFormatPanel.prototype.addFont = function(container)
 	{
 		install: function(apply) { bgColorApply = apply; },
 		destroy: function() { bgColorApply = null; }
-	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'), mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', null, function(color)
+	}, null, true) : this.createCellColorOption(mxResources.get('backgroundColor'),
+		mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, 'default', null, function(color)
 	{
 		graph.updateLabelElements(ss.cells, function(elt)
 		{
@@ -3599,7 +3600,9 @@ TextFormatPanel.prototype.addFont = function(container)
 	}, graph.defaultPageBackgroundColor);
 	bgPanel.style.fontWeight = 'bold';
 
-	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'), mxConstants.STYLE_LABEL_BORDERCOLOR, '#000000');
+	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'),
+		mxConstants.STYLE_LABEL_BORDERCOLOR, 'default', null, null,
+		graph.defaultForegroundColor);
 	borderPanel.style.fontWeight = 'bold';
 	
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
@@ -6188,11 +6191,7 @@ DiagramStylePanel.prototype.addView = function(div)
 		container.appendChild(div);
 		
 		var graph2 = new Graph(div, null, null, graph.getStylesheet());
-		
-		graph2.defaultPageBackgroundColor =
-			graph.defaultPageBackgroundColor;
-		graph2.defaultForegroundColor =
-			graph.defaultForegroundColor;
+
 		graph2.resetViewOnRootChange = false;
 		graph2.foldingEnabled = false;
 		graph2.gridEnabled = false;
@@ -6218,6 +6217,11 @@ DiagramStylePanel.prototype.addView = function(div)
 			applyStyle(commonStyle, result, cell, graphStyle, graph2);
 			applyStyle(appliedStyle, result, cell, graphStyle, graph2);
 			
+			if (result != null)
+			{
+				result = this.postProcessCellStyle(result);
+			}
+
 			return result;
 		};
 		
@@ -6362,6 +6366,11 @@ DiagramStylePanel.prototype.addView = function(div)
 					removeStyles(result, defaultStyles, defaultStyle);
 					applyStyle(commonStyle, result, cell, graphStyle);
 					applyStyle(appliedStyle, result, cell, graphStyle);
+					
+					if (result != null)
+					{
+						result = this.postProcessCellStyle(result);
+					}
 					
 					return result;
 				};

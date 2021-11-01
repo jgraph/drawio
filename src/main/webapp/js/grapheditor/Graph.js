@@ -11011,39 +11011,6 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 
 		/**
-		 * Handles special color values.
-		 */
-		var mxCellRendererPostConfigureShape = mxCellRenderer.prototype.postConfigureShape;
-		mxCellRenderer.prototype.postConfigureShape = function(state)
-		{
-			// Uses rgba to distinguish from user-defined values in output
-			var bg = mxUtils.hex2rgba(state.view.graph.defaultPageBackgroundColor);
-			var fg = mxUtils.hex2rgba(state.view.graph.defaultForegroundColor);
-
-			this.resolveDefaultColor(state, 'fill', state.shape, bg);
-			this.resolveDefaultColor(state, 'color', state.text, fg);
-			this.resolveDefaultColor(state, 'border', state.text, fg);
-			this.resolveDefaultColor(state, 'stroke', state.shape, fg);
-			this.resolveDefaultColor(state, 'laneFill', state.shape, bg);
-			this.resolveDefaultColor(state, 'background', state.text, bg);
-			this.resolveDefaultColor(state, 'imageBorder', state.shape, fg);
-			this.resolveDefaultColor(state, 'imageBackground', state.shape, bg);
-
-			mxCellRendererPostConfigureShape.apply(this, arguments);
-		};
-
-		/**
-		 * Adds default background color handling for text and lanes.
-		 */
-		mxCellRenderer.prototype.resolveDefaultColor = function(state, field, shape, defaultValue)
-		{
-			if (shape != null && shape[field] == 'default' && defaultValue != null)
-			{
-				shape[field] = defaultValue;
-			}
-		};
-
-		/**
 		 * Handling of special nl2Br style for not converting newlines to breaks in HTML labels.
 		 * NOTE: Since it's easier to set this when the label is created we assume that it does
 		 * not change during the lifetime of the mxText instance.

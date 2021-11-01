@@ -1,3 +1,12 @@
+01-NOV-2021: 15.6.4
+
+- Moves resolve default colors to cell style https://github.com/jgraph/drawio/issues/2370
+- Adds default text border color
+- FIxes handling of Atlas mode and default colors
+- Updates default color via prototype
+- Fixes sticky scrollbar in FF on Windows [DID-3588]
+- Restores previous Notion embed menu
+
 31-OCT-2021: 15.6.3
 
 - Hides dragHandle while editing diagram

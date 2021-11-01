@@ -13,7 +13,6 @@ function Sidebar(editorUi, container)
 	this.lastCreated = 0;
 	this.showTooltips = true;
 	this.graph = editorUi.createTemporaryGraph(this.editorUi.editor.graph.getStylesheet());
-	this.graph.defaultForegroundColor = editorUi.editor.graph.defaultForegroundColor;
     this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
 	this.graph.cellRenderer.antiAlias = this.thumbAntiAlias;
 	this.graph.container.style.visibility = 'hidden';
@@ -354,7 +353,6 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	this.tooltipCloseImage.style.display = (closable) ? '' : 'none';
 	this.graph2.model.clear();
 	this.graph2.view.setTranslate(this.tooltipBorder, this.tooltipBorder);
-	this.graph2.defaultForegroundColor = this.editorUi.editor.graph.defaultForegroundColor;
 	
 	if (!maxSize && (w > this.maxTooltipWidth || h > this.maxTooltipHeight))
 	{
@@ -377,9 +375,8 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
 		applyAllStyles, true);
 	this.graph2.addCells(temp);
-	
+
 	mxClient.NO_FO = fo;
-	
 	var bounds = this.graph2.getGraphBounds();
 	
 	// Maximum size applied with transform for faster repaint

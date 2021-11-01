@@ -2119,7 +2119,28 @@
 
 		editorUi.actions.put('embedNotion', new Action(mxResources.get('notion') + '...', function()
 		{
-			editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-for-notion/plhaalebpkihaccllnkdaokdoeaokmle');
+			editorUi.showPublishLinkDialog(mxResources.get('notion'), null, null, null,
+				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
+			{
+				if (editorUi.spinner.spin(document.body, mxResources.get('loading')))
+				{
+					editorUi.getPublicUrl(editorUi.getCurrentFile(), function(url)
+					{
+						editorUi.spinner.stop();
+						var params = ['border=0'];
+
+						if (tags)
+						{
+							params.push('tags=%7B%7D');
+						}
+
+						var dlg = new EmbedDialog(editorUi, editorUi.createLink(linkTarget, linkColor,
+							allPages, lightbox, editLink, layers, url, null, params, true));
+						editorUi.showDialog(dlg.container, 450, 240, true, true);
+						dlg.init();
+					});
+				}
+			}, true);
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()

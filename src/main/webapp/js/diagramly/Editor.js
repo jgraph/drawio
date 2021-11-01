@@ -5933,7 +5933,41 @@
 	var graphPostProcessCellStyle = Graph.prototype.postProcessCellStyle;
 	Graph.prototype.postProcessCellStyle = function(style)
 	{
+		this.replaceDefaultColors(style);
+
 		return Graph.processFontStyle(graphPostProcessCellStyle.apply(this, arguments));
+	};
+
+	/**
+	 * Replaces default colors. 
+	 */
+	Graph.prototype.replaceDefaultColors = function(style)
+	{
+		if (style != null)
+		{
+			var fg = mxUtils.hex2rgba(this.defaultForegroundColor);
+			var bg = mxUtils.hex2rgba(this.defaultPageBackgroundColor);
+
+			this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_STROKECOLOR, fg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BORDER, fg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BACKGROUND, bg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BORDERCOLOR, fg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, bg);
+			this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, bg);
+		}
+	};
+
+	/**
+	 * Replaces the colors for the given key.
+	 */
+	Graph.prototype.replaceDefaultColor = function(style, key, value)
+	{
+		if (style != null && style[key] == 'default' && value != null)
+		{
+			style[key] = value;
+		}
 	};
 
 	/**

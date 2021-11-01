@@ -332,12 +332,11 @@ EditorUi.initMinimalTheme = function()
 			// Sets instance vars and graph stylesheet
 			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
 			this.setGridColor(Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor);
+			graph.defaultPageBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
 			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#505759' : '#ffffff';
 			graph.defaultForegroundColor = Editor.isDarkMode() ? '#f0f0f0' : '#000000';
 			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
 			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
-			graph.defaultPageBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
-			Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
 			document.body.style.backgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
 				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
 			graph.loadStylesheet();
@@ -368,12 +367,14 @@ EditorUi.initMinimalTheme = function()
 			{
 				this.ruler.updateStyle();
 			}
-
 			// Sets global vars
-			Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
+			Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
+			Graph.prototype.defaultPageBorderColor = graph.defaultPageBorderColor;
+			Graph.prototype.defaultForegroundColor = graph.defaultForegroundColor;
 			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 			Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? 'black' : '#f0f0f0';
+			Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 			mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
 			Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
 				Editor.darkHelpImage : Editor.lightHelpImage;
@@ -1066,7 +1067,7 @@ EditorUi.initMinimalTheme = function()
 				
 				menu.addSeparator(parent);
 			}
-			else if(ui.mode == App.MODE_ATLAS) 
+			else if (ui.mode == App.MODE_ATLAS)
 			{
 				ui.menus.addMenuItems(menu, ['save', 'synchronize', '-'], parent);
 			}
@@ -1074,7 +1075,7 @@ EditorUi.initMinimalTheme = function()
 			{
 	        	ui.menus.addMenuItems(menu, ['new'], parent);
 				ui.menus.addSubmenu('openFrom', menu, parent);
-			
+
 				if (isLocalStorage)
 				{
 					this.addSubmenu('openRecent', menu, parent);
@@ -1801,10 +1802,6 @@ EditorUi.initMinimalTheme = function()
 			{
 				this.sidebar.graph.stylesheet.styles =
 					mxUtils.clone(graph.stylesheet.styles);
-				this.sidebar.graph.defaultPageBackgroundColor =
-					graph.defaultPageBackgroundColor;
-				this.sidebar.graph.defaultForegroundColor =
-					graph.defaultForegroundColor;
 				this.sidebar.container.innerHTML = '';
 				this.sidebar.palettes = new Object();
 				this.sidebar.init();

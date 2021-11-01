@@ -5749,7 +5749,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption)
+	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, helpLink)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
@@ -5761,13 +5761,12 @@
 		div.appendChild(hd);
 		
 		var file = this.getCurrentFile();
-		var helpLink = 'https://www.diagrams.net/doc/faq/publish-diagram-as-link';
 		var dy = 0;
 		
 		if (file != null && file.constructor == window.DriveFile && !hideShare)
 		{
 			dy = 80;
-			helpLink = 'https://www.diagrams.net/doc/faq/google-drive-publicly-publish-diagram';
+			helpLink = (helpLink != null) ? helpLink : 'https://www.diagrams.net/doc/faq/google-drive-publicly-publish-diagram';
 			var hintSection = document.createElement('div');
 			hintSection.style.cssText = 'border-bottom:1px solid lightGray;padding-bottom:14px;padding-top:6px;margin-bottom:14px;text-align:center;';
 			
@@ -5808,6 +5807,10 @@
 					}));
 				}
 			}));
+		}
+		else
+		{
+			helpLink = (helpLink != null) ? helpLink : 'https://www.diagrams.net/doc/faq/publish-diagram-as-link';
 		}
 		
 		var widthInput = null;
