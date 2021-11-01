@@ -14,8 +14,6 @@ EditorUi = function(editor, container, lightbox)
 	
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
-	this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
-	this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 
 	// Overrides graph bounds to include background pages
 	var graphGetGraphBounds = graph.getGraphBounds;

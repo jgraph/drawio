@@ -2724,6 +2724,12 @@
 				
 				EditorUi.debug('File.opened', [file]);
 				
+				//Notify users that editing is disabled within mobile apps (mainly for MS Teams)
+				if (urlParams['viewerOnlyMsg'] == '1')
+				{
+					this.showAlert(mxResources.get('viewerOnlyMsg'));
+				}
+			
 				if (this.editor.editable && this.mode == file.getMode() &&
 					file.getMode() != App.MODE_DEVICE && file.getMode() != null)
 				{
@@ -10319,8 +10325,6 @@
 					concat(this.menus.defaultFonts);
 			}
 
-			this.initialDefaultVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
-			this.initialDefaultEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			this.clearDefaultStyle();

@@ -6167,9 +6167,6 @@ DiagramStylePanel.prototype.addView = function(div)
 			}
 		}
 		
-		// FIXME: Reset for sketch mode
-		graph.defaultVertexStyle = mxUtils.clone(ui.initialDefaultVertexStyle);
-		graph.defaultEdgeStyle = mxUtils.clone(ui.initialDefaultEdgeStyle);
 		ui.clearDefaultStyle();
 	}));
 	
@@ -6282,14 +6279,13 @@ DiagramStylePanel.prototype.addView = function(div)
 			}), null, mxUtils.bind(this, function(evt)
 			{
 				panel.style.opacity = 1;
-				graph.defaultVertexStyle = mxUtils.clone(ui.initialDefaultVertexStyle);
-				graph.defaultEdgeStyle = mxUtils.clone(ui.initialDefaultEdgeStyle);
+				graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+				graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 				
-				applyStyle(commonStyle, graph.defaultVertexStyle);
-				applyStyle(commonStyle, graph.defaultEdgeStyle);
-				applyStyle(vertexStyle, graph.defaultVertexStyle);
-				applyStyle(edgeStyle, graph.defaultEdgeStyle);
-				ui.clearDefaultStyle();
+				applyStyle(commonStyle, graph.currentVertexStyle);
+				applyStyle(commonStyle, graph.currentEdgeStyle);
+				applyStyle(vertexStyle, graph.currentVertexStyle);
+				applyStyle(edgeStyle, graph.currentEdgeStyle);
 				
 				if (sketch)
 				{

@@ -1279,7 +1279,7 @@ var CreateGraphDialog = function(editorUi, title, type)
 		graph.connectionHandler.createEdgeState = function(me)
 		{
 			var edge = graph.createEdge(null, null, null, null, null, edgeStyle);
-			
+
 			return new mxCellState(this.graph.view, edge, this.graph.getCellStyle(edge));
 		};
 	

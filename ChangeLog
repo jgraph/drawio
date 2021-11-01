@@ -1,3 +1,7 @@
+01-NOV-2021: 15.6.5
+
+- Fixes change of default style
+
 01-NOV-2021: 15.6.4
 
 - Moves resolve default colors to cell style https://github.com/jgraph/drawio/issues/2370

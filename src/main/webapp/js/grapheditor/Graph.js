@@ -7280,6 +7280,8 @@ if (typeof mxVertexHandler != 'undefined')
 			{
 				state.style[key] = this.graph.currentEdgeStyle[key];
 			}
+
+			state.style = this.graph.postProcessCellStyle(state.style);
 			
 			return state;
 		};

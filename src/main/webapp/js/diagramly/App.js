@@ -5861,7 +5861,7 @@ App.prototype.updateButtonContainer = function()
 			//Fetch notifications
 			if (urlParams['extAuth'] != '1') //Disable notification with external auth (e.g, Teams app)
 			{
-				this.fetchAndShowNotification(this.mode == 'device' || this.mode == 'google'? this.mode : null);
+				this.fetchAndShowNotification('online', this.mode);
 			}
 		}
 		else if (urlParams['notif'] != null) //Notif for embed mode
@@ -5872,7 +5872,7 @@ App.prototype.updateButtonContainer = function()
 };
 
 
-App.prototype.fetchAndShowNotification = function(target)
+App.prototype.fetchAndShowNotification = function(target, subtarget)
 {
 	if (this.fetchingNotif)
 	{
@@ -5887,7 +5887,8 @@ App.prototype.fetchAndShowNotification = function(target)
 	{
 		notifs = notifs.filter(function(notif)
 		{
-			return !notif.targets || notif.targets.indexOf(target) > -1;
+			return !notif.targets || notif.targets.indexOf(target) > -1 || 
+						(subtarget != null && notif.targets.indexOf(subtarget) > -1);
 		});
 		
 		var lsReadFlag = target + 'NotifReadTS';

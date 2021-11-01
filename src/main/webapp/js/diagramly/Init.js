@@ -184,8 +184,12 @@ if (/((iPhone|iPod|iPad).*AppleWebKit(?!.*Version)|; wv)/i.test(navigator.userAg
 	urlParams['gapi'] = '0';
 	urlParams['noDevice'] = '1';
 	//Force viewer only
-	urlParams['lightbox'] = '1';
-	urlParams['layers'] = '1';
+	if (urlParams['lightbox'] != '1')
+	{
+		urlParams['lightbox'] = '1';
+		urlParams['layers'] = '1';
+		urlParams['viewerOnlyMsg'] = '1';
+	}
 }
 
 // Uses lightbox mode on viewer domain

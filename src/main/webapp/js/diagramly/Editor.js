@@ -5273,7 +5273,7 @@
 									style = mxUtils.removeStylename(style, stylenames[j]);
 								}
 
-								var defaults = (graph.getModel().isVertex(cells[i])) ? ui.initialDefaultVertexStyle : ui.initialdefaultEdgeStyle;
+								var defaults = (graph.getModel().isVertex(cells[i])) ? graph.defaultVertexStyle : graph.defaultEdgeStyle;
 								
 								if (colorset != null)
 								{
@@ -5367,12 +5367,12 @@
 						}
 						else if (colorset['fill'] == '')
 						{
-							btn.style.backgroundColor = mxUtils.getValue(ui.initialDefaultVertexStyle,
+							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
 								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						else
 						{
-							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
+							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
 								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						
@@ -5382,12 +5382,12 @@
 						}
 						else if (colorset['stroke'] == '')
 						{
-							btn.style.border = b + ' ' + mxUtils.getValue(ui.initialDefaultVertexStyle, 
+							btn.style.border = b + ' ' + mxUtils.getValue(graph.defaultVertexStyle, 
 								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 						}
 						else
 						{
-							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(ui.initialDefaultVertexStyle,
+							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
 									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff'));
 						}
 
