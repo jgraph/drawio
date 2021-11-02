@@ -2501,6 +2501,24 @@ Graph.prototype.init = function(container)
 	};
 
 	/**
+	 * Overrides scrollRectToVisible to fix ignored transform.
+	 */
+	var graphScrollRectToVisible = mxGraph.prototype.scrollRectToVisible;
+	Graph.prototype.scrollRectToVisible = function(r)
+	{
+		if (this.useCssTransforms)
+		{
+			var s = this.currentScale;
+			var t = this.currentTranslate;
+			r = new mxRectangle((r.x + 2 * t.x) * s - t.x,
+				(r.y + 2 * t.y) * s - t.y,
+				r.width * s, r.height * s);
+		}
+
+		graphScrollRectToVisible.apply(this, arguments);
+	};
+
+	/**
 	 * Function: repaint
 	 * 
 	 * Updates the highlight after a change of the model or view.

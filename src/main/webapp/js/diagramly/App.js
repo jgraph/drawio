@@ -2353,8 +2353,7 @@ App.prototype.getThumbnail = function(width, fn)
 		if (this.pages != null && (darkTheme || this.currentPage != this.pages[0]))
 		{
 			var graphGetGlobalVariable = graph.getGlobalVariable;
-			graph = this.createTemporaryGraph((darkTheme) ?
-				graph.getDefaultStylesheet() : graph.getStylesheet());
+			graph = this.createTemporaryGraph(graph.getStylesheet());
 			graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
 			var page = this.pages[0];
 
@@ -2368,12 +2367,6 @@ App.prototype.getThumbnail = function(width, fn)
 				graph.setBackgroundImage(bgImg);
 			}
 
-			// Avoids override of stylesheet in getSvg for dark mode
-			if (darkTheme)
-			{
-				graph.defaultThemeName = 'default';
-			}
-			
 			graph.getGlobalVariable = function(name)
 			{
 				if (name == 'page')
@@ -3004,6 +2997,10 @@ App.prototype.showAlert = function(message)
 		div.style.zIndex = 2e9; 
 		div.style.left = '50%';
 		div.style.top = '-100%';
+		//Limit width to 80% max with word wrapping
+		div.style.maxWidth = '80%';
+		div.style.width = 'max-content';
+		div.style.whiteSpace = 'pre-wrap';
 		mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-50%,0%)');
 		mxUtils.setPrefixedStyle(div.style, 'transition', 'all 1s ease');
 		

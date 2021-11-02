@@ -371,6 +371,7 @@ EditorUi.initMinimalTheme = function()
 			Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
 			Graph.prototype.defaultPageBorderColor = graph.defaultPageBorderColor;
 			Graph.prototype.defaultForegroundColor = graph.defaultForegroundColor;
+			Graph.prototype.defaultThemeName = graph.defaultThemeName;
 			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
 			Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? 'black' : '#f0f0f0';

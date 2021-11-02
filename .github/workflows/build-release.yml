@@ -2,8 +2,6 @@ name: Build & Release
 
 on:
   push:
-    paths:
-      - VERSION
 
 jobs:
   build:
@@ -26,7 +24,7 @@ jobs:
     - name: Build
       run: |
         cd etc/build
-        npm install workbox-cli --global
+        npm install workbox-cli@6.3.0 --global
         ln -s `which workbox` /usr/local/bin/workbox
         ant
     - name: Tag and Push
@@ -34,6 +32,7 @@ jobs:
         export VERSION=`cat VERSION`
         git config user.name github-actions
         git config user.email github-actions@github.com
+        git add src/main/webapp/workbox-*js*
         git commit -a -m "Ready for $VERSION"
         git push
         git tag "diagramly-${VERSION//\./_}"

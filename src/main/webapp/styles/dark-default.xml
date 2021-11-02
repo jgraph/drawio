@@ -85,13 +85,13 @@
 	<add as="line">
 		<add as="shape" value="line"/>
 		<add as="strokeWidth" value="4"/>
-		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="spacingTop" value="8"/>
 	</add>
 	<add as="image">
 		<add as="shape" value="image"/>
-		<add as="labelBackgroundColor" value="#2a2a2a"/>
+		<add as="labelBackgroundColor" value="default"/>
 		<add as="verticalAlign" value="top"/>
 		<add as="verticalLabelPosition" value="bottom"/>
 	</add>
@@ -104,6 +104,6 @@
 	<add as="arrow">
 		<add as="shape" value="arrow"/>
 		<add as="edgeStyle" value="none"/>
-		<add as="fillColor" value="#2a2a2a"/>
+		<add as="fillColor" value="default"/>
 	</add>
 </mxStylesheet>

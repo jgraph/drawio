@@ -1,3 +1,8 @@
+02-NOV-2021: 15.6.6
+
+- Fixes scrolling with css transforms [DID-3588]
+- Fixes hardcoded default colors
+
 01-NOV-2021: 15.6.5
 
 - Fixes change of default style
