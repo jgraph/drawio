@@ -5945,8 +5945,10 @@
 	{
 		if (style != null)
 		{
-			var fg = mxUtils.hex2rgba(this.defaultForegroundColor);
-			var bg = mxUtils.hex2rgba(this.defaultPageBackgroundColor);
+			var bg = mxUtils.hex2rgba((this.defaultPageBackgroundColor == 'transparent') ?
+				'#ffffff' : this.defaultPageBackgroundColor);
+			var fg = mxUtils.hex2rgba((this.defaultForegroundColor == 'transparent') ?
+				'#000000' : this.defaultForegroundColor);
 
 			this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
 			this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);

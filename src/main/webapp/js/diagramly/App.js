@@ -5942,7 +5942,22 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 
 App.prototype.showNotification = function(notifs, lsReadFlag)
 {
-	if (notifs.length == 0)
+	var newCount = notifs.length;
+
+	if (uiTheme == 'min')
+	{
+		newCount = 0;
+
+		for (var i = 0; i < notifs.length; i++)
+		{
+			if (notifs[i].isNew)
+			{
+				newCount++;
+			}
+		}
+	}
+
+	if (newCount == 0)
 	{
 		if (this.notificationBtn != null)
 		{

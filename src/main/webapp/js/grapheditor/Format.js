@@ -1367,7 +1367,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 				
 				if (state != null)
 				{
-					apply(mxUtils.getValue(state.style, colorKey, null));
+					apply(mxUtils.getValue(state.style, colorKey, null), true);
 				}
 			};
 			

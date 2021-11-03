@@ -2,7 +2,9 @@ name: Build & Release
 
 on:
   push:
-
+    paths:
+      - VERSION
+      
 jobs:
   build:
     runs-on: ubuntu-18.04
