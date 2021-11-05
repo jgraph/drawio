@@ -1,3 +1,15 @@
+05-NOV-2021: 15.7.0
+
+- Add missing GCP3 file to build
+
+05-NOV-2021: 15.6.9
+
+- Adds new GCP icons
+- Limits Google and disabled editing in mobile apps (webview) to MS Teams only
+- Fixes line visible in ERzeroToMany marker https://github.com/jgraph/drawio/issues/22386
+- Adds additional SVG sanitizing
+- Fixes zero to one/many marker fill color https://github.com/jgraph/drawio/issues/2386
+
 03-NOV-2021: 15.6.8
 
 - Fixes handling of transparent default colors

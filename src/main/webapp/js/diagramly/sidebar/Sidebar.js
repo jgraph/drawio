@@ -41,6 +41,8 @@
 	
 	Sidebar.prototype.gcp2 = ['Paths', 'Zones', 'Service Cards', 'Compute', 'API Management', 'Security', 'Data Analytics', 'Data Transfer', 'Cloud AI', 'Internet of Things', 'Databases', 'Storage', 'Management Tools', 'Networking', 'Developer Tools', 'Expanded Product Cards', 'User Device Cards', 'Product Cards', 'General Icons', 'Icons AI Machine Learning', 'Icons Compute', 'Icons Data Analytics', 'Icons Management Tools', 'Icons Networking', 'Icons Developer Tools', 'Icons API Management', 'Icons Internet of Things', 'Icons Databases', 'Icons Storage', 'Icons Security', 'Icons Migration', 'Icons Hybrid and Multi Cloud'];
 	
+	Sidebar.prototype.gcp3 = ['API Platform Ecosystems', 'Big Data', 'Cloud AI', 'Compute', 'Data Transfer', 'Developer Tools', 'Expanded Product Card Icons', 'Generic', 'Identity and Security', 'Internet of Things', 'Management Tools', 'Networking', 'Open Source Icons', 'Storage Databases'];
+	
     Sidebar.prototype.rack = ['General', 'APC', 'Cisco', 'Dell', 'F5', 'HP', 'HPE Aruba Gateways Controllers', 'HPE Aruba Security', 'HPE Aruba Switches', 'IBM', 'Oracle'];
     
 	Sidebar.prototype.pids = ['Agitators', 'Apparatus Elements', 'Centrifuges', 'Compressors', 'Compressors ISO', 'Crushers Grinding', 
@@ -131,7 +133,7 @@
            	                           {id: 'signs', prefix: 'signs', libs: Sidebar.prototype.signs},
            	                           {id: 'gcp', prefix: 'gcp', libs: Sidebar.prototype.gcp},
            	                           {id: 'gcp2', prefix: 'gcp2', libs: Sidebar.prototype.gcp2},
-//           	                           {id: 'gcp19', prefix: 'gcp19', libs: Sidebar.prototype.gcp2},
+           	                           {id: 'gcp3', prefix: 'gcp3', libs: Sidebar.prototype.gcp3},
            	                           {id: 'rack', prefix: 'rack', libs: Sidebar.prototype.rack},
            	                           {id: 'electrical', prefix: 'electrical', libs: Sidebar.prototype.electrical},
            	                           {id: 'aws2', prefix: 'aws2', libs: Sidebar.prototype.aws2},
@@ -488,6 +490,7 @@
             			          {title: 'Cumulus', id: 'cumulus', image: IMAGE_PATH + '/sidebar-cumulus.png'},
             			          {title: 'Citrix', id: 'citrix', image: IMAGE_PATH + '/sidebar-citrix.png'},
             			          {title: 'Google Cloud Platform', id: 'gcp2', image: IMAGE_PATH + '/sidebar-gcp2.png'},
+            			          {title: 'GCP Icons', id: 'gcp3', image: IMAGE_PATH + '/sidebar-gcp3.png'},
             			          {title: 'IBM', id: 'ibm', image: IMAGE_PATH + '/sidebar-ibm.png'},
             			          {title: 'Kubernetes', id: 'kubernetes', image: IMAGE_PATH + '/sidebar-kubernetes.png'},
             			          {title: 'Network', id: 'network', image: IMAGE_PATH + '/sidebar-network.png'},
@@ -830,20 +833,10 @@
 		var imgDir = GRAPH_IMAGE_PATH;
 		var dir = STENCIL_PATH;
 		var signs = this.signs;
-		var gcp = this.gcp;
 		var rack = this.rack;
 		var pids = this.pids;
 		var cisco = this.cisco;
-		var cisco19 = this.cisco19;
-		var cisco_safe = this.cisco_safe;
 		var sysml = this.sysml;
-		var eip = this.eip;
-		var gmdl = this.gmdl;
-		var office = this.office;
-		var veeam = this.veeam;
-		var veeam2 = this.veeam2;
-		var archimate3 = this.archimate3;
-		var electrical = this.electrical;
 		
 		if (urlParams['createindex'] == '1')
 		{
@@ -1171,6 +1164,7 @@
 		this.addCumulusPalette();
 		this.addCitrixPalette();
 		this.addGCP2Palette();
+		this.addGCP3Palette();
 		this.addIBMPalette();
 		this.addNetworkPalette();
 		this.addOfficePalette();

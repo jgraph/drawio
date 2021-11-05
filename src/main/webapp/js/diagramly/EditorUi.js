@@ -4781,9 +4781,9 @@
 				var tags = this.editor.graph.getAllTags();
 				tagsButton.style.display = (tags.length > 0) ? '' : 'none';
 			}));
-			
-			editoUiAddChromelessToolbarItems.apply(this, arguments);
 		}
+	
+		editoUiAddChromelessToolbarItems.apply(this, arguments);
 
 		this.editor.addListener('tagsDialogShown', mxUtils.bind(this, function()
 		{
@@ -4934,7 +4934,6 @@
 			}), Editor.cameraImage, mxResources.get('export'));
 		}
 	};
-
 
 	/**
 	 * Translates this point by the given vector.

@@ -4941,6 +4941,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showNewWindowOption, linkTarget)
 {
 	var div = document.createElement('div');
+	div.style.height = '100%';
 	mxUtils.write(div, mxResources.get('editLink') + ':');
 	
 	var inner = document.createElement('div');
@@ -4998,7 +4999,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	pageRadio.setAttribute('name', 'geLinkDialogOption');
 
 	var pageSelect = document.createElement('select');
-	pageSelect.style.width = '100%';
+	pageSelect.style.width = '520px';
 
 	var newWindowCheckbox = document.createElement('input');
 	newWindowCheckbox.setAttribute('type', 'checkbox');

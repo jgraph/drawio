@@ -1312,11 +1312,19 @@ mxMarker.addMarker('ERzeroToMany', function(c, shape, type, pe, unitX, unitY, si
 	var nx = unitX * (size + sw + 1);
 	var ny = unitY * (size + sw + 1);
 	var a = size / 2;
+	var px = pe.x;
+	var py = pe.y;
+	
+	if (!filled)
+	{
+		pe.x -= 2 * nx - unitX * sw / 2;
+		pe.y -= 2 * ny - unitY * sw / 2;
+	}
 
 	return function()
 	{
 		c.begin();
-		c.ellipse(pe.x - 1.5 * nx - a, pe.y - 1.5 * ny - a, 2 * a, 2 * a);
+		c.ellipse(px - 1.5 * nx - a, py - 1.5 * ny - a, 2 * a, 2 * a);
 
 		if (filled)
 		{
@@ -1333,9 +1341,16 @@ mxMarker.addMarker('ERzeroToMany', function(c, shape, type, pe, unitX, unitY, si
 		}
 
 		c.begin();
-		c.moveTo(pe.x + ny / 2, pe.y - nx / 2);
-		c.lineTo(pe.x - nx, pe.y - ny);
-		c.lineTo(pe.x - ny / 2, pe.y + nx / 2);
+		c.moveTo(px + ny / 2, py - nx / 2);
+		c.lineTo(px - nx, py - ny);
+		c.lineTo(px - ny / 2, py + nx / 2);
+
+		if (!filled)
+		{
+			c.moveTo(px - nx, py - ny);
+			c.lineTo(px, py);
+		}
+
 		c.stroke();
 	};
 });
@@ -1345,11 +1360,19 @@ mxMarker.addMarker('ERzeroToOne', function(c, shape, type, pe, unitX, unitY, siz
 	var nx = unitX * (size + sw + 1);
 	var ny = unitY * (size + sw + 1);
 	var a = size / 2;
+	var px = pe.x;
+	var py = pe.y;
+	
+	if (!filled)
+	{
+		pe.x -= 2 * nx - unitX * sw / 2;
+		pe.y -= 2 * ny - unitY * sw / 2;
+	}
 
 	return function()
 	{
 		c.begin();
-		c.ellipse(pe.x - 1.5 * nx - a, pe.y - 1.5 * ny - a, 2 * a, 2 * a);
+		c.ellipse(px - 1.5 * nx - a, py - 1.5 * ny - a, 2 * a, 2 * a);
 
 		if (filled)
 		{
@@ -1366,8 +1389,15 @@ mxMarker.addMarker('ERzeroToOne', function(c, shape, type, pe, unitX, unitY, siz
 		}
 
 		c.begin();
-		c.moveTo(pe.x - nx / 2 - ny / 2, pe.y - ny / 2 + nx / 2);
-		c.lineTo(pe.x - nx / 2 + ny / 2, pe.y - ny / 2 - nx / 2);
+		c.moveTo(px - nx / 2 - ny / 2, py - ny / 2 + nx / 2);
+		c.lineTo(px - nx / 2 + ny / 2, py - ny / 2 - nx / 2);
+
+		if (!filled)
+		{
+			c.moveTo(px - nx  - unitX * sw / 2, py - ny - unitY * sw / 2);
+			c.lineTo(px, py);
+		}
+
 		c.stroke();
 	};
 });

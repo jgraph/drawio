@@ -179,11 +179,13 @@ if (window.mxLanguages == null)
 }
 
 //Disable Google Drive when running in a WebView (e.g, MS Teams App) Since auth doesn't work with disallowd_useragent
-if (/((iPhone|iPod|iPad).*AppleWebKit(?!.*Version)|; wv)/i.test(navigator.userAgent))
+//[For MS Teams only] TODO Check if other apps are affected also (android and iOS)
+if (urlParams['extAuth'] == '1' && /((iPhone|iPod|iPad).*AppleWebKit(?!.*Version)|; wv)/i.test(navigator.userAgent))
 {
 	urlParams['gapi'] = '0';
 	urlParams['noDevice'] = '1';
 	//Force viewer only
+	//TODO This should always be for MS Teams only
 	if (urlParams['lightbox'] != '1')
 	{
 		urlParams['lightbox'] = '1';

@@ -1683,13 +1683,19 @@ Graph.sanitizeSvg = function(div)
 	    }
 	}
 	
-	// Removes all script tags
-	var scripts = div.getElementsByTagName('script');
-	
-	while (scripts.length > 0)
+	function removeAllTags(tagName)
 	{
-		scripts[0].parentNode.removeChild(scripts[0]);
-	}
+		var nodes = div.getElementsByTagName(tagName);
+	
+		while (nodes.length > 0)
+		{
+			nodes[0].parentNode.removeChild(nodes[0]);
+		}
+	};
+
+	removeAllTags('meta');
+	removeAllTags('script');
+	removeAllTags('metadata');
 };
 
 /**

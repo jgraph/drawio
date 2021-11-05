@@ -66,7 +66,7 @@
 		</concat>
 		<echo file="${basedir}/Graph-Stylesheet.js" append="true">`).documentElement;</echo>
 
-		<delete file="${basedir}/.tmp2.js"/>
+		<delete file="${basedir}/.tmp2.xml"/>
 		<copy file="${war.dir}/resources/dia.txt" tofile="${basedir}/.tmp2.xml" overwrite="true"/>
 		<replaceregexp file="${basedir}/.tmp2.xml" match="${line.separator}" flags="g" replace="\\\\n"/>
 		<replaceregexp file="${basedir}/.tmp2.xml" match="'" flags="g" replace="\\\\'" byline="true"/>
@@ -130,6 +130,7 @@
 				<file name="Sidebar-FluidPower.js" />
 				<file name="Sidebar-GCP.js" />
 				<file name="Sidebar-GCP2.js" />
+				<file name="Sidebar-GCP3.js" />
 				<file name="Sidebar-Gmdl.js" />
 				<file name="Sidebar-IBM.js" />
 				<file name="Sidebar-Infographic.js" />
