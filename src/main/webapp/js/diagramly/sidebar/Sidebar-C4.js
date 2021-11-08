@@ -89,11 +89,11 @@
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
-		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Name', 'Container name');
+		        bg.setAttribute('c4Type', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Oracle Database 12');
 		        bg.setAttribute('c4Description', 'Description of storage type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Data Container');
 			}),				
@@ -104,11 +104,11 @@
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
-		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Name', 'Container name');
+		        bg.setAttribute('c4Type', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Micronaut, etc.');
 		        bg.setAttribute('c4Description', 'Description of microservice type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Microservice Container');
 			}),				
@@ -119,11 +119,11 @@
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
-		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Name', 'Container name');
+		        bg.setAttribute('c4Type', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Apache Kafka, etc.');
 		        bg.setAttribute('c4Description', 'Description of message bus type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Message Bus Container');
 			}),				
@@ -134,11 +134,11 @@
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
-		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Name', 'Container name');
+		        bg.setAttribute('c4Type', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. JavaScript, Angular etc.');
 		        bg.setAttribute('c4Description', 'Description of web browser container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Name%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Web Browser Container');
 			}),				
