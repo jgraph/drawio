@@ -881,44 +881,44 @@ mxStencilRegistry.allowEval = false;
 				}
 				
 				this.addRecent({id: file.fileObject.path, title: title});
-			}
 			
-			fs.watchFile(file.fileObject.path, mxUtils.bind(this, function(curr, prev) 
-			{
-				//File is changed (not just accessed)
-				if (curr.mtimeMs != prev.mtimeMs)
+				fs.watchFile(file.fileObject.path, mxUtils.bind(this, function(curr, prev) 
 				{
-					//Ignore our own changes
-					if (file.unwatchedSaves || (file.state != null && file.stat.mtimeMs == curr.mtimeMs))
+					//File is changed (not just accessed)
+					if (curr.mtimeMs != prev.mtimeMs)
 					{
-						file.unwatchedSaves = false;
-						return;
-					}
-					
-					file.inConflictState = true;
-					
-					this.showError(mxResources.get('externalChanges'),
-						mxResources.get('fileChangedSyncDialog'),
-						mxResources.get('synchronize'), mxUtils.bind(this, function()
+						//Ignore our own changes
+						if (file.unwatchedSaves || (file.state != null && file.stat.mtimeMs == curr.mtimeMs))
 						{
-							if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
+							file.unwatchedSaves = false;
+							return;
+						}
+						
+						file.inConflictState = true;
+						
+						this.showError(mxResources.get('externalChanges'),
+							mxResources.get('fileChangedSyncDialog'),
+							mxResources.get('synchronize'), mxUtils.bind(this, function()
 							{
-								file.synchronizeFile(mxUtils.bind(this, function()
+								if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
 								{
-									this.spinner.stop();
-								}), mxUtils.bind(this, function(err)
-								{
-									file.handleFileError(err, true);
-								}));
-							}
-						}), null, null, null,
-						mxResources.get('cancel'), mxUtils.bind(this, function()
-						{
-							this.hideDialog();
-							file.handleFileError(null, false);
-						}), 340, 150);
-				}
-			}));
+									file.synchronizeFile(mxUtils.bind(this, function()
+									{
+										this.spinner.stop();
+									}), mxUtils.bind(this, function(err)
+									{
+										file.handleFileError(err, true);
+									}));
+								}
+							}), null, null, null,
+							mxResources.get('cancel'), mxUtils.bind(this, function()
+							{
+								this.hideDialog();
+								file.handleFileError(null, false);
+							}), 340, 150);
+					}
+				}));
+			}
 		}
 		
 		origFileLoaded.apply(this, arguments);
@@ -1677,7 +1677,141 @@ mxStencilRegistry.allowEval = false;
 			}
 		}
 	};
+	
+	App.prototype.checkForUpdates = function()
+	{
+		const ipcRenderer = require('electron').ipcRenderer;
+		ipcRenderer.send('checkForUpdates');
+	}
+	
+	var origUpdateHeader = App.prototype.updateHeader;
+	
+	App.prototype.updateHeader = function()
+	{
+		origUpdateHeader.apply(this, arguments);
 		
+		document.querySelectorAll('.geMenuItem').forEach(i => i.style.webkitAppRegion = 'no-drag');
+		var menubarContainer = document.querySelector('.geMenubarContainer');
+		
+		if (urlParams['sketch'] == '1')
+		{
+			menubarContainer = this.menubarContainer;
+			//TODO find a better place for dragging the window
+			menubarContainer.parentNode.style.webkitAppRegion = 'drag';
+		}
+
+		menubarContainer.style.webkitAppRegion = 'drag';
+		
+		//Add window control buttons
+		this.windowControls = document.createElement('div');
+		this.windowControls.id = 'geWindow-controls';
+		this.windowControls.innerHTML = 
+			'<div class="button" id="min-button">' +
+			'    <svg width="10" height="1" viewBox="0 0 11 1">' +
+			'        <path d="m11 0v1h-11v-1z" stroke-width=".26208"/>' +
+			'    </svg>' +
+			'</div>' +
+			'<div class="button" id="max-button">' +
+			'    <svg width="10" height="10" viewBox="0 0 10 10">' +
+			'        <path d="m10-1.6667e-6v10h-10v-10zm-1.001 1.001h-7.998v7.998h7.998z" stroke-width=".25" />' +
+			'    </svg>' +
+			'</div>' +
+			'<div class="button" id="restore-button">' +
+			'    <svg width="10" height="10" viewBox="0 0 11 11">' +
+			'        <path' +
+			'        d="m11 8.7978h-2.2021v2.2022h-8.7979v-8.7978h2.2021v-2.2022h8.7979zm-3.2979-5.5h-6.6012v6.6011h6.6012zm2.1968-2.1968h-6.6012v1.1011h5.5v5.5h1.1011z"' +
+			'        stroke-width=".275" />' +
+			'    </svg>' +
+			'</div>' +
+			'<div class="button" id="close-button">' +
+			'    <svg width="10" height="10" viewBox="0 0 12 12">' +
+			'        <path' +
+			'        d="m6.8496 6 5.1504 5.1504-0.84961 0.84961-5.1504-5.1504-5.1504 5.1504-0.84961-0.84961 5.1504-5.1504-5.1504-5.1504 0.84961-0.84961 5.1504 5.1504 5.1504-5.1504 0.84961 0.84961z"' +
+			'        stroke-width=".3" />' +
+			'    </svg>' +
+			'</div>';
+		
+		if (uiTheme == 'atlas')
+		{
+			this.windowControls.style.top = '9px';
+		}
+		
+		menubarContainer.appendChild(this.windowControls);
+
+		var handleDarkModeChange = mxUtils.bind(this, function ()
+		{
+			if (uiTheme == 'atlas' || Editor.isDarkMode())
+			{
+				this.windowControls.style.fill = 'white';
+				document.querySelectorAll('#geWindow-controls .button').forEach(b => b.className = 'button dark');			
+			}
+			else
+			{
+				this.windowControls.style.fill = '#999';
+				document.querySelectorAll('#geWindow-controls .button').forEach(b => b.className = 'button white');
+			}
+		});
+		
+		handleDarkModeChange();
+		this.addListener('darkModeChanged', handleDarkModeChange);
+		
+		if (urlParams['sketch'] == '1')
+		{
+			this.windowControls.style.position = 'inherit';
+		}
+		
+		if (this.appIcon != null)
+		{
+			this.appIcon.style.webkitAppRegion = 'no-drag';
+		}
+		
+		if (this.menubar != null)
+		{
+			this.menubar.container.style.webkitAppRegion = 'no-drag';
+		}
+		
+		const remote = require('@electron/remote');
+		const win = remote.getCurrentWindow();
+		
+		window.onbeforeunload = (event) => {
+		    /* If window is reloaded, remove win event listeners
+		    (DOM element listeners get auto garbage collected but not
+		    Electron win listeners as the win is not dereferenced unless closed) */
+		    win.removeAllListeners();
+		}
+		
+	    // Make minimise/maximise/restore/close buttons work when they are clicked
+	    document.getElementById('min-button').addEventListener("click", event => {
+	        win.minimize();
+	    });
+	
+	    document.getElementById('max-button').addEventListener("click", event => {
+	        win.maximize();
+	    });
+	
+	    document.getElementById('restore-button').addEventListener("click", event => {
+	        win.unmaximize();
+	    });
+	
+	    document.getElementById('close-button').addEventListener("click", event => {
+	        win.close();
+	    });
+	
+	    // Toggle maximise/restore buttons when maximisation/unmaximisation occurs
+	    toggleMaxRestoreButtons();
+	    win.on('maximize', toggleMaxRestoreButtons);
+	    win.on('unmaximize', toggleMaxRestoreButtons);
+		win.on('resize', toggleMaxRestoreButtons);
+	
+	    function toggleMaxRestoreButtons() {
+	        if (win.isMaximized()) {
+	            document.body.classList.add('geMaximized');
+	        } else {
+	            document.body.classList.remove('geMaximized');
+	        }
+	    }
+	}
+	
 	/**
 	 * Copies the given cells and XML to the clipboard as an embedded image.
 	 */

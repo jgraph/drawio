@@ -1199,6 +1199,11 @@
 						{
 							elt.style.top = '0px';
 						}
+						
+						if (EditorUi.isElectronApp)
+						{
+							elt.style.right = '95px';
+						}
 
 						var icon = document.createElement('div');
 						icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
@@ -1520,9 +1525,26 @@
 
 				if (EditorUi.isElectronApp)
 				{
+					editorUi.actions.addAction('website...', function()
+					{
+						editorUi.openLink('https://www.diagrams.net');
+					});
+					
+					editorUi.actions.addAction('check4Updates', function()
+					{
+						editorUi.checkForUpdates();
+					});
+					
 					console.log('electron help menu');
 					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
-						'support', '-', 'forkme', '-', 'about'], parent);
+						'website', 'support', '-'], parent);
+						
+					if (urlParams['disableUpdate'] != '1')
+					{
+						this.addMenuItems(menu, ['check4Updates', '-'], parent);
+					}
+						
+					this.addMenuItems(menu, ['forkme', '-', 'about'], parent);
 
 				}
 				else

@@ -368,7 +368,7 @@ App.loadScripts = function(scripts, onload)
 {
 	var n = scripts.length;
 	
-	for (var i = 0; i < n; i++)
+	for (var i = 0; i < scripts.length; i++)
 	{
 		mxscript(scripts[i], function()
 		{
@@ -818,7 +818,7 @@ App.main = function(callback, createUi)
 		// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
 		// is compiled into JS in the build process and is only needed for local development.
 		mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
-			STYLE_PATH + '/default.xml', STYLE_PATH + '/dark-default.xml'], function(xhr)
+			STYLE_PATH + '/default.xml'], function(xhr)
 		{
 			// Adds bundle text to resources
 			mxResources.parse(xhr[0].getText());
@@ -908,10 +908,10 @@ App.main = function(callback, createUi)
 			}
 						
 			// Prepares themes with mapping from old default-style to old XML file
-			if (xhr.length > 2)
+			if (xhr.length > 1)
 			{
 				Graph.prototype.defaultThemes['default-style2'] = xhr[1].getDocumentElement();
-	 			Graph.prototype.defaultThemes['darkTheme'] = xhr[2].getDocumentElement();
+	 			Graph.prototype.defaultThemes['darkTheme'] = xhr[1].getDocumentElement();
 			}
 			
 			// Main

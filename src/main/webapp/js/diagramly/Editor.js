@@ -932,11 +932,9 @@
 			
 			if (fillStyle == 'auto')
 			{
-				var bg = mxUtils.hex2rgba((this.shape.state != null &&
-					this.shape.state.view.graph.defaultPageBackgroundColor != 'transparent') ?
-					this.shape.state.view.graph.defaultPageBackgroundColor :
+				var bg = mxUtils.hex2rgba((this.shape.state != null) ?
+					this.shape.state.view.graph.shapeBackgroundColor :
 					(Editor.isDarkMode() ? Editor.darkColor : '#ffffff'));
-				
 				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
 					style.fill == bg))) ? 'solid' : defs['fillStyle'];
 			}
@@ -1863,6 +1861,11 @@
 			if (config.darkColor != null)
 			{
 				Editor.darkColor = config.darkColor;
+			}
+
+			if (config.lightColor != null)
+			{
+				Editor.lightColor = config.lightColor;
 			}
 
 			if (config.settingsName != null)
@@ -5945,10 +5948,8 @@
 	{
 		if (style != null)
 		{
-			var bg = mxUtils.hex2rgba((this.defaultPageBackgroundColor == 'transparent') ?
-				'#ffffff' : this.defaultPageBackgroundColor);
-			var fg = mxUtils.hex2rgba((this.defaultForegroundColor == 'transparent') ?
-				'#000000' : this.defaultForegroundColor);
+			var bg = mxUtils.hex2rgba(this.shapeBackgroundColor);
+			var fg = mxUtils.hex2rgba(this.shapeForegroundColor);
 
 			this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
 			this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);
@@ -6532,12 +6533,12 @@
 		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
-			tempFg = this.defaultForegroundColor;
-			tempBg = this.defaultPageBackgroundColor;
-			this.defaultPageBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
+			tempFg = this.shapeForegroundColor;
+			tempBg = this.shapeBackgroundColor;
+			this.shapeForegroundColor = (this.defaultThemeName == 'darkTheme') ?
+				'#000000' : Editor.lightColor;
+			this.shapeBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
 				'#ffffff' : Editor.darkColor;
-			this.defaultForegroundColor = (this.defaultThemeName == 'darkTheme') ?
-				'#000000' : '#f0f0f0';
 			this.stylesheet = this.getDefaultStylesheet();
 			// LATER: Fix math export in dark mode by fetching text nodes before
 			// calling refresh and changing the font color in-place
@@ -6580,8 +6581,8 @@
 		
 		if (temp != null)
 		{
-			this.defaultPageBackgroundColor = tempBg;
-			this.defaultForegroundColor = tempFg;
+			this.shapeBackgroundColor = tempBg;
+			this.shapeForegroundColor = tempFg;
 			this.stylesheet = temp;
 			this.refresh();
 		}

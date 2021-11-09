@@ -332,15 +332,17 @@ EditorUi.initMinimalTheme = function()
 			// Sets instance vars and graph stylesheet
 			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
 			this.setGridColor(Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor);
-			graph.defaultPageBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
+			graph.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
+				Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
 			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#505759' : '#ffffff';
-			graph.defaultForegroundColor = Editor.isDarkMode() ? '#f0f0f0' : '#000000';
+			graph.shapeBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
+			graph.shapeForegroundColor = Editor.isDarkMode() ? Editor.lightColor : '#000000';
 			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
 			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			document.body.style.backgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
 				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
 			graph.loadStylesheet();
-			
+
 			// Destroys windows with code for dark mode
 		    if (this.actions.layersWindow != null)
 		    {
@@ -367,10 +369,12 @@ EditorUi.initMinimalTheme = function()
 			{
 				this.ruler.updateStyle();
 			}
+
 			// Sets global vars
 			Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
 			Graph.prototype.defaultPageBorderColor = graph.defaultPageBorderColor;
-			Graph.prototype.defaultForegroundColor = graph.defaultForegroundColor;
+			Graph.prototype.shapeBackgroundColor = graph.shapeBackgroundColor;
+			Graph.prototype.shapeForegroundColor = graph.shapeForegroundColor;
 			Graph.prototype.defaultThemeName = graph.defaultThemeName;
 			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
 			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : 'white';

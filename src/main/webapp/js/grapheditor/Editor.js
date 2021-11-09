@@ -231,6 +231,11 @@ Editor.darkMode = false;
 Editor.darkColor = '#2a2a2a';
 
 /**
+ * Dynamic change of dark mode for minimal and sketch theme.
+ */
+Editor.lightColor = '#f0f0f0';
+
+/**
  * Dynamic change of dark mode.
  */
 Editor.isDarkMode = function(value)

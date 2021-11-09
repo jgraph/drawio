@@ -3597,12 +3597,12 @@ TextFormatPanel.prototype.addFont = function(container)
 		{
 			elt.style.backgroundColor = null;
 		});
-	}, graph.defaultPageBackgroundColor);
+	}, graph.shapeBackgroundColor);
 	bgPanel.style.fontWeight = 'bold';
 
 	var borderPanel = this.createCellColorOption(mxResources.get('borderColor'),
 		mxConstants.STYLE_LABEL_BORDERCOLOR, 'default', null, null,
-		graph.defaultForegroundColor);
+		graph.shapeForegroundColor);
 	borderPanel.style.fontWeight = 'bold';
 	
 	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
@@ -3711,7 +3711,7 @@ TextFormatPanel.prototype.addFont = function(container)
 			elt.removeAttribute('color');
 			elt.style.color = null;
 		});
-	}, Editor.isDarkMode() ? '#ffffff' : '#000000');
+	}, graph.shapeForegroundColor);
 	panel.style.fontWeight = 'bold';
 	
 	colorPanel.appendChild(panel);
@@ -4835,7 +4835,7 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var fillPanel = this.createCellColorOption(label, fillKey, 'default', null, mxUtils.bind(this, function(color)
 	{
 		graph.setCellStyles(fillKey, color, ss.cells);
-	}), graph.defaultPageBackgroundColor);
+	}), graph.shapeBackgroundColor);
 
 	fillPanel.style.fontWeight = 'bold';
 	var tmpColor = mxUtils.getValue(ss.style, fillKey, null);
@@ -5031,11 +5031,11 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var strokeKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BORDER : mxConstants.STYLE_STROKECOLOR;
 	var label = (ss.style.shape == 'image') ? mxResources.get('border') : mxResources.get('line');
-	
+
 	var lineColor = this.createCellColorOption(label, strokeKey, 'default', null, mxUtils.bind(this, function(color)
 	{
 		graph.setCellStyles(strokeKey, color, ss.cells);
-	}), Editor.isDarkMode() ? '#ffffff' : '#000000');
+	}), graph.shapeForegroundColor);
 	
 	lineColor.appendChild(styleSelect);
 	colorPanel.appendChild(lineColor);

@@ -46,7 +46,8 @@ var queryObj = {
 	'browser': 0,
 	'picker': 0,
 	'mode': 'device',
-	'export': 'https://convert.diagrams.net/node/export'
+	'export': 'https://convert.diagrams.net/node/export',
+	'disableUpdate': disableUpdate? 1 : 0
 };
 
 try
@@ -70,6 +71,8 @@ function createWindow (opt = {})
 {
 	let options = Object.assign(
 	{
+		frame: false,
+		backgroundColor: '#FFF',
 		width: 1600,
 		height: 1200,
 		webViewTag: false,
@@ -655,61 +658,35 @@ app.on('ready', e =>
 	
     let updateNoAvailAdded = false;
     
+	function checkForUpdatesFn() 
+	{ 
+		autoUpdater.checkForUpdates();
+		store.set('dontCheckUpdates', false);
+		
+		if (!updateNoAvailAdded) 
+		{
+			updateNoAvailAdded = true;
+			autoUpdater.on('update-not-available', (info) => {
+				dialog.showMessageBox(
+					{
+						type: 'info',
+						title: 'No updates found',
+						message: 'You application is up-to-date',
+					})
+			})
+		}
+	};
+	
 	let checkForUpdates = {
 		label: 'Check for updates',
-		click() 
-		{ 
-			autoUpdater.checkForUpdates();
-			store.set('dontCheckUpdates', false);
-			
-			if (!updateNoAvailAdded) 
-			{
-				updateNoAvailAdded = true;
-				autoUpdater.on('update-not-available', (info) => {
-					dialog.showMessageBox(
-						{
-							type: 'info',
-							title: 'No updates found',
-							message: 'You application is up-to-date',
-						})
-				})
-			}
-		}
+		click: checkForUpdatesFn
 	}
 
-	let template = [{
-	    label: app.name,
-	    submenu: [
-	      {
-	        label: 'Website',
-	        click() { shell.openExternal('https://www.diagrams.net'); }
-	      },
-	      {
-	        label: 'Support',
-	        click() { shell.openExternal('https://github.com/jgraph/drawio-desktop/issues'); }
-		  },
-		  checkForUpdates,
-	      {
-	        type: 'separator'
-	      },
-	      {
-	        label: 'Quit',
-	        accelerator: 'CmdOrCtrl+Q',
-	        click() { 
-						cmdQPressed = true;
-						app.quit(); 
-					}
-	      }]
-	}]
-	
-	if (disableUpdate)
-	{
-		template[0].submenu.splice(2, 1);
-	}
-	
+	ipcMain.on('checkForUpdates', checkForUpdatesFn);
+
 	if (process.platform === 'darwin')
 	{
-	    template = [{
+	    let template = [{
 	      label: app.name,
 	      submenu: [
 	        {
@@ -746,11 +723,15 @@ app.on('ready', e =>
 		{
 			template[0].submenu.splice(2, 1);
 		}
+		
+		const menuBar = menu.buildFromTemplate(template)
+		menu.setApplicationMenu(menuBar)
+	}
+	else //hide  menubar in win/linux
+	{
+		menu.setApplicationMenu(null)
 	}
 	
-	const menuBar = menu.buildFromTemplate(template)
-	menu.setApplicationMenu(menuBar)
-
 	autoUpdater.setFeedURL({
 		provider: 'github',
 		repo: 'drawio-desktop',

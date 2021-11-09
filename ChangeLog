@@ -1,3 +1,10 @@
+08-NOV-2021: 15.7.1
+
+- Makes all C4 shapes attributes editable
+- Enables transparent default page background color
+- Separate cell style for dark mode no longer needed
+- Applies AWS stencil colors for light background
+
 05-NOV-2021: 15.7.0
 
 - Add missing GCP3 file to build

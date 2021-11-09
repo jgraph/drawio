@@ -422,7 +422,7 @@ var SplashDialog = function(editorUi)
 	}
 	else
 	{
-		buttons.style.padding = '42px 0px 56px 0px';
+		buttons.style.padding = '42px 0px 10px 0px';
 		btn.style.marginBottom = '12px';
 	}
 

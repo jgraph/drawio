@@ -1945,12 +1945,17 @@ Graph.prototype.defaultPageBackgroundColor = '#ffffff';
 /**
  * 
  */
-Graph.prototype.defaultForegroundColor = '#000000';
+Graph.prototype.defaultPageBorderColor = '#ffffff';
 
 /**
  * 
  */
-Graph.prototype.defaultPageBorderColor = '#ffffff';
+Graph.prototype.shapeForegroundColor = '#000000';
+
+/**
+ * 
+ */
+Graph.prototype.shapeBackgroundColor = '#ffffff';
 
 /**
  * Specifies the size of the size for "tiles" to be used for a graph with

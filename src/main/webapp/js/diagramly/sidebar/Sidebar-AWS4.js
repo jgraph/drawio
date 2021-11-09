@@ -112,7 +112,7 @@
 	Sidebar.prototype.addAWS4GeneralResourcesPalette = function(s, gn, sb)
 	{
 		var dt = 'aws amazon web service general resources ';
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#5A6C86;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n3 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];gradientDirection=north;outlineConnect=0;fontColor=#232F3E;gradientColor=#505863;fillColor=#1E262E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		
@@ -246,7 +246,7 @@
 
 	Sidebar.prototype.addAWS4AnalyticsPalette = function(s, w, h, w2, gn, sb, pts)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#A166FF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#4D27AA;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service analytics ';
 		
@@ -262,6 +262,8 @@
 					 w2, w2, '', 'ElasticSearch Service', null, null, this.getTagsForStencil(gn, 'elasticsearch service', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.emr;',
 					 w2, w2, '', 'EMR', null, null, this.getTagsForStencil(gn, 'emr', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.finspace;',
+					 w2, w2, '', 'FinSpace', null, null, this.getTagsForStencil(gn, 'finspace', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.kinesis;',
 					 w2, w2, '', 'Kinesis', null, null, this.getTagsForStencil(gn, 'kinesis', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.kinesis_data_analytics;',
@@ -328,7 +330,7 @@
 
 	Sidebar.prototype.addAWS4ApplicationIntegrationPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF4F8B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#B0084D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#FF4F8B;gradientDirection=north;fillColor=#BC1356;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service application integration ';
 		
@@ -410,6 +412,8 @@
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.cost_management;',
 					 w2, w2, '', 'Cost Management', null, null, this.getTagsForStencil(gn, 'cost management', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.application_cost_profiler;',
+					 w2, w2, '', 'Application Cost Profiler', null, null, this.getTagsForStencil(gn, 'application cost profiler', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.budgets_2;',
 					 w2, w2, '', 'Budgets', null, null, this.getTagsForStencil(gn, 'budgets', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.cost_and_usage_report;',
@@ -427,7 +431,7 @@
 
 	Sidebar.prototype.addAWS4BlockchainPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF9900;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#D45B07;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service cost management ';
 		
@@ -447,7 +451,7 @@
 
 	Sidebar.prototype.addAWS4BusinessApplicationsPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF5252;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#BF0816;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#FF5252;gradientDirection=north;fillColor=#C7131F;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service business applications ';
 		
@@ -489,7 +493,7 @@
 
 	Sidebar.prototype.addAWS4ComputePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF9900;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#D45B07;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service compute ';
 		
@@ -507,6 +511,8 @@
 					 w2, w2, '', 'Bottlerocket', null, null, this.getTagsForStencil(gn, 'bottlerocket', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.lightsail;',
 					 w2, w2, '', 'Lightsail', null, null, this.getTagsForStencil(gn, 'lightsail', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.app_runner;',
+					 w2, w2, '', 'App Runner', null, null, this.getTagsForStencil(gn, 'app application runner', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.batch;',
 					 w2, w2, '', 'Batch', null, null, this.getTagsForStencil(gn, 'batch', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.compute_optimizer;',
@@ -703,7 +709,7 @@
 
 	Sidebar.prototype.addAWS4ContainersPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF9900;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#D45B07;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service container containers ';
 		
@@ -793,7 +799,7 @@
 
 	Sidebar.prototype.addAWS4DatabasePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#527FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#2E27AD;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service db database ';
 		
@@ -893,7 +899,7 @@
 
 	Sidebar.prototype.addAWS4DeveloperToolsPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#527FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#2E27AD;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#4D72F3;gradientDirection=north;fillColor=#3334B9;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service dev developer tools ';
 		
@@ -955,7 +961,7 @@
 
 	Sidebar.prototype.addAWS4FrontEndWebMobilePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF5252;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#BF0816;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service mobile ';
 		
@@ -999,7 +1005,7 @@
 
 	Sidebar.prototype.addAWS4InternetOfThingsPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#6CAE3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service internet of things iot ';
 		
@@ -1137,7 +1143,7 @@
 
 	Sidebar.prototype.addAWS4MachineLearningPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#56C0A7;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#067F68;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service machine learning ';
 		
@@ -1227,7 +1233,7 @@
 
 	Sidebar.prototype.addAWS4ManagementGovernancePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF4F8B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#B0084D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F34482;gradientDirection=north;fillColor=#BC1356;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service management governance ';
 		
@@ -1289,6 +1295,8 @@
 					 w2, w2, '', 'Service Catalog', null, null, this.getTagsForStencil(gn, 'service catalog', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.systems_manager;',
 					 w2, w2, '', 'Systems Manager', null, null, this.getTagsForStencil(gn, 'systems manager', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.systems_manager_incident_manager;',
+					 w2, w2, '', 'Systems Manager - Incident Manager', null, null, this.getTagsForStencil(gn, 'systems manager incident manager', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.trusted_advisor;',
 					 w2, w2, '', 'Trusted Advisor', null, null, this.getTagsForStencil(gn, 'trusted advisor', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.well_architect_tool;',
@@ -1390,6 +1398,8 @@
 					 w2, w2, '', 'Elastic Transcoder', null, null, this.getTagsForStencil(gn, 'elastic transcoder', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.kinesis_video_streams;',
 					 w2, w2, '', 'Kinesis Video Streams', null, null, this.getTagsForStencil(gn, 'kinesis video streams', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.nimble_studio;',
+					 w2, w2, '', 'Nimble Studio', null, null, this.getTagsForStencil(gn, 'nimble studio', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.elemental;',
 					 w2, w2, '', 'Elemental Appliances & Software', null, null, this.getTagsForStencil(gn, 'elemental appliances software', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.elemental_mediaconnect;',
@@ -1421,7 +1431,7 @@
 
 	Sidebar.prototype.addAWS4MigrationTransferPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#56C0A7;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#067F68;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#4AB29A;gradientDirection=north;fillColor=#116D5B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service migration transfer ';
 		
@@ -1467,7 +1477,7 @@
 
 	Sidebar.prototype.addAWS4NetworkContentDeliveryPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#A166FF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#4D27AA;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#945DF2;gradientDirection=north;fillColor=#5A30B5;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service netowrk content delivery ';
 		
@@ -1583,7 +1593,7 @@
 
 	Sidebar.prototype.addAWS4QuantumTechnologiesPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF9900;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#D45B07;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F78E04;gradientDirection=north;fillColor=#D05C17;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service quantum technologies ';
 		
@@ -1619,7 +1629,7 @@
 
 	Sidebar.prototype.addAWS4RoboticsPalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF5252;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#BF0816;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#FE5151;gradientDirection=north;fillColor=#BE0917;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service robotics ';
 		
@@ -1657,7 +1667,7 @@
 	
 	Sidebar.prototype.addAWS4SecurityIdentityCompliancePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#FF5252;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#BF0816;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#F54749;gradientDirection=north;fillColor=#C7131F;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service security identity compliance ';
 		
@@ -1785,7 +1795,7 @@
 	
 	Sidebar.prototype.addAWS4StoragePalette = function(s, w, h, w2, gn, sb)
 	{
-		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#6CAE3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n = 'sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#3F8624;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;pointerEvents=1;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service storage ';
 		

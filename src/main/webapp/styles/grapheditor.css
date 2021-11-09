@@ -1851,3 +1851,70 @@ table.geProperties tr td {
   user-select: none;
   transition: all 0.5s;
 }
+
+/*Electron Window Controls*/
+#geWindow-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 30px);
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  height: 22px;
+  -webkit-app-region: no-drag;
+}
+
+#geWindow-controls .button {
+  grid-row: 1 / span 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+}
+#min-button {
+  grid-column: 1;
+}
+#max-button, #restore-button {
+  grid-column: 2;
+}
+#close-button {
+  grid-column: 3;
+}
+#geWindow-controls .button.dark:hover {
+  background: rgba(255,255,255,0.1);
+}
+#geWindow-controls .button.dark:active {
+  background: rgba(255,255,255,0.2);
+}
+
+#geWindow-controls .button.white:hover {
+  background: rgba(0,0,0,0.1);
+}
+#geWindow-controls .button.white:active {
+  background: rgba(0,0,0,0.2);
+}
+
+#close-button:hover {
+  background: #E81123 !important;
+}
+#close-button:active {
+  background: #F1707A !important;
+}
+
+#restore-button {
+  display: none !important;
+}
+/*
+.geMaximized #titlebar {
+  width: 100%;
+  padding: 0;
+}
+*/
+.geMaximized #restore-button {
+  display: flex !important;
+}
+
+.geMaximized #max-button {
+  display: none;
+}

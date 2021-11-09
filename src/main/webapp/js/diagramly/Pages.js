@@ -358,7 +358,8 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 	var graphGetGlobalVariable = sourceGraph.getGlobalVariable;
 	var graph = this.createTemporaryGraph(sourceGraph.getStylesheet());
 	graph.defaultPageBackgroundColor = sourceGraph.defaultPageBackgroundColor;
-	graph.defaultForegroundColor = sourceGraph.defaultForegroundColor;
+	graph.shapeBackgroundColor = sourceGraph.shapeBackgroundColor;
+	graph.shapeForegroundColor = sourceGraph.shapeForegroundColor;
 	var index = this.getPageIndex((sourcePage != null) ?
 		sourcePage : this.currentPage);
 

@@ -3727,8 +3727,9 @@
 			Dialog.backdropColor = Editor.darkColor;
 			Format.inactiveTabBackgroundColor = 'black';
 	    	Graph.prototype.defaultThemeName = 'darkTheme';
+			Graph.prototype.shapeBackgroundColor = Editor.darkColor;
+			Graph.prototype.shapeForegroundColor = Editor.lightColor;
 			Graph.prototype.defaultPageBackgroundColor = Editor.darkColor;
-			Graph.prototype.defaultForegroundColor = '#f0f0f0';
 			Graph.prototype.defaultPageBorderColor = '#505759';
 			BaseFormatPanel.prototype.buttonBackgroundColor = Editor.darkColor;
 			mxGraphHandler.prototype.previewColor = '#cccccc';
