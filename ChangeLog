@@ -1,3 +1,7 @@
+10-NOV-2021: 15.7.3
+
+- [teams] Fixes shapes rendering in picker
+
 10-NOV-2021: 15.7.2
 
 - Fixes pointer events in sketch mode https://github.com/jgraph/drawio-desktop/issues/760
