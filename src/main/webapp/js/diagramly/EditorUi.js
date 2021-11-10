@@ -3743,7 +3743,7 @@
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
-			Graph.prototype.defaultVertexStyle = {'pointerEvents': '0', 'hachureGap': '4'};
+			Graph.prototype.defaultVertexStyle = {'hachureGap': '4'};
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
 				'sourcePerimeterSpacing': '8', 'targetPerimeterSpacing': '8'};
@@ -10290,7 +10290,6 @@
 			this.menus.defaultFontSize = (value) ? 20 : 16;
 
 			graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
-			setStyle(graph.defaultVertexStyle, 'pointerEvents', '0');
 			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);
 
 			graph.defaultEdgeStyle = mxUtils.clone(Graph.prototype.defaultEdgeStyle);

@@ -256,7 +256,7 @@
 						{
 							var data = rowData[j];
 							var colspan = (i == 1) ? parseInt(graph.getCurrentCellStyle(
-								data.cells[i - 1])['colspan'] || 1) :
+								data.cells[i - 1], true)['colspan'] || 1) :
 									rowData[j].colspans[i - 1];
 
 							data.colspans[i] = colspan - 1;
@@ -264,7 +264,7 @@
 							if (data.colspans[i] < 1)
 							{
 								data.colspans[i] = parseInt(graph.getCurrentCellStyle(
-									data.cells[i])['colspan'] || 1);
+									data.cells[i], true)['colspan'] || 1);
 								th = data.y;
 							}
 							else

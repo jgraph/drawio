@@ -1,3 +1,9 @@
+10-NOV-2021: 15.7.2
+
+- Fixes pointer events in sketch mode https://github.com/jgraph/drawio-desktop/issues/760
+- Fixes undo history after table insert
+- Fixes delayed style change in table shape
+
 08-NOV-2021: 15.7.1
 
 - Makes all C4 shapes attributes editable

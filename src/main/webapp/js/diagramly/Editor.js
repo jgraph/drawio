@@ -5900,28 +5900,6 @@
 					
 					return rackLayout;
 				}
-				else if (typeof mxTableLayout !== 'undefined' && style['childLayout'] == 'tableLayout')
-		        {
-		            var tableLayout = new mxTableLayout(this.graph);
-		            tableLayout.rows = style['tableRows'] || 2;
-		            tableLayout.columns = style['tableColumns'] || 2;
-		            tableLayout.colPercentages = style['colPercentages'];
-		            tableLayout.rowPercentages = style['rowPercentages'];
-		            tableLayout.equalColumns = mxUtils.getValue(style, 'equalColumns', tableLayout.colPercentages? '0' : '1') == '1';
-		            tableLayout.equalRows = mxUtils.getValue(style, 'equalRows', tableLayout.rowPercentages? '0' : '1') == '1';
-		            tableLayout.resizeParent = mxUtils.getValue(style, 'resizeParent', '1') == '1';
-		            tableLayout.border = style['tableBorder'] || tableLayout.border;
-		            tableLayout.marginLeft = style['marginLeft'] || 0;
-		            tableLayout.marginRight = style['marginRight'] || 0;
-		            tableLayout.marginTop = style['marginTop'] || 0;
-		            tableLayout.marginBottom = style['marginBottom'] || 0;
-		            tableLayout.autoAddCol = mxUtils.getValue(style, 'autoAddCol', '0') == '1';
-		            tableLayout.autoAddRow = mxUtils.getValue(style, 'autoAddRow', tableLayout.autoAddCol? '0' : '1') == '1';
-		            tableLayout.colWidths = style['colWidths'] || "100";
-		            tableLayout.rowHeights = style['rowHeights'] || "50";
-		            
-		            return tableLayout;
-		        }
 			}
 			
 			return layoutManagerGetLayout.apply(this, arguments);

@@ -677,9 +677,19 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 					(title || mxEvent.isShiftDown(evt)) ? 'Table' : null);
 			var pt = (mxEvent.isAltDown(evt)) ? graph.getFreeInsertPoint() :
 				graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([table], true));
-			var select = graph.importCells([table], pt.x, pt.y);
-			graph.fireEvent(new mxEventObject('cellsInserted', 'cells',
-				graph.model.getDescendants(select[0])));
+			var select = null;
+
+			graph.getModel().beginUpdate();
+			try
+			{
+				select = graph.importCells([table], pt.x, pt.y);
+				graph.fireEvent(new mxEventObject('cellsInserted', 'cells',
+					graph.model.getDescendants(select[0])));
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
 			
 			if (select != null && select.length > 0)
 			{
