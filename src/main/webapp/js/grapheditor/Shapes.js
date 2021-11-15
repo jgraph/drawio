@@ -181,6 +181,18 @@
 		var start = graph.getActualStartSize(this.state.cell);
 		var rows = graph.model.getChildCells(this.state.cell, true);
 		
+		function getCellStyles(cells)
+		{
+			var result = [];
+
+			for (var i = 0; i < cells.length; i++)
+			{
+				result.push(graph.getCurrentCellStyle(cells[i], true));
+			}
+
+			return result;
+		};
+		
 		if (rows.length > 0)
 		{
 			var rowLines = mxUtils.getValue(this.state.style,
@@ -189,19 +201,38 @@
 				'columnLines', '1') != '0';
 			var geo = graph.getCellGeometry(rows[0]);
 			var cells = graph.model.getChildCells(rows[0], true);
-			var rowData = [{y: (geo != null) ? geo.y + geo.height : 0,
-				x: 0, cells: cells, colspans: []}];
-			
+			var lastRow = {y: (geo != null) ? geo.y + geo.height : 0,
+				x: 0, cells: cells, styles: getCellStyles(cells),
+				colspans: [], rowspans: []};
+			var rowData = [lastRow];
+			var colwidths = [];
+
 			// Paints row lines
 			if (rowLines)
 			{
+				// Initializes rowspans on first row
+				var tx = 0;
+
+				for (var i = 0; i < lastRow.cells.length; i++)
+				{
+					lastRow.rowspans[i] = parseInt(lastRow.styles[i]['rowspan'] || 1);
+					var geo = graph.getCellGeometry(cells[i]);
+
+					if (geo != null)
+					{
+						tx += (geo.alternateBounds != null) ? geo.alternateBounds.width : geo.width;
+					}
+
+					colwidths[i] = tx;
+				}
+
 				for (var i = 1; i < rows.length; i++)
 				{
 					geo = graph.getCellGeometry(rows[i]);
 
-					var data = {y: 0, cells: graph.model.
-						getChildCells(rows[i], true),
-						colspans: []};
+					cells = graph.model.getChildCells(rows[i], true);
+					var data = {y: 0, cells: cells, styles: getCellStyles(cells),
+						colspans: [], rowspans: []};
 					rowData.push(data);
 
 					if (geo != null)
@@ -214,9 +245,13 @@
 
 						for (j = 0; j < data.cells.length; j++)
 						{
-							if (graph.model.isVisible(data.cells[j]))
+							var rowspan = lastRow.rowspans[j];
+							data.rowspans[j] = rowspan - 1;
+
+							if (data.rowspans[j] < 1)
 							{
-								tw = data.x;
+								data.rowspans[j] = parseInt(data.styles[j]['rowspan'] || 1);
+								tw = colwidths[j];
 							}
 							else
 							{
@@ -225,7 +260,7 @@
 									c.lineTo(x + tw - start.width, y + geo.y);
 								}
 
-								c.moveTo(x + geo.x + geo.width + start.x, y + geo.y);
+								c.moveTo(x + colwidths[j] + start.x, y + geo.y);
 								tw = 0;
 							}
 						}
@@ -234,6 +269,8 @@
 						c.end();
 						c.stroke();
 					}
+
+					lastRow = data;
 				}
 			}
 			
@@ -255,16 +292,13 @@
 						for (var j = 0; j < rowData.length; j++)
 						{
 							var data = rowData[j];
-							var colspan = (i == 1) ? parseInt(graph.getCurrentCellStyle(
-								data.cells[i - 1], true)['colspan'] || 1) :
-									rowData[j].colspans[i - 1];
-
+							var colspan = (i == 1) ? parseInt(data.styles[i - 1]['colspan'] || 1) :
+								rowData[j].colspans[i - 1];
 							data.colspans[i] = colspan - 1;
 
 							if (data.colspans[i] < 1)
 							{
-								data.colspans[i] = parseInt(graph.getCurrentCellStyle(
-									data.cells[i], true)['colspan'] || 1);
+								data.colspans[i] = parseInt(data.styles[i]['colspan'] || 1);
 								th = data.y;
 							}
 							else

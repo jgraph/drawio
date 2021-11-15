@@ -2141,6 +2141,22 @@
 
 		editorUi.actions.put('embedNotion', new Action(mxResources.get('notion') + '...', function()
 		{
+			var footer = document.createElement('div');
+			footer.style.position = 'absolute';
+			footer.style.bottom = '30px';
+			footer.style.textAlign = 'center';
+			footer.style.width = '100%';
+			footer.style.left = '0px';
+			var link = document.createElement('a');
+			link.style.cursor = 'pointer';
+			mxUtils.write(link, mxResources.get('getNotionChromeExtension'));
+			footer.appendChild(link);
+
+			mxEvent.addListener(link, 'click', function()
+			{
+				editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-for-notion/plhaalebpkihaccllnkdaokdoeaokmle');
+			});
+			
 			editorUi.showPublishLinkDialog(mxResources.get('notion'), null, null, null,
 				function(linkTarget, linkColor, allPages, lightbox, editLink, layers, width, height, tags)
 			{
@@ -2162,7 +2178,7 @@
 						dlg.init();
 					});
 				}
-			}, true);
+			}, true, 'https://www.diagrams.net/blog/drawio-notion', footer);
 		}));
 		
 		editorUi.actions.put('publishLink', new Action(mxResources.get('link') + '...', function()

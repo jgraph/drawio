@@ -5755,7 +5755,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, helpLink)
+	EditorUi.prototype.showPublishLinkDialog = function(title, hideShare, width, height, fn, showFrameOption, helpLink, footer)
 	{
 		var div = document.createElement('div');
 		div.style.whiteSpace = 'nowrap';
@@ -5911,7 +5911,7 @@
 				lightbox.checked, editSection.getLink(),
 				layers.checked, (widthInput != null) ? widthInput.value : null,
 				(heightInput != null) ? heightInput.value : null, tags.checked);
-		}), null, mxResources.get('create'), helpLink);
+		}), null, mxResources.get('create'), helpLink, footer);
 		this.showDialog(dlg.container, 340, 300 + dy, true, true);
 		
 		if (widthInput != null)

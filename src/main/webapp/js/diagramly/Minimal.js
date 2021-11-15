@@ -87,7 +87,8 @@ EditorUi.initMinimalTheme = function()
 	    {
 			ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
 				(urlParams['sketch'] == '1') ? Math.max(10, ui.diagramContainer.clientWidth - 241) :
-				Math.max(10, ui.diagramContainer.clientWidth - 248), 60,
+				Math.max(10, ui.diagramContainer.clientWidth - 248), 
+				EditorUi.isElectronApp && urlParams['sketch'] == '1'? 80 : 60,
 				240, Math.min(566, graph.container.clientHeight - 10), function(container)
 			{
 				var format = ui.createFormat(container);
@@ -1795,6 +1796,18 @@ EditorUi.initMinimalTheme = function()
         wrapper.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;overflow:hidden;';
         ui.diagramContainer.style.top = (urlParams['sketch'] == '1') ? '0px' : '47px';
 
+		//Create draggable titlebar
+		if (EditorUi.isElectronApp && urlParams['sketch'] == '1')
+		{
+			wrapper.style.top = '20px';
+			ui.titlebar = document.createElement('div');
+			ui.titlebar.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;height:20px;overflow:hidden;box-shadow: 0px 0px 2px #c0c0c0;';
+			var title = document.createElement('div');
+			title.style.cssText = 'max-width: calc(100% - 100px);text-overflow: ellipsis;user-select:none;height:20px;margin: 2px 10px;font-size: 12px;white-space: nowrap;overflow: hidden;';
+			ui.titlebar.appendChild(title);
+			previousParent.appendChild(ui.titlebar);
+		}
+		
         var viewZoomMenu = ui.menus.get('viewZoom');
 		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;
 		var footer = (urlParams['sketch'] == '1') ? document.createElement('div') : null;

@@ -1695,9 +1695,7 @@ mxStencilRegistry.allowEval = false;
 		
 		if (urlParams['sketch'] == '1')
 		{
-			menubarContainer = this.menubarContainer;
-			//TODO find a better place for dragging the window
-			menubarContainer.parentNode.style.webkitAppRegion = 'drag';
+			menubarContainer = this.titlebar;
 		}
 
 		menubarContainer.style.webkitAppRegion = 'drag';
@@ -1735,6 +1733,10 @@ mxStencilRegistry.allowEval = false;
 		{
 			this.windowControls.style.top = '9px';
 		}
+		else if (urlParams['sketch'] == '1')
+		{
+			this.windowControls.style.top = '-1px';
+		}
 		
 		menubarContainer.appendChild(this.windowControls);
 
@@ -1743,7 +1745,7 @@ mxStencilRegistry.allowEval = false;
 			if (uiTheme == 'atlas' || Editor.isDarkMode())
 			{
 				this.windowControls.style.fill = 'white';
-				document.querySelectorAll('#geWindow-controls .button').forEach(b => b.className = 'button dark');			
+				document.querySelectorAll('#geWindow-controls .button').forEach(b => b.className = 'button dark');
 			}
 			else
 			{
@@ -1754,11 +1756,6 @@ mxStencilRegistry.allowEval = false;
 		
 		handleDarkModeChange();
 		this.addListener('darkModeChanged', handleDarkModeChange);
-		
-		if (urlParams['sketch'] == '1')
-		{
-			this.windowControls.style.position = 'inherit';
-		}
 		
 		if (this.appIcon != null)
 		{
@@ -1812,6 +1809,17 @@ mxStencilRegistry.allowEval = false;
 	    }
 	}
 	
+	var origUpdateDocumentTitle = App.prototype.updateDocumentTitle;
+	
+	App.prototype.updateDocumentTitle = function()
+	{
+		origUpdateDocumentTitle.apply(this, arguments);
+		
+		if (this.titlebar != null && this.titlebar.firstChild != null)
+		{
+			this.titlebar.firstChild.innerHTML = mxUtils.htmlEntities(document.title);
+		}
+	};
 	/**
 	 * Copies the given cells and XML to the clipboard as an embedded image.
 	 */

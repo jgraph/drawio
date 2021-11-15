@@ -1830,7 +1830,14 @@
 			
 			if (config.styles != null)
 			{
-				Editor.styles = config.styles;
+				if (Array.isArray(config.styles))
+				{
+					Editor.styles = config.styles;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Array expected for styles');
+				}
 			}
 			
 			if (config.globalVars != null)
@@ -1975,7 +1982,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid zoomFactor: value must be float > 1');
+					EditorUi.debug('Configuration Error: Float > 1 expected for zoomFactor');
 				}
 			}
 
@@ -1990,7 +1997,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid gridSteps: value must be int > 0');
+					EditorUi.debug('Configuration Error: Int > 0 expected for gridSteps');
 				}
 			}
 
@@ -2006,7 +2013,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid pageFormat: value must be {width: int, height: int}');
+					EditorUi.debug('Configuration Error: {width: int, height: int} expected for pageFormat');
 				}
 			}
 			
@@ -2050,7 +2057,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid sidebarTitleSize: value must be int > 0');
+					EditorUi.debug('Configuration Error: Int > 0 expected for sidebarTitleSize');
 				}
 			}
 			
@@ -2062,7 +2069,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid fontCss: value must be string');
+					EditorUi.debug('Configuration Error: String expected for fontCss');
 				}
 			}
 			
@@ -2076,7 +2083,7 @@
 				}
 				else
 				{
-					EditorUi.debug('Invalid autosaveDelay: value must be int > 0');
+					EditorUi.debug('Configuration Error: Int > 0 expected for autosaveDelay');
 				}
 			}
 			

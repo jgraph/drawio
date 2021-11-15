@@ -1,3 +1,9 @@
+15-NOV-2021: 15.7.4
+
+- Adds titlebar to desktop sketch mode
+- Adds styles config type check
+- Adds rowspan for row line rendering
+
 10-NOV-2021: 15.7.3
 
 - [teams] Fixes shapes rendering in picker
