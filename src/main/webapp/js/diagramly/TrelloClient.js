@@ -12,7 +12,7 @@ TrelloClient = function(editorUi)
 mxUtils.extend(TrelloClient, DrawioClient);
 
 TrelloClient.prototype.key = (window.location.hostname == 'test.draw.io') ?
-	'e73615c79cf7e381aef91c85936e9553' : 'e73615c79cf7e381aef91c85936e9553';
+	'e89d109082298ce91f6576f82f458551' : 'e89d109082298ce91f6576f82f458551';
 
 TrelloClient.prototype.baseUrl = 'https://api.trello.com/1/';
 

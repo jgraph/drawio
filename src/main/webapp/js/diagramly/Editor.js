@@ -457,13 +457,13 @@
         {name: 'portConstraintRotation', dispName: 'Rotate Constraint', type: 'bool', defVal: false},
         {name: 'connectable', dispName: 'Connectable', type: 'bool', getDefaultValue: function(state, format)
         {
-        	var cell = (state.vertices.length == 1 && state.edges.length == 0) ? state.vertices[0] : null;
+        	var cell = (state.vertices.length > 0 && state.edges.length == 0) ? state.vertices[0] : null;
         	var graph = format.editorUi.editor.graph;
         	
         	return graph.isCellConnectable(cell);
         }, isVisible: function(state, format)
         {
-    		return state.vertices.length == 1 && state.edges.length == 0;
+    		return state.vertices.length > 0 && state.edges.length == 0;
         }},
         {name: 'allowArrows', dispName: 'Allow Arrows', type: 'bool', defVal: true},
         {name: 'snapToPoint', dispName: 'Snap to Point', type: 'bool', defVal: false},

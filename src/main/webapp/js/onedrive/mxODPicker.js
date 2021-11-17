@@ -310,7 +310,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 						}
 						
 						var doc = mxUtils.parseXml(cnt);
-						var node = Editor.extractGraphModel(doc.documentElement);
+
+						var node = (doc.documentElement.nodeName == 'mxlibrary') ?
+							doc.documentElement : Editor.extractGraphModel(doc.documentElement);
 
 						if (node != null)
 						{
@@ -378,13 +380,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			spinner.stop();
 		};
 		
-		if (file == null || file.folder) 
+		if (file == null || file.folder || /\.drawiolib$/.test(file.name)) 
 		{
 			showRenderMsg(mxResources.get('noPreview'));
 			return;
 		}
-		
-		spinner.spin(prevDiv);
 		
 		try
 		{
@@ -395,20 +395,27 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			}
 
 			loadingPreviewFile = file;
-			
+			spinner.spin(prevDiv);
+		
 			getDrawioFileDoc(file, function(doc)
 			{
+				spinner.stop();
+
 				if (loadingPreviewFile != file)
 				{
 					return;
 				}
-
-				var diagrams = doc.getElementsByTagName('diagram');
-				curViewer = AspectDialog.prototype.createViewer(prevDiv,
-						diagrams.length == 0? doc.documentElement : diagrams[0],
-						null, 'transparent');
-
-				spinner.stop();
+				else if (doc.documentElement.nodeName == 'mxlibrary')
+				{
+					showRenderMsg(mxResources.get('noPreview'));
+				}
+				else
+				{
+					var diagrams = doc.getElementsByTagName('diagram');
+					curViewer = AspectDialog.prototype.createViewer(prevDiv,
+							diagrams.length == 0? doc.documentElement : diagrams[0],
+							null, 'transparent');
+				}
 			}, 
 			function() //If the file is not a draw.io diagram
 			{
@@ -697,7 +704,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				
 				if (file.folder || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png' 
 					|| /\.svg$/.test(file.name) || /\.html$/.test(file.name) || /\.xml$/.test(file.name) || /\.png$/.test(file.name)
-					|| /\.drawio$/.test(file.name))
+					|| /\.drawio$/.test(file.name) || /\.drawiolib$/.test(file.name))
 				{
 					potentialDrawioFiles.push(file);
 				}

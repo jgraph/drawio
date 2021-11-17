@@ -1,3 +1,11 @@
+17-NOV-2021: 15.8.1
+
+- Changes Trello API key
+- Adds drawiolib files in OneDrive inline picker
+- Fixes preview for libraries in OneDrive picker
+- Fixes connectable for multiple vertices https://github.com/jgraph/drawio/issues/2383
+- Update to kr translations, thanks to Hochul cho
+
 17-NOV-2021: 15.8.0
 
 - Switches to command line deployment script
