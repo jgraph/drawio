@@ -3241,10 +3241,32 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			
 			if (title != null)
 			{
-				elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;' + (Editor.isDarkMode() ? '' : 'background:rgba(255,255,255,0.85);') +
-					'border:inherit;"><tr><td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
-					'border-radius:3px;background:rgba(255,255,255,0.85);overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
-					mxUtils.htmlEntities(mxResources.get(title, null, title)) + '</span></td></tr></table>';
+				var table = document.createElement('table');
+				table.setAttribute('width', '100%');
+				table.setAttribute('height', '100%');
+				table.style.background = Editor.isDarkMode() ? 'transparent' : 'rgba(255,255,255,0.85)';
+				table.style.lineHeight = '1.3em';
+				table.style.border = 'inherit';
+				var tbody = document.createElement('tbody');
+				var row = document.createElement('tr');
+				var td = document.createElement('td');
+				td.setAttribute('align', 'center');
+				td.setAttribute('valign', 'middle');
+				var span = document.createElement('span');
+				span.style.display = 'inline-block';
+				span.style.padding = '4px 8px 4px 8px';
+				span.style.userSelect = 'none';
+				span.style.borderRadius = '3px';
+				span.style.background = 'rgba(255,255,255,0.85)';
+				span.style.overflow = 'hidden';
+				span.style.textOverflow = 'ellipsis';
+				span.style.maxWidth = (w - 34) + 'px';
+				mxUtils.write(span, mxResources.get(title, null, title));
+				td.appendChild(span);
+				row.appendChild(td);
+				tbody.appendChild(row);
+				table.appendChild(tbody);
+				elt.appendChild(table);
 			}
 			
 			function activate(doCreate)
@@ -3283,11 +3305,31 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		else
 		{
-			elt.innerHTML = '<table width="100%" height="100%" style="line-height:1.3em;"><tr>' +
-				'<td align="center" valign="middle"><span style="display:inline-block;padding:4px 8px 4px 8px;user-select:none;' +
-				'border-radius:3px;background:#ffffff;overflow:hidden;text-overflow:ellipsis;max-width:' + (w - 34) + 'px;">' +
-				mxUtils.htmlEntities(mxResources.get(title, null, title)) + '</span></td></tr></table>';
-			
+			var table = document.createElement('table');
+			table.setAttribute('width', '100%');
+			table.setAttribute('height', '100%');
+			table.style.lineHeight = '1.3em';
+			var tbody = document.createElement('tbody');
+			var row = document.createElement('tr');
+			var td = document.createElement('td');
+			td.setAttribute('align', 'center');
+			td.setAttribute('valign', 'middle');
+			var span = document.createElement('span');
+			span.style.display = 'inline-block';
+			span.style.padding = '4px 8px 4px 8px';
+			span.style.userSelect = 'none';
+			span.style.borderRadius = '3px';
+			span.style.background = '#ffffff';
+			span.style.overflow = 'hidden';
+			span.style.textOverflow = 'ellipsis';
+			span.style.maxWidth = (w - 34) + 'px';
+			mxUtils.write(span, mxResources.get(title, null, title));
+			td.appendChild(span);
+			row.appendChild(td);
+			tbody.appendChild(row);
+			table.appendChild(tbody);
+			elt.appendChild(table);
+
 			if (select)
 			{
 				selectElement(elt);

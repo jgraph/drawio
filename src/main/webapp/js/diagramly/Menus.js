@@ -2148,13 +2148,16 @@
 			footer.style.width = '100%';
 			footer.style.left = '0px';
 			var link = document.createElement('a');
+			link.setAttribute('href', 'javascript:void(0);');
+			link.setAttribute('target', '_blank');
 			link.style.cursor = 'pointer';
 			mxUtils.write(link, mxResources.get('getNotionChromeExtension'));
 			footer.appendChild(link);
 
-			mxEvent.addListener(link, 'click', function()
+			mxEvent.addListener(link, 'click', function(evt)
 			{
 				editorUi.openLink('https://chrome.google.com/webstore/detail/drawio-for-notion/plhaalebpkihaccllnkdaokdoeaokmle');
+				mxEvent.consume(evt);
 			});
 			
 			editorUi.showPublishLinkDialog(mxResources.get('notion'), null, null, null,

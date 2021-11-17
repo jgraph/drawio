@@ -12403,34 +12403,41 @@ if (typeof mxVertexHandler != 'undefined')
 		/**
 		 * Defines the handles for the UI. Uses data-URIs to speed-up loading time where supported.
 		 */
-		// TODO: Increase handle padding
-		HoverIcons.prototype.mainHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-main.png', 17, 17) :
-			Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/>');
-		HoverIcons.prototype.secondaryHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-secondary.png', 17, 17) :
-			Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
-		HoverIcons.prototype.fixedHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-fixed.png', 17, 17) :
-			Graph.createSvgImage(22, 22, '<circle cx="11" cy="11" r="6" stroke="#fff" fill="#01bd22" stroke-width="1"/><path d="m 8 8 L 14 14M 8 14 L 14 8" stroke="#fff"/>');
-		HoverIcons.prototype.terminalHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-terminal.png', 17, 17) :
-			Graph.createSvgImage(22, 22, '<circle cx="11" cy="11" r="6" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '" stroke-width="1"/><circle cx="11" cy="11" r="3" stroke="#fff" fill="transparent"/>');
-		HoverIcons.prototype.rotationHandle = (!mxClient.IS_SVG) ? new mxImage(IMAGE_PATH + '/handle-rotate.png', 16, 16) :
-			Graph.createSvgImage(16, 16, '<path stroke="' + HoverIcons.prototype.arrowFill +
-				'" fill="' + HoverIcons.prototype.arrowFill +
+		// TODO: Remove non-svg cases
+		HoverIcons.prototype.mainHandle = Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '"/>');
+		HoverIcons.prototype.endMainHandle = Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="6" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '"/>');
+		HoverIcons.prototype.secondaryHandle = Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
+		HoverIcons.prototype.fixedHandle = Graph.createSvgImage(22, 22,
+			'<circle cx="11" cy="11" r="6" stroke="#fff" fill="#01bd22"/>' +
+			'<path d="m 8 8 L 14 14M 8 14 L 14 8" stroke="#fff"/>');
+		HoverIcons.prototype.endFixedHandle = Graph.createSvgImage(22, 22,
+			'<circle cx="11" cy="11" r="7" stroke="#fff" fill="#01bd22"/>' +
+			'<path d="m 8 8 L 14 14M 8 14 L 14 8" stroke="#fff"/>');
+		HoverIcons.prototype.terminalHandle = Graph.createSvgImage(22, 22,
+			'<circle cx="11" cy="11" r="6" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill +
+			'"/><circle cx="11" cy="11" r="3" stroke="#fff" fill="transparent"/>');
+		HoverIcons.prototype.endTerminalHandle = Graph.createSvgImage(22, 22,
+			'<circle cx="11" cy="11" r="7" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill +
+			'"/><circle cx="11" cy="11" r="3" stroke="#fff" fill="transparent"/>');
+		HoverIcons.prototype.rotationHandle = Graph.createSvgImage(16, 16,
+			'<path stroke="' + HoverIcons.prototype.arrowFill + '" fill="' + HoverIcons.prototype.arrowFill +
 				'" d="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.05 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V10l4.55-4.45zM19.93 11c-.17-1.39-.72-2.73-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.9v2.02c1.39-.17 2.74-.71 3.9-1.61l-1.44-1.44c-.75.54-1.59.89-2.46 1.03zm3.89-2.42l1.42 1.41c.9-1.16 1.45-2.5 1.62-3.89h-2.02c-.14.87-.48 1.72-1.02 2.48z"/>',
 				24, 24);
-		
-		if (mxClient.IS_SVG)
-		{
-			mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5,
-				'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke-width="2" style="stroke-opacity:0.4" stroke="#ffffff"/>' +
-				'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + HoverIcons.prototype.arrowFill + '"/>');
-		}
-		
+	
+		mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5,
+			'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke-width="2" style="stroke-opacity:0.4" stroke="#ffffff"/>' +
+			'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + HoverIcons.prototype.arrowFill + '"/>');
+
 		mxVertexHandler.TABLE_HANDLE_COLOR = '#fca000';
 		mxVertexHandler.prototype.handleImage = HoverIcons.prototype.mainHandle;
 		mxVertexHandler.prototype.secondaryHandleImage = HoverIcons.prototype.secondaryHandle;
 		mxEdgeHandler.prototype.handleImage = HoverIcons.prototype.mainHandle;
+		mxEdgeHandler.prototype.endHandleImage = HoverIcons.prototype.endMainHandle;
 		mxEdgeHandler.prototype.terminalHandleImage = HoverIcons.prototype.terminalHandle;
+		mxEdgeHandler.prototype.endTerminalHandleImage = HoverIcons.prototype.endTerminalHandle;
 		mxEdgeHandler.prototype.fixedHandleImage = HoverIcons.prototype.fixedHandle;
+
+		mxEdgeHandler.prototype.endFixedHandleImage = HoverIcons.prototype.endFixedHandle;
 		mxEdgeHandler.prototype.labelHandleImage = HoverIcons.prototype.secondaryHandle;
 		mxOutline.prototype.sizerImage = HoverIcons.prototype.mainHandle;
 		
@@ -12811,7 +12818,7 @@ if (typeof mxVertexHandler != 'undefined')
 		};
 		
 		// Shows secondary handle for fixed connection points
-		mxEdgeHandler.prototype.createHandleShape = function(index, virtual)
+		mxEdgeHandler.prototype.createHandleShape = function(index, virtual, target)
 		{
 			var source = index != null && index == 0;
 			var terminalState = this.state.getVisibleTerminalState(source);
@@ -12819,8 +12826,9 @@ if (typeof mxVertexHandler != 'undefined')
 				(this.constructor == mxElbowEdgeHandler && index == 2))) ?
 				this.graph.getConnectionConstraint(this.state, terminalState, source) : null;
 			var pt = (c != null) ? this.graph.getConnectionPoint(this.state.getVisibleTerminalState(source), c) : null;
-			var img = (pt != null) ? this.fixedHandleImage : ((c != null && terminalState != null) ?
-				this.terminalHandleImage : this.handleImage);
+			var img = (pt != null) ? (!target ? this.fixedHandleImage : this.endFixedHandleImage) :
+				((c != null && terminalState != null) ? (!target ? this.terminalHandleImage : this.endTerminalHandleImage) :
+					(!target ? this.handleImage : this.endHandleImage));
 			
 			if (img != null)
 			{

@@ -1,3 +1,15 @@
+17-NOV-2021: 15.8.0
+
+- Switches to command line deployment script
+- Uses API for inline styles
+- Fixes chrome extension link color
+- Replaces inline CSS styles with DOM API
+- Uses larger handles for line end https://github.com/jgraph/drawio/issues/1683
+- [conf cloud] Allows page ids import to continue when Confluence fails to list all pages
+- Fixes event handling for Chrome on Linux https://github.com/jgraph/drawio/issues/2392
+- Fixes clear waypoints keyboard shortcut https://github.com/jgraph/drawio/issues/2420
+- Fixes handling of PNG data URL with charset
+
 15-NOV-2021: 15.7.4
 
 - Adds titlebar to desktop sketch mode

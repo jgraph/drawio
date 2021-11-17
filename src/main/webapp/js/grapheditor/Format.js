@@ -2117,10 +2117,12 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		
 		btn = mxUtils.button(mxResources.get('clearWaypoints'), mxUtils.bind(this, function(evt)
 		{
-			this.editorUi.actions.get('clearWaypoints').funct(evt);
+			this.editorUi.actions.get('clearWaypoints').funct(evt, evt);
 		}));
 		
-		btn.setAttribute('title', mxResources.get('clearWaypoints') + ' (' + this.editorUi.actions.get('clearWaypoints').shortcut + ')');
+		btn.setAttribute('title', mxResources.get('clearWaypoints') +
+			' (' + this.editorUi.actions.get('clearWaypoints').shortcut + ')' +
+			' Shift+Click to Clear Anchor Points');
 		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		div.appendChild(btn);

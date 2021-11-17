@@ -3175,9 +3175,9 @@ App.prototype.start = function()
 					var doLoadFile = mxUtils.bind(this, function(xml)
 					{
 						// Extracts graph model from PNG
-						if (xml.substring(0, 22) == 'data:image/png;base64,')
+						if (Editor.isPngDataUrl(xml))
 						{
-							xml = this.extractGraphModelFromPng(xml);
+							xml = Editor.extractGraphModelFromPng(xml);
 						}
 						
 						var title = urlParams['title'];

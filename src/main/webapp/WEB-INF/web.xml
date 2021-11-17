@@ -67,16 +67,6 @@
     <url-pattern>/github2</url-pattern>
   </servlet-mapping>
   <servlet>
-    <description/>
-    <display-name>AppShortcutServlet</display-name>
-    <servlet-name>AppShortcutServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.AppShortcutServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>AppShortcutServlet</servlet-name>
-    <url-pattern>/app</url-pattern>
-  </servlet-mapping>
-  <servlet>
     <display-name>LogServlet</display-name>
     <servlet-name>LogServlet</servlet-name>
     <servlet-class>com.mxgraph.online.LogServlet</servlet-class>

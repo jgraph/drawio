@@ -280,80 +280,6 @@
 	};
 
 	/**
-	 * Static method for pasing PNG files.
-	 */
-	EditorUi.parsePng = function(f, fn, error)
-	{
-		var pos = 0;
-		
-		function fread(d, count)
-		{
-			var start = pos;
-			pos += count;
-			
-			return d.substring(start, pos);
-		};
-		
-		// Reads unsigned long 32 bit big endian
-		function _freadint(d)
-		{
-			var bytes = fread(d, 4);
-			
-			return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
-				(bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
-		};
-		
-		// Checks signature
-		if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		// Reads header chunk
-		fread(f,4);
-		
-		if (fread(f,4) != 'IHDR')
-		{
-			if (error != null)
-			{
-				error();
-			}
-			
-			return;
-		}
-		
-		fread(f, 17);
-		
-		do
-		{
-			var n = _freadint(f);
-			var type = fread(f,4);
-			
-			if (fn != null)
-			{
-				if (fn(pos - 8, type, n))
-				{
-					break;
-				}
-			}
-			
-			value = fread(f,n);
-			fread(f,4);
-			
-			if (type == 'IEND')
-			{
-				break;
-			}
-		}
-		while (n);
-	};
-	
-	/**
 	 * Removes any values, styles and geometries from the given XML node.
 	 */
 	EditorUi.removeChildNodes = function(node)
@@ -5386,11 +5312,25 @@
 		
 		function updateLinkColor()
 		{
-			linkButton.innerHTML = '<div style="width:100%;height:100%;box-sizing:border-box;' +
-				((linkColor != null && linkColor != mxConstants.NONE) ?
-				'border:1px solid black;background-color:' + linkColor :
-				'background-position:center center;background-repeat:no-repeat;' +
-				'background-image:url(\'' + Dialog.prototype.closeImage + '\')') + ';"></div>';
+			var div = document.createElement('div');
+			div.style.width = '100%';
+			div.style.height = '100%';
+			div.style.boxSizing = 'border-box';
+
+			if (linkColor != null && linkColor != mxConstants.NONE)
+			{
+				div.style.border = '1px solid black';
+				div.style.backgroundColor = linkColor;
+			}
+			else
+			{
+				div.style.backgroundPosition = 'center center';
+				div.style.backgroundRepeat = 'no-repeat';
+				div.style.backgroundImage = 'url(\'' + Dialog.prototype.closeImage + '\')';
+			}
+
+			linkButton.innerHTML = '';
+			linkButton.appendChild(div);
 		};
 		
 		linkButton = mxUtils.button('', mxUtils.bind(this, function(evt)
@@ -7851,9 +7791,9 @@
 	    		}
 				
 				// Checks for embedded XML in PNG
-				if (text.substring(0, 22) == 'data:image/png;base64,')
+				if (Editor.isPngDataUrl(text))
 				{
-					var xml = this.extractGraphModelFromPng(text);
+					var xml = Editor.extractGraphModelFromPng(text);
 					
 					if (xml != null && xml.length > 0)
 					{
@@ -11008,9 +10948,9 @@
 									if (data != null)
 									{
 										// Checks for embedded XML in PNG
-										if (data.substring(0, 22) == 'data:image/png;base64,')
+										if (Editor.isPngDataUrl(data))
 										{
-											var xml = this.extractGraphModelFromPng(data);
+											var xml = Editor.extractGraphModelFromPng(data);
 											
 											if (xml != null && xml.length > 0)
 											{
@@ -11778,9 +11718,9 @@
 				{
 					try
 					{
-						if (data.substring(0, 22) == 'data:image/png;base64,')
+						if (Editor.isPngDataUrl(data))
 						{
-							data = this.extractGraphModelFromPng(data);
+							data = Editor.extractGraphModelFromPng(data);
 						}
 						else if (data.substring(0, 26) == 'data:image/svg+xml;base64,')
 						{

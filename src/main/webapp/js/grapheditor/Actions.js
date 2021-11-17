@@ -1547,7 +1547,7 @@ Actions.prototype.init = function()
 						var geo = graph.getCellGeometry(cell);
 			
 						// Resets fixed connection point
-						if (mxEvent.isShiftDown(evt))
+						if (trigger != null && mxEvent.isShiftDown(evt))
 						{
 							graph.setCellStyles(mxConstants.STYLE_EXIT_X, null, [cell]);
 							graph.setCellStyles(mxConstants.STYLE_EXIT_Y, null, [cell]);

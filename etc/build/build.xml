@@ -466,7 +466,7 @@
 		<fileset dir="${war.dir}/WEB-INF/lib" />
 	</path>
 
-	<target name="javac" depends="app" description="Java compilation">
+	<target name="javac" description="Java compilation">
 		<mkdir dir="${javac.dir}"/>
 		<javac includeantruntime="false" srcdir="${src.dir}" excludes="**/EmbedServlet2.java" destdir="${javac.dir}">
 			<classpath refid="javac.class.path" />
@@ -481,7 +481,7 @@
 		<delete file="${basedir}/base-viewer.min.js"/>
 	</target>
 	
-	<target name="war" depends="javac" description="Create the stand-alone war file">
+	<target name="war" depends="app, javac" description="Create the stand-alone war file">
 		<zip destfile="${build.dir}/${war.name}" basedir="${war.dir}" >
 		</zip>
 	</target>

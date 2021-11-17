@@ -292,13 +292,15 @@
 						for (var j = 0; j < rowData.length; j++)
 						{
 							var data = rowData[j];
-							var colspan = (i == 1) ? parseInt(data.styles[i - 1]['colspan'] || 1) :
+							var colspan = (i == 1) ? (data.styles[i - 1] != null ?
+								parseInt(data.styles[i - 1]['colspan'] || 1) : 1) :
 								rowData[j].colspans[i - 1];
 							data.colspans[i] = colspan - 1;
 
 							if (data.colspans[i] < 1)
 							{
-								data.colspans[i] = parseInt(data.styles[i]['colspan'] || 1);
+								data.colspans[i] = data.styles[i] != null ?
+									parseInt(data.styles[i]['colspan'] || 1 ) : 1;
 								th = data.y;
 							}
 							else

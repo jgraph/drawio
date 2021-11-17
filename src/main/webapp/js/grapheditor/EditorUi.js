@@ -1036,13 +1036,87 @@ EditorUi = function(editor, container, lightbox)
 	}
 };
 
-// Extends mxEventSource
-mxUtils.extend(EditorUi, mxEventSource);
-
 /**
  * Global config that specifies if the compact UI elements should be used.
  */
-EditorUi.compactUi = true;
+ EditorUi.compactUi = true;
+
+ /**
+  * Static method for pasing PNG files.
+  */
+ EditorUi.parsePng = function(f, fn, error)
+ {
+	 var pos = 0;
+	 
+	 function fread(d, count)
+	 {
+		 var start = pos;
+		 pos += count;
+		 
+		 return d.substring(start, pos);
+	 };
+	 
+	 // Reads unsigned long 32 bit big endian
+	 function _freadint(d)
+	 {
+		 var bytes = fread(d, 4);
+		 
+		 return bytes.charCodeAt(3) + (bytes.charCodeAt(2) << 8) +
+			 (bytes.charCodeAt(1) << 16) + (bytes.charCodeAt(0) << 24);
+	 };
+	 
+	 // Checks signature
+	 if (fread(f,8) != String.fromCharCode(137) + 'PNG' + String.fromCharCode(13, 10, 26, 10))
+	 {
+		 if (error != null)
+		 {
+			 error();
+		 }
+		 
+		 return;
+	 }
+	 
+	 // Reads header chunk
+	 fread(f,4);
+	 
+	 if (fread(f,4) != 'IHDR')
+	 {
+		 if (error != null)
+		 {
+			 error();
+		 }
+		 
+		 return;
+	 }
+	 
+	 fread(f, 17);
+	 
+	 do
+	 {
+		 var n = _freadint(f);
+		 var type = fread(f,4);
+		 
+		 if (fn != null)
+		 {
+			 if (fn(pos - 8, type, n))
+			 {
+				 break;
+			 }
+		 }
+		 
+		 value = fread(f,n);
+		 fread(f,4);
+		 
+		 if (type == 'IEND')
+		 {
+			 break;
+		 }
+	 }
+	 while (n);
+ };
+ 
+// Extends mxEventSource
+mxUtils.extend(EditorUi, mxEventSource);
 
 /**
  * Specifies the size of the split bar.
@@ -4670,9 +4744,9 @@ EditorUi.prototype.parseHtmlData = function(data)
 			
 			if (temp != null)
 			{
-				if (temp.substring(0, 22) == 'data:image/png;base64,')
+				if (Editor.isPngDataUrl(temp))
 				{
-					var xml = this.extractGraphModelFromPng(temp);
+					var xml = Editor.extractGraphModelFromPng(temp);
 					
 					if (xml != null && xml.length > 0)
 					{
@@ -4696,9 +4770,9 @@ EditorUi.prototype.parseHtmlData = function(data)
 				
 				if (temp != null && img.parentNode == elt && elt.children.length == 1)
 				{
-					if (temp.substring(0, 22) == 'data:image/png;base64,')
+					if (Editor.isPngDataUrl(temp))
 					{
-						var xml = this.extractGraphModelFromPng(temp);
+						var xml = Editor.extractGraphModelFromPng(temp);
 						
 						if (xml != null && xml.length > 0)
 						{
