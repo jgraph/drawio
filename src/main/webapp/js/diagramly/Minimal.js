@@ -1132,9 +1132,8 @@ EditorUi.initMinimalTheme = function()
 				}
 			}
 			
-			ui.menus.addMenuItems(menu, ['-', 'findReplace', 'layers', 'tags'], parent);
-
-			ui.menus.addMenuItems(menu, ['-', 'pageSetup', 'pageScale'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'findReplace',
+				'layers', 'tags', '-', 'pageSetup'], parent);
 
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
@@ -1275,8 +1274,8 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			ui.menus.addSubmenu('units', menu, parent);
-			menu.addSeparator(parent);
-			ui.menus.addMenuItems(menu, ['scrollbars', 'tooltips', 'ruler', '-', 'copyConnect', 'collapseExpand', '-'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'pageScale', 'ruler', '-', 'scrollbars',
+				'tooltips', '-', 'copyConnect', 'collapseExpand', '-'], parent);
 
 			if (urlParams['sketch'] == '1')
 			{

@@ -6251,6 +6251,16 @@ DiagramStylePanel.prototype.addView = function(div)
 		this.format.cachedStyleEntries = [];
 	}
 
+	function addKeys(style, result)
+	{
+		for (var key in style)
+		{
+			result.push(key);
+		}
+
+		return result;
+	};
+
 	var addEntry = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, index)
 	{
 		var panel = this.format.cachedStyleEntries[index];
@@ -6323,7 +6333,7 @@ DiagramStylePanel.prototype.addView = function(div)
 				model.beginUpdate();
 				try
 				{
-					updateCells(defaultStyles, graphStyle);
+					updateCells(addKeys(commonStyle, defaultStyles.slice()), graphStyle);
 					
 					var change = new ChangePageSetup(ui, (graphStyle != null) ? graphStyle.background : null);
 					change.ignoreImage = true;

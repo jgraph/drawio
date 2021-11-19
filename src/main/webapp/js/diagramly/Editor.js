@@ -1847,7 +1847,14 @@
 			// Defines the enabled built-in libraries.
 			if (config.enabledLibraries != null)
 			{
-				Sidebar.prototype.enabledLibraries = config.enabledLibraries;
+				if (Array.isArray(config.enabledLibraries))
+				{
+					Sidebar.prototype.enabledLibraries = config.enabledLibraries;
+				}
+				else
+				{
+					EditorUi.debug('Configuration Error: Array expected for enabledLibraries');
+				}
 			}
 			
 			// Overrides default libraries

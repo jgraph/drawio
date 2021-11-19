@@ -58,6 +58,8 @@ async function main()
                                     value = entries[1];
                                 }
 
+                                value = value.trim();
+
                                 //TODO Add encoding support
                                 /*if (PropGen.encodeValues)
                                 {

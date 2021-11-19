@@ -1,6 +1,6 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
 # https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
-about=Über 
+about=Über
 aboutDrawio=Über draw.io
 accessDenied=Zugriff verweigert
 action=Aktion
@@ -679,7 +679,7 @@ sendMessage=Senden
 sendYourFeedback=Senden Sie Ihr Feedback
 serviceUnavailableOrBlocked=Service nicht verfügbar oder geblockt
 sessionExpired=Ihre Sitzung wurde beendet. Bitte aktualisieren Sie das Browserfenster.
-sessionTimeoutOnSave=Your session has timed out and you have been disconnected from the Google Drive. Press OK to login and save. 
+sessionTimeoutOnSave=Your session has timed out and you have been disconnected from the Google Drive. Press OK to login and save.
 setAsDefaultStyle=Als Standardstyle festlegen
 shadow=Schatten
 shape=Shape
@@ -1166,7 +1166,7 @@ meters=Meter
 teamsNoEditingMsg=Editor functionality is only available in Desktop environment (in MS Teams App or a web browser)
 contactOwner=Contact Owner
 viewerOnlyMsg=You cannot edit the diagrams in the mobile platform, please use the desktop client or a web browser.
-website=Website 
+website=Website
 check4Updates=Check for updates
 attWriteFailedRetry={1}: Attachment write failed, trying again in {2} seconds...
-confPartialPageList=We couldn't fetch all pages due to an error in Confluence. Continuing using {1} pages only. 
+confPartialPageList=We couldn't fetch all pages due to an error in Confluence. Continuing using {1} pages only.

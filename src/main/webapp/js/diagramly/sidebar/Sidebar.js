@@ -158,6 +158,24 @@
            	                           {id: 'sysml', prefix: 'sysml', libs: Sidebar.prototype.sysml}];
 	
 	/**
+	 * Removes disabled libraries from search results.
+	 */
+	var sidebarAddEntry = Sidebar.prototype.addEntry;
+
+	Sidebar.prototype.addEntry = function(tags, fn)
+	{
+		if (this.currentSearchEntryLibrary != null && this.enabledLibraries != null &&
+			mxUtils.indexOf(this.enabledLibraries, this.currentSearchEntryLibrary.id) < 0)
+		{
+			return fn;
+		}
+		else
+		{
+			return sidebarAddEntry.apply(this, arguments);
+		}	
+	};
+
+	/**
 	 * Adds hint for quick tutorial video for certain search terms.
 	 */
 	var siderbarInsertSearchHint = Sidebar.prototype.insertSearchHint;
@@ -1299,41 +1317,34 @@
 					{
 						try
 						{
-							if (req.getStatus() >= 200 && req.getStatus() <= 299)
+							// Ignore response if nothing or error returned
+							if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
+								req.getText() != null && req.getText().length > 0)
 							{
-								// Ignore without error if no response
-								if (req.getText() != null && req.getText().length > 0)
+								try
 								{
-									try
-									{
-										var res = JSON.parse(req.getText());
-										
-										if (res == null || res.icons == null)
-										{
-											succ(results, len, false, terms);
-											this.editorUi.handleError(res);
-										}
-										else
-										{
-											this.extractIconsFromResponse(res, results);
-											succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
-										}
-									}
-									catch (e)
+									var res = JSON.parse(req.getText());
+									
+									if (res == null || res.icons == null)
 									{
 										succ(results, len, false, terms);
-										this.editorUi.handleError(e);
+										this.editorUi.handleError(res);
+									}
+									else
+									{
+										this.extractIconsFromResponse(res, results);
+										succ(results, (page - 1) * count + results.length, res.icons.length == count, terms);
 									}
 								}
-								else
+								catch (e)
 								{
 									succ(results, len, false, terms);
+									this.editorUi.handleError(e);
 								}
 							}
 							else
 							{
 								succ(results, len, false, terms);
-								this.editorUi.handleError({message: mxResources.get('unknownError')});
 							}
 						}
 						catch (e)

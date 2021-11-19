@@ -290,7 +290,6 @@
 				// Supported domains are *.draw.io and the packaged version in Quip
 				var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
 					(hostName.substring(hostName.length - 13, hostName.length) === '.diagrams.net');
-					(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
 				
 				function loadAppJS()
 				{
@@ -298,11 +297,6 @@
 					{
 						mxScriptsLoaded = true;
 						checkAllLoaded();
-						
-						if (!supportedDomain)
-						{
-							mxscript('js/PostConfig.js');
-						}
 						
 						// Electron
 						if (mxIsElectron)
@@ -323,6 +317,10 @@
 									});
 								});
 							});
+						}
+						else if (!supportedDomain)
+						{
+							mxscript('js/PostConfig.js');
 						}
 					});
 				};

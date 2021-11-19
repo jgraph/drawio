@@ -12394,7 +12394,19 @@ if (typeof mxVertexHandler != 'undefined')
 				this.linkHint.style.display = 'none';
 			}
 		};
-	
+
+		/**
+		 * Replaces folding icons with SVG.
+		 */
+		Graph.prototype.expandedImage = Graph.createSvgImage(9, 9, '<defs><linearGradient id="grad1" x1="50%" y1="0%" x2="50%" y2="100%">' +
+			'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
+			'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
+			'<path d="M 2 4.5 L 7 4.5 z" stroke="#000"/>');
+		Graph.prototype.collapsedImage = Graph.createSvgImage(9, 9, '<defs><linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">' +
+			'<stop offset="30%" style="stop-color:#f0f0f0;" /><stop offset="100%" style="stop-color:#AFB0B6;" /></linearGradient></defs>' +
+			'<rect x="0" y="0" width="9" height="9" stroke="#8A94A5" fill="url(#grad1)" stroke-width="2"/>' +
+			'<path d="M 4.5 2 L 4.5 7 M 2 4.5 L 7 4.5 z" stroke="#000"/>');
+
 		/**
 		 * Updates the hint for the current operation.
 		 */
@@ -12403,7 +12415,6 @@ if (typeof mxVertexHandler != 'undefined')
 		/**
 		 * Defines the handles for the UI. Uses data-URIs to speed-up loading time where supported.
 		 */
-		// TODO: Remove non-svg cases
 		HoverIcons.prototype.mainHandle = Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="5" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '"/>');
 		HoverIcons.prototype.endMainHandle = Graph.createSvgImage(18, 18, '<circle cx="9" cy="9" r="6" stroke="#fff" fill="' + HoverIcons.prototype.arrowFill + '"/>');
 		HoverIcons.prototype.secondaryHandle = Graph.createSvgImage(16, 16, '<path d="m 8 3 L 13 8 L 8 13 L 3 8 z" stroke="#fff" fill="#fca000"/>');
@@ -12451,23 +12462,6 @@ if (typeof mxVertexHandler != 'undefined')
 			Sidebar.prototype.roundDrop = HoverIcons.prototype.roundDrop;
 		}
 
-		// Pre-fetches images (only needed for non data-uris)
-		if (!mxClient.IS_SVG)
-		{
-			new Image().src = HoverIcons.prototype.mainHandle.src;
-			new Image().src = HoverIcons.prototype.fixedHandle.src;
-			new Image().src = HoverIcons.prototype.terminalHandle.src;
-			new Image().src = HoverIcons.prototype.secondaryHandle.src;
-			new Image().src = HoverIcons.prototype.rotationHandle.src;
-			
-			new Image().src = HoverIcons.prototype.triangleUp.src;
-			new Image().src = HoverIcons.prototype.triangleRight.src;
-			new Image().src = HoverIcons.prototype.triangleDown.src;
-			new Image().src = HoverIcons.prototype.triangleLeft.src;
-			new Image().src = HoverIcons.prototype.refreshTarget.src;
-			new Image().src = HoverIcons.prototype.roundDrop.src;
-		}
-		
 		// Adds rotation handle and live preview
 		mxVertexHandler.prototype.rotationEnabled = true;
 		mxVertexHandler.prototype.manageSizers = true;

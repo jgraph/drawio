@@ -1,3 +1,19 @@
+19-NOV-2021: 15.8.3
+
+- Removes whitespace in resource values
+- Uses SVG for folding icons https://github.com/jgraph/drawio/issues/2359
+- Matches folding icon gradient colors
+- Ignores icon search response with error code
+- Fixes broken check for supported domain https://github.com/jgraph/drawio/issues/2426
+- Adds check for enabledLibraries
+- Moves page setup and scale to preferences in sketch
+- Ignores disabled libraries in search https://github.com/jgraph/drawio/issues/1838
+- Moves page setup to file menu
+
+17-NOV-2021: 15.8.2
+
+- [conf cloud] Fixes diagrams with non-English characters in name
+
 17-NOV-2021: 15.8.1
 
 - Changes Trello API key
