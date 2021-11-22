@@ -172,7 +172,7 @@ function VsdxExport(editorUi)
 
 	function applyMxCellStyle(state, shape, xmlDoc)
 	{
-		var fillClr = state.style[mxConstants.STYLE_FILLCOLOR];
+		var fillClr = mxUtils.rgba2hex(state.style[mxConstants.STYLE_FILLCOLOR]);
 		
 		if (!fillClr || fillClr == "none")
 		{
@@ -181,7 +181,7 @@ function VsdxExport(editorUi)
 		else
 		{
 			shape.appendChild(createCellElem("FillForegnd", fillClr, xmlDoc));
-			var gradClr = state.style[mxConstants.STYLE_GRADIENTCOLOR];
+			var gradClr = mxUtils.rgba2hex(state.style[mxConstants.STYLE_GRADIENTCOLOR]);
 
 			if (gradClr && gradClr != "none")
 			{
@@ -209,7 +209,7 @@ function VsdxExport(editorUi)
 			}
 		}
 
-		var strokeClr = state.style[mxConstants.STYLE_STROKECOLOR];
+		var strokeClr = mxUtils.rgba2hex(state.style[mxConstants.STYLE_STROKECOLOR]);
 		
 		if (!strokeClr || strokeClr == "none")
 			shape.appendChild(createCellElem("LinePattern", 0, xmlDoc));
@@ -330,7 +330,7 @@ function VsdxExport(editorUi)
 
 		//TODO for some reason, visio doesn't show the label (text) background color!
 		//May be we need mxSvgCanvas2D.prototype.addTextBackground = function(node, str, x, y, w, h, align, valign, overflow)
-		var lbkgnd = state.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR];
+		var lbkgnd = mxUtils.rgba2hex(state.style[mxConstants.STYLE_LABEL_BACKGROUNDCOLOR]);
 		if (lbkgnd) shape.appendChild(createCellElem("TextBkgnd", lbkgnd, xmlDoc));
 	};
 

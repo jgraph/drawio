@@ -1690,6 +1690,11 @@ mxStencilRegistry.allowEval = false;
 	{
 		origUpdateHeader.apply(this, arguments);
 		
+		if (urlParams['winCtrls'] != '1')
+		{
+			return;	
+		}
+		
 		document.querySelectorAll('.geMenuItem').forEach(i => i.style.webkitAppRegion = 'no-drag');
 		var menubarContainer = document.querySelector('.geMenubarContainer');
 		
@@ -1762,7 +1767,7 @@ mxStencilRegistry.allowEval = false;
 			this.appIcon.style.webkitAppRegion = 'no-drag';
 		}
 		
-		if (this.menubar != null)
+		if (this.menubar != null && uiTheme !== 'atlas')
 		{
 			this.menubar.container.style.webkitAppRegion = 'no-drag';
 		}

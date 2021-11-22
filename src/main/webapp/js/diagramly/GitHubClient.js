@@ -21,12 +21,7 @@ mxUtils.extend(GitHubClient, DrawioClient);
  * LATER: If thumbnails are disabled, make sure to replace the
  * existing thumbnail with the placeholder only once.
  */
-GitHubClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ? '23bc97120b9035515661' : window.DRAWIO_GITHUB_ID;
-
-/**
- * OAuth scope.
- */
-GitHubClient.prototype.scope = 'repo';
+GitHubClient.prototype.clientId = (window.location.hostname == 'test.draw.io') ? 'Iv1.1218f5567fbc258a' : window.DRAWIO_GITHUB_ID;
 
 /**
  * Default extension for new files.
@@ -153,7 +148,7 @@ GitHubClient.prototype.authenticateStep2 = function(state, success, error)
 			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 			{
 				var win = window.open(this.baseHostUrl + '/login/oauth/authorize?client_id=' +
-					this.clientId + '&scope=' + this.scope + 
+					this.clientId +  
 					'&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
 						'&domain=' + window.location.hostname + '&token=' + state), 'ghauth');
 				

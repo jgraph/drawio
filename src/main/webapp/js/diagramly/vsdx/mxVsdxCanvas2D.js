@@ -769,14 +769,6 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 
 		var text = this.createElt("Text");
 
-		var rgb2hex = function (rgb){
-			rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
-			return (rgb && rgb.length === 4) ? "#" +
-			  ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
-			  ("0" + parseInt(rgb[2],10).toString(16)).slice(-2) +
-			  ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
-		};
-		
 		var rowIndex = 0, pIndex = 0;
 		var calcW = 0, calcH = 0, lastW = 0, lastH = 0, lineH = 0;
 		
@@ -816,7 +808,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 			charRow.setAttribute('IX', rowIndex);
 			
 			
-			if (styleMap['fontColor'])	charRow.appendChild(that.createCellElem("Color", styleMap['fontColor']));
+			if (styleMap['fontColor'])	charRow.appendChild(that.createCellElem("Color", mxUtils.rgba2hex(styleMap['fontColor'])));
 			
 			if (fontSize)	charRow.appendChild(that.createCellElemScaled("Size", fontSize * 0.97)); //the magic number 0.97 is needed such that text do not overflow
 			
@@ -912,7 +904,7 @@ mxVsdxCanvas2D.prototype.text = function(x, y, w, h, str, align, valign, wrap, f
 						italic: style.getPropertyValue('font-style') == 'italic' || pStyle['italic'],
 						underline: style.getPropertyValue('text-decoration').indexOf('underline') >= 0 || pStyle['underline'],
 						align: style.getPropertyValue('text-align'),
-						fontColor: rgb2hex(style.getPropertyValue('color')),
+						fontColor: style.getPropertyValue('color'),
 						fontSize: parseFloat(style.getPropertyValue('font-size')),
 						fontFamily: style.getPropertyValue('font-family').replace(/"/g, ''), //remove quotes
 						blockElem: style.getPropertyValue('display') == 'block' || nodeName == "BR" || nodeName == "LI",

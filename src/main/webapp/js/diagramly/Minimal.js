@@ -88,7 +88,7 @@ EditorUi.initMinimalTheme = function()
 			ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
 				(urlParams['sketch'] == '1') ? Math.max(10, ui.diagramContainer.clientWidth - 241) :
 				Math.max(10, ui.diagramContainer.clientWidth - 248), 
-				EditorUi.isElectronApp && urlParams['sketch'] == '1'? 80 : 60,
+				urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60,
 				240, Math.min(566, graph.container.clientHeight - 10), function(container)
 			{
 				var format = ui.createFormat(container);
@@ -1073,6 +1073,11 @@ EditorUi.initMinimalTheme = function()
 					urlParams['saveAndExit'] != '0'))
 				{
 					ui.menus.addMenuItems(menu, ['saveAndExit'], parent);
+					
+					if (file != null && file.isRevisionHistorySupported())
+					{
+						ui.menus.addMenuItems(menu, ['revisionHistory'], parent);
+					}
 				}
 				
 				menu.addSeparator(parent);
@@ -1800,7 +1805,7 @@ EditorUi.initMinimalTheme = function()
         ui.diagramContainer.style.top = (urlParams['sketch'] == '1') ? '0px' : '47px';
 
 		//Create draggable titlebar
-		if (EditorUi.isElectronApp && urlParams['sketch'] == '1')
+		if (urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1')
 		{
 			wrapper.style.top = '20px';
 			ui.titlebar = document.createElement('div');

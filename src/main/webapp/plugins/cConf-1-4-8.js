@@ -1307,6 +1307,11 @@ Draw.loadPlugin(function(ui)
 	 * Delay for last save in ms.
 	 */
 	EmbedFile.prototype.saveDelay = 0;
+	
+	EmbedFile.prototype.isRevisionHistorySupported = function()
+	{
+		return true;
+	};
 
 	/**
 	 * 

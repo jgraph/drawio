@@ -1,3 +1,10 @@
+22-NOV-2021: 15.8.4
+
+- Fixes move of edge labels after ungroup https://github.com/jgraph/drawio/issues/2433
+- [conf cloud] Added space filtering to page collection to avoid CONFCLOUD-73202
+- Fixes default color and other possible rgba colors in vsdx export
+- [conf cloud] Added revision history to Board macro
+
 19-NOV-2021: 15.8.3
 
 - Removes whitespace in resource values

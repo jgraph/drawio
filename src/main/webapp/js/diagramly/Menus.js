@@ -1200,7 +1200,7 @@
 							elt.style.top = '0px';
 						}
 						
-						if (EditorUi.isElectronApp)
+						if (urlParams['winCtrls'] == '1')
 						{
 							elt.style.right = '95px';
 						}
