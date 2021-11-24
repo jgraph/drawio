@@ -1,3 +1,13 @@
+24-NOV-2021: 15.8.5
+
+- Removes alignment from current style
+- Handles combined row- and colspans
+- Adds Ctrl+Enter in text and data dialog https://github.com/jgraph/drawio/issues/2438
+- Removes last row and column line
+- Conf Cloud: Added custom templates preview https://github.com/jgraph/drawio/issues/2436
+- Handles resource not accessible in GitHub
+- Fixes reset of configuration, adds tooltip
+
 22-NOV-2021: 15.8.4
 
 - Fixes move of edge labels after ungroup https://github.com/jgraph/drawio/issues/2433

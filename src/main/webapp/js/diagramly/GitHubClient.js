@@ -301,18 +301,45 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 					try
 					{
 						var temp = JSON.parse(req.getText());
-						
-						if (temp != null && temp.errors != null && temp.errors.length > 0)
+
+						if (temp != null && temp.message == 'Resource not accessible by integration')
 						{
-							tooLarge = temp.errors[0].code == 'too_large';
+							// Pauses spinner while showing dialog
+							var resume = this.ui.spinner.pause();
+
+							this.ui.showError(mxResources.get('accessDenied'), mxResources.get('authorizationRequired'),
+								mxResources.get('help'), mxUtils.bind(this, function()
+								{
+									this.ui.openLink('https://www.diagrams.net/blog/single-repository-diagrams');
+								}), mxUtils.bind(this, function()
+								{
+									resume();
+									fn();
+								}), mxResources.get('authorize'), mxUtils.bind(this, function()
+								{
+									this.ui.openLink((window.location.hostname == 'test.draw.io') ?
+										'https://github.com/apps/diagrams-net-app-test' :
+										'https://github.com/apps/draw-io-app');
+								}), mxResources.get('cancel'), mxUtils.bind(this, function()
+								{
+									this.ui.hideDialog();
+									error({name: 'AbortError'});
+								}), 480, null, false);
+						}
+						else
+						{
+							if (temp != null && temp.errors != null && temp.errors.length > 0)
+							{
+								tooLarge = temp.errors[0].code == 'too_large';
+							}
+
+							error({message: mxResources.get((tooLarge) ? 'drawingTooLarge' : 'forbidden')});
 						}
 					}
 					catch (e)
 					{
-						// ignore
+						error({message: mxResources.get((tooLarge) ? 'drawingTooLarge' : 'forbidden')});
 					}
-					
-					error({message: mxResources.get((tooLarge) ? 'drawingTooLarge' : 'forbidden')});
 				}
 				else if (req.getStatus() === 404)
 				{

@@ -4983,7 +4983,11 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 			}), mxUtils.bind(this, function(resp)
 			{
 				complete();
-				this.handleError(resp);
+
+				if (resp.name != 'AbortError')
+				{
+					this.handleError(resp);
+				}
 			}));
 		}
 	}
@@ -6172,7 +6176,7 @@ App.prototype.save = function(name, done)
 				}));
 			}
 			
-			file.handleFileError(err, true);
+			file.handleFileError(err, err == null || err.name != 'AbortError');
 		});
 		
 		try

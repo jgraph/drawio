@@ -133,7 +133,6 @@
 	{
 		// LATER: Split background to add striping
 		//paintTableBackground(this.state, c, x, y, w, h);
-		
 		var start = this.getTitleSize();
 		
 		if (start == 0)
@@ -174,156 +173,144 @@
 			this.paintTableForeground(c, x, y, w, h);
 		}
 	};
-	
-	TableShape.prototype.paintTableForeground = function(c, x, y, w, h)
+		
+	/**
+	 * Returns the given table as an array of arrays of cells.
+	 */
+	TableShape.prototype.getTableLines = function(x0, y0, horizontal, vertical)
 	{
-		var graph = this.state.view.graph;
-		var start = graph.getActualStartSize(this.state.cell);
-		var rows = graph.model.getChildCells(this.state.cell, true);
-		
-		function getCellStyles(cells)
+		var hl = [];
+		var vl = [];
+
+		if (horizontal || vertical)
 		{
-			var result = [];
-
-			for (var i = 0; i < cells.length; i++)
-			{
-				result.push(graph.getCurrentCellStyle(cells[i], true));
-			}
-
-			return result;
-		};
-		
-		if (rows.length > 0)
-		{
-			var rowLines = mxUtils.getValue(this.state.style,
-				'rowLines', '1') != '0';
-			var columnLines = mxUtils.getValue(this.state.style,
-				'columnLines', '1') != '0';
-			var geo = graph.getCellGeometry(rows[0]);
-			var cells = graph.model.getChildCells(rows[0], true);
-			var lastRow = {y: (geo != null) ? geo.y + geo.height : 0,
-				x: 0, cells: cells, styles: getCellStyles(cells),
-				colspans: [], rowspans: []};
-			var rowData = [lastRow];
-			var colwidths = [];
-
-			// Paints row lines
-			if (rowLines)
-			{
-				// Initializes rowspans on first row
-				var tx = 0;
-
-				for (var i = 0; i < lastRow.cells.length; i++)
-				{
-					lastRow.rowspans[i] = parseInt(lastRow.styles[i]['rowspan'] || 1);
-					var geo = graph.getCellGeometry(cells[i]);
-
-					if (geo != null)
-					{
-						tx += (geo.alternateBounds != null) ? geo.alternateBounds.width : geo.width;
-					}
-
-					colwidths[i] = tx;
-				}
-
-				for (var i = 1; i < rows.length; i++)
-				{
-					geo = graph.getCellGeometry(rows[i]);
-
-					cells = graph.model.getChildCells(rows[i], true);
-					var data = {y: 0, cells: cells, styles: getCellStyles(cells),
-						colspans: [], rowspans: []};
-					rowData.push(data);
-
-					if (geo != null)
-					{
-						data.y = geo.y + geo.height;
-
-						c.begin();
-						c.moveTo(x + start.x, y + geo.y);
-						var tw = 0;
-
-						for (j = 0; j < data.cells.length; j++)
-						{
-							var rowspan = lastRow.rowspans[j];
-							data.rowspans[j] = rowspan - 1;
-
-							if (data.rowspans[j] < 1)
-							{
-								data.rowspans[j] = parseInt(data.styles[j]['rowspan'] || 1);
-								tw = colwidths[j];
-							}
-							else
-							{
-								if (tw > 0)
-								{
-									c.lineTo(x + tw - start.width, y + geo.y);
-								}
-
-								c.moveTo(x + colwidths[j] + start.x, y + geo.y);
-								tw = 0;
-							}
-						}
-
-						c.lineTo(x + w - start.width, y + geo.y);
-						c.end();
-						c.stroke();
-					}
-
-					lastRow = data;
-				}
-			}
+			var lastRow = null;
+			var graph = this.state.view.graph;
+			var rows = graph.model.getChildCells(this.state.cell, true);
+			var start = graph.getActualStartSize(this.state.cell, true);
+			x0 += start.x;
+			y0 += start.y;
 			
-			// Paints column lines
-			if (columnLines)
+			for (var i = 0; i < rows.length; i++)
 			{
-				var cols = rowData[0].cells;
-				
-				for (var i = 1; i < cols.length; i++)
+				var cols = graph.model.getChildCells(rows[i], true);
+				start = graph.getActualStartSize(rows[i], true);
+				var lastCol = null;
+				var row = [];
+
+				for (var j = 0; j < cols.length; j++)
 				{
-					geo = graph.getCellGeometry(cols[i]);
-					
-					if (geo != null)
+					var col = {rospan: 1, colspan: 1};
+					var geo = graph.getCellGeometry(cols[j]);
+					geo = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
+					col.point = new mxPoint(geo.width + (lastCol != null ? lastCol.point.x : x0 + start.x),
+						geo.height + (lastRow != null ? lastRow[0].point.y : y0 + start.y));
+
+					if (lastRow != null && lastRow[j] != null && lastRow[j].rowspan > 1)
 					{
-						c.begin();
-						c.moveTo(x + geo.x + start.x, y + start.y);
-						var th = 0;
-
-						for (var j = 0; j < rowData.length; j++)
+						col.rowspan = lastRow[j].rowspan - 1;
+						col.colspan = lastRow[j].colspan;
+					}
+					else
+					{
+						if (lastCol != null && lastCol.colspan > 1)
 						{
-							var data = rowData[j];
-							var colspan = (i == 1) ? (data.styles[i - 1] != null ?
-								parseInt(data.styles[i - 1]['colspan'] || 1) : 1) :
-								rowData[j].colspans[i - 1];
-							data.colspans[i] = colspan - 1;
+							col.rowspan = lastCol.rowspan;
+							col.colspan = lastCol.colspan - 1;
+						}
+						else
+						{
+							var style = graph.getCurrentCellStyle(cols[j], true);
 
-							if (data.colspans[i] < 1)
+							if (style != null)
 							{
-								data.colspans[i] = data.styles[i] != null ?
-									parseInt(data.styles[i]['colspan'] || 1 ) : 1;
-								th = data.y;
-							}
-							else
-							{
-								if (th > 0)
-								{
-									c.lineTo(x + geo.x + start.x, y + th - start.height);
-								}
-
-								c.moveTo(x + geo.x + start.x, y + data.y);
-								th = 0;
+								col.rowspan = parseInt(style['rowspan'] || 1);
+								col.colspan = parseInt(style['colspan'] || 1);
 							}
 						}
+					}
 
-						c.lineTo(x + geo.x + start.x, y + h - start.height);
-						c.end();
-						c.stroke();
+					row.push(col);
+					lastCol = col;
+
+					// Constructs horizontal lines
+					if (horizontal && i < rows.length - 1)
+					{
+						if (hl[i] == null)
+						{
+							hl[i] = [new mxPoint(x0, col.point.y)];
+						}
+
+						if (col.rowspan > 1)
+						{
+							hl[i].push(null);
+						}
+						
+						hl[i].push(col.point);
+					}
+
+					// Constructs vertical lines
+					if (vertical && j < cols.length - 1)
+					{
+						if (vl[j] == null)
+						{
+							vl[j] = [new mxPoint(col.point.x, y0)];
+						}
+
+						if (col.colspan > 1)
+						{
+							vl[j].push(null);
+						}
+						
+						vl[j].push(col.point);
 					}
 				}
+
+				lastRow = row;
 			}
 		}
+
+		return hl.concat(vl);
 	};
-	
+
+	TableShape.prototype.paintTableForeground = function(c, x, y, w, h)
+	{
+		var lines = this.getTableLines(x, y,
+			mxUtils.getValue(this.state.style, 'rowLines', '1') != '0',
+			mxUtils.getValue(this.state.style, 'columnLines', '1') != '0');
+
+		for (var i = 0; i < lines.length; i++)
+		{
+			if (lines[i] != null)
+			{
+				var last = null;
+				c.begin();
+		
+				for (var j = 0; j < lines[i].length; j++)
+				{
+					var curr = lines[i][j];
+		
+					if (curr != null)
+					{
+						if (last == null)
+						{
+							c.moveTo(curr.x, curr.y);
+						}
+						else if (last != null)
+						{
+							c.lineTo(curr.x, curr.y);
+						}
+					}
+		
+					last = curr;
+				}
+		
+				c.end();
+				c.stroke();
+			}
+		}
+	}
+
 	mxCellRenderer.registerShape('table', TableShape);
 	
 	// Cube Shape, supports size style

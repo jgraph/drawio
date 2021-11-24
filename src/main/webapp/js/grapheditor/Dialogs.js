@@ -499,16 +499,22 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	{
 		for (var i = 0; i < customButtons.length; i++)
 		{
-			(function(label, fn)
+			(function(label, fn, title)
 			{
 				var customBtn = mxUtils.button(label, function(e)
 				{
 					fn(e, nameInput);
 				});
+
+				if (title != null)
+				{
+					customBtn.setAttribute('title', title);
+				}
+
 				customBtn.className = 'geBtn';
 				
 				td.appendChild(customBtn);
-			})(customButtons[i][0], customButtons[i][1]);
+			})(customButtons[i][0], customButtons[i][1], customButtons[i][2]);
 		}
 	}
 	
@@ -521,6 +527,8 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 			cancelFn();
 		}
 	});
+
+	cancelBtn.setAttribute('title', 'Escape');
 	cancelBtn.className = 'geBtn';
 	
 	if (editorUi.editor.cancelFirst)
@@ -545,8 +553,17 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 			fn(nameInput.value);
 		});
 		
-		genericBtn.className = 'geBtn gePrimaryBtn';	
+		genericBtn.setAttribute('title', 'Ctrl+Enter');
+		genericBtn.className = 'geBtn gePrimaryBtn';
 		td.appendChild(genericBtn);
+
+		mxEvent.addListener(nameInput, 'keypress', function(e)
+		{
+			if (e.keyCode == 13 && mxEvent.isControlDown(e))
+			{
+				genericBtn.click();
+			}
+		});
 	}
 	
 	if (!editorUi.editor.cancelFirst)
@@ -1611,6 +1628,14 @@ var EditDataDialog = function(ui, cell)
 			mxUtils.alert(mxResources.get('invalidName'));
 		}
 	});
+
+	mxEvent.addListener(nameInput, 'keypress', function(e)
+	{
+		if (e.keyCode == 13 )
+		{
+			addBtn.click();
+		}
+	});
 	
 	this.init = function()
 	{
@@ -1639,6 +1664,8 @@ var EditDataDialog = function(ui, cell)
 		ui.hideDialog.apply(ui, arguments);
 	});
 	
+
+	cancelBtn.setAttribute('title', 'Escape');
 	cancelBtn.className = 'geBtn';
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
@@ -1679,7 +1706,17 @@ var EditDataDialog = function(ui, cell)
 			mxUtils.alert(e);
 		}
 	});
+
+	applyBtn.setAttribute('title', 'Ctrl+Enter');
 	applyBtn.className = 'geBtn gePrimaryBtn';
+
+	mxEvent.addListener(div, 'keypress', function(e)
+	{
+		if (e.keyCode == 13 && mxEvent.isControlDown(e))
+		{
+			applyBtn.click();
+		}
+	});
 	
 	function updateAddBtn()
 	{

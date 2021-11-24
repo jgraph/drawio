@@ -1033,23 +1033,24 @@
 					{
 						try
 						{
-							localStorage.removeItem(Editor.configurationKey);
-							
 							if (mxEvent.isShiftDown(evt))
 							{
+								localStorage.removeItem(Editor.settingsKey);
 								localStorage.removeItem('.drawio-config');
-								localStorage.removeItem('.mode');
 							}
-							
-							editorUi.hideDialog();
-							editorUi.alert(mxResources.get('restartForChangeRequired'));
+							else
+							{
+								localStorage.removeItem(Editor.configurationKey);
+								editorUi.hideDialog();
+								editorUi.alert(mxResources.get('restartForChangeRequired'));
+							}
 						}
 						catch (e)
 						{
 							editorUi.handleError(e);
 						}
 					});
-				}]];
+				}, 'Shift+Click to Reset Settings']];
 				
 				if (!EditorUi.isElectronApp)
 				{

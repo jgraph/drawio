@@ -2917,7 +2917,7 @@ Graph.prototype.initLayoutManager = function()
 {
 	this.layoutManager = new mxLayoutManager(this);
 	
-	this.layoutManager.hasLayout = function(cell, eventName)
+	this.layoutManager.hasLayout = function(cell)
 	{
 		return this.graph.getCellStyle(cell)['childLayout'] != null;
 	};
@@ -2932,7 +2932,7 @@ Graph.prototype.initLayoutManager = function()
 		if (eventName != mxEvent.BEGIN_UPDATE || this.hasLayout(parent, eventName))
 		{
 			var style = this.graph.getCellStyle(cell);
-	
+			
 			if (style['childLayout'] == 'stackLayout')
 			{
 				var stackLayout = new mxStackLayout(this.graph, true);
@@ -5864,14 +5864,13 @@ Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, 
 	var startSize = (title == null) ? 0 : 40;
 	
 	var s = 'collapsible=0;recursiveResize=0;expand=0;pointerEvents=0;';
-	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;childLayout=tableLayout;' +
-		'rowLines=0;columnLines=0;startSize=' + startSize + ';' +
+	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;childLayout=tableLayout;startSize=' + startSize + ';' +
 		((title == null) ? 'fillColor=none;' : '') + s;
 		
-	rowStyle = (rowStyle != null) ? rowStyle : 'swimlane;horizontal=0;points=[[0,0.5],[1,0.5]];' +
-		'portConstraint=eastwest;startSize=' + startSize + ';' + s;
-	firstCellStyle = (firstCellStyle != null) ? firstCellStyle : 'swimlane;connectable=0;startSize=40;' + s;
-	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;connectable=0;startSize=' +
+	rowStyle = (rowStyle != null) ? rowStyle : 'swimlane;horizontal=0;fontStyle=0;points=[[0,0.5],[1,0.5]];' +
+		'fillColor=none;strokeColor=none;portConstraint=eastwest;startSize=' + startSize + ';' + s;
+	firstCellStyle = (firstCellStyle != null) ? firstCellStyle : 'swimlane;fontStyle=0;connectable=0;fillColor=none;startSize=40;' + s;
+	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;fontStyle=0;connectable=0;fillColor=none;startSize=' +
 		((title == null) ? '40' : '0') + ';' + s;
 	
 	var table = this.createVertex(null, null, (title != null) ? title : '', 0, 0,
@@ -6005,11 +6004,6 @@ Graph.prototype.setTableRowHeight = function(row, dy, extend)
 					model.setGeometry(table, tgeo);
 				}
 			}
-			
-			if (this.layoutManager != null)
-			{
-				this.layoutManager.executeLayout(table, true);
-			}
 		}
 	}
 	finally
@@ -6099,7 +6093,7 @@ Graph.prototype.setTableColumnWidth = function(col, dx, extend)
 
 		if (this.layoutManager != null)
 		{
-			this.layoutManager.executeLayout(table, true);
+			this.layoutManager.executeLayout(table);
 		}
 	}
 	finally
@@ -6270,6 +6264,10 @@ TableLayout.prototype.layoutRow = function(row, positions, height, tw, lastCells
 			upper.geo.height += (cell.alternateBounds != null) ?
 				cell.alternateBounds.height : cell.height;
 			visible = false;
+			upper.rowspan--;
+		}
+		else if (upper != null && upper.rowspan == 1)
+		{
 			upper.rowspan--;
 		}
 
@@ -12012,7 +12010,10 @@ if (typeof mxVertexHandler != 'undefined')
 						(mxUtils.bind(this, function(index)
 						{
 							var rowState = rows[index];
-	
+							var nextRow = (index < rows.length - 1) ? rows[index + 1] : null;
+							var ngeo = (nextRow != null) ? graph.getCellGeometry(nextRow.cell) : null;
+							var ng = (ngeo != null && ngeo.alternateBounds != null) ? ngeo.alternateBounds : ngeo;
+							
 							var shape = new mxLine(new mxRectangle(), mxConstants.NONE, 1);
 							shape.isDashed = sel.isDashed;
 							shape.svgStrokeTolerance++;
@@ -12038,18 +12039,26 @@ if (typeof mxVertexHandler != 'undefined')
 								}
 							};
 							
+							var shiftPressed = false;
+							
 							handle.setPosition = function(bounds, pt, me)
 							{
 								dy = Math.max(Graph.minTableRowHeight - bounds.height,
 									pt.y - bounds.y - bounds.height);
+								shiftPressed = mxEvent.isShiftDown(me.getEvent());
+
+								if (ng != null && shiftPressed)
+								{
+									dy = Math.min(dy, ng.height - Graph.minTableRowHeight);
+								}
 							};
 							
 							handle.execute = function(me)
 							{
 								if (dy != 0)
 								{
-									graph.setTableRowHeight(this.state.cell, dy,
-										!mxEvent.isShiftDown(me.getEvent()));
+									graph.setTableRowHeight(this.state.cell,
+										dy, !shiftPressed);
 								}
 								else if (!self.blockDelayedSelection)
 								{
