@@ -4984,7 +4984,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 			{
 				complete();
 
-				if (resp.name != 'AbortError')
+				if (resp == null || resp.name != 'AbortError')
 				{
 					this.handleError(resp);
 				}
@@ -5350,8 +5350,8 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 						{
 							console.log('error in loadFile:', id, resp);
 						}
-						
-						this.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null, mxUtils.bind(this, function()
+
+						var fn = mxUtils.bind(this, function()
 						{
 							var currentFile = this.getCurrentFile();
 							
@@ -5364,7 +5364,17 @@ App.prototype.loadFile = function(id, sameWindow, file, success, force)
 							{
 								window.location.hash = '#' + currentFile.getHash();
 							}
-						}), null, null, '#' + peerChar + id);
+						});
+
+						if (resp == null || resp.name != 'AbortError')
+						{
+							this.handleError(resp, (resp != null) ? mxResources.get('errorLoadingFile') : null,
+								fn, null, null, '#' + peerChar + id);
+						}
+						else
+						{
+							fn();
+						}
 					}));
 				}
 			}

@@ -144,71 +144,102 @@ GitHubClient.prototype.authenticateStep2 = function(state, success, error)
 		{
 			var acceptAuthResponse = true;
 			
-			//NOTE: GitHub doesn't provide a refresh token, so we had to authorize always
-			this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
+			var authRemembered = this.getPersistentToken(true);
+			
+			if (authRemembered != null)
 			{
-				var win = window.open(this.baseHostUrl + '/login/oauth/authorize?client_id=' +
-					this.clientId +  
-					'&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
-						'&domain=' + window.location.hostname + '&token=' + state), 'ghauth');
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); //To identify which app/domain is used
 				
-				if (win != null)
+				req.send(mxUtils.bind(this, function(req)
 				{
-					window.onGitHubCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+					if (req.getStatus() >= 200 && req.getStatus() <= 299)
 					{
-						if (acceptAuthResponse)
+						_token = JSON.parse(req.getText()).access_token;
+						this.setUser(null);
+						success();
+					}
+					else 
+					{
+						this.clearPersistentToken();
+						this.setUser(null);
+						_token = null;
+
+						if (req.getStatus() == 401) // (Unauthorized) [e.g, invalid refresh token]
 						{
-							window.onGitHubCallback = null;
-							acceptAuthResponse = false;
-							
-							if (newAuthInfo == null)
-							{
-								error({message: mxResources.get('accessDenied'), retry: auth});
-							}
-							else
-							{
-								if (authSuccess != null)
-								{
-									authSuccess();
-								}
-								
-								_token = newAuthInfo.access_token;
-								this.setUser(null);
-								
-								//NOTE: GitHub doesn't provide a refresh token, so we had to authorize always
-								//This is to clear current saved token and for the future if they decided to support it
-								if (remember)
-								{
-									this.setPersistentToken('remembered');
-								}
-								
-								success();
-								
-								if (authWindow != null)
-								{
-									authWindow.close();
-								}
-							}
+							auth();
 						}
-						else if (authWindow != null)
+						else
 						{
-							authWindow.close();
+							error({message: mxResources.get('accessDenied'), retry: auth});
 						}
-					});
-				}
-				else
-				{
-					error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
-				}
-			}), mxUtils.bind(this, function()
+					}
+				}), error);
+			}
+			else
 			{
-				if (acceptAuthResponse)
+				this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 				{
-					window.onGitHubCallback = null;
-					acceptAuthResponse = false;
-					error({message: mxResources.get('accessDenied'), retry: auth});
-				}
-			}));
+					var win = window.open(this.baseHostUrl + '/login/oauth/authorize?client_id=' +
+						this.clientId +  
+						'&state=' + encodeURIComponent('cId=' + this.clientId + //To identify which app/domain is used
+							'&domain=' + window.location.hostname + '&token=' + state), 'ghauth');
+					
+					if (win != null)
+					{
+						window.onGitHubCallback = mxUtils.bind(this, function(newAuthInfo, authWindow)
+						{
+							if (acceptAuthResponse)
+							{
+								window.onGitHubCallback = null;
+								acceptAuthResponse = false;
+								
+								if (newAuthInfo == null)
+								{
+									error({message: mxResources.get('accessDenied'), retry: auth});
+								}
+								else
+								{
+									if (authSuccess != null)
+									{
+										authSuccess();
+									}
+									
+									_token = newAuthInfo.access_token;
+									this.setUser(null);
+									
+									if (remember)
+									{
+										this.setPersistentToken('remembered');
+									}
+									
+									success();
+									
+									if (authWindow != null)
+									{
+										authWindow.close();
+									}
+								}
+							}
+							else if (authWindow != null)
+							{
+								authWindow.close();
+							}
+						});
+					}
+					else
+					{
+						error({message: mxResources.get('serviceUnavailableOrBlocked'), retry: auth});
+					}
+				}), mxUtils.bind(this, function()
+				{
+					if (acceptAuthResponse)
+					{
+						window.onGitHubCallback = null;
+						acceptAuthResponse = false;
+						error({message: mxResources.get('accessDenied'), retry: auth});
+					}
+				}));
+			}
 		});
 		
 		auth();
@@ -244,6 +275,23 @@ GitHubClient.prototype.getErrorMessage = function(req, defaultText)
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
+GitHubClient.prototype.showAuthorizeDialog = function(retryFn, cancelFn)
+{
+	this.ui.showError(mxResources.get('accessDenied'), mxResources.get('authorizationRequired'),
+		mxResources.get('help'), mxUtils.bind(this, function()
+		{
+			this.ui.openLink('https://www.diagrams.net/blog/single-repository-diagrams');
+		}), retryFn, mxResources.get('authorize'), mxUtils.bind(this, function()
+		{
+			this.ui.openLink((window.location.hostname == 'test.draw.io') ?
+				'https://github.com/apps/diagrams-net-app-test' :
+				'https://github.com/apps/draw-io-app');
+		}), mxResources.get('cancel'), cancelFn, 480, null, false);
+};
+
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotFound)
 {
 	var doExecute = mxUtils.bind(this, function(failOnAuth)
@@ -266,6 +314,22 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 		req.send(mxUtils.bind(this, function()
 		{
 			window.clearTimeout(timeoutThread);
+
+			var authorizeApp = mxUtils.bind(this, function()
+			{
+				// Pauses spinner while showing dialog
+				var resume = this.ui.spinner.pause();
+
+				this.showAuthorizeDialog(mxUtils.bind(this, function()
+				{
+					resume();
+					fn();
+				}), mxUtils.bind(this, function()
+				{
+					this.ui.hideDialog();
+					error({name: 'AbortError'});
+				}));
+			});
 			
 			if (acceptResponse)
 			{
@@ -304,27 +368,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 
 						if (temp != null && temp.message == 'Resource not accessible by integration')
 						{
-							// Pauses spinner while showing dialog
-							var resume = this.ui.spinner.pause();
-
-							this.ui.showError(mxResources.get('accessDenied'), mxResources.get('authorizationRequired'),
-								mxResources.get('help'), mxUtils.bind(this, function()
-								{
-									this.ui.openLink('https://www.diagrams.net/blog/single-repository-diagrams');
-								}), mxUtils.bind(this, function()
-								{
-									resume();
-									fn();
-								}), mxResources.get('authorize'), mxUtils.bind(this, function()
-								{
-									this.ui.openLink((window.location.hostname == 'test.draw.io') ?
-										'https://github.com/apps/diagrams-net-app-test' :
-										'https://github.com/apps/draw-io-app');
-								}), mxResources.get('cancel'), mxUtils.bind(this, function()
-								{
-									this.ui.hideDialog();
-									error({name: 'AbortError'});
-								}), 480, null, false);
+							authorizeApp();
 						}
 						else
 						{
@@ -343,7 +387,7 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 				}
 				else if (req.getStatus() === 404)
 				{
-					error({code: req.getStatus(), message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
+					authorizeApp();
 				}
 				else if (req.getStatus() === 409)
 				{
@@ -838,11 +882,20 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	listItem.style.width = '100%';
 	
 	var dlg = new CustomDialog(this.ui, content, mxUtils.bind(this, function()
-	{
-		fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
-	}));
+		{
+			fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
+		}), null, null, 'https://www.diagrams.net/blog/single-repository-diagrams', null, null, null, null,
+		[[mxResources.get('refresh'), mxUtils.bind(this, function()
+		{
+			selectRepo();
+		})], [mxResources.get('authorize'), mxUtils.bind(this, function()
+		{
+			this.ui.openLink((window.location.hostname == 'test.draw.io') ?
+				'https://github.com/apps/diagrams-net-app-test' :
+				'https://github.com/apps/draw-io-app');
+		})]]);
 	this.ui.showDialog(dlg.container, 420, 370, true, true);
-	
+
 	if (showFiles)
 	{
 		dlg.okButton.parentNode.removeChild(dlg.okButton);

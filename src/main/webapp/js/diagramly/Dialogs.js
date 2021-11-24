@@ -9921,7 +9921,8 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 	this.container = table;
 };
 
-var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink, buttonsContent, hideCancel, cancelButtonText, hideAfterOKFn)
+var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink,
+		buttonsContent, hideCancel, cancelButtonText, hideAfterOKFn, customButtons)
 {
 	var div = document.createElement('div');
 	div.appendChild(content);
@@ -10000,6 +10001,28 @@ var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, hel
 		btns.appendChild(cancelBtn);
 	}
 
+	if (customButtons != null)
+	{
+		for (var i = 0; i < customButtons.length; i++)
+		{
+			(function(label, fn, title)
+			{
+				var customBtn = mxUtils.button(label, function(e)
+				{
+					fn(e);
+				});
+
+				if (title != null)
+				{
+					customBtn.setAttribute('title', title);
+				}
+
+				customBtn.className = 'geBtn';
+				btns.appendChild(customBtn);
+			})(customButtons[i][0], customButtons[i][1], customButtons[i][2]);
+		}
+	}
+	
 	div.appendChild(btns);
 
 	this.cancelBtn = cancelBtn;

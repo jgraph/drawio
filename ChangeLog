@@ -1,3 +1,9 @@
+24-NOV-2021: 15.8.6
+
+- Adds support for refresh token to github
+- Adds authorize, refresh and help buttons in GitHub
+- [conf cloud] Fixes NPE in page ids import/export
+
 24-NOV-2021: 15.8.5
 
 - Removes alignment from current style

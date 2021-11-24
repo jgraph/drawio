@@ -204,7 +204,7 @@
 					var geo = graph.getCellGeometry(cols[j]);
 					geo = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
 					col.point = new mxPoint(geo.width + (lastCol != null ? lastCol.point.x : x0 + start.x),
-						geo.height + (lastRow != null ? lastRow[0].point.y : y0 + start.y));
+						geo.height + (lastRow != null && lastRow[0] != null ? lastRow[0].point.y : y0 + start.y));
 
 					if (lastRow != null && lastRow[j] != null && lastRow[j].rowspan > 1)
 					{

@@ -55,7 +55,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 		{
 			tokenCache = CacheFacade.createCache();
 		}
-		catch (CacheException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
