@@ -282,7 +282,7 @@ DriveClient.prototype.execute = function(fn)
 				fn();
 			}), mxUtils.bind(this, function(resp)
 			{
-				var msg = mxResources.get('cannotLogin');
+				var msg = (resp.message != null) ? resp.message : mxResources.get('cannotLogin');
 				
 				// Handles special domain policy errors
 				if (resp != null && resp.error != null)
@@ -731,6 +731,10 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 					});
 				
 					popup.focus();
+				}
+				else if (error != null)
+				{
+					error({message: mxResources.get('allowPopups')});
 				}
 			}
 		}

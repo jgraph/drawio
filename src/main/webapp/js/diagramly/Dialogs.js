@@ -7220,6 +7220,9 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			substr = mxUtils.htmlEntities(substr);
 			var tagPos = [], p = -1;
 			
+			//Original position (startIndex) counts for \n which is removed when tags are removed, so handle <br> separately
+			str = str.replace(/<br>/ig, '\n');
+
 			while((p = str.indexOf('<', p + 1)) > -1)
 			{
 				tagPos.push(p);
@@ -7262,7 +7265,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				tagDiff += tags[i].length;
 			}
 			
-			return newStr;
+			return newStr.replace(/\n/g, '<br>');
 		};
 		
 		var replaceFindBtn = mxUtils.button(mxResources.get('replFind'), function()

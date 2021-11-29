@@ -1201,11 +1201,6 @@
 							elt.style.top = '0px';
 						}
 						
-						if (urlParams['winCtrls'] == '1')
-						{
-							elt.style.right = '95px';
-						}
-
 						var icon = document.createElement('div');
 						icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 						icon.style.backgroundPosition = 'center center';
@@ -1219,6 +1214,15 @@
 						elt.appendChild(icon);
 						mxUtils.setOpacity(elt, 40);
 						
+						if (urlParams['winCtrls'] == '1')
+						{
+							elt.style.right = '95px';
+							elt.style.width = '19px';
+							elt.style.height = '19px';
+							elt.style.webkitAppRegion = 'no-drag';
+							icon.style.webkitAppRegion = 'no-drag';
+						}
+
 						if (uiTheme == 'atlas' || uiTheme == 'dark')
 						{
 							elt.style.opacity = '0.85';
@@ -1226,6 +1230,7 @@
 						}
 
 						document.body.appendChild(elt);
+						menubar.langIcon = elt;
 					}
 				}
 

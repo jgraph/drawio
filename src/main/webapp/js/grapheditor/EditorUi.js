@@ -4497,7 +4497,7 @@ EditorUi.prototype.pickColor = function(color, apply)
 	var h = 230 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
 		Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 	
-	var dlg = new ColorDialog(this, color || 'none', function(color)
+	var dlg = new ColorDialog(this, mxUtils.rgba2hex(color) || 'none', function(color)
 	{
 		graph.cellEditor.restoreSelection(selState);
 		apply(color);
@@ -4505,6 +4505,7 @@ EditorUi.prototype.pickColor = function(color, apply)
 	{
 		graph.cellEditor.restoreSelection(selState);
 	});
+	
 	this.showDialog(dlg.container, 230, h, true, false);
 	dlg.init();
 };

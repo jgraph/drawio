@@ -1184,7 +1184,6 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 			div.style.margin = '3px';
 			div.style.border = '1px solid black';
 			div.style.backgroundColor = (tempColor == 'default') ? defaultColorValue : tempColor;
-
 			btn.innerHTML = '';
 			btn.appendChild(div);
 
@@ -1215,10 +1214,10 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 				callbackFn(color == 'null' ? null : color);
 			}
 
+			value = color;
+
 			if (!disableUpdate)
 			{
-				value = color;
-				
 				// Checks if the color value needs to be updated in the model
 				if (forceUpdate || hideCheckbox || getColorFn() != value)
 				{
@@ -1886,6 +1885,10 @@ ArrangePanel.prototype.addTable = function(div)
 		{
 			btns[2].style.marginRight = '10px';
 		}
+	}
+	else
+	{
+		div.style.display = 'none';
 	}
 	
 	return div;
@@ -3574,10 +3577,10 @@ TextFormatPanel.prototype.addFont = function(container)
 	arrow.style.cssFloat = 'right';
 	
 	var bgColorApply = null;
-	var currentBgColor = '#ffffff';
+	var currentBgColor = graph.shapeBackgroundColor;
 	
 	var fontColorApply = null;
-	var currentFontColor = '#000000';
+	var currentFontColor = graph.shapeForegroundColor;
 		
 	var bgPanel = (graph.cellEditor.isContentEditing()) ? this.createColorOption(mxResources.get('backgroundColor'), function()
 	{
@@ -3588,7 +3591,7 @@ TextFormatPanel.prototype.addFont = function(container)
 		ui.fireEvent(new mxEventObject('styleChanged',
 			'keys', [mxConstants.STYLE_LABEL_BACKGROUNDCOLOR],
 			'values', [color], 'cells', ss.cells));
-	}, '#ffffff',
+	}, graph.shapeBackgroundColor,
 	{
 		install: function(apply) { bgColorApply = apply; },
 		destroy: function() { bgColorApply = null; }
@@ -3607,7 +3610,10 @@ TextFormatPanel.prototype.addFont = function(container)
 		graph.shapeForegroundColor);
 	borderPanel.style.fontWeight = 'bold';
 	
-	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
+	var defs = (ss.vertices.length >= 1) ?
+		graph.stylesheet.getDefaultVertexStyle() :
+		graph.stylesheet.getDefaultEdgeStyle();
+
 	var panel = (graph.cellEditor.isContentEditing()) ? this.createColorOption(mxResources.get('fontColor'), function()
 	{
 		return currentFontColor;
@@ -3678,7 +3684,7 @@ TextFormatPanel.prototype.addFont = function(container)
 				'keys', [mxConstants.STYLE_FONTCOLOR],
 				'values', [color], 'cells', ss.cells));
 		}
-	}, (defs[mxConstants.STYLE_FONTCOLOR] != null) ? defs[mxConstants.STYLE_FONTCOLOR] : '#000000',
+	}, (defs[mxConstants.STYLE_FONTCOLOR] != null) ? defs[mxConstants.STYLE_FONTCOLOR] : graph.shapeForegroundColor,
 	{
 		install: function(apply) { fontColorApply = apply; },
 		destroy: function() { fontColorApply = null; }
@@ -4457,50 +4463,32 @@ TextFormatPanel.prototype.addFont = function(container)
 								}
 							}
 							
-							// Converts rgb(r,g,b) values
-							var color = css.color.replace(
-									/\brgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/g,
-									function($0, $1, $2, $3, $4)
-									{
-										return '#' + ('0' + Number($1).toString(16)).substr(-2) +
-											('0' + Number($2).toString(16)).substr(-2) +
-											('0' + Number($3).toString(16)).substr(-2) + (($4 != null) ?
-											('0' + Number($4).toString(16)).substr(-2) : '');
-								    });
-							var color2 = css.backgroundColor.replace(
-								/\brgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d+)\s*)?\)/g,
-								function($0, $1, $2, $3, $4)
-								{
-									return '#' + ('0' + Number($1).toString(16)).substr(-2) +
-										('0' + Number($2).toString(16)).substr(-2) +
-										('0' + Number($3).toString(16)).substr(-2) + (($4 != null) ?
-										('0' + Number($4).toString(16)).substr(-2) : '');
-								});
-
 							// Updates the color picker for the current font
 							if (fontColorApply != null)
 							{
-								if (color.charAt(0) == '#')
+								if (css.color == 'rgba(0, 0, 0, 0)' ||
+									css.color == 'transparent')
 								{
-									currentFontColor = color;
+									currentFontColor = mxConstants.NONE;
 								}
 								else
 								{
-									currentFontColor = '#000000';
+									currentFontColor = mxUtils.rgba2hex(css.color)
 								}
-								
+
 								fontColorApply(currentFontColor, true);
 							}
 							
 							if (bgColorApply != null)
 							{
-								if (color2.charAt(0) == '#')
+								if (css.backgroundColor == 'rgba(0, 0, 0, 0)' ||
+									css.backgroundColor == 'transparent')
 								{
-									currentBgColor = color2;
+									currentBgColor = mxConstants.NONE;
 								}
 								else
 								{
-									currentBgColor = null;
+									currentBgColor = mxUtils.rgba2hex(css.backgroundColor);
 								}
 								
 								bgColorApply(currentBgColor, true);
@@ -4814,7 +4802,10 @@ StyleFormatPanel.prototype.addFill = function(container)
 		mxEvent.consume(evt);
 	});
 	
-	var defs = (ss.vertices.length >= 1) ? graph.stylesheet.getDefaultVertexStyle() : graph.stylesheet.getDefaultEdgeStyle();
+	var defs = (ss.vertices.length >= 1) ?
+		graph.stylesheet.getDefaultVertexStyle() :
+		graph.stylesheet.getDefaultEdgeStyle();
+
 	var gradientPanel = this.createCellColorOption(mxResources.get('gradient'), mxConstants.STYLE_GRADIENTCOLOR,
 		(defs[mxConstants.STYLE_GRADIENTCOLOR] != null) ? defs[mxConstants.STYLE_GRADIENTCOLOR] : '#ffffff', function(color)
 	{

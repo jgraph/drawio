@@ -1767,9 +1767,20 @@ mxStencilRegistry.allowEval = false;
 			this.appIcon.style.webkitAppRegion = 'no-drag';
 		}
 		
-		if (this.menubar != null && uiTheme !== 'atlas')
+		if (this.menubar != null)
 		{
 			this.menubar.container.style.webkitAppRegion = 'no-drag';
+			
+			if (uiTheme == 'atlas')
+			{
+				this.menubar.container.style.width = 'fit-content';
+			}
+			
+			if (this.menubar.langIcon != null)
+			{
+				this.menubar.langIcon.parentNode.removeChild(this.menubar.langIcon);
+				menubarContainer.appendChild(this.menubar.langIcon);
+			}
 		}
 		
 		const remote = require('@electron/remote');

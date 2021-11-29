@@ -1313,7 +1313,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		// Saves and restores text selection for in-place editor
 		var selState = graph.cellEditor.saveSelection();
 		
-		var dlg = new ColorDialog(this.editorUi, defaultValue || '000000', mxUtils.bind(this, function(color)
+		var dlg = new ColorDialog(this.editorUi, defaultValue || graph.shapeForegroundColor, mxUtils.bind(this, function(color)
 		{
 			graph.cellEditor.restoreSelection(selState);
 			document.execCommand(cmd, false, (color != mxConstants.NONE) ? color : 'transparent');
@@ -1335,6 +1335,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 		{
 			graph.cellEditor.restoreSelection(selState);
 		});
+
 		this.editorUi.showDialog(dlg.container, 230, h, true, true);
 		dlg.init();
 	}
@@ -1347,22 +1348,22 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 	
 		this.colorDialog.currentColorKey = key;
 		var state = graph.getView().getState(graph.getSelectionCell());
-		var color = 'none';
+		var color = mxConstants.NONE;
 		
 		if (state != null)
 		{
 			color = state.style[key] || color;
 		}
 		
-		if (color == 'none')
+		if (color == mxConstants.NONE)
 		{
-			color = 'ffffff';
-			this.colorDialog.picker.fromString('ffffff');
-			this.colorDialog.colorInput.value = 'none';
+			color = graph.shapeBackgroundColor.substring(1);
+			this.colorDialog.picker.fromString(color);
+			this.colorDialog.colorInput.value = mxConstants.NONE;
 		}
 		else
 		{
-			this.colorDialog.picker.fromString(color);
+			this.colorDialog.picker.fromString(mxUtils.rgba2hex(color));
 		}
 	
 		this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);

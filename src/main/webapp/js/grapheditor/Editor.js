@@ -169,9 +169,10 @@ Editor.tableImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M
 /**
  * All fill styles supported by rough.js.
  */
-Editor.roughFillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hachure', dispName: 'Hachure'}, {val: 'solid', dispName: 'Solid'},
-	{val: 'zigzag', dispName: 'ZigZag'}, {val: 'cross-hatch', dispName: 'Cross Hatch'}, {val: 'dots', dispName: 'Dots'},
-	{val: 'dashed', dispName: 'Dashed'}, {val: 'zigzag-line', dispName: 'ZigZag Line'}];
+Editor.roughFillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hachure', dispName: 'Hachure'},
+	{val: 'solid', dispName: 'Solid'}, {val: 'zigzag', dispName: 'ZigZag'},
+	{val: 'cross-hatch', dispName: 'Cross Hatch'}, {val: 'dashed', dispName: 'Dashed'},
+	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
 
 /**
  * Graph themes for the format panel.
@@ -244,6 +245,16 @@ Editor.isPngDataUrl = function(url)
 };
 
 /**
+ * Returns true if the given binary data is a PNG file.
+ */
+Editor.isPngData = function(data)
+{
+	return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
+		data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
+		data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
+};
+
+/**
  * Extracts the XML from the compressed or non-compressed text chunk.
  */
 Editor.extractGraphModelFromPng = function(data)
@@ -252,7 +263,7 @@ Editor.extractGraphModelFromPng = function(data)
 	
 	try
 	{
-		var base64 = data.substring(data.indexOf(';base64,') + 8);
+		var base64 = data.substring(data.indexOf(',') + 1);
 
 		// Workaround for invalid character error in Safari
 		var binary = (window.atob && !mxClient.IS_SF) ? atob(base64) : Base64.decode(base64, true);

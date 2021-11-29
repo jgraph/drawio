@@ -11562,7 +11562,34 @@ if (typeof mxVertexHandler != 'undefined')
 			
 			return color;
 		};
+				
+		/**
+		 * Returns the border color to be used for the editing box. This returns
+		 * the label border for edge labels and null for all other cases.
+		 */
+		mxCellEditor.prototype.getBorderColor = function(state)
+		{
+			var color = mxUtils.getValue(state.style, mxConstants.STYLE_LABEL_BORDERCOLOR, null);
+
+			if ((color == null || color == mxConstants.NONE) &&
+				(state.cell.geometry != null && state.cell.geometry.width > 0) &&
+				(mxUtils.getValue(state.style, mxConstants.STYLE_ROTATION, 0) != 0 ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_HORIZONTAL, 1) == 0))
+			{
+				color = mxUtils.getValue(state.style, mxConstants.STYLE_STROKECOLOR, null);
+			}
+
+			if (color == mxConstants.NONE)
+			{
+				color = null;
+			}
+			
+			return color;
+		};
 		
+		/**
+		 * Returns the minimum editing size.
+		 */
 		mxCellEditor.prototype.getMinimumSize = function(state)
 		{
 			var scale = this.graph.getView().scale;

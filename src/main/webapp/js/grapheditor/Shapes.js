@@ -13,7 +13,7 @@
 		if (state != null)
 		{
 			var graph = state.view.graph;
-			var start = graph.getActualStartSize(state.cell);
+			var start = graph.getActualStartSize(state.cell, true);
 			var rows = graph.model.getChildCells(state.cell, true);
 			
 			if (rows.length > 0)

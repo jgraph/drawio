@@ -1,3 +1,15 @@
+29-NOV-2021: 15.8.7
+
+- Fixed string replace when label has a new line https://github.com/jgraph/drawio/issues/2015
+- Removes dots fill pattern https://github.com/jgraph/drawio/issues/2443
+- Fixes parsing of base64 PNG with XML and no prefix
+- Hides empty table section in Arrange panel
+- Ignores cached style in table background
+- Shows error if popup is blocked in Google Drive
+- Adds 2px between scrollbar and elements
+- Uses rgb for default colors in output https://github.com/jgraph/drawio/issues/2445
+- Fixes rgb values in SVG gradient IDs [DID-3797]
+
 24-NOV-2021: 15.8.6
 
 - Adds support for refresh token to github

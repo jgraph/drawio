@@ -932,7 +932,7 @@
 			
 			if (fillStyle == 'auto')
 			{
-				var bg = mxUtils.hex2rgba((this.shape.state != null) ?
+				var bg = mxUtils.hex2rgb((this.shape.state != null) ?
 					this.shape.state.view.graph.shapeBackgroundColor :
 					(Editor.isDarkMode() ? Editor.darkColor : '#ffffff'));
 				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
@@ -5867,8 +5867,8 @@
 	{
 		if (style != null)
 		{
-			var bg = mxUtils.hex2rgba(this.shapeBackgroundColor);
-			var fg = mxUtils.hex2rgba(this.shapeForegroundColor);
+			var bg = mxUtils.hex2rgb(this.shapeBackgroundColor);
+			var fg = mxUtils.hex2rgb(this.shapeForegroundColor);
 
 			this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
 			this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);

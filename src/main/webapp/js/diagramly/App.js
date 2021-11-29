@@ -4630,9 +4630,9 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 			}
 			else
 			{
-				if (/(\.png)($|\?)/i.test(filterFn) || this.isPngData(data))
+				if (/(\.png)($|\?)/i.test(filterFn) || Editor.isPngData(data))
 				{
-					data = this.extractGraphModelFromPng(responseData);
+					data = Editor.extractGraphModelFromPng(responseData);
 				}
 				
 				onload(data);

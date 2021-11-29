@@ -708,16 +708,6 @@
 			data.charCodeAt(6) == 0x1A && data.charCodeAt(7) == 0xE1) || (data.charCodeAt(0) == 0x3C && data.charCodeAt(1) == 0x3F &&
 			data.charCodeAt(2) == 0x78 && data.charCodeAt(3) == 0x6D && data.charCodeAt(3) == 0x6C));
 	};
-	
-	/**
-	 * Returns true if the given binary data is a PNG file.
-	 */
-	EditorUi.prototype.isPngData = function(data)
-	{
-		return data.length > 8 && data.charCodeAt(0) == 137 && data.charCodeAt(1) == 80 &&
-			data.charCodeAt(2) == 78 && data.charCodeAt(3) == 71 && data.charCodeAt(4) == 13 &&
-			data.charCodeAt(5) == 10 && data.charCodeAt(6) == 26 && data.charCodeAt(7) == 10;
-	};
 
 	/**
 	 * Adds keyboard shortcuts for page handling.

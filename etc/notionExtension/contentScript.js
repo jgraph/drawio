@@ -595,6 +595,22 @@
 		var defs = doc.getElementsByTagName('defs');
 		var style = doc.createElementNS('http://www.w3.org/2000/svg', 'style');
 		style.appendChild(doc.createTextNode(
+			'[stroke="rgb(0, 0, 0)"] {stroke: #f0f0f0}\n' +
+			'[stroke="rgb(255, 255, 255)"] {stroke: ' + backgroundColor + '}\n' +
+			'[fill="rgb(0, 0, 0)"] {fill: #f0f0f0}\n' +
+			'[fill="rgb(255, 255, 255)"] {fill: ' + backgroundColor + '}\n' +
+			'g[fill="rgb(0, 0, 0)"] text {fill: #f0f0f0}\n' +
+			'div[data-drawio-colors*="color: rgb(0, 0, 0)"] div ' +
+			'{color: #f0f0f0 !important;}\n' +
+			'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"] div ' +
+			'{background-color: ' + backgroundColor + '  !important;}' +
+			'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"] div ' +
+			'{border-color: #f0f0f0  !important;}' +
+			'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"] ' +
+			'{background-color: ' + backgroundColor + '  !important;}' +
+			'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"] ' +
+			'{border-color: #f0f0f0  !important;}' +
+			// Invert old rgba output
 			'[stroke="rgba(0, 0, 0, 1)"] {stroke: #f0f0f0}\n' +
 			'[stroke="rgba(255, 255, 255, 1)"] {stroke: ' + backgroundColor + '}\n' +
 			'[fill="rgba(0, 0, 0, 1)"] {fill: #f0f0f0}\n' +

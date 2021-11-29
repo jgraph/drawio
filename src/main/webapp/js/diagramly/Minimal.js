@@ -2433,13 +2433,13 @@ EditorUi.initMinimalTheme = function()
 				pagesVisibleChanged();
 				
 				ui.tabContainer.style.visibility = 'hidden';
-				menubar.style.cssText = 'position:absolute;right:12px;top:10px;height:30px;z-index:1;border-radius:4px;' +
+				menubar.style.cssText = 'position:absolute;right:14px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px 0px 6px 6px;border-bottom:1px solid lightgray;' +
 					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
 				toolbar.style.cssText = 'position:absolute;left:10px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;border-bottom:1px solid lightgray;' +
 					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
-				footer.style.cssText = 'position:absolute;right:12px;bottom:12px;height:28px;z-index:1;border-radius:4px;' +
+				footer.style.cssText = 'position:absolute;right:14px;bottom:14px;height:28px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;user-select:none;';
 				wrapper.appendChild(toolbar);
 				wrapper.appendChild(footer);

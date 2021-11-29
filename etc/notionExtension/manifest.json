@@ -1,6 +1,6 @@
 {
   "name": "draw.io for Notion",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Insert draw.io diagrams in Notion pages and edit them",
   "permissions": [
   	"storage",
