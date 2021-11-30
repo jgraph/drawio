@@ -508,7 +508,8 @@ var com;
                         //var pageName_1 = org.apache.commons.lang3.StringEscapeUtils.escapeXml11(page.getPageName());
                     	//TODO FIXME htmlEntities is not exactly as escapeXml11 but close
                         var pageName_1 = mxUtils.htmlEntities(page.getPageName()) + (page.isBackground()? ' (Background)' : '');
-                        output += '<diagram name="' + pageName_1 + '" id="' + pageName_1.replace(/\s/g, '_') + '">';
+                        var pageNameU = mxUtils.htmlEntities(page.getPageNameU());
+                        output += '<diagram name="' + pageName_1 + '" id="' + pageNameU.replace(/\s/g, '_') + '">';
                     }
                     
                     output += Graph.compress(modelString);
@@ -904,7 +905,7 @@ var com;
                             }
                             else if (lnkObj.pageLink)
                         	{
-                            	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink);
+                            	graph.setLinkForCell(v1, 'data:page/id,' + lnkObj.pageLink.replace(/\s/g, '_'));
                         	}
                             
 							// Add Shape properties
@@ -3543,6 +3544,8 @@ var com;
                         }
                         this.Id = parseFloat(pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.ID));
                         this.pageName = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.NAME) || "";
+						this.pageNameU = pageElem.getAttribute(com.mxgraph.io.vsdx.mxVsdxConstants.NAME_U) || this.pageName;
+
                         var pageSheets = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(pageElem, "PageSheet");
                         if (pageSheets.length > 0) {
                             var pageSheet = pageSheets[0];
@@ -3854,6 +3857,9 @@ var com;
                     };
                     mxVsdxPage.prototype.getPageName = function () {
                         return this.pageName;
+                    };
+                    mxVsdxPage.prototype.getPageNameU = function () {
+                        return this.pageNameU;
                     };
                     mxVsdxPage.prototype.getShapes = function () {
                         return this.shapes;
@@ -5002,8 +5008,8 @@ var com;
                      * @param {string} tag Name of the tag.
                      * @return {string} &lt tag &gt text &lt /tag &gt
                      */
-                    mxVsdxUtils.surroundByTags = function (text, tag) {
-                        return "<" + tag + ">" + text + "</" + tag + ">";
+                    mxVsdxUtils.surroundByTags = function (text, tag, style) {
+                        return "<" + tag + (style? ' style="' + style + '"' : '') + ">" + text + "</" + tag + ">";
                     };
                     /**
                      * Converts the ampersand, quote, prime, less-than and greater-than
@@ -9678,7 +9684,7 @@ var com;
                     Shape.prototype.getTextSize = function (index) {
                         var sizeElem = this.getCellElement$java_lang_String$java_lang_String$java_lang_String(com.mxgraph.io.vsdx.mxVsdxConstants.SIZE, index, com.mxgraph.io.vsdx.mxVsdxConstants.CHARACTER);
                         var size = this.getScreenNumericalValue$org_w3c_dom_Element$double(sizeElem, 12);
-                        return ('' + (Math.floor(Math.round(size * 100) / 100)));
+                        return ('' + (Math.round(size * 100) / 100));
                     };
                     /**
                      * Returns the vertical align of the label.<br/>
@@ -10457,8 +10463,7 @@ var com;
                         
                         var end = first ? "" : "</p>";
                         ret += end;
-                        com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "div");
-                        return ret;
+                        return com.mxgraph.io.vsdx.mxVsdxUtils.surroundByTags(ret, "div", "font-size: 1px");
                     };
                     
                     /**

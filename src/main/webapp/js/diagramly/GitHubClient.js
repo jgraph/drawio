@@ -292,7 +292,7 @@ GitHubClient.prototype.showAuthorizeDialog = function(retryFn, cancelFn)
 /**
  * Authorizes the client, gets the userId and calls <open>.
  */
-GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotFound)
+GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotFound, returnNotFound)
 {
 	var doExecute = mxUtils.bind(this, function(failOnAuth)
 	{
@@ -387,7 +387,14 @@ GitHubClient.prototype.executeRequest = function(req, success, error, ignoreNotF
 				}
 				else if (req.getStatus() === 404)
 				{
-					authorizeApp();
+					if (returnNotFound)
+					{
+						error({code: req.getStatus(), message: this.getErrorMessage(req, mxResources.get('fileNotFound'))});
+					}
+					else
+					{
+						authorizeApp();
+					}
 				}
 				else if (req.getStatus() === 409)
 				{
@@ -449,7 +456,7 @@ GitHubClient.prototype.getLibrary = function(path, success, error)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-GitHubClient.prototype.getSha = function(org, repo, path, ref, success, error)
+GitHubClient.prototype.getSha = function(org, repo, path, ref, success, error, returnNotFound)
 {
 	// Adds random parameter to bypass cache
 	var rnd = '&t=' + new Date().getTime();
@@ -466,7 +473,7 @@ GitHubClient.prototype.getSha = function(org, repo, path, ref, success, error)
 		{
 			error(e);
 		}
-	}), error);
+	}), error, null, returnNotFound);
 };
 
 /**
@@ -754,7 +761,7 @@ GitHubClient.prototype.checkExists = function(path, askReplace, fn)
 	}), mxUtils.bind(this, function(err)
 	{
 		fn(true);
-	}), null, true);
+	}), true);
 };
 
 /**

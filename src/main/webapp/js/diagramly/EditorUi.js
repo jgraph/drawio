@@ -3092,7 +3092,18 @@
 		}
 		
 		// Adds new sidebar entry for this library
-		var tmp = (optionalTitle != null && optionalTitle.length > 0) ? optionalTitle : file.getTitle();
+		var tmp = optionalTitle;
+		
+		if (tmp == null)
+		{
+			tmp = file.getTitle();
+
+			if (tmp != null && /(\.xml)$/i.test(tmp))
+			{
+				tmp = tmp.substring(0, tmp.lastIndexOf('.'));
+			}
+		}
+
 		var contentDiv = this.sidebar.addPalette(file.getHash(), tmp,
 			(expand != null) ? expand : true, mxUtils.bind(this, function(content)
 		{

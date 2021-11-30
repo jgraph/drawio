@@ -1,3 +1,9 @@
+30-NOV-2021: 15.8.8
+
+- Hides xml extension in library title https://github.com/jgraph/drawio/issues/2448
+- [vsdx] Improves font-size and line height and links to internal pages
+- Fixes file exists check in GitHub
+
 29-NOV-2021: 15.8.7
 
 - Fixed string replace when label has a new line https://github.com/jgraph/drawio/issues/2015
