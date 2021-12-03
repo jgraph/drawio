@@ -1490,7 +1490,7 @@
 					if (e.keyCode == 13 && term.length > 0)
 					{
 						this.editorUi.openLink('https://www.diagrams.net/search?src=' +
-							EditorUi.isElectronApp? 'DESKTOP' : encodeURIComponent(location.host) + 
+							(EditorUi.isElectronApp ? 'DESKTOP' : encodeURIComponent(location.host)) + 
 							'&search=' + encodeURIComponent(term));
 						input.value = '';
 						EditorUi.logEvent({category: 'SEARCH-HELP', action: 'search', label: term});

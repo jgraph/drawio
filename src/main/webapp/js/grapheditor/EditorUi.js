@@ -2843,8 +2843,8 @@ EditorUi.prototype.initCanvas = function()
 		                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
 		                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
 		            }
-	
-		            graph.zoom(graph.cumulativeZoomFactor);
+
+					graph.zoom(graph.cumulativeZoomFactor, null, 20);
 		            var s = graph.view.scale;
 		            
 		            if (s != prev)
@@ -2884,10 +2884,10 @@ EditorUi.prototype.initCanvas = function()
 		}, 0);
 	};
 	
-	var lastZoomEvent = Date.now();
-
-	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay)
+	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor)
 	{
+		factor = (factor != null) ? factor : this.zoomFactor;
+
 		// TODO: Fix ignored cursor position if scrollbars are disabled
 		ignoreCursorPosition = ignoreCursorPosition || !graph.scrollbars;
 		
@@ -2898,14 +2898,6 @@ EditorUi.prototype.initCanvas = function()
 				graph.container.offsetTop + graph.container.clientHeight / 2);
 		}
 		
-		// Ignores events to reduce touchpad and magic mouse zoom speed
-		if (!mxClient.IS_IOS && Date.now() - lastZoomEvent < 15)
-		{
-			return;
-		}
-		
-		lastZoomEvent = Date.now();
-
 		// Switches to 5% zoom steps below 15%
 		if (zoomIn)
 		{
@@ -2915,10 +2907,8 @@ EditorUi.prototype.initCanvas = function()
 			}
 			else
 			{
-				// Uses to 5% zoom steps for better grid rendering in webkit
-				// and to avoid rounding errors for zoom steps
-				this.cumulativeZoomFactor *= this.zoomFactor;
-				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 20) / 20 / this.view.scale;
+				this.cumulativeZoomFactor *= factor;
+				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
 			}
 		}
 		else
@@ -2929,10 +2919,8 @@ EditorUi.prototype.initCanvas = function()
 			}
 			else
 			{
-				// Uses to 5% zoom steps for better grid rendering in webkit
-				// and to avoid rounding errors for zoom steps
-				this.cumulativeZoomFactor /= this.zoomFactor;
-				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 20) / 20 / this.view.scale;
+				this.cumulativeZoomFactor /= factor;
+				this.cumulativeZoomFactor = Math.round(this.view.scale * this.cumulativeZoomFactor * 100) / 100 / this.view.scale;
 			}
 		}
 
@@ -3032,7 +3020,7 @@ EditorUi.prototype.initCanvas = function()
 			else if (force || graph.isZoomWheelEvent(evt))
 			{
 				var source = mxEvent.getSource(evt);
-				
+
 				while (source != null)
 				{
 					if (source == graph.container)
@@ -3041,7 +3029,15 @@ EditorUi.prototype.initCanvas = function()
 						cursorPosition = (cx != null && cy!= null) ? new mxPoint(cx, cy) :
 							new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 						forcedZoom = force;
-						graph.lazyZoom(up);
+						var factor = graph.zoomFactor;
+
+						// Slower zoom for pinch gesture on trackpad
+						if (evt.deltaY != null && Math.round(evt.deltaY) != evt.deltaY)
+						{
+							factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
+						}
+
+						graph.lazyZoom(up, null, null, factor);
 						mxEvent.consume(evt);
 				
 						return false;

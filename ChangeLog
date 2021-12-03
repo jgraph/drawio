@@ -1,3 +1,16 @@
+03-DEC-2021: 15.9.1
+
+- Fixes build error
+
+03-DEC-2021: 15.9.0
+
+- Fixes possible hidden tool windows in sketch
+- [conf cloud] Fixes page ids export error log
+- [conf cloud] Adds fallback for the viewer when a file returns 403 for a specific version
+- Fixes in-app help search query
+- Improves pinch to zoom on trackpad https://github.com/jgraph/drawio/issues/2469
+- Updates GCP icons
+
 02-DEC-2021: 15.8.9
 
 - Adds Shift+Click on Zoom in Sketch theme

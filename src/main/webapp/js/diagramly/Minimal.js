@@ -52,9 +52,8 @@ EditorUi.initMinimalTheme = function()
 	    	var iiw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	        var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	        
-	        x = Math.max(0, Math.min(x, iiw - this.table.clientWidth));
-	        y = Math.max(0, Math.min(y, ih - this.table.clientHeight -
-				((urlParams['sketch'] == '1') ? 3 : 48)));
+	        x = Math.max(0, Math.min(x, iiw - this.table.clientWidth - 2));
+	        y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 2));
 			
 	        if (this.getX() != x || this.getY() != y)
 	        {
@@ -101,6 +100,11 @@ EditorUi.initMinimalTheme = function()
 
 				return format;
 			});
+
+			ui.formatWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+			{
+				ui.formatWindow.window.fit();
+			}));
 			
 			ui.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
 			ui.formatWindow.window.setVisible(true);
@@ -110,11 +114,6 @@ EditorUi.initMinimalTheme = function()
 	        ui.formatWindow.window.setVisible((visible != null) ?
 	        	visible : !ui.formatWindow.window.isVisible());
 	    }
-
-        if (ui.formatWindow.window.isVisible() && urlParams['sketch'] != '1')
-        {
-            ui.formatWindow.window.fit();
-        }
 	};
 
 	function toggleShapes(ui, visible)
@@ -227,6 +226,11 @@ EditorUi.initMinimalTheme = function()
 				return container;
 			});
 	        
+			ui.sidebarWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+			{
+				ui.sidebarWindow.window.fit();
+			}));
+
 			ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 			ui.sidebarWindow.window.setVisible(true);
 			
@@ -241,11 +245,6 @@ EditorUi.initMinimalTheme = function()
 		{
     		ui.sidebarWindow.window.setVisible((visible != null) ?
     			visible : !ui.sidebarWindow.window.isVisible());
-		}
-		
-		if (ui.sidebarWindow.window.isVisible())
-		{
-			ui.sidebarWindow.window.fit();
 		}
 	};
 	
