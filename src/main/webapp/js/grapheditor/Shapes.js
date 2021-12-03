@@ -7,6 +7,103 @@
  */
 (function()
 {
+	function TableLineShape(line, stroke, strokewidth)
+	{
+		mxShape.call(this);
+		this.line = line;
+		this.stroke = stroke;
+		this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+		this.updateBoundsFromLine();
+	};
+
+	/**
+	 * Extends mxShape.
+	 */
+	mxUtils.extend(TableLineShape, mxShape);
+
+	/**
+	 * Function: paintVertexShape
+	 * 
+	 * Redirects to redrawPath for subclasses to work.
+	 */
+	TableLineShape.prototype.updateBoundsFromLine = function()
+	{
+		var box = null;
+
+		if (this.line != null)
+		{
+			for (var i = 0; i < this.line.length; i++)
+			{
+				var curr = this.line[i];
+
+				if (curr != null)
+				{
+					var temp = new mxRectangle(curr.x, curr.y,
+						this.strokewidth, this.strokewidth);
+
+					if (box == null)
+					{
+						box = temp;
+					}
+					else
+					{
+						box.add(temp);
+					}
+				}
+			}
+		}
+
+		this.bounds = (box != null) ? box : new mxRectangle();
+	};
+
+	/**
+	 * Function: paintVertexShape
+	 * 
+	 * Redirects to redrawPath for subclasses to work.
+	 */
+	TableLineShape.prototype.paintVertexShape = function(c, x, y, w, h)
+	{
+		this.paintTableLine(c, this.line, 0, 0);
+	};
+
+	/**
+	 * Function: paintTableLine
+	 * 
+	 * Redirects to redrawPath for subclasses to work.
+	 */
+	TableLineShape.prototype.paintTableLine = function(c, line, dx, dy)
+	{
+		if (line != null)
+		{
+			var last = null;
+			c.begin();
+
+			for (var i = 0; i < line.length; i++)
+			{
+				var curr = line[i];
+
+				if (curr != null)
+				{
+					if (last == null)
+					{
+						c.moveTo(curr.x + dx, curr.y + dy);
+					}
+					else if (last != null)
+					{
+						c.lineTo(curr.x + dx, curr.y + dy);
+					}
+				}
+
+				last = curr;
+			}
+
+			c.end();
+			c.stroke();
+		}
+	};
+
+	mxCellRenderer.registerShape('tableLine', TableLineShape);
+
 	// LATER: Use this to implement striping
 	function paintTableBackground(state, c, x, y, w, h, r)
 	{
@@ -173,141 +270,16 @@
 			this.paintTableForeground(c, x, y, w, h);
 		}
 	};
-		
-	/**
-	 * Returns the given table as an array of arrays of cells.
-	 */
-	TableShape.prototype.getTableLines = function(x0, y0, horizontal, vertical)
-	{
-		var hl = [];
-		var vl = [];
-
-		if (horizontal || vertical)
-		{
-			var lastRow = null;
-			var graph = this.state.view.graph;
-			var rows = graph.model.getChildCells(this.state.cell, true);
-			var start = graph.getActualStartSize(this.state.cell, true);
-			x0 += start.x;
-			y0 += start.y;
-			
-			for (var i = 0; i < rows.length; i++)
-			{
-				var cols = graph.model.getChildCells(rows[i], true);
-				start = graph.getActualStartSize(rows[i], true);
-				var lastCol = null;
-				var row = [];
-
-				for (var j = 0; j < cols.length; j++)
-				{
-					var col = {rospan: 1, colspan: 1};
-					var geo = graph.getCellGeometry(cols[j]);
-					geo = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
-					col.point = new mxPoint(geo.width + (lastCol != null ? lastCol.point.x : x0 + start.x),
-						geo.height + (lastRow != null && lastRow[0] != null ? lastRow[0].point.y : y0 + start.y));
-
-					if (lastRow != null && lastRow[j] != null && lastRow[j].rowspan > 1)
-					{
-						col.rowspan = lastRow[j].rowspan - 1;
-						col.colspan = lastRow[j].colspan;
-					}
-					else
-					{
-						if (lastCol != null && lastCol.colspan > 1)
-						{
-							col.rowspan = lastCol.rowspan;
-							col.colspan = lastCol.colspan - 1;
-						}
-						else
-						{
-							var style = graph.getCurrentCellStyle(cols[j], true);
-
-							if (style != null)
-							{
-								col.rowspan = parseInt(style['rowspan'] || 1);
-								col.colspan = parseInt(style['colspan'] || 1);
-							}
-						}
-					}
-
-					row.push(col);
-					lastCol = col;
-
-					// Constructs horizontal lines
-					if (horizontal && i < rows.length - 1)
-					{
-						if (hl[i] == null)
-						{
-							hl[i] = [new mxPoint(x0, col.point.y)];
-						}
-
-						if (col.rowspan > 1)
-						{
-							hl[i].push(null);
-						}
-						
-						hl[i].push(col.point);
-					}
-
-					// Constructs vertical lines
-					if (vertical && j < cols.length - 1)
-					{
-						if (vl[j] == null)
-						{
-							vl[j] = [new mxPoint(col.point.x, y0)];
-						}
-
-						if (col.colspan > 1)
-						{
-							vl[j].push(null);
-						}
-						
-						vl[j].push(col.point);
-					}
-				}
-
-				lastRow = row;
-			}
-		}
-
-		return hl.concat(vl);
-	};
 
 	TableShape.prototype.paintTableForeground = function(c, x, y, w, h)
 	{
-		var lines = this.getTableLines(x, y,
+		var lines = this.state.view.graph.getTableLines(this.state.cell,
 			mxUtils.getValue(this.state.style, 'rowLines', '1') != '0',
 			mxUtils.getValue(this.state.style, 'columnLines', '1') != '0');
 
 		for (var i = 0; i < lines.length; i++)
 		{
-			if (lines[i] != null)
-			{
-				var last = null;
-				c.begin();
-		
-				for (var j = 0; j < lines[i].length; j++)
-				{
-					var curr = lines[i][j];
-		
-					if (curr != null)
-					{
-						if (last == null)
-						{
-							c.moveTo(curr.x, curr.y);
-						}
-						else if (last != null)
-						{
-							c.lineTo(curr.x, curr.y);
-						}
-					}
-		
-					last = curr;
-				}
-		
-				c.end();
-				c.stroke();
-			}
+			TableLineShape.prototype.paintTableLine(c, lines[i], x, y);
 		}
 	}
 

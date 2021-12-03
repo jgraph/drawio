@@ -22,6 +22,21 @@
 	iframe.style.height = '100%';
 	iframe.style.zIndex = '4';
 
+	function logEvent(data)
+	{
+		try
+		{
+			var img = new Image();
+			img.src = 'https://log.draw.io/images/1x1.png?' +
+				'data=' + encodeURIComponent(
+				JSON.stringify(data));
+		}
+		catch (e)
+		{
+			console.error(e);
+		}
+	};
+
 	function invertImage(img, done)
 	{
 		var req = new XMLHttpRequest();
@@ -170,6 +185,10 @@
 						background: '#ffffff', rect: rect, dark: dark,
 						viewport: getViewport()}), '*');
 					updateFrame();
+
+					logEvent({category: 'NOTION',
+						action: (isNew) ? 'create' : 'edit',
+						label: getBlockId(img)});
 				}
 				catch (e)
 				{

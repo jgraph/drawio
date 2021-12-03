@@ -373,6 +373,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		
 		function showRenderMsg(msg)
 		{
+			prevDiv.style.background = 'transparent';
+			prevDiv.innerHTML = '';	
+
 			var status = document.createElement('div');
 			status.className = 'odPreviewStatus';
 			mxUtils.write(status, msg);
@@ -851,11 +854,6 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	{
 		_$('#odSubmitBtn').addEventListener('click', doSubmit);
 	}
-	
-	document.body.onselectstart = function()
-	{
-		return false;
-	};
 	
 	if (initFolderPath != null)
 	{

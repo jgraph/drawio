@@ -2296,7 +2296,7 @@ EditorUi.initMinimalTheme = function()
 	        {
 	            graph.popupMenuHandler.hideMenu();
 
-				if (mxEvent.isAltDown(evt))
+				if (mxEvent.isAltDown(evt) || mxEvent.isShiftDown(evt))
 				{
 					ui.actions.get('customZoom').funct();
 				}

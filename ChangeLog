@@ -1,3 +1,9 @@
+02-DEC-2021: 15.8.9
+
+- Adds Shift+Click on Zoom in Sketch theme
+- Add table divider handles with col/rowspan
+- Fixes text selection with inline OneDrive picker https://github.com/jgraph/drawio/issues/2444
+
 30-NOV-2021: 15.8.8
 
 - Hides xml extension in library title https://github.com/jgraph/drawio/issues/2448

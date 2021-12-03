@@ -2633,9 +2633,20 @@
 
 				if (!this.isOffline() && file.getMode() != null)
 				{
+					var theme = (urlParams['sketch'] == '1') ? 'sketch' : uiTheme;
+
+					if (theme == null)
+					{
+						theme = 'default';
+					}
+					else if (theme == 'sketch' || theme == 'min')
+					{
+						theme += Editor.isDarkMode() ? '-dark' : '-light';
+					}
+
 					EditorUi.logEvent({category: file.getMode().toUpperCase() + '-OPEN-FILE-' + file.getHash(),
 						action: 'size_' + file.getSize(),
-						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off')});
+						label: 'autosave_' + ((this.editor.autosave) ? 'on' : 'off') + '_theme_' + theme});
 				}
 				
 				EditorUi.debug('File.opened', [file]);
