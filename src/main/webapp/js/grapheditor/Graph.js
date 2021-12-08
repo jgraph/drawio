@@ -4287,12 +4287,21 @@ Graph.prototype.getLinkTargetForCell = function(cell)
 };
 
 /**
- * Overrides label orientation for collapsed swimlanes inside stack and
- * for partial rectangles inside tables.
+ * Adds style post processing steps.
  */
 Graph.prototype.postProcessCellStyle = function(cell, style)
 {
-	if (cell != null && this.layoutManager != null)
+	return this.updateHorizontalStyle(cell,this.replaceDefaultColors(cell,
+		mxGraph.prototype.postProcessCellStyle.apply(this, arguments)));
+};
+
+/**
+ * Overrides label orientation for collapsed swimlanes inside stack and
+ * for partial rectangles inside tables.
+ */
+Graph.prototype.updateHorizontalStyle = function(cell, style)
+{
+	if (cell != null && style != null && this.layoutManager != null)
 	{
 		var parent = this.model.getParent(cell);
 		
@@ -4308,6 +4317,40 @@ Graph.prototype.postProcessCellStyle = function(cell, style)
 	}
 	
 	return style;
+};
+
+/**
+ * Replaces default colors. 
+ */
+Graph.prototype.replaceDefaultColors = function(cell, style)
+{
+	if (style != null)
+	{
+		var bg = mxUtils.hex2rgb(this.shapeBackgroundColor);
+		var fg = mxUtils.hex2rgb(this.shapeForegroundColor);
+
+		this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_STROKECOLOR, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BORDER, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BACKGROUND, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BORDERCOLOR, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, bg);
+	}
+
+	return style;
+};
+
+/**
+ * Replaces the colors for the given key.
+ */
+Graph.prototype.replaceDefaultColor = function(style, key, value)
+{
+	if (style != null && style[key] == 'default' && value != null)
+	{
+		style[key] = value;
+	}
 };
 
 /**

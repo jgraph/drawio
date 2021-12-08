@@ -102,6 +102,38 @@
 		}
 	};
 
+	/**
+	 * Function: intersectsRectangle
+	 * 
+	 * Returns true if the shape intersects the given rectangle.
+	 */
+	TableLineShape.prototype.intersectsRectangle = function(rect)
+	{
+		var result = false;
+
+		if (mxShape.prototype.intersectsRectangle.apply(this, arguments))
+		{
+			if (this.line != null)
+			{
+				var last = null;
+	
+				for (var i = 0; i < this.line.length && !result; i++)
+				{
+					var curr = this.line[i];
+	
+					if (curr != null && last != null)
+					{
+						result = mxUtils.rectangleIntersectsSegment(rect, last, curr);
+					}
+	
+					last = curr;
+				}
+			}
+		}
+
+		return result;
+	};
+
 	mxCellRenderer.registerShape('tableLine', TableLineShape);
 
 	// LATER: Use this to implement striping

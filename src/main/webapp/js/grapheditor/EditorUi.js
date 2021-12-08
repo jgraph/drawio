@@ -272,15 +272,15 @@ EditorUi = function(editor, container, lightbox)
 							}
 						}
 					}
-				}
 
-				if (Editor.simpleLabels)
-				{
-					newStyle = mxUtils.setStyle(mxUtils.setStyle(
-						newStyle, 'html', null), 'whiteSpace', null);
+					if (Editor.simpleLabels)
+					{
+						newStyle = mxUtils.setStyle(mxUtils.setStyle(
+							newStyle, 'html', null), 'whiteSpace', null);
+					}
+					
+					model.setStyle(cell, newStyle);
 				}
-				
-				model.setStyle(cell, newStyle);
 			}
 			finally
 			{
