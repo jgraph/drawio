@@ -38,16 +38,6 @@
   </servlet-mapping>
   <servlet>
     <description/>
-    <display-name>GoogleGadgetServlet</display-name>
-    <servlet-name>GoogleGadgetServlet</servlet-name>
-    <servlet-class>com.mxgraph.online.GoogleGadgetServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>GoogleGadgetServlet</servlet-name>
-    <url-pattern>/gadget.xml</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description/>
     <display-name>ImgurRedirect</display-name>
     <servlet-name>ImgurRedirect</servlet-name>
     <servlet-class>com.mxgraph.online.ImgurRedirectServlet</servlet-class>

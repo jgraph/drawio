@@ -4819,7 +4819,7 @@ StyleFormatPanel.prototype.addFill = function(container)
 		}
 	}, function(color)
 	{
-		graph.updateCellStyles(mxConstants.STYLE_GRADIENTCOLOR, color, graph.getSelectionCells());
+		graph.updateCellStyles({'gradientColor': color}, graph.getSelectionCells());
 	});
 
 	var fillKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BACKGROUND : mxConstants.STYLE_FILLCOLOR;
@@ -5978,7 +5978,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['sketch'];
 		}
 		
-		graph.updateCellStyles('sketch', (checked) ? '1' : null, graph.getVerticesAndEdges());
+		graph.updateCellStyles({'sketch': (checked) ? '1' : null}, graph.getVerticesAndEdges());
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -6003,7 +6003,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['rounded'];
 		}
 		
-		graph.updateCellStyles('rounded', (checked) ? '1' : '0', graph.getVerticesAndEdges());
+		graph.updateCellStyles({'rounded': (checked) ? '1' : '0'}, graph.getVerticesAndEdges());
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -6033,7 +6033,7 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentEdgeStyle['curved'];
 		}
 		
-		graph.updateCellStyles('curved', (checked) ? '1' : null, graph.getVerticesAndEdges(false, true));
+		graph.updateCellStyles({'curved': (checked) ? '1' : null}, graph.getVerticesAndEdges(false, true));
 	}, null, function(div)
 	{
 		div.style.width = 'auto';
@@ -6058,8 +6058,8 @@ DiagramStylePanel.prototype.addView = function(div)
 				// Handles special label background color
 				if (style['labelBackgroundColor'] != null)
 				{
-					graph.updateCellStyles('labelBackgroundColor', (graphStyle != null) ?
-						graphStyle.background : null, [cells[i]]);
+					graph.updateCellStyles({'labelBackgroundColor': (graphStyle != null) ?
+						graphStyle.background : null}, [cells[i]]);
 				}
 				
 				var edge = model.isEdge(cells[i]);
@@ -6150,9 +6150,8 @@ DiagramStylePanel.prototype.addView = function(div)
 			model.beginUpdate();
 			try
 			{
-				graph.updateCellStyles('sketch', null, all);
-				graph.updateCellStyles('rounded', null, all);
-				graph.updateCellStyles('curved', null, graph.getVerticesAndEdges(false, true));
+				graph.updateCellStyles({'sketch': null, 'rounded': null}, all);
+				graph.updateCellStyles({'curved': null}, graph.getVerticesAndEdges(false, true));
 			}
 			finally
 			{
@@ -6191,9 +6190,10 @@ DiagramStylePanel.prototype.addView = function(div)
 		graph2.setPanning(false);
 		graph2.setEnabled(false);
 		
-		graph2.getCellStyle = function(cell)
+		graph2.getCellStyle = function(cell, resolve)
 		{
-			var result = mxUtils.clone(Graph.prototype.getCellStyle.apply(this, arguments));
+			resolve = (resolve != null) ? resolve : true;
+			var result = mxUtils.clone(graph.getCellStyle.apply(this, arguments));
 			var defaultStyle = graph.stylesheet.getDefaultVertexStyle();
 			var appliedStyle = vertexStyle;
 			
@@ -6207,9 +6207,9 @@ DiagramStylePanel.prototype.addView = function(div)
 			applyStyle(commonStyle, result, cell, graphStyle, graph2);
 			applyStyle(appliedStyle, result, cell, graphStyle, graph2);
 			
-			if (result != null)
+			if (resolve)
 			{
-				result = this.postProcessCellStyle(result);
+				result = graph.postProcessCellStyle(cell, result);
 			}
 
 			return result;
@@ -6349,8 +6349,9 @@ DiagramStylePanel.prototype.addView = function(div)
 				graph.view.gridColor = (graphStyle != null && graphStyle.gridColor != null) ?
 					graphStyle.gridColor : graph.view.defaultGridColor;
 				
-				graph.getCellStyle = function(cell)
+				graph.getCellStyle = function(cell, resolve)
 				{
+					resolve = (resolve != null) ? resolve : true;
 					var result = mxUtils.clone(prev.apply(this, arguments));
 					
 					var defaultStyle = graph.stylesheet.getDefaultVertexStyle();
@@ -6366,9 +6367,9 @@ DiagramStylePanel.prototype.addView = function(div)
 					applyStyle(commonStyle, result, cell, graphStyle);
 					applyStyle(appliedStyle, result, cell, graphStyle);
 					
-					if (result != null)
+					if (resolve)
 					{
-						result = this.postProcessCellStyle(result);
+						result = this.postProcessCellStyle(cell, result);
 					}
 					
 					return result;

@@ -2329,7 +2329,6 @@
 				{
 					var node = mxUtils.parseXml(tmp).documentElement;
 					
-					
 					return node.nodeName == 'mxfile' || node.nodeName == 'mxGraphModel';
 				}
 			}
@@ -5853,9 +5852,9 @@
 	 * Adds support for custom fonts in cell styles.
 	 */
 	var graphPostProcessCellStyle = Graph.prototype.postProcessCellStyle;
-	Graph.prototype.postProcessCellStyle = function(style)
+	Graph.prototype.postProcessCellStyle = function(cell, style)
 	{
-		this.replaceDefaultColors(style);
+		this.replaceDefaultColors(cell, style);
 
 		return Graph.processFontStyle(graphPostProcessCellStyle.apply(this, arguments));
 	};
@@ -5863,7 +5862,7 @@
 	/**
 	 * Replaces default colors. 
 	 */
-	Graph.prototype.replaceDefaultColors = function(style)
+	Graph.prototype.replaceDefaultColors = function(cell, style)
 	{
 		if (style != null)
 		{

@@ -1591,6 +1591,20 @@ Graph.fadeNodes = function(nodes, start, end, done, delay)
 };
 
 /**
+ * Removes the elements from the map where the given function returns true.
+ */
+Graph.removeKeys = function(map, ignoreFn)
+{
+	for (var key in map)
+	{
+		if (ignoreFn(key))
+		{
+			delete map[key];
+		}
+	}
+};
+
+/**
  * Sets the transition for the given nodes.
  */
 Graph.setTransitionForNodes = function(nodes, transition)
@@ -2273,65 +2287,53 @@ Graph.prototype.init = function(container)
 		
 		return cell;
 	};
-		
+
 	/**
-	 * Returns true if fast zoom preview should be used.
+	 * Returns the style of the given cell as an object.
 	 */
 	Graph.prototype.copyStyle = function(cell)
 	{
-		var style = null;
-		
-		if (cell != null)
-		{
-			style = mxUtils.clone(this.getCurrentCellStyle(cell));
-			
-			// Handles special case for value "none"
-			var cellStyle = this.model.getStyle(cell);
-			var tokens = (cellStyle != null) ? cellStyle.split(';') : [];
-			
-			for (var j = 0; j < tokens.length; j++)
-			{
-				var tmp = tokens[j];
-		 		var pos = tmp.indexOf('=');
-		 					 		
-		 		if (pos >= 0)
-		 		{
-		 			var key = tmp.substring(0, pos);
-		 			var value = tmp.substring(pos + 1);
-		 			
-		 			if (style[key] == null && value == mxConstants.NONE)
-		 			{
-		 				style[key] = mxConstants.NONE;
-		 			}
-		 		}
-			}
-		}
-		
-		return style;
+		return this.getCellStyle(cell, false);
 	};
-	
+
 	/**
 	 * Returns true if fast zoom preview should be used.
 	 */
 	Graph.prototype.pasteStyle = function(style, cells, keys)
 	{
 		keys = (keys != null) ? keys : Graph.pasteStyles;
-		
+
+		Graph.removeKeys(style, function(key)
+		{
+			return mxUtils.indexOf(keys, key) < 0;
+		});
+
+		this.updateCellStyles(style, cells);
+	};
+			
+	/**
+	 * Removes implicit styles from cell styles so that dark mode works using the
+	 * default values from the stylesheet.
+	 */
+	Graph.prototype.updateCellStyles = function(style, cells)
+	{
 		this.model.beginUpdate();
 		try
 		{
 			for (var i = 0; i < cells.length; i++)
 			{
-				var temp = this.getCurrentCellStyle(cells[i]);
-	
-				for (var j = 0; j < keys.length; j++)
+				if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
 				{
-					var current = temp[keys[j]];
-					var value = style[keys[j]];
-					
-					if (current != value && (current != null || value != mxConstants.NONE))
+					var cellStyle = this.getCellStyle(cells[i], false);
+
+					for (var key in style)
 					{
-						this.setCellStyles(keys[j], value, [cells[i]]);
+						var value = style[key];
+
+						if (cellStyle[key] != value)
+						{
+							this.setCellStyles(key, value, [cells[i]]);
+						}
 					}
 				}
 			}
@@ -4280,7 +4282,7 @@ Graph.prototype.getLinkTargetForCell = function(cell)
 	{
 		return cell.value.getAttribute('linkTarget');
 	}
-	
+
 	return null;
 };
 
@@ -4288,10 +4290,8 @@ Graph.prototype.getLinkTargetForCell = function(cell)
  * Overrides label orientation for collapsed swimlanes inside stack and
  * for partial rectangles inside tables.
  */
-Graph.prototype.getCellStyle = function(cell)
+Graph.prototype.postProcessCellStyle = function(cell, style)
 {
-	var style = mxGraph.prototype.getCellStyle.apply(this, arguments);
-	
 	if (cell != null && this.layoutManager != null)
 	{
 		var parent = this.model.getParent(cell);
@@ -7383,7 +7383,7 @@ if (typeof mxVertexHandler != 'undefined')
 				state.style[key] = this.graph.currentEdgeStyle[key];
 			}
 
-			state.style = this.graph.postProcessCellStyle(state.style);
+			state.style = this.graph.postProcessCellStyle(state.cell, state.style);
 			
 			return state;
 		};
@@ -7489,36 +7489,6 @@ if (typeof mxVertexHandler != 'undefined')
 			}
 			
 			return style;
-		};
-			
-		/**
-		 * Removes implicit styles from cell styles so that dark mode works using the
-		 * default values from the stylesheet.
-		 */
-		Graph.prototype.updateCellStyles = function(key, value, cells)
-		{
-			this.model.beginUpdate();
-			try
-			{
-				for (var i = 0; i < cells.length; i++)
-				{
-					if (this.model.isVertex(cells[i]) || this.model.isEdge(cells[i]))
-					{
-						this.setCellStyles(key, null, [cells[i]]);
-						var style = this.getCellStyle(cells[i]);
-						var temp = style[key];
-						
-						if (value != ((temp == null) ? mxConstants.NONE : temp))
-						{
-							this.setCellStyles(key, value, [cells[i]]);
-						}
-					}
-				}
-			}
-			finally
-			{
-				this.model.endUpdate();
-			}
 		};
 
 		/**

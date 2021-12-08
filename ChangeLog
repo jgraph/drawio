@@ -1,3 +1,20 @@
+08-DEC-2021: 15.9.3
+
+- Adds commons-lang3 3.12.0 for commons text dependency
+
+08-DEC-2021: 15.9.2
+
+- Keeps only window title inside viewrect
+- Fixes handling of defaults in copy/paste style
+- Removes GoogleGadgetServlet
+- Improves handling of special style values
+- Uses map in signature of Graph.updateCellStyles
+- Fixes possible unresolved values in default style
+- Fixes unresolved colors in style thumbnail
+- Fixes background page for PDF export in dark mode
+- Fixes line cap for partial rectangle https://github.com/jgraph/drawio-desktop/issues/813
+- Fixes ignored model for change of cells in event
+
 03-DEC-2021: 15.9.1
 
 - Fixes build error

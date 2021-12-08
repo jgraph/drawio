@@ -1541,7 +1541,6 @@
 						editorUi.checkForUpdates();
 					});
 					
-					console.log('electron help menu');
 					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
 						'website', 'support', '-'], parent);
 						

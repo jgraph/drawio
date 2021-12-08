@@ -1527,7 +1527,8 @@
 			{
 				var graphGetGlobalVariable = graph.getGlobalVariable;
 				graph = this.createTemporaryGraph(darkTheme ?
-						graph.getDefaultStylesheet() : graph.getStylesheet());
+					graph.getDefaultStylesheet() :
+					graph.getStylesheet());
 				graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
 				var page = this.pages[0];
 
@@ -1857,8 +1858,8 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection, currentPage,
-		pageVisible, transparent, scale, border, grid, includeXml, pageRange)
+	EditorUi.prototype.downloadFile = function(format, uncompressed, addShadow, ignoreSelection,
+		currentPage, pageVisible, transparent, scale, border, grid, includeXml, pageRange)
 	{
 		try
 		{
@@ -9261,8 +9262,14 @@
 					this.defaultThemeName == 'darkTheme')
 				{
 					var temp = this.stylesheet;
+					var tempFg = this.shapeForegroundColor;
+					var tempBg = this.shapeBackgroundColor;
 					this.stylesheet = this.getDefaultStylesheet();
+					this.shapeBackgroundColor = '#ffffff';
+					this.shapeForegroundColor = '#000000';
 					result = ui.createImageForPageLink(result.originalSrc);
+					this.shapeBackgroundColor = tempBg;
+					this.shapeForegroundColor = tempFg;
 					this.stylesheet = temp;
 				}
 			}

@@ -52,8 +52,9 @@ EditorUi.initMinimalTheme = function()
 	    	var iiw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 	        var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 	        
-	        x = Math.max(0, Math.min(x, iiw - this.table.clientWidth - 2));
-	        y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 2));
+			var title = this.table.firstChild.firstChild.firstChild;
+	        x = Math.max(0, Math.min(x, iiw - title.clientWidth - 2));
+	        y = Math.max(0, Math.min(y, ih - title.clientHeight - 2));
 			
 	        if (this.getX() != x || this.getY() != y)
 	        {
@@ -1059,7 +1060,7 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'synchronize',
 					'-', 'save', 'saveAs', '-'], parent);
 			}
-			else if (urlParams['embed'] == '1')
+			else if (urlParams['embed'] == '1' || ui.mode == App.MODE_ATLAS)
 			{
 				if (urlParams['noSaveBtn'] != '1' &&
 					urlParams['embedInline'] != '1')
@@ -1069,7 +1070,7 @@ EditorUi.initMinimalTheme = function()
 				
 				if (urlParams['saveAndExit'] == '1' || 
 					(urlParams['noSaveBtn'] == '1' &&
-					urlParams['saveAndExit'] != '0'))
+					urlParams['saveAndExit'] != '0') || ui.mode == App.MODE_ATLAS)
 				{
 					ui.menus.addMenuItems(menu, ['saveAndExit'], parent);
 					
@@ -1160,9 +1161,9 @@ EditorUi.initMinimalTheme = function()
 			menu.addSeparator(parent);
 			ui.menus.addSubmenu('help', menu, parent);
 
-            if (urlParams['embed'] == '1')
+            if (urlParams['embed'] == '1' || ui.mode == App.MODE_ATLAS)
 			{
-				if (urlParams['noExitBtn'] != '1')
+				if (urlParams['noExitBtn'] != '1' || ui.mode == App.MODE_ATLAS)
 				{
 					ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
 				}
@@ -1281,18 +1282,8 @@ EditorUi.initMinimalTheme = function()
 			ui.menus.addMenuItems(menu, ['-', 'pageScale', 'ruler', '-', 'scrollbars',
 				'tooltips', '-', 'copyConnect', 'collapseExpand', '-'], parent);
 
-			if (urlParams['sketch'] == '1')
-			{
-				this.addMenuItems(menu, ['toggleSketchMode'], parent);
-			}
-
 			if (urlParams['embedInline'] != '1')
 			{
-				if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
-				{
-					this.addMenuItems(menu, ['toggleDarkMode'], parent);
-				}
-
 				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
 				{
 					ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
@@ -1307,12 +1298,22 @@ EditorUi.initMinimalTheme = function()
 			menu.addSeparator(parent);
         	ui.menus.addMenuItem(menu, 'configuration', parent);
 
-			if (!ui.isOfflineApp() && isLocalStorage)
+			if (!ui.isOfflineApp() && isLocalStorage && ui.mode != App.MODE_ATLAS)
 			{
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
 
 			this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+
+			if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
+			{
+				this.addMenuItems(menu, ['toggleDarkMode'], parent);
+			}
+
+			if (urlParams['sketch'] == '1')
+			{
+				this.addMenuItems(menu, ['-', 'toggleSketchMode'], parent);
+			}
 
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);

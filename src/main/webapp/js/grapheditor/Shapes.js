@@ -3390,6 +3390,7 @@
 
 			c.pointerEvents = pointerEvents;
 			c.setStrokeColor(this.stroke);
+			c.setLineCap('square');
 			c.begin();
 			c.moveTo(x, y);
 			
@@ -3427,6 +3428,7 @@
 						
 			c.end();
 			c.stroke();
+			c.setLineCap('flat');
 		}
 	};
 
