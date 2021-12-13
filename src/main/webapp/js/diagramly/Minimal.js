@@ -1268,7 +1268,7 @@ EditorUi.initMinimalTheme = function()
         // Extras menu is labelled preferences but keeps ID for extensions
         this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1')
+			if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' && ui.mode != App.MODE_ATLAS)
 			{
 				ui.menus.addSubmenu('theme', menu, parent);
 			}
@@ -1284,7 +1284,7 @@ EditorUi.initMinimalTheme = function()
 
 			if (urlParams['embedInline'] != '1')
 			{
-				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
+				if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP) && ui.mode != App.MODE_ATLAS)
 				{
 					ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
 				}
@@ -1296,14 +1296,21 @@ EditorUi.initMinimalTheme = function()
 			}
 
 			menu.addSeparator(parent);
-        	ui.menus.addMenuItem(menu, 'configuration', parent);
+			
+			if(ui.mode != App.MODE_ATLAS) 
+			{
+				ui.menus.addMenuItem(menu, 'configuration', parent);
+			}
 
 			if (!ui.isOfflineApp() && isLocalStorage && ui.mode != App.MODE_ATLAS)
 			{
 	        	ui.menus.addMenuItem(menu, 'plugins', parent);
 			}
-
-			this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+			
+			if(ui.mode != App.MODE_ATLAS) 
+			{
+				this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+			}
 
 			if (Editor.isDarkMode() || (!mxClient.IS_IE && !mxClient.IS_IE11))
 			{

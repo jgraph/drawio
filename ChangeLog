@@ -1,3 +1,7 @@
+13-DEC-2021: 15.9.6
+
+- Fixes NPE for wheel event in outline window
+
 13-DEC-2021: 15.9.5
 
 - Ctrl disables copy if enabled by default

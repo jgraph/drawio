@@ -2920,10 +2920,12 @@ EditorUi.prototype.initCanvas = function()
 				var page = graph.view.backgroundPageShape.node;
 				
 				mxUtils.setPrefixedStyle(page.style, 'transform-origin',
-					((ignoreCursorPosition) ? ((graph.container.clientWidth / 2 + graph.container.scrollLeft -
+					((ignoreCursorPosition || cursorPosition == null) ?
+						((graph.container.clientWidth / 2 + graph.container.scrollLeft -
 						page.offsetLeft) + 'px') : ((cursorPosition.x + graph.container.scrollLeft -
 						page.offsetLeft - graph.container.offsetLeft) + 'px')) + ' ' +
-					((ignoreCursorPosition) ? ((graph.container.clientHeight / 2 + graph.container.scrollTop -
+					((ignoreCursorPosition || cursorPosition == null) ?
+						((graph.container.clientHeight / 2 + graph.container.scrollTop -
 						page.offsetTop) + 'px') : ((cursorPosition.y + graph.container.scrollTop -
 						page.offsetTop - graph.container.offsetTop) + 'px')));
 				mxUtils.setPrefixedStyle(page.style, 'transform',
