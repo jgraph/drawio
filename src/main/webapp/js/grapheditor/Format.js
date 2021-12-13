@@ -851,6 +851,32 @@ BaseFormatPanel.prototype.createTitle = function(title)
 /**
  * 
  */
+BaseFormatPanel.prototype.addAction = function(div, action, width)
+{
+	var result = false;
+
+	if (action != null && action.isEnabled())
+	{
+		var btn = mxUtils.button(action.label, function(evt)
+		{
+			action.funct();
+		});
+		
+		var short = (action.shortcut != null) ? ' (' + action.shortcut + ')' : '';
+		btn.setAttribute('title', action.label + short);
+		width = (width != null) ? width : 210;
+		btn.style.width = width + 'px';
+		btn.style.marginBottom = '2px';
+		div.appendChild(btn);
+		result = true;
+	}
+
+	return result;
+};
+
+/**
+ * 
+ */
 BaseFormatPanel.prototype.createStepper = function(input, update, step, height, disableFocus, defaultValue, isFloat)
 {
 	step = (step != null) ? step : 1;
@@ -1965,42 +1991,21 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	div.style.paddingTop = '8px';
 	div.style.paddingBottom = '6px';
 
-	if (graph.getSelectionCount() > 1)
+	if (this.addAction(div, ui.actions.get('group')))
 	{
-		btn = mxUtils.button(mxResources.get('group'), function(evt)
-		{
-			ui.actions.get('group').funct();
-		})
-		
-		btn.setAttribute('title', mxResources.get('group') + ' (' + this.editorUi.actions.get('group').shortcut + ')');
-		btn.style.width = '210px';
-		btn.style.marginBottom = '2px';
-		div.appendChild(btn);
+		mxUtils.br(div);
 		count++;
 	}
-	else if (ss.cells.length == 1 && !graph.getModel().isEdge(cell) && !graph.isSwimlane(cell) &&
-		!graph.isTable(cell) && !ss.row && !ss.cell && graph.getModel().getChildCount(cell) > 0)
+
+	if (this.addAction(div, ui.actions.get('ungroup')))
 	{
-		btn = mxUtils.button(mxResources.get('ungroup'), function(evt)
-		{
-			ui.actions.get('ungroup').funct();
-		})
-		
-		btn.setAttribute('title', mxResources.get('ungroup') + ' (' +
-			this.editorUi.actions.get('ungroup').shortcut + ')');
-		btn.style.width = '210px';
-		btn.style.marginBottom = '2px';
-		div.appendChild(btn);
+		mxUtils.br(div);
 		count++;
 	}
-	
+
 	if (graph.getModel().isVertex(graph.getSelectionCell()))
 	{
-		if (count > 0)
-		{
-			mxUtils.br(div);
-			count = 0;
-		}
+		count = 0;
 		
 		var btn = mxUtils.button(mxResources.get('copySize'), function(evt)
 		{

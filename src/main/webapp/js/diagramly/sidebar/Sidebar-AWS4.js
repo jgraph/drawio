@@ -202,7 +202,8 @@
 
 	Sidebar.prototype.addAWS4GroupsPalette = function(s, gn, sb, pts)
 	{
-		var n4 = pts + 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		var n4 = pts + 'outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=0;container=1;pointerEvents=0;collapsible=0;recursiveResize=0;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
+		
 		var dt = 'aws amazon web service groups group ';
 		
 		this.addPaletteFunctions('aws4Groups', 'AWS / Groups', false,

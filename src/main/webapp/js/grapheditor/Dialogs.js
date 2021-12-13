@@ -2015,6 +2015,7 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 
 	var zoomInAction = editorUi.actions.get('zoomIn');
 	var zoomOutAction = editorUi.actions.get('zoomOut');
+
 	mxEvent.addMouseWheelListener(function(evt, up)
 	{
 		var outlineWheel = false;
@@ -2033,14 +2034,16 @@ var OutlineWindow = function(editorUi, x, y, w, h)
 
 		if (outlineWheel)
 		{
-			if (up)
+			var factor = graph.zoomFactor;
+
+			// Slower zoom for pinch gesture on trackpad
+			if (evt.deltaY != null && Math.round(evt.deltaY) != evt.deltaY)
 			{
-				zoomInAction.funct();
+				factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
 			}
-			else
-			{
-				zoomOutAction.funct();
-			}
+
+			graph.lazyZoom(up, null, null, factor);
+			mxEvent.consume(evt);
 		}
 	});
 };

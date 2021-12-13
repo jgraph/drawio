@@ -218,6 +218,8 @@ mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (stencil != null)
 	{
 		var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
+		size = mxUtils.getValue(this.state.style, 'grIconSize', size);
+		c.setFillAlpha(this.strokeOpacity / 100);
 		c.setFillColor(strokeColor);
 		c.setStrokeColor('none');
 		stencil.drawShape(c, this, 0, 0, size, size);
@@ -286,6 +288,8 @@ mxShapeAws4GroupCenter.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (stencil != null)
 	{
 		var strokeColor = mxUtils.getValue(this.state.style, 'strokeColor', '#000000');
+		size = mxUtils.getValue(this.state.style, 'grIconSize', size);
+		c.setFillAlpha(this.strokeOpacity / 100);
 		c.setFillColor(strokeColor);
 		c.setStrokeColor('none');
 		stencil.drawShape(c, this, (w - size) * 0.5, 0, size, size);
@@ -410,6 +414,8 @@ mxShapeAws4Group2.prototype.paintVertexShape = function(c, x, y, w, h)
 
 	if (stencil != null)
 	{
+		size = mxUtils.getValue(this.state.style, 'grIconSize', size);
+		c.setFillAlpha(this.strokeOpacity / 100);
 		c.setFillColor('#ffffff');
 		c.setStrokeColor('none');
 		stencil.drawShape(c, this, size * 0.1, size * 0.1, size * 0.8, size * 0.8);

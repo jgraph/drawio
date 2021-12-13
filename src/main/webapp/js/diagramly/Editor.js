@@ -539,6 +539,8 @@
         	
         	return format.editorUi.editor.graph.isSwimlane(state.vertices[0]) ||
         		fillColor == null || fillColor == mxConstants.NONE ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_FILL_OPACITY, 100) == 0 ||
+				mxUtils.getValue(state.style, mxConstants.STYLE_OPACITY, 100) == 0 ||
 				state.style['pointerEvents'] != null;
         }},
         {name: 'moveCells', dispName: 'Move Cells on Fold', type: 'bool', defVal: false, isVisible: function(state, format)

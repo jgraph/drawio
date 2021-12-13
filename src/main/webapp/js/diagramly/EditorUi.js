@@ -7413,18 +7413,43 @@
 			{
 				try
 				{
-					EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
-						action: 'size_' + data.length});
-					EditorUi.debug('convertLucidChart', data);
-				}
-				catch (e)
-				{
-					// ignore
-				}
-				
-				try
-				{
-					success(LucidImporter.importState(JSON.parse(data)));
+					var obj = JSON.parse(data);
+					success(LucidImporter.importState(obj));
+
+					try
+					{
+						EditorUi.logEvent({category: 'LUCIDCHART-IMPORT-FILE',
+							action: 'size_' + data.length});
+
+							if (window.console != null && urlParams['test'] == '1')
+							{
+								var args = [new Date().toISOString(), 'convertLucidChart', obj];
+
+								if (obj.state != null)
+								{
+									args.push(JSON.parse(obj.state));
+								}
+		
+								if (obj.svgThumbs != null)
+								{
+									for (var i = 0; i < obj.svgThumbs.length; i++)
+									{
+										args.push(Editor.createSvgDataUri(obj.svgThumbs[i]));
+									}
+								}
+
+								if (obj.thumb != null)
+								{
+									args.push(obj.thumb);
+								}
+
+								console.log.apply(console, args);
+							}
+					}
+					catch (e)
+					{
+						// ignore
+					}
 				}
 				catch (e)
 				{

@@ -54,7 +54,7 @@ function main()
 					if (filesInfo.length == 0)
 					{
 						window.parent.mxUtils.write(div, window.parent.mxResources.get('noFiles'));
-						div.style.color = (window.parent.uiTheme == 'dark') ? '#cccccc' : '';
+						div.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
 						window.parent.mxUtils.br(div);
 					}
 					else
@@ -67,8 +67,8 @@ function main()
 						
 						var table = document.createElement('table');
 						var hrow = document.createElement('tr');
-						hrow.style.backgroundColor = (window.parent.uiTheme == 'dark') ? '#000' : '#D6D6D6';
-						hrow.style.color = (window.parent.uiTheme == 'dark') ? '#cccccc' : '';
+						hrow.style.backgroundColor = (window.parent.Editor.isDarkMode()) ? '#000' : '#D6D6D6';
+						hrow.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
 						hrow.style.height = '25px';
 						hrow.style.textAlign = 'left';
 						table.appendChild(hrow);
@@ -96,12 +96,12 @@ function main()
 							if (fileInfo.title.length > 0)
 							{
 								var row = document.createElement('tr');
-								row.style.color = (window.parent.uiTheme == 'dark') ? '#cccccc' : '';
+								row.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
 								table.appendChild(row);
 								
 								if (i & 1 == 1)
 								{
-									row.style.backgroundColor = (window.parent.uiTheme == 'dark') ? '#000' : '#E6E6E6';
+									row.style.backgroundColor = (window.parent.Editor.isDarkMode()) ? '#000' : '#E6E6E6';
 								}
 									
 								var nameTd = document.createElement('td');
@@ -136,7 +136,7 @@ function main()
 								img.style.display = 'inline-block';
 								ctrlTd.appendChild(img);
 								
-								if (window.parent.uiTheme == 'dark')
+								if (window.parent.Editor.isDarkMode())
 								{
 									img.style.filter = 'invert(100%)';
 								}

@@ -2904,9 +2904,11 @@ EditorUi.prototype.initCanvas = function()
 
 			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
 			
-			var cx = (ignoreCursorPosition) ? graph.container.scrollLeft + graph.container.clientWidth / 2 :
+			var cx = (ignoreCursorPosition || cursorPosition == null) ?
+				graph.container.scrollLeft + graph.container.clientWidth / 2 :
 				cursorPosition.x + graph.container.scrollLeft - graph.container.offsetLeft;
-			var cy = (ignoreCursorPosition) ? graph.container.scrollTop + graph.container.clientHeight / 2 :
+			var cy = (ignoreCursorPosition || cursorPosition == null) ?
+				graph.container.scrollTop + graph.container.clientHeight / 2 :
 				cursorPosition.y + graph.container.scrollTop - graph.container.offsetTop;
 			mainGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
 			mainGroup.style.transform = 'scale(' + this.cumulativeZoomFactor + ')';
@@ -3802,6 +3804,9 @@ EditorUi.prototype.updateActionStates = function()
 	var vertexSelected = false;
 	var groupSelected = false;
 	var edgeSelected = false;
+	var tableSelected = false;
+	var rowSelected = false;
+	var cellSelected = false;
 	var selected = false;
 	var editable = [];
 
@@ -3813,6 +3818,10 @@ EditorUi.prototype.updateActionStates = function()
     	{
     		var cell = cells[i];
 
+			tableSelected = tableSelected || graph.isTable(cell);
+			cellSelected = cellSelected || graph.isTableCell(cell);
+			rowSelected = rowSelected || graph.isTableRow(cell);
+ 
 			if (graph.isCellEditable(cell))
 			{
 				editable.push(cell);
@@ -3861,9 +3870,11 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('wordWrap').setEnabled(vertexSelected);
 	this.actions.get('autosize').setEnabled(vertexSelected);
    	var oneVertexSelected = vertexSelected && graph.getSelectionCount() == 1;
-	this.actions.get('group').setEnabled(graph.getSelectionCount() > 1 ||
-		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell())));
-	this.actions.get('ungroup').setEnabled(groupSelected);
+	this.actions.get('group').setEnabled((graph.getSelectionCount() > 1 ||
+		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell()) &&
+		graph.model.getChildCount(graph.getSelectionCell()) == 0)) &&
+		!rowSelected && !cellSelected);
+	this.actions.get('ungroup').setEnabled(groupSelected && !rowSelected && !cellSelected);
    	this.actions.get('removeFromGroup').setEnabled(oneVertexSelected &&
    		graph.getModel().isVertex(graph.getModel().getParent(editable[0])));
 

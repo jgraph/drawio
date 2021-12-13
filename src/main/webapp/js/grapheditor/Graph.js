@@ -239,13 +239,13 @@ mxShape.prototype.getConstraints = function(style, w, h)
 mxImageShape.prototype.getImageDataUri = function()
 {
 	var src = this.image;
-	
+
 	if (src.substring(0, 26) == 'data:image/svg+xml;base64,' && this.style != null &&
 		mxUtils.getValue(this.style, 'clipSvg', '0') == '1')
 	{
 		if (this.clippedSvg == null || this.clippedImage != src)
 		{
-			this.clippedSvg = Graph.clipSvgDataUri(src);
+			this.clippedSvg = Graph.clipSvgDataUri(src, true);
 			this.clippedImage = src;
 		}
 		
@@ -1716,7 +1716,7 @@ Graph.sanitizeSvg = function(div)
  * and returns the updated data URI with all script tags and event
  * handlers removed.
  */
-Graph.clipSvgDataUri = function(dataUri)
+Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 {
 	// LATER Add workaround for non-default NS declarations with empty URI not allowed in IE11
 	if (!mxClient.IS_IE && !mxClient.IS_IE11 && dataUri != null &&
@@ -1745,63 +1745,67 @@ Graph.clipSvgDataUri = function(dataUri)
 
 				if (svgs.length > 0)
 				{
-					document.body.appendChild(div);
-					
-					try
+					// Avoids getBBox as it ignores stroke option
+					if (ignorePreserveAspect || svgs[0].getAttribute('preserveAspectRatio') != null)
 					{
-						var fx = 1;
-						var fy = 1;
-						var w = svgs[0].getAttribute('width');
-						var h = svgs[0].getAttribute('height');
+						document.body.appendChild(div);
 						
-						if (w != null && w.charAt(w.length - 1) != '%')
+						try
 						{
-							w = parseFloat(w);
-						}
-						else
-						{
-							w = NaN;
-						}
-						
-						if (h != null && h.charAt(h.length - 1) != '%')
-						{
-							h = parseFloat(h);
-						}
-						else
-						{
-							h = NaN;
-						}
-						
-						var vb = svgs[0].getAttribute('viewBox');
-						
-						if (vb != null && !isNaN(w) && !isNaN(h))
-						{
-							var tokens = vb.split(' ');
-
-							if (vb.length >= 4)
+							var fx = 1;
+							var fy = 1;
+							var w = svgs[0].getAttribute('width');
+							var h = svgs[0].getAttribute('height');
+							
+							if (w != null && w.charAt(w.length - 1) != '%')
 							{
-								fx = parseFloat(tokens[2]) / w;
-								fy = parseFloat(tokens[3]) / h;
+								w = parseFloat(w);
+							}
+							else
+							{
+								w = NaN;
+							}
+							
+							if (h != null && h.charAt(h.length - 1) != '%')
+							{
+								h = parseFloat(h);
+							}
+							else
+							{
+								h = NaN;
+							}
+							
+							var vb = svgs[0].getAttribute('viewBox');
+							
+							if (vb != null && !isNaN(w) && !isNaN(h))
+							{
+								var tokens = vb.split(' ');
+
+								if (vb.length >= 4)
+								{
+									fx = parseFloat(tokens[2]) / w;
+									fy = parseFloat(tokens[3]) / h;
+								}
+							}
+
+							var size = svgs[0].getBBox();
+
+							if (size.width > 0 && size.height > 0)
+							{
+								div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
+									' ' + size.y + ' ' + size.width + ' ' + size.height);
+								div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
+								div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
 							}
 						}
-
-						var size = svgs[0].getBBox();
-
-						if (size.width > 0 && size.height > 0)
+						catch (e)
 						{
-							div.getElementsByTagName('svg')[0].setAttribute('viewBox', size.x +
-								' ' + size.y + ' ' + size.width + ' ' + size.height);
-							div.getElementsByTagName('svg')[0].setAttribute('width', size.width / fx);
-							div.getElementsByTagName('svg')[0].setAttribute('height', size.height / fy);
+							// ignore
 						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-					finally
-					{	
-						document.body.removeChild(div);
+						finally
+						{	
+							document.body.removeChild(div);
+						}
 					}
 					
 					dataUri = Editor.createSvgDataUri(mxUtils.getXml(svgs[0]));
@@ -7398,7 +7402,7 @@ if (typeof mxVertexHandler != 'undefined')
 		var mxConnectionHandlerCreateTarget = mxConnectionHandler.prototype.isCreateTarget;
 		mxConnectionHandler.prototype.isCreateTarget = function(evt)
 		{
-			return this.graph.isCloneEvent(evt) || mxConnectionHandlerCreateTarget.apply(this, arguments);
+			return this.graph.isCloneEvent(evt) != mxConnectionHandlerCreateTarget.apply(this, arguments);
 		};
 
 		// Overrides highlight shape for connection points

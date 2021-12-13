@@ -1,3 +1,15 @@
+13-DEC-2021: 15.9.5
+
+- Ctrl disables copy if enabled by default
+- Uses action state for (un)group buttons
+- Altered AWS group styles for better usability
+- Fixes no pointerEvents for no (fill)opacity
+- Fixes for AWS container usability
+- Uses lazyZoom and adds trackpad in outline window
+- Fixes dark mode support in browser picker
+- Fixes ignored stroke option in SVG getBBox https://github.com/jgraph/drawio/issues/2484
+- 
+
 08-DEC-2021: 15.9.4
 
 - Adds mxShape.intersectsRectangle
