@@ -309,6 +309,15 @@ mxStencilRegistry.allowEval = false;
 			return false
 		}
 		
+		global.__emt_removeDraft = function()
+		{
+			var currentFile = editorUi.getCurrentFile();
+
+			if (currentFile != null)
+			{
+				currentFile.removeDraft();
+			}
+		};
 		// global.__emt_getCurrentFile = e => {
 		// 	return this.getCurrentFile()
 		// }
@@ -1029,22 +1038,52 @@ mxStencilRegistry.allowEval = false;
 		var isPng = index > -1 && index == path.length - 4;
 		var isVsdx = /\.vsdx$/i.test(path) || /\.vssx$/i.test(path);
 		var encoding = isVsdx? null : ((isPng || /\.pdf$/i.test(path)) ? 'base64' : 'utf-8');
-		var isModified = false, fileLoaded = false;
+		var fileEntry = new Object(), stat = null;
+		fileEntry.path = path;
+		fileEntry.name = path.replace(/^.*[\\\/]/, '');
+		fileEntry.type = encoding;
+
+		var checkDrafts = mxUtils.bind(this, function()
+		{
+			this.filterDrafts(fileEntry.path, 'dummy', mxUtils.bind(this, function(drafts)
+			{
+				if (drafts.length > 0)
+				{
+					var dlg = new DraftDialog(this, mxResources.get('unsavedChanges'),
+								(drafts.length > 1) ? null : drafts[0].data, mxUtils.bind(this, function(index)
+					{
+						index = index || 0;
+						this.hideDialog();
+						fn(fileEntry, drafts[index].data, stat, null, true);
+						this.removeDatabaseItem(drafts[index].key);
+					}), mxUtils.bind(this, function(index)
+					{
+						index = index || 0;
+					
+						// Discard draft
+						this.confirm(mxResources.get('areYouSure'), null, mxUtils.bind(this, function()
+						{
+							this.removeDatabaseItem(drafts[index].key);
+							this.hideDialog();
+						}), mxResources.get('no'), mxResources.get('yes'));
+					}), null, null, null, (drafts.length > 1) ? drafts : null);
+					
+					this.showDialog(dlg.container, 640, 480, true, false);
+					
+					dlg.init();
+				}
+			}));
+		});
 
 		var readData = mxUtils.bind(this, function (e, data)
 		{
 			if (e)
 			{
 				fnErr(e);
-				fileLoaded = true;
+				checkDrafts();
 			}
 			else
 			{
-				var fileEntry = new Object();
-				fileEntry.path = path;
-				fileEntry.name = path.replace(/^.*[\\\/]/, '');
-				fileEntry.type = encoding;
-
 				// VSDX and PDF files are imported instead of being opened
 				if (isVsdx)
 				{
@@ -1084,10 +1123,10 @@ mxStencilRegistry.allowEval = false;
 						}
 						else
 						{
-							fn(null, xml, null, name, isModified);
+							fn(null, xml, null, name, false);
 						}
-						
-						fileLoaded = true;
+
+						checkDrafts();
 					}), null, name);
 					
 					return;
@@ -1099,9 +1138,8 @@ mxStencilRegistry.allowEval = false;
 					if (tmp != null)
 					{
 						var name = fileEntry.name;
-						fn(null, tmp, null, name.substring(0, name.lastIndexOf('.')) + '.drawio', isModified);
-						fileLoaded = true;
-
+						fn(null, tmp, null, name.substring(0, name.lastIndexOf('.')) + '.drawio', false);
+						checkDrafts();
 						return;
 					}
 	    		}
@@ -1112,7 +1150,7 @@ mxStencilRegistry.allowEval = false;
 					data = this.extractGraphModelFromPng('data:image/png;base64,' + data);
 				}
 
-				fs.stat(path, function(err, stat)
+				fs.stat(path, function(err, stat_p)
 				{
 					if (err)
 					{
@@ -1120,58 +1158,16 @@ mxStencilRegistry.allowEval = false;
 					}
 					else
 					{
-						fn(fileEntry, data, stat, null, isModified);
+						stat = stat_p;
+						fn(fileEntry, data, stat, null, false);
 					}
-					
-					fileLoaded = true;
+
+					checkDrafts();
 				});
 			}
 		});
  
 		fs.readFile(path, encoding, readData);
-
-    	//Check if a bkp file exists, if one exists, ask user to restore/ignore
-		var checkBkpFile = mxUtils.bind(this, function (e, data)
-		{
-			//Backup file must be loaded after actual file
-			if (!fileLoaded)
-			{
-				setTimeout(function()
-				{
-					checkBkpFile(e, data);
-				}, 10);
-				return;
-			}
-			
-			if (!e)
-			{
-				var dlg = new DraftDialog(this, mxResources.get('backupFound'),
-						data, mxUtils.bind(this, function()
-				{
-					this.hideDialog();
-					isModified = true;
-					readData(null, data);
-					fs.unlink(bkpFile, (err) => {}); //Ignore errors!
-				}), mxUtils.bind(this, function()
-				{
-					this.hideDialog();
-					fs.unlink(bkpFile, (err) => {}); //Ignore errors!
-				}));
-				
-				this.showDialog(dlg.container, 640, 480, true, false, mxUtils.bind(this, function(cancel)
-				{
-					if (cancel)
-					{
-						//TODO Rename backup file?
-					}
-				}));
-				
-				dlg.init();
-			}
-		});
-		
-		var bkpFile = getBkpFilePath(path);
-		fs.readFile(bkpFile, encoding, checkBkpFile);		
 	};
 
 	// Disables temp files in Electron

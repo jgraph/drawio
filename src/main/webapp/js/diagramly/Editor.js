@@ -144,10 +144,15 @@
 	Editor.syncDisabledImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTAgNi4zNVY0LjI2Yy0uOC4yMS0xLjU1LjU0LTIuMjMuOTZsMS40NiAxLjQ2Yy4yNS0uMTIuNS0uMjQuNzctLjMzem0tNy4xNC0uOTRsMi4zNiAyLjM2QzQuNDUgOC45OSA0IDEwLjQ0IDQgMTJjMCAyLjIxLjkxIDQuMiAyLjM2IDUuNjRMNCAyMGg2di02bC0yLjI0IDIuMjRDNi42OCAxNS4xNSA2IDEzLjY2IDYgMTJjMC0xIC4yNS0xLjk0LjY4LTIuNzdsOC4wOCA4LjA4Yy0uMjUuMTMtLjUuMjUtLjc3LjM0djIuMDljLjgtLjIxIDEuNTUtLjU0IDIuMjMtLjk2bDIuMzYgMi4zNiAxLjI3LTEuMjdMNC4xNCA0LjE0IDIuODYgNS40MXpNMjAgNGgtNnY2bDIuMjQtMi4yNEMxNy4zMiA4Ljg1IDE4IDEwLjM0IDE4IDEyYzAgMS0uMjUgMS45NC0uNjggMi43N2wxLjQ2IDEuNDZDMTkuNTUgMTUuMDEgMjAgMTMuNTYgMjAgMTJjMC0yLjIxLS45MS00LjItMi4zNi01LjY0TDIwIDR6Ii8+PC9zdmc+';
 
 	/**
+	 * 
+	 */
+	Editor.calendarImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48cGF0aCBkPSJNMjAsNEg0QzIuOSw0LDIsNC45LDIsNnYxMmMwLDEuMSwwLjksMiwyLDJoMTZjMS4xLDAsMi0wLjksMi0yVjZDMjIsNC45LDIxLjEsNCwyMCw0eiBNOCwxMUg0VjZoNFYxMXogTTE0LDExaC00VjZoNFYxMXogTTIwLDExaC00VjZoNFYxMXogTTgsMThINHYtNWg0VjE4eiBNMTQsMThoLTR2LTVoNFYxOHogTTIwLDE4aC00di01aDRWMTh6Ii8+PC9nPjwvc3ZnPg==';
+	
+	/**
 	 *
 	 */
-	Editor.syncProblemImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyAxMmMwIDIuMjEuOTEgNC4yIDIuMzYgNS42NEwzIDIwaDZ2LTZsLTIuMjQgMi4yNEM1LjY4IDE1LjE1IDUgMTMuNjYgNSAxMmMwLTIuNjEgMS42Ny00LjgzIDQtNS42NVY0LjI2QzUuNTUgNS4xNSAzIDguMjcgMyAxMnptOCA1aDJ2LTJoLTJ2MnpNMjEgNGgtNnY2bDIuMjQtMi4yNEMxOC4zMiA4Ljg1IDE5IDEwLjM0IDE5IDEyYzAgMi42MS0xLjY3IDQuODMtNCA1LjY1djIuMDljMy40NS0uODkgNi00LjAxIDYtNy43NCAwLTIuMjEtLjkxLTQuMi0yLjM2LTUuNjRMMjEgNHptLTEwIDloMlY3aC0ydjZ6Ii8+PC9zdmc+';
-	
+ 	Editor.syncProblemImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMyAxMmMwIDIuMjEuOTEgNC4yIDIuMzYgNS42NEwzIDIwaDZ2LTZsLTIuMjQgMi4yNEM1LjY4IDE1LjE1IDUgMTMuNjYgNSAxMmMwLTIuNjEgMS42Ny00LjgzIDQtNS42NVY0LjI2QzUuNTUgNS4xNSAzIDguMjcgMyAxMnptOCA1aDJ2LTJoLTJ2MnpNMjEgNGgtNnY2bDIuMjQtMi4yNEMxOC4zMiA4Ljg1IDE5IDEwLjM0IDE5IDEyYzAgMi42MS0xLjY3IDQuODMtNCA1LjY1djIuMDljMy40NS0uODkgNi00LjAxIDYtNy43NCAwLTIuMjEtLjkxLTQuMi0yLjM2LTUuNjRMMjEgNHptLTEwIDloMlY3aC0ydjZ6Ii8+PC9zdmc+';
+
 	/**
 	 *
 	 */
@@ -4457,8 +4462,7 @@
 		
 		StyleFormatPanel.prototype.init = function()
 		{
-			// TODO: Update sstate in Format
-			var sstate = this.format.getSelectionState();
+			var sstate = this.editorUi.getSelectionState();
 
 			if (sstate.style.shape != 'image' && !sstate.containsLabel && sstate.cells.length > 0)
 			{
@@ -4497,40 +4501,7 @@
 		
 		StyleFormatPanel.prototype.addStyleOps = function(div)
 		{
-			var ss = this.format.getSelectionState();
-			var graph = this.editorUi.editor.graph;
-			
-			var btn = mxUtils.button(mxResources.get('copyStyle'), mxUtils.bind(this, function(evt)
-			{
-				this.editorUi.actions.get('copyStyle').funct();
-			}));
-			
-			btn.setAttribute('title', mxResources.get('copyStyle') + ' (' + this.editorUi.actions.get('copyStyle').shortcut + ')');
-			btn.style.marginBottom = '2px';
-			btn.style.width = '104px';
-			btn.style.marginRight = '2px';
-			
-			div.appendChild(btn);
-			
-			if (ss.cells.length > 0)
-			{
-				var btn = mxUtils.button(mxResources.get('pasteStyle'), mxUtils.bind(this, function(evt)
-				{
-					this.editorUi.actions.get('pasteStyle').funct();
-				}));
-				
-				btn.setAttribute('title', mxResources.get('pasteStyle') + ' (' + this.editorUi.actions.get('pasteStyle').shortcut + ')');
-				btn.style.marginBottom = '2px';
-				btn.style.width = '104px';
-				
-				div.appendChild(btn);
-			}
-			else
-			{
-				btn.style.width = '210px';
-			}
-			
-			mxUtils.br(div);
+			this.addActions(div, ['copyStyle', 'pasteStyle']);
 			
 			return styleFormatPanelAddStyleOps.apply(this, arguments);
 		};
@@ -5205,7 +5176,7 @@
 						graph.getModel().beginUpdate();
 						try
 						{
-							var cells = this.format.getSelectionState().cells;
+							var cells = ui.getSelectionState().cells;
 							
 							for (var i = 0; i < cells.length; i++)
 							{
@@ -5429,7 +5400,8 @@
 		
 		StyleFormatPanel.prototype.addEditOps = function(div)
 		{
-			var ss = this.format.getSelectionState();
+			var ss = this.editorUi.getSelectionState();
+			var graph = this.editorUi.editor.graph;
 			var btn = null;
 			
 			if (ss.cells.length == 1)
@@ -5446,7 +5418,6 @@
 				div.appendChild(btn);
 			}
 			
-			var graph = this.editorUi.editor.graph;
 			var state = (ss.cells.length == 1) ? graph.view.getState(ss.cells[0]) : null;
 			
 			if (state != null && state.shape != null && state.shape.stencil != null)

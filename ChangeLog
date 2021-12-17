@@ -1,3 +1,18 @@
+17-DEC-2021: 16.0.0
+
+The reason for going to version 16 is there is a breaking change in the docker image. The 
+default base image used has been changed because the previous image was not supported. There 
+is no breaking change in the editor codebase, but the docker images follow the same numbering.
+
+- Fixes clipping on initial arrow drop down https://github.com/jgraph/drawio/issues/2482
+- Fixes table and template icon in sketch mode
+- Restores sync problem icon
+- Hides Cmd+R keyboard shortcut in Safari https://github.com/jgraph/drawio/issues/1757
+- Moves selection state to EditorUi
+- Added scrollbar to layersDialog in GraphViewer https://github.com/jgraph/drawio/issues/1347
+- Added dark mode support for Mermaid https://github.com/jgraph/drawio-desktop/issues/785
+- [conf cloud] Added minorEdit for page changes just in case it is effective
+
 13-DEC-2021: 15.9.6
 
 - Fixes NPE for wheel event in outline window

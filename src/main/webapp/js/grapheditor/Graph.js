@@ -2059,6 +2059,14 @@ Graph.prototype.standalone = false;
 Graph.prototype.enableFlowAnimation = false;
 
 /**
+ * Background color for inactive tabs.
+ */
+Graph.prototype.roundableShapes = ['label', 'rectangle', 'internalStorage', 'corner',
+	'parallelogram', 'swimlane', 'triangle', 'trapezoid', 'ext', 'step', 'tee', 'process',
+	'link', 'rhombus', 'offPageConnector', 'loopLimit', 'hexagon', 'manualInput', 'card',
+	'curlyBracket', 'singleArrow', 'callout', 'doubleArrow', 'flexArrow', 'umlLifeline'];
+
+/**
  * Installs child layout styles.
  */
 Graph.prototype.init = function(container)
@@ -2183,6 +2191,96 @@ Graph.prototype.init = function(container)
 	 * Contains the offset.
 	 */
 	Graph.prototype.currentTranslate = new mxPoint(0, 0);
+
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isFillState = function(state)
+	{
+		return !this.isSpecialColor(state.style[mxConstants.STYLE_FILLCOLOR]) && (this.model.isVertex(state.cell) ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'arrow' ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'filledEdge' ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'flexArrow');
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isStrokeState = function(state)
+	{
+		return !this.isSpecialColor(state.style[mxConstants.STYLE_STROKECOLOR]);
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isSpecialColor = function(color)
+	{
+		return mxUtils.indexOf([mxConstants.STYLE_STROKECOLOR,
+			mxConstants.STYLE_FILLCOLOR, 'inherit', 'swimlane',
+			'indicated'], color) >= 0;
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isGlassState = function(state)
+	{
+		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+		
+		return (shape == 'label' || shape == 'rectangle' || shape == 'internalStorage' ||
+				shape == 'ext' || shape == 'umlLifeline' || shape == 'swimlane' ||
+				shape == 'process');
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isRoundedState = function(state)
+	{
+		return (state.shape != null) ? state.shape.isRoundable() :
+			mxUtils.indexOf(this.roundableShapes, mxUtils.getValue(state.style,
+			mxConstants.STYLE_SHAPE, null)) >= 0;
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isLineJumpState = function(state)
+	{
+		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+		var curved = mxUtils.getValue(state.style, mxConstants.STYLE_CURVED, false);
+		
+		return !curved && (shape == 'connector' || shape == 'filledEdge');
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isAutoSizeState = function(state)
+	{
+		return mxUtils.getValue(state.style, mxConstants.STYLE_AUTOSIZE, null) == '1';
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isImageState = function(state)
+	{
+		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+		
+		return (shape == 'label' || shape == 'image');
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isShadowState = function(state)
+	{
+		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+		
+		return (shape != 'image');
+	};
 	
 	/**
 	 * 

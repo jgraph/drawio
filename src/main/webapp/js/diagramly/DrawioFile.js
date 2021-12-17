@@ -1444,6 +1444,7 @@ DrawioFile.prototype.saveDraft = function()
 			modified: new Date().getTime(),
 			data: this.ui.getFileData(),
 			title: this.getTitle(),
+			fileObject: this.fileObject,
 			aliveCheck: this.ui.draftAliveCheck};
 		this.ui.setDatabaseItem('.draft_' + this.draftId,
 			JSON.stringify(draft));

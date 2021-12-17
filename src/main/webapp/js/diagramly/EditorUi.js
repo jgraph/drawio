@@ -92,7 +92,7 @@
 	/**
 	 * Specifies if drafts should be saved in IndexedDB.
 	 */
-	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+	EditorUi.enableDrafts = !mxClient.IS_CHROMEAPP &&
 		isLocalStorage && urlParams['drafts'] != '0';
 	
 	/**
@@ -7514,9 +7514,14 @@
 			{
 				this.loadingMermaid = false;
 				
-				config = (config != null) ? config : EditorUi.defaultMermaidConfig;
+				config = (config != null) ? config : mxUtils.clone(EditorUi.defaultMermaidConfig);
 				config.securityLevel = 'strict';
 				config.startOnLoad = false;
+
+				if (Editor.isDarkMode())
+				{
+					config.theme = 'dark';
+				}
 				
 				mermaid.mermaidAPI.initialize(config);
 	    		
@@ -13811,21 +13816,19 @@
 
 		var graph = this.editor.graph;
 		var file = this.getCurrentFile();
+		var ss = this.getSelectionState();
 		var active = this.isDiagramActive();
-		var editable = graph.getEditableCells(graph.getSelectionCells());
-		var enabled = file != null || urlParams['embed'] == '1';
 
 		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
-		this.actions.get('editData').setEnabled(editable.length > 0 || graph.isSelectionEmpty());
+		this.actions.get('editData').setEnabled(graph.isEnabled());
 		this.actions.get('shadowVisible').setEnabled(active);
 		this.actions.get('connectionArrows').setEnabled(active);
 		this.actions.get('connectionPoints').setEnabled(active);
 		this.actions.get('copyStyle').setEnabled(active && !graph.isSelectionEmpty());
-		this.actions.get('pasteStyle').setEnabled(active && editable.length > 0);
-		this.actions.get('editGeometry').setEnabled(editable.length > 0 &&
-			graph.getModel().isVertex(editable[0]));
+		this.actions.get('pasteStyle').setEnabled(active && ss.cells.length > 0);
+		this.actions.get('editGeometry').setEnabled(ss.vertices.length >  0);
 		this.actions.get('createShape').setEnabled(active);
 		this.actions.get('createRevision').setEnabled(active);
 		this.actions.get('moveToFolder').setEnabled(file != null);
@@ -13845,7 +13848,8 @@
 			'/' + mxResources.get('replace') : '') + '...';
 		
 		var state = graph.view.getState(graph.getSelectionCell());
-		this.actions.get('editShape').setEnabled(active && state != null && state.shape != null && state.shape.stencil != null);
+		this.actions.get('editShape').setEnabled(active && state != null &&
+			state.shape != null && state.shape.stencil != null);
 	};
 
 	/**

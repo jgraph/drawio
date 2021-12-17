@@ -58,7 +58,19 @@ EditorUi = function(editor, container, lightbox)
 	{
 		new Image().src = mxConnectionHandler.prototype.connectImage.src;
 	}
+
+	// Installs selection state listener
+	this.selectionStateListener = mxUtils.bind(this, function(sender, evt)
+	{
+		this.clearSelectionState();
+	});
 	
+	graph.getSelectionModel().addListener(mxEvent.CHANGE, this.selectionStateListener);
+	graph.getModel().addListener(mxEvent.CHANGE, this.selectionStateListener);
+	graph.addListener(mxEvent.EDITING_STARTED, this.selectionStateListener);
+	graph.addListener(mxEvent.EDITING_STOPPED, this.selectionStateListener);
+	graph.getView().addListener('unitChanged', this.selectionStateListener);
+
 	// Disables graph and forced panning in chromeless mode
 	if (this.editor.chromeless && !this.editor.editable)
 	{
@@ -1228,6 +1240,220 @@ EditorUi.prototype.init = function()
 		{
 			this.format.init();
 		}
+	}
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.clearSelectionState = function()
+{
+	this.selectionState = null;
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.getSelectionState = function()
+{
+	if (this.selectionState == null)
+	{
+		this.selectionState = this.createSelectionState();
+	}
+	
+	return this.selectionState;
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.createSelectionState = function()
+{
+	var graph = this.editor.graph;
+	var cells = graph.getSelectionCells();
+	var result = this.initSelectionState();
+	var initial = true;
+	
+	for (var i = 0; i < cells.length; i++)
+	{
+		var style = graph.getCurrentCellStyle(cells[i]);
+	
+		if (mxUtils.getValue(style, mxConstants.STYLE_EDITABLE, '1') != '0')
+		{
+			this.updateSelectionStateForCell(result, cells[i], cells, initial);
+			initial = false;
+		}
+	}
+
+	this.updateSelectionStateForTableCells(result);
+	
+	return result;
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.initSelectionState = function()
+{
+	return {vertices: [], edges: [], cells: [], x: null, y: null, width: null, height: null,
+		style: {}, containsImage: false, containsLabel: false, fill: true, glass: true,
+		rounded: true, autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
+		table: false, cell: false, row: false, movable: true, rotatable: true, stroke: true,
+		unlocked: this.editor.graph.isEnabled(), connections: false};
+};
+
+/**
+ * Adds information about current selected table cells range.
+ */
+EditorUi.prototype.updateSelectionStateForTableCells = function(result)
+{
+	// Updates rowspan/colspan for table cell merging
+	// if (result.cells.length > 1 && result.cell)
+	// {
+		//var cells = mxUtils.sortCells(result.cells);
+		// var row = graph.model.getParent(cells[0]);
+		// var table = graph.model.getParent(row);
+		// var colIndex = row.getIndex(cells[0]);
+		// var rowIndex = table.getIndex(row);
+		// var colCount = 1;
+
+		// while (colCount < cells.length && graph.model.getParent(cells[colCount]) == row)
+		// {
+		// 	colCount++;
+		// }
+
+		// var index = 1;
+		// var rowCount = 1;
+		// row = table.getChildAt(rowIndex + rowCount);
+
+		// while (cells[rowCount * colCount + index] == row.getChildAt(index))
+		// {
+		// 	index++;
+		// }
+
+		// row = graph.model.getParent(cells[rowCount * colCount + index]);
+
+		// var rowCount = 1;
+
+
+
+		// for (var i = 1; i < cells.length; i++)
+		// {
+
+		// }
+
+		// var colIndex = graph.getColumnIndex(cells[0]);
+		// var rowIndex = graph.getRowIndex(cells[0]);
+
+	// }
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, initial)
+{
+	var graph = this.editor.graph;
+	result.cells.push(cell);
+	
+	if (graph.getModel().isVertex(cell))
+	{
+		result.connections = graph.model.getEdgeCount(cell) > 0;
+		result.unlocked = result.unlocked && !graph.isCellLocked(cell);
+		result.resizable = result.resizable && graph.isCellResizable(cell);
+		result.rotatable = result.rotatable && graph.isCellRotatable(cell);
+		result.movable = result.movable && graph.isCellMovable(cell) &&
+			!graph.isTableRow(cell) && !graph.isTableCell(cell);
+		result.table = result.table || graph.isTable(cell);
+		result.cell = result.cell || graph.isTableCell(cell);
+		result.row = result.row || graph.isTableRow(cell);
+		result.vertices.push(cell);
+		var geo = graph.getCellGeometry(cell);
+		
+		if (geo != null)
+		{
+			if (geo.width > 0)
+			{
+				if (result.width == null)
+				{
+					result.width = geo.width;
+				}
+				else if (result.width != geo.width)
+				{
+					result.width = '';
+				}
+			}
+			else
+			{
+				result.containsLabel = true;
+			}
+			
+			if (geo.height > 0)
+			{
+				if (result.height == null)
+				{
+					result.height = geo.height;
+				}
+				else if (result.height != geo.height)
+				{
+					result.height = '';
+				}
+			}
+			else
+			{
+				result.containsLabel = true;
+			}
+			
+			if (!geo.relative || geo.offset != null)
+			{
+				var x = (geo.relative) ? geo.offset.x : geo.x;
+				var y = (geo.relative) ? geo.offset.y : geo.y;
+				
+				if (result.x == null)
+				{
+					result.x = x;
+				}
+				else if (result.x != x)
+				{
+					result.x = '';
+				}
+				
+				if (result.y == null)
+				{
+					result.y = y;
+				}
+				else if (result.y != y)
+				{
+					result.y = '';
+				}
+			}
+		}
+	}
+	else if (graph.getModel().isEdge(cell))
+	{
+		result.edges.push(cell);
+		result.connections = true;
+		result.resizable = false;
+		result.rotatable = false;
+		result.movable = false;
+	}
+
+	var state = graph.view.getState(cell);
+	
+	if (state != null)
+	{
+		result.autoSize = result.autoSize || graph.isAutoSizeState(state);
+		result.glass = result.glass && graph.isGlassState(state);
+		result.rounded = result.rounded && graph.isRoundedState(state);
+		result.lineJumps = result.lineJumps && graph.isLineJumpState(state);
+		result.image = result.image && graph.isImageState(state);
+		result.shadow = result.shadow && graph.isShadowState(state);
+		result.fill = result.fill && graph.isFillState(state);
+		result.stroke = result.stroke && graph.isStrokeState(state);
+		
+		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
+		result.containsImage = result.containsImage || shape == 'image';
+		graph.mergeStyle(state.style, result.style, initial);
 	}
 };
 
@@ -3803,51 +4029,9 @@ EditorUi.prototype.addUndoListener = function()
 EditorUi.prototype.updateActionStates = function()
 {
 	var graph = this.editor.graph;
-	var vertexSelected = false;
-	var groupSelected = false;
-	var edgeSelected = false;
-	var tableSelected = false;
-	var rowSelected = false;
-	var cellSelected = false;
-	var selected = false;
-	var editable = [];
+	var ss = this.getSelectionState();
+    var unlocked = graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent());
 
-	var cells = graph.getSelectionCells();
-	
-	if (cells != null)
-	{
-    	for (var i = 0; i < cells.length; i++)
-    	{
-    		var cell = cells[i];
-
-			tableSelected = tableSelected || graph.isTable(cell);
-			cellSelected = cellSelected || graph.isTableCell(cell);
-			rowSelected = rowSelected || graph.isTableRow(cell);
- 
-			if (graph.isCellEditable(cell))
-			{
-				editable.push(cell);
-				selected = true;
-					
-	    		if (graph.getModel().isEdge(cell))
-	    		{
-	    			edgeSelected = true;
-	    		}
-	    		
-	    		if (graph.getModel().isVertex(cell))
-	    		{
-	    			vertexSelected = true;
-	    			
-		    		if (graph.getModel().getChildCount(cell) > 0 ||
-		    			graph.isContainer(cell))
-		    		{
-		    			groupSelected = true;
-		    		}
-	    		}
-			}
-		}
-	}
-	
 	// Updates action states
 	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
@@ -3857,57 +4041,65 @@ EditorUi.prototype.updateActionStates = function()
 	
 	for (var i = 0; i < actions.length; i++)
 	{
-		this.actions.get(actions[i]).setEnabled(selected);
+		this.actions.get(actions[i]).setEnabled(ss.cells.length > 0);
 	}
 
-	this.actions.get('lockUnlock').setEnabled(!graph.isSelectionEmpty());	
+	this.actions.get('grid').setEnabled(!this.editor.chromeless || this.editor.editable);
+	this.actions.get('pasteSize').setEnabled(this.copiedSize != null && ss.vertices.length > 0);
+	this.actions.get('pasteData').setEnabled(this.copiedValue != null && ss.cells.length > 0);
 	this.actions.get('setAsDefaultStyle').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('clearWaypoints').setEnabled(selected);
 	this.actions.get('copySize').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('bringForward').setEnabled(editable.length == 1);
-	this.actions.get('sendBackward').setEnabled(editable.length == 1);
-	this.actions.get('turn').setEnabled(graph.getResizableCells(graph.getSelectionCells()).length > 0);
-	this.actions.get('curved').setEnabled(edgeSelected);
-	this.actions.get('rotation').setEnabled(vertexSelected);
-	this.actions.get('wordWrap').setEnabled(vertexSelected);
-	this.actions.get('autosize').setEnabled(vertexSelected);
-   	var oneVertexSelected = vertexSelected && graph.getSelectionCount() == 1;
-	this.actions.get('group').setEnabled((graph.getSelectionCount() > 1 ||
-		(oneVertexSelected && !graph.isContainer(graph.getSelectionCell()) &&
-		graph.model.getChildCount(graph.getSelectionCell()) == 0)) &&
-		!rowSelected && !cellSelected);
-	this.actions.get('ungroup').setEnabled(groupSelected && !rowSelected && !cellSelected);
-   	this.actions.get('removeFromGroup').setEnabled(oneVertexSelected &&
-   		graph.getModel().isVertex(graph.getModel().getParent(editable[0])));
-
-	// Updates menu states
-   	var state = graph.view.getState(graph.getSelectionCell());
-    this.menus.get('navigation').setEnabled(selected || graph.view.currentRoot != null);
-    this.actions.get('collapsible').setEnabled(vertexSelected &&
-    	(graph.isContainer(graph.getSelectionCell()) || graph.model.getChildCount(graph.getSelectionCell()) > 0));
-    this.actions.get('home').setEnabled(graph.view.currentRoot != null);
-    this.actions.get('exitGroup').setEnabled(graph.view.currentRoot != null);
-    this.actions.get('enterGroup').setEnabled(graph.getSelectionCount() == 1 && graph.isValidRoot(graph.getSelectionCell()));
-    var foldable = graph.getSelectionCount() == 1 && graph.isCellFoldable(graph.getSelectionCell()); // TODO
-    this.actions.get('expand').setEnabled(foldable);
-    this.actions.get('collapse').setEnabled(foldable);
-    this.actions.get('editLink').setEnabled(editable.length == 1);
-    this.actions.get('openLink').setEnabled(graph.getSelectionCount() == 1 &&
-    	graph.getLinkForCell(graph.getSelectionCell()) != null);
-    this.actions.get('guides').setEnabled(graph.isEnabled());
-    this.actions.get('grid').setEnabled(!this.editor.chromeless || this.editor.editable);
-
-    var unlocked = graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent());
-    this.menus.get('layout').setEnabled(unlocked);
-    this.menus.get('insert').setEnabled(unlocked);
-    this.menus.get('direction').setEnabled(unlocked && vertexSelected);
-    this.menus.get('align').setEnabled(unlocked && vertexSelected && graph.getSelectionCount() > 1);
-    this.menus.get('distribute').setEnabled(unlocked && vertexSelected && graph.getSelectionCount() > 1);
+	this.actions.get('lockUnlock').setEnabled(!graph.isSelectionEmpty());
+	this.actions.get('bringForward').setEnabled(ss.cells.length == 1);
+	this.actions.get('sendBackward').setEnabled(ss.cells.length == 1);
+	this.actions.get('rotation').setEnabled(ss.vertices.length == 1);
+	this.actions.get('wordWrap').setEnabled(ss.vertices.length == 1);
+	this.actions.get('autosize').setEnabled(ss.vertices.length == 1);
+	this.actions.get('clearWaypoints').setEnabled(ss.connections);
+	this.actions.get('curved').setEnabled(ss.edges.length > 0);
+	this.actions.get('turn').setEnabled(ss.resizable);
+	this.actions.get('group').setEnabled(!ss.row && !ss.cell &&
+		(ss.cells.length > 1 || (ss.vertices.length == 1 &&
+		graph.model.getChildCount(ss.cells[0]) == 0 &&
+		!graph.isContainer(ss.vertices[0]))));
+	this.actions.get('ungroup').setEnabled(!ss.row && !ss.cell && !ss.table &&
+		ss.vertices.length > 0 && (graph.isContainer(ss.vertices[0]) ||
+		graph.getModel().getChildCount(ss.vertices[0]) > 0));
+   	this.actions.get('removeFromGroup').setEnabled(ss.cells.length == 1 &&
+   		graph.getModel().isVertex(graph.getModel().getParent(ss.cells[0])));
+	this.actions.get('collapsible').setEnabled(ss.vertices.length == 1 &&
+		(graph.model.getChildCount(ss.vertices[0]) > 0 ||
+		graph.isContainer(ss.vertices[0])));
+		this.actions.get('exitGroup').setEnabled(graph.view.currentRoot != null);
+	this.actions.get('home').setEnabled(graph.view.currentRoot != null);
+	this.actions.get('enterGroup').setEnabled(ss.cells.length == 1 &&
+		graph.isValidRoot(ss.cells[0]));
+	this.actions.get('editLink').setEnabled(ss.cells.length == 1);
+	this.actions.get('openLink').setEnabled(ss.cells.length == 1 &&
+		graph.getLinkForCell(ss.cells[0]) != null);
+	this.actions.get('guides').setEnabled(graph.isEnabled());
     this.actions.get('selectVertices').setEnabled(unlocked);
     this.actions.get('selectEdges').setEnabled(unlocked);
     this.actions.get('selectAll').setEnabled(unlocked);
     this.actions.get('selectNone').setEnabled(unlocked);
-    
+
+	var foldable = ss.vertices.length == 1 &&
+		graph.isCellFoldable(ss.vertices[0]);
+	this.actions.get('expand').setEnabled(foldable);
+	this.actions.get('collapse').setEnabled(foldable);
+
+	// Updates menu states
+    this.menus.get('navigation').setEnabled(ss.cells.length > 0 ||
+		graph.view.currentRoot != null);
+    this.menus.get('layout').setEnabled(unlocked);
+    this.menus.get('insert').setEnabled(unlocked);
+    this.menus.get('direction').setEnabled(ss.unlocked &&
+		ss.vertices.length == 1);
+    this.menus.get('distribute').setEnabled(ss.unlocked &&
+		ss.vertices.length > 1);
+    this.menus.get('align').setEnabled(ss.unlocked &&
+		ss.vertices.length > 1);
+
     this.updatePasteActionStates();
 };
 
@@ -5505,6 +5697,18 @@ EditorUi.prototype.createKeyHandler = function(editor)
  */
 EditorUi.prototype.destroy = function()
 {
+	var graph = this.editor.graph;
+
+	if (graph != null && this.selectionStateListener != null)
+	{
+		graph.getSelectionModel().removeListener(mxEvent.CHANGE, this.selectionStateListener);
+		graph.getModel().removeListener(mxEvent.CHANGE, this.selectionStateListener);
+		graph.removeListener(mxEvent.EDITING_STARTED, this.selectionStateListener);
+		graph.removeListener(mxEvent.EDITING_STOPPED, this.selectionStateListener);
+		graph.getView().removeListener('unitChanged', this.selectionStateListener);
+		this.selectionStateListener = null;
+	}
+	
 	if (this.editor != null)
 	{
 		this.editor.destroy();

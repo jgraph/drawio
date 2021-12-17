@@ -5125,7 +5125,7 @@
 			
 			StyleFormatPanel.prototype.getCustomColors = function()
 			{
-				var ss = this.format.getSelectionState();
+				var ss = this.editorUi.getSelectionState();
 				var result = styleFormatPanelGetCustomColors.apply(this, arguments);
 				
 				if (ss.style.shape == 'umlFrame')

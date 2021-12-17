@@ -233,7 +233,7 @@ var mxSettings =
 			showStartScreen: true,
 			gridColor: mxGraphView.prototype.defaultGridColor,
 			darkGridColor: mxGraphView.prototype.defaultDarkGridColor,
-			autosave: true,
+			autosave: !EditorUi.isElectronApp,
 			resizeImages: null,
 			openCounter: 0,
 			version: mxSettings.currentVersion,
@@ -361,7 +361,13 @@ var mxSettings =
 			
 			if (mxSettings.settings.autosave == null)
 			{
-				mxSettings.settings.autosave = true;
+				mxSettings.settings.autosave = !EditorUi.isElectronApp;
+			}
+			else if (EditorUi.isElectronApp && localStorage.getItem('._autoSaveTrans_') == null) //Transition to no autosave
+			{
+				localStorage.setItem('._autoSaveTrans_', '1');
+				mxSettings.settings.autosave = false;
+				mxSettings.save();
 			}
 			
 			if (mxSettings.settings.scratchpadSeen != null)

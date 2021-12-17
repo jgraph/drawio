@@ -2233,7 +2233,7 @@ EditorUi.initMinimalTheme = function()
 					var toggleShapesAction = ui.actions.get('toggleShapes');
 					addAction(toggleShapesAction, mxResources.get('shapes') + ' (' + toggleShapesAction.shortcut + ')', insertImage);
 
-					elt = addMenu('table', null, Editor.tableImage);
+					elt = addMenu('table', null, Editor.calendarImage);
 					elt.style.boxShadow = 'none';
 					elt.style.opacity = '0.7';
 					elt.style.padding = '6px';
@@ -2241,7 +2241,7 @@ EditorUi.initMinimalTheme = function()
 					elt.style.width = '37px';
 					addElt(elt, null, 'pointer');
 
-					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.templateImage);
+					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.addImage);
 				}
 
 				if (urlParams['embedInline'] != '1')

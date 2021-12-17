@@ -485,7 +485,7 @@ Actions.prototype.init = function()
 
 		graph.turnShapes(graph.getResizableCells(graph.getSelectionCells()),
 			(evt != null) ? mxEvent.isShiftDown(evt) : false);
-	}, null, null, Editor.ctrlKey + '+R'));
+	}, null, null, (mxClient.IS_SF) ? null : Editor.ctrlKey + '+R'));
 	this.put('selectConnections', new Action(mxResources.get('selectEdges'), function(evt)
 	{
 		var cell = graph.getSelectionCell();

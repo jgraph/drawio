@@ -26,6 +26,12 @@ autoUpdater.logger = log
 autoUpdater.logger.transports.file.level = 'info'
 autoUpdater.autoDownload = false
 
+//Command option to disable hardware acceleration
+if (process.argv.indexOf('--disable-acceleration') !== -1)
+{
+	app.disableHardwareAcceleration();
+}
+
 const __DEV__ = process.env.DRAWIO_ENV === 'dev'
 		
 let windowsRegistry = []
@@ -149,6 +155,8 @@ function createWindow (opt = {})
 							
 						if (choice === 1)
 						{
+							//If user chose not to save, remove the draft
+							contents.executeJavaScript('global.__emt_removeDraft()', true);
 							win.destroy()
 						}
 						else

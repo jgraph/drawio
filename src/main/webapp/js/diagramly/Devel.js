@@ -66,6 +66,9 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'style-src %style-src% \'self\'  https://fonts.googleapis.com ' +
 			// Replaces unsafe-inline style-src with hashes with safe-style-src URL parameter
 			((urlParams['safe-style-src'] == '1') ? styleHashes : '\'unsafe-inline\'; ') +
+			'form-action \'none\';' +
+			'base-uri \'none\';' +
+			'child-src \'none\';' +
 			'object-src \'none\';';
 			
 		var csp = hashes + directives;
@@ -99,9 +102,6 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'frame-src \'self\' https://viewer.diagrams.net https://*.google.com; ' +
 				'style-src \'self\' https://fonts.googleapis.com ' + styleHashes + ' ' +
 				'object-src \'none\';' +
-				'form-action \'none\';' +
-				'base-uri \'none\';' +
-				'child-src \'none\';' +
 				'frame-src \'none\';' +
 				'worker-src https://se.diagrams.net/service-worker.js;'
 			console.log('se.diagrams.net:', se_diagrams_net);

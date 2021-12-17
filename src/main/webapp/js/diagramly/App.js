@@ -3266,7 +3266,6 @@ App.prototype.start = function()
 						{
 							var id = this.getDiagramId();
 							
-							
 							if (EditorUi.enableDrafts && (urlParams['mode'] == null || EditorUi.isElectronApp) &&
 								this.getServiceName() == 'draw.io' && (id == null || id.length == 0) &&
 								!this.editor.isChromelessView())
@@ -3505,6 +3504,54 @@ App.prototype.loadDraft = function(xml, success)
 	}), null, null, true);
 };
 
+App.prototype.filterDrafts = function(filePath, guid, callback)
+{
+	var drafts = [];
+
+	function result()
+	{
+		callback(drafts);
+	};
+
+	try
+	{
+		this.getDatabaseItems(mxUtils.bind(this, function(items)
+		{
+			// Collects orphaned drafts
+			for (var i = 0; i < items.length; i++)
+			{
+				try
+				{
+					var key = items[i].key;
+					
+					if (key != null && key.substring(0, 7) == '.draft_')
+					{
+						var obj = JSON.parse(items[i].data);
+						
+						if (obj != null && obj.type == 'draft' && obj.aliveCheck != guid && 
+							((filePath == null && obj.fileObject == null) ||
+								(obj.fileObject != null && obj.fileObject.path == filePath)))	
+						{
+							obj.key = key;
+							drafts.push(obj);
+						}
+					}
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}
+
+			result();
+		}, result));
+	}
+	catch (e)
+	{
+		result();
+	}
+};
+
 /**
  * Checks for orphaned drafts.
  */
@@ -3520,34 +3567,8 @@ App.prototype.checkDrafts = function()
 		{
 			localStorage.removeItem('.draft-alive-check');
 
-			this.getDatabaseItems(mxUtils.bind(this, function(items)
+			this.filterDrafts(null, guid, mxUtils.bind(this, function(drafts)
 			{
-				// Collects orphaned drafts
-				var drafts = [];
-				
-				for (var i = 0; i < items.length; i++)
-				{
-					try
-					{
-						var key = items[i].key;
-						
-						if (key != null && key.substring(0, 7) == '.draft_')
-						{
-							var obj = JSON.parse(items[i].data);
-							
-							if (obj != null && obj.type == 'draft' && obj.aliveCheck != guid)
-							{
-								obj.key = key;
-								drafts.push(obj);
-							}
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-				}
-				
 				if (drafts.length == 1)
 				{
 					this.loadDraft(drafts[0].data, mxUtils.bind(this, function()
@@ -3599,16 +3620,6 @@ App.prototype.checkDrafts = function()
 					dlg.init();
 				}
 				else if (urlParams['splash'] != '0')
-				{
-					this.loadFile();
-				}
-				else
-				{
-					this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
-				}
-			}), mxUtils.bind(this, function()
-			{
-				if (urlParams['splash'] != '0')
 				{
 					this.loadFile();
 				}
