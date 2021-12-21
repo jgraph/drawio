@@ -1299,7 +1299,7 @@ EditorUi.prototype.initSelectionState = function()
 		style: {}, containsImage: false, containsLabel: false, fill: true, glass: true,
 		rounded: true, autoSize: false, image: true, shadow: true, lineJumps: true, resizable: true,
 		table: false, cell: false, row: false, movable: true, rotatable: true, stroke: true,
-		unlocked: this.editor.graph.isEnabled(), connections: false};
+		swimlane: false, unlocked: this.editor.graph.isEnabled(), connections: false};
 };
 
 /**
@@ -1364,6 +1364,7 @@ EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, i
 		result.rotatable = result.rotatable && graph.isCellRotatable(cell);
 		result.movable = result.movable && graph.isCellMovable(cell) &&
 			!graph.isTableRow(cell) && !graph.isTableCell(cell);
+		result.swimlane = result.swimlane || graph.isSwimlane(cell);
 		result.table = result.table || graph.isTable(cell);
 		result.cell = result.cell || graph.isTableCell(cell);
 		result.row = result.row || graph.isTableRow(cell);

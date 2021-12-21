@@ -260,7 +260,7 @@
 	
 	TableShape.prototype.paintVertexShape = function(c, x, y, w, h)
 	{
-		// LATER: Split background to add striping
+		// LATER: Split background to add striping, paint rows and cells
 		//paintTableBackground(this.state, c, x, y, w, h);
 		var start = this.getTitleSize();
 		
@@ -316,7 +316,7 @@
 	}
 
 	mxCellRenderer.registerShape('table', TableShape);
-	
+
 	// Cube Shape, supports size style
 	function CubeShape()
 	{
@@ -5694,7 +5694,7 @@
 						state.style['width'] = Math.round(w * 2) / state.view.scale;
 						
 						// Applies to opposite side
-						if (mxEvent.isControlDown(me.getEvent()))
+						if (mxEvent.isShiftDown(me.getEvent()) || mxEvent.isControlDown(me.getEvent()))
 						{
 							state.style[mxConstants.STYLE_ENDSIZE] = state.style[mxConstants.STYLE_STARTSIZE];
 						}
@@ -5725,7 +5725,7 @@
 						state.style['startWidth'] = Math.max(0, Math.round(w * 2) - state.shape.getEdgeWidth()) / state.view.scale;
 						
 						// Applies to opposite side
-						if (mxEvent.isControlDown(me.getEvent()))
+						if (mxEvent.isShiftDown(me.getEvent()) || mxEvent.isControlDown(me.getEvent()))
 						{
 							state.style[mxConstants.STYLE_ENDSIZE] = state.style[mxConstants.STYLE_STARTSIZE];
 							state.style['endWidth'] = state.style['startWidth'];
@@ -5765,7 +5765,7 @@
 						state.style['width'] = Math.round(w * 2) / state.view.scale;
 						
 						// Applies to opposite side
-						if (mxEvent.isControlDown(me.getEvent()))
+						if (mxEvent.isShiftDown(me.getEvent()) || mxEvent.isControlDown(me.getEvent()))
 						{
 							state.style[mxConstants.STYLE_STARTSIZE] = state.style[mxConstants.STYLE_ENDSIZE];
 						}
@@ -5796,7 +5796,7 @@
 						state.style['endWidth'] = Math.max(0, Math.round(w * 2) - state.shape.getEdgeWidth()) / state.view.scale;
 						
 						// Applies to opposite side
-						if (mxEvent.isControlDown(me.getEvent()))
+						if (mxEvent.isShiftDown(me.getEvent()) || mxEvent.isControlDown(me.getEvent()))
 						{
 							state.style[mxConstants.STYLE_STARTSIZE] = state.style[mxConstants.STYLE_ENDSIZE];
 							state.style['startWidth'] = state.style['endWidth'];
@@ -5829,7 +5829,7 @@
 					var size = parseFloat(mxUtils.getValue(state.style, mxConstants.STYLE_STARTSIZE, mxConstants.DEFAULT_STARTSIZE));
 					handles.push(createArcHandle(state, size / 2));
 				}
-				
+
 				// Start size handle must be last item in handles for hover to work in tables (see mouse event handler in Graph)
 				handles.push(createHandle(state, [mxConstants.STYLE_STARTSIZE], function(bounds)
 				{
@@ -5851,31 +5851,29 @@
 							Math.round(Math.max(0, Math.min(bounds.width, pt.x - bounds.x)));
 				}, false, null, function(me)
 				{
-					if (mxEvent.isControlDown(me.getEvent()))
+					var graph = state.view.graph;
+					
+					if (!mxEvent.isShiftDown(me.getEvent()) && !mxEvent.isControlDown(me.getEvent()) &&
+						(graph.isTableRow(state.cell) || graph.isTableCell(state.cell)))
 					{
-						var graph = state.view.graph;
+						var dir = graph.getSwimlaneDirection(state.style);
+						var parent = graph.model.getParent(state.cell);
+						var cells = graph.model.getChildCells(parent, true);
+						var temp = [];
 						
-						if (graph.isTableRow(state.cell) || graph.isTableCell(state.cell))
+						for (var i = 0; i < cells.length; i++)
 						{
-							var dir = graph.getSwimlaneDirection(state.style);
-							var parent = graph.model.getParent(state.cell);
-							var cells = graph.model.getChildCells(parent, true);
-							var temp = []; 
-							
-							for (var i = 0; i < cells.length; i++)
+							// Finds siblings with the same direction and to set start size
+							if (cells[i] != state.cell && graph.isSwimlane(cells[i]) &&
+								graph.getSwimlaneDirection(graph.getCurrentCellStyle(
+								cells[i])) == dir)
 							{
-								// Finds siblings with the same direction and to set start size
-								if (cells[i] != state.cell && graph.isSwimlane(cells[i]) &&
-									graph.getSwimlaneDirection(graph.getCurrentCellStyle(
-									cells[i])) == dir)
-								{
-									temp.push(cells[i]);
-								}
+								temp.push(cells[i]);
 							}
-							
-							graph.setCellStyles(mxConstants.STYLE_STARTSIZE,
-								state.style[mxConstants.STYLE_STARTSIZE], temp);
 						}
+						
+						graph.setCellStyles(mxConstants.STYLE_STARTSIZE,
+							state.style[mxConstants.STYLE_STARTSIZE], temp);
 					}					
 				}));
 				

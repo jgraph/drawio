@@ -4539,9 +4539,10 @@ StyleFormatPanel.prototype.getCustomColors = function()
 	var ss = this.editorUi.getSelectionState();
 	var result = [];
 	
-	if (ss.style.shape == 'swimlane' || ss.style.shape == 'table')
+	if (ss.swimlane)
 	{
-		result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: 'default'});
+		result.push({title: mxResources.get('laneColor'),
+			key: 'swimlaneFillColor', defaultValue: 'default'});
 	}
 	
 	return result;
@@ -4850,7 +4851,10 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				mxUtils.fit(menu.div);
+				if (menu.div != null)
+				{
+					mxUtils.fit(menu.div);
+				}
 			}), 0);
 		}
 	}));
@@ -4913,7 +4917,10 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				mxUtils.fit(menu.div);
+				if (menu.div != null)
+				{
+					mxUtils.fit(menu.div);
+				}
 			}), 0);
 		}
 	}));
@@ -5459,7 +5466,7 @@ StyleFormatPanel.prototype.addEffects = function(div)
 			addOption(mxResources.get('rounded'), mxConstants.STYLE_ROUNDED, 0);
 		}
 		
-		if (ss.style.shape == 'swimlane')
+		if (ss.swimlane)
 		{
 			addOption(mxResources.get('divider'), 'swimlaneLine', 1);
 		}

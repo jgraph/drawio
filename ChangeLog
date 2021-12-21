@@ -1,3 +1,11 @@
+21-DEC-2021: 16.0.2
+
+- Re-build
+
+21-DEC-2021: 16.0.1
+
+- Fixes possible NPE
+
 17-DEC-2021: 16.0.0
 
 The reason for going to version 16 is there is a breaking change in the docker image. The 

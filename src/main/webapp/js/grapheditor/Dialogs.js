@@ -101,6 +101,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		table.setAttribute('cellspacing', '0');
 		table.style.marginBottom = '20px';
 		table.style.cellSpacing = '0px';
+		table.style.marginLeft = '1px';
 		var tbody = document.createElement('tbody');
 		table.appendChild(tbody);
 
@@ -115,7 +116,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 				(mxUtils.bind(this, function(clr)
 				{
 					var td = document.createElement('td');
-					td.style.border = '1px solid black';
+					td.style.border = '0px solid black';
 					td.style.padding = '0px';
 					td.style.width = '16px';
 					td.style.height = '16px';
@@ -124,14 +125,20 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 					{
 						clr = defaultColor;
 					}
-					
-					if (clr == 'none')
+
+					if (clr != null)
 					{
-						td.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
-					}
-					else if (clr != null)
-					{
-						td.style.backgroundColor = '#' + clr;
+						td.style.borderWidth = '1px';
+
+						if (clr == 'none')
+						{
+							td.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
+						}
+						else
+						{
+							td.style.backgroundColor = '#' + clr;
+						}
+
 						var name = this.colorNames[clr.toUpperCase()];
 
 						if (name != null)

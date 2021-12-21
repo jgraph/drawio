@@ -10475,7 +10475,9 @@
 			 * Persists default grid color.
 			 */
 			this.editor.graph.view.gridColor = mxSettings.getGridColor(Editor.isDarkMode());
-			
+			this.editor.graph.view.defaultDarkGridColor = mxSettings.getGridColor(true);
+			this.editor.graph.view.defaultGridColor = mxSettings.getGridColor(false);
+
 			this.addListener('gridColorChanged', mxUtils.bind(this, function(sender, evt)
 			{
 				mxSettings.setGridColor(this.editor.graph.view.gridColor, Editor.isDarkMode());

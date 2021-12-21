@@ -899,7 +899,7 @@
 			}
 			else
 			{
-				delete style.stroke;
+				style.stroke = 'none';
 			}
 			
 			var gradient = null;
@@ -4231,6 +4231,8 @@
 		mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties = [
 	        {name: 'arcSize', dispName: 'Arc Size', type: 'float', min:0, defVal: 15},
 	        {name: 'startSize', dispName: 'Header Size', type: 'float'},
+			{name: 'swimlaneHead', dispName: 'Head Border', type: 'bool', defVal: true},
+			{name: 'swimlaneBody', dispName: 'Body Border', type: 'bool', defVal: true},
 	        {name: 'horizontal', dispName: 'Horizontal', type: 'bool', defVal: true},
 	        {name: 'separatorColor', dispName: 'Separator Color', type: 'color', defVal: null},
 	    ];

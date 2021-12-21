@@ -1127,16 +1127,22 @@ EditorUi.initMinimalTheme = function()
             	ui.menus.addSubmenu('importFrom', menu, parent);
             }
 
+			menu.addSeparator(parent);
+
 			if (urlParams['sketch'] != '1')
 			{
-				ui.menus.addMenuItems(menu, ['-', 'outline'], parent);
-				
-				if (ui.commentsSupported())
-				{
-					ui.menus.addMenuItems(menu, ['comments'], parent);
-				}
+				ui.menus.addMenuItems(menu, ['outline'], parent);
 			}
-			
+			else if (file.constructor == DriveFile)
+			{
+				ui.menus.addMenuItems(menu, ['share'], parent);
+			}
+
+			if (ui.commentsSupported())
+			{
+				ui.menus.addMenuItems(menu, ['comments'], parent);
+			}
+
 			ui.menus.addMenuItems(menu, ['-', 'findReplace',
 				'layers', 'tags', '-', 'pageSetup'], parent);
 

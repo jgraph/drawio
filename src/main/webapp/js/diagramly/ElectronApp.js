@@ -845,7 +845,11 @@ mxStencilRegistry.allowEval = false;
 			var data = this.emptyDiagramXml;
 			var file = new LocalFile(this, data, title, null);
 			this.fileCreated(file, null, null, null);
-		}		
+		}
+		else
+		{
+			this.checkDrafts();
+		}
 	}
 
 	var origFileLoaded = EditorUi.prototype.fileLoaded;
@@ -1150,7 +1154,7 @@ mxStencilRegistry.allowEval = false;
 					data = this.extractGraphModelFromPng('data:image/png;base64,' + data);
 				}
 
-				fs.stat(path, function(err, stat_p)
+				fs.stat(path, mxUtils.bind(this, function(err, stat_p)
 				{
 					if (err)
 					{
@@ -1160,10 +1164,24 @@ mxStencilRegistry.allowEval = false;
 					{
 						stat = stat_p;
 						fn(fileEntry, data, stat, null, false);
+
+						fs.access(path, fs.constants.W_OK, mxUtils.bind(this, function(err)
+						{
+							if (err)
+							{
+								var file = this.getCurrentFile();
+		
+								if (file != null && file.fileObject != null && file.fileObject.path == path)
+								{
+									file.setEditable(false);
+									this.editor.setStatus('<div class="geStatusAlert">' + mxResources.get('readOnly') + '</div>');
+								}
+							}
+						}));
 					}
 
 					checkDrafts();
-				});
+				}));
 			}
 		});
  
@@ -1319,6 +1337,16 @@ mxStencilRegistry.allowEval = false;
 		return stat != null && this.stat != null && stat.mtimeMs != this.stat.mtimeMs;
 	};
 	
+	LocalFile.prototype.isEditable = function()
+	{
+		return this.editable != null? this.editable : this.ui.editor.editable;
+	};
+
+	LocalFile.prototype.setEditable = function(editable)
+	{
+		this.editable = editable;
+	};
+
 	LocalFile.prototype.getFilename = function()
 	{
 		var filename = this.title;
@@ -1414,13 +1442,17 @@ mxStencilRegistry.allowEval = false;
 						if (errMsg == 'empty data')
 						{
 							this.ui.handleError({message: mxResources.get('errorSavingFile')});
+							errorWrapper();
 						}
 						else if (errMsg == 'conflict')
 						{
 							this.inConflictState = true;
+							errorWrapper();
 						}
-						
-						errorWrapper();
+						else
+						{
+							errorWrapper(err || errMsg);
+						}
 					}));
 				});
 	
