@@ -1,3 +1,12 @@
+21-DEC-2021: 16.0.3
+
+- Adds Share and Comments in sketch File menu
+- Fixes no stroke in Roughjs, adds swimlaneHead/Body
+- Uses persisted default grid color
+- Fixes rendering and tooltips for special colors
+- Fixes initial placement of shapes window
+- Uses Pusher 7.0.3 to fix NPE
+
 21-DEC-2021: 16.0.2
 
 - Re-build

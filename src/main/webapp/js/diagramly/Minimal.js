@@ -126,11 +126,13 @@ EditorUi.initMinimalTheme = function()
 	    if (ui.sidebarWindow == null)
 	    {
 			var w = Math.min(graph.container.clientWidth - 10, 218);
+			var h = Math.min(graph.container.clientHeight - 40, 650);
 	        
-			ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'), 10,
-				(urlParams['sketch'] == '1' && urlParams['embedInline'] != '1') ? 15 : 56,
-				w - 6, Math.min(650, graph.container.clientHeight - 30),
-				function(container)
+			ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'),
+				(urlParams['sketch'] == '1' && urlParams['embedInline'] != '1') ? 66 : 10,
+				(urlParams['sketch'] == '1' && urlParams['embedInline'] != '1') ?
+					Math.max(30, (graph.container.clientHeight - h) / 2) : 56,
+				w - 6, h - 6, function(container)
 			{
 				var div = document.createElement('div');
 				div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +

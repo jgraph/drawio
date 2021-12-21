@@ -294,7 +294,7 @@ App.PUSHER_CLUSTER = 'eu';
 /**
  * Specifies the URL for the pusher API.
  */
-App.PUSHER_URL = 'https://js.pusher.com/4.3/pusher.min.js';
+App.PUSHER_URL = 'https://js.pusher.com/7.0.3/pusher.min.js';
 
 /**
  * Socket.io library 
