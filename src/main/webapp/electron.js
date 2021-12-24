@@ -39,6 +39,8 @@ let cmdQPressed = false
 let firstWinLoaded = false
 let firstWinFilePath = null
 let isMac = process.platform === 'darwin'
+let enableSpellCheck = store.get('enableSpellCheck');
+enableSpellCheck = enableSpellCheck != null? enableSpellCheck : isMac;
 
 //Read config file
 var queryObj = {
@@ -55,7 +57,8 @@ var queryObj = {
 	'mode': 'device',
 	'export': 'https://convert.diagrams.net/node/export',
 	'disableUpdate': disableUpdate? 1 : 0,
-	'winCtrls': isMac? 0 : 1
+	'winCtrls': isMac? 0 : 1,
+	'enableSpellCheck': enableSpellCheck? 1 : 0
 };
 
 try
@@ -89,7 +92,7 @@ function createWindow (opt = {})
 			// preload: path.resolve('./preload.js'),
 			nodeIntegration: true,
 			nodeIntegrationInWorker: true,
-			spellcheck: isMac,
+			spellcheck: enableSpellCheck,
 			contextIsolation: false,
 			nativeWindowOpen: true
 		}
@@ -666,6 +669,14 @@ app.on('ready', e =>
 		loadFinished();
     });
 	
+	function toggleSpellCheck()
+	{
+		enableSpellCheck = !enableSpellCheck;
+		store.set('enableSpellCheck', enableSpellCheck);
+	};
+
+	ipcMain.on('toggleSpellCheck', toggleSpellCheck);
+
     let updateNoAvailAdded = false;
     
 	function checkForUpdatesFn() 

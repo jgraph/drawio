@@ -19,8 +19,8 @@ import com.google.gson.JsonElement;
 @SuppressWarnings("serial")
 public class GoogleAuthServlet extends AbsAuthServlet
 {
-	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/google_client_secret";
-	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/google_client_id";
+	public static String CLIENT_SECRET_FILE_PATH = "google_client_secret";
+	public static String CLIENT_ID_FILE_PATH = "google_client_id";
 	
 	private static Config CONFIG = null;
 	
@@ -34,7 +34,7 @@ public class GoogleAuthServlet extends AbsAuthServlet
 			{
 				clientSerets = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
+								.getResourceAsStream(getSecretPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -46,7 +46,7 @@ public class GoogleAuthServlet extends AbsAuthServlet
 			{
 				clientIds = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_ID_FILE_PATH))
+								.getResourceAsStream(getClientIdPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -61,7 +61,17 @@ public class GoogleAuthServlet extends AbsAuthServlet
 		
 		return CONFIG;
 	}
-	
+
+	protected String getSecretPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_SECRET_FILE_PATH;
+	}
+
+	protected String getClientIdPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_ID_FILE_PATH;
+	}
+
 	public GoogleAuthServlet()
 	{
 		super();

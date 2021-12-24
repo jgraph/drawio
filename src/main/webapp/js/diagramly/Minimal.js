@@ -1135,7 +1135,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				ui.menus.addMenuItems(menu, ['outline'], parent);
 			}
-			else if (file.constructor == DriveFile)
+			else if (file != null && file.constructor == DriveFile)
 			{
 				ui.menus.addMenuItems(menu, ['share'], parent);
 			}

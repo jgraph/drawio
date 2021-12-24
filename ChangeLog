@@ -1,3 +1,10 @@
+23-DEC-2021: 16.1.0
+
+- Fixes inconsistent event cursors on table lines
+- Fixes default lanecolor for UML frame
+- [conf cloud] Reduces number of comments requests
+- Refactor structure of WEB-INF folder
+
 21-DEC-2021: 16.0.3
 
 - Adds Share and Comments in sketch File menu

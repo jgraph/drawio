@@ -8867,21 +8867,31 @@
 	 */
 	EditorUi.prototype.parseFile = function(file, fn, filename)
 	{
+		var reader = new FileReader();
+
+        reader.onload = mxUtils.bind(this, function()
+		{
+			this.parseFileData(reader.result, fn, filename)
+        });
+
+        reader.readAsText(file);
+	};
+
+	//TODO Use this version of the function instead of creating a Blob then read it again
+	EditorUi.prototype.parseFileData = function(data, fn, filename)
+	{
 		filename = (filename != null) ? filename : file.name;
-		
-		var formData = new FormData();
-		formData.append('format', 'xml');
-		formData.append('upfile', file, filename);
 
 		var xhr = new XMLHttpRequest();
 		xhr.open('POST', OPEN_URL);
-		
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+
 		xhr.onreadystatechange = function()
 		{
 			fn(xhr);
 		};
 		
-		xhr.send(formData);
+		xhr.send('format=xml&filename=' + encodeURIComponent(filename) + '&data=' + encodeURIComponent(data));
 		
 		try
 		{

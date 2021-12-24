@@ -1712,6 +1712,12 @@ mxStencilRegistry.allowEval = false;
 		ipcRenderer.send('checkForUpdates');
 	}
 	
+	App.prototype.toggleSpellCheck = function()
+	{
+		const ipcRenderer = require('electron').ipcRenderer;
+		ipcRenderer.send('toggleSpellCheck');
+	}
+	
 	var origUpdateHeader = App.prototype.updateHeader;
 	
 	App.prototype.updateHeader = function()

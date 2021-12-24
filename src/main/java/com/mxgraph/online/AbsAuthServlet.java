@@ -27,7 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.memcache.MemcacheServiceException;
-import com.google.appengine.api.utils.SystemProperty;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,6 +43,9 @@ abstract public class AbsAuthServlet extends HttpServlet
 	private static final String TOKEN_COOKIE = "auth-token";
 	protected static final int STATE_COOKIE_AGE = 600; //10 min
 	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
+	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
+	public static String SECRETS_DIR_PATH = IS_GAE ? "/WEB-INF/secrets/" : "/WEB-INF/";
+
 	
 	
 	public static final SecureRandom random = new SecureRandom();
@@ -314,7 +316,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			//Non GAE runtimes are excluded from state check. TODO Change GAE stub to return null from CacheFactory
-			else if (!"Non".equals(SystemProperty.environment.get()) && (stateToken == null || !stateToken.equals(cookieToken)))
+			else if (IS_GAE && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
 				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

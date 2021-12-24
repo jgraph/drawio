@@ -4104,7 +4104,8 @@ LucidImporter = {};
 					str += 'color:' + color + ';';
 				}
 				
-				if (fontSize != null)
+				//Ignore zero font-size
+				if (fontSize)
 				{
 					str += 'font-size:' + fix1Digit(fontSize * scale) + 'px;';
 				}
@@ -4187,7 +4188,8 @@ LucidImporter = {};
 			openTags.push('span');
 			tagCount++;
 
-			str += 'font-size:' + (styles['s']? fix1Digit(styles['s'].v * scale) : defaultFontSize) + 'px;';
+			//Ignore zero font-size
+			str += 'font-size:' + (styles['s'] && styles['s'].v? fix1Digit(styles['s'].v * scale) : defaultFontSize) + 'px;';
 
 			if (styles['c'])
 			{
@@ -4804,7 +4806,7 @@ LucidImporter = {};
 				
 				if (currM.n == 's')
 				{
-					if (currM.v != null)
+					if (currM.v) //Ignore zero value also
 					{
 						isV = true;
 						
@@ -5717,7 +5719,11 @@ LucidImporter = {};
 					}
 					var isCurved = p.Shape == 'curve';
 					
-					if (p.Shape != 'diagonal')
+					if (isCurved)
+					{
+						cell.style += 'curved=1;';
+					}
+					else if (p.Shape != 'diagonal')
 					{
 						if (p.ElbowPoints != null && p.ElbowPoints.length > 0)
 						{
@@ -5730,18 +5736,9 @@ LucidImporter = {};
 									Math.round(p.ElbowPoints[i].y * scale + dy)));
 							}
 						}
-						else if (p.Shape == 'elbow')
+						else if (p.Shape == 'elbow' || (p.Endpoint1.Block != null && p.Endpoint2.Block != null))
 						{
 							cell.style += 'edgeStyle=orthogonalEdgeStyle;';
-						}
-						else if (p.Endpoint1.Block != null && p.Endpoint2.Block != null)
-						{
-							cell.style += 'edgeStyle=orthogonalEdgeStyle;';
-	
-							if (isCurved)
-							{
-								cell.style += 'curved=1;';
-							}
 						}
 					}
 					
@@ -5790,9 +5787,38 @@ LucidImporter = {};
 						}
 					}
 
-					var waypoints = p.ElbowControlPoints != null && p.ElbowControlPoints.length > 0? p.ElbowControlPoints : 
-						(isCurved && p.BezierJoints != null && p.BezierJoints.length > 0? p.BezierJoints : p.Joints);
-					
+					var waypoints = p.ElbowControlPoints != null && p.ElbowControlPoints.length > 0? p.ElbowControlPoints : p.Joints;
+
+					if (isCurved && p.BezierJoints != null && p.BezierJoints.length > 0)
+					{
+						waypoints = [];
+
+						//Last point sometimes has incorrect x,y value!
+						var lpt = p.BezierJoints[p.BezierJoints.length - 1];
+						lpt.p.x = p.Endpoint2.x;
+						lpt.p.y = p.Endpoint2.y;
+
+						for (var i = 0; i < p.BezierJoints.length; i++)
+						{
+							var pt = p.BezierJoints[i];
+							//TODO This is best-effort approximation (close enouhh but not exact)
+							waypoints.push({x: pt.p.x + pt.nt.x * pt.lcps * .75, y: pt.p.y + pt.nt.y * pt.lcps * .75});
+							waypoints.push({x: pt.p.x + pt.nt.x * pt.rcps * .75, y: pt.p.y + pt.nt.y * pt.rcps * .75});
+						}
+
+						//remove first & last points
+						waypoints = waypoints.slice(1, waypoints.length - 1);
+					}
+					else if (isCurved) //Curved with the default waypoints
+					{
+						waypoints = [];
+						//TODO This is best-effort approximation (close enouhh but not exact)
+						waypoints.push({x: p.Endpoint1.x + (p.Endpoint1.LinkX < 0.1? -250 : (p.Endpoint1.LinkX > 0.9? 250 : 0) ), 
+										y: p.Endpoint1.y + (p.Endpoint1.LinkY < 0.1? -250 : (p.Endpoint1.LinkY > 0.9? 250 : 0) )});
+						waypoints.push({x: p.Endpoint2.x + (p.Endpoint2.LinkX < 0.1? -250 : (p.Endpoint2.LinkX > 0.9? 250 : 0) ), 
+										y: p.Endpoint2.y + (p.Endpoint2.LinkY < 0.1? -250 : (p.Endpoint2.LinkY > 0.9? 250 : 0) )});
+					}
+
 					if (waypoints != null)
 					{
 						cell.geometry.points = [];
@@ -5804,12 +5830,6 @@ LucidImporter = {};
 							cell.geometry.points.push(new mxPoint(
 								Math.round(pt.x * scale + dx),
 								Math.round(pt.y * scale + dy)));
-						}
-						
-						if (waypoints == p.BezierJoints)
-						{
-							console.log('Curved edge case');
-							LucidImporter.hasUnknownShapes = true;
 						}
 					}
 					
@@ -6056,7 +6076,7 @@ LucidImporter = {};
 			
 			for (var i = 0; i < obj.Value.m.length; i++)
 			{
-				if (obj.Value.m[i].n == 's')
+				if (obj.Value.m[i].n == 's' && obj.Value.m[i].v) //Ignore zero value
 				{
 					size = fix1Digit(scale * parseFloat(obj.Value.m[i].v));
 				}

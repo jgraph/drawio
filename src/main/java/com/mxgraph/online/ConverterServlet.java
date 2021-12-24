@@ -36,7 +36,7 @@ public class ConverterServlet  extends HttpServlet
 	
 	private static final int MAX_DIM = 5000;
 	private static final double EMF_10thMM2PXL = 26.458;
-	private static final String API_KEY_FILE_PATH = "/WEB-INF/cloud_convert_api_key";
+	private static final String API_KEY_FILE_PATH = "/WEB-INF/cloud_convert_api_key"; // Not migrated to new pattern, since will not be used on diagrams.net
 	private static final String CONVERT_SERVICE_URL = "https://api.cloudconvert.com/convert";
 	private static final String CRLF = "\r\n";
 	private static final String TWO_HYPHENS = "--";

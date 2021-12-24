@@ -8,8 +8,8 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class DropboxAuthServlet extends AbsAuthServlet
 {
-	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/dropbox_client_secret";
-	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/dropbox_client_id";
+	public static String CLIENT_SECRET_FILE_PATH = "dropbox_client_secret";
+	public static String CLIENT_ID_FILE_PATH = "dropbox_client_id";
 	
 	private static Config CONFIG = null;
 	
@@ -23,7 +23,7 @@ public class DropboxAuthServlet extends AbsAuthServlet
 			{
 				clientSerets = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
+								.getResourceAsStream(getSecretPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -35,7 +35,7 @@ public class DropboxAuthServlet extends AbsAuthServlet
 			{
 				clientIds = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_ID_FILE_PATH))
+								.getResourceAsStream(getIdPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -50,7 +50,17 @@ public class DropboxAuthServlet extends AbsAuthServlet
 		
 		return CONFIG;
 	}
-	
+
+	protected String getSecretPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_SECRET_FILE_PATH;
+	}
+
+	protected String getIdPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_ID_FILE_PATH;
+	}
+
 	public DropboxAuthServlet()
 	{
 		super();

@@ -362,31 +362,33 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				    		var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
 							var tol = mxEvent.isTouchEvent(me.getEvent()) ?
 								mxShape.prototype.svgStrokeTolerance - 1 :
-								(mxShape.prototype.svgStrokeTolerance + 1) / 2;
+								(mxShape.prototype.svgStrokeTolerance + 2) / 2;
+							var t1 = tol + 2;
 			    			box.grow(tol);
 
-							// Ignores clicks on cell background to avoid delayed selection on
-							// merged cells when clicking on invisible dividers
+							// Ignores clicks inside cell to avoid delayed selection on
+							// merged cells when clicking on invisible part of dividers
 			    			if (this.isTableCell(state.cell) && !this.isCellSelected(state.cell) &&
-								(!mxUtils.contains(state, me.getGraphX() - tol, me.getGraphY() - tol) ||
-								!mxUtils.contains(state, me.getGraphX() - tol, me.getGraphY() + tol) ||
-								!mxUtils.contains(state, me.getGraphX() + tol, me.getGraphY() + tol) ||
-								!mxUtils.contains(state, me.getGraphX() + tol, me.getGraphY() - tol)))
+								(!mxUtils.contains(state, me.getGraphX() - t1, me.getGraphY() - t1) ||
+								!mxUtils.contains(state, me.getGraphX() - t1, me.getGraphY() + t1) ||
+								!mxUtils.contains(state, me.getGraphX() + t1, me.getGraphY() + t1) ||
+								!mxUtils.contains(state, me.getGraphX() + t1, me.getGraphY() - t1)))
 			    			{
 			    				var row = this.model.getParent(state.cell);
 			    				var table = this.model.getParent(row);
 			    				
 			    				if (!this.isCellSelected(table))
 			    				{
-									var geo = this.getCellGeometry(state.cell);
-									var g = (geo.alternateBounds != null) ? geo.alternateBounds : geo;
+									var b = tol * s;
+									var b2 = 2 * b;
 									
-				    				if ((mxUtils.intersects(box, new mxRectangle(state.x, state.y - 2, g.width * s, 3)) &&
-				    					this.model.getChildAt(table, 0) != row) || mxUtils.intersects(box, new mxRectangle(
-				    					state.x, state.y + g.height - 2, g.width, 3)) ||
-					    				(mxUtils.intersects(box, new mxRectangle(state.x - 2, state.y, 2, g.height * s)) &&
-					    				this.model.getChildAt(row, 0) != state.cell) || mxUtils.intersects(box, new mxRectangle(
-				    					state.x + g.width * s - 2, state.y, 2, g.height * s)))
+									// Ignores events on top line of top row and left line of left column
+				    				if ((this.model.getChildAt(table, 0) != row) && mxUtils.intersects(box,
+											new mxRectangle(state.x, state.y - b, state.width, b2)) ||
+										(this.model.getChildAt(row, 0) != state.cell) && mxUtils.intersects(box,
+											new mxRectangle(state.x - b, state.y, b2, state.height)) ||
+										mxUtils.intersects(box, new mxRectangle(state.x, state.y + state.height - b, state.width, b2)) ||
+										mxUtils.intersects(box, new mxRectangle(state.x + state.width - b, state.y, b2, state.height)))
 			    					{
 				    					var wasSelected = this.selectionCellsHandler.isHandled(table);
 										this.selectCellForEvent(table, me.getEvent());
@@ -657,7 +659,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				    		else if (!mxEvent.isControlDown(me.getEvent()))
 				    		{
 								var tol = mxShape.prototype.svgStrokeTolerance / 2;
-				    			var box = new mxRectangle(me.getGraphX() - 1, me.getGraphY() - 1);
+				    			var box = new mxRectangle(me.getGraphX(), me.getGraphY());
 			    				box.grow(tol);
 	
 					    		if (this.isTableCell(state.cell))

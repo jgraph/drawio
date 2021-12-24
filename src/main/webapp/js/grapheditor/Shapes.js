@@ -5130,7 +5130,9 @@
 				
 				if (ss.style.shape == 'umlFrame')
 				{
-					result.push({title: mxResources.get('laneColor'), key: 'swimlaneFillColor', defaultValue: '#ffffff'});
+					result.push({title: mxResources.get('laneColor'),
+						key: 'swimlaneFillColor',
+						defaultValue: 'default'});
 				}
 				
 				return result;

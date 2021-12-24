@@ -8,9 +8,9 @@ import java.io.IOException;
 @SuppressWarnings("serial")
 public class GitlabAuthServlet extends AbsAuthServlet
 {
-	public static String CLIENT_SECRET_FILE_PATH = "/WEB-INF/gitlab_client_secret";
-	public static String CLIENT_ID_FILE_PATH = "/WEB-INF/gitlab_client_id";
-	public static String AUTH_SERVICE_URL_FILE_PATH = "/WEB-INF/gitlab_auth_url";
+	public static String CLIENT_SECRET_FILE_PATH = "gitlab_client_secret";
+	public static String CLIENT_ID_FILE_PATH = "gitlab_client_id";
+	public static String AUTH_SERVICE_URL_FILE_PATH = "gitlab_auth_url";
 	
 	private static Config CONFIG = null;
 	
@@ -24,7 +24,7 @@ public class GitlabAuthServlet extends AbsAuthServlet
 			{
 				clientSerets = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_SECRET_FILE_PATH))
+								.getResourceAsStream(getSecretPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -36,7 +36,7 @@ public class GitlabAuthServlet extends AbsAuthServlet
 			{
 				clientIds = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(CLIENT_ID_FILE_PATH))
+								.getResourceAsStream(getClientIdPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -50,7 +50,7 @@ public class GitlabAuthServlet extends AbsAuthServlet
 			{
 				CONFIG.AUTH_SERVICE_URL = Utils
 						.readInputStream(getServletContext()
-								.getResourceAsStream(AUTH_SERVICE_URL_FILE_PATH))
+								.getResourceAsStream(getServiceUrlPath()))
 						.replaceAll("\n", "");
 			}
 			catch (IOException e)
@@ -64,6 +64,21 @@ public class GitlabAuthServlet extends AbsAuthServlet
 		return CONFIG;
 	}
 	
+	protected String getSecretPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_SECRET_FILE_PATH;
+	}
+
+	protected String getClientIdPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_ID_FILE_PATH;
+	}
+
+	protected String getServiceUrlPath()
+	{
+		return AbsAuthServlet.SECRETS_DIR_PATH + AUTH_SERVICE_URL_FILE_PATH;
+	}
+
 	public GitlabAuthServlet()
 	{
 		super();
