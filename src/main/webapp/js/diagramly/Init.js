@@ -83,7 +83,7 @@ window.mxLanguage = window.mxLanguage || (function()
 				
 				if (!lang && window.mxIsElectron)
 				{
-					lang = require('@electron/remote').app.getLocale();
+					lang = urlParams['appLang'];
 					
 					if (lang != null)
 			    	{

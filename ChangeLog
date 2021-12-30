@@ -1,3 +1,22 @@
+30-DEC-2021: 16.1.2
+
+- Adds fillStyle dropdown for image background
+
+29-DEC-2021: 16.1.1
+
+- Avoids creating Blob for parseFile
+- Fixes dimension shape with large stroke size https://github.com/jgraph/drawio/issues/271
+- Hides foreign object warnings in background pages
+- Fixes overflows in minimal and sketch theme https://github.com/jgraph/drawio/issues/2509
+- Fixes freehand mode for Apple pencil on iOS https://github.com/jgraph/drawio/issues/2510
+- Adds tableRow shape, fixes events for merged cells
+- Uses clip path attribute for SVG image clipping
+- Fixes default label background for imported images
+- Fits image to clipPath bounding box
+- Fixes collapsed table foreground https://github.com/jgraph/drawio/issues/2512
+- Fixes overflow in LinkDialog
+- Disables child layout for collapsed cells
+
 23-DEC-2021: 16.1.0
 
 - Fixes inconsistent event cursors on table lines

@@ -83,9 +83,7 @@ function render(data)
 		//Electron pdf export
 		try 
 		{
-			const { ipcRenderer } = require('electron');
-			
-			ipcRenderer.send('render-finished', null);
+			electron.sendMessage('render-finished', null);
 		}
 		catch(e)
 		{
@@ -96,28 +94,32 @@ function render(data)
 	}
 	
 	var xmlDoc = node.ownerDocument;
+	var origXmlDoc = xmlDoc;
 	var diagrams = null;
 	var from = 0;
 
+	function getFileXml(uncompressed)
+	{
+		var xml = mxUtils.getXml(origXmlDoc);
+		EditorUi.prototype.createUi = function(){};
+		EditorUi.prototype.addTrees = function(){};
+		EditorUi.prototype.updateActionStates = function(){};
+		var editorUi = new EditorUi();
+		var tmpFile = new LocalFile(editorUi, xml);
+		editorUi.setCurrentFile(tmpFile);
+		editorUi.setFileData(xml);
+		return editorUi.createFileData(editorUi.getXmlFileData(null, null, uncompressed));
+	};
+
 	if (mxIsElectron && data.format == 'xml')
 	{
-		const { ipcRenderer } = require('electron');
-
 		try
 		{
-			var xml = mxUtils.getXml(xmlDoc);
-			EditorUi.prototype.createUi = function(){};
-			EditorUi.prototype.addTrees = function(){};
-			EditorUi.prototype.updateActionStates = function(){};
-			var editorUi = new EditorUi();
-			var tmpFile = new LocalFile(editorUi, xml);
-			editorUi.setCurrentFile(tmpFile);
-			editorUi.setFileData(xml);
-			ipcRenderer.send('xml-data', mxUtils.getXml(editorUi.getXmlFileData(null, null, data.uncompressed)));
+			electron.sendMessage('xml-data', getFileXml(data.uncompressed));
 		}
 		catch(e)
 		{
-			ipcRenderer.send('xml-data-error');
+			electron.sendMessage('xml-data-error');
 		}
 		
 		return;
@@ -210,9 +212,7 @@ function render(data)
 				{
 					try 
 					{
-						const { ipcRenderer } = require('electron');
-						
-						ipcRenderer.on('get-svg-data', (event, arg) => 
+						electron.registerMsgListener('get-svg-data', (arg) => 
 						{
 							graph.mathEnabled = math; //Enable math such that getSvg works as expected
 							// Returns the exported SVG for the given graph (see EditorUi.exportSvg)
@@ -238,13 +238,33 @@ function render(data)
 							{
 								Editor.prototype.addMathCss(svgRoot);
 							}
-							
-							ipcRenderer.send('svg-data', '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">\n' +
-									mxUtils.getXml(svgRoot));
+						
+							function doSend() 
+							{
+								var editable = data.embedXml == '1';
+
+								if (editable)
+								{
+									svgRoot.setAttribute('content', getFileXml());
+								}
+
+								electron.sendMessage('svg-data', Graph.xmlDeclaration + '\n' + ((editable) ? Graph.svgFileComment + '\n' : '') +
+															 Graph.svgDoctype + '\n' + mxUtils.getXml(svgRoot));
+							};
+
+							if (data.embedImages == '1')
+							{
+								var tmpEditor = new Editor();
+								tmpEditor.convertImages(svgRoot, doSend);
+							}
+							else
+							{
+								doSend();
+							}
 						});
 						
 						//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
-						ipcRenderer.send('render-finished', {bounds: JSON.stringify(bounds), pageCount: pageCount});
+						electron.sendMessage('render-finished', {bounds: JSON.stringify(bounds), pageCount: pageCount});
 					}
 					catch(e)
 					{
@@ -896,11 +916,17 @@ if (mxIsElectron)
 {
 	try 
 	{
-		const { ipcRenderer } = require('electron');
-		
-		ipcRenderer.on('render', (event, arg) => 
+		electron.registerMsgListener('render', (arg) => 
 		{
-			render(arg);
+			try
+			{
+				render(arg);
+			}
+			catch(e)
+			{
+				console.log(e);
+				electron.sendMessage('render-finished', null);
+			}
 		});
 	}
 	catch(e)

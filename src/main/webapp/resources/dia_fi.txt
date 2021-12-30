@@ -1170,3 +1170,4 @@ website=Verkkosivusto
 check4Updates=Tarkista päivitykset
 attWriteFailedRetry={1}: Liitteen kirjoitus epäonnistui, yritetään uudelleen {2} sekunnin kuluttua...
 confPartialPageList=We couldn't fetch all pages due to an error in Confluence. Continuing using {1} pages only.
+spellCheck=Spell checker

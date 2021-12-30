@@ -1170,3 +1170,4 @@ website=웹사이트
 check4Updates=업데이트 여부를 확인중입니다.
 attWriteFailedRetry={1}: 첨부파일 쓰기를 실패했습니다. {2} 초 후 재시도합니다.
 confPartialPageList=Confluence에서 발생한 오류로 모든 페이지를 가져오지 못했습니다. {1} 페이지만 사용합니다.
+spellCheck=Spell checker

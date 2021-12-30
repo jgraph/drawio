@@ -383,10 +383,14 @@ EditorUi.prototype.getImageForPage = function(page, sourcePage, sourceGraph)
 
 	this.updatePageRoot(page);
 	graph.model.setRoot(page.root);
+
+	var temp = Graph.foreignObjectWarningText;
+	Graph.foreignObjectWarningText = '';
 	var svgRoot = graph.getSvg(null, null, null, null, null,
 		null, null, null, null, null, null, true);
 	var bounds = graph.getGraphBounds();
 	document.body.removeChild(graph.container);
+	Graph.foreignObjectWarningText = temp;
 
 	return new mxImage(Editor.createSvgDataUri(mxUtils.getXml(svgRoot)),
 		bounds.width, bounds.height, bounds.x, bounds.y);

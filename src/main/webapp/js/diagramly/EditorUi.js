@@ -5210,7 +5210,8 @@
 		}
 		
 		var editSelect = document.createElement('select');
-		editSelect.style.width = '120px';
+		editSelect.style.maxWidth = '200px';
+		editSelect.style.width = 'auto';
 		editSelect.style.marginLeft = '8px';
 		editSelect.style.marginRight = '10px';
 		editSelect.className = 'geBtn';
@@ -5289,6 +5290,7 @@
 
 		var linkSelect = document.createElement('select');
 		linkSelect.style.width = '100px';
+		linkSelect.style.padding = '0px';
 		linkSelect.style.marginLeft = '8px';
 		linkSelect.style.marginRight = '10px';
 		linkSelect.className = 'geBtn';
@@ -7804,7 +7806,7 @@
 			if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
 			{
 				// Fixes possible parsing problems with ASCII 160 (non-breaking space)
-				this.parseFile(new Blob([text.replace(/\s+/g,' ')], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+				this.parseFileData(text.replace(/\s+/g,' '), mxUtils.bind(this, function(xhr)
 				{
 					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
 					{
@@ -7881,7 +7883,7 @@
 						this.resizeImage(img, text, mxUtils.bind(this, function(data2, w2, h2)
 	    				{
 							graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+									w2, h2, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
 									'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + this.convertDataUri(data2) + ';'));
 	    				}), resizeImages, this.maxImageSize);
 					}
@@ -7892,7 +7894,7 @@
 						var h = Math.round(img.height * s);
 						
 						graph.setSelectionCell(graph.insertVertex(null, null, '', graph.snap(dx), graph.snap(dy),
-								w, h, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+								w, h, 'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
 								'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + text + ';'));
 					}
 				}), mxUtils.bind(this, function()
@@ -8230,7 +8232,7 @@
 		                	{
 		                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
 		                		{
-		                			ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+		                			ui.parseFileData(data, mxUtils.bind(this, function(xhr)
 		                			{
 		                				if (xhr.readyState == 4)
 		                				{
@@ -8342,7 +8344,7 @@
 				}
 
 				cells = [graph.insertVertex(null, null, '', dx, dy, w, h,
-					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
 					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + data + ';')];
 			}
 		}
@@ -8365,7 +8367,7 @@
 			async = true;
 
 			// Returns empty cells array as it is aysynchronous
-			this.parseFile((file != null) ? file : new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+			var parseCallback = mxUtils.bind(this, function(xhr)
 			{
 				if (xhr.readyState == 4)
 				{
@@ -8378,7 +8380,16 @@
 						done(null);
 					}
 				}
-			}), filename);
+			});
+
+			if (data != null)
+			{
+				this.parseFileData(data, parseCallback, filename);
+			}
+			else
+			{
+				this.parseFile(file, parseCallback, filename);
+			}
 		}
 		else if (data.indexOf('PK') == 0 && file != null)
 		{
@@ -9046,6 +9057,20 @@
 			graph.view.defaultGridColor = mxGraphView.prototype.defaultDarkGridColor;
 		}
 		
+		// Stops panning while freehand is active
+		if (Graph.touchStyle)
+		{
+			graph.panningHandler.isPanningTrigger = function(me)
+			{
+				var evt = me.getEvent();
+				
+			 	return (me.getState() == null && (!mxEvent.isMouseEvent(evt) &&
+					!graph.freehand.isDrawing())) ||
+			 		(mxEvent.isPopupTrigger(evt) && (me.getState() == null ||
+			 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
+			};
+		}		
+
 		// Starts editing PlantUML data
 		graph.cellEditor.editPlantUmlData = function(cell, trigger, data)
 		{
@@ -9908,7 +9933,7 @@
 			    				var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
 
 			    				graph.setSelectionCell(graph.insertVertex(null, null, '', x, y, w * s, h * s,
-			    					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;' +
+			    					'shape=image;verticalLabelPosition=bottom;labelBackgroundColor=default;' +
 			    					'verticalAlign=top;aspect=fixed;imageAspect=0;image=' + uri + ';'));
 			    			}), mxUtils.bind(this, function(img)
 			    			{
@@ -12663,7 +12688,7 @@
 			else if (data != null && typeof data.substring === 'function' && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
 			{
 				// Asynchronous parsing via server
-				this.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+				this.parseFileData(data, mxUtils.bind(this, function(xhr)
 				{
 					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
 						xhr.responseText.substring(0, 13) == '<mxGraphModel')

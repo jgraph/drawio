@@ -1179,7 +1179,7 @@ DriveClient.prototype.getXmlFile = function(resp, success, error, ignoreMime, re
 							
 							if (Graph.fileSupport && new XMLHttpRequest().upload && this.ui.isRemoteFileFormat(data, url))
 							{
-								this.ui.parseFile(new Blob([data], {type: 'application/octet-stream'}), mxUtils.bind(this, function(xhr)
+								this.ui.parseFileData(data, mxUtils.bind(this, function(xhr)
 								{
 									try
 									{

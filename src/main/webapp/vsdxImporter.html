@@ -19,17 +19,15 @@
 
   try
   {
-	const { ipcRenderer } = require('electron');
-	
-	ipcRenderer.on('import', (event, vsdxBuff) => 
+	electron.registerMsgListener('import', (vsdxBuff) => 
 	{
 	 	doImport(vsdxBuff, function(xml)
 		{
-	 		ipcRenderer.send('import-success', xml);
+			electron.sendMessage('import-success', xml);
 		},
 		function()
 		{
-			ipcRenderer.send('import-error');
+			electron.sendMessage('import-error');
 		});
 	});
   }

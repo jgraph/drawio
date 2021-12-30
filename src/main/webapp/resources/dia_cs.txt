@@ -1170,3 +1170,4 @@ website=Webové stránky
 check4Updates=Zjistit dostupnost případných aktualizací
 attWriteFailedRetry={1}: Zapsání přílohy se nezdařilo, opětovný pokus za {2} sekund…
 confPartialPageList=Nepodařilo se získat všechny stránky kvůli chybě v Confluence. Pokračuje se pouze se {1} stránkami.
+spellCheck=Spell checker

@@ -4070,7 +4070,7 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 		{
 			var typeSelect = FilenameDialog.createFileTypes(editorUi, nameInput, editorUi.editor.diagramFileTypes);
 			typeSelect.style.marginLeft = '6px';
-			typeSelect.style.width = '80px';
+			typeSelect.style.width = '90px';
 			div.appendChild(typeSelect);
 		}
 		
@@ -5013,7 +5013,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 	linkInput.setAttribute('placeholder', mxResources.get('dragUrlsHere'));
 	linkInput.setAttribute('type', 'text');
 	linkInput.style.marginTop = '6px';
-	linkInput.style.width = '100%';
+	linkInput.style.width = '97%';
 	linkInput.style.boxSizing = 'border-box';
 	linkInput.style.backgroundImage = 'url(\'' + Dialog.prototype.clearImage + '\')';
 	linkInput.style.backgroundRepeat = 'no-repeat';
@@ -8275,7 +8275,7 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	var div = document.createElement('div');
 	var inner = document.createElement('div');
 	
-	inner.style.height = '120px';
+	inner.style.height = '180px';
 	inner.style.overflow = 'auto';
 
 	var plugins = mxSettings.getPlugins().slice();
@@ -8332,7 +8332,7 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	div.appendChild(inner);
 	refresh();
 
-	var addBtn = mxUtils.button(mxResources.get('add') + '...', addFn != null? function()
+	var addBtn = mxUtils.button(mxResources.get('add'), addFn != null? function()
 	{
 		addFn(function(newPlugin)
 		{

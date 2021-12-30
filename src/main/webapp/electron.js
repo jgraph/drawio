@@ -2,12 +2,8 @@ const fs = require('fs')
 const os = require('os');
 const path = require('path')
 const url = require('url')
-const electron = require('electron')
-const {Menu: menu, shell} = require('electron')
-const ipcMain = electron.ipcMain
-const dialog = electron.dialog
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
+const {Menu: menu, shell, dialog,
+		clipboard, nativeImage, ipcMain, app, BrowserWindow} = require('electron')
 const crc = require('crc');
 const zlib = require('zlib');
 const log = require('electron-log')
@@ -17,8 +13,6 @@ const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
-const remoteMain = require("@electron/remote/main")
-remoteMain.initialize()
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
 						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox
@@ -89,23 +83,23 @@ function createWindow (opt = {})
 		webViewTag: false,
 		'web-security': true,
 		webPreferences: {
-			// preload: path.resolve('./preload.js'),
-			nodeIntegration: true,
-			nodeIntegrationInWorker: true,
+			preload: `${__dirname}/electron-preload.js`,
 			spellcheck: enableSpellCheck,
-			contextIsolation: false,
+			contextIsolation: true,
 			nativeWindowOpen: true
 		}
 	}, opt)
 
 	let mainWindow = new BrowserWindow(options)
-	remoteMain.enable(mainWindow.webContents)
 	windowsRegistry.push(mainWindow)
 
 	if (__DEV__) 
 	{
 		console.log('createWindow', opt)
 	}
+
+	//Cannot be read before app is ready
+	queryObj['appLang'] = app.getLocale();
 
 	let ourl = url.format(
 	{
@@ -123,6 +117,21 @@ function createWindow (opt = {})
 		mainWindow.webContents.openDevTools()
 	}
 
+	mainWindow.on('maximize', function()
+	{
+		mainWindow.webContents.send('maximize')
+	});
+
+	mainWindow.on('unmaximize', function()
+	{
+		mainWindow.webContents.send('unmaximize')
+	});
+
+	mainWindow.on('resize', function()
+	{
+		mainWindow.webContents.send('resize')
+	});
+
 	mainWindow.on('close', (event) =>
 	{
 		const win = event.sender
@@ -137,7 +146,7 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			contents.executeJavaScript('if(typeof global.__emt_isModified === \'function\'){global.__emt_isModified()}', true)
+			contents.executeJavaScript('if(typeof window.__emt_isModified === \'function\'){window.__emt_isModified()}', true)
 				.then((isModified) =>
 				{
 					if (__DEV__) 
@@ -159,7 +168,7 @@ function createWindow (opt = {})
 						if (choice === 1)
 						{
 							//If user chose not to save, remove the draft
-							contents.executeJavaScript('global.__emt_removeDraft()', true);
+							contents.executeJavaScript('window.__emt_removeDraft()', true);
 							win.destroy()
 						}
 						else
@@ -198,28 +207,9 @@ function createWindow (opt = {})
 // Some APIs can only be used after this event occurs.
 app.on('ready', e =>
 {
-	//asynchronous
-	ipcMain.on('asynchronous-message', (event, arg) =>
+	ipcMain.on('newfile', (event, arg) =>
 	{
-		console.log(arg)  // prints "ping"
-		event.sender.send('asynchronous-reply', 'pong')
-	})
-	//synchronous
-	ipcMain.on('winman', (event, arg) =>
-	{
-		if (__DEV__) 
-		{
-			console.log('ipcMain.on winman', arg)
-		}
-		
-		if (arg.action === 'newfile')
-		{
-			event.returnValue = createWindow(arg.opt).id
-			
-			return
-		}
-		
-		event.returnValue = 'pong'
+		createWindow(arg)
 	})
 	
     let argv = process.argv
@@ -256,7 +246,9 @@ app.on('ready', e =>
 			.option('-t, --transparent',
 				'set transparent background for PNG')
 			.option('-e, --embed-diagram',
-				'includes a copy of the diagram (for PNG and PDF formats only)')
+				'includes a copy of the diagram (for PNG, SVG and PDF formats only)')
+			.option('--embed-svg-images',
+				'Embed Images in SVG file (for SVG format only)')
 			.option('-b, --border <border>',
 				'sets the border width around the diagram (default: 0)', parseInt)
 			.option('-s, --scale <scale>',
@@ -291,8 +283,8 @@ app.on('ready', e =>
     	var dummyWin = new BrowserWindow({
 			show : false,
 			webPreferences: {
-				nodeIntegration: true,
-				contextIsolation: false,
+				preload: `${__dirname}/electron-preload.js`,
+				contextIsolation: true,
 				nativeWindowOpen: true
 			}
 		});
@@ -362,6 +354,7 @@ app.on('ready', e =>
 				allPages: format == 'pdf' && options.allPages,
 				scale: (options.crop && (options.scale == null || options.scale == 1)) ? 1.00001: (options.scale || 1), //any value other than 1 crops the pdf
 				embedXml: options.embedDiagram? '1' : '0',
+				embedImages: options.embedSvgImages? '1' : '0',
 				jpegQuality: options.quality,
 				uncompressed: options.uncompressed
 			};
@@ -492,7 +485,8 @@ app.on('ready', e =>
 												{
 													if (outType.isDir)
 													{
-														outFileName = path.join(options.output, path.basename(curFile)) + '.' + format;
+														outFileName = path.join(options.output, path.basename(curFile,
+															path.extname(curFile))) + '.' + format;
 													}
 													else
 													{
@@ -527,7 +521,7 @@ app.on('ready', e =>
 													}
 													
 													fs.writeFileSync(realFileName, data, format == 'vsdx'? 'base64' : null, { flag: 'wx' });
-													console.log(curFile + ' -> ' + outFileName);
+													console.log(curFile + ' -> ' + realFileName);
 												}
 												catch(e)
 												{
@@ -582,6 +576,7 @@ app.on('ready', e =>
 	}
     else if (program.rawArgs.indexOf('-h') > -1 || program.rawArgs.indexOf('--help') > -1 || program.rawArgs.indexOf('-V') > -1 || program.rawArgs.indexOf('--version') > -1) //To prevent execution when help/version arg is used
 	{
+		app.quit();
     	return;
 	}
     
@@ -1219,9 +1214,9 @@ function exportDiagram(event, args, directFinalize)
 	{
 		browser = new BrowserWindow({
 			webPreferences: {
+				preload: `${__dirname}/electron-preload.js`,
 				backgroundThrottling: false,
-				nodeIntegration: true,
-				contextIsolation: false,
+				contextIsolation: true,
 				nativeWindowOpen: true
 			},
 			show : false,
@@ -1267,6 +1262,12 @@ function exportDiagram(event, args, directFinalize)
 
 			function renderingFinishHandler(evt, renderInfo)
 			{
+				if (renderInfo == null)
+				{
+					event.reply('export-error');
+					return;
+				}
+
 				var pageCount = renderInfo.pageCount, bounds = null;
 				//For some reason, Electron 9 doesn't send this object as is without stringifying. Usually when variable is external to function own scope
 				try
@@ -1463,3 +1464,442 @@ function exportDiagram(event, args, directFinalize)
 };
 
 ipcMain.on('export', exportDiagram);
+
+//================================================================
+// Renderer Helper functions
+//================================================================
+
+const { COPYFILE_EXCL } = fs.constants;
+const DRAFT_PREFEX = '~$';
+const DRAFT_EXT = '.dtmp';
+const BKP_PREFEX = '~$';
+const BKP_EXT = '.bkp';
+
+function isConflict(origStat, stat)
+{
+	return stat != null && origStat != null && stat.mtimeMs != origStat.mtimeMs;
+};
+
+function getDraftFileName(fileObject)
+{
+	let filePath = fileObject.path;
+	let draftFileName = '', counter = 1, uniquePart = '';
+
+	do
+	{
+		draftFileName = path.join(path.dirname(filePath), DRAFT_PREFEX + path.basename(filePath) + uniquePart + DRAFT_EXT);
+		uniquePart = '_' + counter++;
+	} while (fs.existsSync(draftFileName));
+
+	return draftFileName;
+};
+
+function getFileDrafts(fileObject)
+{
+	let filePath = fileObject.path;
+	let draftsPaths = [], drafts = [], draftFileName, counter = 1, uniquePart = '';
+
+	do
+	{
+		draftsPaths.push(draftFileName);
+		draftFileName = path.join(path.dirname(filePath), DRAFT_PREFEX + path.basename(filePath) + uniquePart + DRAFT_EXT);
+		uniquePart = '_' + counter++;
+	} while (fs.existsSync(draftFileName)); //TODO this assume continuous drafts names
+
+	//Skip the first null element
+	for (let i = 1; i < draftsPaths.length; i++)
+	{
+		try
+		{
+			let stat = fs.lstatSync(draftsPaths[i]);
+			drafts.push({data: fs.readFileSync(draftsPaths[i], 'utf8'), 
+						created: stat.ctimeMs,
+						modified: stat.mtimeMs,
+						path: draftsPaths[i]});
+		}
+		catch (e){} // Ignore
+	}
+
+	return drafts;
+};
+
+function saveDraft(fileObject, data)
+{
+	if (data == null || data.length == 0)
+	{
+		throw new Error('empty data'); 
+	}
+	else
+	{
+		var draftFileName = fileObject.draftFileName || getDraftFileName(fileObject);
+		fs.writeFileSync(draftFileName, data, 'utf8');
+		return draftFileName;
+	}
+}
+
+function saveFile(fileObject, data, origStat, overwrite, defEnc)
+{
+	var retryCount = 0;
+	var backupCreated = false;
+	var bkpPath = path.join(path.dirname(fileObject.path), BKP_PREFEX + path.basename(fileObject.path) + BKP_EXT);
+
+	var writeFile = function()
+	{
+		if (data == null || data.length == 0)
+		{
+			throw new Error('empty data');
+		}
+		else
+		{
+			var writeEnc = defEnc || fileObject.encoding;
+			
+			fs.writeFileSync(fileObject.path, data, writeEnc);
+			let stat2 = fs.statSync(fileObject.path);
+			// Workaround for possible writing errors is to check the written
+			// contents of the file and retry 3 times before showing an error
+			let writtenData = fs.readFileSync(fileObject.path, writeEnc);
+			
+			if (data != writtenData)
+			{
+				retryCount++;
+				
+				if (retryCount < 3)
+				{
+					return writeFile();
+				}
+				else
+				{
+					throw new Error('all saving trials failed');
+				}
+			}
+			else
+			{
+				if (backupCreated)
+				{
+					fs.unlink(bkpPath, (err) => {}); //Ignore errors!
+				}
+
+				return stat2;
+			}
+		}
+	};
+	
+	function doSaveFile()
+	{
+		//Copy file to backup file (after conflict and stat is checked)
+		try
+		{
+			fs.copyFileSync(fileObject.path, bkpPath, COPYFILE_EXCL);
+			backupCreated = true;
+		}
+		catch (e) {} //Ignore
+					
+		return writeFile();
+	};
+	
+	if (overwrite)
+	{
+		return doSaveFile();
+	}
+	else
+	{
+		let stat = fs.existsSync(fileObject.path)?
+				 fs.statSync(fileObject.path) : null;
+
+		if (stat && isConflict(origStat, stat))
+		{
+			new Error('conflict');
+		}
+		else
+		{
+			return doSaveFile();
+		}
+	}
+};
+
+function writeFile(path, data, enc)
+{
+	return fs.writeFileSync(path, data, enc);
+};
+
+function getAppDataFolder()
+{
+	try
+	{
+		var appDataDir = app.getPath('appData');
+		var drawioDir = appDataDir + '/draw.io';
+		
+		if (!fs.existsSync(drawioDir)) //Usually this dir already exists
+		{
+			fs.mkdirSync(drawioDir);
+		}
+		
+		return drawioDir;
+	}
+	catch(e) {}
+	
+	return '.';
+};
+
+function getDocumentsFolder()
+{
+	//On windows, misconfigured Documents folder cause an exception
+	try
+	{
+		return app.getPath('documents');
+	}
+	catch(e) {}
+	
+	return '.';
+};
+
+function checkFileExists(pathParts)
+{
+	return fs.existsSync(path.join(...pathParts));
+};
+
+function showOpenDialog(defaultPath, filters, properties)
+{
+	return dialog.showOpenDialogSync({
+		defaultPath: defaultPath,
+		filters: filters,
+		properties: properties
+	});
+};
+
+function showSaveDialog(defaultPath, filters)
+{
+	return dialog.showSaveDialogSync({
+		defaultPath: defaultPath,
+		filters: filters
+	});
+};
+
+function installPlugin(filePath)
+{
+	var pluginsDir = path.join(getAppDataFolder(), '/plugins');
+	
+	if (!fs.existsSync(pluginsDir))
+	{
+		fs.mkdirSync(pluginsDir);
+	}
+	
+	var pluginName = path.basename(filePath);
+	var dstFile = path.join(pluginsDir, pluginName);
+	
+	if (fs.existsSync(dstFile))
+	{
+		throw new Error('fileExists');
+	}
+	else
+	{
+		fs.copyFileSync(filePath, dstFile);
+	}
+
+	return {pluginName: pluginName, selDir: path.dirname(filePath)};
+}
+
+function uninstallPlugin(plugin)
+{
+	var pluginsFile = path.join(getAppDataFolder(), '/plugins', plugin);
+	        	
+	if (fs.existsSync(pluginsFile))
+	{
+		fs.unlinkSync(pluginsFile);
+	}
+}
+
+function dirname(path_p)
+{
+	return path.dirname(path_p);
+}
+
+function readFile(filename, encoding)
+{
+	return fs.readFileSync(filename, encoding);
+}
+
+function fileStat(file)
+{
+	return fs.statSync(file);
+}
+
+function isFileWritable(file)
+{
+	try 
+	{
+		fs.accessSync(file, fs.constants.W_OK);
+		return true;
+	}
+	catch (e)
+	{
+		return false;
+	}
+}
+
+function clipboardAction(method, data)
+{
+	if (method == 'writeText')
+	{
+		clipboard.writeText(data);
+	}
+	else if (method == 'readText')
+	{
+		return clipboard.readText();
+	}
+	else if (method == 'writeImage')
+	{
+		clipboard.write({image: 
+			nativeImage.createFromDataURL(data.dataUrl), html: '<img src="' +
+			data.dataUrl + '" width="' + data.w + '" height="' + data.h + '">'});
+	}
+}
+
+function deleteFile(file) 
+{
+	fs.unlinkSync(file);
+}
+
+function windowAction(method)
+{
+	let win = BrowserWindow.getFocusedWindow();
+
+	if (win)
+	{
+		if (method == 'minimize')
+		{
+			win.minimize();
+		}
+		else if (method == 'maximize')
+		{
+			win.maximize();
+		}
+		else if (method == 'unmaximize')
+		{
+			win.unmaximize();
+		}
+		else if (method == 'close')
+		{
+			win.close();
+		}
+		else if (method == 'isMaximized')
+		{
+			return win.isMaximized();
+		}
+		else if (method == 'removeAllListeners')
+		{
+			win.removeAllListeners();
+		}
+	}
+}
+
+function openExternal(url)
+{
+	shell.openExternal(url);
+}
+
+function watchFile(path)
+{
+	let win = BrowserWindow.getFocusedWindow();
+
+	if (win)
+	{
+		fs.watchFile(path, (curr, prev) => {
+			try
+			{
+				win.webContents.send('fileChanged', {
+					path: path,
+					curr: curr,
+					prev: prev
+				});
+			}
+			catch (e) {} // Ignore
+		});
+	}
+}
+
+function unwatchFile(path)
+{
+	fs.unwatchFile(path);
+}
+
+ipcMain.on("rendererReq", async (event, args) => 
+{
+	try
+	{
+		let ret = null;
+
+		switch(args.action)
+		{
+		case 'saveFile':
+			ret = saveFile(args.fileObject, args.data, args.origStat, args.overwrite, args.defEnc);
+			break;
+		case 'writeFile':
+			ret = writeFile(args.path, args.data, args.enc);
+			break;
+		case 'saveDraft':
+			ret = saveDraft(args.fileObject, args.data);
+			break;
+		case 'getFileDrafts':
+			ret = getFileDrafts(args.fileObject);
+			break;
+		case 'getAppDataFolder':
+			ret = getAppDataFolder();
+			break;
+		case 'getDocumentsFolder':
+			ret = getDocumentsFolder();
+			break;
+		case 'checkFileExists':
+			ret = checkFileExists(args.pathParts);
+			break;
+		case 'showOpenDialog':
+			ret = showOpenDialog(args.defaultPath, args.filters, args.properties);
+			break;
+		case 'showSaveDialog':
+			ret = showSaveDialog(args.defaultPath, args.filters);
+			break;
+		case 'installPlugin':
+			ret = installPlugin(args.filePath);
+			break;
+		case 'uninstallPlugin':
+			ret = uninstallPlugin(args.plugin);
+			break;
+		case 'dirname':
+			ret = dirname(args.path);
+			break;
+		case 'readFile':
+			ret = readFile(args.filename, args.encoding);
+			break;
+		case 'clipboardAction':
+			ret = clipboardAction(args.method, args.data);
+			break;
+		case 'deleteFile':
+			ret = deleteFile(args.file);
+			break;
+		case 'fileStat':
+			ret = fileStat(args.file);
+			break;
+		case 'isFileWritable':
+			ret = isFileWritable(args.file);
+			break;
+		case 'windowAction':
+			ret = windowAction(args.method);
+			break;
+		case 'openExternal':
+			ret = openExternal(args.url);
+			break;
+		case 'watchFile':
+			ret = watchFile(args.path);
+			break;
+		case 'unwatchFile':	
+			ret = unwatchFile(args.path);
+			break;
+		};
+
+		event.reply('mainResp', {success: true, data: ret, reqId: args.reqId});
+	}
+	catch (e)
+	{
+		event.reply('mainResp', {error: true, msg: e.message, e: e, reqId: args.reqId});
+	}
+});

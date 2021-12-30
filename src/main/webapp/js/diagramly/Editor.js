@@ -1257,7 +1257,18 @@
 				return shapeCreateHandJiggle.apply(this, arguments);
 			}
 		};
-		
+
+		// Avoids duplicate painting of images
+		var imageShapePaintVertexShape = mxImageShape.prototype.paintVertexShape;
+
+		mxImageShape.prototype.paintVertexShape = function(c, x, y, w, h)
+		{
+			if (c.handJiggle == null || !c.handJiggle.passThrough)
+			{
+				imageShapePaintVertexShape.apply(this, arguments);
+			}
+		};
+
 		// Overrides for event handling on transparent background for sketch style
 		var shapePaint = mxShape.prototype.paint;
 		mxShape.prototype.paint = function(c)
@@ -4243,7 +4254,12 @@
 			{name: 'fixedRows', dispName: 'Fixed Rows', type: 'bool', defVal: false},
 			{name: 'resizeLast', dispName: 'Resize Last Column', type: 'bool', defVal: false},
 			{name: 'resizeLastRow', dispName: 'Resize Last Row', type: 'bool', defVal: false}].
-			concat(mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties);
+			concat(mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties).
+			concat(mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties);
+
+		mxCellRenderer.defaultShapes['tableRow'].prototype.customProperties =
+			mxCellRenderer.defaultShapes['swimlane'].prototype.customProperties.
+			concat(mxCellRenderer.defaultShapes['partialRectangle'].prototype.customProperties);
 		
 		mxCellRenderer.defaultShapes['doubleEllipse'].prototype.customProperties = [
 	        {name: 'margin', dispName: 'Indent', type: 'float', min:0, defVal:4}

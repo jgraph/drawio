@@ -1170,3 +1170,4 @@ website=Webgunea
 check4Updates=Bilat eguneraketak
 attWriteFailedRetry={1}: Eranskinaren idazketa huts egin du, berriro saiatuko da {2} segundo barru...
 confPartialPageList=Ezin izan ditugu orrialde guztiak eskuratu konfluentzia errore bat dela medio. {1} orrialde soilik erabiliko dira.
+spellCheck=Spell checker

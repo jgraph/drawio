@@ -2268,7 +2268,7 @@
 			{
 				editorUi.actions.addAction('plugins...', function()
 				{
-					editorUi.showDialog(new PluginsDialog(editorUi).container, 360, 170, true, false);
+					editorUi.showDialog(new PluginsDialog(editorUi).container, 380, 240, true, false);
 				});
 			}
 		}

@@ -453,6 +453,7 @@ EditorUi.initMinimalTheme = function()
 			'html body .geToolbarButton { opacity: 0.3; }' +
 			'html body .geToolbarButton:active { opacity: 0.15; }' +
 			'html body .geStatus:active { opacity: 0.5; }' +
+			'.geStatus > div { box-sizing: border-box; max-width: 100%; text-overflow: ellipsis; }' +
 			'html body .geStatus { padding-top:3px !important; }' +
 			'html body .geMenubarContainer .geStatus { margin-top: 0px !important; }' +
 			'html table.mxPopupMenu tr.mxPopupMenuItemHover:active { opacity: 0.7; }' +
@@ -477,7 +478,7 @@ EditorUi.initMinimalTheme = function()
 			'.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
 			'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
 			'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
-			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); }' +
+			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); ' + (EditorUi.isElectronApp? 'app-region: no-drag; ' : '') + '}' +
 			// Styling for Minimal
 			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important; }' +
 			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
@@ -1986,20 +1987,6 @@ EditorUi.initMinimalTheme = function()
 			footer.style.visibility = 'hidden';
 			picker.style.display = 'none';
 		}));
-
-		// Stops panning while freehand is active
-		if (Graph.touchStyle)
-		{
-			graph.panningHandler.isPanningTrigger = function(me)
-			{
-				var evt = me.getEvent();
-				
-			 	return (me.getState() == null && (!mxEvent.isMouseEvent(evt) &&
-					!graph.freehand.isDrawing())) ||
-			 		(mxEvent.isPopupTrigger(evt) && (me.getState() == null ||
-			 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
-			};
-		}		
 
 		// Hides hover icons if freehand is active
 		if (ui.hoverIcons != null)
