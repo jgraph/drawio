@@ -17,6 +17,8 @@ Additional minified JavaScript files and Java libraries are used in this project
 Scope of the Project
 --------------------
 
+draw.io is a diagramming or whiteboarding application, depending on which theme is selected. It is not an SVG editing app, the SVG export is designed only for embedding in web pages, not for further editing in other tools.
+
 The application is designed to be used largely as-is. It's possible to alter the major parts of the interface, but if you're looking for an editor with very specific editing features, the project is likely not a good base to use.
 
 That is to say, if you wanted to create/deply a whiteboard or diagramming application where the functionality in the main canvas is as this project provides, it more likely to be a good base to use. 
