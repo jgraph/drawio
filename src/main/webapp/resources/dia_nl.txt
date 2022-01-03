@@ -754,6 +754,7 @@ uml=UML
 underline=Onderstrepen
 undo=Ongedaan maken
 ungroup=Degroeperen
+unmerge=Unmerge
 unsavedChanges=Niet-opgeslagen wijzigingen
 unsavedChangesClickHereToSave=Niet-opgeslagen wijzigingen. Klik hier om op te slaan.
 untitled=Zonder titel

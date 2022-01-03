@@ -754,6 +754,7 @@ uml=UML
 underline=Sottolinea
 undo=Annulla
 ungroup=Separa
+unmerge=Unmerge
 unsavedChanges=Modifiche non salvate
 unsavedChangesClickHereToSave=Modifiche non salvate. Fai clic qui per salvare.
 untitled=Senza titolo

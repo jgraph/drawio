@@ -754,6 +754,7 @@ uml=UML
 underline=Subliniază
 undo=Anulare acţiune anterioara
 ungroup=Degrupare
+unmerge=Unmerge
 unsavedChanges=Modificări ce nu au fost salvate
 unsavedChangesClickHereToSave=Modificări ce nu au fost salvate. Apasă aici pentru a salva.
 untitled=Fără titlu

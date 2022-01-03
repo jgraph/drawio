@@ -1316,7 +1316,7 @@ Graph.minTableRowHeight = 20;
 /**
  * Text for foreign object warning.
  */
-Graph.foreignObjectWarningText = 'Viewer does not support full SVG 1.1';
+Graph.foreignObjectWarningText = 'Text is not SVG - cannot display';
 
 /**
  * Link for foreign object warning.

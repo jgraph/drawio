@@ -1467,16 +1467,15 @@ ArrangePanel.prototype.init = function()
 			this.container.appendChild(this.addFlip(this.createPanel()));
 		}
 		
-		if (ss.vertices.length > 1)
+		if (ss.vertices.length > 1 && !ss.cell && !ss.row)
 		{
 			this.container.appendChild(this.addAlign(this.createPanel()));
 			this.container.appendChild(this.addDistribute(this.createPanel()));
 		}
 
 		this.container.appendChild(this.addTable(this.createPanel()));
+		this.container.appendChild(this.addGroupOps(this.createPanel()));
 	}
-	
-	this.container.appendChild(this.addGroupOps(this.createPanel()));
 	
 	if (ss.containsLabel)
 	{
@@ -1506,8 +1505,8 @@ ArrangePanel.prototype.addTable = function(div)
 	div.style.paddingBottom = '10px';
 
 	var span = document.createElement('div');
-	span.style.marginTop = '2px';
-	span.style.marginBottom = '8px';
+	span.style.marginTop = '0px';
+	span.style.marginBottom = '6px';
 	span.style.fontWeight = 'bold';
 	mxUtils.write(span, mxResources.get('table'));
 	div.appendChild(span);
@@ -1519,9 +1518,7 @@ ArrangePanel.prototype.addTable = function(div)
 	panel.style.width = '220px';
 	panel.className = 'geToolbarContainer';
 
-	var isTable = graph.isTable(ss.vertices[0]) ||
-		graph.isTableRow(ss.vertices[0]) ||
-		graph.isTableCell(ss.vertices[0]);
+	var isTable = ss.table || ss.row || ss.cell;
 	var isStack = graph.isStack(ss.vertices[0]) ||
 		graph.isStackChild(ss.vertices[0]);
 
@@ -1671,6 +1668,23 @@ ArrangePanel.prototype.addTable = function(div)
 		{
 			btns[2].style.marginRight = '10px';
 		}
+
+		var count = 0;
+
+		if (urlParams['dev'] == '1' && ss.mergeCell != null)
+		{
+			count += this.addActions(div, ['mergeCells']);
+		}
+		else if (urlParams['dev'] == '1' && ss.cells.length == 1 &&
+			(ss.style['colspan'] > 1 || ss.style['rowspan'] > 1))
+		{
+			count += this.addActions(div, ['unmergeCell']);
+		}
+
+		if (count > 0)
+		{
+			panel.style.paddingBottom = '2px';
+		}
 	}
 	else
 	{
@@ -1699,19 +1713,24 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	var ui = this.editorUi;
 	var graph = ui.editor.graph;
 	var ss = ui.getSelectionState();
-	var cell = ss.cells[0];
-	var btn = null;
 	
 	div.style.paddingTop = '8px';
 	div.style.paddingBottom = '6px';
 
-	var count = this.addActions(div, ['group', 'ungroup']);
-	count += this.addActions(div, ['removeFromGroup']);
-	count += this.addActions(div, ['copySize', 'pasteSize']);
-
-	if (graph.getSelectionCount() > 0)
+	var count = 0;
+	
+	if (!ss.cell && !ss.row)
 	{
-		var btn = mxUtils.button(mxResources.get('copyData'), function(evt)
+		count += this.addActions(div, ['group', 'ungroup']) +
+			this.addActions(div, ['removeFromGroup']) +
+			this.addActions(div, ['copySize', 'pasteSize']);
+	}
+	
+	var copyBtn = null;
+
+	if (ss.cells.length == 1 && !isNaN(ss.cells[0].value.nodeType))
+	{
+		copyBtn = mxUtils.button(mxResources.get('copyData'), function(evt)
 		{
 			if (mxEvent.isShiftDown(evt))
 			{
@@ -1731,35 +1750,43 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			}
 		});
 		
-		btn.setAttribute('title', mxResources.get('copyData') + ' (' +
+		copyBtn.setAttribute('title', mxResources.get('copyData') + ' (' +
 			this.editorUi.actions.get('copyData').shortcut + ')' +
 			' Shift+Click to Extract Data');
-		btn.style.width = '210px';
-		btn.style.marginBottom = '2px';
-
-		div.appendChild(btn);
+		copyBtn.style.marginBottom = '2px';
+		copyBtn.style.width = '210px';
+		div.appendChild(copyBtn);
 		count++;
-		
-		if (ui.copiedValue != null && ss.cells.length > 0)
-		{
-			var btn2 = mxUtils.button(mxResources.get('pasteData'), function(evt)
-			{
-				ui.actions.get('pasteData').funct(evt);
-			});
-			
-			btn2.setAttribute('title', mxResources.get('pasteData') + ' (' +
-				this.editorUi.actions.get('pasteData').shortcut + ')');
-			
-			div.appendChild(btn2);
-			count++;
-			
-			btn.style.width = '104px';
-			btn.style.marginBottom = '2px';
-			btn.style.marginRight = '2px';
-			btn2.style.width = '104px';
-			btn2.style.marginBottom = '2px';
-		}
+	}
 
+	var pasteBtn = null;
+		
+	if (ui.copiedValue != null && ss.cells.length > 0)
+	{
+		pasteBtn = mxUtils.button(mxResources.get('pasteData'), function(evt)
+		{
+			ui.actions.get('pasteData').funct(evt);
+		});
+		
+		pasteBtn.setAttribute('title', mxResources.get('pasteData') + ' (' +
+			this.editorUi.actions.get('pasteData').shortcut + ')');
+		pasteBtn.style.marginBottom = '2px';
+		pasteBtn.style.width = '210px';
+		div.appendChild(pasteBtn);
+		count++;
+
+		if (copyBtn != null)
+		{
+			copyBtn.style.width = '104px';
+			pasteBtn.style.width = '104px';
+			pasteBtn.style.marginBottom = '2px';
+			copyBtn.style.marginBottom = '2px';
+			copyBtn.style.marginRight = '2px';
+		}
+	}
+
+	if (copyBtn != null || pasteBtn != null)
+	{
 		mxUtils.br(div);
 	}
 	
@@ -1774,7 +1801,10 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count++;
 	}
 
-	count += this.addActions(div, ['editData', 'editLink']);
+	if (graph.getSelectionCount() == 1)
+	{
+		count += this.addActions(div, ['editData', 'editLink']);
+	}
 	
 	if (count == 0)
 	{

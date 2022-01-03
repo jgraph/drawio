@@ -754,6 +754,7 @@ uml=UML
 underline=Salungguhitan
 undo=Bawiin ang ginawa
 ungroup=Kalasin
+unmerge=Unmerge
 unsavedChanges=Hindi nai-save ang mga pagbabago
 unsavedChangesClickHereToSave=Hindi nai-save ang mga pagbabago. Pindutin dito para i-save
 untitled=Walang Pamagat

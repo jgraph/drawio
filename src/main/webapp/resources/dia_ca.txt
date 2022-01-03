@@ -754,6 +754,7 @@ uml=UML
 underline=Subratlla
 undo=Desfés
 ungroup=Desagrupa
+unmerge=Unmerge
 unsavedChanges=Canvis no desats
 unsavedChangesClickHereToSave=Canvis no desats. Clica aquí per desar.
 untitled=Sense títol

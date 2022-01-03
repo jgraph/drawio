@@ -754,6 +754,7 @@ uml=UML
 underline=Podtržení
 undo=Zpět
 ungroup=Rozdělit skupinu
+unmerge=Unmerge
 unsavedChanges=Neuložené změny
 unsavedChangesClickHereToSave=Neuložené změny. Uložíte kliknutím sem.
 untitled=Bez názvu

@@ -754,6 +754,7 @@ uml=UML
 underline=Подчертаване
 undo=Отмяна
 ungroup=Разгрупиране
+unmerge=Unmerge
 unsavedChanges=Незапазени промени
 unsavedChangesClickHereToSave=Незапазени промени. Кликнете тук, за да запазите.
 untitled=Неозаглавен

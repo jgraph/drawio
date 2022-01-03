@@ -754,6 +754,7 @@ uml=UML
 underline=‫تسطير‬
 undo=‫تراجع‬
 ungroup=‫تفكيك المجموعة‬
+unmerge=Unmerge
 unsavedChanges=‫تم تجاهل التغييرات‬
 unsavedChangesClickHereToSave=Unsaved changes. Click here to save.
 untitled=Untitled

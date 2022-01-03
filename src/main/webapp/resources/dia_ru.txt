@@ -754,6 +754,7 @@ uml=UML
 underline=Подчеркнутый
 undo=Отменить
 ungroup=Разгруппировать
+unmerge=Unmerge
 unsavedChanges=Изменения не сохранены
 unsavedChangesClickHereToSave=Изменения не сохранены. Щелкните здесь для сохранения.
 untitled=Без названия

@@ -66,7 +66,6 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'style-src %style-src% \'self\'  https://fonts.googleapis.com ' +
 			// Replaces unsafe-inline style-src with hashes with safe-style-src URL parameter
 			((urlParams['safe-style-src'] == '1') ? styleHashes : '\'unsafe-inline\'; ') +
-			'form-action \'none\';' +
 			'base-uri \'none\';' +
 			'child-src \'none\';' +
 			'object-src \'none\';';

@@ -754,6 +754,7 @@ uml=UML
 underline=Gạch dưới
 undo=Hoàn tác
 ungroup=Bỏ nhóm
+unmerge=Unmerge
 unsavedChanges=Thay đổi chưa được lưu
 unsavedChangesClickHereToSave=Thay đổi chưa được lưu. Nhấn vào đây để lưu.
 untitled=Không có tiêu đề

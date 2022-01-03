@@ -754,6 +754,7 @@ uml=UML
 underline=底線
 undo=撤銷操作
 ungroup=取消組合
+unmerge=Unmerge
 unsavedChanges=未儲存的修改
 unsavedChangesClickHereToSave=修改未儲存。點此以儲存。
 untitled=未命名

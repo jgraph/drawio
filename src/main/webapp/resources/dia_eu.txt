@@ -754,6 +754,7 @@ uml=UML
 underline=Azpimarra
 undo=Desegin
 ungroup=Banandu
+unmerge=Unmerge
 unsavedChanges=Gorde gabeko aldaketak
 unsavedChangesClickHereToSave=Gorde gabeko aldaketak daude. Egin klik hemen gordetzeko.
 untitled=Izen gabea

@@ -754,6 +754,7 @@ uml=UML
 underline=Alljoonda
 undo=Võta tagasi
 ungroup=Eemalda rühmitus
+unmerge=Unmerge
 unsavedChanges=Salvestamata muudatused
 unsavedChangesClickHereToSave=Salvestamata muudatused. Kliki siia salvestamiseks.
 untitled=Pealkirjata

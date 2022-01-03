@@ -266,7 +266,7 @@
 			isCellCollapsed(this.state.cell) : false;
 		var start = this.getTitleSize();
 		
-		if (start == 0)
+		if (start == 0 || this.outline)
 		{
 			PartialRectangleShape.prototype.paintVertexShape.apply(this, arguments);
 		}
@@ -276,7 +276,7 @@
 			c.translate(-x, -y);
 		}
 
-		if (!collapsed)
+		if (!collapsed && !this.outline)
 		{
 			this.paintForeground(c, x, y, w, h);
 		}
@@ -3647,8 +3647,7 @@
 			var right = mxUtils.getValue(this.style, 'right', '1') == '1';
 			var bottom = mxUtils.getValue(this.style, 'bottom', '1') == '1';
 
-			if (this.drawHidden || filled || this.outline ||
-				top || right || bottom || left)
+			if (this.drawHidden || filled || this.outline || top || right || bottom || left)
 			{
 				c.rect(x, y, w, h);
 				c.fill();

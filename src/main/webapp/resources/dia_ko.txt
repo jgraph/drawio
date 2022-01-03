@@ -754,6 +754,7 @@ uml=UML
 underline=밑줄
 undo=실행 취소
 ungroup=그룹 해제
+unmerge=Unmerge
 unsavedChanges=저장되지 않은 변경사항
 unsavedChangesClickHereToSave=저장되지 않은 변경사항이 있습니다. 저장하시려면 여기를 클릭하세요.
 untitled=제목 없음
