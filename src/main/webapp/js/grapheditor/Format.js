@@ -1728,7 +1728,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	
 	var copyBtn = null;
 
-	if (ss.cells.length == 1 && !isNaN(ss.cells[0].value.nodeType))
+	if (ss.cells.length == 1 && ss.cells[0].value != null && !isNaN(ss.cells[0].value.nodeType))
 	{
 		copyBtn = mxUtils.button(mxResources.get('copyData'), function(evt)
 		{
