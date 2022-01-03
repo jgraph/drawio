@@ -1444,7 +1444,10 @@ var EditDataDialog = function(ui, cell)
 					{
 						texts[j] = null;
 						form.table.deleteRow(count + ((id != null) ? 1 : 0));
-						
+						// nox: options
+						if ((j<names.length-1)&&(names[j+1]==name+"_")) {
+						    texts[j+1] = null;
+						}
 						break;
 					}
 					
@@ -1482,7 +1485,24 @@ var EditDataDialog = function(ui, cell)
 			texts[index].setAttribute('disabled', 'disabled');
 		}
 	};
-	
+
+    // nox: options
+	var addComboArea = function(index, name, value, options)
+	{
+		names[index] = name;
+		texts[index] = form.addCombo(name + ':', false);
+        var opts=options.split('|');
+        for(var o=0; o<opts.length; o++) {
+            form.addOption(texts[index],opts[o],opts[o],(opts[o]==value?true:false));
+        }
+        texts[index].style.width = '100%';
+		addRemoveButton(texts[index], name);
+        if (meta[name] != null && meta[name].editable == false)
+        {
+            texts[index].setAttribute('disabled', 'disabled');
+        }
+	};
+
 	var temp = [];
 	var isLayer = graph.getModel().getParent(cell) == graph.getModel().getRoot();
 
@@ -1553,7 +1573,13 @@ var EditDataDialog = function(ui, cell)
 	
 	for (var i = 0; i < temp.length; i++)
 	{
-		addTextArea(count, temp[i].name, temp[i].value);
+	    // nox: options
+	    if( (i<temp.length-1) && (temp[i+1].name==temp[i].name + "_")) {
+	        addComboArea(count, temp[i].name, temp[i].value, temp[i+1].value);
+	        i++;
+	    } else {
+		    addTextArea(count, temp[i].name, temp[i].value);
+		}
 		count++;
 	}
 	
@@ -1580,15 +1606,29 @@ var EditDataDialog = function(ui, cell)
 	nameInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '36' : '40');
 	nameInput.style.boxSizing = 'border-box';
 	nameInput.style.marginLeft = '2px';
-	nameInput.style.width = '100%';
+	// nox: options
+	nameInput.style.width = '70%';
 	
 	newProp.appendChild(nameInput);
+
+    // nox: options
+	var optionInput = document.createElement('input');
+	optionInput.setAttribute('placeholder', mxResources.get('enterPropertyOptions'));
+	optionInput.setAttribute('type', 'text');
+	optionInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '36' : '40');
+	optionInput.style.boxSizing = 'border-box';
+	optionInput.style.marginLeft = '2px';
+	optionInput.style.width = '30%';
+	newProp.appendChild(optionInput);
+
 	top.appendChild(newProp);
 	div.appendChild(top);
 	
 	var addBtn = mxUtils.button(mxResources.get('addProperty'), function()
 	{
 		var name = nameInput.value;
+		// nox: options
+		var options = optionInput.value;
 
 		// Avoid ':' in attribute names which seems to be valid in Chrome
 		if (name.length > 0 && name != 'label' && name != 'placeholders' && name.indexOf(':') < 0)
@@ -1613,17 +1653,51 @@ var EditDataDialog = function(ui, cell)
 						texts.splice(idx, 1);
 					}
 
-					names.push(name);
-					var text = form.addTextarea(name + ':', '', 2);
-					text.style.width = '100%';
-					texts.push(text);
-					addRemoveButton(text, name);
+                    // nox: options
+                    if (options.length>0)
+                    {
+                        var oidx = mxUtils.indexOf(names, name+"_");
+                        if (oidx>=0) {
+                            names.splice(oidx, 1);
+                            texts.splice(oidx, 1);
+                        }
+                    }
 
-					text.focus();
+                    // nox: options
+					if (options.length>0) {
+
+                        names.push(name);
+						names.push(name+"_");
+
+						var com = form.addCombo(name + ':', false);
+						var opts=options.split('|');
+						for(var o=0; o<opts.length; o++) {
+							form.addOption(com,opts[o],opts[o],(o==0?true:false));
+						}
+						com.style.width = '100%';
+						texts.push(com);
+						texts.push(options);
+						addRemoveButton(com, name);
+						com.focus();
+
+					} else {
+
+					    names.push(name);
+
+                        var text = form.addTextarea(name + ':', '', 2);
+                        text.style.width = '100%';
+                        texts.push(text);
+                        addRemoveButton(text, name);
+					    text.focus();
+
+					}
 				}
 
 				addBtn.setAttribute('disabled', 'disabled');
 				nameInput.value = '';
+				// nox: options
+				optionInput.value = '';
+
 			}
 			catch (e)
 			{
@@ -1690,10 +1764,17 @@ var EditDataDialog = function(ui, cell)
 				if (texts[i] == null)
 				{
 					value.removeAttribute(names[i]);
+					// nox: options
+					if (value.hasAttribute(names[i]+"_"))
+					    value.removeAttribute(names[i]+"_");
 				}
 				else
 				{
-					value.setAttribute(names[i], texts[i].value);
+				    // nox: options
+				    if (names[i].endsWith("_"))
+				        value.setAttribute(names[i], texts[i]);
+				    else
+					    value.setAttribute(names[i], texts[i].value);
 					removeLabel = removeLabel || (names[i] == 'placeholder' &&
 						value.getAttribute('placeholders') == '1');
 				}
