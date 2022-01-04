@@ -3241,7 +3241,10 @@
 			for (var i = 0; i < styles.length; i++)
 			{
 				// Ignores style elements with no MathJax CSS
-				if (mxUtils.getTextContent(styles[i]).indexOf('MathJax') > 0)
+				var content = mxUtils.getTextContent(styles[i]);
+
+				if (content.indexOf('mxPageSelector') < 0 &&
+					content.indexOf('MathJax') > 0)
 				{
 					defs[0].appendChild(styles[i].cloneNode(true));
 				}

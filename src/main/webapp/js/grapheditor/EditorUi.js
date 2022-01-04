@@ -1335,9 +1335,9 @@ EditorUi.prototype.updateSelectionStateForTableCells = function(result)
 				colspan = 0;
 				rowspan++;
 				parent = model.getParent(nextRowCell);
-				nextRowCell = (row < table.getChildCount() - 1) ?
+				nextRowCell = (row + rowspan < table.getChildCount()) ?
 					model.getChildAt(model.getChildAt(
-						table, rowspan), col) : null;
+						table, row + rowspan), col) : null;
 			}
 			
 			if (next == model.getChildAt(parent, col + colspan))

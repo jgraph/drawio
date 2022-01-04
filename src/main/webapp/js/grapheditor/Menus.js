@@ -827,17 +827,16 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 				}
 			}), null, 'geIcon geSprite geSprite-deleterow');
 			elt.setAttribute('title', mxResources.get('deleteRow'));
-
+			
 			var ss = this.editorUi.getSelectionState();
-
-			if (urlParams['dev'] == '1' && ss.mergeCell != null)
+			
+			if (ss.mergeCell != null)
 			{
 				this.addMenuItem(menu, 'mergeCells');
 			}
-			else if (urlParams['dev'] == '1' && ss.cells.length == 1 &&
-				(ss.style['colspan'] > 1 || ss.style['rowspan'] > 1))
+			else if (ss.style['colspan'] > 1 || ss.style['rowspan'] > 1)
 			{
-				this.addMenuItem(menu, 'unmergeCell');
+				this.addMenuItem(menu, 'unmergeCells');
 			}
 		}
 	}

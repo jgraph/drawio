@@ -496,7 +496,7 @@ Actions.prototype.init = function()
 			}
 		}
 	}));
-	this.put('unmergeCell', new Action(mxResources.get('unmerge'), function()
+	this.put('unmergeCells', new Action(mxResources.get('unmerge'), function()
 	{
 		var ss = ui.getSelectionState();
 
@@ -505,8 +505,8 @@ Actions.prototype.init = function()
 			graph.getModel().beginUpdate();
 			try
 			{
-				graph.setCellStyles('rowspan', null, [ss.cells[0]]);
-				graph.setCellStyles('colspan', null, [ss.cells[0]]);
+				graph.setCellStyles('rowspan', null, ss.cells);
+				graph.setCellStyles('colspan', null, ss.cells);
 			}
 			finally
 			{

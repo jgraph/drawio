@@ -1671,14 +1671,13 @@ ArrangePanel.prototype.addTable = function(div)
 
 		var count = 0;
 
-		if (urlParams['dev'] == '1' && ss.mergeCell != null)
+		if (ss.mergeCell != null)
 		{
 			count += this.addActions(div, ['mergeCells']);
 		}
-		else if (urlParams['dev'] == '1' && ss.cells.length == 1 &&
-			(ss.style['colspan'] > 1 || ss.style['rowspan'] > 1))
+		else if (ss.style['colspan'] > 1 || ss.style['rowspan'] > 1)
 		{
-			count += this.addActions(div, ['unmergeCell']);
+			count += this.addActions(div, ['unmergeCells']);
 		}
 
 		if (count > 0)
