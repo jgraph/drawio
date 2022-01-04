@@ -754,6 +754,7 @@ uml=UML
 underline=Podvučen
 undo=Opozovi
 ungroup=Podeli
+unmerge=Unmerge
 unsavedChanges=Nesačuvane promene
 unsavedChangesClickHereToSave=Unsaved changes. Click here to save.
 untitled=Untitled

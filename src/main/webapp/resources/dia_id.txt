@@ -754,6 +754,7 @@ uml=UML
 underline=Garis Bawah
 undo=Batalkan
 ungroup=Lepas Gabungan
+unmerge=Unmerge
 unsavedChanges=Perubahan yang belum disimpan
 unsavedChangesClickHereToSave=Perubahan yang belum disimpan. Klik di sini untuk menyimpan.
 untitled=Tanpa Judul

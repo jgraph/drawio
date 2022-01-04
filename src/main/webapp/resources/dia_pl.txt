@@ -754,6 +754,7 @@ uml=UML
 underline=Podkreślenie
 undo=Cofnij
 ungroup=Rozgrupuj
+unmerge=Unmerge
 unsavedChanges=Niezapisane zmiany
 unsavedChangesClickHereToSave=Niezapisane zmiany. Kliknij tutaj, aby zapisać.
 untitled=Bez tytułu

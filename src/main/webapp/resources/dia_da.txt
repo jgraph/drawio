@@ -754,6 +754,7 @@ uml=UML
 underline=Understreget
 undo=Fortryd
 ungroup=Opdel
+unmerge=Unmerge
 unsavedChanges=Ugemte ændringer
 unsavedChangesClickHereToSave=Ugemte ændringer. Klik her for at gemme.
 untitled=Unavngivet

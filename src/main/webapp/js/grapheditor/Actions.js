@@ -478,6 +478,42 @@ Actions.prototype.init = function()
 			ui.handleError(e);
 		}
 	}, null, null, Editor.ctrlKey + '+D');
+	this.put('mergeCells', new Action(mxResources.get('merge'), function()
+	{
+		var ss = ui.getSelectionState();
+
+		if (ss.mergeCell != null)
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				graph.setCellStyles('rowspan', ss.rowspan, [ss.mergeCell]);
+				graph.setCellStyles('colspan', ss.colspan, [ss.mergeCell]);
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+	}));
+	this.put('unmergeCell', new Action(mxResources.get('unmerge'), function()
+	{
+		var ss = ui.getSelectionState();
+
+		if (ss.cells.length > 0)
+		{
+			graph.getModel().beginUpdate();
+			try
+			{
+				graph.setCellStyles('rowspan', null, [ss.cells[0]]);
+				graph.setCellStyles('colspan', null, [ss.cells[0]]);
+			}
+			finally
+			{
+				graph.getModel().endUpdate();
+			}
+		}
+	}));
 	this.put('turn', new Action(mxResources.get('turn') + ' / ' + mxResources.get('reverse'), function(evt, trigger)
 	{
 		// Context menu click uses trigger, toolbar menu click uses evt

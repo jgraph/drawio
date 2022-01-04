@@ -754,6 +754,7 @@ uml=UML
 underline=‫קו תחתון‬
 undo=‫בטל‬
 ungroup=‫פרק קבוצה‬
+unmerge=Unmerge
 unsavedChanges=‫שינויים לא שמורים‬
 unsavedChangesClickHereToSave=‫שינויים לא שמורים. לחץ כאן כדי לשמור.‬
 untitled=‫ללא כותרת‬

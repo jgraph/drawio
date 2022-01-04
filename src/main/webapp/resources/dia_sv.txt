@@ -754,6 +754,7 @@ uml=UML
 underline=Understruken
 undo=Ångra
 ungroup=Dela upp
+unmerge=Unmerge
 unsavedChanges=Osparade ändringar
 unsavedChangesClickHereToSave=Osparade ändringar. Klicka här för att spara
 untitled=Namnlöst

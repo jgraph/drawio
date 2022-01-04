@@ -754,6 +754,7 @@ uml=UML
 underline=Understrek
 undo=Angre
 ungroup=Del opp gruppe
+unmerge=Unmerge
 unsavedChanges=Ikke lagrede endringer
 unsavedChangesClickHereToSave=Ulagrede endringer. Klikk her for å lagre.
 untitled=Uten navn

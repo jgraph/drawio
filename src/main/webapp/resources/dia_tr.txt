@@ -754,6 +754,7 @@ uml=UML
 underline=Altını çiz
 undo=Geri al
 ungroup=Grubu çöz
+unmerge=Unmerge
 unsavedChanges=Kaydedilmemiş değişiklikler
 unsavedChangesClickHereToSave=Kaydedilmemiş değişiklikler. Kaydetmek için burayı tıklayınız.
 untitled=Başlık atamamış

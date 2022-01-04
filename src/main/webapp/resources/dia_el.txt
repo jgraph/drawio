@@ -754,6 +754,7 @@ uml=UML
 underline=Υπογράμμιση
 undo=Αναίρεση
 ungroup=Απο-ομαδοποίηση
+unmerge=Unmerge
 unsavedChanges=Μη αποθηκευμένες αλλαγές
 unsavedChangesClickHereToSave=Μη αποθηκευμένες αλλαγές. Πατήστε εδώ για αποθήκευση.
 untitled=Ανώνυμο

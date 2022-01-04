@@ -754,6 +754,7 @@ uml=UML
 underline=下線
 undo=元に戻す
 ungroup=グループ解除
+unmerge=Unmerge
 unsavedChanges=変更を保存しない
 unsavedChangesClickHereToSave=保存されていません。ここをクリックして保存してください
 untitled=無題

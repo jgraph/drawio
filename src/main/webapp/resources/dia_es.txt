@@ -754,6 +754,7 @@ uml=UML
 underline=Subrayar
 undo=Deshacer
 ungroup=Desagrupar
+unmerge=Unmerge
 unsavedChanges=Cambios no guardados
 unsavedChangesClickHereToSave=Cambios no guardados. Haga clic aquí para guardar.
 untitled=Sin título

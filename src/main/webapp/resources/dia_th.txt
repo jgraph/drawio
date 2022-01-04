@@ -754,6 +754,7 @@ uml=UML
 underline=ขีดเส้นใต้
 undo=ยกเลิกการทำ
 ungroup=ยกเลิกการจัดกลุ่ม
+unmerge=Unmerge
 unsavedChanges=การเปลี่ยนแปลงที่ยังไม่ได้บันทึก
 unsavedChangesClickHereToSave=เปลี่ยนแปลงที่ยังไม่ได้บันทึก  คลิกที่นี่เพื่อบันทึก
 untitled=ไม่มีชื่อเรื่อง

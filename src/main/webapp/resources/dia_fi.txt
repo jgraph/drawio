@@ -754,6 +754,7 @@ uml=UML
 underline=Alleviivaa
 undo=Kumoa
 ungroup=Pura ryhmittely
+unmerge=Unmerge
 unsavedChanges=Tallentamattomat muutokset
 unsavedChangesClickHereToSave=Tallentamattomia muutoksia. Napsauta tästä tallentaaksesi.
 untitled=Nimetön
