@@ -1340,7 +1340,11 @@ EditorUi.prototype.updateSelectionStateForTableCells = function(result)
 						table, row + rowspan), col) : null;
 			}
 			
-			if (next == model.getChildAt(parent, col + colspan))
+			var state = this.editor.graph.view.getState(next);
+
+			if (next == model.getChildAt(parent, col + colspan) && state != null &&
+				mxUtils.getValue(state.style, 'colspan', 1) == 1 &&
+				mxUtils.getValue(state.style, 'rowspan', 1) == 1)
 			{
 				colspan++;
 			}

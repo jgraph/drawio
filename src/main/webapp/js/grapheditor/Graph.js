@@ -969,8 +969,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    var isForceRubberBandEvent = rubberband.isForceRubberbandEvent;
 	    rubberband.isForceRubberbandEvent = function(me)
 	    {
-	    	return (isForceRubberBandEvent.apply(this, arguments) && !mxEvent.isShiftDown(me.getEvent()) &&
-	    		!mxEvent.isControlDown(me.getEvent())) || (mxClient.IS_CHROMEOS && mxEvent.isShiftDown(me.getEvent())) ||
+	    	return isForceRubberBandEvent.apply(this, arguments) ||
+				(mxClient.IS_CHROMEOS && mxEvent.isShiftDown(me.getEvent())) ||
 	    		(mxUtils.hasScrollbars(this.graph.container) && mxClient.IS_FF &&
 	    		mxClient.IS_WIN && me.getState() == null && mxEvent.isTouchEvent(me.getEvent()));
 	    };
@@ -3950,6 +3950,76 @@ Graph.prototype.restoreSelection = function(cells)
 	{
 		this.clearSelection();
 	}
+};
+
+/**
+ * Adds table range selection with Shift+Click.
+ */
+Graph.prototype.selectCellForEvent = function(cell, evt)
+{
+	if (!mxEvent.isShiftDown(evt) || this.isSelectionEmpty() ||
+		!this.selectTableRange(this.getSelectionCell(), cell))
+	{
+		mxGraph.prototype.selectCellForEvent.apply(this, arguments);
+	}
+};
+
+/**
+ * Returns true if 
+ */
+Graph.prototype.selectTableRange = function(startCell, endCell)
+{
+	var result = false;
+
+	if (this.isTableCell(startCell) && this.isTableCell(endCell))
+	{
+		var startRow = this.model.getParent(startCell);
+		var table = this.model.getParent(startRow);
+		var endRow = this.model.getParent(endCell);
+
+		if (table == this.model.getParent(endRow))
+		{
+			var startCellIndex = startRow.getIndex(startCell);
+			var startRowIndex = table.getIndex(startRow);
+			var endCellIndex = endRow.getIndex(endCell);
+			var endRowIndex = table.getIndex(endRow);
+
+			var fromRow = Math.min(startRowIndex, endRowIndex);
+			var toRow = Math.max(startRowIndex, endRowIndex);
+			var fromCell = Math.min(startCellIndex, endCellIndex);
+			var toCell = Math.max(startCellIndex, endCellIndex);
+			
+			var cells = [];
+
+			for (var row = fromRow; row <= toRow; row++)
+			{
+				var currentRow = this.model.getChildAt(table, row);
+				
+				for (var col = fromCell; col <= toCell; col++)
+				{
+					cells.push(this.model.getChildAt(currentRow, col));
+				}
+			}
+
+			if (cells.length > 0 && (cells.length > 1 ||
+				this.getSelectionCount() > 1 ||
+				!this.isCellSelected(cells[0])))
+			{
+				this.setSelectionCells(cells);
+				result = true;
+			}
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the cells for the given table range.
+ */
+Graph.prototype.getTableRange = function(start, end)
+{
+
 };
 
 /**

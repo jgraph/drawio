@@ -1,3 +1,11 @@
+05-JAN-2022: 16.2.2
+
+- Disables merging for merged cells
+- [conf cloud] Adds support for anchor importing from server + support for adding links to anchors in old editor
+- Adds precedence for alt on mouse down
+- Adds Shift+Click for table range selection
+- Fixes insertRow/Column for selected cell range
+
 04-JAN-2022: 16.2.1
 
 - Fixes cell divider event handling

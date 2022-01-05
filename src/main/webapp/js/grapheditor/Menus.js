@@ -648,6 +648,19 @@ Menus.prototype.addInsertTableCellItem = function(menu, parent)
 	var cell = graph.getSelectionCell();
 	var style = graph.getCurrentCellStyle(cell);
 
+	if (graph.getSelectionCount() > 1)
+	{
+		if (graph.isTableCell(cell))
+		{
+			cell = graph.model.getParent(cell);
+		}
+
+		if (graph.isTableRow(cell))
+		{
+			cell = graph.model.getParent(cell);
+		}
+	}
+
 	var isTable = graph.isTable(cell) ||
 		graph.isTableRow(cell) ||
 		graph.isTableCell(cell);

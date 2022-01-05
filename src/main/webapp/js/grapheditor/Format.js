@@ -1518,17 +1518,32 @@ ArrangePanel.prototype.addTable = function(div)
 	panel.style.width = '220px';
 	panel.className = 'geToolbarContainer';
 
+	var cell = ss.vertices[0];
+
+	if (graph.getSelectionCount() > 1)
+	{
+		if (graph.isTableCell(cell))
+		{
+			cell = graph.model.getParent(cell);
+		}
+
+		if (graph.isTableRow(cell))
+		{
+			cell = graph.model.getParent(cell);
+		}
+	}
+
 	var isTable = ss.table || ss.row || ss.cell;
-	var isStack = graph.isStack(ss.vertices[0]) ||
-		graph.isStackChild(ss.vertices[0]);
+	var isStack = graph.isStack(cell) ||
+		graph.isStackChild(cell);
 
 	var showCols = isTable;
 	var showRows = isTable;
 
 	if (isStack)
 	{
-		var style = (graph.isStack(ss.vertices[0])) ? ss.style :
-			graph.getCellStyle(graph.model.getParent(ss.vertices[0]));
+		var style = (graph.isStack(cell)) ? ss.style :
+			graph.getCellStyle(graph.model.getParent(cell));
 
 		showRows = style['horizontalStack'] == '0';
 		showCols = !showRows;
@@ -1546,11 +1561,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.insertLane(ss.vertices[0], true);
+						graph.insertLane(cell, true);
 					}
 					else
 					{
-						graph.insertTableColumn(ss.vertices[0], true);
+						graph.insertTableColumn(cell, true);
 					}
 				}
 				catch (e)
@@ -1565,11 +1580,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.insertLane(ss.vertices[0], false);
+						graph.insertLane(cell, false);
 					}
 					else
 					{
-						graph.insertTableColumn(ss.vertices[0], false);
+						graph.insertTableColumn(cell, false);
 					}
 				}
 				catch (e)
@@ -1584,11 +1599,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.deleteLane(ss.vertices[0]);
+						graph.deleteLane(cell);
 					}
 					else
 					{
-						graph.deleteTableColumn(ss.vertices[0]);
+						graph.deleteTableColumn(cell);
 					}
 				}
 				catch (e)
@@ -1607,11 +1622,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.insertLane(ss.vertices[0], true);
+						graph.insertLane(cell, true);
 					}
 					else
 					{
-						graph.insertTableRow(ss.vertices[0], true);
+						graph.insertTableRow(cell, true);
 					}
 				}
 				catch (e)
@@ -1626,11 +1641,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.insertLane(ss.vertices[0], false);
+						graph.insertLane(cell, false);
 					}
 					else
 					{
-						graph.insertTableRow(ss.vertices[0], false);
+						graph.insertTableRow(cell, false);
 					}
 				}
 				catch (e)
@@ -1645,11 +1660,11 @@ ArrangePanel.prototype.addTable = function(div)
 				{
 					if (isStack)
 					{
-						graph.deleteLane(ss.vertices[0]);
+						graph.deleteLane(cell);
 					}
 					else
 					{
-						graph.deleteTableRow(ss.vertices[0]);
+						graph.deleteTableRow(cell);
 					}
 				}
 				catch (e)
