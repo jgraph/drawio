@@ -772,15 +772,23 @@
 				'https://www.diagrams.net/doc/faq/export-diagram',
 				mxUtils.bind(this, function(scale, transparentBackground, ignoreSelection,
 					addShadow, editable, embedImages, border, cropImage, currentPage,
-					linkTarget, grid, keepTheme, exportType, embedFonts)
+					linkTarget, grid, keepTheme, exportType, embedFonts, lblToSvg)
 				{
 					var val = parseInt(scale);
 					
 					if (!isNaN(val) && val > 0)
 					{
-						editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
-							addShadow, editable, embedImages, border, !cropImage, false,
-							linkTarget, keepTheme, exportType, embedFonts);
+						if (lblToSvg)
+						{
+							editorUi.downloadFile('remoteSvg', null, null, ignoreSelection, null, cropImage,
+										 transparentBackground, scale, border, null, editable);
+						}
+						else
+						{
+							editorUi.exportSvg(val / 100, transparentBackground, ignoreSelection,
+								addShadow, editable, embedImages, border, !cropImage, false,
+								linkTarget, keepTheme, exportType, embedFonts);
+						}
 					}
 				}), true, null, 'svg', true);
 		}));

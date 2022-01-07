@@ -489,7 +489,7 @@ function render(data)
 			}
 			
 			// Checks if export format supports transparent backgrounds
-			if (bg == null && data.format != 'gif' && data.format != 'png')
+			if (bg == null && data.format != 'gif' && data.format != 'png' && data.format != 'svg')
 			{
 				bg = '#ffffff';
 			}	

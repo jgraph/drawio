@@ -1864,7 +1864,7 @@
 		try
 		{
 			ignoreSelection = (ignoreSelection != null) ? ignoreSelection : this.editor.graph.isSelectionEmpty();
-			var basename = this.getBaseFilename(!currentPage);
+			var basename = this.getBaseFilename(format == 'remoteSvg'? false : !currentPage);
 			var filename = basename + ((format == 'xml' || (format == 'pdf' &&
 				includeXml)) ? '.drawio' : '') + '.' + format;
 			
@@ -1939,6 +1939,8 @@
 		    }
 			else
 			{
+				var w, h;
+
 				if (format == 'xmlpng')
 				{
 					filename = basename + '.png';
@@ -1946,6 +1948,21 @@
 				else if (format == 'jpeg')
 				{
 					filename = basename + '.jpg';
+				}
+				else if (format == 'remoteSvg')
+				{
+					filename = basename + '.svg';
+					format = 'svg';
+					var b = parseInt(border);
+
+					if (b > 0)
+					{
+						var graph = this.editor.graph;
+						var bounds = graph.getGraphBounds();
+						var s = parseInt(scale) / 100;
+						w = Math.ceil(bounds.width * s / graph.view.scale + 2 * b);
+						h = Math.ceil(bounds.height * s / graph.view.scale + 2 * b);
+					}
 				}
 				
 				this.saveRequest(filename, format, mxUtils.bind(this, function(newTitle, base64)
@@ -1960,7 +1977,7 @@
 						}
 						
 						var req = this.createDownloadRequest(newTitle, format, ignoreSelection, base64,
-							transparent, currentPage, scale, border, grid, includeXml, pageRange);
+							transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
 						this.editor.graph.pageVisible = prev;
 						
 						return req;
@@ -1985,7 +2002,7 @@
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
 	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
-		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange)
+		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
 	{
 		var graph = this.editor.graph;
 		var bounds = graph.getGraphBounds();
@@ -2022,7 +2039,10 @@
        	{
        		embed = '1';
        		format = 'png';
-       		
+		}
+		
+		if (format == 'xmlpng' || format == 'svg')
+		{
        		// Finds the current page number
        		if (this.pages != null && this.currentPage != null)
        		{
@@ -2039,7 +2059,7 @@
        	
 		var bg = graph.background;
 		
-		if ((format == 'png' || format == 'pdf') && transparent)
+		if ((format == 'png' || format == 'pdf' || format == 'svg') && transparent)
 		{
 			bg = mxConstants.NONE;
 		}
@@ -2071,7 +2091,9 @@
 			'&filename=' + encodeURIComponent(filename) : '') +
 			'&extras=' + encodeURIComponent(JSON.stringify(extras)) +
 			(scale != null? '&scale=' + scale : '') +
-			(border != null? '&border=' + border : ''));
+			(border != null? '&border=' + border : '') +
+			(w && isFinite(w)? '&w=' + w : '') +
+			(h && isFinite(h)? '&h=' + h : ''));
 	};
 	
 	/**
@@ -6002,7 +6024,8 @@
 		exportSelect.style.marginLeft = '8px';
 
 		var sizes = ['selectionOnly', 'diagram', 'page'];
-			
+		var sizesOpt = {};
+
 		for (var i = 0; i < sizes.length; i++)
 		{
 			if (!graph.isSelectionEmpty() || sizes[i] != 'selectionOnly')
@@ -6011,6 +6034,7 @@
 				mxUtils.write(opt, mxResources.get(sizes[i]));
 				opt.setAttribute('value', sizes[i]);
 				exportSelect.appendChild(opt);
+				sizesOpt[sizes[i]] = opt;
 			}
 		}
 
@@ -6091,35 +6115,7 @@
 		}
 		
 		var shadow = this.addCheckbox(div, mxResources.get('shadow'), graph.shadowVisible);
-		
-		var cb5 = document.createElement('input');
-		cb5.style.marginTop = '16px';
-		cb5.style.marginRight = '8px';
-		cb5.setAttribute('type', 'checkbox');
-		
-		var cb7 = document.createElement('input');
-		cb7.style.marginTop = '16px';
-		cb7.style.marginRight = '8px';
-		cb7.setAttribute('type', 'checkbox');
-		
-		if (this.isOffline() || !this.canvasSupported)
-		{
-			cb5.setAttribute('disabled', 'disabled');
-		}
-		
-		if (embedOption)
-		{
-			div.appendChild(cb5);
-			mxUtils.write(div, mxResources.get('embedImages'));
-			mxUtils.br(div);
-
-			div.appendChild(cb7);
-			mxUtils.write(div, mxResources.get('embedFonts'));
-			mxUtils.br(div);
-			
-			height += 60;
-		}
-		
+				
 		var grid = null;
 		
 		if (format == 'png' || format == 'jpeg')
@@ -6131,6 +6127,86 @@
 		var include = this.addCheckbox(div, mxResources.get('includeCopyOfMyDiagram'), defaultInclude, null, null, format != 'jpeg');
 		include.style.marginBottom = '16px';
 		
+		var cb5 = document.createElement('input');
+		cb5.style.marginBottom = '16px';
+		cb5.style.marginRight = '8px';
+		cb5.setAttribute('type', 'checkbox');
+		
+		if (this.isOffline() || !this.canvasSupported)
+		{
+			cb5.setAttribute('disabled', 'disabled');
+		}
+		
+		var txtSettingsSelect = document.createElement('select');
+		txtSettingsSelect.style.maxWidth = '260px';
+		txtSettingsSelect.style.marginLeft = '8px';
+		txtSettingsSelect.style.marginRight = '10px';
+		txtSettingsSelect.style.marginBottom = '16px';
+		txtSettingsSelect.className = 'geBtn';
+
+		var noneOption = document.createElement('option');
+		noneOption.setAttribute('value', 'none');
+		mxUtils.write(noneOption, mxResources.get('noChange'));
+		txtSettingsSelect.appendChild(noneOption);
+
+		var embedFontsOption = document.createElement('option');
+		embedFontsOption.setAttribute('value', 'embedFonts');
+		mxUtils.write(embedFontsOption, mxResources.get('embedFonts'));
+		txtSettingsSelect.appendChild(embedFontsOption);
+
+		var lblToSvgOption = document.createElement('option');
+		lblToSvgOption.setAttribute('value', 'lblToSvg');
+		mxUtils.write(lblToSvgOption, mxResources.get('lblToSvg'));
+		txtSettingsSelect.appendChild(lblToSvgOption);
+
+		if (this.isOffline())
+		{
+			lblToSvgOption.setAttribute('disabled', 'disabled');
+		}
+
+		mxEvent.addListener(txtSettingsSelect, 'change', mxUtils.bind(this, function()
+		{
+			if (txtSettingsSelect.value == 'lblToSvg')
+			{
+				cb5.checked = true;
+				cb5.setAttribute('disabled', 'disabled');
+				sizesOpt['page'].style.display = 'none';
+
+				if (exportSelect.value == 'page')
+				{
+					exportSelect.value = 'diagram';
+				}
+
+				shadow.checked = false;
+				shadow.setAttribute('disabled', 'disabled');
+
+				linkLost.style.display = 'inline-block';
+				linkSelect.style.display = 'none';
+			}
+			else if (cb5.getAttribute('disabled') == 'disabled')
+			{
+				cb5.checked = false;
+				cb5.removeAttribute('disabled');
+				shadow.removeAttribute('disabled');
+				sizesOpt['page'].style.display = '';
+				linkLost.style.display = 'none';
+				linkSelect.style.display = '';
+			}
+		}));
+
+		if (embedOption)
+		{
+			div.appendChild(cb5);
+			mxUtils.write(div, mxResources.get('embedImages'));
+			mxUtils.br(div);
+
+			mxUtils.write(div, mxResources.get('txtSettings') + ':');
+			div.appendChild(txtSettingsSelect);
+			mxUtils.br(div);
+			
+			height += 60;
+		}
+
 		var linkSelect = document.createElement('select');
 		linkSelect.style.maxWidth = '260px';
 		linkSelect.style.marginLeft = '8px';
@@ -6152,10 +6228,17 @@
 		mxUtils.write(selfOption, mxResources.get('openInThisWindow'));
 		linkSelect.appendChild(selfOption);
 
+		//Inkscape doesn't support links from pdf to svg. Related to https://gitlab.com/inkscape/inbox/-/issues/583
+		var linkLost = document.createElement('div');
+		mxUtils.write(linkLost, mxResources.get('LinksLost'));
+		linkLost.style.margin = '7px';
+		linkLost.style.display = 'none';
+		
 		if (format == 'svg')
 		{
 			mxUtils.write(div, mxResources.get('links') + ':');
 			div.appendChild(linkSelect);
+			div.appendChild(linkLost);
 			mxUtils.br(div);
 			mxUtils.br(div);
 			height += 50;
@@ -6169,7 +6252,8 @@
 			callback(zoomInput.value, transparent.checked, !selection.checked, shadow.checked,
 				include.checked, cb5.checked, borderInput.value, cb6.checked, false,
 				linkSelect.value, (grid != null) ? grid.checked : null, (keepTheme != null) ?
-				keepTheme.checked : null, exportSelect.value, cb7.checked);
+				keepTheme.checked : null, exportSelect.value, txtSettingsSelect.value == 'embedFonts', 
+				txtSettingsSelect.value == 'lblToSvg');
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, height, true, true, null, null, null, null, true);
 		zoomInput.focus();
@@ -12925,6 +13009,7 @@
         		var lookups = {};
         		
         		// Default values
+        		var graph = this.editor.graph;
         		var vars = null;
         		var style = null;
         		var styles = null;
@@ -12943,10 +13028,6 @@
         		var nodespacing = 40;
         		var levelspacing = 100;
         		var padding = 0;
-        		
-        		var graph = this.editor.graph;
-				var view = graph.view;
-				var bds = graph.getGraphBounds();
 
 				// Delayed after optional layout
     			var afterInsert = function()
@@ -13219,9 +13300,6 @@
 
 						if (exists)
 						{
-							graph.model.setValue(cell, newCell.value);
-							graph.model.setStyle(cell, newCell.style);
-
 							if (mxUtils.indexOf(cells, cell) < 0)
 							{
 								cells.push(cell);
@@ -13340,7 +13418,7 @@
 
 					var roots = cells.slice();
 					var select = cells.slice();
-	
+
 					for (var e = 0; e < edges.length; e++)
 					{
 						var edge = edges[e];
@@ -13352,7 +13430,7 @@
 							var insertEdge = mxUtils.bind(this, function(realCell, dataCell, edge)
 							{
 								var tmp = dataCell.getAttribute(edge.from);
-		    					
+								
 		    					if (tmp != null && tmp != '')
 		    					{
 									var refs = tmp.split(',');

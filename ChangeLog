@@ -1,3 +1,8 @@
+07-JAN-2022: 16.2.4
+
+- Fixes duplicate edges in CVS import
+- Adds Convert labels to SVG option to SVG export
+
 07-JAN-2022: 16.2.3
 
 - Uses tableRow in ERD shapes
