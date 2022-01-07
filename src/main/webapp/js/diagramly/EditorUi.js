@@ -8878,6 +8878,8 @@
 	 */
 	EditorUi.prototype.parseFile = function(file, fn, filename)
 	{
+		filename = (filename != null) ? filename : file.name;
+
 		var reader = new FileReader();
 
         reader.onload = mxUtils.bind(this, function()
@@ -8891,7 +8893,6 @@
 	//TODO Use this version of the function instead of creating a Blob then read it again
 	EditorUi.prototype.parseFileData = function(data, fn, filename)
 	{
-		filename = (filename != null) ? filename : file.name;
 
 		var xhr = new XMLHttpRequest();
 		xhr.open('POST', OPEN_URL);
@@ -9044,6 +9045,11 @@
 				this.doSetSketchMode((mxSettings.settings.sketchMode != null &&
 					urlParams['rough'] == null) ? mxSettings.settings.sketchMode :
 					urlParams['rough'] != '0');
+			}
+
+			if (mxSettings.settings.sidebarTitles != null)
+			{
+				Sidebar.prototype.sidebarTitles = mxSettings.settings.sidebarTitles;
 			}
 
 			this.formatWidth = mxSettings.getFormatWidth();
@@ -10266,7 +10272,25 @@
 			this.fireEvent(new mxEventObject('pagesVisibleChanged'));
 		}
 	};
-     
+    
+	/**
+	 * Changes Sidebar.sidebarTitles.
+	 */
+	EditorUi.prototype.setSidebarTitles = function(value)
+	{
+		if (this.sidebar.sidebarTitles != value)
+		{
+			this.sidebar.sidebarTitles = value;
+			this.sidebar.refresh();
+
+			// Persist setting
+			mxSettings.settings.sidebarTitles = value;
+			mxSettings.save();
+
+			this.fireEvent(new mxEventObject('sidebarTitlesChanged'));
+		}
+	};
+    
 	/**
 	 * Dynamic change of dark mode.
 	 */
@@ -13329,90 +13353,87 @@
 							{
 								var tmp = dataCell.getAttribute(edge.from);
 		    					
-		    					if (tmp != null)
+		    					if (tmp != null && tmp != '')
 		    					{
-			    					if (tmp != '')
-			    					{
-			    						var refs = tmp.split(',');
-			    						
-				    					for (var j = 0; j < refs.length; j++)
-				        				{
-				    						var ref = lookups[edge.to][refs[j]];
-				    						
-				    						if (ref != null)
-				    						{
-				    							var label = edge.label;
-				    							
-				    							if (edge.fromlabel != null)
-				    							{
-				    								label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
-				    							}
-				    							
-				    							if (edge.sourcelabel != null)
-				    							{
-				    								label = graph.replacePlaceholders(dataCell,
-														edge.sourcelabel, vars) + (label || '');
-				    							}
-							
-				    							if (edge.tolabel != null)
-				    							{
-				    								label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-				    							}
-				    											    							
-				    							if (edge.targetlabel != null)
-				    							{
-				    								label = (label || '') + graph.replacePlaceholders(
-														ref, edge.targetlabel, vars);
-				    							}
-							
-				    							var placeholders = ((edge.placeholders == 'target') ==
-				    								!edge.invert) ? ref : realCell;
-				    							var style = (edge.style != null) ?
-				    								graph.replacePlaceholders(placeholders, edge.style, vars) :
-				    								graph.createCurrentEdgeStyle();
+									var refs = tmp.split(',');
+									
+									for (var j = 0; j < refs.length; j++)
+									{
+										var ref = lookups[edge.to][refs[j]];
+										
+										if (ref != null)
+										{
+											var label = edge.label;
+											
+											if (edge.fromlabel != null)
+											{
+												label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+											}
+											
+											if (edge.sourcelabel != null)
+											{
+												label = graph.replacePlaceholders(dataCell,
+													edge.sourcelabel, vars) + (label || '');
+											}
+						
+											if (edge.tolabel != null)
+											{
+												label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+											}
+																							
+											if (edge.targetlabel != null)
+											{
+												label = (label || '') + graph.replacePlaceholders(
+													ref, edge.targetlabel, vars);
+											}
+						
+											var placeholders = ((edge.placeholders == 'target') ==
+												!edge.invert) ? ref : realCell;
+											var style = (edge.style != null) ?
+												graph.replacePlaceholders(placeholders, edge.style, vars) :
+												graph.createCurrentEdgeStyle();
 
-				    							var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
-				    								ref : realCell, (edge.invert) ? realCell : ref, style);
-				    							
-				    							// Adds additional edge labels
-				    							if (edge.labels != null)
-				    							{
-				    								for (var k = 0; k < edge.labels.length; k++)
-				    								{
-				    									var def = edge.labels[k];
-				    									var elx = (def.x != null) ? def.x : 0;
-				    									var ely = (def.y != null) ? def.y : 0;
-				    									var st = 'resizable=0;html=1;';
-				    									var el = new mxCell(def.label || k,
-				    										new mxGeometry(elx,  ely, 0, 0), st);
-				    									el.vertex = true;
-				    									el.connectable = false;
-				    									el.geometry.relative = true;
-									
-														if (def.placeholders != null)
-														{
-															el.value = graph.replacePlaceholders(
-																((def.placeholders == 'target') ==
-							    								!edge.invert) ? ref : realCell,
-															el.value, vars)
-														}
-				    									
-				    									if (def.dx != null || def.dy != null)
-				    									{
-				    										el.geometry.offset = new mxPoint(
-				    											(def.dx != null) ? def.dx : 0,
-				    											(def.dy != null) ? def.dy : 0);
-				    									}
-									
-				    									edgeCell.insert(el);
-				    								}
-				    							}
-				    							
-				    							select.push(edgeCell);
-				    							mxUtils.remove((edge.invert) ? realCell : ref, roots);
-				    						}
-				        				}
-			    					}
+											var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
+												ref : realCell, (edge.invert) ? realCell : ref, style);
+											
+											// Adds additional edge labels
+											if (edge.labels != null)
+											{
+												for (var k = 0; k < edge.labels.length; k++)
+												{
+													var def = edge.labels[k];
+													var elx = (def.x != null) ? def.x : 0;
+													var ely = (def.y != null) ? def.y : 0;
+													var st = 'resizable=0;html=1;';
+													var el = new mxCell(def.label || k,
+														new mxGeometry(elx,  ely, 0, 0), st);
+													el.vertex = true;
+													el.connectable = false;
+													el.geometry.relative = true;
+								
+													if (def.placeholders != null)
+													{
+														el.value = graph.replacePlaceholders(
+															((def.placeholders == 'target') ==
+															!edge.invert) ? ref : realCell,
+														el.value, vars)
+													}
+													
+													if (def.dx != null || def.dy != null)
+													{
+														el.geometry.offset = new mxPoint(
+															(def.dx != null) ? def.dx : 0,
+															(def.dy != null) ? def.dy : 0);
+													}
+								
+													edgeCell.insert(el);
+												}
+											}
+											
+											select.push(edgeCell);
+											mxUtils.remove((edge.invert) ? realCell : ref, roots);
+										}
+									}
 		    					}
 							});
 							

@@ -264,6 +264,7 @@
 		//paintTableBackground(this.state, c, x, y, w, h);
 		var collapsed = (this.state != null) ? this.state.view.graph.
 			isCellCollapsed(this.state.cell) : false;
+		var horizontal = this.isHorizontal();
 		var start = this.getTitleSize();
 		
 		if (start == 0 || this.outline)
@@ -276,7 +277,9 @@
 			c.translate(-x, -y);
 		}
 
-		if (!collapsed && !this.outline)
+		if (!collapsed && !this.outline &&
+			((horizontal && start < h) ||
+			(!horizontal && start < w)))
 		{
 			this.paintForeground(c, x, y, w, h);
 		}

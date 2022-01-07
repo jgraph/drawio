@@ -1842,11 +1842,7 @@ EditorUi.initMinimalTheme = function()
 		{
 			if (this.sidebar != null)
 			{
-				this.sidebar.graph.stylesheet.styles =
-					mxUtils.clone(graph.stylesheet.styles);
-				this.sidebar.container.innerHTML = '';
-				this.sidebar.palettes = new Object();
-				this.sidebar.init();
+				this.sidebar.refresh();
 	
 				if (urlParams['sketch'] == '1')
 				{

@@ -1630,13 +1630,13 @@ DrawioFile.prototype.showRefreshDialog = function(success, error, message)
 			mxResources.get('makeCopy'), mxUtils.bind(this, function()
 		{
 			this.copyFile(success, error);
-		}), null, mxResources.get('synchronize'), mxUtils.bind(this, function()
+		}), null, mxResources.get('merge'), mxUtils.bind(this, function()
 		{
 			this.reloadFile(success, error);
 		}), mxResources.get('cancel'), mxUtils.bind(this, function()
 		{
 			this.ui.hideDialog();
-		}), 360, 150);
+		}), 380, 130);
 	}
 };
 
@@ -1658,7 +1658,7 @@ DrawioFile.prototype.showCopyDialog = function(success, error, overwrite)
 		mxResources.get('cancel'), mxUtils.bind(this, function()
 	{
 		this.ui.hideDialog();
-	}), 360, 150);
+	}), 380, 150);
 };
 
 /**
@@ -1669,12 +1669,12 @@ DrawioFile.prototype.showConflictDialog = function(overwrite, synchronize)
 	this.ui.showError(mxResources.get('externalChanges'),
 		mxResources.get('fileChangedSyncDialog'),
 		mxResources.get('overwrite'), overwrite, null,
-		mxResources.get('synchronize'), synchronize,
+		mxResources.get('merge'), synchronize,
 		mxResources.get('cancel'), mxUtils.bind(this, function()
 	{
 		this.ui.hideDialog();
 		this.handleFileError(null, false);
-	}), 340, 150);
+	}), 380, 130);
 };
 
 /**
@@ -1879,7 +1879,7 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 			}), error);
 		}
 	})
-	
+
 	if (DrawioFile.SYNC == 'none')
 	{
 		this.showCopyDialog(success, error, overwrite);

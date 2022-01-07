@@ -255,6 +255,18 @@ Sidebar.prototype.defaultImageHeight = 80;
 Sidebar.prototype.tooltipMouseDown = null;
 
 /**
+ * Reloads the sidebar.
+ */
+Sidebar.prototype.refresh = function()
+{
+	var graph = this.editorUi.editor.graph;
+	this.graph.stylesheet.styles = mxUtils.clone(graph.stylesheet.styles);
+	this.container.innerHTML = '';
+	this.palettes = new Object();
+	this.init();
+};
+
+/**
  * Adds all palettes to the sidebar.
  */
 Sidebar.prototype.getTooltipOffset = function(elt, bounds)

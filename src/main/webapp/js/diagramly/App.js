@@ -6920,6 +6920,9 @@ App.prototype.updateHeader = function()
 		
 		mxEvent.addListener(this.toggleFormatElement, 'click', mxUtils.bind(this, function(evt)
 		{
+			EditorUi.logEvent({category: 'TOOLBAR-ACTION-',
+				action: 'formatPanel'});
+		
 			this.actions.get('formatPanel').funct();
 			mxEvent.consume(evt);
 		}));
@@ -6979,6 +6982,9 @@ App.prototype.updateHeader = function()
 		mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
 		{
 			var visible = this.fullscreenMode;
+
+			EditorUi.logEvent({category: 'TOOLBAR-ACTION-',
+				action: 'fullscreen' , currentstate: visible});
 			
 			if (uiTheme != 'atlas' && urlParams['embed'] != '1')
 			{
@@ -7034,6 +7040,8 @@ App.prototype.updateHeader = function()
 			// Toggles compact mode
 			mxEvent.addListener(this.toggleElement, 'click', mxUtils.bind(this, function(evt)
 			{
+				EditorUi.logEvent({category: 'TOOLBAR-ACTION-',
+					action: 'toggleUI'});
 				this.toggleCompactMode();
 				mxEvent.consume(evt);
 			}));

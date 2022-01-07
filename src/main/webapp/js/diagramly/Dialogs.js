@@ -1893,7 +1893,8 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
  */
 var ParseDialog = function(editorUi, title, defaultType)
 {
-	var plantUmlExample = '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\nAlice -> Bob: Another authentication Request\nAlice <-- Bob: Another authentication Response\n@enduml';
+	var plantUmlExample = '@startuml\nskinparam shadowing false\nAlice -> Bob: Authentication Request\nBob --> Alice: Authentication Response\n\n' +
+		'Alice -> Bob: Another authentication Request\nAlice <-- Bob: Another authentication Response\n@enduml';
 	var insertPoint = editorUi.editor.graph.getFreeInsertPoint();
 
 	function parse(text, type, evt)
@@ -2044,7 +2045,8 @@ var ParseDialog = function(editorUi, title, defaultType)
 					}
 					
 					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 40),
-						'shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;');
+						'shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;' +
+						'fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;');
 					tableCell.vertex = true;
 					cells.push(tableCell);
 					
@@ -2066,18 +2068,20 @@ var ParseDialog = function(editorUi, title, defaultType)
 				
 					var pk = pkMap[name.split(' ')[0]];
 					var rowCell = new mxCell('', new mxGeometry(0, 0, 160, 30),
-						'shape=partialRectangle;collapsible=0;dropTarget=0;pointerEvents=0;fillColor=none;' +
-						'points=[[0,0.5],[1,0.5]];portConstraint=eastwest;top=0;left=0;right=0;bottom=' +
-						(pk ? '1' : '0') + ';');
+						'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;' +
+						'collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;' +
+						'top=0;left=0;right=0;bottom=' + (pk ? '1' : '0') + ';');
 					rowCell.vertex = true;
 					
 					var left = new mxCell(pk ? 'PK' : '', new mxGeometry(0, 0, 30, 30),
-						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;' + (pk ? 'fontStyle=1;' : ''));
+						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;' +
+						'top=0;left=0;bottom=0;right=0;' + (pk ? 'fontStyle=1;' : ''));
 					left.vertex = true;
 					rowCell.insert(left);
 					
 					var right = new mxCell(name, new mxGeometry(30, 0, 130, 30),
-						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;top=0;left=0;bottom=0;right=0;align=left;spacingLeft=6;' + (pk ? 'fontStyle=5;' : ''));
+						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;align=left;' +
+						'top=0;left=0;bottom=0;right=0;spacingLeft=6;' + (pk ? 'fontStyle=5;' : ''));
 					right.vertex = true;
 					rowCell.insert(right);
 					
@@ -2302,6 +2306,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 	div.style.textAlign = 'right';
 	
 	var textarea = document.createElement('textarea');
+	textarea.style.boxSizing = 'border-box';
 	textarea.style.resize = 'none';
 	textarea.style.width = '100%';
 	textarea.style.height = '354px';
@@ -8053,6 +8058,24 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		buttons.style.height = '60px';
 		buttons.style.lineHeight = '52px';
 		
+		var labels = document.createElement('input');
+		labels.setAttribute('type', 'checkbox');
+		labels.style.position = 'relative';
+		labels.style.top = '1px';
+		labels.checked = editorUi.sidebar.sidebarTitles;
+		labels.defaultChecked = labels.checked;
+		buttons.appendChild(labels);
+		var span = document.createElement('span');
+		mxUtils.write(span, ' ' + mxResources.get('labels'));
+		span.style.paddingRight = '20px';
+		buttons.appendChild(span);
+		
+		mxEvent.addListener(span, 'click', function(evt)
+		{
+			labels.checked = !labels.checked;
+			mxEvent.consume(evt);
+		});
+
 		var cb = document.createElement('input');
 		cb.setAttribute('type', 'checkbox');
 		
@@ -8062,6 +8085,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			span.style.paddingRight = '20px';
 			span.appendChild(cb);
 			mxUtils.write(span, ' ' + mxResources.get('rememberThisSetting'));
+			cb.style.position = 'relative';
+			cb.style.top = '1px';
 			cb.checked = true;
 			cb.defaultChecked = true;
 			
@@ -8099,6 +8124,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 			
 			editorUi.sidebar.showEntries(libs.join(';'), cb.checked, true);
+			editorUi.setSidebarTitles(labels.checked);
 		});
 		applyBtn.className = 'geBtn gePrimaryBtn';
 		
@@ -8198,11 +8224,11 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 		}
 
 		div.appendChild(libFS);
-		
+
 		var remember = document.createElement('div');
 		remember.style.marginTop = '18px';
 		remember.style.textAlign = 'center';
-		
+
 		var cb = document.createElement('input');
 		
 		if (isLocalStorage)
