@@ -896,7 +896,9 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	var w0 = w;
 	var h0 = h;
 	var padding = transparent? 0 : 64; //No padding needed for transparent dialogs
-	
+	// dss: dialog(#375)
+	var stockResize = (typeof(onResize) === 'string');
+
 	var ds = (!Editor.inlineFullscreen && editorUi.embedViewport != null) ?
 		mxUtils.clone(editorUi.embedViewport) : mxUtils.getDocumentSize();
 	
@@ -962,19 +964,66 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	div.style.left = left + 'px';
 	div.style.top = top + 'px';
 	div.style.zIndex = this.zIndex;
-	
+
+
 	div.appendChild(elt);
 	document.body.appendChild(div);
-	
+
+	// dss: dialog(#375)
+	if (stockResize) {
+	    var pos=editorUi.getDialogPosition(onResize);
+	    if ((pos!==null)&&(pos!==undefined)) {
+	        div.style.top=pos.t;
+	        div.style.left=pos.l;
+	        div.style.width=pos.w;
+	        div.style.height=pos.h;
+	    }
+	    div.style.resize = 'auto';
+	    var header = document.createElement('div');
+	    header.id = "header";
+	    header.innerHTML = onResize;
+        header.style.width = w + 'px';
+        header.style.padding = '8px';
+        header.style.zIndex = this.zIndex;
+        header.style.backgroundColor = '#4d90fe';
+        header.style.backgroundImage = 'linear-gradient(to right,#4d90fe 0px,#ffffff 100%)';
+        header.style.color = '#fff';
+        header.style.position = 'relative';
+        header.style.cursor = 'move';
+        header.style.fontWeight = 'bold';
+        header.style.top = '-' + Math.round(padding/2) + 'px';
+        header.style.left = '-' + Math.round(padding/2) + 'px';
+
+//check
+//div.appendChild(header);
+div.insertBefore(header,div.firstChild)
+
+        this.stockResizeListener = function () {
+	        if ((div!=null)&&(div.parentElement!==null)) {
+                var header=div.querySelector('div#header');
+                if (header!==null)
+                    header.style.width=div.offsetWidth+'px';
+                var closure=div.parentElement.querySelector('img.geDialogClose');
+                if (closure!==null) {
+                    closure.style.top=(div.offsetTop+14)+'px';
+                    closure.style.left=(div.offsetLeft+div.offsetWidth+38-(div.class!='geTransDialog'?57:0))+'px';
+                }
+	        }
+        };
+	    var ro=new ResizeObserver(this.stockResizeListener);
+	    ro.observe(div);
+	    DragDialog(div,this.stockResizeListener);
+	}
+
 	// Adds vertical scrollbars if needed
 	if (!noScroll && elt.clientHeight > div.clientHeight - padding)
 	{
 		elt.style.overflowY = 'auto';
 	}
-	
+
 	//Prevent horizontal scrollbar
 	elt.style.overflowX = 'hidden';
-	
+
 	if (closable)
 	{
 		var img = document.createElement('img');
@@ -1011,10 +1060,11 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 			}));
 		}
 	}
-	
+
 	this.resizeListener = mxUtils.bind(this, function()
 	{
-		if (onResize != null)
+	    // dss: dialog(#375)
+		if ((onResize != null) && (typeof(onResize)=='function'))
 		{
 			var newWH = onResize();
 			
@@ -1060,7 +1110,6 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 			this.dialogImg.style.left = (left + w + 38 - dx) + 'px';
 		}
 	});
-	
 	mxEvent.addListener(window, 'resize', this.resizeListener);
 
 	this.onDialogClose = onClose;
@@ -1068,6 +1117,42 @@ function Dialog(editorUi, elt, w, h, modal, closable, onClose, noScroll, transpa
 	
 	editorUi.editor.fireEvent(new mxEventObject('showDialog'));
 };
+
+// dss: dialog(#375)
+function DragDialog(element,listener) {
+
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0; var cb=listener;
+    if (document.getElementById(element.id + "header")) {
+        document.getElementById(element.id + "header").onmousedown = dragMouseDown;
+    }
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+        cb();
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
+}
+
 
 /**
  * 

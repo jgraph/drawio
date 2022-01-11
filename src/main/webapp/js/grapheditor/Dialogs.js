@@ -431,8 +431,9 @@ var AboutDialog = function(editorUi)
 /**
  * Constructs a new textarea dialog.
  */
+ // dss: dialog(#375)
 var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h,
-	addButtons, noHide, noWrap, applyTitle, helpLink, customButtons)
+	addButtons, noHide, noWrap, applyTitle, helpLink, customButtons, stockResize)
 {
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
@@ -440,13 +441,25 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	var row, td;
 	
 	var table = document.createElement('table');
+	// dss: dialog(#375)
+	if (stockResize) {
+	    table.style.maxHeight = '95%';
+	    table.style.width = '100%';
+	    table.style.height = '95%';
+	}
 	var tbody = document.createElement('tbody');
 	
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
 	td.style.fontSize = '10pt';
-	td.style.width = '100px';
+	// dss: dialog(#375)
+    if (stockResize) {
+        td.style.height = '0';
+        td.style.verticalAlign='top';
+    } else {
+	    td.style.width = '100px';
+    }
 	mxUtils.write(td, title);
 	
 	row.appendChild(td);
@@ -469,9 +482,16 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	mxUtils.write(nameInput, url || '');
 	nameInput.style.resize = 'none';
-	nameInput.style.width = w + 'px';
-	nameInput.style.height = h + 'px';
-	
+	// dss: dialog(#375)
+    if (stockResize) {
+        td.style.verticalAlign='top';
+        nameInput.style.width = '100%';
+        nameInput.style.height = '100%';
+    } else {
+        nameInput.style.width = w + 'px';
+        nameInput.style.height = h + 'px';
+    }
+
 	this.textarea = nameInput;
 
 	this.init = function()
@@ -578,6 +598,10 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 		td.appendChild(cancelBtn);
 	}
 
+	// dss: dialog(#375)
+    if (stockResize) {
+        row.style.height='0';
+    }
 	row.appendChild(td);
 	tbody.appendChild(row);
 	table.appendChild(tbody);
@@ -1444,7 +1468,7 @@ var EditDataDialog = function(ui, cell)
 					{
 						texts[j] = null;
 						form.table.deleteRow(count + ((id != null) ? 1 : 0));
-						// nox: options
+						// dss: options
 						if ((j<names.length-1)&&(names[j+1]==name+"_")) {
 						    texts[j+1] = null;
 						}
@@ -1486,7 +1510,7 @@ var EditDataDialog = function(ui, cell)
 		}
 	};
 
-    // nox: options
+    // dss: options
 	var addComboArea = function(index, name, value, options)
 	{
 		names[index] = name;
@@ -1573,7 +1597,7 @@ var EditDataDialog = function(ui, cell)
 	
 	for (var i = 0; i < temp.length; i++)
 	{
-	    // nox: options
+	    // dss: options
 	    if( (i<temp.length-1) && (temp[i+1].name==temp[i].name + "_")) {
 	        addComboArea(count, temp[i].name, temp[i].value, temp[i+1].value);
 	        i++;
@@ -1606,12 +1630,12 @@ var EditDataDialog = function(ui, cell)
 	nameInput.setAttribute('size', (mxClient.IS_IE || mxClient.IS_IE11) ? '36' : '40');
 	nameInput.style.boxSizing = 'border-box';
 	nameInput.style.marginLeft = '2px';
-	// nox: options
+	// dss: options
 	nameInput.style.width = '70%';
 	
 	newProp.appendChild(nameInput);
 
-    // nox: options
+    // dss: options
 	var optionInput = document.createElement('input');
 	optionInput.setAttribute('placeholder', mxResources.get('enterPropertyOptions'));
 	optionInput.setAttribute('type', 'text');
@@ -1627,7 +1651,7 @@ var EditDataDialog = function(ui, cell)
 	var addBtn = mxUtils.button(mxResources.get('addProperty'), function()
 	{
 		var name = nameInput.value;
-		// nox: options
+		// dss: options
 		var options = optionInput.value;
 
 		// Avoid ':' in attribute names which seems to be valid in Chrome
@@ -1653,7 +1677,7 @@ var EditDataDialog = function(ui, cell)
 						texts.splice(idx, 1);
 					}
 
-                    // nox: options
+                    // dss: options
                     if (options.length>0)
                     {
                         var oidx = mxUtils.indexOf(names, name+"_");
@@ -1663,7 +1687,7 @@ var EditDataDialog = function(ui, cell)
                         }
                     }
 
-                    // nox: options
+                    // dss: options
 					if (options.length>0) {
 
                         names.push(name);
@@ -1694,7 +1718,7 @@ var EditDataDialog = function(ui, cell)
 
 				addBtn.setAttribute('disabled', 'disabled');
 				nameInput.value = '';
-				// nox: options
+				// dss: options
 				optionInput.value = '';
 
 			}
@@ -1763,13 +1787,13 @@ var EditDataDialog = function(ui, cell)
 				if (texts[i] == null)
 				{
 					value.removeAttribute(names[i]);
-			        // nox: options
+			        // dss: options
 					if (value.hasAttribute(names[i]+"_"))
 					    value.removeAttribute(names[i]+"_");
 				}
 				else
 				{
-				    // nox: options
+				    // dss: options
 				    if (names[i].endsWith("_"))
 				        value.setAttribute(names[i], texts[i]);
 				    else

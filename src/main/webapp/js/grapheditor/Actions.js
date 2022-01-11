@@ -1490,6 +1490,8 @@ Actions.prototype.init = function()
 		{
 			var model = graph.getModel();
 			
+			// dss: dialog(#375)
+			this.editorUi.editor.cancelFirst=false;
 	    	var dlg = new TextareaDialog(this.editorUi, mxResources.get('editStyle') + ':',
 	    		model.getStyle(cells[0]) || '', function(newValue)
 			{
@@ -1497,8 +1499,14 @@ Actions.prototype.init = function()
 				{
 					graph.setCellStyle(mxUtils.trim(newValue), cells);
 				}
-			}, null, null, 400, 220);
-			this.editorUi.showDialog(dlg.container, 420, 300, true, true);
+			}, null, null, 400, 220
+            // dss: dialog(#375)
+            ,null,null,null,null,null,null,true
+			);
+			// dss: dialog(#375)
+			//this.editorUi.showDialog(dlg.container, 420, 300, true, true);
+			this.editorUi.showDialog(dlg.container, 420, 300, true, true, null, false, false, mxResources.get('editStyle'));
+
 			dlg.init();
 		}
 	}), null, null, Editor.ctrlKey + '+E');

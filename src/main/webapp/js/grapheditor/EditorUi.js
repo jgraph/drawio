@@ -4610,7 +4610,16 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 			this.dialogs.push(dlg);
 			return;
 		}
-		
+
+		// dss: dialog(#375)
+		var header=this.dialog.container.querySelector('#header');
+		if (header!==null) {
+		    var p={title: header.innerText
+		        , l: this.dialog.container.style.left, t: this.dialog.container.style.top
+		        , w: this.dialog.container.style.width, h: this.dialog.container.style.height
+		     }
+		     this.addDialogPosition(p);
+		}
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 		
@@ -5227,7 +5236,8 @@ EditorUi.prototype.showDataDialog = function(cell)
 	if (cell != null)
 	{
 		var dlg = new EditDataDialog(this, cell);
-		this.showDialog(dlg.container, 480, 420, true, false, null, false);
+		// dss: dialog(#375)
+        this.showDialog(dlg.container, 480, 420, true, false, null, false, false, mxResources.get('editData'));
 		dlg.init();
 	}
 };

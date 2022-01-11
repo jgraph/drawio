@@ -888,6 +888,12 @@
 				mxResources.get('exportOptionsDisabled'));
 		});
 
+        // dss: dialog(#375)
+		editorUi.actions.addAction('resetDialogPosition', function()
+		{
+		    editorUi.resetDialogPosition();
+		});
+
 		editorUi.actions.addAction('keyboardShortcuts...', function()
 		{
 			if (mxClient.IS_SVG && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
@@ -1540,8 +1546,9 @@
 					{
 						editorUi.checkForUpdates();
 					});
-					
-					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
+
+					// dss: dialog(#375)
+					this.addMenuItems(menu, ['-', 'resetDialogPosition', '-', 'keyboardShortcuts', 'quickStart',
 						'website', 'support', '-'], parent);
 						
 					if (urlParams['disableUpdate'] != '1')
@@ -1554,7 +1561,8 @@
 				}
 				else
 				{
-					this.addMenuItems(menu, ['-', 'keyboardShortcuts', 'quickStart',
+				    // dss: dialog(#375)
+					this.addMenuItems(menu, ['-', 'resetDialogPosition', '-', 'keyboardShortcuts', 'quickStart',
 						'support', '-', 'forkme', 'downloadDesktop', '-', 'about'], parent);
 				}
 			}

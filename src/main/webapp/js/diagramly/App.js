@@ -7794,3 +7794,74 @@ Editor.prototype.resetGraph = function()
 		this.graph.pageFormat = mxSettings.getPageFormat();
 	}
 };
+
+// dss: dialog(#375)
+App.prototype.addDialogPosition = function(position)
+{
+	if (isLocalStorage && localStorage != null)
+	{
+		var positions = this.getDialogPosition();
+		if (positions == null)
+		{
+			positions = [];
+		}
+		else
+		{
+			for (var i = 0; i < positions.length; i++)
+			{
+				if (positions[i].title == position.title)
+				{
+					positions.splice(i, 1);
+				}
+			}
+		}
+
+		if (position != null)
+		{
+			positions.unshift(position);
+			localStorage.setItem('.position', JSON.stringify(positions));
+		}
+	}
+};
+
+/**
+ * Returns the recent file list from local storage
+ */
+App.prototype.getDialogPosition = function(title)
+{
+	if (isLocalStorage && localStorage != null)
+	{
+		try
+		{
+			var positions = localStorage.getItem('.position');
+			if (positions != null)
+			{
+			    var ret=JSON.parse(positions);
+			    if (title===undefined) return ret;
+			    return ret.find(e=>e.title==title);
+			}
+		}
+		catch (e)
+		{
+			// ignore
+		}
+
+		return null;
+	}
+};
+
+App.prototype.resetDialogPosition = function(entry)
+{
+	if (isLocalStorage && localStorage != null)
+	{
+		try
+		{
+			localStorage.removeItem('.position');
+		}
+		catch (e)
+		{
+			// ignore
+		}
+	}
+};
+
