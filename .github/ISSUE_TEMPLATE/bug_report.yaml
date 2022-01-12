@@ -51,5 +51,11 @@ body:
     required: true
 - type: textarea
   attributes:
+    label: Reproduction step
+    description: Exact steps for us to follow in order that we can see the problem. Remember, we cannot see your computer, don't assume we can guess anything you are doing.
+  validations:
+    required: true
+- type: textarea
+  attributes:
     label: Additional Information
     description: If your problem needs further explanation please add more information here. You can drag and drop videos and screenshots below in this editing area to attach them.
