@@ -432,7 +432,7 @@ var AboutDialog = function(editorUi)
  * Constructs a new textarea dialog.
  */
 var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w, h,
-	addButtons, noHide, noWrap, applyTitle, helpLink, customButtons)
+	addButtons, noHide, noWrap, applyTitle, helpLink, customButtons, header)
 {
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
@@ -446,8 +446,12 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	td = document.createElement('td');
 	td.style.fontSize = '10pt';
-	td.style.width = '100px';
 	mxUtils.write(td, title);
+
+	if (header != null)
+	{
+		td.appendChild(header);
+	}
 	
 	row.appendChild(td);
 	tbody.appendChild(row);

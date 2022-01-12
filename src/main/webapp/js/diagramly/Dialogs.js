@@ -249,9 +249,16 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 	addButtons();
 
 	var later = document.createElement('span');
-	later.style.cssText = 'position:absolute;cursor:pointer;bottom:27px;color:gray;userSelect:none;text-align:center;left:50%;';
+	later.style.position = 'absolute';
+	later.style.cursor = 'pointer';
+	later.style.bottom = '27px';
+	later.style.color = 'gray';
+	later.style.userSelect = 'none';
+	later.style.textAlign = 'center';
+	later.style.left = '50%';
 	mxUtils.setPrefixedStyle(later.style, 'transform', 'translate(-50%,0)');
 	mxUtils.write(later, mxResources.get('decideLater'));
+	div.appendChild(later);
 
 	mxEvent.addListener(later, 'click', function()
 	{
@@ -261,9 +268,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 			null, null, null, null, null, null, true);
 		Editor.useLocalStorage = prev;
 	});
-
-	div.appendChild(later);
-
+	
 	// Checks if Google Drive is missing after a 5 sec delay
 	if (mxClient.IS_SVG && isLocalStorage && urlParams['gapi'] != '0' &&
 		(document.documentMode == null || document.documentMode >= 10))
@@ -859,6 +864,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 					var url = 'https://twitter.com/intent/tweet?text=' + 
 						encodeURIComponent(tweet) + '&url=' +
 						encodeURIComponent(text.value);
+
 					editorUi.openLink(url);
 				}
 				catch (e)
@@ -885,6 +891,44 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		}
 	}
 	
+	if (!editorUi.isOffline() && result.length < maxSize)
+	{
+		var emailBtn = mxUtils.button('', function()
+		{
+			try
+			{
+				var url = 'mailto:?subject=' +
+					encodeURIComponent(filename || editorUi.defaultFilename) + '&body=' +
+					encodeURIComponent(text.value);
+
+				editorUi.openLink(url);
+			}
+			catch (e)
+			{
+				editorUi.handleError({message: e.message || mxResources.get('drawingTooLarge')});
+			}
+		});
+		
+		var img = document.createElement('img');
+		img.setAttribute('src', Editor.mailImage);
+		img.setAttribute('width', '18');
+		img.setAttribute('height', '18');
+		img.setAttribute('border', '0');
+		img.style.marginBottom = '5px'
+		
+		if (Editor.isDarkMode())
+		{
+			img.style.filter = 'invert(100%)';
+		}
+
+		emailBtn.appendChild(img);
+		emailBtn.style.verticalAlign = 'bottom';
+		emailBtn.style.paddingTop = '4px';
+		emailBtn.style.minWidth = '46px'
+		emailBtn.className = 'geBtn';
+		buttons.appendChild(emailBtn);
+	}
+
 	var closeBtn = mxUtils.button(mxResources.get('close'), function()
 	{
 		editorUi.hideDialog();
@@ -2260,15 +2304,37 @@ var ParseDialog = function(editorUi, title, defaultType)
 							cells[i].geometry.height = Math.max(cells[i].geometry.height, size.height);
 						}
 					}
-	
-					var layout = new mxFastOrganicLayout(graph);
-					layout.disableEdgeStyle = false;
-					layout.forceConstant = 120;
-					layout.execute(graph.getDefaultParent());
+
+					var runEdgeLayout = true;
+
+					if (type == 'horizontalFlow' || type == 'verticalFlow')
+					{
+						var flowLayout = new mxHierarchicalLayout(graph,
+							(type == 'horizontalFlow') ?
+							mxConstants.DIRECTION_WEST :
+							mxConstants.DIRECTION_NORTH);
+						flowLayout.execute(graph.getDefaultParent(), cells);
+						runEdgeLayout = false;
+					}
+					else if (type == 'circle')
+					{
+						var circleLayout = new mxCircleLayout(graph);
+						circleLayout.execute(graph.getDefaultParent());
+					}
+					else
+					{
+						var layout = new mxFastOrganicLayout(graph);
+						layout.disableEdgeStyle = false;
+						layout.forceConstant = 180;
+						layout.execute(graph.getDefaultParent());
+					}
 					
-					var edgeLayout = new mxParallelEdgeLayout(graph);
-					edgeLayout.spacing = 20;
-					edgeLayout.execute(graph.getDefaultParent());
+					if (runEdgeLayout)
+					{
+						var edgeLayout = new mxParallelEdgeLayout(graph);
+						edgeLayout.spacing = 30;
+						edgeLayout.execute(graph.getDefaultParent());
+					}
 				}
 				finally
 				{
@@ -2356,10 +2422,25 @@ var ParseDialog = function(editorUi, title, defaultType)
 	var diagramOption = document.createElement('option');
 	diagramOption.setAttribute('value', 'diagram');
 	mxUtils.write(diagramOption, mxResources.get('diagram'));
+
+	var circleOption = document.createElement('option');
+	circleOption.setAttribute('value', 'circle');
+	mxUtils.write(circleOption, mxResources.get('circle'));
+
+	var horizontalFlowOption = document.createElement('option');
+	horizontalFlowOption.setAttribute('value', 'horizontalFlow');
+	mxUtils.write(horizontalFlowOption, mxResources.get('horizontalFlow'));
+	
+	var verticalFlowOption = document.createElement('option');
+	verticalFlowOption.setAttribute('value', 'verticalFlow');
+	mxUtils.write(verticalFlowOption, mxResources.get('verticalFlow'));
 	
 	if (defaultType != 'plantUml')
 	{
 		typeSelect.appendChild(diagramOption);
+		typeSelect.appendChild(circleOption);
+		typeSelect.appendChild(horizontalFlowOption);
+		typeSelect.appendChild(verticalFlowOption);
 	}
 
 	var plantUmlSvgOption = document.createElement('option');
@@ -4631,7 +4712,7 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 /**
  * Constructs a new image dialog.
  */
-var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, convertDataUri)
+ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, convertDataUri, withCrop, initClipPath)
 {
 	convertDataUri = (convertDataUri != null) ? convertDataUri : true;
 	
@@ -4688,6 +4769,8 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 	inner.appendChild(cross);
 	div.appendChild(inner);
 
+	var clipPath = initClipPath, cW, cH;
+
 	var insertImage = function(newValue, w, h, resize)
 	{
 		var dataUri = newValue.substring(0, 5) == 'data:';
@@ -4713,18 +4796,18 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 						newValue = editorUi.convertDataUri(newValue);
 					}
 					
-	    				fn(newValue, Math.round(Number(img.width) * s), Math.round(Number(img.height) * s));
-		    		}, function()
-		    		{
-		    			editorUi.spinner.stop();
-		    			fn(null);
+					fn(newValue, Math.round(Number(img.width) * s), Math.round(Number(img.height) * s), clipPath, cW, cH);
+				}, function()
+				{
+					editorUi.spinner.stop();
+					fn(null);
 					editorUi.showError(mxResources.get('error'), mxResources.get('fileNotFound'), mxResources.get('ok'));
-		    		});
+		    	});
 			}
 			else
 			{
 				editorUi.hideDialog();
-				fn(newValue);
+				fn(newValue, null, null, clipPath, cW, cH);
 			}
 		}
 		else
@@ -4734,7 +4817,7 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 			h = (h == null) ? 100 : h;
 			
 			editorUi.hideDialog();				
-			fn(newValue, w, h);
+			fn(newValue, w, h, clipPath, cW, cH);
 		}
 	};
 	
@@ -4932,31 +5015,36 @@ var ImageDialog = function(editorUi, title, initialValue, fn, ignoreExisting, co
 		btns.appendChild(btn);
 	}
 
-	// Image cropping (experimental)
-	if (!!document.createElement('canvas').getContext && linkInput.value.substring(0, 11) == 'data:image/' &&
-		linkInput.value.substring(0, 14) != 'data:image/svg')
-	{
-		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
-		{
-	    	var dlg = new CropImageDialog(editorUi, linkInput.value, function(image)
-	    	{
-	    		linkInput.value = image;
-	    	});
-	    	
-	    	editorUi.showDialog(dlg.container, 300, 380, true, true);
-			dlg.init();
-		});
-		
-		cropBtn.className = 'geBtn';
-		btns.appendChild(cropBtn);
-	}
-
 	mxEvent.addListener(linkInput, 'keypress', function(e)
 	{
 		if (e.keyCode == 13)
 		{
 			apply(linkInput.value);
 		}
+	});
+
+	if (withCrop && !!document.createElement('canvas').getContext)
+ 	{
+ 		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
+ 		{
+			var dlg = new CropImageDialog(editorUi, linkInput.value, clipPath, 
+			function(clipPath_p, width, height)
+	    	{
+				clipPath = clipPath_p;
+				cW = width;
+				cH = height;
+	    	});
+	    	
+	    	editorUi.showDialog(dlg.container, 300, 380, true, true);
+ 		});
+ 		
+ 		cropBtn.className = 'geBtn';
+		btns.appendChild(cropBtn);
+	}
+
+	mxEvent.addListener(linkInput, 'change', function(e)
+	{
+		clipPath = null;
 	});
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
@@ -8124,7 +8212,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 			
 			editorUi.sidebar.showEntries(libs.join(';'), cb.checked, true);
-			editorUi.setSidebarTitles(labels.checked);
+			editorUi.setSidebarTitles(labels.checked, cb.checked);
 		});
 		applyBtn.className = 'geBtn gePrimaryBtn';
 		
@@ -8305,9 +8393,12 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	inner.style.overflow = 'auto';
 
 	var plugins = mxSettings.getPlugins().slice();
+	var changed = false;
 	
 	function refresh()
 	{
+		changed = true;
+
 		if (plugins.length == 0)
 		{
 			inner.innerHTML = mxUtils.htmlEntities(mxResources.get('noPlugins'));
@@ -8357,6 +8448,7 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	
 	div.appendChild(inner);
 	refresh();
+	changed = false;
 
 	var addBtn = mxUtils.button(mxResources.get('add'), addFn != null? function()
 	{
@@ -8454,10 +8546,17 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
-		mxSettings.setPlugins(plugins);
-		mxSettings.save();
-		editorUi.hideDialog();
-		editorUi.alert(mxResources.get('restartForChangeRequired'));
+		if (changed)
+		{
+			mxSettings.setPlugins(plugins);
+			mxSettings.save();
+			editorUi.hideDialog();
+			editorUi.alert(mxResources.get('restartForChangeRequired'));
+		}
+		else
+		{
+			editorUi.hideDialog();
+		}	
 	});
 	
 	applyBtn.className = 'geBtn gePrimaryBtn';
@@ -8498,122 +8597,286 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	this.container = div;
 };
 
-var CropImageDialog = function(editorUi, image, fn) 
+var CropImageDialog = function(editorUi, image, clipPath, fn) 
 {
+	var IMAGE_SIZE = 300;
 	var div = document.createElement('div');
-	
-	var croppieDiv = document.createElement('div');
-	croppieDiv.style.width = '300px';
-	croppieDiv.style.height = '300px';
-	div.appendChild(croppieDiv);
-	var croppie = null;
-	
-	function createCroppie(isCircle)
+
+	var elt = document.createElement('div');
+	elt.style.height = IMAGE_SIZE + 'px';
+	elt.style.width = IMAGE_SIZE + 'px';
+	elt.style.display = 'inline-flex';
+	elt.style.justifyContent = 'center';
+	elt.style.alignItems = 'center';
+	elt.style.position = 'absolute';
+	var img = document.createElement('img');
+
+	img.onload = init;
+	img.onerror = function ()
 	{
-		if (croppie != null)
+		img.onload = null;
+		img.src = Editor.errorImage;
+	}
+
+	img.setAttribute('src', image);
+	img.style.maxWidth = IMAGE_SIZE + 'px';
+	img.style.maxHeight = IMAGE_SIZE + 'px';
+	elt.appendChild(img);
+	div.appendChild(elt);
+
+	var croppingDiv = document.createElement('div');
+	croppingDiv.style.width = IMAGE_SIZE + 'px';
+	croppingDiv.style.height = IMAGE_SIZE + 'px';
+	croppingDiv.style.overflow = 'hidden';
+	croppingDiv.style.backgroundColor = '#fff9';
+	div.appendChild(croppingDiv);
+
+	var cropGraph, cropCell, initGeo = new mxGeometry(100, 100, 100, 100)
+		, commonStyle = 'shape=image;fillColor=none;rotatable=0;cloneable=0;deletable=0;image=' + 
+						image.replace(';base64', '') + ';clipPath=';
+
+	function init()
+	{
+		cropGraph = new Graph(croppingDiv);
+		cropGraph.autoExtend = false;
+		cropGraph.autoScroll = false;
+		cropGraph.setGridEnabled(false);
+		cropGraph.setEnabled(true);
+		cropGraph.setPanning(false);
+		cropGraph.setConnectable(false);
+		cropGraph.getRubberband().setEnabled(false);
+		cropGraph.graphHandler.allowLivePreview = false;
+
+		var origCreateVertexHandler = cropGraph.createVertexHandler;
+
+		cropGraph.createVertexHandler = function()
 		{
-			croppie.destroy();
+			var handler = origCreateVertexHandler.apply(this, arguments);
+			handler.livePreview = false;
+			return handler;
 		}
+
+		cropCell = new mxCell('', initGeo.clone(), '');
+
+		if (clipPath != null)
+		{
+			//Find position and size of cropCell
+			try
+			{
+				if (clipPath.substring(0, 5) == 'inset')
+				{
+					var geo = cropCell.geometry;
+					var imgW = img.width;
+					var imgH = img.height;
+					var imgX = (IMAGE_SIZE - imgW) / 2;
+					var imgY = (IMAGE_SIZE - imgH) / 2;
+	
+					var tokens = clipPath.match(/\(([^)]+)\)/)[1].split(/[ ,]+/);
+
+					var top = parseFloat(tokens[0]);
+					var right = parseFloat(tokens[1]);
+					var bottom = parseFloat(tokens[2]);
+					var left = parseFloat(tokens[3]);
+
+					if (isFinite(top) && isFinite(right) && isFinite(bottom) && isFinite(left))
+					{
+						geo.x = left / 100 * imgW + imgX;
+						geo.y = top / 100 * imgH + imgY;
+						geo.width = (100 - right) / 100 * imgW + imgX - geo.x;
+						geo.height = (100 - bottom) / 100 * imgH + imgY - geo.y;
+
+						if (tokens[4] == 'round')
+						{
+							if (tokens[5] == '50%')
+							{
+								ellipseInput.setAttribute('checked', 'checked');
+							}
+							else
+							{
+								roundedInput.setAttribute('checked', 'checked');
+							}
+						}
+						else
+						{
+							rectInput.setAttribute('checked', 'checked');
+						}
+					}
+					else //Invalid clipPath
+					{
+						clipPath = null;
+					}
+				}
+				else //The dialog supports inset only
+				{
+					clipPath = null;
+				}
+			}
+			catch (e){} //Ignore
+		}
+
+		cropCell.style = getCropCellStyle(clipPath);
+	   	cropCell.vertex = true;
+		cropGraph.addCell(cropCell, null, null, null, null);
+		cropGraph.selectAll();
+
+		function updateCropCell()
+		{
+			cropGraph.model.setStyle(cropCell, getCropCellStyle());
+		};
+
+		cropGraph.addListener(mxEvent.CELLS_MOVED, updateCropCell);
+
+		cropGraph.addListener(mxEvent.CELLS_RESIZED, updateCropCell);
+
+		var origMouseUp = cropGraph.graphHandler.mouseUp;
+		var origMouseDown = cropGraph.graphHandler.mouseDown;
+
+		cropGraph.graphHandler.mouseUp = function()
+		{
+			origMouseUp.apply(this, arguments);
+			croppingDiv.style.backgroundColor = '#fff9';
+		};
+
+		cropGraph.graphHandler.mouseDown = function()
+		{
+			origMouseDown.apply(this, arguments);
+			croppingDiv.style.backgroundColor = '';
+		};
+
+		cropGraph.dblClick = function(){} //Disable text adding
+
+		var origChangeSelection = cropGraph.getSelectionModel().changeSelection;
+
+		//Prevent deselection
+		cropGraph.getSelectionModel().changeSelection = function()
+		{
+			origChangeSelection.call(this, [cropCell], [cropCell]);
+		};
+	};
+
+	var rectInput = document.createElement('input');
+	rectInput.setAttribute('type', 'radio');
+	rectInput.setAttribute('id', 'croppingRect');
+	rectInput.setAttribute('name', 'croppingShape');
+	rectInput.setAttribute('checked', 'checked');
+	rectInput.style.margin = '5px';
+	div.appendChild(rectInput);
+	
+	var rectLbl = document.createElement('label');
+	rectLbl.setAttribute('for', 'croppingRect');
+	mxUtils.write(rectLbl, mxResources.get('rectangle'));
+	div.appendChild(rectLbl);
+
+	var roundedInput = document.createElement('input');
+	roundedInput.setAttribute('type', 'radio');
+	roundedInput.setAttribute('id', 'croppingRounded');
+	roundedInput.setAttribute('name', 'croppingShape');
+	roundedInput.style.margin = '5px';
+	div.appendChild(roundedInput);
+	
+	var roundedLbl = document.createElement('label');
+	roundedLbl.setAttribute('for', 'croppingRounded');
+	mxUtils.write(roundedLbl, mxResources.get('rounded'));
+	div.appendChild(roundedLbl);
+
+	var ellipseInput = document.createElement('input');
+	ellipseInput.setAttribute('type', 'radio');
+	ellipseInput.setAttribute('id', 'croppingEllipse');
+	ellipseInput.setAttribute('name', 'croppingShape');
+	ellipseInput.style.margin = '5px';
+	div.appendChild(ellipseInput);
+	
+	var ellipseLbl = document.createElement('label');
+	ellipseLbl.setAttribute('for', 'croppingEllipse');
+	mxUtils.write(ellipseLbl, mxResources.get('ellipse'));
+	div.appendChild(ellipseLbl);
+
+	function calcClipPath() 
+	{
+		var isRounded = roundedInput.checked;
+		var isEllipse = ellipseInput.checked;
+
+		var geo = cropCell.geometry;
+		var imgW = img.width;
+		var imgH = img.height;
+		var imgX = (IMAGE_SIZE - imgW) / 2;
+		var imgY = (IMAGE_SIZE - imgH) / 2;
+
+		var left, right, top, bottom;
 		
-		if (isCircle)
+		//prevent coords outside the image
+		if (geo.x < imgX)
 		{
-			croppie = new Croppie(croppieDiv, {
-				viewport: { width: 150, height: 150, type: 'circle' },
-				enableExif: true,
-			    showZoomer: false,
-			    enableResize: false,
-			    enableOrientation: true
-			});
-			
-			croppie.bind({
-			    url: image
-			});
+			geo.width -= (imgX - geo.x);
+			geo.x = imgX;
 		}
-		else
+		else if (geo.x + geo.width > imgX + imgW)
 		{
-			croppie = new Croppie(croppieDiv, {
-				viewport: { width: 150, height: 150, type: 'square' },
-				enableExif: true,
-			    showZoomer: false,
-			    enableResize: true,
-			    enableOrientation: true
-			});
-			
-			croppie.bind({
-			    url: image
-			});
-		}	
-	};
-	
-	this.init = function()
+			geo.width = imgX + imgW - geo.x;
+			geo.x = Math.min(geo.x, imgX + imgW);
+		}
+
+		if (geo.y < imgY)
+		{
+			geo.height -= (imgY - geo.y);
+			geo.y = imgY;
+		}
+		else if (geo.y + geo.height > imgY + imgH)
+		{
+			geo.height = imgY + imgH - geo.y;
+			geo.y = Math.min(geo.y, imgY + imgH);
+		}
+
+		var left = (geo.x - imgX) / imgW * 100;
+		var right = 100 - (geo.x + geo.width - imgX) / imgW * 100;
+		var top = (geo.y - imgY) / imgH * 100;
+		var bottom = 100 - (geo.y + geo.height - imgY) / imgH * 100;
+
+		//Use inset for circle also since it uses percentages from 4 sides and this scales no matter the shape of the image
+		//Using circle which is based on a single point to position (center) moves when the image is scaled and/or aspect is changed
+		return 'inset(' + mxUtils.format(top) + '% ' + mxUtils.format(right) + '% ' + mxUtils.format(bottom) + '% ' + mxUtils.format(left) + '%' + 
+							(isRounded? ' round 5%' : (isEllipse? ' round 50%' : '')) + ')';
+	}
+
+	function typeChanged()
 	{
-		createCroppie();
-	};
+		cropGraph.model.setGeometry(cropCell, initGeo.clone());
+		cropGraph.model.setStyle(cropCell, getCropCellStyle());
+		cropGraph.selectAll();
+	}
 
-	var circleInput = document.createElement('input');
-	circleInput.setAttribute('type', 'checkbox');
-	circleInput.setAttribute('id', 'croppieCircle');
-	circleInput.style.margin = '5px';
-	div.appendChild(circleInput);
-	
-	var circleLbl = document.createElement('label');
-	circleLbl.setAttribute('for', 'croppieCircle');
-	mxUtils.write(circleLbl, mxResources.get('circle'));
-	div.appendChild(circleLbl);
-	
-	var wrap, btnLeft, btnRight, iLeft, iRight;
-
-    wrap = document.createElement('div');
-    btnLeft = document.createElement('button');
-    btnRight = document.createElement('button');
-
-    wrap.appendChild(btnLeft);
-    wrap.appendChild(btnRight);
-
-    iLeft = document.createElement('i');
-    iRight = document.createElement('i');
-    btnLeft.appendChild(iLeft);
-    btnRight.appendChild(iRight);
-
-    wrap.className = 'cr-rotate-controls';
-    wrap.style.float = 'right';
-    wrap.style.position = 'inherit';
-    btnLeft.className = 'cr-rotate-l';
-    btnRight.className = 'cr-rotate-r';
-    
-    div.appendChild(wrap);
-
-    btnLeft.addEventListener('click', function () 
-    {
-    	croppie.rotate(-90);
-    });
-    
-    btnRight.addEventListener('click', function () 
-    {
-    	croppie.rotate(90);
-    });
-	
-	mxEvent.addListener(circleInput, 'change', function()
+	function getCropCellStyle(clipPath)
 	{
-		createCroppie(this.checked);
-	});
+		return commonStyle + (clipPath? clipPath : calcClipPath());
+	}
+
+	mxEvent.addListener(rectInput, 'change', typeChanged);
+	mxEvent.addListener(roundedInput, 'change', typeChanged);
+	mxEvent.addListener(ellipseInput, 'change', typeChanged);
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
 	});
+
 	cancelBtn.className = 'geBtn';
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
-		croppie.result({type: 'base64', size: 'original'}).then(function(base64Img) {
-			fn(base64Img);
-			editorUi.hideDialog();
-		});
+		fn(calcClipPath(), cropCell.geometry.width, cropCell.geometry.height);
+		editorUi.hideDialog();
 	});
 	
 	applyBtn.className = 'geBtn gePrimaryBtn';
 	
+	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
+	{
+		fn(null, img.width, img.height);
+		editorUi.hideDialog();
+	});
+	
+	resetBtn.className = 'geBtn';
+
 	var buttons = document.createElement('div');
 	buttons.style.marginTop = '20px';
 	buttons.style.textAlign = 'right';
@@ -8621,10 +8884,12 @@ var CropImageDialog = function(editorUi, image, fn)
 	if (editorUi.editor.cancelFirst)
 	{
 		buttons.appendChild(cancelBtn);
+		buttons.appendChild(resetBtn);
 		buttons.appendChild(applyBtn);
 	}
 	else
 	{
+		buttons.appendChild(resetBtn);
 		buttons.appendChild(applyBtn);
 		buttons.appendChild(cancelBtn);
 	}

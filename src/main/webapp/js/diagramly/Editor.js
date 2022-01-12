@@ -164,6 +164,11 @@
 	Editor.tailSpin = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9Ii0yIC0yIDQ0IDQ0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPGRlZnM+CiAgICAgICAgPGxpbmVhckdyYWRpZW50IHgxPSI4LjA0MiUiIHkxPSIwJSIgeDI9IjY1LjY4MiUiIHkyPSIyMy44NjUlIiBpZD0iYSI+CiAgICAgICAgICAgIDxzdG9wIHN0b3AtY29sb3I9IiM4MDgwODAiIHN0b3Atb3BhY2l0eT0iMCIgb2Zmc2V0PSIwJSIvPgogICAgICAgICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjODA4MDgwIiBzdG9wLW9wYWNpdHk9Ii42MzEiIG9mZnNldD0iNjMuMTQ2JSIvPgogICAgICAgICAgICA8c3RvcCBzdG9wLWNvbG9yPSIjODA4MDgwIiBvZmZzZXQ9IjEwMCUiLz4KICAgICAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPC9kZWZzPgogICAgPGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj4KICAgICAgICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxIDEpIj4KICAgICAgICAgICAgPHBhdGggZD0iTTM2IDE4YzAtOS45NC04LjA2LTE4LTE4LTE4IiBzdHJva2U9InVybCgjYSkiIHN0cm9rZS13aWR0aD0iNiI+CiAgICAgICAgICAgICAgICA8YW5pbWF0ZVRyYW5zZm9ybQogICAgICAgICAgICAgICAgICAgIGF0dHJpYnV0ZU5hbWU9InRyYW5zZm9ybSIKICAgICAgICAgICAgICAgICAgICB0eXBlPSJyb3RhdGUiCiAgICAgICAgICAgICAgICAgICAgZnJvbT0iMCAxOCAxOCIKICAgICAgICAgICAgICAgICAgICB0bz0iMzYwIDE4IDE4IgogICAgICAgICAgICAgICAgICAgIGR1cj0iMC45cyIKICAgICAgICAgICAgICAgICAgICByZXBlYXRDb3VudD0iaW5kZWZpbml0ZSIgLz4KICAgICAgICAgICAgPC9wYXRoPgogICAgICAgICAgICA8Y2lyY2xlIGZpbGw9IiM4MDgwODAiIGN4PSIzNiIgY3k9IjE4IiByPSIxIj4KICAgICAgICAgICAgICAgIDxhbmltYXRlVHJhbnNmb3JtCiAgICAgICAgICAgICAgICAgICAgYXR0cmlidXRlTmFtZT0idHJhbnNmb3JtIgogICAgICAgICAgICAgICAgICAgIHR5cGU9InJvdGF0ZSIKICAgICAgICAgICAgICAgICAgICBmcm9tPSIwIDE4IDE4IgogICAgICAgICAgICAgICAgICAgIHRvPSIzNjAgMTggMTgiCiAgICAgICAgICAgICAgICAgICAgZHVyPSIwLjlzIgogICAgICAgICAgICAgICAgICAgIHJlcGVhdENvdW50PSJpbmRlZmluaXRlIiAvPgogICAgICAgICAgICA8L2NpcmNsZT4KICAgICAgICA8L2c+CiAgICA8L2c+Cjwvc3ZnPgo=';
 
 	/**
+	 * 
+	 */
+	Editor.mailImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHBhdGggZD0iTTAgMGgyNHYyNEgwVjB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTIyIDZjMC0xLjEtLjktMi0yLTJINGMtMS4xIDAtMiAuOS0yIDJ2MTJjMCAxLjEuOSAyIDIgMmgxNmMxLjEgMCAyLS45IDItMlY2em0tMiAwbC04IDQuOTlMNCA2aDE2em0wIDEySDRWOGw4IDUgOC01djEweiIvPjwvc3ZnPg==';
+
+	/**
 	 * Used in the GraphViewer lightbox.
 	 */
 	Editor.tweetImage = IMAGE_PATH + '/tweet.png';
@@ -298,6 +303,10 @@
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
+		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
+		{
+			graph.refresh();
+		}},
         {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', '0') != '1';
@@ -6519,6 +6528,104 @@
 		}
 		
 		return imgExport;
+	};
+
+	/**
+	 * Overridden to destroy the shape number.
+	 */
+	var cellRendererDestroy = mxCellRenderer.prototype.destroy;
+	mxCellRenderer.prototype.destroy = function(state)
+	{
+		cellRendererDestroy.apply(this, arguments);
+		
+		if (state.secondLabel != null)
+		{
+			state.secondLabel.destroy();
+			state.secondLabel = null;
+		}
+	};
+	
+	/**
+	 * Includes the shape number in the return value.
+	 */
+	mxCellRenderer.prototype.getShapesForState = function(state)
+	{
+		return [state.shape, state.text, state.secondLabel, state.control];
+	};
+
+	/**
+	 * Resets the global shape counter.
+	 */
+	var graphViewResetValidationState = mxGraphView.prototype.resetValidationState;
+	
+	mxGraphView.prototype.resetValidationState = function()
+	{
+		graphViewResetValidationState.apply(this, arguments);
+		this.numberCounter = 0;
+	};
+	
+	/**
+	 * Adds shape number update the validation step.
+	 */
+	var graphViewValidateCellState = mxGraphView.prototype.validateCellState;
+	
+	mxGraphView.prototype.validateCellState = function(cell, recurse)
+	{
+		var state = graphViewValidateCellState.apply(this, arguments);
+		recurse = (recurse != null) ? recurse : true;
+		var enumerate = (state != null && this.graph.model.isVertex(state.cell)) ?
+			mxUtils.getValue(state.style, 'enumerate', 0) == '1' : false;
+		
+		if (recurse && this.redrawNumberShape(state, enumerate))
+		{
+			this.numberCounter++;
+		}
+		
+		return state;
+	};
+
+	/**
+	 * Adds drawing and update of the shape number.
+	 */
+	mxGraphView.prototype.redrawNumberShape = function(state, enumerate)
+	{
+		var value = '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
+			(this.numberCounter + 1) + '</div>';
+		var result = false;
+		
+		if (enumerate && this.graph.model.isVertex(state.cell) &&
+			state.shape != null && state.secondLabel == null)
+		{	
+			state.secondLabel = new mxText(value, new mxRectangle(),
+				mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM);
+
+			// Styles the label
+			state.secondLabel.size = 12;
+			state.secondLabel.dialect = mxConstants.DIALECT_STRICTHTML;
+			this.graph.cellRenderer.initializeLabel(state, state.secondLabel);
+		}
+		
+		if (state != null && state.secondLabel != null)
+		{
+			if (!enumerate)
+			{
+				state.secondLabel.destroy();
+				state.secondLabel = null;
+			}
+			else
+			{
+				var scale = this.graph.getView().getScale();
+				var bounds = new mxRectangle(state.x + state.width - 4 * scale, state.y + 4 * scale, 0, 0);
+				state.secondLabel.value = value;
+				state.secondLabel.state = state;
+				state.secondLabel.scale = scale;
+				state.secondLabel.bounds = bounds;
+				state.secondLabel.redraw();
+				result = true;
+			}
+		}
+
+		return result;
 	};
 
 	/**

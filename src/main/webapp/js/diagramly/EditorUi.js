@@ -3293,10 +3293,9 @@
 						geo.translate(-bounds.x, -bounds.y);
 					}
 				}
-	
+
 				contentDiv.appendChild(this.sidebar.createVertexTemplateFromCells(
-					cells, bounds.width, bounds.height, title || '', true, false, false));
-	
+					cells, bounds.width, bounds.height, title || '', true, null, false));
 				var xml = Graph.compress(mxUtils.getXml(this.editor.graph.encodeCells(cells)));
 				var entry = {xml: xml, w: bounds.width, h: bounds.height};
 				
@@ -3625,7 +3624,7 @@
 				}
 				
 				content.appendChild(this.sidebar.createVertexTemplate(s + 'image=' +
-					data, img.w, img.h, '', img.title || '', false, false, true));
+					data, img.w, img.h, '', img.title || '', false, null, true));
 			}
 			else if (img.xml != null)
 			{
@@ -3634,7 +3633,7 @@
 				if (cells.length > 0)
 				{
 					content.appendChild(this.sidebar.createVertexTemplateFromCells(
-						cells, img.w, img.h, img.title || '', true, false, true));
+						cells, img.w, img.h, img.title || '', true, null, true));
 				}
 			}
 		}
@@ -3700,10 +3699,20 @@
 
 		Editor.sketchFontFamily = 'Architects Daughter';
 		Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
+		Editor.sketchFonts = [
+			{'fontFamily': Editor.sketchFontFamily,
+				'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
+			{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
+			{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}];
 
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
+			if (typeof Menus !== 'undefined')
+			{
+				Menus.prototype.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
+			}
+			
 			Graph.prototype.defaultVertexStyle = {'hachureGap': '4'};
 			Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none', 'rounded': '0', 'curved': '1',
 				'jettySize': 'auto', 'orthogonalLoop': '1', 'endArrow': 'open', 'startSize': '14', 'endSize': '14',
@@ -3723,10 +3732,10 @@
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
-    EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting, convertDataUri)
+    EditorUi.prototype.showImageDialog = function(title, value, fn, ignoreExisting, convertDataUri, withCrop, initClipPath)
 	{
 		// KNOWN: IE+FF don't return keyboard focus after image dialog (calling focus doesn't help)
-	    var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri);
+	    var dlg = new ImageDialog(this, title, value, fn, ignoreExisting, convertDataUri, withCrop, initClipPath);
 		this.showDialog(dlg.container, (Graph.fileSupport) ? 480 : 360, (Graph.fileSupport) ? 200 : 90, true, true);
 		dlg.init();
 	};
@@ -7088,6 +7097,16 @@
 								this.updatePageLinksForCell(mapping, cells[i]);
 							}
 						}
+
+						var bgImg = graph.parseBackgroundImage(node.getAttribute('backgroundImage'));
+
+						if (bgImg != null && bgImg.originalSrc != null)
+						{
+							this.updateBackgroundPageLink(mapping, bgImg);
+							var change = new ChangePageSetup(this, null, bgImg);
+							change.ignoreColor = true;
+							graph.model.execute(change);
+						}
 					}
 					
 					if (applyDefaultStyles)
@@ -7127,9 +7146,37 @@
 		for (var i = 0; i < pages.length; i++)
 		{
 			this.updatePageLinksForCell(mapping, pages[i].root);
+
+			if (pages[i].viewState != null)
+			{
+				this.updateBackgroundPageLink(mapping, pages[i].viewState.backgroundImage);
+			}
 		}
 	};
 	
+	/**
+	 * Updates links to pages in shapes and labels.
+	 */
+	EditorUi.prototype.updateBackgroundPageLink = function(mapping, obj)
+	{
+		try
+		{
+			if (obj != null && Graph.isPageLink(obj.originalSrc))
+			{
+				var newId = mapping[obj.originalSrc.substring(obj.originalSrc.indexOf(',') + 1)];
+
+				if (newId != null)
+				{
+					obj.originalSrc = 'data:page/id,' + newId;
+				}
+			}
+		}
+		catch (e)
+		{
+			// ignore background image
+		}
+	};
+
 	/**
 	 * Updates links to pages in shapes and labels.
 	 */
@@ -9115,6 +9162,17 @@
 		}
 	};
 
+	/**
+	 * Returns the default value for sketch mode.
+	 */
+	EditorUi.prototype.getDefaultSketchMode = function()
+	{
+		var defaultValue = window.location.host == 'ac.draw.io' ? '1' : '0';
+		var roughParam = (urlParams['rough'] != null) ? urlParams['rough'] : defaultValue;
+
+		return roughParam != '0';
+	};
+
 	// Initializes the user interface
 	var editorUiInit = EditorUi.prototype.init;
 	EditorUi.prototype.init = function()
@@ -9126,9 +9184,8 @@
 		{
 			if (urlParams['sketch'] == '1')
 			{
-				this.doSetSketchMode((mxSettings.settings.sketchMode != null &&
-					urlParams['rough'] == null) ? mxSettings.settings.sketchMode :
-					urlParams['rough'] != '0');
+				this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null) ?
+					mxSettings.settings.sketchMode : this.getDefaultSketchMode());
 			}
 
 			if (mxSettings.settings.sidebarTitles != null)
@@ -10360,7 +10417,7 @@
 	/**
 	 * Changes Sidebar.sidebarTitles.
 	 */
-	EditorUi.prototype.setSidebarTitles = function(value)
+	EditorUi.prototype.setSidebarTitles = function(value, remember)
 	{
 		if (this.sidebar.sidebarTitles != value)
 		{
@@ -10368,8 +10425,11 @@
 			this.sidebar.refresh();
 
 			// Persist setting
-			mxSettings.settings.sidebarTitles = value;
-			mxSettings.save();
+			if (this.isSettingsEnabled() && remember)
+			{
+				mxSettings.settings.sidebarTitles = value;
+				mxSettings.save();
+			}
 
 			this.fireEvent(new mxEventObject('sidebarTitlesChanged'));
 		}
@@ -10418,9 +10478,7 @@
 				}
 			};
 
-			this.menus.defaultFonts = Menus.prototype.defaultFonts;
 			this.menus.defaultFontSize = (value) ? 20 : 16;
-
 			graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
 			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);
 
@@ -10448,12 +10506,6 @@
 				setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
 				setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
 				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
-				
-				this.menus.defaultFonts = [{'fontFamily': Editor.sketchFontFamily,
-						'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
-					{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
-					{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}].
-					concat(this.menus.defaultFonts);
 			}
 
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
@@ -13418,7 +13470,7 @@
 
 					var roots = cells.slice();
 					var select = cells.slice();
-
+					
 					for (var e = 0; e < edges.length; e++)
 					{
 						var edge = edges[e];
@@ -13438,79 +13490,90 @@
 									for (var j = 0; j < refs.length; j++)
 									{
 										var ref = lookups[edge.to][refs[j]];
-										
-										if (ref != null)
-										{
-											var label = edge.label;
-											
-											if (edge.fromlabel != null)
-											{
-												label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
-											}
-											
-											if (edge.sourcelabel != null)
-											{
-												label = graph.replacePlaceholders(dataCell,
-													edge.sourcelabel, vars) + (label || '');
-											}
-						
-											if (edge.tolabel != null)
-											{
-												label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-											}
-																							
-											if (edge.targetlabel != null)
-											{
-												label = (label || '') + graph.replacePlaceholders(
-													ref, edge.targetlabel, vars);
-											}
-						
-											var placeholders = ((edge.placeholders == 'target') ==
-												!edge.invert) ? ref : realCell;
-											var style = (edge.style != null) ?
-												graph.replacePlaceholders(placeholders, edge.style, vars) :
-												graph.createCurrentEdgeStyle();
 
-											var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
-												ref : realCell, (edge.invert) ? realCell : ref, style);
-											
-											// Adds additional edge labels
-											if (edge.labels != null)
-											{
-												for (var k = 0; k < edge.labels.length; k++)
-												{
-													var def = edge.labels[k];
-													var elx = (def.x != null) ? def.x : 0;
-													var ely = (def.y != null) ? def.y : 0;
-													var st = 'resizable=0;html=1;';
-													var el = new mxCell(def.label || k,
-														new mxGeometry(elx,  ely, 0, 0), st);
-													el.vertex = true;
-													el.connectable = false;
-													el.geometry.relative = true;
-								
-													if (def.placeholders != null)
-													{
-														el.value = graph.replacePlaceholders(
-															((def.placeholders == 'target') ==
-															!edge.invert) ? ref : realCell,
-														el.value, vars)
-													}
-													
-													if (def.dx != null || def.dy != null)
-													{
-														el.geometry.offset = new mxPoint(
-															(def.dx != null) ? def.dx : 0,
-															(def.dy != null) ? def.dy : 0);
-													}
-								
-													edgeCell.insert(el);
-												}
-											}
-											
-											select.push(edgeCell);
-											mxUtils.remove((edge.invert) ? realCell : ref, roots);
+										if (ref == null)
+										{
+											ref = new mxCell(refs[j], new mxGeometry(x0, y0,
+												0, 0), style || 'whiteSpace=wrap;html=1;');
+											ref.style = graph.replacePlaceholders(dataCell, ref.style, vars);
+											var size = this.editor.graph.getPreferredSizeForCell(ref);
+											ref.geometry.width = size.width + padding;
+											ref.geometry.height = size.height + padding;
+											lookups[edge.to][refs[j]] = ref;
+											ref.vertex = true;
+											ref.id = refs[j];
+											cells.push(graph.addCell(ref));
 										}
+										
+										var label = edge.label;
+										
+										if (edge.fromlabel != null)
+										{
+											label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
+										}
+										
+										if (edge.sourcelabel != null)
+										{
+											label = graph.replacePlaceholders(dataCell,
+												edge.sourcelabel, vars) + (label || '');
+										}
+					
+										if (edge.tolabel != null)
+										{
+											label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+										}
+																						
+										if (edge.targetlabel != null)
+										{
+											label = (label || '') + graph.replacePlaceholders(
+												ref, edge.targetlabel, vars);
+										}
+					
+										var placeholders = ((edge.placeholders == 'target') ==
+											!edge.invert) ? ref : realCell;
+										var edgeStyle = (edge.style != null) ?
+											graph.replacePlaceholders(placeholders, edge.style, vars) :
+											graph.createCurrentEdgeStyle();
+
+										var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
+											ref : realCell, (edge.invert) ? realCell : ref, edgeStyle);
+										
+										// Adds additional edge labels
+										if (edge.labels != null)
+										{
+											for (var k = 0; k < edge.labels.length; k++)
+											{
+												var def = edge.labels[k];
+												var elx = (def.x != null) ? def.x : 0;
+												var ely = (def.y != null) ? def.y : 0;
+												var st = 'resizable=0;html=1;';
+												var el = new mxCell(def.label || k,
+													new mxGeometry(elx,  ely, 0, 0), st);
+												el.vertex = true;
+												el.connectable = false;
+												el.geometry.relative = true;
+							
+												if (def.placeholders != null)
+												{
+													el.value = graph.replacePlaceholders(
+														((def.placeholders == 'target') ==
+														!edge.invert) ? ref : realCell,
+													el.value, vars)
+												}
+												
+												if (def.dx != null || def.dy != null)
+												{
+													el.geometry.offset = new mxPoint(
+														(def.dx != null) ? def.dx : 0,
+														(def.dy != null) ? def.dy : 0);
+												}
+							
+												edgeCell.insert(el);
+											}
+										}
+										
+										select.push(edgeCell);
+										mxUtils.remove((edge.invert) ? realCell : ref, roots);
 									}
 		    					}
 							});
@@ -13634,7 +13697,9 @@
 			    			graph.view.validate();
 			    			
 			    			var flowLayout = new mxHierarchicalLayout(graph,
-			    				(layout == 'horizontalflow') ? mxConstants.DIRECTION_WEST : mxConstants.DIRECTION_NORTH);
+			    				(layout == 'horizontalflow') ?
+								mxConstants.DIRECTION_WEST :
+								mxConstants.DIRECTION_NORTH);
 			    			flowLayout.intraCellSpacing = nodespacing;
 			    			flowLayout.parallelEdgeSpacing = edgespacing;
 			    			flowLayout.interRankCellSpacing = levelspacing;

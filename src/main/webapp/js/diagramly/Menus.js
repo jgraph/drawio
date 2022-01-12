@@ -272,7 +272,8 @@
 			}
 		});
 		fullscreenAction.visible = urlParams['embedInline'] == '1' ||
-			(document.fullscreenEnabled && document.body.requestFullscreen != null);
+			(window == window.top && document.fullscreenEnabled &&
+			document.body.requestFullscreen != null);
 		fullscreenAction.setToggleAction(true);
 		fullscreenAction.setSelectedCallback(function()
 		{
@@ -1032,6 +1033,33 @@
 		{
 			editorUi.actions.addAction('configuration...', function()
 			{
+				// Moves show start screen option to configuration dialog in sketch
+				var splashCb = document.createElement('input');
+				splashCb.setAttribute('type', 'checkbox');
+				splashCb.style.marginRight = '4px';
+				splashCb.checked = mxSettings.getShowStartScreen();
+				splashCb.defaultChecked = splashCb.checked;
+
+				if (editorUi.isSettingsEnabled() && urlParams['sketch'] == '1')
+				{
+					var showSplash = document.createElement('span');
+					showSplash.style['float'] = 'right';
+					showSplash.style.cursor = 'pointer';
+					showSplash.style.userSelect = 'none';
+					showSplash.appendChild(splashCb);
+					mxUtils.write(showSplash, mxResources.get('showStartScreen'));
+
+					mxEvent.addListener(showSplash, 'click', function(evt)
+					{
+						if (mxEvent.getSource(evt) != splashCb)
+						{	
+							splashCb.checked = !splashCb.checked;
+						}
+					});
+
+					header = showSplash;
+				}
+
 				// Add help, link button
 				var value = localStorage.getItem(Editor.configurationKey);
 				
@@ -1059,6 +1087,14 @@
 						}
 					});
 				}, 'Shift+Click to Reset Settings']];
+
+				var pluginsAction = editorUi.actions.get('plugins');
+
+				if (pluginsAction != null)
+				{
+					// TODO: Show change message only when plugins have changed
+					buttons.push([mxResources.get('plugins'), pluginsAction.funct]);
+				}
 				
 				if (!EditorUi.isElectronApp)
 				{
@@ -1095,19 +1131,32 @@
 					{
 						try
 						{
-							if (newValue.length > 0)
+							if (splashCb.parentNode != null)
 							{
-								var obj = JSON.parse(newValue);
-								
-								localStorage.setItem(Editor.configurationKey, JSON.stringify(obj));
+								mxSettings.setShowStartScreen(splashCb.checked);
+								mxSettings.save();
+							}
+							
+							if (newValue != value)
+							{
+								editorUi.hideDialog();
 							}
 							else
 							{
-								localStorage.removeItem(Editor.configurationKey);
-							}
+								if (newValue.length > 0)
+								{
+									var obj = JSON.parse(newValue);
+									
+									localStorage.setItem(Editor.configurationKey, JSON.stringify(obj));
+								}
+								else
+								{
+									localStorage.removeItem(Editor.configurationKey);
+								}
 
-							editorUi.hideDialog();
-							editorUi.alert(mxResources.get('restartForChangeRequired'));
+								editorUi.alert(mxResources.get('restartForChangeRequired'));
+								editorUi.hideDialog();
+							}
 						}
 						catch (e)
 						{
@@ -1116,7 +1165,7 @@
 					}
 				}, null, null, null, null, null, true, null, null,
 					'https://www.diagrams.net/doc/faq/configure-diagram-editor',
-					buttons);
+					buttons, splashCb.parentNode);
 		    	
 		    	dlg.textarea.style.width = '600px';
 		    	dlg.textarea.style.height = '380px';
@@ -4419,7 +4468,7 @@
 				{
 					selState = graph.cellEditor.saveSelection();
 				}
-		    	
+				
 				var dlg = new FontDialog(this.editorUi, curFontName, curUrl, curType, mxUtils.bind(this, function(fontName, fontUrl, type)
 				{
 					// Restores the selection state

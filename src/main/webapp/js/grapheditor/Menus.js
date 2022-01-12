@@ -1633,6 +1633,7 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 	{
 		menu.addSeparator();
 		this.addMenuItem(menu, 'image', parent, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
+		this.addMenuItem(menu, 'crop', parent, evt);
 	}
 };
  

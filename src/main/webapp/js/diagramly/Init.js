@@ -217,6 +217,17 @@ if (urlParams['embedInline'] == '1')
 }
 
 /**
+ * Global function for loading local files via servlet
+ */
+function setCurrentXml(data, filename)
+{
+	if (window.parent != null && window.parent.openFile != null)
+	{
+		window.parent.openFile.setData(data, filename);
+	}
+};
+ 
+/**
  * Returns the global UI setting before running static draw.io code
  */
 window.uiTheme = window.uiTheme || (function() 
@@ -283,17 +294,6 @@ window.uiTheme = window.uiTheme || (function()
 })();
 
 /**
- * Global function for loading local files via servlet
- */
-function setCurrentXml(data, filename)
-{
-	if (window.parent != null && window.parent.openFile != null)
-	{
-		window.parent.openFile.setData(data, filename);
-	}
-};
-
-/**
  * Overrides splash URL parameter via local storage
  */
 (function() 
@@ -306,14 +306,15 @@ function setCurrentXml(data, filename)
 		{
 			try
 			{
-				var value = localStorage.getItem('.drawio-config');
+				var key = (urlParams['sketch'] == '1') ? '.sketch-config' : '.drawio-config';
+				var value = localStorage.getItem(key);
 				var showSplash = true;
 				
 				if (value != null)
 				{
 					showSplash = JSON.parse(value).showStartScreen;
 				}
-				
+
 				// Undefined means true
 				if (showSplash == false)
 				{

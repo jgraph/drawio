@@ -1492,7 +1492,7 @@ EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
+EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 {
 	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots"></div>', hoverEnabled);
 	tab.setAttribute('title', mxResources.get('pages'));
@@ -1510,38 +1510,54 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
 	mxEvent.addListener(tab, 'click', mxUtils.bind(this, function(evt)
 	{
 		this.editor.graph.popupMenuHandler.hideMenu();
+
 		var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
 		{
-			for (var i = 0; i < this.pages.length; i++)
+			var addPages = mxUtils.bind(this, function()
 			{
-				(mxUtils.bind(this, function(index)
+				for (var i = 0; i < this.pages.length; i++)
 				{
-					var item = menu.addItem(this.pages[index].getName(), null, mxUtils.bind(this, function()
+					(mxUtils.bind(this, function(index)
 					{
-						this.selectPage(this.pages[index]);
-					}), parent);
+						var item = menu.addItem(this.pages[index].getName(), null, mxUtils.bind(this, function()
+						{
+							this.selectPage(this.pages[index]);
+						}), parent);
 
-					var id = this.pages[index].getId();
-					item.setAttribute('title', this.pages[index].getName() +
-						((id != null) ? ' (' + id + ')' : '') +
-						' [' + (index + 1)+ ']');
-					
-					// Adds checkmark to current page
-					if (this.pages[index] == this.currentPage)
-					{
-						menu.addCheckmark(item, Editor.checkmarkImage);
-					}
-				}))(i);
+						var id = this.pages[index].getId();
+						item.setAttribute('title', this.pages[index].getName() +
+							((id != null) ? ' (' + id + ')' : '') +
+							' [' + (index + 1)+ ']');
+						
+						// Adds checkmark to current page
+						if (this.pages[index] == this.currentPage)
+						{
+							menu.addCheckmark(item, Editor.checkmarkImage);
+						}
+					}))(i);
+				}
+			});
+
+			var addInsert = mxUtils.bind(this, function()
+			{
+				menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
+				{
+					this.insertPage();
+				}), parent);
+			});
+
+			if (!invert)
+			{
+				addPages();
 			}
 			
 			if (this.editor.graph.isEnabled())
 			{
-				menu.addSeparator(parent);
-				
-				var item = menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
+				if (!invert)
 				{
-					this.insertPage();
-				}), parent);
+					menu.addSeparator(parent);
+					addInsert();
+				}
 
 				var page = this.currentPage;
 				
@@ -1567,6 +1583,14 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled)
 						this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 					}), parent);
 				}
+			}
+
+			if (invert)
+			{
+				menu.addSeparator(parent);
+				addInsert();
+				menu.addSeparator(parent);
+				addPages();
 			}
 		}));
 		

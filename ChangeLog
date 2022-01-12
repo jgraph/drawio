@@ -1,3 +1,18 @@
+12-JAN-2022: 16.2.6
+
+- Fixes NPE
+
+12-JAN-2022: 16.2.5
+
+- Fixes reset of grid color
+- Adds File submenu, windows=0 test URL parameter
+- Adds enumerate property to replace number plugin
+- Adds non-destructive image cropping https://github.com/jgraph/drawio/issues/73
+- Adds Advanced submenu in Import from
+- Adds mailto for short text sharing
+- Adds ellipsis for Comments menu item
+- Fixes broken background page links after import
+
 07-JAN-2022: 16.2.4
 
 - Fixes duplicate edges in CVS import

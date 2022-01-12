@@ -1622,22 +1622,57 @@ Actions.prototype.init = function()
 			document.execCommand('superscript', false, null);
 		}
 	}), null, null, Editor.ctrlKey + '+.');
+
+	function applyClipPath(cell, clipPath, width, height, graph)
+	{
+		graph.getModel().beginUpdate();
+		try
+		{
+			var geo = graph.getCellGeometry(cell);
+				
+			if (geo != null && width && height) //Comparing the ratio mostly will fail since it's float
+			{
+				var scale = width / height;
+				geo = geo.clone();
+
+				if (scale > 1)
+				{
+					geo.height = geo.width / scale;
+				}
+				else
+				{
+					geo.width = geo.height * scale;
+				}
+
+				graph.getModel().setGeometry(cell, geo);
+			}
+
+			graph.setCellStyles(mxConstants.STYLE_CLIP_PATH, clipPath, [cell]); //Set/unset clipPath
+			graph.setCellStyles(mxConstants.STYLE_ASPECT, 'fixed', [cell]);
+		}
+		finally
+		{
+			graph.getModel().endUpdate();
+		}
+	};
+
 	this.addAction('image...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 		{
 			var title = mxResources.get('image') + ' (' + mxResources.get('url') + '):';
 	    	var state = graph.getView().getState(graph.getSelectionCell());
-	    	var value = '';
+	    	var value = '', clipPath = null;
 	    	
 	    	if (state != null)
 	    	{
 	    		value = state.style[mxConstants.STYLE_IMAGE] || value;
-	    	}
+				clipPath = state.style[mxConstants.STYLE_CLIP_PATH] || clipPath;
+		    }
 	    	
 	    	var selectionState = graph.cellEditor.saveSelection();
 	    	
-	    	ui.showImageDialog(title, value, function(newValue, w, h)
+	    	ui.showImageDialog(title, value, function(newValue, w, h, clipPath, cW, cH)
 			{
 	    		// Inserts image into HTML text
 	    		if (graph.cellEditor.isContentEditing())
@@ -1670,7 +1705,7 @@ Actions.prototype.init = function()
 			    			}
 			    			
 			        		graph.setCellStyles(mxConstants.STYLE_IMAGE, (newValue.length > 0) ? newValue : null, cells);
-			        		
+							
 			        		// Sets shape only if not already shape with image (label or image)
 			        		var style = graph.getCurrentCellStyle(cells[0]);
 			        		
@@ -1697,6 +1732,15 @@ Actions.prototype.init = function()
 						        		geo.height = h;
 						        		graph.getModel().setGeometry(cell, geo);
 					        		}
+
+									if (clipPath != null)
+									{
+										applyClipPath(cell, clipPath, cW, cH, graph);
+									}
+									else
+									{
+										graph.setCellStyles(mxConstants.STYLE_CLIP_PATH, null, cells); //Reset clip path
+									}
 					        	}
 				        	}
 			        	}
@@ -1712,7 +1756,31 @@ Actions.prototype.init = function()
 			        	}
 					}
 		    	}
-			}, graph.cellEditor.isContentEditing(), !graph.cellEditor.isContentEditing());
+			}, graph.cellEditor.isContentEditing(), !graph.cellEditor.isContentEditing(), true, clipPath);
+		}
+	}).isEnabled = isGraphEnabled;
+	
+	this.addAction('crop...', function()
+	{
+		var cell = graph.getSelectionCell();
+
+		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) && cell != null)
+		{
+			var style = graph.getCurrentCellStyle(cell);
+
+	    	var value = style[mxConstants.STYLE_IMAGE], shape = style[mxConstants.STYLE_SHAPE];
+	    	
+			if (!value || shape != 'image')
+			{
+				return; //Can only process an existing image
+			}
+			
+			var dlg = new CropImageDialog(ui, value, style[mxConstants.STYLE_CLIP_PATH], function(clipPath, width, height)
+	    	{
+				applyClipPath(cell, clipPath, width, height, graph);
+	    	});
+	    	
+	    	ui.showDialog(dlg.container, 300, 380, true, true);
 		}
 	}).isEnabled = isGraphEnabled;
 	action = this.addAction('layers', mxUtils.bind(this, function()
