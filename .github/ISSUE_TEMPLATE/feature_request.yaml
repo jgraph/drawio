@@ -1,0 +1,51 @@
+name: Feature Request
+description: Request a new feature on the draw.io editor, or app.diagrams.net site
+title: "[Bug]: "
+labels: "bug :beetle:"
+body:
+- type: checkboxes
+  attributes:
+    label: Preflight Checklist
+    description: Please ensure you've completed all of the following.
+    options:
+      - label: I agree to follow the [Code of Conduct](https://github.com/jgraph/drawio/blob/master/CODE_OF_CONDUCT.md) that this project adheres to.
+        required: true
+      - label: I have searched the [issue tracker](https://github.com/jgraph/drawio/issues) for a feature request that matches the one I want to file, without success.
+        required: true
+      - label: I have checked that I am running the latest version of the software, see the [change log](https://github.com/jgraph/drawio/blob/dev/ChangeLog) to determine the latest version.
+        required: true
+- type: dropdown
+  attributes:
+    label: What operating system are you using?
+    options:
+      - Windows
+      - macOS
+      - Ubuntu
+      - Other Linux
+      - Other (specify below)
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Describe the solution you'd like
+    description: A clear and concise description of what you want to happen.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: What problem would this feature solve?
+    description: Explain why you and other users need this feature.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Describe alternatives you've considered
+    description: A clear and concise description of any alternative solutions or features you've considered.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Additional information
+    description: Any additional information, screenshots, etc
+  validations:
+    required: false
