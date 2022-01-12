@@ -1,7 +1,7 @@
 name: Feature Request
 description: Request a new feature on the draw.io editor, or app.diagrams.net site
-title: "[Bug]: "
-labels: "bug :beetle:"
+title: "[Feature Request]: "
+labels: "enhancement :sparkles:"
 body:
 - type: checkboxes
   attributes:
