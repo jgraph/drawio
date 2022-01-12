@@ -51,7 +51,7 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Reproduction step
+    label: Reproduction steps
     description: Exact steps for us to follow in order that we can see the problem. Remember, we cannot see your computer, don't assume we can guess anything you are doing.
   validations:
     required: true
