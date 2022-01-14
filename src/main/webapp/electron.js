@@ -1,4 +1,5 @@
 const fs = require('fs')
+const fsProm = require('fs/promises');
 const os = require('os');
 const path = require('path')
 const url = require('url')
@@ -1494,7 +1495,7 @@ function getDraftFileName(fileObject)
 	return draftFileName;
 };
 
-function getFileDrafts(fileObject)
+async function getFileDrafts(fileObject)
 {
 	let filePath = fileObject.path;
 	let draftsPaths = [], drafts = [], draftFileName, counter = 1, uniquePart = '';
@@ -1511,8 +1512,8 @@ function getFileDrafts(fileObject)
 	{
 		try
 		{
-			let stat = fs.lstatSync(draftsPaths[i]);
-			drafts.push({data: fs.readFileSync(draftsPaths[i], 'utf8'), 
+			let stat = await fsProm.lstat(draftsPaths[i]);
+			drafts.push({data: await fsProm.readFile(draftsPaths[i], 'utf8'), 
 						created: stat.ctimeMs,
 						modified: stat.mtimeMs,
 						path: draftsPaths[i]});
@@ -1523,7 +1524,7 @@ function getFileDrafts(fileObject)
 	return drafts;
 };
 
-function saveDraft(fileObject, data)
+async function saveDraft(fileObject, data)
 {
 	if (data == null || data.length == 0)
 	{
@@ -1532,18 +1533,18 @@ function saveDraft(fileObject, data)
 	else
 	{
 		var draftFileName = fileObject.draftFileName || getDraftFileName(fileObject);
-		fs.writeFileSync(draftFileName, data, 'utf8');
+		await fsProm.writeFile(draftFileName, data, 'utf8');
 		return draftFileName;
 	}
 }
 
-function saveFile(fileObject, data, origStat, overwrite, defEnc)
+async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 {
 	var retryCount = 0;
 	var backupCreated = false;
 	var bkpPath = path.join(path.dirname(fileObject.path), BKP_PREFEX + path.basename(fileObject.path) + BKP_EXT);
 
-	var writeFile = function()
+	var writeFile = async function()
 	{
 		if (data == null || data.length == 0)
 		{
@@ -1553,11 +1554,11 @@ function saveFile(fileObject, data, origStat, overwrite, defEnc)
 		{
 			var writeEnc = defEnc || fileObject.encoding;
 			
-			fs.writeFileSync(fileObject.path, data, writeEnc);
-			let stat2 = fs.statSync(fileObject.path);
+			await fsProm.writeFile(fileObject.path, data, writeEnc);
+			let stat2 = await fsProm.stat(fileObject.path);
 			// Workaround for possible writing errors is to check the written
 			// contents of the file and retry 3 times before showing an error
-			let writtenData = fs.readFileSync(fileObject.path, writeEnc);
+			let writtenData = await fsProm.readFile(fileObject.path, writeEnc);
 			
 			if (data != writtenData)
 			{
@@ -1565,7 +1566,7 @@ function saveFile(fileObject, data, origStat, overwrite, defEnc)
 				
 				if (retryCount < 3)
 				{
-					return writeFile();
+					return await writeFile();
 				}
 				else
 				{
@@ -1584,27 +1585,27 @@ function saveFile(fileObject, data, origStat, overwrite, defEnc)
 		}
 	};
 	
-	function doSaveFile()
+	async function doSaveFile()
 	{
 		//Copy file to backup file (after conflict and stat is checked)
 		try
 		{
-			fs.copyFileSync(fileObject.path, bkpPath, COPYFILE_EXCL);
+			await fsProm.copyFile(fileObject.path, bkpPath, COPYFILE_EXCL);
 			backupCreated = true;
 		}
 		catch (e) {} //Ignore
 					
-		return writeFile();
+		return await writeFile();
 	};
 	
 	if (overwrite)
 	{
-		return doSaveFile();
+		return await doSaveFile();
 	}
 	else
 	{
 		let stat = fs.existsSync(fileObject.path)?
-				 fs.statSync(fileObject.path) : null;
+					await fsProm.stat(fileObject.path) : null;
 
 		if (stat && isConflict(origStat, stat))
 		{
@@ -1612,14 +1613,14 @@ function saveFile(fileObject, data, origStat, overwrite, defEnc)
 		}
 		else
 		{
-			return doSaveFile();
+			return await doSaveFile();
 		}
 	}
 };
 
-function writeFile(path, data, enc)
+async function writeFile(path, data, enc)
 {
-	return fs.writeFileSync(path, data, enc);
+	return await fsProm.writeFile(path, data, enc);
 };
 
 function getAppDataFolder()
@@ -1658,7 +1659,7 @@ function checkFileExists(pathParts)
 	return fs.existsSync(path.join(...pathParts));
 };
 
-function showOpenDialog(defaultPath, filters, properties)
+async function showOpenDialog(defaultPath, filters, properties)
 {
 	return dialog.showOpenDialogSync({
 		defaultPath: defaultPath,
@@ -1667,7 +1668,7 @@ function showOpenDialog(defaultPath, filters, properties)
 	});
 };
 
-function showSaveDialog(defaultPath, filters)
+async function showSaveDialog(defaultPath, filters)
 {
 	return dialog.showSaveDialogSync({
 		defaultPath: defaultPath,
@@ -1675,7 +1676,7 @@ function showSaveDialog(defaultPath, filters)
 	});
 };
 
-function installPlugin(filePath)
+async function installPlugin(filePath)
 {
 	var pluginsDir = path.join(getAppDataFolder(), '/plugins');
 	
@@ -1693,7 +1694,7 @@ function installPlugin(filePath)
 	}
 	else
 	{
-		fs.copyFileSync(filePath, dstFile);
+		await fsProm.copyFile(filePath, dstFile);
 	}
 
 	return {pluginName: pluginName, selDir: path.dirname(filePath)};
@@ -1714,21 +1715,21 @@ function dirname(path_p)
 	return path.dirname(path_p);
 }
 
-function readFile(filename, encoding)
+async function readFile(filename, encoding)
 {
-	return fs.readFileSync(filename, encoding);
+	return await fsProm.readFile(filename, encoding);
 }
 
-function fileStat(file)
+async function fileStat(file)
 {
-	return fs.statSync(file);
+	return await fsProm.stat(file);
 }
 
-function isFileWritable(file)
+async function isFileWritable(file)
 {
 	try 
 	{
-		fs.accessSync(file, fs.constants.W_OK);
+		await fsProm.access(file, fs.constants.W_OK);
 		return true;
 	}
 	catch (e)
@@ -1755,9 +1756,9 @@ function clipboardAction(method, data)
 	}
 }
 
-function deleteFile(file) 
+async function deleteFile(file) 
 {
-	fs.unlinkSync(file);
+	await fsProm.unlink(file);
 }
 
 function windowAction(method)
@@ -1832,67 +1833,67 @@ ipcMain.on("rendererReq", async (event, args) =>
 		switch(args.action)
 		{
 		case 'saveFile':
-			ret = saveFile(args.fileObject, args.data, args.origStat, args.overwrite, args.defEnc);
+			ret = await saveFile(args.fileObject, args.data, args.origStat, args.overwrite, args.defEnc);
 			break;
 		case 'writeFile':
-			ret = writeFile(args.path, args.data, args.enc);
+			ret = await writeFile(args.path, args.data, args.enc);
 			break;
 		case 'saveDraft':
-			ret = saveDraft(args.fileObject, args.data);
+			ret = await saveDraft(args.fileObject, args.data);
 			break;
 		case 'getFileDrafts':
-			ret = getFileDrafts(args.fileObject);
+			ret = await getFileDrafts(args.fileObject);
 			break;
 		case 'getAppDataFolder':
-			ret = getAppDataFolder();
+			ret = await getAppDataFolder();
 			break;
 		case 'getDocumentsFolder':
-			ret = getDocumentsFolder();
+			ret = await getDocumentsFolder();
 			break;
 		case 'checkFileExists':
-			ret = checkFileExists(args.pathParts);
+			ret = await checkFileExists(args.pathParts);
 			break;
 		case 'showOpenDialog':
-			ret = showOpenDialog(args.defaultPath, args.filters, args.properties);
+			ret = await showOpenDialog(args.defaultPath, args.filters, args.properties);
 			break;
 		case 'showSaveDialog':
-			ret = showSaveDialog(args.defaultPath, args.filters);
+			ret = await showSaveDialog(args.defaultPath, args.filters);
 			break;
 		case 'installPlugin':
-			ret = installPlugin(args.filePath);
+			ret = await installPlugin(args.filePath);
 			break;
 		case 'uninstallPlugin':
-			ret = uninstallPlugin(args.plugin);
+			ret = await uninstallPlugin(args.plugin);
 			break;
 		case 'dirname':
-			ret = dirname(args.path);
+			ret = await dirname(args.path);
 			break;
 		case 'readFile':
-			ret = readFile(args.filename, args.encoding);
+			ret = await readFile(args.filename, args.encoding);
 			break;
 		case 'clipboardAction':
-			ret = clipboardAction(args.method, args.data);
+			ret = await clipboardAction(args.method, args.data);
 			break;
 		case 'deleteFile':
-			ret = deleteFile(args.file);
+			ret = await deleteFile(args.file);
 			break;
 		case 'fileStat':
-			ret = fileStat(args.file);
+			ret = await fileStat(args.file);
 			break;
 		case 'isFileWritable':
-			ret = isFileWritable(args.file);
+			ret = await isFileWritable(args.file);
 			break;
 		case 'windowAction':
-			ret = windowAction(args.method);
+			ret = await windowAction(args.method);
 			break;
 		case 'openExternal':
-			ret = openExternal(args.url);
+			ret = await openExternal(args.url);
 			break;
 		case 'watchFile':
-			ret = watchFile(args.path);
+			ret = await watchFile(args.path);
 			break;
 		case 'unwatchFile':	
-			ret = unwatchFile(args.path);
+			ret = await unwatchFile(args.path);
 			break;
 		};
 

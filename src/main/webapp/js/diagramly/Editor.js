@@ -303,10 +303,6 @@
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
-		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
-		{
-			graph.refresh();
-		}},
         {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', '0') != '1';
@@ -530,6 +526,14 @@
         	return (state.vertices.length > 0) ? model.isVertex(model.getParent(state.vertices[0])) : false;
         }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
+		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
+		{
+			graph.refresh();
+		}},
+		{name: 'enumerateValue', dispName: 'Enumerate Value', type: 'string', defVal: '', isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'enumerate', '0') == '1';
+		}},
         {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -6575,10 +6579,10 @@
 		recurse = (recurse != null) ? recurse : true;
 		var enumerate = (state != null && this.graph.model.isVertex(state.cell)) ?
 			mxUtils.getValue(state.style, 'enumerate', 0) == '1' : false;
-		
-		if (recurse && this.redrawNumberShape(state, enumerate))
+
+		if (recurse)
 		{
-			this.numberCounter++;
+			this.redrawNumberShape(state, enumerate);
 		}
 		
 		return state;
@@ -6589,14 +6593,10 @@
 	 */
 	mxGraphView.prototype.redrawNumberShape = function(state, enumerate)
 	{
-		var value = '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
-			(this.numberCounter + 1) + '</div>';
-		var result = false;
-		
 		if (enumerate && this.graph.model.isVertex(state.cell) &&
 			state.shape != null && state.secondLabel == null)
 		{	
-			state.secondLabel = new mxText(value, new mxRectangle(),
+			state.secondLabel = new mxText('', new mxRectangle(),
 				mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM);
 
 			// Styles the label
@@ -6614,6 +6614,16 @@
 			}
 			else
 			{
+				var enumValue =  mxUtils.getValue(state.style, 'enumerateValue', '');
+
+				if (enumValue == '')
+				{
+					enumValue = ++this.numberCounter;
+				}
+
+				var value = '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
+					mxUtils.htmlEntities(enumValue) + '</div>';
+				
 				var scale = this.graph.getView().getScale();
 				var bounds = new mxRectangle(state.x + state.width - 4 * scale, state.y + 4 * scale, 0, 0);
 				state.secondLabel.value = value;
@@ -6621,11 +6631,8 @@
 				state.secondLabel.scale = scale;
 				state.secondLabel.bounds = bounds;
 				state.secondLabel.redraw();
-				result = true;
 			}
 		}
-
-		return result;
 	};
 
 	/**

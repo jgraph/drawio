@@ -1,3 +1,10 @@
+14-JAN-2022: 16.2.7
+
+- Adds enumerateValue property
+- Adds peristent scratchpad and search in sketch
+- Updated for modified inline CSS
+- Fixes realtime zoom on iPad with sketch https://github.com/jgraph/drawio/issues/2545
+
 12-JAN-2022: 16.2.6
 
 - Fixes NPE

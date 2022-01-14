@@ -445,13 +445,6 @@
 		
 		// Merges array of semicolon separated strings into a single array
 		var temp = all.join(';').split(';');
-		
-		if (urlParams['sketch'] == '1' &&
-			(mxUtils.indexOf(temp, '.scratchpad') < 0) !=
-			(this.editorUi.scratchpad == null))
-		{
-			this.editorUi.toggleScratchpad();
-		}
 
 		// Resolves aliases and creates lookup
 		var visible = {};
@@ -464,7 +457,7 @@
 		for (var i = 0; i < this.configuration.length; i++)
 		{
 			// Search has separate switch in Extras menu
-			if (urlParams['sketch'] == '1' || this.configuration[i].id != 'search')
+			if (this.configuration[i].id != 'search')
 			{
 				this.showPalettes(this.configuration[i].prefix || '',
 					this.configuration[i].libs || [this.configuration[i].id],

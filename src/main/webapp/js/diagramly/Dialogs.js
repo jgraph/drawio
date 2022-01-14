@@ -8210,6 +8210,27 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 					libs.push(lib);
 				}
 			}
+
+			// Redirects scratchpad and search entries
+			if (urlParams['sketch'] == '1' && editorUi.isSettingsEnabled())
+			{
+				var idx = mxUtils.indexOf(libs, '.scratchpad');
+
+				if ((editorUi.scratchpad != null) != (idx >= 0 && libs.splice(idx, 1).length > 0))
+				{
+					editorUi.toggleScratchpad();
+				}
+
+				// Handles search after scratchpad
+				idx = mxUtils.indexOf(libs, 'search');
+				mxSettings.settings.search = (idx >= 0 && libs.splice(idx, 1).length > 0);
+				editorUi.sidebar.showPalette('search', mxSettings.settings.search);
+
+				if (cb.checked)
+				{
+					mxSettings.save();
+				}
+			}
 			
 			editorUi.sidebar.showEntries(libs.join(';'), cb.checked, true);
 			editorUi.setSidebarTitles(labels.checked, cb.checked);

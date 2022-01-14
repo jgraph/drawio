@@ -1487,7 +1487,7 @@ mxStencilRegistry.allowEval = false;
 			this.fileObject.path = path;
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
-			
+			this.setEditable(true); //In case original file is read only
 			this.save(false, success, error, null, true);
 		}
 	};

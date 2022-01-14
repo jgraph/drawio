@@ -411,7 +411,7 @@ EditorUi.initMinimalTheme = function()
 
 			// Sets instance vars and graph stylesheet
 			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
-			this.setGridColor(Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor);
+			graph.view.gridColor = Editor.isDarkMode() ? graph.view.defaultDarkGridColor : graph.view.defaultGridColor;
 			graph.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
 				Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
 			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#505759' : '#ffffff';
@@ -1681,9 +1681,19 @@ EditorUi.initMinimalTheme = function()
 		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
 		this.sidebar = this.createSidebar(div);
 		
-		if (urlParams['sketch'] == '1')
+		if (urlParams['sketch'] == '1' && this.sidebar != null && this.isSettingsEnabled())
 		{
-			this.toggleScratchpad();
+			/**
+			 * Shows scratchpad if never shown.
+			 */
+			if ((!this.editor.chromeless || this.editor.editable) && (mxSettings.settings.isNew ||
+				parseInt(mxSettings.settings.version || 0) <= 8))
+			{
+				this.toggleScratchpad();
+				mxSettings.save();
+			}
+
+			this.sidebar.showPalette('search', mxSettings.settings.search);
 		}
 
 		if ((urlParams['sketch'] != '1' && iw >= 1000) || urlParams['clibs'] != null ||
