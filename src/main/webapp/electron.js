@@ -81,6 +81,7 @@ function createWindow (opt = {})
 		backgroundColor: '#FFF',
 		width: 1600,
 		height: 1200,
+		icon: `${__dirname}/images/drawlogo256.png`,
 		webViewTag: false,
 		'web-security': true,
 		webPreferences: {
