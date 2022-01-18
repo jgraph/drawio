@@ -699,6 +699,7 @@ simpleArrow=Freccia semplice
 simpleViewer=Visualizzatore semplice
 size=Dim.
 sketch=Schizzo
+snapToGrid=Snap to Grid
 solid=Solido
 sourceSpacing=Spaziatura dell'origine
 south=Sud

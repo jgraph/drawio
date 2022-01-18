@@ -3372,7 +3372,7 @@ App.prototype.start = function()
 						}), null, null, null, null, urlParams['browser'] == '1',
 							null, null, true, rowLimit, null, null, null,
 							this.editor.fileExtensions);
-						this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 270,
+						this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280,
 							true, false, mxUtils.bind(this, function(cancel)
 						{
 							if (cancel && this.getCurrentFile() == null)
@@ -4561,7 +4561,7 @@ App.prototype.saveFile = function(forceDialog, success)
 				this.hideDialog();
 			}), mxResources.get('saveAs'), mxResources.get('download'), null, null, allowTab,
 				null, true, rowLimit, null, null, null, this.editor.fileExtensions, false);
-			this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 270, true, true);
+			this.showDialog(dlg.container, 420, (serviceCount > rowLimit) ? 390 : 280, true, true);
 			dlg.init();
 		}
 	}

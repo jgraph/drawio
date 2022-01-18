@@ -3245,8 +3245,10 @@ EditorUi.prototype.initCanvas = function()
 						forcedZoom = force;
 						var factor = graph.zoomFactor;
 
-						// Slower zoom for pinch gesture on trackpad
-						if (evt.deltaY != null && Math.round(evt.deltaY) != evt.deltaY)
+						// Slower zoom for pinch gesture on trackpad with max delta to
+						// filter out mouse wheel events in Brave browser for Windows 
+						if (evt.deltaY != null && Math.abs(evt.deltaY) < 40 &&
+							Math.round(evt.deltaY) != evt.deltaY)
 						{
 							factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
 						}
@@ -4053,7 +4055,8 @@ EditorUi.prototype.updateActionStates = function()
 	               'editStyle', 'editTooltip', 'editLink', 'backgroundColor', 'borderColor',
 	               'edit', 'toFront', 'toBack', 'solid', 'dashed', 'pasteSize',
 	               'dotted', 'fillColor', 'gradientColor', 'shadow', 'fontColor',
-	               'formattedText', 'rounded', 'toggleRounded', 'sharp', 'strokeColor'];
+	               'formattedText', 'rounded', 'toggleRounded', 'strokeColor',
+				   'sharp', 'snapToGrid'];
 	
 	for (var i = 0; i < actions.length; i++)
 	{
@@ -4064,13 +4067,13 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('pasteSize').setEnabled(this.copiedSize != null && ss.vertices.length > 0);
 	this.actions.get('pasteData').setEnabled(this.copiedValue != null && ss.cells.length > 0);
 	this.actions.get('setAsDefaultStyle').setEnabled(graph.getSelectionCount() == 1);
-	this.actions.get('copySize').setEnabled(graph.getSelectionCount() == 1);
 	this.actions.get('lockUnlock').setEnabled(!graph.isSelectionEmpty());
 	this.actions.get('bringForward').setEnabled(ss.cells.length == 1);
 	this.actions.get('sendBackward').setEnabled(ss.cells.length == 1);
 	this.actions.get('rotation').setEnabled(ss.vertices.length == 1);
 	this.actions.get('wordWrap').setEnabled(ss.vertices.length == 1);
 	this.actions.get('autosize').setEnabled(ss.vertices.length == 1);
+	this.actions.get('copySize').setEnabled(ss.vertices.length == 1);
 	this.actions.get('clearWaypoints').setEnabled(ss.connections);
 	this.actions.get('curved').setEnabled(ss.edges.length > 0);
 	this.actions.get('turn').setEnabled(ss.resizable);
@@ -4114,7 +4117,7 @@ EditorUi.prototype.updateActionStates = function()
     this.menus.get('distribute').setEnabled(ss.unlocked &&
 		ss.vertices.length > 1);
     this.menus.get('align').setEnabled(ss.unlocked &&
-		ss.vertices.length > 1);
+		ss.cells.length > 0);
 
     this.updatePasteActionStates();
 };

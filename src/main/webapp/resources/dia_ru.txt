@@ -699,6 +699,7 @@ simpleArrow=Простая стрелка
 simpleViewer=Простой просмотрщик
 size=Размер
 sketch=Набросок
+snapToGrid=Snap to Grid
 solid=Сплошная
 sourceSpacing=Расстояние между источниками
 south=Юг

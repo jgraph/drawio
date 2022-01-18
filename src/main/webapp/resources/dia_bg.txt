@@ -699,6 +699,7 @@ simpleArrow=Проста стрелка
 simpleViewer=Прост вюър
 size=Размер
 sketch=Скица
+snapToGrid=Snap to Grid
 solid=Плътна
 sourceSpacing=Разстояние между точките
 south=Юг

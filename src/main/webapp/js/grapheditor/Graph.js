@@ -4017,9 +4017,44 @@ Graph.prototype.selectTableRange = function(startCell, endCell)
 /**
  * Returns the cells for the given table range.
  */
-Graph.prototype.getTableRange = function(start, end)
+Graph.prototype.snapCellsToGrid = function(cells, gridSize)
 {
+	this.getModel().beginUpdate();
+	try
+	{
+		for (var i = 0; i < cells.length; i++)
+		{
+			var cell = cells[i];
+			var geo = this.getCellGeometry(cell);
 
+			if (geo != null)
+			{
+				geo = geo.clone();
+
+				if (this.getModel().isVertex(cell))
+				{
+					geo.x = Math.round(geo.x / gridSize) * gridSize;
+					geo.y = Math.round(geo.y / gridSize) * gridSize;
+					geo.width = Math.round(geo.width / gridSize) * gridSize;
+					geo.height = Math.round(geo.height / gridSize) * gridSize;
+				}
+				else if (this.getModel().isEdge(cell) && geo.points != null)
+				{
+					for (var j = 0; j < geo.points.length; j++)
+					{
+						geo.points[j].x = Math.round(geo.points[j].x / gridSize) * gridSize;
+						geo.points[j].y = Math.round(geo.points[j].y / gridSize) * gridSize;
+					}
+				}
+
+				this.getModel().setGeometry(cell, geo);
+			}
+		}
+	}
+	finally
+	{
+		this.getModel().endUpdate();
+	}
 };
 
 /**
@@ -7548,7 +7583,7 @@ mxStencilRegistry.parseStencilSet = function(root, postStencilLoad, install)
 /**
  * These overrides are only added if mxVertexHandler is defined (ie. not in embedded graph)
  */
-if (typeof mxVertexHandler != 'undefined')
+if (typeof mxVertexHandler !== 'undefined')
 {
 	(function()
 	{
@@ -10444,6 +10479,149 @@ if (typeof mxVertexHandler != 'undefined')
 		    }
 		};
 		
+		/**
+		 * Flips the given cells horizontally or vertically.
+		 */
+		Graph.prototype.flipEdge = function(cell, horizontal, c)
+		{
+			var geo = this.getCellGeometry(cell);
+
+			if (geo != null)
+			{
+				geo = geo.clone();
+
+				if (geo.points != null)
+				{
+					for (var i = 0; i < geo.points.length; i++)
+					{
+						if (horizontal)
+						{
+							geo.points[i].x = c + (c - geo.points[i].x);
+						}
+						else
+						{
+							geo.points[i].y = c + (c - geo.points[i].y);
+						}
+					}
+				}
+
+				var flipTerminalPoint = function(pt)
+				{
+					if (pt != null)
+					{
+						if (horizontal)
+						{
+							pt.x = c + (c - pt.x);
+						}
+						else
+						{
+							pt.y = c + (c - pt.y);
+						}
+					}
+				};
+
+				flipTerminalPoint(geo.getTerminalPoint(true));
+				flipTerminalPoint(geo.getTerminalPoint(false));
+
+				this.model.setGeometry(cell, geo);
+			}
+		};
+		
+		/**
+		 * Flips the given cells horizontally or vertically.
+		 */
+		Graph.prototype.flipChildren = function(cell, horizontal, c)
+		{
+			this.model.beginUpdate();
+			try
+			{
+				var childCount = this.model.getChildCount(cell);
+
+				for (var i = 0; i < childCount; i++)
+				{
+					var child = this.model.getChildAt(cell, i);
+
+					if (this.model.isEdge(child))
+					{
+						this.flipEdge(child, horizontal, c);
+					}
+					else
+					{
+						var geo = this.getCellGeometry(child);
+
+						if (geo != null)
+						{
+							geo = geo.clone();
+
+							if (horizontal)
+							{
+								geo.x = c + (c - geo.x - geo.width);
+							}
+							else
+							{
+								geo.y = c + (c - geo.y - geo.height);
+							}
+
+							this.model.setGeometry(child, geo);
+						}	
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		};
+		
+		/**
+		 * Flips the given cells horizontally or vertically.
+		 */
+		Graph.prototype.flipCells = function(cells, horizontal)
+		{
+			this.model.beginUpdate();
+			try
+			{
+				cells = this.model.getTopmostCells(cells);
+				var vertices = [];
+				
+				for (var i = 0; i < cells.length; i++)
+				{
+					if (this.model.isEdge(cells[i]))
+					{
+						var state = this.view.getState(cells[i]);
+
+						if (state != null)
+						{
+							this.flipEdge(cells[i], horizontal, ((horizontal ? state.getCenterX() :
+								state.getCenterY()) / this.view.scale) - ((horizontal) ?
+								state.origin.x : state.origin.y) - ((horizontal) ?
+								this.view.translate.x : this.view.translate.y));
+						}
+					}
+					else
+					{
+						var geo = this.getCellGeometry(cells[i]);
+
+						if (geo != null)
+						{
+							this.flipChildren(cells[i], horizontal, horizontal ?
+								geo.getCenterX() - geo.x :
+								geo.getCenterY() - geo.y);
+						}
+
+						vertices.push(cells[i]);
+					}
+				}
+
+				this.toggleCellStyles(horizontal ? mxConstants.STYLE_FLIPH :
+					mxConstants.STYLE_FLIPV, false, vertices);
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		};
+	
 		/**
 		 * Deletes the given cells  and returns the cells to be selected.
 		 */

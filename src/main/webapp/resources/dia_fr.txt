@@ -699,6 +699,7 @@ simpleArrow=Flèche simple
 simpleViewer=Affichage simple
 size=Taille
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Uni
 sourceSpacing=Espacement de la source
 south=Sud

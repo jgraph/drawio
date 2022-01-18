@@ -303,6 +303,14 @@
 	 * Common properties for all edges.
 	 */
 	Editor.commonProperties = [
+		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
+		{
+			graph.refresh();
+		}},
+		{name: 'enumerateValue', dispName: 'Enumerate Value', type: 'string', defVal: '', isVisible: function(state, format)
+		{
+			return mxUtils.getValue(state.style, 'enumerate', '0') == '1';
+		}},
         {name: 'comic', dispName: 'Comic', type: 'bool', defVal: false, isVisible: function(state, format)
         {
         	return mxUtils.getValue(state.style, 'sketch', '0') != '1';
@@ -526,14 +534,6 @@
         	return (state.vertices.length > 0) ? model.isVertex(model.getParent(state.vertices[0])) : false;
         }},
         {name: 'editable', dispName: 'Editable', type: 'bool', defVal: true},
-		{name: 'enumerate', dispName: 'Enumerate', type: 'bool', defVal: false, onChange: function(graph)
-		{
-			graph.refresh();
-		}},
-		{name: 'enumerateValue', dispName: 'Enumerate Value', type: 'string', defVal: '', isVisible: function(state, format)
-		{
-			return mxUtils.getValue(state.style, 'enumerate', '0') == '1';
-		}},
         {name: 'metaEdit', dispName: 'Edit Dialog', type: 'bool', defVal: false},
         {name: 'backgroundOutline', dispName: 'Background Outline', type: 'bool', defVal: false},
         {name: 'movable', dispName: 'Movable', type: 'bool', defVal: true},
@@ -6565,72 +6565,79 @@
 	mxGraphView.prototype.resetValidationState = function()
 	{
 		graphViewResetValidationState.apply(this, arguments);
-		this.numberCounter = 0;
+		this.enumerationState = 0;
 	};
 	
 	/**
 	 * Adds shape number update the validation step.
 	 */
-	var graphViewValidateCellState = mxGraphView.prototype.validateCellState;
+	var graphViewStateValidated = mxGraphView.prototype.stateValidated;
 	
-	mxGraphView.prototype.validateCellState = function(cell, recurse)
+	mxGraphView.prototype.stateValidated = function(state)
 	{
-		var state = graphViewValidateCellState.apply(this, arguments);
-		recurse = (recurse != null) ? recurse : true;
-		var enumerate = (state != null && this.graph.model.isVertex(state.cell)) ?
-			mxUtils.getValue(state.style, 'enumerate', 0) == '1' : false;
-
-		if (recurse)
+		if (state.shape != null)
 		{
-			this.redrawNumberShape(state, enumerate);
+			this.redrawEnumerationState(state);
 		}
-		
-		return state;
+
+		return graphViewStateValidated.apply(this, arguments);
+	};
+
+	/**
+	 * Returns the markup to be used for the enumeration shape.
+	 */
+	mxGraphView.prototype.createEnumerationValue = function(state)
+	{
+		var value =  mxUtils.getValue(state.style, 'enumerateValue', '');
+
+		if (value == '')
+		{
+			value = ++this.enumerationState;
+		}
+
+		return '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
+			mxUtils.htmlEntities(value) + '</div>';
 	};
 
 	/**
 	 * Adds drawing and update of the shape number.
 	 */
-	mxGraphView.prototype.redrawNumberShape = function(state, enumerate)
+	mxGraphView.prototype.redrawEnumerationState = function(state)
 	{
-		if (enumerate && this.graph.model.isVertex(state.cell) &&
-			state.shape != null && state.secondLabel == null)
-		{	
+		var enumerate = mxUtils.getValue(state.style, 'enumerate', 0) == '1';
+
+		if (enumerate && state.secondLabel == null)
+		{
 			state.secondLabel = new mxText('', new mxRectangle(),
 				mxConstants.ALIGN_LEFT, mxConstants.ALIGN_BOTTOM);
-
-			// Styles the label
 			state.secondLabel.size = 12;
+			state.secondLabel.state = state;
 			state.secondLabel.dialect = mxConstants.DIALECT_STRICTHTML;
+
 			this.graph.cellRenderer.initializeLabel(state, state.secondLabel);
 		}
-		
-		if (state != null && state.secondLabel != null)
+		else if (!enumerate && state.secondLabel != null)
 		{
-			if (!enumerate)
-			{
-				state.secondLabel.destroy();
-				state.secondLabel = null;
-			}
-			else
-			{
-				var enumValue =  mxUtils.getValue(state.style, 'enumerateValue', '');
+			state.secondLabel.destroy();
+			state.secondLabel = null;
+		}
 
-				if (enumValue == '')
-				{
-					enumValue = ++this.numberCounter;
-				}
+		var shape = state.secondLabel;
 
-				var value = '<div style="padding:2px;border:1px solid gray;background:yellow;border-radius:2px;">' +
-					mxUtils.htmlEntities(enumValue) + '</div>';
-				
-				var scale = this.graph.getView().getScale();
-				var bounds = new mxRectangle(state.x + state.width - 4 * scale, state.y + 4 * scale, 0, 0);
-				state.secondLabel.value = value;
-				state.secondLabel.state = state;
-				state.secondLabel.scale = scale;
-				state.secondLabel.bounds = bounds;
-				state.secondLabel.redraw();
+		if (shape != null)
+		{
+			var s = state.view.scale;
+			var value = this.createEnumerationValue(state);
+			var bounds = this.graph.model.isVertex(state.cell) ?
+				new mxRectangle(state.x + state.width - 4 * s, state.y + 4 * s, 0, 0) :
+				mxRectangle.fromPoint(state.view.getPoint(state));
+
+			if (!shape.bounds.equals(bounds) || shape.value != value || shape.scale != s)
+			{
+				shape.bounds = bounds;
+				shape.value = value;
+				shape.scale = s;
+				shape.redraw();
 			}
 		}
 	};

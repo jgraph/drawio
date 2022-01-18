@@ -699,6 +699,7 @@ simpleArrow=Prosta strzałka
 simpleViewer=Simple Viewer
 size=Rozmiar
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Ciągła
 sourceSpacing=Rozmieszczenie źródła
 south=Południe

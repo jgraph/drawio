@@ -264,8 +264,6 @@ Draw.loadPlugin(function(ui) {
 				}
 			});
 	    	
-	    	dlg.textarea.style.width = '600px';
-	    	dlg.textarea.style.height = '380px';
 			ui.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
 	    });

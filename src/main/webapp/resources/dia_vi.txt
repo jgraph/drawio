@@ -699,6 +699,7 @@ simpleArrow=Mũi tên đơn giản
 simpleViewer=Simple Viewer
 size=Kích thước
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Đường liền nét
 sourceSpacing=Khoảng cách nguồn
 south=Hướng Nam

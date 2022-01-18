@@ -699,6 +699,7 @@ simpleArrow=Simpleng panuro
 simpleViewer=Simple Viewer
 size=Sukat
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Solido
 sourceSpacing=Pag-eespasyo ng Pinagmulan
 south=Timog

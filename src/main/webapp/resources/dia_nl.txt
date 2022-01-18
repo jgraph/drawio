@@ -699,6 +699,7 @@ simpleArrow=Eenvoudige pijl
 simpleViewer=Eenvoudige weergave
 size=Grootte
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Massief
 sourceSpacing=Bronafstand
 south=Onder

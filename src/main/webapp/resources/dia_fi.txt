@@ -699,6 +699,7 @@ simpleArrow=Yksinkertainen nuoli
 simpleViewer=Yksinkertainen katseluohjelma
 size=Koko
 sketch=Piirros
+snapToGrid=Snap to Grid
 solid=Yhtenäinen
 sourceSpacing=Lähteen väli
 south=Etelä

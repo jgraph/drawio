@@ -891,6 +891,10 @@ Actions.prototype.init = function()
 			}
 		}
 	}, null, null, Editor.ctrlKey + '+Shift+Y');
+	this.addAction('snapToGrid', function()
+	{
+		graph.snapCellsToGrid(graph.getSelectionCells(), graph.gridSize);
+	});
 	this.addAction('formattedText', function()
 	{
     	graph.stopEditing();

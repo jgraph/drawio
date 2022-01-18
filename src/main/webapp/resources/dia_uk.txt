@@ -699,6 +699,7 @@ simpleArrow=Звичайна стрілка
 simpleViewer=Simple Viewer
 size=Розмір
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Суцільний
 sourceSpacing=Від початкового вузла
 south=Південь

@@ -265,17 +265,17 @@ window.uiTheme = window.uiTheme || (function()
 	{
 		if (ui == null)
 		{
-	        var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
-	        if (iw <= 768)
-	        {
+			if (iw <= 768)
+			{
 				if (urlParams['pages'] == null)
 				{
 					urlParams['pages'] = '1';
 				}
 
 				ui = 'sketch';
-	        }
+			}
 		}
 	}
 	catch (e)

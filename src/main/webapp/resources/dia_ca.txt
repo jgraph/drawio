@@ -699,6 +699,7 @@ simpleArrow=Fletxa simple
 simpleViewer=Visualitzador simple
 size=Mida
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Continu
 sourceSpacing=Espaiat original
 south=Sud

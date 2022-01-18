@@ -699,6 +699,7 @@ simpleArrow=Jednoduchá šipka
 simpleViewer=Jednoduchý prohlížeč
 size=Velikost
 sketch=Nákres
+snapToGrid=Snap to Grid
 solid=Plná
 sourceSpacing=Odsazení zdroje
 south=Jih

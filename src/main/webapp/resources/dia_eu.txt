@@ -699,6 +699,7 @@ simpleArrow=Gezi arrunta
 simpleViewer=Ikustaile arrunta
 size=Tamaina
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Solidoa
 sourceSpacing=Letren arteko tartea
 south=Hegoaldea

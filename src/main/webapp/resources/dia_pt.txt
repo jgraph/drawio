@@ -699,6 +699,7 @@ simpleArrow=Seta simples
 simpleViewer=Simple Viewer
 size=Tamanho
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Sólido
 sourceSpacing=Espaçamento entre fontes
 south=Sul

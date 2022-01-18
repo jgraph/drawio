@@ -699,6 +699,7 @@ simpleArrow=Basit ok
 simpleViewer=Simple Viewer
 size=Boyut
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Katı
 sourceSpacing=Kaynak boşluğu
 south=Güney

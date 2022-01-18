@@ -699,6 +699,7 @@ simpleArrow=Lihtne nool
 simpleViewer=Lihtne vaade
 size=Suurus
 sketch=Sketš
+snapToGrid=Snap to Grid
 solid=Katkematu
 sourceSpacing=Allika vahekaugus
 south=Lõuna

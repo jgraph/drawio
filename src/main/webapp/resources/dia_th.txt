@@ -699,6 +699,7 @@ simpleArrow=ลูกศรอย่างง่าย
 simpleViewer=Simple Viewer
 size=ขนาด
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=แข็ง
 sourceSpacing=เว้นวรรคแหล่งข้อมูล
 south=ทิศใต้

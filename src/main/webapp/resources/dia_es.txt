@@ -699,6 +699,7 @@ simpleArrow=Flecha simple
 simpleViewer=Vista Simple
 size=Tamaño
 sketch=Bosquejo
+snapToGrid=Snap to Grid
 solid=Sólida
 sourceSpacing=Espaciado entre fuentes
 south=Sur

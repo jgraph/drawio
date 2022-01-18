@@ -312,7 +312,6 @@ var SplashDialog = function(editorUi)
 		}
 	}
 	
-	var serviceCount = editorUi.getServiceCount();
 	var logo = document.createElement('img');
 	logo.setAttribute('border', '0');
 	logo.setAttribute('align', 'absmiddle');
@@ -6047,8 +6046,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 						}
 					}, null, null, null, null, null, true, null, mxResources.get('merge'));
 					
-					dlg.textarea.style.width = '600px';
-					dlg.textarea.style.height = '380px';
 					editorUi.showDialog(dlg.container, 620, 460, true, true);
 					dlg.init();
 				}

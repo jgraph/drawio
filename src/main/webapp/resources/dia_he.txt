@@ -699,6 +699,7 @@ simpleArrow=‫חץ פשוט‬
 simpleViewer=Simple Viewer
 size=‫גודל‬
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=‫מוצק‬
 sourceSpacing=‫מרווח מקור‬
 south=‫דרום‬

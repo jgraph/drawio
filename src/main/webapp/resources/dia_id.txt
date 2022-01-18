@@ -699,6 +699,7 @@ simpleArrow=Panah Sederhana
 simpleViewer=Simple Viewer
 size=Ukuran
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Padat
 sourceSpacing=Spasi Sumber
 south=Selatan

@@ -699,6 +699,7 @@ simpleArrow=‫فلش ساده‬
 simpleViewer=Simple Viewer
 size=‫اندازه‬
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=‫ممتد‬
 sourceSpacing=‫فاصله بندی منبع‬
 south=‫جنوب‬

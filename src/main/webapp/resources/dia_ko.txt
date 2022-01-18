@@ -699,6 +699,7 @@ simpleArrow=단순 화살표
 simpleViewer=단순 뷰어
 size=크기
 sketch=스케치
+snapToGrid=Snap to Grid
 solid=실선
 sourceSpacing=소스 간격
 south=하단

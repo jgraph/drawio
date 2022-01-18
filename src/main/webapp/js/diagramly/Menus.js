@@ -1046,6 +1046,7 @@
 					showSplash.style['float'] = 'right';
 					showSplash.style.cursor = 'pointer';
 					showSplash.style.userSelect = 'none';
+					showSplash.style.marginTop = '-4px';
 					showSplash.appendChild(splashCb);
 					mxUtils.write(showSplash, mxResources.get('showStartScreen'));
 
@@ -1167,8 +1168,6 @@
 					'https://www.diagrams.net/doc/faq/configure-diagram-editor',
 					buttons, splashCb.parentNode);
 		    	
-		    	dlg.textarea.style.width = '600px';
-		    	dlg.textarea.style.height = '380px';
 				editorUi.showDialog(dlg.container, 620, 460, true, false);
 				dlg.init();
 			});
@@ -1331,8 +1330,6 @@
 			}, null, null, null, null, null, true, null, null,
 				'https://www.diagrams.net/doc/faq/apply-layouts');
 	    	
-	    	dlg.textarea.style.width = '600px';
-	    	dlg.textarea.style.height = '380px';
 			editorUi.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
 		});
@@ -1835,8 +1832,6 @@
 					}
 				});
 		    	
-		    	dlg.textarea.style.width = '600px';
-		    	dlg.textarea.style.height = '380px';
 				editorUi.showDialog(dlg.container, 620, 460, true, true);
 				dlg.init();
 			}));
@@ -1885,10 +1880,6 @@
 						}
 					}, null, 'Close', null, null, null, true, null, 'Patch', null, buttons);
 			    	
-			    	dlg.textarea.style.width = '600px';
-			    	dlg.textarea.style.height = '380px';
-
-
 					if (snapshot == null)
 					{
 						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(

@@ -1,3 +1,14 @@
+18-JAN-2022: 16.3.0
+
+- Fixes hardcoded textarea dialog size
+- Adds snapToGrid action
+- Adds flip for groups and edges https://github.com/jgraph/drawio/issues/1895 /1139
+- Fixes copySize enabled state for edges
+- Embeds sketch default font (Architects Daughter)
+- Clears background image with background color
+- Fixes mouse wheel zoom in Brave for Windows https://github.com/jgraph/drawio/issues/2528
+- Adds support for enumerating edges
+
 14-JAN-2022: 16.2.7
 
 - Adds enumerateValue property

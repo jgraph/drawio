@@ -3698,12 +3698,9 @@
     	}
 
 		Editor.sketchFontFamily = 'Architects Daughter';
-		Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
-		Editor.sketchFonts = [
-			{'fontFamily': Editor.sketchFontFamily,
-				'fontUrl': decodeURIComponent(Editor.sketchFontSource)},
-			{'fontFamily': 'Rock Salt', 'fontUrl': 'https://fonts.googleapis.com/css?family=Rock+Salt'},
-			{'fontFamily': 'Permanent Marker', 'fontUrl': 'https://fonts.googleapis.com/css?family=Permanent+Marker'}];
+		Editor.sketchFontSource = encodeURIComponent(STYLE_PATH + '/fonts/ArchitectsDaughter-Regular.ttf');
+		Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily,
+			'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
 
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
@@ -4353,8 +4350,6 @@
 	EditorUi.prototype.showTextDialog = function(title, text)
 	{
     	var dlg = new TextareaDialog(this, title, text, null, null, mxResources.get('close'));
-    	dlg.textarea.style.width = '600px';
-    	dlg.textarea.style.height = '380px';
 		this.showDialog(dlg.container, 620, 460, true, true, null, null, null, null, true);
 		dlg.init();
 		document.execCommand('selectall', false, null);
@@ -4609,7 +4604,7 @@
 			this.hideDialog();
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, allowBrowser, allowTab,
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
-		var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 270) : 160;
+		var height = (this.isServices(count)) ? ((count > rowLimit) ? 390 : 280) : 160;
 		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
 	};
@@ -5020,7 +5015,7 @@
 		}), mxResources.get('saveAs'), mxResources.get('download'), false, false, allowTab,
 			null, count > 1, rowLimit, data, mimeType, base64Encoded);
 		
-		var height = (this.isServices(count)) ? ((count > 4) ? 390 : 270) : 160;
+		var height = (this.isServices(count)) ? ((count > 4) ? 390 : 280) : 160;
 		this.showDialog(dlg.container, 420, height, true, true);
 		dlg.init();
 	};

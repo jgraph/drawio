@@ -437,28 +437,42 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	w = (w != null) ? w : 300;
 	h = (h != null) ? h : 120;
 	noHide = (noHide != null) ? noHide : false;
-	var row, td;
-	
-	var table = document.createElement('table');
-	var tbody = document.createElement('tbody');
-	
-	row = document.createElement('tr');
-	
-	td = document.createElement('td');
-	td.style.fontSize = '10pt';
-	mxUtils.write(td, title);
+
+	var div = document.createElement('div');
+	div.style.position = 'absolute';
+	div.style.top = '20px';
+	div.style.bottom = '20px';
+	div.style.left = '20px';
+	div.style.right = '20px';
+
+	var top = document.createElement('div');
+
+	top.style.position = 'absolute';
+	top.style.left = '0px';
+	top.style.right = '0px';
+
+	var main = top.cloneNode(false);
+	var buttons = top.cloneNode(false);
+
+	top.style.top = '0px';
+	top.style.height = '20px';
+	main.style.top = '20px';
+	main.style.bottom = '64px';
+	buttons.style.bottom = '0px';
+	buttons.style.height = '60px';
+	buttons.style.textAlign = 'center';
+
+	mxUtils.write(top, title);
+
+	div.appendChild(top);
+	div.appendChild(main);
+	div.appendChild(buttons);
 
 	if (header != null)
 	{
-		td.appendChild(header);
+		top.appendChild(header);
 	}
 	
-	row.appendChild(td);
-	tbody.appendChild(row);
-
-	row = document.createElement('tr');
-	td = document.createElement('td');
-
 	var nameInput = document.createElement('textarea');
 	
 	if (noWrap)
@@ -473,8 +487,13 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	mxUtils.write(nameInput, url || '');
 	nameInput.style.resize = 'none';
-	nameInput.style.width = w + 'px';
-	nameInput.style.height = h + 'px';
+	nameInput.style.outline = 'none';
+	nameInput.style.position = 'absolute';
+	nameInput.style.boxSizing = 'border-box';
+	nameInput.style.top = '0px';
+	nameInput.style.left = '0px';
+	nameInput.style.height = '100%';
+	nameInput.style.width = '100%';
 	
 	this.textarea = nameInput;
 
@@ -484,17 +503,8 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 		nameInput.scrollTop = 0;
 	};
 
-	td.appendChild(nameInput);
-	row.appendChild(td);
-	
-	tbody.appendChild(row);
+	main.appendChild(nameInput);
 
-	row = document.createElement('tr');
-	td = document.createElement('td');
-	td.style.paddingTop = '14px';
-	td.style.whiteSpace = 'nowrap';
-	td.setAttribute('align', 'right');
-	
 	if (helpLink != null)
 	{
 		var helpBtn = mxUtils.button(mxResources.get('help'), function()
@@ -503,7 +513,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 		});
 		helpBtn.className = 'geBtn';
 		
-		td.appendChild(helpBtn);
+		buttons.appendChild(helpBtn);
 	}
 	
 	if (customButtons != null)
@@ -524,7 +534,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 
 				customBtn.className = 'geBtn';
 				
-				td.appendChild(customBtn);
+				buttons.appendChild(customBtn);
 			})(customButtons[i][0], customButtons[i][1], customButtons[i][2]);
 		}
 	}
@@ -544,12 +554,12 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	if (editorUi.editor.cancelFirst)
 	{
-		td.appendChild(cancelBtn);
+		buttons.appendChild(cancelBtn);
 	}
 	
 	if (addButtons != null)
 	{
-		addButtons(td, nameInput);
+		addButtons(buttons, nameInput);
 	}
 	
 	if (fn != null)
@@ -566,7 +576,7 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 		
 		genericBtn.setAttribute('title', 'Ctrl+Enter');
 		genericBtn.className = 'geBtn gePrimaryBtn';
-		td.appendChild(genericBtn);
+		buttons.appendChild(genericBtn);
 
 		mxEvent.addListener(nameInput, 'keypress', function(e)
 		{
@@ -579,13 +589,10 @@ var TextareaDialog = function(editorUi, title, url, fn, cancelFn, cancelTitle, w
 	
 	if (!editorUi.editor.cancelFirst)
 	{
-		td.appendChild(cancelBtn);
+		buttons.appendChild(cancelBtn);
 	}
 
-	row.appendChild(td);
-	tbody.appendChild(row);
-	table.appendChild(tbody);
-	this.container = table;
+	this.container = div;
 };
 
 /**

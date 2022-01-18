@@ -699,6 +699,7 @@ simpleArrow=Simple Arrow
 simpleViewer=Simple Viewer
 size=Size
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=Solid
 sourceSpacing=Source Spacing
 south=South

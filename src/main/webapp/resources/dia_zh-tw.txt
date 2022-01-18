@@ -699,6 +699,7 @@ simpleArrow=簡單箭頭
 simpleViewer=Simple Viewer
 size=大小
 sketch=Sketch
+snapToGrid=Snap to Grid
 solid=實線
 sourceSpacing=來源間距
 south=向下漸層

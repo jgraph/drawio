@@ -606,6 +606,7 @@ BaseFormatPanel.prototype.addAction = function(div, name)
  */
 BaseFormatPanel.prototype.addActions = function(div, names)
 {
+	var lastBr = null;
 	var last = null;
 	var count = 0;
 
@@ -622,15 +623,12 @@ BaseFormatPanel.prototype.addActions = function(div, names)
 				last.style.marginRight = '2px';
 				last.style.width = '104px';
 				btn.style.width = '104px';
+				lastBr.parentNode.removeChild(lastBr);
 			}
 
+			lastBr = mxUtils.br(div);
 			last = btn;
 		}
-	}
-
-	if (count > 0)
-	{
-		mxUtils.br(div);
 	}
 
 	return count;
@@ -1452,6 +1450,7 @@ ArrangePanel.prototype.init = function()
 	if (ss.cells.length > 0)
 	{
 		this.container.appendChild(this.addLayerOps(this.createPanel()));
+		
 		// Special case that adds two panels
 		this.addGeometry(this.container);
 		this.addEdgeGeometry(this.container);
@@ -1461,16 +1460,15 @@ ArrangePanel.prototype.init = function()
 			this.container.appendChild(this.addAngle(this.createPanel()));
 		}
 		
-		if (!ss.containsLabel && ss.edges.length == 0 &&
-			ss.style.shape != 'rectangle' &&
-			ss.style.shape != 'label')
+		if (!ss.containsLabel)
 		{
 			this.container.appendChild(this.addFlip(this.createPanel()));
 		}
+
+		this.container.appendChild(this.addAlign(this.createPanel()));
 		
 		if (ss.vertices.length > 1 && !ss.cell && !ss.row)
 		{
-			this.container.appendChild(this.addAlign(this.createPanel()));
 			this.container.appendChild(this.addDistribute(this.createPanel()));
 		}
 
@@ -1736,9 +1734,8 @@ ArrangePanel.prototype.addGroupOps = function(div)
 	
 	if (!ss.cell && !ss.row)
 	{
-		count += this.addActions(div, ['group', 'ungroup']) +
-			this.addActions(div, ['removeFromGroup']) +
-			this.addActions(div, ['copySize', 'pasteSize']);
+		count += this.addActions(div, ['group', 'ungroup', 'copySize', 'pasteSize']) +
+			this.addActions(div, ['removeFromGroup']);
 	}
 	
 	var copyBtn = null;
@@ -1834,36 +1831,43 @@ ArrangePanel.prototype.addGroupOps = function(div)
  */
 ArrangePanel.prototype.addAlign = function(div)
 {
+	var ss = this.editorUi.getSelectionState();
 	var graph = this.editorUi.editor.graph;
 	div.style.paddingTop = '6px';
-	div.style.paddingBottom = '12px';
+	div.style.paddingBottom = '8px';
 	div.appendChild(this.createTitle(mxResources.get('align')));
 	
 	var stylePanel = document.createElement('div');
 	stylePanel.style.position = 'relative';
 	stylePanel.style.whiteSpace = 'nowrap';
 	stylePanel.style.paddingLeft = '0px';
+	stylePanel.style.paddingBottom = '2px';
 	stylePanel.style.borderWidth = '0px';
 	stylePanel.style.width = '220px';
 	stylePanel.className = 'geToolbarContainer';
-	
-	var left = this.editorUi.toolbar.addButton('geSprite-alignleft', mxResources.get('left'),
-		function() { graph.alignCells(mxConstants.ALIGN_LEFT); }, stylePanel);
-	var center = this.editorUi.toolbar.addButton('geSprite-aligncenter', mxResources.get('center'),
-		function() { graph.alignCells(mxConstants.ALIGN_CENTER); }, stylePanel);
-	var right = this.editorUi.toolbar.addButton('geSprite-alignright', mxResources.get('right'),
-		function() { graph.alignCells(mxConstants.ALIGN_RIGHT); }, stylePanel);
 
-	var top = this.editorUi.toolbar.addButton('geSprite-aligntop', mxResources.get('top'),
-		function() { graph.alignCells(mxConstants.ALIGN_TOP); }, stylePanel);
-	var middle = this.editorUi.toolbar.addButton('geSprite-alignmiddle', mxResources.get('middle'),
-		function() { graph.alignCells(mxConstants.ALIGN_MIDDLE); }, stylePanel);
-	var bottom = this.editorUi.toolbar.addButton('geSprite-alignbottom', mxResources.get('bottom'),
-		function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, stylePanel);
-	
-	this.styleButtons([left, center, right, top, middle, bottom]);
-	right.style.marginRight = '10px';
+	if (ss.vertices.length > 1)
+	{
+		var left = this.editorUi.toolbar.addButton('geSprite-alignleft', mxResources.get('left'),
+			function() { graph.alignCells(mxConstants.ALIGN_LEFT); }, stylePanel);
+		var center = this.editorUi.toolbar.addButton('geSprite-aligncenter', mxResources.get('center'),
+			function() { graph.alignCells(mxConstants.ALIGN_CENTER); }, stylePanel);
+		var right = this.editorUi.toolbar.addButton('geSprite-alignright', mxResources.get('right'),
+			function() { graph.alignCells(mxConstants.ALIGN_RIGHT); }, stylePanel);
+
+		var top = this.editorUi.toolbar.addButton('geSprite-aligntop', mxResources.get('top'),
+			function() { graph.alignCells(mxConstants.ALIGN_TOP); }, stylePanel);
+		var middle = this.editorUi.toolbar.addButton('geSprite-alignmiddle', mxResources.get('middle'),
+			function() { graph.alignCells(mxConstants.ALIGN_MIDDLE); }, stylePanel);
+		var bottom = this.editorUi.toolbar.addButton('geSprite-alignbottom', mxResources.get('bottom'),
+			function() { graph.alignCells(mxConstants.ALIGN_BOTTOM); }, stylePanel);
+		
+		this.styleButtons([left, center, right, top, middle, bottom]);
+			right.style.marginRight = '10px';
+	}
+
 	div.appendChild(stylePanel);
+	this.addActions(div, ['snapToGrid']);
 	
 	return div;
 };
@@ -1878,6 +1882,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	var graph = editor.graph;
 	div.style.paddingTop = '6px';
 	div.style.paddingBottom = '10px';
+	var ss = this.editorUi.getSelectionState();
 
 	var span = document.createElement('div');
 	span.style.marginTop = '2px';
@@ -1888,7 +1893,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	
 	var btn = mxUtils.button(mxResources.get('horizontal'), function(evt)
 	{
-		graph.toggleCellStyles(mxConstants.STYLE_FLIPH, false);
+		graph.flipCells(ss.cells, true);
 	})
 	
 	btn.setAttribute('title', mxResources.get('horizontal'));
@@ -1898,7 +1903,7 @@ ArrangePanel.prototype.addFlip = function(div)
 	
 	var btn = mxUtils.button(mxResources.get('vertical'), function(evt)
 	{
-		graph.toggleCellStyles(mxConstants.STYLE_FLIPV, false);
+		graph.flipCells(ss.cells, false);
 	})
 	
 	btn.setAttribute('title', mxResources.get('vertical'));
@@ -6319,7 +6324,8 @@ DiagramFormatPanel.prototype.addView = function(div)
 		}, function(color)
 		{
 			var change = new ChangePageSetup(ui, color);
-			change.ignoreImage = true;
+			change.ignoreImage = color != null &&
+				color != mxConstants.NONE;
 			
 			graph.model.execute(change);
 		}, '#ffffff',
