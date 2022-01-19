@@ -1178,3 +1178,4 @@ noChange=No Change
 lblToSvg=Convert labels to SVG
 txtSettings=Text Settings
 LinksLost=Links will be lost
+arcSize=Arc Size

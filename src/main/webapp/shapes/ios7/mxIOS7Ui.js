@@ -699,7 +699,7 @@ function mxShapeIOS7iconGrid(bounds, fill, stroke, strokewidth)
 mxUtils.extend(mxShapeIOS7iconGrid, mxShape);
 
 mxShapeIOS7iconGrid.prototype.customProperties = [
-	{name: 'gridSize', dispName: 'Grid Size', type: 'String'},
+	{name: 'gridSize', dispName: 'Grid Size', type: 'string'},
 ];
 
 /**
@@ -710,7 +710,7 @@ mxShapeIOS7iconGrid.prototype.customProperties = [
 mxShapeIOS7iconGrid.prototype.paintVertexShape = function(c, x, y, w, h)
 {
 	c.translate(x, y);
-	var gridSize = mxUtils.getValue(this.style, mxIOS7C.GRID_SIZE, '4,7').toString().split(',');
+	var gridSize = decodeURIComponent(mxUtils.getValue(this.style, mxIOS7C.GRID_SIZE, '4,7').toString()).split(',');
 
 	var boxSizeX = w / (parseInt(gridSize[0],10) + (gridSize[0]-1) * 0.1);
 	var boxSizeY = h / (parseInt(gridSize[1],10) + (gridSize[1]-1) * 0.1);

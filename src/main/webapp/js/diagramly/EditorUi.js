@@ -1955,13 +1955,17 @@
 					format = 'svg';
 					var b = parseInt(border);
 
+					if (typeof scale === 'string' && scale.indexOf('%') > 0)
+					{
+						scale = parseInt(scale) / 100;
+					}
+
 					if (b > 0)
 					{
 						var graph = this.editor.graph;
 						var bounds = graph.getGraphBounds();
-						var s = parseInt(scale) / 100;
-						w = Math.ceil(bounds.width * s / graph.view.scale + 2 * b);
-						h = Math.ceil(bounds.height * s / graph.view.scale + 2 * b);
+						w = Math.ceil(bounds.width * scale / graph.view.scale + 2 * b);
+						h = Math.ceil(bounds.height * scale / graph.view.scale + 2 * b);
 					}
 				}
 				
@@ -3698,9 +3702,8 @@
     	}
 
 		Editor.sketchFontFamily = 'Architects Daughter';
-		Editor.sketchFontSource = encodeURIComponent(STYLE_PATH + '/fonts/ArchitectsDaughter-Regular.ttf');
-		Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily,
-			'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
+		Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
+		Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily, 'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
 
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')

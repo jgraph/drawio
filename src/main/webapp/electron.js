@@ -81,6 +81,7 @@ function createWindow (opt = {})
 		backgroundColor: '#FFF',
 		width: 1600,
 		height: 1200,
+		icon: `${__dirname}/images/drawlogo256.png`,
 		webViewTag: false,
 		'web-security': true,
 		webPreferences: {
@@ -1656,7 +1657,8 @@ function getDocumentsFolder()
 
 function checkFileExists(pathParts)
 {
-	return fs.existsSync(path.join(...pathParts));
+	let filePath = path.join(...pathParts);
+	return {exists: fs.existsSync(filePath), path: filePath};
 };
 
 async function showOpenDialog(defaultPath, filters, properties)

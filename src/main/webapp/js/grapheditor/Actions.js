@@ -1703,7 +1703,12 @@ Actions.prototype.init = function()
 			    				var pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry(cells, true));
 								cells[0].geometry.x = pt.x;
 			            	    cells[0].geometry.y = pt.y;
-			            	    
+
+								if (clipPath != null)
+								{
+			            	    	applyClipPath(cells[0], clipPath, cW, cH, graph);
+								}
+								
 			    				select = cells;
 		            	    	graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
 			    			}
@@ -1784,7 +1789,7 @@ Actions.prototype.init = function()
 				applyClipPath(cell, clipPath, width, height, graph);
 	    	});
 	    	
-	    	ui.showDialog(dlg.container, 300, 380, true, true);
+	    	ui.showDialog(dlg.container, 300, 390, true, true);
 		}
 	}).isEnabled = isGraphEnabled;
 	action = this.addAction('layers', mxUtils.bind(this, function()

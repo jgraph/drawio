@@ -47,8 +47,10 @@ mxUtils.extend(OneDriveClient, DrawioClient);
  * LATER: If thumbnails are disabled, make sure to replace the
  * existing thumbnail with the placeholder only once.
  */
-OneDriveClient.prototype.clientId = window.DRAWIO_MSGRAPH_CLIENT_ID || ((window.location.hostname == 'test.draw.io') ?
-	'2e598409-107f-4b59-89ca-d7723c8e00a4' : '45c10911-200f-4e27-a666-9e9fca147395');
+OneDriveClient.prototype.clientId = window.DRAWIO_MSGRAPH_CLIENT_ID;
+
+OneDriveClient.prototype.clientId = window.location.hostname == 'test.draw.io' ?
+		'2e598409-107f-4b59-89ca-d7723c8e00a4' : OneDriveClient.prototype.clientId;
 
 OneDriveClient.prototype.clientId = window.location.hostname == 'app.diagrams.net' ?
 		'b5ff67d6-3155-4fca-965a-59a3655c4476' : OneDriveClient.prototype.clientId;

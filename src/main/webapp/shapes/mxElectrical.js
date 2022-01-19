@@ -751,7 +751,7 @@ mxShapeElectricalDualInLineIC.prototype.paintVertexShape = function(c, x, y, w, 
 	c.setFontColor(fontColor);
 	var startPin = mxUtils.getValue(this.style, 'startPin', 'n');
 	var pinLabelType = mxUtils.getValue(this.style, 'pinLabelType', 'gen');
-	var labelNames = mxUtils.getValue(this.style, 'labelNames', '').toString().split(',');
+	var labelNames = decodeURIComponent(mxUtils.getValue(this.style, 'labelNames', '').toString()).split(',');
 
 	c.begin();
 	
@@ -1145,7 +1145,7 @@ mxShapeElectricalQFPIC.prototype.paintVertexShape = function(c, x, y, w, h)
 	var pinSpacing = parseFloat(mxUtils.getValue(this.style, 'pinSpacing', '20'));
 	var pinStyle = mxUtils.getValue(this.style, 'pinStyle', 'line');
 	var pinLabelType = mxUtils.getValue(this.style, 'pinLabelType', 'gen');
-	var labelNames = mxUtils.getValue(this.style, 'labelNames', '').toString().split(',');
+	var labelNames = decodeURIComponent(mxUtils.getValue(this.style, 'labelNames', '').toString()).split(',');
 	var fontSize = parseFloat(mxUtils.getValue(this.style, 'fontSize', '12'));
 	var fontColor = mxUtils.getValue(this.style, 'fontColor', '#000000');
 	c.setFontColor(fontColor);

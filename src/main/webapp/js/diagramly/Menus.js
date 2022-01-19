@@ -3154,13 +3154,15 @@
 
 		this.put('insertLayout', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			editorUi.addInsertMenuItems(menu, parent, ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree',
-				'verticalTree', 'radialTree', '-', 'organic', 'circle']);
+			editorUi.addInsertMenuItems(menu, parent, ['horizontalFlow',
+				'verticalFlow', '-', 'horizontalTree', 'verticalTree',
+				'radialTree', '-', 'organic', 'circle']);
 		})));
 
         this.put('insertAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
         {
-			editorUi.addInsertMenuItems(menu, parent, ['fromText', 'plantUml', 'mermaid', '-', 'formatSql']);
+			editorUi.addInsertMenuItems(menu, parent, ['fromText',
+				'plantUml', 'mermaid', '-', 'formatSql']);
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{

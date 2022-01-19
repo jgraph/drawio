@@ -115,14 +115,15 @@ mxStencilRegistry.allowEval = false;
 					else if (!plugins[i].startsWith('file://'))
 					{
 						let appFolder = await requestSync('getAppDataFolder');
-			        	let pluginsFileExists = await requestSync({
+						
+			        	let pluginsFile = await requestSync({
 							action: 'checkFileExists',
 							pathParts: [appFolder, '/plugins', plugins[i]]
 						});
 			        	
-			        	if (pluginsFileExists)
+			        	if (pluginsFile.exists)
 			        	{
-			        		plugins[i] = 'file://' + pluginsFile;
+			        		plugins[i] = 'file://' + pluginsFile.path;
 			        	}
 			        	else
 		        		{

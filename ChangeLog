@@ -1,3 +1,15 @@
+19-JAN-2022: 16.4.0
+
+- Adds helper function for tree layouts
+- Fixes inkscape svg export size
+- Adds support for special characters and html entities in string properties
+- Adds sketch default font to PWA cache
+- Fixes crop button state
+- Adds insert menu in sketch sidepanel
+- Bypasses proxy for Google fonts, adds font mapping
+- Fixes local folder for Google font in cell style
+- Adds mapping from font CSS URLs to font-face CSS
+
 18-JAN-2022: 16.3.0
 
 - Fixes hardcoded textarea dialog size

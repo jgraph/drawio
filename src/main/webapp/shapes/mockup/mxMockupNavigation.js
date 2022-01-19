@@ -38,7 +38,7 @@ mxShapeMockupBreadcrumb.prototype.cst = {
  */
 mxShapeMockupBreadcrumb.prototype.paintVertexShape = function(c, x, y, w, h)
 {
-	var textStrings = mxUtils.getValue(this.style, mxShapeMockupBreadcrumb.prototype.cst.MAIN_TEXT, 'Layer 1, Layer 2, Layer 3').toString().split(',');
+	var textStrings = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupBreadcrumb.prototype.cst.MAIN_TEXT, 'Layer 1, Layer 2, Layer 3').toString()).split(',');
 	var fontColor = mxUtils.getValue(this.style, mxShapeMockupBreadcrumb.prototype.cst.TEXT_COLOR, '#666666');
 	var selectedFontColor = mxUtils.getValue(this.style, mxShapeMockupBreadcrumb.prototype.cst.TEXT_COLOR2, '#008cff');
 	var fontSize = mxUtils.getValue(this.style, mxShapeMockupBreadcrumb.prototype.cst.TEXT_SIZE, '17').toString();
@@ -157,7 +157,7 @@ mxShapeMockupStepBar.prototype.customProperties = [
  */
 mxShapeMockupStepBar.prototype.paintVertexShape = function(c, x, y, w, h)
 {
-	var textStrings = mxUtils.getValue(this.style, mxShapeMockupStepBar.prototype.cst.MAIN_TEXT, 'Step 1, Step 2, Step 3').toString().split(',');
+	var textStrings = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupStepBar.prototype.cst.MAIN_TEXT, 'Step 1, Step 2, Step 3').toString()).split(',');
 	var fontColor = mxUtils.getValue(this.style, mxShapeMockupStepBar.prototype.cst.TEXT_COLOR, '#666666');
 	var currColor = mxUtils.getValue(this.style, mxShapeMockupStepBar.prototype.cst.TEXT_COLOR2, '#008cff');
 	var fontSize = mxUtils.getValue(this.style, mxShapeMockupStepBar.prototype.cst.TEXT_SIZE, '17').toString();
@@ -593,7 +593,7 @@ mxShapeMockupPagination.prototype.cst = {
 */
 mxShapeMockupPagination.prototype.paintVertexShape = function(c, x, y, w, h)
 {
-	var mainText = mxUtils.getValue(this.style, mxShapeMockupPagination.prototype.cst.MAIN_TEXT, '0-9 A B C D E F G H I J K L M N O P Q R S T U V X Y Z');
+	var mainText = decodeURIComponent(mxUtils.getValue(this.style, mxShapeMockupPagination.prototype.cst.MAIN_TEXT, '0-9 A B C D E F G H I J K L M N O P Q R S T U V X Y Z'));
 	var textSize = mxUtils.getValue(this.style, mxShapeMockupPagination.prototype.cst.TEXT_SIZE, '17');
 	var textColor = mxUtils.getValue(this.style, mxShapeMockupPagination.prototype.cst.TEXT_COLOR, '#0000ff');
 

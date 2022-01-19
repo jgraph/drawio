@@ -5022,29 +5022,44 @@ var PopupDialog = function(editorUi, url, pre, fallback, hideDialog)
 		}
 	});
 
-	if (withCrop && !!document.createElement('canvas').getContext)
+	var cropBtn = mxUtils.button(mxResources.get('crop'), function()
+	{
+	   var dlg = new CropImageDialog(editorUi, linkInput.value, clipPath, 
+		   function(clipPath_p, width, height)
+		   {
+			   clipPath = clipPath_p;
+			   cW = width;
+			   cH = height;
+		   });
+	   
+	   editorUi.showDialog(dlg.container, 300, 390, true, true);
+	});
+	
+	if (withCrop)
  	{
- 		var cropBtn = mxUtils.button(mxResources.get('crop'), function()
- 		{
-			var dlg = new CropImageDialog(editorUi, linkInput.value, clipPath, 
-			function(clipPath_p, width, height)
-	    	{
-				clipPath = clipPath_p;
-				cW = width;
-				cH = height;
-	    	});
-	    	
-	    	editorUi.showDialog(dlg.container, 300, 380, true, true);
- 		});
- 		
  		cropBtn.className = 'geBtn';
 		btns.appendChild(cropBtn);
 	}
 
+	function updateCropButton()
+	{
+		if (linkInput.value.length > 0)
+		{
+			cropBtn.removeAttribute('disabled');
+		}
+		else
+		{
+			cropBtn.setAttribute('disabled', 'disabled');
+		}
+	};
+
 	mxEvent.addListener(linkInput, 'change', function(e)
 	{
 		clipPath = null;
+		updateCropButton();
 	});
+
+	updateCropButton();
 	
 	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
 	{
@@ -8649,7 +8664,7 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 	croppingDiv.style.backgroundColor = '#fff9';
 	div.appendChild(croppingDiv);
 
-	var cropGraph, cropCell, initGeo = new mxGeometry(100, 100, 100, 100)
+	var cropGraph, cropCell, arcSizeVal = 5, initGeo = new mxGeometry(100, 100, 100, 100)
 		, commonStyle = 'shape=image;fillColor=none;rotatable=0;cloneable=0;deletable=0;image=' + 
 						image.replace(';base64', '') + ';clipPath=';
 
@@ -8711,7 +8726,10 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 							}
 							else
 							{
+								arcSizeVal = parseInt(tokens[5]);
+								arcSize.value = arcSizeVal;
 								roundedInput.setAttribute('checked', 'checked');
+								arcSizeDiv.style.visibility = 'visible';
 							}
 						}
 						else
@@ -8853,14 +8871,21 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 		//Use inset for circle also since it uses percentages from 4 sides and this scales no matter the shape of the image
 		//Using circle which is based on a single point to position (center) moves when the image is scaled and/or aspect is changed
 		return 'inset(' + mxUtils.format(top) + '% ' + mxUtils.format(right) + '% ' + mxUtils.format(bottom) + '% ' + mxUtils.format(left) + '%' + 
-							(isRounded? ' round 5%' : (isEllipse? ' round 50%' : '')) + ')';
+							(isRounded? ' round ' + arcSizeVal + '%' : (isEllipse? ' round 50%' : '')) + ')';
 	}
 
-	function typeChanged()
+	function typeChanged(noGeoReset)
 	{
-		cropGraph.model.setGeometry(cropCell, initGeo.clone());
+		if (noGeoReset !== true)
+		{
+			cropGraph.model.setGeometry(cropCell, initGeo.clone());
+			arcSizeVal = 5;
+			arcSize.value = arcSizeVal;
+		}
+
 		cropGraph.model.setStyle(cropCell, getCropCellStyle());
 		cropGraph.selectAll();
+		arcSizeDiv.style.visibility = roundedInput.checked ? 'visible' : 'hidden';
 	}
 
 	function getCropCellStyle(clipPath)
@@ -8872,6 +8897,27 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 	mxEvent.addListener(roundedInput, 'change', typeChanged);
 	mxEvent.addListener(ellipseInput, 'change', typeChanged);
 	
+	//Arc size slider
+	var arcSizeDiv = document.createElement('div');
+	arcSizeDiv.style.textAlign = 'center';
+	arcSizeDiv.style.visibility = 'hidden';
+
+	var arcSize = document.createElement('input');
+	arcSize.setAttribute('type', 'range');
+	arcSize.setAttribute('min', '1');
+	arcSize.setAttribute('max', '49');
+	arcSize.setAttribute('value', arcSizeVal);
+	arcSize.setAttribute('title', mxResources.get('arcSize'));
+	arcSizeDiv.appendChild(arcSize);
+
+	div.appendChild(arcSizeDiv);
+
+	mxEvent.addListener(arcSize, 'change', function()
+	{
+		arcSizeVal = this.value;
+		typeChanged(true);
+	});
+
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog();
@@ -8896,7 +8942,7 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 	resetBtn.className = 'geBtn';
 
 	var buttons = document.createElement('div');
-	buttons.style.marginTop = '20px';
+	buttons.style.marginTop = '10px';
 	buttons.style.textAlign = 'right';
 
 	if (editorUi.editor.cancelFirst)

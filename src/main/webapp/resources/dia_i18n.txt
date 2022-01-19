@@ -1178,3 +1178,4 @@ noChange=noChange
 lblToSvg=lblToSvg
 txtSettings=txtSettings
 LinksLost=LinksLost
+arcSize=arcSize

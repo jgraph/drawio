@@ -1425,35 +1425,6 @@ EditorUi.initMinimalTheme = function()
 			ui.menus.addInsertTableCellItem(menu, parent);
 		})));
 
-		this.put('importFromAdvanced', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-			this.addMenuItems(menu, ['editDiagram'], parent);
-			
-			if (urlParams['sketch'] == '1')
-			{
-				menu.addSeparator(parent);
-				
-				menu.addItem(mxResources.get('csv') + '...', null, function()
-				{
-					ui.showImportCsvDialog();
-				}, parent, null, mxUtils.bind(graph, graph.isEnabled));
-				
-				ui.addInsertMenuItems(menu, parent, ['formatSql', '-',
-					'fromText', 'plantUml', 'mermaid']);
-			}
-		})));
-		
-		// Adds XML option to import menu
-		var importMenu = this.get('importFrom');
-		
-		this.put('importFrom', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-			importMenu.funct(menu, parent);
-			menu.addSeparator(parent);
-
-			this.addSubmenu('importFromAdvanced', menu, parent, mxResources.get('advanced'));
-		})));
-
 		if (urlParams['sketch'] == '1')
 		{
 			var unitsMenu = this.get('units');
@@ -1546,21 +1517,20 @@ EditorUi.initMinimalTheme = function()
 			{
 				if (urlParams['sketch'] == '1')
 				{
-					ui.menus.addMenuItems(menu, ['insertFreehand'], parent);
-		
 					if (ui.insertTemplateEnabled && !ui.isOffline())
 					{
 						ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
 					}
+					
+					ui.menus.addMenuItems(menu, ['insertImage', 'insertLink', '-'], parent);
+					ui.menus.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
+					ui.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 				}
 				else
 				{
 					insertMenuFunct.apply(this, arguments);
 					ui.menus.addSubmenu('table', menu, parent);
-					menu.addSeparator(parent);
 				}
-				
-				ui.menus.addMenuItems(menu, ['-', 'toggleShapes'], parent);
 			};
         }))();
 		
@@ -2437,7 +2407,17 @@ EditorUi.initMinimalTheme = function()
 					elt.style.width = '37px';
 					addElt(elt, null, 'pointer');
 
-					addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.addImage);
+					elt = addMenu('insert', null, Editor.plusImage);
+					elt.style.boxShadow = 'none';
+					elt.style.opacity = '0.7';
+					elt.style.padding = '6px';
+					elt.style.margin = '0px';
+					elt.style.width = '37px';
+					addElt(elt, null, 'pointer');
+
+
+
+					// addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.addImage);
 				}
 
 				if (urlParams['embedInline'] != '1')

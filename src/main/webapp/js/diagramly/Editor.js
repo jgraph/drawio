@@ -2601,9 +2601,10 @@
 		// No access-control-allow-origin for some Iconfinder images, add this when fixed:
 		// /^https?:\/\/[^\/]*\.iconfinder.com\//.test(url) ||
 		return (this.corsRegExp != null && this.corsRegExp.test(url)) ||
-			url.substring(0, 34) === 'https://raw.githubusercontent.com/';
+			url.substring(0, 34) === 'https://raw.githubusercontent.com/' ||
+			url.substring(0, 29) === 'https://fonts.googleapis.com/' ||
+			url.substring(0, 26) === 'https://fonts.gstatic.com/';
 	};
-	
 	
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
@@ -3030,6 +3031,19 @@
 	};
 	
 	/**
+	 * Returns the URL and mime type to be used for the given font.
+	 */
+	Editor.prototype.mapFontUrl = function(mime, url, fn)
+	{
+		if ((/^https?:\/\//.test(url)) && !this.isCorsEnabledForUrl(url))
+		{
+			url = PROXY_URL + '?url=' + encodeURIComponent(url);
+		}
+
+		fn(mime, url);
+	};
+
+	/**
 	 * For the fonts in CSS to be applied when rendering images on canvas, the actual
 	 * font data must be made available via a data URI encoding of the file.
 	 */
@@ -3057,7 +3071,7 @@
                     result.push(this.cachedFonts[Editor.trimCssUrl(parts[j].substring(0, idx))]);
                     result.push('"' + parts[j].substring(idx));
                 }
-                
+				
                 then(result.join(''));
             }
         });
@@ -3112,26 +3126,22 @@
                         {
                             mime = 'application/font-sfnt';
                         }
-                        
-                        var realUrl = url;
-                        
-                        if ((/^https?:\/\//.test(realUrl)) && !this.isCorsEnabledForUrl(realUrl))
-                        {
-                            realUrl = PROXY_URL + '?url=' + encodeURIComponent(url);
-                        }
 
-                        // LATER: Remove cache-control header
-                        this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
-                        {
-                        	this.cachedFonts[url] = uri;
-                            waiting--;
-                            finish();
-                        }), mxUtils.bind(this, function(err)
-                        {
-                            // LATER: handle error
-                            waiting--;
-                            finish();
-                        }), true, null, 'data:' + mime + ';charset=utf-8;base64,');
+						this.mapFontUrl(mime, url, mxUtils.bind(this, function(realMime, realUrl)
+						{
+							// LATER: Remove cache-control header
+							this.loadUrl(realUrl, mxUtils.bind(this, function(uri)
+							{
+								this.cachedFonts[url] = uri;
+								waiting--;
+								finish();
+							}), mxUtils.bind(this, function(err)
+							{
+								// LATER: handle error
+								waiting--;
+								finish();
+							}), true, null, 'data:' + realMime + ';charset=utf-8;base64,');
+						}));
                     }
                 }))(Editor.trimCssUrl(parts[i].substring(0, idx)), format);
             }
@@ -3169,6 +3179,24 @@
             then();
         }
     };
+
+	/**
+	 * Returns a CSS mapping for the given CSS URL.
+	 */
+	Editor.prototype.createGoogleFontCache = function()
+	{
+		var cache = {};
+
+		for (var key in Graph.fontMapping)
+		{
+			if (Graph.isCssFontUrl(key))
+			{
+				cache[key] = Graph.fontMapping[key];
+			}
+		}
+
+		return cache;
+	};
     
     /**
      * Embeds external fonts
@@ -3183,7 +3211,7 @@
 			
 			if (this.cachedGoogleFonts == null)
 			{
-				this.cachedGoogleFonts = {};
+				this.cachedGoogleFonts = this.createGoogleFontCache();
 			}
 			
 			var googleCssDone = mxUtils.bind(this, function()
@@ -4877,13 +4905,13 @@
 				}
 				else
 				{
-					td.innerHTML = pValue;
+					td.innerHTML = mxUtils.htmlEntities(decodeURIComponent(pValue));
 					
 					mxEvent.addListener(td, 'click', mxUtils.bind(that, function()
 					{
 						var input = document.createElement('input');
 						setElementPos(td, input, true);
-						input.value = pValue;
+						input.value = decodeURIComponent(pValue);
 						input.className = 'gePropEditor';
 						
 						if ((pType == 'int' || pType == 'float') && !prop.allowAuto)
@@ -4932,7 +4960,7 @@
 								inputVal = prop.max;
 							}
 
-							var newVal = mxUtils.htmlEntities((pType == 'int'? parseInt(inputVal) : inputVal) + '');
+							var newVal = encodeURIComponent((pType == 'int'? parseInt(inputVal) : inputVal) + '');
 							
 							applyStyleVal(pName, newVal, prop);
 						}
@@ -5506,6 +5534,13 @@
 	}
 	
 	/**
+	 * Maps fonts to font-face CSS.
+	 */
+	Graph.fontMapping = {'https://fonts.googleapis.com/css?family=Architects+Daughter':
+		'@font-face { font-family: "Architects Daughter"; ' + 
+		'src: url(' + STYLE_PATH + '/fonts/ArchitectsDaughter-Regular.ttf) format("truetype"); }'};
+
+	/**
 	 * Lookup table for mapping from font URL and name to elements in the DOM.
 	 */
 	Graph.customFontElements = {};
@@ -5537,8 +5572,9 @@
 	Graph.createFontElement = function(name, url)
 	{
 		var elt = null;
+		var style = Graph.fontMapping[url];
 
-		if (Graph.isCssFontUrl(url))
+		if (style == null && Graph.isCssFontUrl(url))
 		{
 			elt = document.createElement('link');
 			elt.setAttribute('rel', 'stylesheet');
@@ -5548,10 +5584,15 @@
 		}
 		else
 		{
+			if (style == null)
+			{
+				style = '@font-face {\n' +	
+					'font-family: "' + name + '";\n' + 	
+					'src: url("' + url + '");\n}'
+			}
+
 			elt = document.createElement('style');
-			mxUtils.write(elt, '@font-face {\n' +	
-				'font-family: "' + name + '";\n' + 	
-				'src: url("' + url + '");\n}');
+			mxUtils.write(elt, style);
 		}
 		
 		return elt;
@@ -6588,7 +6629,7 @@
 	 */
 	mxGraphView.prototype.createEnumerationValue = function(state)
 	{
-		var value =  mxUtils.getValue(state.style, 'enumerateValue', '');
+		var value =  decodeURIComponent(mxUtils.getValue(state.style, 'enumerateValue', ''));
 
 		if (value == '')
 		{
