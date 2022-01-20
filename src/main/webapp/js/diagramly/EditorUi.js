@@ -13065,6 +13065,7 @@
         		var styles = null;
         		var stylename = null;
         		var labelname = null;
+				var unknownStyle = null;
         		var labels = null;
         		var parentstyle = 'whiteSpace=wrap;html=1;';
         		var identity = null;
@@ -13161,6 +13162,10 @@
 		    				else if (key == 'parentstyle')
 		    				{
 		    					parentstyle = value;
+		    				}
+							else if (key == 'unknownStyle' && value != '-')
+		    				{
+		    					unknownStyle = value;
 		    				}
 		    				else if (key == 'stylename' && value.length > 0 && value != '-')
 		    				{
@@ -13489,89 +13494,91 @@
 									{
 										var ref = lookups[edge.to][refs[j]];
 
-										if (ref == null)
+										if (ref == null && unknownStyle != null)
 										{
-											ref = new mxCell(refs[j], new mxGeometry(x0, y0,
-												0, 0), style || 'whiteSpace=wrap;html=1;');
+											ref = new mxCell(refs[j], new mxGeometry(x0, y0, 0, 0), unknownStyle);
 											ref.style = graph.replacePlaceholders(dataCell, ref.style, vars);
-											var size = this.editor.graph.getPreferredSizeForCell(ref);
-											ref.geometry.width = size.width + padding;
-											ref.geometry.height = size.height + padding;
+											var refSize = this.editor.graph.getPreferredSizeForCell(ref);
+											ref.geometry.width = refSize.width + padding;
+											ref.geometry.height = refSize.height + padding;
 											lookups[edge.to][refs[j]] = ref;
 											ref.vertex = true;
 											ref.id = refs[j];
 											cells.push(graph.addCell(ref));
 										}
-										
-										var label = edge.label;
-										
-										if (edge.fromlabel != null)
-										{
-											label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
-										}
-										
-										if (edge.sourcelabel != null)
-										{
-											label = graph.replacePlaceholders(dataCell,
-												edge.sourcelabel, vars) + (label || '');
-										}
-					
-										if (edge.tolabel != null)
-										{
-											label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
-										}
-																						
-										if (edge.targetlabel != null)
-										{
-											label = (label || '') + graph.replacePlaceholders(
-												ref, edge.targetlabel, vars);
-										}
-					
-										var placeholders = ((edge.placeholders == 'target') ==
-											!edge.invert) ? ref : realCell;
-										var edgeStyle = (edge.style != null) ?
-											graph.replacePlaceholders(placeholders, edge.style, vars) :
-											graph.createCurrentEdgeStyle();
 
-										var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
-											ref : realCell, (edge.invert) ? realCell : ref, edgeStyle);
-										
-										// Adds additional edge labels
-										if (edge.labels != null)
+										if (ref != null)
 										{
-											for (var k = 0; k < edge.labels.length; k++)
+											var label = edge.label;
+											
+											if (edge.fromlabel != null)
 											{
-												var def = edge.labels[k];
-												var elx = (def.x != null) ? def.x : 0;
-												var ely = (def.y != null) ? def.y : 0;
-												var st = 'resizable=0;html=1;';
-												var el = new mxCell(def.label || k,
-													new mxGeometry(elx,  ely, 0, 0), st);
-												el.vertex = true;
-												el.connectable = false;
-												el.geometry.relative = true;
-							
-												if (def.placeholders != null)
-												{
-													el.value = graph.replacePlaceholders(
-														((def.placeholders == 'target') ==
-														!edge.invert) ? ref : realCell,
-													el.value, vars)
-												}
-												
-												if (def.dx != null || def.dy != null)
-												{
-													el.geometry.offset = new mxPoint(
-														(def.dx != null) ? def.dx : 0,
-														(def.dy != null) ? def.dy : 0);
-												}
-							
-												edgeCell.insert(el);
+												label = (dataCell.getAttribute(edge.fromlabel) || '') + (label || '');
 											}
+											
+											if (edge.sourcelabel != null)
+											{
+												label = graph.replacePlaceholders(dataCell,
+													edge.sourcelabel, vars) + (label || '');
+											}
+						
+											if (edge.tolabel != null)
+											{
+												label = (label || '') + (ref.getAttribute(edge.tolabel) || '');
+											}
+																							
+											if (edge.targetlabel != null)
+											{
+												label = (label || '') + graph.replacePlaceholders(
+													ref, edge.targetlabel, vars);
+											}
+						
+											var placeholders = ((edge.placeholders == 'target') ==
+												!edge.invert) ? ref : realCell;
+											var edgeStyle = (edge.style != null) ?
+												graph.replacePlaceholders(placeholders, edge.style, vars) :
+												graph.createCurrentEdgeStyle();
+
+											var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
+												ref : realCell, (edge.invert) ? realCell : ref, edgeStyle);
+											
+											// Adds additional edge labels
+											if (edge.labels != null)
+											{
+												for (var k = 0; k < edge.labels.length; k++)
+												{
+													var def = edge.labels[k];
+													var elx = (def.x != null) ? def.x : 0;
+													var ely = (def.y != null) ? def.y : 0;
+													var st = 'resizable=0;html=1;';
+													var el = new mxCell(def.label || k,
+														new mxGeometry(elx,  ely, 0, 0), st);
+													el.vertex = true;
+													el.connectable = false;
+													el.geometry.relative = true;
+								
+													if (def.placeholders != null)
+													{
+														el.value = graph.replacePlaceholders(
+															((def.placeholders == 'target') ==
+															!edge.invert) ? ref : realCell,
+														el.value, vars)
+													}
+													
+													if (def.dx != null || def.dy != null)
+													{
+														el.geometry.offset = new mxPoint(
+															(def.dx != null) ? def.dx : 0,
+															(def.dy != null) ? def.dy : 0);
+													}
+								
+													edgeCell.insert(el);
+												}
+											}
+											
+											select.push(edgeCell);
+											mxUtils.remove((edge.invert) ? realCell : ref, roots);
 										}
-										
-										select.push(edgeCell);
-										mxUtils.remove((edge.invert) ? realCell : ref, roots);
 									}
 		    					}
 							});

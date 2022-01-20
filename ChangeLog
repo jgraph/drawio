@@ -1,3 +1,20 @@
+20-JAN-2022: 16.4.3
+
+- [jira cloud] Adds refresh button to diagram search page
+- Fixes duplicate flipEdge function
+- Adds unknownStyle option for CSV import
+- Uses new app path in Dropbox
+
+19-JAN-2022: 16.4.2
+
+- Fixes NPE on destroyParentHighlight
+
+19-JAN-2022: 16.4.1
+
+- Fixes NPE in CropImageDialog
+- Expands format window on large screens in sketch
+- Fixes parent highlight after change of parent
+
 19-JAN-2022: 16.4.0
 
 - Adds helper function for tree layouts

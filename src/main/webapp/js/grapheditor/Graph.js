@@ -10482,7 +10482,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		/**
 		 * Flips the given cells horizontally or vertically.
 		 */
-		Graph.prototype.flipEdge = function(cell, horizontal, c)
+		Graph.prototype.flipEdgePoints = function(cell, horizontal, c)
 		{
 			var geo = this.getCellGeometry(cell);
 
@@ -10543,7 +10543,7 @@ if (typeof mxVertexHandler !== 'undefined')
 
 					if (this.model.isEdge(child))
 					{
-						this.flipEdge(child, horizontal, c);
+						this.flipEdgePoints(child, horizontal, c);
 					}
 					else
 					{
@@ -10592,7 +10592,7 @@ if (typeof mxVertexHandler !== 'undefined')
 
 						if (state != null)
 						{
-							this.flipEdge(cells[i], horizontal, ((horizontal ? state.getCenterX() :
+							this.flipEdgePoints(cells[i], horizontal, ((horizontal ? state.getCenterX() :
 								state.getCenterY()) / this.view.scale) - ((horizontal) ?
 								state.origin.x : state.origin.y) - ((horizontal) ?
 								this.view.translate.x : this.view.translate.y));

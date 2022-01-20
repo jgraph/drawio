@@ -590,6 +590,11 @@
 		'#\n' +
 		'# parentstyle: swimlane;whiteSpace=wrap;html=1;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;\n' +
 		'#\n' +
+		'## Style to be used for objects not in the CSV. If this is - then such objects are ignored,\n' +
+		'## else they are created using this as their style, eg. whiteSpace=wrap;html=1;\n' +
+		'#\n' +
+		'# unknownStyle: -\n' +
+		'#\n' +
 		'## Optional column name that contains a reference to a named style in styles.\n' +
 		'## Default is the current style for nodes.\n' +
 		'#\n' +

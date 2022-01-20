@@ -1714,8 +1714,8 @@ EditorUi.initMinimalTheme = function()
 				if (urlParams['sketch'] == '1')
 				{
 					this.initFormatWindow();
-
-					if (this.formatWindow != null)
+					
+					if (this.formatWindow != null && iw < 1200)
 					{
 						this.formatWindow.window.toggleMinimized();
 					}

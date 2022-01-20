@@ -8664,8 +8664,9 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 	croppingDiv.style.backgroundColor = '#fff9';
 	div.appendChild(croppingDiv);
 
-	var cropGraph, cropCell, arcSizeVal = 5, initGeo = new mxGeometry(100, 100, 100, 100)
-		, commonStyle = 'shape=image;fillColor=none;rotatable=0;cloneable=0;deletable=0;image=' + 
+	var cropGraph = null, initGeo = new mxGeometry(100, 100, 100, 100),
+		arcSizeVal = 5, cropCell = new mxCell('', initGeo.clone(), ''),
+		commonStyle = 'shape=image;fillColor=none;rotatable=0;cloneable=0;deletable=0;image=' + 
 						image.replace(';base64', '') + ';clipPath=';
 
 	function init()
@@ -8688,8 +8689,6 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 			handler.livePreview = false;
 			return handler;
 		}
-
-		cropCell = new mxCell('', initGeo.clone(), '');
 
 		if (clipPath != null)
 		{
@@ -8876,6 +8875,8 @@ var CropImageDialog = function(editorUi, image, clipPath, fn)
 
 	function typeChanged(noGeoReset)
 	{
+		if (cropGraph == null) return; //Image is not loaded yet. Graph had to wait for the image to load to be on-top
+
 		if (noGeoReset !== true)
 		{
 			cropGraph.model.setGeometry(cropCell, initGeo.clone());

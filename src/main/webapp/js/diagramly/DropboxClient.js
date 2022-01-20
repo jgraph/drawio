@@ -22,7 +22,7 @@ mxUtils.extend(DropboxClient, DrawioClient);
  * FIXME: How to find name of app folder for current user. The Apps part of the
  * name is internationalized so this hardcoded check does not work everywhere.
  */
-DropboxClient.prototype.appPath = '/drawio/';
+DropboxClient.prototype.appPath = '/drawio-diagrams/';
 
 /**
  * Executes the first step for connecting to Google Drive.
@@ -912,7 +912,7 @@ DropboxClient.prototype.pickFile = function(fn, readOnly)
 						else
 						{
 							var tmp = files[0].link.indexOf(this.appPath);
-							
+
 							if (tmp > 0)
 							{
 								// Checks if file is in app folder by loading file from there and comparing the ID
