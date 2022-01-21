@@ -1,3 +1,16 @@
+21-JAN-2022: 16.4.5
+
+- Corrects SHA for bootstrap
+
+21-JAN-2022: 16.4.4
+
+- Fixes undeclared variable idx
+- Adds a confirmation step to public Github deployment
+- Enables reverse action for edges https://github.com/jgraph/drawio/issues/2569
+- Switches to dev branch of i18n submodule
+- [conf cloud] Uses content.id instead of the deprecated page.id
+- [conf cloud] Fixes errors of spaces in diagram name and NPE in GraphViewer
+
 20-JAN-2022: 16.4.3
 
 - [jira cloud] Adds refresh button to diagram search page

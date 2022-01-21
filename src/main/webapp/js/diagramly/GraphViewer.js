@@ -1694,7 +1694,7 @@ GraphViewer.prototype.addToolbar = function()
 
 GraphViewer.prototype.disableButton = function(token)
 {
-	var def = this.graphConfig['toolbar-buttons'][token];
+	var def = this.graphConfig['toolbar-buttons']? this.graphConfig['toolbar-buttons'][token] : null;
 			
 	if (def != null)
 	{

@@ -12701,3 +12701,163 @@ var FilePropertiesDialog = function(editorUi)
 	
 	this.container = table;
 };
+
+var ConnectionPointsDialog = function(editorUi, cell) 
+{
+	var GRAPH_SIZE = 300, CP_SIZE = 6, CP_HLF_SIZE = 3;
+	var div = document.createElement('div');
+	div.style.userSelect = 'none';
+
+	this.init = function() 
+	{
+		var graphDiv = document.createElement('div');
+		graphDiv.style.width = GRAPH_SIZE + 'px';
+		graphDiv.style.height = GRAPH_SIZE + 'px';
+		graphDiv.style.overflow = 'hidden';
+		graphDiv.style.border = '1px solid lightGray';
+		graphDiv.style.boxSizing = 'border-box';
+		div.appendChild(graphDiv);
+
+		var cPointStyle = 'ellipse;fillColor=#000000;strokeColor=#000000;points=[];rotatable=0;resizable=0;connectable=0;editable=0;';
+		var editingGraph = new Graph(graphDiv);
+		editingGraph.autoExtend = false;
+		editingGraph.autoScroll = false;
+		editingGraph.setGridEnabled(false);
+		editingGraph.setEnabled(true);
+		editingGraph.setPanning(false);
+		editingGraph.setConnectable(false);
+		editingGraph.getRubberband().setEnabled(false);
+		editingGraph.setTooltips(false);
+		editingGraph.minFitScale = null;
+		editingGraph.maxFitScale = null;
+		editingGraph.centerZoom = true;
+		editingGraph.maxFitScale = 2;
+		//Adding a point via double click
+		editingGraph.dblClick = function(evt, cell)
+		{
+			var pt = mxUtils.convertPoint(editingGraph.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+			mxEvent.consume(evt);
+			var scale = editingGraph.view.scale;
+			var tr = editingGraph.view.translate;
+			var cPoint = new mxCell('', new mxGeometry((pt.x - CP_HLF_SIZE) / scale - tr.x, (pt.y - CP_HLF_SIZE) / scale - tr.y, CP_SIZE, CP_SIZE), cPointStyle);
+			cPoint.vertex = true;
+			cPoint.cp = true;
+			editingGraph.addCell(cPoint);
+		}
+
+		//Add cell and current connection points on it
+		var geo = cell.geometry;
+		var mainCell = new mxCell('', new mxGeometry(0, 0, geo.width, geo.height),
+							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;');
+		mainCell.vertex = true;
+		editingGraph.addCell(mainCell);
+
+		var origIsCellSelectable = editingGraph.isCellSelectable;
+		editingGraph.isCellSelectable = function(cell)
+		{
+			if (cell == mainCell)
+			{
+				return false;
+			}
+			else
+			{
+				return origIsCellSelectable.apply(this, arguments);
+			}
+		};
+
+		var state = editingGraph.view.getState(mainCell);
+		var constraints = editingGraph.getAllConnectionConstraints(state);
+		
+		for (var i = 0; constraints != null && i < constraints.length; i++)
+		{
+			var cp = editingGraph.getConnectionPoint(state, constraints[i]);
+			var cPoint = new mxCell('', new mxGeometry(cp.x - CP_HLF_SIZE, cp.y - CP_HLF_SIZE, CP_SIZE, CP_SIZE), cPointStyle);
+			cPoint.vertex = true;
+			cPoint.cp = true;
+			editingGraph.addCell(cPoint);
+		}
+
+		editingGraph.fit(8);
+		editingGraph.center();
+
+		var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+		{
+			editorUi.hideDialog();
+		});
+
+		cancelBtn.className = 'geBtn';
+		
+		var applyBtn = mxUtils.button(mxResources.get('apply'), function()
+		{
+			var cells = editingGraph.model.cells, points = [], mGeo = mainCell.geometry;
+
+			for (var id in cells)
+			{
+				var cp = cells[id];
+
+				if (!cp.cp) continue;
+
+				var dx = 0, dy = 0;
+				var x = mxUtils.format((cp.geometry.x + CP_HLF_SIZE - mGeo.x) / mGeo.width);
+				var y = mxUtils.format((cp.geometry.y + CP_HLF_SIZE - mGeo.y) / mGeo.height);
+
+				if (x < 0)
+				{
+					dx = x * mGeo.width;
+					x = 0;
+				}
+				else if (x > 1)
+				{
+					dx = (x - 1) * mGeo.width;
+					x = 1;
+				}
+
+				if (y < 0)
+				{
+					dy = y * mGeo.height;
+					y = 0;
+				}
+				else if (y > 1)
+				{
+					dy = (y - 1) * mGeo.height;
+					y = 1;
+				}
+
+				points.push('[' + x + ',' + y + ',0,' + dx + ',' + dy + ']');
+			}
+
+			editorUi.editor.graph.setCellStyles('points', '[' + points.join(',') + ']', [cell]);
+			editorUi.hideDialog();
+		});
+		
+		applyBtn.className = 'geBtn gePrimaryBtn';
+		
+		var resetBtn = mxUtils.button(mxResources.get('reset'), function()
+		{
+			editorUi.editor.graph.setCellStyles('points', null, [cell]);
+			editorUi.hideDialog();
+		});
+		
+		resetBtn.className = 'geBtn';
+
+		var buttons = document.createElement('div');
+		buttons.style.marginTop = '10px';
+		buttons.style.textAlign = 'right';
+
+		if (editorUi.editor.cancelFirst)
+		{
+			buttons.appendChild(cancelBtn);
+			buttons.appendChild(resetBtn);
+			buttons.appendChild(applyBtn);
+		}
+		else
+		{
+			buttons.appendChild(resetBtn);
+			buttons.appendChild(applyBtn);
+			buttons.appendChild(cancelBtn);
+		}
+
+		div.appendChild(buttons);
+	};
+	this.container = div;
+};

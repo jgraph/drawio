@@ -43,7 +43,7 @@
 			
 			for (var i = 0; i < params.length; i++)
 			{
-				idx = params[i].indexOf('=');
+				var idx = params[i].indexOf('=');
 				
 				if (idx > 0)
 				{
@@ -261,6 +261,8 @@
 				// Forces includes for dev environment in node.js
 				mxForceIncludes = true;
 			}
+
+			mxForceIncludes = false;
 
 			mxscript(drawDevUrl + 'js/PreConfig.js');
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');

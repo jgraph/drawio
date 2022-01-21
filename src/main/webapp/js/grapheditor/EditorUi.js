@@ -4076,7 +4076,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('copySize').setEnabled(ss.vertices.length == 1);
 	this.actions.get('clearWaypoints').setEnabled(ss.connections);
 	this.actions.get('curved').setEnabled(ss.edges.length > 0);
-	this.actions.get('turn').setEnabled(ss.resizable);
+	this.actions.get('turn').setEnabled(ss.cells.length > 0);
 	this.actions.get('group').setEnabled(!ss.row && !ss.cell &&
 		(ss.cells.length > 1 || (ss.vertices.length == 1 &&
 		graph.model.getChildCount(ss.cells[0]) == 0 &&

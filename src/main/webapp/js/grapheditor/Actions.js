@@ -1851,6 +1851,18 @@ Actions.prototype.init = function()
 	
 	action.setToggleAction(true);
 	action.setSelectedCallback(mxUtils.bind(this, function() { return this.outlineWindow != null && this.outlineWindow.window.isVisible(); }));
+
+	this.addAction('connectionPoints...', function()
+	{
+		var cell = graph.getSelectionCell();
+
+		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) && cell != null)
+		{
+			var dlg = new ConnectionPointsDialog(ui, cell);
+	    	ui.showDialog(dlg.container, 300, 390, true, true);
+			dlg.init();
+		}
+	}).isEnabled = isGraphEnabled;
 };
 
 /**

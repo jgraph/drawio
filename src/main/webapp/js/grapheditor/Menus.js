@@ -1597,6 +1597,11 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 		this.addMenuItem(menu, 'image', parent, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
 		this.addMenuItem(menu, 'crop', parent, evt);
 	}
+
+	if (urlParams['dev'] == '1')
+	{
+		this.addMenuItem(menu, 'connectionPoints', parent, evt);
+	}
 };
  
 /**
