@@ -67,7 +67,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			// Replaces unsafe-inline style-src with hashes with safe-style-src URL parameter
 			((urlParams['safe-style-src'] == '1') ? styleHashes : '\'unsafe-inline\'; ') +
 			'base-uri \'none\';' +
-			'child-src \'none\';' +
+			'child-src \'self\';' +
 			'object-src \'none\';';
 			
 		var csp = hashes + directives;

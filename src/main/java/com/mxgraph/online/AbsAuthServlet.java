@@ -13,6 +13,8 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -197,6 +199,31 @@ abstract public class AbsAuthServlet extends HttpServlet
 		deleteCookie(tokenCookieName, response);
 	}
 	
+	//https://stackoverflow.com/questions/4390800/determine-if-a-string-is-absolute-url-or-relative-url-in-java
+	public static boolean isAbsolute(String url)
+	{
+		if (url.startsWith("//"))  // //www.domain.com/start
+		{
+			return true;
+		}
+	
+		if (url.startsWith("/")) // /somePage.html
+		{
+			return false;
+		}
+	
+		boolean result = false;
+	
+		try 
+		{
+			URI uri = new URI(url);
+			result = uri.isAbsolute();
+		}
+		catch (URISyntaxException e) {} //Ignore
+	
+		return result;
+	}
+
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -210,7 +237,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 			String state = new BigInteger(256, random).toString(32);
 			String key = new BigInteger(256, random).toString(32);
 			putCacheValue(key, state);
-			log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Added state (" + key + " -> " + state + ")");
 			response.setStatus(HttpServletResponse.SC_OK);
 			//Chrome blocks this cookie when draw.io is running in an iframe. The cookie is added to parent frame. TODO FIXME
 			addCookie(STATE_COOKIE, key, STATE_COOKIE_AGE, response); //10 min to finish auth
@@ -250,8 +276,8 @@ abstract public class AbsAuthServlet extends HttpServlet
 				version = stateVars.get("ver");
 				successRedirect = stateVars.get("redirect");
 
-				//Redirect to a page on the same domain only (relative path) TODO Is this enough?
-				if (successRedirect != null && successRedirect.toLowerCase().startsWith("http"))
+				//Redirect to a page on the same domain only (relative path)
+				if (successRedirect != null && isAbsolute(successRedirect))
 				{
 					successRedirect = null;
 				}
@@ -262,7 +288,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 				if (cacheKey != null)
 				{
 					cookieToken = (String) tokenCache.get(cacheKey);
-					log.log(Level.INFO, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] Found cookie state (" + cacheKey + " -> " + cookieToken + ")");
 					//Delete cookie & cache after being used since it is a single use
 					tokenCache.remove(cacheKey);
 					deleteCookie(STATE_COOKIE, response);
@@ -318,7 +343,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 			//Non GAE runtimes are excluded from state check. TODO Change GAE stub to return null from CacheFactory
 			else if (IS_GAE && (stateToken == null || !stateToken.equals(cookieToken)))
 			{
-				log.log(Level.WARNING, "AUTH-SERVLET: [" + request.getRemoteAddr() + "] STATE MISMATCH (state: " + stateToken + " != cookie: " + cookieToken + ")");
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			}
 			else
@@ -336,6 +360,7 @@ abstract public class AbsAuthServlet extends HttpServlet
 				{
 					if (successRedirect != null)
 					{
+						//successRedirect is validated above
 						response.sendRedirect(successRedirect + "#" + Utils.encodeURIComponent(authResp.content, "UTF-8"));
 					}
 					else
@@ -424,20 +449,20 @@ abstract public class AbsAuthServlet extends HttpServlet
 				}
 				
 				urlParameters.append("client_id=");
-				urlParameters.append(client);
+				urlParameters.append(Utils.encodeURIComponent(client, "UTF-8"));
 				urlParameters.append("&client_secret=");
-				urlParameters.append(secret);
+				urlParameters.append(Utils.encodeURIComponent(secret, "UTF-8"));
 			
 				if (code != null)
 				{
 					if (withRedirectUrl)
 					{
 						urlParameters.append("&redirect_uri=");
-						urlParameters.append(redirectUri);
+						urlParameters.append(Utils.encodeURIComponent(redirectUri, "UTF-8"));
 					}
 
 					urlParameters.append("&code=");
-					urlParameters.append(code);
+					urlParameters.append(Utils.encodeURIComponent(code, "UTF-8"));
 					urlParameters.append("&grant_type=authorization_code");
 				}
 				else
@@ -445,11 +470,11 @@ abstract public class AbsAuthServlet extends HttpServlet
 					if (withRedirectUrlInRefresh)
 					{
 						urlParameters.append("&redirect_uri=");
-						urlParameters.append(redirectUri);
+						urlParameters.append(Utils.encodeURIComponent(redirectUri, "UTF-8"));
 					}
 					
 					urlParameters.append("&refresh_token=");
-					urlParameters.append(refreshToken);
+					urlParameters.append(Utils.encodeURIComponent(refreshToken, "UTF-8"));
 					urlParameters.append("&grant_type=refresh_token");
 					jsonResponse = true;
 				}
@@ -458,27 +483,25 @@ abstract public class AbsAuthServlet extends HttpServlet
 			{
 				con.setRequestProperty("Content-Type", "application/json");
 				
-				urlParameters.append("{");
-				urlParameters.append("\"client_id\": \"");
-				urlParameters.append(client);
-				urlParameters.append("\", \"redirect_uri\": \"");
-				urlParameters.append(redirectUri);
-				urlParameters.append("\", \"client_secret\": \"");
-				urlParameters.append(secret);
+				JsonObject urlParamsObj = new JsonObject();
+
+				urlParamsObj.addProperty("client_id", client);
+				urlParamsObj.addProperty("redirect_uri", redirectUri);
+				urlParamsObj.addProperty("client_secret", secret);
 			
 				if (code != null)
 				{
-					urlParameters.append("\", \"code\": \"");
-					urlParameters.append(code);
-					urlParameters.append("\", \"grant_type\": \"authorization_code\"}");
+					urlParamsObj.addProperty("code", code);
+					urlParamsObj.addProperty("grant_type", "authorization_code");
 				}
 				else
 				{
-					urlParameters.append("\", \"refresh_token\": \"");
-					urlParameters.append(refreshToken);
-					urlParameters.append("\", \"grant_type\": \"refresh_token\"}");
+					urlParamsObj.addProperty("refresh_token", refreshToken);
+					urlParamsObj.addProperty("grant_type", "refresh_token");
 					jsonResponse = true;
 				}
+
+				urlParameters.append(urlParamsObj.toString());
 			}
 			
 			// Send post request
@@ -567,7 +590,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 			{
 				response.status = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 				e.printStackTrace();
-				System.err.println(details);
 				log.log(Level.SEVERE, "AUTH-SERVLET: [" + authSrvUrl+ "] ERROR: " + e.getMessage() + " -> " + details.toString());
 			}
 			

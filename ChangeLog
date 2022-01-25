@@ -1,3 +1,22 @@
+25-JAN-2022: 16.4.7
+
+- Improves output validation of AbsAuthServlet [DND-371]
+- Improves redirect url validation [DND-370]
+- Changes child-src from none to self
+- Fixes two windows with disabled start screen https://github.com/jgraph/drawio-desktop/issues/883
+- Fixes handling of hidden stroke in RoughCanvas
+- Fixes order and start point for circle layout
+- Removes tags and layers icon in sketch footer
+- [conf cloud] Replaces deprecated dialog.on('close', ...)
+- [conf cloud] Forces sketch mode even when config sets ui
+- Improves connection points dialog
+
+24-JAN-2022: 16.4.6
+
+- Fixes border for waypoint shape with sketch style
+- [conf cloud] Added support for "new line" in page name in PageIds Export
+- Fixes configurations not saving https://github.com/jgraph/drawio-desktop/issues/873
+
 21-JAN-2022: 16.4.5
 
 - Corrects SHA for bootstrap

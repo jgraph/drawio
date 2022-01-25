@@ -913,11 +913,12 @@
 			
 			if (stroke)
 			{
-				style.stroke = this.canvas.state.strokeColor === 'none' ? 'transparent' : this.canvas.state.strokeColor;
+				style.stroke = this.canvas.state.strokeColor === mxConstants.NONE ?
+					'transparent' : this.canvas.state.strokeColor;
 			}
 			else
 			{
-				style.stroke = 'none';
+				style.stroke = mxConstants.NONE;
 			}
 			
 			var gradient = null;
@@ -925,8 +926,10 @@
 			
 			if (fill)
 			{
-				style.fill = this.canvas.state.fillColor === 'none' ? '' : this.canvas.state.fillColor;
-				gradient = this.canvas.state.gradientColor === 'none' ? null : this.canvas.state.gradientColor;
+				style.fill = this.canvas.state.fillColor === mxConstants.NONE ?
+					'' : this.canvas.state.fillColor;
+				gradient = this.canvas.state.gradientColor === mxConstants.NONE ?
+					null : this.canvas.state.gradientColor;
 			}
 			else
 			{
@@ -1176,7 +1179,8 @@
 					this.nextShape.options[key] = style[key];
 				}
 				
-				if (style['stroke'] == null)
+				if (style['stroke'] == mxConstants.NONE ||
+					style['stroke'] == null)
 				{
 					delete this.nextShape.options['stroke'];
 				}
@@ -1257,9 +1261,8 @@
 		var shapeCreateHandJiggle = mxShape.prototype.createHandJiggle;
 		mxShape.prototype.createHandJiggle = function(c)
 		{
-			if (!this.outline && this.style != null && mxUtils.getValue(this.style,
-					'sketch', /*(urlParams['sketch'] != '1' && urlParams['rough'] == '1') ?
-						'1' : */'0') != '0')
+			if (!this.outline && this.style != null &&
+				mxUtils.getValue(this.style, 'sketch', '0') != '0')
 			{
 				if (mxUtils.getValue(this.style, 'sketchStyle', 'rough') == 'comic')
 				{

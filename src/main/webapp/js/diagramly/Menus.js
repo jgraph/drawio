@@ -1091,7 +1091,7 @@
 
 				var pluginsAction = editorUi.actions.get('plugins');
 
-				if (pluginsAction != null)
+				if (pluginsAction != null && urlParams['sketch'] == '1')
 				{
 					// TODO: Show change message only when plugins have changed
 					buttons.push([mxResources.get('plugins'), pluginsAction.funct]);
@@ -1138,7 +1138,7 @@
 								mxSettings.save();
 							}
 							
-							if (newValue != value)
+							if (newValue == value)
 							{
 								editorUi.hideDialog();
 							}
@@ -1155,8 +1155,8 @@
 									localStorage.removeItem(Editor.configurationKey);
 								}
 
-								editorUi.alert(mxResources.get('restartForChangeRequired'));
 								editorUi.hideDialog();
+								editorUi.alert(mxResources.get('restartForChangeRequired'));
 							}
 						}
 						catch (e)

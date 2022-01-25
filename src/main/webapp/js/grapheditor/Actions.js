@@ -1852,14 +1852,17 @@ Actions.prototype.init = function()
 	action.setToggleAction(true);
 	action.setSelectedCallback(mxUtils.bind(this, function() { return this.outlineWindow != null && this.outlineWindow.window.isVisible(); }));
 
-	this.addAction('connectionPoints...', function()
+	this.addAction('editConnectionPoints...', function()
 	{
 		var cell = graph.getSelectionCell();
 
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) && cell != null)
 		{
 			var dlg = new ConnectionPointsDialog(ui, cell);
-	    	ui.showDialog(dlg.container, 300, 390, true, true);
+	    	ui.showDialog(dlg.container, 350, 450, true, true, function() 
+			{
+				dlg.destroy();
+			});
 			dlg.init();
 		}
 	}).isEnabled = isGraphEnabled;

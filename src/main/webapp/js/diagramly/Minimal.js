@@ -2528,22 +2528,6 @@ EditorUi.initMinimalTheme = function()
 				undoAction.addListener('stateChanged', undoListener);
 				redoAction.addListener('stateChanged', undoListener);
 				undoListener();
-
-				if (urlParams['layers'] != null)
-				{
-					var layersAction = ui.actions.get('layers');
-					var layersElt = addMenuItem('', layersAction.funct, null, mxResources.get('layers'), layersAction, Editor.layersImage);
-					layersElt.style.opacity = '0.4';
-					footer.appendChild(layersElt);
-				}
-				
-				if (urlParams['tags'] != null)
-				{
-					var tagsAction = ui.actions.get('tags');
-					var tagsElt = addMenuItem('', tagsAction.funct, null, mxResources.get('tags'), tagsAction, Editor.tagsImage);
-					tagsElt.style.opacity = '0.4';
-					footer.appendChild(tagsElt);
-				}
 				
 				var pageMenu = this.createPageMenuTab(false, true);
 				pageMenu.style.display = 'none';

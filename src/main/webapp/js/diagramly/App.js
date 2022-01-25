@@ -635,7 +635,8 @@ App.main = function(callback, createUi)
 	if (window.mxscript != null)
 	{
 		// Checks for script content changes to avoid CSP errors in production
-		if (urlParams['dev'] == '1' && CryptoJS != null && App.mode != App.MODE_DROPBOX && App.mode != App.MODE_TRELLO)
+		if (urlParams['dev'] == '1' && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+			CryptoJS != null && App.mode != App.MODE_DROPBOX && App.mode != App.MODE_TRELLO)
 		{
 			var scripts = document.getElementsByTagName('script');
 			
@@ -3297,7 +3298,7 @@ App.prototype.start = function()
 							{
 								this.loadFile();
 							}
-							else
+							else if (!EditorUi.isElectronApp)
 							{
 								this.createFile(this.defaultFilename, this.getFileData(), null, null, null, null, null, true);
 							}

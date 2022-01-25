@@ -1598,10 +1598,7 @@ Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 		this.addMenuItem(menu, 'crop', parent, evt);
 	}
 
-	if (urlParams['dev'] == '1')
-	{
-		this.addMenuItem(menu, 'connectionPoints', parent, evt);
-	}
+	this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
 };
  
 /**
