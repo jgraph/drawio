@@ -1859,7 +1859,7 @@ Actions.prototype.init = function()
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()) && cell != null)
 		{
 			var dlg = new ConnectionPointsDialog(ui, cell);
-	    	ui.showDialog(dlg.container, 350, 450, true, true, function() 
+	    	ui.showDialog(dlg.container, 350, 450, true, false, function() 
 			{
 				dlg.destroy();
 			});

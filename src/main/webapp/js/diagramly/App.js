@@ -4618,17 +4618,24 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 					onload(xml);
 				}, onerror, filterFn);
 			}
-			else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
+			else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
 			{
-				// Asynchronous parsing via server
-				this.parseFileData(data, mxUtils.bind(this, function(xhr)
+				if (this.isOffline())
 				{
-					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
-						xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					this.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
+				}
+				else
+				{
+					// Asynchronous parsing via server
+					this.parseFileData(data, mxUtils.bind(this, function(xhr)
 					{
-						onload(xhr.responseText);
-					}
-				}), url);
+						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
+							xhr.responseText.substring(0, 13) == '<mxGraphModel')
+						{
+							onload(xhr.responseText);
+						}
+					}), url);
+				}
 			}
 			else if (this.isLucidChartData(data))
 			{

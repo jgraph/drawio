@@ -9799,23 +9799,31 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
 				}));
 			}
-			else if (file != null && !editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
+			else if (file != null && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
 			{
-				editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
+				if (editorUi.isOffline())
 				{
-					if (xhr.readyState == 4)
+					editorUi.spinner.stop();
+					editorUi.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+				}
+				else
+				{
+					editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
 					{
-						editorUi.spinner.stop();
-	    				
-	    				if (xhr.status >= 200 && xhr.status <= 299)
+						if (xhr.readyState == 4)
 						{
-							var xml = xhr.responseText;
-							addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
-				    			null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
-							div.scrollTop = div.scrollHeight;
+							editorUi.spinner.stop();
+							
+							if (xhr.status >= 200 && xhr.status <= 299)
+							{
+								var xml = xhr.responseText;
+								addButton(xml, mimeType, x, y, w, h, img, 'fixed', (mxEvent.isAltDown(evt)) ?
+									null : img.substring(0, img.lastIndexOf('.')).replace(/_/g, ' '));
+								div.scrollTop = div.scrollHeight;
+							}
 						}
-					}
-				}));
+					}));
+				}
 			}
 			else
 			{
@@ -12739,17 +12747,33 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			var cPoint = new mxCell('', new mxGeometry(x, y, CP_SIZE, CP_SIZE), cPointStyle);
 			cPoint.vertex = true;
 			cPoint.cp = true;
-			editingGraph.addCell(cPoint);
+
+			return editingGraph.addCell(cPoint);
 		};
 	
+		//Add cell and current connection points on it
+		var geo = cell.geometry;
+		var mainCell = new mxCell(cell.value, new mxGeometry(0, 0, geo.width, geo.height),
+							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;');
+		mainCell.vertex = true;
+		editingGraph.addCell(mainCell);
+
 		//Adding a point via double click
 		editingGraph.dblClick = function(evt, cell)
 		{
-			var pt = mxUtils.convertPoint(editingGraph.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
-			mxEvent.consume(evt);
-			var scale = editingGraph.view.scale;
-			var tr = editingGraph.view.translate;
-			createCPoint((pt.x - CP_HLF_SIZE * scale) / scale - tr.x, (pt.y - CP_HLF_SIZE * scale) / scale - tr.y);
+			if (cell != null && cell != mainCell)
+			{
+				editingGraph.setSelectionCell(cell);
+			}
+			else
+			{
+				var pt = mxUtils.convertPoint(editingGraph.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+				mxEvent.consume(evt);
+				var scale = editingGraph.view.scale;
+				var tr = editingGraph.view.translate;
+				editingGraph.setSelectionCell(createCPoint((pt.x - CP_HLF_SIZE * scale) / scale - tr.x,
+					(pt.y - CP_HLF_SIZE * scale) / scale - tr.y));
+			}
 		}
 
 		keyHandler = new mxKeyHandler(editingGraph);
@@ -12763,12 +12787,6 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		keyHandler.bindKey(46, removeCPoints);
 		keyHandler.bindKey(8, removeCPoints);
 
-		//Add cell and current connection points on it
-		var geo = cell.geometry;
-		var mainCell = new mxCell('', new mxGeometry(0, 0, geo.width, geo.height),
-							cell.style + ';rotatable=0;resizable=0;connectable=0;editable=0;movable=0;');
-		mainCell.vertex = true;
-		editingGraph.addCell(mainCell);
 		//Force rubberband inside the cell
 		editingGraph.getRubberband().isForceRubberbandEvent = function(event)
 		{
@@ -12819,10 +12837,12 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 		zoomInBtn.className = 'geSprite geSprite-zoomin';
 		zoomInBtn.setAttribute('title', mxResources.get('zoomIn'));
+		zoomInBtn.style.position = 'relative';
 		zoomInBtn.style.outline = 'none';
 		zoomInBtn.style.border = 'none';
 		zoomInBtn.style.margin = '2px';
 		zoomInBtn.style.cursor = 'pointer';
+		zoomInBtn.style.top = (mxClient.IS_FF) ? '-6px' : '0px';
 		mxUtils.setOpacity(zoomInBtn, 60);
 		
 		var zoomOutBtn = mxUtils.button('', function()
@@ -12831,10 +12851,12 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 		zoomOutBtn.className = 'geSprite geSprite-zoomout';
 		zoomOutBtn.setAttribute('title', mxResources.get('zoomOut'));
+		zoomOutBtn.style.position = 'relative';
 		zoomOutBtn.style.outline = 'none';
 		zoomOutBtn.style.border = 'none';
 		zoomOutBtn.style.margin = '2px';
 		zoomOutBtn.style.cursor = 'pointer';
+		zoomOutBtn.style.top = (mxClient.IS_FF) ? '-6px' : '0px';
 		mxUtils.setOpacity(zoomOutBtn, 60);
 
 		var zoomFitBtn = mxUtils.button('', function()
@@ -12844,10 +12866,12 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 		zoomFitBtn.className = 'geSprite geSprite-fit';
 		zoomFitBtn.setAttribute('title', mxResources.get('fit'));
+		zoomFitBtn.style.position = 'relative';
 		zoomFitBtn.style.outline = 'none';
 		zoomFitBtn.style.border = 'none';
 		zoomFitBtn.style.margin = '2px';
 		zoomFitBtn.style.cursor = 'pointer';
+		zoomFitBtn.style.top = (mxClient.IS_FF) ? '-6px' : '0px';
 		mxUtils.setOpacity(zoomFitBtn, 60);
 		
 		var zoomActualBtn = mxUtils.button('', function()
@@ -12857,15 +12881,18 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		});
 		zoomActualBtn.className = 'geSprite geSprite-actualsize';
 		zoomActualBtn.setAttribute('title', mxResources.get('actualSize'));
+		zoomActualBtn.style.position = 'relative';
 		zoomActualBtn.style.outline = 'none';
 		zoomActualBtn.style.border = 'none';
 		zoomActualBtn.style.margin = '2px';
 		zoomActualBtn.style.cursor = 'pointer';
+		zoomActualBtn.style.top = (mxClient.IS_FF) ? '-6px' : '0px';
 		mxUtils.setOpacity(zoomActualBtn, 60);
 
 		var deleteBtn = mxUtils.button('', removeCPoints);
 		deleteBtn.className = 'geSprite geSprite-delete';
 		deleteBtn.setAttribute('title', mxResources.get('delete'));
+		deleteBtn.style.position = 'relative';
 		deleteBtn.style.outline = 'none';
 		deleteBtn.style.border = 'none';
 		deleteBtn.style.margin = '2px';
@@ -12882,24 +12909,19 @@ var ConnectionPointsDialog = function(editorUi, cell)
 
 		div.appendChild(zoomBtns);
 
-		//Auto add point to a side
-		var autoAddDiv = document.createElement('div');
-		autoAddDiv.style.marginTop = '8px';
-		var addSpan = document.createElement('span');
-		mxUtils.write(addSpan, mxResources.get('add'));
-		autoAddDiv.appendChild(addSpan);
 		var pCount = document.createElement('input');
 		pCount.setAttribute('type', 'number');
 		pCount.setAttribute('min', '1');
 		pCount.setAttribute('value', '1');
 		pCount.style.width = '45px';
+		pCount.style.position = 'relative';
+		pCount.style.top = (mxClient.IS_FF) ? '0px' : '-4px';
 		pCount.style.margin = '0 4px 0 4px';
-		autoAddDiv.appendChild(pCount);
-		var pointsSpan = document.createElement('span');
-		mxUtils.write(pointsSpan, mxResources.get('points') + '->');
-		autoAddDiv.appendChild(pointsSpan);
+		zoomBtns.appendChild(pCount);
+
 		var sideSelect = document.createElement('select');
-		sideSelect.style.margin = '0 4px 0 4px';
+		sideSelect.style.position = 'relative';
+		sideSelect.style.top = (mxClient.IS_FF) ? '0px' : '-4px';
 		var sides = ['left', 'right', 'top', 'bottom'];
 
 		for (var i = 0; i < sides.length; i++)
@@ -12911,7 +12933,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			sideSelect.appendChild(option);
 		}
 
-		autoAddDiv.appendChild(sideSelect);
+		zoomBtns.appendChild(sideSelect);
 
 		var addBtn = mxUtils.button(mxResources.get('add'), function()
 		{
@@ -12920,6 +12942,7 @@ var ConnectionPointsDialog = function(editorUi, cell)
 			pCount.value = count;
 			var side = sideSelect.value;
 			var geo = mainCell.geometry;
+			var cells = [];
 
 			for (var i = 0; i < count; i++)
 			{
@@ -12945,19 +12968,24 @@ var ConnectionPointsDialog = function(editorUi, cell)
 						break;
 				}
 
-				createCPoint(x - CP_HLF_SIZE, y - CP_HLF_SIZE);
+				cells.push(createCPoint(x - CP_HLF_SIZE, y - CP_HLF_SIZE));
 			}
+
+			editingGraph.setSelectionCells(cells);
 		});
-		
-		autoAddDiv.appendChild(addBtn);
-		div.appendChild(autoAddDiv);
+
+		addBtn.style.position = 'relative';
+		addBtn.style.marginLeft = '8px';
+		addBtn.style.top = (mxClient.IS_FF) ? '0px' : '-4px';
+		zoomBtns.appendChild(addBtn);
 		
 		//Point properties
 		var pointPropsDiv = document.createElement('div');
-		pointPropsDiv.style.marginTop = '8px';
-		pointPropsDiv.style.display = 'none';
+		pointPropsDiv.style.margin = '4px 0px 8px 0px';
+		pointPropsDiv.style.whiteSpace = 'nowrap';
+		pointPropsDiv.style.height = '24px';
 		var xSpan = document.createElement('span');
-		mxUtils.write(xSpan, 'x');
+		mxUtils.write(xSpan, mxResources.get('dx'));
 		pointPropsDiv.appendChild(xSpan);
 		var xInput = document.createElement('input');
 		xInput.setAttribute('type', 'number');
@@ -12966,11 +12994,18 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		xInput.style.width = '45px';
 		xInput.style.margin = '0 4px 0 4px';
 		pointPropsDiv.appendChild(xInput);
-		var perSpan = document.createElement('span');
-		mxUtils.write(perSpan, '%, ');
-		pointPropsDiv.appendChild(perSpan);
+		mxUtils.write(pointPropsDiv, '%');
+
+		var dxInput = document.createElement('input');
+		dxInput.setAttribute('type', 'number');
+		dxInput.style.width = '45px';
+		dxInput.style.margin = '0 4px 0 4px';
+		pointPropsDiv.appendChild(dxInput);
+		mxUtils.write(pointPropsDiv, 'pt');
+
 		var ySpan = document.createElement('span');
-		mxUtils.write(ySpan, 'y');
+		mxUtils.write(ySpan, mxResources.get('dy'));
+		ySpan.style.marginLeft = '12px';
 		pointPropsDiv.appendChild(ySpan);
 		var yInput = document.createElement('input');
 		yInput.setAttribute('type', 'number');
@@ -12979,25 +13014,14 @@ var ConnectionPointsDialog = function(editorUi, cell)
 		yInput.style.width = '45px';
 		yInput.style.margin = '0 4px 0 4px';
 		pointPropsDiv.appendChild(yInput);
-		perSpan = document.createElement('span');
-		mxUtils.write(perSpan, '% - ');
-		pointPropsDiv.appendChild(perSpan);
-		var dxSpan = document.createElement('span');
-		mxUtils.write(dxSpan, 'dx');
-		pointPropsDiv.appendChild(dxSpan);
-		var dxInput = document.createElement('input');
-		dxInput.setAttribute('type', 'number');
-		dxInput.style.width = '45px';
-		dxInput.style.margin = '0 4px 0 4px';
-		pointPropsDiv.appendChild(dxInput);
-		var dySpan = document.createElement('span');
-		mxUtils.write(dySpan, 'dy');
-		pointPropsDiv.appendChild(dySpan);
+		mxUtils.write(pointPropsDiv, '%');
+
 		var dyInput = document.createElement('input');
 		dyInput.setAttribute('type', 'number');
 		dyInput.style.width = '45px';
 		dyInput.style.margin = '0 4px 0 4px';
 		pointPropsDiv.appendChild(dyInput);
+		mxUtils.write(pointPropsDiv, 'pt');
 		div.appendChild(pointPropsDiv);
 
 		function applyPointProp()
@@ -13070,15 +13094,15 @@ var ConnectionPointsDialog = function(editorUi, cell)
 				yInput.value = constraint.y * 100;
 				dxInput.value = constraint.dx;
 				dyInput.value = constraint.dy;
-				pointPropsDiv.style.display = '';
-				autoAddDiv.style.display = 'none';
+				pointPropsDiv.style.visibility = '';
 			}
 			else
 			{
-				pointPropsDiv.style.display = 'none';
-				autoAddDiv.style.display = '';
+				pointPropsDiv.style.visibility = 'hidden';
 			}
 		};
+
+		fillCPointProp();
 
 		editingGraph.getSelectionModel().addListener(mxEvent.CHANGE, function()
 		{

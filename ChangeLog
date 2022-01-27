@@ -1,3 +1,15 @@
+27-JAN-2022: 16.4.8
+
+- [desktop] Fixes draft files removal when auto-save is enabled
+- Edit connection points dialog can now only be closed via the dialog button
+- [conf cloud] Disables editing if confluence page is opened inside another service (e.g, Jira project pages)
+- Shows label in edit connection points dialog https://github.com/jgraph/drawio/issues/864
+- Fixes touch event handling on Android https://github.com/jgraph/drawio/issues/2579
+- [desktop] Sets offline and offlineApp true
+- [desktop] Display meaningful error when content is imported that requires server
+	https://github.com/jgraph/drawio/issues/2117
+- Fixes drag from picker for Chrome on touch devices
+
 25-JAN-2022: 16.4.7
 
 - Improves output validation of AbsAuthServlet [DND-371]

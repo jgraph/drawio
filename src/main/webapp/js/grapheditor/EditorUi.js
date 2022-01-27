@@ -3247,12 +3247,17 @@ EditorUi.prototype.initCanvas = function()
 
 						// Slower zoom for pinch gesture on trackpad with max delta to
 						// filter out mouse wheel events in Brave browser for Windows 
-						if (evt.deltaY != null && Math.abs(evt.deltaY) < 40 &&
+						if (evt.ctrlKey && evt.deltaY != null && Math.abs(evt.deltaY) < 40 &&
 							Math.round(evt.deltaY) != evt.deltaY)
 						{
 							factor = 1 + (Math.abs(evt.deltaY) / 20) * (factor - 1);
 						}
-
+						// Slower zoom for pinch gesture on touch screens
+						else if (evt.movementY != null && evt.type == 'pointermove')
+						{
+							factor = 1 + (Math.max(1, Math.abs(evt.movementY)) / 20) * (factor - 1);
+						}
+						
 						graph.lazyZoom(up, null, null, factor);
 						mxEvent.consume(evt);
 				

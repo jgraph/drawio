@@ -3524,26 +3524,34 @@
 										doImport(xml, 'text/xml');
 									}, null, img);
 								}
-								else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
+								else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
 								{
-									this.parseFile(file, mxUtils.bind(this, function(xhr)
+									if (this.isOffline())
 									{
-										if (xhr.readyState == 4)
+										this.spinner.stop();
+										this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+									}
+									else
+									{
+										this.parseFile(file, mxUtils.bind(this, function(xhr)
 										{
-											this.spinner.stop();
-											
-											if (xhr.status >= 200 && xhr.status <= 299)
+											if (xhr.readyState == 4)
 											{
-												doImport(xhr.responseText, 'text/xml');
+												this.spinner.stop();
+												
+												if (xhr.status >= 200 && xhr.status <= 299)
+												{
+													doImport(xhr.responseText, 'text/xml');
+												}
+												else
+												{
+													this.handleError({message: mxResources.get((xhr.status == 413) ?
+														'drawingTooLarge' : 'invalidOrMissingFile')},
+														mxResources.get('errorLoadingFile'));
+												}
 											}
-											else
-											{
-												this.handleError({message: mxResources.get((xhr.status == 413) ?
-				            						'drawingTooLarge' : 'invalidOrMissingFile')},
-				            						mxResources.get('errorLoadingFile'));
-											}
-										}
-									}));
+										}));
+									}
 								}
 								else
 								{
@@ -7932,18 +7940,25 @@
 		// Handles special case for Gliffy data which requires async server-side for parsing
 		if (text != null)
 		{
-			if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
+			if (Graph.fileSupport && new XMLHttpRequest().upload && this.isRemoteFileFormat(text))
 			{
-				// Fixes possible parsing problems with ASCII 160 (non-breaking space)
-				this.parseFileData(text.replace(/\s+/g,' '), mxUtils.bind(this, function(xhr)
+				if (this.isOffline())
 				{
-					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
+					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+				}
+				else
+				{
+					// Fixes possible parsing problems with ASCII 160 (non-breaking space)
+					this.parseFileData(text.replace(/\s+/g,' '), mxUtils.bind(this, function(xhr)
 					{
-						this.editor.graph.setSelectionCells(this.insertTextAt(
-							xhr.responseText, dx, dy, true));
-					}
-				}));
-				
+						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299)
+						{
+							this.editor.graph.setSelectionCells(this.insertTextAt(
+								xhr.responseText, dx, dy, true));
+						}
+					}));
+				}
+
 				// Returns empty cells array as it is aysynchronous
 				return [];
 			}
@@ -8359,22 +8374,29 @@
 		            	{
 		                	gliffyLatestVer.zipEntry.async("string").then(function(data)
 		                	{
-		                		if (!ui.isOffline() && new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
+		                		if (new XMLHttpRequest().upload && ui.isRemoteFileFormat(data, file.name))
 		                		{
-		                			ui.parseFileData(data, mxUtils.bind(this, function(xhr)
-		                			{
-		                				if (xhr.readyState == 4)
-		                				{
-		                					if (xhr.status >= 200 && xhr.status <= 299)
-		                					{
-		                						success(xhr.responseText);
-		                					}
-		                					else
-		                					{
-		                						onerror();
-		                					}
-		                				}
-		                			}), file.name);
+									if (ui.isOffline())
+									{
+										ui.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
+									}
+									else
+									{
+										ui.parseFileData(data, mxUtils.bind(this, function(xhr)
+										{
+											if (xhr.readyState == 4)
+											{
+												if (xhr.status >= 200 && xhr.status <= 299)
+												{
+													success(xhr.responseText);
+												}
+												else
+												{
+													onerror();
+												}
+											}
+										}), file.name);
+									}
 		                		}
 		                		else
 		            			{
@@ -8490,34 +8512,41 @@
 
 			this.importVisio(file, handleResult);
 		}
-		else if (!this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filename))
+		else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filename))
 		{
-			//  LATER: done and async are a hack before making this asynchronous
-			async = true;
-
-			// Returns empty cells array as it is aysynchronous
-			var parseCallback = mxUtils.bind(this, function(xhr)
+			if (this.isOffline())
 			{
-				if (xhr.readyState == 4)
-				{
-					if (xhr.status >= 200 && xhr.status <= 299)
-					{
-						handleResult(xhr.responseText);
-					}
-					else if (done != null)
-					{
-						done(null);
-					}
-				}
-			});
-
-			if (data != null)
-			{
-				this.parseFileData(data, parseCallback, filename);
+				this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
 			}
 			else
 			{
-				this.parseFile(file, parseCallback, filename);
+				//  LATER: done and async are a hack before making this asynchronous
+				async = true;
+
+				// Returns empty cells array as it is aysynchronous
+				var parseCallback = mxUtils.bind(this, function(xhr)
+				{
+					if (xhr.readyState == 4)
+					{
+						if (xhr.status >= 200 && xhr.status <= 299)
+						{
+							handleResult(xhr.responseText);
+						}
+						else if (done != null)
+						{
+							done(null);
+						}
+					}
+				});
+
+				if (data != null)
+				{
+					this.parseFileData(data, parseCallback, filename);
+				}
+				else
+				{
+					this.parseFile(file, parseCallback, filename);
+				}
 			}
 		}
 		else if (data.indexOf('PK') == 0 && file != null)
@@ -11201,15 +11230,22 @@
 												this.openLocalFile(xml, null, true);
 											}
 										}
-										else if (!this.isOffline() && this.isRemoteFileFormat(data))
+										else if (this.isRemoteFileFormat(data))
 										{
-								    		new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
+											if (this.isOffline())
 											{
-								    			if (req.getStatus() >= 200 && req.getStatus() <= 299)
-								    			{
-								    				this.openLocalFile(req.getText(), null, true);
-								    			}
-											}));
+												this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+											}
+											else
+											{
+												new mxXmlRequest(OPEN_URL, 'format=xml&data=' + encodeURIComponent(data)).send(mxUtils.bind(this, function(req)
+												{
+													if (req.getStatus() >= 200 && req.getStatus() <= 299)
+													{
+														this.openLocalFile(req.getText(), null, true);
+													}
+												}));
+											}
 										}
 										else if (/^https?:\/\//.test(data))
 										{
@@ -11383,27 +11419,35 @@
 					handleResult(xml);
 				}));
 			}
-			else if (Graph.fileSupport && !this.isOffline() && new XMLHttpRequest().upload &&
+			else if (Graph.fileSupport && !new XMLHttpRequest().upload &&
 				this.isRemoteFileFormat(data, name))
 			{
-				this.parseFile(file, mxUtils.bind(this, function(xhr)
+				if (this.isOffline())
 				{
-					if (xhr.readyState == 4)
+					this.spinner.stop();
+					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+				}
+				else
+				{
+					this.parseFile(file, mxUtils.bind(this, function(xhr)
 					{
-						this.spinner.stop();
-						
-						if (xhr.status >= 200 && xhr.status <= 299)
+						if (xhr.readyState == 4)
 						{
-							handleResult(xhr.responseText);
+							this.spinner.stop();
+							
+							if (xhr.status >= 200 && xhr.status <= 299)
+							{
+								handleResult(xhr.responseText);
+							}
+							else
+							{
+								this.handleError({message: mxResources.get((xhr.status == 413) ?
+									'drawingTooLarge' : 'invalidOrMissingFile')},
+									mxResources.get('errorLoadingFile'));
+							}
 						}
-						else
-						{
-							this.handleError({message: mxResources.get((xhr.status == 413) ?
-        						'drawingTooLarge' : 'invalidOrMissingFile')},
-        						mxResources.get('errorLoadingFile'));
-						}
-					}
-				}));
+					}));
+				}
 			}
 			else if (this.isLucidChartData(data))
 			{
@@ -12843,17 +12887,24 @@
 					this.handleError(e);
 				}), filename);
 			}
-			else if (data != null && typeof data.substring === 'function' && !this.isOffline() && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
+			else if (data != null && typeof data.substring === 'function' && new XMLHttpRequest().upload && this.isRemoteFileFormat(data, ''))
 			{
-				// Asynchronous parsing via server
-				this.parseFileData(data, mxUtils.bind(this, function(xhr)
+				if (this.isOffline())
 				{
-					if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
-						xhr.responseText.substring(0, 13) == '<mxGraphModel')
+					this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
+				}
+				else
+				{
+					// Asynchronous parsing via server
+					this.parseFileData(data, mxUtils.bind(this, function(xhr)
 					{
-						doLoad(xhr.responseText, evt);
-					}
-				}), '');
+						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
+							xhr.responseText.substring(0, 13) == '<mxGraphModel')
+						{
+							doLoad(xhr.responseText, evt);
+						}
+					}), '');
+				}
 			}
 			else if (data != null && typeof data.substring === 'function' && this.isLucidChartData(data))
 			{

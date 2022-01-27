@@ -2649,6 +2649,12 @@ EditorUi.initMinimalTheme = function()
 				picker.style.cssText = 'position:absolute;left:10px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px 6px 4px 6px;white-space:nowrap;' +
 					'transform:translate(0, -50%);top:50%;user-select:none;';
+
+				if (mxClient.IS_POINTER)
+				{
+					picker.style.touchAction = 'none';
+				}
+
 				wrapper.appendChild(picker);
 				
 				window.setTimeout(function()

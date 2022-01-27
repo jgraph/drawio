@@ -37,6 +37,17 @@ mxStencilRegistry.allowEval = false;
 	// Overrides default mode
 	App.mode = App.MODE_DEVICE;
 	
+	// Disables all online functionality
+	App.prototype.isOfflineApp = function()
+	{
+		return true;
+	};
+	
+	App.prototype.isOffline = function()
+	{
+		return true;
+	};
+	
 	// Disables preview option in embed dialog
 	EmbedDialog.showPreviewOption = false;
 
@@ -341,21 +352,10 @@ mxStencilRegistry.allowEval = false;
 										graph.setSelectionCells(editorUi.importXml(xml));
 									});
 								}
-								else if (!editorUi.isOffline() && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, path))
+								else if (editorUi.isRemoteFileFormat(data, path))
 								{
-									// Asynchronous parsing via server
-									editorUi.parseFileData(data, mxUtils.bind(this, function(xhr)
-									{
-										if (xhr.readyState == 4)
-										{
-											editorUi.spinner.stop();
-											
-											if (xhr.status >= 200 && xhr.status <= 299)
-											{
-												graph.setSelectionCells(editorUi.importXml(xhr.responseText));
-											}
-										}
-									}), path);
+									editorUi.spinner.stop();
+									editorUi.showError(mxResources.get('error'), mxResources.get('notInDesktop'));
 								}
 								else
 								{
@@ -724,6 +724,9 @@ mxStencilRegistry.allowEval = false;
 
 		//We do some async stuff during app loading so we need to know exactly when loading is finished (it is not when onload is finished)
 		electron.sendMessage('app-load-finished', null);
+
+		//Change offline translation
+		mxResources.parse('notInOffline=' + mxResources.get('notInDesktop'));
 	}
 	
 	App.prototype.loadArgs = function(argsObj)
@@ -1276,12 +1279,23 @@ mxStencilRegistry.allowEval = false;
 	
 	// Restores default implementation of open with autosave
 	LocalFile.prototype.open = DrawioFile.prototype.open;
-	
+	var autoSaveEnabled = false;
+
 	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 	{
 		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
 		{
-			this.saveFile(revision, success, error, unloading, overwrite);
+			this.saveFile(revision, mxUtils.bind(this, function() 
+			{
+				//Only for first save after auto save is enabled (excluding the save as [overwrite]) 
+				if (autoSaveEnabled && !overwrite && EditorUi.enableDrafts)
+				{
+					this.removeDraft();
+				}
+
+				autoSaveEnabled = false;
+				success.apply(this, arguments);
+			}), error, unloading, overwrite);
 		}), error, unloading, overwrite]);
 	};
 
@@ -2030,6 +2044,14 @@ mxStencilRegistry.allowEval = false;
 		});
 	};
 		
+	var origSetAutosave = Editor.prototype.setAutosave;
+
+	Editor.prototype.setAutosave = function(value)
+	{
+		autoSaveEnabled = value;
+		return origSetAutosave.apply(this, arguments);
+	}
+
 	//Export Dialog Pdf case
 	var origExportFile = ExportDialog.exportFile;
 	
