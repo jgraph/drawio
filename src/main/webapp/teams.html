@@ -43,7 +43,7 @@
 			
 			for (var i = 0; i < params.length; i++)
 			{
-				idx = params[i].indexOf('=');
+				var idx = params[i].indexOf('=');
 				
 				if (idx > 0)
 				{
@@ -262,6 +262,8 @@
 				mxForceIncludes = true;
 			}
 
+			mxForceIncludes = false;
+
 			mxscript(drawDevUrl + 'js/PreConfig.js');
 			mxscript(drawDevUrl + 'js/diagramly/Init.js');
 			mxscript(geBasePath + '/Init.js');
@@ -290,7 +292,6 @@
 				// Supported domains are *.draw.io and the packaged version in Quip
 				var supportedDomain = (hostName.substring(hostName.length - 8, hostName.length) === '.draw.io') ||
 					(hostName.substring(hostName.length - 13, hostName.length) === '.diagrams.net');
-					(hostName.substring(hostName.length - 17, hostName.length) === '.quipelements.com');
 				
 				function loadAppJS()
 				{
@@ -298,11 +299,6 @@
 					{
 						mxScriptsLoaded = true;
 						checkAllLoaded();
-						
-						if (!supportedDomain)
-						{
-							mxscript('js/PostConfig.js');
-						}
 						
 						// Electron
 						if (mxIsElectron)
@@ -323,6 +319,10 @@
 									});
 								});
 							});
+						}
+						else if (!supportedDomain)
+						{
+							mxscript('js/PostConfig.js');
 						}
 					});
 				};
@@ -354,7 +354,6 @@
 	<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
 	<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
 	<link rel="mask-icon" href="images/safari-pinned-tab.svg" color="#d89000">
-	<link rel="stylesheet" type="text/css" href="js/croppie/croppie.min.css">
     <link rel="stylesheet" type="text/css" href="styles/grapheditor.css">
     <link rel="preconnect" href="https://storage.googleapis.com">
     <link rel="canonical" href="https://app.diagrams.net">

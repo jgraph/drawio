@@ -1,3 +1,7 @@
+27-JAN-2022: 16.4.11
+
+- Fixes build process to deploy teams.html
+
 27-JAN-2022: 16.4.8
 
 - [desktop] Fixes draft files removal when auto-save is enabled

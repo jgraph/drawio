@@ -2414,10 +2414,6 @@ EditorUi.initMinimalTheme = function()
 					elt.style.margin = '0px';
 					elt.style.width = '37px';
 					addElt(elt, null, 'pointer');
-
-
-
-					// addAction(ui.actions.get('insertTemplate'), mxResources.get('template'), Editor.addImage);
 				}
 
 				if (urlParams['embedInline'] != '1')

@@ -3000,98 +3000,101 @@ EditorUi.prototype.initCanvas = function()
 			window.clearTimeout(updateZoomTimeout);
 		}
 
-		window.setTimeout(function()
+		if (delay >= 0)
 		{
-			if (!graph.isMouseDown || forcedZoom)
+			window.setTimeout(function()
 			{
-				updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
-		        {
-		        	if (graph.isFastZoomEnabled())
-		    		{
-		            	// Transforms background page
-		  				if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
-		  				{
-		  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform-origin', null);
-		  					mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform', null);
-		  				}
-		  				
-		  				// Transforms graph and background image
-		  				mainGroup.style.transformOrigin = '';
-		  				bgGroup.style.transformOrigin = '';
-
-		  				// Workaround for no reset of transform in Safari
-		  				if (mxClient.IS_SF)
-		  				{
-			  				mainGroup.style.transform = 'scale(1)';
-			  				bgGroup.style.transform = 'scale(1)';
-			  				
-			  				window.setTimeout(function()
-	  						{
-			  					mainGroup.style.transform = '';
-	  							bgGroup.style.transform = '';
-	  						}, 0)
-		  				}
-		  				else
-		  				{
-			  				mainGroup.style.transform = '';
-			  				bgGroup.style.transform = '';
-		  				}
-		  				
-		            	// Shows interactive elements
-		            	graph.view.getDecoratorPane().style.opacity = '';
-		            	graph.view.getOverlayPane().style.opacity = '';
-		    		}
-		        	
-		        	var sp = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
-		            var offset = mxUtils.getOffset(graph.container);
-		        	var prev = graph.view.scale;
-		            var dx = 0;
-		            var dy = 0;
-		            
-		            if (cursorPosition != null)
-		            {
-		                dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
-		                dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
-		            }
-
-					graph.zoom(graph.cumulativeZoomFactor, null, 20);
-		            var s = graph.view.scale;
-		            
-		            if (s != prev)
-		            {
-			            if (scrollPosition != null)
-			            {
-			            	dx += sp.x - scrollPosition.x;
-			            	dy += sp.y - scrollPosition.y;
-			            }
-			            
-		                if (resize != null)
-		                {
-		                	ui.chromelessResize(false, null, dx * (graph.cumulativeZoomFactor - 1),
-		                		dy * (graph.cumulativeZoomFactor - 1));
-		                }
-		                
-		                if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))
-		                {
-		                    graph.container.scrollLeft -= dx * (graph.cumulativeZoomFactor - 1);
-		                    graph.container.scrollTop -= dy * (graph.cumulativeZoomFactor - 1);
-		                }
-		            }
-		            
-					if (filter != null)
+				if (!graph.isMouseDown || forcedZoom)
+				{
+					updateZoomTimeout = window.setTimeout(mxUtils.bind(this, function()
 					{
-						mainGroup.setAttribute('filter', filter);
-					}
-					
-		            graph.cumulativeZoomFactor = 1;
-		            updateZoomTimeout = null;
-		            scrollPosition = null;
-		            cursorPosition = null;
-		            forcedZoom = null;
-		            filter = null;
-		        }), (delay != null) ? delay : ((graph.isFastZoomEnabled()) ? ui.wheelZoomDelay : ui.lazyZoomDelay));
-			}
-		}, 0);
+						if (graph.isFastZoomEnabled())
+						{
+							// Transforms background page
+							if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
+							{
+								mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform-origin', null);
+								mxUtils.setPrefixedStyle(graph.view.backgroundPageShape.node.style, 'transform', null);
+							}
+							
+							// Transforms graph and background image
+							mainGroup.style.transformOrigin = '';
+							bgGroup.style.transformOrigin = '';
+
+							// Workaround for no reset of transform in Safari
+							if (mxClient.IS_SF)
+							{
+								mainGroup.style.transform = 'scale(1)';
+								bgGroup.style.transform = 'scale(1)';
+								
+								window.setTimeout(function()
+								{
+									mainGroup.style.transform = '';
+									bgGroup.style.transform = '';
+								}, 0)
+							}
+							else
+							{
+								mainGroup.style.transform = '';
+								bgGroup.style.transform = '';
+							}
+							
+							// Shows interactive elements
+							graph.view.getDecoratorPane().style.opacity = '';
+							graph.view.getOverlayPane().style.opacity = '';
+						}
+						
+						var sp = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
+						var offset = mxUtils.getOffset(graph.container);
+						var prev = graph.view.scale;
+						var dx = 0;
+						var dy = 0;
+						
+						if (cursorPosition != null)
+						{
+							dx = graph.container.offsetWidth / 2 - cursorPosition.x + offset.x;
+							dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
+						}
+
+						graph.zoom(graph.cumulativeZoomFactor, null, 20);
+						var s = graph.view.scale;
+						
+						if (s != prev)
+						{
+							if (scrollPosition != null)
+							{
+								dx += sp.x - scrollPosition.x;
+								dy += sp.y - scrollPosition.y;
+							}
+							
+							if (resize != null)
+							{
+								ui.chromelessResize(false, null, dx * (graph.cumulativeZoomFactor - 1),
+									dy * (graph.cumulativeZoomFactor - 1));
+							}
+							
+							if (mxUtils.hasScrollbars(graph.container) && (dx != 0 || dy != 0))
+							{
+								graph.container.scrollLeft -= dx * (graph.cumulativeZoomFactor - 1);
+								graph.container.scrollTop -= dy * (graph.cumulativeZoomFactor - 1);
+							}
+						}
+						
+						if (filter != null)
+						{
+							mainGroup.setAttribute('filter', filter);
+						}
+						
+						graph.cumulativeZoomFactor = 1;
+						updateZoomTimeout = null;
+						scrollPosition = null;
+						cursorPosition = null;
+						forcedZoom = null;
+						filter = null;
+					}), (delay != null) ? delay : ((graph.isFastZoomEnabled()) ? ui.wheelZoomDelay : ui.lazyZoomDelay));
+				}
+			}, 0);
+		}
 	};
 	
 	graph.lazyZoom = function(zoomIn, ignoreCursorPosition, delay, factor)
@@ -3244,6 +3247,7 @@ EditorUi.prototype.initCanvas = function()
 							new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
 						forcedZoom = force;
 						var factor = graph.zoomFactor;
+						var delay = null;
 
 						// Slower zoom for pinch gesture on trackpad with max delta to
 						// filter out mouse wheel events in Brave browser for Windows 
@@ -3256,9 +3260,10 @@ EditorUi.prototype.initCanvas = function()
 						else if (evt.movementY != null && evt.type == 'pointermove')
 						{
 							factor = 1 + (Math.max(1, Math.abs(evt.movementY)) / 20) * (factor - 1);
+							delay = -1;
 						}
 						
-						graph.lazyZoom(up, null, null, factor);
+						graph.lazyZoom(up, null, delay, factor);
 						mxEvent.consume(evt);
 				
 						return false;
