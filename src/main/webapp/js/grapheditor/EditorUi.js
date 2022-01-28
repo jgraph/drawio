@@ -961,7 +961,7 @@ EditorUi = function(editor, container, lightbox)
 	   	
 		// Workaround for bug on iOS see
 		// http://stackoverflow.com/questions/19012135/ios-7-ipad-safari-landscape-innerheight-outerheight-layout-issue
-		if (mxClient.IS_IOS && !window.navigator.standalone)
+		if (mxClient.IS_IOS && !window.navigator.standalone && typeof Menus !== 'undefined')
 		{
 			this.scrollHandler = mxUtils.bind(this, function()
 		   	{
@@ -4159,8 +4159,8 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	// http://stackoverflow.com/questions/19012135/ios-7-ipad-safari-landscape-innerheight-outerheight-layout-issue
 	// FIXME: Fix if footer visible
 	var off = 0;
-	
-	if (mxClient.IS_IOS && !window.navigator.standalone)
+
+	if (mxClient.IS_IOS && !window.navigator.standalone && typeof Menus !== 'undefined')
 	{
 		if (window.innerHeight != document.documentElement.clientHeight)
 		{
