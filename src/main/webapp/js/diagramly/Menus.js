@@ -946,7 +946,6 @@
 				this.tagsWindow.window.addListener('show', mxUtils.bind(this, function()
 				{
 					editorUi.fireEvent(new mxEventObject('tags'));
-					this.tagsWindow.window.fit();
 				}));
 				this.tagsWindow.window.addListener('hide', function()
 				{

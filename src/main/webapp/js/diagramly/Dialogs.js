@@ -9801,12 +9801,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 			}
 			else if (file != null && new XMLHttpRequest().upload && editorUi.isRemoteFileFormat(data, file.name))
 			{
-				if (editorUi.isOffline())
-				{
-					editorUi.spinner.stop();
-					editorUi.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-				}
-				else
+				if (editorUi.isExternalDataComms())
 				{
 					editorUi.parseFile(file, mxUtils.bind(this, function(xhr)
 					{
@@ -9823,6 +9818,12 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 							}
 						}
 					}));
+				}
+				else
+				{
+
+					editorUi.spinner.stop();
+					editorUi.showError(mxResources.get('error'), mxResources.get('notInOffline'));
 				}
 			}
 			else

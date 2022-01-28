@@ -532,11 +532,20 @@
 	};
 
 	/**
-	 * Returns true if no external comms allowed or possible
+	 * Deprecated. Poorly defined, to be replaced with isExternalDataComms and other more granular flags.
+	 * Original idea was it returns true if no external comms allowed or possible
 	 */
 	EditorUi.prototype.isOffline = function(ignoreStealth)
 	{
 		return this.isOfflineApp() || !navigator.onLine || (!ignoreStealth && (urlParams['stealth'] == '1' || urlParams['lockdown'] == '1'));
+	};
+
+	/**
+	 * Returns true if diagram data transmission other than save/load is allowed or possible..
+	 */
+	EditorUi.prototype.isExternalDataComms = function()
+	{
+		return urlParams['offline'] != '1' && !this.isOffline() && !this.isOfflineApp();
 	};
 
 	/**
@@ -3526,12 +3535,7 @@
 								}
 								else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, img) && file != null)
 								{
-									if (this.isOffline())
-									{
-										this.spinner.stop();
-										this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
-									}
-									else
+									if (this.isExternalDataComms())
 									{
 										this.parseFile(file, mxUtils.bind(this, function(xhr)
 										{
@@ -3551,6 +3555,11 @@
 												}
 											}
 										}));
+									}
+									else
+									{
+										this.spinner.stop();
+										this.showError(mxResources.get('error'), mxResources.get('notInOffline'));
 									}
 								}
 								else

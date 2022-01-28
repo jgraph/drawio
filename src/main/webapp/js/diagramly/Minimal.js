@@ -96,12 +96,16 @@ EditorUi.initMinimalTheme = function()
 			
 			if (ui.formatWindow == null)
 			{
-				ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'),
-					(urlParams['sketch'] == '1') ? Math.max(10, ui.diagramContainer.clientWidth - 241) :
-					Math.max(10, ui.diagramContainer.clientWidth - 248), 
-					urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60,
-					240, Math.min((urlParams['sketch'] == '1') ? 580 : 566,
-						graph.container.clientHeight - 10), function(container)
+				var x = (urlParams['sketch'] == '1') ?
+					Math.max(10, ui.diagramContainer.clientWidth - 241) :
+					Math.max(10, ui.diagramContainer.clientWidth - 248);
+				var y = urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60;
+				var h = (urlParams['embedInline'] == '1') ? 580 :
+					((urlParams['sketch'] == '1') ? 580 : Math.min(566,
+						graph.container.clientHeight - 10));
+				
+				ui.formatWindow = new WrapperWindow(ui, mxResources.get('format'), x, y, 240, h,
+					function(container)
 				{
 					var format = ui.createFormat(container);
 					format.init();
@@ -266,7 +270,8 @@ EditorUi.initMinimalTheme = function()
 			if (ui.sidebarWindow == null)
 			{
 				var w = Math.min(graph.container.clientWidth - 10, 218);
-				var h = Math.min(graph.container.clientHeight - 40, 650);
+				var h = (urlParams['embedInline'] == '1') ? 650 :
+					Math.min(graph.container.clientHeight - 40, 650);
 				
 				ui.sidebarWindow = new WrapperWindow(ui, mxResources.get('shapes'),
 					(urlParams['sketch'] == '1' && urlParams['embedInline'] != '1') ? 66 : 10,
@@ -1688,13 +1693,14 @@ EditorUi.initMinimalTheme = function()
 				var left = parseInt(this.div.offsetLeft);
 				var width = parseInt(this.div.offsetWidth);
 				var right = ui.embedViewport.x + ui.embedViewport.width;
-				this.div.style.left = Math.max(ui.embedViewport.x, Math.min(left, right - width)) + 'px';
-				
 				var top = parseInt(this.div.offsetTop);
 				var height = parseInt(this.div.offsetHeight);
 				var bottom = ui.embedViewport.y + ui.embedViewport.height;
-				
+
+				this.div.style.left = Math.max(ui.embedViewport.x, Math.min(left, right - width)) + 'px';
 				this.div.style.top = Math.max(ui.embedViewport.y, Math.min(top, bottom - height)) + 'px';
+				this.div.style.height = Math.min(ui.embedViewport.height, parseInt(this.div.style.height)) + 'px';
+				this.div.style.width = Math.min(ui.embedViewport.width, parseInt(this.div.style.width)) + 'px';
 			}
 			else
 			{
@@ -2565,7 +2571,6 @@ EditorUi.initMinimalTheme = function()
 				if (ui.currentPage != null)
 				{
 					mxUtils.write(elt, ui.currentPage.getName());
-					console.log('initial page not emptry');
 				}
 
 				footer.appendChild(pageMenu);

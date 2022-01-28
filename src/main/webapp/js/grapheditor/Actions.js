@@ -1801,7 +1801,6 @@ Actions.prototype.init = function()
 			this.layersWindow.window.addListener('show', mxUtils.bind(this, function()
 			{
 				ui.fireEvent(new mxEventObject('layers'));
-				this.layersWindow.window.fit();
 			}));
 			this.layersWindow.window.addListener('hide', function()
 			{
@@ -1834,7 +1833,6 @@ Actions.prototype.init = function()
 			this.outlineWindow.window.addListener('show', mxUtils.bind(this, function()
 			{
 				ui.fireEvent(new mxEventObject('outline'));
-				this.outlineWindow.window.fit();
 			}));
 			this.outlineWindow.window.addListener('hide', function()
 			{

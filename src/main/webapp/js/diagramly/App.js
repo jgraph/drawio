@@ -4620,11 +4620,7 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 			}
 			else if (new XMLHttpRequest().upload && this.isRemoteFileFormat(data, filterFn))
 			{
-				if (this.isOffline())
-				{
-					this.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
-				}
-				else
+				if (this.isExternalDataComms())
 				{
 					// Asynchronous parsing via server
 					this.parseFileData(data, mxUtils.bind(this, function(xhr)
@@ -4635,6 +4631,10 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 							onload(xhr.responseText);
 						}
 					}), url);
+				}
+				else
+				{
+					this.showError(mxResources.get('error'), mxResources.get('notInOffline'), null, onerror);
 				}
 			}
 			else if (this.isLucidChartData(data))

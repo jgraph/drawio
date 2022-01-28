@@ -1,3 +1,14 @@
+
+28-JAN-2022: 16.5.1
+
+- Adds isExternalDataComms flag
+
+28-JAN-2022: 16.5.0
+
+- Keeps windows in viewport for inline embed mode
+- Sets default scrollbars to true
+- [desktop] Removes setting offline to true
+
 27-JAN-2022: 16.4.11
 
 - Fixes build process to deploy teams.html

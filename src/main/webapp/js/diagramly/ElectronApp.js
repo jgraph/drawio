@@ -37,15 +37,10 @@ mxStencilRegistry.allowEval = false;
 	// Overrides default mode
 	App.mode = App.MODE_DEVICE;
 	
-	// Disables all online functionality
-	App.prototype.isOfflineApp = function()
+	// Disables all external transmission functionality
+	App.prototype.isExternalDataComms = function()
 	{
-		return true;
-	};
-	
-	App.prototype.isOffline = function()
-	{
-		return true;
+		return false;
 	};
 	
 	// Disables preview option in embed dialog
