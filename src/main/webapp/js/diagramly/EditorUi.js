@@ -1539,6 +1539,7 @@
 					graph.getDefaultStylesheet() :
 					graph.getStylesheet());
 				graph.setBackgroundImage = this.editor.graph.setBackgroundImage;
+				graph.background = this.editor.graph.background;
 				var page = this.pages[0];
 
 				if (this.currentPage == page)

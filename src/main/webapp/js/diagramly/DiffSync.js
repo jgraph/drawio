@@ -652,7 +652,6 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
 	}
 	else if (node.nodeName == 'mxGraphModel')
 	{
-		var graph = this.editor.graph;
 		var page = new DiagramPage(node.ownerDocument.createElement('diagram'));
 		page.setName(mxResources.get('pageWithNumber', [1]));
 		mxUtils.setTextContent(page.node, Graph.compressNode(node, true));

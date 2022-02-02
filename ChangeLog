@@ -1,3 +1,11 @@
+02-FEB-2022: 16.5.3
+
+- Fixes sketch font path
+- [conf cloud] Adds linkAdjustment configuration to viewer
+- [Conf Cloud] Fixes issue in linkAdjustment of tooltips
+- Adds shift+drag to swap shapes
+- Adds missing background for SVG files in dark mode
+
 28-JAN-2022: 16.5.2
 
 - Disables iOS scroll workaround in viewer
