@@ -3059,7 +3059,7 @@
     {
         var parts = fontCss.split('url(');
         var waiting = 0;
-        
+		
         if (this.cachedFonts == null) 
         {
         	this.cachedFonts = {};
@@ -3212,10 +3212,11 @@
     Editor.prototype.embedExtFonts = function(callback)
     {
     	var extFonts = this.graph.getCustomFonts();
-    	
+		
 		if (extFonts.length > 0)
 		{
-			var styleCnt = '', waiting = 0;
+			var content = [];
+			var waiting = 0;
 			
 			if (this.cachedGoogleFonts == null)
 			{
@@ -3226,7 +3227,7 @@
 			{
 				if (waiting == 0)
 	            {
-					this.embedCssFonts(styleCnt, callback);
+					this.embedCssFonts(content.join(''), callback);
 	            }
 			});
 			
@@ -3243,27 +3244,27 @@
 							this.loadUrl(fontUrl, mxUtils.bind(this, function(css)
 		                    {
 								this.cachedGoogleFonts[fontUrl] = css;
-								styleCnt += css;
+								content.push(css + '\n');
 		                        waiting--;
 		                        googleCssDone();
 		                    }), mxUtils.bind(this, function(err)
 		                    {
 		                        // LATER: handle error
 		                        waiting--;
-		                        styleCnt += '@import url(' + fontUrl + ');';
+								content.push('@import url(' + fontUrl + ');\n');
 		                        googleCssDone();
 		                    }));
 						}
 						else
 						{
-							styleCnt += this.cachedGoogleFonts[fontUrl];
+							content.push(this.cachedGoogleFonts[fontUrl] + '\n');
 						}
 					}
 					else
 					{
-						styleCnt += '@font-face {' +
-				            'font-family: "' + fontName + '";' + 
-				            'src: url("' + fontUrl + '")}';
+						content.push('@font-face {' +
+							'font-family: "' + fontName + '";' + 
+							'src: url("' + fontUrl + '")}\n');
 					}
 				}))(extFonts[i].name, extFonts[i].url);
 			}
@@ -5276,7 +5277,7 @@
 										style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
 											mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
 									
-										if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
+										if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
 											graph.getModel().isVertex(cells[i]))
 										{
 											style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||

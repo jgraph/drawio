@@ -12310,7 +12310,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxVertexHandler.prototype.isRecursiveResize = function(state, me)
 		{
 			return this.graph.isRecursiveVertexResize(state) &&
-				!mxEvent.isControlDown(me.getEvent());
+				!mxEvent.isAltDown(me.getEvent());
 		};
 		
 		/**
@@ -12318,11 +12318,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		 */
 		mxVertexHandler.prototype.isCenteredEvent = function(state, me)
 		{
-			return (!(!this.graph.isSwimlane(state.cell) && this.graph.model.getChildCount(state.cell) > 0 &&
-					!this.graph.isCellCollapsed(state.cell) &&
-					mxUtils.getValue(state.style, 'recursiveResize', '1') == '1' &&
-					mxUtils.getValue(state.style, 'childLayout', null) == null) &&
-					mxEvent.isControlDown(me.getEvent())) ||
+			return mxEvent.isControlDown(me.getEvent()) ||
 				mxEvent.isMetaDown(me.getEvent());
 		};
 
@@ -13150,8 +13146,8 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxRubberband.prototype.isSpaceEvent = function(me)
 		{
 			return this.graph.isEnabled() && !this.graph.isCellLocked(this.graph.getDefaultParent()) &&
-				mxEvent.isControlDown(me.getEvent()) && mxEvent.isShiftDown(me.getEvent()) &&
-				mxEvent.isAltDown(me.getEvent());
+				(mxEvent.isControlDown(me.getEvent()) || mxEvent.isMetaDown(me.getEvent())) &&
+				mxEvent.isShiftDown(me.getEvent()) && mxEvent.isAltDown(me.getEvent());
 		};
 
 		// Cancelled state

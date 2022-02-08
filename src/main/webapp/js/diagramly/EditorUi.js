@@ -5102,10 +5102,10 @@
 				
 				// Sets or disables alternate text for foreignObjects. Disabling is needed
 				// because PhantomJS seems to ignore switch statements and paint all text.
-				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop,
-					null, ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
-					((linkTarget == 'self') ? '_top' : null), null, true, keepTheme,
-					exportType);
+				var svgRoot = this.editor.graph.getSvg(bg, scale, border, noCrop, null,
+					ignoreSelection, null, null, (linkTarget == 'blank') ? '_blank' :
+					((linkTarget == 'self') ? '_top' : null), null, !embedFonts,
+					keepTheme, exportType);
 				
 				if (addShadow)
 				{
@@ -7049,9 +7049,7 @@
 								mapping[diagrams[0].getAttribute('id')] = this.currentPage.getId();
 								
 								// Renames page if diagram has one blank page with default name
-								if (this.pages != null && this.pages.length == 1 &&
-									this.isDiagramEmpty() && this.currentPage.getName() ==
-									mxResources.get('pageWithNumber', [1]))
+								if (this.isBlankFile())
 								{
 									var name = diagrams[0].getAttribute('name');
 									
@@ -8994,6 +8992,16 @@
 		{
 			doImportFiles();
 		}
+	};
+
+	/**
+	 * Returns true if the current file is a blank diagram.
+	 */
+	EditorUi.prototype.isBlankFile = function()
+	{
+		return this.pages != null && this.pages.length == 1 &&
+			this.isDiagramEmpty() && this.currentPage.getName() ==
+			mxResources.get('pageWithNumber', [1]);
 	};
 
 	/**

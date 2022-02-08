@@ -721,6 +721,14 @@ function render(data)
 		bounds = (graph.pdfPageVisible) ? graph.view.getBackgroundPageBounds() : graph.getGraphBounds();
 		bounds.width = Math.ceil(bounds.width + data.border) + 1; //The 1 extra pixels to prevent cutting the cells on the edges when crop is enabled
 		bounds.height = Math.ceil(bounds.height + data.border) + 1; //The 1 extra pixels to prevent starting a new page. TODO Not working in every case
+		
+		//Print to pdf fails for 1x1 pages
+		if (bounds.width <= 1 && bounds.height <= 1)
+		{
+			bounds.width = 2;
+			bounds.height = 2;
+		}
+
 		expScale = graph.view.scale || 1;
 		
 		// Converts the graph to a vertical sequence of pages for PDF export

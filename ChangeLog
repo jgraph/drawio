@@ -1,3 +1,11 @@
+08-FEB-2022: 16.5.4
+
+- Removes font CSS links with embedded fonts
+- Adds Cmd+Shift+Alt+Drag
+- Allow connection points for vertices only excluding groups
+- Fixed export to pdf error of empty pages
+- Fixes ctrl+resize for groups
+
 02-FEB-2022: 16.5.3
 
 - Fixes sketch font path
