@@ -1,3 +1,15 @@
+10-FEB-2022: 16.5.6
+
+- Opens file after drag and drop on blank diagram
+- Shift+drop forces open file in new tab
+- Fixes pinch to zoom in lightbox
+- Moves multitouch event filtering to mxGraph
+- 
+
+09-FEB-2022: 16.5.5
+
+- Updates AWS stencils
+
 08-FEB-2022: 16.5.4
 
 - Removes font CSS links with embedded fonts

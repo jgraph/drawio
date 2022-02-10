@@ -1182,3 +1182,4 @@ arcSize=Arkuaren tamaina
 editConnectionPoints=Editatu konexio-puntuak
 notInOffline=Lineaz kanpo ez da onartzen
 notInDesktop=Mahaigaineko aplikazioan ez da onartzen
+confConfigSpaceArchived=draw.io Configuration space (DRAWIOCONFIG) is archived. Please restore it first.

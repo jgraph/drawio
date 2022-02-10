@@ -3056,7 +3056,8 @@ EditorUi.prototype.initCanvas = function()
 							dy = graph.container.offsetHeight / 2 - cursorPosition.y + offset.y;
 						}
 
-						graph.zoom(graph.cumulativeZoomFactor, null, 20);
+						graph.zoom(graph.cumulativeZoomFactor, null,
+							graph.isFastZoomEnabled() ? 20 : null);
 						var s = graph.view.scale;
 						
 						if (s != prev)
@@ -3186,7 +3187,7 @@ EditorUi.prototype.initCanvas = function()
 			}
 		}
 		
-		scheduleZoom(delay);
+		scheduleZoom(graph.isFastZoomEnabled() ? delay : 0);
 	};
 	
 	// Holds back repaint until after mouse gestures

@@ -1182,3 +1182,4 @@ arcSize=弧度
 editConnectionPoints=编辑连接点
 notInOffline=离线时不支持
 notInDesktop=桌面应用中不支持
+confConfigSpaceArchived=draw.io Configuration space (DRAWIOCONFIG) is archived. Please restore it first.

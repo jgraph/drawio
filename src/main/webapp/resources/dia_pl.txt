@@ -1182,3 +1182,4 @@ arcSize=Rozmiar łuku
 editConnectionPoints=Edycja punktów połączeń
 notInOffline=Nieobsługiwane w trybie offline
 notInDesktop=Nie obsługiwane w aplikacji na komputery stacjonarne
+confConfigSpaceArchived=draw.io Configuration space (DRAWIOCONFIG) is archived. Please restore it first.

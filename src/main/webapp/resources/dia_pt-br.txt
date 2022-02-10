@@ -1182,3 +1182,4 @@ arcSize=Arc Size
 editConnectionPoints=Editar pontos de conexão
 notInOffline=Not supported while offline
 notInDesktop=Not supported in Desktop App
+confConfigSpaceArchived=draw.io Configuration space (DRAWIOCONFIG) is archived. Please restore it first.

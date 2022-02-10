@@ -1182,3 +1182,4 @@ arcSize=arcSize
 editConnectionPoints=editConnectionPoints
 notInOffline=notInOffline
 notInDesktop=notInDesktop
+confConfigSpaceArchived=confConfigSpaceArchived
