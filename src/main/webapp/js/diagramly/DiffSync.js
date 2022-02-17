@@ -666,94 +666,96 @@ EditorUi.prototype.getPagesForNode = function(node, nodeName)
  */
 EditorUi.prototype.diffPages = function(oldPages, newPages)
 {
-	var graph = this.editor.graph;
 	var inserted = [];
 	var removed = [];
 	var result = {};
 	var lookup = {};
 	var diff = {};
 	var prev = null;
-	
-	for (var i = 0; i < newPages.length; i++)
-	{
-		lookup[newPages[i].getId()] = {page: newPages[i], prev: prev};
-		prev = newPages[i];
-	}
 
-	prev = null;
-	
-	for (var i = 0; i < oldPages.length; i++)
+	if (oldPages != null && newPages != null)
 	{
-		var id = oldPages[i].getId();
-		var newPage = lookup[id];
+		for (var i = 0; i < newPages.length; i++)
+		{
+			lookup[newPages[i].getId()] = {page: newPages[i], prev: prev};
+			prev = newPages[i];
+		}
+
+		prev = null;
 		
-		if (newPage == null)
+		for (var i = 0; i < oldPages.length; i++)
 		{
-			removed.push(id);
-		}
-		else
-		{
-			var temp = this.diffPage(oldPages[i], newPage.page);
-			var pageDiff = {};
+			var id = oldPages[i].getId();
+			var newPage = lookup[id];
 			
-			if (Object.keys(temp).length > 0)
+			if (newPage == null)
 			{
-				pageDiff.cells = temp;
+				removed.push(id);
 			}
-			
-			var view = this.diffViewState(oldPages[i], newPage.page);
-			
-			if (Object.keys(view).length > 0)
+			else
 			{
-				pageDiff.view = view;
-			}
-			
-			if (((newPage.prev != null) ? prev == null : prev != null) ||
-				(prev != null && newPage.prev != null &&
-				prev.getId() != newPage.prev.getId()))
-			{
-				pageDiff.previous = (newPage.prev != null) ? newPage.prev.getId() : '';
-			}
-			
-			// FIXME: Check why names can be null in newer files
-			// ignore in hash and do not diff null names for now
-			if (newPage.page.getName() != null &&
-				oldPages[i].getName() != newPage.page.getName())
-			{
-				pageDiff.name = newPage.page.getName();
-			}
-			
-			if (Object.keys(pageDiff).length > 0)
-			{
-				diff[id] = pageDiff;
-			}
-		}
+				var temp = this.diffPage(oldPages[i], newPage.page);
+				var pageDiff = {};
 
-		delete lookup[oldPages[i].getId()];
-		prev = oldPages[i];
-	}
-	
-	for (var id in lookup)
-	{
-		var newPage = lookup[id];
-		inserted.push({data: mxUtils.getXml(newPage.page.node),
-			previous: (newPage.prev != null) ?
-			newPage.prev.getId() : ''});
-	}
-	
-	if (Object.keys(diff).length > 0)
-	{
-		result[EditorUi.DIFF_UPDATE] = diff;
-	}
-	
-	if (removed.length > 0)
-	{
-		result[EditorUi.DIFF_REMOVE] = removed;
-	}
-	
-	if (inserted.length > 0)
-	{
-		result[EditorUi.DIFF_INSERT] = inserted;
+				if (!mxUtils.isEmptyObject(temp))
+				{
+					pageDiff.cells = temp;
+				}
+				
+				var view = this.diffViewState(oldPages[i], newPage.page);
+				
+				if (!mxUtils.isEmptyObject(view))
+				{
+					pageDiff.view = view;
+				}
+				
+				if (((newPage.prev != null) ? prev == null : prev != null) ||
+					(prev != null && newPage.prev != null &&
+					prev.getId() != newPage.prev.getId()))
+				{
+					pageDiff.previous = (newPage.prev != null) ? newPage.prev.getId() : '';
+				}
+				
+				// FIXME: Check why names can be null in newer files
+				// ignore in hash and do not diff null names for now
+				if (newPage.page.getName() != null &&
+					oldPages[i].getName() != newPage.page.getName())
+				{
+					pageDiff.name = newPage.page.getName();
+				}
+				
+				if (!mxUtils.isEmptyObject(pageDiff))
+				{
+					diff[id] = pageDiff;
+				}
+			}
+
+			delete lookup[oldPages[i].getId()];
+			prev = oldPages[i];
+		}
+		
+		for (var id in lookup)
+		{
+			var newPage = lookup[id];
+			inserted.push({data: mxUtils.getXml(newPage.page.node),
+				previous: (newPage.prev != null) ?
+				newPage.prev.getId() : ''});
+		}
+		
+		if (!mxUtils.isEmptyObject(diff))
+		{
+			result[EditorUi.DIFF_UPDATE] = diff;
+		}
+		
+		if (removed.length > 0)
+		{
+			result[EditorUi.DIFF_REMOVE] = removed;
+		}
+		
+		if (inserted.length > 0)
+		{
+			result[EditorUi.DIFF_INSERT] = inserted;
+		}
 	}
 
 	return result;
@@ -805,7 +807,7 @@ EditorUi.prototype.diffCellRecursive = function(cell, prev, lookup, diff, remove
 			temp.previous = (newCell.prev != null) ? newCell.prev.getId() : '';
 		}
 		
-		if (Object.keys(temp).length > 0)
+		if (!mxUtils.isEmptyObject(temp))
 		{
 			diff[cell.getId()] = temp;
 		}
@@ -845,7 +847,7 @@ EditorUi.prototype.diffPage = function(oldPage, newPage)
 		inserted.push(this.getJsonForCell(newCell.cell, newCell.prev));
 	}
 
-	if (Object.keys(diff).length > 0)
+	if (!mxUtils.isEmptyObject(diff))
 	{
 		result[EditorUi.DIFF_UPDATE] = diff;
 	}

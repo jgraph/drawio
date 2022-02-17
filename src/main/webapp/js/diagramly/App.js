@@ -297,11 +297,9 @@ App.PUSHER_CLUSTER = 'eu';
 App.PUSHER_URL = 'https://js.pusher.com/7.0.3/pusher.min.js';
 
 /**
- * Socket.io library 
+ * SimplePeer library 
  */
-App.SOCKET_IO_URL = window.DRAWIO_BASE_URL + '/js/socket.io/socket.io.min.js';
-App.SIMPLE_PEER_URL = window.DRAWIO_BASE_URL + '/js/socket.io/simplepeer9.10.0.min.js';
-App.SOCKET_IO_SRV = 'http://localhost:3030';
+ App.SIMPLE_PEER_URL = window.DRAWIO_BASE_URL + '/js/simplepeer/simplepeer9.10.0.min.js';
 
 /**
  * Google APIs to load. The realtime API is needed to notify collaborators of conversion
@@ -696,16 +694,16 @@ App.main = function(callback, createUi)
 		
 		// Loads Pusher API
 		if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
+			DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' ||
+			urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
 			(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
 			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 		{
 			// TODO: Check if async loading is fast enough
 			mxscript(App.PUSHER_URL);
 			
-			if (urlParams['rtCursors'] == '1')
+			if (urlParams['fast-sync'] == '1')
 			{
-				mxscript(App.SOCKET_IO_URL);
 				mxscript(App.SIMPLE_PEER_URL);
 			}
 		}
@@ -3294,7 +3292,7 @@ App.prototype.start = function()
 									}
 								}));
 							}
-							else if (urlParams['splash'] != '0')
+							else if (urlParams['splash'] != '0' || urlParams['mode'] != null)
 							{
 								this.loadFile();
 							}
@@ -3465,8 +3463,9 @@ App.prototype.start = function()
 					// Removes open URL parameter. Hash is also updated in Init to load client.
 					if (urlParams['open'] != null && window.history && window.history.replaceState)
 					{
+						
 						window.history.replaceState(null, null, window.location.pathname +
-							this.getSearch(['open']));
+							this.getSearch(['open', 'sketch']));
 						window.location.hash = urlParams['open'];
 					}
 					

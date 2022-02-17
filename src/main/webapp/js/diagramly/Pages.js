@@ -1745,7 +1745,7 @@ EditorUi.prototype.getLinkForPage = function(page, params, lightbox)
 		if (file != null && file.constructor != LocalFile && this.getServiceName() == 'draw.io')
 		{
 			var search = this.getSearch(['create', 'title', 'mode', 'url', 'drive', 'splash',
-				'state', 'clibs', 'ui', 'viewbox', 'hide-pages']);
+				'state', 'clibs', 'ui', 'viewbox', 'hide-pages', 'sketch']);
 			search += ((search.length == 0) ? '?' : '&') + 'page-id=' + page.getId();
 			
 			if (params != null)

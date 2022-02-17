@@ -412,18 +412,18 @@ Draw.loadPlugin(function(ui) {
                     }
 
                     if (MODE_SQLSERVER) {
-                        if (name.indexOf("ASC") !== -1 ||
-                            name.indexOf("DESC") !== -1 ||
-                            name.indexOf("EXEC") !== -1 ||
-                            name.indexOf("WITH") !== -1 ||
-                            name.indexOf("ON") !== -1 ||
-                            name.indexOf("ALTER") !== -1 ||
+                        if (name.indexOf(" ASC") !== -1 ||
+                            name.indexOf(" DESC") !== -1 ||
+                            name.indexOf(" EXEC") !== -1 ||
+                            name.indexOf(" WITH") !== -1 ||
+                            name.indexOf(" ON") !== -1 ||
+                            name.indexOf(" ALTER") !== -1 ||
                             name.indexOf("/*") !== -1 ||
-                            name.indexOf("CONSTRAIN") !== -1 ||
-                            name.indexOf("SET") !== -1 ||
-                            name.indexOf("NONCLUSTERED") !== -1 ||
-                            name.indexOf("GO") !== -1 ||
-                            name.indexOf("REFERENCES") !== -1) {
+                            name.indexOf(" CONSTRAIN") !== -1 ||
+                            name.indexOf(" SET") !== -1 ||
+                            name.indexOf(" NONCLUSTERED") !== -1 ||
+                            name.indexOf(" GO") !== -1 ||
+                            name.indexOf(" REFERENCES") !== -1) {
                             continue;
                         }
                         //Get delimiter of column name
@@ -552,7 +552,7 @@ Draw.loadPlugin(function(ui) {
 
             //Create Table
             tableCell = new mxCell(tableModel.Name, new mxGeometry(dx, 0, maxNameLenght, 26),
-                'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#e0e0e0;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=#ffffff;align=center;');
+                'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=default;horizontalStack=0;resizeParent=1;resizeLast=0;collapsible=1;marginBottom=0;swimlaneFillColor=default;align=center;');
             tableCell.vertex = true;
 
             //Resize row

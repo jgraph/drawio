@@ -62,6 +62,7 @@
 <template url="business/ishikawa_2.xml" name="Ishikawa 2" libs="general" tags="Ishikawa"/>
 <template url="business/pert_1.xml" name="Pert 1" libs="general" tags="Pert"/>
 <template url="business/pert_2.xml" name="Pert 2" libs="general" tags="Pert"/>
+<template url="business/swimlane.xml" name="Swimlane" tags="Swimlane"/>
 <template url="business/timeline_1.xml" name="Timeline 1" libs="general" tags="Timeline"/>
 <template url="business/timeline_2.xml" name="Timeline 2" libs="general" tags="Timeline"/>
 <template url="business/timeline_3.xml" name="Timeline 3" libs="general" tags="Timeline"/>
@@ -189,7 +190,6 @@
 <template url="wireframes/home_page_hero_video_1.xml" name="Home page hero video 1" libs="general;mockups" tags="Home;page;hero;video"/>
 <template url="wireframes/home_page_1.xml" name="Home page 1" libs="general;mockups" tags="Home;page"/>
 <template url="wireframes/home_page_2.xml" name="Home page 2" libs="general;mockups" tags="Home;page"/>
-<template url="business/swimlane.xml" name="Swimlane" tags="Swimlane"/>
 <template url="layout/blog_wireframe.xml" name="Blog wireframe" tags="Blog;wireframe"/>
 <template url="layout/bootstrap.xml" name="Bootstrap" tags="Bootstrap"/>
 <template url="layout/wireframe_1.xml" name="Wireframe 1" tags="Wireframe"/>

@@ -397,6 +397,11 @@
 	 * Restores app defaults for UI
 	 */
 	EditorUi.prototype.embedExportBackground = null;
+	
+	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.shareCursorPosition = false;
 
 	/**
 	 * Capability check for canvas export
@@ -506,6 +511,18 @@
 	{
 		localStorage.removeItem(key)
 		fn();
+	};
+
+	EditorUi.prototype.setShareCursorPosition = function(value)
+	{
+		this.shareCursorPosition = value;
+
+		this.fireEvent(new mxEventObject('shareCursorPositionChanged'));
+	};
+
+	EditorUi.prototype.isShareCursorPosition = function()
+	{
+		return this.shareCursorPosition;
 	};
 
 	EditorUi.prototype.setMathEnabled = function(value)
@@ -1362,13 +1379,13 @@
 										cellDiffs[cellId].style.length + ']';
 								}
 								
-								if (Object.keys(cellDiffs[cellId]).length == 0)
+								if (mxUtils.isEmptyObject(cellDiffs[cellId]))
 								{
 									delete cellDiffs[cellId];
 								}
 							}
 							
-							if (Object.keys(cellDiffs).length == 0)
+							if (mxUtils.isEmptyObject(cellDiffs))
 							{
 								delete diff.cells[key];
 							}
@@ -1378,19 +1395,19 @@
 					anonymizeCellDiffs(EditorUi.DIFF_INSERT);
 					anonymizeCellDiffs(EditorUi.DIFF_UPDATE);
 					
-					if (Object.keys(diff.cells).length == 0)
+					if (mxUtils.isEmptyObject(diff.cells))
 					{
 						delete diff.cells;
 					}
 				}
 	
-				if (Object.keys(diff).length == 0)
+				if (mxUtils.isEmptyObject(diff))
 				{
 					delete patch[EditorUi.DIFF_UPDATE][pageId];
 				}
 			}
 			
-			if (Object.keys(patch[EditorUi.DIFF_UPDATE]).length == 0)
+			if (mxUtils.isEmptyObject(patch[EditorUi.DIFF_UPDATE]))
 			{
 				delete patch[EditorUi.DIFF_UPDATE];
 			}
@@ -8337,10 +8354,9 @@
 			
 			if (typeof JSZip  !== 'undefined')
 			{
-				JSZip.loadAsync(file)                                   
-		        .then(function(zip) 
+				JSZip.loadAsync(file).then(function(zip) 
 		        {
-		        	if (Object.keys(zip.files).length == 0)
+		        	if (mxUtils.isEmptyObject(zip.files))
 		        	{
 		        		onerror();
 		        	}

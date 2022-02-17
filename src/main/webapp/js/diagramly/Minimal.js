@@ -124,7 +124,6 @@ EditorUi.initMinimalTheme = function()
 				}));
 				
 				ui.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
-				ui.formatWindow.window.setVisible(true);
 			}
 			else
 			{
@@ -1204,33 +1203,42 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
 
-			if (file != null && file.isRevisionHistorySupported())
+			if (file != null)
 			{
-				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
-			}
-
-			menu.addSeparator(parent);
-
-			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-				file != null && file.constructor != LocalFile)
-			{
-				ui.menus.addMenuItems(menu, ['synchronize'], parent);
-			}
-			
-			if (file != null && file.constructor == DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['share'], parent);
-			}
-			
-			if (file != null && ui.fileNode != null && urlParams['embedInline'] != '1')
-			{
-				var filename = (file.getTitle() != null) ?
-					file.getTitle() : ui.defaultFilename;
-				
-				if (!/(\.html)$/i.test(filename) &&
-					!/(\.svg)$/i.test(filename))
+				if (file.isRevisionHistorySupported())
 				{
-					this.addMenuItems(menu, ['properties'], parent);
+					ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
+				}
+
+				menu.addSeparator(parent);
+
+				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+					file.constructor != LocalFile)
+				{
+					ui.menus.addMenuItems(menu, ['synchronize'], parent);
+				}
+				
+				if (graph.isEnabled() && graph.isSelectionEmpty() &&
+					DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+				{
+					this.addMenuItems(menu, ['shareCursor'], parent);
+				}
+
+				if (file.constructor == DriveFile)
+				{
+					ui.menus.addMenuItems(menu, ['share'], parent);
+				}
+				
+				if (ui.fileNode != null && urlParams['embedInline'] != '1')
+				{
+					var filename = (file.getTitle() != null) ?
+						file.getTitle() : ui.defaultFilename;
+					
+					if (!/(\.html)$/i.test(filename) &&
+						!/(\.svg)$/i.test(filename))
+					{
+						this.addMenuItems(menu, ['-', 'properties'], parent);
+					}
 				}
 			}
 		})));
@@ -1285,16 +1293,25 @@ EditorUi.initMinimalTheme = function()
 					}
 				
 					menu.addSeparator(parent);
-					
-					if (file != null && file.constructor == DriveFile)
-					{
-						ui.menus.addMenuItems(menu, ['share'], parent);
-					}
-					
-					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-						file != null && file.constructor != LocalFile)
-					{
-						ui.menus.addMenuItems(menu, ['synchronize'], parent);
+
+					if (file != null)
+					{					
+						if (file.constructor == DriveFile)
+						{
+							ui.menus.addMenuItems(menu, ['share'], parent);
+						}
+						
+						if (graph.isEnabled() && graph.isSelectionEmpty() &&
+							DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+						{
+							this.addMenuItems(menu, ['shareCursor'], parent);
+						}
+						
+						if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+							file.constructor != LocalFile)
+						{
+							ui.menus.addMenuItems(menu, ['synchronize'], parent);
+						}
 					}
 					
 					menu.addSeparator(parent);
@@ -1721,10 +1738,20 @@ EditorUi.initMinimalTheme = function()
 				{
 					this.initFormatWindow();
 					
-					if (this.formatWindow != null && iw < 1200)
+					var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+					
+					if (this.formatWindow != null && (iw < 1200 || ih < 708))
 					{
 						this.formatWindow.window.toggleMinimized();
 					}
+					else
+					{
+						this.formatWindow.window.setVisible(true);
+					}
+				}
+				else
+				{
+					this.formatWindow.window.setVisible(true);
 				}
 			}
 		}

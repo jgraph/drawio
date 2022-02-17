@@ -195,6 +195,30 @@
 			}
 		})).isEnabled = isGraphEnabled;
 		
+		var shareCursorAction = editorUi.actions.addAction('shareCursor', function()
+		{
+			editorUi.setShareCursorPosition(!editorUi.isShareCursorPosition());;
+		});
+		
+		shareCursorAction.setToggleAction(true);
+		shareCursorAction.setSelectedCallback(function() { return editorUi.isShareCursorPosition(); });
+
+		// Adds context menu items
+		var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
+		
+		Menus.prototype.createPopupMenu = function(menu, cell, evt)
+		{
+			menuCreatePopupMenu.apply(this, arguments);
+
+			var file = editorUi.getCurrentFile();
+
+			if (graph.isEnabled() && urlParams['embed'] != '1' && graph.isSelectionEmpty() &&
+				DrawioFile.ENABLE_FAST_SYNC && file != null && file.isFastSync())
+			{
+				this.addMenuItems(menu, ['-', 'shareCursor'], null, evt);
+			}
+		};
+
 		var pointAction = editorUi.actions.addAction('points', function()
 		{
 			editorUi.editor.graph.view.setUnit(mxConstants.POINTS);
@@ -1640,11 +1664,10 @@
 			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
 			mxResources.parse('testCheckFile=Check File');
 			mxResources.parse('testDiff=Diff/Sync');
+			mxResources.parse('testInspectOwnPages=Check Own Pages');
 			mxResources.parse('testInspect=Inspect');
 			mxResources.parse('testShowConsole=Show Console');
 			mxResources.parse('testXmlImageExport=XML Image Export');
-			mxResources.parse('testDownloadRtModel=Export RT model');
-			mxResources.parse('testImportRtModel=Import RT model');
 
 			editorUi.actions.addAction('createSidebarEntry', mxUtils.bind(this, function()
 			{
@@ -1757,10 +1780,13 @@
 										}
 									}
 								}
+
+								var keys = Object.keys(dups);
 								
-								if (Object.keys(dups).length > 0)
+								if (keys.length > 0)
 								{
-									var log = pageId + ': ' + Object.keys(dups).length + ' Duplicates: ' + Object.keys(dups).join(', ');
+									var log = pageId + ': ' + keys.length +
+										' Duplicates: ' + keys.join(', ');
 									mxLog.debug(log + ' (see console)');
 								}
 								else
@@ -1899,6 +1925,27 @@
 					editorUi.alert('No pages');
 				}
 			}));
+
+			editorUi.actions.addAction('testInspectOwnPages', mxUtils.bind(this, function()
+			{
+				var file = editorUi.getCurrentFile();
+
+				console.log('editorUi', editorUi);
+
+				if (file != null && file.ownPages != null)
+				{
+					if (file.shadowPages != null)
+					{
+						console.log('diff ownPages/shadowPages', editorUi.diffPages(file.ownPages, file.shadowPages));
+					}
+
+					if (editorUi.pages != null)
+					{
+						console.log('diff ownPages/actualPages', editorUi.diffPages(file.ownPages, editorUi.pages));
+					}
+				}
+			}));
+			
 	
 			editorUi.actions.addAction('testInspect', mxUtils.bind(this, function()
 			{
@@ -1977,8 +2024,9 @@
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
-					'testCheckFile', 'testDiff', '-', 'testInspect', '-',
-					'testXmlImageExport', '-', 'testShowConsole'], parent);
+					'testInspectOwnPages', 'testCheckFile', 'testDiff', '-',
+					'testInspect', '-', 'testXmlImageExport', '-',
+					'testShowConsole'], parent);
 			})));
 		}
 
@@ -3790,9 +3838,17 @@
 
 			if (urlParams['embed'] != '1')
 			{
+				var file = editorUi.getCurrentFile();
+
+				if (graph.isEnabled() && graph.isSelectionEmpty() && file != null &&
+					DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+				{
+					this.addMenuItems(menu, ['shareCursor'], parent);
+				}
+
 				this.addMenuItems(menu, ['autosave'], parent);
 			}
-			
+
 			menu.addSeparator(parent);
 			
 			if (!editorUi.isOfflineApp() && isLocalStorage)

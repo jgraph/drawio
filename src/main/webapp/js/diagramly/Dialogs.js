@@ -12500,7 +12500,7 @@ AspectDialog.prototype.createLayerItem = function(layer, pageId, graph, pageNode
 			$listItem.className = 'geAspectDlgListItem';
 			delete this.selectedLayers[layer.id];
 			
-			if (Object.keys(this.selectedLayers).length == 0)
+			if (mxUtils.isEmptyObject(this.selectedLayers))
 			{
 				this.okBtn.setAttribute('disabled', 'disabled');
 			}

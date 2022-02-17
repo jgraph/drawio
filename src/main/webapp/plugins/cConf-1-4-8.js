@@ -1865,7 +1865,6 @@ Draw.loadPlugin(function(ui)
 		}
 	};
 	
-	var p2pCollab = null;
 	//Add file opening here (or it should be for all in EditorUi?)
 	var origInstallMessageHandler =  ui.installMessageHandler;
 	
@@ -1901,13 +1900,6 @@ Draw.loadPlugin(function(ui)
 					{
 						descriptorChangedListener();
 					}
-					
-					//RT Cursors
-					if (urlParams['rtCursors'] == '1' && p2pCollab != null)
-					{
-						p2pCollab.joinFile(file.getChannelId());
-						file.p2pCollab = p2pCollab;
-					}
 				}
 			});
 			
@@ -1919,10 +1911,4 @@ Draw.loadPlugin(function(ui)
 	{
 		//Cancel set modified of the editor and use the file's one
 	};
-	
-	//P2P RT
-	if (urlParams['rtCursors'] == '1')
-	{
-		p2pCollab = new P2PCollab(ui);
-	}
 });

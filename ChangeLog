@@ -1,10 +1,16 @@
+17-FEB-2022: 16.6.0
+
+- Mode URL parameter forces splash
+- Adds pass-through arguments
+- Disables auth check for external editing
+- Fixes parsing of keywords in SQL plugin https://github.com/jgraph/drawio/issues/2631
+
 10-FEB-2022: 16.5.6
 
 - Opens file after drag and drop on blank diagram
 - Shift+drop forces open file in new tab
 - Fixes pinch to zoom in lightbox
 - Moves multitouch event filtering to mxGraph
-- 
 
 09-FEB-2022: 16.5.5
 

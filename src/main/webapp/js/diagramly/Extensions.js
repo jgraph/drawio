@@ -4167,7 +4167,10 @@ LucidImporter = {};
 		
 		function startTag(styles)
 		{
-			if (Object.keys(styles).length == 0) return '';
+			if (mxUtils.isEmptyObject(styles))
+			{
+				return '';
+			}
 			
 			var str = '';
 			var tagCount = 0;
