@@ -433,6 +433,7 @@
 				<file name="DistanceGuides.js" />
 				<file name="mxRuler.js" />
 				<file name="mxFreehand.js" />
+				<file name="P2PCollab.js" />
 			</sources>
 		</jscomp>
 

@@ -56,9 +56,9 @@ mxShapeElectricalTestPoint.prototype.paintVertexShape = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxShapeElectricalTestPoint.prototype.cst.SHAPE_TEST_POINT, mxShapeElectricalTestPoint);
 
 mxShapeElectricalTestPoint.prototype.constraints = [
-                                                  new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                  new mxConnectionConstraint(new mxPoint(0.5, 1), true)
-                                                  ];
+	new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+	];
 
 //**********************************************************************************************************************************************************
 //Straight Bus
@@ -121,9 +121,9 @@ mxShapeElectricalStraightBus.prototype.paintVertexShape = function(c, x, y, w, h
 mxCellRenderer.registerShape(mxShapeElectricalStraightBus.prototype.cst.SHAPE_STRAIGHT_BUS, mxShapeElectricalStraightBus);
 
 mxShapeElectricalStraightBus.prototype.constraints = [
-                                                    new mxConnectionConstraint(new mxPoint(0.5, 0), true),
-                                                    new mxConnectionConstraint(new mxPoint(0.5, 1), true)
-                                                    ];
+	new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+	];
 
 //**********************************************************************************************************************************************************
 //Two-Line Bus Elbow
@@ -280,7 +280,6 @@ Graph.handleFactory[mxShapeElectricalThreeLineBusElbow.prototype.cst.SHAPE_THREE
 	})];
 			
 	return handles;
-
 }
 
 //**********************************************************************************************************************************************************
@@ -580,7 +579,6 @@ mxShapeElectricalLogicGate.prototype.paintVertexShape = function(c, x, y, w, h)
 			c.close();
 			c.fillAndStroke();
 	};
-	
 	
 	var negating = mxUtils.getValue(this.style, 'negating', '0');
 
@@ -1454,10 +1452,7 @@ mxShapeElectricalQFPIC.prototype.getConstraints = function(style, w, h)
 	var constr = [];
 
 	var pinSpacing = parseFloat(mxUtils.getValue(this.style, 'pinSpacing', '20'));
-	var pinCount = 1;
 	var currH = pinSpacing * 0.5 + 20;
-	
-	var pinsOne = parseInt(h / pinSpacing);
 	
 	while (currH <= h - pinSpacing * 0.5 - 20)
 	{
@@ -1466,7 +1461,6 @@ mxShapeElectricalQFPIC.prototype.getConstraints = function(style, w, h)
 		currH = currH + pinSpacing;
 	}
 	
-	var pinCount = 1;
 	var currH = pinSpacing * 0.5 + 20;
 	
 	while (currH <= w - pinSpacing * 0.5 - 20)
@@ -1754,7 +1748,6 @@ mxShapeElectricalBatteryStack.prototype.paintVertexShape = function(c, x, y, w, 
 		
 		for (var i = 0; i < bNum; i++)
 		{
-
 			c.rect(currX + bw * 0.2, h * 0.25, bw * 0.2, h * 0.5);
 			c.fillAndStroke();
 			
@@ -2088,3 +2081,3607 @@ mxShapeElectricalSource.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeElectricalSource.prototype.cst.SHAPE_SOURCE, mxShapeElectricalSource);
+
+//**********************************************************************************************************************************************************
+// Two way switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTwoWaySwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTwoWaySwitch, mxShape);
+
+mxShapeElectricalTwoWaySwitch.prototype.cst = {
+		SHAPE_TWO_WAY_SWITCH : 'mxgraph.electrical.electro-mechanical.twoWaySwitch'
+};
+
+mxShapeElectricalTwoWaySwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'int', min:1, defVal: '1'}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTwoWaySwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+	
+	c.begin();
+
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	
+	c.moveTo(0.8 * w, 0.88 * h);
+	c.lineTo(w, 0.88 * h);
+
+	c.moveTo(0.8 * w, 0.12 * h);
+	c.lineTo(w, 0.12 * h);
+
+	if (switchState == '2')
+	{
+		c.moveTo(0.28 * w, 0.48 * h);
+		c.lineTo(0.72 * w, 0.15 * h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.52 * h);
+		c.lineTo(0.72 * w, 0.85 * h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.72 * w, 0.77 * h, 0.08 * w, 0.23 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0, 0.08 * w, 0.23 * h);
+	c.fillAndStroke();
+	c.ellipse(0.2 * w, 0.385 * h, 0.08 * w, 0.23 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTwoWaySwitch.prototype.cst.SHAPE_TWO_WAY_SWITCH, mxShapeElectricalTwoWaySwitch);
+
+mxShapeElectricalTwoWaySwitch.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(1, 0.12), true),
+	  new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.88), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Pushbutton
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPushbutton(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPushbutton, mxShape);
+
+mxShapeElectricalPushbutton.prototype.cst = {
+		SHAPE_PUSHBUTTON : 'mxgraph.electrical.electro-mechanical.pushbutton'
+};
+
+mxShapeElectricalPushbutton.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPushbutton.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0, 0.8 * h);
+	c.lineTo(0.2 * w, 0.8 * h);
+	c.moveTo(0.8 * w, 0.8 * h);
+	c.lineTo(w, 0.8 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.5 * w, 0.5 * h);
+		c.lineTo(0.5 * w, 0);
+		c.moveTo(0.46 * w, 0);
+		c.lineTo(0.54 * w, 0);
+		c.moveTo(0.2 * w, 0.5 * h);
+		c.lineTo(0.8 * w, 0.5 * h);
+	}
+	else
+	{
+		c.moveTo(0.5 * w, h);
+		c.lineTo(0.5 * w, 0.5 * h);
+		c.moveTo(0.46 * w, 0.5 * h);
+		c.lineTo(0.54 * w, 0.5 * h);
+		c.moveTo(0.2 * w, h);
+		c.lineTo(0.8 * w, h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.72 * w, 0.65 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+	c.ellipse(0.2 * w, 0.65 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPushbutton.prototype.cst.SHAPE_PUSHBUTTON, mxShapeElectricalPushbutton);
+
+mxShapeElectricalPushbutton.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Single switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSingleSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSingleSwitch, mxShape);
+
+mxShapeElectricalSingleSwitch.prototype.cst = {
+		SHAPE_SINGLE_SWITCH : 'mxgraph.electrical.electro-mechanical.singleSwitch'
+};
+
+mxShapeElectricalSingleSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSingleSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0, 0.8 * h);
+	c.lineTo(0.2 * w, 0.8 * h);
+	c.moveTo(0.8 * w, 0.8 * h);
+	c.lineTo(w, 0.8 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.75 * h);
+		c.lineTo(0.76 * w, 0);
+	}
+	else
+	{
+		c.moveTo(0.2 * w, 0.8 * h);
+		c.lineTo(0.8 * w, 0.8 * h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.72 * w, 0.65 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+	c.ellipse(0.2 * w, 0.65 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSingleSwitch.prototype.cst.SHAPE_SINGLE_SWITCH, mxShapeElectricalSingleSwitch);
+
+mxShapeElectricalSingleSwitch.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Switch disconnector
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSwitchDisconnector(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSwitchDisconnector, mxShape);
+
+mxShapeElectricalSwitchDisconnector.prototype.cst = {
+		SHAPE_SWITCH_DISCONNECTOR : 'mxgraph.electrical.electro-mechanical.switchDisconnector'
+};
+
+mxShapeElectricalSwitchDisconnector.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSwitchDisconnector.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.84 * h);
+	c.lineTo(w, 0.84 * h);
+	c.moveTo(0.8 * w, 0.68 * h);
+	c.lineTo(0.8 * w, h);
+	c.moveTo(0, 0.84 * h);
+	c.lineTo(0.24 * w, 0.84 * h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0);
+	}
+	else
+	{
+		c.lineTo(0.8 * w, 0.84 * h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.72 * w, 0.68 * h, 0.08 * w, 0.32 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSwitchDisconnector.prototype.cst.SHAPE_SWITCH_DISCONNECTOR, mxShapeElectricalSwitchDisconnector);
+
+mxShapeElectricalSwitchDisconnector.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.84), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.84), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Fuse 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalFuse2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalFuse2, mxShape);
+
+mxShapeElectricalFuse2.prototype.cst = {
+		SHAPE_FUSE2 : 'mxgraph.electrical.electro-mechanical.fuse2'
+};
+
+mxShapeElectricalFuse2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalFuse2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.8 * h);
+	c.lineTo(w, 0.8 * h);
+	c.moveTo(0, 0.8 * h);
+	c.lineTo(0.25 * w, 0.8 * h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0);
+		
+		c.moveTo(0.348 * w, 0.47 * h);
+		c.lineTo(0.563 * w, 0.13 * h);
+		c.lineTo(0.603 * w, 0.46 * h);
+		c.lineTo(0.387 * w, 0.78 * h);
+		c.close();
+	}
+	else
+	{
+		c.lineTo(0.8 * w, 0.8 * h);
+
+		c.moveTo(0.38 * w, 0.6 * h);
+		c.lineTo(0.62 * w, 0.6 * h);
+		c.lineTo(0.62 * w, h);
+		c.lineTo(0.38 * w, h);
+		c.close();
+	}
+
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalFuse2.prototype.cst.SHAPE_FUSE2, mxShapeElectricalFuse2);
+
+mxShapeElectricalFuse2.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Liquid Level Actuated Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalLiquidLevelActuatedSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalLiquidLevelActuatedSwitch, mxShape);
+
+mxShapeElectricalLiquidLevelActuatedSwitch.prototype.cst = {
+		SHAPE_LIQUID_LEVEL_ACTUATED_SWITCH : 'mxgraph.electrical.electro-mechanical.liquidLevelActuatedSwitch'
+};
+
+mxShapeElectricalLiquidLevelActuatedSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalLiquidLevelActuatedSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.27 * h);
+	c.lineTo(w, 0.27 * h);
+	c.moveTo(0, 0.27 * h);
+	c.lineTo(0.2 * w, 0.27 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.24 * w, 0);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(0.5 * w, 0);
+		c.lineTo(0.5 * w, 0.47 * h);
+		c.stroke();
+
+		c.ellipse(0.45 * w, 0.47 * h, 0.1 * w, 0.26 * h);
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.27 * h);
+		c.lineTo(0.72 * w, 0.27 * h);
+		c.moveTo(0.5 * w, 0.27 * h);
+		c.lineTo(0.5 * w, 0.74 * h);
+		c.stroke();
+
+		c.ellipse(0.45 * w, 0.74 * h, 0.1 * w, 0.26 * h);
+		c.fillAndStroke();
+	}
+
+
+	c.ellipse(0.2 * w, 0.17 * h, 0.08 * w, 0.2 * h);
+	c.fillAndStroke();
+
+	c.ellipse(0.72 * w, 0.17 * h, 0.08 * w, 0.2 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalLiquidLevelActuatedSwitch.prototype.cst.SHAPE_LIQUID_LEVEL_ACTUATED_SWITCH, mxShapeElectricalLiquidLevelActuatedSwitch);
+
+mxShapeElectricalLiquidLevelActuatedSwitch.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.27), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.27), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Liquid Level Actuated Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalLiquidLevelActuatedSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalLiquidLevelActuatedSwitch2, mxShape);
+
+mxShapeElectricalLiquidLevelActuatedSwitch2.prototype.cst = {
+		SHAPE_LIQUID_LEVEL_ACTUATED_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.liquidLevelActuatedSwitch2'
+};
+
+mxShapeElectricalLiquidLevelActuatedSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalLiquidLevelActuatedSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.76 * w, h);
+	c.lineTo(w, h);
+	c.moveTo(0, h);
+	c.lineTo(0.24 * w, h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0.5 * h);
+		c.moveTo(0.42 * w, 0);
+		c.lineTo(0.58 * w, 0);
+		c.lineTo(0.58 * w, 0.4 * h);
+		c.lineTo(0.42 * w, 0.4 * h);
+		c.close();
+		c.moveTo(0.46 * w, 0.22 * h);
+		c.arcTo(0.05 * w, 0.1 * h, 0, 0, 1, 0.54 * w, 0.22 * h);
+		c.arcTo(0.05 * w, 0.1 * h, 0, 0, 1, 0.46 * w, 0.22 * h);
+		c.close();
+		c.moveTo(0.5 * w, 0.1 * h);
+		c.lineTo(0.5 * w, 0.17 * h);
+		c.moveTo(0.5 * w, 0.4 * h);
+		c.lineTo(0.5 * w, 0.55 * h);
+		c.moveTo(0.5 * w, 0.63 * h);
+		c.lineTo(0.5 * w, 0.75 * h);
+		c.stroke();
+	}
+	else
+	{
+		c.lineTo(0.76 * w, h);
+		c.moveTo(0.42 * w, 0.25 * h);
+		c.lineTo(0.58 * w, 0.25 * h);
+		c.lineTo(0.58 * w, 0.65 * h);
+		c.lineTo(0.42 * w, 0.65 * h);
+		c.close();
+		c.moveTo(0.46 * w, 0.47 * h);
+		c.arcTo(0.05 * w, 0.1 * h, 0, 0, 1, 0.54 * w, 0.47 * h);
+		c.arcTo(0.05 * w, 0.1 * h, 0, 0, 1, 0.46 * w, 0.47 * h);
+		c.close();
+		c.moveTo(0.5 * w, 0.35 * h);
+		c.lineTo(0.5 * w, 0.42 * h);
+		c.moveTo(0.5 * w, 0.65 * h);
+		c.lineTo(0.5 * w, 0.8 * h);
+		c.moveTo(0.5 * w, 0.88 * h);
+		c.lineTo(0.5 * w, h);
+		c.stroke();
+		c.stroke();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalLiquidLevelActuatedSwitch2.prototype.cst.SHAPE_LIQUID_LEVEL_ACTUATED_SWITCH_2, mxShapeElectricalLiquidLevelActuatedSwitch2);
+
+mxShapeElectricalLiquidLevelActuatedSwitch2.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 1), true),
+	  new mxConnectionConstraint(new mxPoint(1, 1), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Gas Flow Actuated Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalGasFlowActuatedSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalGasFlowActuatedSwitch, mxShape);
+
+mxShapeElectricalGasFlowActuatedSwitch.prototype.cst = {
+		SHAPE_GAS_FLOW_ACTUATED_SWITCH : 'mxgraph.electrical.electro-mechanical.gasFlowActuatedSwitch'
+};
+
+mxShapeElectricalGasFlowActuatedSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalGasFlowActuatedSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.76 * w, h);
+	c.lineTo(w, h);
+	c.moveTo(0, h);
+	c.lineTo(0.24 * w, h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0.5 * h);
+		c.moveTo(0.42 * w, 0);
+		c.lineTo(0.58 * w, 0);
+		c.lineTo(0.58 * w, 0.4 * h);
+		c.lineTo(0.42 * w, 0.4 * h);
+		c.close();
+		
+		c.moveTo(0.54 * w, 0.34 * h);
+		c.lineTo(0.54 * w, 0.09 * h);
+		c.lineTo(0.46 * w, 0.09 * h);
+		c.lineTo(0.46 * w, 0.26 * h);
+		c.lineTo(0.54 * w, 0.26 * h);
+		c.moveTo(0.5 * w, 0.4 * h);
+		c.lineTo(0.5 * w, 0.55 * h);
+		c.moveTo(0.5 * w, 0.63 * h);
+		c.lineTo(0.5 * w, 0.75 * h);
+		c.stroke();
+		
+		c.ellipse(0.475 * w, 0.165 * h, 0.025 * w, 0.06 * h);
+		c.stroke();
+	}
+	else
+	{
+		c.lineTo(0.76 * w, h);
+		c.moveTo(0.42 * w, 0.25 * h);
+		c.lineTo(0.58 * w, 0.25 * h);
+		c.lineTo(0.58 * w, 0.65 * h);
+		c.lineTo(0.42 * w, 0.65 * h);
+		c.close();
+		
+		c.moveTo(0.54 * w, 0.59 * h);
+		c.lineTo(0.54 * w, 0.34 * h);
+		c.lineTo(0.46 * w, 0.34 * h);
+		c.lineTo(0.46 * w, 0.51 * h);
+		c.lineTo(0.54 * w, 0.51 * h);
+		c.moveTo(0.5 * w, 0.65 * h);
+		c.lineTo(0.5 * w, 0.80 * h);
+		c.moveTo(0.5 * w, 0.88 * h);
+		c.lineTo(0.5 * w, h);
+		c.stroke();
+		
+		c.ellipse(0.475 * w, 0.415 * h, 0.025 * w, 0.06 * h);
+		c.stroke();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalGasFlowActuatedSwitch.prototype.cst.SHAPE_GAS_FLOW_ACTUATED_SWITCH, mxShapeElectricalGasFlowActuatedSwitch);
+
+mxShapeElectricalGasFlowActuatedSwitch.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 1), true),
+	  new mxConnectionConstraint(new mxPoint(1, 1), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Flow Actuated Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalFlowActuatedSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalFlowActuatedSwitch, mxShape);
+
+mxShapeElectricalFlowActuatedSwitch.prototype.cst = {
+		SHAPE_FLOW_ACTUATED_SWITCH : 'mxgraph.electrical.electro-mechanical.flowActuatedSwitch'
+};
+
+mxShapeElectricalFlowActuatedSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalFlowActuatedSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.1 * h);
+	c.lineTo(w, 0.1 * h);
+	c.moveTo(0, 0.1 * h);
+	c.lineTo(0.2 * w, 0.1 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.13 * h);
+		c.lineTo(0.76 * w, 0.61 * h);
+		c.moveTo(0.5 * w, 0.35 * h);
+		c.lineTo(0.5 * w, h);
+		c.lineTo(0.6 * w, h);
+		c.lineTo(0.5 * w, 0.68 * h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.1 * h);
+		c.lineTo(0.72 * w, 0.1 * h);
+		c.moveTo(0.5 * w, 0.1 * h);
+		c.lineTo(0.5 * w, 0.85 * h);
+		c.lineTo(0.6 * w, 0.85 * h);
+		c.lineTo(0.5 * w, 0.53 * h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.2 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+
+	c.ellipse(0.72 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalFlowActuatedSwitch.prototype.cst.SHAPE_FLOW_ACTUATED_SWITCH, mxShapeElectricalFlowActuatedSwitch);
+
+mxShapeElectricalFlowActuatedSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.27), true),
+  	new mxConnectionConstraint(new mxPoint(1, 0.27), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Pressure Actuated Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPressureActuatedSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPressureActuatedSwitch, mxShape);
+
+mxShapeElectricalPressureActuatedSwitch.prototype.cst = {
+		SHAPE_PRESSURE_ACTUATED_SWITCH : 'mxgraph.electrical.electro-mechanical.pressureActuatedSwitch'
+};
+
+mxShapeElectricalPressureActuatedSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPressureActuatedSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.1 * h);
+	c.lineTo(w, 0.1 * h);
+	c.moveTo(0, 0.1 * h);
+	c.lineTo(0.2 * w, 0.1 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.13 * h);
+		c.lineTo(0.76 * w, 0.61 * h);
+		c.moveTo(0.5 * w, 0.35 * h);
+		c.lineTo(0.5 * w, 0.74 * h);
+		c.moveTo(0.39 * w, h);
+		c.arcTo(0.11 * w, 0.26 * h, 0, 0, 1, 0.5 * w, 0.74 * h);
+		c.arcTo(0.11 * w, 0.26 * h, 0, 0, 1, 0.61 * w, h);
+		c.close();
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.1 * h);
+		c.lineTo(0.72 * w, 0.1 * h);
+		c.moveTo(0.5 * w, 0.1 * h);
+		c.lineTo(0.5 * w, 0.49 * h);
+		c.moveTo(0.39 * w, 0.75 * h);
+		c.arcTo(0.11 * w, 0.26 * h, 0, 0, 1, 0.5 * w, 0.49 * h);
+		c.arcTo(0.11 * w, 0.26 * h, 0, 0, 1, 0.61 * w, 0.75 * h);
+		c.close();
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.2 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+
+	c.ellipse(0.72 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPressureActuatedSwitch.prototype.cst.SHAPE_PRESSURE_ACTUATED_SWITCH, mxShapeElectricalPressureActuatedSwitch);
+
+mxShapeElectricalPressureActuatedSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.1), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Temperature Actuated Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTemperatureActuatedSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTemperatureActuatedSwitch, mxShape);
+
+mxShapeElectricalTemperatureActuatedSwitch.prototype.cst = {
+		SHAPE_TEMPERATURE_ACTUATED_SWITCH : 'mxgraph.electrical.electro-mechanical.temperatureActuatedSwitch'
+};
+
+mxShapeElectricalTemperatureActuatedSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTemperatureActuatedSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.1 * h);
+	c.lineTo(w, 0.1 * h);
+	c.moveTo(0, 0.1 * h);
+	c.lineTo(0.2 * w, 0.1 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.13 * h);
+		c.lineTo(0.76 * w, 0.61 * h);
+		c.moveTo(0.5 * w, 0.35 * h);
+		c.lineTo(0.5 * w, 0.64 * h);
+		c.lineTo(0.57 * w, 0.64 * h);
+		c.lineTo(0.57 * w, 0.81 * h);
+		c.lineTo(0.5 * w, 0.81 * h);
+		c.lineTo(0.5 * w, h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.1 * h);
+		c.lineTo(0.72 * w, 0.1 * h);
+		c.moveTo(0.5 * w, 0.1 * h);
+		c.lineTo(0.5 * w, 0.39 * h);
+		c.lineTo(0.57 * w, 0.39 * h);
+		c.lineTo(0.57 * w, 0.56 * h);
+		c.lineTo(0.5 * w, 0.56 * h);
+		c.lineTo(0.5 * w, 0.75 * h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.2 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+
+	c.ellipse(0.72 * w, 0, 0.08 * w, 0.2 * h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTemperatureActuatedSwitch.prototype.cst.SHAPE_TEMPERATURE_ACTUATED_SWITCH, mxShapeElectricalTemperatureActuatedSwitch);
+
+mxShapeElectricalTemperatureActuatedSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.1), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Safety Interlock Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSafetyInterlockSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSafetyInterlockSwitch, mxShape);
+
+mxShapeElectricalSafetyInterlockSwitch.prototype.cst = {
+		SHAPE_SAFETY_INTERLOCK_SWITCH : 'mxgraph.electrical.electro-mechanical.safetyInterlockSwitch'
+};
+
+mxShapeElectricalSafetyInterlockSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSafetyInterlockSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+
+	c.moveTo(0.8 * w, 0.34 * h);
+	c.lineTo(w, 0.34 * h);
+	c.moveTo(0, 0.34 * h);
+	c.lineTo(0.2 * w, 0.34 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.25 * w, 0);
+		c.lineTo(0.75 * w, 0);
+		c.lineTo(0.5 * w, 0.81 * h);
+		c.close();
+	}
+	else
+	{
+		c.moveTo(0.25 * w, 0.19 * h);
+		c.lineTo(0.75 * w, 0.19 * h);
+		c.lineTo(0.5 * w, h);
+		c.close();
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.2 * w, 0.27 * h, 0.08 * w, 0.14 * h);
+	c.stroke();
+
+	c.ellipse(0.72 * w, 0.27 * h, 0.08 * w, 0.14 * h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSafetyInterlockSwitch.prototype.cst.SHAPE_SAFETY_INTERLOCK_SWITCH, mxShapeElectricalSafetyInterlockSwitch);
+
+mxShapeElectricalSafetyInterlockSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.35), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.35), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Temperature Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTemperatureSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTemperatureSwitch, mxShape);
+
+mxShapeElectricalTemperatureSwitch.prototype.cst = {
+		SHAPE_TEMPERATURE_SWITCH : 'mxgraph.electrical.electro-mechanical.temperatureSwitch'
+};
+
+mxShapeElectricalTemperatureSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTemperatureSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0.76 * w, h);
+	c.lineTo(w, h);
+	c.moveTo(0, h);
+	c.lineTo(0.24 * w, h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0.1 * h);
+	}
+	else
+	{
+		c.lineTo(0.76 * w, h);
+	}
+
+	c.stroke();
+	
+	c.ellipse(0.43 * w, 0, 0.1 * w, 0.22 * h);
+	c.fillAndStroke();
+	c.begin();
+	c.moveTo(0.48 * w, 0);
+	c.lineTo(0.48 * w, 0.22 * h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTemperatureSwitch.prototype.cst.SHAPE_TEMPERATURE_SWITCH, mxShapeElectricalTemperatureSwitch);
+
+mxShapeElectricalTemperatureSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
+	];
+	
+//**********************************************************************************************************************************************************
+// Thermostat2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalThermostat2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalThermostat2, mxShape);
+
+mxShapeElectricalThermostat2.prototype.cst = {
+		SHAPE_THERMOSTAT2 : 'mxgraph.electrical.electro-mechanical.thermostat2'
+};
+
+mxShapeElectricalThermostat2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalThermostat2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0.8 * w, 0.86 * h);
+	c.lineTo(w, 0.86 * h);
+	c.moveTo(0, 0.86 * h);	
+	c.lineTo(0.2 * w, 0.86 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.82 * h);
+		c.lineTo(0.76 * w, 0.2 * h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.86 * h);
+		c.lineTo(0.72 * w, 0.85 * h);
+	}
+
+	c.stroke();
+	c.ellipse(0.2 * w, 0.72 * h, 0.08 * w, 0.28 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.72 * h, 0.08 * w, 0.28 * h);
+	c.fillAndStroke();
+	c.text(0.5 * w, 0.2 * h, 0, 0, 'tº', mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalThermostat2.prototype.cst.SHAPE_THERMOSTAT2, mxShapeElectricalThermostat2);
+
+mxShapeElectricalThermostat2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Limit Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalLimitSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalLimitSwitch2, mxShape);
+
+mxShapeElectricalLimitSwitch2.prototype.cst = {
+		SHAPE_LIMIT_SWITCH2 : 'mxgraph.electrical.electro-mechanical.limitSwitch2'
+};
+
+mxShapeElectricalLimitSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalLimitSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0.8 * w, 0.84 * h);
+	c.lineTo(w, 0.84 * h);
+	c.moveTo(0, 0.84 * h);	
+	c.lineTo(0.2 * w, 0.84 * h);
+
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.8 * h);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(0.46 * w, 0.5 * h);
+		c.lineTo(0.545 * w, 0.07 * h);
+		c.lineTo(0.57 * w, 0.3 * h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.84 * h);
+		c.lineTo(0.72 * w, 0.84 * h);
+		c.moveTo(0.47 * w, 0.84 * h);
+		c.lineTo(0.58 * w, 0.57 * h);
+		c.lineTo(0.58 * w, 0.84 * h);
+	}
+
+	c.stroke();
+	c.ellipse(0.2 * w, 0.68 * h, 0.08 * w, 0.32 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.68 * h, 0.08 * w, 0.32 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalLimitSwitch2.prototype.cst.SHAPE_LIMIT_SWITCH2, mxShapeElectricalLimitSwitch2);
+
+mxShapeElectricalLimitSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Circuit Breaker 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalCircuitBreaker2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalCircuitBreaker2, mxShape);
+
+mxShapeElectricalCircuitBreaker2.prototype.cst = {
+		SHAPE_CIRCUIT_BREAKER2 : 'mxgraph.electrical.electro-mechanical.circuitBreaker2'
+};
+
+mxShapeElectricalCircuitBreaker2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalCircuitBreaker2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0.8 * w, 0.8 * h);
+	c.lineTo(w, 0.8 * h);
+	c.moveTo(0.75 * w, 0.6 * h);
+	c.lineTo(0.85 * w, h);
+	c.moveTo(0.85 * w, 0.6 * h);
+	c.lineTo(0.75 * w, h);
+	c.moveTo(0, 0.8 * h);	
+	c.lineTo(0.24 * w, 0.8 * h);
+
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0);
+	}
+	else
+	{
+		c.lineTo(0.8 * w, 0.8 * h);
+	}
+
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalCircuitBreaker2.prototype.cst.SHAPE_CIRCUIT_BREAKER2, mxShapeElectricalCircuitBreaker2);
+
+mxShapeElectricalCircuitBreaker2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Selector Switch - 3 Position 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSelectorSwitch3Position2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSelectorSwitch3Position2, mxShape);
+
+mxShapeElectricalSelectorSwitch3Position2.prototype.cst = {
+		SHAPE_SELECTOR_SWITCH_3_POSITION : 'mxgraph.electrical.electro-mechanical.selectorSwitch3Position2'
+};
+
+mxShapeElectricalSelectorSwitch3Position2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'int', min:1, max:3, defVal: '1',}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSelectorSwitch3Position2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.68 * w, 0.06 * h);
+	c.lineTo(w, 0.06 * h);
+	c.moveTo(0.75 * w, 0.5 * h);
+	c.lineTo(w, 0.5 * h);
+	c.moveTo(0.68 * w, 0.94 * h);
+	c.lineTo(w, 0.94 * h);
+	c.stroke();
+	c.ellipse(0.2 * w, 0.435 * h, 0.08 * w, 0.13 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0, 0.08 * w, 0.13 * h);
+	c.fillAndStroke();
+	c.ellipse(0.67 * w, 0.435 * h, 0.08 * w, 0.13 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0.87 * h, 0.08 * w, 0.13 * h);
+	c.fillAndStroke();
+	c.setFillColor(strokeColor);
+	
+	if (switchState == '1')
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.47 * h);
+		c.lineTo(0.59 * w, 0.12 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.52 * w, 0.12 * h);
+		c.lineTo(0.61 * w, 0.095 * h);
+		c.lineTo(0.565 * w, 0.22 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '2')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.5 * h);
+		c.lineTo(0.64 * w, 0.5 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.59 * w, 0.44 * h);
+		c.lineTo(0.67 * w, 0.5 * h);
+		c.lineTo(0.59 * w, 0.56 * h);
+		c.close();
+		c.fill();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.53 * h);
+		c.lineTo(0.59 * w, 0.88 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.52 * w, 0.88 * h);
+		c.lineTo(0.61 * w, 0.905 * h);
+		c.lineTo(0.565 * w, 0.78 * h);
+		c.close();
+		c.fill();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSelectorSwitch3Position2.prototype.cst.SHAPE_SELECTOR_SWITCH_3_POSITION, mxShapeElectricalSelectorSwitch3Position2);
+
+mxShapeElectricalSelectorSwitch3Position2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Selector Switch - 4 Position 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSelectorSwitch4Position2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSelectorSwitch4Position2, mxShape);
+
+mxShapeElectricalSelectorSwitch4Position2.prototype.cst = {
+		SHAPE_SELECTOR_SWITCH_4_POSITION : 'mxgraph.electrical.electro-mechanical.selectorSwitch4Position2'
+};
+
+mxShapeElectricalSelectorSwitch4Position2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'int', min:1, max:4, defVal: '1',}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSelectorSwitch4Position2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.68 * w, 0.045 * h);
+	c.lineTo(w, 0.045 * h);
+	c.moveTo(0.8 * w, 0.35 * h);
+	c.lineTo(w, 0.35 * h);
+	c.moveTo(0.8 * w, 0.65 * h);
+	c.lineTo(w, 0.65 * h);
+	c.moveTo(0.68 * w, 0.955 * h);
+	c.lineTo(w, 0.955 * h);
+	c.stroke();
+	c.ellipse(0.2 * w, 0.455 * h, 0.08 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0, 0.08 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.305 * h, 0.08 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.605 * h, 0.08 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0.91 * h, 0.08 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.setFillColor(strokeColor);
+	
+	if (switchState == '1')
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.47 * h);
+		c.lineTo(0.58 * w, 0.11 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.515 * w, 0.115 * h);
+		c.lineTo(0.61 * w, 0.08 * h);
+		c.lineTo(0.58 * w, 0.18 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '2')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.485 * h);
+		c.lineTo(0.69 * w, 0.37 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.62 * w, 0.34 * h);
+		c.lineTo(0.72 * w, 0.36 * h);
+		c.lineTo(0.64 * w, 0.43 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '3')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.515 * h);
+		c.lineTo(0.69 * w, 0.63 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.62 * w, 0.66 * h);
+		c.lineTo(0.72 * w, 0.64 * h);
+		c.lineTo(0.64 * w, 0.57 * h);
+		c.close();
+		c.fill();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.53 * h);
+		c.lineTo(0.58 * w, 0.89 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.515 * w, 0.885 * h);
+		c.lineTo(0.61 * w, 0.92 * h);
+		c.lineTo(0.58 * w, 0.82 * h);
+		c.close();
+		c.fill();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSelectorSwitch4Position2.prototype.cst.SHAPE_SELECTOR_SWITCH_4_POSITION, mxShapeElectricalSelectorSwitch4Position2);
+
+mxShapeElectricalSelectorSwitch4Position2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Selector Switch - 6 Position 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSelectorSwitch6Position2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSelectorSwitch6Position2, mxShape);
+
+mxShapeElectricalSelectorSwitch6Position2.prototype.cst = {
+		SHAPE_SELECTOR_SWITCH_6_POSITION : 'mxgraph.electrical.electro-mechanical.selectorSwitch6Position2'
+};
+
+mxShapeElectricalSelectorSwitch6Position2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'int', min:1, max:6, defVal: '1',}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSelectorSwitch6Position2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.39 * w, 0.03 * h);
+	c.lineTo(w, 0.03 * h);
+	c.moveTo(0.68 * w, 0.22 * h);
+	c.lineTo(w, 0.22 * h);
+	c.moveTo(0.8 * w, 0.405 * h);
+	c.lineTo(w, 0.405 * h);
+	c.moveTo(0.8 * w, 0.595 * h);
+	c.lineTo(w, 0.595 * h);
+	c.moveTo(0.68 * w, 0.78 * h);
+	c.lineTo(w, 0.78 * h);
+	c.moveTo(0.39 * w, 0.97 * h);
+	c.lineTo(w, 0.97 * h);
+	c.stroke();
+	c.ellipse(0.2 * w, 0.47 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.31 * w, 0, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0.19 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.375 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.565 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.6 * w, 0.75 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.ellipse(0.31 * w, 0.94 * h, 0.08 * w, 0.06 * h);
+	c.fillAndStroke();
+	c.setFillColor(strokeColor);
+	
+	if (switchState == '1')
+	{
+		c.begin();
+		c.moveTo(0.25 * w, 0.47 * h);
+		c.lineTo(0.34 * w, 0.08 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.29 * w, 0.115 * h);
+		c.lineTo(0.34 * w, 0.06 * h);
+		c.lineTo(0.37 * w, 0.12 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '2')
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.48 * h);
+		c.lineTo(0.595 * w, 0.25 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.52 * w, 0.265 * h);
+		c.lineTo(0.61 * w, 0.24 * h);
+		c.lineTo(0.58 * w, 0.302 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '3')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.495 * h);
+		c.lineTo(0.69 * w, 0.42 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.63 * w, 0.405 * h);
+		c.lineTo(0.72 * w, 0.415 * h);
+		c.lineTo(0.65 * w, 0.455 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '4')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.505 * h);
+		c.lineTo(0.69 * w, 0.58 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.63 * w, 0.595 * h);
+		c.lineTo(0.72 * w, 0.585 * h);
+		c.lineTo(0.65 * w, 0.545 * h);
+		c.close();
+		c.fill();
+	}
+	else if (switchState == '5')
+	{
+		c.begin();
+		c.moveTo(0.27 * w, 0.52 * h);
+		c.lineTo(0.595 * w, 0.75 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.52 * w, 0.735 * h);
+		c.lineTo(0.61 * w, 0.76 * h);
+		c.lineTo(0.58 * w, 0.698 * h);
+		c.close();
+		c.fill();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.25 * w, 0.53 * h);
+		c.lineTo(0.34 * w, 0.92 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.29 * w, 0.885 * h);
+		c.lineTo(0.34 * w, 0.94 * h);
+		c.lineTo(0.37 * w, 0.88 * h);
+		c.close();
+		c.fill();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSelectorSwitch6Position2.prototype.cst.SHAPE_SELECTOR_SWITCH_6_POSITION, mxShapeElectricalSelectorSwitch6Position2);
+
+mxShapeElectricalSelectorSwitch6Position2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.03), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.22), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.405), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.595), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.78), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.97), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Shorting Selector Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalShortingSelectorSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalShortingSelectorSwitch2, mxShape);
+
+mxShapeElectricalShortingSelectorSwitch2.prototype.cst = {
+		SHAPE_SHORTING_SELECTOR_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.shortingSelectorSwitch2'
+};
+
+mxShapeElectricalShortingSelectorSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'int', min:1, max:4, defVal: '1',}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalShortingSelectorSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.25 * w, 0.5 * h);
+	c.stroke();
+	c.ellipse(0.25 * w, 0.455 * h, 0.1 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.75 * w, 0, 0.1 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.9 * w, 0.305 * h, 0.1 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.9 * w, 0.605 * h, 0.1 * w, 0.09 * h);
+	c.fillAndStroke();
+	c.ellipse(0.75 * w, 0.91 * h, 0.1 * w, 0.09 * h);
+	c.fillAndStroke();
+
+	if (switchState == '1')
+	{
+		c.begin();
+		c.moveTo(0.33 * w, 0.47 * h);
+		c.lineTo(0.72 * w, 0.12 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.617 * w, 0.044 * h);
+		c.arcTo(0.21 * w, 0.17 *  h, 0, 0, 1, 0.818 * w, 0.182 * h);
+		c.lineTo(0.766 * w, 0.198 * h);
+		c.arcTo(0.15 * w, 0.13 *  h, 0, 0, 0, 0.617 * w, 0.092 * h);
+		c.close();
+		c.fillAndStroke();
+	}
+	else if (switchState == '2')
+	{
+		c.begin();
+		c.moveTo(0.34 * w, 0.49 * h);
+		c.lineTo(0.83 * w, 0.375 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.791 * w, 0.263 * h);
+		c.arcTo(0.24 * w, 0.2 *  h, 0, 0, 1, 0.889 * w, 0.474 * h);
+		c.lineTo(0.837 * w, 0.465 * h);
+		c.arcTo(0.16 * w, 0.14 *  h, 0, 0, 0, 0.767 * w, 0.303 * h);
+		c.close();
+		c.fillAndStroke();
+	}
+	else if (switchState == '3')
+	{
+		c.begin();
+		c.moveTo(0.34 * w, 0.51 * h);
+		c.lineTo(0.83 * w, 0.625 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.791 * w, 0.737 * h);
+		c.arcTo(0.24 * w, 0.2 *  h, 0, 0, 0, 0.889 * w, 0.526 * h);
+		c.lineTo(0.837 * w, 0.535 * h);
+		c.arcTo(0.16 * w, 0.14 *  h, 0, 0, 1, 0.767 * w, 0.697 * h);
+		c.close();
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.33 * w, 0.53 * h);
+		c.lineTo(0.72 * w, 0.88 * h);
+		c.stroke();
+		c.begin();
+		c.moveTo(0.617 * w, 0.956 * h);
+		c.arcTo(0.21 * w, 0.17 *  h, 0, 0, 0, 0.818 * w, 0.818 * h);
+		c.lineTo(0.766 * w, 0.802 * h);
+		c.arcTo(0.15 * w, 0.13 *  h, 0, 0, 1, 0.617 * w, 0.908 * h);
+		c.close();
+		c.fillAndStroke();
+	}
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalShortingSelectorSwitch2.prototype.cst.SHAPE_SHORTING_SELECTOR_SWITCH_2, mxShapeElectricalShortingSelectorSwitch2);
+
+mxShapeElectricalShortingSelectorSwitch2.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.5), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Proximity Limit Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalProximityLimitSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalProximityLimitSwitch2, mxShape);
+
+mxShapeElectricalProximityLimitSwitch2.prototype.cst = {
+		SHAPE_PROXIMITY_LIMIT_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.proximityLimitSwitch2'
+};
+
+mxShapeElectricalProximityLimitSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalProximityLimitSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.8 * w, 0.5 * h);
+	c.lineTo(w, 0.5 * h);
+	c.moveTo(0.13 * w, 0.5 * h);
+	c.lineTo(0.5 * w, 0);
+	c.lineTo(0.87 * w, 0.5 * h);
+	c.lineTo(0.5 * w, h);
+	c.close();
+	c.stroke();
+	
+	if (switchState == 'off')
+	{
+		c.begin();
+		c.moveTo(0.755 * w, 0.355 * h);
+		c.lineTo(0.22 * w, 0.5 * h);
+		c.lineTo(0.625 * w, 0.61 * h);
+		c.lineTo(0.72 * w, 0.36 * h);
+		c.stroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.76 * w, 0.43 * h);
+		c.lineTo(0.235 * w, 0.5 * h);
+		c.lineTo(0.615 * w, 0.66 * h);
+		c.lineTo(0.72 * w, 0.44 * h);
+		c.stroke();
+	}
+
+	c.ellipse(0.2 * w, 0.445 * h, 0.08 * w, 0.11 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.445 * h, 0.08 * w, 0.11 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalProximityLimitSwitch2.prototype.cst.SHAPE_PROXIMITY_LIMIT_SWITCH_2, mxShapeElectricalProximityLimitSwitch2);
+
+mxShapeElectricalProximityLimitSwitch2.prototype.constraints = [
+	  new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	  new mxConnectionConstraint(new mxPoint(1, 0.5), true)
+	  ];
+
+//**********************************************************************************************************************************************************
+// Inertia Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalInertiaSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalInertiaSwitch2, mxShape);
+
+mxShapeElectricalInertiaSwitch2.prototype.cst = {
+		SHAPE_INERTIA_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.inertiaSwitch2'
+};
+
+mxShapeElectricalInertiaSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalInertiaSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0, 0.85 * h);
+	c.lineTo(0.2 * w, 0.85 * h);
+	c.moveTo(0.8 * w, 0.85 * h);
+	c.lineTo(w, 0.85 * h);
+	c.stroke();
+	
+	if (switchState == 'off')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.79 * h);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(0.493 * w, 0.45 * h);
+		c.lineTo(0.493 * w, 0.26 * h);
+		c.lineTo(0.43 * w, 0.26 * h);
+		c.stroke();
+		c.ellipse(0.35 * w, 0.1 * h, 0.08 * w, 0.3 * h);
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.85 * h);
+		c.lineTo(0.76 * w, 0.85 * h);
+		c.moveTo(0.51 * w, 0.85 * h);
+		c.lineTo(0.51 * w, 0.26 * h);
+		c.lineTo(0.43 * w, 0.26 * h);
+		c.stroke();
+		c.ellipse(0.35 * w, 0.1 * h, 0.08 * w, 0.3 * h);
+		c.fillAndStroke();
+	}
+
+	c.ellipse(0.2 * w, 0.7 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.7 * h, 0.08 * w, 0.3 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalInertiaSwitch2.prototype.cst.SHAPE_INERTIA_SWITCH_2, mxShapeElectricalInertiaSwitch2);
+
+mxShapeElectricalInertiaSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.85), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.85), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Pushbutton Break 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPushbuttonBreak2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPushbuttonBreak2, mxShape);
+
+mxShapeElectricalPushbuttonBreak2.prototype.cst = {
+		SHAPE_PUSHBUTTON_BREAK_2 : 'mxgraph.electrical.electro-mechanical.pushbuttonBreak2'
+};
+
+mxShapeElectricalPushbuttonBreak2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPushbuttonBreak2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0, 0.8 * h);
+	c.lineTo(0.2 * w, 0.8 * h);
+	c.moveTo(0.8 * w, 0.8 * h);
+	c.lineTo(w, 0.8 * h);
+	c.stroke();
+	
+	if (switchState == 'off')
+	{
+		c.begin();
+		c.moveTo(0.24 * w, h);
+		c.lineTo(0.76 * w, h);
+		c.moveTo(0.5 * w, h);
+		c.lineTo(0.5 * w, 0.1 * h);
+		c.stroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.24 * w, 0.9 * h);
+		c.lineTo(0.76 * w, 0.9 * h);
+		c.moveTo(0.5 * w, 0.9 * h);
+		c.lineTo(0.5 * w, 0);
+		c.stroke();
+	}
+
+	c.ellipse(0.2 * w, 0.725 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.725 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPushbuttonBreak2.prototype.cst.SHAPE_PUSHBUTTON_BREAK_2, mxShapeElectricalPushbuttonBreak2);
+
+mxShapeElectricalPushbuttonBreak2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Manual Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalManualSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalManualSwitch2, mxShape);
+
+mxShapeElectricalManualSwitch2.prototype.cst = {
+		SHAPE_MANUAL_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.manualSwitch2'
+};
+
+mxShapeElectricalManualSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalManualSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'on');
+
+	c.begin();
+	c.moveTo(0.8 * w, h);
+	c.lineTo(w, h);
+	c.moveTo(0, h);
+	c.lineTo(0.25 * w, h);
+	
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0.1 * h);
+		c.moveTo(0.49 * w, 0);
+		c.lineTo(0.49 * w, 0.2 * h);
+		c.moveTo(0.49 * w, 0.3 * h);
+		c.lineTo(0.49 * w, 0.55 * h);
+		c.moveTo(0.41 * w, 0);
+		c.lineTo(0.57 * w, 0);
+	}
+	else
+	{
+		c.lineTo(0.8 * w, h);
+		c.moveTo(0.49 * w, 0.45 * h);
+		c.lineTo(0.49 * w, 0.65 * h);
+		c.moveTo(0.49 * w, 0.75 * h);
+		c.lineTo(0.49 * w, h);
+		c.moveTo(0.41 * w, 0.45 * h);
+		c.lineTo(0.57 * w, 0.45 * h);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalManualSwitch2.prototype.cst.SHAPE_MANUAL_SWITCH_2, mxShapeElectricalManualSwitch2);
+
+mxShapeElectricalManualSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Two Way Contact 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTwoWayContact2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTwoWayContact2, mxShape);
+
+mxShapeElectricalTwoWayContact2.prototype.cst = {
+		SHAPE_TWO_WAY_CONTACT_2 : 'mxgraph.electrical.electro-mechanical.twoWayContact2'
+};
+
+mxShapeElectricalTwoWayContact2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'neutral',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'neutral', dispName:'Neutral'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTwoWayContact2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.21 * w, 0.5 * h);
+	c.moveTo(0.67 * w, 0);
+	c.lineTo(w, 0);
+	c.moveTo(0.67 * w, h);
+	c.lineTo(w, h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.28 * w, 0.46 * h);
+		c.lineTo(0.67 * w, 0);
+	}
+	else if (switchState == '2')
+	{
+		c.moveTo(0.28 * w, 0.54 * h);
+		c.lineTo(0.67 * w, h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.5 * h);
+		c.lineTo(0.67 * w, 0.5 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.4 * h, 0.08 * w, 0.2 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTwoWayContact2.prototype.cst.SHAPE_TWO_WAY_CONTACT_2, mxShapeElectricalTwoWayContact2);
+
+mxShapeElectricalTwoWayContact2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Passing Make-Contact 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPassingMakeContact2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPassingMakeContact2, mxShape);
+
+mxShapeElectricalPassingMakeContact2.prototype.cst = {
+		SHAPE_PASSING_MAKE_CONTACT_2 : 'mxgraph.electrical.electro-mechanical.passingMakeContact2'
+};
+
+mxShapeElectricalPassingMakeContact2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPassingMakeContact2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(w, 0.7 * h);
+	c.lineTo(0.77 * w, 0.7 * h);
+	c.lineTo(0.93 * w, h);
+	c.moveTo(0, 0.7 * h);
+	c.lineTo(0.25 * w, 0.7 * h);
+	
+	if (switchState == 'off')
+	{
+		c.lineTo(0.76 * w, 0);
+	}
+	else
+	{
+		c.lineTo(0.76 * w, 0.7 * h);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPassingMakeContact2.prototype.cst.SHAPE_PASSING_MAKE_CONTACT_2, mxShapeElectricalPassingMakeContact2);
+
+mxShapeElectricalPassingMakeContact2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.7), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.7), true)
+	];
+
+//**********************************************************************************************************************************************************
+// DPST 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalDPST2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalDPST2, mxShape);
+
+mxShapeElectricalDPST2.prototype.cst = {
+		SHAPE_DPST_2 : 'mxgraph.electrical.electro-mechanical.dpst2'
+};
+
+mxShapeElectricalDPST2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalDPST2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(0, 0.4 * h);
+	c.lineTo(0.2 * w, 0.4 * h);
+	c.moveTo(0.8 * w, 0.4 * h);
+	c.lineTo(w, 0.4 * h);
+	c.moveTo(0, 0.92 * h);
+	c.lineTo(0.2 * w, 0.92 * h);
+	c.moveTo(0.8 * w, 0.92 * h);
+	c.lineTo(w, 0.92 * h);
+	
+	if (switchState == 'off')
+	{
+		c.moveTo(0.28 * w, 0.38 * h);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(0.28 * w, 0.9 * h);
+		c.lineTo(0.76 * w, 0.52 * h);
+		c.moveTo(0.5 * w, 0.2 * h);
+		c.lineTo(0.5 * w, 0.33 * h);
+		c.moveTo(0.5 * w, 0.38 * h);
+		c.lineTo(0.5 * w, 0.51 * h);
+		c.moveTo(0.5 * w, 0.56 * h);
+		c.lineTo(0.5 * w, 0.69 * h);
+	}
+	else
+	{
+		c.moveTo(0.28 * w, 0.4 * h);
+		c.lineTo(0.72 * w, 0.4 * h);
+		c.moveTo(0.28 * w, 0.92 * h);
+		c.lineTo(0.72 * w, 0.92 * h);
+		c.moveTo(0.5 * w, 0.4 * h);
+		c.lineTo(0.5 * w, 0.53 * h);
+		c.moveTo(0.5 * w, 0.58 * h);
+		c.lineTo(0.5 * w, 0.71 * h);
+		c.moveTo(0.5 * w, 0.76 * h);
+		c.lineTo(0.5 * w, 0.89 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.325 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+	c.ellipse(0.2 * w, 0.845 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.325 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.845 * h, 0.08 * w, 0.15 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalDPST2.prototype.cst.SHAPE_DPST_2, mxShapeElectricalDPST2);
+
+mxShapeElectricalDPST2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.4), true),
+	new mxConnectionConstraint(new mxPoint(0, 0.92), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.4), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.92), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Spring Return Switch 3
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalSpringReturn3(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalSpringReturn3, mxShape);
+
+mxShapeElectricalSpringReturn3.prototype.cst = {
+		SHAPE_SPRING_RETURN_3 : 'mxgraph.electrical.electro-mechanical.springReturn3'
+};
+
+mxShapeElectricalSpringReturn3.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalSpringReturn3.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(0, 0.62 * h);
+	c.lineTo(0.21 * w, 0.62 * h);
+	c.stroke();
+
+	if (switchState == 'off')
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.57 * h);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(w, 0.62 * h);
+		c.lineTo(0.625 * w, 0.62 * h);
+		c.lineTo(0.695 * w, 0.31 * h);
+		c.lineTo(0.765 * w, 0.62 * h);
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.28 * w, 0.64 * h);
+		c.lineTo(0.76 * w, h);
+		c.moveTo(w, 0.62 * h);
+		c.lineTo(0.625 * w, 0.62 * h);
+		c.lineTo(0.695 * w, 0.93 * h);
+		c.lineTo(0.765 * w, 0.62 * h);
+		c.fillAndStroke();
+	}
+	
+	c.ellipse(0.205 * w, 0.5 * h, 0.08 * w, 0.24 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalSpringReturn3.prototype.cst.SHAPE_SPRING_RETURN_3, mxShapeElectricalSpringReturn3);
+
+mxShapeElectricalSpringReturn3.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.62), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.62), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Limit Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalLimitSwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalLimitSwitch, mxShape);
+
+mxShapeElectricalLimitSwitch.prototype.cst = {
+		SHAPE_LIMIT_SWITCH : 'mxgraph.electrical.electro-mechanical.limitSwitch'
+};
+
+mxShapeElectricalLimitSwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalLimitSwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(0, 0.16 * h);
+	c.lineTo(0.2 * w, 0.16 * h);
+	c.moveTo(0.8 * w, 0.16 * h);
+	c.lineTo(w, 0.16 * h);
+	c.stroke();
+
+	if (switchState == 'off')
+	{
+		c.begin();
+		c.moveTo(0.725 * w, 0.75 * h);
+		c.lineTo(0.24 * w, 0.16 * h);
+		c.lineTo(0.515 * w, h);
+		c.lineTo(0.69 * w, 0.72 * h);
+		c.fillAndStroke();
+	}
+	else
+	{
+		c.begin();
+		c.moveTo(0.76 * w, 0);
+		c.lineTo(0.24 * w, 0.16 * h);
+		c.lineTo(0.615 * w, 0.52 * h);
+		c.lineTo(0.72 * w, 0.02 * h);
+		c.fillAndStroke();
+	}
+	
+	c.ellipse(0.2 * w, 0.04 * h, 0.08 * w, 0.24 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.04 * h, 0.08 * w, 0.24 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalLimitSwitch.prototype.cst.SHAPE_LIMIT_SWITCH, mxShapeElectricalLimitSwitch);
+
+mxShapeElectricalLimitSwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.16), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.16), true)
+	];
+
+//**********************************************************************************************************************************************************
+// DPDT 3
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalDPDT3(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalDPDT3, mxShape);
+
+mxShapeElectricalDPDT3.prototype.cst = {
+		SHAPE_DPDT_3 : 'mxgraph.electrical.electro-mechanical.dpdt3'
+};
+
+mxShapeElectricalDPDT3.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalDPDT3.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'neutral');
+
+	c.begin();
+	c.moveTo(0, 0.23 * h);
+	c.lineTo(0.27 * w, 0.23 * h);
+	c.moveTo(0, 0.79 * h);
+	c.lineTo(0.27 * w, 0.79 * h);
+	c.moveTo(0.74 * w, 0.05 * h);
+	c.lineTo(w, 0.05 * h);
+	c.moveTo(0.74 * w, 0.39 * h);
+	c.lineTo(w, 0.39 * h);
+	c.moveTo(0.74 * w, 0.61 * h);
+	c.lineTo(w, 0.61 * h);
+	c.moveTo(0.74 * w, 0.95 * h);
+	c.lineTo(w, 0.95 * h);
+
+	if (switchState == '1')
+	{
+		c.moveTo(0.37	 * w, 0.215 * h);
+		c.lineTo(0.69 * w, 0.105 * h);
+		c.moveTo(0.37	 * w, 0.775 * h);
+		c.lineTo(0.69 * w, 0.665 * h);
+		c.moveTo(0.515 * w, 0.17 * h);
+		c.lineTo(0.515 * w, 0.245 * h);
+		c.moveTo(0.515 * w, 0.28 * h);
+		c.lineTo(0.515 * w, 0.355 * h);
+		c.moveTo(0.515 * w, 0.39 * h);
+		c.lineTo(0.515 * w, 0.465 * h);
+		c.moveTo(0.515 * w, 0.5 * h);
+		c.lineTo(0.515 * w, 0.575 * h);
+		c.moveTo(0.515 * w, 0.61 * h);
+		c.lineTo(0.515 * w, 0.685 * h);
+	}
+	else
+	{
+		c.moveTo(0.37	 * w, 0.245 * h);
+		c.lineTo(0.69 * w, 0.335 * h);
+		c.moveTo(0.37	 * w, 0.805 * h);
+		c.lineTo(0.69 * w, 0.895 * h);
+		c.moveTo(0.515 * w, 0.29 * h);
+		c.lineTo(0.515 * w, 0.365 * h);
+		c.moveTo(0.515 * w, 0.4 * h);
+		c.lineTo(0.515 * w, 0.475 * h);
+		c.moveTo(0.515 * w, 0.51 * h);
+		c.lineTo(0.515 * w, 0.585 * h);
+		c.moveTo(0.515 * w, 0.62 * h);
+		c.lineTo(0.515 * w, 0.695 * h);
+		c.moveTo(0.515 * w, 0.73 * h);
+		c.lineTo(0.515 * w, 0.805 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.265 * w, 0.18 * h, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+	c.ellipse(0.265 * w, 0.745 * h, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+	c.ellipse(0.635 * w, 0, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+	c.ellipse(0.635 * w, 0.345 * h, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+	c.ellipse(0.635 * w, 0.56 * h, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+	c.ellipse(0.635 * w, 0.905 * h, 0.105 * w, 0.095 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalDPDT3.prototype.cst.SHAPE_DPDT_3, mxShapeElectricalDPDT3);
+
+mxShapeElectricalDPDT3.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.23), true),
+	new mxConnectionConstraint(new mxPoint(0, 0.79), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.05), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.39), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.61), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.95), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Two Position Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTwoPositionSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTwoPositionSwitch2, mxShape);
+
+mxShapeElectricalTwoPositionSwitch2.prototype.cst = {
+		SHAPE_TWO_POSITION_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.twoPositionSwitch2'
+};
+
+mxShapeElectricalTwoPositionSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTwoPositionSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.8 * w, 0.5 * h);
+	c.lineTo(w, 0.5 * h);
+	c.moveTo(0.5 * w, 0);
+	c.lineTo(0.5 * w, 0.18 * h);
+	c.moveTo(0.5 * w, 0.82 * h);
+	c.lineTo(0.5 * w, h);
+	c.moveTo(0.63 * w, 0.145 * h);
+	c.arcTo(0.2 * w, 0.22 * h, 0, 0, 1, 0.835 * w, 0.36 * h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.24 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 1, 0.5 * w, 0.78 * h);
+		c.moveTo(0.76 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 1, 0.5 * w, 0.22 * h);
+		c.moveTo(0.39 * w, 0.56 * h);
+		c.lineTo(0.55 * w, 0.39 * h);
+		c.moveTo(0.39 * w, 0.56 * h);
+		c.lineTo(0.55 * w, 0.39 * h);
+		c.moveTo(0.61 * w, 0.44 * h);
+		c.lineTo(0.45 * w, 0.61 * h);
+		c.moveTo(0.61 * w, 0.44 * h);
+		c.lineTo(0.45 * w, 0.61 * h);
+	}
+	else
+	{
+		c.moveTo(0.76 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 0, 0.5 * w, 0.78 * h);
+		c.moveTo(0.24 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 0, 0.5 * w, 0.22 * h);
+		c.moveTo(0.61 * w, 0.56 * h);
+		c.lineTo(0.45 * w, 0.39 * h);
+		c.moveTo(0.61 * w, 0.56 * h);
+		c.lineTo(0.45 * w, 0.39 * h);
+		c.moveTo(0.39 * w, 0.44 * h);
+		c.lineTo(0.55 * w, 0.61 * h);
+		c.moveTo(0.39 * w, 0.44 * h);
+		c.lineTo(0.55 * w, 0.61 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.4575 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.4575 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.46 * w, 0.18 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.46 * w, 0.735 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(0.633 * w, 0.1 * h);
+	c.lineTo(0.633 * w, 0.185 * h);
+	c.lineTo(0.56 * w, 0.1425 * h);
+	c.close();
+	c.moveTo(0.795 * w, 0.355 * h);
+	c.lineTo(0.875 * w, 0.355 * h);
+	c.lineTo(0.835 * w, 0.435 * h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTwoPositionSwitch2.prototype.cst.SHAPE_TWO_POSITION_SWITCH_2, mxShapeElectricalTwoPositionSwitch2);
+
+mxShapeElectricalTwoPositionSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Three Position Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalThreePositionSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalThreePositionSwitch2, mxShape);
+
+mxShapeElectricalThreePositionSwitch2.prototype.cst = {
+		SHAPE_THREE_POSITION_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.threePositionSwitch2'
+};
+
+mxShapeElectricalThreePositionSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'},
+			{val:'3', dispName:'3'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalThreePositionSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0.5 * w, 0);
+	c.lineTo(0.5 * w, 0.2 * h);
+	c.moveTo(0, h);
+	c.lineTo(0.215 * w, 0.825 * h);
+	c.moveTo(w, h);
+	c.lineTo(0.785 * w, 0.825 * h);
+	c.moveTo(0.12 * w, 0.62 * h);
+	c.arcTo(0.38 * w, 0.38 * h, 0, 0, 1, 0.31 * w, 0.26 * h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.5 * w, 0.26 * h);
+		c.arcTo(0.65 * w, 0.65 * h, 0, 0, 1, 0.25 * w, 0.79 * h);
+	}
+	else if (switchState == '2')
+	{
+		c.moveTo(0.5 * w, 0.26 * h);
+		c.arcTo(0.65 * w, 0.65 * h, 0, 0, 0, 0.75 * w, 0.79 * h);
+	}
+	else
+	{
+		c.moveTo(0.25 * w, 0.79 * h);
+		c.arcTo(0.5 * w, 0.5 * h, 0, 0, 1, 0.75 * w, 0.79 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.74 * h, 0.1 * w, 0.1 * h);
+	c.fillAndStroke();
+	c.ellipse(0.45 * w, 0.21 * h, 0.1 * w, 0.1 * h);
+	c.fillAndStroke();
+	c.ellipse(0.7 * w, 0.74 * h, 0.1 * w, 0.1 * h);
+	c.fillAndStroke();
+	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(0.285 * w, 0.215 * h);
+	c.lineTo(0.39 * w, 0.2 * h);
+	c.lineTo(0.345 * w, 0.295 * h);
+	c.close();
+	c.moveTo(0.07 * w, 0.63 * h);
+	c.lineTo(0.18 * w, 0.61 * h);
+	c.lineTo(0.14 * w, 0.71 * h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalThreePositionSwitch2.prototype.cst.SHAPE_THREE_POSITION_SWITCH_2, mxShapeElectricalThreePositionSwitch2);
+
+mxShapeElectricalThreePositionSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+	new mxConnectionConstraint(new mxPoint(0, 1), true),
+	new mxConnectionConstraint(new mxPoint(1, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Four Position Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalFourPositionSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalFourPositionSwitch2, mxShape);
+
+mxShapeElectricalFourPositionSwitch2.prototype.cst = {
+		SHAPE_FOUR_POSITION_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.fourPositionSwitch2'
+};
+
+mxShapeElectricalFourPositionSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'},
+			{val:'3', dispName:'3'},
+			{val:'4', dispName:'4'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalFourPositionSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.2 * w, 0.5 * h);
+	c.moveTo(0.8 * w, 0.5 * h);
+	c.lineTo(w, 0.5 * h);
+	c.moveTo(0.5 * w, 0);
+	c.lineTo(0.5 * w, 0.18 * h);
+	c.moveTo(0.5 * w, 0.82 * h);
+	c.lineTo(0.5 * w, h);
+	c.moveTo(0.37 * w, 0.145 * h);
+	c.arcTo(0.2 * w, 0.22 * h, 0, 0, 0, 0.165 * w, 0.36 * h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.32 * w, 0.7 * h);
+		c.arcTo(0.25 * w, 0.25 * h, 0, 0, 1, 0.68 * w, 0.7 * h);
+		c.moveTo(0.32 * w, 0.3 * h);
+		c.arcTo(0.25 * w, 0.25 * h, 0, 0, 0, 0.68 * w, 0.3 * h);
+		c.moveTo(0.46 * w, 0.37 * h);
+		c.lineTo(0.46 * w, 0.63 * h);
+		c.moveTo(0.54 * w, 0.37 * h);
+		c.lineTo(0.54 * w, 0.63 * h);
+		c.moveTo(0.28 * w, 0.5 * h);
+		c.lineTo(0.72 * w, 0.5 * h);
+	}
+	else if (switchState == '2')
+	{
+		c.moveTo(0.24 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 1, 0.5 * w, 0.78 * h);
+		c.moveTo(0.76 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 1, 0.5 * w, 0.22 * h);
+		c.moveTo(0.39 * w, 0.56 * h);
+		c.lineTo(0.55 * w, 0.39 * h);
+		c.moveTo(0.39 * w, 0.56 * h);
+		c.lineTo(0.55 * w, 0.39 * h);
+		c.moveTo(0.61 * w, 0.44 * h);
+		c.lineTo(0.45 * w, 0.61 * h);
+		c.moveTo(0.61 * w, 0.44 * h);
+		c.lineTo(0.45 * w, 0.61 * h);
+		c.moveTo(0.32 * w, 0.32 * h);
+		c.lineTo(0.68 * w, 0.68 * h);
+	}
+	else if (switchState == '3')
+	{
+		c.moveTo(0.7 * w, 0.32 * h);
+		c.arcTo(0.25 * w, 0.25 * h, 0, 0, 0, 0.7 * w, 0.68 * h);
+		c.moveTo(0.3 * w, 0.32 * h);
+		c.arcTo(0.25 * w, 0.25 * h, 0, 0, 1, 0.3 * w, 0.68 * h);
+		c.moveTo(0.37 * w, 0.46 * h);
+		c.lineTo(0.63 * w, 0.46 * h);
+		c.moveTo(0.37 * w, 0.54 * h);
+		c.lineTo(0.63 * w, 0.54 * h);
+		c.moveTo(0.5 * w, 0.26 * h);
+		c.lineTo(0.5 * w, 0.74 * h);
+	}
+	else
+	{
+		c.moveTo(0.76 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 0, 0.5 * w, 0.78 * h);
+		c.moveTo(0.24 * w, 0.5 * h);
+		c.arcTo(0.27 * w, 0.27 * h, 0, 0, 0, 0.5 * w, 0.22 * h);
+		c.moveTo(0.61 * w, 0.56 * h);
+		c.lineTo(0.45 * w, 0.39 * h);
+		c.moveTo(0.61 * w, 0.56 * h);
+		c.lineTo(0.45 * w, 0.39 * h);
+		c.moveTo(0.39 * w, 0.44 * h);
+		c.lineTo(0.55 * w, 0.61 * h);
+		c.moveTo(0.39 * w, 0.44 * h);
+		c.lineTo(0.55 * w, 0.61 * h);
+		c.moveTo(0.68 * w, 0.32 * h);
+		c.lineTo(0.32 * w, 0.68 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.4575 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.4575 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.46 * w, 0.18 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	c.ellipse(0.46 * w, 0.735 * h, 0.08 * w, 0.085 * h);
+	c.fillAndStroke();
+	var strokeColor = mxUtils.getValue(this.style, mxConstants.STYLE_STROKECOLOR, '#000000');
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(0.367 * w, 0.1 * h);
+	c.lineTo(0.367 * w, 0.185 * h);
+	c.lineTo(0.44 * w, 0.1425 * h);
+	c.close();
+	c.moveTo(0.205 * w, 0.355 * h);
+	c.lineTo(0.125 * w, 0.355 * h);
+	c.lineTo(0.165 * w, 0.435 * h);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalFourPositionSwitch2.prototype.cst.SHAPE_FOUR_POSITION_SWITCH_2, mxShapeElectricalFourPositionSwitch2);
+
+mxShapeElectricalFourPositionSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 0), true),
+	new mxConnectionConstraint(new mxPoint(0.5, 1), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Pushubutton Make Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPushbuttonMakeSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPushbuttonMakeSwitch2, mxShape);
+
+mxShapeElectricalPushbuttonMakeSwitch2.prototype.cst = {
+		SHAPE_PUSHBUTTON_MAKE_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.pushbuttonMakeSwitch2'
+};
+
+mxShapeElectricalPushbuttonMakeSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPushbuttonMakeSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0, 0.94 * h);
+	c.lineTo(0.2 * w, 0.94 * h);
+	c.moveTo(0.8 * w, 0.94 * h);
+	c.lineTo(w, 0.94 * h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.5 * w, 0);
+		c.lineTo(0.5 * w, 0.8 * h);
+		c.moveTo(0.24 * w, 0.8 * h);
+		c.lineTo(0.76 * w, 0.8 * h);
+	}
+	else
+	{
+		c.moveTo(0.5 * w, 0.07 * h);
+		c.lineTo(0.5 * w, 0.87 * h);
+		c.moveTo(0.24 * w, 0.87 * h);
+		c.lineTo(0.76 * w, 0.87 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.88 * h, 0.08 * w, 0.12 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.88 * h, 0.08 * w, 0.12 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPushbuttonMakeSwitch2.prototype.cst.SHAPE_PUSHBUTTON_MAKE_SWITCH_2, mxShapeElectricalPushbuttonMakeSwitch2);
+
+mxShapeElectricalPushbuttonMakeSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.94), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.94), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Pushubutton Two-Circuit Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalPushbuttonTwoCircuitSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalPushbuttonTwoCircuitSwitch2, mxShape);
+
+mxShapeElectricalPushbuttonTwoCircuitSwitch2.prototype.cst = {
+		SHAPE_PUSHBUTTON_TWO_CIRCUIT_SWITCH_2 : 'mxgraph.electrical.electro-mechanical.pushbuttonTwoCircuitSwitch2'
+};
+
+mxShapeElectricalPushbuttonTwoCircuitSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalPushbuttonTwoCircuitSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0, 0.68 * h);
+	c.lineTo(0.2 * w, 0.68 * h);
+	c.moveTo(0.8 * w, 0.68 * h);
+	c.lineTo(w, 0.68 * h);
+	c.moveTo(0, 0.96 * h);
+	c.lineTo(0.2 * w, 0.96 * h);
+	c.moveTo(0.8 * w, 0.96 * h);
+	c.lineTo(w, 0.96 * h);
+	
+	if (switchState == '1')
+	{
+		c.moveTo(0.5 * w, 0);
+		c.lineTo(0.5 * w, 0.73 * h);
+		c.moveTo(0.24 * w, 0.73 * h);
+		c.lineTo(0.76 * w, 0.73 * h);
+	}
+	else
+	{
+		c.moveTo(0.5 * w, 0.18 * h);
+		c.lineTo(0.5 * w, 0.91 * h);
+		c.moveTo(0.24 * w, 0.91 * h);
+		c.lineTo(0.76 * w, 0.91 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.92 * h, 0.08 * w, 0.08 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.92 * h, 0.08 * w, 0.08 * h);
+	c.fillAndStroke();
+	c.ellipse(0.2 * w, 0.64 * h, 0.08 * w, 0.08 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.64 * h, 0.08 * w, 0.08 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalPushbuttonTwoCircuitSwitch2.prototype.cst.SHAPE_PUSHBUTTON_TWO_CIRCUIT_SWITCH_2, mxShapeElectricalPushbuttonTwoCircuitSwitch2);
+
+mxShapeElectricalPushbuttonTwoCircuitSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.68), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.68), true),
+	new mxConnectionConstraint(new mxPoint(0, 0.96), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.96), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Time Delay Switch
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTimeDelaySwitch(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTimeDelaySwitch, mxShape);
+
+mxShapeElectricalTimeDelaySwitch.prototype.cst = {
+		SHAPE_TIME_DELAY_SWITCH : 'mxgraph.electrical.electro-mechanical.timeDelaySwitch'
+};
+
+mxShapeElectricalTimeDelaySwitch.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTimeDelaySwitch.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'off');
+
+	c.begin();
+	c.moveTo(0, 0.13 * h);
+	c.lineTo(0.2 * w, 0.13 * h);
+	c.moveTo(0.8 * w, 0.13 * h);
+	c.lineTo(w, 0.13 * h);
+	
+	if (switchState == 'off')
+	{
+		c.moveTo(0.5 * w, 0.37 * h);
+		c.lineTo(0.5 * w, 0.83 * h);
+		c.moveTo(0.28 * w, 0.16 * h);
+		c.lineTo(0.76 * w, 0.62 * h);
+		c.moveTo(0.44 * w, h);
+		c.lineTo(0.5 * w, 0.83 * h);
+		c.lineTo(0.56 * w, h);
+	}
+	else
+	{
+		c.moveTo(0.5 * w, 0.04 * h);
+		c.lineTo(0.5 * w, 0.5 * h);
+		c.moveTo(0.28 * w, 0.09 * h);
+		c.lineTo(0.76 * w, 0);
+		c.moveTo(0.44 * w, 0.67 * h);
+		c.lineTo(0.5 * w, 0.5 * h);
+		c.lineTo(0.56 * w, 0.67 * h);
+	}
+	
+	c.stroke();
+	c.ellipse(0.2 * w, 0.03 * h, 0.08 * w, 0.19 * h);
+	c.fillAndStroke();
+	c.ellipse(0.72 * w, 0.03 * h, 0.08 * w, 0.19 * h);
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTimeDelaySwitch.prototype.cst.SHAPE_TIME_DELAY_SWITCH, mxShapeElectricalTimeDelaySwitch);
+
+mxShapeElectricalTimeDelaySwitch.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.13), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.13), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Time Delay Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalTimeDelaySwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalTimeDelaySwitch2, mxShape);
+
+mxShapeElectricalTimeDelaySwitch2.prototype.cst = {
+		SHAPE_TIME_DELAY_SWITCH2 : 'mxgraph.electrical.electro-mechanical.timeDelaySwitch2'
+};
+
+mxShapeElectricalTimeDelaySwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalTimeDelaySwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'off');
+
+	c.begin();
+	c.moveTo(0, 0.45 * h);
+	c.lineTo(0.23 * w, 0.45 * h);
+	
+	if (switchState == 'off')
+	{
+		c.lineTo(0.75 * w, 0);
+		c.moveTo(w, 0.45 * h);
+		c.lineTo(0.8 * w, 0.45 * h);
+		c.moveTo(0.465 * w, 0.25 * h);
+		c.lineTo(0.465 * w, 0.76 * h);
+		c.moveTo(0.535 * w, 0.19 * h);
+		c.lineTo(0.535 * w, 0.76 * h);
+		c.moveTo(0.4 * w, 0.89 * h);
+		c.arcTo(0.11 * w, 0.25 * h, 0, 0, 1, 0.6 * w, 0.89 * h);
+	}
+	else
+	{
+		c.lineTo(0.73 * w, 0.25 * h);
+		c.moveTo(w, 0.45 * h);
+		c.lineTo(0.67 * w, 0.45 * h);
+		c.lineTo(0.67 * w, 0.16 * h);
+		c.moveTo(0.465 * w, 0.36 * h);
+		c.lineTo(0.465 * w, 0.87 * h);
+		c.moveTo(0.535 * w, 0.33 * h);
+		c.lineTo(0.535 * w, 0.87 * h);
+		c.moveTo(0.4 * w, h);
+		c.arcTo(0.11 * w, 0.25 * h, 0, 0, 1, 0.6 * w, h);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalTimeDelaySwitch2.prototype.cst.SHAPE_TIME_DELAY_SWITCH2, mxShapeElectricalTimeDelaySwitch2);
+
+mxShapeElectricalTimeDelaySwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.45), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.45), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Isolator Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalIsolatorSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalIsolatorSwitch2, mxShape);
+
+mxShapeElectricalIsolatorSwitch2.prototype.cst = {
+		SHAPE_ISOLATOR_SWITCH2 : 'mxgraph.electrical.electro-mechanical.isolatorSwitch2'
+};
+
+mxShapeElectricalIsolatorSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalIsolatorSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'off');
+
+	c.begin();
+	c.moveTo(w, 0.8 * h);
+	c.lineTo(0.8 * w, 0.8 * h);
+	c.moveTo(0.8 * w, 0.6 * h);
+	c.lineTo(0.8 * w, h);
+	c.moveTo(0, 0.8 * h);
+	c.lineTo(0.23 * w, 0.8 * h);
+	
+	if (switchState == 'off')
+	{
+		c.lineTo(0.75 * w, 0);
+	}
+	else
+	{
+		c.lineTo(0.8 * w, 0.8 * h);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalIsolatorSwitch2.prototype.cst.SHAPE_ISOLATOR_SWITCH2, mxShapeElectricalIsolatorSwitch2);
+
+mxShapeElectricalIsolatorSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Isolator Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalChangeoverContactSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalChangeoverContactSwitch2, mxShape);
+
+mxShapeElectricalChangeoverContactSwitch2.prototype.cst = {
+		SHAPE_CHANGEOVER_CONTACT_SWITCH2 : 'mxgraph.electrical.electro-mechanical.changeoverContactSwitch2'
+};
+
+mxShapeElectricalChangeoverContactSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: '1',
+		enumList:[
+			{val:'1', dispName:'1'},
+			{val:'2', dispName:'2'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalChangeoverContactSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', '1');
+
+	c.begin();
+	c.moveTo(0, h);
+	c.lineTo(0.25 * w, h);
+	
+	if (switchState == '1')
+	{
+		c.lineTo(0.76 * w, 0.2 * h);
+		c.moveTo(w, 0);
+		c.lineTo(0.67 * w, 0);
+		c.lineTo(0.67 * w, 0.5 * h);
+		c.moveTo(w, h);
+		c.lineTo(0.8 * w, h);
+	}
+	else
+	{
+		c.lineTo(0.77 * w, 0.6 * h);
+		c.moveTo(w, h);
+		c.lineTo(0.67 * w, h);
+		c.lineTo(0.67 * w, 0.5 * h);
+		c.moveTo(w, 0);
+		c.lineTo(0.8 * w, 0);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalChangeoverContactSwitch2.prototype.cst.SHAPE_CHANGEOVER_CONTACT_SWITCH2, mxShapeElectricalChangeoverContactSwitch2);
+
+mxShapeElectricalChangeoverContactSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(0, 0.8), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.8), true)
+	];
+
+//**********************************************************************************************************************************************************
+// Reed Switch 2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeElectricalReedSwitch2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeElectricalReedSwitch2, mxShape);
+
+mxShapeElectricalReedSwitch2.prototype.cst = {
+		SHAPE_REED_SWITCH2 : 'mxgraph.electrical.electro-mechanical.reedSwitch2'
+};
+
+mxShapeElectricalReedSwitch2.prototype.customProperties = [
+	{name: 'elSwitchState', dispName: 'Switch State', type: 'enum', defVal: 'on',
+		enumList:[
+			{val:'on', dispName:'On'},
+			{val:'off', dispName:'Off'}
+		]}
+];
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeElectricalReedSwitch2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var switchState = mxUtils.getValue(this.style, 'elSwitchState', 'off');
+
+	c.begin();
+	c.moveTo(0.69 * w, 0);
+	c.arcTo(0.13 * w, 0.5 * h, 0, 0, 1, 0.82 * w, 0.5 * h);
+	c.arcTo(0.13 * w, 0.5 * h, 0, 0, 1, 0.69 * w, h);
+	c.lineTo(0.31 * w, h);
+	c.arcTo(0.13 * w, 0.5 * h, 0, 0, 1, 0.18 * w, 0.5 * h);
+	c.arcTo(0.13 * w, 0.5 * h, 0, 0, 1, 0.31 * w, 0);
+	c.close();
+	c.fillAndStroke();
+
+	c.begin();
+	c.moveTo(w, 0.5 * h);
+	c.lineTo(0.65 * w, 0.5 * h);
+	c.moveTo(0, 0.5 * h);
+	c.lineTo(0.35 * w, 0.5 * h);
+	
+	if (switchState == 'on')
+	{
+		c.lineTo(0.65 * w, 0.5 * h);
+	}
+	else
+	{
+		c.lineTo(0.65 * w, 0.25 * h);
+	}
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeElectricalReedSwitch2.prototype.cst.SHAPE_REED_SWITCH2, mxShapeElectricalReedSwitch2);
+
+mxShapeElectricalReedSwitch2.prototype.constraints = [
+	new mxConnectionConstraint(new mxPoint(0, 0.5), true),
+	new mxConnectionConstraint(new mxPoint(1, 0.5), true)
+	];
+

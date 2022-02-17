@@ -2,19 +2,23 @@ function P2PCollab(ui, sync)
 {
 	var graph = ui.editor.graph;
 	var socket = null;
-	var userCount = 0;
-	var userColors = [
-		'#00429d', '#2653a4', '#3b65ab', '#4c77b2', '#5c89b9', 
-		'#6c9cbf', '#7dafc5', '#90c1ca', '#a6d3cf', '#c1e4d3', 
-		'#f9e43c', '#fbc846', '#faad4c', '#f59350', '#ee7851', 
-		'#e35e50', '#d4444d', '#c32a49', '#ad1042', '#93003a'
+	var sessionCount = 0;
+	var colors = [
+		//White font
+		'#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', 
+		'#f032e6', '#469990', '#9A6324', '#800000', '#808000',
+		'#000075', '#a9a9a9',
+		//Black font
+		'#ffe119', '#42d4f4', '#bfef45', '#fabed4', '#dcbeff',
+		'#fffac8', '#aaffc3', '#ffd8b1'
 	];
-	var connectedUsers = {}, messageId = 1, clientLastMsgId = {}, clientsToUsers = {}, connectedClient = {};
+	var connectedSessions = {}, messageId = 1, clientLastMsgId = {}, clientsToSessions = {}, 
+		connectedClient = {}, sessionColors = {};
 	var myClientId, newClients = {}, p2pClients = {}, useSocket = true, fileJoined = false, destroyed = false;
 	var INACTIVE_TIMEOUT = 120000; //2 min
 	var SELECTION_OPACITY = 70; //The default opacity of 30 is not visible enough with all colors
 	var cursorDelay = 200;
-	var NO_P2P = true;
+	var NO_P2P = urlParams['no-p2p'] != '0';
 
 	function sendReply(action, msg)
   	{
@@ -49,7 +53,7 @@ function P2PCollab(ui, sync)
 		if (!fileJoined || user == null || user.email == null) return;
 		
 		//Converting to a string such that webRTC works also
-		var msg = JSON.stringify({from: myClientId, id: messageId, type: type, 
+		var msg = JSON.stringify({from: myClientId, id: messageId, type: type, sessionId: sync.clientId,
 								userId: user.id, username: user.displayName, data: data});
 
 		if (NO_P2P && type != 'cursor')
@@ -218,9 +222,9 @@ function P2PCollab(ui, sync)
 
 	this.scrollHandler = mxUtils.bind(this, function()
 	{
-		for (var key in connectedUsers)
+		for (var key in connectedSessions)
 		{
-			updateCursor(connectedUsers[key]);
+			updateCursor(connectedSessions[key]);
 		}
 	});
 
@@ -254,25 +258,33 @@ function P2PCollab(ui, sync)
 		}
 		
 		var username = msg.username? msg.username : 'Anonymous';
-		var userId = msg.userId;
+		var sessionId = msg.sessionId;
 		var cursor, selection;
 
 		function createCursor()
 		{
-			if (connectedUsers[userId] == null)
+			if (connectedSessions[sessionId] == null)
 			{
-				var clr = userColors[userCount % userColors.length];
-				
-				connectedUsers[userId] = {
+				var clrIndex = sessionColors[sessionId];
+
+				if (clrIndex == null)
+				{
+					clrIndex = sessionCount % colors.length;
+					sessionColors[sessionId] = clrIndex;
+					sessionCount++;
+				}
+
+				var clr = colors[clrIndex];
+				var lblClr = clrIndex > 11? 'black' : 'white';
+
+				connectedSessions[sessionId] = {
 					cursor: document.createElement('div'),
-					index: userCount,
 					color: clr,
 					selection: {}
 				};
 				
-				clientsToUsers[fromCId] = userId;
-				userCount++;
-				cursor = connectedUsers[userId].cursor;
+				clientsToSessions[fromCId] = sessionId;
+				cursor = connectedSessions[sessionId].cursor;
 				
 				cursor.style.pointerEvents = 'none';
 				cursor.style.position = 'absolute';
@@ -284,7 +296,7 @@ function P2PCollab(ui, sync)
 
 				var name = document.createElement('div');
 				name.style.backgroundColor = clr;
-				name.style.color = 'white';
+				name.style.color = lblClr;
 				name.style.fontSize = '9pt';
 				name.style.padding = '3px 7px';
 				name.style.marginTop = '8px';
@@ -298,21 +310,21 @@ function P2PCollab(ui, sync)
 				cursor.append(name);
 
 				ui.diagramContainer.appendChild(cursor);
-				selection = connectedUsers[userId].selection;
+				selection = connectedSessions[sessionId].selection;
 			}
 			else
 			{
-				cursor = connectedUsers[userId].cursor;
-				selection = connectedUsers[userId].selection;
+				cursor = connectedSessions[sessionId].cursor;
+				selection = connectedSessions[sessionId].selection;
 			}
 		};
 
-		if (connectedUsers[userId] != null)
+		if (connectedSessions[sessionId] != null)
 		{
-			clearTimeout(connectedUsers[userId].inactiveTO);
-			connectedUsers[userId].inactiveTO = setTimeout(function()
+			clearTimeout(connectedSessions[sessionId].inactiveTO);
+			connectedSessions[sessionId].inactiveTO = setTimeout(function()
 			{
-				clientLeft(null, userId);
+				clientLeft(null, sessionId);
 			}, INACTIVE_TIMEOUT);
 		}
 
@@ -330,13 +342,13 @@ function P2PCollab(ui, sync)
 						(msgData.pageId != null &&
 						msgData.pageId != pageId))
 					{
-						removeConnectedUserUi(userId);
+						removeConnectedUserUi(sessionId);
 					}
 					else
 					{
 						createCursor();
-						connectedUsers[userId].cursorPosition = new mxPoint(msgData.x, msgData.y);
-						updateCursor(connectedUsers[userId], true);
+						connectedSessions[sessionId].cursorPosition = new mxPoint(msgData.x, msgData.y);
+						updateCursor(connectedSessions[sessionId], true);
 					}
 				}
 			break;
@@ -380,7 +392,7 @@ function P2PCollab(ui, sync)
 							var id = msgData.added[i];
 							var cell = graph.model.getCell(id);
 							selection[id] = graph.highlightCell(cell,
-								connectedUsers[userId].color, 60000,
+								connectedSessions[sessionId].color, 60000,
 								SELECTION_OPACITY, 3);
 						}
 					}
@@ -397,7 +409,8 @@ function P2PCollab(ui, sync)
 		}
 		
 		var p = new SimplePeer({
-	        initiator: initiator
+	        initiator: initiator,
+			config: { iceServers: [{ urls: 'stun:54.89.235.160:3478' }] }
 	    });
 
 		p.on('signal', function(data)
@@ -449,7 +462,7 @@ function P2PCollab(ui, sync)
 			{
 				EditorUi.debug('P2PCollab: p2p socket closed', id);
 				//Remove cursor and selection
-				removeConnectedUserUi(clientsToUsers[id]);
+				removeConnectedUserUi(clientsToSessions[id]);
 				delete p2pClients[id];
 			}
 		});
@@ -503,13 +516,13 @@ function P2PCollab(ui, sync)
 		useSocket = true;
 	};
 	
-	function clientLeft(clientId, userId)
+	function clientLeft(clientId, sessionId)
 	{
-		removeConnectedUserUi(userId || clientsToUsers[clientId]);
+		removeConnectedUserUi(sessionId || clientsToSessions[clientId]);
 
 		if (clientId != null)
 		{
-			delete clientsToUsers[clientId];
+			delete clientsToSessions[clientId];
 			connectedClient[clientId] = false;
 		}
 	};
@@ -657,9 +670,9 @@ function P2PCollab(ui, sync)
 	  	}));
 	};
 
-	function removeConnectedUserUi(userId)
+	function removeConnectedUserUi(sessionId)
 	{
-		var user = connectedUsers[userId];
+		var user = connectedSessions[sessionId];
 
 		if (user != null)
 		{
@@ -676,7 +689,7 @@ function P2PCollab(ui, sync)
 			}
 
 			clearTimeout(user.inactiveTO);
-			delete connectedUsers[userId];
+			delete connectedSessions[sessionId];
 		}
 	};
 
@@ -687,9 +700,9 @@ function P2PCollab(ui, sync)
 		EditorUi.debug('P2PCollab: destroyed');
 		destroyed = true;
 		//Remove selection and cursor
-		for (userId in connectedUsers)
+		for (sessionId in connectedSessions)
 		{
-			removeConnectedUserUi(userId);
+			removeConnectedUserUi(sessionId);
 		}
 
 		//Remove event listeners
