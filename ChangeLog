@@ -1,3 +1,10 @@
+21-FEB-2022: 16.6.2
+
+- Fixes snap to terminal tolerance
+- Fixes import of bitmap images into blank diagrams
+- Fixes dialog title for checksum error [DID-4314]
+- Handles remote page name changes in sketch theme
+
 17-FEB-2022: 16.6.1
 
 - Adds P2PCollab to build

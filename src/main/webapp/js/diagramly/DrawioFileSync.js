@@ -8,7 +8,7 @@ DrawioFileSync = function(file)
 {
 	mxEventSource.call(this);
 
-	this.lastActivity = new Date();
+	this.lastActivity = Date.now();
 	this.clientId = Editor.guid();
 	this.ui = file.ui;
 	this.file = file;
@@ -47,7 +47,7 @@ DrawioFileSync = function(file)
     // Listens to visible state changes
 	this.activityListener = mxUtils.bind(this, function(evt)
 	{
-		this.lastActivity = new Date();
+		this.lastActivity = Date.now();
 		this.start();
 	});
 
@@ -60,6 +60,9 @@ DrawioFileSync = function(file)
 		mxEvent.addListener(document, 'touchstart', this.activityListener);
 		mxEvent.addListener(document, 'touchmove', this.activityListener);	
 	}
+
+	// Listens to fast sync activitiy
+	this.file.addListener('messageReceived', this.activityListener);
 
 	// Listens to errors in the pusher API
 	this.pusherErrorListener = mxUtils.bind(this, function(err)
@@ -108,7 +111,7 @@ DrawioFileSync = function(file)
 	this.changeListener = mxUtils.bind(this, function(data)
 	{
 		this.file.stats.msgReceived++;
-		this.lastActivity = new Date();
+		this.lastActivity = Date.now();
 
 		if (this.enabled && !this.file.inConflictState &&
 			!this.file.redirectDialogShowing)
@@ -300,7 +303,7 @@ DrawioFileSync.prototype.start = function()
 		window.setTimeout(mxUtils.bind(this, function()
 		{
 			this.lastModified = this.file.getLastModifiedDate();
-			this.lastActivity = new Date();
+			this.lastActivity = Date.now();
 			this.resetUpdateStatusThread();
 			this.updateOnlineState();
 			this.updateStatus();
@@ -459,7 +462,7 @@ DrawioFileSync.prototype.updateOnlineState = function()
 DrawioFileSync.prototype.updateStatus = function()
 {
 	if (this.isConnected() && this.lastActivity != null &&
-		(new Date().getTime() - this.lastActivity.getTime()) / 1000 >
+		(Date.now() - this.lastActivity) / 1000 >
 		this.inactivityTimeoutSeconds)
 	{
 		this.stop();

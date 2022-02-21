@@ -2579,6 +2579,7 @@ EditorUi.initMinimalTheme = function()
 				pageMenu.style.padding = '6px';
 				pageMenu.style.textOverflow = 'ellipsis';
 				pageMenu.style.opacity = '0.8';
+				footer.appendChild(pageMenu);
 
 				function updatePageName()
 				{
@@ -2590,18 +2591,13 @@ EditorUi.initMinimalTheme = function()
 					}
 				};
 
+				ui.editor.addListener('pagesPatched', updatePageName);
 				ui.editor.addListener('pageSelected', updatePageName);
 				ui.editor.addListener('pageRenamed', updatePageName);
 				ui.editor.addListener('fileLoaded', updatePageName);
 				updatePageName();
-
-				if (ui.currentPage != null)
-				{
-					mxUtils.write(elt, ui.currentPage.getName());
-				}
-
-				footer.appendChild(pageMenu);
-
+				
+				// Page menu only visible for multiple pages
 				function pagesVisibleChanged()
 				{
 					pageMenu.style.display = ui.pages != null &&
@@ -2609,12 +2605,11 @@ EditorUi.initMinimalTheme = function()
 						Editor.pagesVisible) ? 'inline-block' : 'none';
 				};
 
-				// Page menu only visible for multiple pages
 				ui.addListener('fileDescriptorChanged', pagesVisibleChanged);
 				ui.addListener('pagesVisibleChanged', pagesVisibleChanged);
+				ui.editor.addListener('pagesPatched', pagesVisibleChanged);
 				pagesVisibleChanged();
 				
-	
 				var zoomOutElt = addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') +
 					' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, Editor.zoomOutImage);
 				footer.appendChild(zoomOutElt);

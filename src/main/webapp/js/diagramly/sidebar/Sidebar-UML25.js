@@ -300,6 +300,20 @@
 
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Package'); 
 			}),
+		 	this.addEntry(dt + 'package', function()
+			{
+		 		var cell1 = new mxCell('Package', new mxGeometry(0, 0, 150, 100),
+		 			'shape=folder;fontStyle=1;tabWidth=110;tabHeight=30;tabPosition=left;html=1;boundedLbl=1;labelInHeader=1;container=1;collapsible=0;');
+				cell1.vertex = true;
+		 		var field1 = new mxCell('Text', 
+		 				new mxGeometry(0, 0, 150, 70), 'html=1;strokeColor=none;resizeWidth=1;resizeHeight=1;fillColor=none;part=1;connectable=0;allowArrows=0;deletable=0;');
+		 		field1.geometry.relative = true;
+		 		field1.geometry.offset = new mxPoint(0, 30);
+		 		field1.vertex = true;
+		 		cell1.insert(field1);
+
+				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Package'); 
+			}),
 		 	this.addEntry(dt + 'model', function()
 			{
 		 		var cell1 = new mxCell('Model1', new mxGeometry(0, 0, 150, 80),

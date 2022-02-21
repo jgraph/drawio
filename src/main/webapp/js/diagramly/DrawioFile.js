@@ -1683,7 +1683,7 @@ DrawioFile.prototype.showRefreshDialog = function(success, error, message)
 			this.showRefreshDialog(success, error);
 		}), message);
 		
-		this.ui.showError(mxResources.get('error') + ' (' + message + ')',
+		this.ui.showError(mxResources.get('warning') + ' (' + message + ')',
 			mxResources.get('fileChangedSyncDialog'),
 			mxResources.get('makeCopy'), mxUtils.bind(this, function()
 		{

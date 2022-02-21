@@ -1576,7 +1576,10 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 						this.renamePage(page, page.getName());
 					}), parent);
 
-					menu.addSeparator(parent);
+					if (!invert)
+					{
+						menu.addSeparator(parent);
+					}
 					
 					menu.addItem(mxResources.get('duplicateIt', [pageName]), null, mxUtils.bind(this, function()
 					{

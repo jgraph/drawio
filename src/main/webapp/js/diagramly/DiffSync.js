@@ -180,14 +180,10 @@ EditorUi.prototype.patchPages = function(pages, diff, markPages, resolver, updat
 		}
 		else
 		{
-			// Updates root if page already in UI
-			page.root = newPage.root;
-
-			if (this.currentPage == page)
-			{
-				this.editor.graph.model.setRoot(page.root);
-			}
-			else if (markPages)
+			this.patchPage(page, this.diffPages([page], [newPage]),
+				resolverLookup[page.getId()], updateEdgeParents);
+			
+			if (markPages)
 			{
 				page.needsUpdate = true;
 			}

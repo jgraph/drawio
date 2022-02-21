@@ -22,8 +22,8 @@ EditorUi = function(editor, container, lightbox)
 	{
 		var bounds = graphGetGraphBounds.apply(this, arguments);
 		var img = this.backgroundImage;
-
-		if (img != null)
+		
+		if (img != null && img.width != null && img.height != null)
 		{
 			var t = this.view.translate;
 			var s = this.view.scale;

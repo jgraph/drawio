@@ -127,10 +127,10 @@ function P2PCollab(ui, sync)
 				var pageId = (ui.currentPage != null) ?
 					ui.currentPage.getId() : null;
 				sendMessage('cursor', {pageId: pageId,
-					x: (me.getX() - tr.x - offset.x +
-						graph.container.scrollLeft) / s,
-					y: (me.getY() - tr.y - offset.y +
-						graph.container.scrollTop) / s});
+					x: Math.round((me.getX() - offset.x +
+						graph.container.scrollLeft) / s - tr.x),
+					y: Math.round((me.getY() - offset.y +
+						graph.container.scrollTop) / s - tr.y)});
 			}
 		};
 
@@ -399,7 +399,9 @@ function P2PCollab(ui, sync)
 				}
 			break;
 		}
-	}
+
+		sync.file.fireEvent(new mxEventObject('messageReceived', 'message', msg));
+	};
 	
 	function createPeer(id, initiator)
 	{

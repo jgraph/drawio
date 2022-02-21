@@ -1737,6 +1737,9 @@ mxShapeBpmn2Task.prototype.paintVertexShape = function(c, x, y, w, h)
 		case 'abstract':
 			break;
 		case 'service':
+		
+			c.setFillColor(mxUtils.getValue(this.style, 'fillColor', '#ffffff'));
+			
 			var stencil = mxStencilRegistry.getStencil('mxgraph.bpmn.service_task');
 			
 			if (stencil != null)

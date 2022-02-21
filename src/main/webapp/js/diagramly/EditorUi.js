@@ -9506,11 +9506,13 @@
 				{
 					var id = ref.substring(comma + 1);
 					var patches = evt.getProperty('patches');
-
+					
 					for (var i = 0; i < patches.length; i++)
 					{
-						if (patches[i][EditorUi.DIFF_UPDATE] != null &&
-							patches[i][EditorUi.DIFF_UPDATE][id] != null)
+						if ((patches[i][EditorUi.DIFF_UPDATE] != null &&
+							patches[i][EditorUi.DIFF_UPDATE][id] != null) ||
+							(patches[i][EditorUi.DIFF_REMOVE] != null &&
+							mxUtils.indexOf(patches[i][EditorUi.DIFF_REMOVE], id) >= 0))
 						{
 							graph.refreshBackgroundImage();
 
@@ -10025,17 +10027,20 @@
 				if (graph.isEnabled())
 				{
 				    var pt = mxUtils.convertPoint(graph.container, mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+					var files = evt.dataTransfer.files;
 					var tr = graph.view.translate;
 					var scale = graph.view.scale;
 					var x = pt.x / scale - tr.x;
 					var y = pt.y / scale - tr.y;
 					
-				    if (evt.dataTransfer.files.length > 0)
+				    if (files.length > 0)
 				    {
 						// Closes current file if blank and no undoable changes
-						var noImport = evt.dataTransfer.files.length == 1 &&
-							this.isBlankFile() && !this.canUndo();
-						
+						// LATER: Check if file contains diagram data
+						var noImport = files.length == 1 && this.isBlankFile() && !this.canUndo() &&
+							(files[0].type.substring(0, 9) === 'image/svg' ||
+							files[0].type.substring(0, 6) !== 'image/');
+
 						if (urlParams['embed'] != '1' && (mxEvent.isShiftDown(evt) || noImport))
 						{
 							if (!mxEvent.isShiftDown(evt) && noImport &&
@@ -10044,7 +10049,7 @@
 								this.fileLoaded(null);
 							}
 
-							this.openFiles(evt.dataTransfer.files, true);
+							this.openFiles(files, true);
 						}
 						else
 				    	{
@@ -10054,7 +10059,7 @@
 								y = null;
 							}
 							
-							this.importFiles(evt.dataTransfer.files, x, y, this.maxImageSize, null, null, null,
+							this.importFiles(files, x, y, this.maxImageSize, null, null, null,
 								null, mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt), evt);
 				    	}
 		    		}
