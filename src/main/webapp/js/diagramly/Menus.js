@@ -213,7 +213,7 @@
 			var file = editorUi.getCurrentFile();
 
 			if (graph.isEnabled() && urlParams['embed'] != '1' && graph.isSelectionEmpty() &&
-				DrawioFile.ENABLE_FAST_SYNC && file != null && file.isFastSync())
+				file != null && file.isFastSyncEnabled() && file.isFastSyncSupported())
 			{
 				this.addMenuItems(menu, ['-', 'shareCursor'], null, evt);
 			}
@@ -1664,7 +1664,7 @@
 			mxResources.parse('createSidebarEntry=Create Sidebar Entry');
 			mxResources.parse('testCheckFile=Check File');
 			mxResources.parse('testDiff=Diff/Sync');
-			mxResources.parse('testInspectOwnPages=Check Own Pages');
+			mxResources.parse('testInspectPages=Check Pages');
 			mxResources.parse('testInspect=Inspect');
 			mxResources.parse('testShowConsole=Show Console');
 			mxResources.parse('testXmlImageExport=XML Image Export');
@@ -1871,7 +1871,8 @@
 					{
 						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
 							editorUi.getFileData(true)).documentElement);
-						dlg.textarea.value = 'Snapshot updated ' + new Date().toLocaleString();
+						dlg.textarea.value = 'Snapshot updated ' + new Date().toLocaleString() +
+							' Checksum ' + editorUi.getHashValueForPages(snapshot);
 					}], ['Diff', function(evt, input)
 					{
 						try
@@ -1909,7 +1910,8 @@
 					{
 						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
 							editorUi.getFileData(true)).documentElement);
-						dlg.textarea.value = 'Snapshot created ' + new Date().toLocaleString();
+						dlg.textarea.value = 'Snapshot created ' + new Date().toLocaleString() +
+							' Checksum ' + editorUi.getHashValueForPages(snapshot);
 					}
 					else
 					{
@@ -1926,7 +1928,7 @@
 				}
 			}));
 
-			editorUi.actions.addAction('testInspectOwnPages', mxUtils.bind(this, function()
+			editorUi.actions.addAction('testInspectPages', mxUtils.bind(this, function()
 			{
 				var file = editorUi.getCurrentFile();
 
@@ -1934,14 +1936,43 @@
 
 				if (file != null && file.ownPages != null)
 				{
+					console.log('Checksum ownPages: ' +
+						editorUi.getHashValueForPages(
+							file.ownPages));
+
 					if (file.shadowPages != null)
 					{
-						console.log('diff ownPages/shadowPages', editorUi.diffPages(file.ownPages, file.shadowPages));
+						console.log('Checksum shadowPages: ' +
+							editorUi.getHashValueForPages(
+								file.shadowPages));
+						console.log('diff ownPages/shadowPages',
+							editorUi.diffPages(file.ownPages,
+								file.shadowPages));
+					}
+
+					if (file.snapshot != null)
+					{
+						var pages = editorUi.getPagesForNode(file.snapshot);
+						console.log('Checksum snapshot: ' +
+							editorUi.getHashValueForPages(pages));
+						console.log('diff ownPages/snapshot',
+							editorUi.diffPages(file.ownPages, pages));
+
+						if (editorUi.pages != null)
+						{
+							console.log('diff snapshot/actualPages',
+								editorUi.diffPages(pages, editorUi.pages));
+						}
 					}
 
 					if (editorUi.pages != null)
 					{
-						console.log('diff ownPages/actualPages', editorUi.diffPages(file.ownPages, editorUi.pages));
+						console.log('Checksum actualPages: ' +
+							editorUi.getHashValueForPages(
+								editorUi.pages));
+						console.log('diff ownPages/actualPages',
+							editorUi.diffPages(file.ownPages,
+								editorUi.pages));
 					}
 				}
 			}));
@@ -2024,7 +2055,7 @@
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
-					'testInspectOwnPages', 'testCheckFile', 'testDiff', '-',
+					'testInspectPages', 'testCheckFile', 'testDiff', '-',
 					'testInspect', '-', 'testXmlImageExport', '-',
 					'testShowConsole'], parent);
 			})));
@@ -3841,7 +3872,7 @@
 				var file = editorUi.getCurrentFile();
 
 				if (graph.isEnabled() && graph.isSelectionEmpty() && file != null &&
-					DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+					file.isFastSyncEnabled() && file.isFastSyncSupported())
 				{
 					this.addMenuItems(menu, ['shareCursor'], parent);
 				}

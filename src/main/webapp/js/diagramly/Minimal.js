@@ -1219,7 +1219,7 @@ EditorUi.initMinimalTheme = function()
 				}
 				
 				if (graph.isEnabled() && graph.isSelectionEmpty() &&
-					DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+					file.isFastSyncEnabled() && file.isFastSyncSupported())
 				{
 					this.addMenuItems(menu, ['shareCursor'], parent);
 				}
@@ -1302,7 +1302,7 @@ EditorUi.initMinimalTheme = function()
 						}
 						
 						if (graph.isEnabled() && graph.isSelectionEmpty() &&
-							DrawioFile.ENABLE_FAST_SYNC && file.isFastSync())
+							file.isFastSyncEnabled() && file.isFastSyncSupported())
 						{
 							this.addMenuItems(menu, ['shareCursor'], parent);
 						}

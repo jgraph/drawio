@@ -4164,7 +4164,7 @@ var com;
                             ;
                         }
                         catch (e) {
-                            console.error(e.message, e);
+                           // console.error(e.message, e);
                         }
                         ;
                         this.isProcessed = true;
@@ -4993,7 +4993,7 @@ var com;
                                     style = style + key + asig;
                                 }
                                 catch (e) {
-                                	console.error("mxVsdxUtils.getStyleString," + e + ",style.length=" + style.length + ",key.length=" + key.length + ",asig.length=" + asig.length);
+                                	//console.error("mxVsdxUtils.getStyleString," + e + ",style.length=" + style.length + ",key.length=" + key.length + ",asig.length=" + asig.length);
                                 }
                                 ;
                             }
@@ -7774,7 +7774,7 @@ var com;
                                     return Math.round(parsedValue * 100.0) / 100.0;
                                 }
                                 catch (e) {
-                                    console.error(e.message, e);
+                                    //console.error(e.message, e);
                                 }
                                 ;
                             }
@@ -7790,7 +7790,7 @@ var com;
                                     return this.getScreenNumericalValue$double(parsedValue);
                                 }
                                 catch (e) {
-                                    console.error(e.message, e);
+                                    //console.error(e.message, e);
                                 }
                                 ;
                             }
@@ -11501,7 +11501,7 @@ var com;
                                 /* put */ (result[mxConstants.STYLE_SHAPE] = "stencil(" + enc + ")");
                             }
                             catch (e) {
-                                console.error(e.message, e);
+                                //console.error(e.message, e);
                             }
                             ;
                         }

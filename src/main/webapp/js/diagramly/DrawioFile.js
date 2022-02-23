@@ -61,11 +61,6 @@ DrawioFile.SYNC = urlParams['sync'] || 'auto';
  */
 DrawioFile.LAST_WRITE_WINS = true;
 
-/**
- * Global switch for fast change propagation.
- */
-DrawioFile.ENABLE_FAST_SYNC = urlParams['fast-sync'] == '1';
-
 // Extends mxEventSource
 mxUtils.extend(DrawioFile, mxEventSource);
 
@@ -217,8 +212,6 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 			{
 				var patch = this.ui.diffPages(
 					this.ui.pages, this.ownPages);
-				this.ownPages = this.ui.patchPages(
-					this.ownPages, patch, true);
 				this.patch([patch]);
 				this.snapshot = this.ui.getXmlFileData();
 			}
@@ -886,28 +879,28 @@ DrawioFile.prototype.updateFileData = function()
 {
 	var actualPages = this.ui.pages;
 
-	// Updates view state in own current page
 	if (this.ownPages != null)
 	{
+		// Uses ownPgaes for getting file data below
 		this.ui.pages = this.ownPages;
 
+		// Updates view state in own current page
 		if (this.ui.currentPage != null)
 		{
-			for (var i = 0; i < this.ownPages.length; i++)
-			{
-				if (this.ownPages[i].getId() == this.ui.currentPage.getId())
-				{
-					this.ownPages[i].viewState = this.ui.editor.graph.getViewState();
-					this.ownPages[i].needsUpdate = true;
+			var ownPage = this.ui.getPageById(
+				this.ui.currentPage.getId(),
+				this.ownPages);
 
-					break;
-				}
+			if (ownPage != null)
+			{
+				ownPage.viewState = this.ui.editor.graph.getViewState();
+				ownPage.needsUpdate = true;
 			}
 		}
 	}
 
-	this.setData(this.ui.getFileData(null, null, null, null, null, null, null, null, this, !this.isCompressed()));
-
+	this.setData(this.ui.getFileData(null, null, null, null,
+		null, null, null, null, this, !this.isCompressed()));
 	this.ui.pages = actualPages;
 };
 
@@ -1191,8 +1184,8 @@ DrawioFile.prototype.open = function()
 		if (!this.isModified())
 		{
 			var data = this.ui.getXmlFileData();
-
-			if (DrawioFile.ENABLE_FAST_SYNC && this.isFastSync())
+			
+			if (this.isFastSyncEnabled() && this.isFastSyncSupported())
 			{
 				this.ownPages = this.ui.getPagesForNode(data);
 				this.snapshot = data;
@@ -1215,6 +1208,31 @@ DrawioFile.prototype.open = function()
  * Hook for subclassers.
  */
 DrawioFile.prototype.isSyncSupported = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.isFastSyncSupported = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.isFastSyncEnabled = function()
+{
+	return urlParams['fast-sync'] == '1';
+};
+
+/**
+ * Returns true if the notification to update should be sent
+ * together with the save request.
+ */
+DrawioFile.prototype.isOptimisticSync = function()
 {
 	return false;
 };
@@ -2041,23 +2059,6 @@ DrawioFile.prototype.fileChanged = function()
 	{
 		this.sync.localFileChanged();
 	}
-};
-
-/**
- * Returns true if the notification to update should be sent
- * together with the save request.
- */
-DrawioFile.prototype.isOptimisticSync = function()
-{
-	return false;
-};
-
-/**
- * Returns true if all changes should be sent out immediately.
- */
-DrawioFile.prototype.isFastSync = function()
-{
-	return false;
 };
 
 /**

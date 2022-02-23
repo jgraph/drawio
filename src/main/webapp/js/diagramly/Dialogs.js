@@ -1749,6 +1749,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 			    	{
 			    		urlInput.value = data;
 			    		urlChanged();
+						urlInput.focus();
 			    	}, function()
 			    	{
 			    		// No post processing

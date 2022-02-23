@@ -225,7 +225,7 @@ EditorUi.prototype.patchViewState = function(page, diff)
 		{
 			try
 			{
-				page.viewState[key] = JSON.parse(diff[key]);
+				this.patchViewStateProperty(page, diff, key);
 			}
 			catch(e) {} //Ignore TODO Is this correct, we encountered an undefined value for a key (extFonts)
 		}
@@ -235,6 +235,14 @@ EditorUi.prototype.patchViewState = function(page, diff)
 			this.editor.graph.setViewState(page.viewState, true);
 		}
 	}
+};
+
+/**
+ * Removes all labels, user objects and styles from the given node in-place.
+ */
+EditorUi.prototype.patchViewStateProperty = function(page, diff, key)
+{
+	page.viewState[key] = JSON.parse(diff[key]);
 };
 
 /**
@@ -879,18 +887,46 @@ EditorUi.prototype.diffViewState = function(oldPage, newPage)
 	{
 		for (var key in this.viewStateProperties)
 		{
-			// LATER: Check if normalization is needed for
-			// object attribute order to compare JSON
-			var old = JSON.stringify(source[key]);
-			var now = JSON.stringify(target[key]);
-			
-			if (old != now)
-			{
-				result[key] = now;
-			}
+			this.diffViewStateProperty(source, target, key, result);
 		}
 	}
 	
+	return result;
+};
+
+/**
+ * Removes all labels, user objects and styles from the given node in-place.
+ */
+EditorUi.prototype.diffViewStateProperty = function(source, target, key, result)
+{
+	// LATER: Check if normalization is needed for
+	// object attribute order to compare JSON
+	var old = JSON.stringify(this.getViewStateProperty(source, key));
+	var now = JSON.stringify(this.getViewStateProperty(target, key));
+	
+	if (old != now)
+	{
+		result[key] = now;
+	}
+};
+
+/**
+ * Ignores image data for background pages and normalizes extFonts.
+ */
+EditorUi.prototype.getViewStateProperty = function(viewState, key)
+{
+	var result = viewState[key];
+
+	if (key == 'backgroundImage' && result != null &&
+		result.originalSrc != null)
+	{
+		delete result.src;
+	}
+	else if (key == 'extFonts' && result == null)
+	{
+		result = [];
+	}
+
 	return result;
 };
 

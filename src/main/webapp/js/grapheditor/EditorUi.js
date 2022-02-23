@@ -1500,8 +1500,7 @@ EditorUi.prototype.installShapePicker = function()
 	graph.view.addListener(mxEvent.SCALE, hidePicker);
 	graph.view.addListener(mxEvent.SCALE_AND_TRANSLATE, hidePicker);
 	graph.getSelectionModel().addListener(mxEvent.CHANGE, hidePicker);
-	graph.getModel().addListener(mxEvent.CHANGE, hidePicker);
-
+	
 	// Counts as popup menu
 	var popupMenuHandlerIsMenuShowing = graph.popupMenuHandler.isMenuShowing;
 	 

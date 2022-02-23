@@ -1,3 +1,9 @@
+23-FEB-2022: 16.6.3
+
+- Enables Google Drive on PC in Office addon
+- Enables fast RT for OneDrive
+- Selects URL input after drag and drop
+
 21-FEB-2022: 16.6.2
 
 - Fixes snap to terminal tolerance

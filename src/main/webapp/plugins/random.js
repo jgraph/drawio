@@ -23,7 +23,7 @@ Draw.loadPlugin(function(ui)
 
 			function schedule()
 			{
-				var jitter = 1 + 0.3 * (Math.random() - 0.5);
+				var jitter = 1 + 0.5 * (Math.random() - 0.5);
 				
 				window.setTimeout(function()
 				{
@@ -75,7 +75,7 @@ Draw.loadPlugin(function(ui)
 			
 			function schedule()
 			{
-				var jitter = 1 + 0.3 * (Math.random() - 0.5);
+				var jitter = 1 + 0.5 * (Math.random() - 0.5);
 				
 				window.setTimeout(function()
 				{
@@ -176,7 +176,7 @@ Draw.loadPlugin(function(ui)
 			
 			function schedule()
 			{
-				var jitter = 1 + 0.3 * (Math.random() - 0.5);
+				var jitter = 1 + 0.5 * (Math.random() - 0.5);
 				
 				window.setTimeout(function()
 				{

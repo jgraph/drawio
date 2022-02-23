@@ -18,6 +18,8 @@ function P2PCollab(ui, sync)
 	var INACTIVE_TIMEOUT = 120000; //2 min
 	var SELECTION_OPACITY = 70; //The default opacity of 30 is not visible enough with all colors
 	var cursorDelay = 200;
+	// TODO: Avoid negation, move to Editor.ENABLE_P2P and use p2p=1 URL parameter
+	// add to Editor.configure
 	var NO_P2P = urlParams['no-p2p'] != '0';
 
 	function sendReply(action, msg)
@@ -35,6 +37,7 @@ function P2PCollab(ui, sync)
 		}
 		catch (e)
 		{
+			// TODO: Reconnect if socket is null
 			EditorUi.debug('P2PCollab:', 'sendReply error', arguments, e);
 		}
 	}
@@ -53,8 +56,9 @@ function P2PCollab(ui, sync)
 		if (!fileJoined || user == null || user.email == null) return;
 		
 		//Converting to a string such that webRTC works also
-		var msg = JSON.stringify({from: myClientId, id: messageId, type: type, sessionId: sync.clientId,
-								userId: user.id, username: user.displayName, data: data});
+		var msg = JSON.stringify({from: myClientId, id: messageId,
+			type: type, sessionId: sync.clientId, userId: user.id,
+			username: user.displayName, data: data});
 
 		if (NO_P2P && type != 'cursor')
 		{
@@ -186,41 +190,55 @@ function P2PCollab(ui, sync)
 
 	function updateCursor(entry, transition)
 	{
+		var pageId = (ui.currentPage != null) ?
+			ui.currentPage.getId() : null;
+		
 		if (entry != null && entry.cursor != null &&
-			entry.cursorPosition != null)
+			entry.lastCursor != null)
 		{
-			var tr = graph.view.translate;
-			var s = graph.view.scale;	
-			var x = ((tr.x + entry.cursorPosition.x) * s) + 8;
-			var y = ((tr.y + entry.cursorPosition.y) * s) - 12;
-
-			function setPosition()
+			if (entry.lastCursor.hide != null ||
+				(entry.lastCursor.pageId != null &&
+				entry.lastCursor.pageId != pageId))
 			{
-				x = Math.max(graph.container.scrollLeft, Math.min(graph.container.scrollLeft +
-					graph.container.clientWidth - entry.cursor.clientWidth, x));
-				y = Math.max(graph.container.scrollTop, Math.min(graph.container.scrollTop +
-					graph.container.clientHeight - entry.cursor.clientHeight, y));
-
-				entry.cursor.style.left = x + 'px';
-				entry.cursor.style.top = y + 'px';
-				entry.cursor.style.display = '';
-			};
-
-			if (transition)
-			{
-				mxUtils.setPrefixedStyle(entry.cursor.style, 'transition', 'all ' + (3 * cursorDelay) + 'ms ease-out');
-
-				window.setTimeout(setPosition, 0);
+				entry.cursor.style.display = 'none';
 			}
 			else
 			{
-				mxUtils.setPrefixedStyle(entry.cursor.style, 'transition', null);
-				setPosition();
+				var tr = graph.view.translate;
+				var s = graph.view.scale;	
+				var x = ((tr.x + entry.lastCursor.x) * s) + 8;
+				var y = ((tr.y + entry.lastCursor.y) * s) - 12;
+				var img = entry.cursor.getElementsByTagName('img')[0];
+
+				function setPosition()
+				{
+					var cx = Math.max(graph.container.scrollLeft, Math.min(graph.container.scrollLeft +
+						graph.container.clientWidth - entry.cursor.clientWidth, x));
+					var cy = Math.max(graph.container.scrollTop - 22, Math.min(graph.container.scrollTop +
+						graph.container.clientHeight - entry.cursor.clientHeight, y));
+					img.style.opacity = (cx != x || cy != y) ? 0 : 1;
+					entry.cursor.style.left = cx + 'px';
+					entry.cursor.style.top = cy + 'px';
+					entry.cursor.style.display = '';
+				};
+
+				if (transition)
+				{
+					mxUtils.setPrefixedStyle(entry.cursor.style, 'transition', 'all ' + (3 * cursorDelay) + 'ms ease-out');
+					mxUtils.setPrefixedStyle(img.style, 'transition', 'all ' + (3 * cursorDelay) + 'ms ease-out');
+					window.setTimeout(setPosition, 0);
+				}
+				else
+				{
+					mxUtils.setPrefixedStyle(entry.cursor.style, 'transition', null);
+					mxUtils.setPrefixedStyle(img.style, 'transition', null);
+					setPosition();
+				}
 			}
 		}
 	};
 
-	this.scrollHandler = mxUtils.bind(this, function()
+	this.cursorHandler = mxUtils.bind(this, function()
 	{
 		for (var key in connectedSessions)
 		{
@@ -228,10 +246,11 @@ function P2PCollab(ui, sync)
 		}
 	});
 
-	mxEvent.addListener(graph.container, 'scroll', this.scrollHandler);
-	graph.getView().addListener(mxEvent.SCALE, this.scrollHandler);
-	graph.getView().addListener(mxEvent.TRANSLATE, this.scrollHandler);
-	graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, this.scrollHandler);
+	mxEvent.addListener(graph.container, 'scroll', this.cursorHandler);
+	graph.getView().addListener(mxEvent.SCALE, this.cursorHandler);
+	graph.getView().addListener(mxEvent.TRANSLATE, this.cursorHandler);
+	graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
+	ui.editor.addListener('pageSelected', this.cursorHandler);
 
 	function processMsg(msg, fromCId)
 	{
@@ -289,11 +308,15 @@ function P2PCollab(ui, sync)
 				cursor.style.pointerEvents = 'none';
 				cursor.style.position = 'absolute';
 				cursor.style.display = 'none';
-				cursor.style.opacity = '0.7';
+				cursor.style.opacity = '0.9';
 				cursor.style.zIndex = 5000;
 
-				cursor.innerHTML = '<img style="transform:rotate(-45deg)translateX(-14px);width:10px;" src="' + createCursorImage(clr) + '">';
-
+				var img = document.createElement('img');
+				mxUtils.setPrefixedStyle(img.style, 'transform', 'rotate(-45deg)translateX(-14px)');
+				img.setAttribute('src', createCursorImage(clr));
+				img.style.width = '10px';
+				cursor.appendChild(img);
+				
 				var name = document.createElement('div');
 				name.style.backgroundColor = clr;
 				name.style.color = lblClr;
@@ -335,28 +358,16 @@ function P2PCollab(ui, sync)
 			case 'cursor':
 				if (urlParams['remote-cursors'] != '0')
 				{
-					var pageId = (ui.currentPage != null) ?
-						ui.currentPage.getId() : null;
-
-					if (msgData.hide != null ||
-						(msgData.pageId != null &&
-						msgData.pageId != pageId))
-					{
-						removeConnectedUserUi(sessionId);
-					}
-					else
-					{
-						createCursor();
-						connectedSessions[sessionId].cursorPosition = new mxPoint(msgData.x, msgData.y);
-						updateCursor(connectedSessions[sessionId], true);
-					}
+					createCursor();
+					connectedSessions[sessionId].lastCursor = msgData;
+					updateCursor(connectedSessions[sessionId], true);
 				}
 			break;
 			case 'diff':
 				try
 				{
 					var msg = sync.stringToObject(decodeURIComponent(msgData.patch));
-					sync.receiveRemoteChanges(msg.d.c);
+					sync.receiveRemoteChanges(msg.d);
 				}
 				catch (e)
 				{
@@ -410,6 +421,7 @@ function P2PCollab(ui, sync)
 			return;	
 		}
 		
+		// TODO: Move URL to Editor.STUN_SERVER_URL, add to Editor.configure
 		var p = new SimplePeer({
 	        initiator: initiator,
 			config: { iceServers: [{ urls: 'stun:54.89.235.160:3478' }] }
@@ -563,7 +575,7 @@ function P2PCollab(ui, sync)
 		
 		var ws = new WebSocket('wss://p2p-collab-test.jgraph.workers.dev/?id=' + channelId);
 		
-	  	ws.addEventListener("open", function(event)
+	  	ws.addEventListener('open', function(event)
 	  	{
 			socket = ws;
 			socket.joinId = joinInProgress;
@@ -576,7 +588,7 @@ function P2PCollab(ui, sync)
 			}
 	  	});
 	
-	  	ws.addEventListener("message", mxUtils.bind(this, function(event)
+	  	ws.addEventListener('message', mxUtils.bind(this, function(event)
 	  	{
 			if (!NO_P2P)
 			{
@@ -615,7 +627,7 @@ function P2PCollab(ui, sync)
 
 		var rejoinCalled = false;
 				
-	  	ws.addEventListener("close", mxUtils.bind(this, function(event)
+	  	ws.addEventListener('close', mxUtils.bind(this, function(event)
 		{
 			EditorUi.debug('P2PCollab: WebSocket closed', ws.joinId, 'reconnecting', event.code, event.reason);
 			EditorUi.debug('P2PCollab: closing socket on', ws.joinId);
@@ -643,7 +655,7 @@ function P2PCollab(ui, sync)
 			}
 	  	}));
 
-	  	ws.addEventListener("error", mxUtils.bind(this, function(event)
+	  	ws.addEventListener('error', mxUtils.bind(this, function(event)
 		{
 	    	EditorUi.debug('P2PCollab: WebSocket error, reconnecting', event);
 			EditorUi.debug('P2PCollab: error socket on', ws.joinId);
@@ -723,12 +735,13 @@ function P2PCollab(ui, sync)
 			ui.removeListener(this.shareCursorPositionListener);
 		}
 
-		if (this.scrollHandler != null)
+		if (this.cursorHandler != null)
 		{
-			mxEvent.removeListener(graph.container, 'scroll', this.scrollHandler);
-			graph.getView().removeListener(mxEvent.SCALE, this.scrollHandler);
-			graph.getView().removeListener(mxEvent.TRANSLATE, this.scrollHandler);
-			graph.getView().removeListener(mxEvent.SCALE_AND_TRANSLATE, this.scrollHandler);
+			mxEvent.removeListener(graph.container, 'scroll', this.cursorHandler);
+			graph.getView().removeListener(mxEvent.SCALE, this.cursorHandler);
+			graph.getView().removeListener(mxEvent.TRANSLATE, this.cursorHandler);
+			graph.getView().removeListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
+			ui.editor.removeListener('pageSelected', this.cursorHandler);
 		}
 
 		//Close the socket

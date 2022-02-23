@@ -192,7 +192,23 @@ DrawioFileSync.prototype.maxSyncMessageSize = 10000;
 /**
  * Delay for fast sync message sending in ms.
  */
-DrawioFileSync.prototype.syncMessageDelay = 100;
+DrawioFileSync.prototype.syncSendMessageDelay = 100;
+
+/**
+ * Delay for fast sync message sending in ms.
+ */
+DrawioFileSync.prototype.syncReceiveMessageDelay = 300;
+
+/**
+ * Delay for checking if pending remote changes were
+ * saved to the file.
+ */
+DrawioFileSync.prototype.consistencyCheckDelay = 10000;
+
+/**
+ * Delay for fast sync message sending in ms.
+ */
+DrawioFileSync.prototype.syncChangeCounter = 0;
 
 /**
  * Specifies if notifications should be sent and received for changes.
@@ -611,7 +627,7 @@ DrawioFileSync.prototype.handleMessageData = function(data)
 	}
 	else if (data.a == 'change')
 	{
-		this.receiveRemoteChanges(data.c);
+		this.receiveRemoteChanges(data);
 	}
 	else if (data.m != null)
 	{
@@ -729,6 +745,7 @@ DrawioFileSync.prototype.localFileChanged = function()
 {
 	if (this.file.ownPages != null)
 	{
+		// LATER: Diff and patch only current page
 		var snapshot = this.ui.getXmlFileData();
 		var patch = this.ui.diffPages(
 			this.ui.getPagesForNode(this.file.snapshot),
@@ -763,7 +780,7 @@ DrawioFileSync.prototype.sendLocalChanges = function(changes)
 				}
 
 				this.localChanges = null;
-			}), this.syncMessageDelay);
+			}), this.syncSendMessageDelay);
 		}
 		else
 		{
@@ -779,8 +796,9 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 {
 	if (!this.file.ignorePatches(changes))
 	{
+		var changeId = this.clientId + '.' + (this.syncChangeCounter++);
+		var msg = {a: 'change', c: changes, id: changeId};
 		var user = this.file.getCurrentUser();
-		var msg = {a: 'change', c: changes};
 					
 		if (user != null)
 		{
@@ -812,9 +830,99 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 };
 
 /**
- * Adds the listener for automatically saving the diagram for local changes.
+ * Handles the given remote changes.
  */
-DrawioFileSync.prototype.receiveRemoteChanges = function(changes)
+DrawioFileSync.prototype.receiveRemoteChanges = function(data)
+{
+	var changes = data.c;
+
+	if (!this.file.ignorePatches(changes))
+	{
+		if (this.remoteChanges == null)
+		{
+			this.remoteChanges = [data];
+
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				if (this.ui.getCurrentFile() == this.file)
+				{
+					// Sorts by sender and remote counter
+					this.remoteChanges.sort(function(a, b)
+					{
+						if (a.id < b.id)
+						{
+							return -1;
+						}
+						else if (a.id > b.id)
+						{
+							return 1;
+						}
+						else
+						{
+							return 0;
+						}
+					});
+
+					var lastDiff = null;
+
+					// Processes changes
+					for (var i = 0; i < this.remoteChanges.length; i++)
+					{
+						// Ignores consecutive duplicates
+						var currentDiff = JSON.stringify(this.remoteChanges[i].c);
+
+						if (currentDiff != lastDiff)
+						{
+							this.doReceiveRemoteChanges(this.remoteChanges[i].c);
+						}
+
+						lastDiff = currentDiff;
+					}
+
+					this.scheduleConsistencyCheck();
+				}
+
+				this.remoteChanges = null;
+			}), this.syncReceiveMessageDelay);
+		}
+		else
+		{
+			this.remoteChanges.push(data);
+		}
+	}
+};
+
+/**
+ * Removes received remote changes that havent not been saved.
+ */
+DrawioFileSync.prototype.scheduleConsistencyCheck = function(changes)
+{
+	window.clearTimeout(this.consistencyCheckThread);
+
+	this.consistencyCheckThread = window.setTimeout(mxUtils.bind(this, function()
+	{
+		if (this.ui.getCurrentFile() == this.file && !this.file.inConflictState)
+		{
+			var patch = this.ui.diffPages(this.ui.pages, this.file.ownPages);
+
+			if (!mxUtils.isEmptyObject(patch))
+			{
+				this.file.patch([patch]);
+
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('Sync.consistencyCheck',
+						[this], 'patch', patch);
+				}
+			}
+		}
+	}), this.consistencyCheckDelay);
+};
+
+/**
+ * Sends the given changes too all collaborators.
+ */
+DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
 {
 	if (this.file.ownPages != null)
 	{
@@ -825,12 +933,12 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(changes)
 			this.file.shadowPages,
 			this.file.ownPages);
 		this.file.patch([pending]);
-
+		
 		if (urlParams['test'] == '1')
 		{
 			EditorUi.debug('Sync.receiveRemoteChanges', [this],
 				'changes', changes, 'pending', pending);
-		}	
+		}
 	}
 };
 
@@ -839,12 +947,13 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(changes)
  */
 DrawioFileSync.prototype.patchOwnPages = function(patches, pending)
 {
+	var consensus = null;
+
 	if (this.file.ownPages != null)
 	{
-		var consensus = this.ui.diffPages(
+		consensus = [this.ui.diffPages(
 			this.file.ownPages,
-			this.ui.pages);
-		this.sendLocalChanges([consensus]);
+			this.ui.pages)];
 
 		for (var i = 0; i < patches.length; i++)
 		{
@@ -856,9 +965,13 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending)
 
 		if (pending != null)
 		{
-			this.file.ownPages = this.ui.patchPages(
-				this.file.ownPages, pending, true);
-			this.file.patch([pending]);
+			for (var i = 0; i < pending.length; i++)
+			{
+				this.file.ownPages = this.ui.patchPages(
+					this.file.ownPages, pending[i], true);
+			}
+
+			this.file.patch(pending);
 		}
 
 		if (urlParams['test'] == '1')
@@ -867,6 +980,156 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending)
 				'consensus', consensus,
 				'patches', patches,
 				'pending', pending);
+		}
+	}
+
+	return consensus;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, error, abort)
+{
+	try
+	{
+		this.file.stats.merged++;
+		this.lastModified = new Date();
+		this.file.shadowPages = (this.file.shadowPages != null) ?
+			this.file.shadowPages : this.ui.getPagesForNode(
+			mxUtils.parseXml(this.file.shadowData).documentElement)
+
+		// Creates a patch for backup if the checksum fails
+		this.file.backupPatch = (this.file.isModified()) ?
+			this.ui.diffPages(this.file.shadowPages,
+			this.ui.pages) : null;
+		var ignored = this.file.ignorePatches(patches);
+		var etag = this.file.getDescriptorRevisionId(desc);
+		
+		if (!ignored)
+		{
+			var pending = (this.file.ownPages != null) ?
+				[this.ui.diffPages(this.file.shadowPages,
+				this.file.ownPages)] : null;
+			
+			// Patches the shadow document
+			for (var i = 0; i < patches.length; i++)
+			{
+				this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
+			}
+
+			var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
+
+			if (urlParams['test'] == '1')
+			{
+				EditorUi.debug('Sync.merge', [this],
+					'from', this.file.getCurrentRevisionId(), 'to', etag,
+					'etag', this.file.getDescriptorEtag(desc),
+					'backup', this.file.backupPatch,
+					'attempt', this.catchupRetryCount,
+					'patches', patches, 'checksum',
+					checksum == current, checksum);
+			}
+			
+			// Compares the checksum
+			if (checksum != null && checksum != current)
+			{
+				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
+				var to = this.ui.hashValue(etag);
+				
+				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
+					'\nChecksum: ' + checksum + '\nCurrent: ' + current, etag, 'merge');
+
+				// Uses current state as shadow to compute diff since
+				// shadowPages has been modified in-place above
+				// LATER: Check if fallback to reload is possible
+//				this.reload(success, error, abort, this.ui.pages);
+				
+				// Abnormal termination
+				return;
+			}
+			else
+			{
+				// Patches the current document
+				var consensus = this.patchOwnPages(
+					patches, pending);
+				this.file.patch(patches,
+					(this.file.ownPages == null &&
+					DrawioFile.LAST_WRITE_WINS) ?
+					this.file.backupPatch : null);
+
+				if (consensus != null)
+				{
+					this.file.patch(consensus);
+					this.scheduleConsistencyCheck();
+					this.sendLocalChanges(consensus);
+				}
+				
+				// Logs successull patch
+//				try
+//				{
+//					var user = this.file.getCurrentUser();
+//					var uid = (user != null) ? user.id : 'unknown';
+//
+//					EditorUi.logEvent({category: 'PATCH-SYNC-FILE-' + this.file.getHash(),
+//						action: uid + '-patches-' + patches.length + '-recvd-' +
+//						this.file.stats.bytesReceived + '-msgs-' + this.file.stats.msgReceived,
+//						label: this.clientId});
+//				}
+//				catch (e)
+//				{
+//					// ignore
+//				}
+			}
+		}
+
+		this.file.invalidChecksum = false;
+		this.file.inConflictState = false;
+		this.file.patchDescriptor(this.file.getDescriptor(), desc);
+		this.file.backupPatch = null;
+		
+		if (success != null)
+		{
+			success();
+		}
+	}
+	catch (e)
+	{
+		this.file.inConflictState = true;
+		this.file.invalidChecksum = true;
+		this.file.descriptorChanged();
+		
+		if (error != null)
+		{
+			error(e);
+		}
+		
+		try
+		{
+			if (this.file.errorReportsEnabled)
+			{
+				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
+				var to = this.ui.hashValue(etag);
+				
+				this.file.sendErrorReport('Error in merge',
+					'From: ' + from + '\nTo: ' + to +
+					'\nChecksum: ' + checksum +
+					'\nPatches:\n' + this.file.compressReportData(
+						JSON.stringify(patches, null, 2)), e);
+			}
+			else
+			{
+				var user = this.file.getCurrentUser();
+				var uid = (user != null) ? user.id : 'unknown';
+				
+				EditorUi.logError('Error in merge', null,
+					this.file.getMode() + '.' +
+					this.file.getId(), uid, e);
+			}
+		}
+		catch (e2)
+		{
+			// ignore
 		}
 	}
 };
@@ -1163,146 +1426,6 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow)
 };
 
 /**
- * Adds the listener for automatically saving the diagram for local changes.
- */
-DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, error, abort)
-{
-	try
-	{
-		this.file.stats.merged++;
-		this.lastModified = new Date();
-		this.file.shadowPages = (this.file.shadowPages != null) ?
-			this.file.shadowPages : this.ui.getPagesForNode(
-			mxUtils.parseXml(this.file.shadowData).documentElement)
-
-		// Creates a patch for backup if the checksum fails
-		this.file.backupPatch = (this.file.isModified()) ?
-			this.ui.diffPages(this.file.shadowPages,
-			this.ui.pages) : null;
-		var ignored = this.file.ignorePatches(patches);
-		var etag = this.file.getDescriptorRevisionId(desc);
-
-		if (!ignored)
-		{
-			var pending = this.ui.diffPages(
-				this.file.shadowPages,
-				this.file.ownPages);
-
-			// Patches the shadow document
-			for (var i = 0; i < patches.length; i++)
-			{
-				this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
-			}
-
-			var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
-			
-			if (urlParams['test'] == '1')
-			{
-				EditorUi.debug('Sync.merge', [this],
-					'from', this.file.getCurrentRevisionId(), 'to', etag,
-					'etag', this.file.getDescriptorEtag(desc),
-					'backup', this.file.backupPatch,
-					'attempt', this.catchupRetryCount,
-					'patches', patches, 'checksum',
-					checksum == current, checksum);
-			}
-			
-			// Compares the checksum
-			if (checksum != null && checksum != current)
-			{
-				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				var to = this.ui.hashValue(etag);
-				
-				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
-					'\nChecksum: ' + checksum + '\nCurrent: ' + current, etag, 'merge');
-
-				// Uses current state as shadow to compute diff since
-				// shadowPages has been modified in-place above
-				// LATER: Check if fallback to reload is possible
-//				this.reload(success, error, abort, this.ui.pages);
-				
-				// Abnormal termination
-				return;
-			}
-			else
-			{
-				// Patches the current document
-				this.file.patch(patches,
-					(this.file.ownPages == null &&
-					DrawioFile.LAST_WRITE_WINS) ?
-					this.file.backupPatch : null);
-				this.patchOwnPages(patches, pending);
-				
-				// Logs successull patch
-//				try
-//				{
-//					var user = this.file.getCurrentUser();
-//					var uid = (user != null) ? user.id : 'unknown';
-//
-//					EditorUi.logEvent({category: 'PATCH-SYNC-FILE-' + this.file.getHash(),
-//						action: uid + '-patches-' + patches.length + '-recvd-' +
-//						this.file.stats.bytesReceived + '-msgs-' + this.file.stats.msgReceived,
-//						label: this.clientId});
-//				}
-//				catch (e)
-//				{
-//					// ignore
-//				}
-			}
-		}
-
-		this.file.invalidChecksum = false;
-		this.file.inConflictState = false;
-		this.file.patchDescriptor(this.file.getDescriptor(), desc);
-		this.file.backupPatch = null;
-		
-		if (success != null)
-		{
-			success();
-		}
-	}
-	catch (e)
-	{
-		this.file.inConflictState = true;
-		this.file.invalidChecksum = true;
-		this.file.descriptorChanged();
-		
-		if (error != null)
-		{
-			error(e);
-		}
-		
-		try
-		{
-			if (this.file.errorReportsEnabled)
-			{
-				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				var to = this.ui.hashValue(etag);
-				
-				this.file.sendErrorReport('Error in merge',
-					'From: ' + from + '\nTo: ' + to +
-					'\nChecksum: ' + checksum +
-					'\nPatches:\n' + this.file.compressReportData(
-						JSON.stringify(patches, null, 2)), e);
-			}
-			else
-			{
-				var user = this.file.getCurrentUser();
-				var uid = (user != null) ? user.id : 'unknown';
-				
-				EditorUi.logError('Error in merge', null,
-					this.file.getMode() + '.' +
-					this.file.getId(), uid, e);
-			}
-		}
-		catch (e2)
-		{
-			// ignore
-		}
-	}
-};
-
-/**
  * Invokes when the file descriptor was changed.
  */
 DrawioFileSync.prototype.descriptorChanged = function(etag)
@@ -1491,6 +1614,11 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 						}
 					}
 				}));
+
+				if (this.file.ownPages != null)
+				{
+					this.file.patch(diff);
+				}
 
 				if (urlParams['test'] == '1')
 				{

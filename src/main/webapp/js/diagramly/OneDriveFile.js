@@ -18,6 +18,22 @@ mxUtils.extend(OneDriveFile, DrawioFile);
 OneDriveFile.prototype.autosaveDelay = 300;
 
 /**
+ * Enables fast sync in production for OneDrive.
+ */
+OneDriveFile.prototype.isFastSyncEnabled = function()
+{
+	return urlParams['fast-sync'] != '0';
+};
+
+/**
+ * Hook for subclassers.
+ */
+OneDriveFile.prototype.isFastSyncSupported = function()
+{
+	return true;
+};
+ 
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.
@@ -177,6 +193,14 @@ OneDriveFile.prototype.isRenamable = function()
  * together with the save request.
  */
 OneDriveFile.prototype.isOptimisticSync = function()
+{
+	return true;
+};
+
+/**
+ * Enabling fast syncin OneDrive production.
+ */
+OneDriveFile.prototype.isSyncEnabled = function()
 {
 	return true;
 };

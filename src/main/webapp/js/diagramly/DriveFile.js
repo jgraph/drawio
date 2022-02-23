@@ -537,7 +537,7 @@ DriveFile.prototype.isSyncSupported = function()
 /**
  * Hook for subclassers.
  */
-DriveFile.prototype.isFastSync = function()
+DriveFile.prototype.isFastSyncSupported = function()
 {
 	return true;
 };
