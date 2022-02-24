@@ -3087,7 +3087,7 @@ App.prototype.start = function()
 					window.addEventListener('storage', mxUtils.bind(this, function(evt)
 					{
 						var file = this.getCurrentFile();
-						EditorUi.debug('storage event', evt, file);
+						EditorUi.debug('storage event', [evt], [file]);
 	
 						if (file != null && evt.key == '.draft-alive-check' && evt.newValue != null && file.draftId != null)
 						{

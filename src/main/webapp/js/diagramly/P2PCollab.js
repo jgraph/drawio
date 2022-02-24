@@ -30,10 +30,10 @@ function P2PCollab(ui, sync)
 		{
 			if (!NO_P2P)
 			{
-				EditorUi.debug('P2PCollab: sending to socket server', action, msg);
+				EditorUi.debug('P2PCollab: sending to socket server', [action], [msg]);
 			}
 
-			socket.send(JSON.stringify({action: action, msg: msg}));	
+			socket.send(JSON.stringify({action: action, msg: msg}));
 		}
 		catch (e)
 		{
@@ -62,7 +62,7 @@ function P2PCollab(ui, sync)
 
 		if (NO_P2P && type != 'cursor')
 		{
-			EditorUi.debug('P2PCollab: sending to socket server', msg);
+			EditorUi.debug('P2PCollab: sending to socket server', [msg]);
 		}
 
 		messageId++;
@@ -260,7 +260,7 @@ function P2PCollab(ui, sync)
 		
 		if (NO_P2P && msg.type != 'cursor')
 		{
-			EditorUi.debug('P2PCollab: msg received', msg);
+			EditorUi.debug('P2PCollab: msg received', [msg]);
 		}
 
 		//Exclude P2P messages from duplicate messages test since p2p can arrive before socket and interrupt delivery
@@ -573,7 +573,7 @@ function P2PCollab(ui, sync)
 			EditorUi.debug('P2PCollab: closing socket error', e);
 		} //Ignore
 		
-		var ws = new WebSocket('wss://p2p-collab-test.jgraph.workers.dev/?id=' + channelId);
+		var ws = new WebSocket(window.RT_WEBSOCKET_URL + '?id=' + channelId);
 		
 	  	ws.addEventListener('open', function(event)
 	  	{
@@ -592,14 +592,14 @@ function P2PCollab(ui, sync)
 	  	{
 			if (!NO_P2P)
 			{
-				EditorUi.debug('P2PCollab: msg received', event);
+				EditorUi.debug('P2PCollab: msg received', [event]);
 			}
 
 		    var data = JSON.parse(event.data);
 			
 			if (NO_P2P && data.action != 'message')
 			{
-				EditorUi.debug('P2PCollab: msg received', event);
+				EditorUi.debug('P2PCollab: msg received', [event]);
 			}
 
 			switch (data.action)
@@ -650,7 +650,7 @@ function P2PCollab(ui, sync)
 						onError();
 					}
 
-					this.joinFile(channelId, callback, onError);	
+					this.joinFile(channelId, callback, onError);
 				}
 			}
 	  	}));
@@ -754,7 +754,10 @@ function P2PCollab(ui, sync)
 		//Close P2P sockets
 		for (var id in p2pClients)
 		{
-			p2pClients[id].destroy();
+			if (p2pClients[id] != null)
+			{
+				p2pClients[id].destroy();
+			}
 		}
 	};
 };

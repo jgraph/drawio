@@ -18,14 +18,6 @@ mxUtils.extend(OneDriveFile, DrawioFile);
 OneDriveFile.prototype.autosaveDelay = 300;
 
 /**
- * Enables fast sync in production for OneDrive.
- */
-OneDriveFile.prototype.isFastSyncEnabled = function()
-{
-	return urlParams['fast-sync'] != '0';
-};
-
-/**
  * Hook for subclassers.
  */
 OneDriveFile.prototype.isFastSyncSupported = function()

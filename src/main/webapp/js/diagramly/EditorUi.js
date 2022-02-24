@@ -3792,7 +3792,7 @@
 			}
 		});
 		var dlg = new BackgroundImageDialog(this, apply, img);
-		this.showDialog(dlg.container, 360, 200, true, true);
+		this.showDialog(dlg.container, 400, 200, true, true);
 		dlg.init();
 	};
 
@@ -7444,7 +7444,7 @@
 					}
 					else
 					{
-						onerror({message: this.getServiceName() == 'conf'? mxResources.get('vsdNoConfig') : mxResources.get('serviceUnavailableOrBlocked')});
+						onerror({message: this.getServiceName() != 'draw.io'? mxResources.get('vsdNoConfig') : mxResources.get('serviceUnavailableOrBlocked')});
 					}
 				}
 				else

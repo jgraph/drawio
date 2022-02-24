@@ -786,7 +786,7 @@
 				};
 	
 				var dlg = new BackgroundImageDialog(editorUi, apply);
-				editorUi.showDialog(dlg.container, 320, 170, true, true);
+				editorUi.showDialog(dlg.container, 400, 170, true, true);
 				dlg.init();
 			}
 		}));

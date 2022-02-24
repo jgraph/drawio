@@ -543,6 +543,23 @@ DriveFile.prototype.isFastSyncSupported = function()
 };
 
 /**
+ * Returns true if all changes should be sent out immediately.
+ */
+DriveFile.prototype.isFastSyncEnabled = function()
+{
+	var collab = this.ui.drive.getCustomProperty(this.desc, 'collaboration');
+	 
+	if (collab != null)
+	{
+		return collab == 'enabled' && urlParams['fast-sync'] != '0';
+	}
+	else
+	{
+		return DrawioFile.prototype.isFastSyncEnabled.apply(this, arguments);
+	}
+};
+
+/**
  * Hook for subclassers.
  */
 DriveFile.prototype.isRevisionHistorySupported = function()

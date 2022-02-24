@@ -53,7 +53,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'\'unsafe-hashes\'; '; // Required for hashes for style attribute
 		
 		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +
-			'https://*.googleapis.com wss://p2p-collab-test.jgraph.workers.dev wss://*.pusher.com https://*.pusher.com ' +
+			'https://*.googleapis.com wss://app.diagrams.net/rt wss://*.pusher.com https://*.pusher.com ' +
 			'https://api.github.com https://raw.githubusercontent.com https://gitlab.com ' +
 			'https://graph.microsoft.com https://*.sharepoint.com  https://*.1drv.com https://api.onedrive.com ' +
 			'https://dl.dropboxusercontent.com ' +

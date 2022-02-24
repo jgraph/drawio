@@ -1,3 +1,11 @@
+24-FEB-2022: 16.6.4
+
+- Make consistency check independent of return value
+- Fixes cropping in background image dialog
+- Adds click handler for status error message
+- [conf cloud] Adds clean draft files to draw.io re-indexing
+- Disables fast sync by default in OneDrive
+
 23-FEB-2022: 16.6.3
 
 - Enables Google Drive on PC in Office addon

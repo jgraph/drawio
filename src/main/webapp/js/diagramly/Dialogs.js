@@ -1585,11 +1585,11 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	var urlInput = document.createElement('input');
 	urlInput.setAttribute('type', 'text');
 	urlInput.style.marginBottom = '8px';
-	urlInput.style.width = '320px';
+	urlInput.style.width = '360px';
 	urlInput.value = (isPageLink || img == null) ? '' : img.src;
 	
 	var pageSelect = document.createElement('select');
-	pageSelect.style.width = '320px';
+	pageSelect.style.width = '360px';
 
 	if (editorUi.pages != null)
 	{
@@ -1676,6 +1676,30 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		}
 	};
 
+	var openFiles = mxUtils.bind(this, function(files)
+	{
+		editorUi.importFiles(files, 0, 0, editorUi.maxBackgroundSize, function(data, mimeType, x, y, w, h)
+		{
+			urlInput.value = data;
+			urlChanged();
+			urlInput.focus();
+		}, function()
+		{
+			// No post processing
+		}, function(file)
+		{
+			// Handles only images
+			return file.type.substring(0, 6) == 'image/';
+		}, function(queue)
+		{
+			// Invokes elements of queue in order
+			for (var i = 0; i < queue.length; i++)
+			{
+				queue[i]();
+			}
+		}, true, editorUi.maxBackgroundBytes, editorUi.maxBackgroundBytes, true);
+	});
+
 	this.init = function()
 	{
 		if (isPageLink)
@@ -1745,26 +1769,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 
 			    if (evt.dataTransfer.files.length > 0)
 			    {
-			    	editorUi.importFiles(evt.dataTransfer.files, 0, 0, editorUi.maxBackgroundSize, function(data, mimeType, x, y, w, h)
-			    	{
-			    		urlInput.value = data;
-			    		urlChanged();
-						urlInput.focus();
-			    	}, function()
-			    	{
-			    		// No post processing
-			    	}, function(file)
-			    	{
-			    		// Handles only images
-			    		return file.type.substring(0, 6) == 'image/';
-			    	}, function(queue)
-			    	{
-			    		// Invokes elements of queue in order
-			    		for (var i = 0; i < queue.length; i++)
-			    		{
-			    			queue[i]();
-			    		}
-			    	}, true, editorUi.maxBackgroundBytes, editorUi.maxBackgroundBytes, true);
+			    	openFiles(evt.dataTransfer.files);
 	    		}
 			    else if (mxUtils.indexOf(evt.dataTransfer.types, 'text/uri-list') >= 0)
 			    {
@@ -1871,6 +1876,19 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	var btns = document.createElement('div');
 	btns.style.marginTop = '30px';
 	btns.style.textAlign = 'right';
+
+	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	{
+		resetting = true;
+		editorUi.hideDialog();
+	});
+	
+	cancelBtn.className = 'geBtn';
+	
+	if (editorUi.editor.cancelFirst)
+	{
+		btns.appendChild(cancelBtn);
+	}
 	
 	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
 	{
@@ -1889,17 +1907,39 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	resetBtn.width = '100';
 	btns.appendChild(resetBtn);
 
-	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
+	if (Graph.fileSupport)
 	{
-		resetting = true;
-		editorUi.hideDialog();
-	});
-	
-	cancelBtn.className = 'geBtn';
-	
-	if (editorUi.editor.cancelFirst)
-	{
-		btns.appendChild(cancelBtn);
+		if (editorUi.backgroundImgDlgFileInputElt == null)
+		{
+			var fileInput = document.createElement('input');
+			fileInput.setAttribute('multiple', 'multiple');
+			fileInput.setAttribute('type', 'file');
+			
+			mxEvent.addListener(fileInput, 'change', function(evt)
+			{
+				if (fileInput.files != null)
+				{
+					openFiles(fileInput.files);
+					
+		    		// Resets input to force change event for same file (type reset required for IE)
+					fileInput.type = '';
+					fileInput.type = 'file';
+					fileInput.value = '';
+				}
+			});
+			
+			fileInput.style.display = 'none';
+			document.body.appendChild(fileInput);
+			editorUi.backgroundImgDlgFileInputElt = fileInput;
+		}
+		
+		var btn = mxUtils.button(mxResources.get('open'), function()
+		{
+			editorUi.backgroundImgDlgFileInputElt.click();
+		});
+
+		btn.className = 'geBtn';
+		btns.appendChild(btn);
 	}
 
 	applyBtn = mxUtils.button(mxResources.get('apply'), function()
@@ -12537,7 +12577,7 @@ var FilePropertiesDialog = function(editorUi)
 	var filename = (file != null && file.getTitle() != null) ?
 		file.getTitle() : editorUi.defaultFilename;
 	var isPng = /(\.png)$/i.test(filename);
-	var apply = null;
+	var apply = function() { };
 
 	if (isPng)
 	{
@@ -12628,9 +12668,10 @@ var FilePropertiesDialog = function(editorUi)
 			editorUi.hideDialog();
 		};
 	}
-	else
+	else if (!/(\.html)$/i.test(filename) &&
+		!/(\.svg)$/i.test(filename))
 	{
-		var compressed = (file != null) ? file.isCompressed() : Editor.compressXml;
+		var initialCompressed = (file != null) ? file.isCompressed() : Editor.compressXml;
 
 		row = document.createElement('tr');
 		td = document.createElement('td');
@@ -12644,7 +12685,7 @@ var FilePropertiesDialog = function(editorUi)
 		var compressedInput = document.createElement('input');
 		compressedInput.setAttribute('type', 'checkbox');
 		
-		if (compressed)
+		if (initialCompressed)
 		{
 			compressedInput.setAttribute('checked', 'checked');
 			compressedInput.defaultChecked = true;
@@ -12663,9 +12704,10 @@ var FilePropertiesDialog = function(editorUi)
 		
 		apply = function()
 		{
-			if (editorUi.fileNode != null)
+			if (editorUi.fileNode != null && initialCompressed != compressedInput.checked)
 			{
-				editorUi.fileNode.setAttribute('compressed', (compressedInput.checked) ? 'true' : 'false');
+				editorUi.fileNode.setAttribute('compressed',
+					(compressedInput.checked) ? 'true' : 'false');
 				
 				if (file != null)
 				{
@@ -12676,7 +12718,81 @@ var FilePropertiesDialog = function(editorUi)
 			editorUi.hideDialog();
 		};
 	}
+
+	if (file != null && file.constructor == DriveFile && editorUi.drive != null)
+	{
+		row = document.createElement('tr');
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.style.fontSize = '10pt';
+		td.style.width = '120px';
+		mxUtils.write(td, 'Collaboration (experimental):');
+		
+		row.appendChild(td);
 	
+		var collabInput = document.createElement('input');
+		collabInput.setAttribute('type', 'checkbox');
+
+		var collab = editorUi.drive.getCustomProperty(file.desc, 'collaboration');
+		var initialCollab = collab != null && collab == 'enabled';
+	
+		if (initialCollab)
+		{
+			collabInput.setAttribute('checked', 'checked');
+			collabInput.defaultChecked = true;
+		}
+
+		prevApply = apply;
+		apply = function()
+		{
+			prevApply();
+			editorUi.hideDialog();
+
+			if (collabInput.checked != initialCollab)
+			{
+				var params = {'key': 'collaboration'};
+
+				if (collabInput.checked)
+				{
+					params['value'] = 'enabled';
+				}
+
+				if (editorUi.spinner.spin(document.body, mxResources.get('saving')))
+				{
+					editorUi.drive.executeRequest({
+						'url': '/files/' + file.getId() + '/properties?alt=json&supportsAllDrives=true',
+						'method': 'POST',
+						'contentType': 'application/json; charset=UTF-8',
+						'params': params
+					}, function(resp)
+					{
+						editorUi.spinner.stop();
+						editorUi.alert(mxResources.get('restartForChangeRequired'));
+					}, function(resp)
+					{
+						editorUi.spinner.stop();
+						editorUi.showError(mxResources.get('error'), (resp != null && resp.error != null) ?
+							resp.error.message : mxResources.get('unknownError'), mxResources.get('ok'));
+					});
+				}
+			}
+		};
+
+		this.init = (this.init != null) ? this.init : function()
+		{
+			collabInput.focus();
+		};
+
+		td = document.createElement('td');
+		td.style.whiteSpace = 'nowrap';
+		td.appendChild(collabInput);
+		td.appendChild(editorUi.menus.createHelpLink('https://github.com/jgraph/drawio/discussions/2641'));
+		row.appendChild(td);
+		tbody.appendChild(row);
+	}
+
+	this.init = (this.init != null) ? this.init : function() { };
+
 	var genericBtn = mxUtils.button(mxResources.get('apply'), apply);
 	genericBtn.className = 'geBtn gePrimaryBtn';
 	
@@ -12685,7 +12801,7 @@ var FilePropertiesDialog = function(editorUi)
 	td.colSpan = 2;
 	td.style.paddingTop = '20px';
 	td.style.whiteSpace = 'nowrap';
-	td.setAttribute('align', 'right');
+	td.setAttribute('align', 'center');
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{

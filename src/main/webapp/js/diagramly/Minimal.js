@@ -1182,7 +1182,7 @@ EditorUi.initMinimalTheme = function()
 
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['save', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
+				ui.menus.addMenuItems(menu, ['save', 'rename', 'makeCopy', 'moveToFolder'], parent);
 			}
 			else
 			{
@@ -1200,24 +1200,28 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['makeCopy'], parent);
 				}
 			}
-			
-			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
+
+			menu.addSeparator(parent);
 
 			if (file != null)
 			{
 				if (file.isRevisionHistorySupported())
 				{
-					ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
+					ui.menus.addMenuItems(menu, ['revisionHistory'], parent);
 				}
-
-				menu.addSeparator(parent);
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 					file.constructor != LocalFile)
 				{
 					ui.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
-				
+			}
+			ui.menus.addMenuItems(menu, ['autosave'], parent);
+
+			if (file != null)
+			{
+				menu.addSeparator(parent);
+
 				if (graph.isEnabled() && graph.isSelectionEmpty() &&
 					file.isFastSyncEnabled() && file.isFastSyncSupported())
 				{
@@ -1234,8 +1238,9 @@ EditorUi.initMinimalTheme = function()
 					var filename = (file.getTitle() != null) ?
 						file.getTitle() : ui.defaultFilename;
 					
-					if (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename))
+					if (file.constructor == DriveFile ||
+						(!/(\.html)$/i.test(filename) &&
+						!/(\.svg)$/i.test(filename)))
 					{
 						this.addMenuItems(menu, ['-', 'properties'], parent);
 					}

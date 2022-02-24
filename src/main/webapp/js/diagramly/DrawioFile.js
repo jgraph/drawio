@@ -1566,6 +1566,19 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			
 			this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlert">' +
 				status + ' (' + mxUtils.htmlEntities(err.message) + ')</div>');
+
+			// Installs click handler for error message
+			var links = this.ui.statusContainer.getElementsByTagName('div');
+			
+			if (links != null && links.length > 0)
+			{
+				links[0].style.cursor = 'pointer';
+
+				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
+				{
+					this.ui.showError(mxResources.get('unsavedChanges'), mxUtils.htmlEntities(err.message));
+				}));
+			}
 		}
 		else
 		{

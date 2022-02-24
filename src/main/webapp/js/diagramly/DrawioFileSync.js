@@ -184,29 +184,34 @@ mxUtils.extend(DrawioFileSync, mxEventSource);
 DrawioFileSync.prototype.maxCacheEntrySize = 1000000;
 
 /**
- * Maximum size in bytes for fast sync messages.
- * Use 0 to disable message size check.
+ * Maximum size in bytes for fast sync messages via Pusher.
+ * Use 0 to disable message size check. Default is 9KB.
  */
-DrawioFileSync.prototype.maxSyncMessageSize = 10000;
+DrawioFileSync.prototype.maxSyncMessageSize = 9000;
 
 /**
- * Delay for fast sync message sending in ms.
+ * Delay for fast sync message sending in ms. Larger
+ * values help to group sending out changes, smaller
+ * values reduce latency.
  */
 DrawioFileSync.prototype.syncSendMessageDelay = 100;
 
 /**
- * Delay for fast sync message sending in ms.
+ * Delay for received sync message processing in ms.
+ * Larger values help to sort and merge messages,
+ * smaller values reduce latency.
  */
 DrawioFileSync.prototype.syncReceiveMessageDelay = 300;
 
 /**
- * Delay for checking if pending remote changes were
- * saved to the file.
+ * Inactivity time to drop remote changes that have not been saved
+ * to the file. Larger values give time to save, smaller values
+ * require less inactivity time and give better responsiveness.
  */
 DrawioFileSync.prototype.consistencyCheckDelay = 10000;
 
 /**
- * Delay for fast sync message sending in ms.
+ * Counter for local message IDs.
  */
 DrawioFileSync.prototype.syncChangeCounter = 0;
 
@@ -747,18 +752,78 @@ DrawioFileSync.prototype.localFileChanged = function()
 	{
 		// LATER: Diff and patch only current page
 		var snapshot = this.ui.getXmlFileData();
-		var patch = this.ui.diffPages(
-			this.ui.getPagesForNode(this.file.snapshot),
-			this.ui.getPagesForNode(snapshot));
-		this.file.ownPages = this.ui.patchPages(
-			this.file.ownPages, patch, true);
-		this.file.snapshot = snapshot;
 
-		if (this.ui.editor.autosave)
+		// Improves responsiveness of UI for large files by using
+		// async handling of the snapshot. The snapshot needs to
+		// be taken synchronously and the execution of the code
+		// below must be mutually exclusive with other critial
+		// sections that update the snapshot and own pages.
+		this.executeFunction(mxUtils.bind(this, function()
 		{
-			this.sendLocalChanges([patch]);
-		}
+			var patch = this.ui.diffPages(
+				this.ui.getPagesForNode(this.file.snapshot),
+				this.ui.getPagesForNode(snapshot));
+			this.file.ownPages = this.ui.patchPages(
+				this.file.ownPages, patch, true);
+			this.file.snapshot = snapshot;
+
+			if (this.ui.editor.autosave)
+			{
+				this.sendLocalChanges([patch]);
+			}
+		}), true);
 	}
+};
+
+/**
+ * Queues the given function for execution. Priority functions
+ * are executed first before all other waiting functions.
+ */
+DrawioFileSync.prototype.executeFunction = function(f, isPriority)
+{
+	if (this.priorityProcessQueue == null)
+	{
+		this.priorityProcessQueue = [];
+	}
+	
+	if (this.processQueue == null)
+	{
+		this.processQueue = [];
+	}
+
+	if (isPriority)
+	{
+		this.priorityProcessQueue.push(f);
+	}
+	else
+	{
+		this.processQueue.push(f);
+	}
+	
+	window.clearTimeout(this.processThread);
+	
+	this.processThread = window.setTimeout(mxUtils.bind(this, function()
+	{
+		if (this.priorityProcessQueue != null)
+		{
+			for (var i = 0; i < this.priorityProcessQueue.length; i++)
+			{
+				this.priorityProcessQueue[i]();
+			}
+
+			this.priorityProcessQueue = null;
+		}
+
+		if (this.processQueue != null)
+		{
+			for (var i = 0; i < this.processQueue.length; i++)
+			{
+				this.processQueue[i]();
+			}
+
+			this.processQueue = null;
+		}
+	}), 0);
 };
 
 /**
@@ -786,6 +851,13 @@ DrawioFileSync.prototype.sendLocalChanges = function(changes)
 		{
 			this.localChanges = this.localChanges.concat(changes);
 		}
+
+		if (urlParams['test'] == '1')
+		{
+			EditorUi.debug('Sync.sendLocalChanges', [this],
+				'changes', changes, 'localChanges',
+				this.localChanges);
+		}
 	}
 };
 
@@ -809,6 +881,7 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 		var data = encodeURIComponent(
 			this.objectToString(
 			this.createMessage(msg)));
+		var skipped = false;
 		
 		if (this.p2pReady)
 		{
@@ -818,13 +891,16 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 		{
 			mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + data);
 		}
+		else
+		{
+			skipped = true;
+		}
 
 		if (urlParams['test'] == '1')
 		{
-			EditorUi.debug('Sync.sendLocalChanges', [this],
+			EditorUi.debug('Sync.doSendLocalChanges', [this],
 				'changes', changes, data.length, 'bytes',
-				this.maxSyncMessageSize > 0 && data.length >=
-					this.maxSyncMessageSize ? '(skipped)' : '');
+				skipped ? '(skipped)' : '');
 		}
 	}
 };
@@ -838,16 +914,16 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
 
 	if (!this.file.ignorePatches(changes))
 	{
-		if (this.remoteChanges == null)
+		if (this.receivedData == null)
 		{
-			this.remoteChanges = [data];
+			this.receivedData = [data];
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
 				if (this.ui.getCurrentFile() == this.file)
 				{
 					// Sorts by sender and remote counter
-					this.remoteChanges.sort(function(a, b)
+					this.receivedData.sort(function(a, b)
 					{
 						if (a.id < b.id)
 						{
@@ -866,14 +942,14 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
 					var lastDiff = null;
 
 					// Processes changes
-					for (var i = 0; i < this.remoteChanges.length; i++)
+					for (var i = 0; i < this.receivedData.length; i++)
 					{
 						// Ignores consecutive duplicates
-						var currentDiff = JSON.stringify(this.remoteChanges[i].c);
+						var currentDiff = JSON.stringify(this.receivedData[i].c);
 
 						if (currentDiff != lastDiff)
 						{
-							this.doReceiveRemoteChanges(this.remoteChanges[i].c);
+							this.doReceiveRemoteChanges(this.receivedData[i].c);
 						}
 
 						lastDiff = currentDiff;
@@ -882,13 +958,45 @@ DrawioFileSync.prototype.receiveRemoteChanges = function(data)
 					this.scheduleConsistencyCheck();
 				}
 
-				this.remoteChanges = null;
+				this.receivedData = null;
 			}), this.syncReceiveMessageDelay);
 		}
 		else
 		{
-			this.remoteChanges.push(data);
+			this.receivedData.push(data);
 		}
+
+		if (urlParams['test'] == '1')
+		{
+			EditorUi.debug('Sync.receiveRemoteChanges', [this],
+				'data', [data], 'receivedData', this.receivedData);
+		}
+
+	}
+};
+
+/**
+ * Sends the given changes too all collaborators.
+ */
+DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
+{
+	if (this.file.ownPages != null)
+	{
+		this.executeFunction(mxUtils.bind(this, function()
+		{
+			this.file.patch(changes);
+			this.file.snapshot = this.ui.getXmlFileData();
+			var pending = this.ui.diffPages(
+				this.file.shadowPages,
+				this.file.ownPages);
+			this.file.patch([pending]);
+			
+			if (urlParams['test'] == '1')
+			{
+				EditorUi.debug('Sync.doReceiveRemoteChanges', [this],
+					'changes', changes, 'pending', [pending]);
+			}
+		}));
 	}
 };
 
@@ -912,7 +1020,7 @@ DrawioFileSync.prototype.scheduleConsistencyCheck = function(changes)
 				if (urlParams['test'] == '1')
 				{
 					EditorUi.debug('Sync.consistencyCheck',
-						[this], 'patch', patch);
+						[this], 'patch', [patch]);
 				}
 			}
 		}
@@ -920,70 +1028,54 @@ DrawioFileSync.prototype.scheduleConsistencyCheck = function(changes)
 };
 
 /**
- * Sends the given changes too all collaborators.
- */
-DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
-{
-	if (this.file.ownPages != null)
-	{
-		this.file.patch(changes);
-		this.file.snapshot = this.ui.getXmlFileData();
-
-		var pending = this.ui.diffPages(
-			this.file.shadowPages,
-			this.file.ownPages);
-		this.file.patch([pending]);
-		
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.receiveRemoteChanges', [this],
-				'changes', changes, 'pending', pending);
-		}
-	}
-};
-
-/**
  * Patches the own pages with the given changes and updates the snapshot.
  */
 DrawioFileSync.prototype.patchOwnPages = function(patches, pending)
 {
-	var consensus = null;
-
 	if (this.file.ownPages != null)
 	{
-		consensus = [this.ui.diffPages(
-			this.file.ownPages,
-			this.ui.pages)];
-
-		for (var i = 0; i < patches.length; i++)
+		this.executeFunction(mxUtils.bind(this, function()
 		{
-			this.file.ownPages = this.ui.patchPages(
-				this.file.ownPages, patches[i], true);
-		}
+			var consensus = this.ui.diffPages(
+				this.file.ownPages,
+				this.ui.pages);
 
-		this.file.snapshot = this.ui.getXmlFileData();
-
-		if (pending != null)
-		{
-			for (var i = 0; i < pending.length; i++)
+			for (var i = 0; i < patches.length; i++)
 			{
 				this.file.ownPages = this.ui.patchPages(
-					this.file.ownPages, pending[i], true);
+					this.file.ownPages, patches[i], true);
 			}
 
-			this.file.patch(pending);
-		}
+			this.file.snapshot = this.ui.getXmlFileData();
 
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.patchOwnPages', [this],
-				'consensus', consensus,
-				'patches', patches,
-				'pending', pending);
-		}
+			if (pending != null)
+			{
+				for (var i = 0; i < pending.length; i++)
+				{
+					this.file.ownPages = this.ui.patchPages(
+						this.file.ownPages, pending[i], true);
+				}
+
+				this.file.patch(pending);
+			}
+
+			if (!mxUtils.isEmptyObject(consensus))
+			{
+				this.file.patch([consensus]);
+				this.sendLocalChanges([consensus]);
+			}
+			
+			this.scheduleConsistencyCheck();
+
+			if (urlParams['test'] == '1')
+			{
+				EditorUi.debug('Sync.patchOwnPages', [this],
+					'consensus', consensus,
+					'patches', patches,
+					'pending', pending);
+			}
+		}));
 	}
-
-	return consensus;
 };
 
 /**
@@ -1051,20 +1143,12 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			else
 			{
 				// Patches the current document
-				var consensus = this.patchOwnPages(
-					patches, pending);
+				this.patchOwnPages(patches, pending);
 				this.file.patch(patches,
 					(this.file.ownPages == null &&
 					DrawioFile.LAST_WRITE_WINS) ?
 					this.file.backupPatch : null);
 
-				if (consensus != null)
-				{
-					this.file.patch(consensus);
-					this.scheduleConsistencyCheck();
-					this.sendLocalChanges(consensus);
-				}
-				
 				// Logs successull patch
 //				try
 //				{
