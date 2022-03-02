@@ -338,10 +338,12 @@ DrawioFileSync.prototype.start = function()
 		this.p2pCollab.joinFile(this.channelId, mxUtils.bind(this, function()
 		{
 			this.p2pReady = true;
-		}), mxUtils.bind(this, function()
+		}), mxUtils.bind(this, function(err)
 		{
 			this.p2pReady = false;
-			//TODO error handling
+			this.ui.showError(mxResources.get('realtimeCollaboration'),
+				mxUtils.htmlEntities((err != null && err.message != null) ?
+				err.message : mxResources.get('unknownError')));
 		}));
 	}
 };
@@ -555,6 +557,11 @@ DrawioFileSync.prototype.updateStatus = function()
 					window.setTimeout(mxUtils.bind(this, function()
 					{
 						mxUtils.setOpacity(temp, 0);
+
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							this.updateStatus();
+						}), 1000);
 					}), this.updateStatusInterval / 2);
 				}), 0);
 			}

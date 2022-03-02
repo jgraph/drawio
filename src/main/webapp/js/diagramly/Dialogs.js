@@ -12726,7 +12726,8 @@ var FilePropertiesDialog = function(editorUi)
 		td.style.whiteSpace = 'nowrap';
 		td.style.fontSize = '10pt';
 		td.style.width = '120px';
-		mxUtils.write(td, 'Collaboration (experimental):');
+		mxUtils.write(td, mxResources.get('realtimeCollaboration') +
+			' (' + mxResources.get('beta') + '):');
 		
 		row.appendChild(td);
 	

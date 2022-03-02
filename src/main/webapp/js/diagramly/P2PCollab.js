@@ -547,141 +547,151 @@ function P2PCollab(ui, sync)
 	{
 		if (destroyed) return;
 
-		if (joinInProgress)
-		{
-			EditorUi.debug('P2PCollab: joinInProgress on', joinInProgress);
-			if (onError)
-			{
-				onError('busy');
-			}
-			return; //TODO what if the current join failed. We need a way to initiate join from the file sync	
-		}
-		
-		joinInProgress = ++joinId;
-		
 		try
 		{
-			if (socket != null)
+			if (joinInProgress)
 			{
-				EditorUi.debug('P2PCollab: force closing socket on', socket.joinId)
-				socket.close(1000);
-				socket = null;
+				EditorUi.debug('P2PCollab: joinInProgress on', joinInProgress);
+				if (onError)
+				{
+					onError('busy');
+				}
+				return; //TODO what if the current join failed. We need a way to initiate join from the file sync	
+			}
+			
+			joinInProgress = ++joinId;
+			
+			try
+			{
+				if (socket != null)
+				{
+					EditorUi.debug('P2PCollab: force closing socket on', socket.joinId)
+					socket.close(1000);
+					socket = null;
+				}
+			}
+			catch(e) 
+			{
+				EditorUi.debug('P2PCollab: closing socket error', e);
+			} //Ignore
+			
+			var ws = new WebSocket(window.RT_WEBSOCKET_URL + '?id=' + channelId);
+			
+			ws.addEventListener('open', function(event)
+			{
+				socket = ws;
+				socket.joinId = joinInProgress;
+				joinInProgress = false;
+				EditorUi.debug('P2PCollab: open socket', socket.joinId);
+				
+				if (callback)
+				{
+					callback(); //TODO delay until join is done?
+				}
+			});
+		
+			ws.addEventListener('message', mxUtils.bind(this, function(event)
+			{
+				if (!NO_P2P)
+				{
+					EditorUi.debug('P2PCollab: msg received', [event]);
+				}
+
+				var data = JSON.parse(event.data);
+				
+				if (NO_P2P && data.action != 'message')
+				{
+					EditorUi.debug('P2PCollab: msg received', [event]);
+				}
+
+				switch (data.action)
+				{
+					case 'message':
+						processMsg(data.msg, data.from);
+					break;
+					case 'clientsList':
+						clientsList(data.msg);
+					break;
+					case 'signal':
+						signal(data.msg);
+					break;
+					case 'newClient':
+						newClient(data.msg);
+					break;
+					case 'clientLeft':
+						clientLeft(data.msg);
+					break;
+					case 'sendSignalFailed':
+						sendSignalFailed(data.msg);
+					break;
+				}
+			}));
+
+			var rejoinCalled = false;
+				
+			ws.addEventListener('close', mxUtils.bind(this, function(event)
+			{
+				EditorUi.debug('P2PCollab: WebSocket closed', ws.joinId, 'reconnecting', event.code, event.reason);
+				EditorUi.debug('P2PCollab: closing socket on', ws.joinId);
+
+				if (!destroyed && event.code != 1000 && joinId == ws.joinId) //Sometimes, a delayed even sometimes is received after another socket is established
+				{
+					if (joinInProgress == joinId)
+					{
+						EditorUi.debug('P2PCollab: joinInProgress in close on', ws.joinId);
+						joinInProgress = false;	
+					}
+					
+					if (!rejoinCalled)
+					{
+						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
+						rejoinCalled = true;
+
+						if (onError)
+						{
+							onError();
+						}
+
+						this.joinFile(channelId, callback, onError);
+					}
+				}
+			}));
+
+			ws.addEventListener('error', mxUtils.bind(this, function(event)
+			{
+				EditorUi.debug('P2PCollab: WebSocket error, reconnecting', event);
+				EditorUi.debug('P2PCollab: error socket on', ws.joinId);
+
+				if (!destroyed && joinId == ws.joinId) //Sometimes, a delayed even sometimes is received after another socket is established
+				{
+					if (joinInProgress == joinId)
+					{
+						EditorUi.debug('P2PCollab: joinInProgress in error on', ws.joinId);
+						joinInProgress = false;	
+					}
+					
+					if (!rejoinCalled)
+					{
+						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
+						rejoinCalled = true;
+
+						if (onError)
+						{
+							onError();
+						}
+
+						this.joinFile(channelId, callback, onError);
+					}
+				}
+			}));
+		}
+		catch (e)
+		{
+			if (onError)
+			{
+				onError(e);
 			}
 		}
-		catch(e) 
-		{
-			EditorUi.debug('P2PCollab: closing socket error', e);
-		} //Ignore
-		
-		var ws = new WebSocket(window.RT_WEBSOCKET_URL + '?id=' + channelId);
-		
-	  	ws.addEventListener('open', function(event)
-	  	{
-			socket = ws;
-			socket.joinId = joinInProgress;
-			joinInProgress = false;
-			EditorUi.debug('P2PCollab: open socket', socket.joinId);
-			
-			if (callback)
-			{
-				callback(); //TODO delay until join is done?
-			}
-	  	});
-	
-	  	ws.addEventListener('message', mxUtils.bind(this, function(event)
-	  	{
-			if (!NO_P2P)
-			{
-				EditorUi.debug('P2PCollab: msg received', [event]);
-			}
-
-		    var data = JSON.parse(event.data);
-			
-			if (NO_P2P && data.action != 'message')
-			{
-				EditorUi.debug('P2PCollab: msg received', [event]);
-			}
-
-			switch (data.action)
-			{
-				case 'message':
-					processMsg(data.msg, data.from);
-				break;
-				case 'clientsList':
-					clientsList(data.msg);
-				break;
-				case 'signal':
-					signal(data.msg);
-				break;
-				case 'newClient':
-					newClient(data.msg);
-				break;
-				case 'clientLeft':
-					clientLeft(data.msg);
-				break;
-				case 'sendSignalFailed':
-					sendSignalFailed(data.msg);
-				break;
-			}
-	  	}));
-
-		var rejoinCalled = false;
-				
-	  	ws.addEventListener('close', mxUtils.bind(this, function(event)
-		{
-			EditorUi.debug('P2PCollab: WebSocket closed', ws.joinId, 'reconnecting', event.code, event.reason);
-			EditorUi.debug('P2PCollab: closing socket on', ws.joinId);
-
-		    if (!destroyed && event.code != 1000 && joinId == ws.joinId) //Sometimes, a delayed even sometimes is received after another socket is established
-			{
-				if (joinInProgress == joinId)
-				{
-					EditorUi.debug('P2PCollab: joinInProgress in close on', ws.joinId);
-					joinInProgress = false;	
-				}
-				
-				if (!rejoinCalled)
-				{
-					EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
-					rejoinCalled = true;
-
-					if (onError)
-					{
-						onError();
-					}
-
-					this.joinFile(channelId, callback, onError);
-				}
-			}
-	  	}));
-
-	  	ws.addEventListener('error', mxUtils.bind(this, function(event)
-		{
-	    	EditorUi.debug('P2PCollab: WebSocket error, reconnecting', event);
-			EditorUi.debug('P2PCollab: error socket on', ws.joinId);
-
-			if (!destroyed && joinId == ws.joinId) //Sometimes, a delayed even sometimes is received after another socket is established
-			{
-				if (joinInProgress == joinId)
-				{
-					EditorUi.debug('P2PCollab: joinInProgress in error on', ws.joinId);
-					joinInProgress = false;	
-				}
-				
-				if (!rejoinCalled)
-				{
-					EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
-					rejoinCalled = true;
-
-					if (onError)
-					{
-						onError();
-					}
-
-					this.joinFile(channelId, callback, onError);
-				}
-			}
-	  	}));
 	};
 
 	function removeConnectedUserUi(sessionId)

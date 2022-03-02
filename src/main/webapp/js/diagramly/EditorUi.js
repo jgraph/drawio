@@ -2739,6 +2739,19 @@
 			{
 				this.fileLoadedError = e;
 				
+				// Disconnects file from UI
+				if (file != null)
+				{
+					try
+					{
+						file.close();
+					}
+					catch (e2)
+					{
+						// ignore
+					}
+				}
+				
 				if (EditorUi.enableLogging && !this.isOffline())
 				{
 		        	try
@@ -2764,7 +2777,10 @@
 					}
 					else if (oldFile != null)
 					{
-						this.fileLoaded(oldFile);
+						if (!this.fileLoaded(oldFile))
+						{
+							noFile();
+						}
 					}
 					else
 					{
@@ -10039,7 +10055,8 @@
 						// LATER: Check if file contains diagram data
 						var noImport = files.length == 1 && this.isBlankFile() && !this.canUndo() &&
 							(files[0].type.substring(0, 9) === 'image/svg' ||
-							files[0].type.substring(0, 6) !== 'image/');
+							files[0].type.substring(0, 6) !== 'image/' ||
+							/(\.drawio.png)$/i.test(files[0].name));
 
 						if (urlParams['embed'] != '1' && (mxEvent.isShiftDown(evt) || noImport))
 						{

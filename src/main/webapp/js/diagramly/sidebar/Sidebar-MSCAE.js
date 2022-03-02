@@ -981,7 +981,7 @@
 			this.createVertexTemplateEntry(s + 'Identity_Governance.svg;',
 					r * 0.5, r * 0.5, '', 'Identity Governance', null, null, this.getTagsForStencil(gn, 'identity governance', dt).join(' ')),
 			this.createVertexTemplateEntry(s + 'Managed_Identities.svg;',
-					r * 0.38, r * 0.5, '', 'Managed Identitties', null, null, this.getTagsForStencil(gn, 'managed identities', dt).join(' '))
+					r * 0.38, r * 0.5, '', 'Managed Identities', null, null, this.getTagsForStencil(gn, 'managed identities', dt).join(' '))
 		];
 			
 		this.addPalette('mscaeIdentity Service', 'CAE / Identity Service', false, mxUtils.bind(this, function(content)

@@ -1,3 +1,9 @@
+02-MAR-2022: 16.6.5
+
+- Handles drag and drop of .drawio.png image files
+- Improves error handling when loading files
+- Adds i18n for realtime collaboration
+
 24-FEB-2022: 16.6.4
 
 - Make consistency check independent of return value
