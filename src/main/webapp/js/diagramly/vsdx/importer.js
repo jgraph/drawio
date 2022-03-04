@@ -757,18 +757,29 @@ var com;
                 	{
                 		var me = this;
                 		var toCropImgs = [];
-	                	var shapes = page.getShapes().entries || [];
 	                	
-	                	for (var i = 0; i < shapes.length; i++)
-	            		{
-	                		var shape = shapes[i].value || {};
-	                		
-	                		if (shape.toBeCroppedImg)
-	                		{
-	                			toCropImgs.push(shape);
-	                		}
-	            		}
-	                	
+                        function checkShapes(shapes)
+                        {
+                            if (shapes != null)
+                            {
+                                shapes = shapes.entries || [];
+
+                                for (var i = 0; i < shapes.length; i++)
+                                {
+                                    var shape = shapes[i].value || {};
+                                    
+                                    if (shape.toBeCroppedImg)
+                                    {
+                                        toCropImgs.push(shape);
+                                    }
+
+                                    checkShapes(shape.getChildShapes());
+                                }
+                            }
+                        }
+
+                        checkShapes(page.getShapes());
+
 	                	if (toCropImgs.length > 0)
                 		{
 	                		function cropImage(index, callback)

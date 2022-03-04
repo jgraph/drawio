@@ -1,3 +1,7 @@
+04-MAR-2022: 16.6.6
+
+- Fixed cropped images of sub shapes not showing
+
 02-MAR-2022: 16.6.5
 
 - Handles drag and drop of .drawio.png image files
