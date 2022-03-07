@@ -1,3 +1,7 @@
+07-MAR-2022: 16.6.7
+
+- Adds MathJax Safe-mode to fix XSS vulnerability when viewer is used with CSP
+
 04-MAR-2022: 16.6.6
 
 - Fixed cropped images of sub shapes not showing

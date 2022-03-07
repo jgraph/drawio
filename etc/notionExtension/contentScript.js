@@ -2,7 +2,7 @@
 {
 	// Specifies if images should be changed for dark mode
 	var convertImages = true;
-	var backgroundColor = '#2F3437';
+	var backgroundColor = '#191919';
 	var convertAttrib = 'data-drawio-src';
 	var editor = 'https://embed.diagrams.net/?embedInline=1&libraries=1&configure=1';
 	//editor = 'https://test.draw.io/?dev=1&embedInline=1&libraries=1&configure=1';

@@ -11,7 +11,7 @@
 				jax: ['input/TeX', 'input/MathML', 'input/AsciiMath'].concat(
 				[(window.opener.urlParams['math-output'] == 'html') ?
 					'output/HTML-CSS' : 'output/SVG']),
-				extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
+				extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js', 'Safe.js'],
 				TeX: {
 					extensions:['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
 				},

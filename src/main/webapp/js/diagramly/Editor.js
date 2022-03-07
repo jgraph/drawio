@@ -2436,7 +2436,7 @@
 		if (typeof(window.MathJax) === 'undefined')
 		{
 			src = ((src != null) ? src : DRAW_MATH_URL + '/MathJax.js') + '?config=TeX-MML-AM_' +
-				((urlParams['math-output'] == 'html') ? 'HTMLorMML' : 'SVG') + '-full';
+				((urlParams['math-output'] == 'html') ? 'HTMLorMML' : 'SVG') + '-full,Safe';
 			Editor.mathJaxQueue = [];
 
 			Editor.doMathJaxRender = function(container)
