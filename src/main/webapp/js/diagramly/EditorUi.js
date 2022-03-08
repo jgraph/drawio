@@ -513,6 +513,9 @@
 		fn();
 	};
 
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
 	EditorUi.prototype.setShareCursorPosition = function(value)
 	{
 		this.shareCursorPosition = value;
@@ -520,11 +523,17 @@
 		this.fireEvent(new mxEventObject('shareCursorPositionChanged'));
 	};
 
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
 	EditorUi.prototype.isShareCursorPosition = function()
 	{
 		return this.shareCursorPosition;
 	};
 
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
 	EditorUi.prototype.setMathEnabled = function(value)
 	{
 		this.editor.graph.mathEnabled = value;
@@ -535,6 +544,9 @@
 		this.fireEvent(new mxEventObject('mathEnabledChanged'));
 	};
 
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
 	EditorUi.prototype.isMathEnabled = function(value)
 	{
 		return this.editor.graph.mathEnabled;
@@ -9804,6 +9816,12 @@
 		    this.installNativeClipboardHandler();
 		};
 
+		// Updates realtime state icon
+		this.addListener('realtimeStateChanged', mxUtils.bind(this, function()
+		{
+			this.updateUserElement();
+		}));
+
 		// Creates the spinner
 		this.spinner = this.createSpinner(null, null, 24);
 		
@@ -14002,11 +14020,6 @@
 		}
 		
 		if (this.gitLab != null)
-		{
-			serviceCount++
-		}
-		
-		if (this.notion != null)
 		{
 			serviceCount++
 		}

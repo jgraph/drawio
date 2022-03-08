@@ -213,7 +213,7 @@
 			var file = editorUi.getCurrentFile();
 
 			if (graph.isEnabled() && urlParams['embed'] != '1' && graph.isSelectionEmpty() &&
-				file != null && file.isFastSyncEnabled() && file.isFastSyncSupported())
+				file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 			{
 				this.addMenuItems(menu, ['-', 'shareCursor'], null, evt);
 			}
@@ -2721,15 +2721,6 @@
 				}, parent);
 			}
 
-			if (editorUi.notion != null)
-			{
-				menu.addSeparator(parent);
-				menu.addItem(mxResources.get('notion') + '...', null, function()
-				{
-					pickFileFromService(editorUi.notion);
-				}, parent);
-			}
-
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -3351,15 +3342,6 @@
 				}, parent);
 			}
 
-			if (editorUi.notion != null)
-			{
-				menu.addSeparator(parent);
-				menu.addItem(mxResources.get('notion') + '...', null, function()
-				{
-					editorUi.pickFile(App.MODE_NOTION);
-				}, parent);
-			}
-
 			if (editorUi.trello != null)
 			{
 				menu.addItem(mxResources.get('trello') + '...', null, function()
@@ -3491,15 +3473,6 @@
 						editorUi.showLibraryDialog(null, null, null, null, App.MODE_GITLAB);
 					}, parent);
 				}
-				
-				if (editorUi.notion != null)
-				{
-					menu.addSeparator(parent);
-					menu.addItem(mxResources.get('notion') + '...', null, function()
-					{
-						editorUi.showLibraryDialog(null, null, null, null, App.MODE_NOTION);
-					}, parent);
-				}
 
 				if (editorUi.trello != null)
 				{
@@ -3601,15 +3574,6 @@
 					menu.addItem(mxResources.get('gitlab') + '...', null, function()
 					{
 						editorUi.pickLibrary(App.MODE_GITLAB);
-					}, parent);
-				}
-				
-				if (editorUi.notion != null)
-				{
-					menu.addSeparator(parent);
-					menu.addItem(mxResources.get('notion') + '...', null, function()
-					{
-						editorUi.pickLibrary(App.MODE_NOTION);
 					}, parent);
 				}
 
@@ -3862,17 +3826,12 @@
 
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);
 			
-			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
-			{
-				this.addMenuItems(menu, ['showStartScreen'], parent);
-			}
-
 			if (urlParams['embed'] != '1')
 			{
 				var file = editorUi.getCurrentFile();
 
 				if (graph.isEnabled() && graph.isSelectionEmpty() && file != null &&
-					file.isFastSyncEnabled() && file.isFastSyncSupported())
+					file.isRealtimeEnabled() && file.isRealtimeSupported())
 				{
 					this.addMenuItems(menu, ['shareCursor'], parent);
 				}
@@ -3894,7 +3853,14 @@
 				this.addMenuItems(menu, ['diagramLanguage']);
 			}
 			
-			this.addMenuItems(menu, ['-', 'configuration'], parent);
+			menu.addSeparator(parent);
+
+			if (urlParams['embed'] != '1' && (isLocalStorage || mxClient.IS_CHROMEAPP))
+			{
+				this.addMenuItems(menu, ['showStartScreen'], parent);
+			}
+
+			this.addMenuItems(menu, ['configuration'], parent);
 			
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);
@@ -4105,8 +4071,9 @@
 					var filename = (file.getTitle() != null) ?
 						file.getTitle() : editorUi.defaultFilename;
 					
-					if (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename))
+					if ((file.constructor == DriveFile && file.sync != null &&
+						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
+						!/(\.svg)$/i.test(filename)))
 					{
 						this.addMenuItems(menu, ['-', 'properties']);
 					}

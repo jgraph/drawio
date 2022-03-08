@@ -1,8 +1,8 @@
-function P2PCollab(ui, sync)
+function P2PCollab(ui, sync, channelId)
 {
 	var graph = ui.editor.graph;
-	var socket = null;
 	var sessionCount = 0;
+	var socket = null;
 	var colors = [
 		//White font
 		'#e6194b', '#3cb44b', '#4363d8', '#f58231', '#911eb4', 
@@ -21,26 +21,36 @@ function P2PCollab(ui, sync)
 	// TODO: Avoid negation, move to Editor.ENABLE_P2P and use p2p=1 URL parameter
 	// add to Editor.configure
 	var NO_P2P = urlParams['no-p2p'] != '0';
-
-	function sendReply(action, msg)
+	var joinInProgress = false, joinId = 0;
+	var lastError = null;
+	
+	var sendReply = mxUtils.bind(this, function(action, msg)
   	{
 		if (destroyed) return;
 
 		try
 		{
-			if (!NO_P2P)
+			if (socket != null)
 			{
-				EditorUi.debug('P2PCollab: sending to socket server', [action], [msg]);
-			}
+				socket.send(JSON.stringify({action: action, msg: msg}));
 
-			socket.send(JSON.stringify({action: action, msg: msg}));
+				if (!NO_P2P)
+				{
+					EditorUi.debug('P2PCollab: sending to socket server', [action], [msg]);
+				}
+			}
+			else
+			{
+				this.joinFile();
+			}
 		}
 		catch (e)
 		{
-			// TODO: Reconnect if socket is null
+			lastError = e;
+			sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 			EditorUi.debug('P2PCollab:', 'sendReply error', arguments, e);
 		}
-	}
+	});
 
 	function createCursorImage(color)
 	{
@@ -51,7 +61,7 @@ function P2PCollab(ui, sync)
 	{
 		if (destroyed) return;
 
-		var user = ui.getCurrentUser();
+		var user = sync.file.getCurrentUser();
 
 		if (!fileJoined || user == null || user.email == null) return;
 		
@@ -59,7 +69,7 @@ function P2PCollab(ui, sync)
 		var msg = JSON.stringify({from: myClientId, id: messageId,
 			type: type, sessionId: sync.clientId, userId: user.id,
 			username: user.displayName, data: data});
-
+		
 		if (NO_P2P && type != 'cursor')
 		{
 			EditorUi.debug('P2PCollab: sending to socket server', [msg]);
@@ -91,7 +101,17 @@ function P2PCollab(ui, sync)
 			patch: diff
 		});
 	};
-	
+
+	this.getState = function()
+	{
+		return socket != null ? socket.readyState : 3 /* CLOSED */;
+	};
+
+	this.getLastError = function()
+	{
+		return lastError;
+	};
+
 	function debounce(func, wait) 
     {
         var timeout, lastInvocation = -1;
@@ -411,7 +431,7 @@ function P2PCollab(ui, sync)
 			break;
 		}
 
-		sync.file.fireEvent(new mxEventObject('messageReceived', 'message', msg));
+		sync.file.fireEvent(new mxEventObject('realtimeMessage', 'message', msg));
 	};
 	
 	function createPeer(id, initiator)
@@ -541,9 +561,7 @@ function P2PCollab(ui, sync)
 		}
 	};
 
-	var joinInProgress = false, joinId = 0;
-	
-	this.joinFile = function(channelId, callback, onError)
+	this.joinFile = function()
 	{
 		if (destroyed) return;
 
@@ -552,11 +570,7 @@ function P2PCollab(ui, sync)
 			if (joinInProgress)
 			{
 				EditorUi.debug('P2PCollab: joinInProgress on', joinInProgress);
-				if (onError)
-				{
-					onError('busy');
-				}
-				return; //TODO what if the current join failed. We need a way to initiate join from the file sync	
+				lastError = 'busy';
 			}
 			
 			joinInProgress = ++joinId;
@@ -582,12 +596,8 @@ function P2PCollab(ui, sync)
 				socket = ws;
 				socket.joinId = joinInProgress;
 				joinInProgress = false;
+				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 				EditorUi.debug('P2PCollab: open socket', socket.joinId);
-				
-				if (callback)
-				{
-					callback(); //TODO delay until join is done?
-				}
 			});
 		
 			ws.addEventListener('message', mxUtils.bind(this, function(event)
@@ -646,15 +656,11 @@ function P2PCollab(ui, sync)
 					{
 						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
 						rejoinCalled = true;
-
-						if (onError)
-						{
-							onError();
-						}
-
-						this.joinFile(channelId, callback, onError);
+						this.joinFile();
 					}
 				}
+
+				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 			}));
 
 			ws.addEventListener('error', mxUtils.bind(this, function(event)
@@ -674,23 +680,19 @@ function P2PCollab(ui, sync)
 					{
 						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
 						rejoinCalled = true;
-
-						if (onError)
-						{
-							onError();
-						}
-
-						this.joinFile(channelId, callback, onError);
+						this.joinFile();
 					}
 				}
+
+				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 			}));
+
+			sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 		}
 		catch (e)
 		{
-			if (onError)
-			{
-				onError(e);
-			}
+			lastError = e;
+			sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 		}
 	};
 
@@ -769,5 +771,7 @@ function P2PCollab(ui, sync)
 				p2pClients[id].destroy();
 			}
 		}
+
+		sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 	};
 };

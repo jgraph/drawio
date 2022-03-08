@@ -289,47 +289,46 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 	try
 	{
 		this.stats.fileMerged++;
-				
+		
 		// Takes copy of current shadow document
 		var shadow = (this.shadowPages != null) ? this.shadowPages :
 			this.ui.getPagesForNode(mxUtils.parseXml(
-			this.shadowData).documentElement);
-	
+				this.shadowData).documentElement);
+		
 		// Loads new document as shadow document
 		var pages = this.ui.getPagesForNode(
 			mxUtils.parseXml(file.data).
-			documentElement)
-			
+				documentElement)
+		
 		if (pages != null && pages.length > 0)
 		{
-			this.shadowPages = pages;
-
-			// Creates a patch for backup if the checksum fails
-			this.backupPatch = (this.isModified()) ?
-				this.ui.diffPages(shadow,
-				this.ui.pages) : null;
-			
 			// Patches the current document
 			var patches = [this.ui.diffPages((diffShadow != null) ?
-				diffShadow : shadow, this.shadowPages)];
+				diffShadow : shadow, pages)];
 			var ignored = this.ignorePatches(patches);
+			this.shadowPages = pages;
 			
 			if (!ignored)
 			{
-				// Patching previous shadow to verify checksum
-				var patched = this.ui.patchPages(shadow, patches[0]);
+				// Creates a patch for backup if the checksum fails
+				this.backupPatch = (this.isModified() || this.ownPages != null) ?
+					this.ui.diffPages(shadow, this.ui.pages) : null;
+				var pending = (this.ownPages != null) ?
+					[this.ui.diffPages(shadow,
+						this.ownPages)] : null;
 				
+				// Patching previous shadow to verify checksum
 				var patchedDetails = {};
-				var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
 				var currentDetails = {};
+				var patched = this.ui.patchPages(shadow, patches[0]);
+				var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
 				var current = this.ui.getHashValueForPages(this.shadowPages, currentDetails);
 				
 				if (urlParams['test'] == '1')
 				{
-					EditorUi.debug('File.mergeFile', [this],
-						'backup', this.backupPatch,
-						'patches', patches,
-						'checksum', current == checksum, checksum);
+					EditorUi.debug('File.mergeFile', [this], 'patches', patches,
+						'backup', this.backupPatch, 'pending', pending, 'checksum',
+						current == checksum, checksum);
 				}
 				
 				if (checksum != null && checksum != current)
@@ -363,7 +362,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 					// Patches the own pages
 					if (this.sync != null)
 					{
-						this.sync.patchOwnPages(patches);
+						this.sync.patchOwnPages(patches, pending,
+							[this.backupPatch], true);
 					}
 				}
 			}
@@ -754,8 +754,11 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable)
 	    // Applies patches
 		for (var i = 0; i < patches.length; i++)
 		{
-			this.ui.pages = this.ui.patchPages(this.ui.pages,
-				patches[i], true, resolver, this.isModified());
+			if (patches[i] != null)
+			{
+				this.ui.pages = this.ui.patchPages(this.ui.pages,
+					patches[i], true, resolver, this.isModified());
+			}
 		}
 		
 		// Always needs at least one page
@@ -1176,7 +1179,6 @@ DrawioFile.prototype.open = function()
 		
 		removeExtFont(document.querySelectorAll('head > style[id]'));
 		removeExtFont(document.querySelectorAll('head > link[id]'));
-		
 		this.ui.setFileData(data);
 		
 		// Updates shadow in case any page IDs have been updated
@@ -1185,7 +1187,7 @@ DrawioFile.prototype.open = function()
 		{
 			var data = this.ui.getXmlFileData();
 			
-			if (this.isFastSyncEnabled() && this.isFastSyncSupported())
+			if (this.isRealtimeEnabled() && this.isRealtimeSupported())
 			{
 				this.ownPages = this.ui.getPagesForNode(data);
 				this.snapshot = data;
@@ -1215,7 +1217,7 @@ DrawioFile.prototype.isSyncSupported = function()
 /**
  * Returns true if all changes should be sent out immediately.
  */
-DrawioFile.prototype.isFastSyncSupported = function()
+DrawioFile.prototype.isRealtimeSupported = function()
 {
 	return false;
 };
@@ -1223,9 +1225,43 @@ DrawioFile.prototype.isFastSyncSupported = function()
 /**
  * Returns true if all changes should be sent out immediately.
  */
-DrawioFile.prototype.isFastSyncEnabled = function()
+DrawioFile.prototype.isRealtimeEnabled = function()
 {
 	return urlParams['fast-sync'] == '1';
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.setRealtimeEnabled = function()
+{
+	// do nothing
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.isRealtimeOptional = function()
+{
+	return false;
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.getRealtimeState = function()
+{
+	return (this.sync != null && this.sync.p2pCollab != null) ?
+		this.sync.p2pCollab.getState() : 3 /* CLOSED */;
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DrawioFile.prototype.getRealtimeError = function()
+{
+	return (this.sync != null && this.sync.p2pCollab != null) ?
+		this.sync.p2pCollab.getLastError() : null;
 };
 
 /**
@@ -1296,6 +1332,11 @@ DrawioFile.prototype.startSync = function()
 		{
 			this.sync = new DrawioFileSync(this);
 		}
+
+		this.addListener('realtimeStateChanged', mxUtils.bind(this, function()
+		{
+			this.ui.fireEvent(new mxEventObject('realtimeStateChanged'));
+		}));
 		
 		this.sync.start();
 	}

@@ -537,7 +537,7 @@ DriveFile.prototype.isSyncSupported = function()
 /**
  * Hook for subclassers.
  */
-DriveFile.prototype.isFastSyncSupported = function()
+DriveFile.prototype.isRealtimeSupported = function()
 {
 	return true;
 };
@@ -545,18 +545,58 @@ DriveFile.prototype.isFastSyncSupported = function()
 /**
  * Returns true if all changes should be sent out immediately.
  */
-DriveFile.prototype.isFastSyncEnabled = function()
+DriveFile.prototype.isRealtimeOptional = function()
 {
-	var collab = this.ui.drive.getCustomProperty(this.desc, 'collaboration');
-	 
-	if (collab != null)
+	return this.sync != null && this.sync.isConnected();
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DriveFile.prototype.setRealtimeEnabled = function(value, success, error)
+{
+	if (this.sync != null)
 	{
-		return collab == 'enabled' && urlParams['fast-sync'] != '0';
+		this.ui.drive.executeRequest({
+			'url': '/files/' + this.getId() + '/properties?alt=json&supportsAllDrives=true',
+			'method': 'POST',
+			'contentType': 'application/json; charset=UTF-8',
+			'params': {
+				'key': 'collaboration',
+				'value': (value) ? 'enabled' : 'disabled'
+			}
+		}, mxUtils.bind(this, function()
+		{
+			this.loadDescriptor(mxUtils.bind(this, function(desc)
+			{
+				if (desc != null)
+				{
+					this.sync.descriptorChanged(this.getCurrentEtag());
+					this.sync.updateDescriptor(desc);
+					success();
+				}
+				else
+				{
+					error();
+				}
+			}), error);
+		}), error);
 	}
 	else
 	{
-		return DrawioFile.prototype.isFastSyncEnabled.apply(this, arguments);
+		error();
 	}
+};
+
+/**
+ * Returns true if all changes should be sent out immediately.
+ */
+DriveFile.prototype.isRealtimeEnabled = function()
+{
+	var collab = this.ui.drive.getCustomProperty(this.desc, 'collaboration');
+
+	return (DrawioFile.prototype.isRealtimeEnabled.apply(this, arguments) &&
+		collab != 'disabled') || collab == 'enabled';
 };
 
 /**

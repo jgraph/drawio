@@ -20,11 +20,11 @@ OneDriveFile.prototype.autosaveDelay = 300;
 /**
  * Hook for subclassers.
  */
-OneDriveFile.prototype.isFastSyncSupported = function()
+OneDriveFile.prototype.isRealtimeSupported = function()
 {
 	return true;
 };
- 
+
 /**
  * Translates this point by the given vector.
  * 

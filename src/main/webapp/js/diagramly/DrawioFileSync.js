@@ -25,6 +25,7 @@ DrawioFileSync = function(file)
 	});
     
 	mxEvent.addListener(window, 'online', this.onlineListener);
+	this.file.addListener('realtimeStateChanged', this.onlineListener);
 	
     // Listens to visible state changes
 	this.visibleListener = mxUtils.bind(this, function()
@@ -62,7 +63,7 @@ DrawioFileSync = function(file)
 	}
 
 	// Listens to fast sync activitiy
-	this.file.addListener('messageReceived', this.activityListener);
+	this.file.addListener('realtimeMessage', this.activityListener);
 
 	// Listens to errors in the pusher API
 	this.pusherErrorListener = mxUtils.bind(this, function(err)
@@ -331,20 +332,40 @@ DrawioFileSync.prototype.start = function()
 		}, 0));
 	}
 
+	this.updateRealtime();
+};
+
+/**
+ * Draw function for the collaborator list.
+ */
+DrawioFileSync.prototype.updateRealtime = function()
+{
+	if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
+	{
+		if (this.file.ownPages == null)
+		{
+			var data = this.ui.getXmlFileData();
+			this.file.ownPages = this.ui.getPagesForNode(data);
+			this.file.snapshot = data;
+		}
+	}
+	else if (this.file.ownPages != null)
+	{
+		this.checkConsistency();
+		this.file.ownPages = null;
+		this.file.snapshot = null;
+	}
+
 	if (DrawioFileSync.ENABLE_SOCKETS && this.file.ownPages != null &&
 		this.p2pCollab == null && this.channelId != null)
 	{
-		this.p2pCollab = new P2PCollab(this.ui, this);
-		this.p2pCollab.joinFile(this.channelId, mxUtils.bind(this, function()
-		{
-			this.p2pReady = true;
-		}), mxUtils.bind(this, function(err)
-		{
-			this.p2pReady = false;
-			this.ui.showError(mxResources.get('realtimeCollaboration'),
-				mxUtils.htmlEntities((err != null && err.message != null) ?
-				err.message : mxResources.get('unknownError')));
-		}));
+		this.p2pCollab = new P2PCollab(this.ui, this, this.channelId);
+		this.p2pCollab.joinFile();
+	}
+	else if (this.file.ownPages == null && this.p2pCollab != null)
+	{
+		this.p2pCollab.destroy();
+		this.p2pCollab = null;
 	}
 };
 
@@ -373,111 +394,129 @@ DrawioFileSync.prototype.updateOnlineState = function()
 	{
 		return;
 	}
-	
+
 	var addClickHandler = mxUtils.bind(this, function(elt)
 	{
 		mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
 		{
-			this.enabled = !this.enabled;
-			this.ui.updateButtonContainer();
-			this.resetUpdateStatusThread();
-			this.updateOnlineState();
-			this.updateStatus();
-			
-			if (!this.file.inConflictState && this.enabled)
+			if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
 			{
-				this.fileChangedNotify();
+				var state = this.file.getRealtimeState();
+				var err = this.file.getRealtimeError();
+
+				this.ui.showError(mxResources.get('realtimeCollaboration'),
+				mxUtils.htmlEntities(state == 1 ? mxResources.get('online') :
+					((err != null && err.message != null) ?
+					err.message : mxResources.get('disconnected'))));
+			}
+			else
+			{
+				this.enabled = !this.enabled;
+				this.ui.updateButtonContainer();
+				this.resetUpdateStatusThread();
+				this.updateOnlineState();
+				this.updateStatus();
+				
+				if (!this.file.inConflictState && this.enabled)
+				{
+					this.fileChangedNotify();
+				}
 			}
 		}));
 	});
 
-	if (uiTheme == 'min' && this.ui.buttonContainer != null && urlParams['sketch'] != '1')
+	if (this.ui.toolbarContainer != null && this.collaboratorsElement == null)
 	{
-		if (this.collaboratorsElement == null)
+		var elt = document.createElement('a');
+		elt.className = 'geButton';
+		elt.style.position = 'absolute';
+		elt.style.display = 'inline-block';
+		elt.style.verticalAlign = 'bottom';
+		elt.style.color = '#666';
+		elt.style.top = '6px';
+		elt.style.right = (uiTheme != 'atlas') ?  '70px' : '50px';
+		elt.style.padding = '2px';
+		elt.style.fontSize = '8pt';
+		elt.style.verticalAlign = 'middle';
+		elt.style.textDecoration = 'none';
+		elt.style.backgroundPosition = 'center center';
+		elt.style.backgroundRepeat = 'no-repeat';
+		elt.style.backgroundSize = '16px 16px';
+		elt.style.width = '16px';
+		elt.style.height = '16px';
+		mxUtils.setOpacity(elt, 60);
+		
+		if (uiTheme == 'dark')
 		{
-			var elt = document.createElement('a');
-    		elt.className = 'geToolbarButton';
-			elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;float:left;';
-    		elt.style.backgroundPosition = 'center center';
-        	elt.style.backgroundRepeat = 'no-repeat';
-        	elt.style.backgroundSize = '24px 24px';
-        	elt.style.height = '24px';
-        	elt.style.width = '24px';
-        	
-        	addClickHandler(elt);
-        	this.ui.buttonContainer.appendChild(elt);
-        	this.collaboratorsElement = elt;
+			elt.style.filter = 'invert(100%)';
 		}
-	}
-	else if (this.ui.toolbarContainer != null)
-	{
-		if (this.collaboratorsElement == null)
+		
+		// Prevents focus
+		mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+			mxUtils.bind(this, function(evt)
 		{
-			var elt = document.createElement('a');
-			elt.className = 'geButton';
-			elt.style.position = 'absolute';
-			elt.style.display = 'inline-block';
-			elt.style.verticalAlign = 'bottom';
-			elt.style.color = '#666';
-			elt.style.top = '6px';
-			elt.style.right = (uiTheme != 'atlas') ?  '70px' : '50px';
-			elt.style.padding = '2px';
-			elt.style.fontSize = '8pt';
-			elt.style.verticalAlign = 'middle';
-			elt.style.textDecoration = 'none';
-	    	elt.style.backgroundPosition = 'center center';
-	    	elt.style.backgroundRepeat = 'no-repeat';
-	    	elt.style.backgroundSize = '16px 16px';
-			elt.style.width = '16px';
-			elt.style.height = '16px';
-	    	mxUtils.setOpacity(elt, 60);
-	    	
-			if (uiTheme == 'dark')
-			{
-				elt.style.filter = 'invert(100%)';
-			}
-			
-			// Prevents focus
-		    mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-	        	mxUtils.bind(this, function(evt)
-	    	{
-				evt.preventDefault();
-			}));
-			
-			addClickHandler(elt);
-			this.ui.toolbarContainer.appendChild(elt);
-			this.collaboratorsElement = elt;
-		}
+			evt.preventDefault();
+		}));
+		
+		addClickHandler(elt);
+		this.ui.toolbarContainer.appendChild(elt);
+		this.collaboratorsElement = elt;
 	}
 	
 	if (this.collaboratorsElement != null)
 	{
 		var status = '';
+		var src = Editor.cloudImage;
 		
 		if (!this.enabled)
 		{
 			status = mxResources.get('disconnected');
+			src = Editor.cloudOffImage;
 		}
 		else if (this.file.invalidChecksum)
 		{
 			status = mxResources.get('error') + ': ' + mxResources.get('checksum');
+			src = Editor.syncProblemImage;
 		}
 		else if (this.ui.isOffline(true) || !this.isConnected())
 		{
 			status = mxResources.get('offline');
+			src = Editor.cloudOffImage;
 		}
 		else
 		{
 			status = mxResources.get('online');
-		}
+
+			if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
+			{
+				var err = this.file.getRealtimeError();
+				var state = this.file.getRealtimeState();
+				status = mxResources.get('realtimeCollaboration');
 		
+				if (state == 1)
+				{
+					src = Editor.syncImage;
+				}
+				else
+				{
+					src = Editor.syncProblemImage;
+		
+					if (err != null && err.message != null)
+					{
+						status += ' (' + err.message + ')';
+					}
+					else
+					{
+						status += ' (' + mxResources.get('disconnected') + ')';
+					}
+				}
+			}
+		}
+
 		this.collaboratorsElement.setAttribute('title', status);
-		this.collaboratorsElement.style.backgroundImage = 'url(' + ((!this.enabled) ? Editor.syncDisabledImage :
-			((!this.ui.isOffline(true) && this.isConnected() && !this.file.invalidChecksum) ?
-			Editor.syncImage : Editor.syncProblemImage)) + ')';
+		this.collaboratorsElement.style.backgroundImage = 'url(' + src + ')';
 	}
 };
-
 
 /**
  * Updates the status bar with the latest change.
@@ -767,16 +806,19 @@ DrawioFileSync.prototype.localFileChanged = function()
 		// sections that update the snapshot and own pages.
 		this.executeFunction(mxUtils.bind(this, function()
 		{
-			var patch = this.ui.diffPages(
-				this.ui.getPagesForNode(this.file.snapshot),
-				this.ui.getPagesForNode(snapshot));
-			this.file.ownPages = this.ui.patchPages(
-				this.file.ownPages, patch, true);
-			this.file.snapshot = snapshot;
-
-			if (this.ui.editor.autosave)
+			if (this.file.ownPages != null)
 			{
-				this.sendLocalChanges([patch]);
+				var patch = this.ui.diffPages(
+					this.ui.getPagesForNode(this.file.snapshot),
+					this.ui.getPagesForNode(snapshot));
+				this.file.ownPages = this.ui.patchPages(
+					this.file.ownPages, patch, true);
+				this.file.snapshot = snapshot;
+
+				if (this.ui.editor.autosave)
+				{
+					this.sendLocalChanges([patch]);
+				}
 			}
 		}), true);
 	}
@@ -877,24 +919,18 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 	{
 		var changeId = this.clientId + '.' + (this.syncChangeCounter++);
 		var msg = {a: 'change', c: changes, id: changeId};
-		var user = this.file.getCurrentUser();
-					
-		if (user != null)
-		{
-			msg.name = encodeURIComponent(user.displayName);
-			msg.uid = user.id;
-		}
-		
 		var data = encodeURIComponent(
 			this.objectToString(
 			this.createMessage(msg)));
 		var skipped = false;
 		
-		if (this.p2pReady)
+		if (this.p2pCollab != null)
 		{
 			this.p2pCollab.sendDiff(data);
 		}
-		else if (this.maxSyncMessageSize == 0 || data.length < this.maxSyncMessageSize)
+		else if (urlParams['dev'] == '1' &&
+			(this.maxSyncMessageSize == 0 ||
+			data.length < this.maxSyncMessageSize))
 		{
 			mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + data);
 		}
@@ -991,95 +1027,128 @@ DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
 	{
 		this.executeFunction(mxUtils.bind(this, function()
 		{
-			this.file.patch(changes);
-			this.file.snapshot = this.ui.getXmlFileData();
-			var pending = this.ui.diffPages(
-				this.file.shadowPages,
-				this.file.ownPages);
-			this.file.patch([pending]);
-			
-			if (urlParams['test'] == '1')
+			if (this.file.ownPages != null)
 			{
-				EditorUi.debug('Sync.doReceiveRemoteChanges', [this],
-					'changes', changes, 'pending', [pending]);
+				this.file.patch(changes);
+				this.file.snapshot = this.ui.getXmlFileData();
+				var pending = this.ui.diffPages(
+					this.file.shadowPages,
+					this.file.ownPages);
+				this.file.patch([pending]);
+				
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('Sync.doReceiveRemoteChanges', [this],
+						'changes', changes, 'pending', [pending]);
+				}
 			}
 		}));
 	}
 };
 
 /**
- * Removes received remote changes that havent not been saved.
+ * Removes transient remote changes that have not been saved.
  */
-DrawioFileSync.prototype.scheduleConsistencyCheck = function(changes)
+DrawioFileSync.prototype.scheduleConsistencyCheck = function()
 {
 	window.clearTimeout(this.consistencyCheckThread);
 
 	this.consistencyCheckThread = window.setTimeout(mxUtils.bind(this, function()
 	{
-		if (this.ui.getCurrentFile() == this.file && !this.file.inConflictState)
-		{
-			var patch = this.ui.diffPages(this.ui.pages, this.file.ownPages);
-
-			if (!mxUtils.isEmptyObject(patch))
-			{
-				this.file.patch([patch]);
-
-				if (urlParams['test'] == '1')
-				{
-					EditorUi.debug('Sync.consistencyCheck',
-						[this], 'patch', [patch]);
-				}
-			}
-		}
+		this.checkConsistency();
 	}), this.consistencyCheckDelay);
+};
+
+/**
+ * Removes transient remote changes that have not been saved.
+ */
+DrawioFileSync.prototype.checkConsistency = function()
+{
+	window.clearTimeout(this.consistencyCheckThread);
+
+	if (this.ui.getCurrentFile() == this.file &&
+		!this.file.inConflictState &&
+		this.file.ownPages != null)
+	{
+		var patch = this.ui.diffPages(
+			this.ui.pages, this.file.ownPages);
+
+		if (!mxUtils.isEmptyObject(patch))
+		{
+			this.file.patch([patch]);
+		}
+
+		if (urlParams['test'] == '1')
+		{
+			EditorUi.debug('Sync.consistencyCheck',
+				[this], 'patch', [patch]);
+		}
+	}
 };
 
 /**
  * Patches the own pages with the given changes and updates the snapshot.
  */
-DrawioFileSync.prototype.patchOwnPages = function(patches, pending)
+DrawioFileSync.prototype.patchOwnPages = function(patches, pending, remotePending, local)
 {
 	if (this.file.ownPages != null)
 	{
 		this.executeFunction(mxUtils.bind(this, function()
 		{
-			var consensus = this.ui.diffPages(
-				this.file.ownPages,
-				this.ui.pages);
-
-			for (var i = 0; i < patches.length; i++)
+			if (this.file.ownPages != null)
 			{
-				this.file.ownPages = this.ui.patchPages(
-					this.file.ownPages, patches[i], true);
-			}
-
-			this.file.snapshot = this.ui.getXmlFileData();
-
-			if (pending != null)
-			{
-				for (var i = 0; i < pending.length; i++)
+				if (remotePending != null)
 				{
-					this.file.ownPages = this.ui.patchPages(
-						this.file.ownPages, pending[i], true);
+					this.file.patch(remotePending);
+				}
+				
+				var consensus = this.ui.diffPages(
+					this.file.ownPages,
+					this.ui.pages);
+				
+				for (var i = 0; i < patches.length; i++)
+				{
+					if (patches[i] != null)
+					{
+						this.file.ownPages = this.ui.patchPages(
+							this.file.ownPages, patches[i], true);
+					}
 				}
 
-				this.file.patch(pending);
-			}
+				this.file.snapshot = this.ui.getXmlFileData();
 
-			if (!mxUtils.isEmptyObject(consensus))
-			{
-				this.file.patch([consensus]);
-				this.sendLocalChanges([consensus]);
-			}
-			
-			this.scheduleConsistencyCheck();
+				if (pending != null)
+				{
+					for (var i = 0; i < pending.length; i++)
+					{
+						if (pending[i] != null)
+						{
+							this.file.ownPages = this.ui.patchPages(
+								this.file.ownPages, pending[i], true);
+						}
+					}
 
-			if (urlParams['test'] == '1')
-			{
-				EditorUi.debug('Sync.patchOwnPages', [this],
-					'consensus', consensus,
-					'patches', patches,
-					'pending', pending);
+					this.file.patch(pending);
+				}
+
+				if (!mxUtils.isEmptyObject(consensus))
+				{
+					this.file.patch([consensus]);
+
+					if (!local)
+					{
+						this.sendLocalChanges([consensus]);
+					}
+				}
+
+				this.scheduleConsistencyCheck();
+
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('Sync.patchOwnPages', [this], 'patches', patches,
+						'pending', pending, 'remotePending', remotePending,
+						'consensus', consensus, 'local', local);
+				}
 			}
 		}));
 	}
@@ -1097,45 +1166,46 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 		this.file.shadowPages = (this.file.shadowPages != null) ?
 			this.file.shadowPages : this.ui.getPagesForNode(
 			mxUtils.parseXml(this.file.shadowData).documentElement)
-
-		// Creates a patch for backup if the checksum fails
-		this.file.backupPatch = (this.file.isModified()) ?
-			this.ui.diffPages(this.file.shadowPages,
-			this.ui.pages) : null;
-		var ignored = this.file.ignorePatches(patches);
 		var etag = this.file.getDescriptorRevisionId(desc);
+		var ignored = this.file.ignorePatches(patches);
 		
 		if (!ignored)
 		{
+			// Creates a patch for backup if the checksum fails
+			this.file.backupPatch = (this.file.isModified() ||
+				this.file.ownPages != null) ?
+					this.ui.diffPages(this.file.shadowPages,
+						this.ui.pages) : null;
 			var pending = (this.file.ownPages != null) ?
 				[this.ui.diffPages(this.file.shadowPages,
-				this.file.ownPages)] : null;
+					this.file.ownPages)] : null;
 			
 			// Patches the shadow document
 			for (var i = 0; i < patches.length; i++)
 			{
-				this.file.shadowPages = this.ui.patchPages(this.file.shadowPages, patches[i]);
+				this.file.shadowPages = this.ui.patchPages(
+					this.file.shadowPages, patches[i]);
 			}
 
-			var current = (checksum != null) ? this.ui.getHashValueForPages(this.file.shadowPages) : null;
+			var current = (checksum != null) ?
+				this.ui.getHashValueForPages(
+					this.file.shadowPages) : null;
 
 			if (urlParams['test'] == '1')
 			{
-				EditorUi.debug('Sync.merge', [this],
-					'from', this.file.getCurrentRevisionId(), 'to', etag,
-					'etag', this.file.getDescriptorEtag(desc),
-					'backup', this.file.backupPatch,
-					'attempt', this.catchupRetryCount,
-					'patches', patches, 'checksum',
-					checksum == current, checksum);
+				EditorUi.debug('Sync.merge', [this], 'patches', patches,
+					'backup', this.file.backupPatch, 'pending', pending,
+					'checksum', checksum == current, checksum,
+					'attempt', this.catchupRetryCount, 'from',
+					this.file.getCurrentRevisionId(), 'to', etag,
+					'etag', this.file.getDescriptorEtag(desc));
 			}
 			
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
-				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
 				var to = this.ui.hashValue(etag);
-				
+				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
 				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
 					'\nChecksum: ' + checksum + '\nCurrent: ' + current, etag, 'merge');
 
@@ -1150,7 +1220,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			else
 			{
 				// Patches the current document
-				this.patchOwnPages(patches, pending);
+				this.patchOwnPages(patches, pending,
+					[this.file.backupPatch]);
 				this.file.patch(patches,
 					(this.file.ownPages == null &&
 					DrawioFile.LAST_WRITE_WINS) ?

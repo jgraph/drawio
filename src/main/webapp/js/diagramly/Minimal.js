@@ -675,6 +675,56 @@ EditorUi.initMinimalTheme = function()
         	if (elt.style.display != 'none')
         	{
         		elt.style.display = 'inline-block';
+
+				var file = this.getCurrentFile();
+	
+				if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
+				{
+					var icon = document.createElement('img');
+					icon.setAttribute('border', '0');
+					icon.style.position = 'absolute';
+					icon.style.left = '18px';
+					icon.style.top = '2px';
+					icon.style.width = '12px';
+					icon.style.height = '12px';
+					icon.style.cursor = 'default';
+
+					var err = file.getRealtimeError();
+					var state = file.getRealtimeState();
+					var status = mxResources.get('realtimeCollaboration');
+
+					if (state == 1)
+					{
+						icon.src = Editor.syncImage;
+						status += ' (' + mxResources.get('online') + ')';
+					}
+					else
+					{
+						icon.src = Editor.syncProblemImage;
+
+						if (err != null && err.message != null)
+						{
+							status += ' (' + err.message + ')';
+						}
+						else
+						{
+							status += ' (' + mxResources.get('disconnected') + ')';
+						}
+					}
+
+					mxEvent.addListener(icon, 'click', mxUtils.bind(this, function(evt)
+					{
+						this.showError(mxResources.get('realtimeCollaboration'),
+							mxUtils.htmlEntities(state == 1 ? mxResources.get('online') :
+								((err != null && err.message != null) ?
+								err.message : mxResources.get('disconnected'))));
+						mxEvent.consume(evt);
+					}));
+		
+					icon.setAttribute('title', status);
+					elt.style.paddingRight = '4px';
+					elt.appendChild(icon);
+				}
         	}
 		}
     };
@@ -1223,7 +1273,7 @@ EditorUi.initMinimalTheme = function()
 				menu.addSeparator(parent);
 
 				if (graph.isEnabled() && graph.isSelectionEmpty() &&
-					file.isFastSyncEnabled() && file.isFastSyncSupported())
+					file.isRealtimeEnabled() && file.isRealtimeSupported())
 				{
 					this.addMenuItems(menu, ['shareCursor'], parent);
 				}
@@ -1238,8 +1288,8 @@ EditorUi.initMinimalTheme = function()
 					var filename = (file.getTitle() != null) ?
 						file.getTitle() : ui.defaultFilename;
 					
-					if (file.constructor == DriveFile ||
-						(!/(\.html)$/i.test(filename) &&
+					if ((file.constructor == DriveFile && file.sync != null &&
+						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
 						!/(\.svg)$/i.test(filename)))
 					{
 						this.addMenuItems(menu, ['-', 'properties'], parent);
@@ -1307,7 +1357,7 @@ EditorUi.initMinimalTheme = function()
 						}
 						
 						if (graph.isEnabled() && graph.isSelectionEmpty() &&
-							file.isFastSyncEnabled() && file.isFastSyncSupported())
+							file.isRealtimeEnabled() && file.isRealtimeSupported())
 						{
 							this.addMenuItems(menu, ['shareCursor'], parent);
 						}
