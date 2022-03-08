@@ -563,7 +563,9 @@ DriveFile.prototype.setRealtimeEnabled = function(value, success, error)
 			'contentType': 'application/json; charset=UTF-8',
 			'params': {
 				'key': 'collaboration',
-				'value': (value) ? 'enabled' : 'disabled'
+				'value': (value) ? 'enabled' :
+					((urlParams['fast-sync'] != '0') ?
+						'disabled' : '')
 			}
 		}, mxUtils.bind(this, function()
 		{

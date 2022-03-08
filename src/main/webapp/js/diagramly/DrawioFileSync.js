@@ -1089,7 +1089,7 @@ DrawioFileSync.prototype.checkConsistency = function()
 /**
  * Patches the own pages with the given changes and updates the snapshot.
  */
-DrawioFileSync.prototype.patchOwnPages = function(patches, pending, remotePending, local)
+DrawioFileSync.prototype.patchOwnPages = function(patches, pending, local)
 {
 	if (this.file.ownPages != null)
 	{
@@ -1097,11 +1097,6 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending, remotePendin
 		{
 			if (this.file.ownPages != null)
 			{
-				if (remotePending != null)
-				{
-					this.file.patch(remotePending);
-				}
-				
 				var consensus = this.ui.diffPages(
 					this.file.ownPages,
 					this.ui.pages);
@@ -1146,8 +1141,7 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending, remotePendin
 				if (urlParams['test'] == '1')
 				{
 					EditorUi.debug('Sync.patchOwnPages', [this], 'patches', patches,
-						'pending', pending, 'remotePending', remotePending,
-						'consensus', consensus, 'local', local);
+						'pending', pending, 'consensus', consensus, 'local', local);
 				}
 			}
 		}));
@@ -1172,13 +1166,13 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 		if (!ignored)
 		{
 			// Creates a patch for backup if the checksum fails
-			this.file.backupPatch = (this.file.isModified() ||
-				this.file.ownPages != null) ?
+			this.file.backupPatch = (this.file.isModified() &&
+				this.file.ownPages == null) ?
 					this.ui.diffPages(this.file.shadowPages,
 						this.ui.pages) : null;
 			var pending = (this.file.ownPages != null) ?
-				[this.ui.diffPages(this.file.shadowPages,
-					this.file.ownPages)] : null;
+				this.ui.diffPages(this.file.shadowPages,
+					this.file.ownPages) : null;
 			
 			// Patches the shadow document
 			for (var i = 0; i < patches.length; i++)
@@ -1219,13 +1213,32 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			}
 			else
 			{
+				// Computes the remote pending changes
+				var remotePending = (this.file.ownPages != null) ?
+					this.ui.diffPages(this.file.ownPages,
+						this.ui.pages) : null;
+
+				// Patches the own pages
+				this.patchOwnPages(patches, [pending]);
+
 				// Patches the current document
-				this.patchOwnPages(patches, pending,
-					[this.file.backupPatch]);
 				this.file.patch(patches,
-					(this.file.ownPages == null &&
-					DrawioFile.LAST_WRITE_WINS) ?
-					this.file.backupPatch : null);
+					(DrawioFile.LAST_WRITE_WINS) ?
+					((pending != null) ? pending :
+					this.file.backupPatch) : null);
+
+				// Applies the remote pending changes to
+				// minimize flickering between states
+				if (remotePending != null && !mxUtils.isEmptyObject(remotePending))
+				{
+					this.file.patch([remotePending]);
+
+					if (urlParams['test'] == '1')
+					{
+						EditorUi.debug('Sync.merge', [this],
+							'remotePending', remotePending);
+					}
+				}
 
 				// Logs successull patch
 //				try

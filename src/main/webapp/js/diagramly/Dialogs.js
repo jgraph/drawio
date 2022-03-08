@@ -12679,7 +12679,7 @@ var FilePropertiesDialog = function(editorUi)
 		var initialCollab = file.isRealtimeEnabled();
 
 		var collab = editorUi.drive.getCustomProperty(file.desc, 'collaboration');
-		var initialCollab = collab == 'enabled' || (collab != null && collab != 'disabled');
+		var initialCollab = collab != 'disabled';
 	
 		if (initialCollab)
 		{

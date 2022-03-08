@@ -188,6 +188,23 @@ function P2PCollab(ui, sync, channelId)
 
 		this.selectionChangeListener = function(sender, evt)
 		{
+			// Logging possible NPE in FF
+			if (evt == null)
+			{
+				try
+				{
+					EditorUi.logEvent({category: 'NPE-NULL-EVENT',
+						action: 'P2PCollab.selectionChangeListener'});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+
+				return;
+			}
+			// End of debugging
+
 			var mapToIds = function(c)
 			{
 				return c.id;

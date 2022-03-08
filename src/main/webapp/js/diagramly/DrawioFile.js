@@ -311,11 +311,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 			if (!ignored)
 			{
 				// Creates a patch for backup if the checksum fails
-				this.backupPatch = (this.isModified() || this.ownPages != null) ?
-					this.ui.diffPages(shadow, this.ui.pages) : null;
+				this.backupPatch = (this.isModified()) ?
+					this.ui.diffPages(shadow,
+						this.ui.pages) : null;
 				var pending = (this.ownPages != null) ?
-					[this.ui.diffPages(shadow,
-						this.ownPages)] : null;
+					this.ui.diffPages(shadow,
+						this.ownPages) : null;
 				
 				// Patching previous shadow to verify checksum
 				var patchedDetails = {};
@@ -353,18 +354,16 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				}
 				else
 				{
-					// Patches the current document
-					this.patch(patches,
-						(this.ownPages == null &&
-						DrawioFile.LAST_WRITE_WINS) ?
-						this.backupPatch : null);
-
 					// Patches the own pages
 					if (this.sync != null)
 					{
-						this.sync.patchOwnPages(patches, pending,
-							[this.backupPatch], true);
+						this.sync.patchOwnPages(patches, [pending], true);
 					}
+
+					// Patches the current document
+					this.patch(patches,
+						(DrawioFile.LAST_WRITE_WINS) ?
+						this.backupPatch : null);
 				}
 			}
 		}
@@ -1227,7 +1226,7 @@ DrawioFile.prototype.isRealtimeSupported = function()
  */
 DrawioFile.prototype.isRealtimeEnabled = function()
 {
-	return urlParams['fast-sync'] == '1';
+	return urlParams['fast-sync'] != '0';
 };
 
 /**

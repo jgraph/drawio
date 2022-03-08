@@ -34,18 +34,18 @@ Draw.loadPlugin(function(ui)
 					
 					if (ui.dialog != null)
 					{
-						console.log('randomLabel halted');
+						console.log('random.js: randomLabel halted');
 					}
 					else
 					{
 						if (counter++ < max && ui.dialog == null)
 						{
-							console.log('randomLabel', counter);
+							console.log('random.js: randomLabel', counter);
 							schedule();
 						}
 						else
 						{
-							console.log('randomLabel halted');
+							console.log('random.js: randomLabel halted');
 						}
 					}
 				}, delay * jitter);
@@ -96,7 +96,7 @@ Draw.loadPlugin(function(ui)
 						{
 							// permute children
 							var passes = Math.floor(Math.random() * numberA) + 1;
-							console.log(counter + " - swapping " + passes + " children from parent A to parent B");
+							console.log('random.js: ' + counter + " - swapping " + passes + " children from parent A to parent B");
 							
 							for (var i = 0; i < passes; i++)
 							{
@@ -111,7 +111,7 @@ Draw.loadPlugin(function(ui)
 							}
 
 							var passes = Math.floor(Math.random() * numberB) + 1;
-							console.log(counter + " - swapping " + passes + " children from parent B to parent A");
+							console.log('random.js: ' + counter + " - swapping " + passes + " children from parent B to parent A");
 							
 							for (var i = 0; i < passes; i++)
 							{
@@ -132,18 +132,18 @@ Draw.loadPlugin(function(ui)
 					
 					if (ui.dialog != null)
 					{
-						console.log('swapChildren halted');
+						console.log('random.js: swapChildren halted');
 					}
 					else
 					{
 						if (counter++ < max && ui.dialog == null)
 						{
-							console.log('swapChildren', counter);
+							console.log('random.js: swapChildren', counter + '/' + max);
 							schedule();
 						}
 						else
 						{
-							console.log('swapChildren halted');
+							console.log('random.js: swapChildren halted');
 						}
 					}
 				}, delay * jitter);
@@ -415,7 +415,7 @@ Draw.loadPlugin(function(ui)
 							var number = children.length;
 
 							var passes = Math.floor(Math.random() * number) + 1;
-							console.log(counter + " - reordering in " + passes + " passes");
+							console.log('random.js: ' + counter + " - reordering in " + passes + " passes");
 							
 							for (var i = 0; i < passes; i++)
 							{
@@ -431,18 +431,18 @@ Draw.loadPlugin(function(ui)
 					
 					if (ui.dialog != null)
 					{
-						console.log('reorderChildren halted');
+						console.log('random.js: reorderChildren halted');
 					}
 					else
 					{
 						if (counter++ < max && ui.dialog == null)
 						{
-							console.log('reorderChildren', counter);
+							console.log('random.js: reorderChildren', counter + '/' + max);
 							schedule();
 						}
 						else
 						{
-							console.log('reorderChildren halted');
+							console.log('random.js: reorderChildren halted');
 						}
 					}
 				}, delay * jitter);
