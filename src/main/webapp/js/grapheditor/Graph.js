@@ -2206,7 +2206,9 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isFillState = function(state)
 	{
-		return !this.isSpecialColor(state.style[mxConstants.STYLE_FILLCOLOR]) && (this.model.isVertex(state.cell) ||
+		return !this.isSpecialColor(state.style[mxConstants.STYLE_FILLCOLOR]) &&
+			mxUtils.getValue(state.style, 'lineShape', null) != '1' &&
+			(this.model.isVertex(state.cell) ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'arrow' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'filledEdge' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'flexArrow');
@@ -4534,6 +4536,27 @@ Graph.prototype.updateHorizontalStyle = function(cell, style)
 	}
 	
 	return style;
+};
+
+/**
+ * Returns the cell style with no colors replaced.
+ */
+Graph.prototype.getCellStyleWithDefaultColors = function(cell)
+{
+	// Temporary override color conversion
+	var replaceDefaultColors = this.replaceDefaultColors;
+
+	this.replaceDefaultColors = function(cell, style)
+	{
+		return style;
+	};
+
+	var result = this.getCellStyle(cell);
+
+	// Restores color conversion
+	this.replaceDefaultColors = replaceDefaultColors;
+
+	return result;
 };
 
 /**

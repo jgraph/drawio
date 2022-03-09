@@ -28,7 +28,25 @@ function mxFreehand(graph)
 	var openFill = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
-	var stopClickEnabled = true
+	var stopClickEnabled = true;
+	var perfectFreehandOptions = {
+		size: 8,
+		thinning: 0.5,
+		smoothing: 0.5,
+		streamline: 0.5,
+	//	easing: (t) => t,
+		start: {
+		  taper: 0,
+	//	  easing: (t) => t,
+		  cap: true
+		},
+		end: {
+		  taper: 0,
+	//	  easing: (t) => t,
+		  cap: true
+		}
+	};
+	var perfectFreehandMode = false;
 
 	this.setClosedPath = function(isClosed)//TODO add closed settings
 	{
@@ -65,6 +83,21 @@ function mxFreehand(graph)
 		bufferSize = smoothing;
 	};
 	
+	this.setPerfectFreehandMode = function(value)
+	{
+		perfectFreehandMode = value;
+	};
+
+	this.setBrushSize = function(value)
+	{
+		perfectFreehandOptions.size = value;
+	};
+
+	this.getBrushSize = function()
+	{
+		return perfectFreehandOptions.size;
+	};
+
 	var setEnabled = function(isEnabled)
 	{
 		enabled = isEnabled;
@@ -118,16 +151,64 @@ function mxFreehand(graph)
 	        mxEvent.consume(e);
 	    }
 	});
-	
+
+	// Used to retrieve default styles
+	var edge = new mxCell();
+	edge.edge = true;
+
+	var getStrokeColor = function()
+	{
+		var defaultStyle = graph.getCurrentCellStyle(edge);
+		var strokeColor = mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
+			mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000'))
+
+		if (strokeColor == 'default')
+		{
+			strokeColor = graph.shapeForegroundColor;
+		}
+
+		return strokeColor;
+	};
+
 	this.createStyle = function(stencil)
 	{
-		return mxConstants.STYLE_SHAPE + '=' + stencil + ';fillColor=none;';
+		var style = ';fillColor=none;';
+
+		if (perfectFreehandMode)
+		{
+			style = ';lineShape=1;';
+		}
+
+		return mxConstants.STYLE_SHAPE + '=' + stencil + style;
 	};
 	
 	this.stopDrawing = function() 
 	{
-	    if (partPathes.length > 0) 
+	    if (partPathes.length > 0)
 	    {
+			if (perfectFreehandMode)
+			{
+				var tmpPoints = [];
+				
+				for (var i = 0; i < drawPoints.length; i++) 
+				{
+					if (drawPoints[i] != null)
+					{
+						tmpPoints.push([drawPoints[i].x, drawPoints[i].y]);
+					}
+				}
+
+				var output = PerfectFreehand.getStroke(tmpPoints, perfectFreehandOptions);
+				drawPoints = [];
+				
+				for (var i = 0; i < output.length; i++) 
+				{
+					drawPoints.push({x: output[i][0], y: output[i][1]});
+				}
+				
+				drawPoints.push(null);
+			}
+
 	        var maxX = drawPoints[0].x, minX = drawPoints[0].x, maxY = drawPoints[0].y, minY = drawPoints[0].y;
 	        
 	        for (var i = 1; i < drawPoints.length; i++) 
@@ -141,8 +222,8 @@ function mxFreehand(graph)
 	        }
 	        
 	        var w = maxX - minX, h = maxY - minY;
-	        
-	        if (w > 0 && h > 0)
+
+	        if (w > 0 && h > 0 && (!perfectFreehandMode || drawPoints.length > 45))
 	        {
 		        var xScale = 100 / w;
 		        var yScale = 100 / h;
@@ -254,10 +335,6 @@ function mxFreehand(graph)
 		}
 	}));
 	
-	// Used to retrieve default styles
-	var edge = new mxCell();
-	edge.edge = true;
-	
 	// Implements a listener for hover and click handling
 	graph.addMouseListener(
 	{
@@ -272,19 +349,12 @@ function mxFreehand(graph)
 					return;
 				}
 				
-				var defaultStyle = graph.getCurrentCellStyle(edge);
 				var strokeWidth = parseFloat(graph.currentVertexStyle[mxConstants.STYLE_STROKEWIDTH] || 1);
 				strokeWidth = Math.max(1, strokeWidth * graph.view.scale);
-				var strokeColor = mxUtils.getValue(graph.currentVertexStyle, mxConstants.STYLE_STROKECOLOR,
-					mxUtils.getValue(defaultStyle, mxConstants.STYLE_STROKECOLOR, '#000'))
-
-				if (strokeColor == 'default')
-				{
-					strokeColor = graph.shapeForegroundColor;
-				}
+				var strokeColor = getStrokeColor();
 
 			    path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-			    path.setAttribute('fill', 'none');
+			    path.setAttribute('fill', perfectFreehandMode? strokeColor : 'none');
 			    path.setAttribute('stroke', strokeColor);
 			    path.setAttribute('stroke-width', strokeWidth);
 			    
@@ -305,7 +375,9 @@ function mxFreehand(graph)
 			    strPath = 'M' + pt.x + ' ' + pt.y;
 			    drawPoints.push(pt);
 			    lastPart = [];
-			    path.setAttribute('d', strPath);
+			    path.setAttribute('d', perfectFreehandMode? 
+					PerfectFreehand.getSvgPathFromStroke([[pt.x, pt.y]], perfectFreehandOptions)
+					: strPath);
 			    svgElement.appendChild(path);
 	
 				me.consume();
@@ -389,23 +461,47 @@ function mxFreehand(graph)
 
 	    if (pt) 
 	    {
-	        // Get the smoothed part of the path that will not change
-	        strPath += ' L' + pt.x + ' ' + pt.y;
 	        drawPoints.push(pt);
-	        // Get the last part of the path (close to the current mouse position)
-	        // This part will change if the mouse moves again
-	        var tmpPath = '';
-	        lastPart = [];
-	        
-	        for (var offset = 2; offset < buffer.length; offset += 2) 
-	        {
-	            pt = getAveragePoint(offset);
-	            tmpPath += ' L' + pt.x + ' ' + pt.y;
-	            lastPart.push(pt);
-	        }
 
-	        // Set the complete current path coordinates
-	        path.setAttribute('d', strPath + tmpPath);
+			if (perfectFreehandMode)
+			{
+				var tmpPoints = [];
+
+				for (var i = 0; i < drawPoints.length; i++)
+				{
+					tmpPoints.push([drawPoints[i].x, drawPoints[i].y]);
+				}
+
+				lastPart = [];
+				
+				for (var offset = 2; offset < buffer.length; offset += 2) 
+				{
+					pt = getAveragePoint(offset);
+					tmpPoints.push([pt.x, pt.y]);
+					lastPart.push(pt);
+				}
+
+				path.setAttribute('d', PerfectFreehand.getSvgPathFromStroke(tmpPoints, perfectFreehandOptions));
+			}
+			else
+			{
+				// Get the smoothed part of the path that will not change
+				strPath += ' L' + pt.x + ' ' + pt.y;
+				// Get the last part of the path (close to the current mouse position)
+				// This part will change if the mouse moves again
+				var tmpPath = '';
+				lastPart = [];
+				
+				for (var offset = 2; offset < buffer.length; offset += 2) 
+				{
+					pt = getAveragePoint(offset);
+					tmpPath += ' L' + pt.x + ' ' + pt.y;
+					lastPart.push(pt);
+				}
+
+				// Set the complete current path coordinates
+				path.setAttribute('d', strPath + tmpPath);
+			}
 	    }
 	};
 };

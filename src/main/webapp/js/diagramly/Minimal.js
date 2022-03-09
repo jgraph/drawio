@@ -2643,6 +2643,13 @@ EditorUi.initMinimalTheme = function()
 					if (ui.currentPage != null)
 					{
 						mxUtils.write(pageMenu, ui.currentPage.getName());
+						var n = (ui.pages != null) ? ui.pages.length : 1;
+						var idx = ui.getPageIndex(ui.currentPage);
+						idx = (idx != null) ? idx + 1 : 1;
+						var id = ui.currentPage.getId();
+						pageMenu.setAttribute('title', ui.currentPage.getName() +
+							' (' + idx + '/' + n + ')' + ((id != null) ?
+							' [' + id + ']' : ''));
 					}
 				};
 

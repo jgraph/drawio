@@ -15,10 +15,10 @@ EditorUi = function(editor, container, lightbox)
 	var graph = this.editor.graph;
 	graph.lightbox = lightbox;
 
-	// Overrides graph bounds to include background pages
+	// Overrides graph bounds to include background images
 	var graphGetGraphBounds = graph.getGraphBounds;
 
-	graph.getGraphBounds = function(img)
+	graph.getGraphBounds = function()
 	{
 		var bounds = graphGetGraphBounds.apply(this, arguments);
 		var img = this.backgroundImage;

@@ -321,7 +321,8 @@
 				{
 					if (this.freehandWindow == null)
 					{
-						this.freehandWindow = new FreehandWindow(editorUi, document.body.offsetWidth - 420, 102, 176, 84);
+						var withBrush = !mxClient.IS_IE && !mxClient.IS_IE11;
+						this.freehandWindow = new FreehandWindow(editorUi, document.body.offsetWidth - 420, 102, 176, withBrush? 120 : 84, withBrush);
 					}
 					
 					if (graph.freehand.isDrawing())
@@ -435,7 +436,7 @@
 				editorUi.showDialog(new PrintDialog(editorUi, mxResources.get('formatPdf')).container, 360,
 						(editorUi.pages != null && editorUi.pages.length > 1 && (editorUi.editor.editable ||
 						urlParams['hide-pages'] != '1')) ?
-						450 : 370, true, true);
+						470 : 390, true, true);
 			}
 			else
 			{

@@ -1545,8 +1545,8 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 
 						var id = this.pages[index].getId();
 						item.setAttribute('title', this.pages[index].getName() +
-							((id != null) ? ' (' + id + ')' : '') +
-							' [' + (index + 1)+ ']');
+							' (' + (index + 1) + '/' + this.pages.length + ')' +
+							((id != null) ? ' [' + id + ']' : ''));
 						
 						// Adds checkmark to current page
 						if (this.pages[index] == this.currentPage)

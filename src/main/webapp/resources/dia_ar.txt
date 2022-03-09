@@ -1194,3 +1194,4 @@ confACleaningFile=Cleaning diagram draft "{1}" old versions
 confAFileCleaned=Cleaning diagram draft "{1}" done
 confAFileCleanFailed=Cleaning diagram draft "{1}" failed
 confACleanOnly=Clean Diagram Drafts Only
+brush=Brush

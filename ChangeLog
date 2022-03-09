@@ -1,3 +1,12 @@
+09-MAR-2022: 17.0.1
+
+- Changes freehand drawing to filled path
+- Ignores pageNotFound in background image dialog
+- Fixes handling of default colors in style targets
+- Adds selection only option to print output
+- Fixes background image offset in print output
+- Fixes dark mode and background pages in print output
+
 08-MAR-2022: 17.0.0
 
 - Enables real time collaborative editing

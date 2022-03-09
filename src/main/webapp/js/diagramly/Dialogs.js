@@ -1602,6 +1602,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		pageSelect.style.display = 'none';
 	}
 
+	var notFoundOption = document.createElement('option');
 	var resetting = false;
 	var ignoreEvt = false;
 	
@@ -1614,7 +1615,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 			{
 				if (done != null)
 				{
-					done(pageSelect.value);
+					done((notFoundOption.selected) ? null : pageSelect.value);
 				}
 			}
 			else if (urlInput.value != '' && !editorUi.isOffline())
@@ -1836,7 +1837,6 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 
 	if (!pageFound && pageRadio.checked)
 	{
-		var notFoundOption = document.createElement('option');
 		mxUtils.write(notFoundOption, mxResources.get('pageNotFound'));
 		notFoundOption.setAttribute('disabled', 'disabled');
 		notFoundOption.setAttribute('selected', 'selected');
@@ -1888,33 +1888,29 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 
 	if (Graph.fileSupport)
 	{
-		if (editorUi.backgroundImgDlgFileInputElt == null)
+		var fileInput = document.createElement('input');
+		fileInput.setAttribute('multiple', 'multiple');
+		fileInput.setAttribute('type', 'file');
+		
+		mxEvent.addListener(fileInput, 'change', function(evt)
 		{
-			var fileInput = document.createElement('input');
-			fileInput.setAttribute('multiple', 'multiple');
-			fileInput.setAttribute('type', 'file');
-			
-			mxEvent.addListener(fileInput, 'change', function(evt)
+			if (fileInput.files != null)
 			{
-				if (fileInput.files != null)
-				{
-					openFiles(fileInput.files);
-					
-		    		// Resets input to force change event for same file (type reset required for IE)
-					fileInput.type = '';
-					fileInput.type = 'file';
-					fileInput.value = '';
-				}
-			});
-			
-			fileInput.style.display = 'none';
-			document.body.appendChild(fileInput);
-			editorUi.backgroundImgDlgFileInputElt = fileInput;
-		}
+				openFiles(fileInput.files);
+				
+				// Resets input to force change event for same file (type reset required for IE)
+				fileInput.type = '';
+				fileInput.type = 'file';
+				fileInput.value = '';
+			}
+		});
+		
+		fileInput.style.display = 'none';
+		div.appendChild(fileInput);
 		
 		var btn = mxUtils.button(mxResources.get('open'), function()
 		{
-			editorUi.backgroundImgDlgFileInputElt.click();
+			fileInput.click();
 		});
 
 		btn.className = 'geBtn';
@@ -7641,7 +7637,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 /**
  * 
  */
-var FreehandWindow = function(editorUi, x, y, w, h)
+var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 {
 	var graph = editorUi.editor.graph;
 
@@ -7650,6 +7646,46 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 	div.style.userSelect = 'none';
 	div.style.overflow = 'hidden';
 	div.style.height = '100%';
+	
+	if (withBrush)
+	{
+		var brushInput = document.createElement('input');
+		brushInput.setAttribute('id', 'geFreehandBrush');
+		brushInput.setAttribute('type', 'checkbox');
+		brushInput.style.margin = '10px 5px 0px 10px';
+		brushInput.style.float = 'left';
+		div.appendChild(brushInput);
+		
+		var brushLabel = document.createElement('label');
+		brushLabel.setAttribute('for', 'geFreehandBrush');
+		brushLabel.style.float = 'left';
+		brushLabel.style.marginTop = '10px';
+		div.appendChild(brushLabel);
+		mxUtils.write(brushLabel, mxResources.get('brush'));
+		div.appendChild(brushLabel);
+		mxUtils.br(div);
+
+		var brushSize = document.createElement('input');
+		brushSize.setAttribute('type', 'range');
+		brushSize.setAttribute('min', '2');
+		brushSize.setAttribute('max', '30');
+		brushSize.setAttribute('value', graph.freehand.getBrushSize());
+		brushSize.style.width = '90%';
+		brushSize.style.visibility = 'hidden';
+		div.appendChild(brushSize);
+		mxUtils.br(div);
+
+		mxEvent.addListener(brushInput, 'change', function()
+		{
+			graph.freehand.setPerfectFreehandMode(this.checked)
+			brushSize.style.visibility = this.checked? 'visible' : 'hidden';
+		});
+
+		mxEvent.addListener(brushSize, 'change', function()
+		{
+			graph.freehand.setBrushSize(parseInt(this.value));
+		});
+	}
 	
 	var startBtn = mxUtils.button(mxResources.get('startDrawing'), function()
 	{
@@ -7664,7 +7700,7 @@ var FreehandWindow = function(editorUi, x, y, w, h)
 	});
 	
 	startBtn.setAttribute('title', mxResources.get('startDrawing'));
-	startBtn.style.marginTop = '10px';
+	startBtn.style.marginTop = withBrush? '5px' : '10px';
 	startBtn.style.width = '90%';
 	startBtn.style.boxSizing = 'border-box';
 	startBtn.style.overflow = 'hidden';

@@ -9690,7 +9690,7 @@
 		{
 			ui.showDialog(new PrintDialog(ui).container, 360,
 				(ui.pages != null && ui.pages.length > 1) ?
-				450 : 370, true, true);
+				470 : 390, true, true);
 		};
 
 		// Specifies the default filename

@@ -1194,3 +1194,4 @@ confACleaningFile=confACleaningFile
 confAFileCleaned=confAFileCleaned
 confAFileCleanFailed=confAFileCleanFailed
 confACleanOnly=confACleanOnly
+brush=brush

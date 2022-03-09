@@ -2253,7 +2253,7 @@ Sidebar.prototype.updateShapes = function(source, targets)
 			if ((graph.getModel().isVertex(targetCell) == graph.getModel().isVertex(source)) ||
 				(graph.getModel().isEdge(targetCell) == graph.getModel().isEdge(source)))
 			{
-				var style = graph.getCurrentCellStyle(targets[i]);
+				var style = graph.getCellStyleWithDefaultColors(targets[i]);
 				graph.getModel().setStyle(targetCell, cellStyle);
 				
 				// Removes all children of composite cells

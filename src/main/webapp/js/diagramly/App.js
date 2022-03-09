@@ -5430,10 +5430,23 @@ App.prototype.getLibraryStorageHint = function(file)
  */
 App.prototype.restoreLibraries = function()
 {
-	this.loadLibraries(mxSettings.getCustomLibraries(), mxUtils.bind(this, function()
+	var checked = [];
+
+	function addLibs(libs)
 	{
-		this.loadLibraries((urlParams['clibs'] || '').split(';'));
-	}));
+		for (var i = 0; i < libs.length; i++)
+		{
+			if (libs[i] != '' && mxUtils.indexOf(
+				checked, libs[i]) < 0)
+			{
+				checked.push(libs[i]);
+			}
+		}
+	};
+
+	addLibs(mxSettings.getCustomLibraries());
+	addLibs((urlParams['clibs'] || '').split(';'));
+	this.loadLibraries(checked);
 };
 
 /**
@@ -5443,9 +5456,9 @@ App.prototype.loadLibraries = function(libs, done)
 {
 	if (this.sidebar != null)
 	{
-		if (this.pendingLibraries == null)
+		if (this.loadedLibraries == null)
 		{
-			this.pendingLibraries = new Object();
+			this.loadedLibraries = new Object();
 		}
 		
 		// Ignores this library next time
@@ -5455,12 +5468,13 @@ App.prototype.loadLibraries = function(libs, done)
 			{
 				mxSettings.removeCustomLibrary(id);
 			}
-			
-			delete this.pendingLibraries[id];
+
+			delete this.loadedLibraries[id];
 		});
-				
+
 		var waiting = 0;
 		var files = [];
+		var idx = (libs.length > 0 && libs[0] == 'L.scratchpad') ? 1 : 0;
 
 		// Loads in order of libs array
 		var checkDone = mxUtils.bind(this, function()
@@ -5473,7 +5487,7 @@ App.prototype.loadLibraries = function(libs, done)
 					{
 						if (files[i] != null)
 						{
-							this.loadLibrary(files[i]);
+							this.loadLibrary(files[i], i <= idx);
 						}
 					}
 				}
@@ -5493,15 +5507,15 @@ App.prototype.loadLibraries = function(libs, done)
 				
 				(mxUtils.bind(this, function(id, index)
 				{
-					if (id != null && id.length > 0 && this.pendingLibraries[id] == null &&
+					if (id != null && id.length > 0 && this.loadedLibraries[id] == null &&
 						this.sidebar.palettes[id] == null)
 					{
 						// Waits for all libraries to load
+						this.loadedLibraries[id] = true;
 						waiting++;
 						
 						var onload = mxUtils.bind(this, function(file)
 						{
-							delete this.pendingLibraries[id];
 							files[index] = file;
 							waiting--;
 							checkDone();
@@ -5514,7 +5528,6 @@ App.prototype.loadLibraries = function(libs, done)
 							checkDone();
 						});
 						
-						this.pendingLibraries[id] = true;
 						var service = id.substring(0, 1);
 						
 						if (service == 'L')

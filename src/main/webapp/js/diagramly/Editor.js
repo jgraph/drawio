@@ -7892,6 +7892,22 @@
 	};
 
 	/**
+	 * Adds style to mark stencils as lines.
+	 */
+	var mxStencilDrawShape = mxStencil.prototype.drawShape;
+		
+	mxStencil.prototype.drawShape = function(canvas, shape, x, y, w, h)
+	{
+		if (mxUtils.getValue(shape.style, 'lineShape', null) == '1')
+		{
+			canvas.setFillColor(mxUtils.getValue(shape.style,
+				mxConstants.STYLE_STROKECOLOR, this.stroke));
+		}
+
+		return mxStencilDrawShape.apply(this, arguments);
+	};
+
+	/**
 	 * Constructs a new print dialog.
 	 */
 	PrintDialog.prototype.create = function(editorUi, titleText)
@@ -7927,7 +7943,7 @@
 
 		mxUtils.br(pagesSection);
 
-		// Pages ... to ...
+		// Page range
 		var pagesRadio = allPagesRadio.cloneNode(true);
 		allPagesRadio.setAttribute('checked', 'checked');
 		pagesRadio.setAttribute('value', 'range');
@@ -8002,7 +8018,27 @@
 			div.appendChild(pagesSection);
 			pagesRadio.checked = true;
 		}
+
+		mxUtils.br(pagesSection);
 		
+		// Selection only
+		var selectionOnlyRadio = document.createElement('input');
+		selectionOnlyRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
+		selectionOnlyRadio.setAttribute('value', 'all');
+		selectionOnlyRadio.setAttribute('type', 'radio');
+		selectionOnlyRadio.setAttribute('name', 'pages-printdialog');
+		
+		pagesSection.appendChild(selectionOnlyRadio);
+
+		var span = document.createElement('span');
+		mxUtils.write(span, mxResources.get('selectionOnly'));
+		pagesSection.appendChild(span);
+
+		if (graph.isSelectionEmpty())
+		{
+			selectionOnlyRadio.setAttribute('disabled', 'disabled');
+		}
+
 		// Adjust to ...
 		var adjustSection = document.createElement('div');
 		adjustSection.style.marginBottom = '10px';
@@ -8158,14 +8194,18 @@
 			
 			// Disables dark mode while printing
 			var darkStylesheet = null;
-			
+			var darkFg = graph.shapeForegroundColor;
+			var darkBg = graph.shapeBackgroundColor;
+
 			if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
 			{
 				darkStylesheet = graph.stylesheet;
 				graph.stylesheet = graph.getDefaultStylesheet()
+				graph.shapeForegroundColor = '#000000';
+				graph.shapeBackgroundColor = '#ffffff';
 				graph.refresh();
 			}
-			
+
 			function printGraph(thisGraph, pv, forcePageBreaks)
 			{
 				// Workaround for CSS transforms affecting the print output
@@ -8237,6 +8277,14 @@
 					pv = PrintDialog.createPrintPreview(thisGraph, scale, pf, border, x0, y0, autoOrigin);
 					pv.pageSelector = false;
 					pv.mathEnabled = false;
+
+					if (selectionOnlyRadio.checked)
+					{
+						pv.isCellVisible = function(cell)
+						{
+							return thisGraph.isCellSelected(cell);
+						};
+					}
 					
 					var file = editorUi.getCurrentFile();
 					
@@ -8329,15 +8377,19 @@
 					
 					// Switches stylesheet for print output in dark mode
 					var temp = null;
+					var tempFg = graph.shapeForegroundColor;
+					var tempBg = graph.shapeBackgroundColor;
 					
 					// Disables dashed printing of flowAnimation
 					var enableFlowAnimation = graph.enableFlowAnimation;
 					graph.enableFlowAnimation = false;
-					
+
 					if (graph.themes != null && graph.defaultThemeName == 'darkTheme')
 					{
 						temp = graph.stylesheet;
 						graph.stylesheet = graph.getDefaultStylesheet()
+						graph.shapeForegroundColor = '#000000';
+						graph.shapeBackgroundColor = '#ffffff';
 						graph.refresh();
 					}
 					
@@ -8350,6 +8402,8 @@
 					// Restores the stylesheet
 					if (temp != null)
 					{
+						graph.shapeForegroundColor = tempFg;
+						graph.shapeBackgroundColor = tempBg;
 						graph.stylesheet = temp;
 						graph.refresh();
 					}
@@ -8411,7 +8465,7 @@
 			var pagesTo = pagesToInput.value;
 			var ignorePages = !allPagesRadio.checked;
 			var pv = null;
-			
+
 			if (EditorUi.isElectronApp)
 			{
 				PrintDialog.electronPrint(editorUi, allPagesRadio.checked, pagesFrom, pagesTo,  fitRadio.checked,
@@ -8423,7 +8477,9 @@
 			
 			if (ignorePages)
 			{
-				ignorePages = pagesFrom == currentPage && pagesTo == currentPage;
+				ignorePages = selectionOnlyRadio.checked ||
+					(pagesFrom == currentPage &&
+					pagesTo == currentPage);
 			}
 			
 			if (!ignorePages && editorUi.pages != null && editorUi.pages.length)
@@ -8445,6 +8501,8 @@
 					if (tempGraph == null)
 					{
 						tempGraph = editorUi.createTemporaryGraph(graph.stylesheet);
+						tempGraph.shapeForegroundColor = graph.shapeForegroundColor;
+						tempGraph.shapeBackgroundColor = graph.shapeBackgroundColor;
 
 						// Restores graph settings that are relevant for printing
 						var pageVisible = true;
@@ -8471,12 +8529,43 @@
 							bgImage = page.viewState.backgroundImage;
 							tempGraph.extFonts = page.viewState.extFonts;
 						}
-					
+
+						// Forces update of background page image in offscreen page
+						if (bgImage != null && bgImage.originalSrc != null)
+						{
+							bgImage = editorUi.createImageForPageLink(
+								bgImage.originalSrc, page);
+						}
+						
 						tempGraph.background = bg;
-						tempGraph.backgroundImage = (bgImage != null) ? new mxImage(bgImage.src, bgImage.width, bgImage.height) : null;
+						tempGraph.backgroundImage = (bgImage != null) ? new mxImage(
+							bgImage.src, bgImage.width, bgImage.height,
+							bgImage.x, bgImage.y) : null;
 						tempGraph.pageVisible = pageVisible;
 						tempGraph.mathEnabled = mathEnabled;
-						
+
+						// Overrides graph bounds to include background images
+						var graphGetGraphBounds = tempGraph.getGraphBounds;
+
+						tempGraph.getGraphBounds = function()
+						{
+							var bounds = graphGetGraphBounds.apply(this, arguments);
+							var img = this.backgroundImage;
+							
+							if (img != null && img.width != null && img.height != null)
+							{
+								var t = this.view.translate;
+								var s = this.view.scale;
+
+								bounds = mxRectangle.fromRectangle(bounds);
+								bounds.add(new mxRectangle(
+									(t.x + img.x) * s, (t.y + img.y) * s,
+									img.width * s, img.height * s));
+							}
+
+							return bounds;
+						};
+
 						// Redirects placeholders to current page
 						var graphGetGlobalVariable = tempGraph.getGlobalVariable;
 		
@@ -8548,6 +8637,8 @@
 			// Restores dark mode
 			if (darkStylesheet != null)
 			{
+				graph.shapeForegroundColor = darkFg;
+				graph.shapeBackgroundColor = darkBg;
 				graph.stylesheet = darkStylesheet;
 				graph.refresh();
 			}
