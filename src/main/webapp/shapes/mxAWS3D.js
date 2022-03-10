@@ -315,6 +315,68 @@ mxShapeAws3dDashedEdgeDouble.prototype.paintVertexShape = function(c, x, y, w, h
 mxCellRenderer.registerShape(mxShapeAws3dDashedEdgeDouble.prototype.cst.DASHED_EDGE_DOUBLE, mxShapeAws3dDashedEdgeDouble);
 
 //**********************************************************************************************************************************************************
+//Dashed edge with double arrow v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeAws3dDashedEdgeDouble2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeAws3dDashedEdgeDouble2, mxShape);
+
+mxShapeAws3dDashedEdgeDouble2.prototype.cst = {
+		DASHED_EDGE_DOUBLE2 : 'mxgraph.aws3d.dashedEdgeDouble2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeAws3dDashedEdgeDouble2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+	
+	c.save();
+	c.setStrokeColor('none');
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(21, 5.5);
+	c.lineTo(0, 0);
+	c.lineTo(9.7, 12.2);
+	c.fillAndStroke();
+	
+	c.begin();
+	c.moveTo(w - 21, h - 5.5);
+	c.lineTo(w, h);
+	c.lineTo(w - 9.7, h - 12.2);
+	c.fillAndStroke();
+	
+	c.restore();
+	c.setStrokeWidth('4');
+	c.setDashed('true');
+	c.setLineCap('round');
+	
+	c.begin();
+	c.moveTo(7.675, 4.425);
+	c.lineTo(w - 7.675, h - 4.425);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeAws3dDashedEdgeDouble2.prototype.cst.DASHED_EDGE_DOUBLE2, mxShapeAws3dDashedEdgeDouble2);
+
+//**********************************************************************************************************************************************************
 //Dashed arrowless edge
 //**********************************************************************************************************************************************************
 /**
@@ -359,6 +421,51 @@ mxShapeAws3dDashedArrowlessEdge.prototype.paintVertexShape = function(c, x, y, w
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dDashedArrowlessEdge.prototype.cst.DASHED_ARROWLESS_EDGE, mxShapeAws3dDashedArrowlessEdge);
+
+//**********************************************************************************************************************************************************
+//Dashed arrowless edge
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeAws3dDashedArrowlessEdge2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeAws3dDashedArrowlessEdge2, mxShape);
+
+mxShapeAws3dDashedArrowlessEdge2.prototype.cst = {
+		DASHED_ARROWLESS_EDGE2 : 'mxgraph.aws3d.dashedArrowlessEdge2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeAws3dDashedArrowlessEdge2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	c.setStrokeWidth('4');
+	c.setDashed('true');
+	c.setLineCap('round');
+	
+	c.begin();
+	c.moveTo(0, 0);
+	c.lineTo(w, h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeAws3dDashedArrowlessEdge2.prototype.cst.DASHED_ARROWLESS_EDGE2, mxShapeAws3dDashedArrowlessEdge2);
 
 //**********************************************************************************************************************************************************
 //Dashed edge
@@ -417,6 +524,62 @@ mxShapeAws3dDashedEdge.prototype.paintVertexShape = function(c, x, y, w, h)
 mxCellRenderer.registerShape(mxShapeAws3dDashedEdge.prototype.cst.DASHED_EDGE, mxShapeAws3dDashedEdge);
 
 //**********************************************************************************************************************************************************
+//Dashed edge v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeAws3dDashedEdge2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeAws3dDashedEdge2, mxShape);
+
+mxShapeAws3dDashedEdge2.prototype.cst = {
+		DASHED_EDGE2 : 'mxgraph.aws3d.dashedEdge2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeAws3dDashedEdge2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	var strokeColor = mxUtils.getValue(this.style, 'strokeColor', '#000000');
+	
+	c.save();
+	c.setStrokeColor('none');
+	c.setFillColor(strokeColor);
+	c.begin();
+	c.moveTo(w - 21, 5.5);
+	c.lineTo(w, 0);
+	c.lineTo(w - 9.7, 12.2);
+	c.fillAndStroke();
+	
+	c.restore();
+	c.setStrokeWidth('4');
+	c.setDashed('true');
+	c.setLineCap('round');
+	
+	c.begin();
+	c.moveTo(w - 7.675, 4.425);
+	c.lineTo(0, h);
+	c.stroke();
+};
+
+mxCellRenderer.registerShape(mxShapeAws3dDashedEdge2.prototype.cst.DASHED_EDGE2, mxShapeAws3dDashedEdge2);
+
+//**********************************************************************************************************************************************************
 //Flat edge
 //**********************************************************************************************************************************************************
 /**
@@ -463,6 +626,53 @@ mxShapeAws3dFlatEdge.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dFlatEdge.prototype.cst.FLAT_EDGE, mxShapeAws3dFlatEdge);
+
+//**********************************************************************************************************************************************************
+//Flat edge v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeAws3dFlatEdge2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeAws3dFlatEdge2, mxShape);
+
+mxShapeAws3dFlatEdge2.prototype.cst = {
+		FLAT_EDGE2 : 'mxgraph.aws3d.flatEdge2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeAws3dFlatEdge2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	c.begin();
+	c.moveTo(w - 46, 8.8);
+	c.lineTo(w - 61.2, 0);
+	c.lineTo(w, 0);
+	c.lineTo(w, 35.5);
+	c.lineTo(w - 15.4, 26.5);
+	c.lineTo(30.7, h);
+	c.lineTo(0, h - 17.7);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeAws3dFlatEdge2.prototype.cst.FLAT_EDGE2, mxShapeAws3dFlatEdge2);
 
 //**********************************************************************************************************************************************************
 //Flat double edge
@@ -524,6 +734,65 @@ mxShapeAws3dFlatDoubleEdge.prototype.paintVertexShape = function(c, x, y, w, h)
 };
 
 mxCellRenderer.registerShape(mxShapeAws3dFlatDoubleEdge.prototype.cst.FLAT_DOUBLE_EDGE, mxShapeAws3dFlatDoubleEdge);
+
+//**********************************************************************************************************************************************************
+//Flat double edge v2
+//**********************************************************************************************************************************************************
+/**
+* Extends mxShape.
+*/
+function mxShapeAws3dFlatDoubleEdge2(bounds, fill, stroke, strokewidth)
+{
+	mxShape.call(this);
+	this.bounds = bounds;
+	this.fill = fill;
+	this.stroke = stroke;
+	this.strokewidth = (strokewidth != null) ? strokewidth : 1;
+};
+
+/**
+* Extends mxShape.
+*/
+mxUtils.extend(mxShapeAws3dFlatDoubleEdge2, mxShape);
+
+mxShapeAws3dFlatDoubleEdge2.prototype.cst = {
+		FLAT_DOUBLE_EDGE2 : 'mxgraph.aws3d.flatDoubleEdge2'
+};
+
+/**
+* Function: paintVertexShape
+* 
+* Paints the vertex shape.
+*/
+mxShapeAws3dFlatDoubleEdge2.prototype.paintVertexShape = function(c, x, y, w, h)
+{
+	c.translate(x, y);
+	
+	c.begin();
+	c.moveTo(15.3, 61.9);
+	c.lineTo(30.8, 53.2);
+	c.lineTo(15.4, 44.2);
+	c.lineTo(0, 53.2);
+	c.lineTo(15.4, 8.8);
+	c.lineTo(92.1, 0);
+	c.lineTo(76.5, 8.8);
+	c.lineTo(92.1, 17.7);
+	c.lineTo(107.4, 8.8);
+	
+	c.lineTo(w - 15.3, h - 61.9);
+	c.lineTo(w - 30.8, h - 53.2);
+	c.lineTo(w - 15.4, h - 44.2);
+	c.lineTo(w, h - 53.2);
+	c.lineTo(w - 15.4, h - 8.8);
+	c.lineTo(w - 92.1, h);
+	c.lineTo(w - 76.5, h - 8.8);
+	c.lineTo(w - 92.1, h - 17.7);
+	c.lineTo(w - 107.4, h - 8.8);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape(mxShapeAws3dFlatDoubleEdge2.prototype.cst.FLAT_DOUBLE_EDGE2, mxShapeAws3dFlatDoubleEdge2);
 
 //**********************************************************************************************************************************************************
 //AMI

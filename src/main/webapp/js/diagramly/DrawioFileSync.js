@@ -195,21 +195,21 @@ DrawioFileSync.prototype.maxSyncMessageSize = 9000;
  * values help to group sending out changes, smaller
  * values reduce latency.
  */
-DrawioFileSync.prototype.syncSendMessageDelay = 100;
+DrawioFileSync.prototype.syncSendMessageDelay = 300;
 
 /**
  * Delay for received sync message processing in ms.
  * Larger values help to sort and merge messages,
  * smaller values reduce latency.
  */
-DrawioFileSync.prototype.syncReceiveMessageDelay = 300;
+DrawioFileSync.prototype.syncReceiveMessageDelay = 100;
 
 /**
- * Inactivity time to drop remote changes that have not been saved
+ * Inactivity time to undo remote changes that have not been saved
  * to the file. Larger values give time to save, smaller values
- * require less inactivity time and give better responsiveness.
+ * require less inactivity time by the user.
  */
-DrawioFileSync.prototype.consistencyCheckDelay = 10000;
+DrawioFileSync.prototype.consistencyCheckDelay = 18000;
 
 /**
  * Counter for local message IDs.
@@ -340,32 +340,43 @@ DrawioFileSync.prototype.start = function()
  */
 DrawioFileSync.prototype.updateRealtime = function()
 {
-	if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
+	if (this.isValidState())
 	{
-		if (this.file.ownPages == null)
+		if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
 		{
-			var data = this.ui.getXmlFileData();
-			this.file.ownPages = this.ui.getPagesForNode(data);
-			this.file.snapshot = data;
+			if (this.file.ownPages == null)
+			{
+				var data = this.ui.getXmlFileData();
+				this.file.ownPages = this.ui.getPagesForNode(data);
+				this.file.snapshot = data;
+			}
 		}
-	}
-	else if (this.file.ownPages != null)
-	{
-		this.checkConsistency();
-		this.file.ownPages = null;
-		this.file.snapshot = null;
-	}
+		else if (this.file.ownPages != null)
+		{
+			// Removes pending remote changes
+			var patch = this.ui.diffPages(this.ui.pages,
+				this.file.ownPages);
 
-	if (DrawioFileSync.ENABLE_SOCKETS && this.file.ownPages != null &&
-		this.p2pCollab == null && this.channelId != null)
-	{
-		this.p2pCollab = new P2PCollab(this.ui, this, this.channelId);
-		this.p2pCollab.joinFile();
-	}
-	else if (this.file.ownPages == null && this.p2pCollab != null)
-	{
-		this.p2pCollab.destroy();
-		this.p2pCollab = null;
+			if (!mxUtils.isEmptyObject(patch))
+			{
+				this.file.patch([patch]);
+			}
+
+			this.file.ownPages = null;
+			this.file.snapshot = null;
+		}
+
+		if (DrawioFileSync.ENABLE_SOCKETS && this.file.ownPages != null &&
+			this.p2pCollab == null && this.channelId != null)
+		{
+			this.p2pCollab = new P2PCollab(this.ui, this, this.channelId);
+			this.p2pCollab.joinFile();
+		}
+		else if (this.file.ownPages == null && this.p2pCollab != null)
+		{
+			this.p2pCollab.destroy();
+			this.p2pCollab = null;
+		}
 	}
 };
 
@@ -885,21 +896,23 @@ DrawioFileSync.prototype.sendLocalChanges = function(changes)
 		if (this.localChanges == null)
 		{
 			this.localChanges = changes;
-
-			window.setTimeout(mxUtils.bind(this, function()
-			{
-				if (this.ui.getCurrentFile() == this.file)
-				{
-					this.doSendLocalChanges(this.localChanges);
-				}
-
-				this.localChanges = null;
-			}), this.syncSendMessageDelay);
 		}
 		else
 		{
 			this.localChanges = this.localChanges.concat(changes);
 		}
+
+		window.clearTimeout(this.sendLocalChangesThread);
+
+		this.sendLocalChangesThread = window.setTimeout(mxUtils.bind(this, function()
+		{
+			if (this.ui.getCurrentFile() == this.file && this.localChanges != null)
+			{
+				this.doSendLocalChanges(this.localChanges);
+			}
+
+			this.localChanges = null;
+		}), this.syncSendMessageDelay);
 
 		if (urlParams['test'] == '1')
 		{
@@ -1047,7 +1060,7 @@ DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
 };
 
 /**
- * Removes transient remote changes that have not been saved.
+ * Schedules a consistency check.
  */
 DrawioFileSync.prototype.scheduleConsistencyCheck = function()
 {
@@ -1055,34 +1068,75 @@ DrawioFileSync.prototype.scheduleConsistencyCheck = function()
 
 	this.consistencyCheckThread = window.setTimeout(mxUtils.bind(this, function()
 	{
-		this.checkConsistency();
+		this.checkConsistency(null, mxUtils.bind(this, function(err)
+		{
+			this.file.handleFileError(err);
+		}));
 	}), this.consistencyCheckDelay);
 };
 
 /**
- * Removes transient remote changes that have not been saved.
+ * Removes transient remote changes that have not been saved and
+ * merges all changes from the latest version of the file.
  */
-DrawioFileSync.prototype.checkConsistency = function()
+DrawioFileSync.prototype.checkConsistency = function(success, error)
 {
 	window.clearTimeout(this.consistencyCheckThread);
 
-	if (this.ui.getCurrentFile() == this.file &&
-		!this.file.inConflictState &&
+	if (this.isValidState() && !this.file.inConflictState &&
 		this.file.ownPages != null)
 	{
-		var patch = this.ui.diffPages(
-			this.ui.pages, this.file.ownPages);
+		var patch = this.ui.diffPages(this.ui.pages,
+			this.file.ownPages);
 
 		if (!mxUtils.isEmptyObject(patch))
 		{
 			this.file.patch([patch]);
 		}
 
-		if (urlParams['test'] == '1')
+		this.file.getLatestVersion(mxUtils.bind(this, function(newFile)
 		{
-			EditorUi.debug('Sync.consistencyCheck',
-				[this], 'patch', [patch]);
-		}
+			try
+			{
+				if (this.isValidState() && !this.file.inConflictState &&
+					this.file.ownPages != null)
+				{
+					var pages = this.ui.getPagesForNode(
+						mxUtils.parseXml(newFile.data).
+						documentElement);
+					var patches = [this.ui.diffPages(this.ui.pages, pages),
+						this.ui.diffPages(pages, this.file.ownPages)];
+					
+					if (!this.file.ignorePatches(patches))
+					{
+						this.file.patch(patches);
+					}
+				}
+
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('Sync.consistencyCheck',
+						[this], 'patch', [patch],
+						'patches', patches);
+				}
+
+				if (success != null)
+				{
+					success();
+				}
+			}
+			catch (e)
+			{
+				if (error != null)
+				{
+					error(e);
+				}
+			}
+		}), error);
+	}
+	else if (success != null)
+	{
+		success();
 	}
 };
 
@@ -1097,10 +1151,6 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending, local)
 		{
 			if (this.file.ownPages != null)
 			{
-				var consensus = this.ui.diffPages(
-					this.file.ownPages,
-					this.ui.pages);
-				
 				for (var i = 0; i < patches.length; i++)
 				{
 					if (patches[i] != null)
@@ -1126,22 +1176,14 @@ DrawioFileSync.prototype.patchOwnPages = function(patches, pending, local)
 					this.file.patch(pending);
 				}
 
-				if (!mxUtils.isEmptyObject(consensus))
-				{
-					this.file.patch([consensus]);
-
-					if (!local)
-					{
-						this.sendLocalChanges([consensus]);
-					}
-				}
-
 				this.scheduleConsistencyCheck();
 
 				if (urlParams['test'] == '1')
 				{
-					EditorUi.debug('Sync.patchOwnPages', [this], 'patches', patches,
-						'pending', pending, 'consensus', consensus, 'local', local);
+					EditorUi.debug('Sync.patchOwnPages', [this],
+						'patches', patches,
+						'pending', pending,
+						'local', local);
 				}
 			}
 		}));

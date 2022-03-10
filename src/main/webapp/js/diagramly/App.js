@@ -4537,25 +4537,25 @@ App.prototype.loadTemplate = function(url, onload, onerror, templateFilename, as
 {
 	var base64 = false;
 	var realUrl = url;
+	var filterFn = (templateFilename != null) ? templateFilename : url;
+	var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
+		/(\.vs(x|sx?))($|\?)/i.test(filterFn);
+	var binary = /\.png$/i.test(filterFn) || /\.pdf$/i.test(filterFn);
 	
 	if (!this.editor.isCorsEnabledForUrl(realUrl))
 	{
-		// Always uses base64 response to check magic numbers for file type
+		base64 = binary || isVisioFilename;
 		var nocache = 't=' + new Date().getTime();
-		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) + '&base64=1&' + nocache;
-		base64 = true;
+		realUrl = PROXY_URL + '?url=' + encodeURIComponent(url) +
+			'&' + nocache + ((base64) ? '&base64=1' : '');
 	}
 
-	var filterFn = (templateFilename != null) ? templateFilename : url;
-	
 	this.editor.loadUrl(realUrl, mxUtils.bind(this, function(responseData)
 	{
 		try
 		{
 			var data = (!base64) ? responseData : ((window.atob && !mxClient.IS_IE && !mxClient.IS_IE11) ?
 				atob(responseData) : Base64.decode(responseData));
-			var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(filterFn) ||
-				/(\.vs(x|sx?))($|\?)/i.test(filterFn);
 			
 			if (isVisioFilename || this.isVisioData(data))
 			{

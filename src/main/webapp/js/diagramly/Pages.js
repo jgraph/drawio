@@ -519,23 +519,6 @@ EditorUi.prototype.initPages = function()
 		// Adds a graph model listener to update the view
 		this.editor.graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 		{
-			// Logging possible NPE in FF
-			if (evt == null)
-			{
-				try
-				{
-					EditorUi.logEvent({category: 'NPE-NULL-EVENT',
-						action: 'EditorUi.initPages'});
-				}
-				catch (e)
-				{
-					// ignore
-				}
-
-				return;
-			}
-			// End of debugging
-
 			var edit = evt.getProperty('edit');
 			var changes = edit.changes;
 			

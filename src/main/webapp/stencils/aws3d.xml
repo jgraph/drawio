@@ -13,6 +13,18 @@
         <fill/>
     </foreground>
 </shape>
+<shape aspect="variable" h="11" name="Arrowhead2" strokewidth="inherit" w="19">
+    <connections/>
+    <foreground>
+        <path>
+            <move x="0" y="0"/>
+            <line x="19" y="5.5"/>
+            <line x="9.5" y="11"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="70.6" name="Content" strokewidth="inherit" w="30.8">
     <connections/>
     <foreground>
@@ -92,6 +104,21 @@
     <connections/>
     <foreground>
         <strokecolor color="#292929"/>
+        <fillcolor color="none"/>
+        <strokewidth width="2"/>
+        <path>
+            <move x="27.2" y="0"/>
+            <line x="0" y="17.3"/>
+            <line x="97" y="72"/>
+            <line x="97" y="89.8"/>
+            <line x="66.3" y="107.4"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="107.4" name="Edge2" strokewidth="inherit" w="97">
+    <connections/>
+    <foreground>
         <fillcolor color="none"/>
         <strokewidth width="2"/>
         <path>
@@ -470,6 +497,22 @@
         <fill/>
     </foreground>
 </shape>
+<shape aspect="variable" h="19.5" name="Reference2" strokewidth="inherit" w="29.5">
+    <connections/>
+    <foreground>
+        <path>
+            <move x="28.5" y="0"/>
+            <arc large-arc-flag="0" rx="1" ry="1" sweep-flag="1" x="29.5" x-axis-rotation="0" y="1"/>
+            <line x="29.5" y="18.5"/>
+            <arc large-arc-flag="0" rx="1" ry="1" sweep-flag="1" x="28.5" x-axis-rotation="0" y="19.5"/>
+            <line x="9.8" y="19.5"/>
+            <line x="0" y="9.8"/>
+            <line x="9.8" y="0"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="60" name="Snapshot1" strokewidth="inherit" w="92">
     <connections/>
     <foreground>
@@ -564,6 +607,19 @@
             <close/>
         </path>
         <fill/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="36" name="Spot2" strokewidth="inherit" w="62">
+    <connections/>
+    <foreground>
+        <path>
+            <move x="31" y="0"/>
+            <line x="62" y="18"/>
+            <line x="31" y="36"/>
+            <line x="0" y="18"/>
+            <close/>
+        </path>
+        <fillstroke/>
     </foreground>
 </shape>
 </shapes>

@@ -1471,7 +1471,7 @@ ipcMain.on('export', exportDiagram);
 // Renderer Helper functions
 //================================================================
 
-const { COPYFILE_EXCL } = fs.constants;
+const { O_DIRECT, O_SYNC, O_DSYNC, O_CREAT, O_WRONLY, O_TRUNC } = fs.constants;
 const DRAFT_PREFEX = '~$';
 const DRAFT_EXT = '.dtmp';
 const BKP_PREFEX = '~$';
@@ -1544,6 +1544,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 	var retryCount = 0;
 	var backupCreated = false;
 	var bkpPath = path.join(path.dirname(fileObject.path), BKP_PREFEX + path.basename(fileObject.path) + BKP_EXT);
+	var writeEnc = defEnc || fileObject.encoding;
 
 	var writeFile = async function()
 	{
@@ -1552,10 +1553,20 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 			throw new Error('empty data');
 		}
 		else
-		{
-			var writeEnc = defEnc || fileObject.encoding;
-			
-			await fsProm.writeFile(fileObject.path, data, writeEnc);
+		{			
+			let fh;
+
+			try
+			{
+				//O_DIRECT | O_SYNC | O_DSYNC are to reduce OS buffering and reduce risk of file corruption
+				fh = await fsProm.open(fileObject.path, O_DIRECT | O_SYNC | O_DSYNC | O_CREAT | O_WRONLY | O_TRUNC);
+				await fsProm.writeFile(fh, data, writeEnc);
+			}
+			finally
+			{
+				await fh?.close();
+			}
+
 			let stat2 = await fsProm.stat(fileObject.path);
 			// Workaround for possible writing errors is to check the written
 			// contents of the file and retry 3 times before showing an error
@@ -1576,10 +1587,11 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 			}
 			else
 			{
-				if (backupCreated)
+				//We'll keep the backup file in case the original file is corrupted. TODO When should we delete the backup file?
+				/*if (backupCreated)
 				{
 					fs.unlink(bkpPath, (err) => {}); //Ignore errors!
-				}
+				}*/
 
 				return stat2;
 			}
@@ -1589,12 +1601,24 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 	async function doSaveFile()
 	{
 		//Copy file to backup file (after conflict and stat is checked)
+		let bkpFh;
+
 		try
 		{
-			await fsProm.copyFile(fileObject.path, bkpPath, COPYFILE_EXCL);
+			//Use file read then write to open the backup file direct sync write to reduce the chance of file corruption
+			let fileContent = await fsProm.readFile(fileObject.path, writeEnc);
+			bkpFh = await fsProm.open(bkpPath, O_DIRECT | O_SYNC | O_DSYNC | O_CREAT | O_WRONLY | O_TRUNC);
+			await fsProm.writeFile(bkpFh, fileContent, writeEnc);
 			backupCreated = true;
 		}
-		catch (e) {} //Ignore
+		catch (e) 
+		{
+			console.log(e); //Ignore
+		}
+		finally 
+		{
+			await bkpFh?.close();
+		}
 					
 		return await writeFile();
 	};

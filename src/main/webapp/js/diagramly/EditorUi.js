@@ -11507,7 +11507,7 @@
 					handleResult(xml);
 				}));
 			}
-			else if (Graph.fileSupport && !new XMLHttpRequest().upload &&
+			else if (Graph.fileSupport && new XMLHttpRequest().upload &&
 				this.isRemoteFileFormat(data, name))
 			{
 				if (this.isOffline())

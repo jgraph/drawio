@@ -41,7 +41,7 @@ function P2PCollab(ui, sync, channelId)
 			}
 			else
 			{
-				this.joinFile();
+				this.joinFile(true);
 			}
 		}
 		catch (e)
@@ -68,7 +68,9 @@ function P2PCollab(ui, sync, channelId)
 		//Converting to a string such that webRTC works also
 		var msg = JSON.stringify({from: myClientId, id: messageId,
 			type: type, sessionId: sync.clientId, userId: user.id,
-			username: user.displayName, data: data});
+			username: user.displayName, data: data,
+			protocol: DrawioFileSync.PROTOCOL,
+			editor: EditorUi.VERSION});
 		
 		if (NO_P2P && type != 'cursor')
 		{
@@ -186,23 +188,6 @@ function P2PCollab(ui, sync, channelId)
 
 	this.selectionChangeListener = function(sender, evt)
 	{
-		// Logging possible NPE in FF
-		if (evt == null)
-		{
-			try
-			{
-				EditorUi.logEvent({category: 'NPE-NULL-EVENT',
-					action: 'P2PCollab.selectionChangeListener'});
-			}
-			catch (e)
-			{
-				// ignore
-			}
-
-			return;
-		}
-		// End of debugging
-
 		var mapToIds = function(c)
 		{
 			return c.id;
@@ -576,7 +561,7 @@ function P2PCollab(ui, sync, channelId)
 		}
 	};
 
-	this.joinFile = function()
+	this.joinFile = function(check)
 	{
 		if (destroyed) return;
 
@@ -613,6 +598,11 @@ function P2PCollab(ui, sync, channelId)
 				joinInProgress = false;
 				sync.file.fireEvent(new mxEventObject('realtimeStateChanged'));
 				EditorUi.debug('P2PCollab: open socket', socket.joinId);
+
+				if (check)
+				{
+					sync.scheduleConsistencyCheck();
+				}
 			});
 		
 			ws.addEventListener('message', mxUtils.bind(this, function(event)
@@ -671,7 +661,7 @@ function P2PCollab(ui, sync, channelId)
 					{
 						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
 						rejoinCalled = true;
-						this.joinFile();
+						this.joinFile(true);
 					}
 				}
 
@@ -695,7 +685,7 @@ function P2PCollab(ui, sync, channelId)
 					{
 						EditorUi.debug('P2PCollab: calling rejoin on', ws.joinId);
 						rejoinCalled = true;
-						this.joinFile();
+						this.joinFile(true);
 					}
 				}
 

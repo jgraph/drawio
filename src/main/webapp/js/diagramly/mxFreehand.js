@@ -30,7 +30,7 @@ function mxFreehand(graph)
 	var enabled = false;
 	var stopClickEnabled = true;
 	var perfectFreehandOptions = {
-		size: 8,
+		size: 12,
 		thinning: 0.5,
 		smoothing: 0.5,
 		streamline: 0.5,

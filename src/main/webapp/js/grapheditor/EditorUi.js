@@ -1916,9 +1916,20 @@ EditorUi.prototype.onKeyDown = function(evt)
 			{
 				try
 				{
-					if (graph.cellEditor.isContentEditing() && graph.cellEditor.isTextSelected())
+					var nesting = graph.cellEditor.isContentEditing() && graph.cellEditor.isTextSelected();
+
+					if (window.getSelection && graph.cellEditor.isContentEditing() &&
+						!nesting && !mxClient.IS_IE && !mxClient.IS_IE11)
 					{
-						// (Shift+)tab indents/outdents with text selection
+						var selection = window.getSelection();
+						var container = (selection.rangeCount > 0) ? selection.getRangeAt(0).commonAncestorContainer : null;
+						nesting = container != null && (container.nodeName == 'LI' || (container.parentNode != null &&
+							container.parentNode.nodeName == 'LI'));
+					}
+
+					if (nesting)
+					{
+						// (Shift+)tab indents/outdents with text selection or inside list elements
 						document.execCommand(mxEvent.isShiftDown(evt) ? 'outdent' : 'indent', false, null);
 					}
 					// Shift+tab applies value with cursor

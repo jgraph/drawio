@@ -207,16 +207,10 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 	{
 		if (this.sync != null)
 		{
-			// Removes unsaved remote changes
-			if (this.ownPages != null && this.ui.pages != null)
+			this.sync.fileChanged(mxUtils.bind(this, function()
 			{
-				var patch = this.ui.diffPages(
-					this.ui.pages, this.ownPages);
-				this.patch([patch]);
-				this.snapshot = this.ui.getXmlFileData();
-			}
-
-			this.sync.fileChanged(success, error);
+				this.sync.checkConsistency(success, error);
+			}), error);
 		}
 		else
 		{
