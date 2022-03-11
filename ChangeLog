@@ -1,11 +1,16 @@
-10-MAR-2022: 17.0.2
+11-MAR-2022: 17.1.2
+
+- Skips sort and merge in RT for single receive data
+- Reduces flickering, simplified RT code
+
+10-MAR-2022: 17.1.1
 
 - Uses tab key for nesting in list elements https://github.com/jgraph/drawio/issues/2673
 - Adds protocol and editor version to p2p message
 - Replaces consensus with improved consistency check
 - Fixes Gliffy DnD import
 
-09-MAR-2022: 17.0.1
+09-MAR-2022: 17.1.0
 
 - Changes freehand drawing to filled path
 - Ignores pageNotFound in background image dialog

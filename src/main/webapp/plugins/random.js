@@ -18,40 +18,50 @@ Draw.loadPlugin(function(ui)
 		if (cells.length > 0)
 		{
 			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
-			var max = parseInt(prompt('Cycles', defaultMax));
-			var counter = 0;
 
-			function schedule()
+			if (!isNaN(delay))
 			{
-				var jitter = 1 + 0.5 * (Math.random() - 0.5);
-				
-				window.setTimeout(function()
+				defaultDelay = delay;
+				var max = parseInt(prompt('Cycles', defaultMax));
+
+				if (!isNaN(max))
 				{
-					for (var i = 0; i < cells.length; i++)
+					defaultMax = max;
+					var counter = 0;
+
+					function schedule()
 					{
-						graph.labelChanged(cells[i], 'Test ' + Math.round(Math.random() * 100));
+						var jitter = 1 + 0.5 * (Math.random() - 0.5);
+						
+						window.setTimeout(function()
+						{
+							for (var i = 0; i < cells.length; i++)
+							{
+								graph.labelChanged(cells[i], 'Test ' + Math.round(Math.random() * 100));
+							}
+							
+							if (ui.dialog != null)
+							{
+								console.log('random.js: randomLabel halted');
+							}
+							else
+							{
+								if (counter++ < max && ui.dialog == null)
+								{
+									console.log('random.js: randomLabel', counter);
+									schedule();
+								}
+								else
+								{
+									console.log('random.js: randomLabel halted');
+								}
+							}
+						}, delay * jitter);
 					}
 					
-					if (ui.dialog != null)
-					{
-						console.log('random.js: randomLabel halted');
-					}
-					else
-					{
-						if (counter++ < max && ui.dialog == null)
-						{
-							console.log('random.js: randomLabel', counter);
-							schedule();
-						}
-						else
-						{
-							console.log('random.js: randomLabel halted');
-						}
-					}
-				}, delay * jitter);
+					schedule();
+				}
 			}
-			
-			schedule();
 		}
 		else
 		{
@@ -70,86 +80,96 @@ Draw.loadPlugin(function(ui)
 		if (cells.length > 1)
 		{
 			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
-			var max = parseInt(prompt('Cycles', defaultMax));
-			var counter = 0;
-			
-			function schedule()
-			{
-				var jitter = 1 + 0.5 * (Math.random() - 0.5);
-				
-				window.setTimeout(function()
-				{
-					// assuming parent is the first cell selected
-					var parentA = cells[0];
-					var parentB = cells[1];
-					
-					var childrenA = parentA.children;
-					var childrenB = parentB.children;
-					
-					var numberA = childrenA.length;
-					var numberB = childrenB.length;
-					
-					if (childrenA != null && childrenA.length > 1 || childrenB != null && childrenB.length > 1)
-					{
-						graph.getModel().beginUpdate();
-						try
-						{
-							// permute children
-							var passes = Math.floor(Math.random() * numberA) + 1;
-							console.log('random.js: ' + counter + " - swapping " + passes + " children from parent A to parent B");
-							
-							for (var i = 0; i < passes; i++)
-							{
-								// which child to select from parent A
-								var k = Math.floor(Math.random() * numberA);
-								// where to insert it to parent B
-								var l = Math.floor(Math.random() * (numberB + 1));
-								graph.model.add(parentB, childrenA[k], l);
-								
-								numberA -= 1;
-								numberB += 1;
-							}
 
-							var passes = Math.floor(Math.random() * numberB) + 1;
-							console.log('random.js: ' + counter + " - swapping " + passes + " children from parent B to parent A");
-							
-							for (var i = 0; i < passes; i++)
-							{
-								// which child to select from parent A
-								var k = Math.floor(Math.random() * numberB);
-								// where to insert it to parent B
-								var l = Math.floor(Math.random() * (numberA + 1));
-								graph.model.add(parentA, childrenB[k], l);
-								numberA += 1;
-								numberB -= 1;
-							}
-						}
-						finally
+			if (!isNaN(delay))
+			{
+				defaultDelay = delay;
+				var max = parseInt(prompt('Cycles', defaultMax));
+
+				if (!isNaN(max))
+				{
+					defaultMax = max;
+					var counter = 0;
+					
+					function schedule()
+					{
+						var jitter = 1 + 0.5 * (Math.random() - 0.5);
+						
+						window.setTimeout(function()
 						{
-							graph.getModel().endUpdate();
-						}
+							// assuming parent is the first cell selected
+							var parentA = cells[0];
+							var parentB = cells[1];
+							
+							var childrenA = parentA.children;
+							var childrenB = parentB.children;
+							
+							var numberA = childrenA.length;
+							var numberB = childrenB.length;
+							
+							if (childrenA != null && childrenA.length > 1 || childrenB != null && childrenB.length > 1)
+							{
+								graph.getModel().beginUpdate();
+								try
+								{
+									// permute children
+									var passes = Math.floor(Math.random() * numberA) + 1;
+									console.log('random.js: ' + counter + " - swapping " + passes + " children from parent A to parent B");
+									
+									for (var i = 0; i < passes; i++)
+									{
+										// which child to select from parent A
+										var k = Math.floor(Math.random() * numberA);
+										// where to insert it to parent B
+										var l = Math.floor(Math.random() * (numberB + 1));
+										graph.model.add(parentB, childrenA[k], l);
+										
+										numberA -= 1;
+										numberB += 1;
+									}
+
+									var passes = Math.floor(Math.random() * numberB) + 1;
+									console.log('random.js: ' + counter + " - swapping " + passes + " children from parent B to parent A");
+									
+									for (var i = 0; i < passes; i++)
+									{
+										// which child to select from parent A
+										var k = Math.floor(Math.random() * numberB);
+										// where to insert it to parent B
+										var l = Math.floor(Math.random() * (numberA + 1));
+										graph.model.add(parentA, childrenB[k], l);
+										numberA += 1;
+										numberB -= 1;
+									}
+								}
+								finally
+								{
+									graph.getModel().endUpdate();
+								}
+							}
+							
+							if (ui.dialog != null)
+							{
+								console.log('random.js: swapChildren halted');
+							}
+							else
+							{
+								if (counter++ < max && ui.dialog == null)
+								{
+									console.log('random.js: swapChildren', counter + '/' + max);
+									schedule();
+								}
+								else
+								{
+									console.log('random.js: swapChildren halted');
+								}
+							}
+						}, delay * jitter);
 					}
 					
-					if (ui.dialog != null)
-					{
-						console.log('random.js: swapChildren halted');
-					}
-					else
-					{
-						if (counter++ < max && ui.dialog == null)
-						{
-							console.log('random.js: swapChildren', counter + '/' + max);
-							schedule();
-						}
-						else
-						{
-							console.log('random.js: swapChildren halted');
-						}
-					}
-				}, delay * jitter);
+					schedule();
+				}
 			}
-			
-			schedule();
 		}
 		else
 		{
@@ -393,62 +413,75 @@ Draw.loadPlugin(function(ui)
 		if (cells.length > 0)
 		{
 			var delay = parseInt(prompt('Delay (ms)', defaultDelay));
-			var max = parseInt(prompt('Cycles', defaultMax));
-			var counter = 0;
-			
-			function schedule()
-			{
-				var jitter = 1 + 0.3 * (Math.random() - 0.5);
-				
-				window.setTimeout(function()
-				{
-					// assuming parent is the first cell selected
-					var parent = cells[0];
-					
-					var children = parent.children;
-					if (children != null && children.length > 1)
-					{
-						graph.getModel().beginUpdate();
-						try
-						{
-							// permute children
-							var number = children.length;
 
-							var passes = Math.floor(Math.random() * number) + 1;
-							console.log('random.js: ' + counter + " - reordering in " + passes + " passes");
-							
-							for (var i = 0; i < passes; i++)
-							{
-								var k = Math.floor(Math.random() * number);
-								graph.orderCells(true, [children[k]]);
-							}
-						}
-						finally
+			if (!isNaN(delay))
+			{
+				defaultDelay = delay;
+				var max = parseInt(prompt('Cycles', defaultMax));
+
+				if (!isNaN(max))
+				{
+					defaultMax = max;
+					var counter = 0;
+					
+					function schedule()
+					{
+						var jitter = 1 + 0.3 * (Math.random() - 0.5);
+						
+						window.setTimeout(function()
 						{
-							graph.getModel().endUpdate();
-						}
+							graph.getModel().beginUpdate();
+							try
+							{
+								// assuming parent is the first cell selected
+								for (var i = 0; i < cells.length; i++)
+								{
+									var parent = cells[i];
+									var children = parent.children;
+
+									if (children != null && children.length > 1)
+									{
+										// permute children
+										var number = children.length;
+
+										var passes = Math.floor(Math.random() * number) + 1;
+										console.log('random.js: ' + counter + " - reordering in " + passes + " passes");
+										
+										for (var j = 0; j < passes; j++)
+										{
+											var k = Math.floor(Math.random() * number);
+											graph.orderCells(true, [children[k]]);
+										}
+									}
+								}
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
+							
+							if (ui.dialog != null)
+							{
+								console.log('random.js: reorderChildren halted');
+							}
+							else
+							{
+								if (counter++ < max && ui.dialog == null)
+								{
+									console.log('random.js: reorderChildren', counter + '/' + max);
+									schedule();
+								}
+								else
+								{
+									console.log('random.js: reorderChildren halted');
+								}
+							}
+						}, delay * jitter);
 					}
 					
-					if (ui.dialog != null)
-					{
-						console.log('random.js: reorderChildren halted');
-					}
-					else
-					{
-						if (counter++ < max && ui.dialog == null)
-						{
-							console.log('random.js: reorderChildren', counter + '/' + max);
-							schedule();
-						}
-						else
-						{
-							console.log('random.js: reorderChildren halted');
-						}
-					}
-				}, delay * jitter);
+					schedule();
+				}
 			}
-			
-			schedule();
 		}
 		else
 		{

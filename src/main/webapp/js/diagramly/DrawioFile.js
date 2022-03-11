@@ -207,9 +207,9 @@ DrawioFile.prototype.synchronizeFile = function(success, error)
 	{
 		if (this.sync != null)
 		{
-			this.sync.fileChanged(mxUtils.bind(this, function()
+			this.sync.fileChanged(mxUtils.bind(this, function(patched)
 			{
-				this.sync.checkConsistency(success, error);
+				this.sync.checkConsistency(success, error, patched);
 			}), error);
 		}
 		else
@@ -283,7 +283,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 	try
 	{
 		this.stats.fileMerged++;
-		
+
 		// Takes copy of current shadow document
 		var shadow = (this.shadowPages != null) ? this.shadowPages :
 			this.ui.getPagesForNode(mxUtils.parseXml(
@@ -303,7 +303,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 			this.shadowPages = pages;
 			
 			if (!ignored)
-			{
+			{		
+				if (this.sync != null)
+				{
+					this.sync.sendLocalChanges();
+				}
+		
 				// Creates a patch for backup if the checksum fails
 				this.backupPatch = (this.isModified()) ?
 					this.ui.diffPages(shadow,
@@ -348,16 +353,17 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				}
 				else
 				{
-					// Patches the own pages
-					if (this.sync != null)
-					{
-						this.sync.patchOwnPages(patches, [pending], true);
-					}
-
 					// Patches the current document
 					this.patch(patches,
 						(DrawioFile.LAST_WRITE_WINS) ?
 						this.backupPatch : null);
+
+					// Patches the own pages
+					if (this.sync != null)
+					{
+						this.sync.patchOwnPages(
+							patches, [pending]);
+					}
 				}
 			}
 		}

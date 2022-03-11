@@ -29,6 +29,7 @@ function mxFreehand(graph)
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
 	var stopClickEnabled = true;
+	var selectInserted = false;
 	var perfectFreehandOptions = {
 		size: 12,
 		thinning: 0.5,
@@ -77,7 +78,12 @@ function mxFreehand(graph)
 	{
 		stopClickEnabled = enabled;
 	};
-	
+
+	this.setSelectInserted = function(value)
+	{
+		selectInserted = value;
+	};
+
 	this.setSmoothing = function(smoothing)//TODO add smoothing settings
 	{
 		bufferSize = smoothing;
@@ -223,7 +229,7 @@ function mxFreehand(graph)
 	        
 	        var w = maxX - minX, h = maxY - minY;
 
-	        if (w > 0 && h > 0 && (!perfectFreehandMode || drawPoints.length > 45))
+	        if (w > 0 && h > 0)
 	        {
 		        var xScale = 100 / w;
 		        var yScale = 100 / h;
@@ -301,7 +307,10 @@ function mxFreehand(graph)
 	                	graph.model.endUpdate();
 					}
 					
-					graph.setSelectionCells([cell]);
+					if (selectInserted)
+					{
+						graph.setSelectionCells([cell]);
+					}
 				}
 	        }
 
