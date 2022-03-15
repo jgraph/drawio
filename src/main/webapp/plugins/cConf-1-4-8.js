@@ -1355,6 +1355,11 @@ Draw.loadPlugin(function(ui)
 		return this.isEditable() && DrawioFile.prototype.isEditable.apply(this, arguments);
 	};
 
+	EmbedFile.prototype.isRealtimeSupported = function()
+	{
+		return (xdm_e == 'https://drawio-rt.atlassian.net') || (xdm_e == 'https://team-drawio.atlassian.net');
+	};
+	
 	/**
 	 * 
 	 */

@@ -212,7 +212,7 @@
 
 			var file = editorUi.getCurrentFile();
 
-			if (graph.isEnabled() && urlParams['embed'] != '1' && graph.isSelectionEmpty() &&
+			if (graph.isEnabled() && (urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && graph.isSelectionEmpty() &&
 				file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 			{
 				this.addMenuItems(menu, ['-', 'shareCursor'], null, evt);
