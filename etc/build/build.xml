@@ -455,7 +455,45 @@
 		<delete file="${basedir}/.tmp1.js"/>
 	</target>
 
-	<target name="all" depends="app">
+	<target name="atlas" depends="app">
+		<copy file="${basedir}/base-viewer.min.js" tofile="${war.dir}/js/atlas-viewer.min.js" overwrite="true"/>
+		
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">
+			<sources dir="${war.dir}/connect/common/js">
+				<file name="mxReader.js" />
+			</sources>
+		</jscomp>
+
+	    <concat destfile="${war.dir}/js/atlas.min.js" fixlastline="yes" append="no">
+			<file name="${basedir}/base.min.js" />
+			<file name="${war.dir}/js/extensions.min.js" />
+			<file name="${basedir}/.tmp0.js" />
+    	</concat>
+
+		<delete file="${basedir}/.tmp0.js"/>
+	</target>
+
+	<target name="integrate" depends="atlas">
+		<copy file="${war.dir}/js/atlas.min.js" tofile="${war.dir}/js/integrate.min.js" overwrite="true"/>
+
+		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">
+			<sources dir="${basedir}/../integrate">
+				<file name="Integrate.js" />
+			</sources>
+		</jscomp>
+		
+	    <concat destfile="${war.dir}/js/integrate.min.js" fixlastline="yes" append="yes">
+			<file name="${war.dir}/js/shapes-14-6-5.min.js" />
+    		<file name="${war.dir}/js/stencils.min.js" />
+    		<file name="${basedir}/.tmp0.js" />
+   		</concat>
+
+		<delete file="${basedir}/.tmp0.js"/>
+	</target>
+
+	<target name="all" depends="app, integrate">
+		<delete file="${war.dir}/js/atlas-viewer.min.js"/>
+		<delete file="${war.dir}/js/atlas.min.js"/>
 	</target>
 
 	<!-- ================== Stand-alone war creation ============================= -->
