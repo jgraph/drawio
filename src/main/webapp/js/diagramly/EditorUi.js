@@ -2014,8 +2014,7 @@
 					{
 						var prev = this.editor.graph.pageVisible;
 						
-						//Only override if page is actually visible
-						if (pageVisible == false)
+						if (pageVisible != null)
 						{
 							this.editor.graph.pageVisible = pageVisible;
 						}

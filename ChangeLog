@@ -1,3 +1,7 @@
+22-MAR-2022: 17.1.4
+
+- [conf cloud] Fixed gliffy mass import, incorrect macro type imported
+
 15-MAR-2022: 17.1.3
 
 - Adds image clipPath support to mxLabel and mxSwimlane
