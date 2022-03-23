@@ -2710,3 +2710,87 @@ mxShapeArrows2UTurnArrow.prototype.getConstraints = function(style, w, h)
 	
 	return (constr);
 };
+
+//**********************************************************************************************************************************************************
+//Wedge Arrow
+//**********************************************************************************************************************************************************
+function mxShapeArrowsWedgeArrow()
+{
+	mxArrow.call(this);
+};
+
+mxUtils.extend(mxShapeArrowsWedgeArrow, mxArrow);
+
+mxShapeArrowsWedgeArrow.prototype.paintEdgeShape = function(c, pts)
+{
+	// Base vector (between end points)
+	var p0 = pts[0];
+	var pe = pts[pts.length - 1];
+	
+	c.begin();
+	c.moveTo(p0.x + (pe.y - p0.y) * 0.2, p0.y - (pe.x - p0.x) * 0.2);
+	c.lineTo(p0.x - (pe.y - p0.y) * 0.2, p0.y + (pe.x - p0.x) * 0.2);
+	c.lineTo(pe.x, pe.y);
+	c.close();
+	c.fillAndStroke();
+};
+
+mxCellRenderer.registerShape('mxgraph.arrows2.wedgeArrow', mxShapeArrowsWedgeArrow);
+
+//**********************************************************************************************************************************************************
+//Wedge Arrow Dashed
+//**********************************************************************************************************************************************************
+function mxShapeArrowsWedgeArrowDashed()
+{
+	mxArrow.call(this);
+};
+
+mxUtils.extend(mxShapeArrowsWedgeArrowDashed, mxArrow);
+
+mxShapeArrowsWedgeArrowDashed.prototype.paintEdgeShape = function(c, pts)
+{
+	var steps = 8;
+	// Base vector (between end points)
+	var p0 = pts[0];
+	var pe = pts[pts.length - 1];
+	
+	var dx = pe.x - p0.x;
+	var dy = pe.y - p0.y;
+	
+	var nx = dx * 0.2;
+	var ny = dy * 0.2;
+	var cnx = nx; // current nx
+	var cny = ny; // current ny
+	var pcx = p0.x; // current x on edge
+	var pcy = p0.y; // current y on edge
+
+	c.begin();
+	
+ 	for (var i = 0; i <= steps; i++)
+	{
+		cnx = nx * (steps - i) / steps;
+		cny = ny * (steps - i) / steps;
+
+		if (i == steps)
+		{
+			cnx = nx * (steps - i * 0.98) / steps;
+			cny = ny * (steps - i * 0.98) / steps;
+		}
+		
+		var px1 = pcx + cny;
+		var py1 = pcy - cnx;
+		var px2 = pcx - cny;
+		var py2 = pcy + cnx;
+			
+		c.moveTo(px1, py1);
+		c.lineTo(px2, py2);
+		
+		pcx = pcx + dx / steps;
+		pcy = pcy + dy / steps;
+	} 
+	
+	c.stroke();
+};
+
+mxCellRenderer.registerShape('mxgraph.arrows2.wedgeArrowDashed', mxShapeArrowsWedgeArrowDashed);
+

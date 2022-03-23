@@ -1,3 +1,7 @@
+22-MAR-2022: 17.1.5
+
+- [conf cloud] Gliffy import case, containerId wrong, but diagram on current page
+
 22-MAR-2022: 17.1.4
 
 - [conf cloud] Fixed gliffy mass import, incorrect macro type imported

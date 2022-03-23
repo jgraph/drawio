@@ -68,7 +68,9 @@
 			this.createVertexTemplateEntry(s + 'jumpInArrow;dy=15;dx=38;arrowHead=55;', 
 					100, 100, '', 'Jump-In Arrow', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'jump in').join(' ')),
 			this.createVertexTemplateEntry(s + 'uTurnArrow;dy=11;arrowHead=43;dx2=25;', 
-					100, 100, '', 'U Turn Arrow', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'u turn uturn').join(' '))
+					100, 100, '', 'U Turn Arrow', null, null, this.getTagsForStencil(gn, 'arrow', dt + 'u turn uturn').join(' ')),
+		    this.createEdgeTemplateEntry('shape=mxgraph.arrows2.wedgeArrow;html=1;fillColor=#000000;bendable=0;', 100, 100, '', 'Wedge Arrow', null, this.getTagsForStencil(gn, 'wedge arrow', dt).join(' ')),
+		    this.createEdgeTemplateEntry('shape=mxgraph.arrows2.wedgeArrowDashed;html=1;bendable=0;', 100, 100, '', 'Wedge Arrow Dashed', null, this.getTagsForStencil(gn, 'wedge arrow dashed', dt).join(' '))
 		];
 			   	
    		this.addPalette('arrows2', mxResources.get('arrows'), false, mxUtils.bind(this, function(content)
