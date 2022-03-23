@@ -58,7 +58,7 @@
 	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? '/cache' : window.REALTIME_URL;
+	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? 'https://app.diagrams.net/cache' : window.REALTIME_URL;
 
 	if (EditorUi.cacheUrl == null && typeof DrawioFile !== 'undefined')
 	{

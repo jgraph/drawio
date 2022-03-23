@@ -15,7 +15,7 @@ mxUtils.extend(OneDriveFile, DrawioFile);
 /**
  * Shorter autosave delay for optimistic sync.
  */
-OneDriveFile.prototype.autosaveDelay = 300;
+OneDriveFile.prototype.autosaveDelay = 400;
 
 /**
  * Hook for subclassers.
@@ -404,7 +404,11 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
 						(DrawioFile.SYNC == 'manual' || DrawioFile.SYNC == 'auto')) ?
 						this.getCurrentEtag() : null;
 					var lastDesc = this.meta;
-					this.fileSaving();
+
+					if (this.sync != null)
+					{
+						this.sync.fileSaving();
+					}
 
 					this.ui.oneDrive.saveFile(this, mxUtils.bind(this, function(meta, savedData)
 					{

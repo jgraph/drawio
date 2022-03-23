@@ -1261,7 +1261,7 @@ EditorUi.initMinimalTheme = function()
 				}
 
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-					file.constructor != LocalFile)
+					(file.constructor != LocalFile || file.fileHandle != null))
 				{
 					ui.menus.addMenuItems(menu, ['synchronize'], parent);
 				}

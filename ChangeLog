@@ -1,3 +1,11 @@
+23-MAR-2022: 17.2.1
+
+- Fixes realtime for optimistic sync in OneDrive
+
+23-MAR-2022: 17.2.0
+
+- Improves performance issues on real time mechanism
+
 22-MAR-2022: 17.1.5
 
 - [conf cloud] Gliffy import case, containerId wrong, but diagram on current page

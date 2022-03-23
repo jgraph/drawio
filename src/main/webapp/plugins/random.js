@@ -3,8 +3,8 @@
  */
 Draw.loadPlugin(function(ui)
 {
+	var defaultMax = 20;
 	var defaultDelay = 2000;
-	var defaultMax = 50;
 	var graph = ui.editor.graph;
 
 	// Adds resource for action
@@ -104,11 +104,11 @@ Draw.loadPlugin(function(ui)
 							var childrenA = parentA.children;
 							var childrenB = parentB.children;
 							
-							var numberA = childrenA.length;
-							var numberB = childrenB.length;
-							
-							if (childrenA != null && childrenA.length > 1 || childrenB != null && childrenB.length > 1)
+							if (childrenA != null && childrenB != null)
 							{
+								var numberA = childrenA.length;
+								var numberB = childrenB.length;
+
 								graph.getModel().beginUpdate();
 								try
 								{

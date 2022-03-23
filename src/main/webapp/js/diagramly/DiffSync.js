@@ -20,7 +20,8 @@ EditorUi.DIFF_UPDATE = 'u';
 /**
  * Shared codec.
  */
-EditorUi.prototype.codec = new mxCodec();
+EditorUi.transientViewStateProperties =['defaultParent', 'currentRoot', 'scrollLeft',
+	'scrollTop', 'scale', 'translate', 'lastPasteXml', 'pasteCounter'];
 
 /**
  * Contains all view state properties that should not be ignored in diff sync.
@@ -35,6 +36,31 @@ EditorUi.prototype.cellProperties = {id: true, value: true, xmlValue: true, vert
 	visible: true, collapsed: true, connectable: true, parent: true, children: true, previous: true,
 	source: true, target: true, edges: true, geometry: true, style: true,
 	mxObjectId: true, mxTransient: true};
+
+/**
+ * Shared codec.
+ */
+EditorUi.prototype.codec = new mxCodec();
+
+/**
+ * Applies the given patches to the given pages.
+ */
+EditorUi.prototype.applyPatches = function(pages, patches, markPages, resolver, updateEdgeParents)
+{
+	if (patches != null)
+	{
+		for (var i = 0; i < patches.length; i++)
+		{
+			if (patches[i] != null)
+			{
+				pages = this.patchPages(pages, patches[i],
+					markPages, resolver, updateEdgeParents);
+			}
+		}
+	}
+
+	return pages;
+};
 
 /**
  * Removes all labels, user objects and styles from the given node in-place.

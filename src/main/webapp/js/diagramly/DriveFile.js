@@ -184,6 +184,11 @@ DriveFile.prototype.saveFile = function(title, revision, success, error, unloadi
 					try
 					{
 						var lastDesc = this.desc;
+						
+						if (this.sync != null)
+						{
+							this.sync.fileSaving();
+						}
 	
 						this.ui.drive.saveFile(this, realRevision, mxUtils.bind(this, function(resp, savedData)
 						{

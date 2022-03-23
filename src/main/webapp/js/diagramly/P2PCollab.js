@@ -601,7 +601,7 @@ function P2PCollab(ui, sync, channelId)
 
 				if (check)
 				{
-					sync.scheduleConsistencyCheck();
+					sync.scheduleCleanup();
 				}
 			});
 		
