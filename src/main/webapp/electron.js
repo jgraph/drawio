@@ -1471,7 +1471,7 @@ ipcMain.on('export', exportDiagram);
 // Renderer Helper functions
 //================================================================
 
-const { O_DIRECT, O_SYNC, O_DSYNC, O_CREAT, O_WRONLY, O_TRUNC } = fs.constants;
+const { O_SYNC, O_CREAT, O_WRONLY, O_TRUNC } = fs.constants;
 const DRAFT_PREFEX = '~$';
 const DRAFT_EXT = '.dtmp';
 const BKP_PREFEX = '~$';
@@ -1558,8 +1558,8 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 
 			try
 			{
-				//O_DIRECT | O_SYNC | O_DSYNC are to reduce OS buffering and reduce risk of file corruption
-				fh = await fsProm.open(fileObject.path, O_DIRECT | O_SYNC | O_DSYNC | O_CREAT | O_WRONLY | O_TRUNC);
+				// O_SYNC is for sync I/O and reduce risk of file corruption
+				fh = await fsProm.open(fileObject.path, O_SYNC | O_CREAT | O_WRONLY | O_TRUNC);
 				await fsProm.writeFile(fh, data, writeEnc);
 			}
 			finally
@@ -1598,34 +1598,40 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 		}
 	};
 	
-	async function doSaveFile()
+	async function doSaveFile(isNew)
 	{
-		//Copy file to backup file (after conflict and stat is checked)
-		let bkpFh;
+		if (!isNew)
+		{
+			//Copy file to backup file (after conflict and stat is checked)
+			let bkpFh;
 
-		try
-		{
-			//Use file read then write to open the backup file direct sync write to reduce the chance of file corruption
-			let fileContent = await fsProm.readFile(fileObject.path, writeEnc);
-			bkpFh = await fsProm.open(bkpPath, O_DIRECT | O_SYNC | O_DSYNC | O_CREAT | O_WRONLY | O_TRUNC);
-			await fsProm.writeFile(bkpFh, fileContent, writeEnc);
-			backupCreated = true;
+			try
+			{
+				//Use file read then write to open the backup file direct sync write to reduce the chance of file corruption
+				let fileContent = await fsProm.readFile(fileObject.path, writeEnc);
+				bkpFh = await fsProm.open(bkpPath, O_SYNC | O_CREAT | O_WRONLY | O_TRUNC);
+				await fsProm.writeFile(bkpFh, fileContent, writeEnc);
+				backupCreated = true;
+			}
+			catch (e) 
+			{
+				if (__DEV__)
+				{
+					console.log('Backup file writing failed', e); //Ignore
+				}
+			}
+			finally 
+			{
+				await bkpFh?.close();
+			}
 		}
-		catch (e) 
-		{
-			console.log(e); //Ignore
-		}
-		finally 
-		{
-			await bkpFh?.close();
-		}
-					
+
 		return await writeFile();
 	};
 	
 	if (overwrite)
 	{
-		return await doSaveFile();
+		return await doSaveFile(true);
 	}
 	else
 	{
@@ -1638,7 +1644,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 		}
 		else
 		{
-			return await doSaveFile();
+			return await doSaveFile(stat == null);
 		}
 	}
 };
