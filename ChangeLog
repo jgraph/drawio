@@ -1,3 +1,7 @@
+24-MAR-2022: 17.2.2
+
+- Adds Shift+Alt for floating connections https://github.com/jgraph/drawio/issues/DID-4550
+
 23-MAR-2022: 17.2.1
 
 - Fixes realtime for optimistic sync in OneDrive
