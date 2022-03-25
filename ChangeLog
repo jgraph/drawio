@@ -1,3 +1,8 @@
+25-MAR-2022: 17.2.3
+
+- Fixes custom links in duplicated page for realtime
+- Uses same domain for realtime in production
+
 24-MAR-2022: 17.2.2
 
 - Adds Shift+Alt for floating connections https://github.com/jgraph/drawio/issues/DID-4550

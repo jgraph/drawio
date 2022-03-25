@@ -62,7 +62,7 @@
 
 	if (EditorUi.cacheUrl == null && typeof DrawioFile !== 'undefined')
 	{
-		DrawioFile.SYNC = 'none'; //Disable real-time sync
+		DrawioFile.SYNC = 'none'; // Disables real-time sync
 	}
 	
 	/**

@@ -4539,27 +4539,6 @@ Graph.prototype.updateHorizontalStyle = function(cell, style)
 };
 
 /**
- * Returns the cell style with no colors replaced.
- */
-Graph.prototype.getCellStyleWithDefaultColors = function(cell)
-{
-	// Temporary override color conversion
-	var replaceDefaultColors = this.replaceDefaultColors;
-
-	this.replaceDefaultColors = function(cell, style)
-	{
-		return style;
-	};
-
-	var result = this.getCellStyle(cell);
-
-	// Restores color conversion
-	this.replaceDefaultColors = replaceDefaultColors;
-
-	return result;
-};
-
-/**
  * Replaces default colors. 
  */
 Graph.prototype.replaceDefaultColors = function(cell, style)

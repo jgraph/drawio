@@ -1185,7 +1185,18 @@ EditorUi.prototype.duplicatePage = function(page, name)
 			var lookup = graph.createCellLookup([graph.model.root]);
 
 			var newPage = new DiagramPage(node);
-			newPage.root = graph.cloneCell(graph.model.root, null, cloneMap);
+			newPage.root = graph.cloneCell(graph.model.root,
+				null, cloneMap);
+			// Updates cell IDs
+			var model = new mxGraphModel();
+			model.prefix = Editor.guid() + '-';
+			model.setRoot(newPage.root);
+
+			// Updates custom links
+			graph.updateCustomLinks(graph.createCellMapping(
+				cloneMap, lookup), [newPage.root]);
+			
+			// Initializes diagram node
 			newPage.viewState = (page == this.currentPage) ?
 				graph.getViewState() : page.viewState;
 			this.initDiagramNode(newPage);
@@ -1198,10 +1209,10 @@ EditorUi.prototype.duplicatePage = function(page, name)
 			newPage.viewState.defaultParent = null;
 			newPage.setName(name);
 			
-			newPage = this.insertPage(newPage, mxUtils.indexOf(this.pages, page) + 1);
-
-			// Updates custom links after inserting into the model for cells to have new IDs
-			graph.updateCustomLinks(graph.createCellMapping(cloneMap, lookup), [newPage.root]);
+			// Inserts new page after duplicated page
+			newPage = this.insertPage(newPage,
+				mxUtils.indexOf(this.pages,
+					page) + 1);
 		}
 	}
 	catch (e)

@@ -15,7 +15,7 @@ mxUtils.extend(OneDriveFile, DrawioFile);
 /**
  * Shorter autosave delay for optimistic sync.
  */
-OneDriveFile.prototype.autosaveDelay = 400;
+OneDriveFile.prototype.autosaveDelay = 500;
 
 /**
  * Hook for subclassers.

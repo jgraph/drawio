@@ -19,8 +19,7 @@ DrawioFile = function(ui, data)
 	 * @default 0
 	 */
 	this.data = data || '';
-	this.shadowData = this.data;
-	this.shadowPages = null;
+	this.shadowPages = this.ui.getPagesForXml(this.data);
 	this.created = new Date().getTime();
 	
 	// Creates the stats object
@@ -136,11 +135,6 @@ DrawioFile.prototype.shadowModified = false;
  * Holds a copy of the current file data.
  */
 DrawioFile.prototype.data = null;
-
-/**
- * Holds a copy of the last saved file data.
- */
-DrawioFile.prototype.shadowData = null;
 
 /**
  * Holds a copy of the parsed last saved file data.
@@ -284,16 +278,10 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 	{
 		this.stats.fileMerged++;
 
-		// Takes copy of current shadow document
-		var shadow = (this.shadowPages != null) ? this.shadowPages :
-			this.ui.getPagesForNode(mxUtils.parseXml(
-				this.shadowData).documentElement);
-		
 		// Loads new document as shadow document
-		var pages = this.ui.getPagesForNode(
-			mxUtils.parseXml(file.data).
-				documentElement)
-		
+		var shadow = this.shadowPages;
+		var pages = file.shadowPages;
+
 		if (pages != null && pages.length > 0)
 		{
 			// Patches the current document
@@ -310,9 +298,8 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				}
 		
 				// Creates a patch for backup if the checksum fails
-				this.backupPatch = (this.isModified()) ?
-					this.ui.diffPages(shadow,
-						this.ui.pages) : null;
+				this.backupPatch = (!this.isModified()) ? null :
+					this.ui.diffPages(shadow, this.ui.pages);
 				
 				// Patching previous shadow to verify checksum
 				var patchedDetails = {};
@@ -511,10 +498,11 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			{
 				var json = this.compressReportData(
 					JSON.stringify(patches, null, 2));
-				var remote = (file != null) ? this.compressReportData(
-					this.getAnonymizedXmlForPages(
-					this.ui.getPagesForNode(
-					mxUtils.parseXml(file.data).documentElement)), 25000) : 'n/a';
+				var remote = (file == null) ?  'n/a' :
+					this.compressReportData(
+						this.getAnonymizedXmlForPages(
+							this.ui.getPagesForXml(file.data)),
+								25000);
 				
 				this.sendErrorReport('Checksum Error in ' + functionName + ' ' + this.getHash(),
 					((details != null) ? (details) : '') +  '\n\nPatches:\n' + json +
@@ -1202,9 +1190,7 @@ DrawioFile.prototype.open = function()
 		// only if the file has not been modified and reopened
 		if (!this.isModified())
 		{
-			this.shadowData = mxUtils.getXml(
-				this.ui.getXmlFileData());
-			this.shadowPages = null;
+			this.shadowPages = this.ui.clonePages(this.ui.pages);
 		}
 	}
 
@@ -2186,11 +2172,11 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		this.stats.saved++;
 		this.inConflictState = false;
 		this.invalidChecksum = false;
+		var pages = this.ui.getPagesForXml(savedData)
 
 		if (this.sync == null || this.isOptimisticSync())
 		{
-			this.shadowPages = this.ui.getPagesForNode(
-				mxUtils.parseXml(savedData).documentElement);
+			this.shadowPages = pages;
 			
 			if (this.sync != null)
 			{
@@ -2210,9 +2196,8 @@ DrawioFile.prototype.fileSaved = function(savedData, lastDesc, success, error, t
 		}
 		else
 		{
-			this.sync.fileSaved(this.ui.getPagesForNode(
-				mxUtils.parseXml(savedData).documentElement),
-				lastDesc, success, error, token);
+			this.sync.fileSaved(pages, lastDesc,
+				success, error, token);
 		}
 	}
 	catch (e)

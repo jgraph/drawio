@@ -655,9 +655,17 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 };
 
 /**
- * Gets a file node that is comparable with a remote file node
- * so that using isEqualNode returns true if the files can be
- * considered equal.
+ * Returns the pages for the given XML string.
+ */
+EditorUi.prototype.getPagesForXml = function(data)
+{
+	var doc = mxUtils.parseXml(data);
+
+	return this.getPagesForNode(doc.documentElement);
+};
+
+/**
+ * Returns the pages for the given node.
  */
 EditorUi.prototype.getPagesForNode = function(node, nodeName)
 {

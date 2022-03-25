@@ -1871,8 +1871,7 @@
 				{
 					var buttons = [['Snapshot', function(evt, input)
 					{
-						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
-							editorUi.getFileData(true)).documentElement);
+						snapshot = editorUi.getPagesForXml(editorUi.getFileData(true));
 						dlg.textarea.value = 'Snapshot updated ' + new Date().toLocaleString() +
 							' Checksum ' + editorUi.getHashValueForPages(snapshot);
 					}], ['Diff', function(evt, input)
@@ -1910,8 +1909,7 @@
 			    	
 					if (snapshot == null)
 					{
-						snapshot = editorUi.getPagesForNode(mxUtils.parseXml(
-							editorUi.getFileData(true)).documentElement);
+						snapshot = editorUi.getPagesForXml(editorUi.getFileData(true));
 						dlg.textarea.value = 'Snapshot created ' + new Date().toLocaleString() +
 							' Checksum ' + editorUi.getHashValueForPages(snapshot);
 					}
