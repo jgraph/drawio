@@ -1,3 +1,8 @@
+25-MAR-2022: 17.2.4
+
+- Fixes replace is not a function
+- Fixes Sharepoint saving to site root drives in new picker
+
 25-MAR-2022: 17.2.3
 
 - Fixes custom links in duplicated page for realtime

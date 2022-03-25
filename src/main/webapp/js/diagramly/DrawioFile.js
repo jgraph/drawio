@@ -5,22 +5,15 @@
 DrawioFile = function(ui, data)
 {
 	mxEventSource.call(this);
-	
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
+
 	this.ui = ui;
-	
-	/**
-	 * Holds the x-coordinate of the point.
-	 * @type number
-	 * @default 0
-	 */
 	this.data = data || '';
-	this.shadowPages = this.ui.getPagesForXml(this.data);
 	this.created = new Date().getTime();
+	
+	if (typeof data === 'string')
+	{
+		this.shadowPages = this.ui.getPagesForXml(this.data);
+	}
 	
 	// Creates the stats object
 	this.stats = {

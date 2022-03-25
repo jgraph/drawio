@@ -546,7 +546,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 						
 				if (isSharepointSites)
 				{
-					item.folder = true;
+					item.folder = isSharepointSites == 2? {isRoot: true} : true;
 				}
 				
 				var isFolder = item.folder !=  null;
