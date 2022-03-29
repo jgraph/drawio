@@ -138,7 +138,7 @@ DrawioFileSync = function(file)
 				
 				if (msg != null)
 				{
-					EditorUi.debug('Sync.message', [this], msg, data.length, 'bytes');
+					EditorUi.debug('DrawioFileSync.message', [this], msg, data.length, 'bytes');
 
 					// Handles protocol mismatch
 					if (msg.v > DrawioFileSync.PROTOCOL)
@@ -325,7 +325,7 @@ DrawioFileSync.prototype.start = function()
 			{
 				this.pusher.connect();
 				this.channel = this.pusher.subscribe(this.channelId);
-				EditorUi.debug('Sync.start', [this,
+				EditorUi.debug('DrawioFileSync.start', [this,
 					'v' + DrawioFileSync.PROTOCOL],
 					'rev', this.file.getCurrentRevisionId());
 			}
@@ -402,11 +402,12 @@ DrawioFileSync.prototype.initRealtime = function()
  */
 DrawioFileSync.prototype.resetRealtime = function()
 {
-	if (this.file.shadowPages != null)
+	var shadow = this.file.getShadowPages();
+
+	if (shadow != null)
 	{
 		var patch = this.ui.diffPages(
-			this.file.shadowPages,
-			this.file.ownPages);
+			shadow, this.file.ownPages);
 		this.file.patch([patch]);
 	}
 	
@@ -795,10 +796,7 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
 			}), (retryCount + 1) * this.file.optimisticSyncDelay);
 		}
 		
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.optimisticSync', [this], 'retryCount', retryCount);
-		}
+		EditorUi.debug('DrawioFileSync.optimisticSync', [this], 'retryCount', retryCount);
 	}
 };
 
@@ -885,12 +883,9 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 			skipped = true;
 		}
 
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.doSendLocalChanges', [this],
-				'changes', changes, data.length, 'bytes',
-				skipped ? '(skipped)' : '');
-		}
+		EditorUi.debug('DrawioFileSync.doSendLocalChanges', [this],
+			'changes', changes, data.length, 'bytes',
+			skipped ? '(skipped)' : '');
 	}
 };
 
@@ -989,12 +984,6 @@ DrawioFileSync.prototype.scheduleCleanup = function(lazy)
 			}));
 		}), this.cleanupDelay);
 	}
-
-	if (urlParams['test'] == '1')
-	{
-		EditorUi.debug('Sync.scheduleCleanup',
-			[this], 'lazy', lazy);
-	}
 };
 
 /**
@@ -1005,10 +994,8 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 {
 	window.clearTimeout(this.cleanupThread);
 
-	if (this.file.isRealtime() && this.isValidState() &&
-		this.file.shadowPages != null &&
-		!this.file.inConflictState &&
-		!this.file.isModified())
+	if (this.isValidState() && !this.file.inConflictState &&
+		this.file.isRealtime() && !this.file.isModified())
 	{
 		var patches = [this.ui.diffPages(this.ui.pages,
 			this.file.ownPages)];
@@ -1020,12 +1007,9 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 			this.file.patch(patches);
 		}
 		
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.cleanup',
-				[this], 'patches', patches,
-				'checkFile', checkFile);
-		}
+		EditorUi.debug('DrawioFileSync.cleanup',
+			[this], 'patches', patches,
+			'checkFile', checkFile);
 
 		if (!checkFile)
 		{
@@ -1040,11 +1024,11 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 			{
 				try
 				{
-					if (this.file.isRealtime() && this.isValidState() &&
-						!this.file.inConflictState)
+					if (this.isValidState() && !this.file.inConflictState &&
+						this.file.isRealtime())
 					{
 						var pages = this.ui.getPagesForXml(newFile.data);
-						var patches = [this.ui.diffPages(this.ui.pages, pages),
+						patches = [this.ui.diffPages(this.ui.pages, pages),
 							this.ui.diffPages(pages, this.file.ownPages)];
 						
 						if (!this.file.ignorePatches(patches))
@@ -1052,11 +1036,9 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 							this.file.patch(patches);
 						}
 
-						if (urlParams['test'] == '1')
-						{
-							EditorUi.debug('Sync.cleanup checkFile',
-								[this], 'patches', patches);
-						}
+						EditorUi.debug('DrawioFileSync.cleanup',
+							[this], 'newFile', newFile,
+							'patches', patches);
 					}
 
 					if (success != null)
@@ -1078,12 +1060,9 @@ DrawioFileSync.prototype.cleanup = function(success, error, checkFile)
 	{
 		success();
 
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.cleanup',
-				[this], 'checkFile', checkFile,
-				'modified', this.file.isModified());
-		}
+		EditorUi.debug('DrawioFileSync.cleanup',
+			[this], 'checkFile', checkFile,
+			'modified', this.file.isModified());
 	}
 };
 
@@ -1151,7 +1130,7 @@ DrawioFileSync.prototype.patchRealtime = function(patches, backup, own)
 		// remote changes are not received in the order in which
 		// they are finally saved in the file.
 		all = this.extractRemove(this.ui.diffPages(
-			this.file.shadowPages, this.ui.pages));
+			this.file.getShadowPages(), this.ui.pages));
 		var local = this.extractRemove(this.extractLocal(all));
 		
 		// Applies incoming, own and local changes to own pages
@@ -1173,13 +1152,10 @@ DrawioFileSync.prototype.patchRealtime = function(patches, backup, own)
 			this.scheduleCleanup();
 		}
 		
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.patchRealtime', [this],
-				'patches', patches, 'backup', backup,
-				'own', own, 'all', all, 'local', local,
-				'applied', applied);
-		}
+		EditorUi.debug('DrawioFileSync.patchRealtime', [this],
+			'patches', patches, 'backup', backup,
+			'own', own, 'all', all, 'local', local,
+			'applied', applied);
 	}
 
 	return all;
@@ -1239,12 +1215,9 @@ DrawioFileSync.prototype.doReceiveRemoteChanges = function(changes)
 		this.file.theirPages = this.ui.applyPatches(
 			this.file.theirPages, changes);
 		this.scheduleCleanup();
-
-		if (urlParams['test'] == '1')
-		{
-			EditorUi.debug('Sync.doReceiveRemoteChanges',
-				[this], 'changes', changes);
-		}
+		
+		EditorUi.debug('DrawioFileSync.doReceiveRemoteChanges',
+			[this], 'changes', changes);
 	}
 };
 
@@ -1265,27 +1238,23 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			this.sendLocalChanges();
 
 			// Creates a patch for backup if the checksum fails
+			var shadow = this.file.getShadowPages();
 			this.file.backupPatch = (this.file.isModified() &&
 				!this.file.isRealtime()) ? this.ui.diffPages(
-					this.file.shadowPages, this.ui.pages) : null;
-			var pending = (this.file.isRealtime()) ?
-				this.ui.diffPages(this.file.shadowPages,
-					this.file.ownPages) : null;
-			this.file.shadowPages = this.ui.applyPatches(
-				this.file.shadowPages, patches);
-			var current = (checksum != null) ?
-				this.ui.getHashValueForPages(
-					this.file.shadowPages) : null;
+					shadow, this.ui.pages) : null;
+			var pending = (!this.file.isRealtime()) ? null :
+				this.ui.diffPages(shadow, this.file.ownPages);
+			shadow = this.ui.applyPatches(shadow, patches);
+			var current = (checksum == null) ? null :
+				this.ui.getHashValueForPages(shadow);
+			this.file.setShadowPages(shadow);
 			
-			if (urlParams['test'] == '1')
-			{
-				EditorUi.debug('Sync.merge', [this], 'patches', patches,
-					'backup', this.file.backupPatch, 'pending', pending,
-					'checksum', checksum, 'current', current, 'valid',
-					checksum == current, 'attempt', this.catchupRetryCount,
-					'from', this.file.getCurrentRevisionId(), 'to', etag,
-					'etag', this.file.getDescriptorEtag(desc));
-			}
+			EditorUi.debug('DrawioFileSync.merge', [this], 'patches', patches,
+				'backup', this.file.backupPatch, 'pending', pending,
+				'checksum', checksum, 'current', current, 'valid',
+				checksum == current, 'attempt', this.catchupRetryCount,
+				'from', this.file.getCurrentRevisionId(), 'to', etag,
+				'etag', this.file.getDescriptorEtag(desc));
 		
 			// Compares the checksum
 			if (checksum != null && checksum != current)
@@ -1294,6 +1263,8 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
 				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
 					'\nChecksum: ' + checksum + '\nCurrent: ' + current, etag, 'merge');
+				EditorUi.debug('DrawioFileSync.merge.checksumError', [this],
+					'data', [this.file.data, this.file.createData()]);
 
 				// Uses current state as shadow to compute diff since
 				// shadowPages has been modified in-place above
@@ -1391,6 +1362,9 @@ DrawioFileSync.prototype.fileChanged = function(success, error, abort, lazy)
 	{
 		if (abort == null || !abort())
 		{
+			EditorUi.debug('DrawioFileSync.fileChanged', [this], 'lazy', lazy,
+				'valid', this.isValidState());
+
 			if (!this.isValidState())
 			{
 				if (error != null)
@@ -1472,6 +1446,10 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 		var etag = this.file.getDescriptorRevisionId(desc);
 		var current = this.file.getCurrentRevisionId();
 		
+		EditorUi.debug('DrawioFileSync.catchup', [this],
+			'desc', [desc], 'etag', etag, 'current', current,
+			'valid', this.isValidState());
+
 		if (current == etag)
 		{
 			this.file.patchDescriptor(this.file.getDescriptor(), desc);
@@ -1562,6 +1540,11 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 									{
 										var checksum = null;
 										var temp = [];
+
+										EditorUi.debug('DrawioFileSync.doCatchup',
+											[this], 'req', [req], 'status', req.getStatus(),
+											'cacheReadyRetryCount', cacheReadyRetryCount,
+											'maxCacheReadyRetries', this.maxCacheReadyRetries);
 								
 										if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
 											req.getText().length > 0)
@@ -1596,6 +1579,10 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 														}
 													}
 												}
+
+												EditorUi.debug('DrawioFileSync.doCatchup', [this], 
+													'response', [result], 'failed', failed,
+													'temp', temp, 'checksum', checksum);
 											}
 											catch (e)
 											{
@@ -1774,11 +1761,8 @@ DrawioFileSync.prototype.fileSaving = function()
 		});
 	}
 
-	if (urlParams['test'] == '1')
-	{
-		EditorUi.debug('Sync.fileSaving', [this],
-			'optimistic', this.file.isOptimisticSync());
-	}
+	EditorUi.debug('DrawioFileSync.fileSaving', [this],
+		'optimistic', this.file.isOptimisticSync());
 };
 
 /**
@@ -1787,12 +1771,7 @@ DrawioFileSync.prototype.fileSaving = function()
 DrawioFileSync.prototype.fileDataUpdated = function()
 {
 	this.scheduleCleanup(true);
-
-	if (urlParams['test'] == '1')
-	{
-		this.lastFileDataUpdated = Date.now();
-		EditorUi.debug('Sync.fileDataUpdated', [this]);
-	}
+	EditorUi.debug('DrawioFileSync.fileDataUpdated', [this]);
 };
 
 /**
@@ -1833,15 +1812,12 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					success();
 				}
 				
-				if (urlParams['test'] == '1')
-				{
-					EditorUi.debug('Sync.fileSaved', [this], 'from', etag, 'to', current,
-						'etag', this.file.getCurrentEtag(), 'notify');
-				}
+				EditorUi.debug('DrawioFileSync.fileSaved', [this], 'from', etag,
+					'to', current, 'etag', this.file.getCurrentEtag());
 			}
 			else
 			{
-				var diff = this.ui.diffPages(this.file.shadowPages, pages);
+				var diff = this.ui.diffPages(this.file.getShadowPages(), pages);
 				var lastSecret = this.file.getDescriptorSecret(lastDesc);
 				var checksum = this.ui.getHashValueForPages(pages);
 				
@@ -1884,13 +1860,10 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					}
 				}));
 				
-				if (urlParams['test'] == '1')
-				{
-					EditorUi.debug('Sync.fileSaved', [this], 'diff', diff,
-						data.length, 'bytes', 'from', etag, 'to', current,
-						'etag', this.file.getCurrentEtag(),
-						'checksum', checksum);
-				}
+				EditorUi.debug('DrawioFileSync.fileSaved', [this], 'diff', diff,
+					data.length, 'bytes', 'from', etag, 'to', current,
+					'etag', this.file.getCurrentEtag(),
+					'checksum', checksum);
 			}
 			
 			// Logs successull diff
@@ -1913,7 +1886,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 	
 	// Ignores cache response as clients
 	// load file if cache entry failed
-	this.file.shadowPages = pages;
+	this.file.setShadowPages(pages);
 	this.scheduleCleanup();
 };
 
@@ -1947,6 +1920,10 @@ DrawioFileSync.prototype.createMessage = function(data)
 DrawioFileSync.prototype.fileConflict = function(desc, success, error)
 {
 	this.catchupRetryCount++;
+
+	EditorUi.debug('DrawioFileSync.fileConflict', [this], 'desc', [desc],
+		'catchupRetryCount', this.catchupRetryCount,
+		'maxCatchupRetries', this.maxCatchupRetries);
 	
 	if (this.catchupRetryCount < this.maxCatchupRetries)
 	{
@@ -1980,7 +1957,7 @@ DrawioFileSync.prototype.stop = function()
 {
 	if (this.pusher != null)
 	{
-		EditorUi.debug('Sync.stop', [this]);
+		EditorUi.debug('DrawioFileSync.stop', [this]);
 	
 		if (this.pusher.connection != null)
 		{

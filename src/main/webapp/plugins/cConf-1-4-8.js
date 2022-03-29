@@ -1495,8 +1495,7 @@ Draw.loadPlugin(function(ui)
 										
 										if (this.sync != null)
 										{
-											//Reduce number of retials since we already retry in AC.saveDraftWithFileDesc
-											this.sync.maxCatchupRetries = 2;
+											this.sync.maxCatchupRetries = 6;
 											this.savingFile = true;
 											
 											this.sync.fileConflict(desc, mxUtils.bind(this, function()
@@ -1561,6 +1560,10 @@ Draw.loadPlugin(function(ui)
 					doSave(overwrite, revision);				
 				}));
 			}
+			else
+			{
+				this.missedSave = true;
+			}
 		}
 		catch (e)
 		{
@@ -1572,6 +1575,27 @@ Draw.loadPlugin(function(ui)
 			{
 				throw e;
 			}
+		}
+	};
+
+	EmbedFile.prototype.fileChanged = function()
+	{
+		var me = this, args = arguments;
+
+		function doFileChanged()
+		{
+			DrawioFile.prototype.fileChanged.apply(me, args);
+		}
+
+		if (this.missedSave)
+		{
+			 //Do a random delay to give others a chance to acquire the lock
+			window.setTimeout(doFileChanged, 1500 + Math.random() * 500);
+			this.missedSave = false;
+		}
+		else
+		{
+			doFileChanged()
 		}
 	};
 

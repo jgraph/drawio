@@ -1946,26 +1946,25 @@
 						editorUi.diffPages(file.ownPages,
 							file.theirPages));
 
-					if (file.shadowPages != null)
+					var shadow = file.getShadowPages();
+					
+					if (shadow != null)
 					{
 						console.log('Checksum shadowPages: ' +
-							editorUi.getHashValueForPages(
-								file.shadowPages));
+							editorUi.getHashValueForPages(shadow));
 						console.log('diff shadowPages/ownPages',
-							editorUi.diffPages(file.shadowPages,
-								file.ownPages));
+							editorUi.diffPages(shadow, file.ownPages));
 						console.log('diff ownPages/shadowPages',
-							editorUi.diffPages(file.ownPages,
-								file.shadowPages));
+							editorUi.diffPages(file.ownPages, shadow));
 						console.log('diff theirPages/shadowPages',
-							editorUi.diffPages(file.theirPages,
-								file.shadowPages));
+							editorUi.diffPages(file.theirPages, shadow));
 					}
 
 					if (file.sync != null && file.sync.snapshot != null)
 					{
 						console.log('Checksum snapshot: ' +
-							editorUi.getHashValueForPages(file.sync.snapshot));
+							editorUi.getHashValueForPages(
+								file.sync.snapshot));
 						console.log('diff ownPages/snapshot',
 							editorUi.diffPages(file.ownPages,
 								file.sync.snapshot));
@@ -1998,9 +1997,8 @@
 			
 			editorUi.actions.addAction('testFixPages', mxUtils.bind(this, function()
 			{
-				var file = editorUi.getCurrentFile();
-
 				console.log('editorUi', editorUi);
+				var file = editorUi.getCurrentFile();
 
 				if (file != null && file.isRealtime() &&
 					file.shadowPages != null)

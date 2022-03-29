@@ -1796,6 +1796,12 @@
 			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
 			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
 			DrawioFile.prototype.autosaveDelay = config.autosaveDelay || DrawioFile.prototype.autosaveDelay;
+
+			// Enables debug output
+			if (config.debug)
+			{
+				urlParams['test'] = '1'
+			}
 			
 			if (config.templateFile != null)
 			{
@@ -8023,17 +8029,10 @@
 		
 		// Selection only
 		var selectionOnlyRadio = document.createElement('input');
-		selectionOnlyRadio.style.cssText = 'margin-right:8px;margin-bottom:8px;';
 		selectionOnlyRadio.setAttribute('value', 'all');
 		selectionOnlyRadio.setAttribute('type', 'radio');
-		selectionOnlyRadio.setAttribute('name', 'pages-printdialog');
+		selectionOnlyRadio.style.marginRight = '8px';
 		
-		pagesSection.appendChild(selectionOnlyRadio);
-
-		var span = document.createElement('span');
-		mxUtils.write(span, mxResources.get('selectionOnly'));
-		pagesSection.appendChild(span);
-
 		if (graph.isSelectionEmpty())
 		{
 			selectionOnlyRadio.setAttribute('disabled', 'disabled');
@@ -8042,7 +8041,30 @@
 		// Adjust to ...
 		var adjustSection = document.createElement('div');
 		adjustSection.style.marginBottom = '10px';
+
+		if (pageCount == 1)
+		{
+			selectionOnlyRadio.setAttribute('type', 'checkbox');
+			selectionOnlyRadio.style.marginBottom = '12px';
+			adjustSection.appendChild(selectionOnlyRadio);
+		}
+		else
+		{
+
+			selectionOnlyRadio.setAttribute('name', 'pages-printdialog');
+			selectionOnlyRadio.style.marginBottom = '8px';
+			pagesSection.appendChild(selectionOnlyRadio);
+		}
 		
+		var span = document.createElement('span');
+		mxUtils.write(span, mxResources.get('selectionOnly'));
+		selectionOnlyRadio.parentNode.appendChild(span);
+
+		if (pageCount == 1)
+		{
+			mxUtils.br(selectionOnlyRadio.parentNode);
+		}
+
 		var adjustRadio = document.createElement('input');
 		adjustRadio.style.marginRight = '8px';
 		

@@ -24,7 +24,7 @@
   <class-loader-config>
     <priority-specifier filename="cache-api-1.1.1.jar"/>
   </class-loader-config>
-
+  
   <instance-class>F1</instance-class>
   <automatic-scaling>
     <max-idle-instances>1</max-idle-instances>

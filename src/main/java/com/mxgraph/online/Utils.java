@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
@@ -33,6 +34,8 @@ public class Utils
 		private static final long serialVersionUID = 1239597891574347740L;
 	}
 
+	private static SecureRandom randomSecure = new SecureRandom();
+	
 	/**
 	 * 
 	 */
@@ -57,8 +60,8 @@ public class Utils
 
 		for (int i = 0; i < length; i++)
 		{
-			rtn.append(TOKEN_ALPHABET.charAt(
-					(int) Math.floor(Math.random() * TOKEN_ALPHABET.length())));
+			int offset = randomSecure.nextInt(TOKEN_ALPHABET.length());
+			rtn.append(TOKEN_ALPHABET.substring(offset,offset+1));
 		}
 
 		return rtn.toString();

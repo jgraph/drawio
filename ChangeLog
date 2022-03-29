@@ -1,3 +1,10 @@
+29-MAR-2022: 17.2.5
+
+- Adds lazy parsing of file data for shadow pages
+- Adds selection option in print dialog for one page
+- Changes token generation to use SecureRandom.
+- [conf cloud] Increases timeout after successful write to next write
+
 25-MAR-2022: 17.2.4
 
 - Fixes replace is not a function
