@@ -1302,7 +1302,7 @@ Draw.loadPlugin(function(ui)
 	 * Workaround for changing etag after save is higher autosave delay to allow
 	 * for preflight etag update and decrease possible conflicts on file save.
 	 */
-	EmbedFile.prototype.autosaveDelay = 500;
+	EmbedFile.prototype.autosaveDelay = 3500;
 
 	/**
 	 * Delay for last save in ms.
@@ -1357,7 +1357,7 @@ Draw.loadPlugin(function(ui)
 
 	EmbedFile.prototype.isRealtimeSupported = function()
 	{
-		return (xdm_e == 'https://drawio-rt.atlassian.net') || (xdm_e == 'https://team-drawio.atlassian.net');
+		return true;
 	};
 	
 	/**
@@ -1390,6 +1390,8 @@ Draw.loadPlugin(function(ui)
 	 */
 	EmbedFile.prototype.saveFile = function(title, revision, success, error, unloading, overwrite)
 	{
+		EditorUi.debug('EmbedFile.saveFile', [this], 'savingFile', this.savingFile);
+
 		try
 		{
 			if (!this.isEditable())
@@ -1495,18 +1497,23 @@ Draw.loadPlugin(function(ui)
 										
 										if (this.sync != null)
 										{
-											this.sync.maxCatchupRetries = 6;
+											this.sync.maxCatchupRetries = 12;
 											this.savingFile = true;
 											
 											this.sync.fileConflict(desc, mxUtils.bind(this, function()
 											{
 												// Adds random cool-off
+												var delay = 300 + Math.random() * 300;
+
 												window.setTimeout(mxUtils.bind(this, function()
 												{
 													this.updateFileData();
 													this.setShadowModified(false);
 													doSave(realOverwrite, true);
-												}), 100 + Math.random() * 500 + (err.isLocked? 500 : 0));
+												}), delay);
+
+												EditorUi.debug('EmbedFile.saveFile.conflict',
+													[this], 'err', err, 'delay', delay);
 											}), mxUtils.bind(this, function()
 											{
 												this.savingFile = false;
@@ -1560,10 +1567,6 @@ Draw.loadPlugin(function(ui)
 					doSave(overwrite, revision);				
 				}));
 			}
-			else
-			{
-				this.missedSave = true;
-			}
 		}
 		catch (e)
 		{
@@ -1575,27 +1578,6 @@ Draw.loadPlugin(function(ui)
 			{
 				throw e;
 			}
-		}
-	};
-
-	EmbedFile.prototype.fileChanged = function()
-	{
-		var me = this, args = arguments;
-
-		function doFileChanged()
-		{
-			DrawioFile.prototype.fileChanged.apply(me, args);
-		}
-
-		if (this.missedSave)
-		{
-			 //Do a random delay to give others a chance to acquire the lock
-			window.setTimeout(doFileChanged, 1500 + Math.random() * 500);
-			this.missedSave = false;
-		}
-		else
-		{
-			doFileChanged()
 		}
 	};
 

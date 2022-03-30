@@ -549,14 +549,18 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			EditorUi.logError('Checksum Error in ' + functionName + ' ' + this.getId(),
 				null, this.getMode() + '.' + this.getId(),
 				'user_' + uid + ((this.sync != null) ?
-				'-client_' + this.sync.clientId : '-nosync'));
+				'-client_' + this.sync.clientId : '-nosync') +
+				'-bytes_' + JSON.stringify(patches).length +
+				'-patches_' + patches.length);
 			
 			// Logs checksum error for file
 			try
 			{
 				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + this.getHash(),
 					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
-					'-client_' + this.sync.clientId : '-nosync')});
+					'-client_' + this.sync.clientId : '-nosync') +
+					'-bytes_' + JSON.stringify(patches).length +
+					'-patches_' + patches.length});
 			}
 			catch (e)
 			{
@@ -836,6 +840,11 @@ DrawioFile.prototype.save = function(revision, success, error, unloading, overwr
 {
 	try
 	{
+		EditorUi.debug('DrawioFile.save', [this], 'revision', revision,
+			'unloading', unloading, 'overwrite', overwrite, 'manual', manual,
+			'saving', this.savingFile, 'editable', this.isEditable(),
+			'invalidChecksum', this.invalidChecksum);
+
 		if (!this.isEditable())
 		{
 			if (error != null)
@@ -1925,6 +1934,9 @@ DrawioFile.prototype.handleFileSuccess = function(saved)
 	
 	if (this.ui.getCurrentFile() == this)
 	{
+		EditorUi.debug('DrawioFile.handleFileSuccess', [this],
+			'saved', saved, 'modified', this.isModified());
+
 		if (this.isModified())
 		{
 			this.fileChanged();
@@ -2292,8 +2304,9 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 		}
 
 		EditorUi.debug('DrawioFile.autosave', [this],
-			'thread', thread, 'modified', this.isModified(),
-			'autosaveNow', this.isAutosaveNow());
+			'thread', thread, 'saving', this.savingFile,
+			'modified', this.isModified(),
+			'now', this.isAutosaveNow());
 		
 		// Workaround for duplicate save if UI is blocking
 		// after save while pending autosave triggers
@@ -2336,8 +2349,9 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 		}
 	}), tmp);
 
-	EditorUi.debug('DrawioFile.autosave',
-		[this], 'thread', thread);
+	EditorUi.debug('DrawioFile.autosave', [this],
+		'thread', thread, 'delay', tmp,
+		'saving', this.savingFile);
 
 	this.autosaveThread = thread;
 };

@@ -101,6 +101,11 @@
 	EditorUi.scratchpadHelpLink = 'https://www.diagrams.net/doc/faq/scratchpad';
 
 	/**
+	 * Specifies if the edit option should be shown in the HTML export dialog.
+	 */
+	EditorUi.enableHtmlEditOption = true;
+ 
+	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
 	EditorUi.defaultMermaidConfig = {
@@ -264,10 +269,7 @@
 				
 				for (var i = 0; i < arguments.length; i++)
 			    {
-					if (arguments[i] != null)
-					{
-						args.push(arguments[i]);
-					}
+					args.push(arguments[i]);
 			    }
 			    
 				console.log.apply(console, args);
@@ -5765,10 +5767,18 @@
 		var layers = this.addCheckbox(div, mxResources.get('layers'), true);
 		var tags = this.addCheckbox(div, mxResources.get('tags'), true);
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
-		
-		var editSection = this.addEditButton(div, lightbox);
+
+		// Writes to dummy div if disabled
+		var c = (EditorUi.enableHtmlEditOption) ? div : div.cloneNode();
+		var editSection = this.addEditButton(c, lightbox);
 		var edit = editSection.getEditInput();
 		edit.style.marginBottom = '16px';
+		var h = 430;
+
+		if (!EditorUi.enableHtmlEditOption)
+		{
+			h -= 50;
+		}
 		
 		mxEvent.addListener(lightbox, 'change', function()
 		{
@@ -5795,7 +5805,7 @@
 		{
 			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSection.getTarget(),
 				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, tags.checked,
-				lightbox.checked, editSection.getLink());
+				lightbox.checked, (EditorUi.enableHtmlEditOption) ? editSection.getLink() : null);
 		}), null, btnLabel, helpLink);
 		this.showDialog(dlg.container, 340, 430, true, true);
 		copyRadio.focus();

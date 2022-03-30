@@ -1,8 +1,18 @@
+30-MAR-2022: 17.3.0
+
+- [conf cloud] Enables RT on all domains
+- [jira cloud] Fixes conf auth when multiple sites are allowed
+- Adds enableHtmlEditOption in EditorUi [DID-4610]
+
+30-MAR-2022: 17.2.6
+
+- [jira cloud] Adds Configuration page with re-indexing functionality
+
 29-MAR-2022: 17.2.5
 
 - Adds lazy parsing of file data for shadow pages
 - Adds selection option in print dialog for one page
-- Changes token generation to use SecureRandom.
+- Changes token generation to use SecureRandom
 - [conf cloud] Increases timeout after successful write to next write
 
 25-MAR-2022: 17.2.4
