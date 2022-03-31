@@ -1,4 +1,5 @@
-function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback, errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath)
+function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRecentList, addToRecent, pickedFileCallback,
+	errorFn, foldersOnly, backFn, withSubmitBtn, withThumbnail, initFolderPath, acceptAllFiles)
 {
 	var previewHtml = '';
 	
@@ -76,6 +77,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 	var isDarkMode = window.Editor != null && Editor.isDarkMode != null && Editor.isDarkMode();
 	
 	var css = 
+		'.odCatsList *, .odFilesSec * { user-select: none; }' +
 		'.odCatsList {' +
 		'	box-sizing: border-box;' + 
 		'	position:absolute;' + 
@@ -598,7 +600,10 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 							selectedFile = item2;
 							selectedDriveId = driveId;
 							
-							previewFn(selectedFile);
+							if (!acceptAllFiles)
+							{
+								previewFn(selectedFile);
+							}
 						}
 					});
 				})(item, row);

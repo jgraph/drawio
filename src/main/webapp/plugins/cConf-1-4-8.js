@@ -1357,7 +1357,7 @@ Draw.loadPlugin(function(ui)
 
 	EmbedFile.prototype.isRealtimeSupported = function()
 	{
-		return true;
+		return urlParams['lockdown'] != '1';
 	};
 	
 	/**

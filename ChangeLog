@@ -1,3 +1,11 @@
+31-MAR-2022: 17.4.0
+
+- Disables text selection in OneDrive inline picker
+- [jira cloud] Fixes re-indexing of old diagrams
+- Fixes NPE for OneDrive file in LinkDialog https://github.com/jgraph/drawio/issues/2721
+- Fixes modal sync status in embed with sketch theme
+- GAE API SDK update to 1.9.95
+
 30-MAR-2022: 17.3.0
 
 - [conf cloud] Enables RT on all domains
@@ -27,7 +35,7 @@
 
 24-MAR-2022: 17.2.2
 
-- Adds Shift+Alt for floating connections https://github.com/jgraph/drawio/issues/DID-4550
+- Adds Shift+Alt for floating connections [DID-4550]
 
 23-MAR-2022: 17.2.1
 

@@ -397,7 +397,6 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 	}
 };
 
-
 OneDriveClient.prototype.getAccountTypeAndEndpoint = function(success, error)
 {
 	this.get(this.baseUrl + '/me/drive/root', mxUtils.bind(this, function(req)
@@ -1290,7 +1289,7 @@ OneDriveClient.prototype.pickLibrary = function(fn)
 	});
 };
 
-OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
+OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAllFiles)
 {
 	return mxUtils.bind(this, function()
 	{
@@ -1306,16 +1305,23 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
 			{
 				if (foldersOnly && typeof item.folder == 'object')
 				{
-					fn({
-						value: [item]
-					});
-					return;
+					fn({value: [item]});
 				}
 				else if (!item.folder)
 				{
-					fn(OneDriveFile.prototype.getIdOf(item));
-					return;
+					var id = OneDriveFile.prototype.getIdOf(item);
+
+					this.executeRequest(this.getItemURL(id), mxUtils.bind(this, function(req)
+					{
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						{
+							var meta = JSON.parse(req.getText());
+							fn(id, {value: [meta]});
+						}
+					}), null);
 				}
+
+				return;
 			}
 			
 			return mxResources.get('invalidSel', null, 'Invalid selection');
@@ -1354,7 +1360,7 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly)
 		mxUtils.bind(this, function(err)
 		{
 			this.ui.showError(mxResources.get('error'), err);
-		}), foldersOnly); 
+		}), foldersOnly, null, null, null, null, acceptAllFiles); 
 	});
 };
 
@@ -1439,7 +1445,7 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-OneDriveClient.prototype.pickFile = function(fn)
+OneDriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 {
 	fn = (fn != null) ? fn : mxUtils.bind(this, function(id)
 	{
@@ -1451,7 +1457,7 @@ OneDriveClient.prototype.pickFile = function(fn)
 		this.ui.showError(mxResources.get('error'), e && e.message? e.message : e);
 	});
 	
-	var odOpenDlg = this.inlinePicker? this.createInlinePicker(fn) :
+	var odOpenDlg = this.inlinePicker? this.createInlinePicker(fn, null, acceptAllFiles) :
 							mxUtils.bind(this, function()
 	{
 		OneDrive.open(

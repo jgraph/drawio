@@ -5768,46 +5768,45 @@
 		var tags = this.addCheckbox(div, mxResources.get('tags'), true);
 		var lightbox = this.addCheckbox(div, mxResources.get('lightbox'), true);
 
-		// Writes to dummy div if disabled
-		var c = (EditorUi.enableHtmlEditOption) ? div : div.cloneNode();
-		var editSection = this.addEditButton(c, lightbox);
-		var edit = editSection.getEditInput();
-		edit.style.marginBottom = '16px';
-		var h = 430;
+		var editSection = null;
+		var h = 380;
 
-		if (!EditorUi.enableHtmlEditOption)
+		if (EditorUi.enableHtmlEditOption)
 		{
-			h -= 50;
+			editSection = this.addEditButton(div, lightbox);
+			var edit = editSection.getEditInput();
+			edit.style.marginBottom = '16px';
+			h += 50;
+
+			mxEvent.addListener(lightbox, 'change', function()
+			{
+				if (lightbox.checked)
+				{
+					edit.removeAttribute('disabled');
+				}
+				else
+				{
+					edit.setAttribute('disabled', 'disabled');
+				}
+				
+				if (edit.checked && lightbox.checked)
+				{
+					editSection.getEditSelect().removeAttribute('disabled');
+				}
+				else
+				{
+					editSection.getEditSelect().setAttribute('disabled', 'disabled');
+				}
+			});
 		}
-		
-		mxEvent.addListener(lightbox, 'change', function()
-		{
-			if (lightbox.checked)
-			{
-				edit.removeAttribute('disabled');
-			}
-			else
-			{
-				edit.setAttribute('disabled', 'disabled');
-			}
-			
-			if (edit.checked && lightbox.checked)
-			{
-				editSection.getEditSelect().removeAttribute('disabled');
-			}
-			else
-			{
-				editSection.getEditSelect().setAttribute('disabled', 'disabled');
-			}
-		});
-		
+
 		var dlg = new CustomDialog(this, div, mxUtils.bind(this, function()
 		{
 			fn((publicUrlRadio.checked) ? publicUrl : null, zoom.checked, zoomInput.value, linkSection.getTarget(),
 				linkSection.getColor(), fit.checked, allPages.checked, layers.checked, tags.checked,
-				lightbox.checked, (EditorUi.enableHtmlEditOption) ? editSection.getLink() : null);
+				lightbox.checked, (editSection != null) ? editSection.getLink() : null);
 		}), null, btnLabel, helpLink);
-		this.showDialog(dlg.container, 340, 430, true, true);
+		this.showDialog(dlg.container, 340, h, true, true);
 		copyRadio.focus();
 	};
 	
@@ -12812,6 +12811,7 @@
 						if (data.title != null && this.buttonContainer != null)
 						{
 							var tmp = document.createElement('span');
+							tmp.style.marginLeft = '4px';
 							mxUtils.write(tmp, data.title);
 							
 							if (this.embedFilenameSpan != null)

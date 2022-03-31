@@ -2310,16 +2310,16 @@ EditorUi.initMinimalTheme = function()
 				}
 			});
 					
-			// Connects the status bar to the editor status and
-			// moves status to bell icon tooltip for trivial messages
-			if (urlParams['embed'] != '1')
-			{
-				menubar.style.visibility = (menubar.clientWidth < 14) ? 'hidden' : '';
+			// Connects the status bar to the editor status and moves
+			// status to bell icon title for frequent common messages
+			menubar.style.visibility = (menubar.clientWidth < 14) ? 'hidden' : '';
 
-				ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
+			ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
+			{
+				ui.setStatusText(ui.editor.getStatus());
+
+				if (urlParams['embed'] != '1')
 				{
-					ui.setStatusText(ui.editor.getStatus());
-		
 					if (ui.statusContainer.children.length == 0 ||
 						(ui.statusContainer.children.length == 1 &&
 						typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
@@ -2353,17 +2353,10 @@ EditorUi.initMinimalTheme = function()
 						
 						statusVisible = true;
 					}
+				}
 
-					menubar.style.visibility = (menubar.clientWidth > 12) ? '' : 'hidden';
-				}));
-			}
-			else
-			{
-				ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
-				{
-					menubar.style.visibility = (menubar.clientWidth > 16) ? '' : 'hidden';
-				}));
-			}
+				menubar.style.visibility = (menubar.clientWidth > 12) ? '' : 'hidden';
+			}));
 			
 			elt = addMenu('diagram', null, Editor.menuImage);
 			elt.style.boxShadow = 'none';

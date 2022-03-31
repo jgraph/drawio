@@ -5484,7 +5484,7 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 			{
 				linkInput.value = files.value[0].webUrl;
 				linkInput.focus();
-			});
+			}, true);
 		});
 	}
 	
