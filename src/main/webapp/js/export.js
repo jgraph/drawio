@@ -808,6 +808,13 @@ function render(data)
 				bounds.add(new mxRectangle(
 					(t.x + bgImg.x) * s, (t.y + bgImg.y) * s,
 					bgImg.width * s, bgImg.height * s));
+
+				if (t.x < 0 || t.y < 0)
+				{
+					graph.view.setTranslate(t.x < 0? -bgImg.x * s : t.x, t.y < 0? -bgImg.y * s : t.y);
+					bounds.x = 0.5;
+					bounds.y = 0.5;
+				}
 			}
 
 			// Adds shadow

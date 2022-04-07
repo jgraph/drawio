@@ -540,7 +540,7 @@ OneDriveFile.prototype.saveFile = function(title, revision, success, error, unlo
  */
 OneDriveFile.prototype.rename = function(title, success, error)
 {
-	var etag = this.getCurrentEtag();
+	var rev = this.getCurrentRevisionId();
 	
 	this.ui.oneDrive.renameFile(this, title, mxUtils.bind(this, function(meta)
 	{
@@ -550,7 +550,7 @@ OneDriveFile.prototype.rename = function(title, success, error)
 			
 			if (this.sync != null)
 			{
-				this.sync.descriptorChanged(etag);
+				this.sync.descriptorChanged(rev);
 			}
 			
 			this.save(true, success, error);
@@ -562,7 +562,7 @@ OneDriveFile.prototype.rename = function(title, success, error)
 
 			if (this.sync != null)
 			{
-				this.sync.descriptorChanged(etag);
+				this.sync.descriptorChanged(rev);
 			}
 			
 			if (success != null)

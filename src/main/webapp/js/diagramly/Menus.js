@@ -1931,15 +1931,14 @@
 			editorUi.actions.addAction('testInspectPages', mxUtils.bind(this, function()
 			{
 				var file = editorUi.getCurrentFile();
-
-				console.log('editorUi', editorUi);
+				console.log('editorUi', editorUi, 'file', file);
 
 				if (file != null && file.isRealtime())
 				{
-					console.log('Checksum ownPages: ' +
+					console.log('Checksum ownPages',
 						editorUi.getHashValueForPages(
 							file.ownPages));
-					console.log('Checksum theirPages: ' +
+					console.log('Checksum theirPages',
 						editorUi.getHashValueForPages(
 							file.theirPages));
 					console.log('diff ownPages/theirPages',
@@ -1950,7 +1949,7 @@
 					
 					if (shadow != null)
 					{
-						console.log('Checksum shadowPages: ' +
+						console.log('Checksum shadowPages',
 							editorUi.getHashValueForPages(shadow));
 						console.log('diff shadowPages/ownPages',
 							editorUi.diffPages(shadow, file.ownPages));
@@ -1962,7 +1961,7 @@
 
 					if (file.sync != null && file.sync.snapshot != null)
 					{
-						console.log('Checksum snapshot: ' +
+						console.log('Checksum snapshot',
 							editorUi.getHashValueForPages(
 								file.sync.snapshot));
 						console.log('diff ownPages/snapshot',
@@ -1982,9 +1981,6 @@
 
 					if (editorUi.pages != null)
 					{
-						console.log('Checksum actualPages: ' +
-							editorUi.getHashValueForPages(
-								editorUi.pages));
 						console.log('diff ownPages/actualPages',
 							editorUi.diffPages(file.ownPages,
 								editorUi.pages));
@@ -1992,6 +1988,20 @@
 							editorUi.diffPages(file.theirPages,
 								editorUi.pages));
 					}
+				}
+
+				if (file != null)
+				{
+					console.log('Shadow pages',
+						[editorUi.getXmlForPages(
+							file.getShadowPages())]);
+				}
+
+				if (editorUi.pages != null)
+				{
+					console.log('Checksum actualPages',
+						editorUi.getHashValueForPages(
+							editorUi.pages));
 				}
 			}));
 			
@@ -2094,10 +2104,8 @@
 			this.put('testDevelop', new Menu(mxUtils.bind(this, function(menu, parent)
 			{
 				this.addMenuItems(menu, ['createSidebarEntry', 'showBoundingBox', '-',
-					'testInspectPages', 'testFixPages', '-',
-					'testCheckFile', 'testDiff', '-',
-					'testInspect', '-', 'testXmlImageExport', '-',
-					'testShowConsole'], parent);
+					'testInspectPages', 'testFixPages', '-', 'testCheckFile', 'testDiff', '-',
+					'testInspect', '-', 'testXmlImageExport', '-', 'testShowConsole'], parent);
 			})));
 		}
 

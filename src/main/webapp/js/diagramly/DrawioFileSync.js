@@ -274,7 +274,7 @@ DrawioFileSync.prototype.cacheReadyDelay = 700;
 /**
  * Specifies if descriptor change events should be ignored.
  */
-DrawioFileSync.prototype.maxOptimisticReloadRetries = 6;
+DrawioFileSync.prototype.maxOptimisticRetries = 6;
 
 /**
  * Inactivity timeout is 30 minutes.
@@ -756,13 +756,13 @@ DrawioFileSync.prototype.isValidState = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFileSync.prototype.optimisticSync = function(retryCount)
+DrawioFileSync.prototype.optimisticSync = function(count)
 {
 	if (this.reloadThread == null)
 	{
-		retryCount = (retryCount != null) ? retryCount : 0;
+		count = (count != null) ? count : 0;
 		
-		if (retryCount < this.maxOptimisticReloadRetries)
+		if (count < this.maxOptimisticRetries)
 		{
 			this.reloadThread = window.setTimeout(mxUtils.bind(this, function()
 			{
@@ -772,13 +772,13 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
 				
 					if (latestFile != null)
 					{
-						var etag = latestFile.getCurrentRevisionId();
-						var current = this.file.getCurrentRevisionId();
+						var source = this.file.getCurrentRevisionId();
+						var target = latestFile.getCurrentRevisionId();
 						
 						// Retries if the file has not changed
-						if (current == etag)
+						if (source == target)
 						{
-							this.optimisticSync(retryCount + 1);
+							this.optimisticSync(count + 1);
 						}
 						else
 						{
@@ -793,10 +793,11 @@ DrawioFileSync.prototype.optimisticSync = function(retryCount)
 				{
 					this.reloadThread = null;
 				}));
-			}), (retryCount + 1) * this.file.optimisticSyncDelay);
+			}), (count + 1) * this.file.optimisticSyncDelay);
 		}
 		
-		EditorUi.debug('DrawioFileSync.optimisticSync', [this], 'retryCount', retryCount);
+		EditorUi.debug('DrawioFileSync.optimisticSync', [this],
+			'attempt', count, 'of', this.maxOptimisticRetries);
 	}
 };
 
@@ -1230,7 +1231,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 	{
 		this.file.stats.merged++;
 		this.lastModified = new Date();
-		var etag = this.file.getDescriptorRevisionId(desc);
+		var target = this.file.getDescriptorRevisionId(desc);
 		var ignored = this.file.ignorePatches(patches);
 		
 		if (!ignored)
@@ -1250,21 +1251,26 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			this.file.setShadowPages(shadow);
 			
 			EditorUi.debug('DrawioFileSync.merge', [this], 'patches', patches,
-				'backup', this.file.backupPatch, 'pending', pending,
-				'checksum', checksum, 'current', current, 'valid',
-				checksum == current, 'attempt', this.catchupRetryCount,
-				'from', this.file.getCurrentRevisionId(), 'to', etag,
+				'backup', this.file.backupPatch, 'pending', pending, 'checksum',
+				checksum, 'current', current, 'valid', checksum == current,
+				'attempt', this.catchupRetryCount, 'of', this.maxCatchupRetries,
+				'from', this.file.getCurrentRevisionId(), 'to', target,
 				'etag', this.file.getDescriptorEtag(desc));
 		
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
-				var to = this.ui.hashValue(etag);
+				var to = this.ui.hashValue(target);
 				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
 				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
-					'\nChecksum: ' + checksum + '\nCurrent: ' + current, etag, 'merge');
-				EditorUi.debug('DrawioFileSync.merge.checksumError', [this],
-					'data', [this.file.data, this.file.createData()]);
+					'\nChecksum: ' + checksum + '\nCurrent: ' + current, target, 'merge');
+
+				if (urlParams['test'] == '1')
+				{
+					EditorUi.debug('DrawioFileSync.merge.checksumError', [this],
+						'data', [this.file.data, this.file.createData(),
+							this.ui.getXmlForPages(shadow)]);
+				}
 
 				// Uses current state as shadow to compute diff since
 				// shadowPages has been modified in-place above
@@ -1328,7 +1334,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			if (this.file.errorReportsEnabled)
 			{
 				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				var to = this.ui.hashValue(etag);
+				var to = this.ui.hashValue(target);
 				
 				this.file.sendErrorReport('Error in merge',
 					'From: ' + from + '\nTo: ' + to +
@@ -1362,8 +1368,8 @@ DrawioFileSync.prototype.fileChanged = function(success, error, abort, lazy)
 	{
 		if (abort == null || !abort())
 		{
-			EditorUi.debug('DrawioFileSync.fileChanged', [this], 'lazy', lazy,
-				'valid', this.isValidState());
+			EditorUi.debug('DrawioFileSync.fileChanged', [this],
+				'lazy', lazy, 'valid', this.isValidState());
 
 			if (!this.isValidState())
 			{
@@ -1443,14 +1449,14 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 {
 	if (desc != null && (abort == null || !abort()))
 	{
-		var etag = this.file.getDescriptorRevisionId(desc);
-		var current = this.file.getCurrentRevisionId();
+		var source = this.file.getCurrentRevisionId();
+		var target = this.file.getDescriptorRevisionId(desc);
 		
 		EditorUi.debug('DrawioFileSync.catchup', [this],
-			'desc', [desc], 'etag', etag, 'current', current,
+			'desc', [desc], 'from', source, 'to', target,
 			'valid', this.isValidState());
 
-		if (current == etag)
+		if (source == target)
 		{
 			this.file.patchDescriptor(this.file.getDescriptor(), desc);
 			
@@ -1477,7 +1483,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 			else
 			{
 				// Cache entry may not have been uploaded to cache before new
-				// etag is visible to client so retry once after cache miss
+				// file is visible to client so retry once after cache miss
 				var cacheReadyRetryCount = 0;
 				var failed = false;
 				
@@ -1486,7 +1492,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 					if (abort == null || !abort())
 					{
 						// Ignores patch if shadow has changed
-						if (current != this.file.getCurrentRevisionId())
+						if (source != this.file.getCurrentRevisionId())
 						{
 							if (success != null)
 							{
@@ -1512,7 +1518,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 							}), this.ui.timeout);
 	
 							mxUtils.get(EditorUi.cacheUrl + '?id=' + encodeURIComponent(this.channelId) +
-								'&from=' + encodeURIComponent(current) + '&to=' + encodeURIComponent(etag) +
+								'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
 								((secret != null) ? '&secret=' + encodeURIComponent(secret) : ''),
 								mxUtils.bind(this, function(req)
 							{
@@ -1522,7 +1528,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 								if (acceptResponse && (abort == null || !abort()))
 								{
 									// Ignores patch if shadow has changed
-									if (current != this.file.getCurrentRevisionId())
+									if (source != this.file.getCurrentRevisionId())
 									{
 										if (success != null)
 										{
@@ -1664,7 +1670,7 @@ DrawioFileSync.prototype.reload = function(success, error, abort, shadow)
 /**
  * Invokes when the file descriptor was changed.
  */
-DrawioFileSync.prototype.descriptorChanged = function(etag)
+DrawioFileSync.prototype.descriptorChanged = function(source)
 {
 	this.lastModified = this.file.getLastModifiedDate();
 	
@@ -1672,14 +1678,17 @@ DrawioFileSync.prototype.descriptorChanged = function(etag)
 	{
 		var msg = this.objectToString(this.createMessage({a: 'desc',
 			m: this.lastModified.getTime()}));
-		var current = this.file.getCurrentRevisionId();
+		var target = this.file.getCurrentRevisionId();
 		var data = this.objectToString({});
 
 		mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
-			'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
+			'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
 			'&msg=' + encodeURIComponent(msg) + '&data=' + encodeURIComponent(data));
 		this.file.stats.bytesSent += data.length;
 		this.file.stats.msgSent++;
+
+		EditorUi.debug('DrawioFileSync.descriptorChanged',
+			[this], 'from', source, 'to', target);
 	}
 	
 	this.updateStatus();
@@ -1793,8 +1802,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 			// Computes diff and checksum
 			var msg = this.objectToString(this.createMessage({m: this.lastModified.getTime()}));
 			var secret = this.file.getDescriptorSecret(this.file.getDescriptor());
-			var etag = this.file.getDescriptorRevisionId(lastDesc);
-			var current = this.file.getCurrentRevisionId();
+			var source = this.file.getDescriptorRevisionId(lastDesc);
+			var target = this.file.getCurrentRevisionId();
 			
 			if (secret == null || urlParams['lockdown'] == '1')
 			{
@@ -1812,8 +1821,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					success();
 				}
 				
-				EditorUi.debug('DrawioFileSync.fileSaved', [this], 'from', etag,
-					'to', current, 'etag', this.file.getCurrentEtag());
+				EditorUi.debug('DrawioFileSync.fileSaved', [this], 'from', source,
+					'to', target, 'etag', this.file.getCurrentEtag());
 			}
 			else
 			{
@@ -1835,7 +1844,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 				}), this.ui.timeout);
 				
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
-					'&from=' + encodeURIComponent(etag) + '&to=' + encodeURIComponent(current) +
+					'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
 					'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +
 					((lastSecret != null) ? '&last-secret=' + encodeURIComponent(lastSecret) : '') +
 					((data.length < this.maxCacheEntrySize) ? '&data=' + encodeURIComponent(data) : '') +
@@ -1861,9 +1870,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 				}));
 				
 				EditorUi.debug('DrawioFileSync.fileSaved', [this], 'diff', diff,
-					data.length, 'bytes', 'from', etag, 'to', current,
-					'etag', this.file.getCurrentEtag(),
-					'checksum', checksum);
+					data.length, 'bytes', 'from', source, 'to', target,
+					'etag', this.file.getCurrentEtag(), 'checksum', checksum);
 			}
 			
 			// Logs successull diff

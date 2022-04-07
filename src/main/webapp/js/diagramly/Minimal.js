@@ -532,7 +532,6 @@ EditorUi.initMinimalTheme = function()
 			'html body .geToolbarButton:active { opacity: 0.15; }' +
 			'html body .geStatus:active { opacity: 0.5; }' +
 			'.geStatus > div { box-sizing: border-box; max-width: 100%; text-overflow: ellipsis; }' +
-			'html body .geStatus { padding-top:3px !important; }' +
 			'html body .geMenubarContainer .geStatus { margin-top: 0px !important; }' +
 			'html table.mxPopupMenu tr.mxPopupMenuItemHover:active { opacity: 0.7; }' +
 			'html body .geDialog input, html body .geToolbarContainer input, html body .mxWindow input {padding: 2px; display: inline-block; }' +
@@ -2281,19 +2280,22 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.picker = picker;
 			var statusVisible = false;
-
-			mxEvent.addListener(menubar, 'mouseenter', function()
-			{
-				ui.statusContainer.style.display = 'inline-block';
-			});
 			
-			mxEvent.addListener(menubar, 'mouseleave', function()
+			if (urlParams['embed'] != '1')
 			{
-				if (!statusVisible)
+				mxEvent.addListener(menubar, 'mouseenter', function()
 				{
-					ui.statusContainer.style.display = 'none';
-				}
-			});
+					ui.statusContainer.style.display = 'inline-block';
+				});
+				
+				mxEvent.addListener(menubar, 'mouseleave', function()
+				{
+					if (!statusVisible)
+					{
+						ui.statusContainer.style.display = 'none';
+					}
+				});
+			}
 			
 			var setNotificationTitle = mxUtils.bind(this, function(title)
 			{
@@ -2312,7 +2314,7 @@ EditorUi.initMinimalTheme = function()
 					
 			// Connects the status bar to the editor status and moves
 			// status to bell icon title for frequent common messages
-			menubar.style.visibility = (menubar.clientWidth < 14) ? 'hidden' : '';
+			menubar.style.visibility = (menubar.clientWidth < 20) ? 'hidden' : '';
 
 			ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
 			{
@@ -2350,12 +2352,11 @@ EditorUi.initMinimalTheme = function()
 					{
 						ui.statusContainer.style.display = 'inline-block';
 						setNotificationTitle(null);
-						
 						statusVisible = true;
 					}
 				}
 
-				menubar.style.visibility = (menubar.clientWidth > 12) ? '' : 'hidden';
+				menubar.style.visibility = (menubar.clientWidth < 20 && !statusVisible) ? 'hidden' : '';
 			}));
 			
 			elt = addMenu('diagram', null, Editor.menuImage);

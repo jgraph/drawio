@@ -49,10 +49,10 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
-"@types/node@^14.6.2":
-  version "14.18.1"
-  resolved "https://registry.npmjs.org/@types/node/-/node-14.18.1.tgz"
-  integrity sha512-fTFWOFrgAkj737w1o0HLTIgisgYHnsZfeiqhG1Ltrf/iJjudEbUwetQAsfrtVE49JGwvpEzQR+EbMkIqG4227g==
+"@types/node@^16.11.26":
+  version "16.11.26"
+  resolved "https://registry.npmjs.org/@types/node/-/node-16.11.26.tgz"
+  integrity sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==
 
 "@types/semver@^7.3.6":
   version "7.3.8"
@@ -317,13 +317,13 @@ electron-updater@^4.6.5:
     lodash.isequal "^4.5.0"
     semver "^7.3.5"
 
-electron@^16.1.0:
-  version "16.1.0"
-  resolved "https://registry.npmjs.org/electron/-/electron-16.1.0.tgz"
-  integrity sha512-G4fpHmE3sgd497e0zEier/AmZ4fyReX8ozYAl468+FaI5kb44+69igRHQwRUtmPzv+fCn/Jm4wJQPfLe60WmUQ==
+electron@^18.0.1:
+  version "18.0.1"
+  resolved "https://registry.npmjs.org/electron/-/electron-18.0.1.tgz"
+  integrity sha512-8y3nxmK+v/tiuaR8yd4K83ApHxgomMIPAEl3J+2Jfv/D5G6M3KnvxNlNiNoTXI8uOegfmoqiDm5/2xlWFLzfLQ==
   dependencies:
     "@electron/get" "^1.13.0"
-    "@types/node" "^14.6.2"
+    "@types/node" "^16.11.26"
     extract-zip "^1.0.3"
 
 encodeurl@^1.0.2:

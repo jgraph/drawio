@@ -4432,6 +4432,26 @@ EditorUi.prototype.createStatusContainer = function()
 EditorUi.prototype.setStatusText = function(value)
 {
 	this.statusContainer.innerHTML = value;
+
+	// Wraps simple status messages in a div for styling
+	if (this.statusContainer.getElementsByTagName('div').length == 0)
+	{
+		this.statusContainer.innerHTML = '';
+		var div = this.createStatusDiv(value);
+		this.statusContainer.appendChild(div);
+	}
+};
+
+/**
+ * Creates a new toolbar for the given container.
+ */
+EditorUi.prototype.createStatusDiv = function(value)
+{
+	var div = document.createElement('div');
+	div.setAttribute('title', value);
+	div.innerHTML = value;
+
+	return div;
 };
 
 /**

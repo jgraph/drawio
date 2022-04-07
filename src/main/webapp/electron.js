@@ -87,8 +87,7 @@ function createWindow (opt = {})
 		webPreferences: {
 			preload: `${__dirname}/electron-preload.js`,
 			spellcheck: enableSpellCheck,
-			contextIsolation: true,
-			nativeWindowOpen: true
+			contextIsolation: true
 		}
 	}, opt)
 
@@ -286,8 +285,7 @@ app.on('ready', e =>
 			show : false,
 			webPreferences: {
 				preload: `${__dirname}/electron-preload.js`,
-				contextIsolation: true,
-				nativeWindowOpen: true
+				contextIsolation: true
 			}
 		});
     	
@@ -1218,8 +1216,7 @@ function exportDiagram(event, args, directFinalize)
 			webPreferences: {
 				preload: `${__dirname}/electron-preload.js`,
 				backgroundThrottling: false,
-				contextIsolation: true,
-				nativeWindowOpen: true
+				contextIsolation: true
 			},
 			show : false,
 			frame: false,

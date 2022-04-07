@@ -34,6 +34,6 @@
     "pdf-lib": "^1.16.0"
   },
   "devDependencies": {
-    "electron": "^16.1.0"
+    "electron": "^18.0.1"
   }
 }

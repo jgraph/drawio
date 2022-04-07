@@ -58,8 +58,11 @@
 	/**
 	 * Specifies the URL for the diffsync cache.
 	 */
-	EditorUi.cacheUrl = (urlParams['dev'] == '1') ? 'https://app.diagrams.net/cache' : window.REALTIME_URL;
+	EditorUi.cacheUrl = window.REALTIME_URL;
 
+	/**
+	 * Disables sync if no diffsync cache is defined.
+	 */
 	if (EditorUi.cacheUrl == null && typeof DrawioFile !== 'undefined')
 	{
 		DrawioFile.SYNC = 'none'; // Disables real-time sync
@@ -12145,6 +12148,9 @@
 				try
 				{
 					data = JSON.parse(data);
+
+					EditorUi.debug('EditorUi.installMessageHandler',
+						[this], 'evt', [evt], 'data', [data]);
 				}
 				catch (e)
 				{
@@ -12811,7 +12817,6 @@
 						if (data.title != null && this.buttonContainer != null)
 						{
 							var tmp = document.createElement('span');
-							tmp.style.marginLeft = '4px';
 							mxUtils.write(tmp, data.title);
 							
 							if (this.embedFilenameSpan != null)

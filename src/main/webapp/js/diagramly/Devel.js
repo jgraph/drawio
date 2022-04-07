@@ -34,8 +34,8 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'; ';
 
 		var styleHashes = '\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
-			'\'sha256-1F7QEyp3oiW4n2eXlhilLpu+H5Wdj4t90pKtEyK/mFE=\' ' + // Minimal.js/Light
-			'\'sha256-V8wOMdVocmGIO0DHZHJsKN6viAFJOJRbsJ7UhdJlmng=\' ' + // Minimal.js/Dark
+			'\'sha256-3qaXuhL5i6KOreQtB0j5WOoUPb+vctEKKRcY1hGLenk=\' ' + // Minimal.js/Light
+			'\'sha256-ZK1F2paY4WDLYRp1tMs3Ryv4k3NYaqRXyWmk1o5KXzI=\' ' + // Minimal.js/Dark
 			'\'sha256-7kY8ozVqKLIIBwZ24dhdmZkM26PsOlZmEi72RhmZKoM=\' ' + // mxTooltipHandler.js
 			'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js/mathJaxWebkitCss
 			'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js

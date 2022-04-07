@@ -657,6 +657,47 @@ EditorUi.prototype.patchCell = function(model, cell, diff, resolve)
 /**
  * Returns the pages for the given XML string.
  */
+EditorUi.prototype.getXmlForPages = function(pages)
+{
+	var node = this.getNodeForPages(pages);
+	var result = null;
+
+	if (node != null)
+	{
+		result = mxUtils.getXml(node);
+	}
+
+	return result;
+};
+
+/**
+ * Returns the pages for the given XML string.
+ */
+EditorUi.prototype.getNodeForPages = function(pages)
+{
+	var result = null;
+
+	if (this.fileNode != null && pages != null)
+	{
+		result = this.fileNode.cloneNode(false);
+
+		for (var i = 0; i < pages.length; i++)
+		{
+			var enc = new mxCodec(mxUtils.createXmlDocument());
+			var temp = enc.encode(new mxGraphModel(pages[i].root));
+			this.editor.graph.saveViewState(pages[i].viewState, temp);
+			var node = pages[i].node.cloneNode(false);
+			node.appendChild(temp);
+			result.appendChild(node);
+		}
+	}
+
+	return result;
+};
+
+/**
+ * Returns the pages for the given XML string.
+ */
 EditorUi.prototype.getPagesForXml = function(data)
 {
 	var doc = mxUtils.parseXml(data);

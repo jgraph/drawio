@@ -1469,7 +1469,7 @@ OneDriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 			{
 				'endpointHint': mxClient.IS_IE11? null : this.endpointHint, //IE11 doen't work with our modified version, so, setting endpointHint disable using our token BUT will force relogin!
 				'redirectUri': this.pickerRedirectUri,
-				'queryParameters': 'select=id,name,parentReference', //We can also get @microsoft.graph.downloadUrl within this request but it will break the normal process
+				'queryParameters': 'select=id,name,parentReference,webUrl', //We can also get @microsoft.graph.downloadUrl within this request but it will break the normal process
 				'accessToken': _token,
 				isConsumerAccount: false
 			},
@@ -1505,7 +1505,6 @@ OneDriveClient.prototype.pickFile = function(fn, acceptAllFiles)
 		{
 			if (this.inlinePicker)
 			{
-				this.ui.hideDialog();
 				odOpenDlg();
 			}
 			else

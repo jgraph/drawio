@@ -4375,15 +4375,17 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 /**
  * Returns all labels in the diagram as a string.
  */
-Graph.prototype.getIndexableText = function()
+Graph.prototype.getIndexableText = function(cells)
 {
+	cells = (cells != null) ? cells : this.model.
+		getDescendants(this.model.root);
 	var tmp = document.createElement('div');
 	var labels = [];
 	var label = '';
 	
-	for (var key in this.model.cells)
+	for (var i = 0; i < cells.length; i++)
 	{
-		var cell = this.model.cells[key];
+		var cell = cells[i];
 		
 		if (this.model.isVertex(cell) || this.model.isEdge(cell))
 		{
@@ -10350,7 +10352,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		Graph.prototype.createSvgCanvas = function(node)
 		{
 			var canvas = new mxSvgCanvas2D(node);
-			
+			canvas.minStrokeWidth = this.cellRenderer.minSvgStrokeWidth;
 			canvas.pointerEvents = true;
 			
 			return canvas;

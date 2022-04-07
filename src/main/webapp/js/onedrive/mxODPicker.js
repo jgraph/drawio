@@ -583,7 +583,11 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 					currentItem.className += ' odRowSelected';
 					selectedFile = item;
 					selectedDriveId = driveId;
-					previewFn(selectedFile);
+					
+					if (!acceptAllFiles)
+					{
+						previewFn(selectedFile);
+					}
 				}
 				
 				(function(item2, row2)
@@ -703,9 +707,9 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 			
 			var list = resp.value || [];
 
-			var potentialDrawioFiles = isSharepointSites? list : [];
+			var potentialDrawioFiles = acceptAllFiles || isSharepointSites? list : [];
 			
-			for (var i = 0; !isSharepointSites && i < list.length; i++)
+			for (var i = 0; !isSharepointSites && !acceptAllFiles && i < list.length; i++)
 			{
 				var file = list[i];
 				var mimeType = file.file? file.file.mimeType : null;

@@ -307,7 +307,7 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 			this.setShadowPages(pages);
 			
 			if (!ignored)
-			{		
+			{
 				if (this.sync != null)
 				{
 					this.sync.sendLocalChanges();
@@ -324,9 +324,10 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
 				var current = this.ui.getHashValueForPages(pages, currentDetails);
 				
-				EditorUi.debug('File.mergeFile', [this],
-					'file', [file], 'patches', patches, 'backup', this.backupPatch,
-					'checksum', checksum, 'current', current, checksum == current);
+				EditorUi.debug('File.mergeFile', [this], 'file', [file], 'patches', patches,
+					'backup', this.backupPatch, 'checksum', checksum, 'current', current,
+					'valid', checksum == current, 'from', this.getCurrentRevisionId(),
+					'to', file.getCurrentRevisionId());
 				
 				if (checksum != null && checksum != current)
 				{
@@ -337,11 +338,9 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 					
 					this.checksumError(error, patches,
 						'Shadow Details: ' + JSON.stringify(patchedDetails) +
-						'\nChecksum: ' + checksum +
-						'\nCurrent: ' + current +
+						'\nChecksum: ' + checksum + '\nCurrent: ' + current +
 						'\nCurrent Details: ' + JSON.stringify(currentDetails) +
-						'\nFrom: ' + from +
-						'\nTo: ' + to +
+						'\nFrom: ' + from + '\nTo: ' + to +
 						'\n\nFile Data:\n' + fileData +
 						'\nPatched Shadow:\n' + data, null, 'mergeFile');
 					
@@ -367,6 +366,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 					this.patch(patches, (DrawioFile.LAST_WRITE_WINS) ?
 							this.backupPatch : null);
 				}
+			}
+			else
+			{
+				EditorUi.debug('File.mergeFile', [this],
+					'file', [file], 'ignored', ignored);
 			}
 		}
 		else
@@ -551,7 +555,8 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 				'user_' + uid + ((this.sync != null) ?
 				'-client_' + this.sync.clientId : '-nosync') +
 				'-bytes_' + JSON.stringify(patches).length +
-				'-patches_' + patches.length);
+				'-patches_' + patches.length +
+				'-size_' + this.getSize());
 			
 			// Logs checksum error for file
 			try
@@ -560,7 +565,8 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
 					'-client_' + this.sync.clientId : '-nosync') +
 					'-bytes_' + JSON.stringify(patches).length +
-					'-patches_' + patches.length});
+					'-patches_' + patches.length +
+					'-size_' + this.getSize()});
 			}
 			catch (e)
 			{
@@ -2112,7 +2118,8 @@ DrawioFile.prototype.fileChanged = function(sync)
 	this.setModified(true);
 
 	EditorUi.debug('DrawioFile.fileChanged', [this],
-		'autosave', this.isAutosave());
+		'autosave', this.isAutosave(),
+		'saving', this.savingFile);
 
 	if (this.isAutosave())
 	{

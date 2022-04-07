@@ -9,8 +9,12 @@ Draw.loadPlugin(function(ui)
 	// Adds action
 	ui.actions.addAction('extractText', function()
 	{
-		var dlg = new EmbedDialog(ui, ui.editor.graph.getIndexableText(),
-			null, null, null, 'Extracted Text:');
+		var graph = ui.editor.graph;
+		var text = graph.getIndexableText(
+			(graph.isSelectionEmpty()) ? null :
+			graph.getSelectionCells());
+		var dlg = new EmbedDialog(ui, text, null,
+			null, null, 'Extracted Text:');
 		ui.showDialog(dlg.container, 450, 240, true, true);
 		dlg.init();
 	});

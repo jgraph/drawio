@@ -5852,7 +5852,6 @@ App.prototype.updateButtonContainer = function()
 	}
 };
 
-
 App.prototype.fetchAndShowNotification = function(target, subtarget)
 {
 	if (this.fetchingNotif)
@@ -5873,7 +5872,7 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 		});
 		
 		var lsReadFlag = target + 'NotifReadTS';
-		var lastRead = (localStorage != null) ? parseInt(localStorage.getItem(lsReadFlag)) : true;
+		var lastRead = isLocalStorage ? parseInt(localStorage.getItem(lsReadFlag)) : true;
 				
 		for (var i = 0; i < notifs.length; i++)
 		{
@@ -5885,7 +5884,7 @@ App.prototype.fetchAndShowNotification = function(target, subtarget)
 	
 	try
 	{
-		if (localStorage != null)
+		if (isLocalStorage)
 		{
 			cachedNotif = JSON.parse(localStorage.getItem(cachedNotifKey));
 		}

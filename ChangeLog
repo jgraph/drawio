@@ -1,3 +1,13 @@
+06-APR-2022: 17.4.1
+
+- Fixes OneDrive inline picker in Link dialog and show all files
+- Extracts text from selection if cells selected
+- Returns indexable text in model cell order
+- Fixes minimum stroke width for image export https://github.com/jgraph/drawio/issues/2723
+- Fixes PDF printing of background images
+- [conf cloud] Fixes NPE in viewer
+- [jira cloud] Adds delete button for cases of removed embed diagrams
+
 31-MAR-2022: 17.4.0
 
 - Disables text selection in OneDrive inline picker
