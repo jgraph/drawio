@@ -1142,8 +1142,8 @@ DrawioFileSync.prototype.patchRealtime = function(patches, backup, own)
 				backup);
 		
 		// Triggers a file change to save pending local
-		// changes or updates the UI and and schedules
-		// a cleanup with no local changes.
+		// changes or updates the UI and schedules a
+		// cleanup with no pending local changes.
 		if (!mxUtils.isEmptyObject(local))
 		{
 			this.file.fileChanged(false);

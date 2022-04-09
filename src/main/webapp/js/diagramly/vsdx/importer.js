@@ -992,6 +992,7 @@ var com;
                         var textLabel = shape.getTextLabel();
                         group = graph.insertVertex(parent, null, textLabel, Math.floor(Math.round(o.x * 100) / 100), Math.floor(Math.round(o.y * 100) / 100), Math.floor(Math.round(d.x * 100) / 100), Math.floor(Math.round(d.y * 100) / 100), style);
                     }
+                    var potH = group.geometry.height;
                     var entries = (function (a) { var i = 0; return { next: function () { return i < a.length ? a[i++] : null; }, hasNext: function () { return i < a.length; } }; })(/* entrySet */ (function (m) { if (m.entries == null)
                         m.entries = []; return m.entries; })(children));
                     while ((entries.hasNext())) {
@@ -1018,11 +1019,17 @@ var com;
                             } })(type, com.mxgraph.io.vsdx.mxVsdxConstants.FOREIGN))) {
                                 if (subShape.isVertex()) {
                                     subShape.propagateRotation(shape.getRotation());
+                                    var tmpV;
                                     if (subShape.isGroup()) {
-                                        this.addGroup(graph, subShape, group, pageId, d.y);
+                                        tmpV = this.addGroup(graph, subShape, group, pageId, d.y);
                                     }
                                     else {
-                                        this.addVertex(graph, subShape, group, pageId, d.y);
+                                        tmpV = this.addVertex(graph, subShape, group, pageId, d.y);
+                                    }
+
+                                    if (tmpV && tmpV.geometry)
+                                    {
+                                        potH = Math.max(tmpV.geometry.height, potH);
                                     }
                                 }
                             }
@@ -1056,6 +1063,19 @@ var com;
                         }
                     }
                     ;
+                    if (group.children && group.geometry.height == 0 && potH > 0) 
+                    {
+                        group.geometry.height = potH;
+
+                        for (var i = 0; i < group.children.length; i++)
+                        {
+                            var child = group.children[i];
+                            if (child.geometry)
+                            {
+                                child.geometry.y += potH;
+                            }
+                        }
+                    }
                     if (subLabel) {
                         shape.createLabelSubShape(graph, group);
                     }
@@ -9301,6 +9321,19 @@ var com;
                      * @return {number} Numerical value of the width element.
                      */
                     Shape.prototype.getWidth = function () {
+                        if (this.width < 1 && this.childShapes != null)
+                        {
+                            try
+                            {
+                                for (var i = 0; i < this.childShapes.entries.length; i++)
+                                {
+                                    var c = this.childShapes.entries[i].value;
+                                    this.width = Math.max(c.width, this.width);
+                                }
+                            }
+                            catch(e){}
+                        }
+
                         return this.width === 0 && this.height > 0 ? 1 : this.width;
                     };
                     /**
@@ -9308,6 +9341,19 @@ var com;
                      * @return {number} Numerical value of the height element.
                      */
                     Shape.prototype.getHeight = function () {
+                        if (this.height < 1 && this.childShapes != null)
+                        {
+                            try
+                            {
+                                for (var i = 0; i < this.childShapes.entries.length; i++)
+                                {
+                                    var c = this.childShapes.entries[i].value;
+                                    this.height = Math.max(c.height, this.height);
+                                }
+                            }
+                            catch(e){}
+                        }
+
                         return this.height === 0 && this.width > 0 ? 1 : this.height;
                     };
                     /**
@@ -9746,6 +9792,52 @@ var com;
                     Shape.prototype.setLastKnot = function (lastKnot) {
                         this.lastKnot = lastKnot;
                     };
+
+                    Shape.prototype.getConnections = function () 
+                    {
+						var connections = [];
+
+                    	if (this.sections && this.sections['Connection'])
+                    	{
+                            var h = this.getHeight(), w = this.getWidth();
+	                    	var rows = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildNamedElements(this.sections['Connection'].elem, "Row");
+
+	                    	for (var i = 0; i < rows.length; i++)
+	                    	{
+								var cells = com.mxgraph.io.vsdx.mxVsdxUtils.getDirectChildElements(rows[i]);
+                                var x, y;
+
+                        		for (var j = 0; j < cells.length; j++)
+                    			{
+                            		var cell = cells[j];
+									var cn = cell.getAttribute("N");
+                                    var val = this.getScreenNumericalValue$org_w3c_dom_Element$double(cell, 0);
+                        			
+                        			if (cn == 'X')
+                        			{
+                            			x = mxUtils.format(val / w);
+                        			}
+                                    else if (cn == 'Y')
+                                    {
+                                        y = mxUtils.format(1 - val / h);
+                                    }
+                        		}
+
+                                if (x != null && y != null)
+                                {
+                                    connections.push({x: x, y: y});
+                                }
+		                    }
+                    	}
+
+                        if (connections.length == 0 && this.master && this.master.masterShape)
+                        {
+                            connections = this.master.masterShape.getConnections();
+                        }
+
+						return connections;
+                    };
+
                     return Shape;
                 }(com.mxgraph.io.vsdx.Style));
                 Shape.VSDX_START_TIME = new Date('1899-12-30T00:00:00Z').getTime();
@@ -10955,6 +11047,26 @@ var com;
                         } })("1", flibY)) {
                             /* put */ (this.styleMap[mxConstants.STYLE_FLIPV] = "1");
                         }
+
+                        //Connection points
+                        try
+                        {
+                            var connections = this.getConnections();
+                            var cPoints = [];
+
+                            for (var i = 0; i < connections.length; i++)
+                            {
+                                //TODO Does vsdx connections points needs dx/dy?
+                                cPoints.push('[' + connections[i].x + ',' + connections[i].y + ',0]');
+                            }
+
+                            this.styleMap['points'] = '[' + cPoints.join(',') + ']';
+                        }
+                        catch(e)
+                        {
+                            console.log(e);
+                        }
+
                         this.resolveCommonStyles();
                         return this.styleMap;
                     };

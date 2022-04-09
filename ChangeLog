@@ -1,3 +1,9 @@
+09-APR-2022: 17.4.2
+
+- Fixes height of zero height groups in vsdx import
+- Adds connection points support in vsdx import
+- Adds isolation for caches, logs reading non-latest
+
 06-APR-2022: 17.4.1
 
 - Fixes OneDrive inline picker in Link dialog and show all files

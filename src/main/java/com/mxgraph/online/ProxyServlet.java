@@ -233,7 +233,8 @@ public class ProxyServlet extends HttpServlet
 	{
 		return url != null
 				&& (url.startsWith("http://") || url.startsWith("https://"))
-				&& !url.toLowerCase().contains("://metadata.google.internal/");
+				&& !url.toLowerCase().contains("metadata.google.internal")
+				&& !url.toLowerCase().contains("169.254.169.254");
 	}
 
 	/**
