@@ -2206,20 +2206,15 @@
 
 		if (node != null)
 		{
-			// Checks input for parser errors
-			var errs = node.getElementsByTagName('parsererror');
-			
-			if (errs != null && errs.length > 0)
+			// Checks for parser errors
+			var cause = Editor.extractParserError(node, mxResources.get('invalidOrMissingFile'));
+
+			if (cause)
 			{
-				var elt = errs[0];
-				var divs = elt.getElementsByTagName('div');
-				
-				if (divs != null && divs.length > 0)
-				{
-					elt = divs[0];
-				}
-				
-				throw {message: mxUtils.getTextContent(elt)};
+				EditorUi.debug('Editor.setGraphXml ParserError', [this],
+					'node', [node], 'cause', [cause]);
+
+				throw new Error(mxResources.get('notADiagramFile') + ' (' + cause + ')');
 			}
 			else if (node.nodeName == 'mxGraphModel')
 			{

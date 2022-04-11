@@ -1763,6 +1763,9 @@
 		
 		if (cause)
 		{
+			EditorUi.debug('EditorUi.setFileData ParserError', [this],
+				'data', [data], 'node', [node], 'cause', [cause]);
+
 			throw new Error(mxResources.get('notADiagramFile') + ' (' + cause + ')');
 		}
 		else
@@ -3921,7 +3924,7 @@
 		var e = (resp != null && resp.error != null) ? resp.error : resp;
 
 		// Logs errors and writes stack to console
-		if (resp != null && resp.stack != null && resp.message != null)
+		if (resp != null && (urlParams['test'] == '1' || resp.stack != null) && resp.message != null)
 		{
 			try
 			{

@@ -24,8 +24,8 @@ window.PLANT_URL = window.PLANT_URL || 'https://plant-aws.diagrams.net';
 window.DRAW_MATH_URL = window.DRAW_MATH_URL || window.DRAWIO_BASE_URL + '/math';
 window.VSD_CONVERT_URL = window.VSD_CONVERT_URL || 'https://convert.diagrams.net/VsdConverter/api/converter';
 window.EMF_CONVERT_URL = window.EMF_CONVERT_URL || 'https://convert.diagrams.net/emf2png/convertEMF';
-window.REALTIME_URL = window.REALTIME_URL || ((window.location.hostname == 'test.draw.io') ?
-	'https://app.diagrams.net/cache' : 'cache');
+window.REALTIME_URL = window.REALTIME_URL || ((window.location.hostname == 'test.draw.io' &&
+	urlParams['cache'] != 'local') ? 'https://app.diagrams.net/cache' : 'cache');
 window.DRAWIO_GITLAB_URL = window.DRAWIO_GITLAB_URL || 'https://gitlab.com';
 window.DRAWIO_GITLAB_ID = window.DRAWIO_GITLAB_ID || '2b14debc5feeb18ba65358d863ec870e4cc9294b28c3c941cb3014eb4af9a9b4';
 window.DRAWIO_GITHUB_URL = window.DRAWIO_GITHUB_URL || 'https://github.com';
