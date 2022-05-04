@@ -1265,16 +1265,17 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
 			}
+
 			ui.menus.addMenuItems(menu, ['autosave'], parent);
 
 			if (file != null)
 			{
 				menu.addSeparator(parent);
 
-				if (graph.isEnabled() && graph.isSelectionEmpty() &&
-					file.isRealtimeEnabled() && file.isRealtimeSupported())
+				if (file.isRealtimeEnabled() && file.isRealtimeSupported())
 				{
-					this.addMenuItems(menu, ['shareCursor'], parent);
+					this.addMenuItems(menu, ['showRemoteCursors',
+						'shareCursor'], parent);
 				}
 
 				if (file.constructor == DriveFile)
@@ -1349,16 +1350,16 @@ EditorUi.initMinimalTheme = function()
 					menu.addSeparator(parent);
 
 					if (file != null)
-					{					
+					{
+						if (file.isRealtimeEnabled() && file.isRealtimeSupported())
+						{
+							this.addMenuItems(menu, ['showRemoteCursors',
+								'shareCursor'], parent);
+						}
+									
 						if (file.constructor == DriveFile)
 						{
 							ui.menus.addMenuItems(menu, ['share'], parent);
-						}
-						
-						if (graph.isEnabled() && graph.isSelectionEmpty() &&
-							file.isRealtimeEnabled() && file.isRealtimeSupported())
-						{
-							this.addMenuItems(menu, ['shareCursor'], parent);
 						}
 						
 						if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&

@@ -1,3 +1,34 @@
+04-APR-2022: 17.5.1
+
+- [conf cloud] Adds saving delay for specific timing case [DID-4851]
+- Adds "shareCursorPosition": true/false configuration
+- [conf cloud] Prevent publishing without changes creating new version
+- Fixes alt+shift for floating connection [DID-4550]
+- Changes default for shareCursorPosition to true
+- Hides non-applicable sketch options for edges
+- Fixes handling of invalid background page images
+- Adds showRemoteCursors option
+- Fixes LocalFile ctor arguments
+- Fixes lazy shadow pages, stale local draft files
+- Fixes conflict handling for writing electron files
+
+28-APR-2022: 17.5.0
+
+- Refactors GCP2 shapes
+- [conf cloud] Improves page IDs import
+
+20-APR-2022: 17.4.6
+
+- Internal release testing whiteboard app changes
+
+11-APR-2022: 17.4.5
+
+- Internal release testing whiteboard app changes
+
+11-APR-2022: 17.4.4
+
+- Internal release testing whiteboard app changes
+
 11-APR-2022: 17.4.3
 
 - Avoids null string in unused token key

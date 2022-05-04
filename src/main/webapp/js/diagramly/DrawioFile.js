@@ -7,7 +7,8 @@ DrawioFile = function(ui, data)
 	mxEventSource.call(this);
 
 	this.ui = ui;
-	this.data = data || '';
+	this.setData(data || '');
+	this.initialData = this.getData();
 	this.created = new Date().getTime();
 	
 	// Creates the stats object
@@ -180,7 +181,7 @@ DrawioFile.prototype.getShadowPages = function()
 {
 	if (this.shadowPages == null)
 	{
-		this.shadowPages = this.ui.getPagesForXml(this.data);
+		this.shadowPages = this.ui.getPagesForXml(this.initialData);
 	}
 
 	return this.shadowPages;
@@ -324,10 +325,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				var checksum = this.ui.getHashValueForPages(patched, patchedDetails);
 				var current = this.ui.getHashValueForPages(pages, currentDetails);
 				
-				EditorUi.debug('File.mergeFile', [this], 'file', [file], 'patches', patches,
-					'backup', this.backupPatch, 'checksum', checksum, 'current', current,
-					'valid', checksum == current, 'from', this.getCurrentRevisionId(),
-					'to', file.getCurrentRevisionId());
+				EditorUi.debug('File.mergeFile', [this], 'file', [file], 'shadow', shadow,
+					'pages', this.ui.pages, 'patches', patches, 'backup', this.backupPatch,
+					'checksum', checksum, 'current', current, 'valid', checksum == current,
+					'from', this.getCurrentRevisionId(), 'to', file.getCurrentRevisionId(),
+					'modified', this.isModified());
 				
 				if (checksum != null && checksum != current)
 				{
@@ -1186,6 +1188,9 @@ DrawioFile.prototype.getTitle = function()
 DrawioFile.prototype.setData = function(data)
 {
 	this.data = data;
+
+	EditorUi.debug('DrawioFile.setData',
+		[this], 'data', [data]);
 };
 
 /**
@@ -1600,7 +1605,14 @@ DrawioFile.prototype.saveDraft = function()
 	{
 		if (this.draftId == null)
 		{
-			this.draftId = Editor.guid();
+			if (this.usedDraftId != null)
+			{
+				this.draftId = this.usedDraftId;
+			}
+			else
+			{
+				this.draftId = Editor.guid();
+			}
 		}
 		
 		var draft = {type: 'draft',
@@ -1632,9 +1644,12 @@ DrawioFile.prototype.removeDraft = function()
 	{
 		if (this.draftId != null)
 		{
+			EditorUi.debug('DrawioFile.removeDraft',
+				[this], 'draftId', this.draftId);
+			
 			this.ui.removeDatabaseItem('.draft_' + this.draftId);
-			EditorUi.debug('DrawioFile.saveDraft', [this],
-				'.draft_' + this.draftId);
+			this.usedDraftId = this.draftId;
+			this.draftId = null;
 		}
 	}
 	catch (e)

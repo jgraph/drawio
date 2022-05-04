@@ -831,14 +831,7 @@ mxStencilRegistry.allowEval = false;
 			
 			if (file.fileObject != null)
 			{
-				var title = file.fileObject.path;
-				
-				if (title.length > 100)
-				{
-					title = '...' + title.substr(title.length - 97);
-				}
-				
-				this.addRecent({id: file.fileObject.path, title: title});
+				file.addToRecent();
 			
 				await requestSync({
 					action: 'watchFile', 
@@ -859,7 +852,7 @@ mxStencilRegistry.allowEval = false;
 							
 							this.showError(mxResources.get('externalChanges'),
 								mxResources.get('fileChangedSyncDialog'),
-								mxResources.get('synchronize'), mxUtils.bind(this, function()
+								mxResources.get('merge'), mxUtils.bind(this, function()
 								{
 									if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
 									{
@@ -876,7 +869,7 @@ mxStencilRegistry.allowEval = false;
 								{
 									this.hideDialog();
 									file.handleFileError(null, false);
-								}), 340, 150);
+								}), 340, 130);
 						}
 					})
 				});
@@ -1162,7 +1155,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			this.ui.readGraphFile(mxUtils.bind(this, function(fileEntry, data, stat, name, isModified)
 			{
-				var file = new LocalFile(this, data, '');
+				var file = new LocalFile(this.ui, data, '');
 				file.stat = stat;
 				file.setModified(isModified? true : false);
 				success(file);
@@ -1452,6 +1445,7 @@ mxStencilRegistry.allowEval = false;
 					this.fileObject.path = path;
 					this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 					this.fileObject.type = 'utf-8';
+					this.addToRecent();
 					fn();
 				}
 		        else
@@ -1464,6 +1458,20 @@ mxStencilRegistry.allowEval = false;
 				fn();
 			}
 		}
+	};
+
+	LocalFile.prototype.addToRecent = function()
+	{
+		if (this.fileObject == null) return;
+
+		var title = this.fileObject.path;
+				
+		if (title.length > 100)
+		{
+			title = '...' + title.substr(title.length - 97);
+		}
+
+		this.ui.addRecent({id: this.fileObject.path, title: title});
 	};
 
 	LocalFile.prototype.saveAs = async function(title, success, error)
@@ -1497,6 +1505,7 @@ mxStencilRegistry.allowEval = false;
 			this.fileObject.path = path;
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
+			this.addToRecent();
 			this.setEditable(true); //In case original file is read only
 			this.save(false, success, error, null, true);
 		}

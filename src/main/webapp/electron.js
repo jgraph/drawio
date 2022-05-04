@@ -1637,7 +1637,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 
 		if (stat && isConflict(origStat, stat))
 		{
-			new Error('conflict');
+			throw new Error('conflict');
 		}
 		else
 		{

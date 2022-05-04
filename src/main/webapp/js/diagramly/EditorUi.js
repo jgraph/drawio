@@ -406,7 +406,12 @@
 	/**
 	 * Restores app defaults for UI
 	 */
-	EditorUi.prototype.shareCursorPosition = false;
+	EditorUi.prototype.shareCursorPosition = true;
+
+	/**
+	 * Restores app defaults for UI
+	 */
+	EditorUi.prototype.showRemoteCursors = true;
 
 	/**
 	 * Capability check for canvas export
@@ -536,6 +541,24 @@
 		return this.shareCursorPosition;
 	};
 
+	 /**
+	  * Returns true if offline app, which isn't a defined thing
+	  */
+	EditorUi.prototype.setShowRemoteCursors = function(value)
+	{
+		this.showRemoteCursors = value;
+
+		this.fireEvent(new mxEventObject('showRemoteCursorsChanged'));
+	};
+ 
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
+	EditorUi.prototype.isShowRemoteCursors = function()
+	{
+		return this.showRemoteCursors;
+	};
+ 
 	/**
 	 * Returns true if offline app, which isn't a defined thing
 	 */
@@ -6244,11 +6267,11 @@
 		var lblToSvgOption = document.createElement('option');
 		lblToSvgOption.setAttribute('value', 'lblToSvg');
 		mxUtils.write(lblToSvgOption, mxResources.get('lblToSvg'));
-		txtSettingsSelect.appendChild(lblToSvgOption);
+		
 
-		if (this.isOffline())
+		if (!this.isOffline() && !EditorUi.isElectronApp)
 		{
-			lblToSvgOption.setAttribute('disabled', 'disabled');
+			txtSettingsSelect.appendChild(lblToSvgOption);
 		}
 
 		mxEvent.addListener(txtSettingsSelect, 'change', mxUtils.bind(this, function()
@@ -11133,6 +11156,14 @@
 					mxEvent.consume(evt);
 				}
 			}
+			//Miro is using unkown encoding instead of BASE64 as before
+			/*else if (spans != null && spans.length > 0 && spans[0].hasAttribute('data-meta')
+				&& spans[0].getAttribute('data-meta').substring(0, 14) == '<--(miro-data)')
+			{
+				var miroData = spans[0].getAttribute('data-meta');
+				miroData = miroData.substring(14, miroData.length - 15);
+				console.log(miroData);
+			}*/
 			else
 			{
 				// KNOWN: Paste from IE11 to other browsers on Windows
@@ -11165,7 +11196,8 @@
 						mxUtils.trim(decodeURIComponent(spans[0].textContent)) :
 						decodeURIComponent(xml);
 							
-					if (this.isCompatibleString(tmp))
+					if (tmp && (this.isCompatibleString(tmp) || 
+						tmp.substring(0, 20).replace(/\s/g, '').indexOf('{"isProtected":') == 0))
 					{
 						compat = true;
 						xml = tmp;
@@ -11180,6 +11212,22 @@
 				{
 					if (xml != null && xml.length > 0)
 					{
+						if (xml.substring(0, 20).replace(/\s/g, '').indexOf('{"isProtected":') == 0)
+						{
+							try
+							{
+								if (typeof MiroImporter !== 'undefined')
+								{
+									var miro = new MiroImporter();
+									xml = miro.importMiroJson(JSON.parse(xml));
+								}
+							}
+							catch(e)
+							{
+								console.log('Miro import error:', e);
+							}
+						}
+
 						this.pasteXml(xml, pasteAsLabel, compat, evt);
 
 						try

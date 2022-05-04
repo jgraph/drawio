@@ -332,15 +332,18 @@
         }},
         {name: 'fillWeight', dispName: 'Fill Weight', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'hachureGap', dispName: 'Hachure Gap', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'hachureAngle', dispName: 'Hachure Angle', type: 'int', defVal: -41, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'curveFitting', dispName: 'Curve Fitting', type: 'float', defVal: 0.95, isVisible: function(state, format)
         {
@@ -356,24 +359,23 @@
         }},
         {name: 'disableMultiStrokeFill', dispName: 'Disable Multi Stroke Fill', type: 'bool', defVal: false, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'dashOffset', dispName: 'Dash Offset', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'dashGap', dispName: 'Dash Gap', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'zigzagOffset', dispName: 'ZigZag Offset', type: 'int', defVal: -1, isVisible: function(state, format)
         {
-        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
-        }},
-        {name: 'jiggle', dispName: 'Jiggle', type: 'float', min: 0, defVal: 1, isVisible: function(state, format)
-        {
-        	return mxUtils.getValue(state.style, 'comic', '0') == '1' ||
-        		mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1';
+        	return mxUtils.getValue(state.style, 'sketch', (urlParams['rough'] == '1') ? '1' : '0') == '1' &&
+				state.vertices.length > 0;
         }},
         {name: 'sketchStyle', dispName: 'Sketch Style', type: 'enum', defVal: 'rough',
         	enumList: [{val: 'rough', dispName: 'Rough'}, {val: 'comic', dispName: 'Comic'}],
@@ -2093,6 +2095,16 @@
 			if(config.maxImageSize != null) 
 			{
 				EditorUi.prototype.maxImageSize = config.maxImageSize;
+			}
+			
+			if (config.shareCursorPosition != null)
+			{
+				EditorUi.prototype.shareCursorPosition = config.shareCursorPosition;
+			}
+
+			if (config.showRemoteCursors != null)
+			{
+				EditorUi.prototype.showRemoteCursors = config.showRemoteCursors;
 			}
 		}
 	};

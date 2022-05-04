@@ -693,6 +693,7 @@ shareLink=shareLink
 sharingAvailable=sharingAvailable
 sharp=sharp
 show=show
+showRemoteCursors=showRemoteCursors
 showStartScreen=showStartScreen
 sidebarTooltip=sidebarTooltip
 signs=signs

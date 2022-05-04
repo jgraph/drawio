@@ -693,6 +693,7 @@ shareLink=Посилання для спільного редагування
 sharingAvailable=Спільне використання доступне для файлів Google Диску та OneDrive.
 sharp=Гострі
 show=Показати
+showRemoteCursors=Show Remote Mouse Cursors
 showStartScreen=Показати екран запуску
 sidebarTooltip=Натисніть, щоб розширити. Перетягніть форми у діаграму. Shift+натискання, щоб змінити вибір. Alt+натискання, щоб вставити та підключитися.
 signs=Знаки

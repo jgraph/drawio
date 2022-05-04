@@ -185,7 +185,7 @@ function P2PCollab(ui, sync, channelId)
 	};
 
 	ui.addListener('shareCursorPositionChanged', this.shareCursorPositionListener);
-
+	
 	this.selectionChangeListener = function(sender, evt)
 	{
 		var mapToIds = function(c)
@@ -216,6 +216,7 @@ function P2PCollab(ui, sync, channelId)
 			entry.lastCursor != null)
 		{
 			if (entry.lastCursor.hide != null ||
+				!ui.isShowRemoteCursors() ||
 				(entry.lastCursor.pageId != null &&
 				entry.lastCursor.pageId != pageId))
 			{
@@ -269,6 +270,7 @@ function P2PCollab(ui, sync, channelId)
 	graph.getView().addListener(mxEvent.SCALE, this.cursorHandler);
 	graph.getView().addListener(mxEvent.TRANSLATE, this.cursorHandler);
 	graph.getView().addListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
+	ui.addListener('showRemoteCursorsChanged', this.cursorHandler);
 	ui.editor.addListener('pageSelected', this.cursorHandler);
 
 	function processMsg(msg, fromCId)
@@ -762,6 +764,7 @@ function P2PCollab(ui, sync, channelId)
 			graph.getView().removeListener(mxEvent.TRANSLATE, this.cursorHandler);
 			graph.getView().removeListener(mxEvent.SCALE_AND_TRANSLATE, this.cursorHandler);
 			ui.editor.removeListener('pageSelected', this.cursorHandler);
+			ui.removeListener(this.cursorHandler);
 		}
 
 		//Close the socket

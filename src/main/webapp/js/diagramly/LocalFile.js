@@ -207,6 +207,11 @@ LocalFile.prototype.saveFile = function(title, revision, success, error, useCurr
 					this.fileHandle.getFile().then(mxUtils.bind(this, function(newDesc)
 					{
 						this.invalidFileHandle = null;
+
+						EditorUi.debug('LocalFile.saveFile', [this],
+							'desc', [this.desc], 'newDesc', [newDesc],
+							'conflict', this.desc.lastModified !=
+								newDesc.lastModified);
 						
 						if (this.desc.lastModified == newDesc.lastModified)
 						{

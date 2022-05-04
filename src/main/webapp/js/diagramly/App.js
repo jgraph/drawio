@@ -1117,6 +1117,13 @@ App.main = function(callback, createUi)
 						mxEvent.removeListener(window, 'message', configHandler);
 						Editor.configure(data.config, true);
 						mxSettings.load();
+
+						//To enable transparent iframe in dark mode (e.g, in gitlab)
+						if (data.colorSchemeMeta)
+						{
+							mxmeta('color-scheme', 'dark light');
+						}
+
 						doMain();
 					}
 				}
@@ -3488,6 +3495,9 @@ App.prototype.filterDrafts = function(filePath, guid, callback)
 	{
 		this.getDatabaseItems(mxUtils.bind(this, function(items)
 		{
+			EditorUi.debug('App.filterDrafts',
+				[this], 'items', items);
+
 			// Collects orphaned drafts
 			for (var i = 0; i < items.length; i++)
 			{

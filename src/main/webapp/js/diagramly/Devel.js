@@ -309,3 +309,6 @@ if (urlParams['orgChartDev'] == '1')
 	mxscript(drawDevUrl + 'js/orgchart/OrgChart.Layout.min.js');
 	mxscript(drawDevUrl + 'js/orgchart/mxOrgChartLayout.js');
 }
+
+// Miro Import
+mxscript(drawDevUrl + 'js/diagramly/miro/MiroImporter.js');

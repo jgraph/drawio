@@ -951,9 +951,16 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 	    
 	    this.connectionHandler.isOutlineConnectEvent = function(me)
 	    {
+			if (mxEvent.isShiftDown(me.getEvent()) && mxEvent.isAltDown(me.getEvent()))
+			{
+				return false;
+			}
+			else
+			{
 		    	return (this.currentState != null && me.getState() == this.currentState && timeOnTarget > 2000) ||
 		    		((this.currentState == null || mxUtils.getValue(this.currentState.style, 'outlineConnect', '1') != '0') &&
 		    		connectionHandleIsOutlineConnectEvent.apply(this, arguments));
+			}
 	    };
 	    
 	    // Adds shift+click to toggle selection state
@@ -13396,9 +13403,16 @@ if (typeof mxVertexHandler !== 'undefined')
 		
 		mxEdgeHandler.prototype.isOutlineConnectEvent = function(me)
 		{
-			return (this.currentTerminalState != null && me.getState() == this.currentTerminalState && timeOnTarget > 2000) ||
-				((this.currentTerminalState == null || mxUtils.getValue(this.currentTerminalState.style, 'outlineConnect', '1') != '0') &&
-				mxEdgeHandlerIsOutlineConnectEvent.apply(this, arguments));
+			if (mxEvent.isShiftDown(me.getEvent()) && mxEvent.isAltDown(me.getEvent()))
+			{
+				return false;
+			}
+			else
+			{
+				return (this.currentTerminalState != null && me.getState() == this.currentTerminalState && timeOnTarget > 2000) ||
+					((this.currentTerminalState == null || mxUtils.getValue(this.currentTerminalState.style, 'outlineConnect', '1') != '0') &&
+					mxEdgeHandlerIsOutlineConnectEvent.apply(this, arguments));
+			}
 		};
 		
 		// Shows secondary handle for fixed connection points

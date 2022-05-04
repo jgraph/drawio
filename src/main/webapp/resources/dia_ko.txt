@@ -693,6 +693,7 @@ shareLink=공유 편집을 위한 링크
 sharingAvailable=공유는 Google 드라이브와 Microsoft OneDrive 파일만 가능합니다.
 sharp=곧은선
 show=보이기
+showRemoteCursors=Show Remote Mouse Cursors
 showStartScreen=시작 화면 보기
 sidebarTooltip=확장하려면 클릭하세요. 다이어그램에 도형을 드래그하세요. 선택 사항을 변경하시려면 Shift+클릭하세요. 삽입 후 연결하시려면 Alt+클릭하세요.
 signs=Signs

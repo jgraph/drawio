@@ -202,6 +202,14 @@
 		
 		shareCursorAction.setToggleAction(true);
 		shareCursorAction.setSelectedCallback(function() { return editorUi.isShareCursorPosition(); });
+		
+		var showRemoteCursorsAction = editorUi.actions.addAction('showRemoteCursors', function()
+		{
+			editorUi.setShowRemoteCursors(!editorUi.isShowRemoteCursors());;
+		});
+		
+		showRemoteCursorsAction.setToggleAction(true);
+		showRemoteCursorsAction.setSelectedCallback(function() { return editorUi.isShowRemoteCursors(); });
 
 		// Adds context menu items
 		var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
@@ -212,10 +220,11 @@
 
 			var file = editorUi.getCurrentFile();
 
-			if (graph.isEnabled() && (urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && graph.isSelectionEmpty() &&
+			if ((urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && graph.isSelectionEmpty() &&
 				file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 			{
-				this.addMenuItems(menu, ['-', 'shareCursor'], null, evt);
+				this.addMenuItems(menu, ['-', 'showRemoteCursors',
+					'shareCursor'], null, evt);
 			}
 		};
 
@@ -3878,10 +3887,10 @@
 			{
 				var file = editorUi.getCurrentFile();
 
-				if (graph.isEnabled() && graph.isSelectionEmpty() && file != null &&
-					file.isRealtimeEnabled() && file.isRealtimeSupported())
+				if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 				{
-					this.addMenuItems(menu, ['shareCursor'], parent);
+					this.addMenuItems(menu, ['showRemoteCursors',
+						'shareCursor'], parent);
 				}
 
 				this.addMenuItems(menu, ['autosave'], parent);
