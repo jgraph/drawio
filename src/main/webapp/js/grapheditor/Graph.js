@@ -1,18 +1,6 @@
 /**
  * Copyright (c) 2006-2012, JGraph Ltd
  */
-// Workaround for allowing target="_blank" in HTML sanitizer
-// see https://code.google.com/p/google-caja/issues/detail?can=2&q=&colspec=ID%20Type%20Status%20Priority%20Owner%20Summary&groupby=&sort=&id=1296
-if (typeof html4 !== 'undefined')
-{
-	html4.ATTRIBS['a::target'] = 0;
-	html4.ATTRIBS['source::src'] = 0;
-	html4.ATTRIBS['video::src'] = 0;
-	// Would be nice for tooltips but probably a security risk...
-	//html4.ATTRIBS['video::autoplay'] = 0;
-	//html4.ATTRIBS['video::autobuffer'] = 0;
-}
-
 // Workaround for handling named HTML entities in mxUtils.parseXml
 // LATER: How to configure DOMParser to just ignore all entities?
 (function()
@@ -1670,62 +1658,21 @@ Graph.removePasteFormatting = function(elt)
 };
 
 /**
- * Sanitizes the given HTML markup.
+ * Sanitizes the given HTML markup, allowing target attributes and
+ * data: protocol links to pages and custom actions.
  */
 Graph.sanitizeHtml = function(value, editing)
 {
-	// Uses https://code.google.com/p/google-caja/wiki/JsHtmlSanitizer
-	// NOTE: Original minimized sanitizer was modified to support
-	// data URIs for images, mailto and special data:-links.
-	// LATER: Add MathML to whitelisted tags
-	function urlX(link)
-	{
-		if (link != null && link.toString().toLowerCase().substring(0, 11) !== 'javascript:')
-		{
-			return link;
-		}
-		
-		return null;
-	};
-    function idX(id) { return id };
-	
-	return html_sanitize(value, urlX, idX);
+	return DOMPurify.sanitize(value, {ADD_ATTR: ['target'],
+		ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
 };
 
 /**
- * Removes all script tags and attributes starting with on.
+ * Sanitizes the SVG in the given DOM node in-place.
  */
 Graph.sanitizeSvg = function(div)
 {
-	// Removes all attributes starting with on
-	var all = div.getElementsByTagName('*');
-	
-	for (var i = 0; i < all.length; i++)
-	{
-		for (var j = 0; j < all[i].attributes.length; j++)
-		{
-			var attr = all[i].attributes[j];
-			
-			if (attr.name.length > 2 && attr.name.toLowerCase().substring(0, 2) == 'on')
-			{
-				all[i].removeAttribute(attr.name);
-			}
-	    }
-	}
-	
-	function removeAllTags(tagName)
-	{
-		var nodes = div.getElementsByTagName(tagName);
-	
-		while (nodes.length > 0)
-		{
-			nodes[0].parentNode.removeChild(nodes[0]);
-		}
-	};
-
-	removeAllTags('meta');
-	removeAllTags('script');
-	removeAllTags('metadata');
+	return DOMPurify.sanitize(div, {IN_PLACE: true});
 };
 
 /**
@@ -13734,12 +13681,12 @@ if (typeof mxVertexHandler !== 'undefined')
 								mxEvent.consume(evt);
 							}));
 							
-							this.linkHint.appendChildGraph.createRemoveIcon(mxResources.get('removeIt',
+							this.linkHint.appendChild(Graph.createRemoveIcon(mxResources.get('removeIt',
 								[mxResources.get('link')]), mxUtils.bind(this, function(evt)
 							{
 								this.graph.setLinkForCell(this.state.cell, null);
 								mxEvent.consume(evt);
-							}));
+							})));
 						}
 					}
 	

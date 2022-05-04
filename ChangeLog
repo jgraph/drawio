@@ -1,4 +1,8 @@
-04-APR-2022: 17.5.1
+04-MAY-2022: 18.0.0
+
+- Replaces sanitizer with DOMpurify
+
+04-MAY-2022: 17.5.1
 
 - [conf cloud] Adds saving delay for specific timing case [DID-4851]
 - Adds "shareCursorPosition": true/false configuration
