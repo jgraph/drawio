@@ -2524,7 +2524,7 @@ Graph.prototype.init = function(container)
 		
 		return result;
 	};
-		
+	
 	/**
 	 * Returns the first parent that is not a part.
 	 */
@@ -2532,6 +2532,38 @@ Graph.prototype.init = function(container)
 	{
 		return mxUtils.getValue(this.getCurrentCellStyle(cell), 'part', '0') == '1' ||
 			this.isTableCell(cell) || this.isTableRow(cell);
+	};
+	
+	/**
+	 * Returns the first parent that is not a part.
+	 */
+	Graph.prototype.getCompositeParents = function(cells)
+	{
+		var lookup = new mxDictionary();
+		var newCells = [];
+	
+		for (var i = 0; i < cells.length; i++)
+		{
+			var cell = this.getCompositeParent(cells[i]);
+
+			if (this.isTableCell(cell))
+			{
+				cell = this.graph.model.getParent(cell);
+			}
+
+			if (this.isTableRow(cell))
+			{
+				cell = this.graph.model.getParent(cell);
+			}
+
+			if (cell != null && !lookup.get(cell))
+			{
+				lookup.put(cell, true);
+				newCells.push(cell);
+			}
+		}
+
+		return newCells;
 	};
 	
 	/**

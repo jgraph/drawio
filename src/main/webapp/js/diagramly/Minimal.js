@@ -2323,41 +2323,54 @@ EditorUi.initMinimalTheme = function()
 
 				if (urlParams['embed'] != '1')
 				{
-					if (ui.statusContainer.children.length == 0 ||
-						(ui.statusContainer.children.length == 1 &&
-						typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
-						ui.statusContainer.firstChild.getAttribute('class') == null))
+					ui.statusContainer.style.display = 'inline-block';
+					statusVisible = true;
+
+					if (ui.statusContainer.children.length == 1 &&
+						ui.editor.getStatus() == '')
 					{
-						var title = (ui.statusContainer.firstChild != null &&
-							typeof ui.statusContainer.firstChild.getAttribute === 'function') ?
-							ui.statusContainer.firstChild.getAttribute('title') :
-							ui.editor.getStatus();
-						setNotificationTitle(title);
-						var file = ui.getCurrentFile();
-						var key = (file != null) ? file.savingStatusKey : DrawioFile.prototype.savingStatusKey;
-						
-						if (title == mxResources.get(key) + '...')
-						{
-							ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
-								mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '">';
-							ui.statusContainer.style.display = 'inline-block';
-							statusVisible = true;
-						}
-						else if (ui.buttonContainer.clientWidth > 6)
-						{	
-							ui.statusContainer.style.display = 'none';
-							statusVisible = false;
-						}
+						menubar.style.visibility = 'hidden';
 					}
 					else
 					{
-						ui.statusContainer.style.display = 'inline-block';
-						setNotificationTitle(null);
-						statusVisible = true;
+						if (ui.statusContainer.children.length == 0 ||
+							(ui.statusContainer.children.length == 1 &&
+							typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
+							ui.statusContainer.firstChild.getAttribute('class') == null))
+						{
+							var title = (ui.statusContainer.firstChild != null &&
+								typeof ui.statusContainer.firstChild.getAttribute === 'function') ?
+								ui.statusContainer.firstChild.getAttribute('title') :
+								ui.editor.getStatus();
+							setNotificationTitle(title);
+							var file = ui.getCurrentFile();
+							var key = (file != null) ? file.savingStatusKey :
+								DrawioFile.prototype.savingStatusKey;
+							
+							if (title == mxResources.get(key) + '...')
+							{
+								ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
+									mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '">';
+								ui.statusContainer.style.display = 'inline-block';
+								statusVisible = true;
+							}
+							else if (ui.buttonContainer.clientWidth > 6)
+							{
+								ui.statusContainer.style.display = 'none';
+								statusVisible = false;
+							}
+						}
+						else
+						{
+							ui.statusContainer.style.display = 'inline-block';
+							setNotificationTitle(null);
+							statusVisible = true;
+						}
+
+						menubar.style.visibility = (menubar.clientWidth < 20 &&
+							!statusVisible) ? 'hidden' : '';
 					}
 				}
-
-				menubar.style.visibility = (menubar.clientWidth < 20 && !statusVisible) ? 'hidden' : '';
 			}));
 			
 			elt = addMenu('diagram', null, Editor.menuImage);

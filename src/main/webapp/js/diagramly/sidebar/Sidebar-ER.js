@@ -65,16 +65,16 @@
 		
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'List');
 			}),
-			this.addEntry(dt + ' list', function()	
-			{	
-				return sb.createVertexTemplateFromCells([row.clone()], row.geometry.width, row.geometry.height, 'List Item 1');	
+			this.addEntry(dt + ' list', function()
+			{
+				return sb.createVertexTemplateFromCells([row.clone()], row.geometry.width, row.geometry.height, 'List Item 1');
 			}),
-			this.addEntry(dt + 'table row', function()	
-			{	
+			this.addEntry(dt + 'table row', function()
+			{
 	   			var cell = new mxCell(row.value, new mxGeometry(0, 0, 90, row.geometry.height), 'shape=partialRectangle;fillColor=none;align=left;verticalAlign=middle;strokeColor=none;spacingLeft=34;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');	
-	   			cell.vertex = true;	
+	   			cell.vertex = true;
 
-	   			var cell1 = sb.cloneCell(row, '');	
+	   			var cell1 = sb.cloneCell(row, '');
 	   			cell1.connectable = false;	
 	   			cell1.style = 'shape=partialRectangle;top=0;left=0;bottom=0;fillColor=none;stokeWidth=1;dashed=1;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[];portConstraint=eastwest;part=1;'	
 	   			cell1.geometry.width = 30;	
@@ -82,8 +82,8 @@
 
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'List Item 2');	
 			}),
-			this.addEntry(dt + 'table row divider hline line separator', function()	
-			{	
+			this.addEntry(dt + 'table row divider hline line separator', function()
+			{
 				var divider = new mxCell('', new mxGeometry(0, 0, 60, 10), 'line;strokeWidth=1;rotatable=0;dashed=0;labelPosition=right;align=left;verticalAlign=middle;spacingTop=0;spacingLeft=6;points=[];portConstraint=eastwest;');	
 				divider.vertex = true;	
 

@@ -1,3 +1,12 @@
+05-MAY-2022: 18.0.1
+
+- Adds support for windows line break in CSV files
+- [conf cloud] Fixes trailing space in diagram name during page IDs import
+- FIxes timestamp check in watchFile [819] [DND-487]
+- Hides menus and dropdowns if clicked again [2745]
+- Fixes cursor handling for composite cells [2756]
+- [desktop] Adds strict CSP after loading plugins (disabling unsafe-inline scripts)
+
 04-MAY-2022: 18.0.0
 
 - Replaces sanitizer with DOMpurify

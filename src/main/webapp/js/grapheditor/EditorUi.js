@@ -5417,134 +5417,136 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		{
 			stepSize = (stepSize != null) ? stepSize : 1;
 
-			if (resize)
+			var cells = graph.getCompositeParents(graph.getSelectionCells());
+			var cell = (cells.length > 0) ? cells[0] : null;
+
+			if (cell != null)
 			{
-				// Resizes all selected vertices
-				graph.getModel().beginUpdate();
-				try
+				if (resize)
 				{
-					var cells = graph.getSelectionCells();
-					
-					for (var i = 0; i < cells.length; i++)
+					// Resizes all selected vertices
+					graph.getModel().beginUpdate();
+					try
 					{
-						if (graph.getModel().isVertex(cells[i]) && graph.isCellResizable(cells[i]))
+						for (var i = 0; i < cells.length; i++)
 						{
-							var geo = graph.getCellGeometry(cells[i]);
-							
-							if (geo != null)
+							if (graph.getModel().isVertex(cells[i]) && graph.isCellResizable(cells[i]))
 							{
-								geo = geo.clone();
+								var geo = graph.getCellGeometry(cells[i]);
 								
-								if (keyCode == 37)
+								if (geo != null)
 								{
-									geo.width = Math.max(0, geo.width - stepSize);
+									geo = geo.clone();
+									
+									if (keyCode == 37)
+									{
+										geo.width = Math.max(0, geo.width - stepSize);
+									}
+									else if (keyCode == 38)
+									{
+										geo.height = Math.max(0, geo.height - stepSize);
+									}
+									else if (keyCode == 39)
+									{
+										geo.width += stepSize;
+									}
+									else if (keyCode == 40)
+									{
+										geo.height += stepSize;
+									}
+									
+									graph.getModel().setGeometry(cells[i], geo);
 								}
-								else if (keyCode == 38)
-								{
-									geo.height = Math.max(0, geo.height - stepSize);
-								}
-								else if (keyCode == 39)
-								{
-									geo.width += stepSize;
-								}
-								else if (keyCode == 40)
-								{
-									geo.height += stepSize;
-								}
-								
-								graph.getModel().setGeometry(cells[i], geo);
 							}
 						}
 					}
-				}
-				finally
-				{
-					graph.getModel().endUpdate();
-				}
-			}
-			else
-			{
-				// Moves vertices up/down in a stack layout
-				var cell = graph.getSelectionCell();
-				var parent = graph.model.getParent(cell);
-				var scale = graph.getView().scale;
-				var layout = null;
-
-				if (graph.getSelectionCount() == 1 && graph.model.isVertex(cell) &&
-					graph.layoutManager != null && !graph.isCellLocked(cell))
-				{
-					layout = graph.layoutManager.getLayout(parent);
-				}
-				
-				if (layout != null && layout.constructor == mxStackLayout)
-				{
-					var index = parent.getIndex(cell);
-					
-					if (keyCode == 37 || keyCode == 38)
+					finally
 					{
-						graph.model.add(parent, cell, Math.max(0, index - 1));
-					}
-					else if (keyCode == 39 ||keyCode == 40)
-					{
-						graph.model.add(parent, cell, Math.min(graph.model.getChildCount(parent), index + 1));
+						graph.getModel().endUpdate();
 					}
 				}
 				else
 				{
-					var handler = graph.graphHandler;
+					// Moves vertices up/down in a stack layout
+					var parent = graph.model.getParent(cell);
+					var scale = graph.getView().scale;
+					var layout = null;
 
-					if (handler != null)
+					if (graph.getSelectionCount() == 1 && graph.model.isVertex(cell) &&
+						graph.layoutManager != null && !graph.isCellLocked(cell))
 					{
-						if (handler.first == null)
-						{
-							handler.start(graph.getSelectionCell(),
-								0, 0, graph.getSelectionCells());
-						}
-
-						if (handler.first != null)
-						{
-							var dx = 0;
-							var dy = 0;
-							
-							if (keyCode == 37)
-							{
-								dx = -stepSize;
-							}
-							else if (keyCode == 38)
-							{
-								dy = -stepSize;
-							}
-							else if (keyCode == 39)
-							{
-								dx = stepSize;
-							}
-							else if (keyCode == 40)
-							{
-								dy = stepSize;
-							}
-
-							handler.currentDx += dx * scale;
-							handler.currentDy += dy * scale;
-							handler.checkPreview();
-							handler.updatePreview();
-						}
-
-						// Groups move steps in undoable change
-						if (thread != null)
-						{
-							window.clearTimeout(thread);
-						}
+						layout = graph.layoutManager.getLayout(parent);
+					}
+					
+					if (layout != null && layout.constructor == mxStackLayout)
+					{
+						var index = parent.getIndex(cell);
 						
-						thread = window.setTimeout(function()
+						if (keyCode == 37 || keyCode == 38)
 						{
+							graph.model.add(parent, cell, Math.max(0, index - 1));
+						}
+						else if (keyCode == 39 ||keyCode == 40)
+						{
+							graph.model.add(parent, cell, Math.min(graph.model.getChildCount(parent), index + 1));
+						}
+					}
+					else
+					{
+						var handler = graph.graphHandler;
+
+						if (handler != null)
+						{
+							if (handler.first == null)
+							{
+								handler.start(cell, 0, 0, cells);
+							}
+
 							if (handler.first != null)
 							{
-								var dx = handler.roundLength(handler.currentDx / scale);
-								var dy = handler.roundLength(handler.currentDy / scale);
-								handler.moveCells(handler.cells, dx, dy);
-								handler.reset();
+								var dx = 0;
+								var dy = 0;
+								
+								if (keyCode == 37)
+								{
+									dx = -stepSize;
+								}
+								else if (keyCode == 38)
+								{
+									dy = -stepSize;
+								}
+								else if (keyCode == 39)
+								{
+									dx = stepSize;
+								}
+								else if (keyCode == 40)
+								{
+									dy = stepSize;
+								}
+
+								handler.currentDx += dx * scale;
+								handler.currentDy += dy * scale;
+								handler.checkPreview();
+								handler.updatePreview();
 							}
-						}, 400);
+
+							// Groups move steps in undoable change
+							if (thread != null)
+							{
+								window.clearTimeout(thread);
+							}
+							
+							thread = window.setTimeout(function()
+							{
+								if (handler.first != null)
+								{
+									var dx = handler.roundLength(handler.currentDx / scale);
+									var dy = handler.roundLength(handler.currentDy / scale);
+									handler.moveCells(handler.cells, dx, dy);
+									handler.reset();
+								}
+							}, 400);
+						}
 					}
 				}
 			}
@@ -5553,8 +5555,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 	
 	// Overridden to handle special alt+shift+cursor keyboard shortcuts
 	var directions = {37: mxConstants.DIRECTION_WEST, 38: mxConstants.DIRECTION_NORTH,
-			39: mxConstants.DIRECTION_EAST, 40: mxConstants.DIRECTION_SOUTH};
-	
+		39: mxConstants.DIRECTION_EAST, 40: mxConstants.DIRECTION_SOUTH};
 	var keyHandlerGetFunction = keyHandler.getFunction;
 
 	mxKeyHandler.prototype.getFunction = function(evt)

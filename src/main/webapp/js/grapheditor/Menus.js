@@ -1726,7 +1726,7 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 		
 		var clickHandler = mxUtils.bind(this, function(evt)
 		{
-			if (show && elt.enabled == null || elt.enabled)
+			if (show && (elt.enabled == null || elt.enabled))
 			{
 				this.editorUi.editor.graph.popupMenuHandler.hideMenu();
 				var menu = new mxPopupMenu(funct);
@@ -1765,7 +1765,7 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
         mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
         	mxUtils.bind(this, function(evt)
 		{
-			show = this.currentElt != elt;
+			show = this.editorUi.currentMenu == null;
 			evt.preventDefault();
 		}));
 

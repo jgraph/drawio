@@ -146,6 +146,21 @@ mxStencilRegistry.allowEval = false;
 			}
 		}
 		
+		//Remove old relaxed CSP and add strict one
+		var allMeta = document.getElementsByTagName('meta');
+
+		for (var i = 0; i < allMeta.length; i++)
+		{
+			if (allMeta[i].getAttribute('http-equiv') == 'Content-Security-Policy')
+			{
+				allMeta[i].parentNode.removeChild(allMeta[i]);
+			}
+
+			break;
+		}
+
+		mxmeta(null, 'default-src \'self\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
+
 		//Disable web plugins loading
 		urlParams['plugins'] = '0';
 		origAppMain.apply(this, arguments);
@@ -838,38 +853,36 @@ mxStencilRegistry.allowEval = false;
 					path: file.fileObject.path,
 					listener: mxUtils.bind(this, function(curr, prev) 
 					{
+						EditorUi.debug('EditorUi.watchFile', [this],
+							'file', [file], 'stat', [file.stat],
+							'curr', [curr], 'prev', [prev],
+							'inConflictState', file.inConflictState,
+							'unwatchedSaves', file.unwatchedSaves);
+						
 						//File is changed (not just accessed) && File is not already in a conflict state
 						if (curr.mtimeMs != prev.mtimeMs && !file.inConflictState)
 						{
 							//Ignore our own changes
-							if (file.unwatchedSaves || (file.state != null && file.stat.mtimeMs == curr.mtimeMs))
+							if (file.unwatchedSaves || (file.stat != null && file.stat.mtimeMs == curr.mtimeMs))
 							{
 								file.unwatchedSaves = false;
 								return;
 							}
 							
 							file.inConflictState = true;
-							
-							this.showError(mxResources.get('externalChanges'),
-								mxResources.get('fileChangedSyncDialog'),
-								mxResources.get('merge'), mxUtils.bind(this, function()
+
+							file.addConflictStatus(mxUtils.bind(this, function()
+							{
+								file.ui.editor.setStatus(mxUtils.htmlEntities(
+									mxResources.get('updatingDocument')));
+								file.synchronizeFile(mxUtils.bind(this, function()
 								{
-									if (this.spinner.spin(document.body, mxResources.get('updatingDocument')))
-									{
-										file.synchronizeFile(mxUtils.bind(this, function()
-										{
-											this.spinner.stop();
-										}), mxUtils.bind(this, function(err)
-										{
-											file.handleFileError(err, true);
-										}));
-									}
-								}), null, null, null,
-								mxResources.get('cancel'), mxUtils.bind(this, function()
+									file.handleFileSuccess(false);
+								}), mxUtils.bind(this, function(err)
 								{
-									this.hideDialog();
-									file.handleFileError(null, false);
-								}), 340, 130);
+									file.handleFileError(err, true);
+								}));
+							}));
 						}
 					})
 				});

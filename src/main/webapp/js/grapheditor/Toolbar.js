@@ -1036,11 +1036,7 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 				menu.showDisabled = showAll;
 				menu.labels = showLabels;
 				menu.autoExpand = true;
-				
-				var offset = mxUtils.getOffset(elt);
-				menu.popup(offset.x, offset.y + elt.offsetHeight, null, evt);
-				this.editorUi.setCurrentMenu(menu, elt);
-				
+
 				// Workaround for scrollbar hiding menu items
 				if (!showLabels && menu.div.scrollHeight > menu.div.clientHeight)
 				{
@@ -1053,12 +1049,10 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 					this.editorUi.resetCurrentMenu();
 					menu.destroy();
 				});
-				
-				// Extends destroy to reset global state
-				menu.addListener(mxEvent.EVENT_HIDE, mxUtils.bind(this, function()
-				{
-					this.currentElt = null;
-				}));
+
+				var offset = mxUtils.getOffset(elt);
+				menu.popup(offset.x, offset.y + elt.offsetHeight, null, evt);
+				this.editorUi.setCurrentMenu(menu, elt);
 			}
 			
 			show = true;
@@ -1069,7 +1063,8 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
         mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
         	mxUtils.bind(this, function(evt)
 		{
-			show = this.currentElt != elt;
+			show = menu == null || menu.div == null ||
+				menu.div.parentNode == null;
 			evt.preventDefault();
 		}));
 	}
