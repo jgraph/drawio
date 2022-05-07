@@ -944,6 +944,12 @@ DrawioFile.prototype.createData = function()
  */
 DrawioFile.prototype.updateFileData = function()
 {
+	// Sends pending local changes and updates own pages
+	if (this.sync != null)
+	{
+		this.sync.sendLocalChanges();
+	}
+
 	this.setData(this.createData());
 	
 	if (this.sync != null)

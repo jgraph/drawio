@@ -1,3 +1,10 @@
+07-MAY-2022: 18.0.2
+
+- Handles Element fields in object cloning [DND-477]
+- Fixes lost changes for preview while editing
+- Forbids use of form tags in labels
+- Fixes CSS issues in print dialog for lightbox
+
 05-MAY-2022: 18.0.1
 
 - Adds support for windows line break in CSV files

@@ -8105,7 +8105,7 @@
 		adjustRadio.setAttribute('checked', 'checked');
 		
 		var spanFitRadio = document.createElement('div');
-		spanFitRadio.style.cssText = 'display:inline-block;height:100%;vertical-align:top;padding-top:2px;';
+		spanFitRadio.style.cssText = 'display:inline-block;vertical-align:top;padding-top:2px;';
 		spanFitRadio.appendChild(fitRadio);
 		fitSection.appendChild(spanFitRadio);
 		

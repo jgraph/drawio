@@ -834,7 +834,7 @@ var mxJSColor = {
 		function dispatchImmediateChange() {
 			if (THIS.onImmediateChange) {
 				if (typeof THIS.onImmediateChange === 'string') {
-					eval(THIS.onImmediateChange);
+					// eval(THIS.onImmediateChange); // Blocked by CSP
 				} else {
 					THIS.onImmediateChange(THIS);
 				}

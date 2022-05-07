@@ -1853,6 +1853,11 @@ function unwatchFile(path)
 	fs.unwatchFile(path);
 }
 
+function getCurDir()
+{
+	return __dirname;
+}
+
 ipcMain.on("rendererReq", async (event, args) => 
 {
 	try
@@ -1923,6 +1928,9 @@ ipcMain.on("rendererReq", async (event, args) =>
 			break;
 		case 'unwatchFile':	
 			ret = await unwatchFile(args.path);
+			break;
+		case 'getCurDir':
+			ret = await getCurDir();
 			break;
 		};
 

@@ -2235,7 +2235,7 @@ GraphViewer.initCss = function()
 			'height:1px;}',
 			'table.mxPopupMenu tr {	font-size:4pt;}',
 			// Modified to only apply to the print dialog
-			'.geDialog { font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;',
+			'.geDialog, .geDialog table { font-family:Helvetica Neue,Helvetica,Arial Unicode MS,Arial;',
 			'font-size:10pt;',
 			'border:none;',
 			'margin:0px;}',

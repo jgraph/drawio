@@ -105,43 +105,58 @@ mxStencilRegistry.allowEval = false;
 
 		if (plugins != null && plugins.length > 0)
 		{
-			for (var i = 0; i < plugins.length; i++)
+			// Workaround for body not defined if plugins are used in dev mode
+			if (urlParams['dev'] == '1')
 			{
-				try
+				EditorUi.debug('App.main', 'Skipped plugins', plugins);
+			}
+			else
+			{
+				for (var i = 0; i < plugins.length; i++)
 				{
-					if (plugins[i].startsWith('/plugins/'))
+					try
 					{
-						plugins[i] = '.' + plugins[i];
+						if (plugins[i].startsWith('/plugins/'))
+						{
+							plugins[i] = '.' + plugins[i];
+						}
+						else if (plugins[i].startsWith('plugins/'))
+						{
+							plugins[i] = './' + plugins[i];
+						}
+						//Support old plugins added using file:// workaround
+						else if (!plugins[i].startsWith('file://'))
+						{
+							let appFolder = await requestSync('getAppDataFolder');
+							
+							let pluginsFile = await requestSync({
+								action: 'checkFileExists',
+								pathParts: [appFolder, '/plugins', plugins[i]]
+							});
+							
+							if (pluginsFile.exists)
+							{
+								plugins[i] = 'file://' + pluginsFile.path;
+							}
+							else
+							{
+								continue; //skip not found files
+							}
+						}
+
+						try
+						{
+							mxscript(plugins[i]);
+						}
+						catch (e)
+						{
+							// ignore
+						}
 					}
-					else if (plugins[i].startsWith('plugins/'))
+					catch (e)
 					{
-						plugins[i] = './' + plugins[i];
+						// ignore
 					}
-					//Support old plugins added using file:// workaround
-					else if (!plugins[i].startsWith('file://'))
-					{
-						let appFolder = await requestSync('getAppDataFolder');
-						
-			        	let pluginsFile = await requestSync({
-							action: 'checkFileExists',
-							pathParts: [appFolder, '/plugins', plugins[i]]
-						});
-			        	
-			        	if (pluginsFile.exists)
-			        	{
-			        		plugins[i] = 'file://' + pluginsFile.path;
-			        	}
-			        	else
-		        		{
-			        		continue; //skip not found files
-		        		}
-					}
-						
-					mxscript(plugins[i]);
-				}
-				catch (e)
-				{
-					// ignore
 				}
 			}
 		}
@@ -159,7 +174,7 @@ mxStencilRegistry.allowEval = false;
 			break;
 		}
 
-		mxmeta(null, 'default-src \'self\'; connect-src \'self\' https://*.draw.io https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
+		mxmeta(null, 'default-src \'self\'; connect-src \'self\' https://fonts.googleapis.com https://fonts.gstatic.com; img-src * data:; media-src *; font-src *; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com', 'Content-Security-Policy');
 
 		//Disable web plugins loading
 		urlParams['plugins'] = '0';
