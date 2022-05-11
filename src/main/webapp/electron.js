@@ -14,6 +14,7 @@ const PDFDocument = require('pdf-lib').PDFDocument;
 const Store = require('electron-store');
 const store = new Store();
 const ProgressBar = require('electron-progressbar');
+const spawn = require('child_process').spawn;
 const disableUpdate = require('./disableUpdate').disableUpdate() || 
 						process.env.DRAWIO_DISABLE_UPDATE === 'true' || 
 						fs.existsSync('/.flatpak-info'); //This file indicates running in flatpak sandbox
@@ -33,7 +34,8 @@ let windowsRegistry = []
 let cmdQPressed = false
 let firstWinLoaded = false
 let firstWinFilePath = null
-let isMac = process.platform === 'darwin'
+const isMac = process.platform === 'darwin'
+const isWin = process.platform === 'win32'
 let enableSpellCheck = store.get('enableSpellCheck');
 enableSpellCheck = enableSpellCheck != null? enableSpellCheck : isMac;
 
@@ -75,12 +77,15 @@ catch(e)
 
 function createWindow (opt = {})
 {
+	let lastWinSizeStr = store.get('lastWinSize');
+	let lastWinSize = lastWinSizeStr ? lastWinSizeStr.split(',') : [1600, 1200];
+
 	let options = Object.assign(
 	{
 		frame: isMac,
 		backgroundColor: '#FFF',
-		width: 1600,
-		height: 1200,
+		width: parseInt(lastWinSize[0]),
+		height: parseInt(lastWinSize[1]),
 		icon: `${__dirname}/images/drawlogo256.png`,
 		webViewTag: false,
 		'web-security': true,
@@ -130,6 +135,9 @@ function createWindow (opt = {})
 
 	mainWindow.on('resize', function()
 	{
+		const size = mainWindow.getSize();
+		store.set('lastWinSize', size[0] + ',' + size[1]);
+
 		mainWindow.webContents.send('resize')
 	});
 
@@ -1469,9 +1477,9 @@ ipcMain.on('export', exportDiagram);
 //================================================================
 
 const { O_SYNC, O_CREAT, O_WRONLY, O_TRUNC } = fs.constants;
-const DRAFT_PREFEX = '~$';
+const DRAFT_PREFEX = '.$';
 const DRAFT_EXT = '.dtmp';
-const BKP_PREFEX = '~$';
+const BKP_PREFEX = '.$';
 const BKP_EXT = '.bkp';
 
 function isConflict(origStat, stat)
@@ -1532,6 +1540,16 @@ async function saveDraft(fileObject, data)
 	{
 		var draftFileName = fileObject.draftFileName || getDraftFileName(fileObject);
 		await fsProm.writeFile(draftFileName, data, 'utf8');
+		
+		if (isWin)
+		{
+			try
+			{
+				// Add Hidden attribute:
+				spawn("attrib", ["+h", draftFileName]);
+			} catch(e) {}
+		}
+
 		return draftFileName;
 	}
 }
@@ -1620,6 +1638,15 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 			finally 
 			{
 				await bkpFh?.close();
+
+				if (isWin)
+				{
+					try
+					{
+						// Add Hidden attribute:
+						spawn("attrib", ["+h", bkpPath]);
+					} catch(e) {}
+				}
 			}
 		}
 

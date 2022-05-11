@@ -1,3 +1,11 @@
+11-MAY-2022: 18.0.3
+
+- Removes remote cursor options from context menu
+- Fixes patch checking for entry with no secret
+- Updates closure compiler to v20220502
+- Fixes check for text/plain transfer data
+- Fixes replace all ignoring the first match
+
 07-MAY-2022: 18.0.2
 
 - Handles Element fields in object cloning [DND-477]

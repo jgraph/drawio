@@ -5039,7 +5039,8 @@ EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 	
 	if (evt != null)
 	{
-		var provider = (evt.dataTransfer != null) ? evt.dataTransfer : evt.clipboardData;
+		var provider = (evt.dataTransfer != null) ?
+			evt.dataTransfer : evt.clipboardData;
 		
 		if (provider != null)
 		{
@@ -5049,9 +5050,11 @@ EditorUi.prototype.extractGraphModelFromEvent = function(evt)
 			}
 			else
 			{
-				data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ? provider.getData('text/html') : null;
+				data = (mxUtils.indexOf(provider.types, 'text/html') >= 0) ?
+					provider.getData('text/html') : null;
 			
-				if (mxUtils.indexOf(provider.types, 'text/plain' && (data == null || data.length == 0)))
+				if (mxUtils.indexOf(provider.types, 'text/plain') >= 0 &&
+					(data == null || data.length == 0))
 				{
 					data = provider.getData('text/plain');
 				}

@@ -23,7 +23,6 @@ function hideWindow(cancel)
 
 function fileChanged()
 {
-	var supportedText = document.getElementById('openSupported');
 	var form = window.openForm || document.getElementById('openForm');
 	var openButton = document.getElementById('openButton');
 	
@@ -46,6 +45,8 @@ function main()
 			document.body.innerHTML = '';
 			var div = document.createElement('div');
 			div.style.fontFamily = 'Arial';
+			var darkMode = typeof window.parent.Editor.isDarkMode === 'function' &&
+				window.parent.Editor.isDarkMode();
 
 			window.parent.listBrowserFiles(function(filesInfo)
 			{
@@ -54,7 +55,7 @@ function main()
 					if (filesInfo.length == 0)
 					{
 						window.parent.mxUtils.write(div, window.parent.mxResources.get('noFiles'));
-						div.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
+						div.style.color = (darkMode) ? '#cccccc' : '';
 						window.parent.mxUtils.br(div);
 					}
 					else
@@ -67,8 +68,8 @@ function main()
 						
 						var table = document.createElement('table');
 						var hrow = document.createElement('tr');
-						hrow.style.backgroundColor = (window.parent.Editor.isDarkMode()) ? '#000' : '#D6D6D6';
-						hrow.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
+						hrow.style.backgroundColor = (darkMode) ? '#000' : '#D6D6D6';
+						hrow.style.color = (darkMode) ? '#cccccc' : '';
 						hrow.style.height = '25px';
 						hrow.style.textAlign = 'left';
 						table.appendChild(hrow);
@@ -96,12 +97,12 @@ function main()
 							if (fileInfo.title.length > 0)
 							{
 								var row = document.createElement('tr');
-								row.style.color = (window.parent.Editor.isDarkMode()) ? '#cccccc' : '';
+								row.style.color = (darkMode) ? '#cccccc' : '';
 								table.appendChild(row);
 								
 								if (i & 1 == 1)
 								{
-									row.style.backgroundColor = (window.parent.Editor.isDarkMode()) ? '#000' : '#E6E6E6';
+									row.style.backgroundColor = (darkMode) ? '#000' : '#E6E6E6';
 								}
 									
 								var nameTd = document.createElement('td');
@@ -136,7 +137,7 @@ function main()
 								img.style.display = 'inline-block';
 								ctrlTd.appendChild(img);
 								
-								if (window.parent.Editor.isDarkMode())
+								if (darkMode)
 								{
 									img.style.filter = 'invert(100%)';
 								}

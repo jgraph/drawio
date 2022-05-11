@@ -1551,7 +1551,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 											[this], 'req', [req], 'status', req.getStatus(),
 											'cacheReadyRetryCount', cacheReadyRetryCount,
 											'maxCacheReadyRetries', this.maxCacheReadyRetries);
-								
+										
 										if (req.getStatus() >= 200 && req.getStatus() <= 299 &&
 											req.getText().length > 0)
 										{
@@ -1610,7 +1610,8 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 											}
 											// Retries if cache entry was not yet there
 											else if (cacheReadyRetryCount <= this.maxCacheReadyRetries - 1 &&
-												!failed && req.getStatus() != 401 && req.getStatus() != 503)
+												!failed && req.getStatus() != 401 && req.getStatus() != 503 &&
+												req.getStatus() != 410)
 											{
 												cacheReadyRetryCount++;
 												this.file.stats.cacheMiss++;
@@ -1805,7 +1806,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 			var source = this.file.getDescriptorRevisionId(lastDesc);
 			var target = this.file.getCurrentRevisionId();
 			
-			if (secret == null || urlParams['lockdown'] == '1')
+			if (secret == null || token == null || urlParams['lockdown'] == '1')
 			{
 				this.file.stats.msgSent++;
 				
@@ -1842,7 +1843,7 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 					acceptResponse = false;
 					error({code: App.ERROR_TIMEOUT, message: mxResources.get('timeout')});
 				}), this.ui.timeout);
-				
+
 				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() +
 					'&from=' + encodeURIComponent(source) + '&to=' + encodeURIComponent(target) +
 					'&msg=' + encodeURIComponent(msg) + ((secret != null) ? '&secret=' + encodeURIComponent(secret) : '') +

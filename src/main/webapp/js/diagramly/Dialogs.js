@@ -7440,6 +7440,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 			
 			if (replaceInput.value)
 			{
+				lastSearch = null; // Reset last search to check all matches
 				var currentPage = ui.currentPage;
 				var cells = ui.editor.graph.getSelectionCells();
 				ui.editor.graph.rendering = false;
@@ -8444,7 +8445,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	this.container = div;
 };
 
-var PluginsDialog = function(editorUi, addFn, delFn) 
+var PluginsDialog = function(editorUi, addFn, delFn, cancelFn) 
 {
 	var div = document.createElement('div');
 	var inner = document.createElement('div');
@@ -8599,6 +8600,11 @@ var PluginsDialog = function(editorUi, addFn, delFn)
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
+		if (cancelFn)
+		{
+			cancelFn()
+		}
+		
 		editorUi.hideDialog();
 	});
 	

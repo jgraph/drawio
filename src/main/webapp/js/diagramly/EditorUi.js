@@ -11099,12 +11099,19 @@
 				
 				if (plain != null && plain.length > 0 && plain.substring(0, 18) == '%3CmxGraphModel%3E')
 				{
-					var tmp = decodeURIComponent(plain);
-							
-					if (this.isCompatibleString(tmp))
+					try
 					{
-						override = true;
-						plain = tmp;
+						var tmp = decodeURIComponent(plain);
+						
+						if (this.isCompatibleString(tmp))
+						{
+							override = true;
+							plain = tmp;
+						}
+					}
+					catch (e)
+					{
+						// ignore
 					}
 				}
 			

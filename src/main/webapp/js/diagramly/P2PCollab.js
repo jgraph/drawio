@@ -190,15 +190,15 @@ function P2PCollab(ui, sync, channelId)
 	{
 		var mapToIds = function(c)
 		{
-			return c.id;
+			return (c != null) ? c.id : null;
 		};
 
 		var pageId = (ui.currentPage != null) ?
 			ui.currentPage.getId() : null;
-		var added = evt.getProperty('added'),
-			removed = evt.getProperty('removed');
+		var added = evt.getProperty('added');
+		var removed = evt.getProperty('removed');
 
-		//Added/removed looks like inverted
+		// Added/removed are inverted
 		sendMessage('selectionChange', {pageId: pageId,
 			removed: added? added.map(mapToIds) : [],
 			added: removed? removed.map(mapToIds) : []
@@ -407,25 +407,33 @@ function P2PCollab(ui, sync, channelId)
 						for (var i = 0; i < msgData.removed.length; i++)
 						{
 							var id = msgData.removed[i];
-							var handler = selection[id];
-							delete selection[id];
-							
-							if (handler != null)
+
+							if (id != null)
 							{
-								handler.destroy();
+								var handler = selection[id];
+								delete selection[id];
+								
+								if (handler != null)
+								{
+									handler.destroy();
+								}
 							}
 						}
 						
 						for (var i = 0; i < msgData.added.length; i++)
 						{
 							var id = msgData.added[i];
-							var cell = graph.model.getCell(id);
 
-							if (cell != null)
-							{	
-								selection[id] = graph.highlightCell(cell,
-									connectedSessions[sessionId].color, 60000,
-									SELECTION_OPACITY, 3);
+							if (id != null)
+							{
+								var cell = graph.model.getCell(id);
+
+								if (cell != null)
+								{	
+									selection[id] = graph.highlightCell(cell,
+										connectedSessions[sessionId].color, 60000,
+										SELECTION_OPACITY, 3);
+								}
 							}
 						}
 					}

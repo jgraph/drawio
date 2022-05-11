@@ -210,24 +210,7 @@
 		
 		showRemoteCursorsAction.setToggleAction(true);
 		showRemoteCursorsAction.setSelectedCallback(function() { return editorUi.isShowRemoteCursors(); });
-
-		// Adds context menu items
-		var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
 		
-		Menus.prototype.createPopupMenu = function(menu, cell, evt)
-		{
-			menuCreatePopupMenu.apply(this, arguments);
-
-			var file = editorUi.getCurrentFile();
-
-			if ((urlParams['embed'] != '1' || urlParams['embedRT'] == '1') && graph.isSelectionEmpty() &&
-				file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
-			{
-				this.addMenuItems(menu, ['-', 'showRemoteCursors',
-					'shareCursor'], null, evt);
-			}
-		};
-
 		var pointAction = editorUi.actions.addAction('points', function()
 		{
 			editorUi.editor.graph.view.setUnit(mxConstants.POINTS);
