@@ -1478,8 +1478,10 @@ ipcMain.on('export', exportDiagram);
 
 const { O_SYNC, O_CREAT, O_WRONLY, O_TRUNC } = fs.constants;
 const DRAFT_PREFEX = '.$';
+const OLD_DRAFT_PREFEX = '~$';
 const DRAFT_EXT = '.dtmp';
 const BKP_PREFEX = '.$';
+const OLD_BKP_PREFEX = '~$';
 const BKP_EXT = '.bkp';
 
 function isConflict(origStat, stat)
@@ -1512,6 +1514,26 @@ async function getFileDrafts(fileObject)
 		draftFileName = path.join(path.dirname(filePath), DRAFT_PREFEX + path.basename(filePath) + uniquePart + DRAFT_EXT);
 		uniquePart = '_' + counter++;
 	} while (fs.existsSync(draftFileName)); //TODO this assume continuous drafts names
+
+	//Port old draft files to new prefex
+	counter = 1;
+	uniquePart = '';
+	let draftExists = false;
+
+	do
+	{
+		draftFileName = path.join(path.dirname(filePath), OLD_DRAFT_PREFEX + path.basename(filePath) + uniquePart + DRAFT_EXT);
+		draftExists = fs.existsSync(draftFileName);
+		
+		if (draftExists)
+		{
+			const newDraftFileName = path.join(path.dirname(filePath), DRAFT_PREFEX + path.basename(filePath) + uniquePart + DRAFT_EXT);
+			await fsProm.rename(draftFileName, newDraftFileName);
+			draftsPaths.push(newDraftFileName);
+		}
+
+		uniquePart = '_' + counter++;
+	} while (draftExists); //TODO this assume continuous drafts names
 
 	//Skip the first null element
 	for (let i = 1; i < draftsPaths.length; i++)
@@ -1559,6 +1581,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 	var retryCount = 0;
 	var backupCreated = false;
 	var bkpPath = path.join(path.dirname(fileObject.path), BKP_PREFEX + path.basename(fileObject.path) + BKP_EXT);
+	const oldBkpPath = path.join(path.dirname(fileObject.path), OLD_BKP_PREFEX + path.basename(fileObject.path) + BKP_EXT);
 	var writeEnc = defEnc || fileObject.encoding;
 
 	var writeFile = async function()
@@ -1603,10 +1626,16 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 			else
 			{
 				//We'll keep the backup file in case the original file is corrupted. TODO When should we delete the backup file?
-				/*if (backupCreated)
+				if (backupCreated)
 				{
-					fs.unlink(bkpPath, (err) => {}); //Ignore errors!
-				}*/
+					//fs.unlink(bkpPath, (err) => {}); //Ignore errors!
+
+					//Delete old backup file with old prefix
+					if (fs.existsSync(oldBkpPath))
+					{
+						fs.unlink(oldBkpPath, (err) => {}); //Ignore errors
+					}
+				}
 
 				return stat2;
 			}

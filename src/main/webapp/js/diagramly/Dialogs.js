@@ -127,7 +127,11 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 						editorUi.spinner.stop();
 						editorUi.setMode(mode, true);
 						fn();
-					}));
+					}), function(err)
+					{
+						editorUi.spinner.stop();
+						editorUi.handleError(err);
+					});
 				}
 				else
 				{
@@ -8445,7 +8449,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 	this.container = div;
 };
 
-var PluginsDialog = function(editorUi, addFn, delFn, cancelFn) 
+var PluginsDialog = function(editorUi, addFn, delFn, closeOnly) 
 {
 	var div = document.createElement('div');
 	var inner = document.createElement('div');
@@ -8600,17 +8604,12 @@ var PluginsDialog = function(editorUi, addFn, delFn, cancelFn)
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
-		if (cancelFn)
-		{
-			cancelFn()
-		}
-		
 		editorUi.hideDialog();
 	});
 	
 	cancelBtn.className = 'geBtn';
 	
-	var applyBtn = mxUtils.button(mxResources.get('apply'), function()
+	var applyBtn = mxUtils.button(closeOnly? mxResources.get('close') : mxResources.get('apply'), function()
 	{
 		if (changed)
 		{
@@ -8647,7 +8646,11 @@ var PluginsDialog = function(editorUi, addFn, delFn, cancelFn)
 	
 	if (editorUi.editor.cancelFirst)
 	{
-		buttons.appendChild(cancelBtn);
+		if (!closeOnly)
+		{
+			buttons.appendChild(cancelBtn);
+		}
+
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
 	}
@@ -8655,7 +8658,10 @@ var PluginsDialog = function(editorUi, addFn, delFn, cancelFn)
 	{
 		buttons.appendChild(addBtn);
 		buttons.appendChild(applyBtn);
-		buttons.appendChild(cancelBtn);
+		if (!closeOnly)
+		{
+			buttons.appendChild(cancelBtn);
+		}
 	}
 
 	div.appendChild(buttons);

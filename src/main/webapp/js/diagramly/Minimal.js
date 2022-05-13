@@ -686,7 +686,7 @@ EditorUi.initMinimalTheme = function()
 					icon.style.top = '2px';
 					icon.style.width = '12px';
 					icon.style.height = '12px';
-					icon.style.cursor = 'default';
+					// icon.style.cursor = 'default';
 
 					var err = file.getRealtimeError();
 					var state = file.getRealtimeState();
@@ -710,16 +710,7 @@ EditorUi.initMinimalTheme = function()
 							status += ' (' + mxResources.get('disconnected') + ')';
 						}
 					}
-
-					mxEvent.addListener(icon, 'click', mxUtils.bind(this, function(evt)
-					{
-						this.showError(mxResources.get('realtimeCollaboration'),
-							mxUtils.htmlEntities(state == 1 ? mxResources.get('online') :
-								((err != null && err.message != null) ?
-								err.message : mxResources.get('disconnected'))));
-						mxEvent.consume(evt);
-					}));
-		
+					
 					icon.setAttribute('title', status);
 					elt.style.paddingRight = '4px';
 					elt.appendChild(icon);

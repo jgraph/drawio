@@ -620,8 +620,6 @@ mxStencilRegistry.allowEval = false;
 		
 		editorUi.actions.addAction('plugins...', function()
 		{
-			let lastAddedExtPlugin = null;
-
 			editorUi.showDialog(new PluginsDialog(editorUi, function(callback)
 			{
 				var div = document.createElement('div');
@@ -674,7 +672,6 @@ mxStencilRegistry.allowEval = false;
 							});
 
 							localStorage.setItem('.lastPluginDir', ret.selDir);
-							lastAddedExtPlugin = ret.pluginName;
 							callback(ret.pluginName);
 							editorUi.hideDialog();
 						}
@@ -707,18 +704,7 @@ mxStencilRegistry.allowEval = false;
 					action: 'uninstallPlugin',
 					plugin: plugin
 				});
-			}, async function() 
-			{
-				if (lastAddedExtPlugin)
-				{
-					await requestSync({
-						action: 'uninstallPlugin',
-						plugin: lastAddedExtPlugin
-					});
-
-					lastAddedExtPlugin = null;
-				}
-			}).container, 360, 225, true, false);
+			}, true).container, 360, 225, true, false);
 		});
 	}
 	
@@ -1313,6 +1299,12 @@ mxStencilRegistry.allowEval = false;
 
 	LocalFile.prototype.save = function(revision, success, error, unloading, overwrite)
 	{
+		if (!this.isEditable())
+		{
+			this.saveAs(this.title, success, error);
+			return;
+		}
+
 		DrawioFile.prototype.save.apply(this, [revision, mxUtils.bind(this, function()
 		{
 			this.saveFile(revision, mxUtils.bind(this, function() 

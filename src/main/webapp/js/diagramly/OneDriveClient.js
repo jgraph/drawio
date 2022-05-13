@@ -280,7 +280,8 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 			
 			if (authInfo != null)
 			{
-				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); //To identify which app/domain is used
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId +
+					'&domain=' + window.location.hostname + '&token=' + state), null, 'GET'); // To identify which app/domain is used
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
@@ -294,7 +295,8 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 						this.setUser(null);
 						_token = null;
 
-						if (req.getStatus() == 401 && !failOnAuth) // (Unauthorized) [e.g, invalid refresh token]
+ 						// (Unauthorized) [e.g, invalid refresh token] or bad request
+						if ((req.getStatus() == 401 || req.getStatus() == 400) && !failOnAuth)
 						{
 							auth();
 						}
@@ -509,11 +511,11 @@ OneDriveClient.prototype.executeRequest = function(url, success, error)
 /**
  * Checks if the client is authorized and calls the next step.
  */
-OneDriveClient.prototype.checkToken = function(fn)
+OneDriveClient.prototype.checkToken = function(fn, error)
 {
 	if (_token == null || this.tokenRefreshThread == null || this.tokenExpiresOn - Date.now() < 60000)
 	{
-		this.authenticate(fn, this.emptyFn);
+		this.authenticate(fn, (error != null) ? error : this.emptyFn);
 	}
 	else
 	{
