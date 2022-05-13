@@ -115,7 +115,14 @@ public class ProxyServlet extends HttpServlet
 							&& (status == HttpURLConnection.HTTP_MOVED_PERM
 									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
 					{
-						url = new URL(connection.getHeaderField("Location"));
+						String redirectUrl = connection.getHeaderField("Location");
+
+						if (!checkUrlParameter(redirectUrl))
+						{
+							break;
+						}
+
+						url = new URL(redirectUrl);
 						connection = url.openConnection();
 						((HttpURLConnection) connection)
 								.setInstanceFollowRedirects(true);
