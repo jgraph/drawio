@@ -3833,6 +3833,11 @@
 			
 			spellCheckAction.setToggleAction(true);
 			spellCheckAction.setSelectedCallback(function() { return enableSpellCheck; });
+
+			editorUi.actions.addAction('openDevTools', function()
+			{
+				editorUi.openDevTools();
+			});
 		}
 
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3902,6 +3907,11 @@
 
 			this.addMenuItems(menu, ['configuration'], parent);
 			
+			if (EditorUi.isElectronApp)
+			{
+				this.addMenuItems(menu, ['openDevTools'], parent);	
+			}
+
 			// Adds trailing separator in case new plugin entries are added
 			menu.addSeparator(parent);
 			

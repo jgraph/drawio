@@ -123,6 +123,11 @@ function createWindow (opt = {})
 		mainWindow.webContents.openDevTools()
 	}
 
+	ipcMain.on('openDevTools', function()
+	{
+		mainWindow.webContents.openDevTools();
+	});
+
 	mainWindow.on('maximize', function()
 	{
 		mainWindow.webContents.send('maximize')
