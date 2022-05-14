@@ -1196,3 +1196,4 @@ confAFileCleaned=Oude versies opgeschoond van diagram concept "{1}"
 confAFileCleanFailed=Oude versies opschonen van diagram concept "{1}" mislukt
 confACleanOnly=Alleen diagram concepten opschonen
 brush=Kwast
+openDevTools=Open Developer Tools

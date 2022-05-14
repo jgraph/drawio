@@ -1196,3 +1196,4 @@ confAFileCleaned=Cleaning diagram draft "{1}" done
 confAFileCleanFailed=Cleaning diagram draft "{1}" failed
 confACleanOnly=Clean Diagram Drafts Only
 brush=Brush
+openDevTools=Open Developer Tools

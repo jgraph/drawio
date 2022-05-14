@@ -1,3 +1,11 @@
+14-MAY-2022: 18.0.4
+
+- Fixes type error for diffsync with overlays [2808]
+- Handles possible error 400 in OneDrive auth flow
+- Fixes update of cell metadata in CSV import [2796]
+- Applies URL filtering checks to location header in java proxy
+- Resolves URL parameters in java proxy before filtering
+
 11-MAY-2022: 18.0.3
 
 - Removes remote cursor options from context menu

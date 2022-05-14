@@ -1884,9 +1884,15 @@ function windowAction(method)
 	}
 }
 
+const allowedUrls = /^(?:https?|mailto|tel|callto):/i;
+
 function openExternal(url)
 {
-	shell.openExternal(url);
+	//Only open http(s), mailto, tel, and callto links
+	if (allowedUrls.test(url))
+	{
+		shell.openExternal(url);
+	}
 }
 
 function watchFile(path)

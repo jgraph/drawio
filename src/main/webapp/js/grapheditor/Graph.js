@@ -1664,7 +1664,7 @@ Graph.removePasteFormatting = function(elt)
 Graph.sanitizeHtml = function(value, editing)
 {
 	return DOMPurify.sanitize(value, {ADD_ATTR: ['target'], FORBID_TAGS: ['form'],
-		ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
+		ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|callto|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
 };
 
 /**

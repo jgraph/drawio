@@ -85,13 +85,15 @@ mxStencilRegistry.allowEval = false;
 	var oldWindowOpen = window.open;
 	window.open = async function(url)
 	{
-		if (url != null && url.startsWith('http'))
+		// Only open a native electron window when url is empty. We use this in our code in several places.
+		if (url == null)
 		{
-			await requestSync({action: 'openExternal', url: url});
+			return oldWindowOpen(url);
 		}
 		else
 		{
-			return oldWindowOpen(url);
+			// Open external will filter urls based on their protocol
+			await requestSync({action: 'openExternal', url: url});
 		}
 	}
 

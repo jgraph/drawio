@@ -1196,3 +1196,4 @@ confAFileCleaned=confAFileCleaned
 confAFileCleanFailed=confAFileCleanFailed
 confACleanOnly=confACleanOnly
 brush=brush
+openDevTools=openDevTools
