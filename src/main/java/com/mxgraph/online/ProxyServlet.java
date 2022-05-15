@@ -254,6 +254,7 @@ public class ProxyServlet extends HttpServlet
 				return (protocol.equals("http") || protocol.equals("https"))
 						&& !address.isAnyLocalAddress()
 						&& !address.isLoopbackAddress()
+						&& !address.isLinkLocalAddress()
 						&& !host.endsWith(".internal") // Redundant
 						&& !host.endsWith(".local") // Redundant
 						&& !host.contains("localhost") // Redundant
