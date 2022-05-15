@@ -1,3 +1,7 @@
+15-MAY-2022: 18.0.5
+
+- Security improvements in Java code
+
 14-MAY-2022: 18.0.4
 
 - Fixes type error for diffsync with overlays [2808]
