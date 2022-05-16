@@ -282,6 +282,8 @@ public class ProxyServlet extends HttpServlet
 						&& !hostAddress.startsWith("192.168.") // 192.168.0.0/16
 						&& !hostAddress.startsWith("198.18.") // 198.18.0.0/15
 						&& !hostAddress.startsWith("198.19.") // 198.18.0.0/15
+						&& !hostAddress.startsWith("fc00::") // fc00::/7 https://stackoverflow.com/questions/53764109/is-there-a-java-api-that-will-identify-the-ipv6-address-fd00-as-local-private
+						&& !hostAddress.startsWith("fd00::") // fd00::/8
 						&& !host.endsWith(".arpa"); // reverse domain (needed?)
 			}
 			catch (MalformedURLException e)
