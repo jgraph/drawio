@@ -12,7 +12,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -480,5 +484,74 @@ public class Utils
 		{  
 			return false;  
 		}  
+	}
+
+	/**
+	 * Checks if the URL parameter is legal, i.e. isn't attempting an SSRF
+	 * 
+	 * @param url the URL to check
+	 * @return true if the URL is permitted
+	 */
+	public static boolean sanitizeUrl(String url)
+	{
+		if (url != null)
+		{
+			try
+			{
+				URL parsedUrl = new URL(url);
+				String protocol = parsedUrl.getProtocol();
+				String host = parsedUrl.getHost();
+				InetAddress address = InetAddress.getByName(host);
+				String hostAddress = address.getHostAddress();
+				host = host.toLowerCase();
+
+				return (protocol.equals("http") || protocol.equals("https"))
+						&& !address.isAnyLocalAddress()
+						&& !address.isLoopbackAddress()
+						&& !address.isLinkLocalAddress()
+						&& !host.endsWith(".internal") // Redundant
+						&& !host.endsWith(".local") // Redundant
+						&& !host.contains("localhost") // Redundant
+						&& !hostAddress.startsWith("0.") // 0.0.0.0/8 
+						&& !hostAddress.startsWith("10.") // 10.0.0.0/8
+						&& !hostAddress.startsWith("127.") // 127.0.0.0/8
+						&& !hostAddress.startsWith("169.254.") // 169.254.0.0/16
+						&& !hostAddress.startsWith("172.16.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.17.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.18.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.19.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.20.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.21.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.22.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.23.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.24.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.25.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.26.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.27.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.28.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.29.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.30.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("172.31.") // 172.16.0.0/12
+						&& !hostAddress.startsWith("192.0.0.") // 192.0.0.0/24
+						&& !hostAddress.startsWith("192.168.") // 192.168.0.0/16
+						&& !hostAddress.startsWith("198.18.") // 198.18.0.0/15
+						&& !hostAddress.startsWith("198.19.") // 198.18.0.0/15
+						&& !hostAddress.startsWith("fc00::") // fc00::/7 https://stackoverflow.com/questions/53764109/is-there-a-java-api-that-will-identify-the-ipv6-address-fd00-as-local-private
+						&& !hostAddress.startsWith("fd00::") // fd00::/8
+						&& !host.endsWith(".arpa"); // reverse domain (needed?)
+			}
+			catch (MalformedURLException e)
+			{
+				return false;
+			}
+			catch (UnknownHostException e)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
 	}
 }

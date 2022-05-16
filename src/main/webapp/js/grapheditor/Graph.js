@@ -1663,16 +1663,36 @@ Graph.removePasteFormatting = function(elt)
  */
 Graph.sanitizeHtml = function(value, editing)
 {
-	return DOMPurify.sanitize(value, {ADD_ATTR: ['target'], FORBID_TAGS: ['form'],
-		ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|callto|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
+	return Graph.domPurify(value, false);
 };
 
 /**
- * Sanitizes the SVG in the given DOM node in-place.
+ * Returns the size of the page format scaled with the page size.
  */
-Graph.sanitizeSvg = function(div)
+Graph.sanitizeLink = function(href)
 {
-	return DOMPurify.sanitize(div, {IN_PLACE: true});
+	var a = document.createElement('a');
+	a.setAttribute('href', href);
+	Graph.sanitizeNode(a);
+	
+	return a.getAttribute('href');
+};
+
+/**
+ * Sanitizes the given DOM node in-place.
+ */
+Graph.sanitizeNode = function(value)
+{
+	return Graph.domPurify(value, true);
+};
+
+/**
+ * Sanitizes the given value.
+ */
+Graph.domPurify = function(value, inPlace)
+{
+	return DOMPurify.sanitize(value, {IN_PLACE: inPlace, ADD_ATTR: ['target'], FORBID_TAGS: ['form'],
+		ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|callto|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
 };
 
 /**
@@ -1702,7 +1722,7 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 				div.innerHTML = data.substring(idx);
 				
 				// Removes all attributes starting with on
-				Graph.sanitizeSvg(div);
+				Graph.sanitizeNode(div);
 				
 				// Gets the size and removes from DOM
 				var svgs = div.getElementsByTagName('svg');
@@ -2889,35 +2909,40 @@ Graph.prototype.openLink = function(href, target, allowOpener)
 	
 	try
 	{
-		// Workaround for blocking in same iframe
-		if (target == '_self' && window != window.top)
+		href = Graph.sanitizeLink(href);
+
+		if (href != null)
 		{
-			window.location.href = href;
-		}
-		else
-		{
-			// Avoids page reload for anchors (workaround for IE but used everywhere)
-			if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
-				href.charAt(this.baseUrl.length) == '#' &&
-				target == '_top' && window == window.top)
+			// Workaround for blocking in same iframe
+			if (target == '_self' && window != window.top)
 			{
-				var hash = href.split('#')[1];
-	
-				// Forces navigation if on same hash
-				if (window.location.hash == '#' + hash)
-				{
-					window.location.hash = '';
-				}
-				
-				window.location.hash = hash;
+				window.location.href = href;
 			}
 			else
 			{
-				result = window.open(href, (target != null) ? target : '_blank');
-	
-				if (result != null && !allowOpener)
+				// Avoids page reload for anchors (workaround for IE but used everywhere)
+				if (href.substring(0, this.baseUrl.length) == this.baseUrl &&
+					href.charAt(this.baseUrl.length) == '#' &&
+					target == '_top' && window == window.top)
 				{
-					result.opener = null;
+					var hash = href.split('#')[1];
+		
+					// Forces navigation if on same hash
+					if (window.location.hash == '#' + hash)
+					{
+						window.location.hash = '';
+					}
+					
+					window.location.hash = hash;
+				}
+				else
+				{
+					result = window.open(href, (target != null) ? target : '_blank');
+		
+					if (result != null && !allowOpener)
+					{
+						result.opener = null;
+					}
 				}
 			}
 		}
@@ -13735,6 +13760,11 @@ if (typeof mxVertexHandler !== 'undefined')
 							this.linkHint.appendChild(div);
 						}
 					}
+				}
+
+				if (this.linkHint != null)
+				{
+					Graph.sanitizeNode(this.linkHint);
 				}
 			}
 			catch (e)

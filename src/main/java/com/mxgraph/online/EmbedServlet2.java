@@ -393,7 +393,7 @@ public class EmbedServlet2 extends HttpServlet
 				try
 				{
 					// Checks if URL already fetched to avoid duplicates
-					if (!completed.contains(urls[i]))
+					if (!completed.contains(urls[i]) && Utils.sanitizeUrl(urls[i]))
 					{
 						completed.add(urls[i]);
 						URL url = new URL(urls[i]);

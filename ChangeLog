@@ -1,6 +1,12 @@
+16-MAY-2022: 18.0.6
+
+- Moves sanitize URL to Utils, adds extra IPv6 check
+- Adds additional checks for hyperlinks
+
 15-MAY-2022: 18.0.5
 
-- Security improvements in Java code
+- Adds isLinkLocalAddress() to address checks
+- Limits well known servlet to serving single file
 
 14-MAY-2022: 18.0.4
 
