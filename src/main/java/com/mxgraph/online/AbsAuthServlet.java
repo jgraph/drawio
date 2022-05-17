@@ -207,21 +207,15 @@ abstract public class AbsAuthServlet extends HttpServlet
 			return true;
 		}
 	
-		if (url.startsWith("/")) // /somePage.html
-		{
-			return false;
-		}
-	
-		boolean result = false;
-	
 		try 
 		{
 			URI uri = new URI(url);
-			result = uri.isAbsolute();
+			return uri.isAbsolute();
 		}
-		catch (URISyntaxException e) {} //Ignore
-	
-		return result;
+		catch (URISyntaxException e) 
+		{
+			return true; // Block malformed URLs also
+		}
 	}
 
 	/**

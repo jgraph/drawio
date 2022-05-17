@@ -21,6 +21,10 @@ import java.security.SecureRandom;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.net.InetAddress;
 
 /**
  * 

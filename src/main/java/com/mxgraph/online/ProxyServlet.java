@@ -104,15 +104,13 @@ public class ProxyServlet extends HttpServlet
 				if (connection instanceof HttpURLConnection)
 				{
 					((HttpURLConnection) connection)
-							.setInstanceFollowRedirects(true);
+							.setInstanceFollowRedirects(false);
 					int status = ((HttpURLConnection) connection)
 							.getResponseCode();
 					int counter = 0;
 
 					// Follows a maximum of 6 redirects 
-					while (counter++ <= 6
-							&& (status == HttpURLConnection.HTTP_MOVED_PERM
-									|| status == HttpURLConnection.HTTP_MOVED_TEMP))
+					while (counter++ <= 6 && (int)(status / 10) == 30) //Any redirect status 30x
 					{
 						String redirectUrl = connection.getHeaderField("Location");
 
@@ -124,7 +122,7 @@ public class ProxyServlet extends HttpServlet
 						url = new URL(redirectUrl);
 						connection = url.openConnection();
 						((HttpURLConnection) connection)
-								.setInstanceFollowRedirects(true);
+								.setInstanceFollowRedirects(false);
 						connection.setConnectTimeout(TIMEOUT);
 						connection.setReadTimeout(TIMEOUT);
 
@@ -251,19 +249,19 @@ public class ProxyServlet extends HttpServlet
 		String dom = null;
 
 		if (referer != null && referer.toLowerCase()
-				.matches("https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
+				.matches("^https?://([a-z0-9,-]+[.])*draw[.]io/.*"))
 		{
 			dom = referer.toLowerCase().substring(0,
 					referer.indexOf(".draw.io/") + 8);
 		}
 		else if (referer != null && referer.toLowerCase()
-				.matches("https?://([a-z0-9,-]+[.])*diagrams[.]net/.*"))
+				.matches("^https?://([a-z0-9,-]+[.])*diagrams[.]net/.*"))
 		{
 			dom = referer.toLowerCase().substring(0,
 					referer.indexOf(".diagrams.net/") + 13);
 		}
 		else if (referer != null && referer.toLowerCase()
-				.matches("https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
+				.matches("^https?://([a-z0-9,-]+[.])*quipelements[.]com/.*"))
 		{
 			dom = referer.toLowerCase().substring(0,
 					referer.indexOf(".quipelements.com/") + 17);

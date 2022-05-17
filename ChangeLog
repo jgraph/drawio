@@ -1,3 +1,9 @@
+17-MAY-2022: 18.0.7
+
+- Sets setInstanceFollowRedirects(false) in proxyservlet
+- Fixes issue in state redirect of AbsAuth
+- Changes regex for CORS check
+
 16-MAY-2022: 18.0.6
 
 - Moves sanitize URL to Utils, adds extra IPv6 check

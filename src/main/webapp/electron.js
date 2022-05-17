@@ -92,7 +92,8 @@ function createWindow (opt = {})
 		webPreferences: {
 			preload: `${__dirname}/electron-preload.js`,
 			spellcheck: enableSpellCheck,
-			contextIsolation: true
+			contextIsolation: true,
+			disableBlinkFeatures: 'Auxclick'
 		}
 	}, opt)
 
@@ -298,7 +299,8 @@ app.on('ready', e =>
 			show : false,
 			webPreferences: {
 				preload: `${__dirname}/electron-preload.js`,
-				contextIsolation: true
+				contextIsolation: true,
+				disableBlinkFeatures: 'Auxclick'
 			}
 		});
     	
@@ -851,6 +853,34 @@ app.on('will-finish-launching', function()
 		}
 	});
 });
+ 
+app.on('web-contents-created', (event, contents) => {
+	// Disable navigation
+	contents.on('will-navigate', (event, navigationUrl) => {
+		event.preventDefault()
+	})
+
+	// Limit creation of new windows (we also override window.open)
+	contents.setWindowOpenHandler(({ url }) => {
+		// We allow external absolute URLs to be open externally (check openExternal for details) and also empty windows (url -> about:blank)
+		if (url.startsWith('about:blank'))
+		{
+			return {
+				action: 'allow',
+				overrideBrowserWindowOptions: {
+					fullscreenable: false,
+					webPreferences: {
+						contextIsolation: true
+					}
+				}
+			}
+		} 
+		else if (!openExternal(url))
+		{
+			return {action: 'deny'}
+		}
+	})
+})
 
 autoUpdater.on('error', e => log.error('@error@\n', e))
 
@@ -1229,7 +1259,8 @@ function exportDiagram(event, args, directFinalize)
 			webPreferences: {
 				preload: `${__dirname}/electron-preload.js`,
 				backgroundThrottling: false,
-				contextIsolation: true
+				contextIsolation: true,
+				disableBlinkFeatures: 'Auxclick'
 			},
 			show : false,
 			frame: false,
@@ -1892,7 +1923,10 @@ function openExternal(url)
 	if (allowedUrls.test(url))
 	{
 		shell.openExternal(url);
+		return true;
 	}
+
+	return false;
 }
 
 function watchFile(path)
