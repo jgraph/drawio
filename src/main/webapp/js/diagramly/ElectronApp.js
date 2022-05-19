@@ -1776,6 +1776,11 @@ mxStencilRegistry.allowEval = false;
 	{
 		electron.sendMessage('toggleSpellCheck');
 	}
+
+	App.prototype.toggleStoreBkp = function()
+	{
+		electron.sendMessage('toggleStoreBkp');
+	}
 	
 	App.prototype.openDevTools = function()
 	{

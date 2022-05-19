@@ -1197,3 +1197,4 @@ confAFileCleanFailed=임시 저장 다이어그램 "{1}" 삭제를 실패하였�
 confACleanOnly=임시 저장된 다이어그램만 삭제
 brush=브러시
 openDevTools=Open Developer Tools
+autoBkp=Automatic Backup

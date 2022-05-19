@@ -1197,3 +1197,4 @@ confAFileCleanFailed=Cleaning diagram draft "{1}" failed
 confACleanOnly=Clean Diagram Drafts Only
 brush=Brush
 openDevTools=Open Developer Tools
+autoBkp=Automatic Backup

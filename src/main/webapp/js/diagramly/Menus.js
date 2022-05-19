@@ -3834,6 +3834,17 @@
 			spellCheckAction.setToggleAction(true);
 			spellCheckAction.setSelectedCallback(function() { return enableSpellCheck; });
 
+			var enableStoreBkp = urlParams['enableStoreBkp'] == '1';
+
+			var storeBkpAction = editorUi.actions.addAction('autoBkp', function()
+			{
+				editorUi.toggleStoreBkp();
+				enableStoreBkp = !enableStoreBkp;
+			});
+			
+			storeBkpAction.setToggleAction(true);
+			storeBkpAction.setSelectedCallback(function() { return enableStoreBkp; });
+
 			editorUi.actions.addAction('openDevTools', function()
 			{
 				editorUi.openDevTools();
@@ -3866,7 +3877,7 @@
 	
 			if (EditorUi.isElectronApp)
 			{
-				this.addMenuItems(menu, ['spellCheck'], parent);	
+				this.addMenuItems(menu, ['spellCheck', 'autoBkp'], parent);	
 			}
 
 			this.addMenuItems(menu, ['copyConnect', 'collapseExpand', '-'], parent);

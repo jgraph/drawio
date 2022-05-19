@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
@@ -398,6 +399,7 @@ public class EmbedServlet2 extends HttpServlet
 						completed.add(urls[i]);
 						URL url = new URL(urls[i]);
 						URLConnection connection = url.openConnection();
+						((HttpURLConnection) connection).setInstanceFollowRedirects(false);
 						ByteArrayOutputStream stream = new ByteArrayOutputStream();
 						Utils.copy(connection.getInputStream(), stream);
 						setCachedUrls += "GraphViewer.cachedUrls['"

@@ -1197,3 +1197,4 @@ confAFileCleanFailed=Чищення старих версій чернеток �
 confACleanOnly=Чистити тільки чернетки діаграм
 brush=Пензлик
 openDevTools=Open Developer Tools
+autoBkp=Automatic Backup

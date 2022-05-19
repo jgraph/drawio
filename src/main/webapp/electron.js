@@ -38,6 +38,7 @@ const isMac = process.platform === 'darwin'
 const isWin = process.platform === 'win32'
 let enableSpellCheck = store.get('enableSpellCheck');
 enableSpellCheck = enableSpellCheck != null? enableSpellCheck : isMac;
+let enableStoreBkp = store.get('enableStoreBkp') != null? store.get('enableStoreBkp') : true;
 
 //Read config file
 var queryObj = {
@@ -55,7 +56,8 @@ var queryObj = {
 	'export': 'https://convert.diagrams.net/node/export',
 	'disableUpdate': disableUpdate? 1 : 0,
 	'winCtrls': isMac? 0 : 1,
-	'enableSpellCheck': enableSpellCheck? 1 : 0
+	'enableSpellCheck': enableSpellCheck? 1 : 0,
+	'enableStoreBkp': enableStoreBkp? 1 : 0
 };
 
 try
@@ -75,6 +77,9 @@ catch(e)
 	console.log('Error in urlParams.json file: ' + e.message);
 }
 
+// Trying sandboxing the renderer for more protection
+app.enableSandbox();
+
 function createWindow (opt = {})
 {
 	let lastWinSizeStr = store.get('lastWinSize');
@@ -93,7 +98,7 @@ function createWindow (opt = {})
 			preload: `${__dirname}/electron-preload.js`,
 			spellcheck: enableSpellCheck,
 			contextIsolation: true,
-			disableBlinkFeatures: 'Auxclick'
+			disableBlinkFeatures: 'Auxclick' // Is this needed?
 		}
 	}, opt)
 
@@ -300,7 +305,7 @@ app.on('ready', e =>
 			webPreferences: {
 				preload: `${__dirname}/electron-preload.js`,
 				contextIsolation: true,
-				disableBlinkFeatures: 'Auxclick'
+				disableBlinkFeatures: 'Auxclick' // Is this needed?
 			}
 		});
     	
@@ -687,6 +692,14 @@ app.on('ready', e =>
 
 	ipcMain.on('toggleSpellCheck', toggleSpellCheck);
 
+	function toggleStoreBkp()
+	{
+		enableStoreBkp = !enableStoreBkp;
+		store.set('enableStoreBkp', enableStoreBkp);
+	};
+
+	ipcMain.on('toggleStoreBkp', toggleStoreBkp);
+
     let updateNoAvailAdded = false;
     
 	function checkForUpdatesFn() 
@@ -879,6 +892,11 @@ app.on('web-contents-created', (event, contents) => {
 		{
 			return {action: 'deny'}
 		}
+	})
+
+	// Disable all webviews
+	contents.on('will-attach-webview', (event, webPreferences, params) => {
+		event.preventDefault()
 	})
 })
 
@@ -1260,7 +1278,7 @@ function exportDiagram(event, args, directFinalize)
 				preload: `${__dirname}/electron-preload.js`,
 				backgroundThrottling: false,
 				contextIsolation: true,
-				disableBlinkFeatures: 'Auxclick'
+				disableBlinkFeatures: 'Auxclick' // Is this needed?
 			},
 			show : false,
 			frame: false,
@@ -1680,7 +1698,7 @@ async function saveFile(fileObject, data, origStat, overwrite, defEnc)
 	
 	async function doSaveFile(isNew)
 	{
-		if (!isNew)
+		if (enableStoreBkp && !isNew)
 		{
 			//Copy file to backup file (after conflict and stat is checked)
 			let bkpFh;

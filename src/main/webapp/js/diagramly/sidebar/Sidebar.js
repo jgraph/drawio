@@ -300,7 +300,8 @@
 		
 		if (elts != null)
 		{
-			var vis = (visible != null) ? ((visible) ? 'block' : 'none') : (elts[0].style.display == 'none') ? 'block' : 'none';
+			var vis = (visible != null) ? ((visible) ? 'block' : 'none') :
+				(elts[0].style.display == 'none') ? 'block' : 'none';
 			
 			for (var i = 0; i < elts.length; i++)
 			{
@@ -612,44 +613,59 @@
 			{
 				if (mxEvent.getSource(evt).nodeName == 'BUTTON')
 				{
-					var title2 = title.cloneNode(true);
-					title2.style.backgroundImage = '';
-					title2.style.textDecoration = 'none';
-					title2.style.fontWeight = 'bold';
-					title2.style.fontSize = '14px';
-					title2.style.color = 'rgb(80, 80, 80)';
-					title2.style.width = '456px';
-					title2.style.backgroundColor = '#ffffff';
-					title2.style.paddingLeft = '6px';
+					var svgs = content.getElementsByTagName('svg');
+					var w = 456;
+					var h = (Math.ceil(svgs.length / 6) + 1) * this.thumbHeight;
+					var root = Graph.createSvgNode(0, 0, w, h, '#ffffff');
 					
-					var btn2 = title2.getElementsByTagName('button')[0];
-					btn2.parentNode.removeChild(btn2);
-					
-					var clone = content.cloneNode(true);
-					clone.style.backgroundColor = '#ffffff';
-					clone.style.borderColor = 'transparent';
-					clone.style.width = '456px';
-	
-					var parser = new DOMParser();
-					var doc = parser.parseFromString('<body style="background:#ffffff;font-family:Helvetica,Arial;">' +
-							title2.outerHTML + clone.outerHTML + '</body>', 'text/html');
-					
-					this.editorUi.editor.convertImages(doc.documentElement, mxUtils.bind(this, function(body)
+					// Adds title
+					var canvas = new mxSvgCanvas2D(root);
+					canvas.setFontFamily(mxConstants.DEFAULT_FONTFAMILY);
+					canvas.setFontStyle(mxConstants.FONT_BOLD);
+					canvas.setFontColor('rgb(80, 80, 80)');
+					canvas.setFontSize(14);
+
+					// Extracts title text
+					var children = title.childNodes;
+
+					for (var i = 0; i < children.length; i++)
 					{
-						var html = '<!DOCTYPE html><html><head><link rel="stylesheet" type="text/css" ' +
-							'href="https://www.draw.io/styles/grapheditor.css"></head>' +
-							mxUtils.getXml(body) + '</html>';
-		
-						clone.style.position = 'absolute';
-						window.document.body.appendChild(clone);
-						var h = clone.clientHeight + 18;
-						clone.parentNode.removeChild(clone);
-						
-						this.editorUi.confirm('Image data created', mxUtils.bind(this, function()
+						if (children[i].nodeType == mxConstants.NODETYPE_TEXT)
 						{
-				    		new mxXmlRequest(EXPORT_URL, 'w=456&h=' + h + '&html=' + encodeURIComponent(
-				    			Graph.compress(html))).simulate(document, '_blank');
-						}), null, mxResources.get('save'), mxResources.get('cancel'));
+							canvas.plainText(6, 0, 0, 0, mxUtils.getTextContent(children[i]));
+
+							break;
+						}
+					}
+
+					for (var i = 0; i < svgs.length; i++)
+					{
+						var svg = svgs[i];
+						var clone = svg.cloneNode(true);
+						clone.removeAttribute('style');
+						clone.setAttribute('width', this.thumbWidth);
+						clone.setAttribute('height', this.thumbHeight);
+						clone.setAttribute('x', 12 + mxUtils.mod(i, 6) * 68);
+						clone.setAttribute('y', 24 + Math.floor(i / 6) * 68);
+						root.appendChild(clone);
+					}
+
+					this.editorUi.editor.convertImages(root, mxUtils.bind(this, function(body)
+					{
+						var canvas = document.createElement('canvas');
+						canvas.width = w;
+						canvas.height = h;
+					
+						var img = document.createElement('img');
+						img.onload = mxUtils.bind(this, function()
+						{
+							var ctx = canvas.getContext('2d');
+							ctx.drawImage(img, 0, 0)
+							this.editorUi.saveCanvas(canvas, null, 'png');
+						});
+
+						var xml = Graph.xmlDeclaration + '\n' + Graph.svgDoctype + '\n' + mxUtils.getXml(root);
+						img.src = Editor.createSvgDataUri(xml);
 					}));
 					
 					return;

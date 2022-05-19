@@ -1381,6 +1381,70 @@ Graph.createSvgImage = function(w, h, data, coordWidth, coordHeight)
 
     return new mxImage('data:image/svg+xml;base64,' + ((window.btoa) ? btoa(tmp) : Base64.encode(tmp, true)), w, h)
 };
+ 
+/**
+ * Helper function for creating an SVG node.
+ */
+Graph.createSvgNode = function(x, y, w, h, background)
+{
+	var svgDoc = mxUtils.createXmlDocument();
+	var root = (svgDoc.createElementNS != null) ?
+		svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') :
+		svgDoc.createElement('svg');
+	
+	if (background != null)
+	{
+		if (root.style != null)
+		{
+			root.style.backgroundColor = background;
+		}
+		else
+		{
+			root.setAttribute('style', 'background-color:' + background);
+		}
+	}
+	
+	if (svgDoc.createElementNS == null)
+	{
+		root.setAttribute('xmlns', mxConstants.NS_SVG);
+		root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
+	}
+	else
+	{
+		// KNOWN: Ignored in IE9-11, adds namespace for each image element instead. No workaround.
+		root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', mxConstants.NS_XLINK);
+	}
+
+	root.setAttribute('version', '1.1');
+	root.setAttribute('width', w + 'px');
+	root.setAttribute('height', h + 'px');
+	root.setAttribute('viewBox', x + ' ' + y + ' ' + w + ' ' + h);
+	svgDoc.appendChild(root);
+
+	return root;
+};
+ 
+/**
+ * Helper function for creating an SVG node.
+ */
+Graph.htmlToPng = function(html, w, h, fn)
+{
+	var canvas = document.createElement('canvas');
+	canvas.width = w;
+	canvas.height = h;
+
+	var img = document.createElement('img');
+	img.onload = mxUtils.bind(this, function()
+	{
+		var ctx = canvas.getContext('2d');
+		ctx.drawImage(img, 0, 0)
+
+		fn(canvas.toDataURL());
+	});
+
+	img.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' +
+		'<foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml"><style>em{color:red;}</style><em>I</em> lick <span>cheese</span></div></foreignObject></svg>');
+};
 
 /**
  * Removes all illegal control characters with ASCII code <32 except TAB, LF
@@ -10081,45 +10145,15 @@ if (typeof mxVertexHandler !== 'undefined')
 				}
 	
 				// Prepares SVG document that holds the output
-				var svgDoc = mxUtils.createXmlDocument();
-				var root = (svgDoc.createElementNS != null) ?
-			    	svgDoc.createElementNS(mxConstants.NS_SVG, 'svg') : svgDoc.createElement('svg');
-			    
-				if (background != null)
-				{
-					if (root.style != null)
-					{
-						root.style.backgroundColor = background;
-					}
-					else
-					{
-						root.setAttribute('style', 'background-color:' + background);
-					}
-				}
-			    
-				if (svgDoc.createElementNS == null)
-				{
-			    	root.setAttribute('xmlns', mxConstants.NS_SVG);
-			    	root.setAttribute('xmlns:xlink', mxConstants.NS_XLINK);
-				}
-				else
-				{
-					// KNOWN: Ignored in IE9-11, adds namespace for each image element instead. No workaround.
-					root.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', mxConstants.NS_XLINK);
-				}
-
 				var s = scale / vs;
 				var w = Math.max(1, Math.ceil(bounds.width * s) + 2 * border) +
 					((hasShadow && border == 0) ? 5 : 0);
 				var h = Math.max(1, Math.ceil(bounds.height * s) + 2 * border) +
 					((hasShadow && border == 0) ? 5 : 0);
-				
-				root.setAttribute('version', '1.1');
-				root.setAttribute('width', w + 'px');
-				root.setAttribute('height', h + 'px');
-				root.setAttribute('viewBox', ((crisp) ? '-0.5 -0.5' : '0 0') + ' ' + w + ' ' + h);
-				svgDoc.appendChild(root);
-			
+				var tmp = (crisp) ? -0.5 : 0;
+				var root = Graph.createSvgNode(tmp, tmp, w, h, background);
+				var svgDoc = root.ownerDocument;
+
 			    // Renders graph. Offset will be multiplied with state's scale when painting state.
 				// TextOffset only seems to affect FF output but used everywhere for consistency.
 				var group = (svgDoc.createElementNS != null) ?

@@ -1,3 +1,7 @@
+19-MAY-2022: 18.0.8
+
+- Deletes unused ExportProxyServlet
+
 17-MAY-2022: 18.0.7
 
 - Sets setInstanceFollowRedirects(false) in proxyservlet
