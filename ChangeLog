@@ -1,3 +1,10 @@
+20-MAY-2022: 18.1.1
+
+- [VSDX import] Fixes case when theme index is incorrect
+- Checks stencil name parameter in embed servlet
+- Adds DOM_PURIFY_CONFIG global variable
+- Check env var is set in ExportProxy
+
 19-MAY-2022: 18.0.8
 
 - Deletes unused ExportProxyServlet

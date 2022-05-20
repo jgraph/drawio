@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -268,7 +269,7 @@ public class EmbedServlet2 extends HttpServlet
 
 			for (int i = 0; i < names.length; i++)
 			{
-				if (names[i].indexOf("..") < 0 && !done.contains(names[i]))
+				if (names[i].indexOf("..") < 0 && !done.contains(names[i]) && names[i].length() > 0)
 				{
 					if (names[i].equals("*"))
 					{
@@ -278,6 +279,9 @@ public class EmbedServlet2 extends HttpServlet
 					}
 					else
 					{
+						// Makes name canonical
+						names[i] = new File("/" + names[i]).getCanonicalPath().substring(1);
+
 						// Checks if any JS files are associated with the library
 						// name and injects the JS into the page
 						String[] libs = libraries.get(names[i]);

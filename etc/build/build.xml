@@ -504,7 +504,7 @@
 
 	<target name="javac" description="Java compilation">
 		<mkdir dir="${javac.dir}"/>
-		<javac includeantruntime="false" srcdir="${src.dir}" excludes="**/EmbedServlet2.java" destdir="${javac.dir}">
+		<javac includeantruntime="false" srcdir="${src.dir}" destdir="${javac.dir}">
 			<classpath refid="javac.class.path" />
 		</javac>
 		<copy todir="${javac.dir}" file="${src.dir}/log4j.properties" />

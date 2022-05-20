@@ -3472,6 +3472,17 @@ var com;
                     mxVsdxModel.prototype.getThemes = function () {
                         return this.themes;
                     };
+                    
+                    mxVsdxModel.prototype.getDefaultTheme = function () 
+                    {
+                        if (this.defaultTheme == null && this.themes.entries != null && this.themes.entries.length > 0)
+                        {
+                            this.defaultTheme = this.themes.entries[0].getValue();
+                        }
+
+                        return this.defaultTheme;
+                    };
+                    
                     mxVsdxModel.prototype.getRelationship = function (rid, path) {
                         var relsDoc = (function (m, k) { return m[k] ? m[k] : null; })(this.xmlDocs, path);
                         if (relsDoc == null || rid == null || (rid.length === 0)) {
@@ -9941,6 +9952,9 @@ var com;
                             if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
                                 return m.entries[i].value;
                             } return null; })(model.getThemes(), themeIndex);
+                        if (theme == null) {
+                            theme = model.getDefaultTheme();
+                        }
                         var variant = page.getCellIntValue("VariationColorIndex", 0);
                         _this.setThemeAndVariant(theme, variant);
                         {

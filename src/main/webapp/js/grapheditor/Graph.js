@@ -1750,13 +1750,23 @@ Graph.sanitizeNode = function(value)
 	return Graph.domPurify(value, true);
 };
 
+// Allows use tag in SVG with local references only
+DOMPurify.addHook('afterSanitizeAttributes', function(node)
+{
+	if (node.hasAttribute('xlink:href') && !node.getAttribute('xlink:href').match(/^#/))
+	{
+		node.remove();
+	} 
+});
+
 /**
  * Sanitizes the given value.
  */
 Graph.domPurify = function(value, inPlace)
 {
-	return DOMPurify.sanitize(value, {IN_PLACE: inPlace, ADD_ATTR: ['target'], FORBID_TAGS: ['form'],
-		ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel|callto|data):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i});
+	window.DOM_PURIFY_CONFIG.IN_PLACE = inPlace;
+	
+	return DOMPurify.sanitize(value, window.DOM_PURIFY_CONFIG);
 };
 
 /**
@@ -1784,7 +1794,7 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 			{
 				// Strips leading XML declaration and doctypes
 				div.innerHTML = data.substring(idx);
-				
+
 				// Removes all attributes starting with on
 				Graph.sanitizeNode(div);
 				
