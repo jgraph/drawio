@@ -1198,3 +1198,4 @@ confACleanOnly=Чистити тільки чернетки діаграм
 brush=Пензлик
 openDevTools=Open Developer Tools
 autoBkp=Automatic Backup
+confAIgnoreCollectErr=Ignore collecting current pages errors

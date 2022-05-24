@@ -1,3 +1,7 @@
+23-MAY-2022: 18.1.2
+
+- Limits export proxy URL
+
 20-MAY-2022: 18.1.1
 
 - [VSDX import] Fixes case when theme index is incorrect

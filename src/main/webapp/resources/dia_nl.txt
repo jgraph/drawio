@@ -1198,3 +1198,4 @@ confACleanOnly=Alleen diagram concepten opschonen
 brush=Kwast
 openDevTools=Open Developer Tools
 autoBkp=Automatic Backup
+confAIgnoreCollectErr=Ignore collecting current pages errors

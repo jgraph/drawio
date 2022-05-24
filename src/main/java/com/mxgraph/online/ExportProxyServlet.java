@@ -66,9 +66,14 @@ public class ExportProxyServlet extends HttpServlet
 			
 			String exportUrl = System.getenv(supportedServices[serviceId]);
 			
-			if (exportUrl == null || exportUrl.isEmpty())
+			if (exportUrl == null || exportUrl.isEmpty() || 
+				(!exportUrl.startsWith("http://") && !exportUrl.startsWith("https://")))
 			{
-				throw new Exception(supportedServices[serviceId] + " not set");
+				throw new Exception(supportedServices[serviceId] + " not set or invalid");
+			}
+			else if (!exportUrl.endsWith("/")) // There are other non-trivial cases, admins should configure these URLs carefully
+			{
+				exportUrl += "/";
 			}
 			
 			URL url = new URL(exportUrl + proxyPath + queryString);

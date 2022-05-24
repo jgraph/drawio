@@ -2308,7 +2308,7 @@ EditorUi.initMinimalTheme = function()
 			{
 				ui.setStatusText(ui.editor.getStatus());
 
-				if (urlParams['embed'] != '1')
+				if (urlParams['embed'] != '1' && ui.getServiceName() != 'atlassian')
 				{
 					ui.statusContainer.style.display = 'inline-block';
 					statusVisible = true;

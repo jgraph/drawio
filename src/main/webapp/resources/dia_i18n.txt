@@ -1198,3 +1198,4 @@ confACleanOnly=confACleanOnly
 brush=brush
 openDevTools=openDevTools
 autoBkp=autoBkp
+confAIgnoreCollectErr=confAIgnoreCollectErr

@@ -1198,3 +1198,4 @@ confACleanOnly=임시 저장된 다이어그램만 삭제
 brush=브러시
 openDevTools=Open Developer Tools
 autoBkp=Automatic Backup
+confAIgnoreCollectErr=Ignore collecting current pages errors
