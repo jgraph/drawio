@@ -12237,7 +12237,7 @@
 					}
 					else if (data.action == 'layout')
 					{
-						this.executeLayoutList(data.layouts)
+						this.executeLayouts(this.editor.graph.createLayouts(data.layouts));
 
 						return;
 					}
@@ -13223,35 +13223,6 @@
 		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);
 		this.importCsvDialog.init();
 	};
-
-
-	/**
-	 * Runs the layout from the given JavaScript array which is of the form [{layout: name, config: obj}, ...]
-	 * where name is the layout constructor name and config contains the properties of the layout instance.
-	 */
-	EditorUi.prototype.executeLayoutList = function(layoutList, done)
-	{
-		var graph = this.editor.graph;
-		var cells = graph.getSelectionCells();
-
-		for (var i = 0; i < layoutList.length; i++)
-		{
-			var layout = new window[layoutList[i].layout](graph);
-			
-			if (layoutList[i].config != null)
-			{
-				for (var key in layoutList[i].config)
-				{
-					layout[key] = layoutList[i].config[key];
-				}
-			}
-			
-			this.executeLayout(function()
-			{
-				layout.execute(graph.getDefaultParent(), cells.length == 0 ? null : cells);
-			}, i == layoutList.length - 1, done);
-		}
-	};
 	
 	/**
 	 *
@@ -13862,11 +13833,13 @@
 			    			// Required for layouts to work with new cells
 							var temp = afterInsert;
 			    			graph.view.validate();
-							this.executeLayoutList(JSON.parse(layout), function()
+
+							this.executeLayouts(graph.createLayouts(JSON.parse(layout)), function()
 							{
 								postProcess();
 								temp();
 							});
+
 							afterInsert = null;
 						}
 						else if (layout == 'circle')

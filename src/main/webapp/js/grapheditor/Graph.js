@@ -1346,6 +1346,14 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 					'disableMultiStrokeFill', 'fillStyle', 'curveFitting', 'simplification', 'comicStyle'];
 
 /**
+ * Whitelist for known layout names.
+ */
+Graph.layoutNames = ['mxHierarchicalLayout', 'mxCircleLayout',
+	'mxCompactTreeLayout', 'mxEdgeLabelLayout', 'mxFastOrganicLayout',
+	'mxParallelEdgeLayout', 'mxPartitionLayout', 'mxRadialTreeLayout',
+	'mxStackLayout'];
+
+/**
  * Creates a temporary graph instance for rendering off-screen content.
  */
 Graph.createOffscreenGraph = function(stylesheet)
@@ -1753,7 +1761,8 @@ Graph.sanitizeNode = function(value)
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
 {
-	if (node.hasAttribute('xlink:href') && !node.getAttribute('xlink:href').match(/^#/))
+	if (node.nodeName == 'use' && node.hasAttribute('xlink:href') &&
+		!node.getAttribute('xlink:href').match(/^#/))
 	{
 		node.remove();
 	} 
@@ -1793,10 +1802,7 @@ Graph.clipSvgDataUri = function(dataUri, ignorePreserveAspect)
 			if (idx >= 0)
 			{
 				// Strips leading XML declaration and doctypes
-				div.innerHTML = data.substring(idx);
-
-				// Removes all attributes starting with on
-				Graph.sanitizeNode(div);
+				div.innerHTML = Graph.sanitizeHtml(data.substring(idx));
 				
 				// Gets the size and removes from DOM
 				var svgs = div.getElementsByTagName('svg');
@@ -3201,10 +3207,59 @@ Graph.prototype.initLayoutManager = function()
 			{
 				return new TableLayout(this.graph);
 			}
+			else if (style['childLayout'] != null && style['childLayout'].charAt(0) == '[')
+			{
+				try
+				{
+					return new mxCompositeLayout(this.graph,
+						this.graph.createLayouts(JSON.parse(
+							style['childLayout'])));
+				}
+				catch (e)
+				{
+					if (window.console != null)
+					{
+						console.error(e);
+					}
+				}
+			}
 		}
 		
 		return null;
 	};
+};
+
+/**
+ * Creates an array of graph layouts from the given array of the form [{layout: name, config: obj}, ...]
+ * where name is the layout constructor name and config contains the properties of the layout instance.
+ */
+Graph.prototype.createLayouts = function(list)
+{
+	var layouts = [];
+
+	for (var i = 0; i < list.length; i++)
+	{
+		if (mxUtils.indexOf(Graph.layoutNames, list[i].layout) >= 0)
+		{
+			var layout = new window[list[i].layout](this);
+			
+			if (list[i].config != null)
+			{
+				for (var key in list[i].config)
+				{
+					layout[key] = list[i].config[key];
+				}
+			}
+
+			layouts.push(layout);
+		}
+		else
+		{
+			throw Error(mxResources.get('invalidCallFnNotFound', [list[i].layout]));
+		}
+	}
+
+	return layouts;
 };
 
 /**

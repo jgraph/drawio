@@ -146,6 +146,18 @@ public class Utils
 	}
 
 	/**
+	 * Copies the input stream to the output stream using the default buffer size
+	 * @param in the input stream
+	 * @param out the output stream
+	 * @param sizeLimit the maximum number of bytes to copy
+	 * @throws IOException
+	 */
+	public static int copyRestricted(InputStream in, OutputStream out, int sizeLimit) throws IOException
+	{
+		return copy(in, out, IO_BUFFER_SIZE, sizeLimit);
+	}
+
+	/**
 	 * Copies the input stream to the output stream using the specified buffer size
 	 * @param in the input stream
 	 * @param out the output stream
@@ -155,13 +167,36 @@ public class Utils
 	public static void copy(InputStream in, OutputStream out, int bufferSize)
 			throws IOException
 	{
+		copy(in, out, bufferSize, 0);
+	}
+
+	/**
+	 * Copies the input stream to the output stream using the specified buffer size
+	 * @param in the input stream
+	 * @param out the output stream
+	 * @param bufferSize the buffer size to use when copying
+	 * @param sizeLimit the maximum number of bytes to copy
+	 * @throws IOException
+	 */
+	public static int copy(InputStream in, OutputStream out, int bufferSize, int sizeLimit)
+			throws IOException
+	{
 		byte[] b = new byte[bufferSize];
-		int read;
+		int read, total = 0;
 
 		while ((read = in.read(b)) != -1)
 		{
+			total += read;
+
+			if (sizeLimit > 0 && total > sizeLimit)
+			{
+				throw new IOException("Size limit exceeded");
+			}
+
 			out.write(b, 0, read);
 		}
+
+		return total;
 	}
 
 	/**

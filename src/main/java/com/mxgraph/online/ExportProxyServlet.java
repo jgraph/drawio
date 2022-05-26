@@ -21,7 +21,8 @@ import javax.servlet.http.HttpServletResponse;
 public class ExportProxyServlet extends HttpServlet
 {
 	private final String[] supportedServices = {"EXPORT_URL", "PLANTUML_URL", "VSD_CONVERT_URL", "EMF_CONVERT_URL"};
-	
+	private static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
+
 	private void doRequest(String method, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
@@ -102,7 +103,7 @@ public class ExportProxyServlet extends HttpServlet
 				con.setDoOutput(true);
 				
 				OutputStream params = con.getOutputStream();
-				Utils.copy(request.getInputStream(), params);
+				Utils.copyRestricted(request.getInputStream(), params, MAX_FETCH_SIZE);
 				params.flush();
 				params.close();
 	        }

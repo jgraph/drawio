@@ -311,12 +311,7 @@ Menus.prototype.init = function()
 	{
 		var promptSpacing = mxUtils.bind(this, function(defaultValue, fn)
 		{
-			var dlg = new FilenameDialog(this.editorUi, defaultValue, mxResources.get('apply'), function(newValue)
-			{
-				fn(parseFloat(newValue));
-			}, mxResources.get('spacing'));
-			this.editorUi.showDialog(dlg.container, 300, 80, true, true);
-			dlg.init();
+			this.editorUi.prompt(mxResources.get('spacing'), defaultValue, fn);
 		});
 
 		var runTreeLayout = mxUtils.bind(this, function(layout)

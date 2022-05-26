@@ -1,3 +1,11 @@
+26-MAY-2022: 18.1.3
+
+- Adds spacing dialog for parallels layout
+- Adds allowlist for layout constructor names
+- Adds JSON values for childLayout styles
+- Adds size check for fetched connection data
+- Allows custom protocols in links
+
 23-MAY-2022: 18.1.2
 
 - Limits export proxy URL

@@ -668,6 +668,19 @@ mxStencilRegistry.allowEval = false;
 				
 				var extPluginsBtn = mxUtils.button(mxResources.get('selectFile') + '...', async function()
 				{
+					var warningMsgs = mxResources.get('pluginWarning').split('\\n');
+					var warningMsg = warningMsgs.pop(); //Last line in the message
+
+					if (!warningMsg) 
+					{
+						warningMsg = warningMsgs.pop();
+					}
+
+					if (!confirm(warningMsg)) 
+					{
+						return;
+					}
+					
 					var lastDir = localStorage.getItem('.lastPluginDir');
 					
 					var paths = await requestSync({

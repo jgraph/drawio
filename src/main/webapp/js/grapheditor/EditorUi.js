@@ -4582,6 +4582,23 @@ EditorUi.prototype.addSplitHandler = function(elt, horizontal, dx, onChange)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
+EditorUi.prototype.prompt = function(title, defaultValue, fn)
+{
+	var dlg = new FilenameDialog(this, defaultValue, mxResources.get('apply'), function(newValue)
+	{
+		fn(parseFloat(newValue));
+	}, title);
+
+	this.showDialog(dlg.container, 300, 80, true, true);
+	dlg.init();
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
 EditorUi.prototype.handleError = function(resp, title, fn, invokeFnOnClose, notFoundMessage)
 {
 	var e = (resp != null && resp.error != null) ? resp.error : resp;
@@ -5174,6 +5191,22 @@ EditorUi.prototype.save = function(name)
 			this.editor.setStatus(mxUtils.htmlEntities(mxResources.get('errorSavingFile')));
 		}
 	}
+};
+
+/**
+ * Executes the given array of graph layouts using executeLayout and
+ * calls done after the last layout has finished.
+ */
+EditorUi.prototype.executeLayouts = function(layouts, post)
+{
+	this.executeLayout(mxUtils.bind(this, function()
+	{
+		var layout = new mxCompositeLayout(this.editor.graph, layouts);
+		var cells = this.editor.graph.getSelectionCells();
+
+		layout.execute(this.editor.graph.getDefaultParent(),
+			cells.length == 0 ? null : cells);
+	}), true, post);
 };
 
 /**

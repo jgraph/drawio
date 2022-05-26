@@ -46,6 +46,11 @@ public class ProxyServlet extends HttpServlet
 	private static final int TIMEOUT = 29000;
 	
 	/**
+	 * Max fetch size
+	 */
+	protected static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
+
+	/**
 	 * A resuable empty byte array instance.
 	 */
 	private static byte[] emptyBytes = new byte[0];
@@ -136,6 +141,14 @@ public class ProxyServlet extends HttpServlet
 					{
 						response.setStatus(status);
 						
+						String contentLength = connection.getHeaderField("Content-Length");
+
+						// If content length is available, use it to enforce maximum size
+						if (contentLength != null && Long.parseLong(contentLength) > MAX_FETCH_SIZE)
+						{
+							throw new UnsupportedContentException();
+						}
+
 						// Copies input stream to output stream
 						InputStream is = connection.getInputStream();
 						byte[] head = (contentAlwaysAllowed(urlParam)) ? emptyBytes
@@ -208,6 +221,8 @@ public class ProxyServlet extends HttpServlet
 	{
 		if (base64)
 		{
+			int total = 0;
+
 			try (BufferedInputStream in = new BufferedInputStream(is,
 					BUFFER_SIZE))
 			{
@@ -217,7 +232,14 @@ public class ProxyServlet extends HttpServlet
 				os.write(head, 0, head.length);
 				
 			    for (int len = is.read(buffer); len != -1; len = is.read(buffer))
-			    { 
+			    {
+					total += len;
+
+					if (total > MAX_FETCH_SIZE)
+					{
+						throw new IOException("Size limit exceeded");
+					}
+
 			        os.write(buffer, 0, len);
 			    }
 
@@ -227,7 +249,7 @@ public class ProxyServlet extends HttpServlet
 		else
 		{
 			out.write(head);
-			Utils.copy(is, out);
+			Utils.copyRestricted(is, out, MAX_FETCH_SIZE);
 		}
 	}
 

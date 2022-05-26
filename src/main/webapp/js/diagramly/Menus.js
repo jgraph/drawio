@@ -1329,18 +1329,14 @@
 				{
 					try
 					{
-						var layoutList = JSON.parse(newValue);
-						editorUi.executeLayoutList(layoutList)
-						editorUi.customLayoutConfig = layoutList;
+						var list = JSON.parse(newValue);
+						editorUi.executeLayouts(graph.createLayouts(list));
+						editorUi.customLayoutConfig = list;
+						editorUi.hideDialog();
 					}
 					catch (e)
 					{
 						editorUi.handleError(e);
-						
-						if (window.console != null)
-						{
-							console.error(e);
-						}
 					}
 				}
 			}, null, null, null, null, null, true, null, null,
@@ -1514,21 +1510,24 @@
 				
 				editorUi.showDialog(dlg.container, 355, 140, true, true);
 			}, parent, null, isGraphEnabled());
-						
+			
 			menu.addSeparator(parent);
-		
+			
 			menu.addItem(mxResources.get('parallels'), null, mxUtils.bind(this, function()
 			{
-				// Keeps parallel edges apart
 				var layout = new mxParallelEdgeLayout(graph);
 				layout.checkOverlap = true;
-				layout.spacing = 20;
+
+				editorUi.prompt(mxResources.get('spacing'), layout.spacing, mxUtils.bind(this, function(newValue)
+				{
+					layout.spacing = newValue;
 				
-	    		editorUi.executeLayout(function()
-	    		{
-	    			layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
-	    				graph.getSelectionCells() : null);
-	    		}, false);
+					editorUi.executeLayout(function()
+					{
+						layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
+							graph.getSelectionCells() : null);
+					}, false);
+				}));
 			}), parent);
 			
 			menu.addSeparator(parent);

@@ -70,6 +70,11 @@ public class EmbedServlet2 extends HttpServlet
 	protected static String lastModified = null;
 
 	/**
+	 * Max fetch size
+	 */
+	protected static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
+
+	/**
 	 * 
 	 */
 	protected HashMap<String, String> stencils = new HashMap<String, String>();
@@ -392,6 +397,7 @@ public class EmbedServlet2 extends HttpServlet
 		if (urls != null)
 		{
 			HashSet<String> completed = new HashSet<String>();
+			int sizeLimit = MAX_FETCH_SIZE;
 
 			for (int i = 0; i < urls.length; i++)
 			{
@@ -405,7 +411,15 @@ public class EmbedServlet2 extends HttpServlet
 						URLConnection connection = url.openConnection();
 						((HttpURLConnection) connection).setInstanceFollowRedirects(false);
 						ByteArrayOutputStream stream = new ByteArrayOutputStream();
-						Utils.copy(connection.getInputStream(), stream);
+						String contentLength = connection.getHeaderField("Content-Length");
+
+						// If content length is available, use it to enforce maximum size
+						if (contentLength != null && Long.parseLong(contentLength) > sizeLimit)
+						{
+							break;
+						}
+
+						sizeLimit -= Utils.copyRestricted(connection.getInputStream(), stream, sizeLimit);
 						setCachedUrls += "GraphViewer.cachedUrls['"
 								+ StringEscapeUtils.escapeEcmaScript(urls[i])
 								+ "'] = decodeURIComponent('"

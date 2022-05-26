@@ -1587,8 +1587,8 @@ EditorUi.initMinimalTheme = function()
 					}
 					
 					ui.menus.addMenuItems(menu, ['insertImage', 'insertLink', '-'], parent);
-					ui.menus.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 					ui.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
+					ui.menus.addSubmenu('layout', menu, parent);
 				}
 				else
 				{

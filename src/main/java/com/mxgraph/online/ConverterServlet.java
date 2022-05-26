@@ -35,6 +35,7 @@ public class ConverterServlet  extends HttpServlet
 			.getLogger(HttpServlet.class.getName());
 	
 	private static final int MAX_DIM = 5000;
+	private static final int MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 	private static final double EMF_10thMM2PXL = 26.458;
 	private static final String API_KEY_FILE_PATH = "/WEB-INF/cloud_convert_api_key"; // Not migrated to new pattern, since will not be used on diagrams.net
 	private static final String CONVERT_SERVICE_URL = "https://api.cloudconvert.com/convert";
@@ -177,11 +178,19 @@ public class ConverterServlet  extends HttpServlet
 				}
 
 				addParameterHeader("file", fileName, postRequest);
-				
+				int total = 0;
+
 				while(bytesRead != -1) 
 				{
 					postRequest.write(data, 0, bytesRead);
 					bytesRead = fileContent.read(data);
+					total += bytesRead;
+
+					if (total > MAX_FILE_SIZE)
+					{
+						postRequest.close();
+						throw new Exception("File size exceeds the maximum allowed size of " + MAX_FILE_SIZE + " bytes.");
+					}
 				}
 				
 				postRequest.writeBytes(CRLF + TWO_HYPHENS + BOUNDARY + TWO_HYPHENS + CRLF);
