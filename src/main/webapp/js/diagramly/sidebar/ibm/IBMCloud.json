@@ -1,0 +1,156 @@
+{
+  "Sidebars": {
+    "Cloud": {
+      "Groups": {
+        "Serverless Application": {"icon": "function", "format": "$GROUPP_FORMAT", "color": "$APPLICATIONS_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Groups / Locations": {
+        "IBM Cloud": {"icon": "ibm-cloud", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Availability Zone": {"icon": "data--center", "format": "$GROUPP_FORMAT", "color": "$LOCATION_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Region": {"icon": "location", "format": "$GROUPP_FORMAT", "color": "$LOCATION_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Groups / Compute": {
+        "Instance Group": {"icon": "autoscaling", "format": "$GROUPP_FORMAT", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM Virtual Server": {"icon": "instance--virtual", "format": "$GROUPP_FORMAT", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Classic Infrastructure": {"icon": "infrastructure--classic", "format": "$GROUPP_FORMAT", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Groups / Network": {
+        "Internet Services": {"icon": "ibm-cloud--internet-services", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "VPC Endpoint": {"icon": "ibm-cloud--vpc-endpoints", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM Subnet : ACL": {"icon": "ibm-cloud--subnets", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM VLAN": {"icon": "vlan--ibm", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM VPC": {"icon": "virtual-private-cloud--alt", "format": "$GROUPP_FORMAT", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Groups / Security": {
+        "Account Group": {"icon": "group--account", "format": "$ZONE_FORMAT", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Security Group": {"icon": "group--security", "format": "$ZONE_FORMAT", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Access Group": {"icon": "group--access", "format": "$ZONE_FORMAT", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Resource Group": {"icon": "group--resource", "format": "$ZONE_FORMAT", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Applications": {
+        "Serverless Application": {"icon": "function", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$APPLICATIONS_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Compute": {
+        "Instance Group": {"icon": "autoscaling", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Virtual Server Profile Bx": {"icon": "instance--bx", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Virtual Server Profile Cx": {"icon": "instance--cx", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Virtual Server Profile Mx": {"icon": "instance--mx", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR","$DEFAULT_PROPERTIES": null},
+        "Satellite": {"icon": "cloud-satellite", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Satellite Config.": {"icon": "cloud-satellite--config", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Satellite Link ": {"icon": "cloud-satellite--link", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Satellite Services": {"icon": "cloud-satellite--services", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Compute / Devices": {
+        "Virtual Server Classic": {"icon": "instance--classic", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM Virtual Server": {"icon": "instance--virtual", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM Bare Metal": {"icon": "bare-metal-server--01", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Dedicated Host": {"icon": "ibm-cloud--dedicated-host", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$COMPUTE_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Data / Databases": {
+        "DataStax": {"icon": "database--datastax", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "EnterpriseDB": {"icon": "database--enterprisedb", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "ElasticDB": {"icon": "database--elastic", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR","$DEFAULT_PROPERTIES": null},
+        "ETCD": {"icon": "database--etcd", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "MongoDB": {"icon": "database--mongodb", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "PostreSQL": {"icon": "database--postgresql", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "RabbitDB": {"icon": "database--rabbit", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Redis": {"icon": "database--redis", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Storage": {
+        "Block Storage Application": {"icon": "block-storage", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$STORAGE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "File Storage Application": {"icon": "file-storage", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$STORAGE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Object Storage Application": {"icon": "object-storage", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$STORAGE_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Storage / Devices": {
+        "Object Storage Accessor": {"icon": "data-accessor", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$STORAGE_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Object Storage Slicestor": {"icon": "slicestor", "format": "$NODEL_FORMAT_COLLAPSED", "color": "$STORAGE_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Network": {
+        "Direct Link": {"icon": "direct-link", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM Subnet : ACL": {"icon": "ibm-cloud--subnets", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Internet Services": {"icon": "ibm-cloud--internet-services", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM VPC": {"icon": "virtual-private-cloud--alt", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "IBM VLAN": {"icon": "vlan--ibm", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "VPC Endpoint": {"icon": "ibm-cloud--vpc-endpoints", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Network / Devices": {
+        "Load Balancer on VPC": {"icon": "load-balancer--vpc", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Transit Gateway": {"icon": "ibm-cloud--transit-gateway", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Security": {
+        "Security Group": {"icon": "group--security", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Rules": {"icon": "rule", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Management": {
+        "Flow Logs": {"icon": "flow-logs-vpc", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$MANAGEMENT_COLOR", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Paks": {
+        "Application": {"icon": "ibm-cloud-pak--applications", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$APPLICATIONS_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Data": {"icon": "ibm-cloud-pak--data", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DATA_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Integration": {"icon": "ibm-cloud-pak--integration", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$DEVOPS_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Multicloud Management": {"icon": "ibm-cloud-pak--multicloud-mgmt", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$MANAGEMENT_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Network Automation": {"icon": "ibm-cloud-pak--network-automation", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$NETWORK_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Security": {"icon": "ibm-cloud-pak--security", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$SECURITY_COLOR", "$DEFAULT_PROPERTIES": null},
+        "System": {"icon": "ibm-cloud-pak--system", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$APPLICATIONS_COLOR", "$DEFAULT_PROPERTIES": null},
+        "Watson AIOps": {"icon": "ibm-cloud-pak--watson-aiops", "format": "$NODEP_FORMAT_COLLAPSED", "color": "$APPLICATIONS_COLOR", "$DEFAULT_PROPERTIES": null}
+      }
+    }
+  },
+
+  "Variables": {
+    "$DEFAULT_PROPERTIES": {"text": null, "subtext": null, "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+    "$DEFAULT_MULTIPLICITY_PROPERTIES": {"text": null, "subtext": null, "badge": "$DEFAULT_BADGE", "style": "$MULTIPLICITY_STYLE", "ignore": false},
+    "$DEFAULT_COLOR": {"line": "blue", "fill": null, "font": null},
+    "$DEFAULT_BADGE": {"form": null, "line": null, "text": null},
+    "$DEFAULT_STYLE": {"dashed": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$MULTIPLICITY_STYLE": {"dashed": false, "double": false, "strikethrough": false, "multiplicity": true},
+
+    "$ACTOR_FORMAT": {"type": "actor", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$TARGET_FORMAT_COLLAPSED": {"type": "target", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$TARGET_FORMAT_EXPANDED": {"type": "target", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$NODEL_FORMAT_COLLAPSED": {"type": "nodel", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$NODEL_FORMAT_EXPANDED": {"type": "nodel", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$COMPL_FORMAT_COLLAPSED": {"type": "compl", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$COMPL_FORMAT_EXPANDED": {"type": "compl", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$GROUPL_FORMAT": {"type": "groupl", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$GROUPL_FORMAT_WIDE_BORDER": {"type": "groupl", "layout": "expanded", "weight": "2", "header": true, "container": true},
+    "$NODEP_FORMAT_COLLAPSED": {"type": "nodep", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$NODEP_FORMAT_EXPANDED": {"type": "nodep", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$COMPP_FORMAT_COLLAPSED": {"type": "compp", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$COMPP_FORMAT_EXPANDED": {"type": "compp", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$GROUPP_FORMAT": {"type": "groupp", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$GROUPP_FORMAT_WIDE_BORDER": {"type": "groupp", "layout": "expanded", "weight": "2", "header": true, "container": true},
+    "$SUBSYSTEM_FORMAT": {"type": "sub", "layout": "expanded", "weight": null, "header": true, "container": true}, 
+    "$ZONE_FORMAT": {"type": "zone", "layout": "expanded", "weight": "2", "header": true, "container": false}, 
+
+    "$APPLICATIONS_COLOR": {"line": "purple", "fill": null, "font": null},
+    "$BACKEND_COLOR": {"line": "coolgray", "fill": null, "font": null},
+    "$COMPUTE_COLOR": {"line": "green", "fill": null, "font": null},
+    "$DATA_COLOR": {"line": "blue", "fill": null, "font": null},
+    "$DEVOPS_COLOR": {"line": "magenta", "fill": null, "font": null},
+    "$GROUP_COLOR": {"line": "cyan", "fill": null, "font": null},
+    "$INDUSTRY_COLOR": {"line": "coolgray", "fill": null, "font": null},
+    "$LOCATION_COLOR": {"line": "coolgray", "fill": null, "font": null},
+    "$MANAGEMENT_COLOR": {"line": "teal", "fill": null, "font": null},
+    "$NETWORK_COLOR": {"line": "cyan", "fill": null, "font": null},
+    "$SECURITY_COLOR": {"line": "red", "fill": null, "font": null},
+    "$SERVICES_COLOR": {"line": "green", "fill": null, "font": null},
+    "$STORAGE_COLOR": {"line": "blue", "fill": null, "font": null},
+    "$USER_COLOR": {"line": "black", "fill": null, "font": null}
+  }
+}

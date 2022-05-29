@@ -1,0 +1,359 @@
+{
+    "css": ".geMenubarContainer { background-color: #d0e2ff !important; } .geMenubar { background-color: #d0e2ff !important; }",
+
+     "fontCss":
+	"@import url('https://fonts.googleapis.com/css?family=IBM+Plex+Sans:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap')",
+
+    "defaultFonts":
+    	["IBM Plex Sans",
+	 "Arial"],
+     
+    "defaultColorSchemes": [
+	[{"stroke": "#0f62fe", "fill": "#ffffff"}, {"stroke": "#0f62fe", "fill": "#edf5ff"}, {"stroke": "#1192e8", "fill": "#ffffff"}, {"stroke": "#1192e8", "fill": "#e5f6ff"}, 
+	 {"stroke": "#002d9c", "fill": "#ffffff"}, {"stroke": "#002d9c", "fill": "#edf5ff"}, {"stroke": "#00539a", "fill": "#ffffff"}, {"stroke": "#00539a", "fill": "#e5f6ff"}],
+	
+	[{"stroke": "#198038", "fill": "#ffffff"}, {"stroke": "#198038", "fill": "#defbe6"}, {"stroke": "#009d9a", "fill": "#ffffff"}, {"stroke": "#009d9a", "fill": "#d9fbfb"}, 
+	 {"stroke": "#044317", "fill": "#ffffff"}, {"stroke": "#044317", "fill": "#defbe6"}, {"stroke": "#005d5d", "fill": "#ffffff"}, {"stroke": "#005d5d", "fill": "#d9fbfb"}],
+	
+	[{"stroke": "#a56eff", "fill": "#ffffff"}, {"stroke": "#a56eff", "fill": "#f6f2ff"}, {"stroke": "#878d96", "fill": "#ffffff"}, {"stroke": "#878d96", "fill": "#f2f4f8"}, 
+	 {"stroke": "#6929c4", "fill": "#ffffff"}, {"stroke": "#6929c4", "fill": "#f6f2ff"}, {"stroke": "#4d5358", "fill": "#ffffff"}, {"stroke": "#4d5358", "fill": "#f2f4f8"}],
+	
+	[{"stroke": "#fa4d56", "fill": "#ffffff"}, {"stroke": "#fa4d56", "fill": "#fff1f1"}, {"stroke": "#ee5396", "fill": "#ffffff"}, {"stroke": "#ee5396", "fill": "#fff0f7"}, 
+	 {"stroke": "#a2191f", "fill": "#ffffff"}, {"stroke": "#a2191f", "fill": "#fff1f1"}, {"stroke": "#9f1853", "fill": "#ffffff"}, {"stroke": "#9f1853", "fill": "#fff0f7"}],
+
+	[{"stroke": "#b28600", "fill": "#ffffff"}, {"stroke": "#b28600", "fill": "#fcf4d6"}, {"stroke": "#eb6200", "fill": "#ffffff"}, {"stroke": "#eb6200", "fill": "#fff2e8"}, 
+	 {"stroke": "#684e00", "fill": "#ffffff"}, {"stroke": "#684e00", "fill": "#fcf4d6"}, {"stroke": "#8a3800", "fill": "#ffffff"}, {"stroke": "#8a3800", "fill": "#fff2e8"}],
+
+	[{"stroke": "#000000", "fill": "#ffffff"}, {"stroke": "#000000", "fill": "#f2f4f8"}]
+    ],
+
+    "presetColors": [
+    	"fff1f1", "fff0f7", "f6f2ff", "edf5ff", "e5f6ff", "d9fbfb", "defbe6", "fcf4d6", "fff2e8", "f2f4f8", "f4f4f4", "f7f3f2",
+        "fa4d56", "ee5396", "a56eff", "0f62fe", "1192e8", "009d9a", "198038", "b28600", "eb6200", "878d96", "8d8d8d", "8f8b8b",
+        "a2191f", "9f1853", "6929c4", "002d9c", "00539a", "005d5d", "044317", "684e00", "8a3800", "4d5358", "525252", "565151"
+
+    ],
+
+    "defaultColors": [
+    	"none",   "ffffff", "f2f4f8", "dde1e6", "c1c7cd", "a2a9b0", "878d96", "697077", "4d5358", "343a3f", "21272a", "000000",
+    	"fff1f1", "fff0f7", "f6f2ff", "edf5ff", "e5f6ff", "d9fbfb", "defbe6", "fcf4d6", "fff2e8", "f2f4f8", "f4f4f4", "f7f3f2",
+	"ffd7d9", "ffd6e8", "e8daff", "d0e2ff", "bae6ff", "9ef0f0", "a7f0ba", "fddc69", "ffd9be", "dde1e6", "e0e0e0", "e5e0df",
+	"ffb3b8", "ffafd2", "d4bbff", "a6c8ff", "82cfff", "3ddbd9", "6fdc8c", "f1c21b", "ffb784", "c1c7cd", "c6c6c6", "cac5c4",
+	"ff8389", "ff7eb6", "be95ff", "78a9ff", "33b1ff", "08bdba", "42be65", "d2a106", "ff832b", "a2a9b0", "a8a8a8", "ada8a8",
+	"fa4d56", "ee5396", "a56eff", "4589ff", "1192e8", "009d9a", "24a148", "b28600", "eb6200", "878d96", "8d8d8d", "8f8b8b",
+	"da1e28", "d02670", "8a3ffc", "0f62fe", "0072c3", "007d79", "198038", "8e6a00", "ba4e00", "697077", "6f6f6f", "726e6e",
+	"a2191f", "9f1853", "6929c4", "0043ce", "00539a", "005d5d", "0e6027", "684e00", "8a3800", "4d5358", "525252", "565151",
+	"750e13", "740937", "491d8b", "002d9c", "003a6d", "004144", "044317", "483700", "5e2900", "343a3f", "393939", "3c3838",
+	"520408", "510224", "31135e", "001d6c", "012749", "022b30", "022d0d", "302400", "3e1a00", "21272a", "262626", "272525"
+    ],
+
+    "colorNames": {
+    	"NONE": "Transparent (No Fill)", "FFFFFF": "White (White Fill/Font)", "000000": "Black (Dark Line/Font)",
+    	"FFF1F1": "Red 10 (Light Fill)", "FFF0F7": "Magenta 10 (Light Fill)", "F6F2FF": "Purple 10 (Light Fill)", "EDF5FF": "Blue 10 (Light Fill)", "E5F6FF": "Cyan 10 (Light Fill)", "D9FBFB": "Teal 10 (Light Fill)", "DEFBE6": "Green 10 (Light Fill)", "FCF4D6": "Yellow 10 (Limited Light Fill)", "FFF2E8": "Orange 10 (Limited Light Fill)", "F2F4F8": "Cool Gray 10 (Light Fill)", "F4F4F4": "Gray 10 (Light Fill)" , "F7F3F2": "Warm Gray 10 (Light Fill)",
+	"FFD7D9": "Red 20 (Not Used)", "FFD6E8": "Magenta 20 (Not Used)", "E8DAFF": "Purple 20 (Not Used", "D0E2FF": "Blue 20 (Not Used)", "BAE6FF": "Cyan 20 (Not Used)", "9EF0F0": "Teal 20 (Not Used)", "A7F0BA": "Green 20 (Not Used)", "FDDC69": "Yellow 20 (Not Used)", "FFD9BE": "Orange 20 (Not Used)", "DDE1E6": "Cool Gray 20 (Not Used)", "E0E0E0": "Gray 20 (Not Used)", "E5E0DF": "Warm Gray 20 (Not Used)",
+	"FFB3B8": "Red 30 (Not Used)", "FFAFD2": "Magenta 30 (Not Used)", "D4BBFF": "Purple 30 (Not Used)", "A6C8FF": "Blue 30 (Not Used)", "82CFFF": "Cyan 30 (Not Used)", "3DDBD9": "Teal 30 (Not Used)", "6FDC8C": "Green 30 (Not Used)", "F1C21B": "Yellow 30 (Not Used)", "FFB784": "Orange 30 (Not Used)", "C1C7CD": "Cool Gray 30 (Not Used)", "C6C6C6": "Gray 30 (Not Used)", "CAC5C4": "Warm Gray 30 (Not Used)",
+	"FF8389": "Red 40 (Not Used)", "FF7EB6": "Magenta 40 (Not Used)", "BE95FF": "Purple 40 (Not Used)", "78A9FF": "Blue 40 (Not Used)", "33B1FF": "Cyan 40 (Not Used)", "08BDBA": "Teal 40 (Not Used)", "42BE65": "Green 40 (Not Used)", "D2A106": "Yellow 40 (Not Used)", "FF832B": "Orange 40 (Not Used)", "A2A9B0": "Cool Gray 40 (Not Used)", "A8A8A8": "Gray 40 (Not Used)", "ADA8A8": "Warm Gray 40 (Not Used)",
+	"FA4D56": "Red 50 (Medium Line)", "EE5396": "Magenta 50 (Medium Line)", "A56EFF": "Purple 50 (Medium Line)", "4589FF": "Blue 50 (Not Used)", "1192E8": "Cyan 50 (Medium Line)", "009D9A": "Teal 50 (Medium Line)", "24A148": "Green 50 (Not Used)", "B28600": "Yellow 50 (Limited Medium Line)", "EB6200": "Orange 50 (Limited Medium Line)", "878D96": "Cool Gray 50 (Medium Line)", "8D8D8D": "Gray 50 (Medium Line)", "8F8B8B": "Warm Gray 50 (Medium Line)",
+	"DA1E28": "Red 60 (Not Used", "D02670": "Magenta 60 (Not Used)", "8A3FFC": "Purple 60 (Not Used)", "0F62FE": "Blue 60 (Medium Line)", "0072C3": "Cyan 60 (Not Used)", "007D79": "Teal 60 (Not Used)", "198038": "Green 60 (Medium Line)", "8E6A00": "Yellow 60 (Not Used)", "BA4E00": "Orange 60 (Not Used)", "697077": "Cool Gray 60 (Not Used)", "6F6F6F": "Gray 60 (Not Used)", "726E6E": "Warm Gray 60 (Not Used)",
+	"A2191F": "Red 70 (Dark Line)", "9F1853": "Magenta 70 (Dark Line)", "6929C4": "Purple 70 (Dark Line)", "0043CE": "Blue 70 (Not Used)", "00539A": "Cyan 70 (Dark Line)", "005D5D": "Teal 70 (Dark Line)", "0E6027": "Green 70 (Not Used)", "684E00": "Yellow 70 (Limited Dark Line))", "8A3800": "Orange 70 (Limited Dark Line)", "4D5358": "Cool Gray 70 (Dark Line)", "525252": "Gray 70 (Dark Line)", "565151": "Warm Gray 70 (Dark Line)",
+	"750E13": "Red 80 (Not Used)", "740937": "Magenta 80 (Not Used)", "491D8B": "Purple 80 (Not Used)", "002D9C": "Blue 80 (Dark Line)", "003A6D": "Cyan 80 (Used)", "004144": "Teal 80 (Not Used)", "044317": "Green 80 (Dark Line)", "483700": "Yellow 80 (Not Used)", "5E2900": "Orange 80 (Not Used)", "343A3F": "Cool Gray 80 (Not Used)", "393939": "Gray 80 (Not Used) ", "3C3838": "Warm Gray 80 (Not Used)",
+	"520408": "Red 90 (Not Used)", "510224": "Magenta 90 (Not Used)", "31135E": "Purple 90 (Not Used)", "001D6C": "Blue 90 (Not Used)", "012749": "Cyan 90 (Not Used)", "022B30": "Teal 90 (Not Used)", "022D0D": "Green 90 (Not Used)", "302400": "Yellow 90 (Not Used)", "3E1A00": "Orange 90 (Not Used)", "21272A": "Cool Gray 90 (Not Used)", "262626": "Gray 90 (Not Used)", "272525": "Warm Gray 90 (Not Used)"
+    },
+
+    "ibmFonts": {
+	"de": "IBM Plex Sans",
+	"en": "IBM Plex Sans",
+	"es": "IBM Plex Sans",
+	"fr": "IBM Plex Sans",
+
+        "largeFont": "fontFamily=FONTFAMILY;fontSize=14;",
+        "smallFont": "fontFamily=FONTFAMILY;fontSize=12;",
+        "legendLabel": "<b style='font-weight:600'>%Legend-Title%</b>",
+        "shapeLabel": "<b style='font-weight:600'>%Primary-Label%</b><br>%Secondary-Text%",
+        "itemLabel": "%Primary-Label%<br>%Secondary-Text%",
+        "unitLabel": "%Primary-Label%",
+        "badgeLabel": "%Badge-Text%"
+    },
+
+    "ibmColors": {
+        "none": "none", "default": "default",
+	"white": "#ffffff", "black": "#000000",
+        "lightred": "#fff1f1", "red": "#fa4d56" , "darkred": "#a2191f",
+        "lightmagenta": "#fff0f7", "magenta": "#ee5396" , "darkmagenta": "#9f1853",
+        "lightpurple": "#f6f2ff", "purple": "#a56eff" , "darkpurple": "#6929c4",
+        "lightblue": "#edf5ff", "blue": "#0f62fe" , "darkblue": "#002d9c",
+        "lightcyan": "#e5f6ff", "cyan": "#1192e8" , "darkcyan": "#00539a",
+        "lightteal": "#d9fbfb", "teal": "#009d9a" , "darkteal": "#005d5d",
+        "lightgreen": "#defbe6", "green": "#198038" , "darkgreen": "#044317",
+        "lightyellow": "#fcf4d6", "yellow": "#b28600" , "darkyellow": "#684e00",
+        "lightorange": "#fff2e8", "orange": "#eb6200" , "darkorange": "#8a3800",
+        "lightcoolgray": "#f2f4f8", "coolgray": "#878d96" , "darkcoolgray": "#4d5358",
+        "lightgray": "#f4f4f4", "gray": "#8d8d8d", "darkgray": "#525252",
+        "lightwarmgray": "#f7f3f2", "warmgray": "#8f8b8b" , "darkwarmgray": "#565151"
+    },
+
+    "ibmBaseAttributes": ["Badge-Text", "Icon-Name", "Primary-Label", "Secondary-Text"],
+
+    "ibmBaseConstants": {
+        "SHAPE": "mxgraph.ibm.base",
+        "SHAPE_TYPE": "ibmType", "SHAPE_TYPE_DEFAULT": "nodep",
+        "SHAPE_LAYOUT": "ibmLayout", "SHAPE_LAYOUT_DEFAULT": "expanded",
+        "BADGE": "ibmBadge", "BADGE_DEFAULT": "none",
+        "ROTATE_ICON": "ibmRotation", "ROTATE_ICON_DEFAULT": 0,
+        "HIDE_ICON": "ibmNoIcon", "HIDE_ICON_DEFAULT" : false,
+        
+	"STYLE_DASHED": "ibmDashed", "STYLE_DASHED_DEFAULT": false,
+        "STYLE_DOUBLE": "ibmDouble", "STYLE_DOUBLE_DEFAULT": false,
+        "STYLE_STRIKETHROUGH": "ibmStrikethrough", "STYLE_STRIKETHROUGH_DEFAULT": false,
+        "STYLE_MULTIPLICITY": "ibmMultiplicity", "STYLE_MULTIPLICITY_DEFAULT": false,
+
+        "LINE_COLOR": "strokeColor", "LINE_COLOR_DEFAULT": "none",
+        "FILL_COLOR": "fillColor", "FILL_COLOR_DEFAULT": "none",
+        "FONT_COLOR": "fontColor", "FONT_COLOR_DEFAULT": "black",
+        "BADGE_COLOR": "ibmBadgeColor", "BADGE_COLOR_DEFAULT": "none",
+        "BADGE_FILL": "ibmBadgeFill", "BADGE_FILL_DEFAULT": 0,
+
+        "FONT_FAMILY": "fontFamily", "FONT_FAMILY_DEFAULT": "IBM Plex Sans",
+        "FONT_SIZE": "fontSize", "FONT_SIZE_DEFAULT": 14,
+        "FONT_STYLE": "fontStyle", "FONT_STYLE_DEFAULT": 0,
+
+        "LABEL_POSITION": "labelPosition", "LABEL_POSITION_DEFAULT": "center",
+        "VERTICAL_LABEL_POSITION": "verticalLabelPosition", "VERTICAL_LABEL_POSITION_DEFAULT": "bottom",
+
+        "CONTAINER": "container", "CONTAINER_DEFAULT": true,
+        "IMAGE": "image", "IMAGE_DEFAULT": ""
+    },
+
+    "ibmBaseProperties": [ 
+        {"name": "ibmType", 
+	 "dispName": "Type", 
+	 "type": "enum",
+	 "defVal": "nodep",
+	 "enumList":
+            [{"val": "nodel", "dispName": "Logical Node"},
+             {"val": "compl", "dispName": "Logical Component"},
+             {"val": "groupl", "dispName": "Logical Group"},
+             {"val": "nodep", "dispName": "Prescribed Node"},
+             {"val": "compp", "dispName": "Prescribed Component"},
+             {"val": "groupp", "dispName": "Prescribed Group"},
+             {"val": "zone", "dispName": "Zone"},
+             {"val": "sub", "dispName": "Subsystem"},
+             {"val": "target", "dispName": "Target System"},
+             {"val": "actor", "dispName": "Actor"}] },
+        {"name": "ibmLayout", 
+         "dispName": "Layout", 
+         "type": "enum",
+         "defVal": "expanded",
+         "enumList": 
+            [{"val": "collapsed", "dispName": "Collapsed"},
+             {"val": "expanded", "dispName": "Expanded"},
+             {"val": "expandedStack", "dispName": "Expanded Stack"},
+             {"val": "itemBadge", "dispName": "Item Badge"},
+             {"val": "itemColor", "dispName": "Item Color"},
+             {"val": "itemIcon", "dispName": "Item Icon"},
+             {"val": "itemShape", "dispName": "Item Shape"},
+             {"val": "itemStyle", "dispName": "Item Style"}] },
+        {"name": "ibmBadge", 
+         "dispName": "Badge", 
+         "type": "enum",
+         "defVal": "none",
+         "enumList": 
+             [{"val": "none", "dispName": "None"},
+              {"val": "circle", "dispName": "Circle"},
+              {"val": "diamond", "dispName": "Diamond"},
+              {"val": "hexagon", "dispName": "Hexagon"},
+              {"val": "octagon", "dispName": "Octagon"},
+              {"val": "square", "dispName": "Square"},
+              {"val": "triangle", "dispName": "Triangle"}] },
+        {"name": "ibmBadgeColor", 
+         "dispName": "Badge Color", 
+         "type": "enum",
+         "defVal": "none",
+         "enumList": 
+             [{"val": "none", "dispName": "Same"},
+	      {"val": "#0f62fe", "dispName": "Blue"},
+              {"val": "#1192e8", "dispName": "Cyan"}, 
+              {"val": "#198038", "dispName": "Green"}, 
+	      {"val": "#ee5396", "dispName": "Magenta"},
+              {"val": "#a56eff", "dispName": "Purple"}, 
+              {"val": "#fa4d56", "dispName": "Red"}, 
+	      {"val": "#009d9a", "dispName": "Teal"},
+	      {"val": "#878d96", "dispName": "Cool Gray"},
+              {"val": "#000000", "dispName": "Black"},
+	      {"val": "#002d9c", "dispName": "Dark Blue"},
+              {"val": "#00539a", "dispName": "Dark Cyan"}, 
+              {"val": "#044317", "dispName": "Dark Green"}, 
+	      {"val": "#9f1853", "dispName": "Dark Magenta"},
+              {"val": "#6929c4", "dispName": "Dark Purple"}, 
+              {"val": "#a2191f", "dispName": "Dark Red"}, 
+	      {"val": "#005d5d", "dispName": "Dark Teal"},
+	      {"val": "#4d5358", "dispName": "Dark Cool Gray"}] },
+        {"name": "ibmBadgeFill", 
+         "dispName": "Badge Fill", 
+         "type": "enum",
+         "defVal": "0",
+         "enumList": 
+             [{"val": "0", "dispName": "Solid"},
+	      {"val": "1", "dispName": "White"},
+	      {"val": "2", "dispName": "Light"}] },
+	{"name": "ibmRotation", 
+	 "dispName": "Rotate Icon", 
+	 "type": "enum", 
+	 "defVal": "0", 
+	 "enumList": 
+	     [{"val": "0", "dispName": "0"}, 
+	      {"val": "90", "dispName": "90"}, 
+	      {"val": "180", "dispName": "180"}, 
+	      {"val": "270", "dispName": "270"}] },
+        {"name": "ibmNoIcon", "dispName": "Hide Icon", "type": "bool", "defVal": "false"},
+        {"name": "ibmMultiplicity", "dispName": "Multiplicity", "type": "bool", "defVal": "false"},
+        {"name": "ibmDashed", "dispName": "Dashed Line", "type": "bool", "defVal": "false"},
+        {"name": "ibmDouble", "dispName": "Double Line", "type": "bool", "defVal": "false"},
+        {"name": "ibmStrikethrough", "dispName": "Strikethrough Line", "type": "bool", "defVal": "false"} ],
+
+    "ibmLegendConstants": {
+        "SHAPE": "mxgraph.ibm.legend",
+        "SHAPE_TYPE": "ibmType", "SHAPE_TYPE_DEFAULT": "legendv",
+        "HIDE_HEADER": "ibmNoHeader", "HIDE_HEADER_DEFAULT" : false,
+
+        "LINE_COLOR": "strokeColor", "LINE_COLOR_DEFAULT": "coolgray",
+        "FILL_COLOR": "fillColor", "FILL_COLOR_DEFAULT": "white",
+        "FONT_COLOR": "fontColor", "FONT_COLOR_DEFAULT": "coolgray"
+    },
+
+    "ibmLegendProperties": [ 
+        {"name": "ibmType", 
+	 "dispName": "Type", 
+	 "type": "enum",
+	 "defVal": "legendv",
+	 "enumList":
+            [{"val": "legendh", "dispName": "Horizontal"},
+             {"val": "legendv", "dispName": "Vertical"}] },
+        {"name": "ibmNoHeader", "dispName": "Hide Header", "type": "bool", "defVal": "false"}],
+
+    "ibmUnitConstants": {
+        "SHAPE": "mxgraph.ibm.unit",
+        "SHAPE_TYPE": "ibmType", "SHAPE_TYPE_DEFAULT": "unitd",
+
+        "LINE_COLOR": "strokeColor", "LINE_COLOR_DEFAULT": "coolgray",
+        "FILL_COLOR": "fillColor", "FILL_COLOR_DEFAULT": "white",
+        "FONT_COLOR": "fontColor", "FONT_COLOR_DEFAULT": "coolgray"
+    },
+
+    "ibmUnitProperties": [ 
+        {"name": "ibmType", 
+	 "dispName": "Type", 
+	 "type": "enum",
+	 "defVal": "unitd",
+	 "enumList":
+            [{"val": "unitd", "dispName": "Data"},
+             {"val": "unite", "dispName": "Execution"},
+             {"val": "uniti", "dispName": "Installation"},
+             {"val": "unitp", "dispName": "Presentation"},
+             {"val": "unittd", "dispName": "Technical Data"},
+             {"val": "unitte", "dispName": "Technical Execution"},
+             {"val": "unitti", "dispName": "Technical Installation"},
+             {"val": "unittp", "dispName": "Technical Presentation"}] }],
+
+    "ibmSystemProperties": {
+	"basic": "html=1;metaEdit=1;whiteSpace=wrap;",
+
+	"defaultFill": "fillColor=default;",
+	"noFill": "fillColor=none;",
+	"noImage": "image=;",
+
+	"styleDashedOff": "ibmDashed=null;",
+	"styleDoubleOff": "ibmDouble=null;",
+	"styleStrikethroughOff": "ibmStrikethrough=null;",
+	"styleDashedOn": "ibmDouble=null;ibmStrikethrough=null;",
+	"styleDoubleOn": "ibmDashed=null;ibmStrikethrough=null;",
+	"styleStrikethroughOn": "ibmDashed=null;ibmDouble=null;",
+
+	"styleDottedOff": "strokeWidth=null;",
+	"styleDottedOn": "strokeWidth=2;",
+
+	"container": "container=1;collapsible=0;expand=0;recursiveResize=0;",
+	"containerNull": "container=null;collapsible=null;expand=null;recursiveResize=null;",
+
+	"collapsedLabel": "align=center;verticalAlign=top;labelPosition=center;verticalLabelPosition=bottom;spacing=0;spacingLeft=16;spacingRight=16;spacingTop=0;spacingBottom=4;",
+	"expandedLabel": "align=left;verticalAlign=middle;labelPosition=center;verticalLabelPosition=middle;spacing=0;spacingLeft=16;spacingRight=16;spacingTop=0;spacingBottom=0;", 
+	"expandedTargetLabel": "align=left;verticalAlign=middle;labelPosition=center;verticalLabelPosition=middle;spacing=0;spacingLeft=16;spacingRight=16;spacingTop=0;spacingBottom=0;", 
+	"expandedTargetLabelNoIcon": "align=center;verticalAlign=middle;labelPosition=center;verticalLabelPosition=middle;spacing=0;spacingLeft=16;spacingRight=16;spacingTop=0;spacingBottom=0;", 
+	"legendLabel": "align=left;verticalAlign=middle;labelPosition=center;verticalLabelPosition=middle;spacing=0;spacingLeft=0;spacingRight=0;spacingTop=0;spacingBottom=0;",
+	"itemLabel": "align=left;verticalAlign=middle;labelPosition=center;verticalLabelPosition=middle;spacing=0;spacingLeft=0;spacingRight=0;spacingTop=0;spacingBottom=0;",
+	"unitLabel": "align=left;verticalAlign=middle;spacing=0;spacingLeft=0;spacingRight=0;spacingTop=0;spacingBottom=0;",
+
+	"expandedStack": "childLayout=stackLayout;horizontalStack=0;stackFill=1;stackSpacing=8;marginLeft=16;marginRight=8;marginTop=64;marginBottom=8;",
+	"expandedStackNull": "childLayout=null;horizontalStack=null;stackFill=null;stackSpacing=null;marginLeft=null;marginRight=null;marginTop=null;marginBottom=null;",
+	"legendStack": "childLayout=stackLayout;stackUnitSize=16;resizeParent=1;resizeParentMax=0;resizeLast=0;allowGaps=0;",
+	"legendhStack": "horizontalStack=1;stackFill=0;stackSpacing=8;marginLeft=8;marginRight=8;marginTop=32;marginBottom=8;noLabel=0;",
+	"legendvStack": "horizontalStack=0;stackFill=1;stackSpacing=8;marginLeft=8;marginRight=8;marginTop=32;marginBottom=8;noLabel=0;",
+	"legendhStackNoHeader": "horizontalStack=1;stackFill=0;stackSpacing=8;marginLeft=8;marginRight=8;marginTop=8;marginBottom=8;noLabel=1;",
+	"legendvStackNoHeader": "horizontalStack=0;stackFill=1;stackSpacing=8;marginLeft=8;marginRight=8;marginTop=8;marginBottom=8;noLabel=1;"
+    },
+
+    "ibmShapeSizes" : { 
+	"trim":	           {"sidebarWidth": 4, "sidebarHeight": 48, "sidetickWidth": 8, "sidetickHeight": 4, "sidetickAlign": -4, 
+                            "subbarWidth": 16, "subbarHeight": 8, "subbarAlign": -8, "doubleAlign": 3, "multiplicityAlign": 4},
+
+    	"collapsed":       {"defaultWidth": 48, "defaultHeight": 48, "minWidth": 48, "minHeight": 48, "curveRadius": 8, "shapeAlign": 0, 
+		            "iconAreaWidth": 48, "iconAreaHeight": 48, "iconSize": 20, "iconAlign": 14, "labelHeight": 16, "labelAlign": 0},
+
+    	"collapsedTarget": {"defaultWidth": 64, "defaultHeight": 48, "minWidth": 64, "minHeight": 48, "curveRadius": 24, "shapeAlign": 0,
+		            "iconAreaWidth": 64, "iconAreaHeight": 48,"iconSize": 20, "iconAlign": 14, "labelHeight": 16, "labelAlign": 0},
+
+    	"collapsedActor":  {"defaultWidth": 48, "defaultHeight": 48, "minWidth": 48, "minHeight": 48, "curveRadius": 24, "shapeAlign": 0,  
+		            "iconAreaWidth": 48, "iconAreaHeight": 48, "iconSize": 20, "iconAlign": 14, "labelHeight": 16, "labelAlign": 0},
+
+    	"expanded":        {"defaultWidth": 240, "defaultHeight": 48, "minWidth": 96, "minHeight": 48, "curveRadius": 8, "shapeAlign": 0, 
+		            "iconAreaWidth": 48, "iconAreaHeight": 48, "iconSize": 20, "iconAlign": 14, "labelHeight": 48, "labelAlign": 0},
+
+    	"expandedTarget":  {"defaultWidth": 240, "defaultHeight": 48, "minWidth": 96, "minHeight": 48, "curveRadius": 24, "shapeAlign": 0, 
+		            "iconAreaWidth": 30, "iconAreaHeight": 48, "iconSize": 20, "iconAlign": 14, "labelHeight": 48, "labelAlign": 0},
+
+    	"group":           {"defaultWidth": 240, "defaultHeight": 152, "minWidth": 96, "minHeight": 48, "curveRadius": 8, "shapeAlign": 0, 
+		            "iconAreaWidth": 36, "iconAreaHeight": 48, "iconSize": 20, "iconAlign": 14, "labelHeight": 48, "labelAlign": 0},
+
+	"itemTrim":       { "sidebarWidth": 2, "sidebarHeight": 12, "sidetickWidth": 4, "sidetickHeight": 2, "sidetickAlign": -2,
+                            "subbarWidth": 8, "subbarHeight": 2, "subbarAlign": -2, "doubleAlign": 2, "multiplicityAlign": 2},
+
+    	"itemIcon":        {"defaultWidth": 16, "defaultHeight": 16, "minWidth": 16, "minHeight": 16, "curveRadius": 4, "shapeAlign": 0, 
+		            "iconAreaWidth": 16, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 24},
+
+    	"itemShape":       {"defaultWidth": 16, "defaultHeight": 16, "minWidth": 16, "minHeight": 16, "curveRadius": 4, "shapeAlign": 0, 
+		            "iconAreaWidth": 16, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 24},
+
+    	"itemTarget":      {"defaultWidth": 20, "defaultHeight": 16, "minWidth": 20, "minHeight": 16, "curveRadius": 8, "shapeAlign": -2, 
+		            "iconAreaWidth": 20, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 24},
+
+    	"itemActor":       {"defaultWidth": 16, "defaultHeight": 16, "minWidth": 16, "minHeight": 16, "curveRadius": 8, "shapeAlign": 0, 
+		            "iconAreaWidth": 16, "iconAreaHeight": 16,"iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 24},
+
+    	"itemBadge":       {"defaultWidth": 32, "defaultHeight": 16, "minWidth": 32, "minHeight": 16, "curveRadius": 4, "shapeAlign": 0, 
+		            "iconAreaWidth": 32, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 40},
+
+    	"itemColor":       {"defaultWidth": 32, "defaultHeight": 16, "minWidth": 32, "minHeight": 16, "curveRadius": 4, "shapeAlign": 0, 
+		            "iconAreaWidth": 32, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 40},
+
+    	"itemStyle":       {"defaultWidth": 32, "defaultHeight": 16, "minWidth": 32, "minHeight": 16, "curveRadius": 4, "shapeAlign": 0, 
+		            "iconAreaWidth": 32, "iconAreaHeight": 16, "iconSize": 16, "iconAlign": 0, "labelHeight": 16, "labelAlign": 40},
+
+    	"legend":          {"defaultWidth": 132, "defaultHeight": 32, "minWidth": 132, "minHeight": 32},
+
+    	"unit":            {"defaultWidth": 20, "defaultHeight": 20, "minWidth": 20, "minHeight": 20, 
+		            "labelHeight": 20, "labelAlign": 24, "iconSize": 20, "iconAlign": 0},
+
+	"circleBadge":     {"width": 14, "height": 14},
+
+	"diamondBadge":    {"width": 14, "height": 14},
+
+	"hexagonBadge":    {"width": 15, "height": 14},
+
+	"octagonBadge":    {"width": 14, "height": 14},
+
+	"squareBadge":     {"width": 14, "height": 14},
+
+	"triangleBadge":   {"width": 14, "height": 12}
+
+    }    
+}

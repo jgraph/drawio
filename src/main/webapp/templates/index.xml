@@ -104,15 +104,7 @@
 <template url="cloud/gcp/gcp_media_hybrid_rendering.xml" name="Gcp media hybrid rendering" libs="gcp2" tags="Gcp;media;hybrid;rendering"/>
 <template url="cloud/gcp/gcp_retail_beacons_and_targeted_marketing.xml" name="Gcp retail beacons and targeted marketing" libs="gcp2" tags="Gcp;retail;beacons;and;targeted;marketing"/>
 <template url="cloud/gcp/gcp_websites_content_hosting.xml" name="Gcp websites content hosting" libs="gcp2" tags="Gcp;websites;content;hosting"/>
-<template url="cloud/ibm/ibm_bda_reference_architecture.xml" name="Ibm bda reference architecture" libs="general;ibm" tags="Ibm;bda;reference;architecture"/>
-<template url="cloud/ibm/ibm_blockchain.xml" name="Ibm blockchain" libs="general;ibm" tags="Ibm;blockchain"/>
-<template url="cloud/ibm/ibm_cognitive_conversation.xml" name="Ibm cognitive conversation" libs="general;ibm" tags="Ibm;cognitive;conversation"/>
-<template url="cloud/ibm/ibm_cognitive_discovery.xml" name="Ibm cognitive discovery" libs="general;ibm" tags="Ibm;cognitive;discovery"/>
-<template url="cloud/ibm/ibm_iot_architecture.xml" name="Ibm iot architecture" libs="general;ibm" tags="Ibm;iot;architecture"/>
-<template url="cloud/ibm/ibm_microservices.xml" name="Ibm microservices" libs="general;ibm" tags="Ibm;microservices"/>
-<template url="cloud/ibm/ibm_private_cloud.xml" name="Ibm private cloud" libs="general;ibm" tags="Ibm;private;cloud"/>
-<template url="cloud/ibm/ibm_vcenter_server_platform.xml" name="Ibm vcenter server platform" libs="general;ibm" tags="Ibm;vcenter;server;platform"/>
-<template url="cloud/ibm/ibm_vpc_architecture.xml" name="Ibm vpc architecture" libs="general;ibm" tags="Ibm;vpc;architecture"/>
+<template url="cloud/ibm/ibm_vpc_architecture.xml" name="IBM VPC Architecture" libs="ibmshape" tags="Ibm;vpc;architecture"/>
 <template url="engineering/cabinet.xml" name="Cabinet" libs="general;cabinets" tags="Cabinet"/>
 <template url="engineering/electrical_1.xml" name="Electrical 1" libs="general;electrical" tags="Electrical"/>
 <template url="engineering/electrical_2.xml" name="Electrical 2" libs="general;electrical" tags="Electrical"/>

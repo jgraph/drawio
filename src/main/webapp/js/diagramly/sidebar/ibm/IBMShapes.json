@@ -1,0 +1,226 @@
+{
+  "Sidebars": {
+    "Shapes": {
+      "Collapsed Shapes": {
+	"Logical Node": {"format": "$NODEL_FORMAT_COLLAPSED", "$DEFAULT_PROPERTIES": null},
+	"Logical Component": {"format": "$COMPL_FORMAT_COLLAPSED", "$DEFAULT_PROPERTIES": null},
+	"Prescribed Node": {"format": "$NODEP_FORMAT_COLLAPSED", "$DEFAULT_PROPERTIES": null},
+	"Prescribed Component": {"format": "$COMPP_FORMAT_COLLAPSED", "$DEFAULT_PROPERTIES": null},
+	"Target System": {"format": "$TARGET_FORMAT_COLLAPSED", "$DEFAULT_PROPERTIES": null},	
+	"Actor": {"format": "$ACTOR_FORMAT", "$DEFAULT_PROPERTIES": null}
+      },
+
+      "Expanded Shapes": {
+	"Logical Node": {"subtext": "(Container)", "format": "$NODEL_FORMAT_EXPANDED", "$DEFAULT_EXPANDED_PROPERTIES": null},
+	"Logical Component": {"subtext": "(Container)", "format": "$COMPL_FORMAT_EXPANDED", "$DEFAULT_EXPANDED_PROPERTIES": null},
+	"Prescribed Node": {"subtext": "(Container)", "format": "$NODEP_FORMAT_EXPANDED", "$DEFAULT_EXPANDED_PROPERTIES": null},
+	"Prescribed Component": {"subtext": "(Container)",  "format": "$COMPP_FORMAT_EXPANDED", "$DEFAULT_EXPANDED_PROPERTIES": null},
+	"Target System": {"format": "$TARGET_FORMAT_EXPANDED", "$DEFAULT_TARGET_PROPERTIES": null}
+      },
+      
+      "Grouping Shapes": {
+	"Logical Location": {"subtext": "(Container)", "format": "$GROUPL_FORMAT", "$DEFAULT_GROUP_PROPERTIES": null},
+	"Prescribed Location": {"subtext": "(Container)", "format": "$GROUPP_FORMAT", "$DEFAULT_GROUP_PROPERTIES": null},
+	"Subsystem": {"subtext": "(Container)", "format": "$SUBSYSTEM_FORMAT", "$DEFAULT_GROUP_PROPERTIES": null},
+	"Zone": {"subtext": null, "format": "$ZONE_FORMAT", "$DEFAULT_GROUP_PROPERTIES": null}
+      },
+      
+      "Deployment Units": {
+	"Data": {"format": "$UNITD", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Execution": {"format": "$UNITE", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Installation": {"format": "$UNITI", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Presentation": {"format": "$UNITP", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Technical Data": {"format": "$UNITTD", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Technical Execution": {"format": "$UNITTE", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Technical Installation": {"format": "$UNITTI", "$UNIT_DEFAULT_PROPERTIES": null},
+	"Technical Presentation": {"format": "$UNITTP", "$UNIT_DEFAULT_PROPERTIES": null}
+      },
+
+      "Legends": {
+ 	"Horizontal Legend": {"format": "$LEGEND_HORIZONTAL", "$LEGEND_DEFAULT_PROPERTIES": null},
+ 	"Vertical Legend": {"format": "$LEGEND_VERTICAL", "$LEGEND_DEFAULT_PROPERTIES": null},
+ 	"Horizontal Legend No Header": {"format": "$LEGEND_HORIZONTAL_NOHEADER", "$LEGEND_DEFAULT_PROPERTIES": null},
+ 	"Vertical Legend No Header": {"format": "$LEGEND_VERTICAL_NOHEADER", "$LEGEND_DEFAULT_PROPERTIES": null}
+      },
+      
+      "Legend Badge Items": {
+	"Circle": {"format": "$ITEM_BADGE", "badge": "$CIRCLE_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null},
+	"Diamond": {"format": "$ITEM_BADGE", "badge": "$DIAMOND_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null},
+	"Hexagon": {"format": "$ITEM_BADGE", "badge": "$HEXAGON_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null},
+	"Octagon": {"format": "$ITEM_BADGE", "badge": "$OCTAGON_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null},
+	"Square": {"format": "$ITEM_BADGE", "badge": "$SQUARE_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null},
+	"Triangle": {"format": "$ITEM_BADGE", "badge": "$TRIANGLE_BADGE", "$ITEM_BADGE_DEFAULT_PROPERTIES": null}
+      },
+
+      "Legend Color Items": {
+        "Blue": {"format": "$ITEM_COLOR", "color": "$BLUE_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Cyan": {"format": "$ITEM_COLOR", "color": "$CYAN_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Green": {"format": "$ITEM_COLOR", "color": "$GREEN_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Magenta": {"format": "$ITEM_COLOR", "color": "$MAGENTA_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Purple": {"format": "$ITEM_COLOR", "color": "$PURPLE_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Red": {"format": "$ITEM_COLOR", "color": "$RED_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Teal": {"format": "$ITEM_COLOR", "color": "$TEAL_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Cool Gray": {"format": "$ITEM_COLOR", "color": "$COOLGRAY_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Blue": {"format": "$ITEM_COLOR", "color": "$DARKBLUE_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Cyan": {"format": "$ITEM_COLOR", "color": "$DARKCYAN_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Green": {"format": "$ITEM_COLOR", "color": "$DARKGREEN_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Magenta": {"format": "$ITEM_COLOR", "color": "$DARKMAGENTA_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Purple": {"format": "$ITEM_COLOR", "color": "$DARKPURPLE_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Red": {"format": "$ITEM_COLOR", "color": "$DARKRED_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Teal": {"format": "$ITEM_COLOR", "color": "$DARKTEAL_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Dark Cool Gray": {"format": "$ITEM_COLOR", "color": "$DARKCOOLGRAY_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null},
+        "Black": {"format": "$ITEM_COLOR", "color": "$BLACK_COLOR", "$ITEM_COLOR_DEFAULT_PROPERTIES": null}
+      },
+      
+      "Legend Shape Items": {
+	"Logical Node": {"format": "$ITEM_NODEL", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Logical Component": {"format": "$ITEM_COMPL", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Prescribed Node": {"format": "$ITEM_NODEP", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Prescribed Component": {"format": "$ITEM_COMPP", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Logical Location": {"format": "$ITEM_GROUPL", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Prescribed Location": {"format": "$ITEM_GROUPP", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Zone": {"format": "$ITEM_ZONE", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Subsystem": {"format": "$ITEM_SUBSYSTEM", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Target System": {"format": "$ITEM_TARGET", "$ITEM_DEFAULT_PROPERTIES": null},
+	"Actor": {"format": "$ITEM_ACTOR", "$ITEM_DEFAULT_PROPERTIES": null}
+      },
+
+      "Legend Style Items": { 
+        "Active Shape": {"format": "$ITEM_STYLE", "style": "$ACTIVE_STYLE", "$ITEM_STYLE_DEFAULT_PROPERTIES": null},
+        "Changed Shape": {"format": "$ITEM_STYLE", "style": "$CHANGED_STYLE", "$ITEM_STYLE_DEFAULT_PROPERTIES": null},
+        "Added Shape": {"format": "$ITEM_STYLE", "style": "$ADDED_STYLE", "$ITEM_STYLE_DEFAULT_PROPERTIES": null},
+        "Removed Shape": {"format": "$ITEM_STYLE", "style": "$REMOVED_STYLE", "$ITEM_STYLE_DEFAULT_PROPERTIES": null},
+        "Multiplicity Shape": {"format": "$ITEM_STYLE", "style": "$MULTIPLICITY_STYLE", "$ITEM_STYLE_DEFAULT_PROPERTIES": null}
+      },
+      
+      "Legend Icon Items": {
+	"IT System": {"icon": "concept", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"User": {"icon": "user", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null}
+      },
+
+      "Legend DU Items": {
+	"Data": {"icon": "deployment-unit--data", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Execution": {"icon": "deployment-unit--execution", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Installation": {"icon": "deployment-unit--installation", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Presentation": {"icon": "deployment-unit--presentation", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Technical Data": {"icon": "deployment-unit--technical--data", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Technical Execution": {"icon": "deployment-unit--technical--execution", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Technical Installation": {"icon": "deployment-unit--technical--installation", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null},
+	"Technical Presentation": {"icon": "deployment-unit--technical--presentation", "format": "$ITEM_ICON", "color": "$ITEM_DEFAULT_COLOR", "$ITEM_ICON_DEFAULT_PROPERTIES": null}
+      }
+    }
+  },
+    
+  "Variables": {
+    "$DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined", "color": "$DEFAULT_COLOR", "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+    "$DEFAULT_EXPANDED_PROPERTIES": {"text": null, "icon": "undefined", "color": "$DEFAULT_COLOR", "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+
+    "$DEFAULT_COLOR": {"line": "coolgray", "fill": null, "font": null},
+    "$DEFAULT_BADGE": {"form": null, "line": null, "text": null},
+    "$DEFAULT_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+
+    "$DEFAULT_TARGET_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined", "color": "$DEFAULT_TARGET_COLOR", "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+    "$DEFAULT_TARGET_COLOR": {"line": "coolgray", "fill": null, "font": "white"},
+
+    "$DEFAULT_TRANSPARENT_PROPERTIES": {"icon": "undefined", "color": "$DEFAULT_TRANSPARENT_COLOR", "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+    "$DEFAULT_TRANSPARENT_COLOR": {"line": "coolgray", "fill": "none", "font": null},
+
+    "$DEFAULT_GROUP_PROPERTIES": {"text": null, "icon": "undefined", "color": "$DEFAULT_COLOR", "badge": "$DEFAULT_BADGE", "style": "$DEFAULT_STYLE", "ignore": false},
+
+    "$ACTOR_FORMAT": {"type": "actor", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$TARGET_FORMAT_COLLAPSED": {"type": "target", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$TARGET_FORMAT_EXPANDED": {"type": "target", "layout": "expanded", "weight": null, "header": true, "container": false},	
+    "$NODEL_FORMAT_COLLAPSED": {"type": "nodel", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$NODEL_FORMAT_EXPANDED": {"type": "nodel", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$COMPL_FORMAT_COLLAPSED": {"type": "compl", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$COMPL_FORMAT_EXPANDED": {"type": "compl", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$NODEP_FORMAT_COLLAPSED": {"type": "nodep", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$NODEP_FORMAT_EXPANDED": {"type": "nodep", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$COMPP_FORMAT_COLLAPSED": {"type": "compp", "layout": "collapsed", "weight": null, "header": true, "container": false},
+    "$COMPP_FORMAT_EXPANDED": {"type": "compp", "layout": "expanded", "weight": null, "header": true, "container": true},
+
+    "$GROUPL_FORMAT": {"type": "groupl", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$GROUPP_FORMAT": {"type": "groupp", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$SUBSYSTEM_FORMAT": {"type": "sub", "layout": "expanded", "weight": null, "header": true, "container": true},
+    "$ZONE_FORMAT": {"type": "zone", "layout": "expanded", "weight": "2", "header": true, "container": false},
+
+    "$RED_COLOR": {"line": "red", "fill": null, "font": "coolgray"},
+    "$DARKRED_COLOR": {"line": "darkred", "fill": null, "font": "coolgray"},
+    "$MAGENTA_COLOR": {"line": "magenta", "fill": null, "font": "coolgray"},
+    "$DARKMAGENTA_COLOR": {"line": "darkmagenta", "fill": null, "font": "coolgray"},
+    "$PURPLE_COLOR": {"line": "purple", "fill": null, "font": "coolgray"},
+    "$DARKPURPLE_COLOR": {"line": "darkpurple", "fill": null, "font": "coolgray"},
+    "$BLUE_COLOR": {"line": "blue", "fill": null, "font": "coolgray"},
+    "$DARKBLUE_COLOR": {"line": "darkblue", "fill": null, "font": "coolgray"},
+    "$CYAN_COLOR": {"line": "cyan", "fill": null, "font": "coolgray"},
+    "$DARKCYAN_COLOR": {"line": "darkcyan", "fill": null, "font": "coolgray"},
+    "$TEAL_COLOR": {"line": "teal", "fill": null, "font": "coolgray"},
+    "$DARKTEAL_COLOR": {"line": "darkteal", "fill": null, "font": "coolgray"},
+    "$GREEN_COLOR": {"line": "green", "fill": null, "font": "coolgray"},
+    "$DARKGREEN_COLOR": {"line": "darkgreen", "fill": null, "font": "coolgray"},
+    "$COOLGRAY_COLOR": {"line": "coolgray", "fill": null, "font": "coolgray"},
+    "$DARKCOOLGRAY_COLOR": {"line": "darkcoolgray", "fill": null, "font": "coolgray"},
+    "$BLACK_COLOR": {"line": "black", "fill": null, "font": "coolgray"},
+
+    "$CIRCLE_BADGE": {"form": "circle", "line": "coolgray", "text": null},
+    "$DIAMOND_BADGE": {"form": "diamond", "line": "coolgray", "text": null},	
+    "$SQUARE_BADGE": {"form": "square", "line": "coolgray", "text": null},
+    "$TRIANGLE_BADGE": {"form": "triangle", "line": "coolgray", "text": null},
+    "$HEXAGON_BADGE": {"form": "hexagon", "line": "coolgray", "text": null},
+    "$OCTAGON_BADGE": {"form": "octagon", "line": "coolgray", "text": null},
+
+    "$LEGEND_HORIZONTAL": {"type": "legendh", "layout": null, "weight": null, "header": true, "container": true},
+    "$LEGEND_HORIZONTAL_NOHEADER": {"type": "legendh", "layout": null, "weight": null, "header": false, "container": true},
+    "$LEGEND_VERTICAL": {"type": "legendv", "layout": null, "weight": null, "header": true, "container": true},
+    "$LEGEND_VERTICAL_NOHEADER": {"type": "legendv", "layout": null, "weight": null, "header": false, "container": true},
+    "$LEGEND_DEFAULT_COLOR": {"line": "coolgray", "fill": null, "font": "coolgray"},
+    "$LEGEND_DEFAULT_BADGE": {"form": null, "line": null, "text": null},
+    "$LEGEND_DEFAULT_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$LEGEND_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined", "color": "$LEGEND_DEFAULT_COLOR", "badge": "$LEGEND_DEFAULT_BADGE", "style": "$LEGEND_DEFAULT_STYLE", "ignore": false},
+
+    "$ITEM_DEFAULT_COLOR": {"line": "coolgray", "fill": null, "font": "coolgray"},
+    "$ITEM_DEFAULT_BADGE": {"form": null, "line": null, "text": null},
+    "$ITEM_DEFAULT_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$ITEM_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined", "color": "$ITEM_DEFAULT_COLOR", "badge": "$ITEM_DEFAULT_BADGE", "style": "$ITEM_DEFAULT_STYLE", "ignore": false},
+    "$ITEM_BADGE_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined", "color": "$ITEM_DEFAULT_COLOR", "style": "$ITEM_DEFAULT_STYLE", "ignore": false},
+    "$ITEM_ICON_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "color": "$ITEM_DEFAULT_COLOR", "badge": "$ITEM_DEFAULT_BADGE", "style": "$ITEM_DEFAULT_STYLE", "ignore": false},
+    "$ITEM_COLOR_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined",  "badge": "$ITEM_DEFAULT_BADGE", "style": "$ITEM_DEFAULT_STYLE", "ignore": false},
+    "$ITEM_STYLE_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "icon": "undefined",  "color": "$ITEM_DEFAULT_COLOR", "badge": "$ITEM_DEFAULT_BADGE", "ignore": false},
+
+    "$ITEM_NODEL": {"type": "nodel", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_COMPL": {"type": "compl", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_NODEP": {"type": "nodep", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_COMPP": {"type": "compp", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_GROUPL": {"type": "groupl", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_GROUPP": {"type": "groupp", "layout": "itemShape", "weight": null,  "header": true, "container": false},
+    "$ITEM_ZONE": {"type": "zone", "layout": "itemShape", "weight": null,  "header": true, "container": false},
+    "$ITEM_SUBSYSTEM": {"type": "sub", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_TARGET": {"type": "target", "layout": "itemShape", "weight": null, "header": true, "container": false},
+    "$ITEM_ACTOR": {"type": "actor", "layout": "itemShape", "weight": null, "header": true, "container": false},
+
+    "$ITEM_BADGE": {"type": "nodel", "layout": "itemBadge", "weight": null, "header": true, "container": false},
+    "$ITEM_ICON": {"type": "nodel", "layout": "itemIcon", "weight": null, "header": true, "container": false},
+    "$ITEM_COLOR": {"type": "nodep", "layout": "itemColor", "weight": null, "header": true, "container": false},
+    "$ITEM_STYLE": {"type": "nodep", "layout": "itemStyle", "weight": null, "header": true, "container": false},
+
+    "$ACTIVE_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$CHANGED_STYLE": {"dashed": true, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$ADDED_STYLE": {"dashed": false, "dotted": false, "double": true, "strikethrough": false, "multiplicity": false},
+    "$REMOVED_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": true, "multiplicity": false},
+    "$MULTIPLICITY_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": true},
+
+    "$UNIT_DEFAULT_COLOR": {"line": null, "fill": null, "font": null},
+    "$UNIT_DEFAULT_BADGE": {"form": null, "line": null, "text": null},
+    "$UNIT_DEFAULT_STYLE": {"dashed": false, "dotted": false, "double": false, "strikethrough": false, "multiplicity": false},
+    "$UNIT_DEFAULT_PROPERTIES": {"text": null, "subtext": null, "color": "$UNIT_DEFAULT_COLOR", "badge": "$UNIT_DEFAULT_BADGE", "style": "$UNIT_DEFAULT_STYLE", "header": true, "ignore": false}, 
+
+    "$UNITD": {"type": "unitd", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITE": {"type": "unite", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITI": {"type": "uniti", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITP": {"type": "unitp", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITTD": {"type": "unittd", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITTE": {"type": "unitte", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITTI": {"type": "unitti", "layout": null, "weight": null, "header": true, "container": false},
+    "$UNITTP": {"type": "unittp", "layout": null, "weight": null, "header": true, "container": false}
+  }
+}
