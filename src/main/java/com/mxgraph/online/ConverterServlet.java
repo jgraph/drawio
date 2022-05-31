@@ -186,7 +186,7 @@ public class ConverterServlet  extends HttpServlet
 					bytesRead = fileContent.read(data);
 					total += bytesRead;
 
-					if (total > MAX_FILE_SIZE)
+					if (total > Utils.MAX_SIZE)
 					{
 						postRequest.close();
 						throw new Exception("File size exceeds the maximum allowed size of " + MAX_FILE_SIZE + " bytes.");
@@ -267,6 +267,8 @@ public class ConverterServlet  extends HttpServlet
 				}
 				
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+
+				throw e;
 			}
 		}
 	}

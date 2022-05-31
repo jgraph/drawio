@@ -1199,3 +1199,5 @@ brush=brush
 openDevTools=openDevTools
 autoBkp=autoBkp
 confAIgnoreCollectErr=confAIgnoreCollectErr
+drafts=drafts
+draftSaveInt=draftSaveInt

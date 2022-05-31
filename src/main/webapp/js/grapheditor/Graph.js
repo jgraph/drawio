@@ -13828,6 +13828,12 @@ if (typeof mxVertexHandler !== 'undefined')
 							changeLink.style.marginLeft = '10px';
 							changeLink.style.marginBottom = '-1px';
 							changeLink.style.cursor = 'pointer';
+
+							if (Editor.isDarkMode())
+							{
+								changeLink.style.filter = 'invert(100%)';
+							}
+
 							this.linkHint.appendChild(changeLink);
 							
 							mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)
@@ -13836,13 +13842,21 @@ if (typeof mxVertexHandler !== 'undefined')
 								this.graph.editLink();
 								mxEvent.consume(evt);
 							}));
-							
-							this.linkHint.appendChild(Graph.createRemoveIcon(mxResources.get('removeIt',
-								[mxResources.get('link')]), mxUtils.bind(this, function(evt)
+
+							var trashLink = changeLink.cloneNode(true);
+
+							trashLink.setAttribute('src', Editor.trashImage);
+							trashLink.setAttribute('title', mxResources.get('removeIt',
+								[mxResources.get('link')]));
+							trashLink.style.marginLeft = '4px';
+
+							this.linkHint.appendChild(trashLink);
+
+							mxEvent.addListener(trashLink, 'click', mxUtils.bind(this, function(evt)
 							{
 								this.graph.setLinkForCell(this.state.cell, null);
 								mxEvent.consume(evt);
-							})));
+							}));
 						}
 					}
 	

@@ -1,3 +1,12 @@
+31-MAY-2022: 18.2.0
+
+- Fixes inconsistent menus in sketch theme
+- Fixes ignored XML data for importing embedded SVG
+- Fixes ignored double arrow marker selection [2839]
+- Fixes NPE with regex in find/replace dialog [2833]
+- Fixes link icons in dark mode
+- Fixes main button hover state in conf sketch macro
+
 26-MAY-2022: 18.1.3
 
 - Adds spacing dialog for parallels layout

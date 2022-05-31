@@ -44,6 +44,8 @@ import org.apache.commons.text.StringEscapeUtils;
 
 import com.google.appengine.api.utils.SystemProperty;
 
+import com.mxgraph.online.Utils.SizeLimitExceededException;
+
 /**
  * Servlet implementation class OpenServlet
  */
@@ -68,11 +70,6 @@ public class EmbedServlet2 extends HttpServlet
 	 * 
 	 */
 	protected static String lastModified = null;
-
-	/**
-	 * Max fetch size
-	 */
-	protected static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
 
 	/**
 	 * 
@@ -222,15 +219,24 @@ public class EmbedServlet2 extends HttpServlet
 				}
 			}
 		}
+		catch (SizeLimitExceededException e)
+		{
+			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+
+			throw e;
+		}
 		catch (Exception e)
 		{
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+			throw e;
 		}
 	}
 
 	public void writeEmbedResponse(HttpServletRequest request,
 			HttpServletResponse response) throws IOException
 	{
+		response.setStatus(HttpServletResponse.SC_OK);
 		response.setCharacterEncoding("UTF-8");
 		response.setContentType("application/javascript; charset=UTF-8");
 		response.setHeader("Last-Modified", lastModified);
@@ -248,8 +254,6 @@ public class EmbedServlet2 extends HttpServlet
 		// Writes JavaScript and adds function call with
 		// stylesheet and stencils as arguments 
 		writer.println(createEmbedJavaScript(request));
-		response.setStatus(HttpServletResponse.SC_OK);
-
 		writer.flush();
 		writer.close();
 	}
@@ -397,42 +401,35 @@ public class EmbedServlet2 extends HttpServlet
 		if (urls != null)
 		{
 			HashSet<String> completed = new HashSet<String>();
-			int sizeLimit = MAX_FETCH_SIZE;
+			int sizeLimit = Utils.MAX_SIZE;
 
 			for (int i = 0; i < urls.length; i++)
 			{
-				try
+				// Checks if URL already fetched to avoid duplicates
+				if (!completed.contains(urls[i]) && Utils.sanitizeUrl(urls[i]))
 				{
-					// Checks if URL already fetched to avoid duplicates
-					if (!completed.contains(urls[i]) && Utils.sanitizeUrl(urls[i]))
+					completed.add(urls[i]);
+					URL url = new URL(urls[i]);
+					URLConnection connection = url.openConnection();
+					((HttpURLConnection) connection).setInstanceFollowRedirects(false);
+					ByteArrayOutputStream stream = new ByteArrayOutputStream();
+					String contentLength = connection.getHeaderField("Content-Length");
+
+					// If content length is available, use it to enforce maximum size
+					if (contentLength != null && Long.parseLong(contentLength) > sizeLimit)
 					{
-						completed.add(urls[i]);
-						URL url = new URL(urls[i]);
-						URLConnection connection = url.openConnection();
-						((HttpURLConnection) connection).setInstanceFollowRedirects(false);
-						ByteArrayOutputStream stream = new ByteArrayOutputStream();
-						String contentLength = connection.getHeaderField("Content-Length");
-
-						// If content length is available, use it to enforce maximum size
-						if (contentLength != null && Long.parseLong(contentLength) > sizeLimit)
-						{
-							break;
-						}
-
-						sizeLimit -= Utils.copyRestricted(connection.getInputStream(), stream, sizeLimit);
-						setCachedUrls += "GraphViewer.cachedUrls['"
-								+ StringEscapeUtils.escapeEcmaScript(urls[i])
-								+ "'] = decodeURIComponent('"
-								+ StringEscapeUtils.escapeEcmaScript(
-										Utils.encodeURIComponent(
-												stream.toString("UTF-8"),
-												Utils.CHARSET_FOR_URL_ENCODING))
-								+ "');";
+						break;
 					}
-				}
-				catch (Exception e)
-				{
-					// ignore
+
+					sizeLimit -= Utils.copyRestricted(connection.getInputStream(), stream);
+					setCachedUrls += "GraphViewer.cachedUrls['"
+							+ StringEscapeUtils.escapeEcmaScript(urls[i])
+							+ "'] = decodeURIComponent('"
+							+ StringEscapeUtils.escapeEcmaScript(
+									Utils.encodeURIComponent(
+											stream.toString("UTF-8"),
+											Utils.CHARSET_FOR_URL_ENCODING))
+							+ "');";
 				}
 			}
 		}

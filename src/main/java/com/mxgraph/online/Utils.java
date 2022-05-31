@@ -34,14 +34,6 @@ import java.net.InetAddress;
 public class Utils
 {
 
-	/**
-	 *
-	 */
-	public static class UnsupportedContentException extends Exception
-	{
-		private static final long serialVersionUID = 1239597891574347740L;
-	}
-
 	private static SecureRandom randomSecure = new SecureRandom();
 	
 	/**
@@ -52,7 +44,12 @@ public class Utils
 	/**
 	 * 
 	 */
-	protected static final int IO_BUFFER_SIZE = 4 * 1024;
+	public static int MAX_SIZE = 20 * 1024 * 1024; // 20 MB
+
+	/**
+	 * 
+	 */
+	public static final int IO_BUFFER_SIZE = 4 * 1024;
 
 	/**
 	 * Alphabet for global unique IDs.
@@ -152,6 +149,18 @@ public class Utils
 	 * @param sizeLimit the maximum number of bytes to copy
 	 * @throws IOException
 	 */
+	public static int copyRestricted(InputStream in, OutputStream out) throws IOException
+	{
+		return copy(in, out, IO_BUFFER_SIZE, MAX_SIZE);
+	}
+
+	/**
+	 * Copies the input stream to the output stream using the default buffer size
+	 * @param in the input stream
+	 * @param out the output stream
+	 * @param sizeLimit the maximum number of bytes to copy
+	 * @throws IOException
+	 */
 	public static int copyRestricted(InputStream in, OutputStream out, int sizeLimit) throws IOException
 	{
 		return copy(in, out, IO_BUFFER_SIZE, sizeLimit);
@@ -190,7 +199,7 @@ public class Utils
 
 			if (sizeLimit > 0 && total > sizeLimit)
 			{
-				throw new IOException("Size limit exceeded");
+				throw new SizeLimitExceededException();
 			}
 
 			out.write(b, 0, read);
@@ -516,7 +525,8 @@ public class Utils
 	{ 
 		try
 		{  
-			Double.parseDouble(str);  
+			Double.parseDouble(str);
+
 			return true;
 		}
 		catch(NumberFormatException e)
@@ -593,4 +603,24 @@ public class Utils
 			return false;
 		}
 	}
+
+	/**
+	 *
+	 */
+	public static class UnsupportedContentException extends Exception
+	{
+		private static final long serialVersionUID = 1239597891574347740L;
+	}
+
+	/**
+	 * Exception for size limit exceeeded in copy request.
+	 */
+	public static class SizeLimitExceededException extends IOException
+	{
+		public SizeLimitExceededException()
+		{
+			super("Size limit exceeded");
+		}
+	}
+
 }

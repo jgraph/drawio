@@ -1199,3 +1199,5 @@ brush=Brush
 openDevTools=Open Developer Tools
 autoBkp=Automatic Backup
 confAIgnoreCollectErr=Ignore collecting current pages errors
+drafts=Drafts
+draftSaveInt=Draft save interval [sec] (0 to disable)

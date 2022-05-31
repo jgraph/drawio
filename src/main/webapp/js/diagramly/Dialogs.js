@@ -7159,8 +7159,12 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 							if (re != null)
 							{
 								var result = label.match(re);
-								lblMatch = result[0].toLowerCase();
-								lblMatchPos = lblPosShift + result.index + lblMatch.length;
+
+								if (result != null && result.length > 0)
+								{
+									lblMatch = result[0].toLowerCase();
+									lblMatchPos = lblPosShift + result.index + lblMatch.length;
+								}
 							}
 							else
 							{

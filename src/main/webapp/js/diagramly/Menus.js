@@ -1339,9 +1339,41 @@
 						editorUi.handleError(e);
 					}
 				}
-			}, null, null, null, null, null, true, null, null,
-				'https://www.diagrams.net/doc/faq/apply-layouts');
-	    	
+			}, null, null, null, null, function(buttons, input)
+			{
+				var copyBtn = mxUtils.button(mxResources.get('copy'), function()
+				{
+					try
+					{
+						var orig = input.value;
+						input.value = JSON.stringify(JSON.parse(orig));
+						input.focus();
+						
+						if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
+						{
+							input.select();
+						}
+						else
+						{
+							document.execCommand('selectAll', false, null);
+						}
+						
+						document.execCommand('copy');
+						editorUi.alert(mxResources.get('copiedToClipboard'));
+
+						input.value = orig;
+					}
+					catch (e)
+					{
+						editorUi.handleError(e);
+					}
+				});
+
+				copyBtn.setAttribute('title', 'copy');
+				copyBtn.className = 'geBtn';
+				buttons.appendChild(copyBtn);
+			}, true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
+
 			editorUi.showDialog(dlg.container, 620, 460, true, true);
 			dlg.init();
 		});

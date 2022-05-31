@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.apphosting.api.DeadlineExceededException;
 import com.mxgraph.online.Utils.UnsupportedContentException;
+import com.mxgraph.online.Utils.SizeLimitExceededException;
 
 /**
  * Servlet implementation ProxyServlet
@@ -35,21 +36,11 @@ public class ProxyServlet extends HttpServlet
 			.getLogger(HttpServlet.class.getName());
 
 	/**
-	 * Buffer size for content pass-through.
-	 */
-	private static int BUFFER_SIZE = 3 * 1024;
-	
-	/**
 	 * GAE deadline is 30 secs so timeout before that to avoid
 	 * HardDeadlineExceeded errors.
 	 */
 	private static final int TIMEOUT = 29000;
 	
-	/**
-	 * Max fetch size
-	 */
-	protected static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
-
 	/**
 	 * A resuable empty byte array instance.
 	 */
@@ -140,13 +131,12 @@ public class ProxyServlet extends HttpServlet
 					if (status >= 200 && status <= 299)
 					{
 						response.setStatus(status);
-						
 						String contentLength = connection.getHeaderField("Content-Length");
 
 						// If content length is available, use it to enforce maximum size
-						if (contentLength != null && Long.parseLong(contentLength) > MAX_FETCH_SIZE)
+						if (contentLength != null && Long.parseLong(contentLength) > Utils.MAX_SIZE)
 						{
-							throw new UnsupportedContentException();
+							throw new SizeLimitExceededException();
 						}
 
 						// Copies input stream to output stream
@@ -192,6 +182,12 @@ public class ProxyServlet extends HttpServlet
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
 						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
 			}
+			catch (SizeLimitExceededException e)
+			{
+				response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+
+				throw e;
+			}
 			catch (Exception e)
 			{
 				response.setStatus(
@@ -201,6 +197,8 @@ public class ProxyServlet extends HttpServlet
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
 						+ ", user agent=" + ((ua != null) ? ua : "[null]"));
 				e.printStackTrace();
+
+				throw e;
 			}
 		}
 		else
@@ -224,7 +222,7 @@ public class ProxyServlet extends HttpServlet
 			int total = 0;
 
 			try (BufferedInputStream in = new BufferedInputStream(is,
-					BUFFER_SIZE))
+					Utils.IO_BUFFER_SIZE))
 			{
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
 			    byte[] buffer = new byte[0xFFFF];
@@ -235,9 +233,9 @@ public class ProxyServlet extends HttpServlet
 			    {
 					total += len;
 
-					if (total > MAX_FETCH_SIZE)
+					if (total > Utils.MAX_SIZE)
 					{
-						throw new IOException("Size limit exceeded");
+						throw new SizeLimitExceededException();
 					}
 
 			        os.write(buffer, 0, len);
@@ -249,7 +247,7 @@ public class ProxyServlet extends HttpServlet
 		else
 		{
 			out.write(head);
-			Utils.copyRestricted(is, out, MAX_FETCH_SIZE);
+			Utils.copyRestricted(is, out);
 		}
 	}
 

@@ -1199,3 +1199,5 @@ brush=Brotxa
 openDevTools=Ireki garatzaileen tresnak
 autoBkp=Babeskopia automatikoa
 confAIgnoreCollectErr=Ignore collecting current pages errors
+drafts=Drafts
+draftSaveInt=Draft save interval [sec] (0 to disable)

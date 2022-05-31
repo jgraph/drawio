@@ -1167,32 +1167,39 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 /**
  * 
  */
-BaseFormatPanel.prototype.addArrow = function(elt, height)
+BaseFormatPanel.prototype.addArrow = function(elt, height, topAlign)
 {
 	height = (height != null) ? height : 10;
 	
 	var arrow = document.createElement('div');
+	arrow.style.borderLeft = '1px solid #a0a0a0';
 	arrow.style.display = 'inline-block';
+	arrow.style.height = height + 'px';
 	arrow.style.paddingRight = '4px';
 	arrow.style.padding = '6px';
-	
-	var m = (10 - height);
-	
-	if (m == 2)
+
+	if (topAlign)
 	{
-		arrow.style.paddingTop = 6 + 'px';
-	}
-	else if (m > 0)
-	{
-		arrow.style.paddingTop = (6 - m) + 'px';
+		arrow.style.verticalAlign = 'top';
+		arrow.style.marginLeft = '1px';
 	}
 	else
 	{
-		arrow.style.marginTop = '-2px';
+		var m = (10 - height);
+		
+		if (m == 2)
+		{
+			arrow.style.paddingTop = 6 + 'px';
+		}
+		else if (m > 0)
+		{
+			arrow.style.paddingTop = (6 - m) + 'px';
+		}
+		else
+		{
+			arrow.style.marginTop = '-2px';
+		}
 	}
-	
-	arrow.style.height = height + 'px';
-	arrow.style.borderLeft = '1px solid #a0a0a0';
 
 	var img = document.createElement('img');
 	img.setAttribute('border', '0');
@@ -4984,8 +4991,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	elt.nextSibling.style.position = 'relative';
 	elt.nextSibling.style.top = '-3px';
 	edgeStyle.getElementsByTagName('img')[0].style.top = '-1px';
-	this.addArrow(lineStart);
-	this.addArrow(lineEnd);
+	this.addArrow(lineStart, null, true);
+	this.addArrow(lineEnd, null, true);
 	
 	var symbol = this.addArrow(pattern, 9);
 	symbol.className = 'geIcon';
@@ -5244,26 +5251,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			
 			if (markerDiv != null)
 			{
-				markerDiv.className = ui.getCssClassForMarker(prefix, ss.style.shape, marker, fill);
-				markerDiv.nextSibling.style.marginLeft = '1px';
-				markerDiv.nextSibling.style.paddingRight = '5px';
-
-				if (markerDiv.className == 'geSprite geSprite-noarrow')
-				{
-					markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
-					markerDiv.style.backgroundImage = 'none';
-					markerDiv.style.verticalAlign = 'top';
-					markerDiv.style.marginTop = '4px';
-					markerDiv.style.fontSize = '10px';
-					markerDiv.style.filter = 'none';
-					markerDiv.style.color = this.defaultStrokeColor;
-					markerDiv.nextSibling.style.marginTop = '0px';
-				}
-				else
-				{
-					markerDiv.nextSibling.style.position = 'relative';
-					markerDiv.nextSibling.style.top = '-2px';
-				}
+				ui.updateCssForMarker(markerDiv, prefix, ss.style.shape, marker, fill);
 			}
 			
 			return markerDiv;

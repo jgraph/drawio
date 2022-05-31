@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.mxgraph.online.Utils.SizeLimitExceededException;
+
 /**
  * Servlet implementation ExportProxyServlet
  */
@@ -21,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 public class ExportProxyServlet extends HttpServlet
 {
 	private final String[] supportedServices = {"EXPORT_URL", "PLANTUML_URL", "VSD_CONVERT_URL", "EMF_CONVERT_URL"};
-	private static int MAX_FETCH_SIZE = 50 * 1024 * 1024; // 50 MB
 
 	private void doRequest(String method, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
@@ -103,7 +104,7 @@ public class ExportProxyServlet extends HttpServlet
 				con.setDoOutput(true);
 				
 				OutputStream params = con.getOutputStream();
-				Utils.copyRestricted(request.getInputStream(), params, MAX_FETCH_SIZE);
+				Utils.copyRestricted(request.getInputStream(), params);
 				params.flush();
 				params.close();
 	        }
@@ -145,6 +146,12 @@ public class ExportProxyServlet extends HttpServlet
 			out.flush();
 			out.close();
 		}
+		catch (SizeLimitExceededException e)
+		{
+			response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+
+			throw e;
+		}
 		catch (Exception e)
 		{
 			response.setStatus(
@@ -157,8 +164,8 @@ public class ExportProxyServlet extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+		throws ServletException, IOException
 	{
 		doRequest("GET", request, response);
 	}
@@ -166,8 +173,8 @@ public class ExportProxyServlet extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request,
-	HttpServletResponse response) throws ServletException, IOException
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+		throws ServletException, IOException
 	{
 		doRequest("POST", request, response);
 	}

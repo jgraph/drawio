@@ -1368,16 +1368,9 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('importFrom', menu, parent);
 			}
 
-			menu.addSeparator(parent);
-
-			if (urlParams['sketch'] != '1')
-			{
-				ui.menus.addMenuItems(menu, ['outline'], parent);
-			}
-
 			if (ui.commentsSupported())
 			{
-				ui.menus.addMenuItems(menu, ['comments'], parent);
+				ui.menus.addMenuItems(menu, ['-', 'comments'], parent);
 			}
 
 			ui.menus.addMenuItems(menu, ['-', 'findReplace', 'outline',
@@ -1551,7 +1544,7 @@ EditorUi.initMinimalTheme = function()
 			
 			menu.addSeparator(parent);
 
-			if (urlParams['sketch'] != '1' && ui.mode != App.MODE_ATLAS) 
+			if (ui.mode != App.MODE_ATLAS) 
 			{
 				this.addMenuItems(menu, ['fullscreen'], parent);
 			}
@@ -2269,7 +2262,7 @@ EditorUi.initMinimalTheme = function()
 			ui.picker = picker;
 			var statusVisible = false;
 			
-			if (urlParams['embed'] != '1')
+			if (urlParams['embed'] != '1' && ui.getServiceName() != 'atlassian')
 			{
 				mxEvent.addListener(menubar, 'mouseenter', function()
 				{
@@ -2556,15 +2549,17 @@ EditorUi.initMinimalTheme = function()
 		{
 			var fitFunction = function(evt)
 	        {
-	            graph.popupMenuHandler.hideMenu();
-
-				if (mxEvent.isAltDown(evt) || mxEvent.isShiftDown(evt))
+				if (mxEvent.isShiftDown(evt))
 				{
-					ui.actions.get('customZoom').funct();
+					ui.hideCurrentMenu();
+					ui.actions.get('smartFit').funct();
+					mxEvent.consume(evt);
 				}
-				else
+				else if (mxEvent.isAltDown(evt))
 				{
-		        	ui.actions.get('smartFit').funct();
+					ui.hideCurrentMenu();
+					ui.actions.get('customZoom').funct();
+					mxEvent.consume(evt);
 				}
 	        };
 
@@ -2671,10 +2666,11 @@ EditorUi.initMinimalTheme = function()
 					' (' + Editor.ctrlKey + ' -/Alt+Mousewheel)', zoomOutAction, Editor.zoomOutImage);
 				footer.appendChild(zoomOutElt);
 
-				var elt = document.createElement('div');
+				var elt = menuObj.addMenu('100%', viewZoomMenu.funct);
+				elt.setAttribute('title', mxResources.get('zoom'));
 				elt.innerHTML = '100%';
-				elt.setAttribute('title', mxResources.get('fitWindow') + '/' + mxResources.get('resetView') + ' (Enter)');
 				elt.style.display = 'inline-block';
+				elt.style.color = 'inherit';
 				elt.style.cursor = 'pointer';
 				elt.style.textAlign = 'center';
 				elt.style.whiteSpace = 'nowrap';
@@ -2687,8 +2683,6 @@ EditorUi.initMinimalTheme = function()
 				elt.style.opacity = '0.4';
 				footer.appendChild(elt);
 				
-				mxEvent.addListener(elt, 'click', fitFunction);
-
 				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') +
 					' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, Editor.zoomInImage);
 				footer.appendChild(zoomInElt);
@@ -2777,10 +2771,13 @@ EditorUi.initMinimalTheme = function()
 	        	elt.style.backgroundRepeat = 'no-repeat';
 				wrapper.appendChild(elt);
 			}
-		        
+
 	    	// Updates the label if the scale changes
 			(function(elt)
 			{
+				// Adds shift+/alt+click on zoom label
+				mxEvent.addListener(elt, 'click', fitFunction);
+
 				var updateZoom = mxUtils.bind(this, function()
 				{
 					elt.innerHTML = '';
