@@ -1106,8 +1106,6 @@ EditorUi.initMinimalTheme = function()
         ui.actions.get('outline').label = mxResources.get('outline') + '...';
         ui.actions.get('layers').label = mxResources.get('layers') + '...';
         ui.actions.get('tags').label = mxResources.get('tags') + '...';
-		ui.actions.get('forkme').visible = urlParams['sketch'] != '1';
-		ui.actions.get('downloadDesktop').visible = urlParams['sketch'] != '1';
 		ui.actions.get('comments').label = mxResources.get('comments') + '...';
 
         var toggleDarkModeAction = ui.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function(e)

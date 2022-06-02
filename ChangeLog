@@ -1,3 +1,11 @@
+02-JUN-2022: 18.2.1
+
+- Updates JSZip to 3.10.0
+- Ignores only cells with hidden state in layouts
+- Fixes reset of document overflow in viewer [2822]
+- Adds support for orgchart layouts in CSV import
+- Updates AWS
+
 31-MAY-2022: 18.2.0
 
 - Fixes inconsistent menus in sketch theme

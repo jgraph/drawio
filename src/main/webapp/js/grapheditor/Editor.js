@@ -2088,7 +2088,7 @@ PageSetupDialog.getFormats = function()
 /**
  * Constructs a new filename dialog.
  */
-var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn, hints, w)
+var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validateFn, content, helpLink, closeOnBtn, cancelFn, hints, w, lblW)
 {
 	closeOnBtn = (closeOnBtn != null) ? closeOnBtn : true;
 	var row, td;
@@ -2104,9 +2104,9 @@ var FilenameDialog = function(editorUi, filename, buttonText, fn, label, validat
 	td = document.createElement('td');
 	td.style.textOverflow = 'ellipsis';
 	td.style.textAlign = 'right';
-	td.style.maxWidth = '100px';
+	td.style.maxWidth = (lblW? lblW + 15 : 100) + 'px';
 	td.style.fontSize = '10pt';
-	td.style.width = '84px';
+	td.style.width = (lblW? lblW : 84) + 'px';
 	mxUtils.write(td, (label || mxResources.get('filename')) + ':');
 	
 	row.appendChild(td);

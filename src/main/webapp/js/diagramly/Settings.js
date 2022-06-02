@@ -216,6 +216,14 @@ var mxSettings =
 	{
 		mxSettings.settings.isRulerOn = value;
 	},
+	getDraftSaveDelay: function()
+	{
+		return mxSettings.settings.draftSaveDelay;
+	},
+	setDraftSaveDelay: function(value)
+	{
+		mxSettings.settings.draftSaveDelay = value;
+	},
 	getDefaults: function()
 	{
 		return {

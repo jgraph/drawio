@@ -141,6 +141,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.tagsEnabled = mxUtils.indexOf(this.toolbarItems, 'tags') >= 0;
 	this.lightboxEnabled = mxUtils.indexOf(this.toolbarItems, 'lightbox') >= 0;
 	this.lightboxClickEnabled = this.graphConfig.lightbox != false;
+	this.initialOverflow = document.body.style.overflow;
 	this.initialWidth = (container != null) ? container.style.width : null;
 	this.widthIsEmpty = (this.initialWidth != null) ? this.initialWidth == '' : true;
 	this.currentPage = parseInt(this.graphConfig.page) || 0;
@@ -150,7 +151,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 	this.pageId = this.graphConfig.pageId;
 	this.editor = null;
 	var self = this;
-				
+	
 	if (this.graphConfig['toolbar-position'] == 'inline')
 	{
 		this.minHeight += this.toolbarHeight;
@@ -1934,13 +1935,15 @@ GraphViewer.prototype.showLocalLightbox = function()
 		}
 	});
 
+	var overflow = this.initialOverflow;
 	var destroy = ui.destroy;
+	
 	ui.destroy = function()
 	{
 		mxEvent.removeListener(document.documentElement, 'keydown', keydownHandler);
 		document.body.removeChild(backdrop);
 		document.body.removeChild(closeImg);
-		document.body.style.overflow = 'auto';
+		document.body.style.overflow = overflow;
 		GraphViewer.resizeSensorEnabled = true;
 		
 		destroy.apply(this, arguments);

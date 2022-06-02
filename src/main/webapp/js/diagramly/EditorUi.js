@@ -9348,8 +9348,8 @@
 			 		(mxEvent.isPopupTrigger(evt) && (me.getState() == null ||
 			 		mxEvent.isControlDown(evt) || mxEvent.isShiftDown(evt)));
 			};
-		}		
-
+		}
+		
 		// Starts editing PlantUML data
 		graph.cellEditor.editPlantUmlData = function(cell, trigger, data)
 		{
@@ -12118,7 +12118,10 @@
 			this.setBackgroundImage(null);
 			this.editor.modified = false;
 
-			this.fireEvent(new mxEventObject('editInlineStop'));
+			if (urlParams['embed'] != '1')
+			{
+				this.fireEvent(new mxEventObject('editInlineStop'));
+			}
 		}
 	};
 	
@@ -13225,9 +13228,63 @@
 	};
 	
 	/**
+	 * Loads orgchart layouts and executes the given function.
+	 */
+	EditorUi.prototype.loadOrgChartLayouts = function(fn)
+	{
+		var onload = mxUtils.bind(this, function()
+		{
+			this.loadingOrgChart = false;
+			this.spinner.stop();
+			fn();
+		});
+
+		if (typeof mxOrgChartLayout === 'undefined' && !this.loadingOrgChart && !this.isOffline(true))
+		{
+			if (this.spinner.spin(document.body, mxResources.get('loading')))
+			{
+				this.loadingOrgChart = true;
+				
+				if (urlParams['dev'] == '1')
+				{
+					mxscript('js/orgchart/bridge.min.js', function()
+					{
+						mxscript('js/orgchart/bridge.collections.min.js', function()
+						{
+							mxscript('js/orgchart/OrgChart.Layout.min.js', function()
+							{
+								mxscript('js/orgchart/mxOrgChartLayout.js', onload);											
+							});		
+						});	
+					});
+				}
+				else
+				{
+					mxscript('js/extensions.min.js', onload);
+				}
+			}
+		}
+		else
+		{
+			onload();
+		}
+	};
+	
+	/**
 	 *
 	 */
 	EditorUi.prototype.importCsv = function(text, done)
+	{
+		this.loadOrgChartLayouts(mxUtils.bind(this, function()
+		{
+			this.doImportCsv(text, done);
+		}));
+	};
+
+	/**
+	 *
+	 */
+	EditorUi.prototype.doImportCsv = function(text, done)
 	{
 		try
 		{
@@ -13908,6 +13965,31 @@
 				    			
 			    			afterInsert = null;
 			    		}
+						else if (layout == 'orgchart')
+						{
+			    			// Required for layouts to work with new cells
+			    			graph.view.validate();
+							
+							var orgChartLayout = new mxOrgChartLayout(graph,
+								2, levelspacing, nodespacing);
+		
+		    				var orgChartLayoutIsVertexIgnored = orgChartLayout.isVertexIgnored;
+		
+			    			// Ignore other cells
+		    				orgChartLayout.isVertexIgnored = function(vertex)
+		    				{
+		    					return orgChartLayoutIsVertexIgnored.apply(this, arguments) ||
+		    						mxUtils.indexOf(cells, vertex) < 0;
+		    				};
+		
+		    	    		this.executeLayout(function()
+		    	    		{
+		    	    			orgChartLayout.execute(graph.getDefaultParent());
+				    			postProcess();
+		    	    		}, true, afterInsert);
+		    	    		
+		    	    		afterInsert = null;
+						}
 		    			else if (layout == 'organic' || (layout == 'auto' &&
 		    					select.length > cells.length))
 		    			{
@@ -13921,7 +14003,7 @@
 		
 		    				var organicLayoutIsVertexIgnored = organicLayout.isVertexIgnored;
 		
-			    				// Ignore other cells
+			    			// Ignore other cells
 		    				organicLayout.isVertexIgnored = function(vertex)
 		    				{
 		    					return organicLayoutIsVertexIgnored.apply(this, arguments) ||

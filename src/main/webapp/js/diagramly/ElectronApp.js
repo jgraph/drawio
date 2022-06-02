@@ -3,7 +3,7 @@ window.TEMPLATE_PATH = 'templates';
 window.DRAW_MATH_URL = 'math';
 window.DRAWIO_BASE_URL = '.'; //Prevent access to online website since it is not allowed
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
-
+EditorUi.draftSaveDelay = 5000;
 //Disables eval for JS (uses shapes-14-6-5.min.js)
 mxStencilRegistry.allowEval = false;
 
@@ -101,6 +101,15 @@ mxStencilRegistry.allowEval = false;
 	
 	App.main = async function()
 	{
+		// Set AutoSave delay
+		var draftSaveDelay = mxSettings.getDraftSaveDelay();
+		
+		if (draftSaveDelay != null)
+		{
+			EditorUi.draftSaveDelay = draftSaveDelay * 1000;
+			EditorUi.enableDrafts = draftSaveDelay > 0;
+		}
+
 		//Load desktop plugins
 		var plugins = (mxSettings.settings != null) ? mxSettings.getPlugins() : null;
 		App.initPluginCallback();

@@ -78,12 +78,23 @@ catch(e)
 }
 
 // Trying sandboxing the renderer for more protection
-app.enableSandbox();
+//app.enableSandbox(); // This maybe the reason snap stopped working
 
 function createWindow (opt = {})
 {
 	let lastWinSizeStr = store.get('lastWinSize');
 	let lastWinSize = lastWinSizeStr ? lastWinSizeStr.split(',') : [1600, 1200];
+
+	// TODO On some Mac OS, double click the titlebar set incorrect window size
+	if (lastWinSize[0] < 500)
+	{
+		lastWinSize[0] = 500;
+	}
+
+	if (lastWinSize[1] < 500)
+	{
+		lastWinSize[1] = 500;
+	}
 
 	let options = Object.assign(
 	{

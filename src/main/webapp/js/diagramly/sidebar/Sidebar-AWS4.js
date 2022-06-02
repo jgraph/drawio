@@ -31,8 +31,8 @@
 		this.addAWS4ApplicationIntegrationPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4AR VR');
 		this.addAWS4ARVRPalette(s, w, h, w2, gn, sb);
-		this.setCurrentSearchEntryLibrary('aws4', 'aws4Cost Management');
-		this.addAWS4CostManagementPalette(s, w, h, w2, gn, sb);
+		this.setCurrentSearchEntryLibrary('aws4', 'aws4Cloud Financial Management');
+		this.addAWS4CloudFinancialManagementPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Blockchain');
 		this.addAWS4BlockchainPalette(s, w, h, w2, gn, sb);
 		this.setCurrentSearchEntryLibrary('aws4', 'aws4Business Applications');
@@ -242,6 +242,12 @@
 					 s * 130, s * 130, 'Spot Fleet', null, null, null, this.getTagsForStencil(gn, 'spot fleet', dt).join(' ')),
 			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_aws_step_functions_workflow;strokeColor=#CD2264;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#CD2264;dashed=0;',
 					 s * 130, s * 130, 'AWS Step Functions workflow', null, null, null, this.getTagsForStencil(gn, 'step function', dt).join(' ')),
+			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_account;strokeColor=#CD2264;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#CD2264;dashed=0;',
+					 s * 130, s * 130, 'AWS Account', null, null, null, this.getTagsForStencil(gn, 'account', dt).join(' ')),
+			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_iot_greengrass_deployment;strokeColor=#3F8624;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#3F8624;dashed=0;',
+					 s * 130, s * 130, 'AWS Iot\nGreengrass\nDeployment', null, null, null, this.getTagsForStencil(gn, 'iot internet of things greengrass deployment', dt).join(' ')),
+			 this.createVertexTemplateEntry(n4 + 'group;grIcon=' + gn + '.group_iot_greengrass;strokeColor=#3F8624;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;fontColor=#3F8624;dashed=0;',
+					 s * 130, s * 130, 'AWS Iot\nGreengrass', null, null, null, this.getTagsForStencil(gn, 'iot internet of things greengrass', dt).join(' ')),
 			 this.createVertexTemplateEntry('fillColor=none;strokeColor=#5A6C86;dashed=1;verticalAlign=top;fontStyle=0;fontColor=#5A6C86;',
 					 s * 130, s * 130, 'Generic group', null, null, null, this.getTagsForStencil(gn, 'generic', dt).join(' ')),
 			 this.createVertexTemplateEntry('fillColor=#EFF0F3;strokeColor=none;dashed=0;verticalAlign=top;fontStyle=0;fontColor=#232F3D;',
@@ -418,12 +424,12 @@
 		]);
 	};
 
-	Sidebar.prototype.addAWS4CostManagementPalette = function(s, w, h, w2, gn, sb)
+	Sidebar.prototype.addAWS4CloudFinancialManagementPalette = function(s, w, h, w2, gn, sb)
 	{
 		var n2 = 'sketch=0;points=[[0,0,0],[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0,0],[0,1,0],[0.25,1,0],[0.5,1,0],[0.75,1,0],[1,1,0],[0,0.25,0],[0,0.5,0],[0,0.75,0],[1,0.25,0],[1,0.5,0],[1,0.75,0]];outlineConnect=0;fontColor=#232F3E;gradientColor=#60A337;gradientDirection=north;fillColor=#277116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;' + mxConstants.STYLE_SHAPE + "=mxgraph.aws4.";
 		var dt = 'aws amazon web service cost management ';
 		
-		this.addPaletteFunctions('aws4Cost Management', 'AWS / Cost Management', false,
+		this.addPaletteFunctions('aws4Cloud Financial Management', 'AWS / Cloud Financial Management', false,
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.cost_management;',
 					 w2, w2, '', 'Cost Management', null, null, this.getTagsForStencil(gn, 'cost management', dt).join(' ')),
@@ -478,7 +484,7 @@
 					 w2, w2, '', 'Alexa for Business', null, null, this.getTagsForStencil(gn, 'alexa for business', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.chime;',
 					 w2, w2, '', 'Chime', null, null, this.getTagsForStencil(gn, 'chime', dt).join(' ')),
-			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.chime;',
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.chime_sdk;',
 					 w2, w2, '', 'Chime SDK', null, null, this.getTagsForStencil(gn, 'chime sdk software development kit', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.chime;',
 					 w2, w2, '', 'Chime Voice Connector', null, null, this.getTagsForStencil(gn, 'chime voice connector', dt).join(' ')),
@@ -601,6 +607,8 @@
 					 s * 48, s * 48, '', 'C5d Instance', null, null, this.getTagsForStencil(gn, 'c5d', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'c5n_instance;',
 					 s * 48, s * 48, '', 'C5n Instance', null, null, this.getTagsForStencil(gn, 'c5n', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'ec2_c6a_instance;',
+					 s * 48, s * 48, '', 'C6a Instance', null, null, this.getTagsForStencil(gn, 'c6a', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'c6gd;',
 					 s * 48, s * 48, '', 'C6gd Instance', null, null, this.getTagsForStencil(gn, 'c6gd', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'c6g_instance;',
@@ -647,6 +655,8 @@
 					 s * 48, s * 48, '', 'Habana Gaudi Instance', null, null, this.getTagsForStencil(gn, 'habana gaudi', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'high_memory_instance;',
 					 s * 48, s * 48, '', 'High Memory Instance', null, null, this.getTagsForStencil(gn, 'high memory instance', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'ec2_hpc6a_instance;',
+					 s * 48, s * 48, '', 'Hpc6a Instance', null, null, this.getTagsForStencil(gn, 'hpc6a instance', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'i2;',
 					 s * 48, s * 48, '', 'I2 Instance', null, null, this.getTagsForStencil(gn, 'i2', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'i3en;',
@@ -778,6 +788,8 @@
 		[
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.containers;',
 					 w2, w2, '', 'Containers', null, null, this.getTagsForStencil(gn, '', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.ecs_anywhere;',
+					 w2, w2, '', 'ECS Anywhere', null, null, this.getTagsForStencil(gn, 'ecs anywhere', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.eks_anywhere;',
 					 w2, w2, '', 'EKS Anywhere', null, null, this.getTagsForStencil(gn, 'eks anywhere', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.eks_cloud;',
@@ -959,6 +971,10 @@
 					 s * 78, s * 69, '', 'ElastiCache for Memcached', null, null, this.getTagsForStencil(gn, 'elasticache for memcached', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'elasticache_for_redis;',
 					 s * 78, s * 69, '', 'Elasticache for Redis', null, null, this.getTagsForStencil(gn, 'elasticache for redis', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'rds_multi_az;',
+					 s * 78, s * 58, '', 'RDS Multi-AZ', null, null, this.getTagsForStencil(gn, 'rds multi az', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'rds_multi_az_db_cluster;',
+					 s * 78, s * 78, '', 'RDS Multi-AZ DB Cluster', null, null, this.getTagsForStencil(gn, 'rds multi az db cluster', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'dense_compute_node;',
 					 s * 78, s * 78, '', 'Dense Compute Node', null, null, this.getTagsForStencil(gn, 'dense compute node', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'dense_storage_node;',
@@ -1079,6 +1095,10 @@
 					 w2, w2, '', 'Game Tech', null, null, this.getTagsForStencil(gn, 'game tech', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.gamelift;',
 					 w2, w2, '', 'GameLift', null, null, this.getTagsForStencil(gn, 'gamelift', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.gamesparks;',
+					 w2, w2, '', 'GameSparks', null, null, this.getTagsForStencil(gn, 'gamesparks', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.gamekit;',
+					 w2, w2, '', 'GameKit', null, null, this.getTagsForStencil(gn, 'gamekit', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.lumberyard;',
 					 w2, w2, '', 'Lumberyard', null, null, this.getTagsForStencil(gn, 'lumberyard', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.open_3d_engine;',
@@ -1131,6 +1151,8 @@
 					 s * 78, s * 78, '', 'LoRaWAN Protocol', null, null, this.getTagsForStencil(gn, 'iot lorawan protocol', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'iot_sailboat;',
 					 s * 78, s * 78, '', 'Sailboat', null, null, this.getTagsForStencil(gn, 'iot sailboat', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'sensor;',
+					 s * 70, s * 78, '', 'Sensor', null, null, this.getTagsForStencil(gn, 'sensor', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'iot_analytics_channel;',
 					 s * 65, s * 78, '', 'Channel', null, null, this.getTagsForStencil(gn, 'analytics channel', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'data_set;',
@@ -1298,6 +1320,8 @@
 					 w2, w2, '', 'CodeGuru', null, null, this.getTagsForStencil(gn, 'codeguru', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.comprehend;',
 					 w2, w2, '', 'Comprehend', null, null, this.getTagsForStencil(gn, 'comprehend', dt).join(' ')),
+			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.comprehend_medical;',
+					 w2, w2, '', 'Comprehend Medical', null, null, this.getTagsForStencil(gn, 'comprehend medical', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.deepcomposer;',
 					 w2, w2, '', 'DeepComposer', null, null, this.getTagsForStencil(gn, 'deepcomposer', dt).join(' ')),
 			 this.createVertexTemplateEntry(n2 + 'resourceIcon;resIcon=' + gn + '.devops_guru;',
@@ -1733,6 +1757,8 @@
 					 s * 78, s * 78, '', 'Flow Logs', null, null, this.getTagsForStencil(gn, 'vpc virtual private cloud flow logs', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'gateway;',
 					 s * 76, s * 78, '', 'Gateway', null, null, this.getTagsForStencil(gn, 'gateway', dt).join(' ')),
+			 this.createVertexTemplateEntry(n + 'transit_gateway_attachment;',
+					 s * 78, s * 78, '', 'Transit Gateway Attachment', null, null, this.getTagsForStencil(gn, 'transit gateway attachment', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'internet_gateway;',
 					 s * 78, s * 78, '', 'Internet Gateway', null, null, this.getTagsForStencil(gn, 'vpc virtual private cloud internet gateway', dt).join(' ')),
 			 this.createVertexTemplateEntry(n + 'mesh;',

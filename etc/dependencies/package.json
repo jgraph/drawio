@@ -1,0 +1,18 @@
+{
+	"name": "draw.io dependencies",
+	"version": "18.1.3",
+	"description": "draw.io dependencies",
+	"author": "JGraph <support@draw.io>",
+	"license": "Apache-2.0",
+	"bugs": {
+	  "url": "https://github.com/jgraph/drawio/issues"
+	},
+	"homepage": "https://github.com/jgraph/drawio",
+	"dependencies": {
+	  "jsZip": "3.1.3",
+	  "perfect-freehand": "1.0.16",
+	  "jquery": "3.3.1",
+	  "jscolor": "^3.8.0"
+	}
+  }
+  

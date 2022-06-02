@@ -1795,15 +1795,27 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			
 			if (EditorUi.enableDrafts && (this.getMode() == null || EditorUi.isElectronApp))
 			{
+				this.lastDraftSave = this.lastDraftSave || Date.now();
+
 				if (this.saveDraftThread != null)
 				{
 					window.clearTimeout(this.saveDraftThread);
+					this.saveDraftThread = null;
+
+					// Max delay without saving is double the delay for autosave or 30 sec
+					if (Date.now() - this.lastDraftSave > Math.max(2 * EditorUi.draftSaveDelay, 30000))
+					{
+						this.lastDraftSave = Date.now();
+						this.saveDraft();
+					}
 				}
-				
+
 				this.saveDraftThread = window.setTimeout(mxUtils.bind(this, function()
 				{
+					this.lastDraftSave = Date.now();
+					this.saveDraftThread = null;
 					this.saveDraft();
-				}), 0);
+				}), EditorUi.draftSaveDelay || 0);
 			}
 		}
 	}
