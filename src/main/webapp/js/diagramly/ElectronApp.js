@@ -310,25 +310,19 @@ mxStencilRegistry.allowEval = false;
 		var editorUi = this;
 		var graph = this.editor.graph;
 		
-		window.__emt_isModified = function()
+		electron.registerMsgListener('isModified', () =>
 		{
-			if (editorUi.getCurrentFile())
+			const currentFile = editorUi.getCurrentFile();
+			let reply = {isModified: false, draftPath: null};
+
+			if (currentFile != null)
 			{
-				return editorUi.getCurrentFile().isModified()
+				reply.isModified = currentFile.isModified();
+				reply.draftPath = EditorUi.enableDrafts && currentFile.fileObject? currentFile.fileObject.draftFileName : null;
 			}
 
-			return false
-		};
-		
-		window.__emt_removeDraft = function()
-		{
-			var currentFile = editorUi.getCurrentFile();
-
-			if (currentFile != null && EditorUi.enableDrafts)
-			{
-				currentFile.removeDraft();
-			}
-		};
+			electron.sendMessage('isModified-result', reply);
+		});
 
 		// Adds support for libraries
 		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()

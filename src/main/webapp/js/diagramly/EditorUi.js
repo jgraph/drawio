@@ -13314,6 +13314,7 @@
         		var namespace = '';
         		var width = 'auto';
         		var height = 'auto';
+				var collapsed = false;
         		var left = null;
         		var top = null;
         		var edgespacing = 40;
@@ -13440,6 +13441,10 @@
 		    				{
 		    					height = value;
 		    				}
+							else if (key == 'collapsed' && value != '-')
+		    				{
+		    					collapsed = value == 'true';
+		    				}
 		    				else if (key == 'left' && value.length > 0)
 		    				{
 		    					left = value;
@@ -13560,44 +13565,59 @@
     						cell = graph.model.getCell(id);
     					}
     					
-    					var exists = cell != null;
     					var newCell = new mxCell(label, new mxGeometry(x0, y,
 		    				0, 0), style || 'whiteSpace=wrap;html=1;');
-    					newCell.vertex = true;
+						newCell.collapsed = collapsed;
+						newCell.vertex = true;
     					newCell.id = id;
-
-						var targetCell = (cell != null) ? cell : newCell;
+						
+						if (cell != null)
+						{
+							graph.model.setCollapsed(cell, collapsed);
+						}
 						
 						for (var j = 0; j < values.length; j++)
 				    	{
-							graph.setAttributeForCell(targetCell, attribs[j], values[j]);
+							graph.setAttributeForCell(newCell, attribs[j], values[j]);
+
+							if (cell != null)
+							{
+								graph.setAttributeForCell(cell, attribs[j], values[j]);
+							}
 				    	}
 						
 						if (labelname != null && labels != null)
 						{
-							var tempLabel = labels[targetCell.getAttribute(labelname)];
+							var tempLabel = labels[newCell.getAttribute(labelname)];
 							
 							if (tempLabel != null)
 							{
-								graph.labelChanged(targetCell, tempLabel);
+								graph.labelChanged(newCell, tempLabel);
+
+								if (cell != null)
+								{
+									graph.cellLabelChanged(cell, tempLabel);
+								}
 							}
 						}
 
 						if (stylename != null && styles != null)
 						{
-							var tempStyle = styles[targetCell.getAttribute(stylename)];
+							var tempStyle = styles[newCell.getAttribute(stylename)];
 							
 							if (tempStyle != null)
 							{
-								targetCell.style = tempStyle;
+								newCell.style = tempStyle;
 							}
 						}
 
-						graph.setAttributeForCell(targetCell, 'placeholders', '1');
-						targetCell.style = graph.replacePlaceholders(targetCell, targetCell.style, vars);
+						graph.setAttributeForCell(newCell, 'placeholders', '1');
+						newCell.style = graph.replacePlaceholders(newCell, newCell.style, vars);
 
-						if (exists)
+						if (cell != null)
 						{
+							graph.model.setStyle(cell, newCell.style);
+
 							if (mxUtils.indexOf(cells, cell) < 0)
 							{
 								cells.push(cell);
@@ -13610,6 +13630,7 @@
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [newCell]));
 						}
 
+    					var exists = cell != null;
 						cell = newCell;
     					
 						if (!exists)

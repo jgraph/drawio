@@ -1,3 +1,9 @@
+03-JUN-2022: 19.0.0
+
+- Removes IE 11 support
+- Updates mermaid.js to 9.1.1
+- Fixes updating existing cells in CSV import [2796]
+
 02-JUN-2022: 18.2.1
 
 - Updates JSZip to 3.10.0

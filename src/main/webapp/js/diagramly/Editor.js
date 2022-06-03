@@ -689,6 +689,10 @@
 		'#\n' +
 		'# height: auto\n' +
 		'#\n' +
+		'## Collapsed state for vertices. Possible values are true or false. Default is false.\n' +
+		'#\n' +
+		'# collapsed: false\n' +
+		'#\n' +
 		'## Padding for autosize. Default is 0.\n' +
 		'#\n' +
 		'# padding: -12\n' +

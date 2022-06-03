@@ -39,6 +39,7 @@ const isWin = process.platform === 'win32'
 let enableSpellCheck = store.get('enableSpellCheck');
 enableSpellCheck = enableSpellCheck != null? enableSpellCheck : isMac;
 let enableStoreBkp = store.get('enableStoreBkp') != null? store.get('enableStoreBkp') : true;
+let dialogOpen = false;
 
 //Read config file
 var queryObj = {
@@ -177,43 +178,43 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-			contents.executeJavaScript('if(typeof window.__emt_isModified === \'function\'){window.__emt_isModified()}', true)
-				.then((isModified) =>
+	        ipcMain.once('isModified-result', (evt, data) =>
+			{
+				if (data.isModified)
 				{
-					if (__DEV__) 
-					{
-						console.log('__emt_isModified', isModified)
-					}
-					
-					if (isModified)
-					{
-						var choice = dialog.showMessageBoxSync(
-							win,
+					dialog.showMessageBox(
+						win,
+						{
+							type: 'question',
+							buttons: ['Cancel', 'Discard Changes'],
+							title: 'Confirm',
+							message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
+						}).then( async result =>
+						{
+							if (result.response === 1)
 							{
-								type: 'question',
-								buttons: ['Cancel', 'Discard Changes'],
-								title: 'Confirm',
-								message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
-							})
-							
-						if (choice === 1)
-						{
-							//If user chose not to save, remove the draft
-							contents.executeJavaScript('window.__emt_removeDraft()', true);
-							win.destroy()
-						}
-						else
-						{
-							cmdQPressed = false
-						}
-					}
-					else
-					{
-						win.destroy()
-					}
-				})
+								//If user chose not to save, remove the draft
+								if (data.draftPath != null)
+								{
+									await deleteFile(data.draftPath);
+								}
 
-			event.preventDefault()
+								win.destroy();
+							}
+							else
+							{
+								cmdQPressed = false;
+							}
+						});
+				}
+				else
+				{
+					win.destroy();
+				}
+			});
+
+			contents.send('isModified');
+			event.preventDefault();
 		}
 	})
 
@@ -621,6 +622,9 @@ app.on('ready', e =>
     else 
     {
     	app.on('second-instance', (event, commandLine, workingDirectory) => {
+			// Creating a new window while a save/open dialog is open crashes the app
+			if (dialogOpen) return;
+
     		//Create another window
     		let win = createWindow()
 
@@ -843,6 +847,8 @@ app.on('will-finish-launching', function()
 	app.on("open-file", function(event, path) 
 	{
 	    event.preventDefault();
+		// Creating a new window while a save/open dialog is open crashes the app
+		if (dialogOpen) return;
 
 	    if (firstWinLoaded)
 	    {
@@ -2244,10 +2250,14 @@ ipcMain.on("rendererReq", async (event, args) =>
 			ret = await checkFileExists(args.pathParts);
 			break;
 		case 'showOpenDialog':
+			dialogOpen = true;
 			ret = await showOpenDialog(args.defaultPath, args.filters, args.properties);
+			dialogOpen = false;
 			break;
 		case 'showSaveDialog':
+			dialogOpen = true;
 			ret = await showSaveDialog(args.defaultPath, args.filters);
+			dialogOpen = false;
 			break;
 		case 'installPlugin':
 			ret = await installPlugin(args.filePath);
