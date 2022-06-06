@@ -13559,19 +13559,24 @@
     	    			var values = arrays[i];
     					var cell = null;
     					var id = (identityIndex != null) ? namespace + values[identityIndex] : null;
+						var ignoreCell = false;
     					
     					if (id != null)
     					{
     						cell = graph.model.getCell(id);
+
+							// Bypasses update of cells inserted during this run
+							ignoreCell = cell == null || mxUtils.indexOf(
+								allCells, cell) >= 0;
     					}
-    					
+						
     					var newCell = new mxCell(label, new mxGeometry(x0, y,
 		    				0, 0), style || 'whiteSpace=wrap;html=1;');
 						newCell.collapsed = collapsed;
 						newCell.vertex = true;
     					newCell.id = id;
 						
-						if (cell != null)
+						if (cell != null && !ignoreCell)
 						{
 							graph.model.setCollapsed(cell, collapsed);
 						}
@@ -13580,7 +13585,7 @@
 				    	{
 							graph.setAttributeForCell(newCell, attribs[j], values[j]);
 
-							if (cell != null)
+							if (cell != null && !ignoreCell)
 							{
 								graph.setAttributeForCell(cell, attribs[j], values[j]);
 							}
@@ -13594,7 +13599,7 @@
 							{
 								graph.labelChanged(newCell, tempLabel);
 
-								if (cell != null)
+								if (cell != null && !ignoreCell)
 								{
 									graph.cellLabelChanged(cell, tempLabel);
 								}

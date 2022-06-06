@@ -267,8 +267,6 @@ public class ConverterServlet  extends HttpServlet
 				}
 				
 				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
-				throw e;
 			}
 		}
 	}
