@@ -2643,7 +2643,7 @@
 			if (this.fname != null)
 			{
 				this.fnameWrapper.style.display = 'none';
-				this.fname.innerHTML = '';
+				this.fname.innerText = '';
 				this.fname.setAttribute('title', mxResources.get('rename'));
 			}
 
@@ -4048,7 +4048,7 @@
 							//TODO This code is similar to Dialogs.js change user part in SplashDialog
 							function fillUsersSelect()
 							{
-								usersSelect.innerHTML = '';
+								usersSelect.innerText = '';
 								
 								for (var i = 0; i < driveUsers.length; i++)
 								{
@@ -5469,7 +5469,7 @@
 				div.style.backgroundImage = 'url(\'' + Dialog.prototype.closeImage + '\')';
 			}
 
-			linkButton.innerHTML = '';
+			linkButton.innerText = '';
 			linkButton.appendChild(div);
 		};
 		
@@ -10967,7 +10967,7 @@
 		else
 		{
 			// Disables copy on focused element
-			elt.innerHTML = '';
+			elt.innerText = '';
 		}
 	};
 
@@ -14517,7 +14517,7 @@
 
 		this.remoteInvoke('getCustomLibraries', null, null, function(libsList)
 		{
-			libsSection.innerHTML = '';
+			libsSection.innerText = '';
 			
 			if (libsList.length == 0)
 			{
@@ -14555,7 +14555,7 @@
 			}
 		}, mxUtils.bind(this, function(e)
 		{
-			libsSection.innerHTML = '';
+			libsSection.innerText = '';
 			var status = document.createElement('div');
 			status.style.padding = '8px';
 			status.style.textAlign = 'center';
@@ -15586,7 +15586,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		
 		var saveBtn = mxUtils.button(mxResources.get('save'), function()
 		{
-			commentTxt.innerHTML = '';
+			commentTxt.innerText = '';
 			comment.content = textArea.value;
 			mxUtils.write(commentTxt, comment.content);
 			reset();
@@ -15626,7 +15626,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 	
 	function writeCommentDate(comment, dateDiv)
 	{
-		dateDiv.innerHTML = '';
+		dateDiv.innerText = '';
 		var ts = new Date(comment.modifiedDate);
 		var str = editorUi.timeSince(ts);
 		
@@ -15863,7 +15863,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 						if (markedOnly === true)
 						{
 							var commentTxt = cdiv.querySelector('.geCommentTxt');
-							commentTxt.innerHTML = '';
+							commentTxt.innerText = '';
 							mxUtils.write(commentTxt, mxResources.get('msgDeleted'));
 							
 							var actions = cdiv.querySelectorAll('.geCommentAction');
@@ -15913,7 +15913,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 				function doToggle()
 				{
 					var resolveActionLnk = evt.target;
-					resolveActionLnk.innerHTML = '';
+					resolveActionLnk.innerText = '';
 
 					comment.isResolved = !comment.isResolved;
 					mxUtils.write(resolveActionLnk, comment.isResolved? mxResources.get('reopen') : mxResources.get('resolve'));
@@ -16158,7 +16158,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 					return new Date(c1.modifiedDate) - new Date(c2.modifiedDate);
 				});
 
-				listDiv.innerHTML = '';
+				listDiv.innerText = '';
 				listDiv.appendChild(noComments);
 				noComments.style.display = 'block';
 				comments = list;

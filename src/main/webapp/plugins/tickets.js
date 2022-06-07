@@ -60,7 +60,7 @@ Draw.loadPlugin(function(ui)
 		
 		for (var key in deskStatus)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			mxUtils.write(div, deskStatus[key]);
 			deskStatusWidth[key] = div.clientWidth + 4;
 		}

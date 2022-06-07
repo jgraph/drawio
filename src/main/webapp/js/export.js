@@ -16,7 +16,7 @@ function render(data)
 		data.scale = 1;
 	}
 	
-	document.body.innerHTML = '';
+	document.body.innerText = '';
 	var container = document.createElement('div');
 	container.id = 'graph';
 	container.style.width = '100%';

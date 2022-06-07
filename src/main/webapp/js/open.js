@@ -42,7 +42,7 @@ function main()
 	{
 		if (window.parent.Editor.useLocalStorage)
 		{
-			document.body.innerHTML = '';
+			document.body.innerText = '';
 			var div = document.createElement('div');
 			div.style.fontFamily = 'Arial';
 			var darkMode = typeof window.parent.Editor.isDarkMode === 'function' &&

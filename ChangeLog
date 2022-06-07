@@ -1,3 +1,9 @@
+07-JUN-2022: 19.0.2
+
+- Fixes isNode check, handling of HTML in node names
+- Fixes cell value Element type check in mxCellCodec
+- Changes mxStylesheetCodec.allowEval to false
+
 06-JUN-2022: 19.0.1
 
 - Fixes handling of cell ID in CSV import [DID-5225]

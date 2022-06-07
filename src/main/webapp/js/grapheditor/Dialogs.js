@@ -2370,7 +2370,7 @@ var LayersWindow = function(editorUi, x, y, w, h)
 	function refresh()
 	{
 		layerCount = graph.model.getChildCount(graph.model.root)
-		listDiv.innerHTML = '';
+		listDiv.innerText = '';
 		layerDivs.clear();
 		
 		function addLayer(index, label, child, defaultParent)

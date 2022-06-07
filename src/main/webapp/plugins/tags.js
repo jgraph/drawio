@@ -165,7 +165,7 @@ Draw.loadPlugin(function(editorUi)
 
 		function updateSelectedTags(tags, selected, selectedColor, filter)
 		{
-			tagCloud.innerHTML = '';
+			tagCloud.innerText = '';
 			
 			var title = document.createElement('div');
 			title.style.marginBottom = '8px';

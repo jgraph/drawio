@@ -261,7 +261,7 @@ Sidebar.prototype.refresh = function()
 {
 	var graph = this.editorUi.editor.graph;
 	this.graph.stylesheet.styles = mxUtils.clone(graph.stylesheet.styles);
-	this.container.innerHTML = '';
+	this.container.innerText = '';
 	this.palettes = new Object();
 	this.init();
 };
@@ -439,7 +439,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		}
 		else
 		{
-			this.tooltipTitle.innerHTML = '';
+			this.tooltipTitle.innerText = '';
 		}
 		
 		this.tooltipTitle.style.display = '';

@@ -1362,7 +1362,7 @@ GraphViewer.prototype.addToolbar = function()
 			
 			var update = mxUtils.bind(this, function()
 			{
-				pageInfo.innerHTML = '';
+				pageInfo.innerText = '';
 				mxUtils.write(pageInfo, (this.currentPage + 1) + ' / ' + this.diagrams.length);
 				pageInfo.style.display = (this.diagrams.length > 1) ? 'inline-block' : 'none';
 				prevButton.style.display = pageInfo.style.display;
@@ -2062,7 +2062,7 @@ GraphViewer.prototype.updateTitle = function(title)
 	
 	if (this.filename != null)
 	{
-		this.filename.innerHTML = '';
+		this.filename.innerText = '';
 		mxUtils.write(this.filename, title);
 		this.filename.setAttribute('title', title);
 	}
@@ -2077,7 +2077,7 @@ GraphViewer.processElements = function(classname)
 	{
 		try
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			GraphViewer.createViewerForElement(div);
 		}
 		catch (e)

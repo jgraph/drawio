@@ -910,7 +910,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 	{
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		
@@ -1048,7 +1048,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 	{
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		
@@ -1173,7 +1173,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 		
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		

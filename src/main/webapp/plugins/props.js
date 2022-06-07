@@ -113,7 +113,7 @@ Draw.loadPlugin(function(ui) {
 				}
 				else
 				{
-					div.innerHTML = '';
+					div.innerText = '';
 				}
 				
 				for (var i = 0; i < attrs.length; i++)

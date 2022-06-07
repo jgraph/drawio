@@ -1993,7 +1993,7 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 	markerDiv.style.verticalAlign = 'top';
 	markerDiv.style.height = '21px';
 	markerDiv.style.width = '21px';
-	markerDiv.innerHTML = '';
+	markerDiv.innerText = '';
 
 	if (shape == 'flexArrow')
 	{
@@ -2572,7 +2572,7 @@ EditorUi.prototype.initCanvas = function()
 				{
 					if (this.pages != null && this.pages.length > 1 && this.currentPage != null)
 					{
-						pageInfo.innerHTML = '';
+						pageInfo.innerText = '';
 						mxUtils.write(pageInfo, (mxUtils.indexOf(this.pages, this.currentPage) + 1) + ' / ' + this.pages.length);
 					}
 				});
@@ -4482,7 +4482,7 @@ EditorUi.prototype.setStatusText = function(value)
 	// Wraps simple status messages in a div for styling
 	if (this.statusContainer.getElementsByTagName('div').length == 0)
 	{
-		this.statusContainer.innerHTML = '';
+		this.statusContainer.innerText = '';
 		var div = this.createStatusDiv(value);
 		this.statusContainer.appendChild(div);
 	}

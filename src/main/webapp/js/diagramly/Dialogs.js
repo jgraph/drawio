@@ -2881,7 +2881,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			setActiveTab(0);
 
 			div.scrollTop = 0;
-			div.innerHTML = '';
+			div.innerText = '';
 			i0 = 0;
 			
 			if (oldTemplates != templates)
@@ -2889,7 +2889,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				templates = oldTemplates;
 				categories = origCategories;
 				customCatCount = origCustomCatCount;
-				list.innerHTML = '';
+				list.innerText = '';
 				initUi();	
 				oldTemplates = null;
 			}
@@ -2912,7 +2912,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 			
 			div.scrollTop = 0;
-			div.innerHTML = '';
+			div.innerText = '';
 			spinner.spin(div);
 
 			var callback2 = function(docList, errorMsg, searchImportCats) 
@@ -2938,13 +2938,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				}
 				else
 				{
-					div.innerHTML = '';
+					div.innerText = '';
 					
 					if (importListsCount > 0)
 					{
 						list.style.display = '';
 						div.style.left = '160px';
-						list.innerHTML = '';
+						list.innerText = '';
 
 						customCatCount = 0;
 						categories = {'draw.io': docList};
@@ -3628,7 +3628,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		}
 		
 		div.scrollTop = 0;
-		div.innerHTML = '';
+		div.innerText = '';
 		i0 = 0;
 		var msgDiv = document.createElement('div');
 		msgDiv.style.cssText = 'border: 1px solid #D3D3D3; padding: 6px; background: #F5F5F5;';
@@ -3704,7 +3704,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							currentEntry.style.backgroundColor = leftHighlight;
 							
 							div.scrollTop = 0;
-							div.innerHTML = '';
+							div.innerText = '';
 							i0 = 0;
 							
 							templates = customCats[cat2];
@@ -3749,7 +3749,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					currentEntry.style.backgroundColor = leftHighlight;
 					
 					div.scrollTop = 0;
-					div.innerHTML = '';
+					div.innerText = '';
 					i0 = 0;
 					
 					templates = subCat? subCategories[cat][subCat] : categories[cat];
@@ -5955,7 +5955,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		// Gets current state of page with given ID
 		var curr = currentDiagrams[diagrams[currentPage].getAttribute('id')];
 		mxUtils.setOpacity(compareBtn, 20);
-		errorNode.innerHTML = '';
+		errorNode.innerText = '';
 
 		if (curr == null)
 		{
@@ -5977,7 +5977,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	}, null, function()
 	{
 		mxUtils.setOpacity(compareBtn, 60);
-		errorNode.innerHTML = '';
+		errorNode.innerText = '';
 
 		if (container.style.display == 'none')
 		{
@@ -6232,14 +6232,14 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 					function updateGraph(xml)
 					{
 						spinner.stop();
-						errorNode.innerHTML = '';
+						errorNode.innerText = '';
 						var doc = mxUtils.parseXml(xml);
 						var node = editorUi.editor.extractGraphModel(doc.documentElement, true);
 
 						if (node != null)
 						{
 							pageSelect.style.display = 'none';
-							pageSelect.innerHTML = '';
+							pageSelect.innerText = '';
 							currentDoc = doc;
 							currentXml = xml;
 							parseSelectFunction = null;
@@ -6343,7 +6343,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 								shortUser = shortUser.substring(0, 20) + '...';
 							}
 							
-							fileInfo.innerHTML = '';
+							fileInfo.innerText = '';
 							mxUtils.write(fileInfo, ((shortUser != null) ?
 								(shortUser + ' ') : '') + ts.toLocaleDateString() +
 								' ' + ts.toLocaleTimeString());
@@ -6376,8 +6376,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 						else
 						{
 							pageSelect.style.display = 'none';
-							pageSelect.innerHTML = '';
-							fileInfo.innerHTML = '';
+							pageSelect.innerText = '';
+							fileInfo.innerText = '';
 							mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
 							mxUtils.write(errorNode, mxResources.get('errorLoadingFile'));
 						}
@@ -6403,7 +6403,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							fileInfo.removeAttribute('title');
 							fileInfo.innerHTML = mxUtils.htmlEntities(mxResources.get('loading') + '...');
 							container.style.backgroundColor = graph.defaultPageBackgroundColor;
-							errorNode.innerHTML = '';
+							errorNode.innerText = '';
 							graph.getModel().clear();
 	
 							restoreBtn.setAttribute('disabled', 'disabled');
@@ -6444,8 +6444,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 				   			{
 				   				spinner.stop();
 								pageSelect.style.display = 'none';
-								pageSelect.innerHTML = '';
-				   				fileInfo.innerHTML = '';
+								pageSelect.innerText = '';
+				   				fileInfo.innerText = '';
 								mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
 								mxUtils.write(errorNode, mxResources.get('errorLoadingFile'));
 				   			});
@@ -6822,7 +6822,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 				parseDiagram(diagrams[currentPage]);
 			}
 
-			pageSelect.innerHTML = '';
+			pageSelect.innerText = '';
 			
 			if (diagrams.length > 1)
 			{
@@ -7043,7 +7043,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				
 	function search(internalCall, trySameCell, stayOnPage)
 	{
-		replAllNotif.innerHTML = '';
+		replAllNotif.innerText = '';
 		var cells = graph.model.getDescendants(graph.model.getRoot());
 		var searchStr = searchInput.value.toLowerCase();
 		var re = (regexInput.checked) ? new RegExp(searchStr) : null;
@@ -7249,7 +7249,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 
 	var resetBtn = mxUtils.button(mxResources.get('reset'), function()
 	{
-		replAllNotif.innerHTML = '';
+		replAllNotif.innerText = '';
 		searchInput.value = '';
 		searchInput.style.backgroundColor = '';
 		
@@ -7444,7 +7444,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		
 		var replaceAllBtn = mxUtils.button(mxResources.get('replaceAll'), function()
 		{
-			replAllNotif.innerHTML = '';
+			replAllNotif.innerText = '';
 			
 			if (replaceInput.value)
 			{
@@ -7727,7 +7727,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	
 	graph.addListener('freehandStateChanged', mxUtils.bind(this, function()
 	{
-		startBtn.innerHTML = '';
+		startBtn.innerText = '';
 		mxUtils.write(startBtn, mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
 		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
 		startBtn.className = 'geBtn' + (!graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
@@ -8072,7 +8072,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 									preview.style.textAlign = 'center';
 									preview.style.padding = '0px';
 									preview.style.color = '';
-									preview.innerHTML = '';
+									preview.innerText = '';
 									
 									if (entry.desc != null)
 									{
@@ -8474,7 +8474,7 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 		}
 		else
 		{
-			inner.innerHTML = '';
+			inner.innerText = '';
 			
 			for (var i = 0; i < plugins.length; i++)
 			{
@@ -9580,7 +9580,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					
 					function updateLabel()
 					{
-						label.innerHTML = '';
+						label.innerText = '';
 						label.style.cursor = 'pointer';
 						label.style.whiteSpace = 'nowrap';
 						label.style.textOverflow = 'ellipsis';
@@ -9636,7 +9636,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 								
 								if (entry.title == null || entry.title.length == 0)
 								{
-									label.innerHTML = '';
+									label.innerText = '';
 								}
 								
 								label.style.textOverflow = '';
@@ -10934,7 +10934,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		if (!internalCall)
 		{
-			diagramsTiles.innerHTML = '';
+			diagramsTiles.innerText = '';
 			swapActiveItem();
 			curDiagList = diagrams;
 			curSearchImportCats = searchImportCats;
@@ -11651,7 +11651,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		if (recentDocsCallback)
 		{
 			tempDlgContent.scrollTop = 0;
-			diagramsTiles.innerHTML = '';
+			diagramsTiles.innerText = '';
 			spinner.spin(diagramsTiles);
 			cancelPendingCall = false;
 			callInitiated = true;
@@ -11796,7 +11796,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		deselectTempCat();
 		tempDlgContent.scrollTop = 0;
-		diagramsTiles.innerHTML = '';
+		diagramsTiles.innerText = '';
 		diagramsListTitle.innerHTML = mxUtils.htmlEntities(mxResources.get('searchResults')) + 
 										' "' + mxUtils.htmlEntities(searchStr) + '"';
 		delayTimer = null;
@@ -12499,7 +12499,7 @@ AspectDialog.prototype.createPageItem = function(pageId, pageName, pageNode)
 		this.selectedItem = $listItem;
 		this.selectedPage = pageId;
 		$listItem.className += ' geAspectDlgListItemSelected';
-		this.layersContainer.innerHTML = '';
+		this.layersContainer.innerText = '';
 		this.selectedLayers = {};
 		this.okBtn.setAttribute('disabled', 'disabled');
 		

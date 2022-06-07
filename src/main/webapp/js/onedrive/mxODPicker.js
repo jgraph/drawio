@@ -371,12 +371,12 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		}
 		
 		prevDiv.style.background = 'transparent';
-		prevDiv.innerHTML = '';
+		prevDiv.innerText = '';
 		
 		function showRenderMsg(msg)
 		{
 			prevDiv.style.background = 'transparent';
-			prevDiv.innerHTML = '';	
+			prevDiv.innerText = '';	
 
 			var status = document.createElement('div');
 			status.className = 'odPreviewStatus';
@@ -442,7 +442,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		
 		if (bcDiv == null) return;
 		
-		bcDiv.innerHTML = '';
+		bcDiv.innerText = '';
 		
 		for (var i = 0; i < breadcrumb.length - 1; i++)
 		{
@@ -515,7 +515,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 
 		if (prevDiv != null)
 		{
-			prevDiv.innerHTML = '';
+			prevDiv.innerText = '';
 			prevDiv.style.top = '50%';
 		}
 
@@ -638,7 +638,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		}, 20000); //20 sec timeout
 		
 		var filesList = _$('.odFilesList');
-        filesList.innerHTML = '';
+        filesList.innerText = '';
         spinner.spin(filesList);
         
         var url;

@@ -500,7 +500,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 	var selectAtt = mxUtils.bind(this, function()
 	{
 		linkCounter = 0;
-		div.innerHTML = '';
+		div.innerText = '';
 		this.ui.spinner.spin(div, mxResources.get('loading'));
 		
 		var callback = mxUtils.bind(this, function()
@@ -565,7 +565,7 @@ TrelloClient.prototype.showTrelloDialog = function(showFiles, fn)
 		if (page == null)
 		{
 			linkCounter = 0;
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		

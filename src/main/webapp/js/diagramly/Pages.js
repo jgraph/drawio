@@ -1411,7 +1411,7 @@ EditorUi.prototype.updateTabContainer = function()
 			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage, i + 1));
 		}
 		
-		this.tabContainer.innerHTML = '';
+		this.tabContainer.innerText = '';
 		this.tabContainer.appendChild(wrapper);
 		
 		// Adds floating menu with all pages and insert option

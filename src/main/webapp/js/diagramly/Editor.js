@@ -5422,7 +5422,7 @@
 					picker.appendChild(btn);
 				});
 				
-				picker.innerHTML = '';
+				picker.innerText = '';
 				
 				for (var i = 0; i < colorsets.length; i++)
 				{
@@ -6056,7 +6056,7 @@
 	
 		function refreshTags(tags, selected)
 		{
-			tagCloud.innerHTML = '';
+			tagCloud.innerText = '';
 	
 			if (tags.length > 0)
 			{

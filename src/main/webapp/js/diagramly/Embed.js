@@ -150,7 +150,7 @@
 				}
 				
 				var xml = mxUtils.trim(child.innerHTML);
-				container.innerHTML = '';
+				container.innerText = '';
 
 				// Instance needed for decompress helper function
 				var graph = new Graph(container);

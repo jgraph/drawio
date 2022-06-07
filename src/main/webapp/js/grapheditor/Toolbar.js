@@ -267,7 +267,7 @@ Toolbar.prototype.setFontName = function(value)
 {
 	if (this.fontMenu != null)
 	{
-		this.fontMenu.innerHTML = '';
+		this.fontMenu.innerText = '';
 		var div = document.createElement('div');
 		div.style.display = 'inline-block';
 		div.style.overflow = 'hidden';
@@ -287,7 +287,7 @@ Toolbar.prototype.setFontSize = function(value)
 {
 	if (this.sizeMenu != null)
 	{
-		this.sizeMenu.innerHTML = '';
+		this.sizeMenu.innerText = '';
 		var div = document.createElement('div');
 		div.style.display = 'inline-block';
 		div.style.overflow = 'hidden';
@@ -432,7 +432,7 @@ Toolbar.prototype.createTextToolbar = function()
 	alignMenu.style.whiteSpace = 'nowrap';
 	alignMenu.style.overflow = 'hidden';
 	alignMenu.style.width = '30px';
-	alignMenu.innerHTML = '';
+	alignMenu.innerText = '';
 
 	var div = document.createElement('div');
 	div.className = 'geSprite geSprite-left';
@@ -477,7 +477,7 @@ Toolbar.prototype.createTextToolbar = function()
 	formatMenu.style.whiteSpace = 'nowrap';
 	formatMenu.style.overflow = 'hidden';
 	formatMenu.style.width = '30px';
-	formatMenu.innerHTML = '';
+	formatMenu.innerText = '';
 	
 	var div = document.createElement('div');
 	div.className = 'geSprite geSprite-dots';
@@ -531,7 +531,7 @@ Toolbar.prototype.createTextToolbar = function()
 	insertMenu.style.overflow = 'hidden';
 	insertMenu.style.position = 'relative';
 	insertMenu.style.width = '16px';
-	insertMenu.innerHTML = '';
+	insertMenu.innerText = '';
 
 	var div = document.createElement('div');
 	div.className = 'geSprite geSprite-plus';
@@ -762,7 +762,7 @@ Toolbar.prototype.createTextToolbar = function()
 	elt.style.whiteSpace = 'nowrap';
 	elt.style.overflow = 'hidden';
 	elt.style.width = '30px';
-	elt.innerHTML = '';
+	elt.innerText = '';
 
 	var div = document.createElement('div');
 	div.className = 'geSprite geSprite-table';

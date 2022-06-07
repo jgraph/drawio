@@ -661,7 +661,7 @@ EditorUi.initMinimalTheme = function()
 			var elt = this.userElement;
     		elt.style.cssText = 'position:relative;margin-right:4px;cursor:pointer;display:' + elt.style.display;
     		elt.className = 'geToolbarButton';
-    		elt.innerHTML = '';
+    		elt.innerText = '';
 			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
         	elt.style.backgroundPosition = 'center center';
         	elt.style.backgroundRepeat = 'no-repeat';
@@ -730,7 +730,7 @@ EditorUi.initMinimalTheme = function()
     		var elt = this.shareButton;
     		elt.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;margin-right:4px;cursor:pointer;';
     		elt.className = 'geToolbarButton';
-    		elt.innerHTML = '';
+    		elt.innerText = '';
 			elt.style.backgroundImage = 'url(' + Editor.shareImage + ')';
         	elt.style.backgroundPosition = 'center center';
         	elt.style.backgroundRepeat = 'no-repeat';
@@ -1829,7 +1829,7 @@ EditorUi.initMinimalTheme = function()
 				elt.style.backgroundRepeat = 'no-repeat';
 				elt.style.backgroundSize = '24px 24px';
 				elt.style.width = '34px';
-				elt.innerHTML = '';
+				elt.innerText = '';
 			}
 			else if (!small)
 			{
@@ -2398,7 +2398,7 @@ EditorUi.initMinimalTheme = function()
 
 			var initPicker = mxUtils.bind(this, function()
 			{
-				picker.innerHTML = '';
+				picker.innerText = '';
 				
 				if (!collapsed)
 				{
@@ -2514,7 +2514,7 @@ EditorUi.initMinimalTheme = function()
 				}
 				else
 				{				
-					picker.innerHTML = '';
+					picker.innerText = '';
 					picker.appendChild(foldImg);
 					mxUtils.setPrefixedStyle(picker.style, 'transform', 'translate(0, 0)');
 					picker.style.top = '';
@@ -2626,7 +2626,7 @@ EditorUi.initMinimalTheme = function()
 
 				function updatePageName()
 				{
-					pageMenu.innerHTML = '';
+					pageMenu.innerText = '';
 
 					if (ui.currentPage != null)
 					{
@@ -2778,7 +2778,7 @@ EditorUi.initMinimalTheme = function()
 
 				var updateZoom = mxUtils.bind(this, function()
 				{
-					elt.innerHTML = '';
+					elt.innerText = '';
 					mxUtils.write(elt, Math.round(ui.editor.graph.view.scale * 100) + '%');
 				});
 

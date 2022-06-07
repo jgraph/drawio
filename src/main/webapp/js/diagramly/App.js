@@ -274,7 +274,7 @@ App.TRELLO_URL = 'https://api.trello.com/1/client.js';
 /**
  * Trello JQuery dependency
  */
-App.TRELLO_JQUERY_URL = window.DRAWIO_BASE_URL + '/js/jquery/jquery-3.3.1.min.js';
+App.TRELLO_JQUERY_URL = window.DRAWIO_BASE_URL + '/js/jquery/jquery-3.6.0.min.js';
 
 /**
  * Specifies the key for the pusher project.
@@ -6418,7 +6418,7 @@ App.prototype.descriptorChanged = function()
 		if (this.fname != null)
 		{
 			this.fnameWrapper.style.display = 'block';
-			this.fname.innerHTML = '';
+			this.fname.innerText = '';
 			var filename = (file.getTitle() != null) ? file.getTitle() : this.defaultFilename;
 			mxUtils.write(this.fname, filename);
 			this.fname.setAttribute('title', filename + ' - ' + mxResources.get('rename'));
@@ -7136,7 +7136,7 @@ App.prototype.updateUserElement = function()
 				else
 				{
 					var connected = false;
-					this.userPanel.innerHTML = '';
+					this.userPanel.innerText = '';
 					
 					var img = document.createElement('img');
 
@@ -7693,7 +7693,7 @@ App.prototype.updateUserElement = function()
 		
 		if (user != null)
 		{
-			this.userElement.innerHTML = '';
+			this.userElement.innerText = '';
 			
 			if (screen.width > 560)
 			{

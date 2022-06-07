@@ -939,7 +939,7 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 		}
 	};
 	
-	elt2.firstChild.innerHTML = '';
+	elt2.firstChild.innerText = '';
 	
 	var titleOption = document.createElement('input');
 	titleOption.setAttribute('id', 'geTitleOption');

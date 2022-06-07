@@ -1007,7 +1007,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		
@@ -1147,7 +1147,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		
@@ -1249,7 +1249,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	{
 		if (page == null)
 		{
-			div.innerHTML = '';
+			div.innerText = '';
 			page = 1;
 		}
 		
