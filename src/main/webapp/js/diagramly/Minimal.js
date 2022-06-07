@@ -1531,6 +1531,13 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItem(menu, 'plugins', parent);
 				}
 			}
+			
+			if (EditorUi.isElectronApp)
+			{
+				ui.menus.addMenuItems(menu, ['-',
+					'spellCheck', 'autoBkp',
+					'drafts', '-'], parent);
+			}
 
 			var file = ui.getCurrentFile();
 			
