@@ -40,6 +40,7 @@ let enableSpellCheck = store.get('enableSpellCheck');
 enableSpellCheck = enableSpellCheck != null? enableSpellCheck : isMac;
 let enableStoreBkp = store.get('enableStoreBkp') != null? store.get('enableStoreBkp') : true;
 let dialogOpen = false;
+let enablePlugins = false;
 
 //Read config file
 var queryObj = {
@@ -104,8 +105,8 @@ function createWindow (opt = {})
 		width: parseInt(lastWinSize[0]),
 		height: parseInt(lastWinSize[1]),
 		icon: `${__dirname}/images/drawlogo256.png`,
-		webViewTag: false,
-		'web-security': true,
+		webviewTag: false,
+		webSecurity: true,
 		webPreferences: {
 			preload: `${__dirname}/electron-preload.js`,
 			spellcheck: enableSpellCheck,
@@ -241,7 +242,22 @@ app.on('ready', e =>
 {
 	ipcMain.on('newfile', (event, arg) =>
 	{
-		createWindow(arg)
+		let opts = {};
+
+		if (arg)
+		{
+			if (arg.width)
+			{
+				opts.width = arg.width;
+			}
+
+			if (arg.height)
+			{
+				opts.height = arg.height;
+			}
+		}
+
+		createWindow(opts);
 	})
 	
     let argv = process.argv
@@ -299,6 +315,8 @@ app.on('ready', e =>
 				'selects a page range (for PDF format only)', argsRange)
 			.option('-u, --uncompressed',
 				'Uncompressed XML output (for XML format only)')
+			.option('--enable-plugins',
+				'Enable Plugins')
 	        .parse(argv)
 	}
 	catch(e)
@@ -308,7 +326,8 @@ app.on('ready', e =>
 	}
 	
 	var options = program.opts();
-	
+	enablePlugins = options.enablePlugins;
+
     //Start export mode?
     if (options.export)
 	{
@@ -2044,6 +2063,8 @@ async function showSaveDialog(defaultPath, filters)
 
 async function installPlugin(filePath)
 {
+	if (!enablePlugins) return {};
+
 	var pluginsDir = path.join(getAppDataFolder(), '/plugins');
 	
 	if (!fs.existsSync(pluginsDir))
@@ -2066,13 +2087,28 @@ async function installPlugin(filePath)
 	return {pluginName: pluginName, selDir: path.dirname(filePath)};
 }
 
+function getPluginFile(plugin)
+{
+	if (!enablePlugins) return null;
+	
+	const prefix = path.join(getAppDataFolder(), '/plugins/');
+	const pluginFile = path.join(prefix, plugin);
+	        	
+	if (pluginFile.startsWith(prefix) && fs.existsSync(pluginFile))
+	{
+		return pluginFile;
+	}
+
+	return null;
+}
+
 function uninstallPlugin(plugin)
 {
-	var pluginsFile = path.join(getAppDataFolder(), '/plugins', plugin);
+	const pluginFile = getPluginFile(plugin);
 	        	
-	if (fs.existsSync(pluginsFile))
+	if (pluginFile != null)
 	{
-		fs.unlinkSync(pluginsFile);
+		fs.unlinkSync(pluginFile);
 	}
 }
 
@@ -2240,9 +2276,6 @@ ipcMain.on("rendererReq", async (event, args) =>
 		case 'getFileDrafts':
 			ret = await getFileDrafts(args.fileObject);
 			break;
-		case 'getAppDataFolder':
-			ret = await getAppDataFolder();
-			break;
 		case 'getDocumentsFolder':
 			ret = await getDocumentsFolder();
 			break;
@@ -2264,6 +2297,12 @@ ipcMain.on("rendererReq", async (event, args) =>
 			break;
 		case 'uninstallPlugin':
 			ret = await uninstallPlugin(args.plugin);
+			break;
+		case 'getPluginFile':
+			ret = await getPluginFile(args.plugin);
+			break;
+		case 'isPluginsEnabled':
+			ret = enablePlugins;
 			break;
 		case 'dirname':
 			ret = await dirname(args.path);

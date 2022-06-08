@@ -1,3 +1,10 @@
+08-JUN-2022: 19.0.3
+
+- Adds allowlist for allowed constructors in mxCodec
+- Fixes possible NPE with no local storage [2850]
+- Handles service worker permission error in promise
+- Adds fixedWidth to limit autosize to height [2732]
+
 07-JUN-2022: 19.0.2
 
 - Fixes isNode check, handling of HTML in node names

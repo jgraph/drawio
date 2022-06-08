@@ -506,7 +506,6 @@
         			{val: 'centerPerimeter', dispName: 'Center'}]
         },
         {name: 'fixDash', dispName: 'Fixed Dash', type: 'bool', defVal: false},
-        {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
         {name: 'container', dispName: 'Container', type: 'bool', defVal: false, isVisible: function(state, format)
         {
     		return state.vertices.length == 1 && state.edges.length == 0;
@@ -555,6 +554,8 @@
     		
     		return geo != null && !geo.relative;
         }},
+        {name: 'autosize', dispName: 'Autosize', type: 'bool', defVal: false},
+        {name: 'fixedWidth', dispName: 'Fixed Width', type: 'bool', defVal: false},
         {name: 'resizable', dispName: 'Resizable', type: 'bool', defVal: true},
         {name: 'resizeWidth', dispName: 'Resize Width', type: 'bool', defVal: false},
         {name: 'resizeHeight', dispName: 'Resize Height', type: 'bool', defVal: false},

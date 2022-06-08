@@ -288,11 +288,14 @@ EditorUi.initMinimalTheme = function()
 	
 				ui.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
 				ui.sidebarWindow.window.setVisible(true);
-				
-				ui.getLocalData('sidebar', function(value)
+
+				if (isLocalStorage)
 				{
-					ui.sidebar.showEntries(value, null, true);
-				});
+					ui.getLocalData('sidebar', function(value)
+					{
+						ui.sidebar.showEntries(value, null, true);
+					});
+				}
 				
 				ui.restoreLibraries();
 			}

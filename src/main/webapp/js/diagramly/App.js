@@ -563,7 +563,7 @@ App.getStoredMode = function()
 /**
  * Clears the PWA cache.
  */
-App.clearServiceWorker = function(success)
+App.clearServiceWorker = function(success, error)
 {
 	navigator.serviceWorker.getRegistrations().then(function(registrations)
 	{
@@ -578,6 +578,12 @@ App.clearServiceWorker = function(success)
 			{
 				success();
 			}
+		}
+	})['catch'](function()
+	{
+		if (error != null)
+		{
+			error();
 		}
 	});
 };
