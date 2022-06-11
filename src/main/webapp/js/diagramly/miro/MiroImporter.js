@@ -214,6 +214,7 @@ function MiroImporter()
 
         try
         {
+            var scale = obj.scale? (obj.scale.scale || 1) : 1;
             var styleMap = JSON.parse(obj.style);
 
             for (var key in styleMap)
@@ -229,7 +230,7 @@ function MiroImporter()
                         style['fillColor'] = colorNum2Hex(val);
                         break;
                     case 'fs': //Font Size
-                        style['fontSize'] = val || 48; //TODO support auto font size (0)
+                        style['fontSize'] = (val || 48) * scale; //TODO support auto font size (0)
                         break;
                     case 'fsc': //Font Color?
                         break;
@@ -266,7 +267,7 @@ function MiroImporter()
                         break;
                     case 'brw': //Stroke width
                     case 't': //Edge Thickness
-                        style['strokeWidth'] = val;
+                        style['strokeWidth'] = val * scale;
                         break;
                     case 'brc': //Stroke Color
                     case 'lc': //Edge Line Color
@@ -372,7 +373,7 @@ function MiroImporter()
             var scale = obj.scale.scale, //TODO Check this is the correct use of the scale
             w = obj.size.width, h = obj.size.height, 
             x = obj.position.x, y = obj.position.y;
-            var vertex = new mxCell(obj.text, new mxGeometry((x - w / 2) * scale, (y - h / 2) * scale,
+            var vertex = new mxCell(obj.text, new mxGeometry((x - w / 2 * scale), (y - h / 2 * scale),
                                 w * scale, h * scale), '');
 
             if (typeof style == 'function')

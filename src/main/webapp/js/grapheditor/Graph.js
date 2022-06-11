@@ -164,7 +164,10 @@ mxConstants.SHADOWCOLOR = '#000000';
 mxConstants.VML_SHADOWCOLOR = '#d0d0d0';
 
 mxCodec.allowlist = ['mxStylesheet', 'Array', 'mxGraphModel',
-	'mxCell', 'mxGeometry', 'mxRectangle', 'mxPoint'];
+	'mxCell', 'mxGeometry', 'mxRectangle', 'mxPoint',
+	'mxChildChange', 'mxRootChange', 'mxTerminalChange',
+	'mxValueChange', 'mxStyleChange', 'mxGeometryChange',
+	'mxCollapseChange', 'mxVisibleChange', 'mxCellAttributeChange'];
 mxGraph.prototype.pageBreakColor = '#c0c0c0';
 mxGraph.prototype.pageScale = 1;
 

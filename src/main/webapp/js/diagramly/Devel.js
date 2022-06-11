@@ -34,22 +34,14 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			'; ';
 
 		var styleHashes = '\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
-			'\'sha256-3qaXuhL5i6KOreQtB0j5WOoUPb+vctEKKRcY1hGLenk=\' ' + // Minimal.js/Light
+			'\'sha256-n7MQa9ugStEzmwW3N23DAsRjWYRO3S9iffzNWjwLZc4=\' ' + // Minimal.js/Light
 			'\'sha256-ZK1F2paY4WDLYRp1tMs3Ryv4k3NYaqRXyWmk1o5KXzI=\' ' + // Minimal.js/Dark
 			'\'sha256-7kY8ozVqKLIIBwZ24dhdmZkM26PsOlZmEi72RhmZKoM=\' ' + // mxTooltipHandler.js
-			'\'sha256-01chdey79TzZe4ihnvvUXXI5y8MklIcKH+vzDdQvsuU=\' ' + // Editor.js/mathJaxWebkitCss
-			'\'sha256-fGbXK7EYpvNRPca81zPnqJHi2y+34KSgAcZv8mhaSzI=\' ' + // MathJax.js
-			'\'sha256-3hENQqEWUBxdkmJp2kQ2+G0F8NVGzFAVkW5vWDo7ONk=\' ' + // MathJax.js
-			'\'sha256-Z4u/cxrZPHjN20CIXZHTKr+VlqVxrWG8cbbeC2zmPqI=\' ' + // MathJax.js
-			'\'sha256-LDMABiyg2T48kuAV9ouqNCSEqf2OkUdlZK9D9CeZHBs=\' ' + // MathJax.js
-			'\'sha256-XQfwbaSNgLzro3IzkwT0uZLAiBvZzajo0QZx7oW158E=\' ' + // MathJax.js
-			'\'sha256-++XCePvZXKdegIqkwtbudr16Jx87KFh4t/t7UxsbHpw=\' ' + // MathJax.js
-			'\'sha256-v9NOL6IswMbY7zpRZjxkYujhuGRVvZtp1c1MfdnToB4=\' ' + // MathJax.js
-			'\'sha256-5xtuTr9UuyJoTQ76CNLzvSJjS7onwfq73B2rLWCl3aE=\' ' + // MathJax.js
-			'\'sha256-W21B506Ri8aGW3T87iawssPz71NvvbYZfBfzDbBSArU=\' ' + // MathJax.js
+			'\'sha256-kuk5TvxZ/Kwuobo4g6uasb1xRQwr1+nfa1A3YGePO7U=\' ' + // MathJax
+			'\'sha256-ByOXYIXIkfNC3flUR/HoxR4Ak0pjOEF1q8XmtuIa6po=\' ' + // purify.min.js
 			'\'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=\' ' + // spin.min.js
 			'\'sha256-nzHi23DROym7G011m6y0DyDd9mvQL2hSJ0Gy3g2T/5Q=\' ' + // dropins.js
-			'\'sha256-76P1PZLzT12kfw2hkrLn5vu/cWZgcOYuSYU3RT3rXKA=\' ' + // gapi
+			'\'sha256-xjAW8oXqJlP0CWqxT9s80kgOtOjvENMmfnnfulL6p1A=\' ' + // gapi
 			'\'unsafe-hashes\'; '; // Required for hashes for style attribute
 		
 		var directives = 'connect-src %connect-src% \'self\' https://*.draw.io https://*.diagrams.net ' +

@@ -4,7 +4,7 @@ var GOOGLE_APPS_MAX_AREA = 25000000;
 var GOOGLE_SHEET_MAX_AREA = 1048576; //1024x1024
 
 //TODO Add support for loading math from a local folder
-Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/MathJax.js');
+Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/startup.js');
 
 function render(data)
 {
@@ -299,29 +299,11 @@ function render(data)
 		}
 	};
 	
-	// Waits for MathJax.Hub to become available to register
-	// wait counter callback asynchronously after math render
-	var editorDoMathJaxRender = Editor.doMathJaxRender;
-	
-	Editor.doMathJaxRender = function(container)
-	{
-		editorDoMathJaxRender.apply(this, arguments);
-		
-		window.setTimeout(function()
-		{
-			window.MathJax.Hub.Queue(function ()
-			{
-				decrementWaitCounter();
-			});
-		}, 0);
-	};
-	
-	// Adds async MathJax rendering task
+	// Adds MathJax rendering task
 	function renderMath(elt)
 	{
 		if (math && Editor.MathJaxRender != null)
 		{
-			waitCounter++;
 			Editor.MathJaxRender(elt);
 		}
 	};

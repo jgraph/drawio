@@ -2196,14 +2196,6 @@
 	Editor.prototype.timeout = 25000;
 	
 	/**
-	 * Mathjax output ignores CSS transforms in Safari (lightbox and normal mode).
-	 * Check the following test case on page 2 before enabling this in production:
-	 * https://devhost.jgraph.com/git/drawio/etc/embed/sf-math-fo-clipping.html?dev=1
-	 * UPDATE: Fixed via position:static CSS override in initMath.
-	 */
-	Editor.prototype.useForeignObjectForMath = true;
-
-	/**
 	 * Executes the first step for connecting to Google Drive.
 	 */
 	Editor.prototype.editButtonLink = (urlParams['edit'] != null) ? decodeURIComponent(urlParams['edit']) : null;
@@ -2276,9 +2268,6 @@
 				{
 					this.graph.setBackgroundImage(null);
 				}
-				
-				mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath)) ?
-					true : this.originalNoForeignObject;
 				
 				this.graph.useCssTransforms = !mxClient.NO_FO &&
 					this.isChromelessView() &&
@@ -2423,8 +2412,6 @@
 		this.graph.mathEnabled = (urlParams['math'] == '1');
 		this.graph.view.x0 = null;
 		this.graph.view.y0 = null;
-		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath)) ?
-			true : this.originalNoForeignObject;
 		
 		this.graph.useCssTransforms = !mxClient.NO_FO &&
 			this.isChromelessView() &&
@@ -2441,8 +2428,6 @@
 	Editor.prototype.updateGraphComponents = function()
 	{
 		editorUpdateGraphComponents.apply(this, arguments);
-		mxClient.NO_FO = ((this.graph.mathEnabled && !this.useForeignObjectForMath) &&
-			Editor.MathJaxRender != null) ? true : this.originalNoForeignObject;
 		
 		this.graph.useCssTransforms = !mxClient.NO_FO &&
 			this.isChromelessView() &&
@@ -2451,82 +2436,65 @@
 	};
 	
 	/**
-	 * Overrides relative position to fix clipping bug in Webkit.
-	 */
-	Editor.mathJaxWebkitCss = 'div.MathJax_SVG_Display { position: static; }\n' +
-		'span.MathJax_SVG { position: static !important; }';
-		
-	/**
 	 * Initializes math typesetting and loads respective code.
 	 */
 	Editor.initMath = function(src, config)
 	{
-		if (typeof(window.MathJax) === 'undefined')
+		if (typeof window.MathJax === 'undefined')
 		{
-			src = ((src != null) ? src : DRAW_MATH_URL + '/MathJax.js') + '?config=TeX-MML-AM_' +
-				((urlParams['math-output'] == 'html') ? 'HTMLorMML' : 'SVG') + '-full,Safe';
+			src = (src != null) ? src : DRAW_MATH_URL + '/startup.js';
 			Editor.mathJaxQueue = [];
-
+			
 			Editor.doMathJaxRender = function(container)
 			{
-				window.setTimeout(function()
+				try
 				{
-					if (container.style.visibility != 'hidden')
+					MathJax.typesetClear([container]);
+					MathJax.typeset([container]);
+				}
+				catch (e)
+				{
+					MathJax.typesetClear([container]);
+
+					if (e.retry != null)
 					{
-						MathJax.Hub.Queue(['Typeset', MathJax.Hub, container]);
+						// Experimental support for retry after autoload
+						e.retry.then(function()
+						{
+							MathJax.typeset([container]);
+						});
 					}
-				}, 0);
-			};
-			
-			var font = (urlParams['math-font'] != null) ?
-				decodeURIComponent(urlParams['math-font']) : 'TeX';
-			
-			config = (config != null) ? config :
-			{
-				'HTML-CSS': {
-					availableFonts: [font],
-					imageFont: null
-				},
-				SVG: {
-					font: font,
-					// Needed for client-side export to work
-					useFontCache: false
-				},
-				// Ignores math in in-place editor
-				tex2jax: {
-					ignoreClass: 'mxCellEditor'
-				},
-				asciimath2jax: {
-					ignoreClass: 'mxCellEditor'
+					else if (window.console != null)
+					{
+						console.log('Error in MathJax: ' + e.toString());
+					}
 				}
 			};
-
-			// Disables global typesetting and messages on startup, adds queue for
-			// asynchronous rendering while MathJax is loading
-			window.MathJax =
+			
+			window.MathJax = (config != null) ? config :
 			{
-				skipStartupTypeset: true,
-				showMathMenu: false,
-				messageStyle: 'none',
-				AuthorInit: function ()
+				loader:
 				{
-					MathJax.Hub.Config(config);
-					
-					MathJax.Hub.Register.StartupHook('Begin', function()	
-					{	
+					load: [(urlParams['math-output'] == 'html') ?
+						'output/chtml' : 'output/svg', 'input/tex',
+						'input/asciimath']
+				},
+				startup:
+				{
+					pageReady: function()
+					{
 						for (var i = 0; i < Editor.mathJaxQueue.length; i++)	
 						{	
 							Editor.doMathJaxRender(Editor.mathJaxQueue[i]);	
-						}	
-					});
+						}
+					}
 				}
 			};
 
 			// Adds global enqueue method for async rendering
 			Editor.MathJaxRender = function(container)
 			{
-				// Initial rendering when MathJax finished loading
-				if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+				if (typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function')
 				{
 					Editor.doMathJaxRender(container);
 				}
@@ -2548,14 +2516,18 @@
 			Editor.prototype.init = function()
 			{
 				editorInit.apply(this, arguments);
-				
-				this.graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+
+				var renderMath = mxUtils.bind(this, function(sender, evt)
 				{
-					if (this.graph.container != null && this.graph.mathEnabled && !this.graph.blockMathRender)
+					if (this.graph.container != null && this.graph.mathEnabled &&
+						!this.graph.blockMathRender)
 					{
 						Editor.MathJaxRender(this.graph.container);
 					}
-				}));
+				});
+				
+				this.graph.model.addListener(mxEvent.CHANGE, renderMath);
+				this.graph.addListener(mxEvent.REFRESH, renderMath);
 			};
 			
 			var tags = document.getElementsByTagName('script');
@@ -2566,22 +2538,6 @@
 				s.setAttribute('type', 'text/javascript');
 				s.setAttribute('src', src);
 				tags[0].parentNode.appendChild(s);
-			}
-			
-			// Workaround for zoomed math clipping in Webkit
-			try
-			{
-				if (mxClient.IS_GC || mxClient.IS_SF)
-				{
-					var style = document.createElement('style')
-					style.type = 'text/css';
-					style.innerHTML = Editor.mathJaxWebkitCss;
-					document.getElementsByTagName('head')[0].appendChild(style);
-				}
-			}
-			catch (e)
-			{
-				// ignore
 			}
 		}
 	};
@@ -6531,6 +6487,14 @@
 			style.appendChild(svgDoc.createTextNode(prefix + postfix));
 			result.getElementsByTagName('defs')[0].appendChild(style);
 		}
+
+		// SVG element must be added to DOM for MathJax to work
+		if (this.mathEnabled)
+		{
+			document.body.appendChild(result);
+			Editor.MathJaxRender(result);
+			result.parentNode.removeChild(result);
+		}
 		
 		if (temp != null)
 		{
@@ -6543,61 +6507,6 @@
 		return result;
 	};
 	
-	/**
-	 * Overridden to support client-side math typesetting.
-	 */
-	var graphCreateSvgImageExport = Graph.prototype.createSvgImageExport;
-	
-	Graph.prototype.createSvgImageExport = function()
-	{
-		var imgExport = graphCreateSvgImageExport.apply(this, arguments);
-		
-		if (this.mathEnabled)
-		{
-			var drawText = imgExport.drawText;
-			
-			// Replaces input with rendered markup
-			imgExport.drawText = function(state, c)
-			{
-				if (state.text != null && state.text.value != null && state.text.checkBounds() &&
-					(mxUtils.isNode(state.text.value) || state.text.dialect == mxConstants.DIALECT_STRICTHTML))
-				{
-					var clone = state.text.getContentNode();
-					
-					if (clone != null)
-					{
-						clone = clone.cloneNode(true);
-						
-						// Removes duplicate math output
-						if (clone.getElementsByTagNameNS)
-						{
-							var ele = clone.getElementsByTagNameNS('http://www.w3.org/1998/Math/MathML', 'math');
-							
-							while (ele.length > 0)
-							{
-								ele[0].parentNode.removeChild(ele[0]);
-							}
-						}
-						
-						if (clone.innerHTML != null)
-						{
-							var prev = state.text.value;
-							state.text.value = clone.innerHTML;
-							drawText.apply(this, arguments);
-							state.text.value = prev;
-						}
-					}
-				}
-				else
-				{
-					drawText.apply(this, arguments);
-				}
-			};
-		}
-		
-		return imgExport;
-	};
-
 	/**
 	 * Overridden to destroy the shape number.
 	 */
@@ -8348,24 +8257,6 @@
 					{
 						writeHead.apply(this, arguments);
 						
-						// Workaround for zoomed math clipping in Webkit
-						if (mxClient.IS_GC || mxClient.IS_SF)
-						{
-							doc.writeln('<style type="text/css">');
-							doc.writeln(Editor.mathJaxWebkitCss);
-							doc.writeln('</style>');
-						}
-
-						// Fixes font weight for PDF export in Chrome
-						if (mxClient.IS_GC)
-						{
-							doc.writeln('<style type="text/css">');
-							doc.writeln('@media print {');
-							doc.writeln('span.MathJax_SVG svg { shape-rendering: crispEdges; }');
-							doc.writeln('}');
-							doc.writeln('</style>');
-						}
-
 						if (editorUi.editor.fontCss != null)
 						{
 							doc.writeln('<style type="text/css">');
@@ -8405,8 +8296,6 @@
 						pv.renderPage = function(w, h, dx, dy, content, pageNumber)
 						{
 							var prev = mxClient.NO_FO;
-							mxClient.NO_FO = (this.graph.mathEnabled && !editorUi.editor.useForeignObjectForMath) ?
-								true : editorUi.editor.originalNoForeignObject;
 							var result = printPreviewRenderPage.apply(this, arguments);
 							mxClient.NO_FO = prev;
 							
@@ -8868,17 +8757,17 @@
 
         if (obj.foldingEnabled != null)
         {
-        		obj.foldingEnabled = !obj.foldingEnabled;
+        	obj.foldingEnabled = !obj.foldingEnabled;
         }
        
         if (obj.mathEnabled != null)
         {
-        		obj.mathEnabled = !obj.mathEnabled;
+        	obj.mathEnabled = !obj.mathEnabled;
         }
         
         if (obj.shadowVisible != null)
         {
-        		obj.shadowVisible = !obj.shadowVisible;
+        	obj.shadowVisible = !obj.shadowVisible;
         }
         
 		return obj;

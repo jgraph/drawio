@@ -4729,12 +4729,14 @@
 			}
 			else
 			{
-				if (mimeType == 'image/svg+xml')
+				if (mimeType == 'image/svg+xml' && !this.editor.graph.mathEnabled)
 				{
+					// KNOWN: Double escape and MathJax preview broken
 					win.document.write('<html>'+ data + '</html>');
 				}
 				else
 				{
+					// KNOWN: External fonts only work with data URIs
 					var temp = (base64Encoded) ? data : btoa(unescape(encodeURIComponent(data)));
 				
 					win.document.write('<html><img style="max-width:100%;" src="data:' +
@@ -5200,11 +5202,12 @@
 		    		}
 		    		else
 		    		{
-		    			this.handleError({message: mxResources.get('drawingTooLarge')}, mxResources.get('error'), mxUtils.bind(this, function()
-		    			{
-		    				mxUtils.popup(svg);
-		    			}));
-		    		}
+		    			this.handleError({message: mxResources.get('drawingTooLarge')},
+							mxResources.get('error'), mxUtils.bind(this, function()
+						{
+							mxUtils.popup(svg);
+						}));
+				}
 				});
 	
 				var doSave = mxUtils.bind(this, function(svgRoot)
@@ -12612,23 +12615,9 @@
 										ignoreChange = true;
 										this.setFileData(xml);
 										ignoreChange = false;
+									}
 
-										if (this.editor.graph.mathEnabled)
-										{
-											window.setTimeout(function()
-											{
-												window.MathJax.Hub.Queue(graphReady);
-											}, 0);
-										}
-										else
-										{
-											graphReady();
-										}
-									}
-									else
-									{
-										graphReady();
-									}
+									graphReady();
 								}
 								else
 								{
@@ -13619,7 +13608,7 @@
 						graph.setAttributeForCell(newCell, 'placeholders', '1');
 						newCell.style = graph.replacePlaceholders(newCell, newCell.style, vars);
 
-						if (cell != null)
+						if (cell != null && !ignoreCell)
 						{
 							graph.model.setStyle(cell, newCell.style);
 

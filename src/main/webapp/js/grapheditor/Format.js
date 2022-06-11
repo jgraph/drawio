@@ -119,7 +119,7 @@ Format.prototype.init = function()
 	editor.addListener('autosaveChanged', this.update);
 	graph.addListener(mxEvent.ROOT, this.update);
 	ui.addListener('styleChanged', this.update);
-	
+
 	this.refresh();
 };
 
@@ -3807,7 +3807,19 @@ TextFormatPanel.prototype.addFont = function(container)
 			'linear-gradient(rgb(0 161 241) 0px, rgb(0, 97, 146) 100%)':
 			'linear-gradient(#c5ecff 0px,#87d4fb 100%)') : '';
 	};
-	
+
+	// Updates font style state before typing
+	for (var i = 0; i < 3; i++)
+	{
+		(function(index)
+		{
+			mxEvent.addListener(fontStyleItems[index], 'click', function()
+			{
+				setSelected(fontStyleItems[index], fontStyleItems[index].style.backgroundImage == '');
+			});
+		})(i);
+	}
+
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
 		ss = ui.getSelectionState();

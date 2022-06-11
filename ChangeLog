@@ -1,3 +1,9 @@
+11-JUN-2022: 20.0.0
+
+- Fixes font style button state before typing [2398]
+- Fixes overwritten style for new cell in CSV import
+- Updates to MathJax 3
+
 08-JUN-2022: 19.0.3
 
 - Adds allowlist for allowed constructors in mxCodec

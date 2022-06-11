@@ -492,24 +492,9 @@ EditorUi.prototype.initPages = function()
 				this.actions.layersWindow.refreshLayers();
 			}
 			
-			// Workaround for math if tab is switched before typesetting has stopped
-			if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
-			{
-				// Pending math should not be rendered if the graph has no math enabled
-				if (MathJax.Hub.queue.pending == 1 && this.editor != null && !this.editor.graph.mathEnabled)
-				{
-					// Since there is no way to stop/undo mathjax or
-					// clear the queue we have to refresh after typeset
-					MathJax.Hub.Queue(mxUtils.bind(this, function()
-					{
-						if (this.editor != null)
-						{
-							this.editor.graph.refresh();
-						}
-					}));
-				}
-			}
-			else if (typeof(Editor.MathJaxClear) !== 'undefined' && (this.editor == null || !this.editor.graph.mathEnabled))
+			if (typeof Editor.MathJaxClear !== 'undefined' &&
+				(!this.editor.graph.mathEnabled ||
+				this.editor == null))
 			{
 				// Clears our own queue for async loading
 				Editor.MathJaxClear();
@@ -1550,6 +1535,21 @@ EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
 };
 
 /**
+ * Returns a shortened page name.
+ */
+EditorUi.prototype.getShortPageName = function(page)
+{
+	var short = page.getName();
+
+	if (short.length > 36)
+	{
+		short = short.substring(0, 34) + '...';
+	}
+
+	return short;
+};
+
+/**
  * Returns true if the given string contains an mxfile.
  */
 EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
@@ -1579,7 +1579,8 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 				{
 					(mxUtils.bind(this, function(index)
 					{
-						var item = menu.addItem(this.pages[index].getName(), null, mxUtils.bind(this, function()
+						var item = menu.addItem(this.getShortPageName(this.pages[index]),
+							null, mxUtils.bind(this, function()
 						{
 							this.selectPage(this.pages[index]);
 						}), parent);
@@ -1624,7 +1625,7 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 				if (page != null)
 				{
 					menu.addSeparator(parent);
-					var pageName = page.getName();
+					var pageName = this.getShortPageName(page);
 	
 					menu.addItem(mxResources.get('removeIt', [pageName]), null, mxUtils.bind(this, function()
 					{

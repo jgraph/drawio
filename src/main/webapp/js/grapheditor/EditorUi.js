@@ -5473,7 +5473,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			((!this.isControlDown(evt) || mxEvent.isShiftDown(evt) ||
 			(evt.keyCode != 90 && evt.keyCode != 89 && evt.keyCode != 188 &&
 			evt.keyCode != 190 && evt.keyCode != 85)) && ((evt.keyCode != 66 && evt.keyCode != 73) ||
-			!this.isControlDown(evt) ||  (this.graph.cellEditor.isContentEditing() &&
+			!this.isControlDown(evt) || (this.graph.cellEditor.isContentEditing() &&
 			!mxClient.IS_FF && !mxClient.IS_SF)) && isEventIgnored.apply(this, arguments));
 	};
 	

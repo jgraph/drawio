@@ -5816,7 +5816,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 
 	if (Editor.MathJaxRender)
 	{
-		graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+		graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 		{
 			// LATER: Math support is used if current graph has math enabled
 			// should use switch from history instead but requires setting the
@@ -6658,7 +6658,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	// TODO: Enable per-page math
 //	if (Editor.MathJaxRender)
 //	{
-//		graph.addListener(mxEvent.SIZE, mxUtils.bind(this, function(sender, evt)
+//		graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
 //		{
 //			// LATER: Math support is used if current graph has math enabled
 //			// should use switch from history instead but requires setting the

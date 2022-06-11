@@ -1,6 +1,6 @@
 window.PLUGINS_BASE_PATH = '.';
 window.TEMPLATE_PATH = 'templates';
-window.DRAW_MATH_URL = 'math';
+window.DRAW_MATH_URL = 'math/es5';
 window.DRAWIO_BASE_URL = '.'; //Prevent access to online website since it is not allowed
 FeedbackDialog.feedbackUrl = 'https://log.draw.io/email';
 EditorUi.draftSaveDelay = 5000;
