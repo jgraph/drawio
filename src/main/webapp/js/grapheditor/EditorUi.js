@@ -100,6 +100,8 @@ EditorUi = function(editor, container, lightbox)
 		// Styles to be ignored if applyAll is false
 		var ignoredEdgeStyles = ['curved', 'sourcePerimeterSpacing', 'targetPerimeterSpacing',
 			'startArrow', 'startFill', 'startSize', 'endArrow', 'endFill', 'endSize'];
+		var vertexStyleIgnored = false;
+		var edgeStyleIgnored = false;
 		
 		// Note: Everything that is not in styles is ignored (styles is augmented below)
 		this.setDefaultStyle = function(cell)
@@ -129,6 +131,15 @@ EditorUi = function(editor, container, lightbox)
 				this.fireEvent(new mxEventObject('styleChanged',
 					'keys', keys, 'values', values,
 					'cells', [cell]));
+				
+				if (graph.getModel().isEdge(cell))
+				{
+					edgeStyleIgnored = true;
+				}
+				else
+				{
+					vertexStyleIgnored = true;
+				}
 			}
 			catch (e)
 			{
@@ -140,6 +151,8 @@ EditorUi = function(editor, container, lightbox)
 		{
 			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
 			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+			edgeStyleIgnored = false;
+			vertexStyleIgnored = false;
 			
 			// Updates UI
 			this.fireEvent(new mxEventObject('styleChanged', 'keys', [], 'values', [], 'cells', []));
@@ -732,6 +745,9 @@ EditorUi = function(editor, container, lightbox)
 				vertex = true;
 				edge = true;
 			}
+
+			vertex = vertex && !vertexStyleIgnored;
+			edge = edge && !edgeStyleIgnored;
 			
 			var keys = evt.getProperty('keys');
 			var values = evt.getProperty('values');

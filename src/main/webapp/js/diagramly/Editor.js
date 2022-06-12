@@ -2440,7 +2440,7 @@
 	 */
 	Editor.initMath = function(src, config)
 	{
-		if (typeof window.MathJax === 'undefined')
+		if (typeof window.MathJax === 'undefined' && !mxClient.IS_IE && !mxClient.IS_IE11)
 		{
 			src = (src != null) ? src : DRAW_MATH_URL + '/startup.js';
 			Editor.mathJaxQueue = [];
@@ -2451,6 +2451,7 @@
 				{
 					MathJax.typesetClear([container]);
 					MathJax.typeset([container]);
+					Editor.onMathJaxDone();
 				}
 				catch (e)
 				{
@@ -2461,7 +2462,7 @@
 						// Experimental support for retry after autoload
 						e.retry.then(function()
 						{
-							MathJax.typeset([container]);
+							MathJax.typesetPromise([container]).then(Editor.onMathJaxDone);
 						});
 					}
 					else if (window.console != null)
@@ -2510,6 +2511,12 @@
 				Editor.mathJaxQueue = [];
 			};
 			
+			// Adds global MathJax render callback
+			Editor.onMathJaxDone = function()
+			{
+				// Hook for listeners
+			};
+
 			// Updates math typesetting after changes
 			var editorInit = Editor.prototype.init;
 			
@@ -8257,6 +8264,16 @@
 					{
 						writeHead.apply(this, arguments);
 						
+						// Fixes bold math when exported to PDF
+						if (mxClient.IS_GC)
+						{
+							doc.writeln('<style type="text/css">');
+							doc.writeln('@media print {');
+							doc.writeln('.MathJax svg { shape-rendering: crispEdges; }');
+							doc.writeln('}');
+							doc.writeln('</style>');
+						}
+
 						if (editorUi.editor.fontCss != null)
 						{
 							doc.writeln('<style type="text/css">');

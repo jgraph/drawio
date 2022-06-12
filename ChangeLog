@@ -1,3 +1,10 @@
+12-JUN-2022: 20.0.1
+
+- Fixes bold math in print output for Chrome [2873]
+- Disables MathJax for Internet Explorer
+- Adds MathJax callback, fixes math in PDF export
+- Fixes style changes override default style [2164]
+
 11-JUN-2022: 20.0.0
 
 - Fixes font style button state before typing [2398]

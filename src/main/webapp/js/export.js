@@ -299,11 +299,21 @@ function render(data)
 		}
 	};
 	
+	// Waits for MathJax autoloading and rendering
+	var editorOnMathJaxDone = Editor.onMathJaxDone;
+	
+	Editor.onMathJaxDone = function()
+	{
+		editorOnMathJaxDone.apply(this, arguments);
+		decrementWaitCounter();
+	};
+
 	// Adds MathJax rendering task
 	function renderMath(elt)
 	{
 		if (math && Editor.MathJaxRender != null)
 		{
+			waitCounter++;
 			Editor.MathJaxRender(elt);
 		}
 	};
