@@ -85,12 +85,6 @@ public class ProxyServlet extends HttpServlet
 				// Workaround for 451 response from Iconfinder CDN
 				connection.setRequestProperty("User-Agent", "draw.io");
 				
-				//Forward auth header
-				if (auth  !=  null)
-				{
-					connection.setRequestProperty("Authorization", auth);
-				}
-
 				if (dom != null && dom.length() > 0)
 				{
 					response.addHeader("Access-Control-Allow-Origin", dom);
