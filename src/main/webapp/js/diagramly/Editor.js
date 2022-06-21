@@ -2459,7 +2459,6 @@
 
 					if (e.retry != null)
 					{
-						// Experimental support for retry after autoload
 						e.retry.then(function()
 						{
 							MathJax.typesetPromise([container]).then(Editor.onMathJaxDone);

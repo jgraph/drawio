@@ -456,8 +456,11 @@
 	</target>
 
 	<target name="atlas" depends="app">
-		<copy file="${basedir}/base-viewer.min.js" tofile="${war.dir}/js/atlas-viewer.min.js" overwrite="true"/>
-		
+		<concat destfile="${war.dir}/js/atlas-viewer.min.js" fixlastline="yes" append="no">
+			<file name="${basedir}/base-viewer.min.js" />
+			<file name="${war.dir}/js/orgchart.min.js" />
+    	</concat>
+
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/.tmp0.js">
 			<sources dir="${war.dir}/connect/common/js">
 				<file name="mxReader.js" />

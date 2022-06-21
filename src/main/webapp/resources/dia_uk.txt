@@ -1202,3 +1202,4 @@ confAIgnoreCollectErr=Ignore collecting current pages errors
 drafts=Drafts
 draftSaveInt=Draft save interval [sec] (0 to disable)
 pluginsDisabled=External plugins disabled.
+extExpNotConfigured=External image service is not configured

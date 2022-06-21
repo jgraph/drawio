@@ -46,6 +46,8 @@ public class ProxyServlet extends HttpServlet
 	 */
 	private static byte[] emptyBytes = new byte[0];
 
+	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
+
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -85,6 +87,12 @@ public class ProxyServlet extends HttpServlet
 				// Workaround for 451 response from Iconfinder CDN
 				connection.setRequestProperty("User-Agent", "draw.io");
 				
+				//Forward auth header (Only in GAE and not protected by AUTH itself)
+				if (IS_GAE && auth  !=  null)
+				{
+					connection.setRequestProperty("Authorization", auth);
+				}
+
 				if (dom != null && dom.length() > 0)
 				{
 					response.addHeader("Access-Control-Allow-Origin", dom);

@@ -32,9 +32,33 @@
 		// ignore
 	}
 
-	var originalNoFo = mxClient.NO_FO;
-	var mathJaxLoading = (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined');
+	var mathJaxLoading = typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function';
 	var mathJaxQueue = [];
+
+	function renderMath(nodes)
+	{
+		try
+		{
+			MathJax.typesetClear(nodes);
+			MathJax.typeset(nodes);
+		}
+		catch (e)
+		{
+			MathJax.typesetClear(nodes);
+
+			if (e.retry != null)
+			{
+				e.retry.then(function()
+				{
+					MathJax.typesetPromise(nodes);
+				});
+			}
+			else if (window.console != null)
+			{
+				console.log('Error in MathJax: ' + e.toString());
+			}
+		}
+	};
 	
 	function loadMathJax()
 	{
@@ -43,34 +67,25 @@
 		{
 			mathJaxLoading = true;
 
-			window.MathJax =
-			{
-				skipStartupTypeset: true,
-				showMathMenu: false,
-				messageStyle: 'none',
-				AuthorInit: function ()
+			window.MathJax = {
+				loader:
 				{
-					MathJax.Hub.Config({
-						jax: ['input/TeX', 'input/MathML', 'input/AsciiMath', 'output/SVG'],
-						extensions: ['tex2jax.js', 'mml2jax.js', 'asciimath2jax.js'],
-						TeX: {
-						  extensions: ['AMSmath.js', 'AMSsymbols.js', 'noErrors.js', 'noUndefined.js']
-						}
-					});
-					
-					MathJax.Hub.Register.StartupHook('Begin', function()
+					load: [(urlParams['math-output'] == 'html') ?
+						'output/chtml' : 'output/svg', 'input/tex',
+						'input/asciimath']
+				},
+				startup:
+				{
+					pageReady: function()
 					{
-						for (var i = 0; i < mathJaxQueue.length; i++)
-						{
-							MathJax.Hub.Queue(['Typeset', MathJax.Hub, mathJaxQueue[i]]);
-						}
-					});
-			    }
+						renderMath(mathJaxQueue);
+					}
+				}
 			};
 
 			var script = document.createElement('script');
 			script.type = 'text/javascript';
-			script.src = 'https://app.diagrams.net/math/MathJax.js';
+			script.src = 'https://app.diagrams.net/math/es5/startup.js';
 			document.getElementsByTagName('head')[0].appendChild(script);
 		}
 	};
@@ -78,23 +93,14 @@
 	function addMathJaxGraph(graph)
 	{
 		// Initial rendering when MathJax finished loading
-		if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
+		if (typeof MathJax !== 'undefined' && typeof MathJax.typeset === 'function')
 		{
-			MathJax.Hub.Queue(['Typeset', MathJax.Hub, graph.container]);
+			renderMath([graph.container]);
 		}
 		else
 		{
 			mathJaxQueue.push(graph.container);
 		}
-		
-		// Rendering math again on repaint
-		graph.addListener(mxEvent.SIZE, function(sender, evt)
-		{
-			if (typeof(MathJax) !== 'undefined' && typeof(MathJax.Hub) !== 'undefined')
-			{
-				MathJax.Hub.Queue(['Typeset', MathJax.Hub, graph.container]);
-			}
-		});
 	};
 	
 	// Handles relative images
@@ -252,7 +258,6 @@
 					
 					if (math == '1')
 					{
-						mxClient.NO_FO = true;
 						loadMathJax();
 					}
 					
@@ -495,11 +500,6 @@
 						    {
 						    	try
 						    	{
-									if (math == '1')
-									{
-										mxClient.NO_FO = mxClient.IS_SF;
-									}
-						    		
 							    	var data = (xhr.getText != null) ? xhr.getText() : xhr.responseText;
 
 							    	if (data != null)
@@ -556,7 +556,6 @@
 							    			if (diagrams.length > 0)
 							    			{
 												var text = mxUtils.trim(mxUtils.getTextContent(diagrams[0]));
-												var node = null;
 												
 												if (text.length > 0)
 												{
@@ -589,8 +588,6 @@
 							    	{
 							    		graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
 							    	}
-							    	
-							    	mxClient.NO_FO = originalNoFo;
 						    	}
 								catch (e)
 								{
@@ -810,8 +807,6 @@
 					console.log('Error:', err);
 				}
 			}
-			
-			mxClient.NO_FO = originalNoFo;
 			
 			return graph;
 		};

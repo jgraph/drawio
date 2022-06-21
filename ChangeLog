@@ -1,3 +1,9 @@
+21-JUN-2022: 20.0.2
+
+- Fixes autosize and text editor with spacing [2732]
+- Fixes embed mode with math typesetting [2879]
+- Fixes math rendering in embed code for html files
+
 12-JUN-2022: 20.0.1
 
 - Fixes bold math in print output for Chrome [2873]

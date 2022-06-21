@@ -12750,18 +12750,23 @@
 							// SVG is generated from graph so parse optional XML
 							if (data.xml != null && data.xml.length > 0)
 							{
+								if (this.editor.graph.mathEnabled)
+								{
+									// Waits for MathJax autoloading and rendering
+									var editorOnMathJaxDone = Editor.onMathJaxDone;
+
+									Editor.onMathJaxDone = function()
+									{
+										editorOnMathJaxDone.apply(this, arguments);
+										graphReady();
+									};
+								}
+
 								ignoreChange = true;
 								this.setFileData(data.xml);
 								ignoreChange = false;
 
-								if (this.editor.graph.mathEnabled)
-								{
-									window.setTimeout(function()
-									{
-										window.MathJax.Hub.Queue(graphReady);
-									}, 0);
-								}
-								else
+								if (!this.editor.graph.mathEnabled)
 								{
 									graphReady();
 								}
@@ -13249,7 +13254,7 @@
 				}
 				else
 				{
-					mxscript('js/extensions.min.js', onload);
+					mxscript(DRAWIO_BASE_URL + '/js/orgchart.min.js', onload);
 				}
 			}
 		}

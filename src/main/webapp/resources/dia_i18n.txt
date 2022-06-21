@@ -1202,3 +1202,4 @@ confAIgnoreCollectErr=confAIgnoreCollectErr
 drafts=drafts
 draftSaveInt=draftSaveInt
 pluginsDisabled=pluginsDisabled
+extExpNotConfigured=extExpNotConfigured
