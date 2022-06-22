@@ -3874,6 +3874,71 @@ EditorUi.prototype.setPageVisible = function(value)
 };
 
 /**
+ * Loads the stylesheet for this graph.
+ */
+EditorUi.prototype.installResizeHandler = function(dialog, resizable, destroy)
+{
+	if (resizable)
+	{
+		dialog.window.setSize = function(w, h)
+		{
+			if (!this.minimized)
+			{
+				var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+				var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+				w = Math.min(w, iw - this.getX());
+				h = Math.min(h, ih - this.getY());
+			}
+
+			mxWindow.prototype.setSize.apply(this, arguments);
+		};
+	}	
+
+	dialog.window.setLocation = function(x, y)
+	{
+		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
+		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
+		
+		var w = parseInt(this.div.style.width);
+		var h = parseInt(this.div.style.height);
+
+		x = Math.max(0, Math.min(x, iw - w));
+		y = Math.max(0, Math.min(y, ih - h));
+
+		if (this.getX() != x || this.getY() != y)
+		{
+			mxWindow.prototype.setLocation.apply(this, arguments);
+		}
+
+		if (resizable && !this.minimized)
+		{
+			this.setSize(w, h);
+		}
+	};
+	
+	var resizeListener = mxUtils.bind(this, function()
+	{
+		var x = dialog.window.getX();
+		var y = dialog.window.getY();
+		
+		dialog.window.setLocation(x, y);
+	});
+	
+	mxEvent.addListener(window, 'resize', resizeListener);
+
+	dialog.destroy = function()
+	{
+		mxEvent.removeListener(window, 'resize', resizeListener);
+		dialog.window.destroy();
+
+		if (destroy != null)
+		{
+			destroy();
+		}
+	}
+};
+
+/**
  * Class: ChangeGridColor
  *
  * Undoable change to grid color.
@@ -4304,7 +4369,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	if (this.tabContainer != null)
 	{
 		this.tabContainer.style.bottom = (this.footerHeight + off) + 'px';
-		this.tabContainer.style.right = this.diagramContainer.style.right;
+		this.tabContainer.style.right = fw + 'px';
 		th = this.tabContainer.clientHeight;
 	}
 	

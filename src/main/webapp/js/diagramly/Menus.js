@@ -307,7 +307,7 @@
 	
 		if (window.mxFreehand)
 		{
-			editorUi.actions.put('insertFreehand', new Action(mxResources.get('freehand') + '...', function(evt)
+			editorUi.actions.put('insertFreehand', new Action(mxResources.get('freehand') + '...', function()
 			{
 				if (graph.isEnabled())
 				{
@@ -3061,6 +3061,11 @@
 				}
 			}
 		}));
+
+		editorUi.actions.put('openFolder', new Action(mxResources.get('openIt', [mxResources.get('folder')]) + '...', function(evt, trigger)
+		{
+			editorUi.appIconClicked(trigger);
+		}));
 		
 		editorUi.actions.addAction('moveToFolder...', mxUtils.bind(this, function()
 		{
@@ -4096,7 +4101,8 @@
 				
 				if (file != null && file.constructor == DriveFile)
 				{
-					this.addMenuItems(menu, ['new', '-', 'rename', 'makeCopy', 'moveToFolder'], parent);
+					this.addMenuItems(menu, ['new', '-', 'rename',
+						'makeCopy', 'moveToFolder'], parent);
 				}
 				else
 				{

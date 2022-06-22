@@ -4036,8 +4036,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		btns.appendChild(cancelBtn);
 	}
 
-	if (!compact && urlParams['embed'] != '1' && !createOnly && 
-			!mxClient.IS_ANDROID && !mxClient.IS_IOS && urlParams['noDevice'] != '1')
+	if (!compact && urlParams['embed'] != '1' && !createOnly && !mxClient.IS_ANDROID &&
+		!mxClient.IS_IOS && urlParams['noDevice'] != '1')
 	{
 		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
 		{
@@ -4045,20 +4045,20 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				if (fileUrl != null && fileUrl.length > 0)
 				{
-					var url = editorUi.getUrl(window.location.pathname + '?mode=' + editorUi.mode +
-							'&title=' + encodeURIComponent(nameInput.value) +
-							'&create=' + encodeURIComponent(fileUrl));
-					
-					if (editorUi.getCurrentFile() == null)
+					editorUi.editor.loadUrl(fileUrl, function(data)
 					{
-						window.location.href = url;
-					}
-					else
+						templateXml = data;
+						templateLibs = null;
+						templateRealURl = fileUrl;
+
+						editorUi.hideDialog();
+						create();
+					}, function(err)
 					{
-						window.openWindow(url);
-					}
+						editorUi.handleError(err);
+					});
 				}
-			}, mxResources.get('url'));
+			}, mxResources.get('url'), null, null, null, false);
 			editorUi.showDialog(dlg.container, 300, 80, true, true);
 			dlg.init();
 		});
@@ -7612,35 +7612,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 		}
 	}));
 	
-	this.window.setLocation = function(x, y)
-	{
-		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
-		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
-		
-		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
-
-		if (this.getX() != x || this.getY() != y)
-		{
-			mxWindow.prototype.setLocation.apply(this, arguments);
-		}
-	};
-	
-	var resizeListener = mxUtils.bind(this, function()
-	{
-		var x = this.window.getX();
-		var y = this.window.getY();
-		
-		this.window.setLocation(x, y);
-	});
-	
-	mxEvent.addListener(window, 'resize', resizeListener);
-
-	this.destroy = function()
-	{
-		mxEvent.removeListener(window, 'resize', resizeListener);
-		this.window.destroy();
-	}
+	ui.installResizeHandler(this, false);
 };
 
 /**
@@ -7746,35 +7718,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		}
 	}));
 	
-	this.window.setLocation = function(x, y)
-	{
-		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
-		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
-		
-		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
-
-		if (this.getX() != x || this.getY() != y)
-		{
-			mxWindow.prototype.setLocation.apply(this, arguments);
-		}
-	};
-	
-	var resizeListener = mxUtils.bind(this, function()
-	{
-		var x = this.window.getX();
-		var y = this.window.getY();
-		
-		this.window.setLocation(x, y);
-	});
-	
-	mxEvent.addListener(window, 'resize', resizeListener);
-
-	this.destroy = function()
-	{
-		mxEvent.removeListener(window, 'resize', resizeListener);
-		this.window.destroy();
-	}
+	editorUi.installResizeHandler(this, false);
 };
 
 /**
@@ -7844,35 +7788,7 @@ var TagsWindow = function(editorUi, x, y, w, h)
 		this.window.fit();
 	}));
 	
-	this.window.setLocation = function(x, y)
-	{
-		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
-		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
-		
-		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - ((urlParams['sketch'] == '1') ? 3 : 48)));
-
-		if (this.getX() != x || this.getY() != y)
-		{
-			mxWindow.prototype.setLocation.apply(this, arguments);
-		}
-	};
-	
-	var resizeListener = mxUtils.bind(this, function()
-	{
-		var x = this.window.getX();
-		var y = this.window.getY();
-		
-		this.window.setLocation(x, y);
-	});
-	
-	mxEvent.addListener(window, 'resize', resizeListener);
-
-	this.destroy = function()
-	{
-		mxEvent.removeListener(window, 'resize', resizeListener);
-		this.window.destroy();
-	}
+	editorUi.installResizeHandler(this, true);
 };
 
 /**

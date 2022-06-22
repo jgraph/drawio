@@ -2933,6 +2933,10 @@
 							// Handles CORS errors
 							error({message: mxResources.get('accessDenied')}, req);
 						}
+						else if (req.getStatus() == 404)
+						{
+							error({code: req.getStatus()}, req);
+						}
 						else
 						{
 							error({message: mxResources.get('error') + ' ' + req.getStatus()}, req);

@@ -1,3 +1,11 @@
+22-JUN-2022: 20.0.3
+
+- Fixes ignored error codes for loading templates
+- Fixes new tab for insert from template URL [2891]
+- Validates dialog size after window resize [2883]
+- Fixes page tabs overflow after format panel toggle
+- Adds Lithuanian and Latvian translations
+
 21-JUN-2022: 20.0.2
 
 - Fixes autosize and text editor with spacing [2732]

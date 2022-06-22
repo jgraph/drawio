@@ -55,22 +55,9 @@ EditorUi.initMinimalTheme = function()
 	    this.window.setResizable(true);
 	    this.window.setClosable(true);
 	    this.window.setVisible(true);
-	    
-	    this.window.setLocation = function(x, y)
-	    {
-	    	var iiw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-	        var ih = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-	        
-			var title = this.table.firstChild.firstChild.firstChild;
-	        x = Math.max(0, Math.min(x, iiw - title.clientWidth - 2));
-	        y = Math.max(0, Math.min(y, ih - title.clientHeight - 2));
-			
-	        if (this.getX() != x || this.getY() != y)
-	        {
-	            mxWindow.prototype.setLocation.apply(this, arguments);
-	        }
-	    };
-	    
+
+		editorUi.installResizeHandler(this, true);
+		
 	    // Workaround for text selection starting in Safari
 	    // when dragging shapes outside of window
 	    if (mxClient.IS_SF)
@@ -1223,7 +1210,8 @@ EditorUi.initMinimalTheme = function()
 
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['save', 'rename', 'makeCopy', 'moveToFolder'], parent);
+				ui.menus.addMenuItems(menu, ['save', 'rename',
+					'makeCopy', 'moveToFolder'], parent);
 			}
 			else
 			{
@@ -1251,6 +1239,11 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['revisionHistory'], parent);
 				}
 
+				if (file.constructor == DriveFile)
+				{
+					ui.menus.addMenuItems(menu, ['openFolder'], parent);
+				}
+
 				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 					(file.constructor != LocalFile || file.fileHandle != null))
 				{
@@ -1263,12 +1256,12 @@ EditorUi.initMinimalTheme = function()
 			if (file != null)
 			{
 				menu.addSeparator(parent);
-
-				if (file.constructor == DriveFile)
-				{
-					ui.menus.addMenuItems(menu, ['share'], parent);
-				}
 				
+				if (urlParams['sketch'] == '1' && ui.commentsSupported())
+				{
+					ui.menus.addMenuItems(menu, ['comments'], parent);
+				}
+
 				if (ui.fileNode != null && urlParams['embedInline'] != '1')
 				{
 					var filename = (file.getTitle() != null) ?
@@ -1278,8 +1271,13 @@ EditorUi.initMinimalTheme = function()
 						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
 						!/(\.svg)$/i.test(filename)))
 					{
-						this.addMenuItems(menu, ['-', 'properties'], parent);
+						this.addMenuItems(menu, ['properties'], parent);
 					}
+				}
+				
+				if (file.constructor == DriveFile)
+				{
+					ui.menus.addMenuItems(menu, ['share'], parent);
 				}
 			}
 		})));
@@ -1369,12 +1367,13 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('importFrom', menu, parent);
 			}
 
-			if (ui.commentsSupported())
+			if ((urlParams['embed'] == '1' || urlParams['sketch'] != '1' ||
+				urlParams['noFileMenu'] == '1') && ui.commentsSupported())
 			{
 				ui.menus.addMenuItems(menu, ['-', 'comments'], parent);
 			}
 
-			ui.menus.addMenuItems(menu, ['-', 'findReplace', 'outline',
+			ui.menus.addMenuItems(menu, ['-', 'findReplace',
 				'layers', 'tags', '-', 'pageSetup'], parent);
 
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
@@ -2089,7 +2088,16 @@ EditorUi.initMinimalTheme = function()
 			previousParent.appendChild(ui.titlebar);
 		}
 		
+		// Adds outline option to zoom menu
         var viewZoomMenu = ui.menus.get('viewZoom');
+		var viewZoomMenuFunct = viewZoomMenu.funct;
+		
+		viewZoomMenu.funct = function(menu, parent)
+		{
+			viewZoomMenuFunct.apply(this, arguments);
+			ui.menus.addMenuItems(menu, ['-', 'outline'], parent);
+		};
+		
 		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;
 		var footer = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var picker = (urlParams['sketch'] == '1') ? document.createElement('div') : null;

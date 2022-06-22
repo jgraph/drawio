@@ -16238,35 +16238,7 @@ var CommentsWindow = function(editorUi, x, y, w, h, saveCallback)
 		this.window.fit();
 	}));
 	
-	this.window.setLocation = function(x, y)
-	{
-		var iw = window.innerWidth || document.body.clientWidth || document.documentElement.clientWidth;
-		var ih = window.innerHeight || document.body.clientHeight || document.documentElement.clientHeight;
-		
-		x = Math.max(0, Math.min(x, iw - this.table.clientWidth));
-		y = Math.max(0, Math.min(y, ih - this.table.clientHeight - 48));
-
-		if (this.getX() != x || this.getY() != y)
-		{
-			mxWindow.prototype.setLocation.apply(this, arguments);
-		}
-	};
-	
-	var resizeListener = mxUtils.bind(this, function()
-	{
-		var x = this.window.getX();
-		var y = this.window.getY();
-		
-		this.window.setLocation(x, y);
-	});
-	
-	mxEvent.addListener(window, 'resize', resizeListener);
-
-	this.destroy = function()
-	{
-		mxEvent.removeListener(window, 'resize', resizeListener);
-		this.window.destroy();
-	}
+	editorUi.installResizeHandler(this, true);
 };
 
 /**

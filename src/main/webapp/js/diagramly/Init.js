@@ -135,6 +135,8 @@ window.mxLanguageMap = window.mxLanguageMap ||
 	'gl' : 'Galego',
 	'it' : 'Italiano',
 	'hu' : 'Magyar',
+	'lt' : 'Lietuvių',
+	'lv' : 'Latviešu',
 	'nl' : 'Nederlands',
 	'no' : 'Norsk',
 	'pl' : 'Polski',

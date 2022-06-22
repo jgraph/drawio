@@ -3394,9 +3394,9 @@ App.prototype.start = function()
 					this.loadTemplate(value, function(text)
 					{
 						showCreateDialog(text);
-					}, mxUtils.bind(this, function()
+					}, mxUtils.bind(this, function(e)
 					{
-						this.handleError(null, mxResources.get('errorLoadingFile'), reconnect);
+						this.handleError(e, mxResources.get('errorLoadingFile'), reconnect);
 					}));
 				}
 			}

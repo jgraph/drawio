@@ -1324,7 +1324,7 @@ EditorUi.prototype.updateTabContainer = function()
 		var btnWidth = (this.editor.isChromelessView()) ? 29 : 59;
 		var tabWidth = Math.min(140, Math.max(20, (this.tabContainer.clientWidth - btnWidth) / this.pages.length) + 1);
 		var startIndex = null;
-
+		
 		for (var i = 0; i < this.pages.length; i++)
 		{
 			// Install drag and drop for page reorder
@@ -1917,7 +1917,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 {
 	var editorUiRefresh = EditorUi.prototype.refresh;
 	
-	EditorUi.prototype.refresh = function(sizeDidChange)
+	EditorUi.prototype.refresh = function()
 	{
 		editorUiRefresh.apply(this, arguments);
 		this.updateTabContainer();
