@@ -67,7 +67,12 @@
 		{
 			mathJaxLoading = true;
 
-			window.MathJax = {
+			window.MathJax =
+			{
+				options:
+				{
+					skipHtmlTags: {'[+]': ['text']}
+				},
 				loader:
 				{
 					load: [(urlParams['math-output'] == 'html') ?

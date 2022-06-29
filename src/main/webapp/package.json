@@ -1,6 +1,6 @@
 {
   "name": "draw.io",
-  "version": "17.2.2",
+  "version": "20.0.4",
   "description": "diagrams.net desktop",
   "main": "electron.js",
   "scripts": {
@@ -33,6 +33,6 @@
     "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
-    "electron": "^19.0.3"
+    "electron": "^19.0.6"
   }
 }

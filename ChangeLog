@@ -1,3 +1,9 @@
+29-JUN-2022: 20.0.4
+
+- [conf cloud] Adds tags to viewer/lightbox toolbar
+- Adds initial miro import (non-production)
+- Disables math typesetting for plain text [2899]
+
 22-JUN-2022: 20.0.3
 
 - Fixes ignored error codes for loading templates

@@ -11224,21 +11224,33 @@
 					{
 						if (xml.substring(0, 20).replace(/\s/g, '').indexOf('{"isProtected":') == 0)
 						{
-							try
+							var delayed = mxUtils.bind(this, function ()
 							{
-								if (typeof MiroImporter !== 'undefined')
+								try
 								{
 									var miro = new MiroImporter();
 									xml = miro.importMiroJson(JSON.parse(xml));
+									this.pasteXml(xml, pasteAsLabel, compat, evt);
 								}
-							}
-							catch(e)
+								catch(e)
+								{
+									console.log('Miro import error:', e);
+								}
+							});
+
+							if (typeof MiroImporter === 'undefined')
 							{
-								console.log('Miro import error:', e);
+								mxscript('js/diagramly/miro/MiroImporter.js', delayed);
+							}
+							else
+							{
+								delayed();
 							}
 						}
-
-						this.pasteXml(xml, pasteAsLabel, compat, evt);
+						else
+						{
+							this.pasteXml(xml, pasteAsLabel, compat, evt);
+						}
 
 						try
 						{

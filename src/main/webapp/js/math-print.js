@@ -3,6 +3,7 @@
 	{
 		options:
 		{
+			skipHtmlTags: {'[+]': ['text']},
 			ignoreHtmlClass: 'geDisableMathJax'
 		},
 		loader:

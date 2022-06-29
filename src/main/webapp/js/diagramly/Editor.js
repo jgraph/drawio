@@ -2473,6 +2473,10 @@
 			
 			window.MathJax = (config != null) ? config :
 			{
+				options:
+				{
+					skipHtmlTags: {'[+]': ['text']}
+				},
 				loader:
 				{
 					load: [(urlParams['math-output'] == 'html') ?

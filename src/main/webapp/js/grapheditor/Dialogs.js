@@ -12,6 +12,7 @@ var OpenDialog = function()
 	iframe.style.borderStyle = 'none';
 	iframe.style.borderWidth = '0px';
 	iframe.style.overflow = 'hidden';
+	iframe.style.maxWidth = '100%';
 	iframe.frameBorder = '0';
 	
 	var dx = 0;

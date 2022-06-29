@@ -2875,7 +2875,7 @@ EditorUi.initMinimalTheme = function()
 					appElt = addMenu('diagram');
 				}
 
-				var temp = (small) ? addMenu('diagram', null, Editor.drawLogoImage) : null;
+				var temp = (small) ? addMenu('diagram', null, Editor.menuImage) : null;
 
 				if (temp != null)
 				{
