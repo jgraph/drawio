@@ -604,9 +604,9 @@ App.main = function(callback, createUi)
 
 	// Blocks stand-alone mode for certain subdomains
 	if (window.top == window.self &&
-		(/ac\.draw\.io$/.test(window.location.hostname) ||
-		/ac-ent\.draw\.io$/.test(window.location.hostname) ||
-		/aj\.draw\.io$/.test(window.location.hostname)))
+		('import.diagrams.net' === window.location.hostname ||
+		'ac.draw.io' === window.location.hostname ||
+		'aj.draw.io' === window.location.hostname))
 	{
 		document.body.innerHTML = '<div style="margin-top:10%;text-align:center;">Stand-alone mode not allowed for this domain.</div>';
 		

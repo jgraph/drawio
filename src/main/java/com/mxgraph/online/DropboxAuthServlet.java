@@ -17,31 +17,8 @@ public class DropboxAuthServlet extends AbsAuthServlet
 	{
 		if (CONFIG == null)
 		{
-			String clientSerets, clientIds;
-			
-			try
-			{
-				clientSerets = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(getSecretPath()))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Client secrets path invalid");
-			}
-
-			try
-			{
-				clientIds = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(getIdPath()))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Client IDs path invalid");
-			}
+			String clientSerets = SecretFacade.getSecret(CLIENT_SECRET_FILE_PATH, getServletContext()), 
+					clientIds = SecretFacade.getSecret(CLIENT_ID_FILE_PATH, getServletContext());
 			
 			CONFIG = new Config(clientIds, clientSerets);
 			CONFIG.AUTH_SERVICE_URL = "https://api.dropboxapi.com/oauth2/token";
@@ -49,16 +26,6 @@ public class DropboxAuthServlet extends AbsAuthServlet
 		}
 		
 		return CONFIG;
-	}
-
-	protected String getSecretPath()
-	{
-		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_SECRET_FILE_PATH;
-	}
-
-	protected String getIdPath()
-	{
-		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_ID_FILE_PATH;
 	}
 
 	public DropboxAuthServlet()

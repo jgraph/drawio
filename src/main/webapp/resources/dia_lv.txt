@@ -1203,3 +1203,4 @@ drafts=Melnraksti
 draftSaveInt=Melnraksta saglabāšanas intervāls [s] (0, lai atspējotu)
 pluginsDisabled=Ārējie spraudņi ir atspējoti.
 extExpNotConfigured=Ārējā attēla pakalpojums nav konfigurēts
+pathFilename=Path/Filename

@@ -330,8 +330,6 @@ function P2PCollab(ui, sync, channelId)
 				cursor.style.position = 'absolute';
 				cursor.style.display = 'none';
 				cursor.style.opacity = '0.9';
-				cursor.style.zIndex = 5000;
-
 				var img = document.createElement('img');
 				mxUtils.setPrefixedStyle(img.style, 'transform', 'rotate(-45deg)translateX(-14px)');
 				img.setAttribute('src', createCursorImage(clr));

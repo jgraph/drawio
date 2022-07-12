@@ -1203,3 +1203,4 @@ drafts=Koncepty
 draftSaveInt=Ukládat koncept v intervalu [sek] (0 – nula – vypíná)
 pluginsDisabled=Externí zásuvné moduly vypnuty
 extExpNotConfigured=Externí služba obrázků není nastavena
+pathFilename=Path/Filename

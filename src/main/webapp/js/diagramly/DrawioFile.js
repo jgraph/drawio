@@ -553,13 +553,36 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 			var uid = (user != null) ? user.id : 'unknown';
 			var id = (this.getId() != '') ? this.getId() :
 				('(' + this.ui.hashValue(this.getTitle()) + ')');
+			var bytes = JSON.stringify(patches).length;
+			var data = null;
 			
-			EditorUi.logError('Checksum Error in ' + functionName + ' ' + id,
+			if (patches != null && this.constructor == DriveFile && bytes < 400)
+			{
+				for (var i = 0; i < patches.length; i++)
+				{
+					this.ui.anonymizePatch(patches[i]);
+				}
+	
+				data = JSON.stringify(patches);
+	
+				if (data != null && data.length < 250)
+				{
+					data = Graph.compress(data);
+				}
+				else
+				{
+					data = null;
+				}
+			}
+
+			var type = (data != null) ? 'Report' : 'Error';
+			
+			EditorUi.logError('Checksum ' + type + ' in ' + functionName + ' ' + id,
 				null, this.getMode() + '.' + this.getId(),
 				'user_' + uid + ((this.sync != null) ?
 				'-client_' + this.sync.clientId : '-nosync') +
-				'-bytes_' + JSON.stringify(patches).length +
-				'-patches_' + patches.length +
+				'-bytes_' + bytes + '-patches_' + patches.length +
+				((data != null) ? ('-json_' + data) : '') +
 				'-size_' + this.getSize());
 			
 			// Logs checksum error for file
@@ -568,8 +591,7 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
 					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
 					'-client_' + this.sync.clientId : '-nosync') +
-					'-bytes_' + JSON.stringify(patches).length +
-					'-patches_' + patches.length +
+					'-bytes_' + bytes + '-patches_' + patches.length +
 					'-size_' + this.getSize()});
 			}
 			catch (e)

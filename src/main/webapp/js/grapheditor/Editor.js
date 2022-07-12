@@ -173,6 +173,14 @@ Editor.roughFillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hachure', disp
 	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
 
 /**
+ * Fill styles for normal mode.
+ */
+Editor.fillStyles = [{val: 'auto', dispName: 'Auto'}, {val: 'hatch', dispName: 'Hatch'},
+	{val: 'solid', dispName: 'Solid'}, {val: 'dots', dispName: 'Dots'}, 
+	{val: 'cross-hatch', dispName: 'Cross Hatch'}, {val: 'dashed', dispName: 'Dashed'},
+	{val: 'zigzag-line', dispName: 'ZigZag Line'}];
+
+/**
  * Graph themes for the format panel.
  */
 Editor.themes = null;

@@ -46,9 +46,6 @@ abstract public class AbsAuthServlet extends HttpServlet
 	protected static final int STATE_COOKIE_AGE = 600; //10 min
 	protected static final int TOKEN_COOKIE_AGE = 31536000; //One year
 	public static boolean IS_GAE = (System.getProperty("com.google.appengine.runtime.version") == null) ? false : true;
-	public static String SECRETS_DIR_PATH = IS_GAE ? "/WEB-INF/secrets/" : "/WEB-INF/";
-
-	
 	
 	public static final SecureRandom random = new SecureRandom();
 	protected static Cache tokenCache;

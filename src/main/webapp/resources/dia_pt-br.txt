@@ -1203,3 +1203,4 @@ drafts=Rascunhos
 draftSaveInt=Intervalo de salvamento de rascunhos [s] (0 para desabilitar)
 pluginsDisabled=Extensões externas desabilitadas.
 extExpNotConfigured=External image service is not configured
+pathFilename=Path/Filename

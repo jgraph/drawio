@@ -18,42 +18,16 @@ public class GitlabAuthServlet extends AbsAuthServlet
 	{
 		if (CONFIG == null)
 		{
-			String clientSerets, clientIds;
-			
-			try
-			{
-				clientSerets = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(getSecretPath()))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Client secrets path invalid");
-			}
-
-			try
-			{
-				clientIds = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(getClientIdPath()))
-						.replaceAll("\n", "");
-			}
-			catch (IOException e)
-			{
-				throw new RuntimeException("Client IDs path invalid");
-			}
+			String clientSerets = SecretFacade.getSecret(CLIENT_SECRET_FILE_PATH, getServletContext()), 
+					clientIds = SecretFacade.getSecret(CLIENT_ID_FILE_PATH, getServletContext());
 			
 			CONFIG = new Config(clientIds, clientSerets);
 
 			try
 			{
-				CONFIG.AUTH_SERVICE_URL = Utils
-						.readInputStream(getServletContext()
-								.getResourceAsStream(getServiceUrlPath()))
-						.replaceAll("\n", "");
+				CONFIG.AUTH_SERVICE_URL = SecretFacade.getSecret(AUTH_SERVICE_URL_FILE_PATH, getServletContext());
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				CONFIG.AUTH_SERVICE_URL = "https://gitlab.com/oauth/token";
 			}
@@ -62,21 +36,6 @@ public class GitlabAuthServlet extends AbsAuthServlet
 		}
 		
 		return CONFIG;
-	}
-	
-	protected String getSecretPath()
-	{
-		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_SECRET_FILE_PATH;
-	}
-
-	protected String getClientIdPath()
-	{
-		return AbsAuthServlet.SECRETS_DIR_PATH + CLIENT_ID_FILE_PATH;
-	}
-
-	protected String getServiceUrlPath()
-	{
-		return AbsAuthServlet.SECRETS_DIR_PATH + AUTH_SERVICE_URL_FILE_PATH;
 	}
 
 	public GitlabAuthServlet()

@@ -1,3 +1,17 @@
+12-JUL-2022: 20.1.1
+
+- Closes secret manager resources
+
+11-JUL-2022: 20.1.0
+
+- [conf cloud] Trial to add archived spaces support to Gliffy mass import
+- Improves performance for CSV parsing (RFC 4180)
+- Uses gcloud secret manager
+- [conf cloud] Changed page IDs export name to draw.io Export
+- [conf cloud] Using Page IDs import/export in cloud/server
+- [conf cloud] Added archived spaces support to Gliffy mass import
+- Changes  pusher.properties to pusher_properties
+
 29-JUN-2022: 20.0.4
 
 - [conf cloud] Adds tags to viewer/lightbox toolbar

@@ -4527,14 +4527,39 @@ StyleFormatPanel.prototype.addFill = function(container)
 	
 	gradientPanel.appendChild(gradientSelect);
 	
-	for (var i = 0; i < Editor.roughFillStyles.length; i++)
+	var curFillStyle;
+
+	function populateFillStyle()
 	{
-		var fillStyleOption = document.createElement('option');
-		fillStyleOption.setAttribute('value', Editor.roughFillStyles[i].val);
-		mxUtils.write(fillStyleOption, Editor.roughFillStyles[i].dispName);
-		fillStyleSelect.appendChild(fillStyleOption);
-	}
-	
+		fillStyleSelect.innerHTML = '';
+		curFillStyle = 1;
+		
+		for (var i = 0; i < Editor.fillStyles.length; i++)
+		{
+			var fillStyleOption = document.createElement('option');
+			fillStyleOption.setAttribute('value', Editor.fillStyles[i].val);
+			mxUtils.write(fillStyleOption, Editor.fillStyles[i].dispName);
+			fillStyleSelect.appendChild(fillStyleOption);
+		}
+	};
+
+	function populateRoughFillStyle()
+	{
+		fillStyleSelect.innerHTML = '';
+		curFillStyle = 2;
+
+		for (var i = 0; i < Editor.roughFillStyles.length; i++)
+		{
+			var fillStyleOption = document.createElement('option');
+			fillStyleOption.setAttribute('value', Editor.roughFillStyles[i].val);
+			mxUtils.write(fillStyleOption, Editor.roughFillStyles[i].dispName);
+			fillStyleSelect.appendChild(fillStyleOption);
+		}
+
+		fillStyleSelect.value = 'auto';
+	};
+
+	populateFillStyle();
 	fillPanel.appendChild(fillStyleSelect);
 
 	var listener = mxUtils.bind(this, function()
@@ -4550,7 +4575,6 @@ StyleFormatPanel.prototype.addFill = function(container)
 		}
 		
 		gradientSelect.value = value;
-		fillStyleSelect.value = fillStyle;
 		container.style.display = (ss.fill) ? '' : 'none';
 		
 		var fillColor = mxUtils.getValue(ss.style, fillKey, null);
@@ -4562,7 +4586,28 @@ StyleFormatPanel.prototype.addFill = function(container)
 		}
 		else
 		{
-			fillStyleSelect.style.display = (ss.style.sketch == '1') ? '' : 'none';
+			if (ss.style.sketch == '1')
+			{
+				if (curFillStyle != 2)
+				{
+					populateRoughFillStyle()
+				}
+			}
+			else if (curFillStyle != 1)
+			{
+				populateFillStyle();
+			}
+			
+			fillStyleSelect.value = fillStyle;
+
+			//In case of switching from sketch to regular and fill type is not there
+			if (!fillStyleSelect.value)
+			{
+				fillStyle = 'auto';
+				fillStyleSelect.value = fillStyle;
+			}
+
+			fillStyleSelect.style.display = ss.style.sketch == '1' || gradientSelect.style.display == 'none'? '' : 'none';
 			gradientPanel.style.display = (!ss.containsImage && (ss.style.sketch != '1' ||
 				fillStyle == 'solid' || fillStyle == 'auto')) ? '' : 'none';
 		}
@@ -5622,17 +5667,25 @@ DiagramStylePanel.prototype.addView = function(div)
 	
 	var right = left.cloneNode(true);
 	right.style.paddingLeft = '8px';
+	opts.style.paddingBottom = '12px';
+	row.appendChild(left);
 
-	// Sketch
-	if (urlParams['sketch'] != '1')
+	left.appendChild(this.createOption(mxResources.get('sketch'), function()
 	{
-		opts.style.paddingBottom = '12px';
-		row.appendChild(left);
-
-		left.appendChild(this.createOption(mxResources.get('sketch'), function()
+		return (urlParams['sketch'] == '1') ? Editor.sketchMode : sketch;
+	}, function(checked)
+	{
+		if (urlParams['sketch'] == '1')
 		{
-			return sketch;
-		}, function(checked)
+			ui.setSketchMode(!Editor.sketchMode);
+
+			//if (evt == null || !mxEvent.isShiftDown(evt))
+			{
+				graph.updateCellStyles({'sketch': (checked) ? '1' : null},
+					graph.getVerticesAndEdges());
+			}
+		}
+		else
 		{
 			sketch = checked;
 			
@@ -5648,11 +5701,11 @@ DiagramStylePanel.prototype.addView = function(div)
 			}
 			
 			graph.updateCellStyles({'sketch': (checked) ? '1' : null}, graph.getVerticesAndEdges());
-		}, null, function(div)
-		{
-			div.style.width = 'auto';
-		}));
-	}
+		}
+	}, null, function(div)
+	{
+		div.style.width = 'auto';
+	}));
 	
 	row.appendChild(right);
 	tbody.appendChild(row);
@@ -5684,37 +5737,34 @@ DiagramStylePanel.prototype.addView = function(div)
 	}));
 	
 	// Curved
-	if (urlParams['sketch'] != '1')
-	{
-		left = left.cloneNode(false);
-		right = right.cloneNode(false);
-		row = row.cloneNode(false);
-		row.appendChild(left);
-		row.appendChild(right);
-		tbody.appendChild(row);
+	left = left.cloneNode(false);
+	right = right.cloneNode(false);
+	row = row.cloneNode(false);
+	row.appendChild(left);
+	row.appendChild(right);
+	tbody.appendChild(row);
 
-		left.appendChild(this.createOption(mxResources.get('curved'), function()
+	left.appendChild(this.createOption(mxResources.get('curved'), function()
+	{
+		return curved;
+	}, function(checked)
+	{
+		curved = checked;
+		
+		if (checked)
 		{
-			return curved;
-		}, function(checked)
+			graph.currentEdgeStyle['curved'] = '1';
+		}
+		else
 		{
-			curved = checked;
-			
-			if (checked)
-			{
-				graph.currentEdgeStyle['curved'] = '1';
-			}
-			else
-			{
-				delete graph.currentEdgeStyle['curved'];
-			}
-			
-			graph.updateCellStyles({'curved': (checked) ? '1' : null}, graph.getVerticesAndEdges(false, true));
-		}, null, function(div)
-		{
-			div.style.width = 'auto';
-		}));
-	}
+			delete graph.currentEdgeStyle['curved'];
+		}
+		
+		graph.updateCellStyles({'curved': (checked) ? '1' : null}, graph.getVerticesAndEdges(false, true));
+	}, null, function(div)
+	{
+		div.style.width = 'auto';
+	}));
 
 	opts.appendChild(table);
 	div.appendChild(opts);
@@ -5817,35 +5867,32 @@ DiagramStylePanel.prototype.addView = function(div)
 			}
 		}
 	});
-	
-	if (urlParams['sketch'] != '1')
+
+	var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
 	{
-		var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
-		{
-			var all = graph.getVerticesAndEdges(true, true);
-			
-			if (all.length > 0)
-			{
-				model.beginUpdate();
-				try
-				{
-					graph.updateCellStyles({'sketch': null, 'rounded': null}, all);
-					graph.updateCellStyles({'curved': null}, graph.getVerticesAndEdges(false, true));
-				}
-				finally
-				{
-					model.endUpdate();
-				}
-			}
-			
-			ui.clearDefaultStyle();
-		}));
+		var all = graph.getVerticesAndEdges(true, true);
 		
-		btn.setAttribute('title', mxResources.get('reset'));
-		btn.style.textOverflow = 'ellipsis';
-		btn.style.maxWidth = '90px';
-		right.appendChild(btn);
-	}
+		if (all.length > 0)
+		{
+			model.beginUpdate();
+			try
+			{
+				graph.updateCellStyles({'sketch': null, 'rounded': null}, all);
+				graph.updateCellStyles({'curved': null}, graph.getVerticesAndEdges(false, true));
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		}
+		
+		ui.clearDefaultStyle();
+	}));
+	
+	btn.setAttribute('title', mxResources.get('reset'));
+	btn.style.textOverflow = 'ellipsis';
+	btn.style.maxWidth = '90px';
+	right.appendChild(btn);
 	
 	var createPreview = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, container)
 	{

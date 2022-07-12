@@ -2553,27 +2553,43 @@
 	};
 
 	/**
-	 * Return array of string values, or NULL if CSV string not well formed.
+	 * Parses line of CSV values according to RFC 4180.
 	 */
 	Editor.prototype.csvToArray = function(text)
 	{
-	    var re_valid = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
-	    var re_value = /(?!\s*$)\s*(?:'([^'\\]*(?:\\[\S\s][^'\\]*)*)'|"([^"\\]*(?:\\[\S\s][^"\\]*)*)"|([^,'"\s\\]*(?:\s+[^,'"\s\\]+)*))\s*(?:,|$)/g;
-	    // Return NULL if input string is not well formed CSV string.
-	    if (!re_valid.test(text)) return null;
-	    var a = [];                     // Initialize array to receive values.
-	    text.replace(re_value, // "Walk" the string using replace with callback.
-	        function(m0, m1, m2, m3) {
-	            // Remove backslash from \' in single quoted values.
-	            if      (m1 !== undefined) a.push(m1.replace(/\\'/g, "'"));
-	            // Remove backslash from \" in double quoted values.
-	            else if (m2 !== undefined) a.push(m2.replace(/\\"/g, '"'));
-	            else if (m3 !== undefined) a.push(m3);
-	            return ''; // Return empty string.
-	        });
-	    // Handle special case of empty last value.
-	    if (/,\s*$/.test(text)) a.push('');
-	    return a;
+		if (text.length > 0)
+		{
+			var p = '', row = [''], i = 0, s = !0, l;
+
+			for (l of text)
+			{
+				if ('"' === l)
+				{
+					if (s && l === p)
+					{
+						row[i] += l;
+					}
+
+					s = !s;
+				}
+				else if (',' === l && s)
+				{
+					l = row[++i] = '';
+				}
+				else
+				{
+					row[i] += l;
+				}
+
+				p = l;
+			}
+			
+			return row;
+		}
+		else
+		{
+			return [];
+		}
 	};
 
 	/**
@@ -2607,7 +2623,7 @@
 			url.substring(0, 29) === 'https://fonts.googleapis.com/' ||
 			url.substring(0, 26) === 'https://fonts.gstatic.com/';
 	};
-	
+
 	/**
 	 * Converts all images in the SVG output to data URIs for immediate rendering
 	 */
@@ -7197,8 +7213,8 @@
 	/**
 	 * Returns the tags for the given cell as a string.
 	 */
-	 Graph.prototype.toggleHiddenTag = function(tag)
-	 {
+	Graph.prototype.toggleHiddenTag = function(tag)
+	{
 		var idx = mxUtils.indexOf(this.hiddenTags, tag);
 									
 		if (idx < 0)
@@ -7211,7 +7227,7 @@
 		}
 		
 		this.fireEvent(new mxEventObject('hiddenTagsChanged'));
-	 };
+	};
  
 	/**
 	 * Returns the cells in the model (or given array) that have all of the
@@ -8758,6 +8774,8 @@
 	{
 		// ignore
 	}
+
+	Editor.prototype.useCanvasForExport = false;
 	
 })();
 

@@ -1034,54 +1034,7 @@ EditorUi.initMinimalTheme = function()
 	
     // Disables centering of graph after iframe resize
 	EditorUi.prototype.chromelessWindowResize = function() {};
-
-	/**
-	 * Adds sketch toggle.
-	 */
-	var diagramFormatPanelAddView = DiagramFormatPanel.prototype.addView;
-	DiagramFormatPanel.prototype.addView = function(div)
-	{
-		div = diagramFormatPanelAddView.apply(this, arguments);
-		var ui = this.editorUi;
-		var graph = ui.editor.graph;
-
-		if (graph.isEnabled() && urlParams['sketch'] == '1')
-		{
-			var opt = this.createOption(mxResources.get('sketch'), function()
-			{
-				return Editor.sketchMode;
-			}, function(checked, evt)
-			{
-				ui.setSketchMode(!Editor.sketchMode);
-
-				if (evt == null || !mxEvent.isShiftDown(evt))
-				{
-					graph.updateCellStyles({'sketch': (checked) ? '1' : null},
-						graph.getVerticesAndEdges());
-				}
-			},
-			{
-				install: function(apply)
-				{
-					this.listener = function()
-					{
-						apply(Editor.sketchMode);
-					};
-					
-					ui.addListener('sketchModeChanged', this.listener);
-				},
-				destroy: function()
-				{
-					ui.removeListener(this.listener);
-				}
-			});
-
-			div.appendChild(opt);
-		}
-
-		return div;
-	};
- 
+	
 	// Adds actions and menus
 	var menusInit = Menus.prototype.init;
 	Menus.prototype.init = function()
@@ -1550,12 +1503,7 @@ EditorUi.initMinimalTheme = function()
 			}
 			
 			menu.addSeparator(parent);
-
-			if (ui.mode != App.MODE_ATLAS) 
-			{
-				this.addMenuItems(menu, ['fullscreen'], parent);
-			}
-
+			
 			if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
 				(!mxClient.IS_IE && !mxClient.IS_IE11))
 			{
@@ -2095,7 +2043,7 @@ EditorUi.initMinimalTheme = function()
 		viewZoomMenu.funct = function(menu, parent)
 		{
 			viewZoomMenuFunct.apply(this, arguments);
-			ui.menus.addMenuItems(menu, ['-', 'outline'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', '-', 'fullscreen', 'toggleDarkMode'], parent);
 		};
 		
 		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;
@@ -2205,25 +2153,14 @@ EditorUi.initMinimalTheme = function()
 			footer.style.visibility = '';
 		});
 
-		var inlineFullscreenChanged = mxUtils.bind(this, function()
-		{
-			fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
-				Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
-			this.diagramContainer.style.background = (Editor.inlineFullscreen) ?
-				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff') : 'transparent';
-			inlineSizeChanged();
-		});
-
 		var editInlineStart = mxUtils.bind(this, function()
 		{
-			inlineFullscreenChanged();
 			toggleFormat(ui, true);
 			ui.initFormatWindow();
 			var r  = this.diagramContainer.getBoundingClientRect();
 			this.formatWindow.window.setLocation(r.x + r.width + 4, r.y);
 		});
 
-		ui.addListener('inlineFullscreenChanged', inlineFullscreenChanged);
 		ui.addListener('editInlineStart', editInlineStart);
 
 		if (urlParams['embedInline'] == '1')
@@ -2587,11 +2524,9 @@ EditorUi.initMinimalTheme = function()
         	var redoAction = ui.actions.get('redo');        	
 	        var undoElt = addMenuItem('', undoAction.funct, null, mxResources.get('undo') + ' (' + undoAction.shortcut + ')', undoAction, Editor.undoImage);
 	        var redoElt = addMenuItem('', redoAction.funct, null, mxResources.get('redo') + ' (' + redoAction.shortcut + ')', redoAction, Editor.redoImage);
-			var fullscreenElt = addMenuItem('', fullscreenAction.funct, null, mxResources.get('fullscreen'), fullscreenAction, Editor.fullscreenImage);
 
 			if (footer != null)
 			{
-				fullscreenElt.parentNode.removeChild(fullscreenElt);
 				var deleteAction = ui.actions.get('delete');
 				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, Editor.trashImage);
 				deleteElt.style.opacity = '0.1';
@@ -2702,19 +2637,6 @@ EditorUi.initMinimalTheme = function()
 				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') +
 					' (' + Editor.ctrlKey + ' +/Alt+Mousewheel)', zoomInAction, Editor.zoomInImage);
 				footer.appendChild(zoomInElt);
-
-				if (fullscreenAction.visible)
-				{
-					footer.appendChild(fullscreenElt);
-
-					mxEvent.addListener(document, 'fullscreenchange', function()
-					{
-						fullscreenElt.style.backgroundImage = 'url(' +
-							((document.fullscreenElement != null) ?
-								Editor.fullscreenExitImage :
-								Editor.fullscreenImage) + ')';
-					});
-				}
 
 				if (urlParams['embedInline'] == '1')
 				{
