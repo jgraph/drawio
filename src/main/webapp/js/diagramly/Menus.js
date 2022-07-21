@@ -287,16 +287,37 @@
 				}
 			}
 		});
+
 		fullscreenAction.visible = urlParams['embedInline'] == '1' ||
 			(window == window.top && document.fullscreenEnabled &&
 			document.body.requestFullscreen != null);
 		fullscreenAction.setToggleAction(true);
+		
 		fullscreenAction.setSelectedCallback(function()
 		{
 			return urlParams['embedInline'] == '1' ? 
 				Editor.inlineFullscreen :
 				document.fullscreenElement != null;
 		});
+
+        var toggleDarkModeAction = editorUi.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function(e)
+        {
+			editorUi.setDarkMode(!Editor.isDarkMode());
+			var theme = mxSettings.getUi();
+			
+			if (theme != 'atlas' && theme != 'min' && theme != 'sketch')
+			{
+				editorUi.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark', true);
+			}
+        }));
+
+		toggleDarkModeAction.setToggleAction(true);
+		toggleDarkModeAction.setSelectedCallback(function() { return Editor.isDarkMode(); });
+
+		toggleDarkModeAction.isEnabled = function()
+		{
+			return mxSettings.getUi() != 'atlas';
+		};
 		
 		editorUi.actions.addAction('properties...', function()
 		{
@@ -328,7 +349,7 @@
 					
 					this.freehandWindow.window.setVisible(graph.freehand.isDrawing());
 				}
-			})).isEnabled = function()
+			}, null, null, 'X')).isEnabled = function()
 			{
 				return isGraphEnabled() && mxClient.IS_SVG;
 			};
@@ -958,7 +979,7 @@
 			{
 				this.tagsWindow.window.setVisible(!this.tagsWindow.window.isVisible());
 			}
-		}));
+		}), null, null, Editor.ctrlKey + '+K');
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
 
@@ -1233,6 +1254,7 @@
 					{
 						var elt = menubar.addMenu('', langMenu.funct);
 						elt.setAttribute('title', mxResources.get('language'));
+						elt.className = 'geAdaptiveAsset';
 						elt.style.width = '16px';
 						elt.style.paddingTop = '2px';
 						elt.style.paddingLeft = '4px';
@@ -1278,7 +1300,7 @@
 							icon.style.webkitAppRegion = 'no-drag';
 						}
 
-						if (uiTheme == 'atlas' || uiTheme == 'dark')
+						if (uiTheme == 'atlas')
 						{
 							elt.style.opacity = '0.85';
 							elt.style.filter = 'invert(100%)';
@@ -2852,8 +2874,7 @@
 
 			var item = menu.addItem(mxResources.get('automatic'), null, function()
 			{
-				mxSettings.setUi('');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
+				editorUi.setCurrentTheme('');
 			}, parent);
 			
 			if (theme != 'kennedy' && theme != 'atlas' &&
@@ -2867,19 +2888,17 @@
 			
 			item = menu.addItem(mxResources.get('default'), null, function()
 			{
-				mxSettings.setUi('kennedy');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
+				editorUi.setCurrentTheme('kennedy');
 			}, parent);
 
-			if (theme == 'kennedy')
+			if (theme == 'kennedy' || theme == 'dark')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 
 			item = menu.addItem(mxResources.get('minimal'), null, function()
 			{
-				mxSettings.setUi('min');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
+				editorUi.setCurrentTheme('min');
 			}, parent);
 			
 			if (theme == 'min')
@@ -2889,8 +2908,7 @@
 			
 			item = menu.addItem(mxResources.get('atlas'), null, function()
 			{
-				mxSettings.setUi('atlas');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
+				editorUi.setCurrentTheme('atlas');
 			}, parent);
 			
 			if (theme == 'atlas')
@@ -2898,31 +2916,22 @@
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 			
-			if (theme == 'dark' || (!mxClient.IS_IE && !mxClient.IS_IE11))
-			{
-				item = menu.addItem(mxResources.get('dark'), null, function()
-				{
-					mxSettings.setUi('dark');
-					editorUi.alert(mxResources.get('restartForChangeRequired'));
-				}, parent);
-				
-				if (theme == 'dark')
-				{
-					menu.addCheckmark(item, Editor.checkmarkImage);
-				}
-			}
-			
-			menu.addSeparator(parent);
-			
 			item = menu.addItem(mxResources.get('sketch'), null, function()
 			{
-				mxSettings.setUi('sketch');
-				editorUi.alert(mxResources.get('restartForChangeRequired'));
+				editorUi.setCurrentTheme('sketch');
 			}, parent);
 			
 			if (theme == 'sketch')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
+			}
+
+			menu.addSeparator(parent);
+			
+			if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
+				(!mxClient.IS_IE && !mxClient.IS_IE11))
+			{
+				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 			}
 		})));
 
@@ -3177,16 +3186,9 @@
 				}), parent, null, isGraphEnabled());
 			}
 		};
-		
-		var insertVertex = function(value, w, h, style)
-		{
-			var cell = new mxCell(value, new mxGeometry(0, 0, w, h), style);
-			cell.vertex = true;
 
-			var pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([cell], true));
-			cell.geometry.x = pt.x;
-    	    cell.geometry.y = pt.y;
-		
+		var insertCell = function(cell)
+		{
     		graph.getModel().beginUpdate();
     		try
     	    {
@@ -3219,38 +3221,101 @@
 	    	return cell;
 		};
 		
-		editorUi.actions.put('insertText', new Action(mxResources.get('text'), function()
+		var insertVertex = function(value, w, h, style, pt)
+		{
+			var cell = new mxCell(value, new mxGeometry(0, 0, w, h), style);
+			cell.vertex = true;
+
+			if (pt == null)
+			{
+				pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([cell], true));
+			}
+
+			cell.geometry.x = pt.x;
+    	    cell.geometry.y = pt.y;
+
+			return insertCell(cell);
+		};
+		
+		var insertEdge  = function(value, length, style, pt)
+		{
+			if (pt == null)
+			{
+				pt = graph.getCenterInsertPoint(graph.getBoundingBoxFromGeometry([cell], true));
+			}
+
+			var cell = new mxCell('', new mxGeometry(0, 0, length, 0), style);
+			cell.geometry.setTerminalPoint(pt, true);
+			cell.geometry.setTerminalPoint(new mxPoint(pt.x + cell.geometry.width, pt.y), false);
+			cell.geometry.points = [];
+			cell.geometry.relative = true;
+			cell.edge = true;
+
+			return insertCell(cell);
+		};
+		
+		editorUi.actions.put('insertText', new Action(mxResources.get('text'), function(evt)
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;' +
-    				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;'));
+    				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;',
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null));
 			}
-		}), null, null, Editor.ctrlKey + '+Shift+X').isEnabled = isGraphEnabled;
+		}, null, null, Editor.ctrlKey + '+Shift+X/A')).isEnabled = isGraphEnabled;
 		
-		editorUi.actions.put('insertRectangle', new Action(mxResources.get('rectangle'), function()
+		editorUi.actions.put('insertRectangle', new Action(mxResources.get('rectangle'), function(evt)
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    	insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;', (evt != null &&
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null);
 			}
-		}), null, null, Editor.ctrlKey + '+K').isEnabled = isGraphEnabled;
+		}, null, null, 'D')).isEnabled = isGraphEnabled;
+		
+		editorUi.actions.put('insertNote', new Action(mxResources.get('note'), function(evt)
+		{
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+			{
+    	    	insertVertex('', 140, 160, 'shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
+					'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
+					'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null);
+			}
+		}, null, null, 'S')).isEnabled = isGraphEnabled;
 
-		editorUi.actions.put('insertEllipse', new Action(mxResources.get('ellipse'), function()
+		editorUi.actions.put('insertEllipse', new Action(mxResources.get('ellipse'), function(evt)
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;', (evt != null &&
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null);
 			}
-		}), null, null, Editor.ctrlKey + '+Shift+K').isEnabled = isGraphEnabled;
+		}, null, null, 'F')).isEnabled = isGraphEnabled;
 		
-		editorUi.actions.put('insertRhombus', new Action(mxResources.get('rhombus'), function()
+		editorUi.actions.put('insertRhombus', new Action(mxResources.get('rhombus'), function(evt)
 		{
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
-    	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;');
+    	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;', (evt != null &&
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null);
 			}
 		})).isEnabled = isGraphEnabled;
+
+		editorUi.actions.put('insertEdge', new Action(mxResources.get('line'), function(evt)
+		{
+			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
+			{
+    	    	insertEdge('', graph.defaultEdgeLength, 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;',
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
+						graph.getInsertPoint() : null);
+			}
+		}, null, null, 'C')).isEnabled = isGraphEnabled;
 		
 		editorUi.addInsertMenuItems = mxUtils.bind(this, function(menu, parent, methods)
 		{
@@ -3269,9 +3334,9 @@
 		
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse',
-				'insertRhombus', '-', 'insertText', 'insertLink', '-',
-				'createShape', 'insertFreehand', '-', 'insertImage'], parent);
+			this.addMenuItems(menu, ['insertRectangle', 'insertEllipse', 'insertRhombus',
+				'-', 'insertEdge', 'insertNote', '-', 'insertText', 'insertLink',
+				'-', 'createShape', 'insertFreehand', '-', 'insertImage'], parent);
 
 			if (editorUi.insertTemplateEnabled && !editorUi.isOffline())
 			{
@@ -4101,8 +4166,8 @@
 				
 				if (file != null && file.constructor == DriveFile)
 				{
-					this.addMenuItems(menu, ['new', '-', 'rename',
-						'makeCopy', 'moveToFolder'], parent);
+					this.addMenuItems(menu, ['new', '-', 'rename', 'makeCopy',
+						'openFolder', 'moveToFolder'], parent);
 				}
 				else
 				{

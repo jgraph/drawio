@@ -1334,9 +1334,9 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAl
 		div.style.width = dlg.container.parentNode.style.width;
 		div.style.height = (parseInt(dlg.container.parentNode.style.height) - 60) + 'px';
 		
-		odPicker = new mxODPicker(div, null, mxUtils.bind(this, function(url, success, error)
+		odPicker = new mxODPicker(div, null, mxUtils.bind(this, function(url, success, error, isAbsUrl)
 		{
-			this.executeRequest(this.baseUrl + url, function(req)
+			this.executeRequest(isAbsUrl? url : this.baseUrl + url, function(req)
 			{
 				success(JSON.parse(req.getText()));
 			}, error);

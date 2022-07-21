@@ -1358,7 +1358,7 @@ DrawioFile.prototype.isRealtimeSupported = function()
  */
 DrawioFile.prototype.isRealtimeEnabled = function()
 {
-	return urlParams['fast-sync'] != '0';
+	return Editor.enableRealtime && urlParams['fast-sync'] != '0';
 };
 
 /**

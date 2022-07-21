@@ -1204,3 +1204,7 @@ draftSaveInt=draftSaveInt
 pluginsDisabled=pluginsDisabled
 extExpNotConfigured=extExpNotConfigured
 pathFilename=pathFilename
+confAHugeInstances=confAHugeInstances
+confAHugeInstancesDesc=confAHugeInstancesDesc
+choosePageIDsFile=choosePageIDsFile
+chooseDrawioPsgesFile=chooseDrawioPsgesFile

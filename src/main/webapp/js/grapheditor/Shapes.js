@@ -3095,7 +3095,7 @@
 
 	// Registers the link shape
 	mxCellRenderer.registerShape('link', LinkShape);
-
+	
 	// Generic arrow
 	function FlexArrowShape()
 	{
@@ -5826,14 +5826,14 @@
 			return function(state)
 			{
 				return [createHandle(state, ['size'], function(bounds)
-						{
-							var size = Math.max(0, Math.min(bounds.height * 0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', defaultValue))));
-	
-							return new mxPoint(bounds.x, bounds.y + size);
-						}, function(bounds, pt)
-						{
-							this.state.style['size'] = Math.max(0, pt.y - bounds.y);
-						}, true)];
+				{
+					var size = Math.max(0, Math.min(bounds.height * 0.5, parseFloat(mxUtils.getValue(this.state.style, 'size', defaultValue))));
+
+					return new mxPoint(bounds.x, bounds.y + size);
+				}, function(bounds, pt)
+				{
+					this.state.style['size'] = Math.max(0, pt.y - bounds.y);
+				}, true)];
 			}
 		};
 		
@@ -5855,6 +5855,23 @@
 			};
 		};
 		
+		function createWedgeHandleFunction(defaultValue, spacing)
+		{
+			return function(state)
+			{
+				return [createEdgeHandle(state, ['startWidth'], true, function(dist, nx, ny, p0, p1)
+				{
+					var w = mxUtils.getNumber(state.style, 'startWidth', defaultValue) * state.view.scale + spacing;
+	
+					return new mxPoint(p0.x + nx * dist / 4 + ny * w / 2, p0.y + ny * dist / 4 - nx * w / 2);
+				}, function(dist, nx, ny, p0, p1, pt)
+				{
+					var w = Math.sqrt(mxUtils.ptSegDistSq(p0.x, p0.y, p1.x, p1.y, pt.x, pt.y));					
+					state.style['startWidth'] = Math.round(w * 2) / state.view.scale - spacing;
+				})];
+			};
+		};
+
 		function createEdgeHandle(state, keys, start, getPosition, setPosition)
 		{
 			return createHandle(state, keys, function(bounds)
@@ -6374,7 +6391,10 @@
 				}, false)];
 			},
 			'singleArrow': createArrowHandleFunction(1),
-			'doubleArrow': createArrowHandleFunction(0.5),			
+			'doubleArrow': createArrowHandleFunction(0.5),
+			'mxgraph.arrows2.wedgeArrow': createWedgeHandleFunction(20, 20),
+			'mxgraph.arrows2.wedgeArrowDashed': createWedgeHandleFunction(20, 20),
+			'mxgraph.arrows2.wedgeArrowDashed2': createWedgeHandleFunction(20, 20),
 			'folder': function(state)
 			{
 				return [createHandle(state, ['tabWidth', 'tabHeight'], function(bounds)

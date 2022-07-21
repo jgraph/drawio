@@ -2023,6 +2023,7 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 		if (src != null)
 		{
 			var img = document.createElement('img');
+			img.className = 'geAdaptiveAsset';
 			img.style.position = 'absolute';
 			img.style.marginTop = '0.5px';
 			img.setAttribute('src', src);
@@ -2032,11 +2033,6 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 			{
 				mxUtils.setPrefixedStyle(img.style, 'transform', 'scaleX(-1)');
 			}
-			
-			if (Editor.isDarkMode())
-			{
-				img.style.filter = 'invert(100%)';
-			}	
 
 			markerDiv.appendChild(img);
 		}
@@ -4447,6 +4443,23 @@ EditorUi.prototype.createDivs = function()
 /**
  * Hook for sidebar footer container. This implementation returns null.
  */
+EditorUi.prototype.createSidebarContainer = function()
+{
+	var div = document.createElement('div');
+	div.className = 'geSidebarContainer';
+	div.style.position = 'absolute';
+	div.style.width = '100%';
+	div.style.height = '100%';
+	div.style.border = '1px solid whiteSmoke';
+	div.style.overflowX = 'hidden';
+	div.style.overflowY = 'auto';
+
+	return div;
+};
+
+/**
+ * Hook for sidebar footer container. This implementation returns null.
+ */
 EditorUi.prototype.createSidebarFooterContainer = function()
 {
 	return null;
@@ -5805,7 +5818,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 			{
 				if (action.isEnabled())
 				{
-					action.funct();
+					action.funct.apply(this, arguments);
 				}
 			};
     		

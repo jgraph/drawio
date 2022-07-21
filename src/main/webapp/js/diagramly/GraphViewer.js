@@ -2082,7 +2082,7 @@ GraphViewer.processElements = function(classname)
 		}
 		catch (e)
 		{
-			div.innerHTML = e.message;
+			div.innerText = e.message;
 			
 			if (window.console != null)
 			{

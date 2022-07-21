@@ -892,16 +892,12 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 		});
 		
 		var img = document.createElement('img');
+		img.className = 'geAdaptiveAsset';
 		img.setAttribute('src', Editor.mailImage);
 		img.setAttribute('width', '18');
 		img.setAttribute('height', '18');
 		img.setAttribute('border', '0');
 		img.style.marginBottom = '5px'
-		
-		if (Editor.isDarkMode())
-		{
-			img.style.filter = 'invert(100%)';
-		}
 
 		emailBtn.appendChild(img);
 		emailBtn.style.verticalAlign = 'bottom';
@@ -2930,11 +2926,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 				
 				if (errorMsg)
 				{
-					div.innerHTML = errorMsg;
+					div.innerText = errorMsg;
 				}
 				else if (docList.length == 0 && importListsCount == 0)
 				{
-					div.innerHTML = mxUtils.htmlEntities(mxResources.get('noDiagrams', null, 'No Diagrams Found'));
+					div.innerText = mxResources.get('noDiagrams', null, 'No Diagrams Found');
 				}
 				else
 				{
@@ -2988,7 +2984,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		{
 			var searchTab = document.createElement('span');
 			searchTab.style.marginLeft = '10px';
-			searchTab.innerHTML = mxUtils.htmlEntities(mxResources.get('search') + ':');
+			searchTab.innerText = mxResources.get('search') + ':';
 			tabs.appendChild(searchTab);
 
 			var searchInput = document.createElement('input');
@@ -3182,16 +3178,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	function addButton(url, libs, title, tooltip, select, imgUrl, infoObj, onClick, preview, noImg, clibs)
 	{
 		var elt = document.createElement('div');
-		elt.className = 'geTemplate';
+		elt.className = 'geTemplate geAdaptiveAsset';
 		elt.style.position = 'relative';
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
 		var xmlData = null, realUrl = url;
-	
-		if (Editor.isDarkMode())
-		{
-			elt.style.filter = 'invert(100%)';
-		}
 		
 		if (title != null)
 		{
@@ -6401,7 +6392,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							currentXml = null;
 
 							fileInfo.removeAttribute('title');
-							fileInfo.innerHTML = mxUtils.htmlEntities(mxResources.get('loading') + '...');
+							fileInfo.innerText = mxResources.get('loading') + '...';
 							container.style.backgroundColor = graph.defaultPageBackgroundColor;
 							errorNode.innerText = '';
 							graph.getModel().clear();
@@ -6436,8 +6427,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 									}
 									catch (e)
 									{
-										fileInfo.innerHTML = mxUtils.htmlEntities(
-											mxResources.get('error') + ': ' + e.message);
+										fileInfo.innerText = mxResources.get('error') + ': ' + e.message;
 									}
 								}
 				   			}, function(err)
@@ -7633,6 +7623,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		var brushInput = document.createElement('input');
 		brushInput.setAttribute('id', 'geFreehandBrush');
 		brushInput.setAttribute('type', 'checkbox');
+		brushInput.checked = graph.freehand.isPerfectFreehandMode();
 		brushInput.style.margin = '10px 5px 0px 10px';
 		brushInput.style.float = 'left';
 		div.appendChild(brushInput);
@@ -7656,11 +7647,14 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		div.appendChild(brushSize);
 		mxUtils.br(div);
 
-		mxEvent.addListener(brushInput, 'change', function()
+		var updateBrushState = function()
 		{
-			graph.freehand.setPerfectFreehandMode(this.checked)
-			brushSize.style.visibility = this.checked? 'visible' : 'hidden';
-		});
+			graph.freehand.setPerfectFreehandMode(brushInput.checked)
+			brushSize.style.visibility = brushInput.checked? 'visible' : 'hidden';
+		};
+
+		mxEvent.addListener(brushInput, 'change', updateBrushState);
+		updateBrushState();
 
 		mxEvent.addListener(brushSize, 'change', function()
 		{
@@ -8386,7 +8380,7 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 
 		if (plugins.length == 0)
 		{
-			inner.innerHTML = mxUtils.htmlEntities(mxResources.get('noPlugins'));
+			inner.innerText = mxResources.get('noPlugins');
 		}
 		else
 		{
@@ -10462,7 +10456,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	
 	function showError(msg)
 	{
-		errMsg.innerHTML = mxUtils.htmlEntities(msg);
+		errMsg.innerText = msg;
 		errMsg.style.display = 'block';
 		
 		setTimeout(function()
@@ -10824,7 +10818,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	
 	function toggleButtons(isTemplate)
 	{
-		createBtn.innerHTML = mxUtils.htmlEntities(mxResources.get(inTempScreen || isTemplate? 'create' : 'copy'));
+		createBtn.innerText = mxResources.get(inTempScreen || isTemplate? 'create' : 'copy');
 		
 		var opemDisplay = isTemplate? 'none' : '';
 		
@@ -10866,15 +10860,15 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			var hrow = document.createElement('tr');
 			var th = document.createElement('th');
 			th.style.width = "50%";
-			th.innerHTML = mxUtils.htmlEntities(mxResources.get('diagram'));
+			th.innerText = mxResources.get('diagram');
 			hrow.appendChild(th);
 			th = document.createElement('th');
 			th.style.width = "25%";
-			th.innerHTML = mxUtils.htmlEntities(mxResources.get('changedBy'));
+			th.innerText = mxResources.get('changedBy');
 			hrow.appendChild(th);
 			th = document.createElement('th');
 			th.style.width = "25%";
-			th.innerHTML = mxUtils.htmlEntities(mxResources.get('lastModifiedOn'));
+			th.innerText = mxResources.get('lastModifiedOn');
 			hrow.appendChild(th);
 			grid.appendChild(hrow);
 			diagramsTiles.appendChild(grid);
@@ -10890,7 +10884,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 							diagrams[i].title);
 			var tooltip = title || diagrams[i].url;
 			var imgUrl = diagrams[i].imgUrl;
-			var changedBy = mxUtils.htmlEntities(diagrams[i].changedBy || "");
+			var changedBy = diagrams[i].changedBy || '';
 			var lastModifiedOn = '';
 			
 			if (diagrams[i].lastModifiedOn)
@@ -10902,7 +10896,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 					str = mxResources.get('lessThanAMinute');
 				}
 				
-				lastModifiedOn = mxUtils.htmlEntities(mxResources.get('timeAgo', [str], '{1} ago'));
+				lastModifiedOn = mxResources.get('timeAgo', [str], '{1} ago');
 			}
 			
 			if (!imgUrl)
@@ -10937,10 +10931,10 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				td.appendChild(titleSpan);
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.innerHTML = changedBy;
+				td.innerText = changedBy;
 				row.appendChild(td);
 				td = document.createElement('td');
-				td.innerHTML = lastModifiedOn;
+				td.innerText = lastModifiedOn;
 				row.appendChild(td);
 				grid.appendChild(row);
 				
@@ -11057,7 +11051,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			{
 				var header = document.createElement('div');
 				header.className = 'geTempDlgImportCat';
-				header.innerHTML = mxResources.get(cat, null, cat);
+				header.innerText = mxResources.get(cat, null, cat);
 				diagramsTiles.appendChild(header);
 				fillDiagramsList(catList, isTemplate, asList, null, true);
 			}
@@ -11066,7 +11060,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 	
 	function fillNewDiagramCats(newDiagramCats, showAll) 
 	{
-		newDiagramCatList.innerHTML = "";
+		newDiagramCatList.innerText = '';
 		swapActiveItem();
 		var oneRowCount = Math.floor(newDiagramCatList.offsetWidth / 150) - 1;
 		var catCount = !showAll && newDiagramCats.length > oneRowCount ? oneRowCount : newDiagramCats.length;
@@ -11135,12 +11129,12 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		entry.setAttribute('title', label);
 		var imgDiv = document.createElement('div');
 		imgDiv.className = "geTempDlgNewDiagramCatItemImg";
-		imgDiv.innerHTML = '...';
+		imgDiv.innerText = '...';
 		imgDiv.style.fontSize = '32px';
 		entry.appendChild(imgDiv);
 		var lblDiv = document.createElement('div');
 		lblDiv.className = "geTempDlgNewDiagramCatItemLbl";
-		lblDiv.innerHTML = label;
+		lblDiv.innerText = label;
 		entry.appendChild(lblDiv);
 		newDiagramCatList.appendChild(entry);
 
@@ -11181,14 +11175,14 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		{
 			newDiagramCat.style.height = "280px";
 			newDiagramCatList.style.height = "190px";
-			showAllBtn.innerHTML = mxUtils.htmlEntities(mxResources.get('showMore'));
+			showAllBtn.innerText = mxResources.get('showMore');
 			fillNewDiagramCats(newDiagramCats);
 		}
 		else 
 		{
 			newDiagramCat.style.height = "440px";
 			newDiagramCatList.style.height = "355px";
-			showAllBtn.innerHTML = mxUtils.htmlEntities(mxResources.get('showLess'));
+			showAllBtn.innerText = mxResources.get('showLess');
 			fillNewDiagramCats(newDiagramCats, true);
 		}
 
@@ -11539,7 +11533,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		if (errorMsg)
 		{
-			diagramsTiles.innerHTML = errorMsg;
+			diagramsTiles.innerText = errorMsg;
 		}
 		else
 		{
@@ -11553,7 +11547,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 				
 			if (list.length == 0 && importListsCount == 0)
 			{
-				diagramsTiles.innerHTML = mxUtils.htmlEntities(mxResources.get('noDiagrams'));
+				diagramsTiles.innerText = mxResources.get('noDiagrams');
 			}
 			else
 			{
@@ -11571,7 +11565,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 			spinner.spin(diagramsTiles);
 			cancelPendingCall = false;
 			callInitiated = true;
-			diagramsListTitle.innerHTML = mxUtils.htmlEntities(mxResources.get('recentDiag'));
+			diagramsListTitle.innerText = mxResources.get('recentDiag');
 			lastSearchStr = null;
 			recentDocsCallback(extDiagramsCallback, function()
 			{
@@ -11698,7 +11692,7 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		if (results.length == 0)
 		{
-			diagramsListTitle.innerHTML = mxResources.get('noResultsFor', [searchTerms]);
+			diagramsListTitle.innerText = mxResources.get('noResultsFor', [searchTerms]);
 		}
 		else
 		{
@@ -11713,8 +11707,8 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		deselectTempCat();
 		tempDlgContent.scrollTop = 0;
 		diagramsTiles.innerText = '';
-		diagramsListTitle.innerHTML = mxUtils.htmlEntities(mxResources.get('searchResults')) + 
-										' "' + mxUtils.htmlEntities(searchStr) + '"';
+		diagramsListTitle.innerText = mxResources.get('searchResults') + 
+										' "' + searchStr + '"';
 		delayTimer = null;
 
 		if (inTempScreen)

@@ -54,8 +54,11 @@ html body .geBaseButton, html .geSidebarContainer button {
 html body .geSidebarTooltip {
 	border:1px solid #505759;
 }
-html body .geSprite, html body .geSocialFooter img, html body .mxPopupMenuItem>img {
+html body .geSprite, html body .geSocialFooter img, html body .mxPopupMenuItem>img, .geAdaptiveAsset {
 	filter:invert(100%);
+}
+.geInverseAdaptiveAsset {
+	filter:none !important;
 }
 html body .geFormatContainer {
 	background-color:#2a2a2a !important;
@@ -83,7 +86,10 @@ html body .geToolbarMenu, html body .geFooterContainer, html body .geFooterConta
 html body .geFooterContainer a {
 	background-color:none;
 }
-html body .geFooterContainer td:hover, html body #geFooterItem1:hover {
+html body .geBigStandardButton {
+	border: 1px solid #505759;
+}
+html body .geFooterContainer td:hover, html body #geFooterItem1:hover, html body .geBigStandardButton:hover {
 	background-color:#000000;
 }
 html body .geSidebarContainer, html body .geDiagramBackdrop {
@@ -134,6 +140,9 @@ html body .geToolbarContainer .geButton:hover, html body .geToolbarContainer .ge
 html body .geToolbarContainer .geLabel:hover, html body .geToolbarContainer .geLabel:active,
 html body .geHsplit:hover, html body .geVsplit:hover, html .geSidebarContainer button:active {
 	background-color:#000;
+}
+html body .geToolbarContainer .geButton.geAdaptiveAsset:hover {
+	background-color: #fff;
 }
 html body .geToolbar {
 	border-color:#505759;

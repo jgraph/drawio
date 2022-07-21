@@ -2271,7 +2271,8 @@ Graph.prototype.init = function(container)
 			(this.model.isVertex(state.cell) ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'arrow' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'filledEdge' ||
-			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'flexArrow');
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'flexArrow' ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'mxgraph.arrows2.wedgeArrow');
 	};
 	
 	/**
@@ -4696,14 +4697,15 @@ Graph.prototype.replaceDefaultColors = function(cell, style)
 		var bg = mxUtils.hex2rgb(this.shapeBackgroundColor);
 		var fg = mxUtils.hex2rgb(this.shapeForegroundColor);
 
-		this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_STROKECOLOR, fg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BORDER, fg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BACKGROUND, bg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BORDERCOLOR, fg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, bg);
-		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_FONTCOLOR, fg, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_FILLCOLOR, bg, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_GRADIENTCOLOR, fg, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_STROKECOLOR, fg, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BORDER, fg, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_IMAGE_BACKGROUND, bg, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BORDERCOLOR, fg, bg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_SWIMLANE_FILLCOLOR, bg, fg);
+		this.replaceDefaultColor(style, mxConstants.STYLE_LABEL_BACKGROUNDCOLOR, bg, fg);
 	}
 
 	return style;
@@ -4712,12 +4714,27 @@ Graph.prototype.replaceDefaultColors = function(cell, style)
 /**
  * Replaces the colors for the given key.
  */
-Graph.prototype.replaceDefaultColor = function(style, key, value)
+Graph.prototype.replaceDefaultColor = function(style, key, value, inverseValue)
 {
 	if (style != null && style[key] == 'default' && value != null)
 	{
-		style[key] = value;
+		style[key] = this.getDefaultColor(style, key, value, inverseValue);
 	}
+};
+
+/**
+ * Replaces the colors for the given key.
+ */
+Graph.prototype.getDefaultColor = function(style, key, defaultValue, inverseDefaultValue)
+{
+	var temp = 'default' + key.charAt(0).toUpperCase() + key.substring(1);
+
+	if (style[temp] == 'invert')
+	{
+		defaultValue = inverseDefaultValue;
+	}
+
+	return defaultValue;
 };
 
 /**
@@ -5164,7 +5181,9 @@ Graph.prototype.getTooltipForCell = function(cell)
 			
 			for (var i = 0; i < attrs.length; i++)
 			{
-				if (mxUtils.indexOf(ignored, attrs[i].nodeName) < 0 && attrs[i].nodeValue.length > 0)
+				if (((Graph.translateDiagram && attrs[i].nodeName == 'label') ||
+					mxUtils.indexOf(ignored, attrs[i].nodeName) < 0) &&
+					attrs[i].nodeValue.length > 0)
 				{
 					temp.push({name: attrs[i].nodeName, value: attrs[i].nodeValue});
 				}
@@ -13827,6 +13846,7 @@ if (typeof mxVertexHandler !== 'undefined')
 						if (this.graph.isEnabled() && typeof this.graph.editLink === 'function')
 						{
 							var changeLink = document.createElement('img');
+							changeLink.className = 'geAdaptiveAsset';
 							changeLink.setAttribute('src', Editor.editImage);
 							changeLink.setAttribute('title', mxResources.get('editLink'));
 							changeLink.setAttribute('width', '11');
@@ -13834,12 +13854,6 @@ if (typeof mxVertexHandler !== 'undefined')
 							changeLink.style.marginLeft = '10px';
 							changeLink.style.marginBottom = '-1px';
 							changeLink.style.cursor = 'pointer';
-
-							if (Editor.isDarkMode())
-							{
-								changeLink.style.filter = 'invert(100%)';
-							}
-
 							this.linkHint.appendChild(changeLink);
 							
 							mxEvent.addListener(changeLink, 'click', mxUtils.bind(this, function(evt)

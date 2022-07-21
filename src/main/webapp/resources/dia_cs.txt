@@ -1204,3 +1204,7 @@ draftSaveInt=Ukládat koncept v intervalu [sek] (0 – nula – vypíná)
 pluginsDisabled=Externí zásuvné moduly vypnuty
 extExpNotConfigured=Externí služba obrázků není nastavena
 pathFilename=Path/Filename
+confAHugeInstances=Very Large Instances
+confAHugeInstancesDesc=If this instance includes 100,000+ pages, it is faster to request the current instance pages list from Atlassian. Please contact our support for more details.
+choosePageIDsFile=Choose current page IDs csv file
+chooseDrawioPsgesFile=Choose pages with draw.io diagrams csv file

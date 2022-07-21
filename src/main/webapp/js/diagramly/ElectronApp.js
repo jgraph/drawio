@@ -325,6 +325,12 @@ mxStencilRegistry.allowEval = false;
 			electron.sendMessage('isModified-result', reply);
 		});
 
+		electron.registerMsgListener('removeDraft', () =>
+		{
+			editorUi.getCurrentFile().removeDraft();
+			electron.sendMessage('draftRemoved', {});
+		});
+
 		// Adds support for libraries
 		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()
 		{

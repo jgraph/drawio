@@ -603,7 +603,7 @@ DriveFile.prototype.isRealtimeEnabled = function()
 	var collab = this.ui.drive.getCustomProperty(this.desc, 'collaboration');
 
 	return (DrawioFile.prototype.isRealtimeEnabled.apply(this, arguments) &&
-		collab != 'disabled') || collab == 'enabled';
+		collab != 'disabled') || (Editor.enableRealtime && collab == 'enabled');
 };
 
 /**

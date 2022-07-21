@@ -179,34 +179,42 @@ function createWindow (opt = {})
 
 		if (contents != null)
 		{
-	        ipcMain.once('isModified-result', (evt, data) =>
+	        ipcMain.once('isModified-result', async (evt, data) =>
 			{
 				if (data.isModified)
 				{
-					dialog.showMessageBox(
+					// Can't use async function here because it crashes on Linux when win.destroy is called
+					let response = dialog.showMessageBoxSync(
 						win,
 						{
 							type: 'question',
 							buttons: ['Cancel', 'Discard Changes'],
 							title: 'Confirm',
 							message: 'The document has unsaved changes. Do you really want to quit without saving?' //mxResources.get('allChangesLost')
-						}).then( async result =>
-						{
-							if (result.response === 1)
-							{
-								//If user chose not to save, remove the draft
-								if (data.draftPath != null)
-								{
-									await deleteFile(data.draftPath);
-								}
-
-								win.destroy();
-							}
-							else
-							{
-								cmdQPressed = false;
-							}
 						});
+
+					if (response === 1)
+					{
+						//If user chose not to save, remove the draft
+						if (data.draftPath != null)
+						{
+							await deleteFile(data.draftPath);
+							win.destroy();
+						}
+						else
+						{
+							contents.send('removeDraft');
+
+							ipcMain.once('draftRemoved', () =>
+							{
+								win.destroy();
+							});
+						}
+					}
+					else
+					{
+						cmdQPressed = false;
+					}
 				}
 				else
 				{
@@ -749,7 +757,7 @@ app.on('ready', e =>
 					{
 						type: 'info',
 						title: 'No updates found',
-						message: 'You application is up-to-date',
+						message: 'Your application is up-to-date',
 					})
 			})
 		}
@@ -2046,7 +2054,9 @@ function checkFileExists(pathParts)
 
 async function showOpenDialog(defaultPath, filters, properties)
 {
-	return dialog.showOpenDialogSync({
+	let win = BrowserWindow.getFocusedWindow();
+
+	return dialog.showOpenDialog(win, {
 		defaultPath: defaultPath,
 		filters: filters,
 		properties: properties
@@ -2055,7 +2065,9 @@ async function showOpenDialog(defaultPath, filters, properties)
 
 async function showSaveDialog(defaultPath, filters)
 {
-	return dialog.showSaveDialogSync({
+	let win = BrowserWindow.getFocusedWindow();
+
+	return dialog.showSaveDialog(win, {
 		defaultPath: defaultPath,
 		filters: filters
 	});
@@ -2285,11 +2297,13 @@ ipcMain.on("rendererReq", async (event, args) =>
 		case 'showOpenDialog':
 			dialogOpen = true;
 			ret = await showOpenDialog(args.defaultPath, args.filters, args.properties);
+			ret = ret.filePaths;
 			dialogOpen = false;
 			break;
 		case 'showSaveDialog':
 			dialogOpen = true;
 			ret = await showSaveDialog(args.defaultPath, args.filters);
+			ret = ret.canceled? null : ret.filePath;
 			dialogOpen = false;
 			break;
 		case 'installPlugin':

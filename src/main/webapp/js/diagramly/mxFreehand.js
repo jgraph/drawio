@@ -31,7 +31,7 @@ function mxFreehand(graph)
 	var stopClickEnabled = true;
 	var selectInserted = false;
 	var perfectFreehandOptions = {
-		size: 12,
+		size: 5,
 		thinning: 0.5,
 		smoothing: 0.5,
 		streamline: 0.5,
@@ -47,7 +47,8 @@ function mxFreehand(graph)
 		  cap: true
 		}
 	};
-	var perfectFreehandMode = false;
+
+	var perfectFreehandMode = true;
 
 	this.setClosedPath = function(isClosed)//TODO add closed settings
 	{
@@ -92,6 +93,11 @@ function mxFreehand(graph)
 	this.setPerfectFreehandMode = function(value)
 	{
 		perfectFreehandMode = value;
+	};
+
+	this.isPerfectFreehandMode = function()
+	{
+		return perfectFreehandMode;
 	};
 
 	this.setBrushSize = function(value)

@@ -284,27 +284,39 @@ Menus.prototype.init = function()
 		
 			if (shape != 'arrow')
 			{
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], [null, null, null], 'geIcon geSprite geSprite-straight', parent, true).setAttribute('title', mxResources.get('straight'));
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['orthogonalEdgeStyle', null, null], 'geIcon geSprite geSprite-orthogonal', parent, true).setAttribute('title', mxResources.get('orthogonal'));
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['elbowEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['elbowEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['isometricEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['isometricEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					[null, null, null], 'geIcon geSprite geSprite-straight', parent, true).setAttribute('title', mxResources.get('straight'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['orthogonalEdgeStyle', null, null], 'geIcon geSprite geSprite-orthogonal', parent, true).setAttribute('title', mxResources.get('orthogonal'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['elbowEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['elbowEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalelbow', parent, true).setAttribute('title', mxResources.get('simple'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['isometricEdgeStyle', null, null, null], 'geIcon geSprite geSprite-horizontalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_ELBOW, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['isometricEdgeStyle', 'vertical', null, null], 'geIcon geSprite geSprite-verticalisometric', parent, true).setAttribute('title', mxResources.get('isometric'));
 		
 				if (shape == 'connector')
 				{
-					this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['orthogonalEdgeStyle', '1', null], 'geIcon geSprite geSprite-curved', parent, true).setAttribute('title', mxResources.get('curved'));
+					this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+						['orthogonalEdgeStyle', '1', null], 'geIcon geSprite geSprite-curved', parent, true).setAttribute('title', mxResources.get('curved'));
 				}
 				
-				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE], ['entityRelationEdgeStyle', null, null], 'geIcon geSprite geSprite-entity', parent, true).setAttribute('title', mxResources.get('entityRelation'));
+				this.edgeStyleChange(menu, '', [mxConstants.STYLE_EDGE, mxConstants.STYLE_CURVED, mxConstants.STYLE_NOEDGESTYLE],
+					['entityRelationEdgeStyle', null, null], 'geIcon geSprite geSprite-entity', parent, true).setAttribute('title', mxResources.get('entityRelation'));
 			}
 			
 			menu.addSeparator(parent);
 
-			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], [null, null, null, null], 'geIcon geSprite geSprite-connection', parent, true, null, true).setAttribute('title', mxResources.get('line'));
-			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['link', null, null, null], 'geIcon geSprite geSprite-linkedge', parent, true, null, true).setAttribute('title', mxResources.get('link'));
-			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', parent, true, null, true).setAttribute('title', mxResources.get('arrow'));
-			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', parent, true, null, true).setAttribute('title', mxResources.get('simpleArrow'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+				[null, null, null, null], 'geIcon geSprite geSprite-connection', parent, true, null, true).setAttribute('title', mxResources.get('line'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+				['link', null, null, null], 'geIcon geSprite geSprite-linkedge', parent, true, null, true).setAttribute('title', mxResources.get('link'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+				['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', parent, true, null, true).setAttribute('title', mxResources.get('arrow'));
+			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+				['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', parent, true, null, true).setAttribute('title', mxResources.get('simpleArrow'));
 		}
 	})));
 	this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -826,8 +838,6 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 
 		if (td != null && graph.cellEditor.textarea != null)
 		{
-			var row2 = graph.getParentByName(td, 'TR');
-			
 			// To find the new link, we create a list of all existing links first
     		// LATER: Refactor for reuse with code for finding inserted image below
 			var tmp = graph.cellEditor.textarea.getElementsByTagName('table');
@@ -894,6 +904,15 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 
 	var elt2 = menu.addItem('', null, null, parent, null, null, null, true);
 	elt2.firstChild.style.fontSize = Menus.prototype.defaultFontSize + 'px';
+
+	// Hide empty rows in menu item
+	var tds = elt2.getElementsByTagName('td');
+
+	if (tds.length > 1)
+	{
+		tds[1].style.display = 'none';
+		tds[2].style.display = 'none';
+	}
 	
 	function createPicker(rows, cols)
 	{

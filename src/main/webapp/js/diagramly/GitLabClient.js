@@ -1334,7 +1334,7 @@ GitLabClient.prototype.showGitLabDialog = function(showFiles, fn)
 								{
 									var temp = listItem.cloneNode();
 									temp.style.backgroundColor = (gray) ?
-										((uiTheme == 'dark') ? '#000000' : '#eeeeee') : '';
+										((Editor.isDarkMode()) ? '#000000' : '#eeeeee') : '';
 									gray = !gray;
 									
 									(mxUtils.bind(this, function(project)

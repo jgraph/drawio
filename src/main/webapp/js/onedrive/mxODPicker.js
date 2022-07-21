@@ -700,49 +700,68 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
         	url += (url.indexOf('?') > 0 ? '&' : '?') + 'select=id,name,description,parentReference,file,createdBy,lastModifiedBy,lastModifiedDateTime,size,folder,remoteItem,@microsoft.graph.downloadUrl';
         }
         
-		getODFilesList(url, function(resp) 
-		{
-			if (!acceptRequest) return;
-			clearTimeout(timeoutThread);
-			
-			var list = resp.value || [];
+		var potentialDrawioFiles = [];
 
-			var potentialDrawioFiles = acceptAllFiles || isSharepointSites? list : [];
-			
-			for (var i = 0; !isSharepointSites && !acceptAllFiles && i < list.length; i++)
+		function getChunk(nextUrl)
+		{
+			getODFilesList(nextUrl? nextUrl : url, function(resp) 
 			{
-				var file = list[i];
-				var mimeType = file.file? file.file.mimeType : null;
+				if (!acceptRequest) return;
 				
-				if (file.folder || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png' 
-					|| /\.svg$/.test(file.name) || /\.html$/.test(file.name) || /\.xml$/.test(file.name) || /\.png$/.test(file.name)
-					|| /\.drawio$/.test(file.name) || /\.drawiolib$/.test(file.name))
-				{
-					potentialDrawioFiles.push(file);
-				}
-			}
-			
-			renderList(potentialDrawioFiles);
-		}, 
-		function(err)
-		{
-			if (!acceptRequest) return;
-			clearTimeout(timeoutThread);
-			
-			var errMsg = null;
-			
-			try
-			{
-				errMsg = JSON.parse(err.responseText).error.message;
-			}
-			catch(e){} //ignore errors
-			
-			errorFn(mxResources.get('errorFetchingFolder', null, 'Error fetching folder items') +
-				(errMsg != null? ' (' + errMsg + ')' : ''));
+				var list = resp.value || [];
 
-			requestInProgress = false;
-			spinner.stop();
-		});
+				if (acceptAllFiles || isSharepointSites)
+				{
+					Array.prototype.push.apply(potentialDrawioFiles, list);
+				}
+				else
+				{
+					for (var i = 0; i < list.length; i++)
+					{
+						var file = list[i];
+						var mimeType = file.file? file.file.mimeType : null;
+						
+						if (file.folder || mimeType == 'text/html' || mimeType == 'text/xml' || mimeType == 'application/xml' || mimeType == 'image/png' 
+							|| /\.svg$/.test(file.name) || /\.html$/.test(file.name) || /\.xml$/.test(file.name) || /\.png$/.test(file.name)
+							|| /\.drawio$/.test(file.name) || /\.drawiolib$/.test(file.name))
+						{
+							potentialDrawioFiles.push(file);
+						}
+					}
+				}
+
+				if (resp['@odata.nextLink'] && potentialDrawioFiles.length < 1000) // TODO Support dynamic paging instead of 1000 limit
+				{
+					getChunk(resp['@odata.nextLink']);
+				}
+				else
+				{
+					clearTimeout(timeoutThread);
+					renderList(potentialDrawioFiles);
+				}
+			}, 
+			function(err)
+			{
+				if (!acceptRequest) return;
+				clearTimeout(timeoutThread);
+				
+				var errMsg = null;
+				
+				try
+				{
+					errMsg = JSON.parse(err.responseText).error.message;
+				}
+				catch(e){} //ignore errors
+				
+				errorFn(mxResources.get('errorFetchingFolder', null, 'Error fetching folder items') +
+					(errMsg != null? ' (' + errMsg + ')' : ''));
+
+				requestInProgress = false;
+				spinner.stop();
+			}, nextUrl != null);
+		};
+
+		getChunk();
 	};
 	
 	this.getSelectedItem = function()

@@ -591,25 +591,25 @@
 							    	}
 							    	else
 							    	{
-							    		graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
+							    		graph.container.innerText = 'Cannot load ' + url;
 							    	}
 						    	}
 								catch (e)
 								{
-									graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url) + ': ' + mxUtils.htmlEntities(e.message);
+									graph.container.innerText = 'Cannot load ' + url + ': ' + e.message;
 								}
 						    });
 						    
 						    xhr.onerror = function()
 						    {
-						    	graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url);
+						    	graph.container.innerText = 'Cannot load ' + url;
 						    };
 						
 						    xhr.send();
 						}
 						catch (e)
 						{
-							graph.container.innerHTML = 'Cannot load ' + mxUtils.htmlEntities(url) + ': ' + mxUtils.htmlEntities(e.message);
+							graph.container.innerText = 'Cannot load ' + url + ': ' + e.message;
 						}
 					}
 					else
@@ -759,7 +759,7 @@
 						});
 						
 						// Do not use HTML entity to avoid problems with XHTML
-						button.innerHTML = '...';
+						button.innerText = '...';
 					}
 					
 					function show()

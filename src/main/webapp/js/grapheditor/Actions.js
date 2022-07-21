@@ -1726,32 +1726,37 @@ Actions.prototype.init = function()
 			        		{
 			        			graph.setCellStyles(mxConstants.STYLE_SHAPE, null, cells);
 			        		}
+
+							if (clipPath == null)
+							{
+								graph.setCellStyles(mxConstants.STYLE_CLIP_PATH, null, cells); //Reset clip path
+							}
 				        	
-				        	if (graph.getSelectionCount() == 1)
-				        	{
-					        	if (w != null && h != null)
-					        	{
-					        		var cell = cells[0];
-					        		var geo = graph.getModel().getGeometry(cell);
-					        		
-					        		if (geo != null)
-					        		{
-					        			geo = geo.clone();
-						        		geo.width = w;
-						        		geo.height = h;
-						        		graph.getModel().setGeometry(cell, geo);
-					        		}
+							if (w != null && h != null)
+							{
+								for (var i = 0; i < cells.length; i++)
+								{
+									var cell = cells[i];
+
+									if (graph.getCurrentCellStyle(cell)['expand'] != '0')
+									{
+										var geo = graph.getModel().getGeometry(cell);
+										
+										if (geo != null)
+										{
+											geo = geo.clone();
+											geo.width = w;
+											geo.height = h;
+											graph.getModel().setGeometry(cell, geo);
+										}
+									}
 
 									if (clipPath != null)
 									{
 										applyClipPath(cell, clipPath, cW, cH, graph);
 									}
-									else
-									{
-										graph.setCellStyles(mxConstants.STYLE_CLIP_PATH, null, cells); //Reset clip path
-									}
-					        	}
-				        	}
+								}
+							}
 			        	}
 			        	finally
 			        	{

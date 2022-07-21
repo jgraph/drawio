@@ -1,3 +1,25 @@
+21-JUL-2022: 20.1.4
+
+- Fixes dark mode switch overlaps embed buttons
+- Fixes embed button styles in dark mode
+- Uses proxy for CSV descriptor URL if CSP is used
+
+20-JUL-2022: 20.1.3
+
+- Fixes curved/rounded checkbox in diagram style tab
+- Restores update of default curved/rounded style
+- Adds border width and type for color scheme [2924]
+- Fixes ignored expand style for image change [2921]
+
+19-JUL-2022: 20.1.2
+
+- Update mermaid to v9.1.3
+- Removes Advanced PDF export when printPdfExport is true
+- Adds A/S/D/F/X/C, moves Ctrl+(Shift)+K/X shortcuts
+- Fixes page background if ui URL parameter is used
+- Adds label in dialog/tooltip if diagram translated
+- Uses default browser language for online app
+
 12-JUL-2022: 20.1.1
 
 - Closes secret manager resources

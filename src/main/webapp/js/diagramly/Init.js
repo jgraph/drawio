@@ -181,6 +181,33 @@ if (window.mxLanguages == null)
 			window.mxLanguages.push(lang);
 		}
 	}
+
+	// Uses browser language if supported
+	if (window.mxLanguage == null &&
+		(window.location.hostname == 'test.draw.io' ||
+		window.location.hostname == 'www.draw.io' ||
+		window.location.hostname == 'viewer.diagrams.net' ||
+		window.location.hostname == 'embed.diagrams.net' ||
+		window.location.hostname == 'app.diagrams.net' ||
+		window.location.hostname == 'jgraph.github.io'))
+	{
+		var lang = navigator.language;
+
+		if (lang != null)
+		{
+			var dash = lang.indexOf('-');
+				
+			if (dash > 0)
+			{
+				lang = lang.substring(0, dash);
+			}
+
+			if (window.mxLanguages.indexOf(lang) >= 0)
+			{
+				window.mxLanguage = lang;
+			}
+		}
+	}
 }
 
 //Disable Google Drive when running in a WebView (e.g, MS Teams App) Since auth doesn't work with disallowd_useragent
@@ -294,7 +321,11 @@ window.uiTheme = window.uiTheme || (function()
 		urlParams['sketch'] = '1';
 		ui = 'min';
 	}
-		
+	else if (urlParams['dark'] == '1' && (ui == '' || ui == 'kennedy'))
+	{
+		ui = 'dark';
+	}
+	
 	return ui;
 })();
 
