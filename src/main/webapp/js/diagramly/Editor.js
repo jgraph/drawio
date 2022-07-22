@@ -194,7 +194,7 @@
 	/**
 	 * Disables fast real time collaboration while keeping slower real time collaboration enabled.
 	 */
-	Editor.enableRealtime = false;
+	Editor.enableRealtime = true;
 
 	/**
 	 * Specifies if XML files should be compressed. Default is true.

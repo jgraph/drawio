@@ -870,21 +870,27 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 	if (!this.file.ignorePatches(changes))
 	{
 		var changeId = this.clientId + '.' + (this.syncChangeCounter++);
-		var msg = {a: 'change', c: changes, id: changeId, t: Date.now()};
-		var data = encodeURIComponent(
-			this.objectToString(
-			this.createMessage(msg)));
+		var msg = this.createMessage({a: 'change', c: changes,
+			id: changeId, t: Date.now()});
 		var skipped = false;
 		
 		if (this.p2pCollab != null)
 		{
-			this.p2pCollab.sendDiff(data);
+			this.p2pCollab.sendDiff(msg);
 		}
-		else if (urlParams['dev'] == '1' &&
-			(this.maxSyncMessageSize == 0 ||
-			data.length < this.maxSyncMessageSize))
+		else if (urlParams['dev'] == '1')
 		{
-			mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + data);
+			var data = encodeURIComponent(this.objectToString(msg));
+
+			if (this.maxSyncMessageSize == 0 ||
+				data.length < this.maxSyncMessageSize)
+			{
+				mxUtils.post(EditorUi.cacheUrl, this.getIdParameters() + '&msg=' + data);
+			}
+			else
+			{
+				skipped = true;
+			}
 		}
 		else
 		{
@@ -892,8 +898,7 @@ DrawioFileSync.prototype.doSendLocalChanges = function(changes)
 		}
 
 		EditorUi.debug('DrawioFileSync.doSendLocalChanges', [this],
-			'changes', changes, data.length, 'bytes',
-			skipped ? '(skipped)' : '');
+			'changes', changes, skipped ? '(skipped)' : '');
 	}
 };
 
@@ -1992,6 +1997,12 @@ DrawioFileSync.prototype.stop = function()
 		
 		this.pusher.disconnect();
 		this.pusher = null;
+
+		if (this.p2pCollab != null)
+		{
+			this.p2pCollab.destroy();
+			this.p2pCollab = null;
+		}
 	}
 	
 	this.updateOnlineState();
@@ -2061,6 +2072,7 @@ DrawioFileSync.prototype.destroy = function()
 		this.collaboratorsElement = null;
 	}
 
+	// This is not needed now as stop already destroyed it
 	if (this.p2pCollab != null)
 	{
 		this.p2pCollab.destroy();

@@ -1,3 +1,7 @@
+22-JUL-2022: 20.2.0
+
+- Changes real-time collaboration CF worker to use the same DO for multiple files
+
 21-JUL-2022: 20.1.4
 
 - Fixes dark mode switch overlaps embed buttons

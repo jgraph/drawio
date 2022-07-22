@@ -1,6 +1,7 @@
 function P2PCollab(ui, sync, channelId)
 {
 	var graph = ui.editor.graph;
+	var encrypted = true; // global flag to encrypt all messages
 	var sessionCount = 0;
 	var socket = null;
 	var colors = [
@@ -59,49 +60,67 @@ function P2PCollab(ui, sync, channelId)
 
 	function sendMessage(type, data)
 	{
-		if (destroyed) return;
-
-		var user = sync.file.getCurrentUser();
-
-		if (!fileJoined || user == null || user.email == null) return;
-		
-		//Converting to a string such that webRTC works also
-		var msg = JSON.stringify({from: myClientId, id: messageId,
-			type: type, sessionId: sync.clientId, userId: user.id,
-			username: user.displayName, data: data,
-			protocol: DrawioFileSync.PROTOCOL,
-			editor: EditorUi.VERSION});
-		
-		if (NO_P2P && type != 'cursor')
+		try
 		{
-			EditorUi.debug('P2PCollab: sending to socket server', [msg]);
-		}
+			if (destroyed) return;
 
-		messageId++;
-		var p2pOnlyMsgs = !NO_P2P && (type == 'cursor' || type == 'selectionChange');
+			var user = sync.file.getCurrentUser();
 
-		if (useSocket && !p2pOnlyMsgs)
-		{
-			sendReply('message', msg);
-		}
-		
-		//TODO Currently, we only send cursor & selection messages via P2P
-		if (p2pOnlyMsgs)
-		{
-			for (p2pId in p2pClients)
+			if (!fileJoined || user == null || user.email == null) return;
+			
+			//Converting to a string such that webRTC works also
+			var msg = {from: myClientId, id: messageId,
+				type: type, sessionId: sync.clientId, userId: user.id,
+				username: user.displayName, data: data,
+				protocol: DrawioFileSync.PROTOCOL,
+				editor: EditorUi.VERSION};
+
+			if (encrypted)
 			{
-				p2pClients[p2pId].send(msg);
+				// data is needed for old server to not drop messages
+				msg = {bytes: sync.objectToString(msg), data: 'aes'};
+			}
+
+			msg = JSON.stringify(msg);
+			
+			if (NO_P2P && type != 'cursor')
+			{
+				EditorUi.debug('P2PCollab: sending to socket server', [msg]);
+			}
+
+			messageId++;
+			var p2pOnlyMsgs = !NO_P2P && (type == 'cursor' || type == 'selectionChange');
+
+			if (useSocket && !p2pOnlyMsgs)
+			{
+				sendReply('message', msg);
+			}
+			
+			//TODO Currently, we only send cursor & selection messages via P2P
+			if (p2pOnlyMsgs)
+			{
+				for (p2pId in p2pClients)
+				{
+					p2pClients[p2pId].send(msg);
+				}
+			}
+		}
+		catch (e)
+		{
+			if (window.console != null)
+			{
+				console.log('Error:', e);
 			}
 		}
 	};
 	
 	this.sendMessage = sendMessage;
 	
-	this.sendDiff = function(diff)
+	this.sendDiff = function(msg)
 	{
-		this.sendMessage('diff', {
-			patch: diff
-		});
+		this.sendMessage('diff', (encrypted) ?
+			{diff: msg} : {patch: encodeURIComponent(
+				sync.objectToString(msg))});
 	};
 
 	this.getState = function()
@@ -275,171 +294,194 @@ function P2PCollab(ui, sync, channelId)
 
 	function processMsg(msg, fromCId)
 	{
-		if (destroyed) return;
-
-		msg = JSON.parse(msg);
-		
-		if (NO_P2P && msg.type != 'cursor')
+		try
 		{
-			EditorUi.debug('P2PCollab: msg received', [msg]);
-		}
+			if (destroyed) return;
 
-		//Exclude P2P messages from duplicate messages test since p2p can arrive before socket and interrupt delivery
-		if (fromCId != null)
-		{
-			//Safeguard from duplicate messages or receiving my own messages
-			if (msg.from == myClientId || clientLastMsgId[msg.from] >= msg.id)
+			msg = JSON.parse(msg);
+
+			if (msg.bytes != null)
 			{
-				EditorUi.debug('P2PCollab: Dropped Message', msg, myClientId, clientLastMsgId[msg.from])
-				return;
+				msg = sync.stringToObject(msg.bytes);
 			}
 			
-			clientLastMsgId[msg.from] = msg.id;
-		}
-		
-		var username = msg.username? msg.username : 'Anonymous';
-		var sessionId = msg.sessionId;
-		var cursor, selection;
-
-		function createCursor()
-		{
-			if (connectedSessions[sessionId] == null)
+			if (NO_P2P && msg.type != 'cursor')
 			{
-				var clrIndex = sessionColors[sessionId];
-
-				if (clrIndex == null)
-				{
-					clrIndex = sessionCount % colors.length;
-					sessionColors[sessionId] = clrIndex;
-					sessionCount++;
-				}
-
-				var clr = colors[clrIndex];
-				var lblClr = clrIndex > 11? 'black' : 'white';
-
-				connectedSessions[sessionId] = {
-					cursor: document.createElement('div'),
-					color: clr,
-					selection: {}
-				};
-				
-				clientsToSessions[fromCId] = sessionId;
-				cursor = connectedSessions[sessionId].cursor;
-				
-				cursor.style.pointerEvents = 'none';
-				cursor.style.position = 'absolute';
-				cursor.style.display = 'none';
-				cursor.style.opacity = '0.9';
-				var img = document.createElement('img');
-				mxUtils.setPrefixedStyle(img.style, 'transform', 'rotate(-45deg)translateX(-14px)');
-				img.setAttribute('src', createCursorImage(clr));
-				img.style.width = '10px';
-				cursor.appendChild(img);
-				
-				var name = document.createElement('div');
-				name.style.backgroundColor = clr;
-				name.style.color = lblClr;
-				name.style.fontSize = '9pt';
-				name.style.padding = '3px 7px';
-				name.style.marginTop = '8px';
-				name.style.borderRadius = '10px';
-				name.style.maxWidth = '100px';
-				name.style.overflow = 'hidden';
-				name.style.textOverflow = 'ellipsis';
-				name.style.whiteSpace = 'nowrap';
-				
-				mxUtils.write(name, username);
-				cursor.appendChild(name);
-
-				ui.diagramContainer.appendChild(cursor);
-				selection = connectedSessions[sessionId].selection;
+				EditorUi.debug('P2PCollab: msg received', [msg]);
 			}
-			else
+
+			//Exclude P2P messages from duplicate messages test since p2p can arrive before socket and interrupt delivery
+			if (fromCId != null)
 			{
-				cursor = connectedSessions[sessionId].cursor;
-				selection = connectedSessions[sessionId].selection;
+				//Safeguard from duplicate messages or receiving my own messages
+				if (msg.from == myClientId || clientLastMsgId[msg.from] >= msg.id)
+				{
+					EditorUi.debug('P2PCollab: Dropped Message', msg, myClientId, clientLastMsgId[msg.from])
+					return;
+				}
+				
+				clientLastMsgId[msg.from] = msg.id;
 			}
-		};
+			
+			var username = msg.username? msg.username : 'Anonymous';
+			var sessionId = msg.sessionId;
+			var cursor, selection;
 
-		if (connectedSessions[sessionId] != null)
-		{
-			clearTimeout(connectedSessions[sessionId].inactiveTO);
-			connectedSessions[sessionId].inactiveTO = setTimeout(function()
+			function createCursor()
 			{
-				clientLeft(null, sessionId);
-			}, INACTIVE_TIMEOUT);
-		}
+				if (connectedSessions[sessionId] == null)
+				{
+					var clrIndex = sessionColors[sessionId];
 
-		var msgData = msg.data;
-		
-		switch (msg.type)
-		{
-			case 'cursor':
-				createCursor();
-				connectedSessions[sessionId].lastCursor = msgData;
-				updateCursor(connectedSessions[sessionId], true);
-			break;
-			case 'diff':
-				try
-				{
-					var msg = sync.stringToObject(decodeURIComponent(msgData.patch));
-					sync.receiveRemoteChanges(msg.d);
-				}
-				catch (e)
-				{
-					EditorUi.debug('P2PCollab: Diff msg error', e);
-				}
-			break;
-			case 'selectionChange':
-				if (urlParams['remote-selection'] != '0')
-				{
-					var pageId = (ui.currentPage != null) ?
-						ui.currentPage.getId() : null;
-					
-					if (pageId == null ||
-						(msgData.pageId != null &&
-						msgData.pageId == pageId))
+					if (clrIndex == null)
 					{
-						createCursor();
+						clrIndex = sessionCount % colors.length;
+						sessionColors[sessionId] = clrIndex;
+						sessionCount++;
+					}
 
-						for (var i = 0; i < msgData.removed.length; i++)
+					var clr = colors[clrIndex];
+					var lblClr = clrIndex > 11? 'black' : 'white';
+
+					connectedSessions[sessionId] = {
+						cursor: document.createElement('div'),
+						color: clr,
+						selection: {}
+					};
+					
+					clientsToSessions[fromCId] = sessionId;
+					cursor = connectedSessions[sessionId].cursor;
+					
+					cursor.style.pointerEvents = 'none';
+					cursor.style.position = 'absolute';
+					cursor.style.display = 'none';
+					cursor.style.opacity = '0.9';
+					var img = document.createElement('img');
+					mxUtils.setPrefixedStyle(img.style, 'transform', 'rotate(-45deg)translateX(-14px)');
+					img.setAttribute('src', createCursorImage(clr));
+					img.style.width = '10px';
+					cursor.appendChild(img);
+					
+					var name = document.createElement('div');
+					name.style.backgroundColor = clr;
+					name.style.color = lblClr;
+					name.style.fontSize = '9pt';
+					name.style.padding = '3px 7px';
+					name.style.marginTop = '8px';
+					name.style.borderRadius = '10px';
+					name.style.maxWidth = '100px';
+					name.style.overflow = 'hidden';
+					name.style.textOverflow = 'ellipsis';
+					name.style.whiteSpace = 'nowrap';
+					
+					mxUtils.write(name, username);
+					cursor.appendChild(name);
+
+					ui.diagramContainer.appendChild(cursor);
+					selection = connectedSessions[sessionId].selection;
+				}
+				else
+				{
+					cursor = connectedSessions[sessionId].cursor;
+					selection = connectedSessions[sessionId].selection;
+				}
+			};
+
+			if (connectedSessions[sessionId] != null)
+			{
+				clearTimeout(connectedSessions[sessionId].inactiveTO);
+				connectedSessions[sessionId].inactiveTO = setTimeout(function()
+				{
+					clientLeft(null, sessionId);
+				}, INACTIVE_TIMEOUT);
+			}
+
+			var msgData = msg.data;
+			
+			switch (msg.type)
+			{
+				case 'cursor':
+					createCursor();
+					connectedSessions[sessionId].lastCursor = msgData;
+					updateCursor(connectedSessions[sessionId], true);
+				break;
+				case 'diff':
+					try
+					{
+						if (msgData.patch != null)
 						{
-							var id = msgData.removed[i];
+							msg = sync.stringToObject(decodeURIComponent(msgData.patch));
+						}
+						else
+						{
+							msg = msgData.diff;
+						}
 
-							if (id != null)
+						sync.receiveRemoteChanges(msg.d);
+					}
+					catch (e)
+					{
+						EditorUi.debug('P2PCollab: Diff msg error', e);
+					}
+				break;
+				case 'selectionChange':
+					if (urlParams['remote-selection'] != '0')
+					{
+						var pageId = (ui.currentPage != null) ?
+							ui.currentPage.getId() : null;
+						
+						if (pageId == null ||
+							(msgData.pageId != null &&
+							msgData.pageId == pageId))
+						{
+							createCursor();
+
+							for (var i = 0; i < msgData.removed.length; i++)
 							{
-								var handler = selection[id];
-								delete selection[id];
-								
-								if (handler != null)
+								var id = msgData.removed[i];
+
+								if (id != null)
 								{
-									handler.destroy();
+									var handler = selection[id];
+									delete selection[id];
+									
+									if (handler != null)
+									{
+										handler.destroy();
+									}
 								}
 							}
-						}
-						
-						for (var i = 0; i < msgData.added.length; i++)
-						{
-							var id = msgData.added[i];
-
-							if (id != null)
+							
+							for (var i = 0; i < msgData.added.length; i++)
 							{
-								var cell = graph.model.getCell(id);
+								var id = msgData.added[i];
 
-								if (cell != null)
-								{	
-									selection[id] = graph.highlightCell(cell,
-										connectedSessions[sessionId].color, 60000,
-										SELECTION_OPACITY, 3);
+								if (id != null)
+								{
+									var cell = graph.model.getCell(id);
+
+									if (cell != null)
+									{	
+										selection[id] = graph.highlightCell(cell,
+											connectedSessions[sessionId].color, 60000,
+											SELECTION_OPACITY, 3);
+									}
 								}
 							}
 						}
 					}
-				}
-			break;
-		}
+				break;
+			}
 
-		sync.file.fireEvent(new mxEventObject('realtimeMessage', 'message', msg));
+			sync.file.fireEvent(new mxEventObject('realtimeMessage', 'message', msg));
+		}
+		catch (e)
+		{
+			if (window.console != null)
+			{
+				console.log('Error:', e);
+			}
+		}
 	};
 	
 	function createPeer(id, initiator)
