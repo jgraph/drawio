@@ -3913,39 +3913,10 @@
 	 */
 	EditorUi.prototype.createSidebarFooterContainer = function()
 	{
-		var div =  this.createDiv('geSidebarContainer geSidebarFooter');
+		const div = this.createDiv('geSidebarContainer geSidebarFooter');
 		div.style.position = 'absolute';
 		div.style.overflow = 'hidden';
-		
-		var elt2 = document.createElement('a');
-		elt2.className = 'geTitle';
-		elt2.style.color = '#DF6C0C';
-		elt2.style.fontWeight = 'bold';
-		elt2.style.height = '100%';
-		elt2.style.paddingTop = '9px';
-		elt2.innerHTML = '<span>+</span>';
-		
-		var span = elt2.getElementsByTagName('span')[0];
-		span.style.fontSize = '18px';
-		span.style.marginRight = '5px';
 
-		mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
-
-		// Prevents focus
-		mxEvent.addListener(elt2, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-			mxUtils.bind(this, function(evt)
-		{
-			evt.preventDefault();
-		}));
-		
-		mxEvent.addListener(elt2, 'click', mxUtils.bind(this, function(evt)
-		{
-			this.actions.get('shapes').funct();
-			mxEvent.consume(evt);
-		}));
-		
-		div.appendChild(elt2);
-		
 		return div;
 	};
 	
