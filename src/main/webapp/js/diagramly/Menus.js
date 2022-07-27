@@ -354,7 +354,12 @@
 				return isGraphEnabled() && mxClient.IS_SVG;
 			};
 		}
-		
+
+		editorUi.actions.put('exportLatex', new Action(mxResources.get('formatLatex') + '...', function()
+		{
+		// export Latex function goes here...
+		}));
+
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()
 		{
 			var div = document.createElement('div');
@@ -2615,7 +2620,7 @@
 				this.addMenuItems(menu, ['exportVsdx'], parent);
 			}
 
-			this.addMenuItems(menu, ['-', 'exportHtml', 'exportXml', 'exportUrl'], parent);
+			this.addMenuItems(menu, ['-', 'exportHtml', 'exportXml', 'exportUrl', 'exportLatex'], parent);
 
 			if (!editorUi.isOffline())
 			{
