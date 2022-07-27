@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <project basedir="." default="all">
 	
-	<property file="build.properties.local" />
+<!--	<property file="build.properties.local" />-->
 	<property file="build.properties" />
 	<taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask" classpath="${jscompiler}" />
 
