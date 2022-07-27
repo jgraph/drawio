@@ -85,10 +85,8 @@
 		<jscomp compilationLevel="simple" debug="false" forceRecompile="true" output="${basedir}/sidebar.min.js">
 			<sources dir="${war.dir}/js/diagramly/sidebar">
 				<file name="Sidebar.js" />
-				<file name="Sidebar-ActiveDirectory.js" />
 				<file name="Sidebar-Advanced.js" />
 				<file name="Sidebar-AlliedTelesis.js" />
-				<file name="Sidebar-Android.js" />
 				<file name="Sidebar-ArchiMate.js" />
 				<file name="Sidebar-ArchiMate3.js" />
 				<file name="Sidebar-Atlassian.js" />
