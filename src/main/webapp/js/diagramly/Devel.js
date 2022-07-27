@@ -182,7 +182,7 @@ mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-AWS4b.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Azure2.js');
-mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
+// mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Basic.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-Bootstrap.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-BPMN.js');
 mxscript(drawDevUrl + 'js/diagramly/sidebar/Sidebar-C4.js');
