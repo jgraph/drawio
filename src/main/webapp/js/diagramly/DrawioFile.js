@@ -338,13 +338,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 					var from = this.ui.hashValue(file.getCurrentEtag());
 					var to = this.ui.hashValue(this.getCurrentEtag());
 					
-					this.checksumError(error, patches,
-						'Shadow Details: ' + JSON.stringify(patchedDetails) +
-						'\nChecksum: ' + checksum + '\nCurrent: ' + current +
-						'\nCurrent Details: ' + JSON.stringify(currentDetails) +
-						'\nFrom: ' + from + '\nTo: ' + to +
-						'\n\nFile Data:\n' + fileData +
-						'\nPatched Shadow:\n' + data, null, 'mergeFile');
+					this.checksumError(error, patches, 'Shadow Details: ' +
+						JSON.stringify(patchedDetails) + '\nChecksum: ' +
+						checksum + '\nCurrent: ' + current + '\nCurrent Details: ' +
+						JSON.stringify(currentDetails) + '\nFrom: ' + from + '\nTo: ' +
+						to + '\n\nFile Data:\n' + fileData + '\nPatched Shadow:\n' +
+						data, null, 'mergeFile', checksum, current, file.getCurrentRevisionId());
 					
 					// Abnormal termination
 					return;
@@ -484,7 +483,7 @@ DrawioFile.prototype.compressReportData = function(data, limit, max)
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-DrawioFile.prototype.checksumError = function(error, patches, details, etag, functionName)
+DrawioFile.prototype.checksumError = function(error, patches, details, etag, functionName, checksum, current, rev)
 {
 	this.stats.checksumErrors++;
 	this.inConflictState = true;
@@ -575,29 +574,39 @@ DrawioFile.prototype.checksumError = function(error, patches, details, etag, fun
 				}
 			}
 
-			var type = (data != null) ? 'Report' : 'Error';
-			
-			EditorUi.logError('Checksum ' + type + ' in ' + functionName + ' ' + id,
-				null, this.getMode() + '.' + this.getId(),
-				'user_' + uid + ((this.sync != null) ?
-				'-client_' + this.sync.clientId : '-nosync') +
-				'-bytes_' + bytes + '-patches_' + patches.length +
-				((data != null) ? ('-json_' + data) : '') +
-				'-size_' + this.getSize());
-			
-			// Logs checksum error for file
-			try
-			{
-				EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
-					action: functionName, label: 'user_' + uid + ((this.sync != null) ?
-					'-client_' + this.sync.clientId : '-nosync') +
-					'-bytes_' + bytes + '-patches_' + patches.length +
-					'-size_' + this.getSize()});
-			}
-			catch (e)
-			{
-				// ignore
-			}
+			this.getLatestVersion(mxUtils.bind(this, function(latestFile)
+			{				
+				// Logs checksum error for file
+				try
+				{
+					var type = (data != null) ? 'Report' : 'Error';
+					var latest = this.ui.getHashValueForPages(latestFile.getShadowPages());
+				
+					EditorUi.logError('Checksum ' + type + ' in ' + functionName + ' ' + id,
+						null, this.getMode() + '.' + this.getId(),
+						'user_' + uid + ((this.sync != null) ?
+						'-client_' + this.sync.clientId : '-nosync') +
+						'-bytes_' + bytes + '-patches_' + patches.length +
+						((data != null) ? ('-json_' + data) : '')  +
+						'-size_' + this.getSize() +
+						((checksum != null) ? ('-expected_' + checksum) : '') +
+						((current != null) ? ('-current_' + current) : '') +
+						((rev != null) ? ('-rev_' + this.ui.hashValue(rev)) : '') +
+						((latest != null) ? ('-latest_' + latest) : '') +
+						((latestFile != null) ? ('-latestRev_' + this.ui.hashValue(
+							latestFile.getCurrentRevisionId())) : ''));
+
+					EditorUi.logEvent({category: 'CHECKSUM-ERROR-SYNC-FILE-' + id,
+						action: functionName, label: 'user_' + uid + ((this.sync != null) ?
+						'-client_' + this.sync.clientId : '-nosync') +
+						'-bytes_' + bytes + '-patches_' + patches.length +
+						'-size_' + this.getSize()});
+				}
+				catch (e)
+				{
+					// ignore
+				}
+			}), error);
 		}
 	}
 	catch (e)

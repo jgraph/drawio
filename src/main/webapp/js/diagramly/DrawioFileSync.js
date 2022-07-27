@@ -1274,8 +1274,9 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			{
 				var to = this.ui.hashValue(target);
 				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				this.file.checksumError(error, patches, 'From: ' + from + '\nTo: ' + to +
-					'\nChecksum: ' + checksum + '\nCurrent: ' + current, target, 'merge');
+				this.file.checksumError(error, patches, 'From: ' + from +
+					'\nTo: ' + to + '\nChecksum: ' + checksum + '\nCurrent: ' +
+					current, target, 'merge', checksum, current, target);
 
 				if (urlParams['test'] == '1')
 				{
