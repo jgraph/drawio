@@ -1043,57 +1043,7 @@
 				';html=1;' + mxConstants.STYLE_VERTICAL_LABEL_POSITION + '=bottom;' + mxConstants.STYLE_VERTICAL_ALIGN + '=top;' + mxConstants.STYLE_STROKEWIDTH + '=2;strokeColor=#000000;',
 				null, null, null, null, null, 'arrows');
 
-		this.addAtlassianPalette();
-		this.addBootstrapPalette();
-		this.addDFDPalette();
-		this.addErPalette();
-		this.addIos7Palette();
-		this.addIosPalette();
-		this.addKubernetesPalette();
-		this.addMockupPalette();
-		this.addSitemapPalette();
-		this.addUml25Palette();
-		this.addUmlPalette(false);
-		this.addAlliedTelesisPalette();
-		this.addAWS3Palette();
-		this.addAWS4bPalette();
-		this.addAWS4Palette();
-		this.addAWS3DPalette();
-		this.addAzurePalette();
-		this.addAzure2Palette();
-		this.addMSCAEPalette();
-		this.addC4Palette();
-		this.addCiscoPalette(cisco, dir);
-		this.addCisco19Palette();
-		this.addCiscoSafePalette();
-		this.addCumulusPalette();
-		this.addCitrixPalette();
-		this.addGCP2Palette();
-		this.addGCPIconsPalette();
-		this.addIBMPalette();
-		this.addNetworkPalette();
-		this.addOfficePalette();
-		this.addRackPalette(rack, dir);
-		this.addVeeamPalette();
-		this.addVeeam2Palette();
-		this.addVVDPalette();
-		this.addArchimate3Palette();
-		this.addArchiMatePalette();
-		this.addBpmn2Palette();
-		this.addSysMLPalette(sysml, dir);
-		this.addLeanMappingPalette();
-		this.addCabinetsPalette();
-		this.addInfographicPalette();
-		this.addEipPalette();
 		this.addElectricalPalette();
-		this.addFloorplanPalette();
-		this.addFluidPowerPalette();
-		this.addGMDLPalette();
-		this.addPidPalette(pids, dir);
-		this.addThreatModelingPalette();
-		this.addWebIconsPalette();
-		this.addWebLogosPalette();
-		this.addSignsPalette(signs, dir);
 		// LATER: Check if conflicts with restore libs after loading file
 		this.showEntries();
 		
