@@ -357,7 +357,9 @@
 
 		editorUi.actions.put('exportLatex', new Action(mxResources.get('formatLatex') + '...', function()
 		{
-		// export Latex function goes here...
+			const dlg = new ExportLatexDialog(editorUi);
+			editorUi.showDialog(dlg.container, 620, 420, true, false);
+			dlg.init();
 		}));
 
 		editorUi.actions.put('exportXml', new Action(mxResources.get('formatXml') + '...', function()

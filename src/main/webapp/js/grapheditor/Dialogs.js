@@ -1376,6 +1376,62 @@ ExportDialog.saveLocalFile = function(editorUi, data, filename, format)
 };
 
 /**
+ * Constructs a new edit file dialog.
+ */
+var ExportLatexDialog = function(editorUi)
+{
+	var div = document.createElement('div');
+	div.style.textAlign = 'right';
+	var textarea = document.createElement('textarea');
+	textarea.setAttribute('wrap', 'off');
+	textarea.setAttribute('spellcheck', 'false');
+	textarea.setAttribute('autocorrect', 'off');
+	textarea.setAttribute('autocomplete', 'off');
+	textarea.setAttribute('autocapitalize', 'off');
+	textarea.style.overflow = 'auto';
+	textarea.style.resize = 'none';
+	textarea.style.width = '600px';
+	textarea.style.height = '360px';
+	textarea.style.marginBottom = '16px';
+
+	//TODO: replace below line to put LaTeX instead of XML
+	textarea.value = mxUtils.getPrettyXml(editorUi.editor.getGraphXml());
+	div.appendChild(textarea);
+
+	this.init = function()
+	{
+		textarea.focus();
+	};
+
+	var closeBtn = mxUtils.button(mxResources.get('close'), function()
+	{
+		editorUi.hideDialog();
+	});
+	closeBtn.className = 'geBtn';
+
+	if (editorUi.editor.cancelFirst)
+	{
+		div.appendChild(closeBtn);
+	}
+
+	var copyBtn = mxUtils.button(mxResources.get('copy'), function()
+	{
+		navigator.clipboard.writeText(textarea.value);
+	});
+	copyBtn.innerText = 'Copy to Clipboard';
+	copyBtn.className = 'geBtn gePrimaryBtn';
+
+	div.appendChild(copyBtn);
+
+	if (!editorUi.editor.cancelFirst)
+	{
+		div.appendChild(closeBtn);
+	}
+
+	this.container = div;
+};
+
+/**
  * Constructs a new metadata dialog.
  */
 var EditDataDialog = function(ui, cell)
