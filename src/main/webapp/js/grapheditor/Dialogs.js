@@ -1388,6 +1388,7 @@ var ExportLatexDialog = function(editorUi)
 	textarea.setAttribute('autocorrect', 'off');
 	textarea.setAttribute('autocomplete', 'off');
 	textarea.setAttribute('autocapitalize', 'off');
+	textarea.setAttribute('readonly', 'true');
 	textarea.style.overflow = 'auto';
 	textarea.style.resize = 'none';
 	textarea.style.width = '600px';
