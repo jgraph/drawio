@@ -1039,7 +1039,6 @@
 			}
 		}
 		
-		this.addMiscPalette(false);
 		this.addAdvancedPalette(false);
 		this.addBasicPalette();
 		this.addStencilPalette('arrows', mxResources.get('arrows'), dir + '/arrows.xml',
