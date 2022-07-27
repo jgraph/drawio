@@ -163,7 +163,8 @@ public class PropGen
 							File file = new File(tsvFile.getParent() + "/dia" + ext + "." + fileExtension);
 							BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
 							writer.write("# *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*\n");
-							writer.write("# https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE\n");
+//							writer.write("# https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE\n");
+							writer.write("# https://docs.google.com/spreadsheets/d/1qYR6t0E7Y6P0bYnYV2pvDKD9hnFKkvltQx88ScAJzSQ/edit?usp=sharing\n");
 
 							writer.write(outputFiles[i].toString());
 							writer.close();

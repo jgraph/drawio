@@ -9,7 +9,7 @@ async function main()
 {
     try 
     {
-        let tsvRes = await fetch('https://docs.google.com/spreadsheets/d/1FoYdyEraEQuWofzbYCDPKN7EdKgS_2ZrsDrOA8scgwQ/export?format=tsv');
+        let tsvRes = await fetch('https://docs.google.com/spreadsheets/d/1qYR6t0E7Y6P0bYnYV2pvDKD9hnFKkvltQx88ScAJzSQ/export?format=tsv');
         let tsv = await tsvRes.text();
 
         let lines = tsv.split('\n');
@@ -41,7 +41,7 @@ async function main()
                             if (outputFiles[i] == null)
                             {
                                 outputFiles[i] = '# *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*\n' +
-                                                 '# https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE\n';
+                                                 '# https://docs.google.com/spreadsheets/d/1qYR6t0E7Y6P0bYnYV2pvDKD9hnFKkvltQx88ScAJzSQ/edit?usp=sharing\n';
                             }
                             
                             if (codes[i] == 'i18n')

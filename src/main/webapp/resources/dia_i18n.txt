@@ -1,5 +1,5 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
-# https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
+# https://docs.google.com/spreadsheets/d/1qYR6t0E7Y6P0bYnYV2pvDKD9hnFKkvltQx88ScAJzSQ/edit?usp=sharing
 about=about
 aboutDrawio=aboutDrawio
 accessDenied=accessDenied
@@ -334,6 +334,7 @@ formattedText=formattedText
 formatPng=formatPng
 formatGif=formatGif
 formatJpg=formatJpg
+formatLatex=formatLatex
 formatPdf=formatPdf
 formatSql=formatSql
 formatSvg=formatSvg

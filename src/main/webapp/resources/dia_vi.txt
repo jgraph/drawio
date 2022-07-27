@@ -1,5 +1,5 @@
 # *DO NOT DIRECTLY EDIT THIS FILE, IT IS AUTOMATICALLY GENERATED AND IT IS BASED ON:*
-# https://docs.google.com/spreadsheet/ccc?key=0AmQEO36liL4FdDJLWVNMaVV2UmRKSnpXU09MYkdGbEE
+# https://docs.google.com/spreadsheets/d/1qYR6t0E7Y6P0bYnYV2pvDKD9hnFKkvltQx88ScAJzSQ/edit?usp=sharing
 about=Giới thiệu về
 aboutDrawio=Giới thiệu về draw.io
 accessDenied=Truy cập bị từ chối
@@ -334,6 +334,7 @@ formattedText=Văn bản đã định dạng
 formatPng=PNG
 formatGif=GIF
 formatJpg=JPEG
+formatLatex=LaTeX
 formatPdf=PDF
 formatSql=SQL
 formatSvg=SVG
