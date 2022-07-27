@@ -66,7 +66,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\LogicGates');
 		
-		this.addPaletteFunctions('electrical\LogicGates', 'Electrical / Logic Gates', false,
+		this.addPaletteFunctions('electrical\LogicGates', 'Logic Gates', false,
 		[
 			this.createVertexTemplateEntry(mel + 'logic_gate;operation=and;', 100, 60, '', 'AND', null, null, this.getTagsForStencil(gnmel, 'and', dtmel).join(' ')),
 			this.createVertexTemplateEntry(mel + 'buffer2;', 100, 60, '', 'Buffer', null, null, this.getTagsForStencil(gnmel, 'buffer', dtmel).join(' ')),
@@ -104,7 +104,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Resistors');
 
-		this.addPaletteFunctions('electrical\Resistors', 'Electrical / Resistors', false,
+		this.addPaletteFunctions('electrical\Resistors', 'Resistors', false,
 		[
 			this.createVertexTemplateEntry(mere + 'resistor_1;', 
 					100, 20, '', 'Resistor', null, null, this.getTagsForStencil(gnmere, 'resistor_1', dtmere).join(' ')),
@@ -152,7 +152,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Capacitors');
 		
-		this.addPaletteFunctions('electrical\Capacitors', 'Electrical / Capacitors', false,
+		this.addPaletteFunctions('electrical\Capacitors', 'Capacitors', false,
 		[
 			this.createVertexTemplateEntry(mec + 'capacitor_1;', 
 					100, 60, '', 'Capacitor (US)', null, null, this.getTagsForStencil(gnmec, 'capacitor_1', dtmec).join(' ')),
@@ -190,7 +190,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Inductors');
 
-		this.addPaletteFunctions('electrical\Inductors', 'Electrical / Inductors', false,
+		this.addPaletteFunctions('electrical\Inductors', 'Inductors', false,
 		[
 			this.createVertexTemplateEntry(mei + 'inductor_3;', 
 					100, 8, '', 'Inductor (Air Core)', null, null, this.getTagsForStencil(gnmei, 'inductor_3', dtmei).join(' ')),
@@ -256,7 +256,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\SwitchesRelays');
 
-		this.addPaletteFunctions('electrical\SwitchesRelays', 'Electrical / Switches and Relays', false,
+		this.addPaletteFunctions('electrical\SwitchesRelays', 'Switches and Relays', false,
 		[
 			this.createVertexTemplateEntry('shape=mxgraph.electrical.electro-mechanical.twoWaySwitch;aspect=fixed;elSwitchState=2;', 
 					75, 26, '', 'SPDT', null, null, this.getTagsForStencil(gnmeem, '2-way switch new', dtmeem).join(' ')),
@@ -442,7 +442,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Diodes');
 		
-		this.addPaletteFunctions('electrical\Diodes', 'Electrical / Diodes', false,
+		this.addPaletteFunctions('electrical\Diodes', 'Diodes', false,
 		[
 			this.createVertexTemplateEntry(med + 'diode;', 
 					100, 60, '', 'PN Diode', null, null, this.getTagsForStencil(gnmed, 'diode', dtmed).join(' ')),
@@ -474,7 +474,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Sources');
 		
-		this.addPaletteFunctions('electrical\Sources', 'Electrical / Sources', false,
+		this.addPaletteFunctions('electrical\Sources', 'Sources', false,
 		[
 			this.createVertexTemplateEntry(mess + 'source;aspect=fixed;points=[[0.5,0,0],[1,0.5,0],[0.5,1,0],[0,0.5,0]];elSignalType=ac;', 
 					60, 60, '', 'Source', null, null, this.getTagsForStencil(gnmess, 'source', dtmess).join(' ')),
@@ -526,7 +526,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Transistors');
 		
-		this.addPaletteFunctions('electrical\Transistors', 'Electrical / Transistors', false,
+		this.addPaletteFunctions('electrical\Transistors', 'Transistors', false,
 		[
 			this.createVertexTemplateEntry(met + 'npn_transistor_1;', 
 					95, 100, '', 'BJT (NPN)', null, null, this.getTagsForStencil(gnmet, 'npn_transistor_1', dtmet).join(' ')),
@@ -572,7 +572,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Instruments');
 		
-		this.addPaletteFunctions('electrical\Instruments', 'Electrical / Instruments', false,
+		this.addPaletteFunctions('electrical\Instruments', 'Instruments', false,
 		[
 			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;aspect=fixed;fontSize=50;', 
 					90, 90, 'A', 'Ammeter', null, null, this.getTagsForStencil(gnmein, 'ampermeter ammeter', dtmein).join(' ')),
@@ -588,7 +588,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Misc');
 		
-		this.addPaletteFunctions('electrical\Misc', 'Electrical / Misc', false,
+		this.addPaletteFunctions('electrical\Misc', 'Misc', false,
 		[
 			this.createVertexTemplateEntry(mer + 'aerial_-_antenna_1;', 
 					80, 100, '', 'Antenna', null, null, this.getTagsForStencil(gnmer, 'aerial_-_antenna_1', dtmer).join(' ')),
@@ -801,7 +801,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Audio');
 		
-		this.addPaletteFunctions('electrical\Audio', 'Electrical / Audio', false,
+		this.addPaletteFunctions('electrical\Audio', 'Audio', false,
 		[
 			this.createVertexTemplateEntry(mer + 'dipole;pointerEvents=1;', 
 					100, 40, '', 'Dipole', null, null, this.getTagsForStencil(gnmer, 'dipole', dtmer).join(' ')),
@@ -825,7 +825,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\PlcLadder');
 		
-		this.addPaletteFunctions('electrical\PlcLadder', 'Electrical / PLC Ladder', false,
+		this.addPaletteFunctions('electrical\PlcLadder', 'PLC Ladder', false,
 		[
 			this.createVertexTemplateEntry(mep + 'contact;', 
 					50, 25, '', 'Contact', null, null, this.getTagsForStencil(gnmep, 'contact', dtmep).join(' ')),
@@ -843,7 +843,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Optical');
 		
-		this.addPaletteFunctions('electrical\Optical', 'Electrical / Optical', false,
+		this.addPaletteFunctions('electrical\Optical', 'Optical', false,
 		[
 			this.createVertexTemplateEntry(meoe + '7_segment_display;pointerEvents=1;', 
 					74.7, 96.1, '', '7 Segment Display', null, null, this.getTagsForStencil(gnmeoe, '7_segment_display', dtmeoe).join(' ')),
@@ -877,7 +877,7 @@
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\VacuumTubes');
 		
-		this.addPaletteFunctions('electrical\VacuumTubes', 'Electrical / Vacuum Tubes', false,
+		this.addPaletteFunctions('electrical\VacuumTubes', 'Vacuum Tubes', false,
 		[
 			this.createVertexTemplateEntry(metd + 'diode;', 
 					70, 77, '', 'Diode', null, null, this.getTagsForStencil(gnmetd, 'diode', dtmetd).join(' ')),
@@ -897,7 +897,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Waveforms');
 		
-		this.addPaletteFunctions('electrical\Waveforms', 'Electrical / Waveforms', false,
+		this.addPaletteFunctions('electrical\Waveforms', 'Waveforms', false,
 		[
 			this.createVertexTemplateEntry(mew + 'pulse_1;', 
 					90, 90, '', 'Pulse', null, null, this.getTagsForStencil(gnmew, 'pulse_1', dtmew).join(' ')),
@@ -919,7 +919,7 @@
 		
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\RotMech');
 		
-		this.addPaletteFunctions('electrical\RotMech', 'Electrical / Rotating Equipment & Mechanical Functions', false,
+		this.addPaletteFunctions('electrical\RotMech', 'Rotating Equipment & Mechanical Functions', false,
 		[
 			this.createVertexTemplateEntry('verticalLabelPosition=middle;shadow=0;dashed=0;align=center;html=1;verticalAlign=middle;strokeWidth=1;shape=ellipse;fontSize=32;perimeter=ellipsePerimeter;', 
 					100, 100, 'M', 'Rotating Machine', null, null, this.getTagsForStencil(gnmerm, 'rotating machine', dtmerm).join(' ')),
@@ -1014,7 +1014,7 @@
 					200, 200, '', '8-Line Bus Elbow', null, null, this.getTagsForStencil(gnmetr, '8 two line bus elbow', dtmetr).join(' '))
 		];
 
-		this.addPalette('electrical\Transmission', 'Electrical / Transmission Paths', false, mxUtils.bind(this, function(content)
+		this.addPalette('electrical\Transmission', 'Transmission Paths', false, mxUtils.bind(this, function(content)
 				{
 					for (var i = 0; i < fns.length; i++)
 					{
