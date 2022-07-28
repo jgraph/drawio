@@ -26,7 +26,7 @@
 	/**
 	 * 
 	 */
-	Sidebar.prototype.defaultEntries = 'general;uml;er;bpmn;flowchart;basic;arrows2';
+	Sidebar.prototype.defaultEntries = 'electrical';
 	
 	/**
 	 * Library definitions 
