@@ -2922,16 +2922,6 @@
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
-			
-			item = menu.addItem(mxResources.get('sketch'), null, function()
-			{
-				editorUi.setCurrentTheme('sketch');
-			}, parent);
-			
-			if (theme == 'sketch')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
 
 			menu.addSeparator(parent);
 			
