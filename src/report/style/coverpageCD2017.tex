@@ -1,0 +1,84 @@
+% !TEX root = ../thesis.tex
+%
+% cover page
+% @author Thomas Lehmann
+%
+
+\thispagestyle{empty}
+\begin{titlepage}
+{\fontfamily{phv}\selectfont
+
+% NDA, if needed
+  \hfuzz=20pt
+\begin{textblock*}{\textwidth}(75mm,9mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+  \hfuzz=20pt
+  \fontsize{16pt}{16pt}
+  \selectfont
+    \begin{flushleft}
+    	  \IthesisNDAFull
+    \end{flushleft}
+  \end{minipage}
+\end{textblock*}
+
+% black-white logo
+\begin{textblock*}{\textwidth}(134mm,30mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+    \ICDLogo
+  \end{minipage}
+\end{textblock*}
+
+% kind of thesis and author of thesis
+\begin{textblock*}{\textwidth}(57mm,72mm)    % x has offset of 2 mm
+  \begin{minipage}[b][0cm][b]{\textwidth}
+  % kind of thesis
+    \fontfamily{fos}  %lmss
+    \fontsize{10pt}{10pt}
+    %\fontfamily{opensans}
+    \selectfont
+  	\begin{flushleft}
+      \textbf{\ICDthesisKind} \\
+  % author of thesis
+      \IthesisAuthor
+    \end{flushleft}
+    \fontfamily{cmr}\selectfont
+  \end{minipage}
+\end{textblock*}
+
+% Title of thesis
+\begin{textblock*}{\textwidth}(57mm,85mm)
+  \begin{minipage}[b][0cm][t]{\textwidth}
+  \fontfamily{cmr}
+  \ICDTitleFontSize
+  \selectfont
+  	\begin{flushleft}
+      \textbf{\IthesisTitleEN} \\
+      \vspace{-2mm}
+      \begin{picture}(10, 2)(6, -10)
+      \linethickness{1mm}
+      \line(3,0){33}
+      \end{picture}
+      \vspace{5mm}
+    \end{flushleft}
+  \fontfamily{fos}
+  \fontsize{10pt}{11pt}
+  \selectfont
+    \begin{flushleft}
+% english version of faculty and department
+      \textbf{\ICDthesisFacultyFullEN} \\
+      \IthesisDepartmentFullEN \\
+      \vspace{5mm}
+% german version of faculty and department
+      \IthesisFacultyFull \\
+      \IthesisDepartmentFull
+  	\end{flushleft}
+  \end{minipage}
+\end{textblock*}
+
+\ITextBlockSupervisionOnCover
+
+% Bottom text mark
+\ICDBottomLogo
+}
+\end{titlepage}
+\                % this backslash is needed, otherwise LaTeX does wired things ....

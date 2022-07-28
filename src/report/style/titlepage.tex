@@ -1,0 +1,54 @@
+% !TEX root = ../thesis.tex
+%
+% title page
+% @author Thomas Lehmann
+% Hints for title page and page numbering: https://en.wikipedia.org/wiki/Title_page
+%
+\title{\IthesisTitleEN}   % set latex default title to be used by hyperref in pdf
+\author{\IthesisAuthor} % set latex default author to be used by hyperref in pdf
+
+\newpage
+\thispagestyle{empty}
+{\fontfamily{phv}\selectfont
+  \hfuzz=20pt       % suppress warnings due to extenstion onto page margins
+
+  % Author of thesis
+  \vspace*{1cm}
+  \begin{minipage}[b]{\textwidth}
+    \fontsize{14pt}{20pt}
+    \selectfont
+    \begin{center}
+      \IthesisAuthor
+    \end{center}
+  \end{minipage}
+
+  % Title of thesis
+  \vspace{1.5cm}
+  \begin{minipage}[b][0cm][t]{\textwidth}
+    \fontsize{18pt}{20pt}
+    \selectfont
+    \begin{center}
+      \IthesisTitleEN
+    \end{center}
+  \end{minipage}
+
+  % Important information
+  \begin{textblock*}{\textwidth}(40mm,210mm)
+    \begin{minipage}[b]{\textwidth}
+      \hbadness=10001    % suppress underfull warning due to short text
+      \fontfamily{cmr}\selectfont
+      \fontsize{12pt}{14pt}
+      \selectfont
+      CJ1 Report based on the examination and study regulations \\
+      for the Bachelor of Engineering degree programme \\
+      \textit{\IstudyCourseName} \\
+      at the Department of Information and Electrical Engineering \\
+      of the Faculty of Engineering and Computer Science \\
+      of the University of Applied Sciences Hamburg
+
+      Supervising examiner: \IfirstSv \\
+
+      Day of delivery: \ISubDate \\
+    \end{minipage}
+  \end{textblock*}
+}

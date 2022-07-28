@@ -1,0 +1,72 @@
+%
+% Style File for theses in the faculty computer science and engineering
+% at University of Applied Science Hamburg
+% Maintainer:
+% Thomas Lehmann <t.l@haw-hamburg.de>
+%
+\ProvidesPackage{../style/thesisstyle}
+
+\RequirePackage[utf8]{inputenc}         % Universal encoding
+%\RequirePackage[ansinew]{inputenc}      % Windows encoding
+%\RequirePackage[applemac]{inputenc}     % Mac encoding
+%\RequirePackage[latin1]{inputenc}       % Linux encoding
+
+\RequirePackage[english]{babel}     % New german spell checking
+\RequirePackage[T1]{fontenc}        % Font
+\RequirePackage[hyphens]{url}       % Line break support in URL
+\RequirePackage[htt]{hyphenat}      % hyphenation in texttt
+\RequirePackage{siunitx}            % SI-Unit support
+\RequirePackage{courier}            % Courier as \ttdefault
+\setkomafont{disposition}{\normalfont\bfseries} % Headings in normal font
+
+\RequirePackage[automark, headsepline]{scrlayer-scrpage}
+\clearscrheadfoot                   % clear all headings and footers
+\ihead{\headmark}
+\automark{chapter}
+\ofoot[\pagemark]{\pagemark}
+\pagestyle{scrheadings}
+
+\RequirePackage{amsmath}            % Math
+\RequirePackage{amsfonts}
+\RequirePackage{amssymb}
+
+\RequirePackage{graphicx}           % Include graphics to document
+\RequirePackage{subcaption}         % Multiple Pictures next to each other
+\RequirePackage[numbers]{natbib}    % More citation styles
+\parindent0pt                       % First line starts imediately
+\RequirePackage{todonotes}          % Adds notes on marginpar (can lead to warnings!)
+
+                                    % Page layout
+%\RequirePackage[top=2.5cm, right=2.5cm, bottom=2.5cm, left=4cm]{geometry}
+\RequirePackage{geometry}
+\RequirePackage[onehalfspacing]{setspace}
+
+
+\RequirePackage[absolute]{textpos}  % place at absolute coordinates on title page
+
+\RequirePackage[
+colorlinks=true,
+linkcolor=black,
+citecolor=black,
+urlcolor=blue
+]{hyperref}                         % needed for glossaries
+
+\RequirePackage[
+nonumberlist,                       % no page numbers
+acronym,                            % acronyms
+symbols,                            % and symbols
+toc
+]{glossaries}                       % for glossary, ...
+
+\RequirePackage{pdfpages}           % for 2018 HAW Corporate Design cover page
+
+\RequirePackage{../style/configurationcommands}
+\RequirePackage{../style/convenience}
+
+% orphans and widows are typographically bad
+\clubpenalty=10000
+\widowpenalty=10000
+
+% give LaTeX the option to insert more space between words
+% (when the line-breaks would overflow the hbox otherwise)
+%\emergencystretch 1.5em

@@ -1,0 +1,92 @@
+% !TEX root = ../thesis.tex
+%
+% cover page
+% @author Thomas Lehmann
+%
+
+\thispagestyle{empty}
+\begin{titlepage}
+{\fontfamily{phv}\selectfont
+
+% NDA, if needed
+  \hfuzz=20pt
+\begin{textblock*}{\textwidth}(75mm,9mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+  \hfuzz=20pt
+  \fontsize{16pt}{16pt}
+  \selectfont
+    \begin{flushleft}
+    	  \IthesisNDAFull
+    \end{flushleft}
+  \end{minipage}
+\end{textblock*}
+
+% black-white logo
+\begin{textblock*}{\textwidth}(134mm,40mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+    \includegraphics[scale=0.5]{../style/HAW_Marke_schwarz}
+  \end{minipage}
+\end{textblock*}
+
+% kind of thesis
+\begin{textblock*}{\textwidth}(30mm,115mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+    \fontsize{22pt}{20pt}
+    \selectfont
+  	\begin{flushright}
+      \IthesisKind
+  	\end{flushright}
+  \end{minipage}
+\end{textblock*}
+
+% author of thesis
+\begin{textblock*}{\textwidth}(30mm,140mm)
+  \begin{minipage}[b][0cm][b]{\textwidth}
+  \fontsize{14pt}{20pt}
+  \selectfont
+    \begin{flushright}
+      \IthesisAuthor
+  	\end{flushright}
+  \end{minipage}
+\end{textblock*}
+
+% Title of thesis
+\begin{textblock*}{\textwidth}(30mm,155mm)
+  \begin{minipage}[b][0cm][t]{\textwidth}
+  %\fontsize{18pt}{20pt}
+  \ITitleFontSize
+  \selectfont
+  	\begin{flushright}
+       \IthesisTitleEN
+  	\end{flushright}
+  \end{minipage}
+\end{textblock*}
+
+\ITextBlockSupervisionOnCover
+
+% english version of faculty and department
+\begin{textblock*}{\textwidth}(20mm,256mm)
+  \begin{minipage}[b][0cm][t]{\textwidth}
+  \fontsize{11pt}{10pt}
+  \selectfont
+    \begin{flushleft}
+      \textit{\IthesisFacultyFullEN} \\
+      \textit{\IthesisDepartmentFullEN}
+    \end{flushleft}
+  \end{minipage}
+\end{textblock*}
+
+% german version of faculty and department
+\begin{textblock*}{\textwidth}(52mm,256mm)
+  \begin{minipage}[b][0cm][t]{\textwidth}
+  \fontsize{11pt}{10pt}
+  \selectfont
+    \begin{flushright}
+      \textit{\IthesisFacultyFull} \\
+      \textit{\IthesisDepartmentFull}
+    \end{flushright}
+  \end{minipage}
+\end{textblock*}
+}
+\end{titlepage}
+\                % this backslash is needed, otherwise LaTeX does wired things ....

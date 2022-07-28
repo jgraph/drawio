@@ -1,0 +1,18 @@
+%%
+% Commands for convenience functionality
+%
+% @author: Thomas Lehmann
+% @author: Edgar Toll
+
+% Show a single picture
+% @param factor of the width (in respect to textwidth)
+% @param name of the file (without format extenstion), used in label as well
+% @param caption text
+\newcommand\includenamedimage[3][]{
+    \begin{figure}
+      \centering
+      \includegraphics[width=#1\textwidth]{#2}
+      \caption{#3}
+      \label{fig:#2}
+    \end{figure}
+}

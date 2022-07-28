@@ -1,0 +1,169 @@
+% !TEX root = ../thesis.tex
+% Commands for configurations
+%
+% @author: Thomas Lehmann
+
+\RequirePackage{ifthen}
+
+% Configuration values
+\newcommand{\firstSupervisor}[1]{\newcommand{\IfirstSv}{#1}}
+\newcommand{\secondSupervisor}[1]{\newcommand{\IsecondSv}{#1}}
+\newcommand{\submissionDate}[1]{\newcommand{\ISubDate}{#1}}
+
+% Which regulations (APSO-INGI/APSO-BMT)
+\newcommand{\FakPO}[1]{\newcommand{\IfacultyRegulations}{#1}}
+\newcommand{\PO}[1]{\newcommand{\IcurriculumRegulations}{#1}}
+
+% Title and author
+\newcommand{\thesisTitle}[1]{\newcommand{\IthesisTitle}{#1}}
+\newcommand{\thesisTitleEN}[1]{\newcommand{\IthesisTitleEN}{#1}}
+\newcommand{\thesisAuthor}[1]{\newcommand{\IthesisAuthor}{#1}}
+
+% constant text replacements
+\newcommand{\IthesisFacultyFull}{Fakultät Technik und Informatik}
+\newcommand{\ICDthesisFacultyFull}{FAKULTÄT TECHNIK UND INFORMATIK}
+\newcommand{\IthesisFacultyFullEN}{Faculty of Computer Science and Engineering}
+\newcommand{\ICDthesisFacultyFullEN}{FACULTY OF COMPUTER SCIENCE AND ENGINEERING}
+
+% constant commands
+\newcommand{\ITocEntryStatement}{\addcontentsline{toc}{chapter}{Declaration}}
+
+%% selectable text replacements
+\newcommand{\NDA}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}{\newcommand{\IthesisNDAFull}{TOP SECRET}}{\newcommand{\IthesisNDAFull}{}}
+}
+
+
+%% coverpage
+\newcommand{\Cover}[1]
+{
+  \ifthenelse{\equal{#1}{Std2018}} {\newcommand{\ICoverPage}{\input{../style/coverpage}}}{}
+  \ifthenelse{\equal{#1}{CD2017}} {
+     \newcommand{\ICoverPage}{\input{../style/coverpageCD2017}}
+     \newcommand{\ICDLogo}{\includegraphics[scale=0.5]{../style/HAW_Marke_schwarz}}
+     \newcommand{\ICDBottomLogo}{
+        % Bottom Logo
+        \begin{textblock*}{\textwidth}(140mm,249mm)
+          \begin{minipage}[b][0cm][t]{\textwidth}
+            \fontfamily{fos}
+            \fontsize{9pt}{9pt}
+            \selectfont
+            \begin{picture}(10, 2)(2, -10)
+              \linethickness{0.9mm}
+              \line(3,0){30}
+            \end{picture}
+            \vspace{-5mm}
+            \begin{flushleft}
+              \textbf{HAMBURG UNIVERSITY \\OF APPLIED SCIENCES}
+            \end{flushleft}
+            \fontsize{9pt}{8pt}
+            \selectfont
+            \vspace{-6mm}
+            \begin{flushleft}
+              \textbf{Hochschule für Angewandte \\Wissenschaften Hamburg}
+            \end{flushleft}
+          \end{minipage}
+        \end{textblock*}
+        }} {}
+  \ifthenelse{\equal{#1}{CD2017NoLogo}} {
+    \newcommand{\ICoverPage}{\input{../style/coverpageCD2017}}
+    \newcommand{\ICDLogo}{}
+    \newcommand{\ICDBottomLogo}{}} {}
+}
+
+\newcommand{\ListOfFigures}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}
+  {\newcommand{\IListOfFigures}{
+    \listoffigures
+  }}
+  {\newcommand{\IListOfFigures}{}}
+}
+
+\newcommand{\ListOfTables}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}
+  {\newcommand{\IListOfTables}{
+    \listoftables
+  }}
+  {\newcommand{\IListOfTables}{}}
+}
+
+\newcommand{\ListOfAccronyms}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}
+  {\newcommand{\IListOfAccronyms}{
+    \printglossary[type=\acronymtype, title=Abbreviations]
+  }}
+  {\newcommand{\IListOfAccronyms}{}}
+}
+
+\newcommand{\ListOfSymbols}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}
+  {\newcommand{\IListOfSymbols}{
+    \printglossary[type=symbols, title=List of symbols]
+  }}
+  {\newcommand{\IListOfSymbols}{}}
+}
+
+\newcommand{\Glossary}[1]
+{
+  \ifthenelse{\equal{#1}{yes}}
+  {\newcommand{\IGlossary}{
+    \printglossary[title=Glossary]
+  }}
+  {\newcommand{\IGlossary}{}}
+}
+
+\newcommand{\department}[1]
+{
+  \ifthenelse{\equal{#1}{I}}{\newcommand{\IthesisDepartmentFull}{Department Informatik}\newcommand{\IthesisDepartmentFullEN}{Department Computer Science}\newcommand{\Istatement}{\input{../style/statement_i}}}{}
+  \ifthenelse{\equal{#1}{IE}}{\newcommand{\IthesisDepartmentFull}{Department Informations- und Elektrotechnik}\newcommand{\IthesisDepartmentFullEN}{Department
+      of Information and Electrical Engineering}\newcommand{\Istatement}{\input{../style/statement_ie_en}}}{}
+  \ifthenelse{\equal{#1}{FF}}{\newcommand{\IthesisDepartmentFull}{Department Fahrzeugtechnik und Flugzeugbau}\newcommand{\IthesisDepartmentFullEN}{Department of Automotive and \\
+Aeronautical Engineering}\newcommand{\Istatement}{\input{../style/statement_fuf}}}{}
+}
+
+\newcommand{\studycourse}[1]
+{
+  \ifthenelse{\equal{#1}{ITS}}{\thesisKind{Bachelor}\department{I}\newcommand{\IstudyCourseName}{Bachelor of Science Informatik Technischer Systeme}}{}
+  \ifthenelse{\equal{#1}{TI}}{\thesisKind{Bachelor}\department{I}\newcommand{\IstudyCourseName}{Bachelor of Science Technische Informatik}}{}
+  \ifthenelse{\equal{#1}{AI}}{\thesisKind{Bachelor}\department{I}\newcommand{\IstudyCourseName}{Bachelor of Science Angewandte Informatik}}{}
+  \ifthenelse{\equal{#1}{WI}}{\thesisKind{Bachelor}\department{I}\newcommand{\IstudyCourseName}{Bachelor of Science Wirtschaftsinformatik}}{}
+  \ifthenelse{\equal{#1}{EI}}{\thesisKind{Bachelor}\department{IE}\newcommand{\IstudyCourseName}{Bachelor of Science Elektro- und Informationstechnik}}{}
+  \ifthenelse{\equal{#1}{IE}}{\thesisKind{Bachelor}\department{IE}\newcommand{\IstudyCourseName}{Bachelor
+      of Science Information Engineering}}{}
+  \ifthenelse{\equal{#1}{BMT}}{\thesisKind{Bachelor}\department{FF}\newcommand{\IstudyCourseName}{Bachelor of Science Mechatronik}}{}
+  \ifthenelse{\equal{#1}{MAI}}{\thesisKind{Master}\department{I}\newcommand{\IstudyCourseName}{Master of Science Informatik}}{}
+  \ifthenelse{\equal{#1}{MIK}}{\thesisKind{Master}\department{IE}\newcommand{\IstudyCourseName}{Master of Science Informations- und Kommunikationstechnik}}{}
+  \ifthenelse{\equal{#1}{MA}}{\thesisKind{Master}\department{IE}\newcommand{\IstudyCourseName}{Master of Science Automatisierung}}{}
+}
+
+\newcommand{\keywordsDE}[1]{\newcommand{\IkeyWordsDE}{#1}}
+\newcommand{\keywordsEN}[1]{\newcommand{\IkeyWordsEN}{#1}}
+
+\newcommand{\thesisKind}[1]
+{
+  \ifthenelse{\equal{#1}{Master}}{\newcommand{\IthesisKind}{Master Thesis}\newcommand{\IthesisKindDE}{Masterarbeit}\newcommand{\IthesisExaminationDE}{Masterprüfung}\newcommand{\ICDthesisKind}{MASTERTHESIS}}{}
+  \ifthenelse{\equal{#1}{Bachelor}}{\newcommand{\IthesisKind}{CJ1 Report}\newcommand{\IthesisKindDE}{CJ1-Bericht}\newcommand{\IthesisExaminationDE}{CJ1-Prüfung}\newcommand{\ICDthesisKind}{BACHELORTHESIS}}{}
+}
+
+\newcommand{\ITextBlockSupervisionOnCover}{}   % not required for BA-Template, just for term paper
+
+\newcommand{\abstractDE}[1]{\newcommand{\IabstractDE}{#1}}
+\newcommand{\abstractEN}[1]{\newcommand{\IabstractEN}{#1}}
+
+% automatic adaption of the font size on cover page.
+\newcommand{\ITitleFontSize}
+{
+  \newlength{\myl}
+  \settowidth{\myl}{\IthesisTitle}
+  \ifthenelse{\myl>750}{\fontsize{16pt}{14pt}  % Value 750 is experimental
+    }{\fontsize{18pt}{20pt}
+    }
+}
+\newcommand{\ICDTitleFontSize}{
+  \fontsize{28pt}{25pt}
+}
