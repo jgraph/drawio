@@ -4027,36 +4027,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		btns.appendChild(cancelBtn);
 	}
 
-	if (!compact && urlParams['embed'] != '1' && !createOnly && !mxClient.IS_ANDROID &&
-		!mxClient.IS_IOS && urlParams['noDevice'] != '1')
-	{
-		var fromTmpBtn = mxUtils.button(mxResources.get('fromTemplateUrl'), function()
-		{
-			var dlg = new FilenameDialog(editorUi, '', mxResources.get('create'), function(fileUrl)
-			{
-				if (fileUrl != null && fileUrl.length > 0)
-				{
-					editorUi.editor.loadUrl(fileUrl, function(data)
-					{
-						templateXml = data;
-						templateLibs = null;
-						templateRealURl = fileUrl;
-
-						editorUi.hideDialog();
-						create();
-					}, function(err)
-					{
-						editorUi.handleError(err);
-					});
-				}
-			}, mxResources.get('url'), null, null, null, false);
-			editorUi.showDialog(dlg.container, 300, 80, true, true);
-			dlg.init();
-		});
-		fromTmpBtn.className = 'geBtn';
-		btns.appendChild(fromTmpBtn);
-	}
-	
 	if (Graph.fileSupport && showImport)
 	{
 		var importBtn = mxUtils.button(mxResources.get('import'), function()
