@@ -14499,13 +14499,7 @@
 		var libsEnabled = urlParams['embed'] != '1' ||
 				this.editor.graph.isEnabled();
 		this.menus.get('extras').setEnabled(libsEnabled);
-		
-		if (Editor.enableCustomLibraries)
-		{
-			this.menus.get('openLibraryFrom').setEnabled(libsEnabled);
-			this.menus.get('newLibrary').setEnabled(libsEnabled);
-		}
-		
+
 		// Disables actions in the toolbar
 		var editable = (urlParams['embed'] == '1' &&
 			this.editor.graph.isEnabled()) ||

@@ -132,58 +132,8 @@ EditorUi.initMinimalTheme = function()
 			
 			return elt;
 		}
-		
-		if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' || urlParams['libraries'] == '1'))
-		{
-			// Defined in native apps together with openLibrary
-			if (ui.actions.get('newLibrary') != null)
-			{
-				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
-					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
-				div.className = 'geTitle';
-				var span = document.createElement('span');
-				span.style.cssText = 'position:relative;top:6px;';
-				mxUtils.write(span, mxResources.get('newLibrary'));
-				div.appendChild(span);
-				container.appendChild(div);
-				
-				mxEvent.addListener(div, 'click', ui.actions.get('newLibrary').funct);
-				
-				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;left:50%;width:50%;border-top:1px solid lightgray;' +
-					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;border-left: 1px solid lightgray;';
-				div.className = 'geTitle';
-				var span = document.createElement('span');
-				span.style.cssText = 'position:relative;top:6px;';
-				mxUtils.write(span, mxResources.get('openLibrary'));
-				div.appendChild(span);
-				container.appendChild(div);
-				
-				mxEvent.addListener(div, 'click', ui.actions.get('openLibrary').funct);
-			}
-			else
-			{
-				var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
-				elt.style.left = '0';
-				
-				var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
-				elt.style.borderLeft = '1px solid lightgray';
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
-				elt.style.left = '50%';
-			}
-		}
-		else
-		{
+
 			div.style.bottom = '0';
-		}
 
 		container.appendChild(ui.sidebar.container);
 		container.style.overflow = 'hidden';

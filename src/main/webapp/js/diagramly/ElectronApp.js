@@ -256,8 +256,6 @@ mxStencilRegistry.allowEval = false;
 			this.addSubmenu('exportAs', menu, parent);
 			menu.addSeparator(parent);
 			this.addSubmenu('embed', menu, parent);
-			menu.addSeparator(parent);
-			this.addMenuItems(menu, ['newLibrary', 'openLibrary'], parent);
 
 			var file = editorUi.getCurrentFile();
 			
@@ -330,17 +328,6 @@ mxStencilRegistry.allowEval = false;
 			editorUi.getCurrentFile().removeDraft();
 			electron.sendMessage('draftRemoved', {});
 		});
-
-		// Adds support for libraries
-		this.actions.addAction('newLibrary...', mxUtils.bind(this, function()
-		{
-			editorUi.showLibraryDialog(null, null, null, null, App.MODE_DEVICE);
-		}));
-		
-		this.actions.addAction('openLibrary...', mxUtils.bind(this, function()
-		{
-			editorUi.pickLibrary(App.MODE_DEVICE);
-		}));
 
 		// Replaces import action
 		this.actions.addAction('import...', mxUtils.bind(this, async function()

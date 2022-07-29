@@ -155,7 +155,7 @@
 	/**
 	 * Default value for custom libraries in mxSettings.
 	 */
-	Editor.enableCustomLibraries = true;
+	Editor.enableCustomLibraries = false;
 	
 	/**
 	 * Specifies if custom properties should be enabled.
