@@ -3998,17 +3998,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	btns.style.left = '40px';
 	btns.style.bottom = '24px';
 	btns.style.right = '40px';
-	
-	if (!compact && !editorUi.isOffline() && showName && callback == null && !createOnly)
-	{
-		var helpBtn = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://support.draw.io/display/DO/Creating+and+Opening+Files');
-		});
-		
-		helpBtn.className = 'geBtn';	
-		btns.appendChild(helpBtn);
-	}
 
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
