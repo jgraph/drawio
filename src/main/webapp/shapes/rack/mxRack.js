@@ -29,11 +29,12 @@ mxUtils.extend(mxRackContainer, mxShape);
 
 mxRackContainer.prototype.unitSize = 20;
 
-mxRackContainer.prototype.cst = 
+mxRackContainer.prototype.cst =
 {
 		SHAPE_RACK_CONTAINER : 'mxgraph.rackGeneral.container',
 		TEXT_COLOR : 'textColor',
 		NUMBER_DISPLAY : 'numDisp',
+		NUMBER_START: 'numStart',
 		OFF : 'off',
 		DIR_ASC : 'ascend',
 		DIR_DESC : 'descend'
@@ -47,6 +48,12 @@ mxRackContainer.prototype.customProperties = [
 		onChange: function(graph, newValue)
 		{
 			graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
+		}
+	},
+	{
+		name: 'numStart', dispName: 'Rack Start', type: 'int',
+		onChange: function (graph, newValue) {
+			// graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
 		}
 	},
 	{name: 'rackUnitSize', dispName: 'Unit size', type: 'int'}
@@ -119,6 +126,7 @@ mxRackContainer.prototype.sideText = function(c, w, h, fontSize)
 {
 	var fontColor = mxUtils.getValue(this.style, mxRackContainer.prototype.cst.TEXT_COLOR, '#666666');
 	var displayNumbers = mxUtils.getValue(this.style, mxRackContainer.prototype.cst.NUMBER_DISPLAY, mxRackContainer.prototype.cst.DIR_ASC);
+	var start = parseInt(mxUtils.getValue(this.style, mxRackContainer.prototype.cst.NUMBER_START, 1), 10) || 1;
 	var unitSize = parseFloat(mxUtils.getValue(this.style, 'rackUnitSize', mxRackContainer.prototype.unitSize));
 	this.unitSize = unitSize;
 	
@@ -130,8 +138,9 @@ mxRackContainer.prototype.sideText = function(c, w, h, fontSize)
 
 	for (var i = 0; i < units; i++)
 	{
-		var displayNumber = (displayNumbers === mxRackContainer.prototype.cst.DIR_DESC) ? (i + 1).toString() : (units - i).toString();
-		c.text(-fontSize, 21 + unitSize * 0.5 + i * unitSize, 0, 0, displayNumber, mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+		var displayNumber = (displayNumbers === mxRackContainer.prototype.cst.DIR_DESC) ? i + 1 : units - i;
+		displayNumber += start - 1;
+		c.text(-fontSize, 21 + unitSize * 0.5 + i * unitSize, 0, 0, displayNumber.toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 	}
 
 	c.begin();
