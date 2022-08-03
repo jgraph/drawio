@@ -2512,11 +2512,14 @@
 	};
 
 	/**
-	 * Returns an URL that is proxied if the given URL is blocked.
+	 * Returns an URL that is proxied if the given URL is blocked. Uses
+	 * direct URL if no CSP is used as proxy blocks unknown text content.
 	 */
 	Editor.prototype.getProxiedUrl = function(url)
 	{
-		if (!this.isCorsEnabledForUrl(url))
+		if ((/test\.draw\.io$/.test(window.location.hostname) ||
+			/app\.diagrams\.net$/.test(window.location.hostname)) &&
+			!this.isCorsEnabledForUrl(url))
 		{
 			var isVisioFilename = /(\.v(dx|sdx?))($|\?)/i.test(url) ||
 				/(\.vs(x|sx?))($|\?)/i.test(url);

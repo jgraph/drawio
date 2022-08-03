@@ -1,3 +1,12 @@
+03-AUG-2022: 20.2.3
+
+- [conf cloud] Fixes adding diagrams to unsaved global templates [DID-5761]
+
+26-JUL-2022: 20.2.2
+
+- Uses proxy for loading from template URL [DND-629]
+- [conf cloud] Fixes issue in page update of pageIDs import [DID-5641]
+
 26-JUL-2022: 20.2.1
 
 - Adds statistics to realtime CF worker

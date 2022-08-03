@@ -2295,14 +2295,7 @@
 		
 		if (desc.url != null && desc.url.length > 0)
 		{
-			var url = desc.url;
-
-			// Bypass proxy if no CSP is used as it blocks unknown text content
-			if ((/test\.draw\.io$/.test(window.location.hostname)) ||
-				(/app\.diagrams\.net$/.test(window.location.hostname)))
-			{
-				url = this.editor.getProxiedUrl(url);
-			}
+			var url = this.editor.getProxiedUrl(desc.url);
 			
             // LATER: Remove cache-control header
             this.editor.loadUrl(url, mxUtils.bind(this, function(data)

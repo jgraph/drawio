@@ -4036,7 +4036,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			{
 				if (fileUrl != null && fileUrl.length > 0)
 				{
-					editorUi.editor.loadUrl(fileUrl, function(data)
+					editorUi.editor.loadUrl(editorUi.editor.getProxiedUrl(fileUrl), function(data)
 					{
 						templateXml = data;
 						templateLibs = null;
