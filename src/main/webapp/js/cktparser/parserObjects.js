@@ -1,30 +1,41 @@
-// Single object holding all information on a circuit diagram
-function CircuitData(mxCells = []) {
-    this.mxCells = mxCells; // Default empty array
+class CktComponent {
+    constructor(id, value, style) {
+        this.id = id;
+        this.value = value;
+        this.style = style;
+    }
+
+    add(key, value) {
+        this[key] = value;
+    }
 }
 
-// Add a circuit component object to the array within a CircuitData object
-CircuitData.prototype.addComponent = function(component) {
-    this.mxCells.push(component);
+class CktNode extends CktComponent {}
+
+class CktPath extends CktComponent {
+    constructor(id, value, style) {
+        super(id, value, style);
+        this.vertices = [];
+    }
+
+    addVertex(x, y, pos=1) { // If pos=0, add to front, if pos=1, add to end
+        if(pos === 0) { this.vertices.unshift({x: x, y: y}); }
+        else if (pos === 1) { this.vertices.push({x: x, y: y}); }
+    }
 }
 
-// Objects representing one component in the circuit diagram
-// All data (ex) id, value, shape, etc.) are saved as properties of this object
-function CircuitComponent() {}
+class CktLine extends CktPath { // Only for line components
+    constructor(id, value, style) {
+        super(id, value, style);
+        this.source = null;
+        this.target = null;
+    }
 
-// Objects representing the mxCell and subordinate elements of the circuit diagram's XML
-function CircuitElement(name = "mxCell", attrs = {}, child = null) {
-    this.name = name; // Default name "mxCell"
-    this.attrs = attrs; // Default empty object for attributes
-    this.child = child; // Default null (no child)
-}
+    setSource(source) {
+        this.source = source;
+    }
 
-// Attach a child to this element
-CircuitElement.prototype.setChild = function(child) {
-    this.child = child;
-}
-
-// Add an attribute to this element's attributes
-CircuitElement.prototype.addAttr = function(name, value) {
-    this.attrs[name] = value;
+    setTarget(target) {
+        this.target = target;
+    }
 }
