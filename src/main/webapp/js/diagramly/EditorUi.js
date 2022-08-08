@@ -1211,7 +1211,8 @@
 
 		// Parse drawio XML to CirkuiTikz (check 'js/cirkuiTikzParser.js')
 		let xml = mxUtils.getPrettyXml(node); // Type: string
-		parseToCircuiTikz(xml);
+		// parseToCircuiTikz(xml);
+		parseXML(xml);
 
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
