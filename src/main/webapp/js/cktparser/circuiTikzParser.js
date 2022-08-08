@@ -35,28 +35,34 @@ function parseXML(xmlStr) {
         if(style.has('shape')) { // Non-line
             let component = new CktPath(id, value, style);
             let mxG = cell.children[0]; // mxGeometry, as only child of mxCell
-            let x = mxG.getAttribute('x');
-            let y = mxG.getAttribute('y');
-            let w = mxG.getAttribute('width');
-            let h = mxG.getAttribute('height');
+            let x, y, w, h;
 
-            if(mxG.hasAttribute('x')) { component.add('x', x); }
-            if(mxG.hasAttribute('y')) { component.add('y', y); }
-            if(mxG.hasAttribute('width')) { component.add('width', w); }
-            if(mxG.hasAttribute('height')) { component.add('height', h); }
+            if(mxG.hasAttribute('x')) {
+                x = parseFloat(mxG.getAttribute('x'));
+                component.add('x', x); }
+            if(mxG.hasAttribute('y')) {
+                y = parseFloat(mxG.getAttribute('y'));
+                component.add('y', y); }
+            if(mxG.hasAttribute('width')) {
+                w = parseFloat(mxG.getAttribute('width'));
+                component.add('width', w); }
+            if(mxG.hasAttribute('height')) {
+                h = parseFloat(mxG.getAttribute('height'));
+                component.add('height', h); }
+
             if(!style.has('rotation')) { // Not rotated
                 component.addVertex(x,y+(h/2)); // Start point
                 component.addVertex(x+w, y+(h/2)); // End point
             } else { // Rotated
-                x = parseFloat(x);
-                y = parseFloat(y);
-                w = parseFloat(w);
-                h = parseFloat(h);
                 let r = parseFloat(style.get('rotation'));
                 let rv = getRotatedVertices(x+(w/2), y+(h/2), w, h, r);
                 let rx = 0, ry = 0.5; // Default ratios
-                component.addVertex(((1-ry) * rv[0].x) + (ry * rv[3].x), ((1-ry) * rv[0].y) + (ry * rv[3].y)); // Start point
-                component.addVertex(((1-ry) * rv[1].x) + (ry * rv[2].x), ((1-ry) * rv[1].y) + (ry * rv[2].y)); // End point
+                component.addVertex(  // Start point
+                    (((1-ry) * rv[0].x) + (ry * rv[3].x)).toFixed(3),
+                    (((1-ry) * rv[0].y) + (ry * rv[3].y)).toFixed(3));
+                component.addVertex(  // End point
+                    (((1-ry) * rv[1].x) + (ry * rv[2].x)).toFixed(3),
+                    (((1-ry) * rv[1].y) + (ry * rv[2].y)).toFixed(3));
             }
             map.set(id, component);
         } else { // Line
@@ -67,31 +73,34 @@ function parseXML(xmlStr) {
             let mxGChild = cell.children[0].children;
             let arr = cell.children[0].children[2].children; // mxPoints in Array in mxGeometry in mxCell
             for(let j = 0; j < arr.length; j++) { // Get from mxPoints inside Array
-                line.addVertex(parseFloat(arr[j].getAttribute('x')), parseFloat(arr[j].getAttribute('y')));
+                line.addVertex(
+                    (parseFloat(arr[j].getAttribute('x'))).toFixed(3),
+                    (parseFloat(arr[j].getAttribute('y'))).toFixed(3));
             }
 
             if(source === null) {
                 for(let j = 0; j < mxGChild.length; j++) {
                     if(mxGChild[j].getAttribute('as') === 'sourcePoint') {
-                        line.addVertex(parseFloat(mxGChild[j].getAttribute('x')), parseFloat(mxGChild[j].getAttribute('y')), 0);
+                        line.addVertex(
+                            (parseFloat(mxGChild[j].getAttribute('x'))).toFixed(3),
+                            (parseFloat(mxGChild[j].getAttribute('y'))).toFixed(3),
+                            0);
                         break;
-                    }
-                }
-            }
+                    } } }
             if(target === null) {
                 for(let j = 0; j < mxGChild.length; j++) {
                     if(mxGChild[j].getAttribute('as') === 'targetPoint') {
-                        line.addVertex(parseFloat(mxGChild[j].getAttribute('x')), parseFloat(mxGChild[j].getAttribute('y')));
+                        line.addVertex(
+                            (parseFloat(mxGChild[j].getAttribute('x'))).toFixed(3),
+                            (parseFloat(mxGChild[j].getAttribute('y'))).toFixed(3));
                         break;
-                    }
-                }
-            }
+                    } } }
 
             lines.push(line);
         } // End of if-else for processing non-line and line components
     } // End of for loop to process mxCells
 
-    // Add vertice coords to lines and put in map
+    // Add start and end points (where connect to non-line components) to lines and add lines to 'map'
     lines.forEach(line => {
         if(line.source !== null) {
             let [endX, endY] = getEndPoints(map.get(line.source), line);
@@ -188,10 +197,8 @@ function getEndPoints(comp, line) {
     let lowerX = ((1-x) * rv[3].x) + (x * rv[2].x);
     let lowerY = ((1-x) * rv[3].y) + (x * rv[2].y);
 
-    // console.log(rv);
-    // console.log(x, y, upperX, upperY, lowerX, lowerY);
     x = ((1-y) * upperX) + (y * lowerX); // x: Fraction (0 ~ 1) -> Floating point
     y = ((1-y) * upperY) + (y * lowerY);
 
-    return [x, y];
+    return [x.toFixed(3), y.toFixed(3)];
 }
