@@ -1,0 +1,17 @@
+Notes on XML
+Ignore mxCell with id="0" and id="1", required in XML for draw.io, but seems unnecessary for Circuitikz
+Regarding lines
+   With a line connecting two components, ignore mxPoints under mxGeometry,
+     instead Array with mxPoints designate the corners of the line,
+     in order of top to bottom the corners when drawing a line from the source to the target
+   With a line with only one end connected to a component, mxPoint under mxGeometry indicates location of loose end
+     If mxCell style attribute only has source attribute, mxPoint labelled targetPoint indicates loose end
+     If mxCell style attribute only has target attribute, mxPoint labelled sourcePoint indicates loose end
+'style' attribute of lines
+   exitX=0 for source's connection point on left side at rotation=0, if =1 point on right side
+   exitY=0 for source's connection point on top side at rotation=0, if =1 point on bottom side
+   exitDx=10 shifts the source's connection point from left side in rightwards direction by one notch of grid
+   exitDy=10 shifts the source's connection point from top side in downward direction by one notch of grid
+   entryX / entryY / entryDx / entryDy are the same, but for the target component at rotation=0
+'x' and 'y' in mxGeometry under mxCell indicates the upperleft corner of the component at rotation=0
+   x=10 moves rightwards by one notch of grid, x=40 for moving by one bold line; same for y=10 in downwards direction
