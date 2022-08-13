@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="compiler">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/etc/build/compiler.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
