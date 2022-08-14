@@ -9,6 +9,9 @@
   listof=totoc        % Abbildungs- und Tabellenverzeichnis im Inhaltsverzeichnis
 ]{scrreprt}
 \usepackage{../style/thesisstyle}
+\usepackage{eurosym}
+%\usepackage{ntgclass}
+%\usepackage{hhline}
 
 \makeglossaries           % create all glossary entries (remember: run makeglossaries manually)
 \loadglsentries{thesisglossaries.tex}  % load acronym, symbol and glossarie entries
@@ -57,15 +60,17 @@
 \clearpage
 \pagenumbering{arabic}
 \input{chapters/first_chapter}
+\input{chapters/second_chapter}
 % Add additional chapters here
 
-%\bibliographystyle{plain}
-\bibliographystyle{dinat}
+\bibliographystyle{plain}
+%\bibliographystyle{dinat}
 \bibliography{literature}
 
 % Appendix
 \appendix
-\input{appendix/example_appendix}
+\input{appendix/project_charter.tex}
+\input{appendix/project_plan.tex}
 
 \IGlossary
 

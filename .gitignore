@@ -1,5 +1,7 @@
+.idea
 bin
 build
+.gitignore
 classes
 node_modules
 .vscode/settings.json
@@ -50,3 +52,5 @@ src/main/webapp/WEB-INF/lib/protobuf-java-*.jar
 src/main/webapp/WEB-INF/lib/protobuf-java-util-*.jar
 src/main/webapp/WEB-INF/lib/re2j-*.jar
 src/main/webapp/WEB-INF/lib/threetenbp-*.jar
+/out/report/report.synctex.gz
+/auxil/
