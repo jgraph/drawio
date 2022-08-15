@@ -1,0 +1,33 @@
+% !TEX root = ../report.tex
+% appendix example chapter
+% @author Andre Alves
+%
+\chapter{Appendix: Status Report for Period Ending YYYY-MM-DD}\label{ch:appendix:-status-report}
+
+\section*{Project Status Summary}
+{\color{red} Red}
+{\color{yellow} Yellow}
+{\color{green} Green}
+
+\section*{Key Accomplishments Since Last Period}
+\begin{enumerate}
+    \item One or two sentences per accomplishment..
+\end{enumerate}
+
+\section*{Key Milestones}
+\begin{tabularx}{\textwidth}{|X|c|c|}
+    \hline
+    Milestone & Planned & Actual \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+\end{tabularx}
+
+\section*{Issues/Changes Requiring Management Attention}
+\begin{tabularx}{\textwidth}{|X|c|c|}
+    \hline
+    Issue/Change & Priority & Due \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+\end{tabularx}

@@ -1,0 +1,46 @@
+% !TEX root = ../report.tex
+% appendix example chapter
+% @author Andre Alves
+%
+\chapter{Appendix: Team Meeting Agenda}\label{ch:appendix:-team-meeting}
+\section*{Project Name}
+Web App that Generates Electric Circuit LaTeX Code
+\section*{Meeting Date}
+
+\section*{Facilitator}
+Andre Alves
+\section*{Atendeed}
+Andre Alves, Divyesh Joshi, Myungjun Kim
+
+\section*{Agenda}
+\begin{itemize}
+    \item item 1
+    \item item 2
+\end{itemize}
+
+\section*{Decisions}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+    \hline
+    Decision Made & Impact & Action Required \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+\end{tabularx}
+
+\section*{New Problems/Changes}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+    \hline
+    Problem/Change & Assigned To & Date Due \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+\end{tabularx}
+
+\section*{Action Items for Follow-up}
+\begin{tabularx}{\textwidth}{|X|X|X|}
+    \hline
+    Action Item & Assigned To & Date Due \\
+    \hline
+    1 & 2 & 3 \\
+    \hline
+\end{tabularx}
