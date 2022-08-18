@@ -1,0 +1,117 @@
+CircuitikzShape
+node[ieeestd and port]{}
+node[ieeestd buffer port]{}
+node[latch]{}
+node[ieeestd not port]{}
+node[flipflop JK]{}
+node[flipflop JK, add async SR, external pins width=0]{}
+node[ieeestd nand port]{}
+node[ieeestd or port]{}
+node[ieeestd nor port](N){}
+node[flipflop SR]{}
+node[ieeestd schmitt port]{}
+node[flipflop T]{}
+node[ieeestd xor port]{}
+node[ieeestd xnor port]{}
+node[dipchip]{}
+node[qfpchip]{}
+european resistor
+american resistor
+pr
+pr
+variable european resistor
+variable american resistor
+varistor
+memristor
+phr
+capacitor
+curved capacitor
+ecapacitor
+variable capacitor
+cute inductor
+american inductor
+european inductor
+variable american inductor
+node[transformer core, cute]{}
+node[transformer core, american]{}
+node[transformer]{}
+american inductor
+ooosource
+full diode
+full Schottky diode
+full Zener diode
+full tunnel diode
+full varcap
+full ZZener diode
+full Shockley diode
+full TVS diode
+sinusoidal voltage source
+american current source
+american voltage source
+empty controlled source
+american controlled current source
+american controlled voltage source
+european voltage source
+ioosource
+battery2
+battery
+square voltage source
+vsourcetri
+node[npn]{Q}
+node[nigbt]{Q}
+node[pnp]{}
+node[pigbt]{}
+node[njfet]{Q}
+node[pjfet]{}
+node[nfet]{Q}
+node[pfet]{Q}
+node[nmos]{Q}
+node[pmos]{}
+node[nmos]{}
+node[nmos, bulk]{}
+node[pmos]{}
+node[pmos, bulk]{}
+ammeter
+oscope
+voltmeter
+mic
+buzzer
+loudspeaker
+node[bare7seg]{}
+node[seven segment val=\{0 to 15} dot on box off]{};
+empty led
+empty photodiode
+empty photodiode
+phR
+node[diodetube]{}
+node[triode]{}
+node[tetrode]{}
+node[pentode]{}
+node[spdt]{}
+normally closed push button
+push button
+normal closed switch
+normal open switch
+node[dinantenna]{A}
+node[antenna]{}
+node[elmech]{M}
+piezoelectric
+fuse
+lamp
+bulb
+thermocouple
+amp
+vamp
+dac
+node[mux]{MD1}
+node[demux]{MD2}
+node[op amp]{}
+node[fd op amp]{}
+node[inst amp]{}
+node[fd inst amp]{}
+bandpass
+highpass
+lowpass
+node[sground]{}
+node[cground]{}
+\ctikzset{bipoles/oscope/waveform=\{sin/square/triangle}

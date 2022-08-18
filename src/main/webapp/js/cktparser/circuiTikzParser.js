@@ -1,10 +1,12 @@
 let map = new Map(); // Used in parseXML()
+let lookup = new Map();
 
 /* Automatically called by drawio's JS code.
    Find in js/diagramly/EditorUi.js by searching for the function name.
    Parses the XML in drawio and saves XML elements in 'map'.
  */
 function parseXML(xmlStr) {
+    prepLookupTable();
     map.clear(); // Clear contents of 'map'
     let lines = []; // Keep lines to add end points before adding to 'map'
     let xml = new DOMParser().parseFromString(xmlStr, "text/xml"); // Parse string into XML
@@ -201,4 +203,27 @@ function getEndPoints(comp, line) {
     y = ((1-y) * upperY) + (y * lowerY);
 
     return [x.toFixed(3), y.toFixed(3)];
+}
+
+/* Create a lookup table
+   Use a JS map with the DrawIO shape as key and JS object with contents of lookup table as value
+   To be called once when the window loads
+ */
+function prepLookupTable() {
+    let rawFile = new XMLHttpRequest();
+    rawFile.open("GET", "./js/cktparser/drawioshape.csv", true);
+    rawFile.send(null);
+    rawFile.onreadystatechange = function () {
+        if(rawFile.readyState === 4) {
+            if(rawFile.status === 200 || rawFile.status == 0) {
+                console.log("DRAWIO SHAPES");
+                console.log(rawFile.responseText);
+                let lines = rawFile.responseText.split("\n");
+                for(let i = 0; i < lines.length; i++) {
+                    lookup.set(lines[i], { drawioshape: lines[i] });
+                }
+            }
+        }
+    }
+
 }
