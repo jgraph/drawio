@@ -1,3 +1,13 @@
+18-AUG-2022: 20.2.5
+
+- [conf cloud] Adds support for anon users by using display name instead of email [DS-895]
+- [conf cloud] Adds private repository support to embed diagram github option  [DID-5931]
+- [conf cloud] Fixes hi res preview setting in viewer [DID-5978]
+
+15-AUG-2022: 20.2.4
+
+- [conf cloud] Adds support for legacy diagramly macros [DID-5823]
+
 03-AUG-2022: 20.2.3
 
 - [conf cloud] Fixes adding diagrams to unsaved global templates [DID-5761]

@@ -66,7 +66,7 @@ function P2PCollab(ui, sync, channelId)
 
 			var user = sync.file.getCurrentUser();
 
-			if (!fileJoined || user == null || user.email == null) return;
+			if (!fileJoined || user == null || user.displayName == null) return;
 			
 			//Converting to a string such that webRTC works also
 			var msg = {from: myClientId, id: messageId,

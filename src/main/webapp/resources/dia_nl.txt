@@ -1208,3 +1208,4 @@ confAHugeInstances=Zeer grote exemplaren
 confAHugeInstancesDesc=Als dit exemplaar meer dan 100.000 pagina's bevat, is het sneller om de huidige lijst met instantpagina's op te vragen bij Atlassian. Neem contact op met onze ondersteuning voor meer details.
 choosePageIDsFile=Kies het huidige pagina-ID's csv-bestand
 chooseDrawioPsgesFile=Kies pagina's met draw.io diagrammen csv-bestand
+private=Private

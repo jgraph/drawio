@@ -104,10 +104,10 @@ buffer-from@^1.0.0:
   resolved "https://registry.npmjs.org/buffer-from/-/buffer-from-1.1.2.tgz"
   integrity sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==
 
-builder-util-runtime@9.0.2:
-  version "9.0.2"
-  resolved "https://registry.npmjs.org/builder-util-runtime/-/builder-util-runtime-9.0.2.tgz"
-  integrity sha512-xF55W/8mgfT6+sMbX0TeiJkTusA5GMOzckM4rajN4KirFcUIuLTH8oEaTYmM86YwVCZaTwa/7GyFhauXaEICwA==
+builder-util-runtime@9.0.3:
+  version "9.0.3"
+  resolved "https://registry.yarnpkg.com/builder-util-runtime/-/builder-util-runtime-9.0.3.tgz#6c62c493ba2b73c2af92432db4013b5a327f02b2"
+  integrity sha512-SfG2wnyjpUbbdtpnqDpWwklujofC6GarGpvdWrEkg9p5AD/xJmTF2buTNaqs3qtsNBEVQDDjZz9xc2GGpVyMfA==
   dependencies:
     debug "^4.3.4"
     sax "^1.2.4"
@@ -137,10 +137,10 @@ clone-response@^1.0.2:
   dependencies:
     mimic-response "^1.0.0"
 
-commander@^9.3.0:
-  version "9.3.0"
-  resolved "https://registry.npmjs.org/commander/-/commander-9.3.0.tgz"
-  integrity sha512-hv95iU5uXPbK83mjrJKuZyFM/LBAoCV/XhVGkS5Je6tl7sxr6A0ITMw5WoRV46/UaJ46Nllm3Xt7IaJhXTIkzw==
+commander@^9.4.0:
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-9.4.0.tgz#bc4a40918fefe52e22450c111ecd6b7acce6f11c"
+  integrity sha512-sRPT+umqkz90UA8M1yqYfnHlZA7fF6nSphDtxeywPZ49ysjxDQybzk13CL+mXekDRG92skbcqCLVovuCusNmFw==
 
 compressible@~2.0.16:
   version "2.0.18"
@@ -172,10 +172,10 @@ concat-stream@^1.6.2:
     readable-stream "^2.2.2"
     typedarray "^0.0.6"
 
-conf@^10.1.2:
-  version "10.1.2"
-  resolved "https://registry.npmjs.org/conf/-/conf-10.1.2.tgz"
-  integrity sha512-o9Fv1Mv+6A0JpoayQ8JleNp3hhkbOJP/Re/Q+QqxMPHPkABVsRjQGWZn9A5GcqLiTNC6d89p2PB5ZhHVDSMwyg==
+conf@^10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/conf/-/conf-10.2.0.tgz#838e757be963f1a2386dfe048a98f8f69f7b55d6"
+  integrity sha512-8fLl9F04EJqjSqH+QjITQfJF8BrOVaYr1jewVgSRAEWePfxT0sku4w2hrGQ60BC/TNLGQ2pgxNlTbWQmMPFvXg==
   dependencies:
     ajv "^8.6.3"
     ajv-formats "^2.1.1"
@@ -270,9 +270,9 @@ duplexer3@^0.1.4:
   resolved "https://registry.npmjs.org/duplexer3/-/duplexer3-0.1.4.tgz"
   integrity sha1-7gHdHKwO08vH/b6jfcCo8c4ALOI=
 
-electron-log@^4.4.7:
+electron-log@^4.4.8:
   version "4.4.8"
-  resolved "https://registry.npmjs.org/electron-log/-/electron-log-4.4.8.tgz"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.8.tgz#fcb9f714dbcaefb6ac7984c4683912c74730248a"
   integrity sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA==
 
 electron-progressbar@^2.0.1:
@@ -282,21 +282,21 @@ electron-progressbar@^2.0.1:
   dependencies:
     extend "^3.0.1"
 
-electron-store@^8.0.1:
-  version "8.0.2"
-  resolved "https://registry.npmjs.org/electron-store/-/electron-store-8.0.2.tgz"
-  integrity sha512-9GwUMv51w8ydbkaG7X0HrPlElXLApg63zYy1/VZ/a08ndl0gfm4iCoD3f0E1JvP3V16a+7KxqriCI0c122stiA==
+electron-store@^8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/electron-store/-/electron-store-8.1.0.tgz#46a398f2bd9aa83c4a9daaae28380e2b3b9c7597"
+  integrity sha512-2clHg/juMjOH0GT9cQ6qtmIvK183B39ZXR0bUoPwKwYHJsEF3quqyDzMFUAu+0OP8ijmN2CbPRAelhNbWUbzwA==
   dependencies:
-    conf "^10.1.2"
-    type-fest "^2.12.2"
+    conf "^10.2.0"
+    type-fest "^2.17.0"
 
-electron-updater@^5.0.1:
-  version "5.0.5"
-  resolved "https://registry.npmjs.org/electron-updater/-/electron-updater-5.0.5.tgz"
-  integrity sha512-YcKEI9zpU+c0sNXTpjw3UpzP8Pfuuwo70T42oLYm0hHc0dy41ih51oENlhxgooa2+uzzpXhoCOyrpG+w6CB0Pw==
+electron-updater@^5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/electron-updater/-/electron-updater-5.2.1.tgz#297795e6e8ad9179c7ae2738a7b67cf0a5022be1"
+  integrity sha512-OQZVIvqcK8j03HjT07uVPgvguP/r8RY2wZcwCM26+fcDOjtrm01Dfz3G8Eru+69znbrR+F9pDzr98ewMavBrWQ==
   dependencies:
     "@types/semver" "^7.3.6"
-    builder-util-runtime "9.0.2"
+    builder-util-runtime "9.0.3"
     fs-extra "^10.0.0"
     js-yaml "^4.1.0"
     lazy-val "^1.0.5"
@@ -305,10 +305,10 @@ electron-updater@^5.0.1:
     semver "^7.3.5"
     typed-emitter "^2.1.0"
 
-electron@^19.0.6:
-  version "19.0.6"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-19.0.6.tgz#7aacfa4e968f134eecc36a1b03e3f9954ed8f6a5"
-  integrity sha512-S9Yud32nKhB0iWC0lGl2JXz4FQnCiLCnP5Vehm1/CqyeICcQGmgQaZl2HYpCJ2pesKIsYL9nsgmku/10cxm/gg==
+electron@^19.0.10:
+  version "19.0.11"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-19.0.11.tgz#0c0a52abc08694fd38916d9270baf45bb7752a27"
+  integrity sha512-GPM6C1Ze17/gR4koTE171MxrI5unYfFRgXQdkMdpWM2Cd55LMUrVa0QHCsfKpsaloufv9T65lsOn0uZuzCw5UA==
   dependencies:
     "@electron/get" "^1.14.1"
     "@types/node" "^16.11.26"
@@ -897,10 +897,10 @@ type-fest@^0.13.1:
   resolved "https://registry.npmjs.org/type-fest/-/type-fest-0.13.1.tgz"
   integrity sha512-34R7HTnG0XIJcBSn5XhDd7nNFPRcXYRZrBB2O2jdKqYODldSzBAqzsWoZYYvduky73toYS/ESqxPvkDf/F0XMg==
 
-type-fest@^2.12.2:
-  version "2.13.1"
-  resolved "https://registry.npmjs.org/type-fest/-/type-fest-2.13.1.tgz"
-  integrity sha512-hXYyrPFwETT2swFLHeoKtJrvSF/ftG/sA15/8nGaLuaDGfVAaq8DYFpu4yOyV4tzp082WqnTEoMsm3flKMI2FQ==
+type-fest@^2.17.0:
+  version "2.18.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.18.0.tgz#fdef3a74e0a9e68ebe46054836650fb91ac3881e"
+  integrity sha512-pRS+/yrW5TjPPHNOvxhbNZexr2bS63WjrMU8a+VzEBhUi9Tz1pZeD+vQz3ut0svZ46P+SRqMEPnJmk2XnvNzTw==
 
 typed-emitter@^2.1.0:
   version "2.1.0"
