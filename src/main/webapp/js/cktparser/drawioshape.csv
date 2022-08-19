@@ -49,7 +49,7 @@ mxgraph.electrical.signal_sources.source;elSignalType=dc1;
 mxgraph.electrical.signal_sources.source;elSignalType=dc3;
 mxgraph.electrical.signal_sources.source;elSignalType=none;elSourceType=dependent;
 mxgraph.electrical.signal_sources.source;elSignalType=dc2;elSourceType=dependent;
-mxgraph.electrical.signal_sources.source;elSourceType=dependent;elSignalType=dc3;
+mxgraph.electrical.signal_sources.source;elSignalType=dc3;elSourceType=dependent;
 mxgraph.electrical.signal_sources.source;elSignalType=ideal;
 mxgraph.electrical.signal_sources.current_source;
 mxgraph.electrical.miscellaneous.monocell_battery;
@@ -70,9 +70,9 @@ mxgraph.electrical.transistors.nmos;
 mxgraph.electrical.transistors.nmos_bulk;
 mxgraph.electrical.transistors.pmos;
 mxgraph.electrical.transistors.pmos_bulk;
-ellipse;value="A"
+ellipse;value="A";
 mxgraph.electrical.instruments.oscilloscope;
-ellipse;value="V"
+ellipse;value="V";
 mxgraph.electrical.radio.microphone_1;
 mxgraph.electrical.electro-mechanical.buzzer;
 mxgraph.electrical.electro-mechanical.loudspeaker;
@@ -93,7 +93,7 @@ mxgraph.electrical.electro-mechanical.singleSwitch;aspect=fixed;elSwitchState=on
 mxgraph.electrical.electro-mechanical.singleSwitch;aspect=fixed;elSwitchState=off;
 mxgraph.electrical.radio.aerial_-_antenna_1;
 mxgraph.electrical.radio.aerial_-_antenna_2;
-ellipse;value="M"
+ellipse;value="M";
 mxgraph.electrical.miscellaneous.crystal_1;
 mxgraph.electrical.miscellaneous.fuse_2;
 mxgraph.electrical.miscellaneous.light_bulb;
