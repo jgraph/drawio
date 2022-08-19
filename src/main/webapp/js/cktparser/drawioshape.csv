@@ -1,4 +1,3 @@
-DrawIOShape
 mxgraph.electrical.logic_gates.logic_gate;operation=and;
 mxgraph.electrical.logic_gates.buffer2;
 mxgraph.electrical.logic_gates.d_type_flip-flop;
@@ -71,9 +70,9 @@ mxgraph.electrical.transistors.nmos;
 mxgraph.electrical.transistors.nmos_bulk;
 mxgraph.electrical.transistors.pmos;
 mxgraph.electrical.transistors.pmos_bulk;
-shape=ellipse;
+ellipse;value="A"
 mxgraph.electrical.instruments.oscilloscope;
-shape=ellipse;
+ellipse;value="V"
 mxgraph.electrical.radio.microphone_1;
 mxgraph.electrical.electro-mechanical.buzzer;
 mxgraph.electrical.electro-mechanical.loudspeaker;
@@ -88,13 +87,13 @@ mxgraph.electrical.thermionic_devices.triode;
 mxgraph.electrical.thermionic_devices.tetrode;
 mxgraph.electrical.thermionic_devices.pentode;
 mxgraph.electrical.electro-mechanical.twoWaySwitch;
-mxgraph.electrical.electro-mechanical.pushbutton;
-mxgraph.electrical.electro-mechanical.pushbutton;
-mxgraph.electrical.electro-mechanical.singleSwitch;
-mxgraph.electrical.electro-mechanical.singleSwitch;
+mxgraph.electrical.electro-mechanical.pushbutton;aspect=fixed;elSwitchState=on;
+mxgraph.electrical.electro-mechanical.pushbutton;aspect=fixed;elSwitchState=off;
+mxgraph.electrical.electro-mechanical.singleSwitch;aspect=fixed;elSwitchState=on;
+mxgraph.electrical.electro-mechanical.singleSwitch;aspect=fixed;elSwitchState=off;
 mxgraph.electrical.radio.aerial_-_antenna_1;
 mxgraph.electrical.radio.aerial_-_antenna_2;
-ellipse
+ellipse;value="M"
 mxgraph.electrical.miscellaneous.crystal_1;
 mxgraph.electrical.miscellaneous.fuse_2;
 mxgraph.electrical.miscellaneous.light_bulb;
