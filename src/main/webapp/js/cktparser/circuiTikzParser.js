@@ -1,12 +1,11 @@
 let map = new Map(); // Used in parseXML()
-let lookup = new Map();
+let lookup;
 
 /* Automatically called by drawio's JS code.
    Find in js/diagramly/EditorUi.js by searching for the function name.
    Parses the XML in drawio and saves XML elements in 'map'.
  */
 function parseXML(xmlStr) {
-    prepLookupTable();
     map.clear(); // Clear contents of 'map'
     let lines = []; // Keep lines to add end points before adding to 'map'
     let xml = new DOMParser().parseFromString(xmlStr, "text/xml"); // Parse string into XML
@@ -35,7 +34,18 @@ function parseXML(xmlStr) {
         // Add specific x, y ratios for line connections (ex) american-style inductor is x:0/1, y:1 and lines connect to bottom corners)
 
         if(style.has('shape')) { // Non-line
-            let component = new CktPath(id, value, style);
+            let component, shape = style.get('shape').concat(';');
+
+            if(shape === 'ellipse;') { shape = shape + 'value="' + value + '";'; }
+            if(style.has('elSignalType')) { shape = shape + 'elSignalType=' + style.get('elSignalType') + ';'; }
+            if(style.has('elSourceType')) { shape = shape + 'elSourceType=' + style.get('elSourceType') + ';'; }
+
+            if(lookup.has(shape)) {
+                let lookupObj = lookup.get(shape);
+                if(lookupObj.type === 'node') { component = new CktNode(id, value, style, lookupObj.circuitikzshape); }
+                else { component = new CktPath(id, value, style, lookupObj.circuitikzshape); }
+            } else { component = new CktComponent(id, value, style, 'NO CIRCUITIKZ MATCH'); }
+
             let mxG = cell.children[0]; // mxGeometry, as only child of mxCell
             let x, y, w, h;
 
@@ -205,10 +215,12 @@ function getEndPoints(comp, line) {
     return [x.toFixed(3), y.toFixed(3)];
 }
 
-/* Create a lookup table in the JS Map object "lookup".
-   DrawIO shape as key and JS object with DrawIO shape, Circuitikz shape, and object type as value
+/* Create and return a lookup table in the JS Map object "lookup".
+   Key: DrawIO shape
+   Value: Object with properties of DrawIO shape, Circuitikz shape, and object type
  */
-function prepLookupTable() {
+window.onload = function() {
+    lookup = new Map();
     let array = new Array();
     let rawFile = new XMLHttpRequest();
     rawFile.open("GET", "./js/cktparser/drawioshape.csv", true);
