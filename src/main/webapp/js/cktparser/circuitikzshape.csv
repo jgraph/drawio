@@ -1,4 +1,3 @@
-CircuitikzShape
 node[ieeestd and port]{}
 node[ieeestd buffer port]{}
 node[latch]{}

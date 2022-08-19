@@ -205,25 +205,36 @@ function getEndPoints(comp, line) {
     return [x.toFixed(3), y.toFixed(3)];
 }
 
-/* Create a lookup table
-   Use a JS map with the DrawIO shape as key and JS object with contents of lookup table as value
-   To be called once when the window loads
+/* Create a lookup table in the JS Map object "lookup".
+   DrawIO shape as key and JS object with DrawIO shape, Circuitikz shape, and object type as value
  */
 function prepLookupTable() {
+    let array = new Array();
     let rawFile = new XMLHttpRequest();
     rawFile.open("GET", "./js/cktparser/drawioshape.csv", true);
     rawFile.send(null);
     rawFile.onreadystatechange = function () {
         if(rawFile.readyState === 4) {
             if(rawFile.status === 200 || rawFile.status == 0) {
-                console.log("DRAWIO SHAPES");
-                console.log(rawFile.responseText);
-                let lines = rawFile.responseText.split("\n");
-                for(let i = 0; i < lines.length; i++) {
-                    lookup.set(lines[i], { drawioshape: lines[i] });
-                }
-            }
+                let lines = rawFile.responseText.split("\r\n");
+                for(let i = 0; i < lines.length; i++) { array.push({ drawioshape: lines[i] }); }
+                rawFile.open("GET", "./js/cktparser/circuitikzshape.csv", true);
+                rawFile.send(null);
+                rawFile.onreadystatechange = function() {
+                    if(rawFile.readyState === 4) {
+                        if(rawFile.status === 200 || rawFile.status == 0) {
+                            let lines = rawFile.responseText.split("\r\n");
+                            for(let i = 0; i < lines.length; i++) { array.at(i).circuitikzshape = lines[i]; }
+                            rawFile.open("GET", "./js/cktparser/objtype.csv", true);
+                            rawFile.send(null);
+                            rawFile.onreadystatechange = function() {
+                                if(rawFile.readyState === 4) {
+                                    if(rawFile.status === 200 || rawFile.status == 0) {
+                                        let lines = rawFile.responseText.split("\r\n");
+                                        for(let i = 0; i < lines.length; i++) { array.at(i).type = lines[i]; }
+                                    } } } } } } } }
+        for(let i = 0; i < array.length; i++) {
+            lookup.set(array[i]["drawioshape"], array[i]);
         }
-    }
-
+    } // End of first rawFile.onreadystatechange
 }
