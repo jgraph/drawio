@@ -1,5 +1,5 @@
 let map = new Map(); // Used in parseXML()
-let lookup;
+let lookup; // Map as lookup table
 
 /* Automatically called by drawio's JS code.
    Find in js/diagramly/EditorUi.js by searching for the function name.
@@ -27,11 +27,6 @@ function parseXML(xmlStr) {
                 style.set(splitStyle[j].split('=')[0], splitStyle[j].split('=')[1]);
             }
         }
-
-        // Create appropriate object (Node, Path, Line)
-        // Access lookup table to figure out what type this component should be
-        // No lookup table now so default to Path and Line types
-        // Add specific x, y ratios for line connections (ex) american-style inductor is x:0/1, y:1 and lines connect to bottom corners)
 
         if(style.has('shape')) { // Non-line
             let component, shape = style.get('shape').concat(';');
@@ -128,32 +123,27 @@ function parseXML(xmlStr) {
 }
 
 /* Calculates the appropriate origin point (lower-left corner) for drawing the Circuitikz diagram.
-   Parses the coordinates of all components in 'data'
-        to find smallest x and largest y values in the lower-left corner of drawio diagram.
+   Parses the coordinates of all components in 'map' to find the smallest x and largest y values.
    For non-line components, considers coordinates of four rotated vertices.
    For lines, considers the vertices property.
 */
-function getCTOrigin() {
-    let minX = 10000, maxY = 0;
-    for(let i = 0; i < data.length; i++) {
-        let cell = data[i];
-        let rotatedVertices = [];
-
-        // Non-line component: 'shape', no 'source', no 'target'
-        if((cell.source == undefined) && (cell.target == undefined) && (cell.shape != undefined)) {
-            rotatedVertices = getRotatedVertices(cell.x + (cell.width / 2), cell.y + (cell.height / 2), cell.width, cell.height, cell.rotation);
-            for(let j = 0; j < rotatedVertices.length; j++) {
-                if(rotatedVertices[j].x < minX) { minX = rotatedVertices[j].x; }
-                if(rotatedVertices[j].y > maxY) { maxY = rotatedVertices[j].y; }
+function getCktOrigin() {
+    let minX = 10000.0, maxY = 0.0;
+    map.forEach((value, key, map) => {
+        if(value instanceof CktLine) { // Check first, b/c also returns true for 'value instanceof CktPath'
+            for(let i = 0; i < value.vertices.length; i++) {
+                if(value.vertices[i].x < minX) { minX = value.vertices[i].x; }
+                if(value.vertices[i].y > maxY) { maxY = value.vertices[i].y; }
             }
-        } else { // Line connecting two components and line with loose end: no 'shape'
-            for(let j = 0; j < cell.vertices.length; j++) {
-                if(cell.vertices[j].x < minX) { minX = cell.vertices[j].x; }
-                if(cell.vertices[j].y > maxY) { maxY = cell.vertices[j].y; }
+        } else { // CktPath or CktNode or CktComponent
+            let rotatedVertices = getRotatedVertices(value.x + (value.width / 2), value.y + (value.height / 2), value.width, value.height, value.rotation);
+            for(let i = 0; i < rotatedVertices.length; i++) {
+                if(rotatedVertices[i].x < minX) { minX = rotatedVertices[i].x; }
+                if(rotatedVertices[i].y > maxY) { maxY = rotatedVertices[i].y; }
             }
         }
-    }
-    return { x : minX - 10.0, y : maxY + 10.0};
+    });
+    return { x : parseFloat(minX) - 10, y : parseFloat(maxY) + 10};
 }
 
 /* Calculates the (x,y) coordinates of a rotated rectangle's vertices.
@@ -215,7 +205,7 @@ function getEndPoints(comp, line) {
     return [x.toFixed(3), y.toFixed(3)];
 }
 
-/* Create and return a lookup table in the JS Map object "lookup".
+/* On loading of the window, create a lookup table in the JS Map object "lookup".
    Key: DrawIO shape
    Value: Object with properties of DrawIO shape, Circuitikz shape, and object type
  */
