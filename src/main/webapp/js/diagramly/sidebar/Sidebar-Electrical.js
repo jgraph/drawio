@@ -19,6 +19,7 @@
 		var mess = 'pointerEvents=1;' + s + '=mxgraph.electrical.signal_sources.';
 		var metd = s + '=mxgraph.electrical.thermionic_devices.';
 		var mein = 'perimeter=ellipsePerimeter;' + s + '=mxgraph.electrical.instruments.';
+		var metr = s + '=mxgraph.electrical.transmission.';
 		var gnmel = 'mxgraph.electrical.logic_gates';
 		var dtmel = 'electrical logic gate ';
 		var gnmere = 'mxgraph.electrical.resistors';
@@ -47,6 +48,8 @@
 		var dtmeoe = 'electrical optical ';
 		var gnmetd = 'mxgraph.electrical.thermionic_devices';
 		var dtmetd = 'electrical thermionic thermo device vacuum tube ';
+		var gnmetr = 'mxgraph.electrical.transmission';
+		var dtmetr = 'electrical transmission paths bus buses';
 
 		this.setCurrentSearchEntryLibrary('electrical', 'electrical\LogicGates');
 		
@@ -356,6 +359,27 @@
 			this.createVertexTemplateEntry(metd + 'photocell;', 
 					70, 87, '', 'Photocell', null, null, this.getTagsForStencil(gnmetd, 'photocell', dtmetd).join(' '))
 		]);
+
+		var sb = this;
+		this.setCurrentSearchEntryLibrary('electrical', 'electrical\Transmission');
+
+		var fns =
+			[
+				this.createVertexTemplateEntry(metr + 'bus_width;pointerEvents=1;',
+					130, 156, '', 'Bus Width', null, null, this.getTagsForStencil(gnmetr, 'bus width', dtmetr).join(' ')),
+				this.createEdgeTemplateEntry('endArrow=none;html=1;strokeWidth=1;',
+					100, 0, '', 'Transmission Path', null, this.getTagsForStencil(gnmess, '', 'transmission path').join(' ')),
+				this.createEdgeTemplateEntry('endArrow=classicThin;html=1;strokeWidth=1;endSize=20;',
+					100, 0, '', 'Direction of Flow', null, this.getTagsForStencil(gnmess, '', 'direction flow').join(' '))
+			];
+
+		this.addPalette('electrical\Transmission', 'Transmission Paths', false, mxUtils.bind(this, function(content)
+		{
+			for (var i = 0; i < fns.length; i++)
+			{
+				content.appendChild(fns[i](content));
+			}
+		}));
 
 		this.setCurrentSearchEntryLibrary();
 	};

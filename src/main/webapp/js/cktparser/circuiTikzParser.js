@@ -147,7 +147,7 @@ function getCktOrigin() {
             }
         }
     });
-    return { x : parseFloat(minX) - 10, y : parseFloat(maxY) + 10};
+    return { x : Math.floor(parseFloat(minX) - 10), y : Math.ceil(parseFloat(maxY) + 10) };
 }
 
 /* Calculates the (x,y) coordinates of a rotated rectangle's vertices.
