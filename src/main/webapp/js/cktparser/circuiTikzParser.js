@@ -77,12 +77,16 @@ function parseXML(xmlStr) {
             if(source !== null) { line.setSource(source); }
             if(target !== null) { line.setTarget(target); }
 
-            let mxGChild = cell.children[0].children;
-            let arr = cell.children[0].children[2].children; // mxPoints in Array in mxGeometry in mxCell
-            for(let j = 0; j < arr.length; j++) { // Get from mxPoints inside Array
-                line.addVertex(
-                    (parseFloat(arr[j].getAttribute('x'))).toFixed(3),
-                    (parseFloat(arr[j].getAttribute('y'))).toFixed(3));
+            let mxGChild = cell.children.item(0).children; // mxPoints in mxGeometry in mxCell
+            if(mxGChild.item(2) !== null) { // null for line with loose ends and no other vertices
+                let arr = mxGChild.item(2).children;
+                if(arr.length > 0) { // If arr doesn't exist, returns empty list of length 0
+                    for (let j = 0; j < arr.length; j++) { // Get from mxPoints inside Array
+                        line.addVertex(
+                            (parseFloat(arr[j].getAttribute('x'))).toFixed(3),
+                            (parseFloat(arr[j].getAttribute('y'))).toFixed(3));
+                    }
+                }
             }
 
             if(source === null) {
