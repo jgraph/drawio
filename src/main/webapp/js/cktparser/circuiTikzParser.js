@@ -126,6 +126,69 @@ function parseXML(xmlStr) {
     });
 }
 
+/* Creates Circuitikz code from 'map'.
+ */
+function createCkt() {
+    let cktStr = "\\begin{circuitikz}\n\t\\draw ";
+    map.forEach((value, key, map) => {
+        if(value instanceof CktLine) {
+            let vertices = value.vertices;
+            let str = "";
+            for(let i = 0; i < vertices.length; i++) {
+                str += `(${adjust(vertices[i].x)},${adjust(vertices[i].y, 1)})`;
+                if(i < vertices.length - 1) { str += ' -- '; }
+            }
+            cktStr += str;
+        } else if(value instanceof CktPath) {
+            let str = "";
+            let sx = adjust(value.vertices[0].x), sy = adjust(value.vertices[0].y, 1);
+            let ex = adjust(value.vertices[1].x), ey = adjust(value.vertices[1].y, 1);
+            str += `(${sx},${sy}) to[${value.cktShape}`;
+            if(value.value) { str += `=${value.value}`; } // If there is value (label in drawio)
+            str += `(${ex},${ey})\n\t`;
+            cktStr += str;
+        } else if(value instanceof CktNode) {
+            let str = "";
+            let sx = adjust(value.vertices[0].x), sy = adjust(value.vertices[0].y, 1);
+            let cktShape = value.cktShape;
+            let number = 0; // TODO: Get number for '7 segment display with DP' (NOT value.value)
+            if(cktShape === 'seven segment val=;dot on box off') {
+                let csSplit = cktShape.split(';');
+                cktShape = csSplit[0] + number + csSplit[1];
+            }
+            str += `(${sx},${sy}) node[${cktShape}]`;
+            if(value.cktShape === 'ieeestd nor port') { str += "(N)"; }
+            if(value.value) { str += `{${value.value}}\n\t`; }
+            else { str += "{}\n\t"; }
+            cktStr += str;
+        } else { // If CktComponent
+        }
+
+    });
+    cktStr += ";\n\\end{circuitikz}";
+    return cktStr;
+}
+
+/* Adjust the x or y coordinate from drawio for use with Circuitikz.
+   In drawio, (x=0,y=0) is the upper-left corner.
+   In Circuitikz, (x=0,y=0) is the lower-left corner.
+   Use getCktOrigin() to calculate a relative origin point to the left and below the circuit.
+   For the given x or y coordinate, get the absolute distance from the origin and divide by 40.
+   40 in drawio corresponds to the difference between two thick lines and appears equivalent to 1 in Circuitikz.
+   Parameters (If omitted, all 0 by default):
+        number: x or y coordinate to adjust.
+        axis: if axis=0, treat number as x coordinate; if axis=1, treat number as y coordinate.
+ */
+function adjust(number = 0, axis = 0) {
+    let origin = getCktOrigin();
+    const x = origin.x, y = origin.y;
+    if(axis === 0) { // axis=0 -> x coordinate
+        return (Math.abs(number - x) / 40.0).toFixed(3);
+    } else { // axis=1 -> y coordinate
+        return (Math.abs(number - y) / 40.0).toFixed(3);
+    }
+}
+
 /* Calculates the appropriate origin point (lower-left corner) for drawing the Circuitikz diagram.
    Parses the coordinates of all components in 'map' to find the smallest x and largest y values.
    For non-line components, considers coordinates of four rotated vertices.
