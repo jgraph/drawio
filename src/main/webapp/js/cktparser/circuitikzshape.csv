@@ -1,19 +1,19 @@
-node[ieeestd and port]{}
-node[ieeestd buffer port]{}
-node[latch]{}
-node[ieeestd not port]{}
-node[flipflop JK]{}
-node[flipflop JK, add async SR, external pins width=0]{}
-node[ieeestd nand port]{}
-node[ieeestd or port]{}
-node[ieeestd nor port](N){}
-node[flipflop SR]{}
-node[ieeestd schmitt port]{}
-node[flipflop T]{}
-node[ieeestd xor port]{}
-node[ieeestd xnor port]{}
-node[dipchip]{}
-node[qfpchip]{}
+ieeestd and port
+ieeestd buffer port
+latch
+ieeestd not port
+flipflop JK
+flipflop JK, add async SR, external pins width=0
+ieeestd nand port
+ieeestd or port
+ieeestd nor port
+flipflop SR
+ieeestd schmitt port
+flipflop T
+ieeestd xor port
+ieeestd xnor port
+dipchip
+qfpchip
 european resistor
 american resistor
 pr
@@ -31,9 +31,9 @@ cute inductor
 american inductor
 european inductor
 variable american inductor
-node[transformer core, cute]{}
-node[transformer core, american]{}
-node[transformer]{}
+transformer core, cute
+transformer core, american
+transformer
 american inductor
 ooosource
 full diode
@@ -56,44 +56,44 @@ battery2
 battery
 square voltage source
 vsourcetri
-node[npn]{Q}
-node[nigbt]{Q}
-node[pnp]{}
-node[pigbt]{}
-node[njfet]{Q}
-node[pjfet]{}
-node[nfet]{Q}
-node[pfet]{Q}
-node[nmos]{Q}
-node[pmos]{}
-node[nmos]{}
-node[nmos, bulk]{}
-node[pmos]{}
-node[pmos, bulk]{}
+npn
+nigbt
+pnp
+pigbt
+njfet
+pjfet
+nfet
+pfet
+nmos
+pmos
+nmos
+nmos, bulk
+pmos
+pmos, bulk
 ammeter
 oscope
 voltmeter
 mic
 buzzer
 loudspeaker
-node[bare7seg]{}
-node[seven segment val=\{0 to 15} dot on box off]{};
+bare7seg
+seven segment val=;dot on box off
 empty led
 empty photodiode
 empty photodiode
 phR
-node[diodetube]{}
-node[triode]{}
-node[tetrode]{}
-node[pentode]{}
-node[spdt]{}
+diodetube
+triode
+tetrode
+pentode
+spdt
 normally closed push button
 push button
 normal closed switch
 normal open switch
-node[dinantenna]{A}
-node[antenna]{}
-node[elmech]{M}
+dinantenna
+antenna
+elmech
 piezoelectric
 fuse
 lamp
@@ -102,15 +102,15 @@ thermocouple
 amp
 vamp
 dac
-node[mux]{MD1}
-node[demux]{MD2}
-node[op amp]{}
-node[fd op amp]{}
-node[inst amp]{}
-node[fd inst amp]{}
+mux
+demux
+op amp
+fd op amp
+inst amp
+fd inst amp
 bandpass
 highpass
 lowpass
-node[sground]{}
-node[cground]{}
+sground
+cground
 \ctikzset{bipoles/oscope/waveform=\{sin/square/triangle}
