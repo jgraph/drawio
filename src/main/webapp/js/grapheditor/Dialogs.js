@@ -1396,7 +1396,8 @@ var ExportLatexDialog = function(editorUi)
 	textarea.style.marginBottom = '16px';
 
 	//TODO: replace below line to put LaTeX instead of XML
-	textarea.value = mxUtils.getPrettyXml(editorUi.editor.getGraphXml());
+	// textarea.value = mxUtils.getPrettyXml(editorUi.editor.getGraphXml());
+	textarea.value = createCkt();
 	div.appendChild(textarea);
 
 	this.init = function()
