@@ -682,7 +682,7 @@ App.main = function(callback, createUi)
 			else if (Editor.enableServiceWorker)
 			{
 				// Runs as progressive web app if service workers are supported
-				navigator.serviceWorker.register('/service-worker.js');
+				navigator.serviceWorker.register('service-worker.js');
 			}
 		}
 		catch (e)
@@ -3671,7 +3671,7 @@ App.prototype.showSplash = function(force)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.addLanguageMenu = function(elt, addLabel)
+App.prototype.addLanguageMenu = function(elt, addLabel, right)
 {
 	var img = null;
 	var langMenu = this.menus.get('language');
@@ -3680,27 +3680,37 @@ App.prototype.addLanguageMenu = function(elt, addLabel)
 	{
 		img = document.createElement('div');
 		img.setAttribute('title', mxResources.get('language'));
-		img.className = 'geIcon geSprite geSprite-globe';
+
+		img.className = (uiTheme != 'atlas') ? 'geIcon geAdaptiveAsset' : '';
+		img.style.backgroundImage = 'url(' + Editor.globeImage + ')';
+		img.style.backgroundPosition = 'right center';
+		img.style.backgroundRepeat = 'no-repeat';
+		img.style.backgroundSize = '19px 19px';
+		img.style.width = '19px';
+		img.style.height = '19px';
+		mxUtils.setOpacity(img, 40);
+
 		img.style.position = 'absolute';
 		img.style.cursor = 'pointer';
 		img.style.bottom = '20px';
-		img.style.right = '20px';
+		img.style.right = (right != null) ? right : '22px';
 		
 		if (addLabel)
 		{
 			img.style.direction = 'rtl';
 			img.style.textAlign = 'right';
-			img.style.right = '24px';
+			img.style.right = (right != null) ? right : '24px';
 
 			var label = document.createElement('span');
 			label.style.display = 'inline-block';
 			label.style.fontSize = '12px';
-			label.style.margin = '5px 24px 0 0';
-			label.style.color = 'gray';
+			label.style.margin = '2px 24px 0 0';
 			label.style.userSelect = 'none';
 			
 			mxUtils.write(label, mxResources.get('language'));
 			img.appendChild(label);
+
+			label.className = (uiTheme != 'atlas') ? 'geAdaptiveAsset' : '';
 		}
 		
 		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)

@@ -1,3 +1,9 @@
+21-AUG-2022: 20.2.6
+
+- Updates to latest GCP icon set [DS-898]
+- Changes language menu icon to SVG [DS-897]
+- Use relative URL for service worker [2740]
+
 18-AUG-2022: 20.2.5
 
 - [conf cloud] Adds support for anon users by using display name instead of email [DS-895]

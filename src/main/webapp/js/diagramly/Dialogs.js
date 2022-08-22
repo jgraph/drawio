@@ -303,7 +303,7 @@ var SplashDialog = function(editorUi)
 	
 	if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 	{
-		var elt = editorUi.addLanguageMenu(div, true);
+		var elt = editorUi.addLanguageMenu(div, true, '28px');
 		
 		if (elt != null)
 		{
