@@ -31,9 +31,23 @@ function parseXML(xmlStr) {
         if(style.has('shape')) { // Non-line
             let component, shape = style.get('shape').concat(';');
 
-            if(shape === 'ellipse;') { shape = shape + 'value="' + value + '";'; }
-            if(style.has('elSignalType')) { shape = shape + 'elSignalType=' + style.get('elSignalType') + ';'; }
-            if(style.has('elSourceType')) { shape = shape + 'elSourceType=' + style.get('elSourceType') + ';'; }
+            if(shape === 'ellipse;') { shape = shape + `value="${value}";`; }
+            if(style.has('elSignalType')) { shape = shape + `elSignalType=${style.get('elSignalType')};`; style.delete('elSignalType'); }
+            if(style.has('elSourceType')) { shape = shape + `elSourceType=${style.get('elSourceType')};`; style.delete('elSourceType'); }
+            if(style.has('operation')) { shape = shape + `operation=${style.get('operation')};`; style.delete('operation'); }
+            if(style.has('negating')) { shape = shape + `negating=${style.get('negating')};`; style.delete('negating'); }
+            if(style.has('negSize')) { shape = shape + `negSize=${style.get('negSize')};`; style.delete('negSize'); }
+            if(style.has('labelNames')) { shape = shape + `labelNames=${style.get('labelNames')};`; style.delete('labelNames'); }
+            if(style.has('direction')) { shape = shape + `direction=${style.get('direction')};`; style.delete('direction'); }
+            if(style.has('pointerEvents') &&
+                (shape === 'mxgraph.electrical.opto_electronics.7_segment_display;' ||
+                    shape === 'mxgraph.electrical.opto_electronics.7_segment_display_with_dp;' ||
+                    shape === 'mxgraph.electrical.opto_electronics.led_2;' ||
+                    shape === 'mxgraph.electrical.opto_electronics.light-activated_scr;' ||
+                    shape === 'mxgraph.electrical.opto_electronics.photodiode;' ||
+                    shape === 'mxgraph.electrical.opto_electronics.photo_resistor_2;')) { shape = shape + `pointerEvents=${style.get('pointerEvents')};`; style.delete('pointerEvents'); }
+            if(style.has('aspect')) { shape = shape + `aspect=${style.get('aspect')};`; style.delete('aspect'); }
+            if(style.has('elSwitchState')) { shape = shape + `elSwitchState=${style.get('elSwitchState')};`; style.delete('elSwitchState'); }
 
             if(lookup.has(shape)) {
                 let lookupObj = lookup.get(shape);
@@ -245,7 +259,6 @@ function getRotatedVertices(center_x = 0, center_y = 0, width = 0, height = 0, d
     // lower-left (x,y)
     rVertices.push({x: center_x - (width * cos) - (height * sin), y: center_y - (width * sin) + (height * cos)});
 
-    console.log(rVertices);
     return rVertices;
 }
 
@@ -259,11 +272,11 @@ function getEndPoints(comp, line) {
     let h = parseFloat(comp.height);
     let r = comp.style.has('rotation') ? parseFloat(comp.style.get('rotation')) : 0.0;
     let rv = getRotatedVertices(x + (w/2), y + (h/2), w, h, r);
+
     if(comp.id === line.source) { x = 'exitX'; y = 'exitY'; }
     else if(comp.id === line.target) { x = 'entryX'; y = 'entryY'; }
     x = line.style.get(x); // x: String -> Fraction (0 ~ 1)
     y = line.style.get(y);
-
 
     // Calculate end coords using four corners and x and y
     let upperX = ((1-x) * rv[0].x) + (x * rv[1].x);
@@ -273,6 +286,7 @@ function getEndPoints(comp, line) {
 
     x = ((1-y) * upperX) + (y * lowerX); // x: Fraction (0 ~ 1) -> Floating point
     y = ((1-y) * upperY) + (y * lowerY);
+
     return [x.toFixed(3), y.toFixed(3)];
 }
 
