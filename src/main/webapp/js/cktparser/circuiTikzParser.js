@@ -57,7 +57,10 @@ function parseXML(xmlStr) {
                 h = parseFloat(mxG.getAttribute('height'));
                 component.add('height', h); }
 
-            if(!style.has('rotation')) { // Not rotated
+            if(component instanceof CktNode) { // Node-style components
+                console.log("This is a Node-style component-- " + id);
+                component.addVertex(x+(w/2), y+(h/2)); // Center point, no change even with rotation
+            } else if(!style.has('rotation')) { // Not rotated
                 component.addVertex(x,y+(h/2)); // Start point
                 component.addVertex(x+w, y+(h/2)); // End point
             } else { // Rotated
@@ -138,6 +141,7 @@ function createCkt() {
                 str += `(${adjust(vertices[i].x)},${adjust(vertices[i].y, 1)})`;
                 if(i < vertices.length - 1) { str += ' -- '; }
             }
+            str += "\n\t";
             cktStr += str;
         } else if(value instanceof CktPath) {
             let str = "";
@@ -145,7 +149,7 @@ function createCkt() {
             let ex = adjust(value.vertices[1].x), ey = adjust(value.vertices[1].y, 1);
             str += `(${sx},${sy}) to[${value.cktShape}`;
             if(value.value) { str += `=${value.value}`; } // If there is value (label in drawio)
-            str += `(${ex},${ey})\n\t`;
+            str += `] (${ex},${ey})\n\t`;
             cktStr += str;
         } else if(value instanceof CktNode) {
             let str = "";
@@ -233,14 +237,15 @@ function getRotatedVertices(center_x = 0, center_y = 0, width = 0, height = 0, d
     let sin = Math.sin(rad);
 
     // upper-left (x,y)
-    rVertices.push({x: center_x - (width * cos) - (height * sin), y: center_y - (width * sin) + (height * cos)});
-    // upper-right (x,y)
-    rVertices.push({x: center_x + (width * cos) - (height * sin), y: center_y + (width * sin) + (height * cos)});
-    // lower-right (x,y)
-    rVertices.push({x: center_x + (width * cos) + (height * sin), y: center_y + (width * sin) - (height * cos)});
-    // lower-left (x,y)
     rVertices.push({x: center_x - (width * cos) + (height * sin), y: center_y - (width * sin) - (height * cos)});
+    // upper-right (x,y)
+    rVertices.push({x: center_x + (width * cos) + (height * sin), y: center_y + (width * sin) - (height * cos)});
+    // lower-right (x,y)
+    rVertices.push({x: center_x + (width * cos) - (height * sin), y: center_y + (width * sin) + (height * cos)});
+    // lower-left (x,y)
+    rVertices.push({x: center_x - (width * cos) - (height * sin), y: center_y - (width * sin) + (height * cos)});
 
+    console.log(rVertices);
     return rVertices;
 }
 
@@ -254,11 +259,11 @@ function getEndPoints(comp, line) {
     let h = parseFloat(comp.height);
     let r = comp.style.has('rotation') ? parseFloat(comp.style.get('rotation')) : 0.0;
     let rv = getRotatedVertices(x + (w/2), y + (h/2), w, h, r);
-
     if(comp.id === line.source) { x = 'exitX'; y = 'exitY'; }
     else if(comp.id === line.target) { x = 'entryX'; y = 'entryY'; }
     x = line.style.get(x); // x: String -> Fraction (0 ~ 1)
     y = line.style.get(y);
+
 
     // Calculate end coords using four corners and x and y
     let upperX = ((1-x) * rv[0].x) + (x * rv[1].x);
@@ -268,11 +273,11 @@ function getEndPoints(comp, line) {
 
     x = ((1-y) * upperX) + (y * lowerX); // x: Fraction (0 ~ 1) -> Floating point
     y = ((1-y) * upperY) + (y * lowerY);
-
     return [x.toFixed(3), y.toFixed(3)];
 }
 
 /* On loading of the window, create a lookup table in the JS Map object "lookup".
+
    Key: DrawIO shape
    Value: Object with properties of DrawIO shape, Circuitikz shape, and object type
  */
