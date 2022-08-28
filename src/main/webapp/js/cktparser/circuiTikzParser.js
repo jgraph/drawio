@@ -74,21 +74,29 @@ function parseXML(xmlStr) {
                 h = parseFloat(mxG.getAttribute('height'));
                 component.add('height', h); }
 
+            let rx = 0, ry = 0.5; // Default ratios (Fraction 0~1)
+            if(shape === 'mxgraph.electrical.resistors.symmetrical_photoconductive_transducer;' ||
+                shape === 'mxgraph.electrical.opto_electronics.photo_resistor_2;pointerEvents=1;') {
+                ry = 0.75;
+            } else if(shape === 'mxgraph.electrical.resistors.potentiometer_1;' ||
+                shape === 'mxgraph.electrical.resistors.potentiometer_2;') {
+                ry = 0.25;
+            }
+
             if(component instanceof CktNode) { // Node-style components
                 component.addVertex(x+(w/2), y+(h/2)); // Center point, no change even with rotation
             } else if(!style.has('rotation')) { // Not rotated
-                component.addVertex(x,y+(h/2)); // Start point
-                component.addVertex(x+w, y+(h/2)); // End point
+                component.addVertex(x, y + (h * ry)); // Start point
+                component.addVertex(x + w, y + (h * ry)); // End point
             } else { // Rotated
                 let r = parseFloat(style.get('rotation'));
                 let rv = getRotatedVertices(x+(w/2), y+(h/2), w, h, r);
-                let rx = 0, ry = 0.5; // Default ratios
                 component.addVertex(  // Start point
-                    (((1-ry) * rv[0].x) + (ry * rv[3].x)).toFixed(3),
-                    (((1-ry) * rv[0].y) + (ry * rv[3].y)).toFixed(3));
+                    (((1-ry) * rv[0].x) + (ry * rv[3].x)).toFixed(2),
+                    (((1-ry) * rv[0].y) + (ry * rv[3].y)).toFixed(2));
                 component.addVertex(  // End point
-                    (((1-ry) * rv[1].x) + (ry * rv[2].x)).toFixed(3),
-                    (((1-ry) * rv[1].y) + (ry * rv[2].y)).toFixed(3));
+                    (((1-ry) * rv[1].x) + (ry * rv[2].x)).toFixed(2),
+                    (((1-ry) * rv[1].y) + (ry * rv[2].y)).toFixed(2));
             }
             map.set(id, component);
         } else { // Line
@@ -101,9 +109,7 @@ function parseXML(xmlStr) {
                 let arr = mxGChild.item(2).children;
                 if(arr.length > 0) { // If arr doesn't exist, returns empty list of length 0
                     for (let j = 0; j < arr.length; j++) { // Get from mxPoints inside Array
-                        line.addVertex(
-                            (parseFloat(arr[j].getAttribute('x'))).toFixed(3),
-                            (parseFloat(arr[j].getAttribute('y'))).toFixed(3));
+                        line.addVertex(arr[j].getAttribute('x'), arr[j].getAttribute('y'));
                     }
                 }
             }
@@ -111,18 +117,13 @@ function parseXML(xmlStr) {
             if(source === null) {
                 for(let j = 0; j < mxGChild.length; j++) {
                     if(mxGChild[j].getAttribute('as') === 'sourcePoint') {
-                        line.addVertex(
-                            (parseFloat(mxGChild[j].getAttribute('x'))).toFixed(3),
-                            (parseFloat(mxGChild[j].getAttribute('y'))).toFixed(3),
-                            0);
+                        line.addVertex( mxGChild[j].getAttribute('x'), mxGChild[j].getAttribute('y'), 0);
                         break;
                     } } }
             if(target === null) {
                 for(let j = 0; j < mxGChild.length; j++) {
                     if(mxGChild[j].getAttribute('as') === 'targetPoint') {
-                        line.addVertex(
-                            (parseFloat(mxGChild[j].getAttribute('x'))).toFixed(3),
-                            (parseFloat(mxGChild[j].getAttribute('y'))).toFixed(3));
+                        line.addVertex(mxGChild[j].getAttribute('x'), mxGChild[j].getAttribute('y'));
                         break;
                     } } }
 
@@ -203,9 +204,9 @@ function adjust(number = 0, axis = 0) {
     let origin = getCktOrigin();
     const x = origin.x, y = origin.y;
     if(axis === 0) { // axis=0 -> x coordinate
-        return (Math.abs(number - x) / 40.0).toFixed(3);
+        return (Math.abs(number - x) / 40.0).toFixed(2);
     } else { // axis=1 -> y coordinate
-        return (Math.abs(number - y) / 40.0).toFixed(3);
+        return (Math.abs(number - y) / 40.0).toFixed(2);
     }
 }
 
@@ -219,14 +220,14 @@ function getCktOrigin() {
     map.forEach((value, key, map) => {
         if(value instanceof CktLine) { // Check first, b/c also returns true for 'value instanceof CktPath'
             for(let i = 0; i < value.vertices.length; i++) {
-                if(value.vertices[i].x < minX) { minX = value.vertices[i].x; }
-                if(value.vertices[i].y > maxY) { maxY = value.vertices[i].y; }
+                if(parseFloat(value.vertices[i].x) < minX) { minX = parseFloat(value.vertices[i].x); }
+                if(parseFloat(value.vertices[i].y) > maxY) { maxY = parseFloat(value.vertices[i].y); }
             }
         } else { // CktPath or CktNode or CktComponent
             let rotatedVertices = getRotatedVertices(value.x + (value.width / 2), value.y + (value.height / 2), value.width, value.height, value.rotation);
             for(let i = 0; i < rotatedVertices.length; i++) {
-                if(rotatedVertices[i].x < minX) { minX = rotatedVertices[i].x; }
-                if(rotatedVertices[i].y > maxY) { maxY = rotatedVertices[i].y; }
+                if(parseFloat(rotatedVertices[i].x) < minX) { minX = parseFloat(rotatedVertices[i].x); }
+                if(parseFloat(rotatedVertices[i].y) > maxY) { maxY = parseFloat(rotatedVertices[i].y); }
             }
         }
     });
@@ -289,7 +290,7 @@ function getEndPoints(comp, line) {
     x = ((1-y) * upperX) + (y * lowerX); // x: Fraction (0 ~ 1) -> Floating point
     y = ((1-y) * upperY) + (y * lowerY);
 
-    return [x.toFixed(3), y.toFixed(3)];
+    return [x.toFixed(2), y.toFixed(2)];
 }
 
 /* On loading of the window, create a lookup table in the JS Map object "lookup".
