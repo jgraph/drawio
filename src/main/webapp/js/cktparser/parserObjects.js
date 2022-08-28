@@ -11,15 +11,20 @@ class CktComponent {
         this[key] = value;
     }
 
-    addVertex(x, y, pos=1) { // If pos=0, add to front, if pos=1, add to end
-        if(pos === 0) { this.vertices.unshift({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)}); }
-        else if (pos === 1) { this.vertices.push({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)}); }
+    addVertex(x, y, pos = 1) { // If pos=0, add to front, if pos=1, add to end
+        if (pos === 0) {
+            this.vertices.unshift({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)});
+        } else if (pos === 1) {
+            this.vertices.push({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)});
+        }
     }
 }
 
-class CktNode extends CktComponent {}
+class CktNode extends CktComponent {
+}
 
-class CktPath extends CktComponent {}
+class CktPath extends CktComponent {
+}
 
 class CktLine extends CktPath { // Only for line components
     constructor(id, value, style) {

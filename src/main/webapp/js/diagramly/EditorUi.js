@@ -1209,10 +1209,7 @@
 		// Generats graph model XML node for single page export
 		var node = this.editor.getGraphXml(ignoreSelection, resolveReferences);
 
-		// Parse drawio XML to CirkuiTikz (check 'js/cirkuiTikzParser.js')
-		let xml = mxUtils.getPrettyXml(node); // Type: string
-		// parseToCircuiTikz(xml);
-		parseXML(xml);
+		parseXmlToCircuitMap(mxUtils.getPrettyXml(node));
 
 		if (ignoreSelection && this.fileNode != null && this.currentPage != null)
 		{
