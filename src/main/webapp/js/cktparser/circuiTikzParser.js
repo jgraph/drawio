@@ -31,23 +31,26 @@ function parseXML(xmlStr) {
         if(style.has('shape')) { // Non-line
             let component, shape = style.get('shape').concat(';');
 
-            if(shape === 'ellipse;') { shape = shape + `value="${value}";`; }
-            if(style.has('elSignalType')) { shape = shape + `elSignalType=${style.get('elSignalType')};`; style.delete('elSignalType'); }
-            if(style.has('elSourceType')) { shape = shape + `elSourceType=${style.get('elSourceType')};`; style.delete('elSourceType'); }
-            if(style.has('operation')) { shape = shape + `operation=${style.get('operation')};`; style.delete('operation'); }
-            if(style.has('negating')) { shape = shape + `negating=${style.get('negating')};`; style.delete('negating'); }
-            if(style.has('negSize')) { shape = shape + `negSize=${style.get('negSize')};`; style.delete('negSize'); }
-            if(style.has('labelNames')) { shape = shape + `labelNames=${style.get('labelNames')};`; style.delete('labelNames'); }
-            if(style.has('direction')) { shape = shape + `direction=${style.get('direction')};`; style.delete('direction'); }
-            if(style.has('pointerEvents') &&
+            if(shape === 'ellipse;') { shape += `value="${value}";`; }
+            else if(style.has('elSignalType')) {
+                shape += `elSignalType=${style.get('elSignalType')};`; style.delete('elSignalType');
+                if(style.has('elSourceType')) { shape += `elSourceType=${style.get('elSourceType')};`; style.delete('elSourceType'); }
+            } else if(style.has('operation')) {
+                shape += `operation=${style.get('operation')};`; style.delete('operation');
+                if(style.has('negating')) { shape += `negating=${style.get('negating')};`; style.delete('negating'); }
+                if(style.has('negSize')) { shape += `negSize=${style.get('negSize')};`; style.delete('negSize'); }
+            } else if(style.has('labelNames')) { shape += `labelNames=${style.get('labelNames')};`; style.delete('labelNames'); }
+            else if(style.has('direction')) { shape += `direction=${style.get('direction')};`; style.delete('direction'); }
+            else if(style.has('pointerEvents') &&
                 (shape === 'mxgraph.electrical.opto_electronics.7_segment_display;' ||
                     shape === 'mxgraph.electrical.opto_electronics.7_segment_display_with_dp;' ||
                     shape === 'mxgraph.electrical.opto_electronics.led_2;' ||
                     shape === 'mxgraph.electrical.opto_electronics.light-activated_scr;' ||
                     shape === 'mxgraph.electrical.opto_electronics.photodiode;' ||
-                    shape === 'mxgraph.electrical.opto_electronics.photo_resistor_2;')) { shape = shape + `pointerEvents=${style.get('pointerEvents')};`; style.delete('pointerEvents'); }
-            if(style.has('aspect')) { shape = shape + `aspect=${style.get('aspect')};`; style.delete('aspect'); }
-            if(style.has('elSwitchState')) { shape = shape + `elSwitchState=${style.get('elSwitchState')};`; style.delete('elSwitchState'); }
+                    shape === 'mxgraph.electrical.opto_electronics.photo_resistor_2;')) { shape += `pointerEvents=${style.get('pointerEvents')};`; style.delete('pointerEvents'); }
+            else if(style.has('aspect')) { shape += `aspect=${style.get('aspect')};`; style.delete('aspect');
+                if(style.has('elSwitchState')) { shape += `elSwitchState=${style.get('elSwitchState')};`; style.delete('elSwitchState'); }
+            }
 
             if(lookup.has(shape)) {
                 let lookupObj = lookup.get(shape);
@@ -72,7 +75,6 @@ function parseXML(xmlStr) {
                 component.add('height', h); }
 
             if(component instanceof CktNode) { // Node-style components
-                console.log("This is a Node-style component-- " + id);
                 component.addVertex(x+(w/2), y+(h/2)); // Center point, no change even with rotation
             } else if(!style.has('rotation')) { // Not rotated
                 component.addVertex(x,y+(h/2)); // Start point
