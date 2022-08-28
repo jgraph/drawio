@@ -12,8 +12,8 @@ class CktComponent {
     }
 
     addVertex(x, y, pos=1) { // If pos=0, add to front, if pos=1, add to end
-        if(pos === 0) { this.vertices.unshift({x: x, y: y}); }
-        else if (pos === 1) { this.vertices.push({x: x, y: y}); }
+        if(pos === 0) { this.vertices.unshift({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)}); }
+        else if (pos === 1) { this.vertices.push({x: parseFloat(x).toFixed(2), y: parseFloat(y).toFixed(2)}); }
     }
 }
 
