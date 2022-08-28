@@ -1,12 +1,12 @@
-let map = new Map(); // Used in parseXML()
-let lookup; // Map as lookup table
+let circuitMap = new Map(); // Used in parseXML()
+let circuitMapLut; // Map as lookup table
 
 /* Automatically called by drawio's JS code.
    Find in js/diagramly/EditorUi.js by searching for the function name.
    Parses the XML in drawio and saves XML elements in 'map'.
  */
-function parseXML(xmlStr) {
-    map.clear(); // Clear contents of 'map'
+function parseXmlToCircuitMap(xmlStr) {
+    circuitMap.clear(); // Clear contents of 'map'
     let lines = []; // Keep lines to add end points before adding to 'map'
     let xml = new DOMParser().parseFromString(xmlStr, "text/xml"); // Parse string into XML
 
@@ -85,8 +85,8 @@ function parseXML(xmlStr) {
                 }
             }
 
-            if (lookup.has(shape)) {
-                let lookupObj = lookup.get(shape);
+            if (circuitMapLut.has(shape)) {
+                let lookupObj = circuitMapLut.get(shape);
                 if (lookupObj.type === 'node') {
                     component = new CktNode(id, value, style, lookupObj.circuitikzshape);
                 } else {
@@ -132,7 +132,7 @@ function parseXML(xmlStr) {
                     (((1 - ry) * rv[1].x) + (ry * rv[2].x)).toFixed(3),
                     (((1 - ry) * rv[1].y) + (ry * rv[2].y)).toFixed(3));
             }
-            map.set(id, component);
+            circuitMap.set(id, component);
         } else { // Line
             let line = new CktLine(id, value, style);
             if (source !== null) {
@@ -181,15 +181,15 @@ function parseXML(xmlStr) {
     // Add start and end points (where connect to non-line components) to lines and add lines to 'map'
     lines.forEach(line => {
         if (line.source !== null) {
-            let [endX, endY] = getEndPoints(map.get(line.source), line);
+            let [endX, endY] = getEndPoints(circuitMap.get(line.source), line);
             line.addVertex(endX, endY, 0);
         }
         if (line.target !== null) {
-            let [endX, endY] = getEndPoints(map.get(line.target), line);
+            let [endX, endY] = getEndPoints(circuitMap.get(line.target), line);
             line.addVertex(endX, endY);
         }
 
-        map.set(line.id, line);
+        circuitMap.set(line.id, line);
     });
 }
 
@@ -197,7 +197,7 @@ function parseXML(xmlStr) {
  */
 function createCkt() {
     let cktStr = "\\begin{circuitikz}\n\t\\draw ";
-    map.forEach((value, key, map) => {
+    circuitMap.forEach((value, key, map) => {
         if (value instanceof CktLine) {
             let vertices = value.vertices;
             let str = "";
@@ -273,7 +273,7 @@ function adjust(number = 0, axis = 0) {
 */
 function getCktOrigin() {
     let minX = 10000.0, maxY = 0.0;
-    map.forEach((value, key, map) => {
+    circuitMap.forEach((value, key, map) => {
         if (value instanceof CktLine) { // Check first, b/c also returns true for 'value instanceof CktPath'
             for (let i = 0; i < value.vertices.length; i++) {
                 if (value.vertices[i].x < minX) {
@@ -368,7 +368,7 @@ function getEndPoints(comp, line) {
    Value: Object with properties of DrawIO shape, Circuitikz shape, and object type
  */
 window.onload = function () {
-    lookup = new Map();
+    circuitMapLut = new Map();
     let array = new Array();
     let rawFile = new XMLHttpRequest();
     rawFile.open("GET", "./js/cktparser/drawioshape.csv", true);
@@ -407,7 +407,7 @@ window.onload = function () {
             }
         }
         for (let i = 0; i < array.length; i++) {
-            lookup.set(array[i]["drawioshape"], array[i]);
+            circuitMapLut.set(array[i]["drawioshape"], array[i]);
         }
     } // End of first rawFile.onreadystatechange
 }
