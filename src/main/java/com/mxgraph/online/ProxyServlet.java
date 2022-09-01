@@ -64,7 +64,11 @@ public class ProxyServlet extends HttpServlet
 	{
 		String urlParam = request.getParameter("url");
 
-		if (Utils.sanitizeUrl(urlParam))
+		if (!"1".equals(System.getenv("ENABLE_DRAWIO_PROXY")))
+		{
+			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
+		else if (Utils.sanitizeUrl(urlParam))
 		{
 			// build the UML source from the compressed request parameter
 			String ref = request.getHeader("referer");
@@ -152,12 +156,12 @@ public class ProxyServlet extends HttpServlet
 					}
 					else
 					{
-						response.setStatus(HttpURLConnection.HTTP_PRECON_FAILED);
+						response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 					}
 				}
 				else
 				{
-					response.setStatus(HttpURLConnection.HTTP_UNSUPPORTED_TYPE);
+					response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				}
 
 				out.flush();
@@ -169,16 +173,16 @@ public class ProxyServlet extends HttpServlet
 			}
 			catch (DeadlineExceededException e)
 			{
-				response.setStatus(HttpServletResponse.SC_REQUEST_TIMEOUT);
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 			catch (UnknownHostException | FileNotFoundException e)
 			{
 				// do not log 404 and DNS errors
-				response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			}
 			catch (UnsupportedContentException e)
 			{
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 				log.log(Level.SEVERE, "proxy request with invalid content: url="
 						+ ((urlParam != null) ? urlParam : "[null]")
 						+ ", referer=" + ((ref != null) ? ref : "[null]")
@@ -186,7 +190,7 @@ public class ProxyServlet extends HttpServlet
 			}
 			catch (SizeLimitExceededException e)
 			{
-				response.setStatus(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
+				response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
 				throw e;
 			}
@@ -205,7 +209,7 @@ public class ProxyServlet extends HttpServlet
 		}
 		else
 		{
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 			log.log(Level.SEVERE,
 					"proxy request with invalid URL parameter: url="
 							+ ((urlParam != null) ? urlParam : "[null]"));

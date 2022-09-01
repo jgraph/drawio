@@ -1375,7 +1375,7 @@
         <fillstroke/>
     </foreground>
 </shape>
-<shape aspect="variable" h="46" name="Selector Switch 3 position" strokewidth="inherit" w="75.006">
+<shape aspect="variable" h="46" name="Selector Switch 3 position" strokewidth="inherit" w="75">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>
         <constraint name="NE" perimeter="0" x="1" y="0.065"/>
@@ -1384,10 +1384,10 @@
     </connections>
     <foreground>
         <path>
-            <move x="0" y="23.003"/>
-            <line x="15" y="23.003"/>
-            <move x="55.4" y="23.003"/>
-            <line x="75.006" y="23.003"/>
+            <move x="0" y="23"/>
+            <line x="15" y="23"/>
+            <move x="55.4" y="23"/>
+            <line x="75" y="23"/>
             <move x="51" y="3"/>
             <line x="75" y="3"/>
             <move x="51" y="43"/>
@@ -1396,13 +1396,13 @@
             <line x="46.465" y="3.877"/>
         </path>
         <stroke/>
-        <ellipse h="6" w="6" x="50.005" y="20.003"/>
+        <ellipse h="6" w="6" x="50" y="20"/>
         <fillstroke/>
         <ellipse h="6" w="6" x="45" y="0"/>
         <fillstroke/>
         <ellipse h="6" w="6" x="45" y="40"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="15" y="20.003"/>
+        <ellipse h="6" w="6" x="15" y="20"/>
         <fillstroke/>
         <fillcolor color="#000000"/>
         <path>
@@ -1414,7 +1414,7 @@
         <fill/>
     </foreground>
 </shape>
-<shape aspect="variable" h="105.993" name="Selector Switch 6 position" strokewidth="inherit" w="74.853">
+<shape aspect="variable" h="106" name="Selector Switch 6 position" strokewidth="inherit" w="74.85">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>
         <constraint name="NE" perimeter="0" x="1" y="0.025"/>
@@ -1426,45 +1426,45 @@
     </connections>
     <background>
         <path>
-            <move x="0" y="53.003"/>
-            <line x="15" y="53.003"/>
-            <move x="60" y="63.003"/>
-            <line x="74.853" y="63.003"/>
-            <move x="60" y="43.003"/>
-            <line x="74.853" y="43.003"/>
-            <move x="51" y="23.003"/>
-            <line x="74.853" y="23.003"/>
-            <move x="28.993" y="2.999"/>
-            <line x="74.852" y="2.999"/>
-            <move x="28.992" y="102.993"/>
-            <line x="74.853" y="102.993"/>
-            <move x="51" y="83.003"/>
-            <line x="74.853" y="83.003"/>
-            <move x="18" y="53.003"/>
-            <line x="47" y="24.003"/>
+            <move x="0" y="53"/>
+            <line x="15" y="53"/>
+            <move x="60" y="63"/>
+            <line x="74.85" y="63"/>
+            <move x="60" y="43"/>
+            <line x="74.85" y="43"/>
+            <move x="51" y="23"/>
+            <line x="74.85" y="23"/>
+            <move x="28.99" y="3"/>
+            <line x="74.85" y="3"/>
+            <move x="28.99" y="103"/>
+            <line x="74.85" y="103"/>
+            <move x="51" y="83"/>
+            <line x="74.85" y="83"/>
+            <move x="18" y="53"/>
+            <line x="47" y="24"/>
         </path>
     </background>
     <foreground>
         <stroke/>
-        <ellipse h="6" w="6" x="54" y="60.003"/>
+        <ellipse h="6" w="6" x="54" y="60"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="54" y="40.003"/>
+        <ellipse h="6" w="6" x="54" y="40"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="45" y="20.003"/>
+        <ellipse h="6" w="6" x="45" y="20"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="22.993" y="0"/>
+        <ellipse h="6" w="6" x="23" y="0"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="22.992" y="99.993"/>
+        <ellipse h="6" w="6" x="23" y="100"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="45" y="80.003"/>
+        <ellipse h="6" w="6" x="45" y="80"/>
         <fillstroke/>
-        <ellipse h="6" w="6" x="15" y="50.003"/>
+        <ellipse h="6" w="6" x="15" y="50"/>
         <fillstroke/>
         <fillcolor color="#000000"/>
         <path>
-            <move x="47" y="24.003"/>
-            <line x="45" y="30.003"/>
-            <line x="40.667" y="26.336"/>
+            <move x="47" y="24"/>
+            <line x="45" y="30"/>
+            <line x="40.67" y="26.34"/>
             <close/>
         </path>
         <fill/>

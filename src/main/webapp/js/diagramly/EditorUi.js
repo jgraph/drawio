@@ -8558,7 +8558,7 @@
 				done(importedCells);
 			}
 		});
-		
+
 		if (mimeType.substring(0, 5) == 'image')
 		{
 			var containsModel = false;
@@ -8664,7 +8664,7 @@
 			cells = this.insertTextAt(this.validateFileData(data), dx, dy, true,
 				null, crop, null, (evt != null) ? mxEvent.isControlDown(evt) : null);
 		}
-		
+
 		if (!async && done != null)
 		{
 			done(cells);
@@ -8722,6 +8722,15 @@
 						this.loadLibrary(new LocalLibrary(this, data, filename));
 		    			
 		    			return null;
+					}
+					else if (this.isCompatibleString(data) && files.length == 1 &&
+						this.isBlankFile() && !this.canUndo())
+					{
+						// Opens as diagram if current file is blank with no undoable changes
+						this.spinner.stop();
+						this.fileLoaded(new LocalFile(this, data, filename, true));
+
+						return null;
 					}
 					else
 					{
@@ -10115,16 +10124,10 @@
 					
 				    if (files.length > 0)
 				    {
-						// Closes current file if blank and no undoable changes
-						// LATER: Check if file contains diagram data
-						var noImport = files.length == 1 && this.isBlankFile() && !this.canUndo() &&
-							(files[0].type.substring(0, 9) === 'image/svg' ||
-							files[0].type.substring(0, 6) !== 'image/' ||
-							/(\.drawio.png)$/i.test(files[0].name));
-
-						if (urlParams['embed'] != '1' && (mxEvent.isShiftDown(evt) || noImport))
+						if (urlParams['embed'] != '1' && mxEvent.isShiftDown(evt))
 						{
-							if (!mxEvent.isShiftDown(evt) && noImport &&
+							// Closes current file if blank and no undoable changes
+							if (this.isBlankFile() && !this.canUndo() &&
 								this.getCurrentFile() != null)
 							{
 								this.fileLoaded(null);
@@ -10141,7 +10144,8 @@
 							}
 							
 							this.importFiles(files, x, y, this.maxImageSize, null, null, null,
-								null, mxEvent.isControlDown(evt), null, null, mxEvent.isShiftDown(evt), evt);
+								null, mxEvent.isControlDown(evt), null, null,
+								mxEvent.isShiftDown(evt), evt);
 				    	}
 		    		}
 				    else
@@ -13597,7 +13601,7 @@
         		var padding = 0;
 
 				// Delayed after optional layout
-    			var afterInsert = function()
+    			var afterInsert = mxUtils.bind(this, function()
     			{
     				if (done != null)
     				{
@@ -13608,7 +13612,15 @@
     					graph.setSelectionCells(select);
     					graph.scrollCellToVisible(graph.getSelectionCell());
     				}
-    			};
+					
+					if (this.chromelessResize != null)
+					{
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							this.chromelessResize(true);
+						}), 0);
+					}
+    			});
     				
     			// Computes unscaled, untranslated graph bounds
     			var pt = graph.getFreeInsertPoint();
@@ -14637,7 +14649,7 @@
 		var findReplace = this.actions.get('findReplace');
 		findReplace.setEnabled(this.diagramContainer.style.visibility != 'hidden');
 		findReplace.label = mxResources.get('find') + ((graph.isEnabled()) ?
-			'/' + mxResources.get('replace') : '') + '...';
+			'/' + mxResources.get('replace') : '');
 		
 		var state = graph.view.getState(graph.getSelectionCell());
 		this.actions.get('editShape').setEnabled(active && state != null &&

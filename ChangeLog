@@ -1,3 +1,21 @@
+01-SEP-2022: 20.2.8
+
+- Fixes importing plain SVG images by drag and drop [DS-902]
+- Adds createToolbarButton helper function [3007]
+- Sets current stroke color and width independently [DS-903]
+- Fixes layout for CSV import in lightbox mode [DS-904]
+- Fixes repeated set default style not working [DS-905]
+- [conf cloud] Catches errors in diagram text extraction to not break re-indexing process [DS-908]
+- Applies fillColor=strokeColor for shapes where appropriate [DS-903]
+- Makes format window closable in min ui [DS-906]
+- Fixes file pattern for workbox [2977]
+- Smaller stencils.min, uses built-in base64 encoder [DS-907]
+- Allows for close icon in minimized format window [DS-906]
+- Adds support for stroke and fill color in stencils [DS-903]
+- Restricts proxy servlet, java disabled by default, all errors are 500 (not distinguishable), allow ports only by config [CSP-633]
+- Conf Cloud: Fixed error of renaming/changing view settings not published if no modification done to the diagram [DID-6141]
+- Adds custom starting unit number to Rack Cabinet shape [2967]
+
 22-AUG-2022: 20.2.7
 
 - Reduces cursor update frequency to reduce DO request count [DS-899]

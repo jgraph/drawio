@@ -7596,60 +7596,6 @@ App.prototype.updateUserElement = function()
 						}), mxResources.get('trello'));
 					}
 					
-					if (!connected)
-					{
-						var div = document.createElement('div');
-						div.style.textAlign = 'center';
-						div.style.padding = '10px';
-						div.innerHTML = mxResources.get('notConnected');
-						
-						this.userPanel.appendChild(div);
-					}
-					
-					var div = document.createElement('div');
-					div.style.textAlign = 'center';
-					div.style.padding = '10px';
-					div.style.background = Editor.isDarkMode() ? '' : 'whiteSmoke';
-					div.style.borderTop = '1px solid #e0e0e0';
-					div.style.whiteSpace = 'nowrap';
-					
-					if (urlParams['sketch'] == '1')
-					{
-						var btn = mxUtils.button(mxResources.get('share'), mxUtils.bind(this, function()
-						{
-							this.actions.get('share').funct();
-						}));
-						btn.className = 'geBtn';
-						div.appendChild(btn);
-				
-						if (this.commentsSupported())
-						{
-							btn = mxUtils.button(mxResources.get('comments'), mxUtils.bind(this, function()
-							{
-								this.actions.get('comments').funct();
-							}));
-							btn.className = 'geBtn';
-							div.appendChild(btn);
-							this.userPanel.appendChild(div);
-						}
-
-						this.userPanel.appendChild(div);
-					}
-					else
-					{
-						var btn = mxUtils.button(mxResources.get('close'), mxUtils.bind(this, function()
-						{
-							if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
-							{
-								this.userPanel.parentNode.removeChild(this.userPanel);
-							}
-						}));
-
-						btn.className = 'geBtn';
-						div.appendChild(btn);
-						this.userPanel.appendChild(div);
-					}
-
 					if (uiTheme == 'min')
 					{
 						var file = this.getCurrentFile();
@@ -7657,15 +7603,19 @@ App.prototype.updateUserElement = function()
 						if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 						{
 							div = div.cloneNode(false);
+							div.style.textAlign = 'center';
+							div.style.padding = '10px';
 							div.style.fontSize = '9pt';
 							var err = file.getRealtimeError();
 							var state = file.getRealtimeState();
 
-							mxUtils.write(div, mxResources.get('realtimeCollaboration') + ': ' +
-								(state == 1 ? mxResources.get('online') :
-									((err != null && err.message != null) ?
-									err.message : mxResources.get('disconnected'))));
-							this.userPanel.appendChild(div);
+							if (state != 1)
+							{
+								mxUtils.write(div, mxResources.get('realtimeCollaboration') + ': ' +
+										((err != null && err.message != null) ?
+										err.message : mxResources.get('disconnected')));
+								this.userPanel.appendChild(div);
+							}
 						}
 					}
 

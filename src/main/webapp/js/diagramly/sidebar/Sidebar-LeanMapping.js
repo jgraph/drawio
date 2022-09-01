@@ -71,7 +71,7 @@
 			{
 			   	var bg = new mxCell('', new mxGeometry(0, 0, 90, 40), s2 + 'kaizen_lightening_burst;');
 			   	bg.vertex = true;
-			   	var text1 = new mxCell('', new mxGeometry(8, 8, 74, 24), 'rect;fillColor=#000000;strokeColor=none;');
+			   	var text1 = new mxCell('', new mxGeometry(8, 8, 74, 24), 'rect;fillColor=strokeColor;');
 			   	text1.vertex = true;
 			   	bg.insert(text1);
 

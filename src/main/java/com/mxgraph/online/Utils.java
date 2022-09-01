@@ -18,13 +18,11 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.net.InetAddress;
 
 /**
  * 
@@ -55,6 +53,32 @@ public class Utils
 	 * Alphabet for global unique IDs.
 	 */
 	public static final String TOKEN_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_";
+
+	private static Set<Integer> allowedPorts = new HashSet<>();
+	
+	static {
+		// -1 is for no port urls (ports 80, 443)
+		allowedPorts.add(-1);
+
+		String allowedPortsStr = System.getenv("DRAWIO_PROXY_ALLOWED_PORTS");
+		
+		if (allowedPortsStr != null) 
+		{
+			String[] ports = allowedPortsStr.split(",");
+			
+			for (String port : ports) 
+			{
+				try 
+				{
+					allowedPorts.add(Integer.parseInt(port));
+				} 
+				catch (NumberFormatException e) 
+				{
+					System.out.println("Invalid DRAWIO_PROXY_ALLOWED_PORTS port: " + port);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Returns a random string of the given length.
@@ -553,11 +577,12 @@ public class Utils
 				InetAddress address = InetAddress.getByName(host);
 				String hostAddress = address.getHostAddress();
 				host = host.toLowerCase();
-
+				
 				return (protocol.equals("http") || protocol.equals("https"))
 						&& !address.isAnyLocalAddress()
 						&& !address.isLoopbackAddress()
 						&& !address.isLinkLocalAddress()
+						&& allowedPorts.contains(parsedUrl.getPort())
 						&& !host.endsWith(".internal") // Redundant
 						&& !host.endsWith(".local") // Redundant
 						&& !host.contains("localhost") // Redundant

@@ -983,7 +983,7 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(mxUtils.bind(this, function() { return this.tagsWindow != null && this.tagsWindow.window.isVisible(); }));
 
-		action = editorUi.actions.addAction('findReplace...', mxUtils.bind(this, function(arg1, evt)
+		action = editorUi.actions.addAction('findReplace', mxUtils.bind(this, function(arg1, evt)
 		{
 			var findReplace = graph.isEnabled() && (evt == null || !mxEvent.isShiftDown(evt));
 			var evtName = (findReplace) ? 'findReplace' : 'find';
@@ -1530,7 +1530,7 @@
 			}), parent);
 			
 			menu.addSeparator(parent);
-			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('apply') + '...');
+			editorUi.menus.addMenuItem(menu, 'runLayout', parent, null, null, mxResources.get('custom') + '...');
 		};
 		
 		this.put('help', new Menu(mxUtils.bind(this, function(menu, parent)

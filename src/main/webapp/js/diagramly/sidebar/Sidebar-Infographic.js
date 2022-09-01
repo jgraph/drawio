@@ -823,7 +823,7 @@
 			   	var arrow1 = new mxCell('', new mxGeometry(3, 30, 24, 70), 'shape=mxgraph.arrows2.arrow;dy=0.4;dx=16;notch=0;direction=north;fillColor=#1699D3;strokeColor=none;');
 			   	arrow1.vertex = true;
 			   	part1.insert(arrow1);
-			   	var text1 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;');
+			   	var text1 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;strokeColor=none;fillColor=none;');
 			   	text1.vertex = true;
 			   	part1.insert(text1);
 			   	
@@ -832,7 +832,7 @@
 			   	var arrow2 = new mxCell('', new mxGeometry(3, 0, 24, 80), 'shape=mxgraph.arrows2.arrow;dy=0.4;dx=16;notch=0;direction=south;fillColor=#F5AB50;strokeColor=none;');
 			   	arrow2.vertex = true;
 			   	part2.insert(arrow2);
-			   	var text2 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;');
+			   	var text2 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;strokeColor=none;fillColor=none;');
 			   	text2.vertex = true;
 			   	part2.insert(text2);
 			   	
@@ -841,7 +841,7 @@
 			   	var arrow3 = new mxCell('', new mxGeometry(3, 80, 24, 50), 'shape=mxgraph.arrows2.arrow;dy=0.4;dx=16;notch=0;direction=north;fillColor=#E85642;strokeColor=none;');
 			   	arrow3.vertex = true;
 			   	part3.insert(arrow3);
-			   	var text3 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;');
+			   	var text3 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;strokeColor=none;fillColor=none;');
 			   	text3.vertex = true;
 			   	part3.insert(text3);
 			   	
@@ -850,7 +850,7 @@
 			   	var arrow4 = new mxCell('', new mxGeometry(3, 0, 24, 30), 'shape=mxgraph.arrows2.arrow;dy=0.4;dx=16;notch=0;direction=south;fillColor=#64BBE2;strokeColor=none;');
 			   	arrow4.vertex = true;
 			   	part4.insert(arrow4);
-			   	var text4 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;');
+			   	var text4 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;strokeColor=none;fillColor=none;');
 			   	text4.vertex = true;
 			   	part4.insert(text4);
 			   	
@@ -859,7 +859,7 @@
 			   	var arrow5 = new mxCell('', new mxGeometry(3, 10, 24, 60), 'shape=mxgraph.arrows2.arrow;dy=0.4;dx=16;notch=0;direction=north;fillColor=#2F5B7C;strokeColor=none;');
 			   	arrow5.vertex = true;
 			   	part5.insert(arrow5);
-			   	var text5 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;');
+			   	var text5 = new mxCell('Label', new mxGeometry(0, 0, 30, 20), 'text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=10;strokeColor=none;fillColor=none;');
 			   	text5.vertex = true;
 			   	part5.insert(text5);
 			   	

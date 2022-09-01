@@ -440,7 +440,7 @@
 			}),
 			this.createVertexTemplateEntry('ellipse;fillColor=#000000;strokeColor=none;', 30, 30,
 				   	'', 'Initial preudostate / node', null, null, dt + 'initial pseudostate'),
-			this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#000000;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=strokeColor;', 30, 30,
 				   	'', 'Final state / node', null, null, dt + 'final state'),
 			this.createVertexTemplateEntry('ellipse;fillColor=#ffffff;strokeColor=#000000;', 30, 30,
 				   	'H', 'Shallow History', null, null, dt + 'shallow history pseudostate'),
@@ -887,7 +887,7 @@
 			{
 		    	var cell1 = new mxCell('InformationItem1', new mxGeometry(0, 0, 200, 50), 'align=left;spacingLeft=10;html=1;dashed=0;');
 		    	cell1.vertex = true;
-		    	var cell2 = new mxCell('', new mxGeometry(1, 0.5, 30, 20), 'shape=triangle;fillColor=#000000;');
+		    	var cell2 = new mxCell('', new mxGeometry(1, 0.5, 30, 20), 'shape=triangle;fillColor=strokeColor;');
 		    	cell2.geometry.relative = true;
 		    	cell2.geometry.offset = new mxPoint(-45, -10);
 		    	cell2.vertex = true;
@@ -930,7 +930,7 @@
 			}),
 			this.addEntry('dependency', function()
 			{
-		    	var cell1 = new mxCell('', new mxGeometry(68, 38, 4, 4), 'ellipse;resizable=0;aspect=fixed;fillColor=#000000;');
+		    	var cell1 = new mxCell('', new mxGeometry(68, 38, 4, 4), 'ellipse;resizable=0;aspect=fixed;fillColor=strokeColor;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('&lt;&lt;keyword&gt;&gt;', new mxGeometry(0, 0, 0, 0), 'endArrow=open;html=1;rounded=0;align=center;verticalAlign=bottom;dashed=1;endFill=0;labelBackgroundColor=none;spacingBottom=35;');
 				edge1.geometry.setTerminalPoint(new mxPoint(0, 0), true);
@@ -1005,7 +1005,7 @@
 			}),
 			this.addEntry('association instance specification connector', function()
 			{
-		    	var cell1 = new mxCell('', new mxGeometry(65, 0, 6, 12), 'triangle;aspect=fixed;fillColor=#000000;');
+		    	var cell1 = new mxCell('', new mxGeometry(65, 0, 6, 12), 'triangle;aspect=fixed;fillColor=strokeColor;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=none;html=1;rounded=0;align=center;verticalAlign=bottom;labelBackgroundColor=none;');
 				edge1.geometry.setTerminalPoint(new mxPoint(0, 22), true);
@@ -1232,7 +1232,7 @@
 		 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;labelBackgroundColor=none;endArrow=open;endFill=0;dashed=1;', 160, 0, '', 'Message, create', null, 'message create'),
 			this.addEntry('message lost', function()
 			{
-		    	var cell1 = new mxCell('', new mxGeometry(160, 0, 4, 4), 'ellipse;html=1;fillColor=#000000;');
+		    	var cell1 = new mxCell('', new mxGeometry(160, 0, 4, 4), 'ellipse;html=1;fillColor=strokeColor;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=open;html=1;rounded=0;align=center;verticalAlign=top;endFill=0;labelBackgroundColor=none;endSize=6;');
 				edge1.geometry.setTerminalPoint(new mxPoint(0, 2), true);
@@ -1244,7 +1244,7 @@
 			}),
 			this.addEntry('message found', function()
 			{
-		    	var cell1 = new mxCell('', new mxGeometry(0, 0, 4, 4), 'ellipse;html=1;fillColor=#000000;');
+		    	var cell1 = new mxCell('', new mxGeometry(0, 0, 4, 4), 'ellipse;html=1;fillColor=strokeColor;');
 		    	cell1.vertex = true;
 				var edge1 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'endArrow=open;html=1;rounded=0;align=center;verticalAlign=top;endFill=0;labelBackgroundColor=none;endSize=6;');
 				edge1.geometry.setTerminalPoint(new mxPoint(164, 2), false);

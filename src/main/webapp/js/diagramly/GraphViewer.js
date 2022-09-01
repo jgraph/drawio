@@ -1124,7 +1124,6 @@ GraphViewer.prototype.showLayers = function(graph, sourceGraph)
 GraphViewer.prototype.addToolbar = function()
 {
 	var container = this.graph.container;
-	var initialCursor = this.graph.container.style.cursor;
 	
 	if (this.graphConfig['toolbar-position'] == 'bottom')
 	{
@@ -1278,51 +1277,15 @@ GraphViewer.prototype.addToolbar = function()
 	var tokens = this.toolbarItems;
 	var buttonCount = 0;
 	
-	function addButton(fn, imgSrc, tip, enabled)
+	var addButton = mxUtils.bind(this, function(fn, imgSrc, tip, enabled)
 	{
-		var a = document.createElement('div');
-		a.style.borderRight = '1px solid #d0d0d0';
-		a.style.padding = '3px 6px 3px 6px';
-		mxEvent.addListener(a, 'click', fn);
-
-		if (tip != null)
-		{
-			a.setAttribute('title', tip);
-		}
-		
-		a.style.display = 'inline-block';
-		var img = document.createElement('img');
-		img.setAttribute('border', '0');
-		img.setAttribute('src', imgSrc);
-		img.style.width = '18px';
-
-		if (enabled == null || enabled)
-		{
-			mxEvent.addListener(a, 'mouseenter', function()
-			{
-				a.style.backgroundColor = '#ddd';
-			});
-			
-			mxEvent.addListener(a, 'mouseleave', function()
-			{
-				a.style.backgroundColor = '#eee';
-			});
-
-			mxUtils.setOpacity(img, 60);
-			a.style.cursor = 'pointer';
-		}
-		else
-		{
-			mxUtils.setOpacity(a, 30);
-		}
-		
-		a.appendChild(img);
+		var a = this.createToolbarButton(fn, imgSrc, tip, enabled);
 		toolbar.appendChild(a);
 		
 		buttonCount++;
 		
 		return a;
-	};
+	});
 
 	var layersDialog = null;
 	var tagsComponent = null;
@@ -1691,6 +1654,52 @@ GraphViewer.prototype.addToolbar = function()
 			}
 		}).observe(container)
 	}
+};
+
+/**
+ * 
+ */
+GraphViewer.prototype.createToolbarButton = function(fn, imgSrc, tip, enabled)
+{
+	var a = document.createElement('div');
+	a.style.borderRight = '1px solid #d0d0d0';
+	a.style.padding = '3px 6px 3px 6px';
+	mxEvent.addListener(a, 'click', fn);
+
+	if (tip != null)
+	{
+		a.setAttribute('title', tip);
+	}
+	
+	a.style.display = 'inline-block';
+	var img = document.createElement('img');
+	img.setAttribute('border', '0');
+	img.setAttribute('src', imgSrc);
+	img.style.width = '18px';
+
+	if (enabled == null || enabled)
+	{
+		mxEvent.addListener(a, 'mouseenter', function()
+		{
+			a.style.backgroundColor = '#ddd';
+		});
+		
+		mxEvent.addListener(a, 'mouseleave', function()
+		{
+			a.style.backgroundColor = '#eee';
+		});
+
+		mxUtils.setOpacity(img, 60);
+		a.style.cursor = 'pointer';
+	}
+	else
+	{
+		mxUtils.setOpacity(a, 30);
+	}
+	
+	a.appendChild(img);
+
+	return a;
 };
 
 GraphViewer.prototype.disableButton = function(token)

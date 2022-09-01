@@ -772,21 +772,6 @@ EditorUi.initMinimalTheme = function()
         var ui = this.editorUi;
         var graph = ui.editor.graph;
 
-        ui.actions.get('editDiagram').label = mxResources.get('formatXml') + '...';
-        ui.actions.get('createShape').label = mxResources.get('shape') + '...';
-        ui.actions.get('outline').label = mxResources.get('outline') + '...';
-        ui.actions.get('layers').label = mxResources.get('layers') + '...';
-        ui.actions.get('tags').label = mxResources.get('tags') + '...';
-		ui.actions.get('comments').label = mxResources.get('comments') + '...';
-
-        var toggleSketchModeAction = ui.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
-        {
-			ui.setSketchMode(!Editor.sketchMode);
-        }));
-
-		toggleSketchModeAction.setToggleAction(true);
-		toggleSketchModeAction.setSelectedCallback(function() { return Editor.sketchMode; });
-				
         var togglePagesAction = ui.actions.put('togglePagesVisible', new Action(mxResources.get('pages'), function(e)
         {
             ui.setPagesVisible(!Editor.pagesVisible);
@@ -819,11 +804,17 @@ EditorUi.initMinimalTheme = function()
         	toggleShapes(ui);
         }, null, null, Editor.ctrlKey + '+Shift+K'));
 
-        var action = ui.actions.put('toggleFormat', new Action(mxResources.get('format') + '...', function()
+        var action = ui.actions.put('toggleFormat', new Action(mxResources.get('format'), function()
         {
         	toggleFormat(ui);
         }));
-		action.shortcut = ui.actions.get('formatPanel').shortcut;        
+
+		action.shortcut = ui.actions.get('formatPanel').shortcut;
+		action.setToggleAction(true);
+		action.setSelectedCallback(mxUtils.bind(this, function()
+		{
+			return ui.formatWindow != null && ui.formatWindow.window.isVisible();
+		}));
 
         if (EditorUi.enablePlantUml && !ui.isOffline())
         {
@@ -881,14 +872,27 @@ EditorUi.initMinimalTheme = function()
 			
 			menu.addSeparator(parent);
 
+			ui.menus.addMenuItems(menu, ['-', 'save'], parent);
+
+			if (file == null || file.constructor != DriveFile)
+			{
+				ui.menus.addMenuItems(menu, ['saveAs'], parent);
+			}
+
+			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+				(file.constructor != LocalFile || file.fileHandle != null))
+			{
+				ui.menus.addMenuItems(menu, ['synchronize'], parent);
+			}
+
 			if (file != null && file.constructor == DriveFile)
 			{
-				ui.menus.addMenuItems(menu, ['save', 'rename',
-					'makeCopy', 'moveToFolder'], parent);
+				ui.menus.addMenuItems(menu, ['-', 'rename', 'makeCopy',
+					'-', 'moveToFolder', 'openFolder'], parent);
 			}
 			else
 			{
-				ui.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename'], parent);
+				ui.menus.addMenuItems(menu, ['-', 'rename'], parent);
 				
 				if (ui.isOfflineApp())
 				{
@@ -903,38 +907,13 @@ EditorUi.initMinimalTheme = function()
 				}
 			}
 
-			menu.addSeparator(parent);
-
-			if (file != null)
+			if (file != null && file.isRevisionHistorySupported())
 			{
-				if (file.isRevisionHistorySupported())
-				{
-					ui.menus.addMenuItems(menu, ['revisionHistory'], parent);
-				}
-
-				if (file.constructor == DriveFile)
-				{
-					ui.menus.addMenuItems(menu, ['openFolder'], parent);
-				}
-
-				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-					(file.constructor != LocalFile || file.fileHandle != null))
-				{
-					ui.menus.addMenuItems(menu, ['synchronize'], parent);
-				}
+				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
 			}
 
-			ui.menus.addMenuItems(menu, ['autosave'], parent);
-
 			if (file != null)
 			{
-				menu.addSeparator(parent);
-				
-				if (urlParams['sketch'] == '1' && ui.commentsSupported())
-				{
-					ui.menus.addMenuItems(menu, ['comments'], parent);
-				}
-
 				if (ui.fileNode != null && urlParams['embedInline'] != '1')
 				{
 					var filename = (file.getTitle() != null) ?
@@ -953,6 +932,8 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addMenuItems(menu, ['share'], parent);
 				}
 			}
+
+			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
 		})));
 
         this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1028,9 +1009,9 @@ EditorUi.initMinimalTheme = function()
 					ui.menus.addSubmenu('file', menu, parent);
 				}
 			}
-		
+			
 			ui.menus.addSubmenu('exportAs', menu, parent);
-				
+			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				ui.menus.addMenuItems(menu, ['import'], parent);
@@ -1040,14 +1021,14 @@ EditorUi.initMinimalTheme = function()
 				ui.menus.addSubmenu('importFrom', menu, parent);
 			}
 
-			if ((urlParams['embed'] == '1' || urlParams['sketch'] != '1' ||
-				urlParams['noFileMenu'] == '1') && ui.commentsSupported())
+			ui.menus.addMenuItems(menu, ['-',  'findReplace'], parent);
+
+			if (ui.commentsSupported())
 			{
-				ui.menus.addMenuItems(menu, ['-', 'comments'], parent);
+				ui.menus.addMenuItems(menu, ['comments', '-'], parent);
 			}
 
-			ui.menus.addMenuItems(menu, ['-', 'findReplace',
-				'layers', 'tags', '-', 'pageSetup'], parent);
+			ui.menus.addMenuItems(menu, ['toggleFormat', 'layers', 'tags', '-', 'pageSetup'], parent);
 
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
@@ -1152,7 +1133,7 @@ EditorUi.initMinimalTheme = function()
 		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			unitsMenu.funct(menu, parent);
-			this.addMenuItems(menu, ['-', 'pageScale', '-', 'ruler'], parent);
+			this.addMenuItems(menu, ['-', 'ruler', '-', 'pageScale'], parent);
 		})));
 		
         // Extras menu is labelled preferences but keeps ID for extensions
@@ -1325,9 +1306,9 @@ EditorUi.initMinimalTheme = function()
 		if (!formatWindowInitialized && this.formatWindow != null)
 		{
 			formatWindowInitialized = true;
-			this.formatWindow.window.setClosable(false);
 
 			var toggleMinimized = this.formatWindow.window.toggleMinimized;
+			var w = 240;
 			
 			this.formatWindow.window.toggleMinimized = function()
 			{
@@ -1335,16 +1316,16 @@ EditorUi.initMinimalTheme = function()
 				
 				if (this.minimized)
 				{
-					this.div.style.width = '90px';
-					this.table.style.width = '90px';
-					this.div.style.left = parseInt(this.div.style.left) + 150 + 'px';
+					w = parseInt(this.div.style.width);
+					this.div.style.width = '140px';
+					this.table.style.width = '140px';
+					this.div.style.left = (parseInt(this.div.style.left) + w - 140) + 'px';
 				}
 				else
 				{
-					
-					this.div.style.width = '240px';
-					this.table.style.width = '240px';
-					this.div.style.left = Math.max(0, parseInt(this.div.style.left) - 150) + 'px';
+					this.div.style.width = w + 'px';
+					this.table.style.width = this.div.style.width;
+					this.div.style.left = (Math.max(0, parseInt(this.div.style.left) - w + 140)) + 'px';
 				}
 				
 				this.fit();
@@ -1752,7 +1733,7 @@ EditorUi.initMinimalTheme = function()
 		viewZoomMenu.funct = function(menu, parent)
 		{
 			viewZoomMenuFunct.apply(this, arguments);
-			ui.menus.addMenuItems(menu, ['outline', '-', 'fullscreen', 'toggleDarkMode'], parent);
+			ui.menus.addMenuItems(menu, ['-', 'outline', 'fullscreen'], parent);
 		};
 		
 		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;

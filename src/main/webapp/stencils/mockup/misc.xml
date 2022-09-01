@@ -38,30 +38,30 @@
             <fillstroke/>
         </foreground>
     </shape>
-    <shape name="Cursor Hand" h="33.25" w="23.893" aspect="1">
+    <shape name="Cursor Hand" h="33.25" w="23.89" aspect="1">
         <foreground>
             <strokecolor color="#000000"/>
             <fillcolor color="#ffffff"/>
             <linejoin join="round"/>
             <path>
-                <move x="7.393" y="33.25"/>
-                <arc rx="20" ry="20" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="5.393" y="25.25"/>
-                <arc rx="40" ry="40" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="0.393" y="17.25"/>
-                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="2.393" y="14.25"/>
-                <arc rx="10" ry="10" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="5.893" y="17.75"/>
-                <line x="5.893" y="2.25"/>
-                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="10.393" y="2.25"/>
-                <line x="10.393" y="14.75"/>
-                <line x="10.393" y="10.25"/>
-                <arc rx="2.5" ry="2.5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="14.893" y="10.25"/>
-                <line x="14.893" y="14.75"/>
-                <line x="14.893" y="11.25"/>
-                <arc rx="2.5" ry="2.5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="19.393" y="11.25"/>
-                <line x="19.393" y="16.25"/>
-                <line x="19.393" y="11.75"/>
-                <arc rx="5" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="23.893" y="15.25"/>
-                <arc rx="50" ry="50" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="21.393" y="29.25"/>
-                <line x="21.393" y="33.25"/>
+                <move x="7.39" y="33.25"/>
+                <arc rx="20" ry="20" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="5.39" y="25.25"/>
+                <arc rx="40" ry="40" x-axis-rotation="0" large-arc-flag="0" sweep-flag="0" x="0.39" y="17.25"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="2.39" y="14.25"/>
+                <arc rx="10" ry="10" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="5.89" y="17.75"/>
+                <line x="5.89" y="2.25"/>
+                <arc rx="2" ry="2" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="10.39" y="2.25"/>
+                <line x="10.39" y="14.75"/>
+                <line x="10.39" y="10.25"/>
+                <arc rx="2.5" ry="2.5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="14.89" y="10.25"/>
+                <line x="14.89" y="14.75"/>
+                <line x="14.89" y="11.25"/>
+                <arc rx="2.5" ry="2.5" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="19.39" y="11.25"/>
+                <line x="19.39" y="16.25"/>
+                <line x="19.39" y="11.75"/>
+                <arc rx="5" ry="4" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="23.89" y="15.25"/>
+                <arc rx="50" ry="50" x-axis-rotation="0" large-arc-flag="0" sweep-flag="1" x="21.39" y="29.25"/>
+                <line x="21.39" y="33.25"/>
                 <close/>
             </path>
             <fillstroke/>

@@ -462,6 +462,16 @@
 			this.addEntry(dt + 'call choreography activity calling global task', function()
 		   	{
 			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
+//				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;');
+				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;');
+		    	bg.vertex = true;
+		    	
+			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'bzzzzt');
+			}),
+
+			this.addEntry(dt + 'call choreography activity calling global task', function()
+		   	{
+			    var bg = new mxCell('', new mxGeometry(0, 0, 120, 100), 
 				'rounded=1;whiteSpace=wrap;html=1;container=1;collapsible=0;absoluteArcSize=1;arcSize=20;childLayout=stackLayout;horizontal=1;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;strokeWidth=8;');
 		    	bg.vertex = true;
 		    	

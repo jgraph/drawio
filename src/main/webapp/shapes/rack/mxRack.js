@@ -546,6 +546,22 @@ mxRackRackCabinet.prototype.cst =
 		TEXT_SIZE : 'textSize'
 };
 
+mxRackRackCabinet.prototype.customProperties = [
+	{name: 'unitNum', dispName: 'Number of units', type: 'int', defVal: 12},
+	{name: 'startUnit', dispName: 'Starting unit', type: 'int', defVal: 1},
+	{name: 'unitHeight', dispName: 'Unit height', type: 'float', defVal: 14.8},
+	{name: 'textColor', dispName: 'Number text color', type: 'color', defVal: '#666666'},
+	{name: 'textSize', dispName: 'Text size', type: 'float', defVal: '12'},
+	{name: 'numDisp', dispName: 'Display Numbers', type: 'enum', defVal: 'descend',
+		enumList: [{val: 'off', dispName: 'Off'}, {val: 'ascend', dispName: 'Ascending'}, {val: 'descend', dispName: 'Descending'}],
+		onChange: function(graph, newValue)
+		{
+			graph.setCellStyles('marginLeft', (newValue == 'off') ? 9 : 33, graph.getSelectionCells());
+		}
+	}
+];
+
+
 /**
  * Function: paintVertexShape
  * 
@@ -556,9 +572,9 @@ mxRackRackCabinet.prototype.paintVertexShape = function(c, x, y, w, h)
 	var unitNum = parseFloat(mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.UNIT_NUM, '12'));
 	var unitH = parseFloat(mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.UNIT_HEIGHT, '14.8'));
 	var fontSize = parseFloat(mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.TEXT_SIZE, '12'));
-	var numDis = mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.NUMBER_DISPLAY, mxRackRackCabinet.prototype.cst.ON);
+	var numDisp = mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.NUMBER_DISPLAY, mxRackRackCabinet.prototype.cst.ON);
 
-	if (numDis === mxRackRackCabinet.prototype.cst.ON)
+	if (numDisp !== mxRackRackCabinet.prototype.cst.OFF)
 	{
 		c.translate(x + fontSize * 2, y);
 	}
@@ -568,24 +584,24 @@ mxRackRackCabinet.prototype.paintVertexShape = function(c, x, y, w, h)
 	};
 
 	var h = unitNum * unitH + 42;
-	this.background(c, w, h, fontSize);
+	this.background(c, h);
 	c.setShadow(false);
-	this.foreground(c, w, h, fontSize);
+	this.foreground(c, h);
 
-	if (numDis === mxRackRackCabinet.prototype.cst.ON)
+	if (numDisp !== mxRackRackCabinet.prototype.cst.OFF)
 	{
-		this.sideText(c, w, h, unitNum, unitH, fontSize);
+		this.sideText(c, h, unitNum, unitH, fontSize, numDisp);
 	};
 };
 
-mxRackRackCabinet.prototype.background = function(c, w, h, fontSize)
+mxRackRackCabinet.prototype.background = function(c, h)
 {
 	c.setFillColor('#ffffff');
 	c.rect(0, 0, 180, h);
 	c.fillAndStroke();
 };
 
-mxRackRackCabinet.prototype.foreground = function(c, w, h, fontSize)
+mxRackRackCabinet.prototype.foreground = function(c, h)
 {
 	c.setFillColor('#f4f4f4');
 	c.rect(0, 0, 180, 21);
@@ -606,29 +622,29 @@ mxRackRackCabinet.prototype.foreground = function(c, w, h, fontSize)
 	c.stroke();
 };
 
-mxRackRackCabinet.prototype.sideText = function(c, w, h, unitNum, unitH, fontSize)
+mxRackRackCabinet.prototype.sideText = function(c, h, unitNum, unitH, fontSize, numDisp)
 {
 	var fontColor = mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.TEXT_COLOR, '#666666');
-	var numDir = mxUtils.getValue(this.style, mxRackRackCabinet.prototype.cst.NUM_DIR, mxRackRackCabinet.prototype.cst.DIR_DESC);
+	var startUnit = mxUtils.getValue(this.style, 'startUnit', 1);
 	c.setFontSize(fontSize);
 	c.setFontColor(fontColor);
 
-	if (numDir === mxRackRackCabinet.prototype.cst.DIR_ASC)
+	if (numDisp === mxRackRackCabinet.prototype.cst.DIR_ASC)
 	{
 		for (var i = 0; i < unitNum; i++)
 		{
-			c.text(-fontSize, 21 + unitH * 0.5 + i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			c.text(-fontSize, 21 + unitH * 0.5 + i * unitH, 0, 0, (i + startUnit).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 		};
 	}
-	else
+	else if (numDisp === mxRackRackCabinet.prototype.cst.DIR_DESC || numDisp === mxRackRackCabinet.prototype.cst.DIR_ON)
 	{
 		for (var i = 0; i < unitNum; i++)
 		{
-			c.text(-fontSize, h - 21 - unitH * 0.5 - i * unitH, 0, 0, (i + 1).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
+			c.text(-fontSize, h - 21 - unitH * 0.5 - i * unitH, 0, 0, (i + startUnit).toString(), mxConstants.ALIGN_CENTER, mxConstants.ALIGN_MIDDLE, 0, null, 0, 0, 0);
 		};
 	};
 
-	c.setStrokeColor('#dddddd');
+	c.setStrokeColor(fontColor);
 
 	c.begin();
 

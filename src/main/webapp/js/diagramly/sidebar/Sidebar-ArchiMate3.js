@@ -356,7 +356,7 @@
 					w * 160, 0, '', 'Specialization', null, this.getTagsForStencil(gn, '', dt + 'specialization').join(' ')),
 			this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;html=1;endArrow=none;elbow=vertical;',
 					w * 160, 0, '', 'Association', null, this.getTagsForStencil(gn, '', dt + 'association').join(' ')),
-			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#000000', 
+			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=strokeColor', 
 					10, 10, '', 'And Junction', null, this.getTagsForStencil(gn, '', dt + 'junction').join(' ')),
 			this.createVertexTemplateEntry('ellipse;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;fillColor=#ffffff', 
 					10, 10, '', 'Or Junction', null, this.getTagsForStencil(gn, '', dt + 'junction').join(' '))

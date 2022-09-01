@@ -92,7 +92,7 @@ EditorUi = function(editor, container, lightbox)
 		var styles = ['rounded', 'shadow', 'glass', 'dashed', 'dashPattern', 'labelBackgroundColor',
 			'labelBorderColor', 'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
 			'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
-			'simplification', 'sketchStyle', 'pointerEvents'];
+			'simplification', 'sketchStyle', 'pointerEvents', 'strokeColor', 'strokeWidth'];
 		var connectStyles = ['shape', 'edgeStyle', 'curved', 'rounded', 'elbow', 'jumpStyle', 'jumpSize',
 			'comic', 'sketch', 'fillWeight', 'hachureGap', 'hachureAngle', 'jiggle',
 			'disableMultiStroke', 'disableMultiStrokeFill', 'fillStyle', 'curveFitting',
@@ -108,6 +108,15 @@ EditorUi = function(editor, container, lightbox)
 		{
 			try
 			{
+				if (graph.getModel().isEdge(cell))
+				{
+					edgeStyleIgnored = false;
+				}
+				else
+				{
+					vertexStyleIgnored = false;
+				}
+
 				var style = graph.getCellStyle(cell, false);
 				var values = [];
 				var keys = [];
@@ -132,6 +141,8 @@ EditorUi = function(editor, container, lightbox)
 					'keys', keys, 'values', values,
 					'cells', [cell]));
 				
+				// Blocks update of default style with style changes
+				// once the it was set using this function
 				if (graph.getModel().isEdge(cell))
 				{
 					edgeStyleIgnored = true;
@@ -176,12 +187,11 @@ EditorUi = function(editor, container, lightbox)
 		
 		// Keys that are ignored together (if one appears all are ignored)
 		var keyGroups = [['startArrow', 'startFill', 'endArrow', 'endFill'],
-						 ['startSize', 'endSize'],
-						 ['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
-		                 ['strokeColor', 'strokeWidth'],
-		                 ['fillColor', 'gradientColor', 'gradientDirection'],
-		                 ['opacity'],
-		                 ['html']];
+						['startSize', 'endSize'],
+						['sourcePerimeterSpacing', 'targetPerimeterSpacing'],
+						['fillColor', 'gradientColor', 'gradientDirection'],
+						['opacity'],
+						['html']];
 		
 		// Adds all keys used above to the styles array
 		for (var i = 0; i < keyGroups.length; i++)
@@ -755,9 +765,9 @@ EditorUi = function(editor, container, lightbox)
 			for (var i = 0; i < keys.length; i++)
 			{
 				var common = mxUtils.indexOf(valueStyles, keys[i]) >= 0;
-				
+
 				// Ignores transparent stroke colors
-				if (keys[i] != 'strokeColor' || values[i] != null && values[i] != 'none')
+				if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
 				{
 					// Special case: Edge style and shape
 					if (mxUtils.indexOf(connectStyles, keys[i]) >= 0)
@@ -5355,40 +5365,23 @@ EditorUi.prototype.executeLayouts = function(layouts, post)
 EditorUi.prototype.executeLayout = function(exec, animate, post)
 {
 	var graph = this.editor.graph;
-
-	if (graph.isEnabled())
+	graph.getModel().beginUpdate();
+	try
 	{
-		graph.getModel().beginUpdate();
-		try
+		exec();
+	}
+	catch (e)
+	{
+		throw e;
+	}
+	finally
+	{
+		// Animates the changes in the graph model
+		if (this.allowAnimation && animate && graph.isEnabled())
 		{
-			exec();
-		}
-		catch (e)
-		{
-			throw e;
-		}
-		finally
-		{
-			// Animates the changes in the graph model except
-			// for Camino, where animation is too slow
-			if (this.allowAnimation && animate && (navigator.userAgent == null ||
-				navigator.userAgent.indexOf('Camino') < 0))
-			{
-				// New API for animating graph layout results asynchronously
-				var morph = new mxMorphing(graph);
-				morph.addListener(mxEvent.DONE, mxUtils.bind(this, function()
-				{
-					graph.getModel().endUpdate();
-					
-					if (post != null)
-					{
-						post();
-					}
-				}));
-				
-				morph.startAnimation();
-			}
-			else
+			// New API for animating graph layout results asynchronously
+			var morph = new mxMorphing(graph);
+			morph.addListener(mxEvent.DONE, mxUtils.bind(this, function()
 			{
 				graph.getModel().endUpdate();
 				
@@ -5396,6 +5389,17 @@ EditorUi.prototype.executeLayout = function(exec, animate, post)
 				{
 					post();
 				}
+			}));
+			
+			morph.startAnimation();
+		}
+		else
+		{
+			graph.getModel().endUpdate();
+			
+			if (post != null)
+			{
+				post();
 			}
 		}
 	}
