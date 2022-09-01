@@ -10387,7 +10387,9 @@ if (typeof mxVertexHandler !== 'undefined')
 					
 					if ((ignoreSelection && lookup == null) || selected)
 					{
+						graph.view.redrawEnumerationState(state);
 						imgExportDrawCellState.apply(this, arguments);
+						this.doDrawShape(state.secondLabel, canvas);
 					}
 				};
 	

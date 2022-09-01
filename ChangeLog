@@ -1,3 +1,11 @@
+22-AUG-2022: 20.2.7
+
+- Reduces cursor update frequency to reduce DO request count [DS-899]
+- Creates Github app specific to confluence cloud [DS-900]
+- Adds enumeration state in image export [2900]
+- Updates freehand library to fix security dependency issue
+- Fixes highlight for drag over AWS subnet [2966]
+
 21-AUG-2022: 20.2.6
 
 - Updates to latest GCP icon set [DS-898]

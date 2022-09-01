@@ -200,7 +200,7 @@ mxShapeAws4Group.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(0, h);
 	c.close();
 
-	if (grStroke == '1')
+	if (grStroke == '1' || this.outline)
 	{
 		c.fillAndStroke();
 	}
@@ -272,7 +272,7 @@ mxShapeAws4GroupCenter.prototype.paintVertexShape = function(c, x, y, w, h)
 	c.lineTo(0, h);
 	c.close();
 	
-	if (grStroke == '1')
+	if (grStroke == '1' || this.outline)
 	{
 		c.fillAndStroke();
 	}
