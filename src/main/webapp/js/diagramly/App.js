@@ -589,6 +589,34 @@ App.clearServiceWorker = function(success, error)
 };
 
 /**
+ * Returns true if the given link is on the same domain as this app.
+ */
+App.isSameDomain = function(link)
+{
+	var a = document.createElement('a');
+	a.href = link;
+
+	return a.protocol === window.location.protocol ||
+		a.host === window.location.host;
+};
+
+/**
+ * Returns true if the given relative path is a built-in plugin.
+ */
+App.isBuiltInPlugin = function(path)
+{
+	for (var key in App.pluginRegistry)
+	{
+		if (App.pluginRegistry[key] == path)
+		{
+			return true;
+		}
+	}
+
+	return false;
+};
+
+/**
  * Program flow starts here.
  * 
  * Optional callback is called with the app instance.
@@ -746,43 +774,39 @@ App.main = function(callback, createUi)
 			
 			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
 			{
-				// Loading plugins inside the asynchronous block below stops the page from loading so a 
-				// hardcoded message for the warning dialog is used since the resources are loadd below
-				var warning = 'The page has requested to load the following plugin(s):\n \n {1}\n \n Would you like to load these plugin(s) now?\n \n NOTE : Only allow plugins to run if you fully understand the security implications of doing so.\n';
-				var tmp = window.location.protocol + '//' + window.location.host;
-				var local = true;
-				
-				for (var i = 0; i < plugins.length && local; i++)
+				for (var i = 0; i < plugins.length; i++)
 				{
-					if (plugins[i].charAt(0) != '/' && plugins[i].substring(0, tmp.length) != tmp)
+					try
 					{
-						local = false;
-					}
-				}
-				
-				if (local || mxUtils.confirm(mxResources.replacePlaceholders(warning, [plugins.join('\n')]).replace(/\\n/g, '\n')))
-				{
-					for (var i = 0; i < plugins.length; i++)
-					{
-						try
+						if (plugins[i].charAt(0) == '/')
 						{
-							if (App.pluginsLoaded[plugins[i]] == null)
+							plugins[i] = PLUGINS_BASE_PATH + plugins[i];
+						}
+
+						if (!App.isSameDomain(plugins[i]))
+						{
+							if (window.console != null)
 							{
-								App.pluginsLoaded[plugins[i]] = true;
-								App.embedModePluginsCount++;
-								
-								if (plugins[i].charAt(0) == '/')
-								{
-									plugins[i] = PLUGINS_BASE_PATH + plugins[i];
-								}
-								
-								mxscript(plugins[i]);
+								console.log('Blocked plugin:', plugins[i]);
 							}
 						}
-						catch (e)
+						else if (!ALLOW_CUSTOM_PLUGINS && !App.isBuiltInPlugin(plugins[i]))
 						{
-							// ignore
+							if (window.console != null)
+							{
+								console.log('Unknown plugin:', plugins[i]);
+							}
 						}
+						else if (App.pluginsLoaded[plugins[i]] == null)
+						{
+							App.pluginsLoaded[plugins[i]] = true;
+							App.embedModePluginsCount++;
+							mxscript(plugins[i]);
+						}
+					}
+					catch (e)
+					{
+						// ignore
 					}
 				}
 			}
@@ -829,33 +853,9 @@ App.main = function(callback, createUi)
 			{
 				try
 				{
-					var trustedPlugins = {};
-					
-					for (var key in App.pluginRegistry)
-					{
-						trustedPlugins[App.pluginRegistry[key]] = true;
-					}
-					
-					// Only allows trusted plugins
-					function checkPlugins(plugins)
-					{
-						if (plugins != null)
-						{
-							for (var i = 0; i < plugins.length; i++)
-							{
-								if (!trustedPlugins[plugins[i]])
-								{
-									throw new Error(mxResources.get('invalidInput') + ' "' + plugins[i]) + '"';
-								}
-							}
-						}
-						
-						return true;
-					};
-					
 					var value = JSON.parse(Graph.decompress(window.location.hash.substring(9)));
 
-					if (value != null && checkPlugins(value.plugins))
+					if (value != null)
 					{
 						EditorUi.debug('Setting configuration', JSON.stringify(value));
 						
@@ -865,7 +865,6 @@ App.main = function(callback, createUi)
 							
 							if (temp != null)
 							{
-								
 								try
 								{
 									var config = JSON.parse(temp);
@@ -1123,7 +1122,7 @@ App.main = function(callback, createUi)
 					if (data != null && data.action == 'configure')
 					{
 						mxEvent.removeListener(window, 'message', configHandler);
-						Editor.configure(data.config, true);
+						Editor.configure(data.config);
 						mxSettings.load();
 
 						//To enable transparent iframe in dark mode (e.g, in gitlab)
@@ -1288,10 +1287,10 @@ App.loadPlugins = function(plugins, useInclude)
 		{
 			try
 			{
-				var url = PLUGINS_BASE_PATH + App.pluginRegistry[plugins[i]];
-				
-				if (url != null)
+				if (App.pluginRegistry[plugins[i]] != null)
 				{
+					var url = PLUGINS_BASE_PATH + App.pluginRegistry[plugins[i]];
+					
 					if (App.pluginsLoaded[url] == null)
 					{
 						App.pluginsLoaded[url] = true;
@@ -2096,10 +2095,7 @@ App.prototype.checkLicense = function()
  */
 App.prototype.handleLicense = function(lic, domain)
 {
-	if (lic != null && lic.plugins != null)
-	{
-		App.loadPlugins(lic.plugins.split(';'), true);
-	}
+	// Hook for subclassers to handle license response
 };
 
 /**
@@ -5728,20 +5724,11 @@ App.prototype.updateButtonContainer = function()
 	if (this.buttonContainer != null)
 	{
 		var file = this.getCurrentFile();
-		
+
 		if (urlParams['embed'] == '1')
 		{
-			if (uiTheme == 'atlas' || urlParams['atlas'] == '1')
-			{
-				this.buttonContainer.style.paddingRight = '12px';
-				this.buttonContainer.style.paddingTop = '6px';
-				this.buttonContainer.style.right = urlParams['noLangIcon'] == '1'? '0' : '25px';
-			}
-			else if (uiTheme != 'min')
-			{
-				this.buttonContainer.style.paddingRight = '38px';
-				this.buttonContainer.style.paddingTop = '6px';
-			}
+			this.buttonContainer.style.paddingRight = '12px';
+			this.buttonContainer.style.paddingTop = '6px';
 		}
 		
 		// Comments
@@ -6846,20 +6833,23 @@ App.prototype.updateHeader = function()
 		/**
 		 * Adds format panel toggle.
 		 */
+		var right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? 30 : 10;
 		this.toggleFormatElement = document.createElement('a');
 		this.toggleFormatElement.setAttribute('title', mxResources.get('formatPanel') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
 		this.toggleFormatElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
-		this.toggleFormatElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '30px' : '10px';
+		this.toggleFormatElement.style.right = right + 'px';
 		this.toggleFormatElement.style.padding = '2px';
 		this.toggleFormatElement.style.fontSize = '14px';
 		this.toggleFormatElement.className = (uiTheme != 'atlas') ? 'geButton geAdaptiveAsset' : '';
 		this.toggleFormatElement.style.width = '16px';
 		this.toggleFormatElement.style.height = '16px';
 		this.toggleFormatElement.style.backgroundPosition = '50% 50%';
+		this.toggleFormatElement.style.backgroundSize = '16px 16px';
 		this.toggleFormatElement.style.backgroundRepeat = 'no-repeat';
 		this.toolbarContainer.appendChild(this.toggleFormatElement);
+		right += 20;
 		
 		// Prevents focus
 	    mxEvent.addListener(this.toggleFormatElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
@@ -6892,22 +6882,12 @@ App.prototype.updateHeader = function()
 		this.addListener('formatWidthChanged', toggleFormatPanel);
 		toggleFormatPanel();
 
-		this.fullscreenElement = document.createElement('a');
+		this.fullscreenElement = this.toggleFormatElement.cloneNode(true);
 		this.fullscreenElement.setAttribute('title', mxResources.get('fullscreen'));
-		this.fullscreenElement.style.position = 'absolute';
-		this.fullscreenElement.style.display = 'inline-block';
-		this.fullscreenElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
-		this.fullscreenElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '50px' : '30px';
-		this.fullscreenElement.style.padding = '2px';
-		this.fullscreenElement.style.fontSize = '14px';
-		this.fullscreenElement.className = (uiTheme != 'atlas') ? 'geButton geAdaptiveAsset' : '';
-		this.fullscreenElement.style.width = '16px';
-		this.fullscreenElement.style.height = '16px';
-		this.fullscreenElement.style.backgroundPosition = '50% 50%';
-		this.fullscreenElement.style.backgroundSize = '16px 16px';
-		this.fullscreenElement.style.backgroundRepeat = 'no-repeat';
 		this.fullscreenElement.style.backgroundImage = 'url(\'' + Editor.fullscreenImage + '\')';
+		this.fullscreenElement.style.right = right + 'px';
 		this.toolbarContainer.appendChild(this.fullscreenElement);
+		right += 20;
 		
 		// Prevents focus
 		mxEvent.addListener(this.fullscreenElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
@@ -6915,51 +6895,6 @@ App.prototype.updateHeader = function()
     	{
 			evt.preventDefault();
 		}));
-
-		if (uiTheme != 'atlas')
-		{
-			this.darkModeElement = document.createElement('a');
-			this.darkModeElement.setAttribute('title', mxResources.get('theme'));
-			this.darkModeElement.style.position = 'absolute';
-			this.darkModeElement.style.display = 'inline-block';
-			this.darkModeElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
-			this.darkModeElement.style.right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? '70px' : '50px';
-			this.darkModeElement.style.padding = '2px';
-			this.darkModeElement.style.fontSize = '14px';
-			this.darkModeElement.className = (uiTheme != 'atlas') ? 'geButton geAdaptiveAsset' : '';
-			this.darkModeElement.style.width = '16px';
-			this.darkModeElement.style.height = '16px';
-			this.darkModeElement.style.backgroundPosition = '50% 50%';
-			this.darkModeElement.style.backgroundSize = '16px 16px';
-			this.darkModeElement.style.backgroundRepeat = 'no-repeat';
-			this.toolbarContainer.appendChild(this.darkModeElement);
-
-			var updateDarkModeElement = mxUtils.bind(this, function()
-			{
-				this.darkModeElement.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode()) ?
-					Editor.lightModeImage : Editor.darkModeImage) + '\')';
-			});
-
-			this.addListener('darkModeChanged', updateDarkModeElement);
-			updateDarkModeElement();
-			
-			// Prevents focus
-			mxEvent.addListener(this.darkModeElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-				mxUtils.bind(this, function(evt)
-			{
-				this.actions.get('toggleDarkMode').funct();
-				evt.preventDefault();
-			}));
-		}
-		
-		// Some style changes in Atlas theme
-		if (uiTheme == 'atlas')
-		{
-			mxUtils.setOpacity(this.toggleFormatElement, 70);
-			mxUtils.setOpacity(this.fullscreenElement, 70);
-		}
-		
-		var initialPosition = this.hsplitPosition;
 		
 		mxEvent.addListener(this.fullscreenElement, 'click', mxUtils.bind(this, function(evt)
 		{
@@ -6983,6 +6918,46 @@ App.prototype.updateHeader = function()
 			this.fullscreenMode = !visible;
 			mxEvent.consume(evt);
 		}));
+		
+		if (urlParams['live-ui'] != '1' && uiTheme != 'atlas')
+		{
+			this.darkModeElement = this.toggleFormatElement.cloneNode(true);
+			this.darkModeElement.setAttribute('title', mxResources.get('theme'));
+			this.darkModeElement.style.right = right + 'px';
+			this.toolbarContainer.appendChild(this.darkModeElement);
+			right += 20;
+
+			var updateDarkModeElement = mxUtils.bind(this, function()
+			{
+				this.darkModeElement.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode() || uiTheme == 'atlas') ?
+					Editor.lightModeImage : Editor.darkModeImage) + '\')';
+			});
+
+			this.addListener('darkModeChanged', updateDarkModeElement);
+			updateDarkModeElement();
+			
+			// Prevents focus
+			mxEvent.addListener(this.darkModeElement, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+				mxUtils.bind(this, function(evt)
+			{
+				evt.preventDefault();
+			}));
+			
+			mxEvent.addListener(this.darkModeElement, 'click', mxUtils.bind(this, function(evt)
+			{
+				this.actions.get('toggleDarkMode').funct();
+				mxEvent.consume(evt);
+			}));
+		}
+		
+		// Some style changes in Atlas theme
+		if (uiTheme == 'atlas')
+		{
+			mxUtils.setOpacity(this.toggleFormatElement, 70);
+			mxUtils.setOpacity(this.fullscreenElement, 70);
+		}
+		
+		var initialPosition = this.hsplitPosition;
 
 		/**
 		 * Adds compact UI toggle.

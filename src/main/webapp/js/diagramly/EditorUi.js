@@ -10568,7 +10568,7 @@
 	EditorUi.prototype.setCurrentTheme = function(value, noRestart)
 	{
 		mxSettings.setUi(value);
-		this.doSetCurrentTheme(value);
+		noRestart = noRestart || this.doSetCurrentTheme(value);
 		this.fireEvent(new mxEventObject('currentThemeChanged'));
 		
 		if (!noRestart)
@@ -10582,10 +10582,245 @@
 	 */
 	EditorUi.prototype.doSetCurrentTheme = function(value)
 	{
-		if (Editor.currentTheme != value)
+		var curr = Editor.currentTheme;
+		var noRestart = false;
+
+		if (curr != value)
 		{
+			if (urlParams['live-ui'] == '1')
+			{
+				console.log('doSetCurrentTheme', curr, value);
+
+				function isDefault(theme)
+				{
+					return theme == null || theme == '' || theme == 'dark' ||
+						theme == 'kennedy';
+				};
+
+				value = (isDefault(value)) ? 'default' : value;
+				curr = (isDefault(curr)) ? 'default' : curr;
+
+				// TODO: Change theme at runtime
+				if (curr == 'sketch' && value == 'default')
+				{
+					this.sidebarFooterContainer.style.display = 'block';
+					this.menubarContainer.style.display = 'block';
+					this.toolbarContainer.style.display = 'block';
+					this.sidebarContainer.style.display = 'block';
+					this.tabContainer.style.display = 'block';
+					this.hsplit.style.display = 'block';
+					this.hsplitPosition = EditorUi.prototype.hsplitPosition;
+					this.menubarHeight = App.prototype.menubarHeight;
+					this.formatWidth = EditorUi.prototype.formatWidth;
+					noRestart = true;
+				}
+				else if (curr == 'default' && value == 'sketch')
+				{
+					this.sidebarFooterContainer.style.display = 'none';
+					this.menubarContainer.style.display = 'none';
+					this.toolbarContainer.style.display = 'none';
+					this.sidebarContainer.style.display = 'none';
+					this.tabContainer.style.display = 'none';
+					this.hsplit.style.display = 'none';
+					this.hsplitPosition = 0;
+					this.menubarHeight = 0;
+					this.formatWidth = 0;
+					noRestart = true;
+				}
+
+				this.switchTheme(value);
+			}
+
 			Editor.currentTheme = value;
-			// TODO: Change theme at runtime
+		}
+
+		return noRestart;
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.switchTheme = function(value)
+	{
+		this.createMenubarForTheme(value);
+		this.switchCssForTheme(value);
+
+		if (value == 'sketch')
+		{
+
+			this.refresh();
+	
+	
+			this.createFormatWindow();
+
+			this.formatContainer.style.left = '0px';
+			this.formatContainer.style.top = '0px';
+			this.formatContainer.style.width = '';
+
+
+		}
+		else if (value == 'default')
+		{
+			if (this.formatContainer != null)
+			{
+				this.formatContainer.style.left = '';
+
+				if (this.footerContainer != null)
+				{
+					if (this.footerContainer.parentNode != this.formatContainer.parentNode)
+					{
+						this.footerContainer.parentNode.insertBefore(this.formatContainer, this.footerContainer);
+					}
+				}
+
+				if (this.formatWindow != null)
+				{
+					this.formatWindow.destroy();
+					this.formatWindow = null;
+				}
+			}
+
+			this.refresh();
+
+
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.switchCssForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchStyleElt == null)
+			{
+				this.sketchStyleElt = document.createElement('style');
+				this.sketchStyleElt.setAttribute('type', 'text/css');
+				this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
+				document.getElementsByTagName('head')[0].appendChild(this.sketchStyleElt);
+			}
+		}
+		else
+		{
+			if (this.sketchStyleElt != null)
+			{
+				this.sketchStyleElt.parentNode.removeChild(this.sketchStyleElt);
+				this.sketchStyleElt = null;
+			}
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createMenubarForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchMenubarElt == null)
+			{
+				this.sketchMenubarElt = document.createElement('div');
+				this.sketchMenubarElt.className = 'geToolbarContainer';
+				this.sketchMenubarElt.style.cssText = 'position:absolute;right:14px;top:10px;height:30px;z-index:1;' +
+					'border-radius:4px;padding:6px;border:1px solid #c0c0c0;overflow:hidden;' +
+					'text-align:right;white-space:nowrap;user-select:none;';
+
+				if (this.switchThemeElt != null)
+				{
+					this.switchThemeElt.style.position = 'relative';
+					this.switchThemeElt.style.width = '22px';
+					this.switchThemeElt.style.height = '22px';
+					this.switchThemeElt.style.top = '0px';
+					this.switchThemeElt.style.right = '6px';
+
+					this.sketchMenubarElt.appendChild(this.switchThemeElt);
+				}
+
+				this.diagramContainer.parentNode.appendChild(this.sketchMenubarElt);
+			}
+		}
+		else
+		{
+			if (this.switchThemeElt != null)
+			{
+				this.switchThemeElt.style.position = 'absolute';
+				this.switchThemeElt.style.width = '19px';
+				this.switchThemeElt.style.height = '19px';
+				this.switchThemeElt.style.top = '0px';
+				this.switchThemeElt.style.right = '17px';
+
+				document.body.appendChild(this.switchThemeElt);
+			}
+
+			if (this.sketchMenubarElt != null)
+			{
+				this.sketchMenubarElt.parentNode.removeChild(this.sketchMenubarElt);
+				this.sketchMenubarElt = null;
+			}
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.addMenuToMenubar = function(menubar, key, classname, img)
+	{
+		var menu = this.menus.get(key);
+		var elt = menubar.addMenu(mxResources.get(key), menu.funct);
+		
+		elt.className = classname;
+		elt.style.display = 'inline-block';
+		elt.style.boxSizing = 'border-box';
+		elt.style.top = '6px';
+		elt.style.marginRight = '6px';
+		elt.style.height = '30px';
+		elt.style.paddingTop = '6px';
+		elt.style.paddingBottom = '6px';
+		elt.style.cursor = 'pointer';
+		elt.setAttribute('title', mxResources.get(key));
+		this.menus.menuCreated(menu, elt, 'geMenuItem');
+		
+		if (img != null)
+		{
+			elt.style.backgroundImage = 'url(' + img + ')';
+			elt.style.backgroundPosition = 'center center';
+			elt.style.backgroundRepeat = 'no-repeat';
+			elt.style.backgroundSize = '24px 24px';
+			elt.style.width = '34px';
+			elt.innerText = '';
+		}
+
+		return elt;
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createFormatWindow = function()
+	{
+		if (this.formatWindow == null)
+		{
+			var x = (urlParams['sketch'] == '1') ?
+				Math.max(10, this.diagramContainer.clientWidth - 241) :
+				Math.max(10, this.diagramContainer.clientWidth - 248);
+			var y = urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60;
+			var h = (urlParams['embedInline'] == '1') ? 580 :
+				((urlParams['sketch'] == '1') ? 580 : Math.min(566,
+					this.editor.graph.container.clientHeight - 10));
+			
+			this.formatWindow = new WrapperWindow(this, mxResources.get('format'), x, y, 240, h,
+				mxUtils.bind(this, function(container)
+			{
+				container.appendChild(this.formatContainer);
+			}));
+
+			this.formatWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+			{
+				this.formatWindow.window.fit();
+			}));
+			
+			this.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
 		}
 	};
 
@@ -13409,10 +13644,12 @@
 			div.style.paddingTop = '2px';
 			div.style.paddingLeft = '8px';
 			div.style.paddingBottom = '2px';
+			div.style.marginRight = '12px';
+			div.style.right = (uiTheme == 'atlas' || urlParams['atlas'] == '1' ||
+				urlParams['live-ui'] == '1') ? '52px' : '72px';
 
 			var button = document.createElement('button');
 			button.className = 'geBigButton';
-			var lastBtn = button;
 
 			if (urlParams['noSaveBtn'] == '1')
 			{
@@ -13456,14 +13693,14 @@
 					}));
 					
 					div.appendChild(button);
-					lastBtn = button;
 				}
 			}
 
 			if (urlParams['noExitBtn'] != '1')
 			{
 				button = document.createElement('a');
-				var exitTitle = urlParams['publishClose'] == '1' ? mxResources.get('close') : mxResources.get('exit');
+				var exitTitle = urlParams['publishClose'] == '1' ?
+					mxResources.get('close') : mxResources.get('exit');
 				mxUtils.write(button, exitTitle);
 				button.setAttribute('title', exitTitle);
 				button.className = 'geBigButton geBigStandardButton';
@@ -13475,14 +13712,10 @@
 				}));
 				
 				div.appendChild(button);
-				lastBtn = button;
 			}
-			
-			lastBtn.style.marginRight = '20px';
 			
 			this.toolbar.container.appendChild(div);
 			this.toolbar.staticElements.push(div);
-			div.style.right = (uiTheme == 'atlas' || urlParams['atlas'] == '1') ? '62px' : '72px';
 		}
 	};
 
@@ -14518,6 +14751,7 @@
 		this.actions.get('zoomIn').setEnabled(active);
 		this.actions.get('zoomOut').setEnabled(active);
 		this.actions.get('resetView').setEnabled(active);
+		this.actions.get('toggleDarkMode').setEnabled(uiTheme != 'atlas');
 		
 		// Updates undo history states
 		this.actions.get('undo').setEnabled(this.canUndo() && editable);

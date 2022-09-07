@@ -50,6 +50,9 @@ window.TEMPLATE_PATH = window.TEMPLATE_PATH || 'templates';
 window.NEW_DIAGRAM_CATS_PATH = window.NEW_DIAGRAM_CATS_PATH || 'newDiagramCats';
 window.PLUGINS_BASE_PATH = window.PLUGINS_BASE_PATH || '';
 
+// Allows third-party plugins to run
+window.ALLOW_CUSTOM_PLUGINS = window.ALLOW_CUSTOM_PLUGINS || false;
+
 // Directory for i18 files and basename for main i18n file
 window.RESOURCES_PATH = window.RESOURCES_PATH || 'resources';
 window.RESOURCE_BASE = window.RESOURCE_BASE || RESOURCES_PATH + '/dia';

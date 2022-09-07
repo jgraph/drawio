@@ -1767,8 +1767,9 @@ Graph.sanitizeNode = function(value)
 // Allows use tag in SVG with local references only
 DOMPurify.addHook('afterSanitizeAttributes', function(node)
 {
-	if (node.nodeName == 'use' && node.hasAttribute('xlink:href') &&
-		!node.getAttribute('xlink:href').match(/^#/))
+	if (node.nodeName == 'use' && ((node.getAttribute('xlink:href') != null &&
+		!node.getAttribute('xlink:href').startsWith('#')) ||
+		(node.getAttribute('href') != null && !node.getAttribute('href').startsWith('#'))))
 	{
 		node.remove();
 	} 
@@ -6110,8 +6111,9 @@ HoverIcons.prototype.getState = function(state)
  */
 HoverIcons.prototype.update = function(state, x, y)
 {
-	if (!this.graph.connectionArrowsEnabled || (state != null &&
-		mxUtils.getValue(state.style, 'allowArrows', '1') == '0'))
+	if (!this.graph.connectionArrowsEnabled ||
+		(this.graph.freehand != null && this.graph.freehand.isDrawing()) ||
+		(state != null && mxUtils.getValue(state.style, 'allowArrows', '1') == '0'))
 	{
 		this.reset();
 	}

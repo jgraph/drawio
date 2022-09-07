@@ -2550,11 +2550,16 @@ EditorUi.prototype.initCanvas = function()
 			
 			if (toolbarConfig.backBtn != null)
 			{
-				addButton(mxUtils.bind(this, function(evt)
+				var backUrl = Graph.sanitizeLink(toolbarConfig.backBtn.url);
+
+				if (backUrl != null)
 				{
-					window.location.href = toolbarConfig.backBtn.url;
-					mxEvent.consume(evt);
-				}), Editor.backImage, mxResources.get('back', null, 'Back'));
+					addButton(mxUtils.bind(this, function(evt)
+					{
+						window.location.href = backUrl;
+						mxEvent.consume(evt);
+					}), Editor.backImage, mxResources.get('back', null, 'Back'));
+				}
 			}
 			
 			if (this.isPagesEnabled())
@@ -2812,11 +2817,14 @@ EditorUi.prototype.initCanvas = function()
 
 			if (toolbarConfig.refreshBtn != null)
 			{
+				var refreshUrl = (toolbarConfig.refreshBtn.url == null) ? null :
+					Graph.sanitizeLink(toolbarConfig.refreshBtn.url);
+
 				addButton(mxUtils.bind(this, function(evt)
 				{
-					if (toolbarConfig.refreshBtn.url)
+					if (refreshUrl != null)
 					{
-						window.location.href = toolbarConfig.refreshBtn.url;
+						window.location.href = refreshUrl;
 					}
 					else
 					{

@@ -9,4 +9,5 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in axios please disclose it via our [huntr page](https://huntr.dev/repos/jgraph/drawio/). Bounty eligibility, CVE assignment, response times and past reports are all there.
+Email support@diagrams.net. If you do not wish to submit by email, please 
+ask for an alternative via email or Github issue.

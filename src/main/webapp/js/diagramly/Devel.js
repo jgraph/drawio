@@ -11,9 +11,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 	(function()
 	{
 		var hashes = 'default-src \'self\'; ' +
-			// storage.googleapis.com is needed for workbox-service-worker
-			'script-src %script-src% \'self\' https://viewer.diagrams.net https://storage.googleapis.com ' +
-			'https://apis.google.com https://*.pusher.com ' +
+			'script-src %script-src% \'self\' https://viewer.diagrams.net https://apis.google.com https://*.pusher.com ' +
 			// Below are the SHAs of the two script blocks in index.html.
 			// These must be updated here and in the CDN after changes.
 			//----------------------------------------------------------//
