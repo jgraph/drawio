@@ -1,3 +1,14 @@
+07-SEP-2022: 20.3.0
+
+- Uses organic as default layout to fix possible NPE in CSV import [DS-910]
+- Removes storage.googleapis.com from CSP as no longer needed for PWA [CSP-673]
+- Adds ALLOW_CUSTOM_PLUGINS for third party plugins [CSP-676]
+- Limits plugins to built-in or same domain [CSP-676]
+- Hides connect arrows while freehand drawing [1107]
+- Removes yarn.lock file as we removed package.json from this project [DS-911]
+- Fixes possible XSS in viewer back/refresh buttons [CSP-677]
+- Checks href attribute with no namespace in use tag [CSP-678]
+
 01-SEP-2022: 20.2.8
 
 - Fixes importing plain SVG images by drag and drop [DS-902]

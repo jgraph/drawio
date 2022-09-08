@@ -303,11 +303,11 @@ var SplashDialog = function(editorUi)
 	
 	if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 	{
-		var elt = editorUi.addLanguageMenu(div, true, '28px');
+		var elt = editorUi.addLanguageMenu(div, false, '28px');
 		
 		if (elt != null)
 		{
-			elt.style.bottom = '19px';
+			elt.style.bottom = '24px';
 		}
 	}
 	
@@ -1402,14 +1402,14 @@ var CreateGraphDialog = function(editorUi, title, type)
 		{
 			layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
 		}
-		else if (type == 'organic')
-		{
-			layout = new mxFastOrganicLayout(graph, false);
-			layout.forceConstant = 80;
-		}
 		else if (type == 'circle')
 		{
 			layout = new mxCircleLayout(graph);
+		}
+		else
+		{
+			layout = new mxFastOrganicLayout(graph, false);
+			layout.forceConstant = 80;
 		}
 		
 		if (layout != null)
@@ -8511,7 +8511,7 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 				refresh();
 			}
 		}), null, null, null, customBtn);
-		editorUi.showDialog(dlg.container, 300, 100, true, true);
+		editorUi.showDialog(dlg.container, 360, 100, true, true);
 	});
 	
 	addBtn.className = 'geBtn';

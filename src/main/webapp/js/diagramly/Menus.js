@@ -313,11 +313,6 @@
 
 		toggleDarkModeAction.setToggleAction(true);
 		toggleDarkModeAction.setSelectedCallback(function() { return Editor.isDarkMode(); });
-
-		toggleDarkModeAction.isEnabled = function()
-		{
-			return mxSettings.getUi() != 'atlas';
-		};
 		
 		editorUi.actions.addAction('properties...', function()
 		{
@@ -1230,7 +1225,7 @@
 					return item;
 				});
 				
-				var item = addLangItem('');
+				addLangItem('');
 				menu.addSeparator(parent);
 
 				// LATER: Sort menu by language name
@@ -1246,30 +1241,30 @@
 			{
 				var menubar = menusCreateMenuBar.apply(this, arguments);
 				
-				if (menubar != null && urlParams['noLangIcon'] != '1')
+				if (menubar != null && urlParams['embed'] != '1' &&
+					(uiTheme != 'atlas' || urlParams['live-ui'] == '1'))
 				{
-					var langMenu = this.get('language');
+					var langMenu = this.get((urlParams['live-ui'] == '1') ? 'theme' : 'language');
 					
 					if (langMenu != null)
 					{
 						var elt = menubar.addMenu('', langMenu.funct);
-						elt.setAttribute('title', mxResources.get('language'));
+						elt.setAttribute('title', mxResources.get(
+							(urlParams['live-ui'] == '1') ?
+							'preferences' : 'language'));
 						elt.className = 'geAdaptiveAsset';
-						elt.style.width = '16px';
+						elt.style.boxSizing = 'border-box';
+						elt.style.width = '19px';
+						elt.style.height = '19px';
 						elt.style.paddingTop = '2px';
 						elt.style.paddingLeft = '4px';
 						elt.style.zIndex = '1';
 						elt.style.position = 'absolute';
 						elt.style.display = 'block';
 						elt.style.cursor = 'pointer';
-						elt.style.right = '17px';
+						elt.style.right = '20px';
 						
-						if (uiTheme == 'atlas')
-						{
-							elt.style.top = '6px';
-							elt.style.right = '15px';
-						}
-						else if (uiTheme == 'min')
+						if (uiTheme == 'min')
 						{
 							elt.style.top = '2px';
 						}
@@ -1279,17 +1274,24 @@
 						}
 						
 						var icon = document.createElement('div');
+						icon.className = 'geToolbarButton';
 						icon.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 						icon.style.backgroundPosition = 'center center';
 						icon.style.backgroundRepeat = 'no-repeat';
-						icon.style.backgroundSize = '19px 19px';
+						icon.style.backgroundSize = '100% 100%';
+						icon.style.filter = 'none';
 						icon.style.position = 'absolute';
-						icon.style.height = '19px';
-						icon.style.width = '19px';
-						icon.style.marginTop = '2px';
+						icon.style.height = '100%';
+						icon.style.width = '100%';
+						icon.style.marginTop = (uiTheme == 'atlas') ? '8px' : '2px';
+						icon.style.marginLeft = '2px';
 						icon.style.zIndex = '1';
 						elt.appendChild(icon);
-						mxUtils.setOpacity(elt, 40);
+
+						if (urlParams['live-ui'] != '1')
+						{
+							mxUtils.setOpacity(elt, 70);
+						}
 						
 						if (urlParams['winCtrls'] == '1')
 						{
@@ -1299,15 +1301,29 @@
 							elt.style.webkitAppRegion = 'no-drag';
 							icon.style.webkitAppRegion = 'no-drag';
 						}
-
+						
 						if (uiTheme == 'atlas')
 						{
-							elt.style.opacity = '0.85';
 							elt.style.filter = 'invert(100%)';
+							elt.style.opacity = '0.85';
 						}
 
 						document.body.appendChild(elt);
 						menubar.langIcon = elt;
+
+						if (urlParams['live-ui'] == '1')
+						{
+							var updateThemeElement = mxUtils.bind(this, function()
+							{
+								icon.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode() || uiTheme == 'atlas') ?
+									Editor.lightModeImage : Editor.darkModeImage) + '\')';
+							});
+				
+							this.editorUi.addListener('darkModeChanged', updateThemeElement);
+							updateThemeElement();
+						}
+
+						this.editorUi.switchThemeElt = elt;
 					}
 				}
 
@@ -2872,26 +2888,32 @@
 		{
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
 
-			var item = menu.addItem(mxResources.get('automatic'), null, function()
+			if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
+				(!mxClient.IS_IE && !mxClient.IS_IE11))
+			{
+				this.addMenuItems(menu, ['toggleDarkMode'], parent);
+			}
+			
+			menu.addSeparator(parent);
+			
+			var item = menu.addItem(mxResources.get('default'), null, function()
 			{
 				editorUi.setCurrentTheme('');
 			}, parent);
-			
-			if (theme != 'kennedy' && theme != 'atlas' &&
-				theme != 'dark' && theme != 'min' &&
-				theme != 'sketch')
+
+			if (theme == 'kennedy' || theme == 'dark' ||
+				(theme != 'atlas' && theme != 'min' &&
+				theme != 'sketch'))
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
 
-			menu.addSeparator(parent);
-			
-			item = menu.addItem(mxResources.get('default'), null, function()
+			item = menu.addItem(mxResources.get('sketch'), null, function()
 			{
-				editorUi.setCurrentTheme('kennedy');
+				editorUi.setCurrentTheme('sketch');
 			}, parent);
-
-			if (theme == 'kennedy' || theme == 'dark')
+			
+			if (theme == 'sketch')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -2914,24 +2936,6 @@
 			if (theme == 'atlas')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-			
-			item = menu.addItem(mxResources.get('sketch'), null, function()
-			{
-				editorUi.setCurrentTheme('sketch');
-			}, parent);
-			
-			if (theme == 'sketch')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
-
-			menu.addSeparator(parent);
-			
-			if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
-				(!mxClient.IS_IE && !mxClient.IS_IE11))
-			{
-				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 			}
 		})));
 
@@ -3362,8 +3366,15 @@
 			
 			menu.addItem(mxResources.get('csv') + '...', null, function()
 			{
+				graph.popupMenuHandler.hideMenu();
 				editorUi.showImportCsvDialog();
 			}, parent, null, isGraphEnabled());
+			
+			if (uiTheme == 'min')
+			{
+				this.addMenuItems(menu, ['-', 'createShape',
+					'editDiagram'], parent);
+			}
         })));
         
 		this.put('openRecent', new Menu(function(menu, parent)
@@ -3958,17 +3969,17 @@
 
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (urlParams['noLangIcon'] == '1')
+			if (urlParams['embed'] != '1' || urlParams['lang'] == null)
 			{
 				this.addSubmenu('language', menu, parent);
-				menu.addSeparator(parent);
 			}
 			
 			if (urlParams['embed'] != '1')
 			{
 				this.addSubmenu('theme', menu, parent);
-				menu.addSeparator(parent);
 			}
+
+			menu.addSeparator(parent);
 
 			if (typeof(MathJax) !== 'undefined')
 			{

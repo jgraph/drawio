@@ -1,4 +1,4 @@
-.geToolbarContainer .geButton, .geToolbarContainer .geLabel {
+html body .geToolbarContainer .geButton, html body .geToolbarContainer .geLabel {
 	padding:3px 5px 5px 5px;
 	position: relative;
 	text-align: center;
