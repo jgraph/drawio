@@ -2,38 +2,68 @@
 % @author Andre Alves
 %
 \chapter{Introduction}\label{ch:introduction}
-As a CJ1 project, this team chose to build a webapp that would allow a user to draw a circuit graphically and use that circuit to obtain \LaTeX code to draw a circuit using the CiruiTikZ package.
-While the project was subject to a number of delays, a functional MVP was developed, and its source code is publicly available on GitHub.
-Instead of building the webapp from scratch, the team forked the \emph{draw.io} software by JGraph Ltd~\cite{drawioCode}, which was renamed \emph{diagrams.net} while working on this project.
-While starting from that source code was essentially necessary due to the scope of the project, this came with many of its own challenges.
+As a CJ1 project, this team chose to build a webapp that would allow a user to draw a circuit graphically and use that circuit to obtain \LaTeX code to draw a circuit using the \href{https://github.com/circuitikz/circuitikz}{CiruiTikZ} package.
+The team developed a mostly functional MVP, and its source code is publicly available on \href{https://github.com/andre-a-alves/drawio-circuitikz}{GitHub}~\cite{sourcecode}.
+Instead of building the webapp from scratch, the team forked the \href{https://github.com/jgraph/drawio}{draw.io} software by JGraph Ltd~\cite{drawioCode}, which was renamed \emph{diagrams.net} while working on this project.
+Starting from that source code was essentially necessary due to the scope of the project, although that came with many of its own challenges that are captured in this document.
 
-\section{Phases}\label{sec:phases}
-This project execution was divided into three distinct phases:
-\begin{enumerate}
- \item {\textbf Phase 1}: Team created as of four.
- \item {\textbf Phase 2}: Adopted Agile (Scrum) project management method with three-member team.
- \item {\textbf Phase 3}: Replace Agile with Project Management Lite~\cite{pmlite}.
-\end{enumerate}
+\section{Technology}\label{sec:technology}
+This project employed a combination of Javascript and the \LaTeX package CircuiTikz~\cite{circuitikz}.
+The Javascript project itself was built using Apache Ant, as was already implemented by diagrams.net.
+Ant takes a source structure and transpiles the code into minimized javascript files that are a prepared webapp.
+Due to its capabilities, IntelliJ IDEA Ultimate is the recommended IDE for this project.
 
-\subsection{Phase 1}\label{subsec:phase-1}
-This project began around October 2021 with a team of four students.
-During this phase, the team identified \emph{draw.io} as a good starting point for the project so the team would not have to design a GUI from scratch.
+\subsection{Diagrams.net}\label{subsec:diagrams-net}
+Diagrams.net is an open-source, but closed-contribution, Javascript-based webapp that is used to draw diagrams, flowcharts, and similar visual documents.
+It also includes support for drawing electrical circuits.
+While diagrams.net offers support for drawing electrical circuits, the resulting circuits can only be exported as images.
+Consequently, if included in a \LaTeX document, such as a thesis or a journal article, the resulting circuit does not match the overall style of the paper.
 
-\subsection{Phase 2}\label{subsec:phase-2}
-After beginning the project, Frances Joy Poblete disenrolled from HAW to pursue a career in user experience design.
-Following her disenrollment, the team had to reevaluate the scope of the project and ensure it was still something that could be accomplished by three team members.
-Ultimately, the team decided this was still possible, and the remaining team members decided to adopt an Agile (Scrum) approach to project management.
-To accomplish this the team decided to use the industry standard software packages Jira~\cite{jira} and Confluence~\cite{confluence}, both from Atlassian.
+\subsection{CircuiTikZ}\label{subsec:circuitikz}
+CircuiTikZ is an open-source \LaTeX package that is used for drawing circuits within \LaTeX documents.
+It is a superset of the TikZ package.
+As a text-based diagramming tool, creating CircuiTikZ diagrams is very labor-intensive, and the learning curve turns many people away from using it.
+However, its text-based design results in a tremendous amount of flexibility, and the resulting circuits match the style of the paper they are made for.
+Due to its incredible flexibility, the goal of this project was never to build a complete GUI for CircuiTikZ.
+Instead, the goal of this project was to get a basic CircuiTikZ diagram that could then be further enhanced by hand, since the most difficult part of making a CircuiTikZ diagram is laying out the components.
 
-Ultimately, delays stemming from Ms. Poblete's departure caused development to be delayed from Winter Semester 2021/22 to Summer Semester 2022.
-However, around the start of the semester, one of the team members had to take a semester off from the program and left Germany during that time.
-As a result, development during the semester was slow to accommodate that team member's needs.
+\subsection{IntelliJ IDEA Ultimate}\label{subsec:intellij}
+Jetbrains' flagship IDE IntelliJ IDEA Ultimate is a full-featured IDE that includes support for a number of languages and frameworks~\cite{intellij}.
+In fact, it supports every framework and tool that is included in the original diagrams.net project, including Apache Ant.
+When combined with the size and scope of the pre-existing project, this became the obvious tool for the job.\\
 
-\subsection{Phase 3}\label{subsec:phase-3}
-Once full-time development of the project resumed in the weeks following the end of exams in summer semester 2022, the team quickly concluded Scrum~\cite{scrum} (Agile) project management was not ideal for this project.
-Scrum is a great project management style that is very successful in industry software development.
-However, a central part of Scrum includes daily ``stand-up'' meetings to synchronize the team's efforts and discuss the previous days' accomplishments.
-Since the team was working asynchronously across two continents, this approach was rather untenable.
+Although there is a free community edition of IntelliJ, the community edition lacks several of the features required by this project.
+Luckily, students may receive a free education license of the tool as long as it is not used for commercial purposes.
 
-To replace Scrum, the team chose \emph{Project Management Lite}, which was the required reading for IE5-Scientific and Project Work~\cite{pmlite}.
-As a result, the PMLite paperwork is included in this report, but the original Scrum Jira-based Kanban boards are not.
+
+\section{Completed Tasks Against Diagrams.net}\label{sec:completed-tasks}
+The following is a list of tasks that were carried out directly against the diagrams.net project.
+In retrospect, some of these tasks were unnecessary and were built into the application, already, but without public documentation, this was not known until they had already been performed.
+Additionally, the number of necessary changes was such that this project will remain incompatible with the original project, anyway.
+\begin{itemize}
+ \item Remove non-electronics components, as well as components that are not a part of CircuiTikz.
+ \item Reduce the number of options from the \texttt{File -> New} menu.
+ \item Limit available themes to those that are based around components, only.
+ \item Designed a \LaTeX export dialog.
+ \item Added \LaTeX as an export option
+\end{itemize}
+
+\section{Additional Complete Tasks}\label{sec:additional-completed-tasks}
+In addition to tasks that were performed directly against the diagrams.net project, the following is a general list of tasks that were performed independently.
+Details of the parser structure are included separately in Chapter~\ref{ch:parser-structure}.
+\begin{itemize}
+ \item Classes were created to represent electrical components in an object-oriented way.
+ \item An XML parser was built to parse the diagram's XML into those classes.
+ \item All electrical components from both diagrams.net and CircuiTikz were cataloged and compared.
+ \item A look up table was built to look up the above electrical components.
+\end{itemize}
+
+\section{Tasks Remaining}\label{sec:tasks-remaining}
+While not all-inclusive, this is a short list of tasks that we recognize as remaining unsolved.
+Further details for the parser itself can be found in Chapter~\ref{ch:parser-structure}.
+\begin{itemize}
+ \item Support needs to be added for CircuiTikz node-style components.
+ \item Large sections of spaghetti code need to be refactored.
+ \item Some components may still need to be removed from the webapp.
+ \item The images of some removed components still need to be removed from the webapp.
+\end{itemize}
