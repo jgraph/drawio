@@ -403,7 +403,7 @@ EditorUi.initMinimalTheme = function()
 
 					var err = file.getRealtimeError();
 					var state = file.getRealtimeState();
-					title += ' (' + mxResources.get('realtimeCollaboration');
+					title += ' (' + mxResources.get('realtimeCollaboration') + ': ';
 
 					if (state == 1)
 					{
@@ -531,34 +531,7 @@ EditorUi.initMinimalTheme = function()
 			this.editor.fireEvent(new mxEventObject('statusChanged'));
 		}
 	};
-	
-	// Fixes sidebar tooltips (previews)
-	var sidebarGetTooltipOffset = Sidebar.prototype.getTooltipOffset;
-	
-	Sidebar.prototype.getTooltipOffset = function(elt, bounds)
-	{
-		if (this.editorUi.sidebarWindow == null ||
-			mxUtils.isAncestorNode(this.editorUi.picker, elt))
-		{
-			var off = mxUtils.getOffset(this.editorUi.picker);
-			
-			off.x += this.editorUi.picker.offsetWidth + 4;
-			off.y += elt.offsetTop - bounds.height / 2 + 16;
-			
-			return off;
-		}
-		else
-		{
-			var result = sidebarGetTooltipOffset.apply(this, arguments);
-			var off = mxUtils.getOffset(this.editorUi.sidebarWindow.window.div);
-			
-			result.x += off.x - 16;
-			result.y += off.y;
-	        
-			return result;
-		}
-	};
-    
+
     // Adds context menu items
     var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
     
@@ -649,49 +622,7 @@ EditorUi.initMinimalTheme = function()
 	var editorUiDestroy = EditorUi.prototype.destroy;
 	EditorUi.prototype.destroy = function()
 	{
-        if (this.sidebarWindow != null)
-        {
-            this.sidebarWindow.window.setVisible(false);
-            this.sidebarWindow.window.destroy();
-            this.sidebarWindow = null;
-        }
-        
-        if (this.formatWindow != null)
-        {
-        	this.formatWindow.destroy();
-        	this.formatWindow = null;
-        }
-
-        if (this.actions.outlineWindow != null)
-        {
-        	this.actions.outlineWindow.destroy();
-        	this.actions.outlineWindow = null;
-        }
-
-        if (this.actions.layersWindow != null)
-        {
-        	this.actions.layersWindow.destroy();
-        	this.actions.layersWindow = null;
-        }
-
-        if (this.menus.tagsWindow != null)
-        {
-        	this.menus.tagsWindow.destroy();
-        	this.menus.tagsWindow = null;
-        }
-
-        if (this.menus.findWindow != null)
-        {
-        	this.menus.findWindow.destroy();
-        	this.menus.findWindow = null;
-        }
-
-        if (this.menus.findReplaceWindow != null)
-        {
-        	this.menus.findReplaceWindow.destroy();
-        	this.menus.findReplaceWindow = null;
-        }
-
+		this.destroyWindows();
 		editorUiDestroy.apply(this, arguments);
 	};
 	
@@ -809,247 +740,6 @@ EditorUi.initMinimalTheme = function()
 			this.addSubmenu('editCell', menu, parent, mxResources.get('edit'));
 		};
 
-		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			var file = ui.getCurrentFile();
-			ui.menus.addMenuItems(menu, ['new'], parent);
-			ui.menus.addSubmenu('openFrom', menu, parent);
-
-			if (isLocalStorage)
-			{
-				this.addSubmenu('openRecent', menu, parent);
-			}
-			
-			menu.addSeparator(parent);
-
-			ui.menus.addMenuItems(menu, ['-', 'save'], parent);
-
-			if (file == null || file.constructor != DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['saveAs'], parent);
-			}
-
-			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-				(file.constructor != LocalFile || file.fileHandle != null))
-			{
-				ui.menus.addMenuItems(menu, ['synchronize'], parent);
-			}
-
-			if (file != null && file.constructor == DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['-', 'rename', 'makeCopy',
-					'-', 'moveToFolder', 'openFolder'], parent);
-			}
-			else
-			{
-				ui.menus.addMenuItems(menu, ['-', 'rename'], parent);
-				
-				if (ui.isOfflineApp())
-				{
-					if (navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1')
-					{
-						this.addMenuItems(menu, ['upload'], parent);
-					}
-				}
-				else
-				{
-					ui.menus.addMenuItems(menu, ['makeCopy'], parent);
-				}
-			}
-
-			if (file != null && file.isRevisionHistorySupported())
-			{
-				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
-			}
-
-			if (file != null)
-			{
-				if (ui.fileNode != null && urlParams['embedInline'] != '1')
-				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : ui.defaultFilename;
-					
-					if ((file.constructor == DriveFile && file.sync != null &&
-						file.sync.isConnected()) || (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename)))
-					{
-						this.addMenuItems(menu, ['properties'], parent);
-					}
-				}
-				
-				if (file.constructor == DriveFile)
-				{
-					ui.menus.addMenuItems(menu, ['share'], parent);
-				}
-			}
-
-			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
-		})));
-
-        this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-			var file = ui.getCurrentFile();
-        	ui.menus.addSubmenu('extras', menu, parent, mxResources.get('preferences'));
-			menu.addSeparator(parent);
-			
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-			{
-				ui.menus.addMenuItems(menu, ['new', 'open', '-', 'synchronize',
-					'-', 'save', 'saveAs', '-'], parent);
-			}
-			else if (urlParams['embed'] == '1' || ui.mode == App.MODE_ATLAS)
-			{
-				if (urlParams['noSaveBtn'] != '1' &&
-					urlParams['embedInline'] != '1')
-				{
-					ui.menus.addMenuItems(menu, ['-', 'save'], parent);
-				}
-				
-				if (urlParams['saveAndExit'] == '1' || 
-					(urlParams['noSaveBtn'] == '1' &&
-					urlParams['saveAndExit'] != '0') || ui.mode == App.MODE_ATLAS)
-				{
-					ui.menus.addMenuItems(menu, ['saveAndExit'], parent);
-					
-					if (file != null && file.isRevisionHistorySupported())
-					{
-						ui.menus.addMenuItems(menu, ['revisionHistory'], parent);
-					}
-				}
-				
-				menu.addSeparator(parent);
-			}
-			else if (ui.mode == App.MODE_ATLAS)
-			{
-				ui.menus.addMenuItems(menu, ['save', 'synchronize', '-'], parent);
-			}
-			else if (urlParams['noFileMenu'] != '1')
-			{
-				if (urlParams['sketch'] != '1')
-				{
-					ui.menus.addMenuItems(menu, ['new'], parent);
-					ui.menus.addSubmenu('openFrom', menu, parent);
-
-					if (isLocalStorage)
-					{
-						this.addSubmenu('openRecent', menu, parent);
-					}
-				
-					menu.addSeparator(parent);
-
-					if (file != null)
-					{		
-						if (file.constructor == DriveFile)
-						{
-							ui.menus.addMenuItems(menu, ['share'], parent);
-						}
-						
-						if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-							file.constructor != LocalFile)
-						{
-							ui.menus.addMenuItems(menu, ['synchronize'], parent);
-						}
-					}
-					
-					menu.addSeparator(parent);
-					ui.menus.addSubmenu('save', menu, parent);
-				}
-				else
-				{
-					ui.menus.addSubmenu('file', menu, parent);
-				}
-			}
-			
-			ui.menus.addSubmenu('exportAs', menu, parent);
-			
-			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
-			{
-				ui.menus.addMenuItems(menu, ['import'], parent);
-			}
-			else if (urlParams['noFileMenu'] != '1')
-			{
-				ui.menus.addSubmenu('importFrom', menu, parent);
-			}
-
-			ui.menus.addMenuItems(menu, ['-',  'findReplace'], parent);
-
-			if (ui.commentsSupported())
-			{
-				ui.menus.addMenuItems(menu, ['comments', '-'], parent);
-			}
-
-			ui.menus.addMenuItems(menu, ['toggleFormat', 'layers', 'tags', '-', 'pageSetup'], parent);
-
-			// Cannot use print in standalone mode on iOS as we cannot open new windows
-			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
-			{
-				ui.menus.addMenuItems(menu, ['print'], parent);
-			}
-
-			if (urlParams['sketch'] != '1')
-			{
-				if (file != null && ui.fileNode != null && urlParams['embedInline'] != '1')
-				{
-					var filename = (file.getTitle() != null) ?
-						file.getTitle() : ui.defaultFilename;
-					
-					if (!/(\.html)$/i.test(filename) &&
-						!/(\.svg)$/i.test(filename))
-					{
-						this.addMenuItems(menu, ['-', 'properties']);
-					}
-				}
-			}
-
-			menu.addSeparator(parent);
-			ui.menus.addSubmenu('help', menu, parent);
-
-            if (urlParams['embed'] == '1' || ui.mode == App.MODE_ATLAS)
-			{
-				if (urlParams['noExitBtn'] != '1' || ui.mode == App.MODE_ATLAS)
-				{
-					ui.menus.addMenuItems(menu, ['-', 'exit'], parent);
-				}
-			}
-			else if (urlParams['noFileMenu'] != '1')
-			{
-				ui.menus.addMenuItems(menu, ['-', 'close']);
-			}
-        })));
-
-		this.put('save', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-			var file = ui.getCurrentFile();
-			
-			if (file != null && file.constructor == DriveFile)
-			{
-				ui.menus.addMenuItems(menu, ['save', 'makeCopy', '-', 'rename', 'moveToFolder'], parent);
-			}
-			else
-			{
-				ui.menus.addMenuItems(menu, ['save', 'saveAs', '-', 'rename'], parent);
-				
-				if (ui.isOfflineApp())
-				{
-					if (navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1')
-					{
-						this.addMenuItems(menu, ['upload'], parent);
-					}
-				}
-				else
-				{
-					ui.menus.addMenuItems(menu, ['makeCopy'], parent);
-				}
-			}
-			
-			ui.menus.addMenuItems(menu, ['-', 'autosave'], parent);
-
-			if (file != null && file.isRevisionHistorySupported())
-			{
-				ui.menus.addMenuItems(menu, ['-', 'revisionHistory'], parent);
-			}
-        })));
-        
         // Augments the existing export menu
         var exportAsMenu = this.get('exportAs');
         
@@ -1071,13 +761,6 @@ EditorUi.initMinimalTheme = function()
     		}
         })));
 
-        var langMenu = this.get('language');
-        
-        this.put('table', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			ui.menus.addInsertTableCellItem(menu, parent);
-		})));
-
 		var unitsMenu = this.get('units');
 		
 		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1085,109 +768,6 @@ EditorUi.initMinimalTheme = function()
 			unitsMenu.funct(menu, parent);
 			this.addMenuItems(menu, ['-', 'ruler', '-', 'pageScale'], parent);
 		})));
-		
-        // Extras menu is labelled preferences but keeps ID for extensions
-        this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-			if (langMenu != null && (urlParams['embed'] != '1' || urlParams['lang'] == null))
-			{
-				ui.menus.addSubmenu('language', menu, parent);
-			}
-			
-			if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' && ui.mode != App.MODE_ATLAS)
-			{
-				ui.menus.addSubmenu('theme', menu, parent);
-			}
-			
-			ui.menus.addSubmenu('units', menu, parent);
-			menu.addSeparator(parent);
-
-			if (urlParams['sketch'] != '1')
-			{
-				ui.menus.addMenuItems(menu, ['scrollbars', '-', 'tooltips',
-					'copyConnect', 'collapseExpand'], parent);
-			}
-
-			if (urlParams['embedInline'] != '1' && urlParams['sketch'] != '1' && urlParams['embed'] != '1' &&
-				(isLocalStorage || mxClient.IS_CHROMEAPP) && ui.mode != App.MODE_ATLAS)
-			{
-				ui.menus.addMenuItems(menu, ['-', 'showStartScreen', 'search', 'scratchpad'], parent);
-			}
-
-			menu.addSeparator(parent);
-			
-			if (urlParams['sketch'] == '1')
-			{
-				ui.menus.addMenuItems(menu, ['copyConnect',
-					'collapseExpand', 'tooltips', '-'], parent);
-			}
-			
-			if (EditorUi.isElectronApp)
-			{
-				ui.menus.addMenuItems(menu, ['-',
-					'spellCheck', 'autoBkp',
-					'drafts', '-'], parent);
-			}
-
-			var file = ui.getCurrentFile();
-			
-			if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
-			{
-				this.addMenuItems(menu, ['-', 'showRemoteCursors',
-					'shareCursor', '-'], parent);
-			}
-
-			if (Graph.translateDiagram)
-			{
-				ui.menus.addMenuItems(menu, ['diagramLanguage'], parent);
-			}
-			
-			if (ui.mode != App.MODE_ATLAS) 
-			{
-				ui.menus.addMenuItem(menu, 'configuration', parent);
-			}
-
-			if (urlParams['sketch'] != '1')
-			{
-				if (!ui.isOfflineApp() && isLocalStorage && ui.mode != App.MODE_ATLAS)
-				{
-					ui.menus.addMenuItem(menu, 'plugins', parent);
-				}
-			}
-			
-			// Adds trailing separator in case new plugin entries are added
-			menu.addSeparator(parent);
-		})));
-
-		(mxUtils.bind(this, function()
-		{
-			var insertMenu = this.get('insert');
-			var insertMenuFunct = insertMenu.funct;
-			
-			insertMenu.funct = function(menu, parent)
-			{
-				if (urlParams['sketch'] == '1')
-				{
-					ui.menus.addMenuItems(menu, ['toggleShapes'], parent);
-					ui.menus.addSubmenu('table', menu, parent);
-					menu.addSeparator(parent);
-
-					if (ui.insertTemplateEnabled && !ui.isOffline())
-					{
-						ui.menus.addMenuItems(menu, ['insertTemplate'], parent);
-					}
-					
-					ui.menus.addMenuItems(menu, ['insertImage', 'insertLink', '-'], parent);
-					ui.menus.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
-					ui.menus.addSubmenu('layout', menu, parent);
-				}
-				else
-				{
-					insertMenuFunct.apply(this, arguments);
-					ui.menus.addSubmenu('table', menu, parent);
-				}
-			};
-        }))();
 		
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];
@@ -1670,16 +1250,6 @@ EditorUi.initMinimalTheme = function()
 			previousParent.appendChild(ui.titlebar);
 		}
 		
-		// Adds outline option to zoom menu
-        var viewZoomMenu = ui.menus.get('viewZoom');
-		var viewZoomMenuFunct = viewZoomMenu.funct;
-		
-		viewZoomMenu.funct = function(menu, parent)
-		{
-			viewZoomMenuFunct.apply(this, arguments);
-			ui.menus.addMenuItems(menu, ['-', 'outline', 'fullscreen'], parent);
-		};
-		
 		var insertImage = (urlParams['sketch'] != '1') ? Editor.plusImage : Editor.shapesImage;
 		var footer = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
 		var picker = (urlParams['sketch'] == '1') ? document.createElement('div') : null;
@@ -1847,6 +1417,10 @@ EditorUi.initMinimalTheme = function()
 			menubar.className = 'geToolbarContainer';
 			
 			ui.picker = picker;
+
+			// Passing to code in Sidebar for live UI
+			ui.sketchPickerMenuElt = picker;
+
 			var statusVisible = false;
 			
 			if (urlParams['embed'] != '1' && ui.getServiceName() != 'atlassian')
@@ -1880,31 +1454,6 @@ EditorUi.initMinimalTheme = function()
 				}
 			});
 
-			if (urlParams['embed'] != '1' && urlParams['live-ui'] == '1')
-			{
-				var themeElt = addMenu('theme', null, Editor.darkModeImage);
-
-				if (themeElt != null)
-				{
-					themeElt.style.position = 'relative';
-					themeElt.style.backgroundPosition = 'top center';
-					themeElt.style.backgroundSize = '22px 22px';
-					themeElt.style.width = '24px';
-					themeElt.style.height = '28px';
-					themeElt.style.top = '4px';
-					menubar.appendChild(themeElt);
-
-					var updateThemeElement = mxUtils.bind(this, function()
-					{
-						themeElt.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode()) ?
-							Editor.lightModeImage : Editor.darkModeImage) + '\')';
-					});
-		
-					ui.addListener('darkModeChanged', updateThemeElement);
-					updateThemeElement();
-				}
-			}
-			
 			// Connects the status bar to the editor status and moves
 			// status to bell icon title for frequent common messages
 			menubar.style.visibility = (menubar.clientWidth < 20) ? 'hidden' : '';
@@ -2169,6 +1718,8 @@ EditorUi.initMinimalTheme = function()
 			}));
 		}
 
+        var viewZoomMenu = ui.menus.get('viewZoom');
+
 		if (viewZoomMenu != null)
 		{
 			var fitFunction = function(evt)
@@ -2200,12 +1751,12 @@ EditorUi.initMinimalTheme = function()
 			{
 				var deleteAction = ui.actions.get('delete');
 				var deleteElt = addMenuItem('', deleteAction.funct, null, mxResources.get('delete'), deleteAction, Editor.trashImage);
-				deleteElt.style.opacity = '0.1';
+				deleteElt.style.opacity = '0.3';
 	        	toolbar.appendChild(deleteElt);
 
 				deleteAction.addListener('stateChanged', function()
 				{
-					deleteElt.style.opacity = (deleteAction.enabled) ? '' : '0.1';
+					deleteElt.style.opacity = (deleteAction.enabled) ? '' : '0.3';
 				});
 				
 				var undoListener = function()
@@ -2214,8 +1765,8 @@ EditorUi.initMinimalTheme = function()
 						graph.isEditing()) ? 'inline-block' : 'none';
 					redoElt.style.display = undoElt.style.display;
 					
-					undoElt.style.opacity = (undoAction.enabled) ? '' : '0.1';
-					redoElt.style.opacity = (redoAction.enabled) ? '' : '0.1';
+					undoElt.style.opacity = (undoAction.enabled) ? '' : '0.3';
+					redoElt.style.opacity = (redoAction.enabled) ? '' : '0.3';
 				};
 				
 				toolbar.appendChild(undoElt);
@@ -2226,26 +1777,8 @@ EditorUi.initMinimalTheme = function()
 				undoListener();
 				
 				var pageMenu = this.createPageMenuTab(false, true);
-				pageMenu.style.display = 'none';
-				pageMenu.style.position = '';
-				pageMenu.style.marginLeft = '';
-				pageMenu.style.top = '';
-				pageMenu.style.left = '';
-				pageMenu.style.height = '100%';
-				pageMenu.style.lineHeight = '';
-				pageMenu.style.borderStyle = 'none';
-				pageMenu.style.padding = '3px 0';
-				pageMenu.style.margin = '0px';
-				pageMenu.style.background = '';
-				pageMenu.style.border = '';
-				pageMenu.style.boxShadow = 'none';
-				pageMenu.style.verticalAlign = 'top';
-				pageMenu.style.width = 'auto';
-				pageMenu.style.maxWidth = '160px';
-				pageMenu.style.position = 'relative';
-				pageMenu.style.padding = '6px';
-				pageMenu.style.textOverflow = 'ellipsis';
-				pageMenu.style.opacity = '0.8';
+				pageMenu.style.cssText = 'display:inline-block;white-space:nowrap;overflow:hidden;' +
+					'padding:6px;cursor:pointer;max-width:160px;text-overflow:ellipsis;';
 				footer.appendChild(pageMenu);
 
 				function updatePageName()
@@ -2302,7 +1835,6 @@ EditorUi.initMinimalTheme = function()
 				elt.style.padding = '6px 0';
 				elt.style.fontSize = '14px';
 				elt.style.width = '40px';
-				elt.style.opacity = '0.4';
 				footer.appendChild(elt);
 				
 				var zoomInElt = addMenuItem('', zoomInAction.funct, true, mxResources.get('zoomIn') +
@@ -2522,8 +2054,7 @@ EditorUi.initMinimalTheme = function()
 				}), null, null);
 			}
 	        
-			var langMenu = ui.menus.get((urlParams['live-ui'] == '1') ?
-				'theme' : 'language');
+			var langMenu = ui.menus.get('language');
 
 			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
 				!EditorUi.isElectronApp && iw >= 600 &&
@@ -2533,8 +2064,7 @@ EditorUi.initMinimalTheme = function()
 				if (langMenuElt == null)
 				{
 					var elt = menuObj.addMenu('', langMenu.funct);
-					elt.setAttribute('title', mxResources.get((urlParams['live-ui'] == '1') ?
-						'preferences' : 'language'));
+					elt.setAttribute('title', 'language');
 					elt.className = 'geToolbarButton';
 					elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 					elt.style.backgroundPosition = 'center center';
@@ -2549,18 +2079,6 @@ EditorUi.initMinimalTheme = function()
 					elt.style.top = '12px';
 					menubar.appendChild(elt);
 					langMenuElt = elt;
-
-					if (urlParams['live-ui'] == '1')
-					{
-						var updateThemeElement = mxUtils.bind(this, function()
-						{
-							elt.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode()) ?
-								Editor.lightModeImage : Editor.darkModeImage) + '\')';
-						});
-			
-						ui.addListener('darkModeChanged', updateThemeElement);
-						updateThemeElement();
-					}
 				}
 				
 				ui.buttonContainer.style.paddingRight = '34px';

@@ -7695,8 +7695,15 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 	{
 		startBtn.innerText = '';
 		mxUtils.write(startBtn, mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
+
+		var shortcut = document.createElement('span');
+		shortcut.style.opacity = '0.7';
+		shortcut.style['float'] = 'right';
+		mxUtils.write(shortcut, 'X');
+		startBtn.appendChild(shortcut);
+
 		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
-		startBtn.className = 'geBtn' + (!graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
+		startBtn.className = 'geBtn' + (graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
 	}));
 	
 	this.window.addListener('show', mxUtils.bind(this, function()

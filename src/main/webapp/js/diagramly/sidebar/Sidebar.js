@@ -1417,7 +1417,41 @@
 		
 		sidebarSearchEntries.apply(this, arguments);
 	};
-
+	
+	// Fixes sidebar tooltips (previews)
+	var sidebarGetTooltipOffset = Sidebar.prototype.getTooltipOffset;
+	
+	Sidebar.prototype.getTooltipOffset = function(elt, bounds)
+	{
+		if (Editor.currentTheme == 'sketch' || uiTheme == 'min')
+		{
+			if (this.editorUi.sidebarWindow == null ||
+				mxUtils.isAncestorNode(this.editorUi.sketchPickerMenuElt, elt))
+			{
+				var off = mxUtils.getOffset(this.editorUi.sketchPickerMenuElt);
+				
+				off.x += this.editorUi.sketchPickerMenuElt.offsetWidth + 4;
+				off.y += elt.offsetTop - bounds.height / 2 + 16;
+				
+				return off;
+			}
+			else
+			{
+				var result = sidebarGetTooltipOffset.apply(this, arguments);
+				var off = mxUtils.getOffset(this.editorUi.sidebarWindow.window.div);
+				
+				result.x += off.x - 16;
+				result.y += off.y;
+				
+				return result;
+			}
+		}
+		else
+		{
+			return sidebarGetTooltipOffset.apply(this, arguments);
+		}
+	};
+    
 	/**
 	 * Adds a click handler for inserting the cell as target for dangling edge.
 	 */

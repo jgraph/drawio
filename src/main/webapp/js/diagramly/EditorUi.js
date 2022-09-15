@@ -9326,7 +9326,7 @@
 	EditorUi.prototype.init = function()
 	{
 		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
-
+		
 		// Must be set before UI is created in superclass
 		if (this.isSettingsEnabled())
 		{
@@ -10283,6 +10283,12 @@
 		this.addListener('darkModeChanged', themeChangeListener);
 		this.addListener('sketchModeChanged', themeChangeListener);
 
+		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
+		{
+			this.updateUserElement();
+			this.refresh();
+		}));
+
 		if (uiTheme == 'dark')
 		{
 			this.doSetDarkMode(true);
@@ -10441,12 +10447,18 @@
 						// Avoid autoscroll but allow handling of all pass-through ctrl shortcuts
 						textInput.style.left = (graph.container.scrollLeft + 10) + 'px';
 						textInput.style.top = (graph.container.scrollTop + 10) + 'px';
-						
+						var x0 = graph.container.scrollLeft;
+						var y0 = graph.container.scrollTop;
+
 						graph.container.appendChild(textInput);
 						restoreFocus = true;
 						
 						textInput.focus();
 						document.execCommand('selectAll', false, null);
+
+						// Workaround for Safari 16 scroll after CMD key press
+						graph.container.scrollLeft = x0;
+						graph.container.scrollTop = y0;
 					}
 				}
 			}
@@ -10541,8 +10553,15 @@
 
 				if (!mxEvent.isConsumed(evt))
 				{
+					var x0 = graph.container.scrollLeft;
+					var y0 = graph.container.scrollTop;
+
 					window.setTimeout(mxUtils.bind(this, function()
 					{
+						// Workaround for Safari 16 scroll after paste
+						graph.container.scrollLeft = x0;
+						graph.container.scrollTop = y0;
+
 						this.pasteCells(evt, textInput, false, true);
 					}), 0);
 				}
@@ -10568,9 +10587,8 @@
 	EditorUi.prototype.setCurrentTheme = function(value, noRestart)
 	{
 		mxSettings.setUi(value);
-		noRestart = noRestart || this.doSetCurrentTheme(value);
-		this.fireEvent(new mxEventObject('currentThemeChanged'));
-		
+		noRestart = this.doSetCurrentTheme(value) || noRestart;
+
 		if (!noRestart)
 		{
 			this.alert(mxResources.get('restartForChangeRequired'));
@@ -10582,59 +10600,91 @@
 	 */
 	EditorUi.prototype.doSetCurrentTheme = function(value)
 	{
-		var curr = Editor.currentTheme;
-		var noRestart = false;
-
-		if (curr != value)
+		function isDefault(theme)
 		{
-			if (urlParams['live-ui'] == '1')
-			{
-				console.log('doSetCurrentTheme', curr, value);
+			return theme == '' || theme == 'dark' ||
+				theme == 'kennedy' || theme == null;
+		};
 
-				function isDefault(theme)
-				{
-					return theme == null || theme == '' || theme == 'dark' ||
-						theme == 'kennedy';
-				};
+		var curr = Editor.currentTheme;
+		value = (isDefault(value)) ? 'default' : value;
+		curr = (isDefault(curr)) ? 'default' : curr;
 
-				value = (isDefault(value)) ? 'default' : value;
-				curr = (isDefault(curr)) ? 'default' : curr;
+		// From kennedy to sketch or vice versa
+		var transition = curr == 'sketch' && value == 'default' ||
+			curr == 'default' && value == 'sketch';
 
-				// TODO: Change theme at runtime
-				if (curr == 'sketch' && value == 'default')
-				{
-					this.sidebarFooterContainer.style.display = 'block';
-					this.menubarContainer.style.display = 'block';
-					this.toolbarContainer.style.display = 'block';
-					this.sidebarContainer.style.display = 'block';
-					this.tabContainer.style.display = 'block';
-					this.hsplit.style.display = 'block';
-					this.hsplitPosition = EditorUi.prototype.hsplitPosition;
-					this.menubarHeight = App.prototype.menubarHeight;
-					this.formatWidth = EditorUi.prototype.formatWidth;
-					noRestart = true;
-				}
-				else if (curr == 'default' && value == 'sketch')
-				{
-					this.sidebarFooterContainer.style.display = 'none';
-					this.menubarContainer.style.display = 'none';
-					this.toolbarContainer.style.display = 'none';
-					this.sidebarContainer.style.display = 'none';
-					this.tabContainer.style.display = 'none';
-					this.hsplit.style.display = 'none';
-					this.hsplitPosition = 0;
-					this.menubarHeight = 0;
-					this.formatWidth = 0;
-					noRestart = true;
-				}
-
-				this.switchTheme(value);
-			}
-
+		if (transition && urlParams['live-ui'] == '1' && !this.themeSwitching)
+		{
 			Editor.currentTheme = value;
+			this.themeSwitching = true;
+
+			// Saves scroll position
+			var t = this.editor.graph.view.translate;
+			var tx = t.x;
+			var ty = t.y;
+			var off = mxUtils.getOffset(this.editor.graph.container);
+			var x = this.editor.graph.container.scrollLeft - off.x;
+			var y = this.editor.graph.container.scrollTop - off.y;
+
+			var delay = 100;
+			mxUtils.setPrefixedStyle(this.container.style, 'transition', 'all ' + delay + 'ms');
+
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				this.container.style.opacity = '0';
+
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					if (curr == 'sketch' && value == 'default')
+					{
+						this.sidebarFooterContainer.style.display = 'block';
+						this.menubarContainer.style.display = 'block';
+						this.toolbarContainer.style.display = 'block';
+						this.tabContainer.style.display = 'block';
+						this.hsplit.style.display = 'block';
+						this.hsplitPosition = EditorUi.prototype.hsplitPosition;
+						this.menubarHeight = App.prototype.menubarHeight;
+						this.formatWidth = EditorUi.prototype.formatWidth;
+					}
+					else if (curr == 'default' && value == 'sketch')
+					{
+						this.sidebarFooterContainer.style.display = 'none';
+						this.menubarContainer.style.display = 'none';
+						this.toolbarContainer.style.display = 'none';
+						this.tabContainer.style.display = 'none';
+						this.hsplit.style.display = 'none';
+						this.hsplitPosition = 0;
+						this.menubarHeight = 0;
+						this.formatWidth = 0;
+					}
+
+					this.switchTheme(value);
+
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						this.fireEvent(new mxEventObject('currentThemeChanged'));
+
+						// Restores scroll position
+						this.editor.graph.refresh();
+						var s = this.editor.graph.view.scale;
+						off = mxUtils.getOffset(this.editor.graph.container);
+						this.editor.graph.container.scrollLeft = x + off.x + (t.x - tx) * s;
+						this.editor.graph.container.scrollTop = y + off.y + (t.y - ty) * s;
+
+						this.container.style.opacity = '';
+
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							mxUtils.setPrefixedStyle(this.container.style, 'transition', null);
+							delete this.themeSwitching;
+						}), delay);
+					}), delay);
+				}), delay);
+			}), 0);
 		}
 
-		return noRestart;
+		return transition;
 	};
 
 	/**
@@ -10642,25 +10692,35 @@
 	 */
 	EditorUi.prototype.switchTheme = function(value)
 	{
-		this.createMenubarForTheme(value);
+		this.switchThemeConstants(value);
 		this.switchCssForTheme(value);
+		this.createWrapperForTheme(value);
+		this.createPickerMenuForTheme(value);
+		this.createMainMenuForTheme(value);
+		this.createMenubarForTheme(value);
+		this.createFooterMenuForTheme(value);
+
+		// TODO: Check what hides sidebarContainer
+		this.sidebarContainer.style.display = '';
 
 		if (value == 'sketch')
 		{
-
-			this.refresh();
-	
-	
+			// Format window
 			this.createFormatWindow();
-
 			this.formatContainer.style.left = '0px';
 			this.formatContainer.style.top = '0px';
 			this.formatContainer.style.width = '';
 
-
+			// Shapes window
+			this.createShapesWindow();
+			this.sidebarContainer.style.left = '0px';
+			this.sidebarContainer.style.top = '0px';
+			this.sidebarContainer.style.bottom = '0px';
+			this.sidebarContainer.style.width = '100%';
 		}
 		else if (value == 'default')
 		{
+			// Format window
 			if (this.formatContainer != null)
 			{
 				this.formatContainer.style.left = '';
@@ -10669,20 +10729,117 @@
 				{
 					if (this.footerContainer.parentNode != this.formatContainer.parentNode)
 					{
-						this.footerContainer.parentNode.insertBefore(this.formatContainer, this.footerContainer);
+						this.footerContainer.parentNode.insertBefore(
+							this.formatContainer, this.footerContainer);
 					}
 				}
 
-				if (this.formatWindow != null)
+				// Shapes window
+				if (this.sidebarContainer != null)
 				{
-					this.formatWindow.destroy();
-					this.formatWindow = null;
+					if (this.formatContainer.parentNode != this.sidebarContainer.parentNode)
+					{
+						this.formatContainer.parentNode.insertBefore(
+							this.sidebarContainer, this.formatContainer);
+					}
 				}
 			}
+		}
 
-			this.refresh();
+		// Format panel close button
+		if (this.format != null)
+		{
+			var closeButton = value == 'default' || value == 'atlas'; 
 
+			if (this.format.showCloseButton != closeButton)
+			{
+				this.format.showCloseButton = closeButton;
+				this.format.refresh();
+			}
+		}
+	};
 
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.destroyWindows = function()
+	{
+        if (this.sidebarWindow != null)
+        {
+            this.sidebarWindow.destroy();
+            this.sidebarWindow = null;
+        }
+        
+        if (this.formatWindow != null)
+        {
+        	this.formatWindow.destroy();
+        	this.formatWindow = null;
+        }
+
+		if (this.freehandWindow != null)
+		{
+        	this.freehandWindow.destroy();
+        	this.freehandWindow = null;
+        }
+
+        if (this.actions.outlineWindow != null)
+        {
+        	this.actions.outlineWindow.destroy();
+        	this.actions.outlineWindow = null;
+        }
+
+        if (this.actions.layersWindow != null)
+        {
+        	this.actions.layersWindow.destroy();
+        	this.actions.layersWindow = null;
+        }
+
+        if (this.menus.tagsWindow != null)
+        {
+        	this.menus.tagsWindow.destroy();
+        	this.menus.tagsWindow = null;
+        }
+
+        if (this.menus.findWindow != null)
+        {
+        	this.menus.findWindow.destroy();
+        	this.menus.findWindow = null;
+        }
+
+        if (this.menus.findReplaceWindow != null)
+        {
+        	this.menus.findReplaceWindow.destroy();
+        	this.menus.findReplaceWindow = null;
+        }
+
+		if (this.menus.commentsWindow != null)
+		{
+			this.menus.commentsWindow.destroy();
+			this.menus.commentsWindow = null;
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.switchThemeConstants = function(value)
+	{
+		this.destroyWindows();
+
+		if (value == 'sketch')
+		{
+			mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10,
+				'<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
+			mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10,
+				'<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
+			mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10,
+				'<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
+		}
+		else
+		{
+			mxWindow.prototype.closeImage = mxClient.imageBasePath + '/close.gif';
+			mxWindow.prototype.minimizeImage = mxClient.imageBasePath + '/minimize.gif';
+			mxWindow.prototype.normalizeImage = mxClient.imageBasePath + '/normalize.gif';
 		}
 	};
 
@@ -10714,6 +10871,354 @@
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
+	EditorUi.prototype.createWrapperForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchWrapperElt == null)
+			{
+				this.sketchWrapperElt = document.createElement('div');
+				this.sketchWrapperElt.style.cssText = 'position:absolute;' +
+					'top:0px;left:0px;right:0px;bottom:0px;overflow:hidden;';
+			}
+
+			this.diagramContainer.parentNode.appendChild(this.sketchWrapperElt);
+			this.sketchWrapperElt.appendChild(this.diagramContainer);
+		}
+		else if (this.sketchWrapperElt != null && this.sketchWrapperElt.parentNode != null)
+		{
+			this.tabContainer.parentNode.insertBefore(this.diagramContainer, this.tabContainer);
+			this.sketchWrapperElt.parentNode.removeChild(this.sketchWrapperElt);
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createMainMenuForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchMainMenuElt == null)
+			{
+				this.sketchMainMenuElt = document.createElement('div');
+				this.sketchMainMenuElt.className = 'geToolbarContainer';
+				this.sketchMainMenuElt.style.cssText = 'position:absolute;left:10px;top:10px;height:44px;' +
+					'border-radius:4px;padding:9px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
+					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
+
+				this.sketchMainMenuElt.appendChild(this.createMenu('diagram', Editor.menuImage));
+				this.sketchMainMenuElt.appendChild(this.createMenuItem('delete', Editor.trashImage));
+				var undoElt = this.sketchMainMenuElt.appendChild(this.createMenuItem('undo', Editor.undoImage));
+				var redoElt = this.sketchMainMenuElt.appendChild(this.createMenuItem('redo', Editor.redoImage));
+
+				var undoListener = mxUtils.bind(this, function()
+				{
+					undoElt.style.display = (this.editor.undoManager.history.length > 0 ||
+						this.editor.graph.isEditing()) ? 'inline-block' : 'none';
+					redoElt.style.display = undoElt.style.display;
+				});
+				
+				this.actions.get('undo').addListener('stateChanged', undoListener);
+				this.actions.get('redo').addListener('stateChanged', undoListener);
+				undoListener();
+
+				this.sketchWrapperElt.appendChild(this.sketchMainMenuElt);
+			}
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createFooterMenuForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchFooterMenuElt == null)
+			{
+				this.sketchFooterMenuElt = document.createElement('div');
+				this.sketchFooterMenuElt.className = 'geToolbarContainer';
+				this.sketchFooterMenuElt.style.cssText = 'position:absolute;right:14px;bottom:14px;height:44px;' +
+					'border-radius:4px;padding:9px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
+					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
+
+				var footer = this.sketchFooterMenuElt;
+
+				var pageMenu = this.createPageMenuTab(false, true);
+				pageMenu.className = 'geToolbarButton';
+				pageMenu.style.cssText = 'display:inline-block;cursor:pointer;overflow:hidden;padding:4px;' +
+					'white-space:nowrap;max-width:160px;text-overflow:ellipsis;filter:none;opacity:1;';
+				footer.appendChild(pageMenu);
+
+				var updatePageName = mxUtils.bind(this, function()
+				{
+					pageMenu.innerText = '';
+
+					if (this.currentPage != null)
+					{
+						mxUtils.write(pageMenu, this.currentPage.getName());
+						var n = (this.pages != null) ? this.pages.length : 1;
+						var idx = this.getPageIndex(this.currentPage);
+						idx = (idx != null) ? idx + 1 : 1;
+						var id = this.currentPage.getId();
+						pageMenu.setAttribute('title', this.currentPage.getName() +
+							' (' + idx + '/' + n + ')' + ((id != null) ?
+							' [' + id + ']' : ''));
+					}
+				});
+
+				this.editor.addListener('pagesPatched', updatePageName);
+				this.editor.addListener('pageSelected', updatePageName);
+				this.editor.addListener('pageRenamed', updatePageName);
+				this.editor.addListener('fileLoaded', updatePageName);
+				updatePageName();
+				
+				// Page menu only visible for multiple pages
+				var pagesVisibleChanged = mxUtils.bind(this, function()
+				{
+					pageMenu.style.display = this.pages != null &&
+						(urlParams['pages'] != '0' || this.pages.length > 1 ||
+						Editor.pagesVisible) ? 'inline-block' : 'none';
+				});
+
+				this.addListener('fileDescriptorChanged', pagesVisibleChanged);
+				this.addListener('pagesVisibleChanged', pagesVisibleChanged);
+				this.editor.addListener('pagesPatched', pagesVisibleChanged);
+				pagesVisibleChanged();
+
+				footer.appendChild(this.createMenuItem('zoomOut', Editor.zoomOutImage));
+
+				var elt = this.createMenu('viewZoom', Editor.plusImage);
+				elt.setAttribute('title', mxResources.get('zoom'));
+				elt.innerHTML = '100%';
+				elt.className = 'geToolbarButton';
+				elt.style.cssText = 'display:inline-block;position:relative;vertical-align:top;opacity:1;color:inherit;' +
+					'padding:4px;box-shadow:none;width:40px;text-align:center;margin-right:-6px;filter:none;';
+				footer.appendChild(elt);
+
+				// Updates the label if the scale changes
+				(mxUtils.bind(this, function(elt)
+				{
+					// Adds shift+/alt+click on zoom label
+					mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
+					{
+						if (mxEvent.isAltDown(evt))
+						{
+							this.hideCurrentMenu();
+							this.actions.get('customZoom').funct();
+							mxEvent.consume(evt);
+						}
+						// geItem is a dropdown menu, geMenuItem is a button in the toolbar
+						else if (mxEvent.isShiftDown(evt))
+						{
+							this.hideCurrentMenu();
+							this.actions.get('smartFit').funct();
+							mxEvent.consume(evt);
+						}
+					}));
+
+					var updateZoom = mxUtils.bind(this, function()
+					{
+						elt.innerText = '';
+						mxUtils.write(elt, Math.round(this.editor.graph.view.scale * 100) + '%');
+					});
+
+					this.editor.graph.view.addListener(mxEvent.EVENT_SCALE, updateZoom);
+					this.editor.addListener('resetGraphView', updateZoom);
+					this.editor.addListener('pageSelected', updateZoom);
+				}))(elt);
+
+				footer.appendChild(this.createMenuItem('zoomIn', Editor.zoomInImage));
+				
+				this.sketchWrapperElt.appendChild(this.sketchFooterMenuElt);
+			}
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createPickerMenuForTheme = function(value)
+	{
+		if (value == 'sketch')
+		{
+			if (this.sketchPickerMenuElt == null)
+			{
+				this.sketchPickerMenuElt = document.createElement('div');
+				this.sketchPickerMenuElt.className = 'geToolbarContainer';
+				this.sketchPickerMenuElt.style.cssText = 'position:absolute;left:10px;border-radius:4px;' +
+					'padding:0px 4px 4px;white-space:nowrap;' +
+					'z-index:1;transform:translate(0, -50%);top:50%;user-select:none;width:40px;';
+
+				var picker = this.sketchPickerMenuElt;
+				mxUtils.setPrefixedStyle(picker.style, 'transition', 'transform .3s ease-out');
+				
+				var foldImg = document.createElement('a');
+				foldImg.style.padding = '0px';
+				foldImg.style.boxShadow = 'none';
+				foldImg.className = 'geMenuItem';
+				foldImg.style.display = 'block';
+				foldImg.style.width = '100%';
+				foldImg.style.height = '14px';
+				foldImg.style.backgroundImage = 'url(' + mxWindow.prototype.normalizeImage + ')';
+				foldImg.style.backgroundPosition = 'top center';
+				foldImg.style.backgroundRepeat = 'no-repeat';
+				foldImg.setAttribute('title', 'Minimize'/*TODO:mxResources.get('minimize')*/);
+				
+				var freehandElt = this.createMenuItem('insertFreehand',
+					Editor.freehandImage, true);
+				freehandElt.style.paddingLeft = '12px';
+				freehandElt.style.backgroundSize = '';
+				freehandElt.style.width = '26px';
+				freehandElt.style.height = '30px';
+				freehandElt.style.opacity = '0.7';
+				
+				var insertElt = this.createMenu('insert', Editor.plusImage);
+				insertElt.style.backgroundSize = '';
+				insertElt.style.marginBottom = '4px';
+				insertElt.style.display = 'block';
+				insertElt.style.width = '30px';
+				insertElt.style.height = '30px';
+				insertElt.style.padding = '4px';
+				insertElt.style.opacity = '0.7';
+
+				var collapsed = false;
+	
+				var initPicker = mxUtils.bind(this, function()
+				{
+					picker.innerText = '';
+					
+					if (!collapsed)
+					{
+						function addKey(elt, key)
+						{
+							elt.style.position = 'relative';
+							elt.style.overflow = 'visible';
+	
+							var div = document.createElement('div');
+							div.style.position = 'absolute';
+							div.style.fontSize = '8px';
+							div.style.left = '32px';
+							div.style.top = '28px';
+							mxUtils.write(div, key);
+							elt.appendChild(div);
+						};
+	
+						function addElt(elt, title, cursor, key)
+						{
+							if (title != null)
+							{
+								elt.setAttribute('title', title);
+							}
+							
+							elt.style.cursor = 'pointer';
+							elt.style.margin = '8px 0px';
+							elt.style.display = 'block';
+							picker.appendChild(elt);
+							
+							if (key != null)
+							{
+								addKey(elt, key);
+							}
+							
+							return elt;
+						};
+						
+						// Append sidebar elements
+						addElt(this.sidebar.createVertexTemplate('text;strokeColor=none;fillColor=none;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;', 
+							60, 30, 'Text', mxResources.get('text') + ' (A)', true, false, null, true, true),
+							mxResources.get('text') + ' (A)', null, 'A');
+						addElt(this.sidebar.createVertexTemplate('shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
+							'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
+							'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
+							140, 160, '', mxResources.get('note') + ' (S)', true, false, null, true),
+							mxResources.get('note') + ' (S)', null, 'S');
+						addElt(this.sidebar.createVertexTemplate('rounded=0;whiteSpace=wrap;html=1;', 160, 80, '',
+							mxResources.get('rectangle') + ' (D)', true, false, null, true),
+							mxResources.get('rectangle') + ' (D)', null, 'D');
+						addElt(this.sidebar.createVertexTemplate('ellipse;whiteSpace=wrap;html=1;', 160, 100, '',
+							mxResources.get('ellipse') + ' (F)', true, false, null, true),
+							mxResources.get('ellipse') + ' (F)', null, 'F');
+						
+						var edgeStyle = 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;';
+						var cell = new mxCell('', new mxGeometry(0, 0, this.editor.graph.defaultEdgeLength + 20, 0), edgeStyle);
+						cell.geometry.setTerminalPoint(new mxPoint(0, 0), true);
+						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 0), false);
+						cell.geometry.points = [];
+						cell.geometry.relative = true;
+						cell.edge = true;
+						
+						addElt(this.sidebar.createEdgeTemplateFromCells([cell],
+							cell.geometry.width, cell.geometry.height,
+							mxResources.get('line') + ' (C)', true, null, true, false),
+							mxResources.get('line') + ' (C)', null, 'C');
+							
+						cell = cell.clone();
+						cell.style = edgeStyle + 'shape=flexArrow;rounded=1;startSize=8;endSize=8;';
+						cell.geometry.width = this.editor.graph.defaultEdgeLength + 20;
+						cell.geometry.setTerminalPoint(new mxPoint(0, 20), true);
+						cell.geometry.setTerminalPoint(new mxPoint(cell.geometry.width, 20), false);
+		
+						addElt(this.sidebar.createEdgeTemplateFromCells([cell],
+							cell.geometry.width, 40, mxResources.get('arrow'),
+							true, null, true, false), mxResources.get('arrow'));
+					
+						addElt(freehandElt, mxResources.get('freehand') + ' (X)', null, 'X');
+						this.sketchPickerMenuElt.appendChild(insertElt);
+					}
+					
+					if (urlParams['embedInline'] != '1')
+					{
+						picker.appendChild(foldImg);
+					}
+				});
+				
+				mxEvent.addListener(foldImg, 'click', mxUtils.bind(this, function()
+				{
+					if (collapsed)
+					{
+						mxUtils.setPrefixedStyle(picker.style, 'transform', 'translate(0, -50%)');
+						picker.style.padding = '8px 6px 4px';
+						picker.style.width = '40px';
+						picker.style.top = '50%';
+						picker.style.bottom = '';
+						picker.style.height = '';
+						foldImg.style.backgroundImage = 'url(' + mxWindow.prototype.normalizeImage + ')';
+						foldImg.setAttribute('title', 'Minimize'/*TODO:mxResources.get('minimize')*/);
+						foldImg.style.height = '14px';
+						collapsed = false;
+						initPicker();
+					}
+					else
+					{				
+						picker.innerText = '';
+						picker.appendChild(foldImg);
+						mxUtils.setPrefixedStyle(picker.style, 'transform', 'translate(0, 0)');
+						picker.style.bottom = '12px';
+						picker.style.padding = '0px';
+						picker.style.height = '24px';
+						picker.style.width = '24px';
+						picker.style.top = '';
+						foldImg.style.backgroundImage = 'url(' + Editor.plusImage + ')';
+						foldImg.setAttribute('title', mxResources.get('insert'));
+						foldImg.style.height = '24px';
+						collapsed = true;
+					}
+				}));
+				
+				this.addListener('darkModeChanged', initPicker);
+				this.addListener('sketchModeChanged', initPicker);
+				initPicker();
+
+				this.sketchWrapperElt.appendChild(this.sketchPickerMenuElt);
+			}
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
 	EditorUi.prototype.createMenubarForTheme = function(value)
 	{
 		if (value == 'sketch')
@@ -10722,41 +11227,48 @@
 			{
 				this.sketchMenubarElt = document.createElement('div');
 				this.sketchMenubarElt.className = 'geToolbarContainer';
-				this.sketchMenubarElt.style.cssText = 'position:absolute;right:14px;top:10px;height:30px;z-index:1;' +
-					'border-radius:4px;padding:6px;border:1px solid #c0c0c0;overflow:hidden;' +
-					'text-align:right;white-space:nowrap;user-select:none;';
+				this.sketchMenubarElt.style.cssText = 'position:absolute;right:14px;top:10px;height:44px;' +
+					'border-radius:4px;padding:7px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
+					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
+				this.sketchWrapperElt.appendChild(this.sketchMenubarElt);
+			}
 
-				if (this.switchThemeElt != null)
-				{
-					this.switchThemeElt.style.position = 'relative';
-					this.switchThemeElt.style.width = '22px';
-					this.switchThemeElt.style.height = '22px';
-					this.switchThemeElt.style.top = '0px';
-					this.switchThemeElt.style.right = '6px';
+			if (this.userElement != null)
+			{
+				this.sketchMenubarElt.appendChild(this.userElement);
+			}
 
-					this.sketchMenubarElt.appendChild(this.switchThemeElt);
-				}
+			var elt = this.menubar.langIcon;
 
-				this.diagramContainer.parentNode.appendChild(this.sketchMenubarElt);
+			if (elt != null)
+			{
+				elt.style.position = 'relative';
+				elt.style.height = '21px';
+				elt.style.width = '21px';
+				elt.style.right = '0px';
+				elt.style.top = '3px';
+
+				this.sketchMenubarElt.appendChild(elt);
 			}
 		}
 		else
 		{
-			if (this.switchThemeElt != null)
+			if (this.userElement != null)
 			{
-				this.switchThemeElt.style.position = 'absolute';
-				this.switchThemeElt.style.width = '19px';
-				this.switchThemeElt.style.height = '19px';
-				this.switchThemeElt.style.top = '0px';
-				this.switchThemeElt.style.right = '17px';
-
-				document.body.appendChild(this.switchThemeElt);
+				this.menubarContainer.appendChild(this.userElement);
 			}
 
-			if (this.sketchMenubarElt != null)
+			var elt = this.menubar.langIcon;
+
+			if (elt != null)
 			{
-				this.sketchMenubarElt.parentNode.removeChild(this.sketchMenubarElt);
-				this.sketchMenubarElt = null;
+				elt.style.position = 'absolute';
+				elt.style.height = '18px';
+				elt.style.width = '18px';
+				elt.style.right = '14px';
+				elt.style.top = '5px';
+
+				document.body.appendChild(elt);
 			}
 		}
 	};
@@ -10764,20 +11276,15 @@
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
-	EditorUi.prototype.addMenuToMenubar = function(menubar, key, classname, img)
+	EditorUi.prototype.createMenu = function(key, img)
 	{
 		var menu = this.menus.get(key);
-		var elt = menubar.addMenu(mxResources.get(key), menu.funct);
+		var elt = this.menubar.addMenu(mxResources.get(key), menu.funct);
 		
-		elt.className = classname;
+		elt.className = 'geToolbarButton';
 		elt.style.display = 'inline-block';
-		elt.style.boxSizing = 'border-box';
-		elt.style.top = '6px';
-		elt.style.marginRight = '6px';
-		elt.style.height = '30px';
-		elt.style.paddingTop = '6px';
-		elt.style.paddingBottom = '6px';
 		elt.style.cursor = 'pointer';
+		elt.style.height = '24px';
 		elt.setAttribute('title', mxResources.get(key));
 		this.menus.menuCreated(menu, elt, 'geMenuItem');
 		
@@ -10786,8 +11293,8 @@
 			elt.style.backgroundImage = 'url(' + img + ')';
 			elt.style.backgroundPosition = 'center center';
 			elt.style.backgroundRepeat = 'no-repeat';
-			elt.style.backgroundSize = '24px 24px';
-			elt.style.width = '34px';
+			elt.style.backgroundSize = '100% 100%';
+			elt.style.width = '24px';
 			elt.innerText = '';
 		}
 
@@ -10797,13 +11304,77 @@
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
+	EditorUi.prototype.createMenuItem = function(key, img, ignoreState)
+	{
+		var btn = document.createElement('a');
+		btn.className = 'geToolbarButton';
+		btn.setAttribute('title', mxResources.get(key));
+		btn.style.backgroundImage = 'url(' + img + ')';
+		btn.style.backgroundPosition = 'center center';
+		btn.style.backgroundRepeat = 'no-repeat';
+		btn.style.backgroundSize = '100% 100%';
+		btn.style.display = 'inline-block';
+		btn.style.cursor = 'pointer';
+		btn.style.marginLeft = '6px';
+		btn.style.width = '24px';
+		btn.style.height = '24px';
+
+		var action = this.actions.get(key);
+
+		if (action != null)
+		{
+			// Prevents focus
+			mxEvent.addListener(btn, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+				mxUtils.bind(this, function(evt)
+			{
+				evt.preventDefault();
+			}));
+	
+			mxEvent.addListener(btn, 'click', function(evt)
+			{
+				if (btn.getAttribute('disabled') != 'disabled')
+				{
+					action.funct(evt);
+				}
+				
+				mxEvent.consume(evt);
+			});
+	
+			if (!ignoreState)
+			{
+				function updateState()
+				{
+					if (action.isEnabled())
+					{
+						btn.removeAttribute('disabled');
+						btn.style.cursor = 'pointer';
+					}
+					else
+					{
+						btn.setAttribute('disabled', 'disabled');
+						btn.style.cursor = 'default';
+					}
+
+					btn.style.opacity = (action.isEnabled()) ? '' : '0.2';
+				};
+				
+				this.editor.graph.addListener('enabledChanged', updateState);
+				action.addListener('stateChanged', updateState);
+				updateState();
+			}
+		}
+	   
+		return btn;
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
 	EditorUi.prototype.createFormatWindow = function()
 	{
 		if (this.formatWindow == null)
 		{
-			var x = (urlParams['sketch'] == '1') ?
-				Math.max(10, this.diagramContainer.clientWidth - 241) :
-				Math.max(10, this.diagramContainer.clientWidth - 248);
+			var x = Math.max(10, this.diagramContainer.parentNode.clientWidth - 256);
 			var y = urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60;
 			var h = (urlParams['embedInline'] == '1') ? 580 :
 				((urlParams['sketch'] == '1') ? 580 : Math.min(566,
@@ -10821,6 +11392,37 @@
 			}));
 			
 			this.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
+			this.formatWindow.window.setVisible(false);
+		}
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createShapesWindow = function()
+	{
+		if (this.sidebarWindow == null)
+		{
+			var w = Math.min(this.diagramContainer.parentNode.clientWidth - 10, 218);
+			var h = (urlParams['embedInline'] == '1') ? 650 :
+				Math.min(this.diagramContainer.parentNode.clientHeight, 650);
+			
+			this.sidebarWindow = new WrapperWindow(this, mxResources.get('shapes'),
+				(Editor.currentTheme == 'sketch' && urlParams['embedInline'] != '1') ? 66 : 10,
+				(Editor.currentTheme == 'sketch' && urlParams['embedInline'] != '1') ?
+					Math.max(30, (this.diagramContainer.parentNode.clientHeight - h) / 2) : 56,
+				w - 6, h - 6, mxUtils.bind(this, function(container)
+			{
+				container.appendChild(this.sidebarContainer);
+			}));
+			
+			this.sidebarWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
+			{
+				this.sidebarWindow.window.fit();
+			}));
+
+			this.sidebarWindow.window.minimumSize = new mxRectangle(0, 0, 90, 90);
+			this.sidebarWindow.window.setVisible(false);
 		}
 	};
 
@@ -10835,14 +11437,14 @@
 			{
 				this.spinner.stop();
 				this.doSetSketchMode(value);
-				 
+				
 				// Persist setting
 				if (urlParams['rough'] == null)
 				{
 					mxSettings.settings.sketchMode = value;
 					mxSettings.save();
 				}
-					 
+				
 				this.fireEvent(new mxEventObject('sketchModeChanged'));
 			}), 0);
 		}
@@ -10869,6 +11471,7 @@
 			'html body .mxCellEditor { color: #f0f0f0; }'
 			:
 			// Non-dark mode styles
+			'html > body > div > .geToolbarContainer { box-shadow:0px 0px 3px 1px #c0c0c0; }' +
 			'html body div.geToolbarContainer a.geInverted { filter: invert(1); }' +
 			'html body.geEditor .geTabContainer div { border-color: #e5e5e5 !important; }'
 			) +
@@ -10887,7 +11490,7 @@
 			'html body a.geMenuItem[disabled]:active { opacity: 0.2; }' +
 			'html body div.geActivePage { opacity: 0.7; }' +
 			'html body a.geMenuItem:active { opacity: 0.2; }' +
-			'html body .geToolbarButton { opacity: 0.3; }' +
+			//'html body .geToolbarButton { opacity: 0.3; }' +
 			'html body .geToolbarButton:active { opacity: 0.15; }' +
 			'html body .geStatus:active { opacity: 0.5; }' +
 			'.geStatus > div { box-sizing: border-box; max-width: 100%; text-overflow: ellipsis; }' +
@@ -10913,12 +11516,13 @@
 			'html body .mxWindow td.mxWindowPane input, html body .mxWindow td.mxWindowPane select, html body .mxWindow td.mxWindowPane textarea, html body .mxWindow td.mxWindowPane radio { padding: 0px; box-sizing: border-box; }' +
 			'.geDialog, .mxWindow td.mxWindowPane *, div.geSprite, td.mxWindowTitle, .geDiagramContainer { box-sizing:content-box; }' +
 			'.mxWindow div button.geStyleButton { box-sizing: border-box; }' +
+			'.mxWindowPane > .geSidebarContainer { border: none !important; }' +
 			'table.mxWindow td.mxWindowPane button.geColorBtn { padding:0px; box-sizing: border-box; }' +
 			'td.mxWindowPane .geSidebarContainer button { padding:2px; box-sizing: border-box; }' +
 			'html body .geMenuItem { font-size:14px; text-decoration: none; font-weight: normal; padding: 6px 10px 6px 10px; border: none; border-radius: 5px; color: #353535; box-shadow: inset 0 0 0 1px rgba(0,0,0,.11), inset 0 -1px 0 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04); ' + (EditorUi.isElectronApp? 'app-region: no-drag; ' : '') + '}' +
 			// Styling for Minimal
 			'.geTabContainer { border-bottom:1px solid lightgray; border-top:1px solid lightgray; background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + ' !important; }' +
-			'.geToolbarContainer { background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
+			'html body .geToolbarContainer { background: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
 			'div.geSidebarContainer { background-color: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fff') + '; }' +
 			'div.geSidebarContainer .geTitle { background-color: ' + (Editor.isDarkMode() ? Editor.darkColor : '#fdfdfd') + '; }' +
 			'div.mxWindow td.mxWindowPane button { background-image: none; float: none; }' +
@@ -11040,7 +11644,11 @@
 				Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
 			
 			// Updates CSS
-			if (Editor.styleElt != null)
+			if (this.sketchStyleElt != null)
+			{
+				this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
+			}
+			else if (Editor.styleElt != null)
 			{
 				Editor.styleElt.innerHTML = Editor.createMinimalCss();
 			}
@@ -13655,7 +14263,8 @@
 			{
 				if (urlParams['saveAndExit'] != '0')
 				{
-					var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
+					var saveAndExitTitle = urlParams['publishClose'] == '1' ?
+						mxResources.get('publish') : mxResources.get('saveAndExit');
 					mxUtils.write(button, saveAndExitTitle);
 					button.setAttribute('title', saveAndExitTitle);
 					

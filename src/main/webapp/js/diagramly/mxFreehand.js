@@ -28,7 +28,7 @@ function mxFreehand(graph)
 	var openFill = true;
 	var buffer = []; // Contains the last positions of the mouse cursor
 	var enabled = false;
-	var stopClickEnabled = true;
+	var stopClickEnabled = false;
 	var selectInserted = false;
 	var perfectFreehandOptions = {
 		size: 5,
@@ -139,7 +139,7 @@ function mxFreehand(graph)
 	    	// Click stops drawing
 	    	var doStop = stopClickEnabled && drawPoints.length > 0 &&
 	    		lastPart != null && lastPart.length < 2;
-	    	
+			
 			if (!doStop)
 			{
 				drawPoints.push.apply(drawPoints, lastPart);
@@ -155,7 +155,7 @@ function mxFreehand(graph)
 				this.stopDrawing();
 			}
 			
-			if (autoInsert && lastLength >= 2)
+			if (autoInsert && (!doStop || lastLength >= 2))
 			{
 				this.startDrawing();
 			}

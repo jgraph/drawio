@@ -1,3 +1,15 @@
+15-SEP-2022: 20.3.1
+
+- Multiple commits preparing for live UI switch [DS-909]
+- Disables java proxy by default [DS-912]
+- Removes click to stop drawing freehand [1109]
+- NPE fix [DS-913]
+- NPE fix [DS-914]
+- [conf cloud] Diagram count restrictions on free tier [DFCC-57]
+- Fixes scroll issue for CMD key in Safari 16 [3017]
+- Enables autosize for multiple vertices [1116]
+- Adds ui/safe to fix possible XSS in math [CSP-733]
+
 07-SEP-2022: 20.3.0
 
 - Uses organic as default layout to fix possible NPE in CSV import [DS-910]

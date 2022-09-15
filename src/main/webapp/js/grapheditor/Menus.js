@@ -49,7 +49,7 @@ Menus.prototype.init = function()
 
 	this.customFonts = [];
 	this.customFontSizes = [];
-
+	
 	this.put('fontFamily', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		var addItem = mxUtils.bind(this, function(fontFamily)
@@ -604,7 +604,7 @@ Menus.prototype.addMenu = function(name, popupMenu, parent)
 	
 	if (menu != null && (popupMenu.showDisabled || menu.isEnabled()))
 	{
-		this.get(name).execute(popupMenu, parent);
+		menu.execute(popupMenu, parent);
 	}
 };
 

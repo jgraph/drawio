@@ -77,7 +77,7 @@
 				{
 					load: [(urlParams['math-output'] == 'html') ?
 						'output/chtml' : 'output/svg', 'input/tex',
-						'input/asciimath']
+						'input/asciimath', 'ui/safe']
 				},
 				startup:
 				{

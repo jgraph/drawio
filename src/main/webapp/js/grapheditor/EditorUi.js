@@ -4234,7 +4234,7 @@ EditorUi.prototype.updateActionStates = function()
 	this.actions.get('sendBackward').setEnabled(ss.cells.length == 1);
 	this.actions.get('rotation').setEnabled(ss.vertices.length == 1);
 	this.actions.get('wordWrap').setEnabled(ss.vertices.length == 1);
-	this.actions.get('autosize').setEnabled(ss.vertices.length == 1);
+	this.actions.get('autosize').setEnabled(ss.vertices.length > 0);
 	this.actions.get('copySize').setEnabled(ss.vertices.length == 1);
 	this.actions.get('clearWaypoints').setEnabled(ss.connections);
 	this.actions.get('curved').setEnabled(ss.edges.length > 0);
@@ -4296,6 +4296,17 @@ EditorUi.prototype.getDiagramContainerOffset = function()
  */
 EditorUi.prototype.refresh = function(sizeDidChange)
 {
+	if (this.formatContainer != null && this.formatContainer.parentNode != null &&
+		this.formatContainer.parentNode.className != 'geEditor')
+	{
+		this.diagramContainer.style.left = '0';
+		this.diagramContainer.style.top = '0';
+		this.diagramContainer.style.right = '0';
+		this.diagramContainer.style.bottom = '0';
+
+		return;
+	}
+
 	sizeDidChange = (sizeDidChange != null) ? sizeDidChange : true;
 	
 	var w = this.container.clientWidth;

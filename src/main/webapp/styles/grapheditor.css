@@ -289,7 +289,7 @@
 	opacity: 0.6;
 }
 .geToolbarButton:active {
-	opacity: 0.2;
+	opacity: 0.2 !important;
 }
 .mxDisabled:hover {
 	background:inherit !important;

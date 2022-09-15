@@ -874,14 +874,17 @@ Actions.prototype.init = function()
 				for (var i = 0; i < cells.length; i++)
 				{
 					var cell = cells[i];
-					
-					if (graph.getModel().getChildCount(cell) > 0)
+
+					if (graph.getModel().isVertex(cell))
 					{
-						graph.updateGroupBounds([cell], 0, true);
-					}
-					else
-					{
-						graph.updateCellSize(cell);
+						if (graph.getModel().getChildCount(cell) > 0)
+						{
+							graph.updateGroupBounds([cell], 0, true);
+						}
+						else
+						{
+							graph.updateCellSize(cell);
+						}
 					}
 				}
 			}

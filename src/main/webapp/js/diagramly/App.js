@@ -7080,20 +7080,7 @@ App.prototype.updateUserElement = function()
 	{
 		if (this.userElement == null)
 		{
-			this.userElement = document.createElement('a');
-			this.userElement.className = 'geItem';
-			this.userElement.style.position = 'absolute';
-			this.userElement.style.fontSize = '8pt';
-			this.userElement.style.top = (uiTheme == 'atlas') ? '8px' : '2px';
-			this.userElement.style.right = '30px';
-			this.userElement.style.margin = '4px';
-			this.userElement.style.padding = '2px';
-			this.userElement.style.paddingRight = '16px';
-			this.userElement.style.verticalAlign = 'middle';
-			this.userElement.style.backgroundImage =  'url(' + IMAGE_PATH + '/expanded.gif)';
-			this.userElement.style.backgroundPosition = '100% 60%';
-			this.userElement.style.backgroundRepeat = 'no-repeat';
-			
+			this.userElement = this.createUserElement();
 			this.menubarContainer.appendChild(this.userElement);
 
 			// Prevents focus
@@ -7577,7 +7564,11 @@ App.prototype.updateUserElement = function()
 			
 						if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
 						{
-							div = div.cloneNode(false);
+							var div = document.createElement('div');
+							div.style.padding = '10px';
+							div.style.whiteSpace = 'nowrap';
+							div.style.borderTop = '1px solid rgb(224, 224, 224)';
+							div.style.marginTop = '4px';
 							div.style.textAlign = 'center';
 							div.style.padding = '10px';
 							div.style.fontSize = '9pt';
@@ -7635,12 +7626,13 @@ App.prototype.updateUserElement = function()
 		
 		if (user != null)
 		{
+			EditorUi.removeChildNodes(this.userElement);
 			this.userElement.innerText = '';
-			
-			if (screen.width > 560)
+
+			if (Editor.currentTheme != 'sketch' && screen.width > 560)
 			{
 				mxUtils.write(this.userElement, user.displayName);
-				this.userElement.style.display = 'block';
+				this.userElement.style.display = 'inline-block';
 			}
 		}
 		else
@@ -7648,8 +7640,127 @@ App.prototype.updateUserElement = function()
 			this.userElement.style.display = 'none';
 		}
 	}
+
+	this.updateUserElementStyle();
+	this.updateUserElementIcon();
 };
 
+//TODO Use this function to get the currently logged in user
+App.prototype.updateUserElementIcon = function()
+{
+	var elt = this.userElement;
+
+	if (elt != null)
+	{
+		var title = mxResources.get('changeUser');
+
+		if (elt.style.display != 'none')
+		{
+			var file = this.getCurrentFile();
+
+			if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
+			{
+				var icon = document.createElement('img');
+				icon.setAttribute('border', '0');
+				icon.style.position = 'absolute';
+				icon.style.left = '16px';
+				icon.style.top = '2px';
+				icon.style.width = '12px';
+				icon.style.height = '12px';
+
+				var err = file.getRealtimeError();
+				var state = file.getRealtimeState();
+				title += ' (' + mxResources.get('realtimeCollaboration') + ': ';
+
+				if (state == 1)
+				{
+					icon.src = Editor.syncImage;
+					title += mxResources.get('online');
+				}
+				else
+				{
+					icon.src = Editor.syncProblemImage;
+
+					if (err != null && err.message != null)
+					{
+						title += err.message;
+					}
+					else
+					{
+						title += mxResources.get('disconnected');
+					}
+				}
+				
+				title += ')';
+
+				if (Editor.currentTheme == 'sketch')
+				{
+					elt.style.marginRight = '6px';
+					elt.appendChild(icon);
+				}
+			}
+
+			elt.setAttribute('title', title);
+		}
+	}
+};
+
+//TODO Use this function to get the currently logged in user
+App.prototype.updateUserElementStyle = function()
+{
+	var elt = this.userElement;
+
+	if (elt != null)
+	{
+		if (Editor.currentTheme == 'sketch')
+		{
+    		elt.className = 'geToolbarButton';
+			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
+        	elt.style.backgroundPosition = 'center center';
+        	elt.style.backgroundRepeat = 'no-repeat';
+        	elt.style.backgroundSize = '100% 100%';
+			elt.style.position = 'relative';
+			elt.style.margin = '0px';
+			elt.style.padding = '0px';
+        	elt.style.height = '24px';
+        	elt.style.width = '24px';
+			elt.style.top = '3px';
+			elt.style.right = '';
+		}
+		else
+		{
+			elt.className = 'geItem';
+			elt.style.backgroundImage =  'url(' + IMAGE_PATH + '/expanded.gif)';
+			elt.style.backgroundPosition = '100% 60%';
+			elt.style.backgroundRepeat = 'no-repeat';
+        	elt.style.backgroundSize = '';
+			elt.style.position = 'absolute';
+			elt.style.margin = '4px';
+			elt.style.padding = '2px';
+			elt.style.paddingRight = '16px';
+			elt.style.width = '';
+			elt.style.height = '';
+			elt.style.right = (Editor.currentTheme == 'atlas' ||
+				urlParams['live-ui'] != '1') ? '8px' : '30px';
+			elt.style.top = (Editor.currentTheme == 'atlas') ? '8px' : '2px';
+		}
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+App.prototype.createUserElement = function()
+{
+	var elt = document.createElement('a');
+	mxUtils.setPrefixedStyle(elt.style, 'transition', 'none');
+	elt.style.display = 'inline-block';
+	elt.style.cursor = 'pointer';
+	elt.style.fontSize = '8pt';
+	
+	return elt;
+};
+ 
 //TODO Use this function to get the currently logged in user
 App.prototype.getCurrentUser = function()
 {
