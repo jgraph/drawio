@@ -2577,7 +2577,8 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 	mxGraphView.prototype.validateBackgroundStyles = function()
 	{
 		var graph = this.graph;
-		var color = (graph.background == null || graph.background == mxConstants.NONE) ? graph.defaultPageBackgroundColor : graph.background;
+		var color = (graph.background == null || graph.background == mxConstants.NONE) ?
+			graph.defaultPageBackgroundColor : graph.background;
 		var gridColor = (color != null && this.gridColor != color.toLowerCase()) ? this.gridColor : '#ffffff';
 		var image = 'none';
 		var position = '';
@@ -2632,13 +2633,31 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 			graph.container.className = 'geDiagramContainer geDiagramBackdrop';
 			canvas.style.backgroundImage = 'none';
 			canvas.style.backgroundColor = '';
+
+			if (!Editor.isDarkMode() && Editor.currentTheme == 'sketch')
+			{
+				graph.container.style.backgroundColor = graph.sketchBackgroundColor;
+			}
+			else
+			{
+				graph.container.style.backgroundColor = '';
+			}
 		}
 		else
 		{
 			graph.container.className = 'geDiagramContainer';
 			canvas.style.backgroundPosition = position;
-			canvas.style.backgroundColor = color;
 			canvas.style.backgroundImage = image;
+			
+			if ((graph.background == null || graph.background == mxConstants.NONE) &&
+				!Editor.isDarkMode() && Editor.currentTheme == 'sketch')
+			{
+				canvas.style.backgroundColor = graph.sketchBackgroundColor;
+			}
+			else
+			{
+				canvas.style.backgroundColor = color;
+			}
 		}
 	};
 	

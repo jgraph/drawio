@@ -314,6 +314,22 @@
 		toggleDarkModeAction.setToggleAction(true);
 		toggleDarkModeAction.setSelectedCallback(function() { return Editor.isDarkMode(); });
 		
+        var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('simple'), function(e)
+        {
+			editorUi.setCurrentTheme((Editor.currentTheme == 'sketch') ? '' : 'sketch');
+        }));
+
+		toggleSimpleModeAction.setToggleAction(true);
+		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'sketch'; });
+		
+        var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
+        {
+			editorUi.setSketchMode(!Editor.sketchMode);
+        }));
+
+		toggleSketchModeAction.setToggleAction(true);
+		toggleSketchModeAction.setSelectedCallback(function() { return Editor.sketchMode; });
+		
 		editorUi.actions.addAction('properties...', function()
 		{
 			var dlg = new FilePropertiesDialog(editorUi);
@@ -2892,16 +2908,8 @@
 			{
 				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 			}
-			
-			var item = menu.addItem(mxResources.get('simple'), null, function()
-			{
-				editorUi.setCurrentTheme((Editor.currentTheme == 'sketch') ? '' : 'sketch');
-			}, parent);
 
-			if (Editor.currentTheme == 'sketch')
-			{
-				menu.addCheckmark(item, Editor.checkmarkImage);
-			}
+			this.addMenuItems(menu, ['toggleSimpleMode', 'toggleSketchMode', 'fullscreen'], parent);
 		})));
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3351,22 +3359,6 @@
 			}
 		}, null, null, 'C')).isEnabled = isGraphEnabled;
 
-		var toggleFormat = editorUi.actions.put('toggleFormat', new Action(mxResources.get('format'), function()
-        {
-			if (editorUi.formatWindow != null)
-			{
-				editorUi.formatWindow.window.setVisible(
-					!editorUi.formatWindow.window.isVisible());
-			}
-        }));
-
-		toggleFormat.shortcut = editorUi.actions.get('formatPanel').shortcut;
-		toggleFormat.setToggleAction(true);
-		toggleFormat.setSelectedCallback(mxUtils.bind(this, function()
-		{
-			return editorUi.formatWindow != null && editorUi.formatWindow.window.isVisible();
-		}));
-		
 		var toggleShapes = editorUi.actions.put('toggleShapes', new Action(mxResources.get('shapes'), function()
         {
 			if (editorUi.sidebarWindow != null)
@@ -3374,9 +3366,14 @@
 				editorUi.sidebarWindow.window.setVisible(
 					!editorUi.sidebarWindow.window.isVisible());
 			}
-        }));
+			else
+			{
+				editorUi.hsplitPosition = (editorUi.hsplitPosition == 0) ?
+					EditorUi.prototype.hsplitPosition : 0;
+				editorUi.refresh();
+			}
+        }, null, null, Editor.ctrlKey + '+Shift+K'));
 
-		toggleShapes.shortcut = editorUi.actions.get('formatPanel').shortcut;
 		toggleShapes.setToggleAction(true);
 		toggleShapes.setSelectedCallback(mxUtils.bind(this, function()
 		{
@@ -3976,7 +3973,7 @@
 		// Overrides view menu to add search and scratchpad
 		this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
+			this.addMenuItems(menu, ((this.editorUi.format != null) ? ['format'] : []).
 				concat(['outline', 'layers', 'tags']).concat((editorUi.commentsSupported()) ?
 				['comments', '-'] : ['-']));
 			
@@ -4007,7 +4004,7 @@
 
 			if (urlParams['sketch'] != '1')
 			{
-				 this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+				this.addMenuItems(menu, ['-', 'fullscreen'], parent);
 			}
 		})));
 		
@@ -4361,7 +4358,7 @@
 				editorUi.menus.addMenuItems(menu, ['comments', '-'], parent);
 			}
 	
-			editorUi.menus.addMenuItems(menu, ['toggleFormat', 'layers', 'tags', '-', 'pageSetup'], parent);
+			editorUi.menus.addMenuItems(menu, ['format', 'layers', 'tags', '-', 'pageSetup'], parent);
 	
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))

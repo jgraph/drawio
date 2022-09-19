@@ -47,6 +47,13 @@
 		{ext: 'svg', title: 'filetypeSvg'}];
 	
 	/**
+	 * Definitions for sketch font styles.
+	 */
+	Editor.sketchFontFamily = 'Architects Daughter';
+	Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
+	Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily, 'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
+	
+	/**
 	 * 
 	 */
 	Editor.styles = [{},

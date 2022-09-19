@@ -31,9 +31,9 @@ if (!mxIsElectron && location.protocol !== 'http:')
 			//---------------------------------------------------------//
 			'; ';
 
-		var styleHashes = '\'sha256-JjkxVHHCCVO0nllPD6hU8bBYSlsikA8TM/o3fhr0bas=\' ' + // index.html
-			'\'sha256-8bAFhdIVH8/EjuHhNVZCG8isp9LZEPSQ23SJ7e54VWI=\' ' + // Minimal.js/Light
-			'\'sha256-fSmyKEwMytIGzQ+V1A8gi8iNvdN+rLOrqJvCL179k8Q=\' ' + // Minimal.js/Dark
+		var styleHashes = '\'sha256-pVoUz0B9cDvBP/6KP+5uOMqPh1c14hF0KFqSELqeyNQ=\' ' + // index.html
+			'\'sha256-BQGhEU60vmf18K8QE+zptQ8TcrOlYdgSrnP4l6mBG7o=\' ' + // Minimal.js/Light
+			'\'sha256-lWJz8BSQdD8MyBxQ2ENWc5uVhHlYKn+e9VsLpWu1tbg=\' ' + // Minimal.js/Dark
 			'\'sha256-7kY8ozVqKLIIBwZ24dhdmZkM26PsOlZmEi72RhmZKoM=\' ' + // mxTooltipHandler.js
 			'\'sha256-kuk5TvxZ/Kwuobo4g6uasb1xRQwr1+nfa1A3YGePO7U=\' ' + // MathJax
 			'\'sha256-ByOXYIXIkfNC3flUR/HoxR4Ak0pjOEF1q8XmtuIa6po=\' ' + // purify.min.js

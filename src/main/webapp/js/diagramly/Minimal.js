@@ -1,4 +1,14 @@
 /**
+ * Uses live UI theme switching for sketch mode.
+ */
+if (urlParams['live-ui'] == '1' && uiTheme == 'min' &&
+	urlParams['sketch'] == '1')
+{
+	Editor.currentTheme = 'sketch';
+	uiTheme = 'kennedy';
+}
+
+/**
  * Testing dockable windows.
  */
 EditorUi.windowed = urlParams['windows'] != '0';
@@ -37,7 +47,7 @@ EditorUi.initMinimalTheme = function()
 			if (ui.formatWindow == null)
 			{
 				var x = (urlParams['sketch'] == '1') ?
-					Math.max(10, ui.diagramContainer.clientWidth - 241) :
+					Math.max(10, ui.diagramContainer.clientWidth - 244) :
 					Math.max(10, ui.diagramContainer.clientWidth - 248);
 				var y = urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60;
 				var h = (urlParams['embedInline'] == '1') ? 580 :
@@ -612,6 +622,12 @@ EditorUi.initMinimalTheme = function()
         	toggleFormat(this);
         }
     };
+	
+    EditorUi.prototype.isFormatPanelVisible = function()
+    {
+		return this.formatWindow != null &&
+			this.formatWindow.window.isVisible();
+    };
 
     DiagramFormatPanel.prototype.isMathOptionVisible = function()
     {
@@ -684,18 +700,6 @@ EditorUi.initMinimalTheme = function()
         {
         	toggleShapes(ui);
         }, null, null, Editor.ctrlKey + '+Shift+K'));
-
-        var action = ui.actions.put('toggleFormat', new Action(mxResources.get('format'), function()
-        {
-        	toggleFormat(ui);
-        }));
-
-		action.shortcut = ui.actions.get('formatPanel').shortcut;
-		action.setToggleAction(true);
-		action.setSelectedCallback(mxUtils.bind(this, function()
-		{
-			return ui.formatWindow != null && ui.formatWindow.window.isVisible();
-		}));
 
         if (EditorUi.enablePlantUml && !ui.isOffline())
         {
@@ -928,10 +932,7 @@ EditorUi.initMinimalTheme = function()
 				mxUtils.fit(this.div);
 			}
 		};
-
-		// Overrides insert ellipse shortcut
-		this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
-
+		
 		if (EditorUi.windowed && (urlParams['sketch'] == '1' || iw >= 1000))
 		{
 			if (urlParams['embedInline'] != '1')
@@ -1855,13 +1856,13 @@ EditorUi.initMinimalTheme = function()
 				}
 
 				ui.tabContainer.style.visibility = 'hidden';
-				menubar.style.cssText = 'position:absolute;right:14px;top:10px;height:30px;z-index:1;border-radius:4px;' +
+				menubar.style.cssText = 'position:absolute;right:12px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;border-bottom:1px solid lightgray;' +
 					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
 				toolbar.style.cssText = 'position:absolute;left:10px;top:10px;height:30px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:6px;border-bottom:1px solid lightgray;' +
 					'text-align:right;white-space:nowrap;overflow:hidden;user-select:none;';
-				footer.style.cssText = 'position:absolute;right:14px;bottom:14px;height:28px;z-index:1;border-radius:4px;' +
+				footer.style.cssText = 'position:absolute;right:12px;bottom:12px;height:28px;z-index:1;border-radius:4px;' +
 					'box-shadow:0px 0px 3px 1px #d1d1d1;padding:8px;white-space:nowrap;user-select:none;';
 				wrapper.appendChild(toolbar);
 				wrapper.appendChild(footer);
@@ -2014,8 +2015,8 @@ EditorUi.initMinimalTheme = function()
 
 				createGroup([appElt, addMenuItem(mxResources.get('shapes'), ui.actions.get('toggleShapes').funct, null,
 					mxResources.get('shapes'), ui.actions.get('image'), (small) ? Editor.shapesImage : null),
-	       			addMenuItem(mxResources.get('format'), ui.actions.get('toggleFormat').funct, null,
-	       			mxResources.get('format') + ' (' + ui.actions.get('formatPanel').shortcut + ')', ui.actions.get('image'),
+	       			addMenuItem(mxResources.get('format'), ui.actions.get('format').funct, null,
+	       			mxResources.get('format') + ' (' + ui.actions.get('format').shortcut + ')', ui.actions.get('image'),
 	   				(small) ? Editor.formatImage : null)],
 	   				(small) ? 60 : null);
 			

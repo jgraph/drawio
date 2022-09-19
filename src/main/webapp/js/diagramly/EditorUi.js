@@ -3804,10 +3804,6 @@
 			mxConstants.DROP_TARGET_COLOR = '#00ff00';
     	}
 
-		Editor.sketchFontFamily = 'Architects Daughter';
-		Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
-		Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily, 'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
-
 		// Implements the sketch-min UI
 		if (urlParams['sketch'] == '1')
 		{
@@ -3830,7 +3826,10 @@
 		}
     };
     
-    EditorUi.initTheme();
+	if (urlParams['live-ui'] != '1')
+	{
+    	EditorUi.initTheme();
+	}
 
 	/**
 	 * Overrides image dialog to add image search and Google+.
@@ -9689,7 +9688,7 @@
 						href = source.getAttribute('href');
 					}
 				}
-
+				
 				if (href != null && graph.isCustomLink(href) &&
 					(mxEvent.isTouchEvent(evt) ||
 					!mxEvent.isPopupTrigger(evt)) &&
@@ -9865,6 +9864,7 @@
 			this.keyHandler.bindAction(70, false, 'insertEllipse'); // F
 			this.keyHandler.bindAction(67, false, 'insertEdge'); // C
 			this.keyHandler.bindAction(88, false, 'insertFreehand'); // X
+			this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
 
 		    this.installImagePasteHandler();
@@ -10278,14 +10278,13 @@
 			graph.refresh();
 			graph.view.validateBackground();
 			this.updateTabContainer();
+			this.hideShapePicker();
 		});
 
 		this.addListener('darkModeChanged', themeChangeListener);
 		this.addListener('sketchModeChanged', themeChangeListener);
-
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
-			this.updateUserElement();
 			this.refresh();
 		}));
 
@@ -10294,7 +10293,8 @@
 			this.doSetDarkMode(true);
 			this.fireEvent(new mxEventObject('darkModeChanged'));
 		}
-		else if (uiTheme == 'min' && urlParams['embedInline'] != '1')
+		else if (urlParams['live-ui'] == '1' || (uiTheme == 'min' &&
+			urlParams['embedInline'] != '1'))
 		{
 			this.doSetDarkMode((urlParams['dark'] != null) ?
 				urlParams['dark'] == 1 && !mxClient.IS_IE &&
@@ -10598,7 +10598,7 @@
 	/**
 	 * Changes the current UI theme.
 	 */
-	EditorUi.prototype.doSetCurrentTheme = function(value)
+	EditorUi.prototype.doSetCurrentTheme = function(value, delay)
 	{
 		function isDefault(theme)
 		{
@@ -10627,8 +10627,13 @@
 			var x = this.editor.graph.container.scrollLeft - off.x;
 			var y = this.editor.graph.container.scrollTop - off.y;
 
-			var delay = 100;
+			delay = (delay != null) ? delay : 100;
 			mxUtils.setPrefixedStyle(this.container.style, 'transition', 'all ' + delay + 'ms');
+
+			if (delay == 0)
+			{
+				this.container.style.opacity = '0';
+			}
 
 			window.setTimeout(mxUtils.bind(this, function()
 			{
@@ -10686,12 +10691,15 @@
 
 		return transition;
 	};
-
+	
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
 	EditorUi.prototype.switchTheme = function(value)
 	{
+		this.destroyWindows();
+		this.updateUserElement();
+		this.updateDefaultStyles();
 		this.switchThemeConstants(value);
 		this.switchCssForTheme(value);
 		this.createWrapperForTheme(value);
@@ -10824,7 +10832,10 @@
 	 */
 	EditorUi.prototype.switchThemeConstants = function(value)
 	{
-		this.destroyWindows();
+		var graph = this.editor.graph;
+		graph.defaultEdgeLength = Graph.prototype.defaultEdgeLength;
+		graph.defaultGridEnabled = Graph.prototype.defaultGridEnabled;
+		graph.defaultPageVisible = Graph.prototype.defaultPageVisible;
 
 		if (value == 'sketch')
 		{
@@ -10834,12 +10845,26 @@
 				'<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
 			mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10,
 				'<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
+			Editor.fitWindowBorders = new mxRectangle(60, 30, 30, 30);
+
+			graph.defaultEdgeLength = 120;
+
+			if (urlParams['grid'] == null)
+			{
+				graph.defaultGridEnabled = false;
+			}
+
+			if (urlParams['pv'] == null)
+			{
+				graph.defaultPageVisible = false;
+			}
 		}
 		else
 		{
 			mxWindow.prototype.closeImage = mxClient.imageBasePath + '/close.gif';
 			mxWindow.prototype.minimizeImage = mxClient.imageBasePath + '/minimize.gif';
 			mxWindow.prototype.normalizeImage = mxClient.imageBasePath + '/normalize.gif';
+			Editor.fitWindowBorders = null;
 		}
 	};
 
@@ -10939,7 +10964,7 @@
 			{
 				this.sketchFooterMenuElt = document.createElement('div');
 				this.sketchFooterMenuElt.className = 'geToolbarContainer';
-				this.sketchFooterMenuElt.style.cssText = 'position:absolute;right:14px;bottom:14px;height:44px;' +
+				this.sketchFooterMenuElt.style.cssText = 'position:absolute;right:12px;bottom:12px;height:44px;' +
 					'border-radius:4px;padding:9px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
 					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
 
@@ -11227,10 +11252,16 @@
 			{
 				this.sketchMenubarElt = document.createElement('div');
 				this.sketchMenubarElt.className = 'geToolbarContainer';
-				this.sketchMenubarElt.style.cssText = 'position:absolute;right:14px;top:10px;height:44px;' +
+				this.sketchMenubarElt.style.cssText = 'position:absolute;right:12px;top:10px;height:44px;' +
 					'border-radius:4px;padding:7px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
 					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
 				this.sketchWrapperElt.appendChild(this.sketchMenubarElt);
+			}
+
+			if (this.statusContainer != null)
+			{
+				this.sketchMenubarElt.appendChild(this.statusContainer);
+				this.statusContainer.style.marginTop = '4px';
 			}
 
 			if (this.userElement != null)
@@ -11253,6 +11284,12 @@
 		}
 		else
 		{
+			if (this.statusContainer != null)
+			{
+				this.menubar.container.appendChild(this.statusContainer);
+				this.statusContainer.style.marginTop = '';
+			}
+
 			if (this.userElement != null)
 			{
 				this.menubarContainer.appendChild(this.userElement);
@@ -11393,6 +11430,72 @@
 			
 			this.formatWindow.window.minimumSize = new mxRectangle(0, 0, 240, 80);
 			this.formatWindow.window.setVisible(false);
+		}
+	};
+
+	/**
+	 * 
+	 */
+	var editorUiToggleFormatPanel = EditorUi.prototype.toggleFormatPanel;
+
+	EditorUi.prototype.toggleFormatPanel = function(visible)
+	{
+		var wnd = this.formatWindow;
+		
+		if (wnd != null)
+		{
+			wnd.window.setVisible((visible != null) ? visible :
+				!this.isFormatPanelVisible());
+		}
+		else
+		{
+			editorUiToggleFormatPanel.apply(this, arguments);
+		}
+	};
+	
+	/**
+	 * 
+	 */
+	var editorUiIsFormatPanelVisible = EditorUi.prototype.isFormatPanelVisible;
+
+	EditorUi.prototype.isFormatPanelVisible = function()
+	{
+		var wnd = this.formatWindow;
+		
+		if (wnd != null)
+		{
+			return wnd.window.isVisible();
+		}
+		else
+		{
+			return editorUiIsFormatPanelVisible.apply(this, arguments);
+		}
+	};
+
+	var editorUiRefresh = EditorUi.prototype.refresh;
+
+	/**
+	 * Changes refresh to only update the diagram container in sketch mode.
+	 */
+	EditorUi.prototype.refresh = function(sizeDidChange)
+	{
+		if (this.sketchWrapperElt != null && this.sketchWrapperElt.parentNode != null)
+		{
+			sizeDidChange = (sizeDidChange != null) ? sizeDidChange : true;
+			
+			this.diagramContainer.style.left = '0';
+			this.diagramContainer.style.top = '0';
+			this.diagramContainer.style.right = '0';
+			this.diagramContainer.style.bottom = '0';
+
+			if (sizeDidChange)
+			{
+				this.editor.graph.sizeDidChange();
+			}
+		}
+		else
+		{
+			editorUiRefresh.apply(this, arguments);
 		}
 	};
 
@@ -11739,51 +11842,87 @@
 	{
 		if (Editor.sketchMode != value)
 		{
-			var graph = this.editor.graph;
 			Editor.sketchMode = value;
+			this.updateDefaultStyles();
+		}
+	};
 
-			function setStyle(style, key, value)
-			{
-				if (style[key] == null)
-				{
-					style[key] = value;
-				}
-			};
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.updateDefaultStyles = function()
+	{
+		function setStyle(style, key, value)
+		{
+			style[key] = value;
+		};
+		
+		var graph = this.editor.graph;
+		graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
+		graph.defaultEdgeStyle = mxUtils.clone(Graph.prototype.defaultEdgeStyle);
 
-			this.menus.defaultFontSize = (value) ? 20 : 16;
-			graph.defaultVertexStyle = mxUtils.clone(Graph.prototype.defaultVertexStyle);
-			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);
+		if (Editor.sketchMode)
+		{
+			this.menus.defaultFontSize = 20;
+		}
+		else if (Editor.currentTheme == 'sketch')
+		{
+			this.menus.defaultFontSize = 16;
+		}
+		else
+		{
+			this.menus.defaultFontSize = Menus.prototype.defaultFontSize;
+		}
 
-			graph.defaultEdgeStyle = mxUtils.clone(Graph.prototype.defaultEdgeStyle);
-			setStyle(graph.defaultEdgeStyle, 'fontSize', this.menus.defaultFontSize - 4);
+		if (this.menus.defaultFontSize == Menus.prototype.defaultFontSize)
+		{
+			setStyle(graph.defaultEdgeStyle, 'fontSize', null);
+			setStyle(graph.defaultVertexStyle, 'fontSize', null);
+		}
+		else
+		{
+			setStyle(graph.defaultVertexStyle, 'fontSize', this.menus.defaultFontSize);	
+			setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
+		}
+
+		if (Editor.currentTheme == 'sketch')
+		{
 			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
-			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
 			setStyle(graph.defaultEdgeStyle, 'curved', '1');
+			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
 			setStyle(graph.defaultEdgeStyle, 'jettySize', 'auto');
 			setStyle(graph.defaultEdgeStyle, 'orthogonalLoop', '1');
 			setStyle(graph.defaultEdgeStyle, 'endArrow', 'open');
 			setStyle(graph.defaultEdgeStyle, 'endSize', '14');
 			setStyle(graph.defaultEdgeStyle, 'startSize', '14');
-			
-			if (value)
-			{
-				setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
-				setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
-				setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
-				setStyle(graph.defaultVertexStyle, 'sketch', '1');
-
-				setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
-				setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
-				setStyle(graph.defaultEdgeStyle, 'sketch', '1');
-				setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
-				setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
-				setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
-			}
-
-			graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
-			graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
-			this.clearDefaultStyle();
+			setStyle(graph.defaultEdgeStyle, 'sourcePerimeterSpacing', '8');
+			setStyle(graph.defaultEdgeStyle, 'targetPerimeterSpacing', '8');
 		}
+
+		if (Editor.sketchMode)
+		{
+			this.menus.defaultFonts = Menus.prototype.defaultFonts.concat(Editor.sketchFonts);
+			
+			setStyle(graph.defaultVertexStyle, 'fontFamily', Editor.sketchFontFamily);
+			setStyle(graph.defaultVertexStyle, 'fontSource', Editor.sketchFontSource);
+			setStyle(graph.defaultVertexStyle, 'hachureGap', '4');
+			setStyle(graph.defaultVertexStyle, 'sketch', '1');
+			setStyle(graph.defaultVertexStyle, 'jiggle', '2');
+
+			setStyle(graph.defaultEdgeStyle, 'fontFamily', Editor.sketchFontFamily);
+			setStyle(graph.defaultEdgeStyle, 'fontSource', Editor.sketchFontSource);
+			setStyle(graph.defaultEdgeStyle, 'sketch', '1');
+			setStyle(graph.defaultEdgeStyle, 'jiggle', '2');
+			setStyle(graph.defaultEdgeStyle, 'hachureGap', '4');
+		}
+		else
+		{
+			this.menus.defaultFonts = Menus.prototype.defaultFonts;
+		}
+
+		graph.currentVertexStyle = mxUtils.clone(graph.defaultVertexStyle);
+		graph.currentEdgeStyle = mxUtils.clone(graph.defaultEdgeStyle);
+		this.clearDefaultStyle();
 	};
 
 	/**

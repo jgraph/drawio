@@ -1,3 +1,11 @@
+19-SEP-2022: 20.3.3
+
+- Replaces CSS classname in live UI refresh to avoid extension clash [DS-909]
+
+16-SEP-2022: 20.3.2
+
+- Keep SVG content attribute in DOMPurify [DID-6193]
+
 15-SEP-2022: 20.3.1
 
 - Multiple commits preparing for live UI switch [DS-909]

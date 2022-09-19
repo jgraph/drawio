@@ -1826,12 +1826,12 @@ Actions.prototype.init = function()
 	}), null, null, Editor.ctrlKey + '+Shift+L');
 	action.setToggleAction(true);
 	action.setSelectedCallback(mxUtils.bind(this, function() { return this.layersWindow != null && this.layersWindow.window.isVisible(); }));
-	action = this.addAction('formatPanel', mxUtils.bind(this, function()
+	action = this.addAction('format', mxUtils.bind(this, function()
 	{
 		ui.toggleFormatPanel();
 	}), null, null, Editor.ctrlKey + '+Shift+P');
 	action.setToggleAction(true);
-	action.setSelectedCallback(mxUtils.bind(this, function() { return ui.formatWidth > 0; }));
+	action.setSelectedCallback(mxUtils.bind(this, function() { return ui.isFormatPanelVisible(); }));
 	action = this.addAction('outline', mxUtils.bind(this, function()
 	{
 		if (this.outlineWindow == null)

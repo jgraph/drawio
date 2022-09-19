@@ -3433,6 +3433,14 @@ EditorUi.prototype.toggleFormatPanel = function(visible)
 };
 
 /**
+ * 
+ */
+EditorUi.prototype.isFormatPanelVisible = function()
+{
+	return this.formatWidth > 0;
+};
+
+/**
  * Adds support for placeholders in labels.
  */
 EditorUi.prototype.lightboxFit = function(maxHeight)
@@ -4296,17 +4304,6 @@ EditorUi.prototype.getDiagramContainerOffset = function()
  */
 EditorUi.prototype.refresh = function(sizeDidChange)
 {
-	if (this.formatContainer != null && this.formatContainer.parentNode != null &&
-		this.formatContainer.parentNode.className != 'geEditor')
-	{
-		this.diagramContainer.style.left = '0';
-		this.diagramContainer.style.top = '0';
-		this.diagramContainer.style.right = '0';
-		this.diagramContainer.style.bottom = '0';
-
-		return;
-	}
-
 	sizeDidChange = (sizeDidChange != null) ? sizeDidChange : true;
 	
 	var w = this.container.clientWidth;
@@ -5931,7 +5928,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 		keyHandler.bindAction(73, true, 'italic'); // Ctrl+I
 		keyHandler.bindAction(76, true, 'lockUnlock'); // Ctrl+L
 		keyHandler.bindAction(76, true, 'layers', true); // Ctrl+Shift+L
-		keyHandler.bindAction(80, true, 'formatPanel', true); // Ctrl+Shift+P
+		keyHandler.bindAction(80, true, 'format', true); // Ctrl+Shift+P
 		keyHandler.bindAction(85, true, 'underline'); // Ctrl+U
 		keyHandler.bindAction(85, true, 'ungroup', true); // Ctrl+Shift+U
 		keyHandler.bindAction(190, true, 'superscript'); // Ctrl+.

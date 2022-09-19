@@ -505,7 +505,7 @@ Menus.prototype.init = function()
 	})));
 	this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ((this.editorUi.format != null) ? ['formatPanel'] : []).
+		this.addMenuItems(menu, ((this.editorUi.format != null) ? ['format'] : []).
 			concat(['outline', 'layers', '-', 'pageView', 'pageScale', '-', 'scrollbars', 'tooltips', '-',
 			        'grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
 			        'resetView', 'zoomIn', 'zoomOut'], parent));
@@ -515,7 +515,7 @@ Menus.prototype.init = function()
 	{
 		if (this.editorUi.format != null)
 		{
-			this.addMenuItems(menu, ['formatPanel'], parent);
+			this.addMenuItems(menu, ['format'], parent);
 		}
 		
 		this.addMenuItems(menu, ['outline', 'layers'], parent);
