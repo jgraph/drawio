@@ -1712,7 +1712,7 @@ App.prototype.init = function()
 	{
 		this.buttonContainer = document.createElement('div');
 		this.buttonContainer.style.display = 'inline-block';
-		this.buttonContainer.style.paddingRight = '48px';
+		this.buttonContainer.style.paddingRight = '32px';
 		this.buttonContainer.style.position = 'absolute';
 		this.buttonContainer.style.right = '0px';
 		
@@ -3098,12 +3098,6 @@ App.prototype.start = function()
 			}));
 		}
 		
-		if (urlParams['live-ui'] == '1' && Editor.currentTheme == 'sketch')
-		{
-			Editor.currentTheme = '';
-			this.doSetCurrentTheme('sketch', 0);
-		}
-
 		// Descriptor for CSV import
 		if ((window.location.hash == null || window.location.hash.length <= 1) && urlParams['desc'] != null)
 		{
@@ -5733,7 +5727,11 @@ App.prototype.updateButtonContainer = function()
 
 		if (urlParams['embed'] == '1')
 		{
-			this.buttonContainer.style.paddingRight = '12px';
+			if (urlParams['sketch'] != '1')
+			{
+				this.buttonContainer.style.paddingRight = '12px';
+			}
+			
 			this.buttonContainer.style.paddingTop = '6px';
 		}
 		
@@ -5833,6 +5831,9 @@ App.prototype.updateButtonContainer = function()
 					
 					this.buttonContainer.appendChild(this.shareButton);
 				}
+
+				this.shareButton.style.display = (Editor.currentTheme == 'simple' ||
+					Editor.currentTheme == 'min') ? 'none' : 'inline-block';
 			}
 			else if (this.shareButton != null)
 			{
@@ -6925,7 +6926,7 @@ App.prototype.updateHeader = function()
 			mxEvent.consume(evt);
 		}));
 		
-		if (urlParams['live-ui'] != '1' && uiTheme != 'atlas')
+		if (urlParams['live-ui'] != '1' && uiTheme != 'atlas' && urlParams['embed'] != '1')
 		{
 			this.darkModeElement = this.toggleFormatElement.cloneNode(true);
 			this.darkModeElement.setAttribute('title', mxResources.get('theme'));
@@ -7116,7 +7117,9 @@ App.prototype.updateUserElement = function()
 			EditorUi.removeChildNodes(this.userElement);
 			this.userElement.innerText = '';
 
-			if (Editor.currentTheme != 'sketch' && screen.width > 560)
+			if (Editor.currentTheme != 'simple' &&
+				Editor.currentTheme != 'min' &&
+				screen.width > 560)
 			{
 				mxUtils.write(this.userElement, user.displayName);
 				this.userElement.style.display = 'inline-block';
@@ -7141,7 +7144,8 @@ App.prototype.updateUserElementStyle = function()
 
 	if (elt != null)
 	{
-		if (Editor.currentTheme == 'sketch')
+		if (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'min')
 		{
     		elt.className = 'geToolbarButton';
 			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
@@ -7170,7 +7174,7 @@ App.prototype.updateUserElementStyle = function()
 			elt.style.width = '';
 			elt.style.height = '';
 			elt.style.right = (Editor.currentTheme == 'atlas' ||
-				urlParams['live-ui'] != '1') ? '8px' : '30px';
+				this.darkModeElement != null) ? '12px' : '26px';
 			elt.style.top = (Editor.currentTheme == 'atlas') ? '8px' : '2px';
 		}
 	}
@@ -7226,9 +7230,10 @@ App.prototype.updateUserElementIcon = function()
 				
 				title += ')';
 
-				if (Editor.currentTheme == 'sketch')
+				if (Editor.currentTheme == 'simple' ||
+					Editor.currentTheme == 'min')
 				{
-					elt.style.marginRight = '6px';
+					elt.style.marginRight = '4px';
 					elt.appendChild(icon);
 				}
 			}

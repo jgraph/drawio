@@ -303,9 +303,12 @@
         var toggleDarkModeAction = editorUi.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function(e)
         {
 			editorUi.setDarkMode(!Editor.isDarkMode());
+			mxSettings.settings.darkMode = Editor.isDarkMode();
+			mxSettings.save();
+			
 			var theme = mxSettings.getUi();
 			
-			if (theme != 'atlas' && theme != 'min' && theme != 'sketch')
+			if (theme != 'atlas' && theme != 'min' && theme != 'sketch' && theme != 'simple')
 			{
 				editorUi.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark', true);
 			}
@@ -316,11 +319,12 @@
 		
         var toggleSimpleModeAction = editorUi.actions.put('toggleSimpleMode', new Action(mxResources.get('simple'), function(e)
         {
-			editorUi.setCurrentTheme((Editor.currentTheme == 'sketch') ? '' : 'sketch');
+			editorUi.setCurrentTheme((Editor.currentTheme == 'simple') ?
+				((!Editor.isDarkMode()) ? 'kennedy' : 'dark') : 'simple');
         }));
 
 		toggleSimpleModeAction.setToggleAction(true);
-		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'sketch'; });
+		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme == 'simple'; });
 		
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
@@ -1260,19 +1264,15 @@
 				var menubar = menusCreateMenuBar.apply(this, arguments);
 				
 				if (menubar != null && urlParams['embed'] != '1' &&
-					(uiTheme != 'atlas' && urlParams['live-ui'] == '1'))
+					uiTheme != 'atlas' && urlParams['live-ui'] == '1')
 				{
-					var langMenu = this.get((urlParams['live-ui'] == '1') ?
-						'appearance' : 'language');
+					var themeMenu = this.get('appearance');
 					
-					if (langMenu != null)
+					if (themeMenu != null)
 					{
-						var elt = menubar.addMenu('', langMenu.funct);
-						elt.setAttribute('title', mxResources.get(
-							(urlParams['live-ui'] == '1') ?
-							'theme' : 'language'));
+						var elt = menubar.addMenu('', themeMenu.funct);
+						elt.setAttribute('title', mxResources.get('theme'));
 						elt.className = 'geToolbarButton geAdaptiveAsset';
-						elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 						elt.style.backgroundPosition = 'center center';
 						elt.style.backgroundRepeat = 'no-repeat';
 						elt.style.backgroundSize = '100% 100%';
@@ -1295,7 +1295,7 @@
 						}
 						else
 						{
-							elt.style.right = '14px';
+							elt.style.right = '10px';
 							elt.style.top = '5px';
 						}
 						
@@ -1309,22 +1309,15 @@
 						document.body.appendChild(elt);
 						menubar.langIcon = elt;
 
-						if (urlParams['live-ui'] == '1')
+						var updateThemeElement = mxUtils.bind(this, function()
 						{
-							var updateThemeElement = mxUtils.bind(this, function()
-							{
-								elt.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode() || uiTheme == 'atlas') ?
-									Editor.darkModeImage : Editor.lightModeImage) + '\')';
-							});
-				
-							this.editorUi.addListener('darkModeChanged', updateThemeElement);
-							updateThemeElement();
-						}
-						else
-						{
-							mxUtils.setOpacity(elt, 40);
-						}
-
+							elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode()) ?
+								Editor.darkModeImage : Editor.lightModeImage) + ')';
+						});
+			
+						this.editorUi.addListener('darkModeChanged', updateThemeElement);
+						updateThemeElement();
+						
 						this.editorUi.switchThemeElt = elt;
 					}
 				}
@@ -1409,7 +1402,7 @@
 		{
 			viewZoomMenuFunct.apply(this, arguments);
 
-			var sketchTheme = Editor.currentTheme == 'sketch' || urlParams['sketch'] == '1';
+			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
 			
 			if (sketchTheme || uiTheme == 'min')
 			{
@@ -2909,13 +2902,13 @@
 				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 			}
 
-			this.addMenuItems(menu, ['toggleSimpleMode', 'toggleSketchMode', 'fullscreen'], parent);
+			this.addMenuItems(menu, ['toggleSimpleMode', 'toggleSketchMode'], parent);
 		})));
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
-
+			
 			if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
 				(!mxClient.IS_IE && !mxClient.IS_IE11))
 			{
@@ -2930,8 +2923,8 @@
 			}, parent);
 			
 			if (theme != 'kennedy' && theme != 'atlas' &&
-				theme != 'dark' && theme != 'min' &&
-				theme != 'sketch')
+				theme != 'dark' && theme != 'simple' &&
+				theme != 'sketch' && theme != 'min')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -2941,7 +2934,7 @@
 				editorUi.setCurrentTheme('kennedy');
 			}, parent);
 
-			if (theme == 'kennedy' || theme == 'dark')
+			if (theme == 'kennedy' || theme == 'dark' || theme == 'simple')
 			{
 				menu.addCheckmark(item, Editor.checkmarkImage);
 			}
@@ -3398,7 +3391,7 @@
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			// Compatiblity code for live UI switch and static UI
-			var sketchTheme = Editor.currentTheme == 'sketch' || urlParams['sketch'] == '1';
+			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
 			
 			if (sketchTheme)
 			{
@@ -4062,7 +4055,7 @@
 		this.put('extras', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			// Compatiblity code for live UI switch and static UI
-			var sketchTheme = Editor.currentTheme == 'sketch' || urlParams['sketch'] == '1';
+			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
 			
 			if (sketchTheme || uiTheme == 'min')
 			{
@@ -4270,7 +4263,7 @@
 			menu.addSeparator(parent);
 
 			// Compatiblity code for live UI switch and static UI
-			var sketchTheme = Editor.currentTheme == 'sketch' || urlParams['sketch'] == '1';
+			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
@@ -4433,7 +4426,7 @@
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			// Compatiblity code for live UI switch and static UI
-			var minTheme = Editor.currentTheme == 'sketch' || uiTheme == 'min' ||
+			var minTheme = Editor.currentTheme == 'simple' || uiTheme == 'min' ||
 				Editor.currentTheme == 'min';
 
 			if (urlParams['embed'] == '1')

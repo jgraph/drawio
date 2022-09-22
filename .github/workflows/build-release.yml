@@ -6,9 +6,11 @@ on:
       - VERSION
 
 jobs:
-  build:
-    runs-on: ubuntu-18.04
+  container:
+    runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/release'
+    container:
+      image: 'jgraph/drawio-builder:latest'
     steps:
     - name: Checkout reposistory
       uses: actions/checkout@v2
@@ -16,18 +18,13 @@ jobs:
         ref: 'release'
     - name: Get Submodule
       run: |
+        git config --global --add safe.directory '*'
         git submodule init
         git config submodule.src/main/webapp/resources.url  https://${{secrets.I18N_USERNAME}}:${{secrets.I18N_ACCESS_KEY}}@github.com/jgraph/drawio-i18n.git
         git submodule update --init --recursive
-    - name: Installing Node
-      uses: actions/setup-node@v2
-      with:
-        node-version: 14
     - name: Build
       run: |
         cd etc/build
-        npm install workbox-cli@6.3.0 --global
-        ln -s `which workbox` /usr/local/bin/workbox
         ant
     - name: Tag and Push
       run: |

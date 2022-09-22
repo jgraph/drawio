@@ -1,14 +1,4 @@
 /**
- * Uses live UI theme switching for sketch mode.
- */
-if (urlParams['live-ui'] == '1' && uiTheme == 'min' &&
-	urlParams['sketch'] == '1')
-{
-	Editor.currentTheme = 'sketch';
-	uiTheme = 'kennedy';
-}
-
-/**
  * Testing dockable windows.
  */
 EditorUi.windowed = urlParams['windows'] != '0';
@@ -376,86 +366,6 @@ EditorUi.initMinimalTheme = function()
         }
     };
 
-    var appUpdateUserElement = App.prototype.updateUserElement;
-    
-    App.prototype.updateUserElement = function()
-    {
-    	appUpdateUserElement.apply(this, arguments);
-    	
-		if (this.userElement != null)
-		{
-			var elt = this.userElement;
-    		elt.style.cssText = 'position:relative;cursor:pointer;display:' + elt.style.display;
-    		elt.className = 'geToolbarButton';
-    		elt.innerText = '';
-			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
-        	elt.style.backgroundPosition = 'center center';
-        	elt.style.backgroundRepeat = 'no-repeat';
-        	elt.style.backgroundSize = '24px 24px';
-        	elt.style.height = '24px';
-        	elt.style.width = '24px';
-			var title = mxResources.get('changeUser');
-        	
-        	if (elt.style.display != 'none')
-        	{
-        		elt.style.display = 'inline-block';
-				var file = this.getCurrentFile();
-	
-				if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
-				{
-					var icon = document.createElement('img');
-					icon.setAttribute('border', '0');
-					icon.style.position = 'absolute';
-					icon.style.left = '18px';
-					icon.style.top = '2px';
-					icon.style.width = '12px';
-					icon.style.height = '12px';
-
-					var err = file.getRealtimeError();
-					var state = file.getRealtimeState();
-					title += ' (' + mxResources.get('realtimeCollaboration') + ': ';
-
-					if (state == 1)
-					{
-						icon.src = Editor.syncImage;
-						title += mxResources.get('online');
-					}
-					else
-					{
-						icon.src = Editor.syncProblemImage;
-
-						if (err != null && err.message != null)
-						{
-							title += err.message;
-						}
-						else
-						{
-							title += mxResources.get('disconnected');
-						}
-					}
-					
-					elt.style.marginRight = '6px';
-					elt.appendChild(icon);
-					title += ')';
-				}
-        	}
-
-        	elt.setAttribute('title', title);
-		}
-    };
-    
-    var appUpdateButtonContainer = App.prototype.updateButtonContainer;
-    
-    App.prototype.updateButtonContainer = function()
-    {
-    	appUpdateButtonContainer.apply(this, arguments);
-    	
-    	if (this.shareButton != null)
-		{
-    		this.shareButton.style.display = 'none';
-		}
-    };
-
 	EditorUi.prototype.addEmbedButtons = function()
 	{
 		if (this.buttonContainer != null && urlParams['embedInline'] != '1')
@@ -463,7 +373,6 @@ EditorUi.initMinimalTheme = function()
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
 			div.style.position = 'relative';
-			div.style.marginTop = '6px';
 			div.style.marginRight = '4px';
 			
 			var button = document.createElement('a');
@@ -534,10 +443,18 @@ EditorUi.initMinimalTheme = function()
 				
 				div.appendChild(button);
 			}
-			
-			this.buttonContainer.appendChild(div);
-			this.buttonContainer.style.top = '6px';
 
+			if (urlParams['sketch'] != '1')
+			{
+				div.style.marginTop = '6px';
+				this.buttonContainer.style.top = '6px';
+			}
+			else
+			{
+				this.buttonContainer.style.top = '0px';
+			}
+
+			this.buttonContainer.appendChild(div);
 			this.editor.fireEvent(new mxEventObject('statusChanged'));
 		}
 	};
@@ -1160,8 +1077,6 @@ EditorUi.initMinimalTheme = function()
 		ui.statusContainer = ui.createStatusContainer();
 		ui.statusContainer.style.position = 'relative';
 		ui.statusContainer.style.maxWidth = '';
-		ui.statusContainer.style.marginTop = '7px';
-		ui.statusContainer.style.marginLeft = '6px';
 		ui.statusContainer.style.color = 'gray';
 		ui.statusContainer.style.cursor = 'default';
 		
@@ -1410,6 +1325,14 @@ EditorUi.initMinimalTheme = function()
 			};
 		}
 		
+		// Connects the status bar to the editor status
+		ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
+		{
+			ui.setStatusText(ui.editor.getStatus());
+		}));
+		
+		ui.setStatusText(ui.editor.getStatus());
+
 		if (urlParams['sketch'] == '1')
 		{
 			picker.className = 'geToolbarContainer';
@@ -1421,100 +1344,12 @@ EditorUi.initMinimalTheme = function()
 
 			// Passing to code in Sidebar for live UI
 			ui.sketchPickerMenuElt = picker;
-
-			var statusVisible = false;
 			
-			if (urlParams['embed'] != '1' && ui.getServiceName() != 'atlassian')
+			if (urlParams['embed'] != '1' && this.getServiceName() != 'atlassian')
 			{
-				mxEvent.addListener(menubar, 'mouseenter', function()
-				{
-					ui.statusContainer.style.display = 'inline-block';
-				});
-				
-				mxEvent.addListener(menubar, 'mouseleave', function()
-				{
-					if (!statusVisible)
-					{
-						ui.statusContainer.style.display = 'none';
-					}
-				});
+				ui.installStatusMinimizer();
 			}
-			
-			var setNotificationTitle = mxUtils.bind(this, function(title)
-			{
-				if (ui.notificationBtn != null)
-				{
-					if (title != null)
-					{
-						ui.notificationBtn.setAttribute('title', title);
-					}
-					else
-					{
-						ui.notificationBtn.removeAttribute('title');
-					}
-				}
-			});
 
-			// Connects the status bar to the editor status and moves
-			// status to bell icon title for frequent common messages
-			menubar.style.visibility = (menubar.clientWidth < 20) ? 'hidden' : '';
-
-			ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
-			{
-				ui.setStatusText(ui.editor.getStatus());
-
-				if (urlParams['embed'] != '1' && ui.getServiceName() != 'atlassian')
-				{
-					ui.statusContainer.style.display = 'inline-block';
-					statusVisible = true;
-
-					if (ui.statusContainer.children.length == 1 &&
-						ui.editor.getStatus() == '')
-					{
-						menubar.style.visibility = 'hidden';
-					}
-					else
-					{
-						if (ui.statusContainer.children.length == 0 ||
-							(ui.statusContainer.children.length == 1 &&
-							typeof ui.statusContainer.firstChild.getAttribute === 'function' &&
-							ui.statusContainer.firstChild.getAttribute('class') == null))
-						{
-							var title = (ui.statusContainer.firstChild != null &&
-								typeof ui.statusContainer.firstChild.getAttribute === 'function') ?
-								ui.statusContainer.firstChild.getAttribute('title') :
-								ui.editor.getStatus();
-							setNotificationTitle(title);
-							var file = ui.getCurrentFile();
-							var key = (file != null) ? file.savingStatusKey :
-								DrawioFile.prototype.savingStatusKey;
-							
-							if (title == mxResources.get(key) + '...')
-							{
-								ui.statusContainer.innerHTML = '<img title="' + mxUtils.htmlEntities(
-									mxResources.get(key)) + '...' + '"src="' + Editor.tailSpin + '">';
-								ui.statusContainer.style.display = 'inline-block';
-								statusVisible = true;
-							}
-							else if (ui.buttonContainer.clientWidth > 6)
-							{
-								ui.statusContainer.style.display = 'none';
-								statusVisible = false;
-							}
-						}
-						else
-						{
-							ui.statusContainer.style.display = 'inline-block';
-							setNotificationTitle(null);
-							statusVisible = true;
-						}
-
-						menubar.style.visibility = (menubar.clientWidth < 20 &&
-							!statusVisible) ? 'hidden' : '';
-					}
-				}
-			}));
-			
 			elt = addMenu('diagram', null, Editor.menuImage);
 			elt.style.boxShadow = 'none';
 			elt.style.padding = '6px';
@@ -1540,6 +1375,12 @@ EditorUi.initMinimalTheme = function()
 			ui.statusContainer.style.maxWidth = Math.min(iw - 240, 280) + 'px';
 			ui.statusContainer.style.display = 'inline-block';
 			ui.statusContainer.style.textOverflow = 'ellipsis';
+
+			if (urlParams['embed'] == '1')
+			{
+				this.statusContainer.style.marginTop = '-2px';
+				this.statusContainer.style.marginRight = '8px';
+			}
 			
 			ui.buttonContainer.style.display = 'inline-block';
 			ui.buttonContainer.style.position = 'relative';
@@ -1709,14 +1550,6 @@ EditorUi.initMinimalTheme = function()
 			
 			ui.addListener('darkModeChanged', initPicker);
 			ui.addListener('sketchModeChanged', initPicker);
-		}
-		else
-		{
-			// Connects the status bar to the editor status
-			ui.editor.addListener('statusChanged', mxUtils.bind(this, function()
-			{
-				ui.setStatusText(ui.editor.getStatus());
-			}));
 		}
 
         var viewZoomMenu = ui.menus.get('viewZoom');
@@ -2086,7 +1919,7 @@ EditorUi.initMinimalTheme = function()
 			}
 			else
 			{
-				ui.buttonContainer.style.paddingRight = '4px';
+				ui.buttonContainer.style.paddingRight = '0px';
 				
 				if (langMenuElt != null)
 				{

@@ -3598,6 +3598,7 @@ EditorUi.prototype.setCurrentMenu = function(menu, elt)
 {
 	this.currentMenuElt = elt;
 	this.currentMenu = menu;
+	this.hideShapePicker();
 };
 
 /**

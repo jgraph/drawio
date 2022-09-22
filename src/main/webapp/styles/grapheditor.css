@@ -92,35 +92,46 @@
 	vertical-align:middle;
 	display:inline-block;
 	font-size:12px;
+}
+a.geStatus {
 	margin-right:8px;
 }
 .geStatus img {
 	max-width:16px;
 	vertical-align:bottom;
 }
-.geStatusAlert {
+a.geStatus > div {
+	margin-top:1px;
+}
+a.geStatus div + div {
+	margin-left:8px;
+}
+a.geStatus .geStatusAlert {
 	padding:4px 8px;
-	margin-top:-4px;
+	margin-top:-2px;
 	background-color:#f2dede;
 	border:1px solid #ebccd1;
 	color:#a94442 !important;
 	border-radius:3px;
 }
-.geStatusAlertOrange {
+a.geStatus .geStatusAlertOrange {
 	padding:4px 8px;
-	margin-top:-4px;
+	margin-top:-2px;
 	background-color:rgb(242, 147, 30);
 	border:rgb(240, 135, 5);
 	color:#000000 !important;
 	border-radius:3px;
 	opacity:0.8;
 }
+a.geStatus div + div.geStatusAlert, a.geStatus div + div.geStatusAlertOrange {
+	margin-top:-4px;
+}
 .geStatusAlertOrange:hover {
 	opacity:1;
 }
-.geStatusMessage {
+a.geStatus .geStatusMessage {
 	padding:4px 6px 4px 6px;
-	margin-top:-4px;
+	margin-top:-2px;
 	font-size:12px;
 	background: -webkit-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
     background: -o-linear-gradient(top,#dff0d8 0,#c8e5bc 100%);
@@ -296,8 +307,7 @@
 }
 .geMenubar a.geStatus {
 	color:#888888;
-	padding-top:5px;
-	padding-left:8px;
+	padding-top:4px;
 	display:inline-block;
 	cursor:default !important;
 }

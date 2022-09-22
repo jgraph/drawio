@@ -1423,7 +1423,7 @@
 	
 	Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	{
-		if (Editor.currentTheme == 'sketch' || uiTheme == 'min')
+		if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
 		{
 			if (this.editorUi.sidebarWindow == null ||
 				mxUtils.isAncestorNode(this.editorUi.sketchPickerMenuElt, elt))

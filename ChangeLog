@@ -1,3 +1,13 @@
+22-SEP-2022: 20.3.5
+
+- Ignores OS setting for default dark mode [DS-916]
+
+22-SEP-2022: 20.3.4 - BUILD FAILED AT STAGE TESTING - https://github.com/jgraph/drawio-dev/commit/1bb7a0fc531d68ff85653534e4f11774914bcc30
+
+- Changes proxy 500 returns to 400 [DS-915]
+- Disables dark mode with UI in embed mode [DS-6350]
+- Fixes embed button offset and padding in sketch UI
+
 19-SEP-2022: 20.3.3
 
 - Replaces CSS classname in live UI refresh to avoid extension clash [DS-909]

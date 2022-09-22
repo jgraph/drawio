@@ -2051,7 +2051,7 @@ Graph.prototype.defaultPageBackgroundColor = '#ffffff';
 /**
  * 
  */
-Graph.prototype.sketchBackgroundColor = '#f0f0f0';
+Graph.prototype.simpleBackgroundColor = '#f0f0f0';
 
 /**
  * 
