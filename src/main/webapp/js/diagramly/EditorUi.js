@@ -10283,9 +10283,9 @@
 			this.doSetCurrentTheme('simple', 0);
 		}
 		
-		if (!mxClient.IS_IE && !mxClient.IS_IE11 && urlParams['dark'] != '0' &&
-			Editor.currentTheme != 'atlas' && (urlParams['embed'] != '1' ||
-			urlParams['dark'] == '1'))
+		if (!mxClient.IS_IE && !mxClient.IS_IE11 && this.isSettingsEnabled() &&
+			urlParams['dark'] != '0' && Editor.currentTheme != 'atlas' &&
+			(urlParams['embed'] != '1' || urlParams['dark'] == '1'))
 		{
 			var darkMode = (mxSettings.settings.darkMode == 'auto' ||
 				urlParams['dark'] == 'auto') ? window.matchMedia &&

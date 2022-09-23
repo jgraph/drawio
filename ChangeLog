@@ -1,3 +1,7 @@
+22-SEP-2022: 20.3.6
+
+- Fixes possible NPE in viewer lightbox [DS-917]
+
 22-SEP-2022: 20.3.5
 
 - Ignores OS setting for default dark mode [DS-916]
