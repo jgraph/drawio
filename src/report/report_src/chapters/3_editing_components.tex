@@ -2,7 +2,23 @@
 % @author Andre Alves
 %
 \chapter{Editing Components}\label{ch:editing-components}
-sadf
+
+\section{Finding draw.io components within CircuiTikz manual}
+There are two types of components in CircuiTikz, node type and path type. The information about all the components along with there type and code to draw them is available within Circuitikz manual.\\
+To find available draw.io components in CircuiTikz manual following steps were performed:
+\begin{enumerate}
+    \item Open \emph{CircuiTikz} manual and Draw.io.
+    \item In draw.io look at the component's name and shape.
+    \item Try to find the relevant section in circuiTikz manual and try to match the name and shape of the component.
+\end{enumerate}
+
+\section{Removing components from the sidebar which are not a part of CircuiTikz}
+To add/remove components from sidebar following steps were taken:
+\begin{enumerate}
+    \item Open \emph{src/main/webapp/js/diagramly/sidebar/Sidebar-Electrical.js} file.
+    \item Look for the pallet in which the component belongs, all the components of a pallete are locted within addPaletteFunctions of that particular pallet.
+    \item To remove the component from the sidebar, remove the createVertexTemplateEntry line of the component within addPaletteFunctions.
+\end{enumerate}
 
 \section{User Stories}\label{sec:user-stories}
 There were two viable user stories for this project:
