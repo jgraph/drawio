@@ -1,0 +1,47 @@
+%! Author = Divyesh
+%! Date = 8/22/2022
+
+\documentclass{article}
+\usepackage{circuitikz}
+\begin{document}
+    \begin{center}
+        \begin{circuitikz}
+        %{ramps, sin, square, triangle, lissajous, zero, none}
+            %\ctikzset{bipoles/oscope/waveform=sin}
+            %\draw (2,11) node[oscopeshape]{};
+            \draw   (-4,-5.5)   node [op amp](A) {\texttt{OA0}}
+            (A.-)       to[short]   ++  (0,1) coordinate(auxA1)
+            to[R=$R$]       (auxA1 -| A.out) -- (A.out)
+            (A.+)       to[R=$R1$]  ++  (0,-2) node[ground] {}
+            (A.-)       to[C=$C2$]  ++  (-2,0) coordinate (auxA2)
+%
+            (A.out)     -- ++   (1,0) node[op amp, anchor=+] (B) {\texttt{A2}}
+            (B.-)       -- ++   (0,1)                       coordinate(auxB1)
+            to[R=$R_B$, o-] (auxB1 -| B.out)    coordinate(auxB2)
+            -- (B.out)
+%
+            (auxB1)     to[vR=$R_A$, mirror, -o] ++ (0,2)            coordinate (C1)
+            -- ++   (0,1)
+            node[op amp, noinv input up, anchor=-] (C) {\texttt{A1}}
+            (C1)        to[R=$R_B$]     (C1 -| C.out)       coordinate (C2)
+            -- (C.out)
+% input
+            (auxA2 |- C.+)  node[oscopeshape,fill=teal!30,label=$C_1$] (osc) {}
+            to[short,-o]    ++ (-1,0)   node[left] {$V_i$}
+            (osc)       -- (C.+)
+            (osc)       -- (auxA2)
+% output op amp
+            (auxB2)     to[R=$R$]   ++ (2,0)
+            node[op amp, anchor=+] (D) {\texttt{A3}}
+            (C2)        to[R=$R$]   (C2 -| D.-)             coordinate (D1)
+            -- (D.-)
+            (D.+)       to[R=$R$]   ++ (0,-2)   node[ground] {}
+            (D1)        to[R=$R$]   (C2 -| D.out)
+            -- (D.out);
+            \ctikzset{bipoles/oscope/waveform=square}
+            \draw   (D.out)     -- ++ (1,0)
+            node[oscopeshape,fill=blue!30,label=$V_o$] {};
+        \end{circuitikz}
+
+    \end{center}
+\end{document}
