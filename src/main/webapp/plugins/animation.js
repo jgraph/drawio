@@ -136,7 +136,7 @@ Draw.loadPlugin(function(editorUi)
 									}
 									else if (tokens[0] == 'hide')
 									{
-										graph.fadeNodes(graph.getNodesForCells([cell]), false);
+										Graph.fadeNodes(graph.getNodesForCells([cell]), 1, 0);
 									}
 								}
 								else

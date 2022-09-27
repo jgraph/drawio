@@ -246,6 +246,11 @@
 		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			this.addMenuItems(menu, ['points', 'inches', 'millimeters', 'meters'], parent);
+
+			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+			{
+				this.addMenuItems(menu, ['-', 'ruler', '-', 'pageScale'], parent);
+			}
 		})));
 		
 		var rulerAction = editorUi.actions.addAction('ruler', function()
@@ -2648,6 +2653,22 @@
 			{
 				menu.addSeparator(parent);
 				this.addMenuItem(menu, 'export', parent).firstChild.nextSibling.innerHTML = mxResources.get('advanced') + '...';
+			}
+
+			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+			{
+				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+				{
+					// Publish menu contains only one element by default...
+					//ui.menus.addSubmenu('publish', menu, parent); 
+					this.addMenuItems(menu, ['publishLink'], parent);
+				}
+				
+				if (editorUi.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1')
+				{
+					menu.addSeparator(parent);
+					editorUi.menus.addSubmenu('embed', menu, parent);
+				}
 			}
 		})));
 

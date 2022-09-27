@@ -33,6 +33,7 @@
 		<delete file="${basedir}/.tmp0.js"/>
 		<echo file="${basedir}/.tmp0.js">
 			window.PROXY_URL = window.PROXY_URL || 'https://viewer.diagrams.net/proxy';
+			window.STYLE_PATH = window.STYLE_PATH || 'https://viewer.diagrams.net/styles';
 			window.SHAPES_PATH = window.SHAPES_PATH || 'https://viewer.diagrams.net/shapes';
 			window.STENCIL_PATH = window.STENCIL_PATH || 'https://viewer.diagrams.net/stencils';
 			window.GRAPH_IMAGE_PATH  = window.GRAPH_IMAGE_PATH || 'https://viewer.diagrams.net/img';

@@ -1939,9 +1939,24 @@ ArrangePanel.prototype.addDistribute = function(div)
 	
 	div.appendChild(this.createTitle(mxResources.get('distribute')));
 
+	var cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+	cb.setAttribute('id', 'spacingCheckbox');
+	cb.style.margin = '1px 6px 6px 0px';
+	cb.style.verticalAlign = 'top';
+	div.appendChild(cb);
+
+	var label = document.createElement('label');
+	label.style.verticalAlign = 'top';
+	label.setAttribute('for', 'spacingCheckbox');
+	label.style.userSelect = 'none';
+	mxUtils.write(label, mxResources.get('spacing'));
+	div.appendChild(label);
+	mxUtils.br(div);
+
 	var btn = mxUtils.button(mxResources.get('horizontal'), function(evt)
 	{
-		graph.distributeCells(true);
+		graph.distributeCells(true, null, cb.checked);
 	})
 	
 	btn.setAttribute('title', mxResources.get('horizontal'));
@@ -1951,7 +1966,7 @@ ArrangePanel.prototype.addDistribute = function(div)
 	
 	var btn = mxUtils.button(mxResources.get('vertical'), function(evt)
 	{
-		graph.distributeCells(false);
+		graph.distributeCells(false, null, cb.checked);
 	})
 	
 	btn.setAttribute('title', mxResources.get('vertical'));

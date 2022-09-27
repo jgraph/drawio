@@ -1,3 +1,10 @@
+27-SEP-2022: 20.3.7
+
+- [conf cloud] Fixes conf pdf export of diagrams with () in their name
+- Prevents loading compatible files (png, svg...) as local files in embed mode and on-prem [DID-6193]
+- Fixes call to fadeNodes in animation plugin [3070]
+- Added Spacing option to distribute to have equal spacing between cells [736]
+
 22-SEP-2022: 20.3.6
 
 - Fixes possible NPE in viewer lightbox [DS-917]

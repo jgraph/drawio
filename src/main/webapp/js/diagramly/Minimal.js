@@ -27,6 +27,8 @@ EditorUi.initMinimalTheme = function()
 		// ignore
 	}
 
+	Menus.prototype.autoPopup = false;
+
 	function toggleFormat(ui, visible)
 	{
 		if (EditorUi.windowed)
@@ -366,99 +368,6 @@ EditorUi.initMinimalTheme = function()
         }
     };
 
-	EditorUi.prototype.addEmbedButtons = function()
-	{
-		if (this.buttonContainer != null && urlParams['embedInline'] != '1')
-		{
-			var div = document.createElement('div');
-			div.style.display = 'inline-block';
-			div.style.position = 'relative';
-			div.style.marginRight = '4px';
-			
-			var button = document.createElement('a');
-			button.className = 'geMenuItem gePrimaryBtn';
-			button.style.marginLeft = '8px';
-			button.style.padding = '6px';
-			
-			if (urlParams['noSaveBtn'] == '1')
-			{
-				if (urlParams['saveAndExit'] != '0')
-				{
-					var saveAndExitTitle = urlParams['publishClose'] == '1' ? mxResources.get('publish') : mxResources.get('saveAndExit');
-					mxUtils.write(button, saveAndExitTitle);
-					button.setAttribute('title', saveAndExitTitle);
-						
-					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-					{
-						this.actions.get('saveAndExit').funct();
-					}));
-					
-					div.appendChild(button);
-				}
-			}
-			else
-			{
-				mxUtils.write(button, mxResources.get('save'));
-				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
-				
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('save').funct();
-				}));
-				
-				div.appendChild(button);
-				
-				if (urlParams['saveAndExit'] == '1')
-				{
-					button = document.createElement('a');
-					mxUtils.write(button, mxResources.get('saveAndExit'));
-					button.setAttribute('title', mxResources.get('saveAndExit'));
-					button.className = 'geMenuItem';
-					button.style.marginLeft = '6px';
-					button.style.padding = '6px';
-					
-					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-					{
-						this.actions.get('saveAndExit').funct();
-					}));
-					
-					div.appendChild(button);
-				}
-			}
-
-			if (urlParams['noExitBtn'] != '1')
-			{
-				button = document.createElement('a');
-				var exitTitle = urlParams['publishClose'] == '1' ? mxResources.get('close') : mxResources.get('exit');
-				mxUtils.write(button, exitTitle);
-				button.setAttribute('title', exitTitle);
-				button.className = 'geMenuItem';
-				button.style.marginLeft = '6px';
-				button.style.padding = '6px';
-				
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('exit').funct();
-				}));
-				
-				div.appendChild(button);
-			}
-
-			if (urlParams['sketch'] != '1')
-			{
-				div.style.marginTop = '6px';
-				this.buttonContainer.style.top = '6px';
-			}
-			else
-			{
-				this.buttonContainer.style.top = '0px';
-			}
-
-			this.buttonContainer.appendChild(div);
-			this.editor.fireEvent(new mxEventObject('statusChanged'));
-		}
-	};
-
     // Adds context menu items
     var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
     
@@ -660,35 +569,6 @@ EditorUi.initMinimalTheme = function()
 			menu.addSeparator();
 			this.addSubmenu('editCell', menu, parent, mxResources.get('edit'));
 		};
-
-        // Augments the existing export menu
-        var exportAsMenu = this.get('exportAs');
-        
-        this.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)
-        {
-        	exportAsMenu.funct(menu, parent);
-
-    		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-    		{
-	            // Publish menu contains only one element by default...
-	            //ui.menus.addSubmenu('publish', menu, parent); 
-	            ui.menus.addMenuItems(menu, ['publishLink'], parent);
-    		}
-    		
-    		if (ui.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1')
-    		{
-    			menu.addSeparator(parent);
-    			ui.menus.addSubmenu('embed', menu, parent);
-    		}
-        })));
-
-		var unitsMenu = this.get('units');
-		
-		this.put('units', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			unitsMenu.funct(menu, parent);
-			this.addMenuItems(menu, ['-', 'ruler', '-', 'pageScale'], parent);
-		})));
 		
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];

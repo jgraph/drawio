@@ -5724,8 +5724,8 @@ App.prototype.updateButtonContainer = function()
 	if (this.buttonContainer != null)
 	{
 		var file = this.getCurrentFile();
-
-		if (urlParams['embed'] == '1')
+		
+		if (urlParams['embed'] == '1' && Editor.currentTheme != 'simple')
 		{
 			if (urlParams['sketch'] != '1')
 			{
@@ -5736,7 +5736,8 @@ App.prototype.updateButtonContainer = function()
 		}
 		
 		// Comments
-		if (this.commentsSupported() && urlParams['sketch'] != '1')
+		if (this.commentsSupported() && urlParams['sketch'] != '1' &&
+			Editor.currentTheme != 'simple')
 		{
 			if (this.commentButton == null)
 			{
@@ -7157,8 +7158,12 @@ App.prototype.updateUserElementStyle = function()
 			elt.style.padding = '0px';
         	elt.style.height = '24px';
         	elt.style.width = '24px';
-			elt.style.top = '3px';
 			elt.style.right = '';
+
+			if (Editor.currentTheme == 'min')
+			{
+				elt.style.top = '3px';
+			}
 		}
 		else
 		{

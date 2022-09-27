@@ -10069,7 +10069,7 @@ if (typeof mxVertexHandler !== 'undefined')
 		 * horizontal - Boolean that specifies the direction of the distribution.
 		 * cells - Optional array of <mxCells> to be distributed. Edges are ignored.
 		 */
-		Graph.prototype.distributeCells = function(horizontal, cells)
+		Graph.prototype.distributeCells = function(horizontal, cells, spacing)
 		{
 			if (cells == null)
 			{
@@ -10081,6 +10081,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				var vertices = [];
 				var max = null;
 				var min = null;
+				var cellsSize = 0;
 				
 				for (var i = 0; i < cells.length; i++)
 				{
@@ -10094,6 +10095,11 @@ if (typeof mxVertexHandler !== 'undefined')
 							max = (max != null) ? Math.max(max, tmp) : tmp;
 							min = (min != null) ? Math.min(min, tmp) : tmp;
 							
+							if (spacing)
+							{
+								cellsSize += (horizontal) ? state.width : state.height;
+							}
+
 							vertices.push(state);
 						}
 					}
@@ -10106,6 +10112,12 @@ if (typeof mxVertexHandler !== 'undefined')
 						return (horizontal) ? a.x - b.x : a.y - b.y;
 					});
 		
+					if (spacing)
+					{
+						cellsSize -= (horizontal? (vertices[0].width / 2 + vertices[vertices.length - 1].width / 2) :
+									(vertices[0].height / 2 + vertices[vertices.length - 1].height / 2))
+					}
+
 					var t = this.view.translate;
 					var s = this.view.scale;
 					
@@ -10115,8 +10127,8 @@ if (typeof mxVertexHandler !== 'undefined')
 					this.getModel().beginUpdate();
 					try
 					{
-						var dt = (max - min) / (vertices.length - 1);
-						var t0 = min;
+						var dt = (max - min - cellsSize) / (vertices.length - 1);
+						var t0 = min + (spacing? (horizontal? vertices[0].width / 2 : vertices[0].height / 2) : 0);
 						
 						for (var i = 1; i < vertices.length - 1; i++)
 						{
@@ -10130,14 +10142,19 @@ if (typeof mxVertexHandler !== 'undefined')
 								
 								if (horizontal)
 								{
-									geo.x = Math.round(t0 - geo.width / 2) - pstate.origin.x;
+									geo.x = Math.round(t0 - (spacing? 0 : geo.width / 2)) - pstate.origin.x;
 								}
 								else
 								{
-									geo.y = Math.round(t0 - geo.height / 2) - pstate.origin.y;
+									geo.y = Math.round(t0 - (spacing? 0 : geo.height / 2)) - pstate.origin.y;
 								}
 								
 								this.getModel().setGeometry(vertices[i].cell, geo);
+							}
+
+							if (spacing)
+							{
+								t0 += horizontal? vertices[i].width : vertices[i].height;
 							}
 						}
 					}

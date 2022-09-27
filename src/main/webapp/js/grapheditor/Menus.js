@@ -41,6 +41,11 @@ Menus.prototype.defaultFonts = ['Helvetica', 'Verdana', 'Times New Roman', 'Gara
 /**
  * Adds the label menu items to the given menu and parent.
  */
+Menus.prototype.autoPopup = true;
+
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
 Menus.prototype.init = function()
 {
 	var ui = this.editorUi;
@@ -273,6 +278,18 @@ Menus.prototype.init = function()
 	{
 		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true); }, parent);
 		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false); }, parent);
+	})));
+	this.put('distribute', new Menu(mxUtils.bind(this, function(menu, parent)
+	{
+		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true); }, parent);
+		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false); }, parent);
+		menu.addSeparator(parent);
+		this.addSubmenu('distributeSpacing', menu, parent, mxResources.get('spacing'));
+	})));
+	this.put('distributeSpacing', new Menu(mxUtils.bind(this, function(menu, parent)
+	{
+		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true, null, true); }, parent);
+		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false, null, true); }, parent);
 	})));
 	this.put('line', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
@@ -1768,7 +1785,8 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 		// Shows menu automatically while in expanded state
 		mxEvent.addListener(elt, 'mousemove', mxUtils.bind(this, function(evt)
 		{
-			if (this.editorUi.currentMenu != null && this.editorUi.currentMenuElt != elt)
+			if (this.editorUi.menus.autoPopup && this.editorUi.currentMenu != null &&
+				this.editorUi.currentMenuElt != elt)
 			{
 				this.editorUi.hideCurrentMenu();
 				clickHandler(evt);
@@ -1779,6 +1797,12 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
         mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
         	mxUtils.bind(this, function(evt)
 		{
+			if (!this.editorUi.menusautoPopup && this.editorUi.currentMenu != null &&
+				this.editorUi.currentMenuElt != elt)
+			{
+				this.editorUi.hideCurrentMenu();
+			}
+
 			show = this.editorUi.currentMenu == null;
 			evt.preventDefault();
 		}));

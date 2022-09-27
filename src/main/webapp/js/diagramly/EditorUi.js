@@ -8703,7 +8703,8 @@
 		    			
 		    			return null;
 					}
-					else if (this.isCompatibleString(data) && files.length == 1 &&
+					else if (this.getServiceName() != 'atlassian' && urlParams['embed'] != '1' && 
+						this.isCompatibleString(data) && files.length == 1 &&
 						this.isBlankFile() && !this.canUndo())
 					{
 						// Opens as diagram if current file is blank with no undoable changes
@@ -10266,6 +10267,7 @@
 		this.addListener('sketchModeChanged', themeChangeListener);
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
+			this.updateButtonContainer();
 			this.refresh();
 		}));
 
@@ -10283,14 +10285,19 @@
 			this.doSetCurrentTheme('simple', 0);
 		}
 		
-		if (!mxClient.IS_IE && !mxClient.IS_IE11 && this.isSettingsEnabled() &&
-			urlParams['dark'] != '0' && Editor.currentTheme != 'atlas' &&
-			(urlParams['embed'] != '1' || urlParams['dark'] == '1'))
+		if (!mxClient.IS_IE && !mxClient.IS_IE11 && urlParams['dark'] != '0' &&
+			Editor.currentTheme != 'atlas' && (urlParams['embed'] != '1' ||
+			urlParams['dark'] == '1'))
 		{
-			var darkMode = (mxSettings.settings.darkMode == 'auto' ||
-				urlParams['dark'] == 'auto') ? window.matchMedia &&
-				window.matchMedia('(prefers-color-scheme: dark)').matches :
-				mxSettings.settings.darkMode === true;
+			var darkMode = false;
+
+			if (this.isSettingsEnabled())
+			{
+				darkMode = (mxSettings.settings.darkMode == 'auto' ||
+					urlParams['dark'] == 'auto') ? window.matchMedia &&
+					window.matchMedia('(prefers-color-scheme: dark)').matches :
+					mxSettings.settings.darkMode === true;
+			}
 			
 			if (darkMode || uiTheme == 'dark' || urlParams['dark'] == '1')
 			{
@@ -10664,6 +10671,7 @@
 					window.setTimeout(mxUtils.bind(this, function()
 					{
 						this.fireEvent(new mxEventObject('currentThemeChanged'));
+						this.editor.fireEvent(new mxEventObject('statusChanged'));
 
 						// Restores scroll position
 						this.editor.graph.refresh();
@@ -10676,7 +10684,6 @@
 						window.setTimeout(mxUtils.bind(this, function()
 						{
 							mxUtils.setPrefixedStyle(this.container.style, 'transition', null);
-							this.editor.fireEvent(new mxEventObject('statusChanged'));
 							delete this.themeSwitching;
 						}), delay);
 					}), delay);
@@ -10791,6 +10798,8 @@
 					}
 				}
 			}
+
+			this.toggleCompactMode(true);
 		}
 
 		this.destroyWindows();
@@ -10908,6 +10917,11 @@
 		graph.defaultGridEnabled = Graph.prototype.defaultGridEnabled;
 		graph.defaultPageVisible = Graph.prototype.defaultPageVisible;
 
+		if (this.menus != null)
+		{
+			this.menus.autoPopup = value != 'simple';
+		}
+
 		if (value == 'simple')
 		{
 			mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10,
@@ -11005,20 +11019,8 @@
 
 				this.sketchMainMenuElt.appendChild(this.createMenu('diagram', Editor.menuImage));
 				this.sketchMainMenuElt.appendChild(this.createMenuItem('delete', Editor.trashImage));
-				var undoElt = this.sketchMainMenuElt.appendChild(this.createMenuItem('undo', Editor.undoImage));
-				var redoElt = this.sketchMainMenuElt.appendChild(this.createMenuItem('redo', Editor.redoImage));
-
-				var undoListener = mxUtils.bind(this, function()
-				{
-					undoElt.style.display = (this.editor.undoManager.history.length > 0 ||
-						this.editor.graph.isEditing()) ? 'inline-block' : 'none';
-					redoElt.style.display = undoElt.style.display;
-				});
-				
-				this.actions.get('undo').addListener('stateChanged', undoListener);
-				this.actions.get('redo').addListener('stateChanged', undoListener);
-				undoListener();
-
+				this.sketchMainMenuElt.appendChild(this.createMenuItem('undo', Editor.undoImage));
+				this.sketchMainMenuElt.appendChild(this.createMenuItem('redo', Editor.redoImage));
 				this.sketchWrapperElt.appendChild(this.sketchMainMenuElt);
 			}
 		}
@@ -11323,9 +11325,10 @@
 			{
 				this.sketchMenubarElt = document.createElement('div');
 				this.sketchMenubarElt.className = 'geToolbarContainer';
-				this.sketchMenubarElt.style.cssText = 'position:absolute;right:12px;top:10px;height:44px;' +
-					'border-radius:4px;padding:7px 12px;overflow:hidden;z-index:1;white-space:nowrap;' +
-					'text-align:right;user-select:none;box-sizing:border-box;border-bottom:1px solid lightgray;';
+				this.sketchMenubarElt.style.cssText = 'display:flex;position:absolute;right:12px;top:10px;height:44px;' +
+					'border-radius:4px;padding:7px 12px;overflow:hidden;z-index:1;flex-wrap:nowrap;user-select:none;' +
+					'box-sizing:border-box;border-bottom:1px solid lightgray;max-width:calc(100% - 170px);' +
+					'min-width:40px;justify-content:flex-end;align-items:center;';
 				this.sketchWrapperElt.appendChild(this.sketchMenubarElt);
 
 				if (urlParams['embed'] != '1' && this.getServiceName() != 'atlassian')
@@ -11336,13 +11339,15 @@
 
 			if (this.statusContainer != null)
 			{
+				this.statusContainer.style.flexShrink = '1';
+				this.statusContainer.style.overflow = 'hidden';
 				this.sketchMenubarElt.appendChild(this.statusContainer);
-				this.statusContainer.style.marginTop = '3px';
-				this.statusContainer.style.maxWidth = '360px';
 			}
 
 			if (this.userElement != null)
 			{
+				this.userElement.style.flexShrink = '0';
+				this.userElement.style.top = '';
 				this.sketchMenubarElt.appendChild(this.userElement);
 			}
 
@@ -11350,13 +11355,21 @@
 
 			if (elt != null)
 			{
-				elt.style.position = 'relative';
+				elt.style.position = '';
 				elt.style.height = '21px';
 				elt.style.width = '21px';
-				elt.style.right = '0px';
-				elt.style.top = '3px';
+				elt.style.flexShrink = '0';
 
 				this.sketchMenubarElt.appendChild(elt);
+			}
+
+			if (this.buttonContainer != null)
+			{
+				this.buttonContainer.style.flexShrink = '0';
+				this.buttonContainer.style.padding = '0px';
+				this.buttonContainer.style.position = '';
+
+				this.sketchMenubarElt.appendChild(this.buttonContainer);
 			}
 		}
 		else
@@ -11364,12 +11377,14 @@
 			if (this.statusContainer != null)
 			{
 				this.menubar.container.appendChild(this.statusContainer);
-				this.statusContainer.style.marginTop = '';
-				this.statusContainer.style.maxWidth = '';
+				this.statusContainer.style.flexShrink = '';
+				this.statusContainer.style.overflow = '';
 			}
 
 			if (this.userElement != null)
 			{
+				this.userElement.style.flexShrink = '';
+				this.userElement.style.top = '3px';
 				this.menubarContainer.appendChild(this.userElement);
 			}
 
@@ -11380,8 +11395,7 @@
 				elt.style.position = 'absolute';
 				elt.style.height = '18px';
 				elt.style.width = '18px';
-				elt.style.right = '10px';
-				elt.style.top = '5px';
+				elt.style.flexShrink = '';
 
 				this.menubarContainer.parentNode.insertBefore(elt,
 					this.menubarContainer);
@@ -11561,9 +11575,10 @@
 		if (this.sketchWrapperElt != null && this.sketchWrapperElt.parentNode != null)
 		{
 			sizeDidChange = (sizeDidChange != null) ? sizeDidChange : true;
+			var off = this.getDiagramContainerOffset();
 			
-			this.diagramContainer.style.left = '0';
-			this.diagramContainer.style.top = '0';
+			this.diagramContainer.style.left = off.x + 'px';
+			this.diagramContainer.style.top = off.y + 'px';
 			this.diagramContainer.style.right = '0';
 			this.diagramContainer.style.bottom = '0';
 
@@ -14444,17 +14459,43 @@
 	/**
 	 * Adds the buttons for embedded mode.
 	 */
+	EditorUi.prototype.createEmbedButton = function(title, fn, shortcut, primary)
+	{
+		var modern = (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'min');
+		var btn = document.createElement((modern) ? 'a' : 'button');
+		btn.setAttribute('title', title + ((shortcut != null) ?
+			' (' + shortcut + ')' : ''));
+		btn.style.marginLeft = '6px';
+		mxUtils.write(btn, title);
+
+		if (modern)
+		{
+			btn.className = 'geMenuItem' + ((primary) ?
+				' gePrimaryBtn' : '');
+			btn.style.marginLeft = '8px';
+			btn.style.padding = '6px';
+		}
+		else
+		{
+			btn.className = 'geBigButton' + ((!primary) ?
+				' geBigStandardButton' : '');
+		}
+
+		mxEvent.addListener(btn, 'click', fn);
+
+		return btn;
+	};
+
+	/**
+	 * Adds the buttons for embedded mode.
+	 */
 	EditorUi.prototype.addEmbedButtons = function()
 	{
-		if (this.menubar != null && urlParams['embedInline'] != '1')
+		if (urlParams['embedInline'] != '1')
 		{
 			var div = document.createElement('div');
 			div.style.display = 'inline-block';
-			div.style.position = 'absolute';
-			div.style.paddingTop = '2px';
-			div.style.paddingLeft = '8px';
-			div.style.paddingBottom = '2px';
-			div.style.right = '64px';
 
 			var button = document.createElement('button');
 			button.className = 'geBigButton';
@@ -14463,68 +14504,65 @@
 			{
 				if (urlParams['saveAndExit'] != '0')
 				{
-					var saveAndExitTitle = urlParams['publishClose'] == '1' ?
-						mxResources.get('publish') : mxResources.get('saveAndExit');
-					mxUtils.write(button, saveAndExitTitle);
-					button.setAttribute('title', saveAndExitTitle);
-					
-					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-					{
-						this.actions.get('saveAndExit').funct();
-					}));
-					
-					div.appendChild(button);
+					div.appendChild(this.createEmbedButton(urlParams['publishClose'] == '1' ?
+						mxResources.get('publish') : mxResources.get('saveAndExit'),
+						this.actions.get('saveAndExit').funct, null, true));
 				}
 			}
 			else
 			{
-				mxUtils.write(button, mxResources.get('save'));
-				button.setAttribute('title', mxResources.get('save') + ' (' + Editor.ctrlKey + '+S)');
-				
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('save').funct();
-				}));
-				
-				div.appendChild(button);
+				div.appendChild(this.createEmbedButton(mxResources.get('save'),
+					this.actions.get('save').funct, Editor.ctrlKey + '+S', true));
 				
 				if (urlParams['saveAndExit'] == '1')
 				{
-					button = document.createElement('a');
-					mxUtils.write(button, mxResources.get('saveAndExit'));
-					button.setAttribute('title', mxResources.get('saveAndExit'));
-					button.className = 'geBigButton geBigStandardButton';
-					button.style.marginLeft = '6px';
-					
-					mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-					{
-						this.actions.get('saveAndExit').funct();
-					}));
-					
-					div.appendChild(button);
+					div.appendChild(this.createEmbedButton(mxResources.get('saveAndExit'),
+						this.actions.get('saveAndExit').funct));
 				}
 			}
 
 			if (urlParams['noExitBtn'] != '1')
 			{
-				button = document.createElement('a');
-				var exitTitle = urlParams['publishClose'] == '1' ?
-					mxResources.get('close') : mxResources.get('exit');
-				mxUtils.write(button, exitTitle);
-				button.setAttribute('title', exitTitle);
-				button.className = 'geBigButton geBigStandardButton';
-				button.style.marginLeft = '6px';
-				
-				mxEvent.addListener(button, 'click', mxUtils.bind(this, function()
-				{
-					this.actions.get('exit').funct();
-				}));
-				
-				div.appendChild(button);
+				div.appendChild(this.createEmbedButton(urlParams['publishClose'] == '1' ?
+					mxResources.get('close') : mxResources.get('exit'),
+					this.actions.get('exit').funct));
 			}
-			
-			this.toolbar.container.appendChild(div);
-			this.toolbar.staticElements.push(div);
+
+			if (Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'min')
+			{
+				if (this.buttonContainer != null)
+				{
+					div.style.position = 'relative';
+
+					if (Editor.currentTheme != 'simple')
+					{
+						div.style.marginRight = '4px';
+
+						if (urlParams['sketch'] != '1')
+						{
+							div.style.marginTop = '6px';
+							this.buttonContainer.style.top = '6px';
+						}
+						else
+						{
+							this.buttonContainer.style.top = '0px';
+						}
+					}
+		
+					this.buttonContainer.appendChild(div);
+					this.editor.fireEvent(new mxEventObject('statusChanged'));
+				}
+			}
+			else if (this.menubar != null)
+			{
+				div.style.position = 'absolute';
+				div.style.padding = '2px';
+				div.style.right = '62px';
+
+				this.toolbar.container.appendChild(div);
+				this.toolbar.staticElements.push(div);
+			}
 		}
 	};
 
