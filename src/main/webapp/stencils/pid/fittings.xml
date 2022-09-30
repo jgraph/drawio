@@ -14,6 +14,21 @@
         <stroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="140" name="Blind Disc2" strokewidth="inherit" w="40">
+    <connections/>
+    <background>
+        <ellipse h="40" w="40" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillcolor color="stroke"/>
+        <fillstroke/>
+        <path>
+            <move x="20" y="40"/>
+            <line x="20" y="140"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="100" name="Breakthrough" strokewidth="inherit" w="38">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>
@@ -25,6 +40,63 @@
     </background>
     <foreground>
         <fillcolor color="#000000"/>
+        <fillstroke/>
+        <rect h="50" w="4" x="34" y="25"/>
+        <fillstroke/>
+        <restore/>
+        <rect/>
+        <stroke/>
+        <path>
+            <move x="4" y="0"/>
+            <line x="4" y="35"/>
+            <line x="34" y="35"/>
+            <line x="34" y="0"/>
+            <move x="4" y="100"/>
+            <line x="4" y="65"/>
+            <line x="34" y="65"/>
+            <line x="34" y="100"/>
+        </path>
+        <fillstroke/>
+        <path>
+            <move x="4" y="10"/>
+            <line x="14" y="0"/>
+            <move x="4" y="20"/>
+            <line x="24" y="0"/>
+            <move x="4" y="30"/>
+            <line x="34" y="0"/>
+            <move x="9" y="35"/>
+            <line x="34" y="10"/>
+            <move x="19" y="35"/>
+            <line x="34" y="20"/>
+            <move x="29" y="35"/>
+            <line x="34" y="30"/>
+            <move x="4" y="75"/>
+            <line x="14" y="65"/>
+            <move x="4" y="85"/>
+            <line x="24" y="65"/>
+            <move x="4" y="95"/>
+            <line x="34" y="65"/>
+            <move x="9" y="100"/>
+            <line x="34" y="75"/>
+            <move x="19" y="100"/>
+            <line x="34" y="85"/>
+            <move x="29" y="100"/>
+            <line x="34" y="95"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="100" name="Breakthrough2" strokewidth="inherit" w="38">
+    <connections>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+    </connections>
+    <background>
+        <save/>
+        <rect h="50" w="4" x="0" y="25"/>
+    </background>
+    <foreground>
+        <fillcolor color="stroke"/>
         <fillstroke/>
         <rect h="50" w="4" x="34" y="25"/>
         <fillstroke/>
@@ -393,6 +465,23 @@
         <fillstroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="140" name="Interchangeable Disc (Blind Disc)2" strokewidth="inherit" w="40">
+    <connections/>
+    <background>
+        <ellipse h="40" w="40" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="20" y="40"/>
+            <line x="20" y="140"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
+        <ellipse h="40" w="40" x="0" y="40"/>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="140" name="Interchangeable Disc (Open Disc In Function)" strokewidth="inherit" w="40">
     <connections/>
     <background>
@@ -406,6 +495,23 @@
         </path>
         <stroke/>
         <fillcolor color="#000000"/>
+        <ellipse h="40" w="40" x="0" y="0"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="140" name="Interchangeable Disc (Open Disc In Function)2" strokewidth="inherit" w="40">
+    <connections/>
+    <background>
+        <ellipse h="40" w="40" x="0" y="40"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="20" y="80"/>
+            <line x="20" y="140"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
         <ellipse h="40" w="40" x="0" y="0"/>
         <fillstroke/>
     </foreground>
@@ -437,6 +543,23 @@
         </path>
         <stroke/>
         <fillcolor color="#000000"/>
+        <ellipse h="8" w="8" x="16" y="16"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="140" name="Orifice Plate2" strokewidth="inherit" w="40">
+    <connections/>
+    <background>
+        <ellipse h="40" w="40" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="20" y="40"/>
+            <line x="20" y="140"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
         <ellipse h="8" w="8" x="16" y="16"/>
         <fillstroke/>
     </foreground>
@@ -489,6 +612,25 @@
     <foreground>
         <fillstroke/>
         <fillcolor color="#000000"/>
+        <path>
+            <move x="85.4" y="14.6"/>
+            <arc large-arc-flag="1" rx="50" ry="50" sweep-flag="1" x="14.7" x-axis-rotation="0" y="85.4"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="104.92" name="Self-Operating Release Valve2" strokewidth="inherit" w="104.97">
+    <connections>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="0.955" y="0.5"/>
+    </connections>
+    <background>
+        <ellipse h="100" w="100" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <fillcolor color="stroke"/>
         <path>
             <move x="85.4" y="14.6"/>
             <arc large-arc-flag="1" rx="50" ry="50" sweep-flag="1" x="14.7" x-axis-rotation="0" y="85.4"/>

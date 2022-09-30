@@ -1143,7 +1143,7 @@
             <line x="75" y="90.81"/>
         </path>
         <stroke/>
-        <fillcolor color="#000000"/>
+        <fillcolor color="stroke"/>
         <path>
             <move x="32" y="30.81"/>
             <arc large-arc-flag="0" rx="15" ry="15" sweep-flag="1" x="29" x-axis-rotation="0" y="13.81"/>

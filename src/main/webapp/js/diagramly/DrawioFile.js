@@ -1530,6 +1530,15 @@ DrawioFile.prototype.getLatestVersion = function(success, error)
 };
 
 /**
+ * Hook for subclassers to get the latest version ID of this file
+ * and return it in the success handler.
+ */
+ DrawioFile.prototype.getLatestVersionId = function(success, error)
+ {
+	 success(-1);
+ };
+
+/**
  * Returns the last modified date of this file.
  */
 DrawioFile.prototype.getLastModifiedDate = function()
@@ -1551,6 +1560,11 @@ DrawioFile.prototype.setCurrentRevisionId = function(id)
 DrawioFile.prototype.getCurrentRevisionId = function()
 {
 	return this.getDescriptorRevisionId(this.getDescriptor());
+};
+
+DrawioFile.prototype.getPullingInterval = function()
+{
+	return 10000;
 };
 
 /**

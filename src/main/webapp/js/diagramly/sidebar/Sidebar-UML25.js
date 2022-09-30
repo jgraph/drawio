@@ -438,27 +438,27 @@
 		 		
 				return sb.createVertexTemplateFromCells([cell1, field1], 180, 60, 'State with exit point'); 
 			}),
-			this.createVertexTemplateEntry('ellipse;fillColor=#000000;strokeColor=none;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;', 30, 30,
 				   	'', 'Initial preudostate / node', null, null, dt + 'initial pseudostate'),
 			this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=strokeColor;', 30, 30,
 				   	'', 'Final state / node', null, null, dt + 'final state'),
-			this.createVertexTemplateEntry('ellipse;fillColor=#ffffff;strokeColor=#000000;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;', 30, 30,
 				   	'H', 'Shallow History', null, null, dt + 'shallow history pseudostate'),
-			this.createVertexTemplateEntry('ellipse;fillColor=#ffffff;strokeColor=#000000;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;', 30, 30,
 				   	'H*', 'Deep History', null, null, dt + 'deep history pseudostate'),
-			this.createVertexTemplateEntry('ellipse;fillColor=#ffffff;strokeColor=#000000;', 30, 30,
+			this.createVertexTemplateEntry('ellipse;', 30, 30,
 				   	'', 'Entry Point', null, null, dt + 'entry point pseudostate'),
 			this.createVertexTemplateEntry('shape=sumEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 30, 30,
 				   	'', 'Exit Point / Flow Final Node', null, null, dt + 'exit point pseudostate'),
-			this.createVertexTemplateEntry('ellipse;fillColor=#000000;strokeColor=none;', 20, 20,
+			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;', 20, 20,
 				   	'', 'Junction', null, null, dt + 'junction pseudostate'),
 			this.createVertexTemplateEntry('rhombus;', 30, 30,
 				   	'', 'Choice / Merge Node / Decision Node', null, null, dt + 'choice pseudostate merge decision node'),
 			this.createVertexTemplateEntry('shape=umlDestroy;', 30, 30,
 				   	'', 'Terminate', null, null, dt + 'terminate pseudostate'),
-			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#000000;strokeColor=none;', 5, 80,
+			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=strokeColor;', 5, 80,
 				   	'', 'Join/Fork Node', null, null, dt + 'join fork pseudostate'),
-			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;dashed=0;fillColor=#ffffff;strokeColor=#000000;', 140, 40,
+			this.createVertexTemplateEntry('text;align=center;verticalAlign=middle;dashed=0;', 140, 40,
 				   	'OpaqueAction1 spec.', 'Opaque Action', null, null, dt + 'opaque action'),
 			this.createVertexTemplateEntry('html=1;shape=mxgraph.infographic.ribbonSimple;notch1=20;notch2=0;align=center;verticalAlign=middle;fontSize=14;fontStyle=0;flipH=1;fillColor=#FFFFFF;', 160, 40,
 				   	'Trigger1 spec.', 'Trigger', null, null, dt + 'trigger'),
@@ -469,7 +469,7 @@
 		 	this.addEntry(dt + 'parameter', function()
 			{
 		 		var cell1 = new mxCell('', new mxGeometry(0, 10, 30, 30),
-		 			'fillColor=#ffffff;strokeColor=#000000;');
+		 			'');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Parameter1 spec.', 
 		 				new mxGeometry(40, 0, 100, 20), 'text;verticalAlign=middle;align=center;');
@@ -523,7 +523,7 @@
 		
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Behavior');
 			}),
-			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=#000000;strokeColor=none;align=left;verticalAlign=top;spacingLeft=10;', 5, 80,
+			this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;fillColor=strokeColor;align=left;verticalAlign=top;spacingLeft=10;', 5, 80,
 				   	'{joinSpec = join spec}', 'Join Node', null, null, dt + 'join node'),
 		    this.addDataEntry('activity partition', 180, 200, 'Activity Partition', '7ZjRbtowFIafJrdTnMBobwltbzZpWvcCLjkQa45P5Jw20KefnRjCBikBnKlURUGyj30c5/vt/JggTvLVg+ZF9h1TkEF8F8SJRqSmlK8SkDKIQpEG8SyIotB8g+i+o5XVrWHBNSjqkxA1CS9cPkMTSUUOqhSo3FglraVrKjNe2CLxJxuaZpSbCc+YKVaZIHgs+Ny2V+ZxTKwkrulRvNqQmUY8naMiLhRolzRHKXlRinq0Wd0jEzL9xtf4TJv7bGrThZAyQYk2W6GyEygrkUuu4H6nKYjiRf2pZ6DxN/yT5J4YNMGqk1odcsgeAHMgvTZdKpFS5nrcNGTDDMQyc2lR6IK8bALLbW4rgik4HQ5rEu9p0qmEmTIJLn/CnLha9hFln3mqsfjF9RLIBQoUikDfvRgapYsdgE9YuEYJi03uExJh7iragdkOWkMZT81lMCXhl3EwNk+TmDpr6+ay3TUlqIyAZsHYMYCXVEFJF6kaHVZ1vRGvyTgu8uUaj4bVWCnbu9W4Uz7Wysd25WM78tkyGrILiZWpZiJNQV2kQ3x0d0UDcR/vcf9h8dKb77t3q8AlsFedi36oNf+1m/0Vrn4P7Fn4/+BPrslU+uri0VQ8+Meop39MPMh5072X4uvbSxlq8Wp/HEp3l15qTM5yER/0bz+Ae1+C+DTv8EGchZ/IT7EML8zZp2cM7RmM9TSNWx+C7p/2t64xur7tdJ5rsONH+0O24YX/wCf79/MS64J8mnF4Yf4RTto+mPd1jjOgm2r7j2Xd9tcfmn8A'),		    
 			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=top;rounded=1;absoluteArcSize=1;arcSize=20;dashed=1;', 200, 100,
@@ -561,7 +561,7 @@
 				
 				return sb.createEdgeTemplateFromCells([cell1, edge1, edge2], 160, 30, 'Object Flow');
 			}),
-			this.createVertexTemplateEntry('fontStyle=0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=2;html=1;points=[[0,0.5],[1,0.5]];fillColor=#000000;strokeColor=none;', 30, 30, '', 'Pin ', null, null, 'pin'),
+			this.createVertexTemplateEntry('fontStyle=0;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;spacingLeft=2;html=1;points=[[0,0.5],[1,0.5]];fillColor=strokeColor;', 30, 30, '', 'Pin ', null, null, 'pin'),
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];', 30, 30, '', 'Input Pin', null, null, 'input pin'),
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];strokeColor=#ffffff;fillColor=#000000;', 30, 30, '', 'Input Pin', null, null, 'input pin'),
 			this.createVertexTemplateEntry('shape=mxgraph.uml25.inputPin;html=1;points=[[0,0.5],[1,0.5]];flipH=1;', 30, 30, '', 'Output Pin', null, null, 'output pin'),
@@ -817,11 +817,11 @@
 		 		divider1.vertex = true;
 		 		cell1.insert(divider1);
 		 		var field2 = new mxCell('extension points', 
-		 				new mxGeometry(0, 40, 180, 30), 'text;html=1;align=center;verticalAlign=middle;rotatable=0;');
+		 				new mxGeometry(0, 40, 180, 30), 'text;html=1;align=center;verticalAlign=middle;rotatable=0;fillColor=none;strokeColor=none;');
 		 		field2.vertex = true;
 		 		cell1.insert(field2);
 		 		var field3 = new mxCell('Extension point 1', 
-		 				new mxGeometry(0, 70, 180, 30), 'text;html=1;align=left;verticalAlign=middle;rotatable=0;spacingLeft=25;');
+		 				new mxGeometry(0, 70, 180, 30), 'text;html=1;align=left;verticalAlign=middle;rotatable=0;spacingLeft=25;fillColor=none;strokeColor=none;');
 		 		field3.vertex = true;
 		 		cell1.insert(field3);
 
@@ -850,7 +850,7 @@
 			    return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Extension Point Classifier');
 			}),
 			this.createVertexTemplateEntry('shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;', 30, 60, 'Actor', 'Actor', false, null, 'uml actor'),
-			this.createVertexTemplateEntry('text;html=1;align=center;verticalAlign=middle;dashed=0;fillColor=#ffffff;strokeColor=#000000;', 160, 70,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 160, 70,
 				   	'&lt;&lt;actor&gt;&gt;<br><br><b>Actor1</b>', 
 				   	'Actor', null, null, dt + 'actor'),
 
@@ -877,10 +877,10 @@
 		
 				return sb.createVertexTemplateFromCells([cell1], cell1.geometry.width, cell1.geometry.height, 'Deployment');
 			}),
-			this.createVertexTemplateEntry('text;html=1;align=center;verticalAlign=middle;dashed=0;fillColor=#ffffff;strokeColor=#000000;', 180, 60,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 180, 60,
 				   	'&lt;&lt;deployment spec&gt;&gt;<br><br><b>Deployment1</b>', 
 				   	'Deployment Specification', null, null, dt + 'deployment specification'),
-			this.createVertexTemplateEntry('text;html=1;align=center;verticalAlign=middle;dashed=0;fillColor=#ffffff;strokeColor=#000000;', 180, 60,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 180, 60,
 				   	'&lt;&lt;artifact&gt;&gt;<br><br><b>Artifact1</b>', 
 				   	'Artifact', null, null, dt + 'artifact'),
 			this.addEntry('information item', function()
@@ -1045,7 +1045,7 @@
 				
 				return sb.createEdgeTemplateFromCells([edge], 200, 0, 'Redefine');
 			}),
-			this.createVertexTemplateEntry('text;html=1;align=center;verticalAlign=middle;dashed=0;fillColor=#ffffff;strokeColor=#000000;', 60, 30,
+			this.createVertexTemplateEntry('html=1;align=center;verticalAlign=middle;dashed=0;', 60, 30,
 				   	'qualifier1', 
 				   	'Qualifier', null, null, dt + 'qualifier'),
 			this.addEntry('connector', function()

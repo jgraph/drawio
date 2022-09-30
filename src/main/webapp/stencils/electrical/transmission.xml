@@ -257,6 +257,44 @@
         <fillstroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="80" name="Optical Fiber2" strokewidth="inherit" w="130">
+    <connections>
+        <constraint name="N" perimeter="0" x="0.5" y="0"/>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+    </connections>
+    <foreground>
+        <path>
+            <move x="0" y="40"/>
+            <line x="25" y="40"/>
+            <move x="105" y="40"/>
+            <line x="130" y="40"/>
+        </path>
+        <stroke/>
+        <ellipse h="80" w="80" x="25" y="0"/>
+        <fillstroke/>
+        <path>
+            <move x="35" y="50"/>
+            <line x="65" y="20"/>
+            <move x="55" y="68.88"/>
+            <line x="85" y="38.88"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
+        <path>
+            <move x="59.5" y="15.5"/>
+            <line x="76" y="9"/>
+            <line x="70" y="25"/>
+            <close/>
+            <move x="79.5" y="34.38"/>
+            <line x="96" y="27.88"/>
+            <line x="90" y="43.88"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="136.29" name="Overground Enclosure" strokewidth="inherit" w="130">
     <connections>
         <constraint name="N" perimeter="0" x="0.5" y="0.05"/>

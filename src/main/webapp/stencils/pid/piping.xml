@@ -42,6 +42,23 @@
         <stroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="60" name="Blank2" strokewidth="inherit" w="20">
+    <connections>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+    </connections>
+    <background>
+        <ellipse h="20" w="20" x="0" y="0"/>
+    </background>
+    <foreground>
+        <fillcolor color="stroke"/>
+        <fillstroke/>
+        <path>
+            <move x="10" y="20"/>
+            <line x="10" y="60"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="30" name="Breather" strokewidth="inherit" w="50">
     <connections>
         <constraint name="S" perimeter="0" x="0.5" y="1"/>
@@ -87,6 +104,27 @@
     </background>
     <foreground>
         <fillcolor color="#000000"/>
+        <fillstroke/>
+        <restore/>
+        <path>
+            <move x="10" y="40"/>
+            <line x="10" y="80"/>
+        </path>
+        <stroke/>
+        <ellipse h="20" w="20" x="0" y="0"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="80" name="Closed Figure 8 Blind2" strokewidth="inherit" w="20">
+    <connections>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+    </connections>
+    <background>
+        <save/>
+        <ellipse h="20" w="20" x="0" y="20"/>
+    </background>
+    <foreground>
+        <fillcolor color="stroke"/>
         <fillstroke/>
         <restore/>
         <path>
@@ -155,6 +193,30 @@
         </path>
         <stroke/>
         <fillcolor color="#000000"/>
+        <ellipse h="6" w="6" x="22" y="7"/>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="20" name="Damper2" strokewidth="inherit" w="50">
+    <connections>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+    </connections>
+    <background>
+        <rect h="14" w="50" x="0" y="3"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="50" y="0"/>
+            <line x="50" y="20"/>
+            <move x="0" y="0"/>
+            <line x="0" y="20"/>
+            <move x="32" y="5"/>
+            <line x="18" y="15"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
         <ellipse h="6" w="6" x="22" y="7"/>
         <fillstroke/>
     </foreground>
@@ -292,6 +354,39 @@
         </path>
         <stroke/>
         <fillcolor color="#000000"/>
+        <path>
+            <move x="40" y="0"/>
+            <line x="45" y="1.5"/>
+            <line x="40" y="3"/>
+            <close/>
+        </path>
+        <fillstroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="24.5" name="Excess Flow Valve2" strokewidth="inherit" w="50">
+    <connections>
+        <constraint name="W" perimeter="0" x="0" y="0.59"/>
+        <constraint name="E" perimeter="0" x="1" y="0.59"/>
+    </connections>
+    <background>
+        <rect h="20" w="50" x="0" y="4.5"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="5" y="1.5"/>
+            <line x="40" y="1.5"/>
+            <move x="3" y="4.5"/>
+            <line x="3" y="24.5"/>
+            <move x="0" y="14.5"/>
+            <line x="3" y="14.5"/>
+            <move x="3" y="4.5"/>
+            <line x="50" y="24.5"/>
+            <move x="50" y="4.5"/>
+            <line x="3" y="24.5"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
         <path>
             <move x="40" y="0"/>
             <line x="45" y="1.5"/>
@@ -509,6 +604,25 @@
         <fillstroke/>
     </foreground>
 </shape>
+<shape aspect="variable" h="80" name="Open Figure 8 Blind2" strokewidth="inherit" w="20">
+    <connections>
+        <constraint name="S" perimeter="0" x="0.5" y="1"/>
+    </connections>
+    <background>
+        <ellipse h="20" w="20" x="0" y="20"/>
+    </background>
+    <foreground>
+        <fillstroke/>
+        <path>
+            <move x="10" y="40"/>
+            <line x="10" y="80"/>
+        </path>
+        <stroke/>
+        <fillcolor color="stroke"/>
+        <ellipse h="20" w="20" x="0" y="0"/>
+        <fillstroke/>
+    </foreground>
+</shape>
 <shape aspect="variable" h="50" name="Orifice (Quick Change)" strokewidth="inherit" w="10">
     <connections>
         <constraint name="W" perimeter="0" x="0" y="0.5"/>
@@ -712,6 +826,26 @@
     </background>
     <foreground>
         <fillcolor color="#000000"/>
+        <fillstroke/>
+        <path>
+            <move x="0" y="10"/>
+            <line x="15" y="10"/>
+            <move x="35" y="10"/>
+            <line x="50" y="10"/>
+        </path>
+        <stroke/>
+    </foreground>
+</shape>
+<shape aspect="variable" h="20" name="Welded Connection2" strokewidth="inherit" w="50">
+    <connections>
+        <constraint name="W" perimeter="0" x="0" y="0.5"/>
+        <constraint name="E" perimeter="0" x="1" y="0.5"/>
+    </connections>
+    <background>
+        <ellipse h="20" w="20" x="15" y="0"/>
+    </background>
+    <foreground>
+        <fillcolor color="stroke"/>
         <fillstroke/>
         <path>
             <move x="0" y="10"/>

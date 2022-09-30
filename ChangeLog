@@ -1,3 +1,9 @@
+29-SEP-2022: 20.4.0
+
+- [conf cloud] Fixed bug that instances without configuration store diagrams as compressed XML [DID-6387]
+- Applies fill=stroke for some stencils [DS-918]
+- Fixed image export text shift in lightbox [DID-6374]
+
 27-SEP-2022: 20.3.7
 
 - [conf cloud] Fixes conf pdf export of diagrams with () in their name

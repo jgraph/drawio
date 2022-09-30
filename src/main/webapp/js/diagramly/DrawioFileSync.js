@@ -301,8 +301,24 @@ DrawioFileSync.prototype.start = function()
 		this.key = this.file.getChannelKey();
 	}
 	
-	if (this.pusher == null && this.channelId != null &&
+	var updateStatus = false;
+
+	if (DrawioFileSync.PULLING_MODE && this.puller == null &&
 		document.visibilityState != 'hidden') 
+	{
+		if (this.puller == null)
+		{
+			this.puller = new DrawioFilePuller(this.file, this);
+		}
+
+		this.puller.start(this.file.getPullingInterval());
+		EditorUi.debug('DrawioFileSync.start (Pulling)', [this,
+			'v' + DrawioFileSync.PROTOCOL],
+			'rev', this.file.getCurrentRevisionId());
+		updateStatus = true;
+	}
+	else if (!DrawioFileSync.PULLING_MODE && this.pusher == null &&
+		this.channelId != null && document.visibilityState != 'hidden') 
 	{
 		this.pusher = this.ui.getPusher();
 		
@@ -337,6 +353,11 @@ DrawioFileSync.prototype.start = function()
 			this.installListeners();
 		}
 
+		updateStatus = true;
+	}
+
+	if (updateStatus)
+	{
 		window.setTimeout(mxUtils.bind(this, function()
 		{
 			this.lastModified = this.file.getLastModifiedDate();
@@ -427,6 +448,10 @@ DrawioFileSync.prototype.isConnected = function()
 	if (this.pusher != null && this.pusher.connection != null)
 	{
 		return this.pusher.connection.state == 'connected';
+	}
+	else if (this.puller != null)
+	{
+		return this.puller.isConnected();
 	}
 	else
 	{
@@ -2005,6 +2030,12 @@ DrawioFileSync.prototype.stop = function()
 			this.p2pCollab.destroy();
 			this.p2pCollab = null;
 		}
+	}
+	else if (this.puller != null)
+	{
+		EditorUi.debug('DrawioFileSync.stop (Pulling)', [this]);
+		this.puller.stop();
+		this.puller = null;
 	}
 	
 	this.updateOnlineState();
