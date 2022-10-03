@@ -90,7 +90,7 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Oracle Database 12');
 		        bg.setAttribute('c4Description', 'Description of storage type container role/responsibility.');
 		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
