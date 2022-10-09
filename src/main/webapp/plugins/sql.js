@@ -169,7 +169,6 @@ Draw.loadPlugin(function(ui) {
                                 continue;
                             }
                             //Get delimiter of column name
-                            //TODO: check for space? or end quantifier
                             var firstSpaceIndex = name[0] == "[" && name.indexOf("]" + " ") !== -1
                                 ? name.indexOf("]" + " ")
                                 : name.indexOf(" ");
@@ -493,6 +492,30 @@ Draw.loadPlugin(function(ui) {
         static isQuoteChar(char) {
             return char === '"' || char === "'" || char === "`";
         }
+        WithEnds() {
+            this.tableList = this.tableList.map((table) => {
+                table.Name = this.dbTypeEnds(table.Name);
+                table.Properties = table.Properties.map((property) => {
+                    property.Name = this.dbTypeEnds(property.Name);
+                    property.TableName = this.dbTypeEnds(property.TableName);
+                    return property;
+                });
+                return table;
+            });
+            this.primaryKeyList = this.primaryKeyList.map((primaryKey) => {
+                primaryKey.PrimaryKeyName = this.dbTypeEnds(primaryKey.PrimaryKeyName);
+                primaryKey.PrimaryKeyTableName = this.dbTypeEnds(primaryKey.PrimaryKeyTableName);
+                return primaryKey;
+            });
+            this.foreignKeyList = this.foreignKeyList.map((foreignKey) => {
+                foreignKey.PrimaryKeyName = this.dbTypeEnds(foreignKey.PrimaryKeyName);
+                foreignKey.ReferencesPropertyName = this.dbTypeEnds(foreignKey.ReferencesPropertyName);
+                foreignKey.PrimaryKeyTableName = this.dbTypeEnds(foreignKey.PrimaryKeyTableName);
+                foreignKey.ReferencesTableName = this.dbTypeEnds(foreignKey.ReferencesTableName);
+                return foreignKey;
+            });
+            return this;
+        }
         /**
          * return text quantifiers for dialect
          * @returns json
@@ -625,12 +648,13 @@ Draw.loadPlugin(function(ui) {
 
     function parseSql(text, type) {
 
-        // TODO: load parser
+        // load parser
         const parser = new SqlSimpleParser(type);
         
 
         const models = parser
             .feed(text)
+            .WithEnds()
             .ToModel();
         
         
