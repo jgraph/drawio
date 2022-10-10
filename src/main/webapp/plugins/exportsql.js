@@ -169,7 +169,27 @@ Draw.loadPlugin(function(ui) {
     wnd.setResizable(false);
     wnd.setClosable(true);
 
-    function getMermaidDiagramDb(){
+    /**
+         * return text quantifiers for dialect
+         * @returns json
+         */
+    function GetColumnQuantifiers(type) {
+        let chars = {
+            Start: '"',
+            End: '"',
+        };
+        if (type == "mysql") {
+            chars.Start = "`";
+            chars.End = "`";
+        }
+        else if (type == "sqlserver") {
+            chars.Start = "[";
+            chars.End = "]";
+        }
+        return chars;
+    }
+
+    function getMermaidDiagramDb(type){
         var model = ui.editor.graph.getModel()
         // same models from mermaid for diagram relationships
         // only difference is entities is an array rather than object to allow duplicate tables
@@ -189,8 +209,15 @@ Draw.loadPlugin(function(ui) {
                             const col = mxcell.children[c];
                             if(col.mxObjectId.indexOf("mxCell") !== -1) {
                                 if(col.style && col.style.trim().startsWith("shape=partialRectangle")){
-                                    let attributeName = col.value.substring(0, col.value.indexOf(" "))
-                                    let attributeType = col.value.substring(col.value.indexOf(" ") + 1)
+                                    const columnQuantifiers = GetColumnQuantifiers(type);
+                                    //Get delimiter of column name
+                                    var firstSpaceIndex = col.value[0] == columnQuantifiers.Start &&
+                                    col.value.indexOf(columnQuantifiers.End + " ") !== -1
+                                    ? col.value.indexOf(columnQuantifiers.End + " ")
+                                    : col.value.indexOf(" ");
+                                    //Get full name
+                                    let attributeType = col.value.substring(firstSpaceIndex + 1).trim();
+                                    let attributeName =  col.value.substring(0, firstSpaceIndex);
                                     let attribute = {
                                         attributeName,
                                         attributeType
@@ -215,10 +242,18 @@ Draw.loadPlugin(function(ui) {
                                                             !(targetIsPrimary && sourceIsPrimary)
                                                         ){
                                                             var sourceId = edge.source.value;
-                                                            sourceId = sourceId.substring(0,sourceId.indexOf(" "))
+                                                            firstSpaceIndex = sourceId[0] == columnQuantifiers.Start &&
+                                                            sourceId.indexOf(columnQuantifiers.End + " ") !== -1
+                                                                ? sourceId.indexOf(columnQuantifiers.End + " ")
+                                                                : sourceId.indexOf(" ");
+                                                            sourceId = sourceId.substring(0,firstSpaceIndex)
                                                             var sourceEntity = edge.source.parent.value
                                                             var targetId = edge.target.value;
-                                                            targetId = targetId.substring(0,targetId.indexOf(" "))
+                                                            firstSpaceIndex = targetId[0] == columnQuantifiers.Start &&
+                                                            targetId.indexOf(columnQuantifiers.End + " ") !== -1
+                                                                ? targetId.indexOf(columnQuantifiers.End + " ")
+                                                                : targetId.indexOf(" ");
+                                                            targetId = targetId.substring(0,firstSpaceIndex)
                                                             var targetEntity = edge.target.parent.value
                                                             // entityA primnary
                                                             // entityB foreign
@@ -289,13 +324,11 @@ Draw.loadPlugin(function(ui) {
     function parseSql(type) {
 
         // get diagram model
-        var db = getMermaidDiagramDb();
-        debugger;
+        var db = getMermaidDiagramDb(type);
         // load parser
         var parser = new DbParser(type, db)
         // generate sql
         var sql = parser.getSQLDataDefinition()
-        debugger;
         // update sql value in text area
         sqlInput.value = sql;
         // TODO: use selection as well?
