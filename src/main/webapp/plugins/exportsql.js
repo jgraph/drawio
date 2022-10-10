@@ -170,9 +170,9 @@ Draw.loadPlugin(function(ui) {
     wnd.setClosable(true);
 
     /**
-         * return text quantifiers for dialect
-         * @returns json
-         */
+     * return text quantifiers for dialect
+     * @returns json
+     */
     function GetColumnQuantifiers(type) {
         let chars = {
             Start: '"',
@@ -187,6 +187,43 @@ Draw.loadPlugin(function(ui) {
             chars.End = "]";
         }
         return chars;
+    }
+    /**
+     * sometimes rows have spans or styles, an attempt to remove them
+     * @param {*} label 
+     * @returns 
+     */
+    function removeHtml(label){
+        var div = document.createElement("div");
+        div.innerHTML = label;
+        var text = div.textContent || div.innerText || "";
+        return text;
+    }
+    /**
+     * extract row column attributes
+     * @param {*} label 
+     * @param {*} columnQuantifiers 
+     * @returns 
+     */
+    function getDbLabel(label, columnQuantifiers){
+        label = removeHtml(label)
+        // fix duplicate spaces and different space chars
+        label = label
+            .replace(/\s+/g, " ")
+        let firstSpaceIndex = label[0] == columnQuantifiers.Start &&
+            label.indexOf(columnQuantifiers.End + " ") !== -1
+                ? label.indexOf(columnQuantifiers.End + " ")
+                : label.indexOf(" ");
+        let attributeType = label.substring(firstSpaceIndex + 1).trim();
+        let attributeName = label.substring(0, firstSpaceIndex);
+        let attribute = {
+            attributeName,
+            attributeType
+        }
+        return attribute
+    }
+    function RemoveNameQuantifiers(name) {
+        return name.replace(/\[|\]|\(|\"|\'|\`/g, "").trim();
     }
 
     function getMermaidDiagramDb(type){
@@ -211,17 +248,8 @@ Draw.loadPlugin(function(ui) {
                                 if(col.style && col.style.trim().startsWith("shape=partialRectangle")){
                                     const columnQuantifiers = GetColumnQuantifiers(type);
                                     //Get delimiter of column name
-                                    var firstSpaceIndex = col.value[0] == columnQuantifiers.Start &&
-                                    col.value.indexOf(columnQuantifiers.End + " ") !== -1
-                                    ? col.value.indexOf(columnQuantifiers.End + " ")
-                                    : col.value.indexOf(" ");
                                     //Get full name
-                                    let attributeType = col.value.substring(firstSpaceIndex + 1).trim();
-                                    let attributeName =  col.value.substring(0, firstSpaceIndex);
-                                    let attribute = {
-                                        attributeName,
-                                        attributeType
-                                    }
+                                    let attribute = getDbLabel(col.value, columnQuantifiers)
                                     var attributeKeyType = col.children.find(x=> ["FK","PK"].findIndex(k => k== x.value.toUpperCase()) !== -1)
                                     if(attributeKeyType)
                                         attribute.attributeKeyType = attributeKeyType.value
@@ -234,28 +262,37 @@ Draw.loadPlugin(function(ui) {
                                                 if(edge.style && edge.style.indexOf("endArrow=") != -1 && edge.source && 
                                                     edge.source.value && edge.target && edge.target.value){
                                                         // need to check if end is open or certain value to determin relationship type
-                                                        var targetIsPrimary = edge.style.indexOf("endArrow=open") != -1;
-                                                        var sourceIsPrimary = ["startArrow=open", "endArrow=ERoneToMany"]
-                                                            .findIndex(x => edge.style.indexOf(x)!=-1) != -1;
+                                                        // extract endArrow txt
+                                                        // check if both match and contain many or open
+                                                        // if both match and are many then create a new table
+                                                        let endCheck = "endArrow="
+                                                        let endArr = edge.style.indexOf(endCheck) != -1 ?
+                                                        edge.style.substring(edge.style.indexOf(endCheck) + endCheck.length, edge.style.substring(edge.style.indexOf(endCheck) + endCheck.length).indexOf(";") + edge.style.indexOf(endCheck) + endCheck.length)
+                                                        : ""
+                                                        let startCheck = "startArrow="
+                                                        let startArr = edge.style.indexOf(startCheck) != -1 ?
+                                                        edge.style.substring(edge.style.indexOf(startCheck) + startCheck.length, edge.style.substring(edge.style.indexOf(startCheck) + startCheck.length).indexOf(";") + edge.style.indexOf(startCheck) + startCheck.length)
+                                                        : ""
+                                                        // var matchingArrows = startArr == endArr
+
+                                                        var manyCheck = ["open","many"]
+                                                        var sourceIsPrimary = endArr && manyCheck
+                                                        .findIndex(x => endArr.toLocaleLowerCase().indexOf(x)!=-1) != -1;
+                                                        var targetIsPrimary = startArr && manyCheck
+                                                            .findIndex(x => startArr.toLocaleLowerCase().indexOf(x)!=-1) != -1;
                                                         // has to be one to many and not one to one
                                                         if((targetIsPrimary || sourceIsPrimary) &&
                                                             !(targetIsPrimary && sourceIsPrimary)
                                                         ){
                                                             var sourceId = edge.source.value;
-                                                            firstSpaceIndex = sourceId[0] == columnQuantifiers.Start &&
-                                                            sourceId.indexOf(columnQuantifiers.End + " ") !== -1
-                                                                ? sourceId.indexOf(columnQuantifiers.End + " ")
-                                                                : sourceId.indexOf(" ");
-                                                            sourceId = sourceId.substring(0,firstSpaceIndex)
+                                                            sourceAttr = getDbLabel(sourceId, columnQuantifiers);
+                                                            sourceId = sourceAttr.attributeName
                                                             var sourceEntity = edge.source.parent.value
                                                             var targetId = edge.target.value;
-                                                            firstSpaceIndex = targetId[0] == columnQuantifiers.Start &&
-                                                            targetId.indexOf(columnQuantifiers.End + " ") !== -1
-                                                                ? targetId.indexOf(columnQuantifiers.End + " ")
-                                                                : targetId.indexOf(" ");
-                                                            targetId = targetId.substring(0,firstSpaceIndex)
+                                                            targetAttr = getDbLabel(targetId, columnQuantifiers);
+                                                            targetId = targetAttr.attributeName
                                                             var targetEntity = edge.target.parent.value
-                                                            // entityA primnary
+                                                            // entityA primary
                                                             // entityB foreign
                                                             let relationship = {
                                                                 entityA: sourceIsPrimary ? sourceEntity : targetEntity,
@@ -274,6 +311,68 @@ Draw.loadPlugin(function(ui) {
                                                             var exists = relationships.findIndex(r => r.entityA == relationship.entityA && r.entityB == relationship.entityB && r.roleA == relationship.roleA)
                                                             if(exists ==-1){
                                                                 relationships.push(relationship)
+                                                            }
+                                                        } else if(targetIsPrimary && sourceIsPrimary){
+                                                            // add a new many to many table
+                                                            var sourceId = edge.source.value;
+                                                            sourceAttr = getDbLabel(sourceId, columnQuantifiers);
+                                                            sourceAttr.attributeKeyType = "PK"
+                                                            sourceId = sourceAttr.attributeName
+                                                            var sourceEntity = edge.source.parent.value
+                                                            var targetId = edge.target.value;
+                                                            targetAttr = getDbLabel(targetId, columnQuantifiers);
+                                                            targetAttr.attributeKeyType = "PK"
+                                                            targetId = targetAttr.attributeName
+                                                            var targetEntity = edge.target.parent.value
+                                                            let compositeEntity = {
+                                                                name: RemoveNameQuantifiers(sourceEntity) + "_" + RemoveNameQuantifiers(targetEntity),
+                                                                attributes: [sourceAttr, targetAttr]
+                                                            }
+                                                            // add composite entity
+                                                            if(entities[compositeEntity.name]){
+                                                                // DON'T add duplicate composite tables
+                                                                // var countE = 2;
+                                                                // while(entities[compositeEntity.name + countE.toString()]){
+                                                                //     countE++;
+                                                                // }
+                                                                // compositeEntity.name = compositeEntity.name + countE.toString()
+                                                                // entities[compositeEntity.name] = compositeEntity
+                                                            } else {
+                                                                entities[compositeEntity.name] = compositeEntity
+                                                            }
+                                                            // entityA primary
+                                                            // entityB foreign
+                                                            let relationship = {
+                                                                entityA: sourceEntity,
+                                                                entityB: compositeEntity.name,
+                                                                // based off of styles?
+                                                                relSpec: {
+                                                                    cardA: 'ZERO_OR_MORE',
+                                                                    cardB: 'ONLY_ONE',
+                                                                    relType: "IDENTIFYING"
+                                                                },
+                                                                roleA: `[${sourceEntity}.${sourceId}] to [${compositeEntity.name}.${sourceId}]`
+                                                            }
+                                                            // check that is doesn't already exist
+                                                            var exists = relationships.findIndex(r => r.entityA == relationship.entityA && r.entityB == relationship.entityB && r.roleA == relationship.roleA)
+                                                            if(exists ==-1){
+                                                                relationships.push(relationship)
+                                                            }
+                                                            let relationship2 = {
+                                                                entityA: targetEntity,
+                                                                entityB: compositeEntity.name,
+                                                                // based off of styles?
+                                                                relSpec: {
+                                                                    cardA: 'ZERO_OR_MORE',
+                                                                    cardB: 'ONLY_ONE',
+                                                                    relType: "IDENTIFYING"
+                                                                },
+                                                                roleA: `[${targetEntity}.${targetId}] to [${compositeEntity.name}.${targetId}]`
+                                                            }
+                                                            // check that is doesn't already exist
+                                                            exists = relationships.findIndex(r => r.entityA == relationship2.entityA && r.entityB == relationship2.entityB && r.roleA == relationship2.roleA)
+                                                            if(exists ==-1){
+                                                                relationships.push(relationship2)
                                                             }
                                                         }
 
@@ -329,6 +428,8 @@ Draw.loadPlugin(function(ui) {
         var parser = new DbParser(type, db)
         // generate sql
         var sql = parser.getSQLDataDefinition()
+        sql = `/*\n\tGenerated in drawio\n\tDatabase: ${type}\n*/\n\n` + sql
+        sql = sql.trim();
         // update sql value in text area
         sqlInput.value = sql;
         // TODO: use selection as well?
