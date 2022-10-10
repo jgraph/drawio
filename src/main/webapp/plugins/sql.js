@@ -492,6 +492,23 @@ Draw.loadPlugin(function(ui) {
         static isQuoteChar(char) {
             return char === '"' || char === "'" || char === "`";
         }
+        /**
+         * convert labels with start and end strings per database type
+         * @param label
+         * @returns
+         */
+        dbTypeEnds(label) {
+            let char1 = '"';
+            let char2 = '"';
+            if (this.dialect == "mysql") {
+            char1 = "`";
+            char2 = "`";
+            } else if (this.dialect == "sqlserver") {
+            char1 = "[";
+            char2 = "]";
+            }
+            return `${char1}${label}${char2}`;
+        }
         WithEnds() {
             this.tableList = this.tableList.map((table) => {
                 table.Name = this.dbTypeEnds(table.Name);
@@ -609,10 +626,9 @@ Draw.loadPlugin(function(ui) {
     function AddRow(propertyModel, tableName) {
         
         var cellName = propertyModel.Name + (propertyModel.ColumnProperties ? " " + propertyModel.ColumnProperties: "");
-
+        // TODO: fix foreign key to be edge rathern than cell name update
         if (propertyModel.IsForeignKey && propertyModel.ForeignKey !== undefined && propertyModel.ForeignKey !== null) {
             propertyModel.ForeignKey.forEach(function(foreignKeyModel) {
-
                 //We do not want the foreign key to be duplicated in our table to the same property
                 if (tableName !== foreignKeyModel.PrimaryKeyTableName || (tableName === foreignKeyModel.PrimaryKeyTableName && propertyModel.Name !== foreignKeyModel.PrimaryKeyName)) {
                     cellName += ' | ' + foreignKeyModel.PrimaryKeyTableName + '(' + foreignKeyModel.PrimaryKeyName + ')';
@@ -662,14 +678,14 @@ Draw.loadPlugin(function(ui) {
         foreignKeyList = models.ForeignKeyList;
         primaryKeyList = models.PrimaryKeyList;
         tableList = models.TableList;
-        exportedTables = tableList.length
+        exportedTables = tableList.length;
 
         //Create Table in UI
         CreateTableUI();
     };
 
     function CreateTableUI() {
-
+        debugger;
         tableList.forEach(function(tableModel) {
             //Define table size width
             var maxNameLenght = 100 + tableModel.Name.length;
