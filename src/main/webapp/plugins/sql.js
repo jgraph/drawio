@@ -604,10 +604,11 @@ Draw.loadPlugin(function(ui) {
     var sqlInput = document.createElement('textarea');
     sqlInput.style.height = '200px';
     sqlInput.style.width = '100%';
-    sqlInput.value = 'CREATE TABLE Persons\n(\n    PersonID int NOT NULL,\n    LastName varchar(255),\n    ' +
-        'FirstName varchar(255),\n    Address varchar(255),\n    City varchar(255),\n    Primary Key(PersonID)\n);\n\n' + 
-        'CREATE TABLE Orders\n(\n    OrderID int NOT NULL PRIMARY KEY,\n    PersonID int NOT NULL,\n    FOREIGN KEY ([PersonID]) REFERENCES [Persons]([PersonID])' +
-        '\n);'
+    var defaultReset = '/*\n\tDraw io default value\n*/\n\nCREATE TABLE Persons\n(\n    PersonID int NOT NULL,\n    LastName varchar(255),\n    ' +
+    'FirstName varchar(255),\n    Address varchar(255),\n    City varchar(255),\n    Primary Key(PersonID)\n);\n\n' + 
+    'CREATE TABLE Orders\n(\n    OrderID int NOT NULL PRIMARY KEY,\n    PersonID int NOT NULL,\n    FOREIGN KEY ([PersonID]) REFERENCES [Persons]([PersonID])' +
+    '\n);'
+    sqlInput.value = defaultReset
     mxUtils.br(div);
     div.appendChild(sqlInput);
 
@@ -626,15 +627,6 @@ Draw.loadPlugin(function(ui) {
     function AddRow(propertyModel, tableName) {
         
         var cellName = propertyModel.Name + (propertyModel.ColumnProperties ? " " + propertyModel.ColumnProperties: "");
-        // TODO: fix foreign key to be edge rathern than cell name update
-        if (propertyModel.IsForeignKey && propertyModel.ForeignKey !== undefined && propertyModel.ForeignKey !== null) {
-            propertyModel.ForeignKey.forEach(function(foreignKeyModel) {
-                //We do not want the foreign key to be duplicated in our table to the same property
-                if (tableName !== foreignKeyModel.PrimaryKeyTableName || (tableName === foreignKeyModel.PrimaryKeyTableName && propertyModel.Name !== foreignKeyModel.PrimaryKeyName)) {
-                    cellName += ' | ' + foreignKeyModel.PrimaryKeyTableName + '(' + foreignKeyModel.PrimaryKeyName + ')';
-                }
-            })
-        }
 
         rowCell = new mxCell(cellName, new mxGeometry(0, 0, 90, 26),
             'shape=partialRectangle;top=0;left=0;right=0;bottom=0;align=left;verticalAlign=top;spacingTop=-2;fillColor=none;spacingLeft=64;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;dropTarget=0;');
@@ -681,10 +673,52 @@ Draw.loadPlugin(function(ui) {
         exportedTables = tableList.length;
 
         //Create Table in UI
-        CreateTableUI();
+        CreateTableUI(type);
     };
+    /**
+     * return text quantifiers for dialect
+     * @returns json
+     */
+     function GetColumnQuantifiers(type) {
+        let chars = {
+            Start: '"',
+            End: '"',
+        };
+        if (type == "mysql") {
+            chars.Start = "`";
+            chars.End = "`";
+        }
+        else if (type == "sqlserver") {
+            chars.Start = "[";
+            chars.End = "]";
+        }
+        return chars;
+    }
 
-    function CreateTableUI() {
+    /**
+     * extract row column attributes
+     * @param {*} label 
+     * @param {*} columnQuantifiers 
+     * @returns 
+     */
+       function getDbLabel(label, columnQuantifiers){
+        // fix duplicate spaces and different space chars
+        label = label
+            .replace(/\s+/g, " ")
+        let firstSpaceIndex = label[0] == columnQuantifiers.Start &&
+            label.indexOf(columnQuantifiers.End + " ") !== -1
+                ? label.indexOf(columnQuantifiers.End + " ")
+                : label.indexOf(" ");
+        let attributeType = label.substring(firstSpaceIndex + 1).trim();
+        let attributeName = label.substring(0, firstSpaceIndex + 1);
+        let attribute = {
+            attributeName,
+            attributeType
+        }
+        return attribute
+    }
+
+    function CreateTableUI(type) {
         debugger;
         tableList.forEach(function(tableModel) {
             //Define table size width
@@ -726,6 +760,64 @@ Draw.loadPlugin(function(ui) {
             var y = Math.ceil(Math.max(0, (bds.y + bds.height) / view.scale - view.translate.y) + 4 * graph.gridSize);
 
             graph.setSelectionCells(graph.importCells(cells, x, y));
+            // add foreign key edges
+            var model = graph.getModel();
+            const columnQuantifiers = GetColumnQuantifiers(type);
+            var pt = graph.getFreeInsertPoint();
+            foreignKeyList.forEach(function(fk){
+                if(fk.IsDestination && fk.PrimaryKeyName && fk.ReferencesPropertyName && 
+                    fk.PrimaryKeyTableName && fk.ReferencesTableName) {
+                    var insertEdge = mxUtils.bind(this, function(targetCell, sourceCell, edge){
+                        var label = ""
+                        var edgeStyle = "edgeStyle=entityRelationEdgeStyle;html=1;endArrow=ERzeroToMany;startArrow=ERzeroToOne;labelBackgroundColor=none;fontFamily=Verdana;fontSize=14;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.018;entryY=0.608;entryDx=0;entryDy=0;entryPerimeter=0;"
+                        var edgeCell = graph.insertEdge(null, null, label || '', (edge.invert) ?
+                        sourceCell : targetCell, (edge.invert) ? targetCell : sourceCell, edgeStyle);
+                    });
+                    let edge = {
+                        invert: true
+                    };
+                    var targetCell = null;
+                    var sourceCell = null;
+                    // locate edge source and target cells
+                    for (const key in model.cells) {
+                        if(targetCell && sourceCell)
+                            break;
+                        if (Object.hasOwnProperty.call(model.cells, key)) {
+                            const mxcell = model.cells[key];
+                            if(mxcell.style && mxcell.style.trim().startsWith("swimlane;")){
+                                let entity = {
+                                    name: mxcell.value,
+                                    attributes: []
+                                }
+                                var isPrimaryTable = entity.name == fk.PrimaryKeyTableName;
+                                var isForeignTable = entity.name == fk.ReferencesTableName;
+                                if(isPrimaryTable || isForeignTable){
+                                    for (let c = 0; c < mxcell.children.length; c++) {
+                                        if(targetCell && sourceCell)
+                                            break;
+                                        const col = mxcell.children[c];
+                                        if(col.mxObjectId.indexOf("mxCell") !== -1) {
+                                            if(col.style && col.style.trim().startsWith("shape=partialRectangle")){
+                                                let attribute = getDbLabel(col.value, columnQuantifiers)
+                                                if(isPrimaryTable && attribute.attributeName == fk.PrimaryKeyName){
+                                                    targetCell = col;
+                                                    break;
+                                                } else if(isForeignTable && attribute.attributeName == fk.ReferencesPropertyName){
+                                                    sourceCell = col;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+                    }
+                    if(targetCell && sourceCell)
+                        insertEdge(targetCell, sourceCell, edge);
+                }
+            })
             graph.scrollCellToVisible(graph.getSelectionCell());
         }
 
@@ -735,7 +827,7 @@ Draw.loadPlugin(function(ui) {
     mxUtils.br(div);
 
     var resetBtn = mxUtils.button(mxResources.get('reset'), function() {
-        sqlInput.value = '';
+        sqlInput.value = defaultReset;
     });
 
     resetBtn.style.marginTop = '8px';
