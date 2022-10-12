@@ -60,19 +60,19 @@ Draw.loadPlugin(function(ui) {
          */
         feed(chunk) {
             //
-            var removedComments = chunk
+            const removedComments = chunk
                 // remove database comments, multiline, --, and //
                 .replace(/\/\*[\s\S]*?\*\/|\/\/|--.*/g, "")
                 .trim();
-            var cleanedLines = removedComments
+            const cleanedLines = removedComments
                 .split("\n")
                 // remove empty lines
                 .filter((n) => n)
                 // remove multiple spaces
                 .map((n) => n.replace(/\s+/g, " ").trim());
             // combine lines that are in parenthesis
-            var lines = [];
-            var insertSameLine = false;
+            const lines = [];
+            let insertSameLine = false;
             cleanedLines.forEach((n) => {
                 if ((lines.length > 0 &&
                     n[0] == "(" &&
@@ -90,12 +90,12 @@ Draw.loadPlugin(function(ui) {
                     lines.push(n);
                 }
             });
-            var currentTableModel = null;
+            let currentTableModel = null;
             //Parse SQL to objects
-            for (var i = 0; i < lines.length; i++) {
+            for (let i = 0; i < lines.length; i++) {
                 // rowCell = null;
-                var tmp = lines[i].trim();
-                var propertyRow = tmp.toLowerCase().trim();
+                const tmp = lines[i].trim();
+                const propertyRow = tmp.toLowerCase().trim();
                 if (propertyRow[0] == ")") {
                     // close table
                     if (currentTableModel) {
@@ -107,7 +107,7 @@ Draw.loadPlugin(function(ui) {
                 //Parse Table
                 if (propertyRow.indexOf(contants_1.CreateTable) != -1) {
                     //Parse row
-                    var name = tmp
+                    let name = tmp
                         .replace(this.stringToRegex(`/${contants_1.CreateTable}/gi`), "")
                         .trim();
                     //Parse Table Name
@@ -124,9 +124,9 @@ Draw.loadPlugin(function(ui) {
                     currentTableModel != null &&
                     propertyRow.indexOf(contants_1.AlterTable) == -1) {
                     //Parse the row
-                    var name = tmp.substring(0, tmp.charAt(tmp.length - 1) === "," ? tmp.length - 1 : tmp.length);
+                    let name = tmp.substring(0, tmp.charAt(tmp.length - 1) === "," ? tmp.length - 1 : tmp.length);
                     //Attempt to get the Key Type
-                    var propertyType = name.toLowerCase();
+                    let propertyType = name.toLowerCase();
                     // .substring(0, AlterTable.length).toLowerCase();
                     //Add special constraints
                     if (this.MODE_SQLSERVER) {
@@ -140,7 +140,7 @@ Draw.loadPlugin(function(ui) {
                         }
                     }
                     //Verify if this is a property that doesn't have a relationship (One minute of silence for the property)
-                    var normalProperty = !propertyType.match(/PRIMARY KEY\s?\(/gi) &&
+                    const normalProperty = !propertyType.match(/PRIMARY KEY\s?\(/gi) &&
                         propertyType.indexOf(contants_1.Foreign_Key) == -1 &&
                         propertyType.indexOf(contants_1.CONSTRAINT_Primary_Key) == -1 &&
                         propertyType.indexOf(contants_1.CONSTRAINT_Foreign_Key) == -1;
@@ -169,7 +169,7 @@ Draw.loadPlugin(function(ui) {
                                 continue;
                             }
                             //Get delimiter of column name
-                            var firstSpaceIndex = name[0] == "[" && name.indexOf("]" + " ") !== -1
+                            const firstSpaceIndex = name[0] == "[" && name.indexOf("]" + " ") !== -1
                                 ? name.indexOf("]" + " ")
                                 : name.indexOf(" ");
                             ExtendedProperties = name.substring(firstSpaceIndex + 1).trim();
@@ -180,7 +180,7 @@ Draw.loadPlugin(function(ui) {
                         else {
                             const columnQuantifiers = this.GetColumnQuantifiers();
                             //Get delimiter of column name
-                            var firstSpaceIndex = name[0] == columnQuantifiers.Start &&
+                            const firstSpaceIndex = name[0] == columnQuantifiers.Start &&
                                 name.indexOf(columnQuantifiers.End + " ") !== -1
                                 ? name.indexOf(columnQuantifiers.End + " ")
                                 : name.indexOf(" ");
@@ -190,14 +190,14 @@ Draw.loadPlugin(function(ui) {
                             name = this.RemoveNameQuantifiers(name);
                         }
                         //Create Property
-                        var propertyModel = this.CreateProperty(name, currentTableModel.Name, null, false, ExtendedProperties);
+                        const propertyModel = this.CreateProperty(name, currentTableModel.Name, null, false, ExtendedProperties);
                         //Add Property to table
                         currentTableModel.Properties.push(propertyModel);
                         if (ExtendedProperties.toLocaleLowerCase().indexOf(contants_1.Primary_Key) > -1) {
                             //Create Primary Key
-                            var primaryKeyModel = this.CreatePrimaryKey(name, currentTableModel.Name);
+                            const primaryKeyModel = this.CreatePrimaryKey(name, currentTableModel.Name);
                             //Add Primary Key to List
-                            this.primaryKeyList.push(primaryKeyModel);
+                            this.primaryKeyList = this.primaryKeyList.concat(primaryKeyModel);
                         }
                     }
                     else {
@@ -205,29 +205,29 @@ Draw.loadPlugin(function(ui) {
                         if (propertyType.indexOf(contants_1.Primary_Key) != -1 ||
                             propertyType.indexOf(contants_1.CONSTRAINT_Primary_Key) != -1) {
                             if (!this.MODE_SQLSERVER) {
-                                var primaryKey = name
+                                const primaryKey = name
                                     .replace(/PRIMARY KEY\s?\(/gi, "")
                                     .replace(")", "");
                                 //Create Primary Key
-                                var primaryKeyModel = this.CreatePrimaryKey(primaryKey, currentTableModel.Name);
+                                const primaryKeyModel = this.CreatePrimaryKey(primaryKey, currentTableModel.Name);
                                 //Add Primary Key to List
-                                this.primaryKeyList.push(primaryKeyModel);
+                                this.primaryKeyList = this.primaryKeyList.concat(primaryKeyModel);
                             }
                             else {
                                 if (propertyRow.indexOf(contants_1.Primary_Key) !== -1 &&
                                     nameSkipCheck.indexOf("CLUSTERED") === -1) {
-                                    var primaryKey = name
+                                    const primaryKey = name
                                         .replace(/PRIMARY KEY\s?\(/gi, "")
                                         .replace(")", "");
                                     //Create Primary Key
-                                    var primaryKeyModel = this.CreatePrimaryKey(primaryKey, currentTableModel.Name);
+                                    const primaryKeyModel = this.CreatePrimaryKey(primaryKey, currentTableModel.Name);
                                     //Add Primary Key to List
-                                    this.primaryKeyList.push(primaryKeyModel);
+                                    this.primaryKeyList = this.primaryKeyList.concat(primaryKeyModel);
                                 }
                                 else {
-                                    var startIndex = name.toLocaleLowerCase().indexOf("(");
-                                    var endIndex = name.indexOf(")") + 1;
-                                    var primaryKey = name
+                                    const startIndex = name.toLocaleLowerCase().indexOf("(");
+                                    const endIndex = name.indexOf(")") + 1;
+                                    const primaryKey = name
                                         .substring(startIndex, endIndex)
                                         .replace("(", "")
                                         .replace(")", "")
@@ -235,17 +235,17 @@ Draw.loadPlugin(function(ui) {
                                         .trim();
                                     const columnQuantifiers = this.GetColumnQuantifiers();
                                     //Get delimiter of column name
-                                    var firstSpaceIndex = primaryKey[0] == columnQuantifiers.Start &&
+                                    const firstSpaceIndex = primaryKey[0] == columnQuantifiers.Start &&
                                         primaryKey.indexOf(columnQuantifiers.End + " ") !== -1
                                         ? primaryKey.indexOf(columnQuantifiers.End + " ")
                                         : primaryKey.indexOf(" ");
-                                    var primaryKeyRow = firstSpaceIndex == -1
+                                    const primaryKeyRow = firstSpaceIndex == -1
                                         ? primaryKey
                                         : primaryKey.substring(firstSpaceIndex + 1).trim();
                                     //Create Primary Key
-                                    var primaryKeyModel = this.CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
+                                    const primaryKeyModel = this.CreatePrimaryKey(primaryKeyRow, currentTableModel.Name);
                                     //Add Primary Key to List
-                                    this.primaryKeyList.push(primaryKeyModel);
+                                    this.primaryKeyList = this.primaryKeyList.concat(primaryKeyModel);
                                 }
                             }
                         }
@@ -257,9 +257,9 @@ Draw.loadPlugin(function(ui) {
                             this.ParseMySQLForeignKey(name, currentTableModel);
                         }
                         else {
-                            var completeRow = name;
+                            let completeRow = name;
                             if (nameSkipCheck.indexOf("REFERENCES") === -1) {
-                                var referencesRow = lines[i + 1].trim();
+                                const referencesRow = lines[i + 1].trim();
                                 completeRow =
                                     "ALTER TABLE [dbo].[" +
                                         currentTableModel.Name +
@@ -276,9 +276,9 @@ Draw.loadPlugin(function(ui) {
                 else if (propertyRow.indexOf(contants_1.AlterTable) != -1) {
                     if (this.MODE_SQLSERVER) {
                         //Parse the row
-                        var alterTableRow = tmp.substring(0, tmp.charAt(tmp.length - 1) === "," ? tmp.length - 1 : tmp.length);
-                        var referencesRow = lines[i + 1].trim();
-                        var completeRow = alterTableRow + " " + referencesRow;
+                        const alterTableRow = tmp.substring(0, tmp.charAt(tmp.length - 1) === "," ? tmp.length - 1 : tmp.length);
+                        const referencesRow = lines[i + 1].trim();
+                        const completeRow = alterTableRow + " " + referencesRow;
                         this.ParseSQLServerForeignKey(completeRow, currentTableModel);
                     }
                 }
@@ -287,10 +287,12 @@ Draw.loadPlugin(function(ui) {
             if (this.primaryKeyList.length > 0) {
                 this.primaryKeyList.forEach((pk) => {
                     // find table index
-                    var pkTableIndex = this.tableList.findIndex((t) => t.Name.toLocaleLowerCase() == pk.PrimaryKeyTableName.toLocaleLowerCase());
+                    const pkTableIndex = this.tableList.findIndex((t) => t.Name.toLocaleLowerCase() ==
+                        pk.PrimaryKeyTableName.toLocaleLowerCase());
                     // find property index
                     if (pkTableIndex > -1) {
-                        var propertyIndex = this.tableList[pkTableIndex].Properties.findIndex((p) => p.Name.toLocaleLowerCase() == pk.PrimaryKeyName.toLocaleLowerCase());
+                        const propertyIndex = this.tableList[pkTableIndex].Properties.findIndex((p) => p.Name.toLocaleLowerCase() ==
+                            pk.PrimaryKeyName.toLocaleLowerCase());
                         if (propertyIndex > -1) {
                             this.tableList[pkTableIndex].Properties[propertyIndex].IsPrimaryKey = true;
                         }
@@ -300,10 +302,12 @@ Draw.loadPlugin(function(ui) {
             if (this.foreignKeyList.length > 0) {
                 this.foreignKeyList.forEach((fk) => {
                     // find table index
-                    var pkTableIndex = this.tableList.findIndex((t) => t.Name.toLocaleLowerCase() == fk.ReferencesTableName.toLocaleLowerCase());
+                    const pkTableIndex = this.tableList.findIndex((t) => t.Name.toLocaleLowerCase() ==
+                        fk.ReferencesTableName.toLocaleLowerCase());
                     // find property index
                     if (pkTableIndex > -1) {
-                        var propertyIndex = this.tableList[pkTableIndex].Properties.findIndex((p) => p.Name.toLocaleLowerCase() == fk.PrimaryKeyName.toLocaleLowerCase());
+                        const propertyIndex = this.tableList[pkTableIndex].Properties.findIndex((p) => p.Name.toLocaleLowerCase() ==
+                            fk.PrimaryKeyName.toLocaleLowerCase());
                         if (propertyIndex > -1) {
                             this.tableList[pkTableIndex].Properties[propertyIndex].ForeignKey.push(fk);
                             if (!fk.IsDestination) {
@@ -329,15 +333,24 @@ Draw.loadPlugin(function(ui) {
             return new RegExp("//(.+)/.*/", "//.+/(.*)/");
         }
         CreatePrimaryKey(primaryKeyName, primaryKeyTableName) {
-            var primaryKey = {
-                PrimaryKeyTableName: primaryKeyTableName,
-                PrimaryKeyName: this.RemoveNameQuantifiers(primaryKeyName),
-            };
-            return primaryKey;
+            const primaryKeyNames = this.RemoveNameQuantifiers(primaryKeyName)
+                .split(",")
+                .filter((n) => n)
+                // remove multiple spaces
+                .map((n) => n.replace(/\s+/g, " ").trim());
+            const primaryKeys = [];
+            primaryKeyNames.forEach(name => {
+                const primaryKey = {
+                    PrimaryKeyTableName: primaryKeyTableName,
+                    PrimaryKeyName: name,
+                };
+                primaryKeys.push(primaryKey);
+            });
+            return primaryKeys;
         }
         CreateProperty(name, tableName, foreignKey, isPrimaryKey, columnProps) {
-            var isForeignKey = foreignKey !== undefined && foreignKey !== null;
-            var property = {
+            const isForeignKey = foreignKey !== undefined && foreignKey !== null;
+            const property = {
                 Name: name,
                 ColumnProperties: columnProps,
                 TableName: tableName,
@@ -348,49 +361,50 @@ Draw.loadPlugin(function(ui) {
             return property;
         }
         ParseMySQLForeignKey(name, currentTableModel) {
-            var referencesIndex = name.toLowerCase().indexOf("references");
-            var foreignKeySQL = name.substring(0, referencesIndex);
-            var referencesSQL = name.substring(referencesIndex, name.length);
+            const referencesIndex = name.toLowerCase().indexOf("references");
+            const foreignKeySQL = name.substring(0, referencesIndex);
+            let referencesSQL = name.substring(referencesIndex, name.length);
             //Remove references syntax
             referencesSQL = referencesSQL.replace(/REFERENCES /gi, "");
             //Get Table and Property Index
-            var referencedTableIndex = referencesSQL.indexOf("(");
-            var referencedPropertyIndex = referencesSQL.indexOf(")");
+            const referencedTableIndex = referencesSQL.indexOf("(");
+            const referencedPropertyIndex = referencesSQL.indexOf(")");
             //Get Referenced Table
-            var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
+            const referencedTableName = referencesSQL.substring(0, referencedTableIndex);
             //Get Referenced Key
-            var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
+            const referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
             //Get ForeignKey
-            var foreignKey = foreignKeySQL
+            const foreignKey = foreignKeySQL
                 .replace(/FOREIGN KEY\s?\(/gi, "")
                 .replace(")", "")
                 .replace(" ", "");
             //Create ForeignKey
-            var foreignKeyOriginModel = this.CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName, true);
+            const foreignKeyOriginModel = this.CreateForeignKey(foreignKey, currentTableModel.Name, referencedPropertyName, referencedTableName, true);
             //Add ForeignKey Origin
             this.foreignKeyList.push(foreignKeyOriginModel);
             //Create ForeignKey
-            var foreignKeyDestinationModel = this.CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name, false);
+            const foreignKeyDestinationModel = this.CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, currentTableModel.Name, false);
             //Add ForeignKey Destination
             this.foreignKeyList.push(foreignKeyDestinationModel);
         }
         ParseSQLServerForeignKey(name, currentTableModel) {
-            var referencesIndex = name.toLowerCase().indexOf("references");
+            const referencesIndex = name.toLowerCase().indexOf("references");
+            let foreignKeySQL = "";
             if (name.toLowerCase().indexOf(`${contants_1.Foreign_Key}(`) !== -1) {
-                var foreignKeySQL = name
+                foreignKeySQL = name
                     .substring(name.toLowerCase().indexOf(`${contants_1.Foreign_Key}(`), referencesIndex)
                     .replace(/FOREIGN KEY\(/gi, "")
                     .replace(")", "");
             }
             else {
-                var foreignKeySQL = name
+                foreignKeySQL = name
                     .substring(name.toLowerCase().indexOf(`${contants_1.Foreign_Key}(`), referencesIndex)
                     .replace(/FOREIGN KEY\s?\(/gi, "")
                     .replace(")", "");
             }
-            var referencesSQL = name.substring(referencesIndex, name.length);
+            let referencesSQL = name.substring(referencesIndex, name.length);
             const nameSkipCheck = name.toUpperCase().trim();
-            var alterTableName = name
+            let alterTableName = name
                 .substring(0, nameSkipCheck.indexOf("WITH"))
                 .replace(/ALTER TABLE /gi, "");
             if (referencesIndex !== -1 &&
@@ -400,18 +414,18 @@ Draw.loadPlugin(function(ui) {
                 //Remove references syntax
                 referencesSQL = referencesSQL.replace(/REFERENCES /gi, "");
                 //Get Table and Property Index
-                var referencedTableIndex = referencesSQL.indexOf("(");
-                var referencedPropertyIndex = referencesSQL.indexOf(")");
+                const referencedTableIndex = referencesSQL.indexOf("(");
+                const referencedPropertyIndex = referencesSQL.indexOf(")");
                 //Get Referenced Table
-                var referencedTableName = referencesSQL.substring(0, referencedTableIndex);
+                let referencedTableName = referencesSQL.substring(0, referencedTableIndex);
                 //Parse Name
                 referencedTableName = this.ParseSQLServerName(referencedTableName);
                 //Get Referenced Key
-                var referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
+                let referencedPropertyName = referencesSQL.substring(referencedTableIndex + 1, referencedPropertyIndex);
                 //Parse Name
                 referencedPropertyName = this.ParseSQLServerName(referencedPropertyName);
                 //Get ForeignKey
-                var foreignKey = foreignKeySQL
+                let foreignKey = foreignKeySQL
                     .replace(/FOREIGN KEY\s?\(/gi, "")
                     .replace(")", "");
                 //Parse Name
@@ -419,17 +433,17 @@ Draw.loadPlugin(function(ui) {
                 //Parse Name
                 alterTableName = this.ParseSQLServerName(alterTableName);
                 //Create ForeignKey
-                var foreignKeyOriginModel = this.CreateForeignKey(foreignKey, alterTableName, referencedPropertyName, referencedTableName, true);
+                const foreignKeyOriginModel = this.CreateForeignKey(foreignKey, alterTableName, referencedPropertyName, referencedTableName, true);
                 //Add ForeignKey Origin
                 this.foreignKeyList.push(foreignKeyOriginModel);
                 //Create ForeignKey
-                var foreignKeyDestinationModel = this.CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, alterTableName, false);
+                const foreignKeyDestinationModel = this.CreateForeignKey(referencedPropertyName, referencedTableName, foreignKey, alterTableName, false);
                 //Add ForeignKey Destination
                 this.foreignKeyList.push(foreignKeyDestinationModel);
             }
         }
         CreateForeignKey(primaryKeyName, primaryKeyTableName, referencesPropertyName, referencesTableName, isDestination) {
-            var foreignKey = {
+            const foreignKey = {
                 PrimaryKeyTableName: this.RemoveNameQuantifiers(primaryKeyTableName),
                 PrimaryKeyName: this.RemoveNameQuantifiers(primaryKeyName),
                 ReferencesPropertyName: this.RemoveNameQuantifiers(referencesPropertyName),
@@ -476,7 +490,7 @@ Draw.loadPlugin(function(ui) {
             return name;
         }
         CreateTable(name) {
-            var table = {
+            const table = {
                 Name: name,
                 Properties: [],
             };
@@ -490,7 +504,7 @@ Draw.loadPlugin(function(ui) {
          * @param char Character to be evaluated.
          */
         static isQuoteChar(char) {
-            return char === '"' || char === "'" || char === "`";
+            return char === "\"" || char === "'" || char === "`";
         }
         /**
          * convert labels with start and end strings per database type
@@ -498,14 +512,15 @@ Draw.loadPlugin(function(ui) {
          * @returns
          */
         dbTypeEnds(label) {
-            let char1 = '"';
-            let char2 = '"';
+            let char1 = "\"";
+            let char2 = "\"";
             if (this.dialect == "mysql") {
-            char1 = "`";
-            char2 = "`";
-            } else if (this.dialect == "sqlserver") {
-            char1 = "[";
-            char2 = "]";
+                char1 = "`";
+                char2 = "`";
+            }
+            else if (this.dialect == "sqlserver") {
+                char1 = "[";
+                char2 = "]";
             }
             return `${char1}${label}${char2}`;
         }
@@ -533,14 +548,38 @@ Draw.loadPlugin(function(ui) {
             });
             return this;
         }
+        WithoutEnds() {
+            this.tableList.map((table) => {
+                table.Name = this.RemoveNameQuantifiers(table.Name);
+                table.Properties = table.Properties.map((property) => {
+                    property.Name = this.RemoveNameQuantifiers(property.Name);
+                    property.TableName = this.RemoveNameQuantifiers(property.TableName);
+                    return property;
+                });
+                return table;
+            });
+            this.primaryKeyList = this.primaryKeyList.map((primaryKey) => {
+                primaryKey.PrimaryKeyName = this.RemoveNameQuantifiers(primaryKey.PrimaryKeyName);
+                primaryKey.PrimaryKeyTableName = this.RemoveNameQuantifiers(primaryKey.PrimaryKeyTableName);
+                return primaryKey;
+            });
+            this.foreignKeyList = this.foreignKeyList.map((foreignKey) => {
+                foreignKey.PrimaryKeyName = this.RemoveNameQuantifiers(foreignKey.PrimaryKeyName);
+                foreignKey.ReferencesPropertyName = this.RemoveNameQuantifiers(foreignKey.ReferencesPropertyName);
+                foreignKey.PrimaryKeyTableName = this.RemoveNameQuantifiers(foreignKey.PrimaryKeyTableName);
+                foreignKey.ReferencesTableName = this.RemoveNameQuantifiers(foreignKey.ReferencesTableName);
+                return foreignKey;
+            });
+            return this;
+        }
         /**
          * return text quantifiers for dialect
          * @returns json
          */
         GetColumnQuantifiers() {
-            let chars = {
-                Start: '"',
-                End: '"',
+            const chars = {
+                Start: "\"",
+                End: "\"",
             };
             if (this.dialect == "mysql") {
                 chars.Start = "`";
