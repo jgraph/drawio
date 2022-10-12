@@ -215,7 +215,7 @@ Draw.loadPlugin(function(ui) {
                 ? label.indexOf(columnQuantifiers.End + " ")
                 : label.indexOf(" ");
         let attributeType = label.substring(firstSpaceIndex + 1).trim();
-        let attributeName = label.substring(0, firstSpaceIndex);
+        let attributeName = RemoveNameQuantifiers(label.substring(0, firstSpaceIndex));
         let attribute = {
             attributeName,
             attributeType
@@ -239,7 +239,7 @@ Draw.loadPlugin(function(ui) {
                 if(mxcell.mxObjectId.indexOf("mxCell") !== -1) {
                     if(mxcell.style && mxcell.style.trim().startsWith("swimlane;")){
                         let entity = {
-                            name: mxcell.value,
+                            name: RemoveNameQuantifiers(mxcell.value),
                             attributes: []
                         }
                         for (let c = 0; c < mxcell.children.length; c++) {
