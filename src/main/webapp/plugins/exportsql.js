@@ -250,9 +250,14 @@ Draw.loadPlugin(function(ui) {
                                     //Get delimiter of column name
                                     //Get full name
                                     let attribute = getDbLabel(col.value, columnQuantifiers)
-                                    var attributeKeyType = col.children.find(x=> ["FK","PK"].findIndex(k => k== x.value.toUpperCase()) !== -1)
-                                    if(attributeKeyType)
+                                    var attributeKeyType = col.children.find(x=> ["FK","PK"].findIndex(k => k== x.value.toUpperCase()) !== -1 ||
+                                        x.value.toUpperCase().indexOf("PK,")!=-1)
+                                    if(attributeKeyType){
                                         attribute.attributeKeyType = attributeKeyType.value
+                                        if(attribute.attributeKeyType != "PK" && attribute.attributeKeyType.indexOf("PK") != -1){
+                                            attribute.attributeKeyType = "PK"
+                                        }
+                                    }
                                     entity.attributes.push(attribute)
                                     if(col.edges && col.edges.length){
                                         // check for edges foreign keys
