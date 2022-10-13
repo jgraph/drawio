@@ -292,11 +292,11 @@ Draw.loadPlugin(function(ui) {
                                                             var sourceId = edge.source.value;
                                                             sourceAttr = getDbLabel(sourceId, columnQuantifiers);
                                                             sourceId = sourceAttr.attributeName
-                                                            var sourceEntity = edge.source.parent.value
+                                                            var sourceEntity = RemoveNameQuantifiers(edge.source.parent.value);
                                                             var targetId = edge.target.value;
                                                             targetAttr = getDbLabel(targetId, columnQuantifiers);
                                                             targetId = targetAttr.attributeName
-                                                            var targetEntity = edge.target.parent.value
+                                                            var targetEntity = RemoveNameQuantifiers(edge.target.parent.value);
                                                             // entityA primary
                                                             // entityB foreign
                                                             let relationship = {
@@ -323,12 +323,12 @@ Draw.loadPlugin(function(ui) {
                                                             sourceAttr = getDbLabel(sourceId, columnQuantifiers);
                                                             sourceAttr.attributeKeyType = "PK"
                                                             sourceId = sourceAttr.attributeName
-                                                            var sourceEntity = edge.source.parent.value
+                                                            var sourceEntity = RemoveNameQuantifiers(edge.source.parent.value);
                                                             var targetId = edge.target.value;
                                                             targetAttr = getDbLabel(targetId, columnQuantifiers);
                                                             targetAttr.attributeKeyType = "PK"
                                                             targetId = targetAttr.attributeName
-                                                            var targetEntity = edge.target.parent.value
+                                                            var targetEntity = RemoveNameQuantifiers(edge.target.parent.value);
                                                             let compositeEntity = {
                                                                 name: RemoveNameQuantifiers(sourceEntity) + "_" + RemoveNameQuantifiers(targetEntity),
                                                                 attributes: [sourceAttr, targetAttr]
