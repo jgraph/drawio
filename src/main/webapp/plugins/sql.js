@@ -63,6 +63,7 @@ Draw.loadPlugin(function(ui) {
             const removedComments = chunk
                 // remove database comments, multiline, --, and //
                 .replace(/\/\*[\s\S]*?\*\/|\/\/|--.*/g, "")
+                .replace(/IF NOT EXISTS/gi, "")
                 .trim();
             const cleanedLines = removedComments
                 .split("\n")
@@ -74,16 +75,34 @@ Draw.loadPlugin(function(ui) {
             const lines = [];
             let insertSameLine = false;
             cleanedLines.forEach((n) => {
-                if ((lines.length > 0 &&
-                    n[0] == "(" &&
-                    lines[lines.length - 1].toLocaleLowerCase().indexOf(contants_1.CreateTable) ==
-                        -1) ||
-                    insertSameLine) {
-                    if (lines.length > 0) {
-                        insertSameLine = true;
-                        lines[lines.length - 1] += n;
-                        if (n[0] == ")")
-                            insertSameLine = false;
+                if (lines.length > 0){
+                    if((n[0] == "(" &&
+                        lines[lines.length - 1].toLocaleLowerCase().indexOf(contants_1.CreateTable) ==
+                            -1) ||
+                        insertSameLine) {
+                        if (lines.length > 0) {
+                            insertSameLine = true;
+                            lines[lines.length - 1] += ` ${n}`;
+                            if (n[0] == ")")
+                                insertSameLine = false;
+                        }
+                    }
+                    else if(lines[lines.length - 1].match(/CONSTRAINT/gi) && 
+                        (n.match(/FOREIGN KEY/gi) && !n.match(/CONSTRAINT/gi))
+                    ){
+                        lines[lines.length - 1] += ` ${n}`;
+                    }
+                    // add to previous line if current has references and previous has foreign key
+                    else if(lines[lines.length - 1].match(/FOREIGN KEY/gi) && 
+                        (n.match(/REFERENCES/gi) && !n.match(/FOREIGN KEY/gi))
+                    ){
+                        lines[lines.length - 1] += ` ${n}`;
+                    }
+                    else if(n.substring(0,2).toUpperCase() == "ON"){
+                        lines[lines.length - 1] += ` ${n}`;
+                    }
+                    else {
+                        lines.push(n);
                     }
                 }
                 else {
@@ -362,7 +381,8 @@ Draw.loadPlugin(function(ui) {
         }
         ParseMySQLForeignKey(name, currentTableModel) {
             const referencesIndex = name.toLowerCase().indexOf("references");
-            const foreignKeySQL = name.substring(0, referencesIndex);
+            let foreignKeySQL = name.substring(0, referencesIndex);
+            foreignKeySQL = foreignKeySQL.substring(foreignKeySQL.toUpperCase().indexOf("FOREIGN KEY"))
             let referencesSQL = name.substring(referencesIndex, name.length);
             //Remove references syntax
             referencesSQL = referencesSQL.replace(/REFERENCES /gi, "");
@@ -694,13 +714,17 @@ Draw.loadPlugin(function(ui) {
     };
 
     function parseSql(text, type) {
-
+        // reset values
+        cells = []
+        tableCell = null;
+        rowCell = null;
         // load parser
         const parser = new SqlSimpleParser(type);
         
 
         const models = parser
             .feed(text)
+            .WithoutEnds()
             .WithEnds()
             .ToModel();
         
