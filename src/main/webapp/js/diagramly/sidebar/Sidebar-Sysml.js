@@ -127,7 +127,11 @@
 			this.createEdgeTemplateEntry('edgeStyle=none;html=1;endSize=12;endArrow=block;endFill=0;dashed=1;', 
 					160, 0, '', 'Realization', null, this.getTagsForStencil(gn, '', dt + 'realization').join(' ')),
 			this.createEdgeTemplateEntry('edgeStyle=none;html=1;endArrow=open;endSize=12;dashed=1;verticalAlign=bottom;', 
-					160, 0, '&lt;&lt;refine&gt;&gt;', 'Refine', null, this.getTagsForStencil(gn, '', dt + 'refine').join(' '))
+					160, 0, '&lt;&lt;refine&gt;&gt;', 'Refine', null, this.getTagsForStencil(gn, '', dt + 'refine').join(' ')),
+		    this.createVertexTemplateEntry('shape=triangle;fillColor=strokeColor;', 
+		    		10, 10, '', 'Flow Direction', null, null, this.getTagsForStencil(gn, '', dt + 'flow direction').join(' ')),
+		    this.createVertexTemplateEntry('shape=triangle;fillColor=strokeColor;direction=south;', 
+		    		10, 10, '', 'Flow Direction', null, null, this.getTagsForStencil(gn, '', dt + 'flow direction').join(' '))
 		];
 		
 		this.addPalette('sysmlModel Elements', 'SysML / Model Elements', expand || false, mxUtils.bind(this, function(content)
@@ -399,7 +403,6 @@
 				'3VXLbsIwEPwaXyoVmaQU9Uh4nSpVoj9g4iWx6nijjaHA19chJoGmqRCiEuohkne8s17P2DELx9l2TiJPX1GCZuGUhWNCtNUo245BaxZwJVk4YUHA3ceCWcds/zDLc0Fg7CWEoCJshF5DhYiiwFgJq9D4aoXdaT+5AbIqFnqkVWIctERrMWNhlNrM9T7puyEYOSLCTxcaNFAiMoGFL4JkU0zQCD1t0KiwguxM6bIGP8YLtS8Z/eAIHMtKJTI08j1VroeoarJco1ODA+QFmANmYGnnUgi02+fmnCeKKkzqvJr6hspVbFIKXFMMHj0V+Zi49SIP+Hltt5kEbIvoBif9NdDBs5/9C1v+tU0jKNReLA8hP/dKeB81rJxU0Xd7LeYO1WIJOhLxR0K4NnKMGqkxd4WmdspvM0ZjILZ+yfoM8rI8bDtdCn52yRMeee+l4lxs25muv4j41BIxJ8xds7vghmLWd+Xf6zlo6cmGEZIEAsmGLua813u4RlpSSXrvB/XvdH3uPKdXXfouMe/soN5MTxc2D2v1rz19d78A'),
 			this.addDataEntry(dt + 'multibranch part association', 250, 50, 'Multibranch Part Association',
 				'7VfBbtswDP0aX3YoHCtptmOdNt1lwIDuBxSbsYXKoiEraZyvH23JTlzHqNO0azfsYEAkRYoiHx9kjy2y3b3mefoDY5Aeu/PYQiMau8p2C5DSC3wRe+zWCwKfPi9YDlgntdXPuQZlxjgE1mHL5QashhcFRoIbgcpFK0wpnXEL2oiIyxspEkWqFRqDmcfC1GSU++2ElnSAyAtyCNdCygVK1GQpjMZHcFK4RmWWPBOyJNN3kFuowjrDg9hXx00mTm5CxLDmG0nXCl3SlAzsBi9eq9yt7wEzMLqkLY1DwKzLk4hNanVTq0lBJKnpqHhhxaSNc6gpLVxZT5eY9Uqca8wp97JfX4gTeHAiyBU+3R0U3RqTjdYparGnEnEyhNw1Rdv0w8FmgYpvtK4DKFRVaI0bFUOVsE+S5CuQIY8ek1rf1N/tvbB3heG63TatFCnPKyFCpSAyNT5sYapqdNpb4EZH0EHuGR23DhokgXvbDXyqvy7QTxQUv40SzOxA+WUnjSYAXS4B43yeYaRNaRRspj3Y+FdXX3qI0VCIPV/Vot8FyUt4MJiPanbTrAuhcQoKR5xAl2GMLZeMPWOO52PvcOLu3DLcS3TA3hQcY4d/Njj8wcXD3/Tz/+h/zOhP56Nmn+rNy6NtebWhGD5m8u3kMQfA2YCv5ZXrT8krn5k5Zh/CHPNB5mDvwRwS1mOJIxY8QxX/SoXq8QdtWwrZnqfipsnBu5PL38ElZz0bzqWO61Nvk7cijq89QPbfryNYYwBo/xppzP8EaZB4+FW0LT3+k/wN'),
-//<mxlibrary>[{"xml":"7VdRj5swDP41vOzhREm77vXoHbeXSZNufyAFF6ILMQppr/TXz5BAy1F0nLpu3bQHpNiOHcf+/Cl4bJXvnzQvsm+YgPTYo8dWGtHYVb5fgZRe4IvEYw9eEPj0eUE0Yp01Vr/gGpSZ4hBYhx2XW7AaXpYYC24EKhetNJV0xh1oI2Iu76VIFanWaAzmHgszk1PuDzNa0gGiKMkh3AgpVyhRk6U0Gl/ASeEGlYl4LmRFpq8gd1CHdYZncaiPm82c3IZIYMO3kq4VuqQpGdiPXrxRuVs/AeZgdEVbWoeAWZdXkZjM6uZWk4FIM9NT8dKKaRfnWFNauLKeLzEblLjQWFDu1bC+kKTw7ESQa3x9PCr6NSYbrTPU4kAl4mQIuWuKtumHo80Cldxr3QRQqOrQGrcqgTphnyTJ1yBDHr+kjb6tv9t7Ye9Kw3W3bd4oTpBBRWCMRRFjtSXjRb0tRqUgNg1ybMnqOvUaX+JWx9DD9AewYB00SIL9rh/4XOddoO8oKH4XJVjYUfOrXhptALp2Csb5vEFPl9IkQM0HgPLv7j4NsKShFAe+bkS/D5/3kGKwmASDto0XguYcSMYwccopbwnB4cTdueO+94iC/VJwTKWFxSgtBBfTQtvP/6Rwa6QwX16LFT7fJCvc8twv/sjcL0fnnl1j7iVspo59IniOKvmRCTWYftoWCdmdp5K2ycH1qeEvZ4JrPwe+DAA1fFdOmPoRoPxrQ7/8HUNP4vEXzrb09A/vJw==","w":250,"h":47,"aspect":"fixed"}]</mxlibrary>			this.addDataEntry(dt + 'multibranch shared association', 250, 50, 'Multibranch Shared Association',
 			this.addDataEntry(dt + 'multibranch shared association', 250, 50, 'Multibranch Shared Association',
 				'7VbLbtswEPwaXXoIZNKu22PkPE4FCqQ/QEtriQjFFUjasfz1XYmUbUUWojRNmwI9GODucofrGQ7EiK/K/b0RVfENM1ARv434yiA6vyr3K1AqYrHMIn4TMRbTL2J3I9VZW40rYUC7KQ3MN+yE2oLPCGsxlcJJ1AHNulqF4g6Mk6lQ10rmmlJrdA7LiCeFK2n2mxkt6QBZWWpINlKpFSo0VLHO4COEKAmnEhrsRydvU2Hse8ASnKlpS9fAuG95kpkrfG7uMwXIvHC9lLA+zI84J1JoEXi5zBEfcFQZrGj2ekgQZDk8hBDUGp9uT4k+SVSjdYFGHlA7QYVEBFaNHz8ZZRt0dm1MC6BRN9AGtzqDZuCYIiXWoBKRPuZtvtMg7PVDN5P2qLe4NSn0rsUr1PANBhTdnF0f+BL3Aeg7SsI/orCFv61x3RujA3DC5OBCzzP9jiNNknQ+kDS+uvo0UNOAlQexbsP4gkBngj7XymH1ohAbEv5BHhr02VTZUtQaUheGOvr7JS/x36reVOcsRp3D3uycjvD/vhn6Zr6cZBziQtRn26pmgx0/Zvb14jGny+ABf9WUnz+gKd/iucVf8dxy1HP8PTynYDPVcpkUJersRyH1wHm07U42/6mLOgnYv2jL9/58fRloPHyJjNkkCPZhXLL8Ey6h8PSm9oSfP7l/Ag=='),
 			    
@@ -987,7 +990,67 @@
 		    	cardCell.insertEdge(assoc2, true);
 			    
 			   	return sb.createVertexTemplateFromCells([cardCell, assoc1, assoc2], 250, 60, 'Provided Interface');
-			})				
+			}),
+			
+			    this.createVertexTemplateEntry(s + 'port;sysMLPortType=flowN;', 
+    		20, 20, '', 'Port, Flow North', null, null, this.getTagsForStencil(gn, '', dt + 'item flow north').join(' ')),
+			    this.createVertexTemplateEntry(s + 'port;sysMLPortType=doubleH;', 
+    		20, 20, '', 'Port, Double Flow, Horizontal', null, null, this.getTagsForStencil(gn, '', dt + 'item double flow horizontal').join(' ')),
+				
+			this.addEntry(dt + 'ports', function()
+		    {
+		    	var mainShape = new mxCell('', new mxGeometry(0, 0, 200, 140), 'whiteSpace=wrap;align=center;');
+		    	mainShape.vertex = true;
+		    	var port1 = new mxCell('port1', new mxGeometry(0, 0, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=flowS;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;');
+		    	port1.geometry.relative = true;
+		    	port1.vertex = true;
+				port1.geometry.offset = new mxPoint(50, -10);
+		    	mainShape.insert(port1);
+			    
+		    	var port2 = new mxCell('port2', new mxGeometry(1, 0, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=empty;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;');
+		    	port2.geometry.relative = true;
+		    	port2.vertex = true;
+				port2.geometry.offset = new mxPoint(-70, -10);
+		    	mainShape.insert(port2);
+			    
+		    	var port3 = new mxCell('port3', new mxGeometry(0, 0, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=flowE;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;');
+		    	port3.geometry.relative = true;
+		    	port3.vertex = true;
+				port3.geometry.offset = new mxPoint(-10, 30);
+		    	mainShape.insert(port3);
+			    
+		    	var port4 = new mxCell('port4', new mxGeometry(0, 1, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=doubleH;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;');
+		    	port4.geometry.relative = true;
+		    	port4.vertex = true;
+				port4.geometry.offset = new mxPoint(-10, -50);
+		    	mainShape.insert(port4);
+			    
+		    	var port5 = new mxCell('port5', new mxGeometry(1, 0, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=flowE;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;');
+		    	port5.geometry.relative = true;
+		    	port5.vertex = true;
+				port5.geometry.offset = new mxPoint(-10, 30);
+		    	mainShape.insert(port5);
+			    
+		    	var port6 = new mxCell('port6', new mxGeometry(1, 1, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=doubleH;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;');
+		    	port6.geometry.relative = true;
+		    	port6.vertex = true;
+				port6.geometry.offset = new mxPoint(-10, -50);
+		    	mainShape.insert(port6);
+			    
+		    	var port7 = new mxCell('port7', new mxGeometry(0, 1, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=flowN;labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;');
+		    	port7.geometry.relative = true;
+		    	port7.vertex = true;
+				port7.geometry.offset = new mxPoint(50, -10);
+		    	mainShape.insert(port7);
+			    
+		    	var port8 = new mxCell('port8', new mxGeometry(1, 1, 20, 20), s + 'port;html=1;resizable=0;sysMLPortType=doubleV;labelPosition=center;verticalLabelPosition=top;align=center;verticalAlign=bottom;');
+		    	port8.geometry.relative = true;
+		    	port8.vertex = true;
+				port8.geometry.offset = new mxPoint(-70, -10);
+		    	mainShape.insert(port8);
+			    
+			   	return sb.createVertexTemplateFromCells([mainShape], 220, 160, 'Ports');
+			})
 	    ];
 	    
 	    this.addPalette('sysmlPorts and Flows', 'SysML / Ports and Flows', expand || false, mxUtils.bind(this, function(content)

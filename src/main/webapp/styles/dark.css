@@ -33,7 +33,7 @@ html body, html body .geFooterContainer, html body #geFooterItem1, html body tex
 	background:#2a2a2a;
 	color:#cccccc;
 }
-html body a {
+html body a :not(.geStatus *) {
 	color:#337ab7;
 }
 html body div.mxRubberband {
@@ -168,12 +168,12 @@ html .geEditor ::-webkit-scrollbar-thumb {
 html .geEditor ::-webkit-scrollbar-thumb:hover, .geHsplit:hover, .geVsplit:hover {
 	background-color:#a0a0a0;
 }
-html body .geStatusAlert {
+html body a.geStatus .geStatusAlert {
 	background-color:#a20025;
 	border:1px solid #bd002b;
 	color:#fff !important;
 }
-html body .geStatusAlert:hover {
+html body a.geStatus .geStatusAlert:hover {
 	background-color:#a20025;
 	border-color:#bd002b;
 }

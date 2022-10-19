@@ -78,12 +78,6 @@ public class ProxyServlet extends HttpServlet
 
 			try(OutputStream out = response.getOutputStream())
 			{
-				if ("draw.io".equals(ua))
-				{
-					log.log(Level.SEVERE, "Infinite loop detected, proxy should not call itself");
-					throw new UnsupportedContentException();
-				}
-
 				request.setCharacterEncoding("UTF-8");
 				response.setCharacterEncoding("UTF-8");
 

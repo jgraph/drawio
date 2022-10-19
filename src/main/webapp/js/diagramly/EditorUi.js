@@ -8614,6 +8614,8 @@
 						else if (done != null)
 						{
 							done(null);
+							this.showError(mxResources.get('error'), xhr.status == 413? mxResources.get('diagramTooLarge') :
+													mxResources.get('unknownError'));
 						}
 					}
 				});
@@ -10671,7 +10673,6 @@
 					window.setTimeout(mxUtils.bind(this, function()
 					{
 						this.fireEvent(new mxEventObject('currentThemeChanged'));
-						this.editor.fireEvent(new mxEventObject('statusChanged'));
 
 						// Restores scroll position
 						this.editor.graph.refresh();
@@ -10830,7 +10831,7 @@
 			this.createShapesWindow();
 			this.sidebarContainer.style.left = '0px';
 			this.sidebarContainer.style.top = '0px';
-			this.sidebarContainer.style.bottom = '0px';
+			this.sidebarContainer.style.bottom = '63px';
 			this.sidebarContainer.style.width = '100%';
 		}
 
@@ -11146,8 +11147,8 @@
 				this.sketchPickerMenuElt = document.createElement('div');
 				this.sketchPickerMenuElt.className = 'geToolbarContainer';
 				this.sketchPickerMenuElt.style.cssText = 'position:absolute;left:10px;border-radius:4px;' +
-					'padding:0px 4px 4px;white-space:nowrap;' +
-					'z-index:1;transform:translate(0, -50%);top:50%;user-select:none;width:40px;';
+					'padding:0px 4px 4px;white-space:nowrap;max-height:100%;width:48px;z-index:1;' +
+					'box-sizing:border-box;transform:translate(0, -50%);top:50%;user-select:none;';
 
 				var picker = this.sketchPickerMenuElt;
 				mxUtils.setPrefixedStyle(picker.style, 'transition', 'transform .3s ease-out');
@@ -11278,12 +11279,13 @@
 					{
 						mxUtils.setPrefixedStyle(picker.style, 'transform', 'translate(0, -50%)');
 						picker.style.padding = '8px 6px 4px';
-						picker.style.width = '40px';
+						picker.style.width = '48px';
 						picker.style.top = '50%';
 						picker.style.bottom = '';
 						picker.style.height = '';
 						foldImg.style.backgroundImage = 'url(' + mxWindow.prototype.normalizeImage + ')';
 						foldImg.setAttribute('title', 'Minimize'/*TODO:mxResources.get('minimize')*/);
+						foldImg.style.width = '100%';
 						foldImg.style.height = '14px';
 						collapsed = false;
 						initPicker();
@@ -11293,13 +11295,13 @@
 						picker.innerText = '';
 						picker.appendChild(foldImg);
 						mxUtils.setPrefixedStyle(picker.style, 'transform', 'translate(0, 0)');
+						picker.style.width = 'auto';
 						picker.style.bottom = '12px';
 						picker.style.padding = '0px';
-						picker.style.height = '24px';
-						picker.style.width = '24px';
 						picker.style.top = '';
 						foldImg.style.backgroundImage = 'url(' + Editor.plusImage + ')';
 						foldImg.setAttribute('title', mxResources.get('insert'));
+						foldImg.style.width = '24px';
 						foldImg.style.height = '24px';
 						collapsed = true;
 					}
@@ -11331,16 +11333,24 @@
 					'min-width:40px;justify-content:flex-end;align-items:center;';
 				this.sketchWrapperElt.appendChild(this.sketchMenubarElt);
 
-				if (urlParams['embed'] != '1' && this.getServiceName() != 'atlassian')
+				// Moves menu away if picker overlaps
+				var refreshMenu = mxUtils.bind(this, function()
 				{
-					this.installStatusMinimizer(this.sketchMenubarElt);
-				}
+					var overflow = (this.sketchPickerMenuElt.offsetTop -
+						this.sketchPickerMenuElt.offsetHeight / 2 < 58);
+					this.sketchMainMenuElt.style.left = (overflow) ? '70px' : '10px';
+					this.sketchMenubarElt.style.maxWidth = (overflow) ? 
+						'calc(100% - 230px)' : 'calc(100% - 170px)';
+					
+				});
+
+				refreshMenu();
+				mxEvent.addListener(window, 'resize', refreshMenu);
 			}
 
 			if (this.statusContainer != null)
 			{
 				this.statusContainer.style.flexShrink = '1';
-				this.statusContainer.style.overflow = 'hidden';
 				this.sketchMenubarElt.appendChild(this.statusContainer);
 			}
 
@@ -11406,17 +11416,18 @@
 	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
-	EditorUi.prototype.createMenu = function(key, img)
+	EditorUi.prototype.createMenu = function(key, img, className)
 	{
+		className = (className != null) ? className : 'geToolbarButton';
 		var menu = this.menus.get(key);
 		var elt = this.menubar.addMenu(mxResources.get(key), menu.funct);
 		
-		elt.className = 'geToolbarButton';
+		elt.className = className;
 		elt.style.display = 'inline-block';
 		elt.style.cursor = 'pointer';
 		elt.style.height = '24px';
 		elt.setAttribute('title', mxResources.get(key));
-		this.menus.menuCreated(menu, elt, 'geToolbarButton');
+		this.menus.menuCreated(menu, elt, className);
 		
 		if (img != null)
 		{
@@ -11432,13 +11443,14 @@
 	};
 
 	/**
-	 * Overrides image dialog to add image search and Google+.
+	 * Create toolbar button.
 	 */
-	EditorUi.prototype.createMenuItem = function(key, img, ignoreState)
+	EditorUi.prototype.createToolbarButton = function(img, title, fn, size)
 	{
+		size = (size != null) ? size : 24;
 		var btn = document.createElement('a');
-		btn.className = 'geToolbarButton';
-		btn.setAttribute('title', mxResources.get(key));
+		btn.className = 'geToolbarButton geAdaptiveAsset';
+		btn.setAttribute('title', title);
 		btn.style.backgroundImage = 'url(' + img + ')';
 		btn.style.backgroundPosition = 'center center';
 		btn.style.backgroundRepeat = 'no-repeat';
@@ -11446,12 +11458,10 @@
 		btn.style.display = 'inline-block';
 		btn.style.cursor = 'pointer';
 		btn.style.marginLeft = '6px';
-		btn.style.width = '24px';
-		btn.style.height = '24px';
+		btn.style.width = size + 'px';
+		btn.style.height = size + 'px';
 
-		var action = this.actions.get(key);
-
-		if (action != null)
+		if (fn != null)
 		{
 			// Prevents focus
 			mxEvent.addListener(btn, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
@@ -11464,12 +11474,27 @@
 			{
 				if (btn.getAttribute('disabled') != 'disabled')
 				{
-					action.funct(evt);
+					fn(evt);
 				}
 				
 				mxEvent.consume(evt);
 			});
-	
+		}
+
+		return btn;
+	};
+
+	/**
+	 * Overrides image dialog to add image search and Google+.
+	 */
+	EditorUi.prototype.createMenuItem = function(key, img, ignoreState)
+	{
+		var action = this.actions.get(key);
+		var fn = (action != null) ? action.funct : null;
+		var btn = this.createToolbarButton(img, mxResources.get(key), fn);
+
+		if (action != null)
+		{
 			if (!ignoreState)
 			{
 				function updateState()
@@ -11594,6 +11619,96 @@
 	};
 
 	/**
+	 * 
+	 */
+	EditorUi.prototype.createShapesPanel = function(container)
+	{
+		var div = document.createElement('div');
+		div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
+			'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
+		div.className = 'geTitle';
+		var span = document.createElement('span');
+		span.style.fontSize = '18px';
+		span.style.marginRight = '5px';
+		span.innerHTML = '+';
+		div.appendChild(span);
+		mxUtils.write(div, mxResources.get('moreShapes'));
+		container.appendChild(div);
+		
+		mxEvent.addListener(div, 'click', mxUtils.bind(this, function()
+		{
+			this.actions.get('shapes').funct();
+		}));
+
+		// var menuObj = new Menubar(this, container);
+
+		var addMenu = mxUtils.bind(this, function(id, label)
+		{
+			var elt = this.createMenu(id, null, 'geTitle');
+
+			elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;' +
+				'width:50%;height:24px;bottom:0px;text-align:center;cursor:pointer;' +
+				'padding:6px 0 0 0;cusor:pointer;';
+			container.appendChild(elt);
+
+			return elt;
+		});
+		
+		if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' || urlParams['libraries'] == '1'))
+		{
+			// Defined in native apps together with openLibrary
+			if (this.actions.get('newLibrary') != null)
+			{
+				var div = document.createElement('div');
+				div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
+					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
+				div.className = 'geTitle';
+				var span = document.createElement('span');
+				span.style.cssText = 'position:relative;top:6px;';
+				mxUtils.write(span, mxResources.get('newLibrary'));
+				div.appendChild(span);
+				container.appendChild(div);
+				
+				mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
+				
+				var div = div.cloneNode(false);
+				div.style.left = '50%';
+				div.style.borderLeft = '1px solid lightgray';
+				var span = span.cloneNode(false);
+				mxUtils.write(span, mxResources.get('openLibrary'));
+				div.appendChild(span);
+				container.appendChild(div);
+				
+				mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
+			}
+			else
+			{
+				var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
+				elt.style.boxSizing = 'border-box';
+				elt.style.paddingRight = '6px';
+				elt.style.paddingLeft = '6px';
+				elt.style.height = '32px';
+				elt.style.left = '0';
+				
+				var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
+				elt.style.borderLeft = '1px solid lightgray';
+				elt.style.boxSizing = 'border-box';
+				elt.style.paddingRight = '6px';
+				elt.style.paddingLeft = '6px';
+				elt.style.height = '32px';
+				elt.style.left = '50%';
+			}
+		}
+		else
+		{
+			div.style.bottom = '0';
+		}
+
+		container.appendChild(this.sidebarContainer);
+		container.style.overflow = 'hidden';
+	};
+
+	/**
 	 * Overrides image dialog to add image search and Google+.
 	 */
 	EditorUi.prototype.createShapesWindow = function()
@@ -11610,7 +11725,7 @@
 					Math.max(30, (this.diagramContainer.parentNode.clientHeight - h) / 2) : 56,
 				w - 6, h - 6, mxUtils.bind(this, function(container)
 			{
-				container.appendChild(this.sidebarContainer);
+				this.createShapesPanel(container);
 			}));
 			
 			this.sidebarWindow.window.addListener(mxEvent.SHOW, mxUtils.bind(this, function()
@@ -11673,6 +11788,7 @@
 			'html body.geEditor .geTabContainer div { border-color: #e5e5e5 !important; }'
 			) +
 			// End of custom styles
+			'html body .geStatus > *:not([class]) { vertical-align:top; }' +
 			'html > body > div > a.geItem { background-color: #ffffff; color: #707070; border-top: 1px solid lightgray; border-left: 1px solid lightgray; }' +
 			'html body .geMenubarContainer { border-bottom:1px solid lightgray;background-color:#ffffff; }' +
 			'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
@@ -12755,6 +12871,11 @@
 													if (req.getStatus() >= 200 && req.getStatus() <= 299)
 													{
 														this.openLocalFile(req.getText(), null, true);
+													}
+													else
+													{
+														this.showError(mxResources.get('error'), req.getStatus() == 413? mxResources.get('diagramTooLarge') :
+																			mxResources.get('unknownError'));
 													}
 												}));
 											}
@@ -14401,10 +14522,18 @@
 					// Asynchronous parsing via server
 					this.parseFileData(data, mxUtils.bind(this, function(xhr)
 					{
-						if (xhr.readyState == 4 && xhr.status >= 200 && xhr.status <= 299 &&
-							xhr.responseText.substring(0, 13) == '<mxGraphModel')
+						if (xhr.readyState == 4)
 						{
-							doLoad(xhr.responseText, evt);
+							if (xhr.status >= 200 && xhr.status <= 299 &&
+								xhr.responseText.substring(0, 13) == '<mxGraphModel')
+							{
+								doLoad(xhr.responseText, evt);
+							}
+							else
+							{
+								this.handleError({message: xhr.status == 413? mxResources.get('diagramTooLarge') : 
+										mxResources.get('unknownError')});
+							}
 						}
 					}), '');
 				}

@@ -1,3 +1,25 @@
+19-OCT-2022: 20.4.2
+
+- Fixes draggable elements problem in Chrome [3112]
+
+13-OCT-2022: 20.4.1
+
+- Adds Gliffy file size error message [DS-920]
+- Only hides current menu for mouse down event types [DS-921]
+- Fixes possible #ERROR fill for invalid fillStyles [DS-922]
+- Bugfixes for Rack Cabinet shape [3052]
+- Fixes DOM for empty status message
+- Fixes status alert style in dark mode
+- Fixes spaces, missing HTML tag in C4 shapes [3082]
+- Uses data attribute for status event handling code [DS-923]
+- Uses svg icons, fixes revisions dialog for mobile
+- Adds new port shape to the SysML library [3015]
+- Inverts order of toolbar items in revision dialog
+- Adds editing for relative positions in Arrange tab
+- Fixes possible overflow of library preview [3080]
+- Handles data-effect attribute for status bar items
+- Fixes key insert position if mouse outside diagram [DS-924]
+
 29-SEP-2022: 20.4.0
 
 - [conf cloud] Fixed bug that instances without configuration store diagrams as compressed XML [DID-6387]

@@ -1274,6 +1274,53 @@ BaseFormatPanel.prototype.addUnitInput = function(container, unit, right, width,
 /**
  * 
  */
+BaseFormatPanel.prototype.addGenericInput = function(container, unit, left, width, readFn, writeFn)
+{
+	var graph = this.editorUi.editor.graph;
+
+	var update = function()
+	{
+		writeFn(input.value);
+	};
+
+	var input = this.addUnitInput(container, unit, left, width, update);
+
+	var listener = mxUtils.bind(this, function(sender, evt, force)
+	{
+		if (force || input != document.activeElement)
+		{
+			input.value = readFn() + unit;
+		}
+	});
+	
+	mxEvent.addListener(input, 'keydown', function(e)
+	{
+		if (e.keyCode == 13)
+		{
+			graph.container.focus();
+			mxEvent.consume(e);
+		}
+		else if (e.keyCode == 27)
+		{
+			listener(null, null, true);
+			graph.container.focus();
+			mxEvent.consume(e);
+		}
+	});
+	
+	graph.getModel().addListener(mxEvent.CHANGE, listener);
+	this.listeners.push({destroy: function() { graph.getModel().removeListener(listener); }});
+	listener();
+
+	mxEvent.addListener(input, 'blur', update);
+	mxEvent.addListener(input, 'change', update);
+
+	return input;
+};
+
+/**
+ * 
+ */
 BaseFormatPanel.prototype.createRelativeOption = function(label, key, width, handler, init)
 {
 	width = (width != null) ? width : 52;
@@ -1378,6 +1425,8 @@ BaseFormatPanel.prototype.addLabel = function(div, title, right, width)
 	label.style.marginTop = '6px';
 	label.style.textAlign = 'center';
 	div.appendChild(label);
+
+	return label;
 };
 
 /**
@@ -2286,7 +2335,7 @@ ArrangePanel.prototype.addGeometry = function(container)
 	span.style.fontWeight = 'bold';
 	mxUtils.write(span, mxResources.get('position'));
 	div2.appendChild(span);
-	
+
 	var left = this.addUnitInput(div2, this.getUnit(), 87, 52, function()
 	{
 		leftUpdate.apply(this, arguments);
@@ -2298,8 +2347,77 @@ ArrangePanel.prototype.addGeometry = function(container)
 
 	mxUtils.br(div2);
 
-	this.addLabel(div2, mxResources.get('left'), 87);
-	this.addLabel(div2, mxResources.get('top'), 16);
+	if (rect.movable)
+	{
+		if (rect.edges.length == 0 && rect.vertices.length == 1)
+		{
+			var geo = graph.getCellGeometry(rect.vertices[0]);
+
+			if (geo != null && geo.relative)
+			{
+				mxUtils.br(div2);
+
+				var span = document.createElement('div');
+				span.style.position = 'absolute';
+				span.style.width = '70px';
+				span.style.marginTop = '0px';
+				mxUtils.write(span, mxResources.get('relative'));
+				div2.appendChild(span);
+
+				this.addGenericInput(div2, '%', 87, 52, function()
+				{
+					return (Math.round(geo.x * 1000) / 10);
+				}, function(value)
+				{
+					value = parseFloat(value);
+					
+					if (!isNaN(value))
+					{
+						model.beginUpdate();
+						try
+						{
+							geo = geo.clone();
+							geo.x = parseFloat(value) / 100;
+							model.setGeometry(rect.vertices[0], geo);
+						}
+						finally
+						{
+							model.endUpdate();
+						}
+					}
+				});
+
+				this.addGenericInput(div2, '%', 16, 52, function()
+				{
+					return (Math.round(geo.y * 1000) / 10);
+				}, function(value)
+				{
+					value = parseFloat(value);
+					
+					if (!isNaN(value))
+					{
+						model.beginUpdate();
+						try
+						{
+							geo = geo.clone();
+							geo.y = parseFloat(value) / 100;
+							model.setGeometry(rect.vertices[0], geo);
+						}
+						finally
+						{
+							model.endUpdate();
+						}
+					}
+				});
+
+				mxUtils.br(div2);
+			}
+		}
+		container.appendChild(div2);
+	}
+
+	this.addLabel(div2, mxResources.get('left'), 87).style.marginTop = '8px';
+	this.addLabel(div2, mxResources.get('top'), 16).style.marginTop = '8px';
 	
 	var listener = mxUtils.bind(this, function(sender, evt, force)
 	{
@@ -2407,7 +2525,8 @@ ArrangePanel.prototype.addGeometry = function(container)
 				}));
 				
 				btn.setAttribute('title', mxResources.get('center'));
-				btn.style.width = '210px';
+				btn.style.width = '134px';
+				btn.style.left = '89px';
 				btn.style.position = 'absolute';
 				mxUtils.br(div2);
 				mxUtils.br(div2);
@@ -4431,7 +4550,8 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 			this.editorUi.actions.get('editStyle').funct();
 		}));
 		
-		btn.setAttribute('title', mxResources.get('editStyle') + ' (' + this.editorUi.actions.get('editStyle').shortcut + ')');
+		btn.setAttribute('title', mxResources.get('editStyle') + ' (' +
+			this.editorUi.actions.get('editStyle').shortcut + ')');
 		btn.style.width = '210px';
 		btn.style.marginBottom = '2px';
 		
@@ -4514,7 +4634,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 	}, function(color)
 	{
 		graph.updateCellStyles({'gradientColor': color}, graph.getSelectionCells());
-	}, graph.getDefaultColor(ss.style, mxConstants.STYLE_GRADIENTCOLOR, graph.shapeForegroundColor, graph.shapeBackgroundColor));
+	}, graph.getDefaultColor(ss.style, mxConstants.STYLE_GRADIENTCOLOR,
+		graph.shapeForegroundColor, graph.shapeBackgroundColor));
 
 	var fillKey = (ss.style.shape == 'image') ? mxConstants.STYLE_IMAGE_BACKGROUND : mxConstants.STYLE_FILLCOLOR;
 
@@ -4522,7 +4643,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 		fillKey, 'default', null, mxUtils.bind(this, function(color)
 	{
 		graph.setCellStyles(fillKey, color, ss.cells);
-	}), graph.getDefaultColor(ss.style, fillKey, graph.shapeBackgroundColor, graph.shapeForegroundColor));
+	}), graph.getDefaultColor(ss.style, fillKey, graph.shapeBackgroundColor,
+		graph.shapeForegroundColor));
 
 	fillPanel.style.fontWeight = 'bold';
 	var tmpColor = mxUtils.getValue(ss.style, fillKey, null);
@@ -4581,7 +4703,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 	var listener = mxUtils.bind(this, function()
 	{
 		ss = ui.getSelectionState();
-		var value = mxUtils.getValue(ss.style, mxConstants.STYLE_GRADIENT_DIRECTION, mxConstants.DIRECTION_SOUTH);
+		var value = mxUtils.getValue(ss.style, mxConstants.STYLE_GRADIENT_DIRECTION,
+			mxConstants.DIRECTION_SOUTH);
 		var fillStyle = mxUtils.getValue(ss.style, 'fillStyle', 'auto');
 		
 		// Handles empty string which is not allowed as a value
@@ -4595,7 +4718,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 		
 		var fillColor = mxUtils.getValue(ss.style, fillKey, null);
 		
-		if (!ss.fill || fillColor == null || fillColor == mxConstants.NONE || ss.style.shape == 'filledEdge')
+		if (!ss.fill || fillColor == null || fillColor == mxConstants.NONE ||
+			ss.style.shape == 'filledEdge')
 		{
 			fillStyleSelect.style.display = 'none';
 			gradientPanel.style.display = 'none';
@@ -4623,7 +4747,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 				fillStyleSelect.value = fillStyle;
 			}
 
-			fillStyleSelect.style.display = ss.style.sketch == '1' || gradientSelect.style.display == 'none'? '' : 'none';
+			fillStyleSelect.style.display = ss.style.sketch == '1' ||
+				gradientSelect.style.display == 'none'? '' : 'none';
 			gradientPanel.style.display = (!ss.containsImage && (ss.style.sketch != '1' ||
 				fillStyle == 'solid' || fillStyle == 'auto')) ? '' : 'none';
 		}
@@ -4657,7 +4782,8 @@ StyleFormatPanel.prototype.addFill = function(container)
 	
 	for (var i = 0; i < custom.length; i++)
 	{
-		container.appendChild(this.createCellColorOption(custom[i].title, custom[i].key, custom[i].defaultValue));
+		container.appendChild(this.createCellColorOption(custom[i].title,
+			custom[i].key, custom[i].defaultValue));
 	}
 	
 	return container;

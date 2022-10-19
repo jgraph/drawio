@@ -1209,3 +1209,5 @@ confAHugeInstancesDesc=Als dit exemplaar meer dan 100.000 pagina's bevat, is het
 choosePageIDsFile=Kies het huidige pagina-ID's csv-bestand
 chooseDrawioPsgesFile=Kies pagina's met draw.io diagrammen csv-bestand
 private=Private
+diagramTooLarge=The diagram is too large, please reduce its size and try again.
+selectAdminUsers=Select Admin Users

@@ -4590,6 +4590,49 @@ EditorUi.prototype.createStatusContainer = function()
 	var container = document.createElement('a');
 	container.className = 'geItem geStatus';
 
+	// Handles data-action attribute
+	mxEvent.addListener(container, 'click', mxUtils.bind(this, function(evt)
+	{
+		var elt = mxEvent.getSource(evt);
+		var name = elt.getAttribute('data-action');
+
+		// Make generic
+		if (name == 'statusFunction' && this.editor.statusFunction != null)
+		{
+			this.editor.statusFunction();
+		}
+		else if (name != null)
+		{
+			var action = this.actions.get(name);
+
+			if (action != null)
+			{
+				action.funct();
+			}
+		}
+		else
+		{
+			var title = elt.getAttribute('data-title');
+			var msg = elt.getAttribute('data-message');
+
+			if (title != null && msg != null)
+			{
+				this.showError(title, msg);
+			}
+			else
+			{
+				var link = elt.getAttribute('data-link');
+
+				if (link != null)
+				{
+					this.editor.graph.openLink(link);
+				}
+			}
+		}
+
+		mxEvent.consume(evt);
+	}));
+
 	return container;
 };
 
@@ -4601,12 +4644,50 @@ EditorUi.prototype.setStatusText = function(value)
 	this.statusContainer.innerHTML = value;
 
 	// Wraps simple status messages in a div for styling
-	if (this.statusContainer.getElementsByTagName('div').length == 0)
+	if (this.statusContainer.getElementsByTagName('div').length == 0 &&
+		value != null && value.length > 0)
 	{
 		this.statusContainer.innerText = '';
 		var div = this.createStatusDiv(value);
 		this.statusContainer.appendChild(div);
 	}
+
+	// Handles data-effect attribute
+	var spans = this.statusContainer.querySelectorAll('[data-effect="fade"]');
+
+	if (spans != null)
+	{
+		for (var i = 0; i < spans.length; i++)
+		{
+			(function(temp)
+			{
+				mxUtils.setOpacity(temp, 0);
+				mxUtils.setPrefixedStyle(temp.style, 'transform', 'scaleX(0)');
+				mxUtils.setPrefixedStyle(temp.style, 'transition', 'all 0.2s ease');
+				
+				window.setTimeout(mxUtils.bind(this, function()
+				{
+					mxUtils.setOpacity(temp, 100);
+					mxUtils.setPrefixedStyle(temp.style, 'transform', 'scaleX(1)');
+					mxUtils.setPrefixedStyle(temp.style, 'transition', 'all 1s ease');
+					
+					window.setTimeout(mxUtils.bind(this, function()
+					{
+						mxUtils.setPrefixedStyle(temp.style, 'transform', 'scaleX(0)');
+						mxUtils.setOpacity(temp, 0);
+		
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							if (temp.parentNode != null)
+							{
+								temp.parentNode.removeChild(temp);
+							}
+						}), 1000);
+					}), Editor.updateStatusInterval / 2);
+				}), 0);
+			})(spans[i]);
+		}
+	}		
 };
 
 /**

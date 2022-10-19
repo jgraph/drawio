@@ -264,7 +264,7 @@ var mxSettings =
 			recentColors: [],
 			formatWidth: mxSettings.defaultFormatWidth,
 			createTarget: urlParams['sketch'] == '1' ||
-				urlParams['live-ui'] == '1',
+				Editor.enableSimpleTheme,
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,

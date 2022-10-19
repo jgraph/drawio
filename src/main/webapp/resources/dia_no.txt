@@ -1209,3 +1209,5 @@ confAHugeInstancesDesc=If this instance includes 100,000+ pages, it is faster to
 choosePageIDsFile=Choose current page IDs csv file
 chooseDrawioPsgesFile=Choose pages with draw.io diagrams csv file
 private=Private
+diagramTooLarge=The diagram is too large, please reduce its size and try again.
+selectAdminUsers=Select Admin Users

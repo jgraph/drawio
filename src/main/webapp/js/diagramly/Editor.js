@@ -19,34 +19,6 @@
 	}
 
 	/**
-	 * Specifies the app name. Default is document.title.
-	 */
-	Editor.prototype.appName = 'diagrams.net';
-		
-	/**
-	 * Known file types.
-	 */
-	Editor.prototype.diagramFileTypes = [
-		{description: 'diagramXmlDesc', extension: 'drawio', mimeType: 'text/xml'},
-		{description: 'diagramPngDesc', extension: 'png', mimeType: 'image/png'},
-		{description: 'diagramSvgDesc', extension: 'svg', mimeType: 'image/svg'},
-		{description: 'diagramHtmlDesc', extension: 'html', mimeType: 'text/html'},
-		{description: 'diagramXmlDesc', extension: 'xml', mimeType: 'text/xml'}];
-
-	/**
-	 * Known file types.
-	 */
-	Editor.prototype.libraryFileTypes = [{description: 'Library (.drawiolib, .xml)', extensions: ['drawiolib', 'xml']}];
-
-	/**
-	 * Additional help text for special file extensions.
-	 */
-	Editor.prototype.fileExtensions = [
-		{ext: 'html', title: 'filetypeHtml'},
-		{ext: 'png', title: 'filetypePng'},
-		{ext: 'svg', title: 'filetypeSvg'}];
-	
-	/**
 	 * Definitions for sketch font styles.
 	 */
 	Editor.sketchFontFamily = 'Architects Daughter';
@@ -142,10 +114,6 @@
 	/**
 	 * Error image for not found images
 	 */	
-
-	/**
-	 * Error image for not found images
-	 */	
 	Editor.configurationKey = '.configuration';
 		
 	/**
@@ -167,6 +135,12 @@
 	 * Specifies if custom properties should be enabled.
 	 */
 	Editor.enableCustomProperties = true;
+		
+	/**
+	 * Specifies if the simple theme should be enabled. This theme can be used
+	 * at runtime in the kennedy theme.
+	 */
+	Editor.enableSimpleTheme = urlParams['live-ui'] == '1';
 	
 	/**
 	 * Sets the default value for including a copy of the diagram.
@@ -2104,6 +2078,39 @@
 		return rtn.join('');
 	};
 
+	/**
+	 * Interval for updating the file status.
+	 */
+	Editor.updateStatusInterval = 10000;
+
+	/**
+	 * Specifies the app name. Default is document.title.
+	 */
+	Editor.prototype.appName = 'diagrams.net';
+		
+	 /**
+	  * Known file types.
+	  */
+	Editor.prototype.diagramFileTypes = [
+		{description: 'diagramXmlDesc', extension: 'drawio', mimeType: 'text/xml'},
+		{description: 'diagramPngDesc', extension: 'png', mimeType: 'image/png'},
+		{description: 'diagramSvgDesc', extension: 'svg', mimeType: 'image/svg'},
+		{description: 'diagramHtmlDesc', extension: 'html', mimeType: 'text/html'},
+		{description: 'diagramXmlDesc', extension: 'xml', mimeType: 'text/xml'}];
+
+	 /**
+	  * Known file types.
+	  */
+	Editor.prototype.libraryFileTypes = [{description: 'Library (.drawiolib, .xml)', extensions: ['drawiolib', 'xml']}];
+ 
+	 /**
+	  * Additional help text for special file extensions.
+	  */
+	Editor.prototype.fileExtensions = [
+		{ext: 'html', title: 'filetypeHtml'},
+		{ext: 'png', title: 'filetypePng'},
+		{ext: 'svg', title: 'filetypeSvg'}];
+	
 	/**
 	 * General timeout is 25 seconds.
 	 */

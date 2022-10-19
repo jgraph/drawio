@@ -1687,19 +1687,8 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 	if (this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
 	{
 		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
-		this.ui.editor.setStatus('<div title="'+ status + '">' + status + '</div>');
-		var links = this.ui.statusContainer.getElementsByTagName('div');
-		
-		if (links.length > 0 && this.isRevisionHistorySupported())
-		{
-			links[0].style.cursor = 'pointer';
-			links[0].style.textDecoration = 'underline';
-			
-			mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
-			{
-				this.ui.actions.get('revisionHistory').funct();
-			}));
-		}
+		var rev = (this.isRevisionHistorySupported()) ? 'data-action="revisionHistory" ' : '';
+		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status + '</div>');
 	}
 };
 
@@ -1775,22 +1764,11 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 		if (err instanceof Error && err.message != null && err.message != '')
 		{
 			var status = mxUtils.htmlEntities(mxResources.get('unsavedChanges'));
-			
-			this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlert">' +
-				status + ' (' + mxUtils.htmlEntities(err.message) + ')</div>');
-
-			// Installs click handler for error message
-			var links = this.ui.statusContainer.getElementsByTagName('div');
-			
-			if (links != null && links.length > 0)
-			{
-				links[0].style.cursor = 'pointer';
-
-				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
-				{
-					this.ui.showError(mxResources.get('unsavedChanges'), mxUtils.htmlEntities(err.message));
-				}));
-			}
+			this.ui.editor.setStatus('<div title="'+ status + '" data-title="' +
+				mxUtils.htmlEntities(mxResources.get('unsavedChanges')) +
+				'" data-message="' + mxUtils.htmlEntities(err.message) +
+				'" class="geStatusAlert">' + status + ' (' +
+				mxUtils.htmlEntities(err.message) + ')</div>');
 		}
 		else
 		{
@@ -1814,29 +1792,11 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 
 			var status = mxUtils.htmlEntities(mxResources.get('unsavedChangesClickHereToSave')) +
 				((msg != null && msg != '') ? ' (' + mxUtils.htmlEntities(msg) + ')' : '');
-			this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlertOrange">' + status +
+			var action = 'data-action="' + ((this.ui.mode == null || !this.isEditable()) ?
+				'saveAs' : 'save') + '"';
+			this.ui.editor.setStatus('<div ' + action + ' title="' +
+				status + '" class="geStatusAlertOrange">' + status +
 				' <img src="' + Editor.saveImage + '"/></div>');
-			
-			// Installs click handler for saving
-			var links = this.ui.statusContainer.getElementsByTagName('div');
-			
-			if (links != null && links.length > 0)
-			{
-				links[0].style.cursor = 'pointer';
-
-				mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function()
-				{
-					this.ui.actions.get((this.ui.mode == null || !this.isEditable()) ?
-						'saveAs' : 'save').funct();
-				}));
-			}
-			else
-			{
-				var status = mxUtils.htmlEntities(mxResources.get('unsavedChanges'));
-				
-				this.ui.editor.setStatus('<div title="'+ status + '" class="geStatusAlert">' + status +
-					' (' + mxUtils.htmlEntities(err.message) + ')</div>');
-			}
 			
 			if (EditorUi.enableDrafts && (this.getMode() == null || EditorUi.isElectronApp))
 			{
@@ -1870,7 +1830,7 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
  * Halts all timers and shows a conflict status message. The optional error
  * handler is invoked first.
  */
-DrawioFile.prototype.addConflictStatus = function(fn, message)
+DrawioFile.prototype.addConflictStatus = function(message, fn)
 {
 	if (this.invalidChecksum && message == null)
 	{
@@ -1878,39 +1838,22 @@ DrawioFile.prototype.addConflictStatus = function(fn, message)
 	}
 
 	this.setConflictStatus(mxUtils.htmlEntities(mxResources.get('fileChangedSync')) +
-		((message != null && message != '') ? ' (' + mxUtils.htmlEntities(message) + ')' : ''));
+		((message != null && message != '') ? ' (' +
+		mxUtils.htmlEntities(message) + ')' : ''), fn);
 	this.ui.spinner.stop();
 	this.clearAutosave();
-
-	var links = (this.ui.statusContainer != null) ? this.ui.statusContainer.getElementsByTagName('div') : null;
-	
-	if (links != null && links.length > 0)
-	{
-		links[0].style.cursor = 'pointer';
-
-		mxEvent.addListener(links[0], 'click', mxUtils.bind(this, function(evt)
-		{
-			if (mxEvent.getSource(evt).nodeName != 'IMG')
-			{
-				fn();
-			}
-		}));
-	}
-	else
-	{
-		this.ui.alert(mxUtils.htmlEntities(mxResources.get('fileChangedSync')), fn);
-	}
 };
 
 /**
  * Halts all timers and shows a conflict status message. The optional error
  * handler is invoked first.
  */
-DrawioFile.prototype.setConflictStatus = function(message)
+DrawioFile.prototype.setConflictStatus = function(message, fn)
 {
-	this.ui.editor.setStatus('<div title="'+ message + '" class="geStatusAlert">' + message +
-		' <a href="https://www.diagrams.net/doc/faq/synchronize" title="' + mxResources.get('help') +
-		'" target="_blank">' + '<img src="' + Editor.helpImage + '"/></a></div>');
+	this.ui.editor.setStatus('<div title="'+ message + '" ' + ((fn != null) ?
+		'data-action="statusFunction"' : '') + ' class="geStatusAlert">' + message +
+		'<img data-link="https://www.diagrams.net/doc/faq/synchronize" src="' +
+		Editor.helpImage + '" style="cursor:help;"/></div>', fn);
 };
 
 /**
@@ -1933,10 +1876,10 @@ DrawioFile.prototype.showRefreshDialog = function(success, error, message)
 	else
 	{
 		// Allows for escape key to be pressed while dialog is showing
-		this.addConflictStatus(mxUtils.bind(this, function()
+		this.addConflictStatus(message, mxUtils.bind(this, function()
 		{
 			this.showRefreshDialog(success, error);
-		}), message);
+		}));
 		
 		this.ui.showError(mxResources.get('warning') + ' (' + message + ')',
 			mxResources.get('fileChangedSyncDialog'),
@@ -2210,12 +2153,12 @@ DrawioFile.prototype.handleConflictError = function(err, manual)
 	}
 	else
 	{
-		this.addConflictStatus(mxUtils.bind(this, function()
+		this.addConflictStatus(this.getErrorMessage(err), mxUtils.bind(this, function()
 		{
 			this.ui.editor.setStatus(mxUtils.htmlEntities(
 				mxResources.get('updatingDocument')));
 			this.synchronizeFile(success, error);
-		}), this.getErrorMessage(err));
+		}));
 	}
 };
 
@@ -2437,54 +2380,64 @@ DrawioFile.prototype.autosave = function(delay, maxDelay, success, error)
 	// Starts new timer or executes immediately if not unsaved for maxDelay
 	var thread = window.setTimeout(mxUtils.bind(this, function()
 	{
-		this.lastAutosave = null;
-		
-		if (this.autosaveThread == thread)
+		try
 		{
-			this.autosaveThread = null;
-		}
-
-		EditorUi.debug('DrawioFile.autosave', [this], 'thread', thread,
-			'modified', this.isModified(), 'now', this.isAutosaveNow(),
-			'saving', this.savingFile);
-		
-		// Workaround for duplicate save if UI is blocking
-		// after save while pending autosave triggers
-		if (this.isModified() && this.isAutosaveNow())
-		{
-			var rev = this.isAutosaveRevision();
+			this.lastAutosave = null;
 			
-			if (rev)
+			if (this.autosaveThread == thread)
 			{
-				this.lastAutosaveRevision = new Date().getTime();
+				this.autosaveThread = null;
 			}
+
+			EditorUi.debug('DrawioFile.autosave', [this], 'thread', thread,
+				'modified', this.isModified(), 'now', this.isAutosaveNow(),
+				'saving', this.savingFile);
 			
-			this.save(rev, mxUtils.bind(this, function(resp)
+			// Workaround for duplicate save if UI is blocking
+			// after save while pending autosave triggers
+			if (this.isModified() && this.isAutosaveNow())
 			{
-				this.autosaveCompleted();
+				var rev = this.isAutosaveRevision();
+				
+				if (rev)
+				{
+					this.lastAutosaveRevision = new Date().getTime();
+				}
+				
+				this.save(rev, mxUtils.bind(this, function(resp)
+				{
+					this.autosaveCompleted();
+					
+					if (success != null)
+					{
+						success(resp);
+					}
+				}), mxUtils.bind(this, function(resp)
+				{
+					if (error != null)
+					{
+						error(resp);
+					}
+				}));
+			}
+			else
+			{
+				if (!this.isModified())
+				{
+					this.ui.editor.setStatus('');
+				}
 				
 				if (success != null)
 				{
-					success(resp);
+					success(null);
 				}
-			}), mxUtils.bind(this, function(resp)
-			{
-				if (error != null)
-				{
-					error(resp);
-				}
-			}));
-		}
-		else
-		{
-			if (!this.isModified())
-			{
-				this.ui.editor.setStatus('');
 			}
-			
-			if (success != null)
+		}
+		catch (e)
+		{
+			if (error != null)
 			{
-				success(null);
+				error(e);
 			}
 		}
 	}), tmp);

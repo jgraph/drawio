@@ -1209,3 +1209,5 @@ confAHugeInstancesDesc=Instantzia honek 100.000 orrialde baino gehiago baditu, a
 choosePageIDsFile=Aukeratu uneko orriaren IDak csv fitxategia
 chooseDrawioPsgesFile=Aukeratu draw.io diagramak csv fitxategia duten orrialdeak
 private=Pribatua
+diagramTooLarge=The diagram is too large, please reduce its size and try again.
+selectAdminUsers=Select Admin Users

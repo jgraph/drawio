@@ -1209,3 +1209,5 @@ confAHugeInstancesDesc=confAHugeInstancesDesc
 choosePageIDsFile=choosePageIDsFile
 chooseDrawioPsgesFile=chooseDrawioPsgesFile
 private=private
+diagramTooLarge=diagramTooLarge
+selectAdminUsers=selectAdminUsers

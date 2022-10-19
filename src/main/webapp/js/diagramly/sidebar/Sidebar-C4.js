@@ -14,7 +14,7 @@
 			this.addEntry(dt + 'person', function()
 		   	{
 			    var bg = new mxCell('', 
-			    		new mxGeometry(0, 0, w * 2, h * 1.8), 'html=1;fontSize=11;dashed=0;whitespace=wrap;fillColor=#083F75;strokeColor=#06315C;fontColor=#ffffff;shape=mxgraph.c4.person2;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];resizable=0;');
+			    		new mxGeometry(0, 0, w * 2, h * 1.8), 'html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#083F75;strokeColor=#06315C;fontColor=#ffffff;shape=mxgraph.c4.person2;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];resizable=0;');
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
@@ -28,7 +28,7 @@
 			this.addEntry(dt + 'external person', function()
 		   	{
 			    var bg = new mxCell('', 
-			    		new mxGeometry(0, 0, w * 2, h * 1.8), 'html=1;fontSize=11;dashed=0;whitespace=wrap;fillColor=#6C6477;strokeColor=#4D4D4D;fontColor=#ffffff;shape=mxgraph.c4.person2;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];resizable=0;');
+			    		new mxGeometry(0, 0, w * 2, h * 1.8), 'html=1;fontSize=11;dashed=0;whiteSpace=wrap;fillColor=#6C6477;strokeColor=#4D4D4D;fontColor=#ffffff;shape=mxgraph.c4.person2;align=center;metaEdit=1;points=[[0.5,0,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0]];resizable=0;');
 		    	bg.vertex = true;
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
@@ -90,10 +90,10 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Oracle Database 12');
 		        bg.setAttribute('c4Description', 'Description of storage type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</b></font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Data Container');
 			}),				
@@ -105,10 +105,10 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Micronaut, etc.');
 		        bg.setAttribute('c4Description', 'Description of microservice type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</b></font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Microservice Container');
 			}),				
@@ -120,10 +120,10 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. Apache Kafka, etc.');
 		        bg.setAttribute('c4Description', 'Description of message bus type container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</b></font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Message Bus Container');
 			}),				
@@ -135,10 +135,10 @@
 		    	bg.setValue(mxUtils.createXmlDocument().createElement('object'));
 		    	bg.setAttribute('placeholders', '1');
 		        bg.setAttribute('c4Type', 'Container name');
-		        bg.setAttribute('c4Container', 'Container ');
+		        bg.setAttribute('c4Container', 'Container');
 		        bg.setAttribute('c4Technology', 'e.g. JavaScript, Angular etc.');
 		        bg.setAttribute('c4Description', 'Description of web browser container role/responsibility.');
-		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
+		    	bg.setAttribute('label', '<font style="font-size: 16px"><b>%c4Type%</b></font><div>[%c4Container%:&nbsp;%c4Technology%]</div><br><div><font style="font-size: 11px"><font color="#E6E6E6">%c4Description%</font></div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Web Browser Container');
 			}),				

@@ -1797,8 +1797,8 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
         mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
         	mxUtils.bind(this, function(evt)
 		{
-			if (!this.editorUi.menusautoPopup && this.editorUi.currentMenu != null &&
-				this.editorUi.currentMenuElt != elt)
+			if (!this.editorUi.menus.autoPopup && this.editorUi.currentMenu != null &&
+				this.editorUi.currentMenuElt != elt && mxEvent.isMouseEvent(evt))
 			{
 				this.editorUi.hideCurrentMenu();
 			}

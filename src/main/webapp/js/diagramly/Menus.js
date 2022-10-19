@@ -1268,8 +1268,10 @@
 			{
 				var menubar = menusCreateMenuBar.apply(this, arguments);
 				
-				if (menubar != null && urlParams['embed'] != '1' &&
-					uiTheme != 'atlas' && urlParams['live-ui'] == '1')
+				if (menubar != null && Editor.enableSimpleTheme &&
+					editorUi.getServiceName() != 'atlassian' &&
+					urlParams['embed'] != '1' &&
+					uiTheme != 'atlas')
 				{
 					var themeMenu = this.get('appearance');
 					
@@ -1282,7 +1284,6 @@
 						elt.style.backgroundRepeat = 'no-repeat';
 						elt.style.backgroundSize = '100% 100%';
 						elt.style.display = 'inline-block';
-						elt.style.verticalAlign = 'top';
 						elt.style.marginLeft = '2px';
 						elt.style.cursor = 'pointer';
 						elt.style.zIndex = '1';
@@ -2923,7 +2924,7 @@
 				this.addMenuItems(menu, ['toggleDarkMode'], parent);
 			}
 
-			this.addMenuItems(menu, ['toggleSimpleMode', 'toggleSketchMode'], parent);
+			this.addMenuItems(menu, ['toggleSimpleMode'], parent);
 		})));
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -3316,8 +3317,8 @@
 			{
     			graph.startEditingAtCell(insertVertex('Text', 40, 20, 'text;html=1;resizable=0;autosize=1;' +
     				'align=center;verticalAlign=middle;points=[];fillColor=none;strokeColor=none;rounded=0;',
-					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null));
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null));
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+X/A')).isEnabled = isGraphEnabled;
 		
@@ -3326,8 +3327,8 @@
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 120, 60, 'whiteSpace=wrap;html=1;', (evt != null &&
-					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null);
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
 		}, null, null, 'D')).isEnabled = isGraphEnabled;
 		
@@ -3338,8 +3339,8 @@
     	    	insertVertex('', 140, 160, 'shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;' +
 					'fontColor=#000000;darkOpacity=0.05;fillColor=#FFF9B2;strokeColor=none;fillStyle=solid;' +
 					'direction=west;gradientDirection=north;gradientColor=#FFF2A1;shadow=1;size=20;pointerEvents=1;',
-					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null);
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
 		}, null, null, 'S')).isEnabled = isGraphEnabled;
 
@@ -3348,8 +3349,8 @@
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 80, 80, 'ellipse;whiteSpace=wrap;html=1;', (evt != null &&
-					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null);
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
 		}, null, null, 'F')).isEnabled = isGraphEnabled;
 		
@@ -3358,8 +3359,8 @@
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertVertex('', 80, 80, 'rhombus;whiteSpace=wrap;html=1;', (evt != null &&
-					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null);
+					!mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
 		})).isEnabled = isGraphEnabled;
 
@@ -3368,8 +3369,8 @@
 			if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))
 			{
     	    	insertEdge('', graph.defaultEdgeLength, 'edgeStyle=none;orthogonalLoop=1;jettySize=auto;html=1;',
-					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt)) ?
-						graph.getInsertPoint() : null);
+					(evt != null && !mxEvent.isControlDown(evt) && !mxEvent.isMetaDown(evt) &&
+					graph.isMouseInsertPoint()) ? graph.getInsertPoint() : null);
 			}
 		}, null, null, 'C')).isEnabled = isGraphEnabled;
 
@@ -3474,7 +3475,7 @@
 				editorUi.showImportCsvDialog();
 			}, parent, null, isGraphEnabled());
 			
-			if (uiTheme == 'min')
+			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
 			{
 				this.addMenuItems(menu, ['-', 'createShape',
 					'editDiagram'], parent);

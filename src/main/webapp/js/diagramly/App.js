@@ -5855,6 +5855,9 @@ App.prototype.updateButtonContainer = function()
 	}
 };
 
+/**
+ * For testing use notifs = [{timestamp: Date.now(), content: 'Test'}]
+ */
 App.prototype.fetchAndShowNotification = function(target, subtarget)
 {
 	if (this.fetchingNotif)
@@ -5991,20 +5994,35 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 	{
 		this.notificationBtn = document.createElement('div');
 		this.notificationBtn.className = 'geNotification-box';
-		
-		if (uiTheme == 'min')
+
+		var notifCount = document.createElement('span');
+		notifCount.className = 'geNotification-count';
+		this.notificationBtn.appendChild(notifCount);
+				
+		if (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'min')
 		{
-			this.notificationBtn.style.width = '30px';
-			this.notificationBtn.style.top = '4px';
+			if (Editor.currentTheme != 'min' ||
+				urlParams['sketch'] == '1')
+			{
+				this.notificationBtn.style.width = '30px';
+				notifCount.style.marginRight = '-10px';
+			}
+			
+			if (Editor.currentTheme == 'simple' ||
+				urlParams['sketch'] == '1')
+			{
+				this.notificationBtn.style.top = '7px';
+			}
+			else
+			{
+				this.notificationBtn.style.top = '4px';
+			}
 		}
 		else if (urlParams['atlas'] == '1')
 		{
 			this.notificationBtn.style.top = '2px';
 		}
-		
-		var notifCount = document.createElement('span');
-		notifCount.className = 'geNotification-count';
-		this.notificationBtn.appendChild(notifCount);
 		
 		var notifBell = document.createElement('div');
 		notifBell.className = 'geNotification-bell';
@@ -6927,7 +6945,7 @@ App.prototype.updateHeader = function()
 			mxEvent.consume(evt);
 		}));
 		
-		if (urlParams['live-ui'] != '1' && uiTheme != 'atlas' && urlParams['embed'] != '1')
+		if (!Editor.enableSimpleTheme && uiTheme != 'atlas' && urlParams['embed'] != '1')
 		{
 			this.darkModeElement = this.toggleFormatElement.cloneNode(true);
 			this.darkModeElement.setAttribute('title', mxResources.get('theme'));

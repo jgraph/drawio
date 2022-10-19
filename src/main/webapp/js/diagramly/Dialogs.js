@@ -5751,7 +5751,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	var container = document.createElement('div');
 	container.style.position = 'absolute';
 	container.style.border = '1px solid lightGray';
-	container.style.left = '199px';
+	container.style.left = '200px';
 	container.style.width = '470px';
 	container.style.height = '376px';
 	container.style.overflow = 'hidden';
@@ -5854,78 +5854,50 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	var currentRev = null;
 	var currentDoc = null;
 	var currentXml = null;
-	
-	var zoomInBtn = mxUtils.button('', function()
+
+	var zoomInBtn = editorUi.createToolbarButton(Editor.zoomInImage, mxResources.get('zoomIn'), function()
 	{
 		if (currentDoc != null)
 		{
 			graph.zoomIn();
 		}
-	});
-	zoomInBtn.className = 'geSprite geSprite-zoomin';
-	zoomInBtn.setAttribute('title', mxResources.get('zoomIn'));
-	zoomInBtn.style.outline = 'none';
-	zoomInBtn.style.border = 'none';
-	zoomInBtn.style.margin = '2px';
+	}, 20);
+
 	zoomInBtn.setAttribute('disabled', 'disabled');
-	mxUtils.setOpacity(zoomInBtn, 20);
-	
-	var zoomOutBtn = mxUtils.button('', function()
+
+	var zoomOutBtn = editorUi.createToolbarButton(Editor.zoomOutImage, mxResources.get('zoomOut'), function()
 	{
 		if (currentDoc != null)
 		{
 			graph.zoomOut();
 		}
-	});
-	zoomOutBtn.className = 'geSprite geSprite-zoomout';
-	zoomOutBtn.setAttribute('title', mxResources.get('zoomOut'));
-	zoomOutBtn.style.outline = 'none';
-	zoomOutBtn.style.border = 'none';
-	zoomOutBtn.style.margin = '2px';
-	zoomOutBtn.setAttribute('disabled', 'disabled');
-	mxUtils.setOpacity(zoomOutBtn, 20);
+	}, 20);
 
-	var zoomFitBtn = mxUtils.button('', function()
+	zoomOutBtn.setAttribute('disabled', 'disabled');
+
+	var zoomFitBtn = editorUi.createToolbarButton(Editor.zoomFitImage, mxResources.get('fit'), function()
 	{
 		if (currentDoc != null)
 		{
-			graph.maxFitScale = 8;
-			graph.fit(8);
+			if (graph.view.scale == 1)
+			{
+				graph.maxFitScale = 8;
+				graph.fit(8);
+			}
+			else
+			{
+				graph.zoomActual();
+			}
+
 			graph.center();
 		}
-	});
-	zoomFitBtn.className = 'geSprite geSprite-fit';
-	zoomFitBtn.setAttribute('title', mxResources.get('fit'));
-	zoomFitBtn.style.outline = 'none';
-	zoomFitBtn.style.border = 'none';
-	zoomFitBtn.style.margin = '2px';
+	}, 20);
+
 	zoomFitBtn.setAttribute('disabled', 'disabled');
-	mxUtils.setOpacity(zoomFitBtn, 20);
-	
-	var zoomActualBtn = mxUtils.button('', function()
-	{
-		if (currentDoc != null)
-		{
-			graph.zoomActual();
-			graph.center();
-		}
-	});
-	zoomActualBtn.className = 'geSprite geSprite-actualsize';
-	zoomActualBtn.setAttribute('title', mxResources.get('actualSize'));
-	zoomActualBtn.style.outline = 'none';
-	zoomActualBtn.style.border = 'none';
-	zoomActualBtn.style.margin = '2px';
-	zoomActualBtn.setAttribute('disabled', 'disabled');
-	mxUtils.setOpacity(zoomActualBtn, 20);
 
 	// Gesture listener added below to handle pressed state
-	var compareBtn = mxUtils.button('', function() { });
-	compareBtn.className = 'geSprite geSprite-middle';
-	compareBtn.setAttribute('title', mxResources.get('compare'));
-	compareBtn.style.outline = 'none';
-	compareBtn.style.border = 'none';
-	compareBtn.style.margin = '2px';
-	mxUtils.setOpacity(compareBtn, 60);
+	var compareBtn = editorUi.createToolbarButton(Editor.compareImage, mxResources.get('zoomOut'), null, 20);
+	compareBtn.setAttribute('disabled', 'disabled');
 	
 	var cmpContainer = container.cloneNode(false);
 	cmpContainer.style.pointerEvent = 'none';
@@ -5941,6 +5913,19 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	cmpGraph.maxFitScale = null;
 	cmpGraph.centerZoom = true;
 
+	var fileInfo = document.createElement('div');
+	fileInfo.style.position = 'absolute';
+	fileInfo.style.textAlign = 'left';
+	fileInfo.style.color = 'gray';
+	fileInfo.style.marginTop = '8px';
+	fileInfo.style.backgroundColor = 'transparent';
+	fileInfo.style.top = '440px';
+	fileInfo.style.left = '32px';
+	fileInfo.style.maxWidth = '380px';
+	fileInfo.style.cursor = 'default';
+
+	var prevFileInfo = null;
+
 	mxEvent.addGestureListeners(compareBtn, function(e)
 	{
 		// Gets current state of page with given ID
@@ -5954,7 +5939,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 		}
 		else
 		{
-			fileInfo.style.display = 'none';
+			prevFileInfo = fileInfo.innerHTML;
+			fileInfo.innerHTML = mxResources.get('current');
 			container.style.display = 'none';
 			cmpContainer.style.display = '';
 			cmpContainer.style.backgroundColor = container.style.backgroundColor;
@@ -5972,22 +5958,11 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 
 		if (container.style.display == 'none')
 		{
-			fileInfo.style.display = '';
 			container.style.display = '';
+			fileInfo.innerHTML = prevFileInfo;
 			cmpContainer.style.display = 'none';
 		}
 	});
-
-	var fileInfo = document.createElement('div');
-	fileInfo.style.position = 'absolute';
-	fileInfo.style.textAlign = 'right';
-	fileInfo.style.color = 'gray';
-	fileInfo.style.marginTop = '10px';
-	fileInfo.style.backgroundColor = 'transparent';
-	fileInfo.style.top = '440px';
-	fileInfo.style.right = '32px';
-	fileInfo.style.maxWidth = '380px';
-	fileInfo.style.cursor = 'default';
 
 	var downloadBtn = mxUtils.button(mxResources.get('download'), function()
 	{
@@ -6088,11 +6063,12 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	
 	var pageSelect = document.createElement('select');
 	pageSelect.setAttribute('disabled', 'disabled');
-	pageSelect.style.maxWidth = '80px';
+	pageSelect.style.userSelect = 'none';
+	pageSelect.style.maxWidth = '100px';
 	pageSelect.style.position = 'relative';
 	pageSelect.style.top = '-2px';
 	pageSelect.style.verticalAlign = 'bottom';
-	pageSelect.style.marginRight = '6px';
+	pageSelect.style.marginLeft = '10px';
 	pageSelect.style.display = 'none';
 	
 	var pageSelectFunction = null;
@@ -6146,7 +6122,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	var buttons = document.createElement('div');
 	buttons.style.position = 'absolute';
 	buttons.style.top = '482px';
-	buttons.style.width = '640px';
+	buttons.style.right = '28px';
+	buttons.style.left = '32px';
 	buttons.style.textAlign = 'right';
 
 	var tb = document.createElement('div');
@@ -6154,8 +6131,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	tb.style.backgroundColor = 'transparent';
 	tb.style.padding = '2px';
 	tb.style.border = 'none';
-	tb.style.left = '199px';
 	tb.style.top = '442px';
+	tb.style.right = '28px';
 	
 	var currentElt = null;
 
@@ -6343,7 +6320,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							zoomInBtn.removeAttribute('disabled');
 							zoomOutBtn.removeAttribute('disabled');
 							zoomFitBtn.removeAttribute('disabled');
-							zoomActualBtn.removeAttribute('disabled');
 							compareBtn.removeAttribute('disabled');
 							
 							if (file == null || !file.isRestricted())
@@ -6361,7 +6337,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							mxUtils.setOpacity(zoomInBtn, 60);
 							mxUtils.setOpacity(zoomOutBtn, 60);
 							mxUtils.setOpacity(zoomFitBtn, 60);
-							mxUtils.setOpacity(zoomActualBtn, 60);
 							mxUtils.setOpacity(compareBtn, 60);
 						}
 						else
@@ -6369,6 +6344,7 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							pageSelect.style.display = 'none';
 							pageSelect.innerText = '';
 							fileInfo.innerText = '';
+							errorNode.innerText = '';
 							mxUtils.write(fileInfo, mxResources.get('errorLoadingFile'));
 							mxUtils.write(errorNode, mxResources.get('errorLoadingFile'));
 						}
@@ -6401,7 +6377,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							downloadBtn.setAttribute('disabled', 'disabled');
 							zoomInBtn.setAttribute('disabled', 'disabled');
 							zoomOutBtn.setAttribute('disabled', 'disabled');
-							zoomActualBtn.setAttribute('disabled', 'disabled');
 							zoomFitBtn.setAttribute('disabled', 'disabled');
 							compareBtn.setAttribute('disabled', 'disabled');
 
@@ -6412,7 +6387,6 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 							mxUtils.setOpacity(zoomInBtn, 20);
 							mxUtils.setOpacity(zoomOutBtn, 20);
 							mxUtils.setOpacity(zoomFitBtn, 20);
-							mxUtils.setOpacity(zoomActualBtn, 20);
 							mxUtils.setOpacity(compareBtn, 20);
 
 							spinner.spin(container);
@@ -6505,12 +6479,11 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	});
 	closeBtn.className = 'geBtn';
 
-	tb.appendChild(pageSelect);
-	tb.appendChild(zoomInBtn);
-	tb.appendChild(zoomOutBtn);
-	tb.appendChild(zoomActualBtn);
-	tb.appendChild(zoomFitBtn);
 	tb.appendChild(compareBtn);
+	tb.appendChild(zoomOutBtn);
+	tb.appendChild(zoomFitBtn);
+	tb.appendChild(zoomInBtn);
+	tb.appendChild(pageSelect);
 
 	if (editorUi.editor.cancelFirst)
 	{
@@ -8009,7 +7982,7 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 									}
 									else if (entry.image != null)
 									{
-										preview.innerHTML += '<img border="0" src="' + entry.image + '"/>';
+										preview.innerHTML += '<img border="0" style="max-width:100%;" src="' + entry.image + '"/>';
 									}
 									else if (entry.desc == null)
 									{

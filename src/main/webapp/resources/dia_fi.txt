@@ -1209,3 +1209,5 @@ confAHugeInstancesDesc=Jos tämä ilmentymä sisältää yli 100 000 sivua, on n
 choosePageIDsFile=Valitse nykyisten sivutunnusten csv-tiedosto
 chooseDrawioPsgesFile=Valitse sivut draw.io-kaavioiden csv-tiedostolla
 private=Yksityinen
+diagramTooLarge=The diagram is too large, please reduce its size and try again.
+selectAdminUsers=Select Admin Users
