@@ -539,7 +539,7 @@ Menus.prototype.init = function()
 	})));
 	this.put('viewZoom', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
-		this.addMenuItems(menu, ['resetView', '-'], parent);
+		this.addMenuItems(menu, ['smartFit', '-'], parent);
 		var scales = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4];
 		
 		for (var i = 0; i < scales.length; i++)
@@ -1727,12 +1727,12 @@ Menubar.prototype.hideMenu = function()
 /**
  * Adds a submenu to this menubar.
  */
-Menubar.prototype.addMenu = function(label, funct, before)
+Menubar.prototype.addMenu = function(label, funct, before, clickFn)
 {
 	var elt = document.createElement('a');
 	elt.className = 'geItem';
 	mxUtils.write(elt, label);
-	this.addMenuHandler(elt, funct);
+	this.addMenuHandler(elt, funct, clickFn);
 	
     if (before != null)
     {
@@ -1749,7 +1749,7 @@ Menubar.prototype.addMenu = function(label, funct, before)
 /**
  * Adds a handler for showing a menu in the given element.
  */
-Menubar.prototype.addMenuHandler = function(elt, funct)
+Menubar.prototype.addMenuHandler = function(elt, funct, clickFn)
 {
 	if (funct != null)
 	{
@@ -1757,7 +1757,13 @@ Menubar.prototype.addMenuHandler = function(elt, funct)
 		
 		var clickHandler = mxUtils.bind(this, function(evt)
 		{
-			if (show && (elt.enabled == null || elt.enabled))
+			if (clickFn != null)
+			{
+				clickFn(evt);
+			}
+
+			if (!mxEvent.isConsumed(evt) && show &&
+				(elt.enabled == null || elt.enabled))
 			{
 				this.editorUi.editor.graph.popupMenuHandler.hideMenu();
 				var menu = new mxPopupMenu(funct);

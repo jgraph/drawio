@@ -6483,7 +6483,7 @@ DiagramFormatPanel.prototype.addView = function(div)
 				label.style.marginTop = '1px';
 			}
 
-			var btn = mxUtils.button(mxResources.get('change'), function(evt)
+			var btn = mxUtils.button(mxResources.get('image'), function(evt)
 			{
 				ui.showBackgroundImageDialog(null, ui.editor.graph.backgroundImage);
 				mxEvent.consume(evt);

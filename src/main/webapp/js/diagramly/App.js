@@ -1039,7 +1039,7 @@ App.main = function(callback, createUi)
 		{
 			if (mxSettings.settings != null)
 			{
-				document.body.style.backgroundColor = (uiTheme != 'atlas' &&
+				document.body.style.backgroundColor = (Editor.currentTheme != 'atlas' &&
 					uiTheme != 'kennedy' && (Editor.isDarkMode() ||
 					mxSettings.settings.darkMode)) ?
 						Editor.darkColor : '#ffffff';
@@ -1617,7 +1617,11 @@ App.prototype.init = function()
 		this.formatContainer.style.visibility = 'hidden';
 		this.hsplit.style.display = 'none';
 		this.sidebarContainer.style.display = 'none';
-		this.sidebarFooterContainer.style.display = 'none';
+
+		if (this.sidebarFooterContainer != null)
+		{
+			this.sidebarFooterContainer.style.display = 'none';
+		}
 
 		// Sets the initial mode
 		if (urlParams['local'] == '1')
@@ -1653,7 +1657,10 @@ App.prototype.init = function()
 				
 				if (urlParams['extAuth'] != '1' && (mode == App.MODE_DEVICE || mode == App.MODE_BROWSER))
 				{
-					this.showDownloadDesktopBanner();
+					if (this.isOwnDomain())
+					{
+						this.showDownloadDesktopBanner();
+					}
 				}
 				else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
 
@@ -1719,7 +1726,7 @@ App.prototype.init = function()
 		this.menubar.container.appendChild(this.buttonContainer);
 	}
 
-	if ((uiTheme == 'atlas' || urlParams['atlas'] == '1') && this.menubar != null)
+	if ((Editor.currentTheme == 'atlas' || urlParams['atlas'] == '1') && this.menubar != null)
 	{
 		if (this.toggleElement != null)
 		{
@@ -1843,14 +1850,21 @@ App.prototype.sanityCheck = function()
 /**
  * Returns true if the current domain is for the new drive app.
  */
-App.prototype.isDriveDomain = function()
+App.prototype.isOwnDomain = function()
 {
-	return urlParams['drive'] != '0' &&
-		(window.location.hostname == 'test.draw.io' ||
+	return window.location.hostname == 'test.draw.io' ||
 		window.location.hostname == 'www.draw.io' ||
 		window.location.hostname == 'drive.draw.io' ||
 		window.location.hostname == 'app.diagrams.net' ||
-		window.location.hostname == 'jgraph.github.io');
+		window.location.hostname == 'jgraph.github.io';
+};
+
+/**
+ * Returns true if the current domain is for the new drive app.
+ */
+App.prototype.isDriveDomain = function()
+{
+	return urlParams['drive'] != '0' && this.isOwnDomain();
 };
 
 /**
@@ -3677,7 +3691,7 @@ App.prototype.addLanguageMenu = function(elt, addLabel, right)
 		img = document.createElement('div');
 		img.setAttribute('title', mxResources.get('language'));
 
-		img.className = (uiTheme != 'atlas') ? 'geIcon geAdaptiveAsset' : '';
+		img.className = (Editor.currentTheme != 'atlas') ? 'geIcon geAdaptiveAsset' : '';
 		img.style.backgroundImage = 'url(' + Editor.globeImage + ')';
 		img.style.backgroundPosition = 'right center';
 		img.style.backgroundRepeat = 'no-repeat';
@@ -3706,7 +3720,7 @@ App.prototype.addLanguageMenu = function(elt, addLabel, right)
 			mxUtils.write(label, mxResources.get('language'));
 			img.appendChild(label);
 
-			label.className = (uiTheme != 'atlas') ? 'geAdaptiveAsset' : '';
+			label.className = (Editor.currentTheme != 'atlas') ? 'geAdaptiveAsset' : '';
 		}
 		
 		mxEvent.addListener(img, 'click', mxUtils.bind(this, function(evt)
@@ -5725,19 +5739,16 @@ App.prototype.updateButtonContainer = function()
 	{
 		var file = this.getCurrentFile();
 		
-		if (urlParams['embed'] == '1' && Editor.currentTheme != 'simple')
+		if (urlParams['embed'] == '1' && Editor.currentTheme != 'simple' &&
+			Editor.currentTheme != 'sketch')
 		{
-			if (urlParams['sketch'] != '1')
-			{
-				this.buttonContainer.style.paddingRight = '12px';
-			}
-			
+			this.buttonContainer.style.paddingRight = '12px';
 			this.buttonContainer.style.paddingTop = '6px';
 		}
 		
 		// Comments
-		if (this.commentsSupported() && urlParams['sketch'] != '1' &&
-			Editor.currentTheme != 'simple')
+		if (this.commentsSupported() && Editor.currentTheme != 'simple' &&
+			Editor.currentTheme != 'sketch')
 		{
 			if (this.commentButton == null)
 			{
@@ -5749,12 +5760,12 @@ App.prototype.updateButtonContainer = function()
 					'background-position:center center;background-repeat:no-repeat;background-image:' +
 					'url(' + Editor.commentImage + ');';
 				
-				if (uiTheme == 'atlas')
+				if (Editor.currentTheme == 'atlas')
 				{
 					this.commentButton.style.marginRight = '10px';
 					this.commentButton.style.marginTop = '-3px';
 				}
-				else if (uiTheme == 'min')
+				else if (Editor.currentTheme == 'min')
 				{
 					this.commentButton.style.marginTop = '1px';
 				}
@@ -5774,7 +5785,7 @@ App.prototype.updateButtonContainer = function()
 				
 				this.buttonContainer.appendChild(this.commentButton);
 				
-				if (uiTheme == 'atlas')
+				if (Editor.currentTheme == 'atlas')
 				{
 					this.commentButton.style.filter = 'invert(100%)';
 				}
@@ -5817,7 +5828,7 @@ App.prototype.updateButtonContainer = function()
 					icon.style.marginTop = '-3px';
 					this.shareButton.appendChild(icon);
 					
-					if (uiTheme != 'atlas')
+					if (Editor.currentTheme != 'atlas')
 					{
 						this.shareButton.style.color = 'black';
 						icon.style.filter = 'invert(100%)';
@@ -5834,7 +5845,17 @@ App.prototype.updateButtonContainer = function()
 				}
 
 				this.shareButton.style.display = (Editor.currentTheme == 'simple' ||
-					Editor.currentTheme == 'min') ? 'none' : 'inline-block';
+					Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min')
+					? 'none' : 'inline-block';
+				
+				// Hides parent element if empty for flex layout gap to work
+				if (Editor.currentTheme == 'simple' ||
+					Editor.currentTheme == 'sketch')
+				{
+					this.shareButton.parentNode.style.display =
+						(this.shareButton.parentNode.clientWidth == 0)
+						? 'none' : '';
+				}
 			}
 			else if (this.shareButton != null)
 			{
@@ -6000,17 +6021,18 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		this.notificationBtn.appendChild(notifCount);
 				
 		if (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'sketch'||
 			Editor.currentTheme == 'min')
 		{
-			if (Editor.currentTheme != 'min' ||
-				urlParams['sketch'] == '1')
+			if (Editor.currentTheme != 'min'||
+				Editor.currentTheme == 'sketch')
 			{
 				this.notificationBtn.style.width = '30px';
 				notifCount.style.marginRight = '-10px';
 			}
 			
-			if (Editor.currentTheme == 'simple' ||
-				urlParams['sketch'] == '1')
+			if (Editor.currentTheme == 'simple'||
+				Editor.currentTheme == 'sketch')
 			{
 				this.notificationBtn.style.top = '7px';
 			}
@@ -6859,16 +6881,16 @@ App.prototype.updateHeader = function()
 		/**
 		 * Adds format panel toggle.
 		 */
-		var right = (uiTheme != 'atlas' && urlParams['embed'] != '1') ? 30 : 10;
+		var right = (Editor.currentTheme != 'atlas' && urlParams['embed'] != '1') ? 30 : 10;
 		this.toggleFormatElement = document.createElement('a');
 		this.toggleFormatElement.setAttribute('title', mxResources.get('format') + ' (' + Editor.ctrlKey + '+Shift+P)');
 		this.toggleFormatElement.style.position = 'absolute';
 		this.toggleFormatElement.style.display = 'inline-block';
-		this.toggleFormatElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
+		this.toggleFormatElement.style.top = (Editor.currentTheme == 'atlas') ? '8px' : '6px';
 		this.toggleFormatElement.style.right = right + 'px';
 		this.toggleFormatElement.style.padding = '2px';
 		this.toggleFormatElement.style.fontSize = '14px';
-		this.toggleFormatElement.className = (uiTheme != 'atlas') ? 'geButton geAdaptiveAsset' : '';
+		this.toggleFormatElement.className = (Editor.currentTheme != 'atlas') ? 'geButton geAdaptiveAsset' : '';
 		this.toggleFormatElement.style.width = '16px';
 		this.toggleFormatElement.style.height = '16px';
 		this.toggleFormatElement.style.backgroundPosition = '50% 50%';
@@ -6929,7 +6951,7 @@ App.prototype.updateHeader = function()
 			EditorUi.logEvent({category: 'TOOLBAR-ACTION-',
 				action: 'fullscreen' , currentstate: visible});
 			
-			if (uiTheme != 'atlas' && urlParams['embed'] != '1')
+			if (Editor.currentTheme != 'atlas' && urlParams['embed'] != '1')
 			{
 				this.toggleCompactMode(visible);
 			}
@@ -6945,7 +6967,7 @@ App.prototype.updateHeader = function()
 			mxEvent.consume(evt);
 		}));
 		
-		if (!Editor.enableSimpleTheme && uiTheme != 'atlas' && urlParams['embed'] != '1')
+		if (!Editor.enableSimpleTheme && Editor.currentTheme != 'atlas' && urlParams['embed'] != '1')
 		{
 			this.darkModeElement = this.toggleFormatElement.cloneNode(true);
 			this.darkModeElement.setAttribute('title', mxResources.get('theme'));
@@ -6955,8 +6977,9 @@ App.prototype.updateHeader = function()
 
 			var updateDarkModeElement = mxUtils.bind(this, function()
 			{
-				this.darkModeElement.style.backgroundImage = 'url(\'' + ((Editor.isDarkMode() || uiTheme == 'atlas') ?
-					Editor.lightModeImage : Editor.darkModeImage) + '\')';
+				this.darkModeElement.style.backgroundImage = 'url(\'' +
+					((Editor.isDarkMode()) ? Editor.lightModeImage :
+					Editor.darkModeImage) + '\')';
 			});
 
 			this.addListener('darkModeChanged', updateDarkModeElement);
@@ -6977,7 +7000,7 @@ App.prototype.updateHeader = function()
 		}
 		
 		// Some style changes in Atlas theme
-		if (uiTheme == 'atlas')
+		if (Editor.currentTheme == 'atlas')
 		{
 			mxUtils.setOpacity(this.toggleFormatElement, 70);
 			mxUtils.setOpacity(this.fullscreenElement, 70);
@@ -6998,7 +7021,7 @@ App.prototype.updateHeader = function()
 			this.toggleElement.style.width = '16px';
 			this.toggleElement.style.height = '16px';
 			this.toggleElement.style.color = '#666';
-			this.toggleElement.style.top = (uiTheme == 'atlas') ? '8px' : '6px';
+			this.toggleElement.style.top = (Editor.currentTheme == 'atlas') ? '8px' : '6px';
 			this.toggleElement.style.right = '10px';
 			this.toggleElement.style.padding = '2px';
 			this.toggleElement.style.fontSize = '14px';
@@ -7024,7 +7047,7 @@ App.prototype.updateHeader = function()
 				mxEvent.consume(evt);
 			}));
 		
-			if (uiTheme != 'atlas')
+			if (Editor.currentTheme != 'atlas')
 			{
 				this.toolbarContainer.appendChild(this.toggleElement);
 			}
@@ -7137,6 +7160,7 @@ App.prototype.updateUserElement = function()
 			this.userElement.innerText = '';
 
 			if (Editor.currentTheme != 'simple' &&
+				Editor.currentTheme != 'sketch' &&
 				Editor.currentTheme != 'min' &&
 				screen.width > 560)
 			{
@@ -7164,6 +7188,7 @@ App.prototype.updateUserElementStyle = function()
 	if (elt != null)
 	{
 		if (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'sketch' ||
 			Editor.currentTheme == 'min')
 		{
     		elt.className = 'geToolbarButton';
@@ -7177,11 +7202,6 @@ App.prototype.updateUserElementStyle = function()
         	elt.style.height = '24px';
         	elt.style.width = '24px';
 			elt.style.right = '';
-
-			if (Editor.currentTheme == 'min')
-			{
-				elt.style.top = '3px';
-			}
 		}
 		else
 		{
@@ -7224,7 +7244,6 @@ App.prototype.updateUserElementIcon = function()
 				icon.setAttribute('border', '0');
 				icon.style.position = 'absolute';
 				icon.style.left = '16px';
-				icon.style.top = '2px';
 				icon.style.width = '12px';
 				icon.style.height = '12px';
 
@@ -7254,10 +7273,19 @@ App.prototype.updateUserElementIcon = function()
 				title += ')';
 
 				if (Editor.currentTheme == 'simple' ||
+					Editor.currentTheme == 'sketch' ||
 					Editor.currentTheme == 'min')
 				{
-					elt.style.marginRight = '4px';
 					elt.appendChild(icon);
+
+					if (Editor.currentTheme == 'min')
+					{
+						elt.style.marginRight = '4px';
+					}
+				}
+				else
+				{
+					icon.style.top = '2px';
 				}
 			}
 

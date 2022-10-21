@@ -301,15 +301,10 @@ window.uiTheme = window.uiTheme || (function()
 		if (ui == null)
 		{
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-
+			
 			if (iw <= 768)
 			{
-				if (urlParams['pages'] == null)
-				{
-					urlParams['pages'] = '1';
-				}
-
-				ui = 'sketch';
+				ui = 'simple';
 			}
 		}
 	}
@@ -322,7 +317,6 @@ window.uiTheme = window.uiTheme || (function()
 	if (ui == 'sketch')
 	{
 		urlParams['sketch'] = '1';
-		ui = 'min';
 	}
 	else if (urlParams['dark'] == '1' && (ui == '' || ui == 'kennedy'))
 	{

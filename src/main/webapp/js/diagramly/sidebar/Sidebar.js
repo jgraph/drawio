@@ -1423,16 +1423,17 @@
 	
 	Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	{
-		if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+		if (Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'sketch' || 
+			Editor.currentTheme == 'min')
 		{
-			if (this.editorUi.sidebarWindow == null ||
-				mxUtils.isAncestorNode(this.editorUi.sketchPickerMenuElt, elt))
+			if (mxUtils.isAncestorNode(this.editorUi.sketchPickerMenuElt, elt))
 			{
 				var off = mxUtils.getOffset(this.editorUi.sketchPickerMenuElt);
 				
 				off.x += this.editorUi.sketchPickerMenuElt.offsetWidth + 4;
 				off.y += elt.offsetTop - bounds.height / 2 + 16;
-				
+
 				return off;
 			}
 			else

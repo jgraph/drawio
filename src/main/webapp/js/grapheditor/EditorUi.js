@@ -947,13 +947,7 @@ EditorUi = function(editor, container, lightbox)
 		// Should not use delay > 0 to avoid handle multiple repaints during window resize
 		this.resizeHandler = mxUtils.bind(this, function()
 	   	{
-	   		window.setTimeout(mxUtils.bind(this, function()
-	   		{
-	   			if (this.editor.graph != null)
-	   			{
-	   				this.refresh();
-	   			}
-	   		}), 0);
+			this.windowResized();
 	   	});
 		
 	   	mxEvent.addListener(window, 'resize', this.resizeHandler);
@@ -1345,7 +1339,7 @@ EditorUi.prototype.updateSelectionStateForTableCells = function(result)
 					model.getChildAt(model.getChildAt(
 						table, row + rowspan), col) : null;
 			}
-			
+
 			var state = this.editor.graph.view.getState(next);
 
 			if (next == model.getChildAt(parent, col + colspan) && state != null &&
@@ -1367,6 +1361,20 @@ EditorUi.prototype.updateSelectionStateForTableCells = function(result)
 			result.rowspan = rowspan;
 		}
 	}
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.windowResized = function()
+{
+	window.setTimeout(mxUtils.bind(this, function()
+	{
+		if (this.editor.graph != null)
+		{
+			this.refresh();
+		}
+	}), 0);
 };
 
 /**
@@ -1703,12 +1711,12 @@ EditorUi.prototype.centerShapePicker = function(div, rect, x, y, dir)
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction, hovering)
+EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction, hovering, getInsertLocationFn)
 {
 	var div = this.createShapePicker(x, y, source, callback, direction, mxUtils.bind(this, function()
 	{	
 		this.hideShapePicker();
-	}), this.getCellsForShapePicker(source, hovering), hovering);
+	}), this.getCellsForShapePicker(source, hovering), hovering, getInsertLocationFn);
 	
 	if (div != null)
 	{
@@ -1733,9 +1741,20 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction,
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction, afterClick, cells, hovering)
+EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction, afterClick, cells, hovering, getInsertLocationFn)
 {
+	var graph = this.editor.graph;
 	var div = null;
+
+	getInsertLocationFn = (getInsertLocationFn != null) ? getInsertLocationFn : function(cells)
+	{
+		var cell = cells[0];
+
+		return new mxPoint(graph.snap(Math.round(x / graph.view.scale) -
+			graph.view.translate.x - cell.geometry.width / 2),
+			graph.snap(Math.round(y / graph.view.scale) -
+			graph.view.translate.y - cell.geometry.height / 2));
+	};
 	
 	if (cells != null && cells.length > 0)
 	{
@@ -1773,7 +1792,7 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 			var node = document.createElement('a');
 			node.className = 'geItem';
 			node.style.cssText = 'position:relative;display:inline-block;position:relative;' +
-				'width:30px;height:30px;cursor:pointer;overflow:hidden;padding:3px 0 0 3px;';
+				'width:30px;height:30px;cursor:pointer;overflow:hidden;padding:1px';
 			div.appendChild(node);
 			
 			if (style != null && urlParams['sketch'] != '1')
@@ -1784,10 +1803,10 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 			{
 				ui.insertHandler([cell], cell.value != '' && urlParams['sketch'] != '1', this.sidebar.graph.model);
 			}
-			
-			this.sidebar.createThumb([cell], 25, 25, node, null, true, false, cell.geometry.width, cell.geometry.height);
 
-			mxEvent.addListener(node, 'click', function()
+			node.appendChild(this.sidebar.createVertexTemplateFromCells([cell],
+				cell.geometry.width, cell.geometry.height, '', true, false,
+				null, false, mxUtils.bind(this, function(evt)
 			{
 				var clone = graph.cloneCell(cell);
 				
@@ -1797,15 +1816,20 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				}
 				else
 				{
-					clone.geometry.x = graph.snap(Math.round(x / graph.view.scale) -
-						graph.view.translate.x - cell.geometry.width / 2);
-					clone.geometry.y = graph.snap(Math.round(y / graph.view.scale) -
-						graph.view.translate.y - cell.geometry.height / 2);
+					var pt = getInsertLocationFn([clone]);
+					clone.geometry.x = pt.x;
+					clone.geometry.y = pt.y;
 					
 					graph.model.beginUpdate();
 					try
 					{
 						graph.addCell(clone);
+
+						if (graph.model.isVertex(clone) &&
+							graph.isAutoSizeCell(clone))
+						{
+							graph.updateCellSize(clone);
+						}
 					}
 					finally
 					{
@@ -1826,7 +1850,9 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				{
 					afterClick();
 				}
-			});
+
+				mxEvent.consume(evt);
+			}), 25, 25));
 		});
 		
 		for (var i = 0; i < (hovering ? Math.min(cells.length, 4) : cells.length); i++)
@@ -4399,14 +4425,11 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 	this.sidebarContainer.style.bottom = (this.footerHeight + sidebarFooterHeight + off) + 'px';
 	this.formatContainer.style.bottom = (this.footerHeight + off) + 'px';
 
-	if (urlParams['embedInline'] != '1')
-	{
-		this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
-		this.diagramContainer.style.top = (tmp + diagContOffset.y) + 'px';
-		this.diagramContainer.style.right = fw + 'px';
-		this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
-	}
-
+	this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
+	this.diagramContainer.style.top = (tmp + diagContOffset.y) + 'px';
+	this.diagramContainer.style.right = fw + 'px';
+	this.diagramContainer.style.bottom = (this.footerHeight + off + th) + 'px';
+	
 	if (sizeDidChange)
 	{
 		this.editor.graph.sizeDidChange();
@@ -4452,7 +4475,7 @@ EditorUi.prototype.createDivs = function()
 	this.hsplit.style.width = this.splitSize + 'px';
 	this.sidebarFooterContainer = this.createSidebarFooterContainer();
 	
-	if (this.sidebarFooterContainer)
+	if (this.sidebarFooterContainer != null)
 	{
 		this.sidebarFooterContainer.style.left = '0px';
 	}
@@ -4548,7 +4571,7 @@ EditorUi.prototype.createUi = function()
 		this.container.appendChild(this.footerContainer);
 	}
 
-	if (this.sidebar != null && this.sidebarFooterContainer)
+	if (this.sidebar != null && this.sidebarFooterContainer != null)
 	{
 		this.container.appendChild(this.sidebarFooterContainer);		
 	}
@@ -5777,7 +5800,7 @@ EditorUi.prototype.createKeyHandler = function(editor)
 						{
 							if (handler.first == null)
 							{
-								handler.start(cell, 0, 0, cells);
+								handler.start(cell, 0, 0, graph.getMovableCells(cells));
 							}
 
 							if (handler.first != null)

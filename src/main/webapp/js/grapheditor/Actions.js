@@ -33,22 +33,29 @@ Actions.prototype.init = function()
 		
 		ui.openFile();
 	});
-	this.addAction('smartFit', function()
+
+	this.put('smartFit', new Action(mxResources.get('resetView'), function()
 	{
 		graph.popupMenuHandler.hideMenu();
 
 		var scale = graph.view.scale;
+		var sx = graph.container.scrollLeft;
+		var sy = graph.container.scrollTop;
         var tx = graph.view.translate.x;
         var ty = graph.view.translate.y;
 
     	ui.actions.get('resetView').funct();
     	
         // Toggle scale if nothing has changed
-        if (Math.abs(scale - graph.view.scale) < 0.00001 && tx == graph.view.translate.x && ty == graph.view.translate.y)
+        if (Math.abs(scale - graph.view.scale) < 0.00001 &&
+			sx == graph.container.scrollLeft &&
+			sy == graph.container.scrollTop &&
+			tx == graph.view.translate.x &&
+			ty == graph.view.translate.y)
         {
         	ui.actions.get((graph.pageVisible) ? 'fitPage' : 'fitWindow').funct();
         }
-	});
+	}, null, null, 'Enter'));
 	this.addAction('keyPressEnter', function()
 	{
 		if (graph.isEnabled())

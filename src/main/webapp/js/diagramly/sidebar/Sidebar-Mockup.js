@@ -839,16 +839,7 @@
 			this.createVertexTemplateEntry('text;spacingTop=-5;whiteSpace=wrap;html=1;align=left;fontSize=12;fontFamily=Helvetica;fillColor=none;strokeColor=none;', 
 					250, 470, loremText, 'Paragraph of Text', null, null, this.getTagsForStencil(gn, 'peragraph of text', dt).join(' ')),
 			
-			this.addEntry(dt + 'table', function()
-			{
-			    var classCell = new mxCell('<table cellpadding="4" cellspacing="0" border="1" style="font-size:1em;width:100%;height:100%;"><tr><th>Header 1</th><th>Header 2</th></tr>' +
-			    		'<tr><td>row 1, cell 1</td><td>row 1, cell 2</td></tr><tr><td>row 2, cell 1</td>' + 
-			    		'<td>row 2, cell 2</td></tr></table> ', new mxGeometry(0, 0, 180, 80),
-						'verticalAlign=top;align=left;overflow=fill;fontSize=12;fontFamily=Helvetica;html=1');
-		    	classCell.vertex = true;
-				
-		   		return sb.createVertexTemplateFromCells([classCell], classCell.geometry.width, classCell.geometry.height, 'Table');
-			})
+	 		this.addDataEntry('table', 180, 80, 'Table', '7Zjfb9owEMf/mrxO+bHQ8krYuoftpUzas0sOYs3xRc6xkP71OyemrEDaBKpKZJWCZJ/Ph/392F9F8aIk394ZUWQ/MAXlRV+8KDGI1LbybQJKeaEvUy+ae2Ho888Lv3aMBs2oXwgDmvpMCNsJf4TaQBtpAyXVygXKTBS2SeLBhmYZ5bzMecDNKpMEi0Is7XjFm+BYScLQQj7akM/9JWoSUoNxc5aolChK2RRrMzKp0u+ixg3t/mbX42oGf8MvmVLGYyFH3ILBEGw7N92E3I7vAHMgU3NK5erYjNtWGD8Duc7ctF1MlG1//TR1LyE3nIqnFY0GKnqPlRUVjXy0SiknyqGMZSVzJTR8A5EehGaY1i5EWLiWghW55gMSYe46xu3WP4kiNVj8FGYNu5SVVCpBhZaeRm35Fyg1NQLFM35YssT/FHsx7yzhfrDv82PTDSWoGSSfAlsWREkVlNSXZXgey/Dmcpafj1ha+fkoh37QSZXXTlKoe1iS0Os+V4aviLbZew4nZB+GFlnUlbJHa57JNAVti/L5Wrj1Br2kj16VfjpQeVdsL87gakIRGC2Ij/1Gp+URzqd19iIcdxPuvrfjJ7x9zmNEwCcf9vwu9lw/h/mqW08ud+ubI7SG4TVWzXP9ZZt9hcbdi8PkPK9+Qfczru5Btbe9ure9+F6hbV/Cd6BTXxHu6YdTv6dTx1FPp36D9+rA77jK4X9h1dPRv1YHQS/AY/XqDsCjeavm7v4TVZv+7xesvw==')
 		];
 		   	
 	    this.addPalette('mockupText', 'Mockup Text', false, mxUtils.bind(this, function(content)

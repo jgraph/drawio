@@ -247,7 +247,8 @@
 		{
 			this.addMenuItems(menu, ['points', 'inches', 'millimeters', 'meters'], parent);
 
-			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'sketch' ||
+				Editor.currentTheme == 'min')
 			{
 				this.addMenuItems(menu, ['-', 'ruler', '-', 'pageScale'], parent);
 			}
@@ -307,16 +308,7 @@
 
         var toggleDarkModeAction = editorUi.actions.put('toggleDarkMode', new Action(mxResources.get('dark'), function(e)
         {
-			editorUi.setDarkMode(!Editor.isDarkMode());
-			mxSettings.settings.darkMode = Editor.isDarkMode();
-			mxSettings.save();
-			
-			var theme = mxSettings.getUi();
-			
-			if (theme != 'atlas' && theme != 'min' && theme != 'sketch' && theme != 'simple')
-			{
-				editorUi.setCurrentTheme((!Editor.isDarkMode()) ? 'kennedy' : 'dark', true);
-			}
+			editorUi.setAndPersistDarkMode(!Editor.isDarkMode());
         }));
 
 		toggleDarkModeAction.setToggleAction(true);
@@ -701,6 +693,12 @@
 			}
 		});
 		
+		editorUi.actions.addAction('preferences...', function()
+		{
+			var dlg = new PreferencesDialog(editorUi);
+			editorUi.showDialog(dlg.container, 320, 360, true, true);
+		});
+
 		editorUi.actions.addAction('createRevision', function()
 		{
 			editorUi.actions.get('save').funct();
@@ -1082,7 +1080,8 @@
 				splashCb.checked = mxSettings.getShowStartScreen();
 				splashCb.defaultChecked = splashCb.checked;
 
-				if (editorUi.isSettingsEnabled() && urlParams['sketch'] == '1')
+				if (editorUi.isSettingsEnabled() && (Editor.currentTheme == 'sketch' ||
+					Editor.currentTheme == 'simple'))
 				{
 					var showSplash = document.createElement('span');
 					showSplash.style['float'] = 'right';
@@ -1133,7 +1132,8 @@
 
 				var pluginsAction = editorUi.actions.get('plugins');
 
-				if (pluginsAction != null && urlParams['sketch'] == '1')
+				if (pluginsAction != null && (Editor.currentTheme == 'sketch' ||
+					Editor.currentTheme == 'simple'))
 				{
 					// TODO: Show change message only when plugins have changed
 					buttons.push([mxResources.get('plugins'), pluginsAction.funct]);
@@ -1232,14 +1232,7 @@
 					{
 						item = menu.addItem(lang, null, mxUtils.bind(this, function()
 						{
-							mxSettings.setLanguage(id);
-							mxSettings.save();
-							
-							// Shows dialog in new language
-							mxClient.language = id;
-							mxResources.loadDefaultBundle = false;
-							mxResources.add(RESOURCE_BASE);
-							
+							editorUi.setAndPersistLanguage(id);
 							editorUi.alert(mxResources.get('restartForChangeRequired'));
 						}), parent);
 						
@@ -1270,8 +1263,7 @@
 				
 				if (menubar != null && Editor.enableSimpleTheme &&
 					editorUi.getServiceName() != 'atlassian' &&
-					urlParams['embed'] != '1' &&
-					uiTheme != 'atlas')
+					urlParams['embed'] != '1')
 				{
 					var themeMenu = this.get('appearance');
 					
@@ -1317,14 +1309,17 @@
 
 						var updateThemeElement = mxUtils.bind(this, function()
 						{
+							elt.style.display = (Editor.currentTheme == 'atlas' ||
+								Editor.currentTheme == 'min' ||
+								Editor.currentTheme == 'sketch')
+								? 'none' : '';
 							elt.style.backgroundImage = 'url(' + ((Editor.isDarkMode()) ?
 								Editor.darkModeImage : Editor.lightModeImage) + ')';
 						});
-			
+						
+						this.editorUi.addListener('currentThemeChanged', updateThemeElement);
 						this.editorUi.addListener('darkModeChanged', updateThemeElement);
 						updateThemeElement();
-						
-						this.editorUi.switchThemeElt = elt;
 					}
 				}
 
@@ -2925,6 +2920,11 @@
 			}
 
 			this.addMenuItems(menu, ['toggleSimpleMode'], parent);
+
+			if (urlParams['test-prefs'] == '1')
+			{
+				this.addMenuItems(menu, ['-', 'preferences'], parent);
+			}
 		})));
 
 		this.put('theme', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -4278,6 +4278,28 @@
 			}
 		})));
 
+		this.put('movePage', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			var current = editorUi.getSelectedPageIndex();
+
+			if (editorUi.pages != null)
+			{
+				for (var i = 0; i < editorUi.pages.length; i++)
+				{
+					if (i != current)
+					{
+						(function(index)
+						{
+							menu.addItem(editorUi.getShortPageName(editorUi.pages[index]), null, function()
+							{
+								editorUi.movePage(current, index);
+							}, parent);
+						})(i);
+					}
+				}
+			}
+		})));
+
 		this.put('diagram', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var file = editorUi.getCurrentFile();
@@ -4285,7 +4307,8 @@
 			menu.addSeparator(parent);
 
 			// Compatiblity code for live UI switch and static UI
-			var sketchTheme = Editor.currentTheme == 'simple' || urlParams['sketch'] == '1';
+			var sketchTheme = Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch';
 			
 			if (mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
@@ -4373,7 +4396,12 @@
 				editorUi.menus.addMenuItems(menu, ['comments', '-'], parent);
 			}
 	
-			editorUi.menus.addMenuItems(menu, ['format', 'layers', 'tags', '-', 'pageSetup'], parent);
+			editorUi.menus.addMenuItems(menu, ['format', 'layers', 'tags', '-'], parent);
+
+			if (Editor.currentTheme == 'sketch')
+			{
+				editorUi.menus.addMenuItems(menu, ['pageSetup'], parent);
+			}
 	
 			// Cannot use print in standalone mode on iOS as we cannot open new windows
 			if (urlParams['noFileMenu'] != '1' && (!mxClient.IS_IOS || !navigator.standalone))
@@ -4448,7 +4476,8 @@
 		this.put('file', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			// Compatiblity code for live UI switch and static UI
-			var minTheme = Editor.currentTheme == 'simple' || uiTheme == 'min' ||
+			var minTheme = Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch' ||
 				Editor.currentTheme == 'min';
 
 			if (urlParams['embed'] == '1')

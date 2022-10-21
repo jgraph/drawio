@@ -96,9 +96,6 @@
 a.geStatus {
 	white-space:nowrap;
 }
-a.geStatus:not(:empty) {
-	margin-right:8px;
-}
 .geStatus *[data-action] {
 	cursor:pointer;
 }

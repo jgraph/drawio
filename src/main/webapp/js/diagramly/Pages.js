@@ -1625,14 +1625,37 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 				if (page != null)
 				{
 					menu.addSeparator(parent);
-					var pageName = this.getShortPageName(page);
+
+					if (Editor.currentTheme == 'sketch' ||
+						Editor.currentTheme == 'simple')
+					{
+						var url = this.getLinkForPage(page);
+
+						if (url != null)
+						{
+							menu.addItem(mxResources.get('link') + '...', null, mxUtils.bind(this, function()
+							{
+								this.showPageLinkDialog(page);
+							}));
+
+							menu.addSeparator(parent);
+						}
+
+						if (this.pages.length > 1)
+						{
+							this.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
+							menu.addSeparator(parent);
+						}
+					}
 	
+					var pageName = this.getShortPageName(page);
+
 					menu.addItem(mxResources.get('removeIt', [pageName]), null, mxUtils.bind(this, function()
 					{
 						this.removePage(page);
 					}), parent);
 					
-					menu.addItem(mxResources.get('renameIt', [pageName]), null, mxUtils.bind(this, function()
+					menu.addItem(mxResources.get('renameIt', [pageName]) + '...', null, mxUtils.bind(this, function()
 					{
 						this.renamePage(page, page.getName());
 					}), parent);
@@ -1802,7 +1825,7 @@ EditorUi.prototype.addTabListeners = function(page, tab)
  */
 EditorUi.prototype.getLinkForPage = function(page, params, lightbox)
 {
-	if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
+	if (page != null && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
 	{
 		var file = this.getCurrentFile();
 		
@@ -1835,8 +1858,11 @@ EditorUi.prototype.createPageMenu = function(page, label)
 {
 	return mxUtils.bind(this, function(menu, parent)
 	{
-		var graph = this.editor.graph;
-		var model = graph.model;
+		if (this.currentPage == page && this.pages.length > 1)
+		{
+			this.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
+			menu.addSeparator(parent);
+		}
 
 		menu.addItem(mxResources.get('insert'), null, mxUtils.bind(this, function()
 		{
@@ -1848,7 +1874,7 @@ EditorUi.prototype.createPageMenu = function(page, label)
 			this.removePage(page);
 		}), parent);
 		
-		menu.addItem(mxResources.get('rename'), null, mxUtils.bind(this, function()
+		menu.addItem(mxResources.get('rename') + '...', null, mxUtils.bind(this, function()
 		{
 			this.renamePage(page, label);
 		}), parent);
@@ -1859,37 +1885,9 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		{
 			menu.addSeparator(parent);
 			
-			menu.addItem(mxResources.get('link'), null, mxUtils.bind(this, function()
+			menu.addItem(mxResources.get('link') + '...', null, mxUtils.bind(this, function()
 			{
-				this.showPublishLinkDialog(mxResources.get('url'), true, null, null,
-					mxUtils.bind(this, function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
-				{
-					var params = this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
-					
-					if (!allPages)
-					{
-						params.push('hide-pages=1');
-					}
-					
-					if (!graph.isSelectionEmpty())
-					{
-						var bounds = graph.getBoundingBox(graph.getSelectionCells());
-								
-						var t = graph.view.translate;
-						var s = graph.view.scale;
-						bounds.width /= s;
-						bounds.height /= s;
-						bounds.x = bounds.x / s - t.x;
-						bounds.y = bounds.y / s - t.y;
-					
-						params.push('viewbox=' + encodeURIComponent(JSON.stringify({x: Math.round(bounds.x), y: Math.round(bounds.y),
-							width: Math.round(bounds.width), height: Math.round(bounds.height), border: 100})));
-					}
-					
-					var dlg = new EmbedDialog(this, this.getLinkForPage(page, params, lightbox));
-					this.showDialog(dlg.container, 450, 240, true, true);
-					dlg.init();
-				}));
+				this.showPageLinkDialog(page);
 			}));
 		}
 		
@@ -1910,6 +1908,44 @@ EditorUi.prototype.createPageMenu = function(page, label)
 			}), parent);
 		}
 	});
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.showPageLinkDialog = function(page)
+{
+	var graph = this.editor.graph;
+
+	this.showPublishLinkDialog(mxResources.get('url'), true, null, null,
+		mxUtils.bind(this, function(linkTarget, linkColor, allPages, lightbox, editLink, layers)
+	{
+		var params = this.createUrlParameters(linkTarget, linkColor, allPages, lightbox, editLink, layers);
+		
+		if (!allPages)
+		{
+			params.push('hide-pages=1');
+		}
+		
+		if (!graph.isSelectionEmpty())
+		{
+			var bounds = graph.getBoundingBox(graph.getSelectionCells());
+					
+			var t = graph.view.translate;
+			var s = graph.view.scale;
+			bounds.width /= s;
+			bounds.height /= s;
+			bounds.x = bounds.x / s - t.x;
+			bounds.y = bounds.y / s - t.y;
+		
+			params.push('viewbox=' + encodeURIComponent(JSON.stringify({x: Math.round(bounds.x), y: Math.round(bounds.y),
+				width: Math.round(bounds.width), height: Math.round(bounds.height), border: 100})));
+		}
+		
+		var dlg = new EmbedDialog(this, this.getLinkForPage(page, params, lightbox));
+		this.showDialog(dlg.container, 450, 240, true, true);
+		dlg.init();
+	}));
 };
 
 // Overrides refresh to repaint tab container

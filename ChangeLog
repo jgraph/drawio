@@ -1,3 +1,19 @@
+21-OCT-2022: 20.5.0
+
+- Enables live UI switching between sketch and default themes [DS-909]
+- Replaces old tables in the Threat Modeling library [3019]
+- Shows download banner for own domains only [3119]
+- Consistent select in export, handle auto dark mode
+- Changes label of background image button to image
+- Adds page move menu in sketch theme
+- Fixes ignored movable style for cursor keys [3110]
+- Fixes exit flag for save button in embed mode
+- Adds drag and drop to shape picker
+- Updates autosize for text insert with shape picker (edited) 
+- Fixes proxy infinite redirection loop by a malicious site (https://huntr.dev/bounties/d383a6b8-b12a-4893-9b8f-8df18ec679c3/)
+- [conf cloud] Adds "Edit Owning Page" button to embed diagram editor [DID-6482]
+- [conf cloud] Fixes NPE when publishing a diagram in a page with no draft
+
 19-OCT-2022: 20.4.2
 
 - Fixes draggable elements problem in Chrome [3112]
@@ -9,7 +25,7 @@
 - Fixes possible #ERROR fill for invalid fillStyles [DS-922]
 - Bugfixes for Rack Cabinet shape [3052]
 - Fixes DOM for empty status message
-- Fixes status alert style in dark mode
+- Fixes status alert style in dark mode- 
 - Fixes spaces, missing HTML tag in C4 shapes [3082]
 - Uses data attribute for status event handling code [DS-923]
 - Uses svg icons, fixes revisions dialog for mobile

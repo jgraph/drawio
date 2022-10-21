@@ -140,7 +140,12 @@
 	 * Specifies if the simple theme should be enabled. This theme can be used
 	 * at runtime in the kennedy theme.
 	 */
-	Editor.enableSimpleTheme = urlParams['live-ui'] == '1';
+	Editor.enableSimpleTheme = true;
+			
+	/**
+	 * Specifies if the simple theme background should be used for the sketch theme.
+	 */
+	Editor.useSimpleBackgroundForSketch = false;
 	
 	/**
 	 * Sets the default value for including a copy of the diagram.
@@ -478,6 +483,29 @@
         	return state.vertices.length > 0 && format.editorUi.editor.graph.isContainer(state.vertices[0]);
         }}
 	].concat(Editor.commonProperties);
+
+	/**
+	 * CSS for adaptive SVG dark mode.
+	 */
+	Editor.svgDarkModeCss = '@media (prefers-color-scheme: dark) {' +
+		':root {--light-color: #c9d1d9; --dark-color: #0d1117; }' +
+		'svg[style^="background-color:"] { background-color: var(--dark-color) !important; }' +
+		'g[filter="url(#dropShadow)"] { filter: none !important; }' +
+		'[stroke="rgb(0, 0, 0)"] { stroke: var(--light-color); }' +
+		'[stroke="rgb(255, 255, 255)"] { stroke: var(--dark-color); }' +
+		'[fill="rgb(0, 0, 0)"] { fill: var(--light-color); }' +
+		'[fill="rgb(255, 255, 255)"] { fill: var(--dark-color); }' +
+		'g[fill="rgb(0, 0, 0)"] text { fill: var(--light-color); }' +
+		'div[data-drawio-colors*="color: rgb(0, 0, 0)"]' +
+		'	div { color: var(--light-color) !important; }' +
+		'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"]' +
+		'	{ border-color: var(--light-color) !important; }' +
+		'div[data-drawio-colors*="border-color: rgb(0, 0, 0)"]' +
+		'	div { border-color: var(--light-color) !important; }' +
+		'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"]' +
+		'	{ background-color: var(--dark-color) !important; }' +
+		'div[data-drawio-colors*="background-color: rgb(255, 255, 255)"]' +
+		'	div { background-color: var(--dark-color) !important; }}';
 	
 	/**
 	 * Default value for the CSV import dialog.
@@ -4000,7 +4028,9 @@
 		 */
 	    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
 	    {
-	        return false;
+			return (Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch' ||
+				Editor.currentTheme == 'min');
 	    };
 	    
 		/**
@@ -6416,7 +6446,18 @@
 		var temp = null;
 		var tempFg = null;
 		var tempBg = null;
-		
+
+		if (false)
+		{
+			var svgDoc = result.ownerDocument;
+			var style = (svgDoc.createElementNS != null) ?
+		    	svgDoc.createElementNS(mxConstants.NS_SVG, 'style') : svgDoc.createElement('style');
+			svgDoc.setAttributeNS != null? style.setAttributeNS('type', 'text/css') :
+				style.setAttribute('type', 'text/css');
+			style.appendChild(svgDoc.createTextNode(Editor.svgDarkModeCss));
+			result.getElementsByTagName('defs')[0].appendChild(style);
+		}
+
 		if (!keepTheme && this.themes != null && this.defaultThemeName == 'darkTheme')
 		{
 			temp = this.stylesheet;
@@ -6427,8 +6468,6 @@
 			this.shapeBackgroundColor = (this.defaultThemeName == 'darkTheme') ?
 				'#ffffff' : Editor.darkColor;
 			this.stylesheet = this.getDefaultStylesheet();
-			// LATER: Fix math export in dark mode by fetching text nodes before
-			// calling refresh and changing the font color in-place
 			this.refresh();
 		}
 		

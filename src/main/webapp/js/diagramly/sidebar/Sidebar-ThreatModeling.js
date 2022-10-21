@@ -22,19 +22,128 @@
 			this.createVertexTemplateEntry('text;html=1;strokeColor=#d6b656;fillColor=#fff2cc;align=center;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;', w * 0.4, h * 0.2, 'A01', 'Asset Label', null, null, this.getTagsForStencil(gn, 'asset label', dt).join(' ')),
 			this.createVertexTemplateEntry('text;html=1;strokeColor=#82b366;fillColor=#d5e8d4;align=center;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;', w * 0.3, h * 0.2, 'C01', 'Security Control Label', null, null, this.getTagsForStencil(gn, 'security control label', dt).join(' ')),
 			this.createVertexTemplateEntry('text;html=1;strokeColor=#b85450;fillColor=#f8cecc;align=center;verticalAlign=middle;whiteSpace=wrap;overflow=hidden;', w * 0.4, h * 0.2, 'TA01', 'Threat Actor Label', null, null, this.getTagsForStencil(gn, 'threat actor label', dt).join(' ')),
-			this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=#ffffff;overflow=fill;rounded=0;shadow=1;labelBackgroundColor=#ffffff;fontColor=#000000;align=left;', w * 3.9, h * 1.1, 
-					'<table border="1" width="100%" style="width: 100% ; height: 100% ; border-collapse: collapse ; border: 1px solid #d6b656"><tbody><tr style="background-color: #fff2cc ; color: #000000 ; border: 1px solid #d6b656"><th align="center" colspan="2">Assets</th></tr><tr style="background-color: #fff2cc ; color: #000000 ; border: 1px solid #d6b656"><th align="left" style="border: 1px solid #d6b656">ID</th><th align="left" style="border: 1px solid #d6b656">Description</th></tr><tr><td style="border: 1px solid #d6b656">A01</td><td style="border: 1px solid #d6b656"></td></tr></tbody></table>', 
-					'Asset Table', null, null, this.getTagsForStencil(gn, 'asset table', dt).join(' ')),
-			this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=#ffffff;overflow=fill;rounded=0;shadow=1;labelBackgroundColor=#ffffff;fontColor=#000000;align=left;', w * 3.65, h * 0.9, 
-					'<table border="1" width="100%" style="width: 100% ; height: 100% ; border-collapse: collapse ; border: 1px solid #b85450"><tbody><tr style="background-color: #f8cecc ; color: #000000 ; border: 1px solid #b85450"><th align="center" colspan="2">Threat Actors</th></tr><tr style="background-color: #f8cecc ; color: #000000 ; border: 1px solid #b85450"><th align="left" style="border: 1px solid #b85450">ID</th><th align="left" style="border: 1px solid #b85450">Description</th></tr><tr><td style="border: 1px solid #b85450">TA01</td><td style="border: 1px solid #b85450"></td></tr></tbody></table>', 
-					'Threat Actor Table', null, null, this.getTagsForStencil(gn, 'threat actor table', dt).join(' ')),
-			this.createVertexTemplateEntry('text;html=1;strokeColor=#c0c0c0;fillColor=#ffffff;overflow=fill;rounded=0;shadow=1;labelBackgroundColor=#ffffff;fontColor=#000000;align=left;', w * 3.65, h * 0.9, 
-					'<table border="1" width="100%" style="width: 100% ; height: 100% ; border-collapse: collapse ; border: 1px solid #82b366"><tbody><tr style="background-color: #d5e8d4 ; color: #000000 ; border: 1px solid #82b366"><th align="center" colspan="2">Security Controls</th></tr><tr style="background-color: #d5e8d4 ; color: #000000 ; border: 1px solid #82b366"><th align="left" style="border: 1px solid #82b366">ID</th><th align="left" style="border: 1px solid #82b366">Description</th></tr><tr><td style="border: 1px solid #82b366">C01</td><td style="border: 1px solid #82b366"></td></tr></tbody></table>', 
-					'Security Control Table', null, null, this.getTagsForStencil(gn, 'security control table', dt).join(' ')),
+
+		 	this.addEntry('asset table', mxUtils.bind(this, function()
+		 	{
+		 		var cell = new mxCell('Assets', 
+					new mxGeometry(0, 0, 360, 90), 'shape=table;childLayout=tableLayout;startSize=30;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=#d6b656;fillColor=#fff2cc;shadow=1;swimlaneFillColor=#FFFFFF;');
+		 		cell.vertex = true;
+	
+		 		var row1 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=inherit;');
+		 		row1.vertex = true;
+				cell.insert(row1);
+				
+		 		var cell1 = new mxCell('ID', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell1.vertex = true;
+				row1.insert(cell1);
+				
+		 		var cell2 = new mxCell('Description', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell2.vertex = true;
+				row1.insert(cell2);
+				
+		 		var row2 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=#ffffff;');
+		 		row2.vertex = true;
+				cell.insert(row2);
+				
+		 		var cell3 = new mxCell('A01', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell3.vertex = true;
+				row2.insert(cell3);
+				
+		 		var cell4 = new mxCell('', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell4.vertex = true;
+				row2.insert(cell4);
+				
+		 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Asset Table');
+		 	})),
+
+		 	this.addEntry('threat actor table', mxUtils.bind(this, function()
+		 	{
+		 		var cell = new mxCell('Threat Actors', 
+					new mxGeometry(0, 0, 360, 90), 'shape=table;childLayout=tableLayout;startSize=30;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=#b85450;fillColor=#f8cecc;shadow=1;swimlaneFillColor=#FFFFFF;');
+		 		cell.vertex = true;
+	
+		 		var row1 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=inherit;');
+		 		row1.vertex = true;
+				cell.insert(row1);
+				
+		 		var cell1 = new mxCell('ID', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell1.vertex = true;
+				row1.insert(cell1);
+				
+		 		var cell2 = new mxCell('Description', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell2.vertex = true;
+				row1.insert(cell2);
+				
+		 		var row2 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=#ffffff;');
+		 		row2.vertex = true;
+				cell.insert(row2);
+				
+		 		var cell3 = new mxCell('TA01', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell3.vertex = true;
+				row2.insert(cell3);
+				
+		 		var cell4 = new mxCell('', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell4.vertex = true;
+				row2.insert(cell4);
+				
+		 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Threat Actor Table');
+		 	})),
+
+		 	this.addEntry('security control table', mxUtils.bind(this, function()
+		 	{
+		 		var cell = new mxCell('Security Controls', 
+					new mxGeometry(0, 0, 360, 90), 'shape=table;childLayout=tableLayout;startSize=30;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=#82b366;fillColor=#d5e8d4;shadow=1;swimlaneFillColor=#FFFFFF;');
+		 		cell.vertex = true;
+	
+		 		var row1 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=inherit;');
+		 		row1.vertex = true;
+				cell.insert(row1);
+				
+		 		var cell1 = new mxCell('ID', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell1.vertex = true;
+				row1.insert(cell1);
+				
+		 		var cell2 = new mxCell('Description', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;fontStyle=1;align=center;');
+		 		cell2.vertex = true;
+				row1.insert(cell2);
+				
+		 		var row2 = new mxCell('', 
+					new mxGeometry(0, 0, 360, 30), 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;bottom=0;right=0;dropTarget=0;collapsible=0;recursiveResize=0;expand=0;fontStyle=1;strokeColor=inherit;fillColor=#ffffff;');
+		 		row2.vertex = true;
+				cell.insert(row2);
+				
+		 		var cell3 = new mxCell('C01', 
+					new mxGeometry(0, 0, 120, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell3.vertex = true;
+				row2.insert(cell3);
+				
+		 		var cell4 = new mxCell('', 
+					new mxGeometry(0, 0, 240, 30), 'connectable=0;recursiveResize=0;strokeColor=inherit;fillColor=inherit;');
+		 		cell4.vertex = true;
+				row2.insert(cell4);
+				
+		 		return this.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Security Control Table');
+		 	})),
+
 			this.createVertexTemplateEntry('shape=note;strokeWidth=2;fontSize=14;size=20;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontColor=#666600;', w * 1.1, h * 0.8, 'Note', 'Note', null, null, this.getTagsForStencil(gn, 'note', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;direction=north;fillColor=#dae8fc;strokeColor=#6c8ebf;', w * 1.2, h * 0.8, 'AND', 'AND Gate', null, null, this.getTagsForStencil(gn, 'and gate', dt).join(' ')),
 			this.createVertexTemplateEntry('shape=xor;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;direction=north;', w * 1.2, h * 0.8, 'OR', 'OR Gate', null, null, this.getTagsForStencil(gn, 'or gate', dt).join(' ')),
-			this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;', w * 1.2, h * 0.8, 'Leaf', 'Leaf Node', null, null, this.getTagsForStencil(gn, 'leaf node', dt).join(' '))
+			this.createVertexTemplateEntry('rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;', w * 1.2, h * 0.8, 'Leaf', 'Leaf Node', null, null, this.getTagsForStencil(gn, 'leaf node', dt).join(' ')),
 		]);
 		
 		this.setCurrentSearchEntryLibrary();

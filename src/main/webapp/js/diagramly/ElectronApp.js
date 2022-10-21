@@ -1869,7 +1869,7 @@ mxStencilRegistry.allowEval = false;
 			'    </svg>' +
 			'</div>';
 		
-		if (uiTheme == 'atlas')
+		if (Editor.currentTheme == 'atlas')
 		{
 			this.windowControls.style.top = '9px';
 		}
@@ -1882,7 +1882,7 @@ mxStencilRegistry.allowEval = false;
 
 		var handleDarkModeChange = mxUtils.bind(this, function ()
 		{
-			if (uiTheme == 'atlas' || Editor.isDarkMode())
+			if (Editor.currentTheme == 'atlas' || Editor.isDarkMode())
 			{
 				this.windowControls.style.fill = 'white';
 				document.querySelectorAll('#geWindow-controls .button').forEach(b => b.className = 'button dark');
@@ -1906,7 +1906,7 @@ mxStencilRegistry.allowEval = false;
 		{
 			this.menubar.container.style.webkitAppRegion = 'no-drag';
 			
-			if (uiTheme == 'atlas')
+			if (Editor.currentTheme == 'atlas')
 			{
 				this.menubar.container.style.width = 'fit-content';
 			}
