@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Hizmet mevcut değil veya engelleniyor
 sessionExpired=Oturumunuzun süresi doldu. Lütfen tarayıcı pencerenizi yenileyin.
 sessionTimeoutOnSave=Oturumunuz zaman aşımına uğradı ve Google Drive'dan bağlantısı koptu. Giriş yapıp kaydetmek için TAMAM'a tıklayın
 setAsDefaultStyle=Varsayılan stil olarak belirle
+settings=Settings
 shadow=Gölge
 shape=Şekil
 shapes=Şekiller

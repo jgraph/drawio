@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=El servei no està disponible o està bloquejat
 sessionExpired=La sessió ha caducat. Refresqueu la finestra del navegador.
 sessionTimeoutOnSave=La sessió ha caducat i us heu desconnectat de Google Drive. Premeu "D'acord" per accedir-hi i desar.
 setAsDefaultStyle=Estableix com estil predeterminat
+settings=Settings
 shadow=Ombra
 shape=Forma
 shapes=Formes

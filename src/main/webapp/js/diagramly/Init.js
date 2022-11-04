@@ -295,10 +295,14 @@ window.uiTheme = window.uiTheme || (function()
 		}
 	}
 	
-	// Uses minimal theme on small screens
+	// Uses simple theme on small screens in own domain standalone app
 	try
 	{
-		if (ui == null)
+		if (ui == null && urlParams['embed'] != '1' &&
+			(window.location.hostname == 'test.draw.io' ||
+			window.location.hostname == 'www.draw.io' ||
+			window.location.hostname == 'app.diagrams.net' ||
+			window.location.hostname == 'jgraph.github.io'))
 		{
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 			

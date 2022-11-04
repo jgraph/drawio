@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Zerbitzua ez dago eskuragarria edo blokeatuta dago
 sessionExpired=Saioa iraungi da. Freskatu nabigatzailearen fitxa.
 sessionTimeoutOnSave=Zure saioaren denbora agortu da eta Google Drivetik deskonektatuta zaude. Sakatu Ados saioa hasteko eta gordetzeko.
 setAsDefaultStyle=Ezarri lehenetsitako estilo gisa
+settings=Settings
 shadow=Itzala
 shape=Forma
 shapes=Formak

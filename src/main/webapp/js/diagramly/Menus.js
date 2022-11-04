@@ -810,21 +810,6 @@
 			}
 		}, null, null, Editor.ctrlKey + '+Shift+V');
 		
-		editorUi.actions.put('pageBackgroundImage', new Action(mxResources.get('backgroundImage') + '...', function()
-		{
-			if (!editorUi.isOffline())
-			{
-				var apply = function(image)
-				{
-					editorUi.setBackgroundImage(image);
-				};
-	
-				var dlg = new BackgroundImageDialog(editorUi, apply);
-				editorUi.showDialog(dlg.container, 400, 170, true, true);
-				dlg.init();
-			}
-		}));
-
 		editorUi.actions.put('exportSvg', new Action(mxResources.get('formatSvg') + '...', function()
 		{
 			editorUi.showExportDialog(mxResources.get('formatSvg'), true, mxResources.get('export'),
@@ -1011,8 +996,11 @@
 			
 			if (this[name] == null)
 			{
-				var w = (findReplace) ? ((uiTheme == 'min') ? 330 : 300) : 240;
-				var h = (findReplace) ? ((uiTheme == 'min') ? 304 : 288) : 170;
+				var modern = (Editor.currentTheme == 'min' ||
+					Editor.currentTheme == 'simple' ||	
+					Editor.currentTheme == 'sketch');
+				var w = (findReplace) ? ((modern) ? 330 : 300) : 240;
+				var h = (findReplace) ? ((modern) ? 304 : 288) : 170;
 				this[name] = new FindWindow(editorUi,
 					document.body.offsetWidth - (w + 20),
 					100, w, h, findReplace);
@@ -2651,20 +2639,17 @@
 				this.addMenuItem(menu, 'export', parent).firstChild.nextSibling.innerHTML = mxResources.get('advanced') + '...';
 			}
 
-			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
+			if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && Editor.currentTheme == 'min')
 			{
-				if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp)
-				{
-					// Publish menu contains only one element by default...
-					//ui.menus.addSubmenu('publish', menu, parent); 
-					this.addMenuItems(menu, ['publishLink'], parent);
-				}
-				
-				if (editorUi.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1')
-				{
-					menu.addSeparator(parent);
-					editorUi.menus.addSubmenu('embed', menu, parent);
-				}
+				this.addMenuItems(menu, ['publishLink'], parent);
+			}	
+
+			if (editorUi.mode != App.MODE_ATLAS && urlParams['extAuth'] != '1' &&
+				(Editor.currentTheme == 'simple' || Editor.currentTheme == 'sketch' ||
+				Editor.currentTheme == 'min'))
+			{
+				menu.addSeparator(parent);
+				editorUi.menus.addSubmenu('embed', menu, parent);
 			}
 		})));
 
@@ -3251,6 +3236,11 @@
     	    {
     			cell = graph.addCell(cell);
     	    	graph.fireEvent(new mxEventObject('cellsInserted', 'cells', [cell]));
+
+				if (graph.model.isVertex(cell) && graph.isAutoSizeCell(cell))
+				{
+					graph.updateCellSize(cell);
+				}
     	    }
     		finally
     		{
@@ -4357,7 +4347,7 @@
 	
 					if (file != null)
 					{		
-						if (file.constructor == DriveFile)
+						if (file.constructor == DriveFile || file.constructor == GitHubFile)
 						{
 							editorUi.menus.addMenuItems(menu, ['share'], parent);
 						}
@@ -4594,7 +4584,16 @@
 						}
 					}
 					
-					if (file.constructor == DriveFile)
+
+					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+						(Editor.currentTheme == 'simple' ||
+						Editor.currentTheme == 'sketch'))
+					{
+						menu.addSeparator(parent);
+						this.addMenuItem(menu, 'publishLink', parent, null, null, mxResources.get('publish') + '...');
+					}
+
+					if (file.constructor == DriveFile || file.constructor == GitHubFile)
 					{
 						editorUi.menus.addMenuItems(menu, ['share'], parent);
 					}

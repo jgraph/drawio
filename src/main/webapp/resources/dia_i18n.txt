@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=serviceUnavailableOrBlocked
 sessionExpired=sessionExpired
 sessionTimeoutOnSave=sessionTimeoutOnSave
 setAsDefaultStyle=setAsDefaultStyle
+settings=settings
 shadow=shadow
 shape=shape
 shapes=shapes

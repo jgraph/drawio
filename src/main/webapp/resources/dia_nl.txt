@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Dienst niet beschikbaar of geblokkeerd
 sessionExpired=Uw sessie is verlopen. Ververs het browservenster.
 sessionTimeoutOnSave=Uw sessie is verlopen en uw verbinding met Google Drive is verbroken. Druk op OK om in te loggen en op te slaan.
 setAsDefaultStyle=Als standaardstijl Instellen
+settings=Settings
 shadow=Schaduw
 shape=Vorm
 shapes=Vormen

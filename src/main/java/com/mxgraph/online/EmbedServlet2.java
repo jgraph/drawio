@@ -412,6 +412,7 @@ public class EmbedServlet2 extends HttpServlet
 					URL url = new URL(urls[i]);
 					URLConnection connection = url.openConnection();
 					((HttpURLConnection) connection).setInstanceFollowRedirects(false);
+					connection.setRequestProperty("User-Agent", "draw.io");
 					ByteArrayOutputStream stream = new ByteArrayOutputStream();
 					String contentLength = connection.getHeaderField("Content-Length");
 

@@ -138,7 +138,8 @@ Editor.closeImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53M
 Editor.closeBlackImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjZweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjZweCI+PGVsbGlwc2UgY3g9IjEyIiBjeT0iMTIiIHJ4PSI5IiByeT0iOSIgc3Ryb2tlPSJub25lIiBmaWxsPSIjMDAwIi8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTE0LjU5IDhMMTIgMTAuNTkgOS40MSA4IDggOS40MSAxMC41OSAxMiA4IDE0LjU5IDkuNDEgMTYgMTIgMTMuNDEgMTQuNTkgMTYgMTYgMTQuNTkgMTMuNDEgMTIgMTYgOS40MSAxNC41OSA4ek0xMiAyQzYuNDcgMiAyIDYuNDcgMiAxMnM0LjQ3IDEwIDEwIDEwIDEwLTQuNDcgMTAtMTBTMTcuNTMgMiAxMiAyem0wIDE4Yy00LjQxIDAtOC0zLjU5LTgtOHMzLjU5LTggOC04IDggMy41OSA4IDgtMy41OSA4LTggOHoiLz48L3N2Zz4=';
 Editor.minusImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEwIDI1LjV2LTNoMjh2M1oiLz48L3N2Zz4=';
 Editor.plusImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTkgMTNoLTZ2NmgtMnYtNkg1di0yaDZWNWgydjZoNnYyeiIvPjwvc3ZnPg==';
-Editor.shapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIGZpbGw9IiMwMDAwMDAiPjxnPjxwYXRoIGQ9Ik0wLDBoMjR2MjRIMFYweiIgZmlsbD0ibm9uZSIvPjwvZz48Zz48Zz48cGF0aCBkPSJNMywxMWg4VjNIM1YxMXogTTUsNWg0djRINVY1eiIvPjxwYXRoIGQ9Ik0xMywzdjhoOFYzSDEzeiBNMTksOWgtNFY1aDRWOXoiLz48cGF0aCBkPSJNMywyMWg4di04SDNWMjF6IE01LDE1aDR2NEg1VjE1eiIvPjxwb2x5Z29uIHBvaW50cz0iMTgsMTMgMTYsMTMgMTYsMTYgMTMsMTYgMTMsMTggMTYsMTggMTYsMjEgMTgsMjEgMTgsMTggMjEsMTggMjEsMTYgMTgsMTYiLz48L2c+PC9nPjwvc3ZnPg==';
+Editor.addBoxImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTIyLjUgMzRoM3YtOC41SDM0di0zaC04LjVWMTRoLTN2OC41SDE0djNoOC41Wk05IDQycS0xLjIgMC0yLjEtLjlRNiA0MC4yIDYgMzlWOXEwLTEuMi45LTIuMVE3LjggNiA5IDZoMzBxMS4yIDAgMi4xLjkuOS45LjkgMi4xdjMwcTAgMS4yLS45IDIuMS0uOS45LTIuMS45Wm0wLTNoMzBWOUg5djMwWk05IDl2MzBWOVoiLz48L3N2Zz4=';
+Editor.shapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTMwIDMwWm0tMTQgNC45cS41LjEuOTc1LjFIMThxLjMgMCAuNTI1LS4wMjUuMjI1LS4wMjUuNDc1LS4wMjVWNDFoMjJWMTloLTYuMDVxLjA1LS4yNS4wNS0uNXYtMS41MjVxMC0uNDc1LS4xLS45NzVINDFxMS4yNSAwIDIuMTI1Ljg3NVQ0NCAxOXYyMnEwIDEuMjUtLjg3NSAyLjEyNVQ0MSA0NEgxOXEtMS4yNSAwLTIuMTI1LS44NzVUMTYgNDFabTItMi45cS01Ljg1IDAtOS45MjUtNC4wNzVRNCAyMy44NSA0IDE4cTAtNS44NSA0LjA3NS05LjkyNVExMi4xNSA0IDE4IDRxNS44NSAwIDkuOTI1IDQuMDc1UTMyIDEyLjE1IDMyIDE4cTAgNS44NS00LjA3NSA5LjkyNVEyMy44NSAzMiAxOCAzMlptMC0zcTQuNTUgMCA3Ljc3NS0zLjIyNVEyOSAyMi41NSAyOSAxOHEwLTQuNTUtMy4yMjUtNy43NzVRMjIuNTUgNyAxOCA3cS00LjU1IDAtNy43NzUgMy4yMjVRNyAxMy40NSA3IDE4cTAgNC41NSAzLjIyNSA3Ljc3NVExMy40NSAyOSAxOCAyOVptMC0xMVoiLz48L3N2Zz4=';
 Editor.formatImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIgM2MtNC45NyAwLTkgNC4wMy05IDlzNC4wMyA5IDkgOWMuODMgMCAxLjUtLjY3IDEuNS0xLjUgMC0uMzktLjE1LS43NC0uMzktMS4wMS0uMjMtLjI2LS4zOC0uNjEtLjM4LS45OSAwLS44My42Ny0xLjUgMS41LTEuNUgxNmMyLjc2IDAgNS0yLjI0IDUtNSAwLTQuNDItNC4wMy04LTktOHptLTUuNSA5Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTNS42NyA5IDYuNSA5IDggOS42NyA4IDEwLjUgNy4zMyAxMiA2LjUgMTJ6bTMtNEM4LjY3IDggOCA3LjMzIDggNi41UzguNjcgNSA5LjUgNXMxLjUuNjcgMS41IDEuNVMxMC4zMyA4IDkuNSA4em01IDBjLS44MyAwLTEuNS0uNjctMS41LTEuNVMxMy42NyA1IDE0LjUgNXMxLjUuNjcgMS41IDEuNVMxNS4zMyA4IDE0LjUgOHptMyA0Yy0uODMgMC0xLjUtLjY3LTEuNS0xLjVTMTYuNjcgOSAxNy41IDlzMS41LjY3IDEuNSAxLjUtLjY3IDEuNS0xLjUgMS41eiIvPjwvc3ZnPg==';
 Editor.freehandImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjRweCIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjRweCIgZmlsbD0iIzAwMDAwMCI+PHJlY3QgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgd2lkdGg9IjI0Ii8+PHBhdGggZD0iTTQuNSw4YzEuMDQsMCwyLjM0LTEuNSw0LjI1LTEuNWMxLjUyLDAsMi43NSwxLjIzLDIuNzUsMi43NWMwLDIuMDQtMS45OSwzLjE1LTMuOTEsNC4yMkM1LjQyLDE0LjY3LDQsMTUuNTcsNCwxNyBjMCwxLjEsMC45LDIsMiwydjJjLTIuMjEsMC00LTEuNzktNC00YzAtMi43MSwyLjU2LTQuMTQsNC42Mi01LjI4YzEuNDItMC43OSwyLjg4LTEuNiwyLjg4LTIuNDdjMC0wLjQxLTAuMzQtMC43NS0wLjc1LTAuNzUgQzcuNSw4LjUsNi4yNSwxMCw0LjUsMTBDMy4xMiwxMCwyLDguODgsMiw3LjVDMiw1LjQ1LDQuMTcsMi44Myw1LDJsMS40MSwxLjQxQzUuNDEsNC40Miw0LDYuNDMsNCw3LjVDNCw3Ljc4LDQuMjIsOCw0LjUsOHogTTgsMjEgbDMuNzUsMGw4LjA2LTguMDZsLTMuNzUtMy43NUw4LDE3LjI1TDgsMjF6IE0xMCwxOC4wOGw2LjA2LTYuMDZsMC45MiwwLjkyTDEwLjkyLDE5TDEwLDE5TDEwLDE4LjA4eiBNMjAuMzcsNi4yOSBjLTAuMzktMC4zOS0xLjAyLTAuMzktMS40MSwwbC0xLjgzLDEuODNsMy43NSwzLjc1bDEuODMtMS44M2MwLjM5LTAuMzksMC4zOS0xLjAyLDAtMS40MUwyMC4zNyw2LjI5eiIvPjwvc3ZnPg==';
 Editor.undoImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48cGF0aCBkPSJNMTIuNSA4Yy0yLjY1IDAtNS4wNS45OS02LjkgMi42TDIgN3Y5aDlsLTMuNjItMy42MmMxLjM5LTEuMTYgMy4xNi0xLjg4IDUuMTItMS44OCAzLjU0IDAgNi41NSAyLjMxIDcuNiA1LjVsMi4zNy0uNzhDMjEuMDggMTEuMDMgMTcuMTUgOCAxMi41IDh6Ii8+PC9zdmc+';
@@ -1114,7 +1115,7 @@ Dialog.prototype.close = function(cancel, isEsc)
 		this.onDialogClose = null;
 	}
 	
-	if (this.dialogImg != null)
+	if (this.dialogImg != null && this.dialogImg.parentNode != null)
 	{
 		this.dialogImg.parentNode.removeChild(this.dialogImg);
 		this.dialogImg = null;
@@ -1126,7 +1127,11 @@ Dialog.prototype.close = function(cancel, isEsc)
 	}
 	
 	mxEvent.removeListener(window, 'resize', this.resizeListener);
-	this.container.parentNode.removeChild(this.container);
+
+	if (this.container.parentNode != null)
+	{
+		this.container.parentNode.removeChild(this.container);
+	}
 };
 
 /**
@@ -1572,62 +1577,12 @@ var PageSetupDialog = function(editorUi)
 	row = document.createElement('tr');
 	
 	td = document.createElement('td');
-	mxUtils.write(td, mxResources.get('background') + ':');
-	
+	mxUtils.write(td, mxResources.get('gridSize') + ':');
 	row.appendChild(td);
 	
 	td = document.createElement('td');
 	td.style.whiteSpace = 'nowrap';
-	
-	var backgroundInput = document.createElement('input');
-	backgroundInput.setAttribute('type', 'text');
 
-	var backgroundButton = document.createElement('button');
-	backgroundButton.style.width = '22px';
-	backgroundButton.style.height = '22px';
-	backgroundButton.style.cursor = 'pointer';
-	backgroundButton.style.marginRight = '20px';
-	backgroundButton.style.backgroundPosition = 'center center';
-	backgroundButton.style.backgroundRepeat = 'no-repeat';
-
-	if (mxClient.IS_FF)
-	{
-		backgroundButton.style.position = 'relative';
-		backgroundButton.style.top = '-6px';
-	}
-	
-	var newBackgroundColor = graph.background;
-	
-	function updateBackgroundColor()
-	{
-		if (newBackgroundColor == null || newBackgroundColor == mxConstants.NONE)
-		{
-			backgroundButton.style.backgroundColor = '';
-			backgroundButton.style.backgroundImage = 'url(\'' + Dialog.prototype.noColorImage + '\')';
-		}
-		else
-		{
-			backgroundButton.style.backgroundColor = newBackgroundColor;
-			backgroundButton.style.backgroundImage = '';
-		}
-	};
-	
-	updateBackgroundColor();
-
-	mxEvent.addListener(backgroundButton, 'click', function(evt)
-	{
-		editorUi.pickColor(newBackgroundColor || 'none', function(color)
-		{
-			newBackgroundColor = color;
-			updateBackgroundColor();
-		});
-		mxEvent.consume(evt);
-	});
-	
-	td.appendChild(backgroundButton);
-	
-	mxUtils.write(td, mxResources.get('gridSize') + ':');
-	
 	var gridSizeInput = document.createElement('input');
 	gridSizeInput.setAttribute('type', 'number');
 	gridSizeInput.setAttribute('min', '0');
@@ -1649,7 +1604,7 @@ var PageSetupDialog = function(editorUi)
 	row = document.createElement('tr');
 	td = document.createElement('td');
 	
-	mxUtils.write(td, mxResources.get('image') + ':');
+	mxUtils.write(td, mxResources.get('background') + ':');
 	
 	row.appendChild(td);
 	td = document.createElement('td');
@@ -1659,50 +1614,69 @@ var PageSetupDialog = function(editorUi)
 	changeImageLink.style.margin = '0px';
 	mxUtils.write(changeImageLink, mxResources.get('change') + '...');
 
-	var imgPreview = document.createElement('img');
-	imgPreview.setAttribute('valign', 'middle');
+	var imgPreview = document.createElement('div');
+	imgPreview.style.display = 'inline-block';
 	imgPreview.style.verticalAlign = 'middle';
+	imgPreview.style.backgroundPosition = 'center center';
+	imgPreview.style.backgroundRepeat = 'no-repeat';
+	imgPreview.style.backgroundSize = 'contain';
 	imgPreview.style.border = '1px solid lightGray';
 	imgPreview.style.borderRadius = '4px';
 	imgPreview.style.marginRight = '14px';
-	imgPreview.style.maxWidth = '100px';
+	imgPreview.style.height = '32px';
+	imgPreview.style.width = '64px';
 	imgPreview.style.cursor = 'pointer';
-	imgPreview.style.height = '60px';
 	imgPreview.style.padding = '4px';
 	
 	var newBackgroundImage = graph.backgroundImage;
+	var newBackgroundColor = graph.background;
 	
 	function updateBackgroundImage()
 	{
 		var img = newBackgroundImage;
 
-		if (img != null && Graph.isPageLink(img.src))
+		if (img != null && img.originalSrc != null)
 		{
-			img = editorUi.createImageForPageLink(img.src, null);
+			img = editorUi.createImageForPageLink(img.originalSrc, null);
 		}
 		
 		if (img != null && img.src != null)
 		{
-			imgPreview.setAttribute('src', img.src);
-			imgPreview.style.display = '';
+			imgPreview.style.backgroundImage = 'url(' + img.src + ')';
+			imgPreview.style.display = 'inline-block';
 		}
 		else
 		{
-			imgPreview.removeAttribute('src');
+			imgPreview.style.backgroundImage = '';
 			imgPreview.style.display = 'none';
+		}
+
+		imgPreview.style.backgroundColor = '';
+
+		if (newBackgroundColor != null && newBackgroundColor != mxConstants.NONE)
+		{
+			imgPreview.style.backgroundColor = newBackgroundColor;
+			imgPreview.style.display = 'inline-block';
 		}
 	};
 
 	var changeImage = function(evt)
 	{
-		editorUi.showBackgroundImageDialog(function(image, failed)
+		editorUi.showBackgroundImageDialog(function(image, failed, color)
 		{
 			if (!failed)
 			{
+				if (image != null && image.src != null && Graph.isPageLink(image.src))
+				{
+					image = {originalSrc: image.src};
+				}
+
 				newBackgroundImage = image;
-				updateBackgroundImage();
 			}
-		}, newBackgroundImage);
+
+			newBackgroundColor = color;
+			updateBackgroundImage();
+		}, newBackgroundImage, newBackgroundColor);
 		
 		mxEvent.consume(evt);
 	};
@@ -2793,7 +2767,10 @@ var WrapperWindow = function(editorUi, title, x, y, w, h, fn)
 				
 				for (var i = count; i < breaks.length; i++)
 				{
-					breaks[i].destroy();
+					if (breaks[i] != null)
+					{
+						breaks[i].destroy();
+					}
 				}
 				
 				breaks.splice(count, breaks.length - count);

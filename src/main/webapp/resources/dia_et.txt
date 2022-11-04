@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Teenus pole saadaval või on blokeeritud
 sessionExpired=Sinu sessioon on aegunud. Palun värskenda brauseriakent.
 sessionTimeoutOnSave=Sinu sessioon on aegunud ja sind on Google Drive'st lahti ühendatud. Vajuta OK sisse logimiseks ja salvestamiseks.
 setAsDefaultStyle=Sea vaikestiiliks
+settings=Settings
 shadow=Vari
 shape=Kujund
 shapes=Kujundid

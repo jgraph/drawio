@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Perkhidmatan tidak tersedia atau disekat
 sessionExpired=Sesi anda telah tamat. Sila segarkan semula tetingkap pelayar.
 sessionTimeoutOnSave=Sesi anda telah tamat dan anda telah terputus sambungan daripada Google Drive. Tekan OK untuk melog masuk dan menyimpan.
 setAsDefaultStyle=Tetapkan sebagai Gaya Lalai
+settings=Settings
 shadow=Bayang-bayang
 shape=Bentuk
 shapes=Bentuk-bentuk

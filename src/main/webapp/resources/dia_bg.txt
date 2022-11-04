@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Услугата не е достъпна или е 
 sessionExpired=Сесията Ви изтече. Моля обновете прозореца на браузъра.
 sessionTimeoutOnSave=Времето на Вашата сесия изтече и не сте свързани с Google Drive. Натиснете ОК, за да влезете и да запазите.
 setAsDefaultStyle=Запази като стил по подразбиране
+settings=Settings
 shadow=Сянка
 shape=Форма
 shapes=Форми

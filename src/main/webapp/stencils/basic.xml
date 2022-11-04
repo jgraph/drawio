@@ -367,10 +367,9 @@
         <path>
             <move x="84" y="0"/>
             <arc large-arc-flag="0" rx="18" ry="10" sweep-flag="1" x="79" x-axis-rotation="0" y="9"/>
-            <line x="99" y="14.7"/>
-            <close/>
+            <line x="98" y="14.3"/>
         </path>
-        <fillstroke/>
+        <stroke/>
     </foreground>
 </shape>
 <shape aspect="variable" h="95.5" name="Flash" strokewidth="inherit" w="60">

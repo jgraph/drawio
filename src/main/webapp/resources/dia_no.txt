@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Tjenesten er utilgjengelig eller blokkert
 sessionExpired=Økten din er utløpt. Vennligst oppdater nettleservinduet.
 sessionTimeoutOnSave=Økten din er utløpt og du er blitt koblet fra Google Drive. Klikk OK for å logge inn og lagre.
 setAsDefaultStyle=Angi som standardstil
+settings=Settings
 shadow=Skygge
 shape=Form
 shapes=Figurer

@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Serviciu indisponibil sau blocat
 sessionExpired=Sesiunea ta a expirat. Te rugăm să reîncarci fereastra browserului
 sessionTimeoutOnSave=Sesiunea ta a expirat şi ai fost deconectat de la Google Drive. Apasă OK pentru a te loga şi a salva.
 setAsDefaultStyle=Setează ca stil predeterminat
+settings=Settings
 shadow=Umbră
 shape=Formă
 shapes=Forme

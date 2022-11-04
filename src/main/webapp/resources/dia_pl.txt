@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Usługa zablokowana lub niedostępna
 sessionExpired=Sesja wygasła. Proszę odświeżyć okno przeglądarki.
 sessionTimeoutOnSave=Twoja sesja wygasła, a Dysk Google został rozłączony. Wciśnij OK, aby się zalogować i zapisać.
 setAsDefaultStyle=Ustaw jako styl domyślny
+settings=Settings
 shadow=Cień
 shape=Kształt
 shapes=Kształty

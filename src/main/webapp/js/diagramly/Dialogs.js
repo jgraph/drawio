@@ -1536,13 +1536,13 @@ CreateGraphDialog.prototype.connectImage = new mxImage((mxClient.IS_SVG) ? 'data
 /**
  * Constructs a new parse dialog.
  */
-var BackgroundImageDialog = function(editorUi, applyFn, img)
+var BackgroundImageDialog = function(editorUi, applyFn, img, color)
 {
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
 
 	var h3 = document.createElement('h2');
-	mxUtils.write(h3, mxResources.get('backgroundImage'));
+	mxUtils.write(h3, mxResources.get('background'));
 	h3.style.marginTop = '0px';
 	div.appendChild(h3);
 
@@ -1823,6 +1823,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 	div.appendChild(pageRadio);
 	div.appendChild(pageSelect);
 	mxUtils.br(div);
+	mxUtils.br(div);
 
 	if (isPageLink)
 	{
@@ -1852,6 +1853,84 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		});
 	}
 
+	var bgDiv = document.createElement('div');
+	bgDiv.style.display = 'flex';
+	bgDiv.style.alignItems = 'center';
+	bgDiv.style.height = '20px';
+
+	var cb = document.createElement('input');
+	cb.setAttribute('type', 'checkbox');
+	cb.style.margin = '0px 10px 0px 4px';
+	cb.style.verticalAlign = 'bottom';
+	cb.defaultChecked = color != mxConstants.NONE && color != null;
+	cb.checked = cb.defaultChecked;
+	bgDiv.appendChild(cb);
+
+	mxUtils.write(bgDiv, mxResources.get('fillColor'));
+
+	// TODO: Move createColorButton to editorUi
+	var backgroundButton = document.createElement('button');
+	backgroundButton.style.width = '36px';
+	backgroundButton.style.height = '18px';
+	backgroundButton.style.cursor = 'pointer';
+	backgroundButton.style.marginLeft = '10px';
+	backgroundButton.style.backgroundPosition = 'center center';
+	backgroundButton.style.backgroundRepeat = 'no-repeat';
+	backgroundButton.style.verticalAlign = 'bottom';
+	backgroundButton.className = 'geColorBtn';
+	
+	var newBackgroundColor = color;
+	
+	function updateBackgroundColor()
+	{
+		if (newBackgroundColor == null || newBackgroundColor == mxConstants.NONE)
+		{
+			backgroundButton.style.display = 'none';
+			cb.checked = false;
+		}
+		else
+		{
+			backgroundButton.style.backgroundColor = newBackgroundColor;
+			backgroundButton.style.display = '';
+			cb.checked = true;
+		}
+	};
+	
+	updateBackgroundColor();
+
+	mxEvent.addListener(bgDiv, 'click', function(evt)
+	{
+		if (mxEvent.getSource(evt) != cb)
+		{
+			cb.checked = !cb.checked;
+		}
+
+		if (cb.checked)
+		{
+			newBackgroundColor = '#ffffff';
+		}
+		else
+		{
+			newBackgroundColor = null;
+		}
+
+		updateBackgroundColor();
+	});
+	
+	mxEvent.addListener(backgroundButton, 'click', function(evt)
+	{
+		editorUi.pickColor(newBackgroundColor || 'none', function(color)
+		{
+			newBackgroundColor = color;
+			updateBackgroundColor();
+		});
+		mxEvent.consume(evt);
+	});
+	
+	bgDiv.appendChild(backgroundButton);
+	div.appendChild(bgDiv);
+	mxUtils.br(div);
+
 	var btns = document.createElement('div');
 	btns.style.marginTop = '30px';
 	btns.style.textAlign = 'right';
@@ -1875,6 +1954,8 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		widthInput.value = '';
 		heightInput.value = '';
 		urlRadio.checked = true;
+		newBackgroundColor = mxConstants.NONE;
+		updateBackgroundColor();
 		resetting = false;
 	});
 	mxEvent.addGestureListeners(resetBtn, function()
@@ -1925,7 +2006,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img)
 		{
 			applyFn((url != '' && url != null) ? new mxImage(url,
 				widthInput.value, heightInput.value) : null,
-				url == null);
+				url == null, newBackgroundColor);
 		});
 	});
 	
@@ -4184,7 +4265,8 @@ var CreateDialog = function(editorUi, title, createFn, cancelFn, dlgTitle, btnLa
 			'translate(50%,-50%)');
 		div.appendChild(preview);
 		
-		if (!mxClient.IS_FF && navigator.clipboard != null && mimeType == 'image/png')
+		if (!mxClient.IS_FF  && mimeType == 'image/png' && navigator.clipboard != null &&
+			typeof window.ClipboardItem === 'function')
 		{
 			copyBtn = mxUtils.button(mxResources.get('copy'), function(evt)
 			{
@@ -6194,7 +6276,8 @@ var RevisionDialog = function(editorUi, revs, restoreFn)
 	mxEvent.addGestureListeners(compareBtn, function(e)
 	{
 		// Gets current state of page with given ID
-		var curr = currentDiagrams[diagrams[currentPage].getAttribute('id')];
+		var curr = (diagrams[currentPage] != null) ? currentDiagrams[
+			diagrams[currentPage].getAttribute('id')] : null;
 		mxUtils.setOpacity(compareBtn, 20);
 		errorNode.innerText = '';
 
@@ -6882,68 +6965,31 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	{
 		return null;
 	};
-
-	// TODO: Enable per-page math
-//	if (Editor.MathJaxRender)
-//	{
-//		graph.model.addListener(mxEvent.CHANGE, mxUtils.bind(this, function(sender, evt)
-//		{
-//			// LATER: Math support is used if current graph has math enabled
-//			// should use switch from history instead but requires setting the
-//			// global mxClient.NO_FO switch
-//			if (editorUi.editor.graph.mathEnabled)
-//			{
-//				Editor.MathJaxRender(graph.container);
-//			}
-//		}));
-//	}
-
-	var zoomInBtn = mxUtils.button('', function()
+	
+	var zoomInBtn = editorUi.createToolbarButton(Editor.zoomInImage, mxResources.get('zoomIn'), function()
 	{
 		graph.zoomIn();
-	});
-	zoomInBtn.className = 'geSprite geSprite-zoomin';
-	zoomInBtn.setAttribute('title', mxResources.get('zoomIn'));
-	zoomInBtn.style.outline = 'none';
-	zoomInBtn.style.border = 'none';
-	zoomInBtn.style.margin = '2px';
-	mxUtils.setOpacity(zoomInBtn, 60);
-	
-	var zoomOutBtn = mxUtils.button('', function()
+	}, 20);
+
+	var zoomOutBtn = editorUi.createToolbarButton(Editor.zoomInImage, mxResources.get('zoomOut'), function()
 	{
 		graph.zoomOut();
-	});
-	zoomOutBtn.className = 'geSprite geSprite-zoomout';
-	zoomOutBtn.setAttribute('title', mxResources.get('zoomOut'));
-	zoomOutBtn.style.outline = 'none';
-	zoomOutBtn.style.border = 'none';
-	zoomOutBtn.style.margin = '2px';
-	mxUtils.setOpacity(zoomOutBtn, 60);
+	}, 20);
 
-	var zoomFitBtn = mxUtils.button('', function()
+	var zoomFitBtn = editorUi.createToolbarButton(Editor.zoomFitImage, mxResources.get('fit'), function()
 	{
-		graph.maxFitScale = 8;
-		graph.fit(8);
+		if (graph.view.scale == 1)
+		{
+			graph.maxFitScale = 8;
+			graph.fit(8);
+		}
+		else
+		{
+			graph.zoomActual();
+		}
+
 		graph.center();
-	});
-	zoomFitBtn.className = 'geSprite geSprite-fit';
-	zoomFitBtn.setAttribute('title', mxResources.get('fit'));
-	zoomFitBtn.style.outline = 'none';
-	zoomFitBtn.style.border = 'none';
-	zoomFitBtn.style.margin = '2px';
-	mxUtils.setOpacity(zoomFitBtn, 60);
-	
-	var zoomActualBtn = mxUtils.button('', function()
-	{
-		graph.zoomActual();
-		graph.center();
-	});
-	zoomActualBtn.className = 'geSprite geSprite-actualsize';
-	zoomActualBtn.setAttribute('title', mxResources.get('actualSize'));
-	zoomActualBtn.style.outline = 'none';
-	zoomActualBtn.style.border = 'none';
-	zoomActualBtn.style.margin = '2px';
-	mxUtils.setOpacity(zoomActualBtn, 60);
+	}, 20);
 
 	var restoreBtn = mxUtils.button(discardLabel || mxResources.get('discard'), function()
 	{
@@ -7085,7 +7131,6 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	tb.appendChild(pageSelect);
 	tb.appendChild(zoomInBtn);
 	tb.appendChild(zoomOutBtn);
-	tb.appendChild(zoomActualBtn);
 	tb.appendChild(zoomFitBtn);
 	
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()

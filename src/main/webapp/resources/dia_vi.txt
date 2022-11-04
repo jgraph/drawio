@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Dịch vụ không khả dụng hay đã bị khóa
 sessionExpired=Phiên làm việc của bạn đã hết hạn. Vui lòng làm mới cửa sổ trình duyệt.
 sessionTimeoutOnSave=Phiên làm việc của bạn đã quá giờ và bạn đã bị mất kết nối khỏi Google Drive. Nhấn OK để đăng nhập và lưu.
 setAsDefaultStyle=Đặt làm phong cách mặc định
+settings=Settings
 shadow=Đổ bóng
 shape=Hình
 shapes=Hình

@@ -60,10 +60,18 @@ mxStencilRegistry.allowEval = false;
 		if (file)
 		{
 			file.updateFileData();
-			xml = file.getData();
+			xml = editorUi.getFileData(true, null, null, null, null, false,
+				null, null, null, false, true);
 			title = file.title;
 		}
 		
+		var extras = {globalVars: editorUi.editor.graph.getExportVariables()};
+
+		if (Graph.translateDiagram)
+		{
+			extras.diagramLanguage = Graph.diagramLanguage;
+		}
+
 		new mxElectronRequest('export', {
 			print: true,
 			format: 'pdf',
@@ -78,6 +86,7 @@ mxStencilRegistry.allowEval = false;
 			sheetsAcross: sheetsAcross,
 			sheetsDown: sheetsDown,
 			scale: zoom,
+			extras: JSON.stringify(extras),
 			fileTitle: title
 		}).send(function(){}, function(){});
 	};
@@ -2070,82 +2079,15 @@ mxStencilRegistry.allowEval = false;
 	}
 	
 	//Direct export to pdf
-	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection, base64, transparent, 
-		currentPage, scale, border, grid, includeXml)
+	EditorUi.prototype.createDownloadRequest = function(filename, format, ignoreSelection,
+		base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h)
 	{
-		var graph = this.editor.graph;
-		var bounds = graph.getGraphBounds();
-		
-		// Exports only current page for images that does not contain file data, but for
-		// the other formats with XML included or pdf with all pages, we need to send the complete data and use
-		// the from/to URL parameters to specify the page to be exported.
-		var data = this.getFileData(true, null, null, null, ignoreSelection, currentPage == false? false : format != 'xmlpng');
-		var range = null;
-		var allPages = null;
-		
-		var embed = (includeXml) ? '1' : '0';
-		
-		if (format == 'pdf' && currentPage == false)
-		{
-			allPages = '1';
-		}
-		
-		if (format == 'xmlpng')
-		{
-			embed = '1';
-			format = 'png';
-			
-			// Finds the current page number
-			if (this.pages != null && this.currentPage != null)
-			{
-				for (var i = 0; i < this.pages.length; i++)
-				{
-					if (this.pages[i] == this.currentPage)
-					{
-						range = i;
-						break;
-					}
-				}
-			}
-		}
-		
-		var bg = graph.background;
-		
-		if (format == 'png' && transparent)
-		{
-			bg = mxConstants.NONE;
-		}
-		else if (!transparent && (bg == null || bg == mxConstants.NONE))
-		{
-			bg = '#ffffff';
-		}
-		
-		var extras = {globalVars: graph.getExportVariables()};
-		
-		if (grid)
-		{
-			extras.grid = {
-				size: graph.gridSize,
-				steps: graph.view.gridSteps,
-				color: graph.view.gridColor
-			};
-		}
-		
-		return new mxElectronRequest('export', {
-			format: format,
-			xml: data,
-			from: range,
-			bg: (bg != null) ? bg : mxConstants.NONE,
-			filename: (filename != null) ? filename : null,
-			allPages: allPages,
-			base64: base64,
-			embedXml: embed,
-			extras: encodeURIComponent(JSON.stringify(extras)),
-			scale: scale,
-			border: border
-		});
+		var params = this.downloadRequestBuilder(filename, format, ignoreSelection,
+			base64, transparent, currentPage, scale, border, grid, includeXml, pageRange, w, h);
+
+		return new mxElectronRequest('export', params);
 	};
-		
+	
 	var origSetAutosave = Editor.prototype.setAutosave;
 
 	Editor.prototype.setAutosave = function(value)
@@ -2191,6 +2133,11 @@ mxStencilRegistry.allowEval = false;
 			{
 				var extras = {globalVars: graph.getExportVariables()};
 				
+				if (Graph.translateDiagram)
+				{
+					extras.diagramLanguage = Graph.diagramLanguage;
+				}
+
 				editorUi.saveRequest(name, format,
 					function(newTitle, base64)
 					{

@@ -113,7 +113,7 @@
 	 */
 	Sidebar.prototype.configuration = [{id: 'general', libs: ['general', 'misc', 'advanced']},
 									   {id: 'uml'}, {id: 'uml25'}, {id: 'search'}, {id: 'er'},
-									   {id: 'azure2', prefix: 'azure2', libs: ['AI Machine Learning', 'Analytics', 'App Services', 'Azure Stack', 'Azure VMware Solution', 'Blockchain', 'Compute', 'Containers', 'CXP', 'Databases', 'DevOps', 'General', 'Identity', 'Integration', 'Internet of Things', 'Intune', 'IoT', 'Management Governance', 'Migrate', 'Mixed Reality', 'Monitor', 'Networking', 'Other', 'Preview', 'Security', 'Storage', 'Web']},
+									   {id: 'azure2', prefix: 'azure2', libs: ['AI Machine Learning', 'Analytics', 'App Services', 'Azure Ecosystem', 'Azure Stack', 'Azure VMware Solution', 'Blockchain', 'Compute', 'Containers', 'CXP', 'Databases', 'DevOps', 'General', 'Identity', 'Integration', 'Internet of Things', 'Intune', 'IoT', 'Management Governance', 'Menu', 'Migrate', 'Mixed Reality', 'Monitor', 'Networking', 'Other', 'Preview', 'Security', 'Storage', 'Web']},
 	                                   {id: 'ios', prefix: 'ios', libs: [''/*prefix is library*/, '7icons', '7ui']}, 
 	                                   {id: 'android', prefix: 'android', libs: [''/*prefix is library*/]}, {id: 'aws3d'},
 	                                   {id: 'flowchart'}, {id: 'basic'}, {id: 'infographic'}, {id: 'arrows'}, {id: 'arrows2'}, {id: 'lean_mapping'}, {id: 'citrix'}, {id: 'azure'}, {id: 'network'}, {id: 'vvd'}, 

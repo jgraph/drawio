@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=服务无法使用或已被屏蔽
 sessionExpired=会话已过期，请刷新浏览器窗口。
 sessionTimeoutOnSave=会话已超时，您的 Google Drive 连接已断开。按确定键登录并保存。
 setAsDefaultStyle=设置为默认样式
+settings=Settings
 shadow=阴影
 shape=形状
 shapes=形状

@@ -33,7 +33,7 @@ html body, html body .geFooterContainer, html body #geFooterItem1, html body tex
 	background:#2a2a2a;
 	color:#cccccc;
 }
-html body .geFooterContainer a {
+html body .geFooterContainer a, html body .geDiagramContainer a, html body .geStatus a {
 	color:#337ab7;
 }
 html body div.mxRubberband {

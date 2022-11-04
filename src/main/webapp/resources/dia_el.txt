@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Μη διαθέσιμη ή μπλοκαρισμέν�
 sessionExpired=Η περίοδός σας έχει λήξει. Παρακαλούμε, ανανενώστε το παράθυρο περιηγητή.
 sessionTimeoutOnSave=Η περίοδός σας έχει λήξει και έχετε αποσυνδεθεί από το Google Drive. Πατήστε OK για σύνδεση και αποθήκευση.
 setAsDefaultStyle=Ορισμός ως προεπιλεγμένη εμφάνιση
+settings=Settings
 shadow=Σκιά
 shape=Σχήμα
 shapes=Σχήματα

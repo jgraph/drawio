@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=サービスはご利用になれません。ある�
 sessionExpired=セッションは時間切れになりました。ブラウザウィンドウを更新してください。
 sessionTimeoutOnSave=セッションは時間切れになりました。Googleドライブから切断されました。ログインして保存するには、OKをクリックしてログインをして保存してください。
 setAsDefaultStyle=デフォルトとして設定
+settings=Settings
 shadow=影付き
 shape=図形
 shapes=図形

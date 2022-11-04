@@ -1,6 +1,10 @@
 /**
  * Copyright (c) 2006-2016, JGraph Ltd
  */
+// Disables theme in viewer and lightbox
+Editor.currentTheme = '';
+window.uiTheme = '';
+
 /**
  * No CSS and resources available in embed mode. Parameters and docs:
  * https://www.diagrams.net/doc/faq/embed-html-options
@@ -170,6 +174,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.graph = new Graph(container);
 				this.graph.enableFlowAnimation = true;
 				this.graph.defaultPageBackgroundColor = 'transparent';
+				this.graph.simpleBackgroundColor = 'transparent';
 				this.graph.transparentBackground = false;
 				
 				if (this.responsive && this.graph.dialect == mxConstants.DIALECT_SVG)
@@ -1484,8 +1489,11 @@ GraphViewer.prototype.addToolbar = function()
 						
 						mxEvent.addListener(tagsDialog, 'mouseleave', function()
 						{
-							tagsDialog.parentNode.removeChild(tagsDialog);
-							tagsDialog = null;
+							if (tagsDialog != null)
+							{
+								tagsDialog.parentNode.removeChild(tagsDialog);
+								tagsDialog = null;
+							}
 						});
 						
 						var r = tagsButton.getBoundingClientRect();

@@ -1069,6 +1069,7 @@ autoUpdater.on('update-available', (a, b) =>
 
 //Pdf export
 const MICRON_TO_PIXEL = 264.58 		//264.58 micron = 1 pixel
+const PIXELS_PER_INCH = 100.117		// Usually it is 100 pixels per inch but this give better results
 const PNG_CHUNK_IDAT = 1229209940;
 const LARGE_IMAGE_AREA = 30000000;
 
@@ -1394,22 +1395,18 @@ function exportDiagram(event, args, directFinalize)
 				}
 				else
 				{
-					//Chrome generates Pdf files larger than requested pixels size and requires scaling
-					var fixingScale = 0.959;
-	
-					var w = Math.ceil(bounds.width * fixingScale);
-					
-					// +0.1 fixes cases where adding 1px below is not enough
-					// Increase this if more cropped PDFs have extra empty pages
-					var h = Math.ceil(bounds.height * fixingScale + 0.1);
-					
 					pdfOptions = {
 						printBackground: true,
 						pageSize : {
-							width: w * MICRON_TO_PIXEL,
-							height: (h + 2) * MICRON_TO_PIXEL //the extra 2 pixels to prevent adding an extra empty page						
+							width: bounds.width / PIXELS_PER_INCH,
+							height: (bounds.height + 2) / PIXELS_PER_INCH //the extra 2 pixels to prevent adding an extra empty page						
 						},
-						marginsType: 1 // no margin
+						margins: {
+							top: 0,
+							bottom: 0,
+							left: 0,
+							right: 0
+						} // no margin
 					}
 				}
 				

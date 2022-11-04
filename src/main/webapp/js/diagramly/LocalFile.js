@@ -133,7 +133,10 @@ LocalFile.prototype.getLatestVersion = function(success, error)
 {
 	if (this.fileHandle == null)
 	{
-		success(null);
+		if (error != null)
+		{
+			error({message: mxResources.get('cannotOpenFile')});
+		}
 	}
 	else
 	{

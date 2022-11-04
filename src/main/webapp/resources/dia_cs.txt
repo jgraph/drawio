@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Služba není k dispozici nebo je blokována
 sessionExpired=Platnost vaší relace skončila. Znovu načtěte stránku v prohlížeči.
 sessionTimeoutOnSave=Platnost vaší relace skončila a byli jste odpojeni od Google Disku. Pokud se chcete přihlásit a uložit, klikněte na OK.
 setAsDefaultStyle=Nastavit jako výchozí styl
+settings=Settings
 shadow=Stín
 shape=Tvar
 shapes=Tvary

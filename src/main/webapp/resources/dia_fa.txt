@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=‫سرویس در دسترس نیست یا بلاک
 sessionExpired=‫نوبت شما منقضی گردیده است. لطفا صفحه مرورگر خود را ریفرش کنید‬
 sessionTimeoutOnSave=‫زمان نوبت شما به پایان رسید و اتصال شما به گوگل درایو قطع گردیده است. برای اتصال دوباره و ذخیره سازی بر روی OK کلیک کنید.‬
 setAsDefaultStyle=‫به عنوان سبک پیش فرض قرار بدهید‬
+settings=Settings
 shadow=‫سایه‬
 shape=‫شکل‬
 shapes=‫اشکال‬

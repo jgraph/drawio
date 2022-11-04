@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Servis nedostupan ili blokiran
 sessionExpired=Vaša sesija je istekla. Molimo vas, osvežite prozor pretraživača.
 sessionTimeoutOnSave=Vaša sesija je istekla i odjavljeni ste sa Google Drive-a. Kliknite OK da se prijavite i snimite izmene.
 setAsDefaultStyle=Podesi kao osnovni stil
+settings=Settings
 shadow=Senka
 shape=Oblik
 shapes=Oblici

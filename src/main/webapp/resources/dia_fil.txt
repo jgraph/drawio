@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Ang Serbisyo ay hindi pwede o nahaharangan
 sessionExpired=Ang iyong sesyon ay natapos na.  Paki-refresh ang window ng browser
 sessionTimeoutOnSave=Ang iyong sesyon ay lumipas at ikaw ay nadiskonekta mula sa Google Drive.  Pindutin ang OK para mag-login at ma-save.
 setAsDefaultStyle=I-takda bilang kusang laan na istilo
+settings=Settings
 shadow=Anino
 shape=Hugis
 shapes=Mga hugis

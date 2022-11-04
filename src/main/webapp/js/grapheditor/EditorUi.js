@@ -1313,52 +1313,56 @@ EditorUi.prototype.updateSelectionStateForTableCells = function(result)
 		var model = this.editor.graph.model;
 		var parent = model.getParent(cells[0]);
 		var table = model.getParent(parent);
-		var col = parent.getIndex(cells[0]);
-		var row = table.getIndex(parent);
-		var lastspan = null;
-		var colspan = 1;
-		var rowspan = 1;
-		var index = 0;
 
-		var nextRowCell = (row < table.getChildCount() - 1) ?
-			model.getChildAt(model.getChildAt(
-				table, row + 1), col) : null;
-		
-		while (index < cells.length - 1)
+		if (parent != null && table != null)
 		{
-			var next = cells[++index];
+			var col = parent.getIndex(cells[0]);
+			var row = table.getIndex(parent);
+			var lastspan = null;
+			var colspan = 1;
+			var rowspan = 1;
+			var index = 0;
+
+			var nextRowCell = (row < table.getChildCount() - 1) ?
+				model.getChildAt(model.getChildAt(
+					table, row + 1), col) : null;
 			
-			if (nextRowCell != null && nextRowCell == next &&
-				(lastspan == null || colspan == lastspan))
+			while (index < cells.length - 1)
 			{
-				lastspan = colspan;
-				colspan = 0;
-				rowspan++;
-				parent = model.getParent(nextRowCell);
-				nextRowCell = (row + rowspan < table.getChildCount()) ?
-					model.getChildAt(model.getChildAt(
-						table, row + rowspan), col) : null;
+				var next = cells[++index];
+				
+				if (nextRowCell != null && nextRowCell == next &&
+					(lastspan == null || colspan == lastspan))
+				{
+					lastspan = colspan;
+					colspan = 0;
+					rowspan++;
+					parent = model.getParent(nextRowCell);
+					nextRowCell = (row + rowspan < table.getChildCount()) ?
+						model.getChildAt(model.getChildAt(
+							table, row + rowspan), col) : null;
+				}
+
+				var state = this.editor.graph.view.getState(next);
+
+				if (next == model.getChildAt(parent, col + colspan) && state != null &&
+					mxUtils.getValue(state.style, 'colspan', 1) == 1 &&
+					mxUtils.getValue(state.style, 'rowspan', 1) == 1)
+				{
+					colspan++;
+				}
+				else
+				{
+					break;
+				}
 			}
 
-			var state = this.editor.graph.view.getState(next);
-
-			if (next == model.getChildAt(parent, col + colspan) && state != null &&
-				mxUtils.getValue(state.style, 'colspan', 1) == 1 &&
-				mxUtils.getValue(state.style, 'rowspan', 1) == 1)
+			if (index == rowspan * colspan - 1)
 			{
-				colspan++;
+				result.mergeCell = cells[0];
+				result.colspan = colspan;
+				result.rowspan = rowspan;
 			}
-			else
-			{
-				break;
-			}
-		}
-
-		if (index == rowspan * colspan - 1)
-		{
-			result.mergeCell = cells[0];
-			result.colspan = colspan;
-			result.rowspan = rowspan;
 		}
 	}
 };
@@ -1749,11 +1753,17 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 	getInsertLocationFn = (getInsertLocationFn != null) ? getInsertLocationFn : function(cells)
 	{
 		var cell = cells[0];
+		var w = 0;
+		var h = 0;
 
-		return new mxPoint(graph.snap(Math.round(x / graph.view.scale) -
-			graph.view.translate.x - cell.geometry.width / 2),
-			graph.snap(Math.round(y / graph.view.scale) -
-			graph.view.translate.y - cell.geometry.height / 2));
+		if (cell.geometry != null)
+		{
+			w = cell.geometry.width / 2;
+			h = cell.geometry.height / 2;
+		}
+
+		return new mxPoint(graph.snap(Math.round(x / graph.view.scale) - graph.view.translate.x - w),
+			graph.snap(Math.round(y / graph.view.scale) - graph.view.translate.y - h));
 	};
 	
 	if (cells != null && cells.length > 0)
@@ -4612,48 +4622,54 @@ EditorUi.prototype.createStatusContainer = function()
 {
 	var container = document.createElement('a');
 	container.className = 'geItem geStatus';
+	container.style.display = 'inline-flex';
+	container.style.alignItems = 'center';
 
 	// Handles data-action attribute
 	mxEvent.addListener(container, 'click', mxUtils.bind(this, function(evt)
 	{
 		var elt = mxEvent.getSource(evt);
-		var name = elt.getAttribute('data-action');
-
-		// Make generic
-		if (name == 'statusFunction' && this.editor.statusFunction != null)
+		
+		if (elt.nodeName != 'A')
 		{
-			this.editor.statusFunction();
-		}
-		else if (name != null)
-		{
-			var action = this.actions.get(name);
+			var name = elt.getAttribute('data-action');
 
-			if (action != null)
+			// Make generic
+			if (name == 'statusFunction' && this.editor.statusFunction != null)
 			{
-				action.funct();
+				this.editor.statusFunction();
 			}
-		}
-		else
-		{
-			var title = elt.getAttribute('data-title');
-			var msg = elt.getAttribute('data-message');
-
-			if (title != null && msg != null)
+			else if (name != null)
 			{
-				this.showError(title, msg);
+				var action = this.actions.get(name);
+
+				if (action != null)
+				{
+					action.funct();
+				}
 			}
 			else
 			{
-				var link = elt.getAttribute('data-link');
+				var title = elt.getAttribute('data-title');
+				var msg = elt.getAttribute('data-message');
 
-				if (link != null)
+				if (title != null && msg != null)
 				{
-					this.editor.graph.openLink(link);
+					this.showError(title, msg);
+				}
+				else
+				{
+					var link = elt.getAttribute('data-link');
+
+					if (link != null)
+					{
+						this.editor.graph.openLink(link);
+					}
 				}
 			}
-		}
 
-		mxEvent.consume(evt);
+			mxEvent.consume(evt);
+		}
 	}));
 
 	return container;
@@ -5573,7 +5589,7 @@ EditorUi.prototype.showLinkDialog = function(value, btnLabel, fn)
  */
 EditorUi.prototype.showDataDialog = function(cell)
 {
-	if (cell != null)
+	if (cell != null && typeof window.EditDataDialog !== 'undefined')
 	{
 		var dlg = new EditDataDialog(this, cell);
 		this.showDialog(dlg.container, 480, 420, true, false, null, false);

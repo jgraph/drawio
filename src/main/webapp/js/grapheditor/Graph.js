@@ -10545,6 +10545,95 @@ if (typeof mxVertexHandler !== 'undefined')
 		};
 
 		/**
+		 * 
+		 */
+		Graph.prototype.getSelectedTextBlocks = function()
+		{
+			// See https://stackoverflow.com/questions/667951/how-to-get-nodes-lying-inside-a-range-with-javascript
+			function getNextNode(node)
+			{
+				if (node.firstChild)
+					return node.firstChild;
+				while (node)
+				{
+					if (node.nextSibling)
+						return node.nextSibling;
+					node = node.parentNode;
+				}
+			};
+			
+			function getNodesInRange(range)
+			{
+				var start = range.startContainer;
+				var end = range.endContainer;
+				var commonAncestor = range.commonAncestorContainer;
+				var nodes = [];
+				var node;
+			
+				// walk parent nodes from start to common ancestor
+				for (node = start.parentNode; node; node = node.parentNode)
+				{
+					nodes.push(node);
+					if (node == commonAncestor)
+						break;
+				}
+				nodes.reverse();
+			
+				// walk children and siblings from start until end is found
+				for (node = start; node; node = getNextNode(node))
+				{
+					nodes.push(node);
+					if (node == end)
+						break;
+				}
+			
+				return nodes;
+			};
+
+			var nodes = [this.getSelectedElement()];
+
+			if (window.getSelection)
+			{
+				var sel = window.getSelection();
+				
+			    if (sel.getRangeAt && sel.rangeCount)
+			    {
+					nodes = getNodesInRange(sel.getRangeAt(0));
+			    }
+			}
+
+			var result = [];
+
+			for (var i = 0; i < nodes.length; i++)
+			{
+				var node = nodes[i];
+
+				while (this.cellEditor.textarea != null &&
+					this.cellEditor.textarea.contains(node) &&
+					node != this.cellEditor.textarea &&
+					node.parentNode != null)
+				{
+					if (node.nodeType == mxConstants.NODETYPE_ELEMENT &&
+						mxUtils.getCurrentStyle(node).display == 'block')
+					{
+						if (mxUtils.indexOf(result, node) < 0)
+						{
+							result.push(node);
+						}
+
+						break;
+					}
+					else
+					{
+						node = node.parentNode;
+					}
+				}
+			}
+
+			return result;
+		};
+
+		/**
 		 * Returns the first ancestor of the current selection with the given name.
 		 */
 		Graph.prototype.getSelectedElement = function()

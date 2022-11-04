@@ -1,3 +1,26 @@
+04-NOV-2022: 20.5.2
+
+- Fixes infinite redirection in embed + proxy (https://huntr.dev/bounties/28d79d99-81a4-46f3-9455-89658bca424b/)
+- Updates autosize for text insert with keyboard
+- Removes Cloud Fortified program metric API calls
+- getPublicUrl checks for private GitHub repository
+- Limits default simple mode for small window sizes
+- Updates Azure stencils
+- [conf cloud] Fixed getProperty as Atlassian sometimes returns duplicates [DID-6520]
+- [conf cloud] Improved export/import/mass import/re-indexing error logging [DID-6646]
+- Fixes possible CSS and CSP bypass in tickets plugin
+- [conf cloud] Workaround for cases where API returns duplicate entries for unique items [DID-6501]
+
+22-OCT-2022: 20.5.1
+
+- Restores original CSS selector for links in footer
+- Fixes possible NPE for tagsWindow, style in viewer
+- Fixes gray background in Conf Cloud [DID-6578]
+- Fixes find/replace window size in sketch/simple UI
+- Hides all tool windows when diagram is closed
+- Disables themes in viewer
+- Ignores possible missing method for auto dark mode
+
 21-OCT-2022: 20.5.0
 
 - Enables live UI switching between sketch and default themes [DS-909]

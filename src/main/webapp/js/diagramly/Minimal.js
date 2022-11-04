@@ -357,59 +357,7 @@ EditorUi.initMinimalTheme = function()
         	menusAddShortcut.apply(this, arguments);
         }
     };
-
-    // Adds context menu items
-    var menuCreatePopupMenu = Menus.prototype.createPopupMenu;
-    
-    Menus.prototype.createPopupMenu = function(menu, cell, evt)
-    {
-        var graph = this.editorUi.editor.graph;
-        menu.smartSeparators = true;
-        menuCreatePopupMenu.apply(this, arguments);
-
-		if (graph.getSelectionCount() == 1)
-		{
-			if (graph.isCellFoldable(graph.getSelectionCell()))
-			{
-				this.addMenuItems(menu, (graph.isCellCollapsed(cell)) ? ['expand'] : ['collapse'], null, evt);
-			}
-			
-			this.addMenuItems(menu, ['collapsible', '-', 'lockUnlock', 'enterGroup'], null, evt);
-			menu.addSeparator();
-			this.addSubmenu('layout', menu);
-		}
-		else if (graph.isSelectionEmpty() && graph.isEnabled())
-		{
-			menu.addSeparator();
-			this.addMenuItems(menu, ['editData'], null, evt);
-			menu.addSeparator();
-			this.addSubmenu('layout', menu);
-			this.addSubmenu('insert', menu);
-			this.addMenuItems(menu, ['-', 'exitGroup'], null, evt);
-		}
-		else if (graph.isEnabled())
-		{
-			this.addMenuItems(menu, ['-', 'lockUnlock'], null, evt);
-		}
-	};
-
-	// Adds copy as image after paste for empty selection
-	var menuAddPopupMenuEditItems = Menus.prototype.addPopupMenuEditItems;
 	
-	/**
-	 * Creates the keyboard event handler for the current graph and history.
-	 */
-	Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
-	{
-		menuAddPopupMenuEditItems.apply(this, arguments);
-		
-		if (this.editorUi.editor.graph.isSelectionEmpty())
-		{
-			this.addMenuItems(menu, ['copyAsImage'], null, evt);
-		}
-	};
-
-    
     // Overridden to toggle window instead
     EditorUi.prototype.toggleFormatPanel = function(visible)
     {
@@ -519,32 +467,6 @@ EditorUi.initMinimalTheme = function()
             dlg.init();
         }));
 
-		// Adds submenu for edit items
-		var addPopupMenuCellEditItems = this.addPopupMenuCellEditItems;
-
-		this.put('editCell', new Menu(mxUtils.bind(this, function(menu, parent)
-		{
-			var graph = this.editorUi.editor.graph;
-			var cell = graph.getSelectionCell();
-			addPopupMenuCellEditItems.call(this, menu, cell, null, parent);
-
-			this.addMenuItems(menu, ['editTooltip'], parent);
-
-			if (graph.model.isVertex(cell))
-			{
-				this.addMenuItems(menu, ['editGeometry'], parent);
-			}
-
-			this.addMenuItems(menu, ['-', 'edit'], parent);
-		})));
-
-		this.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
-		{
-			// LATER: Pass-through for evt from context menu to submenu item
-			menu.addSeparator();
-			this.addSubmenu('editCell', menu, parent, mxResources.get('edit'));
-		};
-		
         var methods = ['horizontalFlow', 'verticalFlow', '-', 'horizontalTree', 'verticalTree',
                        'radialTree', '-', 'organic', 'circle'];
 
@@ -928,7 +850,7 @@ EditorUi.initMinimalTheme = function()
         wrapper.style.cssText = 'position:absolute;top:0px;left:0px;right:0px;bottom:0px;overflow:hidden;';
         ui.diagramContainer.style.top = '47px';
 
-		var insertImage = Editor.plusImage;
+		var insertImage = Editor.addBoxImage;
 		
 		// Hides hover icons if freehand is active
 		if (ui.hoverIcons != null)

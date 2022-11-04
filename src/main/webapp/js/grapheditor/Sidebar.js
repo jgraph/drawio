@@ -1167,7 +1167,7 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	var field = new mxCell('List Item', new mxGeometry(0, 0, 80, 30),
 		'text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;' +
 		'spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];' +
-		'portConstraint=eastwest;rotatable=0;' + fontSize);
+		'portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;' + fontSize);
 	field.vertex = true;
 
 	var fns = [
@@ -1203,13 +1203,13 @@ Sidebar.prototype.addGeneralPalette = function(expand)
 	 	this.createVertexTemplateEntry('shape=or;whiteSpace=wrap;html=1;', 60, 80, '', 'And', null, null, 'logic and'),
 	 	this.createVertexTemplateEntry('shape=dataStorage;whiteSpace=wrap;html=1;fixedSize=1;', 100, 80, '', 'Data Storage'),
 		this.createVertexTemplateEntry('swimlane;startSize=0;', 200, 200, '', 'Container', null, null, 'container swimlane lane pool group'),
-		this.createVertexTemplateEntry('swimlane;', 200, 200, 'Vertical Container', 'Container', null, null, 'container swimlane lane pool group'),
-		this.createVertexTemplateEntry('swimlane;horizontal=0;', 200, 200, 'Horizontal Container', 'Horizontal Container', null, null, 'container swimlane lane pool group'),
+		this.createVertexTemplateEntry('swimlane;whiteSpace=wrap;html=1;', 200, 200, 'Vertical Container', 'Container', null, null, 'container swimlane lane pool group'),
+		this.createVertexTemplateEntry('swimlane;horizontal=0;whiteSpace=wrap;html=1;', 200, 200, 'Horizontal Container', 'Horizontal Container', null, null, 'container swimlane lane pool group'),
 		this.addEntry('list group erd table', function()
 		{
 			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 120),
 		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;' +
-		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
+		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;');
 			cell.vertex = true;
 			cell.insert(sb.cloneCell(field, 'Item 1'));
 			cell.insert(sb.cloneCell(field, 'Item 2'));
@@ -1349,13 +1349,13 @@ Sidebar.prototype.addMiscPalette = function(expand)
 		this.addDataEntry('table title', 180, 120, 'Table with Title 2', '7VhNc5swEP01XDt8xG58NU7Tg3uJM70rZg2aERIjbQLk13cl5DopJnHTYnPIDJ7ZT5l9T/sOBElaNreaVcUPlYEIkpsgSbVS2Fllk4IQQRzyLEhWQRyH9AvibwPZyGXDimmQeEpD3DU8MfEIXeSePQjoogZb4aOmYJU10WWTpUGmccOfbSwJKbBVEhmXoCkQOV8IVhnuyleuouAiW7NWPeL+oL233PEGsjtVG9+tVb2mw4xv3dHhG/8yNu1fGjRCMzi4C/mpb0GVgLqlkppnWPiK6w6csACeF/s2j1jITBfIf/cecCTDQ3kc1qQH69uI0ug0VqE0f7Y4Cj/3S5SdX/NSMAnfgWV/hJYqa30IVeUtATv05oNCVKV3tB83PEpUplV1z3QO+5IdFyJVQllupZKW/0pxiQ6g2ZIegiwNv8yCGU2Wkh8dfHpsucZUSYOa7og9FpjBGgyeSmZ8nMzWw+0pe4/b5D9Qe9WjNhrkliZAzsQdbJHJ3C1OgaXwt7guOMKmYltbWpMEdGskbfWBjSPg/x3BiqDdCXvBVgXPMpB7+kDfPEHH4slLlby7VFcj4T7r4f7TmXE4cfyZ4Dlhvupql4b+kMt83XXOBwj6FzKa10S8XIqxyJl/6t059W5+Rr372qN2mNtJ7NuH12l+MW27HtS2iWM9nrYNkHEBbVt8ats5tW1xRm2Lwh63ybQX7sP7tLiYuEXRoLpNHOzx1G2AjfHVjdzDxwWXe/Xt4Rc='),
 		this.addDataEntry('crossfunctional cross-functional cross functional flowchart swimlane table', 400, 400, 'Cross-Functional Flowchart', '7ZjRatswFIafxpcDy87a7nJJlvZig9HuBVT7JBLIOkZSGrtPPymS2622Gwc6z6WGXBz9HBnxfxz+cKJ0VVTXipbsB+YgovRblMTul64Uonk+N2pRrUAIW/M8StdR4vQkSjYDOsmxMy6pAmnOvZz4yw9U7MEr9oFaf9rsZWY4SuqaNwIPGaPK+GZtahGaNaOlKw29d9IyY1zk32mNe9OozWmpjf3CHX90/YvYNaMQtNT8eHXtFAXZXmn+ALegfaNToSqpzMNhi9LchQcQew7vB2Wg6vXjKL0w49mSa8ACjKrt+cBzw/ydRexdjBnwHTMvRKq9sHu62224FYPnp1mkLRZfM4PKSuR142/xYJ1gqPijdcci81a1DNcHXggq4QZoY2cjLTGvg2SwDJWArQnlPRqDRYMpGOLqXGH5i6odNMKWC7FCYd+driVKGBV0MhR03fD03zjFnST/kPuixf0noxq6uQdeg2n+aaMfOikhC/PaB+w/jmo6lGDVS/AJ1mgEP/cSTGaCpwiSiykgvOhFmM4ITyFMrqaA8LI3PzumcM7Pt8jPrtkdP0CvWuAnMLLjTuzle4zNLzO3c7lNIyxJPJM7l9w0MpKQ3pDs+J8zh+RbhGQX+fFDkrRXPR9uZsngRdCUYpK0F0MzuXcSlO3dzoxuUkl5FJudfOj4a3H/Gw=='),
 		
- 		this.addDataEntry('table', 280, 160, 'Table', '7Zpdc+IgFIZ/Te4D+JXLaj/2YvfGdvYeDRqmGDIEW+2vX5KAWjEWY7RNXGc6Q46Bwvtw8oYzemi0WD0JnER/eEiYhx48NBKcy6K1WI0IYx70aeihew9CX/158LHkW5B/6ydYkFi6dIBFhzfMlqSI3KUpkWkRTuWa6fA0oiz8jdd8mY0r8YQRczUUZLoUKX0jY5LSj6yDr6KpFPyVjDjjIh8CBYPJTM0QDWeUsZ34XX8UdGDWI8Ihf1fB7CY9MSIkWZUuLg/plT0RviBSrNUt7zSUkV7goBDAjwidR6ZbTwdxWgTmm75brVRDy3VYOmRppOafEKPOOFvJMOKCfvBYYrZRBQv5vKPSO10wHJNfBId7oSEP1zokeaJbjMykbk64lHyhL4ReXdYOBU9esJgTE5hyxnCS0gkz//YwMrJKcGymMVPTftaLs3nSOCKCSpvmLP+4AoTVACJ0Pr+OtfVfqFSrhT6wdz+PYzLNuR4V0FGjzY7HjM5jFZsqQYjYEx3o652Oj/nHVVz0pbgBOk1bPdg40yKe52KdOBpmaqExlmp3L+MwtYBt5unEsFvKELab4eqz4rsQOrUidRitXqS9UqT2A7eNSMGgbzNteJr2Lab/vfNi3rn+TPRLK4XnW+nA4vs3b17aSrdRK2OdFOxXM8gjilXIvL3R6s28oJTMZQ3yQmROtL3qoBxGqxcU8EtJXdb3LkvK2c0alFMA3LKdAXc7e7h7hPeoHjvrdR3tDJxvZ8Cuiphc7FwpF50UA1+XPw5mxxGJKuTa3mg15xoqRdFtAooTDas6GYfRaiZj108MmV6DyDgbVJOSxi6L3JBBfdN5K+g5GlQNpUtgF0lM7vWvlHv7ild7eSx2aqtLlMAufhhWg1awam8pEpTXNYI2oWtjyRHYlY8b8sBvOqQBU2+6xikNlldMTDHlh7yBBtVMrkFvnNAuiWxYXKsEfBaL9p7TzHPvEBr7kfhz0bTgoKYut7/sKW7f/eHPPw=='),
+ 		this.addDataEntry('table', 280, 160, 'Table', '7Zpdc6IwFIZ/DfcksSqX1X7sxe6NdvY+ylEyjYQJsWp//QZIrDXSIkUdcZ3pTDiSNHmfHF5yRo8MF+tnSZPojwiBe+TRI0MphCpai/UQOPewz0KPPHgY+/rPw08l36L8Wz+hEmJVpQMuOrxRvoQicp+moNIinKoNN+FpxHj4m27EMhtX0QkHezWQMF3KlL3BCFL2nnXwdTRVUrzCUHAh8yFI0J/M9AzJYMY434nf94ZBB2c9IhqKlQ5mN5mJgVSwLl1cHjIrewaxACU3+pYVC1VkFtgvBPAjYPPIduuaIE2LwHzb90Mr3TByHZaOOBrp+Sdg1RllKxlEQrJ3ESvKt6pQqcY7Kq3YgtMYfgEN90IDEW5MSInEtDjMlGlOhFJiYS6kWV3WDqVIXqicgw1MBec0SdmE2397GBmsExrbacz0tMdmcS5PFkcgmXJpzvJPVYC4HkBCfs6v42z9F6b0arGP3N0v4himOdcvBayo0XbHU87msY5NtSAg90RH5nqn41P+yfaVWvBjEoV8q3NAjpPZDDbKZInnuW5Hjka5XnNMld7oyzhMHXbbeVbCeVeKE98MzvVn8Xd5dBqlW2G0Zul2S+m6j+GW00X9nov3ypO35+D9b64nM9fNZ6Lfei3+udf2Hb5/8+apvfYj6iTvKmIKxgmdZuOt9At4jUTt1XPVLwStkZh7ozWbmEEpuNO66mXAHemf9TlWGK1ZjsgvBXlaA70oyMpWeUUZidAteyWq7pWP90/4gTTjld27il6Jfu6VyK3J2FTtnClVm8hM9H1t5mDyfKFgjVTcG63hVCSlpO5aQOpIN6wPrsJoDYNzaz8WXLc94Cq73zWlnFvmuSH3u9BJMehWdL8GqrLIrfTY1OydKTX3FT/Ji2uxkVtdkUVuVcei7N8CyvZWY1F5PSe4IbJtrMQit+JzQwZ7oeMlsnW2c5wvcXkpyFaJruPtN6jnoFf0tovdWs8W1bkK56dE1d4Tpn1qHiLnPlCvllwLjpj68uPnVsXtu7/G+gc='),
 		
- 		this.addDataEntry('table', 180, 140, 'Table', '7ZjJcuIwEIafxncvhOWKs8xhciGpuQu7sVVpq12yCHaefmQsJSHGwUAOmEpRVEmtBfX/qWlJThBm5YNkefpIMaAT3DlBKIlUU8rKEBAd3+WxE9w6vu/qr+Pfd7R621Y3ZxKE6jPAbwa8MlxDY2kMharQGKKUY/yXVbSuZ1RsiWBrcwnRWhb8FRZQ8Ld6gKutRcpi2pjKiiOGhCR1XZCAul1JegFrdPwgdOuPbjGrAamg7PRoazLuPABloGSlu2x4rFLTY9p47abAk9QOGxkjKxpD8j72QyBdMBrt1ys4rJf2Pger1KLWYZ6S5G8kFEOrkGJSPX1SbMMzZAL+AIu/mOYUV8akKDclhJUyxSUpRZmpSONuXY4l5c9MJmANESGyvOBLtD+7Hx+UORN2GSu97CfjXAfOXtD806CNJuczG7WY/dsWfddrb3YSAqItum812t3CRog92jDkidDVSAsBsq9YwUGxxkdqZSZb1L6JBOH42RhqBwRTekOuRVy0ALyvsxeTm04me/6ALplJuavgFSEadyIKBonI86+P0eQ3+5yTfapdRgeT0fj8ZDTtjKrRhUbV5LRk9I1WJ0TRl9l+NopmnUxuhsXkyGQ0IESe28loPEhGvbPRkCC1z9O/6ej4dDQLeqajH7gbee0HABtX7bPFZcSVd/j+P/Rjndd+ZrBUpgOjcr33I6/7XWE2TEhXcEPS1Y/H06b757fV/w=='),
+ 		this.addDataEntry('table', 180, 140, 'Table', '7ZhNc5swEIZ/DXc+HH9cTdv00F7sTu8yWoOmi8QIOUB+fSUjJXEwMbZzgcl4PKNdIVn7PlovkhfFef0oSZH9FhTQi757USyFUG0rr2NA9EKfUS/65oWhr79e+KOnNzj2+gWRwNWQAWE74IngAVpP6yhVg9aRZAzpL9KIg5lRkR2Cs9YSkoMs2RNsoGTPZoCvvWVGqKissWeIsUAhtc0FB9OvpPgHzumFUeybj+6xqwGpoO6N6Oiy4TyCyEHJRj9SMaoy+8SyjdrPgKWZGzazTlK2jvRl7KtAumE1Oq9XdFkvHX0BTqmN0WGdCcmeBVcEnUKKSLV9o1jFciQcfgKh71xrQRvrUqKwLYS9ss2dUErk1pA2XNOmUhR/iEzBORKBSIqS7dD97Hl8UBeEu2Xs9bK3NrgenIOghbdBmy3uZzbrMPt7bIZ+0N3sgnNIjug+1Oh0C1shzmhDkKVcm4kWArR/XWVMwbYgiZmp0nlvtofKzcYIhmoZXdRyfqWUdrKNCZ2nCNfPRlDHx4nS+/XAadnh87LOQcgeepGd+X8aMbL6VOAJEZz3EoymSDAIp4dw8VXa7iltzSmji5Vufn+lW/Ym3WycSbe4rdJ9IOUNSfZuts9NslUvsodJIbuy0o2IYOD3IpxPEeHgUjcmht2TwFetu77WraKBte4TTnVB9+rCpV33xWUUaRdcvtgY+ytl0L0/cdCW04I23ZNd0H+fspokwwmc7bT5eqfcPv72yvk/'),
 		
- 		this.addDataEntry('table', 180, 140, 'Table', '7ZhLc+IwDMc/Te55UB5X2G176F7ozt5NIhLPKlbGMSXpp1+H2H0Fl0DZGcL0wIys2I71/8XIlhct8upOsiL7RQmgF/30ooUkUq2VVwtA9EKfJ170wwtDX/+88NbxNNg99QsmQag+A8J2wBPDDbSe1lGqGo0jzjgmD6ymTTOjYisE25pLiDey5E+whJI/NwN87S0zltDWNNYccUFIUrcFCd1nbt4JUkHlXPfOZRZ9B5SDkrXusuWJykyPaRubnwFPMztsZJysbB3py9hXGbRhlNivSnRYFR1jAVaPZRPtPCPJn0kohlYHxaR6fKPLlufIBNwDSz645pTUxqWoMBbCWhlzRUpRbhrShNvYiaTiN5MpWEdMiKwo+Qrta/dDgqpgwi5jrZf9aIJzQCuVpL9gnVxkILnqCzM8DeZo8nWWow7LPzsz9IPup05CQLxD+ql2Li32yMaQp0I3Y60FyL56RQf1Gh8pl5ls2YQnUoTjZ2OoAxBM6W91I5Kyw+Blnb2w3Dix7PkHunAs1XsRr4jS2EkpGiqlILw+TJPv9PQ/0lP9nt3BbDX+eraaOjfc6HI33OS0bPWJXCdssA+znXeDzZxYbgaH5chsNSBKge/ENB4qpt7pakicuifv73x1vnw1i3rmqzPcroJuAcFuue6h5GK2XHC4uDD0I2HQrWFYMNPhgbneG1bgrk/MBsvpCu5YuvlahW27vy3S/gM='),
+ 		this.addDataEntry('table', 180, 140, 'Table', '7ZhLc5swEMc/DXcejh9X3CY9tBe707uM1qCpkBixDpBPX2GkvLBi7LgHmBw8s1okof3/tF4kL1rn9YMiRfZLUuBe9N2L1kpK7Ky8XgPnXugz6kXfvDD09c8L7x1Pg+NTvyAKBA4ZEHYDHgk/QOfpHCU23DiSjHH6kzTy0M6IZMfBtmIFyUGV7BE2ULKndoCvvWVGqKxMY884X0sulW4LKXSf2LwTFELtXPfRZRb9ADIHVI3uUjGKmemx7GLzM2BpZofNjJOUnSN9HvsigzaMEqdVic6romMswOqxaaONM6nYkxRIuNUBicLtK10qlnMi4AcQ+s4VS9oYF8rCWBz2aMydRJS5aSgTbmtTJYvfRKVgHYnknBQl23H72tOQoC6IsMvY62VvTXAOaCUq+Resk4kMFMOhMMPrYM4Wn2c567H8czRDP+hvdSkEJEekH2rn0uKEbISzVOhmorUA7Y+rjCFsC5K0k1U68dudg3m7Z4KhckZn5ZxfqKaZbNNGL1IOl89GuI5PENRb+SBo2UP0vM5B1O6c1E78QY2bWv1W4wlBnDshRhOFGITTo7j4qn3/o/Y1b9mdLYXzz5fCpTMfZ6PNx8V1pfADNa/Iv3ez3Tb/Vk5qd1OjdmEpHBHEwHdSnE+U4uBaOCaM/TPDVzG8XTFcRQOL4Q3OhUH/6sNmZP+LZywZGZy/NRn752jQv5yx3JaT4zbds2HgvpdZTRXjBE6HuvlyOd11f313/Q8='),
 
-	 	this.createVertexTemplateEntry('text;html=1;strokeColor=none;fillColor=none;overflow=fill;', 160, 140,
+	 	this.createVertexTemplateEntry('text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;overflow=fill;', 160, 140,
  			'<table border="1" width="100%" height="100%" cellpadding="4" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr><th align="center"><b>Title</b></th></tr>' +
  			'<tr><td align="center">Section 1.1\nSection 1.2\nSection 1.3</td></tr>' +
@@ -1398,8 +1398,8 @@ Sidebar.prototype.addMiscPalette = function(expand)
 	 	this.createVertexTemplateEntry('html=1;whiteSpace=wrap;aspect=fixed;shape=isoRectangle;', 150, 90, '', 'Isometric Square', true, null, 'rectangle rect box iso isometric'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;', 50, 100, '', 'Isometric Edge 1'),
 	 	this.createEdgeTemplateEntry('edgeStyle=isometricEdgeStyle;endArrow=none;html=1;elbow=vertical;', 50, 100, '', 'Isometric Edge 2'),
-	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;', 20, 120, '', 'Left Curly Bracket'),
-		this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;', 20, 120, '', 'Right Curly Bracket'),
+	 	this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;labelPosition=left;verticalLabelPosition=middle;align=right;verticalAlign=middle;', 20, 120, '', 'Left Curly Bracket'),
+		this.createVertexTemplateEntry('shape=curlyBracket;whiteSpace=wrap;html=1;rounded=1;flipH=1;labelPosition=right;verticalLabelPosition=middle;align=left;verticalAlign=middle;', 20, 120, '', 'Right Curly Bracket'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=2;html=1;', 160, 10, '', 'Horizontal Line'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=2;direction=south;html=1;', 10, 160, '', 'Vertical Line'),
 	 	this.createVertexTemplateEntry('line;strokeWidth=4;html=1;perimeter=backbonePerimeter;points=[];outlineConnect=0;', 160, 10, '', 'Horizontal Backbone', false, null, 'backbone bus network'),
@@ -1429,7 +1429,7 @@ Sidebar.prototype.addMiscPalette = function(expand)
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;left=1;top=0;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40, '', 'Waypoint'),
 		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
-	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;', 60, 40, '', 'Filled Edge'),
+	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;html=1;', 60, 40, '', 'Filled Edge'),
 	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),
 	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=vertical;endArrow=classic;html=1;', 50, 50, '', 'Vertical Elbow', null, lineTags + 'elbow vertical')
 	];
@@ -1473,7 +1473,7 @@ Sidebar.prototype.createAdvancedShapes = function()
 	var sb = this;
 
 	// Reusable cells
-	var field = new mxCell('List Item', new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
+	var field = new mxCell('List Item', new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;');
 	field.vertex = true;
 
 	return [
@@ -1501,77 +1501,17 @@ Sidebar.prototype.createAdvancedShapes = function()
 	 	this.createVertexTemplateEntry('shape=sortShape;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;', 80, 80, '', 'Sort', null, null, 'sort'),
 	 	this.createVertexTemplateEntry('shape=collate;whiteSpace=wrap;html=1;', 80, 80, '', 'Collate', null, null, 'collate'),
 	 	this.createVertexTemplateEntry('shape=switch;whiteSpace=wrap;html=1;', 60, 60, '', 'Switch', null, null, 'switch router'),
+
 		this.addEntry('process bar', function()
 		{
-			return sb.createVertexTemplateFromData('zZXRaoMwFIafJpcDjbNrb2233rRQ8AkyPdPQaCRJV+3T7yTG2rUVBoOtgpDzn/xJzncCIdGyateKNeVW5iBI9EqipZLS9KOqXYIQhAY8J9GKUBrgT+jbRDZ02aBhCmrzEwPtDZ9MHKBXdkpmoDWKCVN9VptO+Kw+8kqwGqMkK7nIN6yTB7uTNizbD1FSSsVPsjYMC1qFKHxwIZZSSIVxLZ1/nJNar5+oQPMT7IYCrqUta1ENzuqGaeOFTArBGs3f3Vmtoo2Se7ja1h00kSoHK4bBIKUNy3hdoPYU0mF91i9mT8EEL2ocZ3gKa00ayWujLZY4IfHKFonVDLsRGgXuQ90zBmWgneyTk3yT1iArMKrDKUeem9L3ajHrbSXwohxsQd/ggOleKM7ese048J2/fwuim1uQGmhQCW8vQMkacP3GCQgBFMftHEsr7cYYe95CnmKTPMFbYD8CQ++DGQy+/M5X4ku5wHYmdIktfvk9tecpavThqS3m/0YtnqIWPTy1cD77K2wYjo+Ay317I74A', 296, 100, 'Process Bar');
+			return sb.createVertexTemplateFromData('1ZVva8IwEMY/TV4O2nQ6fVvdfKMg9BNk7a0NS5uSxNn66Xf5U3VqYbCxoSDknsuT5H53UJIs6m6lWFttZAGCJM8kWSgpjV/V3QKEIDTiBUmWhNII/4S+jGRjl41apqAx3zFQb/hgYgde2SqZg9Yopkz5rDa9CFm957VgDUZpXnFRrFkvd/YmbVj+PkRpJRU/yMYwLGgZo/DGhVhIIRXGjXT+057MesNGBZofYDsUcCltWIdqdFTXTJsg5FII1mr+6t5qFW2UfIeLa91DU6kKsGIcDVLWspw3JWoPMR3OZ/4w+womeNngOsdXWGvaSt4YbbFMUjJZ2iKxmuE2QpPI/VDfV9yAPd+etcde2+pNPbAJLQBloBtto5NCD1cgazCqxy17XpgqtHI+9bYKeFkNtsj3P2LaC+XRe5oKXITBuD0kydWQZAZaVOLr+ahYC24cwFbZguJ4nUNtpe0pxpHooMiwhwHDNc/f4EZvcxsMgU4fCg2VnlE9AjynOnn6OdTHMaj03qHOZ/8GdTIGNbl3qPFs+ldUMTx9gFzuy/fpEw==', 296, 100, 'Process Bar');
 		}),
 	 	this.createVertexTemplateEntry('swimlane;', 200, 200, 'Container', 'Container', null, null, 'container swimlane lane pool group'),
 		this.addEntry('list group erd table', function()
 		{
 			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
 		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;' +
-		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
-			cell.vertex = true;
-			cell.insert(sb.cloneCell(field, 'Item 1'));
-			cell.insert(sb.cloneCell(field, 'Item 2'));
-			cell.insert(sb.cloneCell(field, 'Item 3'));
-			
-			return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'List');
-		}),
-		this.addEntry('list item entry value group erd table', function()
-		{
-			return sb.createVertexTemplateFromCells([sb.cloneCell(field, 'List Item')], field.geometry.width, field.geometry.height, 'List Item');
-		})
-	];
-};
-
-/**
- * Adds the container palette to the sidebar.
- */
-Sidebar.prototype.createAdvancedShapes = function()
-{
-	// Avoids having to bind all functions to "this"
-	var sb = this;
-
-	// Reusable cells
-	var field = new mxCell('List Item', new mxGeometry(0, 0, 60, 26), 'text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;');
-	field.vertex = true;
-
-	return [
-	 	this.createVertexTemplateEntry('shape=tapeData;whiteSpace=wrap;html=1;perimeter=ellipsePerimeter;', 80, 80, '', 'Tape Data'),
-	 	this.createVertexTemplateEntry('shape=manualInput;whiteSpace=wrap;html=1;', 80, 80, '', 'Manual Input'),
-	 	this.createVertexTemplateEntry('shape=loopLimit;whiteSpace=wrap;html=1;', 100, 80, '', 'Loop Limit'),
-	 	this.createVertexTemplateEntry('shape=offPageConnector;whiteSpace=wrap;html=1;', 80, 80, '', 'Off Page Connector'),
-	 	this.createVertexTemplateEntry('shape=delay;whiteSpace=wrap;html=1;', 80, 40, '', 'Delay'),
-	 	this.createVertexTemplateEntry('shape=display;whiteSpace=wrap;html=1;', 80, 40, '', 'Display'),
-	 	this.createVertexTemplateEntry('shape=singleArrow;direction=west;whiteSpace=wrap;html=1;', 100, 60, '', 'Arrow Left'),
-	 	this.createVertexTemplateEntry('shape=singleArrow;whiteSpace=wrap;html=1;', 100, 60, '', 'Arrow Right'),
-	 	this.createVertexTemplateEntry('shape=singleArrow;direction=north;whiteSpace=wrap;html=1;', 60, 100, '', 'Arrow Up'),
-	 	this.createVertexTemplateEntry('shape=singleArrow;direction=south;whiteSpace=wrap;html=1;', 60, 100, '', 'Arrow Down'),
-	 	this.createVertexTemplateEntry('shape=doubleArrow;whiteSpace=wrap;html=1;', 100, 60, '', 'Double Arrow'),
-	 	this.createVertexTemplateEntry('shape=doubleArrow;direction=south;whiteSpace=wrap;html=1;', 60, 100, '', 'Double Arrow Vertical', null, null, 'double arrow'),
-	 	this.createVertexTemplateEntry('shape=actor;whiteSpace=wrap;html=1;', 40, 60, '', 'User', null, null, 'user person human'),
-	 	this.createVertexTemplateEntry('shape=cross;whiteSpace=wrap;html=1;', 80, 80, '', 'Cross'),
-	 	this.createVertexTemplateEntry('shape=corner;whiteSpace=wrap;html=1;', 80, 80, '', 'Corner'),
-	 	this.createVertexTemplateEntry('shape=tee;whiteSpace=wrap;html=1;', 80, 80, '', 'Tee'),
-	 	this.createVertexTemplateEntry('shape=datastore;whiteSpace=wrap;html=1;', 60, 60, '', 'Data Store', null, null, 'data store cylinder database'),
-	 	this.createVertexTemplateEntry('shape=orEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 80, 80, '', 'Or', null, null, 'or circle oval ellipse'),
-	 	this.createVertexTemplateEntry('shape=sumEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 80, 80, '', 'Sum', null, null, 'sum circle oval ellipse'),
-	 	this.createVertexTemplateEntry('shape=lineEllipse;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 80, 80, '', 'Ellipse with horizontal divider', null, null, 'circle oval ellipse'),
-	 	this.createVertexTemplateEntry('shape=lineEllipse;line=vertical;perimeter=ellipsePerimeter;whiteSpace=wrap;html=1;backgroundOutline=1;', 80, 80, '', 'Ellipse with vertical divider', null, null, 'circle oval ellipse'),
-	 	this.createVertexTemplateEntry('shape=sortShape;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;', 80, 80, '', 'Sort', null, null, 'sort'),
-	 	this.createVertexTemplateEntry('shape=collate;whiteSpace=wrap;html=1;', 80, 80, '', 'Collate', null, null, 'collate'),
-	 	this.createVertexTemplateEntry('shape=switch;whiteSpace=wrap;html=1;', 60, 60, '', 'Switch', null, null, 'switch router'),
-		this.addEntry('process bar', function()
-		{
-			return sb.createVertexTemplateFromData('zZXRaoMwFIafJpcDjbNrb2233rRQ8AkyPdPQaCRJV+3T7yTG2rUVBoOtgpDzn/xJzncCIdGyateKNeVW5iBI9EqipZLS9KOqXYIQhAY8J9GKUBrgT+jbRDZ02aBhCmrzEwPtDZ9MHKBXdkpmoDWKCVN9VptO+Kw+8kqwGqMkK7nIN6yTB7uTNizbD1FSSsVPsjYMC1qFKHxwIZZSSIVxLZ1/nJNar5+oQPMT7IYCrqUta1ENzuqGaeOFTArBGs3f3Vmtoo2Se7ja1h00kSoHK4bBIKUNy3hdoPYU0mF91i9mT8EEL2ocZ3gKa00ayWujLZY4IfHKFonVDLsRGgXuQ90zBmWgneyTk3yT1iArMKrDKUeem9L3ajHrbSXwohxsQd/ggOleKM7ese048J2/fwuim1uQGmhQCW8vQMkacP3GCQgBFMftHEsr7cYYe95CnmKTPMFbYD8CQ++DGQy+/M5X4ku5wHYmdIktfvk9tecpavThqS3m/0YtnqIWPTy1cD77K2wYjo+Ay317I74A', 296, 100, 'Process Bar');
-		}),
-	 	this.createVertexTemplateEntry('swimlane;', 200, 200, 'Container', 'Container', null, null, 'container swimlane lane pool group'),
-		this.addEntry('list group erd table', function()
-		{
-			var cell = new mxCell('List', new mxGeometry(0, 0, 140, 110),
-		    	'swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;' +
-		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;');
+		    	'resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;html=1;');
 			cell.vertex = true;
 			cell.insert(sb.cloneCell(field, 'Item 1'));
 			cell.insert(sb.cloneCell(field, 'Item 2'));
@@ -3678,9 +3618,9 @@ Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, tit
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel, allowCellsInserted, showTooltip, showTitle)
-{	
-	return this.createItem(cells, title, showLabel, (showTitle != null) ? showTitle : true, width, height, allowCellsInserted, showTooltip);
+Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel, allowCellsInserted, showTooltip, showTitle, clickFn, thumbWidth, thumbHeight)
+{
+	return this.createItem(cells, title, showLabel, (showTitle != null) ? showTitle : true, width, height, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight);
 };
 
 /**

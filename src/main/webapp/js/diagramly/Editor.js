@@ -1723,18 +1723,46 @@
 		{
 			Editor.config = config;
 			Editor.configVersion = config.version;
-			Menus.prototype.defaultFonts = config.defaultFonts || Menus.prototype.defaultFonts;
-			ColorDialog.prototype.presetColors = config.presetColors || ColorDialog.prototype.presetColors;
-			ColorDialog.prototype.defaultColors = config.defaultColors || ColorDialog.prototype.defaultColors;
-			ColorDialog.prototype.colorNames = config.colorNames || ColorDialog.prototype.colorNames;
-			StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes || StyleFormatPanel.prototype.defaultColorSchemes;
-			Graph.prototype.defaultEdgeLength = config.defaultEdgeLength || Graph.prototype.defaultEdgeLength;
-			DrawioFile.prototype.autosaveDelay = config.autosaveDelay || DrawioFile.prototype.autosaveDelay;
 
 			// Enables debug output
 			if (config.debug)
 			{
 				urlParams['test'] = '1'
+			}
+			
+			if (config.defaultFonts != null)
+			{
+				Menus.prototype.defaultFonts = config.defaultFonts
+			}
+
+			if (config.presetColors != null)
+			{
+				ColorDialog.prototype.presetColors = config.presetColors
+			}
+
+			if (config.defaultColors != null)
+			{
+				ColorDialog.prototype.defaultColors = config.defaultColors
+			}
+
+			if (config.colorNames != null)
+			{
+				ColorDialog.prototype.colorNames = config.colorNames
+			}
+
+			if (config.defaultColorSchemes != null)
+			{
+				StyleFormatPanel.prototype.defaultColorSchemes = config.defaultColorSchemes
+			}
+
+			if (config.defaultEdgeLength != null)
+			{
+				Graph.prototype.defaultEdgeLength = config.defaultEdgeLength
+			}
+
+			if (config.autosaveDelay != null)
+			{
+				DrawioFile.prototype.autosaveDelay = config.autosaveDelay
 			}
 			
 			if (config.templateFile != null)
@@ -3766,7 +3794,7 @@
 	}
 	
 	// Overrides ID for pages
-	if (window.EditDataDialog)
+	if (typeof window.EditDataDialog !== 'undefined')
 	{
 		EditDataDialog.getDisplayIdForCell = function(ui, cell)
 		{
@@ -4014,16 +4042,6 @@
 		};
 
 		/**
-		 * Hook for subclassers.
-		 */
-		DiagramFormatPanel.prototype.isShadowOptionVisible = function()
-		{
-			var file = this.editorUi.getCurrentFile();
-			
-			return urlParams['embed'] == '1' || (file != null && file.isEditable());
-		};
-
-		/**
 		 * Option is not visible in default theme.
 		 */
 	    DiagramFormatPanel.prototype.isMathOptionVisible = function(div)
@@ -4034,15 +4052,20 @@
 	    };
 	    
 		/**
-		 * Add global shadow option.
+		 * Hook for subclassers.
 		 */
-		var diagramFormatPanelAddView = DiagramFormatPanel.prototype.addView;
-
-		DiagramFormatPanel.prototype.addView = function(div)
+		DiagramStylePanel.prototype.isShadowOptionVisible = function()
 		{
-			var div = diagramFormatPanelAddView.apply(this, arguments);
 			var file = this.editorUi.getCurrentFile();
 			
+			return urlParams['embed'] == '1' || (file != null && file.isEditable());
+		};
+
+		/**
+		 * Adds the label menu items to the given menu and parent.
+		 */
+		DiagramStylePanel.prototype.addResetButton = function(td)
+		{
 			if (mxClient.IS_SVG && this.isShadowOptionVisible())
 			{
 				var ui = this.editorUi;
@@ -4082,11 +4105,11 @@
 					option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
 					mxUtils.setOpacity(option, 60);
 				}
+
+				option.style.width = '';
 				
-				div.appendChild(option);
+				td.appendChild(option);
 			}
-			
-			return div;
 		};
 
 		/**
@@ -4522,7 +4545,8 @@
 		{
 			var sstate = this.editorUi.getSelectionState();
 
-			if (sstate.style.shape != 'image' && !sstate.containsLabel && sstate.cells.length > 0)
+			if (this.defaultColorSchemes != null && sstate.style.shape != 'image' &&
+				!sstate.containsLabel && sstate.cells.length > 0)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
@@ -5456,78 +5480,6 @@
 			if (this.defaultColorSchemes.length <= maxEntries)
 			{
 				div.appendChild(switcher);
-			}
-			
-			return div;
-		};
-		
-		StyleFormatPanel.prototype.addEditOps = function(div)
-		{
-			var ss = this.editorUi.getSelectionState();
-			var graph = this.editorUi.editor.graph;
-			var btn = null;
-			
-			if (ss.cells.length == 1)
-			{
-				btn = mxUtils.button(mxResources.get('editStyle'), mxUtils.bind(this, function(evt)
-				{
-					this.editorUi.actions.get('editStyle').funct();
-				}));
-				
-				btn.setAttribute('title', mxResources.get('editStyle') + ' (' + this.editorUi.actions.get('editStyle').shortcut + ')');
-				btn.style.width = '210px';
-				btn.style.marginBottom = '2px';
-				
-				div.appendChild(btn);
-			}
-			
-			var state = (ss.cells.length == 1) ? graph.view.getState(ss.cells[0]) : null;
-			
-			if (state != null && state.shape != null && state.shape.stencil != null)
-			{
-				var btn2 = mxUtils.button(mxResources.get('editShape'), mxUtils.bind(this, function(evt)
-				{
-					this.editorUi.actions.get('editShape').funct();
-				}));
-				
-				btn2.setAttribute('title', mxResources.get('editShape'));
-				btn2.style.marginBottom = '2px';
-				
-				if (btn == null)
-				{
-					btn2.style.width = '210px';
-				}
-				else
-				{
-					btn.style.width = '104px';
-					btn2.style.width = '104px';
-					btn2.style.marginLeft = '2px';
-				}
-				
-				div.appendChild(btn2);
-			}
-			else if (ss.image && ss.cells.length > 0)
-			{
-				var btn2 = mxUtils.button(mxResources.get('editImage'), mxUtils.bind(this, function(evt)
-				{
-					this.editorUi.actions.get('image').funct();
-				}));
-				
-				btn2.setAttribute('title', mxResources.get('editImage'));
-				btn2.style.marginBottom = '2px';
-				
-				if (btn == null)
-				{
-					btn2.style.width = '210px';
-				}
-				else
-				{
-					btn.style.width = '104px';
-					btn2.style.width = '104px';
-					btn2.style.marginLeft = '2px';
-				}
-				
-				div.appendChild(btn2);
 			}
 			
 			return div;

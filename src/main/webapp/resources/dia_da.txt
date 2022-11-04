@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Service utilgængelig eller blokeret
 sessionExpired=Din session er udløbet. Genindlæs siden.
 sessionTimeoutOnSave=Din session er udløbet og du er blevet koblet af Google Drev. Klik på OK for at logge ind og gemme.
 setAsDefaultStyle=Indstil som standardtypografi
+settings=Settings
 shadow=Skygge
 shape=Figur
 shapes=Figurer

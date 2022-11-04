@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Serviço indisponível ou bloqueado
 sessionExpired=Sua sessão expirou. Por favor, atualize a janela do navegador.
 sessionTimeoutOnSave=O tempo da sua sessão esgotou e você foi desconectado do Google Drive. Pressione OK para fazer login e salvar.
 setAsDefaultStyle=Definir como estilo padrão
+settings=Settings
 shadow=Sombra
 shape=Forma
 shapes=Formas

@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Pakalpojums nav pieejams vai bloķēts
 sessionExpired=Jūsu sesija ir beigusies. Lūdzu, atsvaidziniet pārlūkprogrammas logu.
 sessionTimeoutOnSave=Jūsu sesija ir beigusies, un jūs esat atvienots no Google diska. Nospiediet OK, lai pieteiktos un saglabātu.
 setAsDefaultStyle=Iestatīt kā noklusējuma stilu
+settings=Settings
 shadow=Ēna
 shape=Forma
 shapes=Formas

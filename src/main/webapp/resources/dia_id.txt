@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Layanan tidak tersedia atau diblokir
 sessionExpired=Sesi telah berakhir. Harap segarkan jendela peramban.
 sessionTimeoutOnSave=Waktu sesi berakhir dan Anda telah terputus dari Google Drive. Tekan OKE untuk masuk dan menyimpan.
 setAsDefaultStyle=Setel sebagai Gaya Default
+settings=Settings
 shadow=Bayangan
 shape=Bentuk
 shapes=Bentuk

@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=A szolgáltatás elérhetetlen, vagy lezárva
 sessionExpired=Az ön munkamenete letelt. Kérjük frissítse a bőngésző ablakot.
 sessionTimeoutOnSave=Az ön munkamenete ideje lejárt és szétkapcsolódott a Google Drive-tól. Nyomja meg az OK-t, hogy bejelentkezzen és mentse adatait.
 setAsDefaultStyle=Eredeti stílust meghatároz
+settings=Settings
 shadow=Árnyék
 shape=Alakzat
 shapes=Alakzatok

@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=服務無法使用或已被阻擋
 sessionExpired=工作階段已過期。請重新載入瀏覽器畫面。
 sessionTimeoutOnSave=您的工作階段已逾時，且與 Google Drive 斷線。按下確定以登入並儲存。
 setAsDefaultStyle=設為預設樣式
+settings=Settings
 shadow=陰影
 shape=圖形
 shapes=圖形

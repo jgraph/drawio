@@ -1874,11 +1874,6 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			' Shift+Click to Clear Anchor Points');
 		count++;
 	}
-
-	if (graph.getSelectionCount() == 1)
-	{
-		count += this.addActions(div, ['editData', 'editLink']);
-	}
 	
 	if (count == 0)
 	{
@@ -3637,29 +3632,26 @@ TextFormatPanel.prototype.addFont = function(container)
 				graph.cellEditor.restoreSelection(selState);
 				selState = null;
 			}
-			
-			var selectedElement = graph.getSelectedElement();
-			var node = selectedElement;
-			
-			while (node != null && node.nodeType != mxConstants.NODETYPE_ELEMENT)
+
+			var blocks = graph.getSelectedTextBlocks();
+
+			// Adds paragraph tags if no block element is selected
+			if (blocks.length == 0)
 			{
-				node = node.parentNode;
-			}
-			
-			if (node != null && node == graph.cellEditor.textarea && graph.cellEditor.textarea.firstChild != null)
-			{
-				if (graph.cellEditor.textarea.firstChild.nodeName != 'P')
+				if (graph.cellEditor.textarea.firstChild != null)
 				{
-					graph.cellEditor.textarea.innerHTML = '<p>' + graph.cellEditor.textarea.innerHTML + '</p>';
+					if (graph.cellEditor.textarea.firstChild.nodeName != 'P')
+					{
+						graph.cellEditor.textarea.innerHTML = '<p>' + graph.cellEditor.textarea.innerHTML + '</p>';
+					}
+
+					blocks = [graph.cellEditor.textarea.firstChild];
 				}
-				
-				node = graph.cellEditor.textarea.firstChild;
 			}
-			
-			if (node != null && graph.cellEditor.textarea != null && node != graph.cellEditor.textarea &&
-				graph.cellEditor.textarea.contains(node))
+
+			for (var i = 0; i < blocks.length; i++)
 			{
-				node.style.lineHeight = value / 100;
+				blocks[i].style.lineHeight = value + '%';
 			}
 			
 			input.value = value + ' %';
@@ -4541,47 +4533,56 @@ StyleFormatPanel.prototype.addSvgRule = function(container, rule, svg, styleElem
 StyleFormatPanel.prototype.addEditOps = function(div)
 {
 	var ss = this.editorUi.getSelectionState();
-	var btn = null;
-	
-	if (ss.cells.length == 1)
+
+	if (ss.cells.length > 0)
 	{
-		btn = mxUtils.button(mxResources.get('editStyle'), mxUtils.bind(this, function(evt)
+		var editSelect = document.createElement('select');
+		editSelect.style.width = '210px';
+		editSelect.style.textAlign = 'center';
+		editSelect.style.borderRadius = '4px';
+		editSelect.style.marginBottom = '2px';
+		
+		var ops = ['edit', 'editShape', 'editImage', 'editStyle', 'editData',
+			'editLink', 'editTooltip', 'editConnectionPoints', 'editGeometry'];
+		
+		for (var i = 0; i < ops.length; i++)
 		{
-			this.editorUi.actions.get('editStyle').funct();
-		}));
-		
-		btn.setAttribute('title', mxResources.get('editStyle') + ' (' +
-			this.editorUi.actions.get('editStyle').shortcut + ')');
-		btn.style.width = '210px';
-		btn.style.marginBottom = '2px';
-		
-		div.appendChild(btn);
-	}
-	
-	if (ss.image && ss.cells.length > 0)
-	{
-		var btn2 = mxUtils.button(mxResources.get('editImage'), mxUtils.bind(this, function(evt)
-		{
-			this.editorUi.actions.get('image').funct();
-		}));
-		
-		btn2.setAttribute('title', mxResources.get('editImage'));
-		btn2.style.marginBottom = '2px';
-		
-		if (btn == null)
-		{
-			btn2.style.width = '210px';
+			var action = this.editorUi.actions.get(ops[i]);
+
+			if (action == null || action.enabled)
+			{
+				var editOption = document.createElement('option');
+				editOption.setAttribute('value', ops[i]);
+				var title = mxResources.get(ops[i]);
+				mxUtils.write(editOption, title + '...');
+
+				if (action != null && action.shortcut != null)
+				{
+					title += ' (' + action.shortcut + ')';
+				}
+
+				editOption.setAttribute('title', title);
+				editSelect.appendChild(editOption);
+			}
 		}
-		else
+
+		if (editSelect.children.length > 1)
 		{
-			btn.style.width = '104px';
-			btn2.style.width = '104px';
-			btn2.style.marginLeft = '2px';
+			div.appendChild(editSelect);
+
+			mxEvent.addListener(editSelect, 'change', mxUtils.bind(this, function(evt)
+			{
+				var action = this.editorUi.actions.get(editSelect.value);
+				editSelect.value = 'edit';
+
+				if (action != null)
+				{
+					action.funct();
+				}
+			}));
 		}
-		
-		div.appendChild(btn2);
 	}
-	
+
 	return div;
 };
 
@@ -5710,17 +5711,17 @@ StyleFormatPanel.prototype.addEffects = function(div)
 			addOption(mxResources.get('divider'), 'swimlaneLine', 1);
 		}
 
-		if (!ss.containsImage)
-		{
-			addOption(mxResources.get('shadow'), mxConstants.STYLE_SHADOW, 0);
-		}
-		
+		addOption(mxResources.get('sketch'), 'sketch', 0);
+
 		if (ss.glass)
 		{
 			addOption(mxResources.get('glass'), mxConstants.STYLE_GLASS, 0);
 		}
-
-		addOption(mxResources.get('sketch'), 'sketch', 0);
+		
+		if (!ss.containsImage)
+		{
+			addOption(mxResources.get('shadow'), mxConstants.STYLE_SHADOW, 0);
+		}
 	});
 	
 	graph.getModel().addListener(mxEvent.CHANGE, listener);
@@ -5790,8 +5791,8 @@ DiagramStylePanel.prototype.addView = function(div)
 	div.style.paddingTop = '8px';
 	
 	var table = document.createElement('table');
-
-	table.style.width = '210px';
+	table.style.width = '204px';
+	table.style.paddingLeft = '4px';
 	table.style.fontWeight = 'bold';
 	
 	var tbody = document.createElement('tbody');
@@ -5805,28 +5806,11 @@ DiagramStylePanel.prototype.addView = function(div)
 	
 	var right = left.cloneNode(true);
 	right.style.paddingLeft = '8px';
-	opts.style.paddingBottom = '12px';
+	opts.style.paddingBottom = '6px';
 	row.appendChild(left);
 
-	left.appendChild(this.createOption(mxResources.get('sketch'), function()
-	{
-		return Editor.sketchMode;
-	}, function(checked)
-	{
-		graph.updateCellStyles({'sketch': (checked) ? '1' : null},
-			graph.getVerticesAndEdges());
-		ui.setSketchMode(!Editor.sketchMode);
-	}, null, function(div)
-	{
-		div.style.width = 'auto';
-	}));
-	
-	row.appendChild(right);
-	tbody.appendChild(row);
-	table.appendChild(tbody);
-
 	// Rounded
-	right.appendChild(this.createOption(mxResources.get('rounded'), mxUtils.bind(this, function()
+	left.appendChild(this.createOption(mxResources.get('rounded'), mxUtils.bind(this, function()
 	{
 		return this.format.rounded;
 	}), mxUtils.bind(this, function(checked)
@@ -5846,6 +5830,24 @@ DiagramStylePanel.prototype.addView = function(div)
 			delete graph.currentVertexStyle['rounded'];
 		}
 	}), null, function(div)
+	{
+		div.style.width = 'auto';
+	}));
+	
+	row.appendChild(right);
+	tbody.appendChild(row);
+	table.appendChild(tbody);
+
+	// Sketch
+	right.appendChild(this.createOption(mxResources.get('sketch'), function()
+	{
+		return Editor.sketchMode;
+	}, function(checked)
+	{
+		graph.updateCellStyles({'sketch': (checked) ? '1' : null},
+			graph.getVerticesAndEdges());
+		ui.setSketchMode(!Editor.sketchMode);
+	}, null, function(div)
 	{
 		div.style.width = 'auto';
 	}));
@@ -5982,36 +5984,8 @@ DiagramStylePanel.prototype.addView = function(div)
 		}
 	});
 
-	var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
-	{
-		var all = graph.getVerticesAndEdges(true, true);
-		this.format.rounded = false;
-		this.format.curved = false;
+	this.addResetButton(right);
 
-		if (all.length > 0)
-		{
-			model.beginUpdate();
-			try
-			{
-				graph.updateCellStyles({'sketch': null, 'rounded': null}, all);
-				graph.updateCellStyles({'curved': null, 'rounded': '0'},
-					graph.getVerticesAndEdges(false, true));
-			}
-			finally
-			{
-				model.endUpdate();
-			}
-		}
-		
-		ui.clearDefaultStyle();
-		ui.setSketchMode(false);
-	}));
-	
-	btn.setAttribute('title', mxResources.get('reset'));
-	btn.style.textOverflow = 'ellipsis';
-	btn.style.maxWidth = '90px';
-	right.appendChild(btn);
-	
 	var createPreview = mxUtils.bind(this, function(commonStyle, vertexStyle, edgeStyle, graphStyle, container)
 	{
 		// Wrapper needed to catch events
@@ -6348,17 +6322,60 @@ DiagramStylePanel.prototype.addView = function(div)
 /**
  * Adds the label menu items to the given menu and parent.
  */
- DiagramStylePanel.prototype.destroy = function()
- {
-	BaseFormatPanel.prototype.destroy.apply(this, arguments);
+DiagramStylePanel.prototype.addResetButton = function(td)
+{
+	var ui = this.editorUi;
+	var graph = ui.editor.graph;
+	var model = graph.model;
+
+	var btn = mxUtils.button(mxResources.get('reset'), mxUtils.bind(this, function(evt)
+	{
+		var all = graph.getVerticesAndEdges(true, true);
+		this.format.rounded = false;
+		this.format.curved = false;
+
+		if (all.length > 0)
+		{
+			model.beginUpdate();
+			try
+			{
+				graph.updateCellStyles({'sketch': null, 'rounded': null}, all);
+				graph.updateCellStyles({'curved': null, 'rounded': '0'},
+					graph.getVerticesAndEdges(false, true));
+			}
+			finally
+			{
+				model.endUpdate();
+			}
+		}
+		
+		ui.clearDefaultStyle();
+		ui.setSketchMode(false);
+	}));
 	
+	btn.setAttribute('title', mxResources.get('reset'));
+	btn.style.textOverflow = 'ellipsis';
+	btn.style.width = '86px';
+	btn.style.height = '22px';
+	btn.style.marginTop = '-3px';
+	btn.style.maxWidth = '86px';
+	td.appendChild(btn);
+};
+
+/**
+ * Adds the label menu items to the given menu and parent.
+ */
+DiagramStylePanel.prototype.destroy = function()
+{
+	BaseFormatPanel.prototype.destroy.apply(this, arguments);
+
 	if (this.darkModeChangedListener)
 	{
 		this.editorUi.removeListener(this.darkModeChangedListener);
 		this.darkModeChangedListener = null;
 	}
- };
- 
+};
+
 /**
  * Adds the label menu items to the given menu and parent.
  */
@@ -6442,36 +6459,45 @@ DiagramFormatPanel.prototype.addView = function(div)
 	
 	if (graph.isEnabled())
 	{
-		// Background
-		var bg = this.createColorOption(mxResources.get('background'), function()
-		{
-			return graph.background;
-		}, function(color)
-		{
-			var change = new ChangePageSetup(ui, color);
-			change.ignoreImage = color != null &&
-				color != mxConstants.NONE;
-			
-			graph.model.execute(change);
-		}, '#ffffff',
-		{
-			install: function(apply)
-			{
-				this.listener = function()
-				{
-					apply(graph.background);
-				};
-				
-				ui.addListener('backgroundColorChanged', this.listener);
-			},
-			destroy: function()
-			{
-				ui.removeListener(this.listener);
-			}
-		});
-		
+		var bg = null;
+
 		if (this.showBackgroundImageOption)
 		{
+			var bg = this.createOption(mxResources.get('background'), function()
+			{
+				return (graph.background != mxConstants.NONE &&
+					graph.background != null) ||
+					graph.backgroundImage != null;
+			}, function(checked)
+			{
+				if (checked)
+				{
+					graph.model.execute(new ChangePageSetup(ui, '#ffffff'));
+				}
+				else
+				{
+					graph.model.execute(new ChangePageSetup(ui));
+				}
+			},
+			{
+				install: function(apply)
+				{
+					this.listener = function()
+					{
+						apply((graph.background != mxConstants.NONE &&
+							graph.background != null) ||
+							graph.backgroundImage != null);
+					};
+					
+					ui.addListener('backgroundColorChanged', this.listener);
+					ui.addListener('backgroundImageChanged', this.listener);
+				},
+				destroy: function()
+				{
+					ui.removeListener(this.listener);
+				}
+			});
+
 			var label = bg.getElementsByTagName('span')[0];
 			label.style.display = 'inline-block';
 			label.style.textOverflow = 'ellipsis';
@@ -6483,20 +6509,51 @@ DiagramFormatPanel.prototype.addView = function(div)
 				label.style.marginTop = '1px';
 			}
 
-			var btn = mxUtils.button(mxResources.get('image'), function(evt)
+			var btn = mxUtils.button(mxResources.get('change') + '...', function(evt)
 			{
-				ui.showBackgroundImageDialog(null, ui.editor.graph.backgroundImage);
+				ui.showBackgroundImageDialog(null,
+					ui.editor.graph.backgroundImage,
+					ui.editor.graph.background);
 				mxEvent.consume(evt);
 			})
-		
-			btn.className = 'geColorBtn';
+			
 			btn.style.position = 'absolute';
-			btn.style.marginTop = '-3px';
+			btn.style.marginTop = '-4px';
 			btn.style.height = '22px';
-			btn.style.left = '118px';
-			btn.style.width = '56px';
+			btn.style.right = '16px';
+			btn.style.width = '104px';
+			btn.style.maxWidth = '104px';
 		
 			bg.appendChild(btn);
+		}
+		else
+		{
+			bg = this.createColorOption(mxResources.get('background'), function()
+			{
+				return graph.background;
+			}, function(color)
+			{
+				var change = new ChangePageSetup(ui, color);
+				change.ignoreImage = color != null &&
+					color != mxConstants.NONE;
+				
+				graph.model.execute(change);
+			}, '#ffffff',
+			{
+				install: function(apply)
+				{
+					this.listener = function()
+					{
+						apply(graph.background);
+					};
+					
+					ui.addListener('backgroundColorChanged', this.listener);
+				},
+				destroy: function()
+				{
+					ui.removeListener(this.listener);
+				}
+			});
 		}
 		
 		div.appendChild(bg);

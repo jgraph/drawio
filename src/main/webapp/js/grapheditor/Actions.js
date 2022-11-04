@@ -758,6 +758,10 @@ Actions.prototype.init = function()
 			ui.actions.get('image').funct();
 		}
 	})).isEnabled = isGraphEnabled;
+	this.addAction('editImage...', function()
+	{
+		ui.actions.get('image').funct();
+	});
 	this.put('insertLink', new Action(mxResources.get('link') + '...', function()
 	{
 		if (graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent()))

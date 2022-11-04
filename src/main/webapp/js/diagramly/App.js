@@ -1413,7 +1413,16 @@ App.prototype.init = function()
 			this.restoreLibraries();
 		}));
 	}
-	
+
+	// 
+	this.addListener('currentThemeChanged', mxUtils.bind(this, function()
+	{
+		if (this.compactMode && this.isDefaultTheme())
+		{
+			this.toggleCompactMode(true);
+		}
+	}));
+
 	/**
 	 * Creates gitlab client.
 	 */
@@ -1663,7 +1672,6 @@ App.prototype.init = function()
 					}
 				}
 				else if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io')
-
 				{
 					// just app.diagrams.net users
 					// this.showNameConfBanner();
@@ -1676,12 +1684,8 @@ App.prototype.init = function()
 			(!this.editor.chromeless || this.editor.editable))
 		{
 			// Checks if the cache is alive
-			var acceptResponse = true;
-			
 			var timeoutThread = window.setTimeout(mxUtils.bind(this, function()
 			{
-				acceptResponse = false;
-				
 				// Switches to manual sync if cache cannot be reached
 				DrawioFile.SYNC = 'manual';
 				

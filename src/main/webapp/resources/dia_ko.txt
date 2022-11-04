@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=서비스가 이용 불가능하거나 서비스가 
 sessionExpired=세션이 종료되었습니다. 브라우저를 새로고침하세요.
 sessionTimeoutOnSave=세션 시간이 초과되어 Google 드라이브 연결이 해제되었습니다. 로그인 후 저장하려면 확인을 누르세요.
 setAsDefaultStyle=기본 스타일로 설정
+settings=Settings
 shadow=그림자
 shape=도형
 shapes=도형

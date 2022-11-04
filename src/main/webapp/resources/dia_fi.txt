@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Palvelu ei ole käytettävissä tai se on estetty
 sessionExpired=Istuntosi on vanhentunut. Ole hyvä ja päivitä selainikkuna.
 sessionTimeoutOnSave=Istuntosi on aikakatkaistu ja yhteytesi Google Driveen on katkaistu. Napsauta OK kirjautuaksesi sisään ja tallentaaksesi.
 setAsDefaultStyle=Aseta oletustyyliksi
+settings=Settings
 shadow=Varjostus
 shape=Muoto
 shapes=Muodot

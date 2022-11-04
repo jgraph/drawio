@@ -687,6 +687,7 @@ serviceUnavailableOrBlocked=Tjänsten är otillgänglig eller blockerad
 sessionExpired=Din session har löpt ut. Vänligen ladda om din webbläsares fönster.
 sessionTimeoutOnSave=Du har loggats ut från Google Drive på grund av inaktivitet. Klicka på OK för att logga in och spara.
 setAsDefaultStyle=Ställ in som standardstil
+settings=Settings
 shadow=Skugga
 shape=Form
 shapes=Former

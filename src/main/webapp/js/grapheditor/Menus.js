@@ -1497,8 +1497,22 @@ Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
 	}
 	else
 	{
-		this.addMenuItems(menu, ['delete', '-', 'cut', 'copy', '-', 'duplicate'], null, evt);
+		if (this.isShowCellEditItems())
+		{
+			this.addMenuItems(menu, ['delete', '-', ], null, evt);
+		}
+
+		this.addMenuItems(menu, ['cut', 'copy', 'duplicate',
+			'-', 'lockUnlock'], null, evt);
 	}
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
+Menus.prototype.isShowStyleItems = function()
+{
+	return true;
 };
 
 /**
@@ -1506,14 +1520,25 @@ Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
  */
 Menus.prototype.addPopupMenuStyleItems = function(menu, cell, evt)
 {
-	if (this.editorUi.editor.graph.getSelectionCount() == 1)
+	if (this.isShowStyleItems())
 	{
-		this.addMenuItems(menu, ['-', 'setAsDefaultStyle'], null, evt);
+		if (this.editorUi.editor.graph.getSelectionCount() == 1)
+		{
+			this.addMenuItems(menu, ['-', 'setAsDefaultStyle'], null, evt);
+		}
+		else if (this.editorUi.editor.graph.isSelectionEmpty())
+		{
+			this.addMenuItems(menu, ['-', 'clearDefaultStyle'], null, evt);
+		}
 	}
-	else if (this.editorUi.editor.graph.isSelectionEmpty())
-	{
-		this.addMenuItems(menu, ['-', 'clearDefaultStyle'], null, evt);
-	}
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
+Menus.prototype.isShowArrangeItems = function()
+{
+	return true;
 };
 
 /**
@@ -1521,27 +1546,30 @@ Menus.prototype.addPopupMenuStyleItems = function(menu, cell, evt)
  */
 Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 {
-	var graph = this.editorUi.editor.graph;
-	
-	if (graph.getEditableCells(graph.getSelectionCells()).length > 0)
+	if (this.isShowArrangeItems())
 	{
-		this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
+		var graph = this.editorUi.editor.graph;
 		
-		if (graph.getSelectionCount() == 1)
+		if (graph.getEditableCells(graph.getSelectionCells()).length > 0)
 		{
-			this.addMenuItems(menu, ['bringForward', 'sendBackward'], null, evt);
+			this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
+			
+			if (graph.getSelectionCount() == 1)
+			{
+				this.addMenuItems(menu, ['bringForward', 'sendBackward'], null, evt);
+			}
 		}
-	}	
 
-	if (graph.getSelectionCount() > 1)	
-	{
-		this.addMenuItems(menu, ['-', 'group'], null, evt);
-	}
-	else if (graph.getSelectionCount() == 1 && !graph.getModel().isEdge(cell) &&
-		!graph.isSwimlane(cell) && graph.getModel().getChildCount(cell) > 0 &&
-		graph.isCellEditable(cell))
-	{
-		this.addMenuItems(menu, ['-', 'ungroup'], null, evt);
+		if (graph.getSelectionCount() > 1)	
+		{
+			this.addMenuItems(menu, ['-', 'group'], null, evt);
+		}
+		else if (graph.getSelectionCount() == 1 && !graph.getModel().isEdge(cell) &&
+			!graph.isSwimlane(cell) && graph.getModel().getChildCount(cell) > 0 &&
+			graph.isCellEditable(cell))
+		{
+			this.addMenuItems(menu, ['-', 'ungroup'], null, evt);
+		}
 	}
 };
 
@@ -1558,7 +1586,8 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 	{
 		var hasWaypoints = false;
 		
-		if (graph.getSelectionCount() == 1 && graph.getModel().isEdge(cell))
+		if (this.isShowStyleItems() && graph.getSelectionCount() == 1 &&
+			graph.getModel().isEdge(cell))
 		{
 			menu.addSeparator();
 			this.addSubmenu('line', menu);
@@ -1591,7 +1620,12 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			}
 			
 			menu.addSeparator();
-			this.addMenuItem(menu, 'turn', null, evt, null, mxResources.get('reverse'));
+
+			if (this.isShowCellEditItems())
+			{
+				this.addMenuItem(menu, 'turn', null, evt, null, mxResources.get('reverse'));
+			}
+
 			this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
 			
 			// Adds reset waypoints option if waypoints exist
@@ -1599,7 +1633,8 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			hasWaypoints = geo != null && geo.points != null && geo.points.length > 0;
 		}
 
-		if (graph.getSelectionCount() == 1 && (hasWaypoints || (graph.getModel().isVertex(cell) &&
+		if (graph.getSelectionCount() == 1 && this.isShowCellEditItems() && 
+			(hasWaypoints || (graph.getModel().isVertex(cell) &&
 			graph.getModel().getEdgeCount(cell) > 0)))
 		{
 			this.addMenuItems(menu, ['-', 'clearWaypoints'], null, evt);
@@ -1615,27 +1650,38 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
+Menus.prototype.isShowCellEditItems = function()
+{
+	return true;
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
 Menus.prototype.addPopupMenuCellEditItems = function(menu, cell, evt, parent)
 {
-	var graph = this.editorUi.editor.graph;
-	var state = graph.view.getState(cell);
-	this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], parent, evt);
-	
-	// Shows edit image action if there is an image in the style
-	if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
+	if (this.isShowCellEditItems())
 	{
-		menu.addSeparator();
-		this.addMenuItem(menu, 'image', parent, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
-		this.addMenuItem(menu, 'crop', parent, evt);
-	}
+		var graph = this.editorUi.editor.graph;
+		var state = graph.view.getState(cell);
+		this.addMenuItems(menu, ['-', 'editStyle', 'editData', 'editLink'], parent, evt);
+		
+		// Shows edit image action if there is an image in the style
+		if (graph.getModel().isVertex(cell) && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
+		{
+			menu.addSeparator();
+			this.addMenuItem(menu, 'image', parent, evt).firstChild.nextSibling.innerHTML = mxResources.get('editImage') + '...';
+			this.addMenuItem(menu, 'crop', parent, evt);
+		}
 
-	if ((graph.getModel().isVertex(cell) && graph.getModel().getChildCount(cell) == 0)
-			|| graph.isContainer(cell)) //Allow vertex only excluding group (but allowing container [e.g, swimlanes])
-	{
-		this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
+		if ((graph.getModel().isVertex(cell) && graph.getModel().getChildCount(cell) == 0)
+				|| graph.isContainer(cell)) //Allow vertex only excluding group (but allowing container [e.g, swimlanes])
+		{
+			this.addMenuItem(menu, 'editConnectionPoints', parent, evt);
+		}
 	}
 };
- 
+
 /**
  * Creates the keyboard event handler for the current graph and history.
  */
