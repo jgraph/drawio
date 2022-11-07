@@ -6964,7 +6964,7 @@
 		if (this.isHtmlLabel(cell))
 		{
 			var temp = document.createElement('div');
-			temp.innerHTML = this.sanitizeHtml(this.getLabel(cell));
+			temp.innerHTML = Graph.sanitizeHtml(this.getLabel(cell));
 			var links = temp.getElementsByTagName('a');
 			var changed = false;
 			

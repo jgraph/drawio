@@ -1,3 +1,10 @@
+06-NOV-2022: 20.5.3
+
+- Uses static Graph.sanitizeHtml
+- Sanitizes status bar content
+- Fixes icon stroke width
+- Shows crop option only if image style is used
+
 04-NOV-2022: 20.5.2
 
 - Fixes infinite redirection in embed + proxy (https://huntr.dev/bounties/28d79d99-81a4-46f3-9455-89658bca424b/)

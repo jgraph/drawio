@@ -7401,7 +7401,7 @@ var FindWindow = function(ui, x, y, w, h, withReplace)
 				{
 					if (state.style != null && state.style['html'] == '1')
 					{
-						tmp.innerHTML = graph.sanitizeHtml(graph.getLabel(state.cell));
+						tmp.innerHTML = Graph.sanitizeHtml(graph.getLabel(state.cell));
 						label = mxUtils.extractTextWithWhitespace([tmp]);
 					}
 					else

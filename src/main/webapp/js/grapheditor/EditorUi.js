@@ -4680,7 +4680,7 @@ EditorUi.prototype.createStatusContainer = function()
  */
 EditorUi.prototype.setStatusText = function(value)
 {
-	this.statusContainer.innerHTML = value;
+	this.statusContainer.innerHTML = Graph.sanitizeHtml(value);
 
 	// Wraps simple status messages in a div for styling
 	if (this.statusContainer.getElementsByTagName('div').length == 0 &&
@@ -4736,7 +4736,7 @@ EditorUi.prototype.createStatusDiv = function(value)
 {
 	var div = document.createElement('div');
 	div.setAttribute('title', value);
-	div.innerHTML = value;
+	div.innerHTML = Graph.sanitizeHtml(value);
 
 	return div;
 };
@@ -5235,7 +5235,7 @@ EditorUi.prototype.parseHtmlData = function(data)
 		var hasMeta = data.substring(0, 6) == '<meta ';
 		elt = document.createElement('div');
 		elt.innerHTML = ((hasMeta) ? '<meta charset="utf-8">' : '') +
-			this.editor.graph.sanitizeHtml(data);
+			Graph.sanitizeHtml(data);
 		asHtml = true;
 		
 		// Workaround for innerText not ignoring style elements in Chrome

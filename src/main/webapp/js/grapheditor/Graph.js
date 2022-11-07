@@ -740,7 +740,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 			else
 			{
-				result = state.view.graph.sanitizeHtml(result);
+				result = Graph.sanitizeHtml(result);
 			}
 		}
 		
@@ -12068,7 +12068,7 @@ if (typeof mxVertexHandler !== 'undefined')
 						content = mxUtils.replaceTrailingNewlines(content, '<div><br></div>');
 					}
 					
-				    content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
+				    content = Graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '').replace(/&lt;br\s*.?&gt;/g, '<br>') : content, true);
 					this.textarea.className = 'mxCellEditor mxPlainTextEditor';
 					
 					var size = mxConstants.DEFAULT_FONTSIZE;
@@ -12102,7 +12102,7 @@ if (typeof mxVertexHandler !== 'undefined')
 				    	content = content.substring(0, content.length - 1);
 				    }
 				    
-					content = this.graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '<br/>') : content, true)
+					content = Graph.sanitizeHtml((nl2Br) ? content.replace(/\n/g, '<br/>') : content, true)
 					this.textarea.className = 'mxCellEditor geContentEditable';
 					
 					var size = mxUtils.getValue(state.style, mxConstants.STYLE_FONTSIZE, mxConstants.DEFAULT_FONTSIZE);
@@ -12239,7 +12239,7 @@ if (typeof mxVertexHandler !== 'undefined')
 					result = result.replace(/\n/g, '<br/>');
 				}
 				
-				result = this.graph.sanitizeHtml(result, true);
+				result = Graph.sanitizeHtml(result, true);
 				
 				return result;
 			}
@@ -12254,7 +12254,7 @@ if (typeof mxVertexHandler !== 'undefined')
 			}
 			else
 			{
-				var result = this.graph.sanitizeHtml(this.textarea.innerHTML, true);
+				var result = Graph.sanitizeHtml(this.textarea.innerHTML, true);
 	
 				if (mxUtils.getValue(state.style, 'nl2Br', '1') == '1')
 				{

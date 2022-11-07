@@ -4554,7 +4554,7 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 				var editOption = document.createElement('option');
 				editOption.setAttribute('value', ops[i]);
 				var title = mxResources.get(ops[i]);
-				mxUtils.write(editOption, title + '...');
+				mxUtils.write(editOption, title + ((ops[i] == 'edit') ? '' : '...'));
 
 				if (action != null && action.shortcut != null)
 				{
@@ -4580,6 +4580,29 @@ StyleFormatPanel.prototype.addEditOps = function(div)
 					action.funct();
 				}
 			}));
+			
+			if (ss.image && ss.cells.length > 0)
+			{
+				var graph = this.editorUi.editor.graph;
+				var state = graph.view.getState(graph.getSelectionCell());
+
+				if (state != null && mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null)
+				{
+					var btn = mxUtils.button(mxResources.get('crop') + '...',
+						mxUtils.bind(this, function(evt)
+					{
+						this.editorUi.actions.get('crop').funct();
+					}));
+
+					btn.setAttribute('title', mxResources.get('editImage'));
+					editSelect.style.width = '104px';
+					btn.style.width = '104px';
+					btn.style.marginLeft = '2px';
+					btn.style.marginBottom = '2px';
+
+					div.appendChild(btn);
+				}
+			}
 		}
 	}
 

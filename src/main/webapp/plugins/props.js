@@ -105,7 +105,7 @@ Draw.loadPlugin(function(ui) {
 	
 			if (attrs != null)
 			{
-				var label = graph.sanitizeHtml(graph.getLabel(cell));
+				var label = Graph.sanitizeHtml(graph.getLabel(cell));
 				
 				if (label != null && label.length > 0)
 				{
@@ -137,7 +137,7 @@ Draw.loadPlugin(function(ui) {
 				
 				if (label != '')
 				{
-					div.innerHTML = '<h1>' + graph.sanitizeHtml(label) + '</h1>';
+					div.innerHTML = '<h1>' + Graph.sanitizeHtml(label) + '</h1>';
 				}
 				else
 				{

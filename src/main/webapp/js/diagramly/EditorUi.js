@@ -7298,7 +7298,7 @@
 		
 		if (graph.isHtmlLabel(cell))
 		{
-			temp.innerHTML = graph.sanitizeHtml(graph.getLabel(cell));
+			temp.innerHTML = Graph.sanitizeHtml(graph.getLabel(cell));
 			var links = temp.getElementsByTagName('a');
 			var changed = false;
 			
@@ -9736,9 +9736,27 @@
 					{
 						this.addMenuItems(menu, ['delete', '-'], null, evt);
 					}
+					else
+					{
+						this.addPopupMenuArrangeItems(menu, cell, evt);
+					}
 			
-					this.addMenuItems(menu, ['cut', 'copy', 'copyAsImage',
-						'duplicate', '-', 'lockUnlock'], null, evt);
+					this.addMenuItems(menu, ['-', 'cut', 'copy', 'copyAsImage',
+						'duplicate', 'lockUnlock'], null, evt);
+					
+					// Shows crop option for images
+					if (!this.isShowCellEditItems() && graph.getSelectionCount() == 1 &&
+						graph.isCellEditable(cell) && graph.getModel().isVertex(cell))
+					{
+						var state = graph.view.getState(cell);
+					
+						if (state != null && mxUtils.getValue(state.style,
+							mxConstants.STYLE_IMAGE, null) != null)
+						{
+							menu.addSeparator();
+							this.addMenuItem(menu, 'crop', null, evt);
+						}
+					}
 				}
 			};
 
@@ -10187,7 +10205,7 @@
 					    {
 				    		var html = evt.dataTransfer.getData('text/html');
 				    		var div = document.createElement('div');
-				    		div.innerHTML = graph.sanitizeHtml(html);
+				    		div.innerHTML = Graph.sanitizeHtml(html);
 				    		
 				    		// The default is based on the extension
 				    		var asImage = null;
@@ -13462,7 +13480,7 @@
 										if (data != null && data.length > 0)
 										{
 											var div = document.createElement('div');
-								    		div.innerHTML = this.editor.graph.sanitizeHtml(data);
+								    		div.innerHTML = Graph.sanitizeHtml(data);
 		
 								    		// Extracts single image
 								    		var imgs = div.getElementsByTagName('img');
@@ -15497,7 +15515,7 @@
 	
 		    				if (key == 'label')
 		    				{
-		    					label = graph.sanitizeHtml(value);
+		    					label = Graph.sanitizeHtml(value);
 		    				}
 		    				else if (key == 'labelname' && value.length > 0 && value != '-')
 		    				{

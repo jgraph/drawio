@@ -239,7 +239,7 @@ DrawioViewer.prototype.init = function()
 			}
 			else
 			{
-				result = state.view.graph.sanitizeHtml(result);
+				result = Graph.sanitizeHtml(result);
 			}
 		}
 		
