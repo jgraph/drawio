@@ -15,6 +15,7 @@ addLayer=레이어 추가
 addProperty=속성 추가
 address=주소
 addToExistingDrawing=기존 그림에 추가
+addToScratchpad=Add to Scratchpad
 addWaypoint=중간점 추가
 adjustTo=맞춤 비율
 advanced=고급

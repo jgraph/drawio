@@ -373,6 +373,20 @@ EditorUi = function(editor, container, lightbox)
 				// Mouse down is needed for drag and drop
 				this.tabContainer.onselectstart = textEditing;
 			}
+
+			if (mxClient.IS_IOS)
+			{
+				mxUtils.setPrefixedStyle(this.menubarContainer.style, 'userSelect', 'none');
+				mxUtils.setPrefixedStyle(this.diagramContainer.style, 'userSelect', 'none');
+				mxUtils.setPrefixedStyle(this.sidebarContainer.style, 'userSelect', 'none');
+				mxUtils.setPrefixedStyle(this.formatContainer.style, 'userSelect', 'none');
+				mxUtils.setPrefixedStyle(this.footerContainer.style, 'userSelect', 'none');
+
+				if (this.tabContainer != null)
+				{
+					mxUtils.setPrefixedStyle(this.tabContainer.style, 'userSelect', 'none');
+				}
+			}
 		}
 		
 		// And uses built-in context menu while editing
@@ -1128,11 +1142,6 @@ EditorUi.prototype.toolbarHeight = 38;
 EditorUi.prototype.footerHeight = 28;
 
 /**
- * Specifies the height of the optional sidebarFooterContainer. Default is 34.
- */
-EditorUi.prototype.sidebarFooterHeight = 34;
-
-/**
  * Specifies the position of the horizontal split bar. Default is 240 or 118 for
  * screen widths <= 640px.
  */
@@ -1635,7 +1644,7 @@ EditorUi.prototype.installShapePicker = function()
 				{
 					if (cell != null)
 					{
-						graph.connectVertex(temp, dir, graph.defaultEdgeLength, mouseEvent, true, true, function(x, y, execute)
+						graph.connectVertex(temp, dir, graph.defaultEdgeLength, mouseEvent, true, false, function(x, y, execute)
 						{
 							execute(cell);
 								
@@ -4387,17 +4396,6 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		tmp += 1;
 	}
 	
-	var sidebarFooterHeight = 0;
-	
-	if (this.sidebarFooterContainer != null)
-	{
-		var bottom = this.footerHeight + off;
-		sidebarFooterHeight = Math.max(0, Math.min(h - tmp - bottom, this.sidebarFooterHeight));
-		this.sidebarFooterContainer.style.width = effHsplitPosition + 'px';
-		this.sidebarFooterContainer.style.height = sidebarFooterHeight + 'px';
-		this.sidebarFooterContainer.style.bottom = bottom + 'px';
-	}
-	
 	var fw = (this.format != null) ? this.formatWidth : 0;
 	this.sidebarContainer.style.top = tmp + 'px';
 	this.sidebarContainer.style.width = effHsplitPosition + 'px';
@@ -4432,7 +4430,7 @@ EditorUi.prototype.refresh = function(sizeDidChange)
 		th = this.tabContainer.clientHeight;
 	}
 	
-	this.sidebarContainer.style.bottom = (this.footerHeight + sidebarFooterHeight + off) + 'px';
+	this.sidebarContainer.style.bottom = (this.footerHeight + off) + 'px';
 	this.formatContainer.style.bottom = (this.footerHeight + off) + 'px';
 
 	this.diagramContainer.style.left =  (contLeft + diagContOffset.x) + 'px';
@@ -4466,7 +4464,6 @@ EditorUi.prototype.createDivs = function()
 	this.diagramContainer = this.createDiv('geDiagramContainer');
 	this.footerContainer = this.createDiv('geFooterContainer');
 	this.hsplit = this.createDiv('geHsplit');
-	this.hsplit.setAttribute('title', mxResources.get('collapseExpand'));
 
 	// Sets static style for containers
 	this.menubarContainer.style.top = '0px';
@@ -4483,12 +4480,6 @@ EditorUi.prototype.createDivs = function()
 	this.footerContainer.style.bottom = '0px';
 	this.footerContainer.style.zIndex = mxPopupMenu.prototype.zIndex - 3;
 	this.hsplit.style.width = this.splitSize + 'px';
-	this.sidebarFooterContainer = this.createSidebarFooterContainer();
-	
-	if (this.sidebarFooterContainer != null)
-	{
-		this.sidebarFooterContainer.style.left = '0px';
-	}
 	
 	if (!this.editor.chromeless)
 	{
@@ -4515,14 +4506,6 @@ EditorUi.prototype.createSidebarContainer = function()
 	div.style.overflowY = 'auto';
 
 	return div;
-};
-
-/**
- * Hook for sidebar footer container. This implementation returns null.
- */
-EditorUi.prototype.createSidebarFooterContainer = function()
-{
-	return null;
 };
 
 /**
@@ -4579,11 +4562,6 @@ EditorUi.prototype.createUi = function()
 	{
 		this.footerContainer.appendChild(footer);
 		this.container.appendChild(this.footerContainer);
-	}
-
-	if (this.sidebar != null && this.sidebarFooterContainer != null)
-	{
-		this.container.appendChild(this.sidebarFooterContainer);		
 	}
 
 	this.container.appendChild(this.diagramContainer);
@@ -6165,8 +6143,7 @@ EditorUi.prototype.destroy = function()
 	
 	var c = [this.menubarContainer, this.toolbarContainer, this.sidebarContainer,
 	         this.formatContainer, this.diagramContainer, this.footerContainer,
-	         this.chromelessToolbar, this.hsplit, this.sidebarFooterContainer,
-	         this.layersDialog];
+	         this.chromelessToolbar, this.hsplit, this.layersDialog];
 	
 	for (var i = 0; i < c.length; i++)
 	{

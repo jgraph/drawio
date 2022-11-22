@@ -1,3 +1,24 @@
+22-NOV-2022: 20.6.0
+
+- Adds search, scratchpad in simple UI shapes dialog
+- Removes tooltip for removed click event handler
+- Supports reading uncompressed library entries [DS-929]
+- Adds AWS lambda authenication replication [DS-930]
+- Fixes ignored locked table and row styles [3174]
+- Adds lock/unlock option in arrange tab
+- Fixes mouse selection bugs on iOS [2758,3055,3056]
+- Handles change of search query via clipboard event
+- [desktop] Added CLI csv export [202]
+- [desktop] Added layers selection support to CLI export [143]
+- Blocks functions from being overwritten with values [DID-6750]
+- Improves visibility of more shapes item in sidebar [DS-931]
+- Checks url parameters before using them [CSP-1035]
+- Removes potential ReDoS code that is not used [CSP-1036]
+- Escapes url parameters used in output [CSP-1037]
+- Fixes link to app folder in Dropbox [2843]
+- Fixes restoring from mxGraphModel files [DID-6788]
+- Fixes hover shape picker ignores container [3199]
+
 06-NOV-2022: 20.5.3
 
 - Uses static Graph.sanitizeHtml

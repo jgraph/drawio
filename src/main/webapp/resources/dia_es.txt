@@ -15,6 +15,7 @@ addLayer=Agregar capa
 addProperty=Agregar propiedad
 address=Dirección
 addToExistingDrawing=Agregar al dibujo existente
+addToScratchpad=Add to Scratchpad
 addWaypoint=Agregar punto de referencia
 adjustTo=Ajustar a
 advanced=Avanzado

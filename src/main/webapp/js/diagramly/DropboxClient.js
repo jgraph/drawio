@@ -995,9 +995,9 @@ DropboxClient.prototype.createFile = function(file, success, error)
 				}
 				
 				this.insertFile(file.name, data, mxUtils.bind(this, function(newFile)
-			    	{
+			    {
 					success(file.name, newFile);
-			    	}), error);
+			    }), error);
 			}), mxUtils.bind(this, function()
 			{
 	    			this.ui.spinner.stop();

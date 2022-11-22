@@ -15,6 +15,7 @@ addLayer=Προσθήκη επιπέδου
 addProperty=Προσθήκη ιδιότητας
 address=Διεύθυνση
 addToExistingDrawing=Προσθήκη σε υπάρχον σχεδιάγραμμα
+addToScratchpad=Add to Scratchpad
 addWaypoint=Προσθήκη σημείου αναφοράς
 adjustTo=Προσαρμογή σε
 advanced=Προχωρημένο

@@ -15,6 +15,7 @@ addLayer=Adaugă layer
 addProperty=Adaugă proprietate
 address=Adresă
 addToExistingDrawing=Adaugă la desenul existent
+addToScratchpad=Add to Scratchpad
 addWaypoint=Adaugă reper
 adjustTo=Ajustează la
 advanced=Avansat

@@ -15,6 +15,7 @@ addLayer=Tambah Lapisan
 addProperty=Tambah Sifat
 address=Alamat
 addToExistingDrawing=Tambah ke Lukisan yang Sedia Ada
+addToScratchpad=Add to Scratchpad
 addWaypoint=Tambah Titik Arah
 adjustTo=Ubah kepada
 advanced=Lanjutan

@@ -15,6 +15,7 @@ addLayer=新增圖層
 addProperty=新增屬性
 address=地址
 addToExistingDrawing=新增至現有圖紙
+addToScratchpad=Add to Scratchpad
 addWaypoint=新增航點
 adjustTo=調至
 advanced=進階

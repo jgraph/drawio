@@ -126,10 +126,6 @@ a.geStatus .geStatusAlertOrange {
 	border:rgb(240, 135, 5);
 	color:#000000 !important;
 	border-radius:3px;
-	opacity:0.8;
-}
-.geStatusAlertOrange:hover {
-	opacity:1;
 }
 a.geStatus .geStatusMessage {
 	padding:4px 6px 4px 6px;
@@ -268,7 +264,8 @@ a.geStatus .geStatusMessage {
 }
 .geMenubar {
 	padding:0px 2px 0px 2px;
-	vertical-align:middle;
+	display:inline-flex;
+	align-items:center;
 }
 .geMenubarContainer .geItem, .geToolbar .geItem {
 	padding:6px 6px 6px 9px;
@@ -308,8 +305,9 @@ a.geStatus .geStatusMessage {
 }
 .geMenubar a.geStatus {
 	color:#888888;
-	padding-top:4px;
-	display:inline-block;
+	padding:0px 0px 0px 10px;
+	display:inline-flex;
+	align-items:center;
 	cursor:default !important;
 }
 .geMenubar a.geStatus:hover {
@@ -395,6 +393,7 @@ div.mxWindow .geButton {
 .geSidebarContainer .geTitle {
 	display:block;
 	font-size:13px;
+	border-color: #e5e5e5;
 	border-bottom:1px solid #e5e5e5;
 	font-weight:500;
 	padding:8px 0px 8px 14px;

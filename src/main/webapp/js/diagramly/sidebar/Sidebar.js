@@ -492,22 +492,45 @@
 			}
 		}
 	};
-
+	
 	/**
 	 * Overrides the sidebar init.
 	 */
-	Sidebar.prototype.init = function()
-	{
-		// Defines all entries for the sidebar. This is used in the MoreShapes dialog. Create screenshots using the savesidebar URL parameter and
-		// http://www.alderg.com/merge.html for creating a vertical stack of PNG images if multiple sidebars are part of an entry.
+	 Sidebar.prototype.init = function()
+	 {
+		this.updateEntries();
 
+		// Uses search.xml index file instead (faster load times)
+		this.addStencilsToIndex = false;
+		
+		// Contains additional tags for shapes
+		this.shapetags = {};
+
+		// Adds tags from compressed text file for improved searches
+		if (this.tagIndex != null)
+		{
+			this.addTagIndex(Graph.decompress(this.tagIndex));
+			this.tagIndex = null;	
+		}
+		
+		this.initPalettes();
+	 }
+	 
+	/**
+	 * Defines all entries for the sidebar. This is used in the MoreShapes dialog. Create screenshots using the savesidebar URL parameter and
+	 * http://www.alderg.com/merge.html for creating a vertical stack of PNG images if multiple sidebars are part of an entry.
+	 */
+	Sidebar.prototype.updateEntries = function()
+	{
 		var stdEntries = [{title: mxResources.get('general'), id: 'general', image: IMAGE_PATH + '/sidebar-general.png'},
 			{title: mxResources.get('basic'), id: 'basic', image: IMAGE_PATH + '/sidebar-basic.png'},
 			{title: mxResources.get('arrows'), id: 'arrows2', image: IMAGE_PATH + '/sidebar-arrows2.png'},
 			{title: mxResources.get('clipart'), id: 'clipart', image: IMAGE_PATH + '/sidebar-clipart.png'},
 			{title: mxResources.get('flowchart'), id: 'flowchart', image: IMAGE_PATH + '/sidebar-flowchart.png'}];
 		
-		if (urlParams['sketch'] == '1')
+		if (Editor.currentTheme == 'sketch' ||
+			Editor.currentTheme == 'simple' ||
+			Editor.currentTheme == 'min')
 		{
 			stdEntries = [{title: mxResources.get('searchShapes'), id: 'search'},
 				{title: mxResources.get('scratchpad'), id: '.scratchpad'}].
@@ -570,22 +593,8 @@
 								{title: 'Web Icons', id: 'webicons', image: IMAGE_PATH + '/sidebar-webIcons.png'},
 								{title: mxResources.get('signs'), id: 'signs', image: IMAGE_PATH + '/sidebar-signs.png'}]}];
 
-		// Uses search.xml index file instead (faster load times)
-		this.addStencilsToIndex = false;
-		
-		// Contains additional tags for shapes
-		this.shapetags = {};
+	};
 
-		// Adds tags from compressed text file for improved searches
-		if (this.tagIndex != null)
-		{
-			this.addTagIndex(Graph.decompress(this.tagIndex));
-			this.tagIndex = null;	
-		}
-		
-		this.initPalettes();
-	}
-	
 	/**
 	 * Overridden to add image export via servlet
 	 */
@@ -1429,28 +1438,26 @@
 		{
 			if (mxUtils.isAncestorNode(this.editorUi.sketchPickerMenuElt, elt))
 			{
-				var off = mxUtils.getOffset(this.editorUi.sketchPickerMenuElt);
-				
-				off.x += this.editorUi.sketchPickerMenuElt.offsetWidth + 4;
-				off.y += elt.offsetTop - bounds.height / 2 + 16;
+				var off = mxUtils.getOffset(elt);
 
-				return off;
+				off.x = elt.parentNode.offsetLeft + elt.parentNode.offsetWidth + 2;
+				off.y += (elt.offsetHeight - bounds.height) / 2;
+				
+				return new mxPoint(Math.max(0, off.x), Math.max(0, off.y));
 			}
-			else
+			else if (this.editorUi.sidebarWindow != null)
 			{
-				var result = sidebarGetTooltipOffset.apply(this, arguments);
 				var off = mxUtils.getOffset(this.editorUi.sidebarWindow.window.div);
+
+				off.x += this.editorUi.sidebarWindow.window.div.offsetWidth + 2;
+				off.y += elt.offsetTop - elt.offsetParent.scrollTop +
+					(elt.offsetHeight - bounds.height) / 2;
 				
-				result.x += off.x - 16;
-				result.y += off.y;
-				
-				return result;
+				return new mxPoint(Math.max(0, off.x), Math.max(0, off.y));
 			}
 		}
-		else
-		{
-			return sidebarGetTooltipOffset.apply(this, arguments);
-		}
+		
+		return sidebarGetTooltipOffset.apply(this, arguments);
 	};
     
 	/**

@@ -317,11 +317,6 @@
 	EditorUi.prototype.timeout = Editor.prototype.timeout;
 
 	/**
-	 * Allows for two buttons in the sidebar footer.
-	 */
-	EditorUi.prototype.sidebarFooterHeight = 38;
-
-	/**
 	 * Specifies the default custom shape style.
 	 */
 	EditorUi.prototype.defaultCustomShapeStyle = 'shape=stencil(tZRtTsQgEEBPw1+DJR7AoN6DbWftpAgE0Ortd/jYRGq72R+YNE2YgTePloEJGWblgA18ZuKFDcMj5/Sm8boZq+BgjCX4pTyqk6ZlKROitwusOMXKQDODx5iy4pXxZ5qTHiFHawxB0JrQZH7lCabQ0Fr+XWC1/E8zcsT/gAi+Subo2/3Mh6d/oJb5nU1b5tW7r2knautaa3T+U32o7f7vZwpJkaNDLORJjcu7t59m2jXxqX9un+tt022acsfmoKaQZ+vhhswZtS6Ne/ThQGt0IV0N3Yyv6P3CeT9/tHO0XFI5cAE=);whiteSpace=wrap;html=1;';
@@ -993,8 +988,7 @@
 				var oldPages = (this.pages != null) ? this.pages.slice() : null;
 				var nodes = node.getElementsByTagName('diagram');
 
-				if (urlParams['pages'] != '0' || nodes.length > 1 ||
-					(nodes.length == 1 && nodes[0].hasAttribute('name')))
+				if (nodes.length > 1 || (nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
 					this.fileNode = node;
 					this.pages = (this.pages != null) ? this.pages : [];
@@ -1016,7 +1010,7 @@
 				else
 				{
 					// Creates tabbed file structure if enforced by URL
-					if (urlParams['pages'] != '0' && this.fileNode == null)
+					if (this.fileNode == null)
 					{
 						this.fileNode = node.ownerDocument.createElement('mxfile');
 						this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
@@ -1031,9 +1025,11 @@
 					if (this.currentPage != null)
 					{
 						this.currentPage.root = this.editor.graph.model.root;
+						graph.model.execute(new ChangePage(this, this.currentPage, this.currentPage, 0));
 					}
 				}
 				
+				// Removes old pages
 				if (oldPages != null)
 				{
 					for (var i = 0; i < oldPages.length; i++)
@@ -1820,8 +1816,7 @@
 			{
 				var nodes = node.getElementsByTagName('diagram');
 	
-				if (urlParams['pages'] != '0' || nodes.length > 1 ||
-					(nodes.length == 1 && nodes[0].hasAttribute('name')))
+				if (nodes.length > 1 || (nodes.length == 1 && nodes[0].hasAttribute('name')))
 				{
 					var selectedPage = null;
 					this.fileNode = node;
@@ -1860,7 +1855,7 @@
 			}
 			
 			// Creates tabbed file structure if enforced by URL
-			if (urlParams['pages'] != '0' && this.fileNode == null && node != null)
+			if (this.fileNode == null && node != null)
 			{
 				this.fileNode = node.ownerDocument.createElement('mxfile');
 				this.currentPage = new DiagramPage(node.ownerDocument.createElement('diagram'));
@@ -3146,7 +3141,7 @@
 	 */
 	EditorUi.prototype.repositionLibrary = function(nextChild) 
 	{
-	    var c = this.sidebar.container;
+	    var c = this.sidebar.getEntryContainer();
 	    
 	    if (nextChild == null)
 	    {
@@ -3767,7 +3762,8 @@
 			}
 			else if (img.xml != null)
 			{
-				var cells = this.stringToCells(Graph.decompress(img.xml));
+				var cells = this.stringToCells((img.xml.charAt(0) == '<') ?
+					img.xml : Graph.decompress(img.xml));
 				
 				if (cells.length > 0)
 				{
@@ -3895,54 +3891,6 @@
 		}));
 		
 		return format;
-	};
-	
-	/**
-	 * Hook for sidebar footer container.
-	 */
-	EditorUi.prototype.createSidebarFooterContainer = function()
-	{
-		if (urlParams['embedInline'] != '1')
-		{
-			var div =  this.createDiv('geSidebarContainer geSidebarFooter');
-			div.style.position = 'absolute';
-			div.style.overflow = 'hidden';
-			
-			var elt2 = document.createElement('a');
-			elt2.className = 'geTitle';
-			elt2.style.color = '#DF6C0C';
-			elt2.style.fontWeight = 'bold';
-			elt2.style.height = '100%';
-			elt2.style.paddingTop = '9px';
-			elt2.innerHTML = '<span>+</span>';
-			
-			var span = elt2.getElementsByTagName('span')[0];
-			span.style.fontSize = '18px';
-			span.style.marginRight = '5px';
-
-			mxUtils.write(elt2, mxResources.get('moreShapes') + '...');
-
-			// Prevents focus
-			mxEvent.addListener(elt2, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-				mxUtils.bind(this, function(evt)
-			{
-				evt.preventDefault();
-			}));
-			
-			mxEvent.addListener(elt2, 'click', mxUtils.bind(this, function(evt)
-			{
-				this.actions.get('shapes').funct();
-				mxEvent.consume(evt);
-			}));
-			
-			div.appendChild(elt2);
-			
-			return div;
-		}
-		else
-		{
-			return null;
-		}
 	};
 	
 	/**
@@ -9742,8 +9690,21 @@
 					}
 			
 					this.addMenuItems(menu, ['-', 'cut', 'copy', 'copyAsImage',
-						'duplicate', 'lockUnlock'], null, evt);
-					
+						'duplicate', '-'], null, evt);
+
+					if (!this.isShowCellEditItems())
+					{
+						var item = this.addMenuItem(menu, 'delete');
+
+						if (item != null && item.firstChild != null &&
+							item.firstChild.nextSibling != null)
+						{
+							item.firstChild.nextSibling.style.color = 'red';
+						}
+					}
+
+					this.addMenuItems(menu, ['lockUnlock'], null, evt);
+
 					// Shows crop option for images
 					if (!this.isShowCellEditItems() && graph.getSelectionCount() == 1 &&
 						graph.isCellEditable(cell) && graph.getModel().isVertex(cell))
@@ -10322,6 +10283,11 @@
 		this.addListener('sketchModeChanged', themeChangeListener);
 		this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 		{
+			if (this.sidebar != null)
+			{
+				this.sidebar.updateEntries();
+			}
+
 			this.updateButtonContainer();
 			this.refresh();
 		}));
@@ -10912,11 +10878,6 @@
 				{
 					if (isSimple(curr) && this.isDefaultTheme(value))
 					{
-						if (this.sidebarFooterContainer != null)
-						{
-							this.sidebarFooterContainer.style.display = 'block';
-						}
-						
 						this.menubarContainer.style.display = 'block';
 						this.toolbarContainer.style.display = 'block';
 						this.tabContainer.style.display = 'block';
@@ -10927,11 +10888,6 @@
 					}
 					else if (this.isDefaultTheme(curr) && isSimple(value))
 					{
-						if (this.sidebarFooterContainer != null)
-						{
-							this.sidebarFooterContainer.style.display = 'none';
-						}
-						
 						this.menubarContainer.style.display = 'none';
 						this.toolbarContainer.style.display = 'none';
 						this.tabContainer.style.display = 'none';
@@ -11114,7 +11070,7 @@
 			this.createShapesWindow();
 			this.sidebarContainer.style.left = '0px';
 			this.sidebarContainer.style.top = '0px';
-			this.sidebarContainer.style.bottom = '63px';
+			this.sidebarContainer.style.bottom = '32px';
 			this.sidebarContainer.style.width = '100%';
 		}
 
@@ -12088,30 +12044,13 @@
 	 */
 	EditorUi.prototype.createShapesPanel = function(container)
 	{
-		var div = document.createElement('div');
-		div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
-			'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
-		div.className = 'geTitle';
-		var span = document.createElement('span');
-		span.style.fontSize = '18px';
-		span.style.marginRight = '5px';
-		span.innerHTML = '+';
-		div.appendChild(span);
-		mxUtils.write(div, mxResources.get('moreShapes'));
-		container.appendChild(div);
-		
-		mxEvent.addListener(div, 'click', mxUtils.bind(this, function()
-		{
-			this.actions.get('shapes').funct();
-		}));
-
 		var addMenu = mxUtils.bind(this, function(id, label)
 		{
 			var elt = this.createMenu(id, null, 'geTitle');
 
-			elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;' +
-				'width:50%;height:24px;bottom:0px;text-align:center;cursor:pointer;' +
-				'padding:6px 0 0 0;cusor:pointer;';
+			elt.style.cssText = 'position:absolute;border-width:1px;cusor:pointer;border-style:none;' +
+				'height:24px;bottom:0px;text-align:center;padding:6px 6px 0 6px;border-top-style:solid;' +
+				'width:50%;height:32px;box-sizing:border-box;';
 			container.appendChild(elt);
 
 			return elt;
@@ -12120,11 +12059,11 @@
 		if (Editor.enableCustomLibraries && (urlParams['embed'] != '1' || urlParams['libraries'] == '1'))
 		{
 			// Defined in native apps together with openLibrary
-			if (this.actions.get('newLibrary') != null)
+			if (true)//this.actions.get('newLibrary') != null)
 			{
 				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
-					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
+				div.style.cssText = 'position:absolute;left:0px;width:50%;border-width:1px;border-style:none;height:30px;' +
+					'bottom:0px;text-align:center;cursor:pointer;padding:0px;border-bottom:none;border-top-style:solid;';
 				div.className = 'geTitle';
 				var span = document.createElement('span');
 				span.style.cssText = 'position:relative;top:6px;';
@@ -12132,33 +12071,25 @@
 				div.appendChild(span);
 				container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
+				// mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
 				
 				var div = div.cloneNode(false);
 				div.style.left = '50%';
-				div.style.borderLeft = '1px solid lightgray';
+				div.style.borderLeftStyle = 'solid';
 				var span = span.cloneNode(false);
 				mxUtils.write(span, mxResources.get('openLibrary'));
 				div.appendChild(span);
 				container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
+				// mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
 			}
 			else
 			{
 				var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
 				elt.style.left = '0';
 				
 				var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
-				elt.style.borderLeft = '1px solid lightgray';
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
+				elt.style.borderLeftStyle = 'solid';
 				elt.style.left = '50%';
 			}
 		}
@@ -12256,7 +12187,7 @@
 			'html body .geStatus { overflow: hidden; text-overflow: ellipsis; }' +
 			'html body .geStatus > *:not([class]) { vertical-align:top; }' +
 			'html > body > div > a.geItem { background-color: #ffffff; color: #707070; border-top: 1px solid lightgray; border-left: 1px solid lightgray; }' +
-			'html body .geMenubarContainer { border-bottom:1px solid lightgray;background-color:#ffffff; }' +
+			'html body .geMenubarContainer { border-bottom:1px solid lightgray;background-color:#ffffff;display:inline-flex;align-items;center; }' +
 			'html body .mxWindow button.geBtn { font-size:12px !important; margin-left: 0; }' +
 			'html body .geSidebarContainer *:not(svg *) { font-size:9pt; }' +
 			'html body table.mxWindow td.mxWindowPane div.mxWindowPane *:not(svg *) { font-size:9pt; }' +
@@ -12328,9 +12259,10 @@
 	/**
 	 * Returns the current state of the dark mode.
 	 */
-	EditorUi.prototype.isAutoDarkMode = function()
+	EditorUi.prototype.isAutoDarkMode = function(ignoreUrl)
 	{
-		return urlParams['dark'] == 'auto' || (this.isSettingsEnabled() &&
+		return (!ignoreUrl && urlParams['dark'] == 'auto') ||
+			(this.isSettingsEnabled() &&
 			mxSettings.settings.darkMode == 'auto');
 	};
 	
@@ -14007,11 +13939,6 @@
 			Editor.currentTheme != 'sketch' && Editor.currentTheme != 'min')
 			? '' : 'none';
 		this.editor.graph.setEnabled(enabled);
-
-		if (this.sidebarFooterContainer != null)
-		{
-			this.sidebarFooterContainer.style.display = (enabled) ? '' : 'none';
-		}
 		
 		if (this.tabContainer != null)
 		{
@@ -16361,7 +16288,9 @@
 		this.actions.get('zoomOut').setEnabled(active);
 		this.actions.get('smartFit').setEnabled(active);
 		this.actions.get('resetView').setEnabled(active);
-		this.actions.get('toggleDarkMode').setEnabled(Editor.currentTheme != 'atlas');
+		this.actions.get('darkMode').setEnabled(Editor.currentTheme != 'atlas');
+		this.actions.get('lightMode').setEnabled(Editor.currentTheme != 'atlas');
+		this.actions.get('autoMode').setEnabled(Editor.currentTheme != 'atlas');
 		
 		// Updates undo history states
 		this.actions.get('undo').setEnabled(this.canUndo() && editable);

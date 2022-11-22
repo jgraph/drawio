@@ -15,6 +15,7 @@ addLayer=Přidat vrstvu
 addProperty=Přidat vlastnost
 address=Adresa
 addToExistingDrawing=Přidat do existujícího výkresu
+addToScratchpad=Add to Scratchpad
 addWaypoint=Přidat průchozí bod
 adjustTo=Přizpůsobit
 advanced=Pokročilé

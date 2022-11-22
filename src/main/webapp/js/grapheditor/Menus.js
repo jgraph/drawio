@@ -1507,12 +1507,8 @@ Menus.prototype.addPopupMenuEditItems = function(menu, cell, evt)
 	}
 	else
 	{
-		if (this.isShowCellEditItems())
-		{
-			this.addMenuItems(menu, ['delete', '-', ], null, evt);
-		}
-
-		this.addMenuItems(menu, ['cut', 'copy', 'duplicate', 'lockUnlock'], null, evt);
+		this.addMenuItems(menu, ['cut', 'copy', 'duplicate',
+			'-', 'delete', 'lockUnlock'], null, evt);
 	}
 };
 

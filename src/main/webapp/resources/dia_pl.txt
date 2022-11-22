@@ -15,6 +15,7 @@ addLayer=Dodaj warstwę
 addProperty=Dodaj atrybut
 address=Adres
 addToExistingDrawing=Dodaj do istniejącego rysunku
+addToScratchpad=Add to Scratchpad
 addWaypoint=Dodaj punkt trasy
 adjustTo=Dostosuj do
 advanced=Zaawansowane

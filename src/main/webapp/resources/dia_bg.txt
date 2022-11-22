@@ -15,6 +15,7 @@ addLayer=Добавяне на слой
 addProperty=Добавяне на свойство
 address=Адрес
 addToExistingDrawing=Добавяне към съществуващ чертеж
+addToScratchpad=Add to Scratchpad
 addWaypoint=Добавяне на ориентир
 adjustTo=Нагласи до
 advanced=Разширени

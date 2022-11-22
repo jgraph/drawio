@@ -402,10 +402,10 @@ Format.prototype.immediateRefresh = function()
 		arrangePanel.style.display = 'none';
 		this.panels.push(new ArrangePanel(this, ui, arrangePanel));
 		this.container.appendChild(arrangePanel);
-		
+
 		if (ss.cells.length > 0)
 		{
-			addClickHandler(label2, textPanel, idx++);
+			addClickHandler(label2, textPanel, idx + 1);
 		}
 		else
 		{
@@ -1535,9 +1535,11 @@ ArrangePanel.prototype.init = function()
 		}
 
 		this.container.appendChild(this.addTable(this.createPanel()));
-		this.container.appendChild(this.addGroupOps(this.createPanel()));
 	}
 	
+	// Allows to lock/unload button to be added
+	this.container.appendChild(this.addGroupOps(this.createPanel()));
+
 	if (ss.containsLabel)
 	{
 		// Adds functions from hidden style format panel
@@ -1799,7 +1801,7 @@ ArrangePanel.prototype.addGroupOps = function(div)
 		count += this.addActions(div, ['group', 'ungroup', 'copySize', 'pasteSize']) +
 			this.addActions(div, ['removeFromGroup']);
 	}
-	
+
 	var copyBtn = null;
 
 	if (ss.cells.length == 1 && ss.cells[0].value != null && !isNaN(ss.cells[0].value.nodeType))
@@ -1874,7 +1876,9 @@ ArrangePanel.prototype.addGroupOps = function(div)
 			' Shift+Click to Clear Anchor Points');
 		count++;
 	}
-	
+
+	count += this.addActions(div, ['lockUnlock']);
+
 	if (count == 0)
 	{
 		div.style.display = 'none';
@@ -5785,7 +5789,6 @@ DiagramStylePanel.prototype.init = function()
 {
 	var ui = this.editorUi;
 	var editor = ui.editor;
-	var graph = editor.graph;
 
 	this.darkModeChangedListener = mxUtils.bind(this, function()
 	{
@@ -6284,7 +6287,7 @@ DiagramStylePanel.prototype.addView = function(div)
 		if (pageCount < 15)
 		{
 			var left = document.createElement('div');
-			left.style.className = 'geAdaptiveAsset';
+			left.className = 'geAdaptiveAsset';
 			left.style.position = 'absolute';
 			left.style.left = '0px';
 			left.style.top = '0px';

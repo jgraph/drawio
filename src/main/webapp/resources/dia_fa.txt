@@ -15,6 +15,7 @@ addLayer=‫افزودن لایه‬
 addProperty=‫افزودن ویژگی‬
 address=‫آدرس‬
 addToExistingDrawing=‫افزودن به طراحی موجود‬
+addToScratchpad=Add to Scratchpad
 addWaypoint=‫افزودن نقطه مسیر‬
 adjustTo=‫تنظیم به‬
 advanced=‫پیشرفته‬

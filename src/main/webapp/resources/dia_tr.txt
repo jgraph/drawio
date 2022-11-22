@@ -15,6 +15,7 @@ addLayer=Katman ekle
 addProperty=Özellik ekle
 address=Adres
 addToExistingDrawing=Mevcut çizime ekle
+addToScratchpad=Add to Scratchpad
 addWaypoint=Ara nokta ekle
 adjustTo=Ayarla
 advanced=Gelişmiş

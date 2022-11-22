@@ -15,6 +15,7 @@ addLayer=Lägg till lager
 addProperty=Lägg till egenskap
 address=Adress
 addToExistingDrawing=Lägg till på befintlig ritning
+addToScratchpad=Add to Scratchpad
 addWaypoint=Lägg till brytpunkt
 adjustTo=Justera till
 advanced=Avancerat

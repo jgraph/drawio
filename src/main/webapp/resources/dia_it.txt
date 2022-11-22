@@ -15,6 +15,7 @@ addLayer=Aggiungi livello
 addProperty=Aggiungi proprietà
 address=Indirizzo
 addToExistingDrawing=Aggiungi al disegno esistente
+addToScratchpad=Add to Scratchpad
 addWaypoint=Aggiungi punto di passaggio
 adjustTo=Adatta a
 advanced=Avanzate

@@ -132,6 +132,11 @@
 	Editor.enableCustomLibraries = true;
 	
 	/**
+	 * Not yet implemented. Reading uncompressed supported.
+	 */
+	Editor.enableUncompressedLibraries = false;
+	
+	/**
 	 * Specifies if custom properties should be enabled.
 	 */
 	Editor.enableCustomProperties = true;
@@ -4545,8 +4550,9 @@
 		{
 			var sstate = this.editorUi.getSelectionState();
 
-			if (this.defaultColorSchemes != null && sstate.style.shape != 'image' &&
-				!sstate.containsLabel && sstate.cells.length > 0)
+			if (this.defaultColorSchemes != null && this.defaultColorSchemes.length > 0 &&
+				sstate.style.shape != 'image' && !sstate.containsLabel &&
+				sstate.cells.length > 0)
 			{
 				this.container.appendChild(this.addStyles(this.createPanel()));
 			}
@@ -5426,7 +5432,8 @@
 
 			if (this.format.currentScheme == null)
 			{
-				setScheme(Editor.isDarkMode() ? 1 : (urlParams['sketch'] == '1' ? 5 : 0));
+				setScheme(Math.min(dots.length - 1, Editor.isDarkMode()
+					? 1 : (urlParams['sketch'] == '1' ? 5 : 0)));
 			}
 			else
 			{

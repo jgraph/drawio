@@ -168,6 +168,10 @@ html .geEditor ::-webkit-scrollbar-thumb {
 html .geEditor ::-webkit-scrollbar-thumb:hover, .geHsplit:hover, .geVsplit:hover {
 	background-color:#a0a0a0;
 }
+html body a.geStatus .geStatusAlertOrange {
+	background-color:rgb(187 103 0);
+	border:rgb(240, 135, 5);
+}
 html body a.geStatus .geStatusAlert {
 	background-color:#a20025;
 	border:1px solid #bd002b;

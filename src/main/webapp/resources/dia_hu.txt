@@ -15,6 +15,7 @@ addLayer=Réteget hozzáad
 addProperty=Tulajdonság hozzáadás
 address=Cím
 addToExistingDrawing=Add hozzá a meglévő rajzhoz
+addToScratchpad=Add to Scratchpad
 addWaypoint=Útpont hozzáadás
 adjustTo=Módosít
 advanced=Haladó

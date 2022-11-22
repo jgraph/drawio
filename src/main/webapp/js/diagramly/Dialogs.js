@@ -8460,7 +8460,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 
 			// Redirects scratchpad and search entries
-			if (urlParams['sketch'] == '1' && editorUi.isSettingsEnabled())
+			if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'simple') &&
+				editorUi.isSettingsEnabled())
 			{
 				var idx = mxUtils.indexOf(libs, '.scratchpad');
 
@@ -9542,6 +9543,16 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 
 	header.appendChild(nameInput);
 
+	if (Editor.enableUncompressedLibraries)
+	{
+		nameInput.style.width = '420px';
+		var compressedInput = document.createElement('input');
+		compressedInput.setAttribute('type', 'checkbox');
+		compressedInput.style.marginRight = '10px';
+		header.appendChild(compressedInput);
+		mxUtils.write(header, mxResources.get('compressed'));
+	}
+
 	var div = document.createElement('div');
 	div.style.borderWidth = '1px 0px 1px 0px';
 	div.style.borderColor = '#d3d3d3';
@@ -9681,7 +9692,8 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					}
 					else if (img != null)
 					{
-						var cells = editorUi.stringToCells(Graph.decompress(img.xml));
+						var cells = editorUi.stringToCells((img.xml.charAt(0) == '<') ?
+							img.xml : Graph.decompress(img.xml));
 						
 						if (cells.length > 0)
 						{
@@ -10064,7 +10076,6 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				}
 				else
 				{
-
 					editorUi.spinner.stop();
 					editorUi.showError(mxResources.get('error'), mxResources.get('notInOffline'));
 				}
@@ -10132,7 +10143,7 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 	var btns = document.createElement('div');
 	btns.style.textAlign = 'right';
 	btns.style.marginTop = '20px';
-	
+
 	var cancelBtn = mxUtils.button(mxResources.get('cancel'), function()
 	{
 		editorUi.hideDialog(true);

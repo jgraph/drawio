@@ -15,6 +15,7 @@ addLayer=Thêm lớp
 addProperty=Thêm thuộc tính
 address=Địa chỉ
 addToExistingDrawing=Thêm vào bản vẽ có sẵn
+addToScratchpad=Add to Scratchpad
 addWaypoint=Thêm điểm tham chiếu
 adjustTo=Điều chỉnh đến
 advanced=Nâng cao

@@ -15,6 +15,7 @@ addLayer=Tilføj lag
 addProperty=Tilføj egenskab
 address=Adresse
 addToExistingDrawing=Føj til eksisterende tegning
+addToScratchpad=Add to Scratchpad
 addWaypoint=Tilføj støttepunkt
 adjustTo=Juster til
 advanced=Avanceret

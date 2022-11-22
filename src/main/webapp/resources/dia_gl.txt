@@ -15,6 +15,7 @@ addLayer=Engadir capa
 addProperty=Engadir propiedade
 address=Enderezo
 addToExistingDrawing=Engadir ao deseño existente
+addToScratchpad=Add to Scratchpad
 addWaypoint=Engadir punto de paso
 adjustTo=Axustar a
 advanced=Avanzado

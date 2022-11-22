@@ -8,6 +8,60 @@ Editor.initMath((remoteMath? 'https://app.diagrams.net/' : '') + 'math/es5/start
 
 function render(data)
 {
+	if (data.csv != null)
+	{
+		// CSV loads orgChart asynchronously and needs mxscript
+		window.mxscript = function (src, onLoad, id)
+		{
+			var s = document.createElement('script');
+			s.setAttribute('type', 'text/javascript');
+			s.setAttribute('defer', 'true');
+			s.setAttribute('src', src);
+
+			if (id != null)
+			{
+				s.setAttribute('id', id);
+			}
+			
+			if (onLoad != null)
+			{
+				var r = false;
+			
+				s.onload = s.onreadystatechange = function()
+				{
+					if (!r && (!this.readyState || this.readyState == 'complete'))
+					{
+						r = true;
+						onLoad();
+					}
+				};
+			}
+			
+			var t = document.getElementsByTagName('script')[0];
+			
+			if (t != null)
+			{
+				t.parentNode.insertBefore(s, t);
+			}
+		};
+
+		//Adjust some functions such that it can be instanciated without UI
+		EditorUi.prototype.createUi = function(){};
+		EditorUi.prototype.addTrees = function(){};
+		EditorUi.prototype.updateActionStates = function(){};
+		EditorUi.prototype.onBeforeUnload = function(){}; //Prevent unload message
+		var editorUi = new EditorUi();
+		
+		editorUi.importCsv(data.csv, function()
+		{
+			data.xml = mxUtils.getXml(editorUi.editor.getGraphXml());
+			delete data.csv;
+			render(data);
+		});
+
+		return;
+	}
+
 	var autoScale = false;
 	
 	if (data.scale == 'auto')

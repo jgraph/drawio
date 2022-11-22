@@ -18,6 +18,22 @@ function Sidebar(editorUi, container)
 	this.graph.container.style.visibility = 'hidden';
 	this.graph.foldingEnabled = false;
 
+	// Wrapper for entries and footer
+	this.container.style.overflow = 'visible';
+	this.wrapper = document.createElement('div');
+	this.wrapper.style.position = 'relative';
+	this.wrapper.style.overflowX = 'hidden';
+	this.wrapper.style.overflowY = 'auto';
+	this.wrapper.style.left = '0px';
+	this.wrapper.style.top = '0px';
+	this.wrapper.style.right = '0px';
+	this.wrapper.style.boxSizing = 'border-box';
+	this.wrapper.style.maxHeight = 'calc(100% - ' + this.moreShapesHeight + 'px)';
+	this.container.appendChild(this.wrapper);
+
+	var title = this.createMoreShapes();
+	this.container.appendChild(title);
+
 	document.body.appendChild(this.graph.container);
 	
 	this.pointerUpHandler = mxUtils.bind(this, function()
@@ -194,6 +210,11 @@ Sidebar.prototype.thumbPadding = (document.documentMode >= 5) ? 2 : 3;
  */
 Sidebar.prototype.thumbBorder = 2;
 
+/**
+ * Allows for two buttons in the sidebar footer.
+ */
+Sidebar.prototype.moreShapesHeight = 52;
+
 /*
  * Experimental smaller sidebar entries
  */
@@ -261,9 +282,25 @@ Sidebar.prototype.refresh = function()
 {
 	var graph = this.editorUi.editor.graph;
 	this.graph.stylesheet.styles = mxUtils.clone(graph.stylesheet.styles);
-	this.container.innerText = '';
+	this.wrapper.innerText = '';
 	this.palettes = new Object();
 	this.init();
+};
+
+/**
+ * Adds the general palette to the sidebar.
+ */
+Sidebar.prototype.getEntryContainer = function()
+{
+	return this.wrapper;
+};
+
+/**
+ * Adds the general palette to the sidebar.
+ */
+Sidebar.prototype.appendChild = function(child)
+{
+	this.wrapper.appendChild(child);
 };
 
 /**
@@ -274,12 +311,59 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	var b = document.body;
 	var d = document.documentElement;
 	var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
-	var width = bounds.width + 2 * this.tooltipBorder + 4;
 	var height = bounds.height + 2 * this.tooltipBorder;
 	
-	return new mxPoint(this.container.offsetWidth + this.editorUi.splitSize + 10 + this.editorUi.container.offsetLeft,
+	return new mxPoint(this.container.offsetWidth + this.editorUi.splitSize + 4 + this.editorUi.container.offsetLeft,
 		Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
-			this.container.offsetTop + elt.offsetTop - this.container.scrollTop - height / 2 + 16))));
+			this.container.offsetTop + elt.offsetTop - this.wrapper.scrollTop - height / 2 + 16))));
+};
+
+/**
+ * Adds all palettes to the sidebar.
+ */
+Sidebar.prototype.createMoreShapes = function()
+{
+	var div =  this.editorUi.createDiv('geSidebarContainer geSidebarFooter');
+	div.style.position = 'absolute';
+	div.style.overflow = 'hidden';
+	div.style.display = 'inline-flex';
+	div.style.alignItems = 'center';
+	div.style.justifyContent = 'center';
+	div.style.width = '100%';
+	div.style.marginTop = '-1px';
+	div.style.height = this.moreShapesHeight+ 'px';
+	
+	var title = document.createElement('button');
+	title.className = 'geBtn gePrimaryBtn';
+	title.style.display = 'inline-flex';
+	title.style.alignItems = 'center';
+	title.style.whiteSpace = 'nowrap';
+	title.style.padding = '8px';
+	title.style.margin = '0px';
+	title.innerHTML = '<span>+</span>';
+	
+	var span = title.getElementsByTagName('span')[0];
+	span.style.fontSize = '18px';
+	span.style.marginRight = '5px';
+
+	mxUtils.write(title, mxResources.get('moreShapes'));
+
+	// Prevents focus
+	mxEvent.addListener(title, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+		mxUtils.bind(this, function(evt)
+	{
+		evt.preventDefault();
+	}));
+	
+	mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
+	{
+		this.editorUi.actions.get('shapes').funct();
+		mxEvent.consume(evt);
+	}));
+	
+	div.appendChild(title);
+	
+	return div;
 };
 
 /**
@@ -814,7 +898,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 {
 	var elt = document.createElement('div');
 	elt.style.visibility = 'hidden';
-	this.container.appendChild(elt);
+	this.appendChild(elt);
 		
 	var div = document.createElement('div');
 	div.className = 'geSidebar';
@@ -1066,42 +1150,49 @@ Sidebar.prototype.addSearchPalette = function(expand)
 			mxEvent.consume(evt);
 		}
 	}));
-	
-	mxEvent.addListener(input, 'keyup', mxUtils.bind(this, function(evt)
+
+	var searchChanged = mxUtils.bind(this, function()
 	{
-		if (input.value == '')
+		window.setTimeout(mxUtils.bind(this, function()
 		{
-			cross.setAttribute('src', Sidebar.prototype.searchImage);
-			cross.setAttribute('title', mxResources.get('search'));
-		}
-		else
-		{
-			cross.setAttribute('src', Dialog.prototype.closeImage);
-			cross.setAttribute('title', mxResources.get('reset'));
-		}
-		
-		if (input.value == '')
-		{
-			complete = true;
-			button.style.display = 'none';
-		}
-		else if (input.value != searchTerm)
-		{
-			button.style.display = 'none';
-			complete = false;
-		}
-		else if (!active)
-		{
-			if (complete)
+			if (input.value == '')
 			{
-				button.style.display = 'none';
+				cross.setAttribute('src', Sidebar.prototype.searchImage);
+				cross.setAttribute('title', mxResources.get('search'));
 			}
 			else
 			{
-				button.style.display = '';
+				cross.setAttribute('src', Dialog.prototype.closeImage);
+				cross.setAttribute('title', mxResources.get('reset'));
 			}
-		}
-	}));
+			
+			if (input.value == '')
+			{
+				complete = true;
+				button.style.display = 'none';
+			}
+			else if (input.value != searchTerm)
+			{
+				button.style.display = 'none';
+				complete = false;
+			}
+			else if (!active)
+			{
+				if (complete)
+				{
+					button.style.display = 'none';
+				}
+				else
+				{
+					button.style.display = '';
+				}
+			}
+		}), 0);
+	});
+	
+	mxEvent.addListener(input, 'keyup', searchChanged);
+	mxEvent.addListener(input, 'paste', searchChanged);
+	mxEvent.addListener(input, 'cut', searchChanged);
 
     // Workaround for blocked text selection in Editor
     mxEvent.addListener(input, 'mousedown', function(evt)
@@ -1127,7 +1218,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 
 	var outer = document.createElement('div');
     outer.appendChild(div);
-    this.container.appendChild(outer);
+    this.appendChild(outer);
 	
     // Keeps references to the DOM nodes
 	this.palettes['search'] = [elt, outer];
@@ -3643,7 +3734,7 @@ Sidebar.prototype.addPaletteFunctions = function(id, title, expanded, fns)
 Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 {
 	var elt = this.createTitle(title);
-	this.container.appendChild(elt);
+	this.appendChild(elt);
 	
 	var div = document.createElement('div');
 	div.className = 'geSidebar';
@@ -3668,7 +3759,7 @@ Sidebar.prototype.addPalette = function(id, title, expanded, onInit)
 	
 	var outer = document.createElement('div');
     outer.appendChild(div);
-    this.container.appendChild(outer);
+    this.appendChild(outer);
     
     // Keeps references to the DOM nodes
     if (id != null)

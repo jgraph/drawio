@@ -15,6 +15,7 @@ addLayer=Lisää taso
 addProperty=Lisää ominaisuus
 address=Osoite
 addToExistingDrawing=Lisää olemassa olevaan piirustukseen
+addToScratchpad=Add to Scratchpad
 addWaypoint=Lisää reittipiste
 adjustTo=Sovita
 advanced=Edistynyt

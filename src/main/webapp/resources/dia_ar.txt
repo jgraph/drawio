@@ -15,6 +15,7 @@ addLayer=‫إضافة طبقة‬
 addProperty=‫إضافة خاصية‬
 address=‫عنوان‬
 addToExistingDrawing=‫أضف إلى الرسم الحالي‬
+addToScratchpad=Add to Scratchpad
 addWaypoint=‫أضف نقطة على المسار‬
 adjustTo=‫ضبط الي‬
 advanced=‫متقدم‬
