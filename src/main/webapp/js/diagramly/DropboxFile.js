@@ -92,6 +92,24 @@ DropboxFile.prototype.isRevisionHistorySupported = function()
 };
 
 /**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+DropboxFile.prototype.getFileUrl = function()
+{
+	return 'https://www.dropbox.com/home/Apps' + this.ui.dropbox.appPath + this.stat.path_display;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+DropboxFile.prototype.getFolderUrl = function()
+{
+	var url = this.getFileUrl();
+				
+	return url.substring(0, url.lastIndexOf('/'));
+};
+
+/**
  * Hook for subclassers.
  */
 DropboxFile.prototype.getRevisions = function(success, error)

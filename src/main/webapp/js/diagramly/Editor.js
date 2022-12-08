@@ -773,7 +773,7 @@
 	 * Uses RoughJs for drawing comic shapes.
 	 */
 	(function()
-	{	
+	{
 		/**
 		 * Adds handJiggle style (jiggle=n sets jiggle)
 		 */
@@ -907,11 +907,21 @@
 			
 			if (fillStyle == 'auto')
 			{
-				var bg = mxUtils.hex2rgb((this.shape.state != null) ?
-					this.shape.state.view.graph.shapeBackgroundColor :
-					(Editor.isDarkMode() ? Editor.darkColor : '#ffffff'));
-				fillStyle = (style.fill != null && (gradient != null || (bg != null &&
-					style.fill == bg))) ? 'solid' : defs['fillStyle'];
+				// One of the following backgrounds for solid fill
+				var bg = [mxUtils.hex2rgb('#ffffff')];
+				
+				if (this.shape.state != null)
+				{
+					bg.push(mxUtils.hex2rgb(this.shape.state.view.graph.shapeBackgroundColor));
+				}
+
+				if (Editor.isDarkMode())
+				{
+					bg.push(mxUtils.hex2rgb(Editor.darkColor));
+				}
+
+				fillStyle = (style.fill != null && (gradient != null || mxUtils.indexOf(
+					bg, mxUtils.hex2rgb(style.fill)) >= 0)) ? 'solid' : defs['fillStyle'];
 			}
 			
 			style['fillStyle'] = fillStyle;

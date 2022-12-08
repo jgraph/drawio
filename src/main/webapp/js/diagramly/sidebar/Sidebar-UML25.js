@@ -416,27 +416,26 @@
 				   	'State1', 'State', null, null, dt + 'state'),
 		 	this.addEntry(dt + 'state entry point', function()
 			{
-		 		var cell1 = new mxCell('State1', new mxGeometry(40, 0, 140, 50),
+		 		var cell1 = new mxCell('State1', new mxGeometry(0, 0, 140, 50),
 		 			'shape=umlState;rounded=1;verticalAlign=middle;align=center;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefEntry;boundedLbl=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Entry1', 
-		 				new mxGeometry(0, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
-		 		
-				return sb.createVertexTemplateFromCells([cell1, field1], 180, 60, 'State with entry point'); 
+				return sb.createVertexTemplateFromCells([cell1], 140, 60, 'State with entry point'); 
 			}),
 		 	this.addEntry(dt + 'state exit point', function()
 			{
-		 		var cell1 = new mxCell('State1', new mxGeometry(40, 0, 140, 50),
+		 		var cell1 = new mxCell('State1', new mxGeometry(0, 0, 140, 50),
 		 			'shape=umlState;rounded=1;verticalAlign=middle;spacingTop=0;absoluteArcSize=1;arcSize=10;umlStateConnection=connPointRefExit;boundedLbl=1;');
 				cell1.vertex = true;
 		 		var field1 = new mxCell('Exit1', 
-		 				new mxGeometry(0, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
+		 				new mxGeometry(-40, 40, 50, 20), 'text;verticalAlign=middle;align=center;');
 		 		field1.vertex = true;
 		 		cell1.insert(field1);
 		 		
-				return sb.createVertexTemplateFromCells([cell1, field1], 180, 60, 'State with exit point'); 
+				return sb.createVertexTemplateFromCells([cell1], 140, 60, 'State with exit point'); 
 			}),
 			this.createVertexTemplateEntry('ellipse;fillColor=strokeColor;', 30, 30,
 				   	'', 'Initial preudostate / node', null, null, dt + 'initial pseudostate'),

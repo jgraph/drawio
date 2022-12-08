@@ -26,12 +26,9 @@ OneDriveFile.prototype.isRealtimeSupported = function()
 };
 
 /**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
+ * Returns true if copy, export and print are not allowed for this file.
  */
-OneDriveFile.prototype.share = function()
+OneDriveFile.prototype.getFileUrl = function()
 {
 	var url = this.meta.webUrl;
 	url = url.substring(0, url.lastIndexOf('/'));
@@ -81,8 +78,35 @@ OneDriveFile.prototype.share = function()
 			// ignore
 		}
 	}
+
+	return url;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+OneDriveFile.prototype.getFolderUrl = function()
+{
+	var url = this.meta.webUrl;
+	var name = encodeURIComponent(this.meta.name);
 	
-	this.ui.editor.graph.openLink(url);
+	if (url.substring(url.length - name.length, url.length) == name)
+	{
+		url = url.substring(0, url.length - name.length);
+	}
+
+	return url;
+};
+
+/**
+ * Translates this point by the given vector.
+ * 
+ * @param {number} dx X-coordinate of the translation.
+ * @param {number} dy Y-coordinate of the translation.
+ */
+OneDriveFile.prototype.share = function()
+{
+	this.ui.editor.graph.openLink(this.getFileUrl());
 };
 
 /**

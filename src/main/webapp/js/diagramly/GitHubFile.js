@@ -54,6 +54,26 @@ GitHubFile.prototype.getHash = function()
 /**
  * Returns true if copy, export and print are not allowed for this file.
  */
+GitHubFile.prototype.getFileUrl = function()
+{
+	return 'https://github.com/' + encodeURIComponent(this.meta.org) + '/' +
+		encodeURIComponent(this.meta.repo) + '/blob/' +
+		this.meta.ref + '/' + this.meta.path;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+GitHubFile.prototype.getFolderUrl = function()
+{
+	return 'https://github.com/' + encodeURIComponent(this.meta.org) + '/' +
+		encodeURIComponent(this.meta.repo) + '/tree/' + this.meta.ref + '/' +
+		this.meta.path.split('/').slice(0, -1).join('/');
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
 GitHubFile.prototype.getPublicUrl = function(fn)
 {
 	if (this.meta.download_url != null)

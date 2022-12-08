@@ -1305,7 +1305,6 @@
 						{
 							elt.style.right = '95px';
 							elt.style.webkitAppRegion = 'no-drag';
-							icon.style.webkitAppRegion = 'no-drag';
 						}
 
 						document.body.appendChild(elt);
@@ -3124,7 +3123,12 @@
 
 		editorUi.actions.put('openFolder', new Action(mxResources.get('openIt', [mxResources.get('folder')]) + '...', function(evt, trigger)
 		{
-			editorUi.appIconClicked(trigger);
+			var file = editorUi.getCurrentFile();
+
+			if (file != null)
+			{
+				editorUi.openLink(file.getFolderUrl());
+			}
 		}));
 		
 		editorUi.actions.addAction('moveToFolder...', mxUtils.bind(this, function()
@@ -4562,25 +4566,34 @@
 					editorUi.menus.addMenuItems(menu, ['synchronize'], parent);
 				}
 
-				if (file != null && file.constructor == DriveFile)
+				editorUi.menus.addMenuItems(menu, ['-', 'rename'], parent);
+
+				if (editorUi.isOfflineApp())
 				{
-					editorUi.menus.addMenuItems(menu, ['-', 'rename', 'makeCopy',
-						'-', 'moveToFolder', 'openFolder'], parent);
+					if (navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1')
+					{
+						this.addMenuItems(menu, ['upload'], parent);
+					}
 				}
 				else
 				{
-					editorUi.menus.addMenuItems(menu, ['-', 'rename'], parent);
-					
-					if (editorUi.isOfflineApp())
+					editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+
+					if (file != null)
 					{
-						if (navigator.onLine && urlParams['stealth'] != '1' && urlParams['lockdown'] != '1')
+						menu.addSeparator(parent);
+						
+						if (file.constructor == DriveFile)
 						{
-							this.addMenuItems(menu, ['upload'], parent);
+							editorUi.menus.addMenuItems(menu, ['moveToFolder'], parent);
 						}
-					}
-					else
-					{
-						editorUi.menus.addMenuItems(menu, ['makeCopy'], parent);
+
+						if (file.constructor == DriveFile || file.constructor == OneDriveFile ||
+							file.constructor == DropboxFile || file.constructor == GitHubFile ||
+							file.constructor == GitLabFile)
+						{
+							editorUi.menus.addMenuItems(menu, ['openFolder'], parent);
+						}
 					}
 				}
 
@@ -4604,7 +4617,6 @@
 						}
 					}
 					
-
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
 						(Editor.currentTheme == 'simple' ||
 						Editor.currentTheme == 'sketch'))
@@ -4684,7 +4696,10 @@
 						this.addMenuItems(menu, ['share', '-'], parent);
 					}
 					
-					this.addMenuItems(menu, ['rename'], parent);
+					if (file != null && file.isRenamable())
+					{
+						this.addMenuItems(menu, ['rename'], parent);
+					}
 					
 					if (editorUi.isOfflineApp())
 					{
@@ -4696,10 +4711,21 @@
 					else
 					{
 						this.addMenuItems(menu, ['makeCopy'], parent);
-						
-						if (file != null && file.constructor == OneDriveFile)
+
+						if (file != null)
 						{
-							this.addMenuItems(menu, ['moveToFolder'], parent);
+							if (file.constructor == OneDriveFile)
+							{
+								this.addMenuItems(menu, ['moveToFolder'], parent);
+							}
+
+							if (file.constructor == OneDriveFile ||
+								file.constructor == DropboxFile ||
+								file.constructor == GitHubFile ||
+								file.constructor == GitLabFile)
+							{
+								editorUi.menus.addMenuItems(menu, ['openFolder'], parent);
+							}
 						}
 					}
 				}

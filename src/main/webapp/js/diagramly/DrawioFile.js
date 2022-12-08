@@ -1095,6 +1095,22 @@ DrawioFile.prototype.saveFile = function(title, revision, success, error) { };
 /**
  * Returns true if copy, export and print are not allowed for this file.
  */
+DrawioFile.prototype.getFileUrl = function()
+{
+	return null;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+DrawioFile.prototype.getFolderUrl = function(fn)
+{
+	return null;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
 DrawioFile.prototype.getPublicUrl = function(fn)
 {
 	fn(null);

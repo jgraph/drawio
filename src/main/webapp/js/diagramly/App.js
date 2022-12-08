@@ -916,90 +916,97 @@ App.main = function(callback, createUi)
 			// Main
 			function realMain()
 			{
-				var ui = (createUi != null) ? createUi() : new App(new Editor(
-						urlParams['chrome'] == '0' || uiTheme == 'min',
-						null, null, null, urlParams['chrome'] != '0'));
-				
-				if (window.mxscript != null)
+				try
 				{
-					// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
-					// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-					if (typeof window.DropboxClient === 'function' &&
-						(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
-						(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
-						(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
-						isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
-					{
-						mxscript(App.DROPBOX_URL, function()
-						{
-							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript(App.DROPINS_URL, function()
-							{
-								DrawDropboxClientCallback();
-							}, 'dropboxjs', App.DROPBOX_APPKEY);
-						});
-					}
-					// Disables client
-					else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
-					{
-						window.DropboxClient = null;
-					}
-						
-					// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-					if (typeof window.OneDriveClient === 'function' &&
-						(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
-						(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-						urlParams['od'] == '1')) && (navigator.userAgent == null ||
-						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
-					{
-						//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
-						mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
-					}
-					// Disables client
-					else if (typeof window.OneDrive === 'undefined')
-					{
-						window.OneDriveClient = null;
-					}
+					var ui = (createUi != null) ? createUi() : new App(new Editor(
+							urlParams['chrome'] == '0' || uiTheme == 'min',
+							null, null, null, urlParams['chrome'] != '0'));
 					
-					// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-					if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
-						typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
-						urlParams['tr'] == '1' && (navigator.userAgent == null ||
-						navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
+					if (window.mxscript != null)
 					{
-						mxscript(App.TRELLO_JQUERY_URL, function()
+						// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+						// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
+						if (typeof window.DropboxClient === 'function' &&
+							(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
+							(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
+							(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
+							isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
 						{
-							// Must load this after the dropbox SDK since they use the same namespace
-							mxscript(App.TRELLO_URL, function()
+							mxscript(App.DROPBOX_URL, function()
 							{
-								DrawTrelloClientCallback();
+								// Must load this after the dropbox SDK since they use the same namespace
+								mxscript(App.DROPINS_URL, function()
+								{
+									DrawDropboxClientCallback();
+								}, 'dropboxjs', App.DROPBOX_APPKEY);
 							});
-						});
+						}
+						// Disables client
+						else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
+						{
+							window.DropboxClient = null;
+						}
+							
+						// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
+						if (typeof window.OneDriveClient === 'function' &&
+							(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
+							(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
+							urlParams['od'] == '1')) && (navigator.userAgent == null ||
+							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+						{
+							//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
+							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+						}
+						// Disables client
+						else if (typeof window.OneDrive === 'undefined')
+						{
+							window.OneDriveClient = null;
+						}
+						
+						// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+						if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
+							typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
+							urlParams['tr'] == '1' && (navigator.userAgent == null ||
+							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
+						{
+							mxscript(App.TRELLO_JQUERY_URL, function()
+							{
+								// Must load this after the dropbox SDK since they use the same namespace
+								mxscript(App.TRELLO_URL, function()
+								{
+									DrawTrelloClientCallback();
+								});
+							});
+						}
+						// Disables client
+						else if (typeof window.Trello === 'undefined')
+						{
+							window.TrelloClient = null;
+						}
+			
 					}
-					// Disables client
-					else if (typeof window.Trello === 'undefined')
-					{
-						window.TrelloClient = null;
-					}
-		
-				}
-				
-				if (callback != null)
-				{
-					callback(ui);
-				}
-				
-				/**
-				 * For developers only
-				 */
-				if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
-				{
-					EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
 					
-					if (urlParams['export'] != null)
+					if (callback != null)
 					{
-						EditorUi.debug('Export:', EXPORT_URL);
+						callback(ui);
 					}
+					
+					/**
+					 * For developers only
+					 */
+					if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
+					{
+						EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
+						
+						if (urlParams['export'] != null)
+						{
+							EditorUi.debug('Export:', EXPORT_URL);
+						}
+					}
+				}
+				catch (e)
+				{
+					document.body.innerHTML += '<pre>' + mxUtils.htmlEntities(e.stack) + '</pre>';
 				}
 			};
 			
@@ -2616,100 +2623,42 @@ App.prototype.createBackground = function()
  */
 App.prototype.appIconClicked = function(evt)
 {
-	if (mxEvent.isAltDown(evt))
+	var file = this.getCurrentFile();
+	var mode = (file != null) ? file.getMode() : null;
+	var url = (file != null) ? (mxEvent.isAltDown(evt) ?
+		file.getFolderUrl() : file.getFileUrl()) : null;
+
+	if (url != null)
 	{
-		this.showSplash(true);
+		this.openLink(url);
 	}
-	else
+	else if (mode == App.MODE_GOOGLE)
 	{
-		var file = this.getCurrentFile();
-		var mode = (file != null) ? file.getMode() : null;
-		
-		if (mode == App.MODE_GOOGLE)
-		{
-			if (file != null && file.desc != null && file.desc.parents != null &&
-				file.desc.parents.length > 0 && !mxEvent.isShiftDown(evt))
-			{
-				// Opens containing folder
-				this.openLink('https://drive.google.com/drive/folders/' + file.desc.parents[0].id);
-			}
-			else if (file != null && file.getId() != null)
-			{
-				this.openLink('https://drive.google.com/open?id=' + file.getId());
-			}
-			else
-			{
-				this.openLink('https://drive.google.com/?authuser=0');
-			}
-		}
-		else if (mode == App.MODE_ONEDRIVE)
-		{
-			if (file != null && file.meta != null && file.meta.webUrl != null)
-			{
-				var url = file.meta.webUrl;
-				var name = encodeURIComponent(file.meta.name);
-				
-				if (url.substring(url.length - name.length, url.length) == name)
-				{
-					url = url.substring(0, url.length - name.length);
-				}
-				
-				this.openLink(url);
-			}
-			else
-			{
-				this.openLink('https://onedrive.live.com/');
-			}
-		}
-		else if (mode == App.MODE_DROPBOX)
-		{
-			if (file != null && file.stat != null && file.stat.path_display != null)
-			{
-				
-				var url = 'https://www.dropbox.com/home/Apps' + this.dropbox.appPath + file.stat.path_display;
-				
-				if (!mxEvent.isShiftDown(evt))
-				{
-					url = url.substring(0, url.length - file.stat.name.length);
-				}
-				
-				this.openLink(url);
-			}
-			else
-			{
-				this.openLink('https://www.dropbox.com/');
-			}
-		}
-		else if (mode == App.MODE_TRELLO)
-		{
-			this.openLink('https://trello.com/');
-		}
-		else if (mode == App.MODE_GITHUB)
-		{
-			if (file != null && file.constructor == GitHubFile)
-			{
-				this.openLink(file.meta.html_url);
-			}
-			else
-			{
-				this.openLink('https://github.com/');
-			}
-		}
-		else if (mode == App.MODE_GITLAB)
-		{
-			if (file != null && file.constructor == GitLabFile)
-			{
-				this.openLink(file.meta.html_url);
-			}
-			else
-			{
-				this.openLink(DRAWIO_GITLAB_URL);
-			}
-		}
-		else if (mode == App.MODE_DEVICE)
-		{
-			this.openLink('https://get.draw.io/');
-		}
+		this.openLink('https://drive.google.com/?authuser=0');
+	}
+	else if (mode == App.MODE_ONEDRIVE)
+	{
+		this.openLink('https://onedrive.live.com/');
+	}
+	else if (mode == App.MODE_DROPBOX)
+	{
+		this.openLink('https://www.dropbox.com/');
+	}
+	else if (mode == App.MODE_GITHUB)
+	{
+		this.openLink('https://github.com/');
+	}
+	else if (mode == App.MODE_GITLAB)
+	{
+		this.openLink(DRAWIO_GITLAB_URL);
+	}
+	else if (mode == App.MODE_TRELLO)
+	{
+		this.openLink('https://trello.com/');
+	}
+	else if (mode == App.MODE_DEVICE)
+	{
+		this.openLink('https://get.draw.io/');
 	}
 	
 	mxEvent.consume(evt);

@@ -945,7 +945,7 @@ var EmbedDialog = function(editorUi, result, timeout, ignoreSize, previewFn, tit
 			closeBtn.className = 'geBtn gePrimaryBtn';
 		}
 	}
-	else
+	else if (previewBtn != null)
 	{
 		buttons.appendChild(previewBtn);
 		closeBtn.className = 'geBtn';

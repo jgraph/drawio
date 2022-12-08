@@ -1,3 +1,12 @@
+08-NOV-2022: 20.6.1
+
+- Adds API to get cloud storage folder and file URL 
+- Restores edit link menu option in sketch mode 
+- Added support for OneDrive Single Tenant apps [3203]
+- [conf cloud] Copy diagram attachment on Page Editor Copy/paste [DID-6797]
+- Fixes label editing on older iOS versions [3214]
+- Fixes handling of nested cells with negative child
+
 22-NOV-2022: 20.6.0
 
 - Adds search, scratchpad in simple UI shapes dialog

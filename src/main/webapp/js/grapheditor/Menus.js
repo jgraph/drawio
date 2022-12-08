@@ -1470,7 +1470,6 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
 	this.addPopupMenuHistoryItems(menu, cell, evt);
 	this.addPopupMenuEditItems(menu, cell, evt);
 
-	
 	if (this.isShowStyleItems())
 	{
 		this.addPopupMenuStyleItems(menu, cell, evt);
@@ -1576,7 +1575,6 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 {
 	var graph = this.editorUi.editor.graph;
 	var state = graph.view.getState(cell);
-	menu.addSeparator();
 	
 	if (state != null)
 	{
@@ -1641,6 +1639,10 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			graph.isCellEditable(cell))
 		{
 			this.addPopupMenuCellEditItems(menu, cell, evt);
+		}
+		else
+		{
+			this.addMenuItems(menu, ['editLink'], null, evt);
 		}
 	}
 };

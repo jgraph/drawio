@@ -13,6 +13,24 @@ GitLabFile = function(ui, data, meta)
 mxUtils.extend(GitLabFile, GitHubFile);
 
 /**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+GitLabFile.prototype.getFileUrl = function()
+{
+	return this.meta.html_url;
+};
+
+/**
+ * Returns true if copy, export and print are not allowed for this file.
+ */
+GitLabFile.prototype.getFolderUrl = function()
+{
+	var url = this.getFileUrl();
+
+	return url.substring(0, url.lastIndexOf('/'));
+};
+
+/**
  * Translates this point by the given vector.
  * 
  * @param {number} dx X-coordinate of the translation.

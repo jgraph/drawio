@@ -9703,20 +9703,28 @@
 						}
 					}
 
-					this.addMenuItems(menu, ['lockUnlock'], null, evt);
+					this.addMenuItems(menu, ['lockUnlock', '-'], null, evt);
+
+					var state = graph.view.getState(cell);
+					var shape = (state == null) ? null : mxUtils.getValue(
+						state.style, mxConstants.STYLE_SHAPE, null);
+
+					// Shows edit shape option for custom shapes
+					if (!this.isShowCellEditItems() && graph.getSelectionCount() == 1 &&
+						graph.isCellEditable(cell) && graph.getModel().isVertex(cell) &&
+						shape != null && typeof shape === 'string' &&
+						shape.substring(0, 8) == 'stencil(')
+					{
+						this.addMenuItem(menu, 'editShape', null, evt);
+					}
 
 					// Shows crop option for images
-					if (!this.isShowCellEditItems() && graph.getSelectionCount() == 1 &&
-						graph.isCellEditable(cell) && graph.getModel().isVertex(cell))
-					{
-						var state = graph.view.getState(cell);
-					
-						if (state != null && mxUtils.getValue(state.style,
+					else if (!this.isShowCellEditItems() && graph.getSelectionCount() == 1 &&
+						graph.isCellEditable(cell) && graph.getModel().isVertex(cell) &&
+						state != null && mxUtils.getValue(state.style,
 							mxConstants.STYLE_IMAGE, null) != null)
-						{
-							menu.addSeparator();
-							this.addMenuItem(menu, 'crop', null, evt);
-						}
+					{
+						this.addMenuItem(menu, 'editImage', null, evt);
 					}
 				}
 			};

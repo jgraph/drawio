@@ -82,6 +82,7 @@ OneDriveClient.prototype.extension = '.drawio';
  */
 OneDriveClient.prototype.baseUrl = 'https://graph.microsoft.com/v1.0';
 
+OneDriveClient.prototype.authUrl = 'https://login.microsoftonline.com/' + (window.DRAWIO_MSGRAPH_TENANT_ID || 'common');
 /**
  * Empty function used when no callback is needed
  */
@@ -311,7 +312,7 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 			{
 				this.ui.showAuthDialog(this, true, mxUtils.bind(this, function(remember, authSuccess)
 				{
-					var url = 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize' +
+					var url = this.authUrl + '/oauth2/v2.0/authorize' +
 						'?client_id=' + this.clientId + '&response_type=code' +
 						'&redirect_uri=' + encodeURIComponent(this.redirectUri) +
 						'&scope=' + encodeURIComponent(this.scopes + (remember? ' offline_access' : '')) +
@@ -1540,7 +1541,7 @@ OneDriveClient.prototype.logout = function()
 		}
 	}
 
-	window.open('https://login.microsoftonline.com/common/oauth2/v2.0/logout', 'logout', 'width=525,height=525,status=no,resizable=yes,toolbar=no,menubar=no,scrollbars=yes');
+	window.open(this.authUrl + '/oauth2/v2.0/logout', 'logout', 'width=525,height=525,status=no,resizable=yes,toolbar=no,menubar=no,scrollbars=yes');
 	//Send to server to clear refresh token cookie
 	this.ui.editor.loadUrl(this.redirectUri + '?doLogout=1&state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname));
 	this.clearPersistentToken();
