@@ -1,4 +1,10 @@
-08-NOV-2022: 20.6.1
+08-DEC-2022: 20.6.2
+
+- Enabled native window frame on Windows and Linux [DESK-784]
+- Adds button container in atlassian sketch mode [DFCS-314]
+- Conf Cloud: Added configuration to auto crop the viewer [DID-6866]
+
+08-DEC-2022: 20.6.1
 
 - Adds API to get cloud storage folder and file URL 
 - Restores edit link menu option in sketch mode 

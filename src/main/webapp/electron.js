@@ -57,7 +57,6 @@ var queryObj = {
 	'mode': 'device',
 	'export': 'https://convert.diagrams.net/node/export',
 	'disableUpdate': disableUpdate? 1 : 0,
-	'winCtrls': isMac? 0 : 1,
 	'enableSpellCheck': enableSpellCheck? 1 : 0,
 	'enableStoreBkp': enableStoreBkp? 1 : 0
 };
@@ -100,7 +99,6 @@ function createWindow (opt = {})
 
 	let options = Object.assign(
 	{
-		frame: isMac,
 		backgroundColor: '#FFF',
 		width: parseInt(lastWinSize[0]),
 		height: parseInt(lastWinSize[1]),

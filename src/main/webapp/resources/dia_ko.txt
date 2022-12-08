@@ -338,7 +338,6 @@ formattedText=서식이 적용된 텍스트
 formatPng=PNG
 formatGif=GIF
 formatJpg=JPEG
-formatJson=JSON
 formatPdf=PDF
 formatSql=SQL
 formatSvg=SVG

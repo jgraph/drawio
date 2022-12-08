@@ -477,6 +477,20 @@
 	/**
 	 * Hook for subclassers.
 	 */
+	EditorUi.prototype.createButtonContainer = function()
+	{
+		var div = document.createElement('div');
+		div.style.display = 'inline-block';
+		div.style.paddingRight = '32px';
+		div.style.position = 'absolute';
+		div.style.right = '0px';
+
+		return div;
+	};
+
+	/**
+	 * Hook for subclassers.
+	 */
 	EditorUi.prototype.openLink = function(url, target, allowOpener)
 	{
 		// LATER: Replace this with direct calls to graph
@@ -10348,6 +10362,8 @@
 						// Inline embed mode must be initialized after setting current theme
 						this.initializeInlineEmbedMode();
 					}
+
+					this.fireEvent(new mxEventObject('themeInitialized'));
 				}));
 			}
 		}
@@ -11907,7 +11923,7 @@
 		if (this.formatWindow == null)
 		{
 			var x = Math.max(10, this.diagramContainer.parentNode.clientWidth - 256);
-			var y = urlParams['winCtrls'] == '1' && urlParams['sketch'] == '1'? 80 : 60;
+			var y = 60;
 			var h = (urlParams['embedInline'] == '1') ? 580 :
 				((urlParams['sketch'] == '1') ? 580 : Math.min(566,
 					this.editor.graph.container.clientHeight - 10));

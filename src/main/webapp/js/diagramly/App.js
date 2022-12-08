@@ -1723,12 +1723,7 @@ App.prototype.init = function()
 
 	if (this.menubar != null)
 	{
-		this.buttonContainer = document.createElement('div');
-		this.buttonContainer.style.display = 'inline-block';
-		this.buttonContainer.style.paddingRight = '32px';
-		this.buttonContainer.style.position = 'absolute';
-		this.buttonContainer.style.right = '0px';
-		
+		this.buttonContainer = this.createButtonContainer();
 		this.menubar.container.appendChild(this.buttonContainer);
 	}
 

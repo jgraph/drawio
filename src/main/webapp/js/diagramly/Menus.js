@@ -1301,12 +1301,6 @@
 							elt.style.top = '5px';
 						}
 						
-						if (urlParams['winCtrls'] == '1')
-						{
-							elt.style.right = '95px';
-							elt.style.webkitAppRegion = 'no-drag';
-						}
-
 						document.body.appendChild(elt);
 						menubar.langIcon = elt;
 

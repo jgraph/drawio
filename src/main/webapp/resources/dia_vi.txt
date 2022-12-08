@@ -338,7 +338,6 @@ formattedText=Văn bản đã định dạng
 formatPng=PNG
 formatGif=GIF
 formatJpg=JPEG
-formatJson=JSON
 formatPdf=PDF
 formatSql=SQL
 formatSvg=SVG

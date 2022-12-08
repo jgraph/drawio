@@ -338,7 +338,6 @@ formattedText=formattedText
 formatPng=formatPng
 formatGif=formatGif
 formatJpg=formatJpg
-formatJson=formatJson
 formatPdf=formatPdf
 formatSql=formatSql
 formatSvg=formatSvg

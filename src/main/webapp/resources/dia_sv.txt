@@ -338,7 +338,6 @@ formattedText=Formatterad text
 formatPng=PNG
 formatGif=GIF
 formatJpg=JPEG
-formatJson=JSON
 formatPdf=PDF
 formatSql=SQL
 formatSvg=SVG
