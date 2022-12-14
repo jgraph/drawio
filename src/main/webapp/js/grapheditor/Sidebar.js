@@ -16,6 +16,7 @@ function Sidebar(editorUi, container)
     this.graph.cellRenderer.minSvgStrokeWidth = this.minThumbStrokeWidth;
 	this.graph.cellRenderer.antiAlias = this.thumbAntiAlias;
 	this.graph.container.style.visibility = 'hidden';
+	this.graph.shapeBackgroundColor = 'transparent';
 	this.graph.foldingEnabled = false;
 
 	// Wrapper for entries and footer
@@ -313,7 +314,7 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
 	var bottom = Math.max(b.clientHeight || 0, d.clientHeight);
 	var height = bounds.height + 2 * this.tooltipBorder;
 	
-	return new mxPoint(this.container.offsetWidth + this.editorUi.splitSize + 4 + this.editorUi.container.offsetLeft,
+	return new mxPoint(this.container.offsetWidth + 2 + this.editorUi.container.offsetLeft,
 		Math.min(bottom - height - 20 /*status bar*/, Math.max(0, (this.editorUi.container.offsetTop +
 			this.container.offsetTop + elt.offsetTop - this.wrapper.scrollTop - height / 2 + 16))));
 };
@@ -323,7 +324,7 @@ Sidebar.prototype.getTooltipOffset = function(elt, bounds)
  */
 Sidebar.prototype.createMoreShapes = function()
 {
-	var div =  this.editorUi.createDiv('geSidebarContainer geSidebarFooter');
+	var div =  this.editorUi.createDiv('geSidebarFooter');
 	div.style.position = 'absolute';
 	div.style.overflow = 'hidden';
 	div.style.display = 'inline-flex';
@@ -389,6 +390,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		}), this.tooltip);
 		
 		this.graph2 = new Graph(this.tooltip, null, null, this.editorUi.editor.graph.getStylesheet());
+		this.graph2.shapeBackgroundColor = 'transparent';
 		this.graph2.resetViewOnRootChange = false;
 		this.graph2.foldingEnabled = false;
 		this.graph2.gridEnabled = false;
@@ -463,13 +465,18 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 	this.graph2.labelsVisible = (showLabel == null || showLabel);
 	var fo = mxClient.NO_FO;
 	mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
-	
+
+	// Ensures opaque background for edge labels
+	var style = mxUtils.getCurrentStyle(this.tooltip);
+	this.graph2.shapeBackgroundColor = style.backgroundColor;
+
 	// Applies current style for preview
 	var temp = this.graph2.cloneCells(cells);
 	this.editorUi.insertHandler(temp, null, this.graph2.model,
 		(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
 		(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
 		applyAllStyles, true);
+
 	this.graph2.addCells(temp);
 
 	mxClient.NO_FO = fo;
@@ -901,13 +908,7 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	this.appendChild(elt);
 		
 	var div = document.createElement('div');
-	div.className = 'geSidebar';
-	div.style.boxSizing = 'border-box';
-	div.style.overflow = 'hidden';
-	div.style.width = '100%';
-	div.style.padding = '8px';
-	div.style.paddingTop = '14px';
-	div.style.paddingBottom = '0px';
+	div.className = 'geSidebar geSearchSidebar';
 
 	if (!expand)
 	{
@@ -923,15 +924,6 @@ Sidebar.prototype.addSearchPalette = function(expand)
 	var input = document.createElement('input');
 	input.setAttribute('placeholder', mxResources.get('searchShapes'));
 	input.setAttribute('type', 'text');
-	input.style.fontSize = '12px';
-	input.style.overflow = 'hidden';
-	input.style.boxSizing = 'border-box';
-	input.style.border = 'solid 1px #d5d5d5';
-	input.style.borderRadius = '4px';
-	input.style.width = '100%';
-	input.style.outline = 'none';
-	input.style.padding = '6px';
-	input.style.paddingRight = '20px';
 	inner.appendChild(input);
 
 	var cross = document.createElement('img');
@@ -1519,10 +1511,10 @@ Sidebar.prototype.addMiscPalette = function(expand)
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=0;right=0;fillColor=none;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=partialRectangle;whiteSpace=wrap;html=1;bottom=1;right=1;left=1;top=0;fillColor=none;routingCenterX=-0.5;', 120, 60, '', 'Partial Rectangle'),
 		this.createVertexTemplateEntry('shape=waypoint;sketch=0;fillStyle=solid;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40, '', 'Waypoint'),
-		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
-	 	this.createEdgeTemplateEntry('shape=filledEdge;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;html=1;', 60, 40, '', 'Filled Edge'),
-	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),
-	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=vertical;endArrow=classic;html=1;', 50, 50, '', 'Vertical Elbow', null, lineTags + 'elbow vertical')
+		this.createEdgeTemplateEntry('edgeStyle=segmentEdgeStyle;endArrow=classic;html=1;curved=0;rounded=0;endSize=8;startSize=8;', 50, 50, '', 'Manual Line', null, lineTags + 'manual'),
+	 	this.createEdgeTemplateEntry('shape=filledEdge;curved=0;rounded=0;fixDash=1;endArrow=none;strokeWidth=10;fillColor=#ffffff;edgeStyle=orthogonalEdgeStyle;html=1;', 60, 40, '', 'Filled Edge'),
+	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=horizontal;endArrow=classic;html=1;curved=0;rounded=0;endSize=8;startSize=8;', 50, 50, '', 'Horizontal Elbow', null, lineTags + 'elbow horizontal'),
+	 	this.createEdgeTemplateEntry('edgeStyle=elbowEdgeStyle;elbow=vertical;endArrow=classic;html=1;curved=0;rounded=0;endSize=8;startSize=8;', 50, 50, '', 'Vertical Elbow', null, lineTags + 'elbow vertical')
 	];
 
 	this.addPaletteFunctions('misc', mxResources.get('misc'), (expand != null) ? expand : true, fns);
@@ -2092,6 +2084,11 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	this.graph.labelsVisible = (showLabel == null || showLabel);
 	var fo = mxClient.NO_FO;
 	mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
+
+	// Tries to avoid transparent color but can't use computed
+	// style due to async CSS
+	this.graph.shapeBackgroundColor = Editor.isDarkMode() ?
+		'#2a252f' : '#f1f3f4';
 	this.graph.view.scaleAndTranslate(1, 0, 0);
 	this.graph.addCells(cells);
 
@@ -2182,7 +2179,8 @@ Sidebar.prototype.createSection = function(title)
 /**
  * Creates and returns a new palette item for the given image.
  */
-Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight)
+Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height,
+	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon)
 {
 	showTooltip = (showTooltip != null) ? showTooltip : true;
 	thumbWidth = (thumbWidth != null) ? thumbWidth : this.thumbWidth;
@@ -2210,8 +2208,19 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 		this.editorUi.editor.graph.defaultEdgeStyle,
 		true, true);
 
-	this.createThumb(originalCells, thumbWidth, thumbHeight,
-		elt, title, showLabel, showTitle, width, height);
+	if (icon != null)
+	{
+		elt.style.backgroundImage = 'url(' + icon + ')';
+		elt.style.backgroundRepeat = 'no-repeat';
+		elt.style.backgroundPosition = 'center';
+		elt.style.backgroundSize = '24px 24px';
+	}
+	else
+	{
+		this.createThumb(originalCells, thumbWidth, thumbHeight,
+			elt, title, showLabel, showTitle, width, height);
+	}
+
 	var bounds = new mxRectangle(0, 0, width, height);
 	
 	if (cells.length > 1 || cells[0].vertex)
@@ -2230,7 +2239,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	{
 		var ds = this.createDragSource(elt, this.createDropHandler(cells, false, allowCellsInserted,
 			bounds), this.createDragPreview(width, height), cells, bounds);
-		this.addClickHandler(elt, ds, cells);
+		this.addClickHandler(elt, ds, cells, clickFn);
 	}
 	
 	// Shows a tooltip with the rendered cell
@@ -2403,10 +2412,19 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 								}
 							}
 						}
-	
+
 						if (allowCellsInserted && (evt == null || !mxEvent.isShiftDown(evt)))
 						{
 							graph.fireEvent(new mxEventObject('cellsInserted', 'cells', select));
+						}
+
+						for (var i = 0; i < select.length; i++)
+						{
+							if (graph.model.isVertex(select[i]) &&
+								graph.isAutoSizeCell(select[i]))
+							{
+								graph.updateCellSize(select[i]);
+							}
 						}
 					}
 					catch (e)
@@ -2571,8 +2589,30 @@ Sidebar.prototype.dropAndConnect = function(source, targets, direction, dropCell
 				// Adds new outgoing connection to vertex and clears points
 				graph.model.setTerminal(targets[dropCellIndex], source, true);
 				var geo3 = graph.getCellGeometry(targets[dropCellIndex]);
+				var tp = (geo3 != null) ? geo3.getTerminalPoint(true) : null;
 				geo3.points = null;
-				
+
+				// Connects edge terminal points at the same location to the source
+				if (tp != null)
+				{
+					for (var i = 0; i < targets.length; i++)
+					{
+						if (graph.model.isEdge(targets[i]) && i != dropCellIndex)
+						{
+							var geo4 = graph.getCellGeometry(targets[i]);
+							var pt = (geo4 != null) ? geo4.getTerminalPoint(true) : null;
+							
+							if (pt != null)
+							{
+								if (pt.x == tp.x && pt.y == tp.y)
+								{
+									graph.model.setTerminal(targets[i], source, true);
+								}
+							}
+						}
+					}
+				}
+
 				if (geo3.getTerminalPoint(false) != null)
 				{
 					geo3.setTerminalPoint(geo.getTerminalPoint(false), false);
@@ -3563,11 +3603,18 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells, clickFn)
 	var tol = graph.tolerance;
 	var first = null;
 	var sb = this;
-	
+	var op = null;
+
 	ds.mouseDown =function(evt)
 	{
 		oldMouseDown.apply(this, arguments);
 		first = new mxPoint(mxEvent.getClientX(evt), mxEvent.getClientY(evt));
+		op = elt.style.opacity;
+
+		if (op == '')
+		{
+			op = '1';
+		}
 		
 		if (this.dragElement != null)
 		{
@@ -3583,7 +3630,7 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells, clickFn)
 			Math.abs(first.y - mxEvent.getClientY(evt)) > tol))
 		{
 			this.dragElement.style.display = '';
-			mxUtils.setOpacity(elt, 100);
+			mxUtils.setOpacity(elt, op * 100);
 		}
 		
 		oldMouseMove.apply(this, arguments);
@@ -3608,7 +3655,7 @@ Sidebar.prototype.addClickHandler = function(elt, ds, cells, clickFn)
 			}
 	
 			oldMouseUp.apply(ds, arguments);
-			mxUtils.setOpacity(elt, 100);
+			mxUtils.setOpacity(elt, op * 100);
 			first = null;
 			
 			// Blocks tooltips on this element after single click
@@ -3643,12 +3690,14 @@ Sidebar.prototype.createVertexTemplateEntry = function(style, width, height, val
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight)
+Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle,
+	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon)
 {
 	var cells = [new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style)];
 	cells[0].vertex = true;
 
-	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight);
+	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle,
+		allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon);
 };
 
 /**
@@ -3671,12 +3720,12 @@ Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, t
  * Creates a drop handler for inserting the given cells.
  */
 Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted,
-	showTooltip, clickFn, thumbWidth, thumbHeight)
+	showTooltip, clickFn, thumbWidth, thumbHeight, icon)
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
 	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted,
-		showTooltip, clickFn, thumbWidth, thumbHeight);
+		showTooltip, clickFn, thumbWidth, thumbHeight, icon);
 };
 
 /**
@@ -3709,9 +3758,11 @@ Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, tit
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel, allowCellsInserted, showTooltip, showTitle, clickFn, thumbWidth, thumbHeight)
+Sidebar.prototype.createEdgeTemplateFromCells = function(cells, width, height, title, showLabel,
+	allowCellsInserted, showTooltip, showTitle, clickFn, thumbWidth, thumbHeight, icon)
 {
-	return this.createItem(cells, title, showLabel, (showTitle != null) ? showTitle : true, width, height, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight);
+	return this.createItem(cells, title, showLabel, (showTitle != null) ? showTitle : true, width, height,
+		allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon);
 };
 
 /**
@@ -3785,7 +3836,7 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	}
 	
 	title.style.backgroundRepeat = 'no-repeat';
-	title.style.backgroundPosition = '0% 50%';
+	title.style.backgroundPosition = '4px 50%';
 
 	mxEvent.addListener(title, 'click', mxUtils.bind(this, function(evt)
 	{
@@ -3802,9 +3853,9 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 					var prev = title.innerHTML;
 					title.innerHTML = mxResources.get('loading') + '...';
 					
-					window.setTimeout(function()
+					window.setTimeout(mxUtils.bind(this, function()
 					{
-						content.style.display = 'block';
+						this.setContentVisible(content, true);
 						title.style.cursor = '';
 						title.innerHTML = prev;
 
@@ -3812,16 +3863,16 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 						mxClient.NO_FO = Editor.prototype.originalNoForeignObject;
 						funct(content, title);
 						mxClient.NO_FO = fo;
-					}, (mxClient.IS_FF) ? 20 : 0);
+					}), (mxClient.IS_FF) ? 20 : 0);
 				}
 				else
 				{
-					content.style.display = 'block';
+					this.setContentVisible(content, true);
 				}
 			}
 			else
 			{
-				content.style.display = 'block';
+				this.setContentVisible(content, true);
 			}
 			
 			title.style.backgroundImage = 'url(\'' + this.expandedImage + '\')';
@@ -3829,7 +3880,7 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 		else
 		{
 			title.style.backgroundImage = 'url(\'' + this.collapsedImage + '\')';
-			content.style.display = 'none';
+			this.setContentVisible(content, false);
 		}
 		
 		mxEvent.consume(evt);
@@ -3841,6 +3892,43 @@ Sidebar.prototype.addFoldingHandler = function(title, content, funct)
 	{
 		evt.preventDefault();
 	}));
+};
+
+/**
+ * Removes the palette for the given ID.
+ */
+Sidebar.prototype.setContentVisible = function(content, visible)
+{
+	mxUtils.setPrefixedStyle(content.style, 'transition', 'all 0.2s linear');
+	mxUtils.setPrefixedStyle(content.style, 'transform-origin', 'top left');
+
+	if (visible)
+	{
+		mxUtils.setPrefixedStyle(content.style, 'transform', 'scaleY(0)');
+		content.style.display = 'block';
+
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(content.style, 'transform', 'scaleY(1)');
+
+			window.setTimeout(mxUtils.bind(this, function()
+			{
+				mxUtils.setPrefixedStyle(content.style, 'transform', null);
+				mxUtils.setPrefixedStyle(content.style, 'transition', null);
+			}), 200);
+		}), 0);
+	}
+	else
+	{
+		mxUtils.setPrefixedStyle(content.style, 'transform', 'scaleY(0)');
+
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(content.style, 'transform', null);
+			mxUtils.setPrefixedStyle(content.style, 'transition', null);
+			content.style.display = 'none';
+		}), 200);
+	}
 };
 
 /**

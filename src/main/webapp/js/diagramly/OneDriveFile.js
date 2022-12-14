@@ -106,7 +106,7 @@ OneDriveFile.prototype.getFolderUrl = function()
  */
 OneDriveFile.prototype.share = function()
 {
-	this.ui.editor.graph.openLink(this.getFileUrl());
+	this.ui.openLink(this.getFileUrl());
 };
 
 /**

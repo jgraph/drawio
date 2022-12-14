@@ -949,7 +949,7 @@ mxStencilRegistry.allowEval = false;
 							
 							file.inConflictState = true;
 
-							file.addConflictStatus(mxUtils.bind(this, function()
+							file.addConflictStatus(null, mxUtils.bind(this, function()
 							{
 								file.ui.editor.setStatus(mxUtils.htmlEntities(
 									mxResources.get('updatingDocument')));

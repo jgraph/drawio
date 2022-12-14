@@ -313,7 +313,7 @@
 			{
 				if (evt != null && mxEvent.isAltDown(evt))
 				{
-					graph.setSelectionCells(graph.model.getTreeEdges(cell,
+					graph.setSelectionCells(graph.getTreeEdges(cell,
 						evt == null || !mxEvent.isShiftDown(evt),
 						evt == null || !mxEvent.isControlDown(evt)));
 				}
@@ -325,7 +325,7 @@
 					{
 						var treeEdge = edge != null && graph.isTreeEdge(edge);
 				
-						if (treeEdge)
+						if (treeEdge && !mxEvent.isControlDown(evt))
 						{
 							subtree.push(edge);
 						}
@@ -911,34 +911,7 @@
 				if (graph.model.getTerminal(clones[0], false) == null)
 				{
 					graph.model.setTerminal(clones[0], clones[1], false);
-					
-					var style = graph.getCellStyle(clones[1]);
-					var temp = style['newEdgeStyle'];
-					
-					if (temp != null)
-					{
-						try
-						{
-							var styles = JSON.parse(temp);
-							
-							for (var key in styles)
-							{
-								graph.setCellStyles(key, styles[key], [clones[0]]);
-								
-								// Sets elbow direction
-								if (key == 'edgeStyle' && styles[key] == 'elbowEdgeStyle')
-								{
-									graph.setCellStyles('elbow', (dir == mxConstants.DIRECTION_SOUTH ||
-										dir == mxConstants.DIRECTION_NOTH) ? 'vertical' : 'horizontal',
-										[clones[0]]);
-								}
-							}
-						}
-						catch (e)
-						{
-							// ignore
-						}
-					}
+					graph.applyNewEdgeStyle(clones[1], [clones[0]], dir);
 				}
 				
 				// Finds free space
@@ -1327,7 +1300,8 @@
 			var graph = this.graph;
 			
 			// Style that defines the key, value pairs to be used for creating styles of new connections if no incoming edge exists
-			var mmEdgeStyle = 'newEdgeStyle={"edgeStyle":"entityRelationEdgeStyle","startArrow":"none","endArrow":"none","segment":10,"curved":1};';
+			var mmEdgeStyle = 'newEdgeStyle={"edgeStyle":"entityRelationEdgeStyle","startArrow":"none","endArrow":"none",' +
+				'"segment":10,"curved":1,"sourcePerimeterSpacing":0,"targetPerimeterSpacing":0};';
 			var treeEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","startArrow":"none","endArrow":"none"};';
 
 			return result.concat([
@@ -1470,13 +1444,13 @@
 				}),
 				this.addEntry('tree mindmap mindmaps sub topic', function()
 				{
-			   		var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 72, 26),
+			   		var cell = new mxCell('Sub Topic', new mxGeometry(0, 0, 80, 26),
 			    		'whiteSpace=wrap;html=1;rounded=1;arcSize=50;align=center;verticalAlign=middle;' +
 			    		'strokeWidth=1;autosize=1;spacing=4;treeFolding=1;treeMoving=1;' + mmEdgeStyle);
 			    	cell.vertex = true;
 	
-			    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;' +
-			    		'startArrow=none;endArrow=none;segment=10;curved=1;');
+			    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=entityRelationEdgeStyle;startArrow=none;' +
+			    		'endArrow=none;segment=10;curved=1;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;');
 					edge.geometry.setTerminalPoint(new mxPoint(-40, 40), true);
 					edge.geometry.relative = true;
 					edge.edge = true;
@@ -1549,8 +1523,8 @@
 			    	cell.vertex = true;
 			    	
 			    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0),
-			    		'edgeStyle=elbowEdgeStyle;elbow=vertical;' +
-						'startArrow=none;endArrow=none;rounded=0;');
+			    		'edgeStyle=elbowEdgeStyle;elbow=vertical;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;' +
+						'startArrow=none;endArrow=none;rounded=0;curved=0;');
 			    	edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
 					edge.geometry.relative = true;
 					edge.edge = true;
@@ -1566,8 +1540,8 @@
 			    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;');
 			    	cell.vertex = true;
 	
-			    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
-						'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
+			    	var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;' +
+						'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;curved=0;rounded=0;');
 					edge.geometry.setTerminalPoint(new mxPoint(110, -40), true);
 					edge.geometry.relative = true;
 					edge.edge = true;
@@ -1578,8 +1552,8 @@
 			    		'whiteSpace=wrap;html=1;align=center;verticalAlign=middle;treeFolding=1;treeMoving=1;');
 			    	cell2.vertex = true;
 	
-			    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;' +
-						'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;');
+			    	var edge2 = new mxCell('', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;' +
+						'startArrow=none;endArrow=none;rounded=0;targetPortConstraint=eastwest;sourcePortConstraint=northsouth;curved=0;rounded=0;');
 					edge2.geometry.setTerminalPoint(new mxPoint(110, -40), true);
 					edge2.geometry.relative = true;
 					edge2.edge = true;

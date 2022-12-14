@@ -178,12 +178,6 @@ SelectPage.prototype.execute = function()
 			page.model.rootChanged(page.root);
 		}
 		
-		// Transitions for switching pages
-//		var curIndex = mxUtils.indexOf(this.ui.pages, page);
-//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', null);
-//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform',
-//			(curIndex > prevIndex) ? 'translate(-50%,0)' : 'translate(50%,0)');
-		
 		// Removes the previous cells and clears selection
 		graph.view.clear(page.root, true);
 		graph.clearSelection();
@@ -208,9 +202,6 @@ SelectPage.prototype.execute = function()
 		graph.blockMathRender = true;
 		graph.sizeDidChange();
 		graph.blockMathRender = false;
-		
-//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transition', 'transform 0.2s');
-//		mxUtils.setPrefixedStyle(graph.view.canvas.style, 'transform', 'translate(0,0)');
 		
 		if (this.neverShown)
 		{
@@ -268,9 +259,41 @@ ChangePage.prototype.execute = function()
 };
 
 /**
- * Specifies the height of the tab container. Default is 38.
+ * Specifies the height of the tab container. Default is 36.
  */
-EditorUi.prototype.tabContainerHeight = 38;
+EditorUi.prototype.tabContainerHeight = 36;
+
+/**
+ * Returns the index of the selected page.
+ */
+EditorUi.prototype.setTabContainerVisible = function(visible)
+{
+	if (visible)
+	{
+		this.tabContainerHeight = EditorUi.prototype.tabContainerHeight;
+	}
+	else
+	{
+		this.tabContainerHeight = 0;
+	}
+
+	if (isLocalStorage)
+	{
+		mxSettings.settings.pages = this.tabContainerHeight > 0;
+		mxSettings.save();
+	}
+
+	this.editor.updateGraphComponents();
+	this.refresh();
+};
+
+/**
+ * Returns the index of the selected page.
+ */
+EditorUi.prototype.isTabContainerVisible = function()
+{
+	return this.tabContainerHeight > 0;
+};
 
 /**
  * Returns the index of the selected page.
@@ -520,11 +543,54 @@ EditorUi.prototype.initPages = function()
 			}
 		}));
 		
-		// Updates zoom in toolbar
-		if (this.toolbar != null)
+		var pagesChanged = mxUtils.bind(this, function()
 		{
-			this.editor.addListener('pageSelected', this.toolbar.updateZoom);
-		}
+			this.updateDocumentTitle();
+			this.updateTabContainer();
+		});
+
+		this.addListener('currentThemeChanged', pagesChanged);
+		this.editor.addListener('pageRenamed', pagesChanged);
+		this.editor.addListener('pageMoved', pagesChanged);
+		this.editor.addListener('fileLoaded', pagesChanged);
+		this.editor.addListener('fileLoaded', pagesChanged);
+
+		this.editor.addListener('pageSelected', mxUtils.bind(this, function(sender, evt)
+		{
+			updateTabs();
+			this.scrollToPage();
+			this.updateDocumentTitle();
+
+			if (this.toolbar != null)
+			{
+				this.toolbar.updateZoom();
+			}
+		}));
+
+		this.editor.addListener('pageMoved', mxUtils.bind(this, function(sender, evt)
+		{
+			this.scrollToPage();
+		}));
+
+		mxEvent.addListener(window, 'resize', mxUtils.bind(this, function()
+		{
+			this.checkTabScrollerOverflow();
+		}));
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+EditorUi.prototype.scrollToPage = function()
+{
+	var index = this.getSelectedPageIndex();
+
+	if (this.tabScroller != null && this.tabScroller.children.length > index)
+	{
+		this.tabScroller.children[index].scrollIntoView();
+		this.tabScroller.children[index].className = 'geTab gePageTab geActivePage';
+		lastSelectedElt = this.tabScroller.children[index];
 	}
 };
 
@@ -1290,11 +1356,7 @@ EditorUi.prototype.movePage = function(oldIndex, newIndex)
 EditorUi.prototype.createTabContainer = function()
 {
 	var div = document.createElement('div');
-	div.className = 'geTabContainer';
-	div.style.position = 'absolute';
-	div.style.whiteSpace = 'nowrap';
-	div.style.overflow = 'hidden';
-	div.style.height = '0px';
+	div.className = 'geTabContainer geTabItem';
 	
 	return div;
 };
@@ -1308,23 +1370,9 @@ EditorUi.prototype.updateTabContainer = function()
 	{
 		var graph = this.editor.graph;
 		var wrapper = document.createElement('div');
-		wrapper.style.position = 'relative';
-		wrapper.style.display = 'inline-block';
-		wrapper.style.verticalAlign = 'top';
-		wrapper.style.height = this.tabContainer.style.height;
-		wrapper.style.whiteSpace = 'nowrap';
-		wrapper.style.overflow = 'hidden';
-		wrapper.style.fontSize = '13px';
-		
-		// Allows for negative left margin of first tab
-		wrapper.style.marginLeft = '30px';
-		
-		// Automatic tab width to match available width
-		// TODO: Fix tabWidth in chromeless mode
-		var btnWidth = (this.editor.isChromelessView()) ? 29 : 59;
-		var tabWidth = Math.min(140, Math.max(20, (this.tabContainer.clientWidth - btnWidth) / this.pages.length) + 1);
+		wrapper.className = 'geTabScroller';
 		var startIndex = null;
-		
+
 		for (var i = 0; i < this.pages.length; i++)
 		{
 			// Install drag and drop for page reorder
@@ -1332,12 +1380,11 @@ EditorUi.prototype.updateTabContainer = function()
 			{
 				if (this.pages[index] == this.currentPage)
 				{
-					tab.className = 'geActivePage';
-					tab.style.backgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#fff';
+					tab.className = 'geTab gePageTab geActivePage';
 				}
 				else
 				{
-					tab.className = 'geInactivePage';
+					tab.className = 'geTab gePageTab geInactivePage';
 				}
 				
 				tab.setAttribute('draggable', 'true');
@@ -1393,72 +1440,63 @@ EditorUi.prototype.updateTabContainer = function()
 				}));
 				
 				wrapper.appendChild(tab);
-			}))(i, this.createTabForPage(this.pages[i], tabWidth, this.pages[i] != this.currentPage, i + 1));
+			}))(i, this.createTabForPage(this.pages[i], i + 1));
+		}
+
+		var sl = (this.tabScroller != null) ? this.tabScroller.scrollLeft : 0;
+		this.tabContainer.innerText = '';
+
+		if (Editor.currentTheme != 'simple')
+		{
+			this.pageMenuTab = this.createPageMenuTab();
+			this.tabContainer.appendChild(this.pageMenuTab);
 		}
 		
-		this.tabContainer.innerText = '';
 		this.tabContainer.appendChild(wrapper);
-		
-		// Adds floating menu with all pages and insert option
-		var menutab = this.createPageMenuTab();
-		this.tabContainer.appendChild(menutab);
-		var insertTab = null;
 		
 		// Not chromeless and not read-only file
 		if (this.isPageInsertTabVisible())
 		{
-			insertTab = this.createPageInsertTab();
-			this.tabContainer.appendChild(insertTab);
+			this.tabContainer.appendChild(this.createPageInsertTab());
 		}
 
-		if (wrapper.clientWidth > this.tabContainer.clientWidth - btnWidth)
+		this.leftScrollTab = this.createLeftScrollTab();
+		this.tabContainer.appendChild(this.leftScrollTab);
+
+		this.rightScrollTab = this.createRightScrollTab();
+		this.tabContainer.appendChild(this.rightScrollTab);
+
+		this.tabScroller = wrapper;
+		this.tabScroller.scrollLeft = sl;
+		this.checkTabScrollerOverflow();
+
+		mxEvent.addListener(this.tabScroller, 'scroll', mxUtils.bind(this, function(evt)
 		{
-			if (insertTab != null)
-			{
-				insertTab.style.position = 'absolute';
-				insertTab.style.right = '0px';
-				wrapper.style.marginRight = '30px';
-			}
-			
-			var temp = this.createControlTab(4, '&nbsp;&#10094;&nbsp;');
-			temp.style.position = 'absolute';
-			temp.style.right = (this.editor.chromeless) ? '29px' : '55px';
-			temp.style.fontSize = '13pt';
-			
-			this.tabContainer.appendChild(temp);
-			
-			var temp2 = this.createControlTab(4, '&nbsp;&#10095;');
-			temp2.style.position = 'absolute';
-			temp2.style.right = (this.editor.chromeless) ? '0px' : '29px';
-			temp2.style.fontSize = '13pt';
-			
-			this.tabContainer.appendChild(temp2);
-			
-			// TODO: Scroll to current page
-			var dx = Math.max(0, this.tabContainer.clientWidth - ((this.editor.chromeless) ? 86 : 116));
-			wrapper.style.width = dx + 'px';
-			
-			var fade = 50;
-			
-			mxEvent.addListener(temp, 'click', mxUtils.bind(this, function(evt)
-			{
-				wrapper.scrollLeft -= Math.max(20, dx - 20);
-				mxUtils.setOpacity(temp, (wrapper.scrollLeft > 0) ? 100 : fade);
-				mxUtils.setOpacity(temp2, (wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth) ? 100 : fade);
-				mxEvent.consume(evt);
-			}));
-		
-			mxUtils.setOpacity(temp, (wrapper.scrollLeft > 0) ? 100 : fade);
-			mxUtils.setOpacity(temp2, (wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth) ? 100 : fade);
+			this.checkTabScrollerOverflow();
+		}));
 
-			mxEvent.addListener(temp2, 'click', mxUtils.bind(this, function(evt)
-			{
-				wrapper.scrollLeft += Math.max(20, dx - 20);
-				mxUtils.setOpacity(temp, (wrapper.scrollLeft > 0) ? 100 : fade);
-				mxUtils.setOpacity(temp2, (wrapper.scrollLeft < wrapper.scrollWidth - wrapper.clientWidth) ? 100 : fade);
-				mxEvent.consume(evt);
-			}));
-		}
+		window.setTimeout(mxUtils.bind(this, function()
+		{
+			mxUtils.setPrefixedStyle(this.leftScrollTab.style, 'transition', 'all 0.2s linear');
+			mxUtils.setPrefixedStyle(this.rightScrollTab.style, 'transition', 'all 0.2s linear');
+		}), 0);
+	}
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.checkTabScrollerOverflow = function()
+{
+	if (this.tabScroller != null && this.tabContainer != null &&
+		this.tabContainer.children.length > 2)
+	{
+		var overflow = this.tabScroller.scrollWidth > this.tabScroller.offsetWidth;
+		this.leftScrollTab.style.opacity = (!overflow) ? 0 :
+			((this.tabScroller.scrollLeft == 0) ? 0.2 : 1);
+		this.rightScrollTab.style.opacity = (!overflow) ? 0 :
+			((Math.ceil(this.tabScroller.scrollLeft) + this.tabScroller.offsetWidth >=
+				this.tabScroller.scrollWidth) ? 0.2 : 1);
 	}
 };
 
@@ -1474,63 +1512,11 @@ EditorUi.prototype.isPageInsertTabVisible = function()
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createTab = function(hoverEnabled)
+EditorUi.prototype.createTab = function()
 {
 	var tab = document.createElement('div');
-	tab.style.display = 'inline-block';
-	tab.style.whiteSpace = 'nowrap';
-	tab.style.boxSizing = 'border-box';
-	tab.style.position = 'relative';
-	tab.style.overflow = 'hidden';
-	tab.style.textAlign = 'center';
-	tab.style.marginLeft = '-1px';
-	tab.style.height = this.tabContainer.clientHeight + 'px';
-	tab.style.padding = '12px 4px 8px 4px';
-	tab.style.border = Editor.isDarkMode() ? '1px solid #505759' : '1px solid #e8eaed';
-	tab.style.borderTopStyle = 'none';
-	tab.style.borderBottomStyle = 'none';
-	tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
-	tab.style.cursor = 'move';
-	tab.style.color = 'gray';
+	tab.className = 'geTab';
 
-	if (hoverEnabled)
-	{
-		mxEvent.addListener(tab, 'mouseenter', mxUtils.bind(this, function(evt)
-		{
-			if (!this.editor.graph.isMouseDown)
-			{
-				tab.style.backgroundColor = Editor.isDarkMode() ? 'black' : '#e8eaed';
-				mxEvent.consume(evt);
-			}
-		}));
-		
-		mxEvent.addListener(tab, 'mouseleave', mxUtils.bind(this, function(evt)
-		{
-			tab.style.backgroundColor = this.tabContainer.style.backgroundColor;
-			mxEvent.consume(evt);
-		}));
-	}
-	
-	return tab;
-};
-
-/**
- * Returns true if the given string contains an mxfile.
- */
-EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
-{
-	var tab = this.createTab((hoverEnabled != null) ? hoverEnabled : true);
-	tab.style.lineHeight = this.tabContainerHeight + 'px';
-	tab.style.paddingTop = paddingTop + 'px';
-	tab.style.cursor = 'pointer';
-	tab.style.width = '30px';
-	tab.innerHTML = html;
-
-	if (tab.firstChild != null && tab.firstChild.style != null)
-	{
-		mxUtils.setOpacity(tab.firstChild, 40);
-	}
-	
 	return tab;
 };
 
@@ -1539,11 +1525,16 @@ EditorUi.prototype.createControlTab = function(paddingTop, html, hoverEnabled)
  */
 EditorUi.prototype.getShortPageName = function(page)
 {
-	var short = page.getName();
-
-	if (short != null && short.length > 36)
+	var short = null;
+	
+	if (page != null)
 	{
-		short = short.substring(0, 34) + '...';
+		short = page.getName();
+
+		if (short != null && short.length > 36)
+		{
+			short = short.substring(0, 34) + '...';
+		}
 	}
 
 	return short;
@@ -1552,133 +1543,105 @@ EditorUi.prototype.getShortPageName = function(page)
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
+EditorUi.prototype.createControlTab = function(title, image, fn)
 {
-	var tab = this.createControlTab(3, '<div class="geSprite geSprite-dots"></div>', hoverEnabled);
-	tab.setAttribute('title', mxResources.get('pages'));
-	tab.style.position = 'absolute';
-	tab.style.marginLeft = '0px';
-	tab.style.top = '0px';
-	tab.style.left = '1px';
-	
-	var div = tab.getElementsByTagName('div')[0];
-	div.style.display = 'inline-block';
-	div.style.marginTop = '5px';
-	div.style.width = '21px';
-	div.style.height = '21px';
-	
-	mxEvent.addListener(tab, 'click', mxUtils.bind(this, function(evt)
+	var tab = this.createTab();
+	tab.className = 'geTab geControlTab';
+	tab.style.width = '30px';
+
+	if (title != null)
+	{
+		tab.setAttribute('title', title);
+	}
+
+	var inner = document.createElement('div');
+	inner.className = 'geAdaptiveAsset';
+	inner.style.backgroundImage = 'url(' + image + ')';
+	inner.style.backgroundRepeat = 'no-repeat';
+	inner.style.backgroundPosition = 'center';
+	inner.style.backgroundSize = '24px';
+	inner.style.position = 'relative';
+	inner.style.opacity = '0.5';
+	inner.style.width = '100%';
+	inner.style.height = '100%';
+
+	tab.appendChild(inner);
+
+	mxEvent.addListener(tab, 'click', fn);
+
+	return tab;
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.createPageInsertTab = function()
+{
+	return this.createControlTab(mxResources.get('insertPage'),
+		Editor.plusImage, mxUtils.bind(this, function(evt)
+		{
+			this.insertPage();
+			mxEvent.consume(evt);
+		}));
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.createLeftScrollTab = function()
+{
+	return this.createControlTab(null, Editor.thinArrowLeftImage, mxUtils.bind(this, function(evt)
+		{
+			var dx = Math.max(60, this.tabScroller.clientWidth / 2);
+
+			if (this.tabScroller.scrollBy != null)
+			{
+				this.tabScroller.scrollBy({left: -dx, top: 0, behavior: 'smooth'});
+			}
+			else
+			{
+				this.tabScroller.scrollLeft -= dx;
+			}
+
+			mxEvent.consume(evt);
+		}));
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.createRightScrollTab = function()
+{
+	return this.createControlTab(null, Editor.thinArrowRightImage, mxUtils.bind(this, function(evt)
+		{
+			var dx = Math.max(60, this.tabScroller.clientWidth / 2);
+
+			if (this.tabScroller.scrollBy != null)
+			{
+				this.tabScroller.scrollBy({left: dx, top: 0, behavior: 'smooth'});
+			}
+			else
+			{
+				this.tabScroller.scrollLeft += dx;
+			}
+
+			mxEvent.consume(evt);
+		}));
+};
+
+/**
+ * Returns true if the given string contains an mxfile.
+ */
+EditorUi.prototype.createPageMenuTab = function()
+{
+	return this.createControlTab(mxResources.get('pages'),
+		Editor.verticalDotsImage, mxUtils.bind(this, function(evt)
 	{
 		this.editor.graph.popupMenuHandler.hideMenu();
 
 		var menu = new mxPopupMenu(mxUtils.bind(this, function(menu, parent)
 		{
-			var addPages = mxUtils.bind(this, function()
-			{
-				for (var i = 0; i < this.pages.length; i++)
-				{
-					(mxUtils.bind(this, function(index)
-					{
-						var item = menu.addItem(this.getShortPageName(this.pages[index]),
-							null, mxUtils.bind(this, function()
-						{
-							this.selectPage(this.pages[index]);
-						}), parent);
-
-						var id = this.pages[index].getId();
-						item.setAttribute('title', this.pages[index].getName() +
-							' (' + (index + 1) + '/' + this.pages.length + ')' +
-							((id != null) ? ' [' + id + ']' : ''));
-						
-						// Adds checkmark to current page
-						if (this.pages[index] == this.currentPage)
-						{
-							menu.addCheckmark(item, Editor.checkmarkImage);
-						}
-					}))(i);
-				}
-			});
-
-			var addInsert = mxUtils.bind(this, function()
-			{
-				menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
-				{
-					this.insertPage();
-				}), parent);
-			});
-
-			if (!invert)
-			{
-				addPages();
-			}
-			
-			if (this.editor.graph.isEnabled())
-			{
-				if (!invert)
-				{
-					menu.addSeparator(parent);
-					addInsert();
-				}
-
-				var page = this.currentPage;
-				
-				if (page != null)
-				{
-					menu.addSeparator(parent);
-
-					if (Editor.currentTheme == 'sketch' ||
-						Editor.currentTheme == 'simple')
-					{
-						var url = this.getLinkForPage(page);
-
-						if (url != null)
-						{
-							menu.addItem(mxResources.get('link') + '...', null, mxUtils.bind(this, function()
-							{
-								this.showPageLinkDialog(page);
-							}));
-
-							menu.addSeparator(parent);
-						}
-
-						if (this.pages.length > 1)
-						{
-							this.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
-							menu.addSeparator(parent);
-						}
-					}
-	
-					var pageName = this.getShortPageName(page);
-
-					menu.addItem(mxResources.get('removeIt', [pageName]), null, mxUtils.bind(this, function()
-					{
-						this.removePage(page);
-					}), parent);
-					
-					menu.addItem(mxResources.get('renameIt', [pageName]) + '...', null, mxUtils.bind(this, function()
-					{
-						this.renamePage(page, page.getName());
-					}), parent);
-
-					if (!invert)
-					{
-						menu.addSeparator(parent);
-					}
-					
-					menu.addItem(mxResources.get('duplicateIt', [pageName]), null, mxUtils.bind(this, function()
-					{
-						this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
-					}), parent);
-				}
-			}
-
-			if (invert)
-			{
-				menu.addSeparator(parent);
-				addInsert();
-				menu.addSeparator(parent);
-				addPages();
-			}
+			this.menus.get('pages').funct(menu, parent);
 		}));
 		
 		menu.div.className += ' geMenubarMenu';
@@ -1702,52 +1665,25 @@ EditorUi.prototype.createPageMenuTab = function(hoverEnabled, invert)
 
 		mxEvent.consume(evt);
 	}));
-	
-	return tab;
 };
 
 /**
  * Returns true if the given string contains an mxfile.
  */
-EditorUi.prototype.createPageInsertTab = function()
+EditorUi.prototype.createTabForPage = function(page, pageNumber)
 {
-	var tab = this.createControlTab(4, '<div class="geSprite geSprite-plus"></div>');
-	tab.setAttribute('title', mxResources.get('insertPage'));
-	var graph = this.editor.graph;
-	
-	mxEvent.addListener(tab, 'click', mxUtils.bind(this, function(evt)
-	{
-		this.insertPage();
-		mxEvent.consume(evt);
-	}));
-	
-	var div = tab.getElementsByTagName('div')[0];
-	div.style.display = 'inline-block';
-	div.style.width = '21px';
-	div.style.height = '21px';
-	
-	return tab;
-};
-
-/**
- * Returns true if the given string contains an mxfile.
- */
-EditorUi.prototype.createTabForPage = function(page, tabWidth, hoverEnabled, pageNumber)
-{
-	var tab = this.createTab(hoverEnabled);
+	var tab = this.createTab();
 	var name = page.getName() || mxResources.get('untitled');
 	var id = page.getId();
-	tab.setAttribute('title', name + ((id != null) ? ' (' + id + ')' : '') + ' [' + pageNumber + ']');
-	mxUtils.write(tab, name);
-	tab.style.maxWidth = tabWidth + 'px';
-	tab.style.width = tabWidth + 'px';
+	tab.setAttribute('title', name + ((id != null) ?
+		' (' + id + ')' : '') + ' [' + pageNumber + ']');
+	
+	var label = document.createElement('span');
+	mxUtils.write(label, name);
+	tab.appendChild(label);
+
 	this.addTabListeners(page, tab);
-	
-	if (tabWidth > 42)
-	{
-		tab.style.textOverflow = 'ellipsis';
-	}
-	
+
 	return tab;
 };
 
@@ -1761,7 +1697,6 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 {
 	mxEvent.disableContextMenu(tab);
 	var graph = this.editor.graph;
-	var model = graph.model;
 
 	mxEvent.addListener(tab, 'dblclick', mxUtils.bind(this, function(evt)
 	{
@@ -1769,10 +1704,18 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 		mxEvent.consume(evt);
 	}));
 	
+	var elt = document.createElement('div');
+	elt.className = 'geTabMenuButton';
+	elt.style.backgroundImage = 'url(' + mxWindow.prototype.minimizeImage + ')';
+	elt.style.backgroundPosition = 'center center';
+	elt.style.backgroundRepeat = 'no-repeat';
+	elt.style.backgroundSize = '10px';
+	tab.appendChild(elt);
+	
 	var menuWasVisible = false;
 	var pageWasActive = false;
-	
-	mxEvent.addGestureListeners(tab, mxUtils.bind(this, function(evt)
+
+	var onMouseDown = mxUtils.bind(this, function(evt)
 	{
 		// Do not consume event here to allow for drag and drop of tabs
 		menuWasVisible = this.currentMenu != null;
@@ -1782,10 +1725,15 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 		{
 			this.selectPage(page);
 		}
-	}), null, mxUtils.bind(this, function(evt)
+		
+		this.scrollToPage();
+	});
+
+	var onMouseUp = mxUtils.bind(this, function(evt)
 	{
 		if (graph.isEnabled() && !graph.isMouseDown &&
-			((mxEvent.isTouchEvent(evt) && pageWasActive) ||
+			((pageWasActive && (mxEvent.isTouchEvent(evt) ||
+				mxEvent.getSource(evt) == elt)) ||
 			mxEvent.isPopupTrigger(evt)))
 		{
 			graph.popupMenuHandler.hideMenu();
@@ -1813,10 +1761,13 @@ EditorUi.prototype.addTabListeners = function(page, tab)
 				menu.popup(x, y, null, evt);
 				this.setCurrentMenu(menu, tab);
 			}
-			
-			mxEvent.consume(evt);
 		}
-	}));
+
+		mxEvent.consume(evt);
+	});
+
+	mxEvent.addGestureListeners(elt, onMouseDown, null, onMouseUp);
+	mxEvent.addGestureListeners(tab, onMouseDown, null, onMouseUp);
 };
 
 /**
@@ -1858,33 +1809,18 @@ EditorUi.prototype.createPageMenu = function(page, label)
 {
 	return mxUtils.bind(this, function(menu, parent)
 	{
-		if (this.currentPage == page && this.pages.length > 1)
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && this.getServiceName() == 'draw.io')
 		{
-			this.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
-			menu.addSeparator(parent);
+			menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
+			{
+				this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
+			}), parent);
 		}
 
-		menu.addItem(mxResources.get('insert'), null, mxUtils.bind(this, function()
-		{
-			this.insertPage(null, mxUtils.indexOf(this.pages, page) + 1);
-		}), parent);
-	
-		menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
-		{
-			this.removePage(page);
-		}), parent);
-		
-		menu.addItem(mxResources.get('rename') + '...', null, mxUtils.bind(this, function()
-		{
-			this.renamePage(page, label);
-		}), parent);
-		
 		var url = this.getLinkForPage(page);
 
 		if (url != null)
 		{
-			menu.addSeparator(parent);
-			
 			menu.addItem(mxResources.get('link') + '...', null, mxUtils.bind(this, function()
 			{
 				this.showPageLinkDialog(page);
@@ -1892,21 +1828,29 @@ EditorUi.prototype.createPageMenu = function(page, label)
 		}
 		
 		menu.addSeparator(parent);
+
+		menu.addItem(mxResources.get('rename') + '...', null, mxUtils.bind(this, function()
+		{
+			this.renamePage(page, label);
+		}), parent);
+	
+		menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
+		{
+			this.removePage(page);
+		}), parent);
+		
+		if (this.currentPage == page && this.pages.length > 1)
+		{
+			this.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
+			menu.addSeparator(parent);
+		}
+
+		menu.addSeparator(parent);
 		
 		menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
 		{
 			this.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
 		}), parent);
-		
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && this.getServiceName() == 'draw.io')
-		{		
-			menu.addSeparator(parent);
-			
-			menu.addItem(mxResources.get('openInNewWindow'), null, mxUtils.bind(this, function()
-			{
-				this.editor.editAsNew(this.getFileData(true, null, null, null, true, true));
-			}), parent);
-		}
 	});
 };
 
@@ -1947,18 +1891,6 @@ EditorUi.prototype.showPageLinkDialog = function(page)
 		dlg.init();
 	}));
 };
-
-// Overrides refresh to repaint tab container
-(function()
-{
-	var editorUiRefresh = EditorUi.prototype.refresh;
-	
-	EditorUi.prototype.refresh = function()
-	{
-		editorUiRefresh.apply(this, arguments);
-		this.updateTabContainer();
-	}
-})();
 
 //Overrides ChangePageSetup codec to exclude page
 (function()

@@ -263,8 +263,7 @@ var mxSettings =
 			plugins: [],
 			recentColors: [],
 			formatWidth: mxSettings.defaultFormatWidth,
-			createTarget: urlParams['sketch'] == '1' ||
-				Editor.enableSimpleTheme,
+			createTarget: urlParams['sketch'] == '1',
 			pageFormat: mxGraph.prototype.pageFormat,
 			search: true,
 			showStartScreen: true,

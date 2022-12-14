@@ -30,6 +30,7 @@ try
 		}
 		
 		if ((/test\.draw\.io$/.test(window.location.hostname)) ||
+			(/stage\.diagrams\.net$/.test(window.location.hostname)) ||
 			(/app\.diagrams\.net$/.test(window.location.hostname)))
 		{
 			var link = document.createElement('a');

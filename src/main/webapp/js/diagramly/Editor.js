@@ -17,46 +17,76 @@
 		 */
 		html4.ATTRIBS['font::data-font-src'] = 0;
 	}
-
+	
 	/**
 	 * Definitions for sketch font styles.
 	 */
 	Editor.sketchFontFamily = 'Architects Daughter';
 	Editor.sketchFontSource = 'https%3A%2F%2Ffonts.googleapis.com%2Fcss%3Ffamily%3DArchitects%2BDaughter';
 	Editor.sketchFonts = [{'fontFamily': Editor.sketchFontFamily, 'fontUrl': decodeURIComponent(Editor.sketchFontSource)}];
+	Editor.sketchDefaultCurveFitting = '1';
+	Editor.sketchDefaultJiggle = '2';
+		
+	/**
+	 * Icons for new UI style exported from https://fonts.google.com/icons (FFill: 0 Weight: 300 Grade: 0 Optical size: 48).
+	 */
+	Editor.thinCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEyLjUgMjcuNWgyM3YtMi4yNWgtMjNabTAtNi4zNWgyM3YtMi4zaC0yM1ptMC02LjRoMjNWMTIuNWgtMjNaTTQzIDQyLjEgMzUuOSAzNWgtMjhxLTEuMTUgMC0yLjAyNS0uODc1VDUgMzIuMVY3LjlxMC0xLjE1Ljg3NS0yLjAyNVQ3LjkgNWgzMi4ycTEuMiAwIDIuMDUuODc1UTQzIDYuNzUgNDMgNy45Wk03LjI1IDcuOXYyNC44NUgzNi45bDMuODUgMy44NVY3LjlxMC0uMy0uMTc1LS40NzVUNDAuMSA3LjI1SDcuOXEtLjMgMC0uNDc1LjE3NVQ3LjI1IDcuOVptMCAwdjI4LjdWNy4yNSA3LjlaIi8+PC9zdmc+';
+	Editor.thinDesignImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0ibTM2LjUgMTguMzUtNi44NS02Ljg1IDMuMjUtMy4ycS44NS0uODUgMi4wMjUtLjg1IDEuMTc1IDAgMi4wMjUuODVsMi43NSAyLjhxLjg1LjguODUgMnQtLjg1IDJaTTYuODUgNDEuMXYtNi45bDkuNTUtOS41NUw1LjUgMTMuN2w3LjgtNy44NSAxMSAxMSA1LjM1LTUuMzUgNi44NSA2Ljg1LTUuMzUgNS4zNSAxMSAxMS03Ljg1IDcuNzUtMTAuOTUtMTAuOS05LjYgOS41NVptMTEuMi0xOC4wNSA0LjY1LTQuNi00LjA1LTQuMDUtMi4zNSAyLjQtMS42LTEuNiAyLjM1LTIuNC0zLjc1LTMuNzUtNC42IDQuNjVabTE2LjIgMTYuMjUgNC42NS00LjY1LTMuNzUtMy43NS0yLjQgMi40LTEuNi0xLjYgMi40LTIuNC00LjA1LTQtNC42IDQuNjVabS0yNS4xLS40NWgzLjZsMjAuNS0yMC40NS0zLjY1LTMuNjVMOS4xNSAzNS4yWiIvPjwvc3ZnPg==';
+	Editor.thinGestureImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI4IDQxLjZxLTIuNSAwLTQuMDc1LTEuNjUtMS41NzUtMS42NS0xLjU3NS00LjM1IDAtMi4zNSAxLjEtNC4xIDEuMS0xLjc1IDIuODI1LTIuOTUgMS43MjUtMS4yIDMuNy0xLjgyNVQzMy42NSAyNnEtLjE1LTMuMDUtMS4yNS00LjQyNVQyOS4yNSAyMC4ycS0yLjMgMC00LjE3NSAxLjV0LTQuNDI1IDQuOTVxLTIuNjUgMy40NS00LjYgNS4xLTEuOTUgMS42NS00LjM1IDEuNjUtMi4xIDAtMy42NS0xLjM3NVE2LjUgMzAuNjUgNi41IDI3LjQ1cTAtMiAxLjItNC41MjUgMS4yLTIuNTI1IDMuNS02LjE3NSAxLjMtMS44NSAxLjk3NS0zLjIyNXQuNjc1LTIuMzc1cTAtLjctLjM1LTEuMDUtLjM1LS4zNS0xLjA1LS4zNS0uNzUgMC0xLjYuNDc1UTEwIDEwLjcgOSAxMS45TDcgOS44cTEuMzUtMS41NSAyLjcyNS0yLjI3NVExMS4xIDYuOCAxMi41IDYuOHExLjkgMCAzLjEgMS4yNSAxLjIgMS4yNSAxLjIgMy4yIDAgMS44LS45NzUgMy41NzVRMTQuODUgMTYuNiAxMy4wNSAxOS4zcS0xLjk1IDIuOTUtMi43NzUgNC43dC0uODI1IDMuNjVxMCAxLjYuNzUgMi4yLjc1LjYgMS43NS42IDEuNDUgMCAyLjgyNS0xLjMgMS4zNzUtMS4zIDMuNTc1LTQuMTUgMi45NS0zLjggNS41MjUtNS43NzUgMi41NzUtMS45NzUgNS42NzUtMS45NzUgMy4xNSAwIDUgMi4zMjVUMzYuNiAyNS45aDQuOXYyLjk1aC00LjlxLS40NSA3LjM1LTMuMiAxMC4wNS0yLjc1IDIuNy01LjQgMi43Wm0uMS0yLjk1cTEuODUgMCAzLjY1LTIuMjUgMS44LTIuMjUgMi03LjUtMi44LjE1LTUuNjI1IDIuMDI1VDI1LjMgMzUuOXEwIDEuMy43NSAyLjAyNS43NS43MjUgMi4wNS43MjVaIi8+PC9zdmc+';
+	Editor.thinShapesImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI5Ljc1IDI5Ljc1Wm0tMTMgNS40NXEuNC4wNS43NS4wNUgxOS4wNXY0LjY1cTAgLjI1LjE3NS40MjV0LjQyNS4xNzVIMzkuOXEuMjUgMCAuNDI1LS4xNzV0LjE3NS0uNDI1VjE5LjY1cTAtLjI1LS4xNzUtLjQyNXQtLjQyNS0uMTc1aC00LjY1VjE3LjVxMC0uMzUtLjA1LS43NWg0LjdxMS4xNSAwIDIgLjg3NS44NS44NzUuODUgMi4wMjVWMzkuOXEwIDEuMTUtLjg1IDItLjg1Ljg1LTIgLjg1SDE5LjY1cS0xLjE1IDAtMi4wMjUtLjg1dC0uODc1LTJabTEuNS0zLjk1cS01LjQ1IDAtOS4yMjUtMy44LTMuNzc1LTMuOC0zLjc3NS05LjIgMC01LjQ1IDMuNzc1LTkuMjI1UTEyLjggNS4yNSAxOC4yNSA1LjI1cTUuNCAwIDkuMiAzLjc3NSAzLjggMy43NzUgMy44IDkuMjI1IDAgNS40LTMuOCA5LjItMy44IDMuOC05LjIgMy44Wm0tLjA1LTIuM3E0LjQ1IDAgNy42LTMuMTI1IDMuMTUtMy4xMjUgMy4xNS03LjU3NXQtMy4xMjUtNy42UTIyLjcgNy41IDE4LjI1IDcuNXQtNy42IDMuMTI1UTcuNSAxMy43NSA3LjUgMTguMnQzLjEyNSA3LjZxMy4xMjUgMy4xNSA3LjU3NSAzLjE1Wm0uMDUtMTAuN1oiLz48L3N2Zz4=';
+	Editor.thinUndoImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTE0LjQgMzcuNXYtMi4yNWgxMy45cTMuNiAwIDYuMjI1LTIuMzc1UTM3LjE1IDMwLjUgMzcuMTUgMjYuOXEwLTMuNTUtMi42MjUtNS45LTIuNjI1LTIuMzUtNi4yMjUtMi4zNUgxMi45NUwxOSAyNC43bC0xLjYgMS42LTguOC04LjggOC44LTguOCAxLjYgMS42LTYuMDUgNi4wNWgxNS4zcTQuNTUgMCA3Ljg1IDMuMDV0My4zIDcuNXEwIDQuNS0zLjMgNy41NXQtNy44NSAzLjA1WiIvPjwvc3ZnPg==';
+	Editor.thinRedoImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTE5Ljc1IDM3LjVxLTQuNTUgMC03Ljg1LTMuMDVUOC42IDI2LjlxMC00LjQ1IDMuMy03LjV0Ny44NS0zLjA1aDE1LjNMMjkgMTAuM2wxLjYtMS42IDguOCA4LjgtOC44IDguOC0xLjYtMS42IDYuMDUtNi4wNUgxOS43cS0zLjYgMC02LjIyNSAyLjM1LTIuNjI1IDIuMzUtMi42MjUgNS45IDAgMy42IDIuNjI1IDUuOTc1UTE2LjEgMzUuMjUgMTkuNyAzNS4yNWgxMy45djIuMjVaIi8+PC9zdmc+';
+	Editor.thinDoubleArrowRightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0ibTEzIDM1LjMtMS42LTEuNiA5Ljc1LTkuNzUtOS43NS05LjcgMS42LTEuNiAxMS4zNSAxMS4zWm0xMi4zIDAtMS42LTEuNiA5Ljc1LTkuNzUtOS43NS05LjcgMS42LTEuNiAxMS4zIDExLjNaIi8+PC9zdmc+';
+	Editor.thinNoteAddImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTIyLjg1IDM1LjdoMi4zdi02LjNoNi4zNXYtMi4zaC02LjM1di02LjM1aC0yLjN2Ni4zNUgxNi41djIuM2g2LjM1Wk0xMS45IDQzcS0xLjIgMC0yLjA1LS44NVE5IDQxLjMgOSA0MC4xVjcuOXEwLTEuMi44NS0yLjA1UTEwLjcgNSAxMS45IDVoMTcuMzVMMzkgMTQuNzVWNDAuMXEwIDEuMi0uODUgMi4wNS0uODUuODUtMi4wNS44NVptMTYuMjUtMjcuMjV2LTguNUgxMS45cS0uMjUgMC0uNDUuMnQtLjIuNDV2MzIuMnEwIC4yNS4yLjQ1dC40NS4yaDI0LjJxLjI1IDAgLjQ1LS4ydC4yLS40NVYxNS43NVptLTE2LjktOC41djguNS04LjVWNDAuNzUgNy4yNVoiLz48L3N2Zz4=';
+	Editor.thinTableImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTcgNDFWN2gzNHYzNFptMi4yNS0yMy42aDI5LjVWOS4yNUg5LjI1Wm0xMC42IDEwLjdoOC4zdi04LjRoLTguM1ptMCAxMC42NWg4LjN2LTguNGgtOC4zWk05LjI1IDI4LjFoOC4zNXYtOC40SDkuMjVabTIxLjE1IDBoOC4zNXYtOC40SDMwLjRaTTkuMjUgMzguNzVoOC4zNXYtOC40SDkuMjVabTIxLjE1IDBoOC4zNXYtOC40SDMwLjRaIi8+PC9zdmc+';
+	Editor.thinAddCircleImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTIzIDMzLjVoMi4yNXYtOC4yaDguMjVWMjNoLTguMjV2LTguNUgyM1YyM2gtOC41djIuM0gyM1ptMSA5LjVxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabS4wNS0yLjI1cTYuOTUgMCAxMS44MjUtNC45IDQuODc1LTQuOSA0Ljg3NS0xMS45IDAtNi45NS00Ljg3NS0xMS44MjVRMzEgNy4yNSAyNCA3LjI1cS02Ljk1IDAtMTEuODUgNC44NzVRNy4yNSAxNyA3LjI1IDI0cTAgNi45NSA0LjkgMTEuODUgNC45IDQuOSAxMS45IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
+	Editor.thinArrowLeftImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI4LjA1IDM1LjMgMTYuNyAyMy45NSAyOC4wNSAxMi42bDEuNiAxLjY1LTkuNyA5LjcgOS43IDkuNzVaIi8+PC9zdmc+';
+	Editor.thinArrowRightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0ibTE4Ljc1IDM1LjMtMS42LTEuNiA5LjctOS43NS05LjctOS43IDEuNi0xLjY1TDMwLjEgMjMuOTVaIi8+PC9zdmc+';
+	Editor.thinVerticalDotsImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0LjA1IDQxLjdxLTEuMjUgMC0yLjEyNS0uODc1dC0uODc1LTIuMDc1cTAtMS4yLjg3NS0yLjEuODc1LS45IDIuMDc1LS45IDEuMjUgMCAyLjEuOS44NS45Ljg1IDIuMSAwIDEuMi0uODUgMi4wNzUtLjg1Ljg3NS0yLjA1Ljg3NVptMC0xNC43NXEtMS4yNSAwLTIuMTI1LS44NzVUMjEuMDUgMjRxMC0xLjI1Ljg3NS0yLjEuODc1LS44NSAyLjA3NS0uODUgMS4yNSAwIDIuMS44NS44NS44NS44NSAyLjA1IDAgMS4yNS0uODUgMi4xMjV0LTIuMDUuODc1Wm0wLTE0LjdxLTEuMjUgMC0yLjEyNS0uODc1VDIxLjA1IDkuMjVxMC0xLjI1Ljg3NS0yLjEyNVQyNCA2LjI1cTEuMjUgMCAyLjEuODc1Ljg1Ljg3NS44NSAyLjEyNXQtLjg1IDIuMTI1cS0uODUuODc1LTIuMDUuODc1WiIvPjwvc3ZnPg==';
+	Editor.thinDeleteImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjkgNDFxLTEuMTUgMC0yLS44NS0uODUtLjg1LS44NS0yLjA1VjEwLjlIOVY4LjY1aDguNTV2LTEuNGgxMi45djEuNEgzOXYyLjI1aC0yLjA1djI3LjJxMCAxLjItLjg1IDIuMDUtLjg1Ljg1LTIgLjg1Wm0yMC44LTMwLjFIMTMuM3YyNy4ycTAgLjMuMTc1LjQ3NXQuNDI1LjE3NWgyMC4ycS4yIDAgLjQtLjJ0LjItLjQ1Wk0xOS4wNSAzNC41aDIuM1YxNS4xaC0yLjNabTcuNiAwaDIuM1YxNS4xaC0yLjNaTTEzLjMgMTAuOXYyNy44NVYzOC4xWiIvPjwvc3ZnPg==';
+	Editor.thinLightImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0IDMwLjc1cTIuOCAwIDQuNzc1LTEuOTc1UTMwLjc1IDI2LjggMzAuNzUgMjRxMC0yLjgtMS45NzUtNC43NzVRMjYuOCAxNy4yNSAyNCAxNy4yNXEtMi44IDAtNC43NzUgMS45NzVRMTcuMjUgMjEuMiAxNy4yNSAyNHEwIDIuOCAxLjk3NSA0Ljc3NVEyMS4yIDMwLjc1IDI0IDMwLjc1Wk0yNCAzM3EtMy43NSAwLTYuMzc1LTIuNjI1VDE1IDI0cTAtMy43NSAyLjYyNS02LjM3NVQyNCAxNXEzLjc1IDAgNi4zNzUgMi42MjVUMzMgMjRxMCAzLjc1LTIuNjI1IDYuMzc1VDI0IDMzWk0zLjY1IDI1LjE1cS0uNSAwLS44MjUtLjMyNVEyLjUgMjQuNSAyLjUgMjRxMC0uNS4zMjUtLjgyNS4zMjUtLjMyNS44MjUtLjMyNWg1LjJxLjUgMCAuODI1LjMyNVExMCAyMy41IDEwIDI0cTAgLjUtLjMyNS44MjUtLjMyNS4zMjUtLjgyNS4zMjVabTM1LjUgMHEtLjUgMC0uODI1LS4zMjVRMzggMjQuNSAzOCAyNHEwLS41LjMyNS0uODI1LjMyNS0uMzI1LjgyNS0uMzI1aDUuMnEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNSAwIC41LS4zMjUuODI1LS4zMjUuMzI1LS44MjUuMzI1Wk0yNCAxMHEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAyLjUgMjQgMi41cS41IDAgLjgyNS4zMjUuMzI1LjMyNS4zMjUuODI1djUuMnEwIC41LS4zMjUuODI1UTI0LjUgMTAgMjQgMTBabTAgMzUuNXEtLjUgMC0uODI1LS4zMjUtLjMyNS0uMzI1LS4zMjUtLjgyNXYtNS4ycTAtLjUuMzI1LS44MjVRMjMuNSAzOCAyNCAzOHEuNSAwIC44MjUuMzI1LjMyNS4zMjUuMzI1LjgyNXY1LjJxMCAuNS0uMzI1LjgyNS0uMzI1LjMyNS0uODI1LjMyNVpNMTIuNSAxNC4xbC0zLTIuOTVxLS4zNS0uMzUtLjMyNS0uODI1UTkuMiA5Ljg1IDkuNSA5LjVxLjM1LS4zNS44LS4zNS40NSAwIC44NS4zNWwyLjk1IDNxLjMuMzUuMy44IDAgLjQ1LS4zLjgtLjMuMy0uNzc1LjMtLjQ3NSAwLS44MjUtLjNabTI0LjM1IDI0LjQtMi45NS0zcS0uMy0uMzUtLjMtLjggMC0uNDUuMzUtLjguMjUtLjM1LjcyNS0uMzV0LjgyNS4zNWwzIDIuOTVxLjM1LjM1LjMyNS44MjUtLjAyNS40NzUtLjMyNS44MjUtLjM1LjM1LS44LjM1LS40NSAwLS44NS0uMzVaTTMzLjkgMTQuMXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjhsMi45NS0zcS4zNS0uMzUuODI1LS4zMjUuNDc1LjAyNS44MjUuMzI1LjM1LjM1LjM1LjggMCAuNDUtLjM1Ljg1bC0zIDIuOTVxLS4zLjMtLjc3NS4zLS40NzUgMC0uODI1LS4zWk05LjUgMzguNXEtLjM1LS4zNS0uMzUtLjggMC0uNDUuMzUtLjg1bDMtMi45NXEuMzUtLjM1LjgtLjM1LjQ1IDAgLjguMzUuMzUuMy4zMjUuNzc1LS4wMjUuNDc1LS4zMjUuODI1bC0yLjk1IDNxLS40LjM1LS44NS4zNS0uNDUgMC0uOC0uMzVaTTI0IDI0WiIvPjwvc3ZnPg==';
+	Editor.thinDarkImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0LjA1IDQxcS03LjEgMC0xMi4wNS00Ljk1UTcuMDUgMzEuMSA3LjA1IDI0cTAtNi44IDQuNi0xMS42NSA0LjYtNC44NSAxMS4zLTUuMjUuMiAwIC40NS4wMjV0LjcuMDI1UTIyLjc1IDguNyAyMiAxMC43MjVxLS43NSAyLjAyNS0uNzUgNC4yNzUgMCA0LjkgMy40NSA4LjM1IDMuNDUgMy40NSA4LjM1IDMuNDUgMi4yIDAgNC4yNzUtLjY3NVQ0MC45IDI0LjJxMCAuMzUuMDI1LjU1LjAyNS4yLjAyNS4zNS0uNCA2LjctNS4yNSAxMS4zUTMwLjg1IDQxIDI0LjA1IDQxWm0wLTIuMjVxNS4xNSAwIDkuMDc1LTMuMTI1UTM3LjA1IDMyLjUgMzguMiAyOC4xcS0xLjIuNS0yLjUuNzI1LTEuMy4yMjUtMi42NS4yMjUtNS44NSAwLTkuOTUtNC4xVDE5IDE1cTAtMS4xNS4yMjUtMi40MjVUMjAgOS43NXEtNC42NSAxLjQtNy42NSA1LjM3NVQ5LjM1IDI0cTAgNi4xNSA0LjI3NSAxMC40NSA0LjI3NSA0LjMgMTAuNDI1IDQuM1ptLS4yNS0xNC41WiIvPjwvc3ZnPg==';
+	Editor.thinCommentImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEyLjUgMjcuNWgyM3YtMi4yNWgtMjNabTAtNi4zNWgyM3YtMi4zaC0yM1ptMC02LjRoMjNWMTIuNWgtMjNaTTQzIDQyLjEgMzUuOSAzNWgtMjhxLTEuMTUgMC0yLjAyNS0uODc1VDUgMzIuMVY3LjlxMC0xLjE1Ljg3NS0yLjAyNVQ3LjkgNWgzMi4ycTEuMiAwIDIuMDUuODc1UTQzIDYuNzUgNDMgNy45Wk03LjI1IDcuOXYyNC44NUgzNi45bDMuODUgMy44NVY3LjlxMC0uMy0uMTc1LS40NzVUNDAuMSA3LjI1SDcuOXEtLjMgMC0uNDc1LjE3NVQ3LjI1IDcuOVptMCAwdjI4LjdWNy4yNSA3LjlaIi8+PC9zdmc+';
+	Editor.thinMenuImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTEzLjUgMjYuMTVxLjkgMCAxLjUyNS0uNjI1LjYyNS0uNjI1LjYyNS0xLjUyNSAwLS45LS42MjUtMS41MjUtLjYyNS0uNjI1LTEuNTI1LS42MjUtLjkgMC0xLjUyNS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVptMTAuNSAwcS45IDAgMS41MjUtLjYyNS42MjUtLjYyNS42MjUtMS41MjUgMC0uOS0uNjI1LTEuNTI1UTI0LjkgMjEuODUgMjQgMjEuODVxLS45IDAtMS41MjUuNjI1LS42MjUuNjI1LS42MjUgMS41MjUgMCAuOS42MjUgMS41MjUuNjI1LjYyNSAxLjUyNS42MjVabTEwLjUgMHEuODUgMCAxLjQ3NS0uNjI1UTM2LjYgMjQuOSAzNi42IDI0cTAtLjktLjYyNS0xLjUyNS0uNjI1LS42MjUtMS41MjUtLjYyNS0uODUgMC0xLjQ3NS42MjUtLjYyNS42MjUtLjYyNSAxLjUyNSAwIC45LjYyNSAxLjUyNS42MjUuNjI1IDEuNTI1LjYyNVpNMjQgNDNxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabTAtMi4yNXE3IDAgMTEuODc1LTQuOVQ0MC43NSAyNHEwLTctNC44NzUtMTEuODc1VDI0IDcuMjVxLTYuOTUgMC0xMS44NSA0Ljg3NVE3LjI1IDE3IDcuMjUgMjRxMCA2Ljk1IDQuOSAxMS44NSA0LjkgNC45IDExLjg1IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
+	Editor.thinViewImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMjguNTUtMjAuNmg3LjJ2LTcuMTVoLTcuMlptMCA4Ljk1aDcuMnYtNi43aC03LjJabS0yNi4zIDkuNEgzMS4zdi0yNS41SDcuMjVabTI2LjMgMGg3LjJWMjkuNmgtNy4yWiIvPjwvc3ZnPg==';
+	Editor.thinUserAddImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTM2LjYgMjcuNXYtNi4zNWgtNi4zNXYtMi4zaDYuMzVWMTIuNWgyLjN2Ni4zNWg2LjM1djIuM0gzOC45djYuMzVaTTE4IDIzLjM1cS0yLjkgMC00Ljc3NS0xLjg3NVExMS4zNSAxOS42IDExLjM1IDE2LjdxMC0yLjkgMS44NzUtNC43NVQxOCAxMC4xcTIuOSAwIDQuNzc1IDEuODUgMS44NzUgMS44NSAxLjg3NSA0Ljc1dC0xLjg3NSA0Ljc3NVEyMC45IDIzLjM1IDE4IDIzLjM1Wk0zIDM4LjZ2LTMuOHEwLTEuNS44LTIuNzV0Mi4yNS0xLjlxMy40NS0xLjUgNi4yNzUtMi4xNSAyLjgyNS0uNjUgNS42NzUtLjY1IDIuODUgMCA1LjY1LjY1IDIuOC42NSA2LjI1IDIuMTUgMS40NS43IDIuMjc1IDEuOTI1VDMzIDM0Ljh2My44Wm0yLjI1LTIuMjVoMjUuNVYzNC44cTAtLjc1LS41LTEuNDc1LS41LS43MjUtMS4zLTEuMTI1LTMuMi0xLjUtNS42NzUtMi4wNVEyMC44IDI5LjYgMTggMjkuNnEtMi44IDAtNS4zLjU1VDcgMzIuMnEtLjguNC0xLjI3NSAxLjEyNS0uNDc1LjcyNS0uNDc1IDEuNDc1Wk0xOCAyMS4xcTEuODUgMCAzLjEtMS4yNXQxLjI1LTMuMTVxMC0xLjg1LTEuMjUtMy4xVDE4IDEyLjM1cS0xLjg1IDAtMy4xIDEuMjV0LTEuMjUgMy4xcTAgMS45IDEuMjUgMy4xNVQxOCAyMS4xWm0wLTQuNFptMCAxOS42NVoiLz48L3N2Zz4=';
+	Editor.thinErrorImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI0IDMzLjQ1cS42IDAgLjk3NS0uMzc1dC4zNzUtLjk3NXEwLS42LS4zNzUtLjk3NVQyNCAzMC43NXEtLjYgMC0uOTc1LjM3NXQtLjM3NS45NzVxMCAuNi4zNzUuOTc1dC45NzUuMzc1Wm0uMS03LjA1cS41IDAgLjgyNS0uMzI1LjMyNS0uMzI1LjMyNS0uODI1di0xMC4ycTAtLjQ1LS4zMjUtLjc3NXQtLjgyNS0uMzI1cS0uNSAwLS44LjMyNS0uMy4zMjUtLjMuNzc1djEwLjJxMCAuNS4zMjUuODI1LjMyNS4zMjUuNzc1LjMyNVpNMjQgNDNxLTMuOTUgMC03LjQtMS41dC02LjAyNS00LjA3NVE4IDM0Ljg1IDYuNSAzMS40VDUgMjRxMC0zLjk1IDEuNS03LjQyNVE4IDEzLjEgMTAuNTc1IDEwLjU1IDEzLjE1IDggMTYuNiA2LjVUMjQgNXEzLjk1IDAgNy40MjUgMS41UTM0LjkgOCAzNy40NSAxMC41NSA0MCAxMy4xIDQxLjUgMTYuNTc1IDQzIDIwLjA1IDQzIDI0cTAgMy45NS0xLjUgNy40dC00LjA1IDYuMDI1UTM0LjkgNDAgMzEuNDI1IDQxLjUgMjcuOTUgNDMgMjQgNDNabS4wNS0yLjI1cTYuOTUgMCAxMS44MjUtNC45IDQuODc1LTQuOSA0Ljg3NS0xMS45IDAtNi45NS00Ljg3NS0xMS44MjVRMzEgNy4yNSAyNCA3LjI1cS02Ljk1IDAtMTEuODUgNC44NzVRNy4yNSAxNyA3LjI1IDI0cTAgNi45NSA0LjkgMTEuODUgNC45IDQuOSAxMS45IDQuOVpNMjQgMjRaIi8+PC9zdmc+';
+	Editor.thinTextImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTMuNCA0NC42di05LjI1aDMuNTV2LTIyLjdIMy40VjMuNGg5LjI1djMuNTVoMjIuN1YzLjRoOS4yNXY5LjI1aC0zLjU1djIyLjdoMy41NXY5LjI1aC05LjI1di0zLjU1aC0yMi43djMuNTVabTkuMjUtNS44NWgyMi43di0zLjRoMy40di0yMi43aC0zLjR2LTMuNGgtMjIuN3YzLjRoLTMuNHYyMi43aDMuNFptMy4xNS02LjI1IDcuMzUtMTkuMTVoMS42NWw3LjQ1IDE5LjE1aC0yLjFMMjggMjdoLTcuODVsLTIuMSA1LjVabTQuOTUtNy4zNWg2LjVMMjQuMSAxNi44aC0uM1ptLTE1LjEtMTQuOGg0Ljd2LTQuN2gtNC43Wm0zMiAwaDQuN3YtNC43aC00LjdabTAgMzJoNC43di00LjdoLTQuN1ptLTMyIDBoNC43di00LjdoLTQuN1ptMzItMzJabTAgMjcuM1ptLTI3LjMgMFptMC0yNy4zWiIvPjwvc3ZnPg==';
+	Editor.thinRectangleImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMi4yNS0yLjI1aDMzLjV2LTI1LjVINy4yNVptMCAwdi0yNS41IDI1LjVaIi8+PC9zdmc+';
+	Editor.thinDataImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI4Ljg1IDM5LjF2LTIuMjVIMzRxMS4yIDAgMi4wMjUtLjgyNVQzNi44NSAzNHYtNC45cTAtMS43NSAxLjA3NS0zLjEyNXQyLjcyNS0xLjgyNXYtLjNxLTEuNjUtLjQ1LTIuNzI1LTEuODI1UTM2Ljg1IDIwLjY1IDM2Ljg1IDE4LjlWMTRxMC0xLjItLjgyNS0yLjAyNVQzNCAxMS4xNWgtNS4xNVY4LjlIMzRxMi4xNSAwIDMuNjI1IDEuNVQzOS4xIDE0djQuOXEwIDEuMjUuODUgMi4wNzUuODUuODI1IDIuMS44MjVoLjg1djQuNGgtLjg1cS0xLjI1IDAtMi4xLjgyNS0uODUuODI1LS44NSAyLjA3NVYzNHEwIDIuMS0xLjUgMy42VDM0IDM5LjFaTTE0IDM5LjFxLTIuMTUgMC0zLjYyNS0xLjVUOC45IDM0di00LjlxMC0xLjI1LS44NS0yLjA3NS0uODUtLjgyNS0yLjEtLjgyNUg1LjF2LTQuNGguODVxMS4yNSAwIDIuMS0uODI1Ljg1LS44MjUuODUtMi4wNzVWMTRxMC0yLjEgMS41LTMuNlQxNCA4LjloNS4xNXYyLjI1SDE0cS0xLjIgMC0yLjAyNS44MjVUMTEuMTUgMTR2NC45cTAgMS43NS0xLjA3NSAzLjEyNVQ3LjM1IDIzLjg1di4zcTEuNjUuNDUgMi43MjUgMS44MjVRMTEuMTUgMjcuMzUgMTEuMTUgMjkuMVYzNHEwIDEuMi44MjUgMi4wMjVUMTQgMzYuODVoNS4xNXYyLjI1WiIvPjwvc3ZnPg==';
 	
 	/**
 	 * 
 	 */
 	Editor.styles = [{},
-		{commonStyle: {fontColor: '#5C5C5C', strokeColor: '#006658', fillColor: '#21C0A5'}},
-		{commonStyle: {fontColor: '#095C86', strokeColor: '#AF45ED', fillColor: '#F694C1'},
-			edgeStyle: {strokeColor: '#60E696'}},
-		{commonStyle: {fontColor: '#46495D', strokeColor: '#788AA3', fillColor: '#B2C9AB'}},
-		{commonStyle: {fontColor: '#5AA9E6', strokeColor: '#FF6392', fillColor: '#FFE45E'}},
-		{commonStyle: {fontColor: '#1D3557', strokeColor: '#457B9D', fillColor: '#A8DADC'},	
-			graph: {background: '#F1FAEE'}},
 		{commonStyle: {fontColor: '#393C56', strokeColor: '#E07A5F', fillColor: '#F2CC8F'},	
 			graph: {background: '#F4F1DE', gridColor: '#D4D0C0'}},
-		{commonStyle: {fontColor: '#143642', strokeColor: '#0F8B8D', fillColor: '#FAE5C7'},
-			edgeStyle: {strokeColor: '#A8201A'},
-			graph: {background: '#DAD2D8', gridColor: '#ABA4A9'}},
-		{commonStyle: {fontColor: '#FEFAE0', strokeColor: '#DDA15E', fillColor: '#BC6C25'},
-			graph: {background: '#283618', gridColor: '#48632C'}},
+		{vertexStyle: {strokeColor: '#BAC8D3', fillColor: '#09555B', fontColor: '#EEEEEE'},
+			edgeStyle: {strokeColor: '#0B4D6A'}},
+		{vertexStyle: {strokeColor: '#FFFFFF', fillColor: '#182E3E', fontColor: '#FFFFFF'},
+			edgeStyle: {strokeColor: '#23445D'},
+			graph: {background: '#FCE7CD', gridColor: '#CFBDA8'}},
+		{vertexStyle: {strokeColor: '#D0CEE2', fillColor: '#5D7F99'},
+			edgeStyle: {strokeColor: '#736CA8'},
+			commonStyle: {fontColor: '#1A1A1A'}},
+		{commonStyle: {fontColor: '#46495D', strokeColor: '#788AA3', fillColor: '#B2C9AB'}},
+		{commonStyle: {fontColor: '#5AA9E6', strokeColor: '#FF6392', fillColor: '#FFE45E'}},
 		{commonStyle: {fontColor: '#E4FDE1', strokeColor: '#028090', fillColor: '#F45B69'},
 			graph: {background: '#114B5F', gridColor: '#0B3240'}},
+		{commonStyle: {fontColor: '#FEFAE0', strokeColor: '#DDA15E', fillColor: '#BC6C25'},
+			graph: {background: '#283618', gridColor: '#48632C'}},
+			{commonStyle: {fontColor: '#143642', strokeColor: '#0F8B8D', fillColor: '#FAE5C7'},
+			edgeStyle: {strokeColor: '#A8201A'},
+			graph: {background: '#DAD2D8', gridColor: '#ABA4A9'}},
 		{},
 		{vertexStyle: {strokeColor: '#D0CEE2', fillColor: '#FAD9D5'},
 			edgeStyle: {strokeColor: '#09555B'},
 			commonStyle: {fontColor: '#1A1A1A'}},
-		{vertexStyle: {strokeColor: '#BAC8D3', fillColor: '#09555B', fontColor: '#EEEEEE'},
-			edgeStyle: {strokeColor: '#0B4D6A'}},
-		{vertexStyle: {strokeColor: '#D0CEE2', fillColor: '#5D7F99'},
-			edgeStyle: {strokeColor: '#736CA8'},
-			commonStyle: {fontColor: '#1A1A1A'}},
-		{vertexStyle: {strokeColor: '#FFFFFF', fillColor: '#182E3E', fontColor: '#FFFFFF'},
-			edgeStyle: {strokeColor: '#23445D'},
-			graph: {background: '#FCE7CD', gridColor: '#CFBDA8'}},
+		{commonStyle: {fontColor: '#1D3557', strokeColor: '#457B9D', fillColor: '#A8DADC'},	
+			graph: {background: '#F1FAEE'}},
+		{commonStyle: {fontColor: '#095C86', strokeColor: '#AF45ED', fillColor: '#F694C1'},
+			edgeStyle: {strokeColor: '#60E696'}},
+		{commonStyle: {fontColor: '#5C5C5C', strokeColor: '#006658', fillColor: '#21C0A5'}},
 		{vertexStyle: {strokeColor: '#FFFFFF', fillColor: '#F08E81'},
 			edgeStyle: {strokeColor: '#182E3E'},
 			commonStyle: {fontColor: '#1A1A1A'},
@@ -65,17 +95,16 @@
 			edgeStyle: {strokeColor: '#182E3E'},
 			commonStyle: {fontColor: '#1A1A1A'},
 			graph: {background: '#EEEEEE'}},
-		{vertexStyle: {strokeColor: '#EEEEEE', fillColor: '#56517E', fontColor: '#FFFFFF'},
-			edgeStyle: {strokeColor: '#182E3E'},
-			graph: {background: '#FAD9D5', gridColor: '#BFA6A3'}},
 		{vertexStyle: {strokeColor: '#BAC8D3', fillColor: '#B1DDF0', fontColor: '#182E3E'},
 			edgeStyle: {strokeColor: '#EEEEEE', fontColor: '#FFFFFF'},
 			graph: {background: '#09555B', gridColor: '#13B4C2'}},
+		{vertexStyle: {strokeColor: '#EEEEEE', fillColor: '#56517E', fontColor: '#FFFFFF'},
+			edgeStyle: {strokeColor: '#182E3E'},
+			graph: {background: '#FAD9D5', gridColor: '#BFA6A3'}},
 		{vertexStyle: {fillColor: '#EEEEEE', fontColor: '#1A1A1A'},
 			edgeStyle: {fontColor: '#FFFFFF'},
 			commonStyle: {strokeColor: '#FFFFFF'},
-			graph: {background: '#182E3E', gridColor: '#4D94C7'}}
-	];
+			graph: {background: '#182E3E', gridColor: '#4D94C7'}}];
 	
 	/**
 	 * 
@@ -146,11 +175,6 @@
 	 * at runtime in the kennedy theme.
 	 */
 	Editor.enableSimpleTheme = true;
-			
-	/**
-	 * Specifies if the simple theme background should be used for the sketch theme.
-	 */
-	Editor.useSimpleBackgroundForSketch = false;
 	
 	/**
 	 * Sets the default value for including a copy of the diagram.
@@ -2072,7 +2096,25 @@
 			}
 		}
 	};
-
+	
+	/**
+	 * Returns the current state of the dark mode.
+	 */
+	Editor.isAutoDarkMode = function(ignoreUrl)
+	{
+		return (!ignoreUrl && urlParams['dark'] == 'auto') ||
+			(Editor.isSettingsEnabled() &&
+			mxSettings.settings.darkMode == 'auto');
+	};
+		 
+	 /**
+	  * 
+	  */
+	Editor.isSettingsEnabled = function()
+	{
+		return typeof window.mxSettings !== 'undefined' && (isLocalStorage || mxClient.IS_CHROMEAPP);
+	};
+ 
 	/**
 	 * Adds the global fontCss configuration.
 	 */
@@ -4067,70 +4109,10 @@
 	    };
 	    
 		/**
-		 * Hook for subclassers.
-		 */
-		DiagramStylePanel.prototype.isShadowOptionVisible = function()
-		{
-			var file = this.editorUi.getCurrentFile();
-			
-			return urlParams['embed'] == '1' || (file != null && file.isEditable());
-		};
-
-		/**
-		 * Adds the label menu items to the given menu and parent.
-		 */
-		DiagramStylePanel.prototype.addResetButton = function(td)
-		{
-			if (mxClient.IS_SVG && this.isShadowOptionVisible())
-			{
-				var ui = this.editorUi;
-				var editor = ui.editor;
-				var graph = editor.graph;
-				
-				var option = this.createOption(mxResources.get('shadow'), function()
-				{
-					return graph.shadowVisible;
-				}, function(checked)
-				{
-					var change = new ChangePageSetup(ui);
-					change.ignoreColor = true;
-					change.ignoreImage = true;
-					change.shadowVisible = checked;
-					
-					graph.model.execute(change);
-				},
-				{
-					install: function(apply)
-					{
-						this.listener = function()
-						{
-							apply(graph.shadowVisible);
-						};
-						
-						ui.addListener('shadowVisibleChanged', this.listener);
-					},
-					destroy: function()
-					{
-						ui.removeListener(this.listener);
-					}
-				});
-				
-				if (!Editor.enableShadowOption)
-				{
-					option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
-					mxUtils.setOpacity(option, 60);
-				}
-
-				option.style.width = '';
-				
-				td.appendChild(option);
-			}
-		};
-
-		/**
 		 * Adds autosave and math typesetting options.
 		 */
 		var diagramFormatPanelAddOptions = DiagramFormatPanel.prototype.addOptions;
+
 		DiagramFormatPanel.prototype.addOptions = function(div)
 		{
 			div = diagramFormatPanelAddOptions.apply(this, arguments);
@@ -4138,14 +4120,15 @@
 			var ui = this.editorUi;
 			var editor = ui.editor;
 			var graph = editor.graph;
-			
+
+			// Adds autosave option
 			if (graph.isEnabled())
 			{
 				var file = ui.getCurrentFile();
 
 				if (file != null && file.isAutosaveOptional())
 				{
-					var opt = this.createOption(mxResources.get('autosave'), function()
+					div.appendChild(this.createOption(mxResources.get('autosave'), function()
 					{
 						return ui.editor.autosave;
 					}, function(checked)
@@ -4171,47 +4154,47 @@
 						{
 							ui.editor.removeListener(this.listener);
 						}
-					});
-					
-					div.appendChild(opt);
+					}));
 				}
 			}
 			
-	        if (this.isMathOptionVisible() && graph.isEnabled() && typeof(MathJax) !== 'undefined')
+			// Adds math option
+	        if (this.isMathOptionVisible() && graph.isEnabled())
 	        {
-	            // Math
-	            var option = this.createOption(mxResources.get('mathematicalTypesetting'), function()
-	            {
-	                return graph.mathEnabled;
-	            }, function(checked)
-	            {
-	                ui.actions.get('mathematicalTypesetting').funct();
-	            },
-	            {
-	                install: function(apply)
-	                {
-	                    this.listener = function()
-	                    {
-	                        apply(graph.mathEnabled);
-	                    };
-	                    
-	                    ui.addListener('mathEnabledChanged', this.listener);
-	                },
-	                destroy: function()
-	                {
-	                    ui.removeListener(this.listener);
-	                }
-	            });
-	            
-	            option.style.paddingTop = '5px';
-	            div.appendChild(option);
-	            
-	            var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/math-typesetting');
-	            help.style.position = 'relative';
-	            help.style.marginLeft = '6px';
-	            help.style.top = '2px';
-	            option.appendChild(help);
-	        }
+				if (typeof(MathJax) !== 'undefined')
+				{
+					// Math
+					var option = this.createOption(mxResources.get('mathematicalTypesetting'), function()
+					{
+						return graph.mathEnabled;
+					}, function(checked)
+					{
+						ui.actions.get('mathematicalTypesetting').funct();
+					},
+					{
+						install: function(apply)
+						{
+							this.listener = function()
+							{
+								apply(graph.mathEnabled);
+							};
+							
+							ui.addListener('mathEnabledChanged', this.listener);
+						},
+						destroy: function()
+						{
+							ui.removeListener(this.listener);
+						}
+					});
+					
+					div.appendChild(option);
+					
+					var help = ui.menus.createHelpLink('https://www.diagrams.net/doc/faq/math-typesetting');
+					help.style.position = 'relative';
+					help.style.marginLeft = '6px';
+					option.appendChild(help);
+				}
+			}
 	        
 			return div;
 		};
@@ -4599,7 +4582,12 @@
 		
 		StyleFormatPanel.prototype.addStyleOps = function(div)
 		{
-			this.addActions(div, ['copyStyle', 'pasteStyle']);
+			var ss = this.editorUi.getSelectionState();
+
+			if (ss.cells.length == 1)
+			{
+				this.addActions(div, ['copyStyle', 'pasteStyle']);
+			}
 			
 			return styleFormatPanelAddStyleOps.apply(this, arguments);
 		};
@@ -8788,4 +8776,3 @@
 
 	mxCodecRegistry.register(codec);
 })();
-

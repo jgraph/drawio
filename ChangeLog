@@ -1,3 +1,21 @@
+14-DEC-2022: 20.7.2
+
+- Fixes undefined function error when switching to simple UI
+- Adds missing network status and icon in simple UI
+
+13-DEC-2022: 20.7.1
+
+- Restores original default jiggle value for sketch
+- Fixes position of inserted edges with shape picker
+- Fixes user element CSS display after window resize
+- Moves Close item to Diagram menu in modern themes
+
+12-DEC-2022: 20.7.0
+
+- Fixes cell selection while using cursor [DID-6906]
+- VSDX import: Fixed layers (replaced with tags to support multiple layers per cell) and cancelled considering group edges as vertexes. [DID-6874]
+- Refactors simple UI [DRAWIO-DEV-13]
+
 08-DEC-2022: 20.6.2
 
 - Enabled native window frame on Windows and Linux [DESK-784]

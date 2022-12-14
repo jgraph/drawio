@@ -1440,8 +1440,16 @@
 			{
 				var off = mxUtils.getOffset(elt);
 
-				off.x = elt.parentNode.offsetLeft + elt.parentNode.offsetWidth + 2;
-				off.y += (elt.offsetHeight - bounds.height) / 2;
+				if (Editor.currentTheme == 'simple')
+				{
+					off.x += (elt.offsetWidth - bounds.width) / 2 - 14;
+					off.y = elt.parentNode.offsetHeight - 2;
+				}
+				else
+				{
+					off.x = elt.parentNode.offsetLeft + elt.parentNode.offsetWidth + 2;
+					off.y += (elt.offsetHeight - bounds.height) / 2;
+				}
 				
 				return new mxPoint(Math.max(0, off.x), Math.max(0, off.y));
 			}

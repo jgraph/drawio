@@ -623,185 +623,145 @@ App.isBuiltInPlugin = function(path)
  */
 App.main = function(callback, createUi)
 {
-	// Logs uncaught errors
-	window.onerror = function(message, url, linenumber, colno, err)
+	try
 	{
-		EditorUi.logError('Global: ' + ((message != null) ? message : ''),
-			url, linenumber, colno, err, null, true);
-	};
+		// Logs uncaught errors
+		window.onerror = function(message, url, linenumber, colno, err)
+		{
+			EditorUi.logError('Global: ' + ((message != null) ? message : ''),
+				url, linenumber, colno, err, null, true);
+		};
 
-	// Blocks stand-alone mode for certain subdomains
-	if (window.top == window.self &&
-		('import.diagrams.net' === window.location.hostname ||
-		'ac.draw.io' === window.location.hostname ||
-		'aj.draw.io' === window.location.hostname))
-	{
-		document.body.innerHTML = '<div style="margin-top:10%;text-align:center;">Stand-alone mode not allowed for this domain.</div>';
-		
-		return;
-	}
-	
-	// Removes info text in embed mode
-	if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
-	{
-		var geInfo = document.getElementById('geInfo');
-		
-		if (geInfo != null)
+		// Blocks stand-alone mode for certain subdomains
+		if (window.top == window.self &&
+			('import.diagrams.net' === window.location.hostname ||
+			'ac.draw.io' === window.location.hostname ||
+			'aj.draw.io' === window.location.hostname))
 		{
-			geInfo.parentNode.removeChild(geInfo);
-		}
-	}
-	
-	// Redirects to the latest AWS icons
-	if (document.referrer != null && urlParams['libs'] == 'aws3' &&
-		document.referrer.substring(0, 42) == 'https://aws.amazon.com/architecture/icons/')
-	{
-		urlParams['libs'] = 'aws4';
-	}
-	
-	if (window.mxscript != null)
-	{
-		// Checks for script content changes to avoid CSP errors in production
-		if (urlParams['dev'] == '1' && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			CryptoJS != null && App.mode != App.MODE_DROPBOX && App.mode != App.MODE_TRELLO)
-		{
-			var scripts = document.getElementsByTagName('script');
+			document.body.innerHTML = '<div style="margin-top:10%;text-align:center;">Stand-alone mode not allowed for this domain.</div>';
 			
-			// Checks bootstrap script
-			if (scripts != null && scripts.length > 0)
+			return;
+		}
+		
+		// Removes info text in embed mode
+		if (urlParams['embed'] == '1' || urlParams['lightbox'] == '1')
+		{
+			var geInfo = document.getElementById('geInfo');
+			
+			if (geInfo != null)
 			{
-				var content = mxUtils.getTextContent(scripts[0]);
+				geInfo.parentNode.removeChild(geInfo);
+			}
+		}
+		
+		// Redirects to the latest AWS icons
+		if (document.referrer != null && urlParams['libs'] == 'aws3' &&
+			document.referrer.substring(0, 42) == 'https://aws.amazon.com/architecture/icons/')
+		{
+			urlParams['libs'] = 'aws4';
+		}
+		
+		if (window.mxscript != null)
+		{
+			// Checks for script content changes to avoid CSP errors in production
+			if (urlParams['dev'] == '1' && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+				CryptoJS != null && App.mode != App.MODE_DROPBOX && App.mode != App.MODE_TRELLO)
+			{
+				var scripts = document.getElementsByTagName('script');
 				
-				if (CryptoJS.MD5(content).toString() != '1f536e2400baaa30261b8c3976d6fe06')
+				// Checks bootstrap script
+				if (scripts != null && scripts.length > 0)
 				{
-					console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
-					alert('[Dev] Bootstrap script change requires update of CSP');
-				}
-			}
-			
-			// Checks main script
-			if (scripts != null && scripts.length > 1)
-			{
-				var content = mxUtils.getTextContent(scripts[scripts.length - 1]);
-				
-				if (CryptoJS.MD5(content).toString() != 'd53805dd6f0bbba2da4966491ca0a505')
-				{
-					console.log('Change main script MD5 in the previous line:', CryptoJS.MD5(content).toString());
-					alert('[Dev] Main script change requires update of CSP');
-				}
-			}
-		}
-
-		try
-		{
-			// Removes PWA cache on www.draw.io to force use of new domain via redirect
-			if (Editor.enableServiceWorker && (urlParams['offline'] == '0' ||
-				/www\.draw\.io$/.test(window.location.hostname) ||
-				(urlParams['offline'] != '1' && urlParams['dev'] == '1')))
-			{
-				App.clearServiceWorker(function()
-				{
-					if (urlParams['offline'] == '0')
-					{
-						alert('Cache cleared');
-					}
-				});
-			}
-			else if (Editor.enableServiceWorker)
-			{
-				// Runs as progressive web app if service workers are supported
-				navigator.serviceWorker.register('service-worker.js');
-			}
-		}
-		catch (e)
-		{
-			if (window.console != null)
-			{
-				console.error(e);
-			}
-		}
-		
-		// Loads Pusher API
-		if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' ||
-			urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
-			(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
-			urlParams['stealth'] != '1' && urlParams['offline'] != '1')
-		{
-			// TODO: Check if async loading is fast enough
-			mxscript(App.PUSHER_URL);
-			
-			if (urlParams['fast-sync'] == '1')
-			{
-				mxscript(App.SIMPLE_PEER_URL);
-			}
-		}
-		
-		// Loads plugins
-		if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
-		{
-			// mxSettings is not yet initialized in configure mode, redirect parameter
-			// to p URL parameter in caller for plugins in embed mode
-			var plugins = (mxSettings.settings != null) ? mxSettings.getPlugins() : null;
-			
-			// Configured plugins in embed mode with configure=1 URL should be loaded so we
-			// look ahead here and parse the config to fetch the list of custom plugins
-			if (mxSettings.settings == null && isLocalStorage && typeof(JSON) !== 'undefined')
-			{
-				try
-				{
-					var temp = JSON.parse(localStorage.getItem(mxSettings.key));
+					var content = mxUtils.getTextContent(scripts[0]);
 					
-					if (temp != null)
+					if (CryptoJS.MD5(content).toString() != '1f536e2400baaa30261b8c3976d6fe06')
 					{
-						plugins = temp.plugins;
+						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
+						alert('[Dev] Bootstrap script change requires update of CSP');
 					}
 				}
-				catch (e)
+				
+				// Checks main script
+				if (scripts != null && scripts.length > 1)
 				{
-					// ignore
+					var content = mxUtils.getTextContent(scripts[scripts.length - 1]);
+					
+					if (CryptoJS.MD5(content).toString() != 'd53805dd6f0bbba2da4966491ca0a505')
+					{
+						console.log('Change main script MD5 in the previous line:', CryptoJS.MD5(content).toString());
+						alert('[Dev] Main script change requires update of CSP');
+					}
 				}
 			}
 
-			var temp = urlParams['p'];
-			App.initPluginCallback();
-
-			if (temp != null)
+			try
 			{
-				// Mapping from key to URL in App.plugins
-				App.loadPlugins(temp.split(';'));
+				// Removes PWA cache on www.draw.io to force use of new domain via redirect
+				if (Editor.enableServiceWorker && (urlParams['offline'] == '0' ||
+					/www\.draw\.io$/.test(window.location.hostname) ||
+					(urlParams['offline'] != '1' && urlParams['dev'] == '1')))
+				{
+					App.clearServiceWorker(function()
+					{
+						if (urlParams['offline'] == '0')
+						{
+							alert('Cache cleared');
+						}
+					});
+				}
+				else if (Editor.enableServiceWorker)
+				{
+					// Runs as progressive web app if service workers are supported
+					navigator.serviceWorker.register('service-worker.js');
+				}
+			}
+			catch (e)
+			{
+				if (window.console != null && !EditorUi.isElectronApp)
+				{
+					console.error(e);
+				}
+				else
+				{
+					mxLog.show();
+					mxLog.debug(e.stack);
+				}
 			}
 			
-			if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
+			// Loads Pusher API
+			if (('ArrayBuffer' in window) && !mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
+				DrawioFile.SYNC == 'auto' && (urlParams['embed'] != '1' ||
+				urlParams['embedRT'] == '1') && urlParams['local'] != '1' &&
+				(urlParams['chrome'] != '0' || urlParams['rt'] == '1') &&
+				urlParams['stealth'] != '1' && urlParams['offline'] != '1')
 			{
-				for (var i = 0; i < plugins.length; i++)
+				// TODO: Check if async loading is fast enough
+				mxscript(App.PUSHER_URL);
+				
+				if (urlParams['fast-sync'] == '1')
+				{
+					mxscript(App.SIMPLE_PEER_URL);
+				}
+			}
+			
+			// Loads plugins
+			if (urlParams['plugins'] != '0' && urlParams['offline'] != '1')
+			{
+				// mxSettings is not yet initialized in configure mode, redirect parameter
+				// to p URL parameter in caller for plugins in embed mode
+				var plugins = (mxSettings.settings != null) ? mxSettings.getPlugins() : null;
+				
+				// Configured plugins in embed mode with configure=1 URL should be loaded so we
+				// look ahead here and parse the config to fetch the list of custom plugins
+				if (mxSettings.settings == null && isLocalStorage && typeof(JSON) !== 'undefined')
 				{
 					try
 					{
-						if (plugins[i].charAt(0) == '/')
+						var temp = JSON.parse(localStorage.getItem(mxSettings.key));
+						
+						if (temp != null)
 						{
-							plugins[i] = PLUGINS_BASE_PATH + plugins[i];
-						}
-
-						if (!App.isSameDomain(plugins[i]))
-						{
-							if (window.console != null)
-							{
-								console.log('Blocked plugin:', plugins[i]);
-							}
-						}
-						else if (!ALLOW_CUSTOM_PLUGINS && !App.isBuiltInPlugin(plugins[i]))
-						{
-							if (window.console != null)
-							{
-								console.log('Unknown plugin:', plugins[i]);
-							}
-						}
-						else if (App.pluginsLoaded[plugins[i]] == null)
-						{
-							App.pluginsLoaded[plugins[i]] = true;
-							App.embedModePluginsCount++;
-							mxscript(plugins[i]);
+							plugins = temp.plugins;
 						}
 					}
 					catch (e)
@@ -809,404 +769,501 @@ App.main = function(callback, createUi)
 						// ignore
 					}
 				}
-			}
-		}
-		
-		// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
-		// Special case: Cannot load in asynchronous code below
-		if (typeof window.DriveClient === 'function' &&
-			(typeof gapi === 'undefined' && (((urlParams['embed'] != '1' && urlParams['gapi'] != '0') ||
-			(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
-			isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
-		{
-			mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
-		}
-		// Disables client
-		else if (typeof window.gapi === 'undefined')
-		{
-			window.DriveClient = null;
-		}
-	}
-	
-	/**
-	 * Asynchronous MathJax extension.
-	 */
-	if (urlParams['math'] != '0')
-	{
-		Editor.initMath();
-	}
 
-	function doLoad(bundle)
-	{
-		// Prefetches asynchronous requests so that below code runs synchronous
-		// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
-		// is compiled into JS in the build process and is only needed for local development.
-		mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
-			STYLE_PATH + '/default.xml'], function(xhr)
-		{
-			// Adds bundle text to resources
-			mxResources.parse(xhr[0].getText());
-			
-			// Configuration mode
-			if (isLocalStorage && localStorage != null && window.location.hash != null &&
-				window.location.hash.substring(0, 9) == '#_CONFIG_')
-			{
-				try
+				var temp = urlParams['p'];
+				App.initPluginCallback();
+
+				if (temp != null)
 				{
-					var value = JSON.parse(Graph.decompress(window.location.hash.substring(9)));
-
-					if (value != null)
+					// Mapping from key to URL in App.plugins
+					App.loadPlugins(temp.split(';'));
+				}
+				
+				if (plugins != null && plugins.length > 0 && urlParams['plugins'] != '0')
+				{
+					for (var i = 0; i < plugins.length; i++)
 					{
-						EditorUi.debug('Setting configuration', JSON.stringify(value));
-						
-						if (value.merge != null)
+						try
 						{
-							var temp = localStorage.getItem(Editor.configurationKey);
-							
-							if (temp != null)
+							if (plugins[i].charAt(0) == '/')
 							{
-								try
+								plugins[i] = PLUGINS_BASE_PATH + plugins[i];
+							}
+
+							if (!App.isSameDomain(plugins[i]))
+							{
+								if (window.console != null)
 								{
-									var config = JSON.parse(temp);
-									
-									for (var key in value.merge)
-									{
-										config[key] = value.merge[key];
-									}
-									
-									value = config;	
+									console.log('Blocked plugin:', plugins[i]);
 								}
-								catch (e)
-								{
-									window.location.hash = '';
-									alert(e);
-								}								
 							}
-							else
+							else if (!ALLOW_CUSTOM_PLUGINS && !App.isBuiltInPlugin(plugins[i]))
 							{
-								value = value.merge;
+								if (window.console != null)
+								{
+									console.log('Unknown plugin:', plugins[i]);
+								}
+							}
+							else if (App.pluginsLoaded[plugins[i]] == null)
+							{
+								App.pluginsLoaded[plugins[i]] = true;
+								App.embedModePluginsCount++;
+								mxscript(plugins[i]);
 							}
 						}
-						
-						if (confirm(mxResources.get('configLinkWarn')) &&
-							confirm(mxResources.get('configLinkConfirm')))
+						catch (e)
 						{
-							localStorage.setItem(Editor.configurationKey, JSON.stringify(value));
-							window.location.hash = '';
-							window.location.reload();
+							// ignore
 						}
 					}
-
-					window.location.hash = '';
 				}
-				catch (e)
-				{
-					window.location.hash = '';
-					alert(e);
-				}
-			}
-						
-			// Prepares themes with mapping from old default-style to old XML file
-			if (xhr.length > 1)
-			{
-				Graph.prototype.defaultThemes['default-style2'] = xhr[1].getDocumentElement();
-	 			Graph.prototype.defaultThemes['darkTheme'] = xhr[1].getDocumentElement();
 			}
 			
-			// Main
-			function realMain()
+			// Loads gapi for all browsers but IE8 and below if not disabled or if enabled and in embed mode
+			// Special case: Cannot load in asynchronous code below
+			if (typeof window.DriveClient === 'function' &&
+				(typeof gapi === 'undefined' && (((urlParams['embed'] != '1' && urlParams['gapi'] != '0') ||
+				(urlParams['embed'] == '1' && urlParams['gapi'] == '1')) && isSvgBrowser &&
+				isLocalStorage && (document.documentMode == null || document.documentMode >= 10))))
 			{
-				try
-				{
-					var ui = (createUi != null) ? createUi() : new App(new Editor(
-							urlParams['chrome'] == '0' || uiTheme == 'min',
-							null, null, null, urlParams['chrome'] != '0'));
-					
-					if (window.mxscript != null)
-					{
-						// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
-						// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
-						if (typeof window.DropboxClient === 'function' &&
-							(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
-							(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
-							(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
-							isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
-						{
-							mxscript(App.DROPBOX_URL, function()
-							{
-								// Must load this after the dropbox SDK since they use the same namespace
-								mxscript(App.DROPINS_URL, function()
-								{
-									DrawDropboxClientCallback();
-								}, 'dropboxjs', App.DROPBOX_APPKEY);
-							});
-						}
-						// Disables client
-						else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
-						{
-							window.DropboxClient = null;
-						}
-							
-						// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
-						if (typeof window.OneDriveClient === 'function' &&
-							(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
-							(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
-							urlParams['od'] == '1')) && (navigator.userAgent == null ||
-							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
-						{
-							//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
-							mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
-						}
-						// Disables client
-						else if (typeof window.OneDrive === 'undefined')
-						{
-							window.OneDriveClient = null;
-						}
-						
-						// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
-						if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
-							typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
-							urlParams['tr'] == '1' && (navigator.userAgent == null ||
-							navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
-						{
-							mxscript(App.TRELLO_JQUERY_URL, function()
-							{
-								// Must load this after the dropbox SDK since they use the same namespace
-								mxscript(App.TRELLO_URL, function()
-								{
-									DrawTrelloClientCallback();
-								});
-							});
-						}
-						// Disables client
-						else if (typeof window.Trello === 'undefined')
-						{
-							window.TrelloClient = null;
-						}
-			
-					}
-					
-					if (callback != null)
-					{
-						callback(ui);
-					}
-					
-					/**
-					 * For developers only
-					 */
-					if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
-					{
-						EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
-						
-						if (urlParams['export'] != null)
-						{
-							EditorUi.debug('Export:', EXPORT_URL);
-						}
-					}
-				}
-				catch (e)
-				{
-					document.body.innerHTML += '<pre>' + mxUtils.htmlEntities(e.stack) + '</pre>';
-				}
-			};
-			
-			if (urlParams['dev'] == '1' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
-			{
-				realMain();
+				mxscript('https://apis.google.com/js/api.js?onload=DrawGapiClientCallback', null, null, null, mxClient.IS_SVG);
 			}
-			else
+			// Disables client
+			else if (typeof window.gapi === 'undefined')
 			{
-				mxStencilRegistry.allowEval = false;
-				App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
-					'js/extensions.min.js'], realMain);
-			}
-		}, function(xhr)
-		{
-			var st = document.getElementById('geStatus');
-			
-			if (st != null)
-			{
-				st.innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
-				
-				// Tries reload with default resources in case any language resources were not available
-				st.getElementsByTagName('a')[0].onclick = function()
-				{
-					mxLanguage = 'en';
-					doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-							mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
-				};
-			}
-		});
-	};
-
-	function doMain()
-	{
-		// Optional override for autosaveDelay and defaultEdgeLength
-		try
-		{
-			if (mxSettings.settings != null)
-			{
-				document.body.style.backgroundColor = (Editor.currentTheme != 'atlas' &&
-					uiTheme != 'kennedy' && (Editor.isDarkMode() ||
-					mxSettings.settings.darkMode)) ?
-						Editor.darkColor : '#ffffff';
-				
-				if (mxSettings.settings.autosaveDelay != null)
-				{
-					var val = parseInt(mxSettings.settings.autosaveDelay);
-					
-					if (!isNaN(val) && val > 0)
-					{
-						DrawioFile.prototype.autosaveDelay = val;
-						EditorUi.debug('Setting autosaveDelay', val);
-					}
-					else
-					{
-						EditorUi.debug('Invalid autosaveDelay', val);
-					}
-				}
-				
-				if (mxSettings.settings.defaultEdgeLength != null)
-				{
-					var val = parseInt(mxSettings.settings.defaultEdgeLength);
-					
-					if (!isNaN(val) && val > 0)
-					{
-						Graph.prototype.defaultEdgeLength = val;
-						EditorUi.debug('Using defaultEdgeLength', val);
-					}
-					else
-					{
-						EditorUi.debug('Invalid defaultEdgeLength', val);
-					}
-				}
+				window.DriveClient = null;
 			}
 		}
-		catch (e)
-		{
-			if (window.console != null)
-			{
-				console.error(e);
-			}
-		}
-
-		// Prefetches default fonts with URLs
-		if (Menus.prototype.defaultFonts != null)
-		{
-			for (var i = 0; i < Menus.prototype.defaultFonts.length; i++)
-			{
-				var value = Menus.prototype.defaultFonts[i];
-				
-				if (typeof value !== 'string' &&
-					value.fontFamily != null &&
-					value.fontUrl != null)
-				{
-					Graph.addFont(value.fontFamily, value.fontUrl);
-				}
-			}
-		}
-	
-		// Adds required resources (disables loading of fallback properties, this can only
-		// be used if we know that all keys are defined in the language specific file)
-		mxResources.loadDefaultBundle = false;
-		doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
-			mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
-	};
-
-	// Sends load event if configuration is requested and waits for configure message
-	if (urlParams['configure'] == '1')
-	{
-		var op = window.opener || window.parent;
 		
-		var configHandler = function(evt)
+		/**
+		 * Asynchronous MathJax extension.
+		 */
+		if (urlParams['math'] != '0')
 		{
-			if (evt.source == op)
-			{
-				try
-				{
-					var data = JSON.parse(evt.data);
-					
-					if (data != null && data.action == 'configure')
-					{
-						mxEvent.removeListener(window, 'message', configHandler);
-						Editor.configure(data.config);
-						mxSettings.load();
+			Editor.initMath();
+		}
 
-						//To enable transparent iframe in dark mode (e.g, in gitlab)
-						if (data.colorSchemeMeta)
-						{
-							mxmeta('color-scheme', 'dark light');
-						}
-
-						doMain();
-					}
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.log('Error in configure message: ' + e, evt.data);
-					}
-				}
-			}
-		};
-		
-		// Receives XML message from opener and puts it into the graph
-		mxEvent.addListener(window, 'message', configHandler);
-		op.postMessage(JSON.stringify({event: 'configure'}), '*');
-	}
-	else
-	{
-		if (Editor.config == null)
+		function doLoad(bundle)
 		{
-			// Loads configuration from global scope or local storage
-			if (window.DRAWIO_CONFIG != null)
+			// Prefetches asynchronous requests so that below code runs synchronous
+			// Loading the correct bundle (one file) via the fallback system in mxResources. The stylesheet
+			// is compiled into JS in the build process and is only needed for local development.
+			mxUtils.getAll((urlParams['dev'] != '1') ? [bundle] : [bundle,
+				STYLE_PATH + '/default.xml'], function(xhr)
 			{
-				try
-				{
-					EditorUi.debug('Using global configuration', window.DRAWIO_CONFIG);
-					Editor.configure(window.DRAWIO_CONFIG);
-					mxSettings.load();
-				}
-				catch (e)
-				{
-					if (window.console != null)
-					{
-						console.error(e);
-					}
-				}
-			}
-	
-			// Loads configuration from local storage
-			if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
-			{
-				var configData = localStorage.getItem(Editor.configurationKey);
-	
-				if (configData != null)
+				// Adds bundle text to resources
+				mxResources.parse(xhr[0].getText());
+				
+				// Configuration mode
+				if (isLocalStorage && localStorage != null && window.location.hash != null &&
+					window.location.hash.substring(0, 9) == '#_CONFIG_')
 				{
 					try
 					{
-						configData = JSON.parse(configData);
-						
-						if (configData != null)
+						var value = JSON.parse(Graph.decompress(window.location.hash.substring(9)));
+
+						if (value != null)
 						{
-							EditorUi.debug('Using local configuration', configData);
-							Editor.configure(configData);
+							EditorUi.debug('Setting configuration', JSON.stringify(value));
+							
+							if (value.merge != null)
+							{
+								var temp = localStorage.getItem(Editor.configurationKey);
+								
+								if (temp != null)
+								{
+									try
+									{
+										var config = JSON.parse(temp);
+										
+										for (var key in value.merge)
+										{
+											config[key] = value.merge[key];
+										}
+										
+										value = config;
+									}
+									catch (e)
+									{
+										window.location.hash = '';
+										alert(e);
+									}
+								}
+								else
+								{
+									value = value.merge;
+								}
+							}
+							
+							if (confirm(mxResources.get('configLinkWarn')) &&
+								confirm(mxResources.get('configLinkConfirm')))
+							{
+								localStorage.setItem(Editor.configurationKey, JSON.stringify(value));
+								window.location.hash = '';
+								window.location.reload();
+							}
+						}
+
+						window.location.hash = '';
+					}
+					catch (e)
+					{
+						window.location.hash = '';
+						alert(e);
+					}
+				}
+				
+				// Prepares themes with mapping from old default-style to old XML file
+				if (xhr.length > 1)
+				{
+					Graph.prototype.defaultThemes['default-style2'] = xhr[1].getDocumentElement();
+					Graph.prototype.defaultThemes['darkTheme'] = xhr[1].getDocumentElement();
+				}
+				
+				// Main
+				function realMain()
+				{
+					try
+					{
+						var ui = (createUi != null) ? createUi() : new App(new Editor(
+								urlParams['chrome'] == '0' || uiTheme == 'min',
+								null, null, null, urlParams['chrome'] != '0'));
+						
+						if (window.mxscript != null)
+						{
+							// Loads dropbox for all browsers but IE8 and below (no CORS) if not disabled or if enabled and in embed mode
+							// KNOWN: Picker does not work in IE11 (https://dropbox.zendesk.com/requests/1650781)
+							if (typeof window.DropboxClient === 'function' &&
+								(window.Dropbox == null && window.DrawDropboxClientCallback != null &&
+								(((urlParams['embed'] != '1' && urlParams['db'] != '0') ||
+								(urlParams['embed'] == '1' && urlParams['db'] == '1')) &&
+								isSvgBrowser && (document.documentMode == null || document.documentMode > 9))))
+							{
+								mxscript(App.DROPBOX_URL, function()
+								{
+									// Must load this after the dropbox SDK since they use the same namespace
+									mxscript(App.DROPINS_URL, function()
+									{
+										DrawDropboxClientCallback();
+									}, 'dropboxjs', App.DROPBOX_APPKEY);
+								});
+							}
+							// Disables client
+							else if (typeof window.Dropbox === 'undefined' || typeof window.Dropbox.choose === 'undefined')
+							{
+								window.DropboxClient = null;
+							}
+							
+							// Loads OneDrive for all browsers but IE6/IOS if not disabled or if enabled and in embed mode
+							if (typeof window.OneDriveClient === 'function' &&
+								(typeof OneDrive === 'undefined' && window.DrawOneDriveClientCallback != null &&
+								(((urlParams['embed'] != '1' && urlParams['od'] != '0') || (urlParams['embed'] == '1' &&
+								urlParams['od'] == '1')) && (navigator.userAgent == null ||
+								navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))))
+							{
+								//Editor.oneDriveInlinePicker can be set with configuration which is done later, so load it all time
+								mxscript(App.ONEDRIVE_URL, window.DrawOneDriveClientCallback);
+							}
+							// Disables client
+							else if (typeof window.OneDrive === 'undefined')
+							{
+								window.OneDriveClient = null;
+							}
+							
+							// Loads Trello for all browsers but < IE10 if not disabled or if enabled and in embed mode
+							if (typeof window.TrelloClient === 'function' && !mxClient.IS_IE11 &&
+								typeof window.Trello === 'undefined' && window.DrawTrelloClientCallback != null &&
+								urlParams['tr'] == '1' && (navigator.userAgent == null ||
+								navigator.userAgent.indexOf('MSIE') < 0 || document.documentMode >= 10))
+							{
+								mxscript(App.TRELLO_JQUERY_URL, function()
+								{
+									// Must load this after the dropbox SDK since they use the same namespace
+									mxscript(App.TRELLO_URL, function()
+									{
+										DrawTrelloClientCallback();
+									});
+								});
+							}
+							// Disables client
+							else if (typeof window.Trello === 'undefined')
+							{
+								window.TrelloClient = null;
+							}
+						}
+						
+						if (callback != null)
+						{
+							callback(ui);
+						}
+						
+						/**
+						 * For developers only
+						 */
+						if (urlParams['chrome'] != '0' && urlParams['test'] == '1')
+						{
+							EditorUi.debug('App.start', [ui, (new Date().getTime() - t0.getTime()) + 'ms']);
+							
+							if (urlParams['export'] != null)
+							{
+								EditorUi.debug('Export:', EXPORT_URL);
+							}
+						}
+					}
+					catch (e)
+					{
+						if (window.console != null && !EditorUi.isElectronApp)
+						{
+							console.error(e);
+						}
+						else
+						{
+							mxLog.show();
+							mxLog.debug(e.stack);
+						}
+					}
+				};
+				
+				if (urlParams['dev'] == '1' || EditorUi.isElectronApp) //TODO check if we can remove these scripts loading from index.html
+				{
+					realMain();
+				}
+				else
+				{
+					mxStencilRegistry.allowEval = false;
+					App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
+						'js/extensions.min.js'], realMain);
+				}
+			}, function(xhr)
+			{
+				var st = document.getElementById('geStatus');
+				
+				if (st != null)
+				{
+					st.innerHTML = 'Error loading page. <a>Please try refreshing.</a>';
+					
+					// Tries reload with default resources in case any language resources were not available
+					st.getElementsByTagName('a')[0].onclick = function()
+					{
+						mxLanguage = 'en';
+						doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+								mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
+					};
+				}
+			});
+		};
+
+		function doMain()
+		{
+			// Optional override for autosaveDelay and defaultEdgeLength
+			try
+			{
+				if (mxSettings.settings != null)
+				{
+					document.body.style.backgroundColor = (Editor.currentTheme != 'atlas' &&
+						uiTheme != 'kennedy' && !Editor.isAutoDarkMode() &&
+						(Editor.isDarkMode() || mxSettings.settings.darkMode)) ?
+						Editor.darkColor : '#ffffff';
+					
+					if (mxSettings.settings.autosaveDelay != null)
+					{
+						var val = parseInt(mxSettings.settings.autosaveDelay);
+						
+						if (!isNaN(val) && val > 0)
+						{
+							DrawioFile.prototype.autosaveDelay = val;
+							EditorUi.debug('Setting autosaveDelay', val);
+						}
+						else
+						{
+							EditorUi.debug('Invalid autosaveDelay', val);
+						}
+					}
+					
+					if (mxSettings.settings.defaultEdgeLength != null)
+					{
+						var val = parseInt(mxSettings.settings.defaultEdgeLength);
+						
+						if (!isNaN(val) && val > 0)
+						{
+							Graph.prototype.defaultEdgeLength = val;
+							EditorUi.debug('Using defaultEdgeLength', val);
+						}
+						else
+						{
+							EditorUi.debug('Invalid defaultEdgeLength', val);
+						}
+					}
+				}
+			}
+			catch (e)
+			{
+				if (window.console != null && !EditorUi.isElectronApp)
+				{
+					console.error(e);
+				}
+				else
+				{
+					mxLog.show();
+					mxLog.debug(e.stack);
+				}
+			}
+
+			try
+			{
+				// Prefetches default fonts with URLs
+				if (Menus.prototype.defaultFonts != null)
+				{
+					for (var i = 0; i < Menus.prototype.defaultFonts.length; i++)
+					{
+						var value = Menus.prototype.defaultFonts[i];
+						
+						if (typeof value !== 'string' &&
+							value.fontFamily != null &&
+							value.fontUrl != null)
+						{
+							Graph.addFont(value.fontFamily, value.fontUrl);
+						}
+					}
+				}
+			
+				// Adds required resources (disables loading of fallback properties, this can only
+				// be used if we know that all keys are defined in the language specific file)
+				mxResources.loadDefaultBundle = false;
+				doLoad(mxResources.getDefaultBundle(RESOURCE_BASE, mxLanguage) ||
+					mxResources.getSpecialBundle(RESOURCE_BASE, mxLanguage));
+			}
+			catch (e)
+			{
+				if (window.console != null && !EditorUi.isElectronApp)
+				{
+					console.error(e);
+				}
+				else
+				{
+					mxLog.show();
+					mxLog.debug(e.stack);
+				}
+			}
+		};
+
+		// Sends load event if configuration is requested and waits for configure message
+		if (urlParams['configure'] == '1')
+		{
+			var op = window.opener || window.parent;
+			
+			var configHandler = function(evt)
+			{
+				if (evt.source == op)
+				{
+					try
+					{
+						var data = JSON.parse(evt.data);
+						
+						if (data != null && data.action == 'configure')
+						{
+							mxEvent.removeListener(window, 'message', configHandler);
+							Editor.configure(data.config);
 							mxSettings.load();
+
+							//To enable transparent iframe in dark mode (e.g, in gitlab)
+							if (data.colorSchemeMeta)
+							{
+								mxmeta('color-scheme', 'dark light');
+							}
+
+							doMain();
 						}
 					}
 					catch (e)
 					{
 						if (window.console != null)
 						{
+							console.log('Error in configure message: ' + e, evt.data);
+						}
+					}
+				}
+			};
+			
+			// Receives XML message from opener and puts it into the graph
+			mxEvent.addListener(window, 'message', configHandler);
+			op.postMessage(JSON.stringify({event: 'configure'}), '*');
+		}
+		else
+		{
+			if (Editor.config == null)
+			{
+				// Loads configuration from global scope or local storage
+				if (window.DRAWIO_CONFIG != null)
+				{
+					try
+					{
+						EditorUi.debug('Using global configuration', window.DRAWIO_CONFIG);
+						Editor.configure(window.DRAWIO_CONFIG);
+						mxSettings.load();
+					}
+					catch (e)
+					{
+						if (window.console != null && !EditorUi.isElectronApp)
+						{
 							console.error(e);
+						}
+						else
+						{
+							mxLog.show();
+							mxLog.debug(e.stack);
+						}
+					}
+				}
+		
+				// Loads configuration from local storage
+				if (isLocalStorage && localStorage != null && urlParams['embed'] != '1')
+				{
+					var configData = localStorage.getItem(Editor.configurationKey);
+		
+					if (configData != null)
+					{
+						try
+						{
+							configData = JSON.parse(configData);
+							
+							if (configData != null)
+							{
+								EditorUi.debug('Using local configuration', configData);
+								Editor.configure(configData);
+								mxSettings.load();
+							}
+						}
+						catch (e)
+						{
+							if (window.console != null && !EditorUi.isElectronApp)
+							{
+								console.error(e);
+							}
+							else
+							{
+								mxLog.show();
+								mxLog.debug(e.stack);
+							}
 						}
 					}
 				}
 			}
+			
+			doMain();
 		}
-		
-		doMain();
+	}
+	catch (e)
+	{
+		if (window.console != null && !EditorUi.isElectronApp)
+		{
+			console.error(e);
+		}
+		else
+		{
+			mxLog.show();
+			mxLog.debug(e.stack);
+		}
 	}
 };
 
@@ -1421,10 +1478,9 @@ App.prototype.init = function()
 		}));
 	}
 
-	// 
 	this.addListener('currentThemeChanged', mxUtils.bind(this, function()
 	{
-		if (this.compactMode && this.isDefaultTheme())
+		if (this.compactMode && this.isDefaultTheme(Editor.currentTheme))
 		{
 			this.toggleCompactMode(true);
 		}
@@ -1727,14 +1783,10 @@ App.prototype.init = function()
 		this.menubar.container.appendChild(this.buttonContainer);
 	}
 
-	if ((Editor.currentTheme == 'atlas' || urlParams['atlas'] == '1') && this.menubar != null)
+	if ((Editor.currentTheme == 'atlas' || urlParams['atlas'] == '1') &&
+		urlParams['embed'] != '1' && this.menubar != null)
 	{
-		if (this.toggleElement != null)
-		{
-			this.toggleElement.click();
-			this.toggleElement.style.display = 'none';
-		}
-		
+		this.toggleCompactMode(false);
 		this.icon = document.createElement('img');
 		this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
 		this.icon.setAttribute('title', mxResources.get('draw.io'));
@@ -2262,8 +2314,13 @@ App.prototype.updateDocumentTitle = function()
 	{
 		var title = this.editor.appName;
 		var file = this.getCurrentFile();
-		
-		if (this.isOfflineApp())
+
+		if (file != null && Editor.currentTheme == 'simple' &&
+			this.pages != null && this.currentPage != null)
+		{
+			title = this.getShortPageName(this.currentPage);
+		}
+		else if (this.isOfflineApp())
 		{
 			title += ' app';
 		}
@@ -5685,8 +5742,7 @@ App.prototype.updateButtonContainer = function()
 		if (urlParams['embed'] == '1' && Editor.currentTheme != 'simple' &&
 			Editor.currentTheme != 'sketch')
 		{
-			this.buttonContainer.style.paddingRight = '12px';
-			this.buttonContainer.style.paddingTop = '6px';
+			this.buttonContainer.style.paddingRight = '8px';
 		}
 		
 		// Comments
@@ -5699,38 +5755,32 @@ App.prototype.updateButtonContainer = function()
 				this.commentButton.setAttribute('title', mxResources.get('comments'));
 				this.commentButton.className = 'geToolbarButton geAdaptiveAsset';
 				this.commentButton.style.cssText = 'display:inline-block;position:relative;box-sizing:border-box;' +
-					'margin-right:4px;float:left;cursor:pointer;width:24px;height:24px;background-size:24px 24px;' +
-					'background-position:center center;background-repeat:no-repeat;background-image:' +
-					'url(' + Editor.commentImage + ');';
-				
-				if (Editor.currentTheme == 'atlas')
-				{
-					this.commentButton.style.marginRight = '10px';
-					this.commentButton.style.marginTop = '-3px';
-				}
-				else if (Editor.currentTheme == 'min')
-				{
-					this.commentButton.style.marginTop = '1px';
-				}
-				else if (urlParams['atlas'] == '1')
-				{
-					this.commentButton.style.marginTop = '-2px';
-				}
-				else
-				{
-					this.commentButton.style.marginTop = '-5px';
-				}
+					'width:24px;height:24px;background-size:24px 24px;background-position:center center;cursor:pointer;' +
+					'background-repeat:no-repeat;background-image:url(' + Editor.commentImage + ');';
 				
 				mxEvent.addListener(this.commentButton, 'click', mxUtils.bind(this, function()
 				{
 					this.actions.get('comments').funct();
 				}));
-				
-				this.buttonContainer.appendChild(this.commentButton);
-				
-				if (Editor.currentTheme == 'atlas')
+
+				if (Editor.currentTheme != 'simple' &&
+					Editor.currentTheme != 'sketch' &&
+					Editor.currentTheme != 'min')
 				{
-					this.commentButton.style.filter = 'invert(100%)';
+					this.commentButton.style.top = '-6px';
+				}
+				
+				if (this.userElement != null && this.userElement.parentNode == this.buttonContainer)
+				{
+					this.buttonContainer.insertBefore(this.commentButton, this.userElement);
+				}
+				else if (this.shareButton != null && this.shareButton.parentNode == this.buttonContainer)
+				{
+					this.buttonContainer.insertBefore(this.commentButton, this.shareButton);
+				}
+				else
+				{
+					this.buttonContainer.appendChild(this.commentButton);
 				}
 			}
 		}
@@ -5749,18 +5799,17 @@ App.prototype.updateButtonContainer = function()
 			{
 				if (this.shareButton == null)
 				{
-					this.shareButton = document.createElement('div');
-					this.shareButton.className = 'geBtn gePrimaryBtn';// geAdaptiveAsset';
+					this.shareButton = document.createElement('button');
+					this.shareButton.className = 'geBtn geShareBtn';
 					this.shareButton.style.display = 'inline-block';
-					this.shareButton.style.backgroundColor = '#F2931E';
-					this.shareButton.style.borderColor = '#F08705';
+					this.shareButton.style.position = 'relative';
 					this.shareButton.style.backgroundImage = 'none';
 					this.shareButton.style.padding = '2px 10px 0 10px';
 					this.shareButton.style.marginTop = '-10px';
-					this.shareButton.style.height = '28px';
-					this.shareButton.style.lineHeight = '28px';
+					this.shareButton.style.cursor = 'pointer';
+					this.shareButton.style.height = '32px';
 					this.shareButton.style.minWidth = '0px';
-					this.shareButton.style.cssFloat = 'right';
+					this.shareButton.style.top = '-2px';
 					this.shareButton.setAttribute('title', mxResources.get('share'));
 					
 					var icon = document.createElement('img');
@@ -5773,7 +5822,6 @@ App.prototype.updateButtonContainer = function()
 					
 					if (Editor.currentTheme != 'atlas')
 					{
-						this.shareButton.style.color = 'black';
 						icon.style.filter = 'invert(100%)';
 					}
 					
@@ -6689,7 +6737,7 @@ App.prototype.updateHeader = function()
 		this.appIcon.style.position = 'absolute';
 		this.appIcon.style.width = '32px';
 		this.appIcon.style.height = (this.menubarHeight - 28) + 'px';
-		this.appIcon.style.margin = '14px 0px 8px 16px';
+		this.appIcon.style.margin = '8px 0px 8px 16px';
 		this.appIcon.style.opacity = '0.85';
 		this.appIcon.style.borderRadius = '3px';		
 		this.appIcon.style.backgroundPosition = 'center center';
@@ -6899,14 +6947,13 @@ App.prototype.updateHeader = function()
 				this.toggleCompactMode(visible);
 			}
 
-			if (!visible)
-			{
-				initialPosition = this.hsplitPosition;
-			}
-			
-			this.hsplitPosition = (visible) ? initialPosition : 0;
+			this.toggleShapesPanel(visible);
 			this.toggleFormatPanel(visible);
 			this.fullscreenMode = !visible;
+
+			this.fullscreenElement.style.backgroundImage = 'url(\'' + ((this.fullscreenMode) ?
+				Editor.fullscreenExitImage : Editor.fullscreenImage) + '\')';
+
 			mxEvent.consume(evt);
 		}));
 		
@@ -6917,12 +6964,10 @@ App.prototype.updateHeader = function()
 			mxUtils.setOpacity(this.fullscreenElement, 70);
 		}
 		
-		var initialPosition = this.hsplitPosition;
-
 		/**
 		 * Adds compact UI toggle.
 		 */
-		if (urlParams['embed'] != '1')
+		if (urlParams['embed'] != '1' && Editor.currentTheme != 'atlas')
 		{
 			this.toggleElement = document.createElement('a');
 			this.toggleElement.setAttribute('title', mxResources.get('collapseExpand'));
@@ -6932,7 +6977,7 @@ App.prototype.updateHeader = function()
 			this.toggleElement.style.width = '16px';
 			this.toggleElement.style.height = '16px';
 			this.toggleElement.style.color = '#666';
-			this.toggleElement.style.top = (Editor.currentTheme == 'atlas') ? '8px' : '6px';
+			this.toggleElement.style.top = '6px';
 			this.toggleElement.style.right = '10px';
 			this.toggleElement.style.padding = '2px';
 			this.toggleElement.style.fontSize = '14px';
@@ -6995,8 +7040,6 @@ App.prototype.toggleCompactMode = function(visible)
 		this.fnameWrapper.style.display = 'block';
 		this.fnameWrapper.style.visibility = 'visible';
 		this.menubarHeight = App.prototype.menubarHeight;
-		this.refresh();
-		this.toggleElement.style.backgroundImage = 'url(\'' + this.chevronUpImage + '\')';
 	}
 	else
 	{
@@ -7011,11 +7054,48 @@ App.prototype.toggleCompactMode = function(visible)
 		this.fnameWrapper.style.display = 'none';
 		this.fnameWrapper.style.visibility = 'hidden';
 		this.menubarHeight = EditorUi.prototype.menubarHeight;
-		this.refresh();
-		this.toggleElement.style.backgroundImage = 'url(\'' + this.chevronDownImage + '\')';
 	}
-	
+
+	if (this.toggleElement != null)
+	{
+		this.toggleElement.style.backgroundImage = 'url(\'' + ((visible) ?
+			this.chevronUpImage : this.chevronDownImage) + '\')';
+	}
+
+	this.refresh();
 	this.compactMode = !visible;
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+App.prototype.getMainUser = function()
+{
+	var user = null;
+
+	// LATER: Trello no user issue
+	if (this.drive != null && this.drive.getUser() != null)
+	{
+		user = this.drive.getUser();
+	}
+	else if (this.oneDrive != null && this.oneDrive.getUser() != null)
+	{
+		user = this.oneDrive.getUser();
+	}
+	else if (this.dropbox != null && this.dropbox.getUser() != null)
+	{
+		user = this.dropbox.getUser();
+	}
+	else if (this.gitHub != null && this.gitHub.getUser() != null)
+	{
+		user = this.gitHub.getUser();
+	}
+	else if (this.gitLab != null && this.gitLab.getUser() != null)
+	{
+		user = this.gitLab.getUser();
+	}
+
+	return user;
 };
 
 /**
@@ -7027,62 +7107,6 @@ App.prototype.updateUserElement = function()
 	{
 		this.userElement = this.createUserElement();
 		this.menubarContainer.appendChild(this.userElement);
-	}
-
-	if ((this.drive == null || this.drive.getUser() == null) &&
-		(this.oneDrive == null || this.oneDrive.getUser() == null) &&
-		(this.dropbox == null || this.dropbox.getUser() == null) &&
-		(this.gitHub == null || this.gitHub.getUser() == null) &&
-		(this.gitLab == null || this.gitLab.getUser() == null) &&
-		(this.trello == null || !this.trello.isAuthorized())) //TODO Trello no user issue
-	{
-		this.userElement.style.display = 'none';
-	}
-	else
-	{
-		this.userElement.style.display = 'inline-block';
-		var user = null;
-		
-		if (this.drive != null && this.drive.getUser() != null)
-		{
-			user = this.drive.getUser();
-		}
-		else if (this.oneDrive != null && this.oneDrive.getUser() != null)
-		{
-			user = this.oneDrive.getUser();
-		}
-		else if (this.dropbox != null && this.dropbox.getUser() != null)
-		{
-			user = this.dropbox.getUser();
-		}
-		else if (this.gitHub != null && this.gitHub.getUser() != null)
-		{
-			user = this.gitHub.getUser();
-		}
-		else if (this.gitLab != null && this.gitLab.getUser() != null)
-		{
-			user = this.gitLab.getUser();
-		}
-		//TODO Trello no user issue
-		
-		if (user != null)
-		{
-			EditorUi.removeChildNodes(this.userElement);
-			this.userElement.innerText = '';
-
-			if (Editor.currentTheme != 'simple' &&
-				Editor.currentTheme != 'sketch' &&
-				Editor.currentTheme != 'min' &&
-				screen.width > 560)
-			{
-				mxUtils.write(this.userElement, user.displayName);
-				this.userElement.style.display = 'inline-block';
-			}
-		}
-		else
-		{
-			this.userElement.style.display = 'none';
-		}
 	}
 
 	this.updateUserElementStyle();
@@ -7102,7 +7126,7 @@ App.prototype.updateUserElementStyle = function()
 			Editor.currentTheme == 'sketch' ||
 			Editor.currentTheme == 'min')
 		{
-    		elt.className = 'geToolbarButton';
+    		elt.className = 'geUser geToolbarButton';
 			elt.style.backgroundImage = 'url(' + Editor.userImage + ')';
         	elt.style.backgroundPosition = 'center center';
         	elt.style.backgroundRepeat = 'no-repeat';
@@ -7116,9 +7140,9 @@ App.prototype.updateUserElementStyle = function()
 		}
 		else
 		{
-			elt.className = 'geItem';
+			elt.className = 'geUser geItem';
 			elt.style.backgroundImage =  'url(' + IMAGE_PATH + '/expanded.gif)';
-			elt.style.backgroundPosition = '100% 60%';
+			elt.style.backgroundPosition = '100% 70%';
 			elt.style.backgroundRepeat = 'no-repeat';
         	elt.style.backgroundSize = '';
 			elt.style.position = 'absolute';
@@ -7143,13 +7167,32 @@ App.prototype.updateUserElementIcon = function()
 
 	if (elt != null)
 	{
-		var title = mxResources.get('changeUser');
+		var file = this.getCurrentFile();
+		var user = this.getMainUser();
 
-		if (elt.style.display != 'none')
+		if (urlParams['embed'] == '1' || file == null || user == null)
 		{
-			var file = this.getCurrentFile();
+			elt.style.display = 'none';
+		}
+		else
+		{
+			var title = mxResources.get('changeUser');
+			EditorUi.removeChildNodes(elt);
+			elt.style.display = '';
+			elt.innerText = '';
 
-			if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
+			if (Editor.currentTheme != 'simple' &&
+				Editor.currentTheme != 'sketch' &&
+				Editor.currentTheme != 'min')
+			{
+				mxUtils.write(elt, user.displayName);
+			}
+			else
+			{
+				title = user.displayName;
+			}
+
+			if (file.isRealtimeEnabled() && file.isRealtimeSupported())
 			{
 				var icon = document.createElement('img');
 				icon.setAttribute('border', '0');
@@ -7208,289 +7251,118 @@ App.prototype.updateUserElementIcon = function()
 /**
  * Adds the listener for automatically saving the diagram for local changes.
  */
-App.prototype.createUserElement = function()
+App.prototype.toggleUserPanel = function()
 {
-	var elt = document.createElement('a');
-	mxUtils.setPrefixedStyle(elt.style, 'transition', 'none');
-	elt.style.display = 'inline-block';
-	elt.style.cursor = 'pointer';
-	elt.style.fontSize = '8pt';
-
-	// Prevents focus
-	mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
-		mxUtils.bind(this, function(evt)
+	if (this.userPanel == null)
 	{
-		evt.preventDefault();
-	}));
-
-	mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
-	{
-		if (this.userPanel == null)
-		{
-			var div = document.createElement('div');
-			div.className = 'geDialog';
-			div.style.position = 'absolute';
-			div.style.top = (elt.clientTop + elt.clientHeight + 6) + 'px';
-			div.style.zIndex = 5;
-			div.style.right = '36px';
-			div.style.padding = '0px';
-			div.style.cursor = 'default';
-			div.style.minWidth = '300px';
-			
-			this.userPanel = div;
-		}
+		var div = document.createElement('div');
+		div.className = 'geDialog';
+		div.style.position = 'absolute';
+		div.style.zIndex = 5;
+		div.style.padding = '0px';
+		div.style.cursor = 'default';
+		div.style.minWidth = '300px';
 		
-		if (this.userPanel.parentNode != null)
+		this.userPanel = div;
+
+		mxEvent.addListener(document.body, 'click', mxUtils.bind(this, function(evt)
 		{
-			this.userPanel.parentNode.removeChild(this.userPanel);
-		}
-		else
-		{
-			var connected = false;
-			this.userPanel.innerText = '';
-			
-			var img = document.createElement('img');
-
-			img.setAttribute('src', Dialog.prototype.closeImage);
-			img.setAttribute('title', mxResources.get('close'));
-			img.className = 'geDialogClose';
-			img.style.top = '8px';
-			img.style.right = '8px';
-			
-			mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+			if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
 			{
-				if (this.userPanel.parentNode != null)
-				{
-					this.userPanel.parentNode.removeChild(this.userPanel);
-				}
-			}));
-			
-			this.userPanel.appendChild(img);
-								
-			if (this.drive != null)
-			{
-				var driveUsers = this.drive.getUsersList();
-				
-				if (driveUsers.length > 0)
-				{
-					// LATER: Cannot change user while file is open since close will not work with new
-					// credentials and closing the file using fileLoaded(null) will show splash dialog.
-					var closeFile = mxUtils.bind(this, function(callback, spinnerMsg)
-					{
-						var file = this.getCurrentFile();
-
-						if (file != null && file.constructor == DriveFile)
-						{
-							this.spinner.spin(document.body, spinnerMsg);
-								
-//									file.close();
-							this.fileLoaded(null);
-
-							// LATER: Use callback to wait for thumbnail update
-							window.setTimeout(mxUtils.bind(this, function()
-							{
-								this.spinner.stop();
-								callback();
-							}), 2000);
-						}
-						else
-						{
-							callback();
-						}
-					});
-					
-					var createUserRow = mxUtils.bind(this, function (user)
-					{
-						var tr = document.createElement('tr');
-						tr.setAttribute('title', 'User ID: ' + user.id);
-
-						var td = document.createElement('td');
-						td.setAttribute('valig', 'middle');
-						td.style.height = '59px';
-						td.style.width = '66px';
-
-						var img = document.createElement('img');
-						img.setAttribute('width', '50');
-						img.setAttribute('height', '50');
-						img.setAttribute('border', '0');
-						img.setAttribute('src', (user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture);
-						img.style.borderRadius = '50%';
-						img.style.margin = '4px 8px 0 8px';
-						td.appendChild(img);
-						tr.appendChild(td);
-
-						var td = document.createElement('td');
-						td.setAttribute('valign', 'middle');
-						td.style.whiteSpace = 'nowrap';
-						td.style.paddingTop = '4px';
-						td.style.maxWidth = '0';
-						td.style.overflow = 'hidden';
-						td.style.textOverflow = 'ellipsis';
-						mxUtils.write(td, user.displayName +
-							((user.isCurrent && driveUsers.length > 1) ?
-							' (' + mxResources.get('default') + ')' : ''));
-
-						if (user.email != null)
-						{
-							mxUtils.br(td);
-
-							var small = document.createElement('small');
-							small.style.color = 'gray';
-							mxUtils.write(small, user.email);
-							td.appendChild(small);
-						}
-
-						var div = document.createElement('div');
-						div.style.marginTop = '4px';
-
-						var i = document.createElement('i');
-						mxUtils.write(i, mxResources.get('googleDrive'));
-						div.appendChild(i);
-						td.appendChild(div);
-						tr.appendChild(td);
-
-						if (!user.isCurrent)
-						{
-							tr.style.cursor = 'pointer';
-							tr.style.opacity = '0.3';
-
-							mxEvent.addListener(tr, 'click', mxUtils.bind(this, function(evt)
-							{
-								closeFile(mxUtils.bind(this, function()
-								{
-									this.stateArg = null;
-									this.drive.setUser(user);
-									
-									this.drive.authorize(true, mxUtils.bind(this, function()
-									{
-										this.setMode(App.MODE_GOOGLE);
-										this.hideDialog();
-										this.showSplash();
-									}), mxUtils.bind(this, function(resp)
-									{
-										this.handleError(resp);
-									}), true); //Remember is true since add account imply keeping that account
-								}), mxResources.get('closingFile') + '...');
-								
-								mxEvent.consume(evt);
-							}));
-						}
-					
-						return tr;
-					});
-					
-					connected = true;
-					
-					var driveUserTable = document.createElement('table');
-					driveUserTable.style.borderSpacing = '0';
-					driveUserTable.style.fontSize = '10pt';
-					driveUserTable.style.width = '100%';
-					driveUserTable.style.padding = '10px';
-
-					for (var i = 0; i < driveUsers.length; i++)
-					{
-						driveUserTable.appendChild(createUserRow(driveUsers[i]));
-					}
-					
-					this.userPanel.appendChild(driveUserTable);
-					
-					var div = document.createElement('div');
-					div.style.textAlign = 'left';
-					div.style.padding = '10px';
-					div.style.whiteSpace = 'nowrap';
-					div.style.borderTop = '1px solid rgb(224, 224, 224)';
-
-					var btn = mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
-					{
-						this.confirm(mxResources.get('areYouSure'), mxUtils.bind(this, function()
-						{
-							closeFile(mxUtils.bind(this, function()
-							{
-								this.stateArg = null;
-								this.drive.logout();
-								this.setMode(App.MODE_GOOGLE);
-								this.hideDialog();
-								this.showSplash();
-							}), mxResources.get('signOut'));
-						}));
-					}));
-					btn.className = 'geBtn';
-					btn.style.float = 'right';
-					div.appendChild(btn);
-					
-					var btn = mxUtils.button(mxResources.get('addAccount'), mxUtils.bind(this, function()
-					{
-						var authWin = this.drive.createAuthWin();
-						//FIXME This doean't work to set focus back to main window until closing the file is done
-						authWin.blur();
-						window.focus();
-						
-						closeFile(mxUtils.bind(this, function()
-						{
-							this.stateArg = null;
-							
-							this.drive.authorize(false, mxUtils.bind(this, function()
-							{
-								this.setMode(App.MODE_GOOGLE);
-								this.hideDialog();
-								this.showSplash();
-							}), mxUtils.bind(this, function(resp)
-							{
-								this.handleError(resp);
-							}), true, authWin); //Remember is true since add account imply keeping that account
-						}), mxResources.get('closingFile') + '...');
-					}));
-					btn.className = 'geBtn';
-					btn.style.margin = '0px';
-					div.appendChild(btn);
-					this.userPanel.appendChild(div);
-				}
+				this.userPanel.parentNode.removeChild(this.userPanel);
 			}
-			
-			var addUser = mxUtils.bind(this, function(user, logo, logout, label)
+		}));
+	}
+	
+	if (this.userPanel.parentNode != null)
+	{
+		this.userPanel.parentNode.removeChild(this.userPanel);
+	}
+	else
+	{
+		var connected = false;
+		this.userPanel.innerText = '';
+		
+		var img = document.createElement('img');
+
+		img.setAttribute('src', Dialog.prototype.closeImage);
+		img.setAttribute('title', mxResources.get('close'));
+		img.className = 'geDialogClose';
+		img.style.top = '8px';
+		img.style.right = '8px';
+		
+		mxEvent.addListener(img, 'click', mxUtils.bind(this, function()
+		{
+			if (this.userPanel.parentNode != null)
 			{
-				if (user != null)
+				this.userPanel.parentNode.removeChild(this.userPanel);
+			}
+		}));
+		
+		this.userPanel.appendChild(img);
+							
+		if (this.drive != null)
+		{
+			var driveUsers = this.drive.getUsersList();
+			
+			if (driveUsers.length > 0)
+			{
+				// LATER: Cannot change user while file is open since close will not work with new
+				// credentials and closing the file using fileLoaded(null) will show splash dialog.
+				var closeFile = mxUtils.bind(this, function(callback, spinnerMsg)
 				{
-					if (connected)
-					{
-						this.userPanel.appendChild(document.createElement('hr'));
-					}
-					
-					connected = true;
-					var userTable = document.createElement('table');
-					userTable.style.borderSpacing = '0';
-					userTable.style.fontSize = '10pt';
-					userTable.style.width = '100%';
-					userTable.style.padding = '10px';
+					var file = this.getCurrentFile();
 
-					var tbody = document.createElement('tbody');
-					var row = document.createElement('tr');
+					if (file != null && file.constructor == DriveFile)
+					{
+						this.spinner.spin(document.body, spinnerMsg);
+							
+//									file.close();
+						this.fileLoaded(null);
+
+						// LATER: Use callback to wait for thumbnail update
+						window.setTimeout(mxUtils.bind(this, function()
+						{
+							this.spinner.stop();
+							callback();
+						}), 2000);
+					}
+					else
+					{
+						callback();
+					}
+				});
+				
+				var createUserRow = mxUtils.bind(this, function (user)
+				{
+					var tr = document.createElement('tr');
+					tr.setAttribute('title', 'User ID: ' + user.id);
+
 					var td = document.createElement('td');
-					td.setAttribute('valig', 'top');
-					td.style.width = '40px';
+					td.setAttribute('valig', 'middle');
+					td.style.height = '59px';
+					td.style.width = '66px';
 
-					if (logo != null)
-					{
-						var img = document.createElement('img');
-						img.setAttribute('width', '40');
-						img.setAttribute('height', '40');
-						img.setAttribute('border', '0');
-						img.setAttribute('src', logo);
-						img.style.marginRight = '6px';
-
-						td.appendChild(img);
-					}
-
-					row.appendChild(td);
+					var img = document.createElement('img');
+					img.setAttribute('width', '50');
+					img.setAttribute('height', '50');
+					img.setAttribute('border', '0');
+					img.setAttribute('src', (user.pictureUrl != null) ? user.pictureUrl : this.defaultUserPicture);
+					img.style.borderRadius = '50%';
+					img.style.margin = '4px 8px 0 8px';
+					td.appendChild(img);
+					tr.appendChild(td);
 
 					var td = document.createElement('td');
 					td.setAttribute('valign', 'middle');
 					td.style.whiteSpace = 'nowrap';
+					td.style.paddingTop = '4px';
 					td.style.maxWidth = '0';
 					td.style.overflow = 'hidden';
 					td.style.textOverflow = 'ellipsis';
-
-					mxUtils.write(td, user.displayName);
+					mxUtils.write(td, user.displayName +
+						((user.isCurrent && driveUsers.length > 1) ?
+						' (' + mxResources.get('default') + ')' : ''));
 
 					if (user.email != null)
 					{
@@ -7502,235 +7374,412 @@ App.prototype.createUserElement = function()
 						td.appendChild(small);
 					}
 
-					if (label != null)
-					{
-						var div = document.createElement('div');
-						div.style.marginTop = '4px';
-
-						var i = document.createElement('i');
-						mxUtils.write(i, label);
-						div.appendChild(i);
-						td.appendChild(div);
-					}
-
-					row.appendChild(td);
-					tbody.appendChild(row);
-					userTable.appendChild(tbody);
-
-					this.userPanel.appendChild(userTable);
 					var div = document.createElement('div');
-					div.style.textAlign = 'center';
-					div.style.padding = '10px';
-					div.style.whiteSpace = 'nowrap';
-					
-					if (logout != null)
-					{
-						var btn = mxUtils.button(mxResources.get('signOut'), logout);
-						btn.className = 'geBtn';
-						div.appendChild(btn);
-					}
-					
-					this.userPanel.appendChild(div);
-				}
-			});
-			
-			if (this.dropbox != null)
-			{
-				addUser(this.dropbox.getUser(), IMAGE_PATH + '/dropbox-logo.svg', mxUtils.bind(this, function()
-				{
-					var file = this.getCurrentFile();
-
-					if (file != null && file.constructor == DropboxFile)
-					{
-						var doLogout = mxUtils.bind(this, function()
-						{
-							this.dropbox.logout();
-							window.location.hash = '';
-						});
-						
-						if (!file.isModified())
-						{
-							doLogout();
-						}
-						else
-						{
-							this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-								mxResources.get('cancel'), mxResources.get('discardChanges'));
-						}
-					}
-					else
-					{
-						this.dropbox.logout();
-					}
-				}), mxResources.get('dropbox'));
-			}
-
-			if (this.oneDrive != null)
-			{
-				addUser(this.oneDrive.getUser(), IMAGE_PATH + '/onedrive-logo.svg', this.oneDrive.noLogout? null : mxUtils.bind(this, function()
-				{
-					var file = this.getCurrentFile();
-
-					if (file != null && file.constructor == OneDriveFile)
-					{
-						var doLogout = mxUtils.bind(this, function()
-						{
-							this.oneDrive.logout();
-							window.location.hash = '';
-						});
-						
-						if (!file.isModified())
-						{
-							doLogout();
-						}
-						else
-						{
-							this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-								mxResources.get('cancel'), mxResources.get('discardChanges'));
-						}
-					}
-					else
-					{
-						this.oneDrive.logout();
-					}
-				}), mxResources.get('oneDrive'));
-			}
-
-			if (this.gitHub != null)
-			{
-				addUser(this.gitHub.getUser(), IMAGE_PATH + '/github-logo.svg', mxUtils.bind(this, function()
-				{
-					var file = this.getCurrentFile();
-
-					if (file != null && file.constructor == GitHubFile)
-					{
-						var doLogout = mxUtils.bind(this, function()
-						{
-							this.gitHub.logout();
-							window.location.hash = '';
-						});
-						
-						if (!file.isModified())
-						{
-							doLogout();
-						}
-						else
-						{
-							this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-								mxResources.get('cancel'), mxResources.get('discardChanges'));
-						}
-					}
-					else
-					{
-						this.gitHub.logout();
-					}
-				}), mxResources.get('github'));
-			}
-			
-			if (this.gitLab != null)
-			{
-				addUser(this.gitLab.getUser(), IMAGE_PATH + '/gitlab-logo.svg', mxUtils.bind(this, function()
-				{
-					var file = this.getCurrentFile();
-
-					if (file != null && file.constructor == GitLabFile)
-					{
-						var doLogout = mxUtils.bind(this, function()
-						{
-							this.gitLab.logout();
-							window.location.hash = '';
-						});
-
-						if (!file.isModified())
-						{
-							doLogout();
-						}
-						else
-						{
-							this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-								mxResources.get('cancel'), mxResources.get('discardChanges'));
-						}
-					}
-					else
-					{
-						this.gitLab.logout();
-					}
-				}), mxResources.get('gitlab'));
-			}
-
-			//TODO We have no user info from Trello, how we can create a user?
-			if (this.trello != null)
-			{
-				addUser(this.trello.getUser(), IMAGE_PATH + '/trello-logo.svg', mxUtils.bind(this, function()
-				{
-					var file = this.getCurrentFile();
-
-					if (file != null && file.constructor == TrelloFile)
-					{
-						var doLogout = mxUtils.bind(this, function()
-						{
-							this.trello.logout();
-							window.location.hash = '';
-						});
-						
-						if (!file.isModified())
-						{
-							doLogout();
-						}
-						else
-						{
-							this.confirm(mxResources.get('allChangesLost'), null, doLogout,
-								mxResources.get('cancel'), mxResources.get('discardChanges'));
-						}
-					}
-					else
-					{
-						this.trello.logout();
-					}
-				}), mxResources.get('trello'));
-			}
-			
-			if (uiTheme == 'min')
-			{
-				var file = this.getCurrentFile();
-	
-				if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
-				{
-					var div = document.createElement('div');
-					div.style.padding = '10px';
-					div.style.whiteSpace = 'nowrap';
-					div.style.borderTop = '1px solid rgb(224, 224, 224)';
 					div.style.marginTop = '4px';
-					div.style.textAlign = 'center';
-					div.style.padding = '10px';
-					div.style.fontSize = '9pt';
-					var err = file.getRealtimeError();
-					var state = file.getRealtimeState();
 
-					if (state != 1)
+					var i = document.createElement('i');
+					mxUtils.write(i, mxResources.get('googleDrive'));
+					div.appendChild(i);
+					td.appendChild(div);
+					tr.appendChild(td);
+
+					if (!user.isCurrent)
 					{
-						mxUtils.write(div, mxResources.get('realtimeCollaboration') + ': ' +
-								((err != null && err.message != null) ?
-								err.message : mxResources.get('disconnected')));
-						this.userPanel.appendChild(div);
-					}
-				}
-			}
+						tr.style.cursor = 'pointer';
+						tr.style.opacity = '0.3';
 
-			document.body.appendChild(this.userPanel);
+						mxEvent.addListener(tr, 'click', mxUtils.bind(this, function(evt)
+						{
+							closeFile(mxUtils.bind(this, function()
+							{
+								this.stateArg = null;
+								this.drive.setUser(user);
+								
+								this.drive.authorize(true, mxUtils.bind(this, function()
+								{
+									this.setMode(App.MODE_GOOGLE);
+									this.hideDialog();
+									this.showSplash();
+								}), mxUtils.bind(this, function(resp)
+								{
+									this.handleError(resp);
+								}), true); //Remember is true since add account imply keeping that account
+							}), mxResources.get('closingFile') + '...');
+							
+							mxEvent.consume(evt);
+						}));
+					}
+				
+					return tr;
+				});
+				
+				connected = true;
+				
+				var driveUserTable = document.createElement('table');
+				driveUserTable.style.borderSpacing = '0';
+				driveUserTable.style.fontSize = '10pt';
+				driveUserTable.style.width = '100%';
+				driveUserTable.style.padding = '10px';
+
+				for (var i = 0; i < driveUsers.length; i++)
+				{
+					driveUserTable.appendChild(createUserRow(driveUsers[i]));
+				}
+				
+				this.userPanel.appendChild(driveUserTable);
+				
+				var div = document.createElement('div');
+				div.style.textAlign = 'left';
+				div.style.padding = '10px';
+				div.style.whiteSpace = 'nowrap';
+				div.style.borderTopStyle = 'solid';
+				div.style.borderTopWidth = '1px';
+
+				var btn = mxUtils.button(mxResources.get('signOut'), mxUtils.bind(this, function()
+				{
+					this.confirm(mxResources.get('areYouSure'), mxUtils.bind(this, function()
+					{
+						closeFile(mxUtils.bind(this, function()
+						{
+							this.stateArg = null;
+							this.drive.logout();
+							this.setMode(App.MODE_GOOGLE);
+							this.hideDialog();
+							this.showSplash();
+						}), mxResources.get('signOut'));
+					}));
+				}));
+				btn.className = 'geBtn';
+				btn.style.float = 'right';
+				div.appendChild(btn);
+				
+				var btn = mxUtils.button(mxResources.get('addAccount'), mxUtils.bind(this, function()
+				{
+					var authWin = this.drive.createAuthWin();
+					//FIXME This doean't work to set focus back to main window until closing the file is done
+					authWin.blur();
+					window.focus();
+					
+					closeFile(mxUtils.bind(this, function()
+					{
+						this.stateArg = null;
+						
+						this.drive.authorize(false, mxUtils.bind(this, function()
+						{
+							this.setMode(App.MODE_GOOGLE);
+							this.hideDialog();
+							this.showSplash();
+						}), mxUtils.bind(this, function(resp)
+						{
+							this.handleError(resp);
+						}), true, authWin); //Remember is true since add account imply keeping that account
+					}), mxResources.get('closingFile') + '...');
+				}));
+				btn.className = 'geBtn';
+				btn.style.margin = '0px';
+				div.appendChild(btn);
+				this.userPanel.appendChild(div);
+			}
 		}
 		
+		var addUser = mxUtils.bind(this, function(user, logo, logout, label)
+		{
+			if (user != null)
+			{
+				if (connected)
+				{
+					this.userPanel.appendChild(document.createElement('hr'));
+				}
+				
+				connected = true;
+				var userTable = document.createElement('table');
+				userTable.style.borderSpacing = '0';
+				userTable.style.fontSize = '10pt';
+				userTable.style.width = '100%';
+				userTable.style.padding = '10px';
+
+				var tbody = document.createElement('tbody');
+				var row = document.createElement('tr');
+				var td = document.createElement('td');
+				td.setAttribute('valig', 'top');
+				td.style.width = '40px';
+
+				if (logo != null)
+				{
+					var img = document.createElement('img');
+					img.setAttribute('width', '40');
+					img.setAttribute('height', '40');
+					img.setAttribute('border', '0');
+					img.setAttribute('src', logo);
+					img.style.marginRight = '6px';
+
+					td.appendChild(img);
+				}
+
+				row.appendChild(td);
+
+				var td = document.createElement('td');
+				td.setAttribute('valign', 'middle');
+				td.style.whiteSpace = 'nowrap';
+				td.style.maxWidth = '0';
+				td.style.overflow = 'hidden';
+				td.style.textOverflow = 'ellipsis';
+
+				mxUtils.write(td, user.displayName);
+
+				if (user.email != null)
+				{
+					mxUtils.br(td);
+
+					var small = document.createElement('small');
+					small.style.color = 'gray';
+					mxUtils.write(small, user.email);
+					td.appendChild(small);
+				}
+
+				if (label != null)
+				{
+					var div = document.createElement('div');
+					div.style.marginTop = '4px';
+
+					var i = document.createElement('i');
+					mxUtils.write(i, label);
+					div.appendChild(i);
+					td.appendChild(div);
+				}
+
+				row.appendChild(td);
+				tbody.appendChild(row);
+				userTable.appendChild(tbody);
+
+				this.userPanel.appendChild(userTable);
+				var div = document.createElement('div');
+				div.style.textAlign = 'center';
+				div.style.padding = '10px';
+				div.style.whiteSpace = 'nowrap';
+				
+				if (logout != null)
+				{
+					var btn = mxUtils.button(mxResources.get('signOut'), logout);
+					btn.className = 'geBtn';
+					div.appendChild(btn);
+				}
+				
+				this.userPanel.appendChild(div);
+			}
+		});
+		
+		if (this.dropbox != null)
+		{
+			addUser(this.dropbox.getUser(), IMAGE_PATH + '/dropbox-logo.svg', mxUtils.bind(this, function()
+			{
+				var file = this.getCurrentFile();
+
+				if (file != null && file.constructor == DropboxFile)
+				{
+					var doLogout = mxUtils.bind(this, function()
+					{
+						this.dropbox.logout();
+						window.location.hash = '';
+					});
+					
+					if (!file.isModified())
+					{
+						doLogout();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				}
+				else
+				{
+					this.dropbox.logout();
+				}
+			}), mxResources.get('dropbox'));
+		}
+
+		if (this.oneDrive != null)
+		{
+			addUser(this.oneDrive.getUser(), IMAGE_PATH + '/onedrive-logo.svg', this.oneDrive.noLogout? null : mxUtils.bind(this, function()
+			{
+				var file = this.getCurrentFile();
+
+				if (file != null && file.constructor == OneDriveFile)
+				{
+					var doLogout = mxUtils.bind(this, function()
+					{
+						this.oneDrive.logout();
+						window.location.hash = '';
+					});
+					
+					if (!file.isModified())
+					{
+						doLogout();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				}
+				else
+				{
+					this.oneDrive.logout();
+				}
+			}), mxResources.get('oneDrive'));
+		}
+
+		if (this.gitHub != null)
+		{
+			addUser(this.gitHub.getUser(), IMAGE_PATH + '/github-logo.svg', mxUtils.bind(this, function()
+			{
+				var file = this.getCurrentFile();
+
+				if (file != null && file.constructor == GitHubFile)
+				{
+					var doLogout = mxUtils.bind(this, function()
+					{
+						this.gitHub.logout();
+						window.location.hash = '';
+					});
+					
+					if (!file.isModified())
+					{
+						doLogout();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				}
+				else
+				{
+					this.gitHub.logout();
+				}
+			}), mxResources.get('github'));
+		}
+		
+		if (this.gitLab != null)
+		{
+			addUser(this.gitLab.getUser(), IMAGE_PATH + '/gitlab-logo.svg', mxUtils.bind(this, function()
+			{
+				var file = this.getCurrentFile();
+
+				if (file != null && file.constructor == GitLabFile)
+				{
+					var doLogout = mxUtils.bind(this, function()
+					{
+						this.gitLab.logout();
+						window.location.hash = '';
+					});
+
+					if (!file.isModified())
+					{
+						doLogout();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				}
+				else
+				{
+					this.gitLab.logout();
+				}
+			}), mxResources.get('gitlab'));
+		}
+
+		//TODO We have no user info from Trello, how we can create a user?
+		if (this.trello != null)
+		{
+			addUser(this.trello.getUser(), IMAGE_PATH + '/trello-logo.svg', mxUtils.bind(this, function()
+			{
+				var file = this.getCurrentFile();
+
+				if (file != null && file.constructor == TrelloFile)
+				{
+					var doLogout = mxUtils.bind(this, function()
+					{
+						this.trello.logout();
+						window.location.hash = '';
+					});
+					
+					if (!file.isModified())
+					{
+						doLogout();
+					}
+					else
+					{
+						this.confirm(mxResources.get('allChangesLost'), null, doLogout,
+							mxResources.get('cancel'), mxResources.get('discardChanges'));
+					}
+				}
+				else
+				{
+					this.trello.logout();
+				}
+			}), mxResources.get('trello'));
+		}
+		
+		if (uiTheme == 'min')
+		{
+			var file = this.getCurrentFile();
+
+			if (file != null && file.isRealtimeEnabled() && file.isRealtimeSupported())
+			{
+				var div = document.createElement('div');
+				div.style.padding = '10px';
+				div.style.whiteSpace = 'nowrap';
+				div.style.borderTop = '1px solid rgb(224, 224, 224)';
+				div.style.marginTop = '4px';
+				div.style.textAlign = 'center';
+				div.style.padding = '10px';
+				div.style.fontSize = '9pt';
+				var err = file.getRealtimeError();
+				var state = file.getRealtimeState();
+
+				if (state != 1)
+				{
+					mxUtils.write(div, mxResources.get('realtimeCollaboration') + ': ' +
+							((err != null && err.message != null) ?
+							err.message : mxResources.get('disconnected')));
+					this.userPanel.appendChild(div);
+				}
+			}
+		}
+
+		document.body.appendChild(this.userPanel);
+	}
+};
+
+/**
+ * Adds the listener for automatically saving the diagram for local changes.
+ */
+App.prototype.createUserElement = function()
+{
+	var elt = document.createElement('a');
+
+	// Prevents focus
+	mxEvent.addListener(elt, (mxClient.IS_POINTER) ? 'pointerdown' : 'mousedown',
+		mxUtils.bind(this, function(evt)
+	{
+		evt.preventDefault();
+	}));
+
+	mxEvent.addListener(elt, 'click', mxUtils.bind(this, function(evt)
+	{
+		this.toggleUserPanel();
+
+		this.userPanel.style.top = (elt.clientTop + elt.clientHeight + 6) + 'px';
+		this.userPanel.style.right = '36px';
+		this.userPanel.style.left = '';
+
 		mxEvent.consume(evt);
 	}));
-	
-	mxEvent.addListener(document.body, 'click', mxUtils.bind(this, function(evt)
-	{
-		if (!mxEvent.isConsumed(evt) && this.userPanel != null && this.userPanel.parentNode != null)
-		{
-			this.userPanel.parentNode.removeChild(this.userPanel);
-		}
-	}));
-	
 	
 	return elt;
 };

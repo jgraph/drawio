@@ -814,9 +814,10 @@ DrawioFile.prototype.ignorePatches = function(patches)
 };
 
 /**
- * Applies the given patches to the file.
+ * Applies the given patches to the file. If sendChanges is true the snapshot in
+ * the sync client is not updated so a diff can be computed and propagated.
  */
-DrawioFile.prototype.patch = function(patches, resolver, undoable)
+DrawioFile.prototype.patch = function(patches, resolver, undoable, sendChanges)
 {
 	if (patches != null)
 	{
@@ -911,12 +912,11 @@ DrawioFile.prototype.patch = function(patches, resolver, undoable)
 			}
 
 			// Updates snapshot for finding local changes in sync
-			if (this.sync != null && this.isRealtime())
+			if (this.sync != null && this.isRealtime() && !sendChanges)
 			{
 				this.sync.snapshot = this.ui.clonePages(this.ui.pages);
 			}
 			
-			this.ui.updateTabContainer();
 			this.ui.editor.fireEvent(new mxEventObject('pagesPatched', 'patches', patches));
 		}
 
@@ -1703,7 +1703,8 @@ DrawioFile.prototype.addAllSavedStatus = function(status)
 	if (this.ui.statusContainer != null && this.ui.getCurrentFile() == this)
 	{
 		status = (status != null) ? status : mxUtils.htmlEntities(mxResources.get(this.allChangesSavedKey));
-		var rev = (this.isRevisionHistorySupported()) ? 'data-action="revisionHistory" ' : '';
+		var rev = (this.isRevisionHistorySupported() && status != mxUtils.htmlEntities(
+			mxResources.get(this.savingStatusKey)) + '...') ? 'data-action="revisionHistory" ' : '';
 		this.ui.editor.setStatus('<div ' + rev + 'title="'+ status + '">' + status + '</div>');
 	}
 };

@@ -64,26 +64,6 @@ div.mxWindowPane {
 	overflow: hidden;
 	position: relative;
 }
-td.mxWindowPane td {
-  	font-family: Arial;
-	font-size: 8pt;
-}
-td.mxWindowPane input, td.mxWindowPane select, td.mxWindowPane textarea, td.mxWindowPane radio {
-  	border-color: #8C8C8C;
-  	border-style: solid;
-  	border-width: 1px;
-  	font-family: Arial;
-	font-size: 8pt;
- 	padding: 1px;
-}
-td.mxWindowPane button {
-	background: url(data:image/gif;base64,R0lGODlhCgATALMAAP7+/t7e3vj4+Ojo6OXl5e/v7/n5+fb29vPz8/39/e3t7fHx8e7u7v///wAAAAAAACH5BAAAAAAALAAAAAAKABMAAAQ2MMlJhb0Y6c2X/2AhjiRjnqiirizqMkEsz0Rt30Ou7y8K/ouDcEg0GI9IgHLJbDif0Kh06owAADs=) repeat-x;
-	_background: url('../images/button.gif') repeat-x;
-  	font-family: Arial;
-  	font-size: 8pt;
-  	padding: 2px;
-	float: left;
-}
 img.mxToolbarItem {
 	margin-right: 6px;
 	margin-bottom: 6px;

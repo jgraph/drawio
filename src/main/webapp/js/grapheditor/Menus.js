@@ -278,11 +278,6 @@ Menus.prototype.init = function()
 	{
 		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true); }, parent);
 		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false); }, parent);
-	})));
-	this.put('distribute', new Menu(mxUtils.bind(this, function(menu, parent)
-	{
-		menu.addItem(mxResources.get('horizontal'), null, function() { graph.distributeCells(true); }, parent);
-		menu.addItem(mxResources.get('vertical'), null, function() { graph.distributeCells(false); }, parent);
 		menu.addSeparator(parent);
 		this.addSubmenu('distributeSpacing', menu, parent, mxResources.get('spacing'));
 	})));
@@ -523,7 +518,7 @@ Menus.prototype.init = function()
 	this.put('view', new Menu(mxUtils.bind(this, function(menu, parent)
 	{
 		this.addMenuItems(menu, ((this.editorUi.format != null) ? ['format'] : []).
-			concat(['outline', 'layers', '-', 'pageView', 'pageScale', '-', 'scrollbars', 'tooltips', '-',
+			concat(['outline', 'layers', '-', 'pageView', 'pageScale', '-', 'tooltips',
 			        'grid', 'guides', '-', 'connectionArrows', 'connectionPoints', '-',
 			        'resetView', 'zoomIn', 'zoomOut'], parent));
 	})));
@@ -934,9 +929,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 	function createPicker(rows, cols)
 	{
 		var table2 = document.createElement('table');
+		table2.className = 'geInsertTablePicker';
 		table2.setAttribute('border', '1');
 		table2.style.borderCollapse = 'collapse';
 		table2.style.borderStyle = 'solid';
+		table2.style.marginBottom = '4px';
+		table2.style.marginTop = '8px';
 		table2.setAttribute('cellPadding', '8');
 		
 		for (var i = 0; i < rows; i++)
@@ -980,10 +978,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 	var titleOption = document.createElement('input');
 	titleOption.setAttribute('id', 'geTitleOption');
 	titleOption.setAttribute('type', 'checkbox');
+	titleOption.style.verticalAlign = 'middle';
 
 	var titleLbl = document.createElement('label');
 	mxUtils.write(titleLbl, mxResources.get('title'));
 	titleLbl.setAttribute('for', 'geTitleOption');
+	titleLbl.style.verticalAlign = 'middle';
 
 	mxEvent.addGestureListeners(titleLbl, null, null, mxUtils.bind(this, function(e)
 	{
@@ -998,10 +998,12 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 	var containerOption = document.createElement('input');
 	containerOption.setAttribute('id', 'geContainerOption');
 	containerOption.setAttribute('type', 'checkbox');
+	containerOption.style.verticalAlign = 'middle';
 	
 	var containerLbl = document.createElement('label');
 	mxUtils.write(containerLbl, mxResources.get('container'));
 	containerLbl.setAttribute('for', 'geContainerOption');
+	containerLbl.style.verticalAlign = 'middle';
 
 	mxEvent.addGestureListeners(containerLbl, null, null, mxUtils.bind(this, function(e)
 	{
@@ -1021,14 +1023,15 @@ Menus.prototype.addInsertTableItem = function(menu, insertFn, parent, showOption
 		elt2.firstChild.appendChild(containerOption);
 		elt2.firstChild.appendChild(containerLbl);
 		mxUtils.br(elt2.firstChild);
-		mxUtils.br(elt2.firstChild);
 	}
 	
 	var picker = createPicker(5, 5);
 	elt2.firstChild.appendChild(picker);
 	
 	var label = document.createElement('div');
+	label.style.textAlign = 'center';
 	label.style.padding = '4px';
+	label.style.width = '100%';
 	label.innerHTML = '1x1';
 	elt2.firstChild.appendChild(label);
 	
@@ -1419,7 +1422,10 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 			menu.addCheckmark(item, Editor.checkmarkImage);
 		}
 
-		this.addShortcut(item, action);
+		if (!menu.hideShortcuts)
+		{
+			this.addShortcut(item, action);
+		}
 		
 		return item;
 	}
@@ -1466,7 +1472,15 @@ Menus.prototype.addMenuItems = function(menu, keys, parent, trigger, sprites)
 Menus.prototype.createPopupMenu = function(menu, cell, evt)
 {
 	menu.smartSeparators = true;
-	
+	menu.hideShortcuts = true;
+	this.addPopupMenuItems(menu, cell, evt);
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
+Menus.prototype.addPopupMenuItems = function(menu, cell, evt)
+{
 	this.addPopupMenuHistoryItems(menu, cell, evt);
 	this.addPopupMenuEditItems(menu, cell, evt);
 
@@ -1556,8 +1570,16 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 	{
 		this.addMenuItems(menu, ['group', 'ungroup'], null, evt);
 	}
-	
-	if (graph.getEditableCells(graph.getSelectionCells()).length > 0)
+
+	var count = graph.getEditableCells(graph.getSelectionCells()).length;
+
+	if (count > 1)
+	{
+		menu.addSeparator();
+		this.addSubmenu('align', menu);
+		this.addSubmenu('distribute', menu);
+	}
+	else if (count == 1)
 	{
 		this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
 		
@@ -1578,7 +1600,9 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 	
 	if (state != null)
 	{
-		var hasWaypoints = false;
+		// Adds reset waypoints option if waypoints exist
+		var geo = graph.getModel().getGeometry(cell);
+		var hasWaypoints = geo != null && geo.points != null && geo.points.length > 0;
 		
 		if (this.isShowStyleItems() && graph.getSelectionCount() == 1 &&
 			graph.getModel().isEdge(cell))
@@ -1593,7 +1617,7 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			var handler = graph.selectionCellsHandler.getHandler(cell);
 			var isWaypoint = false;
 			
-			if (handler instanceof mxEdgeHandler && handler.bends != null && handler.bends.length > 2)
+			if (hasWaypoints && handler instanceof mxEdgeHandler && handler.bends != null && handler.bends.length > 2)
 			{
 				var index = handler.getHandleForEvent(graph.updateMouseEvent(new mxMouseEvent(evt)));
 
@@ -1613,25 +1637,19 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 				}
 			}
 			
-			menu.addSeparator();
-
 			if (this.isShowCellEditItems())
 			{
 				this.addMenuItem(menu, 'turn', null, evt, null, mxResources.get('reverse'));
 			}
-
-			this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
 			
-			// Adds reset waypoints option if waypoints exist
-			var geo = graph.getModel().getGeometry(cell);
-			hasWaypoints = geo != null && geo.points != null && geo.points.length > 0;
+			this.addMenuItems(menu, [(isWaypoint) ? 'removeWaypoint' : 'addWaypoint'], null, evt);
 		}
 
 		if (graph.getSelectionCount() == 1 && this.isShowCellEditItems() && 
 			(hasWaypoints || (graph.getModel().isVertex(cell) &&
 			graph.getModel().getEdgeCount(cell) > 0)))
 		{
-			this.addMenuItems(menu, ['-', 'clearWaypoints'], null, evt);
+			this.addMenuItems(menu, ['clearWaypoints'], null, evt);
 		}
 		
 		if (this.isShowCellEditItems() &&
@@ -1639,10 +1657,6 @@ Menus.prototype.addPopupMenuCellItems = function(menu, cell, evt)
 			graph.isCellEditable(cell))
 		{
 			this.addPopupMenuCellEditItems(menu, cell, evt);
-		}
-		else
-		{
-			this.addMenuItems(menu, ['editLink'], null, evt);
 		}
 	}
 };
@@ -1686,7 +1700,7 @@ Menus.prototype.addPopupMenuSelectionItems = function(menu, cell, evt)
 {
 	if (this.editorUi.editor.graph.isSelectionEmpty())
 	{
-		this.addMenuItems(menu, ['-', 'selectVertices', 'selectEdges', 'selectAll'], null, evt);
+		this.addMenuItems(menu, ['-', 'selectAll', 'selectVertices', 'selectEdges'], null, evt);
 	}
 };
 
@@ -1723,6 +1737,7 @@ Menus.prototype.menuCreated = function(menu, elt, className)
 	if (elt != null)
 	{
 		className = (className != null) ? className : 'geItem';
+		elt.className = className;
 		
 		menu.addListener('stateChanged', function()
 		{

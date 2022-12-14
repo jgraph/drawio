@@ -174,7 +174,7 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				this.graph = new Graph(container);
 				this.graph.enableFlowAnimation = true;
 				this.graph.defaultPageBackgroundColor = 'transparent';
-				this.graph.simpleBackgroundColor = 'transparent';
+				this.graph.diagramBackgroundColor = 'transparent';
 				this.graph.transparentBackground = false;
 				
 				if (this.responsive && this.graph.dialect == mxConstants.DIALECT_SVG)

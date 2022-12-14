@@ -1032,6 +1032,7 @@ Toolbar.prototype.addMenuHandler = function(elt, showLabels, funct, showAll)
 			{
 				graph.popupMenuHandler.hideMenu();
 				menu = new mxPopupMenu(funct);
+				menu.smartSeparators = true;
 				menu.div.className += ' geToolbarMenu';
 				menu.showDisabled = showAll;
 				menu.labels = showLabels;

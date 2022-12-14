@@ -204,7 +204,7 @@ mxGraphView.prototype.minGridSize = 4;
 
 // UrlParams is null in embed mode
 mxGraphView.prototype.defaultGridColor = '#d0d0d0';
-mxGraphView.prototype.defaultDarkGridColor = '#6e6e6e';
+mxGraphView.prototype.defaultDarkGridColor = '#424242';
 mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultGridColor;
 
 //Units
@@ -908,7 +908,21 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			
 			return mxConnectionHandler.prototype.createTargetVertex.apply(this, arguments);
 		};
-		
+
+		// Applies newEdgeStyle
+		this.connectionHandler.insertEdge = function(parent, id, value, source, target, style)
+		{
+			var edge = mxConnectionHandler.prototype.insertEdge.apply(this, arguments);
+
+			if (source != null)
+			{
+				this.graph.applyNewEdgeStyle(source, [edge]);
+			}
+			
+			return edge
+		};
+
+		// Creates rubberband selection and associates with graph instance
 	    var rubberband = new mxRubberband(this);
 	    
 	    this.getRubberband = function()
@@ -2052,7 +2066,12 @@ Graph.prototype.defaultPageBackgroundColor = '#ffffff';
 /**
  * 
  */
-Graph.prototype.simpleBackgroundColor = '#f0f0f0';
+Graph.prototype.diagramBackgroundColor = '#f0f0f0';
+
+/**
+ * Whether to use diagramBackgroundColor for no page views.
+ */
+Graph.prototype.enableDiagramBackground = false;
 
 /**
  * 
@@ -2365,9 +2384,7 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isImageState = function(state)
 	{
-		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
-		
-		return (shape == 'label' || shape == 'image');
+		return mxUtils.getValue(state.style, mxConstants.STYLE_IMAGE, null) != null;
 	};
 	
 	/**
@@ -2393,6 +2410,41 @@ Graph.prototype.init = function(container)
 		{
 			return (vertices && model.isVertex(cell)) || (edges && model.isEdge(cell));
 		}, model.getRoot());
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.applyNewEdgeStyle = function(source, edges, dir)
+	{
+		var style = this.getCellStyle(source);
+		var temp = style['newEdgeStyle'];
+		
+		if (temp != null)
+		{
+			this.model.beginUpdate();
+			try
+			{
+				var styles = JSON.parse(temp);
+				
+				for (var key in styles)
+				{
+					this.setCellStyles(key, styles[key], edges);
+					
+					// Sets elbow direction
+					if (key == 'edgeStyle' && styles[key] == 'elbowEdgeStyle' && dir != null)
+					{
+						this.setCellStyles('elbow', (dir == mxConstants.DIRECTION_SOUTH ||
+							dir == mxConstants.DIRECTION_NOTH) ? 'vertical' : 'horizontal',
+							edges);
+					}
+				}
+			}
+			finally
+			{
+				this.model.endUpdate();
+			}
+		}
 	};
 	
 	/**
@@ -4507,6 +4559,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 				if (edge != null)
 				{
 					result.push(edge);
+					this.applyNewEdgeStyle(source, [edge], direction);
 				}
 				
 				if (target == null && realTarget != null)
@@ -7802,6 +7855,16 @@ if (typeof mxVertexHandler !== 'undefined')
 		mxConstants.GUIDE_COLOR = '#0088cf';
 		mxConstants.HIGHLIGHT_OPACITY = 30;
 	    mxConstants.HIGHLIGHT_SIZE = 5;
+
+		// Sets window decoration icons
+		mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10,
+			'<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#707070" stroke-width="2"/>').src;
+		mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10,
+			'<path d="M 3 7 L 7 3 L 11 7" stroke="#707070" stroke-width="2" fill="none"/>').src;
+		mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10,
+			'<path d="M 3 3 L 7 7 L 11 3" stroke="#707070" stroke-width="2" fill="none"/>').src;
+		mxWindow.prototype.resizeImage = Graph.createSvgImage(10, 10,
+			'<path d="Z" stroke="#C0C0C0" stroke-width="1" fill="none"/>').src;
 		
 		// Enables snapping to off-grid terminals for edge waypoints
 		mxEdgeHandler.prototype.snapToTerminals = true;
@@ -7868,6 +7931,29 @@ if (typeof mxVertexHandler !== 'undefined')
 			for (var key in this.graph.currentEdgeStyle)
 			{
 				state.style[key] = this.graph.currentEdgeStyle[key];
+			}
+			
+			// Applies newEdgeStyle for preview
+			if (this.previous != null)
+			{
+				var temp = this.previous.style['newEdgeStyle'];
+				
+				if (temp != null)
+				{
+					try
+					{
+						var styles = JSON.parse(temp);
+						
+						for (var key in styles)
+						{
+							state.style[key] = styles[key];
+						}
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				}
 			}
 
 			state.style = this.graph.postProcessCellStyle(state.cell, state.style);
@@ -11679,7 +11765,7 @@ if (typeof mxVertexHandler !== 'undefined')
 							this.popupMenuHandler.popup(me.getX() + origin.x + 1,
 								me.getY() + origin.y + 1, cell, me.getEvent());
 						}
-					}), 500);
+					}), 300);
 				});
 
 				mxPopupMenuHandler.prototype.mouseUp.apply(this.popupMenuHandler, [sender, me, popup]);

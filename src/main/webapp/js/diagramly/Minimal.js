@@ -92,23 +92,9 @@ EditorUi.initMinimalTheme = function()
 
 	function createSidebar(ui, container)
 	{
-		var div = document.createElement('div');
-		div.style.cssText = 'position:absolute;left:0;right:0;border-top:1px solid lightgray;' +
-			'height:24px;bottom:31px;text-align:center;cursor:pointer;padding:6px 0 0 0;';
-		div.className = 'geTitle';
-		var span = document.createElement('span');
-		span.style.fontSize = '18px';
-		span.style.marginRight = '5px';
-		span.innerHTML = '+';
-		div.appendChild(span);
-		mxUtils.write(div, mxResources.get('moreShapes'));
-		container.appendChild(div);
-		
-		mxEvent.addListener(div, 'click', function()
-		{
-			ui.actions.get('shapes').funct();
-		});
-
+		var css = 'position:absolute;border-width:1px;cusor:pointer;border-style:none;' +
+			'height:24px;bottom:0px;text-align:center;padding:8px 6px 0 6px;border-top-style:solid;' +
+			'width:50%;height:32px;box-sizing:border-box;font-size:11px;';
 		var menuObj = new Menubar(ui, container);
 		
 		function addMenu(id, label)
@@ -121,8 +107,7 @@ EditorUi.initMinimalTheme = function()
 				menu.funct.apply(this, arguments);
 			}));
 			
-			elt.style.cssText = 'position:absolute;border-top:1px solid lightgray;width:50%;' +
-				'height:24px;bottom:0px;text-align:center;cursor:pointer;padding:6px 0 0 0;cusor:pointer;';
+			elt.style.cssText = css;
 			elt.className = 'geTitle';
 			container.appendChild(elt);
 			
@@ -135,44 +120,30 @@ EditorUi.initMinimalTheme = function()
 			if (ui.actions.get('newLibrary') != null)
 			{
 				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;left:0px;width:50%;border-top:1px solid lightgray;' +
-					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;';
+				div.style.cssText = css;
 				div.className = 'geTitle';
-				var span = document.createElement('span');
-				span.style.cssText = 'position:relative;top:6px;';
-				mxUtils.write(span, mxResources.get('newLibrary'));
-				div.appendChild(span);
+				mxUtils.write(div, mxResources.get('newLibrary'));
 				container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', ui.actions.get('newLibrary').funct);
+				mxEvent.addListener(div, 'click', this.actions.get('newLibrary').funct);
 				
-				var div = document.createElement('div');
-				div.style.cssText = 'position:absolute;left:50%;width:50%;border-top:1px solid lightgray;' +
-					'height:30px;bottom:0px;text-align:center;cursor:pointer;padding:0px;border-left: 1px solid lightgray;';
-				div.className = 'geTitle';
-				var span = document.createElement('span');
-				span.style.cssText = 'position:relative;top:6px;';
-				mxUtils.write(span, mxResources.get('openLibrary'));
-				div.appendChild(span);
+				var div = div.cloneNode(false);
+				div.style.left = '50%';
+				div.style.borderLeftStyle = 'solid';
+				mxUtils.write(div, mxResources.get('openLibrary'));
 				container.appendChild(div);
 				
-				mxEvent.addListener(div, 'click', ui.actions.get('openLibrary').funct);
+				mxEvent.addListener(div, 'click', this.actions.get('openLibrary').funct);
 			}
 			else
 			{
 				var elt = addMenu('newLibrary', mxResources.get('newLibrary'));
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
+				elt.style.fontSize = '11px';
 				elt.style.left = '0';
 				
 				var elt = addMenu('openLibraryFrom', mxResources.get('openLibraryFrom'));
-				elt.style.borderLeft = '1px solid lightgray';
-				elt.style.boxSizing = 'border-box';
-				elt.style.paddingRight = '6px';
-				elt.style.paddingLeft = '6px';
-				elt.style.height = '32px';
+				elt.style.borderLeftStyle = 'solid';
+				elt.style.fontSize = '11px';
 				elt.style.left = '50%';
 			}
 		}
@@ -256,9 +227,6 @@ EditorUi.initMinimalTheme = function()
     // Changes colors for some UI elements
 	var fill = '#29b6f2';
 	Editor.checkmarkImage = Graph.createSvgImage(22, 18, '<path transform="translate(4 0)" d="M7.181,15.007a1,1,0,0,1-.793-0.391L3.222,10.5A1,1,0,1,1,4.808,9.274L7.132,12.3l6.044-8.86A1,1,0,1,1,14.83,4.569l-6.823,10a1,1,0,0,1-.8.437H7.181Z" fill="' + fill + '"/>').src;
-	mxWindow.prototype.closeImage = Graph.createSvgImage(18, 10, '<path d="M 5 1 L 13 9 M 13 1 L 5 9" stroke="#C0C0C0" stroke-width="2"/>').src;
-	mxWindow.prototype.minimizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 7 L 7 3 L 11 7" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
-	mxWindow.prototype.normalizeImage = Graph.createSvgImage(14, 10, '<path d="M 3 3 L 7 7 L 11 3" stroke="#C0C0C0" stroke-width="2" fill="none"/>').src;
 	mxConstraintHandler.prototype.pointImage = Graph.createSvgImage(5, 5,
 		'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke-width="2" style="stroke-opacity:0.4" stroke="#ffffff"/>' +
 		'<path d="m 0 0 L 5 5 M 0 5 L 5 0" stroke="' + fill + '"/>');
@@ -280,7 +248,7 @@ EditorUi.initMinimalTheme = function()
 	Graph.prototype.svgShadowSize = '0.6';
 	Graph.prototype.svgShadowBlur = '1.2';
 
-	Format.inactiveTabBackgroundColor = '#f0f0f0';
+	Format.inactiveTabBackgroundColor = '#e4e4e4';
 	mxGraphHandler.prototype.previewColor = '#C0C0C0';
 	mxRubberband.prototype.defaultOpacity = 50;
 	HoverIcons.prototype.inactiveOpacity = 25;
@@ -313,21 +281,23 @@ EditorUi.initMinimalTheme = function()
     {
     	return false;
     };
-    
-    // Overridden to ignore tabContainer height for diagramContainer
-    var editorUiUpdateTabContainer = EditorUi.prototype.updateTabContainer;
-    
-    EditorUi.prototype.updateTabContainer = function()
-    {
-    	if (this.tabContainer != null)
+	
+	var editorUiRefresh = EditorUi.prototype.refresh;
+
+	/**
+	 * Changes refresh to only update the diagram container in sketch mode.
+	 */
+	EditorUi.prototype.refresh = function(sizeDidChange)
+	{
+		editorUiRefresh.apply(this, arguments);
+
+		if (this.tabContainer != null)
         {
         	// Makes room for view zoom menu
-        	this.tabContainer.style.right = '70px';
+        	this.tabContainer.style.right = '62px';
         	this.diagramContainer.style.bottom = this.tabContainerHeight + 'px';
         }
-    	
-    	editorUiUpdateTabContainer.apply(this, arguments);
-    };
+	};
 
     // Overridden to update save menu state
 	/**
@@ -374,8 +344,8 @@ EditorUi.initMinimalTheme = function()
 	
     EditorUi.prototype.isFormatPanelVisible = function()
     {
-		return this.formatWindow != null &&
-			this.formatWindow.window.isVisible();
+		return (this.formatWindow != null && this.formatWindow.window.isVisible()) ||
+			(this.formatWindow == null && this.formatWidth > 0);
     };
 
     DiagramFormatPanel.prototype.isMathOptionVisible = function()
@@ -436,20 +406,7 @@ EditorUi.initMinimalTheme = function()
 		menusInit.apply(this, arguments);
 		
         var ui = this.editorUi;
-
-        var togglePagesAction = ui.actions.put('togglePagesVisible', new Action(mxResources.get('pages'), function(e)
-        {
-            ui.setPagesVisible(!Editor.pagesVisible);
-        }));
 		
-		togglePagesAction.setToggleAction(true);
-		togglePagesAction.setSelectedCallback(function() { return Editor.pagesVisible; });
-		
-        ui.actions.put('toggleShapes', new Action(mxResources.get('shapes'), function()
-        {
-        	toggleShapes(ui);
-        }, null, null, Editor.ctrlKey + '+Shift+K'));
-
         if (EditorUi.enablePlantUml && !ui.isOffline())
         {
 	        ui.actions.put('plantUml', new Action(mxResources.get('plantUml') + '...', function()
@@ -572,7 +529,7 @@ EditorUi.initMinimalTheme = function()
 		
 		var div = document.createElement('div');
 		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
-		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '63px' : '32px';
+		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '32px' : '0px';
 		this.sidebar = this.createSidebar(div);
 		
 		if (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null ||
@@ -832,17 +789,17 @@ EditorUi.initMinimalTheme = function()
 		menubar.appendChild(ui.statusContainer);
 
 		ui.buttonContainer = document.createElement('div');
-		ui.buttonContainer.style.cssText = 'position:absolute;right:0px;padding-right:34px;top:10px;' +
-			'white-space:nowrap;padding-top:2px;background-color:inherit;';
+		ui.buttonContainer.style.cssText = 'display:flex;justify-content:flex-end;padding-right:10px;gap:6px;' +
+			'white-space:nowrap;background-color:inherit;align-items:center;min-width:0;margin-left:auto;';
 		menubar.appendChild(ui.buttonContainer);
 		
 		// Container for the user element
 		ui.menubarContainer = ui.buttonContainer;
 
         ui.tabContainer = document.createElement('div');
-		ui.tabContainer.className = 'geTabContainer';
-        ui.tabContainer.style.cssText = 'position:absolute;left:0px;right:0px;bottom:0px;height:30px;white-space:nowrap;' +
-            'margin-bottom:-2px;visibility:hidden;';
+		ui.tabContainer.className = 'geTabContainer geTabItem';
+        ui.tabContainer.style.cssText = 'position:absolute;left:0px;right:0px;bottom:0px;height:30px;' +
+            'white-space:nowrap;visibility:hidden;';
 
         var previousParent = ui.diagramContainer.parentNode;
 
@@ -898,7 +855,7 @@ EditorUi.initMinimalTheme = function()
 					mxEvent.consume(evt);
 				}
 				// geItem is a dropdown menu, geMenuItem is a button in the toolbar
-				else if (mxEvent.getSource(evt).className != 'geItem' || mxEvent.isShiftDown(evt))
+				else if (mxEvent.getSource(evt).className == 'geMenuItem' || mxEvent.isShiftDown(evt))
 				{
 					ui.hideCurrentMenu();
 					ui.actions.get('smartFit').funct();
@@ -920,25 +877,25 @@ EditorUi.initMinimalTheme = function()
 			this.tabContainer.style.right = '70px';
 			var elt = menuObj.addMenu('100%', viewZoomMenu.funct);
 			elt.setAttribute('title', mxResources.get('zoom') + ' (Alt+Mousewheel)');
-			elt.style.whiteSpace = 'nowrap';
-			elt.style.paddingRight = '10px';
-			elt.style.textDecoration = 'none';
-			elt.style.textDecoration = 'none';
-			elt.style.overflow = 'hidden';
-			elt.style.visibility = 'hidden';
-			elt.style.textAlign = 'center';
-			elt.style.cursor = 'pointer';
-			elt.style.height = (parseInt(ui.tabContainerHeight) - 1) + 'px';
-			elt.style.lineHeight = (parseInt(ui.tabContainerHeight) + 1) + 'px';
+			elt.className = 'geTabItem';
+			elt.style.height = ui.tabContainerHeight + 'px';
 			elt.style.position = 'absolute';
-			elt.style.display = 'block';
-			elt.style.fontSize = '12px';
-			elt.style.width = '59px';
+			elt.style.display = (urlParams['pages'] != '0') ? 'flex' : 'none';
+			elt.style.alignItems = 'center';
+			elt.style.justifyContent = 'center';
+			elt.style.paddingRight = '11px';
+			elt.style.whiteSpace = 'nowrap';
+			elt.style.overflow = 'hidden';
+			elt.style.fontSize = '11px';
+			elt.style.width = '51px';
 			elt.style.right = '0px';
 			elt.style.bottom = '0px';
+			elt.style.boxSizing = 'content-box';
 			elt.style.backgroundImage = 'url(' + mxWindow.prototype.minimizeImage + ')';
-			elt.style.backgroundPosition = 'right 6px center';
+			elt.style.backgroundPosition = 'right 6px top 15px';
 			elt.style.backgroundRepeat = 'no-repeat';
+			elt.style.backgroundSize = '10px';
+			elt.style.zIndex = '1';
 			wrapper.appendChild(elt);
 
 	    	// Updates the label if the scale changes
@@ -968,8 +925,9 @@ EditorUi.initMinimalTheme = function()
 	    		if (this.tabContainer != null)
 	    		{
 	    			elt.style.visibility = this.tabContainer.style.visibility;
-    	        	this.diagramContainer.style.bottom = (this.tabContainer.style.visibility != 'hidden')
-						? this.tabContainerHeight + 'px' : '0px';
+    	        	this.diagramContainer.style.bottom = (urlParams['pages'] != '0' &&
+						this.tabContainer.style.visibility != 'hidden') ?
+							this.tabContainerHeight + 'px' : '0px';
 	    		}
 	    	};
 		}
@@ -985,7 +943,6 @@ EditorUi.initMinimalTheme = function()
 		}
         
         wrapper.appendChild(ui.tabContainer);
-        var langMenuElt = null;
         
         function refreshMenu()
         {
@@ -1044,60 +1001,6 @@ EditorUi.initMinimalTheme = function()
 							zoomInAction, Editor.zoomInImage) : null,
 						(iw >= 640) ? addMenuItem('', zoomOutAction.funct, true, mxResources.get('zoomOut') + ' (' + Editor.ctrlKey + ' -)',
 							zoomOutAction, Editor.zoomOutImage) : null], 60);
-				}
-			}
-
-			if (appElt != null)
-			{
-				mxEvent.disableContextMenu(appElt);
-
-				mxEvent.addGestureListeners(appElt, mxUtils.bind(this, function(evt)
-				{
-					if (mxEvent.isShiftDown(evt) || mxEvent.isAltDown(evt) ||
-						mxEvent.isMetaDown(evt) || mxEvent.isControlDown(evt) ||
-						mxEvent.isPopupTrigger(evt))
-					{
-						ui.appIconClicked(evt);
-					}
-				}), null, null);
-			}
-	        
-			var langMenu = ui.menus.get('language');
-
-			if (langMenu != null && !mxClient.IS_CHROMEAPP &&
-				!EditorUi.isElectronApp && iw >= 600 &&
-				urlParams['embed'] != '1')
-			{
-				if (langMenuElt == null)
-				{
-					var elt = menuObj.addMenu('', langMenu.funct);
-					elt.setAttribute('title', 'language');
-					elt.className = 'geToolbarButton';
-					elt.style.backgroundImage = 'url(' + Editor.globeImage + ')';
-					elt.style.backgroundPosition = 'center center';
-					elt.style.backgroundRepeat = 'no-repeat';
-					elt.style.backgroundSize = '22px 22px';
-					elt.style.position = 'absolute';
-					elt.style.height = '24px';
-					elt.style.width = '24px';
-					elt.style.zIndex = '1';
-					elt.style.right = '8px';
-					elt.style.cursor = 'pointer';
-					elt.style.top = '12px';
-					menubar.appendChild(elt);
-					langMenuElt = elt;
-				}
-				
-				ui.buttonContainer.style.paddingRight = '34px';
-			}
-			else
-			{
-				ui.buttonContainer.style.paddingRight = '0px';
-				
-				if (langMenuElt != null)
-				{
-					langMenuElt.parentNode.removeChild(langMenuElt);
-					langMenuElt = null;
 				}
 			}
         };

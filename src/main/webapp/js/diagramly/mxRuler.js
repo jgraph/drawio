@@ -44,7 +44,8 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 
     //create the container
     var container = document.createElement('div');
-    container.style.position = 'absolute';
+	container.className = 'geRuler';
+    container.style.position = 'fixed';
 	
 	function resizeRulerContainer()
 	{
@@ -60,14 +61,12 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	this.updateStyle = mxUtils.bind(this, function()
 	{
 		style = (!Editor.isDarkMode()) ? {
-	    	bkgClr: '#ffffff',
 	    	outBkgClr: '#e8e9ed',
 	    	cornerClr: '#fbfbfb',
 	    	strokeClr: '#dadce0',
 	    	fontClr: '#BBBBBB',
 	    	guideClr: '#0000BB'
 	    } : {
-	    	bkgClr: '#202020',
 	    	outBkgClr: Editor.darkColor,
 	    	cornerClr: Editor.darkColor,
 	    	strokeClr: '#505759',
@@ -75,14 +74,13 @@ function mxRuler(editorUi, unit, isVertical, isSecondery)
 	    	guideClr: '#0088cf'
 	    };
 
-	    container.style.background = style.bkgClr;
 	    container.style[isVertical? 'borderRight' : 'borderBottom'] = '0.5px solid ' + style.strokeClr;
 		container.style.borderLeft = '0.5px solid ' + style.strokeClr;
 	});
 	
 	this.updateStyle();
 
-    document.body.appendChild(container);
+	editorUi.diagramContainer.appendChild(container);
 	mxEvent.disableContextMenu(container);
 
 	this.editorUiRefresh = editorUi.refresh;

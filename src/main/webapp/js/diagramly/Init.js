@@ -301,12 +301,13 @@ window.uiTheme = window.uiTheme || (function()
 		if (ui == null && urlParams['embed'] != '1' &&
 			(window.location.hostname == 'test.draw.io' ||
 			window.location.hostname == 'www.draw.io' ||
+			window.location.hostname == 'stage.diagrams.net' ||
 			window.location.hostname == 'app.diagrams.net' ||
 			window.location.hostname == 'jgraph.github.io'))
 		{
 			var iw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 			
-			if (iw <= 768)
+			if (iw <= 800)
 			{
 				ui = 'simple';
 			}

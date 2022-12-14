@@ -1580,8 +1580,6 @@
 	};
 	
 	// Installs hand jiggle for comic and sketch style
-	mxShape.prototype.defaultJiggle = 1.5;	
-
 	var shapeBeforePaint = mxShape.prototype.beforePaint;
 	mxShape.prototype.beforePaint = function(c)
 	{
@@ -1608,7 +1606,7 @@
 	// Returns a new HandJiggle canvas
 	mxShape.prototype.createComicCanvas = function(c)
 	{
-		return new HandJiggle(c, mxUtils.getValue(this.style, 'jiggle', this.defaultJiggle));
+		return new HandJiggle(c, mxUtils.getValue(this.style, 'jiggle', Editor.sketchDefaultJiggle));
 	};
 	
 	// Overrides to avoid call to rect
@@ -1622,9 +1620,6 @@
 		return null;
 	};
 	
-	// Sets default jiggle for diamond
-	mxRhombus.prototype.defaultJiggle = 2;
-
 	// Overrides to avoid call to rect
 	var mxRectangleShapeIsHtmlAllowed0 = mxRectangleShape.prototype.isHtmlAllowed;
 	mxRectangleShape.prototype.isHtmlAllowed = function()

@@ -34,7 +34,7 @@ Actions.prototype.init = function()
 		ui.openFile();
 	});
 
-	this.put('smartFit', new Action(mxResources.get('resetView'), function()
+	this.put('smartFit', new Action(mxResources.get('fitWindow') + ' / ' + mxResources.get('resetView'), function()
 	{
 		graph.popupMenuHandler.hideMenu();
 
@@ -817,7 +817,7 @@ Actions.prototype.init = function()
 				}
 			}, true);
 		}
-	})).isEnabled = isGraphEnabled;
+	}, null, null, 'L')).isEnabled = isGraphEnabled;
 	this.addAction('link...', mxUtils.bind(this, function()
 	{
 		if (graph.isEnabled())
@@ -1215,12 +1215,6 @@ Actions.prototype.init = function()
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.foldingEnabled; });
 	action.isEnabled = isGraphEnabled;
-	action = this.addAction('scrollbars', function()
-	{
-		ui.setScrollbars(!ui.hasScrollbars());
-	});
-	action.setToggleAction(true);
-	action.setSelectedCallback(function() { return graph.scrollbars; });
 	action = this.addAction('pageView', mxUtils.bind(this, function()
 	{
 		ui.setPageVisible(!graph.pageVisible);
