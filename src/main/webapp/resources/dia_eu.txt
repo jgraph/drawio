@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML fitxategia
 diagramPngDesc=Edita daitekeen bitmap irudia
 diagramSvgDesc=Edita daitekeen bektore irudia
 didYouMeanToExportToPdf=PDF-era esportatzea nahi?
+disabled=Disabled
 draftFound={1}'-ren zirriborro bat aurkitu da. Kargatu editorean edo baztertu segitzeko.
 draftRevisionMismatch=Diagramaren bertsio desberdin bat dago orrialde honen zirriborro partekatuan. Editatu zirriborroaren diagrama azken bertsioarekin lanean ari zarela ziurtatzeko.
 selectDraft=Aukeratu zirriborro bat editatzen jarraitzeko:

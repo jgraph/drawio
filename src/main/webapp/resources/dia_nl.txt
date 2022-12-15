@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML-bestand
 diagramPngDesc=Bewerkbaar bitmap-bestand
 diagramSvgDesc=Bewerkbaar vector-bestand
 didYouMeanToExportToPdf=Wil je exporteren naar PDF?
+disabled=Disabled
 draftFound=Een concept van '{1}' is gevonden. Laad het in de editor of negeer het om door te gaan.
 draftRevisionMismatch=Er is een andere versie van dit diagram op een gedeeld concept van deze pagina. Bewerk het diagram uit het concept om er zeker van te zijn dat je met de nieuwste versie werkt.
 selectDraft=Selecteer een concept om door te gaan met bewerken:

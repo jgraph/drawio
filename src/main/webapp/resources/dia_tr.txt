@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML Dosyası
 diagramPngDesc=Düzenlenebilir Bitmap resmi
 diagramSvgDesc=Düzenlenebilir Vektör resmi
 didYouMeanToExportToPdf=PDF olarak dışa aktarmak mı istediniz?
+disabled=Disabled
 draftFound=Taslak (1) için bulundu. Editöre yükleyiniz veya devam etmek için iptal ediniz.
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Düzenlemeye devam etmek için bir taslak seçiniz:

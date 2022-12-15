@@ -1,3 +1,16 @@
+15-DEC_2022: 20.7.3
+
+- Hides empty button container in standalone app 
+- Fixes inconsistent network status icon and message
+- Fixes direct moving of unconnected edge end points
+- Fixes NPE with disabled libs in embed mode [3247]
+- Adds order for multiple cells in popup menu [3248]
+- Adds page CSS in print preview output
+- Fixes possible NPE [DS-933] 
+- Fixes possible NPE in pages menu [DS-934]
+- Fixes print preview dialog in Safari
+- Fixes remove background color in background dialog 
+
 14-DEC-2022: 20.7.2
 
 - Fixes undefined function error when switching to simple UI

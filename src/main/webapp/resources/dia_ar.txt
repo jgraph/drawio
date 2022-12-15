@@ -114,6 +114,7 @@ diagramHtmlDesc=‫ملف html‬
 diagramPngDesc=‫صورة قابلة للتعديل‬
 diagramSvgDesc=‫عنصر مصور قابل للتعديل‬
 didYouMeanToExportToPdf=‫هل تريد حفظه كملف pdf  ؟‬
+disabled=Disabled
 draftFound=‫تم العثور علي مسودة للملف '{1}'. قم بتحميلها داخل المحرر، أو قم بحذفها للإستكمال.‬
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Select a draft to continue editing:

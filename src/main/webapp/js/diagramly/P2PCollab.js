@@ -627,7 +627,7 @@ function P2PCollab(ui, sync, channelId)
 			
 			try
 			{
-				if (socket != null)
+				if (socket != null && socket.readyState == 1)
 				{
 					EditorUi.debug('P2PCollab: force closing socket on', socket.joinId)
 					socket.close(1000);
@@ -640,6 +640,11 @@ function P2PCollab(ui, sync, channelId)
 			} //Ignore
 			
 			var ws = new WebSocket(window.RT_WEBSOCKET_URL + '?id=' + channelId);
+
+			if (socket == null)
+			{
+				socket = ws;
+			}
 			
 			ws.addEventListener('open', function(event)
 			{
@@ -815,8 +820,8 @@ function P2PCollab(ui, sync, channelId)
 			ui.removeListener(this.cursorHandler);
 		}
 
-		//Close the socket
-		if (socket != null)
+		// Close the socket
+		if (socket != null && socket.readyState >= 1)
 		{
 			socket.close(1000);
 			socket = null;

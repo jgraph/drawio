@@ -1908,6 +1908,7 @@ App.prototype.isOwnDomain = function()
 	return window.location.hostname == 'test.draw.io' ||
 		window.location.hostname == 'www.draw.io' ||
 		window.location.hostname == 'drive.draw.io' ||
+		window.location.hostname == 'stage.diagrams.net' ||
 		window.location.hostname == 'app.diagrams.net' ||
 		window.location.hostname == 'jgraph.github.io';
 };
@@ -5791,9 +5792,9 @@ App.prototype.updateButtonContainer = function()
 		}
 		
 		// Share
-		if (urlParams['embed'] != '1' && this.getServiceName() == 'draw.io' &&
-			!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp &&
-			!this.isOfflineApp())
+		if (this.getServiceName() == 'draw.io' &&
+			urlParams['embed'] != '1' &&
+			!this.isStandaloneApp())
 		{
 			if (file != null)
 			{
@@ -5860,10 +5861,23 @@ App.prototype.updateButtonContainer = function()
 				this.fetchAndShowNotification('online', this.mode);
 			}
 		}
-		else if (urlParams['notif'] != null) //Notif for embed mode
+		else
 		{
-			this.fetchAndShowNotification(urlParams['notif']);
-		}
+			if (urlParams['notif'] != null) //Notif for embed mode
+			{
+				this.fetchAndShowNotification(urlParams['notif']);
+			}
+
+			// Hides button container if empty for flex layout gap to work
+			if (this.isStandaloneApp() &&
+				(Editor.currentTheme == 'simple' ||
+				Editor.currentTheme == 'sketch'))
+			{
+				this.buttonContainer.style.display =
+					(this.buttonContainer.clientWidth == 0)
+					? 'none' : '';
+			}
+		}	
 	}
 };
 

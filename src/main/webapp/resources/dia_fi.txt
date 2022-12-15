@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML-tiedosto
 diagramPngDesc=Muokattava bittikarttakuva
 diagramSvgDesc=Muokattava vektorikuva
 didYouMeanToExportToPdf=Tarkoititko PDF-muotoon viemistä?
+disabled=Disabled
 draftFound=Luonnos tiedostolle '{1}' on löytynyt. Lataa se muokattavaksi tai hylkää se jatkaaksesi.
 draftRevisionMismatch=Tästä kaaviosta on erilainen versio tämän sivun jaetussa luonnoksessa. Muokkaa kaaviota luonnoksesta varmistaaksesi, että käytät uusinta versiota.
 selectDraft=Valitse luonnos jatkaaksesi muokkausta:

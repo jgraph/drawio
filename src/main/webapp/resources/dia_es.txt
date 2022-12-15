@@ -114,6 +114,7 @@ diagramHtmlDesc=Archivo HTML
 diagramPngDesc=Imagen Bitmap Editable
 diagramSvgDesc=Imagen por Vectores Editable
 didYouMeanToExportToPdf=Intentó exportar a PDF?
+disabled=Disabled
 draftFound=Se encontró un borrador para '{1}'. Cárguelo en el editor o descártelo para continuar.
 draftRevisionMismatch=Ya existe una versión diferente de este diagrama en un borrador compartido de esta página. Por favor edite el diagrama del borrador para asegurar que estas trabajando con la versión más reciente.
 selectDraft=Seleccione un borrador para continuar editando:

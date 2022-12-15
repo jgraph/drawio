@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML fájl
 diagramPngDesc=Szerkeszthető Bitmap kép
 diagramSvgDesc=Szerkeszthető vektoros kép
 didYouMeanToExportToPdf=Did you mean to export to PDF?
+disabled=Disabled
 draftFound=Vázlat találva a '{1}'-hoz. Töltse a szerkesztőbe, vagy dobja el a folytatásért.
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Válasszon vázlatot a szerkesztés folytatásához:

@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML 檔案
 diagramPngDesc=可編輯點陣圖檔
 diagramSvgDesc=可編輯向量圖檔
 didYouMeanToExportToPdf=是否匯出為 PDF？
+disabled=Disabled
 draftFound=發現現有的「{1}」的草圖。要載入它進行編輯或是丟棄以繼續?
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Select a draft to continue editing:

@@ -114,6 +114,7 @@ diagramHtmlDesc=HTMLファイル
 diagramPngDesc=ビットマップ画像
 diagramSvgDesc=ベクター画像
 didYouMeanToExportToPdf=PDFにエクスポートするつもりでしたか?
+disabled=Disabled
 draftFound=下書き{1}が見つかりました。読み込む、または廃棄する。
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Select a draft to continue editing:

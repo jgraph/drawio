@@ -163,7 +163,8 @@
 			try
 			{
 				if (message == EditorUi.lastErrorMessage || (message != null && url != null &&
-					((message.indexOf('Script error') != -1) || (message.indexOf('extension') != -1))))
+					((message.indexOf('Script error') != -1) || (message.indexOf('extension:') != -1))) ||
+					(err != null && err.stack != null && err.stack.indexOf('extension:') != -1))
 				{
 					// TODO log external domain script failure "Script error." is
 					// reported when the error occurs in a script that is hosted
@@ -585,6 +586,14 @@
 	EditorUi.prototype.isMathEnabled = function(value)
 	{
 		return this.editor.graph.mathEnabled;
+	};
+
+	/**
+	 * Returns true if offline app, which isn't a defined thing
+	 */
+	EditorUi.prototype.isStandaloneApp = function()
+	{
+		return mxClient.IS_CHROMEAPP || EditorUi.isElectronApp || this.isOfflineApp();
 	};
 
 	/**
@@ -3917,8 +3926,6 @@
 			if (!failed)
 			{
 				var change = new ChangePageSetup(this, color, image);
-				change.ignoreColor = color == null;
-				change.ignoreImage = image == null;
 
 				if (shadowVisible != null)
 				{
@@ -11239,12 +11246,15 @@
 			this.formatContainer.style.border = 'none';
 
 			// Shapes window
+			var libs = Editor.enableCustomLibraries && (urlParams['embed'] != '1' ||
+				urlParams['libraries'] == '1');
+			
 			this.createShapesWindow();
 			this.sidebarContainer.className = '';
 			this.sidebarContainer.style.position = 'absolute';
 			this.sidebarContainer.style.left = '0px';
 			this.sidebarContainer.style.top = '0px';
-			this.sidebarContainer.style.bottom = '32px';
+			this.sidebarContainer.style.bottom = (libs) ? '32px' : '0px';
 			this.sidebarContainer.style.width = '100%';
 		}
 
@@ -12078,43 +12088,41 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.getNetworkStatus = function()
+	EditorUi.prototype.getSyncError = function()
 	{
-		var file = this.getCurrentFile();
 		var status = null;
-		
+
 		if (this.isOffline(true))
 		{
 			status = mxResources.get('offline');
 		}
-		else if (file != null)
+		else
 		{
-			if (file.invalidChecksum)
-			{
-				status = mxResources.get('error') + ': ' + mxResources.get('checksum');
-			}
-			else if (file.sync != null && !file.sync.isConnected())
-			{
-				status = mxResources.get('realtimeCollaboration') + ': ' +
-					mxResources.get('offline');
-			}
-			else if (file.isRealtimeEnabled() && file.isRealtimeSupported())
-			{
-				var err = file.getRealtimeError();
-				var state = file.getRealtimeState();
+			var file = this.getCurrentFile();
 
-				if (state != 1)
+			if (file != null)
+			{
+				if (file.invalidChecksum)
 				{
-					if (err != null && err.message != null)
-					{
-						status = mxResources.get('error') + ': ' +
-							err.message;
-					}
-					else
-					{
-						status = mxResources.get('error') + ': ' +
-							mxResources.get('disconnected');
-					}
+					status = mxResources.get('error') + ': ' +
+						mxResources.get('checksum');
+				}
+				else if (file.sync != null && !file.sync.enabled)
+				{
+					status = mxResources.get('offline');
+				}
+				else if (file.sync != null && !file.sync.isConnected())
+				{
+					status = mxResources.get('disconnected');
+				}
+				else if (file.isRealtimeEnabled() &&
+					file.isRealtimeSupported() &&
+					file.getRealtimeState() > 1)
+				{
+					var err = file.getRealtimeError();
+					status = ((err != null && err.message != null) ?
+						mxResources.get('error') + ': ' + err.message :
+						mxResources.get('disconnected'));
 				}
 			}
 		}
@@ -12143,8 +12151,8 @@
 						'overflow:visible;' + ((urlParams['embed'] != '1') ?
 						'flex-shrink:0;' : 'min-width:0;') + css;
 
-					if (this.shareElt == null && urlParams['embed'] != '1' && !EditorUi.isElectronApp &&
-						this.getServiceName() != 'atlassian' && !mxClient.IS_CHROMEAPP)
+					if (this.shareElt == null && urlParams['embed'] != '1' &&
+						this.getServiceName() == 'draw.io')
 					{
 						this.shareElt = this.createMenu('share', Editor.thinUserAddImage);
 						this.shareElt.style.backgroundSize = '24px';
@@ -12153,21 +12161,36 @@
 						this.shareElt.style.width = '24px';
 						this.shareElt.style.height = '30px';
 						this.shareElt.style.opacity = '0.7';
-
-						var networkListener = mxUtils.bind(this, function()
+						
+						if (this.isStandaloneApp())
 						{
-							var status = this.getNetworkStatus();
-							var img = (status == null) ? Editor.thinUserAddImage :
-								Editor.thinErrorImage;
-							this.shareElt.style.backgroundImage = 'url(' + img + ')';
-							this.shareElt.setAttribute('title', (status != null) ?
-								status : mxResources.get('share'));
-						});
+							this.shareElt.style.backgroundImage = 'url(' +
+								Editor.thinShareImage + ')';
+						}
+						else
+						{
+							var networkListener = mxUtils.bind(this, function()
+							{
+								var title = mxResources.get('share');
+								var img = Editor.thinUserAddImage;
+								var status = this.getSyncError();
 
-						this.addListener('realtimeStateChanged', networkListener);
-						this.editor.addListener('statusChanged', networkListener);
-						mxEvent.addListener(window, 'online', networkListener);
-						networkListener();
+								if (status != null)
+								{
+									title = title + ' (' + status + ')';
+									img = Editor.thinUserFlashImage;
+								}
+
+								this.shareElt.style.backgroundImage = 'url(' + img + ')';
+								this.shareElt.setAttribute('title', title);
+							});
+
+							this.addListener('realtimeStateChanged', networkListener);
+							this.editor.addListener('statusChanged', networkListener);
+							mxEvent.addListener(window, 'offline', networkListener);
+							mxEvent.addListener(window, 'online', networkListener);
+							networkListener();
+						}
 					}
 
 					if (this.mainMenuElt == null)
@@ -12769,10 +12792,6 @@
 				elt.style.fontSize = '11px';
 				elt.style.left = '50%';
 			}
-		}
-		else
-		{
-			div.style.bottom = '0';
 		}
 
 		container.appendChild(this.sidebarContainer);

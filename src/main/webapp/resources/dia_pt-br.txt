@@ -114,6 +114,7 @@ diagramHtmlDesc=Arquivo HTML
 diagramPngDesc=Imagem de bitmap editável
 diagramSvgDesc=Imagem vetorial editável
 didYouMeanToExportToPdf=Você quer exportar como PDF?
+disabled=Disabled
 draftFound=Foi encontrado um rascunho para '{1}'. Carregue-o no editor ou descarte-o para continuar.
 draftRevisionMismatch=Existe uma versão diferente deste diagrama em um rascunho compartilhado. Continue a editar o diagrama no rascunho para garantir que você está editando a versão mais recente.
 selectDraft=Selecione um rascunho para continuar editando:

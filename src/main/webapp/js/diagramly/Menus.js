@@ -2931,8 +2931,9 @@
 				{
 					this.addSubmenu('insert', menu, parent);
 				}
-				
-				if (iw < 360)
+
+				if (iw < 360  && urlParams['embed'] != '1' &&
+					this.getServiceName() == 'draw.io')
 				{
 					this.addSubmenu('share', menu, parent);
 				}
@@ -4110,7 +4111,7 @@
 				'editData', 'copyData', 'pasteData', '-', 'editConnectionPoints',
 				'editGeometry', '-', 'editTooltip', 'editStyle', '-', 'edit'], parent);
 		})));
-
+		
 		// Pages menu
 		this.put('pages', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
@@ -4132,7 +4133,7 @@
 			
 			menu.addSeparator(parent);
 			
-			if (editorUi.pages.length > 1)
+			if (editorUi.pages != null && editorUi.pages.length > 1)
 			{
 				for (var i = 0; i < editorUi.pages.length; i++)
 				{
@@ -4472,16 +4473,23 @@
 
 		this.put('share', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			var status = editorUi.getNetworkStatus();
-
-			if (status != null)
+			if (!editorUi.isStandaloneApp())
 			{
-				menu.addItem(status, null, null, parent, null, false);
-				menu.addSeparator(parent);
+				var err = (editorUi.isOffline(true)) ?
+					mxResources.get('offline') :
+					editorUi.getSyncError();
+
+				if (err != null)
+				{
+					menu.addItem(err, null, null, parent, null, false);
+					menu.addSeparator(parent);
+				}
+
+				editorUi.menus.addMenuItems(menu, ['share'], parent);
 			}
 
-			editorUi.menus.addMenuItems(menu, ['share'], parent);
-			this.addMenuItem(menu, 'publishLink', parent, null, null, mxResources.get('publish') + '...');
+			this.addMenuItem(menu, 'publishLink', parent, null,
+				null, mxResources.get('publish') + '...');
 
 			if (editorUi.getMainUser() != null)
 			{
@@ -4844,7 +4852,7 @@
 					
 				if (Editor.currentTheme == 'simple')
 				{
-					editorUi.menus.addMenuItems(menu, ['autosave'], parent);
+					editorUi.menus.addMenuItems(menu, ['-', 'autosave'], parent);
 				}
 			}
 			else

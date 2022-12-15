@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML soubor
 diagramPngDesc=Upravovatelný bitmapový obrázek
 diagramSvgDesc=Upravovatelný vektorový obrázek
 didYouMeanToExportToPdf=Měli jste na mysli export do PDF?
+disabled=Disabled
 draftFound=Byl nalezen koncept pro „{1}“. Abyste mohli pokračovat, načtěte ho do editoru nebo koncept zahoďte.
 draftRevisionMismatch=Existuje odlišná verze tohoto diagramu ve sdíleném konceptu na této stránce. Prosíme upravujte diagram z konceptu, aby bylo zajištěno, že pracujete s nejnovější verzí.
 selectDraft=Vyberte koncept, abyste mohli pokračovat v upravování:

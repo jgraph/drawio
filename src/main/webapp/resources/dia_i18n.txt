@@ -114,6 +114,7 @@ diagramHtmlDesc=diagramHtmlDesc
 diagramPngDesc=diagramPngDesc
 diagramSvgDesc=diagramSvgDesc
 didYouMeanToExportToPdf=didYouMeanToExportToPdf
+disabled=disabled
 draftFound=draftFound
 draftRevisionMismatch=draftRevisionMismatch
 selectDraft=selectDraft

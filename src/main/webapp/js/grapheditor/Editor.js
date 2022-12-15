@@ -1382,10 +1382,13 @@ PrintDialog.prototype.create = function(editorUi)
 			printScale = 1;
 			pageScaleInput.value = '100%';
 		}
-		
-		// Workaround to match available paper size in actual print output
-		printScale *= 0.75;
 
+		// Workaround to match available paper size in actual print output
+		if (mxClient.IS_SF)
+		{
+			printScale *= 0.75;
+		}
+		
 		var pf = graph.pageFormat || mxConstants.PAGE_FORMAT_A4_PORTRAIT;
 		var scale = 1 / graph.pageScale;
 		
@@ -1400,7 +1403,6 @@ PrintDialog.prototype.create = function(editorUi)
 		}
 
 		// Negative coordinates are cropped or shifted if page visible
-		var gb = graph.getGraphBounds();
 		var border = 0;
 		var x0 = 0;
 		var y0 = 0;
@@ -1490,17 +1492,9 @@ PrintDialog.printPreview = function(preview)
 				preview.wnd.close();
 			};
 			
-			// Workaround for Google Chrome which needs a bit of a
-			// delay in order to render the SVG contents
-			// Needs testing in production
-			if (mxClient.IS_GC)
-			{
-				window.setTimeout(printFn, 500);
-			}
-			else
-			{
-				printFn();
-			}
+			// Workaround for rendering SVG output and
+			// make window available for printing
+			window.setTimeout(printFn, 500);
 		}
 	}
 	catch (e)
@@ -1516,6 +1510,7 @@ PrintDialog.createPrintPreview = function(graph, scale, pf, border, x0, y0, auto
 {
 	var preview = new mxPrintPreview(graph, scale, pf, border, x0, y0);
 	preview.title = mxResources.get('preview');
+	preview.addPageCss = !mxClient.IS_SF;
 	preview.printBackgroundImage = true;
 	preview.autoOrigin = autoOrigin;
 	var bg = graph.background;

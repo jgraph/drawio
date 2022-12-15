@@ -114,6 +114,7 @@ diagramHtmlDesc=File HTML
 diagramPngDesc=Immagine bitmap modificabile
 diagramSvgDesc=Immagine vettoriale modificabile
 didYouMeanToExportToPdf=Intendevi esportare in PDF?
+disabled=Disabled
 draftFound=È stata trovata una bozza per '{1}'. Caricala nell'editor o scartala per continuare.
 draftRevisionMismatch=Esiste una versione diversa di questo diagramma su una bozza condivisa di questa pagina. Modifica il diagramma dalla bozza per assicurarti di lavorare con la versione più recente.
 selectDraft=Seleziona una bozza per continuare la modifica:

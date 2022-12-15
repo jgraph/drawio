@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML Datei
 diagramPngDesc=Editierbares Bitmap Bild
 diagramSvgDesc=Editierbares Vektor Bild
 didYouMeanToExportToPdf=Wollten Sie als PDF exportieren?
+disabled=Deaktiviert
 draftFound=Ein Entwurf für '{1}' wurde gefunden. Setzen Sie die Bearbeitung fort oder verwerfen Sie die Änderungen.
 draftRevisionMismatch=Es gibt eine andere Version dieses Diagramms auf einem freigegebenen Entwurf dieser Seite. Bitte bearbeiten Sie das Diagramm aus dem Entwurf, um sicherzustellen, dass Sie mit der neuesten Version arbeiten.
 selectDraft=Wählen Sie einen Entwurf zur Bearbeitung:

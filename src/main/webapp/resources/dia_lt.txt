@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML failas
 diagramPngDesc=Editable Bitmap Image
 diagramSvgDesc=Editable Vector Image
 didYouMeanToExportToPdf=Did you mean to export to PDF?
+disabled=Disabled
 draftFound=Rastas '{1}' juodraštis. Įkelkite jį į redaktorių arba išmeskite, kad galėtumėte tęsti.
 draftRevisionMismatch=There is a different version of this diagram on a shared draft of this page. Please edit the diagram from the draft to ensure you are working with the latest version.
 selectDraft=Pasirinkite juodraštį, kad galėtumėte tęsti redagavimą:

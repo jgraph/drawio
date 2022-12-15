@@ -1579,7 +1579,8 @@ Menus.prototype.addPopupMenuArrangeItems = function(menu, cell, evt)
 		this.addSubmenu('align', menu);
 		this.addSubmenu('distribute', menu);
 	}
-	else if (count == 1)
+
+	if (count >= 1)
 	{
 		this.addMenuItems(menu, ['-', 'toFront', 'toBack'], null, evt);
 		

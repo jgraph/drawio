@@ -147,10 +147,6 @@ EditorUi.initMinimalTheme = function()
 				elt.style.left = '50%';
 			}
 		}
-		else
-		{
-			div.style.bottom = '0';
-		}
 
 		container.appendChild(ui.sidebar.container);
 		container.style.overflow = 'hidden';
@@ -527,9 +523,12 @@ EditorUi.initMinimalTheme = function()
 	{
 		editorUiInit.apply(this, arguments);
 		
+		var libs = Editor.enableCustomLibraries && (urlParams['embed'] != '1' ||
+			urlParams['libraries'] == '1');
+
 		var div = document.createElement('div');
 		div.style.cssText = 'position:absolute;left:0px;right:0px;top:0px;overflow-y:auto;overflow-x:hidden;';
-		div.style.bottom = (urlParams['embed'] != '1' || urlParams['libraries'] == '1') ? '32px' : '0px';
+		div.style.bottom = (libs) ? '32px' : '0px';
 		this.sidebar = this.createSidebar(div);
 		
 		if (iw >= 1000 || urlParams['clibs'] != null || urlParams['libs'] != null ||

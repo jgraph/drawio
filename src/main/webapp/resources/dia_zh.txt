@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML 文件
 diagramPngDesc=可编辑位图文件
 diagramSvgDesc=可编辑矢量图文件
 didYouMeanToExportToPdf=是否要导出到 PDF？
+disabled=Disabled
 draftFound={1} 的草稿已经找到。将其加载到编辑器或将其丢弃以继续。
 draftRevisionMismatch=此页面上的共享草稿有一个不同的版本。请从草稿编辑以确保您正在使用最新版本。
 selectDraft=选择一个草稿继续编辑:

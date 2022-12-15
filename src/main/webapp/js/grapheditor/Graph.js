@@ -338,7 +338,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
     					}
     					else
     					{
-			    			var handler = this.selectionCellsHandler.getHandler(state.cell);
+							var handler = this.selectionCellsHandler.getHandler(state.cell);
 
 			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
 			    			{
@@ -441,8 +441,6 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 		}));
 		
-		var mouseDown = null;
-		
 		this.addMouseListener(
 		{
 			mouseDown: function(sender, me) {},
@@ -479,7 +477,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    			
 			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
 			    			{
-			    				var handle = handler.getHandleForEvent(start.event);
+			    				var handle = handler.getHandleForEvent(start.event, true);
 			    				var edgeStyle = this.view.getEdgeStyle(state);
 			    				var entity = edgeStyle == mxEdgeStyle.EntityRelation;
 			    				

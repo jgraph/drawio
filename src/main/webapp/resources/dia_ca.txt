@@ -114,6 +114,7 @@ diagramHtmlDesc=Fitxer HTML
 diagramPngDesc=Imatge de mapa de bits editable
 diagramSvgDesc=Imatge vectorial editable
 didYouMeanToExportToPdf=Voleu exportar-ho a PDF?
+disabled=Disabled
 draftFound=S'ha trobat un esborrany per a '{1}'. Carrega'l a l'editor o descarta'l per continuar.
 draftRevisionMismatch=Hi ha una versió diferent d'aquest diagrama en un esborrany compartit d'aquesta pàgina. Editeu el diagrama des de l'esborrany per assegurar que esteu treballant amb la darrera versió.
 selectDraft=Seleccioneu un esborrany per continuar editant-lo:

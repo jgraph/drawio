@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML 파일
 diagramPngDesc=수정 가능한 비트맵 이미지
 diagramSvgDesc=수정 가능한 벡터 이미지
 didYouMeanToExportToPdf=PDF파일로 내보내기 하시겠습니까?
+disabled=Disabled
 draftFound={1}'의 임시 저장이 확인되었습니다. 편집하시려면 불러오기를 선택하시고, 계속하시려면 취소를 선택하세요.
 draftRevisionMismatch=공유된 임시 저장 파일이 현재 파일과 다릅니다. 최신 버전을 편집하시려면 공유된 임시 저장 파일을 편집하세요.
 selectDraft=편집을 계속할 임시 저장 파일을 선택하세요:

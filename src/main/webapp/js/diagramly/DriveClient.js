@@ -128,7 +128,7 @@ DriveClient.prototype.libraryMimeType = 'application/vnd.jgraph.mxlibrary';
 /**
  * Contains the hostname of the new app.
  */
-DriveClient.prototype.newAppHostname = 'www.draw.io';
+DriveClient.prototype.newAppHostname = 'app.diagrams.net';
 
 /**
  * Executes the first step for connecting to Google Drive.

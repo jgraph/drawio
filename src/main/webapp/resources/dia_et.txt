@@ -114,6 +114,7 @@ diagramHtmlDesc=HTML fail
 diagramPngDesc=Muudetav bitmap pilt
 diagramSvgDesc=Muudetav vektorpilt
 didYouMeanToExportToPdf=Kas soovisid PDFi eksportida?
+disabled=Disabled
 draftFound=Mustand {1} jaoks on leitud. Lae see töötluskeskkonda või tühista jätkamiseks.
 draftRevisionMismatch=Selle lehe jagatud mustandis on selle diagrammi erinev versioon. Muutke diagrammi mustandist, et tagada uusima versiooni kasutamine.
 selectDraft=Valige redigeerimise jätkamiseks mustand:

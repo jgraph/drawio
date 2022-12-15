@@ -114,6 +114,7 @@ diagramHtmlDesc=Plik HTML
 diagramPngDesc=Edytowalny obraz bitmapowy
 diagramSvgDesc=Edytowalny obraz wektorowy
 didYouMeanToExportToPdf=Czy chodziło Ci o eksport do PDF?
+disabled=Disabled
 draftFound=Znaleziono wersję roboczą {1}. Załaduj ją do edytora lub odrzuć, by kontynuować.
 draftRevisionMismatch=Na współdzielonej wersji roboczej tej strony znajduje się inna wersja tego diagramu. Prosimy o edycję diagramu z wersji roboczej, aby upewnić się, że pracujesz z najnowszą wersją.
 selectDraft=Wybierz wersję roboczą, aby kontynuować edycję:
