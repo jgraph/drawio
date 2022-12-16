@@ -1812,8 +1812,8 @@ DrawioFile.prototype.addUnsavedStatus = function(err)
 			var action = 'data-action="' + ((this.ui.mode == null || !this.isEditable()) ?
 				'saveAs' : 'save') + '"';
 			this.ui.editor.setStatus('<div ' + action + ' title="' +
-				status + '" class="geStatusAlertOrange">' + status +
-				' <img src="' + Editor.saveImage + '"/></div>');
+				status + '" class="geStatusAlert">' + status +
+				' <img class="geAdaptiveAsset" src="' + Editor.saveImage + '"/></div>');
 			
 			if (EditorUi.enableDrafts && (this.getMode() == null || EditorUi.isElectronApp))
 			{
@@ -2189,6 +2189,11 @@ DrawioFile.prototype.getErrorMessage = function(err)
 	if (msg == null && err != null && err.code == App.ERROR_TIMEOUT)
 	{
 		msg = mxResources.get('timeout');
+	}
+	// XHR blocked by CORS or response has no CORS headers
+	else if (msg == '0')
+	{
+		msg = mxResources.get('noResponse');
 	}
 	
 	return msg;

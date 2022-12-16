@@ -167,11 +167,18 @@ a.geStatus {
 a.geStatus div + div {
 	margin-left:8px;
 }
+a.geStatus .geStatusBox {
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 3px;
+	font-size: 10px;
+	padding: 3px;
+}
 a.geStatus .geStatusAlert {
 	padding:4px 8px;
-	background-color:#f2dede;
-	border:1px solid #ebccd1;
-	color:#a94442 !important;
+	background-color:#eacccc;
+	border:1px solid #dca4ad;
+	color:#b62623 !important;
 	border-radius:3px;
 }
 a.geStatus .geStatusAlertOrange {
@@ -337,8 +344,9 @@ button.geShareBtn {
 .geBtn:hover:not([disabled]) {
 	opacity: 1 !important;
 }
-.geItem:active:not([disabled]):not(.geStatus), .geStatus div:active:not([disabled]),
-html .geToolbarButton:active:not([disabled]), .geBtn:active:not([disabled]) {
+.geItem:active:not([disabled]):not(.geStatus), .geBtn:active:not([disabled]),
+.geStatus div[data-action]:active:not([disabled]),
+html .geToolbarButton:active:not([disabled]) {
 	opacity: 0.7 !important;
 }
 .geBtn:disabled {
@@ -933,7 +941,7 @@ td.mxPopupMenuIcon .geIcon:hover {
 	opacity:1;
 }
 html tr.mxPopupMenuItemHover {
-	background-color: #eeeeee;
+	background-color: #e0e0e0;
 	color: black;
 }
 table.mxPopupMenu hr {
@@ -1731,13 +1739,11 @@ table.geProperties tr td {
 }
 
 .geNotification-box {
-  width: 50px;
-  height: 30px;
-  text-align: center;
-  float: left;
-  position: relative;
-  top: -2px;
-  cursor: pointer;
+	display:flex;
+	text-align: center;
+	position: relative;
+	cursor: pointer;
+	width: 20px;
 }
 .geNotification-bell {
   animation: geBellAnim 1s 1s both;
@@ -1746,11 +1752,6 @@ table.geProperties tr td {
   display: block;
   margin: 0 auto;
   background-color: #656565;
-  box-shadow: 0px 0px 10px #656565;
-}
-
-.geNotification-bellOff * {
-  box-shadow: none !important;
 }
 
 .geBell-top {
@@ -1799,11 +1800,11 @@ table.geProperties tr td {
   position: absolute;
   z-index: 1;
   top: -5px;
-  right: 7px;
-  width: 15px;
-  height: 15px;
-  line-height: 15px;
-  font-size: 10px;
+  right: -4px;
+  width: 13px;
+  height: 13px;
+  line-height: 13px;
+  font-size: 8px;
   border-radius: 50%;
   background-color: #ff4927;
   color: #FFF;
@@ -1847,8 +1848,6 @@ table.geProperties tr td {
   z-index: 150;
 }
 .geNotifPanel .header {
-  height: 30px;
-  width: 100%;
   background: #cecece;
   color: #707070;
   font-size: 15px;

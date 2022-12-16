@@ -46,7 +46,8 @@ html body .geShapePicker {
 html body .geTabContainer div.geActivePage, html body .geRuler {
 	background:var(--dark-color);
 }
-.geSearchSidebar input, .geBtnStepper, .geBtnUp {
+.geSearchSidebar input, .geBtnStepper, .geBtnUp,
+html body a.geStatus .geStatusBox {
 	border-color: var(--border-color);
 }
 html body.geEditor div.mxPopupMenu hr {
@@ -255,40 +256,22 @@ html body .geCommentContainer {
 	color: inherit;
 }
 
-.geNotification-bell * {
-  display: block;
-  margin: 0 auto;
-  background-color: #aaa !important;
-  box-shadow: 0px 0px 10px #aaa !important;
+html .geNotification-bell * {
+  background-color: #aaa;
+  box-shadow: none;
 }
 
-.geNotification-count {
-  position: absolute;
-  z-index: 1;
-  top: -5px;
-  right: 7px;
-  width: 15px;
-  height: 15px;
-  line-height: 15px;
-  font-size: 10px;
-  border-radius: 50%;
-  background-color: #ff4927;
-  color: #DEEBFF !important;
-  animation: geZoomAnim 1s 1s both;
+html .geNotification-count {
+  color: #DEEBFF;
 }
 
-.geNotifPanel .header {
+html .geNotifPanel .header {
   height: 30px;
   width: 100%;
-  background: #424242 !important;
-  color: #ccc !important;
-  font-size: 15px;
+  background: #424242;
+  color: #ccc;
 }
 
 .geNotifPanel .notifications {
-    position: relative;
-    height: 270px;
-    overflow-x: hidden;
-    overflow-y: auto;
     background-color: #707070;
 }

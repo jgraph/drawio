@@ -12088,7 +12088,7 @@
 	/**
 	 * 
 	 */
-	EditorUi.prototype.getSyncError = function()
+	EditorUi.prototype.getNetworkStatus = function()
 	{
 		var status = null;
 
@@ -12109,20 +12109,21 @@
 				}
 				else if (file.sync != null && !file.sync.enabled)
 				{
-					status = mxResources.get('offline');
+					status = mxResources.get('realtimeCollaboration') +
+						': ' + mxResources.get('disabled');
 				}
 				else if (file.sync != null && !file.sync.isConnected())
 				{
-					status = mxResources.get('disconnected');
+					status = mxResources.get('notConnected');
 				}
 				else if (file.isRealtimeEnabled() &&
 					file.isRealtimeSupported() &&
 					file.getRealtimeState() > 1)
 				{
 					var err = file.getRealtimeError();
-					status = ((err != null && err.message != null) ?
-						mxResources.get('error') + ': ' + err.message :
-						mxResources.get('disconnected'));
+					status = mxResources.get('realtimeCollaboration') + ': ' +
+						((err != null && err.message != null) ?
+						err.message : mxResources.get('error'));
 				}
 			}
 		}
@@ -12173,7 +12174,7 @@
 							{
 								var title = mxResources.get('share');
 								var img = Editor.thinUserAddImage;
-								var status = this.getSyncError();
+								var status = this.getNetworkStatus();
 
 								if (status != null)
 								{

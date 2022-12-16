@@ -1,4 +1,16 @@
-15-DEC_2022: 20.7.3
+16-DEC-2022: 20.7.4
+
+- Fixes notification icon CSS styles 
+- Fixes vertical offset of bell icon in classic UI 
+- Fixes app icon and comments button in Conf Cloud 
+- Smaller notification count icon
+- Removes shadow for notification icon
+- Shows Classic menu item only in kennedy theme 
+- Darker menu highlight CSS style
+- Improves network status updates and error handling
+- Uses status box styling for collaboration updates
+
+15-DEC-2022: 20.7.3
 
 - Hides empty button container in standalone app 
 - Fixes inconsistent network status icon and message

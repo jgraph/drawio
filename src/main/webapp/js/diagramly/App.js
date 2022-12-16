@@ -1737,7 +1737,7 @@ App.prototype.init = function()
 			}));
 		}
 		
-		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && urlParams['embed'] != '1' && DrawioFile.SYNC == 'auto' &&
+		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && DrawioFile.SYNC == 'auto' &&
 			urlParams['local'] != '1' && urlParams['stealth'] != '1' && !this.isOffline() &&
 			(!this.editor.chromeless || this.editor.editable))
 		{
@@ -1762,8 +1762,6 @@ App.prototype.init = function()
 				EditorUi.logEvent({category: 'TIMEOUT-CACHE-CHECK', action: 'timeout', label: 408});
 			}), Editor.cacheTimeout);
 			
-			var t0 = new Date().getTime();
-			
 			mxUtils.get(EditorUi.cacheUrl + '?alive', mxUtils.bind(this, function(req)
 			{
 				window.clearTimeout(timeoutThread);
@@ -1781,24 +1779,31 @@ App.prototype.init = function()
 	{
 		this.buttonContainer = this.createButtonContainer();
 		this.menubar.container.appendChild(this.buttonContainer);
-	}
 
-	if ((Editor.currentTheme == 'atlas' || urlParams['atlas'] == '1') &&
-		urlParams['embed'] != '1' && this.menubar != null)
-	{
-		this.toggleCompactMode(false);
-		this.icon = document.createElement('img');
-		this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
-		this.icon.setAttribute('title', mxResources.get('draw.io'));
-		this.icon.style.padding = urlParams['atlas'] == '1'? '7px' : '6px';
-		this.icon.style.cursor = 'pointer';
-		
-		mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function(evt)
+		if (Editor.currentTheme == 'atlas')
 		{
-			this.appIconClicked(evt);
-		}));
-		
-		this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
+			this.toggleCompactMode(false);
+		}
+
+		if (Editor.currentTheme == 'atlas' || urlParams['atlas'] == '1')
+		{	
+			this.icon = document.createElement('img');
+			this.icon.setAttribute('src', IMAGE_PATH + '/logo-flat-small.png');
+			this.icon.setAttribute('title', mxResources.get('draw.io'));
+			this.icon.style.padding = urlParams['atlas'] == '1'? '7px' : '6px';
+
+			if (urlParams['embed'] != '1')
+			{
+				this.icon.style.cursor = 'pointer';
+				
+				mxEvent.addListener(this.icon, 'click', mxUtils.bind(this, function(evt)
+				{
+					this.appIconClicked(evt);
+				}));
+			}
+			
+			this.menubar.container.insertBefore(this.icon, this.menubar.container.firstChild);
+		}
 	}
 	
 	if (this.editor.graph.isViewer())
@@ -2712,6 +2717,10 @@ App.prototype.appIconClicked = function(evt)
 	else if (mode == App.MODE_DEVICE)
 	{
 		this.openLink('https://get.draw.io/');
+	}
+	else
+	{
+		this.openLink('https://www.diagrams.net/');
 	}
 	
 	mxEvent.consume(evt);
@@ -5745,9 +5754,10 @@ App.prototype.updateButtonContainer = function()
 		{
 			this.buttonContainer.style.paddingRight = '8px';
 		}
-		
+
 		// Comments
 		if (this.commentsSupported() && Editor.currentTheme != 'simple' &&
+			Editor.currentTheme != 'atlas' &&
 			Editor.currentTheme != 'sketch')
 		{
 			if (this.commentButton == null)
@@ -5764,13 +5774,6 @@ App.prototype.updateButtonContainer = function()
 					this.actions.get('comments').funct();
 				}));
 
-				if (Editor.currentTheme != 'simple' &&
-					Editor.currentTheme != 'sketch' &&
-					Editor.currentTheme != 'min')
-				{
-					this.commentButton.style.top = '-6px';
-				}
-				
 				if (this.userElement != null && this.userElement.parentNode == this.buttonContainer)
 				{
 					this.buttonContainer.insertBefore(this.commentButton, this.userElement);
@@ -5798,7 +5801,7 @@ App.prototype.updateButtonContainer = function()
 		{
 			if (file != null)
 			{
-				if (this.shareButton == null)
+				if (this.shareButton == null && Editor.currentTheme != 'atlas')
 				{
 					this.shareButton = document.createElement('button');
 					this.shareButton.className = 'geBtn geShareBtn';
@@ -5836,17 +5839,20 @@ App.prototype.updateButtonContainer = function()
 					this.buttonContainer.appendChild(this.shareButton);
 				}
 
-				this.shareButton.style.display = (Editor.currentTheme == 'simple' ||
-					Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min')
-					? 'none' : 'inline-block';
-				
-				// Hides parent element if empty for flex layout gap to work
-				if (Editor.currentTheme == 'simple' ||
-					Editor.currentTheme == 'sketch')
+				if (this.shareButton != null)
 				{
-					this.shareButton.parentNode.style.display =
-						(this.shareButton.parentNode.clientWidth == 0)
-						? 'none' : '';
+					this.shareButton.style.display = (Editor.currentTheme == 'simple' ||
+						Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min')
+						? 'none' : 'inline-block';
+					
+					// Hides parent element if empty for flex layout gap to work
+					if (Editor.currentTheme == 'simple' ||
+						Editor.currentTheme == 'sketch')
+					{
+						this.shareButton.parentNode.style.display =
+							(this.shareButton.parentNode.clientWidth == 0)
+							? 'none' : '';
+					}
 				}
 			}
 			else if (this.shareButton != null)
@@ -5854,9 +5860,10 @@ App.prototype.updateButtonContainer = function()
 				this.shareButton.parentNode.removeChild(this.shareButton);
 				this.shareButton = null;
 			}
-			
+
 			// Fetch notifications
-			if (urlParams['extAuth'] != '1') //Disable notification with external auth (e.g, Teams app)
+			if (urlParams['extAuth'] != '1' && 
+				Editor.currentTheme != 'atlas') //Disable notification with external auth (e.g, Teams app)
 			{
 				this.fetchAndShowNotification('online', this.mode);
 			}
@@ -5877,7 +5884,45 @@ App.prototype.updateButtonContainer = function()
 					(this.buttonContainer.clientWidth == 0)
 					? 'none' : '';
 			}
-		}	
+		}
+
+		// Updates comments button CSS
+		if (this.commentButton != null)
+		{
+			this.commentButton.style.marginRight = '';
+			this.commentButton.style.top = '';
+
+			if (Editor.currentTheme != 'simple' &&
+				Editor.currentTheme != 'sketch' &&
+				Editor.currentTheme != 'min' &&
+				urlParams['embed'] != '1')
+			{
+				this.commentButton.style.top = '-6px';
+			}
+			else if (urlParams['embed'] == '1')
+			{
+				this.commentButton.style.marginRight = '4px';
+			}
+		}
+
+		// Updates notification button CSS
+		if (this.notificationBtn != null)
+		{
+			if (Editor.currentTheme != 'simple' &&
+				Editor.currentTheme != 'sketch' &&
+				Editor.currentTheme != 'atlas' &&
+				Editor.currentTheme != 'min' &&
+				urlParams['embed'] != '1')
+			{
+				this.notificationBtn.style.marginRight = '4px';
+				this.notificationBtn.style.marginTop = '-12px';
+			}
+			else
+			{
+				this.notificationBtn.style.marginRight = '';
+				this.notificationBtn.style.marginTop = '';
+			}
+		}
 	}
 };
 
@@ -6024,36 +6069,10 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		var notifCount = document.createElement('span');
 		notifCount.className = 'geNotification-count';
 		this.notificationBtn.appendChild(notifCount);
-				
-		if (Editor.currentTheme == 'simple' ||
-			Editor.currentTheme == 'sketch'||
-			Editor.currentTheme == 'min')
-		{
-			if (Editor.currentTheme != 'min'||
-				Editor.currentTheme == 'sketch')
-			{
-				this.notificationBtn.style.width = '30px';
-				notifCount.style.marginRight = '-10px';
-			}
-			
-			if (Editor.currentTheme == 'simple'||
-				Editor.currentTheme == 'sketch')
-			{
-				this.notificationBtn.style.top = '7px';
-			}
-			else
-			{
-				this.notificationBtn.style.top = '4px';
-			}
-		}
-		else if (urlParams['atlas'] == '1')
-		{
-			this.notificationBtn.style.top = '2px';
-		}
+		this.notifCount = notifCount;
 		
 		var notifBell = document.createElement('div');
 		notifBell.className = 'geNotification-bell';
-		notifBell.style.opacity = uiTheme == 'min'? '0.5' : '';
 		var bellPart = document.createElement('span');
 		bellPart.className = 'geBell-top';
 		notifBell.appendChild(bellPart);
@@ -6068,9 +6087,8 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 		notifBell.appendChild(bellPart);
 		this.notificationBtn.appendChild(notifBell);
 		
-		//Add as first child such that it is the left-most one
+		// Add as first child such that it is the left-most one
 		this.buttonContainer.insertBefore(this.notificationBtn, this.buttonContainer.firstChild);
-		
 		this.notificationWin = document.createElement('div');
 		this.notificationWin.className = 'geNotifPanel';
 		this.notificationWin.style.display = 'none';
@@ -7063,11 +7081,15 @@ App.prototype.toggleCompactMode = function(visible)
 		this.menubar.container.style.paddingBottom = '0px';
 		this.menubar.container.style.top = '0px';
 		this.toolbar.container.style.paddingLeft = '8px';
-		this.buttonContainer.style.visibility = 'hidden';
 		this.appIcon.style.display = 'none';
 		this.fnameWrapper.style.display = 'none';
 		this.fnameWrapper.style.visibility = 'hidden';
 		this.menubarHeight = EditorUi.prototype.menubarHeight;
+
+		if (Editor.currentTheme != 'atlas' && Editor.currentTheme != 'simple')
+		{
+			this.buttonContainer.style.visibility = 'hidden';
+		}
 	}
 
 	if (this.toggleElement != null)

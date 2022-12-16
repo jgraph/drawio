@@ -333,8 +333,10 @@
         }));
 
 		toggleSimpleModeAction.setToggleAction(true);
+		toggleSimpleModeAction.visible = Editor.currentTheme != 'min' && Editor.currentTheme != 'sketch' &&
+			Editor.currentTheme != 'atlas';
 		toggleSimpleModeAction.setSelectedCallback(function() { return Editor.currentTheme != 'simple'; });
-		
+
         var toggleSketchModeAction = editorUi.actions.put('toggleSketchMode', new Action(mxResources.get('sketch'), function(e)
         {
 			editorUi.setSketchMode(!Editor.sketchMode);
@@ -4477,7 +4479,7 @@
 			{
 				var err = (editorUi.isOffline(true)) ?
 					mxResources.get('offline') :
-					editorUi.getSyncError();
+					editorUi.getNetworkStatus();
 
 				if (err != null)
 				{

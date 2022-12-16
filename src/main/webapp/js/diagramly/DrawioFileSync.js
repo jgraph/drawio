@@ -447,8 +447,7 @@ DrawioFileSync.prototype.isConnected = function()
 {
 	if (this.pusher != null && this.pusher.connection != null)
 	{
-		return this.pusher.connection.state == 'connecting' ||
-			this.pusher.connection.state == 'connected';
+		return this.pusher.connection.state == 'connected';
 	}
 	else if (this.puller != null)
 	{
@@ -487,7 +486,7 @@ DrawioFileSync.prototype.updateCollaboratorsElement = function()
 {
 	if (this.collaboratorsElement != null)
 	{
-		var status = this.ui.getSyncError();
+		var status = this.ui.getNetworkStatus();
 
 		if (status != null)
 		{
@@ -538,9 +537,7 @@ DrawioFileSync.prototype.createCollaboratorsElement = function()
 	{
 		if (this.file.isRealtimeEnabled() && this.file.isRealtimeSupported())
 		{
-			var status = (this.ui.isOffline(true)) ?
-				mxResources.get('offline') :
-				this.ui.getSyncError();
+			var status = this.ui.getNetworkStatus();
 			this.ui.showError(mxResources.get('realtimeCollaboration'),
 				mxUtils.htmlEntities((status != null) ? status :
 				mxResources.get('online')));
@@ -598,15 +595,18 @@ DrawioFileSync.prototype.updateStatus = function()
 				msg = msg.substring(0, 40) + '...';
 			}
 
+			var status = this.ui.getNetworkStatus();
 			var label = mxResources.get('lastChange', [str]);
 			var rev = (this.file.isRevisionHistorySupported()) ? 'data-action="revisionHistory" ' : '';
-			var err = (this.ui.isOffline(true)) ? mxResources.get('offline') : this.ui.getSyncError();
 			
 			this.ui.editor.setStatus('<div ' + rev + 'title="'+ mxUtils.htmlEntities(label) + '">' + mxUtils.htmlEntities(label) + '</div>' +
-				(!this.file.isEditable() ? '<div class="geStatusAlert">' + mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>' : '') +
-				(err != null ? '<div class="geStatusAlert">' + mxUtils.htmlEntities(err) + '</div>' : '') +
-				((msg != null) ? ' <div data-effect="fade" title="' + mxUtils.htmlEntities(msg) + '">(' +
-					mxUtils.htmlEntities(msg) + ')</div>' : ''));
+				(!this.file.isEditable() ? '<div class="geStatusBox" title="' +
+					mxUtils.htmlEntities(mxResources.get('readOnly')) + '">' +
+					mxUtils.htmlEntities(mxResources.get('readOnly')) + '</div>' : '') +
+				(status != null ? '<div class="geStatusBox" title="' + mxUtils.htmlEntities(status) + '">' +
+					mxUtils.htmlEntities(status) + '</div>' : '') +
+				((msg != null) ? ' <div class="geStatusBox" data-effect="fade" title="' + mxUtils.htmlEntities(msg) + '">' +
+					mxUtils.htmlEntities(msg) + '</div>' : ''));
 
 			this.resetUpdateStatusThread();
 		}
@@ -1824,7 +1824,8 @@ DrawioFileSync.prototype.fileSaved = function(pages, lastDesc, success, error, t
 						}
 						else
 						{
-							error({code: req.getStatus(), message: req.getStatus()});
+							error({message: mxResources.get('realtimeCollaboration') +
+								((req.getStatus() != 0) ? ': ' + req.getStatus() : '')});
 						}
 					}
 				}));
