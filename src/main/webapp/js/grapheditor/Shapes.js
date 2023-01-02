@@ -448,6 +448,26 @@
 
 	mxCellRenderer.registerShape('isoRectangle', IsoRectangleShape);
 	
+	// Wire Shape
+	function WireShape()
+	{
+		mxConnector.call(this);
+	};
+
+	mxUtils.extend(WireShape, mxConnector);
+
+	WireShape.prototype.paintEdgeShape = function(c, pts)
+	{
+		c.save();
+		c.setDashed(false);
+		mxConnector.prototype.paintEdgeShape.apply(this, [c, pts]);
+		c.restore();
+		c.setStrokeColor(this.fill);
+		mxPolyline.prototype.paintEdgeShape.apply(this, [c, pts]);
+	};
+
+	mxCellRenderer.registerShape('wire', WireShape);
+	
 	// Cube Shape, supports size style
 	function WaypointShape()
 	{

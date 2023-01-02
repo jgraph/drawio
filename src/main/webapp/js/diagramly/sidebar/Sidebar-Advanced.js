@@ -14,7 +14,8 @@
 
 		// Reusable cells
 		var flow = new mxCell('Vertical Flow Layout', new mxGeometry(0, 0, 270, 280),
-				'swimlane;startSize=20;horizontal=1;childLayout=flowLayout;flowOrientation=north;resizable=0;interRankCellSpacing=50;containerType=tree;');
+				'swimlane;startSize=20;horizontal=1;childLayout=flowLayout;flowOrientation=north;' +
+				'resizable=0;interRankCellSpacing=50;containerType=tree;fontSize=12;');
 		flow.vertex = true;
 		
 		var flow1 = new mxCell('Start', new mxGeometry(20, 20, 100, 40), 'whiteSpace=wrap;html=1;');
@@ -25,7 +26,9 @@
 		flow2.vertex = true;
 		flow.insert(flow2);
 		
-		var edge = new mxCell('', new mxGeometry(0, 0, 0, 0), 'html=1;curved=1;');
+		var edge = new mxCell('', new mxGeometry(0, 0, 0, 0),
+			'html=1;rounded=1;curved=0;sourcePerimeterSpacing=0;' +
+			'targetPerimeterSpacing=0;startSize=6;endSize=6;');
 		edge.geometry.relative = true;
 		edge.edge = true;
 		flow1.insertEdge(edge, true);
@@ -66,11 +69,11 @@
 			this.addDataEntry('container swimlane pool vertical', 380, 480, 'Vertical Pool 2',
 				'vZRBbsIwEEVP470zTquuSVs2ICFxAouMsFUnRrYpCafvJHYILaRiQxaRPG/8Pfnfkpkoqmbp5EGtbYmGiQ8mCmdtiKuqKdAYBlyXTLwzAE4fg8+JbtZ3+UE6rMMjAoiCb2mOGMnGWhOhD61J0J90ZWRN1WKntClXsrXHboAPcvc1VAuHXp9xM0zP/qC1bIhyoiRzYUsNqqEDyjp9tnWQJu0YwbYbkU5Lf4suYDPpuEfJ7hJthcG1tOWky6DiDvEWU+EK9V4lWT5A6SPYX7RjgLRIGd7PU9zkuepiA579l+lNHA/5hPs+kyBd/LXtDJ5lO5+yDXPbzvI5fb9M+RazX/frE31TOT5Jfe/Xi/UD'),
 			this.addDataEntry('vertical tree layout', 280, 190, 'Vertical Tree Layout',
-				'5ZVNU4MwEIZ/DXcgteq1UHvRi+14T2GHZCYQJiyl9Ne7gWCLtE5ntAf1wJB99yPJk83EY1G+XxleihedgvLY0mOR0Rr7Ub6PQCkv9GXqsdgLQ58+L3y64A06r19yAwVekxD2CTuuauiVNzAoE26DNgaAfs+81TX2gRW2ygVWjcwVL8haVMgNruXBemhCthDayIMukMqwOCAhEVKlrhCLkQoPxklsNx+LbQEDlTzwrRrsxAbIAsymLcFVINmtnpYM+4sEOsltfwU6BzQthTQyReEoPPSUfAEyE0PaoxN51QvZR+4RKA0c0/N82YTvqz3bzywbIRHWJU+s3VA3WC6YD/Su2mZ4fpsuwfWB347NEwiBfwbC7AcYzCYMItsNJAX/C8TdBMRk/5BmsHYmqK1ulkdh0Qnk2A1XdMTG6LpIIXUXpq9sy33NiWbXtUlg1K50nTPAk9Ob0jSgOMrduPp34MwvdsmU0p/ukvvf2CXz23QJmce3sPONnsp3'),
+				'7VZNU4MwEP013IHUqtdS7UVnHNvxnpIVMhMIEwKU/no3JFiQ4nRGvagHBt7bj+y+7E7rkSg7bBQt0kfJQHjkziORklLbr+wQgRBe6HPmkbUXhj4+Xng/Yw06q19QBbm+JCC0ATUVFVjmBZTmMTVOOwWArwfaykpbx1K3wjmWDc8EzRGtSk2V3vKjseCBZJVKxY8y15iGrAMk4pQL5hKRtcbEPRj4dueRtUmgoORHuhc9jo0Dz0Ht2gJcBqRfkXbnBiFi1w22AIdZRTrKybEBmYFWLbo0nOnUqXJjVfNT4Enah906kpaWSN5jTwLjh9P4vN5kovezueuP2jYp17AtaGxwg9NhdNJZr+ZFbYbn23QBbi78dgwHIgT+GREW36DBYqJBZKYDqeBvCXE1EWLSP7AEtg6C2Mvm7kSsOgINdb+yI22UrHIGrF/AStUdMNtUykrF8ASKY82gjL48T5wRdzkBPWMcbvrSlJCzAbLlm5o/vwxssatgtBP23MGITK9MgaCa1+PsX7mB5ewoTq/iV4/i9f8ozozi8mdGEeHpV76zjf4EvAE='),
 			this.addDataEntry('horizontal tree layout', 310, 160, 'Horizontal Tree Layout',
-				'5ZXNUoMwEMefJncgtd4LVQ96sX2BtOxAZgJhwlJKn94NSQWkdTqjHtQDA/vfL/LLZsJ4XBwfjajyF52CYnzNeGy0RvdVHGNQikWBTBlPWBQF9LDo4Yo37L1BJQyUeEtC5BIOQjXglCdt5EmXKGzY1gDQ61l0ukEXWmOnfGjdykKJkqxVjcLgRp6sh1ryVT6U4YkV9rlUqS/EE6TCZ2MU2/fjSUiigVqexK7v1efbAFmC2XYV+Aok+/8Hg3C8yqCXPIBH0AWg6SiklSnmLoKHjlOQg8zyc9rSi6J2QvaeOyClD0/1MmE+I/xqd/cjyzaXCJtK7K3d0jxYLlgoT+OmZUaXl+kT/CQE3dQcQQiDCxAW38BgMWMQ22kgKfxfIO5mIGbrhzSDjTdB7XS7HoRVL5BjfLrGdIxuyhRSf2RcbVvwc1LUXzdmD5OBpQOdAY72b87TgBIoD9PqX8GzvDonc05/ek7uf+ecLH9mTsgcbsTeN7kw3wA='),
-				
-		 	this.addEntry('vertical flow layout', function()
+				'7VbNToNAEH4a7sBWvBeqHjQxti+whRE2WViyLKX06Z39qYAU00S9qAcC883/NzNpPRKXx3tJ6+JJZMA9svFILIVQ9qs8xsC5F/os80jihaGPjxfeLWgDo/VrKqFS1ziE1uFAeQsWeRCSnUSlqDbbSQB8PdJetMqaNqrnzrTpWMlphdK6UVSqLTtpDaYk62IIQxINpAXjmQtEEoWBz8LI1uQjSYCghIad6N7kMv7agFUgd30NLgLCrwi7vEGIsusHpILjIicGcoTcgyhByR5NOpapwlqQwPLmF8Dy4uwWOZA2FsjffQeK8cOxfJlxMmP8RU/7I7ddwRRsa5pqucP90Dypkjt2rmozvNymc3Cb4fdTcURC4F8gYfUNHKxmHMR6OxAK/hYRNzMiZv1DlsPWicD3otsMwNoAqND9s1Tf2pgbKdoqg8xJaSsPRtDX1IhWpvAMkmHNIDW/rMqdEm85B7WgHF96pEuospFky9c1fz4MbNFUMLkJm3e0IvORSeBUscM0+lcmEC2u4nwUv3oVb/9XcWEVo59ZRRSH33mjm/wNeAM='),
+
+			this.addEntry('vertical flow layout', function()
 			{
 		 		return sb.createVertexTemplateFromCells([flow], flow.geometry.width, flow.geometry.height, 'Vertical Flow Layout', true);
 		 	}),
@@ -78,7 +81,8 @@
 			{
 				var cell = sb.graph.cloneCell(flow);
 				cell.geometry = new mxGeometry(0, 0, 460, 150);
-				cell.style = 'swimlane;html=1;startSize=20;horizontal=0;childLayout=flowLayout;flowOrientation=west;resizable=0;interRankCellSpacing=50;containerType=tree;';
+				cell.style = 'swimlane;html=1;startSize=20;horizontal=0;childLayout=flowLayout;flowOrientation=west;' +
+					'resizable=0;interRankCellSpacing=50;containerType=tree;fontSize=12;';
 				cell.value = 'Horizontal Flow Layout';
 				
 				return sb.createVertexTemplateFromCells([cell], cell.geometry.width, cell.geometry.height, 'Horizontal Flow Layout', true);

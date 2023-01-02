@@ -313,7 +313,7 @@ Actions.prototype.init = function()
 				ui.copiedSize = new mxRectangle(geo.x, geo.y, geo.width, geo.height);
 			}
 		}
-	}, null, null, 'Alt+Shift+X');
+	}, null, null, 'Alt+Shift+F');
 
 	this.addAction('pasteSize', function()
 	{
@@ -1232,7 +1232,7 @@ Actions.prototype.init = function()
 	{
 		graph.setConnectable(!graph.connectionHandler.isEnabled());
 		ui.fireEvent(new mxEventObject('connectionPointsChanged'));
-	}, null, null, 'Alt+Shift+P');
+	}, null, null, 'Alt+Shift+O');
 	action.setToggleAction(true);
 	action.setSelectedCallback(function() { return graph.connectionHandler.isEnabled(); });
 	action = this.addAction('copyConnect', function()
@@ -1619,7 +1619,7 @@ Actions.prototype.init = function()
 				graph.getModel().endUpdate();
 			}
 		}
-	}, null, null, 'Alt+Shift+C');
+	}, null, null, 'Alt+Shift+W');
 	action = this.addAction('subscript', mxUtils.bind(this, function()
 	{
 	    if (graph.cellEditor.isContentEditing())
@@ -1876,7 +1876,7 @@ Actions.prototype.init = function()
 			});
 			dlg.init();
 		}
-	}).isEnabled = isGraphEnabled;
+	}, null, null, 'Alt+Shift+Q').isEnabled = isGraphEnabled;
 };
 
 /**

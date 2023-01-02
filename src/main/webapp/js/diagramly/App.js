@@ -317,6 +317,7 @@ App.pluginRegistry = {'4xAKTrabTpTzahoLthkwPNUn': 'plugins/explore.js',
 	'ex': 'plugins/explore.js', 'p1': 'plugins/p1.js',
 	'ac': 'plugins/connect.js', 'acj': 'plugins/connectJira.js',
 	'ac148': 'plugins/cConf-1-4-8.js', 'ac148cmnt': 'plugins/cConf-comments.js', 
+	'nxtcld': 'plugins/nextcloud.js',
 	'voice': 'plugins/voice.js',
 	'tips': 'plugins/tooltips.js', 'svgdata': 'plugins/svgdata.js',
 	'electron': 'plugins/electron.js',
@@ -1712,6 +1713,54 @@ App.prototype.init = function()
 				});
 			}));
 		}
+		
+		// if (this.isOwnDomain() && new Date().getFullYear() < 2023 &&
+		// 	Editor.currentTheme != 'sketch' && Editor.currentTheme != 'atlas' &&
+		// 	Editor.currentTheme != 'min' && Editor.currentTheme != 'simple')
+		// {
+		// 	this.editor.addListener('fileLoaded', mxUtils.bind(this, function()
+		// 	{
+		// 		if (Editor.currentTheme != 'sketch' && Editor.currentTheme != 'atlas' &&
+		// 			Editor.currentTheme != 'min' && Editor.currentTheme != 'simple')
+		// 		{
+		// 			window.setTimeout(mxUtils.bind(this, function()
+		// 			{
+		// 				var elt = this.menubar.langIcon;
+
+		// 				if (Editor.currentTheme != 'sketch' && Editor.currentTheme != 'atlas' &&
+		// 					Editor.currentTheme != 'min' && Editor.currentTheme != 'simple' &&
+		// 					elt != null)
+		// 				{
+		// 					this.showBanner('TryNewStyles', 'Try our new styles! →', mxUtils.bind(this, function()
+		// 					{
+		// 						if (elt != null)
+		// 						{
+		// 							elt.click();
+		// 						}
+		// 					}), true, true, 'top:2px;right:30px;', 'scale(0,1)', 'scale(1,1)', '100% 0');
+
+		// 					window.setTimeout(mxUtils.bind(this, function()
+		// 					{
+		// 						if (elt != null)
+		// 						{
+		// 							mxUtils.setPrefixedStyle(elt.style, 'transition', 'all 1s ease-in-out');
+		// 							mxUtils.setPrefixedStyle(elt.style, 'transform', 'rotate(360deg)');
+
+		// 							window.setTimeout(mxUtils.bind(this, function()
+		// 							{
+		// 								if (elt != null)
+		// 								{
+		// 									mxUtils.setPrefixedStyle(elt.style, 'transition', null);
+		// 									mxUtils.setPrefixedStyle(elt.style, 'transform', null);
+		// 								}
+		// 							}), 1000);
+		// 						}
+		// 					}), 1500);
+		// 				}
+		// 			}), 2000);
+		// 		}
+		// 	}));
+		// }
 		
 		if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && !this.isOffline() &&
 			!mxClient.IS_ANDROID && !mxClient.IS_IOS && urlParams['open'] == null &&
@@ -5752,7 +5801,7 @@ App.prototype.updateButtonContainer = function()
 		if (urlParams['embed'] == '1' && Editor.currentTheme != 'simple' &&
 			Editor.currentTheme != 'sketch')
 		{
-			this.buttonContainer.style.paddingRight = '8px';
+			this.buttonContainer.style.paddingRight = urlParams['atlas'] == '1' ? '32px' : '8px';
 		}
 
 		// Comments
@@ -6004,7 +6053,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 {
 	var newCount = notifs.length;
 
-	if (uiTheme == 'min')
+	if (Editor.currentTheme == 'min' || Editor.currentTheme == 'simple')
 	{
 		newCount = 0;
 
@@ -6016,7 +6065,7 @@ App.prototype.showNotification = function(notifs, lsReadFlag)
 			}
 		}
 	}
-
+	
 	if (newCount == 0)
 	{
 		if (this.notificationBtn != null)

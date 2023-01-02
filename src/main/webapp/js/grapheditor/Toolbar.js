@@ -84,9 +84,10 @@ Toolbar.prototype.init = function()
 	}
 	
 	// Updates the label if the scale changes
-	this.updateZoom = mxUtils.bind(this, function()
+	this.updateZoom = mxUtils.bind(this, function(sender, evt, f)
 	{
-		viewMenu.innerHTML = Math.round(this.editorUi.editor.graph.view.scale * 100) + '%';
+		f = (f != null) ? f : 1;
+		viewMenu.innerHTML = Math.round(this.editorUi.editor.graph.view.scale * 100 * f) + '%';
 		this.appendDropDownImageHtml(viewMenu);
 		
 		if (EditorUi.compactUi)
@@ -98,6 +99,12 @@ Toolbar.prototype.init = function()
 
 	this.editorUi.editor.graph.view.addListener(mxEvent.EVENT_SCALE, this.updateZoom);
 	this.editorUi.editor.addListener('resetGraphView', this.updateZoom);
+
+	// Zoom Preview
+	this.editorUi.editor.graph.addListener('zoomPreview', mxUtils.bind(this, function(sender, evt)
+	{
+		this.updateZoom(sender, evt, evt.getProperty('factor'));
+	}));
 
 	var elts = this.addItems(['-', 'undo', 'redo']);
 	elts[1].setAttribute('title', mxResources.get('undo') + ' (' + this.editorUi.actions.get('undo').shortcut + ')');

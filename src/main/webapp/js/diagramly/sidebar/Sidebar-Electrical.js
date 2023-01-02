@@ -986,6 +986,9 @@
 					130, 88, '', 'Anticreepage Device', null, null, this.getTagsForStencil(gnmetr, 'anticreepage device', dtmetr).join(' ')),
 			this.createVertexTemplateEntry(metr + 'testPoint;', 
 					60, 130, '', 'Test Point', null, null, this.getTagsForStencil(gnmetr, 'test point', dtmetr).join(' ')),
+			this.createEdgeTemplateEntry('shape=wire;edgeStyle=orthogonalEdgeStyle;orthogonalLoop=1;jettySize=auto;html=1;sourcePerimeterSpacing=0;targetPerimeterSpacing=0;' +
+				'endArrow=none;curved=0;rounded=0;strokeColor=#009900;dashed=1;fillColor=#ffff00;dashPattern=12 12;fixDash=1;startSize=6;endSize=6;',
+				100, 0, '', 'Dashed Wire', null, this.getTagsForStencil(gnmess, '', 'cable wire dashed').join(' ')),
 			this.createEdgeTemplateEntry('endArrow=none;html=1;strokeWidth=1;',
 					100, 0, '', 'Transmission Path', null, this.getTagsForStencil(gnmess, '', 'transmission path').join(' ')),
 			this.createEdgeTemplateEntry('endArrow=classicThin;html=1;strokeWidth=1;endSize=20;',

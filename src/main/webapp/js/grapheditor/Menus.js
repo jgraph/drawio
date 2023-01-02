@@ -594,6 +594,7 @@ Menus.prototype.get = function(name)
 Menus.prototype.addSubmenu = function(name, menu, parent, label)
 {
 	var entry = this.get(name);
+	var submenu = null;
 	
 	if (entry != null)
 	{
@@ -601,10 +602,13 @@ Menus.prototype.addSubmenu = function(name, menu, parent, label)
 	
 		if (menu.showDisabled || enabled)
 		{
-			var submenu = menu.addItem(label || mxResources.get(name), null, null, parent, null, enabled);
+			submenu = menu.addItem(label || mxResources.get(name),
+				null, null, parent, null, enabled);
 			this.addMenu(name, menu, submenu);
 		}
 	}
+
+	return submenu;
 };
 
 /**
@@ -1422,10 +1426,7 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 			menu.addCheckmark(item, Editor.checkmarkImage);
 		}
 
-		if (!menu.hideShortcuts)
-		{
-			this.addShortcut(item, action);
-		}
+		this.addShortcut(item, action, menu.hideShortcuts);
 		
 		return item;
 	}
@@ -1436,15 +1437,22 @@ Menus.prototype.addMenuItem = function(menu, key, parent, trigger, sprite, label
 /**
  * Adds a checkmark to the given menuitem.
  */
-Menus.prototype.addShortcut = function(item, action)
+Menus.prototype.addShortcut = function(item, action, asTooltip)
 {
 	if (action.shortcut != null)
 	{
-		var td = item.firstChild.nextSibling.nextSibling;
-		var span = document.createElement('span');
-		span.style.color = 'gray';
-		mxUtils.write(span, action.shortcut);
-		td.appendChild(span);
+		if (asTooltip)
+		{
+			item.setAttribute('title', action.shortcut);
+		}
+		else
+		{
+			var td = item.firstChild.nextSibling.nextSibling;	
+			var span = document.createElement('span');
+			span.style.color = 'gray';
+			mxUtils.write(span, action.shortcut);
+			td.appendChild(span);
+		}
 	}
 };
 
@@ -1481,7 +1489,11 @@ Menus.prototype.createPopupMenu = function(menu, cell, evt)
  */
 Menus.prototype.addPopupMenuItems = function(menu, cell, evt)
 {
-	this.addPopupMenuHistoryItems(menu, cell, evt);
+	if (this.isShowHistoryItems())
+	{
+		this.addPopupMenuHistoryItems(menu, cell, evt);	
+	}
+
 	this.addPopupMenuEditItems(menu, cell, evt);
 
 	if (this.isShowStyleItems())
@@ -1496,6 +1508,14 @@ Menus.prototype.addPopupMenuItems = function(menu, cell, evt)
 
 	this.addPopupMenuCellItems(menu, cell, evt);
 	this.addPopupMenuSelectionItems(menu, cell, evt);
+};
+
+/**
+ * Creates the keyboard event handler for the current graph and history.
+ */
+Menus.prototype.isShowHistoryItems = function()
+{
+	return true;
 };
 
 /**

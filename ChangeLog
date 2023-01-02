@@ -1,3 +1,46 @@
+02-JAN-2023: 20.8.0
+
+- Fixes possible NPE for window widths below 360px
+- Fixes NPE [DS-935]
+- Shows keyboard shortcuts as tooltips when disabled
+- Decreases tap and hold delay for marquee selection
+- Fixes keyboard shortcuts conflicts
+- Hides no unread notification icon in simple theme
+- Adds background color, shadow, sketch view options
+- Add selection count in simple UI delete popup menu
+- Adds dashed wire shape [3249]
+- Fixes Cloudflare workers deployment scripts to prevent removing KV bindings and dashboard configurations [DS-938]
+- Fixes ignored dark UI theme in embed mode [3172]
+- Fixes edge styles in Advanced sidebar containers
+- Fixes order after split edge and size of waypoint
+- Fixes direct moving of segment edge end points
+- Fixes moving edge segments with segment connector
+- Fixes drag from sidebar and popup on touch devices
+- Fixes ignored final rounding for fast zoom preview
+- Updates zoom label in UI during fast zoom preview
+- Enables line jump format option for wire shapes
+- Fixes dash pattern dropdown for current selection
+- Changes default edge style in simple theme
+- Fixes sketch URL parameter default and host checks
+- Removes redirect for drive button in splash [3260]
+- Fixes possible DOM error in obsolete plugin
+- Attempt to fix possible NPE in TextFormatPanel
+- Moves page actions to submenu in pages menu
+- Adds animation for sidebar and shape picker items
+- Adds live preview for drag and drop from sidebar
+- Fixes hardcoded title font color for process bar
+- Fixes scratchpad and entry background in dark mode
+- Adds native scrolling for page tabs [3265]
+- Fixes preview for edge cases where height is 0
+- Fixes sidebar live preview item count check
+- Adds select option in tags dialog
+- Fixes focus handling with props plugin [3264]
+- Fixes NPE in vsdx import, hiddenTags is null
+- Removes undo/redo from context menu in simple UI
+- Fixes border for predefined colors in dark mode
+- Fixes height for inserted SQL table shapes
+- Adds outline for zoom menu in min and sketch UI
+
 16-DEC-2022: 20.7.4
 
 - Fixes notification icon CSS styles 

@@ -3448,8 +3448,7 @@ TextFormatPanel.prototype.addFont = function(container)
 					var child = newFonts[i].firstChild;
 
 					// Moves the font element to inside the anchor element and adopts all children
-					if (child != null && child.nodeName == 'A' && child.nextSibling ==
-						null &&
+					if (child != null && child.nodeName == 'A' && child.nextSibling == null &&
 						child.firstChild != null)
 					{
 						var parent = newFonts[i].parentNode;
@@ -3627,17 +3626,15 @@ TextFormatPanel.prototype.addFont = function(container)
 			var blocks = graph.getSelectedTextBlocks();
 
 			// Adds paragraph tags if no block element is selected
-			if (blocks.length == 0)
+			if (blocks.length == 0 && graph.cellEditor.textarea != null &&
+				graph.cellEditor.textarea.firstChild != null)
 			{
-				if (graph.cellEditor.textarea.firstChild != null)
+				if (graph.cellEditor.textarea.firstChild.nodeName != 'P')
 				{
-					if (graph.cellEditor.textarea.firstChild.nodeName != 'P')
-					{
-						graph.cellEditor.textarea.innerHTML = '<p>' + graph.cellEditor.textarea.innerHTML + '</p>';
-					}
-
-					blocks = [graph.cellEditor.textarea.firstChild];
+					graph.cellEditor.textarea.innerHTML = '<p>' + graph.cellEditor.textarea.innerHTML + '</p>';
 				}
+
+				blocks = [graph.cellEditor.textarea.firstChild];
 			}
 
 			for (var i = 0; i < blocks.length; i++)
@@ -4713,7 +4710,11 @@ StyleFormatPanel.prototype.addFill = function(container)
 	};
 
 	populateFillStyle();
-	fillPanel.appendChild(fillStyleSelect);
+
+	if (ss.gradient)
+	{
+		fillPanel.appendChild(fillStyleSelect);
+	}
 
 	var listener = mxUtils.bind(this, function()
 	{
@@ -4764,8 +4765,10 @@ StyleFormatPanel.prototype.addFill = function(container)
 
 			fillStyleSelect.style.display = ss.style.sketch == '1' ||
 				gradientSelect.style.display == 'none'? '' : 'none';
-			gradientPanel.style.display = (!ss.containsImage && (ss.style.sketch != '1' ||
-				fillStyle == 'solid' || fillStyle == 'auto')) ? '' : 'none';
+			gradientPanel.style.display = (ss.gradient &&
+				!ss.containsImage && (ss.style.sketch != '1' ||
+				fillStyle == 'solid' || fillStyle == 'auto')) ?
+				'' : 'none';
 		}
 	});
 	
@@ -4947,7 +4950,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var pattern = this.editorUi.toolbar.addMenuFunctionInContainer(stylePanel, 'geSprite-orthogonal', mxResources.get('pattern'), false, mxUtils.bind(this, function(menu)
 	{
 		addItem(menu, 75, 'solid', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], [null, null]).setAttribute('title', mxResources.get('solid'));
-		addItem(menu, 75, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', null]).setAttribute('title', mxResources.get('dashed'));
+		addItem(menu, 75, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', null]).setAttribute('title', mxResources.get('dashed') + ' (1)');
+		addItem(menu, 75, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '8 8']).setAttribute('title', mxResources.get('dashed') + ' (2)');
+		addItem(menu, 75, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '12 12']).setAttribute('title', mxResources.get('dashed') + ' (3)');
 		addItem(menu, 75, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 1']).setAttribute('title', mxResources.get('dotted') + ' (1)');
 		addItem(menu, 75, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 2']).setAttribute('title', mxResources.get('dotted') + ' (2)');
 		addItem(menu, 75, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 4']).setAttribute('title', mxResources.get('dotted') + ' (3)');
@@ -4967,7 +4972,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var altPattern = this.editorUi.toolbar.addMenuFunctionInContainer(altStylePanel, 'geSprite-orthogonal', mxResources.get('pattern'), false, mxUtils.bind(this, function(menu)
 	{
 		addItem(menu, 33, 'solid', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], [null, null]).setAttribute('title', mxResources.get('solid'));
-		addItem(menu, 33, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', null]).setAttribute('title', mxResources.get('dashed'));
+		addItem(menu, 33, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', null]).setAttribute('title', mxResources.get('dashed') + ' (1)');
+		addItem(menu, 33, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '8 8']).setAttribute('title', mxResources.get('dashed') + ' (2)');
+		addItem(menu, 33, 'dashed', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '12 12']).setAttribute('title', mxResources.get('dashed') + ' (3)');
 		addItem(menu, 33, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 1']).setAttribute('title', mxResources.get('dotted') + ' (1)');
 		addItem(menu, 33, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 2']).setAttribute('title', mxResources.get('dotted') + ' (2)');
 		addItem(menu, 33, 'dotted', [mxConstants.STYLE_DASHED, mxConstants.STYLE_DASH_PATTERN], ['1', '1 4']).setAttribute('title', mxResources.get('dotted') + ' (3)');
@@ -5068,7 +5075,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var lineStart = this.editorUi.toolbar.addMenuFunctionInContainer(stylePanel2, 'geSprite-startclassic', mxResources.get('linestart'), false, mxUtils.bind(this, function(menu)
 	{
-		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge')
+		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge' || ss.style.shape == 'wire')
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
@@ -5078,7 +5085,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			mxUtils.write(font, mxResources.get('none'));
 			item.firstChild.firstChild.appendChild(font);
 
-			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
+			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge' || ss.style.shape == 'wire')
 			{
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.ARROW_CLASSIC, 1], null, null, false, Format.classicFilledMarkerImage.src));
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_STARTARROW, 'startFill'], [mxConstants.ARROW_CLASSIC_THIN, 1], null, null, false, Format.classicThinFilledMarkerImage.src));
@@ -5134,7 +5141,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 	var lineEnd = this.editorUi.toolbar.addMenuFunctionInContainer(stylePanel2, 'geSprite-endclassic', mxResources.get('lineend'), false, mxUtils.bind(this, function(menu)
 	{
-		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge')
+		if (ss.style.shape == 'connector' || ss.style.shape == 'flexArrow' || ss.style.shape == 'filledEdge' || ss.style.shape == 'wire')
 		{
 			var item = this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.NONE, 0], 'geIcon', null, false);
 			item.setAttribute('title', mxResources.get('none'));
@@ -5144,7 +5151,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			mxUtils.write(font, mxResources.get('none'));
 			item.firstChild.firstChild.appendChild(font);
 			
-			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge')
+			if (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge' || ss.style.shape == 'wire')
 			{
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.ARROW_CLASSIC, 1], null, null, false, Format.classicFilledMarkerImage.src), 'scaleX(-1)');
 				Format.processMenuIcon(this.editorUi.menus.edgeStyleChange(menu, '', [mxConstants.STYLE_ENDARROW, 'endFill'], [mxConstants.ARROW_CLASSIC_THIN, 1], null, null, false, Format.classicThinFilledMarkerImage.src), 'scaleX(-1)');
@@ -5361,7 +5368,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		
 		if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASHED, null) == '1')
 		{
-			if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, null) == null)
+			if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, null) == null ||
+				mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, '').substring(0, 2) != '1 ')
 			{
 				solid.style.borderBottom = '1px dashed ' + this.defaultStrokeColor;
 			}
@@ -5493,7 +5501,8 @@ StyleFormatPanel.prototype.addStroke = function(container)
 
 		mxUtils.setOpacity(edgeStyle, (ss.style.shape == 'arrow') ? 30 : 100);			
 		
-		if (ss.style.shape != 'connector' && ss.style.shape != 'flexArrow' && ss.style.shape != 'filledEdge')
+		if (ss.style.shape != 'connector' && ss.style.shape != 'flexArrow' &&
+			ss.style.shape != 'filledEdge' && ss.style.shape != 'wire')
 		{
 			mxUtils.setOpacity(lineStart, 30);
 			mxUtils.setOpacity(lineEnd, 30);
@@ -6476,24 +6485,19 @@ DiagramFormatPanel.prototype.addView = function(div)
 	
 	if (graph.isEnabled())
 	{
-		var bg = null;
-
 		if (this.showBackgroundImageOption)
 		{
 			var bg = this.createOption(mxResources.get('background'), function()
 			{
-				return (graph.background != mxConstants.NONE &&
-					graph.background != null) ||
-					graph.backgroundImage != null;
+				return graph.backgroundImage != null;
 			}, function(checked)
 			{
-				if (checked)
+				if (!checked)
 				{
-					graph.model.execute(new ChangePageSetup(ui, '#ffffff'));
-				}
-				else
-				{
-					graph.model.execute(new ChangePageSetup(ui));
+					var change = new ChangePageSetup(ui, null, null);
+					change.ignoreColor = true;
+
+					graph.model.execute(change);
 				}
 			},
 			{
@@ -6501,12 +6505,9 @@ DiagramFormatPanel.prototype.addView = function(div)
 				{
 					this.listener = function()
 					{
-						apply((graph.background != mxConstants.NONE &&
-							graph.background != null) ||
-							graph.backgroundImage != null);
+						apply(graph.backgroundImage != null);
 					};
 					
-					ui.addListener('backgroundColorChanged', this.listener);
 					ui.addListener('backgroundImageChanged', this.listener);
 				},
 				destroy: function()
@@ -6514,6 +6515,8 @@ DiagramFormatPanel.prototype.addView = function(div)
 					ui.removeListener(this.listener);
 				}
 			});
+
+			bg.getElementsByTagName('input')[0].style.visibility = graph.backgroundImage != null ? 'visible' : 'hidden';
 
 			var label = bg.getElementsByTagName('div')[0];
 			label.style.display = 'inline-block';
@@ -6542,38 +6545,94 @@ DiagramFormatPanel.prototype.addView = function(div)
 			btn.style.maxWidth = '110px';
 			
 			bg.appendChild(btn);
+			div.appendChild(bg);
 		}
-		else
+
+		var bgColor = this.createColorOption(mxResources.get('backgroundColor'), function()
 		{
-			bg = this.createColorOption(mxResources.get('background'), function()
+			return graph.background;
+		}, function(color)
+		{
+			var change = new ChangePageSetup(ui, color);
+			change.ignoreImage = true;
+
+			graph.model.execute(change);
+		}, '#ffffff');
+
+		bgColor.style.padding = '5px 0 1px 0';
+		div.appendChild(bgColor);
+
+		var option = this.createOption(mxResources.get('shadow'), function()
+		{
+			return graph.shadowVisible;
+		}, function(checked)
+		{
+			var change = new ChangePageSetup(ui);
+			change.ignoreColor = true;
+			change.ignoreImage = true;
+			change.shadowVisible = checked;
+			
+			graph.model.execute(change);
+		},
+		{
+			install: function(apply)
 			{
-				return graph.background;
-			}, function(color)
-			{
-				var change = new ChangePageSetup(ui, color);
-				change.ignoreImage = color != null &&
-					color != mxConstants.NONE;
+				this.listener = function()
+				{
+					apply(graph.shadowVisible);
+				};
 				
-				graph.model.execute(change);
-			}, '#ffffff',
+				ui.addListener('shadowVisibleChanged', this.listener);
+			},
+			destroy: function()
 			{
-				install: function(apply)
-				{
-					this.listener = function()
-					{
-						apply(graph.background);
-					};
-					
-					ui.addListener('backgroundColorChanged', this.listener);
-				},
-				destroy: function()
-				{
-					ui.removeListener(this.listener);
-				}
-			});
-		}
+				ui.removeListener(this.listener);
+			}
+		});
 		
-		div.appendChild(bg);
+		if (!Editor.enableShadowOption)
+		{
+			option.getElementsByTagName('input')[0].setAttribute('disabled', 'disabled');
+			mxUtils.setOpacity(option, 60);
+		}
+
+		option.style.display = 'inline-flex';
+		option.style.width = '100px';
+		option.style.maxWidth = '100px';
+		option.style.marginRight = '4px';
+		div.appendChild(option);
+
+		var sketchOption = this.createOption(mxResources.get('sketch'), function()
+		{
+			return Editor.sketchMode;
+		}, function(checked)
+		{
+			graph.updateCellStyles({'sketch': (checked) ? '1' : null,
+				'curveFitting': (checked) ? Editor.sketchDefaultCurveFitting : null,
+				'jiggle': (checked) ? Editor.sketchDefaultJiggle : null},
+				graph.getVerticesAndEdges());
+			ui.setSketchMode(checked);
+		},
+		{
+			install: function(apply)
+			{
+				this.listener = function()
+				{
+					apply(Editor.sketchMode);
+				};
+				
+				ui.addListener('sketchModeChanged', this.listener);
+			},
+			destroy: function()
+			{
+				ui.removeListener(this.listener);
+			}
+		});
+		
+		sketchOption.style.display = 'inline-flex';
+		sketchOption.style.width = '104px';
+		sketchOption.style.maxWidth = '104px';
+		div.appendChild(sketchOption);
 	}
 	
 	return div;

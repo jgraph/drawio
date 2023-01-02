@@ -1246,7 +1246,7 @@ Draw.loadPlugin(function(ui)
 	// Adds sidebar entries
 	var sb = ui.sidebar;
 	
-    sb.addPalette('trees', 'Trees', true, function(content)
+    sb.addPalette('trees', 'Trees', false, function(content)
     {
         (function()
         {
@@ -1432,11 +1432,4 @@ Draw.loadPlugin(function(ui)
 			content.appendChild(sb.createVertexTemplateFromCells([edge, edge2, cell, cell2], 220, 60, 'Sub Sections'));
         })();
     });
-    
-    // Collapses default sidebar entry and inserts this before
-    var c = ui.sidebar.container;
-    var general = c.getElementsByTagName('a')[0];
-    general.click();
-    c.insertBefore(c.lastChild.previousSibling, general);
-    c.insertBefore(c.lastChild, general);
 });

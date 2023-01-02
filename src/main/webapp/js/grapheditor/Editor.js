@@ -1631,6 +1631,7 @@ var PageSetupDialog = function(editorUi)
 	
 	var newBackgroundImage = graph.backgroundImage;
 	var newBackgroundColor = graph.background;
+	var newShadowVisible = graph.shadowVisible;
 	
 	function updateBackgroundImage()
 	{
@@ -1663,7 +1664,7 @@ var PageSetupDialog = function(editorUi)
 
 	var changeImage = function(evt)
 	{
-		editorUi.showBackgroundImageDialog(function(image, failed, color)
+		editorUi.showBackgroundImageDialog(function(image, failed, color, shadowVisible)
 		{
 			if (!failed)
 			{
@@ -1673,11 +1674,12 @@ var PageSetupDialog = function(editorUi)
 				}
 
 				newBackgroundImage = image;
+				newShadowVisible = shadowVisible;
 			}
 
 			newBackgroundColor = color;
 			updateBackgroundImage();
-		}, newBackgroundImage, newBackgroundColor);
+		}, newBackgroundImage, newBackgroundColor, true);
 		
 		mxEvent.consume(evt);
 	};
@@ -1728,9 +1730,15 @@ var PageSetupDialog = function(editorUi)
 		
 		change.ignoreImage = oldSrc === newSrc;
 
+		if (newShadowVisible != null)
+		{
+			change.shadowVisible = newShadowVisible;
+		}
+
 		if (graph.pageFormat.width != change.previousFormat.width ||
 			graph.pageFormat.height != change.previousFormat.height ||
-			!change.ignoreColor || !change.ignoreImage)
+			!change.ignoreColor || !change.ignoreImage||
+			change.shadowVisible != graph.shadowVisible)
 		{
 			graph.model.execute(change);
 		}

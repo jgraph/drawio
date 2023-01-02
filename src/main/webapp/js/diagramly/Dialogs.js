@@ -104,12 +104,7 @@ var StorageDialog = function(editorUi, fn, rowLimit)
 		{
 			mxEvent.addListener(button, 'click', (clientFn != null) ? clientFn : function()
 			{
-				// Special case: Redirect all drive users to draw.io pro
-				if (mode == App.MODE_GOOGLE && !editorUi.isDriveDomain())
-				{
-					window.location.hostname = DriveClient.prototype.newAppHostname;
-				}
-				else if (mode == App.MODE_GOOGLE && editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
+				if (mode == App.MODE_GOOGLE && editorUi.spinner.spin(document.body, mxResources.get('authorizing')))
 				{
 					// Tries immediate authentication
 					editorUi.drive.checkToken(mxUtils.bind(this, function()
@@ -1536,7 +1531,7 @@ CreateGraphDialog.prototype.connectImage = new mxImage((mxClient.IS_SVG) ? 'data
 /**
  * Constructs a new parse dialog.
  */
-var BackgroundImageDialog = function(editorUi, applyFn, img, color)
+var BackgroundImageDialog = function(editorUi, applyFn, img, color, showColor)
 {
 	var graph = editorUi.editor.graph;
 	var div = document.createElement('div');
@@ -1854,7 +1849,7 @@ var BackgroundImageDialog = function(editorUi, applyFn, img, color)
 	}
 
 	var bgDiv = document.createElement('div');
-	bgDiv.style.display = 'inline-flex';
+	bgDiv.style.display = (showColor) ? 'inline-flex' : 'none';
 	bgDiv.style.alignItems = 'center';
 	bgDiv.style.cursor = 'default';
 	bgDiv.style.minWidth = '40%';
@@ -2210,7 +2205,7 @@ var ParseDialog = function(editorUi, title, defaultType)
 						name = mxUtils.trim(name.substring(0, name.length - 1));
 					}
 					
-					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 40),
+					tableCell = new mxCell(name, new mxGeometry(dx, 0, 160, 30),
 						'shape=table;startSize=30;container=1;collapsible=1;childLayout=tableLayout;' +
 						'fixedRows=1;rowLines=0;fontStyle=1;align=center;resizeLast=1;');
 					tableCell.vertex = true;
@@ -5585,8 +5580,11 @@ var LinkDialog = function(editorUi, initialValue, btnLabel, fn, showPages, showN
 		{
 			editorUi.oneDrive.pickFile(function(id, files)
 			{
-				linkInput.value = files.value[0].webUrl;
-				linkInput.focus();
+				if (files != null && files.value != null && files.value.length > 0)
+				{
+					linkInput.value = files.value[0].webUrl;
+					linkInput.focus();
+				}
 			}, true);
 		});
 	}
@@ -7693,7 +7691,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		}
 	});
 	
-	startBtn.setAttribute('title', mxResources.get('startDrawing'));
+	startBtn.setAttribute('title', mxResources.get('startDrawing') + ' (X)');
 	startBtn.style.marginTop = withBrush? '5px' : '10px';
 	startBtn.style.width = '90%';
 	startBtn.style.boxSizing = 'border-box';
@@ -7721,7 +7719,7 @@ var FreehandWindow = function(editorUi, x, y, w, h, withBrush)
 		mxUtils.write(shortcut, 'X');
 		startBtn.appendChild(shortcut);
 
-		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing'));
+		startBtn.setAttribute('title', mxResources.get(graph.freehand.isDrawing() ? 'stopDrawing' : 'startDrawing') + ' (X)');
 		startBtn.className = 'geBtn' + (graph.freehand.isDrawing() ? ' gePrimaryBtn' : '');
 	}));
 	
@@ -9434,7 +9432,9 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 						
 						if (cells.length > 0)
 						{
-							editorUi.sidebar.createThumb(cells, ew, eh, wrapper, null, true, false);
+							editorUi.sidebar.createThumb(cells, ew, eh, wrapper, null,
+								true, false, null, null, (Editor.isDarkMode()) ?
+								'#2a252f' : '#ffffff');
 							
 							// Needs inline block on SVG for delete icon to appear on same line
 							wrapper.firstChild.style.display = 'inline-block';
@@ -9502,9 +9502,11 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 					label.style.bottom = '-18px';
 					label.style.left = '10px';
 					label.style.right = '10px';
-					label.style.backgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
+					label.style.backgroundColor = Editor.isDarkMode() ?
+						'transparent' : '#ffffff';
 					label.style.overflow = 'hidden';
 					label.style.textAlign = 'center';
+					label.setAttribute('title', mxResources.get('rename'));
 					
 					var entry = null;
 					
@@ -9726,7 +9728,10 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 				}
 				catch (e)
 				{
-					// ignore
+					if (window.console != null)
+					{
+						console.log('Error in library dialog: ' + e);
+					}
 				}
 
 				if (!done)
@@ -9738,7 +9743,10 @@ var LibraryDialog = function(editorUi, name, library, initialImages, file, mode)
 		}
 		catch (e)
 		{
-			// ignore
+			if (window.console != null)
+			{
+				console.log('Error in library dialog: ' + e);
+			}
 		}
 		
 		return null;

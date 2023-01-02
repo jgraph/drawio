@@ -3505,7 +3505,7 @@
 						graph.graphHandler.hint.style.visibility = 'hidden';	
 					}
 					
-					contentDiv.style.backgroundColor = '#f1f3f4';
+					contentDiv.style.backgroundColor = (Editor.isDarkMode()) ? '#000000' : '#fefefe';
 					contentDiv.style.cursor = 'copy';
 					graph.panningManager.stop();
 					graph.autoScroll = false;
@@ -3553,7 +3553,7 @@
 			{
 				mxEvent.addListener(contentDiv, 'dragover', mxUtils.bind(this, function(evt)
 				{
-					contentDiv.style.backgroundColor = '#f1f3f4';
+					contentDiv.style.backgroundColor = (Editor.isDarkMode()) ? '#000000' : '#fefefe';
 					evt.dataTransfer.dropEffect = 'copy';
 					contentDiv.style.cursor = 'copy';
 					this.sidebar.hideTooltip();
@@ -3919,25 +3919,26 @@
 	/**
 	 * Hides the current menu.
 	 */
-	EditorUi.prototype.showBackgroundImageDialog = function(apply, img, color)
+	EditorUi.prototype.showBackgroundImageDialog = function(apply, img, color, showColor)
 	{
 		apply = (apply != null) ? apply : mxUtils.bind(this, function(image, failed, color, shadowVisible)
 		{
 			if (!failed)
 			{
-				var change = new ChangePageSetup(this, color, image);
+				var change = new ChangePageSetup(this, (showColor) ? color : null, image);
+				change.ignoreColor = !showColor;
 
-				if (shadowVisible != null)
+				if (shadowVisible != null && showColor)
 				{
 					change.shadowVisible = shadowVisible;
 				}
-
+				
 				this.editor.graph.model.execute(change);
 			}
 		});
 
-		var dlg = new BackgroundImageDialog(this, apply, img, color);
-		this.showDialog(dlg.container, 400, 240, true, true);
+		var dlg = new BackgroundImageDialog(this, apply, img, color, showColor);
+		this.showDialog(dlg.container, 400, (showColor) ? 240 : 220, true, true);
 		dlg.init();
 	};
 
@@ -4275,7 +4276,7 @@
 	/**
 	 * Creates a popup banner.
 	 */
-	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose)
+	EditorUi.prototype.showBanner = function(id, text, onclick, doNotShowAgainOnClose, small, positionCss, t1, t2, to)
 	{
 		var result = false;
 		
@@ -4283,34 +4284,57 @@
 			(!isLocalStorage || mxSettings.settings == null ||
 			mxSettings.settings['close' + id] == null))
 		{
+			positionCss = (positionCss != null) ? positionCss : 'bottom:10px;left:50%;';
+			t1 = (t1 != null) ? t1 : 'translate(-50%,120%)';
+			t2 = (t2 != null) ? t2 : 'translate(-50%,0%)';
+			var delay = (small) ? 500 : 1000;
+
+			var css = (!small) ? 'font-size:16px;padding:18px 34px 12px 20px;font-weight:bold;' :
+				'padding:4px;border-radius:6px;font-size:11px;height:12px;font-weight:normal;';
+
 			var banner = document.createElement('div');
-			banner.style.cssText = 'position:absolute;bottom:10px;left:50%;max-width:90%;padding:18px 34px 12px 20px;' +
-				'font-size:16px;font-weight:bold;white-space:nowrap;cursor:pointer;z-index:' + mxPopupMenu.prototype.zIndex + ';';
-			mxUtils.setPrefixedStyle(banner.style, 'box-shadow', '1px 1px 2px 0px #ddd');
-			mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
-			mxUtils.setPrefixedStyle(banner.style, 'transition', 'all 1s ease');
-			banner.className = 'geBtn gePrimaryBtn';
+			banner.style.cssText = 'position:absolute;' + positionCss + ';max-width:90%;white-space:nowrap;' +
+				'cursor:pointer;z-index:' + mxPopupMenu.prototype.zIndex + ';' + css;
+			mxUtils.setPrefixedStyle(banner.style, 'transform', t1);
+			mxUtils.setPrefixedStyle(banner.style, 'transition', 'all ' + delay + 'ms ease');
+			banner.className = 'geBtn gePrimaryBtn' + ((small) ? ' geSmallBanner' : '');
+
+			if (!Editor.isDarkMode())
+			{
+				mxUtils.setPrefixedStyle(banner.style, 'box-shadow', '1px 1px 2px 0px #ddd');
+			}
+
+			if (to != null)
+			{
+				mxUtils.setPrefixedStyle(banner.style, 'transform-origin', to);
+			}
 			
-			var logo = document.createElement('img');
-			logo.setAttribute('src', IMAGE_PATH + '/logo.png');
-			logo.setAttribute('border', '0');
-			logo.setAttribute('align', 'absmiddle');
-			logo.style.cssText = 'margin-top:-4px;margin-left:8px;margin-right:12px;width:26px;height:26px;';
-			banner.appendChild(logo);
-	
-			var img = document.createElement('img');
-			img.setAttribute('src', Dialog.prototype.closeImage);
-			img.setAttribute('title', mxResources.get((doNotShowAgainOnClose) ? 'doNotShowAgain' : 'close'));
-			img.setAttribute('border', '0');
-			img.style.cssText = 'position:absolute;right:10px;top:12px;filter:invert(1);padding:6px;margin:-6px;cursor:default;';
-			banner.appendChild(img);
-			
+			if (!small)
+			{
+				var logo = document.createElement('img');
+				logo.setAttribute('src', IMAGE_PATH + '/logo.png');
+				logo.setAttribute('border', '0');
+				logo.setAttribute('align', 'absmiddle');
+				logo.style.cssText = 'margin-top:-4px;margin-left:8px;'+
+					'margin-right:12px;width:26px;height:26px;';
+				banner.appendChild(logo);
+
+				var img = document.createElement('img');
+				img.setAttribute('src', Dialog.prototype.closeImage);
+				img.setAttribute('title', mxResources.get((doNotShowAgainOnClose) ? 'doNotShowAgain' : 'close'));
+				img.setAttribute('border', '0');
+				img.style.cssText =  ((small) ? 'right:6px;top:9px;' :
+					'right:10px;top:12px;') + 'position:absolute;filter:invert(1);padding:6px;margin:-6px;cursor:default;';
+				banner.appendChild(img);
+			}
+
 			mxUtils.write(banner, text);
 			document.body.appendChild(banner);
 			this.bannerShowing = true;
 			
 			var div = document.createElement('div');
-			div.style.cssText = 'font-size:11px;text-align:center;font-weight:normal;';
+			div.style.cssText = 'display:flex;align-items:center;justify-content:center;' +
+				'padding-top:6px;font-size:11px;text-align:center;font-weight:normal;';
 			var chk = document.createElement('input');
 			chk.setAttribute('type', 'checkbox');
 			chk.setAttribute('id', 'geDoNotShowAgainCheckbox');
@@ -4324,7 +4348,7 @@
 				label.setAttribute('for', 'geDoNotShowAgainCheckbox');
 				mxUtils.write(label, mxResources.get('doNotShowAgain'));
 				div.appendChild(label);
-				banner.style.paddingBottom = '30px';
+				banner.style.paddingBottom = (small) ? '16px' : '30px';
 				banner.appendChild(div);
 			}
 			
@@ -4348,20 +4372,23 @@
 				}
 			});
 			
-			mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
+			if (img != null)
 			{
-				mxEvent.consume(e);
-				onclose();
-			}));
+				mxEvent.addListener(img, 'click', mxUtils.bind(this, function(e)
+				{
+					mxEvent.consume(e);
+					onclose();
+				}));
+			}
 			
 			var hide = mxUtils.bind(this, function()
 			{
-				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,120%)');
+				mxUtils.setPrefixedStyle(banner.style, 'transform', t1);
 				
 				window.setTimeout(mxUtils.bind(this, function()
 				{
 					onclose();
-				}), 1000);
+				}), delay);
 			});
 			
 			mxEvent.addListener(banner, 'click', mxUtils.bind(this, function(e)
@@ -4386,10 +4413,10 @@
 			
 			window.setTimeout(mxUtils.bind(this, function()
 			{
-				mxUtils.setPrefixedStyle(banner.style, 'transform', 'translate(-50%,0%)');
-			}), 500);
+				mxUtils.setPrefixedStyle(banner.style, 'transform', t2);
+			}), delay / 2);
 			
-			window.setTimeout(hide, 30000);
+			window.setTimeout(hide, (small) ? 4000 : 30000);
 			result = true;
 		}
 		
@@ -9352,26 +9379,22 @@
 	 */
 	EditorUi.prototype.getDefaultSketchMode = function()
 	{
-		var defaultValue = window.location.host == 'ac.draw.io' ? '1' : '0';
+		var defaultValue = urlParams['sketch'] == '1';
 		var roughParam = (urlParams['rough'] != null) ? urlParams['rough'] : defaultValue;
-
+		
 		return roughParam != '0';
 	};
 
-	// Initializes the user interface
-	var editorUiInit = EditorUi.prototype.init;
-	EditorUi.prototype.init = function()
+	/**
+	 * Overridden to set sketch mode before UI is created.
+	 */
+	var editorUiCreateUi = EditorUi.prototype.createUi;
+	EditorUi.prototype.createUi = function()
 	{
-		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
-		
-		// Must be set before UI is created in superclass
 		if (Editor.isSettingsEnabled())
 		{
-			if (urlParams['sketch'] == '1')
-			{
-				this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null) ?
-					mxSettings.settings.sketchMode : this.getDefaultSketchMode());
-			}
+			this.doSetSketchMode((mxSettings.settings.sketchMode != null && urlParams['rough'] == null &&
+				urlParams['sketch'] == null) ? mxSettings.settings.sketchMode : this.getDefaultSketchMode());
 
 			if (mxSettings.settings.sidebarTitles != null)
 			{
@@ -9380,6 +9403,17 @@
 
 			this.formatWidth = mxSettings.getFormatWidth();
 		}
+		
+		editorUiCreateUi.apply(this, arguments);
+	};
+
+	/**
+	 * Initializes the UI.
+	 */
+	var editorUiInit = EditorUi.prototype.init;
+	EditorUi.prototype.init = function()
+	{
+		mxStencilRegistry.allowEval = mxStencilRegistry.allowEval && !this.isOfflineApp();
 		
 		var ui = this;
 		var graph = this.editor.graph;
@@ -9807,6 +9841,13 @@
 							item.firstChild.nextSibling != null)
 						{
 							item.firstChild.nextSibling.style.color = 'red';
+
+							if (graph.getSelectionCount() > 1)
+							{
+								item.firstChild.nextSibling.innerHTML =
+									mxUtils.htmlEntities(mxResources.get('delete') +
+									' (' + graph.getSelectionCount() + ')');
+							}
 						}
 					}
 
@@ -9840,6 +9881,11 @@
 					Editor.currentTheme != 'min';
 			};
 
+			this.menus.isShowHistoryItems = function()
+			{
+				return 	Editor.currentTheme != 'simple';
+			};
+			
 			this.menus.isShowArrangeItems = this.menus.isShowStyleItems;
 			this.menus.isShowCellEditItems = this.menus.isShowStyleItems;
 		}
@@ -10475,7 +10521,8 @@
 		{
 			if (!mxClient.IS_IE && !mxClient.IS_IE11 && urlParams['dark'] != '0' &&
 				Editor.currentTheme != 'atlas' && (urlParams['embed'] != '1' ||
-				urlParams['dark'] == '1'))
+				urlParams['dark'] == '1' || urlParams['dark'] == 'auto' ||
+				Editor.currentTheme == 'dark' || urlParams['atlas'] == '1'))
 			{
 				var darkMode = false;
 
@@ -10483,12 +10530,14 @@
 				{
 					darkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 				}
-				else if (Editor.isSettingsEnabled() && mxSettings.settings.darkMode === true)
+				else if (urlParams['dark'] == null && Editor.isSettingsEnabled() &&
+					mxSettings.settings.darkMode === true)
 				{
 					darkMode = true;
 				}
 				
-				if (darkMode || uiTheme == 'dark' || urlParams['dark'] == '1')
+				if (darkMode || urlParams['dark'] == '1' ||
+					Editor.currentTheme == 'dark')
 				{
 					this.setDarkMode(true);
 				}
@@ -11691,15 +11740,22 @@
 						}
 					}));
 
-					var updateZoom = mxUtils.bind(this, function()
+					var updateZoom = mxUtils.bind(this, function(sender, evt, f)
 					{
+						f = (f != null) ? f : 1;
 						elt.innerText = '';
-						mxUtils.write(elt, Math.round(this.editor.graph.view.scale * 100) + '%');
+						mxUtils.write(elt, Math.round(this.editor.graph.view.scale * 100 * f) + '%');
 					});
 
 					this.editor.graph.view.addListener(mxEvent.EVENT_SCALE, updateZoom);
 					this.editor.addListener('resetGraphView', updateZoom);
 					this.editor.addListener('pageSelected', updateZoom);
+
+					// Zoom Preview
+					this.editor.graph.addListener('zoomPreview', mxUtils.bind(this, function(sender, evt)
+					{
+						updateZoom(sender, evt, evt.getProperty('factor'));
+					}));
 				}))(elt);
 
 				if (value != 'simple')
@@ -12080,6 +12136,12 @@
 						'padding:0px 4px 4px;white-space:nowrap;max-height:100%;z-index:1;width:48px;' +
 						'box-sizing:border-box;transform:translate(0, -50%);top:50%;user-select:none;';
 					this.sketchWrapperElt.appendChild(this.sketchPickerMenuElt);
+				}
+
+				// Disables built-in pan and zoom on touch devices
+				if (mxClient.IS_POINTER)
+				{
+					this.sketchPickerMenuElt.style.touchAction = 'none';
 				}
 			}
 		}
@@ -13344,7 +13406,15 @@
 			setStyle(graph.defaultEdgeStyle, 'fontSize', parseInt(this.menus.defaultFontSize) - 4);
 		}
 
-		if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'sketch')
+		if (Editor.currentTheme == 'simple')
+		{
+			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
+			setStyle(graph.defaultEdgeStyle, 'curved', '1');
+			setStyle(graph.defaultEdgeStyle, 'rounded', '0');
+			setStyle(graph.defaultEdgeStyle, 'endSize', '8');
+			setStyle(graph.defaultEdgeStyle, 'startSize', '8');
+		}
+		else if (Editor.currentTheme == 'sketch')
 		{
 			setStyle(graph.defaultEdgeStyle, 'edgeStyle', 'none');
 			setStyle(graph.defaultEdgeStyle, 'curved', '1');

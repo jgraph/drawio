@@ -55,6 +55,7 @@
 	Editor.thinTextImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTMuNCA0NC42di05LjI1aDMuNTV2LTIyLjdIMy40VjMuNGg5LjI1djMuNTVoMjIuN1YzLjRoOS4yNXY5LjI1aC0zLjU1djIyLjdoMy41NXY5LjI1aC05LjI1di0zLjU1aC0yMi43djMuNTVabTkuMjUtNS44NWgyMi43di0zLjRoMy40di0yMi43aC0zLjR2LTMuNGgtMjIuN3YzLjRoLTMuNHYyMi43aDMuNFptMy4xNS02LjI1IDcuMzUtMTkuMTVoMS42NWw3LjQ1IDE5LjE1aC0yLjFMMjggMjdoLTcuODVsLTIuMSA1LjVabTQuOTUtNy4zNWg2LjVMMjQuMSAxNi44aC0uM1ptLTE1LjEtMTQuOGg0Ljd2LTQuN2gtNC43Wm0zMiAwaDQuN3YtNC43aC00LjdabTAgMzJoNC43di00LjdoLTQuN1ptLTMyIDBoNC43di00LjdoLTQuN1ptMzItMzJabTAgMjcuM1ptLTI3LjMgMFptMC0yNy4zWiIvPjwvc3ZnPg==';
 	Editor.thinRectangleImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTUgMzlWOWgzOHYzMFptMi4yNS0yLjI1aDMzLjV2LTI1LjVINy4yNVptMCAwdi0yNS41IDI1LjVaIi8+PC9zdmc+';
 	Editor.thinDataImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTI4Ljg1IDM5LjF2LTIuMjVIMzRxMS4yIDAgMi4wMjUtLjgyNVQzNi44NSAzNHYtNC45cTAtMS43NSAxLjA3NS0zLjEyNXQyLjcyNS0xLjgyNXYtLjNxLTEuNjUtLjQ1LTIuNzI1LTEuODI1UTM2Ljg1IDIwLjY1IDM2Ljg1IDE4LjlWMTRxMC0xLjItLjgyNS0yLjAyNVQzNCAxMS4xNWgtNS4xNVY4LjlIMzRxMi4xNSAwIDMuNjI1IDEuNVQzOS4xIDE0djQuOXEwIDEuMjUuODUgMi4wNzUuODUuODI1IDIuMS44MjVoLjg1djQuNGgtLjg1cS0xLjI1IDAtMi4xLjgyNS0uODUuODI1LS44NSAyLjA3NVYzNHEwIDIuMS0xLjUgMy42VDM0IDM5LjFaTTE0IDM5LjFxLTIuMTUgMC0zLjYyNS0xLjVUOC45IDM0di00LjlxMC0xLjI1LS44NS0yLjA3NS0uODUtLjgyNS0yLjEtLjgyNUg1LjF2LTQuNGguODVxMS4yNSAwIDIuMS0uODI1Ljg1LS44MjUuODUtMi4wNzVWMTRxMC0yLjEgMS41LTMuNlQxNCA4LjloNS4xNXYyLjI1SDE0cS0xLjIgMC0yLjAyNS44MjVUMTEuMTUgMTR2NC45cTAgMS43NS0xLjA3NSAzLjEyNVQ3LjM1IDIzLjg1di4zcTEuNjUuNDUgMi43MjUgMS44MjVRMTEuMTUgMjcuMzUgMTEuMTUgMjkuMVYzNHEwIDEuMi44MjUgMi4wMjVUMTQgMzYuODVoNS4xNXYyLjI1WiIvPjwvc3ZnPg==';
+	Editor.selectImage = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iNDgiIHdpZHRoPSI0OCI+PHBhdGggZD0iTTkgNDJxLTEuMjUgMC0yLjEyNS0uODc1VDYgMzlWOXEwLTEuMjUuODc1LTIuMTI1VDkgNmgzMHEuNyAwIDEuMjc1LjN0LjkyNS43TDM5IDkuMlY5SDl2MzBoMzBWMjEuODVsMy0zVjM5cTAgMS4yNS0uODc1IDIuMTI1VDM5IDQyWm0xNC4wNS04LjQtMTEuMS0xMS4xIDIuMS0yLjEgOSA5IDE5LjEtMTkuMSAyLjEgMi4xWiIvPjwvc3ZnPg==';
 	
 	/**
 	 * 
@@ -5346,7 +5347,7 @@
 					
 					if (colorset != null)
 					{
-						var b = (urlParams['sketch'] == '1') ? '2px solid' : '1px solid';
+						var b = (Editor.isDarkMode()) ? '2px solid' : '1px solid';
 						
 						if (colorset['border'] != null)
 						{
@@ -5752,7 +5753,7 @@
 	/**
 	 * Enables move of bends/segments without selecting.
 	 */
-	Graph.prototype.hiddenTags = null;
+	Graph.prototype.hiddenTags = [];
 	
 	/**
 	 * Enables move of bends/segments without selecting.
@@ -6018,7 +6019,7 @@
 								}
 								else
 								{
-									graph.highlightCells(cells);
+									graph.highlightCells(cells, null, null, 70);
 								}
 							};
 
@@ -6059,6 +6060,33 @@
 								mxEvent.consume(evt);
 							});
 							
+							row.appendChild(td);
+
+							td = document.createElement('td');
+							td.style.align = 'center';
+							td.style.width = '16px';
+
+							var img = document.createElement('img');
+							img.setAttribute('src', Editor.selectImage);
+							img.setAttribute('title', mxResources.get('select'));
+							mxUtils.setOpacity(img, visible ? 75 : 25);
+							img.style.verticalAlign = 'middle';
+							img.style.cursor = 'pointer';
+							img.style.width = '16px';
+							
+							if (invert || Editor.isDarkMode())
+							{
+								img.style.filter = 'invert(100%)';
+							}
+
+							mxEvent.addListener(img, 'click', function(evt)
+							{
+								setAllVisible(true);
+								selectCells();	
+								mxEvent.consume(evt);
+							});
+							
+							td.appendChild(img);
 							row.appendChild(td);
 
 							td = document.createElement('td');
@@ -6113,7 +6141,7 @@
 									td.style.width = '16px';
 		
 									var img = document.createElement('img');
-									img.setAttribute('src', Editor.crossImage);
+									img.setAttribute('src', Editor.trashImage);
 									img.setAttribute('title', mxResources.get('removeIt', [tag]));
 									mxUtils.setOpacity(img, visible ? 75 : 25);
 									img.style.verticalAlign = 'middle';

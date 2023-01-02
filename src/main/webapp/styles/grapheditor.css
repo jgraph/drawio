@@ -188,6 +188,18 @@ a.geStatus .geStatusAlertOrange {
 	color:#000000 !important;
 	border-radius:3px;
 }
+html body div.geSmallBanner {
+	background-color: #F2931E;
+	background-image: linear-gradient(#F2931E 0px,#F08707 100%);
+	border: 1px solid #F08707;
+	color: #000;
+}
+html body div.geSmallBanner:hover:not([disabled]) {
+	background-color: #ffb75e;
+	background-image: linear-gradient(#ffb75e 0px,#F2931E 100%);
+	border: 1px solid #F08707;
+	color: #000;
+}
 a.geStatus .geStatusMessage {
 	padding:4px 6px 4px 6px;
 	font-size:12px;
@@ -471,7 +483,13 @@ div.mxWindow .geButton {
 	max-width:calc(100% - 90px);
 	white-space:nowrap;
 	overflow:hidden;
+	overflow-x:auto;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
 	left:0px;
+}
+.geTabScroller::-webkit-scrollbar {
+	display: none;
 }
 .geToggleItem {
 	padding:4px;
@@ -581,8 +599,14 @@ html body div.geActivePage, .geRuler {
 	background-position:50% 50%;
 	border-radius: 8px;
 }
+.geSidebar .geItem, .geShapePicker .geItem {
+	transition: transform 100ms ease-out;
+}
 .geSidebar .geItem:hover {
 	background-color:#e0e0e0;
+}
+.geSidebar .geItem:active, .geShapePicker .geItem:active {
+	transform: scale(0.8,0.8);
 }
 .geItem {
 	vertical-align: top;

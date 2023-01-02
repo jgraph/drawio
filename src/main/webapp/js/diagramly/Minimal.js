@@ -903,15 +903,22 @@ EditorUi.initMinimalTheme = function()
 				// Adds shift+/alt+click on zoom label
 				mxEvent.addListener(elt, 'click', fitFunction);
 
-				var updateZoom = mxUtils.bind(this, function()
+				var updateZoom = mxUtils.bind(this, function(sender, evt, f)
 				{
+					f = (f != null) ? f : 1;
 					elt.innerText = '';
-					mxUtils.write(elt, Math.round(ui.editor.graph.view.scale * 100) + '%');
+					mxUtils.write(elt, Math.round(ui.editor.graph.view.scale * 100 * f) + '%');
 				});
 
 				ui.editor.graph.view.addListener(mxEvent.EVENT_SCALE, updateZoom);
 				ui.editor.addListener('resetGraphView', updateZoom);
 				ui.editor.addListener('pageSelected', updateZoom);
+
+				// Zoom Preview
+				ui.editor.graph.addListener('zoomPreview', mxUtils.bind(this, function(sender, evt)
+				{
+					updateZoom(sender, evt, evt.getProperty('factor'));
+				}));
 			})(elt);
 	    	
 	    	// Augments setGraphEnabled to update visible state

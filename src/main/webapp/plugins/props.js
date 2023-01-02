@@ -22,7 +22,7 @@ Draw.loadPlugin(function(ui) {
 
 		var iiw = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 		
-		var dataWindow = new mxWindow('Data', div, iiw - 320, 60, 200, 130, true, true);
+		var dataWindow = new mxWindow('Data', div, iiw - 320, 60, 240, 220, true, true);
 		dataWindow.destroyOnClose = false;
 		dataWindow.setMaximizable(false);
 		dataWindow.setResizable(true);
@@ -69,11 +69,11 @@ Draw.loadPlugin(function(ui) {
 
 		if (mxEvent.isShiftDown(evt))
 		{
-			console.log(result);
+			console.log(JSON.stringify(result, null, '  '));
 		}
 		else
 		{
-			console.log(JSON.stringify(result, null, '  '));
+			console.log(result);
 		}
 	};
 
@@ -82,12 +82,6 @@ Draw.loadPlugin(function(ui) {
 	 */
 	function cellClicked(cell)
 	{
-		// Forces focusout in IE
-		if (!ui.editor.isChromelessView())
-		{
-			graph.container.focus();
-		}
-
 		// Gets the selection cell
 		if (cell == null)
 		{

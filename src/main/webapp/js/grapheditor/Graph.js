@@ -477,10 +477,11 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    			
 			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
 			    			{
+								handler.redrawHandles();
 			    				var handle = handler.getHandleForEvent(start.event, true);
 			    				var edgeStyle = this.view.getEdgeStyle(state);
 			    				var entity = edgeStyle == mxEdgeStyle.EntityRelation;
-			    				
+								
 			    				// Handles special case where label was clicked on unselected edge in which
 			    				// case the label will be moved regardless of the handle that is returned
 			    				if (!start.selected && start.handle == mxEvent.LABEL_HANDLE)
@@ -498,10 +499,11 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				    					if (!entity && handle != mxEvent.LABEL_HANDLE)
 				    					{
 					    					var pts = state.absolutePoints;
-				    						
+											
 					    					// Default case where handles are at corner points handles
 					    					// drag of corner as drag of existing point
 					    					if (pts != null && ((edgeStyle == null && handle == null) ||
+					    						edgeStyle == mxEdgeStyle.SegmentConnector ||
 					    						edgeStyle == mxEdgeStyle.OrthConnector))
 					    					{
 					    						// Does not use handles if they were not initially visible
@@ -2313,9 +2315,19 @@ Graph.prototype.init = function(container)
 			mxUtils.getValue(state.style, 'lineShape', null) != '1' &&
 			(this.model.isVertex(state.cell) ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'arrow' ||
+			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'wire' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'filledEdge' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'flexArrow' ||
 			mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null) == 'mxgraph.arrows2.wedgeArrow');
+	};
+	
+	/**
+	 * Returns information about the current selection.
+	 */
+	Graph.prototype.isGradientState = function(state)
+	{
+		return this.isFillState(state) && mxUtils.getValue(state.style,
+			mxConstants.STYLE_SHAPE, null) != 'wire';
 	};
 	
 	/**
@@ -2366,7 +2378,7 @@ Graph.prototype.init = function(container)
 		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
 		var curved = mxUtils.getValue(state.style, mxConstants.STYLE_CURVED, false);
 		
-		return !curved && (shape == 'connector' || shape == 'filledEdge');
+		return !curved && (shape == 'connector' || shape == 'filledEdge' || shape == 'wire');
 	};
 	
 	/**

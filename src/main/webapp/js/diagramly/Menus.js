@@ -1246,9 +1246,9 @@
 			{
 				var menubar = menusCreateMenuBar.apply(this, arguments);
 				
-				if (menubar != null && Editor.enableSimpleTheme &&
-					editorUi.getServiceName() != 'atlassian' &&
-					urlParams['embed'] != '1')
+				if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
+					menubar != null && Editor.enableSimpleTheme &&
+					editorUi.getServiceName() != 'atlassian')
 				{
 					var themeMenu = this.get('appearance');
 					
@@ -1396,10 +1396,10 @@
 		viewZoomMenu.funct = mxUtils.bind(this, function(menu, parent)
 		{
 			viewZoomMenuFunct.apply(this, arguments);
-
+			
 			if (Editor.currentTheme == 'sketch' || Editor.currentTheme == 'min')
 			{
-				this.addMenuItems(menu, ['-', 'fullscreen'], parent);
+				this.addMenuItems(menu, ['-', 'outline', 'fullscreen'], parent);
 			}
 		});
 		
@@ -2935,14 +2935,18 @@
 				}
 
 				if (iw < 360  && urlParams['embed'] != '1' &&
-					this.getServiceName() == 'draw.io')
+					editorUi.getServiceName() == 'draw.io')
 				{
 					this.addSubmenu('share', menu, parent);
 				}
 			}
 
-			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode',
-					'autoMode', '-', 'toggleSimpleMode'], parent);
+			this.addMenuItems(menu, ['-', 'lightMode', 'darkMode', 'autoMode'], parent);
+
+			if (urlParams['embed'] != '1')
+			{
+				this.addMenuItems(menu, ['-', 'toggleSimpleMode'], parent);
+			}
 		})));
 
 		editorUi.actions.addAction('addToScratchpad', function(evt)
@@ -3456,7 +3460,7 @@
 		
 		this.put('insert', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
-			if (urlParams['sketch'] == '1')
+			if (Editor.currentTheme == 'sketch')
 			{
 				editorUi.menus.addMenuItems(menu, ['toggleShapes'], parent);
 				editorUi.menus.addSubmenu('table', menu, parent);
@@ -4113,77 +4117,39 @@
 				'editData', 'copyData', 'pasteData', '-', 'editConnectionPoints',
 				'editGeometry', '-', 'editTooltip', 'editStyle', '-', 'edit'], parent);
 		})));
-		
-		// Pages menu
-		this.put('pages', new Menu(mxUtils.bind(this, function(menu, parent)
+				
+		// Current page menu
+		this.put('currentPage', new Menu(mxUtils.bind(this, function(menu, parent)
 		{
 			var page = editorUi.currentPage;
-			var pageName = editorUi.getShortPageName(page);
-			
-			menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
-			{
-				editorUi.insertPage();
-			}), parent);
 
 			if (page != null)
 			{
-				menu.addItem(mxResources.get('duplicateIt', [pageName]), null, mxUtils.bind(this, function()
-				{
-					editorUi.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
-				}), parent);
-			}
-			
-			menu.addSeparator(parent);
-			
-			if (editorUi.pages != null && editorUi.pages.length > 1)
-			{
-				for (var i = 0; i < editorUi.pages.length; i++)
-				{
-					(mxUtils.bind(this, function(index)
-					{
-						var item = menu.addItem(editorUi.getShortPageName(editorUi.pages[index]),
-							null, mxUtils.bind(this, function()
-						{
-							editorUi.selectPage(editorUi.pages[index]);
-						}), parent);
-
-						var id = editorUi.pages[index].getId();
-						item.setAttribute('title', editorUi.pages[index].getName() +
-							' (' + (index + 1) + '/' + editorUi.pages.length + ')' +
-							((id != null) ? ' [' + id + ']' : ''));
-						
-						// Adds checkmark to current page
-						if (editorUi.pages[index] == editorUi.currentPage)
-						{
-							menu.addCheckmark(item, Editor.checkmarkImage);
-						}
-					}))(i);
-				}
-			}
-			
-			if (editorUi.editor.graph.isEnabled() && page != null)
-			{
-				menu.addSeparator(parent);
-				
-				menu.addItem(mxResources.get('renameIt', [pageName]) + '...', null, mxUtils.bind(this, function()
+				menu.addItem(mxResources.get('rename') + '...', null, mxUtils.bind(this, function()
 				{
 					editorUi.renamePage(page, page.getName());
 				}), parent);
 				
-				menu.addItem(mxResources.get('removeIt', [pageName]), null, mxUtils.bind(this, function()
+				menu.addItem(mxResources.get('delete'), null, mxUtils.bind(this, function()
 				{
 					editorUi.removePage(page);
 				}), parent);
 				
-				if (Editor.currentTheme == 'sketch' ||
-					Editor.currentTheme == 'simple')
+				if (editorUi.pages.length > 1)
 				{
-					if (editorUi.pages.length > 1)
-					{
-						editorUi.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
-						menu.addSeparator(parent);
-					}
+					editorUi.menus.addSubmenu('movePage', menu, parent, mxResources.get('move'));
+					menu.addSeparator(parent);
+				}
 
+				menu.addSeparator(parent);
+
+				menu.addItem(mxResources.get('duplicate'), null, mxUtils.bind(this, function()
+				{
+					editorUi.duplicatePage(page, mxResources.get('copyOf', [page.getName()]));
+				}), parent);
+				
+				if (urlParams['embed'] != 1)
+				{
 					menu.addSeparator(parent);
 
 					if (!mxClient.IS_CHROMEAPP && !EditorUi.isElectronApp && editorUi.getServiceName() == 'draw.io')
@@ -4203,6 +4169,55 @@
 							editorUi.showPageLinkDialog(page);
 						}), parent);
 					}
+				}
+			}
+		})));
+
+		// Pages menu
+		this.put('pages', new Menu(mxUtils.bind(this, function(menu, parent)
+		{
+			var page = editorUi.currentPage;
+			
+			menu.addItem(mxResources.get('insertPage'), null, mxUtils.bind(this, function()
+			{
+				editorUi.insertPage();
+			}), parent);
+
+			menu.addSeparator(parent);
+			
+			if (editorUi.pages != null)
+			{
+				for (var i = 0; i < editorUi.pages.length; i++)
+				{
+					(mxUtils.bind(this, function(index)
+					{
+						var item = null;
+
+						if (editorUi.pages[index] == page)
+						{
+							item = editorUi.menus.addSubmenu('currentPage', menu, parent,
+								editorUi.getShortPageName(page));
+						}
+						else
+						{
+							item = menu.addItem(editorUi.getShortPageName(editorUi.pages[index]),
+								null, mxUtils.bind(this, function()
+							{
+								editorUi.selectPage(editorUi.pages[index]);
+							}), parent);
+						}
+
+						var id = editorUi.pages[index].getId();
+						item.setAttribute('title', editorUi.pages[index].getName() +
+							' (' + (index + 1) + '/' + editorUi.pages.length + ')' +
+							((id != null) ? ' [' + id + ']' : ''));
+						
+						// Adds checkmark to current page
+						if (editorUi.pages[index] == page)
+						{
+							menu.addCheckmark(item, Editor.checkmarkImage);
+						}
+					}))(i);
 				}
 			}
 		})));
@@ -4265,18 +4280,22 @@
 			
 			if (sketchTheme || uiTheme == 'min')
 			{
-				if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' && editorUi.mode != App.MODE_ATLAS)
+				if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
+					urlParams['extAuth'] != '1' && editorUi.mode != App.MODE_ATLAS &&
+					urlParams['embedInline'] != '1' && (Editor.isDarkMode() ||
+					(!mxClient.IS_IE && !mxClient.IS_IE11)))
 				{
-					if (urlParams['embedInline'] != '1' && Editor.isDarkMode() ||
-						(!mxClient.IS_IE && !mxClient.IS_IE11))
-					{
-						editorUi.menus.addSubmenu('appearance', menu, parent);
-					}
+					editorUi.menus.addSubmenu('appearance', menu, parent);
+				}
 
+				if (urlParams['embed'] != '1' && urlParams['extAuth'] != '1' &&
+					editorUi.mode != App.MODE_ATLAS)
+				{
 					editorUi.menus.addSubmenu('theme', menu, parent);
-					menu.addSeparator(parent);
 				}
 				
+				menu.addSeparator(parent);
+
 				if (langMenu != null && (urlParams['embed'] != '1' || urlParams['lang'] == null))
 				{
 					editorUi.menus.addSubmenu('language', menu, parent);
@@ -4325,14 +4344,15 @@
 					this.addSubmenu('language', menu, parent);
 				}
 				
+				if ((urlParams['embed'] != '1' || urlParams['atlas'] == '1') &&
+					Editor.currentTheme != 'atlas' && (Editor.isDarkMode() ||
+					(!mxClient.IS_IE && !mxClient.IS_IE11)))
+				{
+					editorUi.menus.addSubmenu('appearance', menu, parent);
+				}
+
 				if (urlParams['embed'] != '1')
 				{
-					if (Editor.currentTheme != 'atlas' && (Editor.isDarkMode() ||
-						(!mxClient.IS_IE && !mxClient.IS_IE11)))
-					{
-						editorUi.menus.addSubmenu('appearance', menu, parent);
-					}
-
 					this.addSubmenu('theme', menu, parent);
 				}
 

@@ -1510,6 +1510,7 @@ EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, i
 		result.image = result.image || graph.isImageState(state);
 		result.shadow = result.shadow && graph.isShadowState(state);
 		result.fill = result.fill && graph.isFillState(state);
+		result.gradient = result.fill && graph.isGradientState(state);
 		result.stroke = result.stroke && graph.isStrokeState(state);
 		
 		var shape = mxUtils.getValue(state.style, mxConstants.STYLE_SHAPE, null);
@@ -1822,6 +1823,12 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		div.style.top = y + 'px';
 		div.style.width = w + 'px';
 
+		// Disables built-in pan and zoom on touch devices
+		if (mxClient.IS_POINTER)
+		{
+			div.style.touchAction = 'none';
+		}
+
 		if (!hovering)
 		{
 			mxUtils.setPrefixedStyle(div.style, 'transform', 'translate(-22px,-22px)');
@@ -1982,7 +1989,8 @@ EditorUi.prototype.getCellsForShapePicker = function(cell, hovering, showEdges)
 		createVertex('shape=tape;whiteSpace=wrap;html=1;', 120, 100),
 		createVertex('ellipse;shape=cloud;whiteSpace=wrap;html=1;', 120, 80),
 		createVertex('shape=singleArrow;whiteSpace=wrap;html=1;arrowWidth=0.4;arrowSize=0.4;', 80, 60),
-		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 40, 40)];
+		createVertex('shape=waypoint;sketch=0;size=6;pointerEvents=1;points=[];fillColor=none;resizable=0;' +
+			'rotatable=0;perimeter=centerPerimeter;snapToPoint=1;', 20, 20)];
 	
 	if (showEdges)
 	{
@@ -3201,6 +3209,7 @@ EditorUi.prototype.initCanvas = function()
 	var scrollPosition = null;
 	var forcedZoom = null;
 	var filter = null;
+	var mult = 20;
 	
 	var scheduleZoom = function(delay)
 	{
@@ -3266,7 +3275,7 @@ EditorUi.prototype.initCanvas = function()
 						}
 
 						graph.zoom(graph.cumulativeZoomFactor, null,
-							graph.isFastZoomEnabled() ? 20 : null);
+							graph.isFastZoomEnabled() ? mult : null);
 						var s = graph.view.scale;
 						
 						if (s != prev)
@@ -3358,6 +3367,10 @@ EditorUi.prototype.initCanvas = function()
 			}
 
 			scrollPosition = new mxPoint(graph.container.scrollLeft, graph.container.scrollTop);
+
+			// Applies final rounding to preview
+			var f = Math.round((Math.round(this.view.scale * this.cumulativeZoomFactor *
+				100) / 100) * mult) / (mult * this.view.scale);
 			
 			var cx = (ignoreCursorPosition || cursorPosition == null) ?
 				graph.container.scrollLeft + graph.container.clientWidth / 2 :
@@ -3366,9 +3379,9 @@ EditorUi.prototype.initCanvas = function()
 				graph.container.scrollTop + graph.container.clientHeight / 2 :
 				cursorPosition.y + graph.container.scrollTop - graph.container.offsetTop;
 			mainGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
-			mainGroup.style.transform = 'scale(' + this.cumulativeZoomFactor + ')';
+			mainGroup.style.transform = 'scale(' + f + ')';
 			bgGroup.style.transformOrigin = cx + 'px ' + cy + 'px';
-			bgGroup.style.transform = 'scale(' + this.cumulativeZoomFactor + ')';
+			bgGroup.style.transform = 'scale(' + f + ')';
 			
 			if (graph.view.backgroundPageShape != null && graph.view.backgroundPageShape.node != null)
 			{
@@ -3383,8 +3396,7 @@ EditorUi.prototype.initCanvas = function()
 						((graph.container.clientHeight / 2 + graph.container.scrollTop -
 						page.offsetTop) + 'px') : ((cursorPosition.y + graph.container.scrollTop -
 						page.offsetTop - graph.container.offsetTop) + 'px')));
-				mxUtils.setPrefixedStyle(page.style, 'transform',
-					'scale(' + this.cumulativeZoomFactor + ')');
+				mxUtils.setPrefixedStyle(page.style, 'transform', 'scale(' + f + ')');
 			}
 
 			graph.view.getDecoratorPane().style.opacity = '0';
@@ -3394,6 +3406,8 @@ EditorUi.prototype.initCanvas = function()
 			{
 				ui.hoverIcons.reset();
 			}
+
+			graph.fireEvent(new mxEventObject('zoomPreview', 'factor', f));
 		}
 		
 		scheduleZoom(graph.isFastZoomEnabled() ? delay : 0);
@@ -5744,13 +5758,14 @@ EditorUi.prototype.createOutline = function(wnd)
 };
 
 // Alt+Shift+Keycode mapping to action
-EditorUi.prototype.altShiftActions = {67: 'clearWaypoints', // Alt+Shift+C
+EditorUi.prototype.altShiftActions = {87: 'clearWaypoints', // Alt+Shift+W
   65: 'connectionArrows', // Alt+Shift+A
   76: 'editLink', // Alt+Shift+L
-  80: 'connectionPoints', // Alt+Shift+P
+  79: 'connectionPoints', // Alt+Shift+O
+  81: 'editConnectionPoints', // Alt+Shift+Q
   84: 'editTooltip', // Alt+Shift+T
   86: 'pasteSize', // Alt+Shift+V
-  88: 'copySize', // Alt+Shift+X
+  70: 'copySize', // Alt+Shift+F
   66: 'copyData', // Alt+Shift+B
   69: 'pasteData' // Alt+Shift+E
 };
