@@ -3398,6 +3398,10 @@ EditorUi.prototype.initCanvas = function()
 						page.offsetTop - graph.container.offsetTop) + 'px')));
 				mxUtils.setPrefixedStyle(page.style, 'transform', 'scale(' + f + ')');
 			}
+			else
+			{
+				graph.view.validateBackgroundStyles(f, cx, cy);
+			}
 
 			graph.view.getDecoratorPane().style.opacity = '0';
 			graph.view.getOverlayPane().style.opacity = '0';

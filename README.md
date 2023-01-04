@@ -19,7 +19,7 @@ draw.io is a diagramming or whiteboarding application, depending on which theme 
 
 The application is designed to be used largely as-is. It's possible to alter the major parts of the interface, but if you're looking for an editor with very specific editing features, the project is likely not a good base to use.
 
-That is to say, if you wanted to create/deploy a whiteboard or diagramming application where the functionality in the main canvas is as this project provides, it more likely to be a good base to use. 
+That is to say, if you wanted to create/deploy a whiteboard or diagramming application where the functionality in the main canvas is as this project provides, it is more likely to be a good base to use. 
 The default libraries, the menus, the toolbar, the default colours, the storage location, these can all be changed.
 
 If you are using a draw.io project/product and have issues or questions about the editor itself, the issue tracker and discussion in this GitHub project are likely a good place to look.

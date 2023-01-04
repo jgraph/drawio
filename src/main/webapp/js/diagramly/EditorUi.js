@@ -12002,12 +12002,12 @@
 									addElt(boxElt, mxResources.get('rectangle') + ' (D)', null, 'D').style.margin = '0 -4px 0 0';
 								}
 
-								if (iw >= 440)
+								if (iw >= 390)
 								{
 									this.sketchPickerMenuElt.appendChild(shapesElt);
 								}
 								
-								if (iw >= 390)
+								if (iw >= 440)
 								{
 									addElt(freehandElt, mxResources.get('freehand') + ' (X)', null, 'X');
 								}

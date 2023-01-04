@@ -379,6 +379,9 @@ html .geToolbarButton:active:not([disabled]) {
 	background: #eee;
 	border-radius:2px;
 }
+.geActiveButton:hover {
+	opacity: 0.7;
+}
 .geActiveButton:active {
 	opacity: 0.3;
 }

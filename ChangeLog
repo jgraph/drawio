@@ -1,3 +1,11 @@
+03-JAN-2023: 20.8.1
+
+- Fixes substring not a function for invalid pattern
+- Paints grid in fast zoom preview with no page view
+- Shows shapes before freehand in responsive toolbar
+- Fixes CSS for template dialog in dark mode
+- Fixes possible NPE in format panel
+
 02-JAN-2023: 20.8.0
 
 - Fixes possible NPE for window widths below 360px

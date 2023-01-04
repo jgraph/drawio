@@ -3188,9 +3188,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 //	});
 	
 	var searchBox = document.createElement('div');
-	searchBox.style.cssText = 'position:absolute;left:30px;width:128px;top:' + divTop + 'px;height:22px;margin-top: 6px;white-space: nowrap';
+	searchBox.style.cssText = 'position:absolute;left:30px;width:128px;top:' + divTop +
+		'px;height:22px;margin-top: 6px;white-space: nowrap;';
 	var tmplSearchInput = document.createElement('input');
-	tmplSearchInput.style.cssText = 'width:105px;height:16px;border:1px solid #d3d3d3;padding: 3px 20px 3px 3px;font-size: 12px';
+	tmplSearchInput.style.cssText = 'width:105px;height:16px;border:1px solid #d3d3d3;' +
+		'padding: 3px 20px 3px 3px;font-size: 12px;border-radius:0px;';
 	tmplSearchInput.setAttribute('placeholder', mxResources.get('search'));
 	tmplSearchInput.setAttribute('type', 'text');
 	searchBox.appendChild(tmplSearchInput);
@@ -3284,6 +3286,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		elt.style.position = 'relative';
 		elt.style.height = w + 'px';
 		elt.style.width = h + 'px';
+		elt.style.border = '1px solid transparent';
 		var xmlData = null, realUrl = url;
 		
 		if (title != null)

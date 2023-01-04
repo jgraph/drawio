@@ -5369,7 +5369,7 @@ StyleFormatPanel.prototype.addStroke = function(container)
 		if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASHED, null) == '1')
 		{
 			if (mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, null) == null ||
-				mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, '').substring(0, 2) != '1 ')
+				String(mxUtils.getValue(ss.style, mxConstants.STYLE_DASH_PATTERN, '')).substring(0, 2) != '1 ')
 			{
 				solid.style.borderBottom = '1px dashed ' + this.defaultStrokeColor;
 			}
@@ -6516,13 +6516,22 @@ DiagramFormatPanel.prototype.addView = function(div)
 				}
 			});
 
-			bg.getElementsByTagName('input')[0].style.visibility = graph.backgroundImage != null ? 'visible' : 'hidden';
+			var input = bg.getElementsByTagName('input')[0];
 
+			if (input != null)
+			{
+				input.style.visibility = graph.backgroundImage != null ? 'visible' : 'hidden';
+			}
+			
 			var label = bg.getElementsByTagName('div')[0];
-			label.style.display = 'inline-block';
-			label.style.textOverflow = 'ellipsis';
-			label.style.overflow = 'hidden';
-			label.style.maxWidth = '80px';
+			
+			if (label != null)
+			{
+				label.style.display = 'inline-block';
+				label.style.textOverflow = 'ellipsis';
+				label.style.overflow = 'hidden';
+				label.style.maxWidth = '80px';
+			}
 
 			if (mxClient.IS_FF)
 			{
