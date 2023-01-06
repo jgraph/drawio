@@ -301,8 +301,8 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 		return (style != null) ? (style['html'] == '1' || style[mxConstants.STYLE_WHITE_SPACE] == 'wrap') : false;
 	};
 	
-	// Implements a listener for hover and click handling on edges
-	if (this.edgeMode)
+	// Implements a listener for hover and click handling on edges and tables
+	if (this.immediateHandling)
 	{
 		var start = {
 			point: null,
@@ -311,7 +311,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			handle: null,
 			selected: false
 		};
-		
+
 		// Uses this event to process mouseDown to check the selection state before it is changed
 		this.addListener(mxEvent.FIRE_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
 		{
@@ -320,33 +320,10 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 				var me = evt.getProperty('event');
 		    	var state = me.getState();
 				var s = this.view.scale;
-	
+				
 		    	if (!mxEvent.isAltDown(me.getEvent()) && state != null)
 		    	{
-		    		// Checks if state was removed in call to stopEditing above
-		    		if (this.model.isEdge(state.cell))
-		    		{
-		    			start.point = new mxPoint(me.getGraphX(), me.getGraphY());
-		    			start.selected = this.isCellSelected(state.cell);
-		    			start.state = state;
-		    			start.event = me;
-		    			
-    					if (state.text != null && state.text.boundingBox != null &&
-    						mxUtils.contains(state.text.boundingBox, me.getGraphX(), me.getGraphY()))
-    					{
-    						start.handle = mxEvent.LABEL_HANDLE;
-    					}
-    					else
-    					{
-							var handler = this.selectionCellsHandler.getHandler(state.cell);
-
-			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
-			    			{
-			    				start.handle = handler.getHandleForEvent(me);
-			    			}
-    					}
-		    		}
-		    		else if (!this.panningHandler.isActive() && !mxEvent.isControlDown(me.getEvent()))
+		    		if (!this.panningHandler.isActive() && !mxEvent.isControlDown(me.getEvent()))
 		    		{
 			   			var handler = this.selectionCellsHandler.getHandler(state.cell);
 
@@ -441,6 +418,40 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			}
 		}));
 		
+		// Uses this event to process mouseDown to check the selection state before it is changed
+		this.addListener(mxEvent.CONSUME_MOUSE_EVENT, mxUtils.bind(this, function(sender, evt)
+		{
+			if (evt.getProperty('eventName') == 'mouseDown' && this.isEnabled())
+			{
+				var me = evt.getProperty('event');
+				var state = me.getState();
+				
+				if (!mxEvent.isAltDown(me.getEvent()) && state != null &&
+					this.model.isEdge(state.cell))
+				{
+					start.point = new mxPoint(me.getGraphX(), me.getGraphY());
+					start.selected = this.isCellSelected(state.cell);
+					start.state = state;
+					start.event = me;
+					
+					if (state.text != null && state.text.boundingBox != null &&
+						mxUtils.contains(state.text.boundingBox, me.getGraphX(), me.getGraphY()))
+					{
+						start.handle = mxEvent.LABEL_HANDLE;
+					}
+					else
+					{
+						var handler = this.selectionCellsHandler.getHandler(state.cell);
+
+						if (handler != null && handler.bends != null && handler.bends.length > 0)
+						{
+							start.handle = handler.getHandleForEvent(me);
+						}
+					}
+				}
+			}
+		}));
+
 		this.addMouseListener(
 		{
 			mouseDown: function(sender, me) {},
@@ -465,23 +476,19 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    	{
 			    		var state = start.state;
 			    		
-			    		if (Math.abs(start.point.x - me.getGraphX()) > tol ||
+			    		if (start.handle != null || Math.abs(start.point.x - me.getGraphX()) > tol ||
 			    			Math.abs(start.point.y - me.getGraphY()) > tol)
 			    		{
 			    			var handler = this.selectionCellsHandler.getHandler(state.cell);
 			    			
-			    			if (handler == null && this.model.isEdge(state.cell))
-			    			{
-			    				handler = this.createHandler(state);
-			    			}
-			    			
 			    			if (handler != null && handler.bends != null && handler.bends.length > 0)
 			    			{
 								handler.redrawHandles();
-			    				var handle = handler.getHandleForEvent(start.event, true);
+			    				var handle = (start.handle != null) ? start.handle :
+									handler.getHandleForEvent(start.event);
 			    				var edgeStyle = this.view.getEdgeStyle(state);
 			    				var entity = edgeStyle == mxEdgeStyle.EntityRelation;
-								
+
 			    				// Handles special case where label was clicked on unselected edge in which
 			    				// case the label will be moved regardless of the handle that is returned
 			    				if (!start.selected && start.handle == mxEvent.LABEL_HANDLE)
@@ -608,7 +615,7 @@ Graph = function(container, model, renderHint, stylesheet, themes, standalone)
 			    	{
 			    		// Updates cursor for unselected edges under the mouse
 				    	var state = me.getState();
-				    	
+						
 				    	if (state != null && this.isCellEditable(state.cell))
 				    	{
 				    		var cursor = null;
@@ -2113,9 +2120,9 @@ Graph.prototype.selectParentAfterDelete = false;
 Graph.prototype.defaultEdgeLength = 80;
 
 /**
- * Disables move of bends/segments without selecting.
+ * Enables activation of special handles on unselected cells.
  */
-Graph.prototype.edgeMode = false;
+Graph.prototype.immediateHandling = true;
 
 /**
  * Allows all values in fit.

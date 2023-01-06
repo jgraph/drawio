@@ -5729,7 +5729,7 @@
 	 * Properties for the SVG shadow effect.
 	 */
 	Graph.prototype.svgShadowColor = '#3D4574';
-
+	
 	/**
 	 * Properties for the SVG shadow effect.
 	 */
@@ -5745,11 +5745,6 @@
 	 */
 	Graph.prototype.svgShadowSize = '3';
 
-	/**
-	 * Enables move of bends/segments without selecting.
-	 */
-	Graph.prototype.edgeMode = urlParams['edge'] != 'move';
-			
 	/**
 	 * Enables move of bends/segments without selecting.
 	 */

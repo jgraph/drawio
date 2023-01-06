@@ -1217,32 +1217,52 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			if (checksum != null && checksum != current)
 			{
 				// Logs checksum error
-				try
+				var logError = mxUtils.bind(this, function(failed)
 				{
-					var user = this.file.getCurrentUser();
-					var uid = (user != null) ? user.id : 'unknown';
-					var id = (this.file.getId() != '') ? this.file.getId() :
-						('(' + this.ui.hashValue(this.file.getTitle()) + ')');
-					var bytes = JSON.stringify(patches).length;
+					try
+					{
+						var user = this.file.getCurrentUser();
+						var uid = (user != null) ? user.id : 'unknown';
+						var id = (this.file.getId() != '') ? this.file.getId() :
+							('(' + this.ui.hashValue(this.file.getTitle()) + ')');
+						var bytes = JSON.stringify(patches).length;
+	
+						EditorUi.logError('Merge checksum fallback ' + (failed ?
+							'failed' : 'success') + ' ' + id, null,
+							this.file.getMode() + '.' + this.file.getId(),
+							'user_' + uid + ((this.sync != null) ?
+							'-client_' + this.clientId : '-nosync') +
+							'-bytes_' + bytes + '-patches_' + patches.length +
+							'-size_' + this.file.getSize() +
+							((checksum != null) ? ('-expected_' + checksum) : '') +
+							((current != null) ? ('-current_' + current) : '') +
+							'-from_' + this.ui.hashValue(this.file.getCurrentRevisionId()) +
+							'-to_' + this.ui.hashValue(target));
+					}
+					catch (e)
+					{
+						// ignore
+					}
+				});
 
-					EditorUi.logError('Checksum Error with reload in merge ' + id,
-						null, this.file.getMode() + '.' + this.file.getId(),
-						'user_' + uid + ((this.sync != null) ?
-						'-client_' + this.clientId : '-nosync') +
-						'-bytes_' + bytes + '-patches_' + patches.length +
-						'-size_' + this.file.getSize() +
-						((checksum != null) ? ('-expected_' + checksum) : '') +
-						((current != null) ? ('-current_' + current) : '') +
-						'-from_' + this.ui.hashValue(this.file.getCurrentRevisionId()) +
-						'-to_' + this.ui.hashValue(target));
-				}
-				catch (e)
+				// Fallback to full reload with logging
+				this.reload(mxUtils.bind(this, function()
 				{
-					// ignore
-				}
+					logError(false);
 
-				// Fallback to full reload
-				this.reload(success, error, abort);
+					if (success != null)
+					{
+						success();
+					}
+				}), mxUtils.bind(this, function()
+				{
+					logError(true);
+
+					if (error != null)
+					{
+						error();
+					}
+				}), abort);
 
 				// Abnormal termination
 				return;

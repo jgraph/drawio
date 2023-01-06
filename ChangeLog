@@ -1,3 +1,10 @@
+06-JAN-2023: 20.8.3
+
+- Adds logging for merge fallback success or failure
+- Fires consumeMouseEvent event in consumeMouseEvent
+- Removes edge URL parameter
+- Fixes mouse cursors for direct edge event handling
+
 06-JAN-2023: 20.8.2
 
 - Fixes possible NPE, missing update of page tabs
