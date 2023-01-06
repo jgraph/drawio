@@ -424,7 +424,7 @@ insertText=‫הוספת טקסט‬
 inserting=‫מוסיף‬
 installApp=Install App
 invalidFilename=‫שם הדיאגרמה אינו יכול לכלול את התווים הבאים:  \ / | : ; { } < > & + ? = "‬
-invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>‬
+invalidLicenseSeeThisPage=‫הרשיון שלך אינו תקף. בדוק ב <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>‬
 invalidInput=Invalid input
 invalidName=‫שם לא תקין‬
 invalidOrMissingFile=‫קובץ חסר או לא תקין‬
@@ -699,7 +699,8 @@ share=‫שתף‬
 shareCursor=Share Mouse Cursor
 shareLink=‫קישור לעריכה משותפת‬
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=‫חד‬
 show=‫הצג‬
 showRemoteCursors=Show Remote Mouse Cursors

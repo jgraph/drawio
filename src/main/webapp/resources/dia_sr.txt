@@ -424,7 +424,7 @@ insertText=Insert Text
 inserting=Umetanje
 installApp=Install App
 invalidFilename=Imena dijagrama ne smeju sadržati sledeće znake : \ / | : ; { < & + ? =
-invalidLicenseSeeThisPage=Your license is invalid, please see this <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidLicenseSeeThisPage=Your license is invalid, please see this <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Neispravno ime
 invalidOrMissingFile=Neispravan ili nepostojeći dokument
@@ -699,7 +699,8 @@ share=Podeli
 shareCursor=Share Mouse Cursor
 shareLink=Podeli link
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Oštar
 show=Prikaži
 showRemoteCursors=Show Remote Mouse Cursors

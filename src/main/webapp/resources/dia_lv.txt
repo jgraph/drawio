@@ -424,7 +424,7 @@ insertText=Ievietot tekstu
 inserting=Ievietošana
 installApp=Instalējiet lietotni
 invalidFilename=Diagrammu nosaukumos nedrīkst būt šādas rakstzīmes: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Jūsu licence nav derīga. Lūdzu, skatiet šo <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">lapu</a>.
+invalidLicenseSeeThisPage=Jūsu licence nav derīga. Lūdzu, skatiet šo <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">lapu</a>.
 invalidInput=Nepareiza ievade
 invalidName=Nederīgs nosaukums
 invalidOrMissingFile=Nederīgs vai trūkstošs fails
@@ -699,7 +699,8 @@ share=Kopīgot
 shareCursor=Kopīgot peles kursoru
 shareLink=Saite koplietotai rediģēšanai
 sharingAvailable=Kopīgošana ir pieejama Google diska un OneDrive failiem.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Ass
 show=Rādīt
 showRemoteCursors=Rādīt attālos peles kursorus

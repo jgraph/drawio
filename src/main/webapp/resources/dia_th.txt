@@ -424,7 +424,7 @@ insertText=แทรกข้อความ
 inserting=การแทรก
 installApp=Install App
 invalidFilename=ชื่อแผนภาพจะต้องไม่มีเครื่องหมายเหล่านี้  \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=ใบอนุญาตของคุณไม่ถูกต้อง  โปรดดู <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidLicenseSeeThisPage=ใบอนุญาตของคุณไม่ถูกต้อง  โปรดดู <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=ชื่อที่ใช้ไม่ได้
 invalidOrMissingFile=ไฟล์ไม่ถูกต้องหรือไฟล์สูญหาย
@@ -699,7 +699,8 @@ share=แบ่งปัน
 shareCursor=Share Mouse Cursor
 shareLink=เชื่อมต่อเพื่อการแก้ไขร่วมกัน
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=แหลม
 show=แสดง
 showRemoteCursors=Show Remote Mouse Cursors

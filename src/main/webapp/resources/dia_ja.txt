@@ -424,7 +424,7 @@ insertText=テキスト
 inserting=挿入中
 installApp=アプリをインストール
 invalidFilename=ダイアグラム名に次の文字を含めることはできません。 \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=あなたの免許証が有効ではない、これを参照してください<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidLicenseSeeThisPage=あなたの免許証が有効ではない、これを参照してください<a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=無効な名前です
 invalidOrMissingFile=無効または不明なファイル
@@ -699,7 +699,8 @@ share=共有
 shareCursor=Share Mouse Cursor
 shareLink=共同編集リンク
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=シャープ
 show=表示
 showRemoteCursors=Show Remote Mouse Cursors

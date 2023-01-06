@@ -550,9 +550,9 @@ EditorUi.prototype.initPages = function()
 		});
 
 		this.addListener('currentThemeChanged', pagesChanged);
+		this.editor.addListener('pagesPatched', pagesChanged);
 		this.editor.addListener('pageRenamed', pagesChanged);
 		this.editor.addListener('pageMoved', pagesChanged);
-		this.editor.addListener('fileLoaded', pagesChanged);
 		this.editor.addListener('fileLoaded', pagesChanged);
 
 		this.editor.addListener('pageSelected', mxUtils.bind(this, function(sender, evt)
@@ -586,7 +586,8 @@ EditorUi.prototype.scrollToPage = function()
 {
 	var index = this.getSelectedPageIndex();
 
-	if (this.tabScroller != null && this.tabScroller.children.length > index)
+	if (this.tabScroller != null && this.tabScroller.children.length > index &&
+		this.tabScroller.children[index] != null)
 	{
 		this.tabScroller.children[index].scrollIntoView();
 		this.tabScroller.children[index].className = 'geTab gePageTab geActivePage';

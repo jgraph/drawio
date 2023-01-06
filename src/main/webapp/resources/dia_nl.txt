@@ -424,7 +424,7 @@ insertText=Tekst invoegen
 inserting=Invoegen
 installApp=App installeren
 invalidFilename=Een Diagramnaam mag niet de volgende tekens bevatten: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">pagina</a>.
+invalidLicenseSeeThisPage=Uw licentie is ongeldig, bekijk deze <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">pagina</a>.
 invalidInput=Ingeldige invoer
 invalidName=Ongeldige naam
 invalidOrMissingFile=Ongeldig of ontbrekend bestand
@@ -699,7 +699,8 @@ share=Delen
 shareCursor=Cursor delen
 shareLink=Link voor gedeeld bewerken
 sharingAvailable=Delen van Google Drive- en OneDrive-bestanden.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Rechthoekig
 show=Tonen
 showRemoteCursors=Muiscursor buiten beeld tonen

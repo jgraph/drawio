@@ -424,7 +424,7 @@ insertText=Infoga text
 inserting=Infogar
 installApp=Installera app
 invalidFilename=Namnet på diagrammet får inte innehålla följande tecken: \ / | : ; { } < > & + ? =
-invalidLicenseSeeThisPage=Din licens är ogiltig, vänligen gå till <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">denna sida</a>
+invalidLicenseSeeThisPage=Din licens är ogiltig, vänligen gå till <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">denna sida</a>
 invalidInput=Ogiltig inmatning
 invalidName=Ogiltigt namn
 invalidOrMissingFile=Ogiltigt eller saknad fil
@@ -699,7 +699,8 @@ share=Dela
 shareCursor=Share Mouse Cursor
 shareLink=Länk för delad redigering
 sharingAvailable=Delning via Google Drive och OneDrive är möjlig
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Skarp
 show=Visa
 showRemoteCursors=Show Remote Mouse Cursors

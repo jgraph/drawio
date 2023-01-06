@@ -424,7 +424,7 @@ insertText=Insert Text
 inserting=Įterpimas
 installApp=Install App
 invalidFilename=Diagramos pavadinimuose neturi būti šių simbolių: \ / | :; {} <> & +? = "
-invalidLicenseSeeThisPage=Jūsų licencija negalioja. Peržiūrėkite šį <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin"> puslapį </a>.
+invalidLicenseSeeThisPage=Jūsų licencija negalioja. Peržiūrėkite šį <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud"> puslapį </a>.
 invalidInput=Neteisinga įvestis
 invalidName=Neteisingas vardas
 invalidOrMissingFile=Netinkamas failas arba jo nėra
@@ -699,7 +699,8 @@ share=Share
 shareCursor=Share Mouse Cursor
 shareLink=Link for shared editing
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Sharp
 show=Show
 showRemoteCursors=Show Remote Mouse Cursors

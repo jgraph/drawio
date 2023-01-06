@@ -424,7 +424,7 @@ insertText=Вставити текст
 inserting=Вставлення
 installApp=Встановити застосунок
 invalidFilename=Назви діаграм не повинні мати такі знаки:  \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Ваша ліцензія недійсна, будь ласка, прочитайте <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">сторінку</a>.
+invalidLicenseSeeThisPage=Ваша ліцензія недійсна, будь ласка, прочитайте <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">сторінку</a>.
 invalidInput=Невірне введення
 invalidName=Невірне ім'я
 invalidOrMissingFile=Файл невірний або відсутній
@@ -699,7 +699,8 @@ share=Поділитися
 shareCursor=Поділитися курсором
 shareLink=Посилання для спільного редагування
 sharingAvailable=Спільне використання доступне для файлів Google Диску та OneDrive.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Гострі
 show=Показати
 showRemoteCursors=Show Remote Mouse Cursors

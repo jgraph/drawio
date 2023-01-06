@@ -424,7 +424,7 @@ insertText=Vložit text
 inserting=Vkládání
 installApp=Nainstalovat aplikaci
 invalidFilename=Názvy diagramů nemohou obsahovat tyto znaky: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Vaše licence není platná, podívejte se prosím na tuto <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">stránku</a>.
+invalidLicenseSeeThisPage=Vaše licence není platná, podívejte se prosím na tuto <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">stránku</a>.
 invalidInput=Neplatný vstup
 invalidName=Neplatný název
 invalidOrMissingFile=Neplatný nebo chybějící soubor
@@ -699,7 +699,8 @@ share=Sdílet
 shareCursor=Sdílet kurzor myši
 shareLink=Odkaz pro sdílené upravování
 sharingAvailable=Sdílení je dostupné pro soubory na Google Disku a OneDrive.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Ostrý
 show=Zobrazit
 showRemoteCursors=Zobrazovat vzdálené ukazatele myši

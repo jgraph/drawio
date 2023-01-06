@@ -424,7 +424,7 @@ insertText=Insereix text
 inserting=S'està inserint
 installApp=Instal·la l'aplicació
 invalidFilename=Els noms dels diagrames no poden contenir els següents caràcters: \ / | : ; { < & + ? = "
-invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">pàgina</a>.
+invalidLicenseSeeThisPage=La llicència no és vàlida, consulteu aquesta <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">pàgina</a>.
 invalidInput=L'entrada no és vàlida
 invalidName=El nom no és vàlid
 invalidOrMissingFile=Fitxer  no vàlid o desconegut
@@ -699,7 +699,8 @@ share=Comparteix
 shareCursor=Comparteix el cursor del ratolí
 shareLink=Enllaç per a l'edició compartida
 sharingAvailable=Compartició disponible per a fitxers de Google Drive i OneDrive.
-moveItToGoogleDrive=Haureu de moure "{1}" a Google Drive abans de poder col·laborar.
+saveItToGoogleDriveToCollaborate=Haureu de desar "{1}" a Google Drive abans de poder col·laborar.
+saveToGoogleDrive=Desar a Google Drive
 sharp=Angulós
 show=Mostra
 showRemoteCursors=Mostra els cursors del ratolí remot

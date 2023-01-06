@@ -424,7 +424,7 @@ insertText=Sisesta tekst
 inserting=Sisestamine
 installApp=Paigalda Äpp
 invalidFilename=Diagrammi nimed ei tohi sisaldada järgnevaid tähemärke:  \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">lehte</a>.
+invalidLicenseSeeThisPage=Sinu litsents on kehtetu, palun vaata seda <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">lehte</a>.
 invalidInput=Viga sisestamisel
 invalidName=Viga nimes
 invalidOrMissingFile=Kehtetu või puuduv fail
@@ -699,7 +699,8 @@ share=Jaga
 shareCursor=Jaga hiirekursorit
 shareLink=Link jagatud toimetamiseks
 sharingAvailable=Jagamine on saadaval Google Drive ja OneDrive'i failide jaoks.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Terav
 show=Näita
 showRemoteCursors=Näita jagaja hiirekursorit

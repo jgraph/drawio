@@ -1,3 +1,11 @@
+06-JAN-2023: 20.8.2
+
+- Fixes possible NPE, missing update of page tabs
+- Fallback to mergeFile after checksum error in sync [DS-940]
+- Fixes scrollbars after reset view on empty diagram
+- [jira cloud] license compliance improvements [DFJC-17]
+- Fixes empty edge label handle disables moving edge
+
 03-JAN-2023: 20.8.1
 
 - Fixes substring not a function for invalid pattern

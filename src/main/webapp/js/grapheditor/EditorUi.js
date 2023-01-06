@@ -3929,51 +3929,61 @@ EditorUi.prototype.hasScrollbars = function()
 EditorUi.prototype.resetScrollbars = function()
 {
 	var graph = this.editor.graph;
+	var c = graph.container;
 	
 	if (!this.editor.extendCanvas)
 	{
-		graph.container.scrollTop = 0;
-		graph.container.scrollLeft = 0;
+		c.scrollTop = 0;
+		c.scrollLeft = 0;
 	
-		if (!mxUtils.hasScrollbars(graph.container))
+		if (!mxUtils.hasScrollbars(c))
 		{
 			graph.view.setTranslate(0, 0);
 		}
 	}
 	else if (!this.editor.isChromelessView())
 	{
-		if (mxUtils.hasScrollbars(graph.container))
+		if (mxUtils.hasScrollbars(c))
 		{
 			if (graph.pageVisible)
 			{
 				var pad = graph.getPagePadding();
-				graph.container.scrollTop = Math.floor(pad.y - this.editor.initialTopSpacing) - 1;
-				graph.container.scrollLeft = Math.floor(Math.min(pad.x,
-					(graph.container.scrollWidth - graph.container.clientWidth) / 2)) - 1;
+				c.scrollTop = Math.floor(pad.y - this.editor.initialTopSpacing) - 1;
+				c.scrollLeft = Math.floor(Math.min(pad.x,
+					(c.scrollWidth - c.clientWidth) / 2)) - 1;
 
 				// Scrolls graph to visible area
 				var bounds = graph.getGraphBounds();
 				
 				if (bounds.width > 0 && bounds.height > 0)
 				{
-					if (bounds.x > graph.container.scrollLeft + graph.container.clientWidth * 0.9)
+					if (bounds.x > c.scrollLeft + c.clientWidth * 0.9)
 					{
-						graph.container.scrollLeft = Math.min(bounds.x + bounds.width - graph.container.clientWidth, bounds.x - 10);
+						c.scrollLeft = Math.min(bounds.x + bounds.width - c.clientWidth, bounds.x - 10);
 					}
 					
-					if (bounds.y > graph.container.scrollTop + graph.container.clientHeight * 0.9)
+					if (bounds.y > c.scrollTop + c.clientHeight * 0.9)
 					{
-						graph.container.scrollTop = Math.min(bounds.y + bounds.height - graph.container.clientHeight, bounds.y - 10);
+						c.scrollTop = Math.min(bounds.y + bounds.height - c.clientHeight, bounds.y - 10);
 					}
 				}
 			}
 			else
 			{
 				var bounds = graph.getGraphBounds();
-				var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
-				var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
-				graph.container.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (graph.container.clientHeight - height) / 4)));
-				graph.container.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (graph.container.clientWidth - width) / 2)));
+
+				if (bounds.width == 0 && bounds.height == 0)
+				{
+					c.scrollLeft = (c.scrollWidth - c.clientWidth) / 2;
+					c.scrollTop = (c.scrollHeight - c.clientHeight) / 2;
+				}
+				else
+				{
+					var width = Math.max(bounds.width, graph.scrollTileSize.width * graph.view.scale);
+					var height = Math.max(bounds.height, graph.scrollTileSize.height * graph.view.scale);
+					c.scrollTop = Math.floor(Math.max(0, bounds.y - Math.max(20, (c.clientHeight - height) / 4)));
+					c.scrollLeft = Math.floor(Math.max(0, bounds.x - Math.max(0, (c.clientWidth - width) / 2)));
+				}
 			}
 		}
 		else
@@ -3986,10 +3996,10 @@ EditorUi.prototype.resetScrollbars = function()
             b.width /= s;
             b.height /= s;
             
-            var dy = (graph.pageVisible) ? 0 : Math.max(0, (graph.container.clientHeight - b.height) / 4); 
+            var dy = (graph.pageVisible) ? 0 : Math.max(0, (c.clientHeight - b.height) / 4); 
             
 			graph.view.setTranslate(Math.floor(Math.max(0,
-				(graph.container.clientWidth - b.width) / 2) - b.x + 2),
+				(c.clientWidth - b.width) / 2) - b.x + 2),
 				Math.floor(dy - b.y + 1));
 		}
 	}

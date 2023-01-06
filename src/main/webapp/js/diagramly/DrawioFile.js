@@ -296,12 +296,12 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 		this.stats.fileMerged++;
 
 		// Loads new document as shadow document
-		var shadow = this.getShadowPages();
 		var pages = file.getShadowPages();
 
 		if (pages != null && pages.length > 0)
 		{
 			// Patches the current document
+			var shadow = this.getShadowPages();
 			var patches = [this.ui.diffPages((diffShadow != null) ?
 				diffShadow : shadow, pages)];
 			var ignored = this.ignorePatches(patches);
@@ -313,10 +313,11 @@ DrawioFile.prototype.mergeFile = function(file, success, error, diffShadow)
 				{
 					this.sync.sendLocalChanges();
 				}
-		
-				// Creates a patch for backup if the checksum fails
+				
+				// Creates patch for backup
 				this.backupPatch = (!this.isModified()) ? null :
-					this.ui.diffPages(shadow, this.ui.pages);
+					this.ui.diffPages(shadow, (this.isRealtime()) ?
+					this.ownPages : this.ui.pages);
 				
 				// Patching previous shadow to verify checksum
 				var patchedDetails = {};

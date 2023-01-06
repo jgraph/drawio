@@ -2467,7 +2467,11 @@ Graph.prototype.init = function(container)
 		for (var i = 0; i < cells.length; i++)
 		{
 			var state = this.view.getState(cells[i]);
-			this.mergeStyle(state.style, style, i == 0);
+
+			if (state != null)
+			{
+				this.mergeStyle(state.style, style, i == 0);
+			}
 		}
 		
 		return style;

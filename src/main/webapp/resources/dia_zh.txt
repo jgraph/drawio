@@ -424,7 +424,7 @@ insertText=插入文本
 inserting=正在插入
 installApp=安装应用
 invalidFilename=绘图名称不能包含以下特殊字符： \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=您的许可无效，请参阅此<a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">页面</a>。
+invalidLicenseSeeThisPage=您的许可无效，请参阅此<a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">页面</a>。
 invalidInput=无效输入
 invalidName=无效名称
 invalidOrMissingFile=无效或丢失的文件
@@ -699,7 +699,8 @@ share=共享
 shareCursor=Share Mouse Cursor
 shareLink=共享编辑的链接
 sharingAvailable=共享可用于 Google Drive 和 OneDrive 文件.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=锐利
 show=显示
 showRemoteCursors=Show Remote Mouse Cursors

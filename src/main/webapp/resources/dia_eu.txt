@@ -424,7 +424,7 @@ insertText=Txertatu testua
 inserting=Txertatzen
 installApp=Instalatu aplikazioa
 invalidFilename=Diagramen izena ezin ditu karaktere horiek izan: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Zure lizentzia ez da baliozkoa, ikusi <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">orri hau</a>.
+invalidLicenseSeeThisPage=Zure lizentzia ez da baliozkoa, ikusi <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">orri hau</a>.
 invalidInput=Sarrera ez da baliozkoa
 invalidName=Izena ez da baliozkoa
 invalidOrMissingFile=Fitxategia ez da baliozkoa ala ez da aurkitzen
@@ -699,7 +699,8 @@ share=Partekatu
 shareCursor=Partekatu saguaren kurtsorea
 shareLink=Edizioa partekatzeko esteka
 sharingAvailable=Partekatzea onartzen zaio Google Drive eta OneDriveren fitxategiei
-moveItToGoogleDrive=Elkarlanean aritu ahal izateko "{1}" Google Drive-ra eraman beharko duzu.
+saveItToGoogleDriveToCollaborate=Elkarlanean aritu ahal izateko "{1}" Google Drive-ra eraman beharko duzu.
+saveToGoogleDrive=Save to Google Drive
 sharp=Zorrotza
 show=Erakutsi
 showRemoteCursors=Erakutsi Urruneko Saguaren kurtsoreak

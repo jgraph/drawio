@@ -424,7 +424,7 @@ insertText=‫وارد کردن متن‬
 inserting=‫وارد کردن‬
 installApp=Install App
 invalidFilename=‫نامهای نمودارها نباید شامل کاراکترهای زیر باشد:  \ / | : ; { } < > & + ? = "‬
-invalidLicenseSeeThisPage=‫مجوز شما نامعتبر است. لطفا این بخش را ببینید <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">صفحه</a>.‬
+invalidLicenseSeeThisPage=‫مجوز شما نامعتبر است. لطفا این بخش را ببینید <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">صفحه</a>.‬
 invalidInput=Invalid input
 invalidName=‫نام نامعتبر‬
 invalidOrMissingFile=‫فایل یا غیرمعتبر است یا وجود ندارد‬
@@ -699,7 +699,8 @@ share=‫به اشتراک گذاشتن‬
 shareCursor=Share Mouse Cursor
 shareLink=‫لینک برای ویرایش مشترک‬
 sharingAvailable=X
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=‫تیز‬
 show=‫نشان دادن‬
 showRemoteCursors=Show Remote Mouse Cursors

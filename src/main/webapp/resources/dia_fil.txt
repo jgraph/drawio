@@ -424,7 +424,7 @@ insertText=Magsingit ng teksto
 inserting=Nagsisingit
 installApp=Install App
 invalidFilename=Ang pangalan ng mga Dayagram ay hindi maaaring magtaglay ng sumusunod na mga simbolo: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">page</a>.
+invalidLicenseSeeThisPage=Ang iyong lisensya ay di wasto. Pki-tingnan ito <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">page</a>.
 invalidInput=Invalid input
 invalidName=Di wastong pangalan
 invalidOrMissingFile=Di wasto o nawawalang File
@@ -699,7 +699,8 @@ share=Ibahagi
 shareCursor=Share Mouse Cursor
 shareLink=Link para sa salu-salong pag-edit
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Matalas
 show=Ipakita
 showRemoteCursors=Show Remote Mouse Cursors

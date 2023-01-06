@@ -424,7 +424,7 @@ insertText=Chèn văn bản
 inserting=Đang chèn
 installApp=Install App
 invalidFilename=Tên biểu đồ không được chứa những kí tự sau: \ / | : ' { } < > & + ? = "
-invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">trang này</a>.
+invalidLicenseSeeThisPage=Giấy phép của bạn không hợp lệ, vui lòng xem tại <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">trang này</a>.
 invalidInput=Invalid input
 invalidName=Tên không hợp lệ
 invalidOrMissingFile=Tập tin bị thiếu hoặc không hợp lệ
@@ -699,7 +699,8 @@ share=Chia sẻ
 shareCursor=Share Mouse Cursor
 shareLink=Đường dẫn chỉnh sửa đã chia sẻ
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Góc
 show=Hiển thị
 showRemoteCursors=Show Remote Mouse Cursors

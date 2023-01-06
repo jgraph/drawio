@@ -424,7 +424,7 @@ insertText=Lisää tekstiä
 inserting=Lisätään
 installApp=Asenna sovellus
 invalidFilename=Kaavioiden nimet eivät saa sisältää seuraavia merkkejä: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">sivu</a>.
+invalidLicenseSeeThisPage=Lisenssi on virheellinen, ole hyvä ja katso tämä <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">sivu</a>.
 invalidInput=Virheellinen syöte
 invalidName=Virheellinen nimi
 invalidOrMissingFile=Virheellinen tai puuttuva tiedosto
@@ -699,7 +699,8 @@ share=Jaa
 shareCursor=Jaa hiiren osoitin
 shareLink=Linkki jaettuun muokkaukseen
 sharingAvailable=Jakaminen käytettävissä Google Drive- ja OneDrive-tiedostoille.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Terävä
 show=Näytä
 showRemoteCursors=Näytä etähiiren osoittimet

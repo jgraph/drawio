@@ -424,7 +424,7 @@ insertText=Inserir texto
 inserting=Inserindo
 installApp=Instalar o aplicativo
 invalidFilename=Nomes de diagramas não podem conter os seguintes caracteres: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Sua licença é inválida. Por favor, leia essa <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">página</a>.
+invalidLicenseSeeThisPage=Sua licença é inválida. Por favor, leia essa <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">página</a>.
 invalidInput=Conteúdo inválido
 invalidName=Nome inválido
 invalidOrMissingFile=Arquivo inválido ou em falta
@@ -699,7 +699,8 @@ share=Compartilhar
 shareCursor=Compartilhar o ponteiro do mouse
 shareLink=Link para edição compartilhada
 sharingAvailable=O compartilhamento é disponível para arquivos salvos em Google Drive ou em OneDrive.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Quadrado
 show=Mostrar
 showRemoteCursors=Mostrar os ponteiros do mouse de outras pessoas

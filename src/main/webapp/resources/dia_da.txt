@@ -424,7 +424,7 @@ insertText=Indsæt tekst
 inserting=Indsætter
 installApp=Install App
 invalidFilename=Diagramnavn må ikke indeholde de følgende tegn: \ / | : ; { } < > & + ? = "
-invalidLicenseSeeThisPage=Din licens er ugyldig, se venligst <a target="_blank" href="https://support.draw.io/display/DFCS/Licensing+your+draw.io+plugin">side</a>.
+invalidLicenseSeeThisPage=Din licens er ugyldig, se venligst <a target="_blank" href="https://www.diagrams.net/doc/faq/license-drawio-confluence-jira-cloud">side</a>.
 invalidInput=Invalid input
 invalidName=Ugyldigt navn
 invalidOrMissingFile=Ugyldig eller manglende fil
@@ -699,7 +699,8 @@ share=Del
 shareCursor=Share Mouse Cursor
 shareLink=Link til fælles redigering
 sharingAvailable=Sharing available for Google Drive and OneDrive files.
-moveItToGoogleDrive=You'll need to move "{1}" to Google Drive before you can collaborate.
+saveItToGoogleDriveToCollaborate=You'll need to save "{1}" to Google Drive before you can collaborate.
+saveToGoogleDrive=Save to Google Drive
 sharp=Skarp
 show=Vis
 showRemoteCursors=Show Remote Mouse Cursors

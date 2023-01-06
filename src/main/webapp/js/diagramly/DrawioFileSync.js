@@ -1112,9 +1112,8 @@ DrawioFileSync.prototype.patchRealtime = function(patches, backup, own)
 		}
 		
 		EditorUi.debug('DrawioFileSync.patchRealtime', [this],
-			'patches', patches, 'backup', backup,
-			'own', own, 'all', all, 'local', local,
-			'applied', applied);
+			'patches', patches, 'backup', backup, 'own', own,
+			'all', all, 'local', local, 'applied', applied);
 	}
 
 	return all;
@@ -1197,7 +1196,7 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			this.sendLocalChanges();
 
 			// Creates a patch for backup if the checksum fails
-			var shadow = this.file.getShadowPages();
+			var shadow = this.ui.clonePages(this.file.getShadowPages());
 			this.file.backupPatch = (this.file.isModified() &&
 				!this.file.isRealtime()) ? this.ui.diffPages(
 					shadow, this.ui.pages) : null;
@@ -1206,7 +1205,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			shadow = this.ui.applyPatches(shadow, patches);
 			var current = (checksum == null) ? null :
 				this.ui.getHashValueForPages(shadow);
-			this.file.setShadowPages(shadow);
 			
 			EditorUi.debug('DrawioFileSync.merge', [this], 'patches', patches,
 				'backup', this.file.backupPatch, 'pending', pending, 'checksum',
@@ -1218,29 +1216,41 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 			// Compares the checksum
 			if (checksum != null && checksum != current)
 			{
-				var to = this.ui.hashValue(target);
-				var from = this.ui.hashValue(this.file.getCurrentRevisionId());
-				this.file.checksumError(error, patches, 'From: ' + from +
-					'\nTo: ' + to + '\nChecksum: ' + checksum + '\nCurrent: ' +
-					current, target, 'merge', checksum, current, target);
-
-				if (urlParams['test'] == '1')
+				// Logs checksum error
+				try
 				{
-					EditorUi.debug('DrawioFileSync.merge.checksumError', [this],
-						'data', [this.file.data, this.file.createData(),
-							this.ui.getXmlForPages(shadow)]);
+					var user = this.file.getCurrentUser();
+					var uid = (user != null) ? user.id : 'unknown';
+					var id = (this.file.getId() != '') ? this.file.getId() :
+						('(' + this.ui.hashValue(this.file.getTitle()) + ')');
+					var bytes = JSON.stringify(patches).length;
+
+					EditorUi.logError('Checksum Error with reload in merge ' + id,
+						null, this.file.getMode() + '.' + this.file.getId(),
+						'user_' + uid + ((this.sync != null) ?
+						'-client_' + this.clientId : '-nosync') +
+						'-bytes_' + bytes + '-patches_' + patches.length +
+						'-size_' + this.file.getSize() +
+						((checksum != null) ? ('-expected_' + checksum) : '') +
+						((current != null) ? ('-current_' + current) : '') +
+						'-from_' + this.ui.hashValue(this.file.getCurrentRevisionId()) +
+						'-to_' + this.ui.hashValue(target));
+				}
+				catch (e)
+				{
+					// ignore
 				}
 
-				// Uses current state as shadow to compute diff since
-				// shadowPages has been modified in-place above
-				// LATER: Check if fallback to reload is possible
-//				this.reload(success, error, abort, this.ui.pages);
-				
+				// Fallback to full reload
+				this.reload(success, error, abort);
+
 				// Abnormal termination
 				return;
 			}
 			else
-			{
+			{	
+				this.file.setShadowPages(shadow);
+
 				// Patches the current document and own pages
 				if (this.patchRealtime(patches, null, pending) == null)
 				{
