@@ -481,7 +481,7 @@ Sidebar.prototype.createTooltip = function(elt, cells, w, h, title, showLabel, o
 		(!applyAllStyles) ? this.editorUi.editor.graph.defaultVertexStyle : null,
 		(!applyAllStyles) ? this.editorUi.editor.graph.defaultEdgeStyle : null,
 		applyAllStyles, true);
-
+	
 	this.graph2.addCells(temp);
 
 	mxClient.NO_FO = fo;
@@ -1431,19 +1431,20 @@ Sidebar.prototype.addMiscPalette = function(expand)
  			'<ul><li>Value 1</li><li>Value 2</li><li>Value 3</li></ul>', 'Unordered List'),
 	 	this.createVertexTemplateEntry('text;strokeColor=none;fillColor=none;html=1;whiteSpace=wrap;verticalAlign=middle;overflow=hidden;', 100, 80,
  			'<ol><li>Value 1</li><li>Value 2</li><li>Value 3</li></ol>', 'Ordered List'),
- 		this.addDataEntry('table', 180, 120, 'Table 1', '7ZjBTuMwEIafJteVnVDoXpuycGAvsC9g6mltyfFE9kAann7txN2qqIgU0aCllRJpZjxO7G9i/3KyoqzWN07U6jdKMFlxnRWlQ6TeqtYlGJPlTMusmGd5zsKd5b/eaOVdK6uFA0tDOuR9h2dhnqCP9AFPrUkBr0QdTRKPMTRTVIVhznkwG6UJHmqxiO1NmESIeRKOHvRLDLHgL9CS0BZc6rNAY0TtdfewPkNpI+9Ei0+0ec3Gm6XhgSNYvznFLpTmdwNYAbk2pDRakkoZ0x4DU6BXatMtsWHC94HVv75bYsFI0PYDLA4EeI9NZIhOv0QwJjF4Tc03ujLCwi0I+So0Q9mmEGGdLANLSuYjEmGVHJemy/aSlw7rP8KtYJOy1MaUaDAWy6KN5a5RW+oATWbhCshK9mOSTcLMyuDzrR+umO6oROvJhaLHx4Lw1IAfXMz8Y8W8+IRaXgyvZRgxaWHuYUHCroasi7AObMze0t8D+7CCYkC5NPGDmistJdihjIt3GV8eCfHkxBGvd/GOQPzyTHxnsx8B+dVZE0bRhHa3ZGNIxPRUVtPVl0nEzxNHPL5EcHZGPrZGcH4WiTFFYjqiSPADTtX/93ri7x+9j7aADjh5f0/IXyAU3+GE3O1L4K6fod+e+CfV4YjqEdztL8GubeeP4V8='),
- 		this.addDataEntry('table', 180, 120, 'Table 2', '7ZhRb5swEMc/Da+TDSFJX0O27qF7aae9u8EJlowP2ZcR+ulng1maJlbTaaEPIBHpfL5z8O/v0wlHSVYe7jWrih+QcxklX6Mk0wDYWeUh41JGMRF5lKyjOCb2F8XfArO0nSUV01zhNQlxl/CbyT3vPJ3DYCO9wxSsciayZ+daFVja11xTa9aFQP5UsY2br+0mrM8g0/gkXpyL2PEGFDKhuPY5G5CSVUa0i3URhZD5A2tgj/3f9CMXvS/Vg803PlpD/Xro359r5Icgg9blAdxzKDnqxobUIsfCRyw7TqTgYlf0aR4eYaZz7P7mHpFaw1O9TDj5IOFHqB1k0OLFkZN+n2+xmlqUkin+nbP8jWsFeeNdCJW3JN+iN58BEcoep98uuShNrqH6yfSO9yFbIWUGEpyaCpQ7DxUIhS2gdGUfiywjX9IotTvL7Jgex/Zx4RozUAa1PRVuWc4M1tzgtWLG/ybm7D9oOTvT8ldrxoQGRbWvjoLJR75BpnbXVJCtGOWijzJcoP4xZcEy3Up3staFyHOu3KL2ePkDReNr4Sfvwp/fiH0aZB8uqFGwP5xyH0CKeVCKZJLidd8YQIvF1F4GaS/NqWRDdJtlsMxmIymzxad1m7sg+3Tc7IfvNpQEtZhPWgzcbiid+s2Q/WY5YL+h55cBfaEtRlJo9P2bgptV1vlFQU9/OXL6n9Bzwl/6d5MYN246dni8AG3nTu5H/wA='),
-		this.addDataEntry('table title', 180, 150, 'Table with Title 1', '7ZjBbtswDEC/xtfBsuumu8bZusN2afoDasxYAmjJkNk57tePkpVlXdMlBRYXaAI4AEmRcvgogpCTvGw2t0626oetAJP8S5KXzloapWZTAmKSpbpK8kWSZSn/kuzrK6sirKatdGDomIBsDPgp8RFGy718QBitHQ0YrZ2SrRcprObzjqSjpX7ytjxlw8oaktqAY4MIOqJsOx3cF8FDaay+y8E+0najrTZfc/Qyvs1HS9S1YXnFafgt5/FvgiPYvJpqMMU8b8E2QG5gl15XpKLHzYgjVaBrtQ0rolF2o6H+Hbsjx0KEtx9k/gLkvxne2Z7TUtbpJ08OI6Q/uQa91w1KA99AVn+Z5rYaoolsGyWENUXxwRLZJiouppvuLU3lbHsvXQ1bl7VGLC1aX01jja94a7WhAKiY88PIyvRTkRScWcm62On8eHdHpTUdOT4VfluQHfXQ0bHFzPYXc4i4Y8kO1fbqP5T26vjScgKkJd7BiqSpQ6coajCe6l5pgmUrV961554f+8Z4710x9rB/W30tk12jP18LpasKzLHI84P9c30ixMWZI948xzsB8esL8RCQTYd8dhkRU46I2YQj4uZcumn2biPi85kjnn5EiPSCfOoZIcRlSEw5JISYcEqIl7ftD9pQ4vBV/GQd9Iab+MeE/A6T4myuyAeYn3BUsLr7LBjWnn01/AU='),
-		this.addDataEntry('table title', 180, 120, 'Table with Title 2', '7VhNc5swEP01XDt8xG58NU7Tg3uJM70rZg2aERIjbQLk13cl5DopJnHTYnPIDJ7ZT5l9T/sOBElaNreaVcUPlYEIkpsgSbVS2Fllk4IQQRzyLEhWQRyH9AvibwPZyGXDimmQeEpD3DU8MfEIXeSePQjoogZb4aOmYJU10WWTpUGmccOfbSwJKbBVEhmXoCkQOV8IVhnuyleuouAiW7NWPeL+oL233PEGsjtVG9+tVb2mw4xv3dHhG/8yNu1fGjRCMzi4C/mpb0GVgLqlkppnWPiK6w6csACeF/s2j1jITBfIf/cecCTDQ3kc1qQH69uI0ug0VqE0f7Y4Cj/3S5SdX/NSMAnfgWV/hJYqa30IVeUtATv05oNCVKV3tB83PEpUplV1z3QO+5IdFyJVQllupZKW/0pxiQ6g2ZIegiwNv8yCGU2Wkh8dfHpsucZUSYOa7og9FpjBGgyeSmZ8nMzWw+0pe4/b5D9Qe9WjNhrkliZAzsQdbJHJ3C1OgaXwt7guOMKmYltbWpMEdGskbfWBjSPg/x3BiqDdCXvBVgXPMpB7+kDfPEHH4slLlby7VFcj4T7r4f7TmXE4cfyZ4Dlhvupql4b+kMt83XXOBwj6FzKa10S8XIqxyJl/6t059W5+Rr372qN2mNtJ7NuH12l+MW27HtS2iWM9nrYNkHEBbVt8ats5tW1xRm2Lwh63ybQX7sP7tLiYuEXRoLpNHOzx1G2AjfHVjdzDxwWXe/Xt4Rc='),
-		this.addDataEntry('crossfunctional cross-functional cross functional flowchart swimlane table', 400, 400, 'Cross-Functional Flowchart', '7ZjRatswFIafxpcDy87a7nJJlvZig9HuBVT7JBLIOkZSGrtPPymS2622Gwc6z6WGXBz9HBnxfxz+cKJ0VVTXipbsB+YgovRblMTul64Uonk+N2pRrUAIW/M8StdR4vQkSjYDOsmxMy6pAmnOvZz4yw9U7MEr9oFaf9rsZWY4SuqaNwIPGaPK+GZtahGaNaOlKw29d9IyY1zk32mNe9OozWmpjf3CHX90/YvYNaMQtNT8eHXtFAXZXmn+ALegfaNToSqpzMNhi9LchQcQew7vB2Wg6vXjKL0w49mSa8ACjKrt+cBzw/ydRexdjBnwHTMvRKq9sHu62224FYPnp1mkLRZfM4PKSuR142/xYJ1gqPijdcci81a1DNcHXggq4QZoY2cjLTGvg2SwDJWArQnlPRqDRYMpGOLqXGH5i6odNMKWC7FCYd+driVKGBV0MhR03fD03zjFnST/kPuixf0noxq6uQdeg2n+aaMfOikhC/PaB+w/jmo6lGDVS/AJ1mgEP/cSTGaCpwiSiykgvOhFmM4ITyFMrqaA8LI3PzumcM7Pt8jPrtkdP0CvWuAnMLLjTuzle4zNLzO3c7lNIyxJPJM7l9w0MpKQ3pDs+J8zh+RbhGQX+fFDkrRXPR9uZsngRdCUYpK0F0MzuXcSlO3dzoxuUkl5FJudfOj4a3H/Gw=='),
+ 		this.addDataEntry('table', 180, 120, 'Table 1', '7VnbcpswEP0aXjtcYsd9NUnTh/Yl6Q8o1trSVEiMWAeTr+8KhGlSe2xwJpMSZvCMdtmVteccwY4IkjTb3VmWi5+GgwqS2yBJrTHYjLJdCkoFcSh5kNwEcRzSL4i/Hbkb1XfDnFnQeE5C3CQ8MbWFxtM4CqyUdxSC5W6I7NG5lgUyiw/y2flCsldGI5MaLNlRbSvF8kLW0U2EkIr/YJXZYjtPay3XlO0ni+Zk+/WARdgdral2+YLuwGSAtqKQUnIUPmLR1B0KkBvRpnkwQlY0js0+t4OIBh6lw4glPRG7NyWVJYyVzw4o5TF5jWJRykwxDd+B8VeupeHVPsua35AaZRzaUguw0qGIJvcRCtboh48G0WTesB6G8CBD3Jr8F7MbaEPWUqn2b7TRjvfcSI01cLMlXQRlGn6ZBTOqOCU76my6XLjF1GhaMYnDTQuswBKKwaTHw0i/egPOr87nnFaMkql7WCHTm3rDCMyU3xulkAgPOVu50JJ2fbN/tIvu2DjGsiGE1srp6UZIzkEfJqqfGGpawd4+QcNuNJSf5CQ/8570+Mk6LHvPxhSVphnSHtpqXvzD+X6dZ8lgNslgsAx2L0kbkSrmkyouVcX+xTwiWVxPfcKH6hOql6S/R9uwmJ4Mp+m6Hn3b8HWSwWAZjLdtiMJJFpfKYox9QxRNjcNHbBwW79g4RD2O5T7vsyE6fQz43z8Mepw2TkL4RM3DdCJ5uS5G0D2Q2X0rasL//pT0Bw=='),
+ 		this.addDataEntry('table', 180, 120, 'Table 2', '7ZlLc9owEMc/ja8dP3jlimnSQ3pJOr0reMGayFqPvNSQT9+VLUMCOEDbyaTYM2ZGWq9e/99K7MheFGfrOyPy9DsmoLzoqxfFBpHqUraOQSkv9GXiRTMvDH3+eeFty9ugeuvnwoCmcxqEdYNfQq2gttSGgjbKGYpU5LZI4smapillPM1ZwMUylQSPuZjb9yUvgm0FCUOP8sWafK7PUZOQGoxrM0elRF7IqrPaI5UquRcbXFEzTFOz3qtM33P7wnkbLF9XF9y9Gy0YVcMbfIYYFdoBE1iIlbIduXWCIVi3alWZnFB3gBmQ2bBLKRNKncek1tNPQS7TppkT2RdFbVhu2+6k54JT/ziJ6EISD1haGGjki1VYOT325S9KmSmh4RuIZM80xWTjTIS5KylYkCs+IRFmjexuuf5RhInB/IcwS2hcFlKpBoJGbeMmR6mpEmg45Ycli/0vQ2/IK4u5Huzq/Fh3QzFq5snRY7sFUVAJBZ2ELnUKRp4NPfwz6IN/wHxwwPxnVQz9oBU+T52kUA8wJ6GX5+xI3oHaeu9wHaFzWQQga7pQNgJnqUwS0HtQwr+FEp2EMrqQietsp9vFvQlFYLQg3jgrnRQHoLfzPIv9sJV9+8bvNPv1W1JXFAqj1lCI+lB4JxS2/7tXFAvjPg34VGnA5i30j8gKJq3HwaDjx8H46rOCm1b2w559t7KCwG+NhVEfCx1LC4Kgzws+Y14w+cC8IDi8rGsOhHHHD4Tg9M3df38CHF4QNvQnPf2u5QbtN4c3fTBceXLA1d0Hotr99fej3w=='),
+		this.addDataEntry('table title', 180, 150, 'Table with Title 1', '7VnbbtswDP0avw6WXSfda5yue9he2v6AGjGRMFkyZKZO+vWjbOWyJVluQ9G6BmxApChaOudIIOQozYvFveOl/GkF6Ci9i9LcWYttq1jkoHWUxEpE6ThKkpjeKPl2oJc1vXHJHRg8ZUDSDnjheg6t54k/a2i9FS518FaSl76JTW86qpA7fFSv3pfG5JhYg1wZcORgja01LyvVhI+bCKm0+MGXdo6rRCuL0jn7C3KrrR8vYMrn2vunlDV8hQ3IDrMFh7A4uOLGFZZ7D7YAdEsKqZVAGSJuW1RiCWomV8Oy4ORV65itx24ApEbAcD+e6Q6e/4bywda0LGmdevUA6oDVNryNXatCcwPfgYu/XCMrlutR2ygqI8EpjyLaMkRomGJoPltEWwTDBRjivcwJZ8sn7mawCpkqrVefMdZ4QZRWGWyAy0b0EJR5/CWLMlpxTjbb2PT4cIe5NTRjEo1PC7zCGqqLSU/2k74MtARqj2ng5j9I4OZ0CdACUHH9ABPkZtZsLImFDluolgrhseQTH1rTEdFuM+OjN+QcIt0SYFPt5TWWSggw+3k7TxsNy+DuXqAlm11KV3p0jw7OpCck22B5djauaWmGI22puRHVDufreZ4kg6yXwcUyWPxJWodUMehVca0qWNI9WQz7suE9lg3DNywbbvuT4Thdw86XDV97GVwsg+6WDSzuZXGtLLpYNzDWFw7vsXBg7A0rB7Z7idcfDru3gsevBT/8aXDG7WMvhE9UPfRXktfrogPlA5mbP0tt+PaPp98='),
+		this.addDataEntry('table title', 180, 120, 'Table with Title 2', '7VhNb6MwEP01XFd8NNnmGtLtHrKXptq7Gw9grbGRmZSkv34HbEJ3CdtklaYoqgSSZxgP+L1nPwkvivPtvWFF9kNzkF5050Wx0RrtKN/GIKUX+oJ70cILQ59uL/w28DRonvoFM6DwmAmhnfDM5AZs5pE9SbDZEnfSZcuMFfUQm6fRvERmcCVe6lzkU2KtFTKhwFAiaGIpWVGKpnzRVGRC8iXb6Q22jdponogt8AddlW620dWSmpVuakLNV+5j/ObtRv+CWEtdv45DwjYS2zr7UcGUYrc4MAjbQYCalEPnHnQOaHZUUgmOmau4tSD6GYg0a6c5ZH1W2kS6n9vhTQMH+WH4ox78/0aeIKJlZdqIlxpvucejY6OJK5FLpuA7MP5Xaq75zqVQF24kIUE3fNKIOneBccv1DxLKjS4emUmhLUmElC0pSqtaJ4UWChuAJnO6CLLY/zLxJrSymOKgi+mqyw3GWhG/pKW6LbASKyixR7pQGRjx36SHh0nfOVoctW9pIDqDBG56EggGNUArQMHkA6yRqbTZiBnm0m2aKhMIq4Kt69KKjhS7LVVd3bF2gKTThKAJ2kTWQlxkgnNQLc1g7p7Bsh2cm6/ozU16cyI/rlmH5cndmKQlK4a0pzaKlz3S9995lA4mPR38bIahP3I9MClS0sDC1s5LeqFQ6dLOnA4I5hLi2P5J5evNfF6xHNXuvGqZfhrHGI1jekHj+NqTwLAGRnFQvPs5ML16k7gdNImRc//xJjEgjms2idmnSYzRJGYXNInA72kgGvdJ8e4HwezqXSIIBm1i5OR/vE0MqOOKbILC7v+iLX/9+/E3'),
+		this.addDataEntry('crossfunctional cross-functional cross functional flowchart swimlane table', 400, 400, 'Cross-Functional Flowchart',
+			'7ZnfbpswFMafhstN/EnS7nIhS3fRSlO2F3DhNFhzfJB90iR9+tlgkirgFUXtqjIkItmHY2O+84v1yQRJutnfKFYWd5iDCJJvQZIqRKpbm30KQgRxyPMgWQRxHJpfEC89d6PqblgyBZL6DIjrAY9MbKGOmIdr/Wm5lRlxlMwmLwXusoIpqpM1HYRL1gUrbZPYvQ3Ns4KL/JYdcEtNtOnNNZkZfvInmz8JbTIKwUrNq6ELG1GQbZXmj7ACXSfaKOxLJnPXeUDZTBLNTN+tHxTB3qtBFXIC3ABugNTBpOx4TkWdMQlrncIC+LqgsyDTdWB9HHuS1DScqt0KJy2Fv2aEyoSiv8u5wp15vwIVfzLvbApRC6B3fCOYhO/A8rPQHPODCxGWriXggZo8UvgbUhTm8cmCywIUt5W5RyLcNDVw72/bucLyF1NroOfqu/VWfS5EM59EaREokUuq9JrOzWUUTMPP02Bq3i81/ejUN5dNV5SiNEtjvCoXME070O9MTNxNzKEBox7xEkBR/AoATVoA/SiYhm6AHAm9OTkvqA+RDKWEzP3NfaV/x3ol3fXae+t1LE3vernZV1YGuRZwyXxMECjJyJRgK3PdwuC49F5kTL1kxCMZ/ciIZsNEY+ZFIxnR6IdGfD1MNK68hqRj1xgNyYcwJF3b2Ns5kusWQa+/p7T3Dh8sL+wp/7ZMV/+jD/ky8nAZD0N1H1E4EnEZEUM1HVHkdR0dhnR0HR/CdXTB+nauI2qfVY6bSiOw54Rz2L4jap+tjkT0I2KwzqN9Wjoi0Q+JgVgP0z19PqvTn39d+wM='),
 		
  		this.addDataEntry('table', 280, 160, 'Table', '7Zpdc6IwFIZ/DfcksSqX1X7sxe6NdvY+ylEyjYQJsWp//QZIrDXSIkUdcZ3pTDiSNHmfHF5yRo8MF+tnSZPojwiBe+TRI0MphCpai/UQOPewz0KPPHgY+/rPw08l36L8Wz+hEmJVpQMuOrxRvoQicp+moNIinKoNN+FpxHj4m27EMhtX0QkHezWQMF3KlL3BCFL2nnXwdTRVUrzCUHAh8yFI0J/M9AzJYMY434nf94ZBB2c9IhqKlQ5mN5mJgVSwLl1cHjIrewaxACU3+pYVC1VkFtgvBPAjYPPIduuaIE2LwHzb90Mr3TByHZaOOBrp+Sdg1RllKxlEQrJ3ESvKt6pQqcY7Kq3YgtMYfgEN90IDEW5MSInEtDjMlGlOhFJiYS6kWV3WDqVIXqicgw1MBec0SdmE2397GBmsExrbacz0tMdmcS5PFkcgmXJpzvJPVYC4HkBCfs6v42z9F6b0arGP3N0v4himOdcvBayo0XbHU87msY5NtSAg90RH5nqn41P+yfaVWvBjEoV8q3NAjpPZDDbKZInnuW5Hjka5XnNMld7oyzhMHXbbeVbCeVeKE98MzvVn8Xd5dBqlW2G0Zul2S+m6j+GW00X9nov3ypO35+D9b64nM9fNZ6Lfei3+udf2Hb5/8+apvfYj6iTvKmIKxgmdZuOt9At4jUTt1XPVLwStkZh7ozWbmEEpuNO66mXAHemf9TlWGK1ZjsgvBXlaA70oyMpWeUUZidAteyWq7pWP90/4gTTjld27il6Jfu6VyK3J2FTtnClVm8hM9H1t5mDyfKFgjVTcG63hVCSlpO5aQOpIN6wPrsJoDYNzaz8WXLc94Cq73zWlnFvmuSH3u9BJMehWdL8GqrLIrfTY1OydKTX3FT/Ji2uxkVtdkUVuVcei7N8CyvZWY1F5PSe4IbJtrMQit+JzQwZ7oeMlsnW2c5wvcXkpyFaJruPtN6jnoFf0tovdWs8W1bkK56dE1d4Tpn1qHiLnPlCvllwLjpj68uPnVsXtu7/G+gc='),
 		
  		this.addDataEntry('table', 180, 140, 'Table', '7ZhNc5swEIZ/DXc+HH9cTdv00F7sTu8yWoOmi8QIOUB+fSUjJXEwMbZzgcl4PKNdIVn7PlovkhfFef0oSZH9FhTQi757USyFUG0rr2NA9EKfUS/65oWhr79e+KOnNzj2+gWRwNWQAWE74IngAVpP6yhVg9aRZAzpL9KIg5lRkR2Cs9YSkoMs2RNsoGTPZoCvvWVGqKissWeIsUAhtc0FB9OvpPgHzumFUeybj+6xqwGpoO6N6Oiy4TyCyEHJRj9SMaoy+8SyjdrPgKWZGzazTlK2jvRl7KtAumE1Oq9XdFkvHX0BTqmN0WGdCcmeBVcEnUKKSLV9o1jFciQcfgKh71xrQRvrUqKwLYS9ss2dUErk1pA2XNOmUhR/iEzBORKBSIqS7dD97Hl8UBeEu2Xs9bK3NrgenIOghbdBmy3uZzbrMPt7bIZ+0N3sgnNIjug+1Oh0C1shzmhDkKVcm4kWArR/XWVMwbYgiZmp0nlvtofKzcYIhmoZXdRyfqWUdrKNCZ2nCNfPRlDHx4nS+/XAadnh87LOQcgeepGd+X8aMbL6VOAJEZz3EoymSDAIp4dw8VXa7iltzSmji5Vufn+lW/Ym3WycSbe4rdJ9IOUNSfZuts9NslUvsodJIbuy0o2IYOD3IpxPEeHgUjcmht2TwFetu77WraKBte4TTnVB9+rCpV33xWUUaRdcvtgY+ytl0L0/cdCW04I23ZNd0H+fspokwwmc7bT5eqfcPv72yvk/'),
 		
  		this.addDataEntry('table', 180, 140, 'Table', '7ZhLc5swEMc/DXcejh9X3CY9tBe707uM1qCpkBixDpBPX2GkvLBi7LgHmBw8s1okof3/tF4kL1rn9YMiRfZLUuBe9N2L1kpK7Ky8XgPnXugz6kXfvDD09c8L7x1Pg+NTvyAKBA4ZEHYDHgk/QOfpHCU23DiSjHH6kzTy0M6IZMfBtmIFyUGV7BE2ULKndoCvvWVGqKxMY884X0sulW4LKXSf2LwTFELtXPfRZRb9ADIHVI3uUjGKmemx7GLzM2BpZofNjJOUnSN9HvsigzaMEqdVic6romMswOqxaaONM6nYkxRIuNUBicLtK10qlnMi4AcQ+s4VS9oYF8rCWBz2aMydRJS5aSgTbmtTJYvfRKVgHYnknBQl23H72tOQoC6IsMvY62VvTXAOaCUq+Resk4kMFMOhMMPrYM4Wn2c567H8czRDP+hvdSkEJEekH2rn0uKEbISzVOhmorUA7Y+rjCFsC5K0k1U68dudg3m7Z4KhckZn5ZxfqKaZbNNGL1IOl89GuI5PENRb+SBo2UP0vM5B1O6c1E78QY2bWv1W4wlBnDshRhOFGITTo7j4qn3/o/Y1b9mdLYXzz5fCpTMfZ6PNx8V1pfADNa/Iv3ez3Tb/Vk5qd1OjdmEpHBHEwHdSnE+U4uBaOCaM/TPDVzG8XTFcRQOL4Q3OhUH/6sNmZP+LZywZGZy/NRn752jQv5yx3JaT4zbds2HgvpdZTRXjBE6HuvlyOd11f313/Q8='),
-
-	 	this.createVertexTemplateEntry('text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;overflow=fill;', 160, 140,
+		
+	 	this.createVertexTemplateEntry('text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;overflow=fill;', 180, 180,
  			'<table border="1" width="100%" height="100%" cellpadding="4" style="width:100%;height:100%;border-collapse:collapse;">' +
  			'<tr><th align="center"><b>Title</b></th></tr>' +
  			'<tr><td align="center">Section 1.1\nSection 1.2\nSection 1.3</td></tr>' +
@@ -2122,6 +2123,9 @@ Sidebar.prototype.createThumb = function(cells, width, height, parent, title, sh
 	}
 
 	this.graph.getModel().clear();
+	this.graph.view.scaleAndTranslate(1, 0, 0);
+	this.graph.shapeBackgroundColor = (Editor.isDarkMode() ?
+		'#2a252f' : '#f1f3f4');
 	mxClient.NO_FO = fo;
 	
 	node.style.position = 'relative';
@@ -2951,15 +2955,15 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 	{
 		dragSource.createDragElement = mxUtils.bind(this, function()
 		{
-			return dragSource.createPreviewElement(graph);
+			return dragSource.createPreviewElement(this.graph);
 		});
 		
-		dragSource.createPreviewElement = mxUtils.bind(this, function(graph)
+		dragSource.createPreviewElement = mxUtils.bind(this, function(targetGraph)
 		{
 			var elt = document.createElement('a');
 			elt.className = 'geItem';
 			elt.style.overflow = 'visible';
-			var s = graph.view.scale;
+			var s = targetGraph.view.scale;
 			elt.style.width = (s * Math.max(1, bounds.width)) + 'px';
 			elt.style.height = (s * Math.max(1, bounds.height)) + 'px';
 			
@@ -2967,8 +2971,8 @@ Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, 
 			mxUtils.setOpacity(elt, 50);
 
 			var clones = graph.cloneCells(cells);
-			ui.insertHandler(clones, null, graph.model, graph.defaultVertexStyle,
-				graph.defaultEdgeStyle, true, true);
+			ui.insertHandler(clones, null, this.graph.model,
+				null, null, true, true);
 			
 			sidebar.createThumb(clones, s * Math.max(1, bounds.width),
 				s * Math.max(1, bounds.height), elt, null, null, null,

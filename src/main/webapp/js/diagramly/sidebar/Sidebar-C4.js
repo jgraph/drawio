@@ -4,7 +4,6 @@
 	{
 		var w = 100;
 		var h = 100;
-		var gn = 'mxgraph.c4';
 		var dt = 'c4 ';
 		var pts = 'points=[[0.25,0,0],[0.5,0,0],[0.75,0,0],[1,0.25,0],[1,0.5,0],[1,0.75,0],[0.75,1,0],[0.5,1,0],[0.25,1,0],[0,0.75,0],[0,0.5,0],[0,0.25,0]];';
 		this.setCurrentSearchEntryLibrary('c4');
@@ -273,36 +272,9 @@
 		    	bg.setAttribute('label', '<font style="font-size: 16px"><b><div style="text-align: left">%c4Name%</div></b></font><div style="text-align: left">%c4Description%</div>');
 			    
 			   	return sb.createVertexTemplateFromCells([bg], bg.geometry.width, bg.geometry.height, 'Components diagram title');
-			}),				
-			this.addEntry(dt + 'legend', function()
-		   	{
-			    var bg1 = new mxCell('Legend', 
-			    		new mxGeometry(0, 0, w * 1.8, h * 0.3), 'align=left;fontSize=16;fontStyle=1;strokeColor=none;fillColor=none;fontColor=#4D4D4D;spacingTop=-8;resizable=0;');
-		    	bg1.vertex = true;
-			    var bg2 = new mxCell('', 
-			    		new mxGeometry(0, 30, w * 1.8, h * 1.8), 'shape=table;html=1;whiteSpace=wrap;startSize=0;container=1;collapsible=0;childLayout=tableLayout;fillColor=none;align=left;spacingLeft=10;strokeColor=none;rounded=1;arcSize=11;fontColor=#FFFFFF;resizable=0;' + pts);
-		    	bg2.vertex = true;
-			    var tableEntry1 = new mxCell('Person', new mxGeometry(0, 0, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#1E4074;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;strokeColor=none;fontColor=#FFFFFF;');
-		    	tableEntry1.vertex = true;
-		    	bg2.insert(tableEntry1);
-			    var tableEntry2 = new mxCell('Software System', new mxGeometry(0, 30, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#3162AF;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;fontColor=#FFFFFF;');
-		    	tableEntry2.vertex = true;
-		    	bg2.insert(tableEntry2);
-			    var tableEntry3 = new mxCell('Container', new mxGeometry(0, 30, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#52A2D8;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;fontColor=#FFFFFF;');
-		    	tableEntry3.vertex = true;
-		    	bg2.insert(tableEntry3);
-			    var tableEntry4 = new mxCell('Component', new mxGeometry(0, 30, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#7CBEF1;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;fontColor=#FFFFFF;');
-		    	tableEntry4.vertex = true;
-		    	bg2.insert(tableEntry4);
-			    var tableEntry5 = new mxCell('External Person', new mxGeometry(0, 30, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#6B6477;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;fontColor=#FFFFFF;');
-		    	tableEntry5.vertex = true;
-		    	bg2.insert(tableEntry5);
-			    var tableEntry6 = new mxCell('External Software System', new mxGeometry(0, 30, 160, 30), 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;fillColor=#8B8496;top=0;left=0;bottom=0;right=0;overflow=hidden;pointerEvents=1;align=left;spacingLeft=10;fontColor=#FFFFFF;');
-		    	tableEntry6.vertex = true;
-		    	bg2.insert(tableEntry6);
-			    
-			   	return sb.createVertexTemplateFromCells([bg1, bg2], bg2.geometry.width, bg1.geometry.height + bg2.geometry.height, 'Legend');
-			})				
+			}),
+			this.addDataEntry(dt + 'legend', 180, 210, 'Legend',
+				'7VnbbuIwEP2avK5yBx5LoN2HrrQq+wOGDIm1jh05bgP9+h07DmEJdGm1QimFi5Q5Hjv2nOMjxXGCpNg8SFLmP0QKzAnmTpBIIVRzVWwSYMzxXZo6wczxfRf/jn9/otUzrW5JJHB1Tge/6fBC2DM0yCNkwNMGrtSWWbjKSakvFVlqaFopItWCvmoscBFYCa4I5SAR8EzMGCkratJnJiOnLH0kW/Gs2oHaaLrG3nY0L8aYMJpxDBisdfMLSEVXhN1ZWIlSd6KMJYIJfUsueDMtKX7DAagHbyHHD8KZ/rY3tUvUU65KsqI8ezT3nMUdYhcgoaKvpFuQrR3ODTYn628gW/wHEAUoucWUmqYqtxnjhiM3B5rltpvvWZBUDZDt+nZ04oVl9Di7QY/dt3l9EjUuKxeSvmo2mV3nPtcmrmnBCIfvQNIDaCrS7a7XPhWU5yCp5tJwZzIacs3lUiglirbOtgzuURmlUpS/iMygTTkig1JQrkzhoin+sJSJ+y1yIlxxgrHXxdHMpEsUCMcZo4L1sEAqVUN1qEz/XNL946RvLS2W2n9pIPgPEgh7EvgJshL8pBBwGYoS9gQrRXhm9nquCma3SJ1TBQvcFTq1Rttqdj7X2R1Fp6gXWLY10yKb5TRNgR+wh5vTm4fuKHy3TAzhIOcv0PDuHWHuwFMOXOHefBDPJEkpdG2ts/xlDp7bQU92HuG56gg+ZglvycGO1rH2/uEIwwJyonAPP/O06olsN9OzdBfdrGeI1hNf0HringQWYq1qnCuii22loBiqCwVe7N/dX7cLRV/AhUY3FxqiC00u6ELjngSS3ZPKQN0n8omfjq/bfUZfwH0mN/cZovt4/gXtp32M/8t/ihLrhJMdqP+M0iWs/ev2n8kX8B/PuxnQIA0ouqQB9Y945xujMp017MOgeBmHo9F1G5H3wQPiz+VEt5PoYTrR+JJO1D+L3nOiT3M2NF6Ow0l85aZ0hUfUGHbvVZv0/deufwA=')
 		]);
 		
 		this.setCurrentSearchEntryLibrary();

@@ -1,3 +1,24 @@
+11-JAN-2023: 20.8.4
+
+- Fixes evt is not defined in selectSiblings action
+- Adds sharp, rounded, curved option for wire shapes
+- Fixes drawing of markers and shadows in wire shape
+- Fixes sidebar triggers autosave, scale for preview
+- Fixed OneDrive share link [3273]
+- Fixes clientId in checksum error fallback logging
+- Fixes preview graph state, drag preview background
+- Shift+Click on About menu item shows console
+- [conf cloud] Adds viewerCanExceedPageWidth settings to allow increasing the viewer size above the allowed width [DID-7094]
+- Adds fallback for missing translations to show key
+- Fixes specificity for gePrimaryBtn dark mode style
+- Fixes possible NPE for missing resource in confirm
+- Saves file to Google Drive if sharing unavailable
+- Fixes draft dialog shape background for dark mode
+- Adds merge/unmerge to context menu for table cells
+- Fixes reset of view state after initial file save
+- Fixes change stroke color for table cells and rows
+- Removes span with cell styles after paste of text
+
 06-JAN-2023: 20.8.3
 
 - Adds logging for merge fallback success or failure

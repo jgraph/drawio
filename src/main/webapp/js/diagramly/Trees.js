@@ -323,7 +323,7 @@
 		}, null, null, 'Alt+Shift+P');
 		
 		// Adds actions
-		ui.actions.addAction('selectSiblings', function()
+		ui.actions.addAction('selectSiblings', function(evt)
 		{
 			if (graph.isEnabled() && graph.getSelectionCount() == 1)
 			{

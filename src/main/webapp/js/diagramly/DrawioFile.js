@@ -1247,7 +1247,32 @@ DrawioFile.prototype.move = function(folderId, success, error) { };
  */
 DrawioFile.prototype.share = function()
 {
-	this.ui.alert(mxResources.get('sharingAvailable'), null, 380);
+	if (this.ui.drive != null)
+	{
+		this.ui.confirm(mxResources.get('saveItToGoogleDriveToCollaborate', [this.getTitle()]),
+			mxUtils.bind(this, function()
+		{
+			this.ui.pickFolder(App.MODE_GOOGLE, mxUtils.bind(this, function(folderId)
+			{
+				var graph = this.ui.editor.graph;
+				var selection = graph.getSelectionCells();
+				var viewState = graph.getViewState();
+				var page = this.ui.currentPage;
+				
+				this.ui.createFile(this.getTitle(), this.ui.getFileData(null, null, null, null, null,
+					null, null, null, this), null, App.MODE_GOOGLE, null, true, folderId, null, null,
+					mxUtils.bind(this, function()
+					{
+						this.ui.restoreViewState(page, viewState, selection);
+						this.ui.actions.get('share').funct();
+					}));
+			}));
+		}), null, mxResources.get('saveToGoogleDrive', null, 'Save to Google Drive'), mxResources.get('cancel'));
+	}
+	else
+	{
+		this.ui.alert(mxResources.get('sharingAvailable'), null, 380);
+	}
 };
 
 /**

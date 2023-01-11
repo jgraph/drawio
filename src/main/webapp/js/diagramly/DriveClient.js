@@ -2354,14 +2354,17 @@ DriveClient.prototype.pickFolder = function(fn, force)
 	}
 	else
 	{
-		this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+		this.execute(mxUtils.bind(this, function()
 		{
-			this.folderPickerCallback({action: google.picker.Action.PICKED,
-				docs: [{type: 'folder', id: 'root'}]});
-		}), mxUtils.bind(this, function()
-		{
-			showPicker();
-		}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+			this.ui.confirm(mxResources.get('useRootFolder'), mxUtils.bind(this, function()
+			{
+				this.folderPickerCallback({action: google.picker.Action.PICKED,
+					docs: [{type: 'folder', id: 'root'}]});
+			}), mxUtils.bind(this, function()
+			{
+				showPicker();
+			}), mxResources.get('yes'), mxResources.get('noPickFolder') + '...', true);
+		}));
 	}
 };
 

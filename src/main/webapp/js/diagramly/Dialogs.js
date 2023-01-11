@@ -2231,18 +2231,20 @@ var ParseDialog = function(editorUi, title, defaultType)
 					var rowCell = new mxCell('', new mxGeometry(0, 0, 160, 30),
 						'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;fillColor=none;' +
 						'collapsible=0;dropTarget=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;' +
-						'top=0;left=0;right=0;bottom=' + (pk ? '1' : '0') + ';');
+						'strokeColor=inherit;top=0;left=0;right=0;bottom=' + (pk ? '1' : '0') + ';');
 					rowCell.vertex = true;
 					
 					var left = new mxCell(pk ? 'PK' : '', new mxGeometry(0, 0, 30, 30),
 						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;' +
-						'top=0;left=0;bottom=0;right=0;' + (pk ? 'fontStyle=1;' : ''));
+						'strokeColor=inherit;top=0;left=0;bottom=0;right=0;' +
+						(pk ? 'fontStyle=1;' : ''));
 					left.vertex = true;
 					rowCell.insert(left);
 					
 					var right = new mxCell(name, new mxGeometry(30, 0, 130, 30),
 						'shape=partialRectangle;overflow=hidden;connectable=0;fillColor=none;align=left;' +
-						'top=0;left=0;bottom=0;right=0;spacingLeft=6;' + (pk ? 'fontStyle=5;' : ''));
+						'strokeColor=inherit;top=0;left=0;bottom=0;right=0;spacingLeft=6;' +
+						(pk ? 'fontStyle=5;' : ''));
 					right.vertex = true;
 					rowCell.insert(right);
 					
@@ -6666,6 +6668,7 @@ var DraftDialog = function(editorUi, title, xml, editFn, discardFn, editLabel, d
 	var graph = new Graph(container);
 	graph.setEnabled(false);
 	graph.setPanning(true);
+	graph.shapeBackgroundColor = (Editor.isDarkMode() ? '#2a252f' : '#ffffff');
 	graph.panningHandler.ignoreCell = true;
 	graph.panningHandler.useLeftButtonForPanning = true;
 	graph.minFitScale = null;

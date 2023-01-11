@@ -2657,7 +2657,7 @@
 	 * @param {number} dx X-coordinate of the translation.
 	 * @param {number} dy Y-coordinate of the translation.
 	 */
-	EditorUi.prototype.fileLoaded = function(file, noDialogs)
+	EditorUi.prototype.fileLoaded = function(file, noDialogs, success)
 	{
 		var oldFile = this.getCurrentFile();
 		this.fileLoadedError = null;
@@ -2784,6 +2784,11 @@
 				if (this.chromelessResize)
 				{
 					this.chromelessResize();
+				}
+
+				if (success != null)
+				{
+					success();
 				}
 				
 				this.editor.fireEvent(new mxEventObject('fileLoaded'));
@@ -4248,8 +4253,9 @@
 	 */
 	EditorUi.prototype.confirm = function(msg, okFn, cancelFn, okLabel, cancelLabel, closable)
 	{
+		msg = (msg != null) ? msg : '';
 		var resume = (this.spinner != null && this.spinner.pause != null) ? this.spinner.pause() : function() {};
-		var height = Math.min(200, Math.ceil(msg.length / 50) * 28);
+		var height = Math.min(220, Math.ceil(Math.max(1, msg.length) / 50) * 28);
 		
 		var dlg = new ConfirmDialog(this, msg, function()
 		{
@@ -9852,23 +9858,39 @@
 					}
 
 					this.addMenuItems(menu, ['lockUnlock', '-'], null, evt);
-					
-					if (!this.isShowStyleItems() && graph.getSelectionCount() == 1 &&
-						!graph.isCellLocked(cell) && graph.isCellEditable(cell))
+
+					if (!this.isShowStyleItems())
 					{
-						this.addSubmenu('editCell', menu, null, mxResources.get('edit'));
-
-						// Show line submenu for edges
-						if (graph.getModel().isEdge(cell))
+						if (graph.getSelectionCount() == 1 && !graph.isCellLocked(cell) &&
+							graph.isCellEditable(cell))
 						{
-							this.addSubmenu('line', menu);
+							this.addSubmenu('editCell', menu, null, mxResources.get('edit'));
+							menu.addSeparator();
 
-							var geo = graph.getModel().getGeometry(cell);
-
-							if (geo != null && geo.points != null && geo.points.length > 0)
+							// Shows line submenu for edges
+							if (graph.getModel().isEdge(cell))
 							{
-								this.addMenuItems(menu, ['clearWaypoints'], null, evt);
+								this.addSubmenu('line', menu);
+
+								var geo = graph.getModel().getGeometry(cell);
+
+								if (geo != null && geo.points != null && geo.points.length > 0)
+								{
+									this.addMenuItems(menu, ['clearWaypoints'], null, evt);
+								}
 							}
+						}
+
+						// Shows table cell options
+						var ss = ui.getSelectionState();
+
+						if (ss.mergeCell != null)
+						{
+							var item = this.addMenuItem(menu, 'mergeCells');
+						}
+						else if (ss.style['colspan'] > 1 || ss.style['rowspan'] > 1)
+						{
+							var item = this.addMenuItem(menu, 'unmergeCells');
 						}
 					}
 				}

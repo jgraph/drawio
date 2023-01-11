@@ -458,12 +458,41 @@
 
 	WireShape.prototype.paintEdgeShape = function(c, pts)
 	{
-		c.save();
+		// The indirection via functions for markers is needed in
+		// order to apply the offsets before painting the line and
+		// paint the markers after painting the line.
+		var sourceMarker = this.createMarker(c, pts, true);
+		var targetMarker = this.createMarker(c, pts, false);
+
+		// Paints base line without dash pattern
 		c.setDashed(false);
-		mxConnector.prototype.paintEdgeShape.apply(this, [c, pts]);
-		c.restore();
+		mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
+		
+		// Paints dashed line with dash pattern and fill color
+		if (this.isDashed != null)
+		{
+			c.setDashed(this.isDashed, (this.style != null) ?
+				mxUtils.getValue(this.style, mxConstants.STYLE_FIX_DASH, false) == 1 : false);
+		}
+
+		c.setShadow(false);
 		c.setStrokeColor(this.fill);
-		mxPolyline.prototype.paintEdgeShape.apply(this, [c, pts]);
+		mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
+
+		// Paints markers with stroke color
+		c.setStrokeColor(this.stroke);
+		c.setFillColor(this.stroke);
+		c.setDashed(false);
+		
+		if (sourceMarker != null)
+		{
+			sourceMarker();
+		}
+		
+		if (targetMarker != null)
+		{
+			targetMarker();
+		}
 	};
 
 	mxCellRenderer.registerShape('wire', WireShape);

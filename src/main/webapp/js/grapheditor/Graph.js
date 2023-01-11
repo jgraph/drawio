@@ -145,7 +145,6 @@ if (!Uint8Array.from) {
   }());
 }
 
-// Changes default colors
 /**
  * Measurements Units
  */
@@ -207,7 +206,7 @@ mxGraphView.prototype.defaultGridColor = '#d0d0d0';
 mxGraphView.prototype.defaultDarkGridColor = '#424242';
 mxGraphView.prototype.gridColor = mxGraphView.prototype.defaultGridColor;
 
-//Units
+// Units
 mxGraphView.prototype.unit = mxConstants.POINTS;
 
 mxGraphView.prototype.setUnit = function(unit) 
@@ -229,7 +228,7 @@ mxShape.prototype.getConstraints = function(style, w, h)
 	return null;
 };
 
-// Override for clipSvg style.
+// Override for clipSvg style
 mxImageShape.prototype.getImageDataUri = function()
 {
 	var src = this.image;
@@ -248,6 +247,23 @@ mxImageShape.prototype.getImageDataUri = function()
 
 	return src;
 };
+
+// Override to use key as fallback
+(function()
+{
+	var mxResourcesGet = mxResources.get;
+
+	mxResources.get = function(key, params, defaultValue)
+	{
+		if (defaultValue == null)
+		{
+			defaultValue = key;
+		}
+
+		return mxResourcesGet.apply(this, [key, params, defaultValue]);
+	};
+
+})();
 
 /**
  * Constructs a new graph instance. Note that the constructor does not take a
@@ -2342,7 +2358,7 @@ Graph.prototype.init = function(container)
 	 */
 	Graph.prototype.isStrokeState = function(state)
 	{
-		return !this.isSpecialColor(state.style[mxConstants.STYLE_STROKECOLOR]);
+		return true;
 	};
 	
 	/**
@@ -6346,9 +6362,9 @@ Graph.prototype.createTable = function(rowCount, colCount, w, h, title, startSiz
 	startSize = (startSize != null) ? startSize : 30;
 	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;startSize=' +
 		((title != null) ? startSize : '0') + ';container=1;collapsible=0;childLayout=tableLayout;';
-	rowStyle = (rowStyle != null) ? rowStyle : 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;' +
+	rowStyle = (rowStyle != null) ? rowStyle : 'shape=tableRow;horizontal=0;startSize=0;swimlaneHead=0;swimlaneBody=0;strokeColor=inherit;' +
     	'top=0;left=0;bottom=0;right=0;collapsible=0;dropTarget=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;';
-	cellStyle = (cellStyle != null) ? cellStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;' +
+	cellStyle = (cellStyle != null) ? cellStyle : 'shape=partialRectangle;html=1;whiteSpace=wrap;connectable=0;strokeColor=inherit;' +
 		'overflow=hidden;fillColor=none;top=0;left=0;bottom=0;right=0;pointerEvents=1;';
 	
 	return this.createParent(this.createVertex(null, null, (title != null) ? title : '',
@@ -6400,11 +6416,11 @@ Graph.prototype.createCrossFunctionalSwimlane = function(rowCount, colCount, w, 
 	var s = 'collapsible=0;recursiveResize=0;expand=0;';
 	tableStyle = (tableStyle != null) ? tableStyle : 'shape=table;childLayout=tableLayout;' +
 		((title == null) ? 'startSize=0;fillColor=none;' : 'startSize=40;') + s;
-	rowStyle = (rowStyle != null) ? rowStyle : 'shape=tableRow;horizontal=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;' +
+	rowStyle = (rowStyle != null) ? rowStyle : 'shape=tableRow;horizontal=0;swimlaneHead=0;swimlaneBody=0;top=0;left=0;strokeColor=inherit;' +
 		'bottom=0;right=0;dropTarget=0;fontStyle=0;fillColor=none;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;startSize=40;' + s;
-	firstCellStyle = (firstCellStyle != null) ? firstCellStyle : 'swimlane;swimlaneHead=0;swimlaneBody=0;fontStyle=0;' +
+	firstCellStyle = (firstCellStyle != null) ? firstCellStyle : 'swimlane;swimlaneHead=0;swimlaneBody=0;fontStyle=0;strokeColor=inherit;' +
 		'connectable=0;fillColor=none;startSize=40;' + s;
-	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;swimlaneHead=0;swimlaneBody=0;fontStyle=0;connectable=0;' +
+	cellStyle = (cellStyle != null) ? cellStyle : 'swimlane;swimlaneHead=0;swimlaneBody=0;fontStyle=0;connectable=0;strokeColor=inherit;' +
 		'fillColor=none;startSize=0;' + s;
 	
 	var table = this.createVertex(null, null, (title != null) ? title : '', 0, 0,

@@ -4580,10 +4580,19 @@ App.prototype.saveFile = function(forceDialog, success)
 						{
 							this.pickFolder(mode, mxUtils.bind(this, function(folderId)
 							{
+								var graph = this.editor.graph;
+								var selection = graph.getSelectionCells();
+								var viewState = graph.getViewState();
+								var page = this.currentPage;
+								
 								this.createFile(name, this.getFileData(/(\.xml)$/i.test(name) ||
 									name.indexOf('.') < 0 || /(\.drawio)$/i.test(name),
-									/(\.svg)$/i.test(name), /(\.html)$/i.test(name)),
-									null, mode, done, this.mode == null, folderId);
+									/(\.svg)$/i.test(name), /(\.html)$/i.test(name)), null,
+									mode, done, this.mode == null, folderId, null, null,
+									mxUtils.bind(this, function()
+									{
+										this.restoreViewState(page, viewState, selection);
+									}));
 							}));
 						}
 						else if (mode != null)
@@ -4744,7 +4753,7 @@ App.prototype.getPeerForMode = function(mode)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs)
+App.prototype.createFile = function(title, data, libs, mode, done, replace, folderId, tempFile, clibs, success)
 {
 	mode = (tempFile) ? null : ((mode != null) ? mode : this.mode);
 
@@ -4783,7 +4792,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.drive.insertFile(title, data, folderId, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error);
 			}
 			else if (mode == App.MODE_GITHUB && this.gitHub != null)
@@ -4791,7 +4800,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.gitHub.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_GITLAB && this.gitLab != null)
@@ -4799,7 +4808,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.gitLab.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_TRELLO && this.trello != null)
@@ -4807,7 +4816,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.trello.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_DROPBOX && this.dropbox != null)
@@ -4815,7 +4824,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.dropbox.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error);
 			}
 			else if (mode == App.MODE_ONEDRIVE && this.oneDrive != null)
@@ -4823,7 +4832,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				this.oneDrive.insertFile(title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error, false, folderId);
 			}
 			else if (mode == App.MODE_BROWSER)
@@ -4831,7 +4840,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 				StorageFile.insertFile(this, title, data, mxUtils.bind(this, function(file)
 				{
 					complete();
-					this.fileCreated(file, libs, replace, done, clibs);
+					this.fileCreated(file, libs, replace, done, clibs, success);
 				}), error);
 			}
 			else if (!tempFile && mode == App.MODE_DEVICE && EditorUi.nativeFileSupport)
@@ -4844,7 +4853,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 					
 					file.saveFile(desc.name, false, mxUtils.bind(this, function()
 					{
-						this.fileCreated(file, libs, replace, done, clibs);
+						this.fileCreated(file, libs, replace, done, clibs, success);
 					}), error, true);
 				}), mxUtils.bind(this, function(e)
 				{
@@ -4857,7 +4866,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
 			else
 			{
 				complete();
-				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done, clibs);
+				this.fileCreated(new LocalFile(this, data, title, mode == null), libs, replace, done, clibs, success);
 			}
 		}
 		catch (e)
@@ -4874,7 +4883,7 @@ App.prototype.createFile = function(title, data, libs, mode, done, replace, fold
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-App.prototype.fileCreated = function(file, libs, replace, done, clibs)
+App.prototype.fileCreated = function(file, libs, replace, done, clibs, success)
 {
 	var url = window.location.pathname;
 	
@@ -4941,7 +4950,7 @@ App.prototype.fileCreated = function(file, libs, replace, done, clibs)
 			var fn3 = mxUtils.bind(this, function()
 			{
 				window.openFile = null;
-				this.fileLoaded(file);
+				this.fileLoaded(file, null, success);
 				
 				if (replace)
 				{

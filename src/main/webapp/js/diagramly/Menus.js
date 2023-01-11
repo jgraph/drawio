@@ -918,9 +918,13 @@
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return graph.shadowVisible; });
 
-		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function()
+		editorUi.actions.put('about', new Action(mxResources.get('about') + ' ' + EditorUi.VERSION + '...', function(arg1, evt)
 		{
-			if (editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
+			if (evt != null && mxEvent.isShiftDown(evt))
+			{
+				mxLog.show();
+			}
+			else if (editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
 				editorUi.alert(editorUi.editor.appName + ' ' + EditorUi.VERSION);
 			}

@@ -49,7 +49,7 @@ OneDriveFile.prototype.getFileUrl = function()
 				path = path.substring(path.indexOf('/root:') + 6);
 				
 				var id = this.meta.webUrl;
-				var url = id.substring(0, id.length - path.length - this.meta.name.length - ((path.length > 0) ? 1 : 0)); 
+				var url = id.substring(0, id.length - path.length - encodeURIComponent(this.meta.name).length - 1); 
 				id = id.substring(id.indexOf('/', 8));
 				
 				url = url + '/Forms/AllItems.aspx?id=' + id + '&parent=' + id.substring(0, id.lastIndexOf('/'));

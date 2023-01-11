@@ -934,6 +934,8 @@ BaseFormatPanel.prototype.createCellOption = function(label, key, defaultValue, 
 BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setColorFn,
 	defaultColor, listener, callbackFn, hideCheckbox, defaultColorValue)
 {
+	var graph = this.editorUi.editor.graph;
+
 	var div = document.createElement('div');
 	div.style.padding = '3px 0px 3px 0px';
 	div.style.whiteSpace = 'nowrap';
@@ -1030,8 +1032,9 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 					btn.setAttribute('title', name);
 				}
 			}
-			
-			if (color != null && color != mxConstants.NONE)
+
+			if (color != null && color != mxConstants.NONE &&
+				!graph.isSpecialColor(color))
 			{
 				cb.setAttribute('checked', 'checked');
 				cb.defaultChecked = true;
@@ -1167,7 +1170,7 @@ BaseFormatPanel.prototype.createCellColorOption = function(label, colorKey, defa
 		}
 		
 		return null;
-	}, function(color, realValue)
+	}, function(color)
 	{
 		graph.getModel().beginUpdate();
 		try
@@ -4913,6 +4916,26 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	var lineColor = this.createCellColorOption(label, strokeKey, 'default', null, mxUtils.bind(this, function(color)
 	{
 		graph.setCellStyles(strokeKey, color, ss.cells);
+
+		// Sets strokeColor to inherit for rows and cells in tables
+		if (color == null || color == mxConstants.NONE)
+		{
+			var tableCells = [];
+
+			for (var i = 0; i < ss.cells.length; i++)
+			{
+				if (graph.isTableCell(ss.cells[i]) ||
+					graph.isTableRow(ss.cells[i]))
+				{
+					tableCells.push(ss.cells[i]);
+				}
+			}
+
+			if (tableCells.length > 0)
+			{
+				graph.setCellStyles(strokeKey, 'inherit', tableCells);
+			}
+		}
 	}), graph.shapeForegroundColor);
 	
 	lineColor.appendChild(styleSelect);
@@ -5355,7 +5378,9 @@ StyleFormatPanel.prototype.addStroke = function(container)
 			altInput.value = (isNaN(tmp)) ? '' : tmp + ' pt';
 		}
 		
-		styleSelect.style.visibility = (ss.style.shape == 'connector' || ss.style.shape == 'filledEdge') ? '' : 'hidden';
+		styleSelect.style.visibility = (ss.style.shape == 'connector' ||
+			ss.style.shape == 'filledEdge' || ss.style.shape == 'wire') ?
+			'' : 'hidden';
 		
 		if (mxUtils.getValue(ss.style, mxConstants.STYLE_CURVED, null) == '1')
 		{

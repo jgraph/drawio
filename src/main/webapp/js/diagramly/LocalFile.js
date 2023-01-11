@@ -129,24 +129,6 @@ LocalFile.prototype.setDescriptor = function(desc)
  * @param {number} dx X-coordinate of the translation.
  * @param {number} dy Y-coordinate of the translation.
  */
-LocalFile.prototype.share = function()
-{
-	if (this.mode == null)
-	{
-		this.ui.actions.get('save').funct(false);
-	}
-	else
-	{
-		DrawioFile.prototype.share.apply(this, arguments);
-	}
-};
-
-/**
- * Translates this point by the given vector.
- * 
- * @param {number} dx X-coordinate of the translation.
- * @param {number} dy Y-coordinate of the translation.
- */
 LocalFile.prototype.getLatestVersion = function(success, error)
 {
 	if (this.fileHandle == null)
