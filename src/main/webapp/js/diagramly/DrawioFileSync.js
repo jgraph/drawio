@@ -1247,8 +1247,6 @@ DrawioFileSync.prototype.merge = function(patches, checksum, desc, success, erro
 				// Fallback to full reload with logging
 				this.reload(mxUtils.bind(this, function()
 				{
-					logError(false);
-
 					if (success != null)
 					{
 						success();

@@ -923,6 +923,11 @@
 			if (evt != null && mxEvent.isShiftDown(evt))
 			{
 				mxLog.show();
+
+				if (window.console != null)
+				{
+					console.log(editorUi, window);
+				}
 			}
 			else if (editorUi.isOffline() || mxClient.IS_CHROMEAPP || EditorUi.isElectronApp)
 			{
@@ -4077,8 +4082,8 @@
 			}
 			else
 			{
-				this.addMenuItems(menu, ((this.editorUi.format != null) ? ['format'] : []).
-					concat(['outline', 'layers', 'tags']).concat((editorUi.commentsSupported()) ?
+				this.addMenuItems(menu, (['format', 'outline', 'layers', 'tags']).
+					concat((editorUi.commentsSupported()) ?
 					['comments', '-'] : ['-']));
 				
 				this.addMenuItems(menu, ['-', 'search'], parent);

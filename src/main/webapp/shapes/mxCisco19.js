@@ -105,7 +105,11 @@ mxShapeCisco19Rect.prototype.paintVertexShape = function(c, x, y, w, h)
 	if (!circleBg.includes(prIcon) && prIcon != 'aci')
 	{
 		var frame = mxStencilRegistry.getStencil(bgIcon);
-		frame.drawShape(c, this, 0, 0, w, h);
+
+		if (frame != null)
+		{
+			frame.drawShape(c, this, 0, 0, w, h);
+		}
 	}
 
 	c.setShadow(false);

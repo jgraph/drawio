@@ -5553,6 +5553,11 @@ LucidImporter = {};
 			graph.setAttributeForCell(cell, 'link', getLink(p.Link[0]));
 		}
 		
+		if (p.NoteHint != null && p.NoteHint.t)
+		{
+			graph.setAttributeForCell(cell, 'Notes', p.NoteHint.t);
+		}
+
 		replacePlaceholders(cell, graph);
 		
 		for (var property in p)
@@ -5900,7 +5905,7 @@ LucidImporter = {};
 		
 		if (obj.id != null)
 		{
-			setAttributeForCell(cell, 'lucidchartObjectId', obj.id, graph);
+			cell.style += ';lucidId=' + obj.id + ';';
 		}
 
 		cell.lucidchartObject = obj;

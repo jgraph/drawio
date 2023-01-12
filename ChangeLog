@@ -1,3 +1,15 @@
+12-JAN-2023: 20.8.5
+
+- Fixes possible NPE [DID-7061]
+- Shows spinner while authorizing with Google Drive
+- Conf & Jira Cloud: Added error check to JSON.parse in multiple locations [DID-7101]
+- Lucid import: Added support for notes [DID-7053]
+- Retries saving after invalid response from Google
+- Fixes possible NPE in mxCellEditor
+- Fixes hidden Format option in view menu [DID-7133]
+- About shift+click prints window and app to console
+- Fixes possible NPE in Lucid import extension
+
 11-JAN-2023: 20.8.4
 
 - Fixes evt is not defined in selectSiblings action
