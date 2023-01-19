@@ -1,3 +1,9 @@
+19-JAN-2023: 20.8.7
+
+- Fixes initial page ID and name when creating files [DS-941]
+- [vsdx] Fixed edge/vertex detection [DID-7208]
+- Fixes log of ignored anoymous and extension errors
+
 18-JAN-2023: 20.8.6
 
 - Returns trash URL for trashed Google Drive files

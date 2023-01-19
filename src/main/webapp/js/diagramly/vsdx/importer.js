@@ -3601,6 +3601,7 @@ var com;
                         this.model = null;
                         this.shapes = ({});
                         this.connects = ({});
+                        this.connectsMap = {};
                         this.cellElements = ({});
                         this.model = model;
                         this.pageElement = pageElem;
@@ -3666,27 +3667,12 @@ var com;
                      */
                     mxVsdxPage.prototype.parseNodes = function (pageElem, model, pageName) {
                         var pageChild = pageElem.firstChild;
+                        // Parse connects first as it is needed in shapes types
                         while ((pageChild != null)) {
                             if (pageChild != null && (pageChild.nodeType == 1)) {
                                 var pageChildElem = pageChild;
                                 var childName = pageChildElem.nodeName;
                                 if ((function (o1, o2) { if (o1 && o1.equals) {
-                                    return o1.equals(o2);
-                                }
-                                else {
-                                    return o1 === o2;
-                                } })(childName, "Rel")) {
-                                    this.resolveRel(pageChildElem, model, pageName);
-                                }
-                                else if ((function (o1, o2) { if (o1 && o1.equals) {
-                                    return o1.equals(o2);
-                                }
-                                else {
-                                    return o1 === o2;
-                                } })(childName, "Shapes")) {
-                                    this.shapes = this.parseShapes(pageChildElem, null, false);
-                                }
-                                else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
                                 }
                                 else {
@@ -3699,6 +3685,7 @@ var com;
                                             var connectElem = connectNode;
                                             var connect = new com.mxgraph.io.vsdx.mxVsdxConnect(connectElem);
                                             var fromSheet = connect.getFromSheet();
+                                            this.connectsMap[fromSheet] = true;
                                             var previousConnect = (fromSheet != null && fromSheet > -1) ? (function (m, k) { if (m.entries == null)
                                                 m.entries = []; for (var i = 0; i < m.entries.length; i++)
                                                 if (m.entries[i].key.equals != null && m.entries[i].key.equals(k) || m.entries[i].key === k) {
@@ -3719,6 +3706,32 @@ var com;
                                         connectNode = connectNode.nextSibling;
                                     }
                                     ;
+                                }
+                            }
+                            pageChild = pageChild.nextSibling;
+                        }
+                        ;
+
+                        pageChild = pageElem.firstChild;
+                        while ((pageChild != null)) {
+                            if (pageChild != null && (pageChild.nodeType == 1)) {
+                                var pageChildElem = pageChild;
+                                var childName = pageChildElem.nodeName;
+                                if ((function (o1, o2) { if (o1 && o1.equals) {
+                                    return o1.equals(o2);
+                                }
+                                else {
+                                    return o1 === o2;
+                                } })(childName, "Rel")) {
+                                    this.resolveRel(pageChildElem, model, pageName);
+                                }
+                                else if ((function (o1, o2) { if (o1 && o1.equals) {
+                                    return o1.equals(o2);
+                                }
+                                else {
+                                    return o1 === o2;
+                                } })(childName, "Shapes")) {
+                                    this.shapes = this.parseShapes(pageChildElem, null, false);
                                 }
                                 else if ((function (o1, o2) { if (o1 && o1.equals) {
                                     return o1.equals(o2);
@@ -10015,10 +10028,11 @@ var com;
                         else {
                             _this.processGeomList(null);
                         }
+
                         // TODO It's hard to detect edges that should be treated like vertexes whhen they are groups and have child shapes.
                         // TODO Check this again if more complains are received or if we can have an edge group
-                        _this.vertex = vertex; /* || (_this.childShapes != null && !(function (m) { if (m.entries == null)
-                            m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1)); */
+                        _this.vertex = vertex || (!page.connectsMap[_this.Id] && (_this.childShapes != null && !(function (m) { if (m.entries == null)
+                            m.entries = []; return m.entries.length == 0; })(_this.childShapes)) || (_this.geomList != null && (!_this.geomList.isNoFill()  || _this.geomList.getGeoCount() > 1)));
                         _this.layerMember = _this.getValue(_this.getCellElement$java_lang_String("LayerMember"));
                         
                         if (_this.layerMember)

@@ -164,8 +164,8 @@
 			{
 				if (message == EditorUi.lastErrorMessage || (message != null && url != null &&
 					((message.indexOf('Script error') != -1) || (message.indexOf('extension:') != -1))) ||
-					(err != null && err.stack != null && err.stack.indexOf('extension:') != -1 &&
-					err.stack.indexOf('<anonymous>:') != -1))
+					(err != null && err.stack != null && ((err.stack.indexOf('extension:') != -1) ||
+					(err.stack.indexOf('<anonymous>:') != -1))))
 				{
 					// TODO log external domain script failure "Script error." is
 					// reported when the error occurs in a script that is hosted
@@ -1107,6 +1107,7 @@
 				if (uncompressed)
 				{
 					var diagramNode = node.ownerDocument.createElement('diagram');
+					diagramNode.setAttribute('name', mxResources.get('pageWithNumber', [1]));
 					diagramNode.setAttribute('id', Editor.guid());
 					diagramNode.appendChild(node);
 					
@@ -1128,6 +1129,7 @@
 					else
 					{
 						var diagramNode = node.ownerDocument.createElement('diagram');
+						diagramNode.setAttribute('name', mxResources.get('pageWithNumber', [1]));
 						diagramNode.setAttribute('id', Editor.guid());
 						mxUtils.setTextContent(diagramNode, data);
 						
@@ -1837,8 +1839,8 @@
 			if (node != null && node.nodeName == 'mxfile')
 			{
 				var nodes = node.getElementsByTagName('diagram');
-	
-				if (nodes.length > 1 || (nodes.length == 1 && nodes[0].hasAttribute('name')))
+
+				if (nodes.length > 0)
 				{
 					var selectedPage = null;
 					this.fileNode = node;
