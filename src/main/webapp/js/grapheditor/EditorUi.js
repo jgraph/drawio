@@ -237,9 +237,17 @@ EditorUi = function(editor, container, lightbox)
 				for (var i = 0; i < cells.length; i++)
 				{
 					var cell = cells[i];
+					var isText = asText;
 					var appliedStyles;
 
-					if (asText)
+					// Applies basic text styles for cells with text class
+					if (cell.style != null && !isText)
+					{
+						pairs = cell.style.split(';');
+						isText = isText || mxUtils.indexOf(pairs, 'text') >= 0;
+					}
+					
+					if (isText)
 					{
 						// Applies only basic text styles
 						appliedStyles = ['fontSize', 'fontFamily', 'fontColor'];
@@ -706,13 +714,34 @@ EditorUi = function(editor, container, lightbox)
 	   	var graphFireMouseEvent = graph.fireMouseEvent;
 	   	graph.fireMouseEvent = function(evtName, me, sender)
 	   	{
-	   		if (evtName == mxEvent.MOUSE_DOWN)
-	   		{
-	   			this.container.focus();
-	   		}
-	   		
-	   		graphFireMouseEvent.apply(this, arguments);
+			try
+			{
+				if (evtName == mxEvent.MOUSE_DOWN)
+				{
+					this.container.focus();
+				}
+				
+				graphFireMouseEvent.apply(this, arguments);
+			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
 	   	};
+
+		// Adds error handling for foldCells
+		var graphFoldCells = graph.foldCells;
+		graph.foldCells = function(collapse, recurse, cells, checkFoldable, evt)
+		{
+			try
+			{
+				graphFoldCells.apply(this, arguments);
+			}
+			catch (e)
+			{
+				ui.handleError(e);
+			}
+		};
 	
 	   	// Configures automatic expand on mouseover
 		graph.popupMenuHandler.autoExpand = true;
@@ -1411,6 +1440,21 @@ EditorUi.prototype.windowResized = function()
 /**
  * Returns information about the current selection.
  */
+EditorUi.prototype.tryAndHandle = function(fn)
+{
+	try
+	{
+		fn();
+	}
+	catch (e)
+	{
+		this.handleError(e);
+	}
+};
+
+/**
+ * Returns information about the current selection.
+ */
 EditorUi.prototype.updateSelectionStateForCell = function(result, cell, cells, initial)
 {
 	var graph = this.editor.graph;
@@ -1819,6 +1863,7 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 		// Do not place entry under pointer for touch devices
 		var w = (cells.length < 6) ? cells.length * 35 : 140;
 		div.className = 'geToolbarContainer geSidebarContainer geShapePicker';
+		div.setAttribute('title', mxResources.get('sidebarTooltip'));
 		div.style.left = x + 'px';
 		div.style.top = y + 'px';
 		div.style.width = w + 'px';
@@ -1866,64 +1911,75 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 				var pt = geo.getTerminalPoint(false);
 				geo = new mxRectangle(0, 0, pt.x, pt.y);
 			}
-
-			node.appendChild(this.sidebar.createVertexTemplateFromCells([cell],
-				geo.width, geo.height, '', true, false, null, false,
-				mxUtils.bind(this, function(evt)
+			
+			if (geo != null)
 			{
-				var clone = graph.cloneCell(cell);
-
-				if (callback != null)
+				node.appendChild(this.sidebar.createVertexTemplateFromCells([cell],
+					geo.width, geo.height, '', true, false, null, false,
+					mxUtils.bind(this, function(evt)
 				{
-					callback(clone);
-				}
-				else
-				{
-					var pt = getInsertLocationFn([clone]);
-
-					if (graph.model.isEdge(clone))
+					if (mxEvent.isShiftDown(evt) && !graph.isSelectionEmpty())
 					{
-						clone.geometry.translate(pt.x, pt.y);
+						var temp = graph.getEditableCells(graph.getSelectionCells());
+						graph.updateShapes(cell, temp);
 					}
 					else
 					{
-						clone.geometry.x = pt.x;
-						clone.geometry.y = pt.y;
-					}
-					
-					graph.model.beginUpdate();
-					try
-					{
-						graph.addCell(clone);
+						var clone = graph.cloneCell(cell);
 
-						if (graph.model.isVertex(clone) &&
-							graph.isAutoSizeCell(clone))
+						if (callback != null)
 						{
-							graph.updateCellSize(clone);
+							callback(clone);
+						}
+						else
+						{
+							var pt = getInsertLocationFn([clone]);
+
+							if (graph.model.isEdge(clone))
+							{
+								clone.geometry.translate(pt.x, pt.y);
+							}
+							else
+							{
+								clone.geometry.x = pt.x;
+								clone.geometry.y = pt.y;
+							}
+							
+							graph.model.beginUpdate();
+							try
+							{
+								graph.addCell(clone);
+
+								if (graph.model.isVertex(clone) &&
+									graph.isAutoSizeCell(clone))
+								{
+									graph.updateCellSize(clone);
+								}
+							}
+							finally
+							{
+								graph.model.endUpdate();
+							}
+							
+							graph.setSelectionCell(clone);
+							graph.scrollCellToVisible(clone);
+							graph.startEditingAtCell(clone);
+							
+							if (ui.hoverIcons != null)
+							{
+								ui.hoverIcons.update(graph.view.getState(clone));
+							}
 						}
 					}
-					finally
-					{
-						graph.model.endUpdate();
-					}
 					
-					graph.setSelectionCell(clone);
-					graph.scrollCellToVisible(clone);
-					graph.startEditingAtCell(clone);
-					
-					if (ui.hoverIcons != null)
+					if (afterClick != null)
 					{
-						ui.hoverIcons.update(graph.view.getState(clone));
+						afterClick(evt);
 					}
-				}
-				
-				if (afterClick != null)
-				{
-					afterClick();
-				}
 
-				mxEvent.consume(evt);
-			}), 25, 25));
+					mxEvent.consume(evt);
+				}), 25, 25));
+			}
 		});
 		
 		for (var i = 0; i < (hovering ? Math.min(cells.length, 4) : cells.length); i++)
@@ -5059,7 +5115,8 @@ EditorUi.prototype.hideDialog = function(cancel, isEsc, matchContainer)
 		this.dialog = (this.dialogs.length > 0) ? this.dialogs[this.dialogs.length - 1] : null;
 		this.editor.fireEvent(new mxEventObject('hideDialog'));
 		
-		if (this.dialog == null && this.editor.graph.container.style.visibility != 'hidden')
+		if (this.dialog == null && this.editor.graph.container != null &&
+			this.editor.graph.container.style.visibility != 'hidden')
 		{
 			window.setTimeout(mxUtils.bind(this, function()
 			{

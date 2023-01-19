@@ -520,6 +520,9 @@ DriveClient.prototype.executeRequest = function(reqObj, success, error)
 	}
 };
 
+/**
+ * Executes the given request.
+ */
 DriveClient.prototype.createAuthWin = function(url)
 {
 	var width = 525,
@@ -569,6 +572,9 @@ DriveClient.prototype.authorize = function(immediate, success, error, remember, 
 	}), error);
 };
 
+/**
+ * Executes the given request.
+ */
 DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUserUpdate, success, error)
 {
 	_token = newAuthInfo.access_token;
@@ -604,7 +610,10 @@ DriveClient.prototype.updateAuthInfo = function (newAuthInfo, remember, forceUse
 		success();
 	}
 };
-	
+
+/**
+ * Executes the given request.
+ */
 DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error, remember, popup)
 {
 	try
@@ -644,28 +653,46 @@ DriveClient.prototype.authorizeStep2 = function(state, immediate, success, error
 			if (immediate) //Note, we checked refresh token is not null above
 			{
 				//state is used to identify which app/domain is used
-				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId + '&domain=' + window.location.hostname + '&token=' + state)
-						+ '&userId=' + this.userId
-						, null, 'GET');
+				var req = new mxXmlRequest(this.redirectUri + '?state=' + encodeURIComponent('cId=' + this.clientId +
+					'&domain=' + window.location.hostname + '&token=' + state) + '&userId=' + this.userId, null, 'GET');
 				
 				req.send(mxUtils.bind(this, function(req)
 				{
-					if (req.getStatus() >= 200 && req.getStatus() <= 299)
+					try
 					{
-						var newAuthInfo = JSON.parse(req.getText());
-						this.updateAuthInfo(newAuthInfo, true, false, success, error); //We set remember to true since we can only have a refresh token if user initially selected remember
-					}
-					else 
-					{
-						//When the request fails (e.g, Hibernate on Windows), the status is 0, this doesn't mean the token is invalid
-						if (req.getStatus() != 0) 
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
-							this.logout();
+							var newAuthInfo = JSON.parse(req.getText());
+							this.updateAuthInfo(newAuthInfo, true, false, success, error); //We set remember to true since we can only have a refresh token if user initially selected remember
+						}
+						else 
+						{
+							//When the request fails (e.g, Hibernate on Windows), the status is 0, this doesn't mean the token is invalid
+							if (req.getStatus() != 0)
+							{
+								this.logout();
+							}
+
+							if (error != null)
+							{
+								error(req); //TODO review this code path and how error is handled
+							}
+						}
+					}
+					catch (e)
+					{
+						if (window.console != null)
+						{
+							console.log('DriveClient.authorizeStep2', e);
 						}
 
 						if (error != null)
 						{
-							error(req); //TODO review this code path and how error is handled
+							error(e);
+						}
+						else
+						{
+							throw e;
 						}
 					}
 				}), error);

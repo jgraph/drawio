@@ -66,7 +66,7 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 				'<div class="searchBar" style="display:none"><input type="search" id="odSearchBox" placeholder="' + mxUtils.htmlEntities(mxResources.get('search')) + '"></div>' +
 				'<div class="odFilesBreadcrumb"></div>' +
 				'<div id="refreshOD" class="odRefreshButton">' +
-					'<img src="/images/update32.png" width="16" height="16" title="' + mxUtils.htmlEntities(mxResources.get('refresh')) + 'Refresh" border="0"/>' +
+					'<img class="geAdaptiveAsset" src="/images/update32.png" width="16" height="16" title="' + mxUtils.htmlEntities(mxResources.get('refresh')) + 'Refresh" border="0"/>' +
 				'</div>' +
 				'<div class="odFilesList"></div>' +
 			'</div>' +
@@ -140,6 +140,10 @@ function mxODPicker(container, previewFn, getODFilesList, getODFileInfo, getRece
 		'	background-color:#ddd;' + 
 		'	border-radius:50%;' + 
 		'}' + 
+		// '.odRefreshButton:hover {' + 
+		// '	background-color:#ddd;' + 
+		// '	border-radius:50%;' + 
+		// '}' + 
 		'.odRefreshButton:active {' + 
 		'	opacity:0.7;' + 
 		'}' + 

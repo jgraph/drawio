@@ -340,64 +340,73 @@ Menus.prototype.init = function()
 
 		var runTreeLayout = mxUtils.bind(this, function(layout)
 		{
-			var tmp = graph.getSelectionCell();
-			var roots = null;
-			
-			if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
+			this.editorUi.tryAndHandle(mxUtils.bind(this, function()
 			{
-				if (graph.getModel().getEdgeCount(tmp) == 0)
+				var tmp = graph.getSelectionCell();
+				var roots = null;
+				
+				if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
 				{
-					roots = graph.findTreeRoots(graph.getDefaultParent());
-				}
-			}
-			else
-			{
-				roots = graph.findTreeRoots(tmp);
-			}
-
-			if (roots != null && roots.length > 0)
-			{
-				tmp = roots[0];
-			}
-			
-			if (tmp != null)
-			{
-				this.editorUi.executeLayout(function()
-				{
-					layout.execute(graph.getDefaultParent(), tmp);
-
-					if (!graph.isSelectionEmpty())
+					if (graph.getModel().getEdgeCount(tmp) == 0)
 					{
-						tmp = graph.getModel().getParent(tmp);
-						
-						if (graph.getModel().isVertex(tmp))
-						{
-							graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
-						}
+						roots = graph.findTreeRoots(graph.getDefaultParent());
 					}
-				}, true);
-			}
+				}
+				else
+				{
+					roots = graph.findTreeRoots(tmp);
+				}
+	
+				if (roots != null && roots.length > 0)
+				{
+					tmp = roots[0];
+				}
+				
+				if (tmp != null)
+				{
+					this.editorUi.executeLayout(function()
+					{
+						layout.execute(graph.getDefaultParent(), tmp);
+
+						if (!graph.isSelectionEmpty())
+						{
+							tmp = graph.getModel().getParent(tmp);
+							
+							if (graph.getModel().isVertex(tmp))
+							{
+								graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+							}
+						}
+					}, true);
+				}
+			}));
 		});
 
 		menu.addItem(mxResources.get('horizontalFlow'), null, mxUtils.bind(this, function()
 		{
-			var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
-			
-    		this.editorUi.executeLayout(function()
-    		{
-    			var selectionCells = graph.getSelectionCells();
-    			layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ? null : selectionCells);
-    		}, true);
+			this.editorUi.tryAndHandle(mxUtils.bind(this, function()
+			{
+				var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_WEST);
+
+				this.editorUi.executeLayout(function()
+				{
+					var selectionCells = graph.getSelectionCells();
+					layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ? null : selectionCells);
+				}, true);
+			}));
 		}), parent);
 		menu.addItem(mxResources.get('verticalFlow'), null, mxUtils.bind(this, function()
 		{
-			var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_NORTH);
-			
-    		this.editorUi.executeLayout(function()
-    		{
-    			var selectionCells = graph.getSelectionCells();
-    			layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ? null : selectionCells);
-    		}, true);
+			this.editorUi.tryAndHandle(mxUtils.bind(this, function()
+			{
+				var layout = new mxHierarchicalLayout(graph, mxConstants.DIRECTION_NORTH);
+				
+				this.editorUi.executeLayout(function()
+				{
+					var selectionCells = graph.getSelectionCells();
+					layout.execute(graph.getDefaultParent(), selectionCells.length == 0 ? null : selectionCells);
+				}, true);
+			}));
 		}), parent);
 		menu.addSeparator(parent);
 		menu.addItem(mxResources.get('horizontalTree'), null, mxUtils.bind(this, function()
@@ -452,46 +461,52 @@ Menus.prototype.init = function()
 			
 			promptSpacing(layout.forceConstant, mxUtils.bind(this, function(newValue)
 			{
-				layout.forceConstant = newValue;
-				
-	    		this.editorUi.executeLayout(function()
-	    		{
-	    			var tmp = graph.getSelectionCell();
-	    			
-	    			if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
-	    			{
-	    				tmp = graph.getDefaultParent();
-	    			}
-	    			
-	    			layout.execute(tmp);
-	    			
-	    			if (graph.getModel().isVertex(tmp))
-	    			{
-	    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
-	    			}
-	    		}, true);
+				this.editorUi.tryAndHandle(mxUtils.bind(this, function()
+				{
+					layout.forceConstant = newValue;
+					
+					this.editorUi.executeLayout(function()
+					{
+						var tmp = graph.getSelectionCell();
+						
+						if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
+						{
+							tmp = graph.getDefaultParent();
+						}
+						
+						layout.execute(tmp);
+						
+						if (graph.getModel().isVertex(tmp))
+						{
+							graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+						}
+					}, true);
+				}));
 			}));
 		}), parent);
 		menu.addItem(mxResources.get('circle'), null, mxUtils.bind(this, function()
 		{
-			var layout = new mxCircleLayout(graph);
-			
-    		this.editorUi.executeLayout(function()
-    		{
-    			var tmp = graph.getSelectionCell();
-    			
-    			if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
-    			{
-    				tmp = graph.getDefaultParent();
-    			}
-    			
-    			layout.execute(tmp);
-    			
-    			if (graph.getModel().isVertex(tmp))
-    			{
-    				graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
-    			}
-    		}, true);
+			this.editorUi.tryAndHandle(mxUtils.bind(this, function()
+			{
+				var layout = new mxCircleLayout(graph);
+				
+				this.editorUi.executeLayout(function()
+				{
+					var tmp = graph.getSelectionCell();
+					
+					if (tmp == null || graph.getModel().getChildCount(tmp) == 0)
+					{
+						tmp = graph.getDefaultParent();
+					}
+					
+					layout.execute(tmp);
+					
+					if (graph.getModel().isVertex(tmp))
+					{
+						graph.updateGroupBounds([tmp], graph.gridSize * 2, true);
+					}
+				}, true);
+			}));
 		}), parent);
 	})));
 	this.put('navigation', new Menu(mxUtils.bind(this, function(menu, parent)

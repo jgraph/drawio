@@ -1428,17 +1428,20 @@
 				{
 					if (typeof mxOrgChartLayout !== 'undefined' && branchOptimizer != null)
 					{
-						var graph = editorUi.editor.graph;
-						var orgChartLayout = new mxOrgChartLayout(graph,
-							branchOptimizer, parentChildSpacingVal, siblingSpacingVal);
-						var cell = graph.getDefaultParent();
-						
-						if (graph.model.getChildCount(graph.getSelectionCell()) > 1)
+						editorUi.tryAndHandle(mxUtils.bind(this, function()
 						{
-							cell = graph.getSelectionCell();
-						}
-						
-						orgChartLayout.execute(cell);
+							var graph = editorUi.editor.graph;
+							var orgChartLayout = new mxOrgChartLayout(graph,
+								branchOptimizer, parentChildSpacingVal, siblingSpacingVal);
+							var cell = graph.getDefaultParent();
+							
+							if (graph.model.getChildCount(graph.getSelectionCell()) > 1)
+							{
+								cell = graph.getSelectionCell();
+							}
+							
+							orgChartLayout.execute(cell);
+						}));
 					}
 				};
 
@@ -1543,18 +1546,24 @@
 			
 			menu.addItem(mxResources.get('parallels'), null, mxUtils.bind(this, function()
 			{
-				var layout = new mxParallelEdgeLayout(graph);
-				layout.checkOverlap = true;
-
-				editorUi.prompt(mxResources.get('spacing'), layout.spacing, mxUtils.bind(this, function(newValue)
+				editorUi.tryAndHandle(mxUtils.bind(this, function()
 				{
-					layout.spacing = newValue;
-				
-					editorUi.executeLayout(function()
+					var layout = new mxParallelEdgeLayout(graph);
+					layout.checkOverlap = true;
+
+					editorUi.prompt(mxResources.get('spacing'), layout.spacing, mxUtils.bind(this, function(newValue)
 					{
-						layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
-							graph.getSelectionCells() : null);
-					}, false);
+						editorUi.tryAndHandle(mxUtils.bind(this, function()
+						{
+							layout.spacing = newValue;
+
+							editorUi.executeLayout(function()
+							{
+								layout.execute(graph.getDefaultParent(), (!graph.isSelectionEmpty()) ?
+									graph.getSelectionCells() : null);
+							}, false);
+						}));
+					}));
 				}));
 			}), parent);
 			
@@ -3500,9 +3509,13 @@
 				if (uiTheme == 'min' || Editor.currentTheme == 'simple')
 				{
 					this.addSubmenu('table', menu, parent);
+					this.addSubmenu('layout', menu, parent);
+				}
+				else
+				{
+					this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 				}
 
-				this.addSubmenu('insertLayout', menu, parent, mxResources.get('layout'));
 				this.addSubmenu('insertAdvanced', menu, parent, mxResources.get('advanced'));
 			}
 		})));

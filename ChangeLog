@@ -1,3 +1,27 @@
+18-JAN-2023: 20.8.6
+
+- Returns trash URL for trashed Google Drive files
+- Moves refresh icon to header in GitHub file dialog
+- Shift+click in shape picker updates selected cells
+- Fixes refresh icon for OneDrive picker in dark mode
+- Fixes default stroke color applied in UML subshape
+- Applies basic text styles to cells with text class
+- Updates DOMPurify from 2.3.6 to 2.4.3
+- Fixes possible NPE in mxGraph.cloneCells
+- Ignores errors in <anonymous> script source files
+- Shows paste style button for multiple selected cells
+- Calls auth fallback on parse error in Google Drive
+- Handles invalid JSON in P2PCollab message listener
+- Improves error handling for pasting cells
+- Improves error handling for firing mouse events
+- Executes layouts in min and simple layout submenu
+- Fixes center, rounds waypoint for parallel routing
+- Fixes possible NPE for adding SVG with no viewBox
+- Fixes possible NPE in shape picker
+- Hides button to add custom plugins if not allowed
+- Fixes possible NPE in hideDialog
+- Fixes possible NPE in OneDriveClient
+
 12-JAN-2023: 20.8.5
 
 - Fixes possible NPE [DID-7061]

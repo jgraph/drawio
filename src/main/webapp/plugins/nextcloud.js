@@ -39,7 +39,8 @@ Draw.loadPlugin(function(ui)
 		{
 			ui.remoteInvoke('getCurrentUser', null, null, function(user)
 			{
-				ncUser = new DrawioUser(user.uid, null, user.displayName);
+				ncUser = user == null? new DrawioUser(Date.now(), null, 'Anonymous')
+                                : new DrawioUser(user.uid, null, user.displayName);
 			}, function()
 			{
 				//ignore such that next call we retry
@@ -56,12 +57,13 @@ Draw.loadPlugin(function(ui)
 	
 	ui.isRevisionHistoryEnabled = function()
 	{
-		return true;
+        var file = ui.getCurrentFile();
+		return file && file.desc && (!file.desc.ver || file.desc.versionsEnabled);
 	};
 	
 	ui.isRevisionHistorySupported = function()
 	{
-		return true;
+		return ui.isRevisionHistoryEnabled();
 	};
 
 	/**
@@ -69,11 +71,12 @@ Draw.loadPlugin(function(ui)
 	 */
 	ui.getRevisions = function(success, error)
 	{
-        var path = ui.getCurrentFile().desc.path;
+        var desc = ui.getCurrentFile().desc;
+        var id = desc.ver > 1? desc.id : desc.path;
 
 		function getXml(success, error)
 		{
-			ui.remoteInvoke('loadFileVersion', [path, this.revId], null, success, error);
+			ui.remoteInvoke('loadFileVersion', [id, this.revId], null, success, error);
 		};
 		
 		function restoreFn(xml)
@@ -86,7 +89,7 @@ Draw.loadPlugin(function(ui)
 			}
 		};
 		
-		ui.remoteInvoke('getFileRevisions', [path], null, function(revisions)
+		ui.remoteInvoke('getFileRevisions', [id], null, function(revisions)
 		{
             revisions.sort(function(a, b)
             {
@@ -204,7 +207,8 @@ Draw.loadPlugin(function(ui)
                             this.sync.fileSaving();
                         }
 
-                        ui.remoteInvoke('saveFile', [this.desc.path, savedData, etag], null, mxUtils.bind(this, function(resp)
+                        ui.remoteInvoke('saveFile', this.desc.ver > 1? [this.desc.id, this.desc.shareToken, savedData, etag] :
+                                    [this.desc.path, savedData, etag], null, mxUtils.bind(this, function(resp)
                         {
                             try
                             {
@@ -401,7 +405,8 @@ Draw.loadPlugin(function(ui)
      */
     EmbedFile.prototype.getLatestVersion = function(success, error)
     {
-        ui.remoteInvoke('loadFile', [this.desc.path], null, mxUtils.bind(this, function(data)
+        ui.remoteInvoke('loadFile', this.desc.ver > 1? [this.desc.id, this.desc.shareToken] : [this.desc.path],
+                    null, mxUtils.bind(this, function(data)
         {
             var xml = data.xml;
             delete data.xml;
@@ -429,7 +434,7 @@ Draw.loadPlugin(function(ui)
     {
         if (typeof CryptoJS !== 'undefined')
         {
-            return CryptoJS.MD5((this.desc.created || this.desc.id) + this.desc.owner).toString();
+            return CryptoJS.MD5(this.desc.instanceId + (this.desc.created || this.desc.id) + this.desc.owner).toString();
         }
         
         return null;
@@ -480,7 +485,7 @@ Draw.loadPlugin(function(ui)
      */
     EmbedFile.prototype.loadDescriptor = function(success, error)
     {
-        ui.remoteInvoke('getFileInfo', [this.desc.path], null, success, error);
+        ui.remoteInvoke('getFileInfo', this.desc.ver > 1? [this.desc.id, this.desc.shareToken] : [this.desc.path], null, success, error);
     };
     
     var allowAutoSave = true;
@@ -544,8 +549,16 @@ Draw.loadPlugin(function(ui)
             callback.apply(this, arguments);
             
             var file = ui.getCurrentFile();
-            file.setDescriptor(loadDescriptor || {});
-            ui.fileLoaded(file, true);
+            loadDescriptor = loadDescriptor || {};
+            
+            // New files call this twice, so we need to check if the file is loaded
+            if (!loadDescriptor.isLoaded)
+            {
+                file.setDescriptor(loadDescriptor);
+                ui.fileLoaded(file, true);
+            }
+
+            loadDescriptor.isLoaded = true;
         });
     }
     
@@ -553,4 +566,7 @@ Draw.loadPlugin(function(ui)
     {
         //Cancel set modified of the editor and use the file's one
     };
+
+    //Prefetch current user 
+	ui.getCurrentUser();
 });

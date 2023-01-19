@@ -8532,7 +8532,12 @@ var PluginsDialog = function(editorUi, addFn, delFn, closeOnly)
 		});
 		
 		customBtn.className = 'geBtn';
-					
+
+		if (!ALLOW_CUSTOM_PLUGINS)
+		{
+			customBtn.style.display = 'none';
+		}
+				
 		var dlg = new CustomDialog(editorUi, div, mxUtils.bind(this, function()
 		{
 			var token = App.pluginRegistry[pluginsSelect.value];
@@ -10295,13 +10300,14 @@ var EditShapeDialog = function(editorUi, cell, title, w, h)
 };
 
 var CustomDialog = function(editorUi, content, okFn, cancelFn, okButtonText, helpLink,
-		buttonsContent, hideCancel, cancelButtonText, hideAfterOKFn, customButtons)
+		buttonsContent, hideCancel, cancelButtonText, hideAfterOKFn, customButtons,
+		marginTop)
 {
 	var div = document.createElement('div');
 	div.appendChild(content);
 	
 	var btns = document.createElement('div');
-	btns.style.marginTop = '30px';
+	btns.style.marginTop = (marginTop != null) ? marginTop : '30px';
 	btns.style.textAlign = 'center';
 	
 	if (buttonsContent != null)

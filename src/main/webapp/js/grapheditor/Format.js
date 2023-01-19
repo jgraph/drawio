@@ -4372,17 +4372,27 @@ StyleFormatPanel.prototype.init = function()
 		this.container.appendChild(opacityPanel);
 		this.container.appendChild(this.addEffects(this.createPanel()));
 	}
-		
+
+	var opsPanel = this.createPanel();
+	
 	if (ss.cells.length == 1)
 	{
-		var opsPanel = this.addEditOps(this.createPanel());
+		this.addEditOps(opsPanel);
 		
 		if (opsPanel.firstChild != null)
 		{
 			mxUtils.br(opsPanel);
 		}
-		
-		this.container.appendChild(this.addStyleOps(opsPanel));
+	}
+
+	if (ss.cells.length >= 1)
+	{
+		this.addStyleOps(opsPanel);
+	}
+
+	if (opsPanel.firstChild != null)
+	{
+		this.container.appendChild(opsPanel);
 	}
 };
 

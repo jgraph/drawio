@@ -88,6 +88,9 @@ OneDriveClient.prototype.authUrl = 'https://login.microsoftonline.com/' + (windo
  */
 OneDriveClient.prototype.emptyFn = function(){};
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.invalidFilenameRegExs = [
 	/[~"#%\*:<>\?\/\\{\|}]/,
 	/^\.lock$/i,
@@ -187,6 +190,9 @@ OneDriveClient.prototype.updateUser = function(success, error, failOnAuth)
 	}));
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.resetTokenRefresh = function(expires_in)
 {
 	if (this.tokenRefreshThread != null)
@@ -207,7 +213,6 @@ OneDriveClient.prototype.resetTokenRefresh = function(expires_in)
 		}), expires_in * 900);
 	}
 };
-
 
 /**
  * Authorizes the client, gets the userId and calls <open>.
@@ -238,6 +243,9 @@ OneDriveClient.prototype.authenticate = function(success, error, failOnAuth)
 	}), error);
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.updateAuthInfo = function(newAuthInfo, remember, forceUserUpdate, success, error)
 {
 	if (forceUserUpdate)
@@ -268,6 +276,9 @@ OneDriveClient.prototype.updateAuthInfo = function(newAuthInfo, remember, forceU
 	}
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.authenticateStep2 = function(state, success, error, failOnAuth)
 {
 	if (window.onOneDriveCallback == null)
@@ -400,6 +411,9 @@ OneDriveClient.prototype.authenticateStep2 = function(state, success, error, fai
 	}
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.getAccountTypeAndEndpoint = function(success, error)
 {
 	this.get(this.baseUrl + '/me/drive/root', mxUtils.bind(this, function(req)
@@ -524,6 +538,9 @@ OneDriveClient.prototype.checkToken = function(fn, error)
 	}
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.getItemRef = function(id)
 {
 	var idParts = id.split('/');
@@ -538,6 +555,9 @@ OneDriveClient.prototype.getItemRef = function(id)
 	}
 };
 
+/**
+ * Authorizes the client, gets the userId and calls <open>.
+ */
 OneDriveClient.prototype.getItemURL = function(id, relative)
 {
 	var idParts = id.split('/');
@@ -1292,6 +1312,9 @@ OneDriveClient.prototype.pickLibrary = function(fn)
 	});
 };
 
+/**
+ * Checks if the client is authorized and calls the next step.
+ */
 OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAllFiles)
 {
 	return mxUtils.bind(this, function()
@@ -1310,18 +1333,28 @@ OneDriveClient.prototype.createInlinePicker = function(fn, foldersOnly, acceptAl
 				{
 					fn({value: [item]});
 				}
-				else if (!item.folder)
+				else if (!item.folder && this.ui.spinner.spin(document.body, mxResources.get('loading')))
 				{
 					var id = OneDriveFile.prototype.getIdOf(item);
 
 					this.executeRequest(this.getItemURL(id), mxUtils.bind(this, function(req)
 					{
+						this.ui.spinner.stop();
+
 						if (req.getStatus() >= 200 && req.getStatus() <= 299)
 						{
 							var meta = JSON.parse(req.getText());
 							fn(id, {value: [meta]});
 						}
-					}), null);
+						else
+						{
+							this.ui.handleError({code: req.getStatus()});
+						}
+					}), mxUtils.bind(this, function(req)
+					{
+						this.ui.spinner.stop();
+						this.ui.handleError(req);
+					}));
 				}
 
 				return;
@@ -1379,8 +1412,9 @@ OneDriveClient.prototype.pickFolder = function(fn, direct)
 	
 	var odSaveDlg = mxUtils.bind(this, function(direct)
 	{
-		var openSaveDlg = this.inlinePicker? this.createInlinePicker(fn, true) :
-								mxUtils.bind(this, function()
+		var openSaveDlg = this.inlinePicker ?
+			this.createInlinePicker(fn, true) :
+			mxUtils.bind(this, function()
 		{
 			OneDrive.save(
 			{

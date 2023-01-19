@@ -864,12 +864,23 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	var content = document.createElement('div');
 	content.style.whiteSpace = 'nowrap';
 	content.style.overflow = 'hidden';
-	content.style.height = '304px';
+	content.style.height = '320px';
 
 	var hd = document.createElement('h3');
 	mxUtils.write(hd, mxResources.get((showFiles) ? 'selectFile' : 'selectFolder'));
 	hd.style.cssText = 'width:100%;text-align:center;margin-top:0px;margin-bottom:12px';
 	content.appendChild(hd);
+
+	var btn = this.ui.createToolbarButton(Editor.refreshImage,
+		mxResources.get('refresh'), mxUtils.bind(this, function()
+		{
+			selectRepo();
+		}));
+
+	btn.style.position = 'absolute';
+	btn.style.right = '40px';
+	btn.style.top = '26px';
+	content.appendChild(btn);
 
 	var div = document.createElement('div');
 	div.style.whiteSpace = 'nowrap';
@@ -878,7 +889,7 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 	div.style.padding = '4px';
 	div.style.overflow = 'auto';
 	div.style.lineHeight = '1.2em';
-	div.style.height = '274px';
+	div.style.height = '290px';
 	content.appendChild(div);
 	
 	var listItem = document.createElement('div');
@@ -892,15 +903,12 @@ GitHubClient.prototype.showGitHubDialog = function(showFiles, fn)
 		{
 			fn(org + '/' + repo + '/' + encodeURIComponent(ref) + '/' + path);
 		}), null, null, 'https://www.diagrams.net/blog/single-repository-diagrams', null, null, null, null,
-		[[mxResources.get('refresh'), mxUtils.bind(this, function()
-		{
-			selectRepo();
-		})], [mxResources.get('authorize'), mxUtils.bind(this, function()
+		[[mxResources.get('authorize'), mxUtils.bind(this, function()
 		{
 			this.ui.openLink((window.location.hostname == 'test.draw.io') ?
 				'https://github.com/apps/diagrams-net-app-test' :
 				'https://github.com/apps/draw-io-app');
-		})]]);
+		})]], '16px');
 	this.ui.showDialog(dlg.container, 420, 370, true, true);
 
 	if (showFiles)

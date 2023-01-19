@@ -4327,6 +4327,78 @@ Graph.prototype.snapCellsToGrid = function(cells, gridSize)
 };
 
 /**
+ * Creates a drop handler for inserting the given cells.
+ */
+Graph.prototype.updateShapes = function(source, targets)
+{
+	var sourceCellStyle = this.getCellStyle(source);
+	var result = [];
+	
+	this.model.beginUpdate();
+	try
+	{
+		var cellStyle = this.getModel().getStyle(source);
+
+		// Lists the styles to carry over from the existing shape
+		var styles = ['shadow', 'dashed', 'dashPattern', 'fontFamily', 'fontSize', 'fontColor', 'align', 'startFill',
+		              'startSize', 'endFill', 'endSize', 'strokeColor', 'strokeWidth', 'fillColor', 'gradientColor',
+		              'html', 'part', 'noEdgeStyle', 'edgeStyle', 'elbow', 'childLayout', 'recursiveResize',
+		              'container', 'collapsible', 'connectable', 'comic', 'sketch', 'fillWeight', 'hachureGap',
+		              'hachureAngle', 'jiggle', 'disableMultiStroke', 'disableMultiStrokeFill',
+		              'fillStyle', 'curveFitting', 'simplification', 'sketchStyle'];
+		
+		for (var i = 0; i < targets.length; i++)
+		{
+			var targetCell = targets[i];
+			
+			if ((this.getModel().isVertex(targetCell) == this.getModel().isVertex(source)) ||
+				(this.getModel().isEdge(targetCell) == this.getModel().isEdge(source)))
+			{
+				var style = this.getCellStyle(targets[i], false);
+				this.getModel().setStyle(targetCell, cellStyle);
+				
+				// Removes all children of composite cells
+				if (mxUtils.getValue(style, 'composite', '0') == '1')
+				{
+					var childCount = this.model.getChildCount(targetCell);
+					
+					for (var j = childCount; j >= 0; j--)
+					{
+						this.model.remove(this.model.getChildAt(targetCell, j));
+					}
+				}
+
+				// Replaces the participant style in the lifeline shape with the target shape
+				if (style[mxConstants.STYLE_SHAPE] == 'umlLifeline' &&
+					sourceCellStyle[mxConstants.STYLE_SHAPE] != 'umlLifeline')
+				{
+					this.setCellStyles(mxConstants.STYLE_SHAPE, 'umlLifeline', [targetCell]);
+					this.setCellStyles('participant', sourceCellStyle[mxConstants.STYLE_SHAPE], [targetCell]);
+				}
+				
+				for (var j = 0; j < styles.length; j++)
+				{
+					var value = style[styles[j]];
+					
+					if (value != null)
+					{
+						this.setCellStyles(styles[j], value, [targetCell]);
+					}
+				}
+				
+				result.push(targetCell);
+			}
+		}
+	}
+	finally
+	{
+		this.model.endUpdate();
+	}
+	
+	return result;
+};
+
+/**
  * Selects cells for connect vertex return value.
  */
 Graph.prototype.selectCellsForConnectVertex = function(cells, evt, hoverIcons)

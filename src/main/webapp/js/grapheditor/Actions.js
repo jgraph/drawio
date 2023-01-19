@@ -134,9 +134,16 @@ Actions.prototype.init = function()
 			// ignore
 		}
 		
-		if (cells == null)
+		try
 		{
-			mxClipboard.cut(graph);
+			if (cells == null)
+			{
+				mxClipboard.cut(graph);
+			}
+		}
+		catch (e)
+		{
+			ui.handleError(e);
 		}
 	}, null, 'sprite-cut', Editor.ctrlKey + '+X');
 	this.addAction('copy', function()

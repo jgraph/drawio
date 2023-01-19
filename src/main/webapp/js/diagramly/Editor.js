@@ -4590,6 +4590,10 @@
 			{
 				this.addActions(div, ['copyStyle', 'pasteStyle']);
 			}
+			else if (ss.cells.length >= 1)
+			{
+				this.addActions(div, ['pasteStyle']);
+			}
 			
 			return styleFormatPanelAddStyleOps.apply(this, arguments);
 		};

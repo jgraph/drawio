@@ -15,7 +15,7 @@
 	  "mermaid": "9.1.3",
 	  "pako": "2.0.3",
 	  "crypto-js": "3.1.2",
-	  "dompurify": "2.3.6",
+	  "dompurify": "2.4.3",
 	  "spin.js": "2.0.0",
 	  "roughjs": "4.4.1",
 	  "jscolor": "^3.8.0"

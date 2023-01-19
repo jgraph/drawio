@@ -79,8 +79,16 @@ DriveFile.prototype.getFileUrl = function()
  */
 DriveFile.prototype.getFolderUrl = function()
 {
-	return (this.desc.parents != null && this.desc.parents.length > 0) ?
-		'https://drive.google.com/drive/folders/' + this.desc.parents[0].id : null;
+	if (this.desc.labels != null && this.desc.labels.trashed)
+	{
+		return 'https://drive.google.com/drive/trash';
+	}
+	else
+	{
+		return (this.desc.parents != null && this.desc.parents.length > 0) ?
+			'https://drive.google.com/drive/folders/' +
+			this.desc.parents[0].id : null;
+	}
 };
 
 /**
