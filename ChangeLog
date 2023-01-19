@@ -1,3 +1,11 @@
+19-JAN-2023: 20.8.8
+
+- Updates actions after undo history events [3294]
+- Adds navigation items to context menu in simple UI
+- Mermaid Updated to v9.3.0
+- Updates express dependency of nodeImport (vsd server) [CSP-1246]
+- [conf cloud] Removes auth dialog in Safari with anonymous access [DID-7219]
+
 19-JAN-2023: 20.8.7
 
 - Fixes initial page ID and name when creating files [DS-941]
