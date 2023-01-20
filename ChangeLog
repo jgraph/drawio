@@ -1,3 +1,8 @@
+20-JAN-2023: 20.8.10
+
+- [conf cloud] Handles some common errors in initializing viewer
+- [desktop] Updates internal filename in desktop after save as
+
 20-JAN-2023: 20.8.9
 
 - Handles possible errors in custom links

@@ -1399,23 +1399,22 @@ mxStencilRegistry.allowEval = false;
 		this.editable = editable;
 	};
 
-	LocalFile.prototype.getFilename = function()
+
+	LocalFile.prototype.normalizeFilename = function(title)
 	{
-		var filename = this.title;
-		
-		// Adds default extension
-		if (filename.length > 0 && (!/(\.xml)$/i.test(filename) && !/(\.html)$/i.test(filename) &&
-			!/(\.svg)$/i.test(filename) && !/(\.png)$/i.test(filename) && !/(\.drawio)$/i.test(filename)))
+		var tokens = title.split('.');
+		var ext = (tokens.length > 1) ? tokens[tokens.length - 1] : '';
+
+		if (tokens.length == 1 || mxUtils.indexOf(['xml',
+			'html', 'drawio', 'png', 'svg'], ext) < 0)
 		{
-			filename += '.drawio';
+			tokens.push('drawio');
 		}
-		
-		return filename;
+
+		return tokens.join('.');
 	};
 	
-	// Prototype inheritance needs new functions to be added to subclasses
-	LocalLibrary.prototype.getFilename = LocalFile.prototype.getFilename;
-	
+
 	LocalFile.prototype.saveFile = async function(revision, success, error, unloading, overwrite)
 	{
 		//Safeguard in case saveFile is called from online code in the future
@@ -1515,7 +1514,7 @@ mxStencilRegistry.allowEval = false;
 			if (this.fileObject == null)
 			{
 				var lastDir = localStorage.getItem('.lastSaveDir');
-				var name = this.getFilename();
+				var name = this.normalizeFilename(this.getTitle());
 				var ext = null;
 				
 				if (name != null)
@@ -1525,7 +1524,6 @@ mxStencilRegistry.allowEval = false;
 					if (idx > 0)
 					{
 						ext = name.substring(idx + 1);
-						name = name.substring(0, idx);
 					}
 				}
 				
@@ -1542,6 +1540,7 @@ mxStencilRegistry.allowEval = false;
 					this.fileObject.path = path;
 					this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 					this.fileObject.type = 'utf-8';
+					this.title = this.fileObject.name;
 					this.addToRecent();
 					fn();
 				}
@@ -1574,18 +1573,16 @@ mxStencilRegistry.allowEval = false;
 	LocalFile.prototype.saveAs = async function(title, success, error)
 	{
 		var lastDir = localStorage.getItem('.lastSaveDir');
-		var name = this.getFilename();
+		var name = this.normalizeFilename(this.getTitle());
 		var ext = null;
 		
-		if (name == '' && this.fileObject != null && this.fileObject.name != null)
+		if (name != null)
 		{
-			name = this.fileObject.name;
 			var idx = name.lastIndexOf('.');
 			
 			if (idx > 0)
 			{
 				ext = name.substring(idx + 1);
-				name = name.substring(0, idx);
 			}
 		}
 		
@@ -1602,6 +1599,7 @@ mxStencilRegistry.allowEval = false;
 			this.fileObject.path = path;
 			this.fileObject.name = path.replace(/^.*[\\\/]/, '');
 			this.fileObject.type = 'utf-8';
+			this.title = this.fileObject.name;
 			this.addToRecent();
 			this.setEditable(true); //In case original file is read only
 			this.save(false, success, error, null, true);
