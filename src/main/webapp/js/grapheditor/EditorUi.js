@@ -4382,15 +4382,11 @@ EditorUi.prototype.setGridColor = function(value)
  */
 EditorUi.prototype.addUndoListener = function()
 {
-	var undo = this.actions.get('undo');
-	var redo = this.actions.get('redo');
-	
 	var undoMgr = this.editor.undoManager;
 	
     var undoListener = mxUtils.bind(this, function()
     {
-    	undo.setEnabled(this.canUndo());
-    	redo.setEnabled(this.canRedo());
+		this.updateActionStates();
     });
 
     undoMgr.addListener(mxEvent.ADD, undoListener);
@@ -4427,6 +4423,7 @@ EditorUi.prototype.updateActionStates = function()
 	var graph = this.editor.graph;
 	var ss = this.getSelectionState();
     var unlocked = graph.isEnabled() && !graph.isCellLocked(graph.getDefaultParent());
+	var editable = !this.editor.chromeless || this.editor.editable;
 
 	// Updates action states
 	var actions = ['cut', 'copy', 'bold', 'italic', 'underline', 'delete', 'duplicate',
@@ -4441,7 +4438,9 @@ EditorUi.prototype.updateActionStates = function()
 		this.actions.get(actions[i]).setEnabled(ss.cells.length > 0);
 	}
 
-	this.actions.get('grid').setEnabled(!this.editor.chromeless || this.editor.editable);
+	this.actions.get('grid').setEnabled(editable);
+	this.actions.get('undo').setEnabled(this.canUndo() && editable);
+	this.actions.get('redo').setEnabled(this.canRedo() && editable);
 	this.actions.get('pasteSize').setEnabled(this.copiedSize != null && ss.vertices.length > 0);
 	this.actions.get('pasteData').setEnabled(this.copiedValue != null && ss.cells.length > 0);
 	this.actions.get('setAsDefaultStyle').setEnabled(graph.getSelectionCount() == 1);

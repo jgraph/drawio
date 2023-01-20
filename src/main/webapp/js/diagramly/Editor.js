@@ -4592,7 +4592,7 @@
 			}
 			else if (ss.cells.length >= 1)
 			{
-				this.addActions(div, ['pasteStyle']);
+				this.addActions(div, ['pasteStyle', 'pasteData']);
 			}
 			
 			return styleFormatPanelAddStyleOps.apply(this, arguments);

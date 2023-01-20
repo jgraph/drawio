@@ -9816,6 +9816,11 @@
 				{
 					this.addMenuItems(menu, ['-', 'addToScratchpad'], null, evt);
 				}
+
+				if (graph.isSelectionEmpty() && Editor.currentTheme == 'simple')
+				{
+					this.addMenuItems(menu, ['-', 'exitGroup', 'home'], null, evt);
+				}
 			};
 
 			var menusAddPopupMenuEditItems = Menus.prototype.addPopupMenuEditItems;
@@ -9882,6 +9887,11 @@
 									this.addMenuItems(menu, ['clearWaypoints'], null, evt);
 								}
 							}
+						}
+
+						if (graph.getSelectionCount() == 1)
+						{
+							this.addMenuItems(menu, ['enterGroup'], null, evt);
 						}
 
 						// Shows table cell options
@@ -17069,10 +17079,6 @@
 		var autoModeAction = this.actions.get('autoMode');
 		autoModeAction.setEnabled(autoModeAction.isEnabled() && Editor.currentTheme != 'atlas');
 		
-		// Updates undo history states
-		this.actions.get('undo').setEnabled(this.canUndo() && editable);
-		this.actions.get('redo').setEnabled(this.canRedo() && editable);
-	
 		// Disables menus
 		this.menus.get('edit').setEnabled(active);
 		this.menus.get('view').setEnabled(active);
@@ -17172,14 +17178,19 @@
 		var file = this.getCurrentFile();
 		var ss = this.getSelectionState();
 		var active = this.isDiagramActive();
-
-		this.actions.get('pageSetup').setEnabled(active);
+		var editable = (urlParams['embed'] == '1' &&
+			this.editor.graph.isEnabled()) ||
+			(file != null && file.isEditable());
+		
+		this.actions.get('undo').setEnabled(this.canUndo() && editable);
+		this.actions.get('redo').setEnabled(this.canRedo() && editable);
 		this.actions.get('autosave').setEnabled(file != null && file.isEditable() && file.isAutosaveOptional());
 		this.actions.get('guides').setEnabled(active);
 		this.actions.get('editData').setEnabled(graph.isEnabled());
 		this.actions.get('editConnectionPoints').setEnabled(active && ss.edges.length == 0 && ss.vertices.length == 1);
 		this.actions.get('editImage').setEnabled(active && ss.image && ss.cells.length > 0);
 		this.actions.get('crop').setEnabled(active && ss.image && ss.cells.length > 0);
+		this.actions.get('pageSetup').setEnabled(active);
 		this.actions.get('shadowVisible').setEnabled(active);
 		this.actions.get('connectionArrows').setEnabled(active);
 		this.actions.get('connectionPoints').setEnabled(active);

@@ -109,7 +109,7 @@ function P2PCollab(ui, sync, channelId)
 		{
 			if (window.console != null)
 			{
-				console.log('Error:', e);
+				console.error(e, type, data);
 			}
 		}
 	};
@@ -479,7 +479,7 @@ function P2PCollab(ui, sync, channelId)
 		{
 			if (window.console != null)
 			{
-				console.log('P2PCollab.processMsg', e);
+				console.error(e, msg, fromCId);
 			}
 		}
 	};
@@ -659,8 +659,8 @@ function P2PCollab(ui, sync, channelId)
 					sync.scheduleCleanup();
 				}
 			});
-		
-			ws.addEventListener('message', mxUtils.bind(this, function(event)
+
+			function messageListener(event)
 			{
 				try
 				{
@@ -702,10 +702,12 @@ function P2PCollab(ui, sync, channelId)
 				{
 					if (window.console != null)
 					{
-						console.log('P2PCollab.message', e);
+						console.error(e, event);
 					}
 				}
-			}));
+			};
+		
+			ws.addEventListener('message', messageListener);
 
 			var rejoinCalled = false;
 				

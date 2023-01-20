@@ -1,6 +1,12 @@
+20-JAN-2023: 20.8.9
+
+- Handles possible errors in custom links
+- Adds paste data in style tab for multiple cells
+- Improves error logging in P2PCollab [drawio-nextcloud-27]
+
 19-JAN-2023: 20.8.8
 
-- Updates actions after undo history events [3294]
+- Updates actions after undo history events [drawio-3294]
 - Adds navigation items to context menu in simple UI
 - Mermaid Updated to v9.3.0
 - Updates express dependency of nodeImport (vsd server) [CSP-1246]

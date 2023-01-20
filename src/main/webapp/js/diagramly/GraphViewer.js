@@ -481,18 +481,25 @@ GraphViewer.prototype.init = function(container, xmlNode, graphConfig)
 				
 				this.graph.customLinkClicked = function(href)
 				{
-					if (Graph.isPageLink(href))
+					try
 					{
-						var comma = href.indexOf(',');
-						
-						if (!self.selectPageById(href.substring(comma + 1)))
+						if (Graph.isPageLink(href))
 						{
-							alert(mxResources.get('pageNotFound') || 'Page not found');
+							var comma = href.indexOf(',');
+							
+							if (!self.selectPageById(href.substring(comma + 1)))
+							{
+								alert(mxResources.get('pageNotFound') || 'Page not found');
+							}
+						}
+						else
+						{
+							this.handleCustomLink(href);
 						}
 					}
-					else
+					catch (e)
 					{
-						this.handleCustomLink(href);
+						alert(e.message);
 					}
 					
 					return true;
