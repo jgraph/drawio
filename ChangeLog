@@ -1,3 +1,13 @@
+24-JAN-2023: 20.8.11
+
+- Simplifies error logging code for parser in MSEdge
+- Adds orgchart to PWA, fixes orgchart in CSV [2028]
+- Adds Custom Orgchart button and handling in dialog
+- Fixes keyboard input in native color dialog [3291]
+- Improves error handling in Notion extension [3284]
+- Adds updateDefaultStyle for tracking style changes
+- Fixes possible NPE in StyleFormatPanel.addStyles
+
 20-JAN-2023: 20.8.10
 
 - [conf cloud] Handles some common errors in initializing viewer

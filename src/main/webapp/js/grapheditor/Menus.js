@@ -322,13 +322,13 @@ Menus.prototype.init = function()
 			menu.addSeparator(parent);
 
 			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
-				[null, null, null, null], 'geIcon geSprite geSprite-connection', parent, true, null, true).setAttribute('title', mxResources.get('line'));
+				[null, null, null, null], 'geIcon geSprite geSprite-connection', parent, null, null, true).setAttribute('title', mxResources.get('line'));
 			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
-				['link', null, null, null], 'geIcon geSprite geSprite-linkedge', parent, true, null, true).setAttribute('title', mxResources.get('link'));
+				['link', null, null, null], 'geIcon geSprite geSprite-linkedge', parent, null, null, true).setAttribute('title', mxResources.get('link'));
 			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
-				['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', parent, true, null, true).setAttribute('title', mxResources.get('arrow'));
+				['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', parent, null, null, true).setAttribute('title', mxResources.get('arrow'));
 			this.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
-				['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', parent, true, null, true).setAttribute('title', mxResources.get('simpleArrow'));
+				['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', parent, null, null, true).setAttribute('title', mxResources.get('simpleArrow'));
 		}
 	})));
 	this.put('layout', new Menu(mxUtils.bind(this, function(menu, parent)
@@ -1343,71 +1343,75 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 Menus.prototype.pickColor = function(key, cmd, defaultValue)
 {
 	var ui = this.editorUi;
-	var graph = ui.editor.graph;
-	var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
-			Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
-	
-	if (cmd != null && graph.cellEditor.isContentEditing())
+
+	ui.tryAndHandle(function()
 	{
-		// Saves and restores text selection for in-place editor
-		var selState = graph.cellEditor.saveSelection();
+		var graph = ui.editor.graph;
+		var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
+				Math.ceil(ColorDialog.prototype.defaultColors.length / 12)) * 17);
 		
-		var dlg = new ColorDialog(this.editorUi, defaultValue || graph.shapeForegroundColor, mxUtils.bind(this, function(color)
+		if (cmd != null && graph.cellEditor.isContentEditing())
 		{
-			graph.cellEditor.restoreSelection(selState);
-			document.execCommand(cmd, false, (color != mxConstants.NONE) ? color : 'transparent');
-
-			var cmdMapping = {
-				'forecolor': mxConstants.STYLE_FONTCOLOR,
-				'backcolor': mxConstants.STYLE_LABEL_BACKGROUNDCOLOR
-			};
-
-			var style = cmdMapping[cmd];
-
-			if (style != null)
+			// Saves and restores text selection for in-place editor
+			var selState = graph.cellEditor.saveSelection();
+			
+			var dlg = new ColorDialog(this.editorUi, defaultValue || graph.shapeForegroundColor, mxUtils.bind(this, function(color)
 			{
-				ui.fireEvent(new mxEventObject('styleChanged',
-					'keys', [style], 'values', [color],
-					'cells', [graph.cellEditor.getEditingCell()]));
-			}
-		}), function()
-		{
-			graph.cellEditor.restoreSelection(selState);
-		});
+				graph.cellEditor.restoreSelection(selState);
+				document.execCommand(cmd, false, (color != mxConstants.NONE) ? color : 'transparent');
 
-		this.editorUi.showDialog(dlg.container, 230, h, true, true);
-		dlg.init();
-	}
-	else
-	{
-		if (this.colorDialog == null)
-		{
-			this.colorDialog = new ColorDialog(this.editorUi);
-		}
-	
-		this.colorDialog.currentColorKey = key;
-		var state = graph.getView().getState(graph.getSelectionCell());
-		var color = mxConstants.NONE;
-		
-		if (state != null)
-		{
-			color = state.style[key] || color;
-		}
-		
-		if (color == mxConstants.NONE)
-		{
-			color = graph.shapeBackgroundColor.substring(1);
-			this.colorDialog.picker.fromString(color);
-			this.colorDialog.colorInput.value = mxConstants.NONE;
+				var cmdMapping = {
+					'forecolor': mxConstants.STYLE_FONTCOLOR,
+					'backcolor': mxConstants.STYLE_LABEL_BACKGROUNDCOLOR
+				};
+
+				var style = cmdMapping[cmd];
+
+				if (style != null)
+				{
+					ui.fireEvent(new mxEventObject('styleChanged',
+						'keys', [style], 'values', [color],
+						'cells', [graph.cellEditor.getEditingCell()]));
+				}
+			}), function()
+			{
+				graph.cellEditor.restoreSelection(selState);
+			});
+
+			this.editorUi.showDialog(dlg.container, 230, h, true, true);
+			dlg.init();
 		}
 		else
 		{
-			this.colorDialog.picker.fromString(mxUtils.rgba2hex(color));
+			if (this.colorDialog == null)
+			{
+				this.colorDialog = new ColorDialog(this.editorUi);
+			}
+		
+			this.colorDialog.currentColorKey = key;
+			var state = graph.getView().getState(graph.getSelectionCell());
+			var color = mxConstants.NONE;
+			
+			if (state != null)
+			{
+				color = state.style[key] || color;
+			}
+			
+			if (color == mxConstants.NONE)
+			{
+				color = graph.shapeBackgroundColor.substring(1);
+				this.colorDialog.picker.fromString(color);
+				this.colorDialog.colorInput.value = mxConstants.NONE;
+			}
+			else
+			{
+				this.colorDialog.picker.fromString(mxUtils.rgba2hex(color));
+			}
+		
+			this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
+			this.colorDialog.init();
 		}
-	
-		this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
-		this.colorDialog.init();
-	}
+	});
 };
 
 /**

@@ -1341,61 +1341,8 @@
 		// Adds action
 		editorUi.actions.addAction('runLayout', function()
 		{
-	    	var dlg = new TextareaDialog(editorUi, 'Run Layouts:',
-	    		JSON.stringify(editorUi.customLayoutConfig, null, 2),
-	    		function(newValue)
-			{
-				if (newValue.length > 0)
-				{
-					try
-					{
-						var list = JSON.parse(newValue);
-						editorUi.executeLayouts(graph.createLayouts(list));
-						editorUi.customLayoutConfig = list;
-						editorUi.hideDialog();
-					}
-					catch (e)
-					{
-						editorUi.handleError(e);
-					}
-				}
-			}, null, null, null, null, function(buttons, input)
-			{
-				var copyBtn = mxUtils.button(mxResources.get('copy'), function()
-				{
-					try
-					{
-						var orig = input.value;
-						input.value = JSON.stringify(JSON.parse(orig));
-						input.focus();
-						
-						if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
-						{
-							input.select();
-						}
-						else
-						{
-							document.execCommand('selectAll', false, null);
-						}
-						
-						document.execCommand('copy');
-						editorUi.alert(mxResources.get('copiedToClipboard'));
-
-						input.value = orig;
-					}
-					catch (e)
-					{
-						editorUi.handleError(e);
-					}
-				});
-
-				copyBtn.setAttribute('title', 'copy');
-				copyBtn.className = 'geBtn';
-				buttons.appendChild(copyBtn);
-			}, true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
-
-			editorUi.showDialog(dlg.container, 620, 460, true, true);
-			dlg.init();
+	    	editorUi.showCustomLayoutDialog(JSON.stringify(
+				editorUi.customLayoutConfig, null, 2));
 		});
 
 		// Adds fullscreen toggle to zoom menu in sketch and min
@@ -1528,7 +1475,24 @@
 				{
 					siblingSpacingVal = siblingSpacing.value;
 				});
+
+				var customBtn = mxUtils.button(mxResources.get('custom') + '...', function()
+				{
+					var value = [{layout: 'mxOrgChartLayout',
+						config: {
+							branchOptimizer: parseInt(typeSelect.value),
+							parentChildSpacing: parseInt(parentChildSpacing.value),
+							siblingSpacing: parseInt(siblingSpacing.value)
+						}
+					}];
+
+					editorUi.hideDialog();
+					editorUi.showCustomLayoutDialog(
+						JSON.stringify(value, null, 2));
+				});
 				
+				customBtn.className = 'geBtn';
+
 				var dlg = new CustomDialog(editorUi, div, function()
 				{
 					if (branchOptimizer == null)
@@ -1537,8 +1501,8 @@
 					}
 					
 					editorUi.loadOrgChartLayouts(delayed);
-				});
-				
+				}, null, null, null, customBtn);
+
 				editorUi.showDialog(dlg.container, 355, 140, true, true);
 			}, parent, null, isGraphEnabled());
 			
@@ -3545,14 +3509,7 @@
 			
 			if (Editor.currentTheme == 'simple' || Editor.currentTheme == 'min')
 			{
-				this.addMenuItems(menu, ['-', 'createShape'], parent);
-
-				if (Editor.currentTheme == 'simple')
-				{
-					this.addMenuItems(menu, ['insertTemplate'], parent);
-				}
-
-				this.addMenuItems(menu, ['editDiagram'], parent);
+				this.addMenuItems(menu, ['-', 'createShape', 'editDiagram'], parent);
 			}
         })));
         

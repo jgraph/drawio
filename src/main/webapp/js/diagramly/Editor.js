@@ -685,10 +685,10 @@
 		'#\n' +
 		'## ---- CSV below this line. First line are column names. ----\n' +
 		'name,position,id,location,manager,email,fill,stroke,refs,url,image\n' +
-		'Tessa Miller,CFO,emi,Office 1,,me@example.com,#dae8fc,#6c8ebf,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n' +
-		'Edward Morrison,Brand Manager,emo,Office 2,Tessa Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
-		'Alison Donovan,System Admin,rdo,Office 3,Tessa Miller,me@example.com,#d5e8d4,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
-		'Evan Valet,HR Director,tva,Office 4,Tessa Miller,me@example.com,#d5e8d4,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-9-2-128.png\n';
+		'Tessa Miller,CFO,emi,Office 1,,me@example.com,default,#6c8ebf,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-3-128.png\n' +
+		'Edward Morrison,Brand Manager,emo,Office 2,Tessa Miller,me@example.com,default,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-10-3-128.png\n' +
+		'Alison Donovan,System Admin,rdo,Office 3,Tessa Miller,me@example.com,default,#82b366,"emo,tva",https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-2-128.png\n' +
+		'Evan Valet,HR Director,tva,Office 4,Tessa Miller,me@example.com,default,#82b366,,https://www.draw.io,https://cdn3.iconfinder.com/data/icons/user-avatars-1/512/users-9-2-128.png\n';
 
 	/**
 	 * Compresses the given string.
@@ -1865,13 +1865,13 @@
 				mxSettings.key = Editor.settingsKey;
 			}
 			
-			if (config.customFonts)
+			if (config.customFonts != null)
 			{
 				Menus.prototype.defaultFonts = config.customFonts.
 					concat(Menus.prototype.defaultFonts);
 			}
 			
-			if (config.customPresetColors)
+			if (config.customPresetColors != null)
 			{
 				ColorDialog.prototype.presetColors = config.customPresetColors.
 					concat(ColorDialog.prototype.presetColors);
@@ -2007,37 +2007,42 @@
 				}
 			}
 			
-			if (config.thumbWidth)
+			if (config.thumbWidth != null)
 			{
 				Sidebar.prototype.thumbWidth = config.thumbWidth;
 			}
 			
-			if (config.thumbHeight)
+			if (config.thumbHeight != null)
 			{
 				Sidebar.prototype.thumbHeight = config.thumbHeight;
 			}
 			
-			if (config.emptyLibraryXml)
+			if (config.emptyLibraryXml != null)
 			{
 				EditorUi.prototype.emptyLibraryXml = config.emptyLibraryXml;
 			}
 
-			if (config.emptyDiagramXml)
+			if (config.emptyDiagramXml != null)
 			{
 				EditorUi.prototype.emptyDiagramXml = config.emptyDiagramXml;
 			}
 			
-			if (config.sidebarWidth)
+			if (config.sidebarWidth != null)
 			{
 				EditorUi.prototype.hsplitPosition = config.sidebarWidth;
 			}
+
+			if (config.updateDefaultStyle != null)
+			{
+				EditorUi.prototype.updateDefaultStyle = config.updateDefaultStyle;
+			}
 			
-			if (config.sidebarTitles)
+			if (config.sidebarTitles != null)
 			{
 				Sidebar.prototype.sidebarTitles = config.sidebarTitles;
 			}
 			
-			if (config.sidebarTitleSize)
+			if (config.sidebarTitleSize != null)
 			{
 				var val = parseInt(config.sidebarTitleSize);
 				
@@ -2051,7 +2056,7 @@
 				}
 			}
 			
-			if (config.fontCss)
+			if (config.fontCss != null)
 			{
 				if (typeof config.fontCss === 'string')
 				{
@@ -5192,305 +5197,308 @@
 		 */
 		StyleFormatPanel.prototype.addStyles = function(div)
 		{
-			var ui = this.editorUi;
-			var graph = ui.editor.graph;
-			var picker = document.createElement('div');
-			picker.style.whiteSpace = 'nowrap';
-			picker.style.paddingLeft = '24px';
-			picker.style.paddingRight = '20px';
-			div.style.paddingLeft = '16px';
-			div.style.paddingBottom = '6px';
-			div.style.position = 'relative';
-			div.appendChild(picker);
+			if (this.defaultColorSchemes != null)
+			{
+				var ui = this.editorUi;
+				var graph = ui.editor.graph;
+				var picker = document.createElement('div');
+				picker.style.whiteSpace = 'nowrap';
+				picker.style.paddingLeft = '24px';
+				picker.style.paddingRight = '20px';
+				div.style.paddingLeft = '16px';
+				div.style.paddingBottom = '6px';
+				div.style.position = 'relative';
+				div.appendChild(picker);
 
-			var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-turquoise',
-				'plain-orange', 'plain-yellow', 'plain-red', 'plain-pink', 'plain-purple', 'gray',
-				'blue', 'green', 'turquoise', 'orange', 'yellow', 'red', 'pink', 'purple'];
-			
-			// Maximum palettes to switch the switcher
-			var maxEntries = 10;
-						
-			// Selector
-			var switcher = document.createElement('div');
-			switcher.style.whiteSpace = 'nowrap';
-			switcher.style.position = 'relative';
-			switcher.style.textAlign = 'center';
-			switcher.style.width = '210px';
-			
-			var dots = [];
-			
-			for (var i = 0; i < this.defaultColorSchemes.length; i++)
-			{
-				var dot = document.createElement('div');
-				dot.style.display = 'inline-block';
-				dot.style.width = '6px';
-				dot.style.height = '6px';
-				dot.style.marginLeft = '4px';
-				dot.style.marginRight = '3px';
-				dot.style.borderRadius = '3px';
-				dot.style.cursor = 'pointer';
-				dot.style.background = 'transparent';
-				dot.style.border = '1px solid #b5b6b7';
+				var stylenames = ['plain-gray', 'plain-blue', 'plain-green', 'plain-turquoise',
+					'plain-orange', 'plain-yellow', 'plain-red', 'plain-pink', 'plain-purple', 'gray',
+					'blue', 'green', 'turquoise', 'orange', 'yellow', 'red', 'pink', 'purple'];
 				
-				(mxUtils.bind(this, function(index)
-				{
-					mxEvent.addListener(dot, 'click', mxUtils.bind(this, function()
-					{
-						setScheme(index);
-					}));
-				}))(i);
-				
-				dots.push(dot);
-				switcher.appendChild(dot);
-			}
-			
-			var setScheme = mxUtils.bind(this, function(index)
-			{
-				if (dots[index] != null)
-				{
-					if (this.format.currentScheme != null && dots[this.format.currentScheme] != null)
-					{
-						dots[this.format.currentScheme].style.background = 'transparent';
-					}
-					
-					this.format.currentScheme = index;
-					updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
-					dots[this.format.currentScheme].style.background = '#84d7ff';
-				}
-			});
-			
-			var updateScheme = mxUtils.bind(this, function(colorsets)
-			{
-				var addButton = mxUtils.bind(this, function(colorset)
-				{
-					var btn = mxUtils.button('', mxUtils.bind(this, function(evt)
-					{
-						graph.getModel().beginUpdate();
-						try
-						{
-							var cells = ui.getSelectionState().cells;
+				// Maximum palettes to switch the switcher
+				var maxEntries = 10;
 							
-							for (var i = 0; i < cells.length; i++)
-							{
-								var style = graph.getModel().getStyle(cells[i]);
+				// Selector
+				var switcher = document.createElement('div');
+				switcher.style.whiteSpace = 'nowrap';
+				switcher.style.position = 'relative';
+				switcher.style.textAlign = 'center';
+				switcher.style.width = '210px';
 				
-								for (var j = 0; j < stylenames.length; j++)
-								{
-									style = mxUtils.removeStylename(style, stylenames[j]);
-								}
-
-								var defaults = (graph.getModel().isVertex(cells[i])) ? graph.defaultVertexStyle : graph.defaultEdgeStyle;
+				var dots = [];
+				
+				for (var i = 0; i < this.defaultColorSchemes.length; i++)
+				{
+					var dot = document.createElement('div');
+					dot.style.display = 'inline-block';
+					dot.style.width = '6px';
+					dot.style.height = '6px';
+					dot.style.marginLeft = '4px';
+					dot.style.marginRight = '3px';
+					dot.style.borderRadius = '3px';
+					dot.style.cursor = 'pointer';
+					dot.style.background = 'transparent';
+					dot.style.border = '1px solid #b5b6b7';
+					
+					(mxUtils.bind(this, function(index)
+					{
+						mxEvent.addListener(dot, 'click', mxUtils.bind(this, function()
+						{
+							setScheme(index);
+						}));
+					}))(i);
+					
+					dots.push(dot);
+					switcher.appendChild(dot);
+				}
+				
+				var setScheme = mxUtils.bind(this, function(index)
+				{
+					if (dots[index] != null)
+					{
+						if (this.format.currentScheme != null && dots[this.format.currentScheme] != null)
+						{
+							dots[this.format.currentScheme].style.background = 'transparent';
+						}
+						
+						this.format.currentScheme = index;
+						updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
+						dots[this.format.currentScheme].style.background = '#84d7ff';
+					}
+				});
+				
+				var updateScheme = mxUtils.bind(this, function(colorsets)
+				{
+					var addButton = mxUtils.bind(this, function(colorset)
+					{
+						var btn = mxUtils.button('', mxUtils.bind(this, function(evt)
+						{
+							graph.getModel().beginUpdate();
+							try
+							{
+								var cells = ui.getSelectionState().cells;
 								
-								if (colorset != null)
+								for (var i = 0; i < cells.length; i++)
 								{
-									if (!mxEvent.isShiftDown(evt))
+									var style = graph.getModel().getStyle(cells[i]);
+					
+									for (var j = 0; j < stylenames.length; j++)
 									{
-										if (colorset['fill'] == '')
-										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, null);
-										}
-										else
-										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
-												mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
-										}
+										style = mxUtils.removeStylename(style, stylenames[j]);
+									}
 
-										style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
-											mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+									var defaults = (graph.getModel().isVertex(cells[i])) ? graph.defaultVertexStyle : graph.defaultEdgeStyle;
 									
-										if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
-											graph.getModel().isVertex(cells[i]))
+									if (colorset != null)
+									{
+										if (!mxEvent.isShiftDown(evt))
 										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
+											if (colorset['fill'] == '')
+											{
+												style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, null);
+											}
+											else
+											{
+												style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR, colorset['fill'] ||
+													mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, null));
+											}
+
+											style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR, colorset['gradient'] ||
+												mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+										
+											if (!mxEvent.isControlDown(evt) && (!mxClient.IS_MAC || !mxEvent.isMetaDown(evt)) &&
+												graph.getModel().isVertex(cells[i]))
+											{
+												style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR, colorset['font'] ||
+													mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
+											}
+										}
+										
+										if (!mxEvent.isAltDown(evt))
+										{
+											if (colorset['stroke'] == '')
+											{
+												style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
+											}
+											else
+											{
+												style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
+													mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
+											}
+										}
+									}
+									else
+									{
+										style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,
+											mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, '#ffffff'));
+										style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR,
+											mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, '#000000'));
+										style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR,
+											mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
+										
+										if (graph.getModel().isVertex(cells[i]))
+										{
+											style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR,
 												mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
 										}
 									}
-									
-									if (!mxEvent.isAltDown(evt))
-									{
-										if (colorset['stroke'] == '')
-										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, null);
-										}
-										else
-										{
-											style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR, colorset['stroke'] ||
-												mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, null));
-										}
-									}
+
+									graph.getModel().setStyle(cells[i], style);
+								}
+							}
+							finally
+							{
+								graph.getModel().endUpdate();
+							}
+						}));
+		
+						btn.className = 'geStyleButton';
+						btn.style.width = '36px';
+						btn.style.height = (this.defaultColorSchemes.length <= maxEntries) ? '24px' : '30px';
+						btn.style.margin = '0px 6px 6px 0px';
+						
+						if (colorset != null)
+						{
+							var b = (Editor.isDarkMode()) ? '2px solid' : '1px solid';
+							
+							if (colorset['border'] != null)
+							{
+								b = colorset['border'];
+							}
+							
+							if (colorset['gradient'] != null)
+							{
+								if (mxClient.IS_IE && (document.documentMode < 10))
+								{
+									btn.style.filter = 'progid:DXImageTransform.Microsoft.Gradient('+
+										'StartColorStr=\'' + colorset['fill'] +
+										'\', EndColorStr=\'' + colorset['gradient'] + '\', GradientType=0)';
 								}
 								else
 								{
-									style = mxUtils.setStyle(style, mxConstants.STYLE_FILLCOLOR,
-										mxUtils.getValue(defaults, mxConstants.STYLE_FILLCOLOR, '#ffffff'));
-									style = mxUtils.setStyle(style, mxConstants.STYLE_STROKECOLOR,
-										mxUtils.getValue(defaults, mxConstants.STYLE_STROKECOLOR, '#000000'));
-									style = mxUtils.setStyle(style, mxConstants.STYLE_GRADIENTCOLOR,
-										mxUtils.getValue(defaults, mxConstants.STYLE_GRADIENTCOLOR, null));
-									
-									if (graph.getModel().isVertex(cells[i]))
-									{
-										style = mxUtils.setStyle(style, mxConstants.STYLE_FONTCOLOR,
-											mxUtils.getValue(defaults, mxConstants.STYLE_FONTCOLOR, null));
-									}
+									btn.style.backgroundImage = 'linear-gradient(' + colorset['fill'] + ' 0px,' +
+										colorset['gradient'] + ' 100%)';
 								}
-
-								graph.getModel().setStyle(cells[i], style);
 							}
-						}
-						finally
-						{
-							graph.getModel().endUpdate();
-						}
-					}));
-	
-					btn.className = 'geStyleButton';
-					btn.style.width = '36px';
-					btn.style.height = (this.defaultColorSchemes.length <= maxEntries) ? '24px' : '30px';
-					btn.style.margin = '0px 6px 6px 0px';
-					
-					if (colorset != null)
-					{
-						var b = (Editor.isDarkMode()) ? '2px solid' : '1px solid';
-						
-						if (colorset['border'] != null)
-						{
-							b = colorset['border'];
-						}
-						
-						if (colorset['gradient'] != null)
-						{
-							if (mxClient.IS_IE && (document.documentMode < 10))
+							else if (colorset['fill'] == mxConstants.NONE)
 							{
-						    	btn.style.filter = 'progid:DXImageTransform.Microsoft.Gradient('+
-				                	'StartColorStr=\'' + colorset['fill'] +
-				                	'\', EndColorStr=\'' + colorset['gradient'] + '\', GradientType=0)';
+								btn.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
+							}
+							else if (colorset['fill'] == '')
+							{
+								btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
+									mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
 							}
 							else
 							{
-								btn.style.backgroundImage = 'linear-gradient(' + colorset['fill'] + ' 0px,' +
-									colorset['gradient'] + ' 100%)';
+								btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
+									mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
+							}
+							
+							if (colorset['stroke'] == mxConstants.NONE)
+							{
+								btn.style.border = b + ' transparent';
+							}
+							else if (colorset['stroke'] == '')
+							{
+								btn.style.border = b + ' ' + mxUtils.getValue(graph.defaultVertexStyle, 
+									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
+							}
+							else
+							{
+								btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
+										mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff'));
+							}
+
+							if (colorset['title'] != null)
+							{
+								btn.setAttribute('title', colorset['title']);
 							}
 						}
-						else if (colorset['fill'] == mxConstants.NONE)
-						{
-							btn.style.background = 'url(\'' + Dialog.prototype.noColorImage + '\')';
-						}
-						else if (colorset['fill'] == '')
-						{
-							btn.style.backgroundColor = mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
-						}
 						else
 						{
-							btn.style.backgroundColor = colorset['fill'] || mxUtils.getValue(graph.defaultVertexStyle,
-								mxConstants.STYLE_FILLCOLOR, (Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
-						}
-						
-						if (colorset['stroke'] == mxConstants.NONE)
-						{
-							btn.style.border = b + ' transparent';
-						}
-						else if (colorset['stroke'] == '')
-						{
-							btn.style.border = b + ' ' + mxUtils.getValue(graph.defaultVertexStyle, 
-								mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff');
-						}
-						else
-						{
-							btn.style.border = b + ' ' + (colorset['stroke'] || mxUtils.getValue(graph.defaultVertexStyle,
-									mxConstants.STYLE_STROKECOLOR, (!Editor.isDarkMode()) ? Editor.darkColor : '#ffffff'));
+							var bg = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_FILLCOLOR, '#ffffff');
+							var bd = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_STROKECOLOR, '#000000');
+							
+							btn.style.backgroundColor = bg;
+							btn.style.border = '1px solid ' + bd;
 						}
 
-						if (colorset['title'] != null)
-						{
-							btn.setAttribute('title', colorset['title']);
-						}
-					}
-					else
-					{
-						var bg = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_FILLCOLOR, '#ffffff');
-						var bd = mxUtils.getValue(graph.defaultVertexStyle, mxConstants.STYLE_STROKECOLOR, '#000000');
+						btn.style.borderRadius = '0';
 						
-						btn.style.backgroundColor = bg;
-						btn.style.border = '1px solid ' + bd;
-					}
-
-					btn.style.borderRadius = '0';
+						picker.appendChild(btn);
+					});
 					
-					picker.appendChild(btn);
+					picker.innerText = '';
+					
+					for (var i = 0; i < colorsets.length; i++)
+					{
+						if (i > 0 && mxUtils.mod(i, 4) == 0)
+						{
+							mxUtils.br(picker);
+						}
+						
+						addButton(colorsets[i]);
+					}
 				});
-				
-				picker.innerText = '';
-				
-				for (var i = 0; i < colorsets.length; i++)
+
+				if (this.format.currentScheme == null)
 				{
-					if (i > 0 && mxUtils.mod(i, 4) == 0)
-					{
-						mxUtils.br(picker);
-					}
-					
-					addButton(colorsets[i]);
+					setScheme(Math.min(dots.length - 1, Editor.isDarkMode()
+						? 1 : (urlParams['sketch'] == '1' ? 5 : 0)));
 				}
-			});
-
-			if (this.format.currentScheme == null)
-			{
-				setScheme(Math.min(dots.length - 1, Editor.isDarkMode()
-					? 1 : (urlParams['sketch'] == '1' ? 5 : 0)));
-			}
-			else
-			{
-				setScheme(this.format.currentScheme);
-			}
-			
-			var bottom = (this.defaultColorSchemes.length <= maxEntries) ? 28 : 8;
-
-			var left = document.createElement('div');
-			left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
-				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
-			
-			mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
-			{
-				setScheme(mxUtils.mod(this.format.currentScheme - 1, this.defaultColorSchemes.length));
-			}));
-			
-			var right = document.createElement('div');
-			right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
-				'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
-
-			if (this.defaultColorSchemes.length > 1)
-			{
-				div.appendChild(left);
-				div.appendChild(right);
-			}
-			
-			mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
-			{
-				setScheme(mxUtils.mod(this.format.currentScheme + 1, this.defaultColorSchemes.length));
-			}));
-			
-			// Hover state
-			function addHoverState(elt)
-			{
-				mxEvent.addListener(elt, 'mouseenter', function()
+				else
 				{
-					elt.style.opacity = '1';
-				});
-				mxEvent.addListener(elt, 'mouseleave', function()
+					setScheme(this.format.currentScheme);
+				}
+				
+				var bottom = (this.defaultColorSchemes.length <= maxEntries) ? 28 : 8;
+
+				var left = document.createElement('div');
+				left.style.cssText = 'position:absolute;left:10px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
+					'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ4eHh3d3d1dXVxcXF2dnZ2dnZ2dnZxcXF2dnYmb3w1AAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADRJREFUCNdjwACMAmBKaiGYs2oJmLPKAZ3DabU8AMRTXpUKopislqFyVzCAuUZgikkBZjoAcMYLnp53P/UAAAAASUVORK5CYII=);';
+				
+				mxEvent.addListener(left, 'click', mxUtils.bind(this, function()
 				{
-					elt.style.opacity = '0.5';
-				});
-			};
-			
-			addHoverState(left);
-			addHoverState(right);
-			
-			updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
-			
-			if (this.defaultColorSchemes.length <= maxEntries)
-			{
-				div.appendChild(switcher);
+					setScheme(mxUtils.mod(this.format.currentScheme - 1, this.defaultColorSchemes.length));
+				}));
+				
+				var right = document.createElement('div');
+				right.style.cssText = 'position:absolute;left:202px;top:8px;bottom:' + bottom + 'px;width:20px;margin:4px;opacity:0.5;' +
+					'background-repeat:no-repeat;background-position:center center;background-image:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAQBAMAAADQT4M0AAAAIVBMVEUAAAB2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnYBuwCcAAAACnRSTlMAfCTkhhvb7cQSPH2JPgAAADZJREFUCNdjQAOMAmBKaiGY8loF5rKswsZlrVo8AUiFrTICcbIWK8A5DF1gDoMymMPApIAwHwCS0Qx/U7qCBQAAAABJRU5ErkJggg==);';
+
+				if (this.defaultColorSchemes.length > 1)
+				{
+					div.appendChild(left);
+					div.appendChild(right);
+				}
+				
+				mxEvent.addListener(right, 'click', mxUtils.bind(this, function()
+				{
+					setScheme(mxUtils.mod(this.format.currentScheme + 1, this.defaultColorSchemes.length));
+				}));
+				
+				// Hover state
+				function addHoverState(elt)
+				{
+					mxEvent.addListener(elt, 'mouseenter', function()
+					{
+						elt.style.opacity = '1';
+					});
+					mxEvent.addListener(elt, 'mouseleave', function()
+					{
+						elt.style.opacity = '0.5';
+					});
+				};
+				
+				addHoverState(left);
+				addHoverState(right);
+				
+				updateScheme(this.defaultColorSchemes[this.format.currentScheme]);
+				
+				if (this.defaultColorSchemes.length <= maxEntries)
+				{
+					div.appendChild(switcher);
+				}
 			}
 			
 			return div;

@@ -1392,10 +1392,9 @@ Graph.pasteStyles = ['rounded', 'shadow', 'dashed', 'dashPattern', 'fontFamily',
 /**
  * Whitelist for known layout names.
  */
-Graph.layoutNames = ['mxHierarchicalLayout', 'mxCircleLayout',
-	'mxCompactTreeLayout', 'mxEdgeLabelLayout', 'mxFastOrganicLayout',
-	'mxParallelEdgeLayout', 'mxPartitionLayout', 'mxRadialTreeLayout',
-	'mxStackLayout'];
+Graph.layoutNames = ['mxHierarchicalLayout', 'mxCircleLayout', 'mxCompactTreeLayout',
+	'mxEdgeLabelLayout', 'mxFastOrganicLayout', 'mxParallelEdgeLayout',
+	'mxPartitionLayout', 'mxRadialTreeLayout', 'mxStackLayout'];
 
 /**
  * Creates a temporary graph instance for rendering off-screen content.
@@ -3369,13 +3368,21 @@ Graph.prototype.createLayouts = function(list)
 	{
 		if (mxUtils.indexOf(Graph.layoutNames, list[i].layout) >= 0)
 		{
-			var layout = new window[list[i].layout](this);
-			
+			// Handles special case of branch optimizer in orgchart
+			var layout = (list[i].layout == 'mxOrgChartLayout' && list[i].config != null) ?
+				new window[list[i].layout](this, list[i].config['branchOptimizer']) :
+				new window[list[i].layout](this);
+
 			if (list[i].config != null)
 			{
 				for (var key in list[i].config)
 				{
-					layout[key] = list[i].config[key];
+					// Ignores branch optimizer in orgchart (handled above)
+					if (list[i].layout != 'mxOrgChartLayout' ||
+						key != 'branchOptimizer')
+					{
+						layout[key] = list[i].config[key];
+					}
 				}
 			}
 

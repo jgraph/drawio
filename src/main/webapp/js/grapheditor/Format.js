@@ -963,6 +963,15 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 	var dropper = null;
 	var btn = null;
 
+	var clrInput = document.createElement('input');
+	clrInput.setAttribute('type', 'color');
+	clrInput.style.position = 'relative';
+	clrInput.style.visibility = 'hidden';
+	clrInput.style.top = '10px';
+	clrInput.style.width = '0px';
+	clrInput.style.height = '0px';
+	clrInput.style.border = 'none';
+
 	// Adds native color dialog
 	if (!mxClient.IS_IE && !mxClient.IS_IE11 && !mxClient.IS_TOUCH)
 	{
@@ -1069,15 +1078,9 @@ BaseFormatPanel.prototype.createColorOption = function(label, getColorFn, setCol
 		}
 	};
 	
-	var clrInput = document.createElement('input');
-	clrInput.setAttribute('type', 'color');
-	clrInput.style.visibility = 'hidden';
-	clrInput.style.width = '0px';
-	clrInput.style.height = '0px';
-	clrInput.style.border = 'none';
 	div.appendChild(clrInput);
 
-	mxEvent.addListener(clrInput, 'input', function()
+	mxEvent.addListener(clrInput, 'change', function()
 	{
 		apply(clrInput.value, null, true);
 	});
@@ -4996,10 +4999,14 @@ StyleFormatPanel.prototype.addStroke = function(container)
 	
 	var edgeShape = this.editorUi.toolbar.addMenuFunctionInContainer(altStylePanel, 'geSprite-connection', mxResources.get('connection'), false, mxUtils.bind(this, function(menu)
 	{
-		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], [null, null, null, null], 'geIcon geSprite geSprite-connection', null, true).setAttribute('title', mxResources.get('line'));
-		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['link', null, null, null], 'geIcon geSprite geSprite-linkedge', null, true).setAttribute('title', mxResources.get('link'));
-		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', null, true).setAttribute('title', mxResources.get('arrow'));
-		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'], ['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', null, true).setAttribute('title', mxResources.get('simpleArrow')); 
+		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+			[null, null, null, null], 'geIcon geSprite geSprite-connection', null, null, null, true).setAttribute('title', mxResources.get('line'));
+		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+			['link', null, null, null], 'geIcon geSprite geSprite-linkedge', null, null, null, true).setAttribute('title', mxResources.get('link'));
+		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+			['flexArrow', null, null, null], 'geIcon geSprite geSprite-arrow', null, null, null, true).setAttribute('title', mxResources.get('arrow'));
+		this.editorUi.menus.styleChange(menu, '', [mxConstants.STYLE_SHAPE, mxConstants.STYLE_STARTSIZE, mxConstants.STYLE_ENDSIZE, 'width'],
+			['arrow', null, null, null], 'geIcon geSprite geSprite-simplearrow', null, null, null, true).setAttribute('title', mxResources.get('simpleArrow')); 
 	}));
 
 	var altPattern = this.editorUi.toolbar.addMenuFunctionInContainer(altStylePanel, 'geSprite-orthogonal', mxResources.get('pattern'), false, mxUtils.bind(this, function(menu)

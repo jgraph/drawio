@@ -479,7 +479,7 @@ function P2PCollab(ui, sync, channelId)
 		{
 			if (window.console != null)
 			{
-				console.error(e, msg, fromCId);
+				console.warn(e, msg, fromCId);
 			}
 		}
 	};
@@ -702,7 +702,7 @@ function P2PCollab(ui, sync, channelId)
 				{
 					if (window.console != null)
 					{
-						console.error(e, event);
+						console.warn(e, event);
 					}
 				}
 			};

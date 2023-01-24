@@ -793,92 +793,95 @@ EditorUi = function(editor, container, lightbox)
 		this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
 		{
 			// Checks if edges and/or vertices were modified
-			var cells = evt.getProperty('cells');
-			var vertex = false;
-			var edge = false;
-			
-			if (cells.length > 0)
+			if (this.updateDefaultStyle)
 			{
-				for (var i = 0; i < cells.length; i++)
+				var cells = evt.getProperty('cells');
+				var vertex = false;
+				var edge = false;
+				
+				if (cells.length > 0)
 				{
-					vertex = graph.getModel().isVertex(cells[i]) || vertex;
-					edge = graph.getModel().isEdge(cells[i]) || edge;
-					
-					if (edge && vertex)
+					for (var i = 0; i < cells.length; i++)
 					{
-						break;
+						vertex = graph.getModel().isVertex(cells[i]) || vertex;
+						edge = graph.getModel().isEdge(cells[i]) || edge;
+						
+						if (edge && vertex)
+						{
+							break;
+						}
 					}
 				}
-			}
-			else
-			{
-				vertex = true;
-				edge = true;
-			}
-
-			vertex = vertex && !vertexStyleIgnored;
-			edge = edge && !edgeStyleIgnored;
-			
-			var keys = evt.getProperty('keys');
-			var values = evt.getProperty('values');
-	
-			for (var i = 0; i < keys.length; i++)
-			{
-				var common = mxUtils.indexOf(valueStyles, keys[i]) >= 0;
-
-				// Ignores transparent stroke colors
-				if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
+				else
 				{
-					// Special case: Edge style and shape
-					if (mxUtils.indexOf(connectStyles, keys[i]) >= 0)
+					vertex = true;
+					edge = true;
+				}
+
+				vertex = vertex && !vertexStyleIgnored;
+				edge = edge && !edgeStyleIgnored;
+				
+				var keys = evt.getProperty('keys');
+				var values = evt.getProperty('values');
+		
+				for (var i = 0; i < keys.length; i++)
+				{
+					var common = mxUtils.indexOf(valueStyles, keys[i]) >= 0;
+
+					// Ignores transparent stroke colors
+					if (keys[i] != 'strokeColor' || (values[i] != null && values[i] != 'none'))
 					{
-						if (edge || mxUtils.indexOf(alwaysEdgeStyles, keys[i]) >= 0)
+						// Special case: Edge style and shape
+						if (mxUtils.indexOf(connectStyles, keys[i]) >= 0)
 						{
-							if (values[i] == null)
+							if (edge || mxUtils.indexOf(alwaysEdgeStyles, keys[i]) >= 0)
 							{
-								delete graph.currentEdgeStyle[keys[i]];
+								if (values[i] == null)
+								{
+									delete graph.currentEdgeStyle[keys[i]];
+								}
+								else
+								{
+									graph.currentEdgeStyle[keys[i]] = values[i];
+								}
 							}
-							else
+							// Uses style for vertex if defined in styles
+							else if (vertex && mxUtils.indexOf(styles, keys[i]) >= 0)
 							{
-								graph.currentEdgeStyle[keys[i]] = values[i];
+								if (values[i] == null)
+								{
+									delete graph.currentVertexStyle[keys[i]];
+								}
+								else
+								{
+									graph.currentVertexStyle[keys[i]] = values[i];
+								}
 							}
 						}
-						// Uses style for vertex if defined in styles
-						else if (vertex && mxUtils.indexOf(styles, keys[i]) >= 0)
+						else if (mxUtils.indexOf(styles, keys[i]) >= 0)
 						{
-							if (values[i] == null)
+							if (vertex || common)
 							{
-								delete graph.currentVertexStyle[keys[i]];
+								if (values[i] == null)
+								{
+									delete graph.currentVertexStyle[keys[i]];
+								}
+								else
+								{
+									graph.currentVertexStyle[keys[i]] = values[i];
+								}
 							}
-							else
+							
+							if (edge || common || mxUtils.indexOf(alwaysEdgeStyles, keys[i]) >= 0)
 							{
-								graph.currentVertexStyle[keys[i]] = values[i];
-							}
-						}
-					}
-					else if (mxUtils.indexOf(styles, keys[i]) >= 0)
-					{
-						if (vertex || common)
-						{
-							if (values[i] == null)
-							{
-								delete graph.currentVertexStyle[keys[i]];
-							}
-							else
-							{
-								graph.currentVertexStyle[keys[i]] = values[i];
-							}
-						}
-						
-						if (edge || common || mxUtils.indexOf(alwaysEdgeStyles, keys[i]) >= 0)
-						{
-							if (values[i] == null)
-							{
-								delete graph.currentEdgeStyle[keys[i]];
-							}
-							else
-							{
-								graph.currentEdgeStyle[keys[i]] = values[i];
+								if (values[i] == null)
+								{
+									delete graph.currentEdgeStyle[keys[i]];
+								}
+								else
+								{
+									graph.currentEdgeStyle[keys[i]] = values[i];
+								}
 							}
 						}
 					}
@@ -1215,6 +1218,11 @@ EditorUi.prototype.lightboxVerticalDivider = 4;
 EditorUi.prototype.hsplitClickEnabled = false;
 
 /**
+ * Whether the default styles should be updated when styles are changed. Default is true.
+ */
+EditorUi.prototype.updateDefaultStyle = true;
+
+/**
  * Installs the listeners to update the action states.
  */
 EditorUi.prototype.init = function()
@@ -1440,7 +1448,65 @@ EditorUi.prototype.windowResized = function()
 /**
  * Returns information about the current selection.
  */
-EditorUi.prototype.tryAndHandle = function(fn)
+EditorUi.prototype.createTimeout = function(timeout, fn, error)
+{
+	var acceptResponse = true;
+	var result = null;
+
+	var handleError = mxUtils.bind(this, function(e)
+	{
+		if (result.clear())
+		{
+			acceptResponse = false;
+			e = (e != null) ? e : {code: App.ERROR_TIMEOUT,
+				message: mxResources.get('timeout'),
+				retry: mxUtils.bind(this, function()
+				{
+					this.createTimeout(timeout, fn, error);
+				})};
+
+			if (error != null)
+			{
+				error(e);
+			}
+			else
+			{
+				this.handleError(e);
+			}
+		}
+	});
+	
+	var timeoutThread = window.setTimeout(handleError,
+		(timeout != null) ? timeout : this.timeout);
+
+	var result = {
+		clear: function()
+		{
+			window.clearTimeout(timeoutThread);
+
+			return acceptResponse;
+		},
+		isAlive: function()
+		{
+			return acceptResponse;
+		}
+	};
+
+	if (fn != null)
+	{
+		this.tryAndHandle(mxUtils.bind(this, function()
+		{
+			fn(result);
+		}), handleError);
+	}
+
+	return result;
+};
+
+/**
+ * Returns information about the current selection.
+ */
+EditorUi.prototype.tryAndHandle = function(fn, error)
 {
 	try
 	{
@@ -1448,7 +1514,14 @@ EditorUi.prototype.tryAndHandle = function(fn)
 	}
 	catch (e)
 	{
-		this.handleError(e);
+		if (error != null)
+		{
+			error(e);
+		}
+		else
+		{
+			this.handleError(e);
+		}
 	}
 };
 

@@ -210,11 +210,13 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 
 		var clrInput = document.createElement('input');
 		clrInput.setAttribute('type', 'color');
+		clrInput.style.position = 'relative';
 		clrInput.style.visibility = 'hidden';
+		clrInput.style.top = '10px';
 		clrInput.style.width = '0px';
 		clrInput.style.height = '0px';
 		clrInput.style.border = 'none';
-		clrInput.style.marginLeft = '2px';
+		
 		div.style.whiteSpace = 'nowrap';
 		div.appendChild(clrInput);
 
@@ -243,7 +245,7 @@ var ColorDialog = function(editorUi, color, apply, cancelFn)
 		dropperBtn.appendChild(dropper);
 		div.appendChild(dropperBtn);
 
-		mxEvent.addListener(clrInput, 'input', function()
+		mxEvent.addListener(clrInput, 'change', function()
 		{
 			picker.fromString(clrInput.value.substring(1));
 		});

@@ -1013,14 +1013,15 @@ App.main = function(callback, createUi)
 					}
 					catch (e)
 					{
-						if (window.console != null && !EditorUi.isElectronApp)
-						{
-							console.error(e);
-						}
-						else
+						if (EditorUi.isElectronApp)
 						{
 							mxLog.show();
 							mxLog.debug(e.stack);
+						}
+						else
+						{
+							EditorUi.logError(e.message, null, null, e);
+							alert(e.message);
 						}
 					}
 				};
@@ -1136,14 +1137,15 @@ App.main = function(callback, createUi)
 			}
 			catch (e)
 			{
-				if (window.console != null && !EditorUi.isElectronApp)
-				{
-					console.error(e);
-				}
-				else
+				if (EditorUi.isElectronApp)
 				{
 					mxLog.show();
 					mxLog.debug(e.stack);
+				}
+				else
+				{
+					EditorUi.logError(e.message, null, null, e);
+					alert(e.message);
 				}
 			}
 		};
@@ -3086,19 +3088,19 @@ App.prototype.showAlert = function(message)
  */
 App.prototype.start = function()
 {
-	if (this.bg != null && this.bg.parentNode != null)
-	{
-		this.bg.parentNode.removeChild(this.bg);
-	}
-	
-	this.restoreLibraries();
-	this.spinner.stop();
-
 	try
 	{
 		// Handles all errors
 		var ui = this;
+			
+		if (this.bg != null && this.bg.parentNode != null)
+		{
+			this.bg.parentNode.removeChild(this.bg);
+		}
 		
+		this.restoreLibraries();
+		this.spinner.stop();
+
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
 			// Ignores Grammarly error [1344]
@@ -3581,7 +3583,7 @@ App.prototype.filterDrafts = function(filePath, guid, callback)
 			}
 
 			result();
-		}, result));
+		}), result);
 	}
 	catch (e)
 	{

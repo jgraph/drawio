@@ -154,53 +154,52 @@
 	 */
 	EditorUi.logError = function(message, url, linenumber, colno, err, severity, quiet)
 	{
-		severity = ((severity != null) ? severity : (message.indexOf('NetworkError') >= 0 ||
-			message.indexOf('SecurityError') >= 0 || message.indexOf('NS_ERROR_FAILURE') >= 0 ||
-			message.indexOf('out of memory') >= 0) ? 'CONFIG' : 'SEVERE');
-		
-		if (EditorUi.enableLogging && urlParams['dev'] != '1')
+		if (message != null)
 		{
+			err = (err != null) ? err : new Error(message);
+			err.stack = (err.stack != null) ? err.stack : '';
+			severity = (severity != null) ? severity : ((message.indexOf('NetworkError') < 0 &&
+				message.indexOf('SecurityError') < 0 && message.indexOf('NS_ERROR_FAILURE') < 0 &&
+				message.indexOf('out of memory') < 0) ? 'SEVERE' : 'CONFIG');
+			
 			try
 			{
-				if (message == EditorUi.lastErrorMessage || (message != null && url != null &&
-					((message.indexOf('Script error') != -1) || (message.indexOf('extension:') != -1))) ||
-					(err != null && err.stack != null && ((err.stack.indexOf('extension:') != -1) ||
-					(err.stack.indexOf('<anonymous>:') != -1))))
-				{
-					// TODO log external domain script failure "Script error." is
-					// reported when the error occurs in a script that is hosted
-					// on a domain other than the domain of the current page
-				}
-				// DocumentClosedError seems to be an FF bug an can be ignored for now
-				else if (message != null && message.indexOf('DocumentClosedError') < 0)
+				if (EditorUi.enableLogging && urlParams['dev'] != '1' &&
+					message != EditorUi.lastErrorMessage && message.indexOf('extension:') < 0 &&
+					err.stack.indexOf('extension:') < 0 && err.stack.indexOf('<anonymous>:') < 0)
 				{
 					EditorUi.lastErrorMessage = message;
-					var logDomain = window.DRAWIO_LOG_URL != null ? window.DRAWIO_LOG_URL : '';
-					err = (err != null) ? err : new Error(message);
 
 					var img = new Image();
-					img.src = logDomain + '/log?severity=' + severity + '&v=' + encodeURIComponent(EditorUi.VERSION) +
-		    			'&msg=clientError:' + encodeURIComponent(message) + ':url:' + encodeURIComponent(window.location.href) +
-		    			':lnum:' + encodeURIComponent(linenumber) + ((colno != null) ? ':colno:' + encodeURIComponent(colno) : '') +
-		    			((err != null && err.stack != null) ? '&stack=' + encodeURIComponent(err.stack) : '');
+					var logDomain = window.DRAWIO_LOG_URL != null ?
+						window.DRAWIO_LOG_URL : '';
+					img.src = logDomain + '/log?severity=' + severity +
+						'&v=' + encodeURIComponent(EditorUi.VERSION) +
+						'&msg=clientError:' + encodeURIComponent(message) +
+						':url:' + encodeURIComponent(window.location.href) +
+						':lnum:' + encodeURIComponent(linenumber) +
+						((colno != null) ?
+							':colno:' + encodeURIComponent(colno) : '') +
+						((err.stack != '') ?
+							'&stack=' + encodeURIComponent(err.stack) : '');
 				}
 			}
 			catch (e)
 			{
-				// do nothing
+				// ignore
 			}
-		}
-
-		try
-		{
-			if (!quiet && window.console != null)
+			
+			try
 			{
-				console.error(severity, message, url, linenumber, colno, err);
+				if (!quiet && window.console != null)
+				{
+					console.error(severity, message, url, linenumber, colno, err);
+				}
 			}
-		}
-		catch (e)
-		{
-			// ignore
+			catch (e)
+			{
+				// ignore
+			}
 		}
 	};
 	
@@ -7813,6 +7812,148 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
+	EditorUi.prototype.createMermaidXml = function(input, config, data, w, h)
+	{
+		var graph = new Graph(document.createElement('div'));
+		var cell = graph.insertVertex(null, null, null, 0, 0, w, h,
+			'shape=image;noLabel=1;verticalAlign=top;' +
+			'imageAspect=1;image=' + data + ';')
+		graph.setAttributeForCell(cell, 'mermaidData', JSON.stringify(
+			{data: input, config: config}, null, 2));
+
+		var codec = new mxCodec();
+		var node = codec.encode(graph.getModel());
+
+		return mxUtils.getXml(node);
+	};
+
+	/**
+	 * Generates a Mermaid image.
+	 */
+	EditorUi.prototype.generateOpenAiMermaidDiagram = function(key, value, success, error)
+	{
+		if (this.spinner.spin(document.body, mxResources.get('loading')))
+		{
+			this.createTimeout(10000, mxUtils.bind(this, function(timeout)
+			{
+				EditorUi.logEvent({category: 'OPENAI-DIAGRAM', action: 'generateOpenAiMermaidDiagram', label: value});	
+				var url = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
+
+				var params = {
+					prompt: 'mermaid declaration for ' + value,
+					temperature: 0.9,
+					max_tokens: 4000
+				};
+
+				var req = new mxXmlRequest(url, JSON.stringify(params), 'POST');
+				
+				req.setRequestHeaders = mxUtils.bind(this, function(request, params)
+				{
+					request.setRequestHeader('Authorization', 'Bearer ' + key);
+					request.setRequestHeader('Content-Type', 'application/json');
+				});
+
+				var handleError = mxUtils.bind(this, function(e)
+				{
+					if (timeout.clear())
+					{
+						this.spinner.stop();
+						error(e);
+					}
+				});
+
+				req.send(mxUtils.bind(this, function(req)
+				{
+					if (timeout.isAlive())
+					{
+						if (req.getStatus() >= 200 && req.getStatus() <= 299)
+						{
+							this.tryAndHandle(mxUtils.bind(this, function()
+							{
+								var response = JSON.parse(req.getText());
+								var text = mxUtils.trim(response.choices[0].text);
+								var input = this.extractMermaidDeclaration(text);
+								
+								EditorUi.debug('OpenAI', params, response, '\n', value, '=>\n', text);
+
+								this.generateMermaidImage(input, null, mxUtils.bind(this, function(data, w, h)
+								{
+									this.tryAndHandle(mxUtils.bind(this, function()
+									{
+										if (timeout.clear())
+										{
+											this.spinner.stop();
+											success(input, data, w, h);
+										}
+									}), handleError);
+								}), handleError);
+							}), handleError);
+						}
+						else
+						{
+							var e = null;
+
+							try
+							{
+								e = JSON.parse(req.getText());
+								e = e.error;
+							}
+							catch (e)
+							{
+								// ignore
+							}
+
+							handleError(e);
+						}
+					}
+				}));
+			}), error);
+		}
+	};
+
+	/**
+	 * Generates a Mermaid image.
+	 */
+	EditorUi.prototype.extractMermaidDeclaration = function(value)
+	{
+		// Removes occasional "o" on first line in response
+		if (value.substring(0, 3) == 'o\n\n')
+		{
+			value = value.substring(3);
+		}
+
+		// Various formats supported
+		var tokens = value.split('```');
+		tokens = (tokens.length > 1) ? tokens : value.split('<pre>');
+		tokens = (tokens.length > 1) ? tokens : value.split('~~~');
+		tokens = (tokens.length > 1) ? tokens : value.split('%%');
+		tokens = (tokens.length > 1) ? tokens : value.split('(Begins)');
+		
+		var text = mxUtils.trim((tokens.length <= 1) ? value : tokens[1]);
+		var lines = text.split('\n');
+
+		// Removes occasional mermaid tag on first line
+		if (lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid')
+		{
+			lines.shift();
+			text = lines.join('\n');
+		}
+
+		// Validates diagram type on first line
+		var type = lines[0].split(' ')[0];
+
+		if (mxUtils.indexOf(['graph', 'grantt', 'pie', 'stateDiagram', 'gitgraph',
+			'sequenceDiagram', 'classDiagram', 'flowchart'], type) < 0)
+		{
+			text = 'classDiagram\n' + text;
+		}
+
+		return text;
+	};
+
+	/**
+	 * Generates a Mermaid image.
+	 */
 	EditorUi.prototype.generateMermaidImage = function(data, config, success, error)
 	{
 		var ui = this;
@@ -8884,240 +9025,256 @@
 							{
 								if (filterFn == null || filterFn(file))
 								{
-									if (file.type.substring(0, 6) == 'image/')
-						    		{
-						    			if (file.type.substring(0, 9) == 'image/svg')
-						    			{
-						    				// Checks if SVG contains content attribute
-					    					var data = Graph.clipSvgDataUri(e.target.result);
-					    					var comma = data.indexOf(',');
-					    					var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
-					    					var root = mxUtils.parseXml(svgText);
-				    						var svgs = root.getElementsByTagName('svg');
-				    						
-				    						if (svgs.length > 0)
-					    					{
-				    							var svgRoot = svgs[0];
-						    					var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
-		
-						    					if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
-						    					{
-						    						cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
-						    					}
-						    					
-						    					if (cont != null && cont.charAt(0) == '%')
-						    					{
-						    						cont = decodeURIComponent(cont);
-						    					}
-		
-						    					if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
-						    						cont.substring(0, 14) === '<mxGraphModel '))
-						    					{
-						    						barrier(index, mxUtils.bind(this, function()
-								    				{
-								    					return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
-								    				}));
-						    					}
-						    					else
-						    					{
-								    				// SVG needs special handling to add viewbox if missing and
-								    				// find initial size from SVG attributes (only for IE11)
-								    				barrier(index, mxUtils.bind(this, function()
-								    				{
-							    						try
-							    						{
-									    					// Parses SVG and find width and height
-									    					if (root != null)
-									    					{
-									    						var svgs = root.getElementsByTagName('svg');
-									    						
-									    						if (svgs.length > 0)
-										    					{
-									    							var svgRoot = svgs[0];
-										    						var w = svgRoot.getAttribute('width');
-										    						var h = svgRoot.getAttribute('height');
-										    						
-										    						if (w != null && w.charAt(w.length - 1) != '%')
-									    							{
-									    								w = parseFloat(w);
-									    							}
-									    							else
-									    							{
-									    								w = NaN;
-									    							}
-										    						
-										    						if (h != null && h.charAt(h.length - 1) != '%')
-									    							{
-									    								h = parseFloat(h);
-									    							}
-									    							else
-									    							{
-									    								h = NaN;
-									    							}
-										    						
-										    						// Check if viewBox attribute already exists
-										    						var vb = svgRoot.getAttribute('viewBox');
-										    						
-										    						if (vb == null || vb.length == 0)
-										    						{
-										    							svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-										    						}
-										    						// Uses width and height from viewbox for
-										    						// missing width and height attributes
-										    						else if (isNaN(w) || isNaN(h))
-										    						{
-										    							var tokens = vb.split(' ');
-										    							
-										    							if (tokens.length > 3)
-										    							{
-										    								w = parseFloat(tokens[2]);
-										    								h = parseFloat(tokens[3]);
-										    							}
-										    						}
-	
-										    						data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-										    						var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
-										    						var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
-										    							1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
-																	
-										    						// Hack to fix width and height asynchronously
-										    						if (cells != null && (isNaN(w) || isNaN(h)))
-										    						{
-										    							var img = new Image();
-										    							
-										    							img.onload = mxUtils.bind(this, function()
-										    							{
-										    								w = Math.max(1, img.width);
-										    								h = Math.max(1, img.height);
-										    								
-										    								cells[0].geometry.width = w;
-										    								cells[0].geometry.height = h;
-																			
-										    								svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
-										    								data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-										    								
-										    								var semi = data.indexOf(';');
-										    								
-										    								if (semi > 0)
-										    								{
-										    									data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
-										    								}
-										    								
-										    								graph.setCellStyles('image', data, [cells[0]]);
-										    							});
-										    							
-										    							img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
-										    						}
-										    						
-										    						return cells;
-										    					}
-									    					}
-							    						}
-							    						catch (e)
-							    						{
-							    							// ignores any SVG parsing errors
-							    						}
-								    					
-								    					return null;
-								    				}));
-						    					}
-					    					}
-				    						else
-				    						{
-					    						barrier(index, mxUtils.bind(this, function()
-							    				{
-							    					return null;
-							    				}));
-				    						}
-						    			}
-						    			else
-						    			{
-						    				// Checks if PNG+XML is available to bypass code below
-						    				var containsModel = false;
-						    				
-						    				if (file.type == 'image/png')
-						    				{
-						    					var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
-						    					
-						    					if (xml != null && xml.length > 0)
-						    					{
-						    						var img = new Image();
-						    						img.src = e.target.result;
-						    						
-								    				barrier(index, mxUtils.bind(this, function()
-								    				{
-								    					return fn(xml, 'text/xml', x + index * gs, y + index * gs,
-								    						img.width, img.height, file.name);	
-								    				}));
-						    						
-						    						containsModel = true;
-						    					}
-						    				}
-						    				
-							    			// Additional asynchronous step for finding image size
-						    				if (!containsModel)
-						    				{
-						    					// Cannot load local files in Chrome App
-						    					if (mxClient.IS_CHROMEAPP)
-						    					{
-						    						this.spinner.stop();
-						    						this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
-						    							mxResources.get('cancel'), mxUtils.bind(this, function()
-					    								{
-					    									// Hides the dialog
-					    								}), null, mxResources.get('ok'), mxUtils.bind(this, function()
-					    								{
-						    								// Redirects to import function
-					    									this.actions.get('import').funct();
-					    								})
-					    							);
-						    					}
-						    					else
-						    					{
-									    			this.loadImage(e.target.result, mxUtils.bind(this, function(img)
-									    			{
-									    				this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
-									    				{
-										    				barrier(index, mxUtils.bind(this, function()
-												    		{
-										    					// Refuses to insert images above a certain size as they kill the app
-										    					if (data2 != null && data2.length < maxBytes)
-										    					{
-											    					var s = (!resizeImages || !this.isResampleImageSize(
-																		file.size, resampleThreshold)) ? 1 :
-																		Math.min(1, Math.min(maxSize / w2, maxSize / h2));
-												    				
-											    					return fn(data2, file.type, x + index * gs, y + index * gs,
-																		Math.round(w2 * s), Math.round(h2 * s), file.name);
-										    					}
-										    					else
-										    					{
-										    						this.handleError({message: mxResources.get('imageTooBig')});
-										    						
-										    						return null;
-										    					}
-												    		}));
-									    				}), resizeImages, maxSize, resampleThreshold, file.size);
-									    			}), mxUtils.bind(this, function()
-									    			{
-									    				this.handleError({message: mxResources.get('invalidOrMissingFile')});
-									    			}));
-						    					}
-						    				}
-						    			}
-						    		}
-						    		else
-						    		{
-						    			var data = e.target.result;
-						    			
-										fn(data, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+									try
+									{
+										if (file.type.substring(0, 6) == 'image/')
 										{
-											barrier(index, function()
-				    	    				{
-				    		    				return cells;
-				    	    				});
-										}, file);
-						    		}
+											if (file.type.substring(0, 9) == 'image/svg')
+											{
+												// Checks if SVG contains content attribute
+												var data = Graph.clipSvgDataUri(e.target.result);
+												var comma = data.indexOf(',');
+												var svgText = decodeURIComponent(escape(atob(data.substring(comma + 1))));
+												var root = mxUtils.parseXml(svgText);
+												var svgs = root.getElementsByTagName('svg');
+												
+												if (svgs.length > 0)
+												{
+													var svgRoot = svgs[0];
+													var cont = (ignoreEmbeddedXml) ? null : svgRoot.getAttribute('content');
+			
+													if (cont != null && cont.charAt(0) != '<' && cont.charAt(0) != '%')
+													{
+														cont = unescape((window.atob) ? atob(cont) : Base64.decode(cont, true));
+													}
+													
+													if (cont != null && cont.charAt(0) == '%')
+													{
+														cont = decodeURIComponent(cont);
+													}
+			
+													if (cont != null && (cont.substring(0, 8) === '<mxfile ' ||
+														cont.substring(0, 14) === '<mxGraphModel '))
+													{
+														barrier(index, mxUtils.bind(this, function()
+														{
+															return fn(cont, 'text/xml', x + index * gs, y + index * gs, 0, 0, file.name);	
+														}));
+													}
+													else
+													{
+														// SVG needs special handling to add viewbox if missing and
+														// find initial size from SVG attributes (only for IE11)
+														barrier(index, mxUtils.bind(this, function()
+														{
+															try
+															{
+																// Parses SVG and find width and height
+																if (root != null)
+																{
+																	var svgs = root.getElementsByTagName('svg');
+																	
+																	if (svgs.length > 0)
+																	{
+																		var svgRoot = svgs[0];
+																		var w = svgRoot.getAttribute('width');
+																		var h = svgRoot.getAttribute('height');
+																		
+																		if (w != null && w.charAt(w.length - 1) != '%')
+																		{
+																			w = parseFloat(w);
+																		}
+																		else
+																		{
+																			w = NaN;
+																		}
+																		
+																		if (h != null && h.charAt(h.length - 1) != '%')
+																		{
+																			h = parseFloat(h);
+																		}
+																		else
+																		{
+																			h = NaN;
+																		}
+																		
+																		// Check if viewBox attribute already exists
+																		var vb = svgRoot.getAttribute('viewBox');
+																		
+																		if (vb == null || vb.length == 0)
+																		{
+																			svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+																		}
+																		// Uses width and height from viewbox for
+																		// missing width and height attributes
+																		else if (isNaN(w) || isNaN(h))
+																		{
+																			var tokens = vb.split(' ');
+																			
+																			if (tokens.length > 3)
+																			{
+																				w = parseFloat(tokens[2]);
+																				h = parseFloat(tokens[3]);
+																			}
+																		}
+		
+																		data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+																		var s = Math.min(1, Math.min(maxSize / Math.max(1, w)), maxSize / Math.max(1, h));
+																		var cells = fn(data, file.type, x + index * gs, y + index * gs, Math.max(
+																			1, Math.round(w * s)), Math.max(1, Math.round(h * s)), file.name);
+																		
+																		// Hack to fix width and height asynchronously
+																		if (cells != null && (isNaN(w) || isNaN(h)))
+																		{
+																			var img = new Image();
+																			
+																			img.onload = mxUtils.bind(this, function()
+																			{
+																				w = Math.max(1, img.width);
+																				h = Math.max(1, img.height);
+																				
+																				cells[0].geometry.width = w;
+																				cells[0].geometry.height = h;
+																				
+																				svgRoot.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+																				data = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+																				
+																				var semi = data.indexOf(';');
+																				
+																				if (semi > 0)
+																				{
+																					data = data.substring(0, semi) + data.substring(data.indexOf(',', semi + 1));
+																				}
+																				
+																				graph.setCellStyles('image', data, [cells[0]]);
+																			});
+																			
+																			img.src = Editor.createSvgDataUri(mxUtils.getXml(svgRoot));
+																		}
+																		
+																		return cells;
+																	}
+																}
+															}
+															catch (e)
+															{
+																// ignores any SVG parsing errors
+															}
+															
+															return null;
+														}));
+													}
+												}
+												else
+												{
+													barrier(index, mxUtils.bind(this, function()
+													{
+														return null;
+													}));
+												}
+											}
+											else
+											{
+												// Checks if PNG+XML is available to bypass code below
+												var containsModel = false;
+												
+												if (file.type == 'image/png')
+												{
+													var xml = (ignoreEmbeddedXml) ? null : this.extractGraphModelFromPng(e.target.result);
+													
+													if (xml != null && xml.length > 0)
+													{
+														var img = new Image();
+														img.src = e.target.result;
+														
+														barrier(index, mxUtils.bind(this, function()
+														{
+															return fn(xml, 'text/xml', x + index * gs, y + index * gs,
+																img.width, img.height, file.name);	
+														}));
+														
+														containsModel = true;
+													}
+												}
+												
+												// Additional asynchronous step for finding image size
+												if (!containsModel)
+												{
+													// Cannot load local files in Chrome App
+													if (mxClient.IS_CHROMEAPP)
+													{
+														this.spinner.stop();
+														this.showError(mxResources.get('error'), mxResources.get('dragAndDropNotSupported'),
+															mxResources.get('cancel'), mxUtils.bind(this, function()
+															{
+																// Hides the dialog
+															}), null, mxResources.get('ok'), mxUtils.bind(this, function()
+															{
+																// Redirects to import function
+																this.actions.get('import').funct();
+															})
+														);
+													}
+													else
+													{
+														this.loadImage(e.target.result, mxUtils.bind(this, function(img)
+														{
+															this.resizeImage(img, e.target.result, mxUtils.bind(this, function(data2, w2, h2)
+															{
+																barrier(index, mxUtils.bind(this, function()
+																{
+																	// Refuses to insert images above a certain size as they kill the app
+																	if (data2 != null && data2.length < maxBytes)
+																	{
+																		var s = (!resizeImages || !this.isResampleImageSize(
+																			file.size, resampleThreshold)) ? 1 :
+																			Math.min(1, Math.min(maxSize / w2, maxSize / h2));
+																		
+																		return fn(data2, file.type, x + index * gs, y + index * gs,
+																			Math.round(w2 * s), Math.round(h2 * s), file.name);
+																	}
+																	else
+																	{
+																		this.handleError({message: mxResources.get('imageTooBig')});
+																		
+																		return null;
+																	}
+																}));
+															}), resizeImages, maxSize, resampleThreshold, file.size);
+														}), mxUtils.bind(this, function()
+														{
+															this.handleError({message: mxResources.get('invalidOrMissingFile')});
+														}));
+													}
+												}
+											}
+										}
+										else
+										{
+											var data = e.target.result;
+											
+											fn(data, file.type, x + index * gs, y + index * gs, 240, 160, file.name, function(cells)
+											{
+												barrier(index, function()
+												{
+													return cells;
+												});
+											}, file);
+										}
+									}
+									catch (e)
+									{
+										// Ignores file parsing error
+										barrier(index, mxUtils.bind(this, function()
+										{
+											return null;
+										}));
+
+										if (window.console != null)
+										{
+											console.error(e, file);
+										}
+									}
 								}
 							});
 							
@@ -16058,7 +16215,71 @@
 		this.showDialog(this.importCsvDialog.container, 640, 520, true, true, null, null, null, null, true);
 		this.importCsvDialog.init();
 	};
-	
+		
+	/**
+	 * Loads orgchart layouts and executes the given function.
+	 */
+	EditorUi.prototype.showCustomLayoutDialog = function(value)
+	{
+		this.loadOrgChartLayouts(mxUtils.bind(this, function()
+		{
+			var dlg = new TextareaDialog(this, mxResources.get('layout'),
+				value, mxUtils.bind(this, function(newValue)
+			{
+				if (newValue.length > 0)
+				{
+					try
+					{
+						var list = JSON.parse(newValue);
+						this.executeLayouts(this.editor.graph.createLayouts(list));
+						this.customLayoutConfig = list;
+						this.hideDialog();
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
+				}
+			}), null, null, null, null, function(buttons, input)
+			{
+				var copyBtn = mxUtils.button(mxResources.get('copy'), mxUtils.bind(this, function()
+				{
+					try
+					{
+						var orig = input.value;
+						input.value = JSON.stringify(JSON.parse(orig));
+						input.focus();
+						
+						if (mxClient.IS_GC || mxClient.IS_FF || document.documentMode >= 5)
+						{
+							input.select();
+						}
+						else
+						{
+							document.execCommand('selectAll', false, null);
+						}
+						
+						document.execCommand('copy');
+						this.alert(mxResources.get('copiedToClipboard'));
+
+						input.value = orig;
+					}
+					catch (e)
+					{
+						this.handleError(e);
+					}
+				}));
+
+				copyBtn.setAttribute('title', 'copy');
+				copyBtn.className = 'geBtn';
+				buttons.appendChild(copyBtn);
+			}, true, null, null, 'https://www.diagrams.net/doc/faq/apply-layouts');
+
+			this.showDialog(dlg.container, 620, 460, true, true);
+			dlg.init();
+		}));
+	};
+
 	/**
 	 * Loads orgchart layouts and executes the given function.
 	 */
@@ -16066,6 +16287,7 @@
 	{
 		var onload = mxUtils.bind(this, function()
 		{
+			Graph.layoutNames.push('mxOrgChartLayout');
 			this.loadingOrgChart = false;
 			this.spinner.stop();
 			fn();
@@ -17714,168 +17936,183 @@
 					
 					req.onsuccess = mxUtils.bind(this, function(e)
 					{
-						var db = req.result;
-						this.database = db;
-						
-						if (EditorUi.migrateStorageFiles)
+						try
 						{
-							StorageFile.migrate(db);
-							EditorUi.migrateStorageFiles = false;
-						}
+							var db = req.result;
+							this.database = db;
 
-						if (location.host == 'app.diagrams.net' && !this.drawioMigrationStarted)
-						{
-							this.drawioMigrationStarted = true;
-							
-							this.getDatabaseItem('.drawioMigrated3', mxUtils.bind(this, function(value)
+							if (EditorUi.migrateStorageFiles)
 							{
-								if (value && urlParams['forceMigration'] != '1') //Already migrated
-								{
-									return;
-								}
+								StorageFile.migrate(db);
+								EditorUi.migrateStorageFiles = false;
+							}
+
+							if (location.host == 'app.diagrams.net' && !this.drawioMigrationStarted)
+							{
+								this.drawioMigrationStarted = true;
 								
-								var drawioFrame = document.createElement('iframe');
-								drawioFrame.style.display = 'none';
-								drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json&forceMigration=' + urlParams['forceMigration']);
-						    	document.body.appendChild(drawioFrame);
-						    	var collectNames = true, allDone = false;
-						    	var fileNames, index = 0;
-						    	
-						    	var markAsMigrated = mxUtils.bind(this, function()
+								this.getDatabaseItem('.drawioMigrated3', mxUtils.bind(this, function(value)
 								{
-						    		allDone = true;
-									this.setDatabaseItem('.drawioMigrated3', true);
-									drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'setMigratedFlag'}), '*');
-								});
-								
-								var next = mxUtils.bind(this, function()
-								{
-									index++;
-									fetchOneFile();
-								});
-								
-								var fetchOneFile = mxUtils.bind(this, function()
-								{
-									try
+									if (value && urlParams['forceMigration'] != '1') //Already migrated
 									{
-										if (index >= fileNames.length)
-										{
-											markAsMigrated();
-											return;
-										}
-										
-										var fileTitle = fileNames[index];
-										
-										StorageFile.getFileContent(this, fileTitle, mxUtils.bind(this, function(data)
-										{
-											if (data == null || (fileTitle == '.scratchpad' && data == this.emptyLibraryXml)) //Don't overwrite
-											{
-												drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFile', functionArgs: [fileTitle]}), '*');
-											}
-											else
-											{
-												next();
-											}
-										}), next);  //Ignore errors
+										return;
 									}
-									catch(e)
+									
+									var drawioFrame = document.createElement('iframe');
+									drawioFrame.style.display = 'none';
+									drawioFrame.setAttribute('src', 'https://www.draw.io?embed=1&proto=json&forceMigration=' + urlParams['forceMigration']);
+									document.body.appendChild(drawioFrame);
+									var collectNames = true, allDone = false;
+									var fileNames, index = 0;
+									
+									var markAsMigrated = mxUtils.bind(this, function()
 									{
-										//Log error
-										console.log(e);
-									}
-								});
-								
-								var importOneFile = mxUtils.bind(this, function(file)
-								{
-									try
+										allDone = true;
+										this.setDatabaseItem('.drawioMigrated3', true);
+										drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'setMigratedFlag'}), '*');
+									});
+									
+									var next = mxUtils.bind(this, function()
 									{
-										this.setDatabaseItem(null, [{
-											title: file.title,
-											size: file.data.length,
-											lastModified: Date.now(),
-											type: file.isLib? 'L' : 'F'
-										}, {
-											title: file.title,
-											data: file.data
-										}], next, next /* Ignore errors */, ['filesInfo', 'files']);
-									}
-									catch(e)
+										index++;
+										fetchOneFile();
+									});
+									
+									var fetchOneFile = mxUtils.bind(this, function()
 									{
-										//Log error
-										console.log(e);
-									}
-								});
-										
-						    	var messageListener = mxUtils.bind(this, function(evt)
-								{
-									try
-									{
-										//Only accept messages from migration iframe
-										if (evt.source != drawioFrame.contentWindow)
-										{
-											return;
-										}
-										
-										var drawMsg = {};
-										
 										try
 										{
-											drawMsg = JSON.parse(evt.data);
-										}
-										catch(e){} //Ignore
-									
-										if (drawMsg.event == 'init')
-										{
-											drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
-											drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFileNames'}), '*');
-										}
-										else if (drawMsg.event == 'remoteInvokeResponse' && !allDone)
-										{
-											if (collectNames)
+											if (index >= fileNames.length)
 											{
-												if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
-												{
-													fileNames = drawMsg.resp[0];
-													collectNames = false;
-													fetchOneFile();
-												}
-												else
-												{
-													//Nothing in draw.io localStorage
-													markAsMigrated();
-												}
+												markAsMigrated();
+												return;
 											}
-											else
+											
+											var fileTitle = fileNames[index];
+											
+											StorageFile.getFileContent(this, fileTitle, mxUtils.bind(this, function(data)
 											{
-												//Add the file, then move to the next
-												if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+												if (data == null || (fileTitle == '.scratchpad' && data == this.emptyLibraryXml)) //Don't overwrite
 												{
-													importOneFile(drawMsg.resp[0]);
+													drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFile', functionArgs: [fileTitle]}), '*');
 												}
 												else
 												{
 													next();
 												}
+											}), next);  //Ignore errors
+										}
+										catch(e)
+										{
+											//Log error
+											console.log(e);
+										}
+									});
+									
+									var importOneFile = mxUtils.bind(this, function(file)
+									{
+										try
+										{
+											this.setDatabaseItem(null, [{
+												title: file.title,
+												size: file.data.length,
+												lastModified: Date.now(),
+												type: file.isLib? 'L' : 'F'
+											}, {
+												title: file.title,
+												data: file.data
+											}], next, next /* Ignore errors */, ['filesInfo', 'files']);
+										}
+										catch(e)
+										{
+											//Log error
+											console.log(e);
+										}
+									});
+											
+									var messageListener = mxUtils.bind(this, function(evt)
+									{
+										try
+										{
+											//Only accept messages from migration iframe
+											if (evt.source != drawioFrame.contentWindow)
+											{
+												return;
+											}
+											
+											var drawMsg = {};
+											
+											try
+											{
+												drawMsg = JSON.parse(evt.data);
+											}
+											catch(e){} //Ignore
+										
+											if (drawMsg.event == 'init')
+											{
+												drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvokeReady'}), '*');
+												drawioFrame.contentWindow.postMessage(JSON.stringify({action: 'remoteInvoke', funtionName: 'getLocalStorageFileNames'}), '*');
+											}
+											else if (drawMsg.event == 'remoteInvokeResponse' && !allDone)
+											{
+												if (collectNames)
+												{
+													if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+													{
+														fileNames = drawMsg.resp[0];
+														collectNames = false;
+														fetchOneFile();
+													}
+													else
+													{
+														//Nothing in draw.io localStorage
+														markAsMigrated();
+													}
+												}
+												else
+												{
+													//Add the file, then move to the next
+													if (drawMsg.resp != null && drawMsg.resp.length > 0 && drawMsg.resp[0] != null)
+													{
+														importOneFile(drawMsg.resp[0]);
+													}
+													else
+													{
+														next();
+													}
+												}
 											}
 										}
-									}
-									catch(e)
-									{
-										console.log(e);
-									}
-								});
-	
-								window.addEventListener('message', messageListener);
-							})); //Ignore errors
-						}
+										catch(e)
+										{
+											console.log(e);
+										}
+									});
+		
+									window.addEventListener('message', messageListener);
+								})); //Ignore errors
+							}
+								
+							success(db);
 							
-						success(db);
-						
-						db.onversionchange = function() 
+							db.onversionchange = function() 
+							{
+								//TODO Handle DB revision update while code is running
+								//		Save open file and request a page reload before closing the DB
+								db.close();
+							};
+						}
+						catch (e)
 						{
-							//TODO Handle DB revision update while code is running
-							//		Save open file and request a page reload before closing the DB
-						    db.close();
+							// Warn if error handler is not set
+							if (error != null)
+							{
+								error(e);
+							}
+							else if (window.console != null)
+							{
+								console.warn(e);
+							}
 						};
 					});
 					
@@ -17890,15 +18127,24 @@
 				}
 				catch (e)
 				{
+					// Warn if error handler is not set
 					if (error != null)
 					{
 						error(e);
+					}
+					else if (window.console != null)
+					{
+						console.error(e);
 					}
 				}
 			}
 			else if (error != null)
 			{
-				error();
+				error(e);
+			}
+			else if (window.console != null)
+			{
+				console.error(e);
 			}
 		}
 		else
