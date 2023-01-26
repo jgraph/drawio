@@ -1343,8 +1343,8 @@ Menus.prototype.promptChange = function(menu, label, hint, defaultValue, key, pa
 Menus.prototype.pickColor = function(key, cmd, defaultValue)
 {
 	var ui = this.editorUi;
-
-	ui.tryAndHandle(function()
+	
+	ui.tryAndHandle(mxUtils.bind(this, function()
 	{
 		var graph = ui.editor.graph;
 		var h = 226 + ((Math.ceil(ColorDialog.prototype.presetColors.length / 12) +
@@ -1411,7 +1411,7 @@ Menus.prototype.pickColor = function(key, cmd, defaultValue)
 			this.editorUi.showDialog(this.colorDialog.container, 230, h, true, true);
 			this.colorDialog.init();
 		}
-	});
+	}));
 };
 
 /**

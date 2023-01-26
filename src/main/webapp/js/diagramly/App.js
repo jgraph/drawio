@@ -626,11 +626,29 @@ App.main = function(callback, createUi)
 {
 	try
 	{
-		// Logs uncaught errors
+		// Handles uncaught errors before the app is loaded
 		window.onerror = function(message, url, linenumber, colno, err)
 		{
 			EditorUi.logError('Global: ' + ((message != null) ? message : ''),
 				url, linenumber, colno, err, null, true);
+			
+			if (window.console != null && !EditorUi.isElectronApp)
+			{
+				console.error('Message:', message, '\nURL:', url, '\nLine:',
+					linenumber, '\nColumn:', colno, '\nError:', err);
+			}
+			else
+			{
+				mxLog.show();
+				mxLog.debug('Message:', message, '\nURL:', url, '\nLine:',
+					linenumber, '\nColumn:', colno, '\nError:', err);
+			}
+
+			// Waits for page and console output to appear
+			window.setTimeout(function()
+			{
+				alert('Error: ' + ((message != null) ? message : ''));
+			}, 100);
 		};
 
 		// Blocks stand-alone mode for certain subdomains
@@ -687,7 +705,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(scripts[scripts.length - 1]);
 					
-					if (CryptoJS.MD5(content).toString() != 'd53805dd6f0bbba2da4966491ca0a505')
+					if (CryptoJS.MD5(content).toString() != '69c25556b6237c57cdb7d017147af34b')
 					{
 						console.log('Change main script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Main script change requires update of CSP');

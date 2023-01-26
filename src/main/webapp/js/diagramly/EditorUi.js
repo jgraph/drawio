@@ -111,6 +111,13 @@
 	/**
 	 * Default Mermaid config without using foreign objects in flowcharts.
 	 */
+	EditorUi.mermaidDiagramTypes = ['flowchart', 'classDiagram', 'sequenceDiagram',
+		'stateDiagram', 'mindmap', 'graph', 'erDiagram', 'requirementDiagram',
+		'journey', 'gantt', 'pie', 'gitGraph', 'C4Context'];
+
+	/**
+	 * Default Mermaid config without using foreign objects in flowcharts.
+	 */
 	EditorUi.defaultMermaidConfig = {
 		theme:'neutral',
 		arrowMarkerAbsolute:false,
@@ -7830,17 +7837,19 @@
 	/**
 	 * Generates a Mermaid image.
 	 */
-	EditorUi.prototype.generateOpenAiMermaidDiagram = function(key, value, success, error)
+	EditorUi.prototype.generateOpenAiMermaidDiagram = function(key, prompt, success, error)
 	{
 		if (this.spinner.spin(document.body, mxResources.get('loading')))
 		{
-			this.createTimeout(10000, mxUtils.bind(this, function(timeout)
+			this.createTimeout(15000, mxUtils.bind(this, function(timeout)
 			{
-				EditorUi.logEvent({category: 'OPENAI-DIAGRAM', action: 'generateOpenAiMermaidDiagram', label: value});	
+				EditorUi.logEvent({category: 'OPENAI-DIAGRAM',
+					action: 'generateOpenAiMermaidDiagram',
+					label: prompt});
 				var url = 'https://api.openai.com/v1/engines/text-davinci-003/completions';
 
 				var params = {
-					prompt: 'mermaid declaration for ' + value,
+					prompt: prompt,
 					temperature: 0.9,
 					max_tokens: 4000
 				};
@@ -7872,18 +7881,21 @@
 							{
 								var response = JSON.parse(req.getText());
 								var text = mxUtils.trim(response.choices[0].text);
-								var input = this.extractMermaidDeclaration(text);
+								var result = this.extractMermaidDeclaration(text);
 								
-								EditorUi.debug('OpenAI', params, response, '\n', value, '=>\n', text);
-
-								this.generateMermaidImage(input, null, mxUtils.bind(this, function(data, w, h)
+								this.generateMermaidImage(result, null, mxUtils.bind(this, function(data, w, h)
 								{
 									this.tryAndHandle(mxUtils.bind(this, function()
 									{
 										if (timeout.clear())
 										{
+											EditorUi.debug('EditorUi.generateOpenAiMermaidDiagram',
+												'\nrequest:', params, '\nresponse:', response,
+												'\nprompt:', prompt, '\noutput:', text,
+												'\nresult:', result);
+											
 											this.spinner.stop();
-											success(input, data, w, h);
+											success(result, data, w, h);
 										}
 									}), handleError);
 								}), handleError);
@@ -7906,7 +7918,7 @@
 							handleError(e);
 						}
 					}
-				}));
+				}), handleError);
 			}), error);
 		}
 	};
@@ -7932,21 +7944,28 @@
 		var text = mxUtils.trim((tokens.length <= 1) ? value : tokens[1]);
 		var lines = text.split('\n');
 
-		// Removes occasional mermaid tag on first line
-		if (lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid')
+		// Removes occasional mermaid tag or other text on first line
+		if ((lines.length > 0 && mxUtils.trim(lines[0]) == 'mermaid') ||
+			(lines.length > 1 && mxUtils.indexOf(
+				EditorUi.mermaidDiagramTypes, lines[1]) >= 0))
 		{
 			lines.shift();
-			text = lines.join('\n');
+			text = mxUtils.trim(lines.join('\n'));
+			lines = text.split('\n');
 		}
 
 		// Validates diagram type on first line
-		var type = lines[0].split(' ')[0];
+		var type = lines[0].split(' ')[0].replace(/:$/, '');
 
-		if (mxUtils.indexOf(['graph', 'grantt', 'pie', 'stateDiagram', 'gitgraph',
-			'sequenceDiagram', 'classDiagram', 'flowchart'], type) < 0)
+		if (type.charAt(0) != '@' && mxUtils.indexOf(
+			EditorUi.mermaidDiagramTypes, type) < 0)
 		{
 			text = 'classDiagram\n' + text;
 		}
+
+		EditorUi.debug('EditorUi.extractMermaidDeclaration',
+			'\nlines:', lines, '\ntype:', type,
+			'\nvalue:', value, '\ntext:', text);
 
 		return text;
 	};
@@ -11978,8 +11997,6 @@
 					{
 						fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
 							Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
-						this.diagramContainer.style.background = (Editor.inlineFullscreen) ?
-							(Editor.isDarkMode() ? Editor.darkColor : '#ffffff') : 'transparent';
 						this.inlineSizeChanged();
 					});
 		
@@ -12081,15 +12098,23 @@
 					{
 						var off = mxUtils.getOffset(shapesElt);
 
-						if (value == 'simple')
+						if (Editor.inlineFullscreen || this.embedViewport == null)
 						{
-							off.x -= this.diagramContainer.offsetLeft + 30;
-							off.y += shapesElt.offsetHeight - 19;
+							if (value == 'simple')
+							{
+								off.x -= this.diagramContainer.offsetLeft + 30;
+								off.y += shapesElt.offsetHeight - 19;
+							}
+							else
+							{
+								off.x += shapesElt.offsetWidth + 28;
+								off.y += 20;
+							}
 						}
 						else
 						{
-							off.x += shapesElt.offsetWidth + 28;
-							off.y += 20;
+							off.x = 0;
+							off.y = shapesElt.offsetTop;
 						}
 
 						this.showShapePicker(Math.max(this.diagramContainer.scrollLeft + Math.max(24, off.x)),
@@ -13513,8 +13538,12 @@
 
 				this.diagramContainer.style.top = tokens[0];
 				this.diagramContainer.style.left = tokens[1];
-				this.diagramContainer.style.width = (gb.width + 50) + 'px';
-				this.diagramContainer.style.height = (gb.height + 46) + 'px';
+				var w = gb.width + 50;
+				var h = gb.height + 46;
+				this.diagramContainer.style.width = ((this.minInlineWidth != null) ?
+					Math.max(this.minInlineWidth, w) : w) + 'px';
+				this.diagramContainer.style.height = ((this.minInlineHeight != null) ?
+					Math.max(this.minInlineHeight, h) : h) + 'px';
 				this.diagramContainer.style.bottom = '';
 				this.diagramContainer.style.right = '';
 
@@ -13553,7 +13582,6 @@
 			this.rightResizer.style.top = (this.diagramContainer.offsetTop +
 				(this.diagramContainer.offsetHeight -
 				this.bottomResizer.offsetHeight) / 2) + 'px';
-			this.diagramContainer.style.background = 'transparent';
 		}
 
 		this.bottomResizer.style.visibility = (Editor.inlineFullscreen) ? 'hidden' : '';
@@ -15823,6 +15851,10 @@
 							this.diagramContainer.style.bottom = '';
 							this.diagramContainer.style.right = '';
 
+							// Inline min width and height
+							this.minInlineWidth = data.minWidth;
+							this.minInlineHeight = data.minHeight;
+
 							// Data is extracted diagram in async code
 							var maxFitScale = data.maxFitScale;
 							
@@ -15831,10 +15863,21 @@
 								var graph = this.editor.graph;
 								var prev = graph.maxFitScale;
 								graph.maxFitScale = maxFitScale;
+
 								graph.fit(2 * border);
+								this.setPageVisible(false);
+
+								if (this.minInlineWidth != null &&
+									graph.getGraphBounds().width < this.minInlineWidth)
+								{
+									var dy = graph.container.scrollTop;
+									this.resetScrollbars();
+									graph.container.scrollTop = dy;
+								}
+								
 								graph.maxFitScale = prev;
-								graph.container.scrollTop -= 2 * border;
-								graph.container.scrollLeft -= 2 * border;
+								graph.container.scrollTop -= border;
+								graph.container.scrollLeft -= border;
 								this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
 							});
 						}

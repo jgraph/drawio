@@ -83,9 +83,12 @@ Draw.loadPlugin(function(ui)
 		{
 			if (ui.spinner.spin(document.body, mxResources.get('restoring')))
 			{
-				ui.replaceFileData(xml);
-				ui.spinner.stop();
-				ui.hideDialog();
+                ui.tryAndHandle(function()
+				{
+                    ui.replaceFileData(xml);
+                    ui.spinner.stop();
+                    ui.hideDialog();
+                });
 			}
 		};
 		
@@ -363,16 +366,16 @@ Draw.loadPlugin(function(ui)
      */
     EmbedFile.prototype.getId = function()
     {
-        return this.desc.id;
+        return this.desc.instanceId + '$$' + this.desc.id;
     };
 
     /**
      * 
      */
     EmbedFile.prototype.isSyncSupported = function()
-    {
-        return true;
-    };
+	{
+		return this.desc != null && this.desc.id != null && this.desc.instanceId != null;
+	};
 
     /**
      * 
@@ -434,7 +437,7 @@ Draw.loadPlugin(function(ui)
     {
         if (typeof CryptoJS !== 'undefined')
         {
-            return CryptoJS.MD5(this.desc.instanceId + (this.desc.created || this.desc.id) + this.desc.owner).toString();
+            return CryptoJS.MD5(this.desc.instanceId + this.desc.id).toString();
         }
         
         return null;

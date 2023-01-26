@@ -1619,7 +1619,7 @@ DrawioFileSync.prototype.catchup = function(desc, success, error, abort)
 										}
 									}
 								}
-							}));
+							}), error);
 						}
 					}
 				});
@@ -1738,7 +1738,7 @@ DrawioFileSync.prototype.createToken = function(secret, success, error)
 				error({code: req.getStatus(), message: 'Token Error ' + req.getStatus()});
 			}
 		}
-	}));
+	}), error);
 };
 
 /**

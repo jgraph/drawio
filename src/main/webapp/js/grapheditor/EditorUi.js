@@ -139,7 +139,7 @@ EditorUi = function(editor, container, lightbox)
 	
 				this.fireEvent(new mxEventObject('styleChanged',
 					'keys', keys, 'values', values,
-					'cells', [cell]));
+					'cells', [cell], 'force', true));
 				
 				// Blocks update of default style with style changes
 				// once the it was set using this function
@@ -792,8 +792,10 @@ EditorUi = function(editor, container, lightbox)
 
 		this.addListener('styleChanged', mxUtils.bind(this, function(sender, evt)
 		{
+			var force = evt.getProperty('force');
+			
 			// Checks if edges and/or vertices were modified
-			if (this.updateDefaultStyle)
+			if (this.updateDefaultStyle || force)
 			{
 				var cells = evt.getProperty('cells');
 				var vertex = false;

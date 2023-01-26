@@ -3184,6 +3184,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 	function createAiContent()
 	{
 		var content = document.createElement('div');
+		content.style.position = 'absolute';
+		content.style.overflow = 'hidden';
+		content.style.left = '4px';
+		content.style.right = '4px';
+		content.style.bottom = '4px';
+		content.style.top = '4px';
 
 		mxUtils.write(content, 'OpenAI API Key:');
 		mxUtils.br(content);
@@ -3210,12 +3216,12 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 		mxUtils.br(content);
 
-		mxUtils.write(content, 'Description:');
+		mxUtils.write(content, mxResources.get('diagramContent') + ':');
 		mxUtils.br(content);
 
 		var description = document.createElement('input');
 		description.setAttribute('type', 'text');
-		description.setAttribute('placeholder', 'Enter description here');
+		description.setAttribute('placeholder', mxResources.get('description'));
 		description.style.width = '100%';
 		description.style.marginTop = '4px';
 		description.style.marginBottom = '4px';
@@ -3225,10 +3231,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		mxUtils.br(content);
 
 		var preview = document.createElement('div');
-		preview.style.width = '100%';
-		preview.style.height = '250px';
-		preview.style.marginTop = '4px';
-		preview.style.position = 'relative';
+		preview.style.top = '132px'
+		preview.style.left = '2px';
+		preview.style.right = '2px';
+		preview.style.bottom = '2px';
+		preview.style.position = 'absolute';
 		preview.style.border = '1px solid #424242';
 
 		var previewText = document.createElement('div');
@@ -3240,13 +3247,52 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		mxUtils.write(previewText, mxResources.get('preview'));
 		preview.appendChild(previewText);
 
+		// Adds diagram type options
+		var typeSelect = document.createElement('select');
+		typeSelect.className = 'geBtn';
+		typeSelect.style.maxWidth = '150px';
+		typeSelect.style.marginLeft = '10px';
+
+		var option = document.createElement('option');
+		mxUtils.write(option, mxResources.get('type'));
+		option.setAttribute('value', '');
+		typeSelect.appendChild(option);
+
+		for (var i = 0; i < EditorUi.mermaidDiagramTypes.length; i++)
+		{
+			var option = document.createElement('option');
+			var type = EditorUi.mermaidDiagramTypes[i];
+			var key = type;
+
+			// Maps types to translations
+			if (key == 'erDiagram')
+			{
+				key = 'entityRelationshipDiagram';
+			}
+
+			var title = mxResources.get(key, null, key.charAt(0).toUpperCase() +
+				key.substring(1).replace(/[A-Z]/g, ' $&'));
+			option.setAttribute('value', type);
+			mxUtils.write(option, title);
+			typeSelect.appendChild(option);
+		}
+
 		var button = mxUtils.button(mxResources.get('generate'), function()
 		{
-			editorUi.generateOpenAiMermaidDiagram(openAiKey.value, description.value,
+			var prompt = 'create mermaid ' + ((typeSelect.value != '') ?
+				(typeSelect.value + ' ') : '') + 'declaration for ' +
+				description.value;
+			var type = ((typeSelect.value != '') ? (' (' + mxUtils.trim(
+				mxUtils.getTextContent(typeSelect.options[
+					typeSelect.selectedIndex])) + ')') : '');
+			var title = description.value + type;
+
+			editorUi.generateOpenAiMermaidDiagram(openAiKey.value, prompt,
 				function(mermaidData, imageData, w, h)
 				{
 					preview.innerHTML = '';
 					var img = document.createElement('img');
+					img.setAttribute('title', title);
 					img.src = 'data:image/svg+xml;base64,' +
 						imageData.substring(imageData.indexOf(',') + 1);
 					img.style.cursor = 'pointer';
@@ -3254,30 +3300,36 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					img.style.height = '100%';
 					preview.appendChild(img);
 
-					var xml = editorUi.createMermaidXml(
-						'%% Input: ' + description.value + '\n' + mermaidData,
-						EditorUi.defaultMermaidConfig, imageData, w, h);
+					var xml = editorUi.createMermaidXml('%% Input: ' + title +
+						'\n' + mermaidData, EditorUi.defaultMermaidConfig,
+						imageData, w, h);
 
 					// Updates template XML for insert button
+					var previewXml = '<mxfile><diagram id="d" name="n">' +
+						Graph.compress(xml) + '</diagram></mxfile>';
 					templateXml = xml;
 					lastAiXml = xml;
 
 					var magnify = magnifyImage.cloneNode(true);
 					preview.appendChild(magnify);
 
-					mxEvent.addListener(img, 'dblclick', function(evt)
+					var mouseDownHandler = function(evt)
 					{
-						create();
-						mxEvent.consume(evt);
-					});
-					
-					mxEvent.addListener(magnify, 'click', function(evt)
+						wasVisible = editorUi.sidebar.tooltip != null &&
+							editorUi.sidebar.tooltip.style.display != 'none';
+					};
+
+					var mouseUpHandler = function(evt)
 					{
-						var previewXml = '<mxfile><diagram id="d" name="n">' +
-							Graph.compress(xml) + '</diagram></mxfile>';
-						showTooltip(previewXml, mxEvent.getClientX(evt),
-							mxEvent.getClientY(evt), img, description.value);
-					});
+						if (!wasVisible)
+						{
+							showTooltip(previewXml, mxEvent.getClientX(evt),
+								mxEvent.getClientY(evt), img, title);
+						}
+					};
+
+					mxEvent.addGestureListeners(img, mouseDownHandler, null, mouseUpHandler);
+					mxEvent.addGestureListeners(magnify, mouseDownHandler, null, mouseUpHandler);
 				}, function(e)
 				{
 					templateXml = null;
@@ -3302,18 +3354,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		button.style.marginBottom = '4px';
 
 		content.appendChild(button);
-
-		var helpButton = mxUtils.button(mxResources.get('help'), function()
-		{
-			editorUi.openLink('https://github.com/jgraph/drawio/discussions/3313');
-		});
-
-		helpButton.className = 'geBtn';
-		helpButton.style.marginTop = '4px';
-		helpButton.style.marginBottom = '4px';
-		helpButton.style.marginLeft = '10px';
-
-		content.appendChild(helpButton);
+		content.appendChild(typeSelect);
 
 		var keyButton = mxUtils.button('Get Key', function()
 		{
@@ -3327,8 +3368,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 		content.appendChild(keyButton);
 
-		mxUtils.br(content);
-		
+		var helpButton = mxUtils.button(mxResources.get('help'), function()
+		{
+			editorUi.openLink('https://github.com/jgraph/drawio/discussions/3313');
+		});
+
+		helpButton.className = 'geBtn';
+		helpButton.style.marginTop = '4px';
+		helpButton.style.marginBottom = '4px';
+		helpButton.style.marginLeft = '10px';
+
+		content.appendChild(helpButton);
 		content.appendChild(preview);
 
 		return content;
@@ -3782,7 +3832,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 
 	if (urlParams['test'] == '1' && editorUi.getServiceName() == 'draw.io')
 	{
-		categories['AI Templates'] = {content: createAiContent()};
+		categories['aiTemplate'] = {content: createAiContent()};
 	}
 	
 	function resetTemplates()
@@ -3833,7 +3883,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 							}
 						}
 					}
-				}			
+				}
 			}
 			
 			NewDialog.tagsList[templateFile] = tagsList;
@@ -3997,19 +4047,17 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		
 		function getEntryTitle(cat, templateList)
 		{
-			var label = mxResources.get(cat);
-			
-			if (label == null)
-			{
-				label = cat.substring(0, 1).toUpperCase() + cat.substring(1);
-			}
+			var label = mxResources.get(cat, null,
+				cat.substring(0, 1).toUpperCase() +
+				cat.substring(1));
 			
 			if (label.length > 18)
 			{
 				label = label.substring(0, 18) + '&hellip;';
 			}
 			
-			return label + ' (' + templateList.length + ')';
+			return label + ((templateList != null) ?
+				' (' + templateList.length + ')' : '');
 		};
 		
 		function addEntryHandler(cat, entry, subCat)
@@ -4030,6 +4078,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					{
 						div.appendChild(categories[cat].content);
 						templateXml = lastAiXml;
+						templates = null;
 					}
 					else
 					{
@@ -4037,7 +4086,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 						oldTemplates = null;
 						addTemplates(false);
 					}
-				}				
+				}
 			});
 		};
 			
@@ -4046,10 +4095,11 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			if (categories[cat].content != null)
 			{
 				var entry = document.createElement(subCats? 'ul' : 'div');
+				var title = getEntryTitle(cat);
 
 				entry.style.cssText = 'display:block;cursor:pointer;padding:6px;white-space:nowrap;margin-bottom:-1px;overflow:hidden;text-overflow:ellipsis;user-select:none;transition: all 0.5s;';
-				entry.setAttribute('title', cat);
-				mxUtils.write(entry, cat);
+				entry.setAttribute('title', title);
+				mxUtils.write(entry, title);
 
 				list.appendChild(entry);
 				addEntryHandler(cat, entry);
@@ -11451,12 +11501,8 @@ var TemplatesDialog = function(editorUi, callback, cancelCallback,
 		
 		function getEntryTitle(cat, templateList)
 		{
-			var label = mxResources.get(cat);
-			
-			if (label == null)
-			{
-				label = cat.substring(0, 1).toUpperCase() + cat.substring(1);
-			}
+			var label = mxResources.get(cat, null, cat.substring(0, 1).
+				toUpperCase() + cat.substring(1));
 			
 			var fullLbl = label + ' (' + templateList.length + ')';
 			label = mxUtils.htmlEntities(label);

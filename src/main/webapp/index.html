@@ -5,10 +5,10 @@
     <title>Flowchart Maker &amp; Online Diagram Software</title>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta name="Description" content="diagrams.net is free online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams">
-    <meta name="Keywords" content="diagram, online, flow chart, flowchart maker, uml, erd">
-    <meta itemprop="name" content="diagrams.net - free flowchart maker and diagrams online">
-	<meta itemprop="description" content="diagrams.net is a free online diagramming application  and flowchart maker . You can use it to create UML, entity relationship,
+    <meta name="Description" content="draw.io is free online diagram software for making flowcharts, process diagrams, org charts, UML, ER and network diagrams">
+    <meta name="Keywords" content="drawio, diagram, online, flow chart, flowchart maker, uml, erd">
+    <meta itemprop="name" content="draw.io - free flowchart maker and diagrams online">
+	<meta itemprop="description" content="draw.io is a free online diagramming application  and flowchart maker . You can use it to create UML, entity relationship,
 		org charts, BPMN and BPM, database schema and networks. Also possible are telecommunication network, workflow, flowcharts, maps overlays and GIS, electronic 
 		circuit and social network diagrams.">
 	<meta itemprop="image" content="https://lh4.googleusercontent.com/-cLKEldMbT_E/Tx8qXDuw6eI/AAAAAAAAAAs/Ke0pnlk8Gpg/w500-h344-k/BPMN%2Bdiagram%2Brc2f.png">
@@ -430,7 +430,7 @@
 	<div class="geBlock">
 		<h1>Flowchart Maker and Online Diagram Software</h1>
 		<p>
-			diagrams.net (formerly draw.io) is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool, 
+			draw.io is free online diagram software. You can use it as a flowchart maker, network diagram software, to create UML online, as an ER diagram tool, 
 			to design database schema, to build BPMN online, as a circuit diagram maker, and more. draw.io can import .vsdx, Gliffy&trade; and Lucidchart&trade; files .
 		</p>
 		<h2 id="geStatus">Loading...</h2>
@@ -443,32 +443,17 @@
 /**
  * Main
  */
-if (navigator.userAgent != null && navigator.userAgent.toLowerCase().
-	indexOf(' electron/') >= 0 && typeof process !== 'undefined' && process.versions.electron < 5)
+if (urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function")
 {
-	// Redirects old Electron app to latest version
-	var div = document.getElementById('geInfo');
-	
-	if (div != null)
+	window.addEventListener('load', function()
 	{
-		div.innerHTML = '<center><h2>You are using an out of date version of this app.<br>Please download the latest version ' +
-			'<a href="https://github.com/jgraph/drawio-desktop/releases/latest" target="_blank">here</a>.</h2></center>';
-	}
+		mxWinLoaded = true;
+		checkAllLoaded();
+	});
 }
 else
 {
-	if (urlParams['dev'] != '1' && typeof document.createElement('canvas').getContext === "function")
-	{
-		window.addEventListener('load', function()
-		{
-			mxWinLoaded = true;
-			checkAllLoaded();
-		});
-	}
-	else
-	{
-		App.main();
-	}
+	App.main();
 }
 </script>
 </body>
