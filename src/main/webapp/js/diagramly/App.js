@@ -358,17 +358,26 @@ App.publicPlugin = [
  * Loads all given scripts and invokes onload after
  * all scripts have finished loading.
  */
-App.loadScripts = function(scripts, onload)
+App.loadScripts = function(scripts, onload, onerror)
 {
 	var n = scripts.length;
+	var failed = false;
 	
 	for (var i = 0; i < scripts.length; i++)
 	{
 		mxscript(scripts[i], function()
 		{
-			if (--n == 0 && onload != null)
+			if (--n == 0 && !failed && onload != null)
 			{
 				onload();
+			}
+		}, null, null, null, function(e)
+		{
+			failed = true;
+
+			if (onerror != null)
+			{
+				onerror(e);
 			}
 		});
 	}
@@ -693,7 +702,7 @@ App.main = function(callback, createUi)
 				{
 					var content = mxUtils.getTextContent(scripts[0]);
 					
-					if (CryptoJS.MD5(content).toString() != '1f536e2400baaa30261b8c3976d6fe06')
+					if (CryptoJS.MD5(content).toString() != '94ebd7472449efab95e00746ea00db60')
 					{
 						console.log('Change bootstrap script MD5 in the previous line:', CryptoJS.MD5(content).toString());
 						alert('[Dev] Bootstrap script change requires update of CSP');

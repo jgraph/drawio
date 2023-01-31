@@ -2194,7 +2194,7 @@ Sidebar.prototype.createSection = function(title)
  * Creates and returns a new palette item for the given image.
  */
 Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, width, height,
-	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon)
+	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing)
 {
 	showTooltip = (showTooltip != null) ? showTooltip : true;
 	thumbWidth = (thumbWidth != null) ? thumbWidth : this.thumbWidth;
@@ -2240,8 +2240,8 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	if (cells.length > 1 || cells[0].vertex)
 	{
 		var ds = this.createDragSource(elt, this.createDropHandler(cells, true, allowCellsInserted,
-			bounds), this.createDragPreview(width, height), cells, bounds);
-		this.addClickHandler(elt, ds, cells, clickFn);
+			bounds, startEditing), this.createDragPreview(width, height), cells, bounds, startEditing);
+		this.addClickHandler(elt, ds, cells, clickFn, startEditing);
 	
 		// Uses guides for vertices only if enabled in graph
 		ds.isGuidesEnabled = mxUtils.bind(this, function()
@@ -2252,7 +2252,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 	else if (cells[0] != null && cells[0].edge)
 	{
 		var ds = this.createDragSource(elt, this.createDropHandler(cells, false, allowCellsInserted,
-			bounds), this.createDragPreview(width, height), cells, bounds);
+			bounds, startEditing), this.createDragPreview(width, height), cells, bounds, startEditing);
 		this.addClickHandler(elt, ds, cells, clickFn);
 	}
 	
@@ -2274,7 +2274,7 @@ Sidebar.prototype.createItem = function(cells, title, showLabel, showTitle, widt
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInserted, bounds)
+Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInserted, bounds, startEditing)
 {
 	allowCellsInserted = (allowCellsInserted != null) ? allowCellsInserted : true;
 	
@@ -2383,8 +2383,9 @@ Sidebar.prototype.createDropHandler = function(cells, allowSplit, allowCellsInse
 						graph.setSelectionCells(select);
 					}
 
-					if (graph.editAfterInsert && evt != null && mxEvent.isMouseEvent(evt) &&
-						select != null && select.length == 1)
+					if (startEditing || (graph.editAfterInsert && evt != null &&
+						mxEvent.isMouseEvent(evt) && select != null &&
+						select.length == 1))
 					{
 						window.setTimeout(function()
 						{
@@ -2812,7 +2813,7 @@ Sidebar.prototype.disablePointerEvents = function(node)
 /**
  * Creates a drag source for the given element.
  */
-Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds)
+Sidebar.prototype.createDragSource = function(elt, dropHandler, preview, cells, bounds, startEditing)
 {
 	// Checks if the cells contain any vertices
 	var ui = this.editorUi;
@@ -3696,19 +3697,20 @@ Sidebar.prototype.createVertexTemplateEntry = function(style, width, height, val
  * Creates a drop handler for inserting the given cells.
  */
 Sidebar.prototype.createVertexTemplate = function(style, width, height, value, title, showLabel, showTitle,
-	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon)
+	allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing)
 {
 	var cells = [new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style)];
 	cells[0].vertex = true;
 
 	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle,
-		allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon);
+		allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing);
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip)
+Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, title, showLabel,
+	showTitle, allowCellsInserted, showTooltip)
 {
 	var doc = mxUtils.parseXml(Graph.decompress(data));
 	var codec = new mxCodec(doc);
@@ -3718,25 +3720,27 @@ Sidebar.prototype.createVertexTemplateFromData = function(data, width, height, t
 	
 	var cells = this.graph.cloneCells(model.root.getChildAt(0).children);
 
-	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle, allowCellsInserted, showTooltip);
+	return this.createVertexTemplateFromCells(cells, width, height, title, showLabel, showTitle,
+		allowCellsInserted, showTooltip);
 };
 
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel, showTitle, allowCellsInserted,
-	showTooltip, clickFn, thumbWidth, thumbHeight, icon)
+Sidebar.prototype.createVertexTemplateFromCells = function(cells, width, height, title, showLabel,
+	showTitle, allowCellsInserted, showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing)
 {
 	// Use this line to convert calls to this function with lots of boilerplate code for creating cells
 	//console.trace('xml', Graph.compress(mxUtils.getXml(this.graph.encodeCells(cells))), cells);
 	return this.createItem(cells, title, showLabel, showTitle, width, height, allowCellsInserted,
-		showTooltip, clickFn, thumbWidth, thumbHeight, icon);
+		showTooltip, clickFn, thumbWidth, thumbHeight, icon, startEditing);
 };
 
 /**
  * 
  */
-Sidebar.prototype.createEdgeTemplateEntry = function(style, width, height, value, title, showLabel, tags, allowCellsInserted, showTooltip)
+Sidebar.prototype.createEdgeTemplateEntry = function(style, width, height, value, title, showLabel,
+	tags, allowCellsInserted, showTooltip)
 {
 	tags = (tags != null && tags.length > 0) ? tags : title.toLowerCase();
 	
@@ -3749,7 +3753,8 @@ Sidebar.prototype.createEdgeTemplateEntry = function(style, width, height, value
 /**
  * Creates a drop handler for inserting the given cells.
  */
-Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, title, showLabel, allowCellsInserted, showTooltip)
+Sidebar.prototype.createEdgeTemplate = function(style, width, height, value, title, showLabel,
+	allowCellsInserted, showTooltip)
 {
 	var cell = new mxCell((value != null) ? value : '', new mxGeometry(0, 0, width, height), style);
 	cell.geometry.setTerminalPoint(new mxPoint(0, height), true);

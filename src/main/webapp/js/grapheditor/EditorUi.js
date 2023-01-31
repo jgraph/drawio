@@ -1863,7 +1863,8 @@ EditorUi.prototype.centerShapePicker = function(div, rect, x, y, dir)
 /**
  * Creates a temporary graph instance for rendering off-screen content.
  */
-EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction, hovering, getInsertLocationFn, showEdges)
+EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction, hovering,
+	getInsertLocationFn, showEdges, startEditing)
 {
 	showEdges = showEdges || source == null;
 
@@ -1871,7 +1872,7 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction,
 	{	
 		this.hideShapePicker();
 	}), this.getCellsForShapePicker(source, hovering, showEdges), hovering,
-		getInsertLocationFn, showEdges);
+		getInsertLocationFn, showEdges, startEditing);
 	
 	if (div != null)
 	{
@@ -1897,8 +1898,9 @@ EditorUi.prototype.showShapePicker = function(x, y, source, callback, direction,
  * Creates a temporary graph instance for rendering off-screen content.
  */
 EditorUi.prototype.createShapePicker = function(x, y, source, callback, direction,
-	afterClick, cells, hovering, getInsertLocationFn, showEdges)
+	afterClick, cells, hovering, getInsertLocationFn, showEdges, startEditing)
 {
+	startEditing = (startEditing != null) ? startEditing : true;
 	var graph = this.editor.graph;
 	var div = null;
 
@@ -2038,7 +2040,11 @@ EditorUi.prototype.createShapePicker = function(x, y, source, callback, directio
 							
 							graph.setSelectionCell(clone);
 							graph.scrollCellToVisible(clone);
-							graph.startEditingAtCell(clone);
+							
+							if (startEditing)
+							{
+								graph.startEditing(clone);
+							}
 							
 							if (ui.hoverIcons != null)
 							{

@@ -138,7 +138,7 @@
 		/**
 		 * Synchronously adds scripts to the page.
 		 */
-		function mxscript(src, onLoad, id, dataAppKey, noWrite)
+		function mxscript(src, onLoad, id, dataAppKey, noWrite, onError)
 		{
 			var defer = onLoad == null && !noWrite;
 			
@@ -172,6 +172,14 @@
 				      		onLoad();
 						}
 				  	};
+				}
+
+				if (onError != null)
+				{
+					s.onerror = function(e)
+					{
+						onError('Failed to load ' + src, e);
+					};
 				}
 			  	
 			  	var t = document.getElementsByTagName('script')[0];

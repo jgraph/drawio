@@ -3250,7 +3250,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		// Adds diagram type options
 		var typeSelect = document.createElement('select');
 		typeSelect.className = 'geBtn';
-		typeSelect.style.maxWidth = '150px';
+		typeSelect.style.maxWidth = '160px';
 		typeSelect.style.marginLeft = '10px';
 
 		var option = document.createElement('option');
@@ -3341,6 +3341,8 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			);
 		});
 
+		button.className = 'geBtn gePrimaryBtn';
+
 		mxEvent.addListener(description, 'keydown', function(e)
 		{
 			if (e.keyCode == 13)
@@ -3349,12 +3351,13 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 			}
 		});
 
-		button.className = 'geBtn gePrimaryBtn';
-		button.style.marginTop = '4px';
-		button.style.marginBottom = '4px';
-
-		content.appendChild(button);
-		content.appendChild(typeSelect);
+		var buttons = document.createElement('div');
+		buttons.style.height = '40px';
+		buttons.style.marginTop = '4px';
+		buttons.style.marginBottom = '4px';
+		buttons.style.whiteSpace = 'nowrap';
+		buttons.style.overflowX = 'auto';
+		buttons.style.overflowY = 'hidden';
 
 		var keyButton = mxUtils.button('Get Key', function()
 		{
@@ -3362,11 +3365,7 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		});
 
 		keyButton.className = 'geBtn';
-		keyButton.style.marginTop = '4px';
-		keyButton.style.marginBottom = '4px';
 		keyButton.style.marginLeft = '10px';
-
-		content.appendChild(keyButton);
 
 		var helpButton = mxUtils.button(mxResources.get('help'), function()
 		{
@@ -3374,11 +3373,14 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 		});
 
 		helpButton.className = 'geBtn';
-		helpButton.style.marginTop = '4px';
-		helpButton.style.marginBottom = '4px';
 		helpButton.style.marginLeft = '10px';
 
-		content.appendChild(helpButton);
+		buttons.appendChild(button);
+		buttons.appendChild(typeSelect);
+		buttons.appendChild(keyButton);
+		buttons.appendChild(helpButton);
+
+		content.appendChild(buttons);
 		content.appendChild(preview);
 
 		return content;
@@ -8449,7 +8451,8 @@ var MoreShapesDialog = function(editorUi, expanded, entries)
 			}
 
 			// Redirects scratchpad and search entries
-			if ((Editor.currentTheme == 'sketch' || Editor.currentTheme == 'simple') &&
+			if ((Editor.currentTheme == 'sketch' ||
+				Editor.currentTheme == 'min') &&
 				Editor.isSettingsEnabled())
 			{
 				var idx = mxUtils.indexOf(libs, '.scratchpad');

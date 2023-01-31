@@ -28,7 +28,8 @@ div td.mxWindowTitle {
 .geEditor input[type=text]::-ms-clear {
 	display: none;
 }
-.geEditor input, select, textarea, button {
+.geEditor input, .geEditor select,
+.geEditor textarea, .geEditor button {
     font-size: inherit;
 }
 .geMenubarContainer, .geToolbarContainer, .geHsplit,
@@ -224,9 +225,16 @@ a.geStatus .geStatusMessage {
 	-moz-box-shadow: 2px 2px 3px 0px #ddd;
 	box-shadow: 2px 2px 3px 0px #ddd;
 }
-input {
+.geEditor input, .geEditor button, .geEditor select {
 	border: 1px solid #d8d8d8;
 	border-radius: 4px;
+}
+.geEditor button, .geEditor select {
+	background:#eee;
+}
+.geEditor button:hover:not([disabled], .geBigButton, .geShareBtn),
+.geEditor select:hover:not([disabled]) {
+	background:#e5e5e5;
 }
 .geColorDropper {
 	cursor:pointer;
@@ -234,15 +242,6 @@ input {
 }
 .geColorDropper:hover {
 	opacity:1;
-}
-button, select {
-	border: 1px solid #d8d8d8;
-	background:#eee;
-	border-radius: 4px;
-}
-button:hover:not([disabled], .geBigButton, .geShareBtn),
-select:hover:not([disabled]) {
-	background:#e5e5e5;
 }
 .geBtn, .mxWindow .geBtn {
 	font-size: 13px;

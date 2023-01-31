@@ -529,7 +529,6 @@
 			{title: mxResources.get('flowchart'), id: 'flowchart', image: IMAGE_PATH + '/sidebar-flowchart.png'}];
 		
 		if (Editor.currentTheme == 'sketch' ||
-			Editor.currentTheme == 'simple' ||
 			Editor.currentTheme == 'min')
 		{
 			stdEntries = [{title: mxResources.get('searchShapes'), id: 'search'},
