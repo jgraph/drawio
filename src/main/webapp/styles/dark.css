@@ -94,6 +94,8 @@ html body .geSidebarContainer div.geDropTarget {
 html body.geEditor .gePrimaryBtn:not([disabled]),
 html body.geEditor .geBigButton:not([disabled]) {
 	background:var(--header-color);
+	border: 1px solid var(--border-color);
+	color:#aaaaaa;
 }
 html body.geEditor .geBtn, html body.geEditor button,
 html body.geEditor button:hover:not([disabled]),

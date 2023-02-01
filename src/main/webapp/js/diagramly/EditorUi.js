@@ -12092,14 +12092,22 @@
 				{
 					var fullscreenElt = this.createMenuItem('fullscreen', Editor.fullscreenImage);
 					footer.appendChild(fullscreenElt);
-		
+
 					var inlineFullscreenChanged = mxUtils.bind(this, function()
 					{
 						fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
 							Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
 						this.inlineSizeChanged();
+						this.editor.graph.refresh();
+						this.fitWindows();
 					});
-		
+
+					this.addListener('editInlineStart', mxUtils.bind(this, function()
+					{
+						fullscreenElt.style.backgroundImage = 'url(' + ((!Editor.inlineFullscreen) ?
+							Editor.fullscreenImage : Editor.fullscreenExitImage) + ')';
+					}));
+					
 					this.addListener('inlineFullscreenChanged', inlineFullscreenChanged);
 					footer.appendChild(this.createMenuItem('exit', Editor.closeImage));
 				}
@@ -13574,17 +13582,14 @@
 	{
 		if (Editor.inlineFullscreen != value)
 		{
-			var scrollState = this.saveScrollState();
-			Editor.inlineFullscreen = value;
-			this.fireEvent(new mxEventObject('inlineFullscreenChanged'));
-			this.fitWindows();
-			this.editor.graph.refresh();
-			this.restoreScrollState(scrollState);
+			this.diagramContainer.setAttribute('data-scrollState',
+				JSON.stringify(this.saveScrollState()));
 			
+			// Send request for fullscreen to parent
 			var parent = window.opener || window.parent;
 			parent.postMessage(JSON.stringify({
 				event: 'resize',
-				fullscreen: Editor.inlineFullscreen,
+				fullscreen: value,
 				rect: this.diagramContainer.getBoundingClientRect()
 			}), '*');
 		}
@@ -13636,10 +13641,13 @@
 				var gb = graph.getGraphBounds();
 				var tokens = bounds.split(' ');
 
+				var ds = mxUtils.getDocumentSize();
 				this.diagramContainer.style.top = tokens[0];
 				this.diagramContainer.style.left = tokens[1];
-				var w = gb.width + 50;
-				var h = gb.height + 46;
+				var w = Math.min(gb.width + 50, ds.width -
+						parseInt(this.diagramContainer.style.left) - 20);
+				var h = Math.min(gb.height + 46, ds.height -
+						parseInt(this.diagramContainer.style.top) - 20);
 				this.diagramContainer.style.width = ((this.minInlineWidth != null) ?
 					Math.max(this.minInlineWidth, w) : w) + 'px';
 				this.diagramContainer.style.height = ((this.minInlineHeight != null) ?
@@ -15583,6 +15591,36 @@
 						if (data.viewport != null)
 						{
 							this.embedViewport = data.viewport;
+							this.editor.graph.refresh();
+						}
+
+						return;
+					}
+					else if (data.action == 'fullscreenChanged')
+					{
+						var scrollState = null;
+
+						try
+						{
+							var temp = this.diagramContainer.getAttribute('data-scrollState');
+
+							if (temp != null) 
+							{
+								this.diagramContainer.removeAttribute('data-scrollState');
+								scrollState = JSON.parse(temp);
+							}
+						}
+						catch (e)
+						{
+							// ignore
+						}
+
+						Editor.inlineFullscreen = data.value;
+						this.fireEvent(new mxEventObject('inlineFullscreenChanged'));
+
+						if (scrollState != null)
+						{
+							this.restoreScrollState(scrollState);
 						}
 
 						return;
@@ -15979,6 +16017,11 @@
 								graph.container.scrollTop -= border;
 								graph.container.scrollLeft -= border;
 								this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
+
+								window.setTimeout(mxUtils.bind(this, function()
+								{
+									graph.container.focus();
+								}), 0);
 							});
 						}
 						

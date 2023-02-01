@@ -721,7 +721,7 @@ html body div.geActivePage, .geRuler {
 	width:21px;
 	height:21px;
 }
-.geBaseButton {
+.geEditor .geBaseButton {
 	padding:10px;
 	border-radius:6px;
 	border:1px solid #c0c0c0;
@@ -729,10 +729,10 @@ html body div.geActivePage, .geRuler {
 	background-color:#ececec;
 	background-image:linear-gradient(#ececec 0%, #fcfcfc 100%);
 }
-.geBaseButton:hover {
+.geEditor .geBaseButton:hover {
 	background:#ececec;
 }
-.geBigButton {
+.geEditor .geBigButton {
 	color:#ffffff;
 	border: none;
 	padding:4px 10px;
@@ -745,11 +745,12 @@ html body div.geActivePage, .geRuler {
 	overflow:hidden;
 	text-overflow: ellipsis;
 }
-.geBigButton:hover {
+.geEditor .geBigButton:hover {
 	background-color:#0065ff;
 }
-.geBigButton:active {
+.geEditor .geBigButton:active {
 	background-color:#0747a6;
+	opacity:1;
 }
 html body .geBigStandardButton {
 	color: #344563;

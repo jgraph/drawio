@@ -1,3 +1,10 @@
+01-FEB-2023: 20.8.15
+
+- Adds debug output, improves UX in Notion extension
+- Fixes clipping of start screen checkbox in dialog
+- Fixes vertical alignment of show start screen item
+- Fixes CSS for default action button [drawio-desktop-1219]
+
 31-JAN-2023: 20.8.14
 
 - Updates in-place editor after scroll and UI change
@@ -5,11 +12,11 @@
 - Limit convert labels to SVG option to online draw.io only
 - [conf cloud] Adds config option to disable the automatic generation of the preview images from the page view ["disableEmbedAutoImgGen": true] [DID-7251]
 - Ignore events on selection border and parent shape
-- Fixes library save, improves error handling [3323]
+- Fixes library save, improves error handling [drawio-3323]
 
 26-JAN-2023: 20.8.13
 
-- Fixes NPE when changing colors from toolbar [3315]
+- Fixes NPE when changing colors from toolbar [drawio-3315]
 
 26-JAN-2023: 20.8.12
 

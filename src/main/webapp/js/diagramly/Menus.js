@@ -1088,7 +1088,7 @@
 				// Moves show start screen option to configuration dialog in sketch
 				var splashCb = document.createElement('input');
 				splashCb.setAttribute('type', 'checkbox');
-				splashCb.style.marginRight = '4px';
+				splashCb.style.marginRight = '8px';
 				splashCb.checked = mxSettings.getShowStartScreen();
 				splashCb.defaultChecked = splashCb.checked;
 
@@ -1096,10 +1096,12 @@
 					Editor.currentTheme == 'simple' || Editor.currentTheme == 'min'))
 				{
 					var showSplash = document.createElement('span');
+					showSplash.style.display = 'flex';
+					showSplash.style.alignItems = 'center';
 					showSplash.style['float'] = 'right';
 					showSplash.style.cursor = 'pointer';
 					showSplash.style.userSelect = 'none';
-					showSplash.style.marginTop = '-4px';
+					showSplash.style.marginTop = '-3px';
 					showSplash.appendChild(splashCb);
 					mxUtils.write(showSplash, mxResources.get('showStartScreen'));
 

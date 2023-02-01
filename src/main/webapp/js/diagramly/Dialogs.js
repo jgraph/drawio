@@ -3332,10 +3332,6 @@ var NewDialog = function(editorUi, compact, showName, callback, createOnly, canc
 					mxEvent.addGestureListeners(magnify, mouseDownHandler, null, mouseUpHandler);
 				}, function(e)
 				{
-					templateXml = null;
-					preview.innerHTML = '';
-					preview.appendChild(previewText);
-
 					editorUi.handleError(e);
 				}
 			);

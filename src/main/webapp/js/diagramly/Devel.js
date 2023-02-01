@@ -92,7 +92,7 @@ if (!mxIsElectron && location.protocol !== 'http:')
 				'img-src * data: blob:; ' +
 				'media-src * data:; ' +
 				'font-src * about:; ' +
-				'style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'' +
+				'style-src \'self\' https://fonts.googleapis.com \'unsafe-inline\'; ' +
 				'base-uri \'none\';' +
 				'object-src \'none\';' +
 				'worker-src https://viewer.diagrams.net/service-worker.js;'
