@@ -2494,6 +2494,19 @@
 		action.label = mxResources.get('searchShapes');
 		action.setToggleAction(true);
 		action.setSelectedCallback(function() { return editorUi.sidebar.isEntryVisible('search'); });
+
+		editorUi.actions.get('clearDefaultStyle').funct = function(exit)
+		{
+			if (graph.isEnabled())
+			{
+				editorUi.clearDefaultStyle();
+
+				if (Editor.sketchMode)
+				{
+					editorUi.setSketchMode(false);
+				}
+			}
+		};
 		
 		if (urlParams['embed'] == '1')
 		{
@@ -2580,7 +2593,7 @@
 							mxResources.get('cancel'), mxResources.get('discardChanges'));
 					}
 				}
-			});
+			}, null, null, (urlParams['embedInline'] == '1') ? 'Escape' : null);
 		}
 		
 		this.put('exportAs', new Menu(mxUtils.bind(this, function(menu, parent)

@@ -1,3 +1,11 @@
+02-FEB-2023: 20.8.16
+
+- Fixes overriden CSS for buttons and button states [drawio-3326]
+- Uses manifest version 3 in Notion Chrome extension
+- Fixes possible NPE in async resize handler
+- Clear default style action disables sketch mode [drawio-3331]
+- View sketch option no longer updates existing cells[drawio-3331]
+
 01-FEB-2023: 20.8.15
 
 - Adds debug output, improves UX in Notion extension

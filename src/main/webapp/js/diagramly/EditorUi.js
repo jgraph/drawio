@@ -4834,7 +4834,7 @@
 	var editoUiAddChromelessToolbarItems = EditorUi.prototype.addChromelessToolbarItems;
 
 	/**
-	 * Image export in viewer is only allowed for same domain or hosted environments but
+	 * Image export in viewer is only allowed for same domain or hosted environments
 	 * but disabled to avoid cross domain image export in canvas which isn't allowed.
 	 */
 	EditorUi.prototype.isChromelessImageExportEnabled = function()
@@ -5018,7 +5018,7 @@
 					this.exportDialog.style.height = '50px';
 					this.exportDialog.style.padding = '4px 2px 4px 2px';
 					this.exportDialog.style.color = '#ffffff';
-					mxUtils.setOpacity(this.exportDialog, 70);
+					mxUtils.setOpacity(this.exportDialog, 80);
 					this.exportDialog.style.left = r.left + 'px';
 					this.exportDialog.style.bottom = parseInt(this.chromelessToolbar.style.bottom) +
 						this.chromelessToolbar.offsetHeight + 4 + 'px';
@@ -5041,7 +5041,10 @@
 						top: '28px',
 						zIndex: 2e9 // The z-index (defaults to 2000000000)
 					});
+
 					spinner.spin(this.exportDialog);
+				   	document.body.appendChild(this.exportDialog);
+					mxEvent.addListener(this.editor.graph.container, 'click', clickHandler);
 					
 				   	this.editor.exportToCanvas(mxUtils.bind(this, function(canvas)
 				   	{
@@ -5072,12 +5075,16 @@
 						}));
 				   	}), null, this.thumbImageCache, null, mxUtils.bind(this, function(e)
 				   	{
-				   		this.spinner.stop();
+				   		spinner.stop();
+						
+						if (this.exportDialog != null && this.exportDialog.parentNode != null)
+						{
+							this.exportDialog.parentNode.removeChild(this.exportDialog);
+							this.exportDialog = null;
+						}
+
 				   		this.handleError(e);
 				   	}), null, null, null, null, null, null, null, Editor.defaultBorder);
-					
-					mxEvent.addListener(this.editor.graph.container, 'click', clickHandler);
-				   	document.body.appendChild(this.exportDialog);
 				}
 				
 				mxEvent.consume(evt);
@@ -8071,9 +8078,21 @@
 	 */
 	EditorUi.prototype.generateMermaidImage = function(data, config, success, error)
 	{
-		var ui = this;
+		var onerror = mxUtils.bind(this, function(e)
+		{
+			this.loadingMermaid = false;
+
+			if (error != null)
+			{
+				error(e);
+			}
+			else
+			{
+				this.handleError(e);
+			}
+		});
 		
-		var delayed = function()
+		var delayed = mxUtils.bind(this, function()
 		{
 			try
 			{
@@ -8090,7 +8109,7 @@
 				
 				mermaid.mermaidAPI.initialize(config);
 	    		
-				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data, function(svg)
+				mermaid.mermaidAPI.render('geMermaidOutput-' + new Date().getTime(), data,  mxUtils.bind(this, function(svg)
 				{
 					try
 					{
@@ -8125,7 +8144,7 @@
 								}
 							}
 							
-							success(ui.convertDataUri(Editor.createSvgDataUri(svg)), w, h);
+							success(this.convertDataUri(Editor.createSvgDataUri(svg)), w, h);
 						}
 						else
 						{
@@ -8136,13 +8155,13 @@
 					{
 						error(e);
 					}
-				});
+				}));
 			}
 			catch (e)
 			{
 				error(e);
 			}
-		};
+		});
 
 		if (typeof mermaid === 'undefined' && !this.loadingMermaid && !this.isOffline(true))
 		{
@@ -8150,18 +8169,23 @@
 			
 			if (urlParams['dev'] == '1')
 			{
-				mxscript('js/mermaid/mermaid.min.js',
-					delayed, null, null, null, error);
+				mxMermaidToDrawio.addListener(mxUtils.bind(this, function(modelXml)
+				{
+					this.importXml(modelXml, null, null, null, null, null, true);
+				}));
+				
+				mxscript('js/mermaid/mermaid.min.js', delayed,
+					null, null, null, onerror);
 			}
 			else
 			{
-				mxscript('js/extensions.min.js',
-					delayed, null, null, null, error);
+				mxscript('js/extensions.min.js', delayed,
+					null, null, null, onerror);
 			}
 		}
 		else
 		{
-			delayed();
+			window.setTimeout(delayed, 0);
 		}
 	};
 	
@@ -9988,14 +10012,6 @@
 
 			return result;
 		};
-
-		// Extends clear default style to clear persisted settings
-		var clearDefaultStyle = this.clearDefaultStyle;
-		
-		this.clearDefaultStyle = function()
-		{
-			clearDefaultStyle.apply(this, arguments);
-		};
 		
 		// Sets help link for placeholders
 		if (!this.isOffline() && typeof window.EditDataDialog !== 'undefined')
@@ -10333,6 +10349,18 @@
 			this.keyHandler.bindAction(88, false, 'insertFreehand'); // X
 			this.keyHandler.bindAction(75, true, 'toggleShapes', true); // Ctrl+Shift+K
 			this.altShiftActions[83] = 'synchronize'; // Alt+Shift+S
+			
+			if (urlParams['embedInline'] == '1')
+			{
+				graph.addListener(mxEvent.ESCAPE, function(sender, evt)
+				{
+					if (evt != null && graph.isEnabled() && !graph.isEditing() &&
+						evt.getProperty('event') != null)
+					{
+						ui.actions.get('exit').funct();
+					}
+				});
+			}
 
 		    this.installImagePasteHandler();
 		    this.installNativeClipboardHandler();
@@ -11990,10 +12018,10 @@
 					elt.style.fontWeight = '500';
 					elt.style.paddingTop = '4px';
 					elt.style.paddingRight = '14px';
-					elt.style.backgroundImage = 'url(' + Editor.expandMoreImage + ')';
-					elt.style.backgroundPosition = 'right 1px center';
+					elt.style.backgroundImage = 'url(' + Editor.thinExpandImage + ')';
+					elt.style.backgroundPosition = 'right 0px center';
 					elt.style.backgroundRepeat = 'no-repeat';
-					elt.style.backgroundSize = '16px';
+					elt.style.backgroundSize = '18px';
 					elt.style.opacity = '0.7';
 					elt.style.height = '12px';
 				}
@@ -13389,112 +13417,169 @@
 	 */
 	EditorUi.prototype.setDarkMode = function(value)
 	{
-		this.doSetDarkMode(value);
-		this.fireEvent(new mxEventObject('darkModeChanged'));
+		this.doSetDarkMode(value, mxUtils.bind(this, function()
+		{
+			this.fireEvent(new mxEventObject('darkModeChanged'));
+		}), mxUtils.bind(this, function(e)
+		{
+			if (window.console != null)
+			{
+				console.error(e);
+			}
+
+			this.editor.setStatus(e.message);
+		}));
 	};
 	
 	/**
-	 * Links to dark.css
+	 * Creates dark mode style node.
 	 */
-	var darkStyle = document.createElement('link');
-	darkStyle.setAttribute('rel', 'stylesheet');
-	darkStyle.setAttribute('href', STYLE_PATH + '/dark.css');
-	darkStyle.setAttribute('charset', 'UTF-8');
-	darkStyle.setAttribute('type', 'text/css');
+	EditorUi.prototype.createDarkStyle = function()
+	{
+		var darkStyle = document.createElement('link');
+		darkStyle.setAttribute('rel', 'stylesheet');
+		darkStyle.setAttribute('href', STYLE_PATH + '/dark.css');
+		darkStyle.setAttribute('charset', 'UTF-8');
+		darkStyle.setAttribute('type', 'text/css');
 
+		return darkStyle;
+	};
+	
 	/**
 	 * Dynamic change of dark mode.
 	 */
-	EditorUi.prototype.doSetDarkMode = function(value)
+	EditorUi.prototype.doSetDarkMode = function(value, success, error)
 	{
-		if (Editor.darkMode != value)
+		var delayed = mxUtils.bind(this, function()
 		{
-			var graph = this.editor.graph;
-			Editor.darkMode = value;
+			if (Editor.darkMode != value)
+			{
+				var graph = this.editor.graph;
+				Editor.darkMode = value;
 
-			// Sets instance vars and graph stylesheet
-			this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
-			graph.view.defaultGridColor = Editor.isDarkMode() ?
-				mxGraphView.prototype.defaultDarkGridColor : mxGraphView.prototype.defaultGridColor;
-			graph.view.gridColor = graph.view.defaultGridColor;
-			graph.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
-				Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
-			graph.defaultPageBorderColor = Editor.isDarkMode() ? '#000000' : '#ffffff';
-			graph.shapeBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
-			graph.shapeForegroundColor = Editor.isDarkMode() ? Editor.lightColor : '#000000';
-			graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
-			graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
-			mxGraphHandler.prototype.previewColor = graph.graphHandler.previewColor;
-			document.body.style.backgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
-				(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
-			graph.loadStylesheet();
-			
-			// Destroys windows with code for dark mode
-		    if (this.actions.layersWindow != null)
-		    {
-				var wasVisible = this.actions.layersWindow.window.isVisible();
-			
-		    	this.actions.layersWindow.window.setVisible(false);
-		    	this.actions.layersWindow.destroy();
-		    	this.actions.layersWindow = null;
-
-				if (wasVisible)
+				// Sets instance vars and graph stylesheet
+				this.spinner.opts.color = Editor.isDarkMode() ? '#c0c0c0' : '#000';
+				graph.view.defaultGridColor = Editor.isDarkMode() ?
+					mxGraphView.prototype.defaultDarkGridColor : mxGraphView.prototype.defaultGridColor;
+				graph.view.gridColor = graph.view.defaultGridColor;
+				graph.defaultPageBackgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
+					Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
+				graph.defaultPageBorderColor = Editor.isDarkMode() ? '#000000' : '#ffffff';
+				graph.shapeBackgroundColor = Editor.isDarkMode() ? Editor.darkColor : '#ffffff';
+				graph.shapeForegroundColor = Editor.isDarkMode() ? Editor.lightColor : '#000000';
+				graph.defaultThemeName = Editor.isDarkMode() ? 'darkTheme' : 'default-style2';
+				graph.graphHandler.previewColor = Editor.isDarkMode() ? '#cccccc' : 'black';
+				mxGraphHandler.prototype.previewColor = graph.graphHandler.previewColor;
+				document.body.style.backgroundColor = (urlParams['embedInline'] == '1') ? 'transparent' :
+					(Editor.isDarkMode() ? Editor.darkColor : '#ffffff');
+				graph.loadStylesheet();
+				
+				// Destroys windows with code for dark mode
+				if (this.actions.layersWindow != null)
 				{
-					window.setTimeout(this.actions.get('layers').funct, 0);
+					var wasVisible = this.actions.layersWindow.window.isVisible();
+				
+					this.actions.layersWindow.window.setVisible(false);
+					this.actions.layersWindow.destroy();
+					this.actions.layersWindow = null;
+
+					if (wasVisible)
+					{
+						window.setTimeout(this.actions.get('layers').funct, 0);
+					}
 				}
-		    }
 
-			if (this.menus.commentsWindow != null)
-			{
-		    	this.menus.commentsWindow.window.setVisible(false);
-				this.menus.commentsWindow.destroy();
-				this.menus.commentsWindow = null;
-			}
-			
-			if (this.ruler != null)
-			{
-				this.ruler.updateStyle();
+				if (this.menus.commentsWindow != null)
+				{
+					this.menus.commentsWindow.window.setVisible(false);
+					this.menus.commentsWindow.destroy();
+					this.menus.commentsWindow = null;
+				}
+				
+				if (this.ruler != null)
+				{
+					this.ruler.updateStyle();
+				}
+
+				// Sets global vars
+				Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
+				Graph.prototype.defaultPageBorderColor = graph.defaultPageBorderColor;
+				Graph.prototype.shapeBackgroundColor = graph.shapeBackgroundColor;
+				Graph.prototype.shapeForegroundColor = graph.shapeForegroundColor;
+				Graph.prototype.defaultThemeName = graph.defaultThemeName;
+				StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
+				Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? '#000000' : '#e4e4e4';
+				Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
+				mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
+				Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+					Editor.darkHelpImage : Editor.lightHelpImage;
+				Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
+					Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
+				
+				// Updates CSS
+				if (this.sketchStyleElt != null)
+				{
+					this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
+				}
+				else if (Editor.styleElt != null)
+				{
+					Editor.styleElt.innerHTML = Editor.createMinimalCss();
+				}
 			}
 
-			// Sets global vars
-			Graph.prototype.defaultPageBackgroundColor = graph.defaultPageBackgroundColor;
-			Graph.prototype.defaultPageBorderColor = graph.defaultPageBorderColor;
-			Graph.prototype.shapeBackgroundColor = graph.shapeBackgroundColor;
-			Graph.prototype.shapeForegroundColor = graph.shapeForegroundColor;
-			Graph.prototype.defaultThemeName = graph.defaultThemeName;
-			StyleFormatPanel.prototype.defaultStrokeColor = Editor.isDarkMode() ? '#cccccc' : 'black';
-			Format.inactiveTabBackgroundColor = Editor.isDarkMode() ? '#000000' : '#e4e4e4';
-			Dialog.backdropColor = Editor.isDarkMode() ? Editor.darkColor : 'white';
-			mxConstants.DROP_TARGET_COLOR = Editor.isDarkMode() ? '#00ff00' : '#0000FF';
-			Editor.helpImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
-				Editor.darkHelpImage : Editor.lightHelpImage;
-			Editor.checkmarkImage = (Editor.isDarkMode() && mxClient.IS_SVG) ?
-				Editor.darkCheckmarkImage : Editor.lightCheckmarkImage;
-			
-			// Updates CSS
-			if (this.sketchStyleElt != null)
-			{
-				this.sketchStyleElt.innerHTML = Editor.createMinimalCss();
-			}
-			else if (Editor.styleElt != null)
-			{
-				Editor.styleElt.innerHTML = Editor.createMinimalCss();
-			}
-			
 			// Adds or removes link to CSS
 			if (Editor.isDarkMode())
 			{
-				if (darkStyle.parentNode == null)
+				if (this.darkStyle.parentNode == null)
 				{
 					var head = document.getElementsByTagName('head')[0];
-					head.appendChild(darkStyle);
+					head.appendChild(this.darkStyle);
 				}
 			}
-			else if (darkStyle.parentNode != null)
+			else if (this.darkStyle.parentNode != null)
 			{
-				darkStyle.parentNode.removeChild(darkStyle);
+				this.darkStyle.parentNode.removeChild(this.darkStyle);
 			}
+
+			success();
+		});
+
+		if (this.darkStyle != null)
+		{
+			delayed();
 		}
+		else
+		{
+			var darkStyle = this.createDarkStyle();
+
+			this.createTimeout(null, mxUtils.bind(this, function(timeout)
+			{
+				darkStyle.onerror = mxUtils.bind(this, function(e)
+				{
+					if (timeout.clear())
+					{
+						error(new Error(mxResources.get('errorLoadingFile') +
+							' ' + darkStyle.getAttribute('href')));
+					}
+				});
+
+				darkStyle.onload = mxUtils.bind(this, function()
+				{
+					if (timeout.clear())
+					{
+						this.darkStyle = darkStyle;
+						delayed();
+					}
+				});
+
+				var head = document.getElementsByTagName('head')[0];
+				head.appendChild(darkStyle);
+			}), mxUtils.bind(this, function()
+			{
+				error(new Error(mxResources.get('timeout') +
+					' ' + darkStyle.getAttribute('href')));
+			}));
+		};
 	};
 
 	/**
@@ -13644,14 +13729,17 @@
 				var ds = mxUtils.getDocumentSize();
 				this.diagramContainer.style.top = tokens[0];
 				this.diagramContainer.style.left = tokens[1];
-				var w = Math.min(gb.width + 50, ds.width -
-						parseInt(this.diagramContainer.style.left) - 20);
-				var h = Math.min(gb.height + 46, ds.height -
-						parseInt(this.diagramContainer.style.top) - 20);
-				this.diagramContainer.style.width = ((this.minInlineWidth != null) ?
-					Math.max(this.minInlineWidth, w) : w) + 'px';
-				this.diagramContainer.style.height = ((this.minInlineHeight != null) ?
-					Math.max(this.minInlineHeight, h) : h) + 'px';
+
+				var w = parseInt(tokens[2]);
+				var h = parseInt(tokens[3]);
+
+				w = Math.min((this.minInlineWidth != null) ? Math.max(
+					this.minInlineWidth, w) : w, ds.width - 80);
+				h = Math.min((this.minInlineHeight != null) ? Math.max(
+					this.minInlineHeight, h) : h, ds.height - 80);
+				
+				this.diagramContainer.style.width = w + 'px';
+				this.diagramContainer.style.height = h + 'px';
 				this.diagramContainer.style.bottom = '';
 				this.diagramContainer.style.right = '';
 
@@ -15980,29 +16068,38 @@
 						if (data.rect != null)
 						{
 							var border = this.embedExportBorder;
-	
-							this.diagramContainer.style.border = '2px solid #295fcc';
-							this.diagramContainer.style.top = data.rect.top + 'px';
-							this.diagramContainer.style.left = data.rect.left + 'px';
-							this.diagramContainer.style.height = data.rect.height + 'px';
-							this.diagramContainer.style.width = data.rect.width + 'px';
-							this.diagramContainer.style.bottom = '';
-							this.diagramContainer.style.right = '';
+							this.diagramContainer.style.left = Math.max(60, data.rect.left) + 'px';
+							this.diagramContainer.style.top = Math.max(40, data.rect.top) + 'px';
 
 							// Inline min width and height
 							this.minInlineWidth = data.minWidth;
 							this.minInlineHeight = data.minHeight;
 
+							this.diagramContainer.style.border = '2px solid #295fcc';
+							this.diagramContainer.style.bottom = '';
+							this.diagramContainer.style.right = '';
+							
 							// Data is extracted diagram in async code
 							var maxFitScale = data.maxFitScale;
-							
+							var w = data.rect.width + 2 * border;
+							var h0 = data.rect.height + 2 * border;
+
 							afterLoad = mxUtils.bind(this, function()
 							{
+								var ds = mxUtils.getDocumentSize();
+								w = Math.min((this.minInlineWidth != null) ? Math.max(
+									this.minInlineWidth, w) : w, ds.width - 80);
+								var h = Math.min((this.minInlineHeight != null) ? Math.max(
+									this.minInlineHeight, h0) : h0, ds.height - 80);
+								
+								this.diagramContainer.style.width = w + 'px';
+								this.diagramContainer.style.height = h + 'px';
+								
 								var graph = this.editor.graph;
 								var prev = graph.maxFitScale;
 								graph.maxFitScale = maxFitScale;
-
-								graph.fit(2 * border);
+								
+								graph.fit(2 * border, null, null, null, null, null, h0);
 								this.setPageVisible(false);
 
 								if (this.minInlineWidth != null &&
@@ -16016,12 +16113,36 @@
 								graph.maxFitScale = prev;
 								graph.container.scrollTop -= border;
 								graph.container.scrollLeft -= border;
-								this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
 
 								window.setTimeout(mxUtils.bind(this, function()
 								{
+									this.fireEvent(new mxEventObject('editInlineStart', 'data', [data]));
 									graph.container.focus();
-								}), 0);
+
+									// Makes sure exit button is inside viewport
+									if (this.sketchFooterMenuElt != null)
+									{
+										this.sketchFooterMenuElt.scrollIntoView();
+									}
+
+									// Moves format window to top of graph
+									if (this.formatWindow != null &&
+										this.formatWindow.window != null &&
+										this.formatWindow.window.isVisible())
+									{
+										this.formatWindow.window.div.style.top =
+											graph.container.style.top;
+									}
+
+									// Centers horizontally
+									var bounds = graph.getGraphBounds();
+
+									if (graph.container.clientWidth > bounds.width + 2 * border)
+									{
+										graph.container.scrollLeft = bounds.x + ((bounds.width +
+											border) - graph.container.clientWidth) / 2;
+									}
+								}), 10);
 							});
 						}
 						

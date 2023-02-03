@@ -1356,7 +1356,7 @@ DriveClient.prototype.saveFile = function(file, revision, success, errFn, noChec
 	
 			try
 			{
-				EditorUi.logError(e.message, null, null, e);
+				EditorUi.logError(e.message, null, null, null, e);
 				
 //				EditorUi.sendReport('Critical error in DriveClient.saveFile ' +
 //					new Date().toISOString() + ':' +

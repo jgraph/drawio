@@ -1646,6 +1646,8 @@ Sidebar.prototype.addUmlPalette = function(expand)
 
 	var divider = new mxCell('', new mxGeometry(0, 0, 40, 8), 'line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;');
 	divider.vertex = true;
+
+	var sequenceEdgeStyle = 'newEdgeStyle={"edgeStyle":"elbowEdgeStyle","elbow":"vertical","curved":0,"rounded":0};';
 	
 	// Default tags
 	var dt = 'uml static class ';
@@ -1887,23 +1889,29 @@ Sidebar.prototype.addUmlPalette = function(expand)
 			return sb.createVertexTemplateFromCells([cell, edge], 200, 80, 'Fork/Join');
 		}),
 		this.createVertexTemplateEntry('ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;', 30, 30, '', 'End', null, null, 'uml activity state end'),
-		this.createVertexTemplateEntry('shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;', 100, 300, ':Object', 'Lifeline', null, null, 'uml sequence participant lifeline'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlActor;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;',
-				20, 300, '', 'Actor Lifeline', null, null, 'uml sequence participant lifeline actor'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlBoundary;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;',
-				50, 300, '', 'Boundary Lifeline', null, null, 'uml sequence participant lifeline boundary'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlEntity;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;',
-				40, 300, '', 'Entity Lifeline', null, null, 'uml sequence participant lifeline entity'),
-		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlControl;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;',
-				40, 300, '', 'Control Lifeline', null, null, 'uml sequence participant lifeline control'),
-		this.createVertexTemplateEntry('shape=umlFrame;whiteSpace=wrap;html=1;', 300, 200, 'frame', 'Frame', null, null, 'uml sequence frame'),
+		this.createVertexTemplateEntry('shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;' +
+			'collapsible=0;recursiveResize=0;outlineConnect=0;' + sequenceEdgeStyle, 100, 300, ':Object', 'Lifeline', null, null, 'uml sequence participant lifeline'),
+		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlActor;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
+			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
+			20, 300, '', 'Actor Lifeline', null, null, 'uml sequence participant lifeline actor'),
+		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlBoundary;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
+			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
+			50, 300, '', 'Boundary Lifeline', null, null, 'uml sequence participant lifeline boundary'),
+		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlEntity;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
+			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
+			40, 300, '', 'Entity Lifeline', null, null, 'uml sequence participant lifeline entity'),
+		this.createVertexTemplateEntry('shape=umlLifeline;participant=umlControl;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;' +
+			'container=1;collapsible=0;recursiveResize=0;verticalAlign=top;spacingTop=36;outlineConnect=0;' + sequenceEdgeStyle,
+			40, 300, '', 'Control Lifeline', null, null, 'uml sequence participant lifeline control'),
+		this.createVertexTemplateEntry('shape=umlFrame;whiteSpace=wrap;html=1;fillColor=none;pointerEvents=0;', 300, 200, 'frame', 'Frame', null, null, 'uml sequence frame'),
 		this.createVertexTemplateEntry('shape=umlDestroy;whiteSpace=wrap;html=1;strokeWidth=3;', 30, 30, '', 'Destruction', null, null, 'uml sequence destruction destroy'),
 		this.addEntry('uml sequence invoke invocation call activation', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;');
+	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
 	    	cell.vertex = true;
 	    	
-			var edge = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;startSize=8;');
+			var edge = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;startArrow=oval;endArrow=block;' +
+				'startSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
 			edge.geometry.setTerminalPoint(new mxPoint(-60, 0), true);
 			edge.geometry.relative = true;
 			edge.edge = true;
@@ -1914,18 +1922,20 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml sequence invoke call delegation synchronous invocation activation', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;');
+	    	var cell = new mxCell('', new mxGeometry(0, 0, 10, 80), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
 	    	cell.vertex = true;
 	    	
-			var edge1 = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;');
+			var edge1 = new mxCell('dispatch', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=block;' +
+				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
 			edge1.geometry.setTerminalPoint(new mxPoint(-70, 0), true);
 			edge1.geometry.relative = true;
 			edge1.edge = true;
 
 			cell.insertEdge(edge1, false);
 			
-			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;exitX=0;exitY=0.95;');
-			edge2.geometry.setTerminalPoint(new mxPoint(-70, 76), false);
+			var edge2 = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;' +
+				'endSize=8;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
+			edge2.geometry.setTerminalPoint(new mxPoint(-70, 75), false);
 			edge2.geometry.relative = true;
 			edge2.edge = true;
 			
@@ -1935,12 +1945,13 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml sequence self call recursion delegation activation', function()
 		{
-	    	var cell = new mxCell('', new mxGeometry(-5, 20, 10, 40), 'html=1;points=[];perimeter=orthogonalPerimeter;');
+	    	var cell = new mxCell('', new mxGeometry(-5, 20, 10, 40), 'html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle);
 	    	cell.vertex = true;
 	
-			var edge = new mxCell('self call', new mxGeometry(0, 0, 0, 0), 'edgeStyle=orthogonalEdgeStyle;html=1;align=left;spacingLeft=2;endArrow=block;rounded=0;entryX=1;entryY=0;');
+			var edge = new mxCell('self call', new mxGeometry(0, 0, 0, 0), 'html=1;align=left;spacingLeft=2;endArrow=block;' +
+				'rounded=0;edgeStyle=elbowEdgeStyle;elbow=horizontal;curved=0;rounded=0;');
 			edge.geometry.setTerminalPoint(new mxPoint(0, 0), true);
-			edge.geometry.points = [new mxPoint(30, 0)];
+			edge.geometry.points = [new mxPoint(30, 30)];
 			edge.geometry.relative = true;
 			edge.edge = true;
 			
@@ -1950,18 +1961,21 @@ Sidebar.prototype.addUmlPalette = function(expand)
 		}),
 		this.addEntry('uml sequence invoke call delegation callback activation', function()
 		{
-			// TODO: Check if more entries should be converted to compressed XML
-			return sb.createVertexTemplateFromData('xZRNT8MwDIZ/Ta6oaymD47rBTkiTuMAxW6wmIm0q19s6fj1OE3V0Y2iCA4dK8euP2I+riGxedUuUjX52CqzIHkU2R+conKpuDtaKNDFKZAuRpgl/In264J303qSRCDVdk5CGhJ20WwhKEFo62ChoqritxURkReNMTa2X80LkC68AmgoIkEWHpF3pamlXR7WIFwASdBeb7KXY4RIc5+KBQ/ZGkY4RYY5Egyl1zLqLmmyDXQ6Zx4n5EIf+HkB2BmAjrV3LzftPIPw4hgNn1pQ1a2tH5Cp2QK1miG7vNeu4iJe4pdeY2BtvbCQDGlAljMCQxBJotJ8rWCFYSWY3LvUdmZi68rvkkLiU6QnL1m1xAzHoBOdw61WEb88II9AW67/ydQ2wq1Cy1aAGvOrFfPh6997qDA3g+dxzv3nIL6MPU/8T+kMw8+m4QPgdfrEJNo8PSQj/+s58Ag==',
+			return sb.createVertexTemplateFromData('xZRNboMwEIVP4z3BTdJtgDarSpFyAgdGYNV46GBI0tPXYENCfqqoldoFEn7zZmzeZ8F4XB7WJKriDTNQjL8wHhOicW/lIQalWBjIjPGEhWFgHxa+3qnO+mpQCQJtHmkIXUMrVANOcUJtjsoLhSntsZIZ41GFUpu6k+cRmyedAiRLMEBWRDIF5qiF2pzUCBujpIYYtYa0O1NgRQ37lyyH7bDLMmLh4qPpvjqCsTBKjK/O6mqHZ90nUxhfmO4MaIGMTIW605o21EI26Q0mBsJGZ1eOZdIP6tO0G8DhLpFe8jjWgDYoOlrLXmam8A4HLShA5oXvWnhN1G6dj50nvPbFE75Nm1/RtjGonUjfv6M+5LVSMtdW26ExWHYh62xFZHO2mkI75BweTy5ADVB4MgIYw3a3YgjWrdyRuoGTJI2gHMzk9j4QLoESRrbTUbei9K2b7qZbi6e4vAi/xoZS8KaL/MddH0LydIWEwDSkfwsEK7ClKBN10Sc6c+Wt/OzmPf8JKpfSP6E6uuV8Ph3grs8PyNnl6bfs7Od/7S8=',
 				10, 60, 'Callback');
 		}),
-		this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;', 10, 80, '', 'Activation', null, null, 'uml sequence activation'),
+		this.createVertexTemplateEntry('html=1;points=[];perimeter=orthogonalPerimeter;outlineConnect=0;' + sequenceEdgeStyle, 10, 80, '', 'Activation', null, null, 'uml sequence activation'),
 		
-	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
-	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;', 80, 0, 'dispatch', 'Found Message 2', null, 'uml sequence message call invoke dispatch'),
-	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;endArrow=block;', 80, 0, 'dispatch', 'Message', null, 'uml sequence message call invoke dispatch'),
+	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=oval;startFill=1;endArrow=block;startSize=8;' +
+		 	'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;', 60, 0, 'dispatch', 'Found Message 1', null, 'uml sequence message call invoke dispatch'),
+	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;startArrow=circle;startFill=1;endArrow=open;startSize=6;endSize=8;' +
+			 'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;', 80, 0, 'dispatch', 'Found Message 2', null, 'uml sequence message call invoke dispatch'),
+	 	this.createEdgeTemplateEntry('html=1;verticalAlign=bottom;endArrow=block;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;',
+			80, 0, 'dispatch', 'Message', null, 'uml sequence message call invoke dispatch'),
 		this.addEntry('uml sequence return message', function()
 		{
-			var edge = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;');
+			var edge = new mxCell('return', new mxGeometry(0, 0, 0, 0), 'html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;' +
+				'edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;');
 			edge.geometry.setTerminalPoint(new mxPoint(80, 0), true);
 			edge.geometry.setTerminalPoint(new mxPoint(0, 0), false);
 			edge.geometry.relative = true;

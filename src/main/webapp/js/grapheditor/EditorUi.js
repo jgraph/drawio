@@ -2284,9 +2284,9 @@ EditorUi.prototype.isImmediateEditingEvent = function(evt)
  */
 EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marker, fill)
 {
-	markerDiv.style.verticalAlign = 'top';
-	markerDiv.style.height = '21px';
-	markerDiv.style.width = '21px';
+	markerDiv.style.display = 'inline-flex';
+	markerDiv.style.alignItems = 'center';
+	markerDiv.style.justifyContent = 'center';
 	markerDiv.innerText = '';
 
 	if (shape == 'flexArrow')
@@ -2302,8 +2302,6 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 		{
 			var img = document.createElement('img');
 			img.className = 'geAdaptiveAsset';
-			img.style.position = 'absolute';
-			img.style.marginTop = '0.5px';
 			img.setAttribute('src', src);
 			markerDiv.className = '';
 
@@ -2319,12 +2317,8 @@ EditorUi.prototype.updateCssForMarker = function(markerDiv, prefix, shape, marke
 			markerDiv.className = 'geSprite geSprite-noarrow';
 			markerDiv.innerHTML = mxUtils.htmlEntities(mxResources.get('none'));
 			markerDiv.style.backgroundImage = 'none';
-			markerDiv.style.verticalAlign = 'top';
-			markerDiv.style.marginTop = '4px';
-			markerDiv.style.fontSize = '10px';
+			markerDiv.style.fontSize = '11px';
 			markerDiv.style.filter = 'none';
-			markerDiv.style.color = this.defaultStrokeColor;
-			markerDiv.nextSibling.style.marginTop = '0px';
 		}
 	}
 };

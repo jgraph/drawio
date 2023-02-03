@@ -371,13 +371,13 @@ App.loadScripts = function(scripts, onload, onerror)
 			{
 				onload();
 			}
-		}, null, null, null, function(e)
+		}, null, null, null, function(message)
 		{
 			failed = true;
 
 			if (onerror != null)
 			{
-				onerror(e);
+				onerror(new Error(message));
 			}
 		});
 	}
@@ -1047,7 +1047,7 @@ App.main = function(callback, createUi)
 						}
 						else
 						{
-							EditorUi.logError(e.message, null, null, e);
+							EditorUi.logError(e.message, null, null, null, e);
 							alert(e.message);
 						}
 					}
@@ -1061,7 +1061,13 @@ App.main = function(callback, createUi)
 				{
 					mxStencilRegistry.allowEval = false;
 					App.loadScripts(['js/shapes-14-6-5.min.js', 'js/stencils.min.js',
-						'js/extensions.min.js'], realMain);
+						'js/extensions.min.js'], realMain, function(e)
+						{
+							document.body.innerHTML = '';
+							var pre = document.createElement('pre');
+							mxUtils.write(pre, e.stack);
+							document.body.appendChild(pre);
+						});
 				}
 			}, function(xhr)
 			{
@@ -1155,7 +1161,7 @@ App.main = function(callback, createUi)
 						}
 					}
 				}
-			
+				
 				// Adds required resources (disables loading of fallback properties, this can only
 				// be used if we know that all keys are defined in the language specific file)
 				mxResources.loadDefaultBundle = false;
@@ -1164,16 +1170,10 @@ App.main = function(callback, createUi)
 			}
 			catch (e)
 			{
-				if (EditorUi.isElectronApp)
-				{
-					mxLog.show();
-					mxLog.debug(e.stack);
-				}
-				else
-				{
-					EditorUi.logError(e.message, null, null, e);
-					alert(e.message);
-				}
+				document.body.innerHTML = '';
+				var pre = document.createElement('pre');
+				mxUtils.write(pre, e.stack);
+				document.body.appendChild(pre);
 			}
 		};
 
@@ -1285,15 +1285,10 @@ App.main = function(callback, createUi)
 	}
 	catch (e)
 	{
-		if (window.console != null && !EditorUi.isElectronApp)
-		{
-			console.error(e);
-		}
-		else
-		{
-			mxLog.show();
-			mxLog.debug(e.stack);
-		}
+		document.body.innerHTML = '';
+		var pre = document.createElement('pre');
+		mxUtils.write(pre, e.stack);
+		document.body.appendChild(pre);
 	}
 };
 
@@ -2939,64 +2934,80 @@ App.prototype.loadGapi = function(then)
  */
 App.prototype.load = function()
 {
-	// Checks if we're running in embedded mode
-	if (urlParams['embed'] != '1')
+	try
 	{
-		if (this.spinner.spin(document.body, mxResources.get('starting')))
+		// Checks if we're running in embedded mode
+		if (urlParams['embed'] != '1')
 		{
-			try
+			if (this.spinner.spin(document.body, mxResources.get('starting')))
 			{
-				this.stateArg = (urlParams['state'] != null && this.drive != null) ? JSON.parse(decodeURIComponent(urlParams['state'])) : null;
-			}
-			catch (e)
-			{
-				// ignores invalid state args
-			}
-			
-			this.editor.graph.setEnabled(this.getCurrentFile() != null);
-			
-			// Passes the userId from the state parameter to the client
-			if ((window.location.hash == null || window.location.hash.length == 0) &&
-				this.drive != null && this.stateArg != null && this.stateArg.userId != null)
-			{
-				this.drive.setUserId(this.stateArg.userId);
-			}
-
-			// Legacy support for fileId parameter which is moved to the hash tag
-			if (urlParams['fileId'] != null)
-			{
-				window.location.hash = 'G' + urlParams['fileId'];
-				window.location.search = this.getSearch(['fileId']);
-			}
-			else
-			{
-				// Asynchronous or disabled loading of client
-				if (this.drive == null)
+				try
 				{
-					if (this.mode == App.MODE_GOOGLE)
-					{
-						this.mode = null;
-					}
-					
-					this.start();
+					this.stateArg = (urlParams['state'] != null && this.drive != null) ? JSON.parse(decodeURIComponent(urlParams['state'])) : null;
+				}
+				catch (e)
+				{
+					// ignores invalid state args
+				}
+				
+				this.editor.graph.setEnabled(this.getCurrentFile() != null);
+				
+				// Passes the userId from the state parameter to the client
+				if ((window.location.hash == null || window.location.hash.length == 0) &&
+					this.drive != null && this.stateArg != null && this.stateArg.userId != null)
+				{
+					this.drive.setUserId(this.stateArg.userId);
+				}
+
+				// Legacy support for fileId parameter which is moved to the hash tag
+				if (urlParams['fileId'] != null)
+				{
+					window.location.hash = 'G' + urlParams['fileId'];
+					window.location.search = this.getSearch(['fileId']);
 				}
 				else
 				{
-					this.loadGapi(mxUtils.bind(this, function()
+					// Asynchronous or disabled loading of client
+					if (this.drive == null)
 					{
+						if (this.mode == App.MODE_GOOGLE)
+						{
+							this.mode = null;
+						}
+						
 						this.start();
-					}));
+					}
+					else
+					{
+						this.loadGapi(mxUtils.bind(this, function()
+						{
+							this.start();
+						}));
+					}
 				}
 			}
 		}
-	}
-	else
-	{
-		this.restoreLibraries();
-		
-		if (urlParams['gapi'] == '1')
+		else
 		{
-			this.loadGapi(function() {});
+			this.restoreLibraries();
+			
+			if (urlParams['gapi'] == '1')
+			{
+				this.loadGapi(function() {});
+			}
+		}
+	}
+	catch (e)
+	{
+		if (EditorUi.isElectronApp)
+		{
+			mxLog.show();
+			mxLog.debug(e.stack);
+		}
+		else
+		{
+			EditorUi.logError(e.message, null, null, null, e);
+			alert(e.message);
 		}
 	}
 };

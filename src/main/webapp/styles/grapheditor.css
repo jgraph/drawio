@@ -3,7 +3,8 @@
 	--border-color: #dadce0;
 	--text-color: #707070;
 }
-.geEditor *, div.mxWindow, .mxWindowTitle {
+.geEditor *, div.mxWindow, .mxWindowTitle,
+.geEditor .geToolbarContainer .geColorButton {
 	border-color:var(--border-color);
 }
 html div.mxWindow, .geDialog, .geSketch .geToolbarContainer {
@@ -119,7 +120,8 @@ html > body > div > div.geToolbarContainer.geSimpleMainMenu .geToolbarContainer{
 	display:block;
 	width:100%;
 }
-.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel, .geSidebar, .geSidebarContainer .geTitle, .geSidebar .geItem, .mxPopupMenuItem {
+.geMenubarContainer .geItem, .geToolbar .geButton, .geToolbar .geLabel,
+.geSidebar, .geSidebar .geItem, .mxPopupMenuItem {
 	-webkit-transition: all 0.1s ease-in-out;
 	-moz-transition: all 0.1s ease-in-out;
 	-o-transition: all 0.1s ease-in-out;
@@ -225,15 +227,15 @@ a.geStatus .geStatusMessage {
 	-moz-box-shadow: 2px 2px 3px 0px #ddd;
 	box-shadow: 2px 2px 3px 0px #ddd;
 }
-.geEditor input, .geEditor button, .geEditor select {
+.geEditor input, .geEditor button, .geEditor select, .geColorBtn {
 	border: 1px solid #d8d8d8;
 	border-radius: 4px;
 }
-.geEditor button, .geEditor select {
+.geEditor button, .geEditor select, .geColorBtn {
 	background:#eee;
 }
 .geEditor button:hover:not([disabled], .geBigButton, .geShareBtn),
-.geEditor select:hover:not([disabled]) {
+.geEditor select:hover:not([disabled]), .geColorBtn:hover:not([disabled]) {
 	background:#e5e5e5;
 }
 .geColorDropper {
@@ -302,22 +304,13 @@ a.geStatus .geStatusMessage {
 	background-color: #4d90fe;
 	background-image: linear-gradient(#4d90fe 0px,#357ae8 100%);
 }
-.geColorBtn {
+html .geColorBtn {
 	padding: 0px;
 }
-.geColorBtn:hover {
-	-webkit-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-	-moz-box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-	box-shadow: 0px 1px 1px rgba(0,0,0,0.1);
-	border: 1px solid rgba(0,0,0,0.7);
-}
-.geColorBtn:active {
-	opacity: 0.7;
-}
-.geColorBtn:disabled {
+html .geColorBtn:disabled {
 	opacity: 0.5;
 }
-.gePrimaryBtn {
+html .gePrimaryBtn {
 	background-color: #4d90fe;
 	background-image: linear-gradient(#4d90fe 0px,#4787ed 100%);
 	border: 1px solid #3079ed;
@@ -952,7 +945,7 @@ html td.mxPopupMenuItem {
 	font-size:10pt;
 }
 html td.mxPopupMenuIcon {
-	background-color:white;
+	background-color:transparent;
 	padding:0px;
 }
 td.mxPopupMenuIcon .geIcon {
@@ -961,11 +954,6 @@ td.mxPopupMenuIcon .geIcon {
 	margin:2px;
 	border:1px solid transparent;
 	opacity:0.5;
-}
-td.mxPopupMenuIcon .geIcon:hover {
-	border:1px solid gray;
-	border-radius:2px;
-	opacity:1;
 }
 html tr.mxPopupMenuItemHover {
 	background-color: #e0e0e0;
